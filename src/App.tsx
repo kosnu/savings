@@ -1,7 +1,12 @@
+import { AppProviders } from "./components/AppProviders"
+import { TopPage } from "./pages/TopPage"
+
 function App() {
   return (
     <>
-      <p>Top</p>
+      <AppProviders>
+        <TopPage />
+      </AppProviders>
     </>
   )
 }
