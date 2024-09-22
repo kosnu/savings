@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "check": "biome check src/",
-    "check-write": "biome check --write src/ ",
+    "check-write": "biome check --write . ",
     "test": "vitest run",
     "test-watch": "vitest watch"
   },
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.2",
+    "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
