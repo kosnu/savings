@@ -1,6 +1,7 @@
 import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3"
 import type { ReactNode } from "react"
+import { FirestoreProvider } from "./networks/firebase"
 
 interface AppProvidersProps {
   children: ReactNode
@@ -9,9 +10,11 @@ interface AppProvidersProps {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        {children}
-      </LocalizationProvider>
+      <FirestoreProvider>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          {children}
+        </LocalizationProvider>
+      </FirestoreProvider>
     </>
   )
 }
