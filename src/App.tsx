@@ -1,4 +1,4 @@
-import { AppProviders } from "./components/AppProviders"
+import { AppProviders } from "./AppProviders"
 import { TopPage } from "./pages/TopPage"
 
 function App() {
