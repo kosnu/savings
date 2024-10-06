@@ -13,26 +13,26 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
-    "@fontsource/roboto": "^5.1.0",
-    "@mui/icons-material": "^6.1.1",
-    "@mui/material": "^6.1.1",
-    "@mui/x-date-pickers": "^7.18.0",
-    "date-fns": "^4.1.0",
-    "firebase": "^10.13.2",
+    "@emotion/react": "11.13.3",
+    "@emotion/styled": "11.13.0",
+    "@fontsource/roboto": "5.1.0",
+    "@mui/icons-material": "6.1.1",
+    "@mui/material": "6.1.1",
+    "@mui/x-date-pickers": "7.18.0",
+    "date-fns": "4.1.0",
+    "firebase": "10.13.2",
     "react": "18.3.0-canary-388686f29-20230503",
     "react-dom": "18.3.0-canary-546178f91-20231005"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.2",
-    "@types/node": "^22.5.5",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "typescript": "^5.5.3",
-    "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1",
-    "vitest": "^2.1.1"
+    "@types/node": "22.5.5",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react": "4.3.1",
+    "typescript": "5.5.3",
+    "typescript-eslint": "8.0.1",
+    "vite": "5.4.8",
+    "vitest": "2.1.1"
   }
 }
