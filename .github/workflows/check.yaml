@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/check.yaml"
       - "src/**"
+      - "*.json"
     types: [opened, synchronize]
 jobs:
   check:
