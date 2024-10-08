@@ -1,11 +1,11 @@
 import { AppProviders } from "./AppProviders"
-import { TopPage } from "./pages/TopPage"
+import { RouterProvider } from "./utils/routes/RouterProvier"
 
 function App() {
   return (
     <>
       <AppProviders>
-        <TopPage />
+        <RouterProvider />
       </AppProviders>
     </>
   )
