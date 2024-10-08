@@ -3,7 +3,7 @@ import { useCallback } from "react"
 import { useCreatePayment } from "../../features/createPayment"
 import { PaymentList } from "../../features/listPayment"
 
-export function TopPage() {
+export function PaymentsPage() {
   const { open, CreatePaymentModal } = useCreatePayment()
 
   const handleCreatePaymentButtonClick = useCallback(() => {
