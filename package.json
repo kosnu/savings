@@ -20,7 +20,7 @@
     "@mui/material": "6.1.3",
     "@mui/x-date-pickers": "7.19.0",
     "date-fns": "4.1.0",
-    "firebase": "10.14.0",
+    "firebase": "10.14.1",
     "react": "18.3.0-canary-388686f29-20230503",
     "react-dom": "18.3.0-canary-546178f91-20231005",
     "react-router-dom": "6.26.2"
