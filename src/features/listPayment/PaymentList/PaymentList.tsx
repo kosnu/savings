@@ -20,22 +20,23 @@ export const PaymentList = memo(function PaymentList() {
 
   return (
     <>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ maxWidth: 120 }}>Date</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell align="right">Price&nbsp;(¥)</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <Suspense fallback={<CircularProgress />}>
+      <Suspense fallback={<CircularProgress />}>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ maxWidth: 120 }}>Date</TableCell>
+                <TableCell>Title</TableCell>
+                <TableCell align="right">Price&nbsp;(¥)</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
               <Body getPayments={getPayments} />
-            </Suspense>
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Suspense>
     </>
   )
 })
