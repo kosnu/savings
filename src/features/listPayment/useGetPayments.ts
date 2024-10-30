@@ -3,7 +3,6 @@ import { collection, doc, getDocs, query, where } from "firebase/firestore"
 import { useCallback } from "react"
 import { useFirestore } from "../../networks/firebase"
 import type { Payment } from "../../types/payment"
-import { userAuth } from "../../utils/auth/AuthProvider"
 
 interface UseGetPaymentsReturn {
   getPayments: () => Promise<Payment[]>
