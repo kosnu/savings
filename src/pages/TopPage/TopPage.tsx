@@ -1,22 +1,33 @@
-import { Button } from "@mui/material"
+import { Button, Container, Paper, Typography } from "@mui/material"
 import { useCallback } from "react"
-import { useCreatePayment } from "../../features/createPayment"
-import { PaymentList } from "../../features/listPayment"
+import { useNavigate } from "react-router-dom"
+import { useFirestore } from "../../networks/firebase"
+import { signIn } from "../../utils/auth/signIn"
 
 export function TopPage() {
-  const { open, CreatePaymentModal } = useCreatePayment()
+  const db = useFirestore()
+  const navigate = useNavigate()
 
-  const handleCreatePaymentButtonClick = useCallback(() => {
-    open()
-  }, [open])
+  const handleSingin = useCallback(async () => {
+    try {
+      await signIn(db)
+      navigate("/payments")
+    } catch (error) {
+      console.error(error)
+    }
+  }, [db, navigate])
 
   return (
     <>
-      <Button variant="contained" onClick={handleCreatePaymentButtonClick}>
-        Create payment
-      </Button>
-      <PaymentList />
-      <CreatePaymentModal />
+      {/* TODO: ログインしていたらダッシュボードを表示する */}
+      <Container maxWidth="md" sx={{ p: 2 }}>
+        <Paper elevation={1} sx={{ p: 4 }}>
+          <Typography variant="h2">My Savings</Typography>
+          <Button variant="contained" onClick={handleSingin}>
+            ログイン
+          </Button>
+        </Paper>
+      </Container>
     </>
   )
 }
