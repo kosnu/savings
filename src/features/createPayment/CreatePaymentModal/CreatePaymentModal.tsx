@@ -8,7 +8,7 @@ import {
 import { useCallback } from "react"
 import { CreatePaymentForm } from "../CreatePaymentForm/CreatePaymentForm"
 import "firebase/firestore"
-import { useFirestore } from "../../../networks/firebase"
+import { useFirestore } from "../../../utils/firebase"
 import { formatDateToIsoString } from "../../../utils/formatter/formatDateToIsoString"
 import { addPayment } from "../addPayment"
 
