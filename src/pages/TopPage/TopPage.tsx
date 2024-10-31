@@ -1,8 +1,8 @@
 import { Button, Container, Paper, Typography } from "@mui/material"
 import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { useFirestore } from "../../networks/firebase"
 import { signIn } from "../../utils/auth/signIn"
+import { useFirestore } from "../../utils/firebase"
 
 export function TopPage() {
   const db = useFirestore()
