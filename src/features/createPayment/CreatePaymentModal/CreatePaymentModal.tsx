@@ -8,8 +8,8 @@ import {
 import { useCallback } from "react"
 import { CreatePaymentForm } from "../CreatePaymentForm/CreatePaymentForm"
 import "firebase/firestore"
-import { formatDateToIsoString } from "../../../libs/formatDateToIsoString"
 import { useFirestore } from "../../../networks/firebase"
+import { formatDateToIsoString } from "../../../utils/formatter/formatDateToIsoString"
 import { addPayment } from "../addPayment"
 
 interface CreatePaymentModalProps {
