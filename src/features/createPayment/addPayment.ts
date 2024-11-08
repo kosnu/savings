@@ -1,20 +1,25 @@
-import { type Firestore, addDoc, collection } from "firebase/firestore"
+import {
+  type Firestore,
+  addDoc,
+  collection,
+  serverTimestamp,
+} from "firebase/firestore"
 
 interface AddPaymentProps {
   db: Firestore
+  userId: string
   value: {
     date: string
     title: string
     price: number
-    createdDate: string
-    updatedDate: string
   }
 }
 
-export async function addPayment({ db, value }: AddPaymentProps) {
-  return await addDoc(collection(db, "payments"), {
+export async function addPayment({ db, userId, value }: AddPaymentProps) {
+  return await addDoc(collection(db, `users/${userId}/payments`), {
     ...value,
-    created_date: value.createdDate,
-    updated_date: value.updatedDate,
+    user_id: userId,
+    created_date: serverTimestamp(),
+    updated_date: serverTimestamp(),
   })
 }

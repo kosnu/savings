@@ -8,14 +8,14 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material"
-import { Suspense, memo, use } from "react"
+import { Suspense, use } from "react"
 import {} from "react/canary"
 import type { Payment } from "../../../types/payment"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 import { useGetPayments } from "../useGetPayments"
 
 // FIXME: 支払い情報を追加してもリストが更新されない
-export const PaymentList = memo(function PaymentList() {
+export function PaymentList() {
   const { getPayments } = useGetPayments()
 
   return (
@@ -39,7 +39,7 @@ export const PaymentList = memo(function PaymentList() {
       </Suspense>
     </>
   )
-})
+}
 
 function Body({ getPayments }: { getPayments: () => Promise<Payment[]> }) {
   const data = use(getPayments())
