@@ -6,10 +6,10 @@ import {
   DialogTitle,
 } from "@mui/material"
 import { useCallback } from "react"
-import { CreatePaymentForm } from "../CreatePaymentForm/CreatePaymentForm"
-import "firebase/firestore"
+import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../../utils/firebase"
 import { formatDateToIsoString } from "../../../utils/formatter/formatDateToIsoString"
+import { CreatePaymentForm } from "../CreatePaymentForm/CreatePaymentForm"
 import { addPayment } from "../addPayment"
 
 interface CreatePaymentModalProps {
@@ -18,26 +18,26 @@ interface CreatePaymentModalProps {
 }
 
 export function CreatePaymentModal({ open, onClose }: CreatePaymentModalProps) {
+  const { currentUser } = useAuthCurrentUser()
   const db = useFirestore()
 
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
+      if (!currentUser) return
+
       const formData = new FormData(event.currentTarget)
       const formJson = Object.fromEntries(formData.entries())
       console.debug("formJson)", formJson)
 
-      const now = formatDateToIsoString(new Date())
-
       try {
         await addPayment({
           db: db,
+          userId: currentUser.uid,
           value: {
             date: formatDateToIsoString(formJson.date as string),
             title: formJson.title.toString(),
             price: Number.parseInt(formJson.price.toString(), 10),
-            createdDate: now,
-            updatedDate: now,
           },
         })
       } catch (e) {
@@ -46,7 +46,7 @@ export function CreatePaymentModal({ open, onClose }: CreatePaymentModalProps) {
 
       onClose()
     },
-    [db, onClose],
+    [db, onClose, currentUser],
   )
 
   return (

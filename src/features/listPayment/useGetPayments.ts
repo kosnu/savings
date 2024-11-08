@@ -1,7 +1,7 @@
-import { getAuth } from "firebase/auth"
-import { collection, doc, getDocs, query, where } from "firebase/firestore"
+import { collection, getDocs, query, where } from "firebase/firestore"
 import { useCallback } from "react"
 import type { Payment } from "../../types/payment"
+import { useAuthCurrentUser } from "../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../utils/firebase"
 
 interface UseGetPaymentsReturn {
@@ -9,21 +9,22 @@ interface UseGetPaymentsReturn {
 }
 
 export function useGetPayments(): UseGetPaymentsReturn {
-  const auth = getAuth()
+  const { currentUser } = useAuthCurrentUser()
   const db = useFirestore()
 
-  const getPayments = useCallback(async () => {
-    // FIXME: 要リファクタリング - ページ読み込み時に支払い情報を取得できない
-    if (!auth.currentUser) return []
+  const getPayments = useCallback(async (): Promise<Payment[]> => {
+    if (!currentUser) {
+      return []
+    }
 
-    const userDocRef = doc(db, "users", auth.currentUser.uid)
-    const paymentsCollection = collection(db, "payments")
-    const result = await getDocs(
-      query(paymentsCollection, where("user_id", "==", userDocRef)),
+    const paymentsRef = collection(db, `users/${currentUser.uid}/payments`)
+    const querySnapshot = await getDocs(
+      query(paymentsRef, where("user_id", "==", currentUser.uid)),
     )
 
-    return result.docs.map((doc) => {
+    const payments = querySnapshot.docs.map((doc) => {
       const data = doc.data()
+
       // FIXME: as をやめてconverterを使う
       return {
         id: doc.id,
@@ -34,7 +35,9 @@ export function useGetPayments(): UseGetPaymentsReturn {
         updatedDate: data.updatedDate as Date,
       }
     })
-  }, [db, auth])
+
+    return payments
+  }, [db, currentUser])
 
   return {
     getPayments: getPayments,
