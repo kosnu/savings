@@ -4,12 +4,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  TextField,
 } from "@mui/material"
+import { DatePicker } from "@mui/x-date-pickers"
 import { useCallback } from "react"
 import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../../utils/firebase"
 import { formatDateToIsoString } from "../../../utils/formatter/formatDateToIsoString"
-import { CreatePaymentForm } from "../CreatePaymentForm/CreatePaymentForm"
 import { addPayment } from "../addPayment"
 
 interface CreatePaymentModalProps {
@@ -28,7 +29,6 @@ export function CreatePaymentModal({ open, onClose }: CreatePaymentModalProps) {
 
       const formData = new FormData(event.currentTarget)
       const formJson = Object.fromEntries(formData.entries())
-      console.debug("formJson)", formJson)
 
       try {
         await addPayment({
@@ -61,7 +61,36 @@ export function CreatePaymentModal({ open, onClose }: CreatePaymentModalProps) {
       >
         <DialogTitle>Create payment</DialogTitle>
         <DialogContent>
-          <CreatePaymentForm />
+          <DatePicker
+            label="Date"
+            format="yyyy/MM/dd"
+            name="date"
+            slotProps={{
+              textField: {
+                variant: "standard",
+              },
+              field: { readOnly: true },
+            }}
+          />
+          <TextField
+            autoFocus
+            required
+            id="name"
+            name="title"
+            label="Title"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            autoFocus
+            required
+            id="name"
+            name="price"
+            label="Price"
+            type="number"
+            fullWidth
+            variant="standard"
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
