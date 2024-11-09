@@ -9,4 +9,9 @@ export default defineConfig({
       "react/canary": "react",
     },
   },
+  css: {
+    modules: {
+      localsConvention: "dashes",
+    },
+  },
 })
