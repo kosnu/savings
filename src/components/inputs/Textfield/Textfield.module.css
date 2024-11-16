@@ -1,0 +1,35 @@
+.textfield-root {
+  --base-color: var(--primary-color);
+
+  box-sizing: border-box;
+}
+
+.textfield-fieldset {
+  margin: 0;
+  padding: 2px 4px 4px 6px;
+  border: rgb(from var(--base-color) r g b / 0.4) solid 1px;
+  border-radius: 0.2rem;
+  box-sizing: border-box;
+}
+
+.textfield-fieldset:focus-within,
+.textfield-fieldset:hover {
+  border-color: var(--base-color);
+}
+
+.textfield-input {
+  width: 100%;
+  color: var(--base-color);
+  border: none;
+}
+
+.textfield-input:focus {
+  outline: none;
+}
+
+.textfield-input::-webkit-inner-spin-button,
+.textfield-input::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
