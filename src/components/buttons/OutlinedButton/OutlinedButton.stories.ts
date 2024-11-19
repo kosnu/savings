@@ -11,7 +11,6 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {},
   args: {
-    variant: "outlined",
     onClick: fn(),
   },
 } satisfies Meta<typeof OutlinedButton>
