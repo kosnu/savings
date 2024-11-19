@@ -1,0 +1,11 @@
+.button-primary {
+  --base-color: var(--primary-color);
+
+  background-color: var(--base-color);
+  color: var(--text-contrast-color);
+}
+
+.button-primary:focus,
+.button-primary:hover {
+  opacity: 0.9;
+}
