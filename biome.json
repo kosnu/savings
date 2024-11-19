@@ -22,9 +22,6 @@
       "recommended": true,
       "nursery": {
         "useConsistentCurlyBraces": "error"
-      },
-      "correctness": {
-        "noUnusedImports": "error"
       }
     }
   },
