@@ -11,7 +11,6 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {},
   args: {
-    variant: "text",
     onClick: fn(),
   },
 } satisfies Meta<typeof TextButton>

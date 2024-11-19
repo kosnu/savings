@@ -11,7 +11,6 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {},
   args: {
-    variant: "contained",
     onClick: fn(),
   },
 } satisfies Meta<typeof ContainedButton>
