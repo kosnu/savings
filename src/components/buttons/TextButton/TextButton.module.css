@@ -1,0 +1,12 @@
+.button-primary {
+  --base-color: var(--primary-color);
+
+  background-color: transparent;
+  color: var(--base-color);
+}
+
+.button-primary:focus,
+.button-primary:hover {
+  background-color: rgb(from var(--base-color) r g b / 6%);
+  outline: none;
+}
