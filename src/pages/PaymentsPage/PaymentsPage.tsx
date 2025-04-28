@@ -1,5 +1,5 @@
-import { Button } from "@mui/material"
 import { useCallback } from "react"
+import { ContainedButton } from "../../components/buttons/ContainedButton"
 import { useCreatePayment } from "../../features/createPayment"
 import { PaymentList } from "../../features/listPayment"
 
@@ -12,9 +12,9 @@ export function PaymentsPage() {
 
   return (
     <>
-      <Button variant="contained" onClick={handleCreatePaymentButtonClick}>
+      <ContainedButton onClick={handleCreatePaymentButtonClick}>
         Create payment
-      </Button>
+      </ContainedButton>
       <PaymentList />
       <CreatePaymentModal />
     </>
