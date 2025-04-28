@@ -1,6 +1,8 @@
-import { Button, Container, Paper, Typography } from "@mui/material"
 import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
+import { ContainedButton } from "../../components/buttons/ContainedButton"
+import { Container } from "../../components/layouts/Container"
+import { Paper } from "../../components/misc/Paper"
 import { signIn } from "../../utils/auth/signIn"
 import { useFirestore } from "../../utils/firebase"
 
@@ -20,12 +22,10 @@ export function TopPage() {
   return (
     <>
       {/* TODO: ログインしていたらダッシュボードを表示する */}
-      <Container maxWidth="md" sx={{ p: 2 }}>
-        <Paper elevation={1} sx={{ p: 4 }}>
-          <Typography variant="h2">My Savings</Typography>
-          <Button variant="contained" onClick={handleSingin}>
-            ログイン
-          </Button>
+      <Container size="small">
+        <Paper>
+          <h2>My Savings</h2>
+          <ContainedButton onClick={handleSingin}>ログイン</ContainedButton>
         </Paper>
       </Container>
     </>
