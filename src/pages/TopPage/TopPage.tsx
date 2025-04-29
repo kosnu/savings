@@ -13,7 +13,7 @@ export function TopPage() {
   const handleSingin = useCallback(async () => {
     try {
       await signIn(db)
-      navigate("/payments")
+      await navigate("/payments")
     } catch (error) {
       console.error(error)
     }
