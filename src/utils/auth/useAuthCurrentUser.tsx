@@ -1,4 +1,4 @@
-import { type User, getAuth } from "firebase/auth"
+import { type User, getAuth, onAuthStateChanged } from "firebase/auth"
 import { useEffect, useState } from "react"
 
 interface UseAuthCurrentUserReturn {
@@ -6,16 +6,21 @@ interface UseAuthCurrentUserReturn {
 }
 
 export function useAuthCurrentUser(): UseAuthCurrentUserReturn {
+  const auth = getAuth()
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const auth = getAuth()
-    auth.onAuthStateChanged((user) => {
-      if (user) {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
         setCurrentUser(user)
-      }
-    })
-  }, [])
+      },
+      (error) => {
+        console.error("Failed to listen to auth state changes:", error)
+      },
+    )
+    return () => unsubscribe()
+  }, [auth])
 
   return {
     currentUser: currentUser,
