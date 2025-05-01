@@ -24,7 +24,7 @@
         "useConsistentCurlyBraces": "error"
       },
       "a11y": {
-        "noLabelWithoutControl":{
+        "noLabelWithoutControl": {
           "level": "error",
           "options": {
             "inputComponents": ["TextField", "DayPicker"],
