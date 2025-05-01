@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { userEvent, within } from "@storybook/test"
 import { screen } from "@testing-library/react"
-import { useState } from "react"
 import { DatePicker } from "./DatePicker"
 
 const meta = {
@@ -24,18 +23,6 @@ export const Default: Story = {
     label: "Date",
     name: "date",
     mode: "single",
-  },
-  render: (args) => {
-    const [selected, setSelected] = useState<Date>()
-
-    return (
-      <DatePicker
-        {...args}
-        mode="single"
-        value={selected}
-        onChange={setSelected}
-      />
-    )
   },
 }
 
