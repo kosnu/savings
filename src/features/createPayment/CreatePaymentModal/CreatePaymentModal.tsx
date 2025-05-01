@@ -1,24 +1,12 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-} from "@mui/material"
-import { DatePicker } from "@mui/x-date-pickers"
+import { Button, Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
+import { DatePicker } from "../../../components/inputs/DatePicker"
+import { Textfield } from "../../../components/inputs/Textfield"
 import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../../utils/firebase"
-import { formatDateToIsoString } from "../../../utils/formatter/formatDateToIsoString"
 import { addPayment } from "../addPayment"
 
-interface CreatePaymentModalProps {
-  open: boolean
-  onClose: () => void
-}
-
-export function CreatePaymentModal({ open, onClose }: CreatePaymentModalProps) {
+export function CreatePaymentModal() {
   const { currentUser } = useAuthCurrentUser()
   const db = useFirestore()
 
@@ -35,7 +23,7 @@ export function CreatePaymentModal({ open, onClose }: CreatePaymentModalProps) {
           db: db,
           userId: currentUser.uid,
           value: {
-            date: formatDateToIsoString(formJson.date as string),
+            date: formJson.date.toString(),
             title: formJson.title.toString(),
             price: Number.parseInt(formJson.price.toString(), 10),
           },
@@ -43,60 +31,40 @@ export function CreatePaymentModal({ open, onClose }: CreatePaymentModalProps) {
       } catch (e) {
         console.error("Error adding document: ", e)
       }
-
-      onClose()
     },
-    [db, onClose, currentUser],
+    [db, currentUser],
   )
 
   return (
     <>
-      <Dialog
-        open={open}
-        onClose={onClose}
-        PaperProps={{
-          component: "form",
-          onSubmit: handleSubmit,
-        }}
-      >
-        <DialogTitle>Create payment</DialogTitle>
-        <DialogContent>
-          <DatePicker
-            label="Date"
-            format="yyyy/MM/dd"
-            name="date"
-            slotProps={{
-              textField: {
-                variant: "standard",
-              },
-              field: { readOnly: true },
-            }}
-          />
-          <TextField
-            autoFocus
-            required
-            id="name"
-            name="title"
-            label="Title"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            autoFocus
-            required
-            id="name"
-            name="price"
-            label="Price"
-            type="number"
-            fullWidth
-            variant="standard"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit">Create payment</Button>
-        </DialogActions>
-      </Dialog>
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button>Create payment</Button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Create payment</Dialog.Title>
+          <Dialog.Description size="2" mb="4">
+            Create a new payment. Please fill in the details below.
+          </Dialog.Description>
+          <form onSubmit={handleSubmit}>
+            <Flex direction="column" gap="3">
+              <DatePicker label="Date" name="date" mode="single" required />
+              <Textfield label="Title" name="title" type="text" required />
+              <Textfield label="Price" name="price" type="number" required />
+            </Flex>
+            <Flex gap="3" mt="4" justify="end">
+              <Dialog.Close>
+                <Button variant="soft" color="gray">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Dialog.Close>
+                <Button type="submit">Create payment</Button>
+              </Dialog.Close>
+            </Flex>
+          </form>
+        </Dialog.Content>
+      </Dialog.Root>
     </>
   )
 }
