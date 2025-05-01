@@ -1,13 +1,4 @@
-import {
-  CircularProgress,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material"
+import { Spinner, Table } from "@radix-ui/themes"
 import { Suspense, memo, use } from "react"
 import {} from "react/canary"
 import type { Payment } from "../../../types/payment"
@@ -20,22 +11,23 @@ export const PaymentList = memo(function PaymentList() {
 
   return (
     <>
-      <Suspense fallback={<CircularProgress />}>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ maxWidth: 120 }}>Date</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell align="right">Price&nbsp;(¥)</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              <Body getPayments={getPayments()} />
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <Suspense fallback={<Spinner size="3" />}>
+        <Table.Root aria-label="simple table" variant="surface" size="2">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeaderCell minWidth="120px">
+                Date
+              </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Title</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell align="right">
+                Price&nbsp;(¥)
+              </Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            <Body getPayments={getPayments()} />
+          </Table.Body>
+        </Table.Root>
       </Suspense>
     </>
   )
@@ -49,14 +41,13 @@ const Body = memo(function Body({
   return (
     <>
       {data.map((payment) => (
-        <TableRow
-          key={payment.id}
-          sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-        >
-          <TableCell>{formatDateToLocaleString(payment.date)}</TableCell>
-          <TableCell>{payment.title}</TableCell>
-          <TableCell align="right">{payment.price}</TableCell>
-        </TableRow>
+        <Table.Row key={payment.id}>
+          <Table.RowHeaderCell>
+            {formatDateToLocaleString(payment.date)}
+          </Table.RowHeaderCell>
+          <Table.Cell>{payment.title}</Table.Cell>
+          <Table.Cell align="right">{payment.price}</Table.Cell>
+        </Table.Row>
       ))}
     </>
   )

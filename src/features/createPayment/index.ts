@@ -1,1 +1,1 @@
-export * from "./useCreatePayment"
+export * from "./CreatePaymentModal"
