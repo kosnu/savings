@@ -27,7 +27,7 @@
         "noLabelWithoutControl":{
           "level": "error",
           "options": {
-            "inputComponents": ["TextField"],
+            "inputComponents": ["TextField", "DayPicker"],
             "labelAttributes": [],
             "labelComponents": []
           }
