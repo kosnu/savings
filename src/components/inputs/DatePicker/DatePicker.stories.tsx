@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { userEvent, within } from "@storybook/test"
-import { screen } from "@testing-library/react"
+import { screen, userEvent, within } from "@storybook/test"
 import { DatePicker } from "./DatePicker"
 
 const meta = {
@@ -26,19 +25,25 @@ export const Default: Story = {
   },
 }
 
-export const Filled: Story = {
-  ...Default,
+export const SelectToday: Story = {
+  args: {
+    label: "Date",
+    name: "date",
+    mode: "single",
+    defaultValue: new Date(2025, 4, 10),
+  },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const button = canvas.getByRole("button", {
+    const button = await within(canvasElement).findByRole("button", {
       name: /date/i,
     })
+
     await userEvent.click(button)
 
-    const date = await screen.findByRole("button", {
+    // NOTE: `within(canvasElement)` を使えって言ってくるけど、 `screen` からでしか取得できないからこのままにする
+    const todayButton = await screen.findByRole("button", {
       name: /today/i,
     })
-    await userEvent.click(date)
-    await userEvent.type(button, "{escape}")
+
+    await userEvent.click(todayButton)
   },
 }
