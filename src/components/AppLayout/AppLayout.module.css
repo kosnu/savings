@@ -1,0 +1,54 @@
+/* Layout全体のスタイル */
+.layout {
+  height: 100vh; /* ビューポート全体の高さを占有 */
+}
+
+/* Sidebarのスタイル */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Header, Contents, Footerを上下に分ける */
+  border-right: 1px solid #e0e0e0; /* 右側の境界線 */
+  transition: width 0.3s ease; /* 開閉時のアニメーション */
+}
+
+.sidebar.open {
+  width: 240px; /* 開いているときの幅 */
+}
+
+.sidebar.closed {
+  width: 60px; /* 閉じているときの幅 */
+}
+
+/* Sidebar Headerのスタイル */
+.sidebar-header {
+  /*  */
+}
+
+/* Sidebar Contentsのスタイル */
+.sidebar-contents {
+  flex-grow: 1; /* コンテンツ部分を伸縮可能にする */
+}
+
+/* Sidebar Footerのスタイル */
+.sidebar-footer {
+  /*  */
+}
+
+/* リンクのスタイル */
+.link {
+  text-decoration: none; /* リンクの下線を削除 */
+  width: 100%; /* リンクをSidebarの幅いっぱいに広げる */
+}
+
+/* Sidebar内のボタンのスタイル */
+.sidebar-button {
+  justify-content: flex-start !important; /* アイコンとテキストを左寄せ */
+  width: 100% !important; /* ボタンをSidebarの幅いっぱいに広げる */
+}
+
+/* Mainのスタイル */
+.main {
+  flex-grow: 1; /* Main部分を伸縮可能にする */
+  padding: 16px;
+}

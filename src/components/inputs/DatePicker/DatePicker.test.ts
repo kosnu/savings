@@ -1,14 +1,16 @@
 import { composeStories } from "@storybook/react"
-import { expect } from "@storybook/test"
 import { screen } from "@testing-library/react"
-import { test } from "vitest"
+import { expect, test, vi } from "vitest"
 import * as stories from "./DatePicker.stories"
 
-const { Filled } = composeStories(stories)
+const { SelectToday } = composeStories(stories)
 
-test("Filled", async () => {
+test("Select today", async () => {
   // Mock the current date to 2025-05-01
-  await Filled.run()
+  const mockDate = new Date("2025-05-01T12:00:00+09:00")
+  vi.setSystemTime(mockDate)
+
+  await SelectToday.run()
 
   const button = screen.getByRole("button", {
     name: /date/i,
