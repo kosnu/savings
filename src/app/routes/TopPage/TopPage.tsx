@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { ContainedButton } from "../../../components/buttons/ContainedButton"
 import { Container } from "../../../components/layouts/Container"
 import { Paper } from "../../../components/misc/Paper"
+import { paths } from "../../../config/paths"
 import { signIn } from "../../../utils/auth/signIn"
 import { useFirestore } from "../../../utils/firebase"
 
@@ -13,7 +14,7 @@ export function TopPage() {
   const handleSingin = useCallback(async () => {
     try {
       await signIn(db)
-      await navigate("/payments")
+      await navigate(paths.payments.getHref())
     } catch (error) {
       console.error(error)
     }
