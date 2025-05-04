@@ -3,6 +3,7 @@ import {
   type Firestore,
   collection,
   getDocs,
+  orderBy,
   query,
   where,
 } from "firebase/firestore"
@@ -18,7 +19,11 @@ export async function fetchPayments(
 
   const paymentsRef = collection(db, `users/${user.uid}/payments`)
   const querySnapshot = await getDocs(
-    query(paymentsRef, where("user_id", "==", user.uid)),
+    query(
+      paymentsRef,
+      where("user_id", "==", user.uid),
+      orderBy("date", "desc"),
+    ),
   )
 
   const payments = querySnapshot.docs.map((doc) => {
