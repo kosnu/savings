@@ -2,6 +2,7 @@ import { CardStackIcon } from "@radix-ui/react-icons"
 import { Button, Flex, Separator, Text } from "@radix-ui/themes"
 import { useState } from "react"
 import { Link, Outlet } from "react-router-dom"
+import { paths } from "../../config/paths"
 import styles from "./AppLayout.module.css"
 
 export function AppLayout() {
@@ -15,7 +16,7 @@ export function AppLayout() {
       >
         {/* Sidebar Header */}
         <Flex className={styles.sidebarHeader} p="4">
-          <Link to="/" className={styles.link}>
+          <Link to={paths.root.getHref()} className={styles.link}>
             <Button className={styles.sidebarButton} variant="ghost" size="3">
               <Text size="3" weight="bold">
                 My Savings
@@ -26,7 +27,7 @@ export function AppLayout() {
         <Separator size="4" />
         {/* Sidebar Contents */}
         <Flex className={styles.sidebarContents} align="start" gap="2" p="4">
-          <Link to="/payments" className={styles.link}>
+          <Link to={paths.payments.getHref()} className={styles.link}>
             <Button className={styles.sidebarButton} variant="ghost" size="3">
               <CardStackIcon />
               Payments

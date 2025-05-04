@@ -4,6 +4,7 @@ import {
   collection,
   serverTimestamp,
 } from "firebase/firestore"
+import { collections } from "../../utils/firebase/store"
 
 interface AddPaymentProps {
   db: Firestore
@@ -16,10 +17,19 @@ interface AddPaymentProps {
 }
 
 export async function addPayment({ db, userId, value }: AddPaymentProps) {
-  return await addDoc(collection(db, `users/${userId}/payments`), {
-    ...value,
-    user_id: userId,
-    created_date: serverTimestamp(),
-    updated_date: serverTimestamp(),
-  })
+  const { date, title, price } = value
+
+  return await addDoc(
+    collection(db, collections.payments.path(userId)).withConverter(
+      collections.payments.converter,
+    ),
+    {
+      date: new Date(date),
+      title: title,
+      price: price,
+      userId: userId,
+      createdDate: serverTimestamp(),
+      updatedDate: serverTimestamp(),
+    },
+  )
 }
