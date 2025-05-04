@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { FirestoreProvider } from "../../utils/firebase"
-import { TopPage } from "./TopPage"
+import { FirestoreProvider } from "../../../utils/firebase"
+import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
-  title: "Pages/TopPage",
-  component: TopPage,
+  title: "Pages/PaymentsPage",
+  component: PaymentsPage,
   parameters: {},
   tags: ["autodocs"],
   decorators: [
@@ -16,7 +16,7 @@ const meta = {
   ],
   argTypes: {},
   args: {},
-} satisfies Meta<typeof TopPage>
+} satisfies Meta<typeof PaymentsPage>
 
 export default meta
 type Story = StoryObj<typeof meta>

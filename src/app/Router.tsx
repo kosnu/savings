@@ -4,10 +4,10 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom"
-import { AppLayout } from "../../components/AppLayout"
-import { ErrorPage } from "../../pages/ErrorPage"
-import { PaymentsPage } from "../../pages/PaymentsPage"
-import { TopPage } from "../../pages/TopPage/TopPage"
+import { AppLayout } from "./AppLayout"
+import { ErrorPage } from "./routes/ErrorPage"
+import { PaymentsPage } from "./routes/PaymentsPage"
+import { TopPage } from "./routes/TopPage"
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,6 +20,6 @@ const router = createBrowserRouter(
   ),
 )
 
-export function RouterProvider() {
+export function Router() {
   return <RRDRouterProvider router={router} />
 }
