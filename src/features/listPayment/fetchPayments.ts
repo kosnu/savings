@@ -8,6 +8,7 @@ import {
   where,
 } from "firebase/firestore"
 import type { Payment } from "../../types/payment"
+import { collections } from "../../utils/firebase/store"
 
 export async function fetchPayments(
   db: Firestore,
@@ -17,7 +18,10 @@ export async function fetchPayments(
     return []
   }
 
-  const paymentsRef = collection(db, `users/${user.uid}/payments`)
+  const paymentsRef = collection(
+    db,
+    collections.payments.path(user.uid),
+  ).withConverter(collections.payments.converter)
   const querySnapshot = await getDocs(
     query(
       paymentsRef,
@@ -26,19 +30,7 @@ export async function fetchPayments(
     ),
   )
 
-  const payments = querySnapshot.docs.map((doc) => {
-    const data = doc.data()
-
-    // FIXME: as をやめてconverterを使う
-    return {
-      id: doc.id,
-      title: data.title as string,
-      price: data.price as number,
-      date: data.date as Date,
-      createdDate: data.createdDate as Date,
-      updatedDate: data.updatedDate as Date,
-    }
-  })
+  const payments = querySnapshot.docs.map((doc) => doc.data())
 
   return payments
 }

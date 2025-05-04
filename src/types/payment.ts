@@ -3,6 +3,7 @@ export interface Payment {
   title: string
   price: number
   date: Date
+  userId: string
   createdDate: Date
   updatedDate: Date
 }
