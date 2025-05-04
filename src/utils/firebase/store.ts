@@ -10,9 +10,11 @@ import { formatDateToIsoString } from "../formatter/formatDateToIsoString"
 interface Collection<
   AppData extends object,
   FirestoreData extends DocumentData,
-  PathParam = unknown,
+  PathParam = undefined,
 > {
-  path: (params: PathParam) => string
+  path: PathParam extends undefined
+    ? () => string
+    : (params: PathParam) => string
   converter: FirestoreDataConverter<AppData, FirestoreData>
 }
 
