@@ -6,11 +6,9 @@ import "@fontsource/roboto/300.css"
 import "@fontsource/roboto/400.css"
 import "@fontsource/roboto/500.css"
 import "@fontsource/roboto/700.css"
-import "@radix-ui/themes/styles.css"
 
 // 最後に読み込む
 import "./assets/global.module.css"
-import "./assets/radixTheme.module.css"
 
 // biome-ignore lint: noNonNullAssertion
 createRoot(document.getElementById("root")!).render(
