@@ -6,7 +6,11 @@ import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../../utils/firebase"
 import { addPayment } from "../addPayment"
 
-export function CreatePaymentModal() {
+interface CreatePaymentModalProps {
+  onSuccess?: () => void
+}
+
+export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
   const { currentUser } = useAuthCurrentUser()
   const db = useFirestore()
 
@@ -28,11 +32,12 @@ export function CreatePaymentModal() {
             price: Number.parseInt(formJson.price.toString(), 10),
           },
         })
+        onSuccess?.()
       } catch (e) {
         console.error("Error adding document: ", e)
       }
     },
-    [db, currentUser],
+    [db, currentUser, onSuccess],
   )
 
   return (
