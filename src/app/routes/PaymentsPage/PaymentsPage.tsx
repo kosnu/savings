@@ -1,15 +1,24 @@
 import { Flex } from "@radix-ui/themes"
+import { useCallback, useState } from "react"
 import { CreatePaymentModal } from "../../../features/createPayment"
 import { PaymentList } from "../../../features/listPayment"
 
 export function PaymentsPage() {
+  // 再レンダリングをトリガーするための状態
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const handleCreateSuccess = useCallback(() => {
+    // 状態を更新して再レンダリングをトリガー
+    setRefreshKey((prevKey) => prevKey + 1)
+  }, [])
+
   return (
     <>
       <Flex direction="column" gap="3">
         <Flex justify="end" align="center" gap="3">
-          <CreatePaymentModal />
+          <CreatePaymentModal onSuccess={handleCreateSuccess} />
         </Flex>
-        <PaymentList />
+        <PaymentList key={refreshKey} />
       </Flex>
     </>
   )
