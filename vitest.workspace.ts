@@ -21,6 +21,8 @@ export default defineWorkspace([
         tags: {
           exclude: ["skip"],
         },
+        storybookScript: "npm run storybook --ci",
+        storybookUrl: process.env.SB_URL,
       }),
     ],
     test: {
