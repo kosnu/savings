@@ -95,5 +95,11 @@ export const OpenSecondTree: Story = {
       name: sampleTreeObject.children[0].label,
     })
     await userEvent.click(button)
+
+    for (const child of sampleTreeObject.children[0].children) {
+      await canvas.findByRole("button", {
+        name: child.label,
+      })
+    }
   },
 }
