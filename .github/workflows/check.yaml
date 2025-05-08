@@ -31,7 +31,11 @@ jobs:
         run: npm ci
       - name: Biome check
         run: npm run check
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
       - name: Test
         run: npm run test
+        env:
+          SB_URL: '${{ github.event.deployment_status.target_url }}'
       - name: Build
         run: npm run build
