@@ -1,5 +1,6 @@
 import { Button, Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
+import { CancelButton } from "../../../components/buttons/CancelButton"
 import { DatePicker } from "../../../components/inputs/DatePicker"
 import { Textfield } from "../../../components/inputs/Textfield"
 import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
@@ -59,9 +60,7 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
             </Flex>
             <Flex gap="3" mt="4" justify="end">
               <Dialog.Close>
-                <Button variant="soft" color="gray">
-                  Cancel
-                </Button>
+                <CancelButton />
               </Dialog.Close>
               <Dialog.Close>
                 <Button type="submit">Create payment</Button>
