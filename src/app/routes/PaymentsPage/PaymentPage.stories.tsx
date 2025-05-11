@@ -1,17 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { FirestoreProvider } from "../../../utils/firebase"
+import { FiresotreTestProvider } from "../../../utils/firebase/FirebaseProvider"
+import { firebaseTestConfig } from "../../../utils/firebase/firebase"
 import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
   title: "Pages/PaymentsPage",
   component: PaymentsPage,
   parameters: {},
-  tags: ["autodocs", "skip"], // FIXME: Firebase周りのテスト環境を用意しろ
+  tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <FirestoreProvider>
+      <FiresotreTestProvider options={firebaseTestConfig}>
         <Story />
-      </FirestoreProvider>
+      </FiresotreTestProvider>
     ),
   ],
   argTypes: {},
