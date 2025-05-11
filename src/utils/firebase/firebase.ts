@@ -1,7 +1,16 @@
-import { type FirebaseOptions, initializeApp } from "firebase/app"
-import { getFirestore } from "firebase/firestore"
+import {
+  type FirebaseApp,
+  type FirebaseOptions,
+  initializeApp,
+} from "firebase/app"
+import { connectAuthEmulator, getAuth } from "firebase/auth"
+import {
+  type Firestore,
+  connectFirestoreEmulator,
+  getFirestore,
+} from "firebase/firestore"
 
-const firebaseConfig: FirebaseOptions = {
+export const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -11,8 +20,33 @@ const firebaseConfig: FirebaseOptions = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
-const app = initializeApp(firebaseConfig)
+export const firebaseTestConfig: FirebaseOptions = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+}
 
-const db = getFirestore(app)
+interface InitFirebaseReturn {
+  app: FirebaseApp
+  firestore: Firestore
+}
 
-export { db }
+export function initFirebase(options: FirebaseOptions): InitFirebaseReturn {
+  const app = initializeApp(options)
+  const firestore = getFirestore(app)
+
+  return {
+    app: app,
+    firestore: firestore,
+  }
+}
+
+export function useEmulator(app: FirebaseApp) {
+  const auth = getAuth(app)
+  const db = getFirestore(app)
+
+  //emulator設定
+  connectAuthEmulator(auth, import.meta.env.VITE_FIREBASE_AUTH_DOMAIN)
+  const [host, port] = import.meta.env.VITE_FIRESTORE_EMULATOR_HOST.split(":")
+  connectFirestoreEmulator(db, host, port)
+}
