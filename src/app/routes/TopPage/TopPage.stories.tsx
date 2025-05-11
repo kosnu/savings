@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { FirestoreProvider } from "../../../utils/firebase"
+import { FiresotreTestProvider } from "../../../utils/firebase/FirebaseProvider"
+import { firebaseTestConfig } from "../../../utils/firebase/firebase"
 import { TopPage } from "./TopPage"
 
 const meta = {
@@ -9,9 +10,9 @@ const meta = {
   tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <FirestoreProvider>
+      <FiresotreTestProvider options={firebaseTestConfig}>
         <Story />
-      </FirestoreProvider>
+      </FiresotreTestProvider>
     ),
   ],
   argTypes: {},
