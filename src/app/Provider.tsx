@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { FirestoreProvider } from "../utils/firebase"
+import { FirestoreProvider } from "../utils/firebase/FirebaseProvider"
 import { firebaseConfig } from "../utils/firebase/firebase"
 import { ThemeProvider } from "../utils/theme/ThemeProvider"
 
