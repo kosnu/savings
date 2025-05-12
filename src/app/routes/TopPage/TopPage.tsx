@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { Paper } from "../../../components/misc/Paper"
 import { paths } from "../../../config/paths"
 import { signIn } from "../../../utils/auth/signIn"
-import { useFirestore } from "../../../utils/firebase"
+import { useFirestore } from "../../../utils/firebase/useFirestore"
 
 export function TopPage() {
   const db = useFirestore()

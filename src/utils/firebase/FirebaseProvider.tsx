@@ -1,48 +1,28 @@
 import type { FirebaseOptions } from "firebase/app"
-import type { Firestore } from "firebase/firestore"
-import { type ReactNode, createContext, useContext } from "react"
-import { initFirebase, useEmulator } from "./firebase"
+import type { ReactNode } from "react"
+import { FirestoreContext } from "./firebaseContext"
+import { initFirebase } from "./initFirebase"
 
-const FirestoreContext = createContext<Firestore>(null as unknown as Firestore)
+const config: FirebaseOptions = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+}
 
 interface FirestoreProviderProps {
-  options: FirebaseOptions
   children: ReactNode
 }
 
-export function FirestoreProvider({
-  options,
-  children,
-}: FirestoreProviderProps) {
-  const { firestore } = initFirebase(options)
+export function FirestoreProvider({ children }: FirestoreProviderProps) {
+  const { firestore } = initFirebase(config)
 
   return (
     <FirestoreContext.Provider value={firestore}>
       {children}
     </FirestoreContext.Provider>
   )
-}
-
-export function FiresotreTestProvider({
-  options,
-  children,
-}: FirestoreProviderProps) {
-  const { app, firestore } = initFirebase(options)
-  useEmulator(app)
-
-  return (
-    <FirestoreContext.Provider value={firestore}>
-      {children}
-    </FirestoreContext.Provider>
-  )
-}
-
-// Firestore を使うためのカスタムフック
-export function useFirestore() {
-  const context = useContext(FirestoreContext)
-  if (!context) {
-    throw new Error("useFirestore must be used within a FirestoreProvider")
-  }
-
-  return context
 }
