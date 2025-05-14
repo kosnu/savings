@@ -1,0 +1,12 @@
+services:
+  firebase:
+    build:
+      context: .
+      dockerfile: ./docker/firebase/Dockerfile
+    volumes:
+      - ./docker/firebase/.firebaserc:/usr/src/app.firebaserc
+      - ./docker/firebase/firebase.json:/usr/src/appfirebase.json
+    ports:
+      - 9099:9099 # Firebase Authentication
+      - 8080:8080 # Cloud Firestore
+      - 4000:4000 # Emulator Suite UI
