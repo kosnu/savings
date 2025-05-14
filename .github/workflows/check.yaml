@@ -36,7 +36,7 @@ jobs:
       - name: Firebase set up
         run: npm install -g firebase-tools
       - name: Test
-        run: firebase emulators:start --project savings-test & npm run test
+        run: firebase emulators:start --project savings-test --config docker/firebase/firebase.json & npm run test
         env:
           SB_URL: '${{ github.event.deployment_status.target_url }}'
       - name: Build
