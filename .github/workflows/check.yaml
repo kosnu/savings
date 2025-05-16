@@ -10,6 +10,13 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      firebase-emulator:
+        image: ghcr.io/kosnu/savings-firebase:latest
+        ports:
+          - 8080:8080   # Firestore
+          - 9099:9099   # Auth
+          - 4000:4000   # Emulator UI
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
@@ -33,10 +40,18 @@ jobs:
         run: npm run check
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      - name: Firebase set up
-        run: npm install -g firebase-tools
+      - name: Wait for Firebase Emulator
+        run: |
+          for i in {1..10}; do
+            if curl -s http://localhost:8080 > /dev/null; then
+              echo "Emulator is up!"
+              break
+            fi
+            echo "Waiting for emulator..."
+            sleep 1
+          done
       - name: Test
-        run: firebase emulators:start --project savings-test --config docker/firebase/firebase.json & npm run test
+        run: npm run test
         env:
           SB_URL: '${{ github.event.deployment_status.target_url }}'
       - name: Build
