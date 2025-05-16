@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: ./docker/firebase/Dockerfile
     volumes:
-      - ./docker/firebase/.firebaserc:/usr/src/app.firebaserc
-      - ./docker/firebase/firebase.json:/usr/src/appfirebase.json
+      - ./docker/firebase/.firebaserc:/usr/src/app/firebaserc
+      - ./docker/firebase/firebase.json:/usr/src/app/firebase.json
     ports:
       - 9099:9099 # Firebase Authentication
       - 8080:8080 # Cloud Firestore
