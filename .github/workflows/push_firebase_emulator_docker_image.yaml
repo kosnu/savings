@@ -1,4 +1,4 @@
-name: Check
+name: Build and Push Firebase Emulator Docker Image
 
 on:
   push:
