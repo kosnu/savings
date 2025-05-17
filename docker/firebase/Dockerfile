@@ -1,11 +1,11 @@
 # ベースイメージとして公式 Node.js イメージを使用
-FROM node:22-slim
+FROM node:22-alpine
 
 # 作業ディレクトリを設定
 WORKDIR /usr/src/app
 
 # Firebase CLI をインストールするための依存パッケージをインストール
-RUN apt-get update && apt-get install -y openjdk-17-jdk && apt-get clean
+RUN apk add --no-cache openjdk17-jre
 
 # Firebase CLI をグローバルにインストール
 RUN npm install -g firebase-tools
