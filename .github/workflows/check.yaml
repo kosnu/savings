@@ -39,7 +39,7 @@ jobs:
       - name: Biome check
         run: npm run check
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
       - name: Wait for Firebase Emulator
         run: |
           for i in {1..10}; do
