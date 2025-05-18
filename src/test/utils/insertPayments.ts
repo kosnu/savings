@@ -1,0 +1,30 @@
+import type { Auth } from "firebase/auth"
+import {
+  type Firestore,
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore"
+import type { Payment } from "../../types/payment"
+import { collections } from "../../utils/firebase/store"
+
+export async function insertPayments(
+  auth: Auth,
+  firestore: Firestore,
+  payments: Payment[],
+) {
+  const userId = auth.currentUser?.uid
+  if (!userId) throw new Error("未認証です")
+
+  for (const payment of payments) {
+    const paymentRef = payment.id
+      ? doc(firestore, collections.payments.path(userId), payment.id)
+      : doc(firestore, collections.payments.path(userId))
+    await setDoc(paymentRef.withConverter(collections.payments.converter), {
+      ...payment,
+      userId: userId,
+      createdDate: serverTimestamp(),
+      updatedDate: serverTimestamp(),
+    })
+  }
+}
