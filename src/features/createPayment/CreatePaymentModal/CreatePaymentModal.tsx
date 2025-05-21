@@ -1,72 +1,37 @@
-import { Button, Dialog, Flex } from "@radix-ui/themes"
+import { Button, Dialog } from "@radix-ui/themes"
 import { useCallback } from "react"
-import { CancelButton } from "../../../components/buttons/CancelButton"
-import { DatePicker } from "../../../components/inputs/DatePicker"
-import { Textfield } from "../../../components/inputs/Textfield"
-import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
-import { useFirestore } from "../../../utils/firebase/useFirestore"
-import { addPayment } from "../addPayment"
+import { useDialog } from "../../../utils/useDialog"
+import { CreatePaymentForm } from "../CreatePaymentForm"
 
 interface CreatePaymentModalProps {
   onSuccess?: () => void
 }
 
 export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
-  const { currentUser } = useAuthCurrentUser()
-  const db = useFirestore()
+  const { open, openDialog, closeDialog } = useDialog()
 
-  const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
-      if (!currentUser) return
+  const handleSuccess = useCallback(() => {
+    onSuccess?.()
+    closeDialog()
+  }, [onSuccess, closeDialog])
 
-      const formData = new FormData(event.currentTarget)
-      const formJson = Object.fromEntries(formData.entries())
-
-      try {
-        await addPayment({
-          db: db,
-          userId: currentUser.uid,
-          value: {
-            date: formJson.date.toString(),
-            title: formJson.title.toString(),
-            price: Number.parseInt(formJson.price.toString(), 10),
-          },
-        })
-        onSuccess?.()
-      } catch (e) {
-        console.error("Error adding document: ", e)
-      }
-    },
-    [db, currentUser, onSuccess],
-  )
+  const handleCancel = useCallback(() => {
+    closeDialog()
+  }, [closeDialog])
 
   return (
     <>
-      <Dialog.Root>
-        <Dialog.Trigger>
-          <Button>Create payment</Button>
-        </Dialog.Trigger>
+      <Dialog.Root open={open}>
+        <Button onClick={openDialog}>Create payment</Button>
         <Dialog.Content>
           <Dialog.Title>Create payment</Dialog.Title>
           <Dialog.Description size="2" mb="4">
             Create a new payment. Please fill in the details below.
           </Dialog.Description>
-          <form onSubmit={handleSubmit}>
-            <Flex direction="column" gap="3">
-              <DatePicker label="Date" name="date" mode="single" required />
-              <Textfield label="Title" name="title" type="text" required />
-              <Textfield label="Price" name="price" type="number" required />
-            </Flex>
-            <Flex gap="3" mt="4" justify="end">
-              <Dialog.Close>
-                <CancelButton />
-              </Dialog.Close>
-              <Dialog.Close>
-                <Button type="submit">Create payment</Button>
-              </Dialog.Close>
-            </Flex>
-          </form>
+          <CreatePaymentForm
+            onSuccess={handleSuccess}
+            onCancel={handleCancel}
+          />
         </Dialog.Content>
       </Dialog.Root>
     </>
