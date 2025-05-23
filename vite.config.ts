@@ -4,11 +4,6 @@ import { defineConfig } from "vite"
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      "react/canary": "react",
-    },
-  },
   css: {
     modules: {
       localsConvention: "dashes",
