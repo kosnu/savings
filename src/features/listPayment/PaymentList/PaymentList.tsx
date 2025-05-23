@@ -1,6 +1,5 @@
 import { Spinner, Table } from "@radix-ui/themes"
 import { Suspense, memo, use } from "react"
-import {} from "react/canary"
 import type { Payment } from "../../../types/payment"
 import { PaymentItem } from "../PaymentItem"
 import { useGetPayments } from "../useGetPayments"
