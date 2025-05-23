@@ -2,7 +2,7 @@ import { Spinner, Table } from "@radix-ui/themes"
 import { Suspense, memo, use } from "react"
 import {} from "react/canary"
 import type { Payment } from "../../../types/payment"
-import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
+import { PaymentItem } from "../PaymentItem"
 import { useGetPayments } from "../useGetPayments"
 
 export const PaymentList = memo(function PaymentList() {
@@ -11,7 +11,7 @@ export const PaymentList = memo(function PaymentList() {
   return (
     <>
       <Suspense fallback={<Spinner size="3" />}>
-        <Table.Root aria-label="simple table" variant="surface" size="2">
+        <Table.Root aria-label="payment-list" variant="surface" size="2">
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeaderCell minWidth="120px">
@@ -40,13 +40,7 @@ const Body = memo(function Body({
   return (
     <>
       {data.map((payment) => (
-        <Table.Row key={payment.id}>
-          <Table.RowHeaderCell>
-            {formatDateToLocaleString(payment.date)}
-          </Table.RowHeaderCell>
-          <Table.Cell>{payment.title}</Table.Cell>
-          <Table.Cell align="right">{payment.price}</Table.Cell>
-        </Table.Row>
+        <PaymentItem key={payment.id} payment={payment} />
       ))}
     </>
   )

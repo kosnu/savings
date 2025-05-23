@@ -8,7 +8,7 @@ interface PaymentItemProps {
 
 export function PaymentItem({ payment }: PaymentItemProps) {
   return (
-    <Table.Row>
+    <Table.Row aria-label="payment-item">
       <Table.RowHeaderCell>
         {formatDateToLocaleString(payment.date)}
       </Table.RowHeaderCell>
