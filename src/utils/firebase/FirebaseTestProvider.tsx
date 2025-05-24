@@ -6,13 +6,14 @@ import {
   getFirestore,
 } from "firebase/firestore"
 import type { ReactNode } from "react"
+import { env } from "../../config/env"
 import { FirestoreContext } from "./firebaseContext"
 import { initFirebase } from "./initFirebase"
 
 const testConfig: FirebaseOptions = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  apiKey: env.FIREBASE_API_KEY,
+  authDomain: env.FIREBASE_AUTH_DOMAIN,
+  projectId: env.FIREBASE_PROJECT_ID,
 }
 
 interface FirestoreTestProviderProps {
@@ -52,11 +53,11 @@ function useEmulator(app: FirebaseApp): UseEmulatorReturn {
   const firestore = getFirestore(app)
 
   //emulator設定
-  connectAuthEmulator(auth, import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, {
+  connectAuthEmulator(auth, env.FIREBASE_AUTH_DOMAIN, {
     disableWarnings: true,
   })
-  const [host, port] = import.meta.env.VITE_FIRESTORE_EMULATOR_HOST.split(":")
-  connectFirestoreEmulator(firestore, host, port)
+  const [host, port] = env.FIRESTORE_EMULATOR_HOST.split(":")
+  connectFirestoreEmulator(firestore, host, Number.parseInt(port, 10))
 
   return {
     auth: auth,
