@@ -13,6 +13,7 @@ import { collections } from "../../utils/firebase/store"
 export async function fetchPayments(
   db: Firestore,
   user: User | null,
+  [startDate, endDate]: [Date | null, Date | null],
 ): Promise<Payment[]> {
   if (!user) {
     return []
@@ -26,6 +27,8 @@ export async function fetchPayments(
     query(
       paymentsRef,
       where("user_id", "==", user.uid),
+      where("date", ">=", startDate),
+      where("date", "<=", endDate),
       orderBy("date", "desc"),
     ),
   )

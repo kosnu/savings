@@ -1,11 +1,14 @@
 import { Spinner, Table } from "@radix-ui/themes"
-import { Suspense, memo, use } from "react"
+import { Suspense, memo, use, useMemo } from "react"
 import type { Payment } from "../../../types/payment"
 import { PaymentItem } from "../PaymentItem"
+import { useDateRange } from "../useDateRange"
 import { useGetPayments } from "../useGetPayments"
 
 export const PaymentList = memo(function PaymentList() {
-  const { getPayments } = useGetPayments()
+  const { dateRange } = useDateRange()
+  const { getPayments } = useGetPayments(dateRange)
+  const paymentsPromise = useMemo(() => getPayments(), [getPayments])
 
   return (
     <>
@@ -23,7 +26,7 @@ export const PaymentList = memo(function PaymentList() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            <Body getPayments={getPayments()} />
+            <Body getPayments={paymentsPromise} />
           </Table.Body>
         </Table.Root>
       </Suspense>
