@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "@storybook/test"
+import { MemoryRouter } from "react-router-dom"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
 import { insertPayments } from "../../../test/utils/insertPayments"
@@ -29,9 +30,11 @@ const meta = {
   decorators: [
     (Story) => {
       return (
-        <FiresotreTestProvider>
-          <Story />
-        </FiresotreTestProvider>
+        <MemoryRouter initialEntries={["/payments"]}>
+          <FiresotreTestProvider>
+            <Story />
+          </FiresotreTestProvider>
+        </MemoryRouter>
       )
     },
   ],

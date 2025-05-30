@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { MemoryRouter } from "react-router-dom"
 import { FiresotreTestProvider } from "../../../utils/firebase/FirebaseTestProvider"
 import { TopPage } from "./TopPage"
 
@@ -9,9 +10,11 @@ const meta = {
   tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <FiresotreTestProvider>
-        <Story />
-      </FiresotreTestProvider>
+      <MemoryRouter initialEntries={["/"]}>
+        <FiresotreTestProvider>
+          <Story />
+        </FiresotreTestProvider>
+      </MemoryRouter>
     ),
   ],
   argTypes: {},

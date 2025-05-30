@@ -1,11 +1,10 @@
-import type {
-  DocumentData,
-  FirestoreDataConverter,
-  QueryDocumentSnapshot,
+import {
+  type DocumentData,
+  type FirestoreDataConverter,
+  Timestamp,
 } from "firebase/firestore"
 import type { Payment } from "../../types/payment"
 import type { User } from "../../types/user"
-import { formatDateToIsoString } from "../formatter/formatDateToIsoString"
 
 interface Collection<
   AppData extends object,
@@ -46,10 +45,9 @@ const usersCollection: Collection<User, UserDocument> = {
 }
 
 export interface PaymentDocument extends DocumentData {
-  id: string
   title: string
   price: number
-  date: string
+  date: Timestamp
   user_id: string
   created_date: Date
   updated_date: Date
@@ -58,24 +56,24 @@ export interface PaymentDocument extends DocumentData {
 const paymentsCollection: Collection<Payment, PaymentDocument, string> = {
   path: (userId: string) => `users/${userId}/payments`,
   converter: {
-    toFirestore: (data: Payment) => {
+    toFirestore: (data: Payment): PaymentDocument => {
       return {
-        id: data.id ?? "",
         title: data.title,
         price: data.price,
-        date: formatDateToIsoString(data.date),
+        date: Timestamp.fromDate(data.date),
         user_id: data.userId,
         created_date: data.createdDate,
         updated_date: data.updatedDate,
       }
     },
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Payment => {
+    fromFirestore: (snapshot): Payment => {
       const data = snapshot.data()
+
       return {
         id: snapshot.id,
         title: data.title,
         price: data.price,
-        date: new Date(data.date),
+        date: (data.date as Timestamp).toDate(),
         userId: data.user_id,
         createdDate: data.created_date,
         updatedDate: data.updated_date,

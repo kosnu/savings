@@ -12,5 +12,16 @@ export default defineConfig({
       VITE_FIRESTORE_EMULATOR_HOST: "localhost:8080",
       VITE_FIREBASE_AUTH_DOMAIN: "http://localhost:9099",
     },
+    fakeTimers: {
+      toFake: [
+        "setTimeout",
+        "clearTimeout",
+        "setInterval",
+        "clearInterval",
+        "setImmediate",
+        "clearImmediate",
+        "Date",
+      ],
+    },
   },
 })
