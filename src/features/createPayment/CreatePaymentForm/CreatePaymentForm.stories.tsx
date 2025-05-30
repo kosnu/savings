@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { fn, userEvent } from "@storybook/test"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
+import { fn, userEvent } from "storybook/test"
 import { FiresotreTestProvider } from "../../../utils/firebase/FirebaseTestProvider"
 import { CreatePaymentForm } from "./CreatePaymentForm"
 

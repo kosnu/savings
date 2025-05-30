@@ -1,4 +1,4 @@
-import { composeStories } from "@storybook/react"
+import { composeStories } from "@storybook/react-vite"
 import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, expect, test, vi } from "vitest"
@@ -41,5 +41,5 @@ test("Select today", async () => {
 
   await customUserEvent.click(todayButton)
 
-  expect(button).toHaveTextContent("2025/05/01")
+  expect(button.textContent).toBe("2025/05/01")
 })

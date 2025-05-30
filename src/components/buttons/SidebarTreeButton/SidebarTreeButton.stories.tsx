@@ -1,7 +1,7 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
-import type { Meta, StoryObj } from "@storybook/react"
-import { userEvent, within } from "@storybook/test"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
+import { userEvent, within } from "storybook/test"
 import { SidebarTreeButton } from "./SidebarTreeButton"
 
 const sampleTreeObject = {
