@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "@storybook/test"
+import { BrowserRouter, MemoryRouter } from "react-router-dom"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
 import { insertPayments } from "../../../test/utils/insertPayments"
@@ -27,13 +28,13 @@ const meta = {
     await insertPayments(auth, firestore, payments)
   },
   decorators: [
-    (Story) => {
-      return (
+    (Story) => (
+      <MemoryRouter initialEntries={["/payments?year=2025&month=04"]}>
         <FiresotreTestProvider>
           <Story />
         </FiresotreTestProvider>
-      )
-    },
+      </MemoryRouter>
+    ),
   ],
   argTypes: {},
   args: {},
@@ -48,8 +49,6 @@ export const Default: Story = {
     const canvas = within(canvasElement)
 
     expect(await canvas.findByLabelText("payment-list")).toBeInTheDocument()
-    expect(await canvas.findAllByLabelText("payment-item")).toHaveLength(
-      payments.length,
-    )
+    expect(await canvas.findAllByLabelText("payment-item")).toHaveLength(1)
   },
 }
