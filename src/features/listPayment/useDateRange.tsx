@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom"
 export function useDateRange() {
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     null,
-    new Date(),
+    null,
   ])
   const [searchParams] = useSearchParams()
 
