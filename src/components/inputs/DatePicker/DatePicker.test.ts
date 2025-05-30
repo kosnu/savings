@@ -41,5 +41,5 @@ test("Select today", async () => {
 
   await customUserEvent.click(todayButton)
 
-  expect(button).toHaveTextContent("2025/05/01")
+  expect(button.textContent).toBe("2025/05/01")
 })
