@@ -19,18 +19,20 @@ export async function fetchPayments(
     return []
   }
 
+  const queryConstrations = [where("user_id", "==", user.uid)]
+  if (startDate) {
+    queryConstrations.push(where("date", ">=", startDate))
+  }
+  if (endDate) {
+    queryConstrations.push(where("date", "<=", endDate))
+  }
+
   const paymentsRef = collection(
     db,
     collections.payments.path(user.uid),
   ).withConverter(collections.payments.converter)
   const querySnapshot = await getDocs(
-    query(
-      paymentsRef,
-      where("user_id", "==", user.uid),
-      where("date", ">=", startDate),
-      where("date", "<=", endDate),
-      orderBy("date", "desc"),
-    ),
+    query(paymentsRef, ...queryConstrations, orderBy("date", "desc")),
   )
 
   const payments = querySnapshot.docs.map((doc) => doc.data())
