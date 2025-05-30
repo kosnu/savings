@@ -8,13 +8,15 @@ interface UseGetPaymentsReturn {
   getPayments: () => Promise<Payment[]>
 }
 
-export function useGetPayments(): UseGetPaymentsReturn {
+export function useGetPayments(
+  dateRange: [Date | null, Date | null],
+): UseGetPaymentsReturn {
   const { currentUser } = useAuthCurrentUser()
   const db = useFirestore()
 
   const getPayments = useCallback(async (): Promise<Payment[]> => {
-    return await fetchPayments(db, currentUser)
-  }, [db, currentUser])
+    return await fetchPayments(db, currentUser, dateRange)
+  }, [db, currentUser, dateRange])
 
   return {
     getPayments: getPayments,

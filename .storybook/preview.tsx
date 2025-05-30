@@ -17,9 +17,7 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <ThemeProvider>
-        <BrowserRouter>
-          <Story />
-        </BrowserRouter>
+        <Story />
       </ThemeProvider>
     ),
   ],

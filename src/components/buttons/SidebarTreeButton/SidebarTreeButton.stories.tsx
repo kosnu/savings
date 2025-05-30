@@ -1,6 +1,7 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
 import type { Meta, StoryObj } from "@storybook/react"
 import { userEvent, within } from "@storybook/test"
+import { MemoryRouter } from "react-router-dom"
 import { SidebarTreeButton } from "./SidebarTreeButton"
 
 const sampleTreeObject = {
@@ -54,9 +55,11 @@ const meta = {
   args: {},
   decorators: [
     (Story) => (
-      <div style={{ width: "300px" }}>
-        <Story />
-      </div>
+      <MemoryRouter initialEntries={["/"]}>
+        <div style={{ width: "300px" }}>
+          <Story />
+        </div>
+      </MemoryRouter>
     ),
   ],
 } satisfies Meta<typeof SidebarTreeButton>
