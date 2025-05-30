@@ -1,4 +1,4 @@
-import type { Preview } from "@storybook/react"
+import type { Preview } from "@storybook/react-vite"
 import React from "react"
 import { BrowserRouter } from "react-router-dom"
 import { ThemeProvider } from "../src/utils/theme/ThemeProvider"
