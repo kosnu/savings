@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "@storybook/test"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
+import { expect, within } from "storybook/test"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
 import { insertPayments } from "../../../test/utils/insertPayments"
