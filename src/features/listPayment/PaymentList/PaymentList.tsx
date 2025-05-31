@@ -1,8 +1,8 @@
 import { Spinner, Table } from "@radix-ui/themes"
 import { Suspense, memo, use, useMemo } from "react"
 import type { Payment } from "../../../types/payment"
+import { useDateRange } from "../../../utils/useDateRange"
 import { PaymentItem } from "../PaymentItem"
-import { useDateRange } from "../useDateRange"
 import { useGetPayments } from "../useGetPayments"
 
 export const PaymentList = memo(function PaymentList() {
