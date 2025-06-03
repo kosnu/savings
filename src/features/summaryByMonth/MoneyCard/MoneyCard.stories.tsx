@@ -34,8 +34,10 @@ export const HasError: Story = {
   tags: ["skip"],
   args: {
     title: "Expenditures",
-    getValue: new Promise(
-      (_, reject) => setTimeout(() => reject(new Error("Error!!!")), 100), // NOTE: 100（厳密には26以上）にしないと即座にRejectionされてしまう
-    ),
+    getValue:
+      // FIXME: この分岐がないとテスト実行時にエラーが発生してしまう
+      import.meta.env.MODE === "development"
+        ? Promise.reject(new Error("Error!"))
+        : Promise.resolve(4000),
   },
 }

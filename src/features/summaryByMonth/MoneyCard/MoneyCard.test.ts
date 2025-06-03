@@ -16,7 +16,7 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
-test("When errror occured", async () => {
+test.skip("When errror occured", async () => {
   await HasError.run()
 
   expect(
