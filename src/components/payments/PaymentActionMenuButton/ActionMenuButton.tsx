@@ -1,13 +1,11 @@
 import { DotsVerticalIcon } from "@radix-ui/react-icons"
 import { DropdownMenu, IconButton } from "@radix-ui/themes"
 
-interface PaymentActionMenuButtonProps {
+interface ActionMenuButtonProps {
   payment_id: string
 }
 
-export function PaymentActionMenuButton({
-  payment_id,
-}: PaymentActionMenuButtonProps) {
+export function ActionMenuButton({ payment_id }: ActionMenuButtonProps) {
   console.debug("Payment id:", payment_id)
 
   return (

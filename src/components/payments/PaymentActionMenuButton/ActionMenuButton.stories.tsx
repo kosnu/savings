@@ -2,18 +2,18 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, userEvent } from "storybook/test"
 import { payments } from "../../../test/data/payments"
-import { PaymentActionMenuButton } from "./PaymentActionMenuButton"
+import { ActionMenuButton } from "./ActionMenuButton"
 
 const meta = {
-  title: "Features/DeletePayment/PaymentActionMenuButton",
-  component: PaymentActionMenuButton,
+  title: "Common/Payments/ActionMenuButton",
+  component: ActionMenuButton,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
   argTypes: {},
   args: {},
-} satisfies Meta<typeof PaymentActionMenuButton>
+} satisfies Meta<typeof ActionMenuButton>
 
 export default meta
 type Story = StoryObj<typeof meta>

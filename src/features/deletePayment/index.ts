@@ -1,1 +1,1 @@
-export { PaymentActionMenuButton } from "./PaymentActionMenuButton"
+export { ActionMenuButton as PaymentActionMenuButton } from "../../components/payments/PaymentActionMenuButton"
