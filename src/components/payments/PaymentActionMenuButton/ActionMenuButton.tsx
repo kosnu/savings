@@ -19,7 +19,7 @@ export function ActionMenuButton({ payment }: ActionMenuButtonProps) {
     <>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger>
-          <IconButton variant="outline">
+          <IconButton aria-label="Payment actions" variant="outline">
             <DotsVerticalIcon />
           </IconButton>
         </DropdownMenu.Trigger>
