@@ -9,16 +9,12 @@ interface DeletePaymentModalProps {
   payment: Payment
   open?: boolean
   onClose?: () => void
-  onSuccess: (message: string) => void
-  onFailure: (message: string) => void
 }
 
 export function DeletePaymentModal({
   payment,
   open,
   onClose,
-  onSuccess,
-  onFailure,
 }: DeletePaymentModalProps) {
   const paymentInfo = `${formatDateToLocaleString(payment.date)} ${payment.title} ${toCurrency(payment.price)}`
 
@@ -34,11 +30,11 @@ export function DeletePaymentModal({
   // TODO: あとで削除処理を実行するように実装する
   const handleSubmit = useCallback(() => {
     try {
-      onSuccess("Payment deleted successfully.")
+      console.debug("Payment deleted successfully.")
     } catch (error) {
-      onFailure("Failed to delete payment.")
+      console.error("Failed to delete payment.")
     }
-  }, [onSuccess, onFailure])
+  }, [])
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
