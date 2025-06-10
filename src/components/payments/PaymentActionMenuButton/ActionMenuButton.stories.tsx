@@ -19,11 +19,11 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: { payment_id: payments[0].id ?? "unknown" },
+  args: { payment: payments[0] },
 }
 
 export const OpenMenu: Story = {
-  args: { payment_id: payments[0].id ?? "unknown" },
+  args: { payment: payments[0] },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const button = canvas.getByRole("button")

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
-import { expect, fn, userEvent } from "storybook/test"
+import { expect, userEvent } from "storybook/test"
 import { longPayment, payments } from "../../../test/data/payments"
 import { DeletePaymentModal } from "./DeletePaymentModal"
 
@@ -11,10 +11,7 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-  args: {
-    onSuccess: fn(),
-    onFailure: fn(),
-  },
+  args: {},
 } satisfies Meta<typeof DeletePaymentModal>
 
 export default meta
@@ -56,6 +53,5 @@ export const ClickDeleteButton: Story = {
 
     const deleteButton = within(dialog).getByRole("button", { name: /delete/i })
     await userEvent.click(deleteButton)
-    expect(meta.args.onSuccess).toHaveBeenCalled()
   },
 }
