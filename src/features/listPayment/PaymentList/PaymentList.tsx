@@ -23,6 +23,7 @@ export const PaymentList = memo(function PaymentList() {
               <Table.ColumnHeaderCell align="right">
                 Price&nbsp;(¥)
               </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell />
             </Table.Row>
           </Table.Header>
           <Table.Body>
