@@ -4,6 +4,7 @@ import { CancelButton } from "../../../components/buttons/CancelButton"
 import type { Payment } from "../../../types/payment"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 import { toCurrency } from "../../../utils/toCurrency"
+import { useSnackbar } from "../../../utils/useSnackbar"
 
 interface DeletePaymentModalProps {
   payment: Payment
@@ -16,6 +17,10 @@ export function DeletePaymentModal({
   open,
   onClose,
 }: DeletePaymentModalProps) {
+  const { openSnackbar: openSuccessSnackbar, Snackbar: SuccessSnackbar } =
+    useSnackbar("success")
+  const { openSnackbar: openErrorSnackbar, Snackbar: ErrorSnackbar } =
+    useSnackbar("error")
   const paymentInfo = `${formatDateToLocaleString(payment.date)} ${payment.title} ${toCurrency(payment.price)}`
 
   const handleOpenChange = useCallback(
@@ -30,33 +35,37 @@ export function DeletePaymentModal({
   // TODO: あとで削除処理を実行するように実装する
   const handleSubmit = useCallback(() => {
     try {
-      console.debug("Payment deleted successfully.")
+      openSuccessSnackbar("Payment deleted successfully.")
     } catch (error) {
-      console.error("Failed to delete payment.")
+      openErrorSnackbar("Failed to delete payment.")
     }
-  }, [])
+  }, [openSuccessSnackbar, openErrorSnackbar])
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      {open === undefined && (
-        <Dialog.Trigger>
-          <Button>Delete payment</Button>
-        </Dialog.Trigger>
-      )}
-      <Dialog.Content>
-        <Dialog.Title>Delete this payment?</Dialog.Title>
-        <Dialog.Description>{paymentInfo}</Dialog.Description>
-        <Flex gap="3" mt="4" justify="end">
-          <Dialog.Close>
-            <CancelButton />
-          </Dialog.Close>
-          <Dialog.Close>
-            <Button color="red" onClick={handleSubmit}>
-              Delete
-            </Button>
-          </Dialog.Close>
-        </Flex>
-      </Dialog.Content>
-    </Dialog.Root>
+    <>
+      <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+        {open === undefined && (
+          <Dialog.Trigger>
+            <Button>Delete payment</Button>
+          </Dialog.Trigger>
+        )}
+        <Dialog.Content>
+          <Dialog.Title>Delete this payment?</Dialog.Title>
+          <Dialog.Description>{paymentInfo}</Dialog.Description>
+          <Flex gap="3" mt="4" justify="end">
+            <Dialog.Close>
+              <CancelButton />
+            </Dialog.Close>
+            <Dialog.Close>
+              <Button color="red" onClick={handleSubmit}>
+                Delete
+              </Button>
+            </Dialog.Close>
+          </Flex>
+        </Dialog.Content>
+      </Dialog.Root>
+      <SuccessSnackbar />
+      <ErrorSnackbar />
+    </>
   )
 }
