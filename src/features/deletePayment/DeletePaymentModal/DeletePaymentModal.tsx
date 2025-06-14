@@ -5,6 +5,7 @@ import type { Payment } from "../../../types/payment"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 import { toCurrency } from "../../../utils/toCurrency"
 import { useSnackbar } from "../../../utils/useSnackbar"
+import { useDeletePayment } from "../useDeletePayment"
 
 interface DeletePaymentModalProps {
   payment: Payment
@@ -17,6 +18,7 @@ export function DeletePaymentModal({
   open,
   onClose,
 }: DeletePaymentModalProps) {
+  const { deletePayment } = useDeletePayment()
   const { openSnackbar: openSuccessSnackbar, Snackbar: SuccessSnackbar } =
     useSnackbar("success")
   const { openSnackbar: openErrorSnackbar, Snackbar: ErrorSnackbar } =
@@ -32,14 +34,14 @@ export function DeletePaymentModal({
     [onClose],
   )
 
-  // TODO: あとで削除処理を実行するように実装する
   const handleSubmit = useCallback(() => {
     try {
+      deletePayment(payment)
       openSuccessSnackbar("Payment deleted successfully.")
     } catch (error) {
       openErrorSnackbar("Failed to delete payment.")
     }
-  }, [openSuccessSnackbar, openErrorSnackbar])
+  }, [deletePayment, payment, openSuccessSnackbar, openErrorSnackbar])
 
   return (
     <>

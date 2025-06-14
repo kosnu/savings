@@ -2,6 +2,14 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, userEvent } from "storybook/test"
 import { longPayment, payments } from "../../../test/data/payments"
+import { user } from "../../../test/data/users"
+import { insertPayments } from "../../../test/utils/insertPayments"
+import { insertUser } from "../../../test/utils/insertUser"
+import { signInMockUser } from "../../../test/utils/signInByMockUser"
+import {
+  FiresotreTestProvider,
+  initEmulatedFirebase,
+} from "../../../utils/firebase/FirebaseTestProvider"
 import { DeletePaymentModal } from "./DeletePaymentModal"
 
 const meta = {
@@ -12,6 +20,25 @@ const meta = {
   },
   tags: ["autodocs"],
   args: {},
+  beforeEach: async () => {
+    // FIXME: FiresotreTestProvider と処理が重複している
+    //        上記を解決したいけど、テストデータ挿入処理前にFirebaseを初期化しないといけないので、
+    //        FiresotreTestProvider の描画タイミングだと間に合わない
+    const { firestore, auth } = initEmulatedFirebase()
+
+    await signInMockUser(auth, user)
+    await insertUser(firestore, user)
+    await insertPayments(auth, firestore, payments)
+  },
+  decorators: [
+    (Story) => {
+      return (
+        <FiresotreTestProvider>
+          <Story />
+        </FiresotreTestProvider>
+      )
+    },
+  ],
 } satisfies Meta<typeof DeletePaymentModal>
 
 export default meta
