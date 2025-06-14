@@ -80,5 +80,10 @@ export const ClickDeleteButton: Story = {
 
     const deleteButton = within(dialog).getByRole("button", { name: /delete/i })
     await userEvent.click(deleteButton)
+
+    const successMessage = await body.findByText(
+      "Payment deleted successfully.",
+    )
+    expect(successMessage).toBeInTheDocument()
   },
 }
