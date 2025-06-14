@@ -1,4 +1,5 @@
 import { Table } from "@radix-ui/themes"
+import { ActionMenuButton } from "../../../components/payments/PaymentActionMenuButton"
 import type { Payment } from "../../../types/payment"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
@@ -14,6 +15,9 @@ export function PaymentItem({ payment }: PaymentItemProps) {
       </Table.RowHeaderCell>
       <Table.Cell>{payment.title}</Table.Cell>
       <Table.Cell align="right">{payment.price}</Table.Cell>
+      <Table.Cell align="right">
+        <ActionMenuButton payment={payment} />
+      </Table.Cell>
     </Table.Row>
   )
 }

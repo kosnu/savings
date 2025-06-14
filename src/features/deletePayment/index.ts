@@ -1,1 +1,1 @@
-export { PaymentActionMenuButton } from "./PaymentActionMenuButton"
+export { useDeletePaymentModal } from "./useDeletePaymentModal"
