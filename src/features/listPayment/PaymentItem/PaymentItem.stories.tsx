@@ -51,5 +51,8 @@ export const Default: Story = {
     expect(canvas.getByText(title)).toBeInTheDocument()
     expect(canvas.getByText(date)).toBeInTheDocument()
     expect(canvas.getByText(price)).toBeInTheDocument()
+    expect(
+      canvas.getByRole("button", { name: "Payment actions" }),
+    ).toBeInTheDocument()
   },
 }

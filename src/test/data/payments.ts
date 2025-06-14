@@ -1,5 +1,15 @@
 import type { Payment } from "../../types/payment"
 
+export const longPayment: Payment = {
+  id: "IadZXL3y4triLDhPP5hd",
+  userId: "",
+  date: new Date(1999, 2, 1),
+  title: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+  price: 1234567890,
+  createdDate: new Date(1999, 2, 1),
+  updatedDate: new Date(1999, 2, 1),
+}
+
 export const payments: Payment[] = [
   {
     id: "1ksjdJK9CDYBHbWe2FmU",
