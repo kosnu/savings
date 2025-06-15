@@ -23,7 +23,7 @@ export function DeletePaymentModal({
     useSnackbar("success")
   const { openSnackbar: openErrorSnackbar, Snackbar: ErrorSnackbar } =
     useSnackbar("error")
-  const paymentInfo = `${formatDateToLocaleString(payment.date)} ${payment.title} ${toCurrency(payment.price)}`
+  const paymentInfo = `${formatDateToLocaleString(payment.date)} ${payment.note} ${toCurrency(payment.amount)}`
 
   const handleOpenChange = useCallback(
     (open: boolean) => {

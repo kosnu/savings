@@ -27,14 +27,16 @@ export function CreatePaymentForm({
       const formData = new FormData(event.currentTarget)
       const formJson = Object.fromEntries(formData.entries())
 
+      // TODO: zodでオブジェクトを検証する
+
       try {
         await addPayment({
           db: db,
           userId: currentUser.uid,
           value: {
             date: formJson.date.toString(),
-            title: formJson.title.toString(),
-            price: Number.parseInt(formJson.price.toString(), 10),
+            note: formJson.note.toString(),
+            amount: Number.parseInt(formJson.amount.toString(), 10),
           },
         })
         onSuccess?.()
@@ -53,8 +55,8 @@ export function CreatePaymentForm({
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="3">
         <DatePicker label="Date" name="date" mode="single" required />
-        <Textfield label="Title" name="title" type="text" required />
-        <Textfield label="Price" name="price" type="number" required />
+        <Textfield label="Note" name="note" type="text" required />
+        <Textfield label="Amount" name="amount" type="number" required />
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />

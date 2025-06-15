@@ -13,8 +13,8 @@ export function PaymentItem({ payment }: PaymentItemProps) {
       <Table.RowHeaderCell>
         {formatDateToLocaleString(payment.date)}
       </Table.RowHeaderCell>
-      <Table.Cell>{payment.title}</Table.Cell>
-      <Table.Cell align="right">{payment.price}</Table.Cell>
+      <Table.Cell>{payment.note}</Table.Cell>
+      <Table.Cell align="right">{payment.amount}</Table.Cell>
       <Table.Cell align="right">
         <ActionMenuButton payment={payment} />
       </Table.Cell>

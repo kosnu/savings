@@ -1,7 +1,7 @@
 export interface Payment {
   id?: string
-  title: string
-  price: number
+  note: string
+  amount: number
   date: Date
   userId: string
   createdDate: Date
