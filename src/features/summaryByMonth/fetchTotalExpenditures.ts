@@ -30,7 +30,7 @@ export async function fetchTotalExpenditures(
   )
 
   const snapshot = await getAggregateFromServer(querySnapshot, {
-    totalPopulation: sum("price"),
+    totalPopulation: sum("amount"),
   })
 
   return snapshot.data().totalPopulation

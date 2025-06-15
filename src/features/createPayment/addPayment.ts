@@ -11,13 +11,13 @@ interface AddPaymentProps {
   userId: string
   value: {
     date: string
-    title: string
-    price: number
+    note: string
+    amount: number
   }
 }
 
 export async function addPayment({ db, userId, value }: AddPaymentProps) {
-  const { date, title, price } = value
+  const { date, note, amount } = value
 
   return await addDoc(
     collection(db, collections.payments.path(userId)).withConverter(
@@ -25,8 +25,8 @@ export async function addPayment({ db, userId, value }: AddPaymentProps) {
     ),
     {
       date: new Date(date),
-      title: title,
-      price: price,
+      note: note,
+      amount: amount,
       userId: userId,
       createdDate: serverTimestamp(),
       updatedDate: serverTimestamp(),

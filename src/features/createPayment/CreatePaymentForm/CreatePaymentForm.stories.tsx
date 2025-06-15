@@ -45,10 +45,10 @@ export const Fiiled: Story = {
     })
     await userEvent.click(todayButton)
 
-    const titleTextfield = canvas.getByRole("textbox", { name: /title/i })
-    await userEvent.type(titleTextfield, "Test")
+    const noteTextfield = canvas.getByRole("textbox", { name: /note/i })
+    await userEvent.type(noteTextfield, "Test")
 
-    const priceTextfield = canvas.getByRole("spinbutton", { name: /price/i })
-    await userEvent.type(priceTextfield, "1080")
+    const amountTextfield = canvas.getByRole("spinbutton", { name: /amount/i })
+    await userEvent.type(amountTextfield, "1080")
   },
 }
