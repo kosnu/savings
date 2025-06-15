@@ -45,9 +45,9 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    const title = payments[0].title
+    const title = payments[0].note
     const date = formatDateToLocaleString(payments[0].date)
-    const price = payments[0].price
+    const price = payments[0].amount
     expect(canvas.getByText(title)).toBeInTheDocument()
     expect(canvas.getByText(date)).toBeInTheDocument()
     expect(canvas.getByText(price)).toBeInTheDocument()
