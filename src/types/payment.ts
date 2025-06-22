@@ -1,5 +1,6 @@
 export interface Payment {
   id?: string
+  categoryId?: string
   note: string
   amount: number
   date: Date

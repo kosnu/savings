@@ -5,6 +5,7 @@ import { DatePicker } from "../../../components/inputs/DatePicker"
 import { Textfield } from "../../../components/inputs/Textfield"
 import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../../utils/firebase/useFirestore"
+import { CategorySelect } from "../CategorySelect"
 import { addPayment } from "../addPayment"
 
 interface CreatePaymentFormProps {
@@ -55,6 +56,7 @@ export function CreatePaymentForm({
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="3">
         <DatePicker label="Date" name="date" mode="single" required />
+        <CategorySelect />
         <Textfield label="Note" name="note" type="text" required />
         <Textfield label="Amount" name="amount" type="number" required />
       </Flex>
