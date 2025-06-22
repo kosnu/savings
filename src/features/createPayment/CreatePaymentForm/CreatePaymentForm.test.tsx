@@ -13,7 +13,9 @@ import {
   where,
 } from "firebase/firestore"
 import { expect, test } from "vitest"
+import { categories } from "../../../test/data/categories"
 import { user } from "../../../test/data/users"
+import { insertCategories } from "../../../test/utils/insertCategories"
 import { insertUser } from "../../../test/utils/insertUser"
 import { signInMockUser } from "../../../test/utils/signInByMockUser"
 import type { Payment } from "../../../types/payment"
@@ -32,26 +34,30 @@ test("Create payment", async () => {
 
   const userId = auth.currentUser?.uid ?? user.id
   await insertUser(firestore, { ...user, id: userId })
+  await insertCategories(auth, firestore, categories)
 
   await Fiiled.run()
 
   const submitButton = screen.getByRole("button", { name: /create payment/i })
   await userEvent.click(submitButton)
 
-  const payment = await getLastPayment(firestore, userId)
+  const note = "Test_FSf5qxLNxAC265uSTcNa"
+  const payment = await getLastPayment(firestore, userId, note)
   expect(payment?.date === new Date())
 
-  deletePaymentById(firestore, userId, payment?.id)
+  if (payment) deletePaymentById(firestore, userId, payment.id)
 })
 
 async function getLastPayment(
   firestore: Firestore,
   userId: string,
+  note: string,
 ): Promise<Payment | undefined> {
   const paymentsRef = collection(firestore, collections.payments.path(userId))
   const q = query(
     paymentsRef.withConverter(collections.payments.converter),
     where("user_id", "==", userId),
+    where("note", "==", note),
     orderBy("created_date", "desc"),
     limit(1),
   )
