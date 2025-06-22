@@ -19,6 +19,7 @@ export const PaymentList = memo(function PaymentList() {
               <Table.ColumnHeaderCell minWidth="120px">
                 Date
               </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Category</Table.ColumnHeaderCell>
               <Table.ColumnHeaderCell>Note</Table.ColumnHeaderCell>
               <Table.ColumnHeaderCell align="right">
                 Amount&nbsp;(¥)
