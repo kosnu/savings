@@ -40,15 +40,32 @@ export const Fiiled: Story = {
     await userEvent.click(datepicker)
 
     const body = canvasElement.ownerDocument.body
-    const todayButton = await within(body).findByRole("button", {
-      name: /today/i,
-    })
-    await userEvent.click(todayButton)
+    {
+      const todayButton = await within(body).findByRole("button", {
+        name: /today/i,
+      })
+      await userEvent.click(todayButton)
+    }
+    {
+      const select = canvas.getByRole("combobox", { name: /category/i })
+      await userEvent.click(select)
 
-    const noteTextfield = canvas.getByRole("textbox", { name: /note/i })
-    await userEvent.type(noteTextfield, "Test")
-
-    const amountTextfield = canvas.getByRole("spinbutton", { name: /amount/i })
-    await userEvent.type(amountTextfield, "1080")
+      const body = within(canvasElement.ownerDocument.body)
+      const listbox = await body.findByRole("listbox")
+      const option = await within(listbox).findByRole("option", {
+        name: /food/i,
+      })
+      await userEvent.click(option)
+    }
+    {
+      const noteTextfield = canvas.getByRole("textbox", { name: /note/i })
+      await userEvent.type(noteTextfield, "Test")
+    }
+    {
+      const amountTextfield = canvas.getByRole("spinbutton", {
+        name: /amount/i,
+      })
+      await userEvent.type(amountTextfield, "1080")
+    }
   },
 }

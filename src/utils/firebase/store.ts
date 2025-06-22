@@ -60,6 +60,7 @@ const paymentsCollection: Collection<Payment, PaymentDocument, string> = {
   converter: {
     toFirestore: (data: Payment): PaymentDocument => {
       return {
+        categoryId: data.categoryId,
         note: data.note,
         amount: data.amount,
         date: Timestamp.fromDate(data.date),
@@ -73,6 +74,7 @@ const paymentsCollection: Collection<Payment, PaymentDocument, string> = {
 
       return {
         id: snapshot.id,
+        categoryId: data.categoryId,
         note: data.note,
         amount: data.amount,
         date: (data.date as Timestamp).toDate(),
