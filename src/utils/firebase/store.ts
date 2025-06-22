@@ -47,6 +47,7 @@ const usersCollection: Collection<User, UserDocument> = {
 }
 
 export interface PaymentDocument extends DocumentData {
+  category_id: string
   note: string
   amount: number
   date: Timestamp
@@ -60,6 +61,7 @@ const paymentsCollection: Collection<Payment, PaymentDocument, string> = {
   converter: {
     toFirestore: (data: Payment): PaymentDocument => {
       return {
+        category_id: data.categoryId ?? "",
         note: data.note,
         amount: data.amount,
         date: Timestamp.fromDate(data.date),
@@ -73,6 +75,7 @@ const paymentsCollection: Collection<Payment, PaymentDocument, string> = {
 
       return {
         id: snapshot.id,
+        categoryId: data.category_id,
         note: data.note,
         amount: data.amount,
         date: (data.date as Timestamp).toDate(),

@@ -13,6 +13,8 @@ export function PaymentItem({ payment }: PaymentItemProps) {
       <Table.RowHeaderCell>
         {formatDateToLocaleString(payment.date)}
       </Table.RowHeaderCell>
+      {/* TODO: あとでカテゴリ情報を表示する */}
+      <Table.Cell>{payment.categoryId}</Table.Cell>
       <Table.Cell>{payment.note}</Table.Cell>
       <Table.Cell align="right">{payment.amount}</Table.Cell>
       <Table.Cell align="right">
