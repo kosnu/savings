@@ -13,7 +13,7 @@ export const CategorySelect = memo(function CategorySelect() {
       <ErrorBoundary
         fallbackRender={() => <SelectItem label="None" value="error" />}
       >
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<SelectItem label="Loading" value="loading" />}>
           <CategorySelectOptions getCategories={categoriesPromise} />
         </Suspense>
       </ErrorBoundary>
