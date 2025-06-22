@@ -3,6 +3,7 @@ import {
   type FirestoreDataConverter,
   Timestamp,
 } from "firebase/firestore"
+import type { Category } from "../../types/category"
 import type { Income } from "../../types/income"
 import type { Payment } from "../../types/payment"
 import type { User } from "../../types/user"
@@ -121,8 +122,41 @@ const incomesCollection: Collection<Income, IncomeDocument, string> = {
   },
 }
 
+export interface CategoryDocument extends DocumentData {
+  name: string
+  user_id: string
+  created_at: Timestamp // TODO: created_date に変更する
+  updated_at: Timestamp // TODO: updated_date に変更する
+}
+
+const categoriesCollection: Collection<Category, CategoryDocument, string> = {
+  path: (userId: string) => `users/${userId}/categories`,
+  converter: {
+    toFirestore: (data: Category): CategoryDocument => {
+      return {
+        name: data.name,
+        user_id: data.userId,
+        created_at: Timestamp.fromDate(data.createdDate),
+        updated_at: Timestamp.fromDate(data.updatedDate),
+      }
+    },
+    fromFirestore: (snapshot): Category => {
+      const data = snapshot.data()
+
+      return {
+        id: snapshot.id,
+        name: data.name,
+        userId: data.user_id,
+        createdDate: (data.created_at as Timestamp).toDate(),
+        updatedDate: (data.updated_at as Timestamp).toDate(),
+      }
+    },
+  },
+}
+
 export const collections = {
   users: usersCollection,
   payments: paymentsCollection,
   incomes: incomesCollection,
+  categories: categoriesCollection,
 } as const
