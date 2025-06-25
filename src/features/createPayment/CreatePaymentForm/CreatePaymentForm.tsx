@@ -7,6 +7,7 @@ import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../../utils/firebase/useFirestore"
 import { CategorySelect } from "../CategorySelect"
 import { addPayment } from "../addPayment"
+import { formShema } from "../formSchema"
 
 interface CreatePaymentFormProps {
   onSuccess?: () => void
@@ -26,18 +27,19 @@ export function CreatePaymentForm({
       if (!currentUser) return
 
       const formData = new FormData(event.currentTarget)
-      const formJson = Object.fromEntries(formData.entries())
-
-      // TODO: zodでオブジェクトを検証する
+      const formObject = Object.fromEntries(formData.entries())
+      // TODO: parse に失敗したときにエラーメッセージをStateに格納して各フォームで表示させる
+      const parsedFormObject = formShema.parse(formObject)
 
       try {
         await addPayment({
           db: db,
           userId: currentUser.uid,
           value: {
-            date: formJson.date.toString(),
-            note: formJson.note.toString(),
-            amount: Number.parseInt(formJson.amount.toString(), 10),
+            categoryId: parsedFormObject.category,
+            date: parsedFormObject.date,
+            note: parsedFormObject.note,
+            amount: parsedFormObject.amount,
           },
         })
         onSuccess?.()
