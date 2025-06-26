@@ -34,8 +34,6 @@ export function useSnackbar(type: SnackbarType): UseSnackbarReturn {
   }, [])
 
   const SnackbarComponent = useCallback(() => {
-    console.log("render Snackbar")
-
     return (
       <Snackbar
         type={type}
