@@ -1,7 +1,7 @@
 import type { User } from "firebase/auth"
 import {
-  type Firestore,
   collection,
+  type Firestore,
   getAggregateFromServer,
   query,
   sum,

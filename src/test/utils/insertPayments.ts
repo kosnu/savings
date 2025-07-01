@@ -1,7 +1,7 @@
 import type { Auth } from "firebase/auth"
 import {
-  type Firestore,
   doc,
+  type Firestore,
   serverTimestamp,
   setDoc,
 } from "firebase/firestore"

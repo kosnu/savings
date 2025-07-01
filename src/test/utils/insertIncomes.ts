@@ -1,5 +1,5 @@
 import type { Auth } from "firebase/auth"
-import { type Firestore, doc, setDoc } from "firebase/firestore"
+import { doc, type Firestore, setDoc } from "firebase/firestore"
 import type { Income } from "../../types/income"
 import { collections } from "../../utils/firebase/store"
 

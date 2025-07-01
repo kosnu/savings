@@ -1,6 +1,6 @@
 import {
-  GoogleAuthProvider,
   browserLocalPersistence,
+  GoogleAuthProvider,
   getAuth,
   onAuthStateChanged,
   setPersistence,

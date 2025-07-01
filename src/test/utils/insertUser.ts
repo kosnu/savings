@@ -1,4 +1,4 @@
-import { type Firestore, doc, setDoc } from "firebase/firestore"
+import { doc, type Firestore, setDoc } from "firebase/firestore"
 import type { User } from "../../types/user"
 import { collections } from "../../utils/firebase/store"
 
