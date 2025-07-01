@@ -8,10 +8,8 @@ interface ProviderProps {
 
 export function Provider({ children }: ProviderProps) {
   return (
-    <>
-      <FirestoreProvider>
-        <ThemeProvider>{children}</ThemeProvider>
-      </FirestoreProvider>
-    </>
+    <FirestoreProvider>
+      <ThemeProvider>{children}</ThemeProvider>
+    </FirestoreProvider>
   )
 }

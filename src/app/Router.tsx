@@ -1,8 +1,8 @@
 import {
-  RouterProvider as RRDRouterProvider,
-  Route,
   createBrowserRouter,
   createRoutesFromElements,
+  Route,
+  RouterProvider as RRDRouterProvider,
 } from "react-router-dom"
 import { paths } from "../config/paths"
 import { AppLayout } from "./AppLayout"

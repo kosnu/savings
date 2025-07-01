@@ -5,8 +5,8 @@ import { DatePicker } from "../../../components/inputs/DatePicker"
 import { Textfield } from "../../../components/inputs/Textfield"
 import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { useFirestore } from "../../../utils/firebase/useFirestore"
-import { CategorySelect } from "../CategorySelect"
 import { addPayment } from "../addPayment"
+import { CategorySelect } from "../CategorySelect"
 import { formShema } from "../formSchema"
 
 interface CreatePaymentFormProps {

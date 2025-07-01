@@ -1,8 +1,8 @@
 import type { FirebaseApp, FirebaseOptions } from "firebase/app"
 import { type Auth, connectAuthEmulator, getAuth } from "firebase/auth"
 import {
-  type Firestore,
   connectFirestoreEmulator,
+  type Firestore,
   getFirestore,
 } from "firebase/firestore"
 import type { ReactNode } from "react"

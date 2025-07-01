@@ -20,20 +20,15 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
   }, [closeDialog])
 
   return (
-    <>
-      <Dialog.Root open={open}>
-        <Button onClick={openDialog}>Create payment</Button>
-        <Dialog.Content>
-          <Dialog.Title>Create payment</Dialog.Title>
-          <Dialog.Description size="2" mb="4">
-            Create a new payment. Please fill in the details below.
-          </Dialog.Description>
-          <CreatePaymentForm
-            onSuccess={handleSuccess}
-            onCancel={handleCancel}
-          />
-        </Dialog.Content>
-      </Dialog.Root>
-    </>
+    <Dialog.Root open={open}>
+      <Button onClick={openDialog}>Create payment</Button>
+      <Dialog.Content>
+        <Dialog.Title>Create payment</Dialog.Title>
+        <Dialog.Description size="2" mb="4">
+          Create a new payment. Please fill in the details below.
+        </Dialog.Description>
+        <CreatePaymentForm onSuccess={handleSuccess} onCancel={handleCancel} />
+      </Dialog.Content>
+    </Dialog.Root>
   )
 }

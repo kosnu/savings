@@ -38,7 +38,7 @@ export function DeletePaymentModal({
     try {
       deletePayment(payment)
       openSuccessSnackbar("Payment deleted successfully.")
-    } catch (error) {
+    } catch (_error) {
       openErrorSnackbar("Failed to delete payment.")
     }
   }, [deletePayment, payment, openSuccessSnackbar, openErrorSnackbar])
