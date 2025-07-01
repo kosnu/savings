@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
@@ -7,22 +7,24 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["node_modules/", "**/*.json", ".vscode/"]
+    "includes": ["src/**", ".storybook/**"]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space"
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
-      "nursery": {
-        "useConsistentCurlyBraces": "error"
-      },
       "a11y": {
         "noLabelWithoutControl": {
           "level": "error",
