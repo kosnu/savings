@@ -14,16 +14,14 @@ export function PaymentsPage() {
   }, [])
 
   return (
-    <>
-      <Container size="4">
-        <Flex direction="column" gap="3">
-          <Summary />
-          <Flex justify="end" align="center" gap="3">
-            <CreatePaymentModal onSuccess={handleCreateSuccess} />
-          </Flex>
-          <PaymentList key={refreshKey} />
+    <Container size="4">
+      <Flex direction="column" gap="3">
+        <Summary />
+        <Flex justify="end" align="center" gap="3">
+          <CreatePaymentModal onSuccess={handleCreateSuccess} />
         </Flex>
-      </Container>
-    </>
+        <PaymentList key={refreshKey} />
+      </Flex>
+    </Container>
   )
 }

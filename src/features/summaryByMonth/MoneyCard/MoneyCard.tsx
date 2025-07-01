@@ -1,5 +1,5 @@
 import { Card, Flex, Spinner, Text } from "@radix-ui/themes"
-import { Suspense, memo, use } from "react"
+import { memo, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { toCurrency } from "../../../utils/toCurrency"
 
@@ -29,7 +29,9 @@ function MoneyCard({ title, getValue }: MoneyCardProps) {
 
 const MoneyText = memo(function MoneyText({
   getValue,
-}: { getValue: Promise<number | null> }) {
+}: {
+  getValue: Promise<number | null>
+}) {
   const data = use(getValue)
   const text = data !== null ? toCurrency(data) : "-"
 

@@ -1,7 +1,7 @@
 import {
-  type Firestore,
   addDoc,
   collection,
+  type Firestore,
   serverTimestamp,
 } from "firebase/firestore"
 import type { Payment } from "../../types/payment"

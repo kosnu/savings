@@ -3,11 +3,9 @@ import { Router } from "./Router"
 
 function App() {
   return (
-    <>
-      <Provider>
-        <Router />
-      </Provider>
-    </>
+    <Provider>
+      <Router />
+    </Provider>
   )
 }
 
