@@ -6,6 +6,9 @@ import { defineConfig } from "vitest/config"
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  optimizeDeps: {
+    include: ["react/jsx-dev-runtime"],
+  },
   test: {
     globalSetup: ["./src/test/globalSetup.ts"],
     environment: "jsdom",
