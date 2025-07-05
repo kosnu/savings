@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**", ".storybook/**"]
+    "includes": ["src/**", ".storybook/**", "./*.ts"]
   },
   "formatter": {
     "enabled": true,
