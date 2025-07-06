@@ -5,6 +5,7 @@ import { expect } from "storybook/test"
 import { payments } from "../../../test/data/payments"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 import { PaymentItem } from "./PaymentItem"
+import { foodCat } from "../../../test/data/categories"
 
 const meta = {
   title: "Features/ListPayment/PaymentItem",
@@ -41,6 +42,7 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     payment: payments[0],
+    category: foodCat,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
