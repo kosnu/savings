@@ -1,7 +1,13 @@
 import { Spinner, Table } from "@radix-ui/themes"
 import { memo, Suspense, use, useMemo } from "react"
+import type { Category } from "../../../types/category"
 import type { Payment } from "../../../types/payment"
 import { useDateRange } from "../../../utils/useDateRange"
+import {
+  getCategoryStrict,
+  toCategoryMap,
+} from "../../categories/listCategory/toCategoryMap"
+import { useCategories } from "../../categories/listCategory/useCategories"
 import { PaymentItem } from "../PaymentItem"
 import { useGetPayments } from "../useGetPayments"
 
@@ -9,6 +15,7 @@ export const PaymentList = memo(function PaymentList() {
   const { dateRange } = useDateRange()
   const { getPayments } = useGetPayments(dateRange)
   const paymentsPromise = useMemo(() => getPayments(), [getPayments])
+  const { promiseCategories } = useCategories()
 
   return (
     <Suspense fallback={<Spinner size="3" />}>
@@ -27,25 +34,38 @@ export const PaymentList = memo(function PaymentList() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          <Body getPayments={paymentsPromise} />
+          <TableBodyContent
+            promiseCategories={promiseCategories}
+            getPayments={paymentsPromise}
+          />
         </Table.Body>
       </Table.Root>
     </Suspense>
   )
 })
 
-const Body = memo(function Body({
-  getPayments,
-}: {
+interface TableBodyContentProps {
+  promiseCategories: Promise<Category[]>
   getPayments: Promise<Payment[]>
-}) {
+}
+
+const TableBodyContent = memo(function Body({
+  promiseCategories,
+  getPayments,
+}: TableBodyContentProps) {
   const data = use(getPayments)
+  const categories = use(promiseCategories)
+  const categoryMap = toCategoryMap(categories)
 
   return (
     <>
-      {data.map((payment) => (
-        <PaymentItem key={payment.id} payment={payment} />
-      ))}
+      {data.map((payment) => {
+        const category = getCategoryStrict(categoryMap, payment.categoryId)
+
+        return (
+          <PaymentItem key={payment.id} category={category} payment={payment} />
+        )
+      })}
     </>
   )
 })
