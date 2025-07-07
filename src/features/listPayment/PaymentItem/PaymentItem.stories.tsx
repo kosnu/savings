@@ -2,6 +2,7 @@ import { Table } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect } from "storybook/test"
+import { foodCat } from "../../../test/data/categories"
 import { payments } from "../../../test/data/payments"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 import { PaymentItem } from "./PaymentItem"
@@ -41,6 +42,7 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     payment: payments[0],
+    category: foodCat,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
