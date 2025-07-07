@@ -36,8 +36,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit/integration",
-          include: ["**/*.test.ts(|x)"]
-        }
+          include: ["**/*.test.ts(|x)"],
+        },
       },
       {
         extends: true,
