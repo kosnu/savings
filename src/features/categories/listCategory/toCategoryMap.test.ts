@@ -1,6 +1,6 @@
-import {test, expect} from "vitest"
-import { getCategoryStrict, toCategoryMap } from "./toCategoryMap"
+import { expect, test } from "vitest"
 import { foodCat } from "../../../test/data/categories"
+import { getCategoryStrict, toCategoryMap } from "./toCategoryMap"
 
 test("toCategoryMap", () => {
   const result = toCategoryMap([foodCat])
