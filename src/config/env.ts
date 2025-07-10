@@ -1,4 +1,4 @@
-import z from "zod"
+import * as z from "zod";
 
 function createEnv() {
   const mode = import.meta.env.MODE
