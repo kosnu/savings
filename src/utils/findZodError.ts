@@ -1,7 +1,7 @@
-import type { ZodError } from "zod/v4"
+import type * as z from "zod"
 
 export function findZodError<Schema>(
-  error: ZodError<Schema> | undefined,
+  error: z.ZodError<Schema> | undefined,
   key: keyof Schema,
 ) {
   return error?.issues.find((issue) => issue.path[0] === key)
