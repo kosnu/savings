@@ -1,5 +1,4 @@
-import * as z from "zod";
-
+import type * as z from "zod"
 
 export function findZodError<Schema>(
   error: z.ZodError<Schema> | undefined,
