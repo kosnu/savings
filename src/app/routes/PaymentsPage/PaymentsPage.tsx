@@ -13,6 +13,11 @@ export function PaymentsPage() {
     setRefreshKey((prevKey) => prevKey + 1)
   }, [])
 
+  const handleDeleteSuccess = useCallback(() => {
+    // 状態を更新して再レンダリングをトリガー
+    setRefreshKey((prevKey) => prevKey + 1)
+  }, [])
+
   return (
     <Container size="4">
       <Flex direction="column" gap="3">
@@ -20,7 +25,7 @@ export function PaymentsPage() {
         <Flex justify="end" align="center" gap="3">
           <CreatePaymentModal onSuccess={handleCreateSuccess} />
         </Flex>
-        <PaymentList key={refreshKey} />
+        <PaymentList key={refreshKey} onDeleteSuccess={handleDeleteSuccess} />
       </Flex>
     </Container>
   )

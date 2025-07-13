@@ -11,7 +11,13 @@ import { useCategories } from "../../categories/listCategory/useCategories"
 import { PaymentItem } from "../PaymentItem"
 import { useGetPayments } from "../useGetPayments"
 
-export const PaymentList = memo(function PaymentList() {
+interface PaymentListProps {
+  onDeleteSuccess: () => void
+}
+
+export const PaymentList = memo(function PaymentList({
+  onDeleteSuccess,
+}: PaymentListProps) {
   const { dateRange } = useDateRange()
   const { getPayments } = useGetPayments(dateRange)
   const paymentsPromise = useMemo(() => getPayments(), [getPayments])
@@ -37,6 +43,7 @@ export const PaymentList = memo(function PaymentList() {
           <TableBodyContent
             promiseCategories={promiseCategories}
             getPayments={paymentsPromise}
+            onDeleteSuccess={onDeleteSuccess}
           />
         </Table.Body>
       </Table.Root>
@@ -47,11 +54,13 @@ export const PaymentList = memo(function PaymentList() {
 interface TableBodyContentProps {
   promiseCategories: Promise<Category[]>
   getPayments: Promise<Payment[]>
+  onDeleteSuccess: () => void
 }
 
 const TableBodyContent = memo(function Body({
   promiseCategories,
   getPayments,
+  onDeleteSuccess,
 }: TableBodyContentProps) {
   const data = use(getPayments)
   const categories = use(promiseCategories)
@@ -63,7 +72,12 @@ const TableBodyContent = memo(function Body({
         const category = getCategoryStrict(categoryMap, payment.categoryId)
 
         return (
-          <PaymentItem key={payment.id} category={category} payment={payment} />
+          <PaymentItem
+            key={payment.id}
+            category={category}
+            payment={payment}
+            onDeleteSuccess={onDeleteSuccess}
+          />
         )
       })}
     </>
