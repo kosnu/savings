@@ -34,6 +34,7 @@ const CategorySelectOptions = memo(function CategorySelectInner({
     <>
       {categories.map((category) => (
         <SelectItem
+          aria-label={category.name}
           key={category.id}
           label={category.name}
           value={category?.id ?? ""}
