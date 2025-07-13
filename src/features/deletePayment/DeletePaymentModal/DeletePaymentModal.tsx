@@ -11,12 +11,14 @@ interface DeletePaymentModalProps {
   payment: Payment
   open?: boolean
   onClose?: () => void
+  onSuccess: () => void
 }
 
 export function DeletePaymentModal({
   payment,
   open,
   onClose,
+  onSuccess,
 }: DeletePaymentModalProps) {
   const { deletePayment } = useDeletePayment()
   const { openSnackbar: openSuccessSnackbar, Snackbar: SuccessSnackbar } =
@@ -38,10 +40,17 @@ export function DeletePaymentModal({
     try {
       deletePayment(payment)
       openSuccessSnackbar("Payment deleted successfully.")
+      onSuccess()
     } catch (_error) {
       openErrorSnackbar("Failed to delete payment.")
     }
-  }, [deletePayment, payment, openSuccessSnackbar, openErrorSnackbar])
+  }, [
+    deletePayment,
+    payment,
+    openSuccessSnackbar,
+    openErrorSnackbar,
+    onSuccess,
+  ])
 
   return (
     <>
