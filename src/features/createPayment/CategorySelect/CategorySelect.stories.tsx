@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
-import { userEvent, within } from "storybook/test"
+import { expect, userEvent, waitFor, within } from "storybook/test"
 import { categories } from "../../../test/data/categories"
 import { user } from "../../../test/data/users"
 import { insertCategories } from "../../../test/utils/insertCategories"
@@ -59,6 +59,14 @@ export const Filled: Story = {
 
     const body = within(canvasElement.ownerDocument.body)
     const listbox = await body.findByRole("listbox")
+
+    await waitFor(() => {
+      // "loading" ラベルの要素が存在しないことを確認
+      expect(
+        within(listbox).queryByLabelText(/loading/),
+      ).not.toBeInTheDocument()
+    })
+
     const option = await within(listbox).findByRole("option", {
       name: /food/i,
     })
