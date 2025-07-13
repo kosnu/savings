@@ -18,7 +18,7 @@ export function Select({
   children,
 }: SelectProps) {
   const id = useId()
-  const [value, setValue] = useState<string | undefined>()
+  const [value, setValue] = useState<string>("")
 
   const handleChange = useCallback((value: string) => {
     setValue(value)
