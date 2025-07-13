@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
-import { expect, userEvent } from "storybook/test"
+import { expect, fn, userEvent } from "storybook/test"
 import { payments } from "../../../test/data/payments"
 import { ActionMenuButton } from "./ActionMenuButton"
 
@@ -12,7 +12,9 @@ const meta = {
   },
   tags: ["autodocs"],
   argTypes: {},
-  args: {},
+  args: {
+    onDeleteSuccess: fn(),
+  },
 } satisfies Meta<typeof ActionMenuButton>
 
 export default meta

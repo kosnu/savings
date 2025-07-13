@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
-import { expect, userEvent } from "storybook/test"
+import { expect, fn, userEvent } from "storybook/test"
 import { longPayment, payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
 import { insertPayments } from "../../../test/utils/insertPayments"
@@ -19,7 +19,9 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-  args: {},
+  args: {
+    onSuccess: fn(),
+  },
   beforeEach: async () => {
     // FIXME: FiresotreTestProvider と処理が重複している
     //        上記を解決したいけど、テストデータ挿入処理前にFirebaseを初期化しないといけないので、

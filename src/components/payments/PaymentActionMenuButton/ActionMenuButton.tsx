@@ -6,9 +6,13 @@ import type { Payment } from "../../../types/payment"
 
 interface ActionMenuButtonProps {
   payment: Payment
+  onDeleteSuccess: () => void
 }
 
-export function ActionMenuButton({ payment }: ActionMenuButtonProps) {
+export function ActionMenuButton({
+  payment,
+  onDeleteSuccess,
+}: ActionMenuButtonProps) {
   const { open: openDeleteModal, DeletePaymentModal } = useDeletePaymentModal()
 
   const handleDeleteClick = useCallback(() => {
@@ -30,7 +34,7 @@ export function ActionMenuButton({ payment }: ActionMenuButtonProps) {
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
-      <DeletePaymentModal />
+      <DeletePaymentModal onSuccess={onDeleteSuccess} />
     </>
   )
 }

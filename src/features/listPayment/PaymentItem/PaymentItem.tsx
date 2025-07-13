@@ -7,9 +7,14 @@ import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToL
 interface PaymentItemProps {
   category: Category
   payment: Payment
+  onDeleteSuccess: () => void
 }
 
-export function PaymentItem({ category, payment }: PaymentItemProps) {
+export function PaymentItem({
+  category,
+  payment,
+  onDeleteSuccess,
+}: PaymentItemProps) {
   return (
     <Table.Row aria-label="payment-item">
       <Table.RowHeaderCell>
@@ -19,7 +24,7 @@ export function PaymentItem({ category, payment }: PaymentItemProps) {
       <Table.Cell>{payment.note}</Table.Cell>
       <Table.Cell align="right">{payment.amount}</Table.Cell>
       <Table.Cell align="right">
-        <ActionMenuButton payment={payment} />
+        <ActionMenuButton payment={payment} onDeleteSuccess={onDeleteSuccess} />
       </Table.Cell>
     </Table.Row>
   )
