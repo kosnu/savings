@@ -1,7 +1,7 @@
 import { Table } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
-import { expect } from "storybook/test"
+import { expect, fn } from "storybook/test"
 import { foodCat } from "../../../test/data/categories"
 import { payments } from "../../../test/data/payments"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
@@ -15,7 +15,9 @@ const meta = {
   },
   tags: ["autodocs"],
   argTypes: {},
-  args: {},
+  args: {
+    onDeleteSuccess: fn(),
+  },
   decorators: (Story) => {
     return (
       <Table.Root>

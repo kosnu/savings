@@ -5,7 +5,7 @@ import { DeletePaymentModal } from "./DeletePaymentModal"
 
 interface UseDeletePaymentModalReturn {
   open: (payment: Payment) => void
-  DeletePaymentModal: () => JSX.Element
+  DeletePaymentModal: ({ onSuccess }: { onSuccess: () => void }) => JSX.Element
 }
 
 export function useDeletePaymentModal(): UseDeletePaymentModalReturn {
@@ -20,13 +20,21 @@ export function useDeletePaymentModal(): UseDeletePaymentModalReturn {
     [openDialog],
   )
 
-  const DeletePaymentModalComponent = useCallback(() => {
-    if (!payment) return <Fragment />
+  const DeletePaymentModalComponent = useCallback(
+    ({ onSuccess }: { onSuccess: () => void }) => {
+      if (!payment) return <Fragment />
 
-    return (
-      <DeletePaymentModal open={open} payment={payment} onClose={closeDialog} />
-    )
-  }, [open, closeDialog, payment])
+      return (
+        <DeletePaymentModal
+          open={open}
+          payment={payment}
+          onClose={closeDialog}
+          onSuccess={onSuccess}
+        />
+      )
+    },
+    [open, closeDialog, payment],
+  )
 
   return {
     open: openDeleteModal,
