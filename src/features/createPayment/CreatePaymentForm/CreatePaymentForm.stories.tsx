@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
-import { fn, userEvent } from "storybook/test"
+import { expect, fn, userEvent, waitFor } from "storybook/test"
 import { categories } from "../../../test/data/categories"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
@@ -72,11 +72,19 @@ export const Fiiled: Story = {
       await userEvent.click(todayButton)
     }
     {
-      const select = canvas.getByRole("combobox", { name: /category/i })
+      const select = await canvas.findByRole("combobox", { name: /category/i })
       await userEvent.click(select)
 
       const body = within(canvasElement.ownerDocument.body)
       const listbox = await body.findByRole("listbox")
+
+      await waitFor(() => {
+        // "loading" ラベルの要素が存在しないことを確認
+        expect(
+          within(listbox).queryByLabelText(/loading/),
+        ).not.toBeInTheDocument()
+      })
+
       const option = await within(listbox).findByRole("option", {
         name: /food/i,
       })
