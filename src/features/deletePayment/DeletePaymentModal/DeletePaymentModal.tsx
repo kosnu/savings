@@ -36,9 +36,9 @@ export function DeletePaymentModal({
     [onClose],
   )
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     try {
-      deletePayment(payment)
+      await deletePayment(payment)
       openSuccessSnackbar("Payment deleted successfully.")
       onSuccess()
     } catch (_error) {
