@@ -1,10 +1,10 @@
 import { Button, Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
 import { CancelButton } from "../../../components/buttons/CancelButton"
+import { useSnackbar } from "../../../shared/snackbar"
 import type { Payment } from "../../../types/payment"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 import { toCurrency } from "../../../utils/toCurrency"
-import { useSnackbar } from "../../../utils/useSnackbar"
 import { useDeletePayment } from "../useDeletePayment"
 
 interface DeletePaymentModalProps {
@@ -21,10 +21,7 @@ export function DeletePaymentModal({
   onSuccess,
 }: DeletePaymentModalProps) {
   const { deletePayment } = useDeletePayment()
-  const { openSnackbar: openSuccessSnackbar, Snackbar: SuccessSnackbar } =
-    useSnackbar("success")
-  const { openSnackbar: openErrorSnackbar, Snackbar: ErrorSnackbar } =
-    useSnackbar("error")
+  const { openSnackbar } = useSnackbar()
   const paymentInfo = `${formatDateToLocaleString(payment.date)} ${payment.note} ${toCurrency(payment.amount)}`
 
   const handleOpenChange = useCallback(
@@ -39,18 +36,12 @@ export function DeletePaymentModal({
   const handleSubmit = useCallback(async () => {
     try {
       await deletePayment(payment)
-      openSuccessSnackbar("Payment deleted successfully.")
+      openSnackbar("success", "Payment deleted successfully.")
       onSuccess()
     } catch (_error) {
-      openErrorSnackbar("Failed to delete payment.")
+      openSnackbar("error", "Failed to delete payment.")
     }
-  }, [
-    deletePayment,
-    payment,
-    openSuccessSnackbar,
-    openErrorSnackbar,
-    onSuccess,
-  ])
+  }, [deletePayment, payment, onSuccess, openSnackbar])
 
   return (
     <>
@@ -75,8 +66,6 @@ export function DeletePaymentModal({
           </Flex>
         </Dialog.Content>
       </Dialog.Root>
-      <SuccessSnackbar />
-      <ErrorSnackbar />
     </>
   )
 }
