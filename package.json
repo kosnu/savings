@@ -31,7 +31,7 @@
     "zod": "4.0.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.1.1",
+    "@biomejs/biome": "2.1.2",
     "@chromatic-com/storybook": "4.0.1",
     "@storybook/addon-docs": "9.0.17",
     "@storybook/addon-onboarding": "9.0.17",
