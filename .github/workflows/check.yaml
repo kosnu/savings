@@ -1,11 +1,10 @@
-name: Check
+name: Frontend Check
 
 on:
   pull_request:
     paths:
       - ".github/workflows/check.yaml"
-      - "src/**"
-      - "*.json"
+      - "apps/web/**"
     types: [opened, synchronize]
 jobs:
   check:
@@ -17,12 +16,15 @@ jobs:
           - 8080:8080   # Firestore
           - 9099:9099   # Auth
           - 4000:4000   # Emulator UI
+    defaults:
+      run:
+        working-directory: apps/web/
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: "package.json"
+          node-version-file: "apps/web/package.json"
       - name: Cache node modules
         id: cache-npm
         uses: actions/cache@v4
@@ -30,7 +32,7 @@ jobs:
           cache-name: cache-node-modules
         with:
           # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
+          path: ./.npm
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
