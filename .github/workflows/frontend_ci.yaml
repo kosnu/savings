@@ -54,7 +54,5 @@ jobs:
           done
       - name: Test
         run: npm run test
-        env:
-          SB_URL: '${{ github.event.deployment_status.target_url }}'
       - name: Build
         run: npm run build
