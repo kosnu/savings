@@ -1,9 +1,9 @@
-name: Frontend Check
+name: Frontend CI
 
 on:
   pull_request:
     paths:
-      - ".github/workflows/check.yaml"
+      - ".github/workflows/frontend_ci.yaml"
       - "apps/web/**"
     types: [opened, synchronize]
 jobs:
