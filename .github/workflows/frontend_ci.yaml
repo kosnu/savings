@@ -1,9 +1,9 @@
-name: Frontend Check
+name: Frontend CI
 
 on:
   pull_request:
     paths:
-      - ".github/workflows/check.yaml"
+      - ".github/workflows/frontend_ci.yaml"
       - "apps/web/**"
     types: [opened, synchronize]
 jobs:
@@ -54,7 +54,5 @@ jobs:
           done
       - name: Test
         run: npm run test
-        env:
-          SB_URL: '${{ github.event.deployment_status.target_url }}'
       - name: Build
         run: npm run build
