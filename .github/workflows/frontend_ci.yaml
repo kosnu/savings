@@ -21,10 +21,12 @@ jobs:
         working-directory: apps/web/
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: "apps/web/package.json"
+
       - name: Cache node modules
         id: cache-npm
         uses: actions/cache@v4
@@ -36,12 +38,28 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
+
       - name: Install dependencies
         run: npm ci
+
       - name: Biome check
         run: npm run check
+
+      - name: Check Playwright version
+        id: check_playwright_version
+        run: echo "playwright_version=$(npx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.check_playwright_version.outputs.playwright_version }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
+
       - name: Wait for Firebase Emulator
         run: |
           for i in {1..10}; do
@@ -52,7 +70,9 @@ jobs:
             echo "Waiting for emulator..."
             sleep 1
           done
+
       - name: Test
         run: npm run test
+
       - name: Build
         run: npm run build
