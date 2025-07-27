@@ -48,6 +48,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "apps/web/package.json"
+
       - name: Install deps and build
         run: |
           npm ci
