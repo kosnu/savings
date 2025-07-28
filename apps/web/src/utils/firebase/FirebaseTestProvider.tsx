@@ -1,10 +1,4 @@
-import type { FirebaseApp, FirebaseOptions } from "firebase/app"
-import { type Auth, connectAuthEmulator, getAuth } from "firebase/auth"
-import {
-  connectFirestoreEmulator,
-  type Firestore,
-  getFirestore,
-} from "firebase/firestore"
+import type { FirebaseOptions } from "firebase/app"
 import type { ReactNode } from "react"
 import { env } from "../../config/env"
 import { FirestoreContext } from "./firebaseContext"
@@ -33,34 +27,12 @@ export function FiresotreTestProvider({
 }
 
 export function initEmulatedFirebase() {
-  const { app } = initFirebase(testConfig)
-  const { auth, firestore } = useEmulator(app)
+  // FIXME: テストコードでも `initEmulatedFirebase()` が使われているので、ベースの `initFirebase()` をラップする形にした
+  const { app, firestore, auth } = initFirebase(testConfig)
 
   return {
     app: app,
     firestore: firestore,
     auth: auth,
-  }
-}
-
-interface UseEmulatorReturn {
-  auth: Auth
-  firestore: Firestore
-}
-
-function useEmulator(app: FirebaseApp): UseEmulatorReturn {
-  const auth = getAuth(app)
-  const firestore = getFirestore(app)
-
-  //emulator設定
-  connectAuthEmulator(auth, env.FIREBASE_AUTH_DOMAIN, {
-    disableWarnings: true,
-  })
-  const [host, port] = env.FIRESTORE_EMULATOR_HOST.split(":")
-  connectFirestoreEmulator(firestore, host, Number.parseInt(port, 10))
-
-  return {
-    auth: auth,
-    firestore: firestore,
   }
 }
