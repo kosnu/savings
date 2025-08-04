@@ -1,23 +1,33 @@
 /* Layout全体のスタイル */
 .layout {
-  height: 100vh; /* ビューポート全体の高さを占有 */
+  /* ビューポート全体の高さを占有 */
+  height: 100vh;
 }
 
 /* Sidebarのスタイル */
 .sidebar {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Header, Contents, Footerを上下に分ける */
-  border-right: 1px solid #e0e0e0; /* 右側の境界線 */
-  transition: width 0.3s ease; /* 開閉時のアニメーション */
+  /* Header, Contents, Footerを上下に分ける */
+  justify-content: space-between;
+  /* 右側の境界線 */
+  border-right: 1px solid #e0e0e0;
+  /* 開閉時のアニメーション */
+  transition: width 0.3s ease;
+  /* width: 0 の時に中身がはみ出ないようにする */
+  overflow: hidden;
+  /* アニメーション中にテキストが改行されないようにする */
+  white-space: nowrap;
 }
 
 .sidebar.open {
-  width: 240px; /* 開いているときの幅 */
+  /* 開いているときの幅 */
+  width: 240px;
 }
 
 .sidebar.closed {
-  width: 60px; /* 閉じているときの幅 */
+  /* 閉じているときの幅 */
+  width: 0px;
 }
 
 /* Sidebar Headerのスタイル */
@@ -27,7 +37,8 @@
 
 /* Sidebar Contentsのスタイル */
 .sidebar-contents {
-  flex-grow: 1; /* コンテンツ部分を伸縮可能にする */
+  /* コンテンツ部分を伸縮可能にする */
+  flex-grow: 1;
 }
 
 /* Sidebar Footerのスタイル */
@@ -37,18 +48,27 @@
 
 /* リンクのスタイル */
 .link {
-  text-decoration: none; /* リンクの下線を削除 */
-  width: 100%; /* リンクをSidebarの幅いっぱいに広げる */
+  /* リンクの下線を削除 */
+  text-decoration: none;
+  /* リンクをSidebarの幅いっぱいに広げる */
+  width: 100%;
 }
 
 /* Sidebar内のボタンのスタイル */
 .sidebar-button {
-  justify-content: flex-start !important; /* アイコンとテキストを左寄せ */
-  width: 100% !important; /* ボタンをSidebarの幅いっぱいに広げる */
+  /* アイコンとテキストを左寄せ */
+  justify-content: flex-start !important;
+  /* ボタンをSidebarの幅いっぱいに広げる */
+  width: 100% !important;
 }
 
 /* Mainのスタイル */
 .main {
-  flex-grow: 1; /* Main部分を伸縮可能にする */
+  /* Main部分を伸縮可能にする */
+  flex-grow: 1;
   padding: 16px;
+}
+
+.header {
+  padding: var(--space-2);
 }
