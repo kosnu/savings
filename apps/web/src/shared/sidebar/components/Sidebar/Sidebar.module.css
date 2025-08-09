@@ -1,9 +1,3 @@
-/* Layout全体のスタイル */
-.layout {
-  /* ビューポート全体の高さを占有 */
-  height: 100vh;
-}
-
 /* Sidebarのスタイル */
 .sidebar {
   display: flex;
@@ -20,12 +14,12 @@
   white-space: nowrap;
 }
 
-.sidebar.open {
+.sidebar[data-open="true"] {
   /* 開いているときの幅 */
   width: 240px;
 }
 
-.sidebar.closed {
+.sidebar[data-open="false"] {
   /* 閉じているときの幅 */
   width: 0px;
 }
@@ -66,7 +60,7 @@
 .main {
   /* Main部分を伸縮可能にする */
   flex-grow: 1;
-  padding: 16px;
+  padding: var(--space-2);
 }
 
 .header {
