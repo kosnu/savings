@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 interface UseSidebarReturn {
   open: boolean
