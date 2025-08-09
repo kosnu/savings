@@ -1,30 +1,26 @@
 import { HamburgerMenuIcon } from "@radix-ui/react-icons"
 import { Flex, IconButton } from "@radix-ui/themes"
-import { useCallback, useState } from "react"
 import { Outlet } from "react-router-dom"
 import { SidebarTreeButton } from "../../components/buttons/SidebarTreeButton"
 import { Sidebar } from "../../shared/sidebar"
+import { useSidebar } from "../../shared/sidebar/hooks/useSidebar"
 import styles from "./AppLayout.module.css"
 import { getPaymentsSidebarTree } from "./getPaymentsSidebarTree"
 
 export function AppLayout() {
-  const [isSidebarOpen, setIsSideberOpen] = useState(true)
-
-  const handleMenuClick = useCallback(() => {
-    setIsSideberOpen((value) => !value)
-  }, [])
+  const { open, toggleSidebar } = useSidebar()
 
   return (
     <Flex className={styles.layout}>
       {/* Sidebar */}
-      <Sidebar open={isSidebarOpen}>
+      <Sidebar open={open}>
         <Flex className={styles.sidebarContents} align="start" gap="2" p="4">
           <SidebarTreeButton treeObject={getPaymentsSidebarTree(new Date())} />
         </Flex>
       </Sidebar>
 
       <Flex direction="column" flexGrow="1">
-        <Header onMenuClick={handleMenuClick} />
+        <Header onMenuClick={toggleSidebar} />
         {/* Main Content */}
         <main className={styles.main}>
           <Outlet />
