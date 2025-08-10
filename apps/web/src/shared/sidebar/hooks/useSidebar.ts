@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react"
 interface UseSidebarReturn {
   open: boolean
   toggleSidebar: () => void
+  openSidebar: () => void
+  closeSidebar: () => void
 }
 
 const SIDEBAR_STATE_KEY = "sidebarOpen"
@@ -32,5 +34,13 @@ export function useSidebar(defaultOpen: boolean = true): UseSidebarReturn {
     setOpen((value) => !value)
   }, [])
 
-  return { open, toggleSidebar }
+  const openSidebar = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  const closeSidebar = useCallback(() => {
+    setOpen(false)
+  }, [])
+
+  return { open, toggleSidebar, openSidebar, closeSidebar }
 }

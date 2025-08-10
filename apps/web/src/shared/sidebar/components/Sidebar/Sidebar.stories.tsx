@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
-import { expect, within } from "storybook/test"
+import { expect, fn, within } from "storybook/test"
 import { Sidebar } from "./Sidebar"
 
 const meta = {
@@ -19,6 +19,9 @@ const meta = {
   ],
   argTypes: {
     open: { control: "boolean" },
+  },
+  args: {
+    onClose: fn(),
   },
 } satisfies Meta<typeof Sidebar>
 

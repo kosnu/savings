@@ -8,19 +8,17 @@ import styles from "./AppLayout.module.css"
 import { getPaymentsSidebarTree } from "./getPaymentsSidebarTree"
 
 export function AppLayout() {
-  const { open, toggleSidebar } = useSidebar()
+  const { open, openSidebar, closeSidebar } = useSidebar()
 
   return (
     <Flex className={styles.layout}>
       {/* Sidebar */}
-      <Sidebar open={open}>
-        <Flex className={styles.sidebarContents} align="start" gap="2" p="4">
-          <SidebarTreeButton treeObject={getPaymentsSidebarTree(new Date())} />
-        </Flex>
+      <Sidebar open={open} onClose={closeSidebar}>
+        <SidebarTreeButton treeObject={getPaymentsSidebarTree(new Date())} />
       </Sidebar>
 
       <Flex direction="column" flexGrow="1">
-        <Header onMenuClick={toggleSidebar} />
+        <Header onMenuClick={openSidebar} />
         {/* Main Content */}
         <main className={styles.main}>
           <Outlet />
