@@ -2,9 +2,9 @@ import { Table } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn } from "storybook/test"
-import { foodCat } from "../../../test/data/categories"
-import { payments } from "../../../test/data/payments"
-import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
+import { foodCat } from "../../../../test/data/categories"
+import { payments } from "../../../../test/data/payments"
+import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
 import { PaymentItem } from "./PaymentItem"
 
 const meta = {

@@ -1,7 +1,7 @@
 import { memo, Suspense, use, useMemo } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { Select, SelectItem } from "../../../components/inputs/Select"
-import type { Category } from "../../../types/category"
+import { Select, SelectItem } from "../../../../components/inputs/Select"
+import type { Category } from "../../../../types/category"
 import { useGetCategories } from "./useGetCategories"
 
 export const CategorySelect = memo(function CategorySelect() {

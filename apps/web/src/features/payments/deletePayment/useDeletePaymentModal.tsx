@@ -1,6 +1,6 @@
 import { Fragment, type JSX, useCallback, useState } from "react"
-import type { Payment } from "../../types/payment"
-import { useDialog } from "../../utils/useDialog"
+import type { Payment } from "../../../types/payment"
+import { useDialog } from "../../../utils/useDialog"
 import { DeletePaymentModal } from "./DeletePaymentModal"
 
 interface UseDeletePaymentModalReturn {

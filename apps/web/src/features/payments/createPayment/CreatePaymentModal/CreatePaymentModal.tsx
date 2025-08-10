@@ -1,6 +1,6 @@
 import { Button, Dialog } from "@radix-ui/themes"
 import { useCallback } from "react"
-import { useDialog } from "../../../utils/useDialog"
+import { useDialog } from "../../../../utils/useDialog"
 import { CreatePaymentForm } from "../CreatePaymentForm"
 
 interface CreatePaymentModalProps {

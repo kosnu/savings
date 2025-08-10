@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent } from "storybook/test"
-import { longPayment, payments } from "../../../test/data/payments"
-import { user } from "../../../test/data/users"
-import { insertPayments } from "../../../test/utils/insertPayments"
-import { insertUser } from "../../../test/utils/insertUser"
-import { signInMockUser } from "../../../test/utils/signInByMockUser"
+import { longPayment, payments } from "../../../../test/data/payments"
+import { user } from "../../../../test/data/users"
+import { insertPayments } from "../../../../test/utils/insertPayments"
+import { insertUser } from "../../../../test/utils/insertUser"
+import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import {
   FiresotreTestProvider,
   initEmulatedFirebase,
-} from "../../../utils/firebase/FirebaseTestProvider"
+} from "../../../../utils/firebase/FirebaseTestProvider"
 import { DeletePaymentModal } from "./DeletePaymentModal"
 
 const meta = {

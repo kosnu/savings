@@ -1,13 +1,13 @@
 import { Spinner, Table } from "@radix-ui/themes"
 import { memo, Suspense, use, useMemo } from "react"
-import type { Category } from "../../../types/category"
-import type { Payment } from "../../../types/payment"
-import { useDateRange } from "../../../utils/useDateRange"
+import type { Category } from "../../../../types/category"
+import type { Payment } from "../../../../types/payment"
+import { useDateRange } from "../../../../utils/useDateRange"
 import {
   getCategoryStrict,
   toCategoryMap,
-} from "../../categories/listCategory/toCategoryMap"
-import { useCategories } from "../../categories/listCategory/useCategories"
+} from "../../../categories/listCategory/toCategoryMap"
+import { useCategories } from "../../../categories/listCategory/useCategories"
 import { PaymentItem } from "../PaymentItem"
 import { useGetPayments } from "../useGetPayments"
 
