@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Biome check
-        run: npm run check
+        run: npm run check -- --error-on-warnings
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
       - name: Wait for Firebase Emulator
