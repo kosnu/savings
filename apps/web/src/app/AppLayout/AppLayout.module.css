@@ -4,64 +4,6 @@
   height: 100vh;
 }
 
-/* Sidebarのスタイル */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  /* Header, Contents, Footerを上下に分ける */
-  justify-content: space-between;
-  /* 右側の境界線 */
-  border-right: 1px solid #e0e0e0;
-  /* 開閉時のアニメーション */
-  transition: width 0.3s ease;
-  /* width: 0 の時に中身がはみ出ないようにする */
-  overflow: hidden;
-  /* アニメーション中にテキストが改行されないようにする */
-  white-space: nowrap;
-}
-
-.sidebar.open {
-  /* 開いているときの幅 */
-  width: 240px;
-}
-
-.sidebar.closed {
-  /* 閉じているときの幅 */
-  width: 0px;
-}
-
-/* Sidebar Headerのスタイル */
-.sidebar-header {
-  /*  */
-}
-
-/* Sidebar Contentsのスタイル */
-.sidebar-contents {
-  /* コンテンツ部分を伸縮可能にする */
-  flex-grow: 1;
-}
-
-/* Sidebar Footerのスタイル */
-.sidebar-footer {
-  /*  */
-}
-
-/* リンクのスタイル */
-.link {
-  /* リンクの下線を削除 */
-  text-decoration: none;
-  /* リンクをSidebarの幅いっぱいに広げる */
-  width: 100%;
-}
-
-/* Sidebar内のボタンのスタイル */
-.sidebar-button {
-  /* アイコンとテキストを左寄せ */
-  justify-content: flex-start !important;
-  /* ボタンをSidebarの幅いっぱいに広げる */
-  width: 100% !important;
-}
-
 /* Mainのスタイル */
 .main {
   /* Main部分を伸縮可能にする */
