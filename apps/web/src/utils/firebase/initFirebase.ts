@@ -24,8 +24,7 @@ export function initFirebase(
   const app = initializeApp(options)
   const auth = getAuth(app)
 
-  const databaseId = `savings-${mode}`
-  const firestore = getFirestore(app, databaseId)
+  const firestore = getFirestore(app, env.FIRESTORE_DATABASE_ID)
 
   if (mode === "development" || mode === "test") {
     connectEmulator(auth, firestore)
