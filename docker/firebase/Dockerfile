@@ -13,8 +13,11 @@ RUN npm install -g firebase-tools
 # Firebase Emulator の設定ファイルをコンテナにコピー
 COPY docker/firebase/.firebaserc docker/firebase/firebase.json ./
 
+# データインポートするためのディレクトリを作成する
+RUN mkdir -p /tmp/data/emulator_data
+
 # 必要なポートを公開
 EXPOSE 8080 9099 4400
 
 # Firebase Emulator を起動
-CMD ["firebase", "emulators:start", "--only", "firestore,auth", "--import", "/tmp/emulator_data/emulator_data"]
+CMD ["firebase", "emulators:start", "--only", "firestore,auth", "--import", "/tmp/data/emulator_data"]
