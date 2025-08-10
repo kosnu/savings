@@ -6,6 +6,7 @@ services:
     volumes:
       - ./docker/firebase/.firebaserc:/usr/src/app/firebaserc
       - ./docker/firebase/firebase.json:/usr/src/app/firebase.json
+      - ./docker/firebase/data:/tmp/emulator_data
     ports:
       - 9099:9099 # Firebase Authentication
       - 8080:8080 # Cloud Firestore
