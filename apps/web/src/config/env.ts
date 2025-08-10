@@ -13,6 +13,7 @@ function createEnv() {
     FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
     FIREBASE_APP_ID: z.string().optional(),
     FIREBASE_MEASUREMENT_ID: z.string().optional(),
+    FIRESTORE_DATABASE_ID: z.string().default("(default)"),
 
     FIRESTORE_EMULATOR_HOST: z.string().default("localhost:8080"),
   })
