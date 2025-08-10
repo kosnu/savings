@@ -1,0 +1,51 @@
+/*
+  A modern, lightweight CSS reset.
+  https://piccalil.li/blog/a-modern-css-reset/
+*/
+
+/*
+  1. Use a more intuitive box-sizing model.
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/*
+  2. Remove default margin from most elements.
+*/
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+/*
+  3. Make images and media easier to work with.
+*/
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/*
+  4. Inherit fonts for inputs and buttons.
+*/
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
