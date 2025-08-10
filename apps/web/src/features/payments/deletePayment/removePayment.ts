@@ -1,5 +1,5 @@
 import { deleteDoc, doc, type Firestore } from "firebase/firestore"
-import { collections } from "../../utils/firebase/store"
+import { collections } from "../../../utils/firebase/store"
 
 export async function removePayment(
   db: Firestore,

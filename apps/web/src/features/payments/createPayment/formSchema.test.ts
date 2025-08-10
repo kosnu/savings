@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { findZodError } from "../../utils/findZodError"
+import { findZodError } from "../../../utils/findZodError"
 import { formShema } from "./formSchema"
 
 describe("formSchema", () => {

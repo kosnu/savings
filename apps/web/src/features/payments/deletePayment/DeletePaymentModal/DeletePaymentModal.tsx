@@ -1,10 +1,10 @@
 import { Button, Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
-import { CancelButton } from "../../../components/buttons/CancelButton"
-import { useSnackbar } from "../../../shared/snackbar"
-import type { Payment } from "../../../types/payment"
-import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
-import { toCurrency } from "../../../utils/toCurrency"
+import { CancelButton } from "../../../../components/buttons/CancelButton"
+import { useSnackbar } from "../../../../shared/snackbar"
+import type { Payment } from "../../../../types/payment"
+import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
+import { toCurrency } from "../../../../utils/toCurrency"
 import { useDeletePayment } from "../useDeletePayment"
 
 interface DeletePaymentModalProps {

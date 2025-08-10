@@ -1,7 +1,7 @@
 import { Container, Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
-import { CreatePaymentModal } from "../../../features/createPayment"
-import { PaymentList } from "../../../features/listPayment"
+import { CreatePaymentModal } from "../../../features/payments/createPayment"
+import { PaymentList } from "../../../features/payments/listPayment"
 import { Summary } from "../../../features/summaryByMonth"
 
 export function PaymentsPage() {

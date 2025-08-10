@@ -1,8 +1,8 @@
 import { Table } from "@radix-ui/themes"
-import { ActionMenuButton } from "../../../components/payments/PaymentActionMenuButton"
-import type { Category } from "../../../types/category"
-import type { Payment } from "../../../types/payment"
-import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
+import { ActionMenuButton } from "../../../../components/payments/PaymentActionMenuButton"
+import type { Category } from "../../../../types/category"
+import type { Payment } from "../../../../types/payment"
+import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
 
 interface PaymentItemProps {
   category: Category
