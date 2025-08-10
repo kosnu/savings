@@ -1,13 +1,23 @@
 /* Sidebarのスタイル */
 .sidebar {
+  /* サイドバーを浮かすためにposition: absoluteを設定 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: calc(100% - var(--space-4));
+  z-index: 10; /* mainコンテンツより手前に表示 */
+  background: var(--color-background); /* 背景色がないと下のコンテンツが透ける */
+
   display: flex;
   flex-direction: column;
   /* Header, Contents, Footerを上下に分ける */
   justify-content: space-between;
-  /* 右側の境界線 */
-  border-right: 1px solid #e0e0e0;
+
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-3);
+
   /* 開閉時のアニメーション */
-  transition: width 0.3s ease;
+  transition: width 0.2s ease;
   /* width: 0 の時に中身がはみ出ないようにする */
   overflow: hidden;
   /* アニメーション中にテキストが改行されないようにする */
@@ -22,6 +32,7 @@
 .sidebar[data-open="false"] {
   /* 閉じているときの幅 */
   width: 0px;
+  box-shadow: none;
 }
 
 /* Sidebar Headerのスタイル */
@@ -45,7 +56,7 @@
   /* リンクの下線を削除 */
   text-decoration: none;
   /* リンクをSidebarの幅いっぱいに広げる */
-  width: 100%;
+  /* width: 100%; */
 }
 
 /* Sidebar内のボタンのスタイル */
@@ -54,15 +65,4 @@
   justify-content: flex-start !important;
   /* ボタンをSidebarの幅いっぱいに広げる */
   width: 100% !important;
-}
-
-/* Mainのスタイル */
-.main {
-  /* Main部分を伸縮可能にする */
-  flex-grow: 1;
-  padding: var(--space-2);
-}
-
-.header {
-  padding: var(--space-2);
 }
