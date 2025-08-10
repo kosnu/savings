@@ -8,7 +8,7 @@
 .main {
   /* Main部分を伸縮可能にする */
   flex-grow: 1;
-  padding: 16px;
+  padding: var(--space-2);
 }
 
 .header {
