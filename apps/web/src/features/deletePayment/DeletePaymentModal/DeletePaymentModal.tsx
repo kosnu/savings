@@ -44,28 +44,26 @@ export function DeletePaymentModal({
   }, [deletePayment, payment, onSuccess, openSnackbar])
 
   return (
-    <>
-      <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-        {open === undefined && (
-          <Dialog.Trigger>
-            <Button>Delete payment</Button>
-          </Dialog.Trigger>
-        )}
-        <Dialog.Content>
-          <Dialog.Title>Delete this payment?</Dialog.Title>
-          <Dialog.Description>{paymentInfo}</Dialog.Description>
-          <Flex gap="3" mt="4" justify="end">
-            <Dialog.Close>
-              <CancelButton />
-            </Dialog.Close>
-            <Dialog.Close>
-              <Button color="red" onClick={handleSubmit}>
-                Delete
-              </Button>
-            </Dialog.Close>
-          </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
-    </>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+      {open === undefined && (
+        <Dialog.Trigger>
+          <Button>Delete payment</Button>
+        </Dialog.Trigger>
+      )}
+      <Dialog.Content>
+        <Dialog.Title>Delete this payment?</Dialog.Title>
+        <Dialog.Description>{paymentInfo}</Dialog.Description>
+        <Flex gap="3" mt="4" justify="end">
+          <Dialog.Close>
+            <CancelButton />
+          </Dialog.Close>
+          <Dialog.Close>
+            <Button color="red" onClick={handleSubmit}>
+              Delete
+            </Button>
+          </Dialog.Close>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
   )
 }
