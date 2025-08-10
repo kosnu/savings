@@ -17,4 +17,4 @@ COPY docker/firebase/.firebaserc docker/firebase/firebase.json ./
 EXPOSE 8080 9099 4400
 
 # Firebase Emulator を起動
-CMD ["firebase", "emulators:start", "--only", "firestore,auth"]
+CMD ["firebase", "emulators:start", "--only", "firestore,auth", "--import", "/tmp/emulator_data/emulator_data"]

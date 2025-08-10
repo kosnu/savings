@@ -182,3 +182,6 @@ override.tf.json
 # Terraform CLI configuration files
 .terraformrc
 terraform.rc
+
+# Docker上に起動したFirebase Emulatorのデータ出力先
+docker/firebase/data/emulator_data
