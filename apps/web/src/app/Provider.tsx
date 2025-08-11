@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
+import { FirestoreProvider } from "../providers/firebase/FirebaseProvider"
 import { SnackbarProvider } from "../providers/snackbar"
-import { FirestoreProvider } from "../utils/firebase/FirebaseProvider"
 import { ThemeProvider } from "../utils/theme/ThemeProvider"
 
 interface ProviderProps {

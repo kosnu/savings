@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
 import { expect, fn, within } from "storybook/test"
+import {
+  FiresotreTestProvider,
+  initEmulatedFirebase,
+} from "../../../../providers/firebase/FirebaseTestProvider"
 import { payments } from "../../../../test/data/payments"
 import { user } from "../../../../test/data/users"
 import { insertPayments } from "../../../../test/utils/insertPayments"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
-import {
-  FiresotreTestProvider,
-  initEmulatedFirebase,
-} from "../../../../utils/firebase/FirebaseTestProvider"
 import { PaymentList } from "./PaymentList"
 
 const meta = {

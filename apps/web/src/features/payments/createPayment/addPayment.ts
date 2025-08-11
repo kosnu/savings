@@ -4,8 +4,8 @@ import {
   type Firestore,
   serverTimestamp,
 } from "firebase/firestore"
+import { collections } from "../../../providers/firebase/store"
 import type { Payment } from "../../../types/payment"
-import { collections } from "../../../utils/firebase/store"
 
 type PaymentValue = Omit<
   Payment,

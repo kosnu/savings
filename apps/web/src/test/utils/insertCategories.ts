@@ -1,7 +1,7 @@
 import type { Auth } from "firebase/auth"
 import { doc, type Firestore, setDoc } from "firebase/firestore"
+import { collections } from "../../providers/firebase/store"
 import type { Category } from "../../types/category"
-import { collections } from "../../utils/firebase/store"
 
 export async function insertCategories(
   auth: Auth,

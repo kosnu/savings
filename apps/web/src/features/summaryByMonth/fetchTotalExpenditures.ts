@@ -7,7 +7,7 @@ import {
   sum,
   where,
 } from "firebase/firestore"
-import { collections } from "../../utils/firebase/store"
+import { collections } from "../../providers/firebase/store"
 
 export async function fetchTotalExpenditures(
   db: Firestore,

@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
+import {
+  FiresotreTestProvider,
+  initEmulatedFirebase,
+} from "../../../../providers/firebase/FirebaseTestProvider"
 import { categories } from "../../../../test/data/categories"
 import { payments } from "../../../../test/data/payments"
 import { user } from "../../../../test/data/users"
@@ -8,10 +12,6 @@ import { insertCategories } from "../../../../test/utils/insertCategories"
 import { insertPayments } from "../../../../test/utils/insertPayments"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
-import {
-  FiresotreTestProvider,
-  initEmulatedFirebase,
-} from "../../../../utils/firebase/FirebaseTestProvider"
 import { ThemeProvider } from "../../../../utils/theme/ThemeProvider"
 import { CreatePaymentForm } from "./CreatePaymentForm"
 

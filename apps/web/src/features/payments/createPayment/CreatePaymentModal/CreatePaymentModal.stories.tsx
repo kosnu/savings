@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent } from "storybook/test"
-import { FiresotreTestProvider } from "../../../../utils/firebase/FirebaseTestProvider"
+import { FiresotreTestProvider } from "../../../../providers/firebase/FirebaseTestProvider"
 import { CreatePaymentModal } from "./CreatePaymentModal"
 
 const meta = {

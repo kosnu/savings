@@ -13,14 +13,14 @@ import {
   where,
 } from "firebase/firestore"
 import { expect, test } from "vitest"
+import { initEmulatedFirebase } from "../../../../providers/firebase/FirebaseTestProvider"
+import { collections } from "../../../../providers/firebase/store"
 import { categories } from "../../../../test/data/categories"
 import { user } from "../../../../test/data/users"
 import { insertCategories } from "../../../../test/utils/insertCategories"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import type { Payment } from "../../../../types/payment"
-import { initEmulatedFirebase } from "../../../../utils/firebase/FirebaseTestProvider"
-import { collections } from "../../../../utils/firebase/store"
 import * as stories from "./CreatePaymentForm.stories"
 
 const { Fiiled } = composeStories(stories)

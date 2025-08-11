@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
-import { FiresotreTestProvider } from "../../../utils/firebase/FirebaseTestProvider"
+import { FiresotreTestProvider } from "../../../providers/firebase/FirebaseTestProvider"
 import { TopPage } from "./TopPage"
 
 const meta = {
