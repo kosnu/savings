@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { SnackbarProvider } from "../shared/snackbar"
+import { SnackbarProvider } from "../providers/snackbar"
 import { FirestoreProvider } from "../utils/firebase/FirebaseProvider"
 import { ThemeProvider } from "../utils/theme/ThemeProvider"
 
