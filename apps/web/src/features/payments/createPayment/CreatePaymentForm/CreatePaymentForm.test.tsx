@@ -13,7 +13,8 @@ import {
   where,
 } from "firebase/firestore"
 import { expect, test } from "vitest"
-import { initEmulatedFirebase } from "../../../../providers/firebase/FirebaseTestProvider"
+import { firebaseConfig } from "../../../../config/firebase/test"
+import { initFirebase } from "../../../../providers/firebase"
 import { collections } from "../../../../providers/firebase/store"
 import { categories } from "../../../../test/data/categories"
 import { user } from "../../../../test/data/users"
@@ -29,7 +30,7 @@ test("Create payment", async () => {
   // FIXME: FiresotreTestProvider と処理が重複している
   //        上記を解決したいけど、テストデータ挿入処理前にFirebaseを初期化しないといけないので、
   //        FiresotreTestProvider の描画タイミングだと間に合わない
-  const { firestore, auth } = initEmulatedFirebase()
+  const { firestore, auth } = initFirebase(firebaseConfig)
   await signInMockUser(auth, user)
 
   const userId = auth.currentUser?.uid ?? user.id
