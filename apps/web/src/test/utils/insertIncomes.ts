@@ -1,7 +1,7 @@
 import type { Auth } from "firebase/auth"
 import { doc, type Firestore, setDoc } from "firebase/firestore"
+import { collections } from "../../providers/firebase/store"
 import type { Income } from "../../types/income"
-import { collections } from "../../utils/firebase/store"
 
 export async function insertIncomes(
   auth: Auth,

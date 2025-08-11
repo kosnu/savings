@@ -5,8 +5,8 @@ import {
   serverTimestamp,
   setDoc,
 } from "firebase/firestore"
+import { collections } from "../../providers/firebase/store"
 import type { Payment } from "../../types/payment"
-import { collections } from "../../utils/firebase/store"
 
 export async function insertPayments(
   auth: Auth,
