@@ -2,7 +2,7 @@ import { Cross1Icon } from "@radix-ui/react-icons"
 import { Button, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { paths } from "../../../../config/paths"
+import { paths } from "../../config/paths"
 import styles from "./Sidebar.module.css"
 
 interface SidebarProps {
