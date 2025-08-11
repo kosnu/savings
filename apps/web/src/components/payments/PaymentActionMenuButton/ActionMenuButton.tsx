@@ -1,7 +1,7 @@
 import { DotsVerticalIcon } from "@radix-ui/react-icons"
 import { DropdownMenu, IconButton } from "@radix-ui/themes"
 import { useCallback } from "react"
-import { useDeletePaymentModal } from "../../../features/deletePayment"
+import { useDeletePaymentModal } from "../../../features/payments/deletePayment"
 import type { Payment } from "../../../types/payment"
 
 interface ActionMenuButtonProps {

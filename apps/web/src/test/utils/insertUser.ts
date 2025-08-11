@@ -1,6 +1,6 @@
 import { doc, type Firestore, setDoc } from "firebase/firestore"
+import { collections } from "../../providers/firebase/store"
 import type { User } from "../../types/user"
-import { collections } from "../../utils/firebase/store"
 
 export async function insertUser(firestore: Firestore, user: User) {
   const userRef = doc(

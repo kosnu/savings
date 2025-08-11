@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
-import { SnackbarProvider } from "../shared/snackbar"
-import { FirestoreProvider } from "../utils/firebase/FirebaseProvider"
-import { ThemeProvider } from "../utils/theme/ThemeProvider"
+import { FirestoreProvider } from "../providers/firebase/FirebaseProvider"
+import { SnackbarProvider } from "../providers/snackbar"
+import { ThemeProvider } from "../providers/theme/ThemeProvider"
 
 interface ProviderProps {
   children: ReactNode

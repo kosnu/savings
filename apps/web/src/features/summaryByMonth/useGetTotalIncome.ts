@@ -1,6 +1,6 @@
 import { useCallback } from "react"
+import { useFirestore } from "../../providers/firebase/useFirestore"
 import { useAuthCurrentUser } from "../../utils/auth/useAuthCurrentUser"
-import { useFirestore } from "../../utils/firebase/useFirestore"
 import { fetchTotalIncome } from "./fetchTotalIncome"
 
 interface UseGetTotalIncomeReturn {
