@@ -3,10 +3,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
 import { expect } from "storybook/test"
-import {
-  FiresotreTestProvider,
-  initEmulatedFirebase,
-} from "../../../providers/firebase/FirebaseTestProvider"
+import { firebaseConfig } from "../../../config/firebase/test"
+import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
 import { incomes } from "../../../test/data/incomes"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
@@ -29,7 +27,7 @@ const meta = {
     // FIXME: FiresotreTestProvider と処理が重複している
     //        上記を解決したいけど、テストデータ挿入処理前にFirebaseを初期化しないといけないので、
     //        FiresotreTestProvider の描画タイミングだと間に合わない
-    const { firestore, auth } = initEmulatedFirebase()
+    const { firestore, auth } = initFirebase(firebaseConfig)
 
     await signInMockUser(auth, user)
     const userId = auth.currentUser?.uid ?? user.id
@@ -40,11 +38,11 @@ const meta = {
   decorators: (Story) => {
     return (
       <MemoryRouter initialEntries={["/payments?year=2025&month=04"]}>
-        <FiresotreTestProvider>
+        <FirestoreProvider config={firebaseConfig}>
           <Container size="4">
             <Story />
           </Container>
-        </FiresotreTestProvider>
+        </FirestoreProvider>
       </MemoryRouter>
     )
   },

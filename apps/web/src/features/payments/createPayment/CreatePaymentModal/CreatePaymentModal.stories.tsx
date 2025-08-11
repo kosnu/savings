@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent } from "storybook/test"
-import { FiresotreTestProvider } from "../../../../providers/firebase/FirebaseTestProvider"
+import { firebaseConfig } from "../../../../config/firebase/test"
+import { FirestoreProvider } from "../../../../providers/firebase"
 import { CreatePaymentModal } from "./CreatePaymentModal"
 
 const meta = {
@@ -17,9 +18,9 @@ const meta = {
   },
   decorators: (Story) => {
     return (
-      <FiresotreTestProvider>
+      <FirestoreProvider config={firebaseConfig}>
         <Story />
-      </FiresotreTestProvider>
+      </FirestoreProvider>
     )
   },
 } satisfies Meta<typeof CreatePaymentModal>
