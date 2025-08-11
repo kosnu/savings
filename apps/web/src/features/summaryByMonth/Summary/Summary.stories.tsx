@@ -3,6 +3,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
 import { expect } from "storybook/test"
+import {
+  FiresotreTestProvider,
+  initEmulatedFirebase,
+} from "../../../providers/firebase/FirebaseTestProvider"
 import { incomes } from "../../../test/data/incomes"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
@@ -10,10 +14,6 @@ import { insertIncomes } from "../../../test/utils/insertIncomes"
 import { insertPayments } from "../../../test/utils/insertPayments"
 import { insertUser } from "../../../test/utils/insertUser"
 import { signInMockUser } from "../../../test/utils/signInByMockUser"
-import {
-  FiresotreTestProvider,
-  initEmulatedFirebase,
-} from "../../../utils/firebase/FirebaseTestProvider"
 import { Summary } from "./Summary"
 
 const meta = {

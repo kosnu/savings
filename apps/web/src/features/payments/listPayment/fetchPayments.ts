@@ -7,8 +7,8 @@ import {
   query,
   where,
 } from "firebase/firestore"
+import { collections } from "../../../providers/firebase/store"
 import type { Payment } from "../../../types/payment"
-import { collections } from "../../../utils/firebase/store"
 
 export async function fetchPayments(
   db: Firestore,

@@ -3,8 +3,8 @@ import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { Paper } from "../../../components/misc/Paper"
 import { paths } from "../../../config/paths"
+import { useFirestore } from "../../../providers/firebase/useFirestore"
 import { signIn } from "../../../utils/auth/signIn"
-import { useFirestore } from "../../../utils/firebase/useFirestore"
 
 export function TopPage() {
   const db = useFirestore()

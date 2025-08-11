@@ -1,7 +1,7 @@
 import { useCallback } from "react"
+import { useFirestore } from "../../../providers/firebase/useFirestore"
 import type { Payment } from "../../../types/payment"
 import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
-import { useFirestore } from "../../../utils/firebase/useFirestore"
 import { fetchPayments } from "./fetchPayments"
 
 interface UseGetPaymentsReturn {

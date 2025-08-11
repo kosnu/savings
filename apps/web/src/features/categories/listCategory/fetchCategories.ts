@@ -7,8 +7,8 @@ import {
   query,
   where,
 } from "firebase/firestore"
+import { collections } from "../../../providers/firebase/store"
 import type { Category } from "../../../types/category"
-import { collections } from "../../../utils/firebase/store"
 
 export async function fetchCategories(
   db: Firestore,
