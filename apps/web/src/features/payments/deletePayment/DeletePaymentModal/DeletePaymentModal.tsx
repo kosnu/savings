@@ -1,7 +1,7 @@
 import { Button, Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
-import { useSnackbar } from "../../../../shared/snackbar"
+import { useSnackbar } from "../../../../providers/snackbar"
 import type { Payment } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
 import { toCurrency } from "../../../../utils/toCurrency"

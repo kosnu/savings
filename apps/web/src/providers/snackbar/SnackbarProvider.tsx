@@ -5,8 +5,8 @@ import {
   useContext,
   useState,
 } from "react"
-import { Snackbar } from "../components/Snackbar"
-import type { OpenSnackbarFn, SnackbarState, SnackbarType } from "../types"
+import { Snackbar } from "../../components/feedbacks/Snackbar"
+import type { OpenSnackbarFn, SnackbarState, SnackbarType } from "./types"
 
 // NOTE: 外部公開してはいけない
 const SnackbarContext = createContext<
