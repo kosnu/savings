@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Deno: Debug import script",
+      "request": "launch",
+      "type": "node",
+      "runtimeExecutable": "deno",
+      "runtimeArgs": [
+        "run",
+        "--inspect-brk",
+        "-A", // 必要に応じてパーミッションを調整してください
+        "main.ts"
+      ],
+      "cwd": "${workspaceFolder}",
+      "attachSimplePort": 9229
+    }
+  ]
+}

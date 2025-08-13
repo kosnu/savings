@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "Root",
+			"path": "."
+		},
+		{
+			"name": "Frontend",
+			"path": "apps/web"
+		},
+		{
+			"name": "import_to_firestore",
+			"path": "scripts/import_to_firestore"
+		}
+	],
+	"settings": {}
+}
