@@ -1,0 +1,4 @@
+{
+  // このフォルダ (apps/web) では Deno 拡張機能を無効にする
+  "deno.enable": false
+}

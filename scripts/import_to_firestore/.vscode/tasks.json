@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev: import_to_firestore",
+      "type": "deno",
+      "command": "task",
+      "args": ["dev"],
+      "problemMatcher": ["$deno"],
+      "detail": "deno run --watch main.ts"
+    }
+  ]
+}
