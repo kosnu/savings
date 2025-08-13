@@ -8,7 +8,12 @@ export const CategorySelect = memo(function CategorySelect() {
   const { promiseCategories } = useCategories()
 
   return (
-    <Select label="Category" name="category">
+    <Select
+      label="Category"
+      name="category"
+      width="300px"
+      placeholder="Pick a category"
+    >
       <ErrorBoundary fallback={<SelectItem label="None" value="error" />}>
         <Suspense fallback={<SelectItem label="Loading" value="loading" />}>
           <CategorySelectOptions getCategories={promiseCategories} />
