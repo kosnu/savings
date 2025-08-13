@@ -42,8 +42,8 @@ jobs:
         env:
           cache-name: cache-node-modules
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ./.npm
+          # npm cache files are stored in `apps/web/.npm` on Linux/macOS
+          path: apps/web/.npm
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('apps/web/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
