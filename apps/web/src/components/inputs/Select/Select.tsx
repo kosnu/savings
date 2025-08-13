@@ -24,7 +24,7 @@ export function Select({
 
   return (
     <Flex direction="column" gap="1" {...props}>
-      <Text as="label" htmlFor={id} size="2" mb="1" weight="bold">
+      <Text as="label" htmlFor={id} size="2" weight="bold">
         {label}
       </Text>
       <RSelect.Root name={name} required={required} defaultValue={defaultValue}>
