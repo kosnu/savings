@@ -1,4 +1,4 @@
-import { Spinner, Table } from "@radix-ui/themes"
+import { Flex, Spinner } from "@radix-ui/themes"
 import { memo, Suspense, use, useMemo } from "react"
 import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
@@ -24,44 +24,29 @@ export const PaymentList = memo(function PaymentList({
   const { promiseCategories } = useCategories()
 
   return (
-    <Suspense fallback={<Spinner size="3" />}>
-      <Table.Root aria-label="payment-list" variant="surface" size="2">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell minWidth="120px">
-              Date
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Category</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Note</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell align="right">
-              Amount&nbsp;(¥)
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell />
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          <TableBodyContent
-            promiseCategories={promiseCategories}
-            getPayments={paymentsPromise}
-            onDeleteSuccess={onDeleteSuccess}
-          />
-        </Table.Body>
-      </Table.Root>
-    </Suspense>
+    <Flex aria-label="payment-list" direction="column" gap="2">
+      <Suspense fallback={<Spinner size="3" />}>
+        <Items
+          promiseCategories={promiseCategories}
+          getPayments={paymentsPromise}
+          onDeleteSuccess={onDeleteSuccess}
+        />
+      </Suspense>
+    </Flex>
   )
 })
 
-interface TableBodyContentProps {
+interface ItemsProps {
   promiseCategories: Promise<Category[]>
   getPayments: Promise<Payment[]>
   onDeleteSuccess: () => void
 }
 
-const TableBodyContent = memo(function Body({
+const Items = memo(function Body({
   promiseCategories,
   getPayments,
   onDeleteSuccess,
-}: TableBodyContentProps) {
+}: ItemsProps) {
   const data = use(getPayments)
   const categories = use(promiseCategories)
   const categoryMap = toCategoryMap(categories)
