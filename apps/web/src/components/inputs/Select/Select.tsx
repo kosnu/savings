@@ -1,5 +1,5 @@
-import { Select as RSelect, Text } from "@radix-ui/themes"
-import { type ReactNode, useCallback, useId, useState } from "react"
+import { Flex, type FlexProps, Select as RSelect, Text } from "@radix-ui/themes"
+import { type ReactNode, useId } from "react"
 import styles from "./Select.module.css"
 
 type SelectProps = {
@@ -7,41 +7,35 @@ type SelectProps = {
   name: string
   placeholder?: string
   required?: boolean
+  defaultValue?: string
   children: ReactNode
-}
+} & FlexProps
 
 export function Select({
   label,
   name,
   placeholder,
   required,
+  defaultValue,
   children,
+  ...props
 }: SelectProps) {
   const id = useId()
-  const [value, setValue] = useState<string>("")
-
-  const handleChange = useCallback((value: string) => {
-    setValue(value)
-  }, [])
 
   return (
-    <label>
-      <Text as="div" size="2" mb="1" weight="bold">
+    <Flex direction="column" gap="1" {...props}>
+      <Text as="label" htmlFor={id} size="2" weight="bold">
         {label}
       </Text>
-      <RSelect.Root
-        name={name}
-        required={required}
-        onValueChange={handleChange}
-      >
+      <RSelect.Root name={name} required={required} defaultValue={defaultValue}>
         <RSelect.Trigger
+          id={id}
           className={styles.selectTrigger}
           placeholder={placeholder}
         />
         <RSelect.Content>{children}</RSelect.Content>
       </RSelect.Root>
-      <input type="hidden" name={name} id={`${name}-${id}`} value={value} />
-    </label>
+    </Flex>
   )
 }
 
