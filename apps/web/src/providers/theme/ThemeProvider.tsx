@@ -1,7 +1,7 @@
 import { Theme as RadixUiTheme } from "@radix-ui/themes"
 
 import "@radix-ui/themes/styles.css"
-import "./radixTheme.module.css"
+import "./radixTheme.css"
 
 const accentColor = "gray"
 const panelBackground = "solid"
