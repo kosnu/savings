@@ -4,7 +4,7 @@ import React from "react"
 import { SnackbarProvider } from "../src/providers/snackbar"
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 
-import "../src/assets/global.module.css"
+import "../src/assets/global.css"
 
 const preview: Preview = {
   parameters: {
