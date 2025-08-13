@@ -23,8 +23,8 @@ export function ActionMenuButton({
     <>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger>
-          <IconButton aria-label="Payment actions" variant="outline">
-            <DotsVerticalIcon />
+          <IconButton aria-label="Payment actions" size="3" variant="ghost">
+            <DotsVerticalIcon width="18" height="18" />
           </IconButton>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content aria-label="Payment actions">
