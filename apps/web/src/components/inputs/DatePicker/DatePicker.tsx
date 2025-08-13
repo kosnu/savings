@@ -1,10 +1,11 @@
-import { Button, Popover, Text } from "@radix-ui/themes"
+import { Button, Flex, Popover, Text } from "@radix-ui/themes"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
 import "react-day-picker/style.css"
-import { useCallback, useState } from "react"
+import { CalendarIcon } from "@radix-ui/react-icons"
+import { useCallback, useId, useState } from "react"
 
 interface ModeSingleProps {
   mode: "single"
@@ -26,29 +27,47 @@ export function DatePicker({
   onChange,
   ...props
 }: DatePickerProps) {
+  const buttonId = useId()
+  const [open, setOpen] = useState(false)
   const [date, setDate] = useState<Date | undefined>(defaultValue)
+
+  const handleTriggerClick = useCallback(() => {
+    setOpen(true)
+  }, [])
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
       setDate(date)
       onChange?.(date)
+      setOpen(false)
     },
     [onChange],
   )
 
+  const handleFocusOut = useCallback(() => {
+    setOpen(false)
+  }, [])
+
+  const handleEscapeKeyDown = useCallback(() => {
+    setOpen(false)
+  }, [])
+
   return (
-    <label>
-      <Text as="div" size="2" mb="1" weight="bold">
+    <Flex direction="column" gap="1" width="fit-content">
+      <Text as="label" htmlFor={buttonId} size="2" weight="bold">
         {label}
       </Text>
-      <Popover.Root>
-        <Popover.Trigger>
-          <Button variant="outline">
-            {/* TODO: Calendar icon */}
+      <Popover.Root open={open}>
+        <Popover.Trigger onClick={handleTriggerClick}>
+          <Button id={buttonId} variant="outline">
+            <CalendarIcon width="18" height="18" />
             {date ? formatDateToLocaleString(date) : <span>Pick a date</span>}
           </Button>
         </Popover.Trigger>
-        <Popover.Content>
+        <Popover.Content
+          onFocusOutside={handleFocusOut}
+          onEscapeKeyDown={handleEscapeKeyDown}
+        >
           <DayPicker
             {...props}
             locale={ja}
@@ -64,6 +83,6 @@ export function DatePicker({
         defaultValue={date?.toISOString()}
         required={props.required}
       />
-    </label>
+    </Flex>
   )
 }
