@@ -1,0 +1,6 @@
+{
+  "deno.enable": true,
+  "biome.lsp": {
+    "configurationPath": "./biome.json"
+  }
+}
