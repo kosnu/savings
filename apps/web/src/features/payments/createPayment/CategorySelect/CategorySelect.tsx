@@ -9,9 +9,7 @@ export const CategorySelect = memo(function CategorySelect() {
 
   return (
     <Select label="Category" name="category">
-      <ErrorBoundary
-        fallbackRender={() => <SelectItem label="None" value="error" />}
-      >
+      <ErrorBoundary fallback={<SelectItem label="None" value="error" />}>
         <Suspense fallback={<SelectItem label="Loading" value="loading" />}>
           <CategorySelectOptions getCategories={promiseCategories} />
         </Suspense>
