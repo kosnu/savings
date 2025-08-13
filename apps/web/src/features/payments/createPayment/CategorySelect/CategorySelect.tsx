@@ -1,20 +1,17 @@
-import { memo, Suspense, use, useMemo } from "react"
+import { memo, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Select, SelectItem } from "../../../../components/inputs/Select"
 import type { Category } from "../../../../types/category"
-import { useGetCategories } from "./useGetCategories"
+import { useCategories } from "../../../categories/listCategory/useCategories"
 
 export const CategorySelect = memo(function CategorySelect() {
-  const { getCategories } = useGetCategories()
-  const categoriesPromise = useMemo(() => getCategories(), [getCategories])
+  const { promiseCategories } = useCategories()
 
   return (
     <Select label="Category" name="category">
-      <ErrorBoundary
-        fallbackRender={() => <SelectItem label="None" value="error" />}
-      >
+      <ErrorBoundary fallback={<SelectItem label="None" value="error" />}>
         <Suspense fallback={<SelectItem label="Loading" value="loading" />}>
-          <CategorySelectOptions getCategories={categoriesPromise} />
+          <CategorySelectOptions getCategories={promiseCategories} />
         </Suspense>
       </ErrorBoundary>
     </Select>
