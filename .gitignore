@@ -145,9 +145,22 @@ dist
 
 .DS_Store
 
-.vscode/*
-!.vscode/extensions.json
-!.vscode/react.code-snippets
+### VS Code ###
+# 1. すべての.vscodeディレクトリをデフォルトで無視する
+# 親ディレクトリが無視されると中のファイルの例外指定(!...)が効かなくなるため、
+# ディレクトリではなく、その中のすべてのファイル(*)を無視するようにします。
+**/.vscode/*
+
+# 2. ただし、ワークスペース設定ファイル自体は管理する
+!/*.code-workspace
+
+# 3. 共有したいVSCodeの設定ファイルはGit管理下に含める
+# `**` を使うことで、どの階層の.vscodeディレクトリにも適用できます。
+!**/.vscode/settings.json
+!**/.vscode/extensions.json
+!**/.vscode/launch.json
+!**/.vscode/tasks.json
+!**/.vscode/*.code-snippets
 
 .firebase/*
 
