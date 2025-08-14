@@ -50,9 +50,13 @@ export function CreatePaymentForm({
     [db, currentUser, onSuccess],
   )
 
-  const handleCancel = useCallback(() => {
-    onCancel()
-  }, [onCancel])
+  const handleCancel = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault()
+      onCancel()
+    },
+    [onCancel],
+  )
 
   return (
     <form onSubmit={handleSubmit}>
