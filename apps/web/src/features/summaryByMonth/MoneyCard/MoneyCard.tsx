@@ -1,4 +1,4 @@
-import { Card, Flex, Spinner, Text } from "@radix-ui/themes"
+import { Card, Flex, Skeleton, Text } from "@radix-ui/themes"
 import { memo, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { toCurrency } from "../../../utils/toCurrency"
@@ -18,7 +18,7 @@ function MoneyCard({ title, getValue }: MoneyCardProps) {
             <Text color="red">An unexpected error has occurred.</Text>
           )}
         >
-          <Suspense fallback={<Spinner size="3" />}>
+          <Suspense fallback={<Skeleton width="120px" height="28px" />}>
             <MoneyText getValue={getValue} />
           </Suspense>
         </ErrorBoundary>
