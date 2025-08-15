@@ -1,5 +1,6 @@
-import { Flex, Spinner } from "@radix-ui/themes"
+import { Flex } from "@radix-ui/themes"
 import { memo, Suspense, use, useMemo } from "react"
+import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
 import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
 import { useDateRange } from "../../../../utils/useDateRange"
@@ -25,7 +26,7 @@ export const PaymentList = memo(function PaymentList({
 
   return (
     <Flex aria-label="payment-list" direction="column" gap="2">
-      <Suspense fallback={<Spinner size="3" />}>
+      <Suspense fallback={<SkeltonItems />}>
         <Items
           promiseCategories={promiseCategories}
           getPayments={paymentsPromise}
@@ -68,3 +69,13 @@ const Items = memo(function Body({
     </>
   )
 })
+
+function SkeltonItems() {
+  return (
+    <>
+      <PaymentCard loading />
+      <PaymentCard loading />
+      <PaymentCard loading />
+    </>
+  )
+}

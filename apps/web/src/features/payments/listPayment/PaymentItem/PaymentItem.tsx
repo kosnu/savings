@@ -19,7 +19,7 @@ export function PaymentItem({
   return (
     <Card aria-label="payment-item" size="2">
       <Flex direction="column" gap="1">
-        <Flex direction="row" justify="between" gap="2">
+        <Flex direction="row" justify="between" align="center" gap="2">
           <Flex direction="row" align="center" gap="2">
             <Text size="3" color="gray">
               {formatDateToLocaleString(payment.date)}
