@@ -1,11 +1,11 @@
+import { CalendarIcon } from "@radix-ui/react-icons"
 import { Button, Flex, Popover, Text } from "@radix-ui/themes"
+import { useCallback, useId, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
 import "react-day-picker/style.css"
-import { CalendarIcon } from "@radix-ui/react-icons"
-import { useCallback, useId, useState } from "react"
 
 interface ModeSingleProps {
   mode: "single"
@@ -15,8 +15,9 @@ interface ModeSingleProps {
 type DatePickerProps = {
   label: React.ReactNode
   name: string
-  required?: boolean
   defaultValue?: Date
+  error?: { message: string }
+  helperText?: string
 } & ModeSingleProps
 
 export function DatePicker({
@@ -24,6 +25,8 @@ export function DatePicker({
   name,
   mode,
   defaultValue = undefined,
+  error,
+  helperText,
   onChange,
   ...props
 }: DatePickerProps) {
@@ -77,12 +80,12 @@ export function DatePicker({
           />
         </Popover.Content>
       </Popover.Root>
-      <input
-        type="hidden"
-        name={name}
-        defaultValue={date?.toISOString()}
-        required={props.required}
-      />
+      <input type="hidden" name={name} defaultValue={date?.toISOString()} />
+      {helperText && (
+        <Text as="span" size="1">
+          {helperText}
+        </Text>
+      )}
     </Flex>
   )
 }

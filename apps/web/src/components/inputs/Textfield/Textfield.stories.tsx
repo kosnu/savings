@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { userEvent, within } from "storybook/test"
+import { expect, userEvent, within } from "storybook/test"
 import { Textfield } from "./Textfield"
 
 const meta = {
@@ -32,5 +32,19 @@ export const Filled: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.type(canvas.getByRole("textbox"), "John Doe")
+  },
+}
+
+export const HasError: Story = {
+  args: {
+    label: "Name",
+    name: "name",
+    type: "text",
+    error: { message: "Name is required" },
+    helperText: "Name is required",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    expect(canvas.getByText("Name is required")).toBeInTheDocument()
   },
 }

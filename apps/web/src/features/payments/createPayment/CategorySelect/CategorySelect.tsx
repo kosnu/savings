@@ -4,7 +4,15 @@ import { Select, SelectItem } from "../../../../components/inputs/Select"
 import type { Category } from "../../../../types/category"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 
-export const CategorySelect = memo(function CategorySelect() {
+interface CategorySelectProps {
+  error?: { message: string }
+  helperText?: string
+}
+
+export const CategorySelect = memo(function CategorySelect({
+  error,
+  helperText,
+}: CategorySelectProps) {
   const { promiseCategories } = useCategories()
 
   return (
@@ -13,6 +21,8 @@ export const CategorySelect = memo(function CategorySelect() {
       name="category"
       width="300px"
       placeholder="Pick a category"
+      error={error}
+      helperText={helperText}
     >
       <ErrorBoundary fallback={<SelectItem label="None" value="error" />}>
         <Suspense fallback={<SelectItem label="Loading" value="loading" />}>

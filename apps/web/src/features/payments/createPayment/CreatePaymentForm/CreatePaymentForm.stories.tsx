@@ -93,10 +93,23 @@ export const Fiiled: Story = {
       await userEvent.type(noteTextfield, "Test_FSf5qxLNxAC265uSTcNa")
     }
     {
-      const amountTextfield = canvas.getByRole("spinbutton", {
-        name: /amount/i,
-      })
+      const amountTextfield = canvas.getByRole("textbox", { name: /amount/i })
       await userEvent.type(amountTextfield, "1080")
     }
+  },
+}
+
+export const Empty: Story = {
+  args: {},
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    const submitButton = canvas.getByRole("button", { name: /create payment/i })
+    await userEvent.click(submitButton)
+
+    expect(canvas.getByText("Date can not be empty")).toBeInTheDocument()
+    expect(canvas.getByText("Category can not be empty")).toBeInTheDocument()
+    expect(canvas.getByText("Note can not be empty")).toBeInTheDocument()
+    expect(canvas.getByText("Amount can not be empty")).toBeInTheDocument()
   },
 }

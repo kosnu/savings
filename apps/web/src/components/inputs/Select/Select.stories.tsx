@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { userEvent, within } from "storybook/test"
+import { expect, userEvent, within } from "storybook/test"
 import { categories } from "../../../test/data/categories"
 import { Select, SelectItem } from "./Select"
 
@@ -46,5 +46,19 @@ export const Filled: Story = {
       name: /food/i,
     })
     await userEvent.click(option)
+  },
+}
+
+export const HasError: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    error: { message: "Category is empty" },
+    helperText: "Category is empty",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    expect(canvas.getByText("Category is empty")).toBeInTheDocument()
   },
 }
