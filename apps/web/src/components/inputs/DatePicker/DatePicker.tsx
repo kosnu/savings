@@ -1,39 +1,29 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Button, Popover } from "@radix-ui/themes"
-import { useCallback, useId, useState } from "react"
+import { useCallback, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
-import { BaseField } from "../BaseField"
 
 import "react-day-picker/style.css"
 
 interface ModeSingleProps {
-  mode: "single"
   onChange?: (date: Date | undefined) => void
 }
 
 type DatePickerProps = {
-  label: React.ReactNode
-  name: string
+  id?: string
+  name?: string
   defaultValue?: Date
-  required?: boolean
-  error?: { message: string }
-  helperText?: string
 } & ModeSingleProps
 
 export function DatePicker({
-  label,
+  id,
   name,
-  mode,
   defaultValue = undefined,
-  required = false,
-  error,
-  helperText,
   onChange,
   ...props
 }: DatePickerProps) {
-  const id = useId()
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState<Date | undefined>(defaultValue)
 
@@ -59,15 +49,7 @@ export function DatePicker({
   }, [])
 
   return (
-    <BaseField
-      label={label}
-      htmlFor={id}
-      required={required}
-      error={Boolean(error)}
-      message={helperText}
-      width="fit-content"
-      {...props}
-    >
+    <div>
       <Popover.Root open={open}>
         <Popover.Trigger onClick={handleTriggerClick}>
           <Button id={id} variant="outline">
@@ -82,13 +64,13 @@ export function DatePicker({
           <DayPicker
             {...props}
             locale={ja}
-            mode={mode}
+            mode="single"
             selected={date}
             onSelect={handleChange}
           />
         </Popover.Content>
       </Popover.Root>
       <input type="hidden" name={name} defaultValue={date?.toISOString()} />
-    </BaseField>
+    </div>
   )
 }
