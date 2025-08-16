@@ -1,5 +1,6 @@
-import { Flex, type FlexProps, Select as RSelect, Text } from "@radix-ui/themes"
+import { type FlexProps, Select as RSelect } from "@radix-ui/themes"
 import { type ReactNode, useId } from "react"
+import { BaseField } from "../BaseField"
 import styles from "./Select.module.css"
 
 type SelectProps = {
@@ -27,10 +28,14 @@ export function Select({
   const id = useId()
 
   return (
-    <Flex direction="column" gap="1" {...props}>
-      <Text as="label" htmlFor={id} size="2" weight="bold">
-        {label}
-      </Text>
+    <BaseField
+      label={label}
+      htmlFor={id}
+      required={required}
+      error={Boolean(error)}
+      message={helperText}
+      {...props}
+    >
       <RSelect.Root name={name} required={required} defaultValue={defaultValue}>
         <RSelect.Trigger
           id={id}
@@ -39,12 +44,7 @@ export function Select({
         />
         <RSelect.Content>{children}</RSelect.Content>
       </RSelect.Root>
-      {helperText && (
-        <Text as="span" size="1">
-          {helperText}
-        </Text>
-      )}
-    </Flex>
+    </BaseField>
   )
 }
 
