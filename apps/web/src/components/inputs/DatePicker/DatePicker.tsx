@@ -1,9 +1,10 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
-import { Button, Flex, Popover, Text } from "@radix-ui/themes"
+import { Button, Popover } from "@radix-ui/themes"
 import { useCallback, useId, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
+import { BaseField } from "../BaseField"
 
 import "react-day-picker/style.css"
 
@@ -16,6 +17,7 @@ type DatePickerProps = {
   label: React.ReactNode
   name: string
   defaultValue?: Date
+  required?: boolean
   error?: { message: string }
   helperText?: string
 } & ModeSingleProps
@@ -25,12 +27,13 @@ export function DatePicker({
   name,
   mode,
   defaultValue = undefined,
+  required = false,
   error,
   helperText,
   onChange,
   ...props
 }: DatePickerProps) {
-  const buttonId = useId()
+  const id = useId()
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState<Date | undefined>(defaultValue)
 
@@ -56,13 +59,18 @@ export function DatePicker({
   }, [])
 
   return (
-    <Flex direction="column" gap="1" width="fit-content">
-      <Text as="label" htmlFor={buttonId} size="2" weight="bold">
-        {label}
-      </Text>
+    <BaseField
+      label={label}
+      htmlFor={id}
+      required={required}
+      error={Boolean(error)}
+      message={helperText}
+      width="fit-content"
+      {...props}
+    >
       <Popover.Root open={open}>
         <Popover.Trigger onClick={handleTriggerClick}>
-          <Button id={buttonId} variant="outline">
+          <Button id={id} variant="outline">
             <CalendarIcon width="18" height="18" />
             {date ? formatDateToLocaleString(date) : <span>Pick a date</span>}
           </Button>
@@ -81,11 +89,6 @@ export function DatePicker({
         </Popover.Content>
       </Popover.Root>
       <input type="hidden" name={name} defaultValue={date?.toISOString()} />
-      {helperText && (
-        <Text as="span" size="1">
-          {helperText}
-        </Text>
-      )}
-    </Flex>
+    </BaseField>
   )
 }
