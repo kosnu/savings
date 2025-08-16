@@ -43,7 +43,7 @@ export const HasError: Story = {
     error: { message: "Name is required" },
     helperText: "Name is required",
   },
-  play: async ({ canvasElement, userEvent }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     expect(canvas.getByText("Name is required")).toBeInTheDocument()
   },
