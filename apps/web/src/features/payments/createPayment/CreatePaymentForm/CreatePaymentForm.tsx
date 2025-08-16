@@ -1,7 +1,6 @@
 import { Button, Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
-import { DatePicker } from "../../../../components/inputs/DatePicker"
 import { Textfield } from "../../../../components/inputs/Textfield"
 import { useFirestore } from "../../../../providers/firebase/useFirestore"
 import { useAuthCurrentUser } from "../../../../utils/auth/useAuthCurrentUser"
@@ -9,6 +8,7 @@ import { findZodError } from "../../../../utils/findZodError"
 import { addPayment } from "../addPayment"
 import { CategorySelect } from "../CategorySelect"
 import { type FormError, formShema } from "../formSchema"
+import { PaymentDateField } from "../PaymentDateField"
 
 interface CreatePaymentFormProps {
   onSuccess?: () => void
@@ -73,13 +73,7 @@ export function CreatePaymentForm({
   return (
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="3">
-        <DatePicker
-          label="Date"
-          name="date"
-          mode="single"
-          error={dateError}
-          helperText={dateError?.message}
-        />
+        <PaymentDateField error={!!dateError} message={dateError?.message} />
         <CategorySelect
           error={categoryError}
           helperText={categoryError?.message}
