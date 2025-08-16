@@ -8,6 +8,8 @@ type SelectProps = {
   placeholder?: string
   required?: boolean
   defaultValue?: string
+  error?: { message: string }
+  helperText?: string
   children: ReactNode
 } & FlexProps
 
@@ -17,6 +19,8 @@ export function Select({
   placeholder,
   required,
   defaultValue,
+  error,
+  helperText,
   children,
   ...props
 }: SelectProps) {
@@ -35,6 +39,11 @@ export function Select({
         />
         <RSelect.Content>{children}</RSelect.Content>
       </RSelect.Root>
+      {helperText && (
+        <Text as="span" size="1">
+          {helperText}
+        </Text>
+      )}
     </Flex>
   )
 }
