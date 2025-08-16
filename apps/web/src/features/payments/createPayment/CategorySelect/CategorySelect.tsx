@@ -1,6 +1,7 @@
-import { memo, Suspense, use } from "react"
+import { Select } from "@radix-ui/themes"
+import { memo, Suspense, use, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { Select, SelectItem } from "../../../../components/inputs/Select"
+import { BaseField } from "../../../../components/inputs/BaseField"
 import type { Category } from "../../../../types/category"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 
@@ -13,23 +14,33 @@ export const CategorySelect = memo(function CategorySelect({
   error,
   helperText,
 }: CategorySelectProps) {
+  const id = useId()
   const { promiseCategories } = useCategories()
 
   return (
-    <Select
+    <BaseField
       label="Category"
-      name="category"
+      htmlFor={id}
+      required
+      error={Boolean(error)}
+      message={helperText}
       width="300px"
-      placeholder="Pick a category"
-      error={error}
-      helperText={helperText}
     >
-      <ErrorBoundary fallback={<SelectItem label="None" value="error" />}>
-        <Suspense fallback={<SelectItem label="Loading" value="loading" />}>
-          <CategorySelectOptions getCategories={promiseCategories} />
-        </Suspense>
-      </ErrorBoundary>
-    </Select>
+      <Select.Root name="category">
+        <Select.Trigger id={id} placeholder="Pick a category" />
+        <Select.Content>
+          <ErrorBoundary
+            fallback={<Select.Item value="error">None</Select.Item>}
+          >
+            <Suspense
+              fallback={<Select.Item value="loading">Loading</Select.Item>}
+            >
+              <CategorySelectOptions getCategories={promiseCategories} />
+            </Suspense>
+          </ErrorBoundary>
+        </Select.Content>
+      </Select.Root>
+    </BaseField>
   )
 })
 
@@ -45,12 +56,13 @@ const CategorySelectOptions = memo(function CategorySelectInner({
   return (
     <>
       {categories.map((category) => (
-        <SelectItem
+        <Select.Item
           aria-label={category.name}
           key={category.id}
-          label={category.name}
           value={category?.id ?? ""}
-        />
+        >
+          {category.name}
+        </Select.Item>
       ))}
     </>
   )
