@@ -25,7 +25,7 @@ export const Default: Story = {
 export const HasError: Story = {
   args: {
     error: true,
-    message: "This field is required",
+    messages: ["This field is required"],
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
