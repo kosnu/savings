@@ -8,11 +8,11 @@ import { user } from "../../../../test/data/users"
 import { insertCategories } from "../../../../test/utils/insertCategories"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
-import { CategorySelect } from "./CategorySelect"
+import { CategoryField } from "./CategoryField"
 
 const meta = {
-  title: "Features/CreatePayment/CategorySelect",
-  component: CategorySelect,
+  title: "Features/CreatePayment/CategoryField",
+  component: CategoryField,
   parameters: {
     layout: "centered",
   },
@@ -39,7 +39,7 @@ const meta = {
       </MemoryRouter>
     ),
   ],
-} satisfies Meta<typeof CategorySelect>
+} satisfies Meta<typeof CategoryField>
 
 export default meta
 type Story = StoryObj<typeof meta>

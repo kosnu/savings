@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, userEvent, within } from "storybook/test"
+import { userEvent, within } from "storybook/test"
 import { DatePicker } from "./DatePicker"
 
 const meta = {
@@ -18,19 +18,12 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: {
-    label: "Date",
-    name: "date",
-    mode: "single",
-  },
+  args: {},
 }
 
 export const SelectToday: Story = {
   tags: ["skip"],
   args: {
-    label: "Date",
-    name: "date",
-    mode: "single",
     defaultValue: new Date(2025, 4, 10),
   },
   play: async ({ canvasElement }) => {
@@ -48,20 +41,5 @@ export const SelectToday: Story = {
 
     await userEvent.click(todayButton)
     await canvas.findByText("2025/05/01")
-  },
-}
-
-export const HasError: Story = {
-  args: {
-    label: "Date",
-    name: "date",
-    mode: "single",
-    error: { message: "Category is empty" },
-    helperText: "Category is empty",
-  },
-  play: ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    expect(canvas.getByText("Category is empty")).toBeInTheDocument()
   },
 }

@@ -1,14 +1,15 @@
 import { Button, Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
-import { DatePicker } from "../../../../components/inputs/DatePicker"
-import { Textfield } from "../../../../components/inputs/Textfield"
 import { useFirestore } from "../../../../providers/firebase/useFirestore"
 import { useAuthCurrentUser } from "../../../../utils/auth/useAuthCurrentUser"
 import { findZodError } from "../../../../utils/findZodError"
+import { AmountField } from "../AmountField/AmountField"
 import { addPayment } from "../addPayment"
-import { CategorySelect } from "../CategorySelect"
+import { CategoryField } from "../CategoryField"
 import { type FormError, formShema } from "../formSchema"
+import { NoteField } from "../NoteField"
+import { PaymentDateField } from "../PaymentDateField"
 
 interface CreatePaymentFormProps {
   onSuccess?: () => void
@@ -73,32 +74,13 @@ export function CreatePaymentForm({
   return (
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="3">
-        <DatePicker
-          label="Date"
-          name="date"
-          mode="single"
-          error={dateError}
-          helperText={dateError?.message}
-        />
-        <CategorySelect
+        <PaymentDateField error={!!dateError} message={dateError?.message} />
+        <CategoryField
           error={categoryError}
           helperText={categoryError?.message}
         />
-        <Textfield
-          label="Note"
-          name="note"
-          type="text"
-          error={noteError}
-          helperText={noteError?.message}
-        />
-        <Textfield
-          label="Amount"
-          name="amount"
-          type="text"
-          inputMode="numeric"
-          error={amountError}
-          helperText={amountError?.message}
-        />
+        <NoteField error={!!noteError} message={noteError?.message} />
+        <AmountField error={!!amountError} message={amountError?.message} />
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />
