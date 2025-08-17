@@ -6,7 +6,7 @@ import { useAuthCurrentUser } from "../../../../utils/auth/useAuthCurrentUser"
 import { findZodError } from "../../../../utils/findZodError"
 import { AmountField } from "../AmountField/AmountField"
 import { addPayment } from "../addPayment"
-import { CategorySelect } from "../CategorySelect"
+import { CategoryField } from "../CategoryField"
 import { type FormError, formShema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
@@ -75,7 +75,7 @@ export function CreatePaymentForm({
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="3">
         <PaymentDateField error={!!dateError} message={dateError?.message} />
-        <CategorySelect
+        <CategoryField
           error={categoryError}
           helperText={categoryError?.message}
         />

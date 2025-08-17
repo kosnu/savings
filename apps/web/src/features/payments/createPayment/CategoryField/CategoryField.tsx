@@ -5,15 +5,15 @@ import { BaseField } from "../../../../components/inputs/BaseField"
 import type { Category } from "../../../../types/category"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 
-interface CategorySelectProps {
+interface CategoryFieldProps {
   error?: { message: string }
   helperText?: string
 }
 
-export const CategorySelect = memo(function CategorySelect({
+export const CategoryField = memo(function CategoryField({
   error,
   helperText,
-}: CategorySelectProps) {
+}: CategoryFieldProps) {
   const id = useId()
   const { promiseCategories } = useCategories()
 
@@ -35,7 +35,7 @@ export const CategorySelect = memo(function CategorySelect({
             <Suspense
               fallback={<Select.Item value="loading">Loading</Select.Item>}
             >
-              <CategorySelectOptions getCategories={promiseCategories} />
+              <CategoryFieldOptions getCategories={promiseCategories} />
             </Suspense>
           </ErrorBoundary>
         </Select.Content>
@@ -44,13 +44,13 @@ export const CategorySelect = memo(function CategorySelect({
   )
 })
 
-interface CategorySelectInnerProps {
+interface CategoryFieldInnerProps {
   getCategories: Promise<Category[]>
 }
 
-const CategorySelectOptions = memo(function CategorySelectInner({
+const CategoryFieldOptions = memo(function CategoryFieldInner({
   getCategories,
-}: CategorySelectInnerProps) {
+}: CategoryFieldInnerProps) {
   const categories = use(getCategories)
 
   return (
