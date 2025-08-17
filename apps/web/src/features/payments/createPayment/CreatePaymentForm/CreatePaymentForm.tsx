@@ -1,13 +1,14 @@
 import { Button, Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
-import { Textfield } from "../../../../components/inputs/Textfield"
 import { useFirestore } from "../../../../providers/firebase/useFirestore"
 import { useAuthCurrentUser } from "../../../../utils/auth/useAuthCurrentUser"
 import { findZodError } from "../../../../utils/findZodError"
+import { AmountField } from "../AmountField/AmountField"
 import { addPayment } from "../addPayment"
 import { CategorySelect } from "../CategorySelect"
 import { type FormError, formShema } from "../formSchema"
+import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 
 interface CreatePaymentFormProps {
@@ -78,21 +79,8 @@ export function CreatePaymentForm({
           error={categoryError}
           helperText={categoryError?.message}
         />
-        <Textfield
-          label="Note"
-          name="note"
-          type="text"
-          error={noteError}
-          helperText={noteError?.message}
-        />
-        <Textfield
-          label="Amount"
-          name="amount"
-          type="text"
-          inputMode="numeric"
-          error={amountError}
-          helperText={amountError?.message}
-        />
+        <NoteField error={!!noteError} message={noteError?.message} />
+        <AmountField error={!!amountError} message={amountError?.message} />
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />
