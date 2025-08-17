@@ -38,4 +38,4 @@ export const formShema = z.object({
 })
 
 export type FormSchema = z.infer<typeof formShema>
-export type FormError = z.ZodError<FormSchema>
+export type FormError = z.core.$ZodFlattenedError<FormSchema>

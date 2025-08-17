@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { findZodError } from "../../../utils/findZodError"
+import z from "zod"
 import { formShema } from "./formSchema"
 
 describe("formSchema", () => {
@@ -35,32 +35,44 @@ describe("formSchema", () => {
   test("should fail when category is empty", () => {
     const result = formShema.safeParse({ ...data, category: "" })
     expect(result.success).toBe(false)
-    expect(findZodError(result.error, "category")).toBeTruthy()
+
+    const error =
+      result.error && z.flattenError(result.error).fieldErrors.category
+    expect(error).toEqual(["Category can not be empty"])
   })
 
   test("should fail when date is invalid", () => {
     {
       const result = formShema.safeParse({ ...data, date: "hoge" })
       expect(result.success).toBe(false)
-      expect(findZodError(result.error, "date")).toBeTruthy()
+
+      const error =
+        result.error && z.flattenError(result.error).fieldErrors.date
+      expect(error).toEqual(["Date can not be empty"]) // TODO: 値が無効な形式なのに"Date can not be empty" になるのはおかしいので修正する
     }
   })
 
   test("should fail when amount is invalid", () => {
     const result = formShema.safeParse({ ...data, amount: "invalid" })
     expect(result.success).toBe(false)
-    expect(findZodError(result.error, "amount")).toBeTruthy()
+    const error =
+      result.error && z.flattenError(result.error).fieldErrors.amount
+    expect(error).toEqual(["Amount must be a number"])
   })
 
   test("should fail when amount is empty", () => {
     const result = formShema.safeParse({ ...data, amount: "" })
     expect(result.success).toBe(false)
-    expect(findZodError(result.error, "amount")).toBeTruthy()
+    const error =
+      result.error && z.flattenError(result.error).fieldErrors.amount
+    expect(error).toEqual(["Amount can not be empty"])
   })
 
   test("should fail when amount is negative", () => {
     const result = formShema.safeParse({ ...data, amount: "-1" })
     expect(result.success).toBe(false)
-    expect(findZodError(result.error, "amount")).toBeTruthy()
+    const error =
+      result.error && z.flattenError(result.error).fieldErrors.amount
+    expect(error).toEqual(["Amount must be a non-negative integer"])
   })
 })
