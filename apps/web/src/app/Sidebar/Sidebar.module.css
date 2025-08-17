@@ -55,14 +55,9 @@
 .link {
   /* リンクの下線を削除 */
   text-decoration: none;
-  /* リンクをSidebarの幅いっぱいに広げる */
-  /* width: 100%; */
 }
 
 /* Sidebar内のボタンのスタイル */
 .sidebar-button {
-  /* アイコンとテキストを左寄せ */
-  justify-content: flex-start !important;
-  /* ボタンをSidebarの幅いっぱいに広げる */
-  width: 100% !important;
+  /*  */
 }
