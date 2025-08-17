@@ -1,18 +1,18 @@
-import { Select } from "@radix-ui/themes"
-import { memo, Suspense, use, useId } from "react"
+import { Select, Text } from "@radix-ui/themes"
+import { Fragment, memo, Suspense, use, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { BaseField } from "../../../../components/inputs/BaseField"
 import type { Category } from "../../../../types/category"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 
 interface CategoryFieldProps {
-  error?: { message: string }
-  helperText?: string
+  error?: boolean
+  messages?: string[]
 }
 
 export const CategoryField = memo(function CategoryField({
   error,
-  helperText,
+  messages,
 }: CategoryFieldProps) {
   const id = useId()
   const { promiseCategories } = useCategories()
@@ -23,7 +23,12 @@ export const CategoryField = memo(function CategoryField({
       htmlFor={id}
       required
       error={Boolean(error)}
-      message={helperText}
+      message={messages?.map((msg, i) => (
+        <Fragment key={msg}>
+          {i > 0 && <br />}
+          <Text as="span">{msg}</Text>
+        </Fragment>
+      ))}
       width="300px"
     >
       <Select.Root name="category">

@@ -1,9 +1,9 @@
 import { Button, Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
+import z from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { useFirestore } from "../../../../providers/firebase/useFirestore"
 import { useAuthCurrentUser } from "../../../../utils/auth/useAuthCurrentUser"
-import { findZodError } from "../../../../utils/findZodError"
 import { AmountField } from "../AmountField/AmountField"
 import { addPayment } from "../addPayment"
 import { CategoryField } from "../CategoryField"
@@ -25,11 +25,10 @@ export function CreatePaymentForm({
 
   const [error, setError] = useState<FormError>()
 
-  // TODO: 何度も findZodError() をするのは効率が悪いので修正する
-  const dateError = findZodError(error, "date")
-  const categoryError = findZodError(error, "category")
-  const noteError = findZodError(error, "note")
-  const amountError = findZodError(error, "amount")
+  const dateError = error?.fieldErrors.date
+  const categoryError = error?.fieldErrors.category
+  const noteError = error?.fieldErrors.note
+  const amountError = error?.fieldErrors.amount
 
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -40,7 +39,7 @@ export function CreatePaymentForm({
       const formObject = Object.fromEntries(formData.entries())
       const result = formShema.safeParse(formObject)
       if (result.error) {
-        setError(result.error)
+        setError(z.flattenError(result.error))
         return
       }
 
@@ -74,13 +73,13 @@ export function CreatePaymentForm({
   return (
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="3">
-        <PaymentDateField error={!!dateError} message={dateError?.message} />
+        <PaymentDateField error={!!dateError?.length} messages={dateError} />
         <CategoryField
-          error={categoryError}
-          helperText={categoryError?.message}
+          error={!!categoryError?.length}
+          messages={categoryError}
         />
-        <NoteField error={!!noteError} message={noteError?.message} />
-        <AmountField error={!!amountError} message={amountError?.message} />
+        <NoteField error={!!noteError?.length} messages={noteError} />
+        <AmountField error={!!amountError?.length} messages={amountError} />
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />

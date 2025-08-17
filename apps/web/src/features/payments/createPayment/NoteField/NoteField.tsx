@@ -1,13 +1,13 @@
-import { TextField } from "@radix-ui/themes"
-import { useId } from "react"
+import { Text, TextField } from "@radix-ui/themes"
+import { Fragment, useId } from "react"
 import { BaseField } from "../../../../components/inputs/BaseField"
 
 interface NoteFieldProps {
   error?: boolean
-  message?: string
+  messages?: string[]
 }
 
-export function NoteField({ error, message }: NoteFieldProps) {
+export function NoteField({ error, messages }: NoteFieldProps) {
   const id = useId()
 
   return (
@@ -16,7 +16,12 @@ export function NoteField({ error, message }: NoteFieldProps) {
       required
       htmlFor={id}
       error={error}
-      message={message}
+      message={messages?.map((msg, i) => (
+        <Fragment key={msg}>
+          {i > 0 && <br />}
+          <Text as="span">{msg}</Text>
+        </Fragment>
+      ))}
     >
       <TextField.Root id={id} name="note" type="text" />
     </BaseField>
