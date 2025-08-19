@@ -13,7 +13,10 @@ export function AppLayout() {
     <Flex className={styles.layout}>
       {/* Sidebar */}
       <Sidebar open={open} onClose={closeSidebar}>
-        <SidebarTreeButton treeObject={getPaymentsSidebarTree(new Date())} />
+        <SidebarTreeButton
+          treeObject={getPaymentsSidebarTree(new Date())}
+          onLinkClick={closeSidebar}
+        />
       </Sidebar>
 
       <Flex direction="column" flexGrow="1">

@@ -1,7 +1,7 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
-import { userEvent, within } from "storybook/test"
+import { expect, fn, userEvent, within } from "storybook/test"
 import { SidebarTreeButton } from "./SidebarTreeButton"
 
 const sampleTreeObject = {
@@ -52,7 +52,9 @@ const meta = {
   },
   tags: ["autodocs"],
   argTypes: {},
-  args: {},
+  args: {
+    onLinkClick: fn(),
+  },
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={["/"]}>
@@ -89,6 +91,7 @@ export const OpenFirstTree: Story = {
 export const OpenSecondTree: Story = {
   args: {
     treeObject: sampleTreeObject,
+    onLinkClick: fn(),
   },
   play: async (ctx) => {
     await OpenFirstTree.play?.(ctx)
@@ -100,9 +103,12 @@ export const OpenSecondTree: Story = {
     await userEvent.click(button)
 
     for (const child of sampleTreeObject.children[0].children) {
-      await canvas.findByRole("button", {
+      const button = await canvas.findByRole("button", {
         name: child.label,
       })
+      await ctx.userEvent.click(button)
     }
+
+    expect(ctx.args.onLinkClick).toHaveBeenCalledTimes(2)
   },
 }
