@@ -15,9 +15,13 @@ interface TreeObject {
 
 interface SidebarTreeButtonProps {
   treeObject: TreeObject
+  onLinkClick?: () => void
 }
 
-export function SidebarTreeButton({ treeObject }: SidebarTreeButtonProps) {
+export function SidebarTreeButton({
+  treeObject,
+  onLinkClick,
+}: SidebarTreeButtonProps) {
   const { toggle, switchToggle } = useToggle()
   const hasChildren = !!treeObject.children?.length
 
@@ -25,7 +29,7 @@ export function SidebarTreeButton({ treeObject }: SidebarTreeButtonProps) {
     const TreeLinkButton = withLink(TreeButton, treeObject.href ?? "#")
 
     return (
-      <TreeLinkButton ariaLabel={treeObject.label}>
+      <TreeLinkButton ariaLabel={treeObject.label} onClick={onLinkClick}>
         <TreeLabel startIcon={treeObject.icon}>{treeObject.label}</TreeLabel>
       </TreeLinkButton>
     )
@@ -50,7 +54,11 @@ export function SidebarTreeButton({ treeObject }: SidebarTreeButtonProps) {
           pl="4"
         >
           {treeObject.children?.map((child) => (
-            <SidebarTreeButton key={child.id} treeObject={child} />
+            <SidebarTreeButton
+              key={child.id}
+              treeObject={child}
+              onLinkClick={onLinkClick}
+            />
           ))}
         </Flex>
       )}
@@ -97,10 +105,14 @@ function TreeButton({ ariaLabel, children, onClick }: TreeButtonProps) {
 }
 
 function withLink(Component: React.FC<TreeButtonProps>, href: string) {
-  return function WrappedComponent({ children, ...props }: TreeButtonProps) {
+  return function WrappedComponent({
+    children,
+    onClick,
+    ...props
+  }: TreeButtonProps) {
     return (
       <Reset>
-        <Link to={href}>
+        <Link to={href} onClick={onClick}>
           <Component {...props}>{children}</Component>
         </Link>
       </Reset>
