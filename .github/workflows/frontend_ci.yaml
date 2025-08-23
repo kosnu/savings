@@ -45,8 +45,8 @@ jobs:
       - name: Biome check
         run: npm run check -- --error-on-warnings
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
+      - name: Setup Playwright (with cache)
+        uses: ./actions/setup-playwright
 
       - name: Wait for Firebase Emulator
         run: |
