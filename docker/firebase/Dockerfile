@@ -7,8 +7,9 @@ WORKDIR /usr/src/app
 # Firebase CLI をインストールするための依存パッケージをインストール
 RUN apk add --no-cache openjdk17-jre
 
-# Firebase CLI をグローバルにインストール
-RUN npm install -g firebase-tools
+RUN npm install -g firebase-tools \
+  && npm cache clean --force \
+  && rm -rf /root/.npm /root/.cache
 
 # Firebase Emulator の設定ファイルをコンテナにコピー
 COPY docker/firebase/.firebaserc docker/firebase/firebase.json ./
