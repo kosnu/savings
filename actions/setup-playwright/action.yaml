@@ -1,0 +1,24 @@
+name: "Setup Playwright with Cache"
+description: "Setup Playwright with versioned cache for GitHub Actions."
+runs:
+  using: "composite"
+  steps:
+    - name: Get Playwright version from node_modules
+      id: get_version
+      run: |
+        VERSION=$(npx playwright --version | head -n1 | awk '{print $NF}')
+        echo "playwright_version=$VERSION" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Cache Playwright binaries
+      id: playwright-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ steps.get_version.outputs.playwright_version }}-binaries
+
+    - name: Install Playwright
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      run: |
+        npx playwright install --with-deps chromium
+      shell: bash
