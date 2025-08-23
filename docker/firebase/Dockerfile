@@ -5,7 +5,7 @@ FROM node:22-alpine
 WORKDIR /usr/src/app
 
 # Firebase CLI をインストールするための依存パッケージをインストール
-RUN apk add --no-cache openjdk17-jre
+RUN apk add --no-cache openjdk21-jre
 
 RUN npm install -g firebase-tools \
   && npm cache clean --force \
