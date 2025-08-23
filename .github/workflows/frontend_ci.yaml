@@ -46,7 +46,7 @@ jobs:
         run: npm run check -- --error-on-warnings
 
       - name: Setup Playwright (with cache)
-        uses: ./actions/setup-playwright
+        uses: ./.github/actions/setup-playwright
 
       - name: Wait for Firebase Emulator
         run: |
