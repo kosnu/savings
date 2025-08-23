@@ -16,6 +16,9 @@ jobs:
           - 8080:8080   # Firestore
           - 9099:9099   # Auth
           - 4000:4000   # Emulator UI
+    container:
+      image: ghcr.io/kosnu/savings-playwright:latest
+      options: --user root
     defaults:
       run:
         working-directory: apps/web/
@@ -44,9 +47,6 @@ jobs:
 
       - name: Biome check
         run: npm run check -- --error-on-warnings
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
 
       - name: Wait for Firebase Emulator
         run: |
