@@ -13,9 +13,13 @@ runs:
     - name: Cache Playwright binaries
       id: playwright-cache
       uses: actions/cache@v4
+      env:
+        cache-name: cache-playwright-binaries
       with:
         path: ~/.cache/ms-playwright
-        key: playwright-${{ steps.get_version.outputs.playwright_version }}-binaries
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ steps.get_version.outputs.playwright_version }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
 
     - name: Install Playwright
       if: steps.playwright-cache.outputs.cache-hit != 'true'
