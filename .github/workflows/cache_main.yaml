@@ -1,0 +1,30 @@
+name: Cache npm and Playwright on main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  cache-npm-playwright:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "apps/web/package.json"
+
+      - name: Cache node modules
+        uses: ./.github/actions/cache-npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up Playwright browsers
+        uses: ./.github/actions/setup-playwright
