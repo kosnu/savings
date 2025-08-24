@@ -52,7 +52,23 @@ export const Default: Story = {
 
 export const LongInfo: Story = {
   args: {
+    open: true,
     payment: longPayment,
+  },
+}
+
+export const NoPayment: Story = {
+  args: {
+    open: true,
+    payment: undefined,
+  },
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+
+    expect(body.getByText("Payment not found.")).toBeInTheDocument()
+
+    const disabledDeleteButton = body.getByRole("button", { name: /delete/i })
+    expect(disabledDeleteButton).toBeDisabled()
   },
 }
 
