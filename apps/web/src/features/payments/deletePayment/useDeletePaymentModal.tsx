@@ -1,4 +1,4 @@
-import { Fragment, type JSX, useCallback, useState } from "react"
+import { type JSX, useCallback, useState } from "react"
 import type { Payment } from "../../../types/payment"
 import { useDialog } from "../../../utils/useDialog"
 import { DeletePaymentModal } from "./DeletePaymentModal"
@@ -22,8 +22,6 @@ export function useDeletePaymentModal(): UseDeletePaymentModalReturn {
 
   const DeletePaymentModalComponent = useCallback(
     ({ onSuccess }: { onSuccess: () => void }) => {
-      if (!payment) return <Fragment />
-
       return (
         <DeletePaymentModal
           open={open}
