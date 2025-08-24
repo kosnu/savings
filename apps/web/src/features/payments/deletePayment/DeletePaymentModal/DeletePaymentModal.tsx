@@ -8,7 +8,7 @@ import { toCurrency } from "../../../../utils/toCurrency"
 import { useDeletePayment } from "../useDeletePayment"
 
 interface DeletePaymentModalProps {
-  payment: Payment
+  payment?: Payment | null
   open?: boolean
   onClose?: () => void
   onSuccess: () => void
@@ -22,7 +22,9 @@ export function DeletePaymentModal({
 }: DeletePaymentModalProps) {
   const { deletePayment } = useDeletePayment()
   const { openSnackbar } = useSnackbar()
-  const paymentInfo = `${formatDateToLocaleString(payment.date)} ${payment.note} ${toCurrency(payment.amount)}`
+  const paymentInfo = payment
+    ? `${formatDateToLocaleString(payment.date)} ${payment.note} ${toCurrency(payment.amount)}`
+    : "Payment not found."
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -34,6 +36,8 @@ export function DeletePaymentModal({
   )
 
   const handleSubmit = useCallback(async () => {
+    if (!payment) return
+
     try {
       await deletePayment(payment)
       openSnackbar("success", "Payment deleted successfully.")
@@ -58,7 +62,7 @@ export function DeletePaymentModal({
             <CancelButton />
           </Dialog.Close>
           <Dialog.Close>
-            <Button color="red" onClick={handleSubmit}>
+            <Button color="red" disabled={!payment} onClick={handleSubmit}>
               Delete
             </Button>
           </Dialog.Close>
