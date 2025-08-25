@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from "react"
 import { useFirestore } from "../../../providers/firebase/useFirestore"
 import type { Category } from "../../../types/category"
-import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { fetchCategories } from "./fetchCategories"
 
 interface UseCategoriesReturn {
@@ -10,12 +9,11 @@ interface UseCategoriesReturn {
 }
 
 export function useCategories(): UseCategoriesReturn {
-  const { currentUser } = useAuthCurrentUser()
   const db = useFirestore()
 
   const getCategories = useCallback(async (): Promise<Category[]> => {
-    return await fetchCategories(db, currentUser)
-  }, [db, currentUser])
+    return await fetchCategories(db)
+  }, [db])
 
   const categories = useMemo(() => getCategories(), [getCategories])
 
