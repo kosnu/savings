@@ -1,33 +1,21 @@
-import type { User } from "firebase/auth"
 import {
   collection,
   type Firestore,
   getDocs,
   orderBy,
   query,
-  where,
 } from "firebase/firestore"
 import { collections } from "../../../providers/firebase/store"
 import type { Category } from "../../../types/category"
 
-export async function fetchCategories(
-  db: Firestore,
-  user: User | null,
-): Promise<Category[]> {
-  if (!user) {
-    return []
-  }
-
-  const queryConstrations = [where("user_id", "==", user.uid)]
-
+export async function fetchCategories(db: Firestore): Promise<Category[]> {
   const categoriesRef = collection(
     db,
-    collections.categories.path(user.uid),
+    collections.categories.path(),
   ).withConverter(collections.categories.converter)
   const querySnapshot = await getDocs(
-    query(categoriesRef, ...queryConstrations, orderBy("name", "desc")),
+    query(categoriesRef, orderBy("name", "desc")),
   )
-
   const categories = querySnapshot.docs.map((doc) => doc.data())
 
   return categories
