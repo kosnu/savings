@@ -126,6 +126,7 @@ const incomesCollection: Collection<Income, IncomeDocument, string> = {
 }
 
 export interface CategoryDocument extends DocumentData {
+  id: string
   name: string
   created_date: Timestamp
   updated_date: Timestamp
@@ -136,6 +137,7 @@ const categoriesCollection: Collection<Category, CategoryDocument> = {
   converter: {
     toFirestore: (data: Category): CategoryDocument => {
       return {
+        id: data.id,
         name: data.name,
         created_date: Timestamp.fromDate(data.createdDate),
         updated_date: Timestamp.fromDate(data.updatedDate),
