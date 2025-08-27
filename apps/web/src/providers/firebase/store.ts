@@ -126,21 +126,21 @@ const incomesCollection: Collection<Income, IncomeDocument, string> = {
 }
 
 export interface CategoryDocument extends DocumentData {
+  id: string
   name: string
-  user_id: string
-  created_at: Timestamp // TODO: created_date に変更する
-  updated_at: Timestamp // TODO: updated_date に変更する
+  created_date: Timestamp
+  updated_date: Timestamp
 }
 
-const categoriesCollection: Collection<Category, CategoryDocument, string> = {
-  path: (userId: string) => `users/${userId}/categories`,
+const categoriesCollection: Collection<Category, CategoryDocument> = {
+  path: () => `categories`,
   converter: {
     toFirestore: (data: Category): CategoryDocument => {
       return {
+        id: data.id,
         name: data.name,
-        user_id: data.userId,
-        created_at: Timestamp.fromDate(data.createdDate),
-        updated_at: Timestamp.fromDate(data.updatedDate),
+        created_date: Timestamp.fromDate(data.createdDate),
+        updated_date: Timestamp.fromDate(data.updatedDate),
       }
     },
     fromFirestore: (snapshot): Category => {
@@ -149,9 +149,8 @@ const categoriesCollection: Collection<Category, CategoryDocument, string> = {
       return {
         id: snapshot.id,
         name: data.name,
-        userId: data.user_id,
-        createdDate: (data.created_at as Timestamp).toDate(),
-        updatedDate: (data.updated_at as Timestamp).toDate(),
+        createdDate: (data.created_date as Timestamp).toDate(),
+        updatedDate: (data.updated_date as Timestamp).toDate(),
       }
     },
   },
