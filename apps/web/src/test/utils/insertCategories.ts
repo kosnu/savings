@@ -13,11 +13,11 @@ export async function insertCategories(
 
   for (const category of categories) {
     const categoryRef = category.id
-      ? doc(firestore, collections.categories.path(userId), category.id)
-      : doc(firestore, collections.categories.path(userId))
-    await setDoc(categoryRef.withConverter(collections.categories.converter), {
-      ...category,
-      userId: userId,
-    })
+      ? doc(firestore, collections.categories.path(), category.id)
+      : doc(firestore, collections.categories.path())
+    await setDoc(
+      categoryRef.withConverter(collections.categories.converter),
+      category,
+    )
   }
 }
