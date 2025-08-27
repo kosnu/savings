@@ -11,7 +11,7 @@ export function toCategoryMap(categories: Category[]): Map<string, Category> {
 
 export function getCategoryStrict(
   map: Map<string, Category>,
-  id: string,
+  id: Category["id"],
 ): Category {
   const category = map.get(id) ?? unknownCategory
 
@@ -20,7 +20,6 @@ export function getCategoryStrict(
 
 const unknownCategory: Category = {
   id: "unknown",
-  userId: "unknown",
   name: "Unknown category",
   createdDate: new Date(),
   updatedDate: new Date(),
