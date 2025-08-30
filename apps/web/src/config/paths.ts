@@ -13,5 +13,9 @@ export const paths = {
       return `/payments${params.toString() ? `?${params.toString()}` : ""}`
     },
   },
+  aggregates: {
+    path: "/aggregates",
+    getHref: () => "/aggregates",
+  },
   // Add more paths as needed
 } as const
