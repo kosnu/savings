@@ -2,9 +2,10 @@ import "https://deno.land/std@0.224.0/dotenv/load.ts"
 import { args } from "./src/config/args.ts"
 import { env } from "./src/config/env.ts"
 import { getAccessToken } from "./src/services/auth.ts"
-import { addToCollection } from "./src/services/firestore.ts"
 import { parseCSV } from "./src/utils/csv.ts"
-import type { PaymentRecord } from "./src/utils/types.ts"
+import { collectionMap, isCollectionKey } from "./src/utils/types.ts"
+import { createPaymentDoc } from "./src/features/payment/createPaymentDoc.ts"
+import { PaymentRecord } from "./src/features/payment/types.ts"
 
 // 環境変数取得
 const { serviceAccountKeyPath, projectId, userId } = env
@@ -13,6 +14,18 @@ if (!serviceAccountKeyPath || !projectId || !userId) {
   console.error(
     "環境変数 SERVICE_ACCOUNT_KEY_PATH, FIRESTORE_PROJECT_ID, SAVINGS_USER_ID を設定してください。",
   )
+  Deno.exit(1)
+}
+
+const collectionName = String(args.collection || args.c)
+
+if (!collectionName) {
+  console.error("コレクション名を指定してください。")
+  Deno.exit(1)
+}
+
+if (!isCollectionKey(collectionName)) {
+  console.error("無効なコレクション名です。")
   Deno.exit(1)
 }
 
@@ -30,9 +43,19 @@ if (!access_token) {
 }
 
 // CSVファイル読み込み
-const csvRowNames = ["date", "category", "note", "amount"]
-const records = await parseCSV<PaymentRecord>(csvDataPath, csvRowNames)
+const collection = collectionMap[collectionName]
+const records = await parseCSV(csvDataPath, collection.columns)
 
-for (const record of records) {
-  await addToCollection(access_token, projectId, userId, record)
+if (records.length === 0) {
+  console.error("CSVファイルにデータがありません。")
+  Deno.exit(1)
+}
+
+if (collection.name === "payments") {
+  // FIXME: 型安全に変換する
+  const docs = records.map((record) => record as PaymentRecord)
+
+  for (const doc of docs) {
+    await createPaymentDoc(access_token, projectId, userId, doc)
+  }
 }
