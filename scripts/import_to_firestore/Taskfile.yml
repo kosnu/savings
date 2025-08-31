@@ -1,0 +1,24 @@
+# https://taskfile.dev
+
+version: "3"
+
+dotenv: [".env"]
+
+tasks:
+  default:
+    aliases:
+      - list
+    desc: List all tasks
+    cmd: task -l
+  lint:
+    desc: Run linting
+    cmd: deno lint
+  test:
+    desc: Run tests
+    cmd: deno test --allow-read
+  insert:
+    desc: Run the insert application
+    vars:
+      FILE: path/to/example.csv
+      COLLECTION: [payments, categories]
+    cmd: deno run --allow-env --allow-read main.ts --file {{.FILE}} --collection {{.COLLECTION}}
