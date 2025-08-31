@@ -1,0 +1,16 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  default:
+    aliases:
+      - list
+    desc: List all tasks
+    cmd: task -l
+  check:
+    desc: Run linting and format checks
+    cmd: npm run check-write
+  test:
+    desc: Run tests
+    cmd: npm run test -- --silent --reporter=dot
