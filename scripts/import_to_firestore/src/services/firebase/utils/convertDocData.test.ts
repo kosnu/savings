@@ -1,5 +1,5 @@
 import { convertDocData } from "./convertDocData.ts"
-import { assertEquals } from "https://deno.land/std@0.203.0/assert/mod.ts"
+import { assertEquals } from "@std/assert"
 
 Deno.test("convertDocData: 文字列値をstringValueに変換する", () => {
   const input = { name: "Alice" }

@@ -1,4 +1,4 @@
-import { parseArgs } from "jsr:@std/cli/parse-args"
+import { parseArgs } from "@std/cli/parse-args"
 
 export const args = parseArgs(Deno.args, {
   string: ["collection", "file"],
