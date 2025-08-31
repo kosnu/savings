@@ -1,4 +1,3 @@
-import { getTimestamp } from "./utils/getTimestamp.ts"
 import { convertDocData } from "./utils/convertDocData.ts"
 import { Doc } from "./types.ts"
 
@@ -37,10 +36,11 @@ export async function addDoc<TDoc extends Doc>(
     throw new Error("Path is required")
   }
 
+  const now = new Date()
   const docWithTimestamps = {
     ...doc,
-    created_date: getTimestamp(),
-    updated_date: getTimestamp(),
+    created_date: now,
+    updated_date: now,
   }
 
   const docForRequestBody = {
