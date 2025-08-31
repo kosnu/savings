@@ -1,4 +1,4 @@
-import "https://deno.land/std@0.224.0/dotenv/load.ts"
+import "@std/dotenv/load"
 import { args } from "./src/config/args.ts"
 import { env } from "./src/config/env.ts"
 import { getAccessToken } from "./src/services/auth.ts"

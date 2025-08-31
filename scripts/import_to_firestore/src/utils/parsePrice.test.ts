@@ -1,5 +1,5 @@
+import { assertEquals } from "@std/assert"
 import { parsePrice } from "./parsePrice.ts"
-import { assertEquals } from "https://deno.land/std@0.203.0/assert/mod.ts"
 
 Deno.test("parsePrice: カンマ区切り・円記号ありの数値文字列を正しくパースする", () => {
   assertEquals(parsePrice("1,234"), 1234)
