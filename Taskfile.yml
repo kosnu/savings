@@ -1,0 +1,27 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  default:
+    aliases:
+      - list
+    desc: List all tasks
+    cmd: task -l
+  build:
+    desc: Build the application
+    cmd: docker compose build
+  build:no-cache:
+    desc: Build the application without cache
+    cmd: docker compose build --no-cache
+  up:
+    desc: Start the application
+    cmd: docker compose up -d
+  down:
+    desc: Stop the application
+    cmd: docker compose down
+  save:emulator_data:
+    desc: Save emulator data
+    cmd: |
+      docker compose exec firebase firebase emulators:export -f /tmp/data/emulator_data
+      docker cp $(docker compose ps -q firebase):/tmp/data/emulator_data ./docker/firebase/data/
