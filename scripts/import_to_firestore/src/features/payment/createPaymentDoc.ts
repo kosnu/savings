@@ -4,6 +4,7 @@ import { addDoc } from "../../services/firebase/addDoc.ts"
 
 export async function createPaymentDoc(
   token: string,
+  database: string,
   projectId: string,
   userId: string,
   payment: PaymentRecord,
@@ -17,6 +18,7 @@ export async function createPaymentDoc(
 
   await addDoc({
     token,
+    database,
     projectId,
     path: `users/${userId}/payments`,
     doc: paymentData,
