@@ -2,8 +2,13 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/assert@1": "1.0.13",
+    "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/cli@*": "1.0.20",
-    "jsr:@std/internal@^1.0.6": "1.0.8"
+    "jsr:@std/cli@1": "1.0.20",
+    "jsr:@std/csv@1": "1.0.6",
+    "jsr:@std/dotenv@0.224.0": "0.224.0",
+    "jsr:@std/internal@^1.0.6": "1.0.8",
+    "jsr:@std/streams@^1.0.9": "1.0.11"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -12,11 +17,29 @@
         "jsr:@std/internal"
       ]
     },
+    "@std/bytes@1.0.6": {
+      "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
+    },
     "@std/cli@1.0.20": {
       "integrity": "a8c384a2c98cec6ec6a2055c273a916e2772485eb784af0db004c5ab8ba52333"
     },
+    "@std/csv@1.0.6": {
+      "integrity": "52ef0e62799a0028d278fa04762f17f9bd263fad9a8e7f98c14fbd371d62d9fd",
+      "dependencies": [
+        "jsr:@std/streams"
+      ]
+    },
+    "@std/dotenv@0.224.0": {
+      "integrity": "d9234cdf551507dcda60abb6c474289843741d8c07ee8ce540c60f5c1b220a1d"
+    },
     "@std/internal@1.0.8": {
       "integrity": "fc66e846d8d38a47cffd274d80d2ca3f0de71040f855783724bb6b87f60891f5"
+    },
+    "@std/streams@1.0.11": {
+      "integrity": "db583d27e28d133f389f1eec318cffdf4998305e5134c1d4b1c56b361cee6018",
+      "dependencies": [
+        "jsr:@std/bytes"
+      ]
     }
   },
   "redirects": {
@@ -108,7 +131,10 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/assert@1"
+      "jsr:@std/assert@1",
+      "jsr:@std/cli@1",
+      "jsr:@std/csv@1",
+      "jsr:@std/dotenv@0.224.0"
     ]
   }
 }
