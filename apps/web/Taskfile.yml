@@ -13,4 +13,4 @@ tasks:
     cmd: npm run check-write
   test:
     desc: Run tests
-    cmd: npm run test -- --silent --reporter=dot
+    cmd: npm run test -- --silent --reporter=dot {{.CLI_ARGS}}

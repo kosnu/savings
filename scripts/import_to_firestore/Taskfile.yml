@@ -15,10 +15,7 @@ tasks:
     cmd: deno lint
   test:
     desc: Run tests
-    cmd: deno test --allow-read
+    cmd: deno test --allow-read {{.CLI_ARGS}}
   insert:
     desc: Run the insert application
-    vars:
-      FILE: path/to/example.csv
-      COLLECTION: [payments, categories]
-    cmd: deno run --allow-env --allow-read main.ts --file {{.FILE}} --collection {{.COLLECTION}}
+    cmd: deno run --allow-env --allow-read main.ts {{.CLI_ARGS}}
