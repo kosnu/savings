@@ -7,7 +7,7 @@ Deno.test("parseCSV: CSVファイルを正しくパースできる", async () =>
   const result = await parseCSV(filePath, columns)
 
   assertEquals(result, [
-    { name: "Alics", age: "30" },
+    { name: "Alice", age: "30" },
     { name: "Bob", age: "25" },
   ])
 })
