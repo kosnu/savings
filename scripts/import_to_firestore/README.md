@@ -10,7 +10,7 @@
 サンプルから `.env` ファイルを生成する。
 
 ```shell
-cp .env.example .env
+cp .env.sample .env
 ```
 
 その後、自身のプロジェクトやサービスアカウントの鍵ファイルを用意し、適切な変数に代入する。
@@ -18,5 +18,5 @@ cp .env.example .env
 ## 実行
 
 ```shell
-deno run --allow-env --allow-read main.ts --file path/to/example.csv
+task insert --file path/to/example.csv --collection {collection_name}
 ```
