@@ -6,13 +6,15 @@ import { parseCSV } from "./src/utils/csv.ts"
 import { collectionMap, isCollectionKey } from "./src/utils/types.ts"
 import { createPaymentDoc } from "./src/features/payment/createPaymentDoc.ts"
 import { PaymentRecord } from "./src/features/payment/types.ts"
+import { CategoryRecord } from "./src/features/category/types.ts"
+import { createCategoryDoc } from "./src/features/category/createCategoryDoc.ts"
 
 // 環境変数取得
-const { serviceAccountKeyPath, projectId, userId } = env
+const { serviceAccountKeyPath, database, projectId, userId } = env
 
-if (!serviceAccountKeyPath || !projectId || !userId) {
+if (!serviceAccountKeyPath || !database || !projectId || !userId) {
   console.error(
-    "環境変数 SERVICE_ACCOUNT_KEY_PATH, FIRESTORE_PROJECT_ID, SAVINGS_USER_ID を設定してください。",
+    "環境変数 SERVICE_ACCOUNT_KEY_PATH, FIRESTORE_DATABASE, FIRESTORE_PROJECT_ID, SAVINGS_USER_ID を設定してください。",
   )
   Deno.exit(1)
 }
@@ -51,11 +53,20 @@ if (records.length === 0) {
   Deno.exit(1)
 }
 
+if (collection.name === "categories") {
+  // FIXME: 型安全に変換する
+  const docs = records.map((record) => record as CategoryRecord)
+
+  for (const doc of docs) {
+    await createCategoryDoc(access_token, database, projectId, doc)
+  }
+}
+
 if (collection.name === "payments") {
   // FIXME: 型安全に変換する
   const docs = records.map((record) => record as PaymentRecord)
 
   for (const doc of docs) {
-    await createPaymentDoc(access_token, projectId, userId, doc)
+    await createPaymentDoc(access_token, database, projectId, userId, doc)
   }
 }
