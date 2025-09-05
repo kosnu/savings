@@ -1,12 +1,11 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider } from "@tanstack/react-query"
 import type { ReactNode } from "react"
+import { createQueryClient } from "../lib/queryClient"
 import { FirestoreProvider } from "../providers/firebase/FirebaseProvider"
 import { SnackbarProvider } from "../providers/snackbar"
 import { ThemeProvider } from "../providers/theme/ThemeProvider"
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { experimental_prefetchInRender: true } },
-})
+const queryClient = createQueryClient()
 
 interface ProviderProps {
   children: ReactNode
