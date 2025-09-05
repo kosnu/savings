@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
 import { firebaseConfig } from "../../../../config/firebase/test"
@@ -12,6 +13,10 @@ import { insertPayments } from "../../../../test/utils/insertPayments"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import { CreatePaymentForm } from "./CreatePaymentForm"
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { experimental_prefetchInRender: true } },
+})
 
 const meta = {
   title: "Features/CreatePayment/CreatePaymentForm",
@@ -40,9 +45,11 @@ const meta = {
   decorators: (Story) => {
     return (
       <ThemeProvider>
-        <FirestoreProvider config={firebaseConfig}>
-          <Story />
-        </FirestoreProvider>
+        <QueryClientProvider client={queryClient}>
+          <FirestoreProvider config={firebaseConfig}>
+            <Story />
+          </FirestoreProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     )
   },

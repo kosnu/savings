@@ -22,7 +22,7 @@ export const PaymentList = memo(function PaymentList({
   const { dateRange } = useDateRange()
   const { getPayments } = useGetPayments(dateRange)
   const paymentsPromise = useMemo(() => getPayments(), [getPayments])
-  const { promiseCategories } = useCategories()
+  const { promise: promiseCategories } = useCategories()
 
   return (
     <Flex aria-label="payment-list" direction="column" gap="2">
