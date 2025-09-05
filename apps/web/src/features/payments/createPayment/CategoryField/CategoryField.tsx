@@ -15,7 +15,7 @@ export const CategoryField = memo(function CategoryField({
   messages,
 }: CategoryFieldProps) {
   const id = useId()
-  const { promiseCategories } = useCategories()
+  const { promise: promiseCategories } = useCategories()
 
   return (
     <BaseField

@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { QueryClientProvider } from "@tanstack/react-query"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
 import { firebaseConfig } from "../../../../config/firebase/test"
+import { createQueryClient } from "../../../../lib/queryClient"
 import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { categories } from "../../../../test/data/categories"
@@ -38,11 +40,15 @@ const meta = {
     await insertPayments(auth, firestore, payments)
   },
   decorators: (Story) => {
+    const queryClient = createQueryClient()
+
     return (
       <ThemeProvider>
-        <FirestoreProvider config={firebaseConfig}>
-          <Story />
-        </FirestoreProvider>
+        <QueryClientProvider client={queryClient}>
+          <FirestoreProvider config={firebaseConfig}>
+            <Story />
+          </FirestoreProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     )
   },
