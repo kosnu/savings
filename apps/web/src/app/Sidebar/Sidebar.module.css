@@ -6,7 +6,9 @@
   left: 0;
   height: calc(100% - var(--space-4));
   z-index: 10; /* mainコンテンツより手前に表示 */
-  background: var(--color-background); /* 背景色がないと下のコンテンツが透ける */
+  background: var(
+    --color-background
+  ); /* 背景色がないと下のコンテンツが透ける */
 
   display: flex;
   flex-direction: column;
