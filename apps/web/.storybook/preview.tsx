@@ -1,15 +1,12 @@
 import type { Preview } from "@storybook/react-vite"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider } from "@tanstack/react-query"
 // biome-ignore lint: noUnusedImports: これがないとテスト実行時に `React is not defined` エラーが起きる
 import React from "react"
+import { createQueryClient } from "../src/lib/queryClient"
 import { SnackbarProvider } from "../src/providers/snackbar"
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 
 import "../src/assets/global.css"
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { experimental_prefetchInRender: true } },
-})
 
 const preview: Preview = {
   parameters: {
@@ -21,15 +18,19 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (Story) => (
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <SnackbarProvider>
-            <Story />
-          </SnackbarProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    ),
+    (Story) => {
+      const queryClient = createQueryClient()
+
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <SnackbarProvider>
+              <Story />
+            </SnackbarProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      )
+    },
   ],
 }
 

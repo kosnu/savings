@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider } from "@tanstack/react-query"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
 import { firebaseConfig } from "../../../../config/firebase/test"
+import { createQueryClient } from "../../../../lib/queryClient"
 import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { categories } from "../../../../test/data/categories"
@@ -13,10 +14,6 @@ import { insertPayments } from "../../../../test/utils/insertPayments"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import { CreatePaymentForm } from "./CreatePaymentForm"
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { experimental_prefetchInRender: true } },
-})
 
 const meta = {
   title: "Features/CreatePayment/CreatePaymentForm",
@@ -43,6 +40,8 @@ const meta = {
     await insertPayments(auth, firestore, payments)
   },
   decorators: (Story) => {
+    const queryClient = createQueryClient()
+
     return (
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
