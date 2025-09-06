@@ -1,0 +1,13 @@
+import type { Meta, StoryObj } from "@storybook/react-vite"
+import { {{ properCase name }} } from "./{{ properCase name }}"
+
+const meta = {
+  title: "Common/Buttons/CancelButton",
+  component: {{ properCase name }},
+  tags: ["autodocs"],
+} satisfies Meta<typeof {{ properCase name }}>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
