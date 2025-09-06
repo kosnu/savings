@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 
 export function useDateRange() {
+  const [date, setDate] = useState<Date | null>(null)
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     null,
     null,
@@ -18,10 +19,12 @@ export function useDateRange() {
       const month = Number.parseInt(monthParam, 10)
       const date = new Date(year, month - 1, 1)
       setDateRange([startOfMonth(date), endOfMonth(date)])
+      setDate(date)
     }
   }, [searchParams])
 
   return {
     dateRange: dateRange,
+    date: date,
   }
 }
