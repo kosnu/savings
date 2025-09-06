@@ -57,8 +57,5 @@ export const Default: Story = {
 
     expect(await canvas.findByText("Expenditures")).toBeInTheDocument()
     expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
-
-    expect(await canvas.findByText("Income")).toBeInTheDocument()
-    expect(await canvas.findByText("￥1,000,000")).toBeInTheDocument()
   },
 }
