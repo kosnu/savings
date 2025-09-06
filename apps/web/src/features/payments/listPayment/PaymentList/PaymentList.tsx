@@ -1,16 +1,15 @@
 import { Flex } from "@radix-ui/themes"
-import { memo, Suspense, use, useMemo } from "react"
+import { memo, Suspense, use } from "react"
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
 import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
-import { useDateRange } from "../../../../utils/useDateRange"
 import {
   getCategoryStrict,
   toCategoryMap,
 } from "../../../categories/listCategory/toCategoryMap"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 import { PaymentItem } from "../PaymentItem"
-import { useGetPayments } from "../useGetPayments"
+import { usePayments } from "../usePayments"
 
 interface PaymentListProps {
   onDeleteSuccess: () => void
@@ -19,9 +18,7 @@ interface PaymentListProps {
 export const PaymentList = memo(function PaymentList({
   onDeleteSuccess,
 }: PaymentListProps) {
-  const { dateRange } = useDateRange()
-  const { getPayments } = useGetPayments(dateRange)
-  const paymentsPromise = useMemo(() => getPayments(), [getPayments])
+  const { promise: promisePayments } = usePayments()
   const { promise: promiseCategories } = useCategories()
 
   return (
@@ -29,7 +26,7 @@ export const PaymentList = memo(function PaymentList({
       <Suspense fallback={<SkeltonItems />}>
         <Items
           promiseCategories={promiseCategories}
-          getPayments={paymentsPromise}
+          getPayments={promisePayments}
           onDeleteSuccess={onDeleteSuccess}
         />
       </Suspense>
