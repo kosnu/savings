@@ -3,20 +3,14 @@ import { useMemo } from "react"
 import { useDateRange } from "../../../utils/useDateRange"
 import { MoneyCard } from "../MoneyCard"
 import { useGetTotalExpenditures } from "../useGetTotalExpenditures"
-import { useGetTotalIncome } from "../useGetTotalIncome"
 
 export function Summary() {
   const { dateRange } = useDateRange()
   const { getTotalExpenditures } = useGetTotalExpenditures()
-  const { getTotalIncome } = useGetTotalIncome()
 
   const getTotalExpendituresPromise = useMemo(
     () => getTotalExpenditures(dateRange),
     [getTotalExpenditures, dateRange],
-  )
-  const getTotalIncomePromise = useMemo(
-    () => getTotalIncome(dateRange),
-    [getTotalIncome, dateRange],
   )
 
   return (
@@ -26,7 +20,6 @@ export function Summary() {
           title="Expenditures"
           getValue={getTotalExpendituresPromise}
         />
-        <MoneyCard title="Income" getValue={getTotalIncomePromise} />
       </Grid>
       {/* TODO: カテゴリ別の合計金額を表示する */}
     </Flex>
