@@ -10,7 +10,7 @@ interface MoneyCardProps {
 
 function MoneyCard({ title, getValue }: MoneyCardProps) {
   return (
-    <Card size="4" style={{ width: "100%" }}>
+    <Card size="2" style={{ width: "100%" }}>
       <Flex gap="1" direction="column">
         <Text>{title}</Text>
         <ErrorBoundary
