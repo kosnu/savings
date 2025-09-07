@@ -7,7 +7,16 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**", ".storybook/**", "./*.ts"]
+    "includes": [
+      "src/**",
+      ".storybook/**",
+      "*.ts",
+      "*.tsx",
+      "*.js",
+      "*.jsx",
+      "*.json",
+      "*.mjs"
+    ]
   },
   "formatter": {
     "enabled": true,
