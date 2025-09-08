@@ -5,10 +5,10 @@ import { MemoryRouter } from "react-router-dom"
 import { expect } from "storybook/test"
 import { firebaseConfig } from "../../../config/firebase/test"
 import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
-import { incomes } from "../../../test/data/incomes"
+import { categories } from "../../../test/data/categories"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
-import { insertIncomes } from "../../../test/utils/insertIncomes"
+import { insertCategories } from "../../../test/utils/insertCategories"
 import { insertPayments } from "../../../test/utils/insertPayments"
 import { insertUser } from "../../../test/utils/insertUser"
 import { signInMockUser } from "../../../test/utils/signInByMockUser"
@@ -32,12 +32,12 @@ const meta = {
     await signInMockUser(auth, user)
     const userId = auth.currentUser?.uid ?? user.id
     await insertUser(firestore, { ...user, id: userId })
+    await insertCategories(auth, firestore, categories)
     await insertPayments(auth, firestore, payments)
-    await insertIncomes(auth, firestore, incomes)
   },
   decorators: (Story) => {
     return (
-      <MemoryRouter initialEntries={["/payments?year=2025&month=04"]}>
+      <MemoryRouter initialEntries={["/payments?year=2025&month=06"]}>
         <FirestoreProvider config={firebaseConfig}>
           <Container size="4">
             <Story />
@@ -56,6 +56,14 @@ export const Default: Story = {
     const canvas = within(canvasElement)
 
     expect(await canvas.findByText("Expenditures")).toBeInTheDocument()
+    expect(await canvas.findByText("￥5,000")).toBeInTheDocument()
+
+    for (const category of Object.values(categories)) {
+      expect(await canvas.findByText(category.name)).toBeInTheDocument()
+    }
+    expect(await canvas.findByText("Unknown category")).toBeInTheDocument()
+
     expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
+    expect(await canvas.findAllByText("￥0")).toHaveLength(2)
   },
 }
