@@ -1,27 +1,14 @@
-import { Flex, Grid } from "@radix-ui/themes"
-import { useMemo } from "react"
-import { useDateRange } from "../../../utils/useDateRange"
-import { MoneyCard } from "../MoneyCard"
-import { useGetTotalExpenditures } from "../useGetTotalExpenditures"
+import { Card, Flex } from "@radix-ui/themes"
+import { CategoryTotals } from "../CategoryTotals"
+import { MonthlyTotals } from "../MonthlyTotals"
 
 export function Summary() {
-  const { dateRange } = useDateRange()
-  const { getTotalExpenditures } = useGetTotalExpenditures()
-
-  const getTotalExpendituresPromise = useMemo(
-    () => getTotalExpenditures(dateRange),
-    [getTotalExpenditures, dateRange],
-  )
-
   return (
-    <Flex gap="3" width="100%">
-      <Grid columns="2" gap="3" width="100%">
-        <MoneyCard
-          title="Expenditures"
-          getValue={getTotalExpendituresPromise}
-        />
-      </Grid>
-      {/* TODO: カテゴリ別の合計金額を表示する */}
-    </Flex>
+    <Card size="2">
+      <Flex gap="3" direction="column" width="100%">
+        <MonthlyTotals />
+        <CategoryTotals />
+      </Flex>
+    </Card>
   )
 }

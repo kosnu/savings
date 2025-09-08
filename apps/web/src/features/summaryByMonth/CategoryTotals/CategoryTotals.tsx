@@ -1,4 +1,4 @@
-import { Card, DataList, Grid } from "@radix-ui/themes"
+import { DataList, Grid } from "@radix-ui/themes"
 import { splitArray } from "../../../utils/splitArray"
 import { toCurrency } from "../../../utils/toCurrency"
 import { useCategoryTotals } from "./useCategoryTotals"
@@ -18,20 +18,18 @@ export function CategoryTotals({
   const categoryChunks = splitArray(Object.entries(categoryTotals), chunkSize)
 
   return (
-    <Card size="2">
-      <Grid columns={`${chunkSize}`} gap="2" width="100%">
-        {categoryChunks.map((chunk, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: indexをkeyに使うのはやむを得ない
-          <DataList.Root key={i} aria-label={`Category totals chunk ${i}`}>
-            {chunk.map(([label, value]) => (
-              <DataList.Item key={label} align="center">
-                <DataList.Label minWidth="80px">{label}</DataList.Label>
-                <DataList.Value>{toCurrency(value)}</DataList.Value>
-              </DataList.Item>
-            ))}
-          </DataList.Root>
-        ))}
-      </Grid>
-    </Card>
+    <Grid columns={`${chunkSize}`} gap="2" width="100%">
+      {categoryChunks.map((chunk, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: indexをkeyに使うのはやむを得ない
+        <DataList.Root key={i} aria-label={`Category totals chunk ${i}`}>
+          {chunk.map(([label, value]) => (
+            <DataList.Item key={label} align="center">
+              <DataList.Label minWidth="80px">{label}</DataList.Label>
+              <DataList.Value>{toCurrency(value)}</DataList.Value>
+            </DataList.Item>
+          ))}
+        </DataList.Root>
+      ))}
+    </Grid>
   )
 }
