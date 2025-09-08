@@ -53,6 +53,6 @@ export const Default: Story = {
     expect(await canvas.findAllByText("コンビニ")).toHaveLength(3)
     expect(await canvas.findByText("スーパー")).toBeInTheDocument()
     expect(await canvas.findByText("2025/06/02")).toBeInTheDocument()
-    expect(await canvas.findAllByText("￥4,000")).toHaveLength(2)
+    expect(await canvas.findAllByText("￥4,000")).toHaveLength(3)
   },
 }
