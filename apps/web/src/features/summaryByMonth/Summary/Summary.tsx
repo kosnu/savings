@@ -1,13 +1,14 @@
-import { Flex, Grid } from "@radix-ui/themes"
+import { Card, Flex } from "@radix-ui/themes"
+import { CategoryTotals } from "../CategoryTotals"
 import { MonthlyTotals } from "../MonthlyTotals"
 
 export function Summary() {
   return (
-    <Flex gap="3" width="100%">
-      <Grid columns="2" gap="3" width="100%">
+    <Card size="2">
+      <Flex gap="3" direction="column" width="100%">
         <MonthlyTotals />
-      </Grid>
-      {/* TODO: カテゴリ別の合計金額を表示する */}
-    </Flex>
+        <CategoryTotals />
+      </Flex>
+    </Card>
   )
 }
