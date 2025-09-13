@@ -11,6 +11,7 @@ export async function createPaymentDoc(
 ) {
   const paymentData = {
     date: new Date(payment.date.replace(/\//g, "-")), // YYYY-MM-DD 形式に統一
+    category_id: payment.categoryId,
     note: payment.note,
     amount: parsePrice(payment.amount),
     user_id: userId,
