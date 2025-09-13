@@ -1,7 +1,7 @@
 export const collectionMap = {
   payments: {
     name: "payments",
-    columns: ["date", "category", "note", "amount"],
+    columns: ["date", "categoryName", "categoryId", "note", "amount"],
   },
   categories: {
     name: "categories",
