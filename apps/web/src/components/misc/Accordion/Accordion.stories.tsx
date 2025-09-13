@@ -71,7 +71,7 @@ export const Default: Story = {
     await userEvent.click(secondButton)
 
     // Wait for the first content to be removed from the DOM
-    waitFor(() =>
+    await waitFor(() =>
       expect(
         canvas.queryByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
       ).not.toBeInTheDocument(),
