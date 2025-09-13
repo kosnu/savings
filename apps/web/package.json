@@ -29,7 +29,7 @@
     "react-dom": "19.1.1",
     "react-error-boundary": "6.0.0",
     "react-router-dom": "7.9.0",
-    "zod": "4.1.7"
+    "zod": "4.1.8"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
