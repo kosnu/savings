@@ -1,5 +1,6 @@
 import type { Category } from "../../../types/category"
 import type { Payment } from "../../../types/payment"
+import { unknownCategory } from "../../categories/unknownCategory"
 
 /**
  * 支払い配列をカテゴリごとの合計にマップする
@@ -16,15 +17,14 @@ function mapPaymentsToCategory(
   }
 
   // Ensure default 'Unknown category' key exists if there are payments without a matching category
-  const DEFAULT_UNCATEGORIZED = "Unknown category"
-  if (!(DEFAULT_UNCATEGORIZED in categoryMap)) {
-    categoryMap[DEFAULT_UNCATEGORIZED] = 0
+  if (!(unknownCategory.name in categoryMap)) {
+    categoryMap[unknownCategory.name] = 0
   }
 
   // Aggregate payments into the initialized map
   for (const payment of payments) {
     const category = categories.find((c) => c.id === payment.categoryId)
-    const categoryName = category ? category.name : DEFAULT_UNCATEGORIZED
+    const categoryName = category ? category.name : unknownCategory.name
     const amount = Number(payment.amount) || 0
     categoryMap[categoryName] = (categoryMap[categoryName] || 0) + amount
   }

@@ -1,4 +1,5 @@
 import type { Category } from "../../../types/category"
+import { unknownCategory } from "../unknownCategory"
 
 export function toCategoryMap(categories: Category[]): Map<string, Category> {
   return categories.reduce((acc, category) => {
@@ -16,11 +17,4 @@ export function getCategoryStrict(
   const category = map.get(id) ?? unknownCategory
 
   return category
-}
-
-const unknownCategory: Category = {
-  id: "unknown",
-  name: "Unknown category",
-  createdDate: new Date(),
-  updatedDate: new Date(),
 }
