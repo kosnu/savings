@@ -13,5 +13,5 @@ test("getCategoryStrict", () => {
   const map = toCategoryMap([foodCat])
 
   expect(getCategoryStrict(map, foodCat.id).name).toEqual(foodCat.name)
-  expect(getCategoryStrict(map, "hoge").name).toEqual("Unknown category")
+  expect(getCategoryStrict(map, "hoge").name).toEqual("Unknown")
 })
