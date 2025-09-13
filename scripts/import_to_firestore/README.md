@@ -18,5 +18,5 @@ cp .env.sample .env
 ## 実行
 
 ```shell
-task insert --file path/to/example.csv --collection {collection_name}
+task insert -- --file path/to/example.csv --collection {collection_name}
 ```
