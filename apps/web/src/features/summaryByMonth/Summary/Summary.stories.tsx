@@ -61,7 +61,7 @@ export const Default: Story = {
     for (const category of Object.values(categories)) {
       expect(await canvas.findByText(category.name)).toBeInTheDocument()
     }
-    expect(await canvas.findByText("Unknown category")).toBeInTheDocument()
+    expect(await canvas.findByText("Unknown")).toBeInTheDocument()
 
     expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
     expect(await canvas.findAllByText("￥0")).toHaveLength(2)
