@@ -11,7 +11,7 @@ export function CancelButton({
   onClick,
 }: CancelButtonProps) {
   return (
-    <Button variant="soft" color="gray" onClick={onClick}>
+    <Button type="button" variant="soft" color="gray" onClick={onClick}>
       {children}
     </Button>
   )
