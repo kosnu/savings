@@ -2,11 +2,13 @@ import { HamburgerMenuIcon } from "@radix-ui/react-icons"
 import { Flex, IconButton } from "@radix-ui/themes"
 import { Outlet } from "react-router-dom"
 import { SidebarTreeButton } from "../../components/buttons/SidebarTreeButton"
+import { useAuthCheck } from "../../utils/auth/useAuthCheck"
 import { Sidebar, useSidebar } from "../Sidebar"
 import styles from "./AppLayout.module.css"
 import { getPaymentsSidebarTree } from "./getPaymentsSidebarTree"
 
 export function AppLayout() {
+  useAuthCheck()
   const { open, openSidebar, closeSidebar } = useSidebar()
 
   return (
