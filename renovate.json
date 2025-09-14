@@ -1,6 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":pinDigests"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["npm", "docker", "terraform"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchPackageNames": ["github-actions"],
+      "minimumReleaseAge": "7 days"
+    }
   ]
 }
