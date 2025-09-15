@@ -9,7 +9,7 @@ function MonthlyTotals() {
 
   return (
     <Flex gap="1" direction="column">
-      <Text>Expenditures</Text>
+      <Text>Total spending</Text>
       <ErrorBoundary
         fallback={<Text color="red">An unexpected error has occurred.</Text>}
       >
