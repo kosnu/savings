@@ -3,7 +3,7 @@ import { Theme as RadixUiTheme } from "@radix-ui/themes"
 import "@radix-ui/themes/styles.css"
 import "./radixTheme.css"
 
-const accentColor = "gray"
+const accentColor = "violet"
 const panelBackground = "solid"
 const radius = "medium"
 
