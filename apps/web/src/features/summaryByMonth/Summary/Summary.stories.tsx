@@ -52,11 +52,17 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, userEvent }) => {
     const canvas = within(canvasElement)
 
-    expect(await canvas.findByText("Expenditures")).toBeInTheDocument()
+    expect(await canvas.findByText("Total spending")).toBeInTheDocument()
     expect(await canvas.findByText("￥5,000")).toBeInTheDocument()
+
+    const accordionTrigger = canvas.getByRole("button", {
+      name: /by category/i,
+    })
+    expect(accordionTrigger).toBeInTheDocument()
+    await userEvent.click(accordionTrigger)
 
     for (const category of Object.values(categories)) {
       expect(await canvas.findByText(category.name)).toBeInTheDocument()
