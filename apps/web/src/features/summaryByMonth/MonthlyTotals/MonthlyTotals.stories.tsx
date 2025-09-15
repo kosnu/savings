@@ -43,7 +43,7 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    expect(await canvas.findByText("Expenditures")).toBeInTheDocument()
+    expect(await canvas.findByText("Total spending")).toBeInTheDocument()
     expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
   },
 }
