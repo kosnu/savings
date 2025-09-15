@@ -9,7 +9,9 @@ function MonthlyTotals() {
 
   return (
     <Flex gap="1" direction="column">
-      <Text>Total spending</Text>
+      <Text size="3" color="gray">
+        Total spending
+      </Text>
       <ErrorBoundary
         fallback={<Text color="red">An unexpected error has occurred.</Text>}
       >
@@ -30,7 +32,7 @@ const MoneyText = memo(function MoneyText({
   const text = data === null ? "-" : toCurrency(data)
 
   return (
-    <Text weight="bold" size="5">
+    <Text align="right" size="6" weight="bold">
       {text}
     </Text>
   )
