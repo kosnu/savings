@@ -1,14 +1,15 @@
 import { Theme as RadixUiTheme } from "@radix-ui/themes"
 import { createContext, type ReactNode, useContext } from "react"
+import type { TTheme } from "./types"
 import { usePreferredTheme } from "./usePreferredTheme"
 
 import "@radix-ui/themes/styles.css"
 import "./radixTheme.css"
 
 // NOTE: 外部公開してはいけない
-const ThemeContext = createContext<{ toggleTheme: () => void } | undefined>(
-  undefined,
-)
+const ThemeContext = createContext<
+  { theme: TTheme; toggleTheme: () => void } | undefined
+>(undefined)
 
 const accentColor = "violet"
 const panelBackground = "solid"
@@ -22,7 +23,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const { theme, toggleTheme } = usePreferredTheme()
 
   return (
-    <ThemeContext.Provider value={{ toggleTheme: toggleTheme }}>
+    <ThemeContext.Provider value={{ theme: theme, toggleTheme: toggleTheme }}>
       <RadixUiTheme
         accentColor={accentColor}
         panelBackground={panelBackground}
@@ -35,7 +36,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   )
 }
 
-export function useChangeTheme() {
+export function useTheme() {
   const ctx = useContext(ThemeContext)
   if (!ctx) {
     throw new Error("useChangeTheme must be used within ThemeProvider")
