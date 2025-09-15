@@ -15,4 +15,8 @@
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
   "npm.scriptRunner": "npm",
+  "files.exclude": {
+    "**/coverage": true,
+    "**/dist": true
+  },
 }
