@@ -9,8 +9,8 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   return (
     <header className={styles.header}>
-      <IconButton variant="surface" onClick={onMenuClick}>
-        <HamburgerMenuIcon width="18" height="18" />
+      <IconButton size="3" variant="ghost" onClick={onMenuClick}>
+        <HamburgerMenuIcon width="22" height="22" />
       </IconButton>
     </header>
   )
