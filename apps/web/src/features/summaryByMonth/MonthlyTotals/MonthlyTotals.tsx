@@ -12,13 +12,15 @@ function MonthlyTotals() {
       <Text size="3" color="gray">
         Total spending
       </Text>
-      <ErrorBoundary
-        fallback={<Text color="red">An unexpected error has occurred.</Text>}
-      >
-        <Suspense fallback={<Skeleton width="120px" height="28px" />}>
-          <MoneyText getValue={promise} />
-        </Suspense>
-      </ErrorBoundary>
+      <Flex justify="end" align="center">
+        <ErrorBoundary
+          fallback={<Text color="red">An unexpected error has occurred.</Text>}
+        >
+          <Suspense fallback={<Skeleton width="120px" height="28px" />}>
+            <MoneyText getValue={promise} />
+          </Suspense>
+        </ErrorBoundary>
+      </Flex>
     </Flex>
   )
 }
