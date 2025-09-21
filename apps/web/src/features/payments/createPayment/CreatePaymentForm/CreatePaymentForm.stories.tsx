@@ -68,13 +68,14 @@ export const Fiiled: Story = {
     const datepicker = canvas.getByRole("button", { name: /date/i })
     await userEvent.click(datepicker)
 
-    const body = canvasElement.ownerDocument.body
-    {
-      const todayButton = await within(body).findByRole("button", {
-        name: /today/i,
-      })
-      await userEvent.click(todayButton)
-    }
+    // NOTE: 今日の日付はデフォルトで選択されているので、あえてクリックしない
+    // const body = canvasElement.ownerDocument.body
+    // {
+    //   const todayButton = await within(body).findByRole("button", {
+    //     name: /today/i,
+    //   })
+    //   await userEvent.click(todayButton)
+    // }
     {
       const select = await canvas.findByRole("combobox", { name: /category/i })
       await userEvent.click(select)
@@ -113,7 +114,6 @@ export const Empty: Story = {
     const submitButton = canvas.getByRole("button", { name: /create payment/i })
     await userEvent.click(submitButton)
 
-    expect(canvas.getByText("Date can not be empty")).toBeInTheDocument()
     expect(canvas.getByText("Category can not be empty")).toBeInTheDocument()
     expect(canvas.getByText("Note can not be empty")).toBeInTheDocument()
     expect(canvas.getByText("Amount can not be empty")).toBeInTheDocument()

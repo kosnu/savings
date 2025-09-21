@@ -10,6 +10,7 @@ interface PaymentDateFieldProps {
 
 export function PaymentDateField({ error, messages }: PaymentDateFieldProps) {
   const id = useId()
+  const defaultValue = new Date()
 
   return (
     <BaseField
@@ -25,7 +26,7 @@ export function PaymentDateField({ error, messages }: PaymentDateFieldProps) {
       ))}
       width="fit-content"
     >
-      <DatePicker id={id} name="date" />
+      <DatePicker id={id} name="date" defaultValue={defaultValue} />
     </BaseField>
   )
 }
