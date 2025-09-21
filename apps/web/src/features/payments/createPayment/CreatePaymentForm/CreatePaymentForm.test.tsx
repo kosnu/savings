@@ -44,7 +44,7 @@ test("Create payment", async () => {
 
   const note = "Test_FSf5qxLNxAC265uSTcNa"
   const payment = await getLastPayment(firestore, userId, note)
-  expect(payment?.date === new Date())
+  expect(payment?.id).toBeDefined()
 
   if (payment) deletePaymentById(firestore, userId, payment.id)
 })
