@@ -52,7 +52,7 @@ export function DatePicker({
     <div>
       <Popover.Root open={open}>
         <Popover.Trigger onClick={handleTriggerClick}>
-          <Button id={id} variant="outline">
+          <Button id={id} variant="outline" color="gray">
             <CalendarIcon width="18" height="18" />
             {date ? formatDateToLocaleString(date) : <span>Pick a date</span>}
           </Button>
