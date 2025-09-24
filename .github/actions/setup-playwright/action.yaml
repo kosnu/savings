@@ -1,8 +1,17 @@
 name: "Setup Playwright with Cache"
 description: "Setup Playwright with versioned cache for GitHub Actions."
+inputs:
+  project-directory:
+    description: "Relative path to the project (where package.json / node_modules live). Default: '.'"
+    required: false
+    default: "."
 runs:
   using: "composite"
   steps:
+    - name: Show project-directory
+      run: echo "project-directory=${{ inputs.project-directory }}"
+      shell: bash
+
     - name: Get Playwright version from node_modules
       id: get_version
       run: |
@@ -24,5 +33,7 @@ runs:
     - name: Install Playwright
       if: steps.playwright-cache.outputs.cache-hit != 'true'
       run: |
+        set -euo pipefail
+        cd "${{ inputs.project-directory }}"
         npx playwright install --with-deps chromium
       shell: bash
