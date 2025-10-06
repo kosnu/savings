@@ -3,6 +3,10 @@
 ## Overview
 Personal finance tracking app: **React 19 + TypeScript + Vite** frontend, **Firebase** backend (Auth, Firestore, Hosting). Includes web app (`apps/web/`) and Deno import scripts (`scripts/import_to_firestore/`). Uses **Biome** (not ESLint), **Vitest + Playwright**, **Storybook**. 174 tests, 32 stories. Node 24.9.0 (20.x works), Deno 2.x.
 
+## General Rules
+
+- **日本語で回答してください** (Please respond in Japanese when interacting with users)
+
 ## Build & Validation
 
 ### Web App (apps/web/) - Run from this directory
