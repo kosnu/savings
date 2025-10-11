@@ -1,0 +1,13 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  default:
+    aliases:
+      - list
+    desc: List all tasks
+    cmd: task -l
+  dev:
+    desc: Run the development server
+    cmd: DATABASE_URL=file:./local.db npx wrangler dev
