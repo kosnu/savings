@@ -8,6 +8,10 @@
 			"name": "Frontend",
 			"path": "apps/web"
 		},
+    		{
+			"name": "Backend",
+			"path": "apps/api"
+		},
 		{
 			"name": "import_to_firestore",
 			"path": "scripts/import_to_firestore"
