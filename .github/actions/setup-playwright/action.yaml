@@ -15,6 +15,7 @@ runs:
     - name: Get Playwright version from node_modules
       id: get_version
       run: |
+        cd "${{ inputs.project-directory }}"
         VERSION=$(npx playwright --version | head -n1 | awk '{print $NF}')
         echo "playwright_version=$VERSION" >> $GITHUB_OUTPUT
       shell: bash
