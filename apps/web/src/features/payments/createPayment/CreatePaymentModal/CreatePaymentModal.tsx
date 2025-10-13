@@ -15,6 +15,10 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
     closeDialog()
   }, [onSuccess, closeDialog])
 
+  const handleError = useCallback((error?: Error) => {
+    console.error("Error creating payment:", error)
+  }, [])
+
   const handleCancel = useCallback(() => {
     closeDialog()
   }, [closeDialog])
@@ -27,7 +31,11 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
         <Dialog.Description size="2" mb="4">
           Create a new payment. Please fill in the details below.
         </Dialog.Description>
-        <CreatePaymentForm onSuccess={handleSuccess} onCancel={handleCancel} />
+        <CreatePaymentForm
+          onSuccess={handleSuccess}
+          onError={handleError}
+          onCancel={handleCancel}
+        />
       </Dialog.Content>
     </Dialog.Root>
   )
