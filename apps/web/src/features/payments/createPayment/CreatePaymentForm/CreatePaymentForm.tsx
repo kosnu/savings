@@ -2,26 +2,25 @@ import { Button, Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import z from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
-import { useFirestore } from "../../../../providers/firebase/useFirestore"
-import { useAuthCurrentUser } from "../../../../utils/auth/useAuthCurrentUser"
 import { AmountField } from "../AmountField/AmountField"
-import { addPayment } from "../addPayment"
 import { CategoryField } from "../CategoryField"
 import { type FormError, formShema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
+import { useCreatePayment } from "../useCreatePayment"
 
 interface CreatePaymentFormProps {
   onSuccess?: () => void
+  onError?: (error?: Error) => void
   onCancel: () => void
 }
 
 export function CreatePaymentForm({
   onSuccess,
+  onError,
   onCancel,
 }: CreatePaymentFormProps) {
-  const { currentUser } = useAuthCurrentUser()
-  const db = useFirestore()
+  const { createPayment } = useCreatePayment(onSuccess, onError)
 
   const [error, setError] = useState<FormError>()
 
@@ -33,7 +32,6 @@ export function CreatePaymentForm({
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
-      if (!currentUser) return
 
       const formData = new FormData(event.currentTarget)
       const formObject = Object.fromEntries(formData.entries())
@@ -42,24 +40,14 @@ export function CreatePaymentForm({
         setError(z.flattenError(result.error))
         return
       }
-
-      try {
-        await addPayment({
-          db: db,
-          userId: currentUser.uid,
-          value: {
-            categoryId: result.data.category,
-            date: result.data.date,
-            note: result.data.note,
-            amount: result.data.amount,
-          },
-        })
-        onSuccess?.()
-      } catch (e) {
-        console.error("Error adding document: ", e)
-      }
+      await createPayment({
+        categoryId: result.data.category,
+        date: result.data.date,
+        note: result.data.note,
+        amount: result.data.amount,
+      })
     },
-    [db, currentUser, onSuccess],
+    [createPayment],
   )
 
   const handleCancel = useCallback(

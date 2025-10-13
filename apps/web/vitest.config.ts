@@ -48,7 +48,7 @@ export default defineConfig({
           storybookTest({
             configDir: path.join(dirname, ".storybook"),
             tags: {
-              exclude: ["skip"],
+              skip: ["skip"],
             },
             storybookScript: "npm run storybook --ci",
             storybookUrl: process.env.SB_URL,
