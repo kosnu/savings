@@ -1,0 +1,27 @@
+{
+  "name": "api",
+  "type": "module",
+  "scripts": {
+    "db:create": "",
+    "dev": "wrangler dev --config wrangler.dev.toml",
+    "dev:local": "wrangler dev --config wrangler.dev.toml",
+    "deploy": "wrangler deploy --minify --config wrangler.toml",
+    "deploy:prod": "wrangler deploy --minify --config wrangler.toml",
+    "cf-typegen": "wrangler types ./src/worker-configuration.d.ts --env-interface CloudflareBindings --config wrangler.dev.toml",
+    "check": "biome check src/",
+    "check:write": "biome check --write ."
+  },
+  "dependencies": {
+    "@libsql/client": "0.15.15",
+    "drizzle-orm": "0.44.6",
+    "hono": "4.9.10",
+    "uuid": "13.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.6",
+    "drizzle-kit": "0.31.5",
+    "miniflare": "4.20251008.0",
+    "tsx": "4.20.6",
+    "wrangler": "4.42.2"
+  }
+}

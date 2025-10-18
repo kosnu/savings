@@ -1,0 +1,15 @@
+name = "api"
+main = "src/index.ts"
+compatibility_date = "2025-10-10"
+
+# Production bindings and secrets should be set via Cloudflare dashboard or secrets
+# Examples (uncomment and fill in on Cloudflare or via `wrangler secret put`):
+# vars = { DB_FILE_NAME = "file:production.db" }
+
+[d1_databases]
+# Configure D1 binding here in production if used
+# Example:
+# [[d1_databases]]
+# binding = "MY_DB"
+# database_name = "my-database"
+# database_id = ""
