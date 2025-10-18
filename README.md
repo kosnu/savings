@@ -1,50 +1,32 @@
-# React + TypeScript + Vite
+# Savings
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+自分のための貯金管理アプリケーション。
 
-Currently, two official plugins are available:
+## 機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 目標に向けた貯金管理
+- ダークモードのサポート
+- モバイルおよびデスクトップ向けのレスポンシブデザイン
 
-## Expanding the ESLint configuration
+### 開発予定の機能
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- グラフによる貯金データの可視化
+- ユーザー認証とプロフィール管理
+- CSV形式での貯金データのエクスポート
+- データの安全な保存と暗号化
+- 貯金達成のソーシャル共有
+- 多言語サポート
+- 貯金目標を補完する予算管理ツール
+- 友人や家族との共同貯金目標
 
-- Configure the top-level `parserOptions` property like this:
+### 開発しない機能
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- 複数通貨のサポート
+- 外部金融APIとの統合
+- 貯金目標の通知とリマインダー
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## 構成
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- [フロントエンド](apps/web/README.md)
+- [バックエンド](apps/api/README.md)
+- [インフラ](infra/README.md)

@@ -1,58 +1,51 @@
-```txt
-npm install
-npm run dev
+# Backend for Savings App
+
+## Introduction
+
+このドキュメントでは、アプリケーションのアーキテクチャについて説明します。
+
+TypeScript + Hono + Cloudflare Workers + D1で構成されています。
+
+### ローカル環境
+
+ローカル環境上でプロセスを起動し、MiniflareでエミュレートされたCloudflare
+D1に接続して動作確認を行います。
+
+```shell
+task dev
 ```
 
-```txt
-npm run deploy
+### Production環境
+
+Production環境では、Cloudflare Workers上でプロセスを起動し、Cloudflare
+D1に接続して動作確認を行います。
+
+## セットアップ
+
+依存関係をインストールします。
+
+```shell
+npm ci
 ```
 
-## ローカルと本番の起動方法（dotenv を使わない）
+マイグレーションを実行します。
+本来は drizzle-kit を使ってマイグレーションを実行しますが、
+現状の Miniflare に対しての実行がうまくいかないため、直接 SQL ファイルを実行しています。
 
-このリポジトリは dotenv に依存せず、wrangler
-の設定ファイルで環境ごとの変数を管理します。
-
-- ローカル（Miniflare / wrangler dev）:
-
-  開発用の設定は `wrangler.dev.toml`
-  に定義しています。ローカルで起動するにはプロジェクトの `apps/api`
-  に移動してから:
-
-  ```bash
-  npm ci
-  npm run dev:local
-  ```
-
-  `wrangler dev --config wrangler.dev.toml` を実行すると `vars` に定義した値が
-  Worker に注入されます。必要に応じて `wrangler.dev.toml`
-  を編集してローカル用の値を調整してください。
-
-- 本番（Cloudflare Workers）:
-
-  本番向けの設定は `wrangler.toml` に置き、Secrets や本番値は Cloudflare
-  ダッシュボードまたは `wrangler secret put` で設定してください。
-
-  ```bash
-  npm ci
-  npm run deploy:prod
-  ```
-
-  `wrangler deploy --config wrangler.toml`
-  は本番設定を使ってデプロイします。秘匿情報は `wrangler secret put`
-  でアップロードしてください。
-
-この方法により、プロジェクト内に平文の .env
-を置くことなく、ローカルと本番で異なる設定を安全に扱えます。
-
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
-
-```txt
-npm run cf-typegen
+```shell
+npx wrangler d1 execute savings-dev --config wrangler.dev.toml --file ./migrations/reset_all_tables.sql
 ```
 
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
+## マイグレーションファイルの作成（仮）
 
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>();
+drizzle-kit を使ってマイグレーションファイルを作成します。
+
+```shell
+npx drizzle-kit generate
 ```
+
+## アーキテクチャ
+
+クリーンアーキテクチャを採用しています。
+
+詳細は [Architecture Document](docs/architecture.md) を参照してください。
