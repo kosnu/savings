@@ -1,4 +1,4 @@
-# Terraformによるインフラ管理方針
+# Terraform によるインフラ管理方針
 
 ## ディレクトリ構成（ベストプラクティス準拠）
 
@@ -10,13 +10,13 @@ infra/
     modules/        # 共通module群
 ```
 
-- `environments/production/` : 本番環境のリソースを管理するroot module。
-- `modules/` : 複数環境で使い回すmoduleを配置。
+- `environments/production/` : 本番環境のリソースを管理する root module。
+- `modules/` : 複数環境で使い回す module を配置。
 
 ## 管理方針
 
-- それ以外のリソース（例: サーバー、ストレージ、ネットワーク等）はTerraformで新規作成。
-- 各環境ごとに `environments/{env}` ディレクトリを作成し、環境ごとにStateを分離。
+- それ以外のリソース（例: サーバー、ストレージ、ネットワーク等）は Terraform で新規作成。
+- 各環境ごとに `environments/{env}` ディレクトリを作成し、環境ごとに State を分離。
 
 ### 例: 既存リソース参照
 
@@ -42,5 +42,6 @@ resource "google_storage_bucket" "app_bucket" {
 ```
 
 ## 運用
+
 - `terraform init`/`plan`/`apply`は各環境ディレクトリで実行。
-- module追加時は `modules/` 配下に作成し、root moduleから呼び出す。
+- module 追加時は `modules/` 配下に作成し、root module から呼び出す。
