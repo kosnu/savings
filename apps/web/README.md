@@ -72,7 +72,7 @@ E2E テストや Playwright が設定されている場合は、CI 設定や `pa
 
 ## Lint / 型チェック
 
-Biom e（`biome.json`）で lint / format を管理しています。実行例：
+Biome（`biome.json`）で lint / format を管理しています。実行例：
 
 ```bash
 npm run check
