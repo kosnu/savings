@@ -13,9 +13,9 @@
 - **Cloud Firestore**
   - NoSQL データベースとして利用。
   - ユーザーデータやアプリケーションデータを保存。
-- **CloudFlare Domain**
+- **Cloudflare Domain**
   - 独自ドメインの管理に利用。
-  - DNS 設定や SSL 証明書の管理も CloudFlare で実施。
+  - DNS 設定や SSL 証明書の管理も Cloudflare で実施。
 
 ## 構成図（例）
 
@@ -23,7 +23,7 @@
 [User]
   │
   ▼
-[CloudFlare Domain] ──> [Firebase Hosting] ──> [Web App]
+[Cloudflare Domain] ──> [Firebase Hosting] ──> [Web App]
                                       │
                                       ├─> [Firebase Authentication]
                                       └─> [Cloud Firestore]
