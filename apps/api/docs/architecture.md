@@ -22,9 +22,10 @@
 本構成はクリーンアーキテクチャの原則に基づき、4 層に分かれています。なお、Shared は横断的な共通層であり、層数には含めていません。
 
 ```
-domain ─▶ application ─▶ interfaces
-▲
-└── infrastructure（依存注入）
+# 依存の向き（矢印は「依存する」を示します）
+interfaces ─▶ application ─▶ domain
+            ▲
+infrastructure ─┘  （Infrastructure は domain の抽象に依存し、具象実装を提供します）
 ```
 
 ### 層構造の概要
