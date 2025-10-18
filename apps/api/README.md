@@ -4,21 +4,21 @@
 
 このドキュメントでは、アプリケーションのアーキテクチャについて説明します。
 
-TypeScript + Hono + Cloudflare Workers + D1で構成されています。
+TypeScript + Hono + Cloudflare Workers + D1 で構成されています。
 
 ### ローカル環境
 
-ローカル環境上でプロセスを起動し、MiniflareでエミュレートされたCloudflare
-D1に接続して動作確認を行います。
+ローカル環境上でプロセスを起動し、Miniflare でエミュレートされた Cloudflare
+D1 に接続して動作確認を行います。
 
 ```shell
 task dev
 ```
 
-### Production環境
+### Production 環境
 
-Production環境では、Cloudflare Workers上でプロセスを起動し、Cloudflare
-D1に接続して動作確認を行います。
+Production 環境では、Cloudflare Workers 上でプロセスを起動し、Cloudflare
+D1 に接続して動作確認を行います。
 
 ## セットアップ
 

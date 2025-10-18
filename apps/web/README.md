@@ -17,10 +17,10 @@ React + TypeScript + Vite を使ったシングルページアプリケーショ
 ## ディレクトリ構成（抜粋）
 
 - `src/` - アプリ本体のソースコード
-	- `app/` - ルーティングやページコンポーネント
-	- `features/` - ドメイン別の機能（例: 収支、カテゴリ）
-	- `components/` - 再利用 UI コンポーネント
-	- `lib/`, `utils/` - ユーティリティ・ラッパー
+  - `app/` - ルーティングやページコンポーネント
+  - `features/` - ドメイン別の機能（例: 収支、カテゴリ）
+  - `components/` - 再利用 UI コンポーネント
+  - `lib/`, `utils/` - ユーティリティ・ラッパー
 - `public/` - 静的アセット
 - `index.html` - Vite エントリ
 - `vite.config.ts` - Vite 設定
@@ -82,7 +82,7 @@ npm run check
 
 ## Firebase Emulator（ローカルで Auth / Firestore を使う場合）
 
-リポジトリには Docker を使った Firebase Emulator の設定が含まれています（`docker/firebase/`、`compose.yml`）。エミュレータを使う場合はルートから docker compose を起動してください。
+リポジトリには Docker を使った Firebase Emulator の設定が含まれています。エミュレータを使う場合はルートから docker compose を起動してください。
 
 ```bash
 # ルートで
