@@ -24,7 +24,7 @@
 ```
 # 依存の向き（矢印は「依存する」を示します）
 interfaces ─▶ application ─▶ domain
-            ▲
+                ▲
 infrastructure ─┘  （Infrastructure は domain の抽象に依存し、具象実装を提供します）
 ```
 
@@ -45,27 +45,29 @@ infrastructure ─┘  （Infrastructure は domain の抽象に依存し、具�
 ```
 src/
 ├── domain/               # ビジネスエンティティ & リポジトリ定義
-│   └── payment/
-│       ├── entity.ts
+│   └── {Aggregate root}/
+│       ├── entities/
+│       ├── valueObjects/
+│       ├── services/
 │       └── repository.ts
 │
 ├── application/          # ユースケース（ビジネスロジック）
-│   └── payment/
-│       ├── dto.ts
-│       └── usecase.ts
+│   └── {Aggregate root}/
+│       ├── dtos/
+│       └── usecases/
 │
 ├── infrastructure/       # 外部システム連携（DBなど）
 │   ├── db/
 │   │   ├── client.ts      # D1 / SQLite クライアント管理
 │   │   └── schema.ts      # Drizzle ORM スキーマ
-│   └── payment/
-│       └── paymentRepositoryImpl.ts
+│   └── {Aggregate root}/
+│       └── {Aggregate root}RepositoryImpl.ts
 │
 ├── interfaces/           # Honoルート・ハンドラ
 │   ├── handlers/
-│   │   └── paymentHandler.ts
+│   │   └── {Aggregate root}Handler.ts
 │   ├── routes/
-│   │   └── paymentRoute.ts
+│   │   └── {Aggregate root}Route.ts
 │   └── server.ts          # Honoアプリ初期化
 │
 ├── shared/               # 共通関数・型
