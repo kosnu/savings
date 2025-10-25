@@ -14,7 +14,7 @@
   "dependencies": {
     "@libsql/client": "0.15.15",
     "drizzle-orm": "0.44.6",
-    "hono": "4.10.1",
+    "hono": "4.10.2",
     "uuid": "13.0.0"
   },
   "devDependencies": {
