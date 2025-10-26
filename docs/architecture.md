@@ -6,7 +6,7 @@
 
 - apps/ — アプリケーション群
   - apps/web/ — React + TypeScript + Vite フロントエンド（UI、Storybook、Vitest 等）
-    詳細: [apps/web/README.md](apps/web/README.md)
+    詳細: [apps/web/README.md](../apps/web/README.md)
 - scripts/ — 運用・移行スクリプト（Deno 等）
   - scripts/import_to_firestore/ — CSV → Firestore 取り込みスクリプト（Deno）
     詳細: [scripts/import_to_firestore/README.md](scripts/import_to_firestore/README.md)
