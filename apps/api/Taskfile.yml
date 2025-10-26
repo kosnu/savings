@@ -25,7 +25,7 @@ tasks:
     desc: Serve Supabase Edge Functions in background (daemon-like)
     cmds:
       - mkdir -p .run
-      - sh -c 'nohup npx supabase functions serve payments >> .run/functions.log 2>&1 & echo $! > .run/function_payments.pid'
+      - sh -c 'nohup npx supabase functions serve payments > .run/functions.log 2>&1 & echo $! > .run/function_payments.pid'
 
   stop:functions:payments:
     desc: Stop background Supabase Edge Functions
