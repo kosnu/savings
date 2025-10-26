@@ -1,0 +1,17 @@
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@2.5.0/edge-runtime.d.ts"
+  },
+  "fmt": {
+    "indentWidth": 2,
+    "singleQuote": false,
+    "proseWrap": "preserve",
+    "semiColons": false
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["no-unused-vars"]
+    }
+  }
+}
