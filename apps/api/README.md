@@ -5,6 +5,13 @@
 
 ## セットアップ
 
+### Deno のインストール
+
+Supabase Edge Functions は Deno ランタイムで動作します。
+Deno をインストールするには、[公式ガイド](https://docs.deno.com/runtime/getting_started/installation/)を参照してください。
+
+バージョンは Supabase Edge Functions の互換性のために `v2.1.14` を推奨します。
+
 ## アーキテクチャ
 
 各関数は、HTTP リクエストを受け取り、JSON レスポンスを返すシンプルなエンドポイントです。
