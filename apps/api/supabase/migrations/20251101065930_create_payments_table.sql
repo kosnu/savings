@@ -10,4 +10,4 @@ create table payments (
     user_id bigint not null references users(id) on delete cascade
 );
 
-create index on payments (user_id, date, category_id, created_at);
+create index idx_payments_user_date_category_created on payments (user_id, date, category_id, created_at);
