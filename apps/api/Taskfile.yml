@@ -12,20 +12,30 @@ tasks:
   up:
     desc: Start Supabase and serve functions locally
     cmds:
-      - npx supabase start
+      - task start:supabase
       - task serve:functions:payments
+      - task serve:functions:categories
 
   down:
     desc: Stop Supabase and functions
     cmds:
+      - task stop:functions:categories
       - task stop:functions:payments
-      - npx supabase stop
+      - task stop:supabase
+
+  start:supabase:
+    desc: Start Supabase locally
+    cmd: npx supabase start
+
+  stop:supabase:
+    desc: Stop Supabase locally
+    cmd: npx supabase stop
 
   serve:functions:payments:
     desc: Serve Supabase Edge Functions in background (daemon-like)
     cmds:
       - mkdir -p .run
-      - sh -c 'nohup npx supabase functions serve payments > .run/functions.log 2>&1 & echo $! > .run/function_payments.pid'
+      - sh -c 'nohup npx supabase functions serve payments > .run/function_payments.log 2>&1 & echo $! > .run/function_payments.pid'
 
   stop:functions:payments:
     desc: Stop background Supabase Edge Functions
@@ -35,4 +45,28 @@ tasks:
 
   logs:functions:payments:
     desc: Tail functions logs
-    cmd: tail -f .run/functions.log
+    cmd: tail -f .run/function_payments.log
+
+  serve:functions:categories:
+    desc: Serve Supabase Edge Functions in background (daemon-like)
+    cmds:
+      - mkdir -p .run
+      - sh -c 'nohup npx supabase functions serve categories > .run/function_categories.log 2>&1 & echo $! > .run/function_categories.pid'
+
+  stop:functions:categories:
+    desc: Stop background Supabase Edge Functions
+    cmds:
+      - sh -c 'test -f .run/function_categories.pid && kill "$(cat .run/function_categories.pid)" || true'
+      - rm -f .run/function_categories.pid
+
+  logs:functions:categories:
+    desc: Tail functions logs
+    cmd: tail -f .run/function_categories.log
+
+  up:migrations:
+    desc: Run database migrations to latest
+    cmd: npx supabase migration up
+
+  down:migrations:
+    desc: Rollback the last database migration
+    cmd: npx supabase migration down
