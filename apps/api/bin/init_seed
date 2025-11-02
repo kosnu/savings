@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# DB connection defaults (override here if needed)
+HOST=localhost
+PORT=54322
+USER=postgres
+DB=postgres
+
+usage() {
+	echo "Usage: $(basename "$0") <sql-file>"
+	echo "Executes the given SQL file against postgres at ${HOST}:${PORT}/${DB} as ${USER}."
+	echo "Use '-' to read SQL from stdin."
+	exit 2
+}
+
+if [ "$#" -lt 1 ]; then
+	echo "Error: missing SQL file argument."
+	usage
+fi
+
+SQL_FILE="$1"
+
+if [ "$SQL_FILE" != "-" ] && [ ! -f "$SQL_FILE" ]; then
+	echo "Error: file not found: $SQL_FILE"
+	exit 1
+fi
+
+# If PASSWORD variable is set in this script, export PGPASSWORD so psql can use it.
+if [ -n "${PASSWORD-}" ]; then
+	export PGPASSWORD="$PASSWORD"
+fi
+
+echo "Running SQL file: ${SQL_FILE} -> ${USER}@${HOST}:${PORT}/${DB}"
+
+# If SQL_FILE is '-', read from stdin
+if [ "$SQL_FILE" = "-" ]; then
+	psql -h "$HOST" -p "$PORT" -U "$USER" -d "$DB" -f -
+else
+	psql -h "$HOST" -p "$PORT" -U "$USER" -d "$DB" -f "$SQL_FILE"
+fi
