@@ -6,8 +6,8 @@ create table payments (
     created_at timestamp with time zone default current_timestamp,
     updated_at timestamp with time zone default current_timestamp,
 
-    category_id bigint references categories(id) on delete set null,
-    user_id bigint references users(id) on delete set null
+    category_id bigint null references categories(id) on delete set null,
+    user_id bigint not null references users(id) on delete cascade
 );
 
 create index on payments (user_id, date, category_id, created_at);
