@@ -7,6 +7,7 @@
 - **Biome を使用** (ESLint ではありません): `npm run check` でリント、`npm run check-write` で自動修正
 - **npm ci を常に使用** (`npm install` ではなく)
 - **このディレクトリから実行**: すべてのコマンドは `apps/web/` ディレクトリから実行してください
+- frontend/docs/adr/ を参照して設計決定を理解してください
 
 ## クイックコマンド
 
