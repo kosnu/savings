@@ -1,55 +1,57 @@
 # Copilot Instructions for Savings Repository
 
 ## Overview
+
 Personal finance tracking app: **React 19 + TypeScript + Vite** frontend, **Firebase** backend (Auth, Firestore, Hosting). Includes web app (`apps/web/`) and Deno import scripts (`scripts/import_to_firestore/`).
 
-**Path-specific instructions**: Detailed instructions for each application are in `.github/instructions/`:
-- `apps-web.instructions.md` - React/Vite frontend specifics
-- `scripts-import-to-firestore.instructions.md` - Deno script specifics
+**Path-specific instructions**: 詳細ルールは `.github/instructions/` を参照してください。
+
+- `apps-web.instructions.md` : React/Vite フロントエンドの構成と開発ルール
+- `apps-api.instructions.md` : Supabase Edge Functions (Deno) バックエンドの構成と開発ルール
+- `scripts-import-to-firestore.instructions.md` : Deno 製 Firestore インポートスクリプトの構成と開発ルール
 
 ## General Rules
 
 - **日本語で回答してください** (Please respond in Japanese when interacting with users)
-- **ALWAYS use `npm ci`** (not `npm install`) for web app
-- **Run from correct directory**: Web from `apps/web/`, Deno from `scripts/import_to_firestore/`
+- **Path specific policies take precedence**: 必要に応じて `.github/instructions/*.instructions.md` を先に確認すること
+- **Run from correct directory**: 各プロジェクト配下 (`apps/web/`, `apps/api/`, `scripts/import_to_firestore/`) でコマンド実行
+- **Package installation**: フロントエンドは必ず `npm ci`、Deno プロジェクトは `deno install` 系コマンドを避け `deno task` / Supabase CLI を利用
+- **Code edits**: 既存方針に従い ASCII を基本とし、必要最小限のコメントのみ追加
 
 ## Repository Structure
 
 ```
-savings/
-  ├── apps/web/                      # React 19 + TypeScript + Vite frontend
-  ├── scripts/import_to_firestore/   # Deno CSV import scripts
-  ├── infra/terraform/               # Infrastructure as Code
-  ├── docker/                        # Firebase Emulator Docker setup
-  ├── Taskfile.yml                   # Task runner (Docker shortcuts)
-  ├── compose.yml                    # Firebase Emulator (ports 8080, 9099, 4000)
-  └── firebase.json                  # Hosting config
+savings
+├── apps
+│   ├── api/                         # Supabase Edge Functions (Deno) - see apps-api instructions
+│   └── web/                         # React 19 + TypeScript + Vite frontend - see apps-web instructions
+├── scripts/import_to_firestore/     # Deno Firestore import scripts - see scripts instructions
+├── infra/terraform/                 # Infrastructure as Code (Terraform)
+├── docker/                          # Firebase Emulator & tooling
+├── Taskfile.yml                     # Task runner (Docker & Supabase helpers)
+├── compose.yml                      # Firebase Emulator docker compose
+└── firebase.json                    # Firebase hosting config
 ```
 
 **See path-specific instructions** in `.github/instructions/` for detailed structure of each application.
 
 ## CI/CD Workflows
 
-### GitHub Actions
-- **frontend_ci.yaml**: PR checks for `apps/web/**` - Biome, Playwright, tests, build
-- **scripts_ci.yaml**: PR checks for `scripts/**` - Deno check, fmt, lint, test
-- **deploy_web.yaml**: Manual deploy to Firebase Hosting
+- `.github/workflows/frontend_ci.yaml` : `apps/web/**` 変更時に Biome / Vitest / Playwright / Vite build を実行
+- `.github/workflows/scripts_ci.yaml` : `scripts/**` 変更時に Deno check / fmt / lint / test を実行
+- `.github/workflows/deploy_web.yaml` : フロントエンドを Firebase Hosting へ手動デプロイ
+- バックエンド (`apps/api/`) のローカル動作は Supabase CLI で担保。CI 設定を追加する場合は Supabase CLI ベースで統一
 
-**Details**: See path-specific instructions for each application's CI/CD requirements.
+詳細なワークフローの扱いは各ディレクトリの instructions を参照してください。
+
+task build # Build Docker images
+task up # Start services
+task down # Stop services
 
 ## Common Tools & Services
 
-### Firebase Emulator
-Tests require emulator at localhost:8080/9099. Start with:
-```bash
-docker compose up -d
-```
-May fail on Docker image build - skip tests if unavailable.
-
-### Task Runner
-Use `task` from repo root for Docker operations:
-```bash
-task build   # Build Docker images
-task up      # Start services
-task down    # Stop services
-```
+- **Firebase Emulator**: `docker compose up -d` で起動。フロントエンドの統合テストや Firebase 連携周りで使用
+- **Supabase CLI**: バックエンド Edge Functions のローカル実行・マイグレーション (`task up`, `task up:migrations` など)
+- **Task Runner**: ルート `Taskfile.yml` で Docker/Supabase 操作を共通化
+- **Playwright / Vitest / Biome**: フロントエンド CI とローカル開発で使用。詳細は `apps/web` 指示を参照
+- **Deno CLI**: Firestore インポートや Edge Functions 開発に使用。バージョンは指示ファイルの推奨を守ること
