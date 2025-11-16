@@ -1,3 +1,7 @@
+---
+applyTo: "scripts/import_to_firestore/**"
+---
+
 # Copilot Instructions for Firestore Import Scripts (scripts/import_to_firestore/)
 
 このディレクトリは **Deno** で実装された Firestore データインポート用スクリプトです。
@@ -243,6 +247,7 @@ deno run --watch --allow-env --allow-read --allow-net main.ts --file data.csv --
 ### CSV フォーマット要件
 
 スクリプトが期待する CSV フォーマット:
+
 - ヘッダー行を含む
 - 文字エンコーディング: UTF-8
 - 列の定義はスクリプトの仕様に従う
@@ -279,6 +284,7 @@ error: Requires read access to "file.csv"
 ```
 
 **解決**: 必要なパーミッションフラグを追加
+
 ```bash
 deno run --allow-read main.ts
 ```
@@ -286,6 +292,7 @@ deno run --allow-read main.ts
 ### 2. 環境変数が undefined
 
 **解決**: `.env` ファイルが存在し、正しく設定されているか確認
+
 ```bash
 cp .env.sample .env
 # .env を編集
