@@ -44,10 +44,6 @@ savings
 
 詳細なワークフローの扱いは各ディレクトリの instructions を参照してください。
 
-task build # Build Docker images
-task up # Start services
-task down # Stop services
-
 ## Common Tools & Services
 
 - **Firebase Emulator**: `docker compose up -d` で起動。フロントエンドの統合テストや Firebase 連携周りで使用
