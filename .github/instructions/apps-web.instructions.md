@@ -1,3 +1,7 @@
+---
+applyTo: "apps/web/**"
+---
+
 # Copilot Instructions for Web Frontend (apps/web/)
 
 このディレクトリは **React 19 + TypeScript + Vite** によるフロントエンドアプリケーションです。
@@ -57,6 +61,7 @@ src/
 ### コンポーネント作成
 
 **新しいコンポーネントは `npm run plop` で生成してください**:
+
 - `.tsx` (コンポーネント本体)
 - `.stories.tsx` (Storybook ストーリー)
 - `.test.tsx` (テスト)
@@ -86,8 +91,8 @@ src/
 
 ### テストの種類
 
-- **Unit/Integration tests**: `*.test.ts(x)` (174ファイル)
-- **Visual tests**: `*.stories.tsx` (32ストーリー)
+- **Unit/Integration tests**: `*.test.ts(x)` (174 ファイル)
+- **Visual tests**: `*.stories.tsx` (32 ストーリー)
 - **カバレッジ目標**: 80%以上
 
 ### テスト設定
@@ -110,17 +115,18 @@ VITE_FIRESTORE_DATABASE_ID: "savings-test"
 
 - **設定ファイル**: `vite.config.ts`
 - **TypeScript 設定**: `tsconfig.json`, `tsconfig.app.json`
-- **ビルド時間**: 約5-10秒
+- **ビルド時間**: 約 5-10 秒
 - **出力**: `apps/web/dist/`
 
 ### バンドル最適化
 
 `vite.config.ts` でマニュアルチャンク分割:
-- `vendor-firebase`: Firebase関連
-- `vendor-radix`: Radix UI関連
-- `vendor`: その他のnode_modules
 
-⚠️ 500KB以上のチャンクについて警告が出ますが、これは想定内です。
+- `vendor-firebase`: Firebase 関連
+- `vendor-radix`: Radix UI 関連
+- `vendor`: その他の node_modules
+
+⚠️ 500KB 以上のチャンクについて警告が出ますが、これは想定内です。
 
 ## Storybook
 
@@ -208,6 +214,7 @@ Node 20.x で "Unsupported engine" 警告が出ますが動作します。可能
 ### payments/
 
 支払い (Payment) 機能:
+
 - CRUD 操作
 - フォーム (PaymentForm)
 - 一覧表示 (PaymentList)
@@ -216,6 +223,7 @@ Node 20.x で "Unsupported engine" 警告が出ますが動作します。可能
 ### summaryByMonth/
 
 月次サマリー機能:
+
 - 月別集計レポート
 - グラフ表示
 - フィルタリング
