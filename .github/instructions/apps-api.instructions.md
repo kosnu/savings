@@ -45,7 +45,7 @@ apps/api
 
 - ランタイム: Deno 2.x (Edge Functions 向け、`@supabase/functions-js` タイピング)
 - 言語: TypeScript (ESM)
-- BaaS: Supabase (Edge Functions, Postgres, Auth JWT 検証)
+- BaaS: Supabase (Backend as a Service - Edge Functions, Postgres, Auth JWT 検証)
 - クライアント SDK: `@supabase/supabase-js@2.x`
 - ツール: Supabase CLI (`npx supabase start/stop/functions serve`)、Taskfile (`task up`, `task down`, `task up:migrations` など)
 - フォーマット/リント: `deno fmt`, `deno lint` 設定を各 function の `deno.json` に定義
