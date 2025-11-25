@@ -15,7 +15,7 @@ Deno.test("createCategoryId", () => {
   assertEquals(
     errorResult,
     err(
-      validationError("CategoryId must be a positive integer", {
+      validationError("CategoryId must be a positive bigint", {
         value: invalidId,
       }),
     ),

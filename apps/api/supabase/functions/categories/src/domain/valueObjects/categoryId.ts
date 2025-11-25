@@ -10,7 +10,7 @@ export function createCategoryId(
 ): Result<CategoryId, DomainError> {
   if (value <= 0n) {
     return err(
-      validationError("CategoryId must be a positive integer", { value }),
+      validationError("CategoryId must be a positive bigint", { value }),
     )
   }
 
