@@ -39,6 +39,14 @@ export const categoriesController = {
           status: 500,
         })
       }
+
+      return new Response(
+        JSON.stringify({ message: "Unknown error occurred" }),
+        {
+          headers: JSON_HEADERS,
+          status: 500,
+        },
+      )
     }
   },
 }
