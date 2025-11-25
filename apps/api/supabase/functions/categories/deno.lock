@@ -4,6 +4,7 @@
     "jsr:@hono/hono@4.10.6": "4.10.6",
     "jsr:@std/assert@1.0.15": "1.0.15",
     "jsr:@std/internal@^1.0.12": "1.0.12",
+    "jsr:@supabase/functions-js@2.5.0": "2.5.0",
     "jsr:@supabase/supabase-js@2.58.0": "2.58.0",
     "npm:@supabase/auth-js@2.72.0": "2.72.0",
     "npm:@supabase/functions-js@2.5.0": "2.5.0",
@@ -27,11 +28,17 @@
     "@std/internal@1.0.12": {
       "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
+    "@supabase/functions-js@2.5.0": {
+      "integrity": "c48e3fc5da1510ce6dab34af3fc49cd637ea7b721d92faffd0545cbdcc548430",
+      "dependencies": [
+        "npm:openai"
+      ]
+    },
     "@supabase/supabase-js@2.58.0": {
       "integrity": "4d04e72e9f632b451ac7d1a84de0b85249c0097fdf06253f371c1f0a23e62c87",
       "dependencies": [
         "npm:@supabase/auth-js",
-        "npm:@supabase/functions-js",
+        "npm:@supabase/functions-js@2.5.0",
         "npm:@supabase/node-fetch",
         "npm:@supabase/postgrest-js",
         "npm:@supabase/realtime-js",

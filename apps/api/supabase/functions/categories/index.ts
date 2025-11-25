@@ -1,4 +1,4 @@
-import "@supabase/functions-js/edge-runtime.d.ts"
+import "@supabase/functions-js/edge-runtime"
 import { createClient } from "@supabase/supabase-js"
 import { createServer } from "./src/interfaces/server.ts"
 import { Database } from "./src/shared/types.ts"
