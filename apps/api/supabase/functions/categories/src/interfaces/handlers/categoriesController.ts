@@ -1,7 +1,8 @@
-import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../../shared/types.ts"
 import { getAllCategoriesUseCase } from "../../application/getAllCategoriesUseCase.ts"
 import { createSupabaseCategoryRepository } from "../../infrastructure/categoryRepositoryImpl.ts"
+import { isPostgrestError } from "../../shared/supabase/isPostgrestError.ts"
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" }
 
@@ -40,8 +41,4 @@ export const categoriesController = {
       }
     }
   },
-}
-
-function isPostgrestError(err: unknown): err is PostgrestError {
-  return typeof err === "object" && err !== null && "message" in err
 }
