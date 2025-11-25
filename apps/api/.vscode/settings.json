@@ -1,6 +1,6 @@
 {
   "biome.enabled": false,
-  "deno.enable": false,
+  "deno.enable": true,
   "deno.enablePaths": [
     "./supabase/functions"
     // 将来、他の Deno 関数を追加する場合はここに追加します
