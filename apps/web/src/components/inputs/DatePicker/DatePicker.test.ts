@@ -1,6 +1,8 @@
 import { composeStories } from "@storybook/react-vite"
 import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { setDefaultOptions } from "date-fns"
+import { enUS, ja } from "date-fns/locale"
 import { afterEach, beforeEach, expect, test, vi } from "vitest"
 import * as stories from "./DatePicker.stories"
 
@@ -17,12 +19,15 @@ beforeEach(() => {
   vi.useFakeTimers()
   const mockDate = new Date("2025-05-01T12:00:00+09:00")
   vi.setSystemTime(mockDate)
+
+  setDefaultOptions({ locale: enUS })
 })
 afterEach(() => {
   // 実際の時刻に戻す
   vi.useRealTimers()
 
   vi.unstubAllGlobals()
+  setDefaultOptions({ locale: ja })
 })
 
 test("Select today", async () => {
@@ -30,13 +35,11 @@ test("Select today", async () => {
   const customUserEvent = userEvent.setup({ delay: null })
   await Default.run()
 
-  const button = screen.getByRole("button", {
-    name: /date/i,
-  })
+  const button = screen.getByRole("button")
   await customUserEvent.click(button)
 
   const todayButton = await screen.findByRole("button", {
-    name: /today/i,
+    name: /今日/i,
   })
 
   await customUserEvent.click(todayButton)
