@@ -1,9 +1,16 @@
 import { CategoryRepository } from "../domain/repository.ts"
+import { DomainError } from "../shared/errors.ts"
+import { Result } from "../shared/result.ts"
 import { CategoryDto, convertCategoryToDto } from "./categoryDto.ts"
 
 export async function getAllCategoriesUseCase(
   categoryRepository: CategoryRepository,
-): Promise<ReadonlyArray<CategoryDto>> {
+): Promise<Result<ReadonlyArray<CategoryDto>, DomainError>> {
   const result = await categoryRepository.findAll()
-  return result.map(convertCategoryToDto)
+  if (result.isOk) {
+    const dtos = result.value.map(convertCategoryToDto)
+    return { isOk: true, value: dtos }
+  } else {
+    return { isOk: false, error: result.error }
+  }
 }

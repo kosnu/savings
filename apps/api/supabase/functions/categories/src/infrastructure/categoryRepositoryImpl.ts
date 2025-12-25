@@ -3,26 +3,33 @@ import { Category } from "../domain/entities/category.ts"
 import { CategoryRepository } from "../domain/repository.ts"
 import { Database } from "../shared/types.ts"
 import { mapRowToCategory } from "./utils/mapRowToCategory.ts"
+import { DomainError, unexpectedError } from "../shared/errors.ts"
+import { err, ok, Result } from "../shared/result.ts"
 
 type CreateCategoryRepositoryParams = {
-  fetchCategories: () => Promise<ReadonlyArray<Category>>
+  fetchCategories: () => Promise<Result<ReadonlyArray<Category>, DomainError>>
 }
 
 const createFetchCategories = (
   supabase: SupabaseClient<Database>,
 ) =>
-async (): Promise<ReadonlyArray<Category>> => {
+async (): Promise<Result<ReadonlyArray<Category>, DomainError>> => {
   const { data, error } = await supabase
     .from("categories")
     .select("id, name, created_at, updated_at")
     .order("id", { ascending: true })
 
   if (error) {
-    throw new Error(`Failed to fetch categories: ${error.message}`)
+    return err(unexpectedError("Failed to fetch categories", error))
   }
 
   const rows = data ?? []
-  return rows.map(mapRowToCategory)
+  try {
+    const categories = rows.map(mapRowToCategory)
+    return ok(categories)
+  } catch (e) {
+    return err(unexpectedError("Failed to map category rows", e as Error))
+  }
 }
 
 const createCategoryRepository = (
