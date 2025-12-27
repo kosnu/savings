@@ -5,7 +5,7 @@ import { isErr } from "../../shared/result.ts"
 import { CategoryRow } from "../../shared/types.ts"
 
 export function mapRowToCategory(row: CategoryRow): Category {
-  const idResult = createCategoryId(BigInt(row.id))
+  const idResult = createCategoryId(row.id)
   if (isErr(idResult)) {
     throw new Error(idResult.error.message)
   }
