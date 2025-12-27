@@ -28,7 +28,15 @@ async (): Promise<Result<ReadonlyArray<Category>, DomainError>> => {
     const categories = rows.map(mapRowToCategory)
     return ok(categories)
   } catch (e) {
-    return err(unexpectedError("Failed to map category rows", e as Error))
+    if (e instanceof Error) {
+      return err(unexpectedError("Failed to map category rows", e))
+    }
+    return err(
+      unexpectedError(
+        "Failed to map category rows",
+        new Error(String(e)),
+      ),
+    )
   }
 }
 
