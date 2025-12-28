@@ -28,7 +28,7 @@
     "typescript.updateImportsOnFileMove.enabled": "always",
     "files.exclude": {
       "apps/api/": true,
-      "apps/web/": true,
-    },
+      "apps/web/": true
+    }
   }
 }
