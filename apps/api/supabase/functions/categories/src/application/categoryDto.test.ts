@@ -4,7 +4,7 @@ import { createCategory } from "../domain/entities/category.ts"
 import { createCategoryId } from "../domain/valueObjects/categoryId.ts"
 import { createCategoryName } from "../domain/valueObjects/categoryName.ts"
 
-Deno.test("toJson converts bigint to string", () => {
+Deno.test("convertCategoryToDto converts bigint to string", () => {
   const categoryId = createCategoryId(9007199254741991n)
   const categoryName = createCategoryName("Sample Category")
   const input = createCategory({
