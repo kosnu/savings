@@ -12,5 +12,5 @@ export const isOk = <T, E>(r: Result<T, E>): r is { isOk: true; value: T } =>
 export const isErr = <T, E>(r: Result<T, E>): r is { isOk: false; error: E } =>
   !r.isOk
 
-// DomainError の型を参照するために遅延インポート的に型名を宣言（実体は shared/errors.ts）
-import type { DomainError } from "../shared/errors.ts"
+// DomainError の型を参照するために遅延インポート的に型名を宣言（実体は errors.ts）
+import type { DomainError } from "./errors.ts"
