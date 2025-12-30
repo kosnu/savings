@@ -1,20 +1,41 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../../shared/types.ts"
+import type { CategoryRepository } from "../../domain/repository.ts"
 import { getAllCategoriesUseCase } from "../../application/getAllCategoriesUseCase.ts"
 import { createSupabaseCategoryRepository } from "../../infrastructure/categoryRepositoryImpl.ts"
 import { createErrorResponse, JSON_HEADERS } from "./errorResponse.ts"
 
-export const categoriesController = {
-  getAll: async (supabase: SupabaseClient<Database>) => {
-    const repo = createSupabaseCategoryRepository({ supabase })
-    const result = await getAllCategoriesUseCase(repo)
+type CategoriesControllerDeps = {
+  createRepository: (
+    params: { supabase: SupabaseClient<Database> },
+  ) => CategoryRepository
+  getAllUseCase: typeof getAllCategoriesUseCase
+  createErrorResponse: typeof createErrorResponse
+  jsonHeaders: HeadersInit
+}
+
+export const createCategoriesController = (
+  deps: CategoriesControllerDeps,
+) => {
+  const getAll = async (supabase: SupabaseClient<Database>) => {
+    const repo = deps.createRepository({ supabase })
+    const result = await deps.getAllUseCase(repo)
     if (result.isOk) {
       return new Response(JSON.stringify({ categories: result.value }), {
         status: 200,
-        headers: JSON_HEADERS,
+        headers: deps.jsonHeaders,
       })
     }
 
-    return createErrorResponse(result.error)
-  },
+    return deps.createErrorResponse(result.error)
+  }
+
+  return { getAll }
 }
+
+export const categoriesController = createCategoriesController({
+  createRepository: createSupabaseCategoryRepository,
+  getAllUseCase: getAllCategoriesUseCase,
+  createErrorResponse,
+  jsonHeaders: JSON_HEADERS,
+})
