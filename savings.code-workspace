@@ -13,6 +13,10 @@
       "path": "apps/api"
     },
     {
+      "name": "Categories Function",
+      "path": "apps/api/supabase/functions/categories"
+    },
+    {
       "name": "import_to_firestore",
       "path": "scripts/import_to_firestore"
     }
