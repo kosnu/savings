@@ -1,9 +1,10 @@
 {
   "biome.enabled": false,
+  "deno.enable": true,
   "deno.enablePaths": [
-    "supabase/functions"
+    "./supabase/functions"
+    // 将来、他の Deno 関数を追加する場合はここに追加します
   ],
-  "deno.lint": true,
   "deno.unstable": [
     "bare-node-builtins",
     "byonm",
@@ -19,7 +20,13 @@
     "http",
     "net"
   ],
+  "deno.lint": true,
+  "editor.defaultFormatter": "denoland.vscode-deno",
   "[typescript]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
-  }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "deno.importMap": "./supabase/functions/import_map.json"
 }
