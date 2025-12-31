@@ -26,6 +26,7 @@ const createController = (
 }
 
 const createCategoryRepositoryStub = (): CategoryRepository => {
+  // deno-lint-ignore require-await
   const findAll: CategoryRepository["findAll"] = async () => {
     throw new Error("category repository stub should not be called")
   }
@@ -44,6 +45,7 @@ Deno.test("カテゴリ取得成功時に200で結果を返す", async () => {
       repositoryCalls.push(params)
       return repo
     },
+    // deno-lint-ignore require-await
     getAllUseCase: async (repository) => {
       receivedRepo = repository
       return ok(categories)
@@ -78,6 +80,7 @@ Deno.test("ユースケースエラー時はcreateErrorResponseの結果を返�
       repositoryCalls.push(params)
       return repo
     },
+    // deno-lint-ignore require-await
     getAllUseCase: async (repository) => {
       receivedUseCaseRepo = repository
       return err(error)
@@ -104,6 +107,7 @@ Deno.test("成功レスポンスにJSONヘッダーを設定する", async () =>
 
   const controller = createController({
     createRepository: () => repository,
+    // deno-lint-ignore require-await
     getAllUseCase: async () => {
       const dto: CategoryDto = {
         id: "cat",
