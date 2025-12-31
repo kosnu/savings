@@ -1,30 +1,38 @@
 {
-	"folders": [
-		{
-			"name": "Root",
-			"path": "."
-		},
-		{
-			"name": "Frontend",
-			"path": "apps/web"
-		},
-    		{
-			"name": "Backend",
-			"path": "apps/api"
-		},
-		{
-			"name": "import_to_firestore",
-			"path": "scripts/import_to_firestore"
-		}
-	],
-	"settings": {
-		"editor.renderWhitespace": "all",
-		"editor.formatOnSave": true,
-		"editor.tabSize": 2,
-		"files.trimTrailingWhitespace": true,
-		"files.trimFinalNewlines": true,
-		"files.insertFinalNewline": true,
-		"javascript.updateImportsOnFileMove.enabled": "always",
-		"typescript.updateImportsOnFileMove.enabled": "always",
-	}
+  "folders": [
+    {
+      "name": "Root",
+      "path": "."
+    },
+    {
+      "name": "Frontend",
+      "path": "apps/web"
+    },
+    {
+      "name": "Backend",
+      "path": "apps/api"
+    },
+    {
+      "name": "Categories Function",
+      "path": "apps/api/supabase/functions/categories"
+    },
+    {
+      "name": "import_to_firestore",
+      "path": "scripts/import_to_firestore"
+    }
+  ],
+  "settings": {
+    "editor.renderWhitespace": "all",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "files.trimTrailingWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.insertFinalNewline": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "files.exclude": {
+      "apps/api/": true,
+      "apps/web/": true
+    }
+  }
 }
