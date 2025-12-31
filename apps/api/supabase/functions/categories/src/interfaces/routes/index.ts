@@ -8,6 +8,8 @@ export const registerCategoriesRoutes = (
 ) => {
   app.get(
     "/categories",
-    (c) => categoriesController.getAll(c.var.supabase),
+    async (c) => {
+      return await categoriesController.getAll(c.var.supabase)
+    },
   )
 }
