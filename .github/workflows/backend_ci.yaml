@@ -3,9 +3,9 @@ name: Backend CI
 on:
   pull_request:
     paths:
-      - "!**/docs/**"
       - ".github/workflows/backend_ci.yaml"
       - "apps/api/supabase/**"
+      - "!**/docs/**"
 
 jobs:
   check:
