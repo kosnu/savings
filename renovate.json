@@ -12,6 +12,12 @@
     {
       "matchPackageNames": ["github-actions"],
       "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr"
     }
   ]
 }
