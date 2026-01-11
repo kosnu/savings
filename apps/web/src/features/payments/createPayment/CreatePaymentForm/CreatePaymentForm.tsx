@@ -1,7 +1,8 @@
-import { Button, Flex } from "@radix-ui/themes"
+import { Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import z from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
+import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
 import { type FormError, formShema } from "../formSchema"
@@ -20,7 +21,7 @@ export function CreatePaymentForm({
   onError,
   onCancel,
 }: CreatePaymentFormProps) {
-  const { createPayment } = useCreatePayment(onSuccess, onError)
+  const { createPayment, isPending } = useCreatePayment(onSuccess, onError)
 
   const [error, setError] = useState<FormError>()
 
@@ -71,7 +72,7 @@ export function CreatePaymentForm({
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />
-        <Button type="submit">Create payment</Button>
+        <SubmitButton loading={isPending}>Create payment</SubmitButton>
       </Flex>
     </form>
   )
