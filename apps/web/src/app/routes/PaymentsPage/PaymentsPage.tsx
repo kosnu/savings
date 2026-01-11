@@ -21,11 +21,14 @@ export function PaymentsPage() {
   return (
     <Container size="4">
       <Flex direction="column" gap="3">
-        <Summary />
+        <Summary key={`summary-${refreshKey}`} />
         <Flex justify="end" align="center" gap="3">
           <CreatePaymentModal onSuccess={handleCreateSuccess} />
         </Flex>
-        <PaymentList key={refreshKey} onDeleteSuccess={handleDeleteSuccess} />
+        <PaymentList
+          key={`payment-list-${refreshKey}`}
+          onDeleteSuccess={handleDeleteSuccess}
+        />
       </Flex>
     </Container>
   )
