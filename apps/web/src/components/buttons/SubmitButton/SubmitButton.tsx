@@ -1,6 +1,6 @@
 import { Button, type ButtonProps, Spinner } from "@radix-ui/themes"
 
-interface SubmitButtonProps extends ButtonProps {}
+type SubmitButtonProps = ButtonProps
 
 export function SubmitButton({
   children,
