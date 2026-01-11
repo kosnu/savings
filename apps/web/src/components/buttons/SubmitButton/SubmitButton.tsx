@@ -9,7 +9,7 @@ export function SubmitButton({
 }: SubmitButtonProps) {
   return (
     <Button type="submit" disabled={loading} {...props}>
-      {loading && <Spinner loading />}
+      {loading && <Spinner aria-label="loading-spinner" loading />}
       {children}
     </Button>
   )
