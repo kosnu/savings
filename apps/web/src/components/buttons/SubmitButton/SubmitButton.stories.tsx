@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { expect, within } from "storybook/test"
 import { SubmitButton } from "./SubmitButton"
-import { within, expect } from "storybook/test"
 
 const meta = {
   title: "Common/Buttons/SubmitButton",
@@ -32,6 +32,5 @@ export const Loading: Story = {
     expect(button).toBeDisabled()
     const spinner = within(button).getByLabelText(/loading/i)
     expect(spinner).toBeInTheDocument()
-
-  }
+  },
 }
