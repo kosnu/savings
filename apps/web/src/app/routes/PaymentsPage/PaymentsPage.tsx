@@ -25,7 +25,10 @@ export function PaymentsPage() {
         <Flex justify="end" align="center" gap="3">
           <CreatePaymentModal onSuccess={handleCreateSuccess} />
         </Flex>
-        <PaymentList key={`payment-list-${refreshKey}`} onDeleteSuccess={handleDeleteSuccess} />
+        <PaymentList
+          key={`payment-list-${refreshKey}`}
+          onDeleteSuccess={handleDeleteSuccess}
+        />
       </Flex>
     </Container>
   )
