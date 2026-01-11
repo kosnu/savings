@@ -36,14 +36,19 @@ export async function addPayment({ db, userId, value }: AddPaymentProps) {
   )
 }
 
+interface UseCreatePaymentReturn {
+  createPayment: (value: PaymentValue) => Promise<void>
+  isPending: boolean
+}
+
 export function useCreatePayment(
   onSuccess?: () => void,
   onError?: (error?: Error) => void,
-) {
+): UseCreatePaymentReturn {
   const { currentUser } = useAuthCurrentUser()
   const db = useFirestore()
 
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: async (value: PaymentValue & { userId: string }) => {
       return await addPayment({
         db: db,
@@ -72,5 +77,5 @@ export function useCreatePayment(
     [currentUser, mutateAsync],
   )
 
-  return { createPayment }
+  return { createPayment, isPending }
 }

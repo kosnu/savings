@@ -2,6 +2,7 @@
   // このフォルダ (apps/web) では Deno 拡張機能を無効にする
   "deno.enable": false,
   // Biome 拡張機能
+  "biome.enable": true,
   "biome.suggestInstallingGlobally": false,
   // "biome.configurationPath": null, // この設定を有効化すると正しく動作しない
   "biome.requireConfiguration": true,
