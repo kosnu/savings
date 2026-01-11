@@ -6,6 +6,9 @@ const meta = {
   title: "Common/Buttons/SubmitButton",
   component: SubmitButton,
   tags: ["autodocs"],
+  parameters: {
+    layout: "centered",
+  },
 } satisfies Meta<typeof SubmitButton>
 
 export default meta
