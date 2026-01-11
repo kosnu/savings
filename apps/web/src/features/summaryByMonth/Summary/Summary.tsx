@@ -7,8 +7,9 @@ import {
 } from "../../../components/misc/Accordion"
 import { CategoryTotals } from "../CategoryTotals"
 import { MonthlyTotals } from "../MonthlyTotals"
+import { memo } from "react"
 
-export function Summary() {
+export const Summary = memo(function Summary() {
   return (
     <Card size="2">
       <Flex gap="1" direction="column" width="100%">
@@ -26,4 +27,4 @@ export function Summary() {
       </Flex>
     </Card>
   )
-}
+})
