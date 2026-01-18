@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@hono/hono@4.10.6": "4.10.6",
     "jsr:@std/assert@1.0.15": "1.0.15",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@supabase/functions-js@*": "2.5.0",
@@ -17,6 +18,9 @@
     "npm:openai@^4.52.5": "4.104.0"
   },
   "jsr": {
+    "@hono/hono@4.10.6": {
+      "integrity": "bcbbf9753a3570f2fa4609484bae0cead85a3feb110ee9ceb7ffc37d845d9a4d"
+    },
     "@std/assert@1.0.15": {
       "integrity": "d64018e951dbdfab9777335ecdb000c0b4e3df036984083be219ce5941e4703b",
       "dependencies": [
