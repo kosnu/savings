@@ -15,7 +15,7 @@ jobs:
         working-directory: apps/api/supabase/functions/${{ matrix.edge-function }}
     strategy:
       matrix:
-        edge-function: ["categories"] # "payments" は未対応のため除外
+        edge-function: ["categories", "payments"]
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
