@@ -1,5 +1,5 @@
 import { assertEquals, assertThrows } from "@std/assert"
-import { Result } from "../../shared/result.ts"
+import { Result } from "./result.ts"
 import { unwrapOk } from "./unwrapOk.ts"
 
 Deno.test("unwrapOk returns the value when Result is Ok", () => {
