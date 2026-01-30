@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert"
 import { createPaymentDate } from "./paymentDate.ts"
 
-Deno.test("createNote returns ok for string within max length", () => {
+Deno.test("createPaymentDate returns ok for valid date", () => {
   const date = new Date("2025-01-15T12:00:00.000Z")
   const result = createPaymentDate(date)
 
