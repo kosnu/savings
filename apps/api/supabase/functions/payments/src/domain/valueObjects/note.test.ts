@@ -11,7 +11,7 @@ Deno.test("createNote returns ok for string within max length", () => {
   }
 })
 
-Deno.test("createNote returns err for empty string", () => {
+Deno.test("createNote returns ok for empty string", () => {
   const result = createNote("")
 
   assertEquals(result.isOk, true)
