@@ -11,8 +11,8 @@ export type Payment = {
   note: Note
   amount: Amount
   date: PaymentDate
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date | null
+  updatedAt: Date | null
 
   categoryId: CategoryId | null
   userId: UserId
@@ -20,11 +20,11 @@ export type Payment = {
 
 export function createPayment(params: {
   id: bigint
-  note: string
+  note: string | null
   amount: number
   date: Date
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date | null
+  updatedAt: Date | null
 
   categoryId: bigint | null
   userId: bigint
