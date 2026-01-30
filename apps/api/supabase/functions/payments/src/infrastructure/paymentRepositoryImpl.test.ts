@@ -22,7 +22,7 @@ Deno.test("createSupabasePaymentRepository returns a PaymentRepository", async (
     supabase,
   })
 
-  const result = await repo.search(1n)
+  const result = await repo.search({ userId: 1n })
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(Array.isArray(result.value), true)
@@ -33,7 +33,7 @@ Deno.test("Supabase 経由で payments を取得できる", async () => {
   const { supabase, recorded } = createSupabaseStub({ data: [sampleRow] })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  const result = await repo.search(1n, {})
+  const result = await repo.search({ userId: 1n })
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(result.value.length, 1)
@@ -53,7 +53,8 @@ Deno.test("日付フィルタを付与して検索できる", async () => {
   const { supabase, recorded } = createSupabaseStub({ data: [sampleRow] })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  await repo.search(42n, {
+  await repo.search({
+    userId: 42n,
     dateFrom: "2024-01-01",
     dateTo: "2024-01-31",
   })
@@ -79,6 +80,6 @@ Deno.test("Supabase エラーを Result.err として返す", async () => {
   })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  const result = await repo.search(1n, {})
+  const result = await repo.search({ userId: 1n })
   assertEquals(result.isOk, false)
 })
