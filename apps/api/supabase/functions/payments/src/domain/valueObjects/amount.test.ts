@@ -15,3 +15,15 @@ Deno.test("createAmount returns err for non-integer value", () => {
 
   assertEquals(result.isOk, false)
 })
+
+Deno.test("createAmount returns ok for negative integer", () => {
+  const result = createAmount(-50)
+
+  assertEquals(result.isOk, true)
+})
+
+Deno.test("createAmount returns ok for zero value", () => {
+  const result = createAmount(0)
+
+  assertEquals(result.isOk, true)
+})
