@@ -38,6 +38,6 @@
       "apps/api/": true,
       "apps/web/": true
     },
-    "deno.importMap": "apps/api/supabase/functions/import_map.json",
+    "deno.importMap": "apps/api/supabase/functions/import_map.json"
   }
 }
