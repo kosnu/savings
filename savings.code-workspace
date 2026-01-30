@@ -17,6 +17,10 @@
       "path": "apps/api/supabase/functions/categories"
     },
     {
+      "name": "Payments Function",
+      "path": "apps/api/supabase/functions/payments"
+    },
+    {
       "name": "import_to_firestore",
       "path": "scripts/import_to_firestore"
     }
@@ -33,6 +37,7 @@
     "files.exclude": {
       "apps/api/": true,
       "apps/web/": true
-    }
+    },
+    "deno.importMap": "apps/api/supabase/functions/import_map.json"
   }
 }
