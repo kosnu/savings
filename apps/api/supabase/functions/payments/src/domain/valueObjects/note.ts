@@ -17,7 +17,7 @@ export function createNote(
   if (value.length > maxLength) {
     return err(
       validationError(
-        `Note must be a non-empty string with a maximum length of ${maxLength} characters`,
+        `Note must not exceed ${maxLength} characters`,
         { value },
       ),
     )
