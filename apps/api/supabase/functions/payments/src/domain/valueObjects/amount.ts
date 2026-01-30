@@ -10,7 +10,7 @@ export function createAmount(
 ): Result<Amount, DomainError> {
   if (!Number.isInteger(value)) {
     return err(
-      validationError("Amount must be a integer", { value }),
+      validationError("Amount must be an integer", { value }),
     )
   }
 
