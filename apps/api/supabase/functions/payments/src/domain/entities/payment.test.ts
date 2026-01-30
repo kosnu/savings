@@ -56,7 +56,7 @@ Deno.test("createPayment allows null categoryId", () => {
   })
 })
 
-Deno.test("createPayment throws when amount is valid", () => {
+Deno.test("createPayment allows negative amount", () => {
   const params = createParams({ amount: -1 })
   const payment = createPayment(params)
   assertEquals(payment.amount.value, -1)
