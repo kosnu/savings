@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert"
-import { unwrapOk } from "../../test/utils/unwrapOk.ts"
+import { unwrapOk } from "../../shared/unwrapOk.ts"
 import { createAmount } from "../valueObjects/amount.ts"
 import { createCategoryId } from "../valueObjects/categoryId.ts"
 import { createNote } from "../valueObjects/note.ts"

@@ -1,4 +1,4 @@
-import { unwrapOk } from "../../test/utils/unwrapOk.ts"
+import { unwrapOk } from "../../shared/unwrapOk.ts"
 import { Amount, createAmount } from "../valueObjects/amount.ts"
 import { CategoryId, createCategoryId } from "../valueObjects/categoryId.ts"
 import { createNote, Note } from "../valueObjects/note.ts"

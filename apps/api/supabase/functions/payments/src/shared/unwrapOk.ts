@@ -1,4 +1,4 @@
-import type { Result } from "../../shared/result.ts"
+import type { Result } from "./result.ts"
 
 export const unwrapOk = <T, E>(result: Result<T, E>): T => {
   if (!result.isOk) {
