@@ -119,3 +119,109 @@ export const Empty: Story = {
     expect(canvas.getByText("Amount can not be empty")).toBeInTheDocument()
   },
 }
+
+export const CreateWithKeepOpenChecked: Story = {
+  args: {},
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    // Check the "Keep dialog open" checkbox
+    const checkbox = canvas.getByRole("checkbox", {
+      name: /keep dialog open after creation/i,
+    })
+    await userEvent.click(checkbox)
+
+    // Fill out the form
+    const datepicker = canvas.getByRole("button", { name: /date/i })
+    await userEvent.click(datepicker)
+
+    {
+      const select = await canvas.findByRole("combobox", { name: /category/i })
+      await userEvent.click(select)
+
+      const body = within(canvasElement.ownerDocument.body)
+      const listbox = await body.findByRole("listbox")
+
+      await waitFor(() => {
+        expect(
+          within(listbox).queryByLabelText(/loading/),
+        ).not.toBeInTheDocument()
+      })
+
+      const option = await within(listbox).findByRole("option", {
+        name: /food/i,
+      })
+      await userEvent.click(option)
+    }
+    {
+      const noteTextfield = canvas.getByRole("textbox", { name: /note/i })
+      await userEvent.type(noteTextfield, "Test with keep open")
+    }
+    {
+      const amountTextfield = canvas.getByRole("textbox", { name: /amount/i })
+      await userEvent.type(amountTextfield, "500")
+    }
+
+    // Submit the form
+    const submitButton = canvas.getByRole("button", {
+      name: /create payment/i,
+    })
+    await userEvent.click(submitButton)
+
+    // Verify onSuccess was called with keepOpen=true
+    await waitFor(() => {
+      expect(args.onSuccess).toHaveBeenCalledWith(true)
+    })
+  },
+}
+
+export const CreateWithKeepOpenUnchecked: Story = {
+  args: {},
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    // Don't check the "Keep dialog open" checkbox (default is unchecked)
+
+    // Fill out the form
+    const datepicker = canvas.getByRole("button", { name: /date/i })
+    await userEvent.click(datepicker)
+
+    {
+      const select = await canvas.findByRole("combobox", { name: /category/i })
+      await userEvent.click(select)
+
+      const body = within(canvasElement.ownerDocument.body)
+      const listbox = await body.findByRole("listbox")
+
+      await waitFor(() => {
+        expect(
+          within(listbox).queryByLabelText(/loading/),
+        ).not.toBeInTheDocument()
+      })
+
+      const option = await within(listbox).findByRole("option", {
+        name: /food/i,
+      })
+      await userEvent.click(option)
+    }
+    {
+      const noteTextfield = canvas.getByRole("textbox", { name: /note/i })
+      await userEvent.type(noteTextfield, "Test without keep open")
+    }
+    {
+      const amountTextfield = canvas.getByRole("textbox", { name: /amount/i })
+      await userEvent.type(amountTextfield, "1000")
+    }
+
+    // Submit the form
+    const submitButton = canvas.getByRole("button", {
+      name: /create payment/i,
+    })
+    await userEvent.click(submitButton)
+
+    // Verify onSuccess was called with keepOpen=false
+    await waitFor(() => {
+      expect(args.onSuccess).toHaveBeenCalledWith(false)
+    })
+  },
+}

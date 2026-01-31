@@ -41,3 +41,22 @@ export const OpenModal: Story = {
     expect(await body.findByRole("dialog")).toBeInTheDocument()
   },
 }
+
+export const CheckboxVisible: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    const openButton = canvas.getByRole("button", { name: /create payment/i })
+    await userEvent.click(openButton)
+
+    const body = within(canvasElement.ownerDocument.body)
+    const dialog = await body.findByRole("dialog")
+
+    // Verify the checkbox is present in the dialog
+    const checkbox = await within(dialog).findByRole("checkbox", {
+      name: /keep dialog open after creation/i,
+    })
+    expect(checkbox).toBeInTheDocument()
+    expect(checkbox).not.toBeChecked()
+  },
+}

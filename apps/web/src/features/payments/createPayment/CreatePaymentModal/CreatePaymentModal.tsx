@@ -1,5 +1,5 @@
 import { Button, Dialog } from "@radix-ui/themes"
-import { useCallback } from "react"
+import { useCallback, useRef } from "react"
 import { useDialog } from "../../../../utils/useDialog"
 import { CreatePaymentForm } from "../CreatePaymentForm"
 
@@ -9,11 +9,20 @@ interface CreatePaymentModalProps {
 
 export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
   const { open, openDialog, closeDialog } = useDialog()
+  const formRef = useRef<HTMLFormElement>(null)
 
-  const handleSuccess = useCallback(() => {
-    onSuccess?.()
-    closeDialog()
-  }, [onSuccess, closeDialog])
+  const handleSuccess = useCallback(
+    (keepOpen: boolean) => {
+      onSuccess?.()
+      if (!keepOpen) {
+        closeDialog()
+      } else {
+        // Reset form when keeping dialog open
+        formRef.current?.reset()
+      }
+    },
+    [onSuccess, closeDialog],
+  )
 
   const handleError = useCallback((error?: Error) => {
     console.error("Error creating payment:", error)
@@ -32,6 +41,7 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
           Create a new payment. Please fill in the details below.
         </Dialog.Description>
         <CreatePaymentForm
+          ref={formRef}
           onSuccess={handleSuccess}
           onError={handleError}
           onCancel={handleCancel}
