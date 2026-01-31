@@ -114,8 +114,8 @@ export const Empty: Story = {
     const submitButton = canvas.getByRole("button", { name: /create payment/i })
     await userEvent.click(submitButton)
 
-    expect(canvas.getByText("Category can not be empty")).toBeInTheDocument()
-    expect(canvas.getByText("Note can not be empty")).toBeInTheDocument()
-    expect(canvas.getByText("Amount can not be empty")).toBeInTheDocument()
+    expect(await canvas.findByText("Category can not be empty")).toBeInTheDocument()
+    expect(await canvas.findByText("Note can not be empty")).toBeInTheDocument()
+    expect(await canvas.findByText("Amount can not be empty")).toBeInTheDocument()
   },
 }
