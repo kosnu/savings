@@ -1,1 +1,4 @@
-export { CreatePaymentForm } from "./CreatePaymentForm"
+export {
+  CreatePaymentForm,
+  type CreatePaymentFormHandle,
+} from "./CreatePaymentForm"

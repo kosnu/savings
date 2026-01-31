@@ -1,5 +1,11 @@
 import { Checkbox, Flex, Text } from "@radix-ui/themes"
-import { type ForwardedRef, forwardRef, useCallback, useState } from "react"
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react"
 import z from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
@@ -16,86 +22,97 @@ interface CreatePaymentFormProps {
   onCancel: () => void
 }
 
-export const CreatePaymentForm = forwardRef(
-  (
-    { onSuccess, onError, onCancel }: CreatePaymentFormProps,
-    ref: ForwardedRef<HTMLFormElement>,
-  ) => {
-    const [keepOpen, setKeepOpen] = useState(false)
-    const [error, setError] = useState<FormError>()
+export interface CreatePaymentFormHandle {
+  reset: () => void
+}
 
-    const handleCreateSuccess = useCallback(() => {
-      onSuccess?.(keepOpen)
-    }, [onSuccess, keepOpen])
+export const CreatePaymentForm = forwardRef<
+  CreatePaymentFormHandle,
+  CreatePaymentFormProps
+>(({ onSuccess, onError, onCancel }, ref) => {
+  const [keepOpen, setKeepOpen] = useState(false)
+  const [error, setError] = useState<FormError>()
+  const formRef = useRef<HTMLFormElement>(null)
 
-    const { createPayment, isPending } = useCreatePayment(
-      handleCreateSuccess,
-      onError,
-    )
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      formRef.current?.reset()
+      setKeepOpen(false)
+      setError(undefined)
+    },
+  }))
 
-    const dateError = error?.fieldErrors.date
-    const categoryError = error?.fieldErrors.category
-    const noteError = error?.fieldErrors.note
-    const amountError = error?.fieldErrors.amount
+  const handleCreateSuccess = useCallback(() => {
+    onSuccess?.(keepOpen)
+  }, [onSuccess, keepOpen])
 
-    const handleSubmit = useCallback(
-      async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
+  const { createPayment, isPending } = useCreatePayment(
+    handleCreateSuccess,
+    onError,
+  )
 
-        const formData = new FormData(event.currentTarget)
-        const formObject = Object.fromEntries(formData.entries())
-        const result = formShema.safeParse(formObject)
-        if (result.error) {
-          setError(z.flattenError(result.error))
-          return
-        }
-        await createPayment({
-          categoryId: result.data.category,
-          date: result.data.date,
-          note: result.data.note,
-          amount: result.data.amount,
-        })
-      },
-      [createPayment],
-    )
+  const dateError = error?.fieldErrors.date
+  const categoryError = error?.fieldErrors.category
+  const noteError = error?.fieldErrors.note
+  const amountError = error?.fieldErrors.amount
 
-    const handleCancel = useCallback(
-      (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault()
-        onCancel()
-      },
-      [onCancel],
-    )
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
 
-    return (
-      <form ref={ref} onSubmit={handleSubmit}>
-        <Flex direction="column" gap="3">
-          <PaymentDateField error={!!dateError?.length} messages={dateError} />
-          <CategoryField
-            error={!!categoryError?.length}
-            messages={categoryError}
-          />
-          <NoteField error={!!noteError?.length} messages={noteError} />
-          <AmountField error={!!amountError?.length} messages={amountError} />
-        </Flex>
-        <Flex gap="3" mt="4" justify="between" align="center">
-          <Text as="label" size="2">
-            <Flex gap="2" align="center">
-              <Checkbox
-                checked={keepOpen}
-                onCheckedChange={(checked) => setKeepOpen(checked === true)}
-              />
-              Keep dialog open after creation
-            </Flex>
-          </Text>
-          <Flex gap="3">
-            <CancelButton onClick={handleCancel} />
-            <SubmitButton loading={isPending}>Create payment</SubmitButton>
+      const formData = new FormData(event.currentTarget)
+      const formObject = Object.fromEntries(formData.entries())
+      const result = formShema.safeParse(formObject)
+      if (result.error) {
+        setError(z.flattenError(result.error))
+        return
+      }
+      await createPayment({
+        categoryId: result.data.category,
+        date: result.data.date,
+        note: result.data.note,
+        amount: result.data.amount,
+      })
+    },
+    [createPayment],
+  )
+
+  const handleCancel = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault()
+      onCancel()
+    },
+    [onCancel],
+  )
+
+  return (
+    <form ref={formRef} onSubmit={handleSubmit}>
+      <Flex direction="column" gap="3">
+        <PaymentDateField error={!!dateError?.length} messages={dateError} />
+        <CategoryField
+          error={!!categoryError?.length}
+          messages={categoryError}
+        />
+        <NoteField error={!!noteError?.length} messages={noteError} />
+        <AmountField error={!!amountError?.length} messages={amountError} />
+      </Flex>
+      <Flex gap="3" mt="4" justify="between" align="center">
+        <Text as="label" size="2">
+          <Flex gap="2" align="center">
+            <Checkbox
+              checked={keepOpen}
+              onCheckedChange={(checked) => setKeepOpen(checked === true)}
+            />
+            Keep dialog open after creation
           </Flex>
+        </Text>
+        <Flex gap="3">
+          <CancelButton onClick={handleCancel} />
+          <SubmitButton loading={isPending}>Create payment</SubmitButton>
         </Flex>
-      </form>
-    )
-  },
-)
+      </Flex>
+    </form>
+  )
+})
 
 CreatePaymentForm.displayName = "CreatePaymentForm"

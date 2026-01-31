@@ -1,7 +1,10 @@
 import { Button, Dialog } from "@radix-ui/themes"
 import { useCallback, useRef } from "react"
 import { useDialog } from "../../../../utils/useDialog"
-import { CreatePaymentForm } from "../CreatePaymentForm"
+import {
+  CreatePaymentForm,
+  type CreatePaymentFormHandle,
+} from "../CreatePaymentForm"
 
 interface CreatePaymentModalProps {
   onSuccess?: () => void
@@ -9,7 +12,7 @@ interface CreatePaymentModalProps {
 
 export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
   const { open, openDialog, closeDialog } = useDialog()
-  const formRef = useRef<HTMLFormElement>(null)
+  const formRef = useRef<CreatePaymentFormHandle>(null)
 
   const handleSuccess = useCallback(
     (keepOpen: boolean) => {
