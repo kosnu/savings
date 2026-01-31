@@ -21,7 +21,7 @@ export function CreatePaymentForm({
   onError,
   onCancel,
 }: CreatePaymentFormProps) {
-  const { createPayment, isPending } = useCreatePayment(onSuccess, onError)
+  const { createPayment } = useCreatePayment(onSuccess, onError)
 
   const [error, setError] = useState<FormError>()
 
@@ -31,10 +31,7 @@ export function CreatePaymentForm({
   const amountError = error?.fieldErrors.amount
 
   const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
-
-      const formData = new FormData(event.currentTarget)
+    async (formData: FormData) => {
       const formObject = Object.fromEntries(formData.entries())
       const result = formShema.safeParse(formObject)
       if (result.error) {
@@ -60,7 +57,7 @@ export function CreatePaymentForm({
   )
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form action={handleSubmit}>
       <Flex direction="column" gap="3">
         <PaymentDateField error={!!dateError?.length} messages={dateError} />
         <CategoryField
@@ -72,7 +69,7 @@ export function CreatePaymentForm({
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />
-        <SubmitButton loading={isPending}>Create payment</SubmitButton>
+        <SubmitButton>Create payment</SubmitButton>
       </Flex>
     </form>
   )
