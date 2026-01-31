@@ -32,8 +32,6 @@ export function CreatePaymentForm({
 
   const handleSubmit = useCallback(
     async (formData: FormData) => {
-      // 5秒待機する
-      await new Promise((resolve) => setTimeout(resolve, 5000))
       const formObject = Object.fromEntries(formData.entries())
       const result = formShema.safeParse(formObject)
       if (result.error) {
