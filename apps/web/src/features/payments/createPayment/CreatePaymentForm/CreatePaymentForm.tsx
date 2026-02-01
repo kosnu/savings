@@ -1,5 +1,5 @@
 import { Checkbox, Flex, Text } from "@radix-ui/themes"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useId, useRef, useState } from "react"
 import z from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
@@ -22,6 +22,7 @@ export function CreatePaymentForm({
   onCancel,
 }: CreatePaymentFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
+  const checkboxId = useId()
   const [continuousMode, setContinuousMode] = useState(false)
   const [error, setError] = useState<FormError>()
 
@@ -84,9 +85,10 @@ export function CreatePaymentForm({
         <AmountField error={!!amountError?.length} messages={amountError} />
       </Flex>
       <Flex gap="3" mt="4" justify="between" align="center">
-        <Text as="label" size="2">
+        <Text as="label" size="2" htmlFor={checkboxId}>
           <Flex gap="2" align="center">
             <Checkbox
+              id={checkboxId}
               checked={continuousMode}
               onCheckedChange={(checked) => setContinuousMode(checked === true)}
             />
