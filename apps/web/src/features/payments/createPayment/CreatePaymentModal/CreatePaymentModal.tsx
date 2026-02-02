@@ -50,21 +50,21 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
           onError={handleError}
           onCancel={handleCancel}
           onResetReady={handleResetReady}
-          additionalActions={
-            <Text as="label" size="2" htmlFor={checkboxId}>
-              <Flex gap="2" align="center">
-                <Checkbox
-                  id={checkboxId}
-                  checked={continuousMode}
-                  onCheckedChange={(checked) =>
-                    setContinuousMode(checked === true)
-                  }
-                />
-                Continue creating
-              </Flex>
-            </Text>
-          }
         />
+        <Flex gap="3" mt="3" justify="start">
+          <Text as="label" size="2" htmlFor={checkboxId}>
+            <Flex gap="2" align="center">
+              <Checkbox
+                id={checkboxId}
+                checked={continuousMode}
+                onCheckedChange={(checked) =>
+                  setContinuousMode(checked === true)
+                }
+              />
+              Continue creating
+            </Flex>
+          </Text>
+        </Flex>
       </Dialog.Content>
     </Dialog.Root>
   )
