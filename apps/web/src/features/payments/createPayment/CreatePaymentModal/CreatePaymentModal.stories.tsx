@@ -60,7 +60,23 @@ export const ContinuousCreationEnabled: Story = {
     await userEvent.click(checkbox)
     expect(checkbox).toBeChecked()
 
-    // Fill the form
+    // Fill the form - select category
+    const categorySelect = body.getByRole("combobox", { name: /category/i })
+    await userEvent.click(categorySelect)
+
+    const listbox = await body.findByRole("listbox")
+    await waitFor(() => {
+      expect(
+        within(listbox).queryByLabelText(/loading/),
+      ).not.toBeInTheDocument()
+    })
+
+    const categoryOption = await within(listbox).findByRole("option", {
+      name: /food/i,
+    })
+    await userEvent.click(categoryOption)
+
+    // Fill other fields
     const amountInput = body.getByLabelText(/amount/i)
     await userEvent.type(amountInput, "1000")
 
@@ -118,7 +134,23 @@ export const ContinuousCreationDisabled: Story = {
     const checkbox = body.getByRole("checkbox", { name: /continue creating/i })
     expect(checkbox).not.toBeChecked()
 
-    // Fill the form
+    // Fill the form - select category
+    const categorySelect = body.getByRole("combobox", { name: /category/i })
+    await userEvent.click(categorySelect)
+
+    const listbox = await body.findByRole("listbox")
+    await waitFor(() => {
+      expect(
+        within(listbox).queryByLabelText(/loading/),
+      ).not.toBeInTheDocument()
+    })
+
+    const categoryOption = await within(listbox).findByRole("option", {
+      name: /food/i,
+    })
+    await userEvent.click(categoryOption)
+
+    // Fill other fields
     const amountInput = body.getByLabelText(/amount/i)
     await userEvent.type(amountInput, "2000")
 
