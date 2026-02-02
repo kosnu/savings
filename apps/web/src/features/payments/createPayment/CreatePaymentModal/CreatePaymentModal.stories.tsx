@@ -90,6 +90,12 @@ export const ContinuousCreationEnabled: Story = {
       { timeout: 1000 },
     )
 
+    // Verify checkbox remains checked after form reset
+    const checkboxAfterSubmit = body.getByRole("checkbox", {
+      name: /continue creating/i,
+    })
+    expect(checkboxAfterSubmit).toBeChecked()
+
     // Verify onSuccess was called (dialog should stay open)
     expect(args.onSuccess).toHaveBeenCalled()
   },
