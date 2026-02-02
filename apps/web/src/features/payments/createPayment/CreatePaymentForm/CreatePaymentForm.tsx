@@ -1,5 +1,5 @@
-import { Checkbox, Flex, Text } from "@radix-ui/themes"
-import { useCallback, useId, useRef, useState } from "react"
+import { Flex } from "@radix-ui/themes"
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import z from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
@@ -11,37 +11,33 @@ import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
 
 interface CreatePaymentFormProps {
-  onSuccess?: (shouldClose: boolean) => void
+  onSuccess?: () => void
   onError?: (error?: Error) => void
   onCancel: () => void
+  onResetReady?: (resetFn: () => void) => void
+  additionalActions?: ReactNode
 }
 
 export function CreatePaymentForm({
   onSuccess,
   onError,
   onCancel,
+  onResetReady,
+  additionalActions,
 }: CreatePaymentFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
-  const checkboxId = useId()
-  const [continuousMode, setContinuousMode] = useState(false)
+  const { createPayment } = useCreatePayment(onSuccess, onError)
+
   const [error, setError] = useState<FormError>()
 
-  const handleSuccessWithContinuousMode = useCallback(() => {
-    // Always call onSuccess to notify parent of successful submission
-    // Pass shouldClose flag based on continuous mode
-    onSuccess?.(!continuousMode)
+  const resetForm = useCallback(() => {
+    formRef.current?.reset()
+    setError(undefined)
+  }, [])
 
-    if (continuousMode) {
-      // Reset the form for continuous creation
-      formRef.current?.reset()
-      setError(undefined)
-    }
-  }, [continuousMode, onSuccess])
-
-  const { createPayment } = useCreatePayment(
-    handleSuccessWithContinuousMode,
-    onError,
-  )
+  useEffect(() => {
+    onResetReady?.(resetForm)
+  }, [onResetReady, resetForm])
 
   const dateError = error?.fieldErrors.date
   const categoryError = error?.fieldErrors.category
@@ -86,16 +82,7 @@ export function CreatePaymentForm({
         <AmountField error={!!amountError?.length} messages={amountError} />
       </Flex>
       <Flex gap="3" mt="4" justify="between" align="center">
-        <Text as="label" size="2" htmlFor={checkboxId}>
-          <Flex gap="2" align="center">
-            <Checkbox
-              id={checkboxId}
-              checked={continuousMode}
-              onCheckedChange={(checked) => setContinuousMode(checked === true)}
-            />
-            Continue creating
-          </Flex>
-        </Text>
+        {additionalActions}
         <Flex gap="3">
           <CancelButton onClick={handleCancel} />
           <SubmitButton>Create payment</SubmitButton>
