@@ -10,10 +10,15 @@ interface CreatePaymentModalProps {
 export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
   const { open, openDialog, closeDialog } = useDialog()
 
-  const handleSuccess = useCallback(() => {
-    onSuccess?.()
-    closeDialog()
-  }, [onSuccess, closeDialog])
+  const handleSuccess = useCallback(
+    (shouldClose: boolean) => {
+      onSuccess?.()
+      if (shouldClose) {
+        closeDialog()
+      }
+    },
+    [onSuccess, closeDialog],
+  )
 
   const handleError = useCallback((error?: Error) => {
     console.error("Error creating payment:", error)

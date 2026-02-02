@@ -11,7 +11,7 @@ import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
 
 interface CreatePaymentFormProps {
-  onSuccess?: () => void
+  onSuccess?: (shouldClose: boolean) => void
   onError?: (error?: Error) => void
   onCancel: () => void
 }
@@ -27,13 +27,14 @@ export function CreatePaymentForm({
   const [error, setError] = useState<FormError>()
 
   const handleSuccessWithContinuousMode = useCallback(() => {
+    // Always call onSuccess to notify parent of successful submission
+    // Pass shouldClose flag based on continuous mode
+    onSuccess?.(!continuousMode)
+
     if (continuousMode) {
       // Reset the form for continuous creation
       formRef.current?.reset()
       setError(undefined)
-    } else {
-      // Close the dialog (existing behavior)
-      onSuccess?.()
     }
   }, [continuousMode, onSuccess])
 

@@ -90,8 +90,13 @@ export const ContinuousCreationEnabled: Story = {
       { timeout: 1000 },
     )
 
-    // Verify onSuccess was not called (dialog should stay open)
-    expect(args.onSuccess).not.toHaveBeenCalled()
+    // Verify onSuccess was called with shouldClose=false (dialog should stay open)
+    await waitFor(
+      () => {
+        expect(args.onSuccess).toHaveBeenCalledWith(false)
+      },
+      { timeout: 1000 },
+    )
   },
 }
 
@@ -125,10 +130,10 @@ export const ContinuousCreationDisabled: Story = {
     })
     await userEvent.click(submitButton)
 
-    // Wait for submission to complete and verify onSuccess was called
+    // Wait for submission to complete and verify onSuccess was called with shouldClose=true
     await waitFor(
       () => {
-        expect(args.onSuccess).toHaveBeenCalled()
+        expect(args.onSuccess).toHaveBeenCalledWith(true)
       },
       { timeout: 3000 },
     )
