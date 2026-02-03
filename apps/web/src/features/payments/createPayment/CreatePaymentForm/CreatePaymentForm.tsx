@@ -1,5 +1,5 @@
 import { Flex } from "@radix-ui/themes"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import z from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
@@ -14,16 +14,28 @@ interface CreatePaymentFormProps {
   onSuccess?: () => void
   onError?: (error?: Error) => void
   onCancel: () => void
+  onResetReady?: (resetFn: () => void) => void
 }
 
 export function CreatePaymentForm({
   onSuccess,
   onError,
   onCancel,
+  onResetReady,
 }: CreatePaymentFormProps) {
+  const formRef = useRef<HTMLFormElement>(null)
   const { createPayment } = useCreatePayment(onSuccess, onError)
 
   const [error, setError] = useState<FormError>()
+
+  const resetForm = useCallback(() => {
+    formRef.current?.reset()
+    setError(undefined)
+  }, [])
+
+  useEffect(() => {
+    onResetReady?.(resetForm)
+  }, [onResetReady, resetForm])
 
   const dateError = error?.fieldErrors.date
   const categoryError = error?.fieldErrors.category
@@ -57,7 +69,7 @@ export function CreatePaymentForm({
   )
 
   return (
-    <form action={handleSubmit}>
+    <form ref={formRef} action={handleSubmit}>
       <Flex direction="column" gap="3">
         <PaymentDateField error={!!dateError?.length} messages={dateError} />
         <CategoryField
