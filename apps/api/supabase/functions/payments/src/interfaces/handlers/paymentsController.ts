@@ -5,6 +5,7 @@ import { searchPaymentsUseCase } from "../../application/searchPaymentsUseCase.t
 import { convertPaymentToDto } from "./paymentDto.ts"
 import { createSupabasePaymentRepository } from "../../infrastructure/paymentRepositoryImpl.ts"
 import { createErrorResponse, JSON_HEADERS } from "./errorResponse.ts"
+import { validateCriteria } from "./validateCriteria.ts"
 
 type PaymentsControllerDeps = {
   createRepository: (
@@ -24,6 +25,10 @@ export const createPaymentsController = (
     dateFrom?: string,
     dateTo?: string,
   ) => {
+    const validation = validateCriteria(dateFrom, dateTo)
+    if (validation) {
+      return deps.createErrorResponse(validation)
+    }
     const repo = deps.createRepository({ supabase })
     const criteria = buildSearchCriteria(userId, dateFrom, dateTo)
     const result = await deps.searchUseCase(criteria, repo)
