@@ -56,8 +56,10 @@ apps/api
   - `domain`: エンティティ・値オブジェクト・リポジトリ抽象
   - `application`: DTO とユースケース (ビジネスフロー)
   - `infrastructure`: Supabase/Postgres へのリポジトリ実装
-  - `interfaces`: Hono 等の HTTP ハンドラを配置予定の境界層 (現在は Deno.serve)
+  - `interfaces`: Hono による HTTP ハンドラとルーティング
   - `shared`: 全層で共有する型・エラー
-- Edge Function は `index.ts` で Supabase クライアントを初期化し、認証ヘッダーを引き継いでレスポンスを返す
+  - `test`: テストユーティリティ
+  - `generated`: 自動生成ファイル（型定義等）
+- Edge Function は `index.ts` で Supabase クライアントを初期化し、`createServer` で Hono アプリを構成
 - JWT 検証 (`verify_jwt = true`) を前提とし、リクエストヘッダーの `Authorization` を Supabase クライアントに委譲
 - マイグレーションは `supabase/migrations/*.sql` で管理し、CLI から適用 (`task up:migrations`)
