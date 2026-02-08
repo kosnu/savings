@@ -105,22 +105,23 @@ Deno.test("getUserIdByExternalId はSupabaseエラーをResult.errとして返�
   }
 })
 
-Deno.test("getUserIdByExternalId は複数の異なるexternal_idで呼び出せる", async () => {
-  const userData1: UsersRow = {
-    id: 100n,
-    external_id: "uuid-100",
-    name: "User 100",
-    email: "user100@example.com",
+Deno.test("getUserIdByExternalId はbigint型のidを返す", async () => {
+  const userData: UsersRow = {
+    id: 999n,
+    external_id: "uuid-999",
+    name: "User 999",
+    email: "user999@example.com",
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   }
 
-  const { supabase } = createSupabaseStubForUsers({ data: userData1 })
+  const { supabase } = createSupabaseStubForUsers({ data: userData })
 
-  const result1 = await getUserIdByExternalId(supabase, "uuid-100")
+  const result = await getUserIdByExternalId(supabase, "uuid-999")
 
-  assertEquals(result1.isOk, true)
-  if (result1.isOk) {
-    assertEquals(result1.value, 100n)
+  assertEquals(result.isOk, true)
+  if (result.isOk) {
+    assertEquals(typeof result.value, "bigint")
+    assertEquals(result.value, 999n)
   }
 })
