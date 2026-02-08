@@ -72,7 +72,12 @@ Deno.test("支払い検索成功時に200で結果を返す", async () => {
     },
   })
 
-  const response = await controller.search(supabase, 1n, "2024-01-01", "2024-01-31")
+  const response = await controller.search(
+    supabase,
+    1n,
+    "2024-01-01",
+    "2024-01-31",
+  )
   const body = await response.json()
 
   assertEquals(repositoryCalls, [{ supabase }])
