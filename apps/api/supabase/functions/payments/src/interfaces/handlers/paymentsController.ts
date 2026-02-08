@@ -25,19 +25,7 @@ export const createPaymentsController = (
     dateTo?: string,
   ) => {
     const repo = deps.createRepository({ supabase })
-    const criteria: {
-      userId: bigint
-      dateFrom?: string
-      dateTo?: string
-    } = { userId }
-
-    if (dateFrom !== undefined) {
-      criteria.dateFrom = dateFrom
-    }
-    if (dateTo !== undefined) {
-      criteria.dateTo = dateTo
-    }
-
+    const criteria = buildSearchCriteria(userId, dateFrom, dateTo)
     const result = await deps.searchUseCase(criteria, repo)
     if (result.isOk) {
       const payments = result.value.map(convertPaymentToDto)
@@ -51,6 +39,29 @@ export const createPaymentsController = (
   }
 
   return { search }
+}
+
+type PaymentSearchCriteria = {
+  userId: bigint
+  dateFrom?: string
+  dateTo?: string
+}
+
+function buildSearchCriteria(
+  userId: bigint,
+  dateFrom?: string,
+  dateTo?: string,
+): PaymentSearchCriteria {
+  const criteria: PaymentSearchCriteria = { userId }
+
+  if (dateFrom !== undefined) {
+    criteria.dateFrom = dateFrom
+  }
+  if (dateTo !== undefined) {
+    criteria.dateTo = dateTo
+  }
+
+  return criteria
 }
 
 export const paymentsController = createPaymentsController({
