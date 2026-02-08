@@ -176,3 +176,66 @@ Deno.test("成功レスポンスにJSONヘッダーを設定する", async () =>
     JSON_HEADERS["content-type"],
   )
 })
+
+Deno.test("dateFromが不正な形式の場合はValidationErrorを返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  let receivedError: DomainError | undefined
+
+  const controller = createController({
+    createRepository: () => {
+      throw new Error("createRepository should not be called")
+    },
+    createErrorResponse: (error) => {
+      receivedError = error
+      return new Response(JSON.stringify({ message: error.message }), {
+        status: 400,
+        headers: JSON_HEADERS,
+      })
+    },
+  })
+
+  const response = await controller.search(supabase, 1n, "2024/01/01")
+  const body = await response.json()
+
+  assertEquals(receivedError?.type, "ValidationError")
+  assertEquals(receivedError?.message, "dateFrom must be YYYY-MM-DD")
+  if (receivedError?.type === "ValidationError") {
+    assertEquals(receivedError.details, { dateFrom: "2024/01/01" })
+  }
+  assertEquals(response.status, 400)
+  assertEquals(body, { message: "dateFrom must be YYYY-MM-DD" })
+})
+
+Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  let receivedError: DomainError | undefined
+
+  const controller = createController({
+    createRepository: () => {
+      throw new Error("createRepository should not be called")
+    },
+    createErrorResponse: (error) => {
+      receivedError = error
+      return new Response(JSON.stringify({ message: error.message }), {
+        status: 400,
+        headers: JSON_HEADERS,
+      })
+    },
+  })
+
+  const response = await controller.search(
+    supabase,
+    1n,
+    "2024-01-01",
+    "2024/01/31",
+  )
+  const body = await response.json()
+
+  assertEquals(receivedError?.type, "ValidationError")
+  assertEquals(receivedError?.message, "dateTo must be YYYY-MM-DD")
+  if (receivedError?.type === "ValidationError") {
+    assertEquals(receivedError.details, { dateTo: "2024/01/31" })
+  }
+  assertEquals(response.status, 400)
+  assertEquals(body, { message: "dateTo must be YYYY-MM-DD" })
+})
