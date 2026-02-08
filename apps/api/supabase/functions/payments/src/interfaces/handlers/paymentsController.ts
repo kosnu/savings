@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../../shared/types.ts"
 import type { PaymentRepository } from "../../domain/repository.ts"
 import { searchPaymentsUseCase } from "../../application/searchPaymentsUseCase.ts"
+import { convertPaymentToDto } from "./paymentDto.ts"
 import { createSupabasePaymentRepository } from "../../infrastructure/paymentRepositoryImpl.ts"
 import { createErrorResponse, JSON_HEADERS } from "./errorResponse.ts"
 
@@ -24,9 +25,23 @@ export const createPaymentsController = (
     dateTo?: string,
   ) => {
     const repo = deps.createRepository({ supabase })
-    const result = await deps.searchUseCase({ userId, dateFrom, dateTo }, repo)
+    const criteria: {
+      userId: bigint
+      dateFrom?: string
+      dateTo?: string
+    } = { userId }
+
+    if (dateFrom !== undefined) {
+      criteria.dateFrom = dateFrom
+    }
+    if (dateTo !== undefined) {
+      criteria.dateTo = dateTo
+    }
+
+    const result = await deps.searchUseCase(criteria, repo)
     if (result.isOk) {
-      return new Response(JSON.stringify({ payments: result.value }), {
+      const payments = result.value.map(convertPaymentToDto)
+      return new Response(JSON.stringify({ payments }), {
         status: 200,
         headers: deps.jsonHeaders,
       })

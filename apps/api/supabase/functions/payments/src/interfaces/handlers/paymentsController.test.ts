@@ -8,6 +8,7 @@ import type { PaymentRepository } from "../../domain/repository.ts"
 import type { DomainError } from "../../shared/errors.ts"
 import { createPayment } from "../../domain/entities/payment.ts"
 import type { Payment } from "../../domain/entities/payment.ts"
+import { convertPaymentToDto, type PaymentDto } from "./paymentDto.ts"
 
 type PaymentsControllerDeps = Parameters<
   typeof createPaymentsController
@@ -48,6 +49,9 @@ Deno.test("支払い検索成功時に200で結果を返す", async () => {
     userId: 1n,
   })
   const payments: ReadonlyArray<Payment> = [payment]
+  const paymentDtos: ReadonlyArray<PaymentDto> = payments.map(
+    convertPaymentToDto,
+  )
   const repositoryCalls: Array<{ supabase: SupabaseClient<Database> }> = []
   let receivedCriteria: {
     userId: bigint
@@ -88,7 +92,7 @@ Deno.test("支払い検索成功時に200で結果を返す", async () => {
     dateTo: "2024-01-31",
   })
   assertEquals(response.status, 200)
-  assertEquals(body, { payments })
+  assertEquals(body, { payments: paymentDtos })
 })
 
 Deno.test("dateFromとdateToが未指定でも動作する", async () => {
