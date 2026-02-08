@@ -282,30 +282,50 @@ createPayment({
 ## 実装ファイル構成
 
 ```
-apps/api/supabase/functions/payments/src/
-├── domain/
-│   ├── entities/
-│   │   ├── payment.ts           # Payment Entity定義
-│   │   └── payment.test.ts      # Paymentのテスト
-│   ├── valueObjects/
-│   │   ├── amount.ts            # Amount値オブジェクト ※負の値許容
-│   │   ├── amount.test.ts       # Amountのテスト
-│   │   ├── categoryId.ts        # CategoryId値オブジェクト
-│   │   ├── categoryId.test.ts
-│   │   ├── note.ts              # Note値オブジェクト
-│   │   ├── note.test.ts
-│   │   ├── paymentDate.ts       # PaymentDate値オブジェクト
-│   │   ├── paymentDate.test.ts
-│   │   ├── paymentId.ts         # PaymentId値オブジェクト
-│   │   ├── paymentId.test.ts
-│   │   ├── userId.ts            # UserId値オブジェクト
-│   │   └── userId.test.ts
-│   └── repository.ts            # PaymentRepositoryインターフェース
-├── infrastructure/
-│   └── supabasePaymentRepository.ts  # Repository実装
-└── shared/
-    ├── errors.ts                # ドメインエラー定義
-    └── result.ts                # Result型定義
+apps/api/supabase/functions/payments/
+├── index.ts                     # エントリーポイント
+├── deno.json                    # Deno 設定
+└── src/
+    ├── domain/
+    │   ├── entities/
+    │   │   ├── payment.ts           # Payment Entity定義
+    │   │   └── payment.test.ts      # Paymentのテスト
+    │   ├── valueObjects/
+    │   │   ├── amount.ts            # Amount値オブジェクト ※負の値許容
+    │   │   ├── amount.test.ts       # Amountのテスト
+    │   │   ├── categoryId.ts        # CategoryId値オブジェクト
+    │   │   ├── categoryId.test.ts
+    │   │   ├── note.ts              # Note値オブジェクト
+    │   │   ├── note.test.ts
+    │   │   ├── paymentDate.ts       # PaymentDate値オブジェクト
+    │   │   ├── paymentDate.test.ts
+    │   │   ├── paymentId.ts         # PaymentId値オブジェクト
+    │   │   ├── paymentId.test.ts
+    │   │   ├── userId.ts            # UserId値オブジェクト
+    │   │   └── userId.test.ts
+    │   └── repository.ts            # PaymentRepositoryインターフェース
+    ├── application/
+    │   └── searchPaymentsUseCase.ts # ユースケース実装
+    ├── infrastructure/
+    │   ├── paymentRepositoryImpl.ts  # Repository実装
+    │   └── utils/
+    │       ├── mapRowToPayment.ts    # DB行からエンティティへのマッピング
+    │       └── getUserIdByExternalId.ts
+    ├── interfaces/
+    │   ├── server.ts                # Hono サーバー初期化
+    │   ├── routes/                  # ルーティング定義
+    │   └── handlers/                # HTTP ハンドラ
+    │       ├── paymentsController.ts
+    │       ├── paymentDto.ts
+    │       ├── validateCriteria.ts
+    │       └── errorResponse.ts
+    ├── shared/
+    │   ├── types.ts                 # Supabase 型定義
+    │   ├── errors.ts                # ドメインエラー定義
+    │   ├── result.ts                # Result型定義
+    │   └── unwrapOk.ts
+    ├── generated/                   # 自動生成ファイル（型定義等）
+    └── test/                        # テストユーティリティ
 ```
 
 ## データベーススキーマ
