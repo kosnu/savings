@@ -148,6 +148,22 @@ apps/api/
 └── package.json                 # Supabase CLI 依存関係
 ```
 
+## ドキュメント
+
+このプロジェクトには以下のドキュメントが含まれています：
+
+### 必読
+- **[README.md](./README.md)** (このファイル) - プロジェクト概要とクイックスタート
+- **[開発ガイド](./docs/development-guide.md)** - 環境セットアップから日常的な開発タスクまで
+
+### アーキテクチャとドメインモデル
+- **[Architecture Overview](./docs/architecture.md)** - クリーンアーキテクチャの設計指針と実装パターン
+- **[Payment Modeling](./docs/payment-modeling.md)** - 支払い情報のドメインモデル詳細
+- **[Category Modeling](./docs/category-modeling.md)** - カテゴリ情報のドメインモデル詳細
+
+### AI 開発支援
+- **[Copilot Instructions](../.github/instructions/apps-api.instructions.md)** - GitHub Copilot 向けの開発ルールと構成情報
+
 ## 開発ガイドライン
 
 詳細な開発ルールについては、以下を参照してください：
