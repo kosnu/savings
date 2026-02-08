@@ -20,9 +20,5 @@ export async function getUserIdByExternalId(
     return err(unexpectedError("Failed to fetch user by external_id", error))
   }
 
-  if (!data) {
-    return err(unexpectedError("User not found", new Error("No user data")))
-  }
-
   return ok(BigInt(data.id))
 }
