@@ -16,6 +16,7 @@ interface CreatePaymentFormProps {
   onCancel: () => void
   onResetReady?: (resetFn: () => void) => void
   additionalActions?: React.ReactNode
+  formId?: string
 }
 
 export function CreatePaymentForm({
@@ -24,6 +25,7 @@ export function CreatePaymentForm({
   onCancel,
   onResetReady,
   additionalActions,
+  formId = "create-payment-form",
 }: CreatePaymentFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
   const { createPayment } = useCreatePayment(onSuccess, onError)
@@ -71,25 +73,29 @@ export function CreatePaymentForm({
   )
 
   return (
-    <form ref={formRef} action={handleSubmit}>
-      <Flex direction="column" gap="3">
-        <PaymentDateField error={!!dateError?.length} messages={dateError} />
-        <CategoryField
-          error={!!categoryError?.length}
-          messages={categoryError}
-        />
-        <NoteField error={!!noteError?.length} messages={noteError} />
-        <AmountField error={!!amountError?.length} messages={amountError} />
-      </Flex>
+    <>
+      <form ref={formRef} action={handleSubmit} id={formId}>
+        <Flex direction="column" gap="3">
+          <PaymentDateField error={!!dateError?.length} messages={dateError} />
+          <CategoryField
+            error={!!categoryError?.length}
+            messages={categoryError}
+          />
+          <NoteField error={!!noteError?.length} messages={noteError} />
+          <AmountField error={!!amountError?.length} messages={amountError} />
+        </Flex>
+      </form>
       <Flex gap="3" mt="4" justify="between" align="center">
         <Flex gap="2" align="center">
           {additionalActions}
         </Flex>
         <Flex gap="3">
           <CancelButton onClick={handleCancel} />
-          <SubmitButton>Create</SubmitButton>
+          <SubmitButton type="submit" form={formId}>
+            Create
+          </SubmitButton>
         </Flex>
       </Flex>
-    </form>
+    </>
   )
 }
