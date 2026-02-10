@@ -1,1 +1,0 @@
-import{r as s,am as o,O as u}from"./iframe-dHABiMeZ.js";var i=o[" useId ".trim().toString()]||(()=>{}),c=0;function n(r){const[t,a]=s.useState(i());return u(()=>{a(e=>e??String(c++))},[r]),t?`radix-${t}`:""}export{n as u};

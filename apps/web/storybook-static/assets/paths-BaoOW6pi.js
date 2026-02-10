@@ -1,1 +1,0 @@
-const r={root:{path:"/",getHref:()=>"/"},payments:{path:"/payments",getHref:(e,a)=>{const t=new URLSearchParams;return e&&t.set("year",e),a&&t.set("month",a),`/payments${t.toString()?`?${t.toString()}`:""}`}},aggregates:{path:"/aggregates",getHref:()=>"/aggregates"}};export{r as p};

@@ -1,1 +1,0 @@
-const e={id:"VgtuFszVjxOlwM040cyf",name:"Food",createdDate:new Date,updatedDate:new Date},t={id:"eq1duDRDUKJTFZac1Ztp",name:"Daily Necessities",createdDate:new Date,updatedDate:new Date},a={id:"Pdgee5Sp6vhRanU3gEv0",name:"Entertainment",createdDate:new Date,updatedDate:new Date},n=[e,t,a];export{n as c,e as f};
