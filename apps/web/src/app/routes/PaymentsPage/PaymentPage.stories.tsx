@@ -98,7 +98,7 @@ export const CreateAndDelete: Story = {
 
     // FIXME: Submitからリストのリフレッシュまでが早すぎて、PaymentListの再描画が間に合わない
     const submitButton = within(dialog).getByRole("button", {
-      name: /create payment/i,
+      name: /^create$/i,
     })
     await userEvent.click(submitButton)
 

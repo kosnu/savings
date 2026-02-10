@@ -113,7 +113,7 @@ export const ContinuousCreationEnabled: Story = {
 
     // Submit the form
     const submitButton = body.getByRole("button", {
-      name: /create payment/i,
+      name: /^create$/i,
     })
     await userEvent.click(submitButton)
 
@@ -187,7 +187,7 @@ export const ContinuousCreationDisabled: Story = {
 
     // Submit the form
     const submitButton = body.getByRole("button", {
-      name: /create payment/i,
+      name: /^create$/i,
     })
     await userEvent.click(submitButton)
 

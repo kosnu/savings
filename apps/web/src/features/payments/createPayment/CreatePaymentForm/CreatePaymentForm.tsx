@@ -15,6 +15,7 @@ interface CreatePaymentFormProps {
   onError?: (error?: Error) => void
   onCancel: () => void
   onResetReady?: (resetFn: () => void) => void
+  additionalActions?: React.ReactNode
 }
 
 export function CreatePaymentForm({
@@ -22,6 +23,7 @@ export function CreatePaymentForm({
   onError,
   onCancel,
   onResetReady,
+  additionalActions,
 }: CreatePaymentFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
   const { createPayment } = useCreatePayment(onSuccess, onError)
@@ -79,9 +81,14 @@ export function CreatePaymentForm({
         <NoteField error={!!noteError?.length} messages={noteError} />
         <AmountField error={!!amountError?.length} messages={amountError} />
       </Flex>
-      <Flex gap="3" mt="4" justify="end">
-        <CancelButton onClick={handleCancel} />
-        <SubmitButton>Create payment</SubmitButton>
+      <Flex gap="3" mt="4" justify="between" align="center">
+        <Flex gap="2" align="center">
+          {additionalActions}
+        </Flex>
+        <Flex gap="3">
+          <CancelButton onClick={handleCancel} />
+          <SubmitButton>Create</SubmitButton>
+        </Flex>
       </Flex>
     </form>
   )
