@@ -1,0 +1,1 @@
+import{L as t}from"./Logo-DB9cc7X0.js";import"./iframe-dHABiMeZ.js";import"./preload-helper-PPVm8Dsz.js";const s={title:"Common/Misc/Logo",component:t,tags:["autodocs"]},o={};o.parameters={...o.parameters,docs:{...o.parameters?.docs,source:{originalSource:"{}",...o.parameters?.docs?.source}}};const m=["Default"];export{o as Default,m as __namedExportsOrder,s as default};

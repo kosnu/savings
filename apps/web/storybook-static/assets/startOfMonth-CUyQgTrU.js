@@ -1,0 +1,1 @@
+import{t as o}from"./toDate-SX-ecmdR.js";function a(e,n){const t=o(e,n?.in),s=t.getMonth();return t.setFullYear(t.getFullYear(),s+1,0),t.setHours(23,59,59,999),t}function u(e,n){const t=o(e,n?.in);return t.setDate(1),t.setHours(0,0,0,0),t}export{a as e,u as s};

@@ -1,0 +1,12 @@
+import{o as h,r as c,v as g,e as x,y as v,a as y,l as f,j as e,b as r,H as b,u as T,S as j,M}from"./iframe-dHABiMeZ.js";import{L as _}from"./Logo-DB9cc7X0.js";import{p as L}from"./paths-BaoOW6pi.js";import{L as k,M as B}from"./chunk-JZWAC4HX-CBO1G18r.js";import"./preload-helper-PPVm8Dsz.js";const C=["div","span"],E=["none","inline","inline-block","block","contents"],w={as:{type:"enum",values:C,default:"div"},...h,display:{type:"enum",className:"rt-r-display",values:E,responsive:!0}},u=c.forwardRef((t,a)=>{const{className:o,asChild:n,as:m="div",...p}=g(t,w,f,y);return c.createElement(n?x:m,{...p,ref:a,className:v("rt-Box",o)})});u.displayName="Box";const S="_header_dv7t6_1",H={header:S},i={width:"22",height:"22"};function d({onMenuClick:t}){return e.jsxs("header",{className:H.header,children:[e.jsx(r,{"aria-label":"Menu button",size:"3",variant:"ghost",onClick:t,children:e.jsx(b,{...i})}),e.jsx(r,{asChild:!0,"aria-label":"Logo button",size:"3",radius:"full",variant:"ghost",children:e.jsx(k,{to:L.payments.getHref(),children:e.jsx(_,{width:32,height:32})})}),e.jsx(u,{style:{flexGrow:1}}),e.jsx(I,{})]})}function I(){const{toggleTheme:t,theme:a}=T();return e.jsx(r,{"aria-label":"Theme toggle",size:"3",variant:"ghost",onClick:t,children:a==="light"?e.jsx(j,{...i}):e.jsx(M,{...i})})}d.__docgenInfo={description:"",methods:[],displayName:"Header",props:{onMenuClick:{required:!0,tsType:{name:"signature",type:"function",raw:"() => void",signature:{arguments:[],return:{name:"void"}}},description:""}}};const{expect:l,fn:N,within:D}=__STORYBOOK_MODULE_TEST__,G={title:"Shared/Header",component:d,tags:["autodocs"],args:{onMenuClick:N()},decorators:[t=>e.jsx(B,{children:e.jsx(t,{})})]},s={play:async({canvasElement:t,userEvent:a,args:o})=>{const n=D(t);await a.click(n.getByLabelText("Menu button")),l(o.onMenuClick).toBeCalledTimes(1),l(n.getByLabelText("Logo button")).toBeInTheDocument()}};s.parameters={...s.parameters,docs:{...s.parameters?.docs,source:{originalSource:`{
+  play: async ({
+    canvasElement,
+    userEvent,
+    args
+  }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByLabelText("Menu button"));
+    expect(args.onMenuClick).toBeCalledTimes(1);
+    expect(canvas.getByLabelText("Logo button")).toBeInTheDocument();
+  }
+}`,...s.parameters?.docs?.source}}};const K=["Default"];export{s as Default,K as __namedExportsOrder,G as default};

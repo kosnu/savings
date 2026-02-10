@@ -1,0 +1,1 @@
+import{r as e}from"./iframe-dHABiMeZ.js";function r(s=!1){const[a,o]=e.useState(s),t=e.useCallback(()=>o(!0),[]),l=e.useCallback(()=>o(!1),[]);return{open:a,openDialog:t,closeDialog:l}}export{r as u};

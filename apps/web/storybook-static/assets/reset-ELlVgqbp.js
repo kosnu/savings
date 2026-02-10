@@ -1,0 +1,1 @@
+import{r as e,af as o,y as m}from"./iframe-dHABiMeZ.js";import{a as c}from"./require-react-element-xuZeOgzx.js";const f=e.forwardRef(({className:r,children:a,...t},s)=>e.createElement(o,{...t,ref:s,className:m("rt-reset",r)},c(a)));f.displayName="Reset";export{f as o};

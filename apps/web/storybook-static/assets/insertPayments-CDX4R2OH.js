@@ -1,0 +1,1 @@
+import{d as n,c as a,s as p,gw as r}from"./store-BDQXzfpO.js";async function d(o,s,c){const t=o.currentUser?.uid;if(!t)throw new Error("未認証です");for(const e of c){const i=e.id?n(s,a.payments.path(t),e.id):n(s,a.payments.path(t));await p(i.withConverter(a.payments.converter),{...e,userId:t,createdDate:r(),updatedDate:r()})}}export{d as i};

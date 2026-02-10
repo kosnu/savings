@@ -1,0 +1,1 @@
+import{d as t,c as o,s as i}from"./store-BDQXzfpO.js";async function g(s,r,c){if(!s.currentUser?.uid)throw new Error("未認証です");for(const e of c){const a=e.id?t(r,o.categories.path(),e.id):t(r,o.categories.path());await i(a.withConverter(o.categories.converter),e)}}export{g as i};
