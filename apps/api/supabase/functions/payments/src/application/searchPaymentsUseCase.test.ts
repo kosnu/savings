@@ -6,14 +6,14 @@ import { err, ok } from "../shared/result.ts"
 import { searchPaymentsUseCase } from "./searchPaymentsUseCase.ts"
 
 const samplePayment = createPayment({
-  id: 1n,
+  id: 1,
   note: "ランチ",
   amount: 1200,
   date: new Date("2024-01-10"),
   createdAt: new Date("2024-01-11T00:00:00Z"),
   updatedAt: new Date("2024-01-11T00:00:00Z"),
-  categoryId: 2n,
-  userId: 1n,
+  categoryId: 2,
+  userId: 1,
 })
 
 Deno.test("searchPaymentsUseCase は検索条件をリポジトリへ渡す", async () => {
@@ -24,10 +24,12 @@ Deno.test("searchPaymentsUseCase は検索条件をリポジトリへ渡す", as
       recorded.params = params
       return ok([samplePayment])
     },
+    // deno-lint-ignore require-await
+    create: async () => ok(samplePayment),
   }
 
   const criteria: PaymentSearchParams = {
-    userId: 1n,
+    userId: 1,
     dateFrom: "2024-01-01",
     dateTo: "2024-01-31",
   }
@@ -45,9 +47,11 @@ Deno.test("searchPaymentsUseCase はエラーをそのまま返す", async () =>
   const repository: PaymentRepository = {
     // deno-lint-ignore require-await
     search: async () => err(unexpectedError("boom")),
+    // deno-lint-ignore require-await
+    create: async () => ok(samplePayment),
   }
 
-  const result = await searchPaymentsUseCase({ userId: 1n }, repository)
+  const result = await searchPaymentsUseCase({ userId: 1 }, repository)
 
   assertEquals(result.isOk, false)
   if (!result.isOk) {

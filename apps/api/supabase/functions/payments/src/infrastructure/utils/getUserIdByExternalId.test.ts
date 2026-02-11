@@ -68,7 +68,7 @@ const createSupabaseStubForUsers = (
 
 Deno.test("getUserIdByExternalId はexternal_idからidを取得する", async () => {
   const userData: UsersRow = {
-    id: 123n,
+    id: 123,
     external_id: "uuid-1234",
     name: "Test User",
     email: "test@example.com",
@@ -87,7 +87,7 @@ Deno.test("getUserIdByExternalId はexternal_idからidを取得する", async (
   assertEquals(recorded.single, true)
   assertEquals(result.isOk, true)
   if (result.isOk) {
-    assertEquals(result.value, 123n)
+    assertEquals(result.value, 123)
   }
 })
 
@@ -105,9 +105,9 @@ Deno.test("getUserIdByExternalId はSupabaseエラーをResult.errとして返�
   }
 })
 
-Deno.test("getUserIdByExternalId はbigint型のidを返す", async () => {
+Deno.test("getUserIdByExternalId はnumber型のidを返す", async () => {
   const userData: UsersRow = {
-    id: 999n,
+    id: 999,
     external_id: "uuid-999",
     name: "User 999",
     email: "user999@example.com",
@@ -121,7 +121,7 @@ Deno.test("getUserIdByExternalId はbigint型のidを返す", async () => {
 
   assertEquals(result.isOk, true)
   if (result.isOk) {
-    assertEquals(typeof result.value, "bigint")
-    assertEquals(result.value, 999n)
+    assertEquals(typeof result.value, "number")
+    assertEquals(result.value, 999)
   }
 })

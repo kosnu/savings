@@ -2,18 +2,34 @@ import { assertEquals } from "@std/assert"
 import { Database } from "../shared/types.ts"
 import { createSupabaseStub } from "../test/utils/supabaseStub.ts"
 import { createSupabasePaymentRepository } from "./paymentRepositoryImpl.ts"
+import { createAmount } from "../domain/valueObjects/amount.ts"
+import { createNote } from "../domain/valueObjects/note.ts"
+import { createPaymentDate } from "../domain/valueObjects/paymentDate.ts"
+import { createUserId } from "../domain/valueObjects/userId.ts"
+import { unwrapOk } from "../shared/unwrapOk.ts"
 
 type PaymentsRow = Database["public"]["Tables"]["payments"]["Row"]
 
 const sampleRow: PaymentsRow = {
-  id: 1n,
+  id: 1,
   note: "ランチ",
   amount: 1200,
   date: "2024-01-10",
   created_at: "2024-01-11T00:00:00Z",
   updated_at: "2024-01-11T00:00:00Z",
-  category_id: 2n,
-  user_id: 1n,
+  category_id: 2,
+  user_id: 1,
+}
+
+const insertedRow: PaymentsRow = {
+  id: 2,
+  note: "ディナー",
+  amount: 2500,
+  date: "2024-01-20",
+  created_at: "2024-01-20T00:00:00Z",
+  updated_at: "2024-01-20T00:00:00Z",
+  category_id: null,
+  user_id: 1,
 }
 
 Deno.test("createSupabasePaymentRepository returns a PaymentRepository", async () => {
@@ -22,7 +38,7 @@ Deno.test("createSupabasePaymentRepository returns a PaymentRepository", async (
     supabase,
   })
 
-  const result = await repo.search({ userId: 1n })
+  const result = await repo.search({ userId: 1 })
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(Array.isArray(result.value), true)
@@ -33,7 +49,7 @@ Deno.test("Supabase 経由で payments を取得できる", async () => {
   const { supabase, recorded } = createSupabaseStub({ data: [sampleRow] })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  const result = await repo.search({ userId: 1n })
+  const result = await repo.search({ userId: 1 })
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(result.value.length, 1)
@@ -41,7 +57,7 @@ Deno.test("Supabase 経由で payments を取得できる", async () => {
 
   assertEquals(recorded.table, "payments")
   assertEquals(recorded.filters, [
-    { kind: "eq", column: "user_id", value: 1n },
+    { kind: "eq", column: "user_id", value: 1 },
   ])
   assertEquals(recorded.orders, [
     { column: "date", ascending: false },
@@ -54,7 +70,7 @@ Deno.test("日付フィルタを付与して検索できる", async () => {
   const repo = createSupabasePaymentRepository({ supabase })
 
   await repo.search({
-    userId: 42n,
+    userId: 42,
     dateFrom: "2024-01-01",
     dateTo: "2024-01-31",
   })
@@ -80,6 +96,43 @@ Deno.test("Supabase エラーを Result.err として返す", async () => {
   })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  const result = await repo.search({ userId: 1n })
+  const result = await repo.search({ userId: 1 })
   assertEquals(result.isOk, false)
+})
+
+Deno.test("Supabase 経由で payments を作成できる", async () => {
+  const { supabase, recorded } = createSupabaseStub({
+    insertData: insertedRow,
+  })
+  const repo = createSupabasePaymentRepository({ supabase })
+
+  const userId = unwrapOk(createUserId(1))
+  const amount = unwrapOk(createAmount(2500))
+  const date = unwrapOk(createPaymentDate(new Date("2024-01-20")))
+  const note = unwrapOk(createNote("ディナー"))
+
+  const result = await repo.create({
+    userId,
+    amount,
+    date,
+    note,
+    categoryId: null,
+  })
+
+  assertEquals(result.isOk, true)
+  if (result.isOk) {
+    assertEquals(result.value.id.value, 2)
+  }
+
+  assertEquals(recorded.table, "payments")
+  assertEquals(recorded.inserts, [{
+    table: "payments",
+    values: {
+      user_id: 1,
+      amount: 2500,
+      date: "2024-01-20",
+      note: "ディナー",
+      category_id: null,
+    },
+  }])
 })

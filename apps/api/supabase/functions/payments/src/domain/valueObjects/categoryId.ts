@@ -2,15 +2,15 @@ import { err, ok, Result } from "../../shared/result.ts"
 import { type DomainError, validationError } from "../../shared/errors.ts"
 
 export type CategoryId = {
-  value: Readonly<bigint>
+  value: Readonly<number>
 }
 
 export function createCategoryId(
-  value: bigint,
+  value: number,
 ): Result<CategoryId, DomainError> {
-  if (value <= 0n) {
+  if (!Number.isSafeInteger(value) || value <= 0) {
     return err(
-      validationError("CategoryId must be a positive bigint", { value }),
+      validationError("CategoryId must be a positive integer", { value }),
     )
   }
 
