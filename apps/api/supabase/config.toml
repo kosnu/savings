@@ -20,3 +20,15 @@ entrypoint = "./functions/categories/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/categories/*.html" ]
+
+[auth]
+site_url = "env(AUTH_SITE_URL)"
+additional_redirect_urls = [
+	"env(AUTH_REDIRECT_URL)",
+]
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_GOOGLE_CLIENT_SECRET)"
+redirect_uri = "env(SUPABASE_GOOGLE_REDIRECT_URL)"

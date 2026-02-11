@@ -3,6 +3,10 @@ export const paths = {
     path: "/",
     getHref: () => "/",
   },
+  auth: {
+    path: "/auth",
+    getHref: () => "/auth",
+  },
   payments: {
     path: "/payments",
     getHref: (year?: string, month?: string) => {

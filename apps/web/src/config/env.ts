@@ -16,6 +16,9 @@ function createEnv() {
     FIRESTORE_DATABASE_ID: z.string().default("(default)"),
 
     FIRESTORE_EMULATOR_HOST: z.string().default("localhost:8080"),
+
+    SUPABASE_URL: z.string().default("http://localhost:54321"),
+    SUPABASE_PUBLISHABLE_KEY: z.string().default("xxx"),
   })
 
   const envVars = Object.entries(import.meta.env).reduce<
