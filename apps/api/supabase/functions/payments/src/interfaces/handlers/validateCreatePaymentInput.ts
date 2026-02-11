@@ -6,7 +6,7 @@ export type CreatePaymentInput = {
   amount: number
   date: string
   note: string | null
-  categoryId: bigint | null
+  categoryId: number | null
 }
 
 export function validateCreatePaymentInput(
@@ -59,6 +59,6 @@ export function validateCreatePaymentInput(
     amount,
     date,
     note,
-    categoryId: BigInt(categoryValue),
+    categoryId: categoryValue,
   })
 }

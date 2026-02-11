@@ -19,15 +19,15 @@ export type Payment = {
 }
 
 export function createPayment(params: {
-  id: bigint
+  id: number
   note: string | null
   amount: number
   date: Date
   createdAt: Date | null
   updatedAt: Date | null
 
-  categoryId: bigint | null
-  userId: bigint
+  categoryId: number | null
+  userId: number
 }): Payment {
   const id = unwrapOk(createPaymentId(params.id))
   const note = unwrapOk(createNote(params.note))

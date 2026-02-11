@@ -4,12 +4,12 @@ import { DomainError, unexpectedError } from "../../shared/errors.ts"
 import { err, ok, Result } from "../../shared/result.ts"
 
 /**
- * Supabase Auth の user.id (UUID) から users テーブルの id (bigint) を取得する
+ * Supabase Auth の user.id (UUID) から users テーブルの id (number) を取得する
  */
 export async function getUserIdByExternalId(
   supabase: SupabaseClient<Database>,
   externalId: string,
-): Promise<Result<bigint, DomainError>> {
+): Promise<Result<number, DomainError>> {
   const { data, error } = await supabase
     .from("users")
     .select("id")
@@ -20,5 +20,5 @@ export async function getUserIdByExternalId(
     return err(unexpectedError("Failed to fetch user by external_id", error))
   }
 
-  return ok(BigInt(data.id))
+  return ok(data.id)
 }

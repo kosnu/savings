@@ -6,20 +6,22 @@
 
 支払い情報システムは、ユーザーの支払い記録を管理するドメインモデルです。クリーンアーキテクチャの原則に従い、ビジネスルールを中心に設計されています。
 
+アプリケーション層では ID を `number` として扱い、PostgreSQL 側は `bigint` のまま運用します。
+
 ## エンティティ関連図（Entity Relationship）
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                          Payment (支払い)                        │
 ├─────────────────────────────────────────────────────────────────┤
-│ - id: PaymentId (bigint)                                        │
+│ - id: PaymentId (number)                                        │
 │ - note: Note (string | null)                                    │
 │ - amount: Amount (number)  ※負の値を許容                        │
 │ - date: PaymentDate (Date)                                      │
 │ - createdAt: Date | null                                        │
 │ - updatedAt: Date | null                                        │
 │ - categoryId: CategoryId | null                                 │
-│ - userId: UserId (bigint)                                       │
+│ - userId: UserId (number)                                       │
 └─────────────────────────────────────────────────────────────────┘
               │                           │
               │ N                         │ N
@@ -50,12 +52,12 @@
 
 ```typescript
 type PaymentId = {
-  value: Readonly<bigint>
+  value: Readonly<number>
 }
 ```
 
-**目的**: 支払いの一意識別子  
-**制約**: 正の整数（bigint > 0）  
+**目的**: 支払いの一意識別子
+**制約**: 正の整数（safe integer, > 0）
 **バリデーション**: 値が正であることを検証
 
 ### 2. Amount（金額）
@@ -66,12 +68,14 @@ type Amount = {
 }
 ```
 
-**目的**: 支払い金額の表現  
-**制約**: 
+**目的**: 支払い金額の表現
+**制約**:
+
 - **整数値であること** (`Number.isInteger(value)`)
 - **負の値を許容** - 返金や払い戻しなどマイナスの金額を表現可能
 
 **ビジネスルール**:
+
 - 正の値: 通常の支払い（例: 1000 = 1000円の支払い）
 - 負の値: 返金・払い戻し（例: -500 = 500円の返金）
 - ゼロ: 記録のみで金銭移動がない場合
@@ -86,8 +90,9 @@ type Note = {
 }
 ```
 
-**目的**: 支払いに関する補足情報  
-**制約**: 
+**目的**: 支払いに関する補足情報
+**制約**:
+
 - null許容（メモがない支払いも可能）
 - 空文字列の場合はnullとして扱う
 - 最大255文字（DBスキーマ制約）
@@ -100,8 +105,9 @@ type PaymentDate = {
 }
 ```
 
-**目的**: 支払いが発生した日付  
-**制約**: 
+**目的**: 支払いが発生した日付
+**制約**:
+
 - 有効なDate型であること
 - 必須項目（null不可）
 
@@ -109,26 +115,28 @@ type PaymentDate = {
 
 ```typescript
 type CategoryId = {
-  value: Readonly<bigint>
+  value: Readonly<number>
 }
 ```
 
-**目的**: 支払いのカテゴリ分類  
-**制約**: 
-- 正の整数（bigint > 0）
+**目的**: 支払いのカテゴリ分類
+**制約**:
+
+- 正の整数（safe integer, > 0）
 - Payment内ではnull許容（カテゴリなしの支払いが可能）
 
 ### 6. UserId（ユーザーID）
 
 ```typescript
 type UserId = {
-  value: Readonly<bigint>
+  value: Readonly<number>
 }
 ```
 
-**目的**: 支払いを行ったユーザーの識別  
-**制約**: 
-- 正の整数（bigint > 0）
+**目的**: 支払いを行ったユーザーの識別
+**制約**:
+
+- 正の整数（safe integer, > 0）
 - 必須項目（すべての支払いはユーザーに紐づく）
 
 ## ドメインルール（Business Rules）
@@ -136,27 +144,29 @@ type UserId = {
 ### 1. Amount（金額）に関するルール
 
 #### ✅ 許可される値
+
 ```typescript
 // 正の値 - 通常の支払い
-createAmount(1000)    // OK: 1000円の支払い
-createAmount(50000)   // OK: 50000円の支払い
+createAmount(1000) // OK: 1000円の支払い
+createAmount(50000) // OK: 50000円の支払い
 
 // ゼロ - 金銭移動のない記録
-createAmount(0)       // OK: 記録のみ
+createAmount(0) // OK: 記録のみ
 
 // 負の値 - 返金・払い戻し
-createAmount(-500)    // OK: 500円の返金
-createAmount(-1000)   // OK: 1000円の払い戻し
+createAmount(-500) // OK: 500円の返金
+createAmount(-1000) // OK: 1000円の払い戻し
 ```
 
 #### ❌ 許可されない値
+
 ```typescript
 // 小数値
-createAmount(100.5)   // NG: 整数でない
-createAmount(99.99)   // NG: 整数でない
+createAmount(100.5) // NG: 整数でない
+createAmount(99.99) // NG: 整数でない
 
 // 非数値
-createAmount(NaN)     // NG: 数値でない
+createAmount(NaN) // NG: 数値でない
 createAmount(Infinity) // NG: 有限値でない
 ```
 
@@ -164,9 +174,9 @@ createAmount(Infinity) // NG: 有限値でない
 
 ```typescript
 // 空文字列はnullとして扱う
-createNote("")        // OK: null as value
-createNote(null)      // OK: null as value
-createNote("夕食代")  // OK: "夕食代"
+createNote("") // OK: null as value
+createNote(null) // OK: null as value
+createNote("夕食代") // OK: "夕食代"
 ```
 
 ### 3. CategoryId（カテゴリ）に関するルール
@@ -183,42 +193,45 @@ createNote("夕食代")  // OK: "夕食代"
 ## ユースケース例
 
 ### 通常の支払い記録
+
 ```typescript
 createPayment({
-  id: 1n,
+  id: 1,
   note: "スーパーで食料品",
-  amount: 5000,        // 5000円の支払い
+  amount: 5000, // 5000円の支払い
   date: new Date("2026-01-30"),
-  categoryId: 10n,     // 食費カテゴリ
-  userId: 100n,
+  categoryId: 10, // 食費カテゴリ
+  userId: 100,
   createdAt: new Date(),
   updatedAt: new Date(),
 })
 ```
 
 ### 返金の記録
+
 ```typescript
 createPayment({
-  id: 2n,
+  id: 2,
   note: "不良品返品による返金",
-  amount: -3000,       // 3000円の返金（負の値）
+  amount: -3000, // 3000円の返金（負の値）
   date: new Date("2026-01-30"),
-  categoryId: null,    // カテゴリなし
-  userId: 100n,
+  categoryId: null, // カテゴリなし
+  userId: 100,
   createdAt: new Date(),
   updatedAt: new Date(),
 })
 ```
 
 ### メモなしの記録
+
 ```typescript
 createPayment({
-  id: 3n,
-  note: null,          // メモなし
+  id: 3,
+  note: null, // メモなし
   amount: 1000,
   date: new Date("2026-01-30"),
-  categoryId: 5n,
-  userId: 100n,
+  categoryId: 5,
+  userId: 100,
   createdAt: null,
   updatedAt: null,
 })
@@ -343,7 +356,7 @@ create table payments (
     user_id bigint not null references users(id) on delete cascade
 );
 
-create index idx_payments_user_date_category_created 
+create index idx_payments_user_date_category_created
     on payments (user_id, date, category_id, created_at);
 ```
 

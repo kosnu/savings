@@ -15,7 +15,7 @@ Deno.test("正常な入力をパースできる", () => {
       amount: 1200,
       date: "2024-01-10",
       note: "ランチ",
-      categoryId: 2n,
+      categoryId: 2,
     })
   }
 })
