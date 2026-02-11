@@ -44,6 +44,7 @@
     "@storybook/addon-vitest": "10.2.8",
     "@storybook/builder-vite": "10.2.8",
     "@storybook/react-vite": "10.2.8",
+    "@supabase/supabase-js": "2.95.3",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
     "@types/node": "24.10.13",
