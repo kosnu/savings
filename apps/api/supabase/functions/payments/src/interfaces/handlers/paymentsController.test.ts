@@ -20,6 +20,7 @@ const createController = (
   const baseDeps: PaymentsControllerDeps = {
     createRepository: () => createPaymentRepositoryStub(),
     searchUseCase: () => Promise.resolve(ok([])),
+    createUseCase: () => Promise.resolve(ok(createSamplePayment())),
     createErrorResponse: () => new Response(null, { status: 500 }),
     jsonHeaders: JSON_HEADERS,
   }
@@ -32,13 +33,15 @@ const createPaymentRepositoryStub = (): PaymentRepository => {
   const search: PaymentRepository["search"] = async () => {
     throw new Error("payment repository stub should not be called")
   }
-  return { search }
+  // deno-lint-ignore require-await
+  const create: PaymentRepository["create"] = async () => {
+    throw new Error("payment repository stub should not be called")
+  }
+  return { search, create }
 }
 
-Deno.test("支払い検索成功時に200で結果を返す", async () => {
-  const supabase = {} as SupabaseClient<Database>
-  const repo = createPaymentRepositoryStub()
-  const payment = createPayment({
+const createSamplePayment = () =>
+  createPayment({
     id: 1n,
     note: "ランチ",
     amount: 1200,
@@ -48,6 +51,11 @@ Deno.test("支払い検索成功時に200で結果を返す", async () => {
     categoryId: 2n,
     userId: 1n,
   })
+
+Deno.test("支払い検索成功時に200で結果を返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  const repo = createPaymentRepositoryStub()
+  const payment = createSamplePayment()
   const payments: ReadonlyArray<Payment> = [payment]
   const paymentDtos: ReadonlyArray<PaymentDto> = payments.map(
     convertPaymentToDto,
@@ -238,4 +246,113 @@ Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async 
   }
   assertEquals(response.status, 400)
   assertEquals(body, { message: "dateTo must be YYYY-MM-DD" })
+})
+
+Deno.test("支払い作成成功時に201で結果を返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  const repo = createPaymentRepositoryStub()
+  const payment = createSamplePayment()
+  const paymentDto = convertPaymentToDto(payment)
+  let receivedParams:
+    | {
+      userId: bigint
+      amount: number
+      date: string
+      note: string | null
+      categoryId: bigint | null
+    }
+    | undefined
+
+  const controller = createController({
+    createRepository: () => repo,
+    // deno-lint-ignore require-await
+    createUseCase: async (params) => {
+      receivedParams = params
+      return ok(payment)
+    },
+    createErrorResponse: () => {
+      throw new Error("createErrorResponse should not be called")
+    },
+  })
+
+  const response = await controller.create(supabase, 1n, {
+    amount: 1200,
+    date: "2024-01-10",
+    note: "ランチ",
+    categoryId: 2,
+  })
+  const body = await response.json()
+
+  assertEquals(receivedParams, {
+    userId: 1n,
+    amount: 1200,
+    date: "2024-01-10",
+    note: "ランチ",
+    categoryId: 2n,
+  })
+  assertEquals(response.status, 201)
+  assertEquals(body, { payment: paymentDto })
+})
+
+Deno.test("支払い作成の入力が不正な場合はValidationErrorを返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  let receivedError: DomainError | undefined
+
+  const controller = createController({
+    createRepository: () => {
+      throw new Error("createRepository should not be called")
+    },
+    createUseCase: () => {
+      throw new Error("createUseCase should not be called")
+    },
+    createErrorResponse: (error) => {
+      receivedError = error
+      return new Response(JSON.stringify({ message: error.message }), {
+        status: 400,
+        headers: JSON_HEADERS,
+      })
+    },
+  })
+
+  const response = await controller.create(supabase, 1n, {
+    amount: "1200",
+    date: "2024-01-10",
+  })
+  const body = await response.json()
+
+  assertEquals(receivedError?.type, "ValidationError")
+  assertEquals(response.status, 400)
+  assertEquals(body, { message: "amount must be a number" })
+})
+
+Deno.test("支払い作成のユースケースエラーはcreateErrorResponseを返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  const repo = createPaymentRepositoryStub()
+  const error: DomainError = { type: "UnexpectedError", message: "boom" }
+  let receivedError: DomainError | undefined
+
+  const controller = createController({
+    createRepository: () => repo,
+    // deno-lint-ignore require-await
+    createUseCase: async () => err(error),
+    createErrorResponse: (givenError) => {
+      receivedError = givenError
+      return new Response(JSON.stringify({ message: givenError.message }), {
+        status: 500,
+        headers: JSON_HEADERS,
+      })
+    },
+  })
+
+  const response = await controller.create(supabase, 1n, {
+    amount: 1200,
+    date: "2024-01-10",
+    note: null,
+    categoryId: null,
+  })
+  const body = await response.json()
+
+  assertEquals(receivedError, error)
+  assertEquals(response.status, 500)
+  assertEquals(body, { message: "boom" })
 })

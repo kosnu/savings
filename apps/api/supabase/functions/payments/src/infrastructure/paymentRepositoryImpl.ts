@@ -1,18 +1,32 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { Payment } from "../domain/entities/payment.ts"
-import { PaymentRepository, PaymentSearchParams } from "../domain/repository.ts"
+import {
+  PaymentCreateParams,
+  PaymentRepository,
+  PaymentSearchParams,
+} from "../domain/repository.ts"
 import { Database } from "../shared/types.ts"
 import { DomainError, unexpectedError } from "../shared/errors.ts"
 import { err, ok, Result } from "../shared/result.ts"
 import { mapRowToPayment } from "./utils/mapRowToPayment.ts"
 
+type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"]
+
 type FetchPayments = (
   params: PaymentSearchParams,
 ) => Promise<Result<ReadonlyArray<Payment>, DomainError>>
 
+type CreatePayment = (
+  params: PaymentCreateParams,
+) => Promise<Result<Payment, DomainError>>
+
 type CreateFetchPayments = (
   supabase: SupabaseClient<Database>,
 ) => FetchPayments
+
+type CreateInsertPayment = (
+  supabase: SupabaseClient<Database>,
+) => CreatePayment
 
 const createFetchPayments: CreateFetchPayments =
   (supabase) => async ({ userId, dateFrom, dateTo }) => {
@@ -54,17 +68,59 @@ const createFetchPayments: CreateFetchPayments =
     }
   }
 
+const createInsertPayment: CreateInsertPayment =
+  (supabase) => async ({ userId, amount, date, note, categoryId }) => {
+    const payload: PaymentInsert = {
+      user_id: Number(userId.value),
+      amount: amount.value,
+      date: toDateString(date.value),
+      note: note.value,
+      category_id: categoryId === null ? null : Number(categoryId.value),
+    }
+
+    const { data, error } = await supabase
+      .from("payments")
+      .insert(payload)
+      .select(
+        "id, note, amount, date, created_at, updated_at, category_id, user_id",
+      )
+      .single()
+
+    if (error) {
+      return err(unexpectedError("Failed to create payment", error))
+    }
+
+    try {
+      return ok(mapRowToPayment(data))
+    } catch (e) {
+      if (e instanceof Error) {
+        return err(unexpectedError("Failed to map payment row", e))
+      }
+      return err(
+        unexpectedError(
+          "Failed to map payment row",
+          new Error(String(e)),
+        ),
+      )
+    }
+  }
+
+const toDateString = (value: Date): string => value.toISOString().slice(0, 10)
+
 type CreatePaymentRepositoryParams = {
   fetchPayments: FetchPayments
+  insertPayment: CreatePayment
 }
 
 const createPaymentRepository = (
-  { fetchPayments }: CreatePaymentRepositoryParams,
+  { fetchPayments, insertPayment }: CreatePaymentRepositoryParams,
 ): PaymentRepository => {
   const search: PaymentRepository["search"] = (params) => fetchPayments(params)
+  const create: PaymentRepository["create"] = (params) => insertPayment(params)
 
   return {
     search,
+    create,
   }
 }
 
@@ -77,4 +133,5 @@ export const createSupabasePaymentRepository = (
 ): PaymentRepository =>
   createPaymentRepository({
     fetchPayments: createFetchPayments(supabase),
+    insertPayment: createInsertPayment(supabase),
   })

@@ -18,25 +18,41 @@ export type RecordedQueries = {
   table: string
   filters: FilterRecord[]
   orders: OrderRecord[]
+  inserts: Array<{ table: string; values: unknown }>
 }
 
 export type CreateSupabaseStubOptions = {
   data?: PaymentsRow[] | null
   error?: { message: string } | null
+  insertData?: PaymentsRow | null
+  insertError?: { message: string } | null
 }
 
 export const createSupabaseStub = (
-  { data = [], error = null }: CreateSupabaseStubOptions = {},
+  {
+    data = [],
+    error = null,
+    insertData = null,
+    insertError = null,
+  }: CreateSupabaseStubOptions = {},
 ) => {
   const recorded: RecordedQueries = {
     table: "",
     filters: [] as FilterRecord[],
     orders: [] as OrderRecord[],
+    inserts: [],
   }
 
   const chain = {
     select() {
       return chain
+    },
+    insert(values: unknown) {
+      recorded.inserts.push({ table: recorded.table, values })
+      return chain
+    },
+    single() {
+      return Promise.resolve({ data: insertData, error: insertError })
     },
     eq(column: string, value: unknown) {
       recorded.filters.push({ kind: "eq", column, value })
