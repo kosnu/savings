@@ -13,14 +13,14 @@ type CreatePaymentParams = Parameters<typeof createPayment>[0]
 const createParams = (
   overrides: Partial<CreatePaymentParams> = {},
 ): CreatePaymentParams => ({
-  id: 1n,
+  id: 1,
   note: "Lunch at cafe",
   amount: 1200,
   date: new Date("2025-01-15T12:00:00.000Z"),
   createdAt: new Date("2025-01-15T13:00:00.000Z"),
   updatedAt: new Date("2025-01-15T14:00:00.000Z"),
-  categoryId: 10n,
-  userId: 20n,
+  categoryId: 10,
+  userId: 20,
   ...overrides,
 })
 
