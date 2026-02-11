@@ -71,11 +71,11 @@ const createFetchPayments: CreateFetchPayments =
 const createInsertPayment: CreateInsertPayment =
   (supabase) => async ({ userId, amount, date, note, categoryId }) => {
     const payload: PaymentInsert = {
-      user_id: Number(userId.value),
+      user_id: userId.value,
       amount: amount.value,
       date: toDateString(date.value),
       note: note.value,
-      category_id: categoryId === null ? null : Number(categoryId.value),
+      category_id: categoryId === null ? null : categoryId.value,
     }
 
     const { data, error } = await supabase

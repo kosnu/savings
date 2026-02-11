@@ -42,14 +42,14 @@ const createPaymentRepositoryStub = (): PaymentRepository => {
 
 const createSamplePayment = () =>
   createPayment({
-    id: 1n,
+    id: 1,
     note: "ランチ",
     amount: 1200,
     date: new Date("2024-01-10"),
     createdAt: new Date("2024-01-11T00:00:00Z"),
     updatedAt: new Date("2024-01-11T00:00:00Z"),
-    categoryId: 2n,
-    userId: 1n,
+    categoryId: 2,
+    userId: 1,
   })
 
 Deno.test("支払い検索成功時に200で結果を返す", async () => {
@@ -62,7 +62,7 @@ Deno.test("支払い検索成功時に200で結果を返す", async () => {
   )
   const repositoryCalls: Array<{ supabase: SupabaseClient<Database> }> = []
   let receivedCriteria: {
-    userId: bigint
+    userId: number
     dateFrom?: string
     dateTo?: string
   } | undefined
@@ -86,7 +86,7 @@ Deno.test("支払い検索成功時に200で結果を返す", async () => {
 
   const response = await controller.search(
     supabase,
-    1n,
+    1,
     "2024-01-01",
     "2024-01-31",
   )
@@ -95,7 +95,7 @@ Deno.test("支払い検索成功時に200で結果を返す", async () => {
   assertEquals(repositoryCalls, [{ supabase }])
   assertEquals(receivedRepo, repo)
   assertEquals(receivedCriteria, {
-    userId: 1n,
+    userId: 1,
     dateFrom: "2024-01-01",
     dateTo: "2024-01-31",
   })
@@ -108,7 +108,7 @@ Deno.test("dateFromとdateToが未指定でも動作する", async () => {
   const repo = createPaymentRepositoryStub()
   const payments: ReadonlyArray<Payment> = []
   let receivedCriteria: {
-    userId: bigint
+    userId: number
     dateFrom?: string
     dateTo?: string
   } | undefined
@@ -122,10 +122,10 @@ Deno.test("dateFromとdateToが未指定でも動作する", async () => {
     },
   })
 
-  const response = await controller.search(supabase, 42n)
+  const response = await controller.search(supabase, 42)
   const body = await response.json()
 
-  assertEquals(receivedCriteria, { userId: 42n })
+  assertEquals(receivedCriteria, { userId: 42 })
   assertEquals(response.status, 200)
   assertEquals(body, { payments })
 })
@@ -157,7 +157,7 @@ Deno.test("ユースケースエラー時はcreateErrorResponseの結果を返�
     },
   })
 
-  const response = await controller.search(supabase, 1n)
+  const response = await controller.search(supabase, 1)
   const body = await response.json()
 
   assertEquals(repositoryCalls, [{ supabase }])
@@ -177,7 +177,7 @@ Deno.test("成功レスポンスにJSONヘッダーを設定する", async () =>
     searchUseCase: async () => ok([]),
   })
 
-  const response = await controller.search(client, 1n)
+  const response = await controller.search(client, 1)
 
   assertEquals(
     response.headers.get("content-type"),
@@ -202,7 +202,7 @@ Deno.test("dateFromが不正な形式の場合はValidationErrorを返す", asyn
     },
   })
 
-  const response = await controller.search(supabase, 1n, "2024/01/01")
+  const response = await controller.search(supabase, 1, "2024/01/01")
   const body = await response.json()
 
   assertEquals(receivedError?.type, "ValidationError")
@@ -233,7 +233,7 @@ Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async 
 
   const response = await controller.search(
     supabase,
-    1n,
+    1,
     "2024-01-01",
     "2024/01/31",
   )
@@ -255,11 +255,11 @@ Deno.test("支払い作成成功時に201で結果を返す", async () => {
   const paymentDto = convertPaymentToDto(payment)
   let receivedParams:
     | {
-      userId: bigint
+      userId: number
       amount: number
       date: string
       note: string | null
-      categoryId: bigint | null
+      categoryId: number | null
     }
     | undefined
 
@@ -275,7 +275,7 @@ Deno.test("支払い作成成功時に201で結果を返す", async () => {
     },
   })
 
-  const response = await controller.create(supabase, 1n, {
+  const response = await controller.create(supabase, 1, {
     amount: 1200,
     date: "2024-01-10",
     note: "ランチ",
@@ -284,11 +284,11 @@ Deno.test("支払い作成成功時に201で結果を返す", async () => {
   const body = await response.json()
 
   assertEquals(receivedParams, {
-    userId: 1n,
+    userId: 1,
     amount: 1200,
     date: "2024-01-10",
     note: "ランチ",
-    categoryId: 2n,
+    categoryId: 2,
   })
   assertEquals(response.status, 201)
   assertEquals(body, { payment: paymentDto })
@@ -314,7 +314,7 @@ Deno.test("支払い作成の入力が不正な場合はValidationErrorを返す
     },
   })
 
-  const response = await controller.create(supabase, 1n, {
+  const response = await controller.create(supabase, 1, {
     amount: "1200",
     date: "2024-01-10",
   })
@@ -344,7 +344,7 @@ Deno.test("支払い作成のユースケースエラーはcreateErrorResponse�
     },
   })
 
-  const response = await controller.create(supabase, 1n, {
+  const response = await controller.create(supabase, 1, {
     amount: 1200,
     date: "2024-01-10",
     note: null,

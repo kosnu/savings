@@ -8,7 +8,7 @@ import { PaymentDate } from "./valueObjects/paymentDate.ts"
 import { UserId } from "./valueObjects/userId.ts"
 
 export type PaymentSearchParams = {
-  readonly userId: bigint
+  readonly userId: number
   readonly dateFrom?: string
   readonly dateTo?: string
 }

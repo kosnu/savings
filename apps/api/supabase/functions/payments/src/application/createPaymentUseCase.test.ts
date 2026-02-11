@@ -9,14 +9,14 @@ import { err, ok } from "../shared/result.ts"
 import { unexpectedError } from "../shared/errors.ts"
 
 const samplePayment = createPayment({
-  id: 1n,
+  id: 1,
   note: "ランチ",
   amount: 1200,
   date: new Date("2024-01-10"),
   createdAt: new Date("2024-01-11T00:00:00Z"),
   updatedAt: new Date("2024-01-11T00:00:00Z"),
-  categoryId: 2n,
-  userId: 1n,
+  categoryId: 2,
+  userId: 1,
 })
 
 Deno.test("createPaymentUseCase は作成条件をリポジトリへ渡す", async () => {
@@ -32,23 +32,23 @@ Deno.test("createPaymentUseCase は作成条件をリポジトリへ渡す", asy
   }
 
   const params: CreatePaymentInput = {
-    userId: 1n,
+    userId: 1,
     amount: 1200,
     date: "2024-01-10",
     note: "ランチ",
-    categoryId: 2n,
+    categoryId: 2,
   }
 
   const result = await createPaymentUseCase(params, repository)
 
-  assertEquals(recorded.params?.userId.value, 1n)
+  assertEquals(recorded.params?.userId.value, 1)
   assertEquals(recorded.params?.amount.value, 1200)
   assertEquals(
     recorded.params?.date.value.toISOString().slice(0, 10),
     "2024-01-10",
   )
   assertEquals(recorded.params?.note.value, "ランチ")
-  assertEquals(recorded.params?.categoryId?.value, 2n)
+  assertEquals(recorded.params?.categoryId?.value, 2)
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(result.value, samplePayment)
@@ -64,7 +64,7 @@ Deno.test("date が不正な場合は ValidationError を返す", async () => {
   }
 
   const result = await createPaymentUseCase({
-    userId: 1n,
+    userId: 1,
     amount: 1200,
     date: "2024/01/10",
     note: null,
@@ -87,7 +87,7 @@ Deno.test("金額が整数でない場合は ValidationError を返す", async (
   }
 
   const result = await createPaymentUseCase({
-    userId: 1n,
+    userId: 1,
     amount: 1200.5,
     date: "2024-01-10",
     note: null,
@@ -110,7 +110,7 @@ Deno.test("リポジトリエラーはそのまま返す", async () => {
   }
 
   const result = await createPaymentUseCase({
-    userId: 1n,
+    userId: 1,
     amount: 1200,
     date: "2024-01-10",
     note: null,

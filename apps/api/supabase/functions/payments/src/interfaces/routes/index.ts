@@ -28,7 +28,7 @@ export const registerPaymentsRoutes = (
       )
     }
 
-    // external_id (Auth UUID) から users テーブルの id (bigint) を取得
+    // external_id (Auth UUID) から users テーブルの id (number) を取得
     const userIdResult = await getUserIdByExternalId(supabase, user.id)
     if (!userIdResult.isOk) {
       return createErrorResponse(userIdResult.error)
@@ -65,7 +65,7 @@ export const registerPaymentsRoutes = (
       )
     }
 
-    // external_id (Auth UUID) から users テーブルの id (bigint) を取得
+    // external_id (Auth UUID) から users テーブルの id (number) を取得
     const userIdResult = await getUserIdByExternalId(supabase, user.id)
     if (!userIdResult.isOk) {
       return createErrorResponse(userIdResult.error)

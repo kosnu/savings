@@ -24,7 +24,7 @@ export const createPaymentsController = (
 ) => {
   const search = async (
     supabase: SupabaseClient<Database>,
-    userId: bigint,
+    userId: number,
     dateFrom?: string,
     dateTo?: string,
   ) => {
@@ -48,7 +48,7 @@ export const createPaymentsController = (
 
   const create = async (
     supabase: SupabaseClient<Database>,
-    userId: bigint,
+    userId: number,
     input: unknown,
   ) => {
     const parsed = validateCreatePaymentInput(input)
@@ -76,13 +76,13 @@ export const createPaymentsController = (
 }
 
 type PaymentSearchCriteria = {
-  userId: bigint
+  userId: number
   dateFrom?: string
   dateTo?: string
 }
 
 function buildSearchCriteria(
-  userId: bigint,
+  userId: number,
   dateFrom?: string,
   dateTo?: string,
 ): PaymentSearchCriteria {

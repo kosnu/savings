@@ -54,11 +54,11 @@ export async function createPaymentUseCase(
 }
 
 export type CreatePaymentInput = {
-  readonly userId: bigint
+  readonly userId: number
   readonly amount: number
   readonly date: string
   readonly note: string | null
-  readonly categoryId: bigint | null
+  readonly categoryId: number | null
 }
 
 function parsePaymentDate(
