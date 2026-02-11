@@ -24,6 +24,8 @@ Deno.test("searchPaymentsUseCase は検索条件をリポジトリへ渡す", as
       recorded.params = params
       return ok([samplePayment])
     },
+    // deno-lint-ignore require-await
+    create: async () => ok(samplePayment),
   }
 
   const criteria: PaymentSearchParams = {
@@ -45,6 +47,8 @@ Deno.test("searchPaymentsUseCase はエラーをそのまま返す", async () =>
   const repository: PaymentRepository = {
     // deno-lint-ignore require-await
     search: async () => err(unexpectedError("boom")),
+    // deno-lint-ignore require-await
+    create: async () => ok(samplePayment),
   }
 
   const result = await searchPaymentsUseCase({ userId: 1n }, repository)
