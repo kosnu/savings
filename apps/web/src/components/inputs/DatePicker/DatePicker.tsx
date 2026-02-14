@@ -32,8 +32,8 @@ export function DatePicker({
     defaultValue,
   )
 
-  // Determine if component is controlled by checking if onChange is provided
-  // (following React's pattern where a field is controlled if it has both value and onChange)
+  // Determine if component is controlled
+  // A DatePicker is controlled when both value and onChange are provided
   const isControlled = onChange !== undefined && value !== undefined
   const displayDate = isControlled ? value : uncontrolledDate
 
@@ -94,11 +94,13 @@ export function DatePicker({
           value={displayDate?.toISOString() ?? ""}
         />
       ) : (
-        <input
-          type="hidden"
-          name={name}
-          defaultValue={displayDate?.toISOString()}
-        />
+        displayDate && (
+          <input
+            type="hidden"
+            name={name}
+            defaultValue={displayDate.toISOString()}
+          />
+        )
       )}
     </div>
   )
