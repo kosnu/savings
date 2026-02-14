@@ -7,7 +7,6 @@
       "label": "dev: web",
       "type": "npm",
       "script": "dev",
-      "path": "apps/web/",
       "problemMatcher": [],
       "detail": "vite"
     },
