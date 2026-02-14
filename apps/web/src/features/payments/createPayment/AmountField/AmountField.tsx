@@ -40,11 +40,16 @@ export function AmountField({
           const val = e.target.value
           if (val === "") {
             onChange?.(undefined)
-          } else {
-            const num = Number(val)
-            if (!Number.isNaN(num)) {
-              onChange?.(num)
-            }
+            return
+          }
+          // Only allow numeric input
+          if (!/^\d*$/.test(val)) {
+            // Ignore non-numeric characters
+            return
+          }
+          const num = Number(val)
+          if (!Number.isNaN(num)) {
+            onChange?.(num)
           }
         }}
       />

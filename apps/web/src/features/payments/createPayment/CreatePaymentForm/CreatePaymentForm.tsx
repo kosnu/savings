@@ -53,7 +53,9 @@ export function CreatePaymentForm({
       amount: undefined as number | undefined,
     },
     onSubmit: async ({ value }) => {
-      // Type assertion here is safe because validation ensures these are valid
+      // TanStack Form runs validation before calling onSubmit,
+      // but we add an explicit check for extra safety
+      // Type assertion is safe here because validation ensures values are valid
       await createPayment({
         categoryId: value.category,
         date: value.date,
