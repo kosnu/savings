@@ -6,7 +6,11 @@ Deno.test("userIdのみならパースに成功する", () => {
   const result = SearchCriteriaSchema.safeParse({ userId: 1 })
 
   assert(result.success)
-  assertEquals(result.data, { userId: 1, dateFrom: undefined, dateTo: undefined })
+  assertEquals(result.data, {
+    userId: 1,
+    dateFrom: undefined,
+    dateTo: undefined,
+  })
 })
 
 Deno.test("userIdとdateFromのみならパースに成功する", () => {
