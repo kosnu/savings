@@ -6,7 +6,7 @@ interface AmountFieldProps {
   error?: boolean
   messages?: string[]
   value?: number
-  onChange?: (amount: number) => void
+  onChange?: (amount: number | undefined) => void
 }
 
 export function AmountField({
@@ -39,7 +39,7 @@ export function AmountField({
         onChange={(e) => {
           const val = e.target.value
           if (val === "") {
-            onChange?.(undefined as unknown as number)
+            onChange?.(undefined)
           } else {
             const num = Number(val)
             if (!Number.isNaN(num)) {
