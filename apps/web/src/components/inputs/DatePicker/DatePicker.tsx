@@ -1,6 +1,6 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Button, Popover } from "@radix-ui/themes"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
@@ -27,18 +27,14 @@ export function DatePicker({
   ...props
 }: DatePickerProps) {
   const [open, setOpen] = useState(false)
-  const [internalDate, setInternalDate] = useState<Date | undefined>(
-    value ?? defaultValue,
+  // Internal state only used in uncontrolled mode
+  const [uncontrolledDate, setUncontrolledDate] = useState<Date | undefined>(
+    defaultValue,
   )
 
-  // Sync internal state with controlled value
-  useEffect(() => {
-    if (value !== undefined) {
-      setInternalDate(value)
-    }
-  }, [value])
-
-  const displayDate = value ?? internalDate
+  // Determine if component is controlled
+  const isControlled = value !== undefined
+  const displayDate = isControlled ? value : uncontrolledDate
 
   const handleTriggerClick = useCallback(() => {
     setOpen(true)
@@ -46,11 +42,14 @@ export function DatePicker({
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
-      setInternalDate(date)
+      // Update internal state only in uncontrolled mode
+      if (!isControlled) {
+        setUncontrolledDate(date)
+      }
       onChange?.(date)
       setOpen(false)
     },
-    [onChange],
+    [onChange, isControlled],
   )
 
   const handleFocusOut = useCallback(() => {
