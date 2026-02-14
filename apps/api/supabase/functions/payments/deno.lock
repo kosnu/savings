@@ -8,6 +8,7 @@
     "jsr:@supabase/functions-js@2.5.0": "2.5.0",
     "jsr:@supabase/supabase-js@2": "2.58.0",
     "jsr:@supabase/supabase-js@2.58.0": "2.58.0",
+    "jsr:@zod/zod@^4.3.6": "4.3.6",
     "npm:@supabase/auth-js@2.72.0": "2.72.0",
     "npm:@supabase/functions-js@2.5.0": "2.5.0",
     "npm:@supabase/node-fetch@2.6.15": "2.6.15",
@@ -46,6 +47,9 @@
         "npm:@supabase/realtime-js",
         "npm:@supabase/storage-js"
       ]
+    },
+    "@zod/zod@4.3.6": {
+      "integrity": "7144e5e11f8ffc3cf6e2fca624f6597a8762898aac9868cc8938e9398b96ffe4"
     }
   },
   "npm": {
@@ -315,7 +319,8 @@
       "jsr:@hono/hono@4.10.6",
       "jsr:@std/assert@1.0.15",
       "jsr:@supabase/functions-js@2.5.0",
-      "jsr:@supabase/supabase-js@2.58.0"
+      "jsr:@supabase/supabase-js@2.58.0",
+      "jsr:@zod/zod@^4.3.6"
     ]
   }
 }
