@@ -32,8 +32,9 @@ export function DatePicker({
     defaultValue,
   )
 
-  // Determine if component is controlled
-  const isControlled = value !== undefined
+  // Determine if component is controlled by checking if onChange is provided
+  // (following React's pattern where a field is controlled if it has both value and onChange)
+  const isControlled = onChange !== undefined && value !== undefined
   const displayDate = isControlled ? value : uncontrolledDate
 
   const handleTriggerClick = useCallback(() => {
@@ -86,11 +87,19 @@ export function DatePicker({
           />
         </Popover.Content>
       </Popover.Root>
-      <input
-        type="hidden"
-        name={name}
-        value={displayDate?.toISOString() ?? ""}
-      />
+      {isControlled ? (
+        <input
+          type="hidden"
+          name={name}
+          value={displayDate?.toISOString() ?? ""}
+        />
+      ) : (
+        <input
+          type="hidden"
+          name={name}
+          defaultValue={displayDate?.toISOString()}
+        />
+      )}
     </div>
   )
 }
