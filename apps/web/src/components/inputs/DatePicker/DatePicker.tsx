@@ -94,13 +94,11 @@ export function DatePicker({
           value={displayDate?.toISOString() ?? ""}
         />
       ) : (
-        displayDate && (
-          <input
-            type="hidden"
-            name={name}
-            defaultValue={displayDate.toISOString()}
-          />
-        )
+        <input
+          type="hidden"
+          name={name}
+          defaultValue={displayDate?.toISOString() ?? ""}
+        />
       )}
     </div>
   )
