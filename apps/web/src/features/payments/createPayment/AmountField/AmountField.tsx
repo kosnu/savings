@@ -5,9 +5,16 @@ import { BaseField } from "../../../../components/inputs/BaseField"
 interface AmountFieldProps {
   error?: boolean
   messages?: string[]
+  value?: number
+  onChange?: (amount: number) => void
 }
 
-export function AmountField({ error, messages }: AmountFieldProps) {
+export function AmountField({
+  error,
+  messages,
+  value,
+  onChange,
+}: AmountFieldProps) {
   const id = useId()
 
   return (
@@ -23,7 +30,24 @@ export function AmountField({ error, messages }: AmountFieldProps) {
         </Fragment>
       ))}
     >
-      <TextField.Root id={id} name="amount" type="text" inputMode="numeric" />
+      <TextField.Root
+        id={id}
+        name="amount"
+        type="text"
+        inputMode="numeric"
+        value={value?.toString() ?? ""}
+        onChange={(e) => {
+          const val = e.target.value
+          if (val === "") {
+            onChange?.(undefined as unknown as number)
+          } else {
+            const num = Number(val)
+            if (!Number.isNaN(num)) {
+              onChange?.(num)
+            }
+          }
+        }}
+      />
     </BaseField>
   )
 }

@@ -8,11 +8,15 @@ import { useCategories } from "../../../categories/listCategory/useCategories"
 interface CategoryFieldProps {
   error?: boolean
   messages?: string[]
+  value?: string
+  onChange?: (category: string) => void
 }
 
 export const CategoryField = memo(function CategoryField({
   error,
   messages,
+  value,
+  onChange,
 }: CategoryFieldProps) {
   const id = useId()
   const { promise: promiseCategories } = useCategories()
@@ -31,7 +35,11 @@ export const CategoryField = memo(function CategoryField({
       ))}
       width="300px"
     >
-      <Select.Root name="category">
+      <Select.Root
+        name="category"
+        value={value}
+        onValueChange={(val) => onChange?.(val)}
+      >
         <Select.Trigger id={id} placeholder="Pick a category" />
         <Select.Content>
           <ErrorBoundary
