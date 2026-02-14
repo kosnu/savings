@@ -25,7 +25,15 @@ function zodValidator<T>(schema: z.ZodType<T>) {
     if (result.success) {
       return undefined
     }
-    return result.error.issues[0]?.message ?? "Validation failed"
+    // Zod always provides a message, but we have a fallback just in case
+    const errorMessage = result.error.issues[0]?.message
+    if (!errorMessage) {
+      console.warn(
+        "Zod validation failed without an error message",
+        result.error,
+      )
+    }
+    return errorMessage ?? "Validation failed"
   }
 }
 
@@ -42,14 +50,15 @@ export function CreatePaymentForm({
       date: new Date(),
       category: "",
       note: "",
-      amount: undefined as unknown as number,
+      amount: undefined as number | undefined,
     },
     onSubmit: async ({ value }) => {
+      // Type assertion here is safe because validation ensures these are valid
       await createPayment({
         categoryId: value.category,
         date: value.date,
         note: value.note,
-        amount: value.amount,
+        amount: value.amount as number,
       })
     },
   })
