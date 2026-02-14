@@ -82,7 +82,7 @@ export function CreatePaymentForm({
         <form.Field
           name="date"
           validators={{
-            onChange: zodValidator(formShema.shape.date),
+            onSubmit: zodValidator(formShema.shape.date),
           }}
         >
           {(field) => {
@@ -100,7 +100,7 @@ export function CreatePaymentForm({
         <form.Field
           name="category"
           validators={{
-            onChange: zodValidator(formShema.shape.category),
+            onSubmit: zodValidator(formShema.shape.category),
           }}
         >
           {(field) => {
@@ -118,7 +118,7 @@ export function CreatePaymentForm({
         <form.Field
           name="note"
           validators={{
-            onChange: zodValidator(formShema.shape.note),
+            onSubmit: zodValidator(formShema.shape.note),
           }}
         >
           {(field) => {
@@ -136,7 +136,7 @@ export function CreatePaymentForm({
         <form.Field
           name="amount"
           validators={{
-            onChange: zodValidator(formShema.shape.amount),
+            onSubmit: zodValidator(formShema.shape.amount),
           }}
         >
           {(field) => {
