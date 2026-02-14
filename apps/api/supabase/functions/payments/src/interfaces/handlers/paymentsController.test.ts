@@ -9,6 +9,7 @@ import type { DomainError } from "../../shared/errors.ts"
 import { createPayment } from "../../domain/entities/payment.ts"
 import type { Payment } from "../../domain/entities/payment.ts"
 import { convertPaymentToDto, type PaymentDto } from "./paymentDto.ts"
+import * as z from "@zod/zod"
 
 type PaymentsControllerDeps = Parameters<
   typeof createPaymentsController
@@ -125,7 +126,11 @@ Deno.test("dateFromとdateToが未指定でも動作する", async () => {
   const response = await controller.search(supabase, 42)
   const body = await response.json()
 
-  assertEquals(receivedCriteria, { userId: 42 })
+  assertEquals(receivedCriteria, {
+    userId: 42,
+    dateFrom: undefined,
+    dateTo: undefined,
+  })
   assertEquals(response.status, 200)
   assertEquals(body, { payments })
 })
@@ -139,7 +144,7 @@ Deno.test("ユースケースエラー時はcreateErrorResponseの結果を返�
   })
   const repositoryCalls: Array<{ supabase: SupabaseClient<Database> }> = []
   let receivedUseCaseRepo: PaymentRepository | undefined
-  let receivedError: DomainError | undefined
+  let receivedError: DomainError | z.ZodError | undefined
 
   const controller = createController({
     createRepository: (params) => {
@@ -187,7 +192,7 @@ Deno.test("成功レスポンスにJSONヘッダーを設定する", async () =>
 
 Deno.test("dateFromが不正な形式の場合はValidationErrorを返す", async () => {
   const supabase = {} as SupabaseClient<Database>
-  let receivedError: DomainError | undefined
+  let receivedError: DomainError | z.ZodError | undefined
 
   const controller = createController({
     createRepository: () => {
@@ -195,7 +200,10 @@ Deno.test("dateFromが不正な形式の場合はValidationErrorを返す", asyn
     },
     createErrorResponse: (error) => {
       receivedError = error
-      return new Response(JSON.stringify({ message: error.message }), {
+      const resBody = error instanceof z.ZodError
+        ? z.flattenError(error)
+        : { message: error.message }
+      return new Response(JSON.stringify(resBody), {
         status: 400,
         headers: JSON_HEADERS,
       })
@@ -205,18 +213,15 @@ Deno.test("dateFromが不正な形式の場合はValidationErrorを返す", asyn
   const response = await controller.search(supabase, 1, "2024/01/01")
   const body = await response.json()
 
-  assertEquals(receivedError?.type, "ValidationError")
-  assertEquals(receivedError?.message, "dateFrom must be YYYY-MM-DD")
-  if (receivedError?.type === "ValidationError") {
-    assertEquals(receivedError.details, { dateFrom: "2024/01/01" })
-  }
+  assertEquals(receivedError instanceof z.ZodError, true)
   assertEquals(response.status, 400)
-  assertEquals(body, { message: "dateFrom must be YYYY-MM-DD" })
+  assertEquals(body.fieldErrors.dateFrom.length, 1)
+  assertEquals(body.fieldErrors.dateFrom[0], "Invalid ISO date")
 })
 
 Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async () => {
   const supabase = {} as SupabaseClient<Database>
-  let receivedError: DomainError | undefined
+  let receivedError: DomainError | z.ZodError | undefined
 
   const controller = createController({
     createRepository: () => {
@@ -224,7 +229,10 @@ Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async 
     },
     createErrorResponse: (error) => {
       receivedError = error
-      return new Response(JSON.stringify({ message: error.message }), {
+      const resBody = error instanceof z.ZodError
+        ? z.flattenError(error)
+        : { message: error.message }
+      return new Response(JSON.stringify(resBody), {
         status: 400,
         headers: JSON_HEADERS,
       })
@@ -239,13 +247,10 @@ Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async 
   )
   const body = await response.json()
 
-  assertEquals(receivedError?.type, "ValidationError")
-  assertEquals(receivedError?.message, "dateTo must be YYYY-MM-DD")
-  if (receivedError?.type === "ValidationError") {
-    assertEquals(receivedError.details, { dateTo: "2024/01/31" })
-  }
+  assertEquals(receivedError instanceof z.ZodError, true)
   assertEquals(response.status, 400)
-  assertEquals(body, { message: "dateTo must be YYYY-MM-DD" })
+  assertEquals(body.fieldErrors.dateTo.length, 1)
+  assertEquals(body.fieldErrors.dateTo[0], "Invalid ISO date")
 })
 
 Deno.test("支払い作成成功時に201で結果を返す", async () => {
@@ -296,7 +301,7 @@ Deno.test("支払い作成成功時に201で結果を返す", async () => {
 
 Deno.test("支払い作成の入力が不正な場合はValidationErrorを返す", async () => {
   const supabase = {} as SupabaseClient<Database>
-  let receivedError: DomainError | undefined
+  let receivedError: DomainError | z.ZodError | undefined
 
   const controller = createController({
     createRepository: () => {
@@ -329,7 +334,7 @@ Deno.test("支払い作成のユースケースエラーはcreateErrorResponse�
   const supabase = {} as SupabaseClient<Database>
   const repo = createPaymentRepositoryStub()
   const error: DomainError = { type: "UnexpectedError", message: "boom" }
-  let receivedError: DomainError | undefined
+  let receivedError: DomainError | z.ZodError | undefined
 
   const controller = createController({
     createRepository: () => repo,
