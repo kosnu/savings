@@ -6,8 +6,8 @@ import { createPaymentUseCase } from "../../application/createPaymentUseCase.ts"
 import { convertPaymentToDto } from "./paymentDto.ts"
 import { createSupabasePaymentRepository } from "../../infrastructure/paymentRepositoryImpl.ts"
 import { createErrorResponse, JSON_HEADERS } from "./errorResponse.ts"
-import { validateCriteria } from "./validateCriteria.ts"
 import { validateCreatePaymentInput } from "./validateCreatePaymentInput.ts"
+import { SearchCriteriaSchema } from "../searchCriteria.ts"
 
 type PaymentsControllerDeps = {
   createRepository: (
@@ -28,13 +28,16 @@ export const createPaymentsController = (
     dateFrom?: string,
     dateTo?: string,
   ) => {
-    const validation = validateCriteria(dateFrom, dateTo)
-    if (validation) {
-      return deps.createErrorResponse(validation)
+    const criteria = SearchCriteriaSchema.safeParse({
+      userId,
+      dateFrom,
+      dateTo,
+    })
+    if (!criteria.success) {
+      return deps.createErrorResponse(criteria.error)
     }
     const repo = deps.createRepository({ supabase })
-    const criteria = buildSearchCriteria(userId, dateFrom, dateTo)
-    const result = await deps.searchUseCase(criteria, repo)
+    const result = await deps.searchUseCase(criteria.data, repo)
     if (result.isOk) {
       const payments = result.value.map(convertPaymentToDto)
       return new Response(JSON.stringify({ payments }), {
@@ -73,29 +76,6 @@ export const createPaymentsController = (
   }
 
   return { search, create }
-}
-
-type PaymentSearchCriteria = {
-  userId: number
-  dateFrom?: string
-  dateTo?: string
-}
-
-function buildSearchCriteria(
-  userId: number,
-  dateFrom?: string,
-  dateTo?: string,
-): PaymentSearchCriteria {
-  const criteria: PaymentSearchCriteria = { userId }
-
-  if (dateFrom !== undefined) {
-    criteria.dateFrom = dateFrom
-  }
-  if (dateTo !== undefined) {
-    criteria.dateTo = dateTo
-  }
-
-  return criteria
 }
 
 export const paymentsController = createPaymentsController({
