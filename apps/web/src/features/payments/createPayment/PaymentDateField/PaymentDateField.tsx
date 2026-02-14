@@ -17,7 +17,6 @@ export function PaymentDateField({
   onChange,
 }: PaymentDateFieldProps) {
   const id = useId()
-  const defaultValue = value ?? new Date()
 
   const handleChange = (date: Date | undefined) => {
     if (date) {
@@ -42,7 +41,8 @@ export function PaymentDateField({
       <DatePicker
         id={id}
         name="date"
-        defaultValue={defaultValue}
+        value={value}
+        defaultValue={new Date()}
         onChange={handleChange}
       />
     </BaseField>

@@ -1,6 +1,6 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Button, Popover } from "@radix-ui/themes"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
@@ -9,6 +9,7 @@ import "react-day-picker/style.css"
 
 interface ModeSingleProps {
   onChange?: (date: Date | undefined) => void
+  value?: Date
 }
 
 type DatePickerProps = {
@@ -21,11 +22,23 @@ export function DatePicker({
   id,
   name,
   defaultValue = undefined,
+  value,
   onChange,
   ...props
 }: DatePickerProps) {
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState<Date | undefined>(defaultValue)
+  const [internalDate, setInternalDate] = useState<Date | undefined>(
+    value ?? defaultValue,
+  )
+
+  // Sync internal state with controlled value
+  useEffect(() => {
+    if (value !== undefined) {
+      setInternalDate(value)
+    }
+  }, [value])
+
+  const displayDate = value ?? internalDate
 
   const handleTriggerClick = useCallback(() => {
     setOpen(true)
@@ -33,7 +46,7 @@ export function DatePicker({
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
-      setDate(date)
+      setInternalDate(date)
       onChange?.(date)
       setOpen(false)
     },
@@ -54,7 +67,11 @@ export function DatePicker({
         <Popover.Trigger onClick={handleTriggerClick}>
           <Button id={id} variant="outline" color="gray">
             <CalendarIcon width="18" height="18" />
-            {date ? formatDateToLocaleString(date) : <span>Pick a date</span>}
+            {displayDate ? (
+              formatDateToLocaleString(displayDate)
+            ) : (
+              <span>Pick a date</span>
+            )}
           </Button>
         </Popover.Trigger>
         <Popover.Content
@@ -65,12 +82,16 @@ export function DatePicker({
             {...props}
             locale={ja}
             mode="single"
-            selected={date}
+            selected={displayDate}
             onSelect={handleChange}
           />
         </Popover.Content>
       </Popover.Root>
-      <input type="hidden" name={name} defaultValue={date?.toISOString()} />
+      <input
+        type="hidden"
+        name={name}
+        value={displayDate?.toISOString() ?? ""}
+      />
     </div>
   )
 }
