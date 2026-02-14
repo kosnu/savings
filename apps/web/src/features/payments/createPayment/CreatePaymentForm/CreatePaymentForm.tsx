@@ -81,7 +81,7 @@ export function CreatePaymentForm({
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />
-        <SubmitButton>Create payment</SubmitButton>
+        <SubmitButton>Create</SubmitButton>
       </Flex>
     </form>
   )
