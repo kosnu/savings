@@ -111,7 +111,7 @@ export const Empty: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    const submitButton = canvas.getByRole("button", { name: /create payment/i })
+    const submitButton = canvas.getByRole("button", { name: /create$/i })
     await userEvent.click(submitButton)
 
     expect(
