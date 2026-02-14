@@ -6,7 +6,7 @@ import { createPaymentUseCase } from "../../application/createPaymentUseCase.ts"
 import { convertPaymentToDto } from "./paymentDto.ts"
 import { createSupabasePaymentRepository } from "../../infrastructure/paymentRepositoryImpl.ts"
 import { createErrorResponse, JSON_HEADERS } from "./errorResponse.ts"
-import { validateCreatePaymentInput } from "./validateCreatePaymentInput.ts"
+import { CreatePaymentInputSchema } from "../createPaymentInput.ts"
 import { SearchCriteriaSchema } from "../searchCriteria.ts"
 
 type PaymentsControllerDeps = {
@@ -54,14 +54,14 @@ export const createPaymentsController = (
     userId: number,
     input: unknown,
   ) => {
-    const parsed = validateCreatePaymentInput(input)
-    if (!parsed.isOk) {
+    const parsed = CreatePaymentInputSchema.safeParse(input)
+    if (!parsed.success) {
       return deps.createErrorResponse(parsed.error)
     }
 
     const repo = deps.createRepository({ supabase })
     const result = await deps.createUseCase(
-      { ...parsed.value, userId },
+      { ...parsed.data, userId },
       repo,
     )
     if (result.isOk) {
