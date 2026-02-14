@@ -31,6 +31,12 @@ export const validationError = (
   details,
 })
 
+export function isValidationError(
+  error: DomainError,
+): error is ValidationError {
+  return error.type === "ValidationError"
+}
+
 export const notFoundError = (
   message: string,
   target?: string,
@@ -40,6 +46,12 @@ export const notFoundError = (
   target,
 })
 
+export function isNotFoundError(
+  error: DomainError,
+): error is NotFoundError {
+  return error.type === "NotFoundError"
+}
+
 export const unexpectedError = (
   message: string,
   original?: unknown,
@@ -48,3 +60,9 @@ export const unexpectedError = (
   message,
   original,
 })
+
+export function isUnexpectedError(
+  error: DomainError,
+): error is UnexpectedError {
+  return error.type === "UnexpectedError"
+}
