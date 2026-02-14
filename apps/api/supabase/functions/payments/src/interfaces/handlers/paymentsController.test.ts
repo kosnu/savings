@@ -312,7 +312,10 @@ Deno.test("支払い作成の入力が不正な場合はValidationErrorを返す
     },
     createErrorResponse: (error) => {
       receivedError = error
-      return new Response(JSON.stringify({ message: error.message }), {
+      const resBody = error instanceof z.ZodError
+        ? z.flattenError(error)
+        : { message: error.message }
+      return new Response(JSON.stringify(resBody), {
         status: 400,
         headers: JSON_HEADERS,
       })
@@ -325,9 +328,9 @@ Deno.test("支払い作成の入力が不正な場合はValidationErrorを返す
   })
   const body = await response.json()
 
-  assertEquals(receivedError?.type, "ValidationError")
+  assertEquals(receivedError instanceof z.ZodError, true)
   assertEquals(response.status, 400)
-  assertEquals(body, { message: "amount must be a number" })
+  assertEquals(body.fieldErrors.amount.length, 1)
 })
 
 Deno.test("支払い作成のユースケースエラーはcreateErrorResponseを返す", async () => {
