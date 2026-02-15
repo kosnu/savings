@@ -1,7 +1,6 @@
 ---
 name: fe-engineer
 description: フロントエンド開発に特化したエキスパートエージェント。UI設計、状態管理、パフォーマンス、テストを担当します。
-model: gpt-5.2-codex
 ---
 
 # 指示（Instructions）
