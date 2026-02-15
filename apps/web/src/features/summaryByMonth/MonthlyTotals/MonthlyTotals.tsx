@@ -16,7 +16,11 @@ function MonthlyTotals() {
         <ErrorBoundary
           fallback={<Text color="red">An unexpected error has occurred.</Text>}
         >
-          <Suspense fallback={<Skeleton width="120px" height="28px" />}>
+          <Suspense
+            fallback={
+              <Skeleton data-testid="skeleton" width="120px" height="28px" />
+            }
+          >
             <MoneyText getValue={promise} />
           </Suspense>
         </ErrorBoundary>

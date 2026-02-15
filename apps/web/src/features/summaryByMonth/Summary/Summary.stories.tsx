@@ -2,7 +2,7 @@ import { Container } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
-import { expect } from "storybook/test"
+import { expect, waitForElementToBeRemoved } from "storybook/test"
 import { firebaseConfig } from "../../../config/firebase/test"
 import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
 import { categories } from "../../../test/data/categories"
@@ -54,6 +54,8 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   play: async ({ canvasElement, userEvent }) => {
     const canvas = within(canvasElement)
+
+    await waitForElementToBeRemoved(() => canvas.queryByTestId("skeleton"))
 
     expect(await canvas.findByText("Total spending")).toBeInTheDocument()
     expect(await canvas.findByText("￥5,000")).toBeInTheDocument()
