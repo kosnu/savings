@@ -5,7 +5,7 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
-import { type FormSchema, submitFormShema } from "../formSchema"
+import { type FormSchema, submitFormSchema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
@@ -52,10 +52,10 @@ export function CreatePaymentForm({
   const form = useForm({
     defaultValues,
     validators: {
-      onSubmit: submitFormShema,
+      onSubmit: submitFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const parsedValue = submitFormShema.parse(value)
+      const parsedValue = submitFormSchema.parse(value)
 
       await createPayment({
         categoryId: parsedValue.category,

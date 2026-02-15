@@ -1,6 +1,6 @@
 import * as z from "zod"
 
-export const formShema = z.object({
+export const formSchema = z.object({
   category: z.string().nonempty("Category can not be empty"),
   date: z.date({
     error: (iss) => {
@@ -28,7 +28,7 @@ export const formShema = z.object({
     .optional(),
 })
 
-export const submitFormShema = formShema.extend({
+export const submitFormSchema = formSchema.extend({
   amount: z
     .number({
       error: (iss) => {
@@ -45,6 +45,6 @@ export const submitFormShema = formShema.extend({
     .nonnegative("Amount must be a non-negative integer"),
 })
 
-export type FormSchema = z.infer<typeof formShema>
-export type SubmitFormSchema = z.infer<typeof submitFormShema>
+export type FormSchema = z.infer<typeof formSchema>
+export type SubmitFormSchema = z.infer<typeof submitFormSchema>
 export type FormError = z.core.$ZodFlattenedError<FormSchema>
