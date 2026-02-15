@@ -18,24 +18,15 @@ type DatePickerProps = {
   defaultValue?: Date
 } & ModeSingleProps
 
-export function DatePicker({
-  id,
-  name,
-  defaultValue = undefined,
-  value,
-  onChange,
-  ...props
-}: DatePickerProps) {
+export function DatePicker(props: DatePickerProps) {
+  const { id, name, defaultValue = undefined, onChange, ...restProps } = props
   const [open, setOpen] = useState(false)
-  // Internal state only used in uncontrolled mode
   const [uncontrolledDate, setUncontrolledDate] = useState<Date | undefined>(
     defaultValue,
   )
 
-  // Determine if component is controlled
-  // A DatePicker is controlled when both value and onChange are provided
-  const isControlled = onChange !== undefined && value !== undefined
-  const displayDate = isControlled ? value : uncontrolledDate
+  const isControlled = "value" in props
+  const displayDate = isControlled ? props.value : uncontrolledDate
 
   const handleTriggerClick = useCallback(() => {
     setOpen(true)
@@ -79,7 +70,7 @@ export function DatePicker({
           onEscapeKeyDown={handleEscapeKeyDown}
         >
           <DayPicker
-            {...props}
+            {...restProps}
             locale={ja}
             mode="single"
             selected={displayDate}
