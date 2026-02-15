@@ -1,12 +1,11 @@
 import { Flex } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useEffect } from "react"
-import type { z } from "zod"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
-import { formShema } from "../formSchema"
+import { type FormSchema, submitFormShema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
@@ -18,23 +17,21 @@ interface CreatePaymentFormProps {
   onResetReady?: (resetFn: () => void) => void
 }
 
-// Zod validator for TanStack Form
-function zodValidator<T>(schema: z.ZodType<T>) {
-  return (value: unknown): string | undefined => {
-    const result = schema.safeParse(value)
-    if (result.success) {
-      return undefined
-    }
-    // Zod always provides a message, but we have a fallback just in case
-    const errorMessage = result.error.issues[0]?.message
-    if (!errorMessage) {
-      console.warn(
-        "Zod validation failed without an error message",
-        result.error,
-      )
-    }
-    return errorMessage ?? "Validation failed"
+function getErrorMessage(error: unknown): string | undefined {
+  if (typeof error === "string") {
+    return error
   }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message
+  }
+
+  return undefined
 }
 
 export function CreatePaymentForm({
@@ -45,22 +42,26 @@ export function CreatePaymentForm({
 }: CreatePaymentFormProps) {
   const { createPayment } = useCreatePayment(onSuccess, onError)
 
+  const defaultValues: FormSchema = {
+    date: new Date(),
+    category: "",
+    note: "",
+    amount: undefined,
+  }
+
   const form = useForm({
-    defaultValues: {
-      date: new Date(),
-      category: "",
-      note: "",
-      amount: undefined as number | undefined,
+    defaultValues,
+    validators: {
+      onSubmit: submitFormShema,
     },
     onSubmit: async ({ value }) => {
-      // TanStack Form runs validation before calling onSubmit,
-      // but we add an explicit check for extra safety
-      // Type assertion is safe here because validation ensures values are valid
+      const parsedValue = submitFormShema.parse(value)
+
       await createPayment({
-        categoryId: value.category,
-        date: value.date,
-        note: value.note,
-        amount: value.amount as number,
+        categoryId: parsedValue.category,
+        date: parsedValue.date,
+        note: parsedValue.note,
+        amount: parsedValue.amount,
       })
     },
   })
@@ -90,14 +91,9 @@ export function CreatePaymentForm({
       }}
     >
       <Flex direction="column" gap="3">
-        <form.Field
-          name="date"
-          validators={{
-            onSubmit: zodValidator(formShema.shape.date),
-          }}
-        >
+        <form.Field name="date">
           {(field) => {
-            const errorMessage = field.state.meta.errors[0]
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
             return (
               <PaymentDateField
                 value={field.state.value}
@@ -108,14 +104,9 @@ export function CreatePaymentForm({
             )
           }}
         </form.Field>
-        <form.Field
-          name="category"
-          validators={{
-            onSubmit: zodValidator(formShema.shape.category),
-          }}
-        >
+        <form.Field name="category">
           {(field) => {
-            const errorMessage = field.state.meta.errors[0]
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
             return (
               <CategoryField
                 value={field.state.value}
@@ -126,14 +117,9 @@ export function CreatePaymentForm({
             )
           }}
         </form.Field>
-        <form.Field
-          name="note"
-          validators={{
-            onSubmit: zodValidator(formShema.shape.note),
-          }}
-        >
+        <form.Field name="note">
           {(field) => {
-            const errorMessage = field.state.meta.errors[0]
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
             return (
               <NoteField
                 value={field.state.value}
@@ -144,14 +130,9 @@ export function CreatePaymentForm({
             )
           }}
         </form.Field>
-        <form.Field
-          name="amount"
-          validators={{
-            onSubmit: zodValidator(formShema.shape.amount),
-          }}
-        >
+        <form.Field name="amount">
           {(field) => {
-            const errorMessage = field.state.meta.errors[0]
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
             return (
               <AmountField
                 value={field.state.value}
