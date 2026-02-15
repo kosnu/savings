@@ -6,11 +6,23 @@ import { DatePicker } from "../../../../components/inputs/DatePicker"
 interface PaymentDateFieldProps {
   error?: boolean
   messages?: string[]
+  value?: Date
+  onChange?: (date: Date) => void
 }
 
-export function PaymentDateField({ error, messages }: PaymentDateFieldProps) {
+export function PaymentDateField({
+  error,
+  messages,
+  value,
+  onChange,
+}: PaymentDateFieldProps) {
   const id = useId()
-  const defaultValue = new Date()
+
+  const handleChange = (date: Date | undefined) => {
+    if (date) {
+      onChange?.(date)
+    }
+  }
 
   return (
     <BaseField
@@ -26,7 +38,13 @@ export function PaymentDateField({ error, messages }: PaymentDateFieldProps) {
       ))}
       width="fit-content"
     >
-      <DatePicker id={id} name="date" defaultValue={defaultValue} />
+      <DatePicker
+        id={id}
+        name="date"
+        value={value}
+        defaultValue={new Date()}
+        onChange={handleChange}
+      />
     </BaseField>
   )
 }

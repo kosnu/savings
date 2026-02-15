@@ -1,11 +1,11 @@
 import { Flex } from "@radix-ui/themes"
-import { useCallback, useEffect, useRef, useState } from "react"
-import z from "zod"
+import { useForm } from "@tanstack/react-form"
+import { useCallback, useEffect } from "react"
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
-import { type FormError, formShema } from "../formSchema"
+import { type FormSchema, submitFormShema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
@@ -17,48 +17,62 @@ interface CreatePaymentFormProps {
   onResetReady?: (resetFn: () => void) => void
 }
 
+function getErrorMessage(error: unknown): string | undefined {
+  if (typeof error === "string") {
+    return error
+  }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message
+  }
+
+  return undefined
+}
+
 export function CreatePaymentForm({
   onSuccess,
   onError,
   onCancel,
   onResetReady,
 }: CreatePaymentFormProps) {
-  const formRef = useRef<HTMLFormElement>(null)
   const { createPayment } = useCreatePayment(onSuccess, onError)
 
-  const [error, setError] = useState<FormError>()
+  const defaultValues: FormSchema = {
+    date: new Date(),
+    category: "",
+    note: "",
+    amount: undefined,
+  }
+
+  const form = useForm({
+    defaultValues,
+    validators: {
+      onSubmit: submitFormShema,
+    },
+    onSubmit: async ({ value }) => {
+      const parsedValue = submitFormShema.parse(value)
+
+      await createPayment({
+        categoryId: parsedValue.category,
+        date: parsedValue.date,
+        note: parsedValue.note,
+        amount: parsedValue.amount,
+      })
+    },
+  })
 
   const resetForm = useCallback(() => {
-    formRef.current?.reset()
-    setError(undefined)
-  }, [])
+    form.reset()
+  }, [form])
 
   useEffect(() => {
     onResetReady?.(resetForm)
   }, [onResetReady, resetForm])
-
-  const dateError = error?.fieldErrors.date
-  const categoryError = error?.fieldErrors.category
-  const noteError = error?.fieldErrors.note
-  const amountError = error?.fieldErrors.amount
-
-  const handleSubmit = useCallback(
-    async (formData: FormData) => {
-      const formObject = Object.fromEntries(formData.entries())
-      const result = formShema.safeParse(formObject)
-      if (result.error) {
-        setError(z.flattenError(result.error))
-        return
-      }
-      await createPayment({
-        categoryId: result.data.category,
-        date: result.data.date,
-        note: result.data.note,
-        amount: result.data.amount,
-      })
-    },
-    [createPayment],
-  )
 
   const handleCancel = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -69,15 +83,66 @@ export function CreatePaymentForm({
   )
 
   return (
-    <form ref={formRef} action={handleSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }}
+    >
       <Flex direction="column" gap="3">
-        <PaymentDateField error={!!dateError?.length} messages={dateError} />
-        <CategoryField
-          error={!!categoryError?.length}
-          messages={categoryError}
-        />
-        <NoteField error={!!noteError?.length} messages={noteError} />
-        <AmountField error={!!amountError?.length} messages={amountError} />
+        <form.Field name="date">
+          {(field) => {
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            return (
+              <PaymentDateField
+                value={field.state.value}
+                onChange={(date) => field.handleChange(date)}
+                error={!!errorMessage}
+                messages={errorMessage ? [errorMessage] : undefined}
+              />
+            )
+          }}
+        </form.Field>
+        <form.Field name="category">
+          {(field) => {
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            return (
+              <CategoryField
+                value={field.state.value}
+                onChange={(category) => field.handleChange(category)}
+                error={!!errorMessage}
+                messages={errorMessage ? [errorMessage] : undefined}
+              />
+            )
+          }}
+        </form.Field>
+        <form.Field name="note">
+          {(field) => {
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            return (
+              <NoteField
+                value={field.state.value}
+                onChange={(note) => field.handleChange(note)}
+                error={!!errorMessage}
+                messages={errorMessage ? [errorMessage] : undefined}
+              />
+            )
+          }}
+        </form.Field>
+        <form.Field name="amount">
+          {(field) => {
+            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            return (
+              <AmountField
+                value={field.state.value}
+                onChange={(amount) => field.handleChange(amount)}
+                error={!!errorMessage}
+                messages={errorMessage ? [errorMessage] : undefined}
+              />
+            )
+          }}
+        </form.Field>
       </Flex>
       <Flex gap="3" mt="4" justify="end">
         <CancelButton onClick={handleCancel} />
