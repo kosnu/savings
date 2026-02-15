@@ -9,6 +9,7 @@ import "react-day-picker/style.css"
 
 interface ModeSingleProps {
   onChange?: (date: Date | undefined) => void
+  value?: Date
 }
 
 type DatePickerProps = {
@@ -21,11 +22,20 @@ export function DatePicker({
   id,
   name,
   defaultValue = undefined,
+  value,
   onChange,
   ...props
 }: DatePickerProps) {
   const [open, setOpen] = useState(false)
-  const [date, setDate] = useState<Date | undefined>(defaultValue)
+  // Internal state only used in uncontrolled mode
+  const [uncontrolledDate, setUncontrolledDate] = useState<Date | undefined>(
+    defaultValue,
+  )
+
+  // Determine if component is controlled
+  // A DatePicker is controlled when both value and onChange are provided
+  const isControlled = onChange !== undefined && value !== undefined
+  const displayDate = isControlled ? value : uncontrolledDate
 
   const handleTriggerClick = useCallback(() => {
     setOpen(true)
@@ -33,11 +43,14 @@ export function DatePicker({
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
-      setDate(date)
+      // Update internal state only in uncontrolled mode
+      if (!isControlled) {
+        setUncontrolledDate(date)
+      }
       onChange?.(date)
       setOpen(false)
     },
-    [onChange],
+    [onChange, isControlled],
   )
 
   const handleFocusOut = useCallback(() => {
@@ -54,7 +67,11 @@ export function DatePicker({
         <Popover.Trigger onClick={handleTriggerClick}>
           <Button id={id} variant="outline" color="gray">
             <CalendarIcon width="18" height="18" />
-            {date ? formatDateToLocaleString(date) : <span>Pick a date</span>}
+            {displayDate ? (
+              formatDateToLocaleString(displayDate)
+            ) : (
+              <span>Pick a date</span>
+            )}
           </Button>
         </Popover.Trigger>
         <Popover.Content
@@ -65,12 +82,24 @@ export function DatePicker({
             {...props}
             locale={ja}
             mode="single"
-            selected={date}
+            selected={displayDate}
             onSelect={handleChange}
           />
         </Popover.Content>
       </Popover.Root>
-      <input type="hidden" name={name} defaultValue={date?.toISOString()} />
+      {isControlled ? (
+        <input
+          type="hidden"
+          name={name}
+          value={displayDate?.toISOString() ?? ""}
+        />
+      ) : (
+        <input
+          type="hidden"
+          name={name}
+          defaultValue={displayDate?.toISOString() ?? ""}
+        />
+      )}
     </div>
   )
 }
