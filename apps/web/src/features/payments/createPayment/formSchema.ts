@@ -1,7 +1,7 @@
 import * as z from "zod"
 
-export const formShema = z.object({
-  category: z.string().nonempty("Category can not be empty"),
+const baseSchema = z.object({
+  category: z.string().min(1, "Category can not be empty"),
   date: z.date({
     error: (iss) => {
       if (iss.input === undefined || iss.input === null || iss.input === "") {
@@ -10,25 +10,7 @@ export const formShema = z.object({
       return "Date is invalid"
     },
   }),
-  note: z.string().nonempty("Note can not be empty"),
-  amount: z
-    .number({
-      error: (iss) => {
-        if (iss.input === undefined || iss.input === null || iss.input === "") {
-          return "Amount can not be empty"
-        }
-        if (typeof iss.input !== "number" || Number.isNaN(iss.input)) {
-          return "Amount must be a number"
-        }
-        return "Amount is invalid"
-      },
-    })
-    .int("Amount must be an integer")
-    .nonnegative("Amount must be a non-negative integer")
-    .optional(),
-})
-
-export const submitFormShema = formShema.extend({
+  note: z.string().min(1, "Note can not be empty"),
   amount: z
     .number({
       error: (iss) => {
@@ -45,6 +27,12 @@ export const submitFormShema = formShema.extend({
     .nonnegative("Amount must be a non-negative integer"),
 })
 
-export type FormSchema = z.infer<typeof formShema>
-export type SubmitFormSchema = z.infer<typeof submitFormShema>
+export const formSchema = baseSchema.partial({
+  date: true,
+  amount: true,
+})
+export const submitFormSchema = baseSchema.required()
+
+export type FormSchema = z.infer<typeof formSchema>
+export type SubmitFormSchema = z.infer<typeof submitFormSchema>
 export type FormError = z.core.$ZodFlattenedError<FormSchema>

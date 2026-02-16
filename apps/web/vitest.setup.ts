@@ -1,5 +1,6 @@
 import { setDefaultOptions } from "date-fns"
 import { ja } from "date-fns/locale"
+import "@testing-library/jest-dom/vitest"
 
 setDefaultOptions({ locale: ja })
 

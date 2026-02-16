@@ -7,7 +7,7 @@ interface PaymentDateFieldProps {
   error?: boolean
   messages?: string[]
   value?: Date
-  onChange?: (date: Date) => void
+  onChange?: (date: Date | undefined) => void
 }
 
 export function PaymentDateField({
@@ -17,12 +17,6 @@ export function PaymentDateField({
   onChange,
 }: PaymentDateFieldProps) {
   const id = useId()
-
-  const handleChange = (date: Date | undefined) => {
-    if (date) {
-      onChange?.(date)
-    }
-  }
 
   return (
     <BaseField
@@ -38,13 +32,7 @@ export function PaymentDateField({
       ))}
       width="fit-content"
     >
-      <DatePicker
-        id={id}
-        name="date"
-        value={value}
-        defaultValue={new Date()}
-        onChange={handleChange}
-      />
+      <DatePicker id={id} name="date" value={value} onChange={onChange} />
     </BaseField>
   )
 }

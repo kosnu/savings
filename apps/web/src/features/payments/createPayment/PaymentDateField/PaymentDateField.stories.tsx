@@ -18,7 +18,7 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     expect(canvas.getByText("Date")).toBeInTheDocument()
     expect(canvas.getByText("日付を選択してください")).toBeInTheDocument()
-    expect(canvas.getByRole("button")).toBeInTheDocument()
+    expect(canvas.getByRole("textbox")).toBeInTheDocument()
   },
 }
 
@@ -34,6 +34,6 @@ export const HasError: Story = {
     expect(
       canvas.getByText("1年以上前の日付は選択できません"),
     ).toBeInTheDocument()
-    expect(canvas.getByRole("button")).toBeInTheDocument()
+    expect(canvas.getByRole("textbox")).toBeInTheDocument()
   },
 }
