@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { userEvent, within } from "storybook/test"
+import { useState } from "react"
+import { expect, userEvent, within } from "storybook/test"
 import { DatePicker } from "./DatePicker"
 
 const meta = {
@@ -10,8 +11,19 @@ const meta = {
     mockingDate: new Date(2025, 4, 1),
   },
   tags: ["autodocs"],
-  argTypes: {},
-  args: {},
+  render: (args) => {
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+      args.value,
+    )
+
+    return (
+      <DatePicker
+        {...args}
+        value={selectedDate}
+        onChange={(date) => setSelectedDate(date)}
+      />
+    )
+  },
 } satisfies Meta<typeof DatePicker>
 
 export default meta
@@ -24,22 +36,20 @@ export const Default: Story = {
 export const SelectToday: Story = {
   tags: ["skip"],
   args: {
-    defaultValue: new Date(2025, 4, 10),
+    value: new Date(2025, 4, 10),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const button = await canvas.findByRole("button", {
-      name: /date/i,
-    })
+    const textbox = await canvas.findByRole("textbox")
 
-    await userEvent.click(button)
+    await userEvent.click(textbox)
 
     const body = canvasElement.ownerDocument.body
     const todayButton = await within(body).findByRole("button", {
-      name: /today/i,
+      name: /今日/i,
     })
 
     await userEvent.click(todayButton)
-    await canvas.findByText("2025/05/01")
+    expect(textbox).toHaveValue("2025/05/01")
   },
 }

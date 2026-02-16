@@ -15,18 +15,10 @@ interface ModeSingleProps {
 type DatePickerProps = {
   id?: string
   name?: string
-  defaultValue?: Date
 } & ModeSingleProps
 
 export function DatePicker(props: DatePickerProps) {
-  const {
-    id,
-    name,
-    defaultValue = undefined,
-    onChange,
-    value,
-    ...restProps
-  } = props
+  const { id, name, onChange, value, ...restProps } = props
   const [open, setOpen] = useState(false)
 
   const handleTriggerClick = useCallback(() => {
@@ -35,7 +27,6 @@ export function DatePicker(props: DatePickerProps) {
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
-      // Update internal state only in uncontrolled mode
       onChange?.(date)
       setOpen(false)
     },
