@@ -1,5 +1,5 @@
-import { Button, Checkbox, Dialog, Flex, Text } from "@radix-ui/themes"
-import { useCallback, useId, useRef, useState } from "react"
+import { Button, Dialog } from "@radix-ui/themes"
+import { useCallback, useRef, useState } from "react"
 import { useDialog } from "../../../../utils/useDialog"
 import { CreatePaymentForm } from "../CreatePaymentForm"
 
@@ -9,7 +9,6 @@ interface CreatePaymentModalProps {
 
 export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
   const { open, openDialog, closeDialog } = useDialog()
-  const checkboxId = useId()
   const [continuousMode, setContinuousMode] = useState(false)
   const formResetRef = useRef<(() => void) | null>(null)
 
@@ -50,21 +49,9 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
           onError={handleError}
           onCancel={handleCancel}
           onResetReady={handleResetReady}
+          continuousMode={continuousMode}
+          onContinuousModeChange={setContinuousMode}
         />
-        <Flex gap="3" mt="3" justify="start">
-          <Text as="label" size="2" htmlFor={checkboxId}>
-            <Flex gap="2" align="center">
-              <Checkbox
-                id={checkboxId}
-                checked={continuousMode}
-                onCheckedChange={(checked) =>
-                  setContinuousMode(checked === true)
-                }
-              />
-              Continue creating
-            </Flex>
-          </Text>
-        </Flex>
       </Dialog.Content>
     </Dialog.Root>
   )
