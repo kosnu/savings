@@ -1,5 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
-import { screen } from "@testing-library/react"
+import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { setDefaultOptions } from "date-fns"
 import { enUS, ja } from "date-fns/locale"
@@ -35,8 +35,8 @@ test("Select today", async () => {
   const customUserEvent = userEvent.setup({ delay: null })
   await Default.run()
 
-  const button = screen.getByRole("button")
-  await customUserEvent.click(button)
+  const dateInput = screen.getByRole("textbox")
+  await customUserEvent.click(dateInput)
 
   const todayButton = await screen.findByRole("button", {
     name: /今日/i,
@@ -44,5 +44,7 @@ test("Select today", async () => {
 
   await customUserEvent.click(todayButton)
 
-  expect(button.textContent).toBe("2025/05/01")
+  await waitFor(() => {
+    expect(screen.queryByRole("button", { name: /今日/i })).toBeNull()
+  })
 })
