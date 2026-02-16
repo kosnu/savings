@@ -1,5 +1,5 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
-import { Button, Popover } from "@radix-ui/themes"
+import { Popover, TextField } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
@@ -19,14 +19,15 @@ type DatePickerProps = {
 } & ModeSingleProps
 
 export function DatePicker(props: DatePickerProps) {
-  const { id, name, defaultValue = undefined, onChange, ...restProps } = props
+  const {
+    id,
+    name,
+    defaultValue = undefined,
+    onChange,
+    value,
+    ...restProps
+  } = props
   const [open, setOpen] = useState(false)
-  const [uncontrolledDate, setUncontrolledDate] = useState<Date | undefined>(
-    defaultValue,
-  )
-
-  const isControlled = "value" in props
-  const displayDate = isControlled ? props.value : uncontrolledDate
 
   const handleTriggerClick = useCallback(() => {
     setOpen(true)
@@ -35,13 +36,10 @@ export function DatePicker(props: DatePickerProps) {
   const handleChange = useCallback(
     (date: Date | undefined) => {
       // Update internal state only in uncontrolled mode
-      if (!isControlled) {
-        setUncontrolledDate(date)
-      }
       onChange?.(date)
       setOpen(false)
     },
-    [onChange, isControlled],
+    [onChange],
   )
 
   const handleFocusOut = useCallback(() => {
@@ -56,14 +54,18 @@ export function DatePicker(props: DatePickerProps) {
     <div>
       <Popover.Root open={open}>
         <Popover.Trigger onClick={handleTriggerClick}>
-          <Button id={id} variant="outline" color="gray">
-            <CalendarIcon width="18" height="18" />
-            {displayDate ? (
-              formatDateToLocaleString(displayDate)
-            ) : (
-              <span>Pick a date</span>
-            )}
-          </Button>
+          <div>
+            <TextField.Root
+              id={id}
+              name={name}
+              placeholder="Pick a date"
+              value={value ? formatDateToLocaleString(value) : undefined}
+            >
+              <TextField.Slot>
+                <CalendarIcon width="18" height="18" />
+              </TextField.Slot>
+            </TextField.Root>
+          </div>
         </Popover.Trigger>
         <Popover.Content
           onFocusOutside={handleFocusOut}
@@ -73,24 +75,11 @@ export function DatePicker(props: DatePickerProps) {
             {...restProps}
             locale={ja}
             mode="single"
-            selected={displayDate}
+            selected={value}
             onSelect={handleChange}
           />
         </Popover.Content>
       </Popover.Root>
-      {isControlled ? (
-        <input
-          type="hidden"
-          name={name}
-          value={displayDate?.toISOString() ?? ""}
-        />
-      ) : (
-        <input
-          type="hidden"
-          name={name}
-          defaultValue={displayDate?.toISOString() ?? ""}
-        />
-      )}
     </div>
   )
 }
