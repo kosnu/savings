@@ -109,7 +109,7 @@ export function CreatePaymentForm({
             return (
               <PaymentDateField
                 value={field.state.value}
-                onChange={(date) => date && field.handleChange(date)}
+                onChange={(date) => field.handleChange(date)}
                 error={hasErrorMessages(errorMessages)}
                 messages={errorMessages}
               />
