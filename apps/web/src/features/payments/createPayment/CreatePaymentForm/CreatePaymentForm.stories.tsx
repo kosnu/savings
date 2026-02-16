@@ -65,7 +65,7 @@ export const Fiiled: Story = {
   args: {},
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const datepicker = canvas.getByRole("button", { name: /date/i })
+    const datepicker = canvas.getByRole("textbox", { name: /date/i })
     await userEvent.click(datepicker)
 
     // NOTE: 今日の日付はデフォルトで選択されているので、あえてクリックしない

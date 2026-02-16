@@ -5,7 +5,7 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
-import { type FormSchema, submitFormShema } from "../formSchema"
+import { type FormSchema, submitFormSchema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
@@ -17,21 +17,33 @@ interface CreatePaymentFormProps {
   onResetReady?: (resetFn: () => void) => void
 }
 
-function getErrorMessage(error: unknown): string | undefined {
-  if (typeof error === "string") {
-    return error
+function getErrorMessages(errors: unknown): string[] | undefined {
+  if (!Array.isArray(errors)) {
+    return undefined
   }
 
-  if (
-    error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof error.message === "string"
-  ) {
-    return error.message
-  }
+  const messages = errors.flatMap((error) => {
+    if (typeof error === "string") {
+      return [error]
+    }
 
-  return undefined
+    if (
+      error &&
+      typeof error === "object" &&
+      "message" in error &&
+      typeof error.message === "string"
+    ) {
+      return [error.message]
+    }
+
+    return []
+  })
+
+  return messages.length > 0 ? messages : undefined
+}
+
+function hasErrorMessages(messages: string[] | undefined): boolean {
+  return Boolean(messages && messages.length > 0)
 }
 
 export function CreatePaymentForm({
@@ -52,10 +64,10 @@ export function CreatePaymentForm({
   const form = useForm({
     defaultValues,
     validators: {
-      onSubmit: submitFormShema,
+      onSubmit: submitFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const parsedValue = submitFormShema.parse(value)
+      const parsedValue = submitFormSchema.parse(value)
 
       await createPayment({
         categoryId: parsedValue.category,
@@ -93,52 +105,52 @@ export function CreatePaymentForm({
       <Flex direction="column" gap="3">
         <form.Field name="date">
           {(field) => {
-            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <PaymentDateField
                 value={field.state.value}
                 onChange={(date) => field.handleChange(date)}
-                error={!!errorMessage}
-                messages={errorMessage ? [errorMessage] : undefined}
+                error={hasErrorMessages(errorMessages)}
+                messages={errorMessages}
               />
             )
           }}
         </form.Field>
         <form.Field name="category">
           {(field) => {
-            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <CategoryField
                 value={field.state.value}
                 onChange={(category) => field.handleChange(category)}
-                error={!!errorMessage}
-                messages={errorMessage ? [errorMessage] : undefined}
+                error={hasErrorMessages(errorMessages)}
+                messages={errorMessages}
               />
             )
           }}
         </form.Field>
         <form.Field name="note">
           {(field) => {
-            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <NoteField
                 value={field.state.value}
                 onChange={(note) => field.handleChange(note)}
-                error={!!errorMessage}
-                messages={errorMessage ? [errorMessage] : undefined}
+                error={hasErrorMessages(errorMessages)}
+                messages={errorMessages}
               />
             )
           }}
         </form.Field>
         <form.Field name="amount">
           {(field) => {
-            const errorMessage = getErrorMessage(field.state.meta.errors[0])
+            const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <AmountField
                 value={field.state.value}
                 onChange={(amount) => field.handleChange(amount)}
-                error={!!errorMessage}
-                messages={errorMessage ? [errorMessage] : undefined}
+                error={hasErrorMessages(errorMessages)}
+                messages={errorMessages}
               />
             )
           }}
