@@ -50,7 +50,7 @@ export function DatePicker(props: DatePickerProps) {
               id={id}
               name={name}
               placeholder="Pick a date"
-              value={value ? formatDateToLocaleString(value) : undefined}
+              value={value ? formatDateToLocaleString(value) : ""}
             >
               <TextField.Slot>
                 <CalendarIcon width="18" height="18" />
