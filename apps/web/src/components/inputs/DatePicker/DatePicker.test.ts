@@ -45,6 +45,9 @@ test("Select today", async () => {
   await customUserEvent.click(todayButton)
 
   await waitFor(() => {
-    expect(screen.queryByRole("button", { name: /今日/i })).toBeNull()
+    expect(dateInput).toHaveValue("2025/05/01")
+    expect(
+      screen.queryByRole("button", { name: /今日/i }),
+    ).not.toBeInTheDocument()
   })
 })
