@@ -5,6 +5,7 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
+import { ContinueCreatingCheckbox } from "../ContinueCreatingCheckbox"
 import { type FormSchema, submitFormSchema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
@@ -15,6 +16,8 @@ interface CreatePaymentFormProps {
   onError?: (error?: Error) => void
   onCancel: () => void
   onResetReady?: (resetFn: () => void) => void
+  continuousMode?: boolean
+  onContinuousModeChange?: (checked: boolean) => void
 }
 
 function getErrorMessages(errors: unknown): string[] | undefined {
@@ -51,6 +54,8 @@ export function CreatePaymentForm({
   onError,
   onCancel,
   onResetReady,
+  continuousMode,
+  onContinuousModeChange,
 }: CreatePaymentFormProps) {
   const { createPayment } = useCreatePayment(onSuccess, onError)
 
@@ -156,9 +161,22 @@ export function CreatePaymentForm({
           }}
         </form.Field>
       </Flex>
-      <Flex gap="3" mt="4" justify="end">
-        <CancelButton onClick={handleCancel} />
-        <SubmitButton>Create</SubmitButton>
+      <Flex
+        mt="4"
+        gap="3"
+        align="center"
+        justify={onContinuousModeChange ? "between" : "end"}
+      >
+        {onContinuousModeChange ? (
+          <ContinueCreatingCheckbox
+            checked={continuousMode ?? false}
+            onCheckedChange={onContinuousModeChange}
+          />
+        ) : null}
+        <Flex gap="3">
+          <CancelButton onClick={handleCancel} />
+          <SubmitButton>Create</SubmitButton>
+        </Flex>
       </Flex>
     </form>
   )
