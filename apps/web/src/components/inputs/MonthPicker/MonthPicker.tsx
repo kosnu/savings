@@ -24,7 +24,7 @@ const MONTHS = [
 ]
 
 const YEARS = Array.from({ length: 11 }, (_, i) => {
-  const year = 2020 + i
+  const year = 2022 + i
   return { value: year.toString(), label: year.toString() }
 })
 
@@ -72,6 +72,7 @@ export function MonthPicker(props: MonthPickerProps) {
           ))}
         </Select.Content>
       </Select.Root>
+      <span>/</span>
       <Select.Root value={currentYear} onValueChange={handleYearChange}>
         <Select.Trigger placeholder="年を選択" />
         <Select.Content>
