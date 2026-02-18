@@ -69,10 +69,12 @@ vi.mock("../AmountField/AmountField", () => ({
     value,
     onChange,
     messages,
+    autoFocus,
   }: {
     value?: number
     onChange?: (amount: number | undefined) => void
     messages?: string[]
+    autoFocus?: boolean
   }) => (
     <div>
       <label htmlFor="amount">Amount</label>
@@ -80,6 +82,8 @@ vi.mock("../AmountField/AmountField", () => ({
         id="amount"
         aria-label="Amount"
         value={value?.toString() ?? ""}
+        // biome-ignore lint/a11y/noAutofocus: This is a test mock
+        autoFocus={autoFocus}
         onChange={(e) => {
           const inputValue = e.target.value
           if (inputValue === "") {
@@ -130,6 +134,13 @@ describe("CreatePaymentForm", () => {
   beforeEach(() => {
     mockCreatePayment.mockReset()
     mockCreatePayment.mockResolvedValue(undefined)
+  })
+
+  test("should autofocus on the amount field when rendered", () => {
+    render(<CreatePaymentForm onCancel={() => {}} />)
+
+    const amountField = screen.getByRole("textbox", { name: /amount/i })
+    expect(document.activeElement).toBe(amountField)
   })
 
   test("should show amount required message and not call createPayment when amount is empty", async () => {
