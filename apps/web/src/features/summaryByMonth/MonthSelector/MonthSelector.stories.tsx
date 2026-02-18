@@ -10,6 +10,12 @@ const meta = {
     mockingDate: new Date(2025, 4, 15),
   },
   tags: ["autodocs"],
+} satisfies Meta<typeof MonthSelector>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={["/payments?year=2025&month=5"]}>
@@ -17,18 +23,13 @@ const meta = {
       </MemoryRouter>
     ),
   ],
-} satisfies Meta<typeof MonthSelector>
-
-export default meta
-type Story = StoryObj<typeof meta>
-
-export const Default: Story = {}
+}
 
 export const WithoutQueryParams: Story = {
   decorators: [
-    (Story) => (
+    () => (
       <MemoryRouter initialEntries={["/payments"]}>
-        <Story />
+        <MonthSelector />
       </MemoryRouter>
     ),
   ],
