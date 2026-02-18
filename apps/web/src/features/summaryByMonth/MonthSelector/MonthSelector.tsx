@@ -1,4 +1,3 @@
-import { Flex, Text } from "@radix-ui/themes"
 import { useCallback, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
@@ -43,14 +42,9 @@ export function MonthSelector() {
   }, [yearParam, monthParam, navigate])
 
   return (
-    <Flex gap="2" direction="column">
-      <MonthPicker
-        value={currentDate ?? undefined}
-        onChange={handleMonthChange}
-      />
-      <Text size="2" color="gray">
-        Month
-      </Text>
-    </Flex>
+    <MonthPicker
+      value={currentDate ?? undefined}
+      onChange={handleMonthChange}
+    />
   )
 }

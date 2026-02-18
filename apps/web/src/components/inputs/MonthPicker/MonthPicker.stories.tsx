@@ -46,18 +46,24 @@ export const SelectMonth: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const textbox = await canvas.findByRole("textbox")
 
-    expect(textbox).toHaveValue("2025年3月")
+    // 月のセレクトを確認
+    const marchText = await canvas.findByText("3月")
+    expect(marchText).toBeInTheDocument()
 
-    await userEvent.click(textbox)
+    // 月のセレクトをクリック
+    await userEvent.click(marchText)
 
+    // 5月を選択
     const body = canvasElement.ownerDocument.body
-    const mayButton = await within(body).findByRole("button", {
-      name: /5月/i,
+    const mayOption = await within(body).findByRole("option", {
+      name: "5月",
     })
 
-    await userEvent.click(mayButton)
-    expect(textbox).toHaveValue("2025年5月")
+    await userEvent.click(mayOption)
+
+    // 選択後に5月が表示されることを確認
+    const mayText = await canvas.findByText("5月")
+    expect(mayText).toBeInTheDocument()
   },
 }

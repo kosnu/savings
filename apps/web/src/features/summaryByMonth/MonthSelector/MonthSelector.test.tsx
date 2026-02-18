@@ -1,3 +1,4 @@
+import { Theme } from "@radix-ui/themes"
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router-dom"
@@ -14,6 +15,10 @@ vi.mock("react-router-dom", async () => {
   }
 })
 
+const renderWithTheme = (component: React.ReactElement) => {
+  return render(<Theme>{component}</Theme>)
+}
+
 describe("MonthSelector", () => {
   afterEach(() => {
     cleanup()
@@ -21,7 +26,7 @@ describe("MonthSelector", () => {
   })
 
   test("クエリパラメータがない場合、今月の年月で初期化される", async () => {
-    render(
+    renderWithTheme(
       <MemoryRouter initialEntries={["/payments"]}>
         <MonthSelector />
       </MemoryRouter>,
@@ -40,44 +45,35 @@ describe("MonthSelector", () => {
   })
 
   test("クエリパラメータがある場合、その年月が表示される", () => {
-    render(
+    renderWithTheme(
       <MemoryRouter initialEntries={["/payments?year=2025&month=5"]}>
         <MonthSelector />
       </MemoryRouter>,
     )
 
-    const textbox = screen.getByRole("textbox")
-    expect(textbox).toHaveValue("2025年5月")
+    expect(screen.getByText("5月")).toBeInTheDocument()
+    expect(screen.getByText("2025")).toBeInTheDocument()
   })
 
   test("年月を選択すると、クエリパラメータが更新される", async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithTheme(
       <MemoryRouter initialEntries={["/payments?year=2025&month=5"]}>
         <MonthSelector />
       </MemoryRouter>,
     )
 
-    const textbox = screen.getByRole("textbox")
-    await user.click(textbox)
+    // 月のボタンをクリック
+    const monthButton = screen.getAllByRole("combobox")[0]
+    await user.click(monthButton)
 
-    // カレンダーの日付をクリック
-    const dayButton = screen.getByRole("button", { name: /2026年2月20日/ })
-    await user.click(dayButton)
+    // 6月を選択
+    const juneOption = await screen.findByRole("option", { name: "6月" })
+    await user.click(juneOption)
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/payments?year=2026&month=2")
+      expect(mockNavigate).toHaveBeenCalledWith("/payments?year=2025&month=6")
     })
-  })
-
-  test("「Month」ラベルが表示される", () => {
-    render(
-      <MemoryRouter initialEntries={["/payments?year=2025&month=5"]}>
-        <MonthSelector />
-      </MemoryRouter>,
-    )
-
-    expect(screen.getByText("Month")).toBeInTheDocument()
   })
 })

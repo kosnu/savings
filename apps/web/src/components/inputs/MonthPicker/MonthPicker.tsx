@@ -1,12 +1,5 @@
-import { CalendarIcon } from "@radix-ui/react-icons"
-import { Popover, TextField } from "@radix-ui/themes"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
-import { useCallback, useState } from "react"
-import { DayPicker } from "react-day-picker"
-import { ja as jaLocale } from "react-day-picker/locale"
-
-import "react-day-picker/style.css"
+import { Flex, Select } from "@radix-ui/themes"
+import { useCallback } from "react"
 
 interface MonthPickerProps {
   id?: string
@@ -15,65 +8,80 @@ interface MonthPickerProps {
   value?: Date
 }
 
+const MONTHS = [
+  { value: "1", label: "1月" },
+  { value: "2", label: "2月" },
+  { value: "3", label: "3月" },
+  { value: "4", label: "4月" },
+  { value: "5", label: "5月" },
+  { value: "6", label: "6月" },
+  { value: "7", label: "7月" },
+  { value: "8", label: "8月" },
+  { value: "9", label: "9月" },
+  { value: "10", label: "10月" },
+  { value: "11", label: "11月" },
+  { value: "12", label: "12月" },
+]
+
+const YEARS = Array.from({ length: 11 }, (_, i) => {
+  const year = 2020 + i
+  return { value: year.toString(), label: year.toString() }
+})
+
 export function MonthPicker(props: MonthPickerProps) {
   const { id, name, onChange, value } = props
-  const [open, setOpen] = useState(false)
 
-  const handleTriggerClick = useCallback(() => {
-    setOpen(true)
-  }, [])
+  const currentMonth = value ? (value.getMonth() + 1).toString() : ""
+  const currentYear = value ? value.getFullYear().toString() : ""
 
-  const handleChange = useCallback(
-    (date: Date | undefined) => {
-      onChange?.(date)
-      setOpen(false)
+  const handleMonthChange = useCallback(
+    (month: string) => {
+      const year = currentYear || new Date().getFullYear().toString()
+      const newDate = new Date(
+        Number.parseInt(year, 10),
+        Number.parseInt(month, 10) - 1,
+        1,
+      )
+      onChange?.(newDate)
     },
-    [onChange],
+    [currentYear, onChange],
   )
 
-  const handleFocusOut = useCallback(() => {
-    setOpen(false)
-  }, [])
-
-  const handleEscapeKeyDown = useCallback(() => {
-    setOpen(false)
-  }, [])
-
-  const formattedValue = value ? format(value, "yyyy年M月", { locale: ja }) : ""
+  const handleYearChange = useCallback(
+    (year: string) => {
+      const month = currentMonth || (new Date().getMonth() + 1).toString()
+      const newDate = new Date(
+        Number.parseInt(year, 10),
+        Number.parseInt(month, 10) - 1,
+        1,
+      )
+      onChange?.(newDate)
+    },
+    [currentMonth, onChange],
+  )
 
   return (
-    <div>
-      <Popover.Root open={open}>
-        <Popover.Trigger onClick={handleTriggerClick}>
-          <div>
-            <TextField.Root
-              id={id}
-              name={name}
-              placeholder="年月を選択"
-              value={formattedValue}
-              readOnly
-            >
-              <TextField.Slot>
-                <CalendarIcon width="18" height="18" />
-              </TextField.Slot>
-            </TextField.Root>
-          </div>
-        </Popover.Trigger>
-        <Popover.Content
-          onFocusOutside={handleFocusOut}
-          onEscapeKeyDown={handleEscapeKeyDown}
-        >
-          <DayPicker
-            locale={jaLocale}
-            mode="single"
-            selected={value}
-            onSelect={handleChange}
-            captionLayout="dropdown-months"
-            fromYear={2020}
-            toYear={2030}
-          />
-        </Popover.Content>
-      </Popover.Root>
-    </div>
+    <Flex gap="2" align="center">
+      <Select.Root value={currentMonth} onValueChange={handleMonthChange}>
+        <Select.Trigger id={id} name={name} placeholder="月を選択" />
+        <Select.Content>
+          {MONTHS.map((month) => (
+            <Select.Item key={month.value} value={month.value}>
+              {month.label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
+      <Select.Root value={currentYear} onValueChange={handleYearChange}>
+        <Select.Trigger placeholder="年を選択" />
+        <Select.Content>
+          {YEARS.map((year) => (
+            <Select.Item key={year.value} value={year.value}>
+              {year.label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
+    </Flex>
   )
 }
