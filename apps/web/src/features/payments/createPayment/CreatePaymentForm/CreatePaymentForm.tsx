@@ -156,6 +156,7 @@ export function CreatePaymentForm({
                 onChange={(amount) => field.handleChange(amount)}
                 error={hasErrorMessages(errorMessages)}
                 messages={errorMessages}
+                autoFocus
               />
             )
           }}
