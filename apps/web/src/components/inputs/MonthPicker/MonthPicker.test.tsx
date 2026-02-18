@@ -1,7 +1,12 @@
+import { Theme } from "@radix-ui/themes"
 import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, test, vi } from "vitest"
 import { MonthPicker } from "./MonthPicker"
+
+const renderWithTheme = (component: React.ReactElement) => {
+  return render(<Theme>{component}</Theme>)
+}
 
 describe("MonthPicker", () => {
   afterEach(() => {
@@ -9,31 +14,18 @@ describe("MonthPicker", () => {
   })
 
   test("年月が選択されていない場合、プレースホルダーが表示される", () => {
-    render(<MonthPicker />)
+    renderWithTheme(<MonthPicker />)
 
-    const textbox = screen.getByRole("textbox")
-    expect(textbox).toHaveValue("")
-    expect(textbox).toHaveAttribute("placeholder", "年月を選択")
+    expect(screen.getByText("月を選択")).toBeInTheDocument()
+    expect(screen.getByText("年を選択")).toBeInTheDocument()
   })
 
-  test("年月が選択されている場合、フォーマットされた年月が表示される", () => {
+  test("年月が選択されている場合、選択された値が表示される", () => {
     const date = new Date(2025, 4, 15)
-    render(<MonthPicker value={date} />)
+    renderWithTheme(<MonthPicker value={date} />)
 
-    const textbox = screen.getByRole("textbox")
-    expect(textbox).toHaveValue("2025年5月")
-  })
-
-  test("テキストフィールドをクリックするとカレンダーが開く", async () => {
-    const user = userEvent.setup()
-    render(<MonthPicker />)
-
-    const textbox = screen.getByRole("textbox")
-    await user.click(textbox)
-
-    // カレンダーのグリッドが表示されることを確認
-    const grid = screen.getByRole("grid")
-    expect(grid).toBeInTheDocument()
+    expect(screen.getByText("5月")).toBeInTheDocument()
+    expect(screen.getByText("2025")).toBeInTheDocument()
   })
 
   test("月を選択するとonChangeが呼ばれる", async () => {
@@ -41,31 +33,56 @@ describe("MonthPicker", () => {
     const handleChange = vi.fn()
     const initialDate = new Date(2025, 4, 15)
 
-    render(<MonthPicker value={initialDate} onChange={handleChange} />)
+    renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
 
-    const textbox = screen.getByRole("textbox")
-    await user.click(textbox)
+    // 月のボタンをクリック
+    const monthButton = screen.getAllByRole("combobox")[0]
+    await user.click(monthButton)
 
-    // カレンダーの日付をクリック（現在月の20日をクリック）
-    const dayButton = screen.getByRole("button", { name: /2026年2月20日/ })
-    await user.click(dayButton)
+    // 6月を選択
+    const juneOption = await screen.findByRole("option", { name: "6月" })
+    await user.click(juneOption)
 
     expect(handleChange).toHaveBeenCalledTimes(1)
     const calledDate = handleChange.mock.calls[0][0]
     expect(calledDate).toBeInstanceOf(Date)
+    expect(calledDate.getMonth()).toBe(5) // 6月は0ベースで5
+    expect(calledDate.getFullYear()).toBe(2025)
+  })
+
+  test("年を選択するとonChangeが呼ばれる", async () => {
+    const user = userEvent.setup()
+    const handleChange = vi.fn()
+    const initialDate = new Date(2025, 4, 15)
+
+    renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
+
+    // 年のボタンをクリック
+    const yearButton = screen.getAllByRole("combobox")[1]
+    await user.click(yearButton)
+
+    // 2026年を選択
+    const year2026Option = await screen.findByRole("option", { name: "2026" })
+    await user.click(year2026Option)
+
+    expect(handleChange).toHaveBeenCalledTimes(1)
+    const calledDate = handleChange.mock.calls[0][0]
+    expect(calledDate).toBeInstanceOf(Date)
+    expect(calledDate.getMonth()).toBe(4) // 5月
+    expect(calledDate.getFullYear()).toBe(2026)
   })
 
   test("id属性が正しく設定される", () => {
-    render(<MonthPicker id="month-picker" />)
+    renderWithTheme(<MonthPicker id="month-picker" />)
 
-    const textbox = screen.getByRole("textbox")
-    expect(textbox).toHaveAttribute("id", "month-picker")
+    const monthButton = screen.getAllByRole("combobox")[0]
+    expect(monthButton).toHaveAttribute("id", "month-picker")
   })
 
   test("name属性が正しく設定される", () => {
-    render(<MonthPicker name="month" />)
+    renderWithTheme(<MonthPicker name="month" />)
 
-    const textbox = screen.getByRole("textbox")
-    expect(textbox).toHaveAttribute("name", "month")
+    const monthButton = screen.getAllByRole("combobox")[0]
+    expect(monthButton).toHaveAttribute("name", "month")
   })
 })
