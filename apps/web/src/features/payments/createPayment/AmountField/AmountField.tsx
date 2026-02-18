@@ -7,6 +7,7 @@ interface AmountFieldProps {
   messages?: string[]
   value?: number
   onChange?: (amount: number | undefined) => void
+  autoFocus?: boolean
 }
 
 export function AmountField({
@@ -14,6 +15,7 @@ export function AmountField({
   messages,
   value,
   onChange,
+  autoFocus,
 }: AmountFieldProps) {
   const id = useId()
 
@@ -36,6 +38,7 @@ export function AmountField({
         type="text"
         inputMode="numeric"
         value={value?.toString() ?? ""}
+        autoFocus={autoFocus}
         onChange={(e) => {
           const val = e.target.value
           if (val === "") {
