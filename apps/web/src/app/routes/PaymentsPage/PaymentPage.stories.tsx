@@ -28,7 +28,7 @@ const meta = {
   decorators: [
     (Story) => {
       return (
-        <MemoryRouter initialEntries={["/payments"]}>
+        <MemoryRouter initialEntries={["/payments?year=2025&month=6"]}>
           <FirestoreProvider config={firebaseConfig}>
             <Story />
           </FirestoreProvider>
