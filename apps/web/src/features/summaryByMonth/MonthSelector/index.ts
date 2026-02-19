@@ -1,2 +1,1 @@
 export { MonthSelector } from "./MonthSelector"
-export { Summary } from "./Summary"
