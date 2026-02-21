@@ -25,6 +25,8 @@ Deno.test("createPaymentUseCase は作成条件をリポジトリへ渡す", asy
     // deno-lint-ignore require-await
     search: async () => ok([]),
     // deno-lint-ignore require-await
+    monthlyTotal: async () => ok(0),
+    // deno-lint-ignore require-await
     create: async (params) => {
       recorded.params = params
       return ok(samplePayment)
@@ -60,6 +62,8 @@ Deno.test("date が不正な場合は ValidationError を返す", async () => {
     // deno-lint-ignore require-await
     search: async () => ok([]),
     // deno-lint-ignore require-await
+    monthlyTotal: async () => ok(0),
+    // deno-lint-ignore require-await
     create: async () => ok(samplePayment),
   }
 
@@ -83,6 +87,8 @@ Deno.test("金額が整数でない場合は ValidationError を返す", async (
     // deno-lint-ignore require-await
     search: async () => ok([]),
     // deno-lint-ignore require-await
+    monthlyTotal: async () => ok(0),
+    // deno-lint-ignore require-await
     create: async () => ok(samplePayment),
   }
 
@@ -105,6 +111,8 @@ Deno.test("リポジトリエラーはそのまま返す", async () => {
   const repository: PaymentRepository = {
     // deno-lint-ignore require-await
     search: async () => ok([]),
+    // deno-lint-ignore require-await
+    monthlyTotal: async () => ok(0),
     // deno-lint-ignore require-await
     create: async () => err(unexpectedError("boom")),
   }

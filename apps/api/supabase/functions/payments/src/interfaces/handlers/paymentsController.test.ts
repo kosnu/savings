@@ -21,6 +21,7 @@ const createController = (
   const baseDeps: PaymentsControllerDeps = {
     createRepository: () => createPaymentRepositoryStub(),
     searchUseCase: () => Promise.resolve(ok([])),
+    monthlyTotalUseCase: () => Promise.resolve(ok(0)),
     createUseCase: () => Promise.resolve(ok(createSamplePayment())),
     createErrorResponse: () => new Response(null, { status: 500 }),
     jsonHeaders: JSON_HEADERS,
@@ -38,7 +39,11 @@ const createPaymentRepositoryStub = (): PaymentRepository => {
   const create: PaymentRepository["create"] = async () => {
     throw new Error("payment repository stub should not be called")
   }
-  return { search, create }
+  // deno-lint-ignore require-await
+  const monthlyTotal: PaymentRepository["monthlyTotal"] = async () => {
+    throw new Error("payment repository stub should not be called")
+  }
+  return { search, monthlyTotal, create }
 }
 
 const createSamplePayment = () =>
@@ -251,6 +256,90 @@ Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async 
   assertEquals(response.status, 400)
   assertEquals(body.fieldErrors.dateTo.length, 1)
   assertEquals(body.fieldErrors.dateTo[0], "Invalid ISO date")
+})
+
+Deno.test("月次合計取得成功時に200で結果を返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  const repo = createPaymentRepositoryStub()
+  let receivedCriteria: { userId: number; month: string } | undefined
+
+  const controller = createController({
+    createRepository: () => repo,
+    // deno-lint-ignore require-await
+    monthlyTotalUseCase: async (criteria) => {
+      receivedCriteria = criteria
+      return ok(3700)
+    },
+    createErrorResponse: () => {
+      throw new Error("createErrorResponse should not be called")
+    },
+  })
+
+  const response = await controller.monthlyTotal(supabase, 1, "2024-01")
+  const body = await response.json()
+
+  assertEquals(receivedCriteria, { userId: 1, month: "2024-01" })
+  assertEquals(response.status, 200)
+  assertEquals(body, { totalAmount: 3700, month: "2024-01" })
+})
+
+Deno.test("month未指定の場合はValidationErrorを返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  let receivedError: DomainError | z.ZodError | undefined
+
+  const controller = createController({
+    createRepository: () => {
+      throw new Error("createRepository should not be called")
+    },
+    createErrorResponse: (error) => {
+      receivedError = error
+      const resBody = error instanceof z.ZodError
+        ? z.flattenError(error)
+        : { message: error.message }
+      return new Response(JSON.stringify(resBody), {
+        status: 400,
+        headers: JSON_HEADERS,
+      })
+    },
+  })
+
+  const response = await controller.monthlyTotal(supabase, 1)
+  const body = await response.json()
+
+  assertEquals(receivedError instanceof z.ZodError, true)
+  assertEquals(response.status, 400)
+  assertEquals(
+    body.fieldErrors.month[0],
+    "Invalid input: expected string, received undefined",
+  )
+})
+
+Deno.test("month形式不正の場合はValidationErrorを返す", async () => {
+  const supabase = {} as SupabaseClient<Database>
+  let receivedError: DomainError | z.ZodError | undefined
+
+  const controller = createController({
+    createRepository: () => {
+      throw new Error("createRepository should not be called")
+    },
+    createErrorResponse: (error) => {
+      receivedError = error
+      const resBody = error instanceof z.ZodError
+        ? z.flattenError(error)
+        : { message: error.message }
+      return new Response(JSON.stringify(resBody), {
+        status: 400,
+        headers: JSON_HEADERS,
+      })
+    },
+  })
+
+  const response = await controller.monthlyTotal(supabase, 1, "2024-13")
+  const body = await response.json()
+
+  assertEquals(receivedError instanceof z.ZodError, true)
+  assertEquals(response.status, 400)
+  assertEquals(body.fieldErrors.month.length, 1)
 })
 
 Deno.test("支払い作成成功時に201で結果を返す", async () => {
