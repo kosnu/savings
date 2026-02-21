@@ -1,9 +1,11 @@
-import { Button, Flex, Text } from "@radix-ui/themes"
-import { Link, Outlet } from "react-router-dom"
+import { CalendarIcon } from "@radix-ui/react-icons"
+import { Flex } from "@radix-ui/themes"
+import { Outlet } from "react-router-dom"
 import { paths } from "../../config/paths"
 import { useAuthCheck } from "../../utils/auth/useAuthCheck"
 import { Header } from "../Header"
 import { Sidebar, useSidebar } from "../Sidebar"
+import { SidebarButton } from "../Sidebar/SidebarButton"
 import styles from "./AppLayout.module.css"
 
 export function AppLayout() {
@@ -14,15 +16,15 @@ export function AppLayout() {
     <Flex className={styles.layout}>
       {/* Sidebar */}
       <Sidebar open={open} onClose={closeSidebar}>
-        <Link to={paths.payments.getHref()} onClick={closeSidebar}>
-          <Button
-            aria-label="Navigate to Payments page"
-            variant="ghost"
-            size="3"
-          >
-            <Text>Payments</Text>
-          </Button>
-        </Link>
+        <SidebarButton
+          path={paths.payments.getHref()}
+          label={
+            <>
+              <CalendarIcon /> Payments
+            </>
+          }
+          onClick={closeSidebar}
+        />
       </Sidebar>
 
       <Flex direction="column" flexGrow="1">
