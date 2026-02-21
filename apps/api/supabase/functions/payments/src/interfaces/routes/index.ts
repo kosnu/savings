@@ -64,17 +64,8 @@ export const registerPaymentsRoutes = (
       )
     }
 
-    const userIdResult = await getUserIdByExternalId(supabase, user.id)
-    if (!userIdResult.isOk) {
-      return createErrorResponse(userIdResult.error)
-    }
-
     const month = c.req.query("month")
-    return await paymentsController.monthlyTotal(
-      supabase,
-      userIdResult.value,
-      month,
-    )
+    return await paymentsController.monthlyTotal(supabase, month)
   })
 
   app.post("/payments", async (c) => {

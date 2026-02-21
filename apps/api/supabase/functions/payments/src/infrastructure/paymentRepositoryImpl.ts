@@ -115,9 +115,8 @@ const createInsertPayment: CreateInsertPayment =
   }
 
 const createFetchMonthlyTotal: CreateFetchMonthlyTotal =
-  (supabase) => async ({ userId, month }) => {
+  (supabase) => async ({ month }) => {
     const { data, error } = await supabase.rpc("get_monthly_total_amount", {
-      p_user_id: userId,
       p_month: month,
     })
 

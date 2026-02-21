@@ -80,11 +80,9 @@ export const createPaymentsController = (
 
   const monthlyTotal = async (
     supabase: SupabaseClient<Database>,
-    userId: number,
     month?: string,
   ) => {
     const criteria = MonthCriteriaSchema.safeParse({
-      userId,
       month,
     })
     if (!criteria.success) {

@@ -261,7 +261,7 @@ Deno.test("dateToが不正な形式の場合はValidationErrorを返す", async 
 Deno.test("月次合計取得成功時に200で結果を返す", async () => {
   const supabase = {} as SupabaseClient<Database>
   const repo = createPaymentRepositoryStub()
-  let receivedCriteria: { userId: number; month: string } | undefined
+  let receivedCriteria: { month: string } | undefined
 
   const controller = createController({
     createRepository: () => repo,
@@ -275,10 +275,10 @@ Deno.test("月次合計取得成功時に200で結果を返す", async () => {
     },
   })
 
-  const response = await controller.monthlyTotal(supabase, 1, "2024-01")
+  const response = await controller.monthlyTotal(supabase, "2024-01")
   const body = await response.json()
 
-  assertEquals(receivedCriteria, { userId: 1, month: "2024-01" })
+  assertEquals(receivedCriteria, { month: "2024-01" })
   assertEquals(response.status, 200)
   assertEquals(body, { totalAmount: 3700, month: "2024-01" })
 })
@@ -303,7 +303,7 @@ Deno.test("month未指定の場合はValidationErrorを返す", async () => {
     },
   })
 
-  const response = await controller.monthlyTotal(supabase, 1)
+  const response = await controller.monthlyTotal(supabase)
   const body = await response.json()
 
   assertEquals(receivedError instanceof z.ZodError, true)
@@ -334,7 +334,7 @@ Deno.test("month形式不正の場合はValidationErrorを返す", async () => {
     },
   })
 
-  const response = await controller.monthlyTotal(supabase, 1, "2024-13")
+  const response = await controller.monthlyTotal(supabase, "2024-13")
   const body = await response.json()
 
   assertEquals(receivedError instanceof z.ZodError, true)
