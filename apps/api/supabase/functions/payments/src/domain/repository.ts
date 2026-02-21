@@ -21,10 +21,17 @@ export type PaymentCreateParams = {
   readonly categoryId: CategoryId | null
 }
 
+export type PaymentMonthlyTotalParams = {
+  readonly month: string
+}
+
 export interface PaymentRepository {
   search(
     params: PaymentSearchParams,
   ): Promise<Result<ReadonlyArray<Payment>, DomainError>>
+  monthlyTotal(
+    params: PaymentMonthlyTotalParams,
+  ): Promise<Result<number, DomainError>>
   create(
     params: PaymentCreateParams,
   ): Promise<Result<Payment, DomainError>>

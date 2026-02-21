@@ -46,6 +46,28 @@ export const registerPaymentsRoutes = (
     )
   })
 
+  app.get("/payments/total", async (c) => {
+    const supabase = c.var.supabase
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ message: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { "content-type": "application/json; charset=utf-8" },
+        },
+      )
+    }
+
+    const month = c.req.query("month")
+    return await paymentsController.monthlyTotal(supabase, month)
+  })
+
   app.post("/payments", async (c) => {
     const supabase = c.var.supabase
 

@@ -1,9 +1,9 @@
 import { assertEquals } from "@std/assert"
 import { createPayment } from "../domain/entities/payment.ts"
-import { PaymentRepository, PaymentSearchParams } from "../domain/repository.ts"
+import { PaymentRepository } from "../domain/repository.ts"
 import { unexpectedError } from "../shared/errors.ts"
 import { err, ok } from "../shared/result.ts"
-import { searchPaymentsUseCase } from "./searchPaymentsUseCase.ts"
+import { getMonthlyTotalUseCase } from "./getMonthlyTotalUseCase.ts"
 
 const samplePayment = createPayment({
   id: 1,
@@ -16,46 +16,48 @@ const samplePayment = createPayment({
   userId: 1,
 })
 
-Deno.test("searchPaymentsUseCase は検索条件をリポジトリへ渡す", async () => {
-  const recorded: { params?: PaymentSearchParams } = {}
+Deno.test("getMonthlyTotalUseCase は月次条件をリポジトリへ渡す", async () => {
+  const recorded: {
+    params?: Parameters<PaymentRepository["monthlyTotal"]>[0]
+  } = {}
   const repository: PaymentRepository = {
     // deno-lint-ignore require-await
-    search: async (params) => {
-      recorded.params = params
-      return ok([samplePayment])
-    },
+    search: async () => ok([samplePayment]),
     // deno-lint-ignore require-await
-    monthlyTotal: async () => ok(0),
+    monthlyTotal: async (params) => {
+      recorded.params = params
+      return ok(3200)
+    },
     // deno-lint-ignore require-await
     create: async () => ok(samplePayment),
   }
 
-  const criteria: PaymentSearchParams = {
-    userId: 1,
-    dateFrom: "2024-01-01",
-    dateTo: "2024-01-31",
-  }
+  const result = await getMonthlyTotalUseCase(
+    { month: "2024-01" },
+    repository,
+  )
 
-  const result = await searchPaymentsUseCase(criteria, repository)
-
-  assertEquals(recorded.params, criteria)
+  assertEquals(recorded.params, { month: "2024-01" })
   assertEquals(result.isOk, true)
   if (result.isOk) {
-    assertEquals(result.value, [samplePayment])
+    assertEquals(result.value, 3200)
   }
 })
 
-Deno.test("searchPaymentsUseCase はエラーをそのまま返す", async () => {
+Deno.test("getMonthlyTotalUseCase はエラーをそのまま返す", async () => {
   const repository: PaymentRepository = {
     // deno-lint-ignore require-await
-    search: async () => err(unexpectedError("boom")),
+    search: async () => ok([samplePayment]),
     // deno-lint-ignore require-await
-    monthlyTotal: async () => ok(0),
+    monthlyTotal: async () => err(unexpectedError("boom")),
     // deno-lint-ignore require-await
     create: async () => ok(samplePayment),
   }
 
-  const result = await searchPaymentsUseCase({ userId: 1 }, repository)
+  const result = await getMonthlyTotalUseCase(
+    { month: "2024-01" },
+    repository,
+  )
 
   assertEquals(result.isOk, false)
   if (!result.isOk) {
