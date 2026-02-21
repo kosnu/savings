@@ -106,6 +106,16 @@ Dependency flow: `interfaces → application → domain ← infrastructure`
 
 Terraform managing Supabase (DB module) and Firebase Hosting. Production environment in `infra/terraform/environments/production/`.
 
+## Workflow
+
+タスクの規模に応じてワークフローを選択する:
+
+| サイズ | コマンド | 目安 | 使い方 |
+|--------|----------|------|--------|
+| Small | `/small` | 1-3ファイル、単純な修正 | バグ修正、設定変更 |
+| Medium | `/medium` | 4-10ファイル、単一アプリ | 新機能追加、リファクタリング |
+| Large | `/large` | 10+ファイル、FE+BE横断 | 新規エンドポイント+UI |
+
 ## Key Conventions
 
 - Deno projects (`apps/api/`, `scripts/import_to_firestore/`): avoid `deno install` — use `deno task` / Supabase CLI / Taskfile
