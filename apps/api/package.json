@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "devDependencies": {
-    "supabase": "2.76.9"
+    "supabase": "2.76.10"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
