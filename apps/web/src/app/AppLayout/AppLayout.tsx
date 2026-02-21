@@ -1,11 +1,12 @@
+import { CalendarIcon } from "@radix-ui/react-icons"
 import { Flex } from "@radix-ui/themes"
 import { Outlet } from "react-router-dom"
-import { SidebarTreeButton } from "../../components/buttons/SidebarTreeButton"
+import { paths } from "../../config/paths"
 import { useAuthCheck } from "../../utils/auth/useAuthCheck"
 import { Header } from "../Header"
 import { Sidebar, useSidebar } from "../Sidebar"
+import { SidebarButton } from "../Sidebar/SidebarButton"
 import styles from "./AppLayout.module.css"
-import { getPaymentsSidebarTree } from "./getPaymentsSidebarTree"
 
 export function AppLayout() {
   useAuthCheck()
@@ -15,9 +16,14 @@ export function AppLayout() {
     <Flex className={styles.layout}>
       {/* Sidebar */}
       <Sidebar open={open} onClose={closeSidebar}>
-        <SidebarTreeButton
-          treeObject={getPaymentsSidebarTree(new Date())}
-          onLinkClick={closeSidebar}
+        <SidebarButton
+          path={paths.payments.getHref()}
+          label={
+            <>
+              <CalendarIcon /> Payments
+            </>
+          }
+          onClick={closeSidebar}
         />
       </Sidebar>
 
