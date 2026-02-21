@@ -1,0 +1,12 @@
+.sidebar-button-link {
+  /* ボタンのスタイル */
+  width: 100%;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.sidebar-button {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
