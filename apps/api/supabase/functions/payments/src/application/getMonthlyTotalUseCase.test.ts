@@ -33,11 +33,11 @@ Deno.test("getMonthlyTotalUseCase は月次条件をリポジトリへ渡す", a
   }
 
   const result = await getMonthlyTotalUseCase(
-    { userId: 1, month: "2024-01" },
+    { month: "2024-01" },
     repository,
   )
 
-  assertEquals(recorded.params, { userId: 1, month: "2024-01" })
+  assertEquals(recorded.params, { month: "2024-01" })
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(result.value, 3200)
@@ -55,7 +55,7 @@ Deno.test("getMonthlyTotalUseCase はエラーをそのまま返す", async () =
   }
 
   const result = await getMonthlyTotalUseCase(
-    { userId: 1, month: "2024-01" },
+    { month: "2024-01" },
     repository,
   )
 

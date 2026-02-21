@@ -138,7 +138,6 @@ export type Database = {
       get_monthly_total_amount: {
         Args: {
           p_month: string
-          p_user_id: number
         }
         Returns: number
       }

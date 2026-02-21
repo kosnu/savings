@@ -106,7 +106,7 @@ Deno.test("指定月の合計支出額を取得できる", async () => {
   })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  const result = await repo.monthlyTotal({ userId: 1, month: "2024-01" })
+  const result = await repo.monthlyTotal({ month: "2024-01" })
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(result.value, 1300)
@@ -114,7 +114,7 @@ Deno.test("指定月の合計支出額を取得できる", async () => {
 
   assertEquals(recorded.rpcCalls, [{
     fn: "get_monthly_total_amount",
-    args: { p_user_id: 1, p_month: "2024-01" },
+    args: { p_month: "2024-01" },
   }])
 })
 
@@ -124,7 +124,7 @@ Deno.test("月次合計取得でSupabaseエラーをResult.errとして返す", 
   })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  const result = await repo.monthlyTotal({ userId: 1, month: "2024-01" })
+  const result = await repo.monthlyTotal({ month: "2024-01" })
   assertEquals(result.isOk, false)
 })
 
@@ -134,7 +134,7 @@ Deno.test("月次合計取得でnullなら0を返す", async () => {
   })
   const repo = createSupabasePaymentRepository({ supabase })
 
-  const result = await repo.monthlyTotal({ userId: 1, month: "2024-01" })
+  const result = await repo.monthlyTotal({ month: "2024-01" })
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(result.value, 0)

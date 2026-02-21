@@ -3,7 +3,6 @@ import { DomainError } from "../shared/errors.ts"
 import { Result } from "../shared/result.ts"
 
 export type GetMonthlyTotalInput = {
-  readonly userId: number
   readonly month: string
 }
 

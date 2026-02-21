@@ -22,7 +22,6 @@ export type PaymentCreateParams = {
 }
 
 export type PaymentMonthlyTotalParams = {
-  readonly userId: number
   readonly month: string
 }
 
