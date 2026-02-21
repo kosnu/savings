@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { Payment } from "../domain/entities/payment.ts"
 import {
   PaymentCreateParams,
+  PaymentMonthlyTotalParams,
   PaymentRepository,
   PaymentSearchParams,
 } from "../domain/repository.ts"
@@ -20,6 +21,10 @@ type CreatePayment = (
   params: PaymentCreateParams,
 ) => Promise<Result<Payment, DomainError>>
 
+type FetchMonthlyTotal = (
+  params: PaymentMonthlyTotalParams,
+) => Promise<Result<number, DomainError>>
+
 type CreateFetchPayments = (
   supabase: SupabaseClient<Database>,
 ) => FetchPayments
@@ -27,6 +32,10 @@ type CreateFetchPayments = (
 type CreateInsertPayment = (
   supabase: SupabaseClient<Database>,
 ) => CreatePayment
+
+type CreateFetchMonthlyTotal = (
+  supabase: SupabaseClient<Database>,
+) => FetchMonthlyTotal
 
 const createFetchPayments: CreateFetchPayments =
   (supabase) => async ({ userId, dateFrom, dateTo }) => {
@@ -105,21 +114,48 @@ const createInsertPayment: CreateInsertPayment =
     }
   }
 
+const createFetchMonthlyTotal: CreateFetchMonthlyTotal =
+  (supabase) => async ({ month }) => {
+    const { data, error } = await supabase.rpc("get_monthly_total_amount", {
+      p_month: month,
+    })
+
+    if (error) {
+      return err(unexpectedError("Failed to fetch monthly total", error))
+    }
+
+    const totalAmount = data == null ? 0 : Number(data)
+    if (!Number.isFinite(totalAmount)) {
+      return err(
+        unexpectedError(
+          "Failed to convert monthly total amount",
+          new Error(String(data)),
+        ),
+      )
+    }
+    return ok(totalAmount)
+  }
+
 const toDateString = (value: Date): string => value.toISOString().slice(0, 10)
 
 type CreatePaymentRepositoryParams = {
   fetchPayments: FetchPayments
+  fetchMonthlyTotal: FetchMonthlyTotal
   insertPayment: CreatePayment
 }
 
 const createPaymentRepository = (
-  { fetchPayments, insertPayment }: CreatePaymentRepositoryParams,
+  { fetchPayments, fetchMonthlyTotal, insertPayment }:
+    CreatePaymentRepositoryParams,
 ): PaymentRepository => {
   const search: PaymentRepository["search"] = (params) => fetchPayments(params)
+  const monthlyTotal: PaymentRepository["monthlyTotal"] = (params) =>
+    fetchMonthlyTotal(params)
   const create: PaymentRepository["create"] = (params) => insertPayment(params)
 
   return {
     search,
+    monthlyTotal,
     create,
   }
 }
@@ -133,5 +169,6 @@ export const createSupabasePaymentRepository = (
 ): PaymentRepository =>
   createPaymentRepository({
     fetchPayments: createFetchPayments(supabase),
+    fetchMonthlyTotal: createFetchMonthlyTotal(supabase),
     insertPayment: createInsertPayment(supabase),
   })

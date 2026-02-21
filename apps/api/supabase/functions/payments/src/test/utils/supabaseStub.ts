@@ -19,6 +19,7 @@ export type RecordedQueries = {
   filters: FilterRecord[]
   orders: OrderRecord[]
   inserts: Array<{ table: string; values: unknown }>
+  rpcCalls: Array<{ fn: string; args: unknown }>
 }
 
 export type CreateSupabaseStubOptions = {
@@ -26,6 +27,8 @@ export type CreateSupabaseStubOptions = {
   error?: { message: string } | null
   insertData?: PaymentsRow | null
   insertError?: { message: string } | null
+  rpcData?: unknown
+  rpcError?: { message: string } | null
 }
 
 export const createSupabaseStub = (
@@ -34,6 +37,8 @@ export const createSupabaseStub = (
     error = null,
     insertData = null,
     insertError = null,
+    rpcData = 0,
+    rpcError = null,
   }: CreateSupabaseStubOptions = {},
 ) => {
   const recorded: RecordedQueries = {
@@ -41,6 +46,7 @@ export const createSupabaseStub = (
     filters: [] as FilterRecord[],
     orders: [] as OrderRecord[],
     inserts: [],
+    rpcCalls: [],
   }
 
   const chain = {
@@ -91,6 +97,10 @@ export const createSupabaseStub = (
     from(table: string) {
       recorded.table = table
       return chain
+    },
+    rpc(fn: string, args: unknown) {
+      recorded.rpcCalls.push({ fn, args })
+      return Promise.resolve({ data: rpcData, error: rpcError })
     },
   }
 
