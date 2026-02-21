@@ -198,3 +198,6 @@ terraform.rc
 
 # Docker上に起動したFirebase Emulatorのデータ出力先
 docker/firebase/data/emulator_data
+
+# AIに指示を出す時のMarkdownファイル
+NOTE.md
