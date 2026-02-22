@@ -216,6 +216,37 @@ describe("apiClient", () => {
       })
     })
 
+    it("400 + fieldErrors のみ で ValidationError をthrowし、formErrors はデフォルト値になる", async () => {
+      mockFetch(400, {
+        fieldErrors: { email: ["Invalid"] },
+      })
+
+      const error = await apiClient
+        .post("http://localhost:54321/test")
+        .catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(ValidationError)
+      const validationError = error as ValidationError
+      expect(validationError.fieldErrors).toEqual({
+        email: ["Invalid"],
+      })
+      expect(validationError.formErrors).toEqual([])
+    })
+
+    it("400 + formErrors のみ で ValidationError をthrowし、fieldErrors はデフォルト値になる", async () => {
+      mockFetch(400, {
+        formErrors: ["Invalid data"],
+      })
+
+      const error = await apiClient
+        .post("http://localhost:54321/test")
+        .catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(ValidationError)
+      const validationError = error as ValidationError
+      expect(validationError.formErrors).toEqual(["Invalid data"])
+      expect(validationError.fieldErrors).toEqual({})
+    })
     it("400 + message で DomainValidationError をthrowする", async () => {
       mockFetch(400, { message: "Duplicate entry" })
 
