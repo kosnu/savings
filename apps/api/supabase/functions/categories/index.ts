@@ -11,14 +11,9 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 const app = createServer({
-  supabaseFactory: (req) =>
+  supabaseFactory: () =>
     createClient<Database>(supabaseUrl, supabaseKey, {
       auth: { persistSession: false },
-      global: {
-        headers: {
-          Authorization: req.headers.get("Authorization") ?? "",
-        },
-      },
     }),
 })
 

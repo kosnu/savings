@@ -12,7 +12,7 @@ entrypoint = "./functions/payments/index.ts"
 
 [functions.categories]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/categories/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -32,3 +32,4 @@ enabled = true
 client_id = "env(SUPABASE_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_GOOGLE_CLIENT_SECRET)"
 redirect_uri = "env(SUPABASE_GOOGLE_REDIRECT_URL)"
+skip_nonce_check = true # ローカル開発時は true に設定
