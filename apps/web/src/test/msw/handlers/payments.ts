@@ -1,6 +1,6 @@
 import { HttpResponse, http } from "msw"
 
-const BASE_URL = "http://localhost:54321/functions/v1/payments"
+const BASE_URL = "*/functions/v1/payments"
 
 export interface PaymentDto {
   id: string
