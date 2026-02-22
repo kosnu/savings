@@ -1,22 +1,24 @@
-import {
-  collection,
-  type Firestore,
-  getDocs,
-  orderBy,
-  query,
-} from "firebase/firestore"
-import { collections } from "../../../providers/firebase/store"
+import { apiClient, buildFunctionUrl } from "../../../lib/apiClient"
 import type { Category } from "../../../types/category"
 
-export async function fetchCategories(db: Firestore): Promise<Category[]> {
-  const categoriesRef = collection(
-    db,
-    collections.categories.path(),
-  ).withConverter(collections.categories.converter)
-  const querySnapshot = await getDocs(
-    query(categoriesRef, orderBy("name", "desc")),
-  )
-  const categories = querySnapshot.docs.map((doc) => doc.data())
+interface CategoryDto {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
 
-  return categories
+interface CategoriesResponse {
+  categories: CategoryDto[]
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const url = buildFunctionUrl("categories")
+  const response = await apiClient.get<CategoriesResponse>(url)
+  return response.categories.map((dto) => ({
+    id: dto.id,
+    name: dto.name,
+    createdDate: new Date(dto.createdAt),
+    updatedDate: new Date(dto.updatedAt),
+  }))
 }
