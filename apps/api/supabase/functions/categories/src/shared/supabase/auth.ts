@@ -15,18 +15,33 @@ async function verifySupabaseJWT(token: string) {
 
 function classifyJwtError(e: unknown): { code: string; message: string } {
   if (e instanceof jose.errors.JWTExpired) {
-    return { code: "JWT_EXPIRED", message: "JWT verification failed: token expired" }
+    return {
+      code: "JWT_EXPIRED",
+      message: "JWT verification failed: token expired",
+    }
   }
   if (e instanceof jose.errors.JWTClaimValidationFailed) {
-    return { code: "JWT_CLAIM_INVALID", message: "JWT verification failed: claim validation failed" }
+    return {
+      code: "JWT_CLAIM_INVALID",
+      message: "JWT verification failed: claim validation failed",
+    }
   }
   if (e instanceof jose.errors.JWSSignatureVerificationFailed) {
-    return { code: "JWT_SIGNATURE_INVALID", message: "JWT verification failed: signature verification failed" }
+    return {
+      code: "JWT_SIGNATURE_INVALID",
+      message: "JWT verification failed: signature verification failed",
+    }
   }
   if (e instanceof jose.errors.JOSEError) {
-    return { code: "JWT_VERIFICATION_FAILED", message: `JWT verification failed: ${e.message}` }
+    return {
+      code: "JWT_VERIFICATION_FAILED",
+      message: `JWT verification failed: ${e.message}`,
+    }
   }
-  return { code: "JWT_UNKNOWN_ERROR", message: "JWT verification failed: unknown error" }
+  return {
+    code: "JWT_UNKNOWN_ERROR",
+    message: "JWT verification failed: unknown error",
+  }
 }
 
 const authMiddleware = createMiddleware(async (c, next) => {
