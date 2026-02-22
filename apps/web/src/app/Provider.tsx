@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { createQueryClient } from "../lib/queryClient"
 import { FirestoreProvider } from "../providers/firebase/FirebaseProvider"
 import { SnackbarProvider } from "../providers/snackbar"
+import { SupabaseSessionProvider } from "../providers/supabase"
 import { ThemeProvider } from "../providers/theme/ThemeProvider"
 
 const queryClient = createQueryClient()
@@ -14,11 +15,13 @@ interface ProviderProps {
 export function Provider({ children }: ProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <FirestoreProvider>
-        <ThemeProvider>
-          <SnackbarProvider>{children}</SnackbarProvider>
-        </ThemeProvider>
-      </FirestoreProvider>
+      <SupabaseSessionProvider>
+        <FirestoreProvider>
+          <ThemeProvider>
+            <SnackbarProvider>{children}</SnackbarProvider>
+          </ThemeProvider>
+        </FirestoreProvider>
+      </SupabaseSessionProvider>
     </QueryClientProvider>
   )
 }

@@ -3,16 +3,20 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
 import { expect, waitForElementToBeRemoved } from "storybook/test"
+import { vi } from "vitest"
 import { firebaseConfig } from "../../../config/firebase/test"
 import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
 import { categories } from "../../../test/data/categories"
 import { payments } from "../../../test/data/payments"
 import { user } from "../../../test/data/users"
-import { insertCategories } from "../../../test/utils/insertCategories"
 import { insertPayments } from "../../../test/utils/insertPayments"
 import { insertUser } from "../../../test/utils/insertUser"
 import { signInMockUser } from "../../../test/utils/signInByMockUser"
 import { Summary } from "./Summary"
+
+vi.mock("../../../features/categories/listCategory/fetchCategories", () => ({
+  fetchCategories: vi.fn().mockResolvedValue(categories),
+}))
 
 const meta = {
   title: "Features/SummaryByMonth/Summary",
@@ -24,15 +28,11 @@ const meta = {
   argTypes: {},
   args: {},
   beforeEach: async () => {
-    // FIXME: FiresotreTestProvider と処理が重複している
-    //        上記を解決したいけど、テストデータ挿入処理前にFirebaseを初期化しないといけないので、
-    //        FiresotreTestProvider の描画タイミングだと間に合わない
     const { firestore, auth } = initFirebase(firebaseConfig)
 
     await signInMockUser(auth, user)
     const userId = auth.currentUser?.uid ?? user.id
     await insertUser(firestore, { ...user, id: userId })
-    await insertCategories(auth, firestore, categories)
     await insertPayments(auth, firestore, payments)
   },
   decorators: (Story) => {

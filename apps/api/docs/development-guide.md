@@ -362,10 +362,12 @@ mkdir -p apps/api/supabase/functions/new-function
 ```toml
 [functions.new-function]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/new-function/deno.json"
 entrypoint = "./functions/new-function/index.ts"
 ```
+
+> **Note**: `verify_jwt = false` に設定し、JWT 認証は Hono のカスタムミドルウェア（jose ライブラリによる JWKS 検証）で行います。categories 関数の `src/shared/supabase/auth.ts` を参考にしてください。
 
 4. `Taskfile.yml` にタスク追加（オプション）
 
