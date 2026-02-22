@@ -265,6 +265,7 @@ task serve:functions:payments
 **症状**: `task up` や `npx supabase functions serve` がエラーで終了する
 
 **原因と解決法**:
+
 - Supabase が起動していない → `npx supabase start` を実行
 - ポートが既に使用されている → `npx supabase stop` してから再起動
 - Deno のバージョンが古い → Deno v2.1.14 にアップグレード
@@ -274,6 +275,7 @@ task serve:functions:payments
 **症状**: Edge Functions から DB に接続できない
 
 **解決法**:
+
 ```bash
 # Supabase のステータス確認
 npx supabase status
@@ -288,6 +290,7 @@ npx supabase start
 **症状**: `deno test` がエラーで失敗する
 
 **原因と解決法**:
+
 - 必要なパーミッションフラグが足りない → `--allow-read --allow-env` を追加
 - モックが正しく設定されていない → テストコードを確認
 - 型定義が古い → `deno cache --reload` でキャッシュをクリア
@@ -297,6 +300,7 @@ npx supabase start
 **症状**: TypeScript の型エラーが表示される
 
 **解決法**:
+
 ```bash
 # キャッシュのクリア
 deno cache --reload index.ts
@@ -310,6 +314,7 @@ deno check index.ts
 **症状**: マイグレーションファイルを作成したが DB に反映されない
 
 **解決法**:
+
 ```bash
 # マイグレーションの適用
 task up:migrations
@@ -323,6 +328,7 @@ npx supabase migration list
 **症状**: `task down` 後も `.run` ディレクトリにファイルが残る
 
 **解決法**:
+
 ```bash
 # 手動でクリーンアップ
 rm -rf apps/api/.run
@@ -339,17 +345,20 @@ kill <PID>
 ## 新しい Edge Function の追加
 
 1. 関数ディレクトリの作成
+
 ```bash
 mkdir -p apps/api/supabase/functions/new-function
 ```
 
 2. 必要なファイルの作成
+
 ```bash
 # index.ts, deno.json を作成
 # categories や payments を参考にする
 ```
 
 3. `config.toml` に設定追加
+
 ```toml
 [functions.new-function]
 enabled = true
@@ -359,6 +368,7 @@ entrypoint = "./functions/new-function/index.ts"
 ```
 
 4. `Taskfile.yml` にタスク追加（オプション）
+
 ```yaml
 serve:functions:new-function:
   desc: Serve new-function in background
