@@ -15,8 +15,16 @@ async function verifySupabaseJWT(token: string) {
 
 const authMiddleware = createMiddleware(async (c, next) => {
   const authHeader = c.req.header("Authorization")
-  if (!authHeader?.startsWith("Bearer ")) {
-    return c.json({ error: "Missing or invalid Authorization header" }, 401)
+  if (!authHeader) {
+    return c.json({ error: "Missing Authorization header" }, 401)
+  }
+  if (!authHeader.startsWith("Bearer ")) {
+    return c.json(
+      {
+        error: "Invalid Authorization header format, expected 'Bearer <token>'",
+      },
+      401,
+    )
   }
 
   const token = authHeader.slice(7)
