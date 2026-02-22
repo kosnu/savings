@@ -13,6 +13,22 @@ async function verifySupabaseJWT(token: string) {
   return await jose.jwtVerify(token, jwks)
 }
 
+function classifyJwtError(e: unknown): { code: string; message: string } {
+  if (e instanceof jose.errors.JWTExpired) {
+    return { code: "JWT_EXPIRED", message: "JWT verification failed: token expired" }
+  }
+  if (e instanceof jose.errors.JWTClaimValidationFailed) {
+    return { code: "JWT_CLAIM_INVALID", message: "JWT verification failed: claim validation failed" }
+  }
+  if (e instanceof jose.errors.JWSSignatureVerificationFailed) {
+    return { code: "JWT_SIGNATURE_INVALID", message: "JWT verification failed: signature verification failed" }
+  }
+  if (e instanceof jose.errors.JOSEError) {
+    return { code: "JWT_VERIFICATION_FAILED", message: `JWT verification failed: ${e.message}` }
+  }
+  return { code: "JWT_UNKNOWN_ERROR", message: "JWT verification failed: unknown error" }
+}
+
 const authMiddleware = createMiddleware(async (c, next) => {
   const authHeader = c.req.header("Authorization")
   if (!authHeader) {
@@ -31,8 +47,16 @@ const authMiddleware = createMiddleware(async (c, next) => {
   try {
     await verifySupabaseJWT(token)
   } catch (e) {
-    console.error("JWT verification error:", e)
-    return c.json({ error: "Invalid JWT" }, 401)
+    const { code, message } = classifyJwtError(e)
+
+    console.error(JSON.stringify({
+      level: "error",
+      context: "jwt_auth",
+      code,
+      message,
+    }))
+
+    return c.json({ error: "Invalid JWT", code }, 401)
   }
 
   return next()
