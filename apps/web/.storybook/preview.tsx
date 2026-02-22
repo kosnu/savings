@@ -7,8 +7,11 @@ import { SnackbarProvider } from "../src/providers/snackbar"
 import { SupabaseSessionContext } from "../src/providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 import { mockSession } from "../src/test/data/supabaseSession"
+import { worker } from "../src/test/msw/browser"
 
 import "../src/assets/global.css"
+
+let mswStarted = false
 
 const preview: Preview = {
   parameters: {
@@ -19,6 +22,14 @@ const preview: Preview = {
       },
     },
   },
+  loaders: [
+    async () => {
+      if (!mswStarted) {
+        await worker.start({ onUnhandledRequest: "bypass" })
+        mswStarted = true
+      }
+    },
+  ],
   decorators: [
     (Story) => {
       const queryClient = createQueryClient()
