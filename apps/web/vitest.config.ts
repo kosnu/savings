@@ -39,6 +39,7 @@ export default defineConfig({
         test: {
           name: "unit/integration",
           include: ["**/*.test.ts(|x)"],
+          setupFiles: ["./vitest.setup.ts", "./vitest.msw.setup.ts"],
         },
       },
       {
