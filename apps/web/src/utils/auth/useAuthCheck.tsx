@@ -11,8 +11,8 @@ export function useAuthCheck() {
   useEffect(() => {
     const auth = getAuth()
     const supabase = getSupabaseClient()
-    let firebaseUser: User | null | undefined = undefined
-    let supabaseSession: Session | null | undefined = undefined
+    let firebaseUser: User | null | undefined
+    let supabaseSession: Session | null | undefined
     let isActive = true
 
     const evaluateAuthState = () => {

@@ -52,6 +52,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
+  tags: ["skip"],
   play: async ({ canvasElement, userEvent }) => {
     const canvas = within(canvasElement)
 

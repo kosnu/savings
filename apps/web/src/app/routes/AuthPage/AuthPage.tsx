@@ -22,7 +22,9 @@ export function AuthPage() {
             <Tabs.Content value="firebase">
               <Flex direction="column" gap="2" mt="3">
                 <Text size="2">既存の Firebase 認証でログインします。</Text>
-                <Button onClick={signInWithFirebase}>Firebase でログイン</Button>
+                <Button onClick={signInWithFirebase}>
+                  Firebase でログイン
+                </Button>
               </Flex>
             </Tabs.Content>
             <Tabs.Content value="supabase">
