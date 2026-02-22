@@ -25,7 +25,7 @@ const preview: Preview = {
 
       return (
         <QueryClientProvider client={queryClient}>
-          <SupabaseSessionContext.Provider
+          <SupabaseSessionContext
             value={{ session: mockSession(), loading: false }}
           >
             <ThemeProvider>
@@ -33,7 +33,7 @@ const preview: Preview = {
                 <Story />
               </SnackbarProvider>
             </ThemeProvider>
-          </SupabaseSessionContext.Provider>
+          </SupabaseSessionContext>
         </QueryClientProvider>
       )
     },
