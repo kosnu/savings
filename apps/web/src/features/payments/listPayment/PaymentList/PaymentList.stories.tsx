@@ -1,20 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
 import { expect, fn, within } from "storybook/test"
-import { vi } from "vitest"
 import { firebaseConfig } from "../../../../config/firebase/test"
 import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
-import { categories } from "../../../../test/data/categories"
 import { payments } from "../../../../test/data/payments"
 import { user } from "../../../../test/data/users"
 import { insertPayments } from "../../../../test/utils/insertPayments"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import { PaymentList } from "./PaymentList"
-
-vi.mock("../../../../features/categories/listCategory/fetchCategories", () => ({
-  fetchCategories: vi.fn().mockResolvedValue(categories),
-}))
 
 const meta = {
   title: "Features/ListPayment/PaymentList",
