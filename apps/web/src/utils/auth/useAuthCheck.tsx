@@ -1,23 +1,24 @@
-import type { Session } from "@supabase/supabase-js"
 import { getAuth, onAuthStateChanged, type User } from "firebase/auth"
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { paths } from "../../config/paths"
-import { getSupabaseClient } from "../../lib/supabase"
+import { useSupabaseSession } from "../../providers/supabase"
 
 export function useAuthCheck() {
   const navigate = useNavigate()
+  const { session: supabaseSession, loading: supabaseLoading } =
+    useSupabaseSession()
 
   useEffect(() => {
+    if (supabaseLoading) return
+
     const auth = getAuth()
-    const supabase = getSupabaseClient()
     let firebaseUser: User | null | undefined
-    let supabaseSession: Session | null | undefined
     let isActive = true
 
     const evaluateAuthState = () => {
       if (!isActive) return
-      if (firebaseUser === undefined || supabaseSession === undefined) return
+      if (firebaseUser === undefined) return
       if (!firebaseUser && !supabaseSession) {
         navigate(paths.root.getHref())
       }
@@ -28,35 +29,11 @@ export function useAuthCheck() {
       evaluateAuthState()
     })
 
-    supabase.auth
-      .getSession()
-      .then(({ data, error }) => {
-        if (error) {
-          console.error("Failed to get supabase session:", error)
-          supabaseSession = null
-          evaluateAuthState()
-          return
-        }
-        supabaseSession = data.session
-        evaluateAuthState()
-      })
-      .catch((error) => {
-        console.error("Failed to get supabase session:", error)
-        supabaseSession = null
-        evaluateAuthState()
-      })
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        supabaseSession = session
-        evaluateAuthState()
-      },
-    )
+    evaluateAuthState()
 
     return () => {
       isActive = false
       unsubscribeFirebase()
-      authListener.subscription.unsubscribe()
     }
-  }, [navigate])
+  }, [navigate, supabaseSession, supabaseLoading])
 }

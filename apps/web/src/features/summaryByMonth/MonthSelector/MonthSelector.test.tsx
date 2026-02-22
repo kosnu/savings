@@ -3,6 +3,10 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router-dom"
 import { afterEach, describe, expect, test, vi } from "vitest"
+import {
+  SupabaseSessionContext,
+  type SupabaseSessionState,
+} from "../../../providers/supabase/SupabaseSessionProvider"
 import { MonthSelector } from "./MonthSelector"
 
 const mockNavigate = vi.fn()
@@ -15,8 +19,30 @@ vi.mock("react-router-dom", async () => {
   }
 })
 
+const mockSession: SupabaseSessionState = {
+  session: {
+    access_token: "mock-access-token",
+    refresh_token: "mock-refresh-token",
+    expires_in: 3600,
+    token_type: "bearer",
+    user: {
+      id: "mock-user-id",
+      email: "test@example.com",
+      app_metadata: {},
+      user_metadata: {},
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+    },
+  } as any,
+  loading: false,
+}
+
 const renderWithTheme = (component: React.ReactElement) => {
-  return render(<Theme>{component}</Theme>)
+  return render(
+    <SupabaseSessionContext value={mockSession}>
+      <Theme>{component}</Theme>
+    </SupabaseSessionContext>,
+  )
 }
 
 describe("MonthSelector", () => {

@@ -2,10 +2,12 @@ import { useCallback, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
 import { paths } from "../../../config/paths"
+import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 
 export function MonthSelector() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { session } = useSupabaseSession()
 
   const yearParam = searchParams.get("year")
   const monthParam = searchParams.get("month")
@@ -33,13 +35,15 @@ export function MonthSelector() {
 
   // デフォルトで今月を設定する（クエリパラメータがない場合）
   useEffect(() => {
+    // NOTE: セッションがない場合はリダイレクト処理を行わないようにしないと、その後のセッション取得で null になってしまう
+    if (!session) return
     if (!yearParam || !monthParam) {
       const now = new Date()
       const year = now.getFullYear().toString()
       const month = (now.getMonth() + 1).toString()
       navigate(paths.payments.getHref(year, month), { replace: true })
     }
-  }, [yearParam, monthParam, navigate])
+  }, [session, yearParam, monthParam, navigate])
 
   return (
     <MonthPicker
