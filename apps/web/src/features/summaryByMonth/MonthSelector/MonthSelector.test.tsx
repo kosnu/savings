@@ -7,6 +7,7 @@ import {
   SupabaseSessionContext,
   type SupabaseSessionState,
 } from "../../../providers/supabase/SupabaseSessionProvider"
+import { mockSession } from "../../../test/data/supabaseSession"
 import { MonthSelector } from "./MonthSelector"
 
 const mockNavigate = vi.fn()
@@ -19,27 +20,14 @@ vi.mock("react-router-dom", async () => {
   }
 })
 
-const mockSession: SupabaseSessionState = {
-  session: {
-    access_token: "mock-access-token",
-    refresh_token: "mock-refresh-token",
-    expires_in: 3600,
-    token_type: "bearer",
-    user: {
-      id: "mock-user-id",
-      email: "test@example.com",
-      app_metadata: {},
-      user_metadata: {},
-      aud: "authenticated",
-      created_at: new Date().toISOString(),
-    },
-  } as any,
+const mockSessionState: SupabaseSessionState = {
+  session: mockSession(),
   loading: false,
 }
 
 const renderWithTheme = (component: React.ReactElement) => {
   return render(
-    <SupabaseSessionContext value={mockSession}>
+    <SupabaseSessionContext value={mockSessionState}>
       <Theme>{component}</Theme>
     </SupabaseSessionContext>,
   )
