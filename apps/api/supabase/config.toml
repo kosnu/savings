@@ -32,4 +32,4 @@ enabled = true
 client_id = "env(SUPABASE_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_GOOGLE_CLIENT_SECRET)"
 redirect_uri = "env(SUPABASE_GOOGLE_REDIRECT_URL)"
-skip_nonce_check = true # ローカル開発時は true に設定
+skip_nonce_check = "env(SUPABASE_GOOGLE_SKIP_NONCE_CHECK)"
