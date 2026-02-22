@@ -8,8 +8,8 @@ import { SnackbarProvider } from "../src/providers/snackbar"
 import { SupabaseSessionContext } from "../src/providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 import { mockSession } from "../src/test/data/supabaseSession"
-import { createMockJwt } from "../src/test/msw/handlers/auth"
 import { worker } from "../src/test/msw/browser"
+import { createMockJwt } from "../src/test/msw/handlers/auth"
 
 import "../src/assets/global.css"
 
