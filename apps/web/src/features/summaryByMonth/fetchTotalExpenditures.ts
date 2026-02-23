@@ -1,37 +1,21 @@
-import type { User } from "firebase/auth"
-import {
-  collection,
-  type Firestore,
-  getAggregateFromServer,
-  query,
-  sum,
-  where,
-} from "firebase/firestore"
-import { collections } from "../../providers/firebase/store"
+import { apiClient, buildFunctionUrl } from "../../lib/apiClient"
+
+interface TotalResponse {
+  totalAmount: number
+  month: string
+}
 
 export async function fetchTotalExpenditures(
-  db: Firestore,
-  user: User | null,
-  [startDate, endDate]: [Date | null, Date | null],
+  month: string,
 ): Promise<number | null> {
-  if (!user || !startDate || !endDate) {
+  if (!month) {
     return null
   }
 
-  const paymentsRef = collection(
-    db,
-    collections.payments.path(user.uid),
-  ).withConverter(collections.payments.converter)
-  const querySnapshot = query(
-    paymentsRef,
-    where("user_id", "==", user.uid),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate),
-  )
-
-  const snapshot = await getAggregateFromServer(querySnapshot, {
-    totalPopulation: sum("amount"),
+  const url = buildFunctionUrl("payments", "/total")
+  const response = await apiClient.get<TotalResponse>(url, {
+    params: { month },
   })
 
-  return snapshot.data().totalPopulation
+  return response.totalAmount
 }
