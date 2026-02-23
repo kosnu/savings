@@ -1,14 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { QueryClientProvider } from "@tanstack/react-query"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
 import { firebaseConfig } from "../../../../config/firebase/test"
-import { createQueryClient } from "../../../../lib/queryClient"
 import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { user } from "../../../../test/data/users"
-import { insertUser } from "../../../../test/utils/insertUser"
-import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import { CreatePaymentForm } from "./CreatePaymentForm"
 
 const meta = {
@@ -24,22 +19,14 @@ const meta = {
     onCancel: fn(),
   },
   beforeEach: async () => {
-    const { firestore, auth } = initFirebase(firebaseConfig)
-
-    await signInMockUser(auth, user)
-    const userId = auth.currentUser?.uid ?? user.id
-    await insertUser(firestore, { ...user, id: userId })
+    initFirebase(firebaseConfig)
   },
   decorators: (Story) => {
-    const queryClient = createQueryClient()
-
     return (
       <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <FirestoreProvider config={firebaseConfig}>
-            <Story />
-          </FirestoreProvider>
-        </QueryClientProvider>
+        <FirestoreProvider config={firebaseConfig}>
+          <Story />
+        </FirestoreProvider>
       </ThemeProvider>
     )
   },
@@ -60,13 +47,6 @@ export const Fiiled: Story = {
     await userEvent.click(datepicker)
 
     // NOTE: 今日の日付はデフォルトで選択されているので、あえてクリックしない
-    // const body = canvasElement.ownerDocument.body
-    // {
-    //   const todayButton = await within(body).findByRole("button", {
-    //     name: /today/i,
-    //   })
-    //   await userEvent.click(todayButton)
-    // }
     {
       const select = await canvas.findByRole("combobox", { name: /category/i })
       await userEvent.click(select)
