@@ -1,0 +1,80 @@
+name: Deploy Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment"
+        type: environment
+        required: true
+      skip_web:
+        description: "Skip Web Deployment"
+        type: boolean
+        default: false
+      skip_api:
+        description: "Skip API Deployment"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  # --- Backend (Supabase Edge Functions) のデプロイ ---
+  deploy-api:
+    if: ${{ !github.event.inputs.skip_api }} # skip_api が true の場合はこのジョブをスキップ
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@b60b5899c73b63a2d2d651b1e90db8d4c9392f51 # v1
+        with:
+          version: latest
+
+      - name: Migrate Database
+        run: supabase migration up --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        working-directory: apps/api
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy Edge Functions
+        # --project-ref を指定することでリンクの手間を省けます
+        run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        working-directory: apps/api
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+  # --- Frontend (React + Vite) のデプロイ ---
+  deploy-web:
+    if: ${{ !github.event.inputs.skip_web && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') }}
+    needs: deploy-api
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
+        with:
+          node-version-file: "apps/web/package.json"
+
+      - name: Install deps and build
+        run: |
+          npm ci
+          npm run build
+        working-directory: apps/web/
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy apps/web/dist --project-name=savings
