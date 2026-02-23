@@ -3,8 +3,10 @@ import { useCallback } from "react"
 import type { Payment } from "../../../types/payment"
 import { removePayment } from "./removePayment"
 
+type PaymentId = NonNullable<Payment["id"]>
+
 interface UseDeletePaymentReturn {
-  deletePayment: (payment: Payment) => void
+  deletePayment: (paymentId: PaymentId) => void
   isPending: boolean
 }
 
@@ -15,7 +17,7 @@ export function useDeletePayment(
   const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (payment: Payment) => removePayment(payment.id),
+    mutationFn: (paymentId: PaymentId) => removePayment(paymentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] })
       onSuccess?.()
@@ -26,8 +28,8 @@ export function useDeletePayment(
   })
 
   const deletePayment = useCallback(
-    (payment: Payment) => {
-      mutate(payment)
+    (paymentId: PaymentId) => {
+      mutate(paymentId)
     },
     [mutate],
   )
