@@ -1,39 +1,30 @@
-import { useMutation } from "@tanstack/react-query"
-import {
-  addDoc,
-  collection,
-  type Firestore,
-  serverTimestamp,
-} from "firebase/firestore"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { format } from "date-fns"
 import { useCallback } from "react"
-import { useFirestore } from "../../../providers/firebase"
-import { collections } from "../../../providers/firebase/store"
+import { apiClient, buildFunctionUrl } from "../../../lib/apiClient"
 import type { Payment } from "../../../types/payment"
-import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 
 type PaymentValue = Omit<
   Payment,
   "id" | "userId" | "createdDate" | "updatedDate"
 >
 
-interface AddPaymentProps {
-  db: Firestore
-  userId: string
-  value: PaymentValue
+interface CreatePaymentRequest {
+  amount: number
+  date: string
+  note?: string
+  categoryId?: string
 }
 
-export async function addPayment({ db, userId, value }: AddPaymentProps) {
-  return await addDoc(
-    collection(db, collections.payments.path(userId)).withConverter(
-      collections.payments.converter,
-    ),
-    {
-      ...value,
-      userId: userId,
-      createdDate: serverTimestamp(),
-      updatedDate: serverTimestamp(),
-    },
-  )
+async function postPayment(value: PaymentValue): Promise<void> {
+  const url = buildFunctionUrl("payments")
+  const body: CreatePaymentRequest = {
+    amount: value.amount,
+    date: format(value.date, "yyyy-MM-dd"),
+    note: value.note || undefined,
+    categoryId: value.categoryId || undefined,
+  }
+  await apiClient.post(url, { body })
 }
 
 interface UseCreatePaymentReturn {
@@ -45,23 +36,12 @@ export function useCreatePayment(
   onSuccess?: () => void,
   onError?: (error?: Error) => void,
 ): UseCreatePaymentReturn {
-  const { currentUser } = useAuthCurrentUser()
-  const db = useFirestore()
+  const queryClient = useQueryClient()
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (value: PaymentValue & { userId: string }) => {
-      return await addPayment({
-        db: db,
-        userId: value.userId,
-        value: {
-          categoryId: value.categoryId,
-          date: value.date,
-          note: value.note,
-          amount: value.amount,
-        },
-      })
-    },
+    mutationFn: postPayment,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["payments"] })
       onSuccess?.()
     },
     onError: (error) => {
@@ -71,10 +51,9 @@ export function useCreatePayment(
 
   const createPayment = useCallback(
     async (value: PaymentValue) => {
-      if (!currentUser) return
-      await mutateAsync({ ...value, userId: currentUser.uid })
+      await mutateAsync(value)
     },
-    [currentUser, mutateAsync],
+    [mutateAsync],
   )
 
   return { createPayment, isPending }
