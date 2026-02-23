@@ -20,8 +20,16 @@ export function DeletePaymentModal({
   onClose,
   onSuccess,
 }: DeletePaymentModalProps) {
-  const { deletePayment } = useDeletePayment()
   const { openSnackbar } = useSnackbar()
+  const { deletePayment } = useDeletePayment(
+    () => {
+      openSnackbar("success", "Payment deleted successfully.")
+      onSuccess()
+    },
+    () => {
+      openSnackbar("error", "Failed to delete payment.")
+    },
+  )
   const paymentInfo = payment
     ? `${formatDateToLocaleString(payment.date)} ${payment.note} ${toCurrency(payment.amount)}`
     : "Payment not found."
@@ -35,17 +43,10 @@ export function DeletePaymentModal({
     [onClose],
   )
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(() => {
     if (!payment) return
-
-    try {
-      await deletePayment(payment)
-      openSnackbar("success", "Payment deleted successfully.")
-      onSuccess()
-    } catch (_error) {
-      openSnackbar("error", "Failed to delete payment.")
-    }
-  }, [deletePayment, payment, onSuccess, openSnackbar])
+    deletePayment(payment)
+  }, [deletePayment, payment])
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
