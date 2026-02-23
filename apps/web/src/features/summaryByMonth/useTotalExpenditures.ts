@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { useFirestore } from "../../providers/firebase/useFirestore"
-import { useAuthCurrentUser } from "../../utils/auth/useAuthCurrentUser"
+import { format } from "date-fns"
 import { useDateRange } from "../../utils/useDateRange"
 import { fetchTotalExpenditures } from "./fetchTotalExpenditures"
 
@@ -12,17 +11,13 @@ interface UseTotalExpendituresReturn {
 }
 
 export function useTotalExpenditures(): UseTotalExpendituresReturn {
-  const { currentUser } = useAuthCurrentUser()
-  const db = useFirestore()
-  const { date, dateRange } = useDateRange()
+  const { date } = useDateRange()
+  const month = date ? format(date, "yyyy-MM") : ""
 
   const query = useQuery({
-    queryKey: [
-      "totalExpenditures",
-      currentUser?.uid,
-      date?.toISOString() ?? "all",
-    ],
-    queryFn: () => fetchTotalExpenditures(db, currentUser, dateRange),
+    queryKey: ["totalExpenditures", month],
+    queryFn: () => fetchTotalExpenditures(month),
+    enabled: !!month,
     staleTime: 3000, // 3秒
   })
 
