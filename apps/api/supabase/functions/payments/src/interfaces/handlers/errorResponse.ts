@@ -16,6 +16,12 @@ export function createErrorResponse<T extends Record<string, unknown>>(
 ): Response {
   if (error instanceof z.ZodError) {
     const flattenError = z.flattenError(error)
+    console.error(JSON.stringify({
+      level: "error",
+      context: "validation",
+      message: error.message,
+      details: flattenError.fieldErrors,
+    }))
     return new Response(
       JSON.stringify(flattenError),
       { status: 400, headers: JSON_HEADERS },
@@ -23,6 +29,12 @@ export function createErrorResponse<T extends Record<string, unknown>>(
   }
 
   if (isValidationError(error)) {
+    console.error(JSON.stringify({
+      level: "error",
+      context: "validation",
+      message: error.message,
+      details: error.details,
+    }))
     return new Response(
       JSON.stringify({ message: error.message, details: error.details }),
       { status: 400, headers: JSON_HEADERS },
@@ -38,6 +50,14 @@ export function createErrorResponse<T extends Record<string, unknown>>(
 
   if (isUnexpectedError(error) && isPostgrestError(error.original)) {
     const pgError = error.original
+    console.error(JSON.stringify({
+      level: "error",
+      context: "database",
+      message: pgError.message,
+      details: pgError.details,
+      hint: pgError.hint,
+      code: pgError.code,
+    }))
     return new Response(
       JSON.stringify({
         message: pgError.message,
@@ -48,6 +68,12 @@ export function createErrorResponse<T extends Record<string, unknown>>(
       { status: 500, headers: JSON_HEADERS },
     )
   }
+
+  console.error(JSON.stringify({
+    level: "error",
+    context: "unknown",
+    message: error instanceof Error ? error.message : String(error),
+  }))
 
   return new Response(JSON.stringify({ message: error.message }), {
     status: 500,
