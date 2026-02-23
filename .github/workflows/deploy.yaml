@@ -25,6 +25,8 @@ jobs:
     if: ${{ github.event.inputs.skip_api != 'true' }} # skip_api が true の場合はこのジョブをスキップ
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -34,18 +36,17 @@ jobs:
         with:
           version: latest
 
-      - name: Migrate Database
-        run: supabase migration up --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+      - name: Link Supabase Project
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
         working-directory: apps/api
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Push Database Migrations
+        run: supabase db push
+        working-directory: apps/api
 
       - name: Deploy Edge Functions
-        # --project-ref を指定することでリンクの手間を省けます
-        run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: supabase functions deploy
         working-directory: apps/api
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
   # --- Frontend (React + Vite) のデプロイ ---
   deploy-web:
