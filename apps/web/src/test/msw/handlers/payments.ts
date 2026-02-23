@@ -79,4 +79,8 @@ export const paymentHandlers = [
   http.get(`${BASE_URL}/total`, () => {
     return HttpResponse.json({ totalAmount: 10000, month: "2025-06" })
   }),
+
+  http.delete(`${BASE_URL}/:id`, () => {
+    return HttpResponse.json({ message: "Not Implemented" }, { status: 501 })
+  }),
 ]
