@@ -1,23 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
 import { expect, within } from "storybook/test"
-import { firebaseConfig } from "../../../config/firebase/test"
-import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
 import { CategoryTotals } from "./CategoryTotals"
 
 const meta = {
   title: "Features/SummaryByMonth/CategoryTotals",
   component: CategoryTotals,
   tags: ["autodocs"],
-  beforeEach: async () => {
-    initFirebase(firebaseConfig)
-  },
   decorators: (Story) => {
     return (
       <MemoryRouter initialEntries={["/payments?year=2025&month=06"]}>
-        <FirestoreProvider config={firebaseConfig}>
-          <Story />
-        </FirestoreProvider>
+        <Story />
       </MemoryRouter>
     )
   },
