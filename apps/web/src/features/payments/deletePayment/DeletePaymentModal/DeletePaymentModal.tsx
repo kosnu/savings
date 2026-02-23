@@ -44,8 +44,8 @@ export function DeletePaymentModal({
   )
 
   const handleSubmit = useCallback(() => {
-    if (!payment) return
-    deletePayment(payment)
+    if (!payment?.id) return
+    deletePayment(payment.id)
   }, [deletePayment, payment])
 
   return (
