@@ -14,10 +14,14 @@ export async function getUserIdByExternalId(
     .from("users")
     .select("id")
     .eq("external_id", externalId)
-    .single()
+    .maybeSingle()
 
   if (error) {
     return err(unexpectedError("Failed to fetch user by external_id", error))
+  }
+
+  if (!data) {
+    return err(unexpectedError("User not found for the given external_id"))
   }
 
   return ok(data.id)
