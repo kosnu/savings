@@ -75,7 +75,7 @@ npx supabase stop
 
 - **ランタイム**: Deno 2.x
 - **HTTP フレームワーク**: Hono
-- **BaaS**: Supabase (Edge Functions, Postgres, Auth JWT 検証)
+- **BaaS**: Supabase (Edge Functions, Postgres, Auth)
 - **クライアント SDK**: `@supabase/supabase-js@2.x`
 - **アーキテクチャパターン**: クリーンアーキテクチャ
 
@@ -177,7 +177,7 @@ apps/api/
 - **コーディングスタイル**: Deno の標準スタイル (`deno fmt`, `deno lint`)
 - **アーキテクチャ**: クリーンアーキテクチャ（domain/application/infrastructure/interfaces 層の分離）
 - **テスト**: 各層でのユニットテスト、統合テスト
-- **認証**: JWT 検証 (`verify_jwt = true`)
+- **認証**: カスタム JWT 認証ミドルウェア (`verify_jwt = false` + jose JWKS 検証)
 
 ## 参考リンク
 

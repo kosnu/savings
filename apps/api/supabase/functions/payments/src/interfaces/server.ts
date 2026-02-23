@@ -2,6 +2,7 @@ import { Hono } from "@hono/hono"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { registerPaymentsRoutes } from "./routes/index.ts"
 import type { Database } from "../shared/types.ts"
+import { configAuthMiddleware } from "../shared/supabase/auth.ts"
 
 type Vars = {
   supabase: SupabaseClient<Database>
@@ -19,6 +20,7 @@ export const createServer = (deps: ServerDeps) => {
     await next()
   })
 
+  configAuthMiddleware(app)
   registerPaymentsRoutes(app)
 
   return app

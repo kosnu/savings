@@ -20,10 +20,6 @@
       "name": "Payments Function",
       "path": "apps/api/supabase/functions/payments"
     },
-    {
-      "name": "import_to_firestore",
-      "path": "scripts/import_to_firestore"
-    }
   ],
   "settings": {
     "editor.renderWhitespace": "all",

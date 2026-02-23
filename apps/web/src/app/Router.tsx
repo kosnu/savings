@@ -7,6 +7,7 @@ import {
 import { paths } from "../config/paths"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
+import { AuthPage } from "./routes/AuthPage"
 import { ErrorPage } from "./routes/ErrorPage"
 import { PaymentsPage } from "./routes/PaymentsPage"
 import { TopPage } from "./routes/TopPage"
@@ -17,6 +18,11 @@ const router = createBrowserRouter(
       <Route
         path={paths.root.path}
         element={<TopPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path={paths.auth.path}
+        element={<AuthPage />}
         errorElement={<ErrorPage />}
       />
       <Route element={<AppLayout />} errorElement={<ErrorPage />}>

@@ -13,14 +13,12 @@ tasks:
     desc: Start Supabase and serve functions locally
     cmds:
       - task start:supabase
-      - task serve:functions:payments
-      - task serve:functions:categories
+      - task serve:functions
 
   down:
     desc: Stop Supabase and functions
     cmds:
-      - task stop:functions:categories
-      - task stop:functions:payments
+      - task stop:functions
       - task stop:supabase
 
   start:supabase:
@@ -31,37 +29,20 @@ tasks:
     desc: Stop Supabase locally
     cmd: npx supabase stop
 
-  serve:functions:payments:
-    desc: Serve Supabase Edge Functions in background (daemon-like)
+  serve:functions:
+    desc: Serve Supabase Edge Functions locally
     cmds:
       - mkdir -p .run
-      - sh -c 'nohup npx supabase functions serve payments > .run/function_payments.log 2>&1 & echo $! > .run/function_payments.pid'
-
-  stop:functions:payments:
+      - sh -c 'nohup npx supabase functions serve > .run/functions.log 2>&1 & echo $! > .run/functions.pid'
+  stop:functions:
     desc: Stop background Supabase Edge Functions
     cmds:
-      - sh -c 'test -f .run/function_payments.pid && kill "$(cat .run/function_payments.pid)" || true'
-      - rm -f .run/function_payments.pid
+      - sh -c 'test -f .run/functions.pid && kill "$(cat .run/functions.pid)" || true'
+      - rm -f .run/functions.pid
 
-  logs:functions:payments:
+  logs:functions:
     desc: Tail functions logs
-    cmd: tail -f .run/function_payments.log
-
-  serve:functions:categories:
-    desc: Serve Supabase Edge Functions in background (daemon-like)
-    cmds:
-      - mkdir -p .run
-      - sh -c 'nohup npx supabase functions serve categories > .run/function_categories.log 2>&1 & echo $! > .run/function_categories.pid'
-
-  stop:functions:categories:
-    desc: Stop background Supabase Edge Functions
-    cmds:
-      - sh -c 'test -f .run/function_categories.pid && kill "$(cat .run/function_categories.pid)" || true'
-      - rm -f .run/function_categories.pid
-
-  logs:functions:categories:
-    desc: Tail functions logs
-    cmd: tail -f .run/function_categories.log
+    cmd: tail -f .run/functions.log
 
   up:migrations:
     desc: Run database migrations to latest

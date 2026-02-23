@@ -1,16 +1,24 @@
-import { Button, Container } from "@radix-ui/themes"
+import { Button, Container, Flex, Text } from "@radix-ui/themes"
+import { Link } from "react-router-dom"
 import { Paper } from "../../../components/misc/Paper"
-import { useSignIn } from "../../../utils/auth/useSignIn"
+import { paths } from "../../../config/paths"
 
 export function TopPage() {
-  const { signIn } = useSignIn()
   return (
     <>
       {/* TODO: ログインしていたらダッシュボードを表示する */}
       <Container size="2">
         <Paper>
-          <h2>My Savings</h2>
-          <Button onClick={signIn}>ログイン</Button>
+          <Flex direction="column" gap="3">
+            <Text asChild size="5" weight="bold">
+              <h2>My Savings</h2>
+            </Text>
+            <Flex direction="column" gap="2">
+              <Button asChild>
+                <Link to={paths.auth.getHref()}>Go to Auth</Link>
+              </Button>
+            </Flex>
+          </Flex>
         </Paper>
       </Container>
     </>
