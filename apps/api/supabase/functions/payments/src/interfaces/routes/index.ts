@@ -106,4 +106,32 @@ export const registerPaymentsRoutes = (
       body,
     )
   })
+
+  app.delete("/payments/:id", async (c) => {
+    const supabase = c.var.supabase
+
+    // 認証情報取得
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ message: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { "content-type": "application/json; charset=utf-8" },
+        },
+      )
+    }
+
+    return new Response(
+      JSON.stringify({ message: "Not Implemented" }),
+      {
+        status: 501,
+        headers: { "content-type": "application/json; charset=utf-8" },
+      },
+    )
+  })
 }

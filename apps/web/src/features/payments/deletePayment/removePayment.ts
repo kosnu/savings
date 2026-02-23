@@ -1,13 +1,6 @@
-import { deleteDoc, doc, type Firestore } from "firebase/firestore"
-import { collections } from "../../../providers/firebase/store"
+import { apiClient, buildFunctionUrl } from "../../../lib/apiClient"
 
-export async function removePayment(
-  db: Firestore,
-  userId: string,
-  paymentId: string | undefined,
-): Promise<void> {
-  if (paymentId === undefined) throw new Error("paymentId is undefined.")
-
-  const paymentRef = doc(db, collections.payments.path(userId), paymentId)
-  await deleteDoc(paymentRef)
+export async function removePayment(paymentId: string): Promise<void> {
+  const url = buildFunctionUrl("payments", `/${paymentId}`)
+  await apiClient.delete(url)
 }
