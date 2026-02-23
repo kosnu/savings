@@ -16,11 +16,15 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+
 jobs:
   # --- Backend (Supabase Edge Functions) のデプロイ ---
   deploy-api:
     if: ${{ !github.event.inputs.skip_api }} # skip_api が true の場合はこのジョブをスキップ
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -45,9 +49,10 @@ jobs:
 
   # --- Frontend (React + Vite) のデプロイ ---
   deploy-web:
-    if: ${{ !github.event.inputs.skip_web }} # skip_web が true の場合はこのジョブをスキップ
+    if: ${{ !github.event.inputs.skip_web && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') }}
     needs: deploy-api
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
