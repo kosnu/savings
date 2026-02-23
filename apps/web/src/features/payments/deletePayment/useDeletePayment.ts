@@ -1,29 +1,38 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
-import { useFirestore } from "../../../providers/firebase/useFirestore"
 import type { Payment } from "../../../types/payment"
-import { useAuthCurrentUser } from "../../../utils/auth/useAuthCurrentUser"
 import { removePayment } from "./removePayment"
 
+type PaymentId = NonNullable<Payment["id"]>
+
 interface UseDeletePaymentReturn {
-  deletePayment: (payment: Payment) => Promise<void>
+  deletePayment: (paymentId: PaymentId) => void
+  isPending: boolean
 }
 
-export function useDeletePayment(): UseDeletePaymentReturn {
-  const { currentUser } = useAuthCurrentUser()
-  const db = useFirestore()
+export function useDeletePayment(
+  onSuccess?: () => void,
+  onError?: (error?: Error) => void,
+): UseDeletePaymentReturn {
+  const queryClient = useQueryClient()
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (paymentId: PaymentId) => removePayment(paymentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["payments"] })
+      onSuccess?.()
+    },
+    onError: (error) => {
+      onError?.(error)
+    },
+  })
 
   const deletePayment = useCallback(
-    async (payment: Payment) => {
-      if (!currentUser) {
-        throw new Error("User is not authenticated.")
-      }
-
-      await removePayment(db, currentUser.uid, payment.id)
+    (paymentId: PaymentId) => {
+      mutate(paymentId)
     },
-    [db, currentUser],
+    [mutate],
   )
 
-  return {
-    deletePayment: deletePayment,
-  }
+  return { deletePayment, isPending }
 }

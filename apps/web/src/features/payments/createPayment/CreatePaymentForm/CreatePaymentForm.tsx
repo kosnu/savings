@@ -71,10 +71,10 @@ export function CreatePaymentForm({
     validators: {
       onSubmit: submitFormSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       const parsedValue = submitFormSchema.parse(value)
 
-      await createPayment({
+      createPayment({
         categoryId: parsedValue.category,
         date: parsedValue.date,
         note: parsedValue.note,
