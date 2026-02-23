@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn } from "storybook/test"
-import { firebaseConfig } from "../../../../config/firebase/test"
-import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
 import { foodCat } from "../../../../test/data/categories"
 import { payments } from "../../../../test/data/payments"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
@@ -20,16 +18,6 @@ const meta = {
   args: {
     onDeleteSuccess: fn(),
   },
-  beforeEach: async () => {
-    initFirebase(firebaseConfig)
-  },
-  decorators: [
-    (Story) => (
-      <FirestoreProvider config={firebaseConfig}>
-        <Story />
-      </FirestoreProvider>
-    ),
-  ],
 } satisfies Meta<typeof PaymentItem>
 
 export default meta

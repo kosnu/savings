@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
-import { firebaseConfig } from "../../../../config/firebase/test"
-import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { CreatePaymentForm } from "./CreatePaymentForm"
 
@@ -18,15 +16,10 @@ const meta = {
     onSuccess: fn(),
     onCancel: fn(),
   },
-  beforeEach: async () => {
-    initFirebase(firebaseConfig)
-  },
   decorators: (Story) => {
     return (
       <ThemeProvider>
-        <FirestoreProvider config={firebaseConfig}>
-          <Story />
-        </FirestoreProvider>
+        <Story />
       </ThemeProvider>
     )
   },
