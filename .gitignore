@@ -162,8 +162,6 @@ dist
 !**/.vscode/tasks.json
 !**/.vscode/*.code-snippets
 
-.firebase/*
-
 # =================================================================
 # Terraform
 # See https://www.terraform.io/docs/language/state/index.html
@@ -195,9 +193,6 @@ override.tf.json
 # Terraform CLI configuration files
 .terraformrc
 terraform.rc
-
-# Docker上に起動したFirebase Emulatorのデータ出力先
-docker/firebase/data/emulator_data
 
 # AIに指示を出す時のMarkdownファイル
 NOTE.md

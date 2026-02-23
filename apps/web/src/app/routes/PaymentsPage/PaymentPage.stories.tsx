@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
 import { expect, waitFor, within } from "storybook/test"
-import { firebaseConfig } from "../../../config/firebase/test"
-import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
 import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
@@ -10,16 +8,11 @@ const meta = {
   component: PaymentsPage,
   parameters: {},
   tags: ["autodocs"],
-  beforeEach: async () => {
-    initFirebase(firebaseConfig)
-  },
   decorators: [
     (Story) => {
       return (
         <MemoryRouter initialEntries={["/payments?year=2025&month=6"]}>
-          <FirestoreProvider config={firebaseConfig}>
-            <Story />
-          </FirestoreProvider>
+          <Story />
         </MemoryRouter>
       )
     },

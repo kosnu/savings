@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query"
+import { QueryCache, QueryClient } from "@tanstack/react-query"
 import { isUnauthorizedError } from "./apiErrors"
 
 export function createQueryClient() {
@@ -15,6 +15,15 @@ export function createQueryClient() {
         experimental_prefetchInRender: true,
       },
     },
+    queryCache: new QueryCache({
+      onError: (error) => {
+        if (isUnauthorizedError(error)) {
+          if (typeof window !== "undefined") {
+            window.location.href = "/"
+          }
+        }
+      },
+    }),
   })
 }
 

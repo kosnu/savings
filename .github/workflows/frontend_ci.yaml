@@ -9,13 +9,6 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    services:
-      firebase-emulator:
-        image: ghcr.io/kosnu/savings-firebase:latest
-        ports:
-          - 8080:8080   # Firestore
-          - 9099:9099   # Auth
-          - 4000:4000   # Emulator UI
     defaults:
       run:
         working-directory: apps/web/
@@ -40,17 +33,6 @@ jobs:
         uses: ./.github/actions/setup-playwright
         with:
           project-directory: apps/web
-
-      - name: Wait for Firebase Emulator
-        run: |
-          for i in {1..10}; do
-            if curl -s http://localhost:8080 > /dev/null; then
-              echo "Emulator is up!"
-              break
-            fi
-            echo "Waiting for emulator..."
-            sleep 1
-          done
 
       - name: Test
         run: npm run test -- --reporter=dot --silent
