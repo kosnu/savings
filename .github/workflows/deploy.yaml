@@ -27,6 +27,12 @@ jobs:
     environment: ${{ github.event.inputs.environment }}
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      AUTH_SITE_URL: ${{ secrets.AUTH_SITE_URL }}
+      AUTH_REDIRECT_URL: ${{ secrets.AUTH_REDIRECT_URL }}
+      SUPABASE_GOOGLE_CLIENT_ID: ${{ secrets.SUPABASE_GOOGLE_CLIENT_ID }}
+      SUPABASE_GOOGLE_CLIENT_SECRET: ${{ secrets.SUPABASE_GOOGLE_CLIENT_SECRET }}
+      SUPABASE_GOOGLE_REDIRECT_URL: ${{ secrets.SUPABASE_GOOGLE_REDIRECT_URL }}
+      SUPABASE_GOOGLE_SKIP_NONCE_CHECK: ${{ secrets.SUPABASE_GOOGLE_SKIP_NONCE_CHECK }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -39,13 +45,6 @@ jobs:
       - name: Link Supabase Project
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
         working-directory: apps/api
-        env:
-          AUTH_SITE_URL: ${{ secrets.AUTH_SITE_URL }}
-          AUTH_REDIRECT_URL: ${{ secrets.AUTH_REDIRECT_URL }}
-          SUPABASE_GOOGLE_CLIENT_ID: ${{ secrets.SUPABASE_GOOGLE_CLIENT_ID }}
-          SUPABASE_GOOGLE_CLIENT_SECRET: ${{ secrets.SUPABASE_GOOGLE_CLIENT_SECRET }}
-          SUPABASE_GOOGLE_REDIRECT_URL: ${{ secrets.SUPABASE_GOOGLE_REDIRECT_URL }}
-          SUPABASE_GOOGLE_SKIP_NONCE_CHECK: ${{ secrets.SUPABASE_GOOGLE_SKIP_NONCE_CHECK }}
 
       - name: Push Database Migrations
         run: supabase db push
