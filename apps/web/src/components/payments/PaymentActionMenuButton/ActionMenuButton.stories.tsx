@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent } from "storybook/test"
-import { firebaseConfig } from "../../../config/firebase/test"
-import { FirestoreProvider } from "../../../providers/firebase"
 import { payments } from "../../../test/data/payments"
 import { ActionMenuButton } from "./ActionMenuButton"
 
@@ -17,15 +15,6 @@ const meta = {
   args: {
     onDeleteSuccess: fn(),
   },
-  decorators: [
-    (Story) => {
-      return (
-        <FirestoreProvider config={firebaseConfig}>
-          <Story />
-        </FirestoreProvider>
-      )
-    },
-  ],
 } satisfies Meta<typeof ActionMenuButton>
 
 export default meta
@@ -40,7 +29,7 @@ export const OpenMenu: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const button = canvas.getByRole("button")
-    userEvent.click(button)
+    await userEvent.click(button)
     const menu = await within(canvasElement.ownerDocument.body).findByRole(
       "menu",
     )

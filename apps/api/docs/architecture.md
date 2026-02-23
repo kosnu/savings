@@ -8,7 +8,7 @@
 - **ランタイム**: Deno 2.x (Supabase Edge Functions)
 - **HTTP フレームワーク**: Hono
 - **データベース**: PostgreSQL (Supabase)
-- **認証**: Supabase Auth (JWT 検証)
+- **認証**: カスタム JWT 認証ミドルウェア (`verify_jwt = false` + jose ライブラリによる JWKS 検証)
 
 ---
 

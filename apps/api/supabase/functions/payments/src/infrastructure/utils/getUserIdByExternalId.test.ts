@@ -16,11 +16,11 @@ const createSupabaseStubForUsers = (
   const recorded: {
     table: string
     filters: Array<{ kind: string; column: string; value: unknown }>
-    single: boolean
+    maybeSingle: boolean
   } = {
     table: "",
     filters: [],
-    single: false,
+    maybeSingle: false,
   }
 
   const chain = {
@@ -31,8 +31,8 @@ const createSupabaseStubForUsers = (
       recorded.filters.push({ kind: "eq", column, value })
       return chain
     },
-    single() {
-      recorded.single = true
+    maybeSingle() {
+      recorded.maybeSingle = true
       return {
         then<TResult1 = unknown, TResult2 = never>(
           onfulfilled?:
@@ -84,7 +84,7 @@ Deno.test("getUserIdByExternalId はexternal_idからidを取得する", async (
   assertEquals(recorded.filters, [
     { kind: "eq", column: "external_id", value: "uuid-1234" },
   ])
-  assertEquals(recorded.single, true)
+  assertEquals(recorded.maybeSingle, true)
   assertEquals(result.isOk, true)
   if (result.isOk) {
     assertEquals(result.value, 123)
@@ -123,5 +123,20 @@ Deno.test("getUserIdByExternalId はnumber型のidを返す", async () => {
   if (result.isOk) {
     assertEquals(typeof result.value, "number")
     assertEquals(result.value, 999)
+  }
+})
+
+Deno.test("getUserIdByExternalId はユーザー未存在時にResult.errを返す", async () => {
+  const { supabase } = createSupabaseStubForUsers({ data: null })
+
+  const result = await getUserIdByExternalId(supabase, "non-existent-uuid")
+
+  assertEquals(result.isOk, false)
+  if (!result.isOk) {
+    assertEquals(result.error.type, "UnexpectedError")
+    assertEquals(
+      result.error.message,
+      "User not found for the given external_id",
+    )
   }
 })

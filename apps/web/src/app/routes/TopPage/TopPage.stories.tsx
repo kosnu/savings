@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
-import { firebaseConfig } from "../../../config/firebase/test"
-import { FirestoreProvider } from "../../../providers/firebase"
 import { TopPage } from "./TopPage"
 
 const meta = {
@@ -12,9 +10,7 @@ const meta = {
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={["/"]}>
-        <FirestoreProvider config={firebaseConfig}>
-          <Story />
-        </FirestoreProvider>
+        <Story />
       </MemoryRouter>
     ),
   ],

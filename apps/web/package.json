@@ -28,7 +28,6 @@
     "@tanstack/react-query": "5.90.21",
     "@tanstack/react-query-devtools": "5.91.3",
     "date-fns": "4.1.0",
-    "firebase": "12.9.0",
     "react": "19.2.4",
     "react-day-picker": "9.13.2",
     "react-dom": "19.2.4",
@@ -44,6 +43,7 @@
     "@storybook/addon-vitest": "10.2.8",
     "@storybook/builder-vite": "10.2.8",
     "@storybook/react-vite": "10.2.8",
+    "@supabase/supabase-js": "2.95.3",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
     "@types/node": "24.10.13",
@@ -53,6 +53,7 @@
     "@vitest/browser-playwright": "4.0.18",
     "@vitest/coverage-v8": "4.0.18",
     "jsdom": "28.1.0",
+    "msw": "2.12.10",
     "playwright": "1.58.2",
     "plop": "4.0.5",
     "storybook": "10.2.8",
@@ -60,5 +61,10 @@
     "typescript": "5.9.3",
     "vite": "7.3.1",
     "vitest": "4.0.18"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

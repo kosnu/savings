@@ -1,13 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { MemoryRouter } from "react-router-dom"
 import { expect, waitFor, within } from "storybook/test"
-import { firebaseConfig } from "../../../config/firebase/test"
-import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
-import { payments } from "../../../test/data/payments"
-import { user } from "../../../test/data/users"
-import { insertPayments } from "../../../test/utils/insertPayments"
-import { insertUser } from "../../../test/utils/insertUser"
-import { signInMockUser } from "../../../test/utils/signInByMockUser"
 import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
@@ -15,23 +8,11 @@ const meta = {
   component: PaymentsPage,
   parameters: {},
   tags: ["autodocs"],
-  beforeEach: async () => {
-    // FIXME: FiresotreTestProvider と処理が重複している
-    //        上記を解決したいけど、テストデータ挿入処理前にFirebaseを初期化しないといけないので、
-    //        FiresotreTestProvider の描画タイミングだと間に合わない
-    const { firestore, auth } = initFirebase(firebaseConfig)
-
-    await signInMockUser(auth, user)
-    await insertUser(firestore, user)
-    await insertPayments(auth, firestore, payments)
-  },
   decorators: [
     (Story) => {
       return (
         <MemoryRouter initialEntries={["/payments?year=2025&month=6"]}>
-          <FirestoreProvider config={firebaseConfig}>
-            <Story />
-          </FirestoreProvider>
+          <Story />
         </MemoryRouter>
       )
     },
@@ -50,11 +31,11 @@ export const Default: Story = {
 
     canvas.getByRole("button", { name: /create payment/i })
 
-    expect(await canvas.findAllByText("コンビニ")).toHaveLength(2)
-    expect(canvas.queryByText("スーパー")).not.toBeInTheDocument()
+    expect(await canvas.findAllByText("コンビニ")).toHaveLength(3)
+    expect(await canvas.findByText("スーパー")).toBeInTheDocument()
     expect(await canvas.findByText("2025/06/01")).toBeInTheDocument()
     expect(await canvas.findByText("2025/06/02")).toBeInTheDocument()
-    expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
+    expect(await canvas.findAllByText("￥4,000")).toHaveLength(2)
   },
 }
 

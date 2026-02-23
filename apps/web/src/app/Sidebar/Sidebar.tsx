@@ -1,8 +1,10 @@
 import { Cross1Icon } from "@radix-ui/react-icons"
 import { Button, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
 import type { ReactNode } from "react"
-import { Link } from "react-router-dom"
+import { useCallback } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { paths } from "../../config/paths"
+import { getSupabaseClient } from "../../lib/supabase"
 import styles from "./Sidebar.module.css"
 
 interface SidebarProps {
@@ -12,6 +14,19 @@ interface SidebarProps {
 }
 
 export function Sidebar({ children, open, onClose }: SidebarProps) {
+  const navigate = useNavigate()
+  const supabase = getSupabaseClient()
+
+  const handleLogout = useCallback(async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error("Failed to sign out from supabase:", error)
+      return
+    }
+    navigate(paths.root.getHref())
+    onClose()
+  }, [navigate, onClose, supabase])
+
   return (
     <aside data-open={open} className={styles.sidebar}>
       {/* Sidebar Header */}
@@ -40,7 +55,11 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
       </Flex>
       <Separator size="4" />
       {/* Sidebar Footer */}
-      <Flex className={styles.sidebarFooter} p="4" />
+      <Flex className={styles.sidebarFooter} p="4">
+        <Button color="red" variant="soft" onClick={handleLogout}>
+          Supabaseログアウト（検証用）
+        </Button>
+      </Flex>
     </aside>
   )
 }
