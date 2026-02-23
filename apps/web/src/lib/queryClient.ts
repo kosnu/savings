@@ -8,7 +8,10 @@ export function createQueryClient() {
         // Project-wide sensible defaults. Adjust as needed.
         staleTime: 1000 * 60, // 1 minute
         retry: (failureCount, error) => {
-          if (isUnauthorizedError(error)) return false
+          if (isUnauthorizedError(error)) {
+            window.location.href = "/"
+            return false
+          }
           return failureCount < 1
         },
         refetchOnWindowFocus: false,

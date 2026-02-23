@@ -6,13 +6,6 @@ function createEnv() {
   const EnvSchema = z.object({
     MODE: z.enum(["development", "production", "test"]),
 
-    FIREBASE_API_KEY: z.string().default("xxx"),
-    FIREBASE_AUTH_DOMAIN: z.string().default("http://localhost:9099"),
-    FIREBASE_PROJECT_ID: z.string(),
-    FIREBASE_STORAGE_BUCKET: z.string().optional(),
-    FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
-    FIREBASE_APP_ID: z.string().optional(),
-    FIREBASE_MEASUREMENT_ID: z.string().optional(),
     FIRESTORE_DATABASE_ID: z.string().default("(default)"),
 
     FIRESTORE_EMULATOR_HOST: z.string().default("localhost:8080"),
