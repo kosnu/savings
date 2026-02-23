@@ -3,11 +3,6 @@ import { MemoryRouter } from "react-router-dom"
 import { expect, within } from "storybook/test"
 import { firebaseConfig } from "../../../config/firebase/test"
 import { FirestoreProvider, initFirebase } from "../../../providers/firebase"
-import { payments } from "../../../test/data/payments"
-import { user } from "../../../test/data/users"
-import { insertPayments } from "../../../test/utils/insertPayments"
-import { insertUser } from "../../../test/utils/insertUser"
-import { signInMockUser } from "../../../test/utils/signInByMockUser"
 import { CategoryTotals } from "./CategoryTotals"
 
 const meta = {
@@ -15,16 +10,11 @@ const meta = {
   component: CategoryTotals,
   tags: ["autodocs"],
   beforeEach: async () => {
-    const { firestore, auth } = initFirebase(firebaseConfig)
-
-    await signInMockUser(auth, user)
-    const userId = auth.currentUser?.uid ?? user.id
-    await insertUser(firestore, { ...user, id: userId })
-    await insertPayments(auth, firestore, payments)
+    initFirebase(firebaseConfig)
   },
   decorators: (Story) => {
     return (
-      <MemoryRouter initialEntries={["/payments?year=2025&month=04"]}>
+      <MemoryRouter initialEntries={["/payments?year=2025&month=06"]}>
         <FirestoreProvider config={firebaseConfig}>
           <Story />
         </FirestoreProvider>
@@ -55,7 +45,8 @@ export const Default: Story = {
     expect(await canvas.findByText("Food")).toBeInTheDocument()
     expect(await canvas.findByText("Daily Necessities")).toBeInTheDocument()
     expect(await canvas.findByText("Entertainment")).toBeInTheDocument()
+    expect(await canvas.findByText("￥5,000")).toBeInTheDocument()
     expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
-    expect(await canvas.findAllByText("￥0")).toHaveLength(3)
+    expect(await canvas.findByText("￥1,000")).toBeInTheDocument()
   },
 }

@@ -6,9 +6,7 @@ import { firebaseConfig } from "../../../../config/firebase/test"
 import { createQueryClient } from "../../../../lib/queryClient"
 import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { payments } from "../../../../test/data/payments"
 import { user } from "../../../../test/data/users"
-import { insertPayments } from "../../../../test/utils/insertPayments"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import { CreatePaymentModal } from "./CreatePaymentModal"
@@ -30,7 +28,6 @@ const meta = {
     await signInMockUser(auth, user)
     const userId = auth.currentUser?.uid ?? user.id
     await insertUser(firestore, { ...user, id: userId })
-    await insertPayments(auth, firestore, payments)
   },
   decorators: (Story) => {
     const queryClient = createQueryClient()

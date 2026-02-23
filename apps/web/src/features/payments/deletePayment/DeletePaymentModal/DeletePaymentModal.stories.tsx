@@ -5,7 +5,6 @@ import { firebaseConfig } from "../../../../config/firebase/test"
 import { FirestoreProvider, initFirebase } from "../../../../providers/firebase"
 import { longPayment, payments } from "../../../../test/data/payments"
 import { user } from "../../../../test/data/users"
-import { insertPayments } from "../../../../test/utils/insertPayments"
 import { insertUser } from "../../../../test/utils/insertUser"
 import { signInMockUser } from "../../../../test/utils/signInByMockUser"
 import { DeletePaymentModal } from "./DeletePaymentModal"
@@ -28,7 +27,6 @@ const meta = {
 
     await signInMockUser(auth, user)
     await insertUser(firestore, user)
-    await insertPayments(auth, firestore, payments)
   },
   decorators: [
     (Story) => {
