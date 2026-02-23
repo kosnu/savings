@@ -1,13 +1,4 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest"
-import { server } from "../../../test/msw/server"
+import { describe, expect, it, vi } from "vitest"
 import { fetchCategories } from "./fetchCategories"
 
 vi.mock("../../../lib/supabase", () => ({
@@ -24,10 +15,6 @@ vi.mock("../../../lib/supabase", () => ({
     },
   }),
 }))
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 describe("fetchCategories", () => {
   it("DTOをCategoryドメインオブジェクトに変換する", async () => {
