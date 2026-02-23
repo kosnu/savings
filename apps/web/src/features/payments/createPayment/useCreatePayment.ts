@@ -12,8 +12,14 @@ type PaymentValue = Omit<
 interface CreatePaymentRequest {
   amount: number
   date: string
-  note?: string
-  categoryId?: string
+  note: string | null
+  categoryId: number | null
+}
+
+function toCategoryId(categoryId: string): number | null {
+  if (!categoryId) return null
+  const parsed = Number(categoryId)
+  return Number.isNaN(parsed) ? null : parsed
 }
 
 async function postPayment(value: PaymentValue): Promise<void> {
@@ -21,8 +27,8 @@ async function postPayment(value: PaymentValue): Promise<void> {
   const body: CreatePaymentRequest = {
     amount: value.amount,
     date: format(value.date, "yyyy-MM-dd"),
-    note: value.note || undefined,
-    categoryId: value.categoryId || undefined,
+    note: value.note || null,
+    categoryId: toCategoryId(value.categoryId),
   }
   await apiClient.post(url, { body })
 }
