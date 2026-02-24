@@ -49,10 +49,10 @@ npx supabase migration new <name>
 npx supabase migration up
 ```
 
-### Root-level (Docker / Firebase Emulator)
+### Root-level (Docker)
 
 ```bash
-task up       # docker compose up -d (Firebase emulators)
+task up       # docker compose up -d
 task down     # docker compose down
 task build    # docker compose build
 ```
@@ -64,7 +64,7 @@ task build    # docker compose build
 - **Routing**: `react-router-dom` — routes defined in `src/app/Router.tsx`, paths in `src/config/paths`
 - **State/Data**: `@tanstack/react-query` for server state, `@tanstack/react-form` for forms
 - **UI**: Radix UI Themes (`@radix-ui/themes`)
-- **Auth/DB**: Firebase (Auth + Firestore), emulators for local dev
+- **Auth/DB**: Supabase (Auth + PostgreSQL), local dev via Supabase CLI
 - **Validation**: Zod
 - **Lint/Format**: Biome (`biome.json`) — double quotes, space indent, optional semicolons
 - **Feature directory pattern** (ADR-approved):
@@ -104,7 +104,7 @@ Dependency flow: `interfaces → application → domain ← infrastructure`
 
 ### Infrastructure (`infra/`)
 
-Terraform managing Supabase (DB module) and Firebase Hosting. Production environment in `infra/terraform/environments/production/`.
+Terraform managing Supabase and Cloudflare Pages. Production environment in `infra/terraform/environments/production/`.
 
 ## Workflow
 
@@ -118,6 +118,6 @@ Terraform managing Supabase (DB module) and Firebase Hosting. Production environ
 
 ## Key Conventions
 
-- Deno projects (`apps/api/`, `scripts/import_to_firestore/`): avoid `deno install` — use `deno task` / Supabase CLI / Taskfile
+- Deno projects (`apps/api/`): avoid `deno install` — use `deno task` / Supabase CLI / Taskfile
 - API architecture docs are authoritative: `apps/api/docs/architecture.md`, `apps/api/docs/payment-modeling.md`, `apps/api/docs/category-modeling.md`
 - Web design decisions: `apps/web/docs/adr/`

@@ -4,27 +4,33 @@
 
 ## 利用サービス一覧
 
-- **Firebase Hosting**
-  - Web アプリケーションのホスティングに利用。
+- **Cloudflare Pages**
+  - Web アプリケーション（React SPA）のホスティングに利用。
   - HTTPS 対応、CDN による高速配信。
-- **Firebase Authentication**
-  - ユーザー認証（メール/パスワード、Google ログイン等）に利用。
-  - セキュアな認証基盤を提供。
-- **Cloud Firestore**
-  - NoSQL データベースとして利用。
-  - ユーザーデータやアプリケーションデータを保存。
 - **Cloudflare Domain**
   - 独自ドメインの管理に利用。
   - DNS 設定や SSL 証明書の管理も Cloudflare で実施。
+- **Supabase Auth**
+  - ユーザー認証（メール/パスワード、Google ログイン等）に利用。
+  - セキュアな認証基盤を提供。
+- **Supabase PostgreSQL**
+  - リレーショナルデータベースとして利用。
+  - ユーザーデータやアプリケーションデータを保存。
+- **Supabase Edge Functions**
+  - バックエンド API（Deno + Hono）として利用。
+  - 各機能（payments, categories）を独立した Edge Function として提供。
 
-## 構成図（例）
+## 構成図
 
 ```
 [User]
   │
   ▼
-[Cloudflare Domain] ──> [Firebase Hosting] ──> [Web App]
-                                      │
-                                      ├─> [Firebase Authentication]
-                                      └─> [Cloud Firestore]
+[Cloudflare Domain] ──> [Cloudflare Pages] ──> [Web App (React SPA)]
+                                                    │
+                                                    ▼
+                                              [Supabase]
+                                                ├─> [Auth]
+                                                ├─> [PostgreSQL]
+                                                └─> [Edge Functions (API)]
 ```

@@ -21,9 +21,9 @@ infra/
 ### 例: 既存リソース参照
 
 ```hcl
-# 例: 既存のFirebaseプロジェクト参照
-data "google_project" "firebase" {
-  project_id = "your-firebase-project-id"
+# 例: 既存のSupabaseプロジェクト参照
+data "supabase_project" "main" {
+  id = "your-supabase-project-id"
 }
 
 # 例: 既存のCloudflareゾーン参照
