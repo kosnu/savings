@@ -1,7 +1,7 @@
 # Savings - フロントエンド
 
 このディレクトリは Savings アプリケーションのウェブフロントエンドです。
-React + TypeScript + Vite を使ったシングルページアプリケーションで、認証・データ保存には Firebase（Auth / Firestore / Hosting）を利用します。
+React + TypeScript + Vite を使ったシングルページアプリケーションで、認証・データベースには Supabase（Auth / PostgreSQL）を利用し、ホスティングは Cloudflare Pages を使用します。
 
 以下は現状のコードベースに基づく簡潔な README です。ローカルでの開発、テスト、ビルド、デプロイ手順をまとめています。
 
@@ -12,7 +12,7 @@ React + TypeScript + Vite を使ったシングルページアプリケーショ
 - ビルドツール: Vite
 - テスト: Vitest + Playwright（E2E があれば）
 - リンター／フォーマッタ: Biome（設定ファイルは `biome.json`）
-- バックエンド（認証/DB/ホスティング）: Firebase（Emulator を使ったローカル開発を想定）
+- バックエンド（認証/DB）: Supabase（ローカル開発は Supabase CLI を使用）
 
 ## ディレクトリ構成（抜粋）
 
@@ -32,7 +32,7 @@ React + TypeScript + Vite を使ったシングルページアプリケーショ
 ## 前提・注意
 
 - Web の依存関係は必ず `apps/web/` で管理します。
-- このリポジトリでは CI / デプロイやスクリプトが他のフォルダ（`scripts/import_to_firestore/` や `infra/`）にあるため、必要に応じてルート README も参照してください。
+- このリポジトリでは CI / デプロイやインフラ定義が `infra/` にあるため、必要に応じてルート README も参照してください。
 
 ## セットアップ（ローカル開発）
 
@@ -80,20 +80,19 @@ npm run check
 
 型チェックは TypeScript の設定に従って `npm run build` 時や専用スクリプトで実行してください。
 
-## Firebase Emulator（ローカルで Auth / Firestore を使う場合）
+## Supabase ローカル開発（Auth / DB を使う場合）
 
-リポジトリには Docker を使った Firebase Emulator の設定が含まれています。エミュレータを使う場合はルートから docker compose を起動してください。
+ローカルで認証やデータベースを使う場合は、`apps/api/` で Supabase をローカル起動してからアプリを起動します。
 
 ```bash
-# ルートで
-docker compose up -d
+# apps/api/ で Supabase + Edge Functions を起動
+cd apps/api
+task up
 
 # その後、apps/web から通常通り起動
 cd apps/web
 npm run dev
 ```
-
-エミュレータがない環境では一部のテストや E2E がスキップされることがあります（CI ワークフロー参照）。
 
 ## ビルド & デプロイ
 
@@ -104,13 +103,12 @@ cd apps/web
 npm run build
 ```
 
-Firebase Hosting へデプロイする場合は、ルートや `apps/web` の README / GitHub Actions (`deploy_web.yaml`) を参照してください。手動デプロイ手順は Firebase CLI を利用します。
+Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy.yaml`) を参照してください。手動デプロイは Wrangler CLI を利用します。
 
 ## 環境変数
 
-Firebase の設定など機密情報は環境変数や Secrets で管理してください。ローカルでは `.env` / `.env.local`（Vite の仕様）を使用しますが、サンプルとして `.env.example` を用意しているか確認してください。
+Supabase の接続情報は環境変数で管理します。主な変数は `VITE_SUPABASE_URL` と `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` です。ローカルでは `.env` / `.env.local`（Vite の仕様）を使用しますが、サンプルとして `.env.example` を用意しているか確認してください。
 
 ## 関連スクリプト・リポジトリ部分
 
-- `scripts/import_to_firestore/` - Deno スクリプトで CSV を Firestore に取り込むユーティリティ。データ移行や初期インポート時に参照します。
-- `apps/api/` - バックエンド（Workers / Drizzle / DB）実装。必要に応じて API のエンドポイント形状を確認してください。
+- `apps/api/` - バックエンド API（Supabase Edge Functions、Deno + Hono）。必要に応じて API のエンドポイント形状を確認してください。
