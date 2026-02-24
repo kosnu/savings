@@ -51,7 +51,7 @@ jobs:
         working-directory: apps/api
 
       - name: Deploy Edge Functions
-        run: supabase functions deploy
+        run: supabase functions deploy --region ap-northeast-1
         working-directory: apps/api
 
   # --- Frontend (React + Vite) のデプロイ ---
