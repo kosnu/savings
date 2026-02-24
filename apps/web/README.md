@@ -107,7 +107,7 @@ Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy.yaml`)
 
 ## 環境変数
 
-Supabase の接続情報は環境変数で管理します。主な変数は `VITE_SUPABASE_URL` と `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` です。ローカルでは `.env` / `.env.local`（Vite の仕様）を使用しますが、サンプルとして `.env.example` を用意しているか確認してください。
+Supabase の接続情報は環境変数で管理します。主な変数は `VITE_SUPABASE_URL` と `VITE_SUPABASE_PUBLISHABLE_KEY` です。ローカルでは `.env` / `.env.local`（Vite の仕様）を使用しますが、サンプルとして `.env.example` を用意しているか確認してください。
 
 ## 関連スクリプト・リポジトリ部分
 
