@@ -7,25 +7,24 @@
 - apps/ — アプリケーション群
   - apps/web/ — React + TypeScript + Vite フロントエンド（UI、Storybook、Vitest 等）
     詳細: [apps/web/README.md](../apps/web/README.md)
-- scripts/ — 運用・移行スクリプト（Deno 等）
-  - scripts/import_to_firestore/ — CSV → Firestore 取り込みスクリプト（Deno）
-    詳細: [scripts/import_to_firestore/README.md](../scripts/import_to_firestore/README.md)
+  - apps/api/ — Supabase Edge Functions + Deno + Hono バックエンド API
+    詳細: [apps/api/README.md](../apps/api/README.md)
 - infra/ — インフラ定義（Terraform モジュール、環境ごとの設定）
   詳細: [infra/README.md](../infra/README.md)
-- docker/ — Docker / Firebase Emulator 用イメージと設定（ローカルでのエミュレーション用）
+- docker/ — Docker 用イメージと設定（現在未使用）
 - docs/ — リポジトリ全体のドキュメント（このファイルを含む）
-- その他: CI ワークフロー、タスクランナー、環境設定ファイル（.env, firebase.json 等）
+- その他: CI ワークフロー、タスクランナー、環境設定ファイル（.env 等）
 
 ## 開発フローのポイント（短く）
 
 - フロントエンドの依存は必ず `apps/web/` で管理し、インストールは `npm ci` を使うこと（README に従う）。参照: [apps/web/README.md](../apps/web/README.md)
-- Firebase Emulator をローカルで使う場合はルートで docker compose を起動してからアプリを起動する（`docker compose up -d`）。エミュレータ設定は [docker/firebase/Dockerfile](../docker/firebase/Dockerfile) や `compose.yml` を参照。
+- ローカルで Supabase（Auth / DB / Edge Functions）を使う場合は `apps/api/` で `task up` を実行してから Web アプリを起動する。
 
 ## ドキュメントの参照先
 
 - フロントエンド（開発・テスト・Storybook）: [apps/web/README.md](../apps/web/README.md)
 - インフラ（Terraform、環境ごとの State 管理）: [infra/README.md](../infra/README.md)
-- データ移行スクリプト: [scripts/import_to_firestore/README.md](../scripts/import_to_firestore/README.md)
+
 - リポジトリ全体のトップ説明: [README.md](../README.md)
 
 必要に応じて各 README の「セットアップ」や「テスト」セクションを参照してください。運用上の注意（シークレット管理、CI 設定、エミュレータ要件等）は各アプリケーションの README にまとめています。
