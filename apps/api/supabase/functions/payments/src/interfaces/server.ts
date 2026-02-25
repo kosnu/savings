@@ -42,11 +42,6 @@ export const createServer = () => {
       "supabase",
       createClient<Database>(supabaseUrl, supabaseKey, {
         auth: { persistSession: false },
-        global: {
-          headers: {
-            Authorization: c.req.header("Authorization") ?? "",
-          },
-        },
       }),
     )
     await next()
