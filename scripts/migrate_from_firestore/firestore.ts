@@ -1,17 +1,20 @@
 import admin from "firebase-admin"
-import { getFirestore, Timestamp } from "firebase-admin/firestore"
+import { getFirestore } from "firebase-admin/firestore"
 import type { PaymentDocument } from "./types.ts"
 
 let initialized = false
 
-function initFirebase(projectId: string) {
+let databaseId = "(default)"
+
+function initFirebase(projectId: string, dbId?: string) {
   if (initialized) return
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
     projectId,
   })
+  if (dbId) databaseId = dbId
   // Deno環境ではgRPCが不安定なためREST APIを使用
-  getFirestore().settings({ preferRest: true })
+  getFirestore(databaseId).settings({ preferRest: true })
   initialized = true
 }
 
@@ -26,40 +29,68 @@ export async function fetchPayments(
   projectId: string,
   userId: string,
   month: string,
+  firestoreDatabaseId?: string,
 ): Promise<PaymentDocument[]> {
-  initFirebase(projectId)
+  initFirebase(projectId, firestoreDatabaseId)
 
-  const db = getFirestore()
+  const db = getFirestore(databaseId)
   const collectionPath = `users/${userId}/payments`
 
-  // 月の範囲を計算（UTCベース）
+  // 月の範囲を計算
   const [year, mon] = month.split("-").map(Number)
-  const startDate = new Date(Date.UTC(year, mon - 1, 1)) // 月初
-  const endDate = new Date(Date.UTC(year, mon, 1)) // 翌月初
+  const startDate = new Date(year, mon - 1, 1) // 月初
+  const endDate = new Date(year, mon, 1) // 翌月初
 
-  const startTimestamp = Timestamp.fromDate(startDate)
-  const endTimestamp = Timestamp.fromDate(endDate)
+  const startSeconds = Math.floor(startDate.getTime() / 1000)
+  const endSeconds = Math.floor(endDate.getTime() / 1000)
 
-  const snapshot = await db
-    .collection(collectionPath)
-    .where("date", ">=", startTimestamp)
-    .where("date", "<", endTimestamp)
-    .get()
+  // REST APIモードではTimestampのwhere句が正しく動作しないため、
+  // 全件取得してアプリ側でフィルタリングする
+  const snapshot = await db.collection(collectionPath).get()
+  console.log(`  全${snapshot.size}件から対象月をフィルタリング中...`)
 
   // 月単位の取得のためページネーションは不要（データ量が限定的）
   const payments: PaymentDocument[] = []
   for (const doc of snapshot.docs) {
     const data = doc.data()
+
     // 必須フィールドの存在チェック
-    if (
-      !data.amount || !data.date || !data.created_date || !data.updated_date
-    ) {
+    if (data.amount == null || !data.date) {
       console.warn(
-        `警告: ドキュメント ${doc.id} に必須フィールドが不足しています。スキップします`,
+        `  警告: ドキュメント ${doc.id} に必須フィールドが不足しています。スキップします`,
       )
       continue
     }
+
+    // 日付フィルタリング（秒数で比較）
+    const docSeconds = data.date._seconds ?? data.date.seconds
+    if (
+      docSeconds == null || docSeconds < startSeconds ||
+      docSeconds >= endSeconds
+    ) {
+      continue
+    }
+
     payments.push(data as PaymentDocument)
+  }
+
+  // デバッグ: 0件の場合、全ドキュメントの月別件数を表示
+  if (payments.length === 0 && snapshot.size > 0) {
+    const monthCounts = new Map<string, number>()
+    for (const doc of snapshot.docs) {
+      const s = doc.data().date?._seconds
+      if (s == null) continue
+      const d = new Date(s * 1000)
+      const ym = `${d.getFullYear()}-${
+        String(d.getMonth() + 1).padStart(2, "0")
+      }`
+      monthCounts.set(ym, (monthCounts.get(ym) ?? 0) + 1)
+    }
+    const sorted = [...monthCounts.entries()].sort()
+    console.log("  データが存在する月:")
+    for (const [ym, count] of sorted) {
+      console.log(`    ${ym}: ${count}件`)
+    }
   }
 
   return payments
