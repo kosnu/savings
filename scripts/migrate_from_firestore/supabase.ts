@@ -38,12 +38,8 @@ export async function insertPayments(
       )
     }
 
-    console.log(
-      `Supabase: バッチ ${
-        Math.floor(i / BATCH_SIZE) + 1
-      } — ${batch.length}件インサート完了`,
-    )
+    const batchNum = Math.floor(i / BATCH_SIZE) + 1
+    const totalBatches = Math.ceil(payments.length / BATCH_SIZE)
+    console.log(`  バッチ ${batchNum}/${totalBatches}: ${batch.length}件完了`)
   }
-
-  console.log(`Supabase: 合計 ${payments.length}件インサート完了`)
 }
