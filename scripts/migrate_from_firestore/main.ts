@@ -1,4 +1,4 @@
-import "jsr:@std/dotenv@^0.225/load"
+import "@std/dotenv/load"
 import { parseArgs } from "@std/cli/parse-args"
 import { loadCategoryMapping } from "./categories.ts"
 import { fetchPayments } from "./firestore.ts"
@@ -41,6 +41,13 @@ function main() {
     Deno.exit(1)
   }
 
+  // 月の範囲チェック (01-12)
+  const monthNum = Number(month.split("-")[1])
+  if (monthNum < 1 || monthNum > 12) {
+    console.error("エラー: 月は 01〜12 の範囲で指定してください")
+    Deno.exit(1)
+  }
+
   // 環境変数の取得
   const projectId = Deno.env.get("FIREBASE_PROJECT_ID")
   const supabaseUrl = Deno.env.get("SUPABASE_URL")
@@ -62,40 +69,60 @@ function main() {
   }
 }
 
-const config = main()
+try {
+  const config = main()
 
-// カテゴリマッピング読み込み（スクリプトディレクトリからの相対パス）
-const scriptDir = new URL(".", import.meta.url).pathname
-const csvPath = scriptDir + "../../categories.csv"
-const categoryMapping = await loadCategoryMapping(csvPath)
+  // カテゴリマッピング読み込み（スクリプトディレクトリからの相対パス）
+  const scriptDir = import.meta.dirname!
+  const csvPath = `${scriptDir}/../../categories.csv`
+  const categoryMapping = await loadCategoryMapping(csvPath)
 
-// Firestoreからデータ取得
-console.log(`\n対象月: ${config.month}`)
-console.log(`Firestore ユーザーID: ${config.firestoreUserId}`)
-const firestorePayments = await fetchPayments(
-  config.projectId,
-  config.firestoreUserId,
-  config.month,
-)
+  // Firestoreからデータ取得
+  console.log(`\n対象月: ${config.month}`)
+  console.log(`Firestore ユーザーID: ${config.firestoreUserId}`)
+  const firestorePayments = await fetchPayments(
+    config.projectId,
+    config.firestoreUserId,
+    config.month,
+  )
 
-if (firestorePayments.length === 0) {
-  console.log("\n対象データが0件のため終了します")
-  Deno.exit(0)
+  if (firestorePayments.length === 0) {
+    console.log("\n対象データが0件のため終了します")
+    Deno.exit(0)
+  }
+
+  // データ変換
+  const supabasePayments = firestorePayments.map((doc) =>
+    mapPayment(doc, categoryMapping)
+  )
+
+  console.log(`\n変換結果: ${supabasePayments.length}件`)
+  console.log(
+    "サンプル (先頭1件):",
+    JSON.stringify(supabasePayments[0], null, 2),
+  )
+
+  // 実行前の確認プロンプト
+  const answer = prompt(
+    `\n${supabasePayments.length}件のデータをSupabaseにインサートしますか？ (y/N)`,
+  )
+  if (answer?.toLowerCase() !== "y") {
+    console.log("キャンセルしました")
+    Deno.exit(0)
+  }
+
+  // Supabaseへインサート
+  await insertPayments(
+    config.supabaseUrl,
+    config.supabaseServiceRoleKey,
+    supabasePayments,
+  )
+
+  console.log(`\n移行完了: ${supabasePayments.length}件`)
+} catch (error) {
+  console.error(
+    "エラーが発生しました:",
+    error instanceof Error ? error.message : error,
+  )
+  Deno.exit(1)
 }
-
-// データ変換
-const supabasePayments = firestorePayments.map((doc) =>
-  mapPayment(doc, categoryMapping)
-)
-
-console.log(`\n変換結果: ${supabasePayments.length}件`)
-console.log("サンプル (先頭1件):", JSON.stringify(supabasePayments[0], null, 2))
-
-// Supabaseへインサート
-await insertPayments(
-  config.supabaseUrl,
-  config.supabaseServiceRoleKey,
-  supabasePayments,
-)
-
-console.log(`\n移行完了: ${supabasePayments.length}件`)
