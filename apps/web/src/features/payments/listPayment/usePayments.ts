@@ -15,6 +15,7 @@ export function usePayments(): UseGetPaymentsReturn {
   const query = useQuery({
     queryKey: ["payments", date?.toISOString() ?? "all"],
     queryFn: () => fetchPayments(dateRange),
+    enabled: date !== null,
     staleTime: 3000, // 3秒
   })
 
