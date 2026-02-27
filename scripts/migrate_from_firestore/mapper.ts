@@ -19,7 +19,7 @@ export function mapPayment(
   }
 
   return {
-    note: doc.note === "" ? null : doc.note,
+    note: doc.note && doc.note !== "" ? doc.note : null,
     amount: doc.amount,
     date: formatDate(doc.date.toDate()),
     category_id: categoryId,
@@ -29,10 +29,7 @@ export function mapPayment(
   }
 }
 
-/** Date → "YYYY-MM-DD" */
+/** Date → "YYYY-MM-DD" (UTCベース) */
 function formatDate(d: Date): string {
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, "0")
-  const day = String(d.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
+  return d.toISOString().split("T")[0]
 }

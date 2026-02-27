@@ -8,8 +8,30 @@ import type { CategoryMapping } from "./types.ts"
 export async function loadCategoryMapping(
   csvPath: string,
 ): Promise<CategoryMapping> {
-  const text = await Deno.readTextFile(csvPath)
+  let text: string
+  try {
+    text = await Deno.readTextFile(csvPath)
+  } catch (error) {
+    throw new Error(
+      `カテゴリCSVの読み込みに失敗しました (${csvPath}): ${
+        error instanceof Error ? error.message : error
+      }`,
+    )
+  }
+
   const records = parse(text, { skipFirstRow: true })
+
+  if (records.length === 0) {
+    throw new Error("カテゴリCSVにデータが含まれていません")
+  }
+
+  // 必須カラムの検証
+  const firstRecord = records[0]
+  if (!("doc_id" in firstRecord) || !("db_id" in firstRecord)) {
+    throw new Error(
+      "カテゴリCSVに必須カラム (doc_id, db_id) が含まれていません",
+    )
+  }
 
   const mapping: CategoryMapping = new Map()
   for (const record of records) {

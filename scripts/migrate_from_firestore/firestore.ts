@@ -30,10 +30,10 @@ export async function fetchPayments(
   const db = getFirestore()
   const collectionPath = `users/${userId}/payments`
 
-  // 月の範囲を計算
+  // 月の範囲を計算（UTCベース）
   const [year, mon] = month.split("-").map(Number)
-  const startDate = new Date(year, mon - 1, 1) // 月初
-  const endDate = new Date(year, mon, 1) // 翌月初
+  const startDate = new Date(Date.UTC(year, mon - 1, 1)) // 月初
+  const endDate = new Date(Date.UTC(year, mon, 1)) // 翌月初
 
   const startTimestamp = Timestamp.fromDate(startDate)
   const endTimestamp = Timestamp.fromDate(endDate)
@@ -44,9 +44,20 @@ export async function fetchPayments(
     .where("date", "<", endTimestamp)
     .get()
 
+  // 月単位の取得のためページネーションは不要（データ量が限定的）
   const payments: PaymentDocument[] = []
   for (const doc of snapshot.docs) {
-    payments.push(doc.data() as PaymentDocument)
+    const data = doc.data()
+    // 必須フィールドの存在チェック
+    if (
+      !data.amount || !data.date || !data.created_date || !data.updated_date
+    ) {
+      console.warn(
+        `警告: ドキュメント ${doc.id} に必須フィールドが不足しています。スキップします`,
+      )
+      continue
+    }
+    payments.push(data as PaymentDocument)
   }
 
   console.log(
