@@ -1,4 +1,4 @@
-import "@std/dotenv/load"
+import { load } from "@std/dotenv"
 import { parseArgs } from "@std/cli/parse-args"
 import { loadCategoryMapping } from "./categories.ts"
 import { fetchPayments } from "./firestore.ts"
@@ -51,16 +51,23 @@ function main() {
   }
 
   // 環境変数の取得
-  const projectId = Deno.env.get("FIREBASE_PROJECT_ID")
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")
-  const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
-
-  if (!projectId || !supabaseUrl || !supabaseServiceRoleKey) {
-    console.error(
-      "エラー: FIREBASE_PROJECT_ID, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY を設定してください",
-    )
+  const requiredEnvVars = [
+    "FIREBASE_PROJECT_ID",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+  ] as const
+  const env = Object.fromEntries(
+    requiredEnvVars.map((key) => [key, Deno.env.get(key)]),
+  )
+  const missing = requiredEnvVars.filter((key) => !env[key])
+  if (missing.length > 0) {
+    console.error(`エラー: 以下の環境変数が未設定です: ${missing.join(", ")}`)
     Deno.exit(1)
   }
+
+  const projectId = env.FIREBASE_PROJECT_ID!
+  const supabaseUrl = env.SUPABASE_URL!
+  const supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY!
 
   return {
     month,
@@ -72,6 +79,7 @@ function main() {
 }
 
 try {
+  await load({ export: true })
   const config = main()
 
   // カテゴリマッピング読み込み（スクリプトディレクトリからの相対パス）
