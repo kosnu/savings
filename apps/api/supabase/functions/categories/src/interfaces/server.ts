@@ -1,6 +1,7 @@
 import { Hono } from "@hono/hono"
 import { cors } from "@hono/hono/cors"
 import type { SupabaseClient } from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js"
 import { registerCategoriesRoutes } from "./routes/index.ts"
 import type { Database } from "../shared/types.ts"
 import { configAuthMiddleware } from "../shared/supabase/auth.ts"
@@ -9,11 +10,7 @@ type Vars = {
   supabase: SupabaseClient<Database>
 }
 
-type ServerDeps = {
-  supabaseFactory: (req: Request) => SupabaseClient<Database>
-}
-
-export const createServer = (deps: ServerDeps) => {
+export const createServer = () => {
   const app = new Hono<{ Variables: Vars }>()
 
   app.use(
@@ -26,7 +23,27 @@ export const createServer = (deps: ServerDeps) => {
   )
 
   app.use("*", async (c, next) => {
-    c.set("supabase", deps.supabaseFactory(c.req.raw))
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error(JSON.stringify({
+        level: "error",
+        message: "Supabase の接続情報が未設定です",
+        missing: {
+          SUPABASE_URL: !supabaseUrl,
+          SUPABASE_ANON_KEY: !supabaseKey,
+        },
+      }))
+      return c.json({ error: "Internal Server Error" }, 500)
+    }
+
+    c.set(
+      "supabase",
+      createClient<Database>(supabaseUrl, supabaseKey, {
+        auth: { persistSession: false },
+      }),
+    )
     await next()
   })
 
