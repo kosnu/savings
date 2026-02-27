@@ -2,13 +2,16 @@ import type { Timestamp } from "firebase-admin/firestore"
 
 /** Firestore `users/{userId}/payments` ドキュメントの型 */
 export interface PaymentDocument {
-  category_id: string
-  note: string
+  category_id?: string
+  note?: string
   amount: number
   date: Timestamp
   user_id: string
-  created_date: Timestamp
-  updated_date: Timestamp
+  // ドキュメントによってキー名が異なる
+  created_date?: Timestamp
+  updated_date?: Timestamp
+  created_at?: Timestamp
+  updated_at?: Timestamp
 }
 
 /** Supabase payments テーブルへのインサート型 */

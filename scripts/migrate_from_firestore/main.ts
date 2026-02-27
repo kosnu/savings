@@ -7,19 +7,20 @@ import { insertPayments } from "./supabase.ts"
 
 function printUsage() {
   console.log(`使い方:
-  deno task migrate -- --month <YYYY-MM> --firestore-user-id <ID>
+  deno task migrate -- --month <YYYY-MM> --firestore-user-id <ID> [--firestore-database-id <DB_ID>]
 
 オプション:
-  --month              対象月 (例: 2025-01) [必須]
-  --firestore-user-id  FirestoreのユーザーID [必須]
-  --help               ヘルプを表示`)
+  --month                   対象月 (例: 2025-01) [必須]
+  --firestore-user-id       FirestoreのユーザーID [必須]
+  --firestore-database-id   Firestoreデータベース名 (デフォルト: (default))
+  --help                    ヘルプを表示`)
 }
 
 function main() {
   // deno task 経由で -- が渡された場合に除去する
   const rawArgs = Deno.args[0] === "--" ? Deno.args.slice(1) : Deno.args
   const args = parseArgs(rawArgs, {
-    string: ["month", "firestore-user-id"],
+    string: ["month", "firestore-user-id", "firestore-database-id"],
     boolean: ["help"],
   })
 
@@ -69,9 +70,12 @@ function main() {
   const supabaseUrl = env.SUPABASE_URL!
   const supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY!
 
+  const firestoreDatabaseId = args["firestore-database-id"]
+
   return {
     month,
     firestoreUserId,
+    firestoreDatabaseId,
     projectId,
     supabaseUrl,
     supabaseServiceRoleKey,
@@ -91,6 +95,9 @@ try {
   const config = main()
   console.log(`  対象月: ${config.month}`)
   console.log(`  Firestore ユーザーID: ${config.firestoreUserId}`)
+  console.log(
+    `  Firestore データベース: ${config.firestoreDatabaseId ?? "(default)"}`,
+  )
 
   // Step 2: カテゴリマッピング読み込み
   log(2, TOTAL_STEPS, "カテゴリマッピングを読み込み中...")
@@ -105,6 +112,7 @@ try {
     config.projectId,
     config.firestoreUserId,
     config.month,
+    config.firestoreDatabaseId,
   )
   console.log(`  ${firestorePayments.length}件取得しました`)
 

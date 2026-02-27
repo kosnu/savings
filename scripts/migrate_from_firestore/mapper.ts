@@ -11,12 +11,18 @@ export function mapPayment(
   doc: PaymentDocument,
   categoryMapping: CategoryMapping,
 ): PaymentInsert {
-  const categoryId = categoryMapping.get(doc.category_id) ?? null
+  const categoryId = doc.category_id
+    ? (categoryMapping.get(doc.category_id) ?? null)
+    : null
   if (doc.category_id && categoryId === null) {
     console.warn(
-      `警告: カテゴリID "${doc.category_id}" のマッピングが見つかりません`,
+      `  警告: カテゴリID "${doc.category_id}" のマッピングが見つかりません`,
     )
   }
+
+  const createdAt = (doc.created_date ?? doc.created_at)?.toDate().toISOString()
+  const updatedAt = (doc.updated_date ?? doc.updated_at)?.toDate().toISOString()
+  const now = new Date().toISOString()
 
   return {
     note: doc.note && doc.note !== "" ? doc.note : null,
@@ -24,8 +30,8 @@ export function mapPayment(
     date: formatDate(doc.date.toDate()),
     category_id: categoryId,
     user_id: 1,
-    created_at: doc.created_date.toDate().toISOString(),
-    updated_at: doc.updated_date.toDate().toISOString(),
+    created_at: createdAt ?? now,
+    updated_at: updatedAt ?? now,
   }
 }
 
