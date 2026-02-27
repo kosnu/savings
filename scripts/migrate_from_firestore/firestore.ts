@@ -10,6 +10,8 @@ function initFirebase(projectId: string) {
     credential: admin.credential.applicationDefault(),
     projectId,
   })
+  // Deno環境ではgRPCが不安定なためREST APIを使用
+  getFirestore().settings({ preferRest: true })
   initialized = true
 }
 
