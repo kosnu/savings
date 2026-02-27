@@ -42,6 +42,5 @@ export async function loadCategoryMapping(
     }
   }
 
-  console.log(`カテゴリマッピング: ${mapping.size}件読み込み`)
   return mapping
 }

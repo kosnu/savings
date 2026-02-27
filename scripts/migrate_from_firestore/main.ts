@@ -78,37 +78,49 @@ function main() {
   }
 }
 
+function log(step: number, total: number, message: string) {
+  console.log(`[${step}/${total}] ${message}`)
+}
+
+const TOTAL_STEPS = 5
+
 try {
+  // Step 1: 設定読み込み
+  log(1, TOTAL_STEPS, "設定を読み込み中...")
   await load({ export: true })
   const config = main()
+  console.log(`  対象月: ${config.month}`)
+  console.log(`  Firestore ユーザーID: ${config.firestoreUserId}`)
 
-  // カテゴリマッピング読み込み（スクリプトディレクトリからの相対パス）
+  // Step 2: カテゴリマッピング読み込み
+  log(2, TOTAL_STEPS, "カテゴリマッピングを読み込み中...")
   const scriptDir = import.meta.dirname!
   const csvPath = `${scriptDir}/../../categories.csv`
   const categoryMapping = await loadCategoryMapping(csvPath)
+  console.log(`  ${categoryMapping.size}件のマッピングを読み込みました`)
 
-  // Firestoreからデータ取得
-  console.log(`\n対象月: ${config.month}`)
-  console.log(`Firestore ユーザーID: ${config.firestoreUserId}`)
+  // Step 3: Firestoreからデータ取得
+  log(3, TOTAL_STEPS, "Firestoreからデータを取得中...")
   const firestorePayments = await fetchPayments(
     config.projectId,
     config.firestoreUserId,
     config.month,
   )
+  console.log(`  ${firestorePayments.length}件取得しました`)
 
   if (firestorePayments.length === 0) {
     console.log("\n対象データが0件のため終了します")
     Deno.exit(0)
   }
 
-  // データ変換
+  // Step 4: データ変換
+  log(4, TOTAL_STEPS, "データを変換中...")
   const supabasePayments = firestorePayments.map((doc) =>
     mapPayment(doc, categoryMapping)
   )
-
-  console.log(`\n変換結果: ${supabasePayments.length}件`)
+  console.log(`  ${supabasePayments.length}件変換しました`)
   console.log(
-    "サンプル (先頭1件):",
+    "  サンプル (先頭1件):",
     JSON.stringify(supabasePayments[0], null, 2),
   )
 
@@ -121,17 +133,18 @@ try {
     Deno.exit(0)
   }
 
-  // Supabaseへインサート
+  // Step 5: Supabaseへインサート
+  log(5, TOTAL_STEPS, "Supabaseにデータをインサート中...")
   await insertPayments(
     config.supabaseUrl,
     config.supabaseServiceRoleKey,
     supabasePayments,
   )
 
-  console.log(`\n移行完了: ${supabasePayments.length}件`)
+  console.log(`\n移行完了: ${supabasePayments.length}件をインサートしました`)
 } catch (error) {
   console.error(
-    "エラーが発生しました:",
+    "\nエラーが発生しました:",
     error instanceof Error ? error.message : error,
   )
   Deno.exit(1)

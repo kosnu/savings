@@ -62,8 +62,5 @@ export async function fetchPayments(
     payments.push(data as PaymentDocument)
   }
 
-  console.log(
-    `Firestore: ${collectionPath} から ${month} の支払い ${payments.length}件取得`,
-  )
   return payments
 }
