@@ -108,13 +108,13 @@ Terraform managing Supabase and Cloudflare Pages. Production environment in `inf
 
 ## Workflow
 
-タスクの規模に応じてワークフローを選択する:
+タスクの実装には `/task` コマンドを使用する。規模（Small / Medium / Large）はClaude が自動判定する。
 
-| サイズ | コマンド | 目安 | 使い方 |
-|--------|----------|------|--------|
-| Small | `/small` | 1-3ファイル、単純な修正 | バグ修正、設定変更 |
-| Medium | `/medium` | 4-10ファイル、単一アプリ | 新機能追加、リファクタリング |
-| Large | `/large` | 10+ファイル、FE+BE横断 | 新規エンドポイント+UI |
+| 自動判定 | 目安 | 動作 |
+|----------|------|------|
+| Small | 1-3ファイル、単純な修正 | 直接実装 |
+| Medium | 4-10ファイル、単一アプリ | サブエージェント活用、計画承認あり |
+| Large | 10+ファイル、FE+BE横断 | worktree並行実装、設計・API契約承認あり |
 
 ## Key Conventions
 
