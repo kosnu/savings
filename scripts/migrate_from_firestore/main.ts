@@ -16,7 +16,9 @@ function printUsage() {
 }
 
 function main() {
-  const args = parseArgs(Deno.args, {
+  // deno task 経由で -- が渡された場合に除去する
+  const rawArgs = Deno.args[0] === "--" ? Deno.args.slice(1) : Deno.args
+  const args = parseArgs(rawArgs, {
     string: ["month", "firestore-user-id"],
     boolean: ["help"],
   })
