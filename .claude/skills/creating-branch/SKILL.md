@@ -6,20 +6,23 @@ model: claude-sonnet-4-5
 argument-hint: "[issue-number]"
 ---
 
-# ブランチ作成
+# Create Branch
 
-## 手順
+## Steps
 
-1. `gh issue view $ARGUMENTS` でIssueのタイトルと内容を取得する
-2. Issueタイトルから英語の短いslugを生成する（小文字、ハイフン区切り）
-3. ブランチ名 `issue-{番号}/{slug}` をユーザーに提示し、確認を得る
-4. mainブランチを最新にし、そこからブランチを作成する:
+1. Run `gh issue view $ARGUMENTS` to get the issue title and content
+2. Generate a short English slug from the issue title (lowercase, hyphen-separated, 2-4 words)
+3. Present branch name `issue-{number}/{slug}` to user for confirmation
+4. Create the branch from latest main:
    ```bash
    git fetch origin main
-   git switch -c issue-{番号}/{slug} origin/main
+   git switch -c issue-{number}/{slug} origin/main
    ```
 
-## ルール
+## Rules
 
-- slugは簡潔に（2〜4語程度）
-- ブランチ名の確認なしで作成しない
+- Always get user confirmation before creating the branch
+
+## Next Action
+
+Suggest `/task $ARGUMENTS` after branch creation.

@@ -5,36 +5,37 @@ disable-model-invocation: true
 model: claude-sonnet-4-5
 ---
 
-# コミット
+# Commit Changes
 
-## 手順
+## Steps
 
-1. `git status` と `git diff --stat` で変更状況を把握する（`git diff` でフル差分を出さない。変更内容は自分が把握済み）
-2. 変更が入ったワークスペースの検証を実行する:
+1. Run `git status` and `git diff --stat` to check changes (no full diff — you already know the changes)
+2. Run workspace-specific verification:
    - `apps/web/`: `task check` → `task test`
-   - `apps/api/`: 該当function ディレクトリで `deno test --allow-read --allow-env`
-   - 検証失敗時はコミットしない
-   - 直前にテスト・lint実行済みの場合はスキップしてよい
-3. ファイル単位でステージングする（`git add -A` は意図した差分のみと確認できた場合に限る）
-4. 観点ごと（機能追加、バグ修正、リファクタリング等）にコミットを分割する
-5. `git diff --staged --stat` でタスク目的との一致を確認する
-6. コミットメッセージ案をユーザーに提示し、承認を得てからコミットする
-7. コミット後、`git log --oneline -1` と `git show --stat HEAD` で結果を確認する
+   - `apps/api/`: `deno test --allow-read --allow-env` in the relevant function directory
+   - Skip if verification was already run. Do not commit on failure.
+3. Stage files individually (`git add -A` only when all changes are confirmed intentional)
+4. Split commits by concern (feature, bugfix, refactor, etc.)
+5. Run `git diff --staged --stat` to verify staged changes match the task goal
+6. Present commit message to user for approval before committing
 
-## コミットメッセージ形式
+## Commit Message Format
 
 ```
-{type}: {メッセージ}
+{type}: {message in Japanese}
 
-{やったことや理由}
+{description in Japanese}
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-- typeの例: `feat`, `fix`, `chore`, `refactor`, `test`, `docs`
-- タイトル・本文は日本語で記述する
+Types: `feat`, `fix`, `chore`, `refactor`, `test`, `docs`
 
-## ルール
+## Rules
 
-- 作業と無関係な差分はコミットに含めない
-- コミットメッセージ案の事前確認を省略しない
+- Do not include unrelated changes
+- Always get user approval on the commit message
+
+## Next Action
+
+Suggest `/creating-draft-pr` after commit if appropriate.
