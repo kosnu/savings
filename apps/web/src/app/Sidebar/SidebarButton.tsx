@@ -1,15 +1,15 @@
 import { Button } from "@radix-ui/themes"
+import { Link } from "@tanstack/react-router"
 import type { ReactNode } from "react"
-import { Link } from "react-router-dom"
 import styles from "./SidebarButton.module.css"
 
 interface SidebarButtonProps {
-  path: string
+  to: string
   label: ReactNode
   onClick?: () => void
 }
 
-export function SidebarButton({ path, label, onClick }: SidebarButtonProps) {
+export function SidebarButton({ to, label, onClick }: SidebarButtonProps) {
   return (
     <Button
       asChild
@@ -19,7 +19,7 @@ export function SidebarButton({ path, label, onClick }: SidebarButtonProps) {
       size="3"
       onClick={onClick}
     >
-      <Link to={path} className={styles.sidebarButtonLink}>
+      <Link to={to} className={styles.sidebarButtonLink}>
         {label}
       </Link>
     </Button>

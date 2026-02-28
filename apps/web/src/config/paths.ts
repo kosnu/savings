@@ -1,14 +1,11 @@
 export const paths = {
   root: {
-    path: "/",
     getHref: () => "/",
   },
   auth: {
-    path: "/auth",
     getHref: () => "/auth",
   },
   payments: {
-    path: "/payments",
     getHref: (year?: string, month?: string) => {
       const params = new URLSearchParams()
       if (year) params.set("year", year)
@@ -18,8 +15,6 @@ export const paths = {
     },
   },
   aggregates: {
-    path: "/aggregates",
     getHref: () => "/aggregates",
   },
-  // Add more paths as needed
 } as const
