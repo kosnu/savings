@@ -23,3 +23,7 @@ argument-hint: "[issue-number]"
 
 - slugは簡潔に（2〜4語程度）
 - ブランチ名の確認なしで作成しない
+
+## 次のアクション
+
+ブランチ作成後、`/task $ARGUMENTS` の使用を提案する。
