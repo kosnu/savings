@@ -51,3 +51,34 @@ tasks:
   down:migrations:
     desc: Rollback the last database migration
     cmd: npx supabase migration down
+
+  test:
+    desc: Run tests for all functions
+    cmds:
+      - deno test --allow-read --allow-env supabase/functions/payments/
+      - deno test --allow-read --allow-env supabase/functions/categories/
+
+  lint:
+    desc: Run deno lint for all functions
+    cmd: deno lint supabase/functions/
+
+  fmt:
+    desc: Run deno fmt for all functions
+    cmd: deno fmt supabase/functions/
+
+  fmt:check:
+    desc: Check formatting without writing
+    cmd: deno fmt --check supabase/functions/
+
+  check:
+    desc: Run type check for all functions
+    cmds:
+      - deno check --config supabase/functions/payments/deno.json supabase/functions/payments/**/*.ts
+      - deno check --config supabase/functions/categories/deno.json supabase/functions/categories/**/*.ts
+
+  check:all:
+    desc: Run type check, lint, and fmt check
+    cmds:
+      - task: check
+      - task: lint
+      - task: fmt:check
