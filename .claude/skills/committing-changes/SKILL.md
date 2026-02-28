@@ -38,3 +38,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 - 作業と無関係な差分はコミットに含めない
 - コミットメッセージ案の事前確認を省略しない
+
+## 次のアクション
+
+コミット完了後、必要に応じて `/creating-draft-pr` の使用を提案する。

@@ -196,3 +196,6 @@ terraform.rc
 
 # AIに指示を出す時のMarkdownファイル
 NOTE.md
+
+# Claude個人設定（Git管理外）
+CLAUDE.local.md

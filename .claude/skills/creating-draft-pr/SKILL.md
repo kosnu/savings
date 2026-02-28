@@ -3,6 +3,7 @@ name: creating-draft-pr
 description: Creates a Draft Pull Request using the repository's PR template. Use when the user asks to create a PR, draft PR, or says "PRを作って".
 disable-model-invocation: true
 model: claude-sonnet-4-5
+argument-hint: "[issue-number]"
 ---
 
 # Draft PR作成
