@@ -18,7 +18,6 @@ model: claude-sonnet-4-5
 4. Split commits by concern (feature, bugfix, refactor, etc.)
 5. Run `git diff --staged --stat` to verify staged changes match the task goal
 6. Present commit message to user for approval before committing
-7. After commit, verify with `git log --oneline -1` and `git show --stat HEAD`
 
 ## Commit Message Format
 
