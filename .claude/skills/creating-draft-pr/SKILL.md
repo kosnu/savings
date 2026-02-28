@@ -6,24 +6,24 @@ model: claude-sonnet-4-5
 argument-hint: "[issue-number]"
 ---
 
-# Draft PR作成
+# Create Draft PR
 
-## 手順
+## Steps
 
-1. ベースブランチ、ヘッドブランチ、関連Issue、変更スコープを確認する
-2. `git status` でコミット漏れやPR対象外の差分がないことを確認する
-3. `.github/PULL_REQUEST_TEMPLATE.md` を読み、テンプレート構造に沿ってPR本文を作成する:
-   - 関連Issue番号をリンク
-   - 変更内容を実際の差分に基づき記載
-   - 動作確認は実施済みの検証のみチェック（未実施をチェック済みにしない）
-   - 補足にレビューポイントを記載
-4. PR本文をユーザーに提示し、承認を得てから作成する
-5. `gh pr create --draft` でDraft PRを作成する
-6. 作成後、タイトル・本文・ブランチ・Issueリンクが想定どおりか確認する
+1. Identify base branch, head branch, related issue, and change scope
+2. Run `git status` to check for uncommitted or out-of-scope changes
+3. Read `.github/PULL_REQUEST_TEMPLATE.md` and draft the PR body:
+   - Link related issue number
+   - Describe changes based on actual diffs
+   - Only check off verified items (never mark unverified as done)
+   - Add review points in notes section
+4. Present PR body to user for approval before creating
+5. Create with `gh pr create --draft`
+6. Verify title, body, branch, and issue link after creation
 
-## ルール
+## Rules
 
-- デフォルトはDraft（Ready for reviewは明示指示時のみ）
-- テンプレートの見出しを削らない
-- 空欄やダミー文言を残さない
-- PR本文の確認なしでPRを作成しない
+- Default to Draft (only mark Ready for Review when explicitly requested)
+- Keep all template headings intact
+- No empty fields or placeholder text
+- Always get user approval on the PR body
