@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { MemoryRouter } from "react-router-dom"
+import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { MonthSelector } from "./MonthSelector"
 
 const meta = {
@@ -16,21 +16,9 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={["/payments?year=2025&month=5"]}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
+  decorators: [createStoryRouter("/payments?year=2025&month=5")],
 }
 
 export const WithoutQueryParams: Story = {
-  decorators: [
-    () => (
-      <MemoryRouter initialEntries={["/payments"]}>
-        <MonthSelector />
-      </MemoryRouter>
-    ),
-  ],
+  decorators: [createStoryRouter("/payments")],
 }

@@ -1,19 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { MemoryRouter } from "react-router-dom"
 import { expect, within } from "storybook/test"
+import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { CategoryTotals } from "./CategoryTotals"
 
 const meta = {
   title: "Features/SummaryByMonth/CategoryTotals",
   component: CategoryTotals,
   tags: ["autodocs"],
-  decorators: (Story) => {
-    return (
-      <MemoryRouter initialEntries={["/payments?year=2025&month=06"]}>
-        <Story />
-      </MemoryRouter>
-    )
-  },
+  decorators: [createStoryRouter("/payments?year=2025&month=06")],
 } satisfies Meta<typeof CategoryTotals>
 
 export default meta

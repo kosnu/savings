@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { MemoryRouter } from "react-router-dom"
 import { expect, waitFor, within } from "storybook/test"
+import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
@@ -8,15 +8,7 @@ const meta = {
   component: PaymentsPage,
   parameters: {},
   tags: ["autodocs"],
-  decorators: [
-    (Story) => {
-      return (
-        <MemoryRouter initialEntries={["/payments?year=2025&month=6"]}>
-          <Story />
-        </MemoryRouter>
-      )
-    },
-  ],
+  decorators: [createStoryRouter("/payments?year=2025&month=6")],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof PaymentsPage>

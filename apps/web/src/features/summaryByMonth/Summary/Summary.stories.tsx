@@ -1,8 +1,8 @@
 import { Container } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
-import { MemoryRouter } from "react-router-dom"
 import { expect, waitForElementToBeRemoved } from "storybook/test"
+import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { Summary } from "./Summary"
 
 const meta = {
@@ -15,12 +15,11 @@ const meta = {
   argTypes: {},
   args: {},
   decorators: [
+    createStoryRouter("/payments?year=2025&month=06"),
     (Story) => (
-      <MemoryRouter initialEntries={["/payments?year=2025&month=06"]}>
-        <Container size="4">
-          <Story />
-        </Container>
-      </MemoryRouter>
+      <Container size="4">
+        <Story />
+      </Container>
     ),
   ],
 } satisfies Meta<typeof Summary>

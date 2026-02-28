@@ -1,7 +1,6 @@
 import { Button, Container, Flex, Text } from "@radix-ui/themes"
-import { Link } from "react-router-dom"
+import { Link } from "@tanstack/react-router"
 import { Paper } from "../../../components/misc/Paper"
-import { paths } from "../../../config/paths"
 
 export function TopPage() {
   return (
@@ -15,7 +14,7 @@ export function TopPage() {
             </Text>
             <Flex direction="column" gap="2">
               <Button asChild>
-                <Link to={paths.auth.getHref()}>Go to Auth</Link>
+                <Link to="/auth">Go to Auth</Link>
               </Button>
             </Flex>
           </Flex>

@@ -1,9 +1,8 @@
 import { Cross1Icon } from "@radix-ui/react-icons"
 import { Button, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
+import { Link, useNavigate } from "@tanstack/react-router"
 import type { ReactNode } from "react"
 import { useCallback } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { paths } from "../../config/paths"
 import { getSupabaseClient } from "../../lib/supabase"
 import styles from "./Sidebar.module.css"
 
@@ -23,7 +22,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
       console.error("Failed to sign out from supabase:", error)
       return
     }
-    navigate(paths.root.getHref())
+    navigate({ to: "/" })
     onClose()
   }, [navigate, onClose, supabase])
 
@@ -37,7 +36,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
         align="center"
         gap="4"
       >
-        <Link to={paths.root.getHref()} className={styles.link}>
+        <Link to="/" className={styles.link}>
           <Button className={styles.sidebarButton} variant="ghost" size="3">
             <Text size="3" weight="bold">
               My Savings
