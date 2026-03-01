@@ -1,7 +1,10 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["config:recommended", "helpers:pinGitHubActionDigests"],
-  minimumReleaseAge: "7 days",
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+    'helpers:pinGitHubActionDigests',
+  ],
+  minimumReleaseAge: '7 days',
   vulnerabilityAlerts: {
     enabled: true,
   },
@@ -10,18 +13,28 @@
   },
   packageRules: [
     {
-      depTypeList: ["dependencies"],
-      groupName: "all-dependencies",
-      matchUpdateTypes: ["patch", "minor"],
+      matchDepTypes: [
+        'dependencies',
+      ],
+      groupName: 'all-dependencies',
+      matchUpdateTypes: [
+        'patch',
+        'minor',
+      ],
       automerge: true,
-      automergeType: "pr",
+      automergeType: 'pr',
     },
     {
-      depTypeList: ["devDependencies"],
-      groupName: "all-dev-dependencies",
-      matchUpdateTypes: ["patch", "minor"],
+      matchDepTypes: [
+        'devDependencies',
+      ],
+      groupName: 'all-dev-dependencies',
+      matchUpdateTypes: [
+        'patch',
+        'minor',
+      ],
       automerge: true,
-      automergeType: "pr",
+      automergeType: 'pr',
     },
   ],
 }
