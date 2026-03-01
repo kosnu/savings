@@ -6,12 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { z } from "zod"
-
-const paymentsSearchSchema = z.object({
-  year: z.coerce.string().optional(),
-  month: z.coerce.string().optional(),
-})
+import { paymentsSearchSchema } from "../../features/payments/listPayment/paymentsSearchSchema"
 
 export function createStoryRouter(initialEntry: string): Decorator {
   return (Story) => {

@@ -9,18 +9,13 @@ import {
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, test } from "vitest"
-import { z } from "zod"
 import {
   SupabaseSessionContext,
   type SupabaseSessionState,
 } from "../../../providers/supabase/SupabaseSessionProvider"
 import { mockSession } from "../../../test/data/supabaseSession"
+import { paymentsSearchSchema } from "../../payments/listPayment/paymentsSearchSchema"
 import { MonthSelector } from "./MonthSelector"
-
-const paymentsSearchSchema = z.object({
-  year: z.coerce.string().optional(),
-  month: z.coerce.string().optional(),
-})
 
 const mockSessionState: SupabaseSessionState = {
   session: mockSession(),
