@@ -14,3 +14,12 @@ tasks:
   test:
     desc: Run tests
     cmd: npm run test -- --silent --reporter=dot {{.CLI_ARGS}}
+  dev:
+    desc: Start development server
+    cmd: npm run dev
+  build:
+    desc: Build the application for production
+    cmd: npm run build
+  storybook:
+    desc: Start Storybook for UI component development
+    cmd: npm run storybook
