@@ -1,11 +1,5 @@
 import { Theme } from "@radix-ui/themes"
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRoute,
-  createRouter,
-  RouterProvider,
-} from "@tanstack/react-router"
+import { RouterProvider } from "@tanstack/react-router"
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, test } from "vitest"
@@ -14,7 +8,7 @@ import {
   type SupabaseSessionState,
 } from "../../../providers/supabase/SupabaseSessionProvider"
 import { mockSession } from "../../../test/data/supabaseSession"
-import { paymentsSearchSchema } from "../../payments/listPayment/paymentsSearchSchema"
+import { createTestRouter } from "../../../test/helpers/createTestRouter"
 import { MonthSelector } from "./MonthSelector"
 
 const mockSessionState: SupabaseSessionState = {
@@ -23,24 +17,9 @@ const mockSessionState: SupabaseSessionState = {
 }
 
 function renderWithRouter(initialEntry: string) {
-  const rootRoute = createRootRoute()
-  const authenticatedRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    id: "authenticated",
+  const router = createTestRouter(initialEntry, {
+    paymentsComponent: MonthSelector,
   })
-  const paymentsRoute = createRoute({
-    getParentRoute: () => authenticatedRoute,
-    path: "/payments",
-    component: MonthSelector,
-    validateSearch: paymentsSearchSchema,
-  })
-  const routeTree = rootRoute.addChildren([
-    authenticatedRoute.addChildren([paymentsRoute]),
-  ])
-  const memoryHistory = createMemoryHistory({
-    initialEntries: [initialEntry],
-  })
-  const router = createRouter({ routeTree, history: memoryHistory })
 
   return {
     router,
