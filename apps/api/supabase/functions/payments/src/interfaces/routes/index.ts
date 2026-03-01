@@ -46,12 +46,18 @@ export const registerPaymentsRoutes = (
       return createErrorResponse(userIdResult.error)
     }
 
-    const body = await c.req.json()
+    const bodyResult = await c.req.json().then(
+      (v) => ({ isOk: true as const, value: v }),
+      () => ({ isOk: false as const }),
+    )
+    if (!bodyResult.isOk) {
+      return c.json({ message: "Invalid JSON" }, 400)
+    }
 
     return await paymentsController.create(
       supabase,
       userIdResult.value,
-      body,
+      bodyResult.value,
     )
   })
 
