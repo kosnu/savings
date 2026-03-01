@@ -5,7 +5,7 @@ import {
   createRouter,
   redirect,
 } from "@tanstack/react-router"
-import { z } from "zod"
+import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
@@ -44,11 +44,6 @@ const authenticatedRoute = createRoute({
       throw redirect({ to: "/" })
     }
   },
-})
-
-const paymentsSearchSchema = z.object({
-  year: z.coerce.string().optional(),
-  month: z.coerce.string().optional(),
 })
 
 const paymentsRoute = createRoute({
