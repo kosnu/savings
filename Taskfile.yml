@@ -5,10 +5,10 @@ version: "3"
 includes:
   web:
     taskfile: apps/web/Taskfile.yml
-    dir: apps/web
+    dir: ./apps/web
   api:
     taskfile: apps/api/Taskfile.yml
-    dir: apps/api
+    dir: ./apps/api
 
 tasks:
   default:
