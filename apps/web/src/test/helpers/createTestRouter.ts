@@ -1,9 +1,9 @@
+import type { RouteComponent } from "@tanstack/react-router"
 import {
   createMemoryHistory,
   createRootRoute,
   createRouter,
 } from "@tanstack/react-router"
-import type { RouteComponent } from "@tanstack/react-router"
 import { createRouteTree } from "../../app/routeTree"
 
 interface CreateTestRouterOptions {
