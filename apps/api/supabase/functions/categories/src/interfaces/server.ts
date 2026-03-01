@@ -1,10 +1,9 @@
 import { Hono } from "@hono/hono"
 import { cors } from "@hono/hono/cors"
-import type { SupabaseClient } from "@supabase/supabase-js"
 import { createClient } from "@supabase/supabase-js"
 import { registerCategoriesRoutes } from "./routes/index.ts"
 import type { Database } from "../shared/types.ts"
-import { configAuthMiddleware, type AuthVars } from "../shared/supabase/auth.ts"
+import { type AuthVars, configAuthMiddleware } from "../shared/supabase/auth.ts"
 
 type Vars = AuthVars
 

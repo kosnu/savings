@@ -55,7 +55,7 @@ export const registerPaymentsRoutes = (
     )
   })
 
-  app.delete("/payments/:id", async (_c) => {
+  app.delete("/payments/:id", (_c) => {
     return new Response(
       JSON.stringify({ message: "Not Implemented" }),
       {
