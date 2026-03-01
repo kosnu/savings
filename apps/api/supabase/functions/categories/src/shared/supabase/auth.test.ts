@@ -9,11 +9,12 @@ function createTestApp(verifyJWT?: VerifyJWT) {
   return app
 }
 
-const mockVerify: VerifyJWT = async (_token: string) => ({
-  payload: { sub: "user-123" },
-  protectedHeader: { alg: "RS256" as const },
-  key: {} as CryptoKey,
-})
+const mockVerify: VerifyJWT = (_token: string) =>
+  Promise.resolve({
+    payload: { sub: "user-123" },
+    protectedHeader: { alg: "RS256" as const },
+    key: {} as CryptoKey,
+  })
 
 Deno.test("Authorizationヘッダなし → 401", async () => {
   const app = createTestApp(mockVerify)
@@ -37,9 +38,8 @@ Deno.test("Bearer形式不正 → 401", async () => {
 })
 
 Deno.test("JWT検証失敗 → 401 + エラーコード", async () => {
-  const failVerify: VerifyJWT = async (_token: string) => {
-    throw new Error("verification failed")
-  }
+  const failVerify: VerifyJWT = (_token: string) =>
+    Promise.reject(new Error("verification failed"))
   const app = createTestApp(failVerify)
   const res = await app.request("/test", {
     headers: { Authorization: "Bearer invalid-token" },
@@ -51,11 +51,12 @@ Deno.test("JWT検証失敗 → 401 + エラーコード", async () => {
 })
 
 Deno.test("subクレームなし → 401", async () => {
-  const noSubVerify: VerifyJWT = async (_token: string) => ({
-    payload: {},
-    protectedHeader: { alg: "RS256" as const },
-    key: {} as CryptoKey,
-  })
+  const noSubVerify: VerifyJWT = (_token: string) =>
+    Promise.resolve({
+      payload: {},
+      protectedHeader: { alg: "RS256" as const },
+      key: {} as CryptoKey,
+    })
   const app = createTestApp(noSubVerify)
   const res = await app.request("/test", {
     headers: { Authorization: "Bearer valid-token" },
