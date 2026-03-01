@@ -1,8 +1,7 @@
 import { HamburgerMenuIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons"
 import { Box, IconButton } from "@radix-ui/themes"
-import { Link } from "react-router-dom"
+import { Link } from "@tanstack/react-router"
 import { Logo } from "../../components/misc/Logo"
-import { paths } from "../../config/paths"
 import { useTheme } from "../../providers/theme/ThemeProvider"
 import styles from "./Header.module.css"
 
@@ -30,7 +29,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         radius="full"
         variant="ghost"
       >
-        <Link to={paths.payments.getHref()}>
+        <Link to="/payments">
           <Logo width={32} height={32} />
         </Link>
       </IconButton>

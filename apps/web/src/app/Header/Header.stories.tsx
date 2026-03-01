@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { MemoryRouter } from "react-router-dom"
 import { expect, fn, within } from "storybook/test"
+import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Header } from "./Header"
 
 const meta = {
@@ -10,13 +10,7 @@ const meta = {
   args: {
     onMenuClick: fn(),
   },
-  decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
+  decorators: [createStoryRouter("/")],
 } satisfies Meta<typeof Header>
 
 export default meta

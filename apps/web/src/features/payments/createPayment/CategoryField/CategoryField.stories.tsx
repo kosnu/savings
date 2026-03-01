@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { MemoryRouter } from "react-router-dom"
 import { expect, userEvent, waitFor, within } from "storybook/test"
+import {
+  createStoryRouter,
+  paymentsRouteBuilder,
+} from "../../../../test/helpers/routerDecorator"
 import { CategoryField } from "./CategoryField"
 
 const meta = {
@@ -13,11 +16,7 @@ const meta = {
   argTypes: {},
   args: {},
   decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={["/payments?year=2025&month=04"]}>
-        <Story />
-      </MemoryRouter>
-    ),
+    createStoryRouter("/payments?year=2025&month=04", paymentsRouteBuilder),
   ],
 } satisfies Meta<typeof CategoryField>
 

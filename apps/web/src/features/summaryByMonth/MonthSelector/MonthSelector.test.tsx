@@ -1,82 +1,86 @@
 import { Theme } from "@radix-ui/themes"
+import { createRoute, RouterProvider } from "@tanstack/react-router"
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { MemoryRouter } from "react-router-dom"
-import { afterEach, describe, expect, test, vi } from "vitest"
+import { afterEach, describe, expect, test } from "vitest"
 import {
   SupabaseSessionContext,
   type SupabaseSessionState,
 } from "../../../providers/supabase/SupabaseSessionProvider"
 import { mockSession } from "../../../test/data/supabaseSession"
+import { createTestRouter } from "../../../test/helpers/createTestRouter"
+import { paymentsSearchSchema } from "../../payments/listPayment/paymentsSearchSchema"
 import { MonthSelector } from "./MonthSelector"
-
-const mockNavigate = vi.fn()
-
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom")
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  }
-})
 
 const mockSessionState: SupabaseSessionState = {
   session: mockSession(),
   loading: false,
 }
 
-const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <SupabaseSessionContext value={mockSessionState}>
-      <Theme>{component}</Theme>
-    </SupabaseSessionContext>,
-  )
+function renderWithRouter(initialEntry: string) {
+  const router = createTestRouter(initialEntry, (root) => {
+    const authenticatedRoute = createRoute({
+      getParentRoute: () => root,
+      id: "authenticated",
+    })
+
+    const paymentsRoute = createRoute({
+      getParentRoute: () => authenticatedRoute,
+      path: "/payments",
+      component: MonthSelector,
+      validateSearch: paymentsSearchSchema,
+    })
+
+    return [authenticatedRoute.addChildren([paymentsRoute])]
+  })
+
+  return {
+    router,
+    ...render(
+      <SupabaseSessionContext value={mockSessionState}>
+        <Theme>
+          <RouterProvider router={router} />
+        </Theme>
+      </SupabaseSessionContext>,
+    ),
+  }
 }
 
 describe("MonthSelector", () => {
   afterEach(() => {
     cleanup()
-    mockNavigate.mockClear()
   })
 
   test("クエリパラメータがない場合、今月の年月で初期化される", async () => {
-    renderWithTheme(
-      <MemoryRouter initialEntries={["/payments"]}>
-        <MonthSelector />
-      </MemoryRouter>,
-    )
+    const { router } = renderWithRouter("/payments")
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.stringContaining("/payments?"),
-        { replace: true },
-      )
+      const { year, month } = router.state.location.search as {
+        year?: string
+        month?: string
+      }
+      expect(year).toMatch(/\d{4}/)
+      expect(month).toMatch(/\d{1,2}/)
     })
-
-    const call = mockNavigate.mock.calls[0][0]
-    expect(call).toMatch(/year=\d{4}/)
-    expect(call).toMatch(/month=\d{1,2}/)
   })
 
-  test("クエリパラメータがある場合、その年月が表示される", () => {
-    renderWithTheme(
-      <MemoryRouter initialEntries={["/payments?year=2025&month=5"]}>
-        <MonthSelector />
-      </MemoryRouter>,
-    )
+  test("クエリパラメータがある場合、その年月が表示される", async () => {
+    renderWithRouter("/payments?year=2025&month=5")
 
-    expect(screen.getByText("5月")).toBeInTheDocument()
-    expect(screen.getByText("2025")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText("5月")).toBeInTheDocument()
+      expect(screen.getByText("2025")).toBeInTheDocument()
+    })
   })
 
   test("年月を選択すると、クエリパラメータが更新される", async () => {
     const user = userEvent.setup()
 
-    renderWithTheme(
-      <MemoryRouter initialEntries={["/payments?year=2025&month=5"]}>
-        <MonthSelector />
-      </MemoryRouter>,
-    )
+    const { router } = renderWithRouter("/payments?year=2025&month=5")
+
+    await waitFor(() => {
+      expect(screen.getByText("5月")).toBeInTheDocument()
+    })
 
     // 月のボタンをクリック
     const monthButton = screen.getAllByRole("combobox")[0]
@@ -87,7 +91,12 @@ describe("MonthSelector", () => {
     await user.click(juneOption)
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/payments?year=2025&month=6")
+      const { year, month } = router.state.location.search as {
+        year?: string
+        month?: string
+      }
+      expect(year).toBe("2025")
+      expect(month).toBe("6")
     })
   })
 })

@@ -1,5 +1,5 @@
+import { useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 import { paths } from "../../config/paths"
 import { getSupabaseClient } from "../../lib/supabase"
 
@@ -30,7 +30,7 @@ export function useSupabaseSignIn(): UseSupabaseSignIn {
 
     const handleSession = (hasSession: boolean) => {
       if (!isActive || !hasSession) return
-      navigate(paths.payments.getHref())
+      navigate({ to: "/payments" })
     }
 
     supabase.auth
@@ -56,7 +56,7 @@ export function useSupabaseSignIn(): UseSupabaseSignIn {
       isActive = false
       authListener.subscription.unsubscribe()
     }
-  }, [navigate, supabase])
+  }, [supabase, navigate])
 
   return {
     signIn: signIn,
