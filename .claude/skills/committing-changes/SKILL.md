@@ -2,7 +2,7 @@
 name: committing-changes
 description: Stages and commits changes with workspace-specific verification and Japanese commit messages. Use when the user asks to commit, stage changes, or says "コミットして".
 disable-model-invocation: true
-model: claude-sonnet-4-5
+model: sonnet
 ---
 
 # Commit Changes
@@ -17,7 +17,8 @@ model: claude-sonnet-4-5
 3. Stage files individually (`git add -A` only when all changes are confirmed intentional)
 4. Split commits by concern (feature, bugfix, refactor, etc.)
 5. Run `git diff --staged --stat` to verify staged changes match the task goal
-6. Present commit message to user for approval before committing
+6. Commit without asking for approval
+7. Show result with `git log -1 --pretty=format:"%h: %s"`
 
 ## Commit Message Format
 
@@ -34,7 +35,6 @@ Types: `feat`, `fix`, `chore`, `refactor`, `test`, `docs`
 ## Rules
 
 - Do not include unrelated changes
-- Always get user approval on the commit message
 
 ## Next Action
 
