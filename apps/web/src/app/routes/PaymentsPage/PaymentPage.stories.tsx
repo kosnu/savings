@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, waitFor, within } from "storybook/test"
-import { createStoryRouter } from "../../../test/helpers/routerDecorator"
+import {
+  createStoryRouter,
+  paymentsRouteBuilder,
+} from "../../../test/helpers/routerDecorator"
 import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
@@ -8,7 +11,9 @@ const meta = {
   component: PaymentsPage,
   parameters: {},
   tags: ["autodocs"],
-  decorators: [createStoryRouter("/payments?year=2025&month=6")],
+  decorators: [
+    createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder),
+  ],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof PaymentsPage>

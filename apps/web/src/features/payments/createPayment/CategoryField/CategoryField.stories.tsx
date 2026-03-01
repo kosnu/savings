@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, userEvent, waitFor, within } from "storybook/test"
-import { createStoryRouter } from "../../../../test/helpers/routerDecorator"
+import {
+  createStoryRouter,
+  paymentsRouteBuilder,
+} from "../../../../test/helpers/routerDecorator"
 import { CategoryField } from "./CategoryField"
 
 const meta = {
@@ -12,7 +15,9 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {},
   args: {},
-  decorators: [createStoryRouter("/payments?year=2025&month=04")],
+  decorators: [
+    createStoryRouter("/payments?year=2025&month=04", paymentsRouteBuilder),
+  ],
 } satisfies Meta<typeof CategoryField>
 
 export default meta

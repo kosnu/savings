@@ -2,7 +2,10 @@ import { Container } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, waitForElementToBeRemoved } from "storybook/test"
-import { createStoryRouter } from "../../../test/helpers/routerDecorator"
+import {
+  createStoryRouter,
+  paymentsRouteBuilder,
+} from "../../../test/helpers/routerDecorator"
 import { Summary } from "./Summary"
 
 const meta = {
@@ -15,7 +18,7 @@ const meta = {
   argTypes: {},
   args: {},
   decorators: [
-    createStoryRouter("/payments?year=2025&month=06"),
+    createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder),
     (Story) => (
       <Container size="4">
         <Story />
