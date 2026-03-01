@@ -1,15 +1,14 @@
 import {
   createMemoryHistory,
   createRootRoute,
-  createRoute,
   createRouter,
 } from "@tanstack/react-router"
-import type { ComponentType } from "react"
-import { paymentsSearchSchema } from "../../features/payments/listPayment/paymentsSearchSchema"
+import type { RouteComponent } from "@tanstack/react-router"
+import { createRouteTree } from "../../app/routeTree"
 
 interface CreateTestRouterOptions {
-  paymentsComponent?: ComponentType
-  defaultComponent?: ComponentType
+  paymentsComponent?: RouteComponent
+  defaultComponent?: RouteComponent
 }
 
 export function createTestRouter(
@@ -18,33 +17,9 @@ export function createTestRouter(
 ) {
   const rootRoute = createRootRoute()
 
-  const indexRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/",
+  const routeTree = createRouteTree(rootRoute, {
+    paymentsComponent: options?.paymentsComponent,
   })
-
-  const authRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/auth",
-  })
-
-  const authenticatedRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    id: "authenticated",
-  })
-
-  const paymentsRoute = createRoute({
-    getParentRoute: () => authenticatedRoute,
-    path: "/payments",
-    validateSearch: paymentsSearchSchema,
-    component: options?.paymentsComponent,
-  })
-
-  const routeTree = rootRoute.addChildren([
-    indexRoute,
-    authRoute,
-    authenticatedRoute.addChildren([paymentsRoute]),
-  ])
 
   const memoryHistory = createMemoryHistory({
     initialEntries: [initialEntry],
