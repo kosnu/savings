@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { MemoryRouter } from "react-router-dom"
+import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { TopPage } from "./TopPage"
 
 const meta = {
@@ -7,13 +7,7 @@ const meta = {
   component: TopPage,
   parameters: {},
   tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={["/"]}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
+  decorators: [createStoryRouter("/")],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof TopPage>

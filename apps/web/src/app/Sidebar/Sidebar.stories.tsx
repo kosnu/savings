@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { MemoryRouter } from "react-router-dom"
 import { expect, fn, within } from "storybook/test"
+import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Sidebar } from "./Sidebar"
 
 const meta = {
@@ -10,13 +10,7 @@ const meta = {
     layout: "fullscreen",
   },
   tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
+  decorators: [createStoryRouter("/")],
   argTypes: {
     open: { control: "boolean" },
   },

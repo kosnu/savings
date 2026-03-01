@@ -1,9 +1,8 @@
+import type { ErrorComponentProps } from "@tanstack/react-router"
 import { useId } from "react"
-import { useRouteError } from "react-router-dom"
 
-export function ErrorPage() {
+export function ErrorPage({ error }: ErrorComponentProps) {
   const id = useId()
-  const error = useRouteError()
   console.error(error)
 
   return (

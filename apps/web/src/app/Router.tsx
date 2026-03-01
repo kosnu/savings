@@ -1,38 +1,15 @@
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider as RRDRouterProvider,
-} from "react-router-dom"
-import { paths } from "../config/paths"
-import { AppLayout } from "./AppLayout"
-import { AggregatesPage } from "./routes/AggregatesPage"
-import { AuthPage } from "./routes/AuthPage"
-import { ErrorPage } from "./routes/ErrorPage"
-import { PaymentsPage } from "./routes/PaymentsPage"
-import { TopPage } from "./routes/TopPage"
-
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route>
-      <Route
-        path={paths.root.path}
-        element={<TopPage />}
-        errorElement={<ErrorPage />}
-      />
-      <Route
-        path={paths.auth.path}
-        element={<AuthPage />}
-        errorElement={<ErrorPage />}
-      />
-      <Route element={<AppLayout />} errorElement={<ErrorPage />}>
-        <Route path={paths.payments.path} element={<PaymentsPage />} />
-        <Route path={paths.aggregates.path} element={<AggregatesPage />} />
-      </Route>
-    </Route>,
-  ),
-)
+import { RouterProvider } from "@tanstack/react-router"
+import { useSupabaseSession } from "../providers/supabase"
+import { router } from "./routes"
 
 export function Router() {
-  return <RRDRouterProvider router={router} />
+  const { session: supabaseSession, loading: supabaseLoading } =
+    useSupabaseSession()
+
+  return (
+    <RouterProvider
+      router={router}
+      context={{ supabaseSession, supabaseLoading }}
+    />
+  )
 }
