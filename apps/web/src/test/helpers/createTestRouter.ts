@@ -1,33 +1,21 @@
-import type { RouteComponent } from "@tanstack/react-router"
+import type { AnyRootRoute, AnyRoute } from "@tanstack/react-router"
 import {
   createMemoryHistory,
   createRootRoute,
   createRouter,
 } from "@tanstack/react-router"
-import { createRouteTree } from "../../app/routeTree"
-
-interface CreateTestRouterOptions {
-  paymentsComponent?: RouteComponent
-  defaultComponent?: RouteComponent
-}
 
 export function createTestRouter(
   initialEntry: string,
-  options?: CreateTestRouterOptions,
+  routeBuilder: (rootRoute: AnyRootRoute) => AnyRoute[],
 ) {
   const rootRoute = createRootRoute()
 
-  const routeTree = createRouteTree(rootRoute, {
-    paymentsComponent: options?.paymentsComponent,
-  })
+  const routeTree = rootRoute.addChildren(routeBuilder(rootRoute))
 
   const memoryHistory = createMemoryHistory({
     initialEntries: [initialEntry],
   })
 
-  return createRouter({
-    routeTree,
-    history: memoryHistory,
-    defaultComponent: options?.defaultComponent,
-  })
+  return createRouter({ routeTree, history: memoryHistory })
 }
