@@ -4,6 +4,11 @@ import * as jose from "jose"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../types.ts"
 
+export type AuthVars = {
+  supabase: SupabaseClient<Database>
+  externalUserId: string
+}
+
 async function verifySupabaseJWT(token: string) {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!
   const jwks = jose.createRemoteJWKSet(
@@ -44,41 +49,55 @@ function classifyJwtError(e: unknown): { code: string; message: string } {
   }
 }
 
-const authMiddleware = createMiddleware(async (c, next) => {
-  const authHeader = c.req.header("Authorization")
-  if (!authHeader) {
-    return c.json({ error: "Missing Authorization header" }, 401)
-  }
-  if (!authHeader.startsWith("Bearer ")) {
-    return c.json(
-      {
-        error: "Invalid Authorization header format, expected 'Bearer <token>'",
-      },
-      401,
-    )
-  }
+export type VerifyJWT = (
+  token: string,
+) => Promise<jose.JWTVerifyResult & jose.ResolvedKey>
 
-  const token = authHeader.slice(7)
-  try {
-    await verifySupabaseJWT(token)
-  } catch (e) {
-    const { code, message } = classifyJwtError(e)
+export function createAuthMiddleware(
+  verifyJWT: VerifyJWT = verifySupabaseJWT,
+) {
+  return createMiddleware(async (c, next) => {
+    const authHeader = c.req.header("Authorization")
+    if (!authHeader) {
+      return c.json({ error: "Missing Authorization header" }, 401)
+    }
+    if (!authHeader.startsWith("Bearer ")) {
+      return c.json(
+        {
+          error:
+            "Invalid Authorization header format, expected 'Bearer <token>'",
+        },
+        401,
+      )
+    }
 
-    console.error(JSON.stringify({
-      level: "error",
-      context: "jwt_auth",
-      code,
-      message,
-    }))
+    const token = authHeader.slice(7)
+    try {
+      const { payload } = await verifyJWT(token)
+      const sub = payload.sub
+      if (!sub) {
+        return c.json({ error: "Invalid JWT: missing sub claim" }, 401)
+      }
+      c.set("externalUserId", sub)
+    } catch (e) {
+      const { code, message } = classifyJwtError(e)
 
-    return c.json({ error: "Invalid JWT", code }, 401)
-  }
+      console.error(JSON.stringify({
+        level: "error",
+        context: "jwt_auth",
+        code,
+        message,
+      }))
 
-  return next()
-})
+      return c.json({ error: "Invalid JWT", code }, 401)
+    }
+
+    return next()
+  })
+}
 
 export const configAuthMiddleware = (
-  app: Hono<{ Variables: { supabase: SupabaseClient<Database> } }>,
+  app: Hono<{ Variables: AuthVars }>,
 ) => {
-  app.use("*", authMiddleware)
+  app.use("*", createAuthMiddleware())
 }

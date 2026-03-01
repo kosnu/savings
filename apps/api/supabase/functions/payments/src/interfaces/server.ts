@@ -1,14 +1,11 @@
 import { Hono } from "@hono/hono"
 import { cors } from "@hono/hono/cors"
-import type { SupabaseClient } from "@supabase/supabase-js"
 import { createClient } from "@supabase/supabase-js"
 import { registerPaymentsRoutes } from "./routes/index.ts"
 import type { Database } from "../shared/types.ts"
-import { configAuthMiddleware } from "../shared/supabase/auth.ts"
+import { type AuthVars, configAuthMiddleware } from "../shared/supabase/auth.ts"
 
-type Vars = {
-  supabase: SupabaseClient<Database>
-}
+type Vars = AuthVars
 
 export const createServer = () => {
   const app = new Hono<{ Variables: Vars }>()
