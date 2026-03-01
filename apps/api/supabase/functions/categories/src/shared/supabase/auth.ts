@@ -4,6 +4,11 @@ import * as jose from "jose"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../types.ts"
 
+export type AuthVars = {
+  supabase: SupabaseClient<Database>
+  externalUserId: string
+}
+
 async function verifySupabaseJWT(token: string) {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!
   const jwks = jose.createRemoteJWKSet(
@@ -60,7 +65,12 @@ const authMiddleware = createMiddleware(async (c, next) => {
 
   const token = authHeader.slice(7)
   try {
-    await verifySupabaseJWT(token)
+    const { payload } = await verifySupabaseJWT(token)
+    const sub = payload.sub
+    if (!sub) {
+      return c.json({ error: "Invalid JWT: missing sub claim" }, 401)
+    }
+    c.set("externalUserId", sub)
   } catch (e) {
     const { code, message } = classifyJwtError(e)
 
@@ -78,7 +88,7 @@ const authMiddleware = createMiddleware(async (c, next) => {
 })
 
 export const configAuthMiddleware = (
-  app: Hono<{ Variables: { supabase: SupabaseClient<Database> } }>,
+  app: Hono<{ Variables: AuthVars }>,
 ) => {
   app.use("*", authMiddleware)
 }

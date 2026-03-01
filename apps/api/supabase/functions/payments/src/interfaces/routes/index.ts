@@ -1,35 +1,18 @@
 import type { Hono } from "@hono/hono"
-import type { SupabaseClient } from "@supabase/supabase-js"
-import type { Database } from "../../shared/types.ts"
 import { paymentsController } from "../handlers/paymentsController.ts"
 import { getUserIdByExternalId } from "../../infrastructure/utils/getUserIdByExternalId.ts"
 import { createErrorResponse } from "../handlers/errorResponse.ts"
-import { validationError } from "../../shared/errors.ts"
+import type { AuthVars } from "../../shared/supabase/auth.ts"
 
 export const registerPaymentsRoutes = (
-  app: Hono<{ Variables: { supabase: SupabaseClient<Database> } }>,
+  app: Hono<{ Variables: AuthVars }>,
 ) => {
   app.get("/payments", async (c) => {
     const supabase = c.var.supabase
-
-    // 認証情報取得
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ message: "Unauthorized" }),
-        {
-          status: 401,
-          headers: { "content-type": "application/json; charset=utf-8" },
-        },
-      )
-    }
+    const externalUserId = c.var.externalUserId
 
     // external_id (Auth UUID) から users テーブルの id (number) を取得
-    const userIdResult = await getUserIdByExternalId(supabase, user.id)
+    const userIdResult = await getUserIdByExternalId(supabase, externalUserId)
     if (!userIdResult.isOk) {
       return createErrorResponse(userIdResult.error)
     }
@@ -49,56 +32,21 @@ export const registerPaymentsRoutes = (
   app.get("/payments/total", async (c) => {
     const supabase = c.var.supabase
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ message: "Unauthorized" }),
-        {
-          status: 401,
-          headers: { "content-type": "application/json; charset=utf-8" },
-        },
-      )
-    }
-
     const month = c.req.query("month")
     return await paymentsController.monthlyTotal(supabase, month)
   })
 
   app.post("/payments", async (c) => {
     const supabase = c.var.supabase
-
-    // 認証情報取得
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ message: "Unauthorized" }),
-        {
-          status: 401,
-          headers: { "content-type": "application/json; charset=utf-8" },
-        },
-      )
-    }
+    const externalUserId = c.var.externalUserId
 
     // external_id (Auth UUID) から users テーブルの id (number) を取得
-    const userIdResult = await getUserIdByExternalId(supabase, user.id)
+    const userIdResult = await getUserIdByExternalId(supabase, externalUserId)
     if (!userIdResult.isOk) {
       return createErrorResponse(userIdResult.error)
     }
 
-    let body: unknown
-    try {
-      body = await c.req.json()
-    } catch (_e) {
-      return createErrorResponse(validationError("Invalid JSON"))
-    }
+    const body = await c.req.json()
 
     return await paymentsController.create(
       supabase,
@@ -107,25 +55,7 @@ export const registerPaymentsRoutes = (
     )
   })
 
-  app.delete("/payments/:id", async (c) => {
-    const supabase = c.var.supabase
-
-    // 認証情報取得
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ message: "Unauthorized" }),
-        {
-          status: 401,
-          headers: { "content-type": "application/json; charset=utf-8" },
-        },
-      )
-    }
-
+  app.delete("/payments/:id", async (_c) => {
     return new Response(
       JSON.stringify({ message: "Not Implemented" }),
       {
