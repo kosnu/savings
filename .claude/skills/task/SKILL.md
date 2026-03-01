@@ -32,8 +32,8 @@ Then follow the matching workflow below.
 2. **Plan & approve** — Present a brief change plan. **Get user approval before implementing.**
 3. **Implement** — Apply changes directly (no subagents)
 4. **Verify** — Run workspace checks:
-   - `apps/web/`: `cd apps/web && task check && task test`
-   - `apps/api/`: `deno test --allow-read --allow-env` in the function dir
+   - `apps/web/`: `task web:check && task web:test` from the repository root
+   - `apps/api/`: `task api:verify && task api:test` from the repository root
 5. **Done** — Suggest `/committing-changes`
 
 ---
@@ -56,7 +56,7 @@ Then follow the matching workflow below.
 3. **Parallel implement** — Launch FE and BE subagents in parallel via Task tool (`subagent_type: general-purpose`, `isolation: "worktree"`). Include respective agent principles
 4. **Integrate** — Merge worktree changes, resolve conflicts, verify FE/BE connection points
 5. **Review** — Same as Medium but cover both FE and BE diffs
-6. **Verify** — Run checks for both workspaces
+6. **Verify** — Run checks for both workspaces as in Small
 7. **Done** — Suggest `/committing-changes` and `/creating-draft-pr`
 
 ---
