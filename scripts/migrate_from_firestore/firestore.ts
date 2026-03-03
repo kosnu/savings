@@ -19,16 +19,16 @@ function initFirebase(projectId: string, dbId?: string) {
 }
 
 /**
- * Firestoreから指定ユーザー・指定月の支払いデータを取得する
+ * Firestoreから指定ユーザーの支払いデータを取得する
  *
  * @param projectId Firebase プロジェクトID
  * @param userId Firestore の ユーザーID
- * @param month "YYYY-MM" 形式の月指定
+ * @param month "YYYY-MM" 形式の月指定（省略時は全件取得）
  */
 export async function fetchPayments(
   projectId: string,
   userId: string,
-  month: string,
+  month?: string,
   firestoreDatabaseId?: string,
 ): Promise<PaymentDocument[]> {
   initFirebase(projectId, firestoreDatabaseId)
@@ -36,20 +36,29 @@ export async function fetchPayments(
   const db = getFirestore(databaseId)
   const collectionPath = `users/${userId}/payments`
 
-  // 月の範囲を計算
-  const [year, mon] = month.split("-").map(Number)
-  const startDate = new Date(year, mon - 1, 1) // 月初
-  const endDate = new Date(year, mon, 1) // 翌月初
+  let startSeconds: number | undefined
+  let endSeconds: number | undefined
 
-  const startSeconds = Math.floor(startDate.getTime() / 1000)
-  const endSeconds = Math.floor(endDate.getTime() / 1000)
+  if (month) {
+    // 月の範囲を計算
+    const [year, mon] = month.split("-").map(Number)
+    const startDate = new Date(year, mon - 1, 1) // 月初
+    const endDate = new Date(year, mon, 1) // 翌月初
+
+    startSeconds = Math.floor(startDate.getTime() / 1000)
+    endSeconds = Math.floor(endDate.getTime() / 1000)
+  }
 
   // REST APIモードではTimestampのwhere句が正しく動作しないため、
   // 全件取得してアプリ側でフィルタリングする
   const snapshot = await db.collection(collectionPath).get()
-  console.log(`  全${snapshot.size}件から対象月をフィルタリング中...`)
 
-  // 月単位の取得のためページネーションは不要（データ量が限定的）
+  if (month) {
+    console.log(`  全${snapshot.size}件から対象月をフィルタリング中...`)
+  } else {
+    console.log(`  全${snapshot.size}件を取得中...`)
+  }
+
   const payments: PaymentDocument[] = []
   for (const doc of snapshot.docs) {
     const data = doc.data()
@@ -62,13 +71,15 @@ export async function fetchPayments(
       continue
     }
 
-    // 日付フィルタリング（秒数で比較）
-    const docSeconds = data.date._seconds ?? data.date.seconds
-    if (
-      docSeconds == null || docSeconds < startSeconds ||
-      docSeconds >= endSeconds
-    ) {
-      continue
+    // 月指定時のみ日付フィルタリング
+    if (startSeconds != null && endSeconds != null) {
+      const docSeconds = data.date._seconds ?? data.date.seconds
+      if (
+        docSeconds == null || docSeconds < startSeconds ||
+        docSeconds >= endSeconds
+      ) {
+        continue
+      }
     }
 
     payments.push(data as PaymentDocument)
@@ -78,7 +89,7 @@ export async function fetchPayments(
   if (payments.length === 0 && snapshot.size > 0) {
     const monthCounts = new Map<string, number>()
     for (const doc of snapshot.docs) {
-      const s = doc.data().date?._seconds
+      const s = doc.data().date?._seconds ?? doc.data().date?.seconds
       if (s == null) continue
       const d = new Date(s * 1000)
       const ym = `${d.getFullYear()}-${

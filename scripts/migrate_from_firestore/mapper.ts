@@ -35,7 +35,10 @@ export function mapPayment(
   }
 }
 
-/** Date → "YYYY-MM-DD" (UTCベース) */
+/** Date → "YYYY-MM-DD" (ローカル/JSTベース) */
 function formatDate(d: Date): string {
-  return d.toISOString().split("T")[0]
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
 }
