@@ -40,13 +40,17 @@ export async function fetchPayments(
   let endSeconds: number | undefined
 
   if (month) {
-    // 月の範囲を計算
+    // 月の範囲を計算（JST 月境界で固定）
     const [year, mon] = month.split("-").map(Number)
-    const startDate = new Date(year, mon - 1, 1) // 月初
-    const endDate = new Date(year, mon, 1) // 翌月初
+    const JST_OFFSET_MILLIS = 9 * 60 * 60 * 1000
 
-    startSeconds = Math.floor(startDate.getTime() / 1000)
-    endSeconds = Math.floor(endDate.getTime() / 1000)
+    // JST の year-mon-01 00:00:00 に対応する UTC epoch ミリ秒
+    const startMillis = Date.UTC(year, mon - 1, 1) - JST_OFFSET_MILLIS
+    // Date.UTC は mon が 12 を超えると自動で年繰り上がりするため、そのまま渡せる
+    const endMillis = Date.UTC(year, mon, 1) - JST_OFFSET_MILLIS
+
+    startSeconds = Math.floor(startMillis / 1000)
+    endSeconds = Math.floor(endMillis / 1000)
   }
 
   // REST APIモードではTimestampのwhere句が正しく動作しないため、
@@ -92,9 +96,10 @@ export async function fetchPayments(
       const s = doc.data().date?._seconds ?? doc.data().date?.seconds
       if (s == null) continue
       const d = new Date(s * 1000)
-      const ym = `${d.getFullYear()}-${
-        String(d.getMonth() + 1).padStart(2, "0")
-      }`
+      // sv-SE は "YYYY-MM-DD" を返すため先頭7文字で "YYYY-MM" を取得
+      const ym = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" })
+        .format(d)
+        .slice(0, 7)
       monthCounts.set(ym, (monthCounts.get(ym) ?? 0) + 1)
     }
     const sorted = [...monthCounts.entries()].sort()
