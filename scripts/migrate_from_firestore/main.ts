@@ -7,10 +7,10 @@ import { insertPayments } from "./supabase.ts"
 
 function printUsage() {
   console.log(`使い方:
-  deno task migrate -- --month <YYYY-MM> --firestore-user-id <ID> [--firestore-database-id <DB_ID>]
+  deno task migrate -- --firestore-user-id <ID> [--month <YYYY-MM>] [--firestore-database-id <DB_ID>]
 
 オプション:
-  --month                   対象月 (例: 2025-01) [必須]
+  --month                   対象月 (例: 2025-01) [省略時は全期間]
   --firestore-user-id       FirestoreのユーザーID [必須]
   --firestore-database-id   Firestoreデータベース名 (デフォルト: (default))
   --help                    ヘルプを表示`)
@@ -32,23 +32,25 @@ function main() {
   const month = args.month
   const firestoreUserId = args["firestore-user-id"]
 
-  if (!month || !firestoreUserId) {
-    console.error("エラー: --month と --firestore-user-id は必須です")
+  if (!firestoreUserId) {
+    console.error("エラー: --firestore-user-id は必須です")
     printUsage()
     Deno.exit(1)
   }
 
-  // YYYY-MM 形式のバリデーション
-  if (!/^\d{4}-\d{2}$/.test(month)) {
-    console.error("エラー: --month は YYYY-MM 形式で指定してください")
-    Deno.exit(1)
-  }
+  if (month) {
+    // YYYY-MM 形式のバリデーション
+    if (!/^\d{4}-\d{2}$/.test(month)) {
+      console.error("エラー: --month は YYYY-MM 形式で指定してください")
+      Deno.exit(1)
+    }
 
-  // 月の範囲チェック (01-12)
-  const monthNum = Number(month.split("-")[1])
-  if (monthNum < 1 || monthNum > 12) {
-    console.error("エラー: 月は 01〜12 の範囲で指定してください")
-    Deno.exit(1)
+    // 月の範囲チェック (01-12)
+    const monthNum = Number(month.split("-")[1])
+    if (monthNum < 1 || monthNum > 12) {
+      console.error("エラー: 月は 01〜12 の範囲で指定してください")
+      Deno.exit(1)
+    }
   }
 
   // 環境変数の取得
@@ -93,7 +95,7 @@ try {
   log(1, TOTAL_STEPS, "設定を読み込み中...")
   await load({ export: true })
   const config = main()
-  console.log(`  対象月: ${config.month}`)
+  console.log(`  対象月: ${config.month ?? "全期間"}`)
   console.log(`  Firestore ユーザーID: ${config.firestoreUserId}`)
   console.log(
     `  Firestore データベース: ${config.firestoreDatabaseId ?? "(default)"}`,

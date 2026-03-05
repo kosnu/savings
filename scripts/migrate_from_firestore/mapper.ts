@@ -35,7 +35,7 @@ export function mapPayment(
   }
 }
 
-/** Date → "YYYY-MM-DD" (UTCベース) */
+/** Date → "YYYY-MM-DD" (JST固定) */
 function formatDate(d: Date): string {
-  return d.toISOString().split("T")[0]
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(d)
 }
