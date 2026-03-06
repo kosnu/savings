@@ -22,7 +22,8 @@ create policy "Users can insert own payments"
 create policy "Users can update own payments"
   on payments for update
   to authenticated
-  using (user_id in (select id from users where external_id = auth.uid()::text));
+  using (user_id in (select id from users where external_id = auth.uid()::text))
+  with check (user_id in (select id from users where external_id = auth.uid()::text));
 
 create policy "Users can delete own payments"
   on payments for delete
