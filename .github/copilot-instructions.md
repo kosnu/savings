@@ -1,15 +1,10 @@
 # Copilot Instructions for Savings Repository
 
-## 基本ルール
+## Language
 
-- 回答やコメントは全て **日本語** で行う。
-- path 固有ルールは `.github/instructions/*.instructions.md` を優先する。
-- コマンドは対象ディレクトリ (`apps/web/`, `apps/api/`) で実行する。
-- `apps/web/` は Taskfile (`task check`, `task test`) を優先し、依存関係導入時のみ `npm ci` を使う。
-- Deno プロジェクトでは `deno install` 系コマンドを避け、`deno task` / Supabase CLI / Taskfile を使う。
+Respond and comment in **Japanese**.
 
-## 参照先
+## General Rules
 
-- `apps/web/README.md`
-- `apps/api/README.md`
-
+- Path-specific rules in `.github/instructions/*.instructions.md` take priority.
+- For `apps/api/`: avoid `deno install`; use `deno task` / Supabase CLI / Taskfile instead.
