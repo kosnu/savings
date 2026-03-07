@@ -22,19 +22,19 @@ describe("fetchCategories", () => {
 
     expect(categories).toHaveLength(3)
     expect(categories[0]).toEqual({
-      id: "10",
+      id: 10,
       name: "Food",
       createdDate: new Date("2025-01-01T00:00:00.000Z"),
       updatedDate: new Date("2025-01-01T00:00:00.000Z"),
     })
     expect(categories[1]).toEqual({
-      id: "20",
+      id: 20,
       name: "Daily Necessities",
       createdDate: new Date("2025-01-01T00:00:00.000Z"),
       updatedDate: new Date("2025-01-01T00:00:00.000Z"),
     })
     expect(categories[2]).toEqual({
-      id: "30",
+      id: 30,
       name: "Entertainment",
       createdDate: new Date("2025-01-01T00:00:00.000Z"),
       updatedDate: new Date("2025-01-01T00:00:00.000Z"),

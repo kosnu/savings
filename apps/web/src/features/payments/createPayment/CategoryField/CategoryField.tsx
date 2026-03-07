@@ -68,15 +68,14 @@ const CategoryFieldOptions = memo(function CategoryFieldInner({
 
   return (
     <>
-      {categories.map((category) => (
-        <Select.Item
-          aria-label={category.name}
-          key={category.id}
-          value={category?.id ?? ""}
-        >
-          {category.name}
-        </Select.Item>
-      ))}
+      {categories.map((category) => {
+        const id = String(category.id)
+        return (
+          <Select.Item aria-label={category.name} key={id} value={id}>
+            {category.name}
+          </Select.Item>
+        )
+      })}
     </>
   )
 })

@@ -29,12 +29,12 @@ export async function fetchPayments([startDate, endDate]: [
   }
 
   return (data ?? []).map((row) => ({
-    id: String(row.id),
-    categoryId: row.category_id != null ? String(row.category_id) : "",
+    id: row.id,
+    categoryId: row.category_id ?? null,
     note: row.note ?? "",
     amount: row.amount,
     date: new Date(row.date),
-    userId: String(row.user_id),
+    userId: row.user_id,
     createdDate: row.created_at ? new Date(row.created_at) : new Date(),
     updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
   }))

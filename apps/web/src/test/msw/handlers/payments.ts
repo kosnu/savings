@@ -1,34 +1,24 @@
 import { HttpResponse, http } from "msw"
+import type { PaymentRow } from "../../../types/payment"
 
 const EDGE_FUNCTION_URL = "*/functions/v1/payments"
 const REST_URL = "*/rest/v1/payments*"
 
 export interface PaymentDto {
-  id: string
+  id: number
   note: string | null
   amount: number
   date: string
   createdAt: string | null
   updatedAt: string | null
-  categoryId: string | null
-  userId: string
-}
-
-interface PaymentRow {
-  id: number
-  note: string | null
-  amount: number
-  date: string
-  created_at: string | null
-  updated_at: string | null
-  category_id: string | null
-  user_id: number
+  categoryId: number | null
+  userId: number
 }
 
 const paymentRows: PaymentRow[] = [
   {
     id: 1,
-    category_id: "10",
+    category_id: 10,
     user_id: 100,
     date: "2025-06-01",
     note: "コンビニ",
@@ -38,7 +28,7 @@ const paymentRows: PaymentRow[] = [
   },
   {
     id: 2,
-    category_id: "20",
+    category_id: 20,
     user_id: 100,
     date: "2025-06-02",
     note: "コンビニ",
@@ -48,7 +38,7 @@ const paymentRows: PaymentRow[] = [
   },
   {
     id: 3,
-    category_id: "10",
+    category_id: 10,
     user_id: 100,
     date: "2025-04-01",
     note: "スーパー",
@@ -58,7 +48,7 @@ const paymentRows: PaymentRow[] = [
   },
   {
     id: 4,
-    category_id: "30",
+    category_id: 30,
     user_id: 100,
     date: "2025-03-01",
     note: "コンビニ",
@@ -96,14 +86,14 @@ export const paymentHandlers = [
   http.post(EDGE_FUNCTION_URL, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>
     const newPayment: PaymentDto = {
-      id: "5",
+      id: 5,
       note: (body.note as string) ?? null,
       amount: body.amount as number,
       date: body.date as string,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      categoryId: (body.categoryId as string) ?? null,
-      userId: "100",
+      categoryId: body.categoryId != null ? Number(body.categoryId) : null,
+      userId: 100,
     }
     return HttpResponse.json({ payment: newPayment }, { status: 201 })
   }),

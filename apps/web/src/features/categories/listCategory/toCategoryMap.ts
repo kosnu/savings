@@ -1,19 +1,20 @@
 import type { Category } from "../../../types/category"
 import { unknownCategory } from "../unknownCategory"
 
-export function toCategoryMap(categories: Category[]): Map<string, Category> {
+export function toCategoryMap(categories: Category[]): Map<number, Category> {
   return categories.reduce((acc, category) => {
-    if (category.id) {
+    if (category.id > 0) {
       acc.set(category.id, category)
     }
     return acc
-  }, new Map<string, Category>())
+  }, new Map<number, Category>())
 }
 
 export function getCategoryStrict(
-  map: Map<string, Category>,
-  id: Category["id"],
+  map: Map<number, Category>,
+  id: number | null,
 ): Category {
+  if (id === null) return unknownCategory
   const category = map.get(id) ?? unknownCategory
 
   return category
