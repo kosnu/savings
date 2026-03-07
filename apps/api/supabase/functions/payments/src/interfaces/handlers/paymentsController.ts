@@ -1,21 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../../shared/types.ts"
 import type { PaymentRepository } from "../../domain/repository.ts"
-import { searchPaymentsUseCase } from "../../application/searchPaymentsUseCase.ts"
 import { createPaymentUseCase } from "../../application/createPaymentUseCase.ts"
 import { getMonthlyTotalUseCase } from "../../application/getMonthlyTotalUseCase.ts"
 import { convertPaymentToDto } from "./paymentDto.ts"
 import { createSupabasePaymentRepository } from "../../infrastructure/paymentRepositoryImpl.ts"
 import { createErrorResponse, JSON_HEADERS } from "./errorResponse.ts"
 import { CreatePaymentInputSchema } from "../createPaymentInput.ts"
-import { SearchCriteriaSchema } from "../searchCriteria.ts"
 import { MonthCriteriaSchema } from "../monthCriteria.ts"
 
 type PaymentsControllerDeps = {
   createRepository: (
     params: { supabase: SupabaseClient<Database> },
   ) => PaymentRepository
-  searchUseCase: typeof searchPaymentsUseCase
   monthlyTotalUseCase: typeof getMonthlyTotalUseCase
   createUseCase: typeof createPaymentUseCase
   createErrorResponse: typeof createErrorResponse
@@ -25,33 +22,6 @@ type PaymentsControllerDeps = {
 export const createPaymentsController = (
   deps: PaymentsControllerDeps,
 ) => {
-  const search = async (
-    supabase: SupabaseClient<Database>,
-    userId: number,
-    dateFrom?: string,
-    dateTo?: string,
-  ) => {
-    const criteria = SearchCriteriaSchema.safeParse({
-      userId,
-      dateFrom,
-      dateTo,
-    })
-    if (!criteria.success) {
-      return deps.createErrorResponse(criteria.error)
-    }
-    const repo = deps.createRepository({ supabase })
-    const result = await deps.searchUseCase(criteria.data, repo)
-    if (result.isOk) {
-      const payments = result.value.map(convertPaymentToDto)
-      return new Response(JSON.stringify({ payments }), {
-        status: 200,
-        headers: deps.jsonHeaders,
-      })
-    }
-
-    return deps.createErrorResponse(result.error)
-  }
-
   const create = async (
     supabase: SupabaseClient<Database>,
     userId: number,
@@ -107,12 +77,11 @@ export const createPaymentsController = (
     return deps.createErrorResponse(result.error)
   }
 
-  return { search, create, monthlyTotal }
+  return { create, monthlyTotal }
 }
 
 export const paymentsController = createPaymentsController({
   createRepository: createSupabasePaymentRepository,
-  searchUseCase: searchPaymentsUseCase,
   monthlyTotalUseCase: getMonthlyTotalUseCase,
   createUseCase: createPaymentUseCase,
   createErrorResponse,

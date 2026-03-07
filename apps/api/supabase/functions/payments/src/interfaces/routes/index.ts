@@ -7,28 +7,6 @@ import type { AuthVars } from "../../shared/supabase/auth.ts"
 export const registerPaymentsRoutes = (
   app: Hono<{ Variables: AuthVars }>,
 ) => {
-  app.get("/payments", async (c) => {
-    const supabase = c.var.supabase
-    const externalUserId = c.var.externalUserId
-
-    // external_id (Auth UUID) から users テーブルの id (number) を取得
-    const userIdResult = await getUserIdByExternalId(supabase, externalUserId)
-    if (!userIdResult.isOk) {
-      return createErrorResponse(userIdResult.error)
-    }
-
-    // クエリパラメータ取得
-    const dateFrom = c.req.query("dateFrom")
-    const dateTo = c.req.query("dateTo")
-
-    return await paymentsController.search(
-      supabase,
-      userIdResult.value,
-      dateFrom,
-      dateTo,
-    )
-  })
-
   app.get("/payments/total", async (c) => {
     const supabase = c.var.supabase
 

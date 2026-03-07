@@ -7,12 +7,6 @@ import { Note } from "./valueObjects/note.ts"
 import { PaymentDate } from "./valueObjects/paymentDate.ts"
 import { UserId } from "./valueObjects/userId.ts"
 
-export type PaymentSearchParams = {
-  readonly userId: number
-  readonly dateFrom?: string
-  readonly dateTo?: string
-}
-
 export type PaymentCreateParams = {
   readonly userId: UserId
   readonly amount: Amount
@@ -26,9 +20,6 @@ export type PaymentMonthlyTotalParams = {
 }
 
 export interface PaymentRepository {
-  search(
-    params: PaymentSearchParams,
-  ): Promise<Result<ReadonlyArray<Payment>, DomainError>>
   monthlyTotal(
     params: PaymentMonthlyTotalParams,
   ): Promise<Result<number, DomainError>>
