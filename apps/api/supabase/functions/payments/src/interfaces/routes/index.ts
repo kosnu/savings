@@ -1,7 +1,5 @@
 import type { Hono } from "@hono/hono"
 import { paymentsController } from "../handlers/paymentsController.ts"
-import { getUserIdByExternalId } from "../../infrastructure/utils/getUserIdByExternalId.ts"
-import { createErrorResponse } from "../handlers/errorResponse.ts"
 import type { AuthVars } from "../../shared/supabase/auth.ts"
 
 export const registerPaymentsRoutes = (
@@ -12,31 +10,6 @@ export const registerPaymentsRoutes = (
 
     const month = c.req.query("month")
     return await paymentsController.monthlyTotal(supabase, month)
-  })
-
-  app.post("/payments", async (c) => {
-    const supabase = c.var.supabase
-    const externalUserId = c.var.externalUserId
-
-    // external_id (Auth UUID) から users テーブルの id (number) を取得
-    const userIdResult = await getUserIdByExternalId(supabase, externalUserId)
-    if (!userIdResult.isOk) {
-      return createErrorResponse(userIdResult.error)
-    }
-
-    const bodyResult = await c.req.json().then(
-      (v) => ({ isOk: true as const, value: v }),
-      () => ({ isOk: false as const }),
-    )
-    if (!bodyResult.isOk) {
-      return c.json({ message: "Invalid JSON" }, 400)
-    }
-
-    return await paymentsController.create(
-      supabase,
-      userIdResult.value,
-      bodyResult.value,
-    )
   })
 
   app.delete("/payments/:id", (_c) => {
