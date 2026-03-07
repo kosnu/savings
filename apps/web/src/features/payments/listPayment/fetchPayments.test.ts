@@ -13,12 +13,12 @@ describe("fetchPayments", () => {
 
     expect(payments).toHaveLength(4)
     expect(payments[0]).toEqual({
-      id: "1",
-      categoryId: "10",
+      id: 1,
+      categoryId: 10,
       note: "コンビニ",
       amount: 1000,
       date: new Date("2025-06-01"),
-      userId: "100",
+      userId: 100,
       createdDate: new Date("2025-06-01T00:00:00.000Z"),
       updatedDate: new Date("2025-06-01T00:00:00.000Z"),
     })
@@ -34,11 +34,13 @@ describe("fetchPayments", () => {
     }
   })
 
-  it("nullのcategory_idを空文字に変換する", async () => {
+  it("nullのcategory_idをnullに変換する", async () => {
     const payments = await fetchPayments([null, null])
 
     for (const payment of payments) {
-      expect(typeof payment.categoryId).toBe("string")
+      expect(payment.categoryId).toSatisfy(
+        (v) => v === null || typeof v === "number",
+      )
     }
   })
 
