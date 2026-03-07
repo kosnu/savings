@@ -16,7 +16,7 @@ export async function fetchCategories(): Promise<Category[]> {
   const url = buildFunctionUrl("categories")
   const response = await apiClient.get<CategoriesResponse>(url)
   return response.categories.map((dto) => ({
-    id: dto.id,
+    id: Number(dto.id),
     name: dto.name,
     createdDate: new Date(dto.createdAt),
     updatedDate: new Date(dto.updatedAt),

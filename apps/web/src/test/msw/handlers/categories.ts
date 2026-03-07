@@ -11,19 +11,19 @@ export interface CategoryDto {
 
 const categoryDtos: CategoryDto[] = [
   {
-    id: "VgtuFszVjxOlwM040cyf",
+    id: "10",
     name: "Food",
     createdAt: "2025-01-01T00:00:00.000Z",
     updatedAt: "2025-01-01T00:00:00.000Z",
   },
   {
-    id: "eq1duDRDUKJTFZac1Ztp",
+    id: "20",
     name: "Daily Necessities",
     createdAt: "2025-01-01T00:00:00.000Z",
     updatedAt: "2025-01-01T00:00:00.000Z",
   },
   {
-    id: "Pdgee5Sp6vhRanU3gEv0",
+    id: "30",
     name: "Entertainment",
     createdAt: "2025-01-01T00:00:00.000Z",
     updatedAt: "2025-01-01T00:00:00.000Z",

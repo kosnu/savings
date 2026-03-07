@@ -1,10 +1,14 @@
+import type { Tables } from "./database.types"
+
+export type PaymentRow = Tables<"payments">
+
 export interface Payment {
-  id?: string
-  categoryId: string
+  id?: number
+  categoryId: number | null
   note: string
   amount: number
   date: Date
-  userId: string
+  userId: number
   createdDate: Date
   updatedDate: Date
 }

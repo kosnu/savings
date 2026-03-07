@@ -22,8 +22,6 @@ Deno.test("getMonthlyTotalUseCase は月次条件をリポジトリへ渡す", a
   } = {}
   const repository: PaymentRepository = {
     // deno-lint-ignore require-await
-    search: async () => ok([samplePayment]),
-    // deno-lint-ignore require-await
     monthlyTotal: async (params) => {
       recorded.params = params
       return ok(3200)
@@ -46,8 +44,6 @@ Deno.test("getMonthlyTotalUseCase は月次条件をリポジトリへ渡す", a
 
 Deno.test("getMonthlyTotalUseCase はエラーをそのまま返す", async () => {
   const repository: PaymentRepository = {
-    // deno-lint-ignore require-await
-    search: async () => ok([samplePayment]),
     // deno-lint-ignore require-await
     monthlyTotal: async () => err(unexpectedError("boom")),
     // deno-lint-ignore require-await
