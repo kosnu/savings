@@ -95,8 +95,7 @@ type CreatePaymentRepositoryParams = {
 }
 
 const createPaymentRepository = (
-  { fetchMonthlyTotal, insertPayment }:
-    CreatePaymentRepositoryParams,
+  { fetchMonthlyTotal, insertPayment }: CreatePaymentRepositoryParams,
 ): PaymentRepository => {
   const monthlyTotal: PaymentRepository["monthlyTotal"] = (params) =>
     fetchMonthlyTotal(params)

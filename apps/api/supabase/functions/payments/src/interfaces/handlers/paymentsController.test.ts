@@ -7,8 +7,7 @@ import { err, ok } from "../../shared/result.ts"
 import type { PaymentRepository } from "../../domain/repository.ts"
 import type { DomainError } from "../../shared/errors.ts"
 import { createPayment } from "../../domain/entities/payment.ts"
-import type { Payment } from "../../domain/entities/payment.ts"
-import { convertPaymentToDto, type PaymentDto } from "./paymentDto.ts"
+import { convertPaymentToDto } from "./paymentDto.ts"
 import * as z from "@zod/zod"
 
 type PaymentsControllerDeps = Parameters<
