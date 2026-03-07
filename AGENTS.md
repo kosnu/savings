@@ -24,7 +24,9 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 - Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
 - No unrelated code changes
 
-## Commands
+## Verification
 
-- Web: `task web:check && task web:test` (run from repo root)
-- API: `task api:verify && task api:test` (run from repo root; verify = type-check + lint + fmt)
+After making changes, run the corresponding commands from the repository root:
+
+- **Web** (`apps/web/`): `task web:check && task web:test`
+- **API** (`apps/api/`): `task api:verify && task api:test` (verify = type-check + lint + fmt)
