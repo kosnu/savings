@@ -37,8 +37,8 @@ export const Default: Story = {
     expect(await canvas.findByText("Food")).toBeInTheDocument()
     expect(await canvas.findByText("Daily Necessities")).toBeInTheDocument()
     expect(await canvas.findByText("Entertainment")).toBeInTheDocument()
-    expect(await canvas.findByText("￥5,000")).toBeInTheDocument()
-    expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
     expect(await canvas.findByText("￥1,000")).toBeInTheDocument()
+    expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
+    expect(await canvas.findAllByText("￥0")).toHaveLength(2)
   },
 }

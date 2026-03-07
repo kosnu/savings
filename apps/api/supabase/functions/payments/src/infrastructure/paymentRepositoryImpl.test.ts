@@ -38,66 +38,8 @@ Deno.test("createSupabasePaymentRepository returns a PaymentRepository", async (
     supabase,
   })
 
-  const result = await repo.search({ userId: 1 })
+  const result = await repo.monthlyTotal({ month: "2024-01" })
   assertEquals(result.isOk, true)
-  if (result.isOk) {
-    assertEquals(Array.isArray(result.value), true)
-  }
-})
-
-Deno.test("Supabase 経由で payments を取得できる", async () => {
-  const { supabase, recorded } = createSupabaseStub({ data: [sampleRow] })
-  const repo = createSupabasePaymentRepository({ supabase })
-
-  const result = await repo.search({ userId: 1 })
-  assertEquals(result.isOk, true)
-  if (result.isOk) {
-    assertEquals(result.value.length, 1)
-  }
-
-  assertEquals(recorded.table, "payments")
-  assertEquals(recorded.filters, [
-    { kind: "eq", column: "user_id", value: 1 },
-  ])
-  assertEquals(recorded.orders, [
-    { column: "date", ascending: false },
-    { column: "id", ascending: false },
-  ])
-})
-
-Deno.test("日付フィルタを付与して検索できる", async () => {
-  const { supabase, recorded } = createSupabaseStub({ data: [sampleRow] })
-  const repo = createSupabasePaymentRepository({ supabase })
-
-  await repo.search({
-    userId: 42,
-    dateFrom: "2024-01-01",
-    dateTo: "2024-01-31",
-  })
-
-  const gteFilter = recorded.filters.find((f) => f.kind === "gte")
-  const lteFilter = recorded.filters.find((f) => f.kind === "lte")
-
-  assertEquals(gteFilter, {
-    kind: "gte",
-    column: "date",
-    value: "2024-01-01",
-  })
-  assertEquals(lteFilter, {
-    kind: "lte",
-    column: "date",
-    value: "2024-01-31",
-  })
-})
-
-Deno.test("Supabase エラーを Result.err として返す", async () => {
-  const { supabase } = createSupabaseStub({
-    error: { message: "boom" },
-  })
-  const repo = createSupabasePaymentRepository({ supabase })
-
-  const result = await repo.search({ userId: 1 })
-  assertEquals(result.isOk, false)
 })
 
 Deno.test("指定月の合計支出額を取得できる", async () => {
