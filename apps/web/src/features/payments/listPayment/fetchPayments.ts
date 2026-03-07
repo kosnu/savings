@@ -1,40 +1,41 @@
 import { format } from "date-fns"
-import { apiClient, buildFunctionUrl } from "../../../lib/apiClient"
+import { getSupabaseClient } from "../../../lib/supabase"
 import type { Payment } from "../../../types/payment"
-
-interface PaymentDto {
-  id: string
-  note: string | null
-  amount: number
-  date: string
-  createdAt: string | null
-  updatedAt: string | null
-  categoryId: string | null
-  userId: string
-}
-
-interface PaymentsResponse {
-  payments: PaymentDto[]
-}
 
 export async function fetchPayments([startDate, endDate]: [
   Date | null,
   Date | null,
 ]): Promise<Payment[]> {
-  const url = buildFunctionUrl("payments")
-  const params: Record<string, string | undefined> = {
-    dateFrom: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
-    dateTo: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
+  const supabase = getSupabaseClient()
+  let query = supabase
+    .from("payments")
+    .select(
+      "id, note, amount, date, created_at, updated_at, category_id, user_id",
+    )
+    .order("date", { ascending: false })
+    .order("id", { ascending: false })
+
+  if (startDate) {
+    query = query.gte("date", format(startDate, "yyyy-MM-dd"))
   }
-  const response = await apiClient.get<PaymentsResponse>(url, { params })
-  return response.payments.map((dto) => ({
-    id: dto.id,
-    categoryId: dto.categoryId ?? "",
-    note: dto.note ?? "",
-    amount: dto.amount,
-    date: new Date(dto.date),
-    userId: dto.userId,
-    createdDate: dto.createdAt ? new Date(dto.createdAt) : new Date(),
-    updatedDate: dto.updatedAt ? new Date(dto.updatedAt) : new Date(),
+  if (endDate) {
+    query = query.lte("date", format(endDate, "yyyy-MM-dd"))
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    categoryId: row.category_id != null ? String(row.category_id) : "",
+    note: row.note ?? "",
+    amount: row.amount,
+    date: new Date(row.date),
+    userId: String(row.user_id),
+    createdDate: row.created_at ? new Date(row.created_at) : new Date(),
+    updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
   }))
 }
