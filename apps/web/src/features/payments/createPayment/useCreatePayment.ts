@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useCallback } from "react"
-import { apiClient, buildFunctionUrl } from "../../../lib/apiClient"
+import { getSupabaseClient } from "../../../lib/supabase"
 import type { Payment } from "../../../types/payment"
 
 type PaymentValue = Omit<
@@ -11,13 +11,6 @@ type PaymentValue = Omit<
   categoryId: string
 }
 
-interface CreatePaymentRequest {
-  amount: number
-  date: string
-  note: string | null
-  categoryId: number | null
-}
-
 function toCategoryId(categoryId: string): number | null {
   if (!categoryId) return null
   const parsed = Number(categoryId)
@@ -25,14 +18,17 @@ function toCategoryId(categoryId: string): number | null {
 }
 
 async function postPayment(value: PaymentValue): Promise<void> {
-  const url = buildFunctionUrl("payments")
-  const body: CreatePaymentRequest = {
+  const supabase = getSupabaseClient()
+  const { error } = await supabase.from("payments").insert({
     amount: value.amount,
     date: format(value.date, "yyyy-MM-dd"),
     note: value.note || null,
-    categoryId: toCategoryId(value.categoryId),
+    category_id: toCategoryId(value.categoryId),
+  })
+
+  if (error) {
+    throw error
   }
-  await apiClient.post(url, { body })
 }
 
 interface UseCreatePaymentReturn {

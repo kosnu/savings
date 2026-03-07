@@ -4,17 +4,6 @@ import type { PaymentRow } from "../../../types/payment"
 const EDGE_FUNCTION_URL = "*/functions/v1/payments"
 const REST_URL = "*/rest/v1/payments*"
 
-export interface PaymentDto {
-  id: number
-  note: string | null
-  amount: number
-  date: string
-  createdAt: string | null
-  updatedAt: string | null
-  categoryId: number | null
-  userId: number
-}
-
 const paymentRows: PaymentRow[] = [
   {
     id: 1,
@@ -87,19 +76,20 @@ export const paymentHandlers = [
     return HttpResponse.json(sorted)
   }),
 
-  http.post(EDGE_FUNCTION_URL, async ({ request }) => {
+  http.post(REST_URL, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>
-    const newPayment: PaymentDto = {
+    const now = new Date().toISOString()
+    const newRow: PaymentRow = {
       id: 5,
       note: (body.note as string) ?? null,
       amount: body.amount as number,
       date: body.date as string,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      categoryId: body.categoryId != null ? Number(body.categoryId) : null,
-      userId: 100,
+      created_at: now,
+      updated_at: now,
+      category_id: body.category_id != null ? Number(body.category_id) : null,
+      user_id: 100,
     }
-    return HttpResponse.json({ payment: newPayment }, { status: 201 })
+    return HttpResponse.json([newRow], { status: 201 })
   }),
 
   http.get(`${EDGE_FUNCTION_URL}/total`, () => {
