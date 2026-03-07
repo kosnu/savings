@@ -5,7 +5,6 @@ Guidance for all AI agents working in this repository.
 ## Language
 
 - **Chat and comments**: Use Japanese when communicating with the user, and in inline code comments.
-- **Files (code, docs, config)**: Write in English to minimize token usage.
 
 ## Project Overview
 
