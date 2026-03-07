@@ -1,12 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../../shared/types.ts"
 import type { PaymentRepository } from "../../domain/repository.ts"
-import { createPaymentUseCase } from "../../application/createPaymentUseCase.ts"
 import { getMonthlyTotalUseCase } from "../../application/getMonthlyTotalUseCase.ts"
-import { convertPaymentToDto } from "./paymentDto.ts"
 import { createSupabasePaymentRepository } from "../../infrastructure/paymentRepositoryImpl.ts"
 import { createErrorResponse, JSON_HEADERS } from "./errorResponse.ts"
-import { CreatePaymentInputSchema } from "../createPaymentInput.ts"
 import { MonthCriteriaSchema } from "../monthCriteria.ts"
 
 type PaymentsControllerDeps = {
@@ -14,7 +11,6 @@ type PaymentsControllerDeps = {
     params: { supabase: SupabaseClient<Database> },
   ) => PaymentRepository
   monthlyTotalUseCase: typeof getMonthlyTotalUseCase
-  createUseCase: typeof createPaymentUseCase
   createErrorResponse: typeof createErrorResponse
   jsonHeaders: HeadersInit
 }
@@ -22,32 +18,6 @@ type PaymentsControllerDeps = {
 export const createPaymentsController = (
   deps: PaymentsControllerDeps,
 ) => {
-  const create = async (
-    supabase: SupabaseClient<Database>,
-    userId: number,
-    input: unknown,
-  ) => {
-    const parsed = CreatePaymentInputSchema.safeParse(input)
-    if (!parsed.success) {
-      return deps.createErrorResponse(parsed.error)
-    }
-
-    const repo = deps.createRepository({ supabase })
-    const result = await deps.createUseCase(
-      { ...parsed.data, userId },
-      repo,
-    )
-    if (result.isOk) {
-      const payment = convertPaymentToDto(result.value)
-      return new Response(JSON.stringify({ payment }), {
-        status: 201,
-        headers: deps.jsonHeaders,
-      })
-    }
-
-    return deps.createErrorResponse(result.error)
-  }
-
   const monthlyTotal = async (
     supabase: SupabaseClient<Database>,
     month?: string,
@@ -77,13 +47,12 @@ export const createPaymentsController = (
     return deps.createErrorResponse(result.error)
   }
 
-  return { create, monthlyTotal }
+  return { monthlyTotal }
 }
 
 export const paymentsController = createPaymentsController({
   createRepository: createSupabasePaymentRepository,
   monthlyTotalUseCase: getMonthlyTotalUseCase,
-  createUseCase: createPaymentUseCase,
   createErrorResponse,
   jsonHeaders: JSON_HEADERS,
 })
