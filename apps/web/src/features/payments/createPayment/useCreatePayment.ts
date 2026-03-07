@@ -6,8 +6,10 @@ import type { Payment } from "../../../types/payment"
 
 type PaymentValue = Omit<
   Payment,
-  "id" | "userId" | "createdDate" | "updatedDate"
->
+  "id" | "userId" | "createdDate" | "updatedDate" | "categoryId"
+> & {
+  categoryId: string
+}
 
 interface CreatePaymentRequest {
   amount: number

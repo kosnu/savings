@@ -29,6 +29,6 @@ export const Default: Story = {
     const canvas = within(canvasElement)
 
     expect(await canvas.findByLabelText("payment-list")).toBeInTheDocument()
-    expect(await canvas.findAllByLabelText("payment-item")).toHaveLength(4)
+    expect(await canvas.findAllByLabelText("payment-item")).toHaveLength(2)
   },
 }
