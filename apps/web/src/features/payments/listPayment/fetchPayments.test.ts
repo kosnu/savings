@@ -13,14 +13,14 @@ describe("fetchPayments", () => {
 
     expect(payments).toHaveLength(4)
     expect(payments[0]).toEqual({
-      id: 1,
-      categoryId: 10,
+      id: 2,
+      categoryId: 20,
       note: "コンビニ",
-      amount: 1000,
-      date: new Date("2025-06-01"),
+      amount: 4000,
+      date: new Date("2025-06-02"),
       userId: 100,
-      createdDate: new Date("2025-06-01T00:00:00.000Z"),
-      updatedDate: new Date("2025-06-01T00:00:00.000Z"),
+      createdDate: new Date("2025-06-02T00:00:00.000Z"),
+      updatedDate: new Date("2025-06-02T00:00:00.000Z"),
     })
   })
 
@@ -50,5 +50,26 @@ describe("fetchPayments", () => {
     for (const payment of payments) {
       expect(typeof payment.note).toBe("string")
     }
+  })
+
+  it("startDateを指定するとそれ以降の支払いのみ返す", async () => {
+    const payments = await fetchPayments([new Date("2025-04-01"), null])
+
+    expect(payments).toHaveLength(3) // id:2, id:1, id:3
+  })
+
+  it("endDateを指定するとそれ以前の支払いのみ返す", async () => {
+    const payments = await fetchPayments([null, new Date("2025-05-31")])
+
+    expect(payments).toHaveLength(2) // id:3, id:4
+  })
+
+  it("startDate と endDate を両方指定すると範囲内のみ返す", async () => {
+    const payments = await fetchPayments([
+      new Date("2025-04-01"),
+      new Date("2025-05-31"),
+    ])
+
+    expect(payments).toHaveLength(1) // id:3
   })
 })

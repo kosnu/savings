@@ -80,7 +80,11 @@ export const paymentHandlers = [
       return true
     })
 
-    return HttpResponse.json(filteredRows)
+    const sorted = [...filteredRows].sort((a, b) => {
+      if (b.date !== a.date) return b.date < a.date ? -1 : 1
+      return b.id - a.id
+    })
+    return HttpResponse.json(sorted)
   }),
 
   http.post(EDGE_FUNCTION_URL, async ({ request }) => {
