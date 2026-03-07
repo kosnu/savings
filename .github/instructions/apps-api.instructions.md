@@ -4,19 +4,12 @@ applyTo: "apps/api/**"
 
 # Copilot Instructions for API Backend (apps/api/)
 
-## 必須ルール
+## Rules
 
-- この領域の作業は `apps/api/` で実行する。
-- Supabase 操作は Taskfile を優先する（`task up`, `task down`, `task up:migrations`）。
-- Deno 2.x（Edge Functions 互換）を前提に実装する。
-- マイグレーションは `supabase/migrations/*.sql` で管理する。
+- Manage migrations in `supabase/migrations/*.sql`.
+- JWT auth: use custom middleware (`verify_jwt = false` + Hono middleware with jose library for JWKS validation). Do NOT use Supabase's built-in `verify_jwt = true`.
 
-## 実装方針
-
-- レイヤ分離と責務は `apps/api/docs/architecture.md` の方針に従う。
-- JWT 認証はカスタムミドルウェア方式を採用する（`verify_jwt = false` + Hono ミドルウェアで jose ライブラリによる JWKS 検証）。Supabase 標準の `verify_jwt = true` は使用しない。
-
-## 参照先
+## References
 
 - `apps/api/README.md`
 - `apps/api/docs/architecture.md`
