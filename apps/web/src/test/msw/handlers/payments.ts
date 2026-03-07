@@ -21,14 +21,14 @@ interface PaymentRow {
   date: string
   created_at: string | null
   updated_at: string | null
-  category_id: number | null
+  category_id: string | null
   user_id: number
 }
 
 const paymentRows: PaymentRow[] = [
   {
     id: 1,
-    category_id: 10,
+    category_id: "10",
     user_id: 100,
     date: "2025-06-01",
     note: "コンビニ",
@@ -38,7 +38,7 @@ const paymentRows: PaymentRow[] = [
   },
   {
     id: 2,
-    category_id: 20,
+    category_id: "20",
     user_id: 100,
     date: "2025-06-02",
     note: "コンビニ",
@@ -48,7 +48,7 @@ const paymentRows: PaymentRow[] = [
   },
   {
     id: 3,
-    category_id: 10,
+    category_id: "10",
     user_id: 100,
     date: "2025-04-01",
     note: "スーパー",
@@ -58,7 +58,7 @@ const paymentRows: PaymentRow[] = [
   },
   {
     id: 4,
-    category_id: 30,
+    category_id: "30",
     user_id: 100,
     date: "2025-03-01",
     note: "コンビニ",
@@ -69,21 +69,41 @@ const paymentRows: PaymentRow[] = [
 ]
 
 export const paymentHandlers = [
-  http.get(REST_URL, () => {
-    return HttpResponse.json(paymentRows)
+  http.get(REST_URL, ({ request }) => {
+    const url = new URL(request.url)
+    const dateFilters = url.searchParams.getAll("date")
+
+    const from = dateFilters
+      .find((value) => value.startsWith("gte."))
+      ?.replace("gte.", "")
+    const to = dateFilters
+      .find((value) => value.startsWith("lte."))
+      ?.replace("lte.", "")
+
+    const filteredRows = paymentRows.filter((row) => {
+      if (from && row.date < from) {
+        return false
+      }
+      if (to && row.date > to) {
+        return false
+      }
+      return true
+    })
+
+    return HttpResponse.json(filteredRows)
   }),
 
   http.post(EDGE_FUNCTION_URL, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>
     const newPayment: PaymentDto = {
-      id: "new-payment-id",
+      id: "5",
       note: (body.note as string) ?? null,
       amount: body.amount as number,
       date: body.date as string,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       categoryId: (body.categoryId as string) ?? null,
-      userId: "test-user-id",
+      userId: "100",
     }
     return HttpResponse.json({ payment: newPayment }, { status: 201 })
   }),
