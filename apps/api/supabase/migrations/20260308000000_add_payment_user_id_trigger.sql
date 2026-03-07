@@ -7,7 +7,7 @@ begin
   end if;
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security invoker set search_path = public;
 
 create trigger trg_set_payment_user_id
   before insert on payments
