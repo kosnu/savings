@@ -1,24 +1,25 @@
-import { apiClient, buildFunctionUrl } from "../../../lib/apiClient"
-import type { Category } from "../../../types/category"
+import { getSupabaseClient } from "../../../lib/supabase"
+import type { Category, CategoryRow } from "../../../types/category"
 
-interface CategoryDto {
-  id: string
-  name: string
-  createdAt: string
-  updatedAt: string
-}
-
-interface CategoriesResponse {
-  categories: CategoryDto[]
+function toCategoryFromRow(row: CategoryRow): Category {
+  return {
+    id: row.id,
+    name: row.name,
+    createdDate: row.created_at ? new Date(row.created_at) : new Date(),
+    updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
+  }
 }
 
 export async function fetchCategories(): Promise<Category[]> {
-  const url = buildFunctionUrl("categories")
-  const response = await apiClient.get<CategoriesResponse>(url)
-  return response.categories.map((dto) => ({
-    id: Number(dto.id),
-    name: dto.name,
-    createdDate: new Date(dto.createdAt),
-    updatedDate: new Date(dto.updatedAt),
-  }))
+  const supabase = getSupabaseClient()
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .order("id", { ascending: true })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(toCategoryFromRow)
 }
