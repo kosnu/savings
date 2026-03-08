@@ -12,14 +12,6 @@
       "name": "Backend",
       "path": "apps/api"
     },
-    {
-      "name": "Categories Function",
-      "path": "apps/api/supabase/functions/categories"
-    },
-    {
-      "name": "Payments Function",
-      "path": "apps/api/supabase/functions/payments"
-    },
   ],
   "settings": {
     "editor.renderWhitespace": "all",
@@ -33,7 +25,6 @@
     "files.exclude": {
       "apps/api/": true,
       "apps/web/": true
-    },
-    "deno.importMap": "apps/api/supabase/functions/import_map.json"
+    }
   }
 }
