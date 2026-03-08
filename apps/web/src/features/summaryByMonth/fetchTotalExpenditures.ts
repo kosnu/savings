@@ -1,9 +1,4 @@
-import { apiClient, buildFunctionUrl } from "../../lib/apiClient"
-
-interface TotalResponse {
-  totalAmount: number
-  month: string
-}
+import { getSupabaseClient } from "../../lib/supabase"
 
 export async function fetchTotalExpenditures(
   month: string,
@@ -12,10 +7,14 @@ export async function fetchTotalExpenditures(
     return null
   }
 
-  const url = buildFunctionUrl("payments", "/total")
-  const response = await apiClient.get<TotalResponse>(url, {
-    params: { month },
+  const supabase = getSupabaseClient()
+  const { data, error } = await supabase.rpc("get_monthly_total_amount", {
+    p_month: month,
   })
 
-  return response.totalAmount
+  if (error) {
+    throw error
+  }
+
+  return data ?? 0
 }
