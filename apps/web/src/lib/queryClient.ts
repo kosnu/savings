@@ -1,8 +1,9 @@
 import { PostgrestError } from "@supabase/supabase-js"
 import { QueryCache, QueryClient } from "@tanstack/react-query"
 
+// PostgREST の JWT 関連エラーは PGRST3xx コードで返される
 function isPostgrestUnauthorized(error: unknown): boolean {
-  return error instanceof PostgrestError && error.status === 401
+  return error instanceof PostgrestError && error.code.startsWith("PGRST3")
 }
 
 export function createQueryClient() {
