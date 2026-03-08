@@ -54,43 +54,19 @@ tasks:
 
   test:
     desc: Run tests for all functions
-    cmds:
-      - task: test:payments
-
-  test:payments:
-    desc: Run tests for payments function
-    cmd: deno test --allow-read --allow-env .
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
+    cmds: []
 
   lint:
     desc: Run deno lint for all functions
-    cmds:
-      - task: lint:payments
-
-  lint:payments:
-    desc: Run deno lint for payments function
-    cmd: deno lint
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
+    cmds: []
 
   fmt:
     desc: Run deno fmt for all functions
-    cmds:
-      - task: fmt:payments
-
-  fmt:payments:
-    desc: Run deno fmt for payments function
-    cmd: deno fmt
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
+    cmds: []
 
   check:
     desc: Run type check for all functions
-    cmds:
-      - task: check:payments
-
-  check:payments:
-    desc: Run type check for payments function
-    cmd: deno check --config deno.json **/*.ts
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
+    cmds: []
 
   verify:
     desc: Run type check, lint, and fmt check
