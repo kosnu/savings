@@ -56,65 +56,41 @@ tasks:
     desc: Run tests for all functions
     cmds:
       - task: test:payments
-      - task: test:categories
 
   test:payments:
     desc: Run tests for payments function
     cmd: deno test --allow-read --allow-env .
     dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
 
-  test:categories:
-    desc: Run tests for categories function
-    cmd: deno test --allow-read --allow-env .
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/categories"
-
   lint:
     desc: Run deno lint for all functions
     cmds:
       - task: lint:payments
-      - task: lint:categories
 
   lint:payments:
     desc: Run deno lint for payments function
     cmd: deno lint
     dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
 
-  lint:categories:
-    desc: Run deno lint for categories function
-    cmd: deno lint
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/categories"
-
   fmt:
     desc: Run deno fmt for all functions
     cmds:
       - task: fmt:payments
-      - task: fmt:categories
 
   fmt:payments:
     desc: Run deno fmt for payments function
     cmd: deno fmt
     dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
 
-  fmt:categories:
-    desc: Run deno fmt for categories function
-    cmd: deno fmt
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/categories"
-
   check:
     desc: Run type check for all functions
     cmds:
       - task: check:payments
-      - task: check:categories
 
   check:payments:
     desc: Run type check for payments function
     cmd: deno check --config deno.json **/*.ts
     dir: "{{.TASKFILE_DIR}}/supabase/functions/payments"
-
-  check:categories:
-    desc: Run type check for categories function
-    cmd: deno check --config deno.json **/*.ts
-    dir: "{{.TASKFILE_DIR}}/supabase/functions/categories"
 
   verify:
     desc: Run type check, lint, and fmt check
