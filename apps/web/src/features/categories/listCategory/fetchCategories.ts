@@ -12,11 +12,14 @@ function toCategoryFromRow(row: CategoryRow): Category {
 
 export async function fetchCategories(): Promise<Category[]> {
   const supabase = getSupabaseClient()
-  const { data, error } = await supabase.from("categories").select("*")
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .order("id", { ascending: true })
 
   if (error) {
     throw error
   }
 
-  return data.map(toCategoryFromRow)
+  return (data ?? []).map(toCategoryFromRow)
 }
