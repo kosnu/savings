@@ -31,7 +31,7 @@ const preview: Preview = {
         mswStarted = true
       }
       // Supabase クライアントにモックセッションをセットし、
-      // apiClient の getAccessToken() がトークンを取得できるようにする。
+      // 認証付きクエリが実行できるようにする。
       // Vitest 実行時は vitest.setup.ts の vi.mock により getSupabaseClient が
       // モックされるため setSession が存在しない — その場合はスキップする。
       const supabase = getSupabaseClient()

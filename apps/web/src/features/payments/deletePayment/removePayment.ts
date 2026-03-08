@@ -1,6 +1,10 @@
-import { apiClient, buildFunctionUrl } from "../../../lib/apiClient"
+import { getSupabaseClient } from "../../../lib/supabase"
 
 export async function removePayment(paymentId: number): Promise<void> {
-  const url = buildFunctionUrl("payments", `/${paymentId}`)
-  await apiClient.delete(url)
+  const supabase = getSupabaseClient()
+  const { error } = await supabase.from("payments").delete().eq("id", paymentId)
+
+  if (error) {
+    throw error
+  }
 }
