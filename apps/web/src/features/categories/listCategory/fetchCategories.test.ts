@@ -1,19 +1,10 @@
+import { createClient } from "@supabase/supabase-js"
 import { describe, expect, it, vi } from "vitest"
 import { fetchCategories } from "./fetchCategories"
 
 vi.mock("../../../lib/supabase", () => ({
-  getSupabaseClient: () => ({
-    auth: {
-      getSession: vi.fn().mockResolvedValue({
-        data: {
-          session: {
-            access_token: "test-access-token",
-          },
-        },
-        error: null,
-      }),
-    },
-  }),
+  getSupabaseClient: () =>
+    createClient("http://localhost:54321", "test-anon-key"),
 }))
 
 describe("fetchCategories", () => {
