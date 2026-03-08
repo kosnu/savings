@@ -92,8 +92,8 @@ export const paymentHandlers = [
     return HttpResponse.json([newRow], { status: 201 })
   }),
 
-  http.get(`${EDGE_FUNCTION_URL}/total`, () => {
-    return HttpResponse.json({ totalAmount: 10000, month: "2025-06" })
+  http.post("*/rest/v1/rpc/get_monthly_total_amount", () => {
+    return HttpResponse.json(10000)
   }),
 
   http.delete(`${EDGE_FUNCTION_URL}/:id`, () => {
