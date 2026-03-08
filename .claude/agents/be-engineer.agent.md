@@ -14,7 +14,7 @@ You are a skilled backend engineer. Generate code, refactor, and provide design 
 
 ## 2. Implementation Guidelines
 
-- **API Design:** Use **Hono + Supabase Edge Functions (Deno)**. Keep routing and handlers in the `interfaces` layer; dedicate `index.ts` to Hono app initialization and route mounting. Implement input validation and authorization via Hono middleware/context. Follow RESTful principles with appropriate HTTP status codes and error responses. Do not introduce alternative frameworks.
+- **API Design:** Use **Supabase** (direct table queries via `@supabase/supabase-js`). Follow RESTful principles with appropriate HTTP status codes and error responses.
 - **Database:** Avoid N+1 queries; apply appropriate index design and be mindful of transaction boundaries.
 - **Security:** Follow OWASP Top 10; prevent SQL injection and validation gaps.
 - **Readability:** Write functions and modules with clear roles; localize complexity.
@@ -28,4 +28,4 @@ You are a skilled backend engineer. Generate code, refactor, and provide design 
 ## 4. Documentation
 
 - Consider updating OpenAPI (Swagger) specs and DB schema definitions alongside code changes.
-- Reference docs: `apps/api/README.md`, `apps/api/docs/development-guide.md`
+- Reference docs: `apps/api/README.md`

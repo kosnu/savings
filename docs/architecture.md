@@ -7,7 +7,7 @@
 - apps/ — アプリケーション群
   - apps/web/ — React + TypeScript + Vite フロントエンド（UI、Storybook、Vitest 等）
     詳細: [apps/web/README.md](../apps/web/README.md)
-  - apps/api/ — Supabase Edge Functions + Deno + Hono バックエンド API
+  - apps/api/ — Supabase (DB migrations, Auth config)
     詳細: [apps/api/README.md](../apps/api/README.md)
 - infra/ — インフラ定義（Terraform モジュール、環境ごとの設定）
   詳細: [infra/README.md](../infra/README.md)
@@ -18,7 +18,7 @@
 ## 開発フローのポイント（短く）
 
 - フロントエンドの依存は必ず `apps/web/` で管理し、インストールは `npm ci` を使うこと（README に従う）。参照: [apps/web/README.md](../apps/web/README.md)
-- ローカルで Supabase（Auth / DB / Edge Functions）を使う場合は `apps/api/` で `task up` を実行してから Web アプリを起動する。
+- ローカルで Supabase（Auth / DB）を使う場合はリポジトリルートで `task api:up` を実行してから Web アプリを起動する。
 
 ## ドキュメントの参照先
 
