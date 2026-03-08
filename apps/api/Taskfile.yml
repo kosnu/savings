@@ -11,17 +11,9 @@ tasks:
 
   up:
     desc: Start Supabase locally
-    cmd: task start:supabase
-
-  down:
-    desc: Stop Supabase locally
-    cmd: task stop:supabase
-
-  start:supabase:
-    desc: Start Supabase locally
     cmd: npx supabase start
 
-  stop:supabase:
+  down:
     desc: Stop Supabase locally
     cmd: npx supabase stop
 
@@ -32,26 +24,3 @@ tasks:
   down:migrations:
     desc: Rollback the last database migration
     cmd: npx supabase migration down
-
-  test:
-    desc: Run tests for all functions
-    cmds: []
-
-  lint:
-    desc: Run deno lint for all functions
-    cmds: []
-
-  fmt:
-    desc: Run deno fmt for all functions
-    cmds: []
-
-  check:
-    desc: Run type check for all functions
-    cmds: []
-
-  verify:
-    desc: Run type check, lint, and fmt check
-    cmds:
-      - task: check
-      - task: fmt
-      - task: lint
