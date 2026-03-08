@@ -1,14 +1,24 @@
 import { QueryCache, QueryClient } from "@tanstack/react-query"
-import { isUnauthorizedError } from "./apiErrors"
+
+// PostgREST の JWT 関連エラーは PGRST3xx コードで返される
+// instanceof ではなく構造チェックを使い、プレーンオブジェクトでも動作するようにする
+function isPostgrestUnauthorized(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as { code: unknown }).code === "string" &&
+    (error as { code: string }).code.startsWith("PGRST3")
+  )
+}
 
 export function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // Project-wide sensible defaults. Adjust as needed.
-        staleTime: 1000 * 60, // 1 minute
+        staleTime: 1000 * 60,
         retry: (failureCount, error) => {
-          if (isUnauthorizedError(error)) return false
+          if (isPostgrestUnauthorized(error)) return false
           return failureCount < 1
         },
         refetchOnWindowFocus: false,
@@ -17,7 +27,7 @@ export function createQueryClient() {
     },
     queryCache: new QueryCache({
       onError: (error) => {
-        if (isUnauthorizedError(error)) {
+        if (isPostgrestUnauthorized(error)) {
           if (typeof window !== "undefined") {
             window.location.href = "/"
           }
