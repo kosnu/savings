@@ -13,13 +13,11 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 ## Architecture
 
 - **Web** (`apps/web/`): React + TypeScript + Vite. Design decisions: `apps/web/docs/adr/`
-- **API** (`apps/api/`): Supabase Edge Functions + Deno + Hono (clean architecture). Details: `apps/api/docs/architecture.md`
+- **API** (`apps/api/`): Supabase (DB migrations, Auth config)
 - **Infra** (`infra/`): Terraform (Supabase + Cloudflare Pages)
 
 ## Key Conventions
 
-- Deno projects (`apps/api/`): avoid `deno install` — use `deno task` / Supabase CLI / Taskfile
-- API architecture docs are authoritative: `apps/api/docs/architecture.md`, `apps/api/docs/payment-modeling.md`, `apps/api/docs/category-modeling.md`
 - Web design decisions: `apps/web/docs/adr/`
 - Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
 - No unrelated code changes
@@ -29,4 +27,3 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 After making changes, run the corresponding commands from the repository root:
 
 - **Web** (`apps/web/`): `task web:check && task web:test`
-- **API** (`apps/api/`): `task api:verify && task api:test` (verify = type-check + lint + fmt)

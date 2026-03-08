@@ -10,16 +10,12 @@ tasks:
     cmd: task -l
 
   up:
-    desc: Start Supabase and serve functions locally
-    cmds:
-      - task start:supabase
-      - task serve:functions
+    desc: Start Supabase locally
+    cmd: task start:supabase
 
   down:
-    desc: Stop Supabase and functions
-    cmds:
-      - task stop:functions
-      - task stop:supabase
+    desc: Stop Supabase locally
+    cmd: task stop:supabase
 
   start:supabase:
     desc: Start Supabase locally
@@ -28,21 +24,6 @@ tasks:
   stop:supabase:
     desc: Stop Supabase locally
     cmd: npx supabase stop
-
-  serve:functions:
-    desc: Serve Supabase Edge Functions locally
-    cmds:
-      - mkdir -p .run
-      - sh -c 'nohup npx supabase functions serve > .run/functions.log 2>&1 & echo $! > .run/functions.pid'
-  stop:functions:
-    desc: Stop background Supabase Edge Functions
-    cmds:
-      - sh -c 'test -f .run/functions.pid && kill "$(cat .run/functions.pid)" || true'
-      - rm -f .run/functions.pid
-
-  logs:functions:
-    desc: Tail functions logs
-    cmd: tail -f .run/functions.log
 
   up:migrations:
     desc: Run database migrations to latest

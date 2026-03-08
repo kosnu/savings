@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 jobs:
-  # --- Backend (Supabase Edge Functions) のデプロイ ---
+  # --- Backend (Supabase) のデプロイ ---
   deploy-api:
     if: ${{ github.event.inputs.skip_api != 'true' }} # skip_api が true の場合はこのジョブをスキップ
     runs-on: ubuntu-latest
@@ -50,9 +50,6 @@ jobs:
         run: supabase db push
         working-directory: apps/api
 
-      - name: Deploy Edge Functions
-        run: supabase functions deploy
-        working-directory: apps/api
 
   # --- Frontend (React + Vite) のデプロイ ---
   deploy-web:
