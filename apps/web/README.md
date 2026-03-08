@@ -85,7 +85,7 @@ npm run check
 ローカルで認証やデータベースを使う場合は、`apps/api/` で Supabase をローカル起動してからアプリを起動します。
 
 ```bash
-# apps/api/ で Supabase + Edge Functions を起動
+# apps/api/ で Supabase を起動
 cd apps/api
 task up
 
@@ -111,4 +111,4 @@ Supabase の接続情報は環境変数で管理します。主な変数は `VIT
 
 ## 関連スクリプト・リポジトリ部分
 
-- `apps/api/` - バックエンド API（Supabase Edge Functions、Deno + Hono）。必要に応じて API のエンドポイント形状を確認してください。
+- `apps/api/` - Supabase の設定・DB マイグレーション管理。

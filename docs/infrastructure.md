@@ -16,10 +16,6 @@
 - **Supabase PostgreSQL**
   - リレーショナルデータベースとして利用。
   - ユーザーデータやアプリケーションデータを保存。
-- **Supabase Edge Functions**
-  - バックエンド API（Deno + Hono）として利用。
-  - 各機能（payments, categories）を独立した Edge Function として提供。
-
 ## 構成図
 
 ```
@@ -31,6 +27,5 @@
                                                     ▼
                                               [Supabase]
                                                 ├─> [Auth]
-                                                ├─> [PostgreSQL]
-                                                └─> [Edge Functions (API)]
+                                                └─> [PostgreSQL]
 ```
