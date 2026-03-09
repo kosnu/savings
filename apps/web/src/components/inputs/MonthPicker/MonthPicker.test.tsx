@@ -36,7 +36,7 @@ describe("MonthPicker", () => {
     renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
 
     // 月のボタンをクリック
-    const monthButton = screen.getAllByRole("combobox")[0]
+    const monthButton = screen.getAllByRole("combobox")[1]
     await user.click(monthButton)
 
     // 6月を選択
@@ -58,7 +58,7 @@ describe("MonthPicker", () => {
     renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
 
     // 年のボタンをクリック
-    const yearButton = screen.getAllByRole("combobox")[1]
+    const yearButton = screen.getAllByRole("combobox")[0]
     await user.click(yearButton)
 
     // 2026年を選択
@@ -75,14 +75,14 @@ describe("MonthPicker", () => {
   test("id属性が正しく設定される", () => {
     renderWithTheme(<MonthPicker id="month-picker" />)
 
-    const monthButton = screen.getAllByRole("combobox")[0]
-    expect(monthButton).toHaveAttribute("id", "month-picker")
+    const yearButton = screen.getAllByRole("combobox")[0]
+    expect(yearButton).toHaveAttribute("id", "month-picker")
   })
 
   test("name属性が正しく設定される", () => {
     renderWithTheme(<MonthPicker name="month" />)
 
-    const monthButton = screen.getAllByRole("combobox")[0]
-    expect(monthButton).toHaveAttribute("name", "month")
+    const yearButton = screen.getAllByRole("combobox")[0]
+    expect(yearButton).toHaveAttribute("name", "month")
   })
 })

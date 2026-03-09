@@ -62,23 +62,23 @@ export function MonthPicker(props: MonthPickerProps) {
 
   return (
     <Flex gap="2" align="center">
-      <Select.Root value={currentMonth} onValueChange={handleMonthChange}>
-        <Select.Trigger id={id} name={name} placeholder="月を選択" />
+      <Select.Root value={currentYear} onValueChange={handleYearChange}>
+        <Select.Trigger id={id} name={name} placeholder="年を選択" />
         <Select.Content>
-          {MONTHS.map((month) => (
-            <Select.Item key={month.value} value={month.value}>
-              {month.label}
+          {YEARS.map((year) => (
+            <Select.Item key={year.value} value={year.value}>
+              {year.label}
             </Select.Item>
           ))}
         </Select.Content>
       </Select.Root>
       <span>/</span>
-      <Select.Root value={currentYear} onValueChange={handleYearChange}>
-        <Select.Trigger placeholder="年を選択" />
+      <Select.Root value={currentMonth} onValueChange={handleMonthChange}>
+        <Select.Trigger placeholder="月を選択" />
         <Select.Content>
-          {YEARS.map((year) => (
-            <Select.Item key={year.value} value={year.value}>
-              {year.label}
+          {MONTHS.map((month) => (
+            <Select.Item key={month.value} value={month.value}>
+              {month.label}
             </Select.Item>
           ))}
         </Select.Content>
