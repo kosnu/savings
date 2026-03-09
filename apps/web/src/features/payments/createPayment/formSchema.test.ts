@@ -29,13 +29,14 @@ describe("formSchema", () => {
     }
   })
 
-  test("should fail when category is empty", () => {
+  test("should succeed when category is empty", () => {
     const result = formSchema.safeParse({ ...data, category: "" })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
+  })
 
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.category
-    expect(error).toEqual(["Category can not be empty"])
+  test("should succeed when note is empty", () => {
+    const result = formSchema.safeParse({ ...data, note: "" })
+    expect(result.success).toBe(true)
   })
 
   test("should fail when date is iso", () => {

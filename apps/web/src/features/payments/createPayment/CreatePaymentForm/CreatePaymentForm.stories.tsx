@@ -79,11 +79,12 @@ export const Empty: Story = {
     await userEvent.click(submitButton)
 
     expect(
-      await canvas.findByText("Category can not be empty"),
-    ).toBeInTheDocument()
-    expect(await canvas.findByText("Note can not be empty")).toBeInTheDocument()
-    expect(
       await canvas.findByText("Amount can not be empty"),
     ).toBeInTheDocument()
+    // カテゴリ・メモは任意なのでバリデーションエラーが表示されないことを確認
+    expect(
+      canvas.queryByText("Category can not be empty"),
+    ).not.toBeInTheDocument()
+    expect(canvas.queryByText("Note can not be empty")).not.toBeInTheDocument()
   },
 }
