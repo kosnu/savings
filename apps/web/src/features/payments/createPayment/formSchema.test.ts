@@ -124,6 +124,16 @@ describe("submitFormSchema", () => {
     }
   })
 
+  test("should succeed when category is empty", () => {
+    const result = submitFormSchema.safeParse({ ...data, category: "" })
+    expect(result.success).toBe(true)
+  })
+
+  test("should succeed when note is empty", () => {
+    const result = submitFormSchema.safeParse({ ...data, note: "" })
+    expect(result.success).toBe(true)
+  })
+
   test("should fail when amount is empty", () => {
     const result = submitFormSchema.safeParse({ ...data, amount: undefined })
     expect(result.success).toBe(false)
