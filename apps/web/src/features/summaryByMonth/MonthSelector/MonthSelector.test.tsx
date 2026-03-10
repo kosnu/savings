@@ -83,7 +83,11 @@ describe("MonthSelector", () => {
     })
 
     // 月のボタンをクリック
-    const monthButton = screen.getAllByRole("combobox")[0]
+    const monthButton = screen.getByText("5月").closest("button")
+    expect(monthButton).not.toBeNull()
+    if (!monthButton) {
+      throw new Error("月選択ボタンが見つかりません")
+    }
     await user.click(monthButton)
 
     // 6月を選択
