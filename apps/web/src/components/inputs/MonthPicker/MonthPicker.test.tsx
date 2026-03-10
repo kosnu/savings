@@ -8,6 +8,11 @@ const renderWithTheme = (component: React.ReactElement) => {
   return render(<Theme>{component}</Theme>)
 }
 
+const getYearAndMonthButtons = () => {
+  const [yearButton, monthButton] = screen.getAllByRole("combobox")
+  return { yearButton, monthButton }
+}
+
 describe("MonthPicker", () => {
   afterEach(() => {
     cleanup()
@@ -36,11 +41,7 @@ describe("MonthPicker", () => {
     renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
 
     // 月のボタンをクリック
-    const monthButton = screen.getByText("5月").closest("button")
-    expect(monthButton).not.toBeNull()
-    if (!monthButton) {
-      throw new Error("月選択ボタンが見つかりません")
-    }
+    const { monthButton } = getYearAndMonthButtons()
     await user.click(monthButton)
 
     // 6月を選択
@@ -62,11 +63,7 @@ describe("MonthPicker", () => {
     renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
 
     // 年のボタンをクリック
-    const yearButton = screen.getByText("2025").closest("button")
-    expect(yearButton).not.toBeNull()
-    if (!yearButton) {
-      throw new Error("年選択ボタンが見つかりません")
-    }
+    const { yearButton } = getYearAndMonthButtons()
     await user.click(yearButton)
 
     // 2026年を選択
@@ -83,16 +80,14 @@ describe("MonthPicker", () => {
   test("id属性が正しく設定される", () => {
     renderWithTheme(<MonthPicker id="month-picker" />)
 
-    const monthButton = screen.getByText("月を選択").closest("button")
-    expect(monthButton).not.toBeNull()
+    const { monthButton } = getYearAndMonthButtons()
     expect(monthButton).toHaveAttribute("id", "month-picker")
   })
 
   test("name属性が正しく設定される", () => {
     renderWithTheme(<MonthPicker name="month" />)
 
-    const monthButton = screen.getByText("月を選択").closest("button")
-    expect(monthButton).not.toBeNull()
+    const { monthButton } = getYearAndMonthButtons()
     expect(monthButton).toHaveAttribute("name", "month")
   })
 })
