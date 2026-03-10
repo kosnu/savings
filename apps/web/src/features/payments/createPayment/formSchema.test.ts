@@ -29,13 +29,16 @@ describe("formSchema", () => {
     }
   })
 
-  test("should fail when category is empty", () => {
+  test("should allow empty category", () => {
     const result = formSchema.safeParse({ ...data, category: "" })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
+    expect(result.data?.category).toBe("")
+  })
 
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.category
-    expect(error).toEqual(["Category can not be empty"])
+  test("should allow empty note", () => {
+    const result = formSchema.safeParse({ ...data, note: "" })
+    expect(result.success).toBe(true)
+    expect(result.data?.note).toBe("")
   })
 
   test("should fail when date is iso", () => {
@@ -120,6 +123,16 @@ describe("submitFormSchema", () => {
       const result = submitFormSchema.safeParse({ ...data, amount: 0 })
       expect(result.success).toBe(true)
       expect(result.data?.amount).toBe(0)
+    }
+    {
+      const result = submitFormSchema.safeParse({
+        ...data,
+        category: "",
+        note: "",
+      })
+      expect(result.success).toBe(true)
+      expect(result.data?.category).toBe("")
+      expect(result.data?.note).toBe("")
     }
   })
 
