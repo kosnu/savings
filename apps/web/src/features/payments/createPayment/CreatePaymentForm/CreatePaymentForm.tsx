@@ -121,6 +121,20 @@ export function CreatePaymentForm({
             )
           }}
         </form.Field>
+        <form.Field name="amount">
+          {(field) => {
+            const errorMessages = getErrorMessages(field.state.meta.errors)
+            return (
+              <AmountField
+                value={field.state.value}
+                onChange={(amount) => field.handleChange(amount)}
+                error={hasErrorMessages(errorMessages)}
+                messages={errorMessages}
+                autoFocus
+              />
+            )
+          }}
+        </form.Field>
         <form.Field name="category">
           {(field) => {
             const errorMessages = getErrorMessages(field.state.meta.errors)
@@ -143,20 +157,6 @@ export function CreatePaymentForm({
                 onChange={(note) => field.handleChange(note)}
                 error={hasErrorMessages(errorMessages)}
                 messages={errorMessages}
-              />
-            )
-          }}
-        </form.Field>
-        <form.Field name="amount">
-          {(field) => {
-            const errorMessages = getErrorMessages(field.state.meta.errors)
-            return (
-              <AmountField
-                value={field.state.value}
-                onChange={(amount) => field.handleChange(amount)}
-                error={hasErrorMessages(errorMessages)}
-                messages={errorMessages}
-                autoFocus
               />
             )
           }}

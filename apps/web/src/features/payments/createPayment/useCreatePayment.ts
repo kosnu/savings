@@ -10,9 +10,10 @@ type PaymentInsert = Omit<TablesInsert<"payments">, "user_id">
 
 type PaymentValue = Omit<
   Payment,
-  "id" | "userId" | "createdDate" | "updatedDate" | "categoryId"
+  "id" | "userId" | "createdDate" | "updatedDate" | "categoryId" | "note"
 > & {
-  categoryId: string
+  categoryId?: string
+  note?: string
 }
 
 function toCategoryId(categoryId: string): number | null {
