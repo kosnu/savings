@@ -16,7 +16,7 @@ type PaymentValue = Omit<
   note?: string
 }
 
-function toCategoryId(categoryId: string): number | null {
+function toCategoryId(categoryId?: string): number | null {
   if (!categoryId) return null
   const parsed = Number(categoryId)
   return Number.isNaN(parsed) ? null : parsed
