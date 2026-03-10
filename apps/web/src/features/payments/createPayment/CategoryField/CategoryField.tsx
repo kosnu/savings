@@ -25,7 +25,6 @@ export const CategoryField = memo(function CategoryField({
     <BaseField
       label="Category"
       htmlFor={id}
-      required
       error={Boolean(error)}
       message={messages?.map((msg, i) => (
         <Fragment key={msg}>

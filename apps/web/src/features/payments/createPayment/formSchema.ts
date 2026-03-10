@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 const baseSchema = z.object({
-  category: z.string().min(1, "Category can not be empty"),
+  category: z.string(),
   date: z.date({
     error: (iss) => {
       if (iss.input === undefined || iss.input === null || iss.input === "") {
@@ -10,7 +10,7 @@ const baseSchema = z.object({
       return "Date is invalid"
     },
   }),
-  note: z.string().min(1, "Note can not be empty"),
+  note: z.string(),
   amount: z
     .number({
       error: (iss) => {
@@ -31,7 +31,10 @@ export const formSchema = baseSchema.partial({
   date: true,
   amount: true,
 })
-export const submitFormSchema = baseSchema.required()
+export const submitFormSchema = baseSchema.required({
+  date: true,
+  amount: true,
+})
 
 export type FormSchema = z.infer<typeof formSchema>
 export type SubmitFormSchema = z.infer<typeof submitFormSchema>

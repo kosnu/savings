@@ -143,6 +143,18 @@ describe("CreatePaymentForm", () => {
     expect(document.activeElement).toBe(amountField)
   })
 
+  test("should render fields in date, amount, category, note order", () => {
+    render(<CreatePaymentForm onCancel={() => {}} />)
+
+    const fields = screen.getAllByRole("textbox")
+    expect(fields.map((field) => field.getAttribute("aria-label"))).toEqual([
+      "Date",
+      "Amount",
+      "Category",
+      "Note",
+    ])
+  })
+
   test("should show amount required message and not call createPayment when amount is empty", async () => {
     const user = userEvent.setup()
 
@@ -155,6 +167,29 @@ describe("CreatePaymentForm", () => {
 
     expect(await screen.findByText("Amount can not be empty")).toBeTruthy()
     expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  test("should call createPayment when category and note are empty", async () => {
+    const user = userEvent.setup()
+
+    render(<CreatePaymentForm onCancel={() => {}} />)
+
+    await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
+    await user.click(screen.getByRole("button", { name: /create/i }))
+
+    await waitFor(() => {
+      expect(mockCreatePayment).toHaveBeenCalledTimes(1)
+    })
+
+    const payload = mockCreatePayment.mock.calls[0][0]
+    expect(payload).toEqual(
+      expect.objectContaining({
+        categoryId: "",
+        note: "",
+        amount: 1080,
+      }),
+    )
+    expect(payload.date).toBeInstanceOf(Date)
   })
 
   test("should call createPayment with mapped payload when form is valid", async () => {

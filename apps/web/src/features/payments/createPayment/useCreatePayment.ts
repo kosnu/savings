@@ -10,12 +10,13 @@ type PaymentInsert = Omit<TablesInsert<"payments">, "user_id">
 
 type PaymentValue = Omit<
   Payment,
-  "id" | "userId" | "createdDate" | "updatedDate" | "categoryId"
+  "id" | "userId" | "createdDate" | "updatedDate" | "categoryId" | "note"
 > & {
-  categoryId: string
+  categoryId?: string
+  note?: string
 }
 
-function toCategoryId(categoryId: string): number | null {
+function toCategoryId(categoryId?: string): number | null {
   if (!categoryId) return null
   const parsed = Number(categoryId)
   return Number.isNaN(parsed) ? null : parsed

@@ -20,7 +20,6 @@ export function NoteField({
   return (
     <BaseField
       label="Note"
-      required
       htmlFor={id}
       error={error}
       message={messages?.map((msg, i) => (
