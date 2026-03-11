@@ -83,8 +83,7 @@ describe("MonthSelector", () => {
     })
 
     // 月のボタンをクリック
-    const [, monthButton] = screen.getAllByRole("combobox")
-    await user.click(monthButton)
+    await user.click(screen.getByRole("combobox", { name: "月" }))
 
     // 6月を選択
     const juneOption = await screen.findByRole("option", { name: "6月" })
