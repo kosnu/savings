@@ -20,7 +20,10 @@ const meta = {
       <MonthPicker
         {...args}
         value={selectedDate}
-        onChange={(date) => setSelectedDate(date)}
+        onChange={(date) => {
+          setSelectedDate(date)
+          args.onChange?.(date)
+        }}
       />
     )
   },

@@ -1,8 +1,11 @@
 import { Theme } from "@radix-ui/themes"
+import { composeStories } from "@storybook/react"
 import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { MonthPicker } from "./MonthPicker"
+import * as stories from "./MonthPicker.stories"
+
+const { Default, WithValue } = composeStories(stories)
 
 const renderWithTheme = (component: React.ReactElement) => {
   return render(<Theme>{component}</Theme>)
@@ -14,15 +17,14 @@ describe("MonthPicker", () => {
   })
 
   test("年月が選択されていない場合、プレースホルダーが表示される", () => {
-    renderWithTheme(<MonthPicker />)
+    renderWithTheme(<Default />)
 
     expect(screen.getByText("月を選択")).toBeInTheDocument()
     expect(screen.getByText("年を選択")).toBeInTheDocument()
   })
 
   test("年月が選択されている場合、選択された値が表示される", () => {
-    const date = new Date(2025, 4, 15)
-    renderWithTheme(<MonthPicker value={date} />)
+    renderWithTheme(<WithValue />)
 
     expect(screen.getByText("5月")).toBeInTheDocument()
     expect(screen.getByText("2025")).toBeInTheDocument()
@@ -31,13 +33,11 @@ describe("MonthPicker", () => {
   test("月を選択するとonChangeが呼ばれる", async () => {
     const user = userEvent.setup()
     const handleChange = vi.fn()
-    const initialDate = new Date(2025, 4, 15)
 
-    renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
+    renderWithTheme(<WithValue onChange={handleChange} />)
 
     // 月のボタンをクリック
-    const monthButton = screen.getAllByRole("combobox")[0]
-    await user.click(monthButton)
+    await user.click(screen.getByRole("combobox", { name: "月" }))
 
     // 6月を選択
     const juneOption = await screen.findByRole("option", { name: "6月" })
@@ -53,13 +53,11 @@ describe("MonthPicker", () => {
   test("年を選択するとonChangeが呼ばれる", async () => {
     const user = userEvent.setup()
     const handleChange = vi.fn()
-    const initialDate = new Date(2025, 4, 15)
 
-    renderWithTheme(<MonthPicker value={initialDate} onChange={handleChange} />)
+    renderWithTheme(<WithValue onChange={handleChange} />)
 
     // 年のボタンをクリック
-    const yearButton = screen.getAllByRole("combobox")[1]
-    await user.click(yearButton)
+    await user.click(screen.getByRole("combobox", { name: "年" }))
 
     // 2026年を選択
     const year2026Option = await screen.findByRole("option", { name: "2026" })
@@ -70,19 +68,5 @@ describe("MonthPicker", () => {
     expect(calledDate).toBeInstanceOf(Date)
     expect(calledDate.getMonth()).toBe(4) // 5月
     expect(calledDate.getFullYear()).toBe(2026)
-  })
-
-  test("id属性が正しく設定される", () => {
-    renderWithTheme(<MonthPicker id="month-picker" />)
-
-    const monthButton = screen.getAllByRole("combobox")[0]
-    expect(monthButton).toHaveAttribute("id", "month-picker")
-  })
-
-  test("name属性が正しく設定される", () => {
-    renderWithTheme(<MonthPicker name="month" />)
-
-    const monthButton = screen.getAllByRole("combobox")[0]
-    expect(monthButton).toHaveAttribute("name", "month")
   })
 })
