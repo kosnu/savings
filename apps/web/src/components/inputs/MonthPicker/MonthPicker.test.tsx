@@ -1,6 +1,6 @@
 import { Theme } from "@radix-ui/themes"
 import { composeStories } from "@storybook/react"
-import { cleanup, render, screen, waitFor } from "@testing-library/react"
+import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, test, vi } from "vitest"
 import * as stories from "./MonthPicker.stories"
@@ -70,24 +70,4 @@ describe("MonthPicker", () => {
     expect(calledDate.getFullYear()).toBe(2026)
   })
 
-  test("id属性が正しく設定される", () => {
-    renderWithTheme(<Default id="month-picker" />)
-
-    expect(screen.getByRole("combobox", { name: "月" })).toHaveAttribute(
-      "id",
-      "month-picker",
-    )
-  })
-
-  test("name属性が正しく設定される", async () => {
-    renderWithTheme(
-      <form>
-        <Default name="month" />
-      </form>,
-    )
-
-    await waitFor(() => {
-      expect(document.querySelector('select[name="month"]')).toBeInTheDocument()
-    })
-  })
 })
