@@ -69,5 +69,4 @@ describe("MonthPicker", () => {
     expect(calledDate.getMonth()).toBe(4) // 5月
     expect(calledDate.getFullYear()).toBe(2026)
   })
-
 })
