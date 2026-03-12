@@ -29,3 +29,7 @@
 
 - [フロントエンド](apps/web/README.md)
 - [バックエンド](apps/api/README.md)
+
+## 開発環境
+
+このリポジトリは `pnpm workspace` を使用します。依存関係のインストールはリポジトリルートで `pnpm install` を実行します。
