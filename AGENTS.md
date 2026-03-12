@@ -8,13 +8,12 @@ Guidance for all AI agents working in this repository.
 
 ## Project Overview
 
-Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/api/`) and infrastructure (`infra/`).
+Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/api/`).
 
 ## Architecture
 
 - **Web** (`apps/web/`): React + TypeScript + Vite. Design decisions: `apps/web/docs/adr/`
 - **API** (`apps/api/`): Supabase (DB migrations, Auth config)
-- **Infra** (`infra/`): Terraform (Supabase + Cloudflare Pages)
 
 ## Key Conventions
 
