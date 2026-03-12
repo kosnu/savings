@@ -29,4 +29,3 @@
 
 - [フロントエンド](apps/web/README.md)
 - [バックエンド](apps/api/README.md)
-- [インフラ](infra/README.md)
