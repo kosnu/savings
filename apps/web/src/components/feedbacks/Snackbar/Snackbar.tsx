@@ -1,6 +1,6 @@
 import { Cross1Icon } from "@radix-ui/react-icons"
+import * as Toast from "@radix-ui/react-toast"
 import { IconButton } from "@radix-ui/themes"
-import { Toast } from "radix-ui"
 import { type ReactNode, useCallback, useEffect, useRef } from "react"
 import styles from "./Snackbar.module.css"
 
