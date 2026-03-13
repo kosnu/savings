@@ -32,4 +32,6 @@
 
 ## 開発環境
 
-このリポジトリは `pnpm workspace` を使用します。依存関係のインストールはリポジトリルートで `pnpm install` を実行します。
+このリポジトリは `pnpm workspace` を使用します。依存関係のインストールは、この README があるリポジトリルートで `pnpm install` を実行します。
+
+タスク実行には go-task（`task` コマンド）が必要です。インストール方法は公式ドキュメント（https://taskfile.dev）を参照してください。
