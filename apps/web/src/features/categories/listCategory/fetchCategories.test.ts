@@ -1,10 +1,9 @@
-import { createClient } from "@supabase/supabase-js"
 import { describe, expect, it, vi } from "vitest"
+import { getSupabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
 import { fetchCategories } from "./fetchCategories"
 
 vi.mock("../../../lib/supabase", () => ({
-  getSupabaseClient: () =>
-    createClient("http://localhost:54321", "test-anon-key"),
+  getSupabaseClient: () => getSupabaseTestClient(),
 }))
 
 describe("fetchCategories", () => {
