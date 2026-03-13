@@ -1,0 +1,20 @@
+{
+  "plugins": ["react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "react/no-array-index-key": "error",
+    "jsx_a11y/label-has-associated-control": "error",
+    "jsx_a11y/no-autofocus": "off"
+  },
+  "settings": {
+    "jsx-a11y": {
+      "components": {
+        "TextField.Root": "input",
+        "DayPicker": "input"
+      }
+    }
+  },
+  "ignorePatterns": ["public/mockServiceWorker.js"]
+}

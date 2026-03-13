@@ -27,8 +27,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Biome check
-        run: pnpm --dir apps/web check -- --error-on-warnings
+      - name: Oxc check
+        run: pnpm --dir apps/web check
 
       - name: Setup Playwright (with cache)
         uses: ./.github/actions/setup-playwright
