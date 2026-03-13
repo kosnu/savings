@@ -47,8 +47,7 @@ pnpm install
 Vite 開発サーバーを起動します。
 
 ```bash
-cd apps/web
-pnpm dev
+task web:dev
 ```
 
 起動後、ブラウザで表示されるローカルホストの URL にアクセスします（通常は `http://localhost:5173` 等）。
@@ -58,8 +57,7 @@ pnpm dev
 コンポーネントの開発には Storybook を利用しています。Storybook を起動するには：
 
 ```bash
-cd apps/web
-pnpm storybook -- --no-open
+task web:storybook -- --no-open
 ```
 
 ## テスト
@@ -67,8 +65,7 @@ pnpm storybook -- --no-open
 ユニット / コンポーネントテストは Vitest で実行します。
 
 ```bash
-cd apps/web
-pnpm test
+task web:test
 ```
 
 E2E テストや Playwright が設定されている場合は、CI 設定や `package.json` のスクリプトを参照してください。
@@ -78,8 +75,7 @@ E2E テストや Playwright が設定されている場合は、CI 設定や `pa
 Biome（`biome.json`）で lint / format を管理しています。実行例：
 
 ```bash
-cd apps/web
-pnpm check
+task web:check
 ```
 
 型チェックは TypeScript の設定に従って `pnpm build` 時や専用スクリプトで実行してください。
@@ -90,12 +86,10 @@ pnpm check
 
 ```bash
 # apps/api/ で Supabase を起動
-cd apps/api
-task up
+task api:up
 
 # その後、apps/web から通常通り起動
-cd apps/web
-pnpm dev
+task web:dev
 ```
 
 ## ビルド & デプロイ
@@ -103,8 +97,7 @@ pnpm dev
 プロダクション用ビルドを作成します。
 
 ```bash
-cd apps/web
-pnpm build
+task web:build
 ```
 
 Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy.yaml`) を参照してください。手動デプロイは Wrangler CLI を利用します。

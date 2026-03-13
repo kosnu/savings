@@ -10,16 +10,16 @@ tasks:
     cmd: task -l
   check:
     desc: Run linting and format checks
-    cmd: npm run check-write
+    cmd: pnpm check-write
   test:
     desc: Run tests
-    cmd: npm run test -- --silent --reporter=dot {{.CLI_ARGS}}
+    cmd: pnpm test -- --silent --reporter=dot {{.CLI_ARGS}}
   dev:
     desc: Start development server
-    cmd: npm run dev -- {{.CLI_ARGS}}
+    cmd: pnpm dev -- {{.CLI_ARGS}}
   build:
     desc: Build the application for production
-    cmd: npm run build -- {{.CLI_ARGS}}
+    cmd: pnpm build -- {{.CLI_ARGS}}
   storybook:
     desc: Start Storybook for UI component development
-    cmd: npm run storybook -- {{.CLI_ARGS}}
+    cmd: pnpm storybook -- {{.CLI_ARGS}}
