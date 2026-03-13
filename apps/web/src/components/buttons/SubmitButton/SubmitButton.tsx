@@ -3,12 +3,7 @@ import { useFormStatus } from "react-dom"
 
 type SubmitButtonProps = ButtonProps
 
-export function SubmitButton({
-  children,
-  loading,
-  disabled,
-  ...props
-}: SubmitButtonProps) {
+export function SubmitButton({ children, loading, disabled, ...props }: SubmitButtonProps) {
   const { pending } = useFormStatus()
 
   const isLoading = loading || pending

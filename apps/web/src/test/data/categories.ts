@@ -21,8 +21,4 @@ export const entertainmentCat: Category = {
   updatedDate: new Date(),
 }
 
-export const categories: Category[] = [
-  foodCat,
-  dailyNecessitiesCat,
-  entertainmentCat,
-]
+export const categories: Category[] = [foodCat, dailyNecessitiesCat, entertainmentCat]

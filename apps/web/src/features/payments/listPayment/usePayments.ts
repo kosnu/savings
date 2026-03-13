@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+
 import type { Payment } from "../../../types/payment"
 import { useDateRange } from "../../../utils/useDateRange"
 import { fetchPayments } from "./fetchPayments"

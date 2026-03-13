@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
+
 import { useDateRange } from "../../utils/useDateRange"
 import { fetchTotalExpenditures } from "./fetchTotalExpenditures"
 

@@ -1,17 +1,11 @@
 import type { Decorator } from "@storybook/react-vite"
-import type {
-  AnyRootRoute,
-  AnyRoute,
-  RouteComponent,
-} from "@tanstack/react-router"
+import type { AnyRootRoute, AnyRoute, RouteComponent } from "@tanstack/react-router"
 import { createRoute, RouterProvider } from "@tanstack/react-router"
+
 import { paymentsSearchSchema } from "../../features/payments/listPayment/paymentsSearchSchema"
 import { createTestRouter } from "./createTestRouter"
 
-type StoryRouteBuilder = (
-  rootRoute: AnyRootRoute,
-  Story: RouteComponent,
-) => AnyRoute[]
+type StoryRouteBuilder = (rootRoute: AnyRootRoute, Story: RouteComponent) => AnyRoute[]
 
 export function createStoryRouter(
   initialEntry: string,
@@ -28,9 +22,7 @@ export function createStoryRouter(
 
     const builder = routeBuilder ?? defaultBuilder
 
-    const router = createTestRouter(initialEntry, (root) =>
-      builder(root, Story),
-    )
+    const router = createTestRouter(initialEntry, (root) => builder(root, Story))
 
     return <RouterProvider router={router} />
   }

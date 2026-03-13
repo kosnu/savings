@@ -1,4 +1,5 @@
 import { expect, test } from "vitest"
+
 import { foodCat } from "../../../test/data/categories"
 import { getCategoryStrict, toCategoryMap } from "./toCategoryMap"
 

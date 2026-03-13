@@ -1,5 +1,6 @@
 import { Text } from "@radix-ui/themes"
 import { Fragment, useId } from "react"
+
 import { BaseField } from "../../../../components/inputs/BaseField"
 import { DatePicker } from "../../../../components/inputs/DatePicker"
 
@@ -10,12 +11,7 @@ interface PaymentDateFieldProps {
   onChange?: (date: Date | undefined) => void
 }
 
-export function PaymentDateField({
-  error,
-  messages,
-  value,
-  onChange,
-}: PaymentDateFieldProps) {
+export function PaymentDateField({ error, messages, value, onChange }: PaymentDateFieldProps) {
   const id = useId()
 
   return (

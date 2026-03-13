@@ -1,12 +1,8 @@
 import { Card } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, waitFor, within } from "storybook/test"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "./Accordion"
+
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./Accordion"
 
 const meta = {
   title: "Common/Misc/Accordion",
@@ -33,15 +29,12 @@ export const Default: Story = {
       <>
         <AccordionItem value="item-1">
           <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-          </AccordionContent>
+          <AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
           <AccordionTrigger>Is it unstyled?</AccordionTrigger>
           <AccordionContent>
-            Yes. It's unstyled by default, giving you freedom over the look and
-            feel.
+            Yes. It's unstyled by default, giving you freedom over the look and feel.
           </AccordionContent>
         </AccordionItem>
       </>
@@ -55,9 +48,7 @@ export const Default: Story = {
     await userEvent.click(firstButton)
 
     expect(
-      await canvas.findByText(
-        /Yes. It adheres to the WAI-ARIA design pattern./i,
-      ),
+      await canvas.findByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
     ).toBeInTheDocument()
     expect(
       canvas.queryByText(
@@ -91,15 +82,12 @@ export const Multiple: Story = {
       <>
         <AccordionItem value="item-1">
           <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-          </AccordionContent>
+          <AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
           <AccordionTrigger>Is it unstyled?</AccordionTrigger>
           <AccordionContent>
-            Yes. It's unstyled by default, giving you freedom over the look and
-            feel.
+            Yes. It's unstyled by default, giving you freedom over the look and feel.
           </AccordionContent>
         </AccordionItem>
       </>
@@ -113,9 +101,7 @@ export const Multiple: Story = {
     await userEvent.click(firstButton)
 
     expect(
-      await canvas.findByText(
-        /Yes. It adheres to the WAI-ARIA design pattern./i,
-      ),
+      await canvas.findByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
     ).toBeInTheDocument()
     expect(
       canvas.queryByText(
@@ -129,9 +115,7 @@ export const Multiple: Story = {
     await userEvent.click(secondButton)
 
     expect(
-      await canvas.findByText(
-        /Yes. It adheres to the WAI-ARIA design pattern./i,
-      ),
+      await canvas.findByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
     ).toBeInTheDocument()
     expect(
       await canvas.findByText(

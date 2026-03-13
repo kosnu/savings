@@ -1,17 +1,15 @@
 import { format } from "date-fns"
+
 import { getSupabaseClient } from "../../../lib/supabase"
 import type { Payment } from "../../../types/payment"
 
-export async function fetchPayments([startDate, endDate]: [
-  Date | null,
-  Date | null,
-]): Promise<Payment[]> {
+export async function fetchPayments([startDate, endDate]: [Date | null, Date | null]): Promise<
+  Payment[]
+> {
   const supabase = getSupabaseClient()
   let query = supabase
     .from("payments")
-    .select(
-      "id, note, amount, date, created_at, updated_at, category_id, user_id",
-    )
+    .select("id, note, amount, date, created_at, updated_at, category_id, user_id")
     .order("date", { ascending: false })
     .order("id", { ascending: false })
 

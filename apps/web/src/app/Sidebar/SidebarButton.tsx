@@ -1,6 +1,7 @@
 import { Button } from "@radix-ui/themes"
 import { Link } from "@tanstack/react-router"
 import type { ReactNode } from "react"
+
 import styles from "./SidebarButton.module.css"
 
 interface SidebarButtonProps {

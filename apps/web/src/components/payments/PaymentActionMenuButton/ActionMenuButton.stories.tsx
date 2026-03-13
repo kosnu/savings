@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent } from "storybook/test"
+
 import { payments } from "../../../test/data/payments"
 import { ActionMenuButton } from "./ActionMenuButton"
 
@@ -30,9 +31,7 @@ export const OpenMenu: Story = {
     const canvas = within(canvasElement)
     const button = canvas.getByRole("button")
     await userEvent.click(button)
-    const menu = await within(canvasElement.ownerDocument.body).findByRole(
-      "menu",
-    )
+    const menu = await within(canvasElement.ownerDocument.body).findByRole("menu")
     expect(menu).toBeInTheDocument()
     expect(within(menu).getByText("Delete")).toBeInTheDocument()
   },

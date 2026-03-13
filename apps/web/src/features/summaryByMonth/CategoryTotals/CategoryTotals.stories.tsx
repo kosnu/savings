@@ -1,18 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, within } from "storybook/test"
-import {
-  createStoryRouter,
-  paymentsRouteBuilder,
-} from "../../../test/helpers/routerDecorator"
+
+import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
 import { CategoryTotals } from "./CategoryTotals"
 
 const meta = {
   title: "Features/SummaryByMonth/CategoryTotals",
   component: CategoryTotals,
   tags: ["autodocs"],
-  decorators: [
-    createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder),
-  ],
+  decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
 } satisfies Meta<typeof CategoryTotals>
 
 export default meta
@@ -26,12 +22,8 @@ export const Default: Story = {
     const canvas = within(canvasElement)
 
     // 指定したチャンク数分の DataList が表示されていること
-    expect(
-      await canvas.findByLabelText(/category totals chunk 0/i),
-    ).toBeInTheDocument()
-    expect(
-      await canvas.findByLabelText(/category totals chunk 1/i),
-    ).toBeInTheDocument()
+    expect(await canvas.findByLabelText(/category totals chunk 0/i)).toBeInTheDocument()
+    expect(await canvas.findByLabelText(/category totals chunk 1/i)).toBeInTheDocument()
 
     // カテゴリごとの合計金額が表示されていること
     expect(await canvas.findByText("Food")).toBeInTheDocument()

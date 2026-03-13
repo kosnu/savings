@@ -1,9 +1,5 @@
 import type { AnyRootRoute, AnyRoute } from "@tanstack/react-router"
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRouter,
-} from "@tanstack/react-router"
+import { createMemoryHistory, createRootRoute, createRouter } from "@tanstack/react-router"
 
 export function createTestRouter(
   initialEntry: string,

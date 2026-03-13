@@ -2,10 +2,8 @@ import { Container } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, waitForElementToBeRemoved } from "storybook/test"
-import {
-  createStoryRouter,
-  paymentsRouteBuilder,
-} from "../../../test/helpers/routerDecorator"
+
+import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
 import { Summary } from "./Summary"
 
 const meta = {

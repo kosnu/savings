@@ -1,4 +1,1 @@
-export {
-  SnackbarProvider,
-  useSnackbar,
-} from "./SnackbarProvider"
+export { SnackbarProvider, useSnackbar } from "./SnackbarProvider"

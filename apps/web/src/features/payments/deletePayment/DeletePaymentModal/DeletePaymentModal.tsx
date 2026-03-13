@@ -1,5 +1,6 @@
 import { Button, Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
+
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { useSnackbar } from "../../../../providers/snackbar"
 import type { Payment } from "../../../../types/payment"
@@ -14,12 +15,7 @@ interface DeletePaymentModalProps {
   onSuccess: () => void
 }
 
-export function DeletePaymentModal({
-  payment,
-  open,
-  onClose,
-  onSuccess,
-}: DeletePaymentModalProps) {
+export function DeletePaymentModal({ payment, open, onClose, onSuccess }: DeletePaymentModalProps) {
   const { openSnackbar } = useSnackbar()
   const { deletePayment } = useDeletePayment(
     () => {

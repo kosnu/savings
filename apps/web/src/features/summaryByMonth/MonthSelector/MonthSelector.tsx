@@ -1,5 +1,6 @@
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useCallback, useEffect } from "react"
+
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 
@@ -13,11 +14,7 @@ export function MonthSelector() {
   // 現在選択されている年月、またはnullの場合は今月
   const currentDate =
     yearParam && monthParam
-      ? new Date(
-          Number.parseInt(yearParam, 10),
-          Number.parseInt(monthParam, 10) - 1,
-          1,
-        )
+      ? new Date(Number.parseInt(yearParam, 10), Number.parseInt(monthParam, 10) - 1, 1)
       : null
 
   const handleMonthChange = useCallback(
@@ -43,10 +40,5 @@ export function MonthSelector() {
     }
   }, [session, yearParam, monthParam, navigate])
 
-  return (
-    <MonthPicker
-      value={currentDate ?? undefined}
-      onChange={handleMonthChange}
-    />
-  )
+  return <MonthPicker value={currentDate ?? undefined} onChange={handleMonthChange} />
 }

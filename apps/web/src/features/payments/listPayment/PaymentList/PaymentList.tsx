@@ -1,12 +1,10 @@
 import { Flex } from "@radix-ui/themes"
 import { memo, Suspense, use } from "react"
+
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
 import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
-import {
-  getCategoryStrict,
-  toCategoryMap,
-} from "../../../categories/listCategory/toCategoryMap"
+import { getCategoryStrict, toCategoryMap } from "../../../categories/listCategory/toCategoryMap"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 import { PaymentItem } from "../PaymentItem"
 import { usePayments } from "../usePayments"
@@ -15,9 +13,7 @@ interface PaymentListProps {
   onDeleteSuccess: () => void
 }
 
-export const PaymentList = memo(function PaymentList({
-  onDeleteSuccess,
-}: PaymentListProps) {
+export const PaymentList = memo(function PaymentList({ onDeleteSuccess }: PaymentListProps) {
   const { promise: promisePayments } = usePayments()
   const { promise: promiseCategories } = useCategories()
 
@@ -40,11 +36,7 @@ interface ItemsProps {
   onDeleteSuccess: () => void
 }
 
-const Items = memo(function Body({
-  promiseCategories,
-  getPayments,
-  onDeleteSuccess,
-}: ItemsProps) {
+const Items = memo(function Body({ promiseCategories, getPayments, onDeleteSuccess }: ItemsProps) {
   const data = use(getPayments)
   const categories = use(promiseCategories)
   const categoryMap = toCategoryMap(categories)
