@@ -44,7 +44,7 @@ export default defineConfig({
             tags: {
               skip: ["skip"],
             },
-            storybookScript: "npm run storybook --ci",
+            storybookScript: "pnpm storybook --ci",
             storybookUrl: process.env.SB_URL,
           }),
         ],
