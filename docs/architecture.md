@@ -15,7 +15,7 @@
 
 ## 開発フローのポイント（短く）
 
-- フロントエンドの依存は必ず `apps/web/` で管理し、インストールは `npm ci` を使うこと（README に従う）。参照: [apps/web/README.md](../apps/web/README.md)
+- 依存関係のインストールはリポジトリルートで `pnpm install` を実行し、各アプリは `pnpm workspace` 配下のパッケージとして扱うこと。参照: [apps/web/README.md](../apps/web/README.md)
 - ローカルで Supabase（Auth / DB）を使う場合はリポジトリルートで `task api:up` を実行してから Web アプリを起動する。
 
 ## ドキュメントの参照先

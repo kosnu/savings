@@ -1,5 +1,5 @@
 import { Card } from "@radix-ui/themes"
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, waitFor, within } from "storybook/test"
 import {
   Accordion,
