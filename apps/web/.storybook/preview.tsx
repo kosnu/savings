@@ -27,7 +27,7 @@ const preview: Preview = {
   loaders: [
     async () => {
       if (!mswStarted) {
-        await worker.start({ onUnhandledRequest: "bypass" })
+        await worker.start({ onUnhandledRequest: "bypass", quiet: true })
         mswStarted = true
       }
       // Supabase クライアントにモックセッションをセットし、
