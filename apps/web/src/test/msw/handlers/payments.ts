@@ -83,7 +83,10 @@ export const paymentHandlers = [
       date: body.date as string,
       created_at: now,
       updated_at: now,
-      category_id: body.category_id != null ? Number(body.category_id) : null,
+      category_id:
+        body.category_id !== null && body.category_id !== undefined
+          ? Number(body.category_id)
+          : null,
       user_id: 100,
     }
     return HttpResponse.json([newRow], { status: 201 })
