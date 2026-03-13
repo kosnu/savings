@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest"
-import { getSupabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
+import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
 import { fetchCategories } from "./fetchCategories"
 
 vi.mock("../../../lib/supabase", () => ({
-  getSupabaseClient: () => getSupabaseTestClient(),
+  getSupabaseClient: () => supabaseTestClient,
 }))
 
 describe("fetchCategories", () => {
