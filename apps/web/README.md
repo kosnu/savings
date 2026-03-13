@@ -32,11 +32,12 @@ React + TypeScript + Vite を使ったシングルページアプリケーショ
 ## 前提・注意
 
 - Web は `pnpm workspace` 配下のパッケージです。
+- この README 内のコマンドは、特記がない限り `apps/web/` ディレクトリで実行します。
 - CI やデプロイの全体像が必要な場合は、必要に応じてルート README や `docs/` 配下の文書も参照してください。
 
 ## セットアップ（ローカル開発）
 
-依存関係のインストールはリポジトリルートで `pnpm install` を実行します。
+依存関係のインストールだけはリポジトリルートで `pnpm install` を実行します。
 
 ```bash
 pnpm install
@@ -47,8 +48,7 @@ pnpm install
 Vite 開発サーバーを起動します。
 
 ```bash
-cd apps/web
-pnpm dev
+task dev
 ```
 
 起動後、ブラウザで表示されるローカルホストの URL にアクセスします（通常は `http://localhost:5173` 等）。
@@ -58,8 +58,7 @@ pnpm dev
 コンポーネントの開発には Storybook を利用しています。Storybook を起動するには：
 
 ```bash
-cd apps/web
-pnpm storybook -- --no-open
+task storybook -- --no-open
 ```
 
 ## テスト
@@ -67,8 +66,7 @@ pnpm storybook -- --no-open
 ユニット / コンポーネントテストは Vitest で実行します。
 
 ```bash
-cd apps/web
-pnpm test
+task test
 ```
 
 E2E テストや Playwright が設定されている場合は、CI 設定や `package.json` のスクリプトを参照してください。
@@ -78,8 +76,7 @@ E2E テストや Playwright が設定されている場合は、CI 設定や `pa
 Biome（`biome.json`）で lint / format を管理しています。実行例：
 
 ```bash
-cd apps/web
-pnpm check
+task check
 ```
 
 型チェックは TypeScript の設定に従って `pnpm build` 時や専用スクリプトで実行してください。
@@ -90,12 +87,12 @@ pnpm check
 
 ```bash
 # apps/api/ で Supabase を起動
-cd apps/api
+cd ../api
 task up
 
 # その後、apps/web から通常通り起動
-cd apps/web
-pnpm dev
+cd ../web
+task dev
 ```
 
 ## ビルド & デプロイ
@@ -103,8 +100,7 @@ pnpm dev
 プロダクション用ビルドを作成します。
 
 ```bash
-cd apps/web
-pnpm build
+task build
 ```
 
 Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy.yaml`) を参照してください。手動デプロイは Wrangler CLI を利用します。

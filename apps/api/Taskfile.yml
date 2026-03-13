@@ -11,16 +11,16 @@ tasks:
 
   up:
     desc: Start Supabase locally
-    cmd: npx supabase start
+    cmd: pnpm exec supabase start
 
   down:
     desc: Stop Supabase locally
-    cmd: npx supabase stop
+    cmd: pnpm exec supabase stop
 
   up:migrations:
     desc: Run database migrations to latest
-    cmd: npx supabase migration up
+    cmd: pnpm exec supabase migration up
 
   down:migrations:
     desc: Rollback the last database migration
-    cmd: npx supabase migration down
+    cmd: pnpm exec supabase migration down
