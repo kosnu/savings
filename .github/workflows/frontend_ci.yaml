@@ -9,25 +9,26 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web/
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@5b4374b04084dc1f9032b52464284b769ac5059e # v4
+        with:
+          version: 10.30.1
 
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
-          node-version-file: "apps/web/package.json"
-
-      - name: Cache node modules
-        uses: ./.github/actions/cache-npm
+          node-version-file: "package.json"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Biome check
-        run: npm run check -- --error-on-warnings
+        run: pnpm --dir apps/web check -- --error-on-warnings
 
       - name: Setup Playwright (with cache)
         uses: ./.github/actions/setup-playwright
@@ -35,11 +36,11 @@ jobs:
           project-directory: apps/web
 
       - name: Test
-        run: npm run test -- --reporter=dot --silent
+        run: pnpm --dir apps/web test -- --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
 
       - name: Build
-        run: npm run build
+        run: pnpm --dir apps/web build
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
