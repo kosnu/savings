@@ -1,5 +1,6 @@
 import { Container, Flex } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
+
 import { CreatePaymentModal } from "../../../features/payments/createPayment"
 import { PaymentList } from "../../../features/payments/listPayment"
 import { Summary } from "../../../features/summaryByMonth"
@@ -25,10 +26,7 @@ export function PaymentsPage() {
         <Flex justify="end" align="center" gap="3">
           <CreatePaymentModal onSuccess={handleCreateSuccess} />
         </Flex>
-        <PaymentList
-          key={`payment-list-${refreshKey}`}
-          onDeleteSuccess={handleDeleteSuccess}
-        />
+        <PaymentList key={`payment-list-${refreshKey}`} onDeleteSuccess={handleDeleteSuccess} />
       </Flex>
     </Container>
   )

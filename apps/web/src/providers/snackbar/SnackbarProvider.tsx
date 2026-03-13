@@ -1,17 +1,10 @@
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useState,
-} from "react"
+import { createContext, type ReactNode, useCallback, useContext, useState } from "react"
+
 import { Snackbar } from "../../components/feedbacks/Snackbar"
 import type { OpenSnackbarFn, SnackbarState, SnackbarType } from "./types"
 
 // NOTE: 外部公開してはいけない
-const SnackbarContext = createContext<
-  { openSnackbar: OpenSnackbarFn } | undefined
->(undefined)
+const SnackbarContext = createContext<{ openSnackbar: OpenSnackbarFn } | undefined>(undefined)
 
 interface SnackbarProviderProps {
   children: ReactNode
@@ -20,16 +13,13 @@ interface SnackbarProviderProps {
 export function SnackbarProvider({ children }: SnackbarProviderProps) {
   const [snackbarProps, setSnackbarProps] = useState<SnackbarState | null>(null)
 
-  const openSnackbar = useCallback(
-    (type: SnackbarType, message: string, duration?: number) => {
-      setSnackbarProps({
-        type: type,
-        message: message,
-        duration: duration,
-      })
-    },
-    [],
-  )
+  const openSnackbar = useCallback((type: SnackbarType, message: string, duration?: number) => {
+    setSnackbarProps({
+      type: type,
+      message: message,
+      duration: duration,
+    })
+  }, [])
 
   const closeSnackbar = useCallback(() => {
     setSnackbarProps(null)

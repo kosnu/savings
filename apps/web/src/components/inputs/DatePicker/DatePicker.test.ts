@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { setDefaultOptions } from "date-fns"
 import { enUS, ja } from "date-fns/locale"
 import { afterEach, beforeEach, expect, test, vi } from "vitest"
+
 import * as stories from "./DatePicker.stories"
 
 const { Default } = composeStories(stories)
@@ -46,8 +47,6 @@ test("Select today", async () => {
 
   await waitFor(() => {
     expect(dateInput).toHaveValue("2025/05/01")
-    expect(
-      screen.queryByRole("button", { name: /今日/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /今日/i })).not.toBeInTheDocument()
   })
 })

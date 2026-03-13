@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, within } from "storybook/test"
+
 import { PaymentDateField } from "./PaymentDateField"
 
 const meta: Meta<typeof PaymentDateField> = {
@@ -31,9 +32,7 @@ export const HasError: Story = {
     const canvas = within(canvasElement)
     expect(canvas.getByText("Date")).toBeInTheDocument()
     expect(canvas.getByText("日付が未選択です")).toBeInTheDocument()
-    expect(
-      canvas.getByText("1年以上前の日付は選択できません"),
-    ).toBeInTheDocument()
+    expect(canvas.getByText("1年以上前の日付は選択できません")).toBeInTheDocument()
     expect(canvas.getByRole("textbox")).toBeInTheDocument()
   },
 }

@@ -1,5 +1,6 @@
 import { Theme as RadixUiTheme } from "@radix-ui/themes"
 import { createContext, type ReactNode, useContext } from "react"
+
 import type { TTheme } from "./types"
 import { usePreferredTheme } from "./usePreferredTheme"
 
@@ -7,9 +8,9 @@ import "@radix-ui/themes/styles.css"
 import "./radixTheme.css"
 
 // NOTE: 外部公開してはいけない
-const ThemeContext = createContext<
-  { theme: TTheme; toggleTheme: () => void } | undefined
->(undefined)
+const ThemeContext = createContext<{ theme: TTheme; toggleTheme: () => void } | undefined>(
+  undefined,
+)
 
 const accentColor = "violet"
 const panelBackground = "solid"

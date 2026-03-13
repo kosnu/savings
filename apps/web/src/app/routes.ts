@@ -5,6 +5,7 @@ import {
   createRouter,
   redirect,
 } from "@tanstack/react-router"
+
 import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"

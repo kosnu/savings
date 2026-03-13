@@ -1,5 +1,6 @@
 import type { Session } from "@supabase/supabase-js"
 import { createContext, type ReactNode, useEffect, useState } from "react"
+
 import { getSupabaseClient } from "../../lib/supabase"
 
 export interface SupabaseSessionState {
@@ -7,17 +8,13 @@ export interface SupabaseSessionState {
   loading: boolean
 }
 
-export const SupabaseSessionContext = createContext<
-  SupabaseSessionState | undefined
->(undefined)
+export const SupabaseSessionContext = createContext<SupabaseSessionState | undefined>(undefined)
 
 interface SupabaseSessionProviderProps {
   children: ReactNode
 }
 
-export function SupabaseSessionProvider({
-  children,
-}: SupabaseSessionProviderProps) {
+export function SupabaseSessionProvider({ children }: SupabaseSessionProviderProps) {
   const [state, setState] = useState<SupabaseSessionState>({
     session: null,
     loading: true,
@@ -46,7 +43,5 @@ export function SupabaseSessionProvider({
     }
   }, [])
 
-  return (
-    <SupabaseSessionContext value={state}>{children}</SupabaseSessionContext>
-  )
+  return <SupabaseSessionContext value={state}>{children}</SupabaseSessionContext>
 }

@@ -1,5 +1,6 @@
 import { Text, TextField } from "@radix-ui/themes"
 import { Fragment, useId } from "react"
+
 import { BaseField } from "../../../../components/inputs/BaseField"
 
 interface NoteFieldProps {
@@ -9,12 +10,7 @@ interface NoteFieldProps {
   onChange?: (note: string) => void
 }
 
-export function NoteField({
-  error,
-  messages,
-  value,
-  onChange,
-}: NoteFieldProps) {
+export function NoteField({ error, messages, value, onChange }: NoteFieldProps) {
   const id = useId()
 
   return (

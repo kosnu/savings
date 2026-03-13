@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
 import { expect, userEvent, within } from "storybook/test"
+
 import { DatePicker } from "./DatePicker"
 
 const meta = {
@@ -12,17 +13,9 @@ const meta = {
   },
   tags: ["autodocs"],
   render: (args) => {
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-      args.value,
-    )
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(args.value)
 
-    return (
-      <DatePicker
-        {...args}
-        value={selectedDate}
-        onChange={(date) => setSelectedDate(date)}
-      />
-    )
+    return <DatePicker {...args} value={selectedDate} onChange={(date) => setSelectedDate(date)} />
   },
 } satisfies Meta<typeof DatePicker>
 

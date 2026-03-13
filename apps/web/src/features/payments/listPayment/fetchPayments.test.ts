@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
+
 import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
 import { fetchPayments } from "./fetchPayments"
 
@@ -37,9 +38,7 @@ describe("fetchPayments", () => {
     const payments = await fetchPayments([null, null])
 
     for (const payment of payments) {
-      expect(payment.categoryId).toSatisfy(
-        (v) => v === null || typeof v === "number",
-      )
+      expect(payment.categoryId).toSatisfy((v) => v === null || typeof v === "number")
     }
   })
 
@@ -64,10 +63,7 @@ describe("fetchPayments", () => {
   })
 
   it("startDate と endDate を両方指定すると範囲内のみ返す", async () => {
-    const payments = await fetchPayments([
-      new Date("2025-04-01"),
-      new Date("2025-05-31"),
-    ])
+    const payments = await fetchPayments([new Date("2025-04-01"), new Date("2025-05-31")])
 
     expect(payments).toHaveLength(1) // id:3
   })

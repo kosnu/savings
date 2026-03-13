@@ -1,9 +1,11 @@
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Flex } from "@radix-ui/themes"
 import { Outlet } from "@tanstack/react-router"
+
 import { Header } from "../Header"
 import { Sidebar, useSidebar } from "../Sidebar"
 import { SidebarButton } from "../Sidebar/SidebarButton"
+
 import styles from "./AppLayout.module.css"
 
 export function AppLayout() {

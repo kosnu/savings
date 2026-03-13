@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, fn, within } from "storybook/test"
-import {
-  createStoryRouter,
-  paymentsRouteBuilder,
-} from "../../../../test/helpers/routerDecorator"
+
+import { createStoryRouter, paymentsRouteBuilder } from "../../../../test/helpers/routerDecorator"
 import { PaymentList } from "./PaymentList"
 
 const meta = {
@@ -11,9 +9,7 @@ const meta = {
   component: PaymentList,
   parameters: {},
   tags: ["autodocs"],
-  decorators: [
-    createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder),
-  ],
+  decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
   argTypes: {},
   args: {
     onDeleteSuccess: fn(),

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
+
 import type { TTheme } from "./types"
 
 export function usePreferredTheme() {
@@ -6,8 +7,7 @@ export function usePreferredTheme() {
     const stored = localStorage.getItem("theme") as TTheme | null
     if (stored) return stored
     // システム設定を反映
-    const prefersDark =
-      window?.matchMedia("(prefers-color-scheme: dark)").matches ?? false
+    const prefersDark = window?.matchMedia("(prefers-color-scheme: dark)").matches ?? false
     return prefersDark ? "dark" : "light"
   })
 

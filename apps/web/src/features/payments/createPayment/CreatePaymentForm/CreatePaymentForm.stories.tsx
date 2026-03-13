@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
+
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { CreatePaymentForm } from "./CreatePaymentForm"
 
@@ -49,9 +50,7 @@ export const Fiiled: Story = {
 
       await waitFor(() => {
         // "loading" ラベルの要素が存在しないことを確認
-        expect(
-          within(listbox).queryByLabelText(/loading/),
-        ).not.toBeInTheDocument()
+        expect(within(listbox).queryByLabelText(/loading/)).not.toBeInTheDocument()
       })
 
       const option = await within(listbox).findByRole("option", {
@@ -78,8 +77,6 @@ export const Empty: Story = {
     const submitButton = canvas.getByRole("button", { name: /create/i })
     await userEvent.click(submitButton)
 
-    expect(
-      await canvas.findByText("Amount can not be empty"),
-    ).toBeInTheDocument()
+    expect(await canvas.findByText("Amount can not be empty")).toBeInTheDocument()
   },
 }

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
+
 import { createQueryClient } from "../../../../lib/queryClient"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { CreatePaymentModal } from "./CreatePaymentModal"
@@ -71,9 +72,7 @@ export const ContinuousCreationEnabled: Story = {
 
     const listbox = await body.findByRole("listbox")
     await waitFor(() => {
-      expect(
-        within(listbox).queryByLabelText(/loading/),
-      ).not.toBeInTheDocument()
+      expect(within(listbox).queryByLabelText(/loading/)).not.toBeInTheDocument()
     })
 
     const categoryOption = await within(listbox).findByRole("option", {
@@ -145,9 +144,7 @@ export const ContinuousCreationDisabled: Story = {
 
     const listbox = await body.findByRole("listbox")
     await waitFor(() => {
-      expect(
-        within(listbox).queryByLabelText(/loading/),
-      ).not.toBeInTheDocument()
+      expect(within(listbox).queryByLabelText(/loading/)).not.toBeInTheDocument()
     })
 
     const categoryOption = await within(listbox).findByRole("option", {

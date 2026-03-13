@@ -3,6 +3,7 @@ import { composeStories } from "@storybook/react-vite"
 import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, test, vi } from "vitest"
+
 import * as stories from "./MonthPicker.stories"
 
 const { Default, WithValue } = composeStories(stories)

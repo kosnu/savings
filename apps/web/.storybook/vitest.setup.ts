@@ -1,6 +1,7 @@
 import { setProjectAnnotations } from "@storybook/react-vite"
 import { createClient } from "@supabase/supabase-js"
 import { vi } from "vitest"
+
 import * as projectAnnotations from "./preview"
 
 const supabase = createClient("http://localhost:54321", "test-anon-key")

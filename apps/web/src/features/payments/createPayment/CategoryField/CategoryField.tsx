@@ -1,6 +1,7 @@
 import { Select, Text } from "@radix-ui/themes"
 import { Fragment, memo, Suspense, use, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+
 import { BaseField } from "../../../../components/inputs/BaseField"
 import type { Category } from "../../../../types/category"
 import { useCategories } from "../../../categories/listCategory/useCategories"
@@ -34,19 +35,11 @@ export const CategoryField = memo(function CategoryField({
       ))}
       width="300px"
     >
-      <Select.Root
-        name="category"
-        value={value}
-        onValueChange={(val) => onChange?.(val)}
-      >
+      <Select.Root name="category" value={value} onValueChange={(val) => onChange?.(val)}>
         <Select.Trigger id={id} placeholder="Pick a category" />
         <Select.Content>
-          <ErrorBoundary
-            fallback={<Select.Item value="error">None</Select.Item>}
-          >
-            <Suspense
-              fallback={<Select.Item value="loading">Loading</Select.Item>}
-            >
+          <ErrorBoundary fallback={<Select.Item value="error">None</Select.Item>}>
+            <Suspense fallback={<Select.Item value="loading">Loading</Select.Item>}>
               <CategoryFieldOptions getCategories={promiseCategories} />
             </Suspense>
           </ErrorBoundary>
