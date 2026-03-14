@@ -1,5 +1,9 @@
 import * as z from "zod"
 
+function emptyStringToUndefined(value: unknown) {
+  return value === "" ? undefined : value
+}
+
 function createEnv() {
   const mode = import.meta.env.MODE
 
@@ -9,6 +13,9 @@ function createEnv() {
     FIRESTORE_DATABASE_ID: z.string().default("(default)"),
 
     FIRESTORE_EMULATOR_HOST: z.string().default("localhost:8080"),
+
+    SENTRY_DSN: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
+    SENTRY_ENVIRONMENT: z.preprocess(emptyStringToUndefined, z.string().min(1).optional()),
 
     SUPABASE_URL: z.string().default("http://localhost:54321"),
     SUPABASE_PUBLISHABLE_KEY: z.string().min(1, "VITE_SUPABASE_PUBLISHABLE_KEY is required"),
