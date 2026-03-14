@@ -1,6 +1,14 @@
 {
   "semi": false,
   "trailingComma": "all",
-  "ignorePatterns": [".vscode/**", "generators/**", "public/mockServiceWorker.js"],
+  "ignorePatterns": [
+    ".vscode/**",
+    "coverage/**",
+    "dist/**",
+    "node_modules/**",
+    "storybook-static/**",
+    "generators/**",
+    "public/mockServiceWorker.js"
+  ],
   "sortImports": {}
 }
