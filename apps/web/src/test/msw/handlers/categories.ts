@@ -1,4 +1,5 @@
 import { HttpResponse, http } from "msw"
+
 import type { CategoryRow } from "../../../types/category"
 
 const REST_URL = "*/rest/v1/categories*"

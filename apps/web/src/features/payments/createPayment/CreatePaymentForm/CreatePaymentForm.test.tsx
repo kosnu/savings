@@ -1,6 +1,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
+
 import { CreatePaymentForm } from "./CreatePaymentForm"
 
 const { mockCreatePayment } = vi.hoisted(() => ({
@@ -82,7 +83,6 @@ vi.mock("../AmountField/AmountField", () => ({
         id="amount"
         aria-label="Amount"
         value={value?.toString() ?? ""}
-        // biome-ignore lint/a11y/noAutofocus: This is a test mock
         autoFocus={autoFocus}
         onChange={(e) => {
           const inputValue = e.target.value
@@ -104,21 +104,10 @@ vi.mock("../AmountField/AmountField", () => ({
 }))
 
 vi.mock("../PaymentDateField", () => ({
-  PaymentDateField: ({
-    value,
-    messages,
-  }: {
-    value?: Date
-    messages?: string[]
-  }) => (
+  PaymentDateField: ({ value, messages }: { value?: Date; messages?: string[] }) => (
     <div>
       <label htmlFor="date">Date</label>
-      <input
-        id="date"
-        aria-label="Date"
-        value={value ? value.toISOString() : ""}
-        readOnly
-      />
+      <input id="date" aria-label="Date" value={value ? value.toISOString() : ""} readOnly />
       {messages?.map((message) => (
         <p key={message}>{message}</p>
       ))}

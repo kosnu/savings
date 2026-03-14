@@ -1,6 +1,7 @@
 import { Flex } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useEffect } from "react"
+
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
@@ -162,12 +163,7 @@ export function CreatePaymentForm({
           }}
         </form.Field>
       </Flex>
-      <Flex
-        mt="4"
-        gap="3"
-        align="center"
-        justify={onContinuousModeChange ? "between" : "end"}
-      >
+      <Flex mt="4" gap="3" align="center" justify={onContinuousModeChange ? "between" : "end"}>
         {onContinuousModeChange ? (
           <ContinueCreatingCheckbox
             checked={continuousMode ?? false}

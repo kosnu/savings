@@ -1,6 +1,7 @@
 import { DotsVerticalIcon } from "@radix-ui/react-icons"
 import { DropdownMenu, IconButton } from "@radix-ui/themes"
 import { useCallback } from "react"
+
 import { useDeletePaymentModal } from "../../../features/payments/deletePayment"
 import type { Payment } from "../../../types/payment"
 
@@ -9,10 +10,7 @@ interface ActionMenuButtonProps {
   onDeleteSuccess: () => void
 }
 
-export function ActionMenuButton({
-  payment,
-  onDeleteSuccess,
-}: ActionMenuButtonProps) {
+export function ActionMenuButton({ payment, onDeleteSuccess }: ActionMenuButtonProps) {
   const { open: openDeleteModal, DeletePaymentModal } = useDeletePaymentModal()
 
   const handleDeleteClick = useCallback(() => {

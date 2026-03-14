@@ -11,7 +11,8 @@ React + TypeScript + Vite を使ったシングルページアプリケーショ
 - 言語: TypeScript
 - ビルドツール: Vite
 - テスト: Vitest + Playwright（E2E があれば）
-- リンター／フォーマッタ: Biome（設定ファイルは `biome.json`）
+- リンター: Oxc Oxlint（設定ファイルは `.oxlintrc.json`）
+- フォーマッタ: Oxc Oxfmt（設定ファイルは `.oxfmtrc.json`）
 - バックエンド（認証/DB）: Supabase（ローカル開発は Supabase CLI を使用）
 
 ## ディレクトリ構成（抜粋）
@@ -24,7 +25,8 @@ React + TypeScript + Vite を使ったシングルページアプリケーショ
 - `public/` - 静的アセット
 - `index.html` - Vite エントリ
 - `vite.config.ts` - Vite 設定
-- `biome.json` - リンター／フォーマッタ設定
+- `.oxlintrc.json` - リンター設定
+- `.oxfmtrc.json` - フォーマッタ設定
 - `vitest.config.ts` / `vitest.setup.ts` - テスト設定
 
 （プロジェクトルートや monorepo 構成により一部ファイルは上位にある場合があります。ここでは `apps/web` 内の構成を想定しています。）
@@ -73,10 +75,12 @@ E2E テストや Playwright が設定されている場合は、CI 設定や `pa
 
 ## Lint / 型チェック
 
-Biome（`biome.json`）で lint / format を管理しています。実行例：
+Oxc（`oxlint` / `oxfmt`）で lint / format を管理しています。実行例：
 
 ```bash
 task check
+pnpm lint
+pnpm format
 ```
 
 型チェックは TypeScript の設定に従って `pnpm build` 時や専用スクリプトで実行してください。

@@ -4,10 +4,7 @@ import { useEffect, useState } from "react"
 
 export function useDateRange() {
   const [date, setDate] = useState<Date | null>(null)
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    null,
-    null,
-  ])
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null])
   const { year: yearParam, month: monthParam } = useSearch({
     from: "/authenticated/payments",
   })

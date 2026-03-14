@@ -37,11 +37,7 @@ export function MonthPicker(props: MonthPickerProps) {
   const handleMonthChange = useCallback(
     (month: string) => {
       const year = currentYear || new Date().getFullYear().toString()
-      const newDate = new Date(
-        Number.parseInt(year, 10),
-        Number.parseInt(month, 10) - 1,
-        1,
-      )
+      const newDate = new Date(Number.parseInt(year, 10), Number.parseInt(month, 10) - 1, 1)
       onChange?.(newDate)
     },
     [currentYear, onChange],
@@ -50,11 +46,7 @@ export function MonthPicker(props: MonthPickerProps) {
   const handleYearChange = useCallback(
     (year: string) => {
       const month = currentMonth || (new Date().getMonth() + 1).toString()
-      const newDate = new Date(
-        Number.parseInt(year, 10),
-        Number.parseInt(month, 10) - 1,
-        1,
-      )
+      const newDate = new Date(Number.parseInt(year, 10), Number.parseInt(month, 10) - 1, 1)
       onChange?.(newDate)
     },
     [currentMonth, onChange],
@@ -73,11 +65,7 @@ export function MonthPicker(props: MonthPickerProps) {
         </Select.Content>
       </Select.Root>
       <span>/</span>
-      <Select.Root
-        name={name}
-        value={currentMonth}
-        onValueChange={handleMonthChange}
-      >
+      <Select.Root name={name} value={currentMonth} onValueChange={handleMonthChange}>
         <Select.Trigger aria-label="月" id={id} placeholder="月を選択" />
         <Select.Content>
           {MONTHS.map((month) => (

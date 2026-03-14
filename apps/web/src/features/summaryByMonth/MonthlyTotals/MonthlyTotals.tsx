@@ -1,6 +1,7 @@
 import { Flex, Skeleton, Text } from "@radix-ui/themes"
 import { memo, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+
 import { toCurrency } from "../../../utils/toCurrency"
 import { useTotalExpenditures } from "../useTotalExpenditures"
 
@@ -13,14 +14,8 @@ function MonthlyTotals() {
         Total spending
       </Text>
       <Flex justify="end" align="center">
-        <ErrorBoundary
-          fallback={<Text color="red">An unexpected error has occurred.</Text>}
-        >
-          <Suspense
-            fallback={
-              <Skeleton data-testid="skeleton" width="120px" height="28px" />
-            }
-          >
+        <ErrorBoundary fallback={<Text color="red">An unexpected error has occurred.</Text>}>
+          <Suspense fallback={<Skeleton data-testid="skeleton" width="120px" height="28px" />}>
             <MoneyText getValue={promise} />
           </Suspense>
         </ErrorBoundary>
@@ -29,11 +24,7 @@ function MonthlyTotals() {
   )
 }
 
-const MoneyText = memo(function MoneyText({
-  getValue,
-}: {
-  getValue: Promise<number | null>
-}) {
+const MoneyText = memo(function MoneyText({ getValue }: { getValue: Promise<number | null> }) {
   const data = use(getValue)
   const text = data === null ? "-" : toCurrency(data)
 

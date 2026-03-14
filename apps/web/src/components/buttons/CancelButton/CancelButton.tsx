@@ -6,10 +6,7 @@ interface CancelButtonProps {
   onClick?: MouseEventHandler<HTMLButtonElement> | undefined
 }
 
-export function CancelButton({
-  children = "Cancel",
-  onClick,
-}: CancelButtonProps) {
+export function CancelButton({ children = "Cancel", onClick }: CancelButtonProps) {
   return (
     <Button type="button" variant="soft" color="gray" onClick={onClick}>
       {children}

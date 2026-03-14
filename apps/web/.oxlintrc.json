@@ -1,0 +1,25 @@
+{
+  "plugins": ["react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "react/no-array-index-key": "error",
+    "jsx_a11y/label-has-associated-control": "error",
+    "jsx_a11y/no-autofocus": "off",
+    "eslint/eqeqeq": "error",
+    "typescript/prefer-nullish-coalescing": "error",
+    "typescript/prefer-optional-chain": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/prefer-ts-expect-error": "error"
+  },
+  "settings": {
+    "jsx-a11y": {
+      "components": {
+        "TextField.Root": "input",
+        "DayPicker": "input"
+      }
+    }
+  },
+  "ignorePatterns": [".vscode/**", "generators/**", "public/mockServiceWorker.js"]
+}

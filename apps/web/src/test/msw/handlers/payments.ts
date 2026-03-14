@@ -1,4 +1,5 @@
 import { HttpResponse, http } from "msw"
+
 import type { PaymentRow } from "../../../types/payment"
 
 const EDGE_FUNCTION_URL = "*/functions/v1/payments"
@@ -52,12 +53,8 @@ export const paymentHandlers = [
     const url = new URL(request.url)
     const dateFilters = url.searchParams.getAll("date")
 
-    const from = dateFilters
-      .find((value) => value.startsWith("gte."))
-      ?.replace("gte.", "")
-    const to = dateFilters
-      .find((value) => value.startsWith("lte."))
-      ?.replace("lte.", "")
+    const from = dateFilters.find((value) => value.startsWith("gte."))?.replace("gte.", "")
+    const to = dateFilters.find((value) => value.startsWith("lte."))?.replace("lte.", "")
 
     const filteredRows = paymentRows.filter((row) => {
       if (from && row.date < from) {
@@ -86,7 +83,10 @@ export const paymentHandlers = [
       date: body.date as string,
       created_at: now,
       updated_at: now,
-      category_id: body.category_id != null ? Number(body.category_id) : null,
+      category_id:
+        body.category_id !== null && body.category_id !== undefined
+          ? Number(body.category_id)
+          : null,
       user_id: 100,
     }
     return HttpResponse.json([newRow], { status: 201 })

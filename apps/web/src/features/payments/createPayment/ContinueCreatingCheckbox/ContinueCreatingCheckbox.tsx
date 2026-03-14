@@ -18,9 +18,7 @@ export function ContinueCreatingCheckbox({
         <Checkbox
           id={checkboxId}
           checked={checked}
-          onCheckedChange={(nextChecked) =>
-            onCheckedChange(nextChecked === true)
-          }
+          onCheckedChange={(nextChecked) => onCheckedChange(nextChecked === true)}
         />
         Continue creating
       </Flex>

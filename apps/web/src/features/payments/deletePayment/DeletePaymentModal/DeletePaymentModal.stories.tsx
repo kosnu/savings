@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn, userEvent } from "storybook/test"
+
 import { longPayment, payments } from "../../../../test/data/payments"
 import { DeletePaymentModal } from "./DeletePaymentModal"
 

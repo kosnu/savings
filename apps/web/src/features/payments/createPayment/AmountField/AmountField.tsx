@@ -1,5 +1,6 @@
 import { Text, TextField } from "@radix-ui/themes"
 import { Fragment, useId } from "react"
+
 import { BaseField } from "../../../../components/inputs/BaseField"
 
 interface AmountFieldProps {
@@ -10,13 +11,7 @@ interface AmountFieldProps {
   autoFocus?: boolean
 }
 
-export function AmountField({
-  error,
-  messages,
-  value,
-  onChange,
-  autoFocus,
-}: AmountFieldProps) {
+export function AmountField({ error, messages, value, onChange, autoFocus }: AmountFieldProps) {
   const id = useId()
 
   return (

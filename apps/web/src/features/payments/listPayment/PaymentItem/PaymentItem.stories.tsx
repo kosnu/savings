@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
 import { expect, fn } from "storybook/test"
+
 import { foodCat } from "../../../../test/data/categories"
 import { payments } from "../../../../test/data/payments"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
@@ -37,8 +38,6 @@ export const Default: Story = {
     expect(canvas.getByText(title)).toBeInTheDocument()
     expect(canvas.getByText(date)).toBeInTheDocument()
     expect(canvas.getByText(price)).toBeInTheDocument()
-    expect(
-      canvas.getByRole("button", { name: "Payment actions" }),
-    ).toBeInTheDocument()
+    expect(canvas.getByRole("button", { name: "Payment actions" })).toBeInTheDocument()
   },
 }

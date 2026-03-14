@@ -3,7 +3,9 @@ import { Button, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
 import { Link, useNavigate } from "@tanstack/react-router"
 import type { ReactNode } from "react"
 import { useCallback } from "react"
+
 import { getSupabaseClient } from "../../lib/supabase"
+
 import styles from "./Sidebar.module.css"
 
 interface SidebarProps {
@@ -29,13 +31,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
   return (
     <aside data-open={open} className={styles.sidebar}>
       {/* Sidebar Header */}
-      <Flex
-        className={styles.sidebarHeader}
-        p="4"
-        justify="between"
-        align="center"
-        gap="4"
-      >
+      <Flex className={styles.sidebarHeader} p="4" justify="between" align="center" gap="4">
         <Link to="/" className={styles.link}>
           <Button className={styles.sidebarButton} variant="ghost" size="3">
             <Text size="3" weight="bold">

@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import {
-  createStoryRouter,
-  paymentsRouteBuilder,
-} from "../../../test/helpers/routerDecorator"
+
+import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
 import { MonthSelector } from "./MonthSelector"
 
 const meta = {
@@ -19,9 +17,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  decorators: [
-    createStoryRouter("/payments?year=2025&month=5", paymentsRouteBuilder),
-  ],
+  decorators: [createStoryRouter("/payments?year=2025&month=5", paymentsRouteBuilder)],
 }
 
 export const WithoutQueryParams: Story = {
