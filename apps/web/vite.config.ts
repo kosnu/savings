@@ -6,9 +6,9 @@ import { defineConfig, loadEnv } from "vite"
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const buildEnv = loadEnv(mode, process.cwd(), "")
-  const sentryEnabled = Boolean(
-    buildEnv.SENTRY_AUTH_TOKEN && buildEnv.SENTRY_ORG && buildEnv.SENTRY_PROJECT,
-  )
+  const sentryEnabled =
+    mode === "production" &&
+    Boolean(buildEnv.SENTRY_AUTH_TOKEN && buildEnv.SENTRY_ORG && buildEnv.SENTRY_PROJECT)
 
   return {
     plugins: [
@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
               authToken: buildEnv.SENTRY_AUTH_TOKEN,
               org: buildEnv.SENTRY_ORG,
               project: buildEnv.SENTRY_PROJECT,
+              sourcemaps: {
+                filesToDeleteAfterUpload: ["./dist/**/*.js.map", "./dist/**/*.css.map"],
+              },
             }),
           ]
         : []),
