@@ -111,7 +111,18 @@ Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy.yaml`)
 
 ## 環境変数
 
-Supabase の接続情報は環境変数で管理します。主な変数は `VITE_SUPABASE_URL` と `VITE_SUPABASE_PUBLISHABLE_KEY` です。ローカルでは `.env` / `.env.local`（Vite の仕様）を使用しますが、サンプルとして `.env.example` を用意しているか確認してください。
+Supabase の接続情報は環境変数で管理します。主な変数は `VITE_SUPABASE_URL` と `VITE_SUPABASE_PUBLISHABLE_KEY` です。ローカルでは `.env` / `.env.local`（Vite の仕様）を使用し、サンプルは `apps/web/.env.sample` を参照します。
+
+Sentry を使う場合は、フロントエンド実行時に次の変数を設定します。
+
+- `VITE_SENTRY_DSN` - ブラウザ SDK がエラー送信に使う DSN。本番でのみ利用され、未設定なら初期化しません。
+- `VITE_SENTRY_ENVIRONMENT` - Sentry 上での environment 名。未設定時は `production` / `development` / `test` の Vite mode を使います。
+
+source map をアップロードするデプロイ環境では、GitHub Actions の secrets として次も必要です。本番 build でのみ Sentry plugin を有効化し、アップロード後の source map は公開物から削除します。
+
+- `SENTRY_AUTH_TOKEN`
+- `SENTRY_ORG`
+- `SENTRY_PROJECT`
 
 ## 関連スクリプト・リポジトリ部分
 
