@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+
 import type { Category } from "../../../types/category"
 import { fetchCategories } from "./fetchCategories"
 

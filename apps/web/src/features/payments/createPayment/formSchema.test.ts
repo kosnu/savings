@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest"
 import z from "zod"
+
 import { formSchema, submitFormSchema } from "./formSchema"
 
 describe("formSchema", () => {
@@ -57,8 +58,7 @@ describe("formSchema", () => {
       const result = formSchema.safeParse({ ...data, date: "hoge" })
       expect(result.success).toBe(false)
 
-      const error =
-        result.error && z.flattenError(result.error).fieldErrors.date
+      const error = result.error && z.flattenError(result.error).fieldErrors.date
       expect(error).toEqual(["Date is invalid"])
     }
   })
@@ -74,32 +74,28 @@ describe("formSchema", () => {
   test("should fail when amount is invalid", () => {
     const result = formSchema.safeParse({ ...data, amount: "invalid" })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount must be a number"])
   })
 
   test("should fail when amount is empty", () => {
     const result = formSchema.safeParse({ ...data, amount: "" })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount can not be empty"])
   })
 
   test("should fail when amount is negative", () => {
     const result = formSchema.safeParse({ ...data, amount: -1 })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount must be a non-negative integer"])
   })
 
   test("should fail when amount is decimal", () => {
     const result = formSchema.safeParse({ ...data, amount: 10.5 })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount must be an integer"])
   })
 })
@@ -139,40 +135,35 @@ describe("submitFormSchema", () => {
   test("should fail when amount is empty", () => {
     const result = submitFormSchema.safeParse({ ...data, amount: undefined })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount can not be empty"])
   })
 
   test("should fail when amount is empty string", () => {
     const result = submitFormSchema.safeParse({ ...data, amount: "" })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount can not be empty"])
   })
 
   test("should fail when amount is invalid", () => {
     const result = submitFormSchema.safeParse({ ...data, amount: "invalid" })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount must be a number"])
   })
 
   test("should fail when amount is negative", () => {
     const result = submitFormSchema.safeParse({ ...data, amount: -1 })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount must be a non-negative integer"])
   })
 
   test("should fail when amount is decimal", () => {
     const result = submitFormSchema.safeParse({ ...data, amount: 10.5 })
     expect(result.success).toBe(false)
-    const error =
-      result.error && z.flattenError(result.error).fieldErrors.amount
+    const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount must be an integer"])
   })
 })

@@ -10,7 +10,7 @@ tasks:
     cmd: task -l
   check:
     desc: Run linting and format checks
-    cmd: pnpm check-write
+    cmd: pnpm lint --deny-warnings && pnpm format --check
   test:
     desc: Run tests
     cmd: pnpm test -- --silent --reporter=dot {{.CLI_ARGS}}

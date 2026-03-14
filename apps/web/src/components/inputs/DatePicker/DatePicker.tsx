@@ -3,6 +3,7 @@ import { Popover, TextField } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import { ja } from "react-day-picker/locale"
+
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
 import "react-day-picker/style.css"
@@ -58,10 +59,7 @@ export function DatePicker(props: DatePickerProps) {
             </TextField.Root>
           </div>
         </Popover.Trigger>
-        <Popover.Content
-          onFocusOutside={handleFocusOut}
-          onEscapeKeyDown={handleEscapeKeyDown}
-        >
+        <Popover.Content onFocusOutside={handleFocusOut} onEscapeKeyDown={handleEscapeKeyDown}>
           <DayPicker
             {...restProps}
             locale={ja}

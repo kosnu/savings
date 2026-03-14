@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
+
 import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
 import { fetchCategories } from "./fetchCategories"
 

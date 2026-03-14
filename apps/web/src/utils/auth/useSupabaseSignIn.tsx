@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect } from "react"
+
 import { paths } from "../../config/paths"
 import { getSupabaseClient } from "../../lib/supabase"
 
@@ -46,11 +47,9 @@ export function useSupabaseSignIn(): UseSupabaseSignIn {
         console.error("Failed to get supabase session:", error)
       })
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        handleSession(Boolean(session))
-      },
-    )
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleSession(Boolean(session))
+    })
 
     return () => {
       isActive = false

@@ -10,10 +10,7 @@ export function toCategoryMap(categories: Category[]): Map<number, Category> {
   }, new Map<number, Category>())
 }
 
-export function getCategoryStrict(
-  map: Map<number, Category>,
-  id: number | null,
-): Category {
+export function getCategoryStrict(map: Map<number, Category>, id: number | null): Category {
   if (id === null) return unknownCategory
   const category = map.get(id) ?? unknownCategory
 

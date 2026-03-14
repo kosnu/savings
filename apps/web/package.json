@@ -1,17 +1,14 @@
 {
   "name": "savings",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
-  "engines": {
-    "node": "24.14.0"
-  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "check": "biome check src/",
-    "check-write": "biome check --write . ",
+    "lint": "oxlint --config .oxlintrc.json .",
+    "format": "oxfmt --config .oxfmtrc.json .",
     "test": "vitest run",
     "test-watch": "vitest watch",
     "storybook": "storybook dev -p 6006",
@@ -39,7 +36,6 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.6",
     "@chromatic-com/storybook": "5.0.1",
     "@storybook/addon-docs": "10.2.15",
     "@storybook/addon-onboarding": "10.2.15",
@@ -58,6 +54,8 @@
     "@vitest/coverage-v8": "4.0.18",
     "jsdom": "28.1.0",
     "msw": "2.12.10",
+    "oxfmt": "0.40.0",
+    "oxlint": "1.55.0",
     "playwright": "1.58.2",
     "plop": "4.0.5",
     "storybook": "10.2.15",
@@ -65,6 +63,9 @@
     "typescript": "5.9.3",
     "vite": "7.3.1",
     "vitest": "4.0.18"
+  },
+  "engines": {
+    "node": "24.14.0"
   },
   "msw": {
     "workerDirectory": [

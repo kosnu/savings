@@ -1,5 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { ReactNode } from "react"
+
 import { createQueryClient } from "../lib/queryClient"
 import { SnackbarProvider } from "../providers/snackbar"
 import { SupabaseSessionProvider } from "../providers/supabase"

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
 import { expect, userEvent, within } from "storybook/test"
+
 import { MonthPicker } from "./MonthPicker"
 
 const meta = {
@@ -12,9 +13,7 @@ const meta = {
   },
   tags: ["autodocs"],
   render: (args) => {
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-      args.value,
-    )
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(args.value)
 
     return (
       <MonthPicker

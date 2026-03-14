@@ -2,6 +2,7 @@ import { Cross1Icon } from "@radix-ui/react-icons"
 import * as Toast from "@radix-ui/react-toast"
 import { IconButton } from "@radix-ui/themes"
 import { type ReactNode, useCallback, useEffect, useRef } from "react"
+
 import styles from "./Snackbar.module.css"
 
 type SnackbarType = "info" | "success" | "warning" | "error"
@@ -58,9 +59,7 @@ export function Snackbar({
         data-accent-color={accentColorMap[type].color}
         open={open}
       >
-        <Toast.Description className={styles.toastDescription}>
-          {message}
-        </Toast.Description>
+        <Toast.Description className={styles.toastDescription}>{message}</Toast.Description>
         <Toast.Action
           asChild
           className={styles.toastAction}

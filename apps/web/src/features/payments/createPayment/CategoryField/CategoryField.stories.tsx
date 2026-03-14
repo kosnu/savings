@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, userEvent, waitFor, within } from "storybook/test"
-import {
-  createStoryRouter,
-  paymentsRouteBuilder,
-} from "../../../../test/helpers/routerDecorator"
+
+import { createStoryRouter, paymentsRouteBuilder } from "../../../../test/helpers/routerDecorator"
 import { CategoryField } from "./CategoryField"
 
 const meta = {
@@ -15,9 +13,7 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {},
   args: {},
-  decorators: [
-    createStoryRouter("/payments?year=2025&month=04", paymentsRouteBuilder),
-  ],
+  decorators: [createStoryRouter("/payments?year=2025&month=04", paymentsRouteBuilder)],
 } satisfies Meta<typeof CategoryField>
 
 export default meta
@@ -39,9 +35,7 @@ export const Filled: Story = {
 
     await waitFor(() => {
       // "loading" ラベルの要素が存在しないことを確認
-      expect(
-        within(listbox).queryByLabelText(/loading/),
-      ).not.toBeInTheDocument()
+      expect(within(listbox).queryByLabelText(/loading/)).not.toBeInTheDocument()
     })
 
     const option = await within(listbox).findByRole("option", {

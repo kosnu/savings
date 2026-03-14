@@ -2,17 +2,12 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDownIcon } from "@radix-ui/react-icons"
 import { Reset } from "@radix-ui/themes"
 import type * as React from "react"
+
 import styles from "./Accordion.module.css"
 
-function Accordion({
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Root>) {
+function Accordion({ ...props }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
   return (
-    <AccordionPrimitive.Root
-      data-slot="accordion"
-      className={styles.accordionRoot}
-      {...props}
-    />
+    <AccordionPrimitive.Root data-slot="accordion" className={styles.accordionRoot} {...props} />
   )
 }
 
