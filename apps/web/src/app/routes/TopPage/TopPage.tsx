@@ -6,7 +6,6 @@ import { Paper } from "../../../components/misc/Paper"
 export function TopPage() {
   return (
     <>
-      {/* TODO: ログインしていたらダッシュボードを表示する */}
       <Container size="2">
         <Paper>
           <Flex direction="column" gap="3">
