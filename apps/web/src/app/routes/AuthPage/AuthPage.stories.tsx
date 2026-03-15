@@ -27,8 +27,8 @@ export const WithAuthError: Story = {
 function createAuthPageRouter(initialEntry: string): Decorator {
   const decorateWithRouter = createStoryRouter(initialEntry)
 
-  return (Story) => {
+  return (Story, context) => {
     window.history.replaceState({}, "", initialEntry)
-    return decorateWithRouter(Story)
+    return decorateWithRouter(Story, context)
   }
 }
