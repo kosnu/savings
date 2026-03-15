@@ -27,6 +27,12 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: TopPage,
+  beforeLoad: ({ context }) => {
+    if (context.supabaseLoading) return
+    if (context.supabaseSession) {
+      throw redirect({ to: "/payments" })
+    }
+  },
 })
 
 const authRoute = createRoute({
