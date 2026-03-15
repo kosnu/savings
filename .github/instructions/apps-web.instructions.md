@@ -6,7 +6,7 @@ applyTo: "apps/web/**"
 
 ## Rules
 
-- Use Taskfile commands: `task check` / `task test` (run from `apps/web/`).
+- Use Taskfile command: `task verify` (run from `apps/web/`).
 - Use `pnpm install` from the repository root for installing/updating dependencies.
 - Generate new components with `pnpm --dir apps/web plop` when possible.
 

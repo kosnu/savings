@@ -8,18 +8,34 @@ tasks:
       - list
     desc: List all tasks
     cmd: task -l
-  check:
-    desc: Run linting and format checks
-    cmd: pnpm lint --deny-warnings && pnpm format --check
-  test:
-    desc: Run tests
-    cmd: pnpm test -- --silent --reporter=dot {{.CLI_ARGS}}
   dev:
     desc: Start development server
     cmd: pnpm dev -- {{.CLI_ARGS}}
-  build:
-    desc: Build the application for production
-    cmd: pnpm build -- {{.CLI_ARGS}}
   storybook:
     desc: Start Storybook for UI component development
     cmd: pnpm storybook -- {{.CLI_ARGS}}
+  format:
+    desc: Format files
+    cmd: pnpm format
+  format-check:
+    desc: Run format checks
+    cmd: pnpm format --check
+  lint:
+    desc: Run lint checks
+    cmd: pnpm lint --deny-warnings
+  typecheck:
+    desc: Run TypeScript type checks
+    cmd: pnpm typecheck
+  test:
+    desc: Run tests
+    cmd: pnpm test -- --silent --reporter=dot {{.CLI_ARGS}}
+  verify:
+    desc: Run all verification tasks
+    deps:
+      - lint
+      - format-check
+      - typecheck
+      - test
+  build:
+    desc: Build the application for production
+    cmd: pnpm build -- {{.CLI_ARGS}}
