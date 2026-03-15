@@ -21,7 +21,6 @@ export function captureAuthCallbackError(error: AuthCallbackError) {
     scope.setTag("feature", "auth")
     scope.setContext("auth_callback_error", {
       code: error.code,
-      description: error.description,
     })
 
     Sentry.captureMessage("Authentication callback failed", "error")
