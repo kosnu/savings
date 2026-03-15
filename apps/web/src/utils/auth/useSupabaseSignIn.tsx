@@ -17,7 +17,7 @@ export function useSupabaseSignIn(): UseSupabaseSignIn {
       provider: "google",
       options: {
         // NOTE: Supabase のダッシュボードで設定したリダイレクト URL に一致させる必要があります
-        redirectTo: `${window.location.origin}${paths.payments.getHref()}`,
+        redirectTo: `${window.location.origin}${paths.auth.getHref()}`,
       },
     })
 
