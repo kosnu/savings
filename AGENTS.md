@@ -27,4 +27,4 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 After making changes, run the corresponding commands from the repository root:
 
-- **Web** (`apps/web/`): `task web:check && task web:test`
+- **Web** (`apps/web/`): `task web:verify`
