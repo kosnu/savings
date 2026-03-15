@@ -9,7 +9,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   optimizeDeps: {
-    include: ["react/jsx-dev-runtime"],
+    include: ["react/jsx-dev-runtime", "@sentry/react"],
   },
   test: {
     globalSetup: ["./src/test/globalSetup.ts"],
