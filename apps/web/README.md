@@ -78,12 +78,17 @@ E2E テストや Playwright が設定されている場合は、CI 設定や `pa
 Oxc（`oxlint` / `oxfmt`）で lint / format を管理しています。実行例：
 
 ```bash
-task check
+task lint
+task format
+task format-check
+task typecheck
 pnpm lint
 pnpm format
 ```
 
-型チェックは TypeScript の設定に従って `pnpm build` 時や専用スクリプトで実行してください。
+まとめて確認したい場合は `task verify` で lint、format check、typecheck、test を並列実行できます。
+型チェックは `task typecheck` で明示的に実行できます。`task build` でも `tsc -b` を通るため、ビルド時にも型チェックされます。
+`pnpm typecheck` を直接実行しても同じチェックが走ります。
 
 ## Supabase ローカル開発（Auth / DB を使う場合）
 
