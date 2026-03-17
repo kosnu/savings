@@ -1,6 +1,7 @@
 packages:
   - apps/*
 onlyBuiltDependencies:
+  - '@sentry/cli'
   - esbuild
   - msw
   - supabase
