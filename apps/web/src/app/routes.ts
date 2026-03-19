@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router"
 
 import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
+import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
@@ -15,30 +16,34 @@ import { PaymentsPage } from "./routes/PaymentsPage"
 import { TopPage } from "./routes/TopPage"
 
 export interface RouterContext {
+  authStatus: AuthStatus
   supabaseSession: Session | null
-  supabaseLoading: boolean
 }
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   errorComponent: ErrorPage,
 })
 
+// 認証済みユーザーを /payments へリダイレクトするガード
+function redirectIfAuthenticated({ context }: { context: RouterContext }) {
+  if (context.authStatus === "loading") return
+  if (context.authStatus === "authenticated") {
+    throw redirect({ to: "/payments" })
+  }
+}
+
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: TopPage,
-  beforeLoad: ({ context }) => {
-    if (context.supabaseLoading) return
-    if (context.supabaseSession) {
-      throw redirect({ to: "/payments" })
-    }
-  },
+  beforeLoad: redirectIfAuthenticated,
 })
 
 const authRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/auth",
   component: AuthPage,
+  beforeLoad: redirectIfAuthenticated,
 })
 
 const authenticatedRoute = createRoute({
@@ -46,8 +51,8 @@ const authenticatedRoute = createRoute({
   id: "authenticated",
   component: AppLayout,
   beforeLoad: ({ context }) => {
-    if (context.supabaseLoading) return
-    if (!context.supabaseSession) {
+    if (context.authStatus === "loading") return
+    if (context.authStatus !== "authenticated") {
       throw redirect({ to: "/" })
     }
   },
@@ -75,8 +80,8 @@ const routeTree = rootRoute.addChildren([
 export const router = createRouter({
   routeTree,
   context: {
+    authStatus: "loading",
     supabaseSession: null,
-    supabaseLoading: true,
   },
 })
 
