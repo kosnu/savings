@@ -5,11 +5,11 @@ import { useSupabaseSession } from "../providers/supabase"
 import { router } from "./routes"
 
 export function Router() {
-  const { session: supabaseSession, loading: supabaseLoading } = useSupabaseSession()
+  const { session: supabaseSession, status: authStatus } = useSupabaseSession()
 
   useEffect(() => {
     void router.invalidate()
-  }, [supabaseLoading, supabaseSession])
+  }, [authStatus, supabaseSession])
 
-  return <RouterProvider router={router} context={{ supabaseSession, supabaseLoading }} />
+  return <RouterProvider router={router} context={{ supabaseSession, authStatus }} />
 }

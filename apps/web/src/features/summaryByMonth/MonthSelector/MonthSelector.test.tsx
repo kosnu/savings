@@ -14,8 +14,8 @@ import { paymentsSearchSchema } from "../../payments/listPayment/paymentsSearchS
 import { MonthSelector } from "./MonthSelector"
 
 const mockSessionState: SupabaseSessionState = {
+  status: "authenticated",
   session: mockSession(),
-  loading: false,
 }
 
 function renderWithRouter(initialEntry: string) {
