@@ -25,6 +25,11 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 ## Verification
 
-After making changes, run the corresponding commands from the repository root:
+Run verification commands from the repository root
+only when the change includes application code
+that can affect runtime behavior, build output, or type safety.
+
+Documentation-only changes or other non-application changes
+do not require verification.
 
 - **Web** (`apps/web/`): `task web:verify`
