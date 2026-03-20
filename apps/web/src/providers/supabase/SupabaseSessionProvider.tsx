@@ -1,6 +1,7 @@
 import type { Session } from "@supabase/supabase-js"
 import { createContext, type ReactNode, useEffect, useState } from "react"
 
+import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 
 export type AuthStatus = "loading" | "unauthenticated" | "authenticated"
@@ -25,14 +26,25 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
   useEffect(() => {
     const supabase = getSupabaseClient()
 
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (error) {
-        console.error("Failed to get supabase session:", error)
-        setState({ status: "unauthenticated", session: null })
-        return
-      }
-      setState(toSupabaseSessionState(data.session))
-    })
+    const handleSessionError = (error: unknown) => {
+      captureSupabaseSessionError(error)
+      setState((currentState) =>
+        currentState.status === "loading"
+          ? { status: "unauthenticated", session: null }
+          : currentState,
+      )
+    }
+
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (error) {
+          handleSessionError(error)
+          return
+        }
+        setState(toSupabaseSessionState(data.session))
+      })
+      .catch(handleSessionError)
 
     const {
       data: { subscription },
