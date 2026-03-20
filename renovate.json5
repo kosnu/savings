@@ -36,5 +36,14 @@
       automerge: true,
       automergeType: 'pr',
     },
+    {
+      matchDatasources: [
+        'github-digest',
+      ],
+      matchManagers: [
+        'github-actions',
+      ],
+      minimumReleaseAge: null,
+    },
   ],
 }
