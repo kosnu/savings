@@ -13,12 +13,6 @@
   },
   packageRules: [
     {
-      matchDatasources: [
-        'github-digest',
-      ],
-      minimumReleaseAge: null,
-    },
-    {
       matchDepTypes: [
         'dependencies',
       ],
@@ -41,6 +35,15 @@
       ],
       automerge: true,
       automergeType: 'pr',
+    },
+    {
+      matchDatasources: [
+        'github-digest',
+      ],
+      matchManagers: [
+        'github-actions',
+      ],
+      minimumReleaseAge: null,
     },
   ],
 }
