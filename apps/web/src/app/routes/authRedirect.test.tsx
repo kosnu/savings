@@ -11,6 +11,7 @@ import { render, waitFor } from "@testing-library/react"
 import { useEffect } from "react"
 import { describe, expect, test, vi } from "vitest"
 
+import type { AuthStatus } from "../../providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../../providers/theme/ThemeProvider"
 import { mockSession } from "../../test/data/supabaseSession"
 
@@ -23,29 +24,33 @@ vi.mock("../../lib/supabase", () => ({
 }))
 
 interface TestRouterContext {
+  authStatus: AuthStatus
   supabaseSession: Session | null
-  supabaseLoading: boolean
 }
 
 function createRedirectTestRouter(initialEntry: string) {
   const rootRoute = createRootRouteWithContext<TestRouterContext>()()
 
+  // 認証済みユーザーを /payments へリダイレクトするガード
+  function redirectIfAuthenticated({ context }: { context: TestRouterContext }) {
+    if (context.authStatus === "loading") return
+    if (context.authStatus === "authenticated") {
+      throw redirect({ to: "/payments" })
+    }
+  }
+
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/",
     component: () => <div>Top</div>,
-    beforeLoad: ({ context }) => {
-      if (context.supabaseLoading) return
-      if (context.supabaseSession) {
-        throw redirect({ to: "/payments" })
-      }
-    },
+    beforeLoad: redirectIfAuthenticated,
   })
 
   const authRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/auth",
     component: () => <div>Auth</div>,
+    beforeLoad: redirectIfAuthenticated,
   })
 
   const authenticatedRoute = createRoute({
@@ -57,8 +62,8 @@ function createRedirectTestRouter(initialEntry: string) {
       </div>
     ),
     beforeLoad: ({ context }) => {
-      if (context.supabaseLoading) return
-      if (!context.supabaseSession) {
+      if (context.authStatus === "loading") return
+      if (context.authStatus !== "authenticated") {
         throw redirect({ to: "/" })
       }
     },
@@ -80,8 +85,8 @@ function createRedirectTestRouter(initialEntry: string) {
       initialEntries: [initialEntry],
     }),
     context: {
+      authStatus: "loading",
       supabaseSession: null,
-      supabaseLoading: true,
     },
   })
 
@@ -91,32 +96,29 @@ function createRedirectTestRouter(initialEntry: string) {
 function TestRouterProvider({
   router,
   session,
-  loading,
+  authStatus,
 }: {
   router: ReturnType<typeof createRedirectTestRouter>
   session: Session | null
-  loading: boolean
+  authStatus: AuthStatus
 }) {
   useEffect(() => {
     void router.invalidate()
-  }, [router, loading, session])
+  }, [router, authStatus, session])
 
   return (
     <ThemeProvider>
-      <RouterProvider
-        router={router}
-        context={{ supabaseSession: session, supabaseLoading: loading }}
-      />
+      <RouterProvider router={router} context={{ supabaseSession: session, authStatus }} />
     </ThemeProvider>
   )
 }
 
 function renderWithSession(
   router: ReturnType<typeof createRedirectTestRouter>,
-  state: { session: Session | null; loading: boolean },
+  state: { session: Session | null; authStatus: AuthStatus },
 ) {
   return render(
-    <TestRouterProvider router={router} session={state.session} loading={state.loading} />,
+    <TestRouterProvider router={router} session={state.session} authStatus={state.authStatus} />,
   )
 }
 
@@ -126,10 +128,29 @@ describe("route auth redirects", () => {
 
     const view = renderWithSession(router, {
       session: null,
-      loading: true,
+      authStatus: "loading",
     })
 
-    view.rerender(<TestRouterProvider router={router} session={mockSession()} loading={false} />)
+    view.rerender(
+      <TestRouterProvider router={router} session={mockSession()} authStatus="authenticated" />,
+    )
+
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/payments")
+    })
+  })
+
+  test("ログイン済みユーザーはセッション復元後に /auth から /payments へ遷移する", async () => {
+    const router = createRedirectTestRouter("/auth")
+
+    const view = renderWithSession(router, {
+      session: null,
+      authStatus: "loading",
+    })
+
+    view.rerender(
+      <TestRouterProvider router={router} session={mockSession()} authStatus="authenticated" />,
+    )
 
     await waitFor(() => {
       expect(router.state.location.pathname).toBe("/payments")
@@ -141,10 +162,12 @@ describe("route auth redirects", () => {
 
     const view = renderWithSession(router, {
       session: null,
-      loading: true,
+      authStatus: "loading",
     })
 
-    view.rerender(<TestRouterProvider router={router} session={null} loading={false} />)
+    view.rerender(
+      <TestRouterProvider router={router} session={null} authStatus="unauthenticated" />,
+    )
 
     await waitFor(() => {
       expect(router.state.location.pathname).toBe("/")

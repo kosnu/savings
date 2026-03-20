@@ -1,11 +1,14 @@
 import type { Session } from "@supabase/supabase-js"
 import { createContext, type ReactNode, useEffect, useState } from "react"
 
+import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 
+export type AuthStatus = "loading" | "unauthenticated" | "authenticated"
+
 export interface SupabaseSessionState {
+  status: AuthStatus
   session: Session | null
-  loading: boolean
 }
 
 export const SupabaseSessionContext = createContext<SupabaseSessionState | undefined>(undefined)
@@ -16,26 +19,37 @@ interface SupabaseSessionProviderProps {
 
 export function SupabaseSessionProvider({ children }: SupabaseSessionProviderProps) {
   const [state, setState] = useState<SupabaseSessionState>({
+    status: "loading",
     session: null,
-    loading: true,
   })
 
   useEffect(() => {
     const supabase = getSupabaseClient()
 
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (error) {
-        console.error("Failed to get supabase session:", error)
-        setState({ session: null, loading: false })
-        return
-      }
-      setState({ session: data.session, loading: false })
-    })
+    const handleSessionError = (error: unknown) => {
+      captureSupabaseSessionError(error)
+      setState((currentState) =>
+        currentState.status === "loading"
+          ? { status: "unauthenticated", session: null }
+          : currentState,
+      )
+    }
+
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (error) {
+          handleSessionError(error)
+          return
+        }
+        setState(toSupabaseSessionState(data.session))
+      })
+      .catch(handleSessionError)
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState({ session, loading: false })
+      setState(toSupabaseSessionState(session))
     })
 
     return () => {
@@ -44,4 +58,11 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
   }, [])
 
   return <SupabaseSessionContext value={state}>{children}</SupabaseSessionContext>
+}
+
+function toSupabaseSessionState(session: Session | null): SupabaseSessionState {
+  return {
+    status: session ? "authenticated" : "unauthenticated",
+    session,
+  }
 }
