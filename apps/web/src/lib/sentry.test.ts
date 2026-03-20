@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest"
 
-import { captureAuthCallbackError } from "./sentry"
+import { captureAuthCallbackError, captureSupabaseSessionError } from "./sentry"
 
 const { mockCaptureMessage, mockSetContext, mockSetTag, mockWithScope } = vi.hoisted(() => {
   const mockSetContext = vi.fn()
@@ -39,5 +39,18 @@ describe("captureAuthCallbackError", () => {
       code: "unexpected_failure",
     })
     expect(mockCaptureMessage).toHaveBeenCalledWith("Authentication callback failed", "error")
+  })
+})
+
+describe("captureSupabaseSessionError", () => {
+  test("Sentry にセッション取得失敗を送る", () => {
+    captureSupabaseSessionError(new Error("network error"))
+
+    expect(mockSetTag).toHaveBeenCalledWith("feature", "auth")
+    expect(mockSetContext).toHaveBeenCalledWith("supabase_session_error", {
+      name: "Error",
+      message: "network error",
+    })
+    expect(mockCaptureMessage).toHaveBeenCalledWith("Supabase session retrieval failed", "error")
   })
 })

@@ -26,3 +26,15 @@ export function captureAuthCallbackError(error: AuthCallbackError) {
     Sentry.captureMessage("Authentication callback failed", "error")
   })
 }
+
+export function captureSupabaseSessionError(error: unknown) {
+  Sentry.withScope((scope) => {
+    scope.setTag("feature", "auth")
+    scope.setContext("supabase_session_error", {
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : String(error),
+    })
+
+    Sentry.captureMessage("Supabase session retrieval failed", "error")
+  })
+}
