@@ -5,3 +5,5 @@ onlyBuiltDependencies:
   - esbuild
   - msw
   - supabase
+overrides:
+  undici@>=7.0.0 <7.24.0: '^7.24.0'
