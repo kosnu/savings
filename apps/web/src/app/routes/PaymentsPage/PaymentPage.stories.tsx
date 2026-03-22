@@ -44,7 +44,8 @@ export const CreateAndDelete: Story = {
 
     const body = within(canvasElement.ownerDocument.body)
     const dialog = await body.findByRole("dialog", { name: /create payment/i })
-    expect(dialog).toBeInTheDocument()
+    const amountInput = await within(dialog).findByLabelText(/amount/i)
+    expect(amountInput).toBeInTheDocument()
 
     const categorySelect = within(dialog).getByRole("combobox", {
       name: /category/i,
