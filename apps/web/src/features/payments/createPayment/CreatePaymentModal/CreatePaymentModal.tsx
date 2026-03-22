@@ -1,6 +1,7 @@
-import { Button, Dialog } from "@radix-ui/themes"
+import { Button } from "@radix-ui/themes"
 import { useCallback, useRef, useState } from "react"
 
+import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import { useDialog } from "../../../../utils/useDialog"
 import { CreatePaymentForm } from "../CreatePaymentForm"
 
@@ -9,7 +10,7 @@ interface CreatePaymentModalProps {
 }
 
 export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
-  const { open, openDialog, closeDialog } = useDialog()
+  const { open, closeDialog, onOpenChange } = useDialog()
   const [continuousMode, setContinuousMode] = useState(false)
   const formResetRef = useRef<(() => void) | null>(null)
 
@@ -38,22 +39,22 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
   }, [closeDialog])
 
   return (
-    <Dialog.Root open={open}>
-      <Button onClick={openDialog}>Create payment</Button>
-      <Dialog.Content>
-        <Dialog.Title>Create payment</Dialog.Title>
-        <Dialog.Description size="2" mb="4">
-          Create a new payment. Please fill in the details below.
-        </Dialog.Description>
-        <CreatePaymentForm
-          onSuccess={handleSuccess}
-          onError={handleError}
-          onCancel={handleCancel}
-          onResetReady={handleResetReady}
-          continuousMode={continuousMode}
-          onContinuousModeChange={setContinuousMode}
-        />
-      </Dialog.Content>
-    </Dialog.Root>
+    <ResponsiveOverlay
+      open={open}
+      onOpenChange={onOpenChange}
+      dismissible={false}
+      trigger={<Button>Create payment</Button>}
+      title="Create payment"
+      description="Create a new payment. Please fill in the details below."
+    >
+      <CreatePaymentForm
+        onSuccess={handleSuccess}
+        onError={handleError}
+        onCancel={handleCancel}
+        onResetReady={handleResetReady}
+        continuousMode={continuousMode}
+        onContinuousModeChange={setContinuousMode}
+      />
+    </ResponsiveOverlay>
   )
 }
