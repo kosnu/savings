@@ -1,6 +1,6 @@
 import { Cross1Icon } from "@radix-ui/react-icons"
 import { Dialog, IconButton } from "@radix-ui/themes"
-import type { CSSProperties, ReactNode } from "react"
+import type { CSSProperties, ReactElement, ReactNode } from "react"
 
 import { useMediaQuery } from "../../../utils/useMediaQuery"
 import { MOBILE_OVERLAY_MEDIA_QUERY } from "../constants"
@@ -10,7 +10,9 @@ import styles from "./ResponsiveOverlay.module.css"
 interface ResponsiveOverlayProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  trigger?: ReactNode
+  // Dialog.Trigger には props / ref を受け取れる単一要素を渡す。
+  // Fragment や複数要素、props を透過しない要素は想定しない。
+  trigger?: ReactElement
   title: string
   description?: ReactNode
   children: ReactNode

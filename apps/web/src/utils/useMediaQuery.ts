@@ -1,13 +1,17 @@
 import { useMemo, useSyncExternalStore } from "react"
 
 function createMediaQueryStore(query: string) {
+  const mediaQueryList =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(query)
+      : null
+
   return {
     subscribe: (callback: () => void) => {
-      if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      if (!mediaQueryList) {
         return () => {}
       }
 
-      const mediaQueryList = window.matchMedia(query)
       mediaQueryList.addEventListener("change", callback)
 
       return () => {
@@ -15,11 +19,11 @@ function createMediaQueryStore(query: string) {
       }
     },
     getSnapshot: () => {
-      if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      if (!mediaQueryList) {
         return false
       }
 
-      return window.matchMedia(query).matches
+      return mediaQueryList.matches
     },
     getServerSnapshot: () => false,
   }
