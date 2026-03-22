@@ -15,7 +15,7 @@ function MonthlyTotals() {
       </Text>
       <Flex justify="end" align="center">
         <ErrorBoundary fallback={<Text color="red">An unexpected error has occurred.</Text>}>
-          <Suspense fallback={<Skeleton data-testid="skeleton" width="120px" height="28px" />}>
+          <Suspense fallback={<MoneyText loading />}>
             <MoneyText getValue={promise} />
           </Suspense>
         </ErrorBoundary>
@@ -24,16 +24,41 @@ function MonthlyTotals() {
   )
 }
 
-const MoneyText = memo(function MoneyText({ getValue }: { getValue: Promise<number | null> }) {
-  const data = use(getValue)
-  const text = data === null ? "-" : toCurrency(data)
+interface MoneyTextProps {
+  getValue?: Promise<number | null>
+  loading?: boolean
+}
+
+const MoneyText = memo(function MoneyText({ getValue, loading = false }: MoneyTextProps) {
+  const data = getValue ? use(getValue) : null
+  const text = getMoneyText(data, loading)
 
   return (
-    <Text align="right" size="6" weight="bold">
-      {text}
-    </Text>
+    <Skeleton loading={loading} data-testid={loading ? "skeleton" : undefined}>
+      <Text
+        align="right"
+        size="6"
+        weight="bold"
+        style={{ display: "inline-block", minWidth: "10ch" }}
+        aria-hidden={loading}
+      >
+        {text}
+      </Text>
+    </Skeleton>
   )
 })
+
+function getMoneyText(data: number | null, loading: boolean): string {
+  if (loading) {
+    return "\u00A0"
+  }
+
+  if (data === null) {
+    return "-"
+  }
+
+  return toCurrency(data)
+}
 
 const MemoisedMonthlyTotals = memo(MonthlyTotals)
 
