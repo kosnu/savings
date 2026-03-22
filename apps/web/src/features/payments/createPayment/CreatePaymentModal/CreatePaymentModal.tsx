@@ -42,6 +42,7 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
     <ResponsiveOverlay
       open={open}
       onOpenChange={onOpenChange}
+      dismissible={false}
       trigger={<Button>Create payment</Button>}
       title="Create payment"
       description="Create a new payment. Please fill in the details below."
