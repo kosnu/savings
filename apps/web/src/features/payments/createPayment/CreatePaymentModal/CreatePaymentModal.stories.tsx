@@ -44,7 +44,9 @@ export const OpenModal: Story = {
     await userEvent.click(openButton)
 
     const body = within(canvasElement.ownerDocument.body)
-    expect(await body.findByRole("dialog")).toBeInTheDocument()
+    const dialog = await body.findByRole("dialog", { name: /create payment/i })
+    expect(dialog).toBeInTheDocument()
+    expect(await within(dialog).findByLabelText(/amount/i)).toBeInTheDocument()
   },
 }
 
@@ -53,21 +55,17 @@ export const ContinuousCreationEnabled: Story = {
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
 
-    // Open the dialog
     const openButton = canvas.getByRole("button", { name: /create payment/i })
     await userEvent.click(openButton)
 
-    // Wait for dialog to appear
-    const dialog = await body.findByRole("dialog")
-    expect(dialog).toBeInTheDocument()
+    const dialog = await body.findByRole("dialog", { name: /create payment/i })
+    await within(dialog).findByLabelText(/amount/i)
 
-    // Enable continuous creation mode
-    const checkbox = body.getByRole("checkbox", { name: /continue creating/i })
+    const checkbox = within(dialog).getByRole("checkbox", { name: /continue creating/i })
     await userEvent.click(checkbox)
     expect(checkbox).toBeChecked()
 
-    // Fill the form - select category
-    const categorySelect = body.getByRole("combobox", { name: /category/i })
+    const categorySelect = within(dialog).getByRole("combobox", { name: /category/i })
     await userEvent.click(categorySelect)
 
     const listbox = await body.findByRole("listbox")
@@ -80,43 +78,43 @@ export const ContinuousCreationEnabled: Story = {
     })
     await userEvent.click(categoryOption)
 
-    // Fill other fields
-    const amountInput = body.getByLabelText(/amount/i)
+    const amountInput = within(dialog).getByLabelText(/amount/i)
     await userEvent.type(amountInput, "1000")
 
-    const noteInput = body.getByLabelText(/note/i)
+    const noteInput = within(dialog).getByLabelText(/note/i)
     await userEvent.type(noteInput, "Test payment")
 
-    // Submit the form
-    const submitButton = body.getByRole("button", {
+    const submitButton = within(dialog).getByRole("button", {
       name: /create/i,
     })
     await userEvent.click(submitButton)
 
-    // Wait for submission to complete and verify dialog remains open
     await waitFor(
       () => {
-        expect(body.queryByRole("dialog")).toBeInTheDocument()
+        expect(
+          within(body.getByRole("dialog", { name: /create payment/i })).getByLabelText(/amount/i),
+        ).toBeInTheDocument()
       },
       { timeout: 3000 },
     )
 
-    // Verify form was reset (amount should be empty)
     await waitFor(
       () => {
-        const amountInputAfterSubmit = body.getByLabelText(/amount/i)
+        const amountInputAfterSubmit = within(
+          body.getByRole("dialog", { name: /create payment/i }),
+        ).getByLabelText(/amount/i)
         expect(amountInputAfterSubmit).toHaveValue("")
       },
       { timeout: 1000 },
     )
 
-    // Verify checkbox remains checked after form reset
-    const checkboxAfterSubmit = body.getByRole("checkbox", {
+    const checkboxAfterSubmit = within(
+      body.getByRole("dialog", { name: /create payment/i }),
+    ).getByRole("checkbox", {
       name: /continue creating/i,
     })
     expect(checkboxAfterSubmit).toBeChecked()
 
-    // Verify onSuccess was called (dialog should stay open)
     expect(args.onSuccess).toHaveBeenCalled()
   },
 }
@@ -126,20 +124,16 @@ export const ContinuousCreationDisabled: Story = {
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
 
-    // Open the dialog
     const openButton = canvas.getByRole("button", { name: /create payment/i })
     await userEvent.click(openButton)
 
-    // Wait for dialog to appear
-    const dialog = await body.findByRole("dialog")
-    expect(dialog).toBeInTheDocument()
+    const dialog = await body.findByRole("dialog", { name: /create payment/i })
+    await within(dialog).findByLabelText(/amount/i)
 
-    // Verify checkbox is not checked by default
-    const checkbox = body.getByRole("checkbox", { name: /continue creating/i })
+    const checkbox = within(dialog).getByRole("checkbox", { name: /continue creating/i })
     expect(checkbox).not.toBeChecked()
 
-    // Fill the form - select category
-    const categorySelect = body.getByRole("combobox", { name: /category/i })
+    const categorySelect = within(dialog).getByRole("combobox", { name: /category/i })
     await userEvent.click(categorySelect)
 
     const listbox = await body.findByRole("listbox")
@@ -152,20 +146,17 @@ export const ContinuousCreationDisabled: Story = {
     })
     await userEvent.click(categoryOption)
 
-    // Fill other fields
-    const amountInput = body.getByLabelText(/amount/i)
+    const amountInput = within(dialog).getByLabelText(/amount/i)
     await userEvent.type(amountInput, "2000")
 
-    const noteInput = body.getByLabelText(/note/i)
+    const noteInput = within(dialog).getByLabelText(/note/i)
     await userEvent.type(noteInput, "Test payment without continuous mode")
 
-    // Submit the form
-    const submitButton = body.getByRole("button", {
+    const submitButton = within(dialog).getByRole("button", {
       name: /create/i,
     })
     await userEvent.click(submitButton)
 
-    // Wait for submission to complete and verify onSuccess was called
     await waitFor(
       () => {
         expect(args.onSuccess).toHaveBeenCalled()
