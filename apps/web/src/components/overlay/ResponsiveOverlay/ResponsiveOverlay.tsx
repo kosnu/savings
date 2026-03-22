@@ -14,6 +14,7 @@ interface ResponsiveOverlayProps {
   title: string
   description?: ReactNode
   children: ReactNode
+  dismissible?: boolean
 }
 
 export function ResponsiveOverlay({
@@ -23,6 +24,7 @@ export function ResponsiveOverlay({
   title,
   description,
   children,
+  dismissible = true,
 }: ResponsiveOverlayProps) {
   const isMobile = useMediaQuery(MOBILE_OVERLAY_MEDIA_QUERY)
   const contentClassName = [styles.content, isMobile ? styles.sheetContent : styles.dialogContent]
@@ -48,9 +50,19 @@ export function ResponsiveOverlay({
       <Dialog.Content
         className={contentClassName}
         data-overlay-variant={isMobile ? "sheet" : "dialog"}
+        onEscapeKeyDown={(event) => {
+          if (!dismissible) {
+            event.preventDefault()
+          }
+        }}
+        onInteractOutside={(event) => {
+          if (!dismissible) {
+            event.preventDefault()
+          }
+        }}
         style={mobileContentStyle}
       >
-        {isMobile ? (
+        {isMobile && dismissible ? (
           <div className={styles.mobileHeader}>
             <Dialog.Close>
               <IconButton
@@ -64,6 +76,7 @@ export function ResponsiveOverlay({
             </Dialog.Close>
           </div>
         ) : null}
+        {/* 必要になれば Escape と outside click は別 prop に分けて制御できる。 */}
         <Dialog.Title className={isMobile ? styles.mobileTitle : undefined}>{title}</Dialog.Title>
         {description ? (
           <Dialog.Description className={styles.description} size="2">
