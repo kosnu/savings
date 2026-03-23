@@ -56,7 +56,7 @@
     "@vitest/browser-playwright": "4.1.0",
     "@vitest/coverage-v8": "4.1.0",
     "jsdom": "29.0.0",
-    "msw": "2.12.10",
+    "msw": "2.12.11",
     "oxfmt": "0.40.0",
     "oxlint": "1.55.0",
     "playwright": "1.58.2",
