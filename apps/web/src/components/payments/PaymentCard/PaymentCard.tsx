@@ -1,5 +1,5 @@
-import { DotsVerticalIcon } from "@radix-ui/react-icons"
-import { Badge, Card, Flex, IconButton, Skeleton, Text } from "@radix-ui/themes"
+import { ChevronRightIcon } from "@radix-ui/react-icons"
+import { Badge, Card, Flex, Skeleton, Text } from "@radix-ui/themes"
 
 interface PaymentCardProps {
   loading?: boolean
@@ -7,6 +7,7 @@ interface PaymentCardProps {
   categoryName?: string
   note?: string
   amount?: string
+  interactive?: boolean
 }
 
 export function PaymentCard({
@@ -15,6 +16,7 @@ export function PaymentCard({
   categoryName = "Category name",
   note = "Note",
   amount = "¥0,000,000",
+  interactive = false,
 }: PaymentCardProps) {
   return (
     <Card aria-label={loading ? "loading-payment-item" : "payment-item"} size="2">
@@ -28,9 +30,7 @@ export function PaymentCard({
               <Badge size="3">{categoryName}</Badge>
             </Skeleton>
           </Flex>
-          <IconButton aria-label="Payment actions" size="3" variant="ghost">
-            <DotsVerticalIcon width="18" height="18" />
-          </IconButton>
+          {interactive ? <ChevronRightIcon width="20" height="20" aria-hidden /> : null}
         </Flex>
         <Skeleton loading={loading}>
           <Text size="5">{note}</Text>
