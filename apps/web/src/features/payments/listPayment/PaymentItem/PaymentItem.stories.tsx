@@ -17,7 +17,7 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {},
   args: {
-    onDeleteSuccess: fn(),
+    onOpen: fn(),
   },
 } satisfies Meta<typeof PaymentItem>
 
@@ -29,7 +29,7 @@ export const Default: Story = {
     payment: payments[0],
     category: foodCat,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, args, userEvent }) => {
     const canvas = within(canvasElement)
 
     const title = payments[0].note
@@ -37,7 +37,11 @@ export const Default: Story = {
     const price = toCurrency(payments[0].amount)
     expect(canvas.getByText(title)).toBeInTheDocument()
     expect(canvas.getByText(date)).toBeInTheDocument()
+    expect(canvas.getByText(foodCat.name)).toBeInTheDocument()
     expect(canvas.getByText(price)).toBeInTheDocument()
-    expect(canvas.getByRole("button", { name: "Payment actions" })).toBeInTheDocument()
+    expect(canvas.getByRole("button", { name: /コンビニ/ })).toBeInTheDocument()
+
+    await userEvent.click(canvas.getByRole("button", { name: /コンビニ/ }))
+    expect(args.onOpen).toHaveBeenCalledTimes(1)
   },
 }

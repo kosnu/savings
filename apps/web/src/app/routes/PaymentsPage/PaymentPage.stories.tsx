@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, waitFor, within } from "storybook/test"
+import { expect, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
 import { PaymentsPage } from "./PaymentsPage"
@@ -7,7 +7,9 @@ import { PaymentsPage } from "./PaymentsPage"
 const meta = {
   title: "Pages/PaymentsPage",
   component: PaymentsPage,
-  parameters: {},
+  parameters: {
+    mockingDate: new Date(2025, 5, 15),
+  },
   tags: ["autodocs"],
   decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
   argTypes: {},
@@ -25,6 +27,7 @@ export const Default: Story = {
     canvas.getByRole("button", { name: /create payment/i })
 
     expect(await canvas.findAllByText("コンビニ")).toHaveLength(2)
+    expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
     expect(canvas.queryByText("スーパー")).not.toBeInTheDocument()
     expect(await canvas.findByText("2025/06/01")).toBeInTheDocument()
     expect(await canvas.findByText("2025/06/02")).toBeInTheDocument()
@@ -33,56 +36,29 @@ export const Default: Story = {
   },
 }
 
-export const CreateAndDelete: Story = {
+export const OpenDetails: Story = {
   args: {},
-  tags: ["skip"],
   play: async ({ canvasElement, userEvent }) => {
     const canvas = within(canvasElement)
-
-    const createButton = canvas.getByRole("button", { name: /create payment/i })
-    await userEvent.click(createButton)
-
     const body = within(canvasElement.ownerDocument.body)
-    const dialog = await body.findByRole("dialog", { name: /create payment/i })
-    const amountInput = await within(dialog).findByLabelText(/amount/i)
-    expect(amountInput).toBeInTheDocument()
+    await canvas.findByText("2025/06/02")
+    expect(await canvas.findByText("Daily Necessities")).toBeInTheDocument()
 
-    const categorySelect = within(dialog).getByRole("combobox", {
-      name: /category/i,
+    const paymentButtons = await canvas.findAllByRole("button", { name: /コンビニ/ })
+    const paymentButton = paymentButtons[0]
+    await userEvent.click(paymentButton)
+
+    const detailDialog = await body.findByRole("dialog", {
+      name: /payment details/i,
     })
-    await userEvent.click(categorySelect)
-    const listbox = await body.findByRole("listbox")
-    const foodOption = await within(listbox).findByRole("option", {
-      name: /food/i,
-    })
-    await userEvent.click(foodOption)
-
-    const timestamp = Date.now().toString()
-    const note = `Test_${timestamp}`
-
-    const noteInput = within(dialog).getByRole("textbox", { name: /note/i })
-    await userEvent.type(noteInput, note)
-
-    const amountTextfield = within(dialog).getByRole("textbox", {
-      name: /amount/i,
-    })
-    await userEvent.type(amountTextfield, "1080")
-
-    await waitFor(() => {
-      expect(noteInput).toHaveValue(note)
-      expect(amountTextfield).toHaveValue("1080")
-    })
-
-    // FIXME: Submitからリストのリフレッシュまでが早すぎて、PaymentListの再描画が間に合わない
-    const submitButton = within(dialog).getByRole("button", {
-      name: /create/i,
-    })
-    await userEvent.click(submitButton)
-
-    expect(await canvas.findByText(note)).toBeInTheDocument()
-
-    // TODO: PaymentItemのアクションから削除を行う処理を実装する
-
-    expect(canvas.queryByText(note)).not.toBeInTheDocument()
+    expect(within(detailDialog).getByText("Daily Necessities")).not.toHaveClass("rt-Badge")
+    expect(within(detailDialog).getAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
+    expect(within(detailDialog).getByText("Category")).toBeInTheDocument()
+    expect(within(detailDialog).getByText("2025/06/02")).toBeInTheDocument()
+    expect(within(detailDialog).getByText("Daily Necessities")).toBeInTheDocument()
+    expect(within(detailDialog).getByText("￥4,000")).toBeInTheDocument()
+    expect(
+      within(detailDialog).queryByRole("button", { name: /delete payment/i }),
+    ).not.toBeInTheDocument()
   },
 }
