@@ -12,7 +12,7 @@ const meta = {
   component: PaymentList,
   parameters: {},
   tags: ["autodocs"],
-  decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder) as never],
+  decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
   argTypes: {},
   loaders: [
     async () => {
