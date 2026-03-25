@@ -6,37 +6,44 @@ import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
 import { getCategoryStrict, toCategoryMap } from "../../../categories/listCategory/toCategoryMap"
 import { useCategories } from "../../../categories/listCategory/useCategories"
+import { PaymentDetailsOverlay } from "../PaymentDetailsOverlay"
 import { PaymentItem } from "../PaymentItem"
+import { usePaymentDetailsState } from "../usePaymentDetailsState"
 import { usePayments } from "../usePayments"
 
-interface PaymentListProps {
-  onDeleteSuccess: () => void
-}
-
-export const PaymentList = memo(function PaymentList({ onDeleteSuccess }: PaymentListProps) {
+export const PaymentList = memo(function PaymentList() {
   const { promise: promisePayments } = usePayments()
   const { promise: promiseCategories } = useCategories()
+  const { selectedPayment, openPaymentDetails, onOpenChange } = usePaymentDetailsState()
 
   return (
-    <Flex aria-label="payment-list" direction="column" gap="2">
-      <Suspense fallback={<SkeltonItems />}>
-        <Items
-          promiseCategories={promiseCategories}
-          getPayments={promisePayments}
-          onDeleteSuccess={onDeleteSuccess}
-        />
-      </Suspense>
-    </Flex>
+    <>
+      <Flex aria-label="payment-list" direction="column" gap="2" tabIndex={-1}>
+        <Suspense fallback={<SkeltonItems />}>
+          <Items
+            promiseCategories={promiseCategories}
+            getPayments={promisePayments}
+            onOpenPayment={openPaymentDetails}
+          />
+        </Suspense>
+      </Flex>
+      <PaymentDetailsOverlay
+        open={selectedPayment !== null}
+        payment={selectedPayment?.payment ?? null}
+        category={selectedPayment?.category ?? null}
+        onOpenChange={onOpenChange}
+      />
+    </>
   )
 })
 
 interface ItemsProps {
   promiseCategories: Promise<Category[]>
   getPayments: Promise<Payment[]>
-  onDeleteSuccess: () => void
+  onOpenPayment: (payment: Payment, category: Category, trigger: HTMLButtonElement) => void
 }
 
-const Items = memo(function Body({ promiseCategories, getPayments, onDeleteSuccess }: ItemsProps) {
+const Items = memo(function Body({ promiseCategories, getPayments, onOpenPayment }: ItemsProps) {
   const data = use(getPayments)
   const categories = use(promiseCategories)
   const categoryMap = toCategoryMap(categories)
@@ -51,7 +58,7 @@ const Items = memo(function Body({ promiseCategories, getPayments, onDeleteSucce
             key={payment.id}
             category={category}
             payment={payment}
-            onDeleteSuccess={onDeleteSuccess}
+            onOpen={(trigger) => onOpenPayment(payment, category, trigger)}
           />
         )
       })}
@@ -62,9 +69,9 @@ const Items = memo(function Body({ promiseCategories, getPayments, onDeleteSucce
 function SkeltonItems() {
   return (
     <>
-      <PaymentCard loading />
-      <PaymentCard loading />
-      <PaymentCard loading />
+      <PaymentCard loading interactive />
+      <PaymentCard loading interactive />
+      <PaymentCard loading interactive />
     </>
   )
 }

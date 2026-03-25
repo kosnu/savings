@@ -7,10 +7,10 @@ import { createTestRouter } from "./createTestRouter"
 
 type StoryRouteBuilder = (rootRoute: AnyRootRoute, Story: RouteComponent) => AnyRoute[]
 
-export function createStoryRouter(
+export function createStoryRouter<TArgs = object>(
   initialEntry: string,
   routeBuilder?: StoryRouteBuilder,
-): Decorator {
+): Decorator<TArgs> {
   return (Story) => {
     const defaultBuilder: StoryRouteBuilder = (root, StoryComponent) => [
       createRoute({
