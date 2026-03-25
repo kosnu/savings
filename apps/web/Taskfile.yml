@@ -10,10 +10,10 @@ tasks:
     cmd: task -l
   dev:
     desc: Start development server
-    cmd: pnpm dev -- {{.CLI_ARGS}}
+    cmd: pnpm dev {{.CLI_ARGS}}
   storybook:
     desc: Start Storybook for UI component development
-    cmd: pnpm storybook -- {{.CLI_ARGS}}
+    cmd: pnpm storybook {{.CLI_ARGS}}
   format:
     desc: Format files
     cmd: pnpm format
@@ -28,7 +28,7 @@ tasks:
     cmd: pnpm typecheck
   test:
     desc: Run tests
-    cmd: pnpm test -- --silent --reporter=dot {{.CLI_ARGS}}
+    cmd: pnpm test --silent --reporter=dot {{.CLI_ARGS}}
   verify:
     desc: Run all verification tasks
     deps:
@@ -38,4 +38,4 @@ tasks:
       - test
   build:
     desc: Build the application for production
-    cmd: pnpm build -- {{.CLI_ARGS}}
+    cmd: pnpm build {{.CLI_ARGS}}
