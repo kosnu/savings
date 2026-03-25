@@ -8,9 +8,6 @@
   vulnerabilityAlerts: {
     enabled: true,
   },
-  lockFileMaintenance: {
-    enabled: true,
-  },
   packageRules: [
     {
       matchDepTypes: [
