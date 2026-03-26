@@ -2,13 +2,14 @@ import { composeStories } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, test } from "vitest"
+import { afterEach, beforeEach, describe, expect, test } from "vitest"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { SnackbarProvider } from "../../../../providers/snackbar"
 import { SupabaseSessionContext } from "../../../../providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { mockSession } from "../../../../test/data/supabaseSession"
+import { resetPaymentState } from "../../../../test/msw/handlers/payments"
 import * as stories from "./PaymentList.stories"
 
 const { Default } = composeStories(stories)
@@ -30,11 +31,15 @@ function renderStory() {
 }
 
 describe("PaymentList", () => {
+  beforeEach(() => {
+    resetPaymentState()
+  })
+
   afterEach(() => {
     cleanup()
   })
 
-  test("支払い行が button として並び、旧メニューを出さない", async () => {
+  test("支払い行が button として並び、詳細内に削除導線がある", async () => {
     renderStory()
 
     expect(await screen.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
@@ -57,9 +62,7 @@ describe("PaymentList", () => {
     expect(within(dialog).getByText("Daily Necessities")).not.toHaveClass("rt-Badge")
     expect(within(dialog).getAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
     expect(within(dialog).getByText("Category")).toBeInTheDocument()
-    expect(
-      within(dialog).queryByRole("button", { name: /delete payment/i }),
-    ).not.toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
 
     await user.keyboard("{Escape}")
 
@@ -67,5 +70,29 @@ describe("PaymentList", () => {
       expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
       expect(firstPaymentButton).toHaveFocus()
     })
+  })
+
+  test("削除確認をキャンセルすると詳細へ戻る", async () => {
+    const user = userEvent.setup()
+
+    renderStory()
+
+    const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
+    await user.click(firstPaymentButton)
+
+    const detailDialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(within(detailDialog).getByRole("button", { name: /delete this payment/i }))
+
+    const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
+    expect(
+      screen.getByRole("dialog", { name: /payment details/i, hidden: true }),
+    ).toBeInTheDocument()
+    await user.click(within(deleteDialog).getByRole("button", { name: /cancel/i }))
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /delete this payment/i })).not.toBeInTheDocument()
+    })
+
+    expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
   })
 })

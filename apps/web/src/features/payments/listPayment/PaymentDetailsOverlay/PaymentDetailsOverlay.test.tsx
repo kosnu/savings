@@ -14,5 +14,6 @@ describe("PaymentDetailsOverlay", () => {
 
     expect(within(dialog).getByText("No note")).toBeInTheDocument()
     expect(within(dialog).getAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
+    expect(within(dialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
   })
 })

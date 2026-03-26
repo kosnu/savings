@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, within } from "storybook/test"
+import { expect, waitFor, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
+import { resetPaymentState } from "../../../test/msw/handlers/payments"
 import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
@@ -12,6 +13,14 @@ const meta = {
   },
   tags: ["autodocs"],
   decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
+  loaders: [
+    async () => {
+      resetPaymentState()
+
+      const { worker } = await import("../../../test/msw/browser")
+      worker.resetHandlers()
+    },
+  ],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof PaymentsPage>
@@ -57,8 +66,37 @@ export const OpenDetails: Story = {
     expect(within(detailDialog).getByText("2025/06/02")).toBeInTheDocument()
     expect(within(detailDialog).getByText("Daily Necessities")).toBeInTheDocument()
     expect(within(detailDialog).getByText("￥4,000")).toBeInTheDocument()
-    expect(
-      within(detailDialog).queryByRole("button", { name: /delete payment/i }),
-    ).not.toBeInTheDocument()
+    expect(within(detailDialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
+  },
+}
+
+export const DeleteFromDetails: Story = {
+  args: {},
+  play: async ({ canvasElement, userEvent }) => {
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+
+    await canvas.findByText("2025/06/02")
+    const paymentButton = (await canvas.findAllByRole("button", { name: /コンビニ/ }))[0]
+    await userEvent.click(paymentButton)
+
+    const detailDialog = await body.findByRole("dialog", {
+      name: /payment details/i,
+    })
+    const deleteButton = within(detailDialog).getByRole("button", { name: /delete/i })
+    await userEvent.click(deleteButton)
+
+    const deleteDialog = await body.findByRole("dialog", {
+      name: /delete/i,
+    })
+    await userEvent.click(within(deleteDialog).getByRole("button", { name: /^delete$/i }))
+
+    await waitFor(() => {
+      expect(body.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
+      expect(body.queryByRole("dialog", { name: /delete/i })).not.toBeInTheDocument()
+    })
+
+    expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(1)
+    expect(await canvas.findByText("￥6,000")).toBeInTheDocument()
   },
 }
