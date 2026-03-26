@@ -1,4 +1,4 @@
-import { Flex, Strong, Text } from "@radix-ui/themes"
+import { Button, Flex, Separator, Strong, Text } from "@radix-ui/themes"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Category } from "../../../../types/category"
@@ -11,6 +11,7 @@ interface PaymentDetailsOverlayProps {
   payment: Payment | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onDelete?: () => void
 }
 
 export function PaymentDetailsOverlay({
@@ -18,6 +19,7 @@ export function PaymentDetailsOverlay({
   payment,
   open,
   onOpenChange,
+  onDelete,
 }: PaymentDetailsOverlayProps) {
   return (
     <ResponsiveOverlay
@@ -28,10 +30,22 @@ export function PaymentDetailsOverlay({
     >
       {payment && category ? (
         <Flex direction="column" gap="4">
-          <DetailField label="Date" value={formatDateToLocaleString(payment.date)} />
-          <DetailField label="Category" value={category.name} />
-          <DetailField label="Note" value={payment.note} />
-          <DetailField label="Amount" value={toCurrency(payment.amount)} weight="bold" />
+          <Flex direction="column" gap="4">
+            <DetailField label="Date" value={formatDateToLocaleString(payment.date)} />
+            <DetailField label="Category" value={category.name} />
+            <DetailField label="Note" value={payment.note} />
+            <DetailField label="Amount" value={toCurrency(payment.amount)} weight="bold" />
+          </Flex>
+          {onDelete ? (
+            <>
+              <Separator size="4" />
+              <Flex justify="end" pt="2">
+                <Button color="red" variant="soft" onClick={onDelete}>
+                  Delete this payment
+                </Button>
+              </Flex>
+            </>
+          ) : null}
         </Flex>
       ) : null}
     </ResponsiveOverlay>

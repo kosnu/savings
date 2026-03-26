@@ -7,7 +7,7 @@ import { removePayment } from "./removePayment"
 type PaymentId = NonNullable<Payment["id"]>
 
 interface UseDeletePaymentReturn {
-  deletePayment: (paymentId: PaymentId) => void
+  deletePayment: (paymentId: PaymentId) => Promise<void>
   isPending: boolean
 }
 
@@ -17,10 +17,11 @@ export function useDeletePayment(
 ): UseDeletePaymentReturn {
   const queryClient = useQueryClient()
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (paymentId: PaymentId) => removePayment(paymentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] })
+      queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] })
       onSuccess?.()
     },
     onError: (error) => {
@@ -30,9 +31,9 @@ export function useDeletePayment(
 
   const deletePayment = useCallback(
     (paymentId: PaymentId) => {
-      mutate(paymentId)
+      return mutateAsync(paymentId)
     },
-    [mutate],
+    [mutateAsync],
   )
 
   return { deletePayment, isPending }

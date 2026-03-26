@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { fn } from "storybook/test"
+import { expect, fn, within } from "storybook/test"
 
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { foodCat } from "../../../../test/data/categories"
@@ -16,6 +16,7 @@ const meta = {
   args: {
     open: true,
     onOpenChange: fn(),
+    onDelete: fn(),
     category: foodCat,
     payment: payments[0],
   },
@@ -31,7 +32,14 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    const dialog = await body.findByRole("dialog", { name: /payment details/i })
+
+    expect(within(dialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
+  },
+}
 
 export const EmptyNote: Story = {
   args: {

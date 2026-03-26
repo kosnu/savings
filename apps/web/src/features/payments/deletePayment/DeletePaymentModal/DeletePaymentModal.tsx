@@ -2,6 +2,7 @@ import { Button, Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
+import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { useSnackbar } from "../../../../providers/snackbar"
 import type { Payment } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
@@ -17,15 +18,7 @@ interface DeletePaymentModalProps {
 
 export function DeletePaymentModal({ payment, open, onClose, onSuccess }: DeletePaymentModalProps) {
   const { openSnackbar } = useSnackbar()
-  const { deletePayment } = useDeletePayment(
-    () => {
-      openSnackbar("success", "Payment deleted successfully.")
-      onSuccess()
-    },
-    () => {
-      openSnackbar("error", "Failed to delete payment.")
-    },
-  )
+  const { deletePayment, isPending } = useDeletePayment()
   const paymentInfo = payment
     ? `${formatDateToLocaleString(payment.date)} ${payment.note} ${toCurrency(payment.amount)}`
     : "Payment not found."
@@ -39,10 +32,17 @@ export function DeletePaymentModal({ payment, open, onClose, onSuccess }: Delete
     [onClose],
   )
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!payment?.id) return
-    deletePayment(payment.id)
-  }, [deletePayment, payment])
+    try {
+      await deletePayment(payment.id)
+      openSnackbar("success", "Payment deleted successfully.")
+      onSuccess()
+      onClose?.()
+    } catch {
+      openSnackbar("error", "Failed to delete payment.")
+    }
+  }, [deletePayment, onClose, onSuccess, openSnackbar, payment])
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -56,13 +56,17 @@ export function DeletePaymentModal({ payment, open, onClose, onSuccess }: Delete
         <Dialog.Description>{paymentInfo}</Dialog.Description>
         <Flex gap="3" mt="4" justify="end">
           <Dialog.Close>
-            <CancelButton />
+            <CancelButton disabled={isPending} />
           </Dialog.Close>
-          <Dialog.Close>
-            <Button color="red" disabled={!payment} onClick={handleSubmit}>
-              Delete
-            </Button>
-          </Dialog.Close>
+          <SubmitButton
+            type="button"
+            color="red"
+            loading={isPending}
+            disabled={!payment}
+            onClick={handleSubmit}
+          >
+            Delete
+          </SubmitButton>
         </Flex>
       </Dialog.Content>
     </Dialog.Root>

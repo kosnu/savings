@@ -2,10 +2,9 @@ import { HttpResponse, http } from "msw"
 
 import type { PaymentRow } from "../../../types/payment"
 
-const EDGE_FUNCTION_URL = "*/functions/v1/payments"
 const REST_URL = "*/rest/v1/payments*"
 
-const paymentRows: PaymentRow[] = [
+const initialPaymentRows: PaymentRow[] = [
   {
     id: 1,
     category_id: 10,
@@ -47,6 +46,16 @@ const paymentRows: PaymentRow[] = [
     updated_at: "2025-03-01T00:00:00.000Z",
   },
 ]
+
+const initialMonthlyTotalAmount = 10000
+
+let paymentRows: PaymentRow[] = [...initialPaymentRows]
+let monthlyTotalAmount = initialMonthlyTotalAmount
+
+export function resetPaymentState() {
+  paymentRows = [...initialPaymentRows]
+  monthlyTotalAmount = initialMonthlyTotalAmount
+}
 
 export const paymentHandlers = [
   http.get(REST_URL, ({ request }) => {
@@ -93,10 +102,16 @@ export const paymentHandlers = [
   }),
 
   http.post("*/rest/v1/rpc/get_monthly_total_amount", () => {
-    return HttpResponse.json(10000)
+    return HttpResponse.json(monthlyTotalAmount)
   }),
 
-  http.delete(`${EDGE_FUNCTION_URL}/:id`, () => {
-    return HttpResponse.json({ message: "Not Implemented" }, { status: 501 })
+  http.delete(REST_URL, ({ request }) => {
+    const url = new URL(request.url)
+    const idFilter = url.searchParams.get("id")
+    const paymentId = Number(idFilter?.replace("eq.", ""))
+    paymentRows = paymentRows.filter((row) => row.id !== paymentId)
+    monthlyTotalAmount = 6000
+
+    return HttpResponse.json({ message: "Deleted" })
   }),
 ]
