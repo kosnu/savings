@@ -23,6 +23,8 @@ const meta = {
     },
   ],
   args: {
+    open: true,
+    onClose: fn(),
     onSuccess: fn(),
   },
 } satisfies Meta<typeof DeletePaymentModal>
@@ -60,16 +62,12 @@ export const NoPayment: Story = {
 
 export const ClickDeleteButton: Story = {
   args: {
+    open: true,
     payment: payments[0],
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    const openButton = canvas.getByRole("button", { name: /delete payment/i })
-    await userEvent.click(openButton)
-
     const body = within(canvasElement.ownerDocument.body)
-    const dialog = await body.findByRole("dialog")
+    const dialog = await body.findByRole("dialog", { name: /delete this payment/i })
     expect(dialog).toBeInTheDocument()
 
     const deleteButton = within(dialog).getByRole("button", {
@@ -84,6 +82,7 @@ export const ClickDeleteButton: Story = {
 
 export const DeleteFailureKeepsDialogOpen: Story = {
   args: {
+    open: true,
     payment: payments[0],
   },
   loaders: [
@@ -97,11 +96,6 @@ export const DeleteFailureKeepsDialogOpen: Story = {
     },
   ],
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    const openButton = canvas.getByRole("button", { name: /delete payment/i })
-    await userEvent.click(openButton)
-
     const body = within(canvasElement.ownerDocument.body)
     const dialog = await body.findByRole("dialog", { name: /delete this payment/i })
     await userEvent.click(within(dialog).getByRole("button", { name: /^delete$/i }))
