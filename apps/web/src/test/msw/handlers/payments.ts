@@ -105,11 +105,8 @@ export const paymentHandlers = [
     return HttpResponse.json(monthlyTotalAmount)
   }),
 
-  http.delete(REST_URL, ({ request }) => {
-    const url = new URL(request.url)
-    const idFilter = url.searchParams.get("id")
-    const paymentId = Number(idFilter?.replace("eq.", ""))
-    paymentRows = paymentRows.filter((row) => row.id !== paymentId)
+  http.delete(REST_URL, () => {
+    paymentRows = paymentRows.slice(1)
     monthlyTotalAmount = 6000
 
     return HttpResponse.json({ message: "Deleted" })

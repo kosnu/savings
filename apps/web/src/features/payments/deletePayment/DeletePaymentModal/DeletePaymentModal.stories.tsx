@@ -88,6 +88,7 @@ export const DeleteFailureKeepsDialogOpen: Story = {
   },
   loaders: [
     async () => {
+      worker.resetHandlers()
       worker.use(
         http.delete(paymentRestUrl, () => {
           return HttpResponse.json({ message: "Delete failed" }, { status: 500 })
