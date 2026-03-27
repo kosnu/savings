@@ -1,4 +1,4 @@
-import { Button, Dialog, Flex } from "@radix-ui/themes"
+import { Dialog, Flex } from "@radix-ui/themes"
 import { useCallback } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
@@ -11,8 +11,8 @@ import { useDeletePayment } from "../useDeletePayment"
 
 interface DeletePaymentModalProps {
   payment?: Payment | null
-  open?: boolean
-  onClose?: () => void
+  open: boolean
+  onClose: () => void
   onSuccess: () => void
 }
 
@@ -46,11 +46,6 @@ export function DeletePaymentModal({ payment, open, onClose, onSuccess }: Delete
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      {open === undefined && (
-        <Dialog.Trigger>
-          <Button>Delete payment</Button>
-        </Dialog.Trigger>
-      )}
       <Dialog.Content>
         <Dialog.Title>Delete this payment?</Dialog.Title>
         <Dialog.Description>{paymentInfo}</Dialog.Description>
