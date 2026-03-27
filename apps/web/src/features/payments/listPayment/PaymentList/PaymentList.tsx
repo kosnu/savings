@@ -1,11 +1,12 @@
 import { Flex } from "@radix-ui/themes"
-import { memo, Suspense, use } from "react"
+import { memo, Suspense, use, useCallback, useState } from "react"
 
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
 import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
 import { getCategoryStrict, toCategoryMap } from "../../../categories/listCategory/toCategoryMap"
 import { useCategories } from "../../../categories/listCategory/useCategories"
+import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
 import { PaymentDetailsOverlay } from "../PaymentDetailsOverlay"
 import { PaymentItem } from "../PaymentItem"
 import { usePaymentDetailsState } from "../usePaymentDetailsState"
@@ -14,7 +15,23 @@ import { usePayments } from "../usePayments"
 export const PaymentList = memo(function PaymentList() {
   const { promise: promisePayments } = usePayments()
   const { promise: promiseCategories } = useCategories()
-  const { selectedPayment, openPaymentDetails, onOpenChange } = usePaymentDetailsState()
+  const { selectedPayment, openPaymentDetails, closePaymentDetails, onOpenChange } =
+    usePaymentDetailsState()
+  const [paymentPendingDelete, setPaymentPendingDelete] = useState<Payment | null>(null)
+
+  const handleDeleteIntent = useCallback(() => {
+    if (!selectedPayment) return
+    setPaymentPendingDelete(selectedPayment.payment)
+  }, [selectedPayment])
+
+  const handleDeleteClose = useCallback(() => {
+    setPaymentPendingDelete(null)
+  }, [])
+
+  const handleDeleteSuccess = useCallback(() => {
+    setPaymentPendingDelete(null)
+    closePaymentDetails()
+  }, [closePaymentDetails])
 
   return (
     <>
@@ -32,6 +49,13 @@ export const PaymentList = memo(function PaymentList() {
         payment={selectedPayment?.payment ?? null}
         category={selectedPayment?.category ?? null}
         onOpenChange={onOpenChange}
+        onDelete={handleDeleteIntent}
+      />
+      <DeletePaymentModal
+        open={paymentPendingDelete !== null}
+        payment={paymentPendingDelete}
+        onClose={handleDeleteClose}
+        onSuccess={handleDeleteSuccess}
       />
     </>
   )
