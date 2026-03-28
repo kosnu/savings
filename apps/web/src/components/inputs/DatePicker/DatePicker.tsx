@@ -42,6 +42,10 @@ export function DatePicker(props: DatePickerProps) {
     setOpen(false)
   }, [])
 
+  const handleInputChange = useCallback(() => {
+    // 入力欄は日付表示専用で、値変更はカレンダー選択でのみ受け付ける。
+  }, [])
+
   return (
     <div>
       <Popover.Root open={open}>
@@ -52,6 +56,7 @@ export function DatePicker(props: DatePickerProps) {
               name={name}
               placeholder="Pick a date"
               value={value ? formatDateToLocaleString(value) : ""}
+              onChange={handleInputChange}
             >
               <TextField.Slot>
                 <CalendarIcon width="18" height="18" />
