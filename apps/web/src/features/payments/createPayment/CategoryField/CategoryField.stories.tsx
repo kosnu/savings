@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../../test/helpers/routerDecorator"
+import { categoryHandlers } from "../../../../test/msw/handlers/categories"
 import { CategoryField } from "./CategoryField"
 
 const meta = {
@@ -9,6 +10,9 @@ const meta = {
   component: CategoryField,
   parameters: {
     layout: "centered",
+    msw: {
+      handlers: categoryHandlers,
+    },
   },
   tags: ["autodocs"],
   argTypes: {},
