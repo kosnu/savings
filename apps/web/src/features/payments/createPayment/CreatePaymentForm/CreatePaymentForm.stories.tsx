@@ -3,6 +3,7 @@ import { within } from "@testing-library/react"
 import { expect, fn, userEvent, waitFor } from "storybook/test"
 
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
+import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { CreatePaymentForm } from "./CreatePaymentForm"
 
 const meta = {
@@ -10,6 +11,9 @@ const meta = {
   component: CreatePaymentForm,
   parameters: {
     layout: "centered",
+    msw: {
+      handlers: createCategoryHandlers(),
+    },
   },
   tags: ["autodocs"],
   argTypes: {},

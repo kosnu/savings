@@ -4,6 +4,8 @@ import { within } from "@testing-library/react"
 import { expect, waitForElementToBeRemoved } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
+import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { Summary } from "./Summary"
 
 const meta = {
@@ -11,6 +13,9 @@ const meta = {
   component: Summary,
   parameters: {
     layout: "centered",
+    msw: {
+      handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
+    },
   },
   tags: ["autodocs"],
   argTypes: {},
@@ -35,7 +40,7 @@ export const Default: Story = {
     await waitForElementToBeRemoved(() => canvas.queryByTestId("skeleton"))
 
     expect(await canvas.findByText("Total spending")).toBeInTheDocument()
-    expect(await canvas.findByText("￥10,000")).toBeInTheDocument()
+    expect(await canvas.findByText("￥5,000")).toBeInTheDocument()
 
     const accordionTrigger = canvas.getByRole("button", {
       name: /by category/i,
