@@ -1,7 +1,6 @@
 import type { Preview } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { initialize, mswLoader } from "msw-storybook-addon"
-// import React from "react"
 
 import { createQueryClient } from "../src/lib/queryClient"
 import { SnackbarProvider } from "../src/providers/snackbar"
