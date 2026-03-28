@@ -4,7 +4,7 @@ import type { CategoryRow } from "../../../types/category"
 
 const REST_URL = "*/rest/v1/categories*"
 
-const categoryRows: CategoryRow[] = [
+const initialCategoryRows: CategoryRow[] = [
   {
     id: 10,
     name: "Food",
@@ -25,8 +25,30 @@ const categoryRows: CategoryRow[] = [
   },
 ]
 
-export const categoryHandlers = [
-  http.get(REST_URL, () => {
-    return HttpResponse.json(categoryRows)
-  }),
-]
+interface GetCategoriesHandlerOptions {
+  response?: CategoryRow[]
+  error?: boolean
+}
+
+export function getCategoriesHandler({
+  response = initialCategoryRows,
+  error = false,
+}: GetCategoriesHandlerOptions = {}) {
+  return http.get(REST_URL, () => {
+    if (error) {
+      return HttpResponse.json({ message: "Failed to fetch categories." }, { status: 500 })
+    }
+
+    return HttpResponse.json(response)
+  })
+}
+
+interface CreateCategoryHandlersOptions {
+  get?: GetCategoriesHandlerOptions
+}
+
+export function createCategoryHandlers({ get = {} }: CreateCategoryHandlersOptions = {}) {
+  return [getCategoriesHandler(get)]
+}
+
+export const categoryHandlers = createCategoryHandlers()

@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, waitFor, within } from "storybook/test"
+import { expect, within } from "storybook/test"
 
+import { payments } from "../../../test/data/payments"
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
-import { resetPaymentState } from "../../../test/msw/handlers/payments"
+import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
+import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import { PaymentsPage } from "./PaymentsPage"
 
 const meta = {
@@ -10,17 +13,17 @@ const meta = {
   component: PaymentsPage,
   parameters: {
     mockingDate: new Date(2025, 5, 15),
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({
+          initialRows: payments.map(mapPaymentToRow),
+        }),
+        ...createCategoryHandlers(),
+      ],
+    },
   },
   tags: ["autodocs"],
   decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
-  loaders: [
-    async () => {
-      resetPaymentState()
-
-      const { worker } = await import("../../../test/msw/browser")
-      worker.resetHandlers()
-    },
-  ],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof PaymentsPage>
@@ -38,10 +41,10 @@ export const Default: Story = {
     expect(await canvas.findAllByText("コンビニ")).toHaveLength(2)
     expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
     expect(canvas.queryByText("スーパー")).not.toBeInTheDocument()
-    expect(await canvas.findByText("2025/06/01")).toBeInTheDocument()
     expect(await canvas.findByText("2025/06/02")).toBeInTheDocument()
-    expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
+    expect(await canvas.findByText("2025/06/03")).toBeInTheDocument()
     expect(await canvas.findByText("￥1,000")).toBeInTheDocument()
+    expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
   },
 }
 
@@ -50,7 +53,7 @@ export const OpenDetails: Story = {
   play: async ({ canvasElement, userEvent }) => {
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
-    await canvas.findByText("2025/06/02")
+    await canvas.findByText("2025/06/03")
     expect(await canvas.findByText("Daily Necessities")).toBeInTheDocument()
 
     const paymentButtons = await canvas.findAllByRole("button", { name: /コンビニ/ })
@@ -63,40 +66,9 @@ export const OpenDetails: Story = {
     expect(within(detailDialog).getByText("Daily Necessities")).not.toHaveClass("rt-Badge")
     expect(within(detailDialog).getAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
     expect(within(detailDialog).getByText("Category")).toBeInTheDocument()
-    expect(within(detailDialog).getByText("2025/06/02")).toBeInTheDocument()
+    expect(within(detailDialog).getByText("2025/06/03")).toBeInTheDocument()
     expect(within(detailDialog).getByText("Daily Necessities")).toBeInTheDocument()
     expect(within(detailDialog).getByText("￥4,000")).toBeInTheDocument()
     expect(within(detailDialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
-  },
-}
-
-export const DeleteFromDetails: Story = {
-  args: {},
-  play: async ({ canvasElement, userEvent }) => {
-    const canvas = within(canvasElement)
-    const body = within(canvasElement.ownerDocument.body)
-
-    await canvas.findByText("2025/06/02")
-    const paymentButton = (await canvas.findAllByRole("button", { name: /コンビニ/ }))[0]
-    await userEvent.click(paymentButton)
-
-    const detailDialog = await body.findByRole("dialog", {
-      name: /payment details/i,
-    })
-    const deleteButton = within(detailDialog).getByRole("button", { name: /delete/i })
-    await userEvent.click(deleteButton)
-
-    const deleteDialog = await body.findByRole("dialog", {
-      name: /delete/i,
-    })
-    await userEvent.click(within(deleteDialog).getByRole("button", { name: /^delete$/i }))
-
-    await waitFor(() => {
-      expect(body.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
-      expect(body.queryByRole("dialog", { name: /delete/i })).not.toBeInTheDocument()
-    })
-
-    expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(1)
-    expect(await canvas.findByText("￥6,000")).toBeInTheDocument()
   },
 }

@@ -56,6 +56,7 @@ export function useCreatePayment(
     mutationFn: postPayment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] })
+      queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] })
       onSuccess?.()
     },
     onError: (error) => {
