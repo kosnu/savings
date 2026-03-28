@@ -1,14 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { within } from "@testing-library/react"
-import { HttpResponse, http } from "msw"
 import { expect, fn, userEvent } from "storybook/test"
 
 import { longPayment, payments } from "../../../../test/data/payments"
-import { worker } from "../../../../test/msw/browser"
-import { resetPaymentState } from "../../../../test/msw/handlers/payments"
+import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { DeletePaymentModal } from "./DeletePaymentModal"
-
-const paymentRestUrl = "*/rest/v1/payments*"
 
 const meta = {
   title: "Features/DeletePayment/DeletePaymentModal",
@@ -17,11 +13,6 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-  loaders: [
-    async () => {
-      resetPaymentState()
-    },
-  ],
   args: {
     open: true,
     onClose: fn(),
@@ -65,6 +56,13 @@ export const ClickDeleteButton: Story = {
     open: true,
     payment: payments[0],
   },
+  parameters: {
+    msw: {
+      handlers: createPaymentHandlers({
+        delete: { response: payments[0] },
+      }),
+    },
+  },
   play: async ({ canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body)
     const dialog = await body.findByRole("dialog", { name: /delete this payment/i })
@@ -85,16 +83,13 @@ export const DeleteFailureKeepsDialogOpen: Story = {
     open: true,
     payment: payments[0],
   },
-  loaders: [
-    async () => {
-      worker.resetHandlers()
-      worker.use(
-        http.delete(paymentRestUrl, () => {
-          return HttpResponse.json({ message: "Delete failed" }, { status: 500 })
-        }),
-      )
+  parameters: {
+    msw: {
+      handlers: createPaymentHandlers({
+        delete: { error: true },
+      }),
     },
-  ],
+  },
   play: async ({ canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body)
     const dialog = await body.findByRole("dialog", { name: /delete this payment/i })
