@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vitest"
 
 import type { Payment } from "../../types/payment"
-import { mapPaymentToFormValues, toPaymentWriteInsert } from "./paymentFormMappers"
+import {
+  mapPaymentToFormValues,
+  toPaymentWriteInsert,
+  toPaymentWriteUpdate,
+} from "./paymentFormMappers"
 
 function createPaymentFixture(overrides: Partial<Payment> = {}): Payment {
   return {
@@ -76,5 +80,37 @@ describe("toPaymentWriteInsert", () => {
       note: null,
       amount: 0,
     })
+  })
+})
+
+describe("toPaymentWriteUpdate", () => {
+  test("partial update を write contract 向けに変換する", () => {
+    expect(
+      toPaymentWriteUpdate({
+        date: new Date(2024, 8, 22, 12, 34, 56),
+        categoryId: "11",
+        note: "dinner",
+      }),
+    ).toEqual({
+      date: "2024-09-22",
+      category_id: 11,
+      note: "dinner",
+    })
+  })
+
+  test("空文字は null に正規化する", () => {
+    expect(
+      toPaymentWriteUpdate({
+        categoryId: "",
+        note: "",
+      }),
+    ).toEqual({
+      category_id: null,
+      note: null,
+    })
+  })
+
+  test("空 patch は reject する", () => {
+    expect(() => toPaymentWriteUpdate({})).toThrow("Payment update patch cannot be empty")
   })
 })
