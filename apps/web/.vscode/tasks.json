@@ -13,7 +13,6 @@
     {
       "label": "storybook: web",
       "type": "shell",
-      // 入力プロンプトで指定されたポート番号を使ってコマンドを実行します
       "command": "pnpm storybook --no-open",
       "problemMatcher": [],
       "detail": "storybookを起動します"
