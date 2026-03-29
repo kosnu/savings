@@ -19,7 +19,7 @@ interface UseUpdatePaymentReturn {
 
 export function useUpdatePayment(
   onSuccess?: () => void,
-  onError?: (error?: Error) => void,
+  onError?: (error: unknown) => void,
 ): UseUpdatePaymentReturn {
   const queryClient = useQueryClient()
 
