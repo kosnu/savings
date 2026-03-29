@@ -31,8 +31,11 @@ export const HasError: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     expect(canvas.getByText("Date")).toBeInTheDocument()
-    expect(canvas.getByText("日付が未選択です")).toBeInTheDocument()
-    expect(canvas.getByText("1年以上前の日付は選択できません")).toBeInTheDocument()
+    const message = canvas.getByText((_, element) => {
+      return element?.textContent === "日付が未選択です1年以上前の日付は選択できません"
+    })
+    expect(message).toHaveTextContent("日付が未選択です")
+    expect(message).toHaveTextContent("1年以上前の日付は選択できません")
     expect(canvas.getByRole("textbox")).toBeInTheDocument()
   },
 }

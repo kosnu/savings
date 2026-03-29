@@ -1,13 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 
-import { BaseField, type BaseFieldProps } from "./BaseField"
+import { BaseField, FieldLabel, FieldMessages, type BaseFieldProps } from "./BaseField"
 
 const meta: Meta<BaseFieldProps> = {
   title: "Common/Inputs/BaseField",
   component: BaseField,
   args: {
-    label: "Label",
-    children: <input type="text" placeholder="Input here" />,
+    children: (
+      <>
+        <FieldLabel htmlFor="base-field">Label</FieldLabel>
+        <input id="base-field" type="text" placeholder="Input here" />
+      </>
+    ),
   },
 }
 
@@ -19,13 +23,25 @@ export const Default: Story = {}
 
 export const Required: Story = {
   args: {
-    required: true,
+    children: (
+      <>
+        <FieldLabel htmlFor="base-field-required" required>
+          Label
+        </FieldLabel>
+        <input id="base-field-required" type="text" placeholder="Input here" />
+      </>
+    ),
   },
 }
 
 export const WithError: Story = {
   args: {
-    error: true,
-    message: "Error occurred",
+    children: (
+      <>
+        <FieldLabel htmlFor="base-field-error">Label</FieldLabel>
+        <input id="base-field-error" type="text" placeholder="Input here" />
+        <FieldMessages error messages={["Error occurred"]} />
+      </>
+    ),
   },
 }
