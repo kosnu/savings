@@ -1,30 +1,38 @@
 import * as z from "zod"
 
-const baseSchema = z.object({
-  category: z.string(),
-  date: z.date({
+export const categoryFieldSchema = z.string()
+
+export const dateFieldSchema = z.date({
+  error: (iss) => {
+    if (iss.input === undefined || iss.input === null || iss.input === "") {
+      return "Date can not be empty"
+    }
+    return "Date is invalid"
+  },
+})
+
+export const noteFieldSchema = z.string()
+
+export const amountFieldSchema = z
+  .number({
     error: (iss) => {
       if (iss.input === undefined || iss.input === null || iss.input === "") {
-        return "Date can not be empty"
+        return "Amount can not be empty"
       }
-      return "Date is invalid"
+      if (typeof iss.input !== "number" || Number.isNaN(iss.input)) {
+        return "Amount must be a number"
+      }
+      return "Amount is invalid"
     },
-  }),
-  note: z.string(),
-  amount: z
-    .number({
-      error: (iss) => {
-        if (iss.input === undefined || iss.input === null || iss.input === "") {
-          return "Amount can not be empty"
-        }
-        if (typeof iss.input !== "number" || Number.isNaN(iss.input)) {
-          return "Amount must be a number"
-        }
-        return "Amount is invalid"
-      },
-    })
-    .int("Amount must be an integer")
-    .nonnegative("Amount must be a non-negative integer"),
+  })
+  .int("Amount must be an integer")
+  .nonnegative("Amount must be a non-negative integer")
+
+const baseSchema = z.object({
+  category: categoryFieldSchema,
+  date: dateFieldSchema,
+  note: noteFieldSchema,
+  amount: amountFieldSchema,
 })
 
 export const formSchema = baseSchema.partial({
