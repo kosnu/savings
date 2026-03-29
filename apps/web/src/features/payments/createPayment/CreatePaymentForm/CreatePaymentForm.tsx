@@ -7,6 +7,10 @@ import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
 import { ContinueCreatingCheckbox } from "../ContinueCreatingCheckbox"
+import {
+  createPaymentDefaultValues,
+  mapSubmitFormValuesToPaymentWriteInput,
+} from "../createPaymentFormAdapters"
 import { type FormSchema, submitFormSchema } from "../formSchema"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
@@ -59,13 +63,7 @@ export function CreatePaymentForm({
   onContinuousModeChange,
 }: CreatePaymentFormProps) {
   const { createPayment } = useCreatePayment(onSuccess, onError)
-
-  const defaultValues: FormSchema = {
-    date: new Date(),
-    category: "",
-    note: "",
-    amount: undefined,
-  }
+  const defaultValues: FormSchema = createPaymentDefaultValues()
 
   const form = useForm({
     defaultValues,
@@ -74,13 +72,7 @@ export function CreatePaymentForm({
     },
     onSubmit: ({ value }) => {
       const parsedValue = submitFormSchema.parse(value)
-
-      createPayment({
-        categoryId: parsedValue.category,
-        date: parsedValue.date,
-        note: parsedValue.note,
-        amount: parsedValue.amount,
-      })
+      createPayment(mapSubmitFormValuesToPaymentWriteInput(parsedValue))
     },
   })
 
