@@ -2,7 +2,7 @@ import { format } from "date-fns"
 
 import type { TablesInsert } from "../../types/database.types"
 import type { Payment } from "../../types/payment"
-import type { FormSchema } from "./createPayment/formSchema"
+import type { PaymentFormValues } from "./paymentFormSchema"
 
 type PaymentInsert = Omit<TablesInsert<"payments">, "user_id">
 
@@ -13,7 +13,7 @@ export interface PaymentWriteInput {
   amount: number
 }
 
-export function mapPaymentToFormValues(payment: Payment): FormSchema {
+export function mapPaymentToFormValues(payment: Payment): PaymentFormValues {
   return {
     date: payment.date,
     category: payment.categoryId === null ? "" : String(payment.categoryId),
