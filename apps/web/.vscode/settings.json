@@ -2,6 +2,7 @@
   // このフォルダ (apps/web) では Deno 拡張機能を無効にする
   "deno.enable": false,
   "editor.formatOnSave": true,
+  "oxc.fmt.configPath": ".oxfmtrc.json",
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.codeActionsOnSave": {
     "quickfix.oxc": "explicit",
@@ -9,15 +10,12 @@
     "source.fixAll.oxc": "explicit"
   },
   "[jsonc]": {
-    "editor.quickSuggestions": {
-      "strings": true
-    },
-    "editor.suggest.insertMode": "replace",
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
-  "npm.scriptRunner": "npm",
+  "npm.scriptRunner": "pnpm",
   "files.exclude": {
     "**/coverage": true,
     "**/dist": true
