@@ -1,7 +1,7 @@
 import type { PaymentWriteInput } from "../paymentFormMappers"
-import type { FormSchema, SubmitFormSchema } from "./formSchema"
+import type { PaymentFormSubmitValues, PaymentFormValues } from "../paymentFormSchema"
 
-export function createPaymentDefaultValues(): FormSchema {
+export function createPaymentDefaultValues(): PaymentFormValues {
   return {
     date: new Date(),
     category: "",
@@ -10,7 +10,9 @@ export function createPaymentDefaultValues(): FormSchema {
   }
 }
 
-export function mapSubmitFormValuesToPaymentWriteInput(value: SubmitFormSchema): PaymentWriteInput {
+export function mapSubmitFormValuesToPaymentWriteInput(
+  value: PaymentFormSubmitValues,
+): PaymentWriteInput {
   return {
     categoryId: value.category,
     date: value.date,

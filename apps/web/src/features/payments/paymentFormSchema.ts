@@ -5,7 +5,7 @@ export const categoryFieldSchema = z.string()
 export const dateFieldSchema = z.date({
   error: (iss) => {
     if (iss.input === undefined || iss.input === null || iss.input === "") {
-      return "Date can not be empty"
+      return "Date cannot be empty"
     }
     return "Date is invalid"
   },
@@ -17,7 +17,7 @@ export const amountFieldSchema = z
   .number({
     error: (iss) => {
       if (iss.input === undefined || iss.input === null || iss.input === "") {
-        return "Amount can not be empty"
+        return "Amount cannot be empty"
       }
       if (typeof iss.input !== "number" || Number.isNaN(iss.input)) {
         return "Amount must be a number"
@@ -35,15 +35,16 @@ const baseSchema = z.object({
   amount: amountFieldSchema,
 })
 
-export const formSchema = baseSchema.partial({
-  date: true,
-  amount: true,
-})
-export const submitFormSchema = baseSchema.required({
+export const paymentFormSchema = baseSchema.partial({
   date: true,
   amount: true,
 })
 
-export type FormSchema = z.infer<typeof formSchema>
-export type SubmitFormSchema = z.infer<typeof submitFormSchema>
-export type FormError = z.core.$ZodFlattenedError<FormSchema>
+export const paymentFormSubmitSchema = baseSchema.required({
+  date: true,
+  amount: true,
+})
+
+export type PaymentFormValues = z.infer<typeof paymentFormSchema>
+export type PaymentFormSubmitValues = z.infer<typeof paymentFormSubmitSchema>
+export type PaymentFormError = z.core.$ZodFlattenedError<PaymentFormValues>

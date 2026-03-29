@@ -3,18 +3,23 @@ import { describe, expect, test } from "vitest"
 import type { Payment } from "../../types/payment"
 import { mapPaymentToFormValues, toPaymentWriteInsert } from "./paymentFormMappers"
 
+function createPaymentFixture(overrides: Partial<Payment> = {}): Payment {
+  return {
+    id: 1,
+    categoryId: 42,
+    note: "lunch",
+    amount: 1200,
+    date: new Date(2024, 8, 22),
+    userId: 10,
+    createdDate: new Date(2024, 8, 22, 0, 0, 0),
+    updatedDate: new Date(2024, 8, 22, 0, 0, 0),
+    ...overrides,
+  }
+}
+
 describe("mapPaymentToFormValues", () => {
   test("Payment をフォーム値へ変換する", () => {
-    const payment: Payment = {
-      id: 1,
-      categoryId: 42,
-      note: "lunch",
-      amount: 1200,
-      date: new Date("2024-09-22"),
-      userId: 10,
-      createdDate: new Date("2024-09-22T00:00:00Z"),
-      updatedDate: new Date("2024-09-22T00:00:00Z"),
-    }
+    const payment = createPaymentFixture()
 
     expect(mapPaymentToFormValues(payment)).toEqual({
       date: payment.date,
@@ -25,16 +30,11 @@ describe("mapPaymentToFormValues", () => {
   })
 
   test("カテゴリ未設定は空文字に変換する", () => {
-    const payment: Payment = {
-      id: 1,
+    const payment = createPaymentFixture({
       categoryId: null,
       note: "",
       amount: 0,
-      date: new Date("2024-09-22"),
-      userId: 10,
-      createdDate: new Date("2024-09-22T00:00:00Z"),
-      updatedDate: new Date("2024-09-22T00:00:00Z"),
-    }
+    })
 
     expect(mapPaymentToFormValues(payment)).toEqual({
       date: payment.date,
@@ -48,7 +48,7 @@ describe("mapPaymentToFormValues", () => {
 describe("toPaymentWriteInsert", () => {
   test("write contract 向けに値変換する", () => {
     const value = {
-      date: new Date("2024-09-22T12:34:56+09:00"),
+      date: new Date(2024, 8, 22, 12, 34, 56),
       categoryId: "11",
       note: "dinner",
       amount: 1080,
@@ -65,7 +65,7 @@ describe("toPaymentWriteInsert", () => {
   test("空文字は null に正規化する", () => {
     expect(
       toPaymentWriteInsert({
-        date: new Date("2024-09-22"),
+        date: new Date(2024, 8, 22),
         categoryId: "",
         note: "",
         amount: 0,

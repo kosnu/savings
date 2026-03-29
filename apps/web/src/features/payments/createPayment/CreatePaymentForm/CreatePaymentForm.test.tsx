@@ -154,7 +154,7 @@ describe("CreatePaymentForm", () => {
 
     await user.click(screen.getByRole("button", { name: /create/i }))
 
-    expect(await screen.findByText("Amount can not be empty")).toBeTruthy()
+    expect(await screen.findByText("Amount cannot be empty")).toBeTruthy()
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
