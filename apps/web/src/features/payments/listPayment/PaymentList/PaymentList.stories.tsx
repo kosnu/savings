@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { HttpResponse, delay, http } from "msw"
 import { expect, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../../test/helpers/routerDecorator"
+import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
+import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { PaymentList } from "./PaymentList"
-
-const paymentRestUrl = "*/rest/v1/payments*"
 
 const meta = {
   title: "Features/ListPayment/PaymentList",
@@ -14,12 +13,6 @@ const meta = {
   tags: ["autodocs"],
   decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
   argTypes: {},
-  loaders: [
-    async () => {
-      const { worker } = await import("../../../../test/msw/browser")
-      worker.resetHandlers()
-    },
-  ],
 } satisfies Meta<typeof PaymentList>
 
 export default meta
@@ -28,6 +21,11 @@ type StoryPlayContext = Parameters<NonNullable<Story["play"]>>[0]
 
 export const Default: Story = {
   args: {},
+  parameters: {
+    msw: {
+      handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
+    },
+  },
   play: async ({ canvasElement }: StoryPlayContext) => {
     const canvas = within(canvasElement)
 
@@ -39,17 +37,16 @@ export const Default: Story = {
 }
 
 export const Loading: Story = {
-  loaders: [
-    async () => {
-      const { worker } = await import("../../../../test/msw/browser")
-      worker.use(
-        http.get(paymentRestUrl, async () => {
-          await delay("infinite")
-          return HttpResponse.json([])
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({
+          get: { response: [], error: false, durationOrMode: "infinite" },
         }),
-      )
+        ...createCategoryHandlers(),
+      ],
     },
-  ],
+  },
   play: async ({ canvasElement }: StoryPlayContext) => {
     const canvas = within(canvasElement)
 

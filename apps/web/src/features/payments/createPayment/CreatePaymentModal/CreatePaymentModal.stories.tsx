@@ -5,6 +5,8 @@ import { expect, fireEvent, fn, userEvent, waitFor } from "storybook/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
+import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
+import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { CreatePaymentModal } from "./CreatePaymentModal"
 
 const meta = {
@@ -12,6 +14,9 @@ const meta = {
   component: CreatePaymentModal,
   parameters: {
     layout: "centered",
+    msw: {
+      handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
+    },
   },
   tags: ["autodocs"],
   argTypes: {},
