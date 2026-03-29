@@ -1,19 +1,19 @@
 import type { Preview } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
-import React from "react"
+import { initialize, mswLoader } from "msw-storybook-addon"
 
 import { createQueryClient } from "../src/lib/queryClient"
-import { getSupabaseClient } from "../src/lib/supabase"
 import { SnackbarProvider } from "../src/providers/snackbar"
 import { SupabaseSessionContext } from "../src/providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 import { mockSession } from "../src/test/data/supabaseSession"
-import { worker } from "../src/test/msw/browser"
-import { createMockJwt } from "../src/test/msw/handlers/auth"
+import { authHandlers } from "../src/test/msw/handlers/auth"
 
 import "../src/assets/global.css"
 
-let mswStarted = false
+// Storybook では未ハンドルな内部リクエストを素通しし、
+// MSW の詳細ログも抑制してターミナル汚染を防ぐ。
+initialize({ onUnhandledRequest: "bypass", quiet: true })
 
 const preview: Preview = {
   parameters: {
@@ -23,33 +23,18 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-  },
-  loaders: [
-    async () => {
-      if (!mswStarted) {
-        await worker.start({ onUnhandledRequest: "bypass", quiet: true })
-        mswStarted = true
-      }
-      // Supabase クライアントにモックセッションをセットし、
-      // 認証付きクエリが実行できるようにする。
-      // Vitest 実行時は vitest.setup.ts の vi.mock により getSupabaseClient が
-      // モックされるため setSession が存在しない — その場合はスキップする。
-      const supabase = getSupabaseClient()
-      if (typeof supabase.auth.setSession === "function") {
-        await supabase.auth.setSession({
-          access_token: createMockJwt(),
-          refresh_token: "mock-refresh-token",
-        })
-      }
+    msw: {
+      handlers: authHandlers,
     },
-  ],
+  },
+  loaders: [mswLoader],
   decorators: [
     (Story) => {
       const queryClient = createQueryClient()
 
       return (
         <QueryClientProvider client={queryClient}>
-          <SupabaseSessionContext value={{ session: mockSession(), loading: false }}>
+          <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
             <ThemeProvider>
               <SnackbarProvider>
                 <Story />

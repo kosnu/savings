@@ -30,21 +30,54 @@ export function createMockJwt(): string {
   return `${header}.${payload}.mock-signature`
 }
 
-export const authHandlers = [
-  // setSession() がトークン有効時に呼ぶユーザー情報取得
-  http.get("*/auth/v1/user", () => {
-    return HttpResponse.json(mockUser)
-  }),
+interface GetUserHandlerOptions {
+  response?: typeof mockUser
+}
 
-  // setSession() がトークン期限切れ時に呼ぶトークンリフレッシュ
-  http.post("*/auth/v1/token", () => {
-    return HttpResponse.json({
-      access_token: createMockJwt(),
-      refresh_token: "mock-refresh-token",
-      expires_in: 3600,
-      expires_at: Math.floor(Date.now() / 1000) + 3600,
-      token_type: "bearer",
-      user: mockUser,
-    })
-  }),
-]
+export function getUserHandler({ response = mockUser }: GetUserHandlerOptions = {}) {
+  return http.get("*/auth/v1/user", () => {
+    return HttpResponse.json(response)
+  })
+}
+
+interface RefreshTokenResponse {
+  access_token: string
+  refresh_token: string
+  expires_in: number
+  expires_at: number
+  token_type: string
+  user: typeof mockUser
+}
+
+interface RefreshTokenHandlerOptions {
+  response?: RefreshTokenResponse
+}
+
+export function refreshTokenHandler({ response }: RefreshTokenHandlerOptions = {}) {
+  return http.post("*/auth/v1/token", () => {
+    return HttpResponse.json(
+      response ?? {
+        access_token: createMockJwt(),
+        refresh_token: "mock-refresh-token",
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: "bearer",
+        user: mockUser,
+      },
+    )
+  })
+}
+
+interface CreateAuthHandlersOptions {
+  getUser?: GetUserHandlerOptions
+  refreshToken?: RefreshTokenHandlerOptions
+}
+
+export function createAuthHandlers({
+  getUser = {},
+  refreshToken = {},
+}: CreateAuthHandlersOptions = {}) {
+  return [getUserHandler(getUser), refreshTokenHandler(refreshToken)]
+}
+
+export const authHandlers = createAuthHandlers()

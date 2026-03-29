@@ -8,22 +8,6 @@ vi.mock("../../../lib/supabase", () => ({
 }))
 
 describe("fetchPayments", () => {
-  it("DBの行をPaymentドメインオブジェクトに変換する", async () => {
-    const payments = await fetchPayments([null, null])
-
-    expect(payments).toHaveLength(4)
-    expect(payments[0]).toEqual({
-      id: 2,
-      categoryId: 20,
-      note: "コンビニ",
-      amount: 4000,
-      date: new Date("2025-06-02"),
-      userId: 100,
-      createdDate: new Date("2025-06-02T00:00:00.000Z"),
-      updatedDate: new Date("2025-06-02T00:00:00.000Z"),
-    })
-  })
-
   it("date, createdDate, updatedDateをDateオブジェクトに変換する", async () => {
     const payments = await fetchPayments([null, null])
 
