@@ -1,8 +1,8 @@
-import { Select, Text } from "@radix-ui/themes"
-import { Fragment, memo, Suspense, use, useId } from "react"
+import { Select } from "@radix-ui/themes"
+import { memo, Suspense, use, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
-import { BaseField } from "../../../../components/inputs/BaseField"
+import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import type { Category } from "../../../../types/category"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 
@@ -23,18 +23,8 @@ export const CategoryField = memo(function CategoryField({
   const { promise: promiseCategories } = useCategories()
 
   return (
-    <BaseField
-      label="Category"
-      htmlFor={id}
-      error={Boolean(error)}
-      message={messages?.map((msg, i) => (
-        <Fragment key={msg}>
-          {i > 0 && <br />}
-          <Text as="span">{msg}</Text>
-        </Fragment>
-      ))}
-      width="300px"
-    >
+    <BaseField width="300px">
+      <FieldLabel htmlFor={id}>Category</FieldLabel>
       <Select.Root name="category" value={value} onValueChange={(val) => onChange?.(val)}>
         <Select.Trigger id={id} placeholder="Pick a category" />
         <Select.Content>
@@ -45,6 +35,7 @@ export const CategoryField = memo(function CategoryField({
           </ErrorBoundary>
         </Select.Content>
       </Select.Root>
+      <FieldMessages error={Boolean(error)} messages={messages} />
     </BaseField>
   )
 })
