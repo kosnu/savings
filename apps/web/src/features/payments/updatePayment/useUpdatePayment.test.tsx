@@ -86,4 +86,30 @@ describe("useUpdatePayment", () => {
     expect(onSuccess).not.toHaveBeenCalled()
     expect(invalidateQueries).not.toHaveBeenCalled()
   })
+
+  it("プレーンオブジェクトのエラーもonErrorへそのまま渡す", async () => {
+    const queryClient = createQueryClient()
+    const onSuccess = vi.fn()
+    const onError = vi.fn()
+    const error = { message: "failed", code: "PGRST301" }
+    mockUpdatePayment.mockRejectedValue(error)
+
+    const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
+      wrapper: createWrapper(queryClient),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.updatePayment({
+          paymentId: 42,
+          patch: { note: "updated" },
+        }),
+      ).rejects.toEqual(error)
+    })
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(error)
+    })
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
 })
