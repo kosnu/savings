@@ -4,10 +4,14 @@ import { useCallback, useEffect } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
+import { paymentFormSubmitSchema } from "../../paymentFormSchema"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
 import { ContinueCreatingCheckbox } from "../ContinueCreatingCheckbox"
-import { type FormSchema, submitFormSchema } from "../formSchema"
+import {
+  createPaymentDefaultValues,
+  mapSubmitFormValuesToPaymentWriteInput,
+} from "../createPaymentFormAdapters"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
@@ -59,28 +63,16 @@ export function CreatePaymentForm({
   onContinuousModeChange,
 }: CreatePaymentFormProps) {
   const { createPayment } = useCreatePayment(onSuccess, onError)
-
-  const defaultValues: FormSchema = {
-    date: new Date(),
-    category: "",
-    note: "",
-    amount: undefined,
-  }
+  const defaultValues = createPaymentDefaultValues()
 
   const form = useForm({
     defaultValues,
     validators: {
-      onSubmit: submitFormSchema,
+      onSubmit: paymentFormSubmitSchema,
     },
     onSubmit: ({ value }) => {
-      const parsedValue = submitFormSchema.parse(value)
-
-      createPayment({
-        categoryId: parsedValue.category,
-        date: parsedValue.date,
-        note: parsedValue.note,
-        amount: parsedValue.amount,
-      })
+      const parsedValue = paymentFormSubmitSchema.parse(value)
+      createPayment(mapSubmitFormValuesToPaymentWriteInput(parsedValue))
     },
   })
 
