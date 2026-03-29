@@ -1,16 +1,24 @@
 import { format } from "date-fns"
 
-import type { TablesInsert } from "../../types/database.types"
+import type { TablesInsert, TablesUpdate } from "../../types/database.types"
 import type { Payment } from "../../types/payment"
 import type { PaymentFormValues } from "./paymentFormSchema"
 
 type PaymentInsert = Omit<TablesInsert<"payments">, "user_id">
+type PaymentUpdate = Omit<TablesUpdate<"payments">, "user_id" | "id" | "created_at" | "updated_at">
 
 export interface PaymentWriteInput {
   categoryId?: string
   date: Date
   note?: string
   amount: number
+}
+
+export interface PaymentUpdatePatch {
+  categoryId?: string
+  date?: Date
+  note?: string
+  amount?: number
 }
 
 export function mapPaymentToFormValues(payment: Payment): PaymentFormValues {
@@ -29,6 +37,31 @@ export function toPaymentWriteInsert(value: PaymentWriteInput): PaymentInsert {
     note: value.note || null,
     category_id: toCategoryId(value.categoryId),
   }
+}
+
+export function toPaymentWriteUpdate(patch: PaymentUpdatePatch): PaymentUpdate {
+  const entries = Object.entries(patch).filter(([, value]) => value !== undefined)
+
+  if (entries.length === 0) {
+    throw new Error("Payment update patch cannot be empty")
+  }
+
+  const updatePayload: PaymentUpdate = {}
+
+  if (patch.amount !== undefined) {
+    updatePayload.amount = patch.amount
+  }
+  if (patch.date !== undefined) {
+    updatePayload.date = format(patch.date, "yyyy-MM-dd")
+  }
+  if (patch.note !== undefined) {
+    updatePayload.note = patch.note || null
+  }
+  if (patch.categoryId !== undefined) {
+    updatePayload.category_id = toCategoryId(patch.categoryId)
+  }
+
+  return updatePayload
 }
 
 function toCategoryId(categoryId?: string): number | null {
