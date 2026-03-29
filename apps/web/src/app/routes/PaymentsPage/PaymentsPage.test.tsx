@@ -18,13 +18,22 @@ import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import * as stories from "./PaymentPage.stories"
 
 const { Default } = composeStories(stories)
-const createdPayment = {
+const createdPaymentFormInput = {
   amount: 54321,
   categoryName: entertainmentCat.name,
   date: "2025/06/15",
   note: "作成テスト用の支払い",
 }
-const createdPaymentRowDate = "2025-06-15"
+const createdPayment = mapPaymentToRow({
+  id: 999,
+  categoryId: entertainmentCat.id,
+  note: createdPaymentFormInput.note,
+  amount: createdPaymentFormInput.amount,
+  date: new Date("2025-06-15T00:00:00+09:00"),
+  userId: 100,
+  createdDate: new Date("2025-06-15T12:00:00+09:00"),
+  updatedDate: new Date("2025-06-15T12:00:00+09:00"),
+})
 
 function createStoryElement(queryClient = createQueryClient()) {
   return {
@@ -62,15 +71,7 @@ describe("PaymentsPage", () => {
       ...createPaymentHandlers({
         initialRows: payments.map(mapPaymentToRow),
         create: {
-          response: {
-            ...createdPayment,
-            date: createdPaymentRowDate,
-            id: 999,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            category_id: entertainmentCat.id,
-            user_id: 100,
-          },
+          response: createdPayment,
         },
       }),
       ...createCategoryHandlers(),
@@ -103,12 +104,15 @@ describe("PaymentsPage", () => {
 
     const listbox = await screen.findByRole("listbox")
     const categoryOption = await within(listbox).findByRole("option", {
-      name: new RegExp(entertainmentCat.name, "i"),
+      name: new RegExp(createdPaymentFormInput.categoryName, "i"),
     })
     await user.click(categoryOption)
 
-    await user.type(within(createDialog).getByLabelText(/amount/i), String(createdPayment.amount))
-    await user.type(within(createDialog).getByLabelText(/note/i), createdPayment.note)
+    await user.type(
+      within(createDialog).getByLabelText(/amount/i),
+      String(createdPaymentFormInput.amount),
+    )
+    await user.type(within(createDialog).getByLabelText(/note/i), createdPaymentFormInput.note)
     await user.click(within(createDialog).getByRole("button", { name: /^create$/i }))
 
     await waitFor(() => {
@@ -120,22 +124,9 @@ describe("PaymentsPage", () => {
     const refreshedPaymentList = await screen.findByLabelText("payment-list")
     expect(
       await within(refreshedPaymentList).findByRole("button", {
-        name: new RegExp(`${createdPayment.note}`, "i"),
+        name: new RegExp(createdPaymentFormInput.note, "i"),
       }),
     ).toBeInTheDocument()
-    // await waitFor(
-    //   () => {
-    //     expect(
-    //       within(refreshedPaymentList).getByRole("button", {
-    //         name: new RegExp(
-    //           `${createdPayment.date} ${createdPayment.categoryName} ${createdPayment.note} ￥${createdPayment.amount.toLocaleString("ja-JP")}`,
-    //           "i",
-    //         ),
-    //       }),
-    //     ).toBeInTheDocument()
-    //   },
-    //   { timeout: 6000 },
-    // )
   }, 10000)
 
   test("支払いを削除すると一覧から消える", async () => {

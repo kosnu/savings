@@ -44,6 +44,7 @@ export function DatePicker(props: DatePickerProps) {
 
   const handleInputChange = useCallback(() => {
     // 入力欄は日付表示専用で、値変更はカレンダー選択でのみ受け付ける。
+    // `readOnly` は既存の見た目に影響するため使わず、controlled input 警告の抑止だけを行う。
   }, [])
 
   return (
