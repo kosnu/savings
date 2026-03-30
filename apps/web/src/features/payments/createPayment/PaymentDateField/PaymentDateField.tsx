@@ -1,7 +1,6 @@
-import { Text } from "@radix-ui/themes"
-import { Fragment, useId } from "react"
+import { useId } from "react"
 
-import { BaseField } from "../../../../components/inputs/BaseField"
+import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { DatePicker } from "../../../../components/inputs/DatePicker"
 
 interface PaymentDateFieldProps {
@@ -15,20 +14,12 @@ export function PaymentDateField({ error, messages, value, onChange }: PaymentDa
   const id = useId()
 
   return (
-    <BaseField
-      label="Date"
-      htmlFor={id}
-      required
-      error={error}
-      message={messages?.map((msg, i) => (
-        <Fragment key={msg}>
-          {i > 0 && <br />}
-          <Text as="span">{msg}</Text>
-        </Fragment>
-      ))}
-      width="fit-content"
-    >
+    <BaseField width="fit-content">
+      <FieldLabel htmlFor={id} required>
+        Date
+      </FieldLabel>
       <DatePicker id={id} name="date" value={value} onChange={onChange} />
+      <FieldMessages error={error} messages={messages} />
     </BaseField>
   )
 }

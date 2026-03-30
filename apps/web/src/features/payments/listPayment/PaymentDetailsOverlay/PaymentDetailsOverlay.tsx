@@ -1,5 +1,6 @@
-import { Button, Flex, Separator, Strong, Text } from "@radix-ui/themes"
+import { Button, Flex, Separator, Text } from "@radix-ui/themes"
 
+import { BaseField } from "../../../../components/inputs/BaseField"
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
@@ -34,7 +35,7 @@ export function PaymentDetailsOverlay({
             <DetailField label="Date" value={formatDateToLocaleString(payment.date)} />
             <DetailField label="Category" value={category.name} />
             <DetailField label="Note" value={payment.note} />
-            <DetailField label="Amount" value={toCurrency(payment.amount)} weight="bold" />
+            <DetailField label="Amount" value={toCurrency(payment.amount)} />
           </Flex>
           {onDelete ? (
             <>
@@ -56,15 +57,14 @@ interface DetailFieldProps {
   label: string
   value: string
   align?: "left" | "right"
-  weight?: "regular" | "bold"
 }
 
-function DetailField({ label, value, align = "left", weight = "regular" }: DetailFieldProps) {
+function DetailField({ label, value, align = "left" }: DetailFieldProps) {
   const hasValue = value.trim().length > 0
   const displayValue = hasValue ? value : "No note"
 
   return (
-    <Flex direction="column" gap="2">
+    <BaseField gap="2">
       <Text size="2" color="gray">
         {label}
       </Text>
@@ -74,8 +74,8 @@ function DetailField({ label, value, align = "left", weight = "regular" }: Detai
         color={hasValue ? undefined : "gray"}
         style={{ minHeight: "1.75rem", fontStyle: hasValue ? "normal" : "italic" }}
       >
-        {weight === "bold" ? <Strong>{displayValue}</Strong> : displayValue}
+        {displayValue}
       </Text>
-    </Flex>
+    </BaseField>
   )
 }

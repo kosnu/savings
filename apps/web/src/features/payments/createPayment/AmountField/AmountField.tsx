@@ -1,7 +1,7 @@
-import { Text, TextField } from "@radix-ui/themes"
-import { Fragment, useId } from "react"
+import { TextField } from "@radix-ui/themes"
+import { useId } from "react"
 
-import { BaseField } from "../../../../components/inputs/BaseField"
+import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 
 interface AmountFieldProps {
   error?: boolean
@@ -15,18 +15,10 @@ export function AmountField({ error, messages, value, onChange, autoFocus }: Amo
   const id = useId()
 
   return (
-    <BaseField
-      label="Amount"
-      required
-      htmlFor={id}
-      error={error}
-      message={messages?.map((msg, i) => (
-        <Fragment key={msg}>
-          {i > 0 && <br />}
-          <Text as="span">{msg}</Text>
-        </Fragment>
-      ))}
-    >
+    <BaseField>
+      <FieldLabel htmlFor={id} required>
+        Amount
+      </FieldLabel>
       <TextField.Root
         id={id}
         name="amount"
@@ -51,6 +43,7 @@ export function AmountField({ error, messages, value, onChange, autoFocus }: Amo
           }
         }}
       />
+      <FieldMessages error={error} messages={messages} />
     </BaseField>
   )
 }
