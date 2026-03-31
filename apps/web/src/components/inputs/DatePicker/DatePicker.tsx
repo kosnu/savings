@@ -14,17 +14,20 @@ interface ModeSingleProps {
 }
 
 type DatePickerProps = {
+  autoFocus?: boolean
+  disabled?: boolean
   id?: string
   name?: string
 } & ModeSingleProps
 
 export function DatePicker(props: DatePickerProps) {
-  const { id, name, onChange, value, ...restProps } = props
+  const { autoFocus, disabled, id, name, onChange, value, ...restProps } = props
   const [open, setOpen] = useState(false)
 
   const handleTriggerClick = useCallback(() => {
+    if (disabled) return
     setOpen(true)
-  }, [])
+  }, [disabled])
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
@@ -53,6 +56,8 @@ export function DatePicker(props: DatePickerProps) {
         <Popover.Trigger onClick={handleTriggerClick}>
           <div>
             <TextField.Root
+              autoFocus={autoFocus}
+              disabled={disabled}
               id={id}
               name={name}
               placeholder="Pick a date"
