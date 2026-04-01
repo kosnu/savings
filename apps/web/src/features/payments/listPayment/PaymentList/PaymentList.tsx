@@ -7,9 +7,8 @@ import type { Payment } from "../../../../types/payment"
 import { getCategoryStrict, toCategoryMap } from "../../../categories/listCategory/toCategoryMap"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
-import { PaymentDetailsOverlay } from "../PaymentDetailsOverlay"
+import { PaymentDetailsOverlay, usePaymentDetailsState } from "../../paymentDetails"
 import { PaymentItem } from "../PaymentItem"
-import { usePaymentDetailsState } from "../usePaymentDetailsState"
 import { usePayments } from "../usePayments"
 
 export const PaymentList = memo(function PaymentList() {
