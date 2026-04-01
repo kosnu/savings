@@ -7,7 +7,7 @@ import { payments } from "../../../../test/data/payments"
 import { PaymentDetailsOverlay } from "./PaymentDetailsOverlay"
 
 const meta = {
-  title: "Features/ListPayment/PaymentDetailsOverlay",
+  title: "Features/PaymentDetails/PaymentDetailsOverlay",
   component: PaymentDetailsOverlay,
   parameters: {
     layout: "centered",
