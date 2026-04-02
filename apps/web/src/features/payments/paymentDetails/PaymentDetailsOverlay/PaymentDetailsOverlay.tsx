@@ -1,11 +1,12 @@
-import { Button, Flex, Separator, Text } from "@radix-ui/themes"
+import { Button, Flex, Separator } from "@radix-ui/themes"
 
-import { BaseField } from "../../../../components/inputs/BaseField"
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Category } from "../../../../types/category"
 import type { Payment } from "../../../../types/payment"
-import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
-import { toCurrency } from "../../../../utils/toCurrency"
+import { AmountField } from "../AmountField"
+import { CategoryField } from "../CategoryField"
+import { NoteField } from "../NoteField"
+import { PaymentDateField } from "../PaymentDateField"
 
 interface PaymentDetailsOverlayProps {
   category: Category | null
@@ -32,10 +33,10 @@ export function PaymentDetailsOverlay({
       {payment && category ? (
         <Flex direction="column" gap="4">
           <Flex direction="column" gap="4">
-            <DetailField label="Date" value={formatDateToLocaleString(payment.date)} />
-            <DetailField label="Category" value={category.name} />
-            <DetailField label="Note" value={payment.note} />
-            <DetailField label="Amount" value={toCurrency(payment.amount)} />
+            <PaymentDateField date={payment.date} />
+            <CategoryField categoryName={category.name} />
+            <NoteField note={payment.note} />
+            <AmountField amount={payment.amount} />
           </Flex>
           {onDelete ? (
             <>
@@ -50,32 +51,5 @@ export function PaymentDetailsOverlay({
         </Flex>
       ) : null}
     </ResponsiveOverlay>
-  )
-}
-
-interface DetailFieldProps {
-  label: string
-  value: string
-  align?: "left" | "right"
-}
-
-function DetailField({ label, value, align = "left" }: DetailFieldProps) {
-  const hasValue = value.trim().length > 0
-  const displayValue = hasValue ? value : "No note"
-
-  return (
-    <BaseField gap="2">
-      <Text size="2" color="gray">
-        {label}
-      </Text>
-      <Text
-        size="4"
-        align={align}
-        color={hasValue ? undefined : "gray"}
-        style={{ minHeight: "1.75rem", fontStyle: hasValue ? "normal" : "italic" }}
-      >
-        {displayValue}
-      </Text>
-    </BaseField>
   )
 }
