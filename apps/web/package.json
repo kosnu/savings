@@ -64,7 +64,7 @@
     "plop": "4.0.5",
     "storybook": "10.3.3",
     "storybook-addon-mock-date": "2.0.0",
-    "typescript": "5.9.3",
+    "typescript": "6.0.2",
     "vite": "8.0.3",
     "vitest": "4.1.2"
   },
