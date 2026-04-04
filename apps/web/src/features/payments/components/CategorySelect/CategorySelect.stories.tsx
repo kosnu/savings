@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
-import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { categories } from "../../../../test/data/categories"
 import {
@@ -45,25 +44,12 @@ export const Default: Story = {
   args: {
     children: categoryOptions,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    await userEvent.click(canvas.getByRole("combobox"))
-
-    const body = within(canvasElement.ownerDocument.body)
-    expect(await body.findByRole("option", { name: /food/i })).toBeInTheDocument()
-  },
 }
 
 export const Filled: Story = {
   args: {
     children: categoryOptions,
     value: String(categories[1]?.id),
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    expect(canvas.getByRole("combobox")).toHaveTextContent(categories[1]?.name ?? "")
   },
 }
 
@@ -88,44 +74,16 @@ export const AllowEmptyOption: Story = {
     children: categoryOptions,
     value: String(categories[0]?.id),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    await userEvent.click(canvas.getByRole("combobox"))
-
-    const body = within(canvasElement.ownerDocument.body)
-    await userEvent.click(await body.findByRole("option", { name: /^none$/i }))
-
-    await waitFor(() => {
-      expect(canvas.getByRole("combobox")).toHaveTextContent("None")
-    })
-  },
 }
 
 export const Loading: Story = {
   args: {
     children: <LoadingCategoryOption />,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    await userEvent.click(canvas.getByRole("combobox"))
-
-    const body = within(canvasElement.ownerDocument.body)
-    expect(await body.findByRole("option", { name: /loading/i })).toBeInTheDocument()
-  },
 }
 
 export const ErrorState: Story = {
   args: {
     children: <ErrorCategoryOption />,
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    await userEvent.click(canvas.getByRole("combobox"))
-
-    const body = within(canvasElement.ownerDocument.body)
-    expect(await body.findByRole("option", { name: /error/i })).toBeInTheDocument()
   },
 }

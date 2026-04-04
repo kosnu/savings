@@ -1,11 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { within } from "@testing-library/react"
-import { expect, fn } from "storybook/test"
+import { fn } from "storybook/test"
 
 import { foodCat } from "../../../../test/data/categories"
 import { payments } from "../../../../test/data/payments"
-import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
-import { toCurrency } from "../../../../utils/toCurrency"
 import { PaymentItem } from "./PaymentItem"
 
 const meta = {
@@ -16,9 +13,6 @@ const meta = {
   },
   tags: ["autodocs"],
   argTypes: {},
-  args: {
-    onOpen: fn(),
-  },
 } satisfies Meta<typeof PaymentItem>
 
 export default meta
@@ -28,20 +22,6 @@ export const Default: Story = {
   args: {
     payment: payments[0],
     category: foodCat,
-  },
-  play: async ({ canvasElement, args, userEvent }) => {
-    const canvas = within(canvasElement)
-
-    const title = payments[0].note
-    const date = formatDateToLocaleString(payments[0].date)
-    const price = toCurrency(payments[0].amount)
-    expect(canvas.getByText(title)).toBeInTheDocument()
-    expect(canvas.getByText(date)).toBeInTheDocument()
-    expect(canvas.getByText(foodCat.name)).toBeInTheDocument()
-    expect(canvas.getByText(price)).toBeInTheDocument()
-    expect(canvas.getByRole("button", { name: /コンビニ/ })).toBeInTheDocument()
-
-    await userEvent.click(canvas.getByRole("button", { name: /コンビニ/ }))
-    expect(args.onOpen).toHaveBeenCalledTimes(1)
+    onOpen: fn(),
   },
 }

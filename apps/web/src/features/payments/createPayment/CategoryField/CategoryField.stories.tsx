@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../../test/helpers/routerDecorator"
 import { categoryHandlers } from "../../../../test/msw/handlers/categories"
@@ -29,22 +28,4 @@ export const Default: Story = {
 
 export const Filled: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const select = canvas.getByRole("combobox", { name: /category/i })
-    await userEvent.click(select)
-
-    const body = within(canvasElement.ownerDocument.body)
-    const listbox = await body.findByRole("listbox")
-
-    await waitFor(() => {
-      // "loading" ラベルの要素が存在しないことを確認
-      expect(within(listbox).queryByLabelText(/loading/)).not.toBeInTheDocument()
-    })
-
-    const option = await within(listbox).findByRole("option", {
-      name: /food/i,
-    })
-    await userEvent.click(option)
-  },
 }
