@@ -67,6 +67,31 @@ describe("PaymentList", () => {
     })
   })
 
+  test("金額編集中の Escape は詳細を閉じず、次の Escape で詳細を閉じる", async () => {
+    const user = userEvent.setup()
+
+    renderStory()
+
+    const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
+    await user.click(firstPaymentButton)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(within(dialog).getByRole("button", { name: /edit amount/i }))
+
+    expect(within(dialog).getByRole("textbox", { name: /amount/i })).toBeInTheDocument()
+
+    await user.keyboard("{Escape}")
+
+    expect(screen.getByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
+    expect(within(dialog).queryByRole("textbox", { name: /amount/i })).not.toBeInTheDocument()
+
+    await user.keyboard("{Escape}")
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
+    })
+  })
+
   test("削除確認をキャンセルすると詳細へ戻る", async () => {
     const user = userEvent.setup()
 

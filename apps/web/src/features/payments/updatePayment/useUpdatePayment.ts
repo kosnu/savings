@@ -25,9 +25,11 @@ export function useUpdatePayment(
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: ({ paymentId, patch }: UpdatePaymentInput) => updatePaymentRecord(paymentId, patch),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payments"] })
-      queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["payments"] }),
+        queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
+      ])
       onSuccess?.()
     },
     onError: (error) => {

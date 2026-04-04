@@ -26,6 +26,10 @@ interface DeletePaymentOptions extends BaseOptions {
   response?: unknown
 }
 
+interface UpdatePaymentOptions extends BaseOptions {
+  response?: unknown
+}
+
 interface GetMonthlyTotalAmountOptions extends BaseOptions {
   response?: number
 }
@@ -34,6 +38,7 @@ interface CreatePaymentHandlersOptions {
   initialRows?: PaymentRow[]
   get?: GetPaymentsOptions
   create?: CreatePaymentOptions
+  update?: UpdatePaymentOptions
   delete?: DeletePaymentOptions
   getMonthlyTotalAmount?: GetMonthlyTotalAmountOptions
 }
@@ -104,6 +109,7 @@ export function createPaymentHandlers({
   initialRows = initialPaymentRows,
   get = {},
   create = {},
+  update = {},
   delete: deleteOptions = {},
   getMonthlyTotalAmount = {},
 }: CreatePaymentHandlersOptions = {}) {
@@ -137,6 +143,31 @@ export function createPaymentHandlers({
     paymentRows = [...paymentRows, newRow]
 
     return HttpResponse.json([newRow], { status: 201 })
+  })
+
+  const updatePaymentHandler = http.patch(REST_URL, async ({ request }) => {
+    await delay(update.durationOrMode)
+
+    if (update.error) {
+      return HttpResponse.json({ message: "Failed to update payment." }, { status: 500 })
+    }
+
+    const id = extractPaymentId(request)
+    const body = (await request.json()) as Partial<PaymentRow>
+
+    paymentRows = paymentRows.map((row) => {
+      if (String(row.id) !== id) {
+        return row
+      }
+
+      return {
+        ...row,
+        ...body,
+        updated_at: new Date().toISOString(),
+      }
+    })
+
+    return HttpResponse.json(update.response ?? { message: "Updated" })
   })
 
   const deletePaymentHandler = http.delete(REST_URL, async ({ request }) => {
@@ -176,6 +207,7 @@ export function createPaymentHandlers({
   return [
     getPaymentsHandler,
     createPaymentHandler,
+    updatePaymentHandler,
     deletePaymentHandler,
     getMonthlyTotalAmountHandler,
   ]
