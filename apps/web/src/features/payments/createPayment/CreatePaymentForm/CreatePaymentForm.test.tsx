@@ -1,209 +1,137 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react"
+import { composeStories } from "@storybook/react-vite"
+import { QueryClientProvider } from "@tanstack/react-query"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
+import { HttpResponse, http } from "msw"
+import { beforeEach, describe, expect, test, vi } from "vitest"
 
-import { CreatePaymentForm } from "./CreatePaymentForm"
+import { createQueryClient } from "../../../../lib/queryClient"
+import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
+import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
+import { server } from "../../../../test/msw/server"
+import * as stories from "./CreatePaymentForm.stories"
 
-const { mockCreatePayment } = vi.hoisted(() => ({
-  mockCreatePayment: vi.fn(),
-}))
+const { Default, Empty, Filled } = composeStories(stories)
+const PAYMENTS_REST_URL = "*/rest/v1/payments*"
 
-vi.mock("../useCreatePayment", () => ({
-  useCreatePayment: () => ({
-    createPayment: mockCreatePayment,
-    isPending: false,
-  }),
-}))
+function renderStory(story: React.ReactElement) {
+  return render(<QueryClientProvider client={createQueryClient()}>{story}</QueryClientProvider>)
+}
 
-vi.mock("../CategoryField", () => ({
-  CategoryField: ({
-    value,
-    onChange,
-    messages,
-  }: {
-    value?: string
-    onChange?: (category: string) => void
-    messages?: string[]
-  }) => (
-    <div>
-      <label htmlFor="category">Category</label>
-      <input
-        id="category"
-        aria-label="Category"
-        value={value ?? ""}
-        onChange={(e) => onChange?.(e.target.value)}
-      />
-      {messages?.map((message) => (
-        <p key={message}>{message}</p>
-      ))}
-    </div>
-  ),
-}))
+async function selectFoodCategory(user: ReturnType<typeof userEvent.setup>) {
+  const categorySelect = await screen.findByRole("combobox", { name: /category/i })
+  await user.click(categorySelect)
 
-vi.mock("../NoteField", () => ({
-  NoteField: ({
-    value,
-    onChange,
-    messages,
-  }: {
-    value?: string
-    onChange?: (note: string) => void
-    messages?: string[]
-  }) => (
-    <div>
-      <label htmlFor="note">Note</label>
-      <input
-        id="note"
-        aria-label="Note"
-        value={value ?? ""}
-        onChange={(e) => onChange?.(e.target.value)}
-      />
-      {messages?.map((message) => (
-        <p key={message}>{message}</p>
-      ))}
-    </div>
-  ),
-}))
+  const listbox = await within(document.body).findByRole("listbox")
+  await waitFor(() => {
+    expect(within(listbox).queryByLabelText(/loading/i)).not.toBeInTheDocument()
+  })
 
-vi.mock("../AmountField/AmountField", () => ({
-  AmountField: ({
-    value,
-    onChange,
-    messages,
-    autoFocus,
-  }: {
-    value?: number
-    onChange?: (amount: number | undefined) => void
-    messages?: string[]
-    autoFocus?: boolean
-  }) => (
-    <div>
-      <label htmlFor="amount">Amount</label>
-      <input
-        id="amount"
-        aria-label="Amount"
-        value={value?.toString() ?? ""}
-        autoFocus={autoFocus}
-        onChange={(e) => {
-          const inputValue = e.target.value
-          if (inputValue === "") {
-            onChange?.(undefined)
-            return
-          }
-          const amount = Number(inputValue)
-          if (!Number.isNaN(amount)) {
-            onChange?.(amount)
-          }
-        }}
-      />
-      {messages?.map((message) => (
-        <p key={message}>{message}</p>
-      ))}
-    </div>
-  ),
-}))
-
-vi.mock("../PaymentDateField", () => ({
-  PaymentDateField: ({ value, messages }: { value?: Date; messages?: string[] }) => (
-    <div>
-      <label htmlFor="date">Date</label>
-      <input id="date" aria-label="Date" value={value ? value.toISOString() : ""} readOnly />
-      {messages?.map((message) => (
-        <p key={message}>{message}</p>
-      ))}
-    </div>
-  ),
-}))
+  const option = await within(listbox).findByRole("option", { name: /food/i })
+  await user.click(option)
+}
 
 describe("CreatePaymentForm", () => {
-  afterEach(() => {
-    cleanup()
-  })
-
   beforeEach(() => {
-    mockCreatePayment.mockReset()
-    mockCreatePayment.mockResolvedValue(undefined)
+    server.resetHandlers(...createCategoryHandlers(), ...createPaymentHandlers())
   })
 
-  test("should autofocus on the amount field when rendered", () => {
-    render(<CreatePaymentForm onCancel={() => {}} />)
+  test("Default story では amount 入力欄に自動フォーカスする", async () => {
+    renderStory(<Default />)
 
-    const amountField = screen.getByRole("textbox", { name: /amount/i })
+    const amountField = await screen.findByRole("textbox", { name: /amount/i })
     expect(document.activeElement).toBe(amountField)
   })
 
-  test("should render fields in date, amount, category, note order", () => {
-    render(<CreatePaymentForm onCancel={() => {}} />)
-
-    const fields = screen.getAllByRole("textbox")
-    expect(fields.map((field) => field.getAttribute("aria-label"))).toEqual([
-      "Date",
-      "Amount",
-      "Category",
-      "Note",
-    ])
-  })
-
-  test("should show amount required message and not call createPayment when amount is empty", async () => {
+  test("Filled story ではカテゴリの非同期読み込み後に入力を進められる", async () => {
     const user = userEvent.setup()
 
-    render(<CreatePaymentForm onCancel={() => {}} />)
+    renderStory(<Filled />)
 
-    await user.type(screen.getByRole("textbox", { name: /category/i }), "cat-1")
-    await user.type(screen.getByRole("textbox", { name: /note/i }), "lunch")
+    await user.click(await screen.findByRole("textbox", { name: /date/i }))
+    await selectFoodCategory(user)
+
+    const noteInput = screen.getByRole("textbox", { name: /note/i })
+    await user.type(noteInput, "Test_FSf5qxLNxAC265uSTcNa")
+
+    const amountInput = screen.getByRole("textbox", { name: /amount/i })
+    await user.type(amountInput, "1080")
+
+    expect(screen.getByRole("combobox", { name: /category/i })).toHaveTextContent("Food")
+    expect(noteInput).toHaveValue("Test_FSf5qxLNxAC265uSTcNa")
+    expect(amountInput).toHaveValue("1080")
+  })
+
+  test("Empty story では amount 未入力で送信するとバリデーションエラーを表示する", async () => {
+    const user = userEvent.setup()
+
+    renderStory(<Empty />)
 
     await user.click(screen.getByRole("button", { name: /create/i }))
 
-    expect(await screen.findByText("Amount cannot be empty")).toBeTruthy()
-    expect(mockCreatePayment).not.toHaveBeenCalled()
+    expect(await screen.findByText("Amount cannot be empty")).toBeInTheDocument()
   })
 
-  test("should call createPayment when category and note are empty", async () => {
+  test("category と note が空でも作成できる", async () => {
     const user = userEvent.setup()
+    const onSuccess = vi.fn()
+    let requestBody: Record<string, unknown> | undefined
 
-    render(<CreatePaymentForm onCancel={() => {}} />)
+    server.resetHandlers(
+      ...createCategoryHandlers(),
+      http.post(PAYMENTS_REST_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json([{ id: 999, ...requestBody }], { status: 201 })
+      }),
+    )
+
+    renderStory(<Default onSuccess={onSuccess} />)
 
     await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
     await user.click(screen.getByRole("button", { name: /create/i }))
 
     await waitFor(() => {
-      expect(mockCreatePayment).toHaveBeenCalledTimes(1)
+      expect(onSuccess).toHaveBeenCalledTimes(1)
     })
 
-    const payload = mockCreatePayment.mock.calls[0][0]
-    expect(payload).toEqual(
-      expect.objectContaining({
-        categoryId: "",
-        note: "",
-        amount: 1080,
-      }),
-    )
-    expect(payload.date).toBeInstanceOf(Date)
+    expect(requestBody).toMatchObject({
+      amount: 1080,
+      category_id: null,
+      note: null,
+    })
+    expect(requestBody?.date).toEqual(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
   })
 
-  test("should call createPayment with mapped payload when form is valid", async () => {
+  test("有効な入力では選択カテゴリを含む payload で作成する", async () => {
     const user = userEvent.setup()
+    const onSuccess = vi.fn()
+    let requestBody: Record<string, unknown> | undefined
 
-    render(<CreatePaymentForm onCancel={() => {}} />)
+    server.resetHandlers(
+      ...createCategoryHandlers(),
+      http.post(PAYMENTS_REST_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json([{ id: 1000, ...requestBody }], { status: 201 })
+      }),
+    )
 
-    await user.type(screen.getByRole("textbox", { name: /category/i }), "cat-1")
+    renderStory(<Default onSuccess={onSuccess} />)
+
+    await selectFoodCategory(user)
     await user.type(screen.getByRole("textbox", { name: /note/i }), "dinner")
     await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
 
     await user.click(screen.getByRole("button", { name: /create/i }))
 
     await waitFor(() => {
-      expect(mockCreatePayment).toHaveBeenCalledTimes(1)
+      expect(onSuccess).toHaveBeenCalledTimes(1)
     })
 
-    const payload = mockCreatePayment.mock.calls[0][0]
-    expect(payload).toEqual(
-      expect.objectContaining({
-        categoryId: "cat-1",
-        note: "dinner",
-        amount: 1080,
-      }),
-    )
-    expect(payload.date).toBeInstanceOf(Date)
+    expect(requestBody).toMatchObject({
+      amount: 1080,
+      category_id: 10,
+      note: "dinner",
+    })
+    expect(requestBody?.date).toEqual(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
   })
 })
