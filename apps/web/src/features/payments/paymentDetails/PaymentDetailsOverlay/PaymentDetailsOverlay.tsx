@@ -1,4 +1,5 @@
 import { Button, Flex, Separator } from "@radix-ui/themes"
+import { useEffect, useState } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Category } from "../../../../types/category"
@@ -23,12 +24,26 @@ export function PaymentDetailsOverlay({
   onOpenChange,
   onDelete,
 }: PaymentDetailsOverlayProps) {
+  const [isEditingField, setIsEditingField] = useState(false)
+
+  function handleEscapeKeyDown(event: KeyboardEvent) {
+    if (!isEditingField) return
+    event.preventDefault()
+  }
+
+  useEffect(() => {
+    if (open) return
+
+    setIsEditingField(false)
+  }, [open])
+
   return (
     <ResponsiveOverlay
       open={open}
       onOpenChange={onOpenChange}
+      onEscapeKeyDown={handleEscapeKeyDown}
       title="Payment details"
-      description={payment ? "Review the payment details." : undefined}
+      description="Review the payment details."
     >
       {payment && category ? (
         <Flex direction="column" gap="4">
@@ -36,7 +51,11 @@ export function PaymentDetailsOverlay({
             <PaymentDateField date={payment.date} />
             <CategoryField categoryName={category.name} />
             <NoteField note={payment.note} />
-            <AmountField amount={payment.amount} />
+            <AmountField
+              paymentId={payment.id}
+              amount={payment.amount}
+              onEditingChange={setIsEditingField}
+            />
           </Flex>
           {onDelete ? (
             <>
