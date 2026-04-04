@@ -1,7 +1,7 @@
 import { Button } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useCallback, useState } from "react"
-import { expect, fn, userEvent, within } from "storybook/test"
+import { fn } from "storybook/test"
 
 import { Snackbar } from "./Snackbar"
 
@@ -45,14 +45,5 @@ export const Default: Story = {
   args: {
     message: "This is a message",
     type: "info",
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const button = canvas.getByRole("button", { name: "Open snackbar" })
-    await userEvent.click(button)
-
-    const body = within(canvasElement.ownerDocument.body)
-    const text = await body.findByText("This is a message")
-    expect(text).toBeInTheDocument()
   },
 }

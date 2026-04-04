@@ -1,8 +1,8 @@
 import { Theme } from "@radix-ui/themes"
 import { composeStories } from "@storybook/react-vite"
-import { cleanup, render, screen } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, test, vi } from "vitest"
+import { describe, expect, test, vi } from "vitest"
 
 import * as stories from "./MonthPicker.stories"
 
@@ -13,10 +13,6 @@ const renderWithTheme = (component: React.ReactElement) => {
 }
 
 describe("MonthPicker", () => {
-  afterEach(() => {
-    cleanup()
-  })
-
   test("年月が選択されていない場合、プレースホルダーが表示される", () => {
     renderWithTheme(<Default />)
 
@@ -49,6 +45,19 @@ describe("MonthPicker", () => {
     expect(calledDate).toBeInstanceOf(Date)
     expect(calledDate.getMonth()).toBe(5) // 6月は0ベースで5
     expect(calledDate.getFullYear()).toBe(2025)
+  })
+
+  test("月を選択すると表示も更新される", async () => {
+    const user = userEvent.setup()
+
+    renderWithTheme(<WithValue value={new Date(2025, 2, 1)} />)
+
+    expect(screen.getByText("3月")).toBeInTheDocument()
+
+    await user.click(screen.getByRole("combobox", { name: "月" }))
+    await user.click(await screen.findByRole("option", { name: "5月" }))
+
+    expect(await screen.findByText("5月")).toBeInTheDocument()
   })
 
   test("年を選択するとonChangeが呼ばれる", async () => {

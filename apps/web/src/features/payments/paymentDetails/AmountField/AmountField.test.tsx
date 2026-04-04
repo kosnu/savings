@@ -1,51 +1,41 @@
-import { QueryClientProvider } from "@tanstack/react-query"
-import { cleanup, render, screen, waitFor } from "@testing-library/react"
+import { composeStories } from "@storybook/react-vite"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, beforeEach, describe, expect, test } from "vitest"
+import { beforeEach, describe, expect, test } from "vitest"
 
-import { createQueryClient } from "../../../../lib/queryClient"
-import { SnackbarProvider } from "../../../../providers/snackbar"
-import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { payments } from "../../../../test/data/payments"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { AmountField } from "./AmountField"
+import * as stories from "./AmountField.stories"
 
-function renderAmountField(props: Partial<Parameters<typeof AmountField>[0]> = {}) {
-  return render(
-    <QueryClientProvider client={createQueryClient()}>
-      <ThemeProvider>
-        <SnackbarProvider>
-          <AmountField paymentId={payments[0].id} amount={1000} {...props} />
-        </SnackbarProvider>
-      </ThemeProvider>
-    </QueryClientProvider>,
-  )
-}
+const { Default } = composeStories(stories)
 
 describe("AmountField", () => {
   beforeEach(() => {
     server.resetHandlers(...createPaymentHandlers())
   })
 
-  afterEach(() => {
-    cleanup()
-  })
-
   test("編集ボタンを押すと入力欄を開く", async () => {
     const user = userEvent.setup()
 
-    renderAmountField()
+    render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
 
     expect(screen.getByRole("textbox", { name: /amount/i })).toBeInTheDocument()
   })
 
+  test("初期表示ではラベル、金額、編集ボタンが表示される", () => {
+    render(<Default />)
+
+    expect(screen.getByText("Amount")).toBeInTheDocument()
+    expect(screen.getByText(/1,000/)).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /edit amount/i })).toBeInTheDocument()
+  })
+
   test("編集中の Escape は編集だけ解除する", async () => {
     const user = userEvent.setup()
 
-    renderAmountField()
+    render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
@@ -60,7 +50,7 @@ describe("AmountField", () => {
   test("保存ボタンで金額を保存できる", async () => {
     const user = userEvent.setup()
 
-    renderAmountField()
+    render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
@@ -84,7 +74,7 @@ describe("AmountField", () => {
       }),
     )
 
-    renderAmountField()
+    render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
@@ -107,7 +97,7 @@ describe("AmountField", () => {
       }),
     )
 
-    renderAmountField()
+    render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
