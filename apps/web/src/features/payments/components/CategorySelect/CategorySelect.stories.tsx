@@ -8,12 +8,13 @@ import {
   CategorySelect,
   ErrorCategoryOption,
   LoadingCategoryOption,
+  NoneCategoryOption,
 } from "./CategorySelect"
 
 const meta = {
   title: "Features/Payments/Components/CategorySelect",
   component: CategorySelect,
-  subcomponents: { CategoryOption, NoneCategoryOption: ErrorCategoryOption, LoadingCategoryOption },
+  subcomponents: { CategoryOption, NoneCategoryOption, LoadingCategoryOption },
   parameters: {
     layout: "centered",
   },

@@ -20,7 +20,7 @@ export function CategorySelect({
   children,
   onChange,
 }: CategorySelectProps) {
-  const selectValue = value || NONE_CATEGORY_VALUE
+  const selectValue = value === "" ? (allowEmptyOption ? NONE_CATEGORY_VALUE : undefined) : value
 
   const handleChange = useCallback(
     (val: string) => {
