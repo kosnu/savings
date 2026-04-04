@@ -1,8 +1,8 @@
 import { composeStories } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, test } from "vitest"
+import { describe, expect, test } from "vitest"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { SnackbarProvider } from "../../../../providers/snackbar"
@@ -11,7 +11,7 @@ import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { mockSession } from "../../../../test/data/supabaseSession"
 import * as stories from "./PaymentList.stories"
 
-const { Default } = composeStories(stories)
+const { Default, Loading } = composeStories(stories)
 
 function renderStory() {
   const queryClient = createQueryClient()
@@ -30,10 +30,6 @@ function renderStory() {
 }
 
 describe("PaymentList", () => {
-  afterEach(() => {
-    cleanup()
-  })
-
   test("支払い行が button として並び、詳細内に削除導線がある", async () => {
     renderStory()
 
@@ -114,5 +110,23 @@ describe("PaymentList", () => {
     })
 
     expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
+  })
+
+  test("Loading story ではスケルトンを 3 件表示する", async () => {
+    const queryClient = createQueryClient()
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
+          <ThemeProvider>
+            <SnackbarProvider>
+              <Loading />
+            </SnackbarProvider>
+          </ThemeProvider>
+        </SupabaseSessionContext>
+      </QueryClientProvider>,
+    )
+
+    expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
   })
 })

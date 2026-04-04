@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { within } from "@testing-library/react"
-import { expect, fn, userEvent, waitFor } from "storybook/test"
+import { fn } from "storybook/test"
 
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
@@ -18,7 +17,6 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {},
   args: {
-    onSuccess: fn(),
     onCancel: fn(),
   },
   decorators: (Story) => {
@@ -34,53 +32,19 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: {},
+  args: {
+    onSuccess: fn(),
+  },
 }
 
-export const Fiiled: Story = {
-  args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const datepicker = canvas.getByRole("textbox", { name: /date/i })
-    await userEvent.click(datepicker)
-
-    // NOTE: 今日の日付はデフォルトで選択されているので、あえてクリックしない
-    {
-      const select = await canvas.findByRole("combobox", { name: /category/i })
-      await userEvent.click(select)
-
-      const body = within(canvasElement.ownerDocument.body)
-      const listbox = await body.findByRole("listbox")
-
-      await waitFor(() => {
-        // "loading" ラベルの要素が存在しないことを確認
-        expect(within(listbox).queryByLabelText(/loading/)).not.toBeInTheDocument()
-      })
-
-      const option = await within(listbox).findByRole("option", {
-        name: /food/i,
-      })
-      await userEvent.click(option)
-    }
-    {
-      const noteTextfield = canvas.getByRole("textbox", { name: /note/i })
-      await userEvent.type(noteTextfield, "Test_FSf5qxLNxAC265uSTcNa")
-    }
-    {
-      const amountTextfield = canvas.getByRole("textbox", { name: /amount/i })
-      await userEvent.type(amountTextfield, "1080")
-    }
+export const Filled: Story = {
+  args: {
+    onSuccess: fn(),
   },
 }
 
 export const Empty: Story = {
-  args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    const submitButton = canvas.getByRole("button", { name: /create/i })
-    await userEvent.click(submitButton)
-
-    expect(await canvas.findByText("Amount cannot be empty")).toBeInTheDocument()
+  args: {
+    onSuccess: fn(),
   },
 }

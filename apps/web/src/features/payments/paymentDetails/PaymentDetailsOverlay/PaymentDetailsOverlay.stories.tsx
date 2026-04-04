@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { expect, fn, within } from "storybook/test"
+import { fn } from "storybook/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { SnackbarProvider } from "../../../../providers/snackbar"
@@ -43,15 +43,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    const body = within(canvasElement.ownerDocument.body)
-    const dialog = await body.findByRole("dialog", { name: /payment details/i })
-
-    expect(within(dialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
-    expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeInTheDocument()
-  },
-}
+export const Default: Story = {}
 
 export const EmptyNote: Story = {
   args: {

@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../../test/helpers/routerDecorator"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
@@ -17,7 +16,6 @@ const meta = {
 
 export default meta
 type Story = StoryObj<typeof meta>
-type StoryPlayContext = Parameters<NonNullable<Story["play"]>>[0]
 
 export const Default: Story = {
   args: {},
@@ -25,14 +23,6 @@ export const Default: Story = {
     msw: {
       handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
     },
-  },
-  play: async ({ canvasElement }: StoryPlayContext) => {
-    const canvas = within(canvasElement)
-
-    expect(await canvas.findByLabelText("payment-list")).toBeInTheDocument()
-    expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
-    expect(await canvas.findByText("Food")).toBeInTheDocument()
-    expect(await canvas.findByText("Daily Necessities")).toBeInTheDocument()
   },
 }
 
@@ -46,10 +36,5 @@ export const Loading: Story = {
         ...createCategoryHandlers(),
       ],
     },
-  },
-  play: async ({ canvasElement }: StoryPlayContext) => {
-    const canvas = within(canvasElement)
-
-    expect(await canvas.findAllByLabelText("loading-payment-item")).toHaveLength(3)
   },
 }
