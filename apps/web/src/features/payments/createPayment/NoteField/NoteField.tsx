@@ -1,7 +1,7 @@
-import { TextField } from "@radix-ui/themes"
 import { useId } from "react"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
+import { NoteInput } from "../../components/NoteInput"
 
 interface NoteFieldProps {
   error?: boolean
@@ -16,13 +16,7 @@ export function NoteField({ error, messages, value, onChange }: NoteFieldProps) 
   return (
     <BaseField>
       <FieldLabel htmlFor={id}>Note</FieldLabel>
-      <TextField.Root
-        id={id}
-        name="note"
-        type="text"
-        value={value}
-        onChange={(e) => onChange?.(e.target.value)}
-      />
+      <NoteInput id={id} value={value} onChange={onChange} />
       <FieldMessages error={error} messages={messages} />
     </BaseField>
   )

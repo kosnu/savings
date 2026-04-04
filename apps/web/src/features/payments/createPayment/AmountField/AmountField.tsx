@@ -1,7 +1,7 @@
-import { TextField } from "@radix-ui/themes"
 import { useId } from "react"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
+import { AmountInput } from "../../components/AmountInput"
 
 interface AmountFieldProps {
   error?: boolean
@@ -19,30 +19,7 @@ export function AmountField({ error, messages, value, onChange, autoFocus }: Amo
       <FieldLabel htmlFor={id} required>
         Amount
       </FieldLabel>
-      <TextField.Root
-        id={id}
-        name="amount"
-        type="text"
-        inputMode="numeric"
-        value={value?.toString() ?? ""}
-        autoFocus={autoFocus}
-        onChange={(e) => {
-          const val = e.target.value
-          if (val === "") {
-            onChange?.(undefined)
-            return
-          }
-          // Only allow numeric input
-          if (!/^\d*$/.test(val)) {
-            // Ignore non-numeric characters
-            return
-          }
-          const num = Number(val)
-          if (!Number.isNaN(num)) {
-            onChange?.(num)
-          }
-        }}
-      />
+      <AmountInput id={id} value={value} onChange={onChange} autoFocus={autoFocus} />
       <FieldMessages error={error} messages={messages} />
     </BaseField>
   )
