@@ -5,10 +5,11 @@ interface AmountInputProps {
   id?: string
   value?: number
   autoFocus?: boolean
+  disabled?: boolean
   onChange?: (amount: number | undefined) => void
 }
 
-export function AmountInput({ id, value, autoFocus, onChange }: AmountInputProps) {
+export function AmountInput({ id, value, autoFocus, disabled, onChange }: AmountInputProps) {
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const val = e.target.value
     if (val === "") {
@@ -34,6 +35,7 @@ export function AmountInput({ id, value, autoFocus, onChange }: AmountInputProps
       inputMode="numeric"
       value={value?.toString() ?? ""}
       autoFocus={autoFocus}
+      disabled={disabled}
       onChange={handleChange}
     />
   )

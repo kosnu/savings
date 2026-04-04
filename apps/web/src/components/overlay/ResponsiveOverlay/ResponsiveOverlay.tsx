@@ -1,6 +1,6 @@
 import { Cross1Icon } from "@radix-ui/react-icons"
 import { Dialog, IconButton } from "@radix-ui/themes"
-import type { CSSProperties, ReactElement, ReactNode } from "react"
+import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react"
 
 import { useMediaQuery } from "../../../utils/useMediaQuery"
 import { MOBILE_OVERLAY_MEDIA_QUERY } from "../constants"
@@ -17,6 +17,7 @@ interface ResponsiveOverlayProps {
   description?: ReactNode
   children: ReactNode
   dismissible?: boolean
+  onEscapeKeyDown?: ComponentProps<typeof Dialog.Content>["onEscapeKeyDown"]
 }
 
 export function ResponsiveOverlay({
@@ -27,6 +28,7 @@ export function ResponsiveOverlay({
   description,
   children,
   dismissible = true,
+  onEscapeKeyDown,
 }: ResponsiveOverlayProps) {
   const isMobile = useMediaQuery(MOBILE_OVERLAY_MEDIA_QUERY)
   const contentClassName = [styles.content, isMobile ? styles.sheetContent : styles.dialogContent]
@@ -53,6 +55,7 @@ export function ResponsiveOverlay({
         className={contentClassName}
         data-overlay-variant={isMobile ? "sheet" : "dialog"}
         onEscapeKeyDown={(event) => {
+          onEscapeKeyDown?.(event)
           if (!dismissible) {
             event.preventDefault()
           }
