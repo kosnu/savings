@@ -11,6 +11,10 @@ import {
   NoneCategoryOption,
 } from "./CategorySelect"
 
+const categoryOptions = categories.map((category) => (
+  <CategoryOption key={category.id} category={category} />
+))
+
 const meta = {
   title: "Features/Payments/Components/CategorySelect",
   component: CategorySelect,
@@ -21,9 +25,13 @@ const meta = {
   tags: ["autodocs"],
   render: (args) => {
     const [value, setValue] = useState<string | undefined>(args.value)
+    const handleChange = (nextValue: string) => {
+      setValue(nextValue)
+      args.onChange?.(nextValue)
+    }
 
     return (
-      <CategorySelect {...args} value={value} onChange={setValue}>
+      <CategorySelect {...args} value={value} onChange={handleChange}>
         {args.children}
       </CategorySelect>
     )
@@ -35,9 +43,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    children: categories.map((category) => (
-      <CategoryOption key={category.id} category={category} />
-    )),
+    children: categoryOptions,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -51,9 +57,7 @@ export const Default: Story = {
 
 export const Filled: Story = {
   args: {
-    children: categories.map((category) => (
-      <CategoryOption key={category.id} category={category} />
-    )),
+    children: categoryOptions,
     value: String(categories[1]?.id),
   },
   play: async ({ canvasElement }) => {
@@ -63,12 +67,25 @@ export const Filled: Story = {
   },
 }
 
+export const Empty: Story = {
+  args: {
+    children: categoryOptions,
+    value: "",
+  },
+}
+
+export const EmptyWithAllowEmptyOption: Story = {
+  args: {
+    allowEmptyOption: true,
+    children: categoryOptions,
+    value: "",
+  },
+}
+
 export const AllowEmptyOption: Story = {
   args: {
     allowEmptyOption: true,
-    children: categories.map((category) => (
-      <CategoryOption key={category.id} category={category} />
-    )),
+    children: categoryOptions,
     value: String(categories[0]?.id),
   },
   play: async ({ canvasElement }) => {
