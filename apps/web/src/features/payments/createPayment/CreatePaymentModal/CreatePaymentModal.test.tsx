@@ -27,7 +27,7 @@ async function fillAndSubmit(
 
   const listbox = await body.findByRole("listbox")
   await waitFor(() => {
-    expect(within(listbox).queryByLabelText(/loading/)).not.toBeInTheDocument()
+    expect(within(listbox).queryByRole("option", { name: /loading/i })).not.toBeInTheDocument()
   })
 
   const categoryOption = await within(listbox).findByRole("option", {

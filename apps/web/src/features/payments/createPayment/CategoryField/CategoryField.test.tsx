@@ -26,7 +26,7 @@ describe("CreatePayment CategoryField", () => {
 
     const listbox = await screen.findByRole("listbox")
     await waitFor(() => {
-      expect(within(listbox).queryByLabelText(/loading/i)).not.toBeInTheDocument()
+      expect(within(listbox).queryByRole("option", { name: /loading/i })).not.toBeInTheDocument()
     })
 
     const option = await within(listbox).findByRole("option", { name: /food/i })
