@@ -1,4 +1,4 @@
-import type { Decorator } from "@storybook/react-vite"
+import type { Args, Decorator } from "@storybook/react-vite"
 import type { AnyRootRoute, AnyRoute, RouteComponent } from "@tanstack/react-router"
 import { createRoute, RouterProvider } from "@tanstack/react-router"
 
@@ -7,10 +7,10 @@ import { createTestRouter } from "./createTestRouter"
 
 type StoryRouteBuilder = (rootRoute: AnyRootRoute, Story: RouteComponent) => AnyRoute[]
 
-export function createStoryRouter<TArgs = object>(
+export function createStoryRouter(
   initialEntry: string,
   routeBuilder?: StoryRouteBuilder,
-): Decorator<TArgs> {
+): Decorator<Args> {
   return (Story) => {
     const defaultBuilder: StoryRouteBuilder = (root, StoryComponent) => [
       createRoute({

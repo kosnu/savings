@@ -1,13 +1,12 @@
 import { composeStories } from "@storybook/react-vite"
-import { screen, waitFor } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
 import { setDefaultOptions } from "date-fns"
 import { enUS, ja } from "date-fns/locale"
 import { afterEach, beforeEach, expect, test, vi } from "vitest"
 
+import { render, screen, waitFor } from "../../../test/test-utils"
 import * as stories from "./DatePicker.stories"
 
-const { Default } = composeStories(stories)
+const { SelectToday } = composeStories(stories)
 
 beforeEach(() => {
   // NOTE: `vi.useFakeTimers()` を使うとPlay Functionを使ったストーリーのテストがタイムアウトしてしまうので、その対応を行なっている
@@ -31,20 +30,18 @@ afterEach(() => {
   setDefaultOptions({ locale: ja })
 })
 
-// 別で修正する
-test.skip("Select today", async () => {
-  // NOTE: `vi.useFakeTimers()` を使うとPlay Functionを使ったストーリーのテストがタイムアウトしてしまうので、その対応を行なっている
-  const customUserEvent = userEvent.setup({ delay: null })
-  await Default.run()
+test("Select today", async () => {
+  // NOTE: `vi.useFakeTimers()` を使うと時間依存の UI が安定しないため、遅延なしの userEvent を使う
+  const { user } = render(<SelectToday />, { userOptions: { delay: null } })
 
   const dateInput = screen.getByRole("textbox")
-  await customUserEvent.click(dateInput)
+  await user.click(dateInput)
 
   const todayButton = await screen.findByRole("button", {
     name: /今日/i,
   })
 
-  await customUserEvent.click(todayButton)
+  await user.click(todayButton)
 
   await waitFor(() => {
     expect(dateInput).toHaveValue("2025/05/01")

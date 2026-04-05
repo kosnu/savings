@@ -1,15 +1,10 @@
-import { Theme } from "@radix-ui/themes"
-import { createRoute, RouterProvider } from "@tanstack/react-router"
-import { cleanup, render, screen, waitFor } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, test } from "vitest"
+import { createRoute } from "@tanstack/react-router"
+import { describe, expect, test } from "vitest"
 
-import {
-  SupabaseSessionContext,
-  type SupabaseSessionState,
-} from "../../../providers/supabase/SupabaseSessionProvider"
+import { type SupabaseSessionState } from "../../../providers/supabase/SupabaseSessionProvider"
 import { mockSession } from "../../../test/data/supabaseSession"
-import { createTestRouter } from "../../../test/helpers/createTestRouter"
+import { renderWithRouter as renderWithTestRouter } from "../../../test/helpers/renderWithRouter"
+import { screen, waitFor } from "../../../test/test-utils"
 import { paymentsSearchSchema } from "../../payments/listPayment/paymentsSearchSchema"
 import { MonthSelector } from "./MonthSelector"
 
@@ -18,42 +13,35 @@ const mockSessionState: SupabaseSessionState = {
   session: mockSession(),
 }
 
-function renderWithRouter(initialEntry: string) {
-  const router = createTestRouter(initialEntry, (root) => {
-    const authenticatedRoute = createRoute({
-      getParentRoute: () => root,
-      id: "authenticated",
-    })
+function renderMonthSelector(initialEntry: string) {
+  return renderWithRouterHelper(initialEntry, mockSessionState)
+}
 
-    const paymentsRoute = createRoute({
-      getParentRoute: () => authenticatedRoute,
-      path: "/payments",
-      component: MonthSelector,
-      validateSearch: paymentsSearchSchema,
-    })
+function renderWithRouterHelper(initialEntry: string, sessionState: SupabaseSessionState) {
+  return renderWithTestRouter(
+    initialEntry,
+    (root) => {
+      const authenticatedRoute = createRoute({
+        getParentRoute: () => root,
+        id: "authenticated",
+      })
 
-    return [authenticatedRoute.addChildren([paymentsRoute])]
-  })
+      const paymentsRoute = createRoute({
+        getParentRoute: () => authenticatedRoute,
+        path: "/payments",
+        component: MonthSelector,
+        validateSearch: paymentsSearchSchema,
+      })
 
-  return {
-    router,
-    ...render(
-      <SupabaseSessionContext value={mockSessionState}>
-        <Theme>
-          <RouterProvider router={router} />
-        </Theme>
-      </SupabaseSessionContext>,
-    ),
-  }
+      return [authenticatedRoute.addChildren([paymentsRoute])]
+    },
+    { sessionState },
+  )
 }
 
 describe("MonthSelector", () => {
-  afterEach(() => {
-    cleanup()
-  })
-
   test("クエリパラメータがない場合、今月の年月で初期化される", async () => {
-    const { router } = renderWithRouter("/payments")
+    const { router } = renderMonthSelector("/payments")
 
     await waitFor(() => {
       const { year, month } = router.state.location.search as {
@@ -66,7 +54,7 @@ describe("MonthSelector", () => {
   })
 
   test("クエリパラメータがある場合、その年月が表示される", async () => {
-    renderWithRouter("/payments?year=2025&month=5")
+    renderMonthSelector("/payments?year=2025&month=5")
 
     await waitFor(() => {
       expect(screen.getByText("5月")).toBeInTheDocument()
@@ -75,9 +63,7 @@ describe("MonthSelector", () => {
   })
 
   test("年月を選択すると、クエリパラメータが更新される", async () => {
-    const user = userEvent.setup()
-
-    const { router } = renderWithRouter("/payments?year=2025&month=5")
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
 
     await waitFor(() => {
       expect(screen.getByText("5月")).toBeInTheDocument()

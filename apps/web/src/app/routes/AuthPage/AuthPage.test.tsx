@@ -1,7 +1,7 @@
 import { composeStories } from "@storybook/react-vite"
-import { cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, test, vi } from "vitest"
 
+import { render, screen } from "../../../test/test-utils"
 import * as stories from "./AuthPage.stories"
 
 const { WithAuthError } = composeStories(stories)
@@ -18,7 +18,6 @@ vi.mock("../../../lib/sentry", () => ({
 
 describe("AuthPage", () => {
   afterEach(() => {
-    cleanup()
     window.history.replaceState({}, "", "/")
   })
 

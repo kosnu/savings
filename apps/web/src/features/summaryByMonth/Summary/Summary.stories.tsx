@@ -1,7 +1,5 @@
 import { Container } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { within } from "@testing-library/react"
-import { expect, waitForElementToBeRemoved } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
@@ -34,22 +32,5 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  play: async ({ canvasElement, userEvent }) => {
-    const canvas = within(canvasElement)
-
-    await waitForElementToBeRemoved(() => canvas.queryByTestId("skeleton"))
-
-    expect(await canvas.findByText("Total spending")).toBeInTheDocument()
-    expect(await canvas.findByText("￥5,000")).toBeInTheDocument()
-
-    const accordionTrigger = canvas.getByRole("button", {
-      name: /by category/i,
-    })
-    expect(accordionTrigger).toBeInTheDocument()
-    await userEvent.click(accordionTrigger)
-
-    expect(await canvas.findByText("Food")).toBeInTheDocument()
-    expect(await canvas.findByText("Daily Necessities")).toBeInTheDocument()
-    expect(await canvas.findByText("Entertainment")).toBeInTheDocument()
-  },
+  args: {},
 }

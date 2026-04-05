@@ -7,13 +7,13 @@ import {
   redirect,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, waitFor } from "@testing-library/react"
 import { useEffect } from "react"
 import { describe, expect, test, vi } from "vitest"
 
 import type { AuthStatus } from "../../providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../../providers/theme/ThemeProvider"
 import { mockSession } from "../../test/data/supabaseSession"
+import { render, waitFor } from "../../test/test-utils"
 
 vi.mock("../../lib/supabase", () => ({
   getSupabaseClient: () => ({
@@ -119,6 +119,7 @@ function renderWithSession(
 ) {
   return render(
     <TestRouterProvider router={router} session={state.session} authStatus={state.authStatus} />,
+    { withProviders: false },
   )
 }
 
