@@ -8,7 +8,7 @@ import { describe, expect, test, vi } from "vitest"
 import { createQueryClient } from "../../../../lib/queryClient"
 import * as stories from "./CategoryField.stories"
 
-const { Default, Filled } = composeStories(stories)
+const { Default } = composeStories(stories)
 
 function renderStory(story: React.ReactElement) {
   return render(
@@ -25,11 +25,11 @@ describe("CreatePayment CategoryField", () => {
     expect(await screen.findByRole("combobox", { name: /category/i })).toBeInTheDocument()
   })
 
-  test("Filled story ではカテゴリを選択できる", async () => {
+  test("カテゴリを選択できる", async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
 
-    renderStory(<Filled onChange={onChange} />)
+    renderStory(<Default onChange={onChange} />)
 
     const select = await screen.findByRole("combobox", { name: /category/i })
     await user.click(select)

@@ -11,7 +11,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import * as stories from "./CreatePaymentForm.stories"
 
-const { Default, Empty, Filled } = composeStories(stories)
+const { Default } = composeStories(stories)
 const PAYMENTS_REST_URL = "*/rest/v1/payments*"
 
 function renderStory(story: React.ReactElement) {
@@ -43,10 +43,10 @@ describe("CreatePaymentForm", () => {
     expect(document.activeElement).toBe(amountField)
   })
 
-  test("Filled story ではカテゴリの非同期読み込み後に入力を進められる", async () => {
+  test("カテゴリの非同期読み込み後に入力を進められる", async () => {
     const user = userEvent.setup()
 
-    renderStory(<Filled />)
+    renderStory(<Default />)
 
     await user.click(await screen.findByRole("textbox", { name: /date/i }))
     await selectFoodCategory(user)
@@ -62,10 +62,10 @@ describe("CreatePaymentForm", () => {
     expect(amountInput).toHaveValue("1080")
   })
 
-  test("Empty story では amount 未入力で送信するとバリデーションエラーを表示する", async () => {
+  test("amount 未入力で送信するとバリデーションエラーを表示する", async () => {
     const user = userEvent.setup()
 
-    renderStory(<Empty />)
+    renderStory(<Default />)
 
     await user.click(screen.getByRole("button", { name: /create/i }))
 

@@ -8,8 +8,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import * as stories from "./CreatePaymentModal.stories"
 
-const { ContinuousCreationDisabled, ContinuousCreationEnabled, Default, OpenModal } =
-  composeStories(stories)
+const { Default } = composeStories(stories)
 
 async function fillAndSubmit(dialog: HTMLElement, body: ReturnType<typeof within>, note: string) {
   const categorySelect = within(dialog).getByRole("combobox", { name: /category/i })
@@ -57,10 +56,10 @@ describe("CreatePaymentModal", () => {
     expect(screen.getByRole("dialog", { name: /create payment/i })).toBeInTheDocument()
   })
 
-  test("OpenModal story ではダイアログと amount 入力欄を表示する", async () => {
+  test("トリガー操作でダイアログと amount 入力欄を表示する", async () => {
     const user = userEvent.setup()
 
-    render(<OpenModal />)
+    render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
@@ -82,11 +81,11 @@ describe("CreatePaymentModal", () => {
     expect(screen.queryByRole("dialog", { name: /create payment/i })).not.toBeInTheDocument()
   })
 
-  test("ContinuousCreationEnabled story では作成後もダイアログを開いたままにする", async () => {
+  test("連続作成を有効にすると作成後もダイアログを開いたままにする", async () => {
     const user = userEvent.setup()
     const onSuccess = vi.fn()
 
-    render(<ContinuousCreationEnabled onSuccess={onSuccess} />)
+    render(<Default onSuccess={onSuccess} />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
@@ -122,11 +121,11 @@ describe("CreatePaymentModal", () => {
     expect(onSuccess).toHaveBeenCalledTimes(1)
   })
 
-  test("ContinuousCreationDisabled story では作成後に onSuccess が呼ばれる", async () => {
+  test("連続作成が未選択なら作成後に onSuccess が呼ばれる", async () => {
     const user = userEvent.setup()
     const onSuccess = vi.fn()
 
-    render(<ContinuousCreationDisabled onSuccess={onSuccess} />)
+    render(<Default onSuccess={onSuccess} />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
