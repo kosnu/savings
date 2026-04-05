@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { createQueryClient } from "../../../../lib/queryClient"
@@ -24,9 +23,7 @@ describe("PaymentList", () => {
   })
 
   test("キーボード操作で詳細を開いて閉じると元の行へフォーカスが戻る", async () => {
-    const user = userEvent.setup()
-
-    renderStory()
+    const { user } = renderStory()
 
     const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
     firstPaymentButton.focus()
@@ -49,9 +46,7 @@ describe("PaymentList", () => {
   })
 
   test("金額編集中の Escape は詳細を閉じず、次の Escape で詳細を閉じる", async () => {
-    const user = userEvent.setup()
-
-    renderStory()
+    const { user } = renderStory()
 
     const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
     await user.click(firstPaymentButton)
@@ -74,9 +69,7 @@ describe("PaymentList", () => {
   })
 
   test("削除確認をキャンセルすると詳細へ戻る", async () => {
-    const user = userEvent.setup()
-
-    renderStory()
+    const { user } = renderStory()
 
     const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
     await user.click(firstPaymentButton)

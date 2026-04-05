@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
@@ -16,10 +15,8 @@ function renderStory() {
 
 describe("Summary", () => {
   test("月次合計とカテゴリ別合計を表示できる", async () => {
-    const user = userEvent.setup()
-
     server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
-    renderStory()
+    const { user } = renderStory()
 
     expect(await screen.findByText("Total spending")).toBeInTheDocument()
     expect(await screen.findByText("￥5,000")).toBeInTheDocument()

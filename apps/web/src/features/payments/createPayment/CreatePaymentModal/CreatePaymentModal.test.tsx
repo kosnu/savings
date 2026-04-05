@@ -1,18 +1,29 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { fireEvent, render, screen, waitFor, within } from "../../../../test/test-utils"
+import {
+  fireEvent,
+  render,
+  screen,
+  type TestUser,
+  waitFor,
+  within,
+} from "../../../../test/test-utils"
 import * as stories from "./CreatePaymentModal.stories"
 
 const { Default } = composeStories(stories)
 
-async function fillAndSubmit(dialog: HTMLElement, body: ReturnType<typeof within>, note: string) {
+async function fillAndSubmit(
+  user: TestUser,
+  dialog: HTMLElement,
+  body: ReturnType<typeof within>,
+  note: string,
+) {
   const categorySelect = within(dialog).getByRole("combobox", { name: /category/i })
-  await userEvent.click(categorySelect)
+  await user.click(categorySelect)
 
   const listbox = await body.findByRole("listbox")
   await waitFor(() => {
@@ -22,15 +33,15 @@ async function fillAndSubmit(dialog: HTMLElement, body: ReturnType<typeof within
   const categoryOption = await within(listbox).findByRole("option", {
     name: /food/i,
   })
-  await userEvent.click(categoryOption)
+  await user.click(categoryOption)
 
   const amountInput = within(dialog).getByLabelText(/amount/i)
-  await userEvent.type(amountInput, "1000")
+  await user.type(amountInput, "1000")
 
   const noteInput = within(dialog).getByLabelText(/note/i)
-  await userEvent.type(noteInput, note)
+  await user.type(noteInput, note)
 
-  await userEvent.click(within(dialog).getByRole("button", { name: /create/i }))
+  await user.click(within(dialog).getByRole("button", { name: /create/i }))
 }
 
 describe("CreatePaymentModal", () => {
@@ -39,9 +50,7 @@ describe("CreatePaymentModal", () => {
   })
 
   test("should stay open when Escape is pressed", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
@@ -57,9 +66,7 @@ describe("CreatePaymentModal", () => {
   })
 
   test("トリガー操作でダイアログと amount 入力欄を表示する", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
@@ -69,9 +76,7 @@ describe("CreatePaymentModal", () => {
   })
 
   test("should close when Cancel is clicked", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
     await screen.findByRole("dialog", { name: /create payment/i })
@@ -82,10 +87,9 @@ describe("CreatePaymentModal", () => {
   })
 
   test("連続作成を有効にすると作成後もダイアログを開いたままにする", async () => {
-    const user = userEvent.setup()
     const onSuccess = vi.fn()
 
-    render(<Default onSuccess={onSuccess} />)
+    const { user } = render(<Default onSuccess={onSuccess} />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
@@ -97,7 +101,7 @@ describe("CreatePaymentModal", () => {
     await user.click(checkbox)
     expect(checkbox).toBeChecked()
 
-    await fillAndSubmit(dialog, body, "Test payment")
+    await fillAndSubmit(user, dialog, body, "Test payment")
 
     await waitFor(() => {
       expect(
@@ -122,10 +126,9 @@ describe("CreatePaymentModal", () => {
   })
 
   test("連続作成が未選択なら作成後に onSuccess が呼ばれる", async () => {
-    const user = userEvent.setup()
     const onSuccess = vi.fn()
 
-    render(<Default onSuccess={onSuccess} />)
+    const { user } = render(<Default onSuccess={onSuccess} />)
 
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
@@ -136,7 +139,7 @@ describe("CreatePaymentModal", () => {
     const checkbox = within(dialog).getByRole("checkbox", { name: /continue creating/i })
     expect(checkbox).not.toBeChecked()
 
-    await fillAndSubmit(dialog, body, "Test payment without continuous mode")
+    await fillAndSubmit(user, dialog, body, "Test payment without continuous mode")
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)

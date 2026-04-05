@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test, vi } from "vitest"
 
 import { render, screen, waitFor, within } from "../../../../test/test-utils"
@@ -19,10 +18,8 @@ describe("CreatePayment CategoryField", () => {
   })
 
   test("カテゴリを選択できる", async () => {
-    const user = userEvent.setup()
     const onChange = vi.fn()
-
-    renderStory(<Default onChange={onChange} />)
+    const { user } = renderStory(<Default onChange={onChange} />)
 
     const select = await screen.findByRole("combobox", { name: /category/i })
     await user.click(select)

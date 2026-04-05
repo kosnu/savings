@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { render, screen } from "../../../../test/test-utils"
@@ -9,9 +8,7 @@ const { Default, Filled } = composeStories(stories)
 
 describe("NoteInput", () => {
   test("入力すると値が更新される", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     const input = screen.getByRole("textbox")
     await user.type(input, "This is a note")

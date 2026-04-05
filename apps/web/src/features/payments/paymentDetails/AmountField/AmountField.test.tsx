@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test } from "vitest"
 
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
@@ -15,9 +14,7 @@ describe("AmountField", () => {
   })
 
   test("編集ボタンを押すと入力欄を開く", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
 
@@ -33,9 +30,7 @@ describe("AmountField", () => {
   })
 
   test("編集中の Escape は編集だけ解除する", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
@@ -48,9 +43,7 @@ describe("AmountField", () => {
   })
 
   test("保存ボタンで金額を保存できる", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
@@ -66,15 +59,13 @@ describe("AmountField", () => {
   })
 
   test("保存失敗時は編集状態を維持してエラーを表示する", async () => {
-    const user = userEvent.setup()
-
     server.resetHandlers(
       ...createPaymentHandlers({
         update: { error: true },
       }),
     )
 
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
@@ -89,15 +80,13 @@ describe("AmountField", () => {
   })
 
   test("保存中は入力欄と保存ボタンを操作不可にする", async () => {
-    const user = userEvent.setup()
-
     server.resetHandlers(
       ...createPaymentHandlers({
         update: { durationOrMode: 1000 },
       }),
     )
 
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
     const amountInput = screen.getByRole("textbox", { name: /amount/i })

@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { render, screen } from "../../../../test/test-utils"
@@ -22,9 +21,7 @@ describe("EditableField", () => {
   })
 
   test("編集を開始するとメッセージを表示する", async () => {
-    const user = userEvent.setup()
-
-    render(<WithMessages />)
+    const { user } = render(<WithMessages />)
 
     await user.click(screen.getByRole("button", { name: /edit amount/i }))
 
