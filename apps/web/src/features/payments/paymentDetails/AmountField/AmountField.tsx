@@ -10,7 +10,7 @@ import {
 } from "react"
 
 import { useSnackbar } from "../../../../providers/snackbar"
-import type { Payment } from "../../../../types/payment"
+import type { PaymentId } from "../../../../types/payment"
 import { getZodErrorMessages } from "../../../../utils/getZodErrorMessages"
 import { toCurrency } from "../../../../utils/toCurrency"
 import { AmountInput } from "../../components/AmountInput"
@@ -20,7 +20,7 @@ import { EditableField } from "../EditableField"
 import { SubmitIconButton } from "../SubmitIconButton"
 
 interface AmountFieldProps {
-  paymentId?: Payment["id"]
+  paymentId?: PaymentId
   amount: number
   onEditingChange?: (editing: boolean) => void
 }
@@ -30,7 +30,6 @@ export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldP
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
   const [editing, setEditing] = useState(false)
-  const [committedAmount, setCommittedAmount] = useState(amount)
   const [draftAmount, setDraftAmount] = useState<number | undefined>(amount)
   const [messages, setMessages] = useState<string[] | undefined>()
 
@@ -47,18 +46,18 @@ export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldP
   const handleEdit = useCallback(() => {
     if (paymentId === undefined) return
 
-    setDraftAmount(committedAmount)
+    setDraftAmount(amount)
     setMessages(undefined)
     setEditing(true)
-  }, [committedAmount, paymentId])
+  }, [amount, paymentId])
 
   const handleCancel = useCallback(() => {
     if (isPending) return
 
-    setDraftAmount(committedAmount)
+    setDraftAmount(amount)
     setMessages(undefined)
     setEditing(false)
-  }, [committedAmount, isPending])
+  }, [amount, isPending])
 
   const handleChange = useCallback((nextAmount: number | undefined) => {
     setDraftAmount(nextAmount)
@@ -68,7 +67,7 @@ export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldP
   const handleSubmit = useCallback(async () => {
     if (paymentId === undefined || isPending) return
 
-    if (draftAmount === committedAmount) {
+    if (draftAmount === amount) {
       setMessages(undefined)
       setEditing(false)
       return
@@ -87,8 +86,6 @@ export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldP
         paymentId,
         patch: { amount: result.data },
       })
-      setCommittedAmount(result.data)
-      setDraftAmount(result.data)
       setEditing(false)
     } catch {
       const message = "Failed to update amount."
@@ -96,7 +93,7 @@ export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldP
       setMessages([message])
       openSnackbar("error", message)
     }
-  }, [committedAmount, draftAmount, isPending, openSnackbar, paymentId, updatePayment])
+  }, [amount, draftAmount, isPending, openSnackbar, paymentId, updatePayment])
 
   return (
     <EditableField
@@ -110,7 +107,7 @@ export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldP
       messages={messages}
       view={
         <Text size="4" style={{ flex: 1 }}>
-          {toCurrency(committedAmount)}
+          {toCurrency(amount)}
         </Text>
       }
       editor={

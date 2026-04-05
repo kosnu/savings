@@ -5,27 +5,25 @@ import { fn } from "storybook/test"
 import { createQueryClient } from "../../../../lib/queryClient"
 import { SnackbarProvider } from "../../../../providers/snackbar"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { foodCat } from "../../../../test/data/categories"
 import { payments } from "../../../../test/data/payments"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
+import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
 import { PaymentDetailsOverlay } from "./PaymentDetailsOverlay"
+
+const paymentId = payments[0].id!
 
 const meta = {
   title: "Features/PaymentDetails/PaymentDetailsOverlay",
   component: PaymentDetailsOverlay,
   parameters: {
     layout: "centered",
-    msw: {
-      handlers: createPaymentHandlers(),
-    },
   },
   tags: ["autodocs"],
   args: {
     open: true,
     onOpenChange: fn(),
     onDelete: fn(),
-    category: foodCat,
-    payment: payments[0],
+    paymentId,
   },
   decorators: [
     (Story) => (
@@ -43,13 +41,37 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+export const Default: Story = {
+  parameters: {
+    msw: {
+      handlers: createPaymentHandlers(),
+    },
+  },
+}
 
 export const EmptyNote: Story = {
+  parameters: {
+    msw: {
+      handlers: createPaymentHandlers({
+        initialRows: [
+          mapPaymentToRow({
+            ...payments[0],
+            note: "",
+          }),
+          ...payments.slice(1).map(mapPaymentToRow),
+        ],
+      }),
+    },
+  },
+}
+
+export const MissingPayment: Story = {
   args: {
-    payment: {
-      ...payments[0],
-      note: "",
+    paymentId: 9999,
+  },
+  parameters: {
+    msw: {
+      handlers: createPaymentHandlers(),
     },
   },
 }
