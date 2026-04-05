@@ -20,6 +20,7 @@ export interface PaymentCategory {
   name: string
 }
 
-export interface PaymentDetails extends Omit<Payment, "categoryId"> {
+export interface PaymentDetails extends Omit<Payment, "id" | "categoryId"> {
+  id: PaymentId
   category: PaymentCategory | null
 }
