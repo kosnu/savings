@@ -69,6 +69,14 @@ afterEach(() => {
 })
 
 describe("ResponsiveOverlay", () => {
+  test("desktop でも右上の閉じるボタンを表示する", async () => {
+    createMatchMediaController(false)
+
+    render(<OverlayHarness />)
+
+    expect(await screen.findByRole("button", { name: /close create payment/i })).toBeInTheDocument()
+  })
+
   test("should keep child state when the viewport switches while open", async () => {
     const controller = createMatchMediaController(false)
     const { user } = render(<OverlayHarness />)

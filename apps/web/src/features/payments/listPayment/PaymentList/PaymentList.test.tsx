@@ -32,10 +32,10 @@ describe("PaymentList", () => {
     await user.keyboard("{Enter}")
 
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
-    expect(within(dialog).getByText("Daily Necessities")).not.toHaveClass("rt-Badge")
-    expect(within(dialog).getAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
-    expect(within(dialog).getByText("Category")).toBeInTheDocument()
-    expect(within(dialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
+    expect(await within(dialog).findByText("Daily Necessities")).not.toHaveClass("rt-Badge")
+    expect(await within(dialog).findAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
+    expect(await within(dialog).findByText("Category")).toBeInTheDocument()
+    expect(await within(dialog).findByRole("button", { name: /delete/i })).toBeInTheDocument()
 
     await user.keyboard("{Escape}")
 
@@ -52,9 +52,9 @@ describe("PaymentList", () => {
     await user.click(firstPaymentButton)
 
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
-    await user.click(within(dialog).getByRole("button", { name: /edit amount/i }))
+    await user.click(await within(dialog).findByRole("button", { name: /edit amount/i }))
 
-    expect(within(dialog).getByRole("textbox", { name: /amount/i })).toBeInTheDocument()
+    expect(await within(dialog).findByRole("textbox", { name: /amount/i })).toBeInTheDocument()
 
     await user.keyboard("{Escape}")
 
@@ -75,7 +75,9 @@ describe("PaymentList", () => {
     await user.click(firstPaymentButton)
 
     const detailDialog = await screen.findByRole("dialog", { name: /payment details/i })
-    await user.click(within(detailDialog).getByRole("button", { name: /delete this payment/i }))
+    await user.click(
+      await within(detailDialog).findByRole("button", { name: /delete this payment/i }),
+    )
 
     const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     expect(
