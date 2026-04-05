@@ -23,6 +23,12 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
 - If you intentionally diverge from an existing pattern, explain why before applying the change.
 
+## Mandatory Communication Rules
+
+The rules in this section are mandatory and must always be followed.
+
+- Any sentence ending with `?` or `？` MUST be treated as a question. You MUST answer it before taking any action.
+
 ## Verification
 
 Run verification commands from the repository root

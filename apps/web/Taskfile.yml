@@ -26,16 +26,25 @@ tasks:
   typecheck:
     desc: Run TypeScript type checks
     cmd: pnpm typecheck
+  test-unit:
+    desc: Run unit and integration tests
+    cmd: pnpm test:unit --silent --reporter=dot {{.CLI_ARGS}}
+  test-storybook:
+    desc: Run Storybook interaction tests
+    cmd: pnpm test:storybook --silent --reporter=dot {{.CLI_ARGS}}
   test:
-    desc: Run tests
-    cmd: pnpm test --silent --reporter=dot {{.CLI_ARGS}}
+    desc: Run all tests sequentially
+    cmds:
+      - task test-unit -- {{.CLI_ARGS}}
+      - task test-storybook -- {{.CLI_ARGS}}
   verify:
-    desc: Run all verification tasks
-    deps:
-      - lint
-      - format-check
-      - typecheck
-      - test
+    desc: Run all verification tasks sequentially
+    cmds:
+      - task lint
+      - task format-check
+      - task typecheck
+      - task test-unit
+      - task test-storybook
   build:
     desc: Build the application for production
     cmd: pnpm build {{.CLI_ARGS}}

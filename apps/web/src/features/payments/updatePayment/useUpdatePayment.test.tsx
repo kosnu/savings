@@ -1,9 +1,7 @@
-import { QueryClientProvider } from "@tanstack/react-query"
-import { act, renderHook, waitFor } from "@testing-library/react"
-import type { PropsWithChildren } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createQueryClient } from "../../../lib/queryClient"
+import { act, renderHook, waitFor } from "../../../test/test-utils"
 import { useUpdatePayment } from "./useUpdatePayment"
 
 const { mockUpdatePayment } = vi.hoisted(() => ({
@@ -13,12 +11,6 @@ const { mockUpdatePayment } = vi.hoisted(() => ({
 vi.mock("./updatePayment", () => ({
   updatePayment: mockUpdatePayment,
 }))
-
-function createWrapper(queryClient: ReturnType<typeof createQueryClient>) {
-  return function Wrapper({ children }: PropsWithChildren) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  }
-}
 
 describe("useUpdatePayment", () => {
   beforeEach(() => {
@@ -35,7 +27,7 @@ describe("useUpdatePayment", () => {
     mockUpdatePayment.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
-      wrapper: createWrapper(queryClient),
+      queryClient,
     })
 
     await act(async () => {
@@ -68,7 +60,7 @@ describe("useUpdatePayment", () => {
     mockUpdatePayment.mockRejectedValue(error)
 
     const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
-      wrapper: createWrapper(queryClient),
+      queryClient,
     })
 
     await act(async () => {
@@ -95,7 +87,7 @@ describe("useUpdatePayment", () => {
     mockUpdatePayment.mockRejectedValue(error)
 
     const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
-      wrapper: createWrapper(queryClient),
+      queryClient,
     })
 
     await act(async () => {

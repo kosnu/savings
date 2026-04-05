@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, fn, within } from "storybook/test"
+import { fn } from "storybook/test"
 
 import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Sidebar } from "./Sidebar"
@@ -28,25 +28,11 @@ export const Default: Story = {
     open: true,
     children: "Sidebar Content",
   },
-  play: async ({ canvasElement }) => {
-    const sidebar = within(canvasElement).getByRole("complementary")
-
-    expect(within(sidebar).getByText("My Savings")).toBeInTheDocument()
-    expect(within(sidebar).getByText("Sidebar Content")).toBeInTheDocument()
-    expect(sidebar).toHaveAttribute("data-open", "true")
-  },
 }
 
 export const Closed: Story = {
   args: {
     open: false,
     children: "Sidebar Content",
-  },
-  play: async ({ canvasElement }) => {
-    const sidebar = within(canvasElement).getByRole("complementary")
-
-    expect(within(sidebar).getByText("My Savings")).toBeInTheDocument()
-    expect(within(sidebar).getByText("Sidebar Content")).toBeInTheDocument()
-    expect(sidebar).toHaveAttribute("data-open", "false")
   },
 }

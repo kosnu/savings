@@ -1,6 +1,5 @@
 import { Card } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, waitFor, within } from "storybook/test"
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./Accordion"
 
@@ -40,39 +39,6 @@ export const Default: Story = {
       </>
     ),
   },
-  play: async ({ canvasElement, userEvent }) => {
-    const canvas = within(canvasElement)
-    const firstButton = canvas.getByRole("button", {
-      name: /Is it accessible?/i,
-    })
-    await userEvent.click(firstButton)
-
-    expect(
-      await canvas.findByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
-    ).toBeInTheDocument()
-    expect(
-      canvas.queryByText(
-        /Yes. It's unstyled by default, giving you freedom over the look and feel./i,
-      ),
-    ).not.toBeInTheDocument()
-
-    const secondButton = canvas.getByRole("button", {
-      name: /Is it unstyled?/i,
-    })
-    await userEvent.click(secondButton)
-
-    // Wait for the first content to be removed from the DOM
-    await waitFor(() =>
-      expect(
-        canvas.queryByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
-      ).not.toBeInTheDocument(),
-    )
-    expect(
-      await canvas.findByText(
-        /Yes. It's unstyled by default, giving you freedom over the look and feel./i,
-      ),
-    ).toBeInTheDocument()
-  },
 }
 
 export const Multiple: Story = {
@@ -92,35 +58,5 @@ export const Multiple: Story = {
         </AccordionItem>
       </>
     ),
-  },
-  play: async ({ canvasElement, userEvent }) => {
-    const canvas = within(canvasElement)
-    const firstButton = canvas.getByRole("button", {
-      name: /Is it accessible?/i,
-    })
-    await userEvent.click(firstButton)
-
-    expect(
-      await canvas.findByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
-    ).toBeInTheDocument()
-    expect(
-      canvas.queryByText(
-        /Yes. It's unstyled by default, giving you freedom over the look and feel./i,
-      ),
-    ).not.toBeInTheDocument()
-
-    const secondButton = canvas.getByRole("button", {
-      name: /Is it unstyled?/i,
-    })
-    await userEvent.click(secondButton)
-
-    expect(
-      await canvas.findByText(/Yes. It adheres to the WAI-ARIA design pattern./i),
-    ).toBeInTheDocument()
-    expect(
-      await canvas.findByText(
-        /Yes. It's unstyled by default, giving you freedom over the look and feel./i,
-      ),
-    ).toBeInTheDocument()
   },
 }

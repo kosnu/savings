@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
+import { render, screen } from "../test/test-utils"
 import { Router } from "./Router"
 
 const mockRouterProvider = vi.fn(() => <div>router-provider</div>)
@@ -34,7 +34,7 @@ describe("Router", () => {
       session: null,
     })
 
-    render(<Router />)
+    render(<Router />, { withProviders: false })
 
     expect(screen.getByText("認証状態を確認しています...")).toBeInTheDocument()
     expect(screen.queryByText("router-provider")).not.toBeInTheDocument()
@@ -47,7 +47,7 @@ describe("Router", () => {
       session: { access_token: "token" },
     })
 
-    render(<Router />)
+    render(<Router />, { withProviders: false })
 
     expect(screen.getByText("router-provider")).toBeInTheDocument()
     expect(mockRouterProvider).toHaveBeenCalledTimes(1)

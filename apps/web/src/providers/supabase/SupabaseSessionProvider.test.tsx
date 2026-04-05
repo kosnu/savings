@@ -1,7 +1,7 @@
 import type { Session } from "@supabase/supabase-js"
-import { render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
+import { render, screen, waitFor } from "../../test/test-utils"
 import { SupabaseSessionProvider } from "./SupabaseSessionProvider"
 import { useSupabaseSession } from "./useSupabaseSession"
 
@@ -66,6 +66,7 @@ describe("SupabaseSessionProvider", () => {
       <SupabaseSessionProvider>
         <SessionStateView />
       </SupabaseSessionProvider>,
+      { withProviders: false },
     )
 
     expect(screen.getByText("loading")).toBeInTheDocument()
@@ -100,6 +101,7 @@ describe("SupabaseSessionProvider", () => {
       <SupabaseSessionProvider>
         <SessionStateView />
       </SupabaseSessionProvider>,
+      { withProviders: false },
     )
 
     await waitFor(() => {

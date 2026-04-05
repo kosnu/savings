@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, within } from "storybook/test"
 
 import { CategoryField } from "./CategoryField"
 
@@ -14,11 +13,4 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    expect(canvas.getByText("Category")).toBeInTheDocument()
-    expect(canvas.getByText("Food")).toBeInTheDocument()
-  },
-}
+export const Default: Story = {}

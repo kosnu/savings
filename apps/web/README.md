@@ -71,6 +71,13 @@ task storybook -- --no-open
 task test
 ```
 
+個別に実行したい場合:
+
+```bash
+task test-unit
+task test-storybook
+```
+
 E2E テストや Playwright が設定されている場合は、CI 設定や `package.json` のスクリプトを参照してください。
 
 ## Lint / 型チェック
@@ -86,7 +93,7 @@ pnpm lint
 pnpm format
 ```
 
-まとめて確認したい場合は `task verify` で lint、format check、typecheck、test を並列実行できます。
+まとめて確認したい場合は `task verify` で lint、format check、typecheck、test を直列実行できます。
 型チェックは `task typecheck` で明示的に実行できます。`task build` でも `tsc -b` を通るため、ビルド時にも型チェックされます。
 `pnpm typecheck` を直接実行しても同じチェックが走ります。
 

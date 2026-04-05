@@ -1,39 +1,19 @@
 import { composeStories } from "@storybook/react-vite"
-import { QueryClientProvider } from "@tanstack/react-query"
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, test } from "vitest"
+import { describe, expect, test } from "vitest"
 
 import { createQueryClient } from "../../../../lib/queryClient"
-import { SnackbarProvider } from "../../../../providers/snackbar"
-import { SupabaseSessionContext } from "../../../../providers/supabase/SupabaseSessionProvider"
-import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { mockSession } from "../../../../test/data/supabaseSession"
+import { render, screen, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./PaymentList.stories"
 
-const { Default } = composeStories(stories)
+const { Default, Loading } = composeStories(stories)
 
 function renderStory() {
   const queryClient = createQueryClient()
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
-        <ThemeProvider>
-          <SnackbarProvider>
-            <Default />
-          </SnackbarProvider>
-        </ThemeProvider>
-      </SupabaseSessionContext>
-    </QueryClientProvider>,
-  )
+  return render(<Default />, { queryClient })
 }
 
 describe("PaymentList", () => {
-  afterEach(() => {
-    cleanup()
-  })
-
   test("支払い行が button として並び、詳細内に削除導線がある", async () => {
     renderStory()
 
@@ -43,9 +23,7 @@ describe("PaymentList", () => {
   })
 
   test("キーボード操作で詳細を開いて閉じると元の行へフォーカスが戻る", async () => {
-    const user = userEvent.setup()
-
-    renderStory()
+    const { user } = renderStory()
 
     const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
     firstPaymentButton.focus()
@@ -68,9 +46,7 @@ describe("PaymentList", () => {
   })
 
   test("金額編集中の Escape は詳細を閉じず、次の Escape で詳細を閉じる", async () => {
-    const user = userEvent.setup()
-
-    renderStory()
+    const { user } = renderStory()
 
     const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
     await user.click(firstPaymentButton)
@@ -93,9 +69,7 @@ describe("PaymentList", () => {
   })
 
   test("削除確認をキャンセルすると詳細へ戻る", async () => {
-    const user = userEvent.setup()
-
-    renderStory()
+    const { user } = renderStory()
 
     const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
     await user.click(firstPaymentButton)
@@ -114,5 +88,11 @@ describe("PaymentList", () => {
     })
 
     expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
+  })
+
+  test("Loading story ではスケルトンを 3 件表示する", async () => {
+    render(<Loading />)
+
+    expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
   })
 })
