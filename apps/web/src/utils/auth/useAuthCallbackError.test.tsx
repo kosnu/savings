@@ -1,6 +1,6 @@
-import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
+import { renderHook } from "../../test/test-utils"
 import { useAuthCallbackError } from "./useAuthCallbackError"
 
 const { mockCaptureAuthCallbackError } = vi.hoisted(() => ({
@@ -19,7 +19,7 @@ describe("useAuthCallbackError", () => {
   test("認証エラーを抽出してSentryに送信する", () => {
     const url =
       "http://localhost:5173/auth?error=server_error&error_code=unexpected_failure&error_description=Unable+to+exchange+external+code%3A+abc"
-    const { result } = renderHook(() => useAuthCallbackError(url))
+    const { result } = renderHook(() => useAuthCallbackError(url), { withProviders: false })
 
     expect(result.current).toEqual({
       code: "unexpected_failure",
@@ -34,14 +34,16 @@ describe("useAuthCallbackError", () => {
   test("同じURLで再レンダーしてもSentryに重複送信しない", () => {
     const url =
       "http://localhost:5173/auth?error=server_error&error_code=unexpected_failure&error_description=Unable+to+exchange+external+code%3A+abc"
-    const { rerender } = renderHook(() => useAuthCallbackError(url))
+    const { rerender } = renderHook(() => useAuthCallbackError(url), { withProviders: false })
     rerender()
 
     expect(mockCaptureAuthCallbackError).toHaveBeenCalledTimes(1)
   })
 
   test("認証エラーがない場合はnullを返して送信しない", () => {
-    const { result } = renderHook(() => useAuthCallbackError("http://localhost:5173/auth"))
+    const { result } = renderHook(() => useAuthCallbackError("http://localhost:5173/auth"), {
+      withProviders: false,
+    })
 
     expect(result.current).toBeNull()
     expect(mockCaptureAuthCallbackError).not.toHaveBeenCalled()

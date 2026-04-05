@@ -1,10 +1,10 @@
 import { composeStories } from "@storybook/react-vite"
-import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { setDefaultOptions } from "date-fns"
 import { enUS, ja } from "date-fns/locale"
 import { afterEach, beforeEach, expect, test, vi } from "vitest"
 
+import { render, screen, waitFor } from "../../../test/test-utils"
 import * as stories from "./DatePicker.stories"
 
 const { SelectToday } = composeStories(stories)

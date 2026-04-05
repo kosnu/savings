@@ -1,8 +1,8 @@
 import { composeStories } from "@storybook/react-vite"
-import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
+import { render, screen } from "../../../../test/test-utils"
 import * as stories from "./NoteInput.stories"
 
 const { Default, Filled } = composeStories(stories)
