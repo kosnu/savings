@@ -1,9 +1,9 @@
 import { Theme } from "@radix-ui/themes"
 import { composeStories } from "@storybook/react-vite"
-import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, test, vi } from "vitest"
 
+import { render, screen } from "../../../../test/test-utils"
 import * as stories from "./CategorySelect.stories"
 
 const { AllowEmptyOption, Default, Empty, EmptyWithAllowEmptyOption, ErrorState, Filled, Loading } =

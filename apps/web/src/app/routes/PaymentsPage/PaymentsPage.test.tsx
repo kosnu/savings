@@ -1,19 +1,14 @@
 import { composeStories } from "@storybook/react-vite"
-import { QueryClientProvider } from "@tanstack/react-query"
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createQueryClient } from "../../../lib/queryClient"
-import { SnackbarProvider } from "../../../providers/snackbar"
-import { SupabaseSessionContext } from "../../../providers/supabase/SupabaseSessionProvider"
-import { ThemeProvider } from "../../../providers/theme/ThemeProvider"
 import { entertainmentCat } from "../../../test/data/categories"
 import { payments } from "../../../test/data/payments"
-import { mockSession } from "../../../test/data/supabaseSession"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
+import { render, screen, waitFor, within } from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import * as stories from "./PaymentPage.stories"
 
@@ -38,30 +33,17 @@ const createdPayment = mapPaymentToRow({
 function createStoryElement(queryClient = createQueryClient()) {
   return {
     queryClient,
-    element: (
-      <QueryClientProvider client={queryClient}>
-        <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
-          <ThemeProvider>
-            <SnackbarProvider>
-              <Default />
-            </SnackbarProvider>
-          </ThemeProvider>
-        </SupabaseSessionContext>
-      </QueryClientProvider>
-    ),
+    element: <Default />,
   }
 }
 
 function renderStory() {
   const { element, queryClient } = createStoryElement()
-  const view = render(element)
+  const view = render(element, { queryClient })
 
   return {
     ...view,
-    rerenderStory: () => {
-      const { element: rerenderElement } = createStoryElement(queryClient)
-      return view.rerender(rerenderElement)
-    },
+    rerenderStory: () => view.rerender(<Default />),
   }
 }
 
@@ -79,7 +61,6 @@ describe("PaymentsPage", () => {
   })
 
   afterEach(() => {
-    cleanup()
     server.resetHandlers()
     vi.useRealTimers()
   })

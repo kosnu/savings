@@ -1,27 +1,17 @@
 import { composeStories } from "@storybook/react-vite"
-import { QueryClientProvider } from "@tanstack/react-query"
-import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
-import { createQueryClient } from "../../../../lib/queryClient"
-import { SnackbarProvider } from "../../../../providers/snackbar"
-import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
+import { render, screen, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./DeletePaymentModal.stories"
 
 const { ClickDeleteButton, Default, DeleteFailureKeepsDialogOpen, NoPayment } =
   composeStories(stories)
 
 function renderStory(story: React.ReactElement) {
-  return render(
-    <ThemeProvider>
-      <QueryClientProvider client={createQueryClient()}>
-        <SnackbarProvider>{story}</SnackbarProvider>
-      </QueryClientProvider>
-    </ThemeProvider>,
-  )
+  return render(story)
 }
 
 describe("DeletePaymentModal", () => {

@@ -1,11 +1,11 @@
 import { composeStories } from "@storybook/react-vite"
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
+import { fireEvent, render, screen, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./CreatePaymentModal.stories"
 
 const { Default } = composeStories(stories)

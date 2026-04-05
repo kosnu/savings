@@ -1,14 +1,9 @@
 import { composeStories } from "@storybook/react-vite"
-import { QueryClientProvider } from "@tanstack/react-query"
-import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { createQueryClient } from "../../../../lib/queryClient"
-import { SnackbarProvider } from "../../../../providers/snackbar"
-import { SupabaseSessionContext } from "../../../../providers/supabase/SupabaseSessionProvider"
-import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { mockSession } from "../../../../test/data/supabaseSession"
+import { render, screen, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./PaymentList.stories"
 
 const { Default, Loading } = composeStories(stories)
@@ -16,17 +11,7 @@ const { Default, Loading } = composeStories(stories)
 function renderStory() {
   const queryClient = createQueryClient()
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
-        <ThemeProvider>
-          <SnackbarProvider>
-            <Default />
-          </SnackbarProvider>
-        </ThemeProvider>
-      </SupabaseSessionContext>
-    </QueryClientProvider>,
-  )
+  return render(<Default />, { queryClient })
 }
 
 describe("PaymentList", () => {
@@ -113,19 +98,7 @@ describe("PaymentList", () => {
   })
 
   test("Loading story ではスケルトンを 3 件表示する", async () => {
-    const queryClient = createQueryClient()
-
-    render(
-      <QueryClientProvider client={queryClient}>
-        <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
-          <ThemeProvider>
-            <SnackbarProvider>
-              <Loading />
-            </SnackbarProvider>
-          </ThemeProvider>
-        </SupabaseSessionContext>
-      </QueryClientProvider>,
-    )
+    render(<Loading />)
 
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
   })

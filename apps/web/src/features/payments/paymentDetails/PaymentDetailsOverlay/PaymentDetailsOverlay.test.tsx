@@ -1,10 +1,10 @@
 import { composeStories } from "@storybook/react-vite"
-import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test } from "vitest"
 
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
+import { render, screen, within } from "../../../../test/test-utils"
 import * as stories from "./PaymentDetailsOverlay.stories"
 
 const { Default, EmptyNote } = composeStories(stories)

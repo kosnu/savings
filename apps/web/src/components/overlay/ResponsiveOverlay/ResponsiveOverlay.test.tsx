@@ -1,9 +1,8 @@
-import { cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 import { afterEach, describe, expect, test } from "vitest"
 
-import { ThemeProvider } from "../../../providers/theme/ThemeProvider"
+import { render, screen } from "../../../test/test-utils"
 import { MOBILE_OVERLAY_MEDIA_QUERY } from "../constants"
 import { ResponsiveOverlay } from "./ResponsiveOverlay"
 
@@ -52,24 +51,21 @@ function OverlayHarness() {
   const [note, setNote] = useState("")
 
   return (
-    <ThemeProvider>
-      <ResponsiveOverlay
-        open
-        onOpenChange={() => {}}
-        title="Create payment"
-        description="Create a new payment. Please fill in the details below."
-      >
-        <label htmlFor="note">Note</label>
-        <input id="note" value={note} onChange={(event) => setNote(event.target.value)} />
-      </ResponsiveOverlay>
-    </ThemeProvider>
+    <ResponsiveOverlay
+      open
+      onOpenChange={() => {}}
+      title="Create payment"
+      description="Create a new payment. Please fill in the details below."
+    >
+      <label htmlFor="note">Note</label>
+      <input id="note" value={note} onChange={(event) => setNote(event.target.value)} />
+    </ResponsiveOverlay>
   )
 }
 
 const originalMatchMedia = window.matchMedia
 
 afterEach(() => {
-  cleanup()
   window.matchMedia = originalMatchMedia
 })
 
