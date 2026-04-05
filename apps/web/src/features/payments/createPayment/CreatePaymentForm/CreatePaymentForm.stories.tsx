@@ -36,15 +36,3 @@ export const Default: Story = {
     onSuccess: fn(),
   },
 }
-
-export const Filled: Story = {
-  args: {
-    onSuccess: fn(),
-  },
-}
-
-export const Empty: Story = {
-  args: {
-    onSuccess: fn(),
-  },
-}

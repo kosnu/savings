@@ -40,27 +40,3 @@ export const Default: Story = {
     onSuccess: fn(),
   },
 }
-
-export const OpenModal: Story = {
-  args: {
-    onSuccess: fn(),
-  },
-}
-
-export const NonDismissible: Story = {
-  args: {
-    onSuccess: fn(),
-  },
-}
-
-export const ContinuousCreationEnabled: Story = {
-  args: {
-    onSuccess: fn(),
-  },
-}
-
-export const ContinuousCreationDisabled: Story = {
-  args: {
-    onSuccess: fn(),
-  },
-}
