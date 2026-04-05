@@ -28,10 +28,10 @@ tasks:
     cmd: pnpm typecheck
   test-unit:
     desc: Run unit and integration tests
-    cmd: pnpm test:unit -- --silent --reporter=dot {{.CLI_ARGS}}
+    cmd: pnpm test:unit --silent --reporter=dot {{.CLI_ARGS}}
   test-storybook:
     desc: Run Storybook interaction tests
-    cmd: pnpm test:storybook -- --silent --reporter=dot {{.CLI_ARGS}}
+    cmd: pnpm test:storybook --silent --reporter=dot {{.CLI_ARGS}}
   test:
     desc: Run all tests sequentially
     cmds:
