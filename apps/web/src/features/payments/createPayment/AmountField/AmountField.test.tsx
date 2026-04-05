@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { render, screen } from "../../../../test/test-utils"
@@ -9,9 +8,7 @@ const { Default, HasError } = composeStories(stories)
 
 describe("CreatePayment AmountField", () => {
   test("Default story では入力値を更新できる", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     const textfield = screen.getByRole("textbox", { name: /amount/i })
     await user.type(textfield, "1000")

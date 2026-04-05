@@ -1,12 +1,11 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { HttpResponse, http } from "msw"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor, within } from "../../../../test/test-utils"
+import { render, screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./CreatePaymentForm.stories"
 
 const { Default } = composeStories(stories)
@@ -16,7 +15,7 @@ function renderStory(story: React.ReactElement) {
   return render(story)
 }
 
-async function selectFoodCategory(user: ReturnType<typeof userEvent.setup>) {
+async function selectFoodCategory(user: TestUser) {
   const categorySelect = await screen.findByRole("combobox", { name: /category/i })
   await user.click(categorySelect)
 
@@ -42,9 +41,7 @@ describe("CreatePaymentForm", () => {
   })
 
   test("カテゴリの非同期読み込み後に入力を進められる", async () => {
-    const user = userEvent.setup()
-
-    renderStory(<Default />)
+    const { user } = renderStory(<Default />)
 
     await user.click(await screen.findByRole("textbox", { name: /date/i }))
     await selectFoodCategory(user)
@@ -61,9 +58,7 @@ describe("CreatePaymentForm", () => {
   })
 
   test("amount 未入力で送信するとバリデーションエラーを表示する", async () => {
-    const user = userEvent.setup()
-
-    renderStory(<Default />)
+    const { user } = renderStory(<Default />)
 
     await user.click(screen.getByRole("button", { name: /create/i }))
 
@@ -71,7 +66,6 @@ describe("CreatePaymentForm", () => {
   })
 
   test("category と note が空でも作成できる", async () => {
-    const user = userEvent.setup()
     const onSuccess = vi.fn()
     let requestBody: Record<string, unknown> | undefined
 
@@ -83,7 +77,7 @@ describe("CreatePaymentForm", () => {
       }),
     )
 
-    renderStory(<Default onSuccess={onSuccess} />)
+    const { user } = renderStory(<Default onSuccess={onSuccess} />)
 
     await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
     await user.click(screen.getByRole("button", { name: /create/i }))
@@ -101,7 +95,6 @@ describe("CreatePaymentForm", () => {
   })
 
   test("有効な入力では選択カテゴリを含む payload で作成する", async () => {
-    const user = userEvent.setup()
     const onSuccess = vi.fn()
     let requestBody: Record<string, unknown> | undefined
 
@@ -113,7 +106,7 @@ describe("CreatePaymentForm", () => {
       }),
     )
 
-    renderStory(<Default onSuccess={onSuccess} />)
+    const { user } = renderStory(<Default onSuccess={onSuccess} />)
 
     await selectFoodCategory(user)
     await user.type(screen.getByRole("textbox", { name: /note/i }), "dinner")

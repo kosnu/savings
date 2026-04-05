@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test, vi } from "vitest"
 
 import { render, screen } from "../../../../test/test-utils"
@@ -9,10 +8,8 @@ const { Default } = composeStories(stories)
 
 describe("PaymentItem", () => {
   test("支払い行にカテゴリ、日付、金額が表示され、button として操作できる", async () => {
-    const user = userEvent.setup()
     const onOpen = vi.fn()
-
-    render(<Default onOpen={onOpen} />)
+    const { user } = render(<Default onOpen={onOpen} />)
 
     expect(screen.getByText("コンビニ")).toBeInTheDocument()
     expect(screen.getByText("Food")).toBeInTheDocument()

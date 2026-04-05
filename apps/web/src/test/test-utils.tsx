@@ -5,6 +5,7 @@ import {
   type RenderHookOptions,
   type RenderOptions,
 } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import type { PropsWithChildren, ReactElement } from "react"
 
 import { createQueryClient } from "../lib/queryClient"
@@ -24,7 +25,11 @@ interface TestProviderOptions {
   withProviders?: boolean
 }
 
-export interface TestRenderOptions extends Omit<RenderOptions, "wrapper">, TestProviderOptions {}
+export type TestUser = ReturnType<typeof userEvent.setup>
+
+export interface TestRenderOptions extends Omit<RenderOptions, "wrapper">, TestProviderOptions {
+  userOptions?: Parameters<typeof userEvent.setup>[0]
+}
 
 export interface TestRenderHookOptions<Props>
   extends Omit<RenderHookOptions<Props>, "wrapper">, TestProviderOptions {}
@@ -79,12 +84,16 @@ function createWrapper({
 }
 
 export function render(ui: ReactElement, options: TestRenderOptions = {}) {
-  const { queryClient, sessionState, withProviders, ...renderOptions } = options
+  const { queryClient, sessionState, userOptions, withProviders, ...renderOptions } = options
+  const user = userEvent.setup(userOptions)
 
-  return rtlRender(ui, {
-    wrapper: createWrapper({ queryClient, sessionState, withProviders }),
-    ...renderOptions,
-  })
+  return {
+    user,
+    ...rtlRender(ui, {
+      wrapper: createWrapper({ queryClient, sessionState, withProviders }),
+      ...renderOptions,
+    }),
+  }
 }
 
 export function renderHook<Result, Props>(

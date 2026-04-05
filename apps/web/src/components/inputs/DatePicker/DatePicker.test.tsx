@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { setDefaultOptions } from "date-fns"
 import { enUS, ja } from "date-fns/locale"
 import { afterEach, beforeEach, expect, test, vi } from "vitest"
@@ -33,18 +32,16 @@ afterEach(() => {
 
 test("Select today", async () => {
   // NOTE: `vi.useFakeTimers()` を使うと時間依存の UI が安定しないため、遅延なしの userEvent を使う
-  const customUserEvent = userEvent.setup({ delay: null })
-
-  render(<SelectToday />)
+  const { user } = render(<SelectToday />, { userOptions: { delay: null } })
 
   const dateInput = screen.getByRole("textbox")
-  await customUserEvent.click(dateInput)
+  await user.click(dateInput)
 
   const todayButton = await screen.findByRole("button", {
     name: /今日/i,
   })
 
-  await customUserEvent.click(todayButton)
+  await user.click(todayButton)
 
   await waitFor(() => {
     expect(dateInput).toHaveValue("2025/05/01")

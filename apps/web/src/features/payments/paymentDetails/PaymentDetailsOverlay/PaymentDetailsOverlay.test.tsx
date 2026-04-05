@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test } from "vitest"
 
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
@@ -33,9 +32,7 @@ describe("PaymentDetailsOverlay", () => {
   })
 
   test("編集中の Escape はオーバーレイを閉じずに編集だけ解除する", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
     await user.click(within(dialog).getByRole("button", { name: /edit amount/i }))

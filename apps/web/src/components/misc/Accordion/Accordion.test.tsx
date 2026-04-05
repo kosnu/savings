@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { render, screen, waitFor } from "../../../test/test-utils"
@@ -9,9 +8,7 @@ const { Default, Multiple } = composeStories(stories)
 
 describe("Accordion", () => {
   test("single accordion は開閉できる", async () => {
-    const user = userEvent.setup()
-
-    render(<Default />)
+    const { user } = render(<Default />)
 
     await user.click(screen.getByRole("button", { name: /is it accessible\?/i }))
 
@@ -39,9 +36,7 @@ describe("Accordion", () => {
   })
 
   test("multiple accordion は複数開ける", async () => {
-    const user = userEvent.setup()
-
-    render(<Multiple />)
+    const { user } = render(<Multiple />)
 
     await user.click(screen.getByRole("button", { name: /is it accessible\?/i }))
     expect(

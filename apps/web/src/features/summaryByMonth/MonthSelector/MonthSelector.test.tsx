@@ -1,5 +1,4 @@
 import { createRoute } from "@tanstack/react-router"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test } from "vitest"
 
 import { type SupabaseSessionState } from "../../../providers/supabase/SupabaseSessionProvider"
@@ -64,9 +63,7 @@ describe("MonthSelector", () => {
   })
 
   test("年月を選択すると、クエリパラメータが更新される", async () => {
-    const user = userEvent.setup()
-
-    const { router } = renderMonthSelector("/payments?year=2025&month=5")
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
 
     await waitFor(() => {
       expect(screen.getByText("5月")).toBeInTheDocument()

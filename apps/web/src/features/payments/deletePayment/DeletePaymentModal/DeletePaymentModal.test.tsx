@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
@@ -34,11 +33,10 @@ describe("DeletePaymentModal", () => {
   })
 
   test("ClickDeleteButton story では削除成功後にスナックバーを表示する", async () => {
-    const user = userEvent.setup()
     const onSuccess = vi.fn()
 
     server.resetHandlers(...createPaymentHandlers({ delete: { response: {} } }))
-    renderStory(<ClickDeleteButton onSuccess={onSuccess} />)
+    const { user } = renderStory(<ClickDeleteButton onSuccess={onSuccess} />)
 
     const dialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
@@ -50,10 +48,8 @@ describe("DeletePaymentModal", () => {
   })
 
   test("DeleteFailureKeepsDialogOpen story では失敗時にダイアログを閉じない", async () => {
-    const user = userEvent.setup()
-
     server.resetHandlers(...createPaymentHandlers({ delete: { error: true } }))
-    renderStory(<DeleteFailureKeepsDialogOpen />)
+    const { user } = renderStory(<DeleteFailureKeepsDialogOpen />)
 
     const dialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))

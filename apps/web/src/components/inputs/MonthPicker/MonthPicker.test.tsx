@@ -1,6 +1,5 @@
 import { Theme } from "@radix-ui/themes"
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test, vi } from "vitest"
 
 import { render, screen } from "../../../test/test-utils"
@@ -28,10 +27,8 @@ describe("MonthPicker", () => {
   })
 
   test("月を選択するとonChangeが呼ばれる", async () => {
-    const user = userEvent.setup()
     const handleChange = vi.fn()
-
-    renderWithTheme(<WithValue onChange={handleChange} />)
+    const { user } = renderWithTheme(<WithValue onChange={handleChange} />)
 
     // 月のボタンをクリック
     await user.click(screen.getByRole("combobox", { name: "月" }))
@@ -48,9 +45,7 @@ describe("MonthPicker", () => {
   })
 
   test("月を選択すると表示も更新される", async () => {
-    const user = userEvent.setup()
-
-    renderWithTheme(<WithValue value={new Date(2025, 2, 1)} />)
+    const { user } = renderWithTheme(<WithValue value={new Date(2025, 2, 1)} />)
 
     expect(screen.getByText("3月")).toBeInTheDocument()
 
@@ -61,10 +56,8 @@ describe("MonthPicker", () => {
   })
 
   test("年を選択するとonChangeが呼ばれる", async () => {
-    const user = userEvent.setup()
     const handleChange = vi.fn()
-
-    renderWithTheme(<WithValue onChange={handleChange} />)
+    const { user } = renderWithTheme(<WithValue onChange={handleChange} />)
 
     // 年のボタンをクリック
     await user.click(screen.getByRole("combobox", { name: "年" }))

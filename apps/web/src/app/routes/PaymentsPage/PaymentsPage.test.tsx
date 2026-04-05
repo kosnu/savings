@@ -1,5 +1,4 @@
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createQueryClient } from "../../../lib/queryClient"
@@ -71,8 +70,7 @@ describe("PaymentsPage", () => {
 
     const view = renderStory()
     vi.useRealTimers()
-
-    const user = userEvent.setup()
+    const { user } = view
 
     const paymentList = await screen.findByLabelText("payment-list")
     expect(await within(paymentList).findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
@@ -111,9 +109,8 @@ describe("PaymentsPage", () => {
   }, 10000)
 
   test("支払いを削除すると一覧から消える", async () => {
-    const user = userEvent.setup()
-
     const view = renderStory()
+    const { user } = view
 
     const targetPayment = payments[1]
     const targetLabel = new RegExp(

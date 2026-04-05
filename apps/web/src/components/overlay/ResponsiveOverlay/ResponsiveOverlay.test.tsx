@@ -1,4 +1,3 @@
-import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 import { afterEach, describe, expect, test } from "vitest"
 
@@ -71,10 +70,8 @@ afterEach(() => {
 
 describe("ResponsiveOverlay", () => {
   test("should keep child state when the viewport switches while open", async () => {
-    const user = userEvent.setup()
     const controller = createMatchMediaController(false)
-
-    render(<OverlayHarness />)
+    const { user } = render(<OverlayHarness />)
 
     const overlay = await screen.findByRole("dialog", { name: /create payment/i })
     expect(overlay).toHaveAttribute("data-overlay-variant", "dialog")

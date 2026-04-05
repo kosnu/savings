@@ -1,6 +1,5 @@
 import { Theme } from "@radix-ui/themes"
 import { composeStories } from "@storybook/react-vite"
-import userEvent from "@testing-library/user-event"
 import { describe, expect, test, vi } from "vitest"
 
 import { render, screen } from "../../../../test/test-utils"
@@ -15,9 +14,7 @@ const renderWithTheme = (component: React.ReactElement) => {
 
 describe("CategorySelect", () => {
   test("allowEmptyOption が false のとき空文字は未選択として扱う", async () => {
-    const user = userEvent.setup()
-
-    renderWithTheme(<Empty />)
+    const { user } = renderWithTheme(<Empty />)
 
     const combobox = screen.getByRole("combobox")
     expect(combobox).toHaveTextContent("Pick a category")
@@ -34,10 +31,8 @@ describe("CategorySelect", () => {
   })
 
   test("none を選ぶと空文字へ変換して通知する", async () => {
-    const user = userEvent.setup()
     const handleChange = vi.fn()
-
-    renderWithTheme(<AllowEmptyOption onChange={handleChange} />)
+    const { user } = renderWithTheme(<AllowEmptyOption onChange={handleChange} />)
 
     await user.click(screen.getByRole("combobox"))
     await user.click(await screen.findByRole("option", { name: /^none$/i }))
@@ -47,9 +42,7 @@ describe("CategorySelect", () => {
   })
 
   test("Default story では category option を展開できる", async () => {
-    const user = userEvent.setup()
-
-    renderWithTheme(<Default />)
+    const { user } = renderWithTheme(<Default />)
 
     await user.click(screen.getByRole("combobox"))
 
@@ -63,9 +56,7 @@ describe("CategorySelect", () => {
   })
 
   test("Loading story では loading option を表示する", async () => {
-    const user = userEvent.setup()
-
-    renderWithTheme(<Loading />)
+    const { user } = renderWithTheme(<Loading />)
 
     await user.click(screen.getByRole("combobox"))
 
@@ -73,9 +64,7 @@ describe("CategorySelect", () => {
   })
 
   test("ErrorState story では error option を表示する", async () => {
-    const user = userEvent.setup()
-
-    renderWithTheme(<ErrorState />)
+    const { user } = renderWithTheme(<ErrorState />)
 
     await user.click(screen.getByRole("combobox"))
 
