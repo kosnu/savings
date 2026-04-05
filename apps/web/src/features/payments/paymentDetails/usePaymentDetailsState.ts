@@ -1,27 +1,18 @@
 import { useCallback, useRef, useState } from "react"
 
-import type { Category } from "../../../types/category"
-import type { Payment } from "../../../types/payment"
-
-interface SelectedPayment {
-  category: Category
-  payment: Payment
-}
+import type { PaymentId } from "../../../types/payment"
 
 export function usePaymentDetailsState() {
-  const [selectedPayment, setSelectedPayment] = useState<SelectedPayment | null>(null)
+  const [selectedPaymentId, setSelectedPaymentId] = useState<PaymentId | null>(null)
   const lastOpenedTriggerRef = useRef<HTMLButtonElement | null>(null)
 
-  const openPaymentDetails = useCallback(
-    (payment: Payment, category: Category, trigger: HTMLButtonElement) => {
-      lastOpenedTriggerRef.current = trigger
-      setSelectedPayment({ payment, category })
-    },
-    [],
-  )
+  const openPaymentDetails = useCallback((paymentId: PaymentId, trigger: HTMLButtonElement) => {
+    lastOpenedTriggerRef.current = trigger
+    setSelectedPaymentId(paymentId)
+  }, [])
 
   const closePaymentDetails = useCallback(() => {
-    setSelectedPayment(null)
+    setSelectedPaymentId(null)
     requestAnimationFrame(() => {
       lastOpenedTriggerRef.current?.focus()
     })
@@ -36,7 +27,7 @@ export function usePaymentDetailsState() {
   )
 
   return {
-    selectedPayment,
+    selectedPaymentId,
     openPaymentDetails,
     closePaymentDetails,
     onOpenChange,

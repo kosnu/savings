@@ -123,7 +123,7 @@ describe("PaymentsPage", () => {
     await user.click(paymentButton)
 
     const detailDialog = await screen.findByRole("dialog", { name: /payment details/i })
-    await user.click(within(detailDialog).getByRole("button", { name: /delete/i }))
+    await user.click(await within(detailDialog).findByRole("button", { name: /delete/i }))
 
     const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     await user.click(within(deleteDialog).getByRole("button", { name: /^delete$/i }))
@@ -139,6 +139,32 @@ describe("PaymentsPage", () => {
       expect(
         within(paymentList).queryByRole("button", { name: targetLabel }),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  test("金額更新後に削除確認を開くと最新の金額が表示される", async () => {
+    const { user } = renderStory()
+
+    const firstPaymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
+    await user.click(firstPaymentButton)
+
+    const detailDialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(detailDialog).findByRole("button", { name: /edit amount/i }))
+
+    const amountInput = within(detailDialog).getByRole("textbox", { name: /amount/i })
+    await user.clear(amountInput)
+    await user.type(amountInput, "2500")
+    await user.click(within(detailDialog).getByRole("button", { name: /save amount/i }))
+
+    await waitFor(() => {
+      expect(within(detailDialog).getByText(/￥2,500/)).toBeInTheDocument()
+    })
+
+    await user.click(within(detailDialog).getByRole("button", { name: /delete this payment/i }))
+
+    const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
+    await waitFor(() => {
+      expect(within(deleteDialog).getByText(/￥2,500/)).toBeInTheDocument()
     })
   })
 })
