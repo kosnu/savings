@@ -63,12 +63,12 @@ export const OpenDetails: Story = {
     const detailDialog = await body.findByRole("dialog", {
       name: /payment details/i,
     })
-    expect(within(detailDialog).getByText("Daily Necessities")).not.toHaveClass("rt-Badge")
-    expect(within(detailDialog).getAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
-    expect(within(detailDialog).getByText("Category")).toBeInTheDocument()
-    expect(within(detailDialog).getByText("2025/06/03")).toBeInTheDocument()
-    expect(within(detailDialog).getByText("Daily Necessities")).toBeInTheDocument()
-    expect(within(detailDialog).getByText("￥4,000")).toBeInTheDocument()
-    expect(within(detailDialog).getByRole("button", { name: /delete/i })).toBeInTheDocument()
+    expect(await within(detailDialog).findByText("Daily Necessities")).not.toHaveClass("rt-Badge")
+    expect(await within(detailDialog).findAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
+    expect(await within(detailDialog).findByText("Category")).toBeInTheDocument()
+    expect(await within(detailDialog).findByText("2025/06/03")).toBeInTheDocument()
+    expect(await within(detailDialog).findByText("Daily Necessities")).toBeInTheDocument()
+    expect(await within(detailDialog).findByText("￥4,000")).toBeInTheDocument()
+    expect(await within(detailDialog).findByRole("button", { name: /delete/i })).toBeInTheDocument()
   },
 }

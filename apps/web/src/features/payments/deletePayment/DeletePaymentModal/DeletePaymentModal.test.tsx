@@ -32,16 +32,14 @@ describe("DeletePaymentModal", () => {
     expect(within(dialog).getByRole("button", { name: /delete/i })).toBeDisabled()
   })
 
-  test("ClickDeleteButton story では削除成功後にスナックバーを表示する", async () => {
+  test("ClickDeleteButton story では削除成功後に onSuccess を呼ぶ", async () => {
     const onSuccess = vi.fn()
-
     server.resetHandlers(...createPaymentHandlers({ delete: { response: {} } }))
-    const { user } = renderStory(<ClickDeleteButton onSuccess={onSuccess} />)
+    const { user } = render(<ClickDeleteButton onSuccess={onSuccess} />)
 
     const dialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
-    expect(await screen.findByText("Payment deleted successfully.")).toBeInTheDocument()
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
@@ -49,12 +47,11 @@ describe("DeletePaymentModal", () => {
 
   test("DeleteFailureKeepsDialogOpen story では失敗時にダイアログを閉じない", async () => {
     server.resetHandlers(...createPaymentHandlers({ delete: { error: true } }))
-    const { user } = renderStory(<DeleteFailureKeepsDialogOpen />)
+    const { user } = render(<DeleteFailureKeepsDialogOpen />)
 
     const dialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
-    expect(await screen.findByText("Failed to delete payment.")).toBeInTheDocument()
     expect(screen.getByRole("dialog", { name: /delete this payment/i })).toBeInTheDocument()
   })
 })

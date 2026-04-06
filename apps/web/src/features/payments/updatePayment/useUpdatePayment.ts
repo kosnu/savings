@@ -1,11 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
-import type { Payment } from "../../../types/payment"
+import type { PaymentId } from "../../../types/payment"
 import type { PaymentUpdatePatch } from "../paymentFormMappers"
 import { updatePayment as updatePaymentRecord } from "./updatePayment"
-
-type PaymentId = NonNullable<Payment["id"]>
 
 interface UpdatePaymentInput {
   paymentId: PaymentId
@@ -25,9 +23,10 @@ export function useUpdatePayment(
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: ({ paymentId, patch }: UpdatePaymentInput) => updatePaymentRecord(paymentId, patch),
-    onSuccess: async () => {
+    onSuccess: async (_, { paymentId }) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["payments"] }),
+        queryClient.invalidateQueries({ queryKey: ["paymentDetails", paymentId] }),
         queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
       ])
       onSuccess?.()

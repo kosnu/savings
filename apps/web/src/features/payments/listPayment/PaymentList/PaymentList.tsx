@@ -3,7 +3,7 @@ import { memo, Suspense, use, useCallback, useState } from "react"
 
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
 import type { Category } from "../../../../types/category"
-import type { Payment } from "../../../../types/payment"
+import type { Payment, PaymentId } from "../../../../types/payment"
 import { getCategoryStrict, toCategoryMap } from "../../../categories/listCategory/toCategoryMap"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
@@ -14,14 +14,13 @@ import { usePayments } from "../usePayments"
 export const PaymentList = memo(function PaymentList() {
   const { promise: promisePayments } = usePayments()
   const { promise: promiseCategories } = useCategories()
-  const { selectedPayment, openPaymentDetails, closePaymentDetails, onOpenChange } =
+  const { selectedPaymentId, openPaymentDetails, closePaymentDetails, onOpenChange } =
     usePaymentDetailsState()
   const [paymentPendingDelete, setPaymentPendingDelete] = useState<Payment | null>(null)
 
-  const handleDeleteIntent = useCallback(() => {
-    if (!selectedPayment) return
-    setPaymentPendingDelete(selectedPayment.payment)
-  }, [selectedPayment])
+  const handleDeleteIntent = useCallback((payment: Payment) => {
+    setPaymentPendingDelete(payment)
+  }, [])
 
   const handleDeleteClose = useCallback(() => {
     setPaymentPendingDelete(null)
@@ -44,9 +43,8 @@ export const PaymentList = memo(function PaymentList() {
         </Suspense>
       </Flex>
       <PaymentDetailsOverlay
-        open={selectedPayment !== null}
-        payment={selectedPayment?.payment ?? null}
-        category={selectedPayment?.category ?? null}
+        open={selectedPaymentId !== null}
+        paymentId={selectedPaymentId}
         onOpenChange={onOpenChange}
         onDelete={handleDeleteIntent}
       />
@@ -63,7 +61,7 @@ export const PaymentList = memo(function PaymentList() {
 interface ItemsProps {
   promiseCategories: Promise<Category[]>
   getPayments: Promise<Payment[]>
-  onOpenPayment: (payment: Payment, category: Category, trigger: HTMLButtonElement) => void
+  onOpenPayment: (paymentId: PaymentId, trigger: HTMLButtonElement) => void
 }
 
 const Items = memo(function Body({ promiseCategories, getPayments, onOpenPayment }: ItemsProps) {
@@ -74,14 +72,18 @@ const Items = memo(function Body({ promiseCategories, getPayments, onOpenPayment
   return (
     <>
       {data.map((payment) => {
+        if (payment.id === undefined) {
+          return null
+        }
+        const paymentId = payment.id
         const category = getCategoryStrict(categoryMap, payment.categoryId)
 
         return (
           <PaymentItem
-            key={payment.id}
+            key={paymentId}
             category={category}
             payment={payment}
-            onOpen={(trigger) => onOpenPayment(payment, category, trigger)}
+            onOpen={(trigger) => onOpenPayment(paymentId, trigger)}
           />
         )
       })}

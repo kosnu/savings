@@ -67,7 +67,7 @@ export function ResponsiveOverlay({
         }}
         style={mobileContentStyle}
       >
-        {isMobile && dismissible ? (
+        {dismissible ? (
           <div className={styles.mobileHeader}>
             <Dialog.Close>
               <IconButton

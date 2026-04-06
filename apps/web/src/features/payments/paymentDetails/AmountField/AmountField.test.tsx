@@ -54,8 +54,6 @@ describe("AmountField", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox", { name: /amount/i })).not.toBeInTheDocument()
     })
-
-    expect(screen.getByText(/￥2,500/)).toBeInTheDocument()
   })
 
   test("保存失敗時は編集状態を維持してエラーを表示する", async () => {
@@ -98,5 +96,30 @@ describe("AmountField", () => {
     expect(amountInput).toBeDisabled()
     expect(saveButton).toBeDisabled()
     expect(screen.getByLabelText("saving")).toBeInTheDocument()
+  })
+
+  test("非編集中の表示は amount prop の再描画に追従する", async () => {
+    const view = render(<Default />)
+
+    expect(screen.getByText(/￥1,000/)).toBeInTheDocument()
+
+    view.rerender(<Default amount={2500} />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/￥2,500/)).toBeInTheDocument()
+    })
+  })
+
+  test("編集中は同じ paymentId の amount 更新で入力値を上書きしない", async () => {
+    const { user, rerender } = render(<Default />)
+
+    await user.click(screen.getByRole("button", { name: /edit amount/i }))
+    const amountInput = screen.getByRole("textbox", { name: /amount/i })
+    await user.clear(amountInput)
+    await user.type(amountInput, "2500")
+
+    rerender(<Default amount={3000} />)
+
+    expect(screen.getByRole("textbox", { name: /amount/i })).toHaveValue("2500")
   })
 })

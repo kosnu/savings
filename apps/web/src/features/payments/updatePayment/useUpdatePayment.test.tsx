@@ -46,6 +46,7 @@ describe("useUpdatePayment", () => {
     })
     expect(onError).not.toHaveBeenCalled()
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["payments"] })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["paymentDetails", 42] })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["totalExpenditures"] })
   })
 

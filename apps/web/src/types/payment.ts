@@ -12,3 +12,15 @@ export interface Payment {
   createdDate: Date
   updatedDate: Date
 }
+
+export type PaymentId = NonNullable<Payment["id"]>
+
+export interface PaymentCategory {
+  id: number
+  name: string
+}
+
+export interface PaymentDetails extends Omit<Payment, "id" | "categoryId"> {
+  id: PaymentId
+  category: PaymentCategory | null
+}
