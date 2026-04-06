@@ -1,8 +1,6 @@
 import { getSupabaseClient } from "../../../lib/supabase"
-import type { Payment } from "../../../types/payment"
+import type { PaymentId } from "../../../types/payment"
 import { type PaymentUpdatePatch, toPaymentWriteUpdate } from "../paymentFormMappers"
-
-type PaymentId = NonNullable<Payment["id"]>
 
 export async function updatePayment(
   paymentId: PaymentId,

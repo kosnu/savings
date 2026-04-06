@@ -1,10 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
-import type { Payment } from "../../../types/payment"
+import type { PaymentId } from "../../../types/payment"
 import { removePayment } from "./removePayment"
-
-type PaymentId = NonNullable<Payment["id"]>
 
 interface UseDeletePaymentReturn {
   deletePayment: (paymentId: PaymentId) => Promise<void>
@@ -19,8 +17,9 @@ export function useDeletePayment(
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (paymentId: PaymentId) => removePayment(paymentId),
-    onSuccess: () => {
+    onSuccess: (__, paymentId) => {
       queryClient.invalidateQueries({ queryKey: ["payments"] })
+      queryClient.invalidateQueries({ queryKey: ["paymentDetails", paymentId] })
       queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] })
       onSuccess?.()
     },

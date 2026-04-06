@@ -57,7 +57,7 @@ export function DeletePaymentModal({ payment, open, onClose, onSuccess }: Delete
             type="button"
             color="red"
             loading={isPending}
-            disabled={!payment}
+            disabled={!payment?.id}
             onClick={handleSubmit}
           >
             Delete
