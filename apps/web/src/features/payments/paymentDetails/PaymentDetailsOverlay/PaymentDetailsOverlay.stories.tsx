@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fn } from "storybook/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
@@ -72,6 +72,37 @@ export const MissingPayment: Story = {
   parameters: {
     msw: {
       handlers: createPaymentHandlers(),
+    },
+  },
+}
+
+export const FetchError: Story = {
+  decorators: [
+    (Story) => {
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      })
+
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <SnackbarProvider>
+              <Story />
+            </SnackbarProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      )
+    },
+  ],
+  parameters: {
+    msw: {
+      handlers: createPaymentHandlers({
+        get: { error: true },
+      }),
     },
   },
 }

@@ -23,9 +23,16 @@ export function PaymentDetailsOverlay({
   onOpenChange,
   onDelete,
 }: PaymentDetailsOverlayProps) {
-  const { data: payment, isLoading } = usePaymentDetails(paymentId)
+  const { data: payment, isLoading, error } = usePaymentDetails(paymentId)
   const [isEditingField, setIsEditingField] = useState(false)
-  const isNotFound = !isLoading && paymentId !== null && payment === null
+  const hasPayment = payment !== null && payment !== undefined
+  const isNotFound =
+    !isLoading && !error && paymentId !== null && (payment === null || payment === undefined)
+  const description = error
+    ? "Failed to load payment details."
+    : isNotFound
+      ? "Payment not found."
+      : "Review the payment details."
 
   function handleEscapeKeyDown(event: KeyboardEvent) {
     if (!isEditingField) return
@@ -44,9 +51,9 @@ export function PaymentDetailsOverlay({
       onOpenChange={onOpenChange}
       onEscapeKeyDown={handleEscapeKeyDown}
       title="Payment details"
-      description={isNotFound ? "Payment not found." : "Review the payment details."}
+      description={description}
     >
-      {payment ? (
+      {hasPayment ? (
         <Flex direction="column" gap="4">
           <Flex direction="column" gap="4">
             <PaymentDateField date={payment.date} />
