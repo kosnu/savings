@@ -1,5 +1,5 @@
 import { Button, Flex, Separator } from "@radix-ui/themes"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Payment, PaymentDetails, PaymentId } from "../../../../types/payment"
@@ -24,7 +24,7 @@ export function PaymentDetailsOverlay({
   onDelete,
 }: PaymentDetailsOverlayProps) {
   const { data: payment, isLoading, error } = usePaymentDetails(paymentId)
-  const [isEditingField, setIsEditingField] = useState(false)
+  const [editingField, setEditingField] = useState<"amount" | "note" | null>(null)
   const hasPayment = payment !== null && payment !== undefined
   const isNotFound =
     !isLoading && !error && paymentId !== null && (payment === null || payment === undefined)
@@ -33,16 +33,22 @@ export function PaymentDetailsOverlay({
     : isNotFound
       ? "Payment not found."
       : "Review the payment details."
+  const handleNoteEditingChange = useCallback((editing: boolean) => {
+    setEditingField(editing ? "note" : null)
+  }, [])
+  const handleAmountEditingChange = useCallback((editing: boolean) => {
+    setEditingField(editing ? "amount" : null)
+  }, [])
 
   function handleEscapeKeyDown(event: KeyboardEvent) {
-    if (!isEditingField) return
+    if (editingField === null) return
     event.preventDefault()
   }
 
   useEffect(() => {
     if (open) return
 
-    setIsEditingField(false)
+    setEditingField(null)
   }, [open])
 
   return (
@@ -58,11 +64,17 @@ export function PaymentDetailsOverlay({
           <Flex direction="column" gap="4">
             <PaymentDateField date={payment.date} />
             <CategoryField categoryName={payment.category?.name ?? unknownCategory.name} />
-            <NoteField note={payment.note} />
+            <NoteField
+              paymentId={payment.id}
+              note={payment.note}
+              disabled={editingField !== null && editingField !== "note"}
+              onEditingChange={handleNoteEditingChange}
+            />
             <AmountField
               paymentId={payment.id}
               amount={payment.amount}
-              onEditingChange={setIsEditingField}
+              disabled={editingField !== null && editingField !== "amount"}
+              onEditingChange={handleAmountEditingChange}
             />
           </Flex>
           {onDelete ? (
