@@ -22,10 +22,16 @@ import { SubmitIconButton } from "../SubmitIconButton"
 interface AmountFieldProps {
   paymentId?: PaymentId
   amount: number
+  disabled?: boolean
   onEditingChange?: (editing: boolean) => void
 }
 
-export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldProps) {
+export function AmountField({
+  paymentId,
+  amount,
+  disabled = false,
+  onEditingChange,
+}: AmountFieldProps) {
   const id = useId()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
@@ -101,6 +107,7 @@ export function AmountField({ paymentId, amount, onEditingChange }: AmountFieldP
       htmlFor={id}
       required
       editing={editing}
+      disabled={disabled}
       editButtonLabel="Edit amount"
       onEdit={handleEdit}
       error={Boolean(messages?.length)}

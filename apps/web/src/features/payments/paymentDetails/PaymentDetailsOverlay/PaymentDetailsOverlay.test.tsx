@@ -50,16 +50,46 @@ describe("PaymentDetailsOverlay", () => {
     const { user } = render(<Default />)
 
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
-    await user.click(await within(dialog).findByRole("button", { name: /edit amount/i }))
+    await user.click(await within(dialog).findByRole("button", { name: /edit note/i }))
 
-    const amountInput = within(dialog).getByRole("textbox", { name: /amount/i })
-    await user.clear(amountInput)
-    await user.type(amountInput, "2500")
+    const noteInput = within(dialog).getByRole("textbox", { name: /note/i })
+    await user.clear(noteInput)
+    await user.type(noteInput, "ドラッグストア")
     await user.keyboard("{Escape}")
 
     expect(screen.getByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
-    expect(within(dialog).queryByRole("textbox", { name: /amount/i })).not.toBeInTheDocument()
-    expect(within(dialog).getByText(/1,000/)).toBeInTheDocument()
+    expect(within(dialog).queryByRole("textbox", { name: /note/i })).not.toBeInTheDocument()
+    expect(within(dialog).getByText("コンビニ")).toBeInTheDocument()
+  })
+
+  test("オーバーレイを閉じて再表示すると note の draft はリセットされる", async () => {
+    const { user, rerender } = render(<Default />)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(dialog).findByRole("button", { name: /edit note/i }))
+
+    const noteInput = within(dialog).getByRole("textbox", { name: /note/i })
+    await user.clear(noteInput)
+    await user.type(noteInput, "ドラッグストア")
+
+    rerender(<Default open={false} />)
+    rerender(<Default open />)
+
+    const reopenedDialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(reopenedDialog).findByRole("button", { name: /edit note/i }))
+
+    expect(within(reopenedDialog).getByRole("textbox", { name: /note/i })).toHaveValue("コンビニ")
+  })
+
+  test("note 編集中は amount の編集導線を無効化する", async () => {
+    const { user } = render(<Default />)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(dialog).findByRole("button", { name: /edit note/i }))
+
+    await waitFor(() => {
+      expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
+    })
   })
 
   test("詳細が見つからない場合は description に not found を表示し詳細操作を出さない", async () => {
