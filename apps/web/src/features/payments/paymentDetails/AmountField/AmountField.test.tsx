@@ -1,5 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
-import { beforeEach, describe, expect, test } from "vitest"
+import { beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
@@ -121,5 +121,17 @@ describe("AmountField", () => {
     rerender(<Default amount={3000} />)
 
     expect(screen.getByRole("textbox", { name: /amount/i })).toHaveValue("2500")
+  })
+
+  test("Escape で編集を閉じると onEditEnd を呼ぶ", async () => {
+    const onEditStart = vi.fn()
+    const onEditEnd = vi.fn()
+    const { user } = render(<Default onEditStart={onEditStart} onEditEnd={onEditEnd} />)
+
+    await user.click(screen.getByRole("button", { name: /edit amount/i }))
+    await user.keyboard("{Escape}")
+
+    expect(onEditStart).toHaveBeenCalledTimes(1)
+    expect(onEditEnd).toHaveBeenCalledTimes(1)
   })
 })

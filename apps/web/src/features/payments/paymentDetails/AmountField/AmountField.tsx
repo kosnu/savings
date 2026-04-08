@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useRef,
   useState,
 } from "react"
 
@@ -23,47 +24,53 @@ interface AmountFieldProps {
   paymentId?: PaymentId
   amount: number
   disabled?: boolean
-  onEditingChange?: (editing: boolean) => void
+  onEditStart: () => void
+  onEditEnd: () => void
 }
 
 export function AmountField({
   paymentId,
   amount,
   disabled = false,
-  onEditingChange,
+  onEditStart,
+  onEditEnd,
 }: AmountFieldProps) {
   const id = useId()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
   const [editing, setEditing] = useState(false)
+  // 親が open=false を直接渡して field が unmount されるときに、編集中だった場合だけ onEditEnd を返す。
+  const editingRef = useRef(false)
   const [draftAmount, setDraftAmount] = useState<number | undefined>(amount)
   const [messages, setMessages] = useState<string[] | undefined>()
 
   useEffect(() => {
-    onEditingChange?.(editing)
-  }, [editing, onEditingChange])
-
-  useEffect(() => {
     return () => {
-      onEditingChange?.(false)
+      if (editingRef.current) {
+        onEditEnd()
+      }
     }
-  }, [onEditingChange])
+  }, [onEditEnd])
 
   const handleEdit = useCallback(() => {
     if (paymentId === undefined) return
 
     setDraftAmount(amount)
     setMessages(undefined)
+    editingRef.current = true
     setEditing(true)
-  }, [amount, paymentId])
+    onEditStart()
+  }, [amount, onEditStart, paymentId])
 
   const handleCancel = useCallback(() => {
     if (isPending) return
 
     setDraftAmount(amount)
     setMessages(undefined)
+    editingRef.current = false
     setEditing(false)
-  }, [amount, isPending])
+    onEditEnd()
+  }, [amount, isPending, onEditEnd])
 
   const handleChange = useCallback((nextAmount: number | undefined) => {
     setDraftAmount(nextAmount)
@@ -75,7 +82,9 @@ export function AmountField({
 
     if (draftAmount === amount) {
       setMessages(undefined)
+      editingRef.current = false
       setEditing(false)
+      onEditEnd()
       return
     }
 
@@ -92,14 +101,16 @@ export function AmountField({
         paymentId,
         patch: { amount: result.data },
       })
+      editingRef.current = false
       setEditing(false)
+      onEditEnd()
     } catch {
       const message = "Failed to update amount."
 
       setMessages([message])
       openSnackbar("error", message)
     }
-  }, [amount, draftAmount, isPending, openSnackbar, paymentId, updatePayment])
+  }, [amount, draftAmount, isPending, onEditEnd, openSnackbar, paymentId, updatePayment])
 
   return (
     <EditableField
@@ -107,7 +118,7 @@ export function AmountField({
       htmlFor={id}
       required
       editing={editing}
-      disabled={disabled}
+      disabled={disabled && !editing}
       editButtonLabel="Edit amount"
       onEdit={handleEdit}
       error={Boolean(messages?.length)}

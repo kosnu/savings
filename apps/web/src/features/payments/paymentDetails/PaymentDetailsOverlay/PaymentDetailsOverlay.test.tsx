@@ -87,9 +87,7 @@ describe("PaymentDetailsOverlay", () => {
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
     await user.click(await within(dialog).findByRole("button", { name: /edit note/i }))
 
-    await waitFor(() => {
-      expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
-    })
+    expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
   })
 
   test("詳細が見つからない場合は description に not found を表示し詳細操作を出さない", async () => {
