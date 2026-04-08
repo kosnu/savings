@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useRef,
   useState,
 } from "react"
 
@@ -22,42 +23,53 @@ interface NoteFieldProps {
   paymentId: PaymentId
   note: string
   disabled?: boolean
-  onEditingChange?: (editing: boolean) => void
+  onEditStart: () => void
+  onEditEnd: () => void
 }
 
-export function NoteField({ paymentId, note, disabled = false, onEditingChange }: NoteFieldProps) {
+export function NoteField({
+  paymentId,
+  note,
+  disabled = false,
+  onEditStart,
+  onEditEnd,
+}: NoteFieldProps) {
   const id = useId()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
   const [editing, setEditing] = useState(false)
+  // 親が open=false を直接渡して field が unmount されるときに、編集中だった場合だけ onEditEnd を返す。
+  const editingRef = useRef(false)
   const [draftNote, setDraftNote] = useState(note)
   const [messages, setMessages] = useState<string[] | undefined>()
   const hasNote = note.trim().length > 0
   const value = hasNote ? note : notePlaceholder
 
   useEffect(() => {
-    onEditingChange?.(editing)
-  }, [editing, onEditingChange])
-
-  useEffect(() => {
     return () => {
-      onEditingChange?.(false)
+      if (editingRef.current) {
+        onEditEnd()
+      }
     }
-  }, [onEditingChange])
+  }, [onEditEnd])
 
   const handleEdit = useCallback(() => {
     setDraftNote(note)
     setMessages(undefined)
+    editingRef.current = true
     setEditing(true)
-  }, [note])
+    onEditStart()
+  }, [note, onEditStart])
 
   const handleCancel = useCallback(() => {
     if (isPending) return
 
     setDraftNote(note)
     setMessages(undefined)
+    editingRef.current = false
     setEditing(false)
-  }, [isPending, note])
+    onEditEnd()
+  }, [isPending, note, onEditEnd])
 
   const handleChange = useCallback((nextNote: string) => {
     setDraftNote(nextNote)
@@ -69,7 +81,9 @@ export function NoteField({ paymentId, note, disabled = false, onEditingChange }
 
     if (draftNote === note) {
       setMessages(undefined)
+      editingRef.current = false
       setEditing(false)
+      onEditEnd()
       return
     }
 
@@ -79,21 +93,23 @@ export function NoteField({ paymentId, note, disabled = false, onEditingChange }
         paymentId,
         patch: { note: draftNote },
       })
+      editingRef.current = false
       setEditing(false)
+      onEditEnd()
     } catch {
       const message = "Failed to update note."
 
       setMessages([message])
       openSnackbar("error", message)
     }
-  }, [draftNote, isPending, note, openSnackbar, paymentId, updatePayment])
+  }, [draftNote, isPending, note, onEditEnd, openSnackbar, paymentId, updatePayment])
 
   return (
     <EditableField
       label="Note"
       htmlFor={id}
       editing={editing}
-      disabled={disabled}
+      disabled={disabled && !editing}
       editButtonLabel="Edit note"
       onEdit={handleEdit}
       error={Boolean(messages?.length)}

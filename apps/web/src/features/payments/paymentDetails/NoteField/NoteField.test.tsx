@@ -104,13 +104,27 @@ describe("PaymentDetails NoteField", () => {
   })
 
   test("未変更なら update を呼ばずに編集を閉じる", async () => {
-    const onEditingChange = vi.fn()
-    const { user } = render(<Default onEditingChange={onEditingChange} />)
+    const onEditStart = vi.fn()
+    const onEditEnd = vi.fn()
+    const { user } = render(<Default onEditStart={onEditStart} onEditEnd={onEditEnd} />)
 
     await user.click(screen.getByRole("button", { name: /edit note/i }))
     await user.click(screen.getByRole("button", { name: /save note/i }))
 
     expect(screen.queryByRole("textbox", { name: /note/i })).not.toBeInTheDocument()
-    expect(onEditingChange).toHaveBeenLastCalledWith(false)
+    expect(onEditStart).toHaveBeenCalledTimes(1)
+    expect(onEditEnd).toHaveBeenCalledTimes(1)
+  })
+
+  test("Escape で編集を閉じると onEditEnd を呼ぶ", async () => {
+    const onEditStart = vi.fn()
+    const onEditEnd = vi.fn()
+    const { user } = render(<Default onEditStart={onEditStart} onEditEnd={onEditEnd} />)
+
+    await user.click(screen.getByRole("button", { name: /edit note/i }))
+    await user.keyboard("{Escape}")
+
+    expect(onEditStart).toHaveBeenCalledTimes(1)
+    expect(onEditEnd).toHaveBeenCalledTimes(1)
   })
 })

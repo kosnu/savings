@@ -1,5 +1,5 @@
 import { Button, Flex, Separator } from "@radix-ui/themes"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Payment, PaymentDetails, PaymentId } from "../../../../types/payment"
@@ -24,7 +24,7 @@ export function PaymentDetailsOverlay({
   onDelete,
 }: PaymentDetailsOverlayProps) {
   const { data: payment, isLoading, error } = usePaymentDetails(paymentId)
-  const [editingField, setEditingField] = useState<"amount" | "note" | null>(null)
+  const [isEditingField, setIsEditingField] = useState(false)
   const hasPayment = payment !== null && payment !== undefined
   const isNotFound =
     !isLoading && !error && paymentId !== null && (payment === null || payment === undefined)
@@ -33,28 +33,31 @@ export function PaymentDetailsOverlay({
     : isNotFound
       ? "Payment not found."
       : "Review the payment details."
-  const handleNoteEditingChange = useCallback((editing: boolean) => {
-    setEditingField(editing ? "note" : null)
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
+        setIsEditingField(false)
+      }
+      onOpenChange(nextOpen)
+    },
+    [onOpenChange],
+  )
+  const handleEditStart = useCallback(() => {
+    setIsEditingField(true)
   }, [])
-  const handleAmountEditingChange = useCallback((editing: boolean) => {
-    setEditingField(editing ? "amount" : null)
+  const handleEditEnd = useCallback(() => {
+    setIsEditingField(false)
   }, [])
 
   function handleEscapeKeyDown(event: KeyboardEvent) {
-    if (editingField === null) return
+    if (!isEditingField) return
     event.preventDefault()
   }
-
-  useEffect(() => {
-    if (open) return
-
-    setEditingField(null)
-  }, [open])
 
   return (
     <ResponsiveOverlay
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       onEscapeKeyDown={handleEscapeKeyDown}
       title="Payment details"
       description={description}
@@ -67,14 +70,16 @@ export function PaymentDetailsOverlay({
             <NoteField
               paymentId={payment.id}
               note={payment.note}
-              disabled={editingField !== null && editingField !== "note"}
-              onEditingChange={handleNoteEditingChange}
+              disabled={isEditingField}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
             />
             <AmountField
               paymentId={payment.id}
               amount={payment.amount}
-              disabled={editingField !== null && editingField !== "amount"}
-              onEditingChange={handleAmountEditingChange}
+              disabled={isEditingField}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
             />
           </Flex>
           {onDelete ? (
