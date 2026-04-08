@@ -19,7 +19,7 @@ import { SubmitIconButton } from "../SubmitIconButton"
 const notePlaceholder = "No note"
 
 interface NoteFieldProps {
-  paymentId?: PaymentId
+  paymentId: PaymentId
   note: string
   disabled?: boolean
   onEditingChange?: (editing: boolean) => void
@@ -46,12 +46,10 @@ export function NoteField({ paymentId, note, disabled = false, onEditingChange }
   }, [onEditingChange])
 
   const handleEdit = useCallback(() => {
-    if (paymentId === undefined) return
-
     setDraftNote(note)
     setMessages(undefined)
     setEditing(true)
-  }, [note, paymentId])
+  }, [note])
 
   const handleCancel = useCallback(() => {
     if (isPending) return
@@ -67,7 +65,7 @@ export function NoteField({ paymentId, note, disabled = false, onEditingChange }
   }, [])
 
   const handleSubmit = useCallback(async () => {
-    if (paymentId === undefined || isPending) return
+    if (isPending) return
 
     if (draftNote === note) {
       setMessages(undefined)
