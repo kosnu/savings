@@ -1,5 +1,5 @@
 import { Button, Flex, Separator } from "@radix-ui/themes"
-import { useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Payment, PaymentDetails, PaymentId } from "../../../../types/payment"
@@ -33,22 +33,31 @@ export function PaymentDetailsOverlay({
     : isNotFound
       ? "Payment not found."
       : "Review the payment details."
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
+        setIsEditingField(false)
+      }
+      onOpenChange(nextOpen)
+    },
+    [onOpenChange],
+  )
+  const handleEditStart = useCallback(() => {
+    setIsEditingField(true)
+  }, [])
+  const handleEditEnd = useCallback(() => {
+    setIsEditingField(false)
+  }, [])
 
   function handleEscapeKeyDown(event: KeyboardEvent) {
     if (!isEditingField) return
     event.preventDefault()
   }
 
-  useEffect(() => {
-    if (open) return
-
-    setIsEditingField(false)
-  }, [open])
-
   return (
     <ResponsiveOverlay
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       onEscapeKeyDown={handleEscapeKeyDown}
       title="Payment details"
       description={description}
@@ -58,11 +67,19 @@ export function PaymentDetailsOverlay({
           <Flex direction="column" gap="4">
             <PaymentDateField date={payment.date} />
             <CategoryField categoryName={payment.category?.name ?? unknownCategory.name} />
-            <NoteField note={payment.note} />
+            <NoteField
+              paymentId={payment.id}
+              note={payment.note}
+              disabled={isEditingField}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
+            />
             <AmountField
               paymentId={payment.id}
               amount={payment.amount}
-              onEditingChange={setIsEditingField}
+              disabled={isEditingField}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
             />
           </Flex>
           {onDelete ? (
