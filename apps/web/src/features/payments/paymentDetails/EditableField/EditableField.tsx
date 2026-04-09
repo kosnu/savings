@@ -9,6 +9,7 @@ interface EditableFieldProps {
   htmlFor?: string
   required?: boolean
   editing: boolean
+  disabled?: boolean
   view: ReactNode
   editor: ReactNode
   editButtonLabel: string
@@ -22,6 +23,7 @@ export function EditableField({
   htmlFor,
   required = false,
   editing,
+  disabled = false,
   view,
   editor,
   editButtonLabel,
@@ -47,6 +49,7 @@ export function EditableField({
             color="gray"
             highContrast
             aria-label={editButtonLabel}
+            disabled={disabled}
             onClick={onEdit}
             style={{
               width: "100%",
