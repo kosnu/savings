@@ -1,5 +1,10 @@
-import type { AnyRootRoute, AnyRoute } from "@tanstack/react-router"
-import { createMemoryHistory, createRootRoute, createRouter } from "@tanstack/react-router"
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  type AnyRootRoute,
+  type AnyRoute,
+} from "@tanstack/react-router"
 
 export type TestRouteBuilder = (rootRoute: AnyRootRoute) => AnyRoute[]
 
