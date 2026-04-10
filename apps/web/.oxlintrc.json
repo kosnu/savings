@@ -1,11 +1,15 @@
 {
   "plugins": ["react", "jsx-a11y"],
+  "jsPlugins": [{ "name": "react-hooks-js", "specifier": "eslint-plugin-react-hooks" }],
   "categories": {
     "correctness": "error"
   },
   "rules": {
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "warn",
+    "react-hooks-js/refs": "error",
+    "react-hooks-js/set-state-in-effect": "error",
+    "react-hooks-js/immutability": "error",
     "react/no-array-index-key": "error",
     "jsx_a11y/label-has-associated-control": "error",
     "jsx_a11y/no-autofocus": "off",
@@ -13,7 +17,19 @@
     "typescript/prefer-nullish-coalescing": "error",
     "typescript/prefer-optional-chain": "error",
     "typescript/no-explicit-any": "error",
-    "typescript/prefer-ts-expect-error": "error"
+    "typescript/prefer-ts-expect-error": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": ["error", { "checksVoidReturn": false }],
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports",
+        "disallowTypeAnnotations": false
+      }
+    ],
+    "typescript/consistent-type-assertions": "error",
+    "typescript/no-non-null-assertion": "warn"
   },
   "settings": {
     "jsx-a11y": {
@@ -37,6 +53,14 @@
       "files": ["**/*.stories.tsx"],
       "rules": {
         "react/rules-of-hooks": "off"
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "typescript/no-floating-promises": "off",
+        "typescript/no-non-null-assertion": "off",
+        "typescript/consistent-type-assertions": "off"
       }
     }
   ]
