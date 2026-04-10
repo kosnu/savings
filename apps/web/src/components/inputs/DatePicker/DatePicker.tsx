@@ -35,7 +35,7 @@ export function DatePicker(props: DatePickerProps) {
     value,
     ...restProps
   } = props
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(() => Boolean(autoFocus && !disabled))
   const sameDayClickRef = useRef(false)
 
   const handleTriggerClick = useCallback(() => {

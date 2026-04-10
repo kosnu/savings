@@ -48,3 +48,10 @@ test("Select today", async () => {
     expect(screen.queryByRole("button", { name: /今日/i })).not.toBeInTheDocument()
   })
 })
+
+test("autoFocus のときは初期表示でカレンダーを開く", async () => {
+  render(<SelectToday autoFocus />, { userOptions: { delay: null } })
+
+  expect(screen.getByRole("textbox")).toBeInTheDocument()
+  expect(await screen.findByRole("button", { name: /今日/i })).toBeInTheDocument()
+})
