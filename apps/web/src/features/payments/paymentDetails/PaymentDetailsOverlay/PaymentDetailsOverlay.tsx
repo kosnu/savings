@@ -65,7 +65,13 @@ export function PaymentDetailsOverlay({
       {hasPayment ? (
         <Flex direction="column" gap="4">
           <Flex direction="column" gap="4">
-            <PaymentDateField date={payment.date} />
+            <PaymentDateField
+              paymentId={payment.id}
+              date={payment.date}
+              disabled={isEditingField}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
+            />
             <CategoryField categoryName={payment.category?.name ?? unknownCategory.name} />
             <NoteField
               paymentId={payment.id}
