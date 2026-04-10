@@ -116,13 +116,13 @@ describe("PaymentDetailsOverlay", () => {
       expect(await within(dialog).findByRole("button", { name: /edit date/i })).toBeInTheDocument()
     })
 
-    test("date 編集中は他フィールドの編集導線を無効化する", async () => {
+    test("date 編集中はカレンダーを開き、他フィールドの編集導線を無効化する", async () => {
       const { user } = render(<Default />, { userOptions: { delay: null } })
 
       const dialog = await screen.findByRole("dialog", { name: /payment details/i })
       await user.click(await within(dialog).findByRole("button", { name: /edit date/i }))
-      await user.click(within(dialog).getByRole("textbox", { name: /date/i }))
 
+      expect(await screen.findByRole("button", { name: /今日/i })).toBeInTheDocument()
       expect(within(dialog).getByRole("button", { name: /edit note/i })).toBeDisabled()
       expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
     })

@@ -38,12 +38,13 @@ describe("PaymentDetails PaymentDateField", () => {
     expect(screen.getByRole("button", { name: /edit date/i })).toBeInTheDocument()
   })
 
-  test("編集ボタンを押すと日付入力欄を開く", async () => {
+  test("編集ボタンを押すと日付入力欄とカレンダーを開く", async () => {
     const { user } = render(<Default />, { userOptions: { delay: null } })
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
 
     expect(screen.getByRole("textbox", { name: /date/i })).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: /今日/i })).toBeInTheDocument()
   })
 
   test("日付を選ぶと保存して editor を閉じる", async () => {
