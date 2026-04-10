@@ -21,6 +21,10 @@
     "typescript/prefer-ts-expect-error": "error",
     "typescript/no-floating-promises": "error",
     "typescript/no-misused-promises": ["error", { "checksVoidReturn": false }],
+    "typescript/promise-function-async": "error",
+    "typescript/no-base-to-string": "error",
+    "typescript/restrict-template-expressions": "error",
+    "typescript/prefer-promise-reject-errors": "error",
     "typescript/consistent-type-imports": [
       "error",
       {
@@ -31,7 +35,7 @@
     ],
     "typescript/no-import-type-side-effects": "error",
     "typescript/consistent-type-assertions": "error",
-    "typescript/no-non-null-assertion": "warn"
+    "typescript/no-non-null-assertion": "error"
   },
   "settings": {
     "jsx-a11y": {
