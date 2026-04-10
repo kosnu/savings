@@ -1,6 +1,8 @@
 import { composeStories } from "@storybook/react-vite"
+import { setDefaultOptions } from "date-fns"
+import { enUS, ja } from "date-fns/locale"
 import { HttpResponse, http } from "msw"
-import { beforeEach, describe, expect, test } from "vitest"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 import { payments } from "../../../../test/data/payments"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
@@ -88,6 +90,73 @@ describe("PaymentDetailsOverlay", () => {
     await user.click(await within(dialog).findByRole("button", { name: /edit note/i }))
 
     expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
+  })
+
+  describe("Date editing", () => {
+    beforeEach(() => {
+      vi.stubGlobal("jest", {
+        advanceTimersByTime: vi.advanceTimersByTime.bind(vi),
+      })
+
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date("2025-06-02T12:00:00+09:00"))
+      setDefaultOptions({ locale: enUS })
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+      vi.unstubAllGlobals()
+      setDefaultOptions({ locale: ja })
+    })
+
+    test("Default story では日付編集ボタンも表示する", async () => {
+      render(<Default />, { userOptions: { delay: null } })
+
+      const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+      expect(await within(dialog).findByRole("button", { name: /edit date/i })).toBeInTheDocument()
+    })
+
+    test("date 編集中はカレンダーを開き、他フィールドの編集導線を無効化する", async () => {
+      const { user } = render(<Default />, { userOptions: { delay: null } })
+
+      const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+      await user.click(await within(dialog).findByRole("button", { name: /edit date/i }))
+
+      expect(await screen.findByRole("button", { name: /今日/i })).toBeInTheDocument()
+      expect(within(dialog).getByRole("button", { name: /edit note/i })).toBeDisabled()
+      expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
+    })
+
+    test("date 編集中の Escape はオーバーレイを閉じずに編集だけ解除する", async () => {
+      const { user } = render(<Default />, { userOptions: { delay: null } })
+
+      const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+      await user.click(await within(dialog).findByRole("button", { name: /edit date/i }))
+      await user.click(within(dialog).getByRole("textbox", { name: /date/i }))
+      await user.keyboard("{Escape}")
+
+      expect(screen.getByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
+      expect(within(dialog).queryByRole("textbox", { name: /date/i })).not.toBeInTheDocument()
+      expect(within(dialog).getByText("2025/06/02")).toBeInTheDocument()
+    })
+
+    test("オーバーレイを閉じて再表示すると date の draft はリセットされる", async () => {
+      const { user, rerender } = render(<Default />, { userOptions: { delay: null } })
+
+      const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+      await user.click(await within(dialog).findByRole("button", { name: /edit date/i }))
+      await user.click(within(dialog).getByRole("textbox", { name: /date/i }))
+
+      rerender(<Default open={false} />)
+      rerender(<Default open />)
+
+      const reopenedDialog = await screen.findByRole("dialog", { name: /payment details/i })
+      await user.click(await within(reopenedDialog).findByRole("button", { name: /edit date/i }))
+
+      expect(within(reopenedDialog).getByRole("textbox", { name: /date/i })).toHaveValue(
+        "2025/06/02",
+      )
+    })
   })
 
   test("詳細が見つからない場合は description に not found を表示し詳細操作を出さない", async () => {
