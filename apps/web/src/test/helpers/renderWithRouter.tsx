@@ -1,8 +1,6 @@
-import type { AnyRootRoute } from "@tanstack/react-router"
-import { RouterProvider } from "@tanstack/react-router"
+import { RouterProvider, type AnyRootRoute } from "@tanstack/react-router"
 
-import type { TestRenderOptions } from "../test-utils"
-import { render } from "../test-utils"
+import { render, type TestRenderOptions } from "../test-utils"
 import { createTestRouter, type TestRouteBuilder } from "./createTestRouter"
 
 export function renderWithRouter(
