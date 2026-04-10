@@ -4,6 +4,8 @@
     "correctness": "error"
   },
   "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
     "react/no-array-index-key": "error",
     "jsx_a11y/label-has-associated-control": "error",
     "jsx_a11y/no-autofocus": "off",
@@ -29,5 +31,13 @@
     "storybook-static/**",
     "generators/**",
     "public/mockServiceWorker.js"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.stories.tsx"],
+      "rules": {
+        "react/rules-of-hooks": "off"
+      }
+    }
   ]
 }
