@@ -43,12 +43,21 @@ describe("CategorySelect", () => {
     expect(screen.getByRole("combobox")).toHaveTextContent("Daily Necessities")
   })
 
+  test("disabled prop で combobox を操作不可にする", () => {
+    renderWithTheme(<Default disabled />)
+
+    expect(screen.getByRole("combobox")).toBeDisabled()
+  })
+
   test("Loading story では loading option を表示する", async () => {
     const { user } = renderWithTheme(<Loading />)
 
     await user.click(screen.getByRole("combobox"))
 
-    expect(screen.getByRole("option", { name: /loading/i })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: /loading/i })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    )
   })
 
   test("ErrorState story では error option を表示する", async () => {
@@ -56,6 +65,6 @@ describe("CategorySelect", () => {
 
     await user.click(screen.getByRole("combobox"))
 
-    expect(screen.getByRole("option", { name: /error/i })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: /error/i })).toHaveAttribute("aria-disabled", "true")
   })
 })

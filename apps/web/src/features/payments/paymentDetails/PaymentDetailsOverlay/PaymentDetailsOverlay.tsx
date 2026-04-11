@@ -72,7 +72,14 @@ export function PaymentDetailsOverlay({
               onEditStart={handleEditStart}
               onEditEnd={handleEditEnd}
             />
-            <CategoryField categoryName={payment.category?.name ?? unknownCategory.name} />
+            <CategoryField
+              paymentId={payment.id}
+              categoryId={payment.category?.id ?? null}
+              categoryName={payment.category?.name ?? unknownCategory.name}
+              disabled={isEditingField}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
+            />
             <NoteField
               paymentId={payment.id}
               note={payment.note}

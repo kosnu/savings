@@ -5,6 +5,7 @@ import { HttpResponse, http } from "msw"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 import { payments } from "../../../../test/data/payments"
+import { categoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import { render, screen, waitFor, within } from "../../../../test/test-utils"
@@ -15,7 +16,7 @@ const { Default, EmptyNote, FetchError, MissingPayment } = composeStories(storie
 
 describe("PaymentDetailsOverlay", () => {
   beforeEach(() => {
-    server.resetHandlers(...createPaymentHandlers())
+    server.resetHandlers(...createPaymentHandlers(), ...categoryHandlers)
   })
 
   test("Default story では削除ボタンと金額編集ボタンを表示する", async () => {
@@ -37,6 +38,7 @@ describe("PaymentDetailsOverlay", () => {
           ...payments.slice(1).map(mapPaymentToRow),
         ],
       }),
+      ...categoryHandlers,
     )
 
     render(<EmptyNote />)
@@ -90,6 +92,55 @@ describe("PaymentDetailsOverlay", () => {
     await user.click(await within(dialog).findByRole("button", { name: /edit note/i }))
 
     expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
+  })
+
+  test("category 編集中は他フィールドの編集導線を無効化する", async () => {
+    const { user } = render(<Default />)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(dialog).findByRole("button", { name: /edit category/i }))
+
+    expect(await within(dialog).findByRole("combobox", { name: /category/i })).toHaveTextContent(
+      "Food",
+    )
+    expect(within(dialog).getByRole("button", { name: /edit date/i })).toBeDisabled()
+    expect(within(dialog).getByRole("button", { name: /edit note/i })).toBeDisabled()
+    expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
+  })
+
+  test("note 編集中は category の編集導線を無効化する", async () => {
+    const { user } = render(<Default />)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(dialog).findByRole("button", { name: /edit note/i }))
+
+    expect(within(dialog).getByRole("button", { name: /edit category/i })).toBeDisabled()
+  })
+
+  test("category 編集中の Escape はオーバーレイを閉じずに編集だけ解除する", async () => {
+    const { user } = render(<Default />)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(dialog).findByRole("button", { name: /edit category/i }))
+    await user.keyboard("{Escape}")
+
+    expect(screen.getByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
+    expect(within(dialog).queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument()
+    expect(within(dialog).getByText("Food")).toBeInTheDocument()
+  })
+
+  test("category を None にすると未設定として保存して詳細表示は Unknown になる", async () => {
+    const { user } = render(<Default />)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(await within(dialog).findByRole("button", { name: /edit category/i }))
+    await user.click(await within(dialog).findByRole("combobox", { name: /category/i }))
+    await user.click(await screen.findByRole("option", { name: /^none$/i }))
+
+    await waitFor(() => {
+      expect(within(dialog).queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument()
+    })
+    expect(await within(dialog).findByText("Unknown")).toBeInTheDocument()
   })
 
   describe("Date editing", () => {
