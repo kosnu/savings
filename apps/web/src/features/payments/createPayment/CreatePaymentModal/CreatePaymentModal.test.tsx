@@ -5,6 +5,7 @@ import { createCategoryHandlers } from "../../../../test/msw/handlers/categories
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -15,6 +16,22 @@ import {
 import * as stories from "./CreatePaymentModal.stories"
 
 const { Default } = composeStories(stories)
+
+async function renderStory(story: React.ReactElement) {
+  return await act(async () => {
+    return render(story)
+  })
+}
+
+async function openCreatePaymentModal() {
+  await act(async () => {
+    // user.click ではモーダル表示時の Suspense 更新が act 内で完了せず警告が出るため、
+    // ここではクリックによる開閉だけを fireEvent で同期的に発火する。
+    fireEvent.click(screen.getByRole("button", { name: /create payment/i }))
+  })
+
+  return await screen.findByRole("dialog", { name: /create payment/i })
+}
 
 async function fillAndSubmit(
   user: TestUser,
@@ -50,36 +67,32 @@ describe("CreatePaymentModal", () => {
   })
 
   test("should stay open when Escape is pressed", async () => {
-    const { user } = render(<Default />)
+    const { user, baseElement } = await renderStory(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /create payment/i }))
-
-    const dialog = await screen.findByRole("dialog", { name: /create payment/i })
+    const dialog = await openCreatePaymentModal()
     expect(dialog).toBeInTheDocument()
 
-    fireEvent.pointerDown(document.body)
-    fireEvent.click(document.body)
-    expect(screen.getByRole("dialog", { name: /create payment/i })).toBeInTheDocument()
+    fireEvent.pointerDown(baseElement) // モーダルの外をクリックするために baseElement をクリック
+    fireEvent.click(baseElement) // モーダルの外をクリックするために baseElement をクリック
 
+    expect(screen.getByRole("dialog", { name: /create payment/i })).toBeInTheDocument()
     await user.keyboard("{Escape}")
+
     expect(screen.getByRole("dialog", { name: /create payment/i })).toBeInTheDocument()
   })
 
   test("トリガー操作でダイアログと amount 入力欄を表示する", async () => {
-    const { user } = render(<Default />)
+    await renderStory(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /create payment/i }))
-
-    const dialog = await screen.findByRole("dialog", { name: /create payment/i })
+    const dialog = await openCreatePaymentModal()
     expect(dialog).toBeInTheDocument()
     expect(await within(dialog).findByLabelText(/amount/i)).toBeInTheDocument()
   })
 
   test("should close when Cancel is clicked", async () => {
-    const { user } = render(<Default />)
+    const { user } = await renderStory(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /create payment/i }))
-    await screen.findByRole("dialog", { name: /create payment/i })
+    await openCreatePaymentModal()
 
     await user.click(screen.getByRole("button", { name: /cancel/i }))
 
@@ -89,12 +102,10 @@ describe("CreatePaymentModal", () => {
   test("連続作成を有効にすると作成後もダイアログを開いたままにする", async () => {
     const onSuccess = vi.fn()
 
-    const { user } = render(<Default onSuccess={onSuccess} />)
+    const { user, baseElement } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await user.click(screen.getByRole("button", { name: /create payment/i }))
-
-    const body = within(document.body)
-    const dialog = await body.findByRole("dialog", { name: /create payment/i })
+    const body = within(baseElement)
+    const dialog = await openCreatePaymentModal()
     await within(dialog).findByLabelText(/amount/i)
 
     const checkbox = within(dialog).getByRole("checkbox", { name: /continue creating/i })
@@ -128,12 +139,10 @@ describe("CreatePaymentModal", () => {
   test("連続作成が未選択なら作成後に onSuccess が呼ばれる", async () => {
     const onSuccess = vi.fn()
 
-    const { user } = render(<Default onSuccess={onSuccess} />)
+    const { user, baseElement } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await user.click(screen.getByRole("button", { name: /create payment/i }))
-
-    const body = within(document.body)
-    const dialog = await body.findByRole("dialog", { name: /create payment/i })
+    const body = within(baseElement)
+    const dialog = await openCreatePaymentModal()
     await within(dialog).findByLabelText(/amount/i)
 
     const checkbox = within(dialog).getByRole("checkbox", { name: /continue creating/i })

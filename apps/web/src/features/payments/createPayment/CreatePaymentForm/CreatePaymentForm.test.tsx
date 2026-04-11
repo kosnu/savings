@@ -5,14 +5,16 @@ import { beforeEach, describe, expect, test, vi } from "vitest"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { render, screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
+import { act, render, screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./CreatePaymentForm.stories"
 
 const { Default } = composeStories(stories)
 const PAYMENTS_REST_URL = "*/rest/v1/payments*"
 
-function renderStory(story: React.ReactElement) {
-  return render(story)
+async function renderStory(story: React.ReactElement) {
+  return await act(async () => {
+    return render(story)
+  })
 }
 
 async function selectFoodCategory(user: TestUser) {
@@ -34,14 +36,14 @@ describe("CreatePaymentForm", () => {
   })
 
   test("Default story では amount 入力欄に自動フォーカスする", async () => {
-    renderStory(<Default />)
+    await renderStory(<Default />)
 
     const amountField = await screen.findByRole("textbox", { name: /amount/i })
     expect(document.activeElement).toBe(amountField)
   })
 
   test("カテゴリの非同期読み込み後に入力を進められる", async () => {
-    const { user } = renderStory(<Default />)
+    const { user } = await renderStory(<Default />)
 
     await user.click(await screen.findByRole("textbox", { name: /date/i }))
     await selectFoodCategory(user)
@@ -58,7 +60,7 @@ describe("CreatePaymentForm", () => {
   })
 
   test("amount 未入力で送信するとバリデーションエラーを表示する", async () => {
-    const { user } = renderStory(<Default />)
+    const { user } = await renderStory(<Default />)
 
     await user.click(screen.getByRole("button", { name: /create/i }))
 
@@ -77,7 +79,7 @@ describe("CreatePaymentForm", () => {
       }),
     )
 
-    const { user } = renderStory(<Default onSuccess={onSuccess} />)
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
     await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
     await user.click(screen.getByRole("button", { name: /create/i }))
@@ -106,7 +108,7 @@ describe("CreatePaymentForm", () => {
       }),
     )
 
-    const { user } = renderStory(<Default onSuccess={onSuccess} />)
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
     await selectFoodCategory(user)
     await user.type(screen.getByRole("textbox", { name: /note/i }), "dinner")
