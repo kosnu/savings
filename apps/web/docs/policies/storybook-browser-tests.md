@@ -19,7 +19,9 @@ when_to_read:
 
 Storybook のブラウザテストは opt-in で運用します。
 
-`task web:test-storybook` は `browser-test` tag が付いた story だけを対象にします。ブラウザ実行はコストが高いため、Storybook 上の全 story を網羅するのではなく、ページ単位または統合境界をまたぐ story に絞ります。
+`task web:test-storybook` は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
+
+ブラウザ実行はコストが高いため、Storybook 上の全 story を網羅するのではなく、ページ単位または統合境界をまたぐ story に絞ります。
 
 ## 対象にする story
 
@@ -47,3 +49,5 @@ const meta = {
 ```
 
 Page 以外の story に `browser-test` を付ける場合は、ブラウザテスト対象にする理由が story の責務から読み取れるようにしてください。
+
+通常の Storybook は `apps/web/.storybook/` を使い、カタログ用途として全 story を読み込みます。`apps/web/.storybook-test/` は `task web:test-storybook` 専用で、テスト実行時の読み込み負荷を抑えるために Page story へ限定します。
