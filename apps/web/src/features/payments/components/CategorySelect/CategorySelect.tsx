@@ -7,6 +7,7 @@ interface CategorySelectProps {
   autoFocus?: boolean
   disabled?: boolean
   id?: string
+  width?: string
   value?: string
   children?: ReactNode
   onChange?: (category: string) => void
@@ -19,6 +20,7 @@ export function CategorySelect({
   autoFocus = false,
   disabled = false,
   id,
+  width,
   value,
   children,
   onChange,
@@ -45,7 +47,12 @@ export function CategorySelect({
       onOpenChange={onOpenChange}
       onValueChange={handleChange}
     >
-      <Select.Trigger autoFocus={autoFocus} id={id} placeholder="Pick a category" />
+      <Select.Trigger
+        autoFocus={autoFocus}
+        id={id}
+        placeholder="Pick a category"
+        style={{ width }}
+      />
       <Select.Content>
         <NoneCategoryOption />
         {children}
