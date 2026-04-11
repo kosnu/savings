@@ -1,18 +1,31 @@
 import { Select } from "@radix-ui/themes"
-import { useCallback } from "react"
+import { type ReactNode, useCallback } from "react"
 
 import { Category } from "../../../../types/category"
 
 interface CategorySelectProps {
+  autoFocus?: boolean
+  disabled?: boolean
   id?: string
+  width?: string
   value?: string
-  children?: React.ReactNode
+  children?: ReactNode
   onChange?: (category: string) => void
+  onOpenChange?: (open: boolean) => void
 }
 
 const NONE_CATEGORY_VALUE = "none"
 
-export function CategorySelect({ id, value, children, onChange }: CategorySelectProps) {
+export function CategorySelect({
+  autoFocus = false,
+  disabled = false,
+  id,
+  width,
+  value,
+  children,
+  onChange,
+  onOpenChange,
+}: CategorySelectProps) {
   const selectValue = value === undefined || value === "" ? NONE_CATEGORY_VALUE : value
 
   const handleChange = useCallback(
@@ -27,8 +40,19 @@ export function CategorySelect({ id, value, children, onChange }: CategorySelect
   )
 
   return (
-    <Select.Root name="category" value={selectValue} onValueChange={handleChange}>
-      <Select.Trigger id={id} placeholder="Pick a category" />
+    <Select.Root
+      disabled={disabled}
+      name="category"
+      value={selectValue}
+      onOpenChange={onOpenChange}
+      onValueChange={handleChange}
+    >
+      <Select.Trigger
+        autoFocus={autoFocus}
+        id={id}
+        placeholder="Pick a category"
+        style={{ width }}
+      />
       <Select.Content>
         <NoneCategoryOption />
         {children}
@@ -55,9 +79,17 @@ export function NoneCategoryOption() {
 }
 
 export function ErrorCategoryOption() {
-  return <Select.Item value="error">Error</Select.Item>
+  return (
+    <Select.Item disabled value="error">
+      Error
+    </Select.Item>
+  )
 }
 
 export function LoadingCategoryOption() {
-  return <Select.Item value="loading">Loading</Select.Item>
+  return (
+    <Select.Item disabled value="loading">
+      Loading
+    </Select.Item>
+  )
 }
