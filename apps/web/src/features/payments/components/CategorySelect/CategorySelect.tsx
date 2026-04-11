@@ -6,21 +6,14 @@ import { Category } from "../../../../types/category"
 interface CategorySelectProps {
   id?: string
   value?: string
-  allowEmptyOption?: boolean
   children?: React.ReactNode
   onChange?: (category: string) => void
 }
 
 const NONE_CATEGORY_VALUE = "none"
 
-export function CategorySelect({
-  id,
-  value,
-  allowEmptyOption = false,
-  children,
-  onChange,
-}: CategorySelectProps) {
-  const selectValue = value === "" ? (allowEmptyOption ? NONE_CATEGORY_VALUE : undefined) : value
+export function CategorySelect({ id, value, children, onChange }: CategorySelectProps) {
+  const selectValue = value === undefined || value === "" ? NONE_CATEGORY_VALUE : value
 
   const handleChange = useCallback(
     (val: string) => {
@@ -37,7 +30,7 @@ export function CategorySelect({
     <Select.Root name="category" value={selectValue} onValueChange={handleChange}>
       <Select.Trigger id={id} placeholder="Pick a category" />
       <Select.Content>
-        {allowEmptyOption && <NoneCategoryOption />}
+        <NoneCategoryOption />
         {children}
       </Select.Content>
     </Select.Root>
