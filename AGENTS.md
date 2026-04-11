@@ -17,8 +17,11 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 ## Key Conventions
 
-- Web design decisions: `apps/web/docs/adr/`
-- Storybook browser test policy: `docs/storybook-browser-tests.md`
+- Repository-wide docs: `docs/`
+- App-specific docs: `apps/*/docs/`
+- Documentation policy: `docs/documentation-policy.md`
+- When a task may touch documented design decisions, policies, or operational guidance, inspect Markdown front matter in the docs directories and read the relevant docs for the current session.
+- Use front matter fields such as `area`, `applies_to`, `topics`, `when_to_read`, and `status` to choose which docs apply. Do not rely on `deprecated` docs unless the task explicitly concerns deprecated behavior.
 - Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
 - No unrelated code changes
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
