@@ -37,14 +37,6 @@ tasks:
     cmds:
       - task test-unit -- {{.CLI_ARGS}}
       - task test-storybook -- {{.CLI_ARGS}}
-  verify:
-    desc: Run all verification tasks sequentially
-    cmds:
-      - task lint
-      - task format-check
-      - task typecheck
-      - task test-unit
-      - task test-storybook
   build:
     desc: Build the application for production
     cmd: pnpm build {{.CLI_ARGS}}
