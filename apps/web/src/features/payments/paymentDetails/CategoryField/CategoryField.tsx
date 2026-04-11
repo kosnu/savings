@@ -147,6 +147,7 @@ export function CategoryField({
             disabled={isPending}
             id={id}
             value={draftCategoryId}
+            width="100%"
             onChange={handleChange}
             onOpenChange={handleSelectOpenChange}
           >
@@ -195,7 +196,11 @@ function InlineEditor({ children, onCancel, saving = false }: InlineEditorProps)
     }
   }
 
-  return <div onKeyDownCapture={handleKeyDown}>{children}</div>
+  return (
+    <div onKeyDownCapture={handleKeyDown} style={{ width: "100%" }}>
+      {children}
+    </div>
+  )
 }
 
 function toCategoryValue(categoryId: number | null): string {
