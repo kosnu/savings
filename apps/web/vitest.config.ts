@@ -43,6 +43,7 @@ export default defineConfig({
           storybookTest({
             configDir: path.join(dirname, ".storybook"),
             tags: {
+              include: ["browser-test"],
               skip: ["skip"],
             },
             storybookScript: "pnpm storybook --ci",

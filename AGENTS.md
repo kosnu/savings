@@ -18,6 +18,7 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 ## Key Conventions
 
 - Web design decisions: `apps/web/docs/adr/`
+- Storybook browser test policy: `docs/storybook-browser-tests.md`
 - Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
 - No unrelated code changes
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.

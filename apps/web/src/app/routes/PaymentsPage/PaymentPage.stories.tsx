@@ -22,7 +22,7 @@ const meta = {
       ],
     },
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "browser-test"],
   decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
   argTypes: {},
   args: {},
