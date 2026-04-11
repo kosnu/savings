@@ -17,7 +17,11 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 ## Key Conventions
 
-- Web design decisions: `apps/web/docs/adr/`
+- Repository-wide docs: `docs/`
+- App-specific docs: `apps/*/docs/`
+- Documentation policy: `docs/documentation-policy.md`
+- When a task may touch documented design decisions, policies, or operational guidance, inspect Markdown front matter in the docs directories and read the relevant docs for the current session.
+- Use front matter fields such as `area`, `applies_to`, `topics`, `when_to_read`, and `status` to choose which docs apply. Do not rely on `deprecated` docs unless the task explicitly concerns deprecated behavior.
 - Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
 - No unrelated code changes
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
@@ -42,4 +46,15 @@ Documentation-only changes or other changes
 that do not affect runtime behavior, build output, or type safety
 do not require verification.
 
-- **Web** (`apps/web/`): `task web:verify`
+- Define verification as the concrete commands for each app, not a `verify` wrapper task.
+- When application code changes, run the verification commands for the affected app from the repository root.
+- If the current diff is exactly identical to the diff for the most recent run of the same verification commands, you may skip rerunning them.
+
+- **Web** (`apps/web/`)
+  `task web:lint`
+  `task web:format-check`
+  `task web:typecheck`
+  `task web:test-unit`
+  `task web:test-storybook`
+- **API** (`apps/api`)
+  No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.

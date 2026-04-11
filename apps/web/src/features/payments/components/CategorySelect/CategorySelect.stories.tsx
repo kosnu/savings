@@ -60,22 +60,6 @@ export const Empty: Story = {
   },
 }
 
-export const EmptyWithAllowEmptyOption: Story = {
-  args: {
-    allowEmptyOption: true,
-    children: categoryOptions,
-    value: "",
-  },
-}
-
-export const AllowEmptyOption: Story = {
-  args: {
-    allowEmptyOption: true,
-    children: categoryOptions,
-    value: String(categories[0]?.id),
-  },
-}
-
 export const Loading: Story = {
   args: {
     children: <LoadingCategoryOption />,

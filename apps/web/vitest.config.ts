@@ -41,11 +41,12 @@ export default defineConfig({
           // The plugin will run tests for the stories defined in your Storybook config
           // See options at: https://storybook.js.org/docs/writing-tests/test-addon#storybooktest
           storybookTest({
-            configDir: path.join(dirname, ".storybook"),
+            configDir: path.join(dirname, ".storybook-test"),
             tags: {
+              include: ["browser-test"],
               skip: ["skip"],
             },
-            storybookScript: "pnpm storybook --ci",
+            storybookScript: "pnpm storybook --ci -c .storybook-test",
             storybookUrl: process.env.SB_URL,
           }),
         ],
@@ -57,7 +58,7 @@ export default defineConfig({
             provider: playwright(),
             instances: [{ browser: "chromium" }],
           },
-          setupFiles: [".storybook/vitest.setup.ts"],
+          setupFiles: [".storybook-test/vitest.setup.ts"],
         },
       },
     ],

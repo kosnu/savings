@@ -1,3 +1,19 @@
+---
+title: Architecture Overview
+doc_type: overview
+status: accepted
+area: repository
+applies_to:
+  - .
+topics:
+  - architecture
+  - monorepo
+  - project-structure
+when_to_read:
+  - リポジトリ全体の構成を確認するとき
+  - アプリ間の役割分担を確認するとき
+---
+
 # Architecture Overview
 
 このリポジトリはモノリポジトリ形式で、フロントエンド、バックエンド、運用用スクリプトを分離して管理しています。ここでは高レベルなディレクトリ構成と各領域の役割を簡潔に説明します。詳細な操作手順や実装の細かい説明は各サブプロジェクトの README を参照してください。
