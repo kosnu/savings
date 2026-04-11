@@ -3,5 +3,10 @@
   "compilerOptions": {
     "types": ["vite/client", "vitest/globals"]
   },
-  "include": [".storybook/**/*.ts", ".storybook/**/*.tsx"]
+  "include": [
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    ".storybook-test/**/*.ts",
+    ".storybook-test/**/*.tsx"
+  ]
 }
