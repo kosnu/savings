@@ -7,7 +7,7 @@ const meta = {
   title: "Pages/TopPage",
   component: TopPage,
   parameters: {},
-  tags: ["autodocs"],
+  tags: ["autodocs", "browser-test"],
   decorators: [createStoryRouter("/")],
   argTypes: {},
   args: {},

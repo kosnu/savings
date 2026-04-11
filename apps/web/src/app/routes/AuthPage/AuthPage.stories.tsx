@@ -5,6 +5,7 @@ import { AuthPage } from "./AuthPage"
 
 const meta = {
   component: AuthPage,
+  tags: ["browser-test"],
 } satisfies Meta<typeof AuthPage>
 
 export default meta
