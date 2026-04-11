@@ -6,6 +6,7 @@ import { createQueryClient } from "../../../../lib/queryClient"
 import { SnackbarProvider } from "../../../../providers/snackbar"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { payments } from "../../../../test/data/payments"
+import { categoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
 import { PaymentDetailsOverlay } from "./PaymentDetailsOverlay"
@@ -44,7 +45,7 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   parameters: {
     msw: {
-      handlers: createPaymentHandlers(),
+      handlers: [...createPaymentHandlers(), ...categoryHandlers],
     },
   },
 }
@@ -52,15 +53,18 @@ export const Default: Story = {
 export const EmptyNote: Story = {
   parameters: {
     msw: {
-      handlers: createPaymentHandlers({
-        initialRows: [
-          mapPaymentToRow({
-            ...payments[0],
-            note: "",
-          }),
-          ...payments.slice(1).map(mapPaymentToRow),
-        ],
-      }),
+      handlers: [
+        ...createPaymentHandlers({
+          initialRows: [
+            mapPaymentToRow({
+              ...payments[0],
+              note: "",
+            }),
+            ...payments.slice(1).map(mapPaymentToRow),
+          ],
+        }),
+        ...categoryHandlers,
+      ],
     },
   },
 }
@@ -71,7 +75,7 @@ export const MissingPayment: Story = {
   },
   parameters: {
     msw: {
-      handlers: createPaymentHandlers(),
+      handlers: [...createPaymentHandlers(), ...categoryHandlers],
     },
   },
 }
@@ -100,9 +104,12 @@ export const FetchError: Story = {
   ],
   parameters: {
     msw: {
-      handlers: createPaymentHandlers({
-        get: { error: true },
-      }),
+      handlers: [
+        ...createPaymentHandlers({
+          get: { error: true },
+        }),
+        ...categoryHandlers,
+      ],
     },
   },
 }
