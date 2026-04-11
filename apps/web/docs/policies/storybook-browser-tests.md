@@ -1,3 +1,20 @@
+---
+title: Storybook Browser Tests
+doc_type: policy
+status: accepted
+area: web
+applies_to:
+  - apps/web
+topics:
+  - storybook
+  - browser-test
+  - vitest
+when_to_read:
+  - Storybookのブラウザテスト対象を変更するとき
+  - Page storyを追加または変更するとき
+  - task web:test-storybookの対象範囲を確認するとき
+---
+
 # Storybook Browser Tests
 
 Storybook のブラウザテストは opt-in で運用します。

@@ -1,3 +1,21 @@
+---
+title: インフラ構成
+doc_type: overview
+status: accepted
+area: infrastructure
+applies_to:
+  - apps/web
+  - apps/api
+topics:
+  - cloudflare
+  - supabase
+  - hosting
+  - database
+when_to_read:
+  - ホスティングまたはDNS構成を確認するとき
+  - Supabase AuthまたはPostgreSQLの利用前提を確認するとき
+---
+
 # インフラ構成
 
 本プロジェクトの Web アプリケーションは、以下のクラウドサービスを利用して構築・運用されています。

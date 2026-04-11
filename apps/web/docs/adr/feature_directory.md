@@ -1,3 +1,19 @@
+---
+title: ディレクトリ構成について
+doc_type: adr
+status: accepted
+area: web
+applies_to:
+  - apps/web/src/features
+topics:
+  - feature-directory
+  - project-structure
+  - frontend-architecture
+when_to_read:
+  - Webアプリに新しい機能ディレクトリを追加するとき
+  - features配下の構成を変更するとき
+---
+
 # ADR: ディレクトリ構成について
 
 ## ステータス
