@@ -1,8 +1,7 @@
 import { Cross1Icon } from "@radix-ui/react-icons"
 import { Button, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
 import { Link, useNavigate } from "@tanstack/react-router"
-import type { ReactNode } from "react"
-import { useCallback } from "react"
+import { useCallback, type ReactNode } from "react"
 
 import { getSupabaseClient } from "../../lib/supabase"
 
