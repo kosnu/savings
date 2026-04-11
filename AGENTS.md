@@ -42,4 +42,15 @@ Documentation-only changes or other changes
 that do not affect runtime behavior, build output, or type safety
 do not require verification.
 
-- **Web** (`apps/web/`): `task web:verify`
+- Define verification as the concrete commands for each app, not a `verify` wrapper task.
+- When application code changes, run the verification commands for the affected app from the repository root.
+- If the current diff is exactly identical to the diff for the most recent run of the same verification commands, you may skip rerunning them.
+
+- **Web** (`apps/web/`)
+  `task web:lint`
+  `task web:format-check`
+  `task web:typecheck`
+  `task web:test-unit`
+  `task web:test-storybook`
+- **API** (`apps/api`)
+  No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.
