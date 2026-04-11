@@ -1,6 +1,11 @@
 import type { Args, Decorator } from "@storybook/react-vite"
-import type { AnyRootRoute, AnyRoute, RouteComponent } from "@tanstack/react-router"
-import { createRoute, RouterProvider } from "@tanstack/react-router"
+import {
+  createRoute,
+  RouterProvider,
+  type AnyRootRoute,
+  type AnyRoute,
+  type RouteComponent,
+} from "@tanstack/react-router"
 
 import { paymentsSearchSchema } from "../../features/payments/listPayment/paymentsSearchSchema"
 import { createTestRouter } from "./createTestRouter"

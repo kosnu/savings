@@ -28,6 +28,8 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 The rules in this section are mandatory and must always be followed.
 
 - Any sentence ending with `?` or `？` MUST be treated as a question. You MUST answer it before taking any action.
+- Do not jump to conclusions.
+- Do not solve issues by taking the shortest path alone.
 
 ## Verification
 
