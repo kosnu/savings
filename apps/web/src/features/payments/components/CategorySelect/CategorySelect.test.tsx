@@ -5,34 +5,22 @@ import { describe, expect, test, vi } from "vitest"
 import { render, screen } from "../../../../test/test-utils"
 import * as stories from "./CategorySelect.stories"
 
-const { AllowEmptyOption, Default, Empty, EmptyWithAllowEmptyOption, ErrorState, Filled, Loading } =
-  composeStories(stories)
+const { Default, Empty, ErrorState, Filled, Loading } = composeStories(stories)
 
 const renderWithTheme = (component: React.ReactElement) => {
   return render(<Theme>{component}</Theme>)
 }
 
 describe("CategorySelect", () => {
-  test("allowEmptyOption が false のとき空文字は未選択として扱う", async () => {
-    const { user } = renderWithTheme(<Empty />)
-
-    const combobox = screen.getByRole("combobox")
-    expect(combobox).toHaveTextContent("Pick a category")
-
-    await user.click(combobox)
-
-    expect(screen.queryByRole("option", { name: /^none$/i })).not.toBeInTheDocument()
-  })
-
-  test("allowEmptyOption が true のとき空文字は None を選択値にする", () => {
-    renderWithTheme(<EmptyWithAllowEmptyOption />)
+  test("空文字は None を選択値にする", () => {
+    renderWithTheme(<Empty />)
 
     expect(screen.getByRole("combobox")).toHaveTextContent("None")
   })
 
   test("none を選ぶと空文字へ変換して通知する", async () => {
     const handleChange = vi.fn()
-    const { user } = renderWithTheme(<AllowEmptyOption onChange={handleChange} />)
+    const { user } = renderWithTheme(<Filled onChange={handleChange} />)
 
     await user.click(screen.getByRole("combobox"))
     await user.click(await screen.findByRole("option", { name: /^none$/i }))

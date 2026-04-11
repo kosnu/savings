@@ -1,4 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
+import { useState } from "react"
 import { describe, expect, test, vi } from "vitest"
 
 import { render, screen, waitFor, within } from "../../../../test/test-utils"
@@ -10,6 +11,20 @@ function renderStory(story: React.ReactElement) {
   return render(story)
 }
 
+function ControlledDefault({ onChange }: { onChange: (category: string) => void }) {
+  const [value, setValue] = useState("")
+
+  return (
+    <Default
+      value={value}
+      onChange={(category) => {
+        setValue(category)
+        onChange(category)
+      }}
+    />
+  )
+}
+
 describe("CreatePayment CategoryField", () => {
   test("Default story ではカテゴリ入力欄を表示する", async () => {
     renderStory(<Default />)
@@ -19,7 +34,7 @@ describe("CreatePayment CategoryField", () => {
 
   test("カテゴリを選択できる", async () => {
     const onChange = vi.fn()
-    const { user } = renderStory(<Default onChange={onChange} />)
+    const { user } = renderStory(<ControlledDefault onChange={onChange} />)
 
     const select = await screen.findByRole("combobox", { name: /category/i })
     await user.click(select)

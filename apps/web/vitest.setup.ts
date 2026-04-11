@@ -25,6 +25,8 @@ if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {}
 }
 
+window.scrollTo = () => {}
+
 if (!window.matchMedia) {
   window.matchMedia = () => ({
     matches: false,
