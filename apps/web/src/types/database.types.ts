@@ -54,6 +54,8 @@ export type Database = {
           amount: number
           created_at: string | null
           effective_from: string
+          effective_month: number
+          effective_year: number
           id: number
           updated_at: string | null
           user_id: number
@@ -62,14 +64,18 @@ export type Database = {
           amount: number
           created_at?: string | null
           effective_from: string
+          effective_month?: number
+          effective_year?: number
           id?: never
           updated_at?: string | null
-          user_id: number
+          user_id?: number
         }
         Update: {
           amount?: number
           created_at?: string | null
           effective_from?: string
+          effective_month?: number
+          effective_year?: number
           id?: never
           updated_at?: string | null
           user_id?: number
@@ -164,6 +170,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_authenticated_user_id: { Args: never; Returns: number }
       get_monthly_total_amount: { Args: { p_month: string }; Returns: number }
     }
     Enums: {
