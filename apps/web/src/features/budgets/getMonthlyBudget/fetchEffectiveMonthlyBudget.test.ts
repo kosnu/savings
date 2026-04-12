@@ -1,13 +1,13 @@
 import { HttpResponse, http } from "msw"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { monthlyBudgets } from "../../test/data/monthlyBudgets"
-import { createMonthlyBudgetHandlers } from "../../test/msw/handlers/monthlyBudgets"
-import { server } from "../../test/msw/server"
-import { supabaseTestClient } from "../../test/utils/createSupabaseTestClient"
+import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
+import { server } from "../../../test/msw/server"
+import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
 import { fetchEffectiveMonthlyBudget } from "./fetchEffectiveMonthlyBudget"
 
-vi.mock("../../lib/supabase", () => ({
+vi.mock("../../../lib/supabase", () => ({
   getSupabaseClient: () => supabaseTestClient,
 }))
 
