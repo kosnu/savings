@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { createMonthlyBudgetHandlers } from "../../test/msw/handlers/monthlyBudgets"
-import { server } from "../../test/msw/server"
-import { renderHook, waitFor } from "../../test/test-utils"
-import { supabaseTestClient } from "../../test/utils/createSupabaseTestClient"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
+import { server } from "../../../test/msw/server"
+import { renderHook, waitFor } from "../../../test/test-utils"
+import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
 import { useEffectiveMonthlyBudget } from "./useEffectiveMonthlyBudget"
 
-vi.mock("../../lib/supabase", () => ({
+vi.mock("../../../lib/supabase", () => ({
   getSupabaseClient: () => supabaseTestClient,
 }))
 

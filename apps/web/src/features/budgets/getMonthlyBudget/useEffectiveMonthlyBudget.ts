@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
+import type { MonthlyBudget } from "../types"
+import { formatTargetMonthKey, toTargetMonth } from "../utils/month"
 import { fetchEffectiveMonthlyBudget } from "./fetchEffectiveMonthlyBudget"
-import type { MonthlyBudget } from "./types"
-import { formatTargetMonthKey, toTargetMonth } from "./utils/month"
 
 interface UseEffectiveMonthlyBudgetReturn {
   data: MonthlyBudget | null
