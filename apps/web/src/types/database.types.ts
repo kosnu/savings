@@ -49,6 +49,41 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_budgets: {
+        Row: {
+          amount: number
+          created_at: string | null
+          effective_from: string
+          id: number
+          updated_at: string | null
+          user_id: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          effective_from: string
+          id?: never
+          updated_at?: string | null
+          user_id: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          effective_from?: string
+          id?: never
+          updated_at?: string | null
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_budgets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
