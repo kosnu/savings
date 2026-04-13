@@ -1,6 +1,7 @@
 import { DelayMode, HttpResponse, delay, http } from "msw"
 
-import { monthlyBudgets, type MonthlyBudgetRow } from "../../data/monthlyBudgets"
+import type { MonthlyBudgetRow } from "../../../features/budgets/types"
+import { monthlyBudgets } from "../../data/monthlyBudgets"
 
 const REST_URL = "*/rest/v1/monthly_budgets*"
 
@@ -25,7 +26,7 @@ export function createMonthlyBudgetHandlers({ get = {} }: CreateMonthlyBudgetHan
       return HttpResponse.json({ message: "Failed to fetch monthly budgets." }, { status: 500 })
     }
 
-    const response = "response" in get ? get.response : monthlyBudgets[2]
+    const response = get.response === undefined ? monthlyBudgets[2] : get.response
 
     return HttpResponse.json(response)
   })
