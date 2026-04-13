@@ -1,6 +1,4 @@
-import type { Tables } from "../../types/database.types"
-
-export type MonthlyBudgetRow = Tables<"monthly_budgets">
+import type { MonthlyBudgetRow } from "../../features/budgets/types"
 
 export const monthlyBudgets: MonthlyBudgetRow[] = [
   {
