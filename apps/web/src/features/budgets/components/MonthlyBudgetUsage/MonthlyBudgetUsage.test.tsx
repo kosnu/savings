@@ -1,0 +1,77 @@
+import { composeStories } from "@storybook/react-vite"
+import { afterEach, describe, expect, test, vi } from "vitest"
+
+import { monthlyBudgets } from "../../../../test/data/monthlyBudgets"
+import { createMonthlyBudgetHandlers } from "../../../../test/msw/handlers/monthlyBudgets"
+import { server } from "../../../../test/msw/server"
+import { render, screen, waitFor } from "../../../../test/test-utils"
+import * as stories from "./MonthlyBudgetUsage.stories"
+
+const { FetchError, Loading, NoBudget, Over, Remaining } = composeStories(stories)
+const monthlyBudget = { ...monthlyBudgets[2], amount: 30000 }
+
+describe("MonthlyBudgetUsage", () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test("月予算に対する残額を表示する", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: monthlyBudget },
+      }),
+    )
+    render(<Remaining />)
+
+    expect(await screen.findByText("￥20,000 left")).toBeInTheDocument()
+  })
+
+  test("月予算を超えたら超過額を表示する", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: monthlyBudget },
+      }),
+    )
+    render(<Over />)
+
+    expect(await screen.findByText("￥15,000 over")).toBeInTheDocument()
+  })
+
+  test("月予算がない場合は利用状況を表示しない", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: null },
+      }),
+    )
+    render(<NoBudget />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/left|over|Could not get the budget/)).not.toBeInTheDocument()
+    })
+  })
+
+  test("月予算の取得に失敗した場合はエラー状態を表示する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { error: true },
+      }),
+    )
+    render(<FetchError />)
+
+    expect(await screen.findByRole("status", {}, { timeout: 3000 })).toHaveTextContent(
+      "Could not get the budget",
+    )
+  })
+
+  test("読み込み中はスケルトンを表示する", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: monthlyBudget },
+      }),
+    )
+    render(<Loading />)
+
+    expect(await screen.findByTestId("budget-difference-skeleton")).toBeInTheDocument()
+  })
+})
