@@ -1,8 +1,10 @@
 import { Container } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 
+import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { Summary } from "./Summary"
 
@@ -12,7 +14,13 @@ const meta = {
   parameters: {
     layout: "centered",
     msw: {
-      handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
+      handlers: [
+        ...createPaymentHandlers(),
+        ...createCategoryHandlers(),
+        ...createMonthlyBudgetHandlers({
+          get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+        }),
+      ],
     },
   },
   tags: ["autodocs"],

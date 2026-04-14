@@ -3,8 +3,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 import { createQueryClient } from "../../../lib/queryClient"
 import { entertainmentCat } from "../../../test/data/categories"
+import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
 import { render, screen, waitFor, within } from "../../../test/test-utils"
@@ -56,6 +58,9 @@ describe("PaymentsPage", () => {
         },
       }),
       ...createCategoryHandlers(),
+      ...createMonthlyBudgetHandlers({
+        get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+      }),
     )
   })
 

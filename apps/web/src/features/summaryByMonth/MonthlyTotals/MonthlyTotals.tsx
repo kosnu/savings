@@ -3,10 +3,13 @@ import { memo, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { toCurrency } from "../../../utils/toCurrency"
+import { useDateRange } from "../../../utils/useDateRange"
+import { MonthlyBudgetUsage } from "../../budgets/components/MonthlyBudgetUsage"
 import { useTotalExpenditures } from "../useTotalExpenditures"
 
 function MonthlyTotals() {
-  const { promise } = useTotalExpenditures()
+  const totalExpenditures = useTotalExpenditures()
+  const { date } = useDateRange()
 
   return (
     <Flex gap="1" direction="column">
@@ -16,9 +19,17 @@ function MonthlyTotals() {
       <Flex justify="end" align="center">
         <ErrorBoundary fallback={<Text color="red">An unexpected error has occurred.</Text>}>
           <Suspense fallback={<MoneyText loading />}>
-            <MoneyText getValue={promise} />
+            <MoneyText getValue={totalExpenditures.promise} />
           </Suspense>
         </ErrorBoundary>
+      </Flex>
+      <Flex justify="end" align="center">
+        <MonthlyBudgetUsage
+          targetDate={date}
+          totalExpenditures={totalExpenditures.data}
+          totalExpendituresError={totalExpenditures.error}
+          totalExpendituresLoading={totalExpenditures.loading}
+        />
       </Flex>
     </Flex>
   )
