@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, within } from "storybook/test"
 
+import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import { PaymentsPage } from "./PaymentsPage"
@@ -19,6 +21,9 @@ const meta = {
           initialRows: payments.map(mapPaymentToRow),
         }),
         ...createCategoryHandlers(),
+        ...createMonthlyBudgetHandlers({
+          get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+        }),
       ],
     },
   },
@@ -45,6 +50,7 @@ export const Default: Story = {
     expect(await canvas.findByText("2025/06/03")).toBeInTheDocument()
     expect(await canvas.findByText("￥1,000")).toBeInTheDocument()
     expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
+    expect(await canvas.findByText("￥20,000 left")).toBeInTheDocument()
   },
 }
 
