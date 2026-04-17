@@ -32,8 +32,8 @@ importers:
         specifier: 3.3.0
         version: 3.3.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@sentry/react':
-        specifier: 10.47.0
-        version: 10.47.0(react@19.2.5)
+        specifier: 10.48.0
+        version: 10.48.0(react@19.2.5)
       '@tanstack/devtools-vite':
         specifier: 0.6.0
         version: 0.6.0(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4))
@@ -41,11 +41,11 @@ importers:
         specifier: 0.10.2
         version: 0.10.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(solid-js@1.9.11)
       '@tanstack/react-form':
-        specifier: 1.28.6
-        version: 1.28.6(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 1.29.0
+        version: 1.29.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tanstack/react-form-devtools':
-        specifier: 0.2.20
-        version: 0.2.20(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)
+        specifier: 0.2.21
+        version: 0.2.21(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)
       '@tanstack/react-query':
         specifier: 5.97.0
         version: 5.97.0(react@19.2.5)
@@ -53,11 +53,11 @@ importers:
         specifier: 5.97.0
         version: 5.97.0(@tanstack/react-query@5.97.0(react@19.2.5))(react@19.2.5)
       '@tanstack/react-router':
-        specifier: 1.168.10
-        version: 1.168.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 1.168.13
+        version: 1.168.13(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tanstack/react-router-devtools':
         specifier: 1.166.11
-        version: 1.166.11(@tanstack/react-router@1.168.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tanstack/router-core@1.168.9)(csstype@3.2.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        version: 1.166.11(@tanstack/react-router@1.168.13(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tanstack/router-core@1.168.9)(csstype@3.2.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       date-fns:
         specifier: 4.1.0
         version: 4.1.0
@@ -1868,28 +1868,28 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sentry-internal/browser-utils@10.47.0':
-    resolution: {integrity: sha512-bVFRAeJWMBcBCvJKIFCMJ1/yQToL4vPGqfmlnDZeypcxkqUDKQ/Y3ziLHXoDL2sx0lagcgU2vH1QhCQ67Aujjw==}
+  '@sentry-internal/browser-utils@10.48.0':
+    resolution: {integrity: sha512-SCiTLBXzugFKxev6NoKYBIhQoDk0gUh0AVVVepCBqfCJiWBG01Zvv0R5tCVohr4cWRllkQ8mlBdNQd/I7s9tdA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@10.47.0':
-    resolution: {integrity: sha512-pdvMmi4dQpX5S/vAAzrhHPIw3T3HjUgDNgUiCBrlp7N9/6zGO2gNPhUnNekP+CjgI/z0rvf49RLqlDenpNrMOg==}
+  '@sentry-internal/feedback@10.48.0':
+    resolution: {integrity: sha512-tGkEyOM1HDS9qebDphUMEnyk3qq/50AnuTBiFmMJyjNzowylVGmRRk0sr3xkmbVHCDXQCiYnDmSVlJ2x4SDMrQ==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@10.47.0':
-    resolution: {integrity: sha512-A5OY8friSe6g8WAK4L8IeOPiEd9D3Ps40DzRH5j2f6SUja0t90mKMvHRcRf8zq0d4BkdB+JM7tjOkwxpuv8heA==}
+  '@sentry-internal/replay-canvas@10.48.0':
+    resolution: {integrity: sha512-9nWuN2z4O+iwbTfuYV5ZmngBgJU/ZxfOo47A5RJP3Nu/kl59aJ1lUhILYOKyeNOIC/JyeERmpIcTxnlPXQzZ3Q==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@10.47.0':
-    resolution: {integrity: sha512-ScdovxP7hJxgMt70+7hFvwT02GIaIUAxdEM/YPsayZBeCoAukPW8WiwztJfoKtsfPyKJ5A6f0H3PIxTPcA9Row==}
+  '@sentry-internal/replay@10.48.0':
+    resolution: {integrity: sha512-sevRTePfuk4PNuz9KAKpmTZEomAU0aLXyIhOwA0OnUDdxPhkY8kq5lwDbuxTHv6DQUjUX3YgFbY45VH1JEqHKA==}
     engines: {node: '>=18'}
 
   '@sentry/babel-plugin-component-annotate@5.2.0':
     resolution: {integrity: sha512-8LbOI5Kzb5F0+7LVQPi2+zGz1iPiRRFhM+7uZ/ZQ33L9BmDOYNIy3xWxCfMw2JCuMXXaxF47XCjGmR22/B0WPg==}
     engines: {node: '>= 18'}
 
-  '@sentry/browser@10.47.0':
-    resolution: {integrity: sha512-rC0agZdxKA5XWfL4VwPOr/rJMogXDqZgnVzr93YWpFn9DMZT/7LzxSJVPIJwRUjx3bFEby3PcTa3YaX7pxm1AA==}
+  '@sentry/browser@10.48.0':
+    resolution: {integrity: sha512-4jt2zX2ExgFcNe2x+W+/k81fmDUsOrquGtt028CiGuDuma6kEsWBI4JbooT1jhj2T+eeUxe3YGbM23Zhh7Ghhw==}
     engines: {node: '>=18'}
 
   '@sentry/bundler-plugin-core@5.2.0':
@@ -1948,12 +1948,12 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@sentry/core@10.47.0':
-    resolution: {integrity: sha512-nsYRAx3EWezDut+Zl+UwwP07thh9uY7CfSAi2whTdcJl5hu1nSp2z8bba7Vq/MGbNLnazkd3A+GITBEML924JA==}
+  '@sentry/core@10.48.0':
+    resolution: {integrity: sha512-h8F+fXVwYC9ro5ZaO8V+v3vqc0awlXHGblEAuVxSGgh4IV/oFX+QVzXeDTTrFOFS6v/Vn5vAyu240eJrJAS6/g==}
     engines: {node: '>=18'}
 
-  '@sentry/react@10.47.0':
-    resolution: {integrity: sha512-ZtJV6xxF8jUVE9e3YQUG3Do0XapG1GjniyLyqMPgN6cNvs/HaRJODf7m60By+VGqcl5XArEjEPTvx8CdPUXDfA==}
+  '@sentry/react@10.48.0':
+    resolution: {integrity: sha512-uc93vKjmu6gNns+JAX4qquuxWpAMit0uGPA1TYlMjct9NG1uX3TkDPJAr9Pgd1lOXx8mKqCmj5fK33QeExMpPw==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -2177,11 +2177,11 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
-  '@tanstack/form-core@1.28.6':
-    resolution: {integrity: sha512-4zroxL6VDj5O+w7l3dYZnUeL/h30KtNSV7UWzKAL7cl+8clMFdISPDlDlluS37As7oqvPVKo8B83VlIBvgmRog==}
+  '@tanstack/form-core@1.29.0':
+    resolution: {integrity: sha512-uyeKEdJBfbj0bkBSwvSYVRtWLOaXvfNX3CeVw1HqGOXVLxpBBGAqWdYLc+UoX/9xcoFwFXrjR9QqMPzvwm2yyQ==}
 
-  '@tanstack/form-devtools@0.2.20':
-    resolution: {integrity: sha512-4cW/eU5DBTrWP53mxwHKp4NQWTIQ3XCA91pMWK7dFNNClIwFnxoSJoKwyUa6b8kRIO6uq1Sjk2mhkAtj5kB22A==}
+  '@tanstack/form-devtools@0.2.21':
+    resolution: {integrity: sha512-8mxR1/QDw37mNVSFsr4ZN8+bdamH9LU1/iQ3I7/sfTzFmMsNzUOysX3OZf053eaS4Gaw44PT0pH7U0FWD98QKw==}
     peerDependencies:
       solid-js: '>=1.9.9'
 
@@ -2208,13 +2208,13 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/react-form-devtools@0.2.20':
-    resolution: {integrity: sha512-aXtorJ7p3TbzOapjaxbjGX/c0uQh/wbYSwgzFt3qatNMb1xL4HM/j00Bx7hDENZNBCf8MF8YEEtvpBmnGb4rnQ==}
+  '@tanstack/react-form-devtools@0.2.21':
+    resolution: {integrity: sha512-WBQ7NOcb3FM9UA4juZVyWUyJkyl62vHFbEBybZuvBFw3wq/v9pDGS01Ye8kepGXDg1+LQsOOxyDR65AKsdqSYQ==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/react-form@1.28.6':
-    resolution: {integrity: sha512-dRxwKeNW3uuJvf0sXsIQ2compFMnIJNk9B436Lx0fqkqK+CBvA1tNmEdX+faoCpuQ5Wua3c8ahVibJ65cpkijA==}
+  '@tanstack/react-form@1.29.0':
+    resolution: {integrity: sha512-jj425NNX0QKqbUzqSNiYI3HCPHSk2df47acXCJyXczWOTmG81ECZGkgofgqamFsSU9kMiH6Di5RLUnftrlhWSw==}
     peerDependencies:
       '@tanstack/react-start': '*'
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -2245,8 +2245,8 @@ packages:
       '@tanstack/router-core':
         optional: true
 
-  '@tanstack/react-router@1.168.10':
-    resolution: {integrity: sha512-/RmDlOwDkCug609KdPB3U+U1zmrtadJpvsmRg2zEn8TRCKRNri7dYZIjQZbNg8PgUiRL4T6njrZBV1ChzblNaA==}
+  '@tanstack/react-router@1.168.13':
+    resolution: {integrity: sha512-rvrL1bK/bOjjfDyAKKFvkVXeo8IZZmwfy9DwJaMlj7lCmpWl4Qban2/d+EirlHPcwHDNq5OkS5jhcBiZ+24RJw==}
     engines: {node: '>=20.19'}
     peerDependencies:
       react: '>=18.0.0 || >=19.0.0'
@@ -5730,33 +5730,33 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.59.0':
     optional: true
 
-  '@sentry-internal/browser-utils@10.47.0':
+  '@sentry-internal/browser-utils@10.48.0':
     dependencies:
-      '@sentry/core': 10.47.0
+      '@sentry/core': 10.48.0
 
-  '@sentry-internal/feedback@10.47.0':
+  '@sentry-internal/feedback@10.48.0':
     dependencies:
-      '@sentry/core': 10.47.0
+      '@sentry/core': 10.48.0
 
-  '@sentry-internal/replay-canvas@10.47.0':
+  '@sentry-internal/replay-canvas@10.48.0':
     dependencies:
-      '@sentry-internal/replay': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry-internal/replay': 10.48.0
+      '@sentry/core': 10.48.0
 
-  '@sentry-internal/replay@10.47.0':
+  '@sentry-internal/replay@10.48.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry-internal/browser-utils': 10.48.0
+      '@sentry/core': 10.48.0
 
   '@sentry/babel-plugin-component-annotate@5.2.0': {}
 
-  '@sentry/browser@10.47.0':
+  '@sentry/browser@10.48.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.47.0
-      '@sentry-internal/feedback': 10.47.0
-      '@sentry-internal/replay': 10.47.0
-      '@sentry-internal/replay-canvas': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry-internal/browser-utils': 10.48.0
+      '@sentry-internal/feedback': 10.48.0
+      '@sentry-internal/replay': 10.48.0
+      '@sentry-internal/replay-canvas': 10.48.0
+      '@sentry/core': 10.48.0
 
   '@sentry/bundler-plugin-core@5.2.0':
     dependencies:
@@ -5815,12 +5815,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/core@10.47.0': {}
+  '@sentry/core@10.48.0': {}
 
-  '@sentry/react@10.47.0(react@19.2.5)':
+  '@sentry/react@10.48.0(react@19.2.5)':
     dependencies:
-      '@sentry/browser': 10.47.0
-      '@sentry/core': 10.47.0
+      '@sentry/browser': 10.48.0
+      '@sentry/core': 10.48.0
       react: 19.2.5
 
   '@sentry/rollup-plugin@5.2.0(rollup@4.59.0)':
@@ -6086,17 +6086,17 @@ snapshots:
       - csstype
       - utf-8-validate
 
-  '@tanstack/form-core@1.28.6':
+  '@tanstack/form-core@1.29.0':
     dependencies:
       '@tanstack/devtools-event-client': 0.4.3
       '@tanstack/pacer-lite': 0.1.1
       '@tanstack/store': 0.9.3
 
-  '@tanstack/form-devtools@0.2.20(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)':
+  '@tanstack/form-devtools@0.2.21(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)':
     dependencies:
       '@tanstack/devtools-ui': 0.5.1(csstype@3.2.3)(solid-js@1.9.11)
       '@tanstack/devtools-utils': 0.4.0(@types/react@19.2.14)(react@19.2.5)(solid-js@1.9.11)
-      '@tanstack/form-core': 1.28.6
+      '@tanstack/form-core': 1.29.0
       clsx: 2.1.1
       dayjs: 1.11.20
       goober: 2.1.18(csstype@3.2.3)
@@ -6129,10 +6129,10 @@ snapshots:
       - solid-js
       - utf-8-validate
 
-  '@tanstack/react-form-devtools@0.2.20(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)':
+  '@tanstack/react-form-devtools@0.2.21(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)':
     dependencies:
       '@tanstack/devtools-utils': 0.4.0(@types/react@19.2.14)(react@19.2.5)(solid-js@1.9.11)
-      '@tanstack/form-devtools': 0.2.20(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)
+      '@tanstack/form-devtools': 0.2.21(@types/react@19.2.14)(csstype@3.2.3)(react@19.2.5)(solid-js@1.9.11)
       react: 19.2.5
     transitivePeerDependencies:
       - '@types/react'
@@ -6141,9 +6141,9 @@ snapshots:
       - solid-js
       - vue
 
-  '@tanstack/react-form@1.28.6(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@tanstack/react-form@1.29.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@tanstack/form-core': 1.28.6
+      '@tanstack/form-core': 1.29.0
       '@tanstack/react-store': 0.9.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react: 19.2.5
     transitivePeerDependencies:
@@ -6160,9 +6160,9 @@ snapshots:
       '@tanstack/query-core': 5.97.0
       react: 19.2.5
 
-  '@tanstack/react-router-devtools@1.166.11(@tanstack/react-router@1.168.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tanstack/router-core@1.168.9)(csstype@3.2.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@tanstack/react-router-devtools@1.166.11(@tanstack/react-router@1.168.13(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tanstack/router-core@1.168.9)(csstype@3.2.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@tanstack/react-router': 1.168.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tanstack/react-router': 1.168.13(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tanstack/router-devtools-core': 1.167.1(@tanstack/router-core@1.168.9)(csstype@3.2.3)
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
@@ -6171,7 +6171,7 @@ snapshots:
     transitivePeerDependencies:
       - csstype
 
-  '@tanstack/react-router@1.168.10(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@tanstack/react-router@1.168.13(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@tanstack/history': 1.161.6
       '@tanstack/react-store': 0.9.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
