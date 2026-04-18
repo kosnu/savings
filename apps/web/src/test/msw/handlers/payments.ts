@@ -1,4 +1,5 @@
-import { DelayMode, HttpResponse, delay, http } from "msw"
+import { type DelayMode, HttpResponse, delay, http } from "msw"
+import z from "zod"
 
 import type { CategoryRow } from "../../../types/category"
 import type { PaymentRow } from "../../../types/payment"
@@ -121,18 +122,37 @@ function toPaymentDetailsRow(row: PaymentRow, categoryRows: CategoryRow[]): Paym
   }
 }
 
-function buildPaymentRow(body: Record<string, unknown>, paymentRows: PaymentRow[]): PaymentRow {
+const createPaymentBodySchema = z.object({
+  amount: z.number(),
+  date: z.string(),
+  note: z.string().nullable(),
+  category_id: z.number().nullable(),
+})
+
+type CreatePaymentBody = z.infer<typeof createPaymentBodySchema>
+
+const updatePaymentBodySchema = z.object({
+  amount: z.number().optional(),
+  date: z.string().optional(),
+  note: z.string().nullable().optional(),
+  category_id: z.number().nullable().optional(),
+})
+
+const getMonthlyTotalAmountRequestBodySchema = z.object({
+  p_month: z.string().optional(),
+})
+
+function buildPaymentRow(body: CreatePaymentBody, paymentRows: PaymentRow[]): PaymentRow {
   const now = new Date().toISOString()
 
   return {
     id: Math.max(0, ...paymentRows.map((row) => row.id)) + 1,
-    note: (body.note as string) ?? null,
-    amount: body.amount as number,
-    date: body.date as string,
+    note: body.note,
+    amount: body.amount,
+    date: body.date,
     created_at: now,
     updated_at: now,
-    category_id:
-      body.category_id !== null && body.category_id !== undefined ? Number(body.category_id) : null,
+    category_id: body.category_id,
     user_id: 100,
   }
 }
@@ -208,8 +228,9 @@ export function createPaymentHandlers({
       return HttpResponse.json([create.response], { status: 201 })
     }
 
-    const body = (await request.json()) as Record<string, unknown>
-    const newRow = buildPaymentRow(body, paymentRows)
+    const body = await request.json()
+    const parsedBody = createPaymentBodySchema.parse(body)
+    const newRow = buildPaymentRow(parsedBody, paymentRows)
     paymentRows = [...paymentRows, newRow]
 
     return HttpResponse.json([newRow], { status: 201 })
@@ -223,7 +244,8 @@ export function createPaymentHandlers({
     }
 
     const id = extractPaymentId(request)
-    const body = (await request.json()) as Partial<PaymentRow>
+    const body = await request.json()
+    const parsedBody = updatePaymentBodySchema.parse(body)
 
     paymentRows = paymentRows.map((row) => {
       if (String(row.id) !== id) {
@@ -232,7 +254,7 @@ export function createPaymentHandlers({
 
       return {
         ...row,
-        ...body,
+        ...parsedBody,
         updated_at: new Date().toISOString(),
       }
     })
@@ -269,8 +291,9 @@ export function createPaymentHandlers({
         return HttpResponse.json(getMonthlyTotalAmount.response)
       }
 
-      const body = (await request.json()) as { p_month?: string }
-      return HttpResponse.json(calculateMonthlyTotalAmount(paymentRows, body.p_month))
+      const body = await request.json()
+      const parsedBody = getMonthlyTotalAmountRequestBodySchema.parse(body)
+      return HttpResponse.json(calculateMonthlyTotalAmount(paymentRows, parsedBody.p_month))
     },
   )
 
