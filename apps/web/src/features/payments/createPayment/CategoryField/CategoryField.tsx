@@ -2,7 +2,7 @@ import { memo, Suspense, use, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
-import { Category } from "../../../../types/category"
+import type { Category } from "../../../../types/category"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 import {
   CategoryOption,

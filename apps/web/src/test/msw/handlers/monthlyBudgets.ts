@@ -1,4 +1,4 @@
-import { DelayMode, HttpResponse, delay, http } from "msw"
+import { type DelayMode, HttpResponse, delay, http } from "msw"
 
 import type { MonthlyBudgetRow } from "../../../features/budgets/types"
 import { monthlyBudgets } from "../../data/monthlyBudgets"

@@ -11,7 +11,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
 import { PaymentDetailsOverlay } from "./PaymentDetailsOverlay"
 
-const paymentId = payments[0].id!
+const paymentId = payments[0].id
 
 const meta = {
   title: "Features/PaymentDetails/PaymentDetailsOverlay",

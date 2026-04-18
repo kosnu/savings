@@ -1,7 +1,7 @@
 import { Select } from "@radix-ui/themes"
 import { type ReactNode, useCallback } from "react"
 
-import { Category } from "../../../../types/category"
+import type { Category } from "../../../../types/category"
 
 interface CategorySelectProps {
   autoFocus?: boolean
