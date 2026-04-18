@@ -44,7 +44,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
       </Flex>
       <Separator size="4" />
       {/* Sidebar Contents */}
-      <Flex className={styles.sidebarContents} align="start" gap="2" p="4">
+      <Flex className={styles.sidebarContents} align="start" direction="column" gap="4" p="4">
         {children}
       </Flex>
       <Separator size="4" />

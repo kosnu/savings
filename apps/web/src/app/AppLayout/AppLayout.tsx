@@ -1,4 +1,3 @@
-import { CalendarIcon } from "@radix-ui/react-icons"
 import { Flex } from "@radix-ui/themes"
 import { Outlet } from "@tanstack/react-router"
 
@@ -17,11 +16,14 @@ export function AppLayout() {
       <Sidebar open={open} onClose={closeSidebar}>
         <SidebarButton
           to="/payments"
-          label={
-            <>
-              <CalendarIcon /> Payments
-            </>
-          }
+          ariaLabel="Navigate to Payments page"
+          label="Payments"
+          onClick={closeSidebar}
+        />
+        <SidebarButton
+          to="/budgets"
+          ariaLabel="Navigate to Budgets page"
+          label="Budgets"
           onClick={closeSidebar}
         />
       </Sidebar>
