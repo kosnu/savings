@@ -1,5 +1,5 @@
 import { TextField } from "@radix-ui/themes"
-import { type ChangeEvent } from "react"
+import type { ChangeEvent } from "react"
 
 interface AmountInputProps {
   id?: string

@@ -1,5 +1,5 @@
 {
-  "plugins": ["react", "jsx-a11y"],
+  "plugins": ["react", "jsx-a11y", "typescript"],
   "jsPlugins": [{ "name": "react-hooks-js", "specifier": "eslint-plugin-react-hooks" }],
   "categories": {
     "correctness": "error"

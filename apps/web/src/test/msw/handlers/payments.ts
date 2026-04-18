@@ -1,4 +1,4 @@
-import { DelayMode, HttpResponse, delay, http } from "msw"
+import { type DelayMode, HttpResponse, delay, http } from "msw"
 
 import type { CategoryRow } from "../../../types/category"
 import type { PaymentRow } from "../../../types/payment"

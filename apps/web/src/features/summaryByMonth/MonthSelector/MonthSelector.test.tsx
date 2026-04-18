@@ -1,7 +1,7 @@
 import { createRoute } from "@tanstack/react-router"
 import { describe, expect, test } from "vitest"
 
-import { type SupabaseSessionState } from "../../../providers/supabase/SupabaseSessionProvider"
+import type { SupabaseSessionState } from "../../../providers/supabase/SupabaseSessionProvider"
 import { mockSession } from "../../../test/data/supabaseSession"
 import { renderWithRouter as renderWithTestRouter } from "../../../test/helpers/renderWithRouter"
 import { screen, waitFor } from "../../../test/test-utils"
