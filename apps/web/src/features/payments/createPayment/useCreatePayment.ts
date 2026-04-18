@@ -14,6 +14,7 @@ async function postPayment(value: PaymentWriteInput): Promise<void> {
   const { error } = await supabase
     .from("payments")
     // FIXME: database.types.ts で user_id が必須だが、DB デフォルト値で設定されるため除外している。型定義の再生成で解消したらアサーションを削除する
+    // oxlint-disable-next-line typescript/consistent-type-assertions
     .insert(row as TablesInsert<"payments">)
 
   if (error) {
