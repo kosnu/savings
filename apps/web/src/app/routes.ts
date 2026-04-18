@@ -11,6 +11,7 @@ import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
+import { BudgetsPage } from "./routes/BudgetsPage"
 import { ErrorPage } from "./routes/ErrorPage"
 import { PaymentsPage } from "./routes/PaymentsPage"
 import { TopPage } from "./routes/TopPage"
@@ -71,10 +72,16 @@ const aggregatesRoute = createRoute({
   component: AggregatesPage,
 })
 
+const budgetsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/budgets",
+  component: BudgetsPage,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
-  authenticatedRoute.addChildren([paymentsRoute, aggregatesRoute]),
+  authenticatedRoute.addChildren([paymentsRoute, aggregatesRoute, budgetsRoute]),
 ])
 
 export const router = createRouter({
