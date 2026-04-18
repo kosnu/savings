@@ -69,7 +69,7 @@ describe("MonthlyBudgetList", () => {
       }),
     )
 
-    render(<MonthlyBudgetList />)
+    await renderMonthlyBudgetList()
 
     expect(
       await screen.findByText("Could not load monthly budgets.", {}, { timeout: 3000 }),
