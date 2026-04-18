@@ -7,14 +7,15 @@ import styles from "./SidebarButton.module.css"
 interface SidebarButtonProps {
   to: string
   label: ReactNode
+  ariaLabel: string
   onClick?: () => void
 }
 
-export function SidebarButton({ to, label, onClick }: SidebarButtonProps) {
+export function SidebarButton({ to, label, ariaLabel, onClick }: SidebarButtonProps) {
   return (
     <Button
       asChild
-      aria-label={`Navigate to ${label} page`}
+      aria-label={ariaLabel}
       className={styles.sidebarButton}
       variant="ghost"
       size="3"

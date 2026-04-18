@@ -17,11 +17,18 @@ export function AppLayout() {
       <Sidebar open={open} onClose={closeSidebar}>
         <SidebarButton
           to="/payments"
+          ariaLabel="Navigate to Payments page"
           label={
             <>
               <CalendarIcon /> Payments
             </>
           }
+          onClick={closeSidebar}
+        />
+        <SidebarButton
+          to="/budgets"
+          ariaLabel="Navigate to Budgets page"
+          label="Budgets"
           onClick={closeSidebar}
         />
       </Sidebar>
