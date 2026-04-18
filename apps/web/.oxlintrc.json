@@ -1,5 +1,5 @@
 {
-  "plugins": ["react", "jsx-a11y"],
+  "plugins": ["react", "jsx-a11y", "typescript"],
   "jsPlugins": [{ "name": "react-hooks-js", "specifier": "eslint-plugin-react-hooks" }],
   "categories": {
     "correctness": "error"
@@ -34,7 +34,12 @@
       }
     ],
     "typescript/no-import-type-side-effects": "error",
-    "typescript/consistent-type-assertions": "error",
+    "typescript/consistent-type-assertions": [
+      "error",
+      {
+        "assertionStyle": "never"
+      }
+    ],
     "typescript/no-non-null-assertion": "error"
   },
   "settings": {
