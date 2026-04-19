@@ -15,14 +15,14 @@ describe("MonthPicker", () => {
   test("年月が選択されていない場合、プレースホルダーが表示される", () => {
     renderWithTheme(<Default />)
 
-    expect(screen.getByText("月を選択")).toBeInTheDocument()
-    expect(screen.getByText("年を選択")).toBeInTheDocument()
+    expect(screen.getByRole("combobox", { name: "Month" })).toHaveTextContent("Select month")
+    expect(screen.getByRole("combobox", { name: "Year" })).toHaveTextContent("Select year")
   })
 
   test("年月が選択されている場合、選択された値が表示される", () => {
     renderWithTheme(<WithValue />)
 
-    expect(screen.getByText("5月")).toBeInTheDocument()
+    expect(screen.getByText("5")).toBeInTheDocument()
     expect(screen.getByText("2025")).toBeInTheDocument()
   })
 
@@ -30,11 +30,9 @@ describe("MonthPicker", () => {
     const handleChange = vi.fn()
     const { user } = renderWithTheme(<WithValue onChange={handleChange} />)
 
-    // 月のボタンをクリック
-    await user.click(screen.getByRole("combobox", { name: "月" }))
+    await user.click(screen.getByRole("combobox", { name: "Month" }))
 
-    // 6月を選択
-    const juneOption = await screen.findByRole("option", { name: "6月" })
+    const juneOption = await screen.findByRole("option", { name: "6" })
     await user.click(juneOption)
 
     expect(handleChange).toHaveBeenCalledTimes(1)
@@ -47,22 +45,20 @@ describe("MonthPicker", () => {
   test("月を選択すると表示も更新される", async () => {
     const { user } = renderWithTheme(<WithValue value={new Date(2025, 2, 1)} />)
 
-    expect(screen.getByText("3月")).toBeInTheDocument()
+    expect(screen.getByText("3")).toBeInTheDocument()
 
-    await user.click(screen.getByRole("combobox", { name: "月" }))
-    await user.click(await screen.findByRole("option", { name: "5月" }))
+    await user.click(screen.getByRole("combobox", { name: "Month" }))
+    await user.click(await screen.findByRole("option", { name: "5" }))
 
-    expect(await screen.findByText("5月")).toBeInTheDocument()
+    expect(await screen.findByText("5")).toBeInTheDocument()
   })
 
   test("年を選択するとonChangeが呼ばれる", async () => {
     const handleChange = vi.fn()
     const { user } = renderWithTheme(<WithValue onChange={handleChange} />)
 
-    // 年のボタンをクリック
-    await user.click(screen.getByRole("combobox", { name: "年" }))
+    await user.click(screen.getByRole("combobox", { name: "Year" }))
 
-    // 2026年を選択
     const year2026Option = await screen.findByRole("option", { name: "2026" })
     await user.click(year2026Option)
 

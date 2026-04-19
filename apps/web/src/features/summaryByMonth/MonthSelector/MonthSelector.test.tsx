@@ -57,7 +57,7 @@ describe("MonthSelector", () => {
     renderMonthSelector("/payments?year=2025&month=5")
 
     await waitFor(() => {
-      expect(screen.getByText("5月")).toBeInTheDocument()
+      expect(screen.getByText("5")).toBeInTheDocument()
       expect(screen.getByText("2025")).toBeInTheDocument()
     })
   })
@@ -66,14 +66,12 @@ describe("MonthSelector", () => {
     const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
 
     await waitFor(() => {
-      expect(screen.getByText("5月")).toBeInTheDocument()
+      expect(screen.getByText("5")).toBeInTheDocument()
     })
 
-    // 月のボタンをクリック
-    await user.click(screen.getByRole("combobox", { name: "月" }))
+    await user.click(screen.getByRole("combobox", { name: "Month" }))
 
-    // 6月を選択
-    const juneOption = await screen.findByRole("option", { name: "6月" })
+    const juneOption = await screen.findByRole("option", { name: "6" })
     await user.click(juneOption)
 
     await waitFor(() => {
