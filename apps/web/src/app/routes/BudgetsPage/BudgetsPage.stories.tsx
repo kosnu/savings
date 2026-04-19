@@ -33,6 +33,7 @@ export const Default: Story = {
     const canvas = within(canvasElement)
 
     expect(canvas.getByRole("heading", { name: "Budgets" })).toBeInTheDocument()
+    expect(canvas.getByRole("button", { name: "Create budget" })).toBeInTheDocument()
     const table = await canvas.findByRole("table")
     expect(await within(table).findByText("2025/07")).toBeInTheDocument()
     expect(await within(table).findByText("￥75,000")).toBeInTheDocument()
