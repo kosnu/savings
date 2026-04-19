@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createQueryClient } from "../../../lib/queryClient"
-import { act, renderHook, waitFor } from "../../../test/test-utils"
+import { act, renderHook } from "../../../test/test-utils"
 import type { MonthlyBudgetWriteInput } from "./monthlyBudgetFormMappers"
 import { useCreateMonthlyBudget } from "./useCreateMonthlyBudget"
 
@@ -18,20 +18,18 @@ describe("useCreateMonthlyBudget", () => {
     mockCreateMonthlyBudget.mockReset()
   })
 
-  it("成功時に関連queryをinvalidateしてonSuccessを呼ぶ", async () => {
+  it("成功時に関連queryをinvalidateしてresolveする", async () => {
     const queryClient = createQueryClient()
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
-    const onSuccess = vi.fn()
-    const onError = vi.fn()
     const input: MonthlyBudgetWriteInput = {
       targetMonth: new Date(2026, 2, 1),
       amount: 300000,
     }
     mockCreateMonthlyBudget.mockResolvedValue(undefined)
 
-    const { result } = renderHook(() => useCreateMonthlyBudget(onSuccess, onError), {
+    const { result } = renderHook(() => useCreateMonthlyBudget(), {
       queryClient,
     })
 
@@ -44,25 +42,19 @@ describe("useCreateMonthlyBudget", () => {
 
     expect(mockCreateMonthlyBudget).toHaveBeenCalledTimes(1)
     expect(mockCreateMonthlyBudget.mock.calls[0]?.[0]).toBe(input)
-    await waitFor(() => {
-      expect(onSuccess).toHaveBeenCalledTimes(1)
-    })
-    expect(onError).not.toHaveBeenCalled()
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["monthlyBudgets"] })
     expect(invalidateQueries).toHaveBeenCalledTimes(1)
   })
 
-  it("失敗時にonErrorを呼んでエラーをrethrowする", async () => {
+  it("失敗時に関連queryをinvalidateせずrejectする", async () => {
     const queryClient = createQueryClient()
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
-    const onSuccess = vi.fn()
-    const onError = vi.fn()
     const error = { message: "重複しています", code: "23505" }
     mockCreateMonthlyBudget.mockRejectedValue(error)
 
-    const { result } = renderHook(() => useCreateMonthlyBudget(onSuccess, onError), {
+    const { result } = renderHook(() => useCreateMonthlyBudget(), {
       queryClient,
     })
 
@@ -75,10 +67,6 @@ describe("useCreateMonthlyBudget", () => {
       ).rejects.toEqual(error)
     })
 
-    await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith(error)
-    })
-    expect(onSuccess).not.toHaveBeenCalled()
     expect(invalidateQueries).not.toHaveBeenCalled()
   })
 })
