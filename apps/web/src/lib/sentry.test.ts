@@ -1,6 +1,10 @@
 import { describe, expect, test, vi } from "vitest"
 
-import { captureAuthCallbackError, captureSupabaseSessionError } from "./sentry"
+import {
+  captureAuthCallbackError,
+  captureMonthlyBudgetCreateError,
+  captureSupabaseSessionError,
+} from "./sentry"
 
 const { mockCaptureMessage, mockSetContext, mockSetTag, mockWithScope } = vi.hoisted(() => {
   const mockSetContext = vi.fn()
@@ -52,5 +56,22 @@ describe("captureSupabaseSessionError", () => {
       message: "network error",
     })
     expect(mockCaptureMessage).toHaveBeenCalledWith("Supabase session retrieval failed", "error")
+  })
+})
+
+describe("captureMonthlyBudgetCreateError", () => {
+  test("Sentry に月予算作成失敗を送る", () => {
+    captureMonthlyBudgetCreateError({
+      code: "23505",
+      message: "duplicate key value violates unique constraint",
+    })
+
+    expect(mockSetTag).toHaveBeenCalledWith("feature", "budgets")
+    expect(mockSetContext).toHaveBeenCalledWith("monthly_budget_create_error", {
+      code: "23505",
+      name: undefined,
+      message: "duplicate key value violates unique constraint",
+    })
+    expect(mockCaptureMessage).toHaveBeenCalledWith("Monthly budget creation failed", "error")
   })
 })

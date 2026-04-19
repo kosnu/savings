@@ -9,9 +9,17 @@ import * as stories from "./CreateMonthlyBudgetModal.stories"
 
 const { Default } = composeStories(stories)
 const MONTHLY_BUDGETS_REST_URL = "*/rest/v1/monthly_budgets*"
+const { mockCaptureMonthlyBudgetCreateError } = vi.hoisted(() => ({
+  mockCaptureMonthlyBudgetCreateError: vi.fn(),
+}))
+
+vi.mock("../../../../lib/sentry", () => ({
+  captureMonthlyBudgetCreateError: mockCaptureMonthlyBudgetCreateError,
+}))
 
 afterEach(() => {
   vi.restoreAllMocks()
+  mockCaptureMonthlyBudgetCreateError.mockReset()
 })
 
 async function renderStory(story: React.ReactElement) {
@@ -85,7 +93,6 @@ describe("CreateMonthlyBudgetModal", () => {
   })
 
   test("作成失敗時はダイアログを閉じない", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(
       http.post(MONTHLY_BUDGETS_REST_URL, () => {
         return HttpResponse.json({ message: "Failed to create monthly budget." }, { status: 500 })
@@ -101,8 +108,7 @@ describe("CreateMonthlyBudgetModal", () => {
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
-      expect(consoleError).toHaveBeenCalledWith(
-        "Error creating monthly budget:",
+      expect(mockCaptureMonthlyBudgetCreateError).toHaveBeenCalledWith(
         expect.objectContaining({ message: "Failed to create monthly budget." }),
       )
     })
@@ -111,7 +117,6 @@ describe("CreateMonthlyBudgetModal", () => {
   })
 
   test("重複年月エラー時はメッセージを表示してダイアログを閉じない", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(
       http.post(MONTHLY_BUDGETS_REST_URL, () => {
         return HttpResponse.json(
@@ -135,6 +140,9 @@ describe("CreateMonthlyBudgetModal", () => {
     expect(
       await within(dialog).findByText("A monthly budget for this month already exists."),
     ).toBeInTheDocument()
+    expect(mockCaptureMonthlyBudgetCreateError).toHaveBeenCalledWith(
+      expect.objectContaining({ code: POSTGRES_UNIQUE_VIOLATION_CODE }),
+    )
     expect(screen.getByRole("dialog", { name: "Create monthly budget" })).toBeInTheDocument()
   })
 })
