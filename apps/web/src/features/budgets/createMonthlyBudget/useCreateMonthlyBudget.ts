@@ -9,20 +9,13 @@ interface UseCreateMonthlyBudgetReturn {
   isPending: boolean
 }
 
-export function useCreateMonthlyBudget(
-  onSuccess?: () => void,
-  onError?: (error: unknown) => void,
-): UseCreateMonthlyBudgetReturn {
+export function useCreateMonthlyBudget(): UseCreateMonthlyBudgetReturn {
   const queryClient = useQueryClient()
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createMonthlyBudgetRecord,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["monthlyBudgets"] })
-      onSuccess?.()
-    },
-    onError: (error) => {
-      onError?.(error)
     },
   })
 
