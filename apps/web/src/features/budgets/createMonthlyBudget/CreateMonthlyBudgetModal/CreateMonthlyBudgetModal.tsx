@@ -2,6 +2,7 @@ import { Button } from "@radix-ui/themes"
 import { useCallback } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
+import { captureMonthlyBudgetCreateError } from "../../../../lib/sentry"
 import { useDialog } from "../../../../utils/useDialog"
 import { CreateMonthlyBudgetForm } from "../CreateMonthlyBudgetForm"
 
@@ -13,7 +14,7 @@ export function CreateMonthlyBudgetModal() {
   }, [closeDialog])
 
   const handleError = useCallback((error: unknown) => {
-    console.error("Error creating monthly budget:", error)
+    captureMonthlyBudgetCreateError(error)
   }, [])
 
   const handleCancel = useCallback(() => {

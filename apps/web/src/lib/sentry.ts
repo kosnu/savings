@@ -38,3 +38,41 @@ export function captureSupabaseSessionError(error: unknown) {
     Sentry.captureMessage("Supabase session retrieval failed", "error")
   })
 }
+
+export function captureMonthlyBudgetCreateError(error: unknown) {
+  Sentry.withScope((scope) => {
+    scope.setTag("feature", "budgets")
+    scope.setContext("monthly_budget_create_error", {
+      code: getErrorCode(error),
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : getErrorMessage(error),
+    })
+
+    Sentry.captureMessage("Monthly budget creation failed", "error")
+  })
+}
+
+function getErrorCode(error: unknown): string | undefined {
+  if (!error || typeof error !== "object" || !("code" in error)) {
+    return undefined
+  }
+
+  return typeof error.code === "string" ? error.code : undefined
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message
+  }
+
+  return String(error)
+}
