@@ -21,6 +21,7 @@ interface ListMonthlyBudgetOptions extends BaseOptions {
 
 interface CreateMonthlyBudgetOptions extends BaseOptions {
   response?: MonthlyBudgetRow
+  errorResponse?: unknown
 }
 
 interface CreateMonthlyBudgetHandlersOptions {
@@ -65,7 +66,10 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     await delay(create.durationOrMode)
 
     if (create.error) {
-      return HttpResponse.json({ message: "Failed to create monthly budget." }, { status: 500 })
+      return HttpResponse.json(
+        create.errorResponse ?? { message: "Failed to create monthly budget." },
+        { status: 500 },
+      )
     }
 
     if (create.response) {

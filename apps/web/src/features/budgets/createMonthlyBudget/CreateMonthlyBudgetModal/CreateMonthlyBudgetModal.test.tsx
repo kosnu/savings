@@ -4,6 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vitest"
 
 import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor, within } from "../../../../test/test-utils"
+import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../monthlyBudgetCreateError"
 import * as stories from "./CreateMonthlyBudgetModal.stories"
 
 const { Default } = composeStories(stories)
@@ -105,6 +106,35 @@ describe("CreateMonthlyBudgetModal", () => {
         expect.objectContaining({ message: "Failed to create monthly budget." }),
       )
     })
+    expect(screen.getByRole("dialog", { name: "Create monthly budget" })).toBeInTheDocument()
+    expect(within(dialog).getByText("Failed to create monthly budget.")).toBeInTheDocument()
+  })
+
+  test("重複年月エラー時はメッセージを表示してダイアログを閉じない", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+        return HttpResponse.json(
+          {
+            code: POSTGRES_UNIQUE_VIOLATION_CODE,
+            message: "duplicate key value violates unique constraint",
+          },
+          { status: 500 },
+        )
+      }),
+    )
+    const { user, baseElement } = await renderStory(<Default />)
+
+    const body = within(baseElement)
+    const dialog = await openCreateMonthlyBudgetModal()
+
+    await selectMonth(user, dialog, body)
+    await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "300000")
+    await user.click(within(dialog).getByRole("button", { name: "Create" }))
+
+    expect(
+      await within(dialog).findByText("A monthly budget for this month already exists."),
+    ).toBeInTheDocument()
     expect(screen.getByRole("dialog", { name: "Create monthly budget" })).toBeInTheDocument()
   })
 })
