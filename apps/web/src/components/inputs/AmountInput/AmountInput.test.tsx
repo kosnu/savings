@@ -1,7 +1,7 @@
 import { composeStories } from "@storybook/react-vite"
 import { describe, expect, test } from "vitest"
 
-import { render, screen } from "../../../../test/test-utils"
+import { render, screen } from "../../../test/test-utils"
 import * as stories from "./AmountInput.stories"
 
 const { Default, Filled } = composeStories(stories)
