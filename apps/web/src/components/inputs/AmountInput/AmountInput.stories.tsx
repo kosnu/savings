@@ -4,7 +4,7 @@ import { useState } from "react"
 import { AmountInput } from "./AmountInput"
 
 const meta = {
-  title: "Features/Payments/Components/AmountInput",
+  title: "Components/Inputs/AmountInput",
   component: AmountInput,
   parameters: {
     layout: "centered",
