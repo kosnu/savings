@@ -40,7 +40,7 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "5.1.1",
+    "@chromatic-com/storybook": "5.1.2",
     "@sentry/vite-plugin": "5.2.0",
     "@storybook/addon-docs": "10.3.5",
     "@storybook/addon-onboarding": "10.3.5",
@@ -61,8 +61,8 @@
     "jsdom": "29.0.2",
     "msw": "2.13.2",
     "msw-storybook-addon": "2.0.7",
-    "oxfmt": "0.44.0",
-    "oxlint": "1.59.0",
+    "oxfmt": "0.45.0",
+    "oxlint": "1.60.0",
     "playwright": "1.59.1",
     "plop": "4.0.5",
     "storybook": "10.3.5",
