@@ -2,15 +2,6 @@ name: Deploy Production
 
 on:
   workflow_dispatch:
-    inputs:
-      skip_web:
-        description: "Skip Web Deployment"
-        type: boolean
-        default: false
-      skip_api:
-        description: "Skip API Deployment"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -19,7 +10,6 @@ permissions:
 jobs:
   # --- Backend (Supabase) のデプロイ ---
   deploy-api:
-    if: ${{ github.event.inputs.skip_api != 'true' }} # skip_api が true の場合はこのジョブをスキップ
     runs-on: ubuntu-latest
     environment: production
     env:
@@ -50,7 +40,6 @@ jobs:
 
   # --- Frontend (React + Vite) のデプロイ ---
   deploy-web:
-    if: ${{ github.event.inputs.skip_web != 'true' && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') }}
     needs: deploy-api
     runs-on: ubuntu-latest
     environment: production
