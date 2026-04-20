@@ -128,7 +128,7 @@ task dev
 task build
 ```
 
-Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy.yaml`) を参照してください。手動デプロイは Wrangler CLI を利用します。
+Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy_production.yaml`) を参照してください。手動デプロイは Wrangler CLI を利用します。
 
 ## 環境変数
 

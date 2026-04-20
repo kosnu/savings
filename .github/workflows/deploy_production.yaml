@@ -1,12 +1,8 @@
-name: Deploy Services
+name: Deploy Production
 
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Deployment environment"
-        type: environment
-        required: true
       skip_web:
         description: "Skip Web Deployment"
         type: boolean
@@ -25,7 +21,7 @@ jobs:
   deploy-api:
     if: ${{ github.event.inputs.skip_api != 'true' }} # skip_api が true の場合はこのジョブをスキップ
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: production
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       AUTH_SITE_URL: ${{ secrets.AUTH_SITE_URL }}
@@ -57,7 +53,7 @@ jobs:
     if: ${{ github.event.inputs.skip_web != 'true' && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') }}
     needs: deploy-api
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -83,7 +79,7 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-          VITE_SENTRY_ENVIRONMENT: ${{ github.event.inputs.environment }}
+          VITE_SENTRY_ENVIRONMENT: production
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
