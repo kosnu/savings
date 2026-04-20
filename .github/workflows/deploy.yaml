@@ -39,9 +39,9 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Supabase CLI
-        uses: supabase/setup-cli@b60b5899c73b63a2d2d651b1e90db8d4c9392f51 # v1.6.0
+        uses: supabase/setup-cli@2eca1b4d35d9016e560c763c9159a350aa80c370 # v2
         with:
-          version: latest
+          version: 2.89.1
 
       - name: Link Supabase Project
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
