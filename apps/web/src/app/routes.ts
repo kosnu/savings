@@ -14,6 +14,7 @@ import { AuthPage } from "./routes/AuthPage"
 import { BudgetsPage } from "./routes/BudgetsPage"
 import { ErrorPage } from "./routes/ErrorPage"
 import { PaymentsPage } from "./routes/PaymentsPage"
+import { SettingsPage } from "./routes/SettingsPage"
 import { TopPage } from "./routes/TopPage"
 
 export interface RouterContext {
@@ -72,6 +73,12 @@ const aggregatesRoute = createRoute({
   component: AggregatesPage,
 })
 
+const settingsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/settings",
+  component: SettingsPage,
+})
+
 const budgetsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/budgets",
@@ -81,7 +88,7 @@ const budgetsRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
-  authenticatedRoute.addChildren([paymentsRoute, aggregatesRoute, budgetsRoute]),
+  authenticatedRoute.addChildren([paymentsRoute, aggregatesRoute, settingsRoute, budgetsRoute]),
 ])
 
 export const router = createRouter({
