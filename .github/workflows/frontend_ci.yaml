@@ -6,8 +6,9 @@ on:
       - ".github/workflows/frontend_ci.yaml"
       - "apps/web/**"
     types: [opened, synchronize]
+
 jobs:
-  check:
+  lint-format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -33,17 +34,80 @@ jobs:
       - name: Oxc format check
         run: pnpm --dir apps/web format --check
 
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v6.0.1
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: "package.json"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm --dir apps/web typecheck
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v6.0.1
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: "package.json"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit and integration tests
+        run: pnpm --dir apps/web test:unit -- --reporter=dot --silent
+        env:
+          VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
+
+  storybook-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v6.0.1
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: "package.json"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Setup Playwright (with cache)
         uses: ./.github/actions/setup-playwright
         with:
           project-directory: apps/web
 
-      - name: Test
-        run: pnpm --dir apps/web test -- --reporter=dot --silent
-        env:
-          VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
-
-      - name: Build
-        run: pnpm --dir apps/web build
+      - name: Storybook browser tests
+        run: pnpm --dir apps/web test:storybook -- --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
