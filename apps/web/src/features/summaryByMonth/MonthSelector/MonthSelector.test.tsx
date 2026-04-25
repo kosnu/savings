@@ -1,5 +1,5 @@
 import { createRoute } from "@tanstack/react-router"
-import { describe, expect, test } from "vitest"
+import { describe, expect, test } from "vite-plus/test"
 
 import type { SupabaseSessionState } from "../../../providers/supabase/SupabaseSessionProvider"
 import { mockSession } from "../../../test/data/supabaseSession"

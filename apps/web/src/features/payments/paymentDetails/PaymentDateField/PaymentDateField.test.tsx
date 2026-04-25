@@ -2,7 +2,7 @@ import { composeStories } from "@storybook/react-vite"
 import { setDefaultOptions } from "date-fns"
 import { enUS, ja } from "date-fns/locale"
 import { HttpResponse, http } from "msw"
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"

@@ -8,7 +8,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { useEffect } from "react"
-import { describe, expect, test, vi } from "vitest"
+import { describe, expect, test, vi } from "vite-plus/test"
 
 import type { AuthStatus } from "../../providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../../providers/theme/ThemeProvider"

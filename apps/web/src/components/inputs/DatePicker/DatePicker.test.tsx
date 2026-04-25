@@ -1,7 +1,7 @@
 import { composeStories } from "@storybook/react-vite"
 import { setDefaultOptions } from "date-fns"
 import { enUS, ja } from "date-fns/locale"
-import { afterEach, beforeEach, expect, test, vi } from "vitest"
+import { afterEach, beforeEach, expect, test, vi } from "vite-plus/test"
 
 import { render, screen, waitFor } from "../../../test/test-utils"
 import * as stories from "./DatePicker.stories"

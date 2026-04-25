@@ -1,5 +1,5 @@
 import { HttpResponse, http } from "msw"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { payments } from "../../../test/data/payments"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"

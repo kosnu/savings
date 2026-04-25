@@ -16,11 +16,13 @@ export function useDeletePayment(
   const queryClient = useQueryClient()
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (paymentId: PaymentId) => removePayment(paymentId),
-    onSuccess: (__, paymentId) => {
-      queryClient.invalidateQueries({ queryKey: ["payments"] })
-      queryClient.invalidateQueries({ queryKey: ["paymentDetails", paymentId] })
-      queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] })
+    mutationFn: async (paymentId: PaymentId) => removePayment(paymentId),
+    onSuccess: async (__, paymentId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["payments"] }),
+        queryClient.invalidateQueries({ queryKey: ["paymentDetails", paymentId] }),
+        queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
+      ])
       onSuccess?.()
     },
     onError: (error) => {
@@ -29,7 +31,7 @@ export function useDeletePayment(
   })
 
   const deletePayment = useCallback(
-    (paymentId: PaymentId) => {
+    async (paymentId: PaymentId) => {
       return mutateAsync(paymentId)
     },
     [mutateAsync],

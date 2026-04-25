@@ -34,7 +34,7 @@ export function toPaymentWriteInsert(value: PaymentWriteInput): PaymentInsert {
   return {
     amount: value.amount,
     date: format(value.date, "yyyy-MM-dd"),
-    note: value.note || null,
+    note: value.note === "" ? null : (value.note ?? null),
     category_id: toCategoryId(value.categoryId),
   }
 }

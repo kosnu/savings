@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { render, screen } from "../test/test-utils"
 import { Router } from "./Router"
@@ -17,7 +17,7 @@ vi.mock("../providers/supabase", () => ({
 
 vi.mock("./routes", () => ({
   router: {
-    invalidate: () => mockInvalidate(),
+    invalidate: async () => mockInvalidate(),
   },
 }))
 

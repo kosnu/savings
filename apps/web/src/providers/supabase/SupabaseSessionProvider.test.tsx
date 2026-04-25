@@ -1,5 +1,5 @@
 import type { Session } from "@supabase/supabase-js"
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { render, screen, waitFor } from "../../test/test-utils"
 import { SupabaseSessionProvider } from "./SupabaseSessionProvider"
@@ -81,7 +81,7 @@ describe("SupabaseSessionProvider", () => {
   test("認証購読でセッション復元済みなら getSession の reject で未認証に戻さない", async () => {
     let rejectGetSession: ((error: Error) => void) | undefined
     mockGetSession.mockImplementationOnce(
-      () =>
+      async () =>
         new Promise((_, reject: (error: Error) => void) => {
           rejectGetSession = reject
         }),

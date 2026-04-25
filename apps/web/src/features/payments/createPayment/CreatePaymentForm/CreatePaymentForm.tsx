@@ -97,7 +97,7 @@ export function CreatePaymentForm({
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
-        form.handleSubmit()
+        void form.handleSubmit()
       }}
     >
       <Flex direction="column" gap="3">

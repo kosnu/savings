@@ -20,7 +20,7 @@ export function useCreateMonthlyBudget(): UseCreateMonthlyBudgetReturn {
   })
 
   const createMonthlyBudget = useCallback(
-    (value: MonthlyBudgetWriteInput) => {
+    async (value: MonthlyBudgetWriteInput) => {
       return mutateAsync(value)
     },
     [mutateAsync],

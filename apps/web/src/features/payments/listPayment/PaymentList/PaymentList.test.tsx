@@ -1,5 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
-import { describe, expect, test } from "vitest"
+import { describe, expect, test } from "vite-plus/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { render, screen, waitFor, within } from "../../../../test/test-utils"

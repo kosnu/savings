@@ -6,8 +6,8 @@ type SubmitButtonProps = ButtonProps
 export function SubmitButton({ children, loading, disabled, ...props }: SubmitButtonProps) {
   const { pending } = useFormStatus()
 
-  const isLoading = loading || pending
-  const isDisabled = disabled || isLoading
+  const isLoading = !!loading || pending
+  const isDisabled = !!disabled || isLoading
 
   return (
     <Button type="submit" {...props} disabled={isDisabled}>
