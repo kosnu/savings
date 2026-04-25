@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vite-plus/test"
 
 import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
 import { fetchPayments } from "./fetchPayments"

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { afterEach, describe, expect, test } from "vitest"
+import { afterEach, describe, expect, test } from "vite-plus/test"
 
 import { render, screen } from "../../../test/test-utils"
 import { MOBILE_OVERLAY_MEDIA_QUERY } from "../constants"

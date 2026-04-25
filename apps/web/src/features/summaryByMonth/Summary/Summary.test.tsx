@@ -1,5 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
-import { describe, expect, test } from "vitest"
+import { describe, expect, test } from "vite-plus/test"
 
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"

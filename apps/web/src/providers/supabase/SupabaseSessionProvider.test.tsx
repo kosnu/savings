@@ -1,5 +1,5 @@
 import type { Session } from "@supabase/supabase-js"
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { render, screen, waitFor } from "../../test/test-utils"
 import { SupabaseSessionProvider } from "./SupabaseSessionProvider"
