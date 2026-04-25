@@ -17,7 +17,7 @@ export function useTotalExpenditures(): UseTotalExpendituresReturn {
 
   const query = useQuery({
     queryKey: ["totalExpenditures", month],
-    queryFn: () => fetchTotalExpenditures(month),
+    queryFn: async () => fetchTotalExpenditures(month),
     enabled: !!month,
     staleTime: 3000, // 3秒
   })

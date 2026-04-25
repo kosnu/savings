@@ -13,7 +13,7 @@ interface UseMonthlyBudgetsReturn {
 export function useMonthlyBudgets(limit: number): UseMonthlyBudgetsReturn {
   const query = useQuery({
     queryKey: ["monthlyBudgets", limit],
-    queryFn: () => fetchMonthlyBudgets(limit),
+    queryFn: async () => fetchMonthlyBudgets(limit),
     staleTime: 3000, // 3秒
   })
 

@@ -25,6 +25,9 @@
     "files.exclude": {
       "apps/api/": true,
       "apps/web/": true
+    },
+    "chat.tools.terminal.autoApprove": {
+      "vp": true
     }
   }
 }

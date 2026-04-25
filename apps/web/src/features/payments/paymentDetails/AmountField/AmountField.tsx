@@ -169,7 +169,7 @@ function InlineForm({ children, onSubmit, onCancel, saving = false }: InlineForm
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     event.stopPropagation()
-    onSubmit?.()
+    void onSubmit?.()
   }
 
   return (
