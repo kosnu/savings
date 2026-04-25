@@ -1,9 +1,7 @@
 
 [auth]
 site_url = "env(AUTH_SITE_URL)"
-additional_redirect_urls = [
-	"env(AUTH_REDIRECT_URL)",
-]
+additional_redirect_urls = ["env(AUTH_REDIRECT_URL)"]
 
 [auth.external.google]
 enabled = true
