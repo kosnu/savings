@@ -1,5 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
-import { afterEach, describe, expect, test, vi } from "vitest"
+import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { render, screen } from "../../../test/test-utils"
 import * as stories from "./AuthPage.stories"

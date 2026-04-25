@@ -1,6 +1,6 @@
 import { Theme } from "@radix-ui/themes"
 import { composeStories } from "@storybook/react-vite"
-import { describe, expect, test, vi } from "vitest"
+import { describe, expect, test, vi } from "vite-plus/test"
 
 import { render, screen } from "../../../test/test-utils"
 import * as stories from "./MonthPicker.stories"

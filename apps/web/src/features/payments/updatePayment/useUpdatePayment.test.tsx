@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { createQueryClient } from "../../../lib/queryClient"
 import { act, renderHook, waitFor } from "../../../test/test-utils"

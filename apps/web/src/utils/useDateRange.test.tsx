@@ -1,7 +1,7 @@
 import { createRoute, RouterProvider } from "@tanstack/react-router"
 import { renderHook } from "@testing-library/react"
 import type { PropsWithChildren, ReactNode } from "react"
-import { describe, expect, test } from "vitest"
+import { describe, expect, test } from "vite-plus/test"
 
 import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
 import { createTestRouter } from "../test/helpers/createTestRouter"
