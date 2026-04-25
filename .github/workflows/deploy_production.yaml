@@ -37,7 +37,6 @@ jobs:
         run: supabase db push
         working-directory: apps/api
 
-
   # --- Frontend (React + Vite) のデプロイ ---
   deploy-web:
     needs: deploy-api

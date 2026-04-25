@@ -18,6 +18,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      eslint-plugin-react-hooks:
+        specifier: 7.1.1
+        version: 7.1.1(eslint@9.39.4)
     devDependencies:
       vite-plus:
         specifier: 'catalog:'
