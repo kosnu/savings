@@ -31,7 +31,7 @@ export function useSupabaseSignIn(): UseSupabaseSignIn {
 
     const handleSession = (hasSession: boolean) => {
       if (!isActive || !hasSession) return
-      navigate({ to: "/payments" })
+      void navigate({ to: "/payments" })
     }
 
     supabase.auth

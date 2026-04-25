@@ -1,9 +1,22 @@
 packages:
   - apps/*
 onlyBuiltDependencies:
-  - '@sentry/cli'
+  - "@sentry/cli"
   - esbuild
   - msw
   - supabase
 overrides:
-  undici@>=7.0.0 <7.24.0: '^8.0.0'
+  undici@>=7.0.0 <7.24.0: "^8.0.0"
+  vite: "catalog:"
+  vitest: "catalog:"
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.19
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.19
+  vite-plus: 0.1.19
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: "*"
+    vitest: "*"

@@ -1,6 +1,6 @@
 import { composeStories } from "@storybook/react-vite"
 import { expect } from "storybook/test"
-import { test } from "vitest"
+import { test } from "vite-plus/test"
 
 import { screen } from "../../../test/test-utils"
 import * as stories from "./Paper.stories"

@@ -15,13 +15,13 @@ export function usePayments(): UseGetPaymentsReturn {
   const { date, dateRange } = useDateRange()
   const query = useQuery({
     queryKey: ["payments", date?.toISOString() ?? "all"],
-    queryFn: () => fetchPayments(dateRange),
+    queryFn: async () => fetchPayments(dateRange),
     enabled: date !== null,
     staleTime: 3000, // 3秒
   })
 
   return {
-    data: query.data || [],
+    data: query.data ?? [],
     loading: query.isLoading,
     promise: query.promise,
     error: query.error,

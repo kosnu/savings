@@ -2,7 +2,7 @@ import { cleanup } from "@testing-library/react"
 import { setDefaultOptions } from "date-fns"
 import { ja } from "date-fns/locale"
 import "@testing-library/jest-dom/vitest"
-import { afterEach } from "vitest"
+import { afterEach } from "vite-plus/test"
 
 setDefaultOptions({ locale: ja })
 

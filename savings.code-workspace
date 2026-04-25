@@ -2,15 +2,15 @@
   "folders": [
     {
       "name": "Root",
-      "path": "."
+      "path": ".",
     },
     {
       "name": "Frontend",
-      "path": "apps/web"
+      "path": "apps/web",
     },
     {
       "name": "Backend",
-      "path": "apps/api"
+      "path": "apps/api",
     },
   ],
   "settings": {
@@ -24,7 +24,7 @@
     "typescript.updateImportsOnFileMove.enabled": "always",
     "files.exclude": {
       "apps/api/": true,
-      "apps/web/": true
-    }
-  }
+      "apps/web/": true,
+    },
+  },
 }

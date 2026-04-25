@@ -90,7 +90,7 @@ export function CreateMonthlyBudgetForm({
         event.preventDefault()
         event.stopPropagation()
         setSubmitErrorMessage(undefined)
-        form.handleSubmit()
+        void form.handleSubmit()
       }}
     >
       <Flex direction="column" gap="4">

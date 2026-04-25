@@ -1,5 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
-import { describe, expect, test } from "vitest"
+import { describe, expect, test } from "vite-plus/test"
 
 import { render, screen } from "../../../test/test-utils"
 import * as stories from "./SubmitButton.stories"

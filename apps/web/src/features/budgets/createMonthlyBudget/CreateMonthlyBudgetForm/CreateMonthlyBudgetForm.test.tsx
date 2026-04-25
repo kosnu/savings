@@ -1,6 +1,6 @@
 import { composeStories } from "@storybook/react-vite"
 import { HttpResponse, http } from "msw"
-import { describe, expect, test, vi } from "vitest"
+import { describe, expect, test, vi } from "vite-plus/test"
 
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor } from "../../../../test/test-utils"

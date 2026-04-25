@@ -35,9 +35,11 @@ export function useCreatePayment(
 
   const { mutate, isPending } = useMutation({
     mutationFn: postPayment,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payments"] })
-      queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["payments"] }),
+        queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
+      ])
       onSuccess?.()
     },
     onError: (error) => {

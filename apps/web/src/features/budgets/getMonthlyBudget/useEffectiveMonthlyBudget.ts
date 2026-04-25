@@ -17,7 +17,7 @@ export function useEffectiveMonthlyBudget(
   const targetMonth = targetDate ? formatTargetMonthKey(toTargetMonth(targetDate)) : "none"
   const query = useQuery({
     queryKey: ["effectiveMonthlyBudget", targetMonth],
-    queryFn: () => {
+    queryFn: async () => {
       if (!targetDate) {
         return Promise.resolve(null)
       }
