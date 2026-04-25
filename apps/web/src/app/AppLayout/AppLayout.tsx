@@ -1,4 +1,4 @@
-import { Flex } from "@radix-ui/themes"
+import { Flex, Separator } from "@radix-ui/themes"
 import { Outlet } from "@tanstack/react-router"
 
 import { Header } from "../Header"
@@ -20,10 +20,11 @@ export function AppLayout() {
           label="Payments"
           onClick={closeSidebar}
         />
+        <Separator orientation="horizontal" size="4" decorative />
         <SidebarButton
-          to="/budgets"
-          ariaLabel="Navigate to Budgets page"
-          label="Budgets"
+          to="/settings"
+          ariaLabel="Navigate to Settings page"
+          label="Settings"
           onClick={closeSidebar}
         />
       </Sidebar>

@@ -19,13 +19,13 @@ function renderAppLayout(initialEntry = "/payments") {
       component: () => <div>Payments page</div>,
     })
 
-    const budgetsRoute = createRoute({
+    const settingsRoute = createRoute({
       getParentRoute: () => authenticatedRoute,
-      path: "/budgets",
-      component: () => <div>Budgets page</div>,
+      path: "/settings",
+      component: () => <div>Settings page</div>,
     })
 
-    return [authenticatedRoute.addChildren([paymentsRoute, budgetsRoute])]
+    return [authenticatedRoute.addChildren([paymentsRoute, settingsRoute])]
   })
 }
 
@@ -34,21 +34,21 @@ describe("AppLayout", () => {
     window.localStorage.clear()
   })
 
-  test("Sidebar に Payments と Budgets への導線を表示する", async () => {
+  test("Sidebar に Payments と Settings への導線を表示する", async () => {
     const { router, user } = renderAppLayout()
 
     expect(
       await screen.findByRole("link", { name: "Navigate to Payments page" }),
     ).toBeInTheDocument()
 
-    const budgetsLink = await screen.findByRole("link", { name: "Navigate to Budgets page" })
-    expect(budgetsLink).toHaveAttribute("href", "/budgets")
+    const settingsLink = await screen.findByRole("link", { name: "Navigate to Settings page" })
+    expect(settingsLink).toHaveAttribute("href", "/settings")
 
-    await user.click(budgetsLink)
+    await user.click(settingsLink)
 
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe("/budgets")
+      expect(router.state.location.pathname).toBe("/settings")
     })
-    expect(await screen.findByText("Budgets page")).toBeInTheDocument()
+    expect(await screen.findByText("Settings page")).toBeInTheDocument()
   })
 })
