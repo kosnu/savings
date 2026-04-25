@@ -20,7 +20,7 @@ export function AppLayout() {
           label="Payments"
           onClick={closeSidebar}
         />
-        <Separator orientation="horizontal" size="4" />
+        <Separator orientation="horizontal" size="4" decorative />
         <SidebarButton
           to="/settings"
           ariaLabel="Navigate to Settings page"
