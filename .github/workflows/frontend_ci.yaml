@@ -29,10 +29,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Oxc lint
-        run: pnpm --dir apps/web lint --deny-warnings
+        run: pnpm --filter web lint --deny-warnings
 
       - name: Oxc format check
-        run: pnpm --dir apps/web format --check
+        run: pnpm --filter web format --check
 
   typecheck:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: pnpm --dir apps/web typecheck
+        run: pnpm --filter web typecheck
 
   unit-test:
     name: unit-test (${{ matrix.shard }})
@@ -82,7 +82,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Unit and integration tests
-        run: pnpm --dir apps/web test:unit --shard=${{ matrix.shard }} --reporter=dot --silent
+        run: pnpm --filter web test:unit --shard=${{ matrix.shard }} --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
 
@@ -112,6 +112,6 @@ jobs:
           project-directory: apps/web
 
       - name: Storybook browser tests
-        run: pnpm --dir apps/web test:storybook --reporter=dot --silent
+        run: pnpm --filter web test:storybook --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
