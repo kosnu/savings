@@ -78,7 +78,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Unit and integration tests
-        run: pnpm --dir apps/web test:unit -- --reporter=dot --silent
+        run: pnpm --dir apps/web test:unit --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
 
@@ -108,6 +108,6 @@ jobs:
           project-directory: apps/web
 
       - name: Storybook browser tests
-        run: pnpm --dir apps/web test:storybook -- --reporter=dot --silent
+        run: pnpm --dir apps/web test:storybook --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
