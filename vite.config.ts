@@ -1,4 +1,4 @@
-import { defineConfig } from "vite-plus";
+import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   staged: {
@@ -104,6 +104,13 @@ export default defineConfig({
         files: ["**/*.stories.tsx"],
         rules: {
           "react/rules-of-hooks": "off",
+          "typescript/no-floating-promises": "off",
+        },
+      },
+      {
+        files: ["src/types/database.types.ts", "apps/web/src/types/database.types.ts"],
+        rules: {
+          "typescript/no-redundant-type-constituents": "off",
         },
       },
       {
@@ -116,8 +123,8 @@ export default defineConfig({
       },
     ],
     options: {
-      typeAware: false,
-      typeCheck: false,
+      typeAware: true,
+      typeCheck: true,
     },
   },
-});
+})

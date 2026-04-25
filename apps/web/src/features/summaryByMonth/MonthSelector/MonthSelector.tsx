@@ -22,7 +22,7 @@ export function MonthSelector() {
       if (date) {
         const year = date.getFullYear().toString()
         const month = (date.getMonth() + 1).toString()
-        navigate({ to: "/payments", search: { year, month } })
+        void navigate({ to: "/payments", search: { year, month } })
       }
     },
     [navigate],
@@ -36,7 +36,7 @@ export function MonthSelector() {
       const now = new Date()
       const year = now.getFullYear().toString()
       const month = (now.getMonth() + 1).toString()
-      navigate({ to: "/payments", search: { year, month }, replace: true })
+      void navigate({ to: "/payments", search: { year, month }, replace: true })
     }
   }, [session, yearParam, monthParam, navigate])
 

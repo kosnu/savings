@@ -1,18 +1,18 @@
-import { Button, type ButtonProps, Spinner } from "@radix-ui/themes"
-import { useFormStatus } from "react-dom"
+import { Button, type ButtonProps, Spinner } from "@radix-ui/themes";
+import { useFormStatus } from "react-dom";
 
-type SubmitButtonProps = ButtonProps
+type SubmitButtonProps = ButtonProps;
 
 export function SubmitButton({ children, loading, disabled, ...props }: SubmitButtonProps) {
-  const { pending } = useFormStatus()
+  const { pending } = useFormStatus();
 
-  const isLoading = loading || pending
-  const isDisabled = disabled || isLoading
+  const isLoading = !!loading || pending;
+  const isDisabled = !!disabled || isLoading;
 
   return (
     <Button type="submit" {...props} disabled={isDisabled}>
       {isLoading && <Spinner aria-label="loading-spinner" />}
       {children}
     </Button>
-  )
+  );
 }

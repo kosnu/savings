@@ -23,7 +23,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
       console.error("Failed to sign out from supabase:", error)
       return
     }
-    navigate({ to: "/" })
+    await navigate({ to: "/" })
     onClose()
   }, [navigate, onClose, supabase])
 

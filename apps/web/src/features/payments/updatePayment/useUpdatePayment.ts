@@ -22,7 +22,8 @@ export function useUpdatePayment(
   const queryClient = useQueryClient()
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: ({ paymentId, patch }: UpdatePaymentInput) => updatePaymentRecord(paymentId, patch),
+    mutationFn: async ({ paymentId, patch }: UpdatePaymentInput) =>
+      updatePaymentRecord(paymentId, patch),
     onSuccess: async (_, { paymentId }) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["payments"] }),
@@ -37,7 +38,7 @@ export function useUpdatePayment(
   })
 
   const updatePayment = useCallback(
-    (input: UpdatePaymentInput) => {
+    async (input: UpdatePaymentInput) => {
       return mutateAsync(input)
     },
     [mutateAsync],

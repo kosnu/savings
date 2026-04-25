@@ -17,7 +17,7 @@ vi.mock("../providers/supabase", () => ({
 
 vi.mock("./routes", () => ({
   router: {
-    invalidate: () => mockInvalidate(),
+    invalidate: async () => mockInvalidate(),
   },
 }))
 

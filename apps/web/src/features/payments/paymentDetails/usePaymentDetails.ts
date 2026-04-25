@@ -12,7 +12,7 @@ interface UsePaymentDetailsReturn {
 export function usePaymentDetails(paymentId: PaymentId | null): UsePaymentDetailsReturn {
   const query = useQuery({
     queryKey: ["paymentDetails", paymentId],
-    queryFn: () => {
+    queryFn: async () => {
       if (paymentId === null) {
         return Promise.resolve(null)
       }
