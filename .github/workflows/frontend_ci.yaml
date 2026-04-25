@@ -58,7 +58,11 @@ jobs:
         run: pnpm --dir apps/web typecheck
 
   unit-test:
+    name: unit-test (${{ matrix.shard }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: ["1/2", "2/2"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -78,7 +82,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Unit and integration tests
-        run: pnpm --dir apps/web test:unit --reporter=dot --silent
+        run: pnpm --dir apps/web test:unit --shard=${{ matrix.shard }} --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
 
