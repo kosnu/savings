@@ -6,7 +6,7 @@ import {
   redirect,
 } from "@tanstack/react-router"
 
-import { LatestMonthlyBudget } from "../features/budgets/getLatestMonthlyBudget"
+import { LatestMonthlyBudget } from "../features/budgets/latestMonthlyBudget"
 import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
