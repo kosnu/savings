@@ -1,9 +1,14 @@
 import { Box, Button, Container, Flex, Grid, Heading, Section, Separator } from "@radix-ui/themes"
-import { Link } from "@tanstack/react-router"
+import { Link, useLocation } from "@tanstack/react-router"
+
+import { LatestMonthlyBudget } from "../../../features/budgets/getLatestMonthlyBudget"
 
 import styles from "./SettingsPage.module.css"
 
 export function SettingsPage() {
+  const location = useLocation()
+  const isBudgetSettings = location.pathname === "/settings/budgets"
+
   return (
     <Container size="4">
       <Flex direction="column" gap="4">
@@ -30,7 +35,9 @@ export function SettingsPage() {
           <Box display={{ initial: "none", sm: "block" }}>
             <Separator decorative orientation="vertical" size="4" />
           </Box>
-          <Section size="1" minWidth="0" />
+          <Section size="1" minWidth="0">
+            {isBudgetSettings ? <LatestMonthlyBudget /> : null}
+          </Section>
         </Grid>
       </Flex>
     </Container>

@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, within } from "storybook/test"
 
+import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { SettingsPage } from "./SettingsPage"
 
 const meta = {
   title: "Pages/SettingsPage",
   component: SettingsPage,
-  decorators: [createStoryRouter("/settings")],
   tags: ["autodocs", "browser-test"],
 } satisfies Meta<typeof SettingsPage>
 
@@ -15,6 +16,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
+  decorators: [createStoryRouter("/settings")],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
@@ -24,5 +26,43 @@ export const Default: Story = {
       "href",
       "/settings/budgets",
     )
+  },
+}
+
+export const BudgetManagement: Story = {
+  decorators: [createStoryRouter("/settings/budgets")],
+  parameters: {
+    msw: {
+      handlers: [
+        ...createMonthlyBudgetHandlers({
+          list: { response: [monthlyBudgets[3]] },
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await canvas.findByText("￥75,000")).toBeInTheDocument()
+  },
+}
+
+export const EmptyBudgetSettings: Story = {
+  decorators: [createStoryRouter("/settings/budgets")],
+  parameters: {
+    msw: {
+      handlers: [
+        ...createMonthlyBudgetHandlers({
+          list: { response: [] },
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await canvas.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
   },
 }
