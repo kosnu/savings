@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { expect, within } from "storybook/test"
 
-import { LatestMonthlyBudget } from "../../../features/budgets/getLatestMonthlyBudget"
+import { LatestMonthlyBudget } from "../../../features/budgets/latestMonthlyBudget"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"

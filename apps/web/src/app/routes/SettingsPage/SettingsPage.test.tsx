@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../features/budgets/createMonthlyBudget/monthlyBudgetCreateError"
-import { LatestMonthlyBudget } from "../../../features/budgets/getLatestMonthlyBudget"
+import { LatestMonthlyBudget } from "../../../features/budgets/latestMonthlyBudget"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
@@ -15,11 +15,11 @@ function BudgetSettingsRouteProbe() {
   return <div>Budget settings route</div>
 }
 
-type SettingsBudgetsComponent = () => ReactNode
+type SettingsBudgetsComponentType = () => ReactNode
 
 function renderSettingsPage(
   initialEntry = "/settings",
-  options: { settingsBudgetsComponent?: SettingsBudgetsComponent } = {},
+  options: { settingsBudgetsComponent?: SettingsBudgetsComponentType } = {},
 ) {
   const SettingsBudgetsComponent = options.settingsBudgetsComponent ?? LatestMonthlyBudget
 
