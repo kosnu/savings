@@ -1,0 +1,48 @@
+import type { CategoryBudgetRow } from "../../features/budgets/types"
+
+export const categoryBudgets: CategoryBudgetRow[] = [
+  {
+    id: 1,
+    amount: 30000,
+    category_id: 10,
+    created_at: "2025-01-01T00:00:00.000Z",
+    effective_from: "2025-01-01",
+    effective_month: 1,
+    effective_year: 2025,
+    updated_at: "2025-01-01T00:00:00.000Z",
+    user_id: 100,
+  },
+  {
+    id: 2,
+    amount: 45000,
+    category_id: 10,
+    created_at: "2025-03-01T00:00:00.000Z",
+    effective_from: "2025-03-01",
+    effective_month: 3,
+    effective_year: 2025,
+    updated_at: "2025-03-01T00:00:00.000Z",
+    user_id: 100,
+  },
+  {
+    id: 3,
+    amount: 50000,
+    category_id: 10,
+    created_at: "2025-03-02T00:00:00.000Z",
+    effective_from: "2025-03-01",
+    effective_month: 3,
+    effective_year: 2025,
+    updated_at: "2025-03-02T00:00:00.000Z",
+    user_id: 100,
+  },
+  {
+    id: 4,
+    amount: 12000,
+    category_id: 20,
+    created_at: "2026-04-01T00:00:00.000Z",
+    effective_from: "2026-04-01",
+    effective_month: 4,
+    effective_year: 2026,
+    updated_at: "2026-04-01T00:00:00.000Z",
+    user_id: 100,
+  },
+]
