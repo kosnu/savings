@@ -1,5 +1,5 @@
 import { Box, Button, Container, Flex, Grid, Heading, Section, Separator } from "@radix-ui/themes"
-import { Link } from "@tanstack/react-router"
+import { Link, Outlet } from "@tanstack/react-router"
 
 import styles from "./SettingsPage.module.css"
 
@@ -30,7 +30,9 @@ export function SettingsPage() {
           <Box display={{ initial: "none", sm: "block" }}>
             <Separator decorative orientation="vertical" size="4" />
           </Box>
-          <Section size="1" minWidth="0" />
+          <Section size="1" minWidth="0">
+            <Outlet />
+          </Section>
         </Grid>
       </Flex>
     </Container>
