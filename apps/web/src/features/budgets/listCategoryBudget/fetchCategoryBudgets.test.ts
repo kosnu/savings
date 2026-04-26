@@ -62,11 +62,11 @@ const dailyNecessitiesFutureBudget = {
   id: 4,
   amount: 12000,
   category_id: 20,
-  created_at: "2026-04-01T00:00:00.000Z",
-  effective_from: "2026-04-01",
+  created_at: "2099-04-01T00:00:00.000Z",
+  effective_from: "2099-04-01",
   effective_month: 4,
-  effective_year: 2026,
-  updated_at: "2026-04-01T00:00:00.000Z",
+  effective_year: 2099,
+  updated_at: "2099-04-01T00:00:00.000Z",
   user_id: 100,
   category: {
     id: 20,
@@ -132,7 +132,7 @@ describe("fetchCategoryBudgets", () => {
     expect(budgets[0]).toMatchObject({
       id: 4,
       categoryId: 20,
-      effectiveYear: 2026,
+      effectiveYear: 2099,
       effectiveMonth: 4,
     })
   })
