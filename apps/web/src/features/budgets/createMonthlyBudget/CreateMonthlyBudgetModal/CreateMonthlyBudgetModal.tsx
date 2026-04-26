@@ -1,12 +1,18 @@
 import { Button } from "@radix-ui/themes"
-import { useCallback } from "react"
+import { useCallback, type ReactElement } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import { captureMonthlyBudgetCreateError } from "../../../../lib/sentry"
 import { useDialog } from "../../../../utils/useDialog"
 import { CreateMonthlyBudgetForm } from "../CreateMonthlyBudgetForm"
 
-export function CreateMonthlyBudgetModal() {
+interface CreateMonthlyBudgetModalProps {
+  trigger?: ReactElement
+}
+
+export function CreateMonthlyBudgetModal({
+  trigger = <Button>Create budget</Button>,
+}: CreateMonthlyBudgetModalProps) {
   const { open, closeDialog, onOpenChange } = useDialog()
 
   const handleSuccess = useCallback(() => {
@@ -26,7 +32,7 @@ export function CreateMonthlyBudgetModal() {
       open={open}
       onOpenChange={onOpenChange}
       dismissible={false}
-      trigger={<Button>Create budget</Button>}
+      trigger={trigger}
       title="Create monthly budget"
       description="Set a monthly budget amount."
     >
