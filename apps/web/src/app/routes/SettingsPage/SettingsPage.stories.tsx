@@ -19,5 +19,10 @@ export const Default: Story = {
     const canvas = within(canvasElement)
 
     expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
+    expect(canvas.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings")
+    expect(canvas.getByRole("link", { name: "Budgets" })).toHaveAttribute(
+      "href",
+      "/settings/budgets",
+    )
   },
 }

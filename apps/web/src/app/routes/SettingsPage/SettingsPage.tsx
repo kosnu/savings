@@ -1,12 +1,37 @@
-import { Container, Flex, Heading } from "@radix-ui/themes"
+import { Box, Button, Container, Flex, Grid, Heading, Section, Separator } from "@radix-ui/themes"
+import { Link } from "@tanstack/react-router"
+
+import styles from "./SettingsPage.module.css"
 
 export function SettingsPage() {
   return (
     <Container size="4">
       <Flex direction="column" gap="4">
         <Heading as="h1" size="6">
-          Settings
+          <Link to="/settings" className={styles.headingLink}>
+            Settings
+          </Link>
         </Heading>
+        <Grid
+          columns={{ initial: "1", sm: "minmax(160px, 220px) auto minmax(0, 1fr)" }}
+          gap="4"
+          align="stretch"
+          minHeight="calc(100vh - 9rem)"
+        >
+          <nav aria-label="Settings sections">
+            <Flex direction="column" gap="2" align="stretch">
+              <Button asChild variant="ghost" size="3">
+                <Link to="/settings/budgets" className={styles.menuLink}>
+                  Budgets
+                </Link>
+              </Button>
+            </Flex>
+          </nav>
+          <Box display={{ initial: "none", sm: "block" }}>
+            <Separator decorative orientation="vertical" size="4" />
+          </Box>
+          <Section size="1" minWidth="0" />
+        </Grid>
       </Flex>
     </Container>
   )
