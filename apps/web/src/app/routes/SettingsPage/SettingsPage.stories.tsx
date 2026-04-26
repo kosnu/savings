@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { createRoute } from "@tanstack/react-router"
 import { expect, within } from "storybook/test"
 
+import { LatestMonthlyBudget } from "../../../features/budgets/getLatestMonthlyBudget"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
@@ -30,7 +32,23 @@ export const Default: Story = {
 }
 
 export const BudgetManagement: Story = {
-  decorators: [createStoryRouter("/settings/budgets")],
+  decorators: [
+    createStoryRouter("/settings/budgets", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+
+      const settingsBudgetsRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "budgets",
+        component: LatestMonthlyBudget,
+      })
+
+      return [settingsRoute.addChildren([settingsBudgetsRoute])]
+    }),
+  ],
   parameters: {
     msw: {
       handlers: [
@@ -49,7 +67,23 @@ export const BudgetManagement: Story = {
 }
 
 export const EmptyBudgetSettings: Story = {
-  decorators: [createStoryRouter("/settings/budgets")],
+  decorators: [
+    createStoryRouter("/settings/budgets", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+
+      const settingsBudgetsRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "budgets",
+        component: LatestMonthlyBudget,
+      })
+
+      return [settingsRoute.addChildren([settingsBudgetsRoute])]
+    }),
+  ],
   parameters: {
     msw: {
       handlers: [

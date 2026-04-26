@@ -1,7 +1,9 @@
 import { createRoute, redirect } from "@tanstack/react-router"
+import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../features/budgets/createMonthlyBudget/monthlyBudgetCreateError"
+import { LatestMonthlyBudget } from "../../../features/budgets/getLatestMonthlyBudget"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
@@ -13,11 +15,13 @@ function BudgetSettingsRouteProbe() {
   return <div>Budget settings route</div>
 }
 
+type SettingsBudgetsComponent = () => ReactNode
+
 function renderSettingsPage(
   initialEntry = "/settings",
-  options: { settingsBudgetsComponent?: typeof SettingsPage } = {},
+  options: { settingsBudgetsComponent?: SettingsBudgetsComponent } = {},
 ) {
-  const SettingsBudgetsComponent = options.settingsBudgetsComponent ?? SettingsPage
+  const SettingsBudgetsComponent = options.settingsBudgetsComponent ?? LatestMonthlyBudget
 
   return renderWithRouter(initialEntry, (root) => {
     const authenticatedRoute = createRoute({
@@ -32,8 +36,8 @@ function renderSettingsPage(
     })
 
     const settingsBudgetsRoute = createRoute({
-      getParentRoute: () => authenticatedRoute,
-      path: "/settings/budgets",
+      getParentRoute: () => settingsRoute,
+      path: "budgets",
       component: SettingsBudgetsComponent,
     })
 
@@ -46,7 +50,10 @@ function renderSettingsPage(
     })
 
     return [
-      authenticatedRoute.addChildren([settingsRoute, settingsBudgetsRoute, legacyBudgetsRoute]),
+      authenticatedRoute.addChildren([
+        settingsRoute.addChildren([settingsBudgetsRoute]),
+        legacyBudgetsRoute,
+      ]),
     ]
   })
 }
