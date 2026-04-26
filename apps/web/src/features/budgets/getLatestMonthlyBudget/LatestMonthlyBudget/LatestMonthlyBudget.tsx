@@ -1,0 +1,70 @@
+import { PlusIcon } from "@radix-ui/react-icons"
+import { Button, Flex, Skeleton, Text } from "@radix-ui/themes"
+import { Suspense, use } from "react"
+import { ErrorBoundary } from "react-error-boundary"
+
+import { toCurrency } from "../../../../utils/toCurrency"
+import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget"
+import { useMonthlyBudgets } from "../../listMonthlyBudget/useMonthlyBudgets"
+import type { MonthlyBudget } from "../../types"
+
+const latestMonthlyBudgetLimit = 1
+
+export function LatestMonthlyBudget() {
+  const { promise } = useMonthlyBudgets(latestMonthlyBudgetLimit)
+
+  return (
+    <Flex direction="column" gap="3">
+      <Text as="p" size="4" weight="medium">
+        Monthly Budgets
+      </Text>
+      <ErrorBoundary
+        fallback={
+          <Text color="red" role="alert">
+            Could not load monthly budgets.
+          </Text>
+        }
+      >
+        <Suspense fallback={<LatestMonthlyBudgetLoading />}>
+          <LatestMonthlyBudgetContent promise={promise} />
+        </Suspense>
+      </ErrorBoundary>
+    </Flex>
+  )
+}
+
+function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudget[]> }) {
+  const [latestMonthlyBudget] = use(promise)
+
+  if (!latestMonthlyBudget) {
+    return (
+      <CreateMonthlyBudgetModal
+        trigger={
+          <Button variant="soft">
+            <PlusIcon /> Create budget
+          </Button>
+        }
+      />
+    )
+  }
+
+  return <LatestMonthlyBudgetRow monthlyBudget={latestMonthlyBudget} />
+}
+
+function LatestMonthlyBudgetLoading() {
+  return (
+    <Flex aria-label="loading latest monthly budget" align="center" justify="between" gap="3">
+      <Skeleton loading>
+        <Text>￥000,000</Text>
+      </Skeleton>
+    </Flex>
+  )
+}
+
+function LatestMonthlyBudgetRow({ monthlyBudget }: { monthlyBudget: MonthlyBudget }) {
+  return (
+    <Flex align="center" justify="between" gap="3">
+      <Text>{toCurrency(monthlyBudget.amount)}</Text>
+    </Flex>
+  )
+}
