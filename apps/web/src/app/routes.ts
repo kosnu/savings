@@ -6,7 +6,7 @@ import {
   redirect,
 } from "@tanstack/react-router"
 
-import { LatestMonthlyBudget } from "../features/budgets/latestMonthlyBudget"
+import { BudgetSettings } from "../features/budgets/budgetSettings/BudgetSettings"
 import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
@@ -82,7 +82,7 @@ const settingsRoute = createRoute({
 const settingsBudgetsRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "budgets",
-  component: LatestMonthlyBudget,
+  component: BudgetSettings,
 })
 
 const budgetsRoute = createRoute({

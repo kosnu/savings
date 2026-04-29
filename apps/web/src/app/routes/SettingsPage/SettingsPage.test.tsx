@@ -2,10 +2,12 @@ import { createRoute, redirect } from "@tanstack/react-router"
 import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
+import { BudgetSettings } from "../../../features/budgets/budgetSettings/BudgetSettings"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../features/budgets/createMonthlyBudget/monthlyBudgetCreateError"
-import { LatestMonthlyBudget } from "../../../features/budgets/latestMonthlyBudget"
+import { categoryBudgets } from "../../../test/data/categoryBudgets"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
+import { createCategoryBudgetHandlers } from "../../../test/msw/handlers/categoryBudgets"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../test/msw/server"
 import { screen, waitFor, within } from "../../../test/test-utils"
@@ -21,7 +23,7 @@ function renderSettingsPage(
   initialEntry = "/settings",
   options: { settingsBudgetsComponent?: SettingsBudgetsComponentType } = {},
 ) {
-  const SettingsBudgetsComponent = options.settingsBudgetsComponent ?? LatestMonthlyBudget
+  const SettingsBudgetsComponent = options.settingsBudgetsComponent ?? BudgetSettings
 
   return renderWithRouter(initialEntry, (root) => {
     const authenticatedRoute = createRoute({
@@ -108,6 +110,20 @@ describe("SettingsPage", () => {
       ...createMonthlyBudgetHandlers({
         list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
       }),
+      ...createCategoryBudgetHandlers({
+        get: {
+          response: [
+            {
+              ...categoryBudgets[2],
+              category: { id: 10, name: "Food" },
+            },
+            {
+              ...categoryBudgets[3],
+              category: { id: 20, name: "Daily Necessities" },
+            },
+          ],
+        },
+      }),
     )
 
     renderSettingsPage("/settings/budgets")
@@ -115,6 +131,9 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await screen.findByText("￥75,000")).toBeInTheDocument()
     expect(screen.queryByText("￥62,000")).not.toBeInTheDocument()
+    expect(await screen.findByText("Category Budgets")).toBeInTheDocument()
+    expect(await screen.findByText("Food ￥50,000")).toBeInTheDocument()
+    expect(await screen.findByText("Daily Necessities ￥12,000")).toBeInTheDocument()
   })
 
   test("月予算が未登録の場合は予算登録ボタンを表示する", async () => {
@@ -122,6 +141,7 @@ describe("SettingsPage", () => {
       ...createMonthlyBudgetHandlers({
         list: { response: [] },
       }),
+      ...createCategoryBudgetHandlers(),
     )
 
     renderSettingsPage("/settings/budgets")
@@ -135,6 +155,7 @@ describe("SettingsPage", () => {
       ...createMonthlyBudgetHandlers({
         list: { response: [] },
       }),
+      ...createCategoryBudgetHandlers(),
     )
 
     const { user, baseElement } = renderSettingsPage("/settings/budgets")
@@ -167,6 +188,7 @@ describe("SettingsPage", () => {
           },
         },
       }),
+      ...createCategoryBudgetHandlers(),
     )
 
     const { user, baseElement } = renderSettingsPage("/settings/budgets")
