@@ -1,0 +1,27 @@
+import { format } from "date-fns"
+
+import type { TablesInsert } from "../../../types/database.types"
+
+export interface CategoryBudgetWriteInput {
+  categoryId: number
+  targetMonth: Date
+  amount: number
+}
+
+// user_id は DB のデフォルト値（auth.uid()）で自動設定されるため FE から渡さない
+export type CategoryBudgetInsert = Omit<
+  TablesInsert<"category_budgets">,
+  "user_id" | "effective_year" | "effective_month"
+>
+
+export function toCategoryBudgetInsert(value: CategoryBudgetWriteInput): CategoryBudgetInsert {
+  return {
+    amount: value.amount,
+    category_id: value.categoryId,
+    effective_from: format(toMonthStartDate(value.targetMonth), "yyyy-MM-dd"),
+  }
+}
+
+function toMonthStartDate(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1)
+}
