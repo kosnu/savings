@@ -27,6 +27,13 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
 - If you intentionally diverge from an existing pattern, explain why before applying the change.
 
+## Mandatory Web Component Structure Rules
+
+The rules in this section are mandatory and must always be followed.
+
+- Before adding, moving, or extracting Web components, read and follow `apps/web/docs/policies/component-structure.md`.
+- If a requested change or review comment conflicts with that policy, stop and clarify before editing.
+
 ## Mandatory Communication Rules
 
 The rules in this section are mandatory and must always be followed.
