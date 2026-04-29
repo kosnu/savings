@@ -2,6 +2,7 @@ import { Button } from "@radix-ui/themes"
 import { useCallback, type ReactElement } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
+import { captureCategoryBudgetCreateError } from "../../../../lib/sentry"
 import { useDialog } from "../../../../utils/useDialog"
 import { CreateCategoryBudgetForm } from "../CreateCategoryBudgetForm"
 
@@ -18,6 +19,10 @@ export function CreateCategoryBudgetModal({
     closeDialog()
   }, [closeDialog])
 
+  const handleError = useCallback((error: unknown) => {
+    captureCategoryBudgetCreateError(error)
+  }, [])
+
   const handleCancel = useCallback(() => {
     closeDialog()
   }, [closeDialog])
@@ -31,7 +36,11 @@ export function CreateCategoryBudgetModal({
       title="Create category budget"
       description="Set a category budget amount."
     >
-      <CreateCategoryBudgetForm onSuccess={handleSuccess} onCancel={handleCancel} />
+      <CreateCategoryBudgetForm
+        onSuccess={handleSuccess}
+        onError={handleError}
+        onCancel={handleCancel}
+      />
     </ResponsiveOverlay>
   )
 }
