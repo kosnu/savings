@@ -2,9 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { expect, within } from "storybook/test"
 
-import { LatestMonthlyBudget } from "../../../features/budgets/latestMonthlyBudget"
+import { BudgetSettings } from "../../../features/budgets/budgetSettings/BudgetSettings"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
+import { createCategoryBudgetHandlers } from "../../../test/msw/handlers/categoryBudgets"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { SettingsPage } from "./SettingsPage"
 
@@ -43,7 +44,7 @@ export const BudgetManagement: Story = {
       const settingsBudgetsRoute = createRoute({
         getParentRoute: () => settingsRoute,
         path: "budgets",
-        component: LatestMonthlyBudget,
+        component: BudgetSettings,
       })
 
       return [settingsRoute.addChildren([settingsBudgetsRoute])]
@@ -55,6 +56,7 @@ export const BudgetManagement: Story = {
         ...createMonthlyBudgetHandlers({
           list: { response: [monthlyBudgets[3]] },
         }),
+        ...createCategoryBudgetHandlers(),
       ],
     },
   },
@@ -62,41 +64,6 @@ export const BudgetManagement: Story = {
     const canvas = within(canvasElement)
 
     expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
-    expect(await canvas.findByText("￥75,000")).toBeInTheDocument()
-  },
-}
-
-export const EmptyBudgetSettings: Story = {
-  decorators: [
-    createStoryRouter("/settings/budgets", (root, Story) => {
-      const settingsRoute = createRoute({
-        getParentRoute: () => root,
-        path: "/settings",
-        component: Story,
-      })
-
-      const settingsBudgetsRoute = createRoute({
-        getParentRoute: () => settingsRoute,
-        path: "budgets",
-        component: LatestMonthlyBudget,
-      })
-
-      return [settingsRoute.addChildren([settingsBudgetsRoute])]
-    }),
-  ],
-  parameters: {
-    msw: {
-      handlers: [
-        ...createMonthlyBudgetHandlers({
-          list: { response: [] },
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
-    expect(await canvas.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
+    expect(await canvas.findByText("Category Budgets")).toBeInTheDocument()
   },
 }
