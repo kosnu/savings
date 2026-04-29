@@ -1,6 +1,6 @@
 import { composeStories } from "@storybook/react-vite"
 import { HttpResponse, http } from "msw"
-import { describe, expect, test } from "vite-plus/test"
+import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { server } from "../../../../test/msw/server"
@@ -9,6 +9,18 @@ import * as stories from "./CreateCategoryBudgetModal.stories"
 
 const { Default } = composeStories(stories)
 const CATEGORY_BUDGETS_REST_URL = "*/rest/v1/category_budgets*"
+const { mockCaptureCategoryBudgetCreateError } = vi.hoisted(() => ({
+  mockCaptureCategoryBudgetCreateError: vi.fn(),
+}))
+
+vi.mock("../../../../lib/sentry", () => ({
+  captureCategoryBudgetCreateError: mockCaptureCategoryBudgetCreateError,
+}))
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  mockCaptureCategoryBudgetCreateError.mockReset()
+})
 
 async function renderStory(story: React.ReactElement) {
   return await act(async () => {
@@ -80,6 +92,11 @@ describe("CreateCategoryBudgetModal", () => {
     await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "50000")
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
+    await waitFor(() => {
+      expect(mockCaptureCategoryBudgetCreateError).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "Failed to create category budget." }),
+      )
+    })
     expect(await within(dialog).findByText("Failed to create category budget.")).toBeInTheDocument()
     expect(screen.getByRole("dialog", { name: "Create category budget" })).toBeInTheDocument()
   })
