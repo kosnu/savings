@@ -4,6 +4,7 @@ import { Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { toCurrency } from "../../../../utils/toCurrency"
+import { CreateCategoryBudgetModal } from "../../createCategoryBudget/CreateCategoryBudgetModal"
 import type { CategoryBudget } from "../../types"
 import { useCategoryBudgets } from "../useCategoryBudgets"
 
@@ -16,9 +17,13 @@ export function CategoryBudgetList() {
         <Text as="p" size="4" weight="medium">
           Category Budgets
         </Text>
-        <Button aria-label="Add category budget" disabled size="2" variant="ghost">
-          <PlusIcon />
-        </Button>
+        <CreateCategoryBudgetModal
+          trigger={
+            <Button aria-label="Add category budget" size="2" variant="ghost">
+              <PlusIcon />
+            </Button>
+          }
+        />
       </Flex>
       <ErrorBoundary
         fallback={
@@ -40,9 +45,13 @@ function CategoryBudgetListContent({ promise }: { promise: Promise<CategoryBudge
 
   if (categoryBudgets.length === 0) {
     return (
-      <Button disabled variant="soft">
-        <PlusIcon /> Create category budget
-      </Button>
+      <CreateCategoryBudgetModal
+        trigger={
+          <Button variant="soft">
+            <PlusIcon /> Create category budget
+          </Button>
+        }
+      />
     )
   }
 
