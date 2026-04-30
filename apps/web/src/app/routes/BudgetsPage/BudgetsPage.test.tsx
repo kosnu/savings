@@ -7,6 +7,17 @@ import { server } from "../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../test/test-utils"
 import { BudgetsPage } from "./BudgetsPage"
 
+const createdMonthlyBudget = {
+  id: 999,
+  amount: 300000,
+  created_at: "2026-03-01T00:00:00.000Z",
+  effective_from: "2026-03-01",
+  effective_month: 3,
+  effective_year: 2026,
+  updated_at: "2026-03-01T00:00:00.000Z",
+  user_id: 100,
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
 })
@@ -59,6 +70,11 @@ describe("BudgetsPage", () => {
     const body = within(baseElement)
 
     await fillCreateMonthlyBudgetForm(user, dialog, body)
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        list: { response: [createdMonthlyBudget, monthlyBudgets[3]] },
+      }),
+    )
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
