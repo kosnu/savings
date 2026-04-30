@@ -5,8 +5,8 @@ import { useCallback, useState } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
-import { AmountField } from "../../createMonthlyBudget/AmountField/AmountField"
 import { MonthField } from "../../createMonthlyBudget/MonthField/MonthField"
+import { AmountField } from "../AmountField"
 import { toCategoryBudgetCreateErrorMessage } from "../categoryBudgetCreateError"
 import {
   createCategoryBudgetDefaultValues,
