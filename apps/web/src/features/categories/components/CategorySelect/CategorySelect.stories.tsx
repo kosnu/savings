@@ -15,7 +15,7 @@ const categoryOptions = categories.map((category) => (
 ))
 
 const meta = {
-  title: "Features/Payments/Components/CategorySelect",
+  title: "Features/Categories/Components/CategorySelect",
   component: CategorySelect,
   subcomponents: { CategoryOption, NoneCategoryOption, LoadingCategoryOption },
   parameters: {
