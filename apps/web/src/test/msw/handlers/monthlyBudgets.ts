@@ -41,7 +41,6 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
   const get = options.get ?? {}
   const list = options.list ?? {}
   const create = options.create ?? {}
-  let monthlyBudgetRows = [...(list.response ?? monthlyBudgets)]
 
   const monthlyBudgetsHandler = http.get(REST_URL, async ({ request }) => {
     const shouldReturnSingle = shouldReturnSingleObject(request)
@@ -57,7 +56,7 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
       ? get.response === undefined
         ? monthlyBudgets[2]
         : get.response
-      : monthlyBudgetRows
+      : (list.response ?? monthlyBudgets)
 
     return HttpResponse.json(response)
   })
@@ -73,14 +72,12 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     }
 
     if (create.response) {
-      monthlyBudgetRows = [...monthlyBudgetRows, create.response]
       return HttpResponse.json([create.response], { status: 201 })
     }
 
     const body = await request.json()
     const parsedBody = createMonthlyBudgetBodySchema.parse(body)
-    const newRow = buildMonthlyBudgetRow(parsedBody, monthlyBudgetRows)
-    monthlyBudgetRows = [...monthlyBudgetRows, newRow]
+    const newRow = buildMonthlyBudgetRow(parsedBody, list.response ?? monthlyBudgets)
 
     return HttpResponse.json([newRow], { status: 201 })
   })
