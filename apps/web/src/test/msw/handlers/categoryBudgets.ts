@@ -1,4 +1,5 @@
 import { type DelayMode, HttpResponse, delay, http } from "msw"
+import * as z from "zod"
 
 import type { CategoryBudgetRow } from "../../../features/budgets/types"
 import { categories } from "../../data/categories"
@@ -13,15 +14,32 @@ interface CategoryBudgetResponseRow extends CategoryBudgetRow {
   }
 }
 
-interface GetCategoryBudgetsOptions {
-  response?: CategoryBudgetResponseRow[]
+interface BaseOptions {
   error?: boolean
   durationOrMode?: number | DelayMode | undefined
 }
 
+interface GetCategoryBudgetsOptions extends BaseOptions {
+  response?: CategoryBudgetResponseRow[]
+}
+
+interface CreateCategoryBudgetOptions extends BaseOptions {
+  response?: CategoryBudgetResponseRow
+  errorResponse?: unknown
+}
+
 interface CreateCategoryBudgetHandlersOptions {
   get?: GetCategoryBudgetsOptions
+  create?: CreateCategoryBudgetOptions
 }
+
+const createCategoryBudgetBodySchema = z.object({
+  amount: z.number(),
+  category_id: z.number(),
+  effective_from: z.string(),
+})
+
+type CreateCategoryBudgetBody = z.infer<typeof createCategoryBudgetBodySchema>
 
 const defaultCategoryBudgetRows: CategoryBudgetResponseRow[] = categoryBudgets.map((row) => {
   const category = categories.find((candidate) => candidate.id === row.category_id)
@@ -37,7 +55,10 @@ const defaultCategoryBudgetRows: CategoryBudgetResponseRow[] = categoryBudgets.m
 
 export function createCategoryBudgetHandlers({
   get = {},
+  create = {},
 }: CreateCategoryBudgetHandlersOptions = {}) {
+  let categoryBudgetRows = [...(get.response ?? defaultCategoryBudgetRows)]
+
   const categoryBudgetsHandler = http.get(REST_URL, async () => {
     await delay(get.durationOrMode)
 
@@ -45,10 +66,58 @@ export function createCategoryBudgetHandlers({
       return HttpResponse.json({ message: "Failed to fetch category budgets." }, { status: 500 })
     }
 
-    return HttpResponse.json(get.response ?? defaultCategoryBudgetRows)
+    return HttpResponse.json(categoryBudgetRows)
   })
 
-  return [categoryBudgetsHandler]
+  const createCategoryBudgetHandler = http.post(REST_URL, async ({ request }) => {
+    await delay(create.durationOrMode)
+
+    if (create.error) {
+      return HttpResponse.json(
+        create.errorResponse ?? { message: "Failed to create category budget." },
+        { status: 500 },
+      )
+    }
+
+    if (create.response) {
+      categoryBudgetRows = [...categoryBudgetRows, create.response]
+      return HttpResponse.json([create.response], { status: 201 })
+    }
+
+    const body = await request.json()
+    const parsedBody = createCategoryBudgetBodySchema.parse(body)
+    const newRow = buildCategoryBudgetRow(parsedBody, categoryBudgetRows)
+    categoryBudgetRows = [...categoryBudgetRows, newRow]
+
+    return HttpResponse.json([newRow], { status: 201 })
+  })
+
+  return [categoryBudgetsHandler, createCategoryBudgetHandler]
+}
+
+function buildCategoryBudgetRow(
+  body: CreateCategoryBudgetBody,
+  rows: CategoryBudgetResponseRow[],
+): CategoryBudgetResponseRow {
+  const [year, month] = body.effective_from.split("-").map((value) => Number.parseInt(value, 10))
+  const now = new Date().toISOString()
+  const category = categories.find((candidate) => candidate.id === body.category_id)
+
+  return {
+    id: Math.max(0, ...rows.map((row) => row.id)) + 1,
+    amount: body.amount,
+    category_id: body.category_id,
+    created_at: now,
+    effective_from: body.effective_from,
+    effective_month: month,
+    effective_year: year,
+    updated_at: now,
+    user_id: 100,
+    category: {
+      id: body.category_id,
+      name: category?.name ?? "Unknown",
+    },
+  }
 }
 
 export const categoryBudgetHandlers = createCategoryBudgetHandlers()

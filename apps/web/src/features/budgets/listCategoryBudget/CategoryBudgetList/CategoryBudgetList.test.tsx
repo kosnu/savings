@@ -27,7 +27,7 @@ describe("CategoryBudgetList", () => {
     await renderCategoryBudgetList(<Default />)
 
     expect(await screen.findByText("Category Budgets")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Add category budget" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Add category budget" })).toBeEnabled()
     expect(await screen.findByText("Food ￥50,000")).toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities ￥12,000")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Food category budget menu" })).toBeDisabled()
@@ -42,7 +42,7 @@ describe("CategoryBudgetList", () => {
 
     await renderCategoryBudgetList(<Empty />)
 
-    expect(await screen.findByRole("button", { name: "Create category budget" })).toBeDisabled()
+    expect(await screen.findByRole("button", { name: "Create category budget" })).toBeEnabled()
   })
 
   test("取得中はスケルトンを表示する", async () => {
