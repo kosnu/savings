@@ -5,7 +5,6 @@ import { useCallback, useState } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
-import { MonthField } from "../../createMonthlyBudget/MonthField/MonthField"
 import { AmountField } from "../AmountField"
 import { toCategoryBudgetCreateErrorMessage } from "../categoryBudgetCreateError"
 import {
@@ -14,6 +13,7 @@ import {
 } from "../categoryBudgetFormAdapters"
 import { categoryBudgetFormSubmitSchema } from "../categoryBudgetFormSchema"
 import { CategoryField } from "../CategoryField"
+import { MonthField } from "../MonthField"
 import { useCreateCategoryBudget } from "../useCreateCategoryBudget"
 
 interface CreateCategoryBudgetFormProps {
