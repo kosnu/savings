@@ -52,6 +52,19 @@ export function captureMonthlyBudgetCreateError(error: unknown) {
   })
 }
 
+export function captureCategoryBudgetCreateError(error: unknown) {
+  Sentry.withScope((scope) => {
+    scope.setTag("feature", "budgets")
+    scope.setContext("category_budget_create_error", {
+      code: getErrorCode(error),
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : getErrorMessage(error),
+    })
+
+    Sentry.captureMessage("Category budget creation failed", "error")
+  })
+}
+
 function getErrorCode(error: unknown): string | undefined {
   if (!error || typeof error !== "object" || !("code" in error)) {
     return undefined
