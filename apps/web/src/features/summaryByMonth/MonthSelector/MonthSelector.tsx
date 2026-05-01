@@ -1,14 +1,14 @@
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect } from "react"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 
 export function MonthSelector() {
-  const { year: yearParam, month: monthParam } = useSearch({
-    from: "/authenticated/payments",
+  const { year: yearParam, month: monthParam } = useLocation({
+    select: (location) => location.search,
   })
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: "/payments" })
   const { session } = useSupabaseSession()
 
   // 現在選択されている年月、またはnullの場合は今月
@@ -22,7 +22,10 @@ export function MonthSelector() {
       if (date) {
         const year = date.getFullYear().toString()
         const month = (date.getMonth() + 1).toString()
-        void navigate({ to: "/payments", search: { year, month } })
+        void navigate({
+          to: "/payments",
+          search: (prev) => ({ ...prev, year, month }),
+        })
       }
     },
     [navigate],
@@ -36,7 +39,11 @@ export function MonthSelector() {
       const now = new Date()
       const year = now.getFullYear().toString()
       const month = (now.getMonth() + 1).toString()
-      void navigate({ to: "/payments", search: { year, month }, replace: true })
+      void navigate({
+        to: "/payments",
+        search: (prev) => ({ ...prev, year, month }),
+        replace: true,
+      })
     }
   }, [session, yearParam, monthParam, navigate])
 
