@@ -176,6 +176,7 @@ export function createPaymentHandlers({
   getMonthlyTotalAmount = {},
 }: CreatePaymentHandlersOptions = {}) {
   const categoryRows = [...initialCategoryRows]
+  const rows = get.response ?? initialRows
 
   const getPaymentsHandler = http.get(REST_URL, async ({ request }) => {
     await delay(get.durationOrMode)
@@ -184,7 +185,6 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to fetch payments." }, { status: 500 })
     }
 
-    const rows = get.response ?? initialRows
     const filteredRows = filterAndSortPayments(rows, request)
 
     if (shouldIncludeCategory(request)) {
@@ -217,7 +217,7 @@ export function createPaymentHandlers({
 
     const body = await request.json()
     const parsedBody = createPaymentBodySchema.parse(body)
-    const newRow = buildPaymentRow(parsedBody, initialRows)
+    const newRow = buildPaymentRow(parsedBody, rows)
 
     return HttpResponse.json([newRow], { status: 201 })
   })
@@ -263,7 +263,7 @@ export function createPaymentHandlers({
 
       const body = await request.json()
       const parsedBody = getMonthlyTotalAmountRequestBodySchema.parse(body)
-      return HttpResponse.json(calculateMonthlyTotalAmount(initialRows, parsedBody.p_month))
+      return HttpResponse.json(calculateMonthlyTotalAmount(rows, parsedBody.p_month))
     },
   )
 
