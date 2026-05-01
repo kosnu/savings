@@ -1,12 +1,12 @@
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect } from "react"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 
 export function MonthSelector() {
-  const { year: yearParam, month: monthParam } = useSearch({
-    from: "/authenticated/payments",
+  const { year: yearParam, month: monthParam } = useLocation({
+    select: (location) => location.search,
   })
   const navigate = useNavigate({ from: "/payments" })
   const { session } = useSupabaseSession()
