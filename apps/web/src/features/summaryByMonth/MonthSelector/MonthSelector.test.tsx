@@ -5,7 +5,10 @@ import type { SupabaseSessionState } from "../../../providers/supabase/SupabaseS
 import { mockSession } from "../../../test/data/supabaseSession"
 import { renderWithRouter as renderWithTestRouter } from "../../../test/helpers/renderWithRouter"
 import { screen, waitFor } from "../../../test/test-utils"
-import { paymentsSearchSchema } from "../../payments/listPayment/paymentsSearchSchema"
+import {
+  PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
+  paymentsSearchSchema,
+} from "../../payments/listPayment/paymentsSearchSchema"
 import { MonthSelector } from "./MonthSelector"
 
 const mockSessionState: SupabaseSessionState = {
@@ -109,7 +112,9 @@ describe("MonthSelector", () => {
   })
 
   test("年月を初期化してもカテゴリ条件を保持する", async () => {
-    const { router } = renderMonthSelector("/payments?category=none")
+    const { router } = renderMonthSelector(
+      `/payments?category=${PAYMENT_SEARCH_CATEGORY_NONE_VALUE}`,
+    )
 
     await waitFor(() => {
       const { year, month, category } = router.state.location.search as {
@@ -119,7 +124,7 @@ describe("MonthSelector", () => {
       }
       expect(year).toMatch(/\d{4}/)
       expect(month).toMatch(/\d{1,2}/)
-      expect(category).toBe("none")
+      expect(category).toBe(PAYMENT_SEARCH_CATEGORY_NONE_VALUE)
     })
   })
 })

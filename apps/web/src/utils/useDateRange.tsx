@@ -1,9 +1,9 @@
-import { useSearch } from "@tanstack/react-router"
+import { useLocation } from "@tanstack/react-router"
 import { endOfMonth, startOfMonth } from "date-fns"
 
 export function useDateRange() {
-  const { year: yearParam, month: monthParam } = useSearch({
-    from: "/authenticated/payments",
+  const { year: yearParam, month: monthParam } = useLocation({
+    select: (location) => location.search,
   })
 
   const date = parseDateParam(yearParam, monthParam)
