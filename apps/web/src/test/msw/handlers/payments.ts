@@ -157,17 +157,6 @@ function buildPaymentRow(body: CreatePaymentBody, paymentRows: PaymentRow[]): Pa
   }
 }
 
-function extractPaymentId(request: Request): string | null {
-  const url = new URL(request.url)
-  const idFromQuery = url.searchParams.get("id")
-
-  if (idFromQuery) {
-    return idFromQuery.replace(/^eq\./, "")
-  }
-
-  return url.pathname.split("/").pop() ?? null
-}
-
 function calculateMonthlyTotalAmount(paymentRows: PaymentRow[], month?: string): number {
   if (!month) {
     return paymentRows.reduce((sum, row) => sum + row.amount, 0)
@@ -186,8 +175,8 @@ export function createPaymentHandlers({
   delete: deleteOptions = {},
   getMonthlyTotalAmount = {},
 }: CreatePaymentHandlersOptions = {}) {
-  let paymentRows = [...initialRows]
   const categoryRows = [...initialCategoryRows]
+  const rows = get.response ?? initialRows
 
   const getPaymentsHandler = http.get(REST_URL, async ({ request }) => {
     await delay(get.durationOrMode)
@@ -196,7 +185,6 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to fetch payments." }, { status: 500 })
     }
 
-    const rows = get.response ?? paymentRows
     const filteredRows = filterAndSortPayments(rows, request)
 
     if (shouldIncludeCategory(request)) {
@@ -224,14 +212,12 @@ export function createPaymentHandlers({
     }
 
     if (create.response) {
-      paymentRows = [...paymentRows, create.response]
       return HttpResponse.json([create.response], { status: 201 })
     }
 
     const body = await request.json()
     const parsedBody = createPaymentBodySchema.parse(body)
-    const newRow = buildPaymentRow(parsedBody, paymentRows)
-    paymentRows = [...paymentRows, newRow]
+    const newRow = buildPaymentRow(parsedBody, rows)
 
     return HttpResponse.json([newRow], { status: 201 })
   })
@@ -243,34 +229,18 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to update payment." }, { status: 500 })
     }
 
-    const id = extractPaymentId(request)
     const body = await request.json()
-    const parsedBody = updatePaymentBodySchema.parse(body)
-
-    paymentRows = paymentRows.map((row) => {
-      if (String(row.id) !== id) {
-        return row
-      }
-
-      return {
-        ...row,
-        ...parsedBody,
-        updated_at: new Date().toISOString(),
-      }
-    })
+    updatePaymentBodySchema.parse(body)
 
     return HttpResponse.json(update.response ?? { message: "Updated" })
   })
 
-  const deletePaymentHandler = http.delete(REST_URL, async ({ request }) => {
+  const deletePaymentHandler = http.delete(REST_URL, async () => {
     await delay(deleteOptions.durationOrMode)
 
     if (deleteOptions.error) {
       return HttpResponse.json({ message: "Failed to delete payment." }, { status: 500 })
     }
-
-    const id = extractPaymentId(request)
-    paymentRows = paymentRows.filter((row) => String(row.id) !== id)
 
     return HttpResponse.json(deleteOptions.response ?? { message: "Deleted" })
   })
@@ -293,7 +263,7 @@ export function createPaymentHandlers({
 
       const body = await request.json()
       const parsedBody = getMonthlyTotalAmountRequestBodySchema.parse(body)
-      return HttpResponse.json(calculateMonthlyTotalAmount(paymentRows, parsedBody.p_month))
+      return HttpResponse.json(calculateMonthlyTotalAmount(rows, parsedBody.p_month))
     },
   )
 

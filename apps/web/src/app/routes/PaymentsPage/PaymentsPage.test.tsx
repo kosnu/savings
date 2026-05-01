@@ -30,6 +30,7 @@ const createdPayment = mapPaymentToRow({
   createdDate: new Date("2025-06-15T12:00:00+09:00"),
   updatedDate: new Date("2025-06-15T12:00:00+09:00"),
 })
+const initialPaymentRows = payments.map(mapPaymentToRow)
 
 function createStoryElement(queryClient = createQueryClient()) {
   return {
@@ -52,7 +53,7 @@ describe("PaymentsPage", () => {
   beforeEach(() => {
     server.resetHandlers(
       ...createPaymentHandlers({
-        initialRows: payments.map(mapPaymentToRow),
+        initialRows: initialPaymentRows,
         create: {
           response: createdPayment,
         },
@@ -97,6 +98,18 @@ describe("PaymentsPage", () => {
       String(createdPaymentFormInput.amount),
     )
     await user.type(within(createDialog).getByLabelText(/note/i), createdPaymentFormInput.note)
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: [...initialPaymentRows, createdPayment],
+        create: {
+          response: createdPayment,
+        },
+      }),
+      ...createCategoryHandlers(),
+      ...createMonthlyBudgetHandlers({
+        get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+      }),
+    )
     await user.click(within(createDialog).getByRole("button", { name: /^create$/i }))
 
     await waitFor(() => {
@@ -131,6 +144,18 @@ describe("PaymentsPage", () => {
     await user.click(await within(detailDialog).findByRole("button", { name: /delete/i }))
 
     const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: initialPaymentRows.filter((row) => row.id !== targetPayment.id),
+        create: {
+          response: createdPayment,
+        },
+      }),
+      ...createCategoryHandlers(),
+      ...createMonthlyBudgetHandlers({
+        get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+      }),
+    )
     await user.click(within(deleteDialog).getByRole("button", { name: /^delete$/i }))
 
     await waitFor(() => {
@@ -159,6 +184,24 @@ describe("PaymentsPage", () => {
     const amountInput = within(detailDialog).getByRole("textbox", { name: /amount/i })
     await user.clear(amountInput)
     await user.type(amountInput, "2500")
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: initialPaymentRows.map((row) => {
+          if (row.id !== payments[1].id) {
+            return row
+          }
+
+          return { ...row, amount: 2500 }
+        }),
+        create: {
+          response: createdPayment,
+        },
+      }),
+      ...createCategoryHandlers(),
+      ...createMonthlyBudgetHandlers({
+        get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+      }),
+    )
     await user.click(within(detailDialog).getByRole("button", { name: /save amount/i }))
 
     await waitFor(() => {

@@ -57,8 +57,6 @@ export function createCategoryBudgetHandlers({
   get = {},
   create = {},
 }: CreateCategoryBudgetHandlersOptions = {}) {
-  let categoryBudgetRows = [...(get.response ?? defaultCategoryBudgetRows)]
-
   const categoryBudgetsHandler = http.get(REST_URL, async () => {
     await delay(get.durationOrMode)
 
@@ -66,7 +64,7 @@ export function createCategoryBudgetHandlers({
       return HttpResponse.json({ message: "Failed to fetch category budgets." }, { status: 500 })
     }
 
-    return HttpResponse.json(categoryBudgetRows)
+    return HttpResponse.json(get.response ?? defaultCategoryBudgetRows)
   })
 
   const createCategoryBudgetHandler = http.post(REST_URL, async ({ request }) => {
@@ -80,14 +78,12 @@ export function createCategoryBudgetHandlers({
     }
 
     if (create.response) {
-      categoryBudgetRows = [...categoryBudgetRows, create.response]
       return HttpResponse.json([create.response], { status: 201 })
     }
 
     const body = await request.json()
     const parsedBody = createCategoryBudgetBodySchema.parse(body)
-    const newRow = buildCategoryBudgetRow(parsedBody, categoryBudgetRows)
-    categoryBudgetRows = [...categoryBudgetRows, newRow]
+    const newRow = buildCategoryBudgetRow(parsedBody, get.response ?? defaultCategoryBudgetRows)
 
     return HttpResponse.json([newRow], { status: 201 })
   })
