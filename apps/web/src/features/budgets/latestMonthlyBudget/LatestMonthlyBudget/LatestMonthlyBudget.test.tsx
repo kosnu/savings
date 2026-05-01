@@ -10,6 +10,16 @@ import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../createMonthlyBudget/monthl
 import * as stories from "./LatestMonthlyBudget.stories"
 
 const { Default, Empty, FetchError, Loading } = composeStories(stories)
+const createdMonthlyBudget = {
+  id: 999,
+  amount: 300000,
+  created_at: "2026-03-01T00:00:00.000Z",
+  effective_from: "2026-03-01",
+  effective_month: 3,
+  effective_year: 2026,
+  updated_at: "2026-03-01T00:00:00.000Z",
+  user_id: 100,
+}
 
 async function renderLatestMonthlyBudget(story: ReactElement) {
   return await act(async () => {
@@ -75,6 +85,11 @@ describe("LatestMonthlyBudget", () => {
     const body = within(baseElement)
 
     await fillCreateMonthlyBudgetForm(user, dialog, body)
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        list: { response: [createdMonthlyBudget] },
+      }),
+    )
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {

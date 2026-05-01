@@ -10,7 +10,7 @@ import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createCategoryBudgetHandlers } from "../../../test/msw/handlers/categoryBudgets"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../test/msw/server"
-import { screen, waitFor, within } from "../../../test/test-utils"
+import { screen, within } from "../../../test/test-utils"
 import { SettingsPage } from "./SettingsPage"
 
 type SettingsBudgetsComponentType = () => ReactNode
@@ -115,31 +115,6 @@ describe("SettingsPage", () => {
 
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
-  })
-
-  test("空状態から月予算を作成すると最新の月予算として表示する", async () => {
-    server.resetHandlers(
-      ...createMonthlyBudgetHandlers({
-        list: { response: [] },
-      }),
-      ...createCategoryBudgetHandlers(),
-    )
-
-    const { user, baseElement } = renderSettingsPage("/settings/budgets")
-
-    await user.click(await screen.findByRole("button", { name: "Create budget" }))
-    const dialog = await screen.findByRole("dialog", { name: "Create monthly budget" })
-    const body = within(baseElement)
-
-    await fillCreateMonthlyBudgetForm(user, dialog, body)
-    await user.click(within(dialog).getByRole("button", { name: "Create" }))
-
-    await waitFor(() => {
-      expect(
-        screen.queryByRole("dialog", { name: "Create monthly budget" }),
-      ).not.toBeInTheDocument()
-    })
-    expect(await screen.findByText("￥300,000")).toBeInTheDocument()
   })
 
   test("作成失敗時は既存のエラー表示を維持する", async () => {

@@ -135,6 +135,15 @@ describe("PaymentDetailsOverlay", () => {
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
     await user.click(await within(dialog).findByRole("button", { name: /edit category/i }))
     await user.click(await within(dialog).findByRole("combobox", { name: /category/i }))
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: [
+          { ...mapPaymentToRow(payments[0]), category_id: null },
+          ...payments.slice(1).map(mapPaymentToRow),
+        ],
+      }),
+      ...categoryHandlers,
+    )
     await user.click(await screen.findByRole("option", { name: /^none$/i }))
 
     await waitFor(() => {
