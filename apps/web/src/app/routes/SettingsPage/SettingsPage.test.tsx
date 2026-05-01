@@ -10,7 +10,7 @@ import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createCategoryBudgetHandlers } from "../../../test/msw/handlers/categoryBudgets"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../test/msw/server"
-import { screen, waitFor, within } from "../../../test/test-utils"
+import { screen, within } from "../../../test/test-utils"
 import { SettingsPage } from "./SettingsPage"
 
 type SettingsBudgetsComponentType = () => ReactNode
