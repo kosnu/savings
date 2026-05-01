@@ -3,13 +3,13 @@ import { ErrorBoundary } from "react-error-boundary"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import type { Category } from "../../../../types/category"
-import { useCategories } from "../../../categories/listCategory/useCategories"
 import {
   CategoryOption,
   CategorySelect,
   ErrorCategoryOption,
   LoadingCategoryOption,
-} from "../../components/CategorySelect"
+} from "../../../categories/components/CategorySelect"
+import { useCategories } from "../../../categories/listCategory/useCategories"
 
 interface CategoryFieldProps {
   error?: boolean

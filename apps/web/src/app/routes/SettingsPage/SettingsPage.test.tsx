@@ -1,4 +1,4 @@
-import { createRoute, redirect } from "@tanstack/react-router"
+import { createRoute } from "@tanstack/react-router"
 import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
@@ -12,10 +12,6 @@ import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyB
 import { server } from "../../../test/msw/server"
 import { screen, waitFor, within } from "../../../test/test-utils"
 import { SettingsPage } from "./SettingsPage"
-
-function BudgetSettingsRouteProbe() {
-  return <div>Budget settings route</div>
-}
 
 type SettingsBudgetsComponentType = () => ReactNode
 
@@ -43,20 +39,7 @@ function renderSettingsPage(
       component: SettingsBudgetsComponent,
     })
 
-    const legacyBudgetsRoute = createRoute({
-      getParentRoute: () => authenticatedRoute,
-      path: "/budgets",
-      beforeLoad: () => {
-        throw redirect({ to: "/settings/budgets" })
-      },
-    })
-
-    return [
-      authenticatedRoute.addChildren([
-        settingsRoute.addChildren([settingsBudgetsRoute]),
-        legacyBudgetsRoute,
-      ]),
-    ]
+    return [authenticatedRoute.addChildren([settingsRoute.addChildren([settingsBudgetsRoute])])]
   })
 }
 
@@ -87,22 +70,6 @@ describe("SettingsPage", () => {
 
     const budgetsLink = await screen.findByRole("link", { name: "Budgets" })
     expect(budgetsLink).toHaveAttribute("href", "/settings/budgets")
-  })
-
-  test("/budgets から予算設定へ到達できる", async () => {
-    server.resetHandlers(
-      ...createMonthlyBudgetHandlers({
-        list: { response: [] },
-      }),
-    )
-    const { router } = renderSettingsPage("/budgets", {
-      settingsBudgetsComponent: BudgetSettingsRouteProbe,
-    })
-
-    await waitFor(() => {
-      expect(router.state.location.pathname).toBe("/settings/budgets")
-    })
-    expect(await screen.findByText("Budget settings route")).toBeInTheDocument()
   })
 
   test("予算設定では最新の月予算だけを表示する", async () => {

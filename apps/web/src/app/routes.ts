@@ -85,14 +85,6 @@ const settingsBudgetsRoute = createRoute({
   component: BudgetSettings,
 })
 
-const budgetsRoute = createRoute({
-  getParentRoute: () => authenticatedRoute,
-  path: "/budgets",
-  beforeLoad: () => {
-    throw redirect({ to: "/settings/budgets" })
-  },
-})
-
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
@@ -100,7 +92,6 @@ const routeTree = rootRoute.addChildren([
     paymentsRoute,
     aggregatesRoute,
     settingsRoute.addChildren([settingsBudgetsRoute]),
-    budgetsRoute,
   ]),
 ])
 
