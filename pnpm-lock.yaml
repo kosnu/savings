@@ -30,8 +30,8 @@ importers:
   apps/api:
     devDependencies:
       supabase:
-        specifier: 2.95.0
-        version: 2.95.0
+        specifier: 2.95.1
+        version: 2.95.1
 
   apps/web:
     dependencies:
@@ -4121,8 +4121,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  supabase@2.95.0:
-    resolution: {integrity: sha512-JQQs1naQY9XqVTsplt5gUxyr2ySmYKlR+Jd3WG/TqIMVqMrY7X1Y8EGrOUrzAWMuu+FiikC/7O3awRLgi521sA==}
+  supabase@2.95.1:
+    resolution: {integrity: sha512-zQY21c8xVtWsU1SuhlLsJKzfwoCfZHsdwQ/H1B8uIZzfVAhMS/cdZ4CqONY4WBlZ9Cn2N4ftcAPMxUC4Pm9sdA==}
     engines: {npm: '>=8'}
     hasBin: true
 
@@ -8421,7 +8421,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  supabase@2.95.0:
+  supabase@2.95.1:
     dependencies:
       bin-links: 6.0.0
       https-proxy-agent: 9.0.0
