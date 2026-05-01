@@ -83,4 +83,43 @@ describe("MonthSelector", () => {
       expect(month).toBe("6")
     })
   })
+
+  test("年月を選択してもカテゴリ条件を保持する", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=5&category=10")
+
+    await waitFor(() => {
+      expect(screen.getByText("5")).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole("combobox", { name: "Month" }))
+
+    const juneOption = await screen.findByRole("option", { name: "6" })
+    await user.click(juneOption)
+
+    await waitFor(() => {
+      const { year, month, category } = router.state.location.search as {
+        year?: string
+        month?: string
+        category?: string
+      }
+      expect(year).toBe("2025")
+      expect(month).toBe("6")
+      expect(category).toBe("10")
+    })
+  })
+
+  test("年月を初期化してもカテゴリ条件を保持する", async () => {
+    const { router } = renderMonthSelector("/payments?category=none")
+
+    await waitFor(() => {
+      const { year, month, category } = router.state.location.search as {
+        year?: string
+        month?: string
+        category?: string
+      }
+      expect(year).toMatch(/\d{4}/)
+      expect(month).toMatch(/\d{1,2}/)
+      expect(category).toBe("none")
+    })
+  })
 })
