@@ -15,13 +15,13 @@ import { ErrorBoundary } from "react-error-boundary"
 import { useSnackbar } from "../../../../providers/snackbar"
 import type { Category } from "../../../../types/category"
 import type { PaymentId } from "../../../../types/payment"
-import { useCategories } from "../../../categories/listCategory/useCategories"
 import {
   CategoryOption,
   CategorySelect,
   ErrorCategoryOption,
   LoadingCategoryOption,
-} from "../../components/CategorySelect"
+} from "../../../categories/components/CategorySelect"
+import { useCategories } from "../../../categories/listCategory/useCategories"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 
