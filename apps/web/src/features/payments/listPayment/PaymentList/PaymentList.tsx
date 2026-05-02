@@ -9,10 +9,12 @@ import { useCategories } from "../../../categories/listCategory/useCategories"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
 import { PaymentDetailsOverlay, usePaymentDetailsState } from "../../paymentDetails"
 import { PaymentItem } from "../PaymentItem"
+import { useCategoryId } from "../useCategoryId"
 import { usePayments } from "../usePayments"
 
 export const PaymentList = memo(function PaymentList() {
-  const { promise: promisePayments } = usePayments()
+  const categoryId = useCategoryId()
+  const { promise: promisePayments } = usePayments({ categoryId })
   const { promise: promiseCategories } = useCategories()
   const { selectedPaymentId, openPaymentDetails, closePaymentDetails, onOpenChange } =
     usePaymentDetailsState()
