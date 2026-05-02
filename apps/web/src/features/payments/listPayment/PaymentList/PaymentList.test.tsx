@@ -1,8 +1,15 @@
 import { composeStories } from "@storybook/react-vite"
+import { createRoute } from "@tanstack/react-router"
+import { HttpResponse, http } from "msw"
 import { describe, expect, test } from "vite-plus/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
+import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
+import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
+import { server } from "../../../../test/msw/server"
 import { render, screen, waitFor, within } from "../../../../test/test-utils"
+import { paymentsSearchSchema } from "../paymentsSearchSchema"
+import { PaymentList } from "./PaymentList"
 import * as stories from "./PaymentList.stories"
 
 const { Default, Loading } = composeStories(stories)
@@ -11,6 +18,28 @@ function renderStory() {
   const queryClient = createQueryClient()
 
   return render(<Default />, { queryClient })
+}
+
+function renderPaymentList(initialEntry: string) {
+  return renderWithRouter(
+    initialEntry,
+    (root) => {
+      const authenticatedRoute = createRoute({
+        getParentRoute: () => root,
+        id: "authenticated",
+      })
+
+      const paymentsRoute = createRoute({
+        getParentRoute: () => authenticatedRoute,
+        path: "/payments",
+        component: PaymentList,
+        validateSearch: paymentsSearchSchema,
+      })
+
+      return [authenticatedRoute.addChildren([paymentsRoute])]
+    },
+    { queryClient: createQueryClient() },
+  )
 }
 
 describe("PaymentList", () => {
@@ -97,4 +126,62 @@ describe("PaymentList", () => {
 
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
   })
+
+  test("URL searchの登録済みカテゴリIDを一覧取得条件に反映する", async () => {
+    const requestCapture: { url: URL | null } = { url: null }
+    server.resetHandlers(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requestCapture.url = new URL(request.url)
+
+        return HttpResponse.json([])
+      }),
+      ...createCategoryHandlers(),
+    )
+
+    renderPaymentList("/payments?year=2025&month=6&category=10")
+
+    await waitFor(() => {
+      expect(requestCapture.url?.searchParams.get("category_id")).toBe("eq.10")
+    })
+  })
+
+  test("URL searchのカテゴリ未設定を一覧取得条件に反映する", async () => {
+    const requestCapture: { url: URL | null } = { url: null }
+    server.resetHandlers(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requestCapture.url = new URL(request.url)
+
+        return HttpResponse.json([])
+      }),
+      ...createCategoryHandlers(),
+    )
+
+    renderPaymentList("/payments?year=2025&month=6&category=none")
+
+    await waitFor(() => {
+      expect(requestCapture.url?.searchParams.get("category_id")).toBe("is.null")
+    })
+  })
+
+  test.each(["0", "-1", "1.2", "abc"])(
+    "URL searchの不正カテゴリ %s は一覧取得条件に反映しない",
+    async (category) => {
+      const requestCapture: { url: URL | null } = { url: null }
+      server.resetHandlers(
+        http.get("*/rest/v1/payments*", ({ request }) => {
+          requestCapture.url = new URL(request.url)
+
+          return HttpResponse.json([])
+        }),
+        ...createCategoryHandlers(),
+      )
+
+      renderPaymentList(`/payments?year=2025&month=6&category=${category}`)
+
+      await waitFor(() => {
+        expect(requestCapture.url).not.toBeNull()
+        expect(requestCapture.url?.searchParams.has("category_id")).toBe(false)
+      })
+    },
+  )
 })
