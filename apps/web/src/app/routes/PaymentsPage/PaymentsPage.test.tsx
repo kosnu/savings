@@ -8,7 +8,7 @@ import {
   paymentsSearchSchema,
 } from "../../../features/payments/listPayment/paymentsSearchSchema"
 import { createQueryClient } from "../../../lib/queryClient"
-import { categories, entertainmentCat } from "../../../test/data/categories"
+import { categories, entertainmentCat, foodCat } from "../../../test/data/categories"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
@@ -39,6 +39,15 @@ const createdPayment = mapPaymentToRow({
   updatedDate: new Date("2025-06-15T12:00:00+09:00"),
 })
 const initialPaymentRows = payments.map(mapPaymentToRow)
+const initialCurrentMonthPaymentRows = initialPaymentRows.filter((payment) =>
+  payment.date.startsWith("2025-06-"),
+)
+const uncategorizedPayment = mapPaymentToRow({
+  ...payments[0],
+  id: 1000,
+  categoryId: null,
+  note: "未設定の支払い",
+})
 
 function createStoryElement(queryClient = createQueryClient()) {
   return {
@@ -181,6 +190,110 @@ describe("PaymentsPage", () => {
       })
       expect(requests.some((url) => url.searchParams.get("category_id") === "eq.10")).toBe(true)
     })
+  })
+
+  test("ユーザー操作で登録済みカテゴリを選ぶと該当する支払いだけを表示する", async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        const url = new URL(request.url)
+        requests.push(url)
+
+        if (url.searchParams.get("category_id") === `eq.${foodCat.id}`) {
+          return HttpResponse.json(
+            initialCurrentMonthPaymentRows.filter((payment) => payment.category_id === foodCat.id),
+          )
+        }
+
+        return HttpResponse.json(initialCurrentMonthPaymentRows)
+      }),
+    )
+    const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await selectCategoryFilterOption(user, foodCat.name)
+
+    await waitFor(() => {
+      expect(router.state.location.search).toEqual({
+        year: "2025",
+        month: "6",
+        category: String(foodCat.id),
+      })
+      expect(requests.some((url) => url.searchParams.get("category_id") === "eq.10")).toBe(true)
+    })
+
+    const paymentList = await screen.findByLabelText("payment-list")
+    expect(await within(paymentList).findAllByRole("button", { name: /コンビニ/ })).toHaveLength(1)
+    expect(within(paymentList).queryByText("Daily Necessities")).not.toBeInTheDocument()
+  })
+
+  test("ユーザー操作でカテゴリ未設定を選ぶと未設定の支払いを表示する", async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        const url = new URL(request.url)
+        requests.push(url)
+
+        if (url.searchParams.get("category_id") === "is.null") {
+          return HttpResponse.json([uncategorizedPayment])
+        }
+
+        return HttpResponse.json(initialCurrentMonthPaymentRows)
+      }),
+    )
+    const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await selectCategoryFilterOption(user, "Uncategorized")
+
+    await waitFor(() => {
+      expect(router.state.location.search).toEqual({
+        year: "2025",
+        month: "6",
+        category: PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
+      })
+      expect(requests.some((url) => url.searchParams.get("category_id") === "is.null")).toBe(true)
+    })
+
+    const paymentList = await screen.findByLabelText("payment-list")
+    expect(
+      await within(paymentList).findByRole("button", { name: /未設定の支払い/ }),
+    ).toBeInTheDocument()
+  })
+
+  test("カテゴリフィルタの空結果からフィルタを解除できる", async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        const url = new URL(request.url)
+        requests.push(url)
+
+        if (url.searchParams.get("category_id") === `eq.${entertainmentCat.id}`) {
+          return HttpResponse.json([])
+        }
+
+        return HttpResponse.json(initialCurrentMonthPaymentRows)
+      }),
+    )
+    const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await selectCategoryFilterOption(user, entertainmentCat.name)
+
+    expect(await screen.findByText("No payments found.")).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Clear filter" }))
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+        "All categories",
+      )
+      expect(router.state.location.search).toEqual({
+        year: "2025",
+        month: "6",
+        category: undefined,
+      })
+    })
+
+    const paymentList = await screen.findByLabelText("payment-list")
+    expect(await within(paymentList).findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
   })
 
   test("ブラウザバックでカテゴリ条件を戻す", async () => {
