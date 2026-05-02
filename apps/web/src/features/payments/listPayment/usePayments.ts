@@ -11,11 +11,15 @@ interface UseGetPaymentsReturn {
   error: Error | null
 }
 
-export function usePayments(): UseGetPaymentsReturn {
+interface UsePaymentsOptions {
+  categoryId?: number | null
+}
+
+export function usePayments({ categoryId }: UsePaymentsOptions = {}): UseGetPaymentsReturn {
   const { date, dateRange } = useDateRange()
   const query = useQuery({
-    queryKey: ["payments", date?.toISOString() ?? "all"],
-    queryFn: async () => fetchPayments(dateRange),
+    queryKey: ["payments", date?.toISOString() ?? "all", getCategoryQueryKey(categoryId)],
+    queryFn: async () => fetchPayments(dateRange, { categoryId }),
     enabled: date !== null,
     staleTime: 3000, // 3秒
   })
@@ -26,4 +30,10 @@ export function usePayments(): UseGetPaymentsReturn {
     promise: query.promise,
     error: query.error,
   }
+}
+
+function getCategoryQueryKey(categoryId: number | null | undefined): string {
+  if (categoryId === undefined) return "all-categories"
+  if (categoryId === null) return "uncategorized"
+  return `category-${categoryId}`
 }
