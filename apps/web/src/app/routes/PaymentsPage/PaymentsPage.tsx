@@ -1,7 +1,7 @@
-import { Container, Flex } from "@radix-ui/themes"
+import { Box, Container, Flex } from "@radix-ui/themes"
 
 import { CreatePaymentModal } from "../../../features/payments/createPayment"
-import { PaymentList } from "../../../features/payments/listPayment"
+import { PaymentCategoryFilter, PaymentList } from "../../../features/payments/listPayment"
 import { Summary } from "../../../features/summaryByMonth"
 
 export function PaymentsPage() {
@@ -9,8 +9,13 @@ export function PaymentsPage() {
     <Container size="4">
       <Flex direction="column" gap="3">
         <Summary />
-        <Flex justify="end" align="center" gap="3">
-          <CreatePaymentModal />
+        <Flex align="center" gap="3">
+          <Box flexGrow="1" minWidth="0">
+            <PaymentCategoryFilter />
+          </Box>
+          <Box flexShrink="0">
+            <CreatePaymentModal />
+          </Box>
         </Flex>
         <PaymentList />
       </Flex>
