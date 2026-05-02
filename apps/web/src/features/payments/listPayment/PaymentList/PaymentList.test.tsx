@@ -177,6 +177,18 @@ describe("PaymentList", () => {
     expect(screen.getByRole("button", { name: "Clear filter" })).toBeInTheDocument()
   })
 
+  test("カテゴリ条件なしで支払いが0件の場合はフィルタ解除導線を表示しない", async () => {
+    server.resetHandlers(
+      http.get("*/rest/v1/payments*", () => HttpResponse.json([])),
+      ...createCategoryHandlers(),
+    )
+
+    renderPaymentList("/payments?year=2025&month=6")
+
+    expect(await screen.findByText("No payments found.")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Clear filter" })).not.toBeInTheDocument()
+  })
+
   test.each(["0", "-1", "1.2", "abc"])(
     "URL searchの不正カテゴリ %s は一覧取得条件に反映しない",
     async (category) => {
