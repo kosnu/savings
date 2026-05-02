@@ -2,8 +2,11 @@ import { useLocation } from "@tanstack/react-router"
 import { endOfMonth, startOfMonth } from "date-fns"
 
 export function useDateRange() {
-  const { year: yearParam, month: monthParam } = useLocation({
-    select: (location) => location.search,
+  const yearParam = useLocation({
+    select: (location) => location.search.year,
+  })
+  const monthParam = useLocation({
+    select: (location) => location.search.month,
   })
 
   const date = parseDateParam(yearParam, monthParam)

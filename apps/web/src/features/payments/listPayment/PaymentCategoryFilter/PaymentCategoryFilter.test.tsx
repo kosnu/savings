@@ -1,29 +1,38 @@
 import { createRoute } from "@tanstack/react-router"
 import { beforeEach, describe, expect, test } from "vite-plus/test"
 
+import { createQueryClient } from "../../../../lib/queryClient"
+import { categories } from "../../../../test/data/categories"
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { server } from "../../../../test/msw/server"
 import { screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
-import { paymentsSearchSchema } from "../paymentsSearchSchema"
+import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE, paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 
 function renderPaymentCategoryFilter(initialEntry: string) {
-  return renderWithRouter(initialEntry, (root) => {
-    const authenticatedRoute = createRoute({
-      getParentRoute: () => root,
-      id: "authenticated",
-    })
+  const queryClient = createQueryClient()
+  queryClient.setQueryData(["categories"], categories)
 
-    const paymentsRoute = createRoute({
-      getParentRoute: () => authenticatedRoute,
-      path: "/payments",
-      component: PaymentCategoryFilter,
-      validateSearch: paymentsSearchSchema,
-    })
+  return renderWithRouter(
+    initialEntry,
+    (root) => {
+      const authenticatedRoute = createRoute({
+        getParentRoute: () => root,
+        id: "authenticated",
+      })
 
-    return [authenticatedRoute.addChildren([paymentsRoute])]
-  })
+      const paymentsRoute = createRoute({
+        getParentRoute: () => authenticatedRoute,
+        path: "/payments",
+        component: PaymentCategoryFilter,
+        validateSearch: paymentsSearchSchema,
+      })
+
+      return [authenticatedRoute.addChildren([paymentsRoute])]
+    },
+    { queryClient },
+  )
 }
 
 async function selectCategoryFilterOption(user: TestUser, optionName: string) {
@@ -50,7 +59,25 @@ describe("PaymentCategoryFilter", () => {
     )
   })
 
-  test("登録済みカテゴリを選ぶと年月条件を保ったまま category を更新する", async () => {
+  test("URL search のカテゴリ未設定を表示する", async () => {
+    renderPaymentCategoryFilter(
+      `/payments?year=2025&month=6&category=${PAYMENT_SEARCH_CATEGORY_NONE_VALUE}`,
+    )
+
+    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+      "Uncategorized",
+    )
+  })
+
+  test("URL search の登録済みカテゴリを表示する", async () => {
+    renderPaymentCategoryFilter("/payments?year=2025&month=6&category=10")
+
+    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+      "Food",
+    )
+  })
+
+  test("登録済みカテゴリを選ぶとcategoryをRouter searchに反映する", async () => {
     const { router, user } = renderPaymentCategoryFilter("/payments?year=2025&month=6")
 
     await selectCategoryFilterOption(user, "Food")
@@ -61,10 +88,11 @@ describe("PaymentCategoryFilter", () => {
         month: "6",
         category: "10",
       })
+      expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=10")
     })
   })
 
-  test("カテゴリ未設定を選ぶと年月条件を保ったまま category=none にする", async () => {
+  test("カテゴリ未設定を選ぶとcategory=noneをRouter searchに反映する", async () => {
     const { router, user } = renderPaymentCategoryFilter("/payments?year=2025&month=6")
 
     await selectCategoryFilterOption(user, "Uncategorized")
@@ -73,23 +101,25 @@ describe("PaymentCategoryFilter", () => {
       expect(router.state.location.search).toEqual({
         year: "2025",
         month: "6",
-        category: "none",
+        category: PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
       })
     })
   })
 
-  test("All categories を選ぶと年月条件を保ったまま category を外す", async () => {
+  test("All categories を選ぶとRouter searchからcategoryを外す", async () => {
     const { router, user } = renderPaymentCategoryFilter(
-      "/payments?year=2025&month=6&category=none",
+      `/payments?year=2025&month=6&category=${PAYMENT_SEARCH_CATEGORY_NONE_VALUE}`,
     )
 
     await selectCategoryFilterOption(user, "All categories")
 
     await waitFor(() => {
-      expect(router.state.location.search.year).toBe("2025")
-      expect(router.state.location.search.month).toBe("6")
-      expect(router.state.location.search.category).toBeUndefined()
-      expect(router.state.location.href).not.toContain("category")
+      expect(router.state.location.search).toEqual({
+        year: "2025",
+        month: "6",
+        category: undefined,
+      })
+      expect(router.state.location.href).toBe("/payments?year=2025&month=6")
     })
   })
 })

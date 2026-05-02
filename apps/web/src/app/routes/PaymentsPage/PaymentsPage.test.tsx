@@ -1,17 +1,25 @@
 import { composeStories } from "@storybook/react-vite"
+import { createRoute } from "@tanstack/react-router"
+import { HttpResponse, http } from "msw"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
+import {
+  PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
+  paymentsSearchSchema,
+} from "../../../features/payments/listPayment/paymentsSearchSchema"
 import { createQueryClient } from "../../../lib/queryClient"
-import { entertainmentCat } from "../../../test/data/categories"
+import { categories, entertainmentCat } from "../../../test/data/categories"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
+import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
-import { render, screen, waitFor, within } from "../../../test/test-utils"
+import { render, screen, type TestUser, waitFor, within } from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import * as stories from "./PaymentPage.stories"
+import { PaymentsPage } from "./PaymentsPage"
 
 const { Default } = composeStories(stories)
 const createdPaymentFormInput = {
@@ -49,6 +57,51 @@ function renderStory() {
   }
 }
 
+function renderPaymentsPageRoute(initialEntry: string) {
+  const queryClient = createQueryClient()
+  queryClient.setQueryData(["categories"], categories)
+
+  const view = renderWithRouter(
+    initialEntry,
+    (root) => {
+      const authenticatedRoute = createRoute({
+        getParentRoute: () => root,
+        id: "authenticated",
+      })
+
+      const paymentsRoute = createRoute({
+        getParentRoute: () => authenticatedRoute,
+        path: "/payments",
+        component: PaymentsPage,
+        validateSearch: paymentsSearchSchema,
+      })
+
+      return [authenticatedRoute.addChildren([paymentsRoute])]
+    },
+    { queryClient },
+  )
+
+  return {
+    queryClient,
+    ...view,
+  }
+}
+
+async function selectCategoryFilterOption(user: TestUser, optionName: string) {
+  await user.click(await screen.findByRole("combobox", { name: /category filter/i }))
+
+  const listbox = await screen.findByRole("listbox")
+  await waitFor(() => {
+    expect(within(listbox).queryByRole("option", { name: /loading/i })).not.toBeInTheDocument()
+  })
+
+  await user.click(await within(listbox).findByRole("option", { name: optionName }))
+}
+
+function lastRequest(requests: URL[]): URL | undefined {
+  return requests[requests.length - 1]
+}
+
 describe("PaymentsPage", () => {
   beforeEach(() => {
     server.resetHandlers(
@@ -68,6 +121,103 @@ describe("PaymentsPage", () => {
   afterEach(() => {
     server.resetHandlers()
     vi.useRealTimers()
+  })
+
+  test("初期URL searchの登録済みカテゴリIDを一覧取得条件に反映する", async () => {
+    const requestCapture: { url: URL | null } = { url: null }
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requestCapture.url = new URL(request.url)
+
+        return HttpResponse.json([])
+      }),
+    )
+
+    renderPaymentsPageRoute("/payments?year=2025&month=6&category=10")
+
+    await waitFor(() => {
+      expect(requestCapture.url?.searchParams.get("category_id")).toBe("eq.10")
+    })
+  })
+
+  test("初期URL searchのカテゴリ未設定を一覧取得条件に反映する", async () => {
+    const requestCapture: { url: URL | null } = { url: null }
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requestCapture.url = new URL(request.url)
+
+        return HttpResponse.json([])
+      }),
+    )
+
+    renderPaymentsPageRoute(
+      `/payments?year=2025&month=6&category=${PAYMENT_SEARCH_CATEGORY_NONE_VALUE}`,
+    )
+
+    await waitFor(() => {
+      expect(requestCapture.url?.searchParams.get("category_id")).toBe("is.null")
+    })
+  })
+
+  test("カテゴリ変更時はRouter searchを更新して一覧取得条件へ反映する", async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requests.push(new URL(request.url))
+
+        return HttpResponse.json([])
+      }),
+    )
+    const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await selectCategoryFilterOption(user, "Food")
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /category filter/i })).toHaveTextContent("Food")
+      expect(router.state.location.search).toEqual({
+        year: "2025",
+        month: "6",
+        category: "10",
+      })
+      expect(requests.some((url) => url.searchParams.get("category_id") === "eq.10")).toBe(true)
+    })
+  })
+
+  test("ブラウザバックでカテゴリ条件を戻す", async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requests.push(new URL(request.url))
+
+        return HttpResponse.json([])
+      }),
+    )
+    const { queryClient, router, user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await selectCategoryFilterOption(user, "Food")
+
+    await waitFor(() => {
+      expect(router.state.location.search.category).toBe("10")
+      expect(lastRequest(requests)?.searchParams.get("category_id")).toBe("eq.10")
+    })
+
+    queryClient.removeQueries({
+      queryKey: ["payments"],
+      predicate: (query) => query.queryKey[2] === "all-categories",
+    })
+
+    router.history.back()
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+        "All categories",
+      )
+      expect(router.state.location.search).toEqual({
+        year: "2025",
+        month: "6",
+      })
+      expect(lastRequest(requests)?.searchParams.has("category_id")).toBe(false)
+    })
   })
 
   test("支払いを作成すると一覧に追加される", async () => {
