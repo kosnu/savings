@@ -1,4 +1,5 @@
 import { createRoute } from "@tanstack/react-router"
+import { http } from "msw"
 import { beforeEach, describe, expect, test } from "vite-plus/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
@@ -10,9 +11,14 @@ import { screen, type TestUser, waitFor, within } from "../../../../test/test-ut
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE, paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 
-function renderPaymentCategoryFilter(initialEntry: string) {
+function renderPaymentCategoryFilter(
+  initialEntry: string,
+  { cacheCategories = true }: { cacheCategories?: boolean } = {},
+) {
   const queryClient = createQueryClient()
-  queryClient.setQueryData(["categories"], categories)
+  if (cacheCategories) {
+    queryClient.setQueryData(["categories"], categories)
+  }
 
   return renderWithRouter(
     initialEntry,
@@ -75,6 +81,39 @@ describe("PaymentCategoryFilter", () => {
     expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
       "Food",
     )
+  })
+
+  test("カテゴリ取得中でもURL searchの登録済みカテゴリは読み込み中表示にする", async () => {
+    server.use(
+      http.get("*/rest/v1/categories*", async () => {
+        await new Promise(() => undefined)
+      }),
+    )
+
+    renderPaymentCategoryFilter("/payments?year=2025&month=6&category=10", {
+      cacheCategories: false,
+    })
+
+    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+      "Loading",
+    )
+  })
+
+  test("URL search のカテゴリが存在しない登録済みIDの場合は Unknown category を表示する", async () => {
+    renderPaymentCategoryFilter("/payments?year=2025&month=6&category=999")
+
+    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+      "Unknown category",
+    )
+  })
+
+  test("URL search の不正カテゴリは All categories に正規化する", async () => {
+    const { router } = renderPaymentCategoryFilter("/payments?year=2025&month=6&category=-1")
+
+    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+      "All categories",
+    )
+    expect(router.state.location.search.category).toBeUndefined()
   })
 
   test("登録済みカテゴリを選ぶとcategoryをRouter searchに反映する", async () => {

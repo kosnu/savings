@@ -3,16 +3,13 @@ import { useLocation, useNavigate } from "@tanstack/react-router"
 import { memo, Suspense, use, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
-import {
-  CategoryOption,
-  ErrorCategoryOption,
-  LoadingCategoryOption,
-} from "../../../categories/components/CategorySelect"
+import { CategoryOption, ErrorCategoryOption } from "../../../categories/components/CategorySelect"
 import { useCategories } from "../../../categories/listCategory/useCategories"
 import { toPaymentCategoryId, toPaymentCategorySearch } from "../paymentCategorySearch"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE } from "../paymentsSearchSchema"
 
 const PAYMENT_SEARCH_CATEGORY_ALL_VALUE = "all"
+const PAYMENT_SEARCH_CATEGORY_UNKNOWN_LABEL = "Unknown category"
 
 export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
   const categorySearch = useLocation({
@@ -20,7 +17,9 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
   })
   const navigate = useNavigate({ from: "/payments" })
   const { promise: categoriesPromise } = useCategories()
+  const categoryId = toPaymentCategoryId(categorySearch)
   const value = toPaymentCategoryFilterValue(categorySearch)
+  const selectedCategoryValue = typeof categoryId === "number" ? String(categoryId) : undefined
 
   const handleChange = useCallback(
     (nextValue: string) => {
@@ -44,8 +43,13 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
         <Select.Item value={PAYMENT_SEARCH_CATEGORY_ALL_VALUE}>All categories</Select.Item>
         <Select.Item value={PAYMENT_SEARCH_CATEGORY_NONE_VALUE}>Uncategorized</Select.Item>
         <ErrorBoundary fallback={<ErrorCategoryOption />}>
-          <Suspense fallback={<LoadingCategoryOption />}>
-            <PaymentCategoryOptions categoriesPromise={categoriesPromise} />
+          <Suspense
+            fallback={<LoadingSelectedCategoryOption selectedValue={selectedCategoryValue} />}
+          >
+            <PaymentCategoryOptions
+              categoriesPromise={categoriesPromise}
+              selectedValue={selectedCategoryValue}
+            />
           </Suspense>
         </ErrorBoundary>
       </Select.Content>
@@ -55,21 +59,43 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
 
 interface PaymentCategoryOptionsProps {
   categoriesPromise: ReturnType<typeof useCategories>["promise"]
+  selectedValue?: string
 }
 
 const PaymentCategoryOptions = memo(function PaymentCategoryOptions({
   categoriesPromise,
+  selectedValue,
 }: PaymentCategoryOptionsProps) {
   const categories = use(categoriesPromise)
+  const hasSelectedCategory =
+    selectedValue === undefined ||
+    categories.some((category) => String(category.id) === selectedValue)
 
   return (
     <>
+      {!hasSelectedCategory && <UnknownCategoryOption value={selectedValue} />}
       {categories.map((category) => (
         <CategoryOption key={category.id} category={category} />
       ))}
     </>
   )
 })
+
+function LoadingSelectedCategoryOption({ selectedValue }: { selectedValue?: string }) {
+  return (
+    <Select.Item disabled value={selectedValue ?? "loading"}>
+      Loading
+    </Select.Item>
+  )
+}
+
+function UnknownCategoryOption({ value }: { value: string }) {
+  return (
+    <Select.Item disabled value={value}>
+      {PAYMENT_SEARCH_CATEGORY_UNKNOWN_LABEL}
+    </Select.Item>
+  )
+}
 
 function toPaymentCategoryFilterValue(categorySearch?: string): string {
   const categoryId = toPaymentCategoryId(categorySearch)

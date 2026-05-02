@@ -22,7 +22,7 @@ export function parseSearch(searchStr: string) {
 export const stringifySearch = stringifySearchWith(JSON.stringify)
 
 function parseSearchValue(value: string): unknown {
-  if (!value.startsWith("{") && !value.startsWith("[")) {
+  if (!value.startsWith('"') && !value.startsWith("{") && !value.startsWith("[")) {
     return value
   }
 
