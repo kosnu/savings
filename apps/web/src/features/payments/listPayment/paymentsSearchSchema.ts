@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const PAYMENT_SEARCH_CATEGORY_NONE_VALUE = "none"
 
-const paymentSearchCategoryIdSchema = z.coerce.string().pipe(z.templateLiteral([z.number()]))
+const paymentSearchCategoryIdSchema = z.coerce.number().int().positive().transform(String)
 const paymentSearchCategorySchema = z
   .union([z.literal(PAYMENT_SEARCH_CATEGORY_NONE_VALUE), paymentSearchCategoryIdSchema])
   .optional()

@@ -21,6 +21,8 @@ function renderMonthSelector(initialEntry: string) {
 }
 
 function renderWithRouterHelper(initialEntry: string, sessionState: SupabaseSessionState) {
+  window.history.replaceState({}, "", initialEntry)
+
   return renderWithTestRouter(
     initialEntry,
     (root) => {

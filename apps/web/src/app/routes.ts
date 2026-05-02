@@ -16,6 +16,7 @@ import { ErrorPage } from "./routes/ErrorPage"
 import { PaymentsPage } from "./routes/PaymentsPage"
 import { SettingsPage } from "./routes/SettingsPage"
 import { TopPage } from "./routes/TopPage"
+import { parseSearch, stringifySearch } from "./searchSerialization"
 
 export interface RouterContext {
   authStatus: AuthStatus
@@ -97,6 +98,8 @@ const routeTree = rootRoute.addChildren([
 
 export const router = createRouter({
   routeTree,
+  parseSearch,
+  stringifySearch,
   context: {
     authStatus: "loading",
     supabaseSession: null,
