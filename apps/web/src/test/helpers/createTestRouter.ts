@@ -6,6 +6,8 @@ import {
   type AnyRoute,
 } from "@tanstack/react-router"
 
+import { parseSearch, stringifySearch } from "../../app/searchSerialization"
+
 export type TestRouteBuilder = (rootRoute: AnyRootRoute) => AnyRoute[]
 
 export function createTestRouter(initialEntry: string, routeBuilder: TestRouteBuilder) {
@@ -17,5 +19,5 @@ export function createTestRouter(initialEntry: string, routeBuilder: TestRouteBu
     initialEntries: [initialEntry],
   })
 
-  return createRouter({ routeTree, history: memoryHistory })
+  return createRouter({ routeTree, history: memoryHistory, parseSearch, stringifySearch })
 }

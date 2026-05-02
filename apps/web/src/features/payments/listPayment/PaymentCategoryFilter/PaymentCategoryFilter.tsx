@@ -9,7 +9,7 @@ import {
   LoadingCategoryOption,
 } from "../../../categories/components/CategorySelect"
 import { useCategories } from "../../../categories/listCategory/useCategories"
-import { toPaymentCategoryId } from "../paymentCategorySearch"
+import { toPaymentCategoryId, toPaymentCategorySearch } from "../paymentCategorySearch"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE } from "../paymentsSearchSchema"
 
 const PAYMENT_SEARCH_CATEGORY_ALL_VALUE = "all"
@@ -24,11 +24,14 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
 
   const handleChange = useCallback(
     (nextValue: string) => {
-      const category = nextValue === PAYMENT_SEARCH_CATEGORY_ALL_VALUE ? undefined : nextValue
+      const categorySearch =
+        nextValue === PAYMENT_SEARCH_CATEGORY_ALL_VALUE
+          ? undefined
+          : toPaymentCategorySearch(nextValue)
 
       void navigate({
         to: "/payments",
-        search: (prev) => ({ ...prev, category }),
+        search: (prev) => ({ ...prev, category: categorySearch }),
       })
     },
     [navigate],

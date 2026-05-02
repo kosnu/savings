@@ -5,8 +5,11 @@ import { MonthPicker } from "../../../components/inputs/MonthPicker"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 
 export function MonthSelector() {
-  const { year: yearParam, month: monthParam } = useLocation({
-    select: (location) => location.search,
+  const yearParam = useLocation({
+    select: (location) => location.search.year,
+  })
+  const monthParam = useLocation({
+    select: (location) => location.search.month,
   })
   const navigate = useNavigate({ from: "/payments" })
   const { session } = useSupabaseSession()

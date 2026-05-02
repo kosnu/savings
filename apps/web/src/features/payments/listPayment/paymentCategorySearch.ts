@@ -1,10 +1,11 @@
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE } from "./paymentsSearchSchema"
 
-export function toPaymentCategoryId(categorySearch?: string): number | null | undefined {
+export function toPaymentCategorySearch(categorySearch?: string | null): string | undefined {
   if (categorySearch === PAYMENT_SEARCH_CATEGORY_NONE_VALUE) {
-    return null
+    return PAYMENT_SEARCH_CATEGORY_NONE_VALUE
   }
-  if (categorySearch === undefined) {
+
+  if (categorySearch === undefined || categorySearch === null || categorySearch === "") {
     return undefined
   }
 
@@ -14,5 +15,18 @@ export function toPaymentCategoryId(categorySearch?: string): number | null | un
     return undefined
   }
 
-  return categoryId
+  return String(categoryId)
+}
+
+export function toPaymentCategoryId(categorySearch?: string): number | null | undefined {
+  const normalizedCategorySearch = toPaymentCategorySearch(categorySearch)
+
+  if (normalizedCategorySearch === PAYMENT_SEARCH_CATEGORY_NONE_VALUE) {
+    return null
+  }
+  if (normalizedCategorySearch === undefined) {
+    return undefined
+  }
+
+  return Number(normalizedCategorySearch)
 }
