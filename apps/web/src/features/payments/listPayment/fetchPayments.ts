@@ -3,9 +3,14 @@ import { format } from "date-fns"
 import { getSupabaseClient } from "../../../lib/supabase"
 import type { Payment } from "../../../types/payment"
 
-export async function fetchPayments([startDate, endDate]: [Date | null, Date | null]): Promise<
-  Payment[]
-> {
+interface FetchPaymentsOptions {
+  categoryId?: number | null
+}
+
+export async function fetchPayments(
+  [startDate, endDate]: [Date | null, Date | null],
+  { categoryId }: FetchPaymentsOptions = {},
+): Promise<Payment[]> {
   const supabase = getSupabaseClient()
   let query = supabase
     .from("payments")
@@ -18,6 +23,12 @@ export async function fetchPayments([startDate, endDate]: [Date | null, Date | n
   }
   if (endDate) {
     query = query.lte("date", format(endDate, "yyyy-MM-dd"))
+  }
+  if (typeof categoryId === "number") {
+    query = query.eq("category_id", categoryId)
+  }
+  if (categoryId === null) {
+    query = query.is("category_id", null)
   }
 
   const { data, error } = await query
