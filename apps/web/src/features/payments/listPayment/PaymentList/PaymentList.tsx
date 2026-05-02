@@ -1,4 +1,5 @@
-import { Flex } from "@radix-ui/themes"
+import { Button, Flex, Text } from "@radix-ui/themes"
+import { useNavigate } from "@tanstack/react-router"
 import { memo, Suspense, use, useCallback, useState } from "react"
 
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
@@ -14,6 +15,7 @@ import { usePayments } from "../usePayments"
 
 export const PaymentList = memo(function PaymentList() {
   const categoryId = useCategoryId()
+  const navigate = useNavigate({ from: "/payments" })
   const { promise: promisePayments } = usePayments({ categoryId })
   const { promise: promiseCategories } = useCategories()
   const { selectedPaymentId, openPaymentDetails, closePaymentDetails, onOpenChange } =
@@ -33,6 +35,13 @@ export const PaymentList = memo(function PaymentList() {
     closePaymentDetails()
   }, [closePaymentDetails])
 
+  const handleClearCategory = useCallback(() => {
+    void navigate({
+      to: "/payments",
+      search: (prev) => ({ ...prev, category: undefined }),
+    })
+  }, [navigate])
+
   return (
     <>
       <Flex aria-label="payment-list" direction="column" gap="2" tabIndex={-1}>
@@ -41,6 +50,8 @@ export const PaymentList = memo(function PaymentList() {
             promiseCategories={promiseCategories}
             getPayments={promisePayments}
             onOpenPayment={openPaymentDetails}
+            filtered={categoryId !== undefined}
+            onClearCategory={handleClearCategory}
           />
         </Suspense>
       </Flex>
@@ -64,10 +75,23 @@ interface ItemsProps {
   promiseCategories: Promise<Category[]>
   getPayments: Promise<Payment[]>
   onOpenPayment: (paymentId: PaymentId, trigger: HTMLButtonElement) => void
+  filtered: boolean
+  onClearCategory: () => void
 }
 
-const Items = memo(function Body({ promiseCategories, getPayments, onOpenPayment }: ItemsProps) {
+const Items = memo(function Body({
+  promiseCategories,
+  getPayments,
+  onOpenPayment,
+  filtered,
+  onClearCategory,
+}: ItemsProps) {
   const data = use(getPayments)
+
+  if (data.length === 0) {
+    return <EmptyItems filtered={filtered} onClearCategory={onClearCategory} />
+  }
+
   const categories = use(promiseCategories)
   const categoryMap = toCategoryMap(categories)
 
@@ -92,6 +116,25 @@ const Items = memo(function Body({ promiseCategories, getPayments, onOpenPayment
     </>
   )
 })
+
+function EmptyItems({
+  filtered,
+  onClearCategory,
+}: {
+  filtered: boolean
+  onClearCategory: () => void
+}) {
+  return (
+    <Flex align="start" direction="column" gap="2">
+      <Text color="gray">No payments found.</Text>
+      {filtered ? (
+        <Button variant="soft" onClick={onClearCategory}>
+          Clear filter
+        </Button>
+      ) : null}
+    </Flex>
+  )
+}
 
 function SkeltonItems() {
   return (
