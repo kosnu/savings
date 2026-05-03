@@ -69,6 +69,19 @@ export const EmptyNote: Story = {
   },
 }
 
+export const Loading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({
+          get: { durationOrMode: "infinite" },
+        }),
+        ...categoryHandlers,
+      ],
+    },
+  },
+}
+
 export const MissingPayment: Story = {
   args: {
     paymentId: 9999,
