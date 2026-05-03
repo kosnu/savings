@@ -6,6 +6,7 @@ import { describe, expect, test } from "vite-plus/test"
 import { createQueryClient } from "../../../../lib/queryClient"
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
+import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import { render, screen, waitFor, within } from "../../../../test/test-utils"
 import { paymentsSearchSchema } from "../paymentsSearchSchema"
@@ -36,7 +37,12 @@ function renderPaymentList(initialEntry: string) {
         validateSearch: paymentsSearchSchema,
       })
 
-      return [authenticatedRoute.addChildren([paymentsRoute])]
+      const paymentDetailsRoute = createRoute({
+        getParentRoute: () => paymentsRoute,
+        path: "details/$paymentId",
+      })
+
+      return [authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])])]
     },
     { queryClient: createQueryClient() },
   )
@@ -125,6 +131,59 @@ describe("PaymentList", () => {
     render(<Loading />)
 
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
+  })
+
+  test("支払い行を開くと現在の検索条件を維持して詳細URLへ遷移する", async () => {
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+    const { router, user } = renderPaymentList("/payments?year=2025&month=6&category=10")
+
+    const paymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
+    await user.click(paymentButton)
+
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/payments/details/2")
+      expect(router.state.location.search).toEqual({
+        year: "2025",
+        month: "6",
+        category: "10",
+      })
+      expect("paymentId" in router.state.location.search).toBe(false)
+    })
+    expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
+  })
+
+  test("詳細URLを直接開くと詳細を表示する", async () => {
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+
+    renderPaymentList("/payments/details/2?year=2025&month=6")
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    expect(await within(dialog).findByText("Daily Necessities")).toBeInTheDocument()
+  })
+
+  test("不正な詳細URLの支払いIDはnot foundとして表示する", async () => {
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+
+    renderPaymentList("/payments/details/abc?year=2025&month=6")
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    expect(await within(dialog).findByText("Payment not found.")).toBeInTheDocument()
+  })
+
+  test("詳細表示中にブラウザバックすると一覧URLに戻り詳細を閉じる", async () => {
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+    const { router, user } = renderPaymentList("/payments?year=2025&month=6")
+
+    const paymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
+    await user.click(paymentButton)
+
+    await screen.findByRole("dialog", { name: /payment details/i })
+    router.history.back()
+
+    await waitFor(() => {
+      expect(router.state.location.href).toBe("/payments?year=2025&month=6")
+      expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
+    })
   })
 
   test("URL searchの登録済みカテゴリIDを一覧取得条件に反映する", async () => {
