@@ -53,7 +53,7 @@ describe("PaymentDetailsOverlay", () => {
   test("Loading story では詳細領域にスケルトンを表示して操作導線を出さない", async () => {
     server.resetHandlers(
       ...createPaymentHandlers({
-        get: { durationOrMode: 1000 },
+        get: { durationOrMode: "infinite" },
       }),
       ...categoryHandlers,
     )
