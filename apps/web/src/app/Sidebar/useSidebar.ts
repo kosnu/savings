@@ -9,7 +9,7 @@ interface UseSidebarReturn {
 
 const SIDEBAR_STATE_KEY = "sidebarOpen"
 
-export function useSidebar(defaultOpen: boolean = true): UseSidebarReturn {
+export function useSidebar(defaultOpen: boolean = false): UseSidebarReturn {
   const [open, setOpen] = useState<boolean>(() => {
     // サーバーサイドレンダリング(SSR)中はwindowオブジェクトがないため、エラーを回避します。
     if (typeof window === "undefined") {
