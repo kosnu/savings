@@ -46,5 +46,10 @@ export const paymentsRouteBuilder: StoryRouteBuilder = (root, Story) => {
     validateSearch: paymentsSearchSchema,
   })
 
-  return [authenticatedRoute.addChildren([paymentsRoute])]
+  const paymentDetailsRoute = createRoute({
+    getParentRoute: () => paymentsRoute,
+    path: "details/$paymentId",
+  })
+
+  return [authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])])]
 }
