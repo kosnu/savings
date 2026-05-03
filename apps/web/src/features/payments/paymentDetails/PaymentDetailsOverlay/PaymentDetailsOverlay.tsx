@@ -27,7 +27,10 @@ export function PaymentDetailsOverlay({
   const [isEditingField, setIsEditingField] = useState(false)
   const hasPayment = payment !== null && payment !== undefined
   const isNotFound =
-    !isLoading && !error && paymentId !== null && (payment === null || payment === undefined)
+    !isLoading &&
+    !error &&
+    open &&
+    (paymentId === null || payment === null || payment === undefined)
   const description = error
     ? "Failed to load payment details."
     : isNotFound

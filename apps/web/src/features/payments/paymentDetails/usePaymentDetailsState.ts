@@ -1,11 +1,12 @@
-import { useNavigate, useParams } from "@tanstack/react-router"
+import { useNavigate, useParams, useRouter } from "@tanstack/react-router"
 import { useCallback, useRef } from "react"
 
 import type { PaymentId } from "../../../types/payment"
 
 export function usePaymentDetailsState() {
-  const selectedPaymentId = useSelectedPaymentId()
+  const { hasPaymentDetailsRoute, selectedPaymentId } = useSelectedPaymentDetails()
   const navigate = useNavigate({ from: "/payments" })
+  const router = useRouter()
   const lastOpenedTriggerRef = useRef<HTMLButtonElement | null>(null)
 
   const openPaymentDetails = useCallback(
@@ -21,15 +22,23 @@ export function usePaymentDetailsState() {
   )
 
   const closePaymentDetails = useCallback(() => {
-    void navigate({
-      to: "/payments",
-      search: (prev) => prev,
-      replace: true,
-    })
+    const openedTrigger = lastOpenedTriggerRef.current
+    lastOpenedTriggerRef.current = null
+
+    if (openedTrigger) {
+      router.history.back()
+    } else {
+      void navigate({
+        to: "/payments",
+        search: (prev) => prev,
+        replace: true,
+      })
+    }
+
     requestAnimationFrame(() => {
-      lastOpenedTriggerRef.current?.focus()
+      openedTrigger?.focus()
     })
-  }, [navigate])
+  }, [navigate, router])
 
   const onOpenChange = useCallback(
     (open: boolean) => {
@@ -40,6 +49,7 @@ export function usePaymentDetailsState() {
   )
 
   return {
+    hasPaymentDetailsRoute,
     selectedPaymentId,
     openPaymentDetails,
     closePaymentDetails,
@@ -47,25 +57,28 @@ export function usePaymentDetailsState() {
   }
 }
 
-function useSelectedPaymentId(): PaymentId | null {
+function useSelectedPaymentDetails(): {
+  hasPaymentDetailsRoute: boolean
+  selectedPaymentId: PaymentId | null
+} {
   const paymentIdParam = useParams({
     strict: false,
     select: (params) => params.paymentId,
   })
+  const hasPaymentDetailsRoute = paymentIdParam !== undefined
 
-  if (paymentIdParam === undefined) {
-    return null
+  return {
+    hasPaymentDetailsRoute,
+    selectedPaymentId: hasPaymentDetailsRoute ? toPaymentId(paymentIdParam) : null,
   }
-
-  return toPaymentId(paymentIdParam)
 }
 
-function toPaymentId(paymentIdParam: string): PaymentId {
+function toPaymentId(paymentIdParam: string | undefined): PaymentId | null {
   const paymentId = Number(paymentIdParam)
 
   if (Number.isSafeInteger(paymentId) && paymentId > 0) {
     return paymentId
   }
 
-  return 0
+  return null
 }
