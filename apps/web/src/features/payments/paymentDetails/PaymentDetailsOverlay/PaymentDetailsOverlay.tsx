@@ -25,12 +25,10 @@ export function PaymentDetailsOverlay({
 }: PaymentDetailsOverlayProps) {
   const { data: payment, isLoading, error } = usePaymentDetails(paymentId)
   const [isEditingField, setIsEditingField] = useState(false)
-  const hasPayment = payment !== null && payment !== undefined
-  const isNotFound =
-    !isLoading &&
-    !error &&
-    open &&
-    (paymentId === null || payment === null || payment === undefined)
+  const hasPaymentId = paymentId !== null
+  const hasPaymentDetails = payment !== null && payment !== undefined
+  const canShowPaymentDetails = hasPaymentId && hasPaymentDetails
+  const isNotFound = open && !isLoading && !error && !canShowPaymentDetails
   const description = error
     ? "Failed to load payment details."
     : isNotFound
@@ -67,7 +65,7 @@ export function PaymentDetailsOverlay({
     >
       {isLoading ? (
         <PaymentDetailsLoading />
-      ) : hasPayment ? (
+      ) : hasPaymentDetails ? (
         <Flex direction="column" gap="4">
           <Flex direction="column" gap="4">
             <PaymentDateField
