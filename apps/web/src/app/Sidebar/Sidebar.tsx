@@ -28,32 +28,42 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
   }, [navigate, onClose, supabase])
 
   return (
-    <aside data-open={open} className={styles.sidebar}>
-      {/* Sidebar Header */}
-      <Flex className={styles.sidebarHeader} p="4" justify="between" align="center" gap="4">
-        <Link to="/" className={styles.link}>
-          <Button className={styles.sidebarButton} variant="ghost" size="3">
-            <Text size="3" weight="bold">
-              My Savings
-            </Text>
+    <>
+      {open ? (
+        <div
+          aria-hidden="true"
+          className={styles.backdrop}
+          data-testid="sidebar-backdrop"
+          onClick={onClose}
+        />
+      ) : null}
+      <aside data-open={open} className={styles.sidebar}>
+        {/* Sidebar Header */}
+        <Flex className={styles.sidebarHeader} p="4" justify="between" align="center" gap="4">
+          <Link to="/" className={styles.link}>
+            <Button className={styles.sidebarButton} variant="ghost" size="3">
+              <Text size="3" weight="bold">
+                My Savings
+              </Text>
+            </Button>
+          </Link>
+          <IconButton variant="ghost" onClick={onClose}>
+            <Cross1Icon />
+          </IconButton>
+        </Flex>
+        <Separator size="4" />
+        {/* Sidebar Contents */}
+        <Flex className={styles.sidebarContents} align="start" direction="column" gap="4" p="4">
+          {children}
+        </Flex>
+        <Separator size="4" />
+        {/* Sidebar Footer */}
+        <Flex className={styles.sidebarFooter} p="4">
+          <Button color="red" variant="soft" onClick={handleLogout}>
+            Supabaseログアウト（検証用）
           </Button>
-        </Link>
-        <IconButton variant="ghost" onClick={onClose}>
-          <Cross1Icon />
-        </IconButton>
-      </Flex>
-      <Separator size="4" />
-      {/* Sidebar Contents */}
-      <Flex className={styles.sidebarContents} align="start" direction="column" gap="4" p="4">
-        {children}
-      </Flex>
-      <Separator size="4" />
-      {/* Sidebar Footer */}
-      <Flex className={styles.sidebarFooter} p="4">
-        <Button color="red" variant="soft" onClick={handleLogout}>
-          Supabaseログアウト（検証用）
-        </Button>
-      </Flex>
-    </aside>
+        </Flex>
+      </aside>
+    </>
   )
 }
