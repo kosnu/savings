@@ -18,8 +18,13 @@ export const PaymentList = memo(function PaymentList() {
   const navigate = useNavigate({ from: "/payments" })
   const { promise: promisePayments } = usePayments({ categoryId })
   const { promise: promiseCategories } = useCategories()
-  const { selectedPaymentId, openPaymentDetails, closePaymentDetails, onOpenChange } =
-    usePaymentDetailsState()
+  const {
+    hasPaymentDetailsRoute,
+    selectedPaymentId,
+    openPaymentDetails,
+    closePaymentDetails,
+    onOpenChange,
+  } = usePaymentDetailsState()
   const [paymentPendingDelete, setPaymentPendingDelete] = useState<Payment | null>(null)
 
   const handleDeleteIntent = useCallback((payment: Payment) => {
@@ -56,7 +61,7 @@ export const PaymentList = memo(function PaymentList() {
         </Suspense>
       </Flex>
       <PaymentDetailsOverlay
-        open={selectedPaymentId !== null}
+        open={hasPaymentDetailsRoute}
         paymentId={selectedPaymentId}
         onOpenChange={onOpenChange}
         onDelete={handleDeleteIntent}
