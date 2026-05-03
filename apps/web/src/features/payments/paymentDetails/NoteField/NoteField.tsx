@@ -12,7 +12,9 @@ import {
 
 import { useSnackbar } from "../../../../providers/snackbar"
 import type { PaymentId } from "../../../../types/payment"
+import { getZodErrorMessages } from "../../../../utils/getZodErrorMessages"
 import { NoteInput } from "../../components/NoteInput"
+import { noteFieldSchema } from "../../paymentFormSchema"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 import { SubmitIconButton } from "../SubmitIconButton"
@@ -87,11 +89,18 @@ export function NoteField({
       return
     }
 
+    const result = noteFieldSchema.safeParse(draftNote)
+
+    if (!result.success) {
+      setMessages(getZodErrorMessages(result.error))
+      return
+    }
+
     try {
       setMessages(undefined)
       await updatePayment({
         paymentId,
-        patch: { note: draftNote },
+        patch: { note: result.data },
       })
       editingRef.current = false
       setEditing(false)

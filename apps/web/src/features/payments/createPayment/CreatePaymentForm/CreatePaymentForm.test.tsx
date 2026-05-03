@@ -6,6 +6,7 @@ import { createCategoryHandlers } from "../../../../test/msw/handlers/categories
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
+import { PAYMENT_NOTE_MAX_LENGTH } from "../../paymentFormSchema"
 import * as stories from "./CreatePaymentForm.stories"
 
 const { Default } = composeStories(stories)
@@ -65,6 +66,24 @@ describe("CreatePaymentForm", () => {
     await user.click(screen.getByRole("button", { name: /create/i }))
 
     expect(await screen.findByText("Amount cannot be empty")).toBeInTheDocument()
+  })
+
+  test("note が30文字を超えると作成せずにエラーを表示する", async () => {
+    const onSuccess = vi.fn()
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
+    await user.type(
+      screen.getByRole("textbox", { name: /note/i }),
+      "a".repeat(PAYMENT_NOTE_MAX_LENGTH + 1),
+    )
+    await user.click(screen.getByRole("button", { name: /create/i }))
+
+    expect(
+      await screen.findByText(`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`),
+    ).toBeInTheDocument()
+    expect(onSuccess).not.toHaveBeenCalled()
   })
 
   test("category と note が空でも作成できる", async () => {

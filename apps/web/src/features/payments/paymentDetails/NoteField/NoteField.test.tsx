@@ -1,12 +1,15 @@
 import { composeStories } from "@storybook/react-vite"
+import { HttpResponse, http } from "msw"
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import { render, screen, waitFor } from "../../../../test/test-utils"
+import { PAYMENT_NOTE_MAX_LENGTH } from "../../paymentFormSchema"
 import * as stories from "./NoteField.stories"
 
 const { Default, EmptyNote } = composeStories(stories)
+const PAYMENTS_REST_URL = "*/rest/v1/payments*"
 
 describe("PaymentDetails NoteField", () => {
   beforeEach(() => {
@@ -46,6 +49,33 @@ describe("PaymentDetails NoteField", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox", { name: /note/i })).not.toBeInTheDocument()
     })
+  })
+
+  test("30文字を超えるノートは保存せずにエラーを表示する", async () => {
+    let updateRequested = false
+
+    server.resetHandlers(
+      http.patch(PAYMENTS_REST_URL, () => {
+        updateRequested = true
+        return HttpResponse.json({ message: "Updated" })
+      }),
+    )
+
+    const { user } = render(<Default />)
+
+    await user.click(screen.getByRole("button", { name: /edit note/i }))
+    const noteInput = screen.getByRole("textbox", { name: /note/i })
+    await user.clear(noteInput)
+    await user.type(noteInput, "a".repeat(PAYMENT_NOTE_MAX_LENGTH + 1))
+    await user.click(screen.getByRole("button", { name: /save note/i }))
+
+    expect(
+      await screen.findByText(`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`, {
+        selector: "span",
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("textbox", { name: /note/i })).toBeInTheDocument()
+    expect(updateRequested).toBe(false)
   })
 
   test("編集中の Escape は編集だけ解除する", async () => {

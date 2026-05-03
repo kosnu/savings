@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vite-plus/test"
 import z from "zod"
 
-import { paymentFormSchema, paymentFormSubmitSchema } from "../paymentFormSchema"
+import {
+  PAYMENT_NOTE_MAX_LENGTH,
+  paymentFormSchema,
+  paymentFormSubmitSchema,
+} from "../paymentFormSchema"
 
 describe("paymentFormSchema", () => {
   const data = {
@@ -40,6 +44,26 @@ describe("paymentFormSchema", () => {
     const result = paymentFormSchema.safeParse({ ...data, note: "" })
     expect(result.success).toBe(true)
     expect(result.data?.note).toBe("")
+  })
+
+  test("should allow note with max length", () => {
+    const note = "a".repeat(PAYMENT_NOTE_MAX_LENGTH)
+    const result = paymentFormSchema.safeParse({ ...data, note })
+
+    expect(result.success).toBe(true)
+    expect(result.data?.note).toBe(note)
+  })
+
+  test("should fail when note exceeds max length", () => {
+    const result = paymentFormSchema.safeParse({
+      ...data,
+      note: "a".repeat(PAYMENT_NOTE_MAX_LENGTH + 1),
+    })
+
+    expect(result.success).toBe(false)
+
+    const error = result.error && z.flattenError(result.error).fieldErrors.note
+    expect(error).toEqual([`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`])
   })
 
   test("should fail when date is iso", () => {
@@ -130,6 +154,18 @@ describe("paymentFormSubmitSchema", () => {
       expect(result.data?.category).toBe("")
       expect(result.data?.note).toBe("")
     }
+  })
+
+  test("should fail when note exceeds max length", () => {
+    const result = paymentFormSubmitSchema.safeParse({
+      ...data,
+      note: "a".repeat(PAYMENT_NOTE_MAX_LENGTH + 1),
+    })
+
+    expect(result.success).toBe(false)
+
+    const error = result.error && z.flattenError(result.error).fieldErrors.note
+    expect(error).toEqual([`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`])
   })
 
   test("should fail when amount is empty", () => {
