@@ -148,7 +148,7 @@ describe("CreatePaymentModal", () => {
     const checkbox = within(dialog).getByRole("checkbox", { name: /continue creating/i })
     expect(checkbox).not.toBeChecked()
 
-    await fillAndSubmit(user, dialog, body, "Test payment without continuous mode")
+    await fillAndSubmit(user, dialog, body, "Test payment once")
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)

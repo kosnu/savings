@@ -6,6 +6,7 @@ import {
   toPaymentWriteInsert,
   toPaymentWriteUpdate,
 } from "./paymentFormMappers"
+import { PAYMENT_NOTE_MAX_LENGTH } from "./paymentFormSchema"
 
 function createPaymentFixture(overrides: Partial<Payment> = {}): Payment {
   return {
@@ -81,6 +82,17 @@ describe("toPaymentWriteInsert", () => {
       amount: 0,
     })
   })
+
+  test("30文字を超える note は reject する", () => {
+    expect(() =>
+      toPaymentWriteInsert({
+        date: new Date(2024, 8, 22),
+        categoryId: "",
+        note: "a".repeat(PAYMENT_NOTE_MAX_LENGTH + 1),
+        amount: 0,
+      }),
+    ).toThrow(`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`)
+  })
 })
 
 describe("toPaymentWriteUpdate", () => {
@@ -112,5 +124,13 @@ describe("toPaymentWriteUpdate", () => {
 
   test("空 patch は reject する", () => {
     expect(() => toPaymentWriteUpdate({})).toThrow("Payment update patch cannot be empty")
+  })
+
+  test("30文字を超える note は reject する", () => {
+    expect(() =>
+      toPaymentWriteUpdate({
+        note: "a".repeat(PAYMENT_NOTE_MAX_LENGTH + 1),
+      }),
+    ).toThrow(`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`)
   })
 })
