@@ -68,6 +68,11 @@ const paymentsRoute = createRoute({
   validateSearch: paymentsSearchSchema,
 })
 
+const paymentDetailsRoute = createRoute({
+  getParentRoute: () => paymentsRoute,
+  path: "details/$paymentId",
+})
+
 const aggregatesRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/aggregates",
@@ -90,7 +95,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
   authenticatedRoute.addChildren([
-    paymentsRoute,
+    paymentsRoute.addChildren([paymentDetailsRoute]),
     aggregatesRoute,
     settingsRoute.addChildren([settingsBudgetsRoute]),
   ]),

@@ -85,7 +85,12 @@ function renderPaymentsPageRoute(initialEntry: string) {
         validateSearch: paymentsSearchSchema,
       })
 
-      return [authenticatedRoute.addChildren([paymentsRoute])]
+      const paymentDetailsRoute = createRoute({
+        getParentRoute: () => paymentsRoute,
+        path: "details/$paymentId",
+      })
+
+      return [authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])])]
     },
     { queryClient },
   )
@@ -330,6 +335,22 @@ describe("PaymentsPage", () => {
         month: "6",
       })
       expect(lastRequest(requests)?.searchParams.has("category_id")).toBe(false)
+    })
+  })
+
+  test("詳細URLを直接開いて閉じると一覧条件を維持して一覧URLへ戻る", async () => {
+    const { router, user } = renderPaymentsPageRoute(
+      "/payments/details/2?year=2025&month=6&category=20",
+    )
+
+    const detailDialog = await screen.findByRole("dialog", { name: /payment details/i })
+    expect(await within(detailDialog).findByText("Daily Necessities")).toBeInTheDocument()
+
+    await user.click(within(detailDialog).getByRole("button", { name: /close payment details/i }))
+
+    await waitFor(() => {
+      expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=20")
+      expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
     })
   })
 
