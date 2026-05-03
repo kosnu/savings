@@ -1,3 +1,10 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  background: transparent;
+}
+
 /* Sidebarのスタイル */
 .sidebar {
   /* サイドバーを浮かすためにposition: absoluteを設定 */

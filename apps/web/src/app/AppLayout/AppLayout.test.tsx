@@ -34,8 +34,18 @@ describe("AppLayout", () => {
     window.localStorage.clear()
   })
 
+  test("初期表示では Sidebar を閉じた状態にする", async () => {
+    renderAppLayout()
+
+    expect(await screen.findByRole("complementary")).toHaveAttribute("data-open", "false")
+    expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
+  })
+
   test("Sidebar に Payments と Settings への導線を表示する", async () => {
     const { router, user } = renderAppLayout()
+
+    await user.click(await screen.findByLabelText("Menu button"))
+    expect(await screen.findByRole("complementary")).toHaveAttribute("data-open", "true")
 
     expect(
       await screen.findByRole("link", { name: "Navigate to Payments page" }),
