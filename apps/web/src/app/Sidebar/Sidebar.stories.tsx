@@ -4,7 +4,7 @@ import { fn } from "storybook/test"
 import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Sidebar } from "./Sidebar"
 
-const meta = {
+const meta: Meta<typeof Sidebar> = {
   title: "Shared/Sidebar/Sidebar",
   component: Sidebar,
   parameters: {
@@ -18,7 +18,7 @@ const meta = {
   args: {
     onClose: fn(),
   },
-} satisfies Meta<typeof Sidebar>
+}
 
 export default meta
 type Story = StoryObj<typeof meta>
