@@ -1,4 +1,4 @@
-import { Button, Flex, Separator } from "@radix-ui/themes"
+import { Button, Flex, Separator, Skeleton, Text } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
@@ -62,7 +62,9 @@ export function PaymentDetailsOverlay({
       title="Payment details"
       description={description}
     >
-      {hasPayment ? (
+      {isLoading ? (
+        <PaymentDetailsLoading />
+      ) : hasPayment ? (
         <Flex direction="column" gap="4">
           <Flex direction="column" gap="4">
             <PaymentDateField
@@ -108,6 +110,32 @@ export function PaymentDetailsOverlay({
         </Flex>
       ) : null}
     </ResponsiveOverlay>
+  )
+}
+
+function PaymentDetailsLoading() {
+  return (
+    <Flex aria-label="loading payment details" direction="column" gap="4">
+      <LoadingField label="Date" />
+      <LoadingField label="Category" />
+      <LoadingField label="Note" />
+      <LoadingField label="Amount" />
+    </Flex>
+  )
+}
+
+function LoadingField({ label }: { label: string }) {
+  return (
+    <Flex direction="column" gap="2">
+      <Text as="p" size="2" weight="bold">
+        {label}
+      </Text>
+      <Skeleton loading>
+        <Text aria-hidden size="4">
+          Loading payment details
+        </Text>
+      </Skeleton>
+    </Flex>
   )
 }
 
