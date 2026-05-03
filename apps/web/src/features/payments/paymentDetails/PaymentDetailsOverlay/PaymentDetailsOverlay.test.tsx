@@ -12,7 +12,7 @@ import { render, screen, waitFor, within } from "../../../../test/test-utils"
 import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
 import * as stories from "./PaymentDetailsOverlay.stories"
 
-const { Default, EmptyNote, FetchError, MissingPayment } = composeStories(stories)
+const { Default, EmptyNote, FetchError, Loading, MissingPayment } = composeStories(stories)
 
 describe("PaymentDetailsOverlay", () => {
   beforeEach(() => {
@@ -48,6 +48,27 @@ describe("PaymentDetailsOverlay", () => {
     expect(await within(dialog).findByText("No note")).toBeInTheDocument()
     expect(await within(dialog).findAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
     expect(await within(dialog).findByRole("button", { name: /delete/i })).toBeInTheDocument()
+  })
+
+  test("Loading story では詳細領域にスケルトンを表示して操作導線を出さない", async () => {
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        get: { durationOrMode: 1000 },
+      }),
+      ...categoryHandlers,
+    )
+
+    render(<Loading />)
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+
+    expect(await within(dialog).findByLabelText("loading payment details")).toBeInTheDocument()
+    expect(await within(dialog).findAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
+    expect(within(dialog).queryByRole("button", { name: /delete/i })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole("button", { name: /edit date/i })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole("button", { name: /edit category/i })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole("button", { name: /edit note/i })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole("button", { name: /edit amount/i })).not.toBeInTheDocument()
   })
 
   test("編集中の Escape はオーバーレイを閉じずに編集だけ解除する", async () => {
