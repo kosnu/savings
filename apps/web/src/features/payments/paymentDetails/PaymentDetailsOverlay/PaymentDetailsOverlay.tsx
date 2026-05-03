@@ -127,11 +127,13 @@ function PaymentDetailsLoading() {
 function LoadingField({ label }: { label: string }) {
   return (
     <Flex direction="column" gap="2">
-      <Text as="label" size="2" weight="bold">
+      <Text as="p" size="2" weight="bold">
         {label}
       </Text>
       <Skeleton loading>
-        <Text size="4">Loading payment details</Text>
+        <Text aria-hidden size="4">
+          Loading payment details
+        </Text>
       </Skeleton>
     </Flex>
   )
