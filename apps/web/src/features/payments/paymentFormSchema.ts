@@ -1,5 +1,7 @@
 import * as z from "zod"
 
+export const PAYMENT_NOTE_MAX_LENGTH = 30
+
 export const categoryFieldSchema = z.string()
 
 export const dateFieldSchema = z.date({
@@ -11,7 +13,9 @@ export const dateFieldSchema = z.date({
   },
 })
 
-export const noteFieldSchema = z.string()
+export const noteFieldSchema = z
+  .string()
+  .max(PAYMENT_NOTE_MAX_LENGTH, `Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`)
 
 export const amountFieldSchema = z
   .number({
