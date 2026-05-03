@@ -2,7 +2,7 @@ import { format } from "date-fns"
 
 import type { TablesInsert, TablesUpdate } from "../../types/database.types"
 import type { Payment } from "../../types/payment"
-import type { PaymentFormValues } from "./paymentFormSchema"
+import { noteFieldSchema, type PaymentFormValues } from "./paymentFormSchema"
 
 type PaymentInsert = Omit<TablesInsert<"payments">, "user_id">
 type PaymentUpdate = Omit<TablesUpdate<"payments">, "user_id" | "id" | "created_at" | "updated_at">
@@ -31,10 +31,12 @@ export function mapPaymentToFormValues(payment: Payment): PaymentFormValues {
 }
 
 export function toPaymentWriteInsert(value: PaymentWriteInput): PaymentInsert {
+  const note = validatePaymentNote(value.note)
+
   return {
     amount: value.amount,
     date: format(value.date, "yyyy-MM-dd"),
-    note: value.note === "" ? null : (value.note ?? null),
+    note: note === "" ? null : (note ?? null),
     category_id: toCategoryId(value.categoryId),
   }
 }
@@ -55,7 +57,8 @@ export function toPaymentWriteUpdate(patch: PaymentUpdatePatch): PaymentUpdate {
     updatePayload.date = format(patch.date, "yyyy-MM-dd")
   }
   if (patch.note !== undefined) {
-    updatePayload.note = patch.note || null
+    const note = validatePaymentNote(patch.note)
+    updatePayload.note = note === "" ? null : note
   }
   if (patch.categoryId !== undefined) {
     updatePayload.category_id = toCategoryId(patch.categoryId)
@@ -68,4 +71,10 @@ function toCategoryId(categoryId?: string): number | null {
   if (!categoryId) return null
   const parsed = Number(categoryId)
   return Number.isNaN(parsed) ? null : parsed
+}
+
+function validatePaymentNote(note?: string): string | undefined {
+  if (note === undefined) return undefined
+
+  return noteFieldSchema.parse(note)
 }
