@@ -34,6 +34,16 @@ export interface TestRenderOptions extends Omit<RenderOptions, "wrapper">, TestP
 export interface TestRenderHookOptions<Props>
   extends Omit<RenderHookOptions<Props>, "wrapper">, TestProviderOptions {}
 
+export function createTestQueryClient() {
+  return createQueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  })
+}
+
 function createDefaultSessionState(): SupabaseSessionState {
   return {
     status: "authenticated",
@@ -71,7 +81,7 @@ function createWrapper({
     }
   }
 
-  const resolvedQueryClient = queryClient ?? createQueryClient()
+  const resolvedQueryClient = queryClient ?? createTestQueryClient()
   const resolvedSessionState = sessionState ?? createDefaultSessionState()
 
   return function Wrapper({ children }: PropsWithChildren) {

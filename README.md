@@ -34,4 +34,4 @@
 
 このリポジトリは `pnpm workspace` を使用します。依存関係のインストールは、この README があるリポジトリルートで `pnpm install` を実行します。
 
-タスク実行には go-task（`task` コマンド）が必要です。インストール方法は公式ドキュメント（https://taskfile.dev）を参照してください。
+各アプリの操作は pnpm workspace scripts から実行します。フロントエンドの検証はリポジトリルートで `pnpm run web:lint`、`pnpm run web:format-check`、`pnpm run web:typecheck`、`pnpm run web:test` を実行します。

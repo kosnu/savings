@@ -5,7 +5,8 @@ import { describe, expect, test, vi } from "vite-plus/test"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createCategoryBudgetHandlers } from "../../../../test/msw/handlers/categoryBudgets"
 import { server } from "../../../../test/msw/server"
-import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
+import { act, render, screen, waitFor } from "../../../../test/test-utils"
+import { fillCreateCategoryBudgetForm } from "../../test/utils/budgetCreationForm"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../categoryBudgetCreateError"
 import * as stories from "./CreateCategoryBudgetForm.stories"
 
@@ -47,9 +48,13 @@ describe("CreateCategoryBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectCategory(user, "Food")
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "50000")
+    await fillCreateCategoryBudgetForm({
+      user,
+      categoryName: "Food",
+      year: "2026",
+      month: "3",
+      amount: "50000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -78,9 +83,13 @@ describe("CreateCategoryBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectCategory(user, "Food")
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "50000")
+    await fillCreateCategoryBudgetForm({
+      user,
+      categoryName: "Food",
+      year: "2026",
+      month: "3",
+      amount: "50000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -116,9 +125,13 @@ describe("CreateCategoryBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await selectCategory(user, "Food")
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "50000")
+    await fillCreateCategoryBudgetForm({
+      user,
+      categoryName: "Food",
+      year: "2026",
+      month: "3",
+      amount: "50000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -151,9 +164,13 @@ describe("CreateCategoryBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectCategory(user, "Food")
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "50000")
+    await fillCreateCategoryBudgetForm({
+      user,
+      categoryName: "Food",
+      year: "2026",
+      month: "3",
+      amount: "50000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -163,20 +180,3 @@ describe("CreateCategoryBudgetForm", () => {
     expect(onSuccess).not.toHaveBeenCalled()
   })
 })
-
-async function selectCategory(user: ReturnType<typeof render>["user"], name: string) {
-  await user.click(await screen.findByRole("combobox", { name: /category/i }))
-  const listbox = await screen.findByRole("listbox")
-  await waitFor(() => {
-    expect(within(listbox).queryByRole("option", { name: /loading/i })).not.toBeInTheDocument()
-  })
-  await user.click(await within(listbox).findByRole("option", { name }))
-}
-
-async function selectMonth(year: string, month: string, user: ReturnType<typeof render>["user"]) {
-  await user.click(screen.getByRole("combobox", { name: "Year" }))
-  await user.click(await screen.findByRole("option", { name: year }))
-
-  await user.click(screen.getByRole("combobox", { name: "Month" }))
-  await user.click(await screen.findByRole("option", { name: month }))
-}

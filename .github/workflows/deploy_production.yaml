@@ -61,7 +61,7 @@ jobs:
       - name: Install deps and build
         run: |
           pnpm install --frozen-lockfile
-          pnpm --filter web build
+          pnpm run web:build
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}

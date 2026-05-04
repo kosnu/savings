@@ -52,12 +52,9 @@ describe("useCategoryBudgets", () => {
 
     const { result } = renderHook(() => useCategoryBudgets())
 
-    await waitFor(
-      () => {
-        expect(result.current.error).toBe(error)
-      },
-      { timeout: 3000 },
-    )
+    await waitFor(() => {
+      expect(result.current.error).toBe(error)
+    })
     expect(result.current.data).toEqual([])
     expect(result.current.loading).toBe(false)
   })

@@ -59,9 +59,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<FetchError />)
 
-    expect(await screen.findByRole("status", {}, { timeout: 3000 })).toHaveTextContent(
-      "Could not get the budget",
-    )
+    expect(await screen.findByRole("status")).toHaveTextContent("Could not get the budget")
   })
 
   test("読み込み中はスケルトンを表示する", async () => {
