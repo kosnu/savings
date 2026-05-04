@@ -12,14 +12,14 @@ topics:
 when_to_read:
   - Storybookのブラウザテスト対象を変更するとき
   - Page storyを追加または変更するとき
-  - task web:test-storybookの対象範囲を確認するとき
+  - pnpm run web:testのStorybook対象範囲を確認するとき
 ---
 
 # Storybook Browser Tests
 
 Storybook のブラウザテストは opt-in で運用します。
 
-`task web:test-storybook` は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
+`pnpm run web:test` の Storybook project は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
 
 ブラウザ実行はコストが高いため、Storybook 上の全 story を網羅するのではなく、ページ単位または統合境界をまたぐ story に絞ります。
 
@@ -50,4 +50,4 @@ const meta = {
 
 Page 以外の story に `browser-test` を付ける場合は、ブラウザテスト対象にする理由が story の責務から読み取れるようにしてください。
 
-通常の Storybook は `apps/web/.storybook/` を使い、カタログ用途として全 story を読み込みます。`apps/web/.storybook-test/` は `task web:test-storybook` 専用で、テスト実行時の読み込み負荷を抑えるために Page story へ限定します。
+通常の Storybook は `apps/web/.storybook/` を使い、カタログ用途として全 story を読み込みます。`apps/web/.storybook-test/` は Storybook test project 専用で、テスト実行時の読み込み負荷を抑えるために Page story へ限定します。

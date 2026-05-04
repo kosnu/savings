@@ -50,7 +50,7 @@ pnpm install
 Vite 開発サーバーを起動します。
 
 ```bash
-task dev
+pnpm dev
 ```
 
 起動後、ブラウザで表示されるローカルホストの URL にアクセスします（通常は `http://localhost:5173` 等）。
@@ -60,7 +60,7 @@ task dev
 コンポーネントの開発には Storybook を利用しています。Storybook を起動するには：
 
 ```bash
-task storybook -- --no-open
+pnpm storybook -- --no-open
 ```
 
 ## テスト
@@ -68,14 +68,15 @@ task storybook -- --no-open
 ユニット / コンポーネントテストは Vitest で実行します。
 
 ```bash
-task test
+pnpm test
 ```
 
 個別に実行したい場合:
 
 ```bash
-task test-unit
-task test-storybook
+pnpm test:unit
+pnpm test:integration
+pnpm test:storybook
 ```
 
 E2E テストや Playwright が設定されている場合は、CI 設定や `package.json` のスクリプトを参照してください。
@@ -85,25 +86,22 @@ E2E テストや Playwright が設定されている場合は、CI 設定や `pa
 Oxc（`oxlint` / `oxfmt`）で lint / format を管理しています。実行例：
 
 ```bash
-task lint
-task format
-task format-check
-task typecheck
 pnpm lint
 pnpm format
+pnpm format --check
+pnpm typecheck
 ```
 
-検証は個別コマンドを順に実行します。
+リポジトリルートから検証する場合は、次のコマンドを順に実行します。
 
 ```bash
-task lint
-task format-check
-task typecheck
-task test-unit
-task test-storybook
+pnpm run web:lint
+pnpm run web:format-check
+pnpm run web:typecheck
+pnpm run web:test
 ```
 
-型チェックは `task typecheck` で明示的に実行できます。`task build` でも `tsc -b` を通るため、ビルド時にも型チェックされます。
+型チェックは `pnpm typecheck` で明示的に実行できます。`pnpm build` でも `tsc -b` を通るため、ビルド時にも型チェックされます。
 `pnpm typecheck` を直接実行しても同じチェックが走ります。
 
 ## Supabase ローカル開発（Auth / DB を使う場合）
@@ -113,11 +111,11 @@ task test-storybook
 ```bash
 # apps/api/ で Supabase を起動
 cd ../api
-task up
+pnpm up
 
 # その後、apps/web から通常通り起動
 cd ../web
-task dev
+pnpm dev
 ```
 
 ## ビルド & デプロイ
@@ -125,7 +123,7 @@ task dev
 プロダクション用ビルドを作成します。
 
 ```bash
-task build
+pnpm build
 ```
 
 Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy_production.yaml`) を参照してください。手動デプロイは Wrangler CLI を利用します。

@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - ".github/workflows/frontend_ci.yaml"
+      - ".github/actions/setup-playwright/action.yaml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
       - "apps/web/**"
     types: [opened, synchronize]
 
@@ -29,10 +33,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Oxc lint
-        run: pnpm --filter web lint --deny-warnings
+        run: pnpm run web:lint
 
       - name: Oxc format check
-        run: pnpm --filter web format --check
+        run: pnpm run web:format-check
 
   typecheck:
     runs-on: ubuntu-latest
@@ -55,7 +59,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: pnpm --filter web typecheck
+        run: pnpm run web:typecheck
 
   unit-test:
     name: unit-test (${{ matrix.shard }})
@@ -82,7 +86,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Unit and integration tests
-        run: pnpm --filter web test:unit --shard=${{ matrix.shard }} --reporter=dot --silent
+        run: pnpm --filter web exec vp test run --project unit --project integration --shard=${{ matrix.shard }} --reporter=dot --silent
         env:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
 

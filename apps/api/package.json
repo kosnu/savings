@@ -11,6 +11,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "up": "supabase start",
+    "down": "supabase stop",
+    "migrations:up": "supabase migration up",
+    "migrations:down": "supabase migration down",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
