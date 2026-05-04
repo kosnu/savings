@@ -13,8 +13,6 @@ export default defineConfig({
   },
   test: {
     globalSetup: ["./src/test/globalSetup.ts"],
-    environment: "jsdom",
-    setupFiles: ["./vitest.setup.ts"],
     fakeTimers: {
       toFake: [
         "setTimeout",
@@ -30,9 +28,20 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: "unit/integration",
-          include: ["**/*.test.ts(|x)"],
-          setupFiles: ["./vitest.setup.ts", "./vitest.msw.setup.ts"],
+          name: "unit",
+          environment: "node",
+          include: ["src/**/*.test.ts"],
+          exclude: ["src/**/*.test.tsx", "src/**/*.integration.test.ts"],
+          setupFiles: ["./vitest.shared.setup.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "integration",
+          environment: "jsdom",
+          include: ["src/**/*.test.tsx", "src/**/*.integration.test.ts"],
+          setupFiles: ["./vitest.shared.setup.ts", "./vitest.setup.ts", "./vitest.msw.setup.ts"],
         },
       },
       {
