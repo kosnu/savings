@@ -4,6 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor, within } from "../../../../test/test-utils"
+import { fillCreateMonthlyBudgetForm } from "../../test/utils/budgetCreationForm"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../monthlyBudgetCreateError"
 import * as stories from "./CreateMonthlyBudgetModal.stories"
 
@@ -34,18 +35,6 @@ async function openCreateMonthlyBudgetModal() {
   })
 
   return await screen.findByRole("dialog", { name: "Create monthly budget" })
-}
-
-async function selectMonth(
-  user: ReturnType<typeof render>["user"],
-  dialog: HTMLElement,
-  body: ReturnType<typeof within>,
-) {
-  await user.click(within(dialog).getByRole("combobox", { name: "Year" }))
-  await user.click(await body.findByRole("option", { name: "2026" }))
-
-  await user.click(within(dialog).getByRole("combobox", { name: "Month" }))
-  await user.click(await body.findByRole("option", { name: "3" }))
 }
 
 describe("CreateMonthlyBudgetModal", () => {
@@ -81,8 +70,14 @@ describe("CreateMonthlyBudgetModal", () => {
     const body = within(baseElement)
     const dialog = await openCreateMonthlyBudgetModal()
 
-    await selectMonth(user, dialog, body)
-    await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "300000")
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: "2026",
+      month: "3",
+      amount: "300000",
+      fieldScope: within(dialog),
+      optionScope: body,
+    })
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -103,8 +98,14 @@ describe("CreateMonthlyBudgetModal", () => {
     const body = within(baseElement)
     const dialog = await openCreateMonthlyBudgetModal()
 
-    await selectMonth(user, dialog, body)
-    await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "300000")
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: "2026",
+      month: "3",
+      amount: "300000",
+      fieldScope: within(dialog),
+      optionScope: body,
+    })
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -133,8 +134,14 @@ describe("CreateMonthlyBudgetModal", () => {
     const body = within(baseElement)
     const dialog = await openCreateMonthlyBudgetModal()
 
-    await selectMonth(user, dialog, body)
-    await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "300000")
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: "2026",
+      month: "3",
+      amount: "300000",
+      fieldScope: within(dialog),
+      optionScope: body,
+    })
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     expect(
