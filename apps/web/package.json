@@ -16,8 +16,7 @@
     "test:storybook": "vp test run --project storybook",
     "test-watch": "vp test watch",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "plop": "plop"
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "1.2.12",
@@ -62,7 +61,6 @@
     "msw": "2.13.6",
     "msw-storybook-addon": "2.0.7",
     "playwright": "1.59.1",
-    "plop": "4.0.5",
     "storybook": "10.3.5",
     "storybook-addon-mock-date": "2.0.0",
     "typescript": "6.0.3",
