@@ -3,12 +3,11 @@ import { createRoute } from "@tanstack/react-router"
 import { HttpResponse, http } from "msw"
 import { describe, expect, test } from "vite-plus/test"
 
-import { createQueryClient } from "../../../../lib/queryClient"
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor, within } from "../../../../test/test-utils"
+import { createTestQueryClient, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentList } from "./PaymentList"
 import * as stories from "./PaymentList.stories"
@@ -16,7 +15,7 @@ import * as stories from "./PaymentList.stories"
 const { Default, Loading } = composeStories(stories)
 
 function renderStory() {
-  const queryClient = createQueryClient()
+  const queryClient = createTestQueryClient()
 
   return render(<Default />, { queryClient })
 }
@@ -44,7 +43,7 @@ function renderPaymentList(initialEntry: string) {
 
       return [authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])])]
     },
-    { queryClient: createQueryClient() },
+    { queryClient: createTestQueryClient() },
   )
 }
 

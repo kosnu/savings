@@ -81,8 +81,6 @@ describe("MonthlyTotals", () => {
     renderStory()
 
     expect(await screen.findByText("￥10,000")).toBeInTheDocument()
-    expect(
-      await screen.findByText("Could not get the budget", {}, { timeout: 3000 }),
-    ).toBeInTheDocument()
+    expect(await screen.findByText("Could not get the budget")).toBeInTheDocument()
   })
 })
