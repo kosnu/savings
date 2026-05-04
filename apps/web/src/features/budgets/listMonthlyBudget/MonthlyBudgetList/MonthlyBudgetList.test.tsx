@@ -71,8 +71,6 @@ describe("MonthlyBudgetList", () => {
 
     await renderMonthlyBudgetList()
 
-    expect(
-      await screen.findByText("Could not load monthly budgets.", {}, { timeout: 3000 }),
-    ).toBeInTheDocument()
+    expect(await screen.findByText("Could not load monthly budgets.")).toBeInTheDocument()
   })
 })

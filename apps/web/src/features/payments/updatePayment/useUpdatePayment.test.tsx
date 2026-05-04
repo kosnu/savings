@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import { createQueryClient } from "../../../lib/queryClient"
-import { act, renderHook, waitFor } from "../../../test/test-utils"
+import { act, createTestQueryClient, renderHook, waitFor } from "../../../test/test-utils"
 import { useUpdatePayment } from "./useUpdatePayment"
 
 const { mockUpdatePayment } = vi.hoisted(() => ({
@@ -18,7 +17,7 @@ describe("useUpdatePayment", () => {
   })
 
   it("成功時に関連queryをinvalidateしてonSuccessを呼ぶ", async () => {
-    const queryClient = createQueryClient()
+    const queryClient = createTestQueryClient()
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
@@ -51,7 +50,7 @@ describe("useUpdatePayment", () => {
   })
 
   it("失敗時にonErrorを呼んでエラーをrethrowする", async () => {
-    const queryClient = createQueryClient()
+    const queryClient = createTestQueryClient()
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
@@ -81,7 +80,7 @@ describe("useUpdatePayment", () => {
   })
 
   it("プレーンオブジェクトのエラーもonErrorへそのまま渡す", async () => {
-    const queryClient = createQueryClient()
+    const queryClient = createTestQueryClient()
     const onSuccess = vi.fn()
     const onError = vi.fn()
     const error = { message: "failed", code: "PGRST301" }
