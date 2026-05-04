@@ -2,6 +2,17 @@
   "name": "savings-workspace",
   "private": true,
   "scripts": {
+    "api:down": "pnpm --filter api down",
+    "api:migrations:down": "pnpm --filter api migrations:down",
+    "api:up": "pnpm --filter api up",
+    "api:migrations:up": "pnpm --filter api migrations:up",
+    "web:build": "pnpm --filter web build",
+    "web:dev": "pnpm --filter web dev",
+    "web:format": "pnpm --filter web format",
+    "web:format-check": "pnpm --filter web format --check",
+    "web:lint": "pnpm --filter web lint --deny-warnings",
+    "web:test": "pnpm --filter web test --reporter=dot",
+    "web:typecheck": "pnpm --filter web typecheck",
     "prepare": "vp config"
   },
   "dependencies": {
