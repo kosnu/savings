@@ -4,6 +4,7 @@ import { describe, expect, test, vi } from "vite-plus/test"
 
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor } from "../../../../test/test-utils"
+import { fillCreateMonthlyBudgetForm, selectBudgetMonth } from "../../test/utils/budgetCreationForm"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../monthlyBudgetCreateError"
 import * as stories from "./CreateMonthlyBudgetForm.stories"
 
@@ -14,14 +15,6 @@ async function renderStory(story: React.ReactElement) {
   return await act(async () => {
     return render(story)
   })
-}
-
-async function selectMonth(year: string, month: string, user: ReturnType<typeof render>["user"]) {
-  await user.click(screen.getByRole("combobox", { name: "Year" }))
-  await user.click(await screen.findByRole("option", { name: year }))
-
-  await user.click(screen.getByRole("combobox", { name: "Month" }))
-  await user.click(await screen.findByRole("option", { name: month }))
 }
 
 describe("CreateMonthlyBudgetForm", () => {
@@ -57,8 +50,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "300000")
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -90,8 +82,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "300000")
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -113,8 +104,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "300000")
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -149,8 +139,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await selectMonth("2026", "3", user)
-    await user.type(screen.getByRole("textbox", { name: /amount/i }), "300000")
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -188,7 +177,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectMonth("2026", "3", user)
+    await selectBudgetMonth({ user, year: "2026", month: "3" })
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
     await user.type(amountInput, "300000")
     await user.click(screen.getByRole("button", { name: "Create" }))
