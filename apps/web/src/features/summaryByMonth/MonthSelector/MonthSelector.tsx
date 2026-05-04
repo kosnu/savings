@@ -1,8 +1,7 @@
 import { useLocation, useNavigate } from "@tanstack/react-router"
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
-import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 
 export function MonthSelector() {
   const yearParam = useLocation({
@@ -12,7 +11,6 @@ export function MonthSelector() {
     select: (location) => location.search.month,
   })
   const navigate = useNavigate({ from: "/payments" })
-  const { session } = useSupabaseSession()
 
   // 現在選択されている年月、またはnullの場合は今月
   const currentDate =
@@ -33,22 +31,6 @@ export function MonthSelector() {
     },
     [navigate],
   )
-
-  // デフォルトで今月を設定する（クエリパラメータがない場合）
-  useEffect(() => {
-    // NOTE: セッションがない場合はリダイレクト処理を行わないようにしないと、その後のセッション取得で null になってしまう
-    if (!session) return
-    if (!yearParam || !monthParam) {
-      const now = new Date()
-      const year = now.getFullYear().toString()
-      const month = (now.getMonth() + 1).toString()
-      void navigate({
-        to: "/payments",
-        search: (prev) => ({ ...prev, year, month }),
-        replace: true,
-      })
-    }
-  }, [session, yearParam, monthParam, navigate])
 
   return <MonthPicker value={currentDate ?? undefined} onChange={handleMonthChange} />
 }

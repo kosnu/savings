@@ -42,6 +42,7 @@ const initialPaymentRows = payments.map(mapPaymentToRow)
 const initialCurrentMonthPaymentRows = initialPaymentRows.filter((payment) =>
   payment.date.startsWith("2025-06-"),
 )
+const currentMonthPaymentsQueryDate = new Date(2025, 5, 1).toISOString()
 const uncategorizedPayment = mapPaymentToRow({
   ...payments[0],
   id: 1000,
@@ -69,6 +70,21 @@ function renderStory() {
 function renderPaymentsPageRoute(initialEntry: string) {
   const queryClient = createQueryClient()
   queryClient.setQueryData(["categories"], categories)
+  queryClient.setQueryData(
+    ["payments", currentMonthPaymentsQueryDate, `category-${foodCat.id}`],
+    initialCurrentMonthPaymentRows.filter((payment) => payment.category_id === foodCat.id),
+    { updatedAt: 0 },
+  )
+  queryClient.setQueryData(
+    ["payments", currentMonthPaymentsQueryDate, `category-${entertainmentCat.id}`],
+    [],
+    { updatedAt: 0 },
+  )
+  queryClient.setQueryData(
+    ["payments", currentMonthPaymentsQueryDate, "uncategorized"],
+    [uncategorizedPayment],
+    { updatedAt: 0 },
+  )
 
   const view = renderWithRouter(
     initialEntry,
