@@ -28,7 +28,9 @@ tasks:
     cmd: pnpm typecheck
   test-unit:
     desc: Run unit and integration tests
-    cmd: pnpm test:unit --reporter=dot {{.CLI_ARGS}}
+    cmds:
+      - pnpm test:unit --reporter=dot {{.CLI_ARGS}}
+      - pnpm test:integration --reporter=dot {{.CLI_ARGS}}
   test-storybook:
     desc: Run Storybook interaction tests
     cmd: pnpm test:storybook --reporter=dot {{.CLI_ARGS}}
