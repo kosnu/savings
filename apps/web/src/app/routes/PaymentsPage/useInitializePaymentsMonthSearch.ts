@@ -28,8 +28,12 @@ export function useInitializePaymentsMonthSearch() {
     const month = (now.getMonth() + 1).toString()
 
     void navigate({
-      to: "/payments",
-      search: (prev) => ({ ...prev, year, month }),
+      to: pathname,
+      search: (prev) => ({
+        ...prev,
+        year: prev.year ?? year,
+        month: prev.month ?? month,
+      }),
       replace: true,
     })
   }, [session, yearParam, monthParam, navigate, pathname])

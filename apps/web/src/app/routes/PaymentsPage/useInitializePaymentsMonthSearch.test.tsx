@@ -38,6 +38,10 @@ function renderUseInitializePaymentsMonthSearch(location: TestLocation) {
   renderHook(() => useInitializePaymentsMonthSearch())
 }
 
+async function waitForEffectTick() {
+  await new Promise((resolve) => setTimeout(resolve, 0))
+}
+
 describe("useInitializePaymentsMonthSearch", () => {
   beforeEach(() => {
     locationState.pathname = "/payments"
@@ -89,15 +93,69 @@ describe("useInitializePaymentsMonthSearch", () => {
     })
   })
 
+  test("Payments 詳細 route では pathname を維持して年月 search を初期化する", async () => {
+    renderUseInitializePaymentsMonthSearch({
+      pathname: "/payments/details/1",
+      search: {},
+    })
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/payments/details/1",
+        search: expect.any(Function) as unknown,
+        replace: true,
+      })
+    })
+  })
+
+  test("year だけある場合は month だけ補完する", async () => {
+    renderUseInitializePaymentsMonthSearch({
+      pathname: "/payments",
+      search: { year: "2025" },
+    })
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalled()
+    })
+
+    const searchUpdater = mockNavigate.mock.calls[0]?.[0].search as (
+      prev: TestLocation["search"],
+    ) => TestLocation["search"]
+    expect(searchUpdater({ year: "2025" })).toMatchObject({
+      year: "2025",
+      month: expect.stringMatching(/\d{1,2}/),
+    })
+  })
+
+  test("month だけある場合は year だけ補完する", async () => {
+    renderUseInitializePaymentsMonthSearch({
+      pathname: "/payments",
+      search: { month: "6" },
+    })
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalled()
+    })
+
+    const searchUpdater = mockNavigate.mock.calls[0]?.[0].search as (
+      prev: TestLocation["search"],
+    ) => TestLocation["search"]
+    expect(searchUpdater({ month: "6" })).toMatchObject({
+      year: expect.stringMatching(/\d{4}/),
+      month: "6",
+    })
+  })
+
   test("年月 search がある場合は初期化しない", async () => {
     renderUseInitializePaymentsMonthSearch({
       pathname: "/payments",
       search: { year: "2025", month: "6" },
     })
 
-    await waitFor(() => {
-      expect(mockNavigate).not.toHaveBeenCalled()
-    })
+    // useEffect が実行される前に no-op の検証が通ることを避けるため、effect の tick を待つ
+    await waitForEffectTick()
+
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 
   test("Payments 外の pathname では年月 search がなくても Payments に巻き戻さない", async () => {
@@ -106,8 +164,9 @@ describe("useInitializePaymentsMonthSearch", () => {
       search: {},
     })
 
-    await waitFor(() => {
-      expect(mockNavigate).not.toHaveBeenCalled()
-    })
+    // useEffect が実行される前に no-op の検証が通ることを避けるため、effect の tick を待つ
+    await waitForEffectTick()
+
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 })
