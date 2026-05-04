@@ -61,6 +61,8 @@ do not require verification.
   `pnpm run web:lint`
   `pnpm run web:format-check`
   `pnpm run web:typecheck`
-  `pnpm run web:test`
+  `pnpm --filter web test:unit`
+  `pnpm --filter web test:integration`
+  `pnpm --filter web test:storybook`
 - **API** (`apps/api`)
   No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.
