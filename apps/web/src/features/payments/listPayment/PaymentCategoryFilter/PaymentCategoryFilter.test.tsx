@@ -2,12 +2,17 @@ import { createRoute } from "@tanstack/react-router"
 import { http } from "msw"
 import { beforeEach, describe, expect, test } from "vite-plus/test"
 
-import { createQueryClient } from "../../../../lib/queryClient"
 import { categories } from "../../../../test/data/categories"
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { server } from "../../../../test/msw/server"
-import { screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
+import {
+  createTestQueryClient,
+  screen,
+  type TestUser,
+  waitFor,
+  within,
+} from "../../../../test/test-utils"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE, paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 
@@ -15,7 +20,7 @@ function renderPaymentCategoryFilter(
   initialEntry: string,
   { cacheCategories = true }: { cacheCategories?: boolean } = {},
 ) {
-  const queryClient = createQueryClient()
+  const queryClient = createTestQueryClient()
   if (cacheCategories) {
     queryClient.setQueryData(["categories"], categories)
   }

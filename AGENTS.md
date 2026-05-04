@@ -58,10 +58,11 @@ do not require verification.
 - If the current diff is exactly identical to the diff for the most recent run of the same verification commands, you may skip rerunning them.
 
 - **Web** (`apps/web/`)
-  `task web:lint`
-  `task web:format-check`
-  `task web:typecheck`
-  `task web:test-unit`
-  `task web:test-storybook`
+  `pnpm run web:lint`
+  `pnpm run web:format-check`
+  `pnpm run web:typecheck`
+  `pnpm --filter web test:unit`
+  `pnpm --filter web test:integration`
+  `pnpm --filter web test:storybook`
 - **API** (`apps/api`)
   No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.

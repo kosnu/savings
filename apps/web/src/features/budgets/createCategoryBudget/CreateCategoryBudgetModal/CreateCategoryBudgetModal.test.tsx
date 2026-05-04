@@ -5,6 +5,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor, within } from "../../../../test/test-utils"
+import { fillCreateCategoryBudgetForm } from "../../test/utils/budgetCreationForm"
 import * as stories from "./CreateCategoryBudgetModal.stories"
 
 const { Default } = composeStories(stories)
@@ -63,9 +64,15 @@ describe("CreateCategoryBudgetModal", () => {
     const body = within(baseElement)
     const dialog = await openCreateCategoryBudgetModal()
 
-    await selectCategory(user, dialog, body)
-    await selectMonth(user, dialog, body)
-    await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "50000")
+    await fillCreateCategoryBudgetForm({
+      user,
+      categoryName: "Food",
+      year: "2026",
+      month: "3",
+      amount: "50000",
+      fieldScope: within(dialog),
+      optionScope: body,
+    })
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -87,9 +94,15 @@ describe("CreateCategoryBudgetModal", () => {
     const body = within(baseElement)
     const dialog = await openCreateCategoryBudgetModal()
 
-    await selectCategory(user, dialog, body)
-    await selectMonth(user, dialog, body)
-    await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "50000")
+    await fillCreateCategoryBudgetForm({
+      user,
+      categoryName: "Food",
+      year: "2026",
+      month: "3",
+      amount: "50000",
+      fieldScope: within(dialog),
+      optionScope: body,
+    })
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -108,29 +121,4 @@ async function openCreateCategoryBudgetModal() {
   })
 
   return await screen.findByRole("dialog", { name: "Create category budget" })
-}
-
-async function selectCategory(
-  user: ReturnType<typeof render>["user"],
-  dialog: HTMLElement,
-  body: ReturnType<typeof within>,
-) {
-  await user.click(within(dialog).getByRole("combobox", { name: /category/i }))
-  const listbox = await body.findByRole("listbox")
-  await waitFor(() => {
-    expect(within(listbox).queryByRole("option", { name: /loading/i })).not.toBeInTheDocument()
-  })
-  await user.click(await within(listbox).findByRole("option", { name: "Food" }))
-}
-
-async function selectMonth(
-  user: ReturnType<typeof render>["user"],
-  dialog: HTMLElement,
-  body: ReturnType<typeof within>,
-) {
-  await user.click(within(dialog).getByRole("combobox", { name: "Year" }))
-  await user.click(await body.findByRole("option", { name: "2026" }))
-
-  await user.click(within(dialog).getByRole("combobox", { name: "Month" }))
-  await user.click(await body.findByRole("option", { name: "3" }))
 }

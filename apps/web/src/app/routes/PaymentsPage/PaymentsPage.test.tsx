@@ -7,7 +7,6 @@ import {
   PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
   paymentsSearchSchema,
 } from "../../../features/payments/listPayment/paymentsSearchSchema"
-import { createQueryClient } from "../../../lib/queryClient"
 import { categories, entertainmentCat, foodCat } from "../../../test/data/categories"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
@@ -16,7 +15,14 @@ import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
-import { render, screen, type TestUser, waitFor, within } from "../../../test/test-utils"
+import {
+  createTestQueryClient,
+  render,
+  screen,
+  type TestUser,
+  waitFor,
+  within,
+} from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import * as stories from "./PaymentPage.stories"
 import { PaymentsPage } from "./PaymentsPage"
@@ -50,7 +56,7 @@ const uncategorizedPayment = mapPaymentToRow({
   note: "未設定の支払い",
 })
 
-function createStoryElement(queryClient = createQueryClient()) {
+function createStoryElement(queryClient = createTestQueryClient()) {
   return {
     queryClient,
     element: <Default />,
@@ -68,7 +74,7 @@ function renderStory() {
 }
 
 function renderPaymentsPageRoute(initialEntry: string) {
-  const queryClient = createQueryClient()
+  const queryClient = createTestQueryClient()
   queryClient.setQueryData(["categories"], categories)
   queryClient.setQueryData(
     ["payments", currentMonthPaymentsQueryDate, `category-${foodCat.id}`],

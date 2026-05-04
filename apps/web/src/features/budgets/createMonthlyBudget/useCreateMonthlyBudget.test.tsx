@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import { createQueryClient } from "../../../lib/queryClient"
-import { act, renderHook } from "../../../test/test-utils"
+import { act, createTestQueryClient, renderHook } from "../../../test/test-utils"
 import type { MonthlyBudgetWriteInput } from "./monthlyBudgetFormMappers"
 import { useCreateMonthlyBudget } from "./useCreateMonthlyBudget"
 
@@ -19,7 +18,7 @@ describe("useCreateMonthlyBudget", () => {
   })
 
   it("成功時に関連queryをinvalidateしてresolveする", async () => {
-    const queryClient = createQueryClient()
+    const queryClient = createTestQueryClient()
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
@@ -47,7 +46,7 @@ describe("useCreateMonthlyBudget", () => {
   })
 
   it("失敗時に関連queryをinvalidateせずrejectする", async () => {
-    const queryClient = createQueryClient()
+    const queryClient = createTestQueryClient()
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
