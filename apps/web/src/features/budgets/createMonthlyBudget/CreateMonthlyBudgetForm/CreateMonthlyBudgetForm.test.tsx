@@ -4,8 +4,8 @@ import { describe, expect, test, vi } from "vite-plus/test"
 
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor } from "../../../../test/test-utils"
+import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import { fillCreateMonthlyBudgetForm, selectBudgetMonth } from "../../test/utils/budgetCreationForm"
-import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../monthlyBudgetCreateError"
 import * as stories from "./CreateMonthlyBudgetForm.stories"
 
 const { Default } = composeStories(stories)
