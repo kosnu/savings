@@ -29,46 +29,40 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 ## Agent Operating Guidance
 
-These rules refine the repository conventions above. Use them to choose efficient, evidence-based behavior without weakening the mandatory rules below.
+Use these rules to apply the repository conventions efficiently without weakening the mandatory rules below.
 
 ### Goal And Success Criteria
 
-- Use outcome-first execution: identify the requested outcome, constraints, and concrete success criteria before choosing an implementation path.
-- Prefer the smallest useful path that satisfies the success criteria while preserving correctness, repository conventions, and user intent.
+- Start from the requested outcome, constraints, and success criteria; then choose the smallest useful path that preserves correctness, repository conventions, and user intent.
 - Treat `must`, `always`, `never`, and `only` as true invariants. For judgment calls, use decision rules and repo evidence instead of process-heavy instructions.
-- Stop when the user's core request is handled with sufficient evidence and required verification. Do not pursue adjacent refactors or polish unless they are necessary for correctness.
+- Stop when the core request is handled with sufficient evidence and required verification; do not pursue adjacent refactors or polish unless needed for correctness.
 
 ### Communication
 
-- Communicate with the user in Japanese, consistent with the Language section.
-- Be direct, concise, and evidence-based. Give enough context for the user to evaluate the work, then stop.
-- Answer any sentence ending with `?` or `？` before taking action.
-- When the user asks for an explanation, answer directly. Do not turn the explanation into `<proposed_plan>` or unsolicited remediation options.
-- For multi-step or tool-heavy work, send a short progress update before the first tool call and occasional concise updates during longer work. Keep updates focused on what is being checked or changed.
-- Ask a narrow clarification question only when the missing information would materially change the implementation, create meaningful risk, or conflict with existing instructions.
+- Communicate in Japanese. Be direct, concise, and evidence-based; give enough context for evaluation, then stop.
+- Answer any sentence ending with `?` or `？` before taking action. For explanation requests, answer directly without turning them into `<proposed_plan>` or unsolicited remediation options.
+- For multi-step or tool-heavy work, send a short progress update before the first tool call and occasional concise updates focused on what is being checked or changed.
+- Ask a narrow clarification question only when missing information would materially change the implementation, create meaningful risk, or conflict with instructions.
 
 ### Evidence And Retrieval
 
-- Prefer repository evidence over external search: inspect the relevant docs, code, workflows, migrations, tests, and issue or PR context before making architectural or behavioral claims.
-- Use the documentation front matter rules in Key Conventions to decide which docs to read when design decisions, policies, or operational guidance may apply.
-- Start with the smallest search or file read that can answer the core request. Search again only when required facts, owners, dates, APIs, files, or behavior remain unsupported.
-- Do not keep searching to improve wording, collect nonessential examples, or support claims that can safely be made more general.
-- If evidence is missing, state the gap plainly and either ask for the smallest missing input or proceed with a clearly named assumption when the risk is low.
+- Prefer repository evidence over external search: inspect relevant docs, code, workflows, migrations, tests, and issue or PR context before architectural or behavioral claims.
+- Use Key Conventions front matter rules when design decisions, policies, or operational guidance may apply.
+- Start with the smallest search or file read that can answer the request. Search again only for unsupported required facts, owners, dates, APIs, files, or behavior.
+- Do not keep searching to improve wording, collect nonessential examples, or support claims that can safely be generalized.
+- If evidence is missing, state the gap and either ask for the smallest missing input or proceed with a named low-risk assumption.
 
 ### Implementation Discipline
 
-- Keep changes narrowly scoped to the user request and the directly necessary dependency closure.
-- Follow established patterns in the same layer. If an existing pattern is unsuitable, explain the reason before diverging.
-- Preserve user or unrelated worktree changes. Do not rewrite, revert, reformat, or stage unrelated files.
+- Keep changes scoped to the request and necessary dependency closure. Preserve user or unrelated worktree changes; do not rewrite, revert, reformat, or stage unrelated files.
+- Follow established patterns in the same layer. If unsuitable, explain before diverging.
 - Before adding, moving, or extracting Web components, apply the mandatory component structure policy below.
 
 ### Validation And Final Response
 
-- Use the Verification section below as the source of truth for runtime, build, type-safety, and migration checks.
-- When application code changes, run the concrete affected-app commands from the repository root unless the current diff is exactly identical to the most recent verified diff.
+- Use the Verification section as the source of truth. Run affected-app commands for application changes unless the current diff exactly matches the most recent verified diff.
 - For documentation-only changes, do not run app verification commands.
-- In the final response, summarize what changed, where it changed, and which verification ran or why verification was skipped.
-- For blockers, report the exact blocker, what was already checked, and the smallest useful next step.
+- In the final response, summarize what changed, where, and which verification ran or why it was skipped. For blockers, include what was checked and the smallest useful next step.
 
 ## Mandatory Web Component Structure Rules
 
