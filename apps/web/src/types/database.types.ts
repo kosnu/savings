@@ -100,6 +100,45 @@ export type Database = {
           },
         ]
       }
+      category_pins: {
+        Row: {
+          category_id: number
+          created_at: string | null
+          id: number
+          updated_at: string | null
+          user_id: number
+        }
+        Insert: {
+          category_id: number
+          created_at?: string | null
+          id?: never
+          updated_at?: string | null
+          user_id?: number
+        }
+        Update: {
+          category_id?: number
+          created_at?: string | null
+          id?: never
+          updated_at?: string | null
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_pins_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "category_pins_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       monthly_budgets: {
         Row: {
           amount: number
