@@ -1,9 +1,7 @@
 import { describe, expect, test } from "vite-plus/test"
 
-import {
-  POSTGRES_UNIQUE_VIOLATION_CODE,
-  toCategoryBudgetCreateErrorMessage,
-} from "./categoryBudgetCreateError"
+import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
+import { toCategoryBudgetCreateErrorMessage } from "./categoryBudgetCreateError"
 
 describe("toCategoryBudgetCreateErrorMessage", () => {
   test("PostgreSQL unique_violationは重複カテゴリ年月メッセージに変換する", () => {
