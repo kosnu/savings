@@ -1,14 +1,5 @@
 import { Flex, Text } from "@radix-ui/themes"
-import {
-  type KeyboardEvent,
-  type ReactNode,
-  type SubmitEvent,
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react"
+import { useCallback, useEffect, useId, useRef, useState } from "react"
 
 import { useSnackbar } from "../../../../providers/snackbar"
 import type { PaymentId } from "../../../../types/payment"
@@ -17,6 +8,7 @@ import { NoteInput } from "../../components/NoteInput"
 import { noteFieldSchema } from "../../paymentFormSchema"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
+import { InlineForm } from "../InlineForm"
 import { SubmitIconButton } from "../SubmitIconButton"
 
 const notePlaceholder = "No note"
@@ -153,36 +145,5 @@ export function NoteField({
         </InlineForm>
       }
     />
-  )
-}
-
-interface InlineFormProps {
-  children: ReactNode
-  onSubmit?: () => void | Promise<void>
-  onCancel?: () => void
-  saving?: boolean
-}
-
-function InlineForm({ children, onSubmit, onCancel, saving = false }: InlineFormProps) {
-  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
-    if (event.key !== "Escape") return
-
-    event.preventDefault()
-    event.stopPropagation()
-    if (!saving) {
-      onCancel?.()
-    }
-  }
-
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
-    event.stopPropagation()
-    void onSubmit?.()
-  }
-
-  return (
-    <form onKeyDownCapture={handleKeyDown} onSubmit={handleSubmit}>
-      {children}
-    </form>
   )
 }

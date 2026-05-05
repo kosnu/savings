@@ -1,6 +1,7 @@
 import { format } from "date-fns"
 
 import type { TablesInsert } from "../../../types/database.types"
+import { toMonthStartDate } from "../utils/month"
 
 export interface CategoryBudgetWriteInput {
   categoryId: number
@@ -20,8 +21,4 @@ export function toCategoryBudgetInsert(value: CategoryBudgetWriteInput): Categor
     category_id: value.categoryId,
     effective_from: format(toMonthStartDate(value.targetMonth), "yyyy-MM-dd"),
   }
-}
-
-function toMonthStartDate(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1)
 }

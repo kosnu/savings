@@ -6,7 +6,7 @@ import { monthlyBudgets } from "../../../../test/data/monthlyBudgets"
 import { createMonthlyBudgetHandlers } from "../../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
-import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../createMonthlyBudget/monthlyBudgetCreateError"
+import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import { fillCreateMonthlyBudgetForm } from "../../test/utils/budgetCreationForm"
 import * as stories from "./LatestMonthlyBudget.stories"
 

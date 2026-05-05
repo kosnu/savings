@@ -6,8 +6,8 @@ import { createCategoryHandlers } from "../../../../test/msw/handlers/categories
 import { createCategoryBudgetHandlers } from "../../../../test/msw/handlers/categoryBudgets"
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor } from "../../../../test/test-utils"
+import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import { fillCreateCategoryBudgetForm } from "../../test/utils/budgetCreationForm"
-import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../categoryBudgetCreateError"
 import * as stories from "./CreateCategoryBudgetForm.stories"
 
 const { Default } = composeStories(stories)

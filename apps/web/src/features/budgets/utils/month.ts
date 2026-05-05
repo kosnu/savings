@@ -13,6 +13,10 @@ export function toMonthEndIsoDate(date: Date): string {
   return format(endOfMonth(date), "yyyy-MM-dd")
 }
 
+export function toMonthStartDate(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1)
+}
+
 export function parseIsoDateOnlyToLocalDate(value: string): Date {
   const [year, month, day] = value.split("-").map(Number)
 
