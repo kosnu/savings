@@ -27,6 +27,43 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
 - If you intentionally diverge from an existing pattern, explain why before applying the change.
 
+## Agent Operating Guidance
+
+Use these rules to apply the repository conventions efficiently without weakening the mandatory rules below.
+
+### Goal And Success Criteria
+
+- Start from the requested outcome, constraints, and success criteria; then choose the smallest useful path that preserves correctness, repository conventions, and user intent.
+- Treat `must`, `always`, `never`, and `only` as true invariants. For judgment calls, use decision rules and repo evidence instead of process-heavy instructions.
+- Stop when the core request is handled with sufficient evidence and required verification; do not pursue adjacent refactors or polish unless needed for correctness.
+
+### Communication
+
+- Communicate in Japanese. Be direct, concise, and evidence-based; give enough context for evaluation, then stop.
+- Answer any sentence ending with `?` or `？` before taking action. For explanation requests, answer directly without expanding into unsolicited plans or remediation options.
+- For multi-step or tool-heavy work, send a short progress update before the first tool call and occasional concise updates focused on what is being checked or changed.
+- Ask a narrow clarification question only when missing information would materially change the implementation, create meaningful risk, or conflict with instructions.
+
+### Evidence And Retrieval
+
+- Prefer repository evidence over external search: inspect relevant docs, code, workflows, migrations, tests, and issue or PR context before architectural or behavioral claims.
+- Use Key Conventions front matter rules when design decisions, policies, or operational guidance may apply.
+- Start with the smallest search or file read that can answer the request. Search again only for unsupported required facts, owners, dates, APIs, files, or behavior.
+- Do not keep searching to improve wording, collect nonessential examples, or support claims that can safely be generalized.
+- If evidence is missing, state the gap and either ask for the smallest missing input or proceed with a named low-risk assumption.
+
+### Implementation Discipline
+
+- Keep changes scoped to the request and necessary dependency closure. Preserve user or unrelated worktree changes; do not rewrite, revert, reformat, or stage unrelated files.
+- Follow established patterns in the same layer. If unsuitable, explain before diverging.
+- Before adding, moving, or extracting Web components, apply the mandatory component structure policy below.
+
+### Validation And Final Response
+
+- Use the Verification section as the source of truth. Run affected-app commands for application changes unless the current diff exactly matches the most recent verified diff.
+- For documentation-only changes, do not run app verification commands.
+- In the final response, summarize what changed, where, and which verification ran or why it was skipped. For blockers, include what was checked and the smallest useful next step.
+
 ## Mandatory Web Component Structure Rules
 
 The rules in this section are mandatory and must always be followed.
