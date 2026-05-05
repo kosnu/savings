@@ -56,6 +56,11 @@ do not require verification.
 - Define verification as the concrete commands for each app, not a `verify` wrapper task.
 - When application code changes, run the verification commands for the affected app from the repository root.
 - If the current diff is exactly identical to the diff for the most recent run of the same verification commands, you may skip rerunning them.
+- Run independent verification commands in parallel when practical.
+- Do not start multiple instances of the same verification command at the same time.
+- When running verification commands in parallel, if one command fails before the others finish,
+  wait for all already-started verification commands to finish before making fixes or rerunning checks.
+- After fixing a failure, start any required reruns as a new verification batch only after the previous batch has fully completed.
 
 - **Web** (`apps/web/`)
   `pnpm run web:lint`
