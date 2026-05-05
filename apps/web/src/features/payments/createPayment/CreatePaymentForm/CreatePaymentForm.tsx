@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
+import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { paymentFormSubmitSchema } from "../../paymentFormSchema"
 import { AmountField } from "../AmountField/AmountField"
 import { CategoryField } from "../CategoryField"
@@ -23,35 +24,6 @@ interface CreatePaymentFormProps {
   onResetReady?: (resetFn: () => void) => void
   continuousMode?: boolean
   onContinuousModeChange?: (checked: boolean) => void
-}
-
-function getErrorMessages(errors: unknown): string[] | undefined {
-  if (!Array.isArray(errors)) {
-    return undefined
-  }
-
-  const messages = errors.flatMap((error) => {
-    if (typeof error === "string") {
-      return [error]
-    }
-
-    if (
-      error &&
-      typeof error === "object" &&
-      "message" in error &&
-      typeof error.message === "string"
-    ) {
-      return [error.message]
-    }
-
-    return []
-  })
-
-  return messages.length > 0 ? messages : undefined
-}
-
-function hasErrorMessages(messages: string[] | undefined): boolean {
-  return Boolean(messages && messages.length > 0)
 }
 
 export function CreatePaymentForm({
@@ -103,12 +75,13 @@ export function CreatePaymentForm({
       <Flex direction="column" gap="3">
         <form.Field name="date">
           {(field) => {
+            const isValid = field.state.meta.isValid
             const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <PaymentDateField
                 value={field.state.value}
                 onChange={(date) => field.handleChange(date)}
-                error={hasErrorMessages(errorMessages)}
+                error={!isValid}
                 messages={errorMessages}
               />
             )
@@ -116,12 +89,13 @@ export function CreatePaymentForm({
         </form.Field>
         <form.Field name="amount">
           {(field) => {
+            const isValid = field.state.meta.isValid
             const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <AmountField
                 value={field.state.value}
                 onChange={(amount) => field.handleChange(amount)}
-                error={hasErrorMessages(errorMessages)}
+                error={!isValid}
                 messages={errorMessages}
                 autoFocus
               />
@@ -130,12 +104,13 @@ export function CreatePaymentForm({
         </form.Field>
         <form.Field name="category">
           {(field) => {
+            const isValid = field.state.meta.isValid
             const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <CategoryField
                 value={field.state.value}
                 onChange={(category) => field.handleChange(category)}
-                error={hasErrorMessages(errorMessages)}
+                error={!isValid}
                 messages={errorMessages}
               />
             )
@@ -143,12 +118,13 @@ export function CreatePaymentForm({
         </form.Field>
         <form.Field name="note">
           {(field) => {
+            const isValid = field.state.meta.isValid
             const errorMessages = getErrorMessages(field.state.meta.errors)
             return (
               <NoteField
                 value={field.state.value}
                 onChange={(note) => field.handleChange(note)}
-                error={hasErrorMessages(errorMessages)}
+                error={!isValid}
                 messages={errorMessages}
               />
             )
