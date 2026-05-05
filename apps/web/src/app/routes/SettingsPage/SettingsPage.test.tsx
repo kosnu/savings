@@ -3,7 +3,6 @@ import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { BudgetSettings } from "../../../features/budgets/budgetSettings/BudgetSettings"
-import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../features/budgets/createMonthlyBudget/monthlyBudgetCreateError"
 import { categoryBudgets } from "../../../test/data/categoryBudgets"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
@@ -11,6 +10,7 @@ import { createCategoryBudgetHandlers } from "../../../test/msw/handlers/categor
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../test/msw/server"
 import { screen, within } from "../../../test/test-utils"
+import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
 import { SettingsPage } from "./SettingsPage"
 
 type SettingsBudgetsComponentType = () => ReactNode
