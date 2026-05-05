@@ -40,7 +40,7 @@ Use these rules to apply the repository conventions efficiently without weakenin
 ### Communication
 
 - Communicate in Japanese. Be direct, concise, and evidence-based; give enough context for evaluation, then stop.
-- Answer any sentence ending with `?` or `？` before taking action. For explanation requests, answer directly without turning them into `<proposed_plan>` or unsolicited remediation options.
+- Answer any sentence ending with `?` or `？` before taking action. For explanation requests, answer directly without expanding into unsolicited plans or remediation options.
 - For multi-step or tool-heavy work, send a short progress update before the first tool call and occasional concise updates focused on what is being checked or changed.
 - Ask a narrow clarification question only when missing information would materially change the implementation, create meaningful risk, or conflict with instructions.
 
