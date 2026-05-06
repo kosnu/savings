@@ -59,12 +59,15 @@ describe("toPaymentWriteInsert", () => {
       amount: 1080,
     }
 
-    expect(toPaymentWriteInsert(value)).toEqual({
+    const row = toPaymentWriteInsert(value)
+
+    expect(row).toEqual({
       date: "2024-09-22",
       category_id: 11,
       note: "dinner",
       amount: 1080,
     })
+    expect(row).not.toHaveProperty("user_id")
   })
 
   test("空文字は null に正規化する", () => {
@@ -97,17 +100,18 @@ describe("toPaymentWriteInsert", () => {
 
 describe("toPaymentWriteUpdate", () => {
   test("partial update を write contract 向けに変換する", () => {
-    expect(
-      toPaymentWriteUpdate({
-        date: new Date(2024, 8, 22, 12, 34, 56),
-        categoryId: "11",
-        note: "dinner",
-      }),
-    ).toEqual({
+    const payload = toPaymentWriteUpdate({
+      date: new Date(2024, 8, 22, 12, 34, 56),
+      categoryId: "11",
+      note: "dinner",
+    })
+
+    expect(payload).toEqual({
       date: "2024-09-22",
       category_id: 11,
       note: "dinner",
     })
+    expect(payload).not.toHaveProperty("user_id")
   })
 
   test("空文字は null に正規化する", () => {
