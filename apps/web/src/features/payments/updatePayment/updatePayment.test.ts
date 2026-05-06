@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vite-plus/test"
 import { updatePayment } from "./updatePayment"
 
 const mockEq = vi.fn()
-const mockUpdate = vi.fn(() => ({ eq: mockEq }))
+const mockUpdate = vi.fn((_payload: Record<string, unknown>) => ({ eq: mockEq }))
 const mockFrom = vi.fn(() => ({ update: mockUpdate }))
 
 vi.mock("../../../lib/supabase", () => ({
@@ -28,6 +28,7 @@ describe("updatePayment", () => {
       category_id: 11,
       date: "2024-09-22",
     })
+    expect(mockUpdate.mock.calls[0]?.[0]).not.toHaveProperty("user_id")
     expect(mockEq).toHaveBeenCalledWith("id", 42)
   })
 
