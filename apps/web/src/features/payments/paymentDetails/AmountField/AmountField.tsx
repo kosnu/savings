@@ -1,7 +1,7 @@
 import { Flex, Text } from "@radix-ui/themes"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 
-import { useSnackbar } from "../../../../providers/snackbar"
+import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { PaymentId } from "../../../../types/payment"
 import { getZodErrorMessages } from "../../../../utils/getZodErrorMessages"
 import { toCurrency } from "../../../../utils/toCurrency"

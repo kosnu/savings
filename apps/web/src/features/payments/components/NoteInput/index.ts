@@ -1,1 +1,1 @@
-export * from "./NoteInput"
+export { NoteInput } from "./NoteInput"

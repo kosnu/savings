@@ -1,1 +1,1 @@
-export * from "./CategoryTotals"
+export { CategoryTotals } from "./CategoryTotals"

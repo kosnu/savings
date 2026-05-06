@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import { initialize, mswLoader } from "msw-storybook-addon"
 
 import { createQueryClient } from "../src/lib/queryClient"
-import { SnackbarProvider } from "../src/providers/snackbar"
+import { SnackbarProvider } from "../src/providers/snackbar/SnackbarProvider"
 import { SupabaseSessionContext } from "../src/providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 import { mockSession } from "../src/test/data/supabaseSession"

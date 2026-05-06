@@ -24,7 +24,7 @@ export default defineConfig({
     sortImports: {},
   },
   lint: {
-    plugins: ["react", "jsx-a11y", "typescript"],
+    plugins: ["react", "jsx-a11y", "typescript", "oxc"],
     jsPlugins: [
       {
         name: "react-hooks-js",
@@ -45,6 +45,12 @@ export default defineConfig({
       "jsx_a11y/no-autofocus": "off",
       "eslint/eqeqeq": "error",
       "eslint/no-duplicate-imports": "error",
+      "oxc/no-barrel-file": [
+        "error",
+        {
+          threshold: 0,
+        },
+      ],
       "typescript/prefer-nullish-coalescing": "error",
       "typescript/prefer-optional-chain": "error",
       "typescript/no-explicit-any": "error",
@@ -111,6 +117,12 @@ export default defineConfig({
         files: ["src/types/database.types.ts", "apps/web/src/types/database.types.ts"],
         rules: {
           "typescript/no-redundant-type-constituents": "off",
+        },
+      },
+      {
+        files: ["src/test/test-utils.tsx", "apps/web/src/test/test-utils.tsx"],
+        rules: {
+          "oxc/no-barrel-file": "off",
         },
       },
       {

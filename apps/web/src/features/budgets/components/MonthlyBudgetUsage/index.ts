@@ -1,1 +1,2 @@
-export * from "./MonthlyBudgetUsage"
+export { MonthlyBudgetUsage } from "./MonthlyBudgetUsage"
+export type { MonthlyBudgetUsageProps } from "./MonthlyBudgetUsage"

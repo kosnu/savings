@@ -2,7 +2,7 @@ import { Flex, Spinner, Text } from "@radix-ui/themes"
 import { RouterProvider } from "@tanstack/react-router"
 import { useEffect } from "react"
 
-import { useSupabaseSession } from "../providers/supabase"
+import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 import { router } from "./routes"
 
 export function Router() {

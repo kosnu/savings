@@ -1,1 +1,1 @@
-export * from "./PaymentCategoryFilter"
+export { PaymentCategoryFilter } from "./PaymentCategoryFilter"

@@ -1,1 +1,1 @@
-export * from "./CategoryField"
+export { CategoryField } from "./CategoryField"

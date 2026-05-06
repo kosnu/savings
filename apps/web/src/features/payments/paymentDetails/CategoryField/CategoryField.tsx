@@ -12,7 +12,7 @@ import {
 } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
-import { useSnackbar } from "../../../../providers/snackbar"
+import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { Category } from "../../../../types/category"
 import type { PaymentId } from "../../../../types/payment"
 import {
