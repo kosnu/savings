@@ -199,7 +199,7 @@ export type Database = {
           id?: never
           note?: string | null
           updated_at?: string | null
-          user_id: number
+          user_id?: number
         }
         Update: {
           amount?: number

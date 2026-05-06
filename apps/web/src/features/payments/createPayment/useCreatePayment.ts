@@ -2,20 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import { getSupabaseClient } from "../../../lib/supabase"
-import type { TablesInsert } from "../../../types/database.types"
 import { type PaymentWriteInput, toPaymentWriteInsert } from "../paymentFormMappers"
-
-// user_id は DB のデフォルト値（auth.uid()）で自動設定されるため FE から渡さない
-type PaymentInsert = Omit<TablesInsert<"payments">, "user_id">
 
 async function postPayment(value: PaymentWriteInput): Promise<void> {
   const supabase = getSupabaseClient()
-  const row: PaymentInsert = toPaymentWriteInsert(value)
-  const { error } = await supabase
-    .from("payments")
-    // FIXME: database.types.ts で user_id が必須だが、DB デフォルト値で設定されるため除外している。型定義の再生成で解消したらアサーションを削除する
-    // oxlint-disable-next-line typescript/consistent-type-assertions
-    .insert(row as TablesInsert<"payments">)
+  const row = toPaymentWriteInsert(value)
+  const { error } = await supabase.from("payments").insert(row)
 
   if (error) {
     throw error
