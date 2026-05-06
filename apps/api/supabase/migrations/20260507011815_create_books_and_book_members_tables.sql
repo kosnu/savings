@@ -30,7 +30,9 @@ create policy "Users can read member books"
       select 1
       from book_members
       where book_members.book_id = books.id
-        and book_members.user_id = get_authenticated_user_id()
+        and book_members.user_id in (
+          select id from users where external_id = auth.uid()::text
+        )
     )
   );
 
@@ -39,4 +41,8 @@ alter table book_members enable row level security;
 create policy "Users can read own book memberships"
   on book_members for select
   to authenticated
-  using (user_id = get_authenticated_user_id());
+  using (
+    user_id in (
+      select id from users where external_id = auth.uid()::text
+    )
+  );
