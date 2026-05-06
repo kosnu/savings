@@ -21,6 +21,14 @@
       automergeType: "pr",
     },
     {
+      matchPackageNames: [
+        "@voidzero-dev/vite-plus-core",
+        "@voidzero-dev/vite-plus-test",
+        "vite-plus",
+      ],
+      groupName: "vite-plus monorepo",
+    },
+    {
       matchDatasources: ["github-digest"],
       matchManagers: ["github-actions"],
       minimumReleaseAge: null,
