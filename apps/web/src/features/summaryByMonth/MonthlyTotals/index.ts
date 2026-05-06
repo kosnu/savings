@@ -1,1 +1,1 @@
-export * from "./MonthlyTotals"
+export { MonthlyTotals } from "./MonthlyTotals"

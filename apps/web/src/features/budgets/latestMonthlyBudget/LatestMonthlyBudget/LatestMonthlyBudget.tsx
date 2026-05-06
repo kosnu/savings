@@ -4,7 +4,7 @@ import { Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { toCurrency } from "../../../../utils/toCurrency"
-import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget"
+import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget/CreateMonthlyBudgetModal"
 import { useMonthlyBudgets } from "../../listMonthlyBudget/useMonthlyBudgets"
 import type { MonthlyBudget } from "../../types"
 

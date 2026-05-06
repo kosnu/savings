@@ -1,1 +1,1 @@
-export * from "./AmountInput"
+export { AmountInput } from "./AmountInput"

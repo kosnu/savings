@@ -1,1 +1,1 @@
-export * from "./CreatePaymentModal"
+export { CreatePaymentModal } from "./CreatePaymentModal"

@@ -1,1 +1,1 @@
-export * from "./PaymentList"
+export { PaymentList } from "./PaymentList"
