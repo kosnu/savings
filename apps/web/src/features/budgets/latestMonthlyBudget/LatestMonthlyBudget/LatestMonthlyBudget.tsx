@@ -1,4 +1,4 @@
-import { PlusIcon } from "@radix-ui/react-icons"
+import { Pencil1Icon, PlusIcon } from "@radix-ui/react-icons"
 import { Button, Flex, Skeleton, Text } from "@radix-ui/themes"
 import { Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -7,6 +7,7 @@ import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget"
 import { useMonthlyBudgets } from "../../listMonthlyBudget/useMonthlyBudgets"
 import type { MonthlyBudget } from "../../types"
+import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthlyBudgetModal"
 
 const latestMonthlyBudgetLimit = 1
 
@@ -65,6 +66,14 @@ function LatestMonthlyBudgetRow({ monthlyBudget }: { monthlyBudget: MonthlyBudge
   return (
     <Flex align="center" justify="between" gap="3">
       <Text>{toCurrency(monthlyBudget.amount)}</Text>
+      <UpdateMonthlyBudgetModal
+        monthlyBudget={monthlyBudget}
+        trigger={
+          <Button variant="soft">
+            <Pencil1Icon /> Edit budget
+          </Button>
+        }
+      />
     </Flex>
   )
 }

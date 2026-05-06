@@ -44,6 +44,7 @@ describe("LatestMonthlyBudget", () => {
 
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await screen.findByText("￥75,000")).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: "Edit budget" })).toBeInTheDocument()
     expect(screen.queryByText("￥62,000")).not.toBeInTheDocument()
   })
 
@@ -131,6 +132,58 @@ describe("LatestMonthlyBudget", () => {
       await within(dialog).findByText("A monthly budget for this month already exists."),
     ).toBeInTheDocument()
     expect(screen.getByRole("dialog", { name: "Create monthly budget" })).toBeInTheDocument()
+  })
+
+  test("編集成功後に最新の月予算表示を更新する", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
+      }),
+    )
+
+    const { user } = await renderLatestMonthlyBudget(<Default />)
+
+    await user.click(await screen.findByRole("button", { name: "Edit budget" }))
+    const dialog = await screen.findByRole("dialog", { name: "Edit monthly budget" })
+    const amountInput = within(dialog).getByRole("textbox", { name: /amount/i })
+
+    expect(within(dialog).getByText("Update the latest monthly budget amount.")).toBeInTheDocument()
+    expect(within(dialog).getByText("2025/07")).toBeInTheDocument()
+    expect(amountInput).toHaveValue("75000")
+
+    await user.clear(amountInput)
+    await user.type(amountInput, "82000")
+    await user.click(within(dialog).getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Edit monthly budget" })).not.toBeInTheDocument()
+    })
+    expect(await screen.findByText("￥82,000")).toBeInTheDocument()
+    expect(screen.queryByText("￥75,000")).not.toBeInTheDocument()
+  })
+
+  test("編集失敗時はエラー表示を維持してダイアログを閉じない", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
+        update: { error: true },
+      }),
+    )
+
+    const { user } = await renderLatestMonthlyBudget(<Default />)
+
+    await user.click(await screen.findByRole("button", { name: "Edit budget" }))
+    const dialog = await screen.findByRole("dialog", { name: "Edit monthly budget" })
+    const amountInput = within(dialog).getByRole("textbox", { name: /amount/i })
+
+    await user.clear(amountInput)
+    await user.type(amountInput, "82000")
+    await user.click(within(dialog).getByRole("button", { name: "Save" }))
+
+    expect(await within(dialog).findByText("Failed to update monthly budget.")).toBeInTheDocument()
+    expect(screen.getByRole("dialog", { name: "Edit monthly budget" })).toBeInTheDocument()
+    expect(screen.getByText("￥75,000")).toBeInTheDocument()
   })
 
   test("取得中はスケルトンを表示する", async () => {

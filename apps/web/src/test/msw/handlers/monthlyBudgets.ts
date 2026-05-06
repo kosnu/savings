@@ -24,10 +24,16 @@ interface CreateMonthlyBudgetOptions extends BaseOptions {
   errorResponse?: unknown
 }
 
+interface UpdateMonthlyBudgetOptions extends BaseOptions {
+  response?: MonthlyBudgetRow
+  errorResponse?: unknown
+}
+
 interface CreateMonthlyBudgetHandlersOptions {
   get?: GetMonthlyBudgetOptions
   list?: ListMonthlyBudgetOptions
   create?: CreateMonthlyBudgetOptions
+  update?: UpdateMonthlyBudgetOptions
 }
 
 const createMonthlyBudgetBodySchema = z.object({
@@ -35,12 +41,19 @@ const createMonthlyBudgetBodySchema = z.object({
   effective_from: z.string(),
 })
 
+const updateMonthlyBudgetBodySchema = z.object({
+  amount: z.number(),
+})
+
 type CreateMonthlyBudgetBody = z.infer<typeof createMonthlyBudgetBodySchema>
+type UpdateMonthlyBudgetBody = z.infer<typeof updateMonthlyBudgetBodySchema>
 
 export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlersOptions = {}) {
   const get = options.get ?? {}
   const list = options.list ?? {}
   const create = options.create ?? {}
+  const update = options.update ?? {}
+  let listRows = list.response ? [...list.response] : [...monthlyBudgets]
 
   const monthlyBudgetsHandler = http.get(REST_URL, async ({ request }) => {
     const shouldReturnSingle = shouldReturnSingleObject(request)
@@ -56,7 +69,7 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
       ? get.response === undefined
         ? monthlyBudgets[2]
         : get.response
-      : (list.response ?? monthlyBudgets)
+      : listRows
 
     return HttpResponse.json(response)
   })
@@ -82,7 +95,29 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     return HttpResponse.json([newRow], { status: 201 })
   })
 
-  return [monthlyBudgetsHandler, createMonthlyBudgetHandler]
+  const updateMonthlyBudgetHandler = http.patch(REST_URL, async ({ request }) => {
+    await delay(update.durationOrMode)
+
+    if (update.error) {
+      return HttpResponse.json(
+        update.errorResponse ?? { message: "Failed to update monthly budget." },
+        { status: 500 },
+      )
+    }
+
+    const body = await request.json()
+    const parsedBody = updateMonthlyBudgetBodySchema.parse(body)
+    const id = parseUpdateMonthlyBudgetId(request.url)
+    const updatedRow = update.response ?? buildUpdatedMonthlyBudgetRow(id, parsedBody, listRows)
+
+    if (updatedRow) {
+      listRows = listRows.map((row) => (row.id === updatedRow.id ? updatedRow : row))
+    }
+
+    return HttpResponse.json(updatedRow ? { id: updatedRow.id } : null)
+  })
+
+  return [monthlyBudgetsHandler, createMonthlyBudgetHandler, updateMonthlyBudgetHandler]
 }
 
 function shouldReturnSingleObject(request: Request): boolean {
@@ -107,6 +142,37 @@ function buildMonthlyBudgetRow(
     effective_year: year,
     updated_at: now,
     user_id: 100,
+  }
+}
+
+function parseUpdateMonthlyBudgetId(url: string): number | undefined {
+  const searchParams = new URL(url).searchParams
+  const idParam = searchParams.get("id")
+
+  if (!idParam?.startsWith("eq.")) {
+    return undefined
+  }
+
+  const id = Number(idParam.slice(3))
+
+  return Number.isInteger(id) ? id : undefined
+}
+
+function buildUpdatedMonthlyBudgetRow(
+  id: number | undefined,
+  body: UpdateMonthlyBudgetBody,
+  rows: MonthlyBudgetRow[],
+): MonthlyBudgetRow | undefined {
+  const row = rows.find((monthlyBudget) => monthlyBudget.id === id)
+
+  if (!row) {
+    return undefined
+  }
+
+  return {
+    ...row,
+    amount: body.amount,
+    updated_at: new Date().toISOString(),
   }
 }
 
