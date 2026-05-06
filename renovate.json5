@@ -26,7 +26,6 @@
         "@voidzero-dev/vite-plus-test",
         "vite-plus",
       ],
-      matchSourceUrls: ["https://github.com/voidzero-dev/vite-plus"],
       groupName: "vite-plus monorepo",
     },
     {
