@@ -3,7 +3,7 @@ import { useCallback } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
-import { useSnackbar } from "../../../../providers/snackbar"
+import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { Payment } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
 import { toCurrency } from "../../../../utils/toCurrency"

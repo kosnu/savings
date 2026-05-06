@@ -1,1 +1,1 @@
-export * from "./AggregatesPage"
+export { AggregatesPage } from "./AggregatesPage"

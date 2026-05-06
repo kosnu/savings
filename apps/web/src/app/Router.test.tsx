@@ -11,7 +11,7 @@ vi.mock("@tanstack/react-router", () => ({
   RouterProvider: () => mockRouterProvider(),
 }))
 
-vi.mock("../providers/supabase", () => ({
+vi.mock("../providers/supabase/useSupabaseSession", () => ({
   useSupabaseSession: () => mockUseSupabaseSession(),
 }))
 

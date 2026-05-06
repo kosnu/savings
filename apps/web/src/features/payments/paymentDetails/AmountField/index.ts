@@ -1,1 +1,1 @@
-export * from "./AmountField"
+export { AmountField } from "./AmountField"

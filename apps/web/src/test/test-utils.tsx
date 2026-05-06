@@ -9,7 +9,7 @@ import userEvent from "@testing-library/user-event"
 import type { PropsWithChildren, ReactElement } from "react"
 
 import { createQueryClient } from "../lib/queryClient"
-import { SnackbarProvider } from "../providers/snackbar"
+import { SnackbarProvider } from "../providers/snackbar/SnackbarProvider"
 import {
   SupabaseSessionContext,
   type SupabaseSessionState,
