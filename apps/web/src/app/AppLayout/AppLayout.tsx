@@ -2,8 +2,9 @@ import { Flex, Separator } from "@radix-ui/themes"
 import { Outlet } from "@tanstack/react-router"
 
 import { Header } from "../Header"
-import { Sidebar, useSidebar } from "../Sidebar"
+import { Sidebar } from "../Sidebar"
 import { SidebarButton } from "../Sidebar/SidebarButton"
+import { useSidebar } from "../Sidebar/useSidebar"
 
 import styles from "./AppLayout.module.css"
 

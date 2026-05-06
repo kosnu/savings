@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fn } from "storybook/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
-import { SnackbarProvider } from "../../../../providers/snackbar"
+import { SnackbarProvider } from "../../../../providers/snackbar/SnackbarProvider"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { payments } from "../../../../test/data/payments"
 import { categoryHandlers } from "../../../../test/msw/handlers/categories"

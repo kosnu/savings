@@ -3,7 +3,7 @@ import { format } from "date-fns"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 
 import { DatePicker } from "../../../../components/inputs/DatePicker"
-import { useSnackbar } from "../../../../providers/snackbar"
+import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { PaymentId } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
 import { getZodErrorMessages } from "../../../../utils/getZodErrorMessages"

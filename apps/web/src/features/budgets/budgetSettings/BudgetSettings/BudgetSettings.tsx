@@ -1,6 +1,6 @@
 import { Flex } from "@radix-ui/themes"
 
-import { LatestMonthlyBudget } from "../../latestMonthlyBudget"
+import { LatestMonthlyBudget } from "../../latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget"
 import { CategoryBudgetList } from "../../listCategoryBudget/CategoryBudgetList"
 
 export function BudgetSettings() {
