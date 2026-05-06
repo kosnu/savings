@@ -112,6 +112,7 @@ describe("CreatePaymentForm", () => {
       category_id: null,
       note: null,
     })
+    expect(requestBody).not.toHaveProperty("user_id")
     expect(requestBody?.date).toEqual(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
   })
 
@@ -144,6 +145,7 @@ describe("CreatePaymentForm", () => {
       category_id: 10,
       note: "dinner",
     })
+    expect(requestBody).not.toHaveProperty("user_id")
     expect(requestBody?.date).toEqual(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
   })
 })
