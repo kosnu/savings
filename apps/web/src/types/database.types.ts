@@ -28,6 +28,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      book_members: {
+        Row: {
+          book_id: number
+          created_at: string | null
+          id: number
+          updated_at: string | null
+          user_id: number
+        }
+        Insert: {
+          book_id: number
+          created_at?: string | null
+          id?: never
+          updated_at?: string | null
+          user_id: number
+        }
+        Update: {
+          book_id?: number
+          created_at?: string | null
+          id?: never
+          updated_at?: string | null
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_members_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      books: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: never
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: never
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null
