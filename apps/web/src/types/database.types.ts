@@ -33,6 +33,7 @@ export type Database = {
           book_id: number
           created_at: string | null
           id: number
+          is_default: boolean
           updated_at: string | null
           user_id: number
         }
@@ -40,6 +41,7 @@ export type Database = {
           book_id: number
           created_at?: string | null
           id?: never
+          is_default?: boolean
           updated_at?: string | null
           user_id: number
         }
@@ -47,6 +49,7 @@ export type Database = {
           book_id?: number
           created_at?: string | null
           id?: never
+          is_default?: boolean
           updated_at?: string | null
           user_id?: number
         }
