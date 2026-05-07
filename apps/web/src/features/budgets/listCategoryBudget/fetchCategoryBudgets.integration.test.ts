@@ -12,6 +12,7 @@ vi.mock("../../../lib/supabase", () => ({
 
 const foodBudgetOld = {
   id: 1,
+  book_id: 1,
   amount: 30000,
   category_id: 10,
   created_at: "2025-01-01T00:00:00.000Z",
@@ -28,6 +29,7 @@ const foodBudgetOld = {
 
 const foodBudgetLatestSameDay = {
   id: 3,
+  book_id: 1,
   amount: 50000,
   category_id: 10,
   created_at: "2025-03-02T00:00:00.000Z",
@@ -44,6 +46,7 @@ const foodBudgetLatestSameDay = {
 
 const foodBudgetOlderSameDay = {
   id: 2,
+  book_id: 1,
   amount: 45000,
   category_id: 10,
   created_at: "2025-03-01T00:00:00.000Z",
@@ -60,6 +63,7 @@ const foodBudgetOlderSameDay = {
 
 const dailyNecessitiesFutureBudget = {
   id: 4,
+  book_id: 1,
   amount: 12000,
   category_id: 20,
   created_at: "2099-04-01T00:00:00.000Z",
@@ -93,6 +97,7 @@ describe("fetchCategoryBudgets", () => {
     expect(budgets).toHaveLength(2)
     expect(budgets[0]).toMatchObject({
       id: 3,
+      bookId: 1,
       amount: 50000,
       categoryId: 10,
       categoryName: "Food",
@@ -165,6 +170,7 @@ describe("fetchCategoryBudgets", () => {
           rows: [
             {
               id: 5,
+              book_id: 2,
               amount: 8000,
               category_id: 40,
               created_at: "2025-05-01T00:00:00.000Z",
@@ -204,6 +210,7 @@ describe("fetchCategoryBudgets", () => {
 
     const select = requestCapture.url?.searchParams.get("select")
     expect(select).toContain("id")
+    expect(select).toContain("book_id")
     expect(select).toContain("category_id")
     expect(select).toContain("amount")
     expect(select).toContain("effective_from")
@@ -237,6 +244,7 @@ describe("fetchCategoryBudgets", () => {
         return HttpResponse.json([
           {
             id: "invalid",
+            book_id: 1,
             amount: 50000,
             category_id: 10,
             effective_from: "2025-03-01",
