@@ -5,7 +5,7 @@ import { normalizeMonthlyBudgetRows, toMonthlyBudget } from "../monthlyBudgetMap
 import type { MonthlyBudget } from "../types"
 
 const monthlyBudgetColumns =
-  "id, amount, effective_from, effective_year, effective_month, user_id, created_at, updated_at"
+  "id, book_id, amount, effective_from, effective_year, effective_month, user_id, created_at, updated_at"
 const monthlyBudgetLimitSchema = z.number().int().positive()
 
 export async function fetchMonthlyBudgets(limit: number): Promise<MonthlyBudget[]> {

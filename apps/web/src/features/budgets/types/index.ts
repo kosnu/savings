@@ -5,6 +5,7 @@ export type CategoryBudgetRow = Tables<"category_budgets">
 
 export interface MonthlyBudget {
   id: number
+  bookId: number
   amount: number
   effectiveFrom: Date
   effectiveYear: number
@@ -16,6 +17,7 @@ export interface MonthlyBudget {
 
 export interface CategoryBudget {
   id: number
+  bookId: number
   categoryId: number
   categoryName: string
   amount: number

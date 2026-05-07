@@ -13,6 +13,18 @@ describe("toMonthlyBudgetInsert", () => {
       amount: 300000,
       effective_from: "2026-03-01",
     })
+    expect(
+      toMonthlyBudgetInsert({
+        targetMonth: new Date(2026, 2, 20),
+        amount: 300000,
+      }),
+    ).not.toHaveProperty("book_id")
+    expect(
+      toMonthlyBudgetInsert({
+        targetMonth: new Date(2026, 2, 20),
+        amount: 300000,
+      }),
+    ).not.toHaveProperty("user_id")
   })
 
   test("選択日の年月を使い、日付は月初日に丸める", () => {

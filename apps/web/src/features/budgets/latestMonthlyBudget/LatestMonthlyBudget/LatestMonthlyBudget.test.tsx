@@ -13,6 +13,7 @@ import * as stories from "./LatestMonthlyBudget.stories"
 const { Default, Empty, FetchError, Loading } = composeStories(stories)
 const createdMonthlyBudget = {
   id: 999,
+  book_id: 1,
   amount: 300000,
   created_at: "2026-03-01T00:00:00.000Z",
   effective_from: "2026-03-01",

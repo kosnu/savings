@@ -15,6 +15,7 @@ vi.mock("./fetchMonthlyBudgets", () => ({
 function buildMonthlyBudget(id: number): MonthlyBudget {
   return {
     id,
+    bookId: 1,
     amount: 50000 + id,
     effectiveFrom: new Date(2025, id, 1),
     effectiveYear: 2025,

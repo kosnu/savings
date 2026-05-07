@@ -8,10 +8,10 @@ export interface MonthlyBudgetWriteInput {
   amount: number
 }
 
-// user_id は DB のデフォルト値（auth.uid()）で自動設定されるため FE から渡さない
+// book_id と user_id は DB のデフォルト値で自動設定されるため FE から渡さない
 export type MonthlyBudgetInsert = Omit<
   TablesInsert<"monthly_budgets">,
-  "user_id" | "effective_year" | "effective_month"
+  "book_id" | "user_id" | "effective_year" | "effective_month"
 >
 
 export function toMonthlyBudgetInsert(value: MonthlyBudgetWriteInput): MonthlyBudgetInsert {

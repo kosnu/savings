@@ -3,6 +3,7 @@ import type { MonthlyBudgetRow } from "../../features/budgets/types"
 export const monthlyBudgets: MonthlyBudgetRow[] = [
   {
     id: 4,
+    book_id: 1,
     amount: 42000,
     created_at: "2024-12-01T00:00:00.000Z",
     effective_from: "2024-12-01",
@@ -13,6 +14,7 @@ export const monthlyBudgets: MonthlyBudgetRow[] = [
   },
   {
     id: 1,
+    book_id: 1,
     amount: 50000,
     created_at: "2025-01-01T00:00:00.000Z",
     effective_from: "2025-01-01",
@@ -23,6 +25,7 @@ export const monthlyBudgets: MonthlyBudgetRow[] = [
   },
   {
     id: 2,
+    book_id: 1,
     amount: 62000,
     created_at: "2025-03-30T00:00:00.000Z",
     effective_from: "2025-03-30",
@@ -33,6 +36,7 @@ export const monthlyBudgets: MonthlyBudgetRow[] = [
   },
   {
     id: 3,
+    book_id: 1,
     amount: 75000,
     created_at: "2025-07-01T00:00:00.000Z",
     effective_from: "2025-07-01",

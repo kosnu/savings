@@ -126,6 +126,7 @@ export type Database = {
       category_budgets: {
         Row: {
           amount: number
+          book_id: number
           category_id: number
           created_at: string | null
           effective_from: string
@@ -137,6 +138,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          book_id?: number
           category_id: number
           created_at?: string | null
           effective_from: string
@@ -148,6 +150,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          book_id?: number
           category_id?: number
           created_at?: string | null
           effective_from?: string
@@ -158,6 +161,13 @@ export type Database = {
           user_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "category_budgets_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "category_budgets_category_id_fkey"
             columns: ["category_id"]
@@ -216,6 +226,7 @@ export type Database = {
       monthly_budgets: {
         Row: {
           amount: number
+          book_id: number
           created_at: string | null
           effective_from: string
           effective_month: number
@@ -226,6 +237,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          book_id?: number
           created_at?: string | null
           effective_from: string
           effective_month?: number
@@ -236,6 +248,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          book_id?: number
           created_at?: string | null
           effective_from?: string
           effective_month?: number
@@ -245,6 +258,13 @@ export type Database = {
           user_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "monthly_budgets_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "monthly_budgets_user_id_fkey"
             columns: ["user_id"]
