@@ -3,6 +3,7 @@ import type { CategoryBudgetRow } from "../../features/budgets/types"
 export const categoryBudgets: CategoryBudgetRow[] = [
   {
     id: 1,
+    book_id: 1,
     amount: 30000,
     category_id: 10,
     created_at: "2025-01-01T00:00:00.000Z",
@@ -14,6 +15,7 @@ export const categoryBudgets: CategoryBudgetRow[] = [
   },
   {
     id: 2,
+    book_id: 1,
     amount: 45000,
     category_id: 10,
     created_at: "2025-03-01T00:00:00.000Z",
@@ -25,6 +27,7 @@ export const categoryBudgets: CategoryBudgetRow[] = [
   },
   {
     id: 3,
+    book_id: 1,
     amount: 50000,
     category_id: 10,
     created_at: "2025-03-02T00:00:00.000Z",
@@ -36,6 +39,7 @@ export const categoryBudgets: CategoryBudgetRow[] = [
   },
   {
     id: 4,
+    book_id: 1,
     amount: 12000,
     category_id: 20,
     created_at: "2026-04-01T00:00:00.000Z",

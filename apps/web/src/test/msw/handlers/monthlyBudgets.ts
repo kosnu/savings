@@ -135,6 +135,7 @@ function buildMonthlyBudgetRow(
 
   return {
     id: Math.max(0, ...rows.map((row) => row.id)) + 1,
+    book_id: 1,
     amount: body.amount,
     created_at: now,
     effective_from: body.effective_from,

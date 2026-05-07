@@ -15,6 +15,7 @@ vi.mock("./fetchCategoryBudgets", () => ({
 function buildCategoryBudget(id: number): CategoryBudget {
   return {
     id,
+    bookId: 1,
     amount: 50000 + id,
     categoryId: 10 + id,
     categoryName: `Category ${id}`,

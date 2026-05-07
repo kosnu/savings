@@ -31,6 +31,7 @@ describe("fetchMonthlyBudgets", () => {
     expect(budgets[0]).toMatchObject({
       id: 3,
       amount: 75000,
+      bookId: 1,
       effectiveYear: 2025,
       effectiveMonth: 7,
       userId: 100,
@@ -67,6 +68,7 @@ describe("fetchMonthlyBudgets", () => {
 
     const select = requestCapture.url?.searchParams.get("select")
     expect(select).toContain("id")
+    expect(select).toContain("book_id")
     expect(select).toContain("amount")
     expect(select).toContain("effective_from")
     expect(select).toContain("effective_year")
@@ -84,6 +86,7 @@ describe("fetchMonthlyBudgets", () => {
         return HttpResponse.json([
           {
             id: "invalid",
+            book_id: 1,
             amount: 62000,
             effective_from: "2025-03-30",
             effective_year: 2025,
