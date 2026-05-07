@@ -147,6 +147,7 @@ function toPayment(payment: PaymentDetails): Payment {
     note: payment.note,
     amount: payment.amount,
     date: payment.date,
+    bookId: payment.bookId,
     userId: payment.userId,
     createdDate: payment.createdDate,
     updatedDate: payment.updatedDate,

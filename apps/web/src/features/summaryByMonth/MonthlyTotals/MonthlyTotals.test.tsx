@@ -2,10 +2,12 @@ import { composeStories } from "@storybook/react-vite"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
+import { payments } from "../../../test/data/payments"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
 import { render, screen, waitFor } from "../../../test/test-utils"
+import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import * as stories from "./MonthlyTotals.stories"
 
 const { Default } = composeStories(stories)
@@ -82,5 +84,25 @@ describe("MonthlyTotals", () => {
 
     expect(await screen.findByText("￥10,000")).toBeInTheDocument()
     expect(await screen.findByText("Could not get the budget")).toBeInTheDocument()
+  })
+
+  test("月次合計は現在のbookに属する支払いのみで計算する", async () => {
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: [
+          mapPaymentToRow(payments[0]),
+          {
+            ...mapPaymentToRow(payments[1]),
+            book_id: 2,
+          },
+        ],
+      }),
+      ...createMonthlyBudgetHandlers({
+        get: { response: { ...monthlyBudgets[2], amount: 30000 } },
+      }),
+    )
+    renderStory()
+
+    expect(await screen.findByText("￥1,000")).toBeInTheDocument()
   })
 })

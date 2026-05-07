@@ -3,6 +3,7 @@ import type { Payment } from "../../types/payment"
 export const longPayment: Payment = {
   id: 99,
   categoryId: 30,
+  bookId: 1,
   userId: 100,
   date: new Date(1999, 2, 1),
   note: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -15,6 +16,7 @@ export const payments: Payment[] = [
   {
     id: 1,
     categoryId: 10,
+    bookId: 1,
     userId: 100,
     date: new Date(2025, 5, 2),
     note: "コンビニ",
@@ -25,6 +27,7 @@ export const payments: Payment[] = [
   {
     id: 2,
     categoryId: 20,
+    bookId: 1,
     userId: 100,
     date: new Date(2025, 5, 3),
     note: "コンビニ",
@@ -35,6 +38,7 @@ export const payments: Payment[] = [
   {
     id: 3,
     categoryId: 10,
+    bookId: 1,
     userId: 100,
     date: new Date(2025, 3, 1),
     note: "スーパー",
@@ -45,6 +49,7 @@ export const payments: Payment[] = [
   {
     id: 4,
     categoryId: 30,
+    bookId: 1,
     userId: 100,
     date: new Date(2025, 2, 1),
     note: "コンビニ",

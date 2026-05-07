@@ -22,6 +22,7 @@ describe("fetchPaymentDetails", () => {
 
     expect(payment).not.toBeNull()
     expect(payment?.id).toBe(1)
+    expect(payment?.bookId).toBe(1)
     expect(payment?.date).toBeInstanceOf(Date)
     expect(payment?.createdDate).toBeInstanceOf(Date)
     expect(payment?.updatedDate).toBeInstanceOf(Date)
@@ -62,6 +63,7 @@ describe("fetchPaymentDetails", () => {
           id: "invalid",
           amount: 1000,
           date: "2025-06-02",
+          book_id: 1,
           user_id: 100,
           category: null,
         })
@@ -69,5 +71,22 @@ describe("fetchPaymentDetails", () => {
     )
 
     await expect(fetchPaymentDetails(1)).rejects.toThrow("Invalid payment details response")
+  })
+
+  it("現在のbookに属さない支払いは null を返す", async () => {
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: [
+          {
+            ...mapPaymentToRow(payments[0]),
+            book_id: 2,
+          },
+        ],
+      }),
+    )
+
+    const payment = await fetchPaymentDetails(1)
+
+    expect(payment).toBeNull()
   })
 })
