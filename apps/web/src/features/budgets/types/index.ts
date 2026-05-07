@@ -10,7 +10,6 @@ export interface MonthlyBudget {
   effectiveFrom: Date
   effectiveYear: number
   effectiveMonth: number
-  userId: number
   createdDate: Date
   updatedDate: Date
 }
@@ -24,7 +23,6 @@ export interface CategoryBudget {
   effectiveFrom: Date
   effectiveYear: number
   effectiveMonth: number
-  userId: number
   createdDate: Date
   updatedDate: Date
 }

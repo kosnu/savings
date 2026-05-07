@@ -8,7 +8,7 @@ export async function fetchEffectiveMonthlyBudget(targetDate: Date): Promise<Mon
   const { data, error } = await supabase
     .from("monthly_budgets")
     .select(
-      "id, book_id, amount, effective_from, effective_year, effective_month, user_id, created_at, updated_at",
+      "id, book_id, amount, effective_from, effective_year, effective_month, created_at, updated_at",
     )
     .lte("effective_from", toMonthEndIsoDate(targetDate))
     .order("effective_from", { ascending: false })

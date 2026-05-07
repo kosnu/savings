@@ -22,7 +22,6 @@ function buildCategoryBudget(id: number): CategoryBudget {
     effectiveFrom: new Date(2025, id, 1),
     effectiveYear: 2025,
     effectiveMonth: id + 1,
-    userId: 100,
     createdDate: new Date("2025-01-01T00:00:00.000Z"),
     updatedDate: new Date("2025-01-01T00:00:00.000Z"),
   }

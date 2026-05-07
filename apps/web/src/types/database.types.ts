@@ -134,7 +134,6 @@ export type Database = {
           effective_year: number
           id: number
           updated_at: string | null
-          user_id: number
         }
         Insert: {
           amount: number
@@ -146,7 +145,6 @@ export type Database = {
           effective_year?: number
           id?: never
           updated_at?: string | null
-          user_id?: number
         }
         Update: {
           amount?: number
@@ -158,7 +156,6 @@ export type Database = {
           effective_year?: number
           id?: never
           updated_at?: string | null
-          user_id?: number
         }
         Relationships: [
           {
@@ -173,13 +170,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "category_budgets_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -233,7 +223,6 @@ export type Database = {
           effective_year: number
           id: number
           updated_at: string | null
-          user_id: number
         }
         Insert: {
           amount: number
@@ -244,7 +233,6 @@ export type Database = {
           effective_year?: number
           id?: never
           updated_at?: string | null
-          user_id?: number
         }
         Update: {
           amount?: number
@@ -255,7 +243,6 @@ export type Database = {
           effective_year?: number
           id?: never
           updated_at?: string | null
-          user_id?: number
         }
         Relationships: [
           {
@@ -263,13 +250,6 @@ export type Database = {
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "monthly_budgets_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -284,7 +264,6 @@ export type Database = {
           id: number
           note: string | null
           updated_at: string | null
-          user_id: number
         }
         Insert: {
           amount: number
@@ -295,7 +274,6 @@ export type Database = {
           id?: never
           note?: string | null
           updated_at?: string | null
-          user_id?: number
         }
         Update: {
           amount?: number
@@ -306,7 +284,6 @@ export type Database = {
           id?: never
           note?: string | null
           updated_at?: string | null
-          user_id?: number
         }
         Relationships: [
           {
@@ -321,13 +298,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

@@ -18,7 +18,6 @@ const paymentDetailsRowSchema = z.object({
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
   book_id: z.number(),
-  user_id: z.number(),
   category: paymentCategorySchema,
 })
 
@@ -37,7 +36,6 @@ export async function fetchPaymentDetails(paymentId: PaymentId): Promise<Payment
         created_at,
         updated_at,
         book_id,
-        user_id,
         category:categories!payments_category_id_fkey (
           id,
           name
@@ -63,7 +61,6 @@ export async function fetchPaymentDetails(paymentId: PaymentId): Promise<Payment
     amount: row.amount,
     date: new Date(row.date),
     bookId: row.book_id,
-    userId: row.user_id,
     createdDate: row.created_at ? new Date(row.created_at) : new Date(),
     updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
     category: row.category,
