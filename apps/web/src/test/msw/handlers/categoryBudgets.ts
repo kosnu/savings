@@ -2,10 +2,11 @@ import { type DelayMode, HttpResponse, delay, http } from "msw"
 import * as z from "zod"
 
 import type { CategoryBudgetRow } from "../../../features/budgets/types"
-import { categories } from "../../data/categories"
+import { allCategories } from "../../data/categories"
 import { categoryBudgets } from "../../data/categoryBudgets"
 
 const REST_URL = "*/rest/v1/category_budgets*"
+const CURRENT_BOOK_ID = 1
 
 interface CategoryBudgetResponseRow extends CategoryBudgetRow {
   category: {
@@ -20,6 +21,7 @@ interface BaseOptions {
 }
 
 interface GetCategoryBudgetsOptions extends BaseOptions {
+  rows?: CategoryBudgetRow[]
   response?: CategoryBudgetResponseRow[]
 }
 
@@ -29,6 +31,7 @@ interface CreateCategoryBudgetOptions extends BaseOptions {
 }
 
 interface CreateCategoryBudgetHandlersOptions {
+  currentBookId?: number
   get?: GetCategoryBudgetsOptions
   create?: CreateCategoryBudgetOptions
 }
@@ -41,8 +44,20 @@ const createCategoryBudgetBodySchema = z.object({
 
 type CreateCategoryBudgetBody = z.infer<typeof createCategoryBudgetBodySchema>
 
-const defaultCategoryBudgetRows: CategoryBudgetResponseRow[] = categoryBudgets.map((row) => {
-  const category = categories.find((candidate) => candidate.id === row.category_id)
+function toCategoryBudgetResponseRows(
+  rows: CategoryBudgetRow[],
+  currentBookId: number,
+): CategoryBudgetResponseRow[] {
+  return rows.map((row) => toCategoryBudgetResponseRow(row, currentBookId))
+}
+
+function toCategoryBudgetResponseRow(
+  row: CategoryBudgetRow,
+  currentBookId: number,
+): CategoryBudgetResponseRow {
+  const category = allCategories.find(
+    (candidate) => candidate.id === row.category_id && candidate.bookId === currentBookId,
+  )
 
   return {
     ...row,
@@ -51,12 +66,16 @@ const defaultCategoryBudgetRows: CategoryBudgetResponseRow[] = categoryBudgets.m
       name: category?.name ?? "Unknown",
     },
   }
-})
+}
 
 export function createCategoryBudgetHandlers({
+  currentBookId = CURRENT_BOOK_ID,
   get = {},
   create = {},
 }: CreateCategoryBudgetHandlersOptions = {}) {
+  const getRows =
+    get.response ?? toCategoryBudgetResponseRows(get.rows ?? categoryBudgets, currentBookId)
+
   const categoryBudgetsHandler = http.get(REST_URL, async () => {
     await delay(get.durationOrMode)
 
@@ -64,7 +83,7 @@ export function createCategoryBudgetHandlers({
       return HttpResponse.json({ message: "Failed to fetch category budgets." }, { status: 500 })
     }
 
-    return HttpResponse.json(get.response ?? defaultCategoryBudgetRows)
+    return HttpResponse.json(getRows)
   })
 
   const createCategoryBudgetHandler = http.post(REST_URL, async ({ request }) => {
@@ -83,7 +102,7 @@ export function createCategoryBudgetHandlers({
 
     const body = await request.json()
     const parsedBody = createCategoryBudgetBodySchema.parse(body)
-    const newRow = buildCategoryBudgetRow(parsedBody, get.response ?? defaultCategoryBudgetRows)
+    const newRow = buildCategoryBudgetRow(parsedBody, getRows, currentBookId)
 
     return HttpResponse.json([newRow], { status: 201 })
   })
@@ -94,10 +113,13 @@ export function createCategoryBudgetHandlers({
 function buildCategoryBudgetRow(
   body: CreateCategoryBudgetBody,
   rows: CategoryBudgetResponseRow[],
+  currentBookId: number,
 ): CategoryBudgetResponseRow {
   const [year, month] = body.effective_from.split("-").map((value) => Number.parseInt(value, 10))
   const now = new Date().toISOString()
-  const category = categories.find((candidate) => candidate.id === body.category_id)
+  const category = allCategories.find(
+    (candidate) => candidate.id === body.category_id && candidate.bookId === currentBookId,
+  )
 
   return {
     id: Math.max(0, ...rows.map((row) => row.id)) + 1,

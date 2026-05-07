@@ -93,24 +93,35 @@ export type Database = {
       }
       categories: {
         Row: {
+          book_id: number
           created_at: string | null
           id: number
           name: string
           updated_at: string | null
         }
         Insert: {
+          book_id: number
           created_at?: string | null
           id?: never
           name: string
           updated_at?: string | null
         }
         Update: {
+          book_id?: number
           created_at?: string | null
           id?: never
           name?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       category_budgets: {
         Row: {
