@@ -4,6 +4,7 @@ import type { Category, CategoryRow } from "../../../types/category"
 function toCategoryFromRow(row: CategoryRow): Category {
   return {
     id: row.id,
+    bookId: row.book_id,
     name: row.name,
     createdDate: row.created_at ? new Date(row.created_at) : new Date(),
     updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
@@ -14,7 +15,7 @@ export async function fetchCategories(): Promise<Category[]> {
   const supabase = getSupabaseClient()
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select("id, name, book_id, created_at, updated_at")
     .order("id", { ascending: true })
 
   if (error) {

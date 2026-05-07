@@ -158,6 +158,37 @@ describe("fetchCategoryBudgets", () => {
     expect(budgets.find((budget) => budget.categoryId === 20)?.id).toBe(4)
   })
 
+  it("同じbookに属さないカテゴリ名はカテゴリ別予算に結合しない", async () => {
+    server.resetHandlers(
+      ...createCategoryBudgetHandlers({
+        get: {
+          rows: [
+            {
+              id: 5,
+              amount: 8000,
+              category_id: 40,
+              created_at: "2025-05-01T00:00:00.000Z",
+              effective_from: "2025-05-01",
+              effective_month: 5,
+              effective_year: 2025,
+              updated_at: "2025-05-01T00:00:00.000Z",
+              user_id: 100,
+            },
+          ],
+        },
+      }),
+    )
+
+    const budgets = await fetchCategoryBudgets()
+
+    expect(budgets).toHaveLength(1)
+    expect(budgets[0]).toMatchObject({
+      id: 5,
+      categoryId: 40,
+      categoryName: "Unknown",
+    })
+  })
+
   it("カテゴリ別予算とカテゴリ名を取得する query を送る", async () => {
     const requestCapture: { url: URL | null } = { url: null }
 
