@@ -14,6 +14,7 @@ export function mapPaymentToRow(payment: Payment): PaymentRow {
     date: format(payment.date, "yyyy-MM-dd"),
     created_at: payment.createdDate.toISOString(),
     updated_at: payment.updatedDate.toISOString(),
+    book_id: payment.bookId,
     category_id: payment.categoryId,
     user_id: payment.userId,
   }

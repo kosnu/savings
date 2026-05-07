@@ -29,6 +29,7 @@ describe("updatePayment", () => {
       date: "2024-09-22",
     })
     expect(mockUpdate.mock.calls[0]?.[0]).not.toHaveProperty("user_id")
+    expect(mockUpdate.mock.calls[0]?.[0]).not.toHaveProperty("book_id")
     expect(mockEq).toHaveBeenCalledWith("id", 42)
   })
 

@@ -9,6 +9,7 @@ import { mapPaymentToRow } from "../../utils/mapPaymentToRow"
 
 const REST_URL = "*/rest/v1/payments*"
 const MONTHLY_TOTAL_AMOUNT_REST_URL = "*/rest/v1/rpc/get_monthly_total_amount"
+const CURRENT_BOOK_ID = 1
 
 const initialPaymentRows: PaymentRow[] = payments.map(mapPaymentToRow)
 const initialCategoryRows: CategoryRow[] = categories.map((category) => ({
@@ -52,6 +53,7 @@ interface GetMonthlyTotalAmountOptions extends BaseOptions {
 
 interface CreatePaymentHandlersOptions {
   initialRows?: PaymentRow[]
+  currentBookId?: number
   get?: GetPaymentsOptions
   create?: CreatePaymentOptions
   update?: UpdatePaymentOptions
@@ -59,7 +61,11 @@ interface CreatePaymentHandlersOptions {
   getMonthlyTotalAmount?: GetMonthlyTotalAmountOptions
 }
 
-function filterAndSortPayments(rows: PaymentRow[], request: Request): PaymentRow[] {
+function filterAndSortPayments(
+  rows: PaymentRow[],
+  request: Request,
+  currentBookId: number,
+): PaymentRow[] {
   const url = new URL(request.url)
   const dateFilters = url.searchParams.getAll("date")
   const idFilter = url.searchParams.get("id")
@@ -69,6 +75,7 @@ function filterAndSortPayments(rows: PaymentRow[], request: Request): PaymentRow
   const id = idFilter?.startsWith("eq.") ? idFilter.replace("eq.", "") : null
 
   return rows
+    .filter((row) => row.book_id === currentBookId)
     .filter((row) => {
       if (id && String(row.id) !== id) {
         return false
@@ -112,6 +119,7 @@ function toPaymentDetailsRow(row: PaymentRow, categoryRows: CategoryRow[]): Paym
     date: row.date,
     created_at: row.created_at,
     updated_at: row.updated_at,
+    book_id: row.book_id,
     user_id: row.user_id,
     category: category
       ? {
@@ -142,7 +150,11 @@ const getMonthlyTotalAmountRequestBodySchema = z.object({
   p_month: z.string().optional(),
 })
 
-function buildPaymentRow(body: CreatePaymentBody, paymentRows: PaymentRow[]): PaymentRow {
+function buildPaymentRow(
+  body: CreatePaymentBody,
+  paymentRows: PaymentRow[],
+  currentBookId: number,
+): PaymentRow {
   const now = new Date().toISOString()
 
   return {
@@ -152,23 +164,31 @@ function buildPaymentRow(body: CreatePaymentBody, paymentRows: PaymentRow[]): Pa
     date: body.date,
     created_at: now,
     updated_at: now,
+    book_id: currentBookId,
     category_id: body.category_id,
     user_id: 100,
   }
 }
 
-function calculateMonthlyTotalAmount(paymentRows: PaymentRow[], month?: string): number {
+function calculateMonthlyTotalAmount(
+  paymentRows: PaymentRow[],
+  currentBookId: number,
+  month?: string,
+): number {
+  const currentBookPaymentRows = paymentRows.filter((row) => row.book_id === currentBookId)
+
   if (!month) {
-    return paymentRows.reduce((sum, row) => sum + row.amount, 0)
+    return currentBookPaymentRows.reduce((sum, row) => sum + row.amount, 0)
   }
 
-  return paymentRows
+  return currentBookPaymentRows
     .filter((row) => row.date.startsWith(`${month}-`))
     .reduce((sum, row) => sum + row.amount, 0)
 }
 
 export function createPaymentHandlers({
   initialRows = initialPaymentRows,
+  currentBookId = CURRENT_BOOK_ID,
   get = {},
   create = {},
   update = {},
@@ -185,7 +205,7 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to fetch payments." }, { status: 500 })
     }
 
-    const filteredRows = filterAndSortPayments(rows, request)
+    const filteredRows = filterAndSortPayments(rows, request, currentBookId)
 
     if (shouldIncludeCategory(request)) {
       const detailsRows = filteredRows.map((row) => toPaymentDetailsRow(row, categoryRows))
@@ -217,7 +237,7 @@ export function createPaymentHandlers({
 
     const body = await request.json()
     const parsedBody = createPaymentBodySchema.parse(body)
-    const newRow = buildPaymentRow(parsedBody, rows)
+    const newRow = buildPaymentRow(parsedBody, rows, currentBookId)
 
     return HttpResponse.json([newRow], { status: 201 })
   })
@@ -263,7 +283,7 @@ export function createPaymentHandlers({
 
       const body = await request.json()
       const parsedBody = getMonthlyTotalAmountRequestBodySchema.parse(body)
-      return HttpResponse.json(calculateMonthlyTotalAmount(rows, parsedBody.p_month))
+      return HttpResponse.json(calculateMonthlyTotalAmount(rows, currentBookId, parsedBody.p_month))
     },
   )
 

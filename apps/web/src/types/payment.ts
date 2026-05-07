@@ -8,6 +8,7 @@ export interface Payment {
   note: string
   amount: number
   date: Date
+  bookId: number
   userId: number
   createdDate: Date
   updatedDate: Date
