@@ -3,7 +3,7 @@ import z from "zod"
 
 import type { CategoryRow } from "../../../types/category"
 import type { PaymentRow } from "../../../types/payment"
-import { categories } from "../../data/categories"
+import { allCategories } from "../../data/categories"
 import { payments } from "../../data/payments"
 import { mapPaymentToRow } from "../../utils/mapPaymentToRow"
 
@@ -12,8 +12,9 @@ const MONTHLY_TOTAL_AMOUNT_REST_URL = "*/rest/v1/rpc/get_monthly_total_amount"
 const CURRENT_BOOK_ID = 1
 
 const initialPaymentRows: PaymentRow[] = payments.map(mapPaymentToRow)
-const initialCategoryRows: CategoryRow[] = categories.map((category) => ({
+const initialCategoryRows: CategoryRow[] = allCategories.map((category) => ({
   id: category.id,
+  book_id: category.bookId,
   name: category.name,
   created_at: category.createdDate.toISOString(),
   updated_at: category.updatedDate.toISOString(),
@@ -110,7 +111,9 @@ function shouldReturnSingleObject(request: Request): boolean {
 }
 
 function toPaymentDetailsRow(row: PaymentRow, categoryRows: CategoryRow[]): PaymentDetailsRow {
-  const category = categoryRows.find((candidate) => candidate.id === row.category_id)
+  const category = categoryRows.find(
+    (candidate) => candidate.id === row.category_id && candidate.book_id === row.book_id,
+  )
 
   return {
     id: row.id,

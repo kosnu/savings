@@ -50,6 +50,24 @@ describe("fetchPaymentDetails", () => {
     expect(payment?.category).toBeNull()
   })
 
+  it("同じbookに属さないカテゴリは支払い詳細のcategoryに結合しない", async () => {
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: [
+          {
+            ...mapPaymentToRow(payments[0]),
+            category_id: 40,
+          },
+        ],
+      }),
+    )
+
+    const payment = await fetchPaymentDetails(1)
+
+    expect(payment).not.toBeNull()
+    expect(payment?.category).toBeNull()
+  })
+
   it("対象が存在しないときは null を返す", async () => {
     const payment = await fetchPaymentDetails(999)
 
