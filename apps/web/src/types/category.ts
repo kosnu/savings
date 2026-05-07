@@ -4,6 +4,7 @@ export type CategoryRow = Tables<"categories">
 
 export interface Category {
   id: number
+  bookId: number
   name: string
   createdDate: Date
   updatedDate: Date
