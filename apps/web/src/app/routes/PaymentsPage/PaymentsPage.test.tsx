@@ -40,6 +40,7 @@ const createdPayment = mapPaymentToRow({
   note: createdPaymentFormInput.note,
   amount: createdPaymentFormInput.amount,
   date: new Date("2025-06-15T00:00:00+09:00"),
+  bookId: 1,
   userId: 100,
   createdDate: new Date("2025-06-15T12:00:00+09:00"),
   updatedDate: new Date("2025-06-15T12:00:00+09:00"),

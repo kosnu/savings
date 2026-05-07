@@ -246,6 +246,7 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          book_id: number
           category_id: number | null
           created_at: string | null
           date: string
@@ -256,6 +257,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          book_id?: number
           category_id?: number | null
           created_at?: string | null
           date: string
@@ -266,6 +268,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          book_id?: number
           category_id?: number | null
           created_at?: string | null
           date?: string
@@ -275,6 +278,13 @@ export type Database = {
           user_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_category_id_fkey"
             columns: ["category_id"]
@@ -323,6 +333,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
       get_monthly_total_amount: { Args: { p_month: string }; Returns: number }
     }

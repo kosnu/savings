@@ -15,6 +15,7 @@ function createPaymentFixture(overrides: Partial<Payment> = {}): Payment {
     note: "lunch",
     amount: 1200,
     date: new Date(2024, 8, 22),
+    bookId: 1,
     userId: 10,
     createdDate: new Date(2024, 8, 22, 0, 0, 0),
     updatedDate: new Date(2024, 8, 22, 0, 0, 0),
@@ -68,6 +69,7 @@ describe("toPaymentWriteInsert", () => {
       amount: 1080,
     })
     expect(row).not.toHaveProperty("user_id")
+    expect(row).not.toHaveProperty("book_id")
   })
 
   test("空文字は null に正規化する", () => {
@@ -112,6 +114,7 @@ describe("toPaymentWriteUpdate", () => {
       note: "dinner",
     })
     expect(payload).not.toHaveProperty("user_id")
+    expect(payload).not.toHaveProperty("book_id")
   })
 
   test("空文字は null に正規化する", () => {

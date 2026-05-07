@@ -1,8 +1,11 @@
 import { HttpResponse, http } from "msw"
-import { describe, expect, it, vi } from "vite-plus/test"
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
+import { payments } from "../../../test/data/payments"
+import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
 import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
+import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import { fetchPayments } from "./fetchPayments"
 
 vi.mock("../../../lib/supabase", () => ({
@@ -10,6 +13,10 @@ vi.mock("../../../lib/supabase", () => ({
 }))
 
 describe("fetchPayments", () => {
+  beforeEach(() => {
+    server.resetHandlers(...createPaymentHandlers())
+  })
+
   it("date, createdDate, updatedDateをDateオブジェクトに変換する", async () => {
     const payments = await fetchPayments([null, null])
 
@@ -34,6 +41,25 @@ describe("fetchPayments", () => {
     for (const payment of payments) {
       expect(typeof payment.note).toBe("string")
     }
+  })
+
+  it("現在のbookに属する支払いのみ返す", async () => {
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: [
+          mapPaymentToRow(payments[0]),
+          {
+            ...mapPaymentToRow(payments[1]),
+            book_id: 2,
+          },
+        ],
+      }),
+    )
+
+    const fetchedPayments = await fetchPayments([null, null])
+
+    expect(fetchedPayments).toHaveLength(1)
+    expect(fetchedPayments[0]?.bookId).toBe(1)
   })
 
   it("startDateを指定するとそれ以降の支払いのみ返す", async () => {
