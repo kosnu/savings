@@ -21,6 +21,7 @@ describe("fetchEffectiveMonthlyBudget", () => {
 
     expect(budget).not.toBeNull()
     expect(budget?.id).toBe(2)
+    expect(budget?.bookId).toBe(1)
     expect(budget?.amount).toBe(62000)
     expect(budget?.effectiveFrom).toEqual(new Date(2025, 2, 30))
     expect(budget?.effectiveYear).toBe(2025)
@@ -48,6 +49,7 @@ describe("fetchEffectiveMonthlyBudget", () => {
       http.get("*/rest/v1/monthly_budgets*", () => {
         return HttpResponse.json({
           id: "invalid",
+          book_id: 1,
           amount: 62000,
           effective_from: "2025-03-30",
           effective_year: 2025,

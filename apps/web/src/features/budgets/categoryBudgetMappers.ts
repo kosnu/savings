@@ -5,6 +5,7 @@ import { parseIsoDateOnlyToLocalDate } from "./utils/month"
 
 const categoryBudgetRowSchema = z.object({
   id: z.number(),
+  book_id: z.number(),
   category_id: z.number(),
   amount: z.number(),
   effective_from: z.string(),
@@ -34,6 +35,7 @@ export function normalizeCategoryBudgetRows(value: unknown): NormalizedCategoryB
 export function toCategoryBudget(row: NormalizedCategoryBudgetRow): CategoryBudget {
   return {
     id: row.id,
+    bookId: row.book_id,
     categoryId: row.category_id,
     categoryName: row.category.name,
     amount: row.amount,

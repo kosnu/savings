@@ -16,6 +16,7 @@ describe("toCategoryBudgetInsert", () => {
       effective_from: "2026-03-01",
     })
     expect(row).not.toHaveProperty("book_id")
+    expect(row).not.toHaveProperty("user_id")
   })
 
   test("選択日の年月を使い、日付は月初日に丸める", () => {

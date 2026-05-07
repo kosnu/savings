@@ -123,6 +123,7 @@ function buildCategoryBudgetRow(
 
   return {
     id: Math.max(0, ...rows.map((row) => row.id)) + 1,
+    book_id: currentBookId,
     amount: body.amount,
     category_id: body.category_id,
     created_at: now,

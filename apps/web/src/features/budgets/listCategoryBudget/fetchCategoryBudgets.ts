@@ -8,6 +8,7 @@ import type { CategoryBudget } from "../types"
 
 const categoryBudgetColumns = `
   id,
+  book_id,
   category_id,
   amount,
   effective_from,
