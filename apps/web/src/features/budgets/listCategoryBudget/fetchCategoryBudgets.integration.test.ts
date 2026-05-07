@@ -20,7 +20,6 @@ const foodBudgetOld = {
   effective_month: 1,
   effective_year: 2025,
   updated_at: "2025-01-01T00:00:00.000Z",
-  user_id: 100,
   category: {
     id: 10,
     name: "Food",
@@ -37,7 +36,6 @@ const foodBudgetLatestSameDay = {
   effective_month: 3,
   effective_year: 2025,
   updated_at: "2025-03-02T00:00:00.000Z",
-  user_id: 100,
   category: {
     id: 10,
     name: "Food",
@@ -54,7 +52,6 @@ const foodBudgetOlderSameDay = {
   effective_month: 3,
   effective_year: 2025,
   updated_at: "2025-03-01T00:00:00.000Z",
-  user_id: 100,
   category: {
     id: 10,
     name: "Food",
@@ -71,7 +68,6 @@ const dailyNecessitiesFutureBudget = {
   effective_month: 4,
   effective_year: 2099,
   updated_at: "2099-04-01T00:00:00.000Z",
-  user_id: 100,
   category: {
     id: 20,
     name: "Daily Necessities",
@@ -103,7 +99,6 @@ describe("fetchCategoryBudgets", () => {
       categoryName: "Food",
       effectiveYear: 2025,
       effectiveMonth: 3,
-      userId: 100,
     })
     expect(budgets[0]?.effectiveFrom).toEqual(new Date(2025, 2, 1))
     expect(budgets[0]?.createdDate).toBeInstanceOf(Date)
@@ -178,7 +173,6 @@ describe("fetchCategoryBudgets", () => {
               effective_month: 5,
               effective_year: 2025,
               updated_at: "2025-05-01T00:00:00.000Z",
-              user_id: 100,
             },
           ],
         },
@@ -216,7 +210,6 @@ describe("fetchCategoryBudgets", () => {
     expect(select).toContain("effective_from")
     expect(select).toContain("effective_year")
     expect(select).toContain("effective_month")
-    expect(select).toContain("user_id")
     expect(select).toContain("created_at")
     expect(select).toContain("updated_at")
     expect(select).toContain("category:categories!category_budgets_category_id_fkey")
@@ -250,7 +243,6 @@ describe("fetchCategoryBudgets", () => {
             effective_from: "2025-03-01",
             effective_year: 2025,
             effective_month: 3,
-            user_id: 100,
             created_at: "2025-03-02T00:00:00.000Z",
             updated_at: "2025-03-02T00:00:00.000Z",
             category: {

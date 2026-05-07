@@ -10,7 +10,6 @@ export const monthlyBudgets: MonthlyBudgetRow[] = [
     effective_month: 12,
     effective_year: 2024,
     updated_at: "2024-12-01T00:00:00.000Z",
-    user_id: 100,
   },
   {
     id: 1,
@@ -21,7 +20,6 @@ export const monthlyBudgets: MonthlyBudgetRow[] = [
     effective_month: 1,
     effective_year: 2025,
     updated_at: "2025-01-01T00:00:00.000Z",
-    user_id: 100,
   },
   {
     id: 2,
@@ -32,7 +30,6 @@ export const monthlyBudgets: MonthlyBudgetRow[] = [
     effective_month: 3,
     effective_year: 2025,
     updated_at: "2025-03-30T00:00:00.000Z",
-    user_id: 100,
   },
   {
     id: 3,
@@ -43,6 +40,5 @@ export const monthlyBudgets: MonthlyBudgetRow[] = [
     effective_month: 7,
     effective_year: 2025,
     updated_at: "2025-07-01T00:00:00.000Z",
-    user_id: 100,
   },
 ]

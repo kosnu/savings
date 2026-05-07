@@ -123,7 +123,6 @@ function toPaymentDetailsRow(row: PaymentRow, categoryRows: CategoryRow[]): Paym
     created_at: row.created_at,
     updated_at: row.updated_at,
     book_id: row.book_id,
-    user_id: row.user_id,
     category: category
       ? {
           id: category.id,
@@ -169,7 +168,6 @@ function buildPaymentRow(
     updated_at: now,
     book_id: currentBookId,
     category_id: body.category_id,
-    user_id: 100,
   }
 }
 

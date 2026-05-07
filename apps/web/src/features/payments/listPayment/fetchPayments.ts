@@ -14,7 +14,7 @@ export async function fetchPayments(
   const supabase = getSupabaseClient()
   let query = supabase
     .from("payments")
-    .select("id, note, amount, date, created_at, updated_at, book_id, category_id, user_id")
+    .select("id, note, amount, date, created_at, updated_at, book_id, category_id")
     .order("date", { ascending: false })
     .order("id", { ascending: false })
 
@@ -44,7 +44,6 @@ export async function fetchPayments(
     amount: row.amount,
     date: new Date(row.date),
     bookId: row.book_id,
-    userId: row.user_id,
     createdDate: row.created_at ? new Date(row.created_at) : new Date(),
     updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
   }))

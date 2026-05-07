@@ -131,7 +131,6 @@ function buildCategoryBudgetRow(
     effective_month: month,
     effective_year: year,
     updated_at: now,
-    user_id: 100,
     category: {
       id: body.category_id,
       name: category?.name ?? "Unknown",

@@ -16,6 +16,5 @@ export function mapPaymentToRow(payment: Payment): PaymentRow {
     updated_at: payment.updatedDate.toISOString(),
     book_id: payment.bookId,
     category_id: payment.categoryId,
-    user_id: payment.userId,
   }
 }

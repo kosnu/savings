@@ -4,11 +4,8 @@ import type { TablesInsert, TablesUpdate } from "../../types/database.types"
 import type { Payment } from "../../types/payment"
 import { noteFieldSchema, type PaymentFormValues } from "./paymentFormSchema"
 
-type PaymentInsert = Omit<TablesInsert<"payments">, "book_id" | "user_id">
-type PaymentUpdate = Omit<
-  TablesUpdate<"payments">,
-  "book_id" | "user_id" | "id" | "created_at" | "updated_at"
->
+type PaymentInsert = Omit<TablesInsert<"payments">, "book_id">
+type PaymentUpdate = Omit<TablesUpdate<"payments">, "book_id" | "id" | "created_at" | "updated_at">
 
 export interface PaymentWriteInput {
   categoryId?: string
