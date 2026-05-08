@@ -1,8 +1,9 @@
 import type { Session } from "@supabase/supabase-js"
-import { createContext, type ReactNode, useEffect, useState } from "react"
+import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
 import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
+import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
 
 export type AuthStatus = "loading" | "unauthenticated" | "authenticated"
 
@@ -17,42 +18,103 @@ interface SupabaseSessionProviderProps {
   children: ReactNode
 }
 
+const initialSessionState: SupabaseSessionState = {
+  status: "loading",
+  session: null,
+}
+
+const unauthenticatedSessionState: SupabaseSessionState = {
+  status: "unauthenticated",
+  session: null,
+}
+
 export function SupabaseSessionProvider({ children }: SupabaseSessionProviderProps) {
-  const [state, setState] = useState<SupabaseSessionState>({
-    status: "loading",
-    session: null,
-  })
+  const sessionGenerationRef = useRef(0)
+  const stateRef = useRef<SupabaseSessionState>(initialSessionState)
+  const [state, setState] = useState<SupabaseSessionState>(initialSessionState)
 
   useEffect(() => {
     const supabase = getSupabaseClient()
+    let isActive = true
 
-    const handleSessionError = (error: unknown) => {
-      captureSupabaseSessionError(error)
-      setState((currentState) =>
-        currentState.status === "loading"
-          ? { status: "unauthenticated", session: null }
-          : currentState,
-      )
+    const setSessionState = (nextState: SupabaseSessionState) => {
+      stateRef.current = nextState
+      setState(nextState)
     }
+
+    const handleSessionError = (
+      error: unknown,
+      sessionGeneration = sessionGenerationRef.current,
+    ) => {
+      captureSupabaseSessionError(error)
+      if (!isActive) return
+      if (sessionGenerationRef.current !== sessionGeneration) return
+
+      if (stateRef.current.status === "loading") {
+        setSessionState(unauthenticatedSessionState)
+      }
+    }
+
+    const handleSession = async (session: Session | null, sessionGeneration: number) => {
+      const isLatestSessionGeneration = () => sessionGenerationRef.current === sessionGeneration
+
+      if (!session) {
+        if (!isActive) return
+        if (!isLatestSessionGeneration()) return
+
+        setSessionState(unauthenticatedSessionState)
+        return
+      }
+
+      if (!isLatestSessionGeneration()) return
+
+      const currentState = stateRef.current
+      const shouldKeepCurrentSession = isSameAuthenticatedUser(currentState, session)
+
+      if (!shouldKeepCurrentSession) {
+        setSessionState({ status: "loading", session: null })
+      }
+
+      try {
+        await ensureAuthenticatedUser()
+        if (!isActive) return
+        if (!isLatestSessionGeneration()) return
+
+        setSessionState(toAuthenticatedSessionState(session))
+      } catch (error) {
+        captureSupabaseSessionError(error)
+        if (!isActive) return
+        if (!isLatestSessionGeneration()) return
+        if (shouldKeepCurrentSession) return
+
+        setSessionState(unauthenticatedSessionState)
+      }
+    }
+
+    const getSessionGeneration = sessionGenerationRef.current
 
     supabase.auth
       .getSession()
       .then(({ data, error }) => {
         if (error) {
-          handleSessionError(error)
+          handleSessionError(error, getSessionGeneration)
           return
         }
-        setState(toSupabaseSessionState(data.session))
+        if (sessionGenerationRef.current !== getSessionGeneration) return
+
+        void handleSession(data.session, getSessionGeneration)
       })
-      .catch(handleSessionError)
+      .catch((error: unknown) => handleSessionError(error, getSessionGeneration))
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState(toSupabaseSessionState(session))
+      sessionGenerationRef.current += 1
+      void handleSession(session, sessionGenerationRef.current)
     })
 
     return () => {
+      isActive = false
       subscription.unsubscribe()
     }
   }, [])
@@ -60,9 +122,15 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
   return <SupabaseSessionContext value={state}>{children}</SupabaseSessionContext>
 }
 
-function toSupabaseSessionState(session: Session | null): SupabaseSessionState {
+function isSameAuthenticatedUser(currentState: SupabaseSessionState, session: Session): boolean {
+  return (
+    currentState.status === "authenticated" && currentState.session?.user.id === session.user.id
+  )
+}
+
+function toAuthenticatedSessionState(session: Session): SupabaseSessionState {
   return {
-    status: session ? "authenticated" : "unauthenticated",
+    status: "authenticated",
     session,
   }
 }
