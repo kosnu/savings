@@ -156,6 +156,26 @@ describe("SupabaseSessionProvider", () => {
     })
   })
 
+  test("unmount後にgetSessionが解決してもユーザー作成を実行しない", async () => {
+    const getSessionDeferred = createDeferred<{
+      data: { session: Session | null }
+      error: Error | null
+    }>()
+    mockGetSession.mockReturnValueOnce(getSessionDeferred.promise)
+
+    const { unmount } = renderSessionHook()
+
+    unmount()
+
+    await act(async () => {
+      getSessionDeferred.resolve({ data: { session: createSession() }, error: null })
+      await getSessionDeferred.promise
+    })
+
+    expect(mockUnsubscribe).toHaveBeenCalled()
+    expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
+  })
+
   test("ユーザー作成に失敗した場合は unauthenticated にフォールバックする", async () => {
     const error = new Error("failed to ensure user")
     mockEnsureAuthenticatedUser.mockRejectedValueOnce(error)

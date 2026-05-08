@@ -58,15 +58,13 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     const handleSession = async (session: Session | null, sessionGeneration: number) => {
       const isLatestSessionGeneration = () => sessionGenerationRef.current === sessionGeneration
 
-      if (!session) {
-        if (!isActive) return
-        if (!isLatestSessionGeneration()) return
+      if (!isActive) return
+      if (!isLatestSessionGeneration()) return
 
+      if (!session) {
         setSessionState(unauthenticatedSessionState)
         return
       }
-
-      if (!isLatestSessionGeneration()) return
 
       const currentState = stateRef.current
       const shouldKeepCurrentSession = isSameAuthenticatedUser(currentState, session)
