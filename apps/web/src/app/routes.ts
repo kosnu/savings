@@ -6,7 +6,7 @@ import {
   redirect,
 } from "@tanstack/react-router"
 
-import { BudgetSettings } from "../features/budgets/budgetSettings/BudgetSettings"
+import { BookSettings } from "../features/books/bookSettings/BookSettings"
 import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
@@ -85,10 +85,10 @@ const settingsRoute = createRoute({
   component: SettingsPage,
 })
 
-const settingsBudgetsRoute = createRoute({
+const settingsBookRoute = createRoute({
   getParentRoute: () => settingsRoute,
-  path: "budgets",
-  component: BudgetSettings,
+  path: "book",
+  component: BookSettings,
 })
 
 const routeTree = rootRoute.addChildren([
@@ -97,7 +97,7 @@ const routeTree = rootRoute.addChildren([
   authenticatedRoute.addChildren([
     paymentsRoute.addChildren([paymentDetailsRoute]),
     aggregatesRoute,
-    settingsRoute.addChildren([settingsBudgetsRoute]),
+    settingsRoute.addChildren([settingsBookRoute]),
   ]),
 ])
 

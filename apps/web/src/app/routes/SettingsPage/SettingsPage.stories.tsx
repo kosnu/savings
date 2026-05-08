@@ -2,10 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { expect, within } from "storybook/test"
 
-import { BudgetSettings } from "../../../features/budgets/budgetSettings/BudgetSettings"
+import { BookSettings } from "../../../features/books/bookSettings/BookSettings"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
-import { createCategoryBudgetHandlers } from "../../../test/msw/handlers/categoryBudgets"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { SettingsPage } from "./SettingsPage"
 
@@ -25,29 +24,26 @@ export const Default: Story = {
 
     expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
     expect(canvas.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings")
-    expect(canvas.getByRole("link", { name: "Budgets" })).toHaveAttribute(
-      "href",
-      "/settings/budgets",
-    )
+    expect(canvas.getByRole("link", { name: "Book" })).toHaveAttribute("href", "/settings/book")
   },
 }
 
-export const BudgetManagement: Story = {
+export const BookManagement: Story = {
   decorators: [
-    createStoryRouter("/settings/budgets", (root, Story) => {
+    createStoryRouter("/settings/book", (root, Story) => {
       const settingsRoute = createRoute({
         getParentRoute: () => root,
         path: "/settings",
         component: Story,
       })
 
-      const settingsBudgetsRoute = createRoute({
+      const settingsBookRoute = createRoute({
         getParentRoute: () => settingsRoute,
-        path: "budgets",
-        component: BudgetSettings,
+        path: "book",
+        component: BookSettings,
       })
 
-      return [settingsRoute.addChildren([settingsBudgetsRoute])]
+      return [settingsRoute.addChildren([settingsBookRoute])]
     }),
   ],
   parameters: {
@@ -56,7 +52,6 @@ export const BudgetManagement: Story = {
         ...createMonthlyBudgetHandlers({
           list: { response: [monthlyBudgets[3]] },
         }),
-        ...createCategoryBudgetHandlers(),
       ],
     },
   },
@@ -64,6 +59,8 @@ export const BudgetManagement: Story = {
     const canvas = within(canvasElement)
 
     expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
-    expect(await canvas.findByText("Category Budgets")).toBeInTheDocument()
+    expect(await canvas.findByText("Categories")).toBeInTheDocument()
+    expect(await canvas.findByText("Monthly budget")).toBeInTheDocument()
+    expect(await canvas.findByText("Pin")).toBeInTheDocument()
   },
 }
