@@ -14,7 +14,6 @@ const categoryBudgetColumns = `
   effective_from,
   effective_year,
   effective_month,
-  user_id,
   created_at,
   updated_at,
   category:categories!category_budgets_category_id_fkey (

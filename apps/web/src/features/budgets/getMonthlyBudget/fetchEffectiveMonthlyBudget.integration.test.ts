@@ -54,7 +54,6 @@ describe("fetchEffectiveMonthlyBudget", () => {
           effective_from: "2025-03-30",
           effective_year: 2025,
           effective_month: 3,
-          user_id: 100,
           created_at: "2025-03-30T00:00:00.000Z",
           updated_at: "2025-03-30T00:00:00.000Z",
         })

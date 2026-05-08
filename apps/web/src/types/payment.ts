@@ -9,7 +9,6 @@ export interface Payment {
   amount: number
   date: Date
   bookId: number
-  userId: number
   createdDate: Date
   updatedDate: Date
 }
