@@ -2,24 +2,22 @@ import { createRoute } from "@tanstack/react-router"
 import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { BudgetSettings } from "../../../features/budgets/budgetSettings/BudgetSettings"
-import { categoryBudgets } from "../../../test/data/categoryBudgets"
+import { BookSettings } from "../../../features/books/bookSettings/BookSettings"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
-import { createCategoryBudgetHandlers } from "../../../test/msw/handlers/categoryBudgets"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../test/msw/server"
 import { screen, within } from "../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
 import { SettingsPage } from "./SettingsPage"
 
-type SettingsBudgetsComponentType = () => ReactNode
+type SettingsBookComponentType = () => ReactNode
 
 function renderSettingsPage(
   initialEntry = "/settings",
-  options: { settingsBudgetsComponent?: SettingsBudgetsComponentType } = {},
+  options: { settingsBookComponent?: SettingsBookComponentType } = {},
 ) {
-  const SettingsBudgetsComponent = options.settingsBudgetsComponent ?? BudgetSettings
+  const SettingsBookComponent = options.settingsBookComponent ?? BookSettings
 
   return renderWithRouter(initialEntry, (root) => {
     const authenticatedRoute = createRoute({
@@ -33,13 +31,13 @@ function renderSettingsPage(
       component: SettingsPage,
     })
 
-    const settingsBudgetsRoute = createRoute({
+    const settingsBookRoute = createRoute({
       getParentRoute: () => settingsRoute,
-      path: "budgets",
-      component: SettingsBudgetsComponent,
+      path: "book",
+      component: SettingsBookComponent,
     })
 
-    return [authenticatedRoute.addChildren([settingsRoute.addChildren([settingsBudgetsRoute])])]
+    return [authenticatedRoute.addChildren([settingsRoute.addChildren([settingsBookRoute])])]
   })
 }
 
@@ -60,47 +58,41 @@ describe("SettingsPage", () => {
     vi.restoreAllMocks()
   })
 
-  test("Settings 見出しと Budgets への導線を表示する", async () => {
-    renderSettingsPage()
+  test("Settings 見出しと Book への導線を表示する", async () => {
+    const { router, user } = renderSettingsPage("/settings", {
+      settingsBookComponent: () => <div>Book settings page</div>,
+    })
 
     expect(await screen.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
 
     const settingsLink = await screen.findByRole("link", { name: "Settings" })
     expect(settingsLink).toHaveAttribute("href", "/settings")
 
-    const budgetsLink = await screen.findByRole("link", { name: "Budgets" })
-    expect(budgetsLink).toHaveAttribute("href", "/settings/budgets")
+    const bookLink = await screen.findByRole("link", { name: "Book" })
+    expect(bookLink).toHaveAttribute("href", "/settings/book")
+
+    await user.click(bookLink)
+
+    expect(router.state.location.pathname).toBe("/settings/book")
+    expect(await screen.findByText("Book settings page")).toBeInTheDocument()
   })
 
-  test("予算設定では最新の月予算だけを表示する", async () => {
+  test("Book 設定では既存の最新月予算表示を維持する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
       }),
-      ...createCategoryBudgetHandlers({
-        get: {
-          response: [
-            {
-              ...categoryBudgets[2],
-              category: { id: 10, name: "Food" },
-            },
-            {
-              ...categoryBudgets[3],
-              category: { id: 20, name: "Daily Necessities" },
-            },
-          ],
-        },
-      }),
     )
 
-    renderSettingsPage("/settings/budgets")
+    renderSettingsPage("/settings/book")
 
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await screen.findByText("￥75,000")).toBeInTheDocument()
     expect(screen.queryByText("￥62,000")).not.toBeInTheDocument()
-    expect(await screen.findByText("Category Budgets")).toBeInTheDocument()
-    expect(await screen.findByText("Food ￥50,000")).toBeInTheDocument()
-    expect(await screen.findByText("Daily Necessities ￥12,000")).toBeInTheDocument()
+    expect(await screen.findByText("Categories")).toBeInTheDocument()
+    expect(await screen.findByText("Monthly budget")).toBeInTheDocument()
+    expect(await screen.findByText("Pin")).toBeInTheDocument()
+    expect(screen.queryByText("Category Budgets")).not.toBeInTheDocument()
   })
 
   test("月予算が未登録の場合は予算登録ボタンを表示する", async () => {
@@ -108,10 +100,9 @@ describe("SettingsPage", () => {
       ...createMonthlyBudgetHandlers({
         list: { response: [] },
       }),
-      ...createCategoryBudgetHandlers(),
     )
 
-    renderSettingsPage("/settings/budgets")
+    renderSettingsPage("/settings/book")
 
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
@@ -130,10 +121,9 @@ describe("SettingsPage", () => {
           },
         },
       }),
-      ...createCategoryBudgetHandlers(),
     )
 
-    const { user, baseElement } = renderSettingsPage("/settings/budgets")
+    const { user, baseElement } = renderSettingsPage("/settings/book")
 
     await user.click(await screen.findByRole("button", { name: "Create budget" }))
     const dialog = await screen.findByRole("dialog", { name: "Create monthly budget" })

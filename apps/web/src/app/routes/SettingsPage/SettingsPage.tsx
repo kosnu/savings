@@ -21,8 +21,8 @@ export function SettingsPage() {
           <nav aria-label="Settings sections">
             <Flex direction="column" gap="2" align="stretch">
               <Button asChild variant="ghost" size="3">
-                <Link to="/settings/budgets" className={styles.menuLink}>
-                  Budgets
+                <Link to="/settings/book" className={styles.menuLink}>
+                  Book
                 </Link>
               </Button>
             </Flex>
