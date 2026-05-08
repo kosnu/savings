@@ -11,7 +11,6 @@ const categoryBudgetRowSchema = z.object({
   effective_from: z.string(),
   effective_year: z.number(),
   effective_month: z.number(),
-  user_id: z.number(),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
   category: z.object({
@@ -42,7 +41,6 @@ export function toCategoryBudget(row: NormalizedCategoryBudgetRow): CategoryBudg
     effectiveFrom: parseIsoDateOnlyToLocalDate(row.effective_from),
     effectiveYear: row.effective_year,
     effectiveMonth: row.effective_month,
-    userId: row.user_id,
     createdDate: row.created_at ? new Date(row.created_at) : new Date(),
     updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
   }

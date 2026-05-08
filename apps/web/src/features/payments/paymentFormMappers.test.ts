@@ -16,7 +16,6 @@ function createPaymentFixture(overrides: Partial<Payment> = {}): Payment {
     amount: 1200,
     date: new Date(2024, 8, 22),
     bookId: 1,
-    userId: 10,
     createdDate: new Date(2024, 8, 22, 0, 0, 0),
     updatedDate: new Date(2024, 8, 22, 0, 0, 0),
     ...overrides,

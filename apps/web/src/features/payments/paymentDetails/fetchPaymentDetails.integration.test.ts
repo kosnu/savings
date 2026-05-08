@@ -82,7 +82,6 @@ describe("fetchPaymentDetails", () => {
           amount: 1000,
           date: "2025-06-02",
           book_id: 1,
-          user_id: 100,
           category: null,
         })
       }),

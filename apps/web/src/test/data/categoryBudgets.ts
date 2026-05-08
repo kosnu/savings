@@ -11,7 +11,6 @@ export const categoryBudgets: CategoryBudgetRow[] = [
     effective_month: 1,
     effective_year: 2025,
     updated_at: "2025-01-01T00:00:00.000Z",
-    user_id: 100,
   },
   {
     id: 2,
@@ -23,7 +22,6 @@ export const categoryBudgets: CategoryBudgetRow[] = [
     effective_month: 3,
     effective_year: 2025,
     updated_at: "2025-03-01T00:00:00.000Z",
-    user_id: 100,
   },
   {
     id: 3,
@@ -35,7 +33,6 @@ export const categoryBudgets: CategoryBudgetRow[] = [
     effective_month: 3,
     effective_year: 2025,
     updated_at: "2025-03-02T00:00:00.000Z",
-    user_id: 100,
   },
   {
     id: 4,
@@ -47,6 +44,5 @@ export const categoryBudgets: CategoryBudgetRow[] = [
     effective_month: 4,
     effective_year: 2026,
     updated_at: "2026-04-01T00:00:00.000Z",
-    user_id: 100,
   },
 ]

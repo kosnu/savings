@@ -20,7 +20,6 @@ const createdMonthlyBudget = {
   effective_month: 3,
   effective_year: 2026,
   updated_at: "2026-03-01T00:00:00.000Z",
-  user_id: 100,
 }
 
 async function renderLatestMonthlyBudget(story: ReactElement) {

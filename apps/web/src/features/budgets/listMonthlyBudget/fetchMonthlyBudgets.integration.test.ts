@@ -34,7 +34,6 @@ describe("fetchMonthlyBudgets", () => {
       bookId: 1,
       effectiveYear: 2025,
       effectiveMonth: 7,
-      userId: 100,
     })
     expect(budgets[0]?.effectiveFrom).toEqual(new Date(2025, 6, 1))
     expect(budgets[0]?.createdDate).toBeInstanceOf(Date)
@@ -73,7 +72,6 @@ describe("fetchMonthlyBudgets", () => {
     expect(select).toContain("effective_from")
     expect(select).toContain("effective_year")
     expect(select).toContain("effective_month")
-    expect(select).toContain("user_id")
     expect(select).toContain("created_at")
     expect(select).toContain("updated_at")
     expect(requestCapture.url?.searchParams.get("order")).toBe("effective_from.desc")
@@ -91,7 +89,6 @@ describe("fetchMonthlyBudgets", () => {
             effective_from: "2025-03-30",
             effective_year: 2025,
             effective_month: 3,
-            user_id: 100,
             created_at: "2025-03-30T00:00:00.000Z",
             updated_at: "2025-03-30T00:00:00.000Z",
           },

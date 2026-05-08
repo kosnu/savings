@@ -26,7 +26,6 @@ function buildPayment(id: number): Payment {
     date: new Date(2025, 5, id),
     note: `payment ${id}`,
     bookId: 1,
-    userId: 100,
     createdDate: new Date("2025-06-01T00:00:00.000Z"),
     updatedDate: new Date("2025-06-01T00:00:00.000Z"),
   }
