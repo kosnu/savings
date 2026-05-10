@@ -5,6 +5,7 @@ import { expect, within } from "storybook/test"
 import { BookSettings } from "../../../features/books/bookSettings/BookSettings"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
+import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { SettingsPage } from "./SettingsPage"
 
@@ -52,6 +53,7 @@ export const BookManagement: Story = {
         ...createMonthlyBudgetHandlers({
           list: { response: [monthlyBudgets[3]] },
         }),
+        ...createCategorySettingsHandlers(),
       ],
     },
   },
@@ -60,7 +62,10 @@ export const BookManagement: Story = {
 
     expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await canvas.findByText("Categories")).toBeInTheDocument()
-    expect(await canvas.findByText("Monthly budget")).toBeInTheDocument()
-    expect(await canvas.findByText("Pin")).toBeInTheDocument()
+    expect(await canvas.findByText("Food")).toBeInTheDocument()
+    expect(await canvas.findByText("￥50,000")).toBeInTheDocument()
+    expect(await canvas.findByText("Name")).toBeInTheDocument()
+    expect(await canvas.findAllByText("Monthly budget")).not.toHaveLength(0)
+    expect(await canvas.findAllByText("Pin")).not.toHaveLength(0)
   },
 }
