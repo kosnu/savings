@@ -1,4 +1,4 @@
-name: Cache pnpm and Playwright on main
+name: Warm npm package and Playwright caches on main
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  cache-pnpm-playwright:
+  warm-pnpm-and-playwright-caches:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
