@@ -30,7 +30,7 @@ jobs:
           cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci
 
       - name: Oxc lint
         run: pnpm run web:lint
@@ -56,7 +56,7 @@ jobs:
           cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci
 
       - name: Typecheck
         run: pnpm run web:typecheck
@@ -83,7 +83,7 @@ jobs:
           cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci
 
       - name: Unit and integration tests
         run: pnpm --filter web exec vp test run --project unit --project integration --shard=${{ matrix.shard }} --reporter=dot --silent
@@ -108,7 +108,7 @@ jobs:
           cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci
 
       - name: Setup Playwright (with cache)
         uses: ./.github/actions/setup-playwright

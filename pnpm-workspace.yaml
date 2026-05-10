@@ -1,19 +1,19 @@
 packages:
   - apps/*
+allowBuilds:
+  '@sentry/cli': true
+  esbuild: true
+  msw: true
+  supabase: true
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.20
+  vite-plus: 0.1.20
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.20
 minimumReleaseAge: 10080
-onlyBuiltDependencies:
-  - "@sentry/cli"
-  - esbuild
-  - msw
-  - supabase
 overrides:
   undici@>=7.0.0 <7.24.0: "^8.0.0"
   vite: "catalog:"
   vitest: "catalog:"
-catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.20
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.20
-  vite-plus: 0.1.20
 peerDependencyRules:
   allowAny:
     - vite
@@ -21,3 +21,4 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
     vitest: "*"
+savePrefix: ""
