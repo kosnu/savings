@@ -1,5 +1,5 @@
-import { Badge, Box, Flex, Grid, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense, use } from "react"
+import { Badge, Box, Flex, Grid, Separator, Skeleton, Text } from "@radix-ui/themes"
+import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { toCurrency } from "../../../../utils/toCurrency"
@@ -44,7 +44,10 @@ function CategorySettingsListContent({ promise }: CategorySettingsListContentPro
     <Flex direction="column" gap="2">
       <CategorySettingsHeader />
       {items.map((item) => (
-        <CategorySettingsRow item={item} key={item.category.id} />
+        <Fragment key={item.category.id}>
+          <Separator orientation="horizontal" size="4" />
+          <CategorySettingsRow item={item} />
+        </Fragment>
       ))}
     </Flex>
   )
@@ -66,14 +69,7 @@ function CategorySettingsLoadingRows() {
   return (
     <Flex aria-label="loading category settings" direction="column" gap="2">
       <CategorySettingsHeader />
-      <Grid
-        columns={{ initial: "1fr", sm: "1fr minmax(120px, auto) minmax(56px, auto)" }}
-        gap="2"
-        style={{
-          borderTop: "1px solid var(--gray-a5)",
-          paddingBlock: "var(--space-2)",
-        }}
-      >
+      <Grid columns={{ initial: "1fr", sm: "1fr minmax(120px, auto) minmax(56px, auto)" }} gap="2">
         <Skeleton loading>
           <Text>Category name</Text>
         </Skeleton>
@@ -99,10 +95,6 @@ function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
       aria-label={`${item.category.name} category settings`}
       columns={{ initial: "1fr", sm: "1fr minmax(120px, auto) minmax(56px, auto)" }}
       gap="2"
-      style={{
-        borderTop: "1px solid var(--gray-a5)",
-        paddingBlock: "var(--space-2)",
-      }}
     >
       <Flex align="center" gap="2" justify="between">
         <Text>{item.category.name}</Text>
