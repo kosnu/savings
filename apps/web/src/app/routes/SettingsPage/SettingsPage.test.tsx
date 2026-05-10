@@ -5,6 +5,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import { BookSettings } from "../../../features/books/bookSettings/BookSettings"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
+import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../test/msw/server"
 import { screen, within } from "../../../test/test-utils"
@@ -82,6 +83,7 @@ describe("SettingsPage", () => {
       ...createMonthlyBudgetHandlers({
         list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
       }),
+      ...createCategorySettingsHandlers(),
     )
 
     renderSettingsPage("/settings/book")
@@ -90,8 +92,12 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("￥75,000")).toBeInTheDocument()
     expect(screen.queryByText("￥62,000")).not.toBeInTheDocument()
     expect(await screen.findByText("Categories")).toBeInTheDocument()
-    expect(await screen.findByText("Monthly budget")).toBeInTheDocument()
-    expect(await screen.findByText("Pin")).toBeInTheDocument()
+    expect(await screen.findByText("Food")).toBeInTheDocument()
+    expect(await screen.findByText("￥50,000")).toBeInTheDocument()
+    expect(await screen.findByText("Name")).toBeInTheDocument()
+    expect(await screen.findAllByText("Monthly budget")).not.toHaveLength(0)
+    expect(await screen.findAllByText("Pin")).not.toHaveLength(0)
+    expect(screen.queryByText("Not pinned")).not.toBeInTheDocument()
     expect(screen.queryByText("Category Budgets")).not.toBeInTheDocument()
   })
 
@@ -100,6 +106,7 @@ describe("SettingsPage", () => {
       ...createMonthlyBudgetHandlers({
         list: { response: [] },
       }),
+      ...createCategorySettingsHandlers(),
     )
 
     renderSettingsPage("/settings/book")
@@ -121,6 +128,7 @@ describe("SettingsPage", () => {
           },
         },
       }),
+      ...createCategorySettingsHandlers(),
     )
 
     const { user, baseElement } = renderSettingsPage("/settings/book")
