@@ -33,7 +33,7 @@ pnpm down
 pnpm migrations:up
 
 # マイグレーション作成
-pnpm --filter api exec supabase migration new <migration_name>
+pnpm exec supabase migration new <migration_name>
 ```
 
 ### シード
