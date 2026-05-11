@@ -4,6 +4,7 @@ allowBuilds:
   '@sentry/cli': true
   esbuild: true
   msw: true
+  sharp: true
   supabase: true
   workerd: true
 catalog:
