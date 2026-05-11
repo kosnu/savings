@@ -1,6 +1,7 @@
 import { Button, Flex, Text } from "@radix-ui/themes"
 import { useNavigate } from "@tanstack/react-router"
 import { memo, Suspense, use, useCallback, useState } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
 import type { Category } from "../../../../types/category"
@@ -51,15 +52,20 @@ export const PaymentList = memo(function PaymentList() {
   return (
     <>
       <Flex aria-label="payment-list" direction="column" gap="2" tabIndex={-1}>
-        <Suspense fallback={<SkeltonItems />}>
-          <Items
-            promiseCategories={promiseCategories}
-            getPayments={promisePayments}
-            onOpenPayment={openPaymentDetails}
-            filtered={categoryId !== undefined}
-            onClearCategory={handleClearCategory}
-          />
-        </Suspense>
+        <ErrorBoundary
+          fallback={<PaymentListError />}
+          resetKeys={[promisePayments, promiseCategories]}
+        >
+          <Suspense fallback={<SkeltonItems />}>
+            <Items
+              promiseCategories={promiseCategories}
+              getPayments={promisePayments}
+              onOpenPayment={openPaymentDetails}
+              filtered={categoryId !== undefined}
+              onClearCategory={handleClearCategory}
+            />
+          </Suspense>
+        </ErrorBoundary>
       </Flex>
       <PaymentDetailsOverlay
         open={hasPaymentDetailsRoute}
@@ -149,5 +155,13 @@ function SkeltonItems() {
       <PaymentCard loading interactive />
       <PaymentCard loading interactive />
     </>
+  )
+}
+
+function PaymentListError() {
+  return (
+    <Text color="red" role="alert">
+      Could not load payments.
+    </Text>
   )
 }

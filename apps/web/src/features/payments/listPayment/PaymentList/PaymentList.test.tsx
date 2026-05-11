@@ -1,7 +1,7 @@
 import { composeStories } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { HttpResponse, http } from "msw"
-import { describe, expect, test } from "vite-plus/test"
+import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
@@ -12,7 +12,7 @@ import { paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentList } from "./PaymentList"
 import * as stories from "./PaymentList.stories"
 
-const { Default, Loading } = composeStories(stories)
+const { Default, FetchError, Loading } = composeStories(stories)
 
 function renderStory() {
   const queryClient = createTestQueryClient()
@@ -48,6 +48,10 @@ function renderPaymentList(initialEntry: string) {
 }
 
 describe("PaymentList", () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   test("支払い行が button として並び、詳細内に削除導線がある", async () => {
     renderStory()
 
@@ -130,6 +134,44 @@ describe("PaymentList", () => {
     render(<Loading />)
 
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
+  })
+
+  test("取得に失敗した場合はエラー状態を表示する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        get: { error: true },
+      }),
+      ...createCategoryHandlers(),
+    )
+
+    render(<FetchError />)
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
+  })
+
+  test("取得失敗後に検索条件が変わると一覧表示へ復帰する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        get: { error: true },
+      }),
+      ...createCategoryHandlers(),
+    )
+    const { router } = renderPaymentList("/payments?year=2025&month=6")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
+
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+    await router.navigate({
+      to: "/payments",
+      search: (prev) => ({ ...prev, category: "10" }),
+    })
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    })
+    expect(await screen.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
   })
 
   test("支払い行を開くと現在の検索条件を維持して詳細URLへ遷移する", async () => {

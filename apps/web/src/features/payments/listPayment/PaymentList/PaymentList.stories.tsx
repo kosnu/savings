@@ -38,3 +38,16 @@ export const Loading: Story = {
     },
   },
 }
+
+export const FetchError: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({
+          get: { error: true },
+        }),
+        ...createCategoryHandlers(),
+      ],
+    },
+  },
+}
