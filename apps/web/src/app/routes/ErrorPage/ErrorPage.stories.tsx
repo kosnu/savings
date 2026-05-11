@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, within } from "storybook/test"
 
+import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { ErrorPage } from "./ErrorPage"
 
 const meta = {
@@ -10,6 +11,7 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs", "browser-test"],
+  decorators: [createStoryRouter("/")],
   args: {
     error: new Error("Storybook root error"),
     info: {

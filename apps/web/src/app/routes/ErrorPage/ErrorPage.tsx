@@ -1,6 +1,6 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Container, Flex, Heading, Text } from "@radix-ui/themes"
-import type { ErrorComponentProps } from "@tanstack/react-router"
+import { Link, type ErrorComponentProps } from "@tanstack/react-router"
 import { useEffect, useId } from "react"
 
 import { Paper } from "../../../components/misc/Paper"
@@ -30,7 +30,7 @@ export function ErrorPage({ error }: ErrorComponentProps) {
               Reload page
             </Button>
             <Button asChild variant="soft">
-              <a href="/">Go home</a>
+              <Link to="/">Go home</Link>
             </Button>
           </Flex>
         </Flex>
