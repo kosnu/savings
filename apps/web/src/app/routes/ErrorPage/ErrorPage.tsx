@@ -1,13 +1,16 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Container, Flex, Heading, Text } from "@radix-ui/themes"
 import type { ErrorComponentProps } from "@tanstack/react-router"
-import { useId } from "react"
+import { useEffect, useId } from "react"
 
 import { Paper } from "../../../components/misc/Paper"
 
 export function ErrorPage({ error }: ErrorComponentProps) {
   const id = useId()
-  console.error(error)
+
+  useEffect(() => {
+    console.error(error)
+  }, [error])
 
   return (
     <Container id={`error-page-${id}`} size="2">
