@@ -1,7 +1,7 @@
 import { composeStories } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { HttpResponse, http } from "msw"
-import { describe, expect, test } from "vite-plus/test"
+import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
@@ -48,6 +48,10 @@ function renderPaymentList(initialEntry: string) {
 }
 
 describe("PaymentList", () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   test("支払い行が button として並び、詳細内に削除導線がある", async () => {
     renderStory()
 
@@ -133,6 +137,7 @@ describe("PaymentList", () => {
   })
 
   test("取得に失敗した場合はエラー状態を表示する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(
       ...createPaymentHandlers({
         get: { error: true },
