@@ -52,7 +52,10 @@ export const PaymentList = memo(function PaymentList() {
   return (
     <>
       <Flex aria-label="payment-list" direction="column" gap="2" tabIndex={-1}>
-        <ErrorBoundary fallback={<PaymentListError />}>
+        <ErrorBoundary
+          fallback={<PaymentListError />}
+          resetKeys={[promisePayments, promiseCategories]}
+        >
           <Suspense fallback={<SkeltonItems />}>
             <Items
               promiseCategories={promiseCategories}

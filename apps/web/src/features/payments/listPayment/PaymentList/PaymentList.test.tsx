@@ -150,6 +150,30 @@ describe("PaymentList", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
   })
 
+  test("取得失敗後に検索条件が変わると一覧表示へ復帰する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        get: { error: true },
+      }),
+      ...createCategoryHandlers(),
+    )
+    const { router } = renderPaymentList("/payments?year=2025&month=6")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
+
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+    await router.navigate({
+      to: "/payments",
+      search: (prev) => ({ ...prev, category: "10" }),
+    })
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    })
+    expect(await screen.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
+  })
+
   test("支払い行を開くと現在の検索条件を維持して詳細URLへ遷移する", async () => {
     server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
     const { router, user } = renderPaymentList("/payments?year=2025&month=6&category=10")
