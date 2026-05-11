@@ -12,7 +12,7 @@ import { paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentList } from "./PaymentList"
 import * as stories from "./PaymentList.stories"
 
-const { Default, Loading } = composeStories(stories)
+const { Default, FetchError, Loading } = composeStories(stories)
 
 function renderStory() {
   const queryClient = createTestQueryClient()
@@ -130,6 +130,19 @@ describe("PaymentList", () => {
     render(<Loading />)
 
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
+  })
+
+  test("取得に失敗した場合はエラー状態を表示する", async () => {
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        get: { error: true },
+      }),
+      ...createCategoryHandlers(),
+    )
+
+    render(<FetchError />)
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
   })
 
   test("支払い行を開くと現在の検索条件を維持して詳細URLへ遷移する", async () => {
