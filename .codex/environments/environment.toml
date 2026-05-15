@@ -4,3 +4,8 @@ name = "savings"
 
 [setup]
 script = "pnpm ci"
+
+[[actions]]
+name = "web:dev"
+icon = "run"
+command = "pnpm web:dev"
