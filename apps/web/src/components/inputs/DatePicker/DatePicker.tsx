@@ -1,13 +1,13 @@
+import { DayPicker } from "@daypicker/react"
+import { ja } from "@daypicker/react/locale"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Popover, TextField } from "@radix-ui/themes"
 import { isSameDay } from "date-fns"
 import { type KeyboardEvent, useCallback, useRef, useState } from "react"
-import { DayPicker } from "react-day-picker"
-import { ja } from "react-day-picker/locale"
 
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
-import "react-day-picker/style.css"
+import "@daypicker/react/style.css"
 
 interface ModeSingleProps {
   onChange?: (date: Date | undefined) => void
