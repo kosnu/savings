@@ -13,6 +13,15 @@ describe("categoryNameSchema", () => {
     expect(error).toEqual(["Category name cannot be empty"])
   })
 
+  test("空白のみのカテゴリ名を拒否する", () => {
+    const result = categoryNameSchema.safeParse("   ")
+
+    expect(result.success).toBe(false)
+
+    const error = result.error && z.flattenError(result.error).formErrors
+    expect(error).toEqual(["Category name cannot be empty"])
+  })
+
   test("20文字以下のカテゴリ名を許可する", () => {
     const result = categoryNameSchema.safeParse("a".repeat(CATEGORY_NAME_MAX_LENGTH))
 
