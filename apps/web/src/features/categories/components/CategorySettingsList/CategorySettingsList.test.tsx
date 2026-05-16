@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, test } from "vite-plus/test"
 
 import { createCategorySettingsHandlers } from "../../../../test/msw/handlers/categorySettings"
 import { server } from "../../../../test/msw/server"
-import { act, render, screen, within } from "../../../../test/test-utils"
+import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./CategorySettingsList.stories"
 
 const { Default } = composeStories(stories)
@@ -26,7 +26,9 @@ describe("CategorySettingsList", () => {
     expect(await screen.findByText("Categories")).toBeInTheDocument()
     expect(screen.getByText("Name")).toBeInTheDocument()
     expect(screen.getAllByText("Monthly budget").length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Pin").length).toBeGreaterThan(0)
+    expect(
+      within(screen.getByText("Name").parentElement!).queryByText("Pin"),
+    ).not.toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(screen.getByText("Daily Necessities")).toBeInTheDocument()
     expect(screen.getByText("Entertainment")).toBeInTheDocument()
@@ -43,6 +45,32 @@ describe("CategorySettingsList", () => {
     ).not.toBeInTheDocument()
     expect(screen.queryByText("Pinned")).not.toBeInTheDocument()
     expect(screen.queryByText("Not pinned")).not.toBeInTheDocument()
+    expect(
+      await screen.findAllByRole("button", { name: /edit .* category name/i }),
+    ).not.toHaveLength(0)
+  })
+
+  test("カテゴリ名を更新して一覧に反映する", async () => {
+    const { user } = await renderCategorySettingsList(<Default />)
+
+    await user.click(
+      within(await screen.findByLabelText("Food category settings")).getAllByRole("button", {
+        name: /edit food category name/i,
+      })[0]!,
+    )
+
+    const dialog = await screen.findByRole("dialog", { name: "Edit category" })
+
+    await user.clear(within(dialog).getByRole("textbox", { name: /Name/ }))
+    await user.type(within(dialog).getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.click(within(dialog).getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Edit category" })).not.toBeInTheDocument()
+    })
+    expect(await screen.findByText("Groceries")).toBeInTheDocument()
+    expect(screen.queryByLabelText("Food category settings")).not.toBeInTheDocument()
+    expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
   })
 
   test("カテゴリ設定取得中は loading を表示する", async () => {
