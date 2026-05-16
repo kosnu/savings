@@ -106,27 +106,66 @@ function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
       }}
       gap="2"
     >
-      <Flex align="center" gap="3" justify="between">
-        <Flex align="center" gap="2" minWidth="0">
-          <Text>{item.category.name}</Text>
-          {item.pinned && <PinBadge />}
-        </Flex>
-        <Box display={{ initial: "block", sm: "none" }} flexShrink="0">
-          <UpdateCategoryNameModal category={item.category} />
-        </Box>
-      </Flex>
-      <Flex align="center" gap="3" justify={{ initial: "between", sm: "start" }}>
-        <Box display={{ initial: "block", sm: "none" }}>
-          <Text color="gray" size="2">
-            Monthly budget
-          </Text>
-        </Box>
-        <Text color={item.latestCategoryBudget ? undefined : "gray"}>{budgetText}</Text>
-      </Flex>
-      <Flex align="center" display={{ initial: "none", sm: "flex" }}>
-        <UpdateCategoryNameModal category={item.category} />
-      </Flex>
+      <CategoryNameWithMobileActionCell item={item} />
+      <CategoryBudgetCell item={item} budgetText={budgetText} />
+      <CategoryActionsCell category={item.category} placement="desktop" />
     </Grid>
+  )
+}
+
+function CategoryNameWithMobileActionCell({ item }: { item: CategorySettingsItem }) {
+  return (
+    <Flex align="center" gap="3" justify="between">
+      <CategoryNameCell item={item} />
+      <CategoryActionsCell category={item.category} placement="mobile" />
+    </Flex>
+  )
+}
+
+function CategoryNameCell({ item }: { item: CategorySettingsItem }) {
+  return (
+    <Flex align="center" gap="2" minWidth="0">
+      <Text>{item.category.name}</Text>
+      {item.pinned && <PinBadge />}
+    </Flex>
+  )
+}
+
+function CategoryBudgetCell({
+  item,
+  budgetText,
+}: {
+  item: CategorySettingsItem
+  budgetText: string
+}) {
+  return (
+    <Flex align="center" gap="3" justify={{ initial: "between", sm: "start" }}>
+      <Box display={{ initial: "block", sm: "none" }}>
+        <Text color="gray" size="2">
+          Monthly budget
+        </Text>
+      </Box>
+      <Text color={item.latestCategoryBudget ? undefined : "gray"}>{budgetText}</Text>
+    </Flex>
+  )
+}
+
+function CategoryActionsCell({
+  category,
+  placement,
+}: {
+  category: CategorySettingsItem["category"]
+  placement: "mobile" | "desktop"
+}) {
+  const display =
+    placement === "mobile"
+      ? { initial: "flex" as const, sm: "none" as const }
+      : { initial: "none" as const, sm: "flex" as const }
+
+  return (
+    <Flex align="center" display={display} flexShrink="0">
+      <UpdateCategoryNameModal category={category} />
+    </Flex>
   )
 }
 
