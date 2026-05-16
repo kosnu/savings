@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { toCurrency } from "../../../../utils/toCurrency"
 import type { CategorySettingsItem } from "../../listCategorySettings/types"
 import { useCategorySettingsItems } from "../../listCategorySettings/useCategorySettingsItems"
+import { UpdateCategoryNameModal } from "../../updateCategoryName/UpdateCategoryNameModal"
 
 export function CategorySettingsList() {
   const { promise } = useCategorySettingsItems()
@@ -56,10 +57,10 @@ function CategorySettingsListContent({ promise }: CategorySettingsListContentPro
 function CategorySettingsHeader() {
   return (
     <Box display={{ initial: "none", sm: "block" }}>
-      <Grid columns="1fr minmax(120px, auto) minmax(56px, auto)" gap="3">
+      <Grid columns="1fr minmax(120px, auto) minmax(64px, auto)" gap="3">
         <Text color="gray">Name</Text>
         <Text color="gray">Monthly budget</Text>
-        <Text color="gray">Pin</Text>
+        <Box aria-hidden />
       </Grid>
     </Box>
   )
@@ -69,7 +70,13 @@ function CategorySettingsLoadingRows() {
   return (
     <Flex aria-label="loading category settings" direction="column" gap="2">
       <CategorySettingsHeader />
-      <Grid columns={{ initial: "1fr", sm: "1fr minmax(120px, auto) minmax(56px, auto)" }} gap="2">
+      <Grid
+        columns={{
+          initial: "1fr",
+          sm: "1fr minmax(120px, auto) minmax(64px, auto)",
+        }}
+        gap="2"
+      >
         <Skeleton loading>
           <Text>Category name</Text>
         </Skeleton>
@@ -77,7 +84,7 @@ function CategorySettingsLoadingRows() {
           <Text>Monthly budget ￥000,000</Text>
         </Skeleton>
         <Skeleton loading>
-          <Text>Pin</Text>
+          <Text>Edit</Text>
         </Skeleton>
       </Grid>
     </Flex>
@@ -93,12 +100,20 @@ function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
     <Grid
       align="center"
       aria-label={`${item.category.name} category settings`}
-      columns={{ initial: "1fr", sm: "1fr minmax(120px, auto) minmax(56px, auto)" }}
+      columns={{
+        initial: "1fr",
+        sm: "1fr minmax(120px, auto) minmax(64px, auto)",
+      }}
       gap="2"
     >
-      <Flex align="center" gap="2" justify="between">
-        <Text>{item.category.name}</Text>
-        <Box display={{ initial: "block", sm: "none" }}>{item.pinned && <PinBadge />}</Box>
+      <Flex align="center" gap="3" justify="between">
+        <Flex align="center" gap="2" minWidth="0">
+          <Text>{item.category.name}</Text>
+          {item.pinned && <PinBadge />}
+        </Flex>
+        <Box display={{ initial: "block", sm: "none" }} flexShrink="0">
+          <UpdateCategoryNameModal category={item.category} />
+        </Box>
       </Flex>
       <Flex align="center" gap="3" justify={{ initial: "between", sm: "start" }}>
         <Box display={{ initial: "block", sm: "none" }}>
@@ -108,7 +123,9 @@ function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
         </Box>
         <Text color={item.latestCategoryBudget ? undefined : "gray"}>{budgetText}</Text>
       </Flex>
-      <Box display={{ initial: "none", sm: "block" }}>{item.pinned && <PinBadge />}</Box>
+      <Flex align="center" display={{ initial: "none", sm: "flex" }}>
+        <UpdateCategoryNameModal category={item.category} />
+      </Flex>
     </Grid>
   )
 }
