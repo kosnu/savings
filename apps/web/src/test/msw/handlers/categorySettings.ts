@@ -1,4 +1,5 @@
 import { type DelayMode, HttpResponse, delay, http } from "msw"
+import * as z from "zod"
 
 import { allCategories } from "../../data/categories"
 import { categoryBudgets } from "../../data/categoryBudgets"
@@ -35,13 +36,28 @@ interface GetCategorySettingsOptions {
   durationOrMode?: number | DelayMode | undefined
 }
 
+interface UpdateCategorySettingsOptions {
+  error?: boolean
+  errorResponse?: unknown
+  durationOrMode?: number | DelayMode | undefined
+}
+
+const updateCategoryNameBodySchema = z.object({
+  name: z.string(),
+})
+
+type UpdateCategoryNameBody = z.infer<typeof updateCategoryNameBodySchema>
+
 export function createCategorySettingsHandlers({
   response,
   currentBookId = CURRENT_BOOK_ID,
   pinnedCategoryIds = [10],
   error = false,
   durationOrMode,
-}: GetCategorySettingsOptions = {}) {
+  update = {},
+}: GetCategorySettingsOptions & { update?: UpdateCategorySettingsOptions } = {}) {
+  let rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
+
   return [
     http.get(REST_URL, async () => {
       await delay(durationOrMode)
@@ -50,9 +66,28 @@ export function createCategorySettingsHandlers({
         return HttpResponse.json({ message: "Failed to fetch category settings." }, { status: 500 })
       }
 
-      return HttpResponse.json(
-        response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds),
-      )
+      return HttpResponse.json(rows)
+    }),
+    http.patch(REST_URL, async ({ request }) => {
+      await delay(update.durationOrMode)
+
+      if (update.error) {
+        return HttpResponse.json(
+          update.errorResponse ?? { message: "Failed to update category name." },
+          { status: 500 },
+        )
+      }
+
+      const body = await request.json()
+      const parsedBody = updateCategoryNameBodySchema.parse(body)
+      const id = parseUpdateCategoryId(request.url)
+      const updatedRow = buildUpdatedCategorySettingsRow(id, parsedBody, rows)
+
+      if (updatedRow) {
+        rows = rows.map((row) => (row.id === updatedRow.id ? updatedRow : row))
+      }
+
+      return HttpResponse.json(updatedRow ? { id: updatedRow.id } : null)
     }),
   ]
 }
@@ -93,6 +128,35 @@ function buildCategorySettingsResponse(
           ]
         : [],
     }))
+}
+
+function parseUpdateCategoryId(url: string): number | undefined {
+  const idParam = new URL(url).searchParams.get("id")
+
+  if (!idParam?.startsWith("eq.")) {
+    return undefined
+  }
+
+  const id = Number(idParam.slice(3))
+
+  return Number.isInteger(id) ? id : undefined
+}
+
+function buildUpdatedCategorySettingsRow(
+  id: number | undefined,
+  body: UpdateCategoryNameBody,
+  rows: CategorySettingsResponseRow[],
+): CategorySettingsResponseRow | undefined {
+  const row = rows.find((category) => category.id === id)
+
+  if (!row) {
+    return undefined
+  }
+
+  return {
+    ...row,
+    name: body.name,
+  }
 }
 
 export const categorySettingsHandlers = createCategorySettingsHandlers()
