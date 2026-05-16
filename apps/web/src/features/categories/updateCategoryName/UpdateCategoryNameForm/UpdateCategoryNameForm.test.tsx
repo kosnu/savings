@@ -68,6 +68,21 @@ describe("UpdateCategoryNameForm", () => {
     expect(onSuccess).not.toHaveBeenCalled()
   })
 
+  test("空白のみのカテゴリ名は保存前にエラーを表示する", async () => {
+    const onSuccess = fn()
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    const nameInput = screen.getByRole("textbox", { name: /Name/ })
+
+    await user.clear(nameInput)
+    await user.type(nameInput, "   ")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    expect(await screen.findByText("Category name cannot be empty")).toBeInTheDocument()
+    expect(nameInput).toHaveAttribute("aria-invalid", "true")
+    expect(nameInput).toHaveAccessibleDescription("Category name cannot be empty")
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
+
   test("有効なカテゴリ名で保存に成功するとonSuccessを呼ぶ", async () => {
     const onSuccess = fn()
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
