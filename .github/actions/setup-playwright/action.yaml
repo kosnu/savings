@@ -9,13 +9,17 @@ runs:
   using: "composite"
   steps:
     - name: Show project-directory
-      run: echo "project-directory=${{ inputs.project-directory }}"
+      env:
+        PROJECT_DIRECTORY: ${{ inputs.project-directory }}
+      run: echo "project-directory=$PROJECT_DIRECTORY"
       shell: bash
 
     - name: Get Playwright version from node_modules
       id: get_version
+      env:
+        PROJECT_DIRECTORY: ${{ inputs.project-directory }}
       run: |
-        cd "${{ inputs.project-directory }}"
+        cd "$PROJECT_DIRECTORY"
         VERSION=$(pnpm exec playwright --version | head -n1 | awk '{print $NF}')
         echo "playwright_version=$VERSION" >> $GITHUB_OUTPUT
       shell: bash
@@ -33,8 +37,10 @@ runs:
 
     - name: Install Playwright
       if: steps.playwright-cache.outputs.cache-hit != 'true'
+      env:
+        PROJECT_DIRECTORY: ${{ inputs.project-directory }}
       run: |
         set -euo pipefail
-        cd "${{ inputs.project-directory }}"
+        cd "$PROJECT_DIRECTORY"
         pnpm exec playwright install --with-deps chromium
       shell: bash
