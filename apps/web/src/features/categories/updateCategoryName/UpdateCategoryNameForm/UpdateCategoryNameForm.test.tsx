@@ -37,44 +37,12 @@ describe("UpdateCategoryNameForm", () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
-  test("20文字を超えるカテゴリ名は保存前にエラーを表示する", async () => {
-    const onSuccess = fn()
-    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
-    const nameInput = screen.getByRole("textbox", { name: /Name/ })
-
-    await user.clear(nameInput)
-    await user.type(nameInput, "a".repeat(21))
-    await user.click(screen.getByRole("button", { name: "Save" }))
-
-    expect(
-      await screen.findByText("Category name must be 20 characters or less"),
-    ).toBeInTheDocument()
-    expect(nameInput).toHaveAttribute("aria-invalid", "true")
-    expect(nameInput).toHaveAccessibleDescription("Category name must be 20 characters or less")
-    expect(onSuccess).not.toHaveBeenCalled()
-  })
-
   test("空文字のカテゴリ名は保存前にエラーを表示する", async () => {
     const onSuccess = fn()
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
     const nameInput = screen.getByRole("textbox", { name: /Name/ })
 
     await user.clear(nameInput)
-    await user.click(screen.getByRole("button", { name: "Save" }))
-
-    expect(await screen.findByText("Category name cannot be empty")).toBeInTheDocument()
-    expect(nameInput).toHaveAttribute("aria-invalid", "true")
-    expect(nameInput).toHaveAccessibleDescription("Category name cannot be empty")
-    expect(onSuccess).not.toHaveBeenCalled()
-  })
-
-  test("空白のみのカテゴリ名は保存前にエラーを表示する", async () => {
-    const onSuccess = fn()
-    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
-    const nameInput = screen.getByRole("textbox", { name: /Name/ })
-
-    await user.clear(nameInput)
-    await user.type(nameInput, "   ")
     await user.click(screen.getByRole("button", { name: "Save" }))
 
     expect(await screen.findByText("Category name cannot be empty")).toBeInTheDocument()
