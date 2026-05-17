@@ -31,6 +31,7 @@ export function useCreatePayment(
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["payments"] }),
         queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
+        queryClient.invalidateQueries({ queryKey: ["categoryTotals"] }),
       ])
       onSuccess?.()
     },
