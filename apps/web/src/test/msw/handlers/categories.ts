@@ -1,11 +1,15 @@
 import { HttpResponse, http } from "msw"
 
 import type { CategoryRow } from "../../../types/category"
+import type { PaymentRow } from "../../../types/payment"
 import { otherBookFoodCat } from "../../data/categories"
+import { payments } from "../../data/payments"
+import { mapPaymentToRow } from "../../utils/mapPaymentToRow"
 
 const CURRENT_BOOK_ID = 1
 
 const REST_URL = "*/rest/v1/categories*"
+const initialPaymentRows: PaymentRow[] = payments.map(mapPaymentToRow)
 
 const initialCategoryRows: CategoryRow[] = [
   {
@@ -40,22 +44,70 @@ const initialCategoryRows: CategoryRow[] = [
 
 interface GetCategoriesHandlerOptions {
   response?: CategoryRow[]
+  paymentRows?: PaymentRow[]
   currentBookId?: number
   error?: boolean
 }
 
 export function getCategoriesHandler({
   response = initialCategoryRows,
+  paymentRows = initialPaymentRows,
   currentBookId = CURRENT_BOOK_ID,
   error = false,
 }: GetCategoriesHandlerOptions = {}) {
-  return http.get(REST_URL, () => {
+  return http.get(REST_URL, ({ request }) => {
     if (error) {
       return HttpResponse.json({ message: "Failed to fetch categories." }, { status: 500 })
     }
 
-    return HttpResponse.json(response.filter((row) => row.book_id === currentBookId))
+    const currentBookCategoryRows = response.filter((row) => row.book_id === currentBookId)
+
+    if (shouldIncludePayments(request)) {
+      return HttpResponse.json(
+        currentBookCategoryRows.map((category) =>
+          toCategoryTotalsRow(category, paymentRows, request, currentBookId),
+        ),
+      )
+    }
+
+    return HttpResponse.json(currentBookCategoryRows)
   })
+}
+
+function shouldIncludePayments(request: Request): boolean {
+  const select = new URL(request.url).searchParams.get("select")
+
+  return select?.includes("payments:payments") ?? false
+}
+
+function toCategoryTotalsRow(
+  category: CategoryRow,
+  paymentRows: PaymentRow[],
+  request: Request,
+  currentBookId: number,
+) {
+  const url = new URL(request.url)
+  const dateFilters = url.searchParams.getAll("payments.date")
+  const from = dateFilters.find((value) => value.startsWith("gte."))?.replace("gte.", "")
+  const to = dateFilters.find((value) => value.startsWith("lte."))?.replace("lte.", "")
+  const payments = paymentRows
+    .filter((payment) => payment.book_id === currentBookId)
+    .filter((payment) => payment.category_id === category.id)
+    .filter((payment) => {
+      if (from && payment.date < from) return false
+      if (to && payment.date > to) return false
+      return true
+    })
+    .map((payment) => ({
+      amount: payment.amount,
+      date: payment.date,
+    }))
+
+  return {
+    id: category.id,
+    name: category.name,
+    payments,
+  }
 }
 
 interface CreateCategoryHandlersOptions {

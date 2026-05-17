@@ -7,14 +7,20 @@ import { useCategoryTotals } from "./useCategoryTotals"
 const defaultChunkSize = 2
 
 interface CategoryTotalsProps {
+  cacheScope?: string
   chunkSize?: number
 }
 
-export function CategoryTotals({ chunkSize = defaultChunkSize }: CategoryTotalsProps) {
-  const { categoryTotals } = useCategoryTotals()
+export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: CategoryTotalsProps) {
+  const { categoryTotals } = useCategoryTotals({ cacheScope })
+  const categoryEntries = Object.entries(categoryTotals)
+
+  if (categoryEntries.length === 0) {
+    return null
+  }
 
   // カテゴリが多い場合に縦に長くなりすぎないよう、2列に分割して表示する
-  const categoryChunks = splitArray(Object.entries(categoryTotals), chunkSize)
+  const categoryChunks = splitArray(categoryEntries, chunkSize)
 
   return (
     <Grid columns={`${chunkSize}`} gap="2" width="100%">

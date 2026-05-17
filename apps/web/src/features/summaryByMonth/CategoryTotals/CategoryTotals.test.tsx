@@ -2,7 +2,6 @@ import { composeStories } from "@storybook/react-vite"
 import { describe, expect, test } from "vite-plus/test"
 
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
-import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
 import { render, screen } from "../../../test/test-utils"
 import * as stories from "./CategoryTotals.stories"
@@ -15,7 +14,7 @@ function renderStory() {
 
 describe("CategoryTotals", () => {
   test("カテゴリ別合計を表示する", async () => {
-    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+    server.resetHandlers(...createCategoryHandlers())
     renderStory()
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
@@ -25,6 +24,6 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("Entertainment")).toBeInTheDocument()
     expect(await screen.findByText("￥1,000")).toBeInTheDocument()
     expect(await screen.findByText("￥4,000")).toBeInTheDocument()
-    expect(await screen.findAllByText("￥0")).toHaveLength(2)
+    expect(await screen.findAllByText("￥0")).toHaveLength(1)
   })
 })

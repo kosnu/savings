@@ -9,12 +9,12 @@ import { useInitializePaymentsMonthSearch } from "./useInitializePaymentsMonthSe
 
 export function PaymentsPage() {
   useInitializePaymentsMonthSearch()
-  const [paymentListCacheScope] = useState(() => `payments-page-${crypto.randomUUID()}`)
+  const [paymentsPageCacheScope] = useState(() => `payments-page-${crypto.randomUUID()}`)
 
   return (
     <Container size="4">
       <Flex direction="column" gap="3">
-        <Summary />
+        <Summary cacheScope={paymentsPageCacheScope} />
         <Flex align="center" gap="3">
           <Box flexGrow="1" minWidth="0">
             <PaymentCategoryFilter />
@@ -23,7 +23,7 @@ export function PaymentsPage() {
             <CreatePaymentModal />
           </Box>
         </Flex>
-        <PaymentList cacheScope={paymentListCacheScope} />
+        <PaymentList cacheScope={paymentsPageCacheScope} />
       </Flex>
     </Container>
   )
