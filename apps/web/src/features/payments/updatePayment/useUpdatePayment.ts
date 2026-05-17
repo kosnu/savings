@@ -29,6 +29,7 @@ export function useUpdatePayment(
         queryClient.invalidateQueries({ queryKey: ["payments"] }),
         queryClient.invalidateQueries({ queryKey: ["paymentDetails", paymentId] }),
         queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
+        queryClient.invalidateQueries({ queryKey: ["categoryTotals"] }),
       ])
       onSuccess?.()
     },
