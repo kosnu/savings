@@ -2,8 +2,7 @@ import { ChevronRightIcon } from "@radix-ui/react-icons"
 import { Badge, Button, Card, Flex, Text } from "@radix-ui/themes"
 import type { MouseEvent } from "react"
 
-import type { Category } from "../../../../types/category"
-import type { Payment } from "../../../../types/payment"
+import type { Payment, PaymentCategory } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
 import { toCurrency } from "../../../../utils/toCurrency"
 
@@ -12,7 +11,7 @@ import styles from "./PaymentItem.module.css"
 const notePlaceholder = "No note"
 
 interface PaymentItemProps {
-  category: Category
+  category: PaymentCategory
   payment: Payment
   onOpen: (trigger: HTMLButtonElement) => void
 }

@@ -5,6 +5,7 @@ export type PaymentRow = Tables<"payments">
 export interface Payment {
   id?: number
   categoryId: number | null
+  category?: PaymentCategory | null
   note: string
   amount: number
   date: Date

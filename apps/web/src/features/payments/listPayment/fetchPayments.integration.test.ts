@@ -35,6 +35,33 @@ describe("fetchPayments", () => {
     }
   })
 
+  it("JOINしたカテゴリ情報を支払いに含める", async () => {
+    const payments = await fetchPayments([null, null])
+
+    expect(payments.find((payment) => payment.categoryId === 10)?.category).toEqual({
+      id: 10,
+      name: "Food",
+    })
+  })
+
+  it("カテゴリ未設定の支払いはcategoryをnullに変換する", async () => {
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: [
+          {
+            ...mapPaymentToRow(payments[0]),
+            category_id: null,
+          },
+        ],
+      }),
+    )
+
+    const fetchedPayments = await fetchPayments([null, null])
+
+    expect(fetchedPayments[0]?.categoryId).toBeNull()
+    expect(fetchedPayments[0]?.category).toBeNull()
+  })
+
   it("nullのnoteを空文字に変換する", async () => {
     const payments = await fetchPayments([null, null])
 
@@ -142,5 +169,22 @@ describe("fetchPayments", () => {
     await fetchPayments([null, null])
 
     expect(requestCapture.url?.searchParams.has("category_id")).toBe(false)
+  })
+
+  it("カテゴリ情報をJOINするselectを送る", async () => {
+    const requestCapture: { url: URL | null } = { url: null }
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requestCapture.url = new URL(request.url)
+
+        return HttpResponse.json([])
+      }),
+    )
+
+    await fetchPayments([null, null])
+
+    expect(requestCapture.url?.searchParams.get("select")).toContain(
+      "category:categories!payments_category_id_fkey",
+    )
   })
 })

@@ -343,7 +343,7 @@ describe("PaymentsPage", () => {
 
     queryClient.removeQueries({
       queryKey: ["payments"],
-      predicate: (query) => query.queryKey[2] === "all-categories",
+      predicate: (query) => query.queryKey[3] === "all-categories",
     })
 
     router.history.back()

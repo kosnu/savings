@@ -20,7 +20,7 @@ const initialCategoryRows: CategoryRow[] = allCategories.map((category) => ({
   updated_at: category.updatedDate.toISOString(),
 }))
 
-interface PaymentDetailsRow extends Omit<PaymentRow, "category_id"> {
+interface PaymentDetailsRow extends PaymentRow {
   category: {
     id: number
     name: string
@@ -123,6 +123,7 @@ function toPaymentDetailsRow(row: PaymentRow, categoryRows: CategoryRow[]): Paym
     created_at: row.created_at,
     updated_at: row.updated_at,
     book_id: row.book_id,
+    category_id: row.category_id,
     category: category
       ? {
           id: category.id,
