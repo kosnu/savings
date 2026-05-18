@@ -2,6 +2,7 @@ import { format } from "date-fns"
 import * as z from "zod"
 
 import { getSupabaseClient } from "../../../lib/supabase"
+import { unknownCategory } from "../../categories/unknownCategory"
 
 const categoryTotalsPaymentRowSchema = z.object({
   amount: z.number(),
@@ -15,6 +16,14 @@ const categoryTotalsRowSchema = z.object({
 })
 
 type CategoryTotalsRow = z.infer<typeof categoryTotalsRowSchema>
+type CategoryTotalsPaymentRow = z.infer<typeof categoryTotalsPaymentRowSchema>
+
+export interface CategoryTotal {
+  categoryName: string
+  totalAmount: number
+}
+
+export type CategoryTotals = Record<string, CategoryTotal>
 
 const categoryTotalsColumns = `
   id,
@@ -28,35 +37,74 @@ const categoryTotalsColumns = `
 export async function fetchCategoryTotals([startDate, endDate]: [
   Date | null,
   Date | null,
-]): Promise<Record<string, number>> {
+]): Promise<CategoryTotals> {
   const supabase = getSupabaseClient()
-  let query = supabase.from("categories").select(categoryTotalsColumns).order("id", {
+  let categoryTotalsQuery = supabase.from("categories").select(categoryTotalsColumns).order("id", {
     ascending: true,
   })
+  let uncategorizedPaymentsQuery = supabase
+    .from("payments")
+    .select("amount, date")
+    .is("category_id", null)
 
   if (startDate) {
-    query = query.gte("payments.date", format(startDate, "yyyy-MM-dd"))
+    const formattedStartDate = format(startDate, "yyyy-MM-dd")
+    categoryTotalsQuery = categoryTotalsQuery.gte("payments.date", formattedStartDate)
+    uncategorizedPaymentsQuery = uncategorizedPaymentsQuery.gte("date", formattedStartDate)
   }
   if (endDate) {
-    query = query.lte("payments.date", format(endDate, "yyyy-MM-dd"))
+    const formattedEndDate = format(endDate, "yyyy-MM-dd")
+    categoryTotalsQuery = categoryTotalsQuery.lte("payments.date", formattedEndDate)
+    uncategorizedPaymentsQuery = uncategorizedPaymentsQuery.lte("date", formattedEndDate)
   }
 
-  const { data, error } = await query
+  const [categoryTotalsResponse, uncategorizedPaymentsResponse] = await Promise.all([
+    categoryTotalsQuery,
+    uncategorizedPaymentsQuery,
+  ])
 
-  if (error) {
-    throw error
+  if (categoryTotalsResponse.error) {
+    throw categoryTotalsResponse.error
+  }
+  if (uncategorizedPaymentsResponse.error) {
+    throw uncategorizedPaymentsResponse.error
   }
 
-  return (data ?? []).reduce<Record<string, number>>((totals, value) => {
-    const row = normalizeCategoryTotalsRow(value)
-    totals[row.name] = row.payments.reduce((sum, payment) => sum + payment.amount, 0)
+  const totals = (categoryTotalsResponse.data ?? []).reduce<CategoryTotals>(
+    (accumulator, value) => {
+      const row = normalizeCategoryTotalsRow(value)
+      accumulator[String(row.id)] = {
+        categoryName: row.name,
+        totalAmount: row.payments.reduce((sum, payment) => sum + payment.amount, 0),
+      }
 
-    return totals
-  }, {})
+      return accumulator
+    },
+    {},
+  )
+
+  totals.uncategorized = {
+    categoryName: unknownCategory.name,
+    totalAmount: (uncategorizedPaymentsResponse.data ?? [])
+      .map(normalizeCategoryTotalsPaymentRow)
+      .reduce((sum, payment) => sum + payment.amount, 0),
+  }
+
+  return totals
 }
 
 function normalizeCategoryTotalsRow(value: unknown): CategoryTotalsRow {
   const result = categoryTotalsRowSchema.safeParse(value)
+
+  if (!result.success) {
+    throw new Error("Invalid category totals response")
+  }
+
+  return result.data
+}
+
+function normalizeCategoryTotalsPaymentRow(value: unknown): CategoryTotalsPaymentRow {
+  const result = categoryTotalsPaymentRowSchema.safeParse(value)
 
   if (!result.success) {
     throw new Error("Invalid category totals response")

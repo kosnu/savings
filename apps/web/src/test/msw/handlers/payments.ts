@@ -70,15 +70,20 @@ function filterAndSortPayments(
   const url = new URL(request.url)
   const dateFilters = url.searchParams.getAll("date")
   const idFilter = url.searchParams.get("id")
+  const categoryIdFilter = url.searchParams.get("category_id")
 
   const from = dateFilters.find((value) => value.startsWith("gte."))?.replace("gte.", "")
   const to = dateFilters.find((value) => value.startsWith("lte."))?.replace("lte.", "")
   const id = idFilter?.startsWith("eq.") ? idFilter.replace("eq.", "") : null
+  const uncategorized = categoryIdFilter === "is.null"
 
   return rows
     .filter((row) => row.book_id === currentBookId)
     .filter((row) => {
       if (id && String(row.id) !== id) {
+        return false
+      }
+      if (uncategorized && row.category_id !== null) {
         return false
       }
       if (from && row.date < from) {

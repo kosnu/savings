@@ -26,13 +26,13 @@ export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: Cat
     <Grid columns={`${chunkSize}`} gap="2" width="100%">
       {categoryChunks.map((chunk, i) => (
         <DataList.Root
-          key={chunk.map(([label]) => label).join(":")}
+          key={chunk.map(([categoryKey]) => categoryKey).join(":")}
           aria-label={`Category totals chunk ${i}`}
         >
-          {chunk.map(([label, value]) => (
-            <DataList.Item key={label} align="center">
-              <DataList.Label minWidth="80px">{label}</DataList.Label>
-              <DataList.Value>{toCurrency(value)}</DataList.Value>
+          {chunk.map(([categoryKey, total]) => (
+            <DataList.Item key={categoryKey} align="center">
+              <DataList.Label minWidth="80px">{total.categoryName}</DataList.Label>
+              <DataList.Value>{toCurrency(total.totalAmount)}</DataList.Value>
             </DataList.Item>
           ))}
         </DataList.Root>

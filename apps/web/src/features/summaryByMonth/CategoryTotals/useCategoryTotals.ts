@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 
 import { useDateRange } from "../../../utils/useDateRange"
-import { fetchCategoryTotals } from "./fetchCategoryTotals"
+import { type CategoryTotals, fetchCategoryTotals } from "./fetchCategoryTotals"
 
 interface UseCategoryTotalsReturn {
-  categoryTotals: Record<string, number>
+  categoryTotals: CategoryTotals
 }
 
 interface UseCategoryTotalsOptions {

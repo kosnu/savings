@@ -28,7 +28,7 @@ describe("useCategoryTotals", () => {
   })
 
   test("カテゴリ別月合計額を取得する", async () => {
-    const totals = { Food: 1000 }
+    const totals = { "10": { categoryName: "Food", totalAmount: 1000 } }
     vi.mocked(fetchCategoryTotals).mockResolvedValue(totals)
 
     const { result } = renderHook(() => useCategoryTotals({ cacheScope: "payments-page-1" }))
@@ -40,7 +40,7 @@ describe("useCategoryTotals", () => {
   })
 
   test("同じcacheScopeと月ではqueryを再利用する", async () => {
-    const totals = { Food: 1000 }
+    const totals = { "10": { categoryName: "Food", totalAmount: 1000 } }
     vi.mocked(fetchCategoryTotals).mockResolvedValue(totals)
 
     const { result, rerender } = renderHook(
@@ -64,8 +64,8 @@ describe("useCategoryTotals", () => {
 
   test("cacheScopeが変わると別queryとして取得し直す", async () => {
     vi.mocked(fetchCategoryTotals)
-      .mockResolvedValueOnce({ Food: 1000 })
-      .mockResolvedValueOnce({ Food: 2000 })
+      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 1000 } })
+      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 2000 } })
 
     const { result, rerender } = renderHook(
       ({ cacheScope }: { cacheScope: string }) => useCategoryTotals({ cacheScope }),
@@ -75,28 +75,34 @@ describe("useCategoryTotals", () => {
     )
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({ Food: 1000 })
+      expect(result.current.categoryTotals).toEqual({
+        "10": { categoryName: "Food", totalAmount: 1000 },
+      })
     })
 
     rerender({ cacheScope: "payments-page-2" })
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({ Food: 2000 })
+      expect(result.current.categoryTotals).toEqual({
+        "10": { categoryName: "Food", totalAmount: 2000 },
+      })
     })
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
   })
 
   test("同じcacheScopeでも月が変わると別queryとして取得し直す", async () => {
     vi.mocked(fetchCategoryTotals)
-      .mockResolvedValueOnce({ Food: 1000 })
-      .mockResolvedValueOnce({ Food: 2000 })
+      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 1000 } })
+      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 2000 } })
 
     const { result, rerender } = renderHook(() =>
       useCategoryTotals({ cacheScope: "payments-page-1" }),
     )
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({ Food: 1000 })
+      expect(result.current.categoryTotals).toEqual({
+        "10": { categoryName: "Food", totalAmount: 1000 },
+      })
     })
 
     dateRangeState.date = new Date(2025, 6, 1)
@@ -104,7 +110,9 @@ describe("useCategoryTotals", () => {
     rerender()
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({ Food: 2000 })
+      expect(result.current.categoryTotals).toEqual({
+        "10": { categoryName: "Food", totalAmount: 2000 },
+      })
     })
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
   })
