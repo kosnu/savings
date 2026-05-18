@@ -290,10 +290,13 @@ describe("PaymentList", () => {
   })
 
   test("支払いが0件の場合はカテゴリ取得完了を待たずに空状態を表示する", async () => {
+    const categoriesRequest = vi.fn()
     server.resetHandlers(
       http.get("*/rest/v1/payments*", () => HttpResponse.json([])),
-      http.get("*/rest/v1/categories*", async () => {
-        await new Promise(() => undefined)
+      http.get("*/rest/v1/categories*", () => {
+        categoriesRequest()
+
+        return HttpResponse.json([])
       }),
     )
 
@@ -301,6 +304,7 @@ describe("PaymentList", () => {
 
     expect(await screen.findByText("No payments found.")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Clear filter" })).toBeInTheDocument()
+    expect(categoriesRequest).not.toHaveBeenCalled()
   })
 
   test("カテゴリ条件なしで支払いが0件の場合はフィルタ解除導線を表示しない", async () => {

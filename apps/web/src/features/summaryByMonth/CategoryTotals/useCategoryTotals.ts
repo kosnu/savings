@@ -1,18 +1,30 @@
-import { useCategories } from "../../categories/listCategory/useCategories"
-import { usePayments } from "../../payments/listPayment/usePayments"
-import { mapPaymentsToCategory } from "./mapPaymentsToCategory"
+import { useQuery } from "@tanstack/react-query"
+import { format } from "date-fns"
+
+import { useDateRange } from "../../../utils/useDateRange"
+import { type CategoryTotals, fetchCategoryTotals } from "./fetchCategoryTotals"
 
 interface UseCategoryTotalsReturn {
-  categoryTotals: Record<string, number>
+  categoryTotals: CategoryTotals
 }
 
-function useCategoryTotals(): UseCategoryTotalsReturn {
-  const { data: payments } = usePayments()
-  const { data: categories } = useCategories()
+interface UseCategoryTotalsOptions {
+  cacheScope?: string
+}
 
-  const categoryTotals = mapPaymentsToCategory(payments, categories)
+function useCategoryTotals({
+  cacheScope = "default",
+}: UseCategoryTotalsOptions = {}): UseCategoryTotalsReturn {
+  const { date, dateRange } = useDateRange()
+  const month = date ? format(date, "yyyy-MM") : ""
+  const query = useQuery({
+    queryKey: ["categoryTotals", cacheScope, month],
+    queryFn: async () => fetchCategoryTotals(dateRange),
+    enabled: !!month,
+    staleTime: 3000,
+  })
 
-  return { categoryTotals }
+  return { categoryTotals: query.data ?? {} }
 }
 
 export { useCategoryTotals }

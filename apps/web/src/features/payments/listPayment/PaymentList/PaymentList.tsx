@@ -4,10 +4,8 @@ import { memo, Suspense, use, useCallback, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
-import type { Category } from "../../../../types/category"
 import type { Payment, PaymentId } from "../../../../types/payment"
-import { getCategoryStrict, toCategoryMap } from "../../../categories/listCategory/toCategoryMap"
-import { useCategories } from "../../../categories/listCategory/useCategories"
+import { unknownCategory } from "../../../categories/unknownCategory"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
 import { PaymentDetailsOverlay } from "../../paymentDetails/PaymentDetailsOverlay"
 import { usePaymentDetailsState } from "../../paymentDetails/usePaymentDetailsState"
@@ -15,11 +13,14 @@ import { PaymentItem } from "../PaymentItem"
 import { useCategoryId } from "../useCategoryId"
 import { usePayments } from "../usePayments"
 
-export const PaymentList = memo(function PaymentList() {
+interface PaymentListProps {
+  cacheScope?: string
+}
+
+export const PaymentList = memo(function PaymentList({ cacheScope }: PaymentListProps) {
   const categoryId = useCategoryId()
   const navigate = useNavigate({ from: "/payments" })
-  const { promise: promisePayments } = usePayments({ categoryId })
-  const { promise: promiseCategories } = useCategories()
+  const { promise: promisePayments } = usePayments({ cacheScope, categoryId })
   const {
     hasPaymentDetailsRoute,
     selectedPaymentId,
@@ -52,13 +53,9 @@ export const PaymentList = memo(function PaymentList() {
   return (
     <>
       <Flex aria-label="payment-list" direction="column" gap="2" tabIndex={-1}>
-        <ErrorBoundary
-          fallback={<PaymentListError />}
-          resetKeys={[promisePayments, promiseCategories]}
-        >
+        <ErrorBoundary fallback={<PaymentListError />} resetKeys={[promisePayments]}>
           <Suspense fallback={<SkeltonItems />}>
             <Items
-              promiseCategories={promiseCategories}
               getPayments={promisePayments}
               onOpenPayment={openPaymentDetails}
               filtered={categoryId !== undefined}
@@ -84,7 +81,6 @@ export const PaymentList = memo(function PaymentList() {
 })
 
 interface ItemsProps {
-  promiseCategories: Promise<Category[]>
   getPayments: Promise<Payment[]>
   onOpenPayment: (paymentId: PaymentId, trigger: HTMLButtonElement) => void
   filtered: boolean
@@ -92,7 +88,6 @@ interface ItemsProps {
 }
 
 const Items = memo(function Body({
-  promiseCategories,
   getPayments,
   onOpenPayment,
   filtered,
@@ -104,9 +99,6 @@ const Items = memo(function Body({
     return <EmptyItems filtered={filtered} onClearCategory={onClearCategory} />
   }
 
-  const categories = use(promiseCategories)
-  const categoryMap = toCategoryMap(categories)
-
   return (
     <>
       {data.map((payment) => {
@@ -114,7 +106,7 @@ const Items = memo(function Body({
           return null
         }
         const paymentId = payment.id
-        const category = getCategoryStrict(categoryMap, payment.categoryId)
+        const category = payment.category ?? unknownCategory
 
         return (
           <PaymentItem

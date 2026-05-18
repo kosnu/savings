@@ -10,7 +10,11 @@ import { CategoryTotals } from "../CategoryTotals"
 import { MonthlyTotals } from "../MonthlyTotals"
 import { MonthSelector } from "../MonthSelector"
 
-export function Summary() {
+interface SummaryProps {
+  cacheScope?: string
+}
+
+export function Summary({ cacheScope }: SummaryProps) {
   return (
     <Card size="2">
       <Flex gap="1" direction="column" width="100%">
@@ -20,7 +24,7 @@ export function Summary() {
           <AccordionItem value="item-1">
             <AccordionTrigger style={{ padding: 0 }}>Spending by Category</AccordionTrigger>
             <AccordionContent>
-              <CategoryTotals />
+              <CategoryTotals cacheScope={cacheScope} />
             </AccordionContent>
           </AccordionItem>
         </Accordion>

@@ -76,6 +76,55 @@ describe("usePayments", () => {
     expect(fetchPayments).toHaveBeenNthCalledWith(2, dateRange, { categoryId: 20 })
   })
 
+  test("同じcacheScopeでは同じ年月とカテゴリ条件のqueryを再利用する", async () => {
+    const payment = buildPayment(1)
+    vi.mocked(fetchPayments).mockResolvedValue([payment])
+
+    const { result, rerender } = renderHook(
+      ({ cacheScope }: { cacheScope: string }) => usePayments({ cacheScope, categoryId: 10 }),
+      {
+        initialProps: { cacheScope: "payments-page-1" },
+      },
+    )
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual([payment])
+    })
+
+    rerender({ cacheScope: "payments-page-1" })
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual([payment])
+    })
+    expect(fetchPayments).toHaveBeenCalledTimes(1)
+  })
+
+  test("cacheScopeが変わると別queryとして取得し直す", async () => {
+    const firstPayment = buildPayment(1)
+    const secondPayment = buildPayment(2)
+    vi.mocked(fetchPayments)
+      .mockResolvedValueOnce([firstPayment])
+      .mockResolvedValueOnce([secondPayment])
+
+    const { result, rerender } = renderHook(
+      ({ cacheScope }: { cacheScope: string }) => usePayments({ cacheScope, categoryId: 10 }),
+      {
+        initialProps: { cacheScope: "payments-page-1" },
+      },
+    )
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual([firstPayment])
+    })
+
+    rerender({ cacheScope: "payments-page-2" })
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual([secondPayment])
+    })
+    expect(fetchPayments).toHaveBeenCalledTimes(2)
+  })
+
   test("カテゴリ条件なしではカテゴリ条件を渡さない", async () => {
     const payment = buildPayment(1)
     vi.mocked(fetchPayments).mockResolvedValue([payment])
