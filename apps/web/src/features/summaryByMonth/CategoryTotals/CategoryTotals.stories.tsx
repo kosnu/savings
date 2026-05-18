@@ -11,7 +11,7 @@ const meta = {
   tags: ["autodocs"],
   parameters: {
     msw: {
-      handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
+      handlers: [...createCategoryHandlers(), ...createPaymentHandlers()],
     },
   },
   decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],

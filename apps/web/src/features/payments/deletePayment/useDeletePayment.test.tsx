@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { act, createTestQueryClient, renderHook, waitFor } from "../../../test/test-utils"
-import { useUpdatePayment } from "./useUpdatePayment"
+import { useDeletePayment } from "./useDeletePayment"
 
-const { mockUpdatePayment } = vi.hoisted(() => ({
-  mockUpdatePayment: vi.fn(),
+const { mockRemovePayment } = vi.hoisted(() => ({
+  mockRemovePayment: vi.fn(),
 }))
 
-vi.mock("./updatePayment", () => ({
-  updatePayment: mockUpdatePayment,
+vi.mock("./removePayment", () => ({
+  removePayment: mockRemovePayment,
 }))
 
-describe("useUpdatePayment", () => {
+describe("useDeletePayment", () => {
   beforeEach(() => {
-    mockUpdatePayment.mockReset()
+    mockRemovePayment.mockReset()
   })
 
   it("成功時に関連queryをinvalidateしてonSuccessを呼ぶ", async () => {
@@ -23,23 +23,20 @@ describe("useUpdatePayment", () => {
       .mockResolvedValue(undefined)
     const onSuccess = vi.fn()
     const onError = vi.fn()
-    mockUpdatePayment.mockResolvedValue(undefined)
+    mockRemovePayment.mockResolvedValue(undefined)
 
-    const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useDeletePayment(onSuccess, onError), {
       queryClient,
     })
 
     await act(async () => {
-      const promise = result.current.updatePayment({
-        paymentId: 42,
-        patch: { amount: 1080 },
-      })
+      const promise = result.current.deletePayment(42)
 
       expect(promise).toBeInstanceOf(Promise)
       await promise
     })
 
-    expect(mockUpdatePayment).toHaveBeenCalledWith(42, { amount: 1080 })
+    expect(mockRemovePayment).toHaveBeenCalledWith(42)
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
@@ -58,19 +55,14 @@ describe("useUpdatePayment", () => {
     const onSuccess = vi.fn()
     const onError = vi.fn()
     const error = new Error("failed")
-    mockUpdatePayment.mockRejectedValue(error)
+    mockRemovePayment.mockRejectedValue(error)
 
-    const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useDeletePayment(onSuccess, onError), {
       queryClient,
     })
 
     await act(async () => {
-      await expect(
-        result.current.updatePayment({
-          paymentId: 42,
-          patch: { note: "updated" },
-        }),
-      ).rejects.toThrow("failed")
+      await expect(result.current.deletePayment(42)).rejects.toThrow("failed")
     })
 
     await waitFor(() => {
@@ -78,31 +70,5 @@ describe("useUpdatePayment", () => {
     })
     expect(onSuccess).not.toHaveBeenCalled()
     expect(invalidateQueries).not.toHaveBeenCalled()
-  })
-
-  it("プレーンオブジェクトのエラーもonErrorへそのまま渡す", async () => {
-    const queryClient = createTestQueryClient()
-    const onSuccess = vi.fn()
-    const onError = vi.fn()
-    const error = { message: "failed", code: "PGRST301" }
-    mockUpdatePayment.mockRejectedValue(error)
-
-    const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
-      queryClient,
-    })
-
-    await act(async () => {
-      await expect(
-        result.current.updatePayment({
-          paymentId: 42,
-          patch: { note: "updated" },
-        }),
-      ).rejects.toEqual(error)
-    })
-
-    await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith(error)
-    })
-    expect(onSuccess).not.toHaveBeenCalled()
   })
 })

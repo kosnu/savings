@@ -12,13 +12,22 @@ interface UseGetPaymentsReturn {
 }
 
 interface UsePaymentsOptions {
+  cacheScope?: string
   categoryId?: number | null
 }
 
-export function usePayments({ categoryId }: UsePaymentsOptions = {}): UseGetPaymentsReturn {
+export function usePayments({
+  cacheScope = "default",
+  categoryId,
+}: UsePaymentsOptions = {}): UseGetPaymentsReturn {
   const { date, dateRange } = useDateRange()
   const query = useQuery({
-    queryKey: ["payments", date?.toISOString() ?? "all", getCategoryQueryKey(categoryId)],
+    queryKey: [
+      "payments",
+      cacheScope,
+      date?.toISOString() ?? "all",
+      getCategoryQueryKey(categoryId),
+    ],
     queryFn: async () => fetchPayments(dateRange, { categoryId }),
     enabled: date !== null,
     staleTime: 3000, // 3秒
