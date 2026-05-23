@@ -176,6 +176,12 @@ describe("CreatePaymentForm", () => {
     await act(async () => {
       paymentCreated.resolve()
     })
+
+    await waitFor(() => {
+      expect(within(createButton).queryByLabelText("loading-spinner")).not.toBeInTheDocument()
+    })
+    expect(createButton).toBeEnabled()
+    expect(screen.getByRole("button", { name: /cancel/i })).toBeEnabled()
   })
 
   test("支払い作成に失敗するとonErrorを呼んで操作ボタンを再度有効化する", async () => {
