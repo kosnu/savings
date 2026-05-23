@@ -34,4 +34,4 @@
 
 このリポジトリは `pnpm workspace` を使用します。依存関係のインストールは、この README があるリポジトリルートで `pnpm install` を実行します。
 
-各アプリの操作は pnpm workspace scripts から実行します。フロントエンドの検証はリポジトリルートで `pnpm run web:lint`、`pnpm run web:format-check`、`pnpm run web:typecheck`、`pnpm run web:test` を実行します。
+各アプリの操作は pnpm workspace scripts から実行します。変更時の検証ルールは `AGENTS.md` の Verification を参照します。
