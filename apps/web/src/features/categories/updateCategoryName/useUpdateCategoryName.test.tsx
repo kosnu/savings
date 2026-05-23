@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { act, createTestQueryClient, renderHook } from "../../../test/test-utils"
+import { categoryQueryKeys } from "../queryKeys"
 import { useUpdateCategoryName } from "./useUpdateCategoryName"
 
 const { mockUpdateCategoryName } = vi.hoisted(() => ({
@@ -16,7 +17,7 @@ describe("useUpdateCategoryName", () => {
     mockUpdateCategoryName.mockReset()
   })
 
-  it("成功時にカテゴリ設定一覧queryをinvalidateしてresolveする", async () => {
+  it("成功時にカテゴリqueryをinvalidateしてresolveする", async () => {
     const queryClient = createTestQueryClient()
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
@@ -40,7 +41,7 @@ describe("useUpdateCategoryName", () => {
 
     expect(mockUpdateCategoryName).toHaveBeenCalledTimes(1)
     expect(mockUpdateCategoryName.mock.calls[0]?.[0]).toBe(input)
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["categorySettingsItems"] })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: categoryQueryKeys.all })
     expect(invalidateQueries).toHaveBeenCalledTimes(1)
   })
 

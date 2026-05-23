@@ -13,6 +13,7 @@ import {
   waitFor,
   within,
 } from "../../../../test/test-utils"
+import { categoryQueryKeys } from "../../../categories/queryKeys"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE, paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 
@@ -22,7 +23,7 @@ function renderPaymentCategoryFilter(
 ) {
   const queryClient = createTestQueryClient()
   if (cacheCategories) {
-    queryClient.setQueryData(["categories"], categories)
+    queryClient.setQueryData(categoryQueryKeys.list, categories)
   }
 
   return renderWithRouter(
