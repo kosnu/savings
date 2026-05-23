@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import { createTestQueryClient, renderHook, waitFor } from "../../../test/test-utils"
+import { createTestQueryClient, renderHook } from "../../../test/test-utils"
 import { useCreatePayment } from "./useCreatePayment"
 
 const { mockFrom, mockInsert } = vi.hoisted(() => ({
@@ -32,16 +32,14 @@ describe("useCreatePayment", () => {
       queryClient,
     })
 
-    result.current.createPayment({
+    await result.current.createPayment({
       date: new Date(2025, 5, 1),
       categoryId: "10",
       note: "lunch",
       amount: 1000,
     })
 
-    await waitFor(() => {
-      expect(onSuccess).toHaveBeenCalledTimes(1)
-    })
+    expect(onSuccess).toHaveBeenCalledTimes(1)
     expect(onError).not.toHaveBeenCalled()
     expect(mockFrom).toHaveBeenCalledWith("payments")
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["payments"] })
@@ -63,16 +61,16 @@ describe("useCreatePayment", () => {
       queryClient,
     })
 
-    result.current.createPayment({
-      date: new Date(2025, 5, 1),
-      categoryId: "10",
-      note: "lunch",
-      amount: 1000,
-    })
+    await expect(
+      result.current.createPayment({
+        date: new Date(2025, 5, 1),
+        categoryId: "10",
+        note: "lunch",
+        amount: 1000,
+      }),
+    ).rejects.toThrow(error)
 
-    await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith(error)
-    })
+    expect(onError).toHaveBeenCalledWith(error)
     expect(onSuccess).not.toHaveBeenCalled()
     expect(invalidateQueries).not.toHaveBeenCalled()
   })
