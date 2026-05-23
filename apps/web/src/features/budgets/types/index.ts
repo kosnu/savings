@@ -14,19 +14,6 @@ export interface MonthlyBudget {
   updatedDate: Date
 }
 
-export interface CategoryBudget {
-  id: number
-  bookId: number
-  categoryId: number
-  categoryName: string
-  amount: number
-  effectiveFrom: Date
-  effectiveYear: number
-  effectiveMonth: number
-  createdDate: Date
-  updatedDate: Date
-}
-
 export interface TargetMonth {
   year: number
   month: number
