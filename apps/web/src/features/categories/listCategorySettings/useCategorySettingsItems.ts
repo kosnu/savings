@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
+import { categoryQueryKeys } from "../queryKeys"
 import { fetchCategorySettingsItems } from "./fetchCategorySettingsItems"
 import type { CategorySettingsItem } from "./types"
 
@@ -9,7 +10,7 @@ interface UseCategorySettingsItemsReturn {
 
 export function useCategorySettingsItems(): UseCategorySettingsItemsReturn {
   const query = useQuery({
-    queryKey: ["categorySettingsItems"],
+    queryKey: categoryQueryKeys.settingsItems,
     queryFn: async () => fetchCategorySettingsItems(),
     staleTime: 3000,
   })
