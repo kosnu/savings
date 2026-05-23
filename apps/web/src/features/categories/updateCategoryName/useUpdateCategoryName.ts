@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
+import { invalidateCategoryQueries } from "../queryKeys"
 import type { CategoryNameUpdateInput } from "./categoryNameUpdateMappers"
 import { updateCategoryName as updateCategoryNameRecord } from "./updateCategoryName"
 
@@ -15,7 +16,7 @@ export function useUpdateCategoryName(): UseUpdateCategoryNameReturn {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: updateCategoryNameRecord,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["categorySettingsItems"] })
+      await invalidateCategoryQueries(queryClient)
     },
   })
 
