@@ -42,9 +42,13 @@ export function CreatePaymentForm({
     validators: {
       onSubmit: paymentFormSubmitSchema,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       const parsedValue = paymentFormSubmitSchema.parse(value)
-      createPayment(mapSubmitFormValuesToPaymentWriteInput(parsedValue))
+      try {
+        await createPayment(mapSubmitFormValuesToPaymentWriteInput(parsedValue))
+      } catch {
+        // 作成失敗時の通知は useCreatePayment の onError に委ねる。
+      }
     },
   })
 
@@ -138,10 +142,14 @@ export function CreatePaymentForm({
             onCheckedChange={onContinuousModeChange}
           />
         ) : null}
-        <Flex gap="3">
-          <CancelButton onClick={handleCancel} />
-          <SubmitButton>Create</SubmitButton>
-        </Flex>
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => (
+            <Flex gap="3">
+              <CancelButton disabled={isSubmitting} onClick={handleCancel} />
+              <SubmitButton loading={isSubmitting}>Create</SubmitButton>
+            </Flex>
+          )}
+        </form.Subscribe>
       </Flex>
     </form>
   )

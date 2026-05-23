@@ -6,6 +6,7 @@ import { createCategoryHandlers } from "../../../../test/msw/handlers/categories
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
+import { createDeferred } from "../../../../test/utils/createDeferred"
 import { PAYMENT_NOTE_MAX_LENGTH } from "../../paymentFormSchema"
 import * as stories from "./CreatePaymentForm.stories"
 
@@ -149,5 +150,51 @@ describe("CreatePaymentForm", () => {
     expect(requestBody).not.toHaveProperty("user_id")
     expect(requestBody).not.toHaveProperty("book_id")
     expect(requestBody?.date).toEqual(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
+  })
+
+  test("支払い作成中は作成ボタンをローディング表示し操作ボタンを無効化する", async () => {
+    const paymentCreated = createDeferred()
+
+    server.resetHandlers(
+      ...createCategoryHandlers(),
+      http.post(PAYMENTS_REST_URL, async () => {
+        await paymentCreated.promise
+        return HttpResponse.json([{ id: 1001 }], { status: 201 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default />)
+
+    await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
+    await user.click(screen.getByRole("button", { name: /create/i }))
+
+    const createButton = await screen.findByRole("button", { name: /create/i })
+    expect(await within(createButton).findByLabelText("loading-spinner")).toBeInTheDocument()
+    expect(createButton).toBeDisabled()
+    expect(screen.getByRole("button", { name: /cancel/i })).toBeDisabled()
+
+    await act(async () => {
+      paymentCreated.resolve()
+    })
+  })
+
+  test("支払い作成に失敗するとonErrorを呼んで操作ボタンを再度有効化する", async () => {
+    const onError = vi.fn()
+
+    server.resetHandlers(
+      ...createCategoryHandlers(),
+      ...createPaymentHandlers({ create: { error: true } }),
+    )
+
+    const { user } = await renderStory(<Default onError={onError} />)
+
+    await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
+    await user.click(screen.getByRole("button", { name: /create/i }))
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledTimes(1)
+    })
+    expect(screen.getByRole("button", { name: /create/i })).toBeEnabled()
+    expect(screen.getByRole("button", { name: /cancel/i })).toBeEnabled()
   })
 })
