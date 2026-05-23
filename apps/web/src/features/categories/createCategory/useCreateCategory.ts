@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
+import { invalidateCategoryQueries } from "../queryKeys"
 import type { CategoryCreateValues } from "./categoryCreateSchema"
 import { createCategory as createCategoryRecord } from "./createCategory"
 
@@ -15,7 +16,7 @@ export function useCreateCategory(): UseCreateCategoryReturn {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createCategoryRecord,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["categorySettingsItems"] })
+      await invalidateCategoryQueries(queryClient)
     },
   })
 
