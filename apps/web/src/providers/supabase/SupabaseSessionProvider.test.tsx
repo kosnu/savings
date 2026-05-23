@@ -4,6 +4,7 @@ import type { PropsWithChildren } from "react"
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { act, waitFor } from "../../test/test-utils"
+import { createDeferred } from "../../test/utils/createDeferred"
 import {
   type AuthStatus,
   SupabaseSessionProvider,
@@ -52,17 +53,6 @@ function createSession(userId = "user-id", accessToken = `token-${userId}`): Ses
       created_at: "2024-01-01T00:00:00.000Z",
     },
   }
-}
-
-function createDeferred<T>() {
-  let resolve!: (value: T | PromiseLike<T>) => void
-  let reject!: (reason?: unknown) => void
-  const promise = new Promise<T>((promiseResolve, promiseReject) => {
-    resolve = promiseResolve
-    reject = promiseReject
-  })
-
-  return { promise, resolve, reject }
 }
 
 function renderSessionHook() {

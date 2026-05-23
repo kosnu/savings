@@ -15,7 +15,7 @@ async function postPayment(value: PaymentWriteInput): Promise<void> {
 }
 
 interface UseCreatePaymentReturn {
-  createPayment: (value: PaymentWriteInput) => void
+  createPayment: (value: PaymentWriteInput) => Promise<void>
   isPending: boolean
 }
 
@@ -25,7 +25,7 @@ export function useCreatePayment(
 ): UseCreatePaymentReturn {
   const queryClient = useQueryClient()
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: postPayment,
     onSuccess: async () => {
       await Promise.all([
@@ -41,10 +41,10 @@ export function useCreatePayment(
   })
 
   const createPayment = useCallback(
-    (value: PaymentWriteInput) => {
-      mutate(value)
+    async (value: PaymentWriteInput) => {
+      await mutateAsync(value)
     },
-    [mutate],
+    [mutateAsync],
   )
 
   return { createPayment, isPending }
