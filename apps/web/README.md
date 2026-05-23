@@ -67,18 +67,6 @@ pnpm storybook -- --no-open
 
 ユニット / コンポーネントテストは Vitest で実行します。
 
-```bash
-pnpm test
-```
-
-個別に実行したい場合:
-
-```bash
-pnpm test:unit
-pnpm test:integration
-pnpm test:storybook
-```
-
 E2E テストや Playwright が設定されている場合は、CI 設定や `package.json` のスクリプトを参照してください。
 
 ## Lint / 型チェック
@@ -92,14 +80,7 @@ pnpm format --check
 pnpm typecheck
 ```
 
-リポジトリルートから検証する場合は、次のコマンドを順に実行します。
-
-```bash
-pnpm run web:lint
-pnpm run web:format-check
-pnpm run web:typecheck
-pnpm run web:test
-```
+変更時の検証ルールは、リポジトリルートの `AGENTS.md` にある Verification を参照してください。
 
 型チェックは `pnpm typecheck` で明示的に実行できます。`pnpm build` でも `tsc -b` を通るため、ビルド時にも型チェックされます。
 `pnpm typecheck` を直接実行しても同じチェックが走ります。
