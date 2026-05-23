@@ -93,18 +93,19 @@ do not require verification.
 - Define verification as the concrete commands for each app, not a `verify` wrapper task.
 - When application code changes, run the verification commands for the affected app from the repository root.
 - If the current diff is exactly identical to the diff for the most recent run of the same verification commands, you may skip rerunning them.
-- Run independent verification commands in parallel when practical.
+- Run the listed independent verification commands in parallel when practical.
 - Do not start multiple instances of the same verification command at the same time.
 - When running verification commands in parallel, if one command fails before the others finish,
   wait for all already-started verification commands to finish before making fixes or rerunning checks.
 - After fixing a failure, start any required reruns as a new verification batch only after the previous batch has fully completed.
 
 - **Web** (`apps/web/`)
+  Run these commands in the same verification batch:
   `pnpm run web:lint`
   `pnpm run web:format-check`
   `pnpm run web:typecheck`
-  `pnpm --filter web test:unit`
-  `pnpm --filter web test:integration`
-  `pnpm --filter web test:storybook`
+  `pnpm --filter web exec vp test run --project unit --project integration --reporter=dot --silent`
+
+  Run `pnpm --filter web test:storybook --reporter=dot --silent` only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
 - **API** (`apps/api`)
   No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.
