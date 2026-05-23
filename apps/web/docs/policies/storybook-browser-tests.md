@@ -12,14 +12,14 @@ topics:
 when_to_read:
   - Storybookのブラウザテスト対象を変更するとき
   - Page storyを追加または変更するとき
-  - pnpm --filter web test:storybookの対象範囲を確認するとき
+  - `pnpm --filter web test:storybook` の対象範囲を確認するとき
 ---
 
 # Storybook Browser Tests
 
 Storybook のブラウザテストは opt-in で運用します。
 
-`pnpm --filter web test:storybook` の Storybook project は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
+`pnpm --filter web test:storybook --reporter=dot --silent` の Storybook project は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
 
 Web の通常検証では Storybook browser test を常時実行しません。`browser-test` 対象の story、`apps/web/.storybook-test/`、または Storybook browser-test 設定を変更した場合に実行します。
 
