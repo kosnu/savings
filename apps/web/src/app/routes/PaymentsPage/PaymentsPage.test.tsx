@@ -3,6 +3,7 @@ import { createRoute } from "@tanstack/react-router"
 import { HttpResponse, http } from "msw"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
+import { categoryQueryKeys } from "../../../features/categories/queryKeys"
 import {
   PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
   paymentsSearchSchema,
@@ -75,7 +76,7 @@ function renderStory() {
 
 function renderPaymentsPageRoute(initialEntry: string) {
   const queryClient = createTestQueryClient()
-  queryClient.setQueryData(["categories"], categories)
+  queryClient.setQueryData(categoryQueryKeys.list, categories)
   queryClient.setQueryData(
     ["payments", currentMonthPaymentsQueryDate, `category-${foodCat.id}`],
     initialCurrentMonthPaymentRows.filter((payment) => payment.category_id === foodCat.id),

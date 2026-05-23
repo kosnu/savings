@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import type { Category } from "../../../types/category"
+import { categoryQueryKeys } from "../queryKeys"
 import { fetchCategories } from "./fetchCategories"
 
 interface UseCategoriesReturn {
@@ -12,7 +13,7 @@ interface UseCategoriesReturn {
 
 export function useCategories(): UseCategoriesReturn {
   const query = useQuery({
-    queryKey: ["categories"],
+    queryKey: categoryQueryKeys.list,
     queryFn: async () => fetchCategories(),
     // データを無期限に新鮮（fresh）扱いにすることで、同じ queryKey で
     // コンポーネントがマウントしても React Query が自動で再フェッチしません。
