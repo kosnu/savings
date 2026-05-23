@@ -334,6 +334,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_category_with_budget: {
+        Args: {
+          p_category_name: string
+          p_budget_amount?: number
+          p_budget_effective_from?: string
+        }
+        Returns: number
+      }
       ensure_authenticated_user: { Args: never; Returns: undefined }
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
