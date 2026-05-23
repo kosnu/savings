@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import { createTestQueryClient, renderHook, waitFor } from "../../../test/test-utils"
+import { act, createTestQueryClient, renderHook, waitFor } from "../../../test/test-utils"
 import { useCreatePayment } from "./useCreatePayment"
 
 const { mockFrom, mockInsert } = vi.hoisted(() => ({
@@ -32,11 +32,16 @@ describe("useCreatePayment", () => {
       queryClient,
     })
 
-    result.current.createPayment({
-      date: new Date(2025, 5, 1),
-      categoryId: "10",
-      note: "lunch",
-      amount: 1000,
+    await act(async () => {
+      const promise = result.current.createPayment({
+        date: new Date(2025, 5, 1),
+        categoryId: "10",
+        note: "lunch",
+        amount: 1000,
+      })
+
+      expect(promise).toBeInstanceOf(Promise)
+      await promise
     })
 
     await waitFor(() => {
@@ -63,11 +68,15 @@ describe("useCreatePayment", () => {
       queryClient,
     })
 
-    result.current.createPayment({
-      date: new Date(2025, 5, 1),
-      categoryId: "10",
-      note: "lunch",
-      amount: 1000,
+    await act(async () => {
+      await expect(
+        result.current.createPayment({
+          date: new Date(2025, 5, 1),
+          categoryId: "10",
+          note: "lunch",
+          amount: 1000,
+        }),
+      ).rejects.toThrow(error)
     })
 
     await waitFor(() => {
