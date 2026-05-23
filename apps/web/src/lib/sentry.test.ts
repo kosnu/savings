@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from "vite-plus/test"
 
 import {
   captureAuthCallbackError,
-  captureCategoryBudgetCreateError,
   captureMonthlyBudgetCreateError,
   captureSupabaseSessionError,
 } from "./sentry"
@@ -74,22 +73,5 @@ describe("captureMonthlyBudgetCreateError", () => {
       message: "duplicate key value violates unique constraint",
     })
     expect(mockCaptureMessage).toHaveBeenCalledWith("Monthly budget creation failed", "error")
-  })
-})
-
-describe("captureCategoryBudgetCreateError", () => {
-  test("Sentry にカテゴリ別予算作成失敗を送る", () => {
-    captureCategoryBudgetCreateError({
-      code: "23505",
-      message: "duplicate key value violates unique constraint",
-    })
-
-    expect(mockSetTag).toHaveBeenCalledWith("feature", "budgets")
-    expect(mockSetContext).toHaveBeenCalledWith("category_budget_create_error", {
-      code: "23505",
-      name: undefined,
-      message: "duplicate key value violates unique constraint",
-    })
-    expect(mockCaptureMessage).toHaveBeenCalledWith("Category budget creation failed", "error")
   })
 })
