@@ -6,10 +6,20 @@ interface AmountInputProps {
   value?: number
   autoFocus?: boolean
   disabled?: boolean
+  "aria-describedby"?: string
+  "aria-invalid"?: boolean
   onChange?: (amount: number | undefined) => void
 }
 
-export function AmountInput({ id, value, autoFocus, disabled, onChange }: AmountInputProps) {
+export function AmountInput({
+  id,
+  value,
+  autoFocus,
+  disabled,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+  onChange,
+}: AmountInputProps) {
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const value = event.target.value
     if (value === "") {
@@ -35,6 +45,8 @@ export function AmountInput({ id, value, autoFocus, disabled, onChange }: Amount
       value={value?.toString() ?? ""}
       autoFocus={autoFocus}
       disabled={disabled}
+      aria-describedby={ariaDescribedBy}
+      aria-invalid={ariaInvalid}
       onChange={handleChange}
     />
   )
