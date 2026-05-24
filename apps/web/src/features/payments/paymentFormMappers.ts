@@ -26,7 +26,7 @@ export function mapPaymentToFormValues(payment: Payment): PaymentFormValues {
     date: payment.date,
     category: payment.categoryId === null ? "" : String(payment.categoryId),
     note: payment.note,
-    amount: payment.amount,
+    amount: String(payment.amount),
   }
 }
 

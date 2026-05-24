@@ -65,6 +65,27 @@ describe("CreateMonthlyBudgetForm", () => {
     expect(onError).not.toHaveBeenCalled()
   })
 
+  test("金額が不正な文字列の場合は作成せずにエラーを表示する", async () => {
+    const onSuccess = vi.fn()
+    let requestCount = 0
+
+    server.resetHandlers(
+      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+        requestCount += 1
+        return HttpResponse.json([{ id: 999 }], { status: 201 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "invalid" })
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
+    expect(onSuccess).not.toHaveBeenCalled()
+    expect(requestCount).toBe(0)
+  })
+
   test("月予算作成中は作成ボタンをローディング表示し操作ボタンを無効化する", async () => {
     const monthlyBudgetCreated = createDeferred()
 

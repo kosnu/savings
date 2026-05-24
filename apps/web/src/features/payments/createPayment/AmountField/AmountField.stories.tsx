@@ -8,7 +8,7 @@ const meta = {
   component: AmountField,
   args: {},
   render: (args) => {
-    const [amount, setAmount] = useState<number | undefined>(undefined)
+    const [amount, setAmount] = useState<string | undefined>(undefined)
 
     return <AmountField {...args} value={amount} onChange={setAmount} />
   },

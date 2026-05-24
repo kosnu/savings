@@ -1,5 +1,7 @@
 import * as z from "zod"
 
+import { amountFieldSchema } from "../../../domain/amount"
+
 export const targetMonthFieldSchema = z.date({
   error: (iss) => {
     if (iss.input === undefined || iss.input === null || iss.input === "") {
@@ -9,24 +11,9 @@ export const targetMonthFieldSchema = z.date({
   },
 })
 
-export const monthlyBudgetAmountFieldSchema = z
-  .number({
-    error: (iss) => {
-      if (iss.input === undefined || iss.input === null || iss.input === "") {
-        return "Amount cannot be empty"
-      }
-      if (typeof iss.input !== "number" || Number.isNaN(iss.input)) {
-        return "Amount must be a number"
-      }
-      return "Amount is invalid"
-    },
-  })
-  .int("Amount must be an integer")
-  .nonnegative("Amount must be a non-negative integer")
-
 const baseSchema = z.object({
   targetMonth: targetMonthFieldSchema,
-  amount: monthlyBudgetAmountFieldSchema,
+  amount: amountFieldSchema,
 })
 
 export const monthlyBudgetFormSchema = baseSchema.partial()
@@ -36,5 +23,9 @@ export const monthlyBudgetFormSubmitSchema = baseSchema.required({
   amount: true,
 })
 
-export type MonthlyBudgetFormValues = z.infer<typeof monthlyBudgetFormSchema>
+export interface MonthlyBudgetFormValues {
+  targetMonth?: Date
+  amount?: string | number
+}
+
 export type MonthlyBudgetFormSubmitValues = z.infer<typeof monthlyBudgetFormSubmitSchema>

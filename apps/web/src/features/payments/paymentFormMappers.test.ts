@@ -30,7 +30,7 @@ describe("mapPaymentToFormValues", () => {
       date: payment.date,
       category: "42",
       note: "lunch",
-      amount: 1200,
+      amount: "1200",
     })
   })
 
@@ -45,7 +45,7 @@ describe("mapPaymentToFormValues", () => {
       date: payment.date,
       category: "",
       note: "",
-      amount: 0,
+      amount: "0",
     })
   })
 })

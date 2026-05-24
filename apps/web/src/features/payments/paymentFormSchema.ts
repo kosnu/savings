@@ -1,5 +1,7 @@
 import * as z from "zod"
 
+import { amountFieldSchema } from "../../domain/amount"
+
 export const PAYMENT_NOTE_MAX_LENGTH = 30
 
 export const categoryFieldSchema = z.string()
@@ -16,21 +18,6 @@ export const dateFieldSchema = z.date({
 export const noteFieldSchema = z
   .string()
   .max(PAYMENT_NOTE_MAX_LENGTH, `Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`)
-
-export const amountFieldSchema = z
-  .number({
-    error: (iss) => {
-      if (iss.input === undefined || iss.input === null || iss.input === "") {
-        return "Amount cannot be empty"
-      }
-      if (typeof iss.input !== "number" || Number.isNaN(iss.input)) {
-        return "Amount must be a number"
-      }
-      return "Amount is invalid"
-    },
-  })
-  .int("Amount must be an integer")
-  .nonnegative("Amount must be a non-negative integer")
 
 const baseSchema = z.object({
   category: categoryFieldSchema,
@@ -49,6 +36,12 @@ export const paymentFormSubmitSchema = baseSchema.required({
   amount: true,
 })
 
-export type PaymentFormValues = z.infer<typeof paymentFormSchema>
+export interface PaymentFormValues {
+  category: string
+  date?: Date
+  note: string
+  amount?: string | number
+}
+
 export type PaymentFormSubmitValues = z.infer<typeof paymentFormSubmitSchema>
 export type PaymentFormError = z.core.$ZodFlattenedError<PaymentFormValues>
