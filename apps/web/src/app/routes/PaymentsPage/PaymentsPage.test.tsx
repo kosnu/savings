@@ -8,6 +8,7 @@ import {
   PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
   paymentsSearchSchema,
 } from "../../../features/payments/listPayment/paymentsSearchSchema"
+import { paymentQueryKeys } from "../../../features/payments/queryKeys"
 import { categories, entertainmentCat, foodCat } from "../../../test/data/categories"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
@@ -50,6 +51,7 @@ const initialCurrentMonthPaymentRows = initialPaymentRows.filter((payment) =>
   payment.date.startsWith("2025-06-"),
 )
 const currentMonthPaymentsQueryDate = new Date(2025, 5, 1).toISOString()
+const paymentsPageCacheScope = "payments-page-test"
 const uncategorizedPayment = mapPaymentToRow({
   ...payments[0],
   id: 1000,
@@ -78,17 +80,21 @@ function renderPaymentsPageRoute(initialEntry: string) {
   const queryClient = createTestQueryClient()
   queryClient.setQueryData(categoryQueryKeys.list, categories)
   queryClient.setQueryData(
-    ["payments", currentMonthPaymentsQueryDate, `category-${foodCat.id}`],
+    paymentQueryKeys.list(paymentsPageCacheScope, currentMonthPaymentsQueryDate, foodCat.id),
     initialCurrentMonthPaymentRows.filter((payment) => payment.category_id === foodCat.id),
     { updatedAt: 0 },
   )
   queryClient.setQueryData(
-    ["payments", currentMonthPaymentsQueryDate, `category-${entertainmentCat.id}`],
+    paymentQueryKeys.list(
+      paymentsPageCacheScope,
+      currentMonthPaymentsQueryDate,
+      entertainmentCat.id,
+    ),
     [],
     { updatedAt: 0 },
   )
   queryClient.setQueryData(
-    ["payments", currentMonthPaymentsQueryDate, "uncategorized"],
+    paymentQueryKeys.list(paymentsPageCacheScope, currentMonthPaymentsQueryDate, null),
     [uncategorizedPayment],
     { updatedAt: 0 },
   )
@@ -141,6 +147,7 @@ function lastRequest(requests: URL[]): URL | undefined {
 
 describe("PaymentsPage", () => {
   beforeEach(() => {
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("00000000-0000-4000-8000-000000000000")
     server.resetHandlers(
       ...createPaymentHandlers({
         initialRows: initialPaymentRows,
@@ -157,6 +164,7 @@ describe("PaymentsPage", () => {
 
   afterEach(() => {
     server.resetHandlers()
+    vi.restoreAllMocks()
     vi.useRealTimers()
   })
 
@@ -343,7 +351,7 @@ describe("PaymentsPage", () => {
     })
 
     queryClient.removeQueries({
-      queryKey: ["payments"],
+      queryKey: paymentQueryKeys.all,
       predicate: (query) => query.queryKey[3] === "all-categories",
     })
 
