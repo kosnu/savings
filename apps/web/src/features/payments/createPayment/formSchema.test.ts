@@ -32,6 +32,11 @@ describe("paymentFormSchema", () => {
       expect(result.success).toBe(true)
       expect(result.data?.amount).toBeUndefined()
     }
+    {
+      const result = paymentFormSchema.safeParse({ ...data, amount: "1234" })
+      expect(result.success).toBe(true)
+      expect(result.data?.amount).toBe(1234)
+    }
   })
 
   test("should allow empty category", () => {
@@ -102,6 +107,15 @@ describe("paymentFormSchema", () => {
     expect(error).toEqual(["Amount must be a number"])
   })
 
+  test("should fail when amount uses unsupported numeric notation", () => {
+    for (const amount of ["1e3", "0x10", "Infinity"]) {
+      const result = paymentFormSchema.safeParse({ ...data, amount })
+      expect(result.success).toBe(false)
+      const error = result.error && z.flattenError(result.error).fieldErrors.amount
+      expect(error).toEqual(["Amount must be a number"])
+    }
+  })
+
   test("should fail when amount is empty", () => {
     const result = paymentFormSchema.safeParse({ ...data, amount: "" })
     expect(result.success).toBe(false)
@@ -154,6 +168,11 @@ describe("paymentFormSubmitSchema", () => {
       expect(result.data?.category).toBe("")
       expect(result.data?.note).toBe("")
     }
+    {
+      const result = paymentFormSubmitSchema.safeParse({ ...data, amount: "1234" })
+      expect(result.success).toBe(true)
+      expect(result.data?.amount).toBe(1234)
+    }
   })
 
   test("should fail when note exceeds max length", () => {
@@ -187,6 +206,15 @@ describe("paymentFormSubmitSchema", () => {
     expect(result.success).toBe(false)
     const error = result.error && z.flattenError(result.error).fieldErrors.amount
     expect(error).toEqual(["Amount must be a number"])
+  })
+
+  test("should fail when amount uses unsupported numeric notation", () => {
+    for (const amount of ["1e3", "0x10", "Infinity"]) {
+      const result = paymentFormSubmitSchema.safeParse({ ...data, amount })
+      expect(result.success).toBe(false)
+      const error = result.error && z.flattenError(result.error).fieldErrors.amount
+      expect(error).toEqual(["Amount must be a number"])
+    }
   })
 
   test("should fail when amount is negative", () => {

@@ -17,6 +17,13 @@ describe("monthlyBudgetFormSchema", () => {
     expect(result.data?.amount).toBe(300000)
   })
 
+  test("文字列の金額を数値として受け付ける", () => {
+    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: "300000" })
+
+    expect(result.success).toBe(true)
+    expect(result.data?.amount).toBe(300000)
+  })
+
   test("入力前の空値を受け付ける", () => {
     const result = monthlyBudgetFormSchema.safeParse({
       targetMonth: undefined,
@@ -62,6 +69,18 @@ describe("monthlyBudgetFormSchema", () => {
 })
 
 describe("monthlyBudgetFormSubmitSchema", () => {
+  const data = {
+    targetMonth: new Date(2026, 2, 1),
+    amount: "300000",
+  }
+
+  test("submit時は文字列の金額を数値化する", () => {
+    const result = monthlyBudgetFormSubmitSchema.safeParse(data)
+
+    expect(result.success).toBe(true)
+    expect(result.data?.amount).toBe(300000)
+  })
+
   test("submit時は月と金額を必須にする", () => {
     const result = monthlyBudgetFormSubmitSchema.safeParse({
       targetMonth: undefined,

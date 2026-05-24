@@ -10,7 +10,7 @@ const meta = {
     layout: "centered",
   },
   render: (args) => {
-    const [amount, setAmount] = useState<number | undefined>(args.value)
+    const [amount, setAmount] = useState<string | undefined>(args.value)
 
     return <AmountInput {...args} value={amount} onChange={setAmount} />
   },
@@ -23,6 +23,6 @@ export const Default: Story = {}
 
 export const Filled: Story = {
   args: {
-    value: 1200,
+    value: "1200",
   },
 }

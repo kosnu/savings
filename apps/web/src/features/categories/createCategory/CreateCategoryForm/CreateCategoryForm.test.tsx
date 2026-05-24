@@ -91,6 +91,28 @@ describe("CreateCategoryForm", () => {
     expect(requestBody?.p_budget_effective_from).toMatch(/^\d{4}-\d{2}-01$/)
   })
 
+  test("月予算金額が不正な文字列の場合は作成せずにエラーを表示する", async () => {
+    const onSuccess = fn()
+    let requestCount = 0
+
+    server.resetHandlers(
+      http.post(CREATE_CATEGORY_RPC_URL, () => {
+        requestCount += 1
+        return HttpResponse.json(999)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.type(screen.getByRole("textbox", { name: /Monthly budget/ }), "invalid")
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
+    expect(onSuccess).not.toHaveBeenCalled()
+    expect(requestCount).toBe(0)
+  })
+
   test("作成中は作成ボタンをローディング表示し操作ボタンを無効化する", async () => {
     const categoryCreated = createDeferred()
 

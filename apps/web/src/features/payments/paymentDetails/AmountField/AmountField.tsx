@@ -33,7 +33,7 @@ export function AmountField({
   const [editing, setEditing] = useState(false)
   // 親が open=false を直接渡して field が unmount されるときに、編集中だった場合だけ onEditEnd を返す。
   const editingRef = useRef(false)
-  const [draftAmount, setDraftAmount] = useState<number | undefined>(amount)
+  const [draftAmount, setDraftAmount] = useState<string | undefined>(String(amount))
   const [messages, setMessages] = useState<string[] | undefined>()
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function AmountField({
   const handleEdit = useCallback(() => {
     if (paymentId === undefined) return
 
-    setDraftAmount(amount)
+    setDraftAmount(String(amount))
     setMessages(undefined)
     editingRef.current = true
     setEditing(true)
@@ -57,14 +57,14 @@ export function AmountField({
   const handleCancel = useCallback(() => {
     if (isPending) return
 
-    setDraftAmount(amount)
+    setDraftAmount(String(amount))
     setMessages(undefined)
     editingRef.current = false
     setEditing(false)
     onEditEnd()
   }, [amount, isPending, onEditEnd])
 
-  const handleChange = useCallback((nextAmount: number | undefined) => {
+  const handleChange = useCallback((nextAmount: string) => {
     setDraftAmount(nextAmount)
     setMessages(undefined)
   }, [])
@@ -72,18 +72,18 @@ export function AmountField({
   const handleSubmit = useCallback(async () => {
     if (paymentId === undefined || isPending) return
 
-    if (draftAmount === amount) {
-      setMessages(undefined)
-      editingRef.current = false
-      setEditing(false)
-      onEditEnd()
-      return
-    }
-
     const result = amountFieldSchema.safeParse(draftAmount)
 
     if (!result.success) {
       setMessages(getZodErrorMessages(result.error))
+      return
+    }
+
+    if (result.data === amount) {
+      setMessages(undefined)
+      editingRef.current = false
+      setEditing(false)
+      onEditEnd()
       return
     }
 

@@ -56,6 +56,19 @@ describe("AmountField", () => {
     })
   })
 
+  test("不正な文字列の金額は保存せずにエラーを表示する", async () => {
+    const { user } = render(<Default />)
+
+    await user.click(screen.getByRole("button", { name: /edit amount/i }))
+    const amountInput = screen.getByRole("textbox", { name: /amount/i })
+    await user.clear(amountInput)
+    await user.type(amountInput, "invalid")
+    await user.click(screen.getByRole("button", { name: /save amount/i }))
+
+    expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
+    expect(screen.getByRole("textbox", { name: /amount/i })).toBeInTheDocument()
+  })
+
   test("保存失敗時は編集状態を維持してエラーを表示する", async () => {
     server.resetHandlers(
       ...createPaymentHandlers({

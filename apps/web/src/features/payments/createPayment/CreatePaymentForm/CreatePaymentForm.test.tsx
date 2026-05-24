@@ -69,6 +69,28 @@ describe("CreatePaymentForm", () => {
     expect(await screen.findByText("Amount cannot be empty")).toBeInTheDocument()
   })
 
+  test("amount が不正な文字列の場合は作成せずにエラーを表示する", async () => {
+    const onSuccess = vi.fn()
+    let requestCount = 0
+
+    server.resetHandlers(
+      ...createCategoryHandlers(),
+      http.post(PAYMENTS_REST_URL, () => {
+        requestCount += 1
+        return HttpResponse.json([{ id: 999 }], { status: 201 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /amount/i }), "invalid")
+    await user.click(screen.getByRole("button", { name: /create/i }))
+
+    expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
+    expect(onSuccess).not.toHaveBeenCalled()
+    expect(requestCount).toBe(0)
+  })
+
   test("note が30文字を超えると作成せずにエラーを表示する", async () => {
     const onSuccess = vi.fn()
 
