@@ -8,16 +8,15 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
-import { toAmountInputValue } from "../../../../utils/amountInputValue"
+import { amountFieldSchema, toAmountFormValue } from "../../../../domain/amount"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
-import { monthlyBudgetAmountFieldSchema } from "../../createMonthlyBudget/monthlyBudgetFormSchema"
 import type { MonthlyBudget } from "../../types"
 import { useUpdateMonthlyBudget } from "../useUpdateMonthlyBudget"
 
 const UPDATE_MONTHLY_BUDGET_ERROR_MESSAGE = "Failed to update monthly budget."
 
 const updateMonthlyBudgetFormSubmitSchema = z.object({
-  amount: monthlyBudgetAmountFieldSchema,
+  amount: amountFieldSchema,
 })
 
 interface UpdateMonthlyBudgetFormValues {
@@ -110,7 +109,7 @@ export function UpdateMonthlyBudgetForm({
                   </FieldLabel>
                   <AmountInput
                     id={amountInputId}
-                    value={toAmountInputValue(field.state.value)}
+                    value={toAmountFormValue(field.state.value)}
                     onChange={(amount) => {
                       field.handleChange(amount)
                       setSubmitErrorMessage(undefined)

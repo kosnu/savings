@@ -2,7 +2,7 @@ import { useId } from "react"
 
 import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
-import { toAmountInputValue } from "../../../../utils/amountInputValue"
+import { toAmountFormValue } from "../../../../domain/amount"
 
 interface AmountFieldProps {
   error?: boolean
@@ -22,7 +22,7 @@ export function AmountField({ error, messages, value, onChange, autoFocus }: Amo
       </FieldLabel>
       <AmountInput
         id={id}
-        value={toAmountInputValue(value)}
+        value={toAmountFormValue(value)}
         onChange={onChange}
         autoFocus={autoFocus}
       />

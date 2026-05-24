@@ -42,30 +42,6 @@ describe("monthlyBudgetFormSchema", () => {
     const error = result.error && z.flattenError(result.error).fieldErrors.targetMonth
     expect(error).toEqual(["Month cannot be empty"])
   })
-
-  test("金額が不正な場合は英語のエラーにする", () => {
-    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: "invalid" })
-
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a number"])
-  })
-
-  test("金額が小数の場合は英語のエラーにする", () => {
-    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: 10.5 })
-
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be an integer"])
-  })
-
-  test("金額が負数の場合は英語のエラーにする", () => {
-    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: -1 })
-
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a non-negative integer"])
-  })
 })
 
 describe("monthlyBudgetFormSubmitSchema", () => {
