@@ -3,7 +3,8 @@ import { HttpResponse, http } from "msw"
 import { describe, expect, test, vi } from "vite-plus/test"
 
 import { server } from "../../../../test/msw/server"
-import { act, render, screen, waitFor } from "../../../../test/test-utils"
+import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
+import { createDeferred } from "../../../../test/utils/createDeferred"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import { fillCreateMonthlyBudgetForm, selectBudgetMonth } from "../../test/utils/budgetCreationForm"
 import * as stories from "./CreateMonthlyBudgetForm.stories"
@@ -62,6 +63,37 @@ describe("CreateMonthlyBudgetForm", () => {
       effective_from: "2026-03-01",
     })
     expect(onError).not.toHaveBeenCalled()
+  })
+
+  test("月予算作成中は作成ボタンをローディング表示し操作ボタンを無効化する", async () => {
+    const monthlyBudgetCreated = createDeferred()
+
+    server.resetHandlers(
+      http.post(MONTHLY_BUDGETS_REST_URL, async () => {
+        await monthlyBudgetCreated.promise
+        return HttpResponse.json([{ id: 999 }], { status: 201 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default />)
+
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    const createButton = await screen.findByRole("button", { name: /create/i })
+    expect(await within(createButton).findByLabelText("loading-spinner")).toBeInTheDocument()
+    expect(createButton).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+
+    await act(async () => {
+      monthlyBudgetCreated.resolve()
+    })
+
+    await waitFor(() => {
+      expect(within(createButton).queryByLabelText("loading-spinner")).not.toBeInTheDocument()
+    })
+    expect(createButton).toBeEnabled()
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled()
   })
 
   test("重複年月エラー時は重複メッセージを表示する", async () => {
