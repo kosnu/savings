@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 
 import type { Payment } from "../../../types/payment"
 import { useDateRange } from "../../../utils/useDateRange"
+import { paymentQueryKeys } from "../queryKeys"
 import { fetchPayments } from "./fetchPayments"
 
 interface UseGetPaymentsReturn {
@@ -22,12 +23,7 @@ export function usePayments({
 }: UsePaymentsOptions = {}): UseGetPaymentsReturn {
   const { date, dateRange } = useDateRange()
   const query = useQuery({
-    queryKey: [
-      "payments",
-      cacheScope,
-      date?.toISOString() ?? "all",
-      getCategoryQueryKey(categoryId),
-    ],
+    queryKey: paymentQueryKeys.list(cacheScope, date?.toISOString() ?? "all", categoryId),
     queryFn: async () => fetchPayments(dateRange, { categoryId }),
     enabled: date !== null,
     staleTime: 3000, // 3秒
@@ -39,10 +35,4 @@ export function usePayments({
     promise: query.promise,
     error: query.error,
   }
-}
-
-function getCategoryQueryKey(categoryId: number | null | undefined): string {
-  if (categoryId === undefined) return "all-categories"
-  if (categoryId === null) return "uncategorized"
-  return `category-${categoryId}`
 }

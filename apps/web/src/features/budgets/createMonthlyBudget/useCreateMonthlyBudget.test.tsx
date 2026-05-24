@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { act, createTestQueryClient, renderHook } from "../../../test/test-utils"
+import { monthlyBudgetQueryKeys } from "../queryKeys"
 import type { MonthlyBudgetWriteInput } from "./monthlyBudgetFormMappers"
 import { useCreateMonthlyBudget } from "./useCreateMonthlyBudget"
 
@@ -41,8 +42,11 @@ describe("useCreateMonthlyBudget", () => {
 
     expect(mockCreateMonthlyBudget).toHaveBeenCalledTimes(1)
     expect(mockCreateMonthlyBudget.mock.calls[0]?.[0]).toBe(input)
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["monthlyBudgets"] })
-    expect(invalidateQueries).toHaveBeenCalledTimes(1)
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: monthlyBudgetQueryKeys.listAll })
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: monthlyBudgetQueryKeys.effectiveAll,
+    })
+    expect(invalidateQueries).toHaveBeenCalledTimes(2)
   })
 
   it("失敗時に関連queryをinvalidateせずrejectする", async () => {

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { act, createTestQueryClient, renderHook, waitFor } from "../../../test/test-utils"
+import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { paymentQueryKeys } from "../queryKeys"
 import { useDeletePayment } from "./useDeletePayment"
 
 const { mockRemovePayment } = vi.hoisted(() => ({
@@ -41,10 +43,12 @@ describe("useDeletePayment", () => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(onError).not.toHaveBeenCalled()
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["payments"] })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["paymentDetails", 42] })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["totalExpenditures"] })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ["categoryTotals"] })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.all })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.details(42) })
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: summaryQueryKeys.totalExpendituresAll,
+    })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: summaryQueryKeys.categoryTotalsAll })
   })
 
   it("失敗時にonErrorを呼んでエラーをrethrowする", async () => {

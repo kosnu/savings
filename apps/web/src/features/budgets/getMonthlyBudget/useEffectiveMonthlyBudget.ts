@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
+import { monthlyBudgetQueryKeys } from "../queryKeys"
 import type { MonthlyBudget } from "../types"
 import { formatTargetMonthKey, toTargetMonth } from "../utils/month"
 import { fetchEffectiveMonthlyBudget } from "./fetchEffectiveMonthlyBudget"
@@ -16,7 +17,7 @@ export function useEffectiveMonthlyBudget(
 ): UseEffectiveMonthlyBudgetReturn {
   const targetMonth = targetDate ? formatTargetMonthKey(toTargetMonth(targetDate)) : "none"
   const query = useQuery({
-    queryKey: ["effectiveMonthlyBudget", targetMonth],
+    queryKey: monthlyBudgetQueryKeys.effective(targetMonth),
     queryFn: async () => {
       if (!targetDate) {
         return Promise.resolve(null)

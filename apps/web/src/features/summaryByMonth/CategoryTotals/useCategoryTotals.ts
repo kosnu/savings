@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 
 import { useDateRange } from "../../../utils/useDateRange"
+import { summaryQueryKeys } from "../queryKeys"
 import { type CategoryTotals, fetchCategoryTotals } from "./fetchCategoryTotals"
 
 interface UseCategoryTotalsReturn {
@@ -18,7 +19,7 @@ function useCategoryTotals({
   const { date, dateRange } = useDateRange()
   const month = date ? format(date, "yyyy-MM") : ""
   const query = useQuery({
-    queryKey: ["categoryTotals", cacheScope, month],
+    queryKey: summaryQueryKeys.categoryTotals(cacheScope, month),
     queryFn: async () => fetchCategoryTotals(dateRange),
     enabled: !!month,
     staleTime: 3000,

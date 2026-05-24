@@ -3,6 +3,7 @@ import { format } from "date-fns"
 
 import { useDateRange } from "../../utils/useDateRange"
 import { fetchTotalExpenditures } from "./fetchTotalExpenditures"
+import { summaryQueryKeys } from "./queryKeys"
 
 interface UseTotalExpendituresReturn {
   data: number | null
@@ -16,7 +17,7 @@ export function useTotalExpenditures(): UseTotalExpendituresReturn {
   const month = date ? format(date, "yyyy-MM") : ""
 
   const query = useQuery({
-    queryKey: ["totalExpenditures", month],
+    queryKey: summaryQueryKeys.totalExpenditures(month),
     queryFn: async () => fetchTotalExpenditures(month),
     enabled: !!month,
     staleTime: 3000, // 3秒
