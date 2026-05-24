@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { act, createTestQueryClient, renderHook } from "../../../test/test-utils"
+import { paymentQueryKeys } from "../../payments/queryKeys"
+import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
 import { categoryQueryKeys } from "../queryKeys"
 import { useUpdateCategoryName } from "./useUpdateCategoryName"
 
@@ -42,7 +44,10 @@ describe("useUpdateCategoryName", () => {
     expect(mockUpdateCategoryName).toHaveBeenCalledTimes(1)
     expect(mockUpdateCategoryName.mock.calls[0]?.[0]).toBe(input)
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: categoryQueryKeys.all })
-    expect(invalidateQueries).toHaveBeenCalledTimes(1)
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.all })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.detailsAll })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: summaryQueryKeys.categoryTotalsAll })
+    expect(invalidateQueries).toHaveBeenCalledTimes(4)
   })
 
   it("失敗時にqueryをinvalidateせずrejectする", async () => {

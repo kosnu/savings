@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
+import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
 import { invalidateCategoryQueries } from "../queryKeys"
 import type { CategoryCreateValues } from "./categoryCreateSchema"
 import { createCategory as createCategoryRecord } from "./createCategory"
@@ -16,7 +17,10 @@ export function useCreateCategory(): UseCreateCategoryReturn {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: createCategoryRecord,
     onSuccess: async () => {
-      await invalidateCategoryQueries(queryClient)
+      await Promise.all([
+        invalidateCategoryQueries(queryClient),
+        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll }),
+      ])
     },
   })
 

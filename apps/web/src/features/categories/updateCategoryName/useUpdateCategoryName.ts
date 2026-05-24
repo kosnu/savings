@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
+import { paymentQueryKeys } from "../../payments/queryKeys"
+import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
 import { invalidateCategoryQueries } from "../queryKeys"
 import type { CategoryNameUpdateInput } from "./categoryNameUpdateMappers"
 import { updateCategoryName as updateCategoryNameRecord } from "./updateCategoryName"
@@ -16,7 +18,12 @@ export function useUpdateCategoryName(): UseUpdateCategoryNameReturn {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: updateCategoryNameRecord,
     onSuccess: async () => {
-      await invalidateCategoryQueries(queryClient)
+      await Promise.all([
+        invalidateCategoryQueries(queryClient),
+        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.all }),
+        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.detailsAll }),
+        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll }),
+      ])
     },
   })
 
