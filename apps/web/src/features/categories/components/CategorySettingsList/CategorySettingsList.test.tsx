@@ -73,6 +73,43 @@ describe("CategorySettingsList", () => {
     expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
   })
 
+  test("月予算なしでカテゴリを作成して一覧に反映する", async () => {
+    const { user } = await renderCategorySettingsList(<Default />)
+
+    await user.click(await screen.findByRole("button", { name: "Create category" }))
+    const dialog = await screen.findByRole("dialog", { name: "Create category" })
+
+    await user.type(within(dialog).getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.click(within(dialog).getByRole("button", { name: "Create" }))
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Create category" })).not.toBeInTheDocument()
+    })
+    expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
+    expect(
+      within(screen.getByLabelText("Groceries category settings")).getByText("Not set"),
+    ).toBeInTheDocument()
+  })
+
+  test("月予算金額つきでカテゴリを作成して一覧に反映する", async () => {
+    const { user } = await renderCategorySettingsList(<Default />)
+
+    await user.click(await screen.findByRole("button", { name: "Create category" }))
+    const dialog = await screen.findByRole("dialog", { name: "Create category" })
+
+    await user.type(within(dialog).getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.type(within(dialog).getByRole("textbox", { name: /Monthly budget/ }), "50000")
+    await user.click(within(dialog).getByRole("button", { name: "Create" }))
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Create category" })).not.toBeInTheDocument()
+    })
+    expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
+    expect(
+      within(screen.getByLabelText("Groceries category settings")).getByText("￥50,000"),
+    ).toBeInTheDocument()
+  })
+
   test("カテゴリ設定取得中は loading を表示する", async () => {
     server.resetHandlers(...createCategorySettingsHandlers({ durationOrMode: "infinite" }))
 
