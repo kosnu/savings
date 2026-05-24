@@ -2,12 +2,13 @@ import { useId } from "react"
 
 import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
+import { toAmountFormValue } from "../../../../domain/amount"
 
 interface AmountFieldProps {
   error?: boolean
   messages?: string[]
-  value?: number
-  onChange?: (amount: number | undefined) => void
+  value?: string | number
+  onChange?: (amount: string) => void
   autoFocus?: boolean
 }
 
@@ -19,7 +20,12 @@ export function AmountField({ error, messages, value, onChange, autoFocus }: Amo
       <FieldLabel htmlFor={id} required>
         Amount
       </FieldLabel>
-      <AmountInput id={id} value={value} onChange={onChange} autoFocus={autoFocus} />
+      <AmountInput
+        id={id}
+        value={toAmountFormValue(value)}
+        onChange={onChange}
+        autoFocus={autoFocus}
+      />
       <FieldMessages error={error} messages={messages} />
     </BaseField>
   )

@@ -17,6 +17,13 @@ describe("monthlyBudgetFormSchema", () => {
     expect(result.data?.amount).toBe(300000)
   })
 
+  test("文字列の金額を数値として受け付ける", () => {
+    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: "300000" })
+
+    expect(result.success).toBe(true)
+    expect(result.data?.amount).toBe(300000)
+  })
+
   test("入力前の空値を受け付ける", () => {
     const result = monthlyBudgetFormSchema.safeParse({
       targetMonth: undefined,
@@ -35,33 +42,21 @@ describe("monthlyBudgetFormSchema", () => {
     const error = result.error && z.flattenError(result.error).fieldErrors.targetMonth
     expect(error).toEqual(["Month cannot be empty"])
   })
-
-  test("金額が不正な場合は英語のエラーにする", () => {
-    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: "invalid" })
-
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a number"])
-  })
-
-  test("金額が小数の場合は英語のエラーにする", () => {
-    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: 10.5 })
-
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be an integer"])
-  })
-
-  test("金額が負数の場合は英語のエラーにする", () => {
-    const result = monthlyBudgetFormSchema.safeParse({ ...data, amount: -1 })
-
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a non-negative integer"])
-  })
 })
 
 describe("monthlyBudgetFormSubmitSchema", () => {
+  const data = {
+    targetMonth: new Date(2026, 2, 1),
+    amount: "300000",
+  }
+
+  test("submit時は文字列の金額を数値化する", () => {
+    const result = monthlyBudgetFormSubmitSchema.safeParse(data)
+
+    expect(result.success).toBe(true)
+    expect(result.data?.amount).toBe(300000)
+  })
+
   test("submit時は月と金額を必須にする", () => {
     const result = monthlyBudgetFormSubmitSchema.safeParse({
       targetMonth: undefined,
