@@ -42,11 +42,24 @@ interface UpdateCategorySettingsOptions {
   durationOrMode?: number | DelayMode | undefined
 }
 
+interface CreateCategorySettingsOptions {
+  error?: boolean
+  errorResponse?: unknown
+  durationOrMode?: number | DelayMode | undefined
+}
+
 const updateCategoryNameBodySchema = z.object({
   name: z.string(),
 })
 
+const createCategoryWithBudgetBodySchema = z.object({
+  p_category_name: z.string(),
+  p_budget_effective_from: z.string().optional(),
+  p_budget_amount: z.number().optional(),
+})
+
 type UpdateCategoryNameBody = z.infer<typeof updateCategoryNameBodySchema>
+type CreateCategoryWithBudgetBody = z.infer<typeof createCategoryWithBudgetBodySchema>
 
 export function createCategorySettingsHandlers({
   response,
@@ -54,8 +67,12 @@ export function createCategorySettingsHandlers({
   pinnedCategoryIds = [10],
   error = false,
   durationOrMode,
+  create = {},
   update = {},
-}: GetCategorySettingsOptions & { update?: UpdateCategorySettingsOptions } = {}) {
+}: GetCategorySettingsOptions & {
+  create?: CreateCategorySettingsOptions
+  update?: UpdateCategorySettingsOptions
+} = {}) {
   let rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
 
   return [
@@ -67,6 +84,24 @@ export function createCategorySettingsHandlers({
       }
 
       return HttpResponse.json(rows)
+    }),
+    http.post("*/rest/v1/rpc/create_category_with_budget", async ({ request }) => {
+      await delay(create.durationOrMode)
+
+      if (create.error) {
+        return HttpResponse.json(
+          create.errorResponse ?? { message: "Failed to create category." },
+          { status: 500 },
+        )
+      }
+
+      const body = await request.json()
+      const parsedBody = createCategoryWithBudgetBodySchema.parse(body)
+      const createdRow = buildCreatedCategorySettingsRow(parsedBody, rows, currentBookId)
+
+      rows = [...rows, createdRow]
+
+      return HttpResponse.json(createdRow.id)
     }),
     http.patch(REST_URL, async ({ request }) => {
       await delay(update.durationOrMode)
@@ -128,6 +163,35 @@ function buildCategorySettingsResponse(
           ]
         : [],
     }))
+}
+
+function buildCreatedCategorySettingsRow(
+  body: CreateCategoryWithBudgetBody,
+  rows: CategorySettingsResponseRow[],
+  currentBookId: number,
+): CategorySettingsResponseRow {
+  const id = Math.max(0, ...rows.map((row) => row.id)) + 1
+  const amount = body.p_budget_amount
+  const effectiveFrom = body.p_budget_effective_from
+
+  return {
+    id,
+    book_id: currentBookId,
+    name: body.p_category_name,
+    category_budgets:
+      amount !== undefined && effectiveFrom
+        ? [
+            {
+              id: Math.max(0, ...rows.flatMap((row) => row.category_budgets.map((b) => b.id))) + 1,
+              amount,
+              effective_from: effectiveFrom,
+              effective_year: Number.parseInt(effectiveFrom.slice(0, 4), 10),
+              effective_month: Number.parseInt(effectiveFrom.slice(5, 7), 10),
+            },
+          ]
+        : [],
+    category_pins: [],
+  }
 }
 
 function parseUpdateCategoryId(url: string): number | undefined {

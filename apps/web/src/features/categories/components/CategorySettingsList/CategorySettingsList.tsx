@@ -3,6 +3,7 @@ import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { toCurrency } from "../../../../utils/toCurrency"
+import { CreateCategoryModal } from "../../createCategory/CreateCategoryModal"
 import type { CategorySettingsItem } from "../../listCategorySettings/types"
 import { useCategorySettingsItems } from "../../listCategorySettings/useCategorySettingsItems"
 import { UpdateCategoryNameModal } from "../../updateCategoryName/UpdateCategoryNameModal"
@@ -12,9 +13,12 @@ export function CategorySettingsList() {
 
   return (
     <Flex direction="column" gap="3">
-      <Text as="p" size="4" weight="medium">
-        Categories
-      </Text>
+      <Flex align="center" gap="3" justify="between">
+        <Text as="p" size="4" weight="medium">
+          Categories
+        </Text>
+        <CreateCategoryModal />
+      </Flex>
       <ErrorBoundary
         fallback={
           <Text color="red" role="alert">
