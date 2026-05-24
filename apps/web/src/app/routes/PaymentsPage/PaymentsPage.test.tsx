@@ -51,7 +51,8 @@ const initialCurrentMonthPaymentRows = initialPaymentRows.filter((payment) =>
   payment.date.startsWith("2025-06-"),
 )
 const currentMonthPaymentsQueryDate = new Date(2025, 5, 1).toISOString()
-const paymentsPageCacheScope = "payments-page-test"
+const paymentsPageCacheScopeId = "00000000-0000-4000-8000-000000000000"
+const paymentsPageCacheScope = `payments-page-${paymentsPageCacheScopeId}`
 const uncategorizedPayment = mapPaymentToRow({
   ...payments[0],
   id: 1000,
@@ -147,7 +148,7 @@ function lastRequest(requests: URL[]): URL | undefined {
 
 describe("PaymentsPage", () => {
   beforeEach(() => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("00000000-0000-4000-8000-000000000000")
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(paymentsPageCacheScopeId)
     server.resetHandlers(
       ...createPaymentHandlers({
         initialRows: initialPaymentRows,
