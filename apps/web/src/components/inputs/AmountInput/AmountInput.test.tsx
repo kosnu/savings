@@ -16,6 +16,15 @@ describe("AmountInput", () => {
     expect(input).toHaveValue("1000")
   })
 
+  test("入力中は非数字を保持する", async () => {
+    const { user } = render(<Default />)
+
+    const input = screen.getByRole("textbox")
+    await user.type(input, "abc１２３-1.5")
+
+    expect(input).toHaveValue("abc１２３-1.5")
+  })
+
   test("初期値を表示する", () => {
     render(<Filled />)
 

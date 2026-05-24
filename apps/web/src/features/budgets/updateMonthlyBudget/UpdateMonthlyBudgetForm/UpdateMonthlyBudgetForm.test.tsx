@@ -46,4 +46,28 @@ describe("UpdateMonthlyBudgetForm", () => {
     expect(saveButton).toBeEnabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled()
   })
+
+  test("金額が不正な文字列の場合は更新せずにエラーを表示する", async () => {
+    const monthlyBudget = toMonthlyBudget(monthlyBudgets[2])
+    let requestCount = 0
+
+    server.resetHandlers(
+      http.patch(MONTHLY_BUDGETS_REST_URL, () => {
+        requestCount += 1
+        return HttpResponse.json({ id: monthlyBudget.id })
+      }),
+    )
+
+    const { user } = render(
+      <UpdateMonthlyBudgetForm monthlyBudget={monthlyBudget} onCancel={() => {}} />,
+    )
+    const amountInput = screen.getByRole("textbox", { name: /amount/i })
+
+    await user.clear(amountInput)
+    await user.type(amountInput, "invalid")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
+    expect(requestCount).toBe(0)
+  })
 })

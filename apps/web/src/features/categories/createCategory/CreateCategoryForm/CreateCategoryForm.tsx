@@ -7,12 +7,13 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
+import { toAmountInputValue } from "../../../../utils/amountInputValue"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { toCategoryCreateErrorMessage } from "../categoryCreateError"
-import { categoryCreateSchema, type CategoryCreateValues } from "../categoryCreateSchema"
+import { categoryCreateSchema, type CategoryCreateFormValues } from "../categoryCreateSchema"
 import { useCreateCategory } from "../useCreateCategory"
 
-const defaultValues: CategoryCreateValues = {
+const defaultValues: CategoryCreateFormValues = {
   name: "",
   budgetAmount: undefined,
 }
@@ -123,7 +124,7 @@ export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormPr
                       <AmountInput
                         disabled={isSubmitting || isPending}
                         id={budgetAmountInputId}
-                        value={field.state.value}
+                        value={toAmountInputValue(field.state.value)}
                         aria-describedby={hasError ? budgetAmountErrorId : undefined}
                         aria-invalid={hasError}
                         onChange={(amount) => {
