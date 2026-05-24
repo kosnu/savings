@@ -1,6 +1,6 @@
 import * as z from "zod"
 
-import { normalizeAmountInputValue } from "../../utils/amountInputValue"
+import { amountFieldSchema } from "../../domain/amount"
 
 export const PAYMENT_NOTE_MAX_LENGTH = 30
 
@@ -18,25 +18,6 @@ export const dateFieldSchema = z.date({
 export const noteFieldSchema = z
   .string()
   .max(PAYMENT_NOTE_MAX_LENGTH, `Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`)
-
-const amountInputSchema = z.union([z.string(), z.number(), z.undefined()])
-
-export const amountFieldSchema = amountInputSchema.transform(normalizeAmountInputValue).pipe(
-  z
-    .number({
-      error: (iss) => {
-        if (iss.input === undefined || iss.input === null || iss.input === "") {
-          return "Amount cannot be empty"
-        }
-        if (typeof iss.input !== "number" || Number.isNaN(iss.input)) {
-          return "Amount must be a number"
-        }
-        return "Amount is invalid"
-      },
-    })
-    .int("Amount must be an integer")
-    .nonnegative("Amount must be a non-negative integer"),
-)
 
 const baseSchema = z.object({
   category: categoryFieldSchema,

@@ -99,43 +99,6 @@ describe("paymentFormSchema", () => {
     const error = result.error && z.flattenError(result.error).fieldErrors.date
     expect(error).toEqual(["Date cannot be empty"])
   })
-
-  test("should fail when amount is invalid", () => {
-    const result = paymentFormSchema.safeParse({ ...data, amount: "invalid" })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a number"])
-  })
-
-  test("should fail when amount uses unsupported numeric notation", () => {
-    for (const amount of ["1e3", "0x10", "Infinity"]) {
-      const result = paymentFormSchema.safeParse({ ...data, amount })
-      expect(result.success).toBe(false)
-      const error = result.error && z.flattenError(result.error).fieldErrors.amount
-      expect(error).toEqual(["Amount must be a number"])
-    }
-  })
-
-  test("should fail when amount is empty", () => {
-    const result = paymentFormSchema.safeParse({ ...data, amount: "" })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount cannot be empty"])
-  })
-
-  test("should fail when amount is negative", () => {
-    const result = paymentFormSchema.safeParse({ ...data, amount: -1 })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a non-negative integer"])
-  })
-
-  test("should fail when amount is decimal", () => {
-    const result = paymentFormSchema.safeParse({ ...data, amount: 10.5 })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be an integer"])
-  })
 })
 
 describe("paymentFormSubmitSchema", () => {
@@ -185,49 +148,5 @@ describe("paymentFormSubmitSchema", () => {
 
     const error = result.error && z.flattenError(result.error).fieldErrors.note
     expect(error).toEqual([`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`])
-  })
-
-  test("should fail when amount is empty", () => {
-    const result = paymentFormSubmitSchema.safeParse({ ...data, amount: undefined })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount cannot be empty"])
-  })
-
-  test("should fail when amount is empty string", () => {
-    const result = paymentFormSubmitSchema.safeParse({ ...data, amount: "" })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount cannot be empty"])
-  })
-
-  test("should fail when amount is invalid", () => {
-    const result = paymentFormSubmitSchema.safeParse({ ...data, amount: "invalid" })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a number"])
-  })
-
-  test("should fail when amount uses unsupported numeric notation", () => {
-    for (const amount of ["1e3", "0x10", "Infinity"]) {
-      const result = paymentFormSubmitSchema.safeParse({ ...data, amount })
-      expect(result.success).toBe(false)
-      const error = result.error && z.flattenError(result.error).fieldErrors.amount
-      expect(error).toEqual(["Amount must be a number"])
-    }
-  })
-
-  test("should fail when amount is negative", () => {
-    const result = paymentFormSubmitSchema.safeParse({ ...data, amount: -1 })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be a non-negative integer"])
-  })
-
-  test("should fail when amount is decimal", () => {
-    const result = paymentFormSubmitSchema.safeParse({ ...data, amount: 10.5 })
-    expect(result.success).toBe(false)
-    const error = result.error && z.flattenError(result.error).fieldErrors.amount
-    expect(error).toEqual(["Amount must be an integer"])
   })
 })

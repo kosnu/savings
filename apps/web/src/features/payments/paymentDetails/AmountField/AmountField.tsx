@@ -1,12 +1,12 @@
 import { Flex, Text } from "@radix-ui/themes"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 
+import { amountFieldSchema } from "../../../../domain/amount"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { PaymentId } from "../../../../types/payment"
 import { getZodErrorMessages } from "../../../../utils/getZodErrorMessages"
 import { toCurrency } from "../../../../utils/toCurrency"
 import { AmountInput } from "../../components/AmountInput"
-import { amountFieldSchema } from "../../paymentFormSchema"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 import { InlineForm } from "../InlineForm"
