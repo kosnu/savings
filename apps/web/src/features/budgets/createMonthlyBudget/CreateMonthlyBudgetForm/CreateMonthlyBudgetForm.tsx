@@ -104,10 +104,14 @@ export function CreateMonthlyBudgetForm({
             }}
           </form.Field>
         </Flex>
-        <Flex gap="3" justify="end">
-          <CancelButton onClick={handleCancel} />
-          <SubmitButton>Create</SubmitButton>
-        </Flex>
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => (
+            <Flex gap="3" justify="end">
+              <CancelButton disabled={isSubmitting} onClick={handleCancel} />
+              <SubmitButton loading={isSubmitting}>Create</SubmitButton>
+            </Flex>
+          )}
+        </form.Subscribe>
       </Flex>
     </form>
   )

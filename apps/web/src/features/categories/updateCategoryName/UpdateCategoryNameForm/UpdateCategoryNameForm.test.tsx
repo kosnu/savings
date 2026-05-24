@@ -1,15 +1,18 @@
 import { composeStories } from "@storybook/react-vite"
+import { HttpResponse, http } from "msw"
 import type { ReactElement } from "react"
 import { fn } from "storybook/test"
 import { beforeEach, describe, expect, test } from "vite-plus/test"
 
 import { createCategorySettingsHandlers } from "../../../../test/msw/handlers/categorySettings"
 import { server } from "../../../../test/msw/server"
-import { act, render, screen, waitFor } from "../../../../test/test-utils"
+import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
+import { createDeferred } from "../../../../test/utils/createDeferred"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import * as stories from "./UpdateCategoryNameForm.stories"
 
 const { Default } = composeStories(stories)
+const CATEGORIES_REST_URL = "*/rest/v1/categories*"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -63,6 +66,39 @@ describe("UpdateCategoryNameForm", () => {
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
+  })
+
+  test("カテゴリ名保存中は保存ボタンをローディング表示し操作ボタンを無効化する", async () => {
+    const categoryUpdated = createDeferred()
+
+    server.resetHandlers(
+      http.patch(CATEGORIES_REST_URL, async () => {
+        await categoryUpdated.promise
+        return HttpResponse.json({ id: 10 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default />)
+    const nameInput = screen.getByRole("textbox", { name: /Name/ })
+
+    await user.clear(nameInput)
+    await user.type(nameInput, "Groceries")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    const saveButton = await screen.findByRole("button", { name: /save/i })
+    expect(await within(saveButton).findByLabelText("loading-spinner")).toBeInTheDocument()
+    expect(saveButton).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+
+    await act(async () => {
+      categoryUpdated.resolve()
+    })
+
+    await waitFor(() => {
+      expect(within(saveButton).queryByLabelText("loading-spinner")).not.toBeInTheDocument()
+    })
+    expect(saveButton).toBeEnabled()
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled()
   })
 
   test("カテゴリ名重複時は保存エラーを表示してonSuccessを呼ばない", async () => {
