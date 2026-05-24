@@ -123,10 +123,14 @@ export function UpdateMonthlyBudgetForm({
             }}
           </form.Field>
         </Flex>
-        <Flex gap="3" justify="end">
-          <CancelButton disabled={isPending} onClick={handleCancel} />
-          <SubmitButton loading={isPending}>Save</SubmitButton>
-        </Flex>
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => (
+            <Flex gap="3" justify="end">
+              <CancelButton disabled={isSubmitting} onClick={handleCancel} />
+              <SubmitButton loading={isSubmitting}>Save</SubmitButton>
+            </Flex>
+          )}
+        </form.Subscribe>
       </Flex>
     </form>
   )
