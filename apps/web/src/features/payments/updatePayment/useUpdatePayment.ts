@@ -2,7 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import type { PaymentId } from "../../../types/payment"
+import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
 import type { PaymentUpdatePatch } from "../paymentFormMappers"
+import { paymentQueryKeys } from "../queryKeys"
 import { updatePayment as updatePaymentRecord } from "./updatePayment"
 
 interface UpdatePaymentInput {
@@ -26,10 +28,10 @@ export function useUpdatePayment(
       updatePaymentRecord(paymentId, patch),
     onSuccess: async (_, { paymentId }) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["payments"] }),
-        queryClient.invalidateQueries({ queryKey: ["paymentDetails", paymentId] }),
-        queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
-        queryClient.invalidateQueries({ queryKey: ["categoryTotals"] }),
+        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.all }),
+        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.details(paymentId) }),
+        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.totalExpendituresAll }),
+        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll }),
       ])
       onSuccess?.()
     },

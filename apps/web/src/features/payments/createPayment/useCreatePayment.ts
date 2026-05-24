@@ -2,7 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import { getSupabaseClient } from "../../../lib/supabase"
+import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
 import { type PaymentWriteInput, toPaymentWriteInsert } from "../paymentFormMappers"
+import { paymentQueryKeys } from "../queryKeys"
 
 async function postPayment(value: PaymentWriteInput): Promise<void> {
   const supabase = getSupabaseClient()
@@ -29,9 +31,9 @@ export function useCreatePayment(
     mutationFn: postPayment,
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["payments"] }),
-        queryClient.invalidateQueries({ queryKey: ["totalExpenditures"] }),
-        queryClient.invalidateQueries({ queryKey: ["categoryTotals"] }),
+        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.all }),
+        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.totalExpendituresAll }),
+        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll }),
       ])
       onSuccess?.()
     },
