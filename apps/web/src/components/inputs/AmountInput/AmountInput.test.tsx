@@ -21,4 +21,12 @@ describe("AmountInput", () => {
 
     expect(screen.getByRole("textbox")).toHaveValue("1200")
   })
+
+  test("aria属性をinputへ渡す", () => {
+    render(<Default aria-describedby="amount-error" aria-invalid />)
+
+    const input = screen.getByRole("textbox")
+    expect(input).toHaveAttribute("aria-describedby", "amount-error")
+    expect(input).toHaveAttribute("aria-invalid", "true")
+  })
 })
