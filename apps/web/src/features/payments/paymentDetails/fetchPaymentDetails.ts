@@ -1,5 +1,6 @@
 import * as z from "zod"
 
+import { parseDateOnlyStringToLocalDate } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
 import type { PaymentDetails, PaymentId } from "../../../types/payment"
 
@@ -59,7 +60,7 @@ export async function fetchPaymentDetails(paymentId: PaymentId): Promise<Payment
     id: row.id,
     note: row.note ?? "",
     amount: row.amount,
-    date: new Date(row.date),
+    date: parseDateOnlyStringToLocalDate(row.date),
     bookId: row.book_id,
     createdDate: row.created_at ? new Date(row.created_at) : new Date(),
     updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),

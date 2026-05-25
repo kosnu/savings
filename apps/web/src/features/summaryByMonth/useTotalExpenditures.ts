@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
 
+import { formatTargetMonthKey, toTargetMonth } from "../../domain/date"
 import { useDateRange } from "../../utils/useDateRange"
 import { fetchTotalExpenditures } from "./fetchTotalExpenditures"
 import { summaryQueryKeys } from "./queryKeys"
@@ -14,7 +14,7 @@ interface UseTotalExpendituresReturn {
 
 export function useTotalExpenditures(): UseTotalExpendituresReturn {
   const { date } = useDateRange()
-  const month = date ? format(date, "yyyy-MM") : ""
+  const month = date ? formatTargetMonthKey(toTargetMonth(date)) : ""
 
   const query = useQuery({
     queryKey: summaryQueryKeys.totalExpenditures(month),

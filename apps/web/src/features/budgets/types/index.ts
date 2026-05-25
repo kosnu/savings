@@ -13,8 +13,3 @@ export interface MonthlyBudget {
   createdDate: Date
   updatedDate: Date
 }
-
-export interface TargetMonth {
-  year: number
-  month: number
-}

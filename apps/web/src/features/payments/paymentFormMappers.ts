@@ -1,5 +1,4 @@
-import { format } from "date-fns"
-
+import { toDateOnlyString } from "../../domain/date"
 import type { TablesInsert, TablesUpdate } from "../../types/database.types"
 import type { Payment } from "../../types/payment"
 import { noteFieldSchema, type PaymentFormValues } from "./paymentFormSchema"
@@ -35,7 +34,7 @@ export function toPaymentWriteInsert(value: PaymentWriteInput): PaymentInsert {
 
   return {
     amount: value.amount,
-    date: format(value.date, "yyyy-MM-dd"),
+    date: toDateOnlyString(value.date),
     note: note === "" ? null : (note ?? null),
     category_id: toCategoryId(value.categoryId),
   }
@@ -54,7 +53,7 @@ export function toPaymentWriteUpdate(patch: PaymentUpdatePatch): PaymentUpdate {
     updatePayload.amount = patch.amount
   }
   if (patch.date !== undefined) {
-    updatePayload.date = format(patch.date, "yyyy-MM-dd")
+    updatePayload.date = toDateOnlyString(patch.date)
   }
   if (patch.note !== undefined) {
     const note = validatePaymentNote(patch.note)

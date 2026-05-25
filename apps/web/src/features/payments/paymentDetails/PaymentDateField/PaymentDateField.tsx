@@ -1,8 +1,8 @@
 import { Text } from "@radix-ui/themes"
-import { format } from "date-fns"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 
 import { DatePicker } from "../../../../components/inputs/DatePicker"
+import { toDateOnlyString } from "../../../../domain/date"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { PaymentId } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
@@ -134,6 +134,4 @@ export function PaymentDateField({
   )
 }
 
-function toDateOnlyKey(date: Date): string {
-  return format(date, "yyyy-MM-dd")
-}
+const toDateOnlyKey = toDateOnlyString
