@@ -1,7 +1,7 @@
 import * as z from "zod"
 
+import { parseDateOnlyStringToLocalDate } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
-import { parseIsoDateOnlyToLocalDate } from "../../budgets/utils/month"
 import type { CategorySettingsBudget, CategorySettingsItem } from "./types"
 
 const categorySettingsColumns = `
@@ -91,7 +91,7 @@ function toCategorySettingsBudget(row: CategorySettingsBudgetRow): CategorySetti
   return {
     id: row.id,
     amount: row.amount,
-    effectiveFrom: parseIsoDateOnlyToLocalDate(row.effective_from),
+    effectiveFrom: parseDateOnlyStringToLocalDate(row.effective_from),
     effectiveYear: row.effective_year,
     effectiveMonth: row.effective_month,
   }

@@ -1,5 +1,4 @@
-import { format } from "date-fns"
-
+import { toDateOnlyString, toMonthStartDate } from "../../../domain/date"
 import type { CategoryCreateValues } from "./categoryCreateSchema"
 
 export interface CategoryCreateInput {
@@ -14,10 +13,6 @@ export interface CategoryCreateRpcArgs {
   p_category_name: string
   p_budget_effective_from?: string
   p_budget_amount?: number
-}
-
-function toMonthStartDate(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1)
 }
 
 export function mapCategoryCreateValuesToCategoryCreateInput(
@@ -44,7 +39,7 @@ export function toCategoryCreateRpcArgs(value: CategoryCreateInput): CategoryCre
   }
 
   if (value.budget) {
-    args.p_budget_effective_from = format(toMonthStartDate(value.budget.targetMonth), "yyyy-MM-dd")
+    args.p_budget_effective_from = toDateOnlyString(toMonthStartDate(value.budget.targetMonth))
     args.p_budget_amount = value.budget.amount
   }
 

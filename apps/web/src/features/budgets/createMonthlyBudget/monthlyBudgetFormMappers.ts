@@ -1,7 +1,5 @@
-import { format } from "date-fns"
-
+import { toDateOnlyString, toMonthStartDate } from "../../../domain/date"
 import type { TablesInsert } from "../../../types/database.types"
-import { toMonthStartDate } from "../utils/month"
 
 export interface MonthlyBudgetWriteInput {
   targetMonth: Date
@@ -17,6 +15,6 @@ export type MonthlyBudgetInsert = Omit<
 export function toMonthlyBudgetInsert(value: MonthlyBudgetWriteInput): MonthlyBudgetInsert {
   return {
     amount: value.amount,
-    effective_from: format(toMonthStartDate(value.targetMonth), "yyyy-MM-dd"),
+    effective_from: toDateOnlyString(toMonthStartDate(value.targetMonth)),
   }
 }

@@ -1,5 +1,4 @@
-import { format } from "date-fns"
-
+import { toDateOnlyString } from "../../domain/date"
 import type { Payment, PaymentRow } from "../../types/payment"
 
 export function mapPaymentToRow(payment: Payment): PaymentRow {
@@ -11,7 +10,7 @@ export function mapPaymentToRow(payment: Payment): PaymentRow {
     id: payment.id,
     note: payment.note,
     amount: payment.amount,
-    date: format(payment.date, "yyyy-MM-dd"),
+    date: toDateOnlyString(payment.date),
     created_at: payment.createdDate.toISOString(),
     updated_at: payment.updatedDate.toISOString(),
     book_id: payment.bookId,
