@@ -1,6 +1,6 @@
-import { format } from "date-fns"
 import * as z from "zod"
 
+import { toDateOnlyString } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
 import { unknownCategory } from "../../categories/unknownCategory"
 
@@ -48,12 +48,12 @@ export async function fetchCategoryTotals([startDate, endDate]: [
     .is("category_id", null)
 
   if (startDate) {
-    const formattedStartDate = format(startDate, "yyyy-MM-dd")
+    const formattedStartDate = toDateOnlyString(startDate)
     categoryTotalsQuery = categoryTotalsQuery.gte("payments.date", formattedStartDate)
     uncategorizedPaymentsQuery = uncategorizedPaymentsQuery.gte("date", formattedStartDate)
   }
   if (endDate) {
-    const formattedEndDate = format(endDate, "yyyy-MM-dd")
+    const formattedEndDate = toDateOnlyString(endDate)
     categoryTotalsQuery = categoryTotalsQuery.lte("payments.date", formattedEndDate)
     uncategorizedPaymentsQuery = uncategorizedPaymentsQuery.lte("date", formattedEndDate)
   }

@@ -1,6 +1,6 @@
-import { format } from "date-fns"
 import * as z from "zod"
 
+import { parseDateOnlyStringToLocalDate, toDateOnlyString } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
 import type { Payment } from "../../../types/payment"
 
@@ -54,10 +54,10 @@ export async function fetchPayments(
     .order("id", { ascending: false })
 
   if (startDate) {
-    query = query.gte("date", format(startDate, "yyyy-MM-dd"))
+    query = query.gte("date", toDateOnlyString(startDate))
   }
   if (endDate) {
-    query = query.lte("date", format(endDate, "yyyy-MM-dd"))
+    query = query.lte("date", toDateOnlyString(endDate))
   }
   if (typeof categoryId === "number") {
     query = query.eq("category_id", categoryId)
@@ -81,7 +81,7 @@ export async function fetchPayments(
       category: row.category ?? null,
       note: row.note ?? "",
       amount: row.amount,
-      date: new Date(row.date),
+      date: parseDateOnlyStringToLocalDate(row.date),
       bookId: row.book_id,
       createdDate: row.created_at ? new Date(row.created_at) : new Date(),
       updatedDate: row.updated_at ? new Date(row.updated_at) : new Date(),
