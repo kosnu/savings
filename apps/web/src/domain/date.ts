@@ -1,6 +1,9 @@
 import { endOfMonth, format } from "date-fns"
 
-import type { TargetMonth } from "../types"
+export interface TargetMonth {
+  year: number
+  month: number
+}
 
 export function toTargetMonth(date: Date): TargetMonth {
   return {
@@ -9,15 +12,19 @@ export function toTargetMonth(date: Date): TargetMonth {
   }
 }
 
-export function toMonthEndIsoDate(date: Date): string {
-  return format(endOfMonth(date), "yyyy-MM-dd")
-}
-
 export function toMonthStartDate(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1)
 }
 
-export function parseIsoDateOnlyToLocalDate(value: string): Date {
+export function toMonthEndDateOnlyString(date: Date): string {
+  return toDateOnlyString(endOfMonth(date))
+}
+
+export function toDateOnlyString(date: Date): string {
+  return format(date, "yyyy-MM-dd")
+}
+
+export function parseDateOnlyStringToLocalDate(value: string): Date {
   const [year, month, day] = value.split("-").map(Number)
 
   return new Date(year, month - 1, day)

@@ -1,7 +1,7 @@
 import * as z from "zod"
 
+import { parseDateOnlyStringToLocalDate } from "../../domain/date"
 import type { MonthlyBudget } from "./types"
-import { parseIsoDateOnlyToLocalDate } from "./utils/month"
 
 const monthlyBudgetRowSchema = z.object({
   id: z.number(),
@@ -41,7 +41,7 @@ export function toMonthlyBudget(row: NormalizedMonthlyBudgetRow): MonthlyBudget 
     id: row.id,
     bookId: row.book_id,
     amount: row.amount,
-    effectiveFrom: parseIsoDateOnlyToLocalDate(row.effective_from),
+    effectiveFrom: parseDateOnlyStringToLocalDate(row.effective_from),
     effectiveYear: row.effective_year,
     effectiveMonth: row.effective_month,
     createdDate: row.created_at ? new Date(row.created_at) : new Date(),
