@@ -42,6 +42,12 @@ interface UpdateCategorySettingsOptions {
   durationOrMode?: number | DelayMode | undefined
 }
 
+interface UpdateCategoryWithBudgetOptions {
+  error?: boolean
+  errorResponse?: unknown
+  durationOrMode?: number | DelayMode | undefined
+}
+
 interface CreateCategorySettingsOptions {
   error?: boolean
   errorResponse?: unknown
@@ -58,8 +64,16 @@ const createCategoryWithBudgetBodySchema = z.object({
   p_budget_amount: z.number().optional(),
 })
 
+const updateCategoryWithBudgetBodySchema = z.object({
+  p_category_id: z.number(),
+  p_category_name: z.string(),
+  p_category_budget_id: z.number(),
+  p_budget_amount: z.number(),
+})
+
 type UpdateCategoryNameBody = z.infer<typeof updateCategoryNameBodySchema>
 type CreateCategoryWithBudgetBody = z.infer<typeof createCategoryWithBudgetBodySchema>
+type UpdateCategoryWithBudgetBody = z.infer<typeof updateCategoryWithBudgetBodySchema>
 
 export function createCategorySettingsHandlers({
   response,
@@ -69,9 +83,11 @@ export function createCategorySettingsHandlers({
   durationOrMode,
   create = {},
   update = {},
+  updateCategory = {},
 }: GetCategorySettingsOptions & {
   create?: CreateCategorySettingsOptions
   update?: UpdateCategorySettingsOptions
+  updateCategory?: UpdateCategoryWithBudgetOptions
 } = {}) {
   let rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
 
@@ -102,6 +118,28 @@ export function createCategorySettingsHandlers({
       rows = [...rows, createdRow]
 
       return HttpResponse.json(createdRow.id)
+    }),
+    http.post("*/rest/v1/rpc/update_category_with_budget", async ({ request }) => {
+      await delay(updateCategory.durationOrMode)
+
+      if (updateCategory.error) {
+        return HttpResponse.json(
+          updateCategory.errorResponse ?? { message: "Failed to update category." },
+          { status: 500 },
+        )
+      }
+
+      const body = await request.json()
+      const parsedBody = updateCategoryWithBudgetBodySchema.parse(body)
+      const updatedRows = buildUpdatedCategorySettingsRowsWithBudget(parsedBody, rows)
+
+      if (!updatedRows) {
+        return HttpResponse.json({ message: "Category budget was not updated." }, { status: 400 })
+      }
+
+      rows = updatedRows
+
+      return HttpResponse.json(null)
     }),
     http.patch(REST_URL, async ({ request }) => {
       await delay(update.durationOrMode)
@@ -221,6 +259,39 @@ function buildUpdatedCategorySettingsRow(
     ...row,
     name: body.name,
   }
+}
+
+function buildUpdatedCategorySettingsRowsWithBudget(
+  body: UpdateCategoryWithBudgetBody,
+  rows: CategorySettingsResponseRow[],
+): CategorySettingsResponseRow[] | undefined {
+  const targetRow = rows.find((category) => category.id === body.p_category_id)
+  const targetBudget = targetRow?.category_budgets.find(
+    (budget) => budget.id === body.p_category_budget_id,
+  )
+
+  if (!targetRow || !targetBudget) {
+    return undefined
+  }
+
+  return rows.map((row) => {
+    if (row.id !== body.p_category_id) {
+      return row
+    }
+
+    return {
+      ...row,
+      name: body.p_category_name,
+      category_budgets: row.category_budgets.map((budget) =>
+        budget.id === body.p_category_budget_id
+          ? {
+              ...budget,
+              amount: body.p_budget_amount,
+            }
+          : budget,
+      ),
+    }
+  })
 }
 
 export const categorySettingsHandlers = createCategorySettingsHandlers()
