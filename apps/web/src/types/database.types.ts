@@ -346,6 +346,15 @@ export type Database = {
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
       get_monthly_total_amount: { Args: { p_month: string }; Returns: number }
+      update_category_with_budget: {
+        Args: {
+          p_budget_amount: number
+          p_category_budget_id: number
+          p_category_id: number
+          p_category_name: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
