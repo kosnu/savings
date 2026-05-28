@@ -5,9 +5,7 @@ import { useCallback, useId, useState } from "react"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
-import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
-import { toAmountFormValue } from "../../../../domain/amount"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { toCategoryCreateErrorMessage } from "../categoryCreateError"
 import { categoryCreateSchema, type CategoryCreateFormValues } from "../categoryCreateSchema"
@@ -15,7 +13,6 @@ import { useCreateCategory } from "../useCreateCategory"
 
 const defaultValues: CategoryCreateFormValues = {
   name: "",
-  budgetAmount: undefined,
 }
 
 interface CreateCategoryFormProps {
@@ -26,8 +23,6 @@ interface CreateCategoryFormProps {
 export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormProps) {
   const nameInputId = useId()
   const nameErrorId = useId()
-  const budgetAmountInputId = useId()
-  const budgetAmountErrorId = useId()
   const { createCategory, isPending } = useCreateCategory()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
 
@@ -107,32 +102,6 @@ export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormPr
                         }}
                       />
                       <span id={nameErrorId}>
-                        <FieldMessages error={hasError} messages={errorMessages} />
-                      </span>
-                    </BaseField>
-                  )
-                }}
-              </form.Field>
-              <form.Field name="budgetAmount">
-                {(field) => {
-                  const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
-                  const hasError = !field.state.meta.isValid && errorMessages.length > 0
-
-                  return (
-                    <BaseField>
-                      <FieldLabel htmlFor={budgetAmountInputId}>Monthly budget</FieldLabel>
-                      <AmountInput
-                        disabled={isSubmitting || isPending}
-                        id={budgetAmountInputId}
-                        value={toAmountFormValue(field.state.value)}
-                        aria-describedby={hasError ? budgetAmountErrorId : undefined}
-                        aria-invalid={hasError}
-                        onChange={(amount) => {
-                          field.handleChange(amount)
-                          setSubmitErrorMessage(undefined)
-                        }}
-                      />
-                      <span id={budgetAmountErrorId}>
                         <FieldMessages error={hasError} messages={errorMessages} />
                       </span>
                     </BaseField>
