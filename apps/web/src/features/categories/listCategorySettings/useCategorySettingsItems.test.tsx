@@ -19,7 +19,6 @@ function buildCategorySettingsItem(id: number): CategorySettingsItem {
       bookId: 1,
       name: `Category ${id}`,
     },
-    latestCategoryBudget: null,
     pinned: false,
   }
 }

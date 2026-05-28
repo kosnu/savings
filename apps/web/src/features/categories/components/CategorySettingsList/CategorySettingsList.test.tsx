@@ -20,20 +20,19 @@ describe("CategorySettingsList", () => {
     server.resetHandlers(...createCategorySettingsHandlers())
   })
 
-  test("カテゴリ名、月予算、ピン状態を表示する", async () => {
+  test("カテゴリ名とピン状態を表示する", async () => {
     await renderCategorySettingsList(<Default />)
 
     expect(await screen.findByText("Categories")).toBeInTheDocument()
     expect(screen.getByText("Name")).toBeInTheDocument()
-    expect(screen.getAllByText("Monthly budget").length).toBeGreaterThan(0)
+    expect(screen.queryByText("Monthly budget")).not.toBeInTheDocument()
     expect(
       within(screen.getByText("Name").parentElement!).queryByText("Pin"),
     ).not.toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(screen.getByText("Daily Necessities")).toBeInTheDocument()
     expect(screen.getByText("Entertainment")).toBeInTheDocument()
-    expect(screen.getByText("￥50,000")).toBeInTheDocument()
-    expect(screen.getAllByText("Not set")).toHaveLength(1)
+    expect(screen.queryByText("Not set")).not.toBeInTheDocument()
     expect(
       within(screen.getByLabelText("Food category settings")).getAllByText("Pin").length,
     ).toBeGreaterThan(0)
@@ -73,7 +72,7 @@ describe("CategorySettingsList", () => {
     expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
   })
 
-  test("月予算なしでカテゴリを作成して一覧に反映する", async () => {
+  test("カテゴリを作成して一覧に反映する", async () => {
     const { user } = await renderCategorySettingsList(<Default />)
 
     await user.click(await screen.findByRole("button", { name: "Create category" }))
@@ -86,28 +85,6 @@ describe("CategorySettingsList", () => {
       expect(screen.queryByRole("dialog", { name: "Create category" })).not.toBeInTheDocument()
     })
     expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
-    expect(
-      within(screen.getByLabelText("Groceries category settings")).getByText("Not set"),
-    ).toBeInTheDocument()
-  })
-
-  test("月予算金額つきでカテゴリを作成して一覧に反映する", async () => {
-    const { user } = await renderCategorySettingsList(<Default />)
-
-    await user.click(await screen.findByRole("button", { name: "Create category" }))
-    const dialog = await screen.findByRole("dialog", { name: "Create category" })
-
-    await user.type(within(dialog).getByRole("textbox", { name: /Name/ }), "Groceries")
-    await user.type(within(dialog).getByRole("textbox", { name: /Monthly budget/ }), "50000")
-    await user.click(within(dialog).getByRole("button", { name: "Create" }))
-
-    await waitFor(() => {
-      expect(screen.queryByRole("dialog", { name: "Create category" })).not.toBeInTheDocument()
-    })
-    expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
-    expect(
-      within(screen.getByLabelText("Groceries category settings")).getByText("￥50,000"),
-    ).toBeInTheDocument()
   })
 
   test("カテゴリ設定取得中は loading を表示する", async () => {
