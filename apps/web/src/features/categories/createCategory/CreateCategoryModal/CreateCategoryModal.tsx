@@ -35,7 +35,7 @@ export function CreateCategoryModal({
       dismissible={false}
       trigger={trigger}
       title="Create category"
-      description="Create a category with an optional monthly budget amount."
+      description="Create a category."
     >
       <CreateCategoryForm onSuccess={handleSuccess} onCancel={handleCancel} />
     </ResponsiveOverlay>

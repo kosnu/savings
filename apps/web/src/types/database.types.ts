@@ -100,7 +100,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          book_id: number
+          book_id?: number
           created_at?: string | null
           id?: never
           name: string
@@ -119,57 +119,6 @@ export type Database = {
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      category_budgets: {
-        Row: {
-          amount: number
-          book_id: number
-          category_id: number
-          created_at: string | null
-          effective_from: string
-          effective_month: number
-          effective_year: number
-          id: number
-          updated_at: string | null
-        }
-        Insert: {
-          amount: number
-          book_id?: number
-          category_id: number
-          created_at?: string | null
-          effective_from: string
-          effective_month?: number
-          effective_year?: number
-          id?: never
-          updated_at?: string | null
-        }
-        Update: {
-          amount?: number
-          book_id?: number
-          category_id?: number
-          created_at?: string | null
-          effective_from?: string
-          effective_month?: number
-          effective_year?: number
-          id?: never
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "category_budgets_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "books"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "category_budgets_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
@@ -334,27 +283,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_category_with_budget: {
-        Args: {
-          p_category_name: string
-          p_budget_amount?: number
-          p_budget_effective_from?: string
-        }
-        Returns: number
-      }
       ensure_authenticated_user: { Args: never; Returns: undefined }
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
       get_monthly_total_amount: { Args: { p_month: string }; Returns: number }
-      update_category_with_budget: {
-        Args: {
-          p_budget_amount: number
-          p_category_budget_id: number
-          p_category_id: number
-          p_category_name: string
-        }
-        Returns: undefined
-      }
     }
     Enums: {
       [_ in never]: never

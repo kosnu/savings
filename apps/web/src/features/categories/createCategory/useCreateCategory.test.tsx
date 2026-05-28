@@ -26,7 +26,6 @@ describe("useCreateCategory", () => {
       .mockResolvedValue(undefined)
     const input: CategoryCreateValues = {
       name: "Groceries",
-      budgetAmount: 50000,
     }
     mockCreateCategory.mockResolvedValue(40)
 
