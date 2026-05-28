@@ -1,26 +1,22 @@
 import { getSupabaseClient } from "../../../lib/supabase"
-import {
-  mapCategoryCreateValuesToCategoryCreateInput,
-  toCategoryCreateRpcArgs,
-} from "./categoryCreateMappers"
 import { categoryCreateSchema, type CategoryCreateValues } from "./categoryCreateSchema"
 
 export async function createCategory(value: CategoryCreateValues): Promise<number> {
   const supabase = getSupabaseClient()
   const parsedValue = categoryCreateSchema.parse(value)
-  const input = mapCategoryCreateValuesToCategoryCreateInput(parsedValue)
-  const { data, error } = await supabase.rpc(
-    "create_category_with_budget",
-    toCategoryCreateRpcArgs(input),
-  )
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({ name: parsedValue.name })
+    .select("id")
+    .single()
 
   if (error) {
     throw error
   }
 
-  if (data === null) {
+  if (!data) {
     throw new Error("Category was not created.")
   }
 
-  return data
+  return data.id
 }

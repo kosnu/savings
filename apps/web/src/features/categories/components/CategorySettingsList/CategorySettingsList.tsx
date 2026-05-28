@@ -2,7 +2,6 @@ import { Badge, Box, Flex, Grid, Separator, Skeleton, Text } from "@radix-ui/the
 import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
-import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateCategoryModal } from "../../createCategory/CreateCategoryModal"
 import type { CategorySettingsItem } from "../../listCategorySettings/types"
 import { useCategorySettingsItems } from "../../listCategorySettings/useCategorySettingsItems"
@@ -61,9 +60,8 @@ function CategorySettingsListContent({ promise }: CategorySettingsListContentPro
 function CategorySettingsHeader() {
   return (
     <Box display={{ initial: "none", sm: "block" }}>
-      <Grid columns="1fr minmax(120px, auto) minmax(64px, auto)" gap="3">
+      <Grid columns="1fr minmax(64px, auto)" gap="3">
         <Text color="gray">Name</Text>
-        <Text color="gray">Monthly budget</Text>
         <Box aria-hidden />
       </Grid>
     </Box>
@@ -77,15 +75,12 @@ function CategorySettingsLoadingRows() {
       <Grid
         columns={{
           initial: "1fr",
-          sm: "1fr minmax(120px, auto) minmax(64px, auto)",
+          sm: "1fr minmax(64px, auto)",
         }}
         gap="2"
       >
         <Skeleton loading>
           <Text>Category name</Text>
-        </Skeleton>
-        <Skeleton loading>
-          <Text>Monthly budget ￥000,000</Text>
         </Skeleton>
         <Skeleton loading>
           <Text>Edit</Text>
@@ -96,22 +91,17 @@ function CategorySettingsLoadingRows() {
 }
 
 function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
-  const budgetText = item.latestCategoryBudget
-    ? toCurrency(item.latestCategoryBudget.amount)
-    : "Not set"
-
   return (
     <Grid
       align="center"
       aria-label={`${item.category.name} category settings`}
       columns={{
         initial: "1fr",
-        sm: "1fr minmax(120px, auto) minmax(64px, auto)",
+        sm: "1fr minmax(64px, auto)",
       }}
       gap="2"
     >
       <CategoryNameWithMobileActionCell item={item} />
-      <CategoryBudgetCell item={item} budgetText={budgetText} />
       <CategoryActionsCell category={item.category} placement="desktop" />
     </Grid>
   )
@@ -131,25 +121,6 @@ function CategoryNameCell({ item }: { item: CategorySettingsItem }) {
     <Flex align="center" gap="2" minWidth="0">
       <Text>{item.category.name}</Text>
       {item.pinned && <PinBadge />}
-    </Flex>
-  )
-}
-
-function CategoryBudgetCell({
-  item,
-  budgetText,
-}: {
-  item: CategorySettingsItem
-  budgetText: string
-}) {
-  return (
-    <Flex align="center" gap="3" justify={{ initial: "between", sm: "start" }}>
-      <Box display={{ initial: "block", sm: "none" }}>
-        <Text color="gray" size="2">
-          Monthly budget
-        </Text>
-      </Box>
-      <Text color={item.latestCategoryBudget ? undefined : "gray"}>{budgetText}</Text>
     </Flex>
   )
 }

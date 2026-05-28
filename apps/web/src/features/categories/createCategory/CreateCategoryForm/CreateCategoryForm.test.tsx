@@ -12,7 +12,7 @@ import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import * as stories from "./CreateCategoryForm.stories"
 
 const { Default } = composeStories(stories)
-const CREATE_CATEGORY_RPC_URL = "*/rest/v1/rpc/create_category_with_budget"
+const CREATE_CATEGORY_URL = "*/rest/v1/categories*"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -25,11 +25,11 @@ describe("CreateCategoryForm", () => {
     server.resetHandlers(...createCategorySettingsHandlers())
   })
 
-  test("カテゴリ名と任意の月予算金額入力欄を表示する", async () => {
+  test("カテゴリ名入力欄を表示する", async () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeInTheDocument()
-    expect(screen.getByRole("textbox", { name: /Monthly budget/ })).toBeInTheDocument()
+    expect(screen.queryByRole("textbox", { name: /Monthly budget/ })).not.toBeInTheDocument()
   })
 
   test("未入力で送信するとカテゴリ名のvalidation errorを表示する", async () => {
@@ -64,62 +64,37 @@ describe("CreateCategoryForm", () => {
     })
   })
 
-  test("月予算金額つきで作成RPCを呼ぶ", async () => {
+  test("カテゴリ名で作成リクエストを送る", async () => {
     const onSuccess = fn()
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_RPC_URL, async ({ request }) => {
+      http.post(CREATE_CATEGORY_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json(999)
+        return HttpResponse.json({ id: 999 })
       }),
     )
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
     await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
-    await user.type(screen.getByRole("textbox", { name: /Monthly budget/ }), "50000")
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
-    expect(requestBody).toMatchObject({
-      p_category_name: "Groceries",
-      p_budget_amount: 50000,
+    expect(requestBody).toEqual({
+      name: "Groceries",
     })
-    expect(requestBody?.p_budget_effective_from).toMatch(/^\d{4}-\d{2}-01$/)
-  })
-
-  test("月予算金額が不正な文字列の場合は作成せずにエラーを表示する", async () => {
-    const onSuccess = fn()
-    let requestCount = 0
-
-    server.resetHandlers(
-      http.post(CREATE_CATEGORY_RPC_URL, () => {
-        requestCount += 1
-        return HttpResponse.json(999)
-      }),
-    )
-
-    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
-
-    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
-    await user.type(screen.getByRole("textbox", { name: /Monthly budget/ }), "invalid")
-    await user.click(screen.getByRole("button", { name: "Create" }))
-
-    expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
-    expect(onSuccess).not.toHaveBeenCalled()
-    expect(requestCount).toBe(0)
   })
 
   test("作成中は作成ボタンをローディング表示し操作ボタンを無効化する", async () => {
     const categoryCreated = createDeferred()
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_RPC_URL, async () => {
+      http.post(CREATE_CATEGORY_URL, async () => {
         await categoryCreated.promise
-        return HttpResponse.json(999)
+        return HttpResponse.json({ id: 999 })
       }),
     )
 
@@ -133,7 +108,6 @@ describe("CreateCategoryForm", () => {
     expect(createButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeDisabled()
-    expect(screen.getByRole("textbox", { name: /Monthly budget/ })).toBeDisabled()
 
     await act(async () => {
       categoryCreated.resolve()

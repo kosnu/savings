@@ -63,9 +63,7 @@ export const BookManagement: Story = {
     expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await canvas.findByText("Categories")).toBeInTheDocument()
     expect(await canvas.findByText("Food")).toBeInTheDocument()
-    expect(await canvas.findByText("￥50,000")).toBeInTheDocument()
     expect(await canvas.findByText("Name")).toBeInTheDocument()
-    expect(await canvas.findAllByText("Monthly budget")).not.toHaveLength(0)
     expect(await canvas.findAllByText("Pin")).not.toHaveLength(0)
   },
 }
