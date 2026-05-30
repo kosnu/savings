@@ -108,7 +108,7 @@ export function createCategorySettingsHandlers({
 
       const body = await request.json()
       updateCategoryNameBodySchema.parse(body)
-      const id = parseUpdateCategoryId(request.url)
+      const id = parseCategoryIdFilter(request.url)
       const updatedRow = buildUpdatedCategorySettingsRow(id)
 
       return HttpResponse.json("response" in update ? update.response : updatedRow)
@@ -156,10 +156,6 @@ function buildCategorySettingsResponse(
           ]
         : [],
     }))
-}
-
-function parseUpdateCategoryId(url: string): number | undefined {
-  return parseCategoryIdFilter(url)
 }
 
 function parseCategoryIdFilter(url: string): number | undefined {
