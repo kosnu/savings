@@ -3,6 +3,7 @@ import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { CreateCategoryModal } from "../../createCategory/CreateCategoryModal"
+import { DeleteCategoryModal } from "../../deleteCategory/DeleteCategoryModal"
 import type { CategorySettingsItem } from "../../listCategorySettings/types"
 import { useCategorySettingsItems } from "../../listCategorySettings/useCategorySettingsItems"
 import { UpdateCategoryNameModal } from "../../updateCategoryName/UpdateCategoryNameModal"
@@ -138,8 +139,9 @@ function CategoryActionsCell({
       : { initial: "none" as const, sm: "flex" as const }
 
   return (
-    <Flex align="center" display={display} flexShrink="0">
+    <Flex align="center" display={display} flexShrink="0" gap="2">
       <UpdateCategoryNameModal category={category} />
+      <DeleteCategoryModal category={category} />
     </Flex>
   )
 }
