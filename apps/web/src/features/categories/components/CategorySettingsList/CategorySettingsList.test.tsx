@@ -85,6 +85,9 @@ describe("CategorySettingsList", () => {
     expect(
       await screen.findAllByRole("button", { name: /edit .* category name/i }),
     ).not.toHaveLength(0)
+    expect(await screen.findAllByRole("button", { name: /delete .* category/i })).not.toHaveLength(
+      0,
+    )
   })
 
   test("カテゴリ名を更新して一覧に反映する", async () => {
@@ -133,6 +136,56 @@ describe("CategorySettingsList", () => {
       expect(screen.queryByRole("dialog", { name: "Create category" })).not.toBeInTheDocument()
     })
     expect(await screen.findByLabelText("Groceries category settings")).toBeInTheDocument()
+  })
+
+  test("カテゴリを削除して一覧に反映する", async () => {
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({ response: defaultCategorySettingsResponse }),
+    )
+    const { user } = await renderCategorySettingsList(<Default />)
+
+    await user.click(
+      within(await screen.findByLabelText("Food category settings")).getAllByRole("button", {
+        name: /delete food category/i,
+      })[0]!,
+    )
+
+    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("dialog", { name: "Delete this category?" }),
+      ).not.toBeInTheDocument()
+    })
+    await waitFor(() => {
+      expect(screen.queryByLabelText("Food category settings")).not.toBeInTheDocument()
+    })
+    expect(await screen.findByLabelText("Daily Necessities category settings")).toBeInTheDocument()
+    expect(await screen.findByLabelText("Entertainment category settings")).toBeInTheDocument()
+  })
+
+  test("カテゴリ削除失敗時は対象カテゴリ行を残す", async () => {
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({
+        response: defaultCategorySettingsResponse,
+        delete: { error: true },
+      }),
+    )
+    const { user } = await renderCategorySettingsList(<Default />)
+
+    await user.click(
+      within(await screen.findByLabelText("Food category settings")).getAllByRole("button", {
+        name: /delete food category/i,
+      })[0]!,
+    )
+
+    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
+
+    expect(await screen.findByText("Failed to delete category.")).toBeInTheDocument()
+    expect(screen.getByRole("dialog", { name: "Delete this category?" })).toBeInTheDocument()
+    expect(await screen.findByLabelText("Food category settings")).toBeInTheDocument()
   })
 
   test("カテゴリ設定取得中は loading を表示する", async () => {
