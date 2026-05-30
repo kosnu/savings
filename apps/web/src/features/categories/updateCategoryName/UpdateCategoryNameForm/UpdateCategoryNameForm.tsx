@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout, Flex, TextField } from "@radix-ui/themes"
+import { Callout, Checkbox, Flex, Text, TextField } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useId, useState } from "react"
 import * as z from "zod"
@@ -9,21 +9,26 @@ import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { categoryNameSchema } from "../../categorySchema"
+import { toCategoryPinUpdateErrorMessage } from "../../updateCategoryPin/categoryPinUpdateError"
+import { useUpdateCategoryPin } from "../../updateCategoryPin/useUpdateCategoryPin"
 import { toCategoryNameUpdateErrorMessage } from "../categoryNameUpdateError"
 import { useUpdateCategoryName } from "../useUpdateCategoryName"
 
 const updateCategoryNameFormSubmitSchema = z.object({
   name: categoryNameSchema,
+  pinned: z.boolean(),
 })
 
 interface UpdateCategoryNameFormValues {
   name: string
+  pinned: boolean
 }
 
 interface UpdateCategoryNameFormProps {
   category: {
     id: number
     name: string
+    pinned: boolean
   }
   onSuccess?: () => void
   onCancel: () => void
@@ -36,10 +41,14 @@ export function UpdateCategoryNameForm({
 }: UpdateCategoryNameFormProps) {
   const nameInputId = useId()
   const nameErrorId = useId()
-  const { updateCategoryName, isPending } = useUpdateCategoryName()
+  const pinnedInputId = useId()
+  const { updateCategoryName, isPending: isNamePending } = useUpdateCategoryName()
+  const { updateCategoryPin, isPending: isPinPending } = useUpdateCategoryPin()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
+  const isPending = isNamePending || isPinPending
   const defaultValues: UpdateCategoryNameFormValues = {
     name: category.name,
+    pinned: category.pinned,
   }
 
   const form = useForm({
@@ -54,10 +63,33 @@ export function UpdateCategoryNameForm({
 
       try {
         setSubmitErrorMessage(undefined)
-        await updateCategoryName({
-          categoryId: category.id,
-          name: parsedValue.name,
-        })
+        const nameChanged = parsedValue.name !== category.name
+        const pinChanged = parsedValue.pinned !== category.pinned
+
+        if (nameChanged) {
+          try {
+            await updateCategoryName({
+              categoryId: category.id,
+              name: parsedValue.name,
+            })
+          } catch (error) {
+            setSubmitErrorMessage(toCategoryNameUpdateErrorMessage(error))
+            return
+          }
+        }
+
+        if (pinChanged) {
+          try {
+            await updateCategoryPin({
+              categoryId: category.id,
+              pinned: parsedValue.pinned,
+            })
+          } catch {
+            setSubmitErrorMessage(toCategoryPinUpdateErrorMessage())
+            return
+          }
+        }
+
         onSuccess?.()
       } catch (error) {
         setSubmitErrorMessage(toCategoryNameUpdateErrorMessage(error))
@@ -93,42 +125,63 @@ export function UpdateCategoryNameForm({
             <Callout.Text>{submitErrorMessage}</Callout.Text>
           </Callout.Root>
         ) : null}
-        <form.Field name="name">
-          {(field) => {
-            const isValid = field.state.meta.isValid
-            const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
-            const hasError = !isValid && errorMessages.length > 0
+        <Flex direction="column" gap="3">
+          <form.Field name="name">
+            {(field) => {
+              const isValid = field.state.meta.isValid
+              const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
+              const hasError = !isValid && errorMessages.length > 0
 
-            return (
-              <BaseField>
-                <FieldLabel htmlFor={nameInputId} required>
-                  Name
-                </FieldLabel>
-                <TextField.Root
-                  autoFocus
-                  disabled={isPending}
-                  id={nameInputId}
-                  name="name"
-                  value={field.state.value}
-                  aria-describedby={hasError ? nameErrorId : undefined}
-                  aria-invalid={hasError}
-                  onChange={(event) => {
-                    field.handleChange(event.target.value)
-                    setSubmitErrorMessage(undefined)
-                  }}
-                />
-                <span id={nameErrorId}>
-                  <FieldMessages error={!isValid} messages={errorMessages} />
-                </span>
-              </BaseField>
-            )
-          }}
-        </form.Field>
+              return (
+                <BaseField>
+                  <FieldLabel htmlFor={nameInputId} required>
+                    Name
+                  </FieldLabel>
+                  <TextField.Root
+                    autoFocus
+                    disabled={isPending}
+                    id={nameInputId}
+                    name="name"
+                    value={field.state.value}
+                    aria-describedby={hasError ? nameErrorId : undefined}
+                    aria-invalid={hasError}
+                    onChange={(event) => {
+                      field.handleChange(event.target.value)
+                      setSubmitErrorMessage(undefined)
+                    }}
+                  />
+                  <span id={nameErrorId}>
+                    <FieldMessages error={!isValid} messages={errorMessages} />
+                  </span>
+                </BaseField>
+              )
+            }}
+          </form.Field>
+          <form.Field name="pinned">
+            {(field) => (
+              <Text as="label" size="2" htmlFor={pinnedInputId}>
+                <Flex gap="2" align="center">
+                  <Checkbox
+                    id={pinnedInputId}
+                    name="pinned"
+                    checked={field.state.value}
+                    disabled={isPending}
+                    onCheckedChange={(nextChecked) => {
+                      field.handleChange(nextChecked === true)
+                      setSubmitErrorMessage(undefined)
+                    }}
+                  />
+                  Pin category
+                </Flex>
+              </Text>
+            )}
+          </form.Field>
+        </Flex>
         <form.Subscribe selector={(state) => state.isSubmitting}>
           {(isSubmitting) => (
             <Flex gap="3" justify="end">
-              <CancelButton disabled={isSubmitting} onClick={handleCancel} />
-              <SubmitButton loading={isSubmitting}>Save</SubmitButton>
+              <CancelButton disabled={isSubmitting || isPending} onClick={handleCancel} />
+              <SubmitButton loading={isSubmitting || isPending}>Save</SubmitButton>
             </Flex>
           )}
         </form.Subscribe>

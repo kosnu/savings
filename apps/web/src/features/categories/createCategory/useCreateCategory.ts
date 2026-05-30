@@ -3,6 +3,7 @@ import { useCallback } from "react"
 
 import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
 import { invalidateCategoryQueries } from "../queryKeys"
+import { updateCategoryPin } from "../updateCategoryPin/updateCategoryPin"
 import type { CategoryCreateValues } from "./categoryCreateSchema"
 import { createCategory as createCategoryRecord } from "./createCategory"
 
@@ -15,7 +16,23 @@ export function useCreateCategory(): UseCreateCategoryReturn {
   const queryClient = useQueryClient()
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: createCategoryRecord,
+    mutationFn: async (value: CategoryCreateValues) => {
+      const categoryId = await createCategoryRecord(value)
+
+      if (value.pinned) {
+        try {
+          await updateCategoryPin({ categoryId, pinned: true })
+        } catch (error) {
+          await Promise.all([
+            invalidateCategoryQueries(queryClient),
+            queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll }),
+          ])
+          throw error
+        }
+      }
+
+      return categoryId
+    },
     onSuccess: async () => {
       await Promise.all([
         invalidateCategoryQueries(queryClient),

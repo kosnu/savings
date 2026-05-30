@@ -25,7 +25,7 @@ function useCategoryTotals({
     staleTime: 3000,
   })
 
-  return { categoryTotals: query.data ?? {} }
+  return { categoryTotals: query.data ?? [] }
 }
 
 export { useCategoryTotals }

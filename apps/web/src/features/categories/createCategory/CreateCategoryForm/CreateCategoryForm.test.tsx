@@ -13,6 +13,7 @@ import * as stories from "./CreateCategoryForm.stories"
 
 const { Default } = composeStories(stories)
 const CREATE_CATEGORY_URL = "*/rest/v1/categories*"
+const CATEGORY_PINS_URL = "*/rest/v1/category_pins*"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -29,6 +30,7 @@ describe("CreateCategoryForm", () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeInTheDocument()
+    expect(screen.getByRole("checkbox", { name: "Pin category" })).not.toBeChecked()
     expect(screen.queryByRole("textbox", { name: /Monthly budget/ })).not.toBeInTheDocument()
   })
 
@@ -88,6 +90,34 @@ describe("CreateCategoryForm", () => {
     })
   })
 
+  test("ピン留めありで作成するとカテゴリ作成後にピン作成リクエストを送る", async () => {
+    const onSuccess = fn()
+    let pinRequestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(CREATE_CATEGORY_URL, () => {
+        return HttpResponse.json({ id: 999 })
+      }),
+      http.post(CATEGORY_PINS_URL, async ({ request }) => {
+        pinRequestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json({ id: 999 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(pinRequestBody).toEqual({
+      category_id: 999,
+    })
+  })
+
   test("作成中は作成ボタンをローディング表示し操作ボタンを無効化する", async () => {
     const categoryCreated = createDeferred()
 
@@ -108,6 +138,7 @@ describe("CreateCategoryForm", () => {
     expect(createButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeDisabled()
+    expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeDisabled()
 
     await act(async () => {
       categoryCreated.resolve()
@@ -156,6 +187,27 @@ describe("CreateCategoryForm", () => {
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
     await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    expect(await screen.findByText("Failed to create category.")).toBeInTheDocument()
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
+
+  test("ピン作成失敗時は汎用エラーを表示してonSuccessを呼ばない", async () => {
+    const onSuccess = fn()
+
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({
+        pin: {
+          error: true,
+        },
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(await screen.findByText("Failed to create category.")).toBeInTheDocument()
