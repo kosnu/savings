@@ -144,4 +144,24 @@ describe("UpdateCategoryNameForm", () => {
     expect(await screen.findByText("Failed to update category name.")).toBeInTheDocument()
     expect(onSuccess).not.toHaveBeenCalled()
   })
+
+  test("更新対象が返らない場合は保存エラーを表示してonSuccessを呼ばない", async () => {
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({
+        update: {
+          response: null,
+        },
+      }),
+    )
+    const onSuccess = fn()
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    const nameInput = screen.getByRole("textbox", { name: /Name/ })
+
+    await user.clear(nameInput)
+    await user.type(nameInput, "Groceries")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    expect(await screen.findByText("Failed to update category name.")).toBeInTheDocument()
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
 })
