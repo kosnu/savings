@@ -39,16 +39,26 @@ describe("useDeleteCategory", () => {
     })
 
     expect(mockDeleteCategory).toHaveBeenCalledWith(10)
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: categoryQueryKeys.all })
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: categoryQueryKeys.all,
+      refetchType: "all",
+    })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.all })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.detailsAll })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: summaryQueryKeys.categoryTotalsAll })
     expect(invalidateQueries).toHaveBeenCalledTimes(4)
   })
 
-  it("成功時にinactiveなカテゴリ一覧cacheから削除対象を取り除く", async () => {
+  it("成功時にinactiveなカテゴリ一覧queryをrefetchする", async () => {
     const queryClient = createTestQueryClient()
-    queryClient.setQueryData(categoryQueryKeys.list, categories)
+    const refetchCategories = vi
+      .fn()
+      .mockResolvedValueOnce(categories)
+      .mockResolvedValueOnce(categories.filter((category) => category.id !== 10))
+    await queryClient.prefetchQuery({
+      queryKey: categoryQueryKeys.list,
+      queryFn: refetchCategories,
+    })
     mockDeleteCategory.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useDeleteCategory(), {
@@ -59,6 +69,7 @@ describe("useDeleteCategory", () => {
       await result.current.deleteCategory(10)
     })
 
+    expect(refetchCategories).toHaveBeenCalledTimes(2)
     expect(queryClient.getQueryData(categoryQueryKeys.list)).toEqual(
       categories.filter((category) => category.id !== 10),
     )
