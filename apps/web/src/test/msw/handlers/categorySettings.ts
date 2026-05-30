@@ -40,6 +40,13 @@ interface CreateCategorySettingsOptions {
   durationOrMode?: number | DelayMode | undefined
 }
 
+interface DeleteCategorySettingsOptions {
+  response?: { id: number } | null
+  error?: boolean
+  errorResponse?: unknown
+  durationOrMode?: number | DelayMode | undefined
+}
+
 const updateCategoryNameBodySchema = z.object({
   name: z.string(),
 })
@@ -56,11 +63,13 @@ export function createCategorySettingsHandlers({
   durationOrMode,
   create = {},
   update = {},
+  delete: deleteOptions = {},
 }: GetCategorySettingsOptions & {
   create?: CreateCategorySettingsOptions
   update?: UpdateCategorySettingsOptions
+  delete?: DeleteCategorySettingsOptions
 } = {}) {
-  const rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
+  let rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
 
   return [
     http.get(REST_URL, async () => {
@@ -99,10 +108,31 @@ export function createCategorySettingsHandlers({
 
       const body = await request.json()
       updateCategoryNameBodySchema.parse(body)
-      const id = parseUpdateCategoryId(request.url)
+      const id = parseCategoryIdFilter(request.url)
       const updatedRow = buildUpdatedCategorySettingsRow(id)
 
       return HttpResponse.json("response" in update ? update.response : updatedRow)
+    }),
+    http.delete(REST_URL, async ({ request }) => {
+      await delay(deleteOptions.durationOrMode)
+
+      if (deleteOptions.error) {
+        return HttpResponse.json(
+          deleteOptions.errorResponse ?? { message: "Failed to delete category." },
+          { status: 500 },
+        )
+      }
+
+      const id = parseCategoryIdFilter(request.url)
+      const deletedRow = rows.find((row) => row.id === id)
+
+      if (deletedRow) {
+        rows = rows.filter((row) => row.id !== id)
+      }
+
+      return HttpResponse.json(
+        "response" in deleteOptions ? deleteOptions.response : (deletedRow ?? null),
+      )
     }),
   ]
 }
@@ -128,7 +158,7 @@ function buildCategorySettingsResponse(
     }))
 }
 
-function parseUpdateCategoryId(url: string): number | undefined {
+function parseCategoryIdFilter(url: string): number | undefined {
   const idParam = new URL(url).searchParams.get("id")
 
   if (!idParam?.startsWith("eq.")) {
