@@ -2,12 +2,50 @@ import { composeStories } from "@storybook/react-vite"
 import type { ReactElement } from "react"
 import { beforeEach, describe, expect, test } from "vite-plus/test"
 
-import { createCategorySettingsHandlers } from "../../../../test/msw/handlers/categorySettings"
+import {
+  type CategorySettingsResponseRow,
+  createCategorySettingsHandlers,
+} from "../../../../test/msw/handlers/categorySettings"
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
 import * as stories from "./CategorySettingsList.stories"
 
 const { Default } = composeStories(stories)
+
+const defaultCategorySettingsResponse: CategorySettingsResponseRow[] = [
+  {
+    id: 10,
+    book_id: 1,
+    name: "Food",
+    category_pins: [{ id: 10, category_id: 10 }],
+  },
+  {
+    id: 20,
+    book_id: 1,
+    name: "Daily Necessities",
+    category_pins: [],
+  },
+  {
+    id: 30,
+    book_id: 1,
+    name: "Entertainment",
+    category_pins: [],
+  },
+]
+
+const renamedCategorySettingsResponse = defaultCategorySettingsResponse.map((row) =>
+  row.id === 10 ? { ...row, name: "Groceries" } : row,
+)
+
+const createdCategoryResponse: CategorySettingsResponseRow[] = [
+  ...defaultCategorySettingsResponse,
+  {
+    id: 999,
+    book_id: 1,
+    name: "Groceries",
+    category_pins: [],
+  },
+]
 
 async function renderCategorySettingsList(story: ReactElement) {
   return await act(async () => {
@@ -50,6 +88,9 @@ describe("CategorySettingsList", () => {
   })
 
   test("カテゴリ名を更新して一覧に反映する", async () => {
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({ response: defaultCategorySettingsResponse }),
+    )
     const { user } = await renderCategorySettingsList(<Default />)
 
     await user.click(
@@ -62,6 +103,9 @@ describe("CategorySettingsList", () => {
 
     await user.clear(within(dialog).getByRole("textbox", { name: /Name/ }))
     await user.type(within(dialog).getByRole("textbox", { name: /Name/ }), "Groceries")
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({ response: renamedCategorySettingsResponse }),
+    )
     await user.click(within(dialog).getByRole("button", { name: "Save" }))
 
     await waitFor(() => {
@@ -73,12 +117,16 @@ describe("CategorySettingsList", () => {
   })
 
   test("カテゴリを作成して一覧に反映する", async () => {
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({ response: defaultCategorySettingsResponse }),
+    )
     const { user } = await renderCategorySettingsList(<Default />)
 
     await user.click(await screen.findByRole("button", { name: "Create category" }))
     const dialog = await screen.findByRole("dialog", { name: "Create category" })
 
     await user.type(within(dialog).getByRole("textbox", { name: /Name/ }), "Groceries")
+    server.resetHandlers(...createCategorySettingsHandlers({ response: createdCategoryResponse }))
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
 
     await waitFor(() => {

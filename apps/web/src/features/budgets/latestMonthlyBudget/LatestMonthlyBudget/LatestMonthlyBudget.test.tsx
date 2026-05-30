@@ -153,6 +153,11 @@ describe("LatestMonthlyBudget", () => {
 
     await user.clear(amountInput)
     await user.type(amountInput, "82000")
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        list: { response: [{ ...monthlyBudgets[3], amount: 82000 }, monthlyBudgets[2]] },
+      }),
+    )
     await user.click(within(dialog).getByRole("button", { name: "Save" }))
 
     await waitFor(() => {
