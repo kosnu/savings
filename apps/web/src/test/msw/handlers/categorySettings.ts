@@ -27,12 +27,14 @@ interface GetCategorySettingsOptions {
 }
 
 interface UpdateCategorySettingsOptions {
+  response?: { id: number } | null
   error?: boolean
   errorResponse?: unknown
   durationOrMode?: number | DelayMode | undefined
 }
 
 interface CreateCategorySettingsOptions {
+  responseId?: number
   error?: boolean
   errorResponse?: unknown
   durationOrMode?: number | DelayMode | undefined
@@ -46,9 +48,6 @@ const createCategoryBodySchema = z.object({
   name: z.string(),
 })
 
-type UpdateCategoryNameBody = z.infer<typeof updateCategoryNameBodySchema>
-type CreateCategoryBody = z.infer<typeof createCategoryBodySchema>
-
 export function createCategorySettingsHandlers({
   response,
   currentBookId = CURRENT_BOOK_ID,
@@ -61,7 +60,7 @@ export function createCategorySettingsHandlers({
   create?: CreateCategorySettingsOptions
   update?: UpdateCategorySettingsOptions
 } = {}) {
-  let rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
+  const rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
 
   return [
     http.get(REST_URL, async () => {
@@ -84,12 +83,9 @@ export function createCategorySettingsHandlers({
       }
 
       const body = await request.json()
-      const parsedBody = createCategoryBodySchema.parse(body)
-      const createdRow = buildCreatedCategorySettingsRow(parsedBody, rows, currentBookId)
+      createCategoryBodySchema.parse(body)
 
-      rows = [...rows, createdRow]
-
-      return HttpResponse.json({ id: createdRow.id })
+      return HttpResponse.json({ id: create.responseId ?? 999 })
     }),
     http.patch(REST_URL, async ({ request }) => {
       await delay(update.durationOrMode)
@@ -102,15 +98,11 @@ export function createCategorySettingsHandlers({
       }
 
       const body = await request.json()
-      const parsedBody = updateCategoryNameBodySchema.parse(body)
+      updateCategoryNameBodySchema.parse(body)
       const id = parseUpdateCategoryId(request.url)
-      const updatedRow = buildUpdatedCategorySettingsRow(id, parsedBody, rows)
+      const updatedRow = buildUpdatedCategorySettingsRow(id)
 
-      if (updatedRow) {
-        rows = rows.map((row) => (row.id === updatedRow.id ? updatedRow : row))
-      }
-
-      return HttpResponse.json(updatedRow ? { id: updatedRow.id } : null)
+      return HttpResponse.json(update.response ?? updatedRow)
     }),
   ]
 }
@@ -136,21 +128,6 @@ function buildCategorySettingsResponse(
     }))
 }
 
-function buildCreatedCategorySettingsRow(
-  body: CreateCategoryBody,
-  rows: CategorySettingsResponseRow[],
-  currentBookId: number,
-): CategorySettingsResponseRow {
-  const id = Math.max(0, ...rows.map((row) => row.id)) + 1
-
-  return {
-    id,
-    book_id: currentBookId,
-    name: body.name,
-    category_pins: [],
-  }
-}
-
 function parseUpdateCategoryId(url: string): number | undefined {
   const idParam = new URL(url).searchParams.get("id")
 
@@ -163,21 +140,12 @@ function parseUpdateCategoryId(url: string): number | undefined {
   return Number.isInteger(id) ? id : undefined
 }
 
-function buildUpdatedCategorySettingsRow(
-  id: number | undefined,
-  body: UpdateCategoryNameBody,
-  rows: CategorySettingsResponseRow[],
-): CategorySettingsResponseRow | undefined {
-  const row = rows.find((category) => category.id === id)
-
-  if (!row) {
-    return undefined
+function buildUpdatedCategorySettingsRow(id: number | undefined): { id: number } | null {
+  if (id === undefined) {
+    return null
   }
 
-  return {
-    ...row,
-    name: body.name,
-  }
+  return { id }
 }
 
 export const categorySettingsHandlers = createCategorySettingsHandlers()

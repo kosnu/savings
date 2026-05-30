@@ -53,7 +53,7 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
   const list = options.list ?? {}
   const create = options.create ?? {}
   const update = options.update ?? {}
-  let listRows = list.response ? [...list.response] : [...monthlyBudgets]
+  const listRows = list.response ?? monthlyBudgets
 
   const monthlyBudgetsHandler = http.get(REST_URL, async ({ request }) => {
     const shouldReturnSingle = shouldReturnSingleObject(request)
@@ -109,10 +109,6 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     const parsedBody = updateMonthlyBudgetBodySchema.parse(body)
     const id = parseUpdateMonthlyBudgetId(request.url)
     const updatedRow = update.response ?? buildUpdatedMonthlyBudgetRow(id, parsedBody, listRows)
-
-    if (updatedRow) {
-      listRows = listRows.map((row) => (row.id === updatedRow.id ? updatedRow : row))
-    }
 
     return HttpResponse.json(updatedRow ? { id: updatedRow.id } : null)
   })
