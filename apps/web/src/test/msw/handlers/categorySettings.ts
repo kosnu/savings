@@ -102,7 +102,7 @@ export function createCategorySettingsHandlers({
       const id = parseUpdateCategoryId(request.url)
       const updatedRow = buildUpdatedCategorySettingsRow(id)
 
-      return HttpResponse.json(update.response ?? updatedRow)
+      return HttpResponse.json("response" in update ? update.response : updatedRow)
     }),
   ]
 }
