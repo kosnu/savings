@@ -21,29 +21,12 @@ export function DeleteCategoryModal({ category, trigger }: DeleteCategoryModalPr
   const { openSnackbar } = useSnackbar()
   const { deleteCategory, isPending } = useDeleteCategory()
   const categoryName = category?.name ?? "Category not found."
-  const resolvedTrigger =
-    trigger ??
-    (category ? (
-      <Button aria-label={`Delete ${category.name} category`} color="red" size="1" variant="ghost">
-        <TrashIcon aria-hidden />
-        Delete
-      </Button>
-    ) : (
-      <Button aria-label="Delete category" color="red" size="1" variant="ghost">
-        <TrashIcon aria-hidden />
-        Delete
-      </Button>
-    ))
-
-  const handleOpenChange = useCallback(
-    (nextOpen: boolean) => {
-      if (!nextOpen) {
-        closeDialog()
-      } else {
-        onOpenChange(nextOpen)
-      }
-    },
-    [closeDialog, onOpenChange],
+  const triggerAriaLabel = category ? `Delete ${category.name} category` : "Delete category"
+  const resolvedTrigger = trigger ?? (
+    <Button aria-label={triggerAriaLabel} color="red" size="1" variant="ghost">
+      <TrashIcon aria-hidden />
+      Delete
+    </Button>
   )
 
   const handleSubmit = useCallback(async () => {
@@ -59,7 +42,7 @@ export function DeleteCategoryModal({ category, trigger }: DeleteCategoryModalPr
   }, [category, closeDialog, deleteCategory, openSnackbar])
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger>{resolvedTrigger}</Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Title>Delete this category?</Dialog.Title>
