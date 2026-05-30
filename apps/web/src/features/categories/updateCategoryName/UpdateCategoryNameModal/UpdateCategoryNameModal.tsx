@@ -10,6 +10,7 @@ interface UpdateCategoryNameModalProps {
   category: {
     id: number
     name: string
+    pinned: boolean
   }
   trigger?: ReactElement
 }

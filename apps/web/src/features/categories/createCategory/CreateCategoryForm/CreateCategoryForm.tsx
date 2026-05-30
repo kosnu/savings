@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout, Flex, TextField } from "@radix-ui/themes"
+import { Callout, Checkbox, Flex, Text, TextField } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useId, useState } from "react"
 
@@ -13,6 +13,7 @@ import { useCreateCategory } from "../useCreateCategory"
 
 const defaultValues: CategoryCreateFormValues = {
   name: "",
+  pinned: false,
 }
 
 interface CreateCategoryFormProps {
@@ -23,6 +24,7 @@ interface CreateCategoryFormProps {
 export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormProps) {
   const nameInputId = useId()
   const nameErrorId = useId()
+  const pinnedInputId = useId()
   const { createCategory, isPending } = useCreateCategory()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
 
@@ -107,6 +109,25 @@ export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormPr
                     </BaseField>
                   )
                 }}
+              </form.Field>
+              <form.Field name="pinned">
+                {(field) => (
+                  <Text as="label" size="2" htmlFor={pinnedInputId}>
+                    <Flex gap="2" align="center">
+                      <Checkbox
+                        id={pinnedInputId}
+                        name="pinned"
+                        checked={field.state.value}
+                        disabled={isSubmitting || isPending}
+                        onCheckedChange={(nextChecked) => {
+                          field.handleChange(nextChecked === true)
+                          setSubmitErrorMessage(undefined)
+                        }}
+                      />
+                      Pin category
+                    </Flex>
+                  </Text>
+                )}
               </form.Field>
             </Flex>
           )}

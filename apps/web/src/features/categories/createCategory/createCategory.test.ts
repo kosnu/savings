@@ -26,7 +26,7 @@ describe("createCategory", () => {
   it("カテゴリ名だけで作成し、作成したカテゴリIDを返す", async () => {
     mockSingle.mockResolvedValue({ data: { id: 40 }, error: null })
 
-    await expect(createCategory({ name: "Groceries" })).resolves.toBe(40)
+    await expect(createCategory({ name: "Groceries", pinned: false })).resolves.toBe(40)
 
     expect(mockInsert).toHaveBeenCalledWith({ name: "Groceries" })
     expect(mockSelect).toHaveBeenCalledWith("id")
@@ -37,11 +37,13 @@ describe("createCategory", () => {
     const supabaseError = { message: "重複しています", code: "23505" }
     mockSingle.mockResolvedValue({ data: null, error: supabaseError })
 
-    await expect(createCategory({ name: "Groceries" })).rejects.toEqual(supabaseError)
+    await expect(createCategory({ name: "Groceries", pinned: false })).rejects.toEqual(
+      supabaseError,
+    )
   })
 
   it("カテゴリ名が20文字を超える場合はinsertを呼ばずにrejectする", async () => {
-    await expect(createCategory({ name: "a".repeat(21) })).rejects.toThrow(
+    await expect(createCategory({ name: "a".repeat(21), pinned: false })).rejects.toThrow(
       "Category name must be 20 characters or less",
     )
 

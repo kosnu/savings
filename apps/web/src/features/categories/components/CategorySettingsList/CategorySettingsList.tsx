@@ -103,7 +103,7 @@ function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
       gap="2"
     >
       <CategoryNameWithMobileActionCell item={item} />
-      <CategoryActionsCell category={item.category} placement="desktop" />
+      <CategoryActionsCell item={item} placement="desktop" />
     </Grid>
   )
 }
@@ -112,7 +112,7 @@ function CategoryNameWithMobileActionCell({ item }: { item: CategorySettingsItem
   return (
     <Flex align="center" gap="3" justify="between">
       <CategoryNameCell item={item} />
-      <CategoryActionsCell category={item.category} placement="mobile" />
+      <CategoryActionsCell item={item} placement="mobile" />
     </Flex>
   )
 }
@@ -127,10 +127,10 @@ function CategoryNameCell({ item }: { item: CategorySettingsItem }) {
 }
 
 function CategoryActionsCell({
-  category,
+  item,
   placement,
 }: {
-  category: CategorySettingsItem["category"]
+  item: CategorySettingsItem
   placement: "mobile" | "desktop"
 }) {
   const display =
@@ -140,8 +140,8 @@ function CategoryActionsCell({
 
   return (
     <Flex align="center" display={display} flexShrink="0" gap="2">
-      <UpdateCategoryNameModal category={category} />
-      <DeleteCategoryModal category={category} />
+      <UpdateCategoryNameModal category={{ ...item.category, pinned: item.pinned }} />
+      <DeleteCategoryModal category={item.category} />
     </Flex>
   )
 }

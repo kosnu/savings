@@ -45,6 +45,7 @@ const initialCategoryRows: CategoryRow[] = [
 interface GetCategoriesHandlerOptions {
   response?: CategoryRow[]
   paymentRows?: PaymentRow[]
+  pinnedCategoryIds?: number[]
   currentBookId?: number
   error?: boolean
 }
@@ -52,6 +53,7 @@ interface GetCategoriesHandlerOptions {
 export function getCategoriesHandler({
   response = initialCategoryRows,
   paymentRows = initialPaymentRows,
+  pinnedCategoryIds = [10],
   currentBookId = CURRENT_BOOK_ID,
   error = false,
 }: GetCategoriesHandlerOptions = {}) {
@@ -65,7 +67,7 @@ export function getCategoriesHandler({
     if (shouldIncludePayments(request)) {
       return HttpResponse.json(
         currentBookCategoryRows.map((category) =>
-          toCategoryTotalsRow(category, paymentRows, request, currentBookId),
+          toCategoryTotalsRow(category, paymentRows, request, currentBookId, pinnedCategoryIds),
         ),
       )
     }
@@ -85,6 +87,7 @@ function toCategoryTotalsRow(
   paymentRows: PaymentRow[],
   request: Request,
   currentBookId: number,
+  pinnedCategoryIds: number[],
 ) {
   const url = new URL(request.url)
   const dateFilters = url.searchParams.getAll("payments.date")
@@ -106,6 +109,14 @@ function toCategoryTotalsRow(
   return {
     id: category.id,
     name: category.name,
+    category_pins: pinnedCategoryIds.includes(category.id)
+      ? [
+          {
+            id: category.id,
+            category_id: category.id,
+          },
+        ]
+      : [],
     payments,
   }
 }
