@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
+import { categories } from "../../../test/data/categories"
 import { act, createTestQueryClient, renderHook } from "../../../test/test-utils"
 import { paymentQueryKeys } from "../../payments/queryKeys"
 import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
@@ -43,6 +44,24 @@ describe("useDeleteCategory", () => {
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.detailsAll })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: summaryQueryKeys.categoryTotalsAll })
     expect(invalidateQueries).toHaveBeenCalledTimes(4)
+  })
+
+  it("成功時にinactiveなカテゴリ一覧cacheから削除対象を取り除く", async () => {
+    const queryClient = createTestQueryClient()
+    queryClient.setQueryData(categoryQueryKeys.list, categories)
+    mockDeleteCategory.mockResolvedValue(undefined)
+
+    const { result } = renderHook(() => useDeleteCategory(), {
+      queryClient,
+    })
+
+    await act(async () => {
+      await result.current.deleteCategory(10)
+    })
+
+    expect(queryClient.getQueryData(categoryQueryKeys.list)).toEqual(
+      categories.filter((category) => category.id !== 10),
+    )
   })
 
   it("失敗時にqueryをinvalidateせずrejectする", async () => {
