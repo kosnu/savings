@@ -2,26 +2,17 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { createCategory } from "./createCategory"
 
-const mockInsert = vi.fn()
-const mockSelect = vi.fn()
-const mockSingle = vi.fn()
 const mockRpc = vi.fn()
 
 vi.mock("../../../lib/supabase", () => ({
   getSupabaseClient: () => ({
-    from: vi.fn(() => ({ insert: mockInsert })),
     rpc: mockRpc,
   }),
 }))
 
 describe("createCategory", () => {
   beforeEach(() => {
-    mockInsert.mockReset()
-    mockSelect.mockReset()
-    mockSingle.mockReset()
     mockRpc.mockReset()
-    mockInsert.mockReturnValue({ select: mockSelect })
-    mockSelect.mockReturnValue({ single: mockSingle })
   })
 
   it("カテゴリ名とピン状態で作成し、作成したカテゴリIDを返す", async () => {

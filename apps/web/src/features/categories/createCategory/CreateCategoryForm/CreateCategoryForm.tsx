@@ -7,7 +7,7 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
-import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
+import { CATEGORY_PIN_LIMIT, categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import { toCategoryCreateErrorMessage } from "../categoryCreateError"
 import { categoryCreateSchema, type CategoryCreateFormValues } from "../categoryCreateSchema"
 import { useCreateCategory } from "../useCreateCategory"
@@ -16,8 +16,6 @@ const defaultValues: CategoryCreateFormValues = {
   name: "",
   pinned: false,
 }
-
-const categoryPinLimit = 3
 
 interface CreateCategoryFormProps {
   currentPinnedCount?: number
@@ -48,7 +46,7 @@ export function CreateCategoryForm({
 
       try {
         setSubmitErrorMessage(undefined)
-        if (parsedValue.pinned && currentPinnedCount >= categoryPinLimit) {
+        if (parsedValue.pinned && currentPinnedCount >= CATEGORY_PIN_LIMIT) {
           setSubmitErrorMessage(categoryPinLimitErrorMessage)
           return
         }
