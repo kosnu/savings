@@ -1,0 +1,104 @@
+---
+name: goal-builder
+description: Build a ready-to-run Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship / Learn. Use when the user asks to generate the next Goal input, says 次のGoal, or names a phase such as design, build, or ship.
+argument-hint: "[intent|requirements|design|build|ship|next]"
+---
+
+# Goal Builder
+
+## Purpose
+
+Create a ready-to-run Codex Goal body from the repository AI Driven Development templates.
+
+Do not execute the Goal. Do not write the target artifact unless the user separately asks for that. The output must be self-contained because Codex Goal execution starts from the generated text.
+
+## Supported Phases
+
+Accept these phase names:
+
+- `intent`, `requirements`, `prd`: Intent / Requirements Goal
+- `design`, `plan`: Design / Plan Goal
+- `build`, `verify`: Build / Verify Goal
+- `ship`, `learn`: Ship / Learn Goal
+- `next`: infer the next phase from available artifacts and current branch context
+
+If the user does not provide a phase, infer `next` only when the current context is clear. Otherwise ask one short clarification question.
+
+## Required Repository Templates
+
+Read the matching template before drafting the Goal:
+
+- `docs/ai-driven-development/goal-templates/intent-requirements-goal.md`
+- `docs/ai-driven-development/goal-templates/design-plan-goal.md`
+- `docs/ai-driven-development/goal-templates/build-verify-goal.md`
+- `docs/ai-driven-development/goal-templates/ship-learn-goal.md`
+
+Also read these docs when relevant:
+
+- `docs/ai-driven-development/workflow.md`
+- `docs/ai-driven-development/issue-guidelines.md`
+- `docs/policies/transaction-boundaries.md` when the Design / Plan or Build / Verify Goal involves multiple data changes
+
+## Context Discovery
+
+Use the smallest useful discovery set for the requested phase:
+
+- Current branch: `git branch --show-current`
+- Local state: `git status --short`
+- Existing workspace artifacts: `docs/ai-driven-development/workspaces/**/requirements.md` and `design.md`
+- Current PR when needed: `gh pr view --json number,title,url,baseRefName,headRefName,state,isDraft,body`
+- Issue input when provided: `gh issue view <number or URL>`
+- Review comments when requested or when generating Ship / Learn after review fixes: thread-aware GitHub review data
+
+Do not make unrelated repository changes while generating a Goal.
+
+## Phase Rules
+
+### Intent / Requirements
+
+- Treat Issue content as input, not final requirements.
+- Keep implementation, Design Doc creation, and PR creation out of scope.
+- Prefer output path `docs/ai-driven-development/workspaces/<issue-number-or-topic>/requirements.md`.
+- If user-visible text or feedback matters, require the PRD to state what the user must understand, not the final copy.
+
+### Design / Plan
+
+- Use the latest Requirements / PRD as the source of truth.
+- Do not implement.
+- Include output path for `design.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
+- Ensure user-visible major copy is decided in the Design Doc.
+- If multiple data changes are involved, include `docs/policies/transaction-boundaries.md` and require transaction boundary / operation boundary decisions.
+
+### Build / Verify
+
+- Use the latest Requirements / PRD and Design Doc as constraints.
+- Include concrete verification commands from the template and repository guidance.
+- If review comments are the trigger, require classification before implementation.
+- Stop if the comment belongs upstream to Requirements / PRD, Design Doc, or policy.
+- Do not let Build invent major user-visible copy that the Design Doc has not decided.
+
+### Ship / Learn
+
+- Use the current implementation branch, PRD, Design Doc, verification results, related Issue, and related PR.
+- Include PR body update, residual risk, knowledge decision, and next Goal candidates.
+- Include review thread replies and resolving only fully completed threads when review comments were handled.
+- Never update memory unless the user explicitly asks for memory update.
+
+## Output
+
+Return only:
+
+1. A concise note if required inputs are missing or ambiguous.
+2. A ready-to-run Codex Goal in Markdown.
+
+Do not include a long explanation. Do not list alternatives unless the user asks.
+
+## Stop
+
+Stop before producing a Goal when:
+
+- The requested phase cannot be determined.
+- Required upstream artifact paths are missing and cannot be inferred.
+- The target Issue, PR, branch, or workspace is ambiguous.
+- The requested Goal would need to ignore a user constraint.
+- Review comment handling cannot be tied to the current branch, current diff, or recent commits.

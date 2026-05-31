@@ -1,7 +1,0 @@
-interface:
-  display_name: "Requirements Goal Builder"
-  short_description: "Build a Codex Goal for Requirements / PRD work from an issue"
-  default_prompt: "Use $requirements-goal-builder to turn an AI Driven Development issue into a ready-to-run Codex Goal for the Intent / Requirements phase."
-
-policy:
-  allow_implicit_invocation: true
