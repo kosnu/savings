@@ -63,6 +63,9 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
 - 4 件目のピン留めは Web 側で mutation 前に失敗扱いにし、RPC を呼ばない。
 - RPC エラーはカテゴリ作成 / 更新または pin 保存自体の失敗として扱う。
 - エラーメッセージは既存のカテゴリ作成・名前変更エラー変換に合わせ、ユーザーが失敗を認識できる表示にする。
+- pin 上限到達による送信前失敗は、カテゴリ作成・名前変更の汎用失敗とは分ける。
+  - ユーザーには、ピン留め登録数が最大 3 件に達しているため追加でピン留めできないことが伝わる表示にする。
+  - 文言は実装時に既存フォームの英語文言と揃えるが、`Failed to create category.` や `Failed to update category name.` のような汎用失敗だけで済ませない。
 
 ### Web: ピン留め上限制御
 
@@ -70,10 +73,10 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
 - 判定にはカテゴリ表示設定として取得済みの pinned 状態を使う。
 - カテゴリ作成で `pinned = true` を送信する場合:
   - 現在の pin 数が 3 件未満なら `create_category_with_pin` RPC を呼ぶ。
-  - 現在の pin 数が 3 件以上なら RPC を呼ばず、フォーム上にエラーを表示し、成功扱いにしない。
+  - 現在の pin 数が 3 件以上なら RPC を呼ばず、フォーム上に上限到達理由が分かるエラーを表示し、成功扱いにしない。
 - カテゴリ編集で未ピン留めからピン留めへ変更する場合:
   - 現在の pin 数が 3 件未満なら `update_category_with_pin` RPC を呼ぶ。
-  - 現在の pin 数が 3 件以上なら RPC を呼ばず、フォーム上にエラーを表示し、成功扱いにしない。
+  - 現在の pin 数が 3 件以上なら RPC を呼ばず、フォーム上に上限到達理由が分かるエラーを表示し、成功扱いにしない。
 - 既にピン留め済みのカテゴリの名前変更、ピン留め解除、未ピン留めのままの名前変更は、pin 数上限に関係なく送信できる。
 - 成功後はカテゴリ設定とカテゴリ別サマリーを再取得し、古い pin 数や表示順に依存し続けない。
 
@@ -82,6 +85,7 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
 - `categoryCreateSchema` / `CategoryCreateFormValues` に `pinned: boolean` を含める。
 - `CreateCategoryForm` に `Pin category` checkbox を追加し、初期値は `false` とする。
 - `pinned = true` で現在の pin 数が 3 件以上の場合は、送信前に失敗扱いにして RPC を呼ばない。
+  - この場合の表示は pin 上限到達専用のエラーとし、カテゴリ作成そのものの失敗とは区別する。
 - `createCategory` は `categories` への直接 insert ではなく `create_category_with_pin` RPC を呼ぶ。
 - `useCreateCategory` は独立した pin mutation を呼ばない。
 - 成功時に invalidate する query:
@@ -97,6 +101,7 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
   - name または pinned が変更されている場合、`update_category_with_pin` RPC を 1 回呼ぶ。
   - どちらも変更されていない場合は mutation を呼ばず閉じる。
   - 未ピン留めからピン留めへ変更し、現在の pin 数が 3 件以上の場合は、送信前に失敗扱いにして RPC を呼ばない。
+    - この場合の表示は pin 上限到達専用のエラーとし、カテゴリ名更新そのものの失敗とは区別する。
 - `UpdateCategoryNameForm` は `useUpdateCategoryName` と `useUpdateCategoryPin` を順番に呼ぶ実装にしない。
 - 成功時に invalidate する query:
   - `invalidateCategoryQueries(queryClient)`
@@ -180,6 +185,8 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
 - ピン留め最大 3 件を DB constraint / trigger で固定する案は採用しない。将来増減の可能性があり、PRD の制約に反するため。
 - RPC / DB function 内で pin 件数を count して上限超過を例外にする案は採用しない。ピン留め登録数の上限は Web / アプリケーション層で制御するため。
 - ピン留め登録数の上限担保のために DB lock / advisory lock を使う案は採用しない。上限判定を DB 側へ持ち込むことになるため。
+- pin 上限到達時に、カテゴリ作成・名前変更の汎用失敗メッセージだけを表示する案は採用しない。ユーザーが上限到達という失敗理由を認識できず、PRD の AC-13 / AC-16 を満たせないため。
+- pin 上限到達時に checkbox を常時 disabled にするだけの案は採用しない。なぜピン留めできないのかが操作時に伝わらず、既にピン留め済みカテゴリの解除や名前変更との状態整理も分かりづらくなるため。
 - カテゴリ別サマリーをサーバーから 3 件だけ取得する案は採用しない。PRD は取得済みデータの段階表示を要求しているため。
 - `Show more` でページングや追加取得を行う案は採用しない。
 - `Record<string, CategoryTotal>` の object key 順に表示順を依存する案は採用しない。ピン優先順と `Unknown` の配置を明示できないため。
@@ -193,7 +200,7 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
 - 4 件目以降のサマリーは `Show more` で表示される。
 - 未分類 `Unknown` は引き続き表示するが、登録カテゴリの後ろに置く。
 - カテゴリ作成・編集フォームに `Pin category` checkbox が増える。
-- 4 件目のピン留め作成・更新は失敗表示になり、成功扱いにならない。
+- 4 件目のピン留め作成・更新は、上限到達理由が分かる失敗表示になり、成功扱いにならない。
 - カテゴリ削除時に `category_pins` が cascade される既存挙動は維持する。
 - ピン留め状態変更後は設定画面とカテゴリ別サマリーを再取得し、古い順序や Pin バッジが残らないようにする。
 
@@ -220,14 +227,16 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
 - `CreateCategoryForm` / `useCreateCategory`
   - 初期状態で `Pin category` は未チェック。
   - checked / unchecked の値を RPC に渡す。
-  - pin 数が 3 件ある状態で checked を送信した場合、RPC を呼ばずにエラーを表示し、`onSuccess` を呼ばない。
+  - pin 数が 3 件ある状態で checked を送信した場合、RPC を呼ばずに上限到達理由が分かるエラーを表示し、`onSuccess` を呼ばない。
+  - pin 数上限の送信前失敗では、カテゴリ作成の汎用失敗メッセージを表示しない。
   - 独立 `category_pins` request を発生させない。
   - 成功時にカテゴリ query とカテゴリ別サマリー query を invalidate する。
 - `UpdateCategoryNameForm` / `useUpdateCategoryName`
   - 既存の pinned 初期値を表示する。
   - name のみ、pin のみ、name + pin を保存できる。
   - 変更なし保存は不要な mutation を呼ばず閉じる。
-  - pin 数が 3 件ある状態で未ピン留めからピン留めへ変更した場合、RPC を呼ばずにエラーを表示し、`onSuccess` を呼ばない。
+  - pin 数が 3 件ある状態で未ピン留めからピン留めへ変更した場合、RPC を呼ばずに上限到達理由が分かるエラーを表示し、`onSuccess` を呼ばない。
+  - pin 数上限の送信前失敗では、カテゴリ名更新の汎用失敗メッセージを表示しない。
   - 独立 `category_pins` request を発生させない。
   - 成功時にカテゴリ query、payment query、カテゴリ別サマリー query を invalidate する。
 - `CategorySettingsList`
@@ -253,10 +262,10 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1215-prioritize-pinne
 - AC-9: `Show more` 後、月変更または集計結果変更で初期表示件数へ戻ること。
 - AC-10: `CreateCategoryForm` / `useCreateCategory` の pinned 送信。
 - AC-11: `UpdateCategoryNameForm` / `useUpdateCategoryName` の pinned 表示・変更。
-- AC-12, AC-13: Web / アプリケーション層で pin 3 件到達時の 4 件目作成・更新を送信前に失敗扱いにすること。
+- AC-12, AC-13: Web / アプリケーション層で pin 3 件到達時の 4 件目作成・更新を送信前に失敗扱いにし、ユーザーに上限到達理由が伝わること。
 - AC-14: `categories` ではなく `category_pins` を使う RPC / request テスト。
 - AC-15: カテゴリ作成/更新と pin 作成/削除が同一操作単位で扱われ、片成功にならないこと。
-- AC-16: 作成・編集時の失敗表示と成功扱いにならないこと。
+- AC-16: 作成・編集時の失敗表示で失敗理由が分かり、成功扱いにならないこと。
 - AC-17: 既存のカテゴリ作成、カテゴリ編集、カテゴリ削除、カテゴリ別サマリー、支払い一覧の主要テスト維持。
 
 ## 検証コマンド

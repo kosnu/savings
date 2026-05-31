@@ -7,6 +7,7 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
+import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import { toCategoryCreateErrorMessage } from "../categoryCreateError"
 import { categoryCreateSchema, type CategoryCreateFormValues } from "../categoryCreateSchema"
 import { useCreateCategory } from "../useCreateCategory"
@@ -17,7 +18,6 @@ const defaultValues: CategoryCreateFormValues = {
 }
 
 const categoryPinLimit = 3
-const categoryPinLimitErrorMessage = "Failed to create category."
 
 interface CreateCategoryFormProps {
   currentPinnedCount?: number

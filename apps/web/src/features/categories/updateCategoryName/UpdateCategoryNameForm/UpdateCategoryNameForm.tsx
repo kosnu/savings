@@ -8,6 +8,7 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
+import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import { categoryNameSchema } from "../../categorySchema"
 import { toCategoryNameUpdateErrorMessage } from "../categoryNameUpdateError"
 import { useUpdateCategoryName } from "../useUpdateCategoryName"
@@ -18,7 +19,6 @@ const updateCategoryNameFormSubmitSchema = z.object({
 })
 
 const categoryPinLimit = 3
-const categoryPinLimitErrorMessage = "Failed to update category name."
 
 interface UpdateCategoryNameFormValues {
   name: string

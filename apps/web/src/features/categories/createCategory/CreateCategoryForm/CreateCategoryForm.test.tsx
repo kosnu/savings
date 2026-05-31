@@ -9,6 +9,7 @@ import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { createDeferred } from "../../../../test/utils/createDeferred"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
+import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import * as stories from "./CreateCategoryForm.stories"
 
 const { Default } = composeStories(stories)
@@ -208,7 +209,8 @@ describe("CreateCategoryForm", () => {
     await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
     await user.click(screen.getByRole("button", { name: "Create" }))
 
-    expect(await screen.findByText("Failed to create category.")).toBeInTheDocument()
+    expect(await screen.findByText(categoryPinLimitErrorMessage)).toBeInTheDocument()
+    expect(screen.queryByText("Failed to create category.")).not.toBeInTheDocument()
     expect(requestCount).toBe(0)
     expect(onSuccess).not.toHaveBeenCalled()
   })
