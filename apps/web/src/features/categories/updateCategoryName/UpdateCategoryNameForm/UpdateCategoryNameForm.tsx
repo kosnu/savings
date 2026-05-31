@@ -8,7 +8,7 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
-import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
+import { CATEGORY_PIN_LIMIT, categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import { categoryNameSchema } from "../../categorySchema"
 import { toCategoryNameUpdateErrorMessage } from "../categoryNameUpdateError"
 import { useUpdateCategoryName } from "../useUpdateCategoryName"
@@ -17,8 +17,6 @@ const updateCategoryNameFormSubmitSchema = z.object({
   name: categoryNameSchema,
   pinned: z.boolean(),
 })
-
-const categoryPinLimit = 3
 
 interface UpdateCategoryNameFormValues {
   name: string
@@ -68,7 +66,7 @@ export function UpdateCategoryNameForm({
         const pinChanged = parsedValue.pinned !== category.pinned
         const pinningNewCategory = !category.pinned && parsedValue.pinned
 
-        if (pinningNewCategory && currentPinnedCount >= categoryPinLimit) {
+        if (pinningNewCategory && currentPinnedCount >= CATEGORY_PIN_LIMIT) {
           setSubmitErrorMessage(categoryPinLimitErrorMessage)
           return
         }
