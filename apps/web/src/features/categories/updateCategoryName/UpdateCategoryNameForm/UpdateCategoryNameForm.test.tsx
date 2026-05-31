@@ -9,10 +9,11 @@ import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { createDeferred } from "../../../../test/utils/createDeferred"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
+import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import * as stories from "./UpdateCategoryNameForm.stories"
 
 const { Default } = composeStories(stories)
-const CATEGORIES_REST_URL = "*/rest/v1/categories*"
+const UPDATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/update_category_with_pin"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -29,6 +30,7 @@ describe("UpdateCategoryNameForm", () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toHaveValue("Food")
+    expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeChecked()
   })
 
   test("CancelをクリックするとonCancelを呼ぶ", async () => {
@@ -68,13 +70,89 @@ describe("UpdateCategoryNameForm", () => {
     })
   })
 
+  test("ピン状態だけを変更して保存できる", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_category_id: 10,
+      p_category_name: "Food",
+      p_pinned: false,
+    })
+  })
+
+  test("カテゴリ名とピン状態を同時に変更して保存できる", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    const nameInput = screen.getByRole("textbox", { name: /Name/ })
+
+    await user.clear(nameInput)
+    await user.type(nameInput, "Groceries")
+    await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_category_id: 10,
+      p_category_name: "Groceries",
+      p_pinned: false,
+    })
+  })
+
+  test("変更なしで保存するとmutationを呼ばずにonSuccessを呼ぶ", async () => {
+    const onSuccess = fn()
+    let requestCount = 0
+
+    server.resetHandlers(
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, () => {
+        requestCount += 1
+        return HttpResponse.json(null)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestCount).toBe(0)
+  })
+
   test("カテゴリ名保存中は保存ボタンをローディング表示し操作ボタンを無効化する", async () => {
     const categoryUpdated = createDeferred()
 
     server.resetHandlers(
-      http.patch(CATEGORIES_REST_URL, async () => {
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async () => {
         await categoryUpdated.promise
-        return HttpResponse.json({ id: 10 })
+        return HttpResponse.json(null)
       }),
     )
 
@@ -89,6 +167,7 @@ describe("UpdateCategoryNameForm", () => {
     expect(await within(saveButton).findByLabelText("loading-spinner")).toBeInTheDocument()
     expect(saveButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+    expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeDisabled()
 
     await act(async () => {
       categoryUpdated.resolve()
@@ -145,23 +224,30 @@ describe("UpdateCategoryNameForm", () => {
     expect(onSuccess).not.toHaveBeenCalled()
   })
 
-  test("更新対象が返らない場合は保存エラーを表示してonSuccessを呼ばない", async () => {
+  test("pin数が3件ある状態で未ピン留めカテゴリをピン留めするとRPCを呼ばずエラーを表示する", async () => {
+    let requestCount = 0
+
     server.resetHandlers(
-      ...createCategorySettingsHandlers({
-        update: {
-          response: null,
-        },
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, () => {
+        requestCount += 1
+        return HttpResponse.json(null)
       }),
     )
     const onSuccess = fn()
-    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
-    const nameInput = screen.getByRole("textbox", { name: /Name/ })
+    const { user } = await renderStory(
+      <Default
+        category={{ id: 20, name: "Daily Necessities", pinned: false }}
+        currentPinnedCount={3}
+        onSuccess={onSuccess}
+      />,
+    )
 
-    await user.clear(nameInput)
-    await user.type(nameInput, "Groceries")
+    await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
     await user.click(screen.getByRole("button", { name: "Save" }))
 
-    expect(await screen.findByText("Failed to update category name.")).toBeInTheDocument()
+    expect(await screen.findByText(categoryPinLimitErrorMessage)).toBeInTheDocument()
+    expect(screen.queryByText("Failed to update category name.")).not.toBeInTheDocument()
+    expect(requestCount).toBe(0)
     expect(onSuccess).not.toHaveBeenCalled()
   })
 })

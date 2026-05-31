@@ -9,10 +9,11 @@ import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { createDeferred } from "../../../../test/utils/createDeferred"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
+import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import * as stories from "./CreateCategoryForm.stories"
 
 const { Default } = composeStories(stories)
-const CREATE_CATEGORY_URL = "*/rest/v1/categories*"
+const CREATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/create_category_with_pin"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -29,6 +30,7 @@ describe("CreateCategoryForm", () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeInTheDocument()
+    expect(screen.getByRole("checkbox", { name: "Pin category" })).not.toBeChecked()
     expect(screen.queryByRole("textbox", { name: /Monthly budget/ })).not.toBeInTheDocument()
   })
 
@@ -64,14 +66,14 @@ describe("CreateCategoryForm", () => {
     })
   })
 
-  test("カテゴリ名で作成リクエストを送る", async () => {
+  test("カテゴリ名とピン状態で作成リクエストを送る", async () => {
     const onSuccess = fn()
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_URL, async ({ request }) => {
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json({ id: 999 })
+        return HttpResponse.json(999)
       }),
     )
 
@@ -84,7 +86,34 @@ describe("CreateCategoryForm", () => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(requestBody).toEqual({
-      name: "Groceries",
+      p_category_name: "Groceries",
+      p_pinned: false,
+    })
+  })
+
+  test("ピン留めありで作成すると作成RPCにピン状態を送る", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(999)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_category_name: "Groceries",
+      p_pinned: true,
     })
   })
 
@@ -92,9 +121,9 @@ describe("CreateCategoryForm", () => {
     const categoryCreated = createDeferred()
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_URL, async () => {
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, async () => {
         await categoryCreated.promise
-        return HttpResponse.json({ id: 999 })
+        return HttpResponse.json(999)
       }),
     )
 
@@ -108,6 +137,7 @@ describe("CreateCategoryForm", () => {
     expect(createButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeDisabled()
+    expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeDisabled()
 
     await act(async () => {
       categoryCreated.resolve()
@@ -159,6 +189,29 @@ describe("CreateCategoryForm", () => {
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(await screen.findByText("Failed to create category.")).toBeInTheDocument()
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
+
+  test("pin数が3件ある状態でピン留め作成するとRPCを呼ばずエラーを表示する", async () => {
+    const onSuccess = fn()
+    let requestCount = 0
+
+    server.resetHandlers(
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, () => {
+        requestCount += 1
+        return HttpResponse.json(999)
+      }),
+    )
+
+    const { user } = await renderStory(<Default currentPinnedCount={3} onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    expect(await screen.findByText(categoryPinLimitErrorMessage)).toBeInTheDocument()
+    expect(screen.queryByText("Failed to create category.")).not.toBeInTheDocument()
+    expect(requestCount).toBe(0)
     expect(onSuccess).not.toHaveBeenCalled()
   })
 })

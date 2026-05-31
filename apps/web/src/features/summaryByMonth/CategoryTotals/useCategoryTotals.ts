@@ -7,6 +7,7 @@ import { type CategoryTotals, fetchCategoryTotals } from "./fetchCategoryTotals"
 
 interface UseCategoryTotalsReturn {
   categoryTotals: CategoryTotals
+  targetMonthKey: string
 }
 
 interface UseCategoryTotalsOptions {
@@ -25,7 +26,7 @@ function useCategoryTotals({
     staleTime: 3000,
   })
 
-  return { categoryTotals: query.data ?? {} }
+  return { categoryTotals: query.data ?? [], targetMonthKey: month }
 }
 
 export { useCategoryTotals }

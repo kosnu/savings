@@ -3,7 +3,10 @@ import * as z from "zod"
 
 import { allCategories } from "../../data/categories"
 
-const REST_URL = "*/rest/v1/categories*"
+const CATEGORIES_REST_URL = "*/rest/v1/categories*"
+const CATEGORY_PINS_REST_URL = "*/rest/v1/category_pins*"
+const CREATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/create_category_with_pin"
+const UPDATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/update_category_with_pin"
 const CURRENT_BOOK_ID = 1
 
 export interface CategorySettingsPinResponseRow {
@@ -47,12 +50,34 @@ interface DeleteCategorySettingsOptions {
   durationOrMode?: number | DelayMode | undefined
 }
 
+interface CategoryPinSettingsOptions {
+  responseId?: number
+  error?: boolean
+  errorResponse?: unknown
+  durationOrMode?: number | DelayMode | undefined
+}
+
 const updateCategoryNameBodySchema = z.object({
   name: z.string(),
 })
 
 const createCategoryBodySchema = z.object({
   name: z.string(),
+})
+
+const createCategoryWithPinBodySchema = z.object({
+  p_category_name: z.string(),
+  p_pinned: z.boolean(),
+})
+
+const updateCategoryWithPinBodySchema = z.object({
+  p_category_id: z.number(),
+  p_category_name: z.string(),
+  p_pinned: z.boolean(),
+})
+
+const categoryPinBodySchema = z.object({
+  category_id: z.number(),
 })
 
 export function createCategorySettingsHandlers({
@@ -64,15 +89,19 @@ export function createCategorySettingsHandlers({
   create = {},
   update = {},
   delete: deleteOptions = {},
+  pin = {},
+  unpin = {},
 }: GetCategorySettingsOptions & {
   create?: CreateCategorySettingsOptions
   update?: UpdateCategorySettingsOptions
   delete?: DeleteCategorySettingsOptions
+  pin?: CategoryPinSettingsOptions
+  unpin?: CategoryPinSettingsOptions
 } = {}) {
   let rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
 
   return [
-    http.get(REST_URL, async () => {
+    http.get(CATEGORIES_REST_URL, async () => {
       await delay(durationOrMode)
 
       if (error) {
@@ -81,7 +110,7 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json(rows)
     }),
-    http.post(REST_URL, async ({ request }) => {
+    http.post(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(create.durationOrMode)
 
       if (create.error) {
@@ -96,7 +125,22 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json({ id: create.responseId ?? 999 })
     }),
-    http.patch(REST_URL, async ({ request }) => {
+    http.post(CREATE_CATEGORY_WITH_PIN_RPC_URL, async ({ request }) => {
+      await delay(create.durationOrMode)
+
+      if (create.error) {
+        return HttpResponse.json(
+          create.errorResponse ?? { message: "Failed to create category." },
+          { status: 500 },
+        )
+      }
+
+      createCategoryWithPinBodySchema.parse(await request.json())
+      const categoryId = create.responseId ?? 999
+
+      return HttpResponse.json(categoryId)
+    }),
+    http.patch(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(update.durationOrMode)
 
       if (update.error) {
@@ -113,7 +157,33 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json("response" in update ? update.response : updatedRow)
     }),
-    http.delete(REST_URL, async ({ request }) => {
+    http.post(UPDATE_CATEGORY_WITH_PIN_RPC_URL, async ({ request }) => {
+      await delay(update.durationOrMode)
+
+      if (update.error) {
+        return HttpResponse.json(
+          update.errorResponse ?? { message: "Failed to update category name." },
+          { status: 500 },
+        )
+      }
+
+      const body = updateCategoryWithPinBodySchema.parse(await request.json())
+
+      rows = rows.map((row) =>
+        row.id === body.p_category_id
+          ? {
+              ...row,
+              name: body.p_category_name,
+              category_pins: body.p_pinned
+                ? [{ id: pin.responseId ?? row.id, category_id: row.id }]
+                : [],
+            }
+          : row,
+      )
+
+      return HttpResponse.json("response" in update ? update.response : null)
+    }),
+    http.delete(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(deleteOptions.durationOrMode)
 
       if (deleteOptions.error) {
@@ -133,6 +203,48 @@ export function createCategorySettingsHandlers({
       return HttpResponse.json(
         "response" in deleteOptions ? deleteOptions.response : (deletedRow ?? null),
       )
+    }),
+    http.post(CATEGORY_PINS_REST_URL, async ({ request }) => {
+      await delay(pin?.durationOrMode)
+
+      if (pin?.error) {
+        return HttpResponse.json(
+          pin.errorResponse ?? { message: "Failed to update category pin." },
+          { status: 500 },
+        )
+      }
+
+      const body = categoryPinBodySchema.parse(await request.json())
+      const categoryId = body.category_id
+
+      rows = rows.map((row) =>
+        row.id === categoryId
+          ? {
+              ...row,
+              category_pins: [{ id: pin.responseId ?? categoryId, category_id: categoryId }],
+            }
+          : row,
+      )
+
+      return HttpResponse.json({ id: pin.responseId ?? categoryId })
+    }),
+    http.delete(CATEGORY_PINS_REST_URL, async ({ request }) => {
+      await delay(unpin?.durationOrMode)
+
+      if (unpin?.error) {
+        return HttpResponse.json(
+          unpin.errorResponse ?? { message: "Failed to update category pin." },
+          { status: 500 },
+        )
+      }
+
+      const categoryId = parseCategoryIdFilter(request.url, "category_id")
+
+      if (categoryId !== undefined) {
+        rows = rows.map((row) => (row.id === categoryId ? { ...row, category_pins: [] } : row))
+      }
+
+      return HttpResponse.json(categoryId === undefined ? [] : [{ id: categoryId }])
     }),
   ]
 }
@@ -158,8 +270,8 @@ function buildCategorySettingsResponse(
     }))
 }
 
-function parseCategoryIdFilter(url: string): number | undefined {
-  const idParam = new URL(url).searchParams.get("id")
+function parseCategoryIdFilter(url: string, key = "id"): number | undefined {
+  const idParam = new URL(url).searchParams.get(key)
 
   if (!idParam?.startsWith("eq.")) {
     return undefined

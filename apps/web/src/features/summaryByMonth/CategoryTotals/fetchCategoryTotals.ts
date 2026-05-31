@@ -12,6 +12,14 @@ const categoryTotalsPaymentRowSchema = z.object({
 const categoryTotalsRowSchema = z.object({
   id: z.number(),
   name: z.string(),
+  category_pins: z
+    .array(
+      z.object({
+        id: z.number(),
+        category_id: z.number(),
+      }),
+    )
+    .nullable(),
   payments: z.array(categoryTotalsPaymentRowSchema),
 })
 
@@ -19,15 +27,23 @@ type CategoryTotalsRow = z.infer<typeof categoryTotalsRowSchema>
 type CategoryTotalsPaymentRow = z.infer<typeof categoryTotalsPaymentRowSchema>
 
 export interface CategoryTotal {
+  key: string
+  categoryId: number | null
   categoryName: string
   totalAmount: number
+  pinned: boolean
+  kind: "category" | "uncategorized"
 }
 
-export type CategoryTotals = Record<string, CategoryTotal>
+export type CategoryTotals = CategoryTotal[]
 
 const categoryTotalsColumns = `
   id,
   name,
+  category_pins:category_pins!category_pins_category_id_fkey (
+    id,
+    category_id
+  ),
   payments:payments!payments_category_id_fkey (
     amount,
     date
@@ -70,27 +86,23 @@ export async function fetchCategoryTotals([startDate, endDate]: [
     throw uncategorizedPaymentsResponse.error
   }
 
-  const totals = (categoryTotalsResponse.data ?? []).reduce<CategoryTotals>(
-    (accumulator, value) => {
-      const row = normalizeCategoryTotalsRow(value)
-      accumulator[String(row.id)] = {
-        categoryName: row.name,
-        totalAmount: row.payments.reduce((sum, payment) => sum + payment.amount, 0),
-      }
+  const categoryTotals = (categoryTotalsResponse.data ?? [])
+    .map(normalizeCategoryTotalsRow)
+    .map(toCategoryTotal)
+    .sort(compareCategoryTotals)
 
-      return accumulator
-    },
-    {},
-  )
-
-  totals.uncategorized = {
+  const uncategorizedTotal: CategoryTotal = {
+    key: "uncategorized",
+    categoryId: null,
     categoryName: unknownCategory.name,
     totalAmount: (uncategorizedPaymentsResponse.data ?? [])
       .map(normalizeCategoryTotalsPaymentRow)
       .reduce((sum, payment) => sum + payment.amount, 0),
+    pinned: false,
+    kind: "uncategorized",
   }
 
-  return totals
+  return [...categoryTotals, uncategorizedTotal]
 }
 
 function normalizeCategoryTotalsRow(value: unknown): CategoryTotalsRow {
@@ -111,4 +123,25 @@ function normalizeCategoryTotalsPaymentRow(value: unknown): CategoryTotalsPaymen
   }
 
   return result.data
+}
+
+function toCategoryTotal(row: CategoryTotalsRow): CategoryTotal {
+  return {
+    key: `category:${row.id}`,
+    categoryId: row.id,
+    categoryName: row.name,
+    totalAmount: row.payments.reduce((sum, payment) => sum + payment.amount, 0),
+    pinned: (row.category_pins ?? []).some((pin) => pin.category_id === row.id),
+    kind: "category",
+  }
+}
+
+function compareCategoryTotals(left: CategoryTotal, right: CategoryTotal): number {
+  if (left.pinned !== right.pinned) {
+    return left.pinned ? -1 : 1
+  }
+
+  return (
+    (left.categoryId ?? Number.MAX_SAFE_INTEGER) - (right.categoryId ?? Number.MAX_SAFE_INTEGER)
+  )
 }

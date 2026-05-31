@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout, Flex, TextField } from "@radix-ui/themes"
+import { Callout, Checkbox, Flex, Text, TextField } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useId, useState } from "react"
 
@@ -7,22 +7,30 @@ import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
+import { CATEGORY_PIN_LIMIT, categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import { toCategoryCreateErrorMessage } from "../categoryCreateError"
 import { categoryCreateSchema, type CategoryCreateFormValues } from "../categoryCreateSchema"
 import { useCreateCategory } from "../useCreateCategory"
 
 const defaultValues: CategoryCreateFormValues = {
   name: "",
+  pinned: false,
 }
 
 interface CreateCategoryFormProps {
+  currentPinnedCount?: number
   onSuccess?: () => void
   onCancel: () => void
 }
 
-export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormProps) {
+export function CreateCategoryForm({
+  currentPinnedCount = 0,
+  onSuccess,
+  onCancel,
+}: CreateCategoryFormProps) {
   const nameInputId = useId()
   const nameErrorId = useId()
+  const pinnedInputId = useId()
   const { createCategory, isPending } = useCreateCategory()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
 
@@ -38,6 +46,11 @@ export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormPr
 
       try {
         setSubmitErrorMessage(undefined)
+        if (parsedValue.pinned && currentPinnedCount >= CATEGORY_PIN_LIMIT) {
+          setSubmitErrorMessage(categoryPinLimitErrorMessage)
+          return
+        }
+
         await createCategory(parsedValue)
         form.reset()
         onSuccess?.()
@@ -107,6 +120,25 @@ export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormPr
                     </BaseField>
                   )
                 }}
+              </form.Field>
+              <form.Field name="pinned">
+                {(field) => (
+                  <Text as="label" size="2" htmlFor={pinnedInputId}>
+                    <Flex gap="2" align="center">
+                      <Checkbox
+                        id={pinnedInputId}
+                        name="pinned"
+                        checked={field.state.value}
+                        disabled={isSubmitting || isPending}
+                        onCheckedChange={(nextChecked) => {
+                          field.handleChange(nextChecked === true)
+                          setSubmitErrorMessage(undefined)
+                        }}
+                      />
+                      Pin category
+                    </Flex>
+                  </Text>
+                )}
               </form.Field>
             </Flex>
           )}
