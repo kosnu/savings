@@ -5,12 +5,12 @@ import { createCategory } from "./createCategory"
 const mockInsert = vi.fn()
 const mockSelect = vi.fn()
 const mockSingle = vi.fn()
+const mockRpc = vi.fn()
 
 vi.mock("../../../lib/supabase", () => ({
   getSupabaseClient: () => ({
-    from: vi.fn(() => ({
-      insert: mockInsert,
-    })),
+    from: vi.fn(() => ({ insert: mockInsert })),
+    rpc: mockRpc,
   }),
 }))
 
@@ -19,23 +19,25 @@ describe("createCategory", () => {
     mockInsert.mockReset()
     mockSelect.mockReset()
     mockSingle.mockReset()
+    mockRpc.mockReset()
     mockInsert.mockReturnValue({ select: mockSelect })
     mockSelect.mockReturnValue({ single: mockSingle })
   })
 
-  it("カテゴリ名だけで作成し、作成したカテゴリIDを返す", async () => {
-    mockSingle.mockResolvedValue({ data: { id: 40 }, error: null })
+  it("カテゴリ名とピン状態で作成し、作成したカテゴリIDを返す", async () => {
+    mockRpc.mockResolvedValue({ data: 40, error: null })
 
-    await expect(createCategory({ name: "Groceries", pinned: false })).resolves.toBe(40)
+    await expect(createCategory({ name: "Groceries", pinned: true })).resolves.toBe(40)
 
-    expect(mockInsert).toHaveBeenCalledWith({ name: "Groceries" })
-    expect(mockSelect).toHaveBeenCalledWith("id")
-    expect(mockSingle).toHaveBeenCalledTimes(1)
+    expect(mockRpc).toHaveBeenCalledWith("create_category_with_pin", {
+      p_category_name: "Groceries",
+      p_pinned: true,
+    })
   })
 
   it("Supabaseがエラーを返した場合にthrowする", async () => {
     const supabaseError = { message: "重複しています", code: "23505" }
-    mockSingle.mockResolvedValue({ data: null, error: supabaseError })
+    mockRpc.mockResolvedValue({ data: null, error: supabaseError })
 
     await expect(createCategory({ name: "Groceries", pinned: false })).rejects.toEqual(
       supabaseError,
@@ -47,6 +49,6 @@ describe("createCategory", () => {
       "Category name must be 20 characters or less",
     )
 
-    expect(mockInsert).not.toHaveBeenCalled()
+    expect(mockRpc).not.toHaveBeenCalled()
   })
 })

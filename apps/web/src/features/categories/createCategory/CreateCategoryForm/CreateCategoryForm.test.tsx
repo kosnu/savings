@@ -12,8 +12,7 @@ import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import * as stories from "./CreateCategoryForm.stories"
 
 const { Default } = composeStories(stories)
-const CREATE_CATEGORY_URL = "*/rest/v1/categories*"
-const CATEGORY_PINS_URL = "*/rest/v1/category_pins*"
+const CREATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/create_category_with_pin"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -66,14 +65,14 @@ describe("CreateCategoryForm", () => {
     })
   })
 
-  test("カテゴリ名で作成リクエストを送る", async () => {
+  test("カテゴリ名とピン状態で作成リクエストを送る", async () => {
     const onSuccess = fn()
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_URL, async ({ request }) => {
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json({ id: 999 })
+        return HttpResponse.json(999)
       }),
     )
 
@@ -86,21 +85,19 @@ describe("CreateCategoryForm", () => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(requestBody).toEqual({
-      name: "Groceries",
+      p_category_name: "Groceries",
+      p_pinned: false,
     })
   })
 
-  test("ピン留めありで作成するとカテゴリ作成後にピン作成リクエストを送る", async () => {
+  test("ピン留めありで作成すると作成RPCにピン状態を送る", async () => {
     const onSuccess = fn()
-    let pinRequestBody: Record<string, unknown> | undefined
+    let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_URL, () => {
-        return HttpResponse.json({ id: 999 })
-      }),
-      http.post(CATEGORY_PINS_URL, async ({ request }) => {
-        pinRequestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json({ id: 999 })
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(999)
       }),
     )
 
@@ -113,8 +110,9 @@ describe("CreateCategoryForm", () => {
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
-    expect(pinRequestBody).toEqual({
-      category_id: 999,
+    expect(requestBody).toEqual({
+      p_category_name: "Groceries",
+      p_pinned: true,
     })
   })
 
@@ -122,9 +120,9 @@ describe("CreateCategoryForm", () => {
     const categoryCreated = createDeferred()
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_URL, async () => {
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, async () => {
         await categoryCreated.promise
-        return HttpResponse.json({ id: 999 })
+        return HttpResponse.json(999)
       }),
     )
 
@@ -193,24 +191,25 @@ describe("CreateCategoryForm", () => {
     expect(onSuccess).not.toHaveBeenCalled()
   })
 
-  test("ピン作成失敗時は汎用エラーを表示してonSuccessを呼ばない", async () => {
+  test("pin数が3件ある状態でピン留め作成するとRPCを呼ばずエラーを表示する", async () => {
     const onSuccess = fn()
+    let requestCount = 0
 
     server.resetHandlers(
-      ...createCategorySettingsHandlers({
-        pin: {
-          error: true,
-        },
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, () => {
+        requestCount += 1
+        return HttpResponse.json(999)
       }),
     )
 
-    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    const { user } = await renderStory(<Default currentPinnedCount={3} onSuccess={onSuccess} />)
 
     await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
     await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(await screen.findByText("Failed to create category.")).toBeInTheDocument()
+    expect(requestCount).toBe(0)
     expect(onSuccess).not.toHaveBeenCalled()
   })
 })

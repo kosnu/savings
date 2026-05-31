@@ -283,10 +283,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_category_with_pin: {
+        Args: { p_category_name: string; p_pinned: boolean }
+        Returns: number
+      }
       ensure_authenticated_user: { Args: never; Returns: undefined }
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
       get_monthly_total_amount: { Args: { p_month: string }; Returns: number }
+      update_category_with_pin: {
+        Args: {
+          p_category_id: number
+          p_category_name: string
+          p_pinned: boolean
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

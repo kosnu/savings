@@ -5,6 +5,8 @@ import { allCategories } from "../../data/categories"
 
 const CATEGORIES_REST_URL = "*/rest/v1/categories*"
 const CATEGORY_PINS_REST_URL = "*/rest/v1/category_pins*"
+const CREATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/create_category_with_pin"
+const UPDATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/update_category_with_pin"
 const CURRENT_BOOK_ID = 1
 
 export interface CategorySettingsPinResponseRow {
@@ -63,6 +65,17 @@ const createCategoryBodySchema = z.object({
   name: z.string(),
 })
 
+const createCategoryWithPinBodySchema = z.object({
+  p_category_name: z.string(),
+  p_pinned: z.boolean(),
+})
+
+const updateCategoryWithPinBodySchema = z.object({
+  p_category_id: z.number(),
+  p_category_name: z.string(),
+  p_pinned: z.boolean(),
+})
+
 const categoryPinBodySchema = z.object({
   category_id: z.number(),
 })
@@ -112,6 +125,21 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json({ id: create.responseId ?? 999 })
     }),
+    http.post(CREATE_CATEGORY_WITH_PIN_RPC_URL, async ({ request }) => {
+      await delay(create.durationOrMode)
+
+      if (create.error) {
+        return HttpResponse.json(
+          create.errorResponse ?? { message: "Failed to create category." },
+          { status: 500 },
+        )
+      }
+
+      createCategoryWithPinBodySchema.parse(await request.json())
+      const categoryId = create.responseId ?? 999
+
+      return HttpResponse.json(categoryId)
+    }),
     http.patch(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(update.durationOrMode)
 
@@ -128,6 +156,32 @@ export function createCategorySettingsHandlers({
       const updatedRow = buildUpdatedCategorySettingsRow(id)
 
       return HttpResponse.json("response" in update ? update.response : updatedRow)
+    }),
+    http.post(UPDATE_CATEGORY_WITH_PIN_RPC_URL, async ({ request }) => {
+      await delay(update.durationOrMode)
+
+      if (update.error) {
+        return HttpResponse.json(
+          update.errorResponse ?? { message: "Failed to update category name." },
+          { status: 500 },
+        )
+      }
+
+      const body = updateCategoryWithPinBodySchema.parse(await request.json())
+
+      rows = rows.map((row) =>
+        row.id === body.p_category_id
+          ? {
+              ...row,
+              name: body.p_category_name,
+              category_pins: body.p_pinned
+                ? [{ id: pin.responseId ?? row.id, category_id: row.id }]
+                : [],
+            }
+          : row,
+      )
+
+      return HttpResponse.json("response" in update ? update.response : null)
     }),
     http.delete(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(deleteOptions.durationOrMode)

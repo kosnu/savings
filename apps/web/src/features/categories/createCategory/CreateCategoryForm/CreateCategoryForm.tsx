@@ -16,12 +16,20 @@ const defaultValues: CategoryCreateFormValues = {
   pinned: false,
 }
 
+const categoryPinLimit = 3
+const categoryPinLimitErrorMessage = "Failed to create category."
+
 interface CreateCategoryFormProps {
+  currentPinnedCount?: number
   onSuccess?: () => void
   onCancel: () => void
 }
 
-export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormProps) {
+export function CreateCategoryForm({
+  currentPinnedCount = 0,
+  onSuccess,
+  onCancel,
+}: CreateCategoryFormProps) {
   const nameInputId = useId()
   const nameErrorId = useId()
   const pinnedInputId = useId()
@@ -40,6 +48,11 @@ export function CreateCategoryForm({ onSuccess, onCancel }: CreateCategoryFormPr
 
       try {
         setSubmitErrorMessage(undefined)
+        if (parsedValue.pinned && currentPinnedCount >= categoryPinLimit) {
+          setSubmitErrorMessage(categoryPinLimitErrorMessage)
+          return
+        }
+
         await createCategory(parsedValue)
         form.reset()
         onSuccess?.()

@@ -12,8 +12,7 @@ import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
 import * as stories from "./UpdateCategoryNameForm.stories"
 
 const { Default } = composeStories(stories)
-const CATEGORIES_REST_URL = "*/rest/v1/categories*"
-const CATEGORY_PINS_REST_URL = "*/rest/v1/category_pins*"
+const UPDATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/update_category_with_pin"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -72,12 +71,12 @@ describe("UpdateCategoryNameForm", () => {
 
   test("ピン状態だけを変更して保存できる", async () => {
     const onSuccess = fn()
-    let unpinRequested = false
+    let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.delete(CATEGORY_PINS_REST_URL, ({ request }) => {
-        unpinRequested = new URL(request.url).searchParams.get("category_id") === "eq.10"
-        return HttpResponse.json([{ id: 10 }])
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
       }),
     )
 
@@ -89,22 +88,21 @@ describe("UpdateCategoryNameForm", () => {
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
-    expect(unpinRequested).toBe(true)
+    expect(requestBody).toEqual({
+      p_category_id: 10,
+      p_category_name: "Food",
+      p_pinned: false,
+    })
   })
 
   test("カテゴリ名とピン状態を同時に変更して保存できる", async () => {
     const onSuccess = fn()
-    let categoryNameRequestBody: Record<string, unknown> | undefined
-    let unpinRequested = false
+    let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.patch(CATEGORIES_REST_URL, async ({ request }) => {
-        categoryNameRequestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json({ id: 10 })
-      }),
-      http.delete(CATEGORY_PINS_REST_URL, ({ request }) => {
-        unpinRequested = new URL(request.url).searchParams.get("category_id") === "eq.10"
-        return HttpResponse.json([{ id: 10 }])
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
       }),
     )
 
@@ -119,8 +117,11 @@ describe("UpdateCategoryNameForm", () => {
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
-    expect(categoryNameRequestBody).toEqual({ name: "Groceries" })
-    expect(unpinRequested).toBe(true)
+    expect(requestBody).toEqual({
+      p_category_id: 10,
+      p_category_name: "Groceries",
+      p_pinned: false,
+    })
   })
 
   test("変更なしで保存するとmutationを呼ばずにonSuccessを呼ぶ", async () => {
@@ -128,17 +129,9 @@ describe("UpdateCategoryNameForm", () => {
     let requestCount = 0
 
     server.resetHandlers(
-      http.patch(CATEGORIES_REST_URL, () => {
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, () => {
         requestCount += 1
-        return HttpResponse.json({ id: 10 })
-      }),
-      http.post(CATEGORY_PINS_REST_URL, () => {
-        requestCount += 1
-        return HttpResponse.json({ id: 10 })
-      }),
-      http.delete(CATEGORY_PINS_REST_URL, () => {
-        requestCount += 1
-        return HttpResponse.json([{ id: 10 }])
+        return HttpResponse.json(null)
       }),
     )
 
@@ -156,9 +149,9 @@ describe("UpdateCategoryNameForm", () => {
     const categoryUpdated = createDeferred()
 
     server.resetHandlers(
-      http.patch(CATEGORIES_REST_URL, async () => {
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async () => {
         await categoryUpdated.promise
-        return HttpResponse.json({ id: 10 })
+        return HttpResponse.json(null)
       }),
     )
 
@@ -230,41 +223,29 @@ describe("UpdateCategoryNameForm", () => {
     expect(onSuccess).not.toHaveBeenCalled()
   })
 
-  test("ピン更新失敗時は汎用エラーを表示してonSuccessを呼ばない", async () => {
+  test("pin数が3件ある状態で未ピン留めカテゴリをピン留めするとRPCを呼ばずエラーを表示する", async () => {
+    let requestCount = 0
+
     server.resetHandlers(
-      ...createCategorySettingsHandlers({
-        unpin: {
-          error: true,
-        },
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, () => {
+        requestCount += 1
+        return HttpResponse.json(null)
       }),
     )
     const onSuccess = fn()
-    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    const { user } = await renderStory(
+      <Default
+        category={{ id: 20, name: "Daily Necessities", pinned: false }}
+        currentPinnedCount={3}
+        onSuccess={onSuccess}
+      />,
+    )
 
     await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
     await user.click(screen.getByRole("button", { name: "Save" }))
 
-    expect(await screen.findByText("Failed to update category pin.")).toBeInTheDocument()
-    expect(onSuccess).not.toHaveBeenCalled()
-  })
-
-  test("更新対象が返らない場合は保存エラーを表示してonSuccessを呼ばない", async () => {
-    server.resetHandlers(
-      ...createCategorySettingsHandlers({
-        update: {
-          response: null,
-        },
-      }),
-    )
-    const onSuccess = fn()
-    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
-    const nameInput = screen.getByRole("textbox", { name: /Name/ })
-
-    await user.clear(nameInput)
-    await user.type(nameInput, "Groceries")
-    await user.click(screen.getByRole("button", { name: "Save" }))
-
     expect(await screen.findByText("Failed to update category name.")).toBeInTheDocument()
+    expect(requestCount).toBe(0)
     expect(onSuccess).not.toHaveBeenCalled()
   })
 })

@@ -27,6 +27,7 @@ describe("useUpdateCategoryName", () => {
     const input = {
       categoryId: 10,
       name: "Groceries",
+      pinned: true,
     }
     mockUpdateCategoryName.mockResolvedValue(undefined)
 
@@ -67,6 +68,7 @@ describe("useUpdateCategoryName", () => {
         result.current.updateCategoryName({
           categoryId: 10,
           name: "Groceries",
+          pinned: false,
         }),
       ).rejects.toEqual(error)
     })
