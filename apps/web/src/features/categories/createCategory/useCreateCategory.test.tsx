@@ -26,6 +26,7 @@ describe("useCreateCategory", () => {
       .mockResolvedValue(undefined)
     const input: CategoryCreateValues = {
       name: "Groceries",
+      pinned: false,
     }
     mockCreateCategory.mockResolvedValue(40)
 
@@ -60,9 +61,31 @@ describe("useCreateCategory", () => {
     })
 
     await act(async () => {
-      await expect(result.current.createCategory({ name: "Groceries" })).rejects.toEqual(error)
+      await expect(
+        result.current.createCategory({ name: "Groceries", pinned: false }),
+      ).rejects.toEqual(error)
     })
 
     expect(invalidateQueries).not.toHaveBeenCalled()
+  })
+
+  it("pinned true の場合も作成RPCに値を渡す", async () => {
+    const queryClient = createTestQueryClient()
+    vi.spyOn(queryClient, "invalidateQueries").mockResolvedValue(undefined)
+    const input: CategoryCreateValues = {
+      name: "Groceries",
+      pinned: true,
+    }
+    mockCreateCategory.mockResolvedValue(40)
+
+    const { result } = renderHook(() => useCreateCategory(), {
+      queryClient,
+    })
+
+    await act(async () => {
+      await expect(result.current.createCategory(input)).resolves.toBe(40)
+    })
+
+    expect(mockCreateCategory).toHaveBeenCalledWith(input)
   })
 })

@@ -15,7 +15,7 @@ export function useCreateCategory(): UseCreateCategoryReturn {
   const queryClient = useQueryClient()
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: createCategoryRecord,
+    mutationFn: async (value: CategoryCreateValues) => createCategoryRecord(value),
     onSuccess: async () => {
       await Promise.all([
         invalidateCategoryQueries(queryClient),

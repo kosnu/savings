@@ -21,6 +21,7 @@ const meta = {
     category: {
       id: 10,
       name: "Food",
+      pinned: true,
     },
     onCancel: fn(),
     onSuccess: fn(),

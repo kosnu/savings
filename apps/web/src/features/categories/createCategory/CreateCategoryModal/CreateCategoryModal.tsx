@@ -7,10 +7,12 @@ import { useDialog } from "../../../../utils/useDialog"
 import { CreateCategoryForm } from "../CreateCategoryForm"
 
 interface CreateCategoryModalProps {
+  currentPinnedCount?: number
   trigger?: ReactElement
 }
 
 export function CreateCategoryModal({
+  currentPinnedCount = 0,
   trigger = (
     <Button size="2" variant="soft">
       <PlusIcon aria-hidden />
@@ -37,7 +39,11 @@ export function CreateCategoryModal({
       title="Create category"
       description="Create a category."
     >
-      <CreateCategoryForm onSuccess={handleSuccess} onCancel={handleCancel} />
+      <CreateCategoryForm
+        currentPinnedCount={currentPinnedCount}
+        onSuccess={handleSuccess}
+        onCancel={handleCancel}
+      />
     </ResponsiveOverlay>
   )
 }

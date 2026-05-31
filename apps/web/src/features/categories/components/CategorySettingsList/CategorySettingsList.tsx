@@ -13,12 +13,6 @@ export function CategorySettingsList() {
 
   return (
     <Flex direction="column" gap="3">
-      <Flex align="center" gap="3" justify="between">
-        <Text as="p" size="4" weight="medium">
-          Categories
-        </Text>
-        <CreateCategoryModal />
-      </Flex>
       <ErrorBoundary
         fallback={
           <Text color="red" role="alert">
@@ -40,20 +34,35 @@ interface CategorySettingsListContentProps {
 
 function CategorySettingsListContent({ promise }: CategorySettingsListContentProps) {
   const items = use(promise)
-
-  if (items.length === 0) {
-    return <Text color="gray">No categories.</Text>
-  }
+  const currentPinnedCount = countPinnedItems(items)
 
   return (
     <Flex direction="column" gap="2">
-      <CategorySettingsHeader />
-      {items.map((item) => (
-        <Fragment key={item.category.id}>
-          <Separator orientation="horizontal" size="4" />
-          <CategorySettingsRow item={item} />
-        </Fragment>
-      ))}
+      <CategorySettingsTitle currentPinnedCount={currentPinnedCount} />
+      {items.length === 0 ? (
+        <Text color="gray">No categories.</Text>
+      ) : (
+        <>
+          <CategorySettingsHeader />
+          {items.map((item) => (
+            <Fragment key={item.category.id}>
+              <Separator orientation="horizontal" size="4" />
+              <CategorySettingsRow item={item} currentPinnedCount={currentPinnedCount} />
+            </Fragment>
+          ))}
+        </>
+      )}
+    </Flex>
+  )
+}
+
+function CategorySettingsTitle({ currentPinnedCount }: { currentPinnedCount: number }) {
+  return (
+    <Flex align="center" gap="3" justify="between">
+      <Text as="p" size="4" weight="medium">
+        Categories
+      </Text>
+      <CreateCategoryModal currentPinnedCount={currentPinnedCount} />
     </Flex>
   )
 }
@@ -72,6 +81,16 @@ function CategorySettingsHeader() {
 function CategorySettingsLoadingRows() {
   return (
     <Flex aria-label="loading category settings" direction="column" gap="2">
+      <Flex align="center" gap="3" justify="between">
+        <Skeleton loading>
+          <Text as="p" size="4" weight="medium">
+            Categories
+          </Text>
+        </Skeleton>
+        <Skeleton loading>
+          <Text>Create category</Text>
+        </Skeleton>
+      </Flex>
       <CategorySettingsHeader />
       <Grid
         columns={{
@@ -91,7 +110,13 @@ function CategorySettingsLoadingRows() {
   )
 }
 
-function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
+function CategorySettingsRow({
+  item,
+  currentPinnedCount,
+}: {
+  item: CategorySettingsItem
+  currentPinnedCount: number
+}) {
   return (
     <Grid
       align="center"
@@ -102,17 +127,27 @@ function CategorySettingsRow({ item }: { item: CategorySettingsItem }) {
       }}
       gap="2"
     >
-      <CategoryNameWithMobileActionCell item={item} />
-      <CategoryActionsCell category={item.category} placement="desktop" />
+      <CategoryNameWithMobileActionCell item={item} currentPinnedCount={currentPinnedCount} />
+      <CategoryActionsCell
+        item={item}
+        currentPinnedCount={currentPinnedCount}
+        placement="desktop"
+      />
     </Grid>
   )
 }
 
-function CategoryNameWithMobileActionCell({ item }: { item: CategorySettingsItem }) {
+function CategoryNameWithMobileActionCell({
+  item,
+  currentPinnedCount,
+}: {
+  item: CategorySettingsItem
+  currentPinnedCount: number
+}) {
   return (
     <Flex align="center" gap="3" justify="between">
       <CategoryNameCell item={item} />
-      <CategoryActionsCell category={item.category} placement="mobile" />
+      <CategoryActionsCell item={item} currentPinnedCount={currentPinnedCount} placement="mobile" />
     </Flex>
   )
 }
@@ -127,10 +162,12 @@ function CategoryNameCell({ item }: { item: CategorySettingsItem }) {
 }
 
 function CategoryActionsCell({
-  category,
+  item,
+  currentPinnedCount,
   placement,
 }: {
-  category: CategorySettingsItem["category"]
+  item: CategorySettingsItem
+  currentPinnedCount: number
   placement: "mobile" | "desktop"
 }) {
   const display =
@@ -140,10 +177,17 @@ function CategoryActionsCell({
 
   return (
     <Flex align="center" display={display} flexShrink="0" gap="2">
-      <UpdateCategoryNameModal category={category} />
-      <DeleteCategoryModal category={category} />
+      <UpdateCategoryNameModal
+        category={{ ...item.category, pinned: item.pinned }}
+        currentPinnedCount={currentPinnedCount}
+      />
+      <DeleteCategoryModal category={item.category} />
     </Flex>
   )
+}
+
+function countPinnedItems(items: CategorySettingsItem[]): number {
+  return items.filter((item) => item.pinned).length
 }
 
 function PinBadge() {

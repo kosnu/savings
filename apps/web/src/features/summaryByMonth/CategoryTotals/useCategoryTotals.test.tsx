@@ -28,7 +28,16 @@ describe("useCategoryTotals", () => {
   })
 
   test("カテゴリ別月合計額を取得する", async () => {
-    const totals = { "10": { categoryName: "Food", totalAmount: 1000 } }
+    const totals = [
+      {
+        key: "category:10",
+        categoryId: 10,
+        categoryName: "Food",
+        totalAmount: 1000,
+        pinned: true,
+        kind: "category" as const,
+      },
+    ]
     vi.mocked(fetchCategoryTotals).mockResolvedValue(totals)
 
     const { result } = renderHook(() => useCategoryTotals({ cacheScope: "payments-page-1" }))
@@ -40,7 +49,16 @@ describe("useCategoryTotals", () => {
   })
 
   test("同じcacheScopeと月ではqueryを再利用する", async () => {
-    const totals = { "10": { categoryName: "Food", totalAmount: 1000 } }
+    const totals = [
+      {
+        key: "category:10",
+        categoryId: 10,
+        categoryName: "Food",
+        totalAmount: 1000,
+        pinned: true,
+        kind: "category" as const,
+      },
+    ]
     vi.mocked(fetchCategoryTotals).mockResolvedValue(totals)
 
     const { result, rerender } = renderHook(
@@ -64,8 +82,26 @@ describe("useCategoryTotals", () => {
 
   test("cacheScopeが変わると別queryとして取得し直す", async () => {
     vi.mocked(fetchCategoryTotals)
-      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 1000 } })
-      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 2000 } })
+      .mockResolvedValueOnce([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 1000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 2000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
 
     const { result, rerender } = renderHook(
       ({ cacheScope }: { cacheScope: string }) => useCategoryTotals({ cacheScope }),
@@ -75,34 +111,73 @@ describe("useCategoryTotals", () => {
     )
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({
-        "10": { categoryName: "Food", totalAmount: 1000 },
-      })
+      expect(result.current.categoryTotals).toEqual([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 1000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
     })
 
     rerender({ cacheScope: "payments-page-2" })
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({
-        "10": { categoryName: "Food", totalAmount: 2000 },
-      })
+      expect(result.current.categoryTotals).toEqual([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 2000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
     })
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
   })
 
   test("同じcacheScopeでも月が変わると別queryとして取得し直す", async () => {
     vi.mocked(fetchCategoryTotals)
-      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 1000 } })
-      .mockResolvedValueOnce({ "10": { categoryName: "Food", totalAmount: 2000 } })
+      .mockResolvedValueOnce([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 1000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 2000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
 
     const { result, rerender } = renderHook(() =>
       useCategoryTotals({ cacheScope: "payments-page-1" }),
     )
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({
-        "10": { categoryName: "Food", totalAmount: 1000 },
-      })
+      expect(result.current.categoryTotals).toEqual([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 1000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
     })
 
     dateRangeState.date = new Date(2025, 6, 1)
@@ -110,9 +185,16 @@ describe("useCategoryTotals", () => {
     rerender()
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual({
-        "10": { categoryName: "Food", totalAmount: 2000 },
-      })
+      expect(result.current.categoryTotals).toEqual([
+        {
+          key: "category:10",
+          categoryId: 10,
+          categoryName: "Food",
+          totalAmount: 2000,
+          pinned: true,
+          kind: "category",
+        },
+      ])
     })
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
   })
@@ -123,7 +205,7 @@ describe("useCategoryTotals", () => {
 
     const { result } = renderHook(() => useCategoryTotals({ cacheScope: "payments-page-1" }))
 
-    expect(result.current.categoryTotals).toEqual({})
+    expect(result.current.categoryTotals).toEqual([])
     expect(fetchCategoryTotals).not.toHaveBeenCalled()
   })
 })
