@@ -34,6 +34,8 @@ when_to_read:
 - Design Doc:
 - 検証結果:
 - 関連Issue:
+- 関連PR:
+- 対応済みレビューコメント:
 
 ## Scope
 
@@ -49,6 +51,8 @@ when_to_read:
 - AIは差分を確認してよい
 - AIはPR本文を作成してよい
 - AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
+- AIは対応済みレビューコメントへ返信してよい
+- AIは完全に完了したreview threadだけをresolveしてよい
 - AIは未解決の仕様判断を完了扱いしてはいけない
 - AIは恒久化すべき知見の候補を挙げてよい
 - AIはユーザーから明示されていないmemory更新を行ってはいけない
@@ -62,6 +66,8 @@ when_to_read:
 - [ ] 検証結果が書かれている
 - [ ] 未確認事項・残リスクが書かれている
 - [ ] 無関係な差分が含まれていない
+- [ ] 対応済みレビューコメントに具体的な返信がある
+- [ ] 完了済みreview threadだけがresolveされている
 - [ ] 恒久ナレッジ化するもの / しないものが整理されている
 - [ ] 次のGoal候補が必要に応じて整理されている
 
@@ -71,6 +77,8 @@ when_to_read:
   - `git status --short`
   - `git diff --stat`
 - 必要なら実行:
+  - `gh pr view <PR番号> --json number,title,body,baseRefName,headRefName,url,state,isDraft`
+  - `gh api graphql` によるreview thread状態確認
   - PR作成前に指定されたアプリ検証コマンド
   - Markdown lintやドキュメント生成コマンド
 
@@ -88,6 +96,8 @@ when_to_read:
 - 検証が未完了
 - 差分にスコープ外変更が混じっている
 - PR作成先、対象ブランチ、関連Issueが曖昧
+- レビューコメントの対応が現在の差分やcommitに明確に紐づかない
+- review threadをresolveすると未解決の追従作業や確認事項を隠すおそれがある
 - 恒久ナレッジにするか判断が必要
 - memory更新が必要だがユーザーの明示依頼がない
 ```
