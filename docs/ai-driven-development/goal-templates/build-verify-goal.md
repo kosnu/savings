@@ -85,7 +85,7 @@ when_to_read:
 ## Stop
 
 - レビューコメントがRequirements / PRD、Design Doc、またはpolicyへ戻すべき内容を含む
-- Design Docと違う実装が必要
+- Design Docまたは関連ドメインルールと違う実装が必要
 - 実装に必要な主要文言がDesign Docで決まっていない
 - スコープ外の変更が必要
 - 受け入れ条件に矛盾がある
