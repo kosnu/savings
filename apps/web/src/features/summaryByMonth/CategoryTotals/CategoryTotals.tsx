@@ -15,13 +15,18 @@ interface CategoryTotalsProps {
 }
 
 export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: CategoryTotalsProps) {
-  const { categoryTotals } = useCategoryTotals({ cacheScope })
+  const { categoryTotals, targetMonthKey } = useCategoryTotals({ cacheScope })
 
   if (categoryTotals.length === 0) {
     return null
   }
 
-  const categoryTotalsKey = categoryTotals.map((total) => total.key).join(":")
+  const categoryTotalsKey = [
+    targetMonthKey,
+    ...categoryTotals.map(
+      (total) => `${total.key}:${total.kind}:${total.totalAmount}:${total.pinned ? "1" : "0"}`,
+    ),
+  ].join(":")
 
   return (
     <CategoryTotalsContent

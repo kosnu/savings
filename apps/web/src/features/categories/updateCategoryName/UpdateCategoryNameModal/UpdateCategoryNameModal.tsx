@@ -12,11 +12,13 @@ interface UpdateCategoryNameModalProps {
     name: string
     pinned: boolean
   }
+  currentPinnedCount?: number
   trigger?: ReactElement
 }
 
 export function UpdateCategoryNameModal({
   category,
+  currentPinnedCount = 0,
   trigger = (
     <Button aria-label={`Edit ${category.name} category name`} size="1" variant="ghost">
       <Pencil1Icon aria-hidden />
@@ -45,6 +47,7 @@ export function UpdateCategoryNameModal({
     >
       <UpdateCategoryNameForm
         category={category}
+        currentPinnedCount={currentPinnedCount}
         onSuccess={handleSuccess}
         onCancel={handleCancel}
       />

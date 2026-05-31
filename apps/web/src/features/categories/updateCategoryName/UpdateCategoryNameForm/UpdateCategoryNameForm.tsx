@@ -9,8 +9,6 @@ import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { categoryNameSchema } from "../../categorySchema"
-import { toCategoryPinUpdateErrorMessage } from "../../updateCategoryPin/categoryPinUpdateError"
-import { useUpdateCategoryPin } from "../../updateCategoryPin/useUpdateCategoryPin"
 import { toCategoryNameUpdateErrorMessage } from "../categoryNameUpdateError"
 import { useUpdateCategoryName } from "../useUpdateCategoryName"
 
@@ -18,6 +16,9 @@ const updateCategoryNameFormSubmitSchema = z.object({
   name: categoryNameSchema,
   pinned: z.boolean(),
 })
+
+const categoryPinLimit = 3
+const categoryPinLimitErrorMessage = "Failed to update category name."
 
 interface UpdateCategoryNameFormValues {
   name: string
@@ -30,22 +31,22 @@ interface UpdateCategoryNameFormProps {
     name: string
     pinned: boolean
   }
+  currentPinnedCount?: number
   onSuccess?: () => void
   onCancel: () => void
 }
 
 export function UpdateCategoryNameForm({
   category,
+  currentPinnedCount = 0,
   onSuccess,
   onCancel,
 }: UpdateCategoryNameFormProps) {
   const nameInputId = useId()
   const nameErrorId = useId()
   const pinnedInputId = useId()
-  const { updateCategoryName, isPending: isNamePending } = useUpdateCategoryName()
-  const { updateCategoryPin, isPending: isPinPending } = useUpdateCategoryPin()
+  const { updateCategoryName, isPending } = useUpdateCategoryName()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
-  const isPending = isNamePending || isPinPending
   const defaultValues: UpdateCategoryNameFormValues = {
     name: category.name,
     pinned: category.pinned,
@@ -65,29 +66,19 @@ export function UpdateCategoryNameForm({
         setSubmitErrorMessage(undefined)
         const nameChanged = parsedValue.name !== category.name
         const pinChanged = parsedValue.pinned !== category.pinned
+        const pinningNewCategory = !category.pinned && parsedValue.pinned
 
-        if (nameChanged) {
-          try {
-            await updateCategoryName({
-              categoryId: category.id,
-              name: parsedValue.name,
-            })
-          } catch (error) {
-            setSubmitErrorMessage(toCategoryNameUpdateErrorMessage(error))
-            return
-          }
+        if (pinningNewCategory && currentPinnedCount >= categoryPinLimit) {
+          setSubmitErrorMessage(categoryPinLimitErrorMessage)
+          return
         }
 
-        if (pinChanged) {
-          try {
-            await updateCategoryPin({
-              categoryId: category.id,
-              pinned: parsedValue.pinned,
-            })
-          } catch {
-            setSubmitErrorMessage(toCategoryPinUpdateErrorMessage())
-            return
-          }
+        if (nameChanged || pinChanged) {
+          await updateCategoryName({
+            categoryId: category.id,
+            name: parsedValue.name,
+            pinned: parsedValue.pinned,
+          })
         }
 
         onSuccess?.()

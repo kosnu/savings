@@ -6,23 +6,17 @@ import { categoryQueryKeys } from "../queryKeys"
 import type { CategoryCreateValues } from "./categoryCreateSchema"
 import { useCreateCategory } from "./useCreateCategory"
 
-const { mockCreateCategory, mockUpdateCategoryPin } = vi.hoisted(() => ({
+const { mockCreateCategory } = vi.hoisted(() => ({
   mockCreateCategory: vi.fn(),
-  mockUpdateCategoryPin: vi.fn(),
 }))
 
 vi.mock("./createCategory", () => ({
   createCategory: mockCreateCategory,
 }))
 
-vi.mock("../updateCategoryPin/updateCategoryPin", () => ({
-  updateCategoryPin: mockUpdateCategoryPin,
-}))
-
 describe("useCreateCategory", () => {
   beforeEach(() => {
     mockCreateCategory.mockReset()
-    mockUpdateCategoryPin.mockReset()
   })
 
   it("成功時にカテゴリqueryをinvalidateしてresolveする", async () => {
@@ -49,7 +43,6 @@ describe("useCreateCategory", () => {
 
     expect(mockCreateCategory).toHaveBeenCalledTimes(1)
     expect(mockCreateCategory.mock.calls[0]?.[0]).toBe(input)
-    expect(mockUpdateCategoryPin).not.toHaveBeenCalled()
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: categoryQueryKeys.all })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: summaryQueryKeys.categoryTotalsAll })
     expect(invalidateQueries).toHaveBeenCalledTimes(2)
@@ -73,11 +66,10 @@ describe("useCreateCategory", () => {
       ).rejects.toEqual(error)
     })
 
-    expect(mockUpdateCategoryPin).not.toHaveBeenCalled()
     expect(invalidateQueries).not.toHaveBeenCalled()
   })
 
-  it("pinned true の場合はカテゴリ作成後にピンを作成する", async () => {
+  it("pinned true の場合も作成RPCに値を渡す", async () => {
     const queryClient = createTestQueryClient()
     vi.spyOn(queryClient, "invalidateQueries").mockResolvedValue(undefined)
     const input: CategoryCreateValues = {
@@ -85,7 +77,6 @@ describe("useCreateCategory", () => {
       pinned: true,
     }
     mockCreateCategory.mockResolvedValue(40)
-    mockUpdateCategoryPin.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useCreateCategory(), {
       queryClient,
@@ -96,30 +87,5 @@ describe("useCreateCategory", () => {
     })
 
     expect(mockCreateCategory).toHaveBeenCalledWith(input)
-    expect(mockUpdateCategoryPin).toHaveBeenCalledWith({ categoryId: 40, pinned: true })
-  })
-
-  it("ピン作成失敗時はqueryをinvalidateしてrejectする", async () => {
-    const queryClient = createTestQueryClient()
-    const invalidateQueries = vi
-      .spyOn(queryClient, "invalidateQueries")
-      .mockResolvedValue(undefined)
-    const error = { message: "ピン更新に失敗しました" }
-    mockCreateCategory.mockResolvedValue(40)
-    mockUpdateCategoryPin.mockRejectedValue(error)
-
-    const { result } = renderHook(() => useCreateCategory(), {
-      queryClient,
-    })
-
-    await act(async () => {
-      await expect(
-        result.current.createCategory({ name: "Groceries", pinned: true }),
-      ).rejects.toEqual(error)
-    })
-
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: categoryQueryKeys.all })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: summaryQueryKeys.categoryTotalsAll })
-    expect(invalidateQueries).toHaveBeenCalledTimes(2)
   })
 })
