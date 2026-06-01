@@ -5,7 +5,7 @@ import { normalizeMonthlyBudgetRows, toMonthlyBudget } from "../monthlyBudgetMap
 import type { MonthlyBudget } from "../types"
 
 const monthlyBudgetColumns =
-  "id, book_id, amount, effective_from, effective_year, effective_month, created_at, updated_at"
+  "id, book_id, amount, effective_from, effective_year, effective_month, status, created_at, updated_at"
 const monthlyBudgetLimitSchema = z.number().int().positive()
 
 export async function fetchMonthlyBudgets(limit: number): Promise<MonthlyBudget[]> {
@@ -15,6 +15,7 @@ export async function fetchMonthlyBudgets(limit: number): Promise<MonthlyBudget[
   const { data, error } = await supabase
     .from("monthly_budgets")
     .select(monthlyBudgetColumns)
+    .eq("status", "amount")
     .order("effective_from", { ascending: false })
     .limit(limit)
 

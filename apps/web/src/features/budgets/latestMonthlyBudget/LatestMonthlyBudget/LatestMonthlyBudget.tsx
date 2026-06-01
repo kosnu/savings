@@ -1,18 +1,17 @@
-import { Pencil1Icon, PlusIcon } from "@radix-ui/react-icons"
+import { Pencil1Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
 import { Button, Flex, Skeleton, Text } from "@radix-ui/themes"
 import { Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget/CreateMonthlyBudgetModal"
-import { useMonthlyBudgets } from "../../listMonthlyBudget/useMonthlyBudgets"
-import type { MonthlyBudget } from "../../types"
+import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
+import { RemoveMonthlyBudgetModal } from "../../removeMonthlyBudget/RemoveMonthlyBudgetModal"
+import type { MonthlyBudget, MonthlyBudgetState } from "../../types"
 import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthlyBudgetModal"
 
-const latestMonthlyBudgetLimit = 1
-
 export function LatestMonthlyBudget() {
-  const { promise } = useMonthlyBudgets(latestMonthlyBudgetLimit)
+  const { promise } = useEffectiveMonthlyBudget(new Date())
 
   return (
     <Flex direction="column" gap="3">
@@ -34,10 +33,10 @@ export function LatestMonthlyBudget() {
   )
 }
 
-function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudget[]> }) {
-  const [latestMonthlyBudget] = use(promise)
+function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudgetState> }) {
+  const monthlyBudgetState = use(promise)
 
-  if (!latestMonthlyBudget) {
+  if (monthlyBudgetState.status !== "amount") {
     return (
       <CreateMonthlyBudgetModal
         trigger={
@@ -49,7 +48,7 @@ function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudge
     )
   }
 
-  return <LatestMonthlyBudgetRow monthlyBudget={latestMonthlyBudget} />
+  return <LatestMonthlyBudgetRow monthlyBudget={monthlyBudgetState.monthlyBudget} />
 }
 
 function LatestMonthlyBudgetLoading() {
@@ -66,14 +65,23 @@ function LatestMonthlyBudgetRow({ monthlyBudget }: { monthlyBudget: MonthlyBudge
   return (
     <Flex align="center" justify="between" gap="3">
       <Text>{toCurrency(monthlyBudget.amount)}</Text>
-      <UpdateMonthlyBudgetModal
-        monthlyBudget={monthlyBudget}
-        trigger={
-          <Button variant="soft">
-            <Pencil1Icon /> Edit budget
-          </Button>
-        }
-      />
+      <Flex gap="2">
+        <UpdateMonthlyBudgetModal
+          monthlyBudget={monthlyBudget}
+          trigger={
+            <Button variant="soft">
+              <Pencil1Icon /> Edit budget
+            </Button>
+          }
+        />
+        <RemoveMonthlyBudgetModal
+          trigger={
+            <Button color="red" variant="soft">
+              <TrashIcon /> Remove budget
+            </Button>
+          }
+        />
+      </Flex>
     </Flex>
   )
 }

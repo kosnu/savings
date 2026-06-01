@@ -50,7 +50,7 @@ async function fillCreateMonthlyBudgetForm(
   await user.click(within(dialog).getByRole("combobox", { name: "Year" }))
   await user.click(await body.findByRole("option", { name: "2026" }))
   await user.click(within(dialog).getByRole("combobox", { name: "Month" }))
-  await user.click(await body.findByRole("option", { name: "3" }))
+  await user.click(await body.findByRole("option", { name: "10" }))
   await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "300000")
 }
 
@@ -81,7 +81,7 @@ describe("SettingsPage", () => {
   test("Book 設定では既存の最新月予算表示を維持する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
+        get: { response: monthlyBudgets[3] },
       }),
       ...createCategorySettingsHandlers(),
     )
@@ -103,7 +103,7 @@ describe("SettingsPage", () => {
   test("月予算が未登録の場合は予算登録ボタンを表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [] },
+        get: { response: null },
       }),
       ...createCategorySettingsHandlers(),
     )
@@ -118,7 +118,7 @@ describe("SettingsPage", () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [] },
+        get: { response: null },
         create: {
           error: true,
           errorResponse: {

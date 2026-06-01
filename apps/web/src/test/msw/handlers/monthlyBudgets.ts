@@ -5,6 +5,10 @@ import type { MonthlyBudgetRow } from "../../../features/budgets/types"
 import { monthlyBudgets } from "../../data/monthlyBudgets"
 
 const REST_URL = "*/rest/v1/monthly_budgets*"
+const GET_EFFECTIVE_RPC_URL = "*/rest/v1/rpc/get_effective_monthly_budget"
+const CREATE_RPC_URL = "*/rest/v1/rpc/create_monthly_budget"
+const UPDATE_RPC_URL = "*/rest/v1/rpc/update_current_monthly_budget"
+const REMOVE_RPC_URL = "*/rest/v1/rpc/remove_current_monthly_budget"
 
 interface BaseOptions {
   error?: boolean
@@ -12,7 +16,7 @@ interface BaseOptions {
 }
 
 interface GetMonthlyBudgetOptions extends BaseOptions {
-  response?: MonthlyBudgetRow | null
+  response?: MonthlyBudgetRow | MonthlyBudgetStateResponse | null
 }
 
 interface ListMonthlyBudgetOptions extends BaseOptions {
@@ -29,52 +33,67 @@ interface UpdateMonthlyBudgetOptions extends BaseOptions {
   errorResponse?: unknown
 }
 
+interface RemoveMonthlyBudgetOptions extends BaseOptions {
+  errorResponse?: unknown
+}
+
 interface CreateMonthlyBudgetHandlersOptions {
   get?: GetMonthlyBudgetOptions
   list?: ListMonthlyBudgetOptions
   create?: CreateMonthlyBudgetOptions
   update?: UpdateMonthlyBudgetOptions
+  remove?: RemoveMonthlyBudgetOptions
 }
 
 const createMonthlyBudgetBodySchema = z.object({
-  amount: z.number(),
-  effective_from: z.string(),
+  p_amount: z.number(),
+  p_effective_month: z.string(),
 })
 
 const updateMonthlyBudgetBodySchema = z.object({
-  amount: z.number(),
+  p_amount: z.number(),
 })
 
 type CreateMonthlyBudgetBody = z.infer<typeof createMonthlyBudgetBodySchema>
 type UpdateMonthlyBudgetBody = z.infer<typeof updateMonthlyBudgetBodySchema>
+type MonthlyBudgetStateResponse =
+  | { status: "amount"; monthly_budget: MonthlyBudgetRow }
+  | { status: "none"; monthly_budget: null }
+  | { status: "unset"; monthly_budget: null }
 
 export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlersOptions = {}) {
   const get = options.get ?? {}
   const list = options.list ?? {}
   const create = options.create ?? {}
   const update = options.update ?? {}
+  const remove = options.remove ?? {}
   const listRows = list.response ?? monthlyBudgets
 
-  const monthlyBudgetsHandler = http.get(REST_URL, async ({ request }) => {
-    const shouldReturnSingle = shouldReturnSingleObject(request)
-    const handlerOptions = shouldReturnSingle ? get : list
+  const monthlyBudgetsHandler = http.get(REST_URL, async () => {
+    await delay(list.durationOrMode)
 
-    await delay(handlerOptions.durationOrMode)
-
-    if (handlerOptions.error) {
+    if (list.error) {
       return HttpResponse.json({ message: "Failed to fetch monthly budgets." }, { status: 500 })
     }
 
-    const response = shouldReturnSingle
-      ? get.response === undefined
-        ? monthlyBudgets[2]
-        : get.response
-      : listRows
+    const response = listRows.filter((monthlyBudget) => monthlyBudget.status === "amount")
 
     return HttpResponse.json(response)
   })
 
-  const createMonthlyBudgetHandler = http.post(REST_URL, async ({ request }) => {
+  const getEffectiveMonthlyBudgetHandler = http.post(GET_EFFECTIVE_RPC_URL, async () => {
+    await delay(get.durationOrMode)
+
+    if (get.error) {
+      return HttpResponse.json({ message: "Failed to fetch monthly budgets." }, { status: 500 })
+    }
+
+    const response = get.response === undefined ? monthlyBudgets[2] : get.response
+
+    return HttpResponse.json(toMonthlyBudgetStateResponse(response))
+  })
+
+  const createMonthlyBudgetHandler = http.post(CREATE_RPC_URL, async ({ request }) => {
     await delay(create.durationOrMode)
 
     if (create.error) {
@@ -95,7 +114,7 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     return HttpResponse.json([newRow], { status: 201 })
   })
 
-  const updateMonthlyBudgetHandler = http.patch(REST_URL, async ({ request }) => {
+  const updateMonthlyBudgetHandler = http.post(UPDATE_RPC_URL, async ({ request }) => {
     await delay(update.durationOrMode)
 
     if (update.error) {
@@ -107,59 +126,58 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
 
     const body = await request.json()
     const parsedBody = updateMonthlyBudgetBodySchema.parse(body)
-    const id = parseUpdateMonthlyBudgetId(request.url)
-    const updatedRow = update.response ?? buildUpdatedMonthlyBudgetRow(id, parsedBody, listRows)
+    const updatedRow = update.response ?? buildUpdatedMonthlyBudgetRow(parsedBody, listRows)
 
-    return HttpResponse.json(updatedRow ? { id: updatedRow.id } : null)
+    return HttpResponse.json(updatedRow ? null : { message: "Monthly budget was not updated." })
   })
 
-  return [monthlyBudgetsHandler, createMonthlyBudgetHandler, updateMonthlyBudgetHandler]
-}
+  const removeMonthlyBudgetHandler = http.post(REMOVE_RPC_URL, async () => {
+    await delay(remove.durationOrMode)
 
-function shouldReturnSingleObject(request: Request): boolean {
-  const url = new URL(request.url)
+    if (remove.error) {
+      return HttpResponse.json(
+        remove.errorResponse ?? { message: "Failed to remove monthly budget." },
+        { status: 500 },
+      )
+    }
 
-  return url.searchParams.has("effective_from") && url.searchParams.get("limit") === "1"
+    return HttpResponse.json(null)
+  })
+
+  return [
+    monthlyBudgetsHandler,
+    getEffectiveMonthlyBudgetHandler,
+    createMonthlyBudgetHandler,
+    updateMonthlyBudgetHandler,
+    removeMonthlyBudgetHandler,
+  ]
 }
 
 function buildMonthlyBudgetRow(
   body: CreateMonthlyBudgetBody,
   rows: MonthlyBudgetRow[],
 ): MonthlyBudgetRow {
-  const [year, month] = body.effective_from.split("-").map((value) => Number.parseInt(value, 10))
+  const [year, month] = body.p_effective_month.split("-").map((value) => Number.parseInt(value, 10))
   const now = new Date().toISOString()
 
   return {
     id: Math.max(0, ...rows.map((row) => row.id)) + 1,
     book_id: 1,
-    amount: body.amount,
+    amount: body.p_amount,
     created_at: now,
-    effective_from: body.effective_from,
+    effective_from: body.p_effective_month,
     effective_month: month,
     effective_year: year,
+    status: "amount",
     updated_at: now,
   }
 }
 
-function parseUpdateMonthlyBudgetId(url: string): number | undefined {
-  const searchParams = new URL(url).searchParams
-  const idParam = searchParams.get("id")
-
-  if (!idParam?.startsWith("eq.")) {
-    return undefined
-  }
-
-  const id = Number(idParam.slice(3))
-
-  return Number.isInteger(id) ? id : undefined
-}
-
 function buildUpdatedMonthlyBudgetRow(
-  id: number | undefined,
   body: UpdateMonthlyBudgetBody,
   rows: MonthlyBudgetRow[],
 ): MonthlyBudgetRow | undefined {
-  const row = rows.find((monthlyBudget) => monthlyBudget.id === id)
+  const row = rows.find((monthlyBudget) => monthlyBudget.status === "amount")
 
   if (!row) {
     return undefined
@@ -167,9 +185,27 @@ function buildUpdatedMonthlyBudgetRow(
 
   return {
     ...row,
-    amount: body.amount,
+    amount: body.p_amount,
     updated_at: new Date().toISOString(),
   }
+}
+
+function toMonthlyBudgetStateResponse(
+  value: MonthlyBudgetRow | MonthlyBudgetStateResponse | null,
+): MonthlyBudgetStateResponse {
+  if (value === null) {
+    return { status: "unset", monthly_budget: null }
+  }
+
+  if ("monthly_budget" in value) {
+    return value
+  }
+
+  if (value.status === "none") {
+    return { status: "none", monthly_budget: null }
+  }
+
+  return { status: "amount", monthly_budget: value }
 }
 
 export const monthlyBudgetHandlers = createMonthlyBudgetHandlers()

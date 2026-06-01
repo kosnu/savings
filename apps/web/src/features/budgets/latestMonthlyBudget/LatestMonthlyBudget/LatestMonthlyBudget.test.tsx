@@ -15,11 +15,12 @@ const createdMonthlyBudget = {
   id: 999,
   book_id: 1,
   amount: 300000,
-  created_at: "2026-03-01T00:00:00.000Z",
-  effective_from: "2026-03-01",
-  effective_month: 3,
+  created_at: "2026-10-01T00:00:00.000Z",
+  effective_from: "2026-10-01",
+  effective_month: 10,
   effective_year: 2026,
-  updated_at: "2026-03-01T00:00:00.000Z",
+  status: "amount" as const,
+  updated_at: "2026-10-01T00:00:00.000Z",
 }
 
 async function renderLatestMonthlyBudget(story: ReactElement) {
@@ -36,7 +37,7 @@ describe("LatestMonthlyBudget", () => {
   test("最新の月予算だけを表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
+        get: { response: monthlyBudgets[3] },
       }),
     )
 
@@ -51,7 +52,7 @@ describe("LatestMonthlyBudget", () => {
   test("月予算がない場合は作成導線を表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [] },
+        get: { response: null },
       }),
     )
 
@@ -64,7 +65,7 @@ describe("LatestMonthlyBudget", () => {
   test("作成成功後に最新の月予算として表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [] },
+        get: { response: null },
       }),
     )
 
@@ -77,14 +78,14 @@ describe("LatestMonthlyBudget", () => {
     await fillCreateMonthlyBudgetForm({
       user,
       year: "2026",
-      month: "3",
+      month: "10",
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
     })
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [createdMonthlyBudget] },
+        get: { response: createdMonthlyBudget },
       }),
     )
     await user.click(within(dialog).getByRole("button", { name: "Create" }))
@@ -101,7 +102,7 @@ describe("LatestMonthlyBudget", () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [] },
+        get: { response: null },
         create: {
           error: true,
           errorResponse: {
@@ -121,7 +122,7 @@ describe("LatestMonthlyBudget", () => {
     await fillCreateMonthlyBudgetForm({
       user,
       year: "2026",
-      month: "3",
+      month: "10",
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -137,7 +138,7 @@ describe("LatestMonthlyBudget", () => {
   test("編集成功後に最新の月予算表示を更新する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
+        get: { response: monthlyBudgets[3] },
       }),
     )
 
@@ -147,15 +148,15 @@ describe("LatestMonthlyBudget", () => {
     const dialog = await screen.findByRole("dialog", { name: "Edit monthly budget" })
     const amountInput = within(dialog).getByRole("textbox", { name: /amount/i })
 
-    expect(within(dialog).getByText("Update the latest monthly budget amount.")).toBeInTheDocument()
-    expect(within(dialog).getByText("2025/07")).toBeInTheDocument()
+    expect(within(dialog).getByText("Update this month's budget amount.")).toBeInTheDocument()
+    expect(within(dialog).getByText("This month")).toBeInTheDocument()
     expect(amountInput).toHaveValue("75000")
 
     await user.clear(amountInput)
     await user.type(amountInput, "82000")
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [{ ...monthlyBudgets[3], amount: 82000 }, monthlyBudgets[2]] },
+        get: { response: { ...monthlyBudgets[3], amount: 82000 } },
       }),
     )
     await user.click(within(dialog).getByRole("button", { name: "Save" }))
@@ -171,7 +172,7 @@ describe("LatestMonthlyBudget", () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
+        get: { response: monthlyBudgets[3] },
         update: { error: true },
       }),
     )
@@ -191,10 +192,65 @@ describe("LatestMonthlyBudget", () => {
     expect(screen.getByText("￥75,000")).toBeInTheDocument()
   })
 
+  test("削除成功後は予算なしとして作成導線を表示する", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: monthlyBudgets[3] },
+      }),
+    )
+
+    const { user } = await renderLatestMonthlyBudget(<Default />)
+
+    await user.click(await screen.findByRole("button", { name: "Remove budget" }))
+    const dialog = await screen.findByRole("dialog", { name: "Remove this month's budget?" })
+
+    expect(
+      within(dialog).getByText(
+        "This month and future months will have no budget until you create a new one. Past months keep their budget history.",
+      ),
+    ).toBeInTheDocument()
+
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: { status: "none", monthly_budget: null } },
+      }),
+    )
+    await user.click(within(dialog).getByRole("button", { name: "Remove" }))
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("dialog", { name: "Remove this month's budget?" }),
+      ).not.toBeInTheDocument()
+    })
+    expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
+    expect(screen.queryByText("￥75,000")).not.toBeInTheDocument()
+  })
+
+  test("削除失敗時はエラー表示を維持してダイアログを閉じない", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: monthlyBudgets[3] },
+        remove: { error: true },
+      }),
+    )
+
+    const { user } = await renderLatestMonthlyBudget(<Default />)
+
+    await user.click(await screen.findByRole("button", { name: "Remove budget" }))
+    const dialog = await screen.findByRole("dialog", { name: "Remove this month's budget?" })
+
+    await user.click(within(dialog).getByRole("button", { name: "Remove" }))
+
+    expect(await within(dialog).findByText("Failed to remove monthly budget.")).toBeInTheDocument()
+    expect(screen.getByRole("dialog", { name: "Remove this month's budget?" })).toBeInTheDocument()
+    expect(screen.getByText("￥75,000")).toBeInTheDocument()
+  })
+
   test("取得中はスケルトンを表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { response: [], durationOrMode: "infinite" },
+        get: { response: null, durationOrMode: "infinite" },
       }),
     )
 
@@ -207,7 +263,7 @@ describe("LatestMonthlyBudget", () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        list: { error: true },
+        get: { error: true },
       }),
     )
 

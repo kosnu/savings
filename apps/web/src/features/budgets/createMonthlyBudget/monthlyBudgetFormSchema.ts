@@ -1,15 +1,22 @@
 import * as z from "zod"
 
 import { amountFieldSchema } from "../../../domain/amount"
+import { toMonthStartDate } from "../../../domain/date"
 
-export const targetMonthFieldSchema = z.date({
-  error: (iss) => {
-    if (iss.input === undefined || iss.input === null || iss.input === "") {
-      return "Month cannot be empty"
-    }
-    return "Month is invalid"
-  },
-})
+const PAST_MONTH_MESSAGE = "Month cannot be before the current month."
+
+export const targetMonthFieldSchema = z
+  .date({
+    error: (iss) => {
+      if (iss.input === undefined || iss.input === null || iss.input === "") {
+        return "Month cannot be empty"
+      }
+      return "Month is invalid"
+    },
+  })
+  .refine((value) => toMonthStartDate(value) >= toMonthStartDate(new Date()), {
+    message: PAST_MONTH_MESSAGE,
+  })
 
 const baseSchema = z.object({
   targetMonth: targetMonthFieldSchema,

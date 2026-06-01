@@ -10,7 +10,7 @@ import { fillCreateMonthlyBudgetForm, selectBudgetMonth } from "../../test/utils
 import * as stories from "./CreateMonthlyBudgetForm.stories"
 
 const { Default } = composeStories(stories)
-const MONTHLY_BUDGETS_REST_URL = "*/rest/v1/monthly_budgets*"
+const CREATE_MONTHLY_BUDGET_RPC_URL = "*/rest/v1/rpc/create_monthly_budget"
 
 async function renderStory(story: React.ReactElement) {
   return await act(async () => {
@@ -43,15 +43,15 @@ describe("CreateMonthlyBudgetForm", () => {
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, async ({ request }) => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json([{ id: 999, ...requestBody }], { status: 201 })
+        return HttpResponse.json(null, { status: 201 })
       }),
     )
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -59,8 +59,8 @@ describe("CreateMonthlyBudgetForm", () => {
     })
 
     expect(requestBody).toEqual({
-      amount: 300000,
-      effective_from: "2026-03-01",
+      p_amount: 300000,
+      p_effective_month: "2026-10-01",
     })
     expect(onError).not.toHaveBeenCalled()
   })
@@ -70,7 +70,7 @@ describe("CreateMonthlyBudgetForm", () => {
     let requestCount = 0
 
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
         requestCount += 1
         return HttpResponse.json([{ id: 999 }], { status: 201 })
       }),
@@ -78,7 +78,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "invalid" })
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "invalid" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
@@ -90,15 +90,15 @@ describe("CreateMonthlyBudgetForm", () => {
     const monthlyBudgetCreated = createDeferred()
 
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, async () => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, async () => {
         await monthlyBudgetCreated.promise
-        return HttpResponse.json([{ id: 999 }], { status: 201 })
+        return HttpResponse.json(null, { status: 201 })
       }),
     )
 
     const { user } = await renderStory(<Default />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     const createButton = await screen.findByRole("button", { name: /create/i })
@@ -122,7 +122,7 @@ describe("CreateMonthlyBudgetForm", () => {
     const onError = vi.fn()
 
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
         return HttpResponse.json(
           {
             code: POSTGRES_UNIQUE_VIOLATION_CODE,
@@ -135,7 +135,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -150,14 +150,14 @@ describe("CreateMonthlyBudgetForm", () => {
     const onError = vi.fn()
 
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
         return HttpResponse.json({ message: "Failed to create monthly budget." }, { status: 500 })
       }),
     )
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -172,7 +172,7 @@ describe("CreateMonthlyBudgetForm", () => {
     let requestCount = 0
 
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, async ({ request }) => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
         requestCount += 1
 
         if (requestCount === 1) {
@@ -185,14 +185,13 @@ describe("CreateMonthlyBudgetForm", () => {
           )
         }
 
-        const requestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json([{ id: 999, ...requestBody }], { status: 201 })
+        return HttpResponse.json(null, { status: 201 })
       }),
     )
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "3", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -215,7 +214,7 @@ describe("CreateMonthlyBudgetForm", () => {
     let requestCount = 0
 
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
         requestCount += 1
 
         return HttpResponse.json(
@@ -230,7 +229,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectBudgetMonth({ user, year: "2026", month: "3" })
+    await selectBudgetMonth({ user, year: "2026", month: "10" })
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
     await user.type(amountInput, "300000")
     await user.click(screen.getByRole("button", { name: "Create" }))

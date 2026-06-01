@@ -1,11 +1,20 @@
-import { describe, expect, test } from "vite-plus/test"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 import z from "zod"
 
 import { monthlyBudgetFormSchema, monthlyBudgetFormSubmitSchema } from "./monthlyBudgetFormSchema"
 
 describe("monthlyBudgetFormSchema", () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 1))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   const data = {
-    targetMonth: new Date(2026, 2, 1),
+    targetMonth: new Date(2026, 9, 1),
     amount: 300000,
   }
 
@@ -45,8 +54,17 @@ describe("monthlyBudgetFormSchema", () => {
 })
 
 describe("monthlyBudgetFormSubmitSchema", () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 1))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   const data = {
-    targetMonth: new Date(2026, 2, 1),
+    targetMonth: new Date(2026, 9, 1),
     amount: "300000",
   }
 
@@ -71,5 +89,21 @@ describe("monthlyBudgetFormSubmitSchema", () => {
     const error = z.flattenError(result.error).fieldErrors
     expect(error.targetMonth).toEqual(["Month cannot be empty"])
     expect(error.amount).toEqual(["Amount cannot be empty"])
+  })
+
+  test("submit時は現在月より前の月を受け付けない", () => {
+    const result = monthlyBudgetFormSubmitSchema.safeParse({
+      ...data,
+      targetMonth: new Date(2026, 8, 1),
+    })
+
+    expect(result.success).toBe(false)
+    if (result.success) {
+      throw new Error("Expected monthly budget submit values to be invalid")
+    }
+
+    expect(z.flattenError(result.error).fieldErrors.targetMonth).toEqual([
+      "Month cannot be before the current month.",
+    ])
   })
 })
