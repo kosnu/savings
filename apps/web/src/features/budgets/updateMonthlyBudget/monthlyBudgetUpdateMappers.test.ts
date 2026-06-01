@@ -1,16 +1,15 @@
 import { describe, expect, test } from "vite-plus/test"
 
-import { toMonthlyBudgetUpdate } from "./monthlyBudgetUpdateMappers"
+import { toMonthlyBudgetUpdateArgs } from "./monthlyBudgetUpdateMappers"
 
-describe("toMonthlyBudgetUpdate", () => {
-  test("月予算更新用の値をmonthly_budgets update payloadに変換する", () => {
+describe("toMonthlyBudgetUpdateArgs", () => {
+  test("月予算更新用の値をRPC引数に変換する", () => {
     expect(
-      toMonthlyBudgetUpdate({
-        monthlyBudgetId: 42,
+      toMonthlyBudgetUpdateArgs({
         amount: 300000,
       }),
     ).toEqual({
-      amount: 300000,
+      p_amount: 300000,
     })
   })
 })

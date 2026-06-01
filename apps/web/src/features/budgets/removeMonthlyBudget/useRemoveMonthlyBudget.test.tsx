@@ -2,19 +2,19 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { act, createTestQueryClient, renderHook } from "../../../test/test-utils"
 import { monthlyBudgetQueryKeys } from "../queryKeys"
-import { useUpdateMonthlyBudget } from "./useUpdateMonthlyBudget"
+import { useRemoveMonthlyBudget } from "./useRemoveMonthlyBudget"
 
-const { mockUpdateMonthlyBudget } = vi.hoisted(() => ({
-  mockUpdateMonthlyBudget: vi.fn(),
+const { mockRemoveMonthlyBudget } = vi.hoisted(() => ({
+  mockRemoveMonthlyBudget: vi.fn(),
 }))
 
-vi.mock("./updateMonthlyBudget", () => ({
-  updateMonthlyBudget: mockUpdateMonthlyBudget,
+vi.mock("./removeMonthlyBudget", () => ({
+  removeMonthlyBudget: mockRemoveMonthlyBudget,
 }))
 
-describe("useUpdateMonthlyBudget", () => {
+describe("useRemoveMonthlyBudget", () => {
   beforeEach(() => {
-    mockUpdateMonthlyBudget.mockReset()
+    mockRemoveMonthlyBudget.mockReset()
   })
 
   it("成功時にmonthlyBudgets queryをinvalidateしてresolveする", async () => {
@@ -22,24 +22,20 @@ describe("useUpdateMonthlyBudget", () => {
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
-    const input = {
-      amount: 300000,
-    }
-    mockUpdateMonthlyBudget.mockResolvedValue(undefined)
+    mockRemoveMonthlyBudget.mockResolvedValue(undefined)
 
-    const { result } = renderHook(() => useUpdateMonthlyBudget(), {
+    const { result } = renderHook(() => useRemoveMonthlyBudget(), {
       queryClient,
     })
 
     await act(async () => {
-      const promise = result.current.updateMonthlyBudget(input)
+      const promise = result.current.removeMonthlyBudget()
 
       expect(promise).toBeInstanceOf(Promise)
       await promise
     })
 
-    expect(mockUpdateMonthlyBudget).toHaveBeenCalledTimes(1)
-    expect(mockUpdateMonthlyBudget.mock.calls[0]?.[0]).toBe(input)
+    expect(mockRemoveMonthlyBudget).toHaveBeenCalledTimes(1)
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: monthlyBudgetQueryKeys.listAll })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: monthlyBudgetQueryKeys.effectiveAll,
@@ -52,19 +48,15 @@ describe("useUpdateMonthlyBudget", () => {
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
-    const error = { message: "更新に失敗しました", code: "42501" }
-    mockUpdateMonthlyBudget.mockRejectedValue(error)
+    const error = { message: "削除に失敗しました", code: "42501" }
+    mockRemoveMonthlyBudget.mockRejectedValue(error)
 
-    const { result } = renderHook(() => useUpdateMonthlyBudget(), {
+    const { result } = renderHook(() => useRemoveMonthlyBudget(), {
       queryClient,
     })
 
     await act(async () => {
-      await expect(
-        result.current.updateMonthlyBudget({
-          amount: 300000,
-        }),
-      ).rejects.toEqual(error)
+      await expect(result.current.removeMonthlyBudget()).rejects.toEqual(error)
     })
 
     expect(invalidateQueries).not.toHaveBeenCalled()

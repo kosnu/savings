@@ -164,33 +164,36 @@ export type Database = {
       }
       monthly_budgets: {
         Row: {
-          amount: number
+          amount: number | null
           book_id: number
           created_at: string | null
           effective_from: string
           effective_month: number
           effective_year: number
           id: number
+          status: string
           updated_at: string | null
         }
         Insert: {
-          amount: number
+          amount?: number | null
           book_id?: number
           created_at?: string | null
           effective_from: string
           effective_month?: number
           effective_year?: number
           id?: never
+          status?: string
           updated_at?: string | null
         }
         Update: {
-          amount?: number
+          amount?: number | null
           book_id?: number
           created_at?: string | null
           effective_from?: string
           effective_month?: number
           effective_year?: number
           id?: never
+          status?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -283,6 +286,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_monthly_budget: {
+        Args: { p_amount: number; p_effective_month: string }
+        Returns: undefined
+      }
       create_category_with_pin: {
         Args: { p_category_name: string; p_pinned: boolean }
         Returns: number
@@ -290,7 +297,16 @@ export type Database = {
       ensure_authenticated_user: { Args: never; Returns: undefined }
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
+      get_effective_monthly_budget: {
+        Args: { p_target_month: string }
+        Returns: Json
+      }
       get_monthly_total_amount: { Args: { p_month: string }; Returns: number }
+      remove_current_monthly_budget: { Args: never; Returns: undefined }
+      update_current_monthly_budget: {
+        Args: { p_amount: number }
+        Returns: undefined
+      }
       update_category_with_pin: {
         Args: {
           p_category_id: number

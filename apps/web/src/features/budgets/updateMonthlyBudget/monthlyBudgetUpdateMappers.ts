@@ -1,14 +1,15 @@
-import type { TablesUpdate } from "../../../types/database.types"
-
 export interface MonthlyBudgetUpdateInput {
-  monthlyBudgetId: number
   amount: number
 }
 
-export type MonthlyBudgetUpdate = Pick<TablesUpdate<"monthly_budgets">, "amount">
+export interface MonthlyBudgetUpdateArgs {
+  p_amount: number
+}
 
-export function toMonthlyBudgetUpdate(value: MonthlyBudgetUpdateInput): MonthlyBudgetUpdate {
+export function toMonthlyBudgetUpdateArgs(
+  value: MonthlyBudgetUpdateInput,
+): MonthlyBudgetUpdateArgs {
   return {
-    amount: value.amount,
+    p_amount: value.amount,
   }
 }
