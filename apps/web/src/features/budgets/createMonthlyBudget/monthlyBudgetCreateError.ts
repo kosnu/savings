@@ -3,6 +3,7 @@ import { isPostgresUniqueViolationError } from "../../../utils/postgresError"
 const DUPLICATE_MONTHLY_BUDGET_MESSAGE = "A monthly budget for this month already exists."
 const PAST_MONTHLY_BUDGET_MESSAGE = "Month cannot be before the current month."
 const GENERIC_CREATE_MONTHLY_BUDGET_MESSAGE = "Failed to create monthly budget."
+const POSTGRES_RAISE_EXCEPTION_CODE = "P0001"
 
 export function toMonthlyBudgetCreateErrorMessage(error: unknown): string {
   if (isPostgresUniqueViolationError(error)) {
@@ -20,7 +21,7 @@ function isPastMonthlyBudgetError(error: unknown): boolean {
   return (
     typeof error === "object" &&
     error !== null &&
-    "message" in error &&
-    error.message === PAST_MONTHLY_BUDGET_MESSAGE
+    "code" in error &&
+    error.code === POSTGRES_RAISE_EXCEPTION_CODE
   )
 }

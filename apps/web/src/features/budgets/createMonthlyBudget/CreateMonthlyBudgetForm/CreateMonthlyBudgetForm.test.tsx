@@ -11,10 +11,11 @@ import * as stories from "./CreateMonthlyBudgetForm.stories"
 
 const { Default } = composeStories(stories)
 const CREATE_MONTHLY_BUDGET_RPC_URL = "*/rest/v1/rpc/create_monthly_budget"
+const currentBudgetMonth = getCurrentBudgetMonth()
 
 async function renderStory(story: React.ReactElement) {
   return await act(async () => {
-    return render(story)
+    return render(story, { userOptions: { delay: null } })
   })
 }
 
@@ -51,7 +52,12 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
+      amount: "300000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -60,7 +66,7 @@ describe("CreateMonthlyBudgetForm", () => {
 
     expect(requestBody).toEqual({
       p_amount: 300000,
-      p_effective_month: "2026-10-01",
+      p_effective_month: currentBudgetMonth.effectiveFrom,
     })
     expect(onError).not.toHaveBeenCalled()
   })
@@ -78,7 +84,12 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "invalid" })
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
+      amount: "invalid",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(await screen.findByText("Amount must be a number")).toBeInTheDocument()
@@ -98,7 +109,12 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
+      amount: "300000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     const createButton = await screen.findByRole("button", { name: /create/i })
@@ -135,7 +151,12 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
+      amount: "300000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -157,7 +178,12 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
+      amount: "300000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     await waitFor(() => {
@@ -191,7 +217,12 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
-    await fillCreateMonthlyBudgetForm({ user, year: "2026", month: "10", amount: "300000" })
+    await fillCreateMonthlyBudgetForm({
+      user,
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
+      amount: "300000",
+    })
     await user.click(screen.getByRole("button", { name: "Create" }))
 
     expect(
@@ -229,7 +260,11 @@ describe("CreateMonthlyBudgetForm", () => {
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} onError={onError} />)
 
-    await selectBudgetMonth({ user, year: "2026", month: "10" })
+    await selectBudgetMonth({
+      user,
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
+    })
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
     await user.type(amountInput, "300000")
     await user.click(screen.getByRole("button", { name: "Create" }))
@@ -250,3 +285,15 @@ describe("CreateMonthlyBudgetForm", () => {
     expect(onSuccess).not.toHaveBeenCalled()
   })
 })
+
+function getCurrentBudgetMonth() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  return {
+    year: String(year),
+    month: String(month),
+    effectiveFrom: `${year}-${String(month).padStart(2, "0")}-01`,
+  }
+}

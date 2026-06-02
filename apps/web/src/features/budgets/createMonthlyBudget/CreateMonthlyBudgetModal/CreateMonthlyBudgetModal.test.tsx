@@ -10,6 +10,7 @@ import * as stories from "./CreateMonthlyBudgetModal.stories"
 
 const { Default } = composeStories(stories)
 const CREATE_MONTHLY_BUDGET_RPC_URL = "*/rest/v1/rpc/create_monthly_budget"
+const currentBudgetMonth = getCurrentBudgetMonth()
 const { mockCaptureMonthlyBudgetCreateError } = vi.hoisted(() => ({
   mockCaptureMonthlyBudgetCreateError: vi.fn(),
 }))
@@ -25,7 +26,7 @@ afterEach(() => {
 
 async function renderStory(story: React.ReactElement) {
   return await act(async () => {
-    return render(story)
+    return render(story, { userOptions: { delay: null } })
   })
 }
 
@@ -71,8 +72,8 @@ describe("CreateMonthlyBudgetModal", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "10",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -99,8 +100,8 @@ describe("CreateMonthlyBudgetModal", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "10",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -135,8 +136,8 @@ describe("CreateMonthlyBudgetModal", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "10",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -152,3 +153,14 @@ describe("CreateMonthlyBudgetModal", () => {
     expect(screen.getByRole("dialog", { name: "Create monthly budget" })).toBeInTheDocument()
   })
 })
+
+function getCurrentBudgetMonth() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  return {
+    year: String(year),
+    month: String(month),
+  }
+}
