@@ -11,21 +11,22 @@ import { fillCreateMonthlyBudgetForm } from "../../test/utils/budgetCreationForm
 import * as stories from "./LatestMonthlyBudget.stories"
 
 const { Default, Empty, FetchError, Loading } = composeStories(stories)
+const currentBudgetMonth = getCurrentBudgetMonth()
 const createdMonthlyBudget = {
   id: 999,
   book_id: 1,
   amount: 300000,
-  created_at: "2026-10-01T00:00:00.000Z",
-  effective_from: "2026-10-01",
-  effective_month: 10,
-  effective_year: 2026,
+  created_at: `${currentBudgetMonth.effectiveFrom}T00:00:00.000Z`,
+  effective_from: currentBudgetMonth.effectiveFrom,
+  effective_month: currentBudgetMonth.monthNumber,
+  effective_year: currentBudgetMonth.yearNumber,
   status: "amount" as const,
-  updated_at: "2026-10-01T00:00:00.000Z",
+  updated_at: `${currentBudgetMonth.effectiveFrom}T00:00:00.000Z`,
 }
 
 async function renderLatestMonthlyBudget(story: ReactElement) {
   return await act(async () => {
-    return render(story)
+    return render(story, { userOptions: { delay: null } })
   })
 }
 
@@ -77,8 +78,8 @@ describe("LatestMonthlyBudget", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "10",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -121,8 +122,8 @@ describe("LatestMonthlyBudget", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "10",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -274,3 +275,17 @@ describe("LatestMonthlyBudget", () => {
     )
   })
 })
+
+function getCurrentBudgetMonth() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  return {
+    year: String(year),
+    month: String(month),
+    yearNumber: year,
+    monthNumber: month,
+    effectiveFrom: `${year}-${String(month).padStart(2, "0")}-01`,
+  }
+}

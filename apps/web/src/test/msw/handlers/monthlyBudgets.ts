@@ -24,7 +24,6 @@ interface ListMonthlyBudgetOptions extends BaseOptions {
 }
 
 interface CreateMonthlyBudgetOptions extends BaseOptions {
-  response?: MonthlyBudgetRow
   errorResponse?: unknown
 }
 
@@ -54,7 +53,6 @@ const updateMonthlyBudgetBodySchema = z.object({
   p_amount: z.number(),
 })
 
-type CreateMonthlyBudgetBody = z.infer<typeof createMonthlyBudgetBodySchema>
 type UpdateMonthlyBudgetBody = z.infer<typeof updateMonthlyBudgetBodySchema>
 type MonthlyBudgetStateResponse =
   | { status: "amount"; monthly_budget: MonthlyBudgetRow }
@@ -103,15 +101,10 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
       )
     }
 
-    if (create.response) {
-      return HttpResponse.json([create.response], { status: 201 })
-    }
-
     const body = await request.json()
-    const parsedBody = createMonthlyBudgetBodySchema.parse(body)
-    const newRow = buildMonthlyBudgetRow(parsedBody, list.response ?? monthlyBudgets)
+    createMonthlyBudgetBodySchema.parse(body)
 
-    return HttpResponse.json([newRow], { status: 201 })
+    return HttpResponse.json(null, { status: 201 })
   })
 
   const updateMonthlyBudgetHandler = http.post(UPDATE_RPC_URL, async ({ request }) => {
@@ -128,7 +121,11 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     const parsedBody = updateMonthlyBudgetBodySchema.parse(body)
     const updatedRow = update.response ?? buildUpdatedMonthlyBudgetRow(parsedBody, listRows)
 
-    return HttpResponse.json(updatedRow ? null : { message: "Monthly budget was not updated." })
+    if (!updatedRow) {
+      return HttpResponse.json({ message: "Monthly budget was not updated." }, { status: 500 })
+    }
+
+    return HttpResponse.json(null)
   })
 
   const removeMonthlyBudgetHandler = http.post(REMOVE_RPC_URL, async () => {
@@ -151,26 +148,6 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     updateMonthlyBudgetHandler,
     removeMonthlyBudgetHandler,
   ]
-}
-
-function buildMonthlyBudgetRow(
-  body: CreateMonthlyBudgetBody,
-  rows: MonthlyBudgetRow[],
-): MonthlyBudgetRow {
-  const [year, month] = body.p_effective_month.split("-").map((value) => Number.parseInt(value, 10))
-  const now = new Date().toISOString()
-
-  return {
-    id: Math.max(0, ...rows.map((row) => row.id)) + 1,
-    book_id: 1,
-    amount: body.p_amount,
-    created_at: now,
-    effective_from: body.p_effective_month,
-    effective_month: month,
-    effective_year: year,
-    status: "amount",
-    updated_at: now,
-  }
 }
 
 function buildUpdatedMonthlyBudgetRow(
