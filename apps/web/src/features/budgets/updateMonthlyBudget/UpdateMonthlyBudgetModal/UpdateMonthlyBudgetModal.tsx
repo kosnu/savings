@@ -32,7 +32,7 @@ export function UpdateMonthlyBudgetModal({
       dismissible={false}
       trigger={trigger}
       title="Edit monthly budget"
-      description="Update the latest monthly budget amount."
+      description="Update this month's budget amount."
     >
       <UpdateMonthlyBudgetForm
         monthlyBudget={monthlyBudget}

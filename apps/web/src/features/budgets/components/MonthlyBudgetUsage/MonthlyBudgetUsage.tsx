@@ -21,7 +21,7 @@ export function MonthlyBudgetUsage({
   totalExpendituresLoading,
 }: MonthlyBudgetUsageProps) {
   const {
-    data: monthlyBudget,
+    data: monthlyBudgetState,
     error: monthlyBudgetError,
     loading: monthlyBudgetLoading,
   } = useEffectiveMonthlyBudget(targetDate)
@@ -38,7 +38,10 @@ export function MonthlyBudgetUsage({
     return <MonthlyBudgetUsageText error />
   }
 
-  const display = getMonthlyBudgetUsageDisplay(totalExpenditures, monthlyBudget?.amount ?? null)
+  const display = getMonthlyBudgetUsageDisplay(
+    totalExpenditures,
+    monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null,
+  )
 
   if (display === null) {
     return null

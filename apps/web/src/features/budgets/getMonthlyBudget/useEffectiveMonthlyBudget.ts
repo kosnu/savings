@@ -2,15 +2,17 @@ import { useQuery } from "@tanstack/react-query"
 
 import { formatTargetMonthKey, toTargetMonth } from "../../../domain/date"
 import { monthlyBudgetQueryKeys } from "../queryKeys"
-import type { MonthlyBudget } from "../types"
+import type { MonthlyBudgetState } from "../types"
 import { fetchEffectiveMonthlyBudget } from "./fetchEffectiveMonthlyBudget"
 
 interface UseEffectiveMonthlyBudgetReturn {
-  data: MonthlyBudget | null
+  data: MonthlyBudgetState
   loading: boolean
   error: Error | null
-  promise: Promise<MonthlyBudget | null>
+  promise: Promise<MonthlyBudgetState>
 }
+
+const unsetMonthlyBudgetState: MonthlyBudgetState = { status: "unset", monthlyBudget: null }
 
 export function useEffectiveMonthlyBudget(
   targetDate: Date | null,
@@ -20,7 +22,7 @@ export function useEffectiveMonthlyBudget(
     queryKey: monthlyBudgetQueryKeys.effective(targetMonth),
     queryFn: async () => {
       if (!targetDate) {
-        return Promise.resolve(null)
+        return Promise.resolve(unsetMonthlyBudgetState)
       }
 
       return fetchEffectiveMonthlyBudget(targetDate)
@@ -30,7 +32,7 @@ export function useEffectiveMonthlyBudget(
   })
 
   return {
-    data: query.data ?? null,
+    data: query.data ?? unsetMonthlyBudgetState,
     loading: query.isLoading,
     error: query.error,
     promise: query.promise,

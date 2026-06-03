@@ -13,6 +13,15 @@ describe("toMonthlyBudgetCreateErrorMessage", () => {
     ).toBe("A monthly budget for this month already exists.")
   })
 
+  test("PostgreSQL raise_exceptionは過去月メッセージに変換する", () => {
+    expect(
+      toMonthlyBudgetCreateErrorMessage({
+        code: "P0001",
+        message: "Monthly budget month cannot be before current month.",
+      }),
+    ).toBe("Month cannot be before the current month.")
+  })
+
   test("それ以外のエラーは汎用メッセージに変換する", () => {
     expect(toMonthlyBudgetCreateErrorMessage({ message: "network error" })).toBe(
       "Failed to create monthly budget.",

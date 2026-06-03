@@ -14,7 +14,7 @@ const meta = {
     msw: {
       handlers: [
         ...createMonthlyBudgetHandlers({
-          list: { response: [monthlyBudgets[3], monthlyBudgets[2]] },
+          get: { response: monthlyBudgets[3] },
         }),
       ],
     },
@@ -43,7 +43,7 @@ export const Empty: Story = {
     msw: {
       handlers: [
         ...createMonthlyBudgetHandlers({
-          list: { response: [] },
+          get: { response: null },
         }),
       ],
     },
@@ -55,7 +55,7 @@ export const Loading: Story = {
     msw: {
       handlers: [
         ...createMonthlyBudgetHandlers({
-          list: { response: [], durationOrMode: "infinite" },
+          get: { response: null, durationOrMode: "infinite" },
         }),
       ],
     },
@@ -67,7 +67,7 @@ export const FetchError: Story = {
     msw: {
       handlers: [
         ...createMonthlyBudgetHandlers({
-          list: { error: true },
+          get: { error: true },
         }),
       ],
     },
