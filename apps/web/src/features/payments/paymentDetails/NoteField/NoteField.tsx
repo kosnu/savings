@@ -136,6 +136,7 @@ export function NoteField({
                 autoFocus
                 disabled={isPending}
                 id={id}
+                size="3"
                 value={draftNote}
                 onChange={handleChange}
               />

@@ -125,6 +125,7 @@ export function PaymentDateField({
           id={id}
           name="date"
           required
+          size="3"
           value={draftDate}
           onChange={handleChange}
           onEscapeKeyDown={handleCancel}
