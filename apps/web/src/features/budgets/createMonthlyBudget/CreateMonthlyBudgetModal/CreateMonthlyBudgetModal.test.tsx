@@ -9,7 +9,8 @@ import { fillCreateMonthlyBudgetForm } from "../../test/utils/budgetCreationForm
 import * as stories from "./CreateMonthlyBudgetModal.stories"
 
 const { Default } = composeStories(stories)
-const MONTHLY_BUDGETS_REST_URL = "*/rest/v1/monthly_budgets*"
+const CREATE_MONTHLY_BUDGET_RPC_URL = "*/rest/v1/rpc/create_monthly_budget"
+const currentBudgetMonth = getCurrentBudgetMonth()
 const { mockCaptureMonthlyBudgetCreateError } = vi.hoisted(() => ({
   mockCaptureMonthlyBudgetCreateError: vi.fn(),
 }))
@@ -25,7 +26,7 @@ afterEach(() => {
 
 async function renderStory(story: React.ReactElement) {
   return await act(async () => {
-    return render(story)
+    return render(story, { userOptions: { delay: null } })
   })
 }
 
@@ -60,9 +61,8 @@ describe("CreateMonthlyBudgetModal", () => {
 
   test("作成成功後にダイアログを閉じる", async () => {
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, async ({ request }) => {
-        const requestBody = (await request.json()) as Record<string, unknown>
-        return HttpResponse.json([{ id: 999, ...requestBody }], { status: 201 })
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
+        return HttpResponse.json(null, { status: 201 })
       }),
     )
     const { user, baseElement } = await renderStory(<Default />)
@@ -72,8 +72,8 @@ describe("CreateMonthlyBudgetModal", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "3",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -89,7 +89,7 @@ describe("CreateMonthlyBudgetModal", () => {
 
   test("作成失敗時はダイアログを閉じない", async () => {
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
         return HttpResponse.json({ message: "Failed to create monthly budget." }, { status: 500 })
       }),
     )
@@ -100,8 +100,8 @@ describe("CreateMonthlyBudgetModal", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "3",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -119,7 +119,7 @@ describe("CreateMonthlyBudgetModal", () => {
 
   test("重複年月エラー時はメッセージを表示してダイアログを閉じない", async () => {
     server.resetHandlers(
-      http.post(MONTHLY_BUDGETS_REST_URL, () => {
+      http.post(CREATE_MONTHLY_BUDGET_RPC_URL, () => {
         return HttpResponse.json(
           {
             code: POSTGRES_UNIQUE_VIOLATION_CODE,
@@ -136,8 +136,8 @@ describe("CreateMonthlyBudgetModal", () => {
 
     await fillCreateMonthlyBudgetForm({
       user,
-      year: "2026",
-      month: "3",
+      year: currentBudgetMonth.year,
+      month: currentBudgetMonth.month,
       amount: "300000",
       fieldScope: within(dialog),
       optionScope: body,
@@ -153,3 +153,14 @@ describe("CreateMonthlyBudgetModal", () => {
     expect(screen.getByRole("dialog", { name: "Create monthly budget" })).toBeInTheDocument()
   })
 })
+
+function getCurrentBudgetMonth() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  return {
+    year: String(year),
+    month: String(month),
+  }
+}

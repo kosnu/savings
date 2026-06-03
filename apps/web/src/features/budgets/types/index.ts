@@ -9,6 +9,12 @@ export interface MonthlyBudget {
   effectiveFrom: Date
   effectiveYear: number
   effectiveMonth: number
+  status: "amount"
   createdDate: Date
   updatedDate: Date
 }
+
+export type MonthlyBudgetState =
+  | { status: "amount"; monthlyBudget: MonthlyBudget }
+  | { status: "none"; monthlyBudget: null }
+  | { status: "unset"; monthlyBudget: null }

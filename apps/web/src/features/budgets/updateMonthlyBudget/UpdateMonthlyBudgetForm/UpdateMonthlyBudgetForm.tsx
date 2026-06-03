@@ -54,7 +54,6 @@ export function UpdateMonthlyBudgetForm({
       try {
         setSubmitErrorMessage(undefined)
         await updateMonthlyBudget({
-          monthlyBudgetId: monthlyBudget.id,
           amount: parsedValue.amount,
         })
         onSuccess?.()
@@ -95,7 +94,7 @@ export function UpdateMonthlyBudgetForm({
         <Flex direction="column" gap="3">
           <BaseField>
             <FieldLabel>Month</FieldLabel>
-            <Text>{formatMonthlyBudgetMonth(monthlyBudget)}</Text>
+            <Text>This month</Text>
           </BaseField>
           <form.Field name="amount">
             {(field) => {
@@ -134,8 +133,4 @@ export function UpdateMonthlyBudgetForm({
       </Flex>
     </form>
   )
-}
-
-function formatMonthlyBudgetMonth(monthlyBudget: MonthlyBudget): string {
-  return `${monthlyBudget.effectiveYear}/${String(monthlyBudget.effectiveMonth).padStart(2, "0")}`
 }

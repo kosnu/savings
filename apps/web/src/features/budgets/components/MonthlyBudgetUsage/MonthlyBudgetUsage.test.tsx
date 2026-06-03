@@ -50,6 +50,30 @@ describe("MonthlyBudgetUsage", () => {
     })
   })
 
+  test("予算なし状態の場合は利用状況を表示しない", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: { status: "none", monthly_budget: null } },
+      }),
+    )
+    render(<NoBudget />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/left|over|Could not get the budget/)).not.toBeInTheDocument()
+    })
+  })
+
+  test("0円予算は予算ありとして超過額を表示する", async () => {
+    server.resetHandlers(
+      ...createMonthlyBudgetHandlers({
+        get: { response: { ...monthlyBudget, amount: 0 } },
+      }),
+    )
+    render(<Remaining />)
+
+    expect(await screen.findByText("￥10,000 over")).toBeInTheDocument()
+  })
+
   test("月予算の取得に失敗した場合はエラー状態を表示する", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(

@@ -1,27 +1,20 @@
-import { toMonthEndDateOnlyString } from "../../../domain/date"
+import { toDateOnlyString } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
-import { normalizeMonthlyBudgetRow, toMonthlyBudget } from "../monthlyBudgetMappers"
-import type { MonthlyBudget } from "../types"
+import {
+  normalizeEffectiveMonthlyBudgetResponse,
+  toMonthlyBudgetState,
+} from "../monthlyBudgetMappers"
+import type { MonthlyBudgetState } from "../types"
 
-export async function fetchEffectiveMonthlyBudget(targetDate: Date): Promise<MonthlyBudget | null> {
+export async function fetchEffectiveMonthlyBudget(targetDate: Date): Promise<MonthlyBudgetState> {
   const supabase = getSupabaseClient()
-  const { data, error } = await supabase
-    .from("monthly_budgets")
-    .select(
-      "id, book_id, amount, effective_from, effective_year, effective_month, created_at, updated_at",
-    )
-    .lte("effective_from", toMonthEndDateOnlyString(targetDate))
-    .order("effective_from", { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  const { data, error } = await supabase.rpc("get_effective_monthly_budget", {
+    p_target_month: toDateOnlyString(targetDate),
+  })
 
   if (error) {
     throw error
   }
 
-  if (!data) {
-    return null
-  }
-
-  return toMonthlyBudget(normalizeMonthlyBudgetRow(data))
+  return toMonthlyBudgetState(normalizeEffectiveMonthlyBudgetResponse(data))
 }
