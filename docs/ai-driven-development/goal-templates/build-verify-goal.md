@@ -11,6 +11,7 @@ topics:
   - codex-goal
   - implementation
   - verification
+  - review
 when_to_read:
   - Design Docに従って実装と検証を行うとき
   - AIに実装作業を自律実行させるとき
@@ -50,7 +51,7 @@ when_to_read:
 
 - [ ] PRDの受け入れ条件を満たしている
 - [ ] Design Docの方針から逸脱していない
-- [ ] レビューコメント起点の場合、修正前に工程分類し、Build / Verify対象だけを修正している
+- [ ] レビューコメント起点の場合、`docs/policies/review-feedback-classification.md` に沿って修正前に工程分類し、Build / Verify対象だけを修正している
 - [ ] 関連テストが追加・更新されている
 - [ ] 指定の検証コマンドが通る
 - [ ] 差分がスコープ内に収まっている
@@ -85,6 +86,7 @@ when_to_read:
 ## Stop
 
 - レビューコメントがRequirements / PRD、Design Doc、またはpolicyへ戻すべき内容を含む
+- レビューコメントの工程分類が曖昧
 - Design Docまたは関連ドメインルールと違う実装が必要
 - 実装に必要な主要文言がDesign Docで決まっていない
 - スコープ外の変更が必要
