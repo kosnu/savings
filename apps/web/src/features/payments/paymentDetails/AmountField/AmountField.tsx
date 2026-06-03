@@ -126,6 +126,7 @@ export function AmountField({
             <div style={{ flex: 1 }}>
               <AmountInput
                 id={id}
+                size="3"
                 value={draftAmount}
                 onChange={handleChange}
                 autoFocus

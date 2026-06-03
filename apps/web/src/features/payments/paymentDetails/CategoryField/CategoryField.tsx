@@ -146,6 +146,7 @@ export function CategoryField({
             autoFocus
             disabled={isPending}
             id={id}
+            size="3"
             value={draftCategoryId}
             width="100%"
             onChange={handleChange}

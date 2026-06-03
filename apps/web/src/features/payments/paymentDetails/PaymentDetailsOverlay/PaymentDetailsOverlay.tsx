@@ -75,6 +75,13 @@ export function PaymentDetailsOverlay({
               onEditStart={handleEditStart}
               onEditEnd={handleEditEnd}
             />
+            <AmountField
+              paymentId={payment.id}
+              amount={payment.amount}
+              disabled={isEditingField}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
+            />
             <CategoryField
               paymentId={payment.id}
               categoryId={payment.category?.id ?? null}
@@ -86,13 +93,6 @@ export function PaymentDetailsOverlay({
             <NoteField
               paymentId={payment.id}
               note={payment.note}
-              disabled={isEditingField}
-              onEditStart={handleEditStart}
-              onEditEnd={handleEditEnd}
-            />
-            <AmountField
-              paymentId={payment.id}
-              amount={payment.amount}
               disabled={isEditingField}
               onEditStart={handleEditStart}
               onEditEnd={handleEditEnd}
@@ -118,9 +118,9 @@ function PaymentDetailsLoading() {
   return (
     <Flex aria-label="loading payment details" direction="column" gap="4">
       <LoadingField label="Date" />
+      <LoadingField label="Amount" />
       <LoadingField label="Category" />
       <LoadingField label="Note" />
-      <LoadingField label="Amount" />
     </Flex>
   )
 }
