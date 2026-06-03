@@ -13,6 +13,7 @@ topics:
   - pull-request
   - delivery
   - learning
+  - review
 when_to_read:
   - 実装差分をPR化して出荷判断可能な状態にするとき
   - 検証結果、残リスク、学習候補を整理するとき
@@ -51,7 +52,7 @@ when_to_read:
 - AIは差分を確認してよい
 - AIはPR本文を作成してよい
 - AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
-- AIは対応済みレビューコメントへ返信してよい
+- AIは `docs/policies/review-feedback-classification.md` に沿って対応済みレビューコメントへ返信してよい
 - AIは完全に完了したreview threadだけをresolveしてよい
 - AIは未解決の仕様判断を完了扱いしてはいけない
 - AIは恒久化すべき知見の候補を挙げてよい
@@ -66,7 +67,7 @@ when_to_read:
 - [ ] 検証結果が書かれている
 - [ ] 未確認事項・残リスクが書かれている
 - [ ] 無関係な差分が含まれていない
-- [ ] 対応済みレビューコメントに具体的な返信がある
+- [ ] 対応済みレビューコメントに分類、対応内容、commit ID、検証結果が具体的に返信されている
 - [ ] 完了済みreview threadだけがresolveされている
 - [ ] 恒久ナレッジ化するもの / しないものが整理されている
 - [ ] 次のGoal候補が必要に応じて整理されている

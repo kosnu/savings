@@ -12,6 +12,7 @@ topics:
   - codex-goal
   - design-doc
   - planning
+  - temporal-data
 when_to_read:
   - Requirements / PRDをもとにDesign Docを作成するとき
   - 実装方針、影響範囲、テスト方針を整理するとき
@@ -33,6 +34,7 @@ when_to_read:
 - 関連ドキュメント:
   - docs/domain/
   - docs/policies/transaction-boundaries.md
+  - docs/policies/temporal-data.md
 - 既存テスト:
 
 ## Scope
@@ -56,6 +58,7 @@ when_to_read:
 - [ ] 採用しない案と理由がある
 - [ ] 関連するドメインルールとの整合性が確認されている
 - [ ] 複数データ更新がある場合、トランザクション単位と操作境界が整理されている
+- [ ] 有効期間、履歴、月次状態、削除が関わる場合、過去状態の暗黙復活を避ける設計になっている
 - [ ] ユーザーに表示される主要文言がDesign Docで決まっている
 - [ ] 既存挙動への影響が整理されている
 - [ ] テスト方針がPRDの受け入れ条件と対応している
@@ -78,5 +81,6 @@ when_to_read:
 - 影響範囲が想定より広い
 - DB / API / 認証 / 権限変更が必要
 - トランザクション単位を決めるための仕様判断が不足している
+- 現在有効な状態と過去時点の表示を分けるための仕様判断が不足している
 - ユーザーに表示される主要文言を決めるための情報が不足している
 ```
