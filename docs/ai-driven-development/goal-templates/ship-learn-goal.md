@@ -52,7 +52,7 @@ when_to_read:
 - AIは差分を確認してよい
 - AIはPR本文を作成してよい
 - AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
-- AIは`docs/policies/review-feedback-classification.md`に沿って対応済みレビューコメントへ返信してよい
+- AIは `docs/policies/review-feedback-classification.md` に沿って対応済みレビューコメントへ返信してよい
 - AIは完全に完了したreview threadだけをresolveしてよい
 - AIは未解決の仕様判断を完了扱いしてはいけない
 - AIは恒久化すべき知見の候補を挙げてよい
