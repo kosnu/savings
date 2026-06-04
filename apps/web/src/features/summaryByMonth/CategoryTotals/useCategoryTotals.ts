@@ -6,8 +6,7 @@ import { summaryQueryKeys } from "../queryKeys"
 import { type CategoryTotals, fetchCategoryTotals } from "./fetchCategoryTotals"
 
 interface UseCategoryTotalsReturn {
-  categoryTotals: CategoryTotals
-  loading: boolean
+  promise: Promise<CategoryTotals>
   targetMonthKey: string
 }
 
@@ -27,7 +26,7 @@ function useCategoryTotals({
     staleTime: 3000,
   })
 
-  return { categoryTotals: query.data ?? [], loading: query.isLoading, targetMonthKey: month }
+  return { promise: query.promise, targetMonthKey: month }
 }
 
 export { useCategoryTotals }

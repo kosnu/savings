@@ -1,5 +1,6 @@
 import { Button, DataList, Flex, Grid, Skeleton, Text } from "@radix-ui/themes"
-import { useState } from "react"
+import { Suspense, use, useState } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 
 import { splitArray } from "../../../utils/splitArray"
 import { toCurrency } from "../../../utils/toCurrency"
@@ -15,11 +16,24 @@ interface CategoryTotalsProps {
 }
 
 export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: CategoryTotalsProps) {
-  const { categoryTotals, loading, targetMonthKey } = useCategoryTotals({ cacheScope })
+  return (
+    <ErrorBoundary fallback={<Text color="red">Failed</Text>}>
+      <Suspense fallback={<CategoryTotalsLoading chunkSize={chunkSize} />}>
+        <CategoryTotalsResolved cacheScope={cacheScope} chunkSize={chunkSize} />
+      </Suspense>
+    </ErrorBoundary>
+  )
+}
 
-  if (loading) {
-    return <CategoryTotalsLoading chunkSize={chunkSize} />
-  }
+function CategoryTotalsResolved({
+  cacheScope,
+  chunkSize,
+}: {
+  cacheScope?: string
+  chunkSize: number
+}) {
+  const { promise, targetMonthKey } = useCategoryTotals({ cacheScope })
+  const categoryTotals = use(promise)
 
   if (categoryTotals.length === 0) {
     return null
