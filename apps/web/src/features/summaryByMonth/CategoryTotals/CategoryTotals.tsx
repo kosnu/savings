@@ -63,6 +63,7 @@ function CategoryTotalsLoading({ chunkSize }: { chunkSize: number }) {
       {skeletonChunks.map((chunk) => (
         <DataList.Root
           key={chunk.join(":")}
+          size="1"
           aria-label={`Loading category totals chunk ${chunk.join(" ")}`}
         >
           {chunk.map((row) => (
@@ -99,11 +100,12 @@ function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsCont
   const categoryChunks = splitArray(visibleTotals, chunkSize)
 
   return (
-    <Flex direction="column" gap="2" width="100%">
+    <Flex direction="column" gap="3" width="100%">
       <Grid columns={`${chunkSize}`} gap="1" width="100%">
         {categoryChunks.map((chunk, i) => (
           <DataList.Root
             key={chunk.map((total) => total.key).join(":")}
+            size="1"
             aria-label={`Category totals chunk ${i}`}
           >
             {chunk.map((total) => (
