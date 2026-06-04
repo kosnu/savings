@@ -12,13 +12,10 @@ function MonthlyTotals() {
   const { date } = useDateRange()
 
   return (
-    <Flex gap="1" direction="column">
-      <Text size="3" color="gray">
-        Total spending
-      </Text>
-      <Flex justify="end" align="center">
-        <ErrorBoundary fallback={<Text color="red">An unexpected error has occurred.</Text>}>
-          <Suspense fallback={<MoneyText loading />}>
+    <Flex align="end" gap="1" direction="column" flexGrow="1" aria-label="Total spending">
+      <Flex justify="end" align="baseline" style={{ minWidth: "10ch" }}>
+        <ErrorBoundary fallback={<Text color="red">Failed</Text>}>
+          <Suspense fallback={<TotalMoneyText loading />}>
             <MoneyText getValue={totalExpenditures.promise} />
           </Suspense>
         </ErrorBoundary>
@@ -44,20 +41,28 @@ const MoneyText = memo(function MoneyText({ getValue, loading = false }: MoneyTe
   const data = getValue ? use(getValue) : null
   const text = getMoneyText(data, loading)
 
+  return <TotalMoneyText loading={loading} text={text} />
+})
+
+interface TotalMoneyTextProps {
+  loading?: boolean
+  text?: string
+}
+
+function TotalMoneyText({ loading = false, text = "\u00A0" }: TotalMoneyTextProps) {
   return (
     <Skeleton loading={loading} data-testid={loading ? "skeleton" : undefined}>
-      <Text
-        align="right"
-        size="6"
-        weight="bold"
-        style={{ display: "inline-block", minWidth: "10ch" }}
-        aria-hidden={loading}
-      >
-        {text}
-      </Text>
+      <Flex align="baseline" justify="end" aria-hidden={loading} style={{ minWidth: "12ch" }}>
+        <Text size="2" color="gray" mr="1">
+          Total
+        </Text>
+        <Text align="right" size="6" weight="bold">
+          {text}
+        </Text>
+      </Flex>
     </Skeleton>
   )
-})
+}
 
 function getMoneyText(data: number | null, loading: boolean): string {
   if (loading) {

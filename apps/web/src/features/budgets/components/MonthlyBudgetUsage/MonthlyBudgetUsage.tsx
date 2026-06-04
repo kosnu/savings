@@ -63,7 +63,7 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
   status,
   text,
 }: MonthlyBudgetUsageTextProps) {
-  const content = error ? "Could not get the budget" : (text ?? "\u00A0")
+  const content = error ? "Failed" : (text ?? "\u00A0")
 
   return (
     <Skeleton loading={loading} data-testid={loading ? "budget-difference-skeleton" : undefined}>
