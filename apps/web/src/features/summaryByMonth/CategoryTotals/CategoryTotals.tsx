@@ -1,4 +1,4 @@
-import { Button, DataList, Flex, Grid } from "@radix-ui/themes"
+import { Button, DataList, Flex, Grid, Skeleton, Text } from "@radix-ui/themes"
 import { useState } from "react"
 
 import { splitArray } from "../../../utils/splitArray"
@@ -15,7 +15,11 @@ interface CategoryTotalsProps {
 }
 
 export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: CategoryTotalsProps) {
-  const { categoryTotals, targetMonthKey } = useCategoryTotals({ cacheScope })
+  const { categoryTotals, loading, targetMonthKey } = useCategoryTotals({ cacheScope })
+
+  if (loading) {
+    return <CategoryTotalsLoading chunkSize={chunkSize} />
+  }
 
   if (categoryTotals.length === 0) {
     return null
@@ -37,6 +41,36 @@ export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: Cat
   )
 }
 
+function CategoryTotalsLoading({ chunkSize }: { chunkSize: number }) {
+  const skeletonChunks = splitArray(["primary", "secondary", "tertiary"], chunkSize)
+
+  return (
+    <Grid columns={`${chunkSize}`} gap="1" width="100%" aria-label="loading category totals">
+      {skeletonChunks.map((chunk) => (
+        <DataList.Root
+          key={chunk.join(":")}
+          aria-label={`Loading category totals chunk ${chunk.join(" ")}`}
+        >
+          {chunk.map((row) => (
+            <DataList.Item key={row} align="center">
+              <DataList.Label minWidth="80px">
+                <Skeleton loading>
+                  <Text aria-hidden>Category</Text>
+                </Skeleton>
+              </DataList.Label>
+              <DataList.Value>
+                <Skeleton loading>
+                  <Text aria-hidden>￥0,000</Text>
+                </Skeleton>
+              </DataList.Value>
+            </DataList.Item>
+          ))}
+        </DataList.Root>
+      ))}
+    </Grid>
+  )
+}
+
 interface CategoryTotalsContentProps {
   categoryTotals: CategoryTotalsData
   chunkSize: number
@@ -52,7 +86,7 @@ function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsCont
 
   return (
     <Flex direction="column" gap="2" width="100%">
-      <Grid columns={`${chunkSize}`} gap="2" width="100%">
+      <Grid columns={`${chunkSize}`} gap="1" width="100%">
         {categoryChunks.map((chunk, i) => (
           <DataList.Root
             key={chunk.map((total) => total.key).join(":")}

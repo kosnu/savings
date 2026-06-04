@@ -24,16 +24,11 @@ describe("Summary", () => {
         get: { response: { ...monthlyBudgets[2], amount: 25000 } },
       }),
     )
-    const { user } = renderStory()
+    renderStory()
 
-    expect(await screen.findByText("Total spending")).toBeInTheDocument()
+    expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(await screen.findByText("￥5,000")).toBeInTheDocument()
     expect(await screen.findByText("￥20,000 left")).toBeInTheDocument()
-
-    const accordionTrigger = screen.getByRole("button", {
-      name: /by category/i,
-    })
-    await user.click(accordionTrigger)
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
