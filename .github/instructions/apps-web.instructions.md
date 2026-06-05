@@ -15,3 +15,6 @@ applyTo: "apps/web/**"
 
 - `apps/web/README.md`
 - `apps/web/docs/adr/feature_directory.md`
+- `apps/web/docs/policies/msw-handlers.md`
+- `apps/web/docs/policies/suspense-boundaries.md`
+- `apps/web/docs/policies/test-policy.md`
