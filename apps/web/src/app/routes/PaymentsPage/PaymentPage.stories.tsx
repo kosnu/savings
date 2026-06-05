@@ -60,7 +60,8 @@ export const OpenDetails: Story = {
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
     await canvas.findByText("2025/06/03")
-    expect(await canvas.findByText("Daily Necessities")).toBeInTheDocument()
+    const paymentList = await canvas.findByLabelText("payment-list")
+    expect(await within(paymentList).findByText("Daily Necessities")).toBeInTheDocument()
 
     const paymentButtons = await canvas.findAllByRole("button", { name: /コンビニ/ })
     const paymentButton = paymentButtons[0]
