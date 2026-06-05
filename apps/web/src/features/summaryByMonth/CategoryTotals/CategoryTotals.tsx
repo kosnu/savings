@@ -16,23 +16,33 @@ interface CategoryTotalsProps {
 }
 
 export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: CategoryTotalsProps) {
+  const { promise, targetMonthKey } = useCategoryTotals({ cacheScope })
+
   return (
-    <ErrorBoundary fallback={<Text color="red">Failed</Text>}>
+    <ErrorBoundary
+      fallback={<Text color="red">Failed</Text>}
+      resetKeys={[cacheScope ?? "default", targetMonthKey]}
+    >
       <Suspense fallback={<CategoryTotalsLoading chunkSize={chunkSize} />}>
-        <CategoryTotalsResolved cacheScope={cacheScope} chunkSize={chunkSize} />
+        <CategoryTotalsResolved
+          promise={promise}
+          targetMonthKey={targetMonthKey}
+          chunkSize={chunkSize}
+        />
       </Suspense>
     </ErrorBoundary>
   )
 }
 
 function CategoryTotalsResolved({
-  cacheScope,
+  promise,
+  targetMonthKey,
   chunkSize,
 }: {
-  cacheScope?: string
+  promise: Promise<CategoryTotalsData>
+  targetMonthKey: string
   chunkSize: number
 }) {
-  const { promise, targetMonthKey } = useCategoryTotals({ cacheScope })
   const categoryTotals = use(promise)
 
   if (categoryTotals.length === 0) {

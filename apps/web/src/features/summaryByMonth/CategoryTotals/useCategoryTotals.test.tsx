@@ -42,9 +42,7 @@ describe("useCategoryTotals", () => {
 
     const { result } = renderHook(() => useCategoryTotals({ cacheScope: "payments-page-1" }))
 
-    await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual(totals)
-    })
+    await expect(result.current.promise).resolves.toEqual(totals)
     expect(fetchCategoryTotals).toHaveBeenCalledWith(dateRangeState.dateRange)
   })
 
@@ -68,15 +66,11 @@ describe("useCategoryTotals", () => {
       },
     )
 
-    await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual(totals)
-    })
+    await expect(result.current.promise).resolves.toEqual(totals)
 
     rerender({ cacheScope: "payments-page-1" })
 
-    await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual(totals)
-    })
+    await expect(result.current.promise).resolves.toEqual(totals)
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(1)
   })
 
@@ -110,33 +104,32 @@ describe("useCategoryTotals", () => {
       },
     )
 
-    await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual([
-        {
-          key: "category:10",
-          categoryId: 10,
-          categoryName: "Food",
-          totalAmount: 1000,
-          pinned: true,
-          kind: "category",
-        },
-      ])
-    })
+    await expect(result.current.promise).resolves.toEqual([
+      {
+        key: "category:10",
+        categoryId: 10,
+        categoryName: "Food",
+        totalAmount: 1000,
+        pinned: true,
+        kind: "category",
+      },
+    ])
 
     rerender({ cacheScope: "payments-page-2" })
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual([
-        {
-          key: "category:10",
-          categoryId: 10,
-          categoryName: "Food",
-          totalAmount: 2000,
-          pinned: true,
-          kind: "category",
-        },
-      ])
+      expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
     })
+    await expect(result.current.promise).resolves.toEqual([
+      {
+        key: "category:10",
+        categoryId: 10,
+        categoryName: "Food",
+        totalAmount: 2000,
+        pinned: true,
+        kind: "category",
+      },
+    ])
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
   })
 
@@ -167,35 +160,34 @@ describe("useCategoryTotals", () => {
       useCategoryTotals({ cacheScope: "payments-page-1" }),
     )
 
-    await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual([
-        {
-          key: "category:10",
-          categoryId: 10,
-          categoryName: "Food",
-          totalAmount: 1000,
-          pinned: true,
-          kind: "category",
-        },
-      ])
-    })
+    await expect(result.current.promise).resolves.toEqual([
+      {
+        key: "category:10",
+        categoryId: 10,
+        categoryName: "Food",
+        totalAmount: 1000,
+        pinned: true,
+        kind: "category",
+      },
+    ])
 
     dateRangeState.date = new Date(2025, 6, 1)
     dateRangeState.dateRange = [new Date(2025, 6, 1), new Date(2025, 6, 31)]
     rerender()
 
     await waitFor(() => {
-      expect(result.current.categoryTotals).toEqual([
-        {
-          key: "category:10",
-          categoryId: 10,
-          categoryName: "Food",
-          totalAmount: 2000,
-          pinned: true,
-          kind: "category",
-        },
-      ])
+      expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
     })
+    await expect(result.current.promise).resolves.toEqual([
+      {
+        key: "category:10",
+        categoryId: 10,
+        categoryName: "Food",
+        totalAmount: 2000,
+        pinned: true,
+        kind: "category",
+      },
+    ])
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
   })
 
@@ -205,7 +197,7 @@ describe("useCategoryTotals", () => {
 
     const { result } = renderHook(() => useCategoryTotals({ cacheScope: "payments-page-1" }))
 
-    expect(result.current.categoryTotals).toEqual([])
+    expect(result.current.targetMonthKey).toBe("")
     expect(fetchCategoryTotals).not.toHaveBeenCalled()
   })
 })

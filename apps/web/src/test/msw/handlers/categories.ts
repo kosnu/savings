@@ -49,6 +49,7 @@ interface GetCategoriesHandlerOptions {
   currentBookId?: number
   durationOrMode?: number | DelayMode | undefined
   error?: boolean
+  errorOnce?: boolean
 }
 
 export function getCategoriesHandler({
@@ -58,11 +59,15 @@ export function getCategoriesHandler({
   currentBookId = CURRENT_BOOK_ID,
   durationOrMode,
   error = false,
+  errorOnce = false,
 }: GetCategoriesHandlerOptions = {}) {
+  let hasErrored = false
+
   return http.get(REST_URL, async ({ request }) => {
     await delay(durationOrMode)
 
-    if (error) {
+    if (error || (errorOnce && !hasErrored)) {
+      hasErrored = true
       return HttpResponse.json({ message: "Failed to fetch categories." }, { status: 500 })
     }
 
