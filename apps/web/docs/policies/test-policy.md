@@ -10,7 +10,7 @@ topics:
   - regression
 when_to_read:
   - Webアプリのテストを追加または変更するとき
-  - review対応でテストを追加するか判断するとき
+  - review 対応でテストを追加するか判断するとき
 ---
 
 # Web Test Policy
