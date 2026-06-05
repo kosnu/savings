@@ -1,4 +1,4 @@
-import { HttpResponse, http } from "msw"
+import { type DelayMode, HttpResponse, delay, http } from "msw"
 
 import type { CategoryRow } from "../../../types/category"
 import type { PaymentRow } from "../../../types/payment"
@@ -47,7 +47,9 @@ interface GetCategoriesHandlerOptions {
   paymentRows?: PaymentRow[]
   pinnedCategoryIds?: number[]
   currentBookId?: number
+  durationOrMode?: number | DelayMode | undefined
   error?: boolean
+  errorOnce?: boolean
 }
 
 export function getCategoriesHandler({
@@ -55,10 +57,17 @@ export function getCategoriesHandler({
   paymentRows = initialPaymentRows,
   pinnedCategoryIds = [10],
   currentBookId = CURRENT_BOOK_ID,
+  durationOrMode,
   error = false,
+  errorOnce = false,
 }: GetCategoriesHandlerOptions = {}) {
-  return http.get(REST_URL, ({ request }) => {
-    if (error) {
+  let hasErrored = false
+
+  return http.get(REST_URL, async ({ request }) => {
+    await delay(durationOrMode)
+
+    if (error || (errorOnce && !hasErrored)) {
+      hasErrored = true
       return HttpResponse.json({ message: "Failed to fetch categories." }, { status: 500 })
     }
 

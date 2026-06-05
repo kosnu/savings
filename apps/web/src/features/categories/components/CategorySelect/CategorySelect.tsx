@@ -1,5 +1,5 @@
 import { Select } from "@radix-ui/themes"
-import { type ReactNode, useCallback } from "react"
+import { type ComponentProps, type ReactNode, useCallback } from "react"
 
 import type { Category } from "../../../../types/category"
 
@@ -7,6 +7,7 @@ interface CategorySelectProps {
   autoFocus?: boolean
   disabled?: boolean
   id?: string
+  size?: ComponentProps<typeof Select.Root>["size"]
   width?: string
   value?: string
   children?: ReactNode
@@ -20,6 +21,7 @@ export function CategorySelect({
   autoFocus = false,
   disabled = false,
   id,
+  size,
   width,
   value,
   children,
@@ -43,6 +45,7 @@ export function CategorySelect({
     <Select.Root
       disabled={disabled}
       name="category"
+      size={size}
       value={selectValue}
       onOpenChange={onOpenChange}
       onValueChange={handleChange}
