@@ -42,3 +42,39 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {},
 }
+
+export const Loading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({
+          getMonthlyTotalAmount: { durationOrMode: "infinite" },
+        }),
+        ...createCategoryHandlers({
+          get: { durationOrMode: "infinite" },
+        }),
+        ...createMonthlyBudgetHandlers({
+          get: { durationOrMode: "infinite" },
+        }),
+      ],
+    },
+  },
+}
+
+export const Error: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({
+          getMonthlyTotalAmount: { error: true },
+        }),
+        ...createCategoryHandlers({
+          get: { error: true },
+        }),
+        ...createMonthlyBudgetHandlers({
+          get: { error: true },
+        }),
+      ],
+    },
+  },
+}

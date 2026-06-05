@@ -3,7 +3,7 @@ import { ja } from "@daypicker/react/locale"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Popover, TextField } from "@radix-ui/themes"
 import { isSameDay } from "date-fns"
-import { type KeyboardEvent, useCallback, useRef, useState } from "react"
+import { type ComponentProps, type KeyboardEvent, useCallback, useRef, useState } from "react"
 
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
@@ -21,6 +21,7 @@ type DatePickerProps = {
   name?: string
   onEscapeKeyDown?: () => void
   required?: boolean
+  size?: ComponentProps<typeof TextField.Root>["size"]
 } & ModeSingleProps
 
 export function DatePicker(props: DatePickerProps) {
@@ -32,6 +33,7 @@ export function DatePicker(props: DatePickerProps) {
     onChange,
     onEscapeKeyDown,
     required,
+    size,
     value,
     ...restProps
   } = props
@@ -107,6 +109,7 @@ export function DatePicker(props: DatePickerProps) {
               id={id}
               name={name}
               placeholder="Pick a date"
+              size={size}
               value={value ? formatDateToLocaleString(value) : ""}
               onChange={handleInputChange}
               onKeyDown={handleInputKeyDown}

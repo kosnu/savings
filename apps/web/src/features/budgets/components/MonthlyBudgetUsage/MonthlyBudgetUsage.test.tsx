@@ -46,7 +46,7 @@ describe("MonthlyBudgetUsage", () => {
     render(<NoBudget />)
 
     await waitFor(() => {
-      expect(screen.queryByText(/left|over|Could not get the budget/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
     })
   })
 
@@ -59,7 +59,7 @@ describe("MonthlyBudgetUsage", () => {
     render(<NoBudget />)
 
     await waitFor(() => {
-      expect(screen.queryByText(/left|over|Could not get the budget/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
     })
   })
 
@@ -83,7 +83,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<FetchError />)
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Could not get the budget")
+    expect(await screen.findByRole("status")).toHaveTextContent("Failed")
   })
 
   test("読み込み中はスケルトンを表示する", async () => {

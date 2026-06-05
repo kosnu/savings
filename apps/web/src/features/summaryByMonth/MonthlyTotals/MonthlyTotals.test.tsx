@@ -32,7 +32,7 @@ describe("MonthlyTotals", () => {
     )
     renderStory()
 
-    expect(await screen.findByText("Total spending")).toBeInTheDocument()
+    expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(await screen.findByText("￥10,000")).toBeInTheDocument()
     expect(await screen.findByText("￥20,000 left")).toBeInTheDocument()
   })
@@ -66,7 +66,7 @@ describe("MonthlyTotals", () => {
     expect(await screen.findByText("￥10,000")).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(screen.queryByText(/left|over|Could not get the budget/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
     })
   })
 
@@ -84,7 +84,7 @@ describe("MonthlyTotals", () => {
     expect(await screen.findByText("￥10,000")).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(screen.queryByText(/left|over|Could not get the budget/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
     })
   })
 
@@ -116,7 +116,7 @@ describe("MonthlyTotals", () => {
     renderStory()
 
     expect(await screen.findByText("￥10,000")).toBeInTheDocument()
-    expect(await screen.findByText("Could not get the budget")).toBeInTheDocument()
+    expect(await screen.findByText("Failed")).toBeInTheDocument()
   })
 
   test("月次合計は現在のbookに属する支払いのみで計算する", async () => {
