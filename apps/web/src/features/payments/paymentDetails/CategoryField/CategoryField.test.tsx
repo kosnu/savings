@@ -5,10 +5,18 @@ import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 import { categoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor } from "../../../../test/test-utils"
+import { act, fireEvent, render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./CategoryField.stories"
 
 const { Default, Unknown } = composeStories(stories)
+
+async function openCategoryEditor() {
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: /edit category/i }))
+  })
+
+  return await screen.findByRole("combobox", { name: /category/i })
+}
 
 describe("PaymentDetails CategoryField", () => {
   beforeEach(() => {
@@ -24,17 +32,18 @@ describe("PaymentDetails CategoryField", () => {
   })
 
   test("編集ボタンを押すと現在カテゴリを選択した combobox を表示する", async () => {
-    const { user } = render(<Default />)
+    render(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
-
-    expect(await screen.findByRole("combobox", { name: /category/i })).toHaveTextContent("Food")
+    const combobox = await openCategoryEditor()
+    await waitFor(() => {
+      expect(combobox).toHaveTextContent("Food")
+    })
   })
 
   test("カテゴリを選ぶと保存して editor を閉じる", async () => {
     const { user } = render(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
+    await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
     await user.click(await screen.findByRole("option", { name: /daily necessities/i }))
 
@@ -55,7 +64,7 @@ describe("PaymentDetails CategoryField", () => {
 
     const { user } = render(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
+    await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
     await user.click(await screen.findByRole("option", { name: /^none$/i }))
 
@@ -67,13 +76,14 @@ describe("PaymentDetails CategoryField", () => {
   })
 
   test("未設定カテゴリの編集開始時は None を選択状態にする", async () => {
-    const { user } = render(<Unknown />)
+    render(<Unknown />)
 
     expect(screen.getByText("Unknown")).toBeInTheDocument()
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
-
-    expect(await screen.findByRole("combobox", { name: /category/i })).toHaveTextContent("None")
+    const combobox = await openCategoryEditor()
+    await waitFor(() => {
+      expect(combobox).toHaveTextContent("None")
+    })
   })
 
   test("同じカテゴリを再選択すると API は呼ばずに editor を閉じる", async () => {
@@ -88,7 +98,7 @@ describe("PaymentDetails CategoryField", () => {
 
     const { user } = render(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
+    await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
     await user.click(await screen.findByRole("option", { name: /^food$/i }))
 
@@ -110,7 +120,7 @@ describe("PaymentDetails CategoryField", () => {
 
     const { user } = render(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
+    await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
     await user.keyboard("{Escape}")
 
@@ -130,7 +140,7 @@ describe("PaymentDetails CategoryField", () => {
 
     const { user } = render(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
+    await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
     await user.click(await screen.findByRole("option", { name: /daily necessities/i }))
 
@@ -153,7 +163,7 @@ describe("PaymentDetails CategoryField", () => {
 
     const { user } = render(<Default />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
+    await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
     await user.click(await screen.findByRole("option", { name: /daily necessities/i }))
 
@@ -165,7 +175,7 @@ describe("PaymentDetails CategoryField", () => {
     const onEditEnd = vi.fn()
     const { user } = render(<Default onEditStart={onEditStart} onEditEnd={onEditEnd} />)
 
-    await user.click(screen.getByRole("button", { name: /edit category/i }))
+    await openCategoryEditor()
     await user.keyboard("{Escape}")
 
     expect(screen.queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument()
