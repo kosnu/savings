@@ -23,6 +23,7 @@ export function NoteInput({ autoFocus, disabled, id, size, value, onChange }: Pr
       size={size}
       type="text"
       value={value}
+      aria-label="Note"
       onChange={handleChange}
     />
   )
