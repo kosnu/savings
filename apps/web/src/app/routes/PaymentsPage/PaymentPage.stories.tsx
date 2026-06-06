@@ -28,7 +28,6 @@ const meta = {
     },
   },
   tags: ["autodocs", "browser-test"],
-  decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof PaymentsPage>
@@ -38,6 +37,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {},
+  decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
@@ -46,26 +46,24 @@ export const Default: Story = {
     expect(await canvas.findAllByText("コンビニ")).toHaveLength(2)
     expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
     expect(canvas.queryByText("スーパー")).not.toBeInTheDocument()
-    expect(await canvas.findByText("2025/06/02")).toBeInTheDocument()
-    expect(await canvas.findByText("2025/06/03")).toBeInTheDocument()
-    expect(await canvas.findByText("￥1,000")).toBeInTheDocument()
-    expect(await canvas.findByText("￥4,000")).toBeInTheDocument()
+    const paymentList = await canvas.findByLabelText("payment-list")
+    expect(await within(paymentList).findByText("2025/06/02")).toBeInTheDocument()
+    expect(await within(paymentList).findByText("2025/06/03")).toBeInTheDocument()
+    expect(await within(paymentList).findByText("￥1,000")).toBeInTheDocument()
+    expect(await within(paymentList).findByText("￥4,000")).toBeInTheDocument()
     expect(await canvas.findByText("￥20,000 left")).toBeInTheDocument()
   },
 }
 
 export const OpenDetails: Story = {
   args: {},
-  play: async ({ canvasElement, userEvent }) => {
+  decorators: [createStoryRouter("/payments/details/2?year=2025&month=6", paymentsRouteBuilder)],
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
     await canvas.findByText("2025/06/03")
     const paymentList = await canvas.findByLabelText("payment-list")
     expect(await within(paymentList).findByText("Daily Necessities")).toBeInTheDocument()
-
-    const paymentButtons = await canvas.findAllByRole("button", { name: /コンビニ/ })
-    const paymentButton = paymentButtons[0]
-    await userEvent.click(paymentButton)
 
     const detailDialog = await body.findByRole("dialog", {
       name: /payment details/i,
