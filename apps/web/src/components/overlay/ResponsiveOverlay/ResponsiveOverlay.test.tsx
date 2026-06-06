@@ -57,7 +57,12 @@ function OverlayHarness() {
       description="Create a new payment. Please fill in the details below."
     >
       <label htmlFor="note">Note</label>
-      <input id="note" value={note} onChange={(event) => setNote(event.target.value)} />
+      <input
+        id="note"
+        value={note}
+        aria-label="Note"
+        onChange={(event) => setNote(event.target.value)}
+      />
     </ResponsiveOverlay>
   )
 }

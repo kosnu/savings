@@ -107,6 +107,7 @@ export function CreateCategoryForm({
                         id={nameInputId}
                         name="name"
                         value={field.state.value}
+                        aria-label="Name"
                         aria-describedby={hasError ? nameErrorId : undefined}
                         aria-invalid={hasError}
                         onChange={(event) => {
