@@ -19,7 +19,7 @@ const meta = {
     editor: (
       <Flex align="center" gap="2">
         <div style={{ flex: 1 }}>
-          <TextField.Root autoFocus defaultValue="1000" />
+          <TextField.Root autoFocus defaultValue="1000" aria-label="Amount" />
         </div>
       </Flex>
     ),

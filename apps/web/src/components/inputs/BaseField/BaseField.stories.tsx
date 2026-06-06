@@ -9,7 +9,7 @@ const meta: Meta<BaseFieldProps> = {
     children: (
       <>
         <FieldLabel htmlFor="base-field">Label</FieldLabel>
-        <input id="base-field" type="text" placeholder="Input here" />
+        <input id="base-field" type="text" placeholder="Input here" aria-label="Label" />
       </>
     ),
   },
@@ -28,7 +28,7 @@ export const Required: Story = {
         <FieldLabel htmlFor="base-field-required" required>
           Label
         </FieldLabel>
-        <input id="base-field-required" type="text" placeholder="Input here" />
+        <input id="base-field-required" type="text" placeholder="Input here" aria-label="Label" />
       </>
     ),
   },
@@ -39,7 +39,7 @@ export const WithError: Story = {
     children: (
       <>
         <FieldLabel htmlFor="base-field-error">Label</FieldLabel>
-        <input id="base-field-error" type="text" placeholder="Input here" />
+        <input id="base-field-error" type="text" placeholder="Input here" aria-label="Label" />
         <FieldMessages error messages={["Error occurred"]} />
       </>
     ),
