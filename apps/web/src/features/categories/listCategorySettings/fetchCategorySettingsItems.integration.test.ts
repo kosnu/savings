@@ -15,6 +15,8 @@ const foodCategoryPinned = {
   book_id: 1,
   name: "Food",
   category_pins: [{ id: 100, category_id: 10 }],
+  budget_state: "amount" as const,
+  budget_amount: 20000,
 }
 
 const dailyNecessitiesCategory = {
@@ -22,6 +24,8 @@ const dailyNecessitiesCategory = {
   book_id: 1,
   name: "Daily Necessities",
   category_pins: [],
+  budget_state: "none" as const,
+  budget_amount: null,
 }
 
 describe("fetchCategorySettingsItems", () => {
@@ -44,6 +48,7 @@ describe("fetchCategorySettingsItems", () => {
           id: 10,
           bookId: 1,
           name: "Food",
+          budget: { state: "amount", amount: 20000 },
         },
         pinned: true,
       },
@@ -52,20 +57,21 @@ describe("fetchCategorySettingsItems", () => {
           id: 20,
           bookId: 1,
           name: "Daily Necessities",
+          budget: { state: "none", amount: null },
         },
         pinned: false,
       },
     ])
   })
 
-  it("カテゴリ起点の1 requestで必要な読み取り列を取得する", async () => {
-    const requestCapture: { url: URL | null } = { url: null }
+  it("カテゴリ設定RPCの1 requestで必要な読み取り列を取得する", async () => {
     let requestCount = 0
+    let requestUrl = ""
 
     server.use(
-      http.get("*/rest/v1/categories*", ({ request }) => {
+      http.post("*/rest/v1/rpc/list_category_settings_items", ({ request }) => {
         requestCount += 1
-        requestCapture.url = new URL(request.url)
+        requestUrl = request.url
 
         return HttpResponse.json([])
       }),
@@ -74,14 +80,7 @@ describe("fetchCategorySettingsItems", () => {
     await fetchCategorySettingsItems()
 
     expect(requestCount).toBe(1)
-    const select = requestCapture.url?.searchParams.get("select")
-    expect(select).toContain("id")
-    expect(select).toContain("book_id")
-    expect(select).toContain("name")
-    expect(select).toContain("category_pins:category_pins!category_pins_category_id_fkey")
-    expect(requestCapture.url?.searchParams.get("order")).toBe("id.asc")
-    expect(requestCapture.url?.searchParams.get("category_pins.limit")).toBe("1")
-    expect(requestCapture.url?.searchParams.has("book_id")).toBe(false)
+    expect(requestUrl).toContain("/rest/v1/rpc/list_category_settings_items")
   })
 
   it("Supabase がエラーを返した場合に throw する", async () => {
@@ -96,7 +95,7 @@ describe("fetchCategorySettingsItems", () => {
 
   it("レスポンス shape が不正ならエラーにする", async () => {
     server.use(
-      http.get("*/rest/v1/categories*", () => {
+      http.post("*/rest/v1/rpc/list_category_settings_items", () => {
         return HttpResponse.json([
           {
             id: "invalid",

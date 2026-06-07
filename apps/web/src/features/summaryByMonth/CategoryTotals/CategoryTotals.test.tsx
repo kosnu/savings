@@ -28,7 +28,9 @@ describe("CategoryTotals", () => {
     expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
     expect(await screen.findByText("￥1,000")).toBeInTheDocument()
     expect(await screen.findByText("￥4,000")).toBeInTheDocument()
+    expect(await screen.findByText("Budget ￥20,000")).toBeInTheDocument()
     expect(await screen.findAllByText("￥0")).toHaveLength(1)
+    expect(screen.queryByText("Budget ￥0")).not.toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "Show more category totals" }))
 

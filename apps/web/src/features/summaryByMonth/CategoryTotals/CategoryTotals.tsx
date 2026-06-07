@@ -52,7 +52,8 @@ function CategoryTotalsResolved({
   const categoryTotalsKey = [
     targetMonthKey,
     ...categoryTotals.map(
-      (total) => `${total.key}:${total.kind}:${total.totalAmount}:${total.pinned ? "1" : "0"}`,
+      (total) =>
+        `${total.key}:${total.kind}:${total.totalAmount}:${total.pinned ? "1" : "0"}:${total.budgetState}:${total.budgetAmount ?? ""}`,
     ),
   ].join(":")
 
@@ -69,7 +70,12 @@ function CategoryTotalsLoading({ chunkSize }: { chunkSize: number }) {
   const skeletonChunks = splitArray(["primary", "secondary", "tertiary"], chunkSize)
 
   return (
-    <Grid columns={`${chunkSize}`} gap="1" width="100%" aria-label="loading category totals">
+    <Grid
+      columns={{ initial: "1", sm: `${chunkSize}` }}
+      gap="1"
+      width="100%"
+      aria-label="loading category totals"
+    >
       {skeletonChunks.map((chunk) => (
         <DataList.Root
           key={chunk.join(":")}
@@ -114,7 +120,7 @@ function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsCont
 
   return (
     <Flex direction="column" gap="3" width="100%">
-      <Grid columns={`${chunkSize}`} gap="1" width="100%">
+      <Grid columns={{ initial: "1", sm: `${chunkSize}` }} gap="1" width="100%">
         {categoryChunks.map((chunk, i) => (
           <DataList.Root
             key={chunk.map((total) => total.key).join(":")}
@@ -124,7 +130,18 @@ function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsCont
             {chunk.map((total) => (
               <DataList.Item key={total.key} align="center">
                 <DataList.Label minWidth="80px">{total.categoryName}</DataList.Label>
-                <DataList.Value>{toCurrency(total.totalAmount)}</DataList.Value>
+                <DataList.Value>
+                  <Flex align="end" direction="column" gap="1">
+                    <Text>{toCurrency(total.totalAmount)}</Text>
+                    {total.kind === "category" &&
+                    total.budgetState === "amount" &&
+                    total.budgetAmount !== null ? (
+                      <Text color="gray" size="1">
+                        Budget {toCurrency(total.budgetAmount)}
+                      </Text>
+                    ) : null}
+                  </Flex>
+                </DataList.Value>
               </DataList.Item>
             ))}
           </DataList.Root>

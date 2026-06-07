@@ -21,6 +21,7 @@ const meta = {
       id: 10,
       name: "Food",
       pinned: true,
+      budget: { state: "amount", amount: 20000 },
     },
   },
   decorators: (Story) => {

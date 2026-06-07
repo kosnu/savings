@@ -4,6 +4,7 @@ import { useCallback, type ReactElement } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import { useDialog } from "../../../../utils/useDialog"
+import type { CategoryBudget } from "../../categoryBudget"
 import { UpdateCategoryNameForm } from "../UpdateCategoryNameForm"
 
 interface UpdateCategoryNameModalProps {
@@ -11,6 +12,7 @@ interface UpdateCategoryNameModalProps {
     id: number
     name: string
     pinned: boolean
+    budget: CategoryBudget
   }
   currentPinnedCount?: number
   trigger?: ReactElement

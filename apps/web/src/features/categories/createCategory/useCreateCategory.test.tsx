@@ -25,6 +25,7 @@ describe("useCreateCategory", () => {
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
     const input: CategoryCreateValues = {
+      budgetAmount: null,
       name: "Groceries",
       pinned: false,
     }
@@ -62,7 +63,7 @@ describe("useCreateCategory", () => {
 
     await act(async () => {
       await expect(
-        result.current.createCategory({ name: "Groceries", pinned: false }),
+        result.current.createCategory({ budgetAmount: null, name: "Groceries", pinned: false }),
       ).rejects.toEqual(error)
     })
 
@@ -73,6 +74,7 @@ describe("useCreateCategory", () => {
     const queryClient = createTestQueryClient()
     vi.spyOn(queryClient, "invalidateQueries").mockResolvedValue(undefined)
     const input: CategoryCreateValues = {
+      budgetAmount: 0,
       name: "Groceries",
       pinned: true,
     }

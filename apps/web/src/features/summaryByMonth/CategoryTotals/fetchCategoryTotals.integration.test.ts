@@ -28,6 +28,8 @@ describe("fetchCategoryTotals", () => {
         categoryName: "Food",
         totalAmount: 1000,
         pinned: true,
+        budgetState: "amount",
+        budgetAmount: 20000,
         kind: "category",
       },
       {
@@ -36,6 +38,8 @@ describe("fetchCategoryTotals", () => {
         categoryName: "Daily Necessities",
         totalAmount: 4000,
         pinned: false,
+        budgetState: "none",
+        budgetAmount: null,
         kind: "category",
       },
       {
@@ -44,6 +48,8 @@ describe("fetchCategoryTotals", () => {
         categoryName: "Entertainment",
         totalAmount: 0,
         pinned: false,
+        budgetState: "unset",
+        budgetAmount: null,
         kind: "category",
       },
       {
@@ -52,6 +58,8 @@ describe("fetchCategoryTotals", () => {
         categoryName: "Unknown",
         totalAmount: 0,
         pinned: false,
+        budgetState: "unset",
+        budgetAmount: null,
         kind: "uncategorized",
       },
     ])
@@ -209,19 +217,13 @@ describe("fetchCategoryTotals", () => {
     expect(totals.map((total) => total.pinned)).toEqual([true, true, false, false])
   })
 
-  it("カテゴリと月内未分類支払いを取得するqueryを送る", async () => {
-    const requestCapture: { categoriesUrl: URL | null; paymentsUrl: URL | null } = {
-      categoriesUrl: null,
-      paymentsUrl: null,
-    }
+  it("カテゴリ別予算つき月次合計RPCに対象期間を送る", async () => {
+    let requestBody: Record<string, unknown> | undefined
+    let requestCount = 0
     server.use(
-      http.get("*/rest/v1/categories*", ({ request }) => {
-        requestCapture.categoriesUrl = new URL(request.url)
-
-        return HttpResponse.json([])
-      }),
-      http.get("*/rest/v1/payments*", ({ request }) => {
-        requestCapture.paymentsUrl = new URL(request.url)
+      http.post("*/rest/v1/rpc/get_category_totals_with_budgets", async ({ request }) => {
+        requestCount += 1
+        requestBody = (await request.json()) as Record<string, unknown>
 
         return HttpResponse.json([])
       }),
@@ -229,33 +231,25 @@ describe("fetchCategoryTotals", () => {
 
     await fetchCategoryTotals([new Date("2025-06-01"), new Date("2025-06-30")])
 
-    const categorySelect = requestCapture.categoriesUrl?.searchParams.get("select")
-    expect(categorySelect).toContain("id")
-    expect(categorySelect).toContain("name")
-    expect(categorySelect).toContain("category_pins:category_pins!category_pins_category_id_fkey")
-    expect(categorySelect).toContain("payments:payments!payments_category_id_fkey")
-    expect(requestCapture.categoriesUrl?.searchParams.getAll("payments.date")).toEqual([
-      "gte.2025-06-01",
-      "lte.2025-06-30",
-    ])
-    expect(requestCapture.categoriesUrl?.searchParams.get("order")).toBe("id.asc")
-
-    expect(requestCapture.paymentsUrl?.searchParams.get("select")).toBe("amount,date")
-    expect(requestCapture.paymentsUrl?.searchParams.get("category_id")).toBe("is.null")
-    expect(requestCapture.paymentsUrl?.searchParams.getAll("date")).toEqual([
-      "gte.2025-06-01",
-      "lte.2025-06-30",
-    ])
+    expect(requestCount).toBe(1)
+    expect(requestBody).toEqual({
+      p_start_date: "2025-06-01",
+      p_end_date: "2025-06-30",
+    })
   })
 
   it("レスポンスshapeが不正ならエラーにする", async () => {
     server.use(
-      http.get("*/rest/v1/categories*", () => {
+      http.post("*/rest/v1/rpc/get_category_totals_with_budgets", () => {
         return HttpResponse.json([
           {
-            id: "invalid",
-            name: "Food",
-            payments: [],
+            category_id: "invalid",
+            category_name: "Food",
+            total_amount: 1000,
+            pinned: false,
+            budget_state: "unset",
+            budget_amount: null,
+            kind: "category",
           },
         ])
       }),
@@ -266,13 +260,18 @@ describe("fetchCategoryTotals", () => {
     ).rejects.toThrow("Invalid category totals response")
   })
 
-  it("未分類支払いのレスポンスshapeが不正ならエラーにする", async () => {
+  it("予算状態のレスポンスshapeが不正ならエラーにする", async () => {
     server.use(
-      http.get("*/rest/v1/payments*", () => {
+      http.post("*/rest/v1/rpc/get_category_totals_with_budgets", () => {
         return HttpResponse.json([
           {
-            amount: "invalid",
-            date: "2025-06-01",
+            category_id: 10,
+            category_name: "Food",
+            total_amount: 1000,
+            pinned: false,
+            budget_state: "invalid",
+            budget_amount: null,
+            kind: "category",
           },
         ])
       }),

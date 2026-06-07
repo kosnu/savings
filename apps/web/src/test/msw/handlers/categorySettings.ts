@@ -7,7 +7,11 @@ const CATEGORIES_REST_URL = "*/rest/v1/categories*"
 const CATEGORY_PINS_REST_URL = "*/rest/v1/category_pins*"
 const CREATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/create_category_with_pin"
 const UPDATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/update_category_with_pin"
+const CREATE_CATEGORY_WITH_SETTINGS_RPC_URL = "*/rest/v1/rpc/create_category_with_settings"
+const UPDATE_CATEGORY_WITH_SETTINGS_RPC_URL = "*/rest/v1/rpc/update_category_with_settings"
+const LIST_CATEGORY_SETTINGS_ITEMS_RPC_URL = "*/rest/v1/rpc/list_category_settings_items"
 const CURRENT_BOOK_ID = 1
+type CategoryBudgetState = "amount" | "none" | "unset"
 
 export interface CategorySettingsPinResponseRow {
   id: number
@@ -19,6 +23,9 @@ export interface CategorySettingsResponseRow {
   book_id: number
   name: string
   category_pins: CategorySettingsPinResponseRow[]
+  pinned?: boolean
+  budget_state?: CategoryBudgetState
+  budget_amount?: number | null
 }
 
 interface GetCategorySettingsOptions {
@@ -66,11 +73,14 @@ const createCategoryBodySchema = z.object({
 })
 
 const createCategoryWithPinBodySchema = z.object({
+  p_budget_amount: z.number().nullable().optional(),
   p_category_name: z.string(),
   p_pinned: z.boolean(),
 })
 
 const updateCategoryWithPinBodySchema = z.object({
+  p_budget_amount: z.number().nullable().optional(),
+  p_budget_status: z.enum(["amount", "none", "unchanged"]).optional(),
   p_category_id: z.number(),
   p_category_name: z.string(),
   p_pinned: z.boolean(),
@@ -110,6 +120,15 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json(rows)
     }),
+    http.post(LIST_CATEGORY_SETTINGS_ITEMS_RPC_URL, async () => {
+      await delay(durationOrMode)
+
+      if (error) {
+        return HttpResponse.json({ message: "Failed to fetch category settings." }, { status: 500 })
+      }
+
+      return HttpResponse.json(rows.map(toCategorySettingsRpcRow))
+    }),
     http.post(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(create.durationOrMode)
 
@@ -140,12 +159,27 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json(categoryId)
     }),
+    http.post(CREATE_CATEGORY_WITH_SETTINGS_RPC_URL, async ({ request }) => {
+      await delay(create.durationOrMode)
+
+      if (create.error) {
+        return HttpResponse.json(
+          create.errorResponse ?? { message: "Failed to create category." },
+          { status: 500 },
+        )
+      }
+
+      createCategoryWithPinBodySchema.parse(await request.json())
+      const categoryId = create.responseId ?? 999
+
+      return HttpResponse.json(categoryId)
+    }),
     http.patch(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(update.durationOrMode)
 
       if (update.error) {
         return HttpResponse.json(
-          update.errorResponse ?? { message: "Failed to update category name." },
+          update.errorResponse ?? { message: "Failed to update category." },
           { status: 500 },
         )
       }
@@ -162,7 +196,7 @@ export function createCategorySettingsHandlers({
 
       if (update.error) {
         return HttpResponse.json(
-          update.errorResponse ?? { message: "Failed to update category name." },
+          update.errorResponse ?? { message: "Failed to update category." },
           { status: 500 },
         )
       }
@@ -177,6 +211,38 @@ export function createCategorySettingsHandlers({
               category_pins: body.p_pinned
                 ? [{ id: pin.responseId ?? row.id, category_id: row.id }]
                 : [],
+            }
+          : row,
+      )
+
+      return HttpResponse.json("response" in update ? update.response : null)
+    }),
+    http.post(UPDATE_CATEGORY_WITH_SETTINGS_RPC_URL, async ({ request }) => {
+      await delay(update.durationOrMode)
+
+      if (update.error) {
+        return HttpResponse.json(
+          update.errorResponse ?? { message: "Failed to update category." },
+          { status: 500 },
+        )
+      }
+
+      const body = updateCategoryWithPinBodySchema.parse(await request.json())
+
+      rows = rows.map((row) =>
+        row.id === body.p_category_id
+          ? {
+              ...row,
+              name: body.p_category_name,
+              category_pins: body.p_pinned
+                ? [{ id: pin.responseId ?? row.id, category_id: row.id }]
+                : [],
+              ...(body.p_budget_status === "amount"
+                ? { budget_state: "amount" as const, budget_amount: body.p_budget_amount ?? null }
+                : {}),
+              ...(body.p_budget_status === "none"
+                ? { budget_state: "none" as const, budget_amount: null }
+                : {}),
             }
           : row,
       )
@@ -267,7 +333,20 @@ function buildCategorySettingsResponse(
             },
           ]
         : [],
+      budget_state: category.id === 10 ? "amount" : category.id === 20 ? "none" : "unset",
+      budget_amount: category.id === 10 ? 20000 : null,
     }))
+}
+
+function toCategorySettingsRpcRow(row: CategorySettingsResponseRow) {
+  return {
+    id: row.id,
+    book_id: row.book_id,
+    name: row.name,
+    pinned: row.pinned ?? (row.category_pins ?? []).some((pin) => pin.category_id === row.id),
+    budget_state: row.budget_state ?? "unset",
+    budget_amount: row.budget_amount ?? null,
+  }
 }
 
 function parseCategoryIdFilter(url: string, key = "id"): number | undefined {

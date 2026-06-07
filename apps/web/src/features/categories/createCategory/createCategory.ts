@@ -1,10 +1,11 @@
 import { getSupabaseClient } from "../../../lib/supabase"
-import { categoryCreateSchema, type CategoryCreateValues } from "./categoryCreateSchema"
+import { categoryCreateValuesSchema, type CategoryCreateValues } from "./categoryCreateSchema"
 
 export async function createCategory(value: CategoryCreateValues): Promise<number> {
   const supabase = getSupabaseClient()
-  const parsedValue = categoryCreateSchema.parse(value)
-  const { data, error } = await supabase.rpc("create_category_with_pin", {
+  const parsedValue = categoryCreateValuesSchema.parse(value)
+  const { data, error } = await supabase.rpc("create_category_with_settings", {
+    p_budget_amount: parsedValue.budgetAmount,
     p_category_name: parsedValue.name,
     p_pinned: parsedValue.pinned,
   })

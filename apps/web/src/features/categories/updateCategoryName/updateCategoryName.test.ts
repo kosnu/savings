@@ -18,11 +18,15 @@ describe("updateCategoryName", () => {
 
     await updateCategoryName({
       categoryId: 10,
+      budgetAmount: 3000,
+      budgetStatus: "amount",
       name: "Groceries",
       pinned: true,
     })
 
-    expect(mockRpc).toHaveBeenCalledWith("update_category_with_pin", {
+    expect(mockRpc).toHaveBeenCalledWith("update_category_with_settings", {
+      p_budget_amount: 3000,
+      p_budget_status: "amount",
       p_category_id: 10,
       p_category_name: "Groceries",
       p_pinned: true,
@@ -36,6 +40,8 @@ describe("updateCategoryName", () => {
     await expect(
       updateCategoryName({
         categoryId: 10,
+        budgetAmount: null,
+        budgetStatus: "unchanged",
         name: "Groceries",
         pinned: false,
       }),

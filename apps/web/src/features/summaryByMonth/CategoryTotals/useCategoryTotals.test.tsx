@@ -35,6 +35,8 @@ describe("useCategoryTotals", () => {
         categoryName: "Food",
         totalAmount: 1000,
         pinned: true,
+        budgetState: "amount" as const,
+        budgetAmount: 20000,
         kind: "category" as const,
       },
     ]
@@ -54,6 +56,8 @@ describe("useCategoryTotals", () => {
         categoryName: "Food",
         totalAmount: 1000,
         pinned: true,
+        budgetState: "amount" as const,
+        budgetAmount: 20000,
         kind: "category" as const,
       },
     ]
@@ -83,6 +87,8 @@ describe("useCategoryTotals", () => {
           categoryName: "Food",
           totalAmount: 1000,
           pinned: true,
+          budgetState: "amount",
+          budgetAmount: 20000,
           kind: "category",
         },
       ])
@@ -93,6 +99,8 @@ describe("useCategoryTotals", () => {
           categoryName: "Food",
           totalAmount: 2000,
           pinned: true,
+          budgetState: "amount",
+          budgetAmount: 20000,
           kind: "category",
         },
       ])
@@ -111,6 +119,8 @@ describe("useCategoryTotals", () => {
         categoryName: "Food",
         totalAmount: 1000,
         pinned: true,
+        budgetState: "amount",
+        budgetAmount: 20000,
         kind: "category",
       },
     ])
@@ -127,6 +137,8 @@ describe("useCategoryTotals", () => {
         categoryName: "Food",
         totalAmount: 2000,
         pinned: true,
+        budgetState: "amount",
+        budgetAmount: 20000,
         kind: "category",
       },
     ])
@@ -142,6 +154,8 @@ describe("useCategoryTotals", () => {
           categoryName: "Food",
           totalAmount: 1000,
           pinned: true,
+          budgetState: "amount",
+          budgetAmount: 20000,
           kind: "category",
         },
       ])
@@ -152,6 +166,8 @@ describe("useCategoryTotals", () => {
           categoryName: "Food",
           totalAmount: 2000,
           pinned: true,
+          budgetState: "amount",
+          budgetAmount: 20000,
           kind: "category",
         },
       ])
@@ -167,6 +183,8 @@ describe("useCategoryTotals", () => {
         categoryName: "Food",
         totalAmount: 1000,
         pinned: true,
+        budgetState: "amount",
+        budgetAmount: 20000,
         kind: "category",
       },
     ])
@@ -185,6 +203,8 @@ describe("useCategoryTotals", () => {
         categoryName: "Food",
         totalAmount: 2000,
         pinned: true,
+        budgetState: "amount",
+        budgetAmount: 20000,
         kind: "category",
       },
     ])

@@ -13,7 +13,7 @@ import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import * as stories from "./CreateCategoryForm.stories"
 
 const { Default } = composeStories(stories)
-const CREATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/create_category_with_pin"
+const CREATE_CATEGORY_WITH_SETTINGS_URL = "*/rest/v1/rpc/create_category_with_settings"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -30,8 +30,8 @@ describe("CreateCategoryForm", () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeInTheDocument()
+    expect(screen.getByRole("textbox", { name: "Budget" })).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).not.toBeChecked()
-    expect(screen.queryByRole("textbox", { name: /Monthly budget/ })).not.toBeInTheDocument()
   })
 
   test("未入力で送信するとカテゴリ名のvalidation errorを表示する", async () => {
@@ -71,7 +71,7 @@ describe("CreateCategoryForm", () => {
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+      http.post(CREATE_CATEGORY_WITH_SETTINGS_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
         return HttpResponse.json(999)
       }),
@@ -88,6 +88,34 @@ describe("CreateCategoryForm", () => {
     expect(requestBody).toEqual({
       p_category_name: "Groceries",
       p_pinned: false,
+      p_budget_amount: null,
+    })
+  })
+
+  test("0円を含む予算額で作成リクエストを送る", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(CREATE_CATEGORY_WITH_SETTINGS_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(999)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.type(screen.getByRole("textbox", { name: "Budget" }), "0")
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_category_name: "Groceries",
+      p_pinned: false,
+      p_budget_amount: 0,
     })
   })
 
@@ -96,7 +124,7 @@ describe("CreateCategoryForm", () => {
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+      http.post(CREATE_CATEGORY_WITH_SETTINGS_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
         return HttpResponse.json(999)
       }),
@@ -114,6 +142,7 @@ describe("CreateCategoryForm", () => {
     expect(requestBody).toEqual({
       p_category_name: "Groceries",
       p_pinned: true,
+      p_budget_amount: null,
     })
   })
 
@@ -121,7 +150,7 @@ describe("CreateCategoryForm", () => {
     const categoryCreated = createDeferred()
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_WITH_PIN_URL, async () => {
+      http.post(CREATE_CATEGORY_WITH_SETTINGS_URL, async () => {
         await categoryCreated.promise
         return HttpResponse.json(999)
       }),
@@ -137,6 +166,7 @@ describe("CreateCategoryForm", () => {
     expect(createButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeDisabled()
+    expect(screen.getByRole("textbox", { name: "Budget" })).toBeDisabled()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeDisabled()
 
     await act(async () => {
@@ -197,7 +227,7 @@ describe("CreateCategoryForm", () => {
     let requestCount = 0
 
     server.resetHandlers(
-      http.post(CREATE_CATEGORY_WITH_PIN_URL, () => {
+      http.post(CREATE_CATEGORY_WITH_SETTINGS_URL, () => {
         requestCount += 1
         return HttpResponse.json(999)
       }),

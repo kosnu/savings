@@ -18,6 +18,7 @@ function buildCategorySettingsItem(id: number): CategorySettingsItem {
       id,
       bookId: 1,
       name: `Category ${id}`,
+      budget: { state: "unset", amount: null },
     },
     pinned: false,
   }

@@ -25,6 +25,8 @@ describe("useUpdateCategoryName", () => {
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
     const input = {
+      budgetAmount: null,
+      budgetStatus: "unchanged" as const,
       categoryId: 10,
       name: "Groceries",
       pinned: true,
@@ -66,6 +68,8 @@ describe("useUpdateCategoryName", () => {
     await act(async () => {
       await expect(
         result.current.updateCategoryName({
+          budgetAmount: null,
+          budgetStatus: "unchanged",
           categoryId: 10,
           name: "Groceries",
           pinned: false,

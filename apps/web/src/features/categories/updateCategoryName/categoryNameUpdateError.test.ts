@@ -15,7 +15,7 @@ describe("toCategoryNameUpdateErrorMessage", () => {
 
   test("その他のエラーは汎用メッセージに変換する", () => {
     expect(toCategoryNameUpdateErrorMessage({ message: "network error" })).toBe(
-      "Failed to update category name.",
+      "Failed to update category.",
     )
   })
 })

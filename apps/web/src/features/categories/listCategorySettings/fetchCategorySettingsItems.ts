@@ -1,39 +1,23 @@
 import * as z from "zod"
 
 import { getSupabaseClient } from "../../../lib/supabase"
+import { categoryBudgetResponseSchema } from "../categoryBudget"
 import type { CategorySettingsItem } from "./types"
 
-const categorySettingsColumns = `
-  id,
-  book_id,
-  name,
-  category_pins:category_pins!category_pins_category_id_fkey (
-    id,
-    category_id
-  )
-`
-
-const categoryPinRowSchema = z.object({
-  id: z.number(),
-  category_id: z.number(),
-})
-
-const categorySettingsRowSchema = z.object({
-  id: z.number(),
-  book_id: z.number(),
-  name: z.string(),
-  category_pins: z.array(categoryPinRowSchema).nullable(),
-})
+const categorySettingsRowSchema = z
+  .object({
+    id: z.number(),
+    book_id: z.number(),
+    name: z.string(),
+    pinned: z.boolean(),
+  })
+  .merge(categoryBudgetResponseSchema)
 
 type CategorySettingsRow = z.infer<typeof categorySettingsRowSchema>
 
 export async function fetchCategorySettingsItems(): Promise<CategorySettingsItem[]> {
   const supabase = getSupabaseClient()
-  const { data, error } = await supabase
-    .from("categories")
-    .select(categorySettingsColumns)
-    .order("id", { ascending: true })
-    .limit(1, { referencedTable: "category_pins" })
+  const { data, error } = await supabase.rpc("list_category_settings_items")
 
   if (error) {
     throw error
@@ -58,7 +42,11 @@ function toCategorySettingsItem(row: CategorySettingsRow): CategorySettingsItem 
       id: row.id,
       bookId: row.book_id,
       name: row.name,
+      budget: {
+        state: row.budget_state,
+        amount: row.budget_amount,
+      },
     },
-    pinned: (row.category_pins ?? []).some((pin) => pin.category_id === row.id),
+    pinned: row.pinned,
   }
 }

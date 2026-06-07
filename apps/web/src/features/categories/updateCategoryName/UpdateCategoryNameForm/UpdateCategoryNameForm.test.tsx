@@ -13,7 +13,7 @@ import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import * as stories from "./UpdateCategoryNameForm.stories"
 
 const { Default } = composeStories(stories)
-const UPDATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/update_category_with_pin"
+const UPDATE_CATEGORY_WITH_SETTINGS_URL = "*/rest/v1/rpc/update_category_with_settings"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -30,6 +30,7 @@ describe("UpdateCategoryNameForm", () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toHaveValue("Food")
+    expect(screen.getByRole("textbox", { name: "Budget" })).toHaveValue("20000")
     expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeChecked()
   })
 
@@ -75,7 +76,7 @@ describe("UpdateCategoryNameForm", () => {
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+      http.post(UPDATE_CATEGORY_WITH_SETTINGS_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
         return HttpResponse.json(null)
       }),
@@ -93,6 +94,8 @@ describe("UpdateCategoryNameForm", () => {
       p_category_id: 10,
       p_category_name: "Food",
       p_pinned: false,
+      p_budget_status: "unchanged",
+      p_budget_amount: null,
     })
   })
 
@@ -101,7 +104,7 @@ describe("UpdateCategoryNameForm", () => {
     let requestBody: Record<string, unknown> | undefined
 
     server.resetHandlers(
-      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+      http.post(UPDATE_CATEGORY_WITH_SETTINGS_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
         return HttpResponse.json(null)
       }),
@@ -122,6 +125,66 @@ describe("UpdateCategoryNameForm", () => {
       p_category_id: 10,
       p_category_name: "Groceries",
       p_pinned: false,
+      p_budget_status: "unchanged",
+      p_budget_amount: null,
+    })
+  })
+
+  test("予算額を変更して保存できる", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(UPDATE_CATEGORY_WITH_SETTINGS_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    const budgetInput = screen.getByRole("textbox", { name: "Budget" })
+
+    await user.clear(budgetInput)
+    await user.type(budgetInput, "0")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_category_id: 10,
+      p_category_name: "Food",
+      p_pinned: true,
+      p_budget_status: "amount",
+      p_budget_amount: 0,
+    })
+  })
+
+  test("Remove budgetで当月以降を予算なしにできる", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(UPDATE_CATEGORY_WITH_SETTINGS_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.click(screen.getByRole("button", { name: "Remove budget" }))
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_category_id: 10,
+      p_category_name: "Food",
+      p_pinned: true,
+      p_budget_status: "none",
+      p_budget_amount: null,
     })
   })
 
@@ -130,7 +193,7 @@ describe("UpdateCategoryNameForm", () => {
     let requestCount = 0
 
     server.resetHandlers(
-      http.post(UPDATE_CATEGORY_WITH_PIN_URL, () => {
+      http.post(UPDATE_CATEGORY_WITH_SETTINGS_URL, () => {
         requestCount += 1
         return HttpResponse.json(null)
       }),
@@ -150,7 +213,7 @@ describe("UpdateCategoryNameForm", () => {
     const categoryUpdated = createDeferred()
 
     server.resetHandlers(
-      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async () => {
+      http.post(UPDATE_CATEGORY_WITH_SETTINGS_URL, async () => {
         await categoryUpdated.promise
         return HttpResponse.json(null)
       }),
@@ -220,7 +283,7 @@ describe("UpdateCategoryNameForm", () => {
     await user.type(nameInput, "Groceries")
     await user.click(screen.getByRole("button", { name: "Save" }))
 
-    expect(await screen.findByText("Failed to update category name.")).toBeInTheDocument()
+    expect(await screen.findByText("Failed to update category.")).toBeInTheDocument()
     expect(onSuccess).not.toHaveBeenCalled()
   })
 
@@ -228,7 +291,7 @@ describe("UpdateCategoryNameForm", () => {
     let requestCount = 0
 
     server.resetHandlers(
-      http.post(UPDATE_CATEGORY_WITH_PIN_URL, () => {
+      http.post(UPDATE_CATEGORY_WITH_SETTINGS_URL, () => {
         requestCount += 1
         return HttpResponse.json(null)
       }),
@@ -236,7 +299,12 @@ describe("UpdateCategoryNameForm", () => {
     const onSuccess = fn()
     const { user } = await renderStory(
       <Default
-        category={{ id: 20, name: "Daily Necessities", pinned: false }}
+        category={{
+          id: 20,
+          name: "Daily Necessities",
+          pinned: false,
+          budget: { state: "unset", amount: null },
+        }}
         currentPinnedCount={3}
         onSuccess={onSuccess}
       />,
@@ -246,7 +314,7 @@ describe("UpdateCategoryNameForm", () => {
     await user.click(screen.getByRole("button", { name: "Save" }))
 
     expect(await screen.findByText(categoryPinLimitErrorMessage)).toBeInTheDocument()
-    expect(screen.queryByText("Failed to update category name.")).not.toBeInTheDocument()
+    expect(screen.queryByText("Failed to update category.")).not.toBeInTheDocument()
     expect(requestCount).toBe(0)
     expect(onSuccess).not.toHaveBeenCalled()
   })
