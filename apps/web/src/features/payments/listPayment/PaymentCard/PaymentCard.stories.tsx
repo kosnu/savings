@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { PaymentCard } from "./PaymentCard"
 
 const meta = {
-  title: "Components/Payments/PaymentCard",
+  title: "Features/Payments/ListPayment/PaymentCard",
   component: PaymentCard,
   parameters: {
     layout: "centered",
