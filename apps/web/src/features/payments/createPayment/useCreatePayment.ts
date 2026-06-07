@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import { getSupabaseClient } from "../../../lib/supabase"
-import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { summaryQueryKeys } from "../../summaryByMonth"
 import { type PaymentWriteInput, toPaymentWriteInsert } from "../paymentFormMappers"
 import { paymentQueryKeys } from "../queryKeys"
 

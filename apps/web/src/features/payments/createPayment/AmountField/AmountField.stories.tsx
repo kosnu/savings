@@ -4,7 +4,7 @@ import { useState } from "react"
 import { AmountField } from "./AmountField"
 
 const meta = {
-  title: "Features/CreatePayment/AmountField",
+  title: "Features/Payments/CreatePayment/AmountField",
   component: AmountField,
   args: {},
   render: (args) => {

@@ -80,8 +80,8 @@ createExample/
 コンポーネントディレクトリの `index.ts` は、そのコンポーネントの公開口として置きます。
 `index.ts` で再エクスポートしてよいのは、同じディレクトリにある同名のコンポーネント実装ファイルだけです。
 
-一方で、feature 直下の barrel export とは別の話です。コンポーネントディレクトリに `index.ts` を置くことを理由に、`features/<feature>/index.ts` や feature slice 直下の barrel export を追加してはいけません。
-provider、hook、utility、schema、adapter など、コンポーネント定義以外の実装を `index.ts` から再エクスポートしてはいけません。
+一方で、feature 直下の `index.ts` は `apps/web/docs/policies/feature-directory.md` で扱う feature の公開面であり、コンポーネントディレクトリの `index.ts` とは別のものです。
+コンポーネントディレクトリの `index.ts` から provider、hook、utility、schema、adapter など、コンポーネント定義以外の実装を再エクスポートしてはいけません。
 
 ## 対象外
 

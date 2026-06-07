@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { renderHook, waitFor } from "../../test/test-utils"
+import { renderHook, waitFor } from "../../../test/test-utils"
 import { fetchTotalExpenditures } from "./fetchTotalExpenditures"
 import { useTotalExpenditures } from "./useTotalExpenditures"
 
@@ -10,7 +10,7 @@ const dateRangeState = vi.hoisted<{
   date: new Date(2025, 5, 1),
 }))
 
-vi.mock("../../utils/useDateRange", () => ({
+vi.mock("../../../utils/useDateRange", () => ({
   useDateRange: () => dateRangeState,
 }))
 

@@ -5,7 +5,7 @@ import { useState } from "react"
 import { EditableField } from "./EditableField"
 
 const meta = {
-  title: "Features/PaymentDetails/EditableField",
+  title: "Features/Payments/PaymentDetails/EditableField",
   component: EditableField,
   args: {
     label: "Amount",

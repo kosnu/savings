@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { formatTargetMonthKey, toTargetMonth } from "../../domain/date"
-import { useDateRange } from "../../utils/useDateRange"
+import { formatTargetMonthKey, toTargetMonth } from "../../../domain/date"
+import { useDateRange } from "../../../utils/useDateRange"
+import { summaryQueryKeys } from "../queryKeys"
 import { fetchTotalExpenditures } from "./fetchTotalExpenditures"
-import { summaryQueryKeys } from "./queryKeys"
 
 interface UseTotalExpendituresReturn {
   data: number | null

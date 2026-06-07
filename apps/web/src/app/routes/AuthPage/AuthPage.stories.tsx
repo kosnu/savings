@@ -4,6 +4,7 @@ import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { AuthPage } from "./AuthPage"
 
 const meta = {
+  title: "Pages/AuthPage",
   component: AuthPage,
   tags: ["browser-test"],
 } satisfies Meta<typeof AuthPage>

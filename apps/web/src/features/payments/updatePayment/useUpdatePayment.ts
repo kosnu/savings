@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import type { PaymentId } from "../../../types/payment"
-import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { summaryQueryKeys } from "../../summaryByMonth"
 import type { PaymentUpdatePatch } from "../paymentFormMappers"
 import { paymentQueryKeys } from "../queryKeys"
 import { updatePayment as updatePaymentRecord } from "./updatePayment"

@@ -6,7 +6,7 @@ import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { CreateMonthlyBudgetModal } from "./CreateMonthlyBudgetModal"
 
 const meta = {
-  title: "Features/Budgets/CreateMonthlyBudgetModal",
+  title: "Features/Budgets/CreateMonthlyBudget/CreateMonthlyBudgetModal",
   component: CreateMonthlyBudgetModal,
   parameters: {
     layout: "centered",

@@ -9,7 +9,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { PaymentDateField } from "./PaymentDateField"
 
 const meta = {
-  title: "Features/PaymentDetails/PaymentDateField",
+  title: "Features/Payments/PaymentDetails/PaymentDateField",
   component: PaymentDateField,
   parameters: {
     layout: "centered",

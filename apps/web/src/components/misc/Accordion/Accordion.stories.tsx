@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./Accordion"
 
 const meta = {
-  title: "Common/Misc/Accordion",
+  title: "Components/Misc/Accordion",
   component: Accordion,
   tags: ["autodocs"],
   decorators: [

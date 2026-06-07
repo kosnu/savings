@@ -5,7 +5,7 @@ import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Sidebar } from "./Sidebar"
 
 const meta: Meta<typeof Sidebar> = {
-  title: "Shared/Sidebar/Sidebar",
+  title: "App/Sidebar",
   component: Sidebar,
   parameters: {
     layout: "fullscreen",

@@ -5,7 +5,7 @@ import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Header } from "./Header"
 
 const meta = {
-  title: "Shared/Header",
+  title: "App/Header",
   component: Header,
   tags: ["autodocs"],
   decorators: [createStoryRouter("/")],

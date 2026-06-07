@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router"
 import { memo, Suspense, use, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
-import { CategoryOption, ErrorCategoryOption } from "../../../categories/components/CategorySelect"
-import { useCategories } from "../../../categories/listCategory/useCategories"
+import { CategoryOption, ErrorCategoryOption, useCategories } from "../../../categories"
 import { toPaymentCategoryId, toPaymentCategorySearch } from "../paymentCategorySearch"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE } from "../paymentsSearchSchema"
 
