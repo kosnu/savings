@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
-import { paymentQueryKeys } from "../../payments/queryKeys"
-import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { paymentQueryKeys } from "../../payments"
+import { summaryQueryKeys } from "../../summaryByMonth"
 import { invalidateCategoryQueries } from "../queryKeys"
 import type { CategoryNameUpdateInput } from "./categoryNameUpdateMappers"
 import { updateCategoryName as updateCategoryNameRecord } from "./updateCategoryName"

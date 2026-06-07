@@ -1,7 +1,7 @@
 import { Flex } from "@radix-ui/themes"
 
-import { LatestMonthlyBudget } from "../../../budgets/latestMonthlyBudget/LatestMonthlyBudget"
-import { CategorySettingsList } from "../../../categories/components/CategorySettingsList"
+import { LatestMonthlyBudget } from "../../../budgets"
+import { CategorySettingsList } from "../../../categories"
 
 export function BookSettings() {
   return (

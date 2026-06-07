@@ -6,8 +6,8 @@ import {
   redirect,
 } from "@tanstack/react-router"
 
-import { BookSettings } from "../features/books/bookSettings/BookSettings"
-import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
+import { BookSettings } from "../features/books"
+import { paymentsSearchSchema } from "../features/payments"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"

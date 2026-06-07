@@ -13,7 +13,7 @@ import {
   waitFor,
   within,
 } from "../../../../test/test-utils"
-import { categoryQueryKeys } from "../../../categories/queryKeys"
+import { categoryQueryKeys } from "../../../categories"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE, paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 

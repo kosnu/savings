@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { categories } from "../../../test/data/categories"
 import { act, createTestQueryClient, renderHook } from "../../../test/test-utils"
-import { paymentQueryKeys } from "../../payments/queryKeys"
-import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { paymentQueryKeys } from "../../payments"
+import { summaryQueryKeys } from "../../summaryByMonth"
 import { categoryQueryKeys } from "../queryKeys"
 import { useDeleteCategory } from "./useDeleteCategory"
 

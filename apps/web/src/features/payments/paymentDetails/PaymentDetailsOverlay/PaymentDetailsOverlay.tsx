@@ -3,7 +3,7 @@ import { useCallback, useState } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Payment, PaymentDetails, PaymentId } from "../../../../types/payment"
-import { unknownCategory } from "../../../categories/unknownCategory"
+import { unknownCategory } from "../../../categories"
 import { AmountField } from "../AmountField"
 import { CategoryField } from "../CategoryField"
 import { NoteField } from "../NoteField"

@@ -2,7 +2,7 @@ import { createRoute } from "@tanstack/react-router"
 import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { BookSettings } from "../../../features/books/bookSettings/BookSettings"
+import { BookSettings } from "../../../features/books"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"

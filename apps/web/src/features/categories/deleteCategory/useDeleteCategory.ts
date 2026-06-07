@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
-import { paymentQueryKeys } from "../../payments/queryKeys"
-import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { paymentQueryKeys } from "../../payments"
+import { summaryQueryKeys } from "../../summaryByMonth"
 import { categoryQueryKeys } from "../queryKeys"
 import { deleteCategory as deleteCategoryRecord } from "./deleteCategory"
 

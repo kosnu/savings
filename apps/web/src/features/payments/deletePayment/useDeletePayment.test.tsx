@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { act, createTestQueryClient, renderHook, waitFor } from "../../../test/test-utils"
-import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { summaryQueryKeys } from "../../summaryByMonth"
 import { paymentQueryKeys } from "../queryKeys"
 import { useDeletePayment } from "./useDeletePayment"
 
