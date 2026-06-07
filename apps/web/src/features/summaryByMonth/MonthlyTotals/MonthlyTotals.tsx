@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { toCurrency } from "../../../utils/toCurrency"
 import { useDateRange } from "../../../utils/useDateRange"
 import { MonthlyBudgetUsage } from "../../budgets"
-import { useTotalExpenditures } from "../useTotalExpenditures"
+import { useTotalExpenditures } from "./useTotalExpenditures"
 
 function MonthlyTotals() {
   const totalExpenditures = useTotalExpenditures()

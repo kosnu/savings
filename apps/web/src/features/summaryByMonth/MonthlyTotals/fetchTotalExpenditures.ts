@@ -1,4 +1,4 @@
-import { getSupabaseClient } from "../../lib/supabase"
+import { getSupabaseClient } from "../../../lib/supabase"
 
 export async function fetchTotalExpenditures(month: string): Promise<number | null> {
   if (!month) {
