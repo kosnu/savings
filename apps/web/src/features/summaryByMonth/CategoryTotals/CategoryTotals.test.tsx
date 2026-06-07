@@ -36,6 +36,15 @@ describe("CategoryTotals", () => {
     expect(
       screen.queryByRole("button", { name: "Show more category totals" }),
     ).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Show less category totals" })).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Show less category totals" }))
+
+    expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Show more category totals" })).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Show less category totals" }),
+    ).not.toBeInTheDocument()
   })
 
   test("3件以下の場合はShow moreを表示しない", async () => {
@@ -69,6 +78,9 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("Unknown")).toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "Show more category totals" }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Show less category totals" }),
     ).not.toBeInTheDocument()
   })
 
