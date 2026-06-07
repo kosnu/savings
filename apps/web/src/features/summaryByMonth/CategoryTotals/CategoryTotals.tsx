@@ -104,10 +104,13 @@ interface CategoryTotalsContentProps {
 function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsContentProps) {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount)
 
+  const hasOverflow = categoryTotals.length > initialVisibleCount
+  const isExpanded = visibleCount >= categoryTotals.length
   const visibleTotals = categoryTotals.slice(0, visibleCount)
-  const hiddenCount = categoryTotals.length - visibleTotals.length
   // カテゴリが多い場合に縦に長くなりすぎないよう、2列に分割して表示する
   const categoryChunks = splitArray(visibleTotals, chunkSize)
+  const toggleLabel = isExpanded ? "Show less" : "Show more"
+  const toggleAriaLabel = isExpanded ? "Show less category totals" : "Show more category totals"
 
   return (
     <Flex direction="column" gap="3" width="100%">
@@ -127,16 +130,19 @@ function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsCont
           </DataList.Root>
         ))}
       </Grid>
-      {hiddenCount > 0 && (
-        <Flex justify="start">
+      {hasOverflow && (
+        <Flex justify="center">
           <Button
             type="button"
-            variant="soft"
-            size="1"
-            aria-label="Show more category totals"
-            onClick={() => setVisibleCount(categoryTotals.length)}
+            variant="ghost"
+            color="gray"
+            size="2"
+            aria-label={toggleAriaLabel}
+            onClick={() =>
+              setVisibleCount(isExpanded ? initialVisibleCount : categoryTotals.length)
+            }
           >
-            Show more
+            {toggleLabel}
           </Button>
         </Flex>
       )}
