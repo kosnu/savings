@@ -6,7 +6,7 @@ import { fn } from "storybook/test"
 import { Snackbar } from "./Snackbar"
 
 const meta = {
-  title: "Common/Feadbacks/Snackbar",
+  title: "Components/Feedbacks/Snackbar",
   component: Snackbar,
   parameters: {
     layout: "centered",

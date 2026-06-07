@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { Paper } from "./Paper"
 
 const meta = {
-  title: "Common/Misc/Paper",
+  title: "Components/Misc/Paper",
   component: Paper,
   parameters: {
     layout: "centered",

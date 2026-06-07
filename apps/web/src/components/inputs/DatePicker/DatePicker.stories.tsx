@@ -4,7 +4,7 @@ import { useState } from "react"
 import { DatePicker } from "./DatePicker"
 
 const meta = {
-  title: "Common/Inputs/DatePicker",
+  title: "Components/Inputs/DatePicker",
   component: DatePicker,
   parameters: {
     layout: "centered",

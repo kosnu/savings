@@ -6,7 +6,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { PaymentList } from "./PaymentList"
 
 const meta = {
-  title: "Features/ListPayment/PaymentList",
+  title: "Features/Payments/ListPayment/PaymentList",
   component: PaymentList,
   parameters: {},
   tags: ["autodocs"],

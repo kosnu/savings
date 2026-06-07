@@ -6,7 +6,7 @@ import { createCategoryHandlers } from "../../../../test/msw/handlers/categories
 import { CreatePaymentForm } from "./CreatePaymentForm"
 
 const meta = {
-  title: "Features/CreatePayment/CreatePaymentForm",
+  title: "Features/Payments/CreatePayment/CreatePaymentForm",
   component: CreatePaymentForm,
   parameters: {
     layout: "centered",

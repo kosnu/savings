@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { NoteField } from "./NoteField"
 
 const meta = {
-  title: "Features/CreatePayment/NoteField",
+  title: "Features/Payments/CreatePayment/NoteField",
   component: NoteField,
   args: {},
 } satisfies Meta<typeof NoteField>

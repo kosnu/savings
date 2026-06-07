@@ -4,7 +4,7 @@ import { useState } from "react"
 import { MonthPicker } from "./MonthPicker"
 
 const meta = {
-  title: "Common/Inputs/MonthPicker",
+  title: "Components/Inputs/MonthPicker",
   component: MonthPicker,
   parameters: {
     layout: "centered",

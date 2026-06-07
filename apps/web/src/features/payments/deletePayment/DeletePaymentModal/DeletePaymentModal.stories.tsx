@@ -10,7 +10,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { DeletePaymentModal } from "./DeletePaymentModal"
 
 const meta = {
-  title: "Features/DeletePayment/DeletePaymentModal",
+  title: "Features/Payments/DeletePayment/DeletePaymentModal",
   component: DeletePaymentModal,
   parameters: {
     layout: "centered",
