@@ -2,7 +2,7 @@ import * as z from "zod"
 
 import { toDateOnlyString } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
-import { unknownCategory } from "../../categories/unknownCategory"
+import { unknownCategory } from "../../categories"
 
 const categoryTotalsPaymentRowSchema = z.object({
   amount: z.number(),

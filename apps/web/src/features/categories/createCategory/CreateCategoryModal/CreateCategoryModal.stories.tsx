@@ -7,7 +7,7 @@ import { createCategorySettingsHandlers } from "../../../../test/msw/handlers/ca
 import { CreateCategoryModal } from "./CreateCategoryModal"
 
 const meta = {
-  title: "Features/Categories/CreateCategoryModal",
+  title: "Features/Categories/CreateCategory/CreateCategoryModal",
   component: CreateCategoryModal,
   parameters: {
     msw: {

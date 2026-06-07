@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { SubmitIconButton } from "./SubmitIconButton"
 
 const meta = {
-  title: "Features/PaymentDetails/SubmitIconButton",
+  title: "Features/Payments/PaymentDetails/SubmitIconButton",
   component: SubmitIconButton,
   args: {
     ariaLabel: "Save amount",

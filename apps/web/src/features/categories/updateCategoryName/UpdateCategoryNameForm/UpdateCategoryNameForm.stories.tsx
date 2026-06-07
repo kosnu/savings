@@ -8,7 +8,7 @@ import { createCategorySettingsHandlers } from "../../../../test/msw/handlers/ca
 import { UpdateCategoryNameForm } from "./UpdateCategoryNameForm"
 
 const meta = {
-  title: "Features/Categories/UpdateCategoryNameForm",
+  title: "Features/Categories/UpdateCategoryName/UpdateCategoryNameForm",
   component: UpdateCategoryNameForm,
   parameters: {
     layout: "centered",

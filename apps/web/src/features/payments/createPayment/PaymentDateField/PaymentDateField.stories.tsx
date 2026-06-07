@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { PaymentDateField } from "./PaymentDateField"
 
 const meta: Meta<typeof PaymentDateField> = {
-  title: "Features/CreatePayment/PaymentDateField",
+  title: "Features/Payments/CreatePayment/PaymentDateField",
   component: PaymentDateField,
 }
 export default meta

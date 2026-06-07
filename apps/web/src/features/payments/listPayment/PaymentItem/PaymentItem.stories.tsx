@@ -6,7 +6,7 @@ import { payments } from "../../../../test/data/payments"
 import { PaymentItem } from "./PaymentItem"
 
 const meta = {
-  title: "Features/ListPayment/PaymentItem",
+  title: "Features/Payments/ListPayment/PaymentItem",
   component: PaymentItem,
   parameters: {
     layout: "centered",

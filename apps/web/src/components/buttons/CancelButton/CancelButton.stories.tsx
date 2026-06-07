@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { CancelButton } from "./CancelButton"
 
 const meta = {
-  title: "Common/Buttons/CancelButton",
+  title: "Components/Buttons/CancelButton",
   component: CancelButton,
   parameters: {
     layout: "centered",

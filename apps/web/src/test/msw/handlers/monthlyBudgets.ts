@@ -1,7 +1,7 @@
 import { type DelayMode, HttpResponse, delay, http } from "msw"
 import * as z from "zod"
 
-import type { MonthlyBudgetRow } from "../../../features/budgets/types"
+import type { MonthlyBudgetRow } from "../../../features/budgets"
 import { monthlyBudgets } from "../../data/monthlyBudgets"
 
 const REST_URL = "*/rest/v1/monthly_budgets*"

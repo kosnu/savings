@@ -3,12 +3,12 @@ import { createRoute } from "@tanstack/react-router"
 import { HttpResponse, http } from "msw"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { categoryQueryKeys } from "../../../features/categories/queryKeys"
+import { categoryQueryKeys } from "../../../features/categories"
 import {
   PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
+  paymentQueryKeys,
   paymentsSearchSchema,
-} from "../../../features/payments/listPayment/paymentsSearchSchema"
-import { paymentQueryKeys } from "../../../features/payments/queryKeys"
+} from "../../../features/payments"
 import { categories, entertainmentCat, foodCat } from "../../../test/data/categories"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"

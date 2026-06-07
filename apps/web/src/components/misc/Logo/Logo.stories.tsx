@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { Logo } from "./Logo"
 
 const meta = {
-  title: "Common/Misc/Logo",
+  title: "Components/Misc/Logo",
   component: Logo,
   tags: ["autodocs"],
 } satisfies Meta<typeof Logo>

@@ -3,7 +3,7 @@ import { describe, expect, test } from "vite-plus/test"
 
 import { renderWithRouter as renderWithTestRouter } from "../../../test/helpers/renderWithRouter"
 import { screen, waitFor } from "../../../test/test-utils"
-import { paymentsSearchSchema } from "../../payments/listPayment/paymentsSearchSchema"
+import { paymentsSearchSchema } from "../../payments"
 import { MonthSelector } from "./MonthSelector"
 
 function renderMonthSelector(initialEntry: string) {

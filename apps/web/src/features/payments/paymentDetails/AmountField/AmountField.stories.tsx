@@ -9,7 +9,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { AmountField } from "./AmountField"
 
 const meta = {
-  title: "Features/PaymentDetails/AmountField",
+  title: "Features/Payments/PaymentDetails/AmountField",
   component: AmountField,
   parameters: {
     msw: {
