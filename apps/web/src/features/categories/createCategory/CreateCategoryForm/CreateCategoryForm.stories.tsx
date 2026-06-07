@@ -8,7 +8,7 @@ import { createCategorySettingsHandlers } from "../../../../test/msw/handlers/ca
 import { CreateCategoryForm } from "./CreateCategoryForm"
 
 const meta = {
-  title: "Features/Categories/CreateCategoryForm",
+  title: "Features/Categories/CreateCategory/CreateCategoryForm",
   component: CreateCategoryForm,
   parameters: {
     layout: "centered",

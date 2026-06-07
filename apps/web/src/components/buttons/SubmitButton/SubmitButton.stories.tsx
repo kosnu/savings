@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { SubmitButton } from "./SubmitButton"
 
 const meta = {
-  title: "Common/Buttons/SubmitButton",
+  title: "Components/Buttons/SubmitButton",
   component: SubmitButton,
   tags: ["autodocs"],
   parameters: {

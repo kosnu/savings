@@ -7,7 +7,7 @@ import { createCategorySettingsHandlers } from "../../../../test/msw/handlers/ca
 import { UpdateCategoryNameModal } from "./UpdateCategoryNameModal"
 
 const meta = {
-  title: "Features/Categories/UpdateCategoryNameModal",
+  title: "Features/Categories/UpdateCategoryName/UpdateCategoryNameModal",
   component: UpdateCategoryNameModal,
   parameters: {
     layout: "centered",

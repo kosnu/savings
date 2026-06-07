@@ -14,7 +14,7 @@ import { PaymentDetailsOverlay } from "./PaymentDetailsOverlay"
 const paymentId = payments[0].id
 
 const meta = {
-  title: "Features/PaymentDetails/PaymentDetailsOverlay",
+  title: "Features/Payments/PaymentDetails/PaymentDetailsOverlay",
   component: PaymentDetailsOverlay,
   parameters: {
     layout: "centered",

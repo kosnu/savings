@@ -8,7 +8,7 @@ const targetDate = new Date(2025, 2, 1)
 const monthlyBudget = { ...monthlyBudgets[2], amount: 30000 }
 
 const meta = {
-  title: "Features/Budgets/MonthlyBudgetUsage",
+  title: "Features/Budgets/Components/MonthlyBudgetUsage",
   component: MonthlyBudgetUsage,
   tags: ["autodocs"],
   parameters: {

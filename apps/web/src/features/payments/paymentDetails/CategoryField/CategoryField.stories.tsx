@@ -10,7 +10,7 @@ import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { CategoryField } from "./CategoryField"
 
 const meta = {
-  title: "Features/PaymentDetails/CategoryField",
+  title: "Features/Payments/PaymentDetails/CategoryField",
   component: CategoryField,
   parameters: {
     msw: {

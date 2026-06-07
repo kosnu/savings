@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { BaseField, FieldLabel, FieldMessages, type BaseFieldProps } from "./BaseField"
 
 const meta: Meta<BaseFieldProps> = {
-  title: "Common/Inputs/BaseField",
+  title: "Components/Inputs/BaseField",
   component: BaseField,
   args: {
     children: (
