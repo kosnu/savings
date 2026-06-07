@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
-import { summaryQueryKeys } from "../../summaryByMonth/queryKeys"
+import { summaryQueryKeys } from "../../summaryByMonth"
 import { invalidateCategoryQueries } from "../queryKeys"
 import type { CategoryCreateValues } from "./categoryCreateSchema"
 import { createCategory as createCategoryRecord } from "./createCategory"

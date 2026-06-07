@@ -7,7 +7,7 @@ import {
   type RouteComponent,
 } from "@tanstack/react-router"
 
-import { paymentsSearchSchema } from "../../features/payments/listPayment/paymentsSearchSchema"
+import { paymentsSearchSchema } from "../../features/payments"
 import { createTestRouter } from "./createTestRouter"
 
 type StoryRouteBuilder = (rootRoute: AnyRootRoute, Story: RouteComponent) => AnyRoute[]

@@ -1,4 +1,4 @@
-import type { MonthlyBudgetRow } from "../../features/budgets/types"
+import type { MonthlyBudgetRow } from "../../features/budgets"
 
 export const monthlyBudgets: MonthlyBudgetRow[] = [
   {

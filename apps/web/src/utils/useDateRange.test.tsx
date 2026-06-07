@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react"
 import type { PropsWithChildren, ReactNode } from "react"
 import { describe, expect, test } from "vite-plus/test"
 
-import { paymentsSearchSchema } from "../features/payments/listPayment/paymentsSearchSchema"
+import { paymentsSearchSchema } from "../features/payments"
 import { createTestRouter } from "../test/helpers/createTestRouter"
 import { waitFor } from "../test/test-utils"
 import { useDateRange } from "./useDateRange"

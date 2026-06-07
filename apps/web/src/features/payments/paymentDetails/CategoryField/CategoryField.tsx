@@ -20,8 +20,8 @@ import {
   CategorySelect,
   ErrorCategoryOption,
   LoadingCategoryOption,
-} from "../../../categories/components/CategorySelect"
-import { useCategories } from "../../../categories/listCategory/useCategories"
+  useCategories,
+} from "../../../categories"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 

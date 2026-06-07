@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 
 import { PaymentCard } from "../../../../components/payments/PaymentCard/PaymentCard"
 import type { Payment, PaymentId } from "../../../../types/payment"
-import { unknownCategory } from "../../../categories/unknownCategory"
+import { unknownCategory } from "../../../categories"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
 import { PaymentDetailsOverlay } from "../../paymentDetails/PaymentDetailsOverlay"
 import { usePaymentDetailsState } from "../../paymentDetails/usePaymentDetailsState"

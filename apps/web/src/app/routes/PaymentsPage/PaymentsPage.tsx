@@ -1,10 +1,8 @@
 import { Box, Container, Flex } from "@radix-ui/themes"
 import { useState } from "react"
 
-import { CreatePaymentModal } from "../../../features/payments/createPayment/CreatePaymentModal"
-import { PaymentCategoryFilter } from "../../../features/payments/listPayment/PaymentCategoryFilter"
-import { PaymentList } from "../../../features/payments/listPayment/PaymentList"
-import { Summary } from "../../../features/summaryByMonth/Summary"
+import { CreatePaymentModal, PaymentCategoryFilter, PaymentList } from "../../../features/payments"
+import { Summary } from "../../../features/summaryByMonth"
 import { useInitializePaymentsMonthSearch } from "./useInitializePaymentsMonthSearch"
 
 export function PaymentsPage() {

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { expect, within } from "storybook/test"
 
-import { BookSettings } from "../../../features/books/bookSettings/BookSettings"
+import { BookSettings } from "../../../features/books"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
