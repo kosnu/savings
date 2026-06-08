@@ -90,6 +90,44 @@ describe("CategorySettingsList", () => {
     )
   })
 
+  test("カテゴリ一覧で金額あり予算だけを表示する", async () => {
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({
+        response: [
+          {
+            ...defaultCategorySettingsResponse[0]!,
+            budget_state: "amount",
+            budget_amount: 20000,
+          },
+          {
+            ...defaultCategorySettingsResponse[1]!,
+            budget_state: "none",
+            budget_amount: null,
+          },
+          {
+            ...defaultCategorySettingsResponse[2]!,
+            budget_state: "amount",
+            budget_amount: 0,
+          },
+        ],
+      }),
+    )
+
+    await renderCategorySettingsList(<Default />)
+
+    expect(
+      await within(await screen.findByLabelText("Food category settings")).findByText(
+        "Budget ￥20,000",
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByLabelText("Entertainment category settings")).getByText("Budget ￥0"),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByLabelText("Daily Necessities category settings")).queryByText(/Budget/),
+    ).not.toBeInTheDocument()
+  })
+
   test("カテゴリ名を更新して一覧に反映する", async () => {
     server.resetHandlers(
       ...createCategorySettingsHandlers({ response: defaultCategorySettingsResponse }),

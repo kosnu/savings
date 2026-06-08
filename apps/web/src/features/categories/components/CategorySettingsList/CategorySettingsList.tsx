@@ -2,6 +2,7 @@ import { Badge, Box, Flex, Grid, Separator, Skeleton, Text } from "@radix-ui/the
 import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
+import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateCategoryModal } from "../../createCategory/CreateCategoryModal"
 import { DeleteCategoryModal } from "../../deleteCategory/DeleteCategoryModal"
 import type { CategorySettingsItem } from "../../listCategorySettings/types"
@@ -145,7 +146,7 @@ function CategoryNameWithMobileActionCell({
   currentPinnedCount: number
 }) {
   return (
-    <Flex align="center" gap="3" justify="between">
+    <Flex align="center" gap="3" justify="between" minWidth="0">
       <CategoryNameCell item={item} />
       <CategoryActionsCell item={item} currentPinnedCount={currentPinnedCount} placement="mobile" />
     </Flex>
@@ -153,10 +154,22 @@ function CategoryNameWithMobileActionCell({
 }
 
 function CategoryNameCell({ item }: { item: CategorySettingsItem }) {
+  const budgetAmount =
+    item.category.budget.state === "amount" && item.category.budget.amount !== null
+      ? toCurrency(item.category.budget.amount)
+      : null
+
   return (
-    <Flex align="center" gap="2" minWidth="0">
-      <Text>{item.category.name}</Text>
-      {item.pinned && <PinBadge />}
+    <Flex direction="column" gap="1" minWidth="0">
+      <Flex align="center" gap="2" minWidth="0">
+        <Text>{item.category.name}</Text>
+        {item.pinned && <PinBadge />}
+      </Flex>
+      {budgetAmount !== null && (
+        <Text color="gray" size="2">
+          Budget {budgetAmount}
+        </Text>
+      )}
     </Flex>
   )
 }
