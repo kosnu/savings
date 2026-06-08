@@ -33,6 +33,8 @@ when_to_read:
 - 関連コード:
 - 関連ドキュメント:
   - docs/domain/
+  - apps/web/docs/policies/design-rules.md
+  - apps/web/docs/policies/domain-ui-rules.md
   - docs/policies/transaction-boundaries.md
   - docs/policies/temporal-data.md
 - 既存テスト:
@@ -42,6 +44,28 @@ when_to_read:
 - 対象ディレクトリ:
 - 変更候補:
 - 対象外:
+
+## Domain Value UI Decisions
+
+UIに表示、入力、比較、集計、状態化するドメイン値がある場合、Requirements / PRDの利用目的に沿って、Design Docで次を決める。
+
+- 対象のドメイン値:
+- 利用目的:
+  - 実値を知りたい
+  - 比較したい
+  - 残量や到達可否を知りたい
+  - 制約に違反していないか知りたい
+  - 内訳を確認したい
+  - 対象を識別したい
+- UIで主に見せるもの:
+  - 値そのもの
+  - 判断結果
+  - 状態
+  - 内訳
+  - 識別情報
+- 比較元、基準値、許可範囲、分類、期間を表示するか:
+- loading / empty / error / 未設定 / 0 / 不明 / 削除済みの扱い:
+- `apps/web/docs/policies/design-rules.md` 上の文字階層、一覧、余白、button variant、フォーム、overlay、responsiveとの対応:
 
 ## Autonomy
 
@@ -57,6 +81,7 @@ when_to_read:
 - [ ] 採用する実装方針が説明されている
 - [ ] 採用しない案と理由がある
 - [ ] 関連するドメインルールとの整合性が確認されている
+- [ ] UIにドメイン値が出る場合、値ごとの利用目的と主表示が決まっている
 - [ ] 複数データ更新がある場合、トランザクション単位と操作境界が整理されている
 - [ ] 有効期間、履歴、月次状態、削除が関わる場合、過去状態の暗黙復活を避ける設計になっている
 - [ ] ユーザーに表示される主要文言がDesign Docで決まっている

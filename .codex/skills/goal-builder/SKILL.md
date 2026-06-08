@@ -37,6 +37,8 @@ Also read these docs when relevant:
 
 - `docs/ai-driven-development/workflow.md`
 - `docs/ai-driven-development/issue-guidelines.md`
+- `apps/web/docs/policies/design-rules.md` when the Goal involves user-facing Web UI
+- `apps/web/docs/policies/domain-ui-rules.md` when the Goal involves domain values shown, entered, compared, summarized, or turned into state in UI
 - `docs/policies/transaction-boundaries.md` when the Design / Plan or Build / Verify Goal involves multiple data changes
 
 ## Context Discovery
@@ -57,15 +59,26 @@ Do not make unrelated repository changes while generating a Goal.
 ### Intent / Requirements
 
 - Treat Issue content as input, not final requirements.
+- Preserve the artifact premise: use the PRD title, Goal, and Issue summary to determine whether a capability is existing behavior or a future capability being introduced.
+- Do not describe future capabilities, states, workflows, UI, APIs, or data models as current behavior.
+- Put current facts and current gaps in Background / Current State; put desired future behavior in Scope, Functional Requirements, Acceptance Criteria, or Q&A.
 - Keep implementation, Design Doc creation, and PR creation out of scope.
 - Prefer output path `docs/ai-driven-development/workspaces/<issue-number-or-topic>/requirements.md`.
+- If domain values appear in UI, require the PRD to state what the user wants to judge with each value, using `Domain Value Intent`.
+- Do not turn the domain value purpose into a fixed UI layout, display order, or component choice in Requirements / PRD.
 - If user-visible text or feedback matters, require the PRD to state what the user must understand, not the final copy.
+- Include a Done item requiring added Requirements / PRD text to be checked against the artifact premise.
+- Include a Done item requiring Background / Current State not to describe future behavior as already available.
+- Include a Done item requiring UI domain values to have an explicit purpose when they appear.
 
 ### Design / Plan
 
 - Use the latest Requirements / PRD as the source of truth.
 - Do not implement.
 - Include output path for `design.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
+- If domain values appear in UI, require `Domain Value UI Decisions` to map each value purpose to the primary thing shown: value, judgment result, state, breakdown, or identity.
+- Require Design / Plan to decide whether comparison sources, baselines, allowed ranges, categories, or periods should be shown as main information or supporting context.
+- Apply `apps/web/docs/policies/design-rules.md` for typography, lists, spacing, button variants, forms, overlays, and responsive behavior.
 - Ensure user-visible major copy is decided in the Design Doc.
 - If multiple data changes are involved, include `docs/policies/transaction-boundaries.md` and require transaction boundary / operation boundary decisions.
 
