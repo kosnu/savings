@@ -57,9 +57,14 @@ Do not make unrelated repository changes while generating a Goal.
 ### Intent / Requirements
 
 - Treat Issue content as input, not final requirements.
+- Preserve the artifact premise: use the PRD title, Goal, and Issue summary to determine whether a capability is existing behavior or a future capability being introduced.
+- Do not describe future capabilities, states, workflows, UI, APIs, or data models as current behavior.
+- Put current facts and current gaps in Background / Current State; put desired future behavior in Scope, Functional Requirements, Acceptance Criteria, or Q&A.
 - Keep implementation, Design Doc creation, and PR creation out of scope.
 - Prefer output path `docs/ai-driven-development/workspaces/<issue-number-or-topic>/requirements.md`.
 - If user-visible text or feedback matters, require the PRD to state what the user must understand, not the final copy.
+- Include a Done item requiring added Requirements / PRD text to be checked against the artifact premise.
+- Include a Done item requiring Background / Current State not to describe future behavior as already available.
 
 ### Design / Plan
 
