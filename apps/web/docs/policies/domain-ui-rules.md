@@ -22,7 +22,7 @@ when_to_read:
 
 # Domain UI Rules
 
-この文書は、ドメイン固有のUI判断で守る意味のルールです。
+この文書は、ドメイン固有のUI判断で守るべき意味のルールです。
 
 UIの土台、文字階層、余白、variant、フォーム、overlay、responsiveは [Web Design Rules](./design-rules.md) に従います。この文書は、画面にどの情報を持たせるか、どの項目をどの順番で表示するか、どのコンポーネントで実装するかを固定しません。
 
