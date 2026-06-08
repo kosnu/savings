@@ -8,6 +8,8 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1440-add-category-bud
 
 カテゴリ作成・更新・削除は、カテゴリ本体、ピン状態、カテゴリ別予算状態を別関心として保持しつつ、ユーザーから 1 回の操作に見える箇所では RPC / DB transaction で同一操作単位にする。
 
+設定画面のカテゴリ一覧では、各カテゴリの現在のカテゴリ別予算状態を確認できるようにする。カテゴリ一覧は確認用途に限定し、登録、更新、削除はカテゴリ作成フォームまたはカテゴリ更新フォームで扱う。
+
 支払い一覧のカテゴリ別サマリーは、カテゴリ支出額、ピン状態、対象月のカテゴリ別予算状態を 1 つの read shape として取得する。スマホでは 1 列表示にし、デスクトップでは既存の 2 列表示を維持する。
 
 ## 採用する実装方針
@@ -70,6 +72,7 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1440-add-category-bud
   - `categories`、`category_pins`、各カテゴリの当月有効な `category_budgets` 状態を 1 つの DTO として返す。
   - 設定画面は当月以降のカテゴリ予算を編集する画面として扱うため、現在有効状態の基準月は DB の `current_date` の月とする。
   - 予算状態は `amount` / `none` / `unset` の discriminated union として Web 側で正規化する。
+  - 同じ DTO をカテゴリ一覧表示とカテゴリ更新フォームの初期値に使う。
 - 支払い一覧カテゴリ別サマリーは `get_category_totals_with_budgets(p_start_date date, p_end_date date)` RPC に置き換える。
   - 対象月は `p_start_date` の月とする。既存の月次サマリは月初から月末の範囲を渡すため、支払い集計範囲とカテゴリ別予算の対象月を同じ入力から決める。
   - カテゴリごとの支出額、ピン状態、対象月のカテゴリ別予算状態を 1 つの DTO として返す。
@@ -90,6 +93,13 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1440-add-category-bud
   - 既存の `Name`、`Pin category` に `Budget` を追加する。
   - `Budget` は任意入力。空は未設定。
   - 0 は有効な金額あり予算。
+- カテゴリ一覧:
+  - 既存のカテゴリ名、`Pin` badge、Edit / Delete action を維持する。
+  - 予算あり行では、カテゴリ名の補助情報として `Budget` と予算額を表示する。
+  - 0 円予算は `Budget ￥0` として表示し、予算なしや未設定と区別する。
+  - 予算なし / 未設定の行では予算額を表示しない。金額あり予算として誤認させないため、0 円表示とは別に扱う。
+  - カテゴリ一覧では予算の登録、更新、削除操作を置かない。これらの操作はカテゴリ作成フォームまたはカテゴリ更新フォームで扱う。
+  - スマホではカテゴリ名、`Pin` badge、予算補助情報、actions が重ならないよう、カテゴリ名セル内で予算補助情報を折り返せる構成にする。
 - カテゴリ更新フォーム:
   - 現在のカテゴリ別予算状態を表示する。
   - `Budget` に金額を入力すると当月以降の金額あり予算として保存する。
@@ -111,6 +121,9 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1440-add-category-bud
   - label: `Budget`
   - remove action: `Remove budget`
   - budget empty helper: 表示しない
+- カテゴリ一覧:
+  - 予算あり: `Budget`
+  - 予算なし / 未設定: 予算行を表示しない
 - 支払い一覧サマリー:
   - 予算あり: `Budget`
   - 予算なし / 未設定: 予算行を表示しない
@@ -155,6 +168,8 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1440-add-category-bud
 - 旧 `create_category_with_budget` / `update_category_with_budget` をそのまま復活させる案は採用しない。旧設計は `on delete restrict`、`amount numeric(10,2)`、予算なし状態なしで、現在の PRD と月予算ドメインに合わない。
 - 支払い一覧サマリーで残額 / 超過額まで表示する案は初期実装では採用しない。画面密度と文言判断が増えるため、まず予算額の確認に絞る。
 - カテゴリ別予算取得をカテゴリ支出額取得とは別 request にする案は採用しない。サマリーで 1 つの表示として見えるため、対象月に対して整合した read shape を優先する。
+- カテゴリ一覧でカテゴリ別予算を登録、更新、削除できるようにする案は採用しない。カテゴリ一覧は確認用途に留め、編集操作は既存のカテゴリ作成/更新フォームに集約することで、操作境界と UI 密度を保つ。
+- カテゴリ一覧で予算なし / 未設定の行に明示的な `No budget` 表示を出す案は採用しない。新しい文言判断を増やさず、金額あり予算だけを `Budget` と金額で表示することで、0 円予算との区別を保つ。
 
 ## ドメインルールとの整合
 
@@ -167,6 +182,7 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1440-add-category-bud
 
 - 月次予算、全体予算、支払い登録・更新フローは変更しない。
 - カテゴリ作成・更新フォームは入力項目が増えるが、カテゴリだけの作成・更新は維持する。
+- カテゴリ一覧はカテゴリ名、pin、actions に加えて、金額あり予算がある場合だけ予算補助情報を表示する。
 - カテゴリ削除時、支払い自体は削除されない既存挙動を維持する。
 - カテゴリ別サマリーはピン優先、初期表示 3 件、`Show more` を維持する。
 - スマホではカテゴリ別サマリーが 1 列になる。
@@ -175,16 +191,17 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1440-add-category-bud
 
 - AC-1 / AC-2: `CreateCategoryForm` と `create_category_with_settings` で、予算あり/なしの作成を確認する。
 - AC-3: RPC の失敗テストで、カテゴリだけ作成された片成功が起きないことを確認する。
-- AC-4: `fetchCategorySettingsItems` と更新フォームで、現在の予算状態を表示できることを確認する。
-- AC-5 / AC-6 / AC-7: 更新フォームと RPC で、未設定から登録、金額更新、予算なし化を確認する。
-- AC-8: 更新 RPC の失敗テストで、カテゴリ名や pin だけ更新される片成功が起きないことを確認する。
-- AC-9 / AC-10 / AC-11: カテゴリ削除後、支払いは残り、ピンと予算は残らないことを DB / Web integration test で確認する。
-- AC-12 / AC-13 / AC-14: `fetchCategoryTotals` と `CategoryTotals` で、予算あり、予算なし、未設定、未分類を確認する。
-- AC-15: ピン優先、初期表示 3 件、`Show more` が予算表示後も成立することを確認する。
-- AC-16 / AC-17: `CategoryTotals` の component test または Storybook browser-test で、スマホ 1 列表示と重なりがないことを確認する。
-- AC-18: 作成、更新、削除、サマリー取得失敗時に失敗表示が出て成功扱いにならないことを確認する。
-- AC-19: 0 円予算と予算なしを mapper / UI test で区別する。
-- AC-20: 既存の月次予算、支払い、カテゴリ、カテゴリサマリー tests を維持する。
+- AC-4 / AC-5: `fetchCategorySettingsItems` と `CategorySettingsList` で、カテゴリ一覧に予算あり、予算なし、未設定、0 円予算の状態を誤認なく表示できることを確認する。
+- AC-6: `fetchCategorySettingsItems` と更新フォームで、現在の予算状態を表示できることを確認する。
+- AC-7 / AC-8 / AC-9: 更新フォームと RPC で、未設定から登録、金額更新、予算なし化を確認する。
+- AC-10: 更新 RPC の失敗テストで、カテゴリ名や pin だけ更新される片成功が起きないことを確認する。
+- AC-11 / AC-12 / AC-13: カテゴリ削除後、支払いは残り、ピンと予算は残らないことを DB / Web integration test で確認する。
+- AC-14 / AC-15 / AC-16: `fetchCategoryTotals` と `CategoryTotals` で、予算あり、予算なし、未設定、未分類を確認する。
+- AC-17: ピン優先、初期表示 3 件、`Show more` が予算表示後も成立することを確認する。
+- AC-18 / AC-19: `CategoryTotals` の component test または Storybook browser-test で、スマホ 1 列表示と重なりがないことを確認する。
+- AC-20: 作成、更新、削除、サマリー取得失敗時に失敗表示が出て成功扱いにならないことを確認する。
+- AC-21: 0 円予算と予算なしを mapper / UI test で区別する。
+- AC-22: 既存の月次予算、支払い、カテゴリ、カテゴリサマリー tests を維持する。
 
 ## 検証コマンド
 
@@ -207,6 +224,7 @@ pnpm --filter web test:storybook --reporter=dot --silent
 
 - `category_budgets` を再導入するため DB / generated types / Web 型の更新範囲は広い。
 - 設定画面では現在有効なカテゴリ別予算、支払い一覧では対象月のカテゴリ別予算を読むため、read shape の対象月を混同しない。
+- カテゴリ一覧とカテゴリ更新フォームは同じ設定画面 DTO を使うため、一覧表示とフォーム初期値が別の有効状態を示さないようにする。
 - `update_category_with_settings` の `p_budget_status` は文字列 enum として扱うため、不正値 check を DB 側に置く。
 - `category_budgets` の member write policy は直接 table write も許可し得る。Web の通常経路は RPC に限定し、境界を閉じる必要がある箇所は RPC をテスト対象にする。
 - カテゴリ削除は FK cascade に依存する。削除前に予算利用件数を表示する機能は対象外。
