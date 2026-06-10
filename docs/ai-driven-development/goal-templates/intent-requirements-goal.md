@@ -44,9 +44,22 @@ when_to_read:
 - 対象機能:
 - 対象外:
 
+## Harness Context
+
+- Rule map: `docs/harness/rule-map.json`
+- 作業分類:
+  - path:
+  - domain:
+  - activity:
+  - topic:
+- 選択された関連ドキュメント:
+  - path:
+    - 選択理由:
+- depends_onで追加された前提ドキュメント:
+
 ## Domain Value Intent
 
-UIに表示、入力、比較、集計、状態化するドメイン値がある場合、`apps/web/docs/policies/domain-ui-rules.md` に沿って、値ごとの利用目的をRequirements / PRDに整理する。
+UIに表示、入力、比較、集計、状態化するドメイン値がある場合、`docs/harness/rule-map.json` で選択した domain / Web UI ルールに沿って、値ごとの利用目的をRequirements / PRDに整理する。
 
 - 対象のドメイン値:
 - 利用目的:
@@ -77,11 +90,12 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 機能要件が検証可能な形で書かれている
 - [ ] UIにドメイン値が出る場合、値ごとの利用目的が整理されている
 - [ ] UI文言やエラー表示が関わる場合、ユーザーが状態や失敗理由を理解できることが必要か整理されている
-- [ ] 有効期間、履歴、月次状態、削除が関わる場合、`docs/policies/temporal-data.md` に沿って基準日と過去/現在/未来の具体例がある
+- [ ] 有効期間、履歴、月次状態、削除が関わる場合、`docs/harness/policies/temporal-data.md` に沿って基準日と過去/現在/未来の具体例がある
 - [ ] 非機能要件・制約が必要に応じて書かれている
 - [ ] 受け入れ条件がテスト可能
 - [ ] Q&Aログに判断と理由が残っている
 - [ ] 技術的考慮事項が参考情報として整理されている
+- [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントとの整合性が確認されている
 
 ## Verification
 
@@ -96,4 +110,5 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - 対象ユーザーや成功条件が不明
 - 既存仕様と矛盾する
 - スコープ外の変更が必要そう
+- `docs/harness/rule-map.json` で選ぶべき関連ドキュメントが曖昧
 ```

@@ -32,6 +32,8 @@ when_to_read:
 - Design Doc:
 - 関連Issue / PR:
 - 対応するレビューコメント:
+- 関連ドキュメント:
+  - docs/harness/rule-map.json で選択したサブグラフ:
 
 ## Scope
 
@@ -39,6 +41,19 @@ when_to_read:
 - 対象ディレクトリ:
 - 変更してよい領域:
 - 変更しない領域:
+
+## Harness Context
+
+- Rule map: `docs/harness/rule-map.json`
+- 作業分類:
+  - path:
+  - domain:
+  - activity:
+  - topic:
+- 選択された関連ドキュメント:
+  - path:
+    - 選択理由:
+- depends_onで追加された前提ドキュメント:
 
 ## Autonomy
 
@@ -51,7 +66,8 @@ when_to_read:
 
 - [ ] PRDの受け入れ条件を満たしている
 - [ ] Design Docの方針から逸脱していない
-- [ ] レビューコメント起点の場合、`docs/policies/review-feedback-classification.md` に沿って修正前に工程分類し、Build / Verify対象だけを修正している
+- [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントから逸脱していない
+- [ ] レビューコメント起点の場合、`docs/harness/policies/review-feedback-classification.md` に沿って修正前に工程分類し、Build / Verify対象だけを修正している
 - [ ] 関連テストが追加・更新されている
 - [ ] 指定の検証コマンドが通る
 - [ ] 差分がスコープ内に収まっている
@@ -88,6 +104,7 @@ when_to_read:
 - レビューコメントがRequirements / PRD、Design Doc、またはpolicyへ戻すべき内容を含む
 - レビューコメントの工程分類が曖昧
 - Design Docまたは関連ドメインルールと違う実装が必要
+- `docs/harness/rule-map.json` で選択した関連ドキュメントと違う実装が必要
 - 実装に必要な主要文言がDesign Docで決まっていない
 - スコープ外の変更が必要
 - 受け入れ条件に矛盾がある
