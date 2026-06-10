@@ -19,8 +19,12 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 - Repository-wide docs: `docs/`
 - App-specific docs: `apps/*/docs/`
-- Documentation policy: `docs/documentation-policy.md`
+- Documentation policy: `docs/harness/policies/documentation-policy.md`
+- Harness engineering ADR: `docs/adr/0001-adopt-harness-engineering.md`
+- Agent rule graph ADR: `docs/adr/0002-adopt-agent-rule-graph.md`
+- Agent rule map: `docs/harness/rule-map.json`
 - When a task may touch documented design decisions, policies, or operational guidance, inspect Markdown front matter in the docs directories and read the relevant docs for the current session.
+- When a task may require multiple related policies, domain rules, ADRs, or design decisions, use `docs/harness/rule-map.json` to choose the relevant document subgraph.
 - Use front matter fields such as `area`, `applies_to`, `topics`, `when_to_read`, and `status` to choose which docs apply. Do not rely on `deprecated` docs unless the task explicitly concerns deprecated behavior.
 - Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
 - No unrelated code changes

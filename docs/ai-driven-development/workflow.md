@@ -37,6 +37,12 @@ AIが行った作業を出荷判断できる形に整え、必要な学習を次
 
 起点になるIssueは、Requirements / PRDの入力です。Issueには意図、境界、成功条件、Stop条件を書き、実装方針や作業手順はDesign / Plan Goalへ寄せます。詳細は [issue-guidelines.md](./issue-guidelines.md) を参照します。
 
+## Harness Context
+
+各Goalでは、作業対象を `path`, `domain`, `activity`, `topic` に分類し、[../harness/rule-map.json](../harness/rule-map.json) から読むべき文書サブグラフを選びます。
+
+Goal本文には、選んだ関連ドキュメントと、選択理由を入力として含めます。すべての `docs/` を読むのではなく、`depends_on` で追加される前提文書を含む最小のサブグラフだけを参照します。
+
 ## 1. Intent / Requirements Goal
 
 何を作るかを定義します。

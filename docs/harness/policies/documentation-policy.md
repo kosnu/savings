@@ -5,6 +5,7 @@ status: accepted
 area: repository
 applies_to:
   - docs
+  - docs/harness
   - apps/web/docs
   - apps/api/docs
 topics:
@@ -14,14 +15,14 @@ topics:
 when_to_read:
   - ドキュメントを追加または更新するとき
   - Codexが参照するドキュメントを判断するとき
-  - AGENTS.mdのドキュメント参照方針を変更するとき
+  - AGENTS.mdやdocs/harnessのドキュメント参照方針を変更するとき
 ---
 
 # Documentation Policy
 
 このリポジトリの恒常的なドキュメントは、front matter を使って対象領域と参照タイミングを明示します。
 
-`AGENTS.md` は強制ルールとドキュメント探索の入口を定義します。各ドキュメントの front matter は、Codex や他の AI agent が現在の作業セッションで読むべき文書を選ぶための探索用メタデータとして扱います。
+`AGENTS.md` は強制ルールとドキュメント探索の入口を定義します。`docs/harness/` は、AI agent が作業対象に応じて参照するガードレール文書と索引を定義します。各ドキュメントの front matter は、Codex や他の AI agent が現在の作業セッションで読むべき文書を選ぶための探索用メタデータとして扱います。
 
 ## 対象
 
@@ -60,7 +61,7 @@ when_to_read:
 
 `status: deprecated` の文書は、廃止済みの挙動や移行経緯を調べる場合を除き、現在の実装方針の根拠にしません。
 
-front matter は探索用メタデータであり、強制ルールではありません。必ず守るべきルールは `AGENTS.md` に置きます。
+front matter は探索用メタデータであり、強制ルールではありません。必ず守るべきルールは `AGENTS.md` に置きます。複数文書の関係や依存を agent に辿らせる場合は、`docs/harness/rule-map.json` で索引化します。
 
 ## 文書の責務
 

@@ -176,7 +176,7 @@
 
 ## 次工程へのメモ
 
-- Design / Plan Goal では、`docs/policies/transaction-boundaries.md` を読み、月予算状態の保存と関連する読み取り更新の operation boundary を決める。
+- Design / Plan Goal では、`docs/harness/policies/transaction-boundaries.md` を読み、月予算状態の保存と関連する読み取り更新の operation boundary を決める。
 - Design / Plan Goal では、「予算なし」の表現方法を少なくとも、状態種別追加、イベント/履歴テーブル、期間終端、RPC による操作単位の観点で比較する。
 - Design / Plan Goal では、既存データの移行方針と、移行直後に既存の有効月予算が変わらないことの確認方法を整理する。
 - Design / Plan Goal では、月予算がない状態の UI 表示を既存の月次合計・サマリー体験と照らして決める。

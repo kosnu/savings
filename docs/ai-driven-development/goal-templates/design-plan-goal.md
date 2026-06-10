@@ -32,12 +32,21 @@ when_to_read:
 - Requirements / PRD:
 - 関連コード:
 - 関連ドキュメント:
-  - docs/domain/
-  - apps/web/docs/policies/design-rules.md
-  - apps/web/docs/policies/domain-ui-rules.md
-  - docs/policies/transaction-boundaries.md
-  - docs/policies/temporal-data.md
+  - docs/harness/rule-map.json で選択したサブグラフ:
 - 既存テスト:
+
+## Harness Context
+
+- Rule map: `docs/harness/rule-map.json`
+- 作業分類:
+  - path:
+  - domain:
+  - activity:
+  - topic:
+- 選択された関連ドキュメント:
+  - path:
+    - 選択理由:
+- depends_onで追加された前提ドキュメント:
 
 ## Scope
 
@@ -65,7 +74,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
   - 識別情報
 - 比較元、基準値、許可範囲、分類、期間を表示するか:
 - loading / empty / error / 未設定 / 0 / 不明 / 削除済みの扱い:
-- `apps/web/docs/policies/design-rules.md` 上の文字階層、一覧、余白、button variant、フォーム、overlay、responsiveとの対応:
+- rule-mapで選択されたWeb UIルール上の文字階層、一覧、余白、button variant、フォーム、overlay、responsiveとの対応:
 
 ## Autonomy
 
@@ -81,6 +90,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 採用する実装方針が説明されている
 - [ ] 採用しない案と理由がある
 - [ ] 関連するドメインルールとの整合性が確認されている
+- [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントとの整合性が確認されている
 - [ ] UIにドメイン値が出る場合、値ごとの利用目的と主表示が決まっている
 - [ ] 複数データ更新がある場合、トランザクション単位と操作境界が整理されている
 - [ ] 有効期間、履歴、月次状態、削除が関わる場合、過去状態の暗黙復活を避ける設計になっている
@@ -108,4 +118,5 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - トランザクション単位を決めるための仕様判断が不足している
 - 現在有効な状態と過去時点の表示を分けるための仕様判断が不足している
 - ユーザーに表示される主要文言を決めるための情報が不足している
+- `docs/harness/rule-map.json` で選ぶべき関連ドキュメントが曖昧
 ```
