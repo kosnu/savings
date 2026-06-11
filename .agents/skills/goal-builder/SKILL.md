@@ -66,6 +66,7 @@ Do not make unrelated repository changes while generating a Goal.
 ### Intent / Requirements
 
 - Treat Issue content as input, not final requirements.
+- Require the Goal to check that the Requirements / PRD does not expand beyond the intent, constraints, out-of-scope items, and success criteria present in the Issue, oversight inputs, and selected documents.
 - Preserve the artifact premise: use the PRD title, Goal, and Issue summary to determine whether a capability is existing behavior or a future capability being introduced.
 - Do not describe future capabilities, states, workflows, UI, APIs, or data models as current behavior.
 - Put current facts and current gaps in Background / Current State; put desired future behavior in Scope, Functional Requirements, Acceptance Criteria, or Q&A.
@@ -75,27 +76,33 @@ Do not make unrelated repository changes while generating a Goal.
 - Do not turn the domain value purpose into a fixed UI layout, display order, or component choice in Requirements / PRD.
 - If user-visible text or feedback matters, require the PRD to state what the user must understand, not the final copy.
 - Include a Done item requiring added Requirements / PRD text to be checked against the artifact premise.
+- Include a Done item requiring the Requirements / PRD to be checked against Issue and oversight inputs for unintended scope expansion.
 - Include a Done item requiring Background / Current State not to describe future behavior as already available.
 - Include a Done item requiring UI domain values to have an explicit purpose when they appear.
+- Add a Stop condition when a requirement or success condition cannot be traced to the Issue, oversight inputs, or selected documents.
 
 ### Design / Plan
 
 - Use the latest Requirements / PRD as the source of truth.
 - Do not implement.
+- Require the Design / Plan to preserve the Requirements / PRD intent, constraints, out-of-scope items, and acceptance criteria without adding product scope.
 - Include output path for `design.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
 - If domain values appear in UI, require `Domain Value UI Decisions` to map each value purpose to the primary thing shown: value, judgment result, state, breakdown, or identity.
 - Require Design / Plan to decide whether comparison sources, baselines, allowed ranges, categories, or periods should be shown as main information or supporting context.
 - Use the rule-map selected Web UI policies for typography, lists, spacing, button variants, forms, overlays, responsive behavior, and domain UI decisions.
 - Ensure user-visible major copy is decided in the Design Doc.
 - If multiple data changes are involved, include the transaction boundary policy selected by `docs/harness/rule-map.json` and require transaction boundary / operation boundary decisions.
+- Add a Stop condition when the Design / Plan would need to introduce product decisions, target features, or success criteria that are not in the Requirements / PRD.
 
 ### Build / Verify
 
 - Use the latest Requirements / PRD and Design Doc as constraints.
+- Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
 - Include concrete verification commands from the template and repository guidance.
 - If review comments are the trigger, require classification before implementation.
 - Stop if the comment belongs upstream to Requirements / PRD, Design Doc, or policy.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
+- Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
 
 ### Ship / Learn
 
@@ -103,6 +110,42 @@ Do not make unrelated repository changes while generating a Goal.
 - Include PR body update, residual risk, knowledge decision, and next Goal candidates.
 - Include review thread replies and resolving only fully completed threads when review comments were handled.
 - Never update memory unless the user explicitly asks for memory update.
+
+## Output Budget
+
+The generated `/goal` input must be 4000 characters or less, including any note before the Markdown Goal.
+
+When the draft would exceed 4000 characters:
+
+- Keep the Goal self-contained, but compress wording before returning it.
+- Prefer paths, issue or PR numbers, and concise evidence summaries over copied source text.
+- Keep only the selected rule-map subgraph and one short reason per document.
+- Collapse long discovery notes, Q&A, risks, and verification details into short bullets.
+- Omit optional background, alternatives, and explanation that are not needed to execute the Goal.
+- Do not omit phase, target artifact path, scope, constraints, required inputs, Done, Verification, or Stop sections.
+- If the Goal still cannot fit within 4000 characters without losing required execution context, return a concise note naming the missing compression decision instead of producing an oversized Goal.
+
+## Token Budget
+
+Prefer references over copied content, and avoid forcing the executor to rediscover context.
+
+- Pass paths, issue numbers, PR numbers, current branch, and selected rule-map entries instead of copying full document bodies.
+- Include the selected rule-map subgraph and concise selection reasons, not the full rule-map contents.
+- Tell the executor to read the provided references first and avoid broad searches unless the references conflict, are insufficient, or trigger a Stop condition.
+- Do not include unrelated workspace artifacts, old PR notes, or long command output in the generated Goal.
+- For small docs-only, one-file, or already-scoped changes, generate one compact Goal instead of forcing all four phases.
+- Keep verification commands concrete, but do not include historical verification logs unless they are directly required.
+
+## Subagent Use
+
+Include subagent instructions only when the Goal has bounded read-heavy work that can run independently.
+
+- Use subagents for file discovery, existing-pattern summaries, selected-doc inspection, upstream scope checks, or verification-failure summaries.
+- Do not use subagents for product scope decisions, final design decisions, file edits, or ambiguous Stop conditions.
+- Prefer lightweight subagents for narrow exploration and summarization.
+- Require the executor to wait for subagent summaries before making the main decision.
+- Keep subagent prompts narrow, and ask for concise findings with file references instead of raw logs or copied source text.
+- Do not add subagent instructions to small one-file or docs-only Goals when direct execution is cheaper.
 
 ## Output
 
