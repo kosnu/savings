@@ -23,7 +23,7 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1411-monthly-budget-t
   - 同一 Book・同一年・同月に、金額あり状態と予算なし状態を重複登録しない。
   - 予算なし状態がある月に金額あり予算を作成する場合は、同じ月の行を `status = 'amount'` に置き換える。
 - `idx_monthly_budgets_book_effective_from` は有効状態取得の主 index として維持する。
-- `docs/domain/monthly-budget.md` は、最新 1 件の金額レコードではなく、最新 1 件の月予算状態イベントで有効状態を決めるルールへ更新する。
+- `docs/harness/domain/monthly-budget.md` は、最新 1 件の金額レコードではなく、最新 1 件の月予算状態イベントで有効状態を決めるルールへ更新する。
 
 ### 読み取り境界
 
@@ -96,7 +96,7 @@ Requirements / PRD: `docs/ai-driven-development/workspaces/1411-monthly-budget-t
   - grant / revoke 追加。
 - `apps/web/src/types/database.types.ts`
   - `monthly_budgets.status` と RPC 型を同期する。
-- `docs/domain/monthly-budget.md`
+- `docs/harness/domain/monthly-budget.md`
   - 有効月予算の判定ルール、予算なし、操作月以降の更新/無効化を反映する。
 
 ### Web

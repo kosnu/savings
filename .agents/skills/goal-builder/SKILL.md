@@ -33,13 +33,13 @@ Read the matching template before drafting the Goal:
 - `docs/ai-driven-development/goal-templates/build-verify-goal.md`
 - `docs/ai-driven-development/goal-templates/ship-learn-goal.md`
 
-Also read these docs when relevant:
+Also read these harness docs before deciding additional references:
 
 - `docs/ai-driven-development/workflow.md`
 - `docs/ai-driven-development/issue-guidelines.md`
-- `apps/web/docs/policies/design-rules.md` when the Goal involves user-facing Web UI
-- `apps/web/docs/policies/domain-ui-rules.md` when the Goal involves domain values shown, entered, compared, summarized, or turned into state in UI
-- `docs/policies/transaction-boundaries.md` when the Design / Plan or Build / Verify Goal involves multiple data changes
+- `docs/harness/rule-map.json`
+
+Use `docs/harness/rule-map.json` to select any additional policy, domain, ADR, design, or app-specific documents. Classify the requested Goal by `path`, `domain`, `activity`, and `topic`, then include the selected document subgraph in the generated Goal inputs.
 
 ## Context Discovery
 
@@ -55,6 +55,13 @@ Use the smallest useful discovery set for the requested phase:
 Do not make unrelated repository changes while generating a Goal.
 
 ## Phase Rules
+
+### Harness Context
+
+- Include `docs/harness/rule-map.json` in every non-trivial Goal that may touch documented behavior, policies, domain rules, ADRs, design decisions, or app-specific guidance.
+- Do not copy all docs into the Goal. Add only the selected subgraph and the reason each selected document applies.
+- When the selected rule-map entry has `depends_on`, include those prerequisite documents in the Goal inputs.
+- If rule-map selection is ambiguous, add a Stop condition requiring the executor to clarify the applicable document subgraph before implementation.
 
 ### Intent / Requirements
 
@@ -78,9 +85,9 @@ Do not make unrelated repository changes while generating a Goal.
 - Include output path for `design.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
 - If domain values appear in UI, require `Domain Value UI Decisions` to map each value purpose to the primary thing shown: value, judgment result, state, breakdown, or identity.
 - Require Design / Plan to decide whether comparison sources, baselines, allowed ranges, categories, or periods should be shown as main information or supporting context.
-- Apply `apps/web/docs/policies/design-rules.md` for typography, lists, spacing, button variants, forms, overlays, and responsive behavior.
+- Use the rule-map selected Web UI policies for typography, lists, spacing, button variants, forms, overlays, responsive behavior, and domain UI decisions.
 - Ensure user-visible major copy is decided in the Design Doc.
-- If multiple data changes are involved, include `docs/policies/transaction-boundaries.md` and require transaction boundary / operation boundary decisions.
+- If multiple data changes are involved, include the transaction boundary policy selected by `docs/harness/rule-map.json` and require transaction boundary / operation boundary decisions.
 
 ### Build / Verify
 
