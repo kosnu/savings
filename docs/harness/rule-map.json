@@ -1,0 +1,403 @@
+{
+  "version": 1,
+  "description": "AI agentが作業対象に応じて読むべきリポジトリ内ドキュメントを選ぶための初期ルールマップ。Markdown本文を置き換えず、docs配下の正本へ案内する補助索引として扱う。",
+  "resolution_order": [
+    "specific_applies_to",
+    "depends_on",
+    "overrides",
+    "priority",
+    "stop_and_clarify"
+  ],
+  "rules": [
+    {
+      "id": "adr.harness-engineering",
+      "file": "docs/adr/0001-adopt-harness-engineering.md",
+      "applies_to": {
+        "paths": ["AGENTS.md", "CLAUDE.md", "docs/harness/**"],
+        "domains": ["repository", "harness"],
+        "activities": ["design_agent_harness", "update_agent_entrypoint", "design_document_system"],
+        "topics": ["harness-engineering", "agentic-coding", "guardrails"]
+      },
+      "depends_on": ["documentation.policy"],
+      "overrides": [],
+      "priority": 100
+    },
+    {
+      "id": "adr.agent-rule-graph",
+      "file": "docs/adr/0002-adopt-agent-rule-graph.md",
+      "applies_to": {
+        "paths": ["AGENTS.md", "CLAUDE.md", "docs/harness/**", "docs/**/*.md", "apps/*/docs/**/*.md"],
+        "domains": ["repository", "harness", "documentation"],
+        "activities": ["select_agent_context", "update_rule_map", "update_agent_entrypoint", "classify_docs"],
+        "topics": ["rule-graph", "front-matter", "agent-guidance", "deterministic-document-retrieval"]
+      },
+      "depends_on": ["adr.harness-engineering", "documentation.policy"],
+      "overrides": [],
+      "priority": 100
+    },
+    {
+      "id": "documentation.policy",
+      "file": "docs/harness/policies/documentation-policy.md",
+      "applies_to": {
+        "paths": ["docs/**/*.md", "apps/*/docs/**/*.md", "AGENTS.md"],
+        "domains": ["repository", "documentation"],
+        "activities": ["add_doc", "update_doc", "classify_docs", "update_front_matter"],
+        "topics": ["documentation", "front-matter", "agent-guidance"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 95
+    },
+    {
+      "id": "architecture.overview",
+      "file": "docs/architecture.md",
+      "applies_to": {
+        "paths": [".", "apps/**", "docs/architecture.md"],
+        "domains": ["repository", "architecture"],
+        "activities": ["inspect_repository_structure", "plan_cross_app_change", "change_architecture"],
+        "topics": ["architecture", "monorepo", "project-structure"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 85
+    },
+    {
+      "id": "infrastructure.overview",
+      "file": "docs/infrastructure.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**", "docs/infrastructure.md"],
+        "domains": ["infrastructure", "web", "api"],
+        "activities": ["change_hosting", "change_auth", "change_database", "inspect_infrastructure"],
+        "topics": ["cloudflare", "supabase", "hosting", "database"]
+      },
+      "depends_on": ["architecture.overview"],
+      "overrides": [],
+      "priority": 80
+    },
+    {
+      "id": "ai-driven.overview",
+      "file": "docs/ai-driven-development/overview.md",
+      "applies_to": {
+        "paths": ["docs/ai-driven-development/**"],
+        "domains": ["repository", "ai-driven-development"],
+        "activities": ["define_goal", "plan_ai_driven_work", "explain_ai_driven_process"],
+        "topics": ["ai-driven-development", "codex-goal", "prd", "design-doc"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 90
+    },
+    {
+      "id": "ai-driven.workflow",
+      "file": "docs/ai-driven-development/workflow.md",
+      "applies_to": {
+        "paths": ["docs/ai-driven-development/**", "docs/**/*.md", "apps/**"],
+        "domains": ["repository", "ai-driven-development"],
+        "activities": ["choose_goal_phase", "write_prd", "write_design_doc", "build_verify", "ship_learn"],
+        "topics": ["workflow", "prd", "design-doc", "pull-request", "verification"]
+      },
+      "depends_on": ["ai-driven.overview"],
+      "overrides": [],
+      "priority": 88
+    },
+    {
+      "id": "ai-driven.issue-guidelines",
+      "file": "docs/ai-driven-development/issue-guidelines.md",
+      "applies_to": {
+        "paths": [".github/ISSUE_TEMPLATE/**", "docs/ai-driven-development/**"],
+        "domains": ["repository", "ai-driven-development"],
+        "activities": ["create_issue", "write_prd_issue", "refine_requirements"],
+        "topics": ["issue", "prd", "requirements", "ai-driven-development"]
+      },
+      "depends_on": ["ai-driven.workflow"],
+      "overrides": [],
+      "priority": 86
+    },
+    {
+      "id": "ai-driven.goal-templates",
+      "file": "docs/ai-driven-development/goal-templates/index.md",
+      "applies_to": {
+        "paths": ["docs/ai-driven-development/goal-templates/**"],
+        "domains": ["repository", "ai-driven-development"],
+        "activities": ["create_goal", "write_goal_template", "execute_goal_phase"],
+        "topics": ["codex-goal", "goal-template", "requirements", "design", "verification", "ship"]
+      },
+      "depends_on": ["ai-driven.workflow"],
+      "overrides": [],
+      "priority": 84
+    },
+    {
+      "id": "policy.git-workflow",
+      "file": "docs/harness/policies/git-workflow.md",
+      "applies_to": {
+        "paths": [".git/**", ".github/**", "docs/**", "apps/**"],
+        "domains": ["repository", "git", "github"],
+        "activities": ["create_branch", "stage_changes", "commit_changes", "push_branch", "create_pr", "update_pr"],
+        "topics": ["git", "branch", "commit", "pull-request", "review"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 96
+    },
+    {
+      "id": "policy.review-feedback-classification",
+      "file": "docs/harness/policies/review-feedback-classification.md",
+      "applies_to": {
+        "paths": [".github/**", "docs/**", "apps/**"],
+        "domains": ["repository", "review", "github"],
+        "activities": ["address_review_comment", "classify_review_feedback", "reply_review_comment", "resolve_review_thread"],
+        "topics": ["review", "pull-request", "requirements", "design", "verification"]
+      },
+      "depends_on": ["ai-driven.workflow", "policy.git-workflow"],
+      "overrides": [],
+      "priority": 94
+    },
+    {
+      "id": "policy.transaction-boundaries",
+      "file": "docs/harness/policies/transaction-boundaries.md",
+      "applies_to": {
+        "paths": ["apps/api/**", "apps/web/**", "docs/harness/policies/transaction-boundaries.md"],
+        "domains": ["api", "web", "database"],
+        "activities": ["change_mutation", "change_rpc", "change_transaction_boundary", "review_data_consistency"],
+        "topics": ["transaction", "rpc", "database", "consistency"]
+      },
+      "depends_on": ["architecture.overview"],
+      "overrides": [],
+      "priority": 88
+    },
+    {
+      "id": "policy.temporal-data",
+      "file": "docs/harness/policies/temporal-data.md",
+      "applies_to": {
+        "paths": ["apps/api/**", "apps/web/**", "docs/harness/domain/**"],
+        "domains": ["domain", "database", "web", "api"],
+        "activities": ["change_temporal_rule", "change_month_scope", "change_effective_date", "review_time_dependent_behavior"],
+        "topics": ["temporal-data", "date", "month", "history"]
+      },
+      "depends_on": ["domain.date"],
+      "overrides": [],
+      "priority": 87
+    },
+    {
+      "id": "domain.amount",
+      "file": "docs/harness/domain/amount.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**"],
+        "domains": ["domain", "amount"],
+        "activities": ["change_amount_logic", "change_money_display", "review_amount_behavior"],
+        "topics": ["amount", "money"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 78
+    },
+    {
+      "id": "domain.date",
+      "file": "docs/harness/domain/date.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**"],
+        "domains": ["domain", "date"],
+        "activities": ["change_date_logic", "change_month_scope", "review_date_behavior"],
+        "topics": ["date", "month", "timezone"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 78
+    },
+    {
+      "id": "domain.payment",
+      "file": "docs/harness/domain/payment.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**"],
+        "domains": ["domain", "payment"],
+        "activities": ["change_payment_behavior", "change_payment_ui", "review_payment_domain"],
+        "topics": ["payment", "transaction", "category"]
+      },
+      "depends_on": ["domain.amount", "domain.date", "domain.category"],
+      "overrides": [],
+      "priority": 82
+    },
+    {
+      "id": "domain.category",
+      "file": "docs/harness/domain/category.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**"],
+        "domains": ["domain", "category"],
+        "activities": ["change_category_behavior", "change_category_ui", "review_category_domain"],
+        "topics": ["category", "payment"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 80
+    },
+    {
+      "id": "domain.monthly-budget",
+      "file": "docs/harness/domain/monthly-budget.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**"],
+        "domains": ["domain", "budget"],
+        "activities": ["change_monthly_budget", "change_budget_ui", "review_budget_domain"],
+        "topics": ["monthly-budget", "budget", "month"]
+      },
+      "depends_on": ["domain.amount", "domain.date", "policy.temporal-data"],
+      "overrides": [],
+      "priority": 82
+    },
+    {
+      "id": "domain.book",
+      "file": "docs/harness/domain/book.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**"],
+        "domains": ["domain", "book"],
+        "activities": ["change_book_behavior", "review_book_domain"],
+        "topics": ["book", "user"]
+      },
+      "depends_on": ["domain.user"],
+      "overrides": [],
+      "priority": 76
+    },
+    {
+      "id": "domain.user",
+      "file": "docs/harness/domain/user.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/api/**"],
+        "domains": ["domain", "user", "auth"],
+        "activities": ["change_user_behavior", "change_auth_assumption", "review_user_domain"],
+        "topics": ["user", "auth"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 76
+    },
+    {
+      "id": "web.component-structure",
+      "file": "apps/web/docs/policies/component-structure.md",
+      "applies_to": {
+        "paths": ["apps/web/src/components/**", "apps/web/src/features/**"],
+        "domains": ["web", "ui"],
+        "activities": ["add_component", "move_component", "extract_component"],
+        "topics": ["component-structure", "frontend-architecture", "project-structure"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 90
+    },
+    {
+      "id": "web.design-rules",
+      "file": "apps/web/docs/policies/design-rules.md",
+      "applies_to": {
+        "paths": ["apps/web/src/**", "apps/web/docs/**"],
+        "domains": ["web", "ui"],
+        "activities": ["change_ui", "design_screen", "change_form", "change_dialog", "change_responsive_layout"],
+        "topics": ["design-system", "ui", "typography", "layout", "responsive"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 88
+    },
+    {
+      "id": "web.domain-rules",
+      "file": "apps/web/docs/policies/domain-rules.md",
+      "applies_to": {
+        "paths": ["apps/web/src/domain/**", "apps/web/src/features/**", "apps/web/src/utils/**"],
+        "domains": ["web", "domain"],
+        "activities": ["add_domain_rule", "move_value_rule", "review_frontend_domain_boundary"],
+        "topics": ["domain-rules", "frontend-architecture", "project-structure"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 86
+    },
+    {
+      "id": "web.domain-ui-rules",
+      "file": "apps/web/docs/policies/domain-ui-rules.md",
+      "applies_to": {
+        "paths": ["apps/web/src/features/**", "apps/web/src/app/routes/**"],
+        "domains": ["web", "ui", "domain"],
+        "activities": ["change_domain_ui", "change_payment_ui", "change_category_ui", "change_budget_ui"],
+        "topics": ["domain-ui", "payments", "categories", "budgets", "date", "amount"]
+      },
+      "depends_on": ["web.design-rules", "domain.amount", "domain.date"],
+      "overrides": [],
+      "priority": 87
+    },
+    {
+      "id": "web.feature-directory",
+      "file": "apps/web/docs/policies/feature-directory.md",
+      "applies_to": {
+        "paths": ["apps/web/src/features/**"],
+        "domains": ["web"],
+        "activities": ["add_feature_directory", "move_feature_code", "change_feature_boundary"],
+        "topics": ["feature-directory", "project-structure", "frontend-architecture"]
+      },
+      "depends_on": ["web.component-structure"],
+      "overrides": [],
+      "priority": 86
+    },
+    {
+      "id": "web.query-cache",
+      "file": "apps/web/docs/policies/query-cache.md",
+      "applies_to": {
+        "paths": ["apps/web/src/**"],
+        "domains": ["web"],
+        "activities": ["change_query", "change_mutation", "change_cache_invalidation"],
+        "topics": ["react-query", "cache", "frontend-architecture"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 86
+    },
+    {
+      "id": "web.suspense-boundaries",
+      "file": "apps/web/docs/policies/suspense-boundaries.md",
+      "applies_to": {
+        "paths": ["apps/web/src/**"],
+        "domains": ["web"],
+        "activities": ["change_suspense", "change_error_boundary", "change_async_loading"],
+        "topics": ["suspense", "react-query", "error-boundary"]
+      },
+      "depends_on": ["web.query-cache", "web.test-policy"],
+      "overrides": [],
+      "priority": 85
+    },
+    {
+      "id": "web.msw-handlers",
+      "file": "apps/web/docs/policies/msw-handlers.md",
+      "applies_to": {
+        "paths": ["apps/web/src/test/msw/handlers/**"],
+        "domains": ["web", "test"],
+        "activities": ["add_msw_handler", "change_msw_handler", "test_api_interaction"],
+        "topics": ["msw", "test", "mock"]
+      },
+      "depends_on": ["web.test-policy", "web.suspense-boundaries"],
+      "overrides": [],
+      "priority": 84
+    },
+    {
+      "id": "web.test-policy",
+      "file": "apps/web/docs/policies/test-policy.md",
+      "applies_to": {
+        "paths": ["apps/web/src/**"],
+        "domains": ["web", "test"],
+        "activities": ["add_test", "change_test", "review_test_gap"],
+        "topics": ["test", "regression"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 84
+    },
+    {
+      "id": "web.storybook-browser-tests",
+      "file": "apps/web/docs/policies/storybook-browser-tests.md",
+      "applies_to": {
+        "paths": ["apps/web/**", "apps/web/.storybook-test/**"],
+        "domains": ["web", "test"],
+        "activities": ["change_storybook_browser_test", "add_page_story", "change_browser_test_config"],
+        "topics": ["storybook", "browser-test", "vitest"]
+      },
+      "depends_on": ["web.test-policy"],
+      "overrides": [],
+      "priority": 83
+    }
+  ]
+}

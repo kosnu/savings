@@ -62,6 +62,23 @@ OpenAIのagent evalsでは、traces、graders、datasets、eval runsを使って
 
 - [Evaluate agent workflows | OpenAI API](https://developers.openai.com/api/docs/guides/agent-evals)
 
+## OpenAI: Harness Engineering
+
+OpenAIの「ハーネスエンジニアリング」では、agent-first な開発では人間の役割が、手作業のコーディングから、agent が信頼できる作業を行うための環境、意図、フィードバックループの設計へ移ると説明されています。
+
+このリポジトリでの解釈:
+
+- `AGENTS.md` は巨大なマニュアルではなく、短い目次として扱う
+- `docs/` は、人間と agent が共有する記録システムとして扱う
+- 設計判断、計画、生成された参照情報、技術的負債、品質情報は、agent が辿れる形でリポジトリに残す
+- 強い不変条件は、ドキュメントだけでなく lint、CI、tests、scripts へ昇格する
+
+採用判断は [Adopt Harness Engineering](../adr/0001-adopt-harness-engineering.md) にまとめる。
+
+参照:
+
+- [ハーネスエンジニアリング：エージェントファーストの世界における Codex の活用 | OpenAI](https://openai.com/ja-JP/index/harness-engineering/)
+
 ## Anthropic: Claude Code Overview
 
 Claude Codeのoverviewでは、Claude Codeはコードベースを読み、ファイル編集、コマンド実行、開発ツール連携を行うagentic coding toolとして説明されています。機能実装、バグ修正、開発タスクの自動化、commitやpull request作成、instructions / skills / hooks / memoryによるカスタマイズも扱われています。

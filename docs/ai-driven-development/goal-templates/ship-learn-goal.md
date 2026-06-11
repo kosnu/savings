@@ -37,6 +37,8 @@ when_to_read:
 - 関連Issue:
 - 関連PR:
 - 対応済みレビューコメント:
+- 関連ドキュメント:
+  - docs/harness/rule-map.json で選択したサブグラフ:
 
 ## Scope
 
@@ -47,12 +49,25 @@ when_to_read:
 - 更新してよいドキュメント:
 - 更新しない領域:
 
+## Harness Context
+
+- Rule map: `docs/harness/rule-map.json`
+- 作業分類:
+  - path:
+  - domain:
+  - activity:
+  - topic:
+- 選択された関連ドキュメント:
+  - path:
+    - 選択理由:
+- depends_onで追加された前提ドキュメント:
+
 ## Autonomy
 
 - AIは差分を確認してよい
 - AIはPR本文を作成してよい
 - AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
-- AIは `docs/policies/review-feedback-classification.md` に沿って対応済みレビューコメントへ返信してよい
+- AIは `docs/harness/policies/review-feedback-classification.md` に沿って対応済みレビューコメントへ返信してよい
 - AIは完全に完了したreview threadだけをresolveしてよい
 - AIは未解決の仕様判断を完了扱いしてはいけない
 - AIは恒久化すべき知見の候補を挙げてよい
@@ -62,6 +77,7 @@ when_to_read:
 
 - [ ] PR本文に関連PRDがある
 - [ ] PR本文に関連Design Docがある
+- [ ] PR本文または残リスクに、必要な関連ドキュメントとの接続がある
 - [ ] 変更内容が要約されている
 - [ ] 受け入れ条件との対応が説明されている
 - [ ] 検証結果が書かれている
