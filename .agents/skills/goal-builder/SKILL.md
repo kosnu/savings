@@ -111,6 +111,20 @@ Do not make unrelated repository changes while generating a Goal.
 - Include review thread replies and resolving only fully completed threads when review comments were handled.
 - Never update memory unless the user explicitly asks for memory update.
 
+## Output Budget
+
+The generated `/goal` input must be 4000 characters or less, including any note before the Markdown Goal.
+
+When the draft would exceed 4000 characters:
+
+- Keep the Goal self-contained, but compress wording before returning it.
+- Prefer paths, issue or PR numbers, and concise evidence summaries over copied source text.
+- Keep only the selected rule-map subgraph and one short reason per document.
+- Collapse long discovery notes, Q&A, risks, and verification details into short bullets.
+- Omit optional background, alternatives, and explanation that are not needed to execute the Goal.
+- Do not omit phase, target artifact path, scope, constraints, required inputs, Done, Verification, or Stop sections.
+- If the Goal still cannot fit within 4000 characters without losing required execution context, return a concise note naming the missing compression decision instead of producing an oversized Goal.
+
 ## Output
 
 Return only:
