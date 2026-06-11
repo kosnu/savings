@@ -66,6 +66,7 @@ Do not make unrelated repository changes while generating a Goal.
 ### Intent / Requirements
 
 - Treat Issue content as input, not final requirements.
+- Require the Goal to check that the Requirements / PRD does not expand beyond the intent, constraints, out-of-scope items, and success criteria present in the Issue, oversight inputs, and selected documents.
 - Preserve the artifact premise: use the PRD title, Goal, and Issue summary to determine whether a capability is existing behavior or a future capability being introduced.
 - Do not describe future capabilities, states, workflows, UI, APIs, or data models as current behavior.
 - Put current facts and current gaps in Background / Current State; put desired future behavior in Scope, Functional Requirements, Acceptance Criteria, or Q&A.
@@ -75,27 +76,33 @@ Do not make unrelated repository changes while generating a Goal.
 - Do not turn the domain value purpose into a fixed UI layout, display order, or component choice in Requirements / PRD.
 - If user-visible text or feedback matters, require the PRD to state what the user must understand, not the final copy.
 - Include a Done item requiring added Requirements / PRD text to be checked against the artifact premise.
+- Include a Done item requiring the Requirements / PRD to be checked against Issue and oversight inputs for unintended scope expansion.
 - Include a Done item requiring Background / Current State not to describe future behavior as already available.
 - Include a Done item requiring UI domain values to have an explicit purpose when they appear.
+- Add a Stop condition when a requirement or success condition cannot be traced to the Issue, oversight inputs, or selected documents.
 
 ### Design / Plan
 
 - Use the latest Requirements / PRD as the source of truth.
 - Do not implement.
+- Require the Design / Plan to preserve the Requirements / PRD intent, constraints, out-of-scope items, and acceptance criteria without adding product scope.
 - Include output path for `design.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
 - If domain values appear in UI, require `Domain Value UI Decisions` to map each value purpose to the primary thing shown: value, judgment result, state, breakdown, or identity.
 - Require Design / Plan to decide whether comparison sources, baselines, allowed ranges, categories, or periods should be shown as main information or supporting context.
 - Use the rule-map selected Web UI policies for typography, lists, spacing, button variants, forms, overlays, responsive behavior, and domain UI decisions.
 - Ensure user-visible major copy is decided in the Design Doc.
 - If multiple data changes are involved, include the transaction boundary policy selected by `docs/harness/rule-map.json` and require transaction boundary / operation boundary decisions.
+- Add a Stop condition when the Design / Plan would need to introduce product decisions, target features, or success criteria that are not in the Requirements / PRD.
 
 ### Build / Verify
 
 - Use the latest Requirements / PRD and Design Doc as constraints.
+- Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
 - Include concrete verification commands from the template and repository guidance.
 - If review comments are the trigger, require classification before implementation.
 - Stop if the comment belongs upstream to Requirements / PRD, Design Doc, or policy.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
+- Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
 
 ### Ship / Learn
 
