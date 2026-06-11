@@ -125,6 +125,28 @@ When the draft would exceed 4000 characters:
 - Do not omit phase, target artifact path, scope, constraints, required inputs, Done, Verification, or Stop sections.
 - If the Goal still cannot fit within 4000 characters without losing required execution context, return a concise note naming the missing compression decision instead of producing an oversized Goal.
 
+## Token Budget
+
+Prefer references over copied content, and avoid forcing the executor to rediscover context.
+
+- Pass paths, issue numbers, PR numbers, current branch, and selected rule-map entries instead of copying full document bodies.
+- Include the selected rule-map subgraph and concise selection reasons, not the full rule-map contents.
+- Tell the executor to read the provided references first and avoid broad searches unless the references conflict, are insufficient, or trigger a Stop condition.
+- Do not include unrelated workspace artifacts, old PR notes, or long command output in the generated Goal.
+- For small docs-only, one-file, or already-scoped changes, generate one compact Goal instead of forcing all four phases.
+- Keep verification commands concrete, but do not include historical verification logs unless they are directly required.
+
+## Subagent Use
+
+Include subagent instructions only when the Goal has bounded read-heavy work that can run independently.
+
+- Use subagents for file discovery, existing-pattern summaries, selected-doc inspection, upstream scope checks, or verification-failure summaries.
+- Do not use subagents for product scope decisions, final design decisions, file edits, or ambiguous Stop conditions.
+- Prefer lightweight subagents for narrow exploration and summarization.
+- Require the executor to wait for subagent summaries before making the main decision.
+- Keep subagent prompts narrow, and ask for concise findings with file references instead of raw logs or copied source text.
+- Do not add subagent instructions to small one-file or docs-only Goals when direct execution is cheaper.
+
 ## Output
 
 Return only:
