@@ -66,6 +66,7 @@ when_to_read:
 
 - [ ] PRDの受け入れ条件を満たしている
 - [ ] Design Docの方針から逸脱していない
+- [ ] Requirements / PRDとDesign Docの意図・制約・対象外から解釈を広げていない
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントから逸脱していない
 - [ ] レビューコメント起点の場合、`docs/harness/policies/review-feedback-classification.md` に沿って修正前に工程分類し、Build / Verify対象だけを修正している
 - [ ] 関連テストが追加・更新されている
@@ -92,6 +93,7 @@ when_to_read:
 - 最小差分で対応する
 - 無関係なリファクタをしない
 - 既存の設計・命名・ディレクトリ構成に合わせる
+- Requirements / PRDとDesign Docで決まっていない仕様、対象機能、成功条件を実装で補わない
 - ユーザーに表示される主要文言はDesign Docで決まった内容から勝手に変えない
 - 決定済みの上限値・閾値・文言内数値は二重管理しない
 - 実装方式を変えたテストでは、旧方式の不要なmock、setup、expectationを残さない
@@ -105,6 +107,7 @@ when_to_read:
 - レビューコメントの工程分類が曖昧
 - Design Docまたは関連ドメインルールと違う実装が必要
 - `docs/harness/rule-map.json` で選択した関連ドキュメントと違う実装が必要
+- 実装中にRequirements / PRDまたはDesign Docの解釈を広げる必要がある
 - 実装に必要な主要文言がDesign Docで決まっていない
 - スコープ外の変更が必要
 - 受け入れ条件に矛盾がある
