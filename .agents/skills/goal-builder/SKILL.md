@@ -56,11 +56,13 @@ Do not make unrelated repository changes while generating a Goal.
 
 ## Phase Rules
 
-### Harness Context
+### Rule Selection
 
 - Include `docs/harness/rule-map.json` in every non-trivial Goal that may touch documented behavior, policies, domain rules, ADRs, design decisions, or app-specific guidance.
 - Do not copy all docs into the Goal. Add only the selected subgraph and the reason each selected document applies.
-- When the selected rule-map entry has `depends_on`, include those prerequisite documents in the Goal inputs.
+- For each selected rule-map entry, include `id`, `file`, and a concise selection reason in the Goal inputs.
+- When the selected rule-map entry has `depends_on`, include those prerequisite documents with `id`, `file`, and a concise reason in the Goal inputs.
+- When `overrides` or `priority` is used to resolve competing entries, include the conflict decision in the Goal inputs.
 - If rule-map selection is ambiguous, add a Stop condition requiring the executor to clarify the applicable document subgraph before implementation.
 
 ### Intent / Requirements
