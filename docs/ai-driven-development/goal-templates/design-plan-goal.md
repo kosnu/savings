@@ -35,7 +35,7 @@ when_to_read:
   - docs/harness/rule-map.json で選択したサブグラフ:
 - 既存テスト:
 
-## Harness Context
+## Rule Selection
 
 - Rule map: `docs/harness/rule-map.json`
 - 作業分類:
@@ -43,10 +43,9 @@ when_to_read:
   - domain:
   - activity:
   - topic:
-- 選択された関連ドキュメント:
-  - path:
-    - 選択理由:
-- depends_onで追加された前提ドキュメント:
+- Selected nodes: `id` -> `file`: reason
+- Depends-on nodes: `id` -> `file`: reason
+- Conflict decision: none / overrides / priority
 
 ## Scope
 
