@@ -41,8 +41,10 @@ AI agent にすべてのドキュメントを毎回読ませると、context を
 - 正本は Markdown に置く。
 - `docs/harness/rule-map.json` は、Markdown 正本へ案内する補助索引として扱う。
 - `rule-map.json` は `id`, `file`, `applies_to`, `depends_on`, `overrides`, `priority` を持つ。
+- `id` は文書ノード、`depends_on` は前提参照、`overrides` は競合解決、`priority` は競合解決の補助値、`applies_to` は作業依頼から文書を選ぶ条件として扱う。
 - agent は依頼を `path`, `domain`, `activity`, `topic` に分類し、該当するサブグラフだけを読む。
 - `depends_on` で前提文書を追加し、`overrides` と `priority` で競合を整理する。
+- ルールが Done、Stop、Verification、test、lint、review のどこで確認されたかは、正本を置き換えない provenance として作業成果物に記録する。
 - 曖昧さが残る場合は、agent が止まり、人間に確認する。
 
 ## Consequences
@@ -50,5 +52,7 @@ AI agent にすべてのドキュメントを毎回読ませると、context を
 - `AGENTS.md` や agent 固有入口ファイルには、ルール本文ではなく探索手順を置く。
 - `docs/harness/rule-map.json` の `file` は、`docs/harness/` 以外の正本文書も参照できる。
 - すべての `docs/` を最初からノード化しない。まずは、誤適用が痛いポリシー、依存関係があるADR、作業対象ごとに読むべき設計判断から索引化する。
+- このルールグラフはグラフ理論や専用graph管理基盤の導入ではなく、agent が必要な文書、前提、競合、検証接続を辿るための追跡可能な構造である。
 - `priority` だけで仕様判断を隠さない。解決できない競合は人間に確認する。
+- provenance は補助情報であり、正本 Markdown と矛盾する場合は Markdown を優先して修正する。
 - 機械的に検出できる不変条件は、Markdown だけに置かず lint、CI、tests、scripts へ昇格する。
