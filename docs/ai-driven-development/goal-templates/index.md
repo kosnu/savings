@@ -20,6 +20,8 @@ when_to_read:
 
 必要なGoalだけコピーして使うためのテンプレート集です。
 
+非自明なGoalを作る場合は、テンプレート本文を長くコピーするのではなく、[../workflow.md](../workflow.md) のContext Packetに入力を圧縮します。探索や要約が必要な場合も、長い調査ログではなく、選択した参照、制約、リスク、Stop条件だけをGoalに残します。
+
 - [Intent / Requirements Goal](./intent-requirements-goal.md)
 - [Design / Plan Goal](./design-plan-goal.md)
 - [Build / Verify Goal](./build-verify-goal.md)
