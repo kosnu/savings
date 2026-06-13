@@ -35,6 +35,11 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 Use these rules to apply the repository conventions efficiently without weakening the mandatory rules below.
 
+### Command Rules
+
+- When passing extra arguments to pnpm workspace scripts, pass them directly after the script name by default, for example `pnpm --filter web storybook --no-open`.
+- Use `--` only after confirming the target script or underlying CLI requires it.
+
 ### Goal And Success Criteria
 
 - Start from the requested outcome, constraints, and success criteria; then choose the smallest useful path that preserves correctness, repository conventions, and user intent.

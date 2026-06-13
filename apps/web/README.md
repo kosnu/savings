@@ -60,7 +60,7 @@ pnpm dev
 コンポーネントの開発には Storybook を利用しています。Storybook を起動するには：
 
 ```bash
-pnpm storybook -- --no-open
+pnpm storybook --no-open
 ```
 
 ## テスト
