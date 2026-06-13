@@ -75,13 +75,15 @@ when_to_read:
 
 ## Verification
 
+- 検証前に実行:
+  - `pnpm run web:format`
 - 必ず実行:
   - `pnpm run web:lint`
   - `pnpm run web:format-check`
   - `pnpm run web:typecheck`
-  - `pnpm --filter web exec vp test run --project unit --project integration --reporter=dot --silent`
+  - `pnpm run web:test:unit-integration`
 - 必要なら実行:
-  - `pnpm --filter web test:storybook --reporter=dot --silent`
+  - `pnpm run web:test:storybook`
 - 実行しない:
   -
 - 手動確認:

@@ -60,7 +60,7 @@ pnpm dev
 コンポーネントの開発には Storybook を利用しています。Storybook を起動するには：
 
 ```bash
-pnpm storybook -- --no-open
+pnpm storybook --no-open
 ```
 
 ## テスト
@@ -92,7 +92,7 @@ pnpm typecheck
 ```bash
 # apps/api/ で Supabase を起動
 cd ../api
-pnpm up
+pnpm start
 
 # その後、apps/web から通常通り起動
 cd ../web

@@ -35,6 +35,11 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 Use these rules to apply the repository conventions efficiently without weakening the mandatory rules below.
 
+### Command Rules
+
+- When passing extra arguments to pnpm workspace scripts, pass them directly after the script name by default, for example `pnpm --filter web storybook --no-open`.
+- Use `--` only after confirming the target script or underlying CLI requires it.
+
 ### Goal And Success Criteria
 
 - Start from the requested outcome, constraints, and success criteria; then choose the smallest useful path that preserves correctness, repository conventions, and user intent.
@@ -104,12 +109,15 @@ do not require verification.
 - After fixing a failure, start any required reruns as a new verification batch only after the previous batch has fully completed.
 
 - **Web** (`apps/web/`)
+  Before starting the verification batch for application code changes, run:
+  `pnpm run web:format`
+
   Run these commands in the same verification batch:
   `pnpm run web:lint`
   `pnpm run web:format-check`
   `pnpm run web:typecheck`
-  `pnpm --filter web exec vp test run --project unit --project integration --reporter=dot --silent`
+  `pnpm run web:test:unit-integration`
 
-  Run `pnpm --filter web test:storybook --reporter=dot --silent` only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
+  Run `pnpm run web:test:storybook` only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
 - **API** (`apps/api`)
   No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.
