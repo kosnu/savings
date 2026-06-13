@@ -43,6 +43,23 @@ AIが行った作業を出荷判断できる形に整え、必要な学習を次
 
 Goal本文には、選んだ関連ドキュメントと、選択理由を入力として含めます。すべての `docs/` を読むのではなく、`depends_on` で追加される前提文書を含む最小のサブグラフだけを参照します。
 
+## Context Packet
+
+非自明なGoalでは、本文に長い調査メモやドキュメント本文をコピーせず、実行開始時の入力をContext Packetに圧縮します。
+
+Context Packetは、Goal実行者が最初に読むべき最小の作業文脈です。広い探索を始める前に、決定的に絞れる情報は `rule-map.json`、front matter、path、Issue / PR番号、`rg` などで候補化します。必要な場合だけ、低コストの探索用サブエージェントに候補の確認や要約を任せます。
+
+Context Packetには次だけを含めます。
+
+- Scope: 対象成果物、対象外、変更してよい範囲。
+- Selected refs: 読むべきファイル、rule-map ID、選択理由。
+- Constraints: Issue、PRD、Design Doc、policy、domain ruleから来る制約。
+- Known risks: 既知の不確実性、影響範囲、検証上の注意。
+- Stop checks: 実行者が止まるべき条件。
+- Verification expectations: 該当する検証の種類。コマンド全文は同じリポジトリ指示を読める場合は重複させません。
+
+実行者はContext Packetから開始し、引用されたファイルだけを読むことを基本にします。Packetが不足、矛盾、またはStop条件を示す場合だけ、追加探索または人間への確認に進みます。
+
 ## 1. Intent / Requirements Goal
 
 何を作るかを定義します。

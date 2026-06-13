@@ -1,0 +1,7 @@
+interface:
+  display_name: "Context Scout"
+  short_description: "Low-cost bounded repository discovery and Context Packet material"
+  default_prompt: "Use $context-scout with the context-scout custom agent to find the smallest relevant repository context and return concise file-referenced findings for a main executor."
+
+policy:
+  allow_implicit_invocation: true
