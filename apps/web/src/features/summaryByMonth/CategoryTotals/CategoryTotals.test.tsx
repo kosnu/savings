@@ -29,6 +29,8 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("￥1,000")).toBeInTheDocument()
     expect(await screen.findByText("￥4,000")).toBeInTheDocument()
     expect(await screen.findAllByText("￥0")).toHaveLength(1)
+    expect(await screen.findByText("￥29,000 left")).toBeInTheDocument()
+    expect(await screen.findByText("On budget")).toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "Show more category totals" }))
 
@@ -99,6 +101,24 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("Entertainment")).toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
+  })
+
+  test("予算超過を差分として表示し、予算未設定では差分を表示しない", async () => {
+    server.resetHandlers(
+      ...createCategoryHandlers({
+        get: {
+          budgetRows: [
+            { category_id: 10, status: "amount", amount: 0 },
+            { category_id: 20, status: "none", amount: null },
+          ],
+        },
+      }),
+      ...createPaymentHandlers(),
+    )
+    renderStory()
+
+    expect(await screen.findByText("￥1,000 over")).toBeInTheDocument()
+    expect(screen.queryByText("￥4,000 left")).not.toBeInTheDocument()
   })
 
   test("Unknownという名前のカテゴリと未分類支払いを別行で表示する", async () => {

@@ -29,10 +29,14 @@ describe("fetchCategorySettingsItems", () => {
     server.resetHandlers(...createCategorySettingsHandlers())
   })
 
-  it("カテゴリ設定行を取得してピン状態を正規化する", async () => {
+  it("カテゴリ設定行と有効予算を取得して正規化する", async () => {
     server.resetHandlers(
       ...createCategorySettingsHandlers({
         response: [foodCategoryPinned, dailyNecessitiesCategory],
+        budgetResponse: [
+          { category_id: 10, status: "amount", amount: 0 },
+          { category_id: 20, status: "none", amount: null },
+        ],
       }),
     )
 
@@ -46,6 +50,8 @@ describe("fetchCategorySettingsItems", () => {
           name: "Food",
         },
         pinned: true,
+        budgetStatus: "amount",
+        budgetAmount: 0,
       },
       {
         category: {
@@ -54,18 +60,30 @@ describe("fetchCategorySettingsItems", () => {
           name: "Daily Necessities",
         },
         pinned: false,
+        budgetStatus: "none",
+        budgetAmount: null,
       },
     ])
   })
 
-  it("カテゴリ起点の1 requestで必要な読み取り列を取得する", async () => {
-    const requestCapture: { url: URL | null } = { url: null }
-    let requestCount = 0
+  it("カテゴリ起点の一覧と有効予算RPCを取得する", async () => {
+    const requestCapture: { categoriesUrl: URL | null; budgetBody: unknown } = {
+      categoriesUrl: null,
+      budgetBody: null,
+    }
+    let categoriesRequestCount = 0
+    let budgetRequestCount = 0
 
     server.use(
       http.get("*/rest/v1/categories*", ({ request }) => {
-        requestCount += 1
-        requestCapture.url = new URL(request.url)
+        categoriesRequestCount += 1
+        requestCapture.categoriesUrl = new URL(request.url)
+
+        return HttpResponse.json([])
+      }),
+      http.post("*/rest/v1/rpc/get_effective_category_budgets", async ({ request }) => {
+        budgetRequestCount += 1
+        requestCapture.budgetBody = await request.json()
 
         return HttpResponse.json([])
       }),
@@ -73,15 +91,19 @@ describe("fetchCategorySettingsItems", () => {
 
     await fetchCategorySettingsItems()
 
-    expect(requestCount).toBe(1)
-    const select = requestCapture.url?.searchParams.get("select")
+    expect(categoriesRequestCount).toBe(1)
+    expect(budgetRequestCount).toBe(1)
+    const select = requestCapture.categoriesUrl?.searchParams.get("select")
     expect(select).toContain("id")
     expect(select).toContain("book_id")
     expect(select).toContain("name")
     expect(select).toContain("category_pins:category_pins!category_pins_category_id_fkey")
-    expect(requestCapture.url?.searchParams.get("order")).toBe("id.asc")
-    expect(requestCapture.url?.searchParams.get("category_pins.limit")).toBe("1")
-    expect(requestCapture.url?.searchParams.has("book_id")).toBe(false)
+    expect(requestCapture.categoriesUrl?.searchParams.get("order")).toBe("id.asc")
+    expect(requestCapture.categoriesUrl?.searchParams.get("category_pins.limit")).toBe("1")
+    expect(requestCapture.categoriesUrl?.searchParams.has("book_id")).toBe(false)
+    expect(requestCapture.budgetBody).toEqual({
+      p_target_month: expect.any(String),
+    })
   })
 
   it("Supabase がエラーを返した場合に throw する", async () => {
@@ -109,5 +131,15 @@ describe("fetchCategorySettingsItems", () => {
     )
 
     await expect(fetchCategorySettingsItems()).rejects.toThrow("Invalid category settings response")
+  })
+
+  it("予算レスポンス shape が不正ならエラーにする", async () => {
+    server.use(
+      http.post("*/rest/v1/rpc/get_effective_category_budgets", () => {
+        return HttpResponse.json([{ category_id: 10, status: "amount", amount: null }])
+      }),
+    )
+
+    await expect(fetchCategorySettingsItems()).rejects.toThrow("Invalid category budget response")
   })
 })

@@ -1,5 +1,6 @@
 import * as z from "zod"
 
+import { toDateOnlyString } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
 import type { CategorySettingsItem } from "./types"
 
@@ -29,17 +30,36 @@ type CategorySettingsRow = z.infer<typeof categorySettingsRowSchema>
 
 export async function fetchCategorySettingsItems(): Promise<CategorySettingsItem[]> {
   const supabase = getSupabaseClient()
-  const { data, error } = await supabase
+  const categorySettingsQuery = supabase
     .from("categories")
     .select(categorySettingsColumns)
     .order("id", { ascending: true })
     .limit(1, { referencedTable: "category_pins" })
 
+  const categoryBudgetsQuery = supabase.rpc("get_effective_category_budgets", {
+    p_target_month: toDateOnlyString(new Date()),
+  })
+
+  const [categorySettingsResponse, categoryBudgetsResponse] = await Promise.all([
+    categorySettingsQuery,
+    categoryBudgetsQuery,
+  ])
+
+  const { data, error } = categorySettingsResponse
+
   if (error) {
     throw error
   }
 
-  return normalizeCategorySettingsRows(data ?? []).map(toCategorySettingsItem)
+  if (categoryBudgetsResponse.error) {
+    throw categoryBudgetsResponse.error
+  }
+
+  const categoryBudgetMap = toCategoryBudgetMap(categoryBudgetsResponse.data)
+
+  return normalizeCategorySettingsRows(data ?? []).map((row) =>
+    toCategorySettingsItem(row, categoryBudgetMap),
+  )
 }
 
 function normalizeCategorySettingsRows(value: unknown): CategorySettingsRow[] {
@@ -52,7 +72,12 @@ function normalizeCategorySettingsRows(value: unknown): CategorySettingsRow[] {
   return result.data
 }
 
-function toCategorySettingsItem(row: CategorySettingsRow): CategorySettingsItem {
+function toCategorySettingsItem(
+  row: CategorySettingsRow,
+  categoryBudgetMap: Map<number, CategoryBudgetState>,
+): CategorySettingsItem {
+  const budgetState = categoryBudgetMap.get(row.id) ?? { status: "unset", amount: null }
+
   return {
     category: {
       id: row.id,
@@ -60,5 +85,38 @@ function toCategorySettingsItem(row: CategorySettingsRow): CategorySettingsItem 
       name: row.name,
     },
     pinned: (row.category_pins ?? []).some((pin) => pin.category_id === row.id),
+    budgetStatus: budgetState.status,
+    budgetAmount: budgetState.amount,
   }
+}
+
+const effectiveCategoryBudgetSchema = z
+  .object({
+    category_id: z.number(),
+    status: z.enum(["amount", "none"]),
+    amount: z.number().nullable(),
+  })
+  .refine((value) => value.status !== "amount" || value.amount !== null)
+
+type CategoryBudgetState = {
+  status: "amount" | "none" | "unset"
+  amount: number | null
+}
+
+function toCategoryBudgetMap(value: unknown): Map<number, CategoryBudgetState> {
+  const result = z.array(effectiveCategoryBudgetSchema).safeParse(value)
+
+  if (!result.success) {
+    throw new Error("Invalid category budget response")
+  }
+
+  return new Map(
+    result.data.map((budget) => [
+      budget.category_id,
+      {
+        status: budget.status,
+        amount: budget.status === "amount" ? budget.amount : null,
+      },
+    ]),
+  )
 }

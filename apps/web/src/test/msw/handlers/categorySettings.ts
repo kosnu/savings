@@ -5,8 +5,10 @@ import { allCategories } from "../../data/categories"
 
 const CATEGORIES_REST_URL = "*/rest/v1/categories*"
 const CATEGORY_PINS_REST_URL = "*/rest/v1/category_pins*"
-const CREATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/create_category_with_pin"
-const UPDATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/update_category_with_pin"
+const CREATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/create_category_with_pin_and_budget"
+const UPDATE_CATEGORY_WITH_PIN_RPC_URL = "*/rest/v1/rpc/update_category_with_pin_and_budget"
+const DELETE_CATEGORY_WITH_BUDGET_RPC_URL = "*/rest/v1/rpc/delete_category_with_budget"
+const GET_EFFECTIVE_CATEGORY_BUDGETS_RPC_URL = "*/rest/v1/rpc/get_effective_category_budgets"
 const CURRENT_BOOK_ID = 1
 
 export interface CategorySettingsPinResponseRow {
@@ -21,8 +23,15 @@ export interface CategorySettingsResponseRow {
   category_pins: CategorySettingsPinResponseRow[]
 }
 
+export interface CategoryBudgetResponseRow {
+  category_id: number
+  status: "amount" | "none"
+  amount: number | null
+}
+
 interface GetCategorySettingsOptions {
   response?: CategorySettingsResponseRow[]
+  budgetResponse?: CategoryBudgetResponseRow[]
   currentBookId?: number
   pinnedCategoryIds?: number[]
   error?: boolean
@@ -66,14 +75,21 @@ const createCategoryBodySchema = z.object({
 })
 
 const createCategoryWithPinBodySchema = z.object({
+  p_budget_amount: z.number().nullable(),
   p_category_name: z.string(),
   p_pinned: z.boolean(),
 })
 
 const updateCategoryWithPinBodySchema = z.object({
+  p_budget_action: z.enum(["keep", "set", "unset"]),
+  p_budget_amount: z.number().nullable(),
   p_category_id: z.number(),
   p_category_name: z.string(),
   p_pinned: z.boolean(),
+})
+
+const deleteCategoryWithBudgetBodySchema = z.object({
+  p_category_id: z.number(),
 })
 
 const categoryPinBodySchema = z.object({
@@ -82,6 +98,7 @@ const categoryPinBodySchema = z.object({
 
 export function createCategorySettingsHandlers({
   response,
+  budgetResponse,
   currentBookId = CURRENT_BOOK_ID,
   pinnedCategoryIds = [10],
   error = false,
@@ -99,6 +116,7 @@ export function createCategorySettingsHandlers({
   unpin?: CategoryPinSettingsOptions
 } = {}) {
   let rows = response ?? buildCategorySettingsResponse(currentBookId, pinnedCategoryIds)
+  let budgetRows = budgetResponse ?? buildCategoryBudgetResponse()
 
   return [
     http.get(CATEGORIES_REST_URL, async () => {
@@ -135,8 +153,14 @@ export function createCategorySettingsHandlers({
         )
       }
 
-      createCategoryWithPinBodySchema.parse(await request.json())
+      const body = createCategoryWithPinBodySchema.parse(await request.json())
       const categoryId = create.responseId ?? 999
+      if (body.p_budget_amount !== null) {
+        budgetRows = [
+          ...budgetRows.filter((row) => row.category_id !== categoryId),
+          { category_id: categoryId, status: "amount", amount: body.p_budget_amount },
+        ]
+      }
 
       return HttpResponse.json(categoryId)
     }),
@@ -180,8 +204,45 @@ export function createCategorySettingsHandlers({
             }
           : row,
       )
+      if (body.p_budget_action === "set") {
+        budgetRows = [
+          ...budgetRows.filter((row) => row.category_id !== body.p_category_id),
+          { category_id: body.p_category_id, status: "amount", amount: body.p_budget_amount },
+        ]
+      }
+      if (body.p_budget_action === "unset") {
+        budgetRows = [
+          ...budgetRows.filter((row) => row.category_id !== body.p_category_id),
+          { category_id: body.p_category_id, status: "none", amount: null },
+        ]
+      }
 
       return HttpResponse.json("response" in update ? update.response : null)
+    }),
+    http.post(DELETE_CATEGORY_WITH_BUDGET_RPC_URL, async ({ request }) => {
+      await delay(deleteOptions.durationOrMode)
+
+      if (deleteOptions.error) {
+        return HttpResponse.json(
+          deleteOptions.errorResponse ?? { message: "Failed to delete category." },
+          { status: 500 },
+        )
+      }
+
+      const body = deleteCategoryWithBudgetBodySchema.parse(await request.json())
+      rows = rows.filter((row) => row.id !== body.p_category_id)
+      budgetRows = budgetRows.filter((row) => row.category_id !== body.p_category_id)
+
+      return HttpResponse.json("response" in deleteOptions ? deleteOptions.response : null)
+    }),
+    http.post(GET_EFFECTIVE_CATEGORY_BUDGETS_RPC_URL, async () => {
+      await delay(durationOrMode)
+
+      if (error) {
+        return HttpResponse.json({ message: "Failed to fetch category budgets." }, { status: 500 })
+      }
+
+      return HttpResponse.json(budgetRows)
     }),
     http.delete(CATEGORIES_REST_URL, async ({ request }) => {
       await delay(deleteOptions.durationOrMode)
@@ -198,6 +259,7 @@ export function createCategorySettingsHandlers({
 
       if (deletedRow) {
         rows = rows.filter((row) => row.id !== id)
+        budgetRows = budgetRows.filter((row) => row.category_id !== id)
       }
 
       return HttpResponse.json(
@@ -246,6 +308,16 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json(categoryId === undefined ? [] : [{ id: categoryId }])
     }),
+  ]
+}
+
+function buildCategoryBudgetResponse(): CategoryBudgetResponseRow[] {
+  return [
+    {
+      category_id: 10,
+      status: "amount",
+      amount: 30000,
+    },
   ]
 }
 

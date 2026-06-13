@@ -162,6 +162,60 @@ export type Database = {
           },
         ]
       }
+      category_budgets: {
+        Row: {
+          amount: number | null
+          book_id: number
+          category_id: number
+          created_at: string | null
+          effective_from: string
+          effective_month: number
+          effective_year: number
+          id: number
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          book_id?: number
+          category_id: number
+          created_at?: string | null
+          effective_from: string
+          effective_month?: number
+          effective_year?: number
+          id?: never
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          book_id?: number
+          category_id?: number
+          created_at?: string | null
+          effective_from?: string
+          effective_month?: number
+          effective_year?: number
+          id?: never
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_budgets_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "category_budgets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       monthly_budgets: {
         Row: {
           amount: number | null
@@ -294,9 +348,25 @@ export type Database = {
         Args: { p_category_name: string; p_pinned: boolean }
         Returns: number
       }
+      create_category_with_pin_and_budget: {
+        Args: {
+          p_budget_amount?: number | null
+          p_category_name: string
+          p_pinned: boolean
+        }
+        Returns: number
+      }
+      delete_category_with_budget: {
+        Args: { p_category_id: number }
+        Returns: undefined
+      }
       ensure_authenticated_user: { Args: never; Returns: undefined }
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
+      get_effective_category_budgets: {
+        Args: { p_target_month: string }
+        Returns: Json
+      }
       get_effective_monthly_budget: {
         Args: { p_target_month: string }
         Returns: Json
@@ -309,6 +379,16 @@ export type Database = {
       }
       update_category_with_pin: {
         Args: {
+          p_category_id: number
+          p_category_name: string
+          p_pinned: boolean
+        }
+        Returns: undefined
+      }
+      update_category_with_pin_and_budget: {
+        Args: {
+          p_budget_action?: string
+          p_budget_amount?: number | null
           p_category_id: number
           p_category_name: string
           p_pinned: boolean

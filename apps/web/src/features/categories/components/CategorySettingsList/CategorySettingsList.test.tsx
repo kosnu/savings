@@ -63,13 +63,15 @@ describe("CategorySettingsList", () => {
 
     expect(await screen.findByText("Categories")).toBeInTheDocument()
     expect(screen.getByText("Name")).toBeInTheDocument()
-    expect(screen.queryByText("Monthly budget")).not.toBeInTheDocument()
+    expect(screen.getByText("Budget")).toBeInTheDocument()
     expect(
       within(screen.getByText("Name").parentElement!).queryByText("Pin"),
     ).not.toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(screen.getByText("Daily Necessities")).toBeInTheDocument()
     expect(screen.getByText("Entertainment")).toBeInTheDocument()
+    expect(screen.getAllByText("￥30,000")).not.toHaveLength(0)
+    expect(screen.getAllByText("-")).not.toHaveLength(0)
     expect(screen.queryByText("Not set")).not.toBeInTheDocument()
     expect(
       within(screen.getByLabelText("Food category settings")).getAllByText("Pin").length,
@@ -150,12 +152,17 @@ describe("CategorySettingsList", () => {
       })[0]!,
     )
 
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category and its budget?",
+    })
+    expect(
+      within(dialog).getByText("Payments using this category will become uncategorized."),
+    ).toBeInTheDocument()
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     await waitFor(() => {
       expect(
-        screen.queryByRole("dialog", { name: "Delete this category?" }),
+        screen.queryByRole("dialog", { name: "Delete this category and its budget?" }),
       ).not.toBeInTheDocument()
     })
     await waitFor(() => {
@@ -180,11 +187,15 @@ describe("CategorySettingsList", () => {
       })[0]!,
     )
 
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category and its budget?",
+    })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     expect(await screen.findByText("Failed to delete category.")).toBeInTheDocument()
-    expect(screen.getByRole("dialog", { name: "Delete this category?" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("dialog", { name: "Delete this category and its budget?" }),
+    ).toBeInTheDocument()
     expect(await screen.findByLabelText("Food category settings")).toBeInTheDocument()
   })
 

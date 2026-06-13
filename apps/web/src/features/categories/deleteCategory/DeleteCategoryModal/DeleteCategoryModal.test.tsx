@@ -20,12 +20,12 @@ describe("DeleteCategoryModal", () => {
 
     await user.click(await screen.findByRole("button", { name: "Delete Food category" }))
 
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category and its budget?",
+    })
     expect(within(dialog).getByText("Food")).toBeInTheDocument()
     expect(
-      within(dialog).getByText(
-        "Payments keep their records, but this category will no longer be available.",
-      ),
+      within(dialog).getByText("Payments using this category will become uncategorized."),
     ).toBeInTheDocument()
   })
 
@@ -33,12 +33,14 @@ describe("DeleteCategoryModal", () => {
     const { user } = render(<DeleteCategoryModal category={category} />)
 
     await user.click(await screen.findByRole("button", { name: "Delete Food category" }))
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category and its budget?",
+    })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     await waitFor(() => {
       expect(
-        screen.queryByRole("dialog", { name: "Delete this category?" }),
+        screen.queryByRole("dialog", { name: "Delete this category and its budget?" }),
       ).not.toBeInTheDocument()
     })
     expect(await screen.findByText("Category deleted successfully.")).toBeInTheDocument()
@@ -49,18 +51,24 @@ describe("DeleteCategoryModal", () => {
     const { user } = render(<DeleteCategoryModal category={category} />)
 
     await user.click(await screen.findByRole("button", { name: "Delete Food category" }))
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category and its budget?",
+    })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     expect(await screen.findByText("Failed to delete category.")).toBeInTheDocument()
-    expect(screen.getByRole("dialog", { name: "Delete this category?" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("dialog", { name: "Delete this category and its budget?" }),
+    ).toBeInTheDocument()
   })
 
   test("カテゴリ未選択時はDeleteを無効化する", async () => {
     const { user } = render(<DeleteCategoryModal category={null} />)
 
     await user.click(await screen.findByRole("button", { name: "Delete category" }))
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category and its budget?",
+    })
 
     expect(within(dialog).getByText("Category not found.")).toBeInTheDocument()
     expect(within(dialog).getByRole("button", { name: /^delete$/i })).toBeDisabled()
