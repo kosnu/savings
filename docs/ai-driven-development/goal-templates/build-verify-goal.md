@@ -75,6 +75,8 @@ when_to_read:
 
 ## Verification
 
+- 検証前に実行:
+  - `pnpm run web:format`
 - 必ず実行:
   - `pnpm run web:lint`
   - `pnpm run web:format-check`

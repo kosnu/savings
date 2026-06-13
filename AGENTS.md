@@ -104,6 +104,9 @@ do not require verification.
 - After fixing a failure, start any required reruns as a new verification batch only after the previous batch has fully completed.
 
 - **Web** (`apps/web/`)
+  Before starting the verification batch for application code changes, run:
+  `pnpm run web:format`
+
   Run these commands in the same verification batch:
   `pnpm run web:lint`
   `pnpm run web:format-check`
