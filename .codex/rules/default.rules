@@ -1,0 +1,13 @@
+# Allow local Storybook startup for UI verification in this repository.
+prefix_rule(
+    pattern = ["pnpm", "--filter", "web", "storybook", "--no-open"],
+    decision = "allow",
+    justification = "Storybook dev server startup is allowed for local UI verification",
+)
+
+# Allow the repository's Playwright CLI entrypoint.
+prefix_rule(
+    pattern = ["pnpm", "run", "web:playwright"],
+    decision = "allow",
+    justification = "Playwright CLI entrypoint is allowed for local browser verification",
+)
