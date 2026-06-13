@@ -11,6 +11,7 @@
     "web:format": "pnpm --filter web format",
     "web:format-check": "pnpm --filter web format --check",
     "web:lint": "pnpm --filter web lint --deny-warnings",
+    "web:playwright": "pnpm --filter web exec playwright",
     "web:test": "pnpm --filter web test --reporter=dot",
     "web:test:unit-integration": "pnpm --filter web test:unit-integration --reporter=dot --silent",
     "web:test:storybook": "pnpm --filter web test:storybook --reporter=dot --silent",
