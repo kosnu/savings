@@ -4,7 +4,8 @@ import { categoryCreateSchema, type CategoryCreateValues } from "./categoryCreat
 export async function createCategory(value: CategoryCreateValues): Promise<number> {
   const supabase = getSupabaseClient()
   const parsedValue = categoryCreateSchema.parse(value)
-  const { data, error } = await supabase.rpc("create_category_with_pin", {
+  const { data, error } = await supabase.rpc("create_category_with_pin_and_budget", {
+    p_budget_amount: parsedValue.budgetAmount ?? null,
     p_category_name: parsedValue.name,
     p_pinned: parsedValue.pinned,
   })

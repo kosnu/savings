@@ -45,9 +45,9 @@ export function DeleteCategoryModal({ category, trigger }: DeleteCategoryModalPr
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger>{resolvedTrigger}</Dialog.Trigger>
       <Dialog.Content>
-        <Dialog.Title>Delete this category?</Dialog.Title>
+        <Dialog.Title>Delete this category and its budget?</Dialog.Title>
         <Dialog.Description>
-          Payments keep their records, but this category will no longer be available.
+          Payments using this category will become uncategorized.
         </Dialog.Description>
         <Text as="p" mt="2" weight="medium">
           {categoryName}

@@ -20,6 +20,8 @@ function buildCategorySettingsItem(id: number): CategorySettingsItem {
       name: `Category ${id}`,
     },
     pinned: false,
+    budgetStatus: "unset",
+    budgetAmount: null,
   }
 }
 

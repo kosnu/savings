@@ -13,7 +13,7 @@ import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import * as stories from "./CreateCategoryForm.stories"
 
 const { Default } = composeStories(stories)
-const CREATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/create_category_with_pin"
+const CREATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/create_category_with_pin_and_budget"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -31,7 +31,8 @@ describe("CreateCategoryForm", () => {
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).not.toBeChecked()
-    expect(screen.queryByRole("textbox", { name: /Monthly budget/ })).not.toBeInTheDocument()
+    expect(screen.getByRole("textbox", { name: "Budget" })).toBeInTheDocument()
+    expect(screen.getByText("Optional monthly budget for this category.")).toBeInTheDocument()
   })
 
   test("未入力で送信するとカテゴリ名のvalidation errorを表示する", async () => {
@@ -86,12 +87,13 @@ describe("CreateCategoryForm", () => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(requestBody).toEqual({
+      p_budget_amount: null,
       p_category_name: "Groceries",
       p_pinned: false,
     })
   })
 
-  test("ピン留めありで作成すると作成RPCにピン状態を送る", async () => {
+  test("ピン留めと予算額ありで作成すると作成RPCに状態を送る", async () => {
     const onSuccess = fn()
     let requestBody: Record<string, unknown> | undefined
 
@@ -105,6 +107,7 @@ describe("CreateCategoryForm", () => {
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
 
     await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.type(screen.getByRole("textbox", { name: "Budget" }), "10000")
     await user.click(screen.getByRole("checkbox", { name: "Pin category" }))
     await user.click(screen.getByRole("button", { name: "Create" }))
 
@@ -112,8 +115,36 @@ describe("CreateCategoryForm", () => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(requestBody).toEqual({
+      p_budget_amount: 10000,
       p_category_name: "Groceries",
       p_pinned: true,
+    })
+  })
+
+  test("0円予算を有効な予算額として送る", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(CREATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(999)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: /Name/ }), "Groceries")
+    await user.type(screen.getByRole("textbox", { name: "Budget" }), "0")
+    await user.click(screen.getByRole("button", { name: "Create" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_budget_amount: 0,
+      p_category_name: "Groceries",
+      p_pinned: false,
     })
   })
 
@@ -137,6 +168,7 @@ describe("CreateCategoryForm", () => {
     expect(createButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeDisabled()
+    expect(screen.getByRole("textbox", { name: "Budget" })).toBeDisabled()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeDisabled()
 
     await act(async () => {

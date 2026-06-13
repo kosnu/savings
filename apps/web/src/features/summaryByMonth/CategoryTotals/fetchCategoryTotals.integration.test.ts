@@ -27,6 +27,9 @@ describe("fetchCategoryTotals", () => {
         categoryId: 10,
         categoryName: "Food",
         totalAmount: 1000,
+        budgetStatus: "amount",
+        budgetAmount: 30000,
+        budgetDifference: 29000,
         pinned: true,
         kind: "category",
       },
@@ -35,6 +38,9 @@ describe("fetchCategoryTotals", () => {
         categoryId: 20,
         categoryName: "Daily Necessities",
         totalAmount: 4000,
+        budgetStatus: "amount",
+        budgetAmount: 4000,
+        budgetDifference: 0,
         pinned: false,
         kind: "category",
       },
@@ -43,6 +49,9 @@ describe("fetchCategoryTotals", () => {
         categoryId: 30,
         categoryName: "Entertainment",
         totalAmount: 0,
+        budgetStatus: "unset",
+        budgetAmount: null,
+        budgetDifference: null,
         pinned: false,
         kind: "category",
       },
@@ -51,6 +60,9 @@ describe("fetchCategoryTotals", () => {
         categoryId: null,
         categoryName: "Unknown",
         totalAmount: 0,
+        budgetStatus: "unset",
+        budgetAmount: null,
+        budgetDifference: null,
         pinned: false,
         kind: "uncategorized",
       },
@@ -81,18 +93,22 @@ describe("fetchCategoryTotals", () => {
     expect(totals.find((total) => total.key === "category:10")).toMatchObject({
       categoryName: "Food",
       totalAmount: 1000,
+      budgetDifference: 29000,
     })
     expect(totals.find((total) => total.key === "category:20")).toMatchObject({
       categoryName: "Daily Necessities",
       totalAmount: 0,
+      budgetDifference: 4000,
     })
     expect(totals.find((total) => total.key === "category:30")).toMatchObject({
       categoryName: "Entertainment",
       totalAmount: 0,
+      budgetDifference: null,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
       categoryName: "Unknown",
       totalAmount: 0,
+      budgetDifference: null,
     })
   })
 
@@ -126,10 +142,12 @@ describe("fetchCategoryTotals", () => {
     expect(totals.find((total) => total.key === "category:10")).toMatchObject({
       categoryName: "Food",
       totalAmount: 1000,
+      budgetDifference: 29000,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
       categoryName: "Unknown",
       totalAmount: 2500,
+      budgetDifference: null,
     })
   })
 
@@ -181,10 +199,12 @@ describe("fetchCategoryTotals", () => {
     expect(totals.find((total) => total.key === "category:40")).toMatchObject({
       categoryName: "Unknown",
       totalAmount: 700,
+      budgetDifference: null,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
       categoryName: "Unknown",
       totalAmount: 2500,
+      budgetDifference: null,
     })
   })
 
@@ -209,10 +229,15 @@ describe("fetchCategoryTotals", () => {
     expect(totals.map((total) => total.pinned)).toEqual([true, true, false, false])
   })
 
-  it("カテゴリと月内未分類支払いを取得するqueryを送る", async () => {
-    const requestCapture: { categoriesUrl: URL | null; paymentsUrl: URL | null } = {
+  it("カテゴリ、月内未分類支払い、有効予算を取得するqueryを送る", async () => {
+    const requestCapture: {
+      categoriesUrl: URL | null
+      paymentsUrl: URL | null
+      budgetBody: unknown
+    } = {
       categoriesUrl: null,
       paymentsUrl: null,
+      budgetBody: null,
     }
     server.use(
       http.get("*/rest/v1/categories*", ({ request }) => {
@@ -222,6 +247,11 @@ describe("fetchCategoryTotals", () => {
       }),
       http.get("*/rest/v1/payments*", ({ request }) => {
         requestCapture.paymentsUrl = new URL(request.url)
+
+        return HttpResponse.json([])
+      }),
+      http.post("*/rest/v1/rpc/get_effective_category_budgets", async ({ request }) => {
+        requestCapture.budgetBody = await request.json()
 
         return HttpResponse.json([])
       }),
@@ -246,6 +276,34 @@ describe("fetchCategoryTotals", () => {
       "gte.2025-06-01",
       "lte.2025-06-30",
     ])
+    expect(requestCapture.budgetBody).toEqual({ p_target_month: "2025-06-01" })
+  })
+
+  it("予算なし状態と0円予算を区別して差分を返す", async () => {
+    server.resetHandlers(
+      ...createCategoryHandlers({
+        get: {
+          budgetRows: [
+            { category_id: 10, status: "amount", amount: 0 },
+            { category_id: 20, status: "none", amount: null },
+          ],
+        },
+      }),
+      ...createPaymentHandlers(),
+    )
+
+    const totals = await fetchCategoryTotals([new Date("2025-06-01"), new Date("2025-06-30")])
+
+    expect(totals.find((total) => total.key === "category:10")).toMatchObject({
+      budgetStatus: "amount",
+      budgetAmount: 0,
+      budgetDifference: -1000,
+    })
+    expect(totals.find((total) => total.key === "category:20")).toMatchObject({
+      budgetStatus: "none",
+      budgetAmount: null,
+      budgetDifference: null,
+    })
   })
 
   it("レスポンスshapeが不正ならエラーにする", async () => {
@@ -281,5 +339,17 @@ describe("fetchCategoryTotals", () => {
     await expect(
       fetchCategoryTotals([new Date("2025-06-01"), new Date("2025-06-30")]),
     ).rejects.toThrow("Invalid category totals response")
+  })
+
+  it("予算レスポンスshapeが不正ならエラーにする", async () => {
+    server.use(
+      http.post("*/rest/v1/rpc/get_effective_category_budgets", () => {
+        return HttpResponse.json([{ category_id: 10, status: "amount", amount: null }])
+      }),
+    )
+
+    await expect(
+      fetchCategoryTotals([new Date("2025-06-01"), new Date("2025-06-30")]),
+    ).rejects.toThrow("Invalid category budget response")
   })
 })

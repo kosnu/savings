@@ -20,9 +20,13 @@ describe("updateCategoryName", () => {
       categoryId: 10,
       name: "Groceries",
       pinned: true,
+      budgetAmount: 0,
+      budgetAction: "set",
     })
 
-    expect(mockRpc).toHaveBeenCalledWith("update_category_with_pin", {
+    expect(mockRpc).toHaveBeenCalledWith("update_category_with_pin_and_budget", {
+      p_budget_action: "set",
+      p_budget_amount: 0,
       p_category_id: 10,
       p_category_name: "Groceries",
       p_pinned: true,
@@ -38,6 +42,8 @@ describe("updateCategoryName", () => {
         categoryId: 10,
         name: "Groceries",
         pinned: false,
+        budgetAmount: null,
+        budgetAction: "keep",
       }),
     ).rejects.toEqual(supabaseError)
   })

@@ -6,7 +6,9 @@ import * as z from "zod"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
+import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
+import { optionalAmountFieldSchema } from "../../../../domain/amount"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { CATEGORY_PIN_LIMIT, categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import { categoryNameSchema } from "../../categorySchema"
@@ -15,11 +17,13 @@ import { useUpdateCategoryName } from "../useUpdateCategoryName"
 
 const updateCategoryNameFormSubmitSchema = z.object({
   name: categoryNameSchema,
+  budgetAmount: optionalAmountFieldSchema,
   pinned: z.boolean(),
 })
 
 interface UpdateCategoryNameFormValues {
   name: string
+  budgetAmount: string | number | undefined
   pinned: boolean
 }
 
@@ -28,6 +32,8 @@ interface UpdateCategoryNameFormProps {
     id: number
     name: string
     pinned: boolean
+    budgetStatus?: "amount" | "none" | "unset"
+    budgetAmount?: number | null
   }
   currentPinnedCount?: number
   onSuccess?: () => void
@@ -42,11 +48,14 @@ export function UpdateCategoryNameForm({
 }: UpdateCategoryNameFormProps) {
   const nameInputId = useId()
   const nameErrorId = useId()
+  const budgetInputId = useId()
+  const budgetMessagesId = useId()
   const pinnedInputId = useId()
   const { updateCategoryName, isPending } = useUpdateCategoryName()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
   const defaultValues: UpdateCategoryNameFormValues = {
     name: category.name,
+    budgetAmount: category.budgetStatus === "amount" ? String(category.budgetAmount ?? "") : "",
     pinned: category.pinned,
   }
 
@@ -65,17 +74,24 @@ export function UpdateCategoryNameForm({
         const nameChanged = parsedValue.name !== category.name
         const pinChanged = parsedValue.pinned !== category.pinned
         const pinningNewCategory = !category.pinned && parsedValue.pinned
+        const budgetAction = resolveBudgetAction({
+          initialStatus: category.budgetStatus ?? "unset",
+          initialAmount: category.budgetAmount ?? null,
+          nextAmount: parsedValue.budgetAmount,
+        })
 
         if (pinningNewCategory && currentPinnedCount >= CATEGORY_PIN_LIMIT) {
           setSubmitErrorMessage(categoryPinLimitErrorMessage)
           return
         }
 
-        if (nameChanged || pinChanged) {
+        if (nameChanged || pinChanged || budgetAction !== "keep") {
           await updateCategoryName({
             categoryId: category.id,
             name: parsedValue.name,
             pinned: parsedValue.pinned,
+            budgetAmount: budgetAction === "set" ? (parsedValue.budgetAmount ?? null) : null,
+            budgetAction,
           })
         }
 
@@ -147,6 +163,38 @@ export function UpdateCategoryNameForm({
               )
             }}
           </form.Field>
+          <form.Field name="budgetAmount">
+            {(field) => {
+              const isValid = field.state.meta.isValid
+              const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
+              const hasError = !isValid && errorMessages.length > 0
+              const messages = hasError
+                ? errorMessages
+                : ["Optional monthly budget for this category."]
+
+              return (
+                <BaseField>
+                  <FieldLabel htmlFor={budgetInputId}>Budget</FieldLabel>
+                  <AmountInput
+                    disabled={isPending}
+                    id={budgetInputId}
+                    name="budgetAmount"
+                    value={field.state.value === undefined ? "" : String(field.state.value)}
+                    aria-label="Budget"
+                    aria-describedby={budgetMessagesId}
+                    aria-invalid={hasError}
+                    onChange={(value) => {
+                      field.handleChange(value)
+                      setSubmitErrorMessage(undefined)
+                    }}
+                  />
+                  <span id={budgetMessagesId}>
+                    <FieldMessages error={hasError} messages={messages} />
+                  </span>
+                </BaseField>
+              )
+            }}
+          </form.Field>
           <form.Field name="pinned">
             {(field) => (
               <Text as="label" size="2" htmlFor={pinnedInputId}>
@@ -178,4 +226,24 @@ export function UpdateCategoryNameForm({
       </Flex>
     </form>
   )
+}
+
+function resolveBudgetAction({
+  initialStatus,
+  initialAmount,
+  nextAmount,
+}: {
+  initialStatus: "amount" | "none" | "unset"
+  initialAmount: number | null
+  nextAmount: number | undefined
+}): "keep" | "set" | "unset" {
+  if (nextAmount === undefined) {
+    return initialStatus === "amount" ? "unset" : "keep"
+  }
+
+  if (initialStatus === "amount" && initialAmount === nextAmount) {
+    return "keep"
+  }
+
+  return "set"
 }

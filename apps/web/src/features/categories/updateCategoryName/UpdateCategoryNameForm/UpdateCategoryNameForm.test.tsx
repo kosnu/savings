@@ -13,7 +13,7 @@ import { categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import * as stories from "./UpdateCategoryNameForm.stories"
 
 const { Default } = composeStories(stories)
-const UPDATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/update_category_with_pin"
+const UPDATE_CATEGORY_WITH_PIN_URL = "*/rest/v1/rpc/update_category_with_pin_and_budget"
 
 async function renderStory(story: ReactElement) {
   return await act(async () => {
@@ -30,6 +30,8 @@ describe("UpdateCategoryNameForm", () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toHaveValue("Food")
+    expect(screen.getByRole("textbox", { name: "Budget" })).toHaveValue("")
+    expect(screen.getByText("Optional monthly budget for this category.")).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeChecked()
   })
 
@@ -90,6 +92,8 @@ describe("UpdateCategoryNameForm", () => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(requestBody).toEqual({
+      p_budget_action: "keep",
+      p_budget_amount: null,
       p_category_id: 10,
       p_category_name: "Food",
       p_pinned: false,
@@ -119,9 +123,81 @@ describe("UpdateCategoryNameForm", () => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(requestBody).toEqual({
+      p_budget_action: "keep",
+      p_budget_amount: null,
       p_category_id: 10,
       p_category_name: "Groceries",
       p_pinned: false,
+    })
+  })
+
+  test("予算額を入力するとset actionで保存する", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
+      }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+
+    await user.type(screen.getByRole("textbox", { name: "Budget" }), "0")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_budget_action: "set",
+      p_budget_amount: 0,
+      p_category_id: 10,
+      p_category_name: "Food",
+      p_pinned: true,
+    })
+  })
+
+  test("既存予算を空欄にするとunset actionで保存する", async () => {
+    const onSuccess = fn()
+    let requestBody: Record<string, unknown> | undefined
+
+    server.resetHandlers(
+      http.post(UPDATE_CATEGORY_WITH_PIN_URL, async ({ request }) => {
+        requestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(null)
+      }),
+    )
+
+    const { user } = await renderStory(
+      <Default
+        category={{
+          id: 10,
+          name: "Food",
+          pinned: true,
+          budgetStatus: "amount",
+          budgetAmount: 5000,
+        }}
+        onSuccess={onSuccess}
+      />,
+    )
+
+    const budgetInput = screen.getByRole("textbox", { name: "Budget" })
+    expect(budgetInput).toHaveValue("5000")
+
+    await user.clear(budgetInput)
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(requestBody).toEqual({
+      p_budget_action: "unset",
+      p_budget_amount: null,
+      p_category_id: 10,
+      p_category_name: "Food",
+      p_pinned: true,
     })
   })
 
@@ -167,6 +243,7 @@ describe("UpdateCategoryNameForm", () => {
     expect(await within(saveButton).findByLabelText("loading-spinner")).toBeInTheDocument()
     expect(saveButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+    expect(screen.getByRole("textbox", { name: "Budget" })).toBeDisabled()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeDisabled()
 
     await act(async () => {
