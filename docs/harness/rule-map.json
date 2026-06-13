@@ -315,7 +315,7 @@
         "paths": ["apps/web/src/features/**", "apps/web/src/app/routes/**"],
         "domains": ["web", "ui", "domain"],
         "activities": ["change_domain_ui", "change_payment_ui", "change_category_ui", "change_budget_ui"],
-        "topics": ["domain-ui", "payments", "categories", "budgets", "date", "amount"]
+        "topics": ["domain-ui", "payments", "categories", "budgets", "date", "amount", "difference"]
       },
       "depends_on": ["web.design-rules", "domain.amount", "domain.date"],
       "overrides": [],
