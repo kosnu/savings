@@ -41,6 +41,8 @@ Also read these harness docs before deciding additional references:
 
 Use `docs/harness/rule-map.json` to select any additional policy, domain, ADR, design, or app-specific documents. Classify the requested Goal by `path`, `domain`, `activity`, and `topic`, then include the selected document subgraph in the generated Goal inputs.
 
+The templates are checklists for required content, not output skeletons. Do not copy the template body into the generated Goal. Produce the shortest self-contained Goal that preserves the requested phase, target artifact, scope, constraints, required inputs, Done, Verification, and Stop conditions.
+
 ## Context Discovery
 
 Use the smallest useful discovery set for the requested phase:
@@ -100,7 +102,7 @@ Do not make unrelated repository changes while generating a Goal.
 
 - Use the latest Requirements / PRD and Design Doc as constraints.
 - Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
-- Include concrete verification commands from the template and repository guidance.
+- Include verification only for affected runtime, build, type, or DB behavior. For Web app changes, prefer the compact form `AGENTS.md の Web verification batch` instead of copying the full command list. Mention Storybook verification only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
 - If review comments are the trigger, require classification before implementation.
 - Stop if the comment belongs upstream to Requirements / PRD, Design Doc, or policy.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
@@ -117,14 +119,20 @@ Do not make unrelated repository changes while generating a Goal.
 
 The generated `/goal` input must be 4000 characters or less, including any note before the Markdown Goal.
 
+This is a hard response gate, not a best-effort target. Draft for 3600 characters or less so final edits have room. Before returning the Goal, measure the exact character count of the full response text. If tooling is available, write the candidate response to a temporary file outside the repository and run `wc -m` against that file. Do not rely on approximate token counts or visual length.
+
 When the draft would exceed 4000 characters:
 
 - Keep the Goal self-contained, but compress wording before returning it.
 - Prefer paths, issue or PR numbers, and concise evidence summaries over copied source text.
 - Keep only the selected rule-map subgraph and one short reason per document.
-- Collapse long discovery notes, Q&A, risks, and verification details into short bullets.
+- Collapse long discovery notes, Q&A, risks, subagent instructions, and verification details into short bullets.
+- Replace long verification command lists with a pointer to the applicable repository verification section when the executor will have the same repository instructions.
 - Omit optional background, alternatives, and explanation that are not needed to execute the Goal.
+- Merge repeated constraints into one bullet when they point to the same boundary.
+- Replace template checklist wording with phase-specific done checks that are traceable to the current request.
 - Do not omit phase, target artifact path, scope, constraints, required inputs, Done, Verification, or Stop sections.
+- After compression, measure the full response text again. Repeat until it is 4000 characters or less.
 - If the Goal still cannot fit within 4000 characters without losing required execution context, return a concise note naming the missing compression decision instead of producing an oversized Goal.
 
 ## Token Budget
