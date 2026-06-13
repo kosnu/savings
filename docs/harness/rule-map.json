@@ -289,7 +289,7 @@
         "paths": ["apps/web/src/**", "apps/web/docs/**"],
         "domains": ["web", "ui"],
         "activities": ["change_ui", "design_screen", "change_form", "change_dialog", "change_responsive_layout"],
-        "topics": ["design-system", "ui", "typography", "layout", "responsive"]
+        "topics": ["design-system", "ui", "typography", "layout", "responsive", "tables"]
       },
       "depends_on": [],
       "overrides": [],
