@@ -13,6 +13,7 @@
     "test": "vp test run --project unit --project integration --project storybook",
     "test:unit": "vp test run --project unit",
     "test:integration": "vp test run --project integration",
+    "test:unit-integration": "vp test run --project unit --project integration",
     "test:storybook": "vp test run --project storybook",
     "test-watch": "vp test watch",
     "storybook": "storybook dev -p 6006",

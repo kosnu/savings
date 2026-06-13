@@ -111,8 +111,8 @@ do not require verification.
   `pnpm run web:lint`
   `pnpm run web:format-check`
   `pnpm run web:typecheck`
-  `pnpm --filter web exec vp test run --project unit --project integration --reporter=dot --silent`
+  `pnpm run web:test:unit-integration`
 
-  Run `pnpm --filter web test:storybook --reporter=dot --silent` only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
+  Run `pnpm run web:test:storybook` only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
 - **API** (`apps/api`)
   No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.
