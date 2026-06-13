@@ -92,7 +92,7 @@ pnpm typecheck
 ```bash
 # apps/api/ で Supabase を起動
 cd ../api
-pnpm up
+pnpm start
 
 # その後、apps/web から通常通り起動
 cd ../web

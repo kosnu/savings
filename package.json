@@ -2,9 +2,9 @@
   "name": "savings-workspace",
   "private": true,
   "scripts": {
-    "api:down": "pnpm --filter api down",
+    "api:stop": "pnpm --filter api stop",
     "api:migrations:down": "pnpm --filter api migrations:down",
-    "api:up": "pnpm --filter api up",
+    "api:start": "pnpm --filter api start",
     "api:migrations:up": "pnpm --filter api migrations:up",
     "web:build": "pnpm --filter web build",
     "web:dev": "pnpm --filter web dev",
