@@ -122,6 +122,18 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("No budget")).toBeInTheDocument()
   })
 
+  test("カテゴリ名、合計額、予算差額を同じ行内の別セルに置く", async () => {
+    server.resetHandlers(...createCategoryHandlers(), ...createPaymentHandlers())
+    renderStory()
+
+    const categoryName = await screen.findByText("Food")
+    const totalAmount = await screen.findByText("￥1,000")
+    const budgetDifference = await screen.findByText("￥29,000 left")
+
+    expect(totalAmount.parentElement).toBe(categoryName.parentElement)
+    expect(budgetDifference.parentElement).toBe(categoryName.parentElement)
+  })
+
   test("Unknownという名前のカテゴリと未分類支払いを別行で表示する", async () => {
     const categoryRows = [
       {
