@@ -168,9 +168,7 @@ export function UpdateCategoryNameForm({
               const isValid = field.state.meta.isValid
               const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
               const hasError = !isValid && errorMessages.length > 0
-              const messages = hasError
-                ? errorMessages
-                : ["Optional monthly budget for this category."]
+              const messages = hasError ? errorMessages : ["Leave blank for no category budget."]
 
               return (
                 <BaseField>

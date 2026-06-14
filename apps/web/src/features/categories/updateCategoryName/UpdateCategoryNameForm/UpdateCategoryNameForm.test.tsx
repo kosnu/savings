@@ -31,7 +31,7 @@ describe("UpdateCategoryNameForm", () => {
 
     expect(screen.getByRole("textbox", { name: /Name/ })).toHaveValue("Food")
     expect(screen.getByRole("textbox", { name: "Budget" })).toHaveValue("")
-    expect(screen.getByText("Optional monthly budget for this category.")).toBeInTheDocument()
+    expect(screen.getByText("Leave blank for no category budget.")).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).toBeChecked()
   })
 
@@ -297,7 +297,7 @@ describe("UpdateCategoryNameForm", () => {
     await user.type(nameInput, "Groceries")
     await user.click(screen.getByRole("button", { name: "Save" }))
 
-    expect(await screen.findByText("Failed to update category name.")).toBeInTheDocument()
+    expect(await screen.findByText("Failed to save category.")).toBeInTheDocument()
     expect(onSuccess).not.toHaveBeenCalled()
   })
 
@@ -323,7 +323,7 @@ describe("UpdateCategoryNameForm", () => {
     await user.click(screen.getByRole("button", { name: "Save" }))
 
     expect(await screen.findByText(categoryPinLimitErrorMessage)).toBeInTheDocument()
-    expect(screen.queryByText("Failed to update category name.")).not.toBeInTheDocument()
+    expect(screen.queryByText("Failed to save category.")).not.toBeInTheDocument()
     expect(requestCount).toBe(0)
     expect(onSuccess).not.toHaveBeenCalled()
   })

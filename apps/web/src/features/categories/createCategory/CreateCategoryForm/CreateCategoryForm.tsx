@@ -132,7 +132,7 @@ export function CreateCategoryForm({
                   const hasError = !field.state.meta.isValid && errorMessages.length > 0
                   const messages = hasError
                     ? errorMessages
-                    : ["Optional monthly budget for this category."]
+                    : ["Leave blank for no category budget."]
 
                   return (
                     <BaseField>
