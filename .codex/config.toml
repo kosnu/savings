@@ -4,3 +4,7 @@ approvals_reviewer = "auto_review"
 
 [sandbox_workspace_write]
 network_access = true
+
+[agents.context-scout]
+description = "Low-cost read-heavy repository discovery agent for Context Packet material."
+config_file = "./agents/context-scout.toml"
