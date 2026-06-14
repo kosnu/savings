@@ -168,10 +168,9 @@ export function createCategorySettingsHandlers({
       await delay(update.durationOrMode)
 
       if (update.error) {
-        return HttpResponse.json(
-          update.errorResponse ?? { message: "Failed to update category name." },
-          { status: 500 },
-        )
+        return HttpResponse.json(update.errorResponse ?? { message: "Failed to save category." }, {
+          status: 500,
+        })
       }
 
       const body = await request.json()
@@ -185,10 +184,9 @@ export function createCategorySettingsHandlers({
       await delay(update.durationOrMode)
 
       if (update.error) {
-        return HttpResponse.json(
-          update.errorResponse ?? { message: "Failed to update category name." },
-          { status: 500 },
-        )
+        return HttpResponse.json(update.errorResponse ?? { message: "Failed to save category." }, {
+          status: 500,
+        })
       }
 
       const body = updateCategoryWithPinBodySchema.parse(await request.json())

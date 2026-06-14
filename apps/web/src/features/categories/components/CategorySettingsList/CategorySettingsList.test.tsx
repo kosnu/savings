@@ -71,8 +71,8 @@ describe("CategorySettingsList", () => {
     expect(screen.getByText("Daily Necessities")).toBeInTheDocument()
     expect(screen.getByText("Entertainment")).toBeInTheDocument()
     expect(screen.getAllByText("￥30,000")).not.toHaveLength(0)
-    expect(screen.getAllByText("-")).not.toHaveLength(0)
-    expect(screen.queryByText("Not set")).not.toBeInTheDocument()
+    expect(screen.getAllByText("Not set")).not.toHaveLength(0)
+    expect(screen.queryByText("-")).not.toBeInTheDocument()
     expect(
       within(screen.getByLabelText("Food category settings")).getAllByText("Pin").length,
     ).toBeGreaterThan(0)
@@ -89,6 +89,28 @@ describe("CategorySettingsList", () => {
     ).not.toHaveLength(0)
     expect(await screen.findAllByRole("button", { name: /delete .* category/i })).not.toHaveLength(
       0,
+    )
+  })
+
+  test("0円予算と予算なし状態を区別して表示する", async () => {
+    server.resetHandlers(
+      ...createCategorySettingsHandlers({
+        response: defaultCategorySettingsResponse,
+        budgetResponse: [
+          { category_id: 10, status: "amount", amount: 0 },
+          { category_id: 20, status: "none", amount: null },
+        ],
+      }),
+    )
+
+    await renderCategorySettingsList(<Default />)
+
+    expect(await screen.findByLabelText("Food category settings")).toHaveTextContent("￥0")
+    expect(await screen.findByLabelText("Daily Necessities category settings")).toHaveTextContent(
+      "No budget",
+    )
+    expect(await screen.findByLabelText("Entertainment category settings")).toHaveTextContent(
+      "Not set",
     )
   })
 
@@ -153,16 +175,18 @@ describe("CategorySettingsList", () => {
     )
 
     const dialog = await screen.findByRole("dialog", {
-      name: "Delete this category and its budget?",
+      name: "Delete this category?",
     })
     expect(
-      within(dialog).getByText("Payments using this category will become uncategorized."),
+      within(dialog).getByText(
+        "Payments keep their records, but this category and its budget will no longer be available.",
+      ),
     ).toBeInTheDocument()
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     await waitFor(() => {
       expect(
-        screen.queryByRole("dialog", { name: "Delete this category and its budget?" }),
+        screen.queryByRole("dialog", { name: "Delete this category?" }),
       ).not.toBeInTheDocument()
     })
     await waitFor(() => {
@@ -188,14 +212,12 @@ describe("CategorySettingsList", () => {
     )
 
     const dialog = await screen.findByRole("dialog", {
-      name: "Delete this category and its budget?",
+      name: "Delete this category?",
     })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     expect(await screen.findByText("Failed to delete category.")).toBeInTheDocument()
-    expect(
-      screen.getByRole("dialog", { name: "Delete this category and its budget?" }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole("dialog", { name: "Delete this category?" })).toBeInTheDocument()
     expect(await screen.findByLabelText("Food category settings")).toBeInTheDocument()
   })
 

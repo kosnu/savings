@@ -221,8 +221,12 @@ function countPinnedItems(items: CategorySettingsItem[]): number {
 }
 
 function formatBudget(item: CategorySettingsItem): string {
-  if (item.budgetStatus !== "amount" || item.budgetAmount === null) {
-    return "-"
+  if (item.budgetStatus === "none") {
+    return "No budget"
+  }
+
+  if (item.budgetStatus === "unset" || item.budgetAmount === null) {
+    return "Not set"
   }
 
   return toCurrency(item.budgetAmount)

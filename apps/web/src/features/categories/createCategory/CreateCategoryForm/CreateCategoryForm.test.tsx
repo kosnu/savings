@@ -32,7 +32,7 @@ describe("CreateCategoryForm", () => {
     expect(screen.getByRole("textbox", { name: /Name/ })).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: "Pin category" })).not.toBeChecked()
     expect(screen.getByRole("textbox", { name: "Budget" })).toBeInTheDocument()
-    expect(screen.getByText("Optional monthly budget for this category.")).toBeInTheDocument()
+    expect(screen.getByText("Leave blank for no category budget.")).toBeInTheDocument()
   })
 
   test("未入力で送信するとカテゴリ名のvalidation errorを表示する", async () => {

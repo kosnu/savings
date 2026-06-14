@@ -171,7 +171,11 @@ const effectiveCategoryBudgetSchema = z
     status: z.enum(["amount", "none"]),
     amount: z.number().nullable(),
   })
-  .refine((value) => value.status !== "amount" || value.amount !== null)
+  .refine(
+    (value) =>
+      (value.status === "amount" && value.amount !== null) ||
+      (value.status === "none" && value.amount === null),
+  )
 
 type CategoryBudgetState = {
   status: "amount" | "none" | "unset"

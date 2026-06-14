@@ -21,8 +21,7 @@ describe("CategoryTotals", () => {
     const { user } = renderStory()
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
-    expect(screen.getByLabelText(/category totals chunk 0/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/category totals chunk 1/i)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/category totals chunk/i)).not.toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
     expect(await screen.findByText("Entertainment")).toBeInTheDocument()
     expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
@@ -31,6 +30,7 @@ describe("CategoryTotals", () => {
     expect(await screen.findAllByText("￥0")).toHaveLength(1)
     expect(await screen.findByText("￥29,000 left")).toBeInTheDocument()
     expect(await screen.findByText("On budget")).toBeInTheDocument()
+    expect(await screen.findByText("Not set")).toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "Show more category totals" }))
 
@@ -103,7 +103,7 @@ describe("CategoryTotals", () => {
     expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
   })
 
-  test("予算超過を差分として表示し、予算未設定では差分を表示しない", async () => {
+  test("予算超過を差分として表示し、予算なし状態を0差分と混同しない", async () => {
     server.resetHandlers(
       ...createCategoryHandlers({
         get: {
@@ -119,6 +119,7 @@ describe("CategoryTotals", () => {
 
     expect(await screen.findByText("￥1,000 over")).toBeInTheDocument()
     expect(screen.queryByText("￥4,000 left")).not.toBeInTheDocument()
+    expect(await screen.findByText("No budget")).toBeInTheDocument()
   })
 
   test("Unknownという名前のカテゴリと未分類支払いを別行で表示する", async () => {
