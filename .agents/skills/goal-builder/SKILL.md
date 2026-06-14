@@ -41,6 +41,8 @@ Also read these harness docs before deciding additional references:
 
 Use `docs/harness/rule-map.json` to select any additional policy, domain, ADR, design, or app-specific documents. Classify the requested Goal by `path`, `domain`, `activity`, and `topic`, then include the selected document subgraph in the generated Goal inputs.
 
+For non-trivial Goals, generate a compact Context Packet instead of copied document bodies or long discovery notes. The Context Packet is the executor's first-read input and must contain only scope, selected references, constraints, known risks, stop checks, and verification expectations.
+
 The templates are checklists for required content, not output skeletons. Do not copy the template body into the generated Goal. Produce the shortest self-contained Goal that preserves the requested phase, target artifact, scope, constraints, required inputs, Done, Verification, and Stop conditions.
 
 ## Context Discovery
@@ -139,23 +141,37 @@ When the draft would exceed 4000 characters:
 
 Prefer references over copied content, and avoid forcing the executor to rediscover context.
 
+- For non-trivial Goals, pass a compact Context Packet before detailed phase instructions.
+- Build the Context Packet from deterministic selection first: `docs/harness/rule-map.json`, Markdown front matter, path, issue or PR number, branch context, and targeted `rg` results.
 - Pass paths, issue numbers, PR numbers, current branch, and selected rule-map entries instead of copying full document bodies.
 - Include the selected rule-map subgraph and concise selection reasons, not the full rule-map contents.
 - Tell the executor to read the provided references first and avoid broad searches unless the references conflict, are insufficient, or trigger a Stop condition.
 - Do not include unrelated workspace artifacts, old PR notes, or long command output in the generated Goal.
 - For small docs-only, one-file, or already-scoped changes, generate one compact Goal instead of forcing all four phases.
 - Keep verification commands concrete, but do not include historical verification logs unless they are directly required.
+- Keep Context Packet content short enough that the executor can start from it without re-reading broad docs. Prefer 1000 to 1500 characters for the packet when practical.
 
-## Subagent Use
+## Context Packet Shape
 
-Include subagent instructions only when the Goal has bounded read-heavy work that can run independently.
+Use this shape when the Goal is non-trivial:
 
-- Use subagents for file discovery, existing-pattern summaries, selected-doc inspection, upstream scope checks, or verification-failure summaries.
-- Do not use subagents for product scope decisions, final design decisions, file edits, or ambiguous Stop conditions.
-- Prefer lightweight subagents for narrow exploration and summarization.
-- Require the executor to wait for subagent summaries before making the main decision.
-- Keep subagent prompts narrow, and ask for concise findings with file references instead of raw logs or copied source text.
-- Do not add subagent instructions to small one-file or docs-only Goals when direct execution is cheaper.
+- Scope: target artifact, in-scope work, out-of-scope work.
+- Selected refs: file paths, rule-map IDs, and one short reason per reference.
+- Constraints: issue, PRD, Design Doc, policy, and domain boundaries.
+- Known risks: only risks that affect scope, design, verification, or Stop decisions.
+- Stop checks: conditions that require clarification before continuing.
+- Verification expectations: affected app or docs-only verification scope.
+
+## Scout Agent Use
+
+Prefer the project-scoped `context-scout` custom agent with `$context-scout` for bounded discovery and summarization before the main executor makes scope, design, or edit decisions.
+
+- Use deterministic selection before Scout work when possible.
+- Use the Scout Agent for rule-map candidate selection, front matter scanning, related docs discovery, existing-pattern summaries, affected-file discovery, upstream scope checks, or verification-failure summaries.
+- Require Scout output to be concise findings with file references, not raw document bodies, copied source text, or long logs.
+- Require the main executor to reduce Scout findings into the Context Packet before making the main decision.
+- Do not use Scout for product scope decisions, final design decisions, file edits, GitHub writes, or ambiguous Stop-condition judgments.
+- Do not add Scout instructions to small one-file, docs-only, or already-scoped Goals when direct execution is cheaper.
 
 ## Output
 
