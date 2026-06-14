@@ -169,10 +169,10 @@
       "id": "policy.temporal-data",
       "file": "docs/harness/policies/temporal-data.md",
       "applies_to": {
-        "paths": ["apps/api/**", "apps/web/**", "docs/harness/domain/**"],
+        "paths": ["apps/api/**", "apps/web/**", "docs/harness/domain/**", "docs/harness/policies/temporal-data.md"],
         "domains": ["domain", "database", "web", "api"],
         "activities": ["change_temporal_rule", "change_month_scope", "change_effective_date", "review_time_dependent_behavior"],
-        "topics": ["temporal-data", "date", "month", "history"]
+        "topics": ["temporal-data", "date", "month", "history", "timezone"]
       },
       "depends_on": ["domain.date"],
       "overrides": [],
