@@ -6,6 +6,8 @@ import { toCurrency } from "../../../utils/toCurrency"
 import type { CategoryTotals as CategoryTotalsData } from "./fetchCategoryTotals"
 import { useCategoryTotals } from "./useCategoryTotals"
 
+import styles from "./CategoryTotals.module.css"
+
 const initialVisibleCount = 3
 
 interface CategoryTotalsProps {
@@ -127,23 +129,15 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
 }
 
 function CategoryTotalsGrid({ children }: { children: ReactNode }) {
-  return (
-    <Grid
-      align="center"
-      columns={{
-        initial: "1fr",
-        sm: "minmax(0, 1fr) minmax(96px, auto) minmax(112px, auto)",
-      }}
-      gap="2"
-      width="100%"
-    >
-      {children}
-    </Grid>
-  )
+  return <Grid className={styles.row}>{children}</Grid>
 }
 
 function CategoryTotalAmount({ amount }: { amount: number }) {
-  return <Text align={{ initial: "left", sm: "right" }}>{toCurrency(amount)}</Text>
+  return (
+    <Text align="right" className={styles.amount}>
+      {toCurrency(amount)}
+    </Text>
+  )
 }
 
 function CategoryBudgetDifference({ total }: { total: CategoryTotalsData[number] }) {
@@ -152,7 +146,7 @@ function CategoryBudgetDifference({ total }: { total: CategoryTotalsData[number]
   const color = getBudgetDifferenceColor(total)
 
   return (
-    <Text align={{ initial: "left", sm: "right" }} size="1" color={color}>
+    <Text align="right" className={styles.difference} size="1" color={color}>
       {text}
     </Text>
   )
