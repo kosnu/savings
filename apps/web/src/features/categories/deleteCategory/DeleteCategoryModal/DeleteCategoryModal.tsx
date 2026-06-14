@@ -47,7 +47,7 @@ export function DeleteCategoryModal({ category, trigger }: DeleteCategoryModalPr
       <Dialog.Content>
         <Dialog.Title>Delete this category?</Dialog.Title>
         <Dialog.Description>
-          Payments keep their records, but this category will no longer be available.
+          Payments keep their records, but this category and its budget will no longer be available.
         </Dialog.Description>
         <Text as="p" mt="2" weight="medium">
           {categoryName}

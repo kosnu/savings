@@ -1,21 +1,20 @@
-import { Button, DataList, Flex, Grid, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense, use, useState } from "react"
+import { Box, Button, Flex, Grid, Skeleton, Text } from "@radix-ui/themes"
+import { Suspense, use, useState, type ReactNode } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
-import { splitArray } from "../../../utils/splitArray"
 import { toCurrency } from "../../../utils/toCurrency"
 import type { CategoryTotals as CategoryTotalsData } from "./fetchCategoryTotals"
 import { useCategoryTotals } from "./useCategoryTotals"
 
-const defaultChunkSize = 2
+import styles from "./CategoryTotals.module.css"
+
 const initialVisibleCount = 3
 
 interface CategoryTotalsProps {
   cacheScope?: string
-  chunkSize?: number
 }
 
-export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: CategoryTotalsProps) {
+export function CategoryTotals({ cacheScope }: CategoryTotalsProps) {
   const { promise, targetMonthKey } = useCategoryTotals({ cacheScope })
 
   return (
@@ -23,12 +22,8 @@ export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: Cat
       fallback={<Text color="red">Failed</Text>}
       resetKeys={[cacheScope ?? "default", targetMonthKey]}
     >
-      <Suspense fallback={<CategoryTotalsLoading chunkSize={chunkSize} />}>
-        <CategoryTotalsResolved
-          promise={promise}
-          targetMonthKey={targetMonthKey}
-          chunkSize={chunkSize}
-        />
+      <Suspense fallback={<CategoryTotalsLoading />}>
+        <CategoryTotalsResolved promise={promise} targetMonthKey={targetMonthKey} />
       </Suspense>
     </ErrorBoundary>
   )
@@ -37,11 +32,9 @@ export function CategoryTotals({ cacheScope, chunkSize = defaultChunkSize }: Cat
 function CategoryTotalsResolved({
   promise,
   targetMonthKey,
-  chunkSize,
 }: {
   promise: Promise<CategoryTotalsData>
   targetMonthKey: string
-  chunkSize: number
 }) {
   const categoryTotals = use(promise)
 
@@ -52,84 +45,69 @@ function CategoryTotalsResolved({
   const categoryTotalsKey = [
     targetMonthKey,
     ...categoryTotals.map(
-      (total) => `${total.key}:${total.kind}:${total.totalAmount}:${total.pinned ? "1" : "0"}`,
+      (total) =>
+        `${total.key}:${total.kind}:${total.totalAmount}:${total.budgetStatus}:${total.budgetAmount ?? "none"}:${total.pinned ? "1" : "0"}`,
     ),
   ].join(":")
 
-  return (
-    <CategoryTotalsContent
-      key={categoryTotalsKey}
-      categoryTotals={categoryTotals}
-      chunkSize={chunkSize}
-    />
-  )
+  return <CategoryTotalsContent key={categoryTotalsKey} categoryTotals={categoryTotals} />
 }
 
-function CategoryTotalsLoading({ chunkSize }: { chunkSize: number }) {
-  const skeletonChunks = splitArray(["primary", "secondary", "tertiary"], chunkSize)
-
+function CategoryTotalsLoading() {
   return (
-    <Grid columns={`${chunkSize}`} gap="1" width="100%" aria-label="loading category totals">
-      {skeletonChunks.map((chunk) => (
-        <DataList.Root
-          key={chunk.join(":")}
-          size="1"
-          aria-label={`Loading category totals chunk ${chunk.join(" ")}`}
-        >
-          {chunk.map((row) => (
-            <DataList.Item key={row} align="center">
-              <DataList.Label minWidth="80px">
-                <Skeleton loading>
-                  <Text aria-hidden>Category</Text>
-                </Skeleton>
-              </DataList.Label>
-              <DataList.Value>
-                <Skeleton loading>
-                  <Text aria-hidden>￥0,000</Text>
-                </Skeleton>
-              </DataList.Value>
-            </DataList.Item>
-          ))}
-        </DataList.Root>
+    <Flex aria-label="loading category totals" direction="column" gap="2" width="100%">
+      {["primary", "secondary", "tertiary"].map((row) => (
+        <CategoryTotalsGrid key={row}>
+          <Skeleton loading>
+            <Text aria-hidden>Category</Text>
+          </Skeleton>
+          <Skeleton loading>
+            <Text aria-hidden>￥0,000</Text>
+          </Skeleton>
+          <Skeleton loading>
+            <Text aria-hidden>￥0,000 left</Text>
+          </Skeleton>
+        </CategoryTotalsGrid>
       ))}
-    </Grid>
+    </Flex>
   )
 }
 
 interface CategoryTotalsContentProps {
   categoryTotals: CategoryTotalsData
-  chunkSize: number
 }
 
-function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsContentProps) {
+function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount)
 
   const hasOverflow = categoryTotals.length > initialVisibleCount
   const isExpanded = visibleCount >= categoryTotals.length
   const visibleTotals = categoryTotals.slice(0, visibleCount)
-  // カテゴリが多い場合に縦に長くなりすぎないよう、2列に分割して表示する
-  const categoryChunks = splitArray(visibleTotals, chunkSize)
   const toggleLabel = isExpanded ? "Show less" : "Show more"
   const toggleAriaLabel = isExpanded ? "Show less category totals" : "Show more category totals"
 
   return (
     <Flex direction="column" gap="3" width="100%">
-      <Grid columns={`${chunkSize}`} gap="1" width="100%">
-        {categoryChunks.map((chunk, i) => (
-          <DataList.Root
-            key={chunk.map((total) => total.key).join(":")}
-            size="1"
-            aria-label={`Category totals chunk ${i}`}
-          >
-            {chunk.map((total) => (
-              <DataList.Item key={total.key} align="center">
-                <DataList.Label minWidth="80px">{total.categoryName}</DataList.Label>
-                <DataList.Value>{toCurrency(total.totalAmount)}</DataList.Value>
-              </DataList.Item>
-            ))}
-          </DataList.Root>
+      <Box display={{ initial: "none", sm: "block" }}>
+        <CategoryTotalsGrid>
+          <Text color="gray">Category</Text>
+          <Text align="right" color="gray">
+            Total
+          </Text>
+          <Text align="right" color="gray">
+            Difference
+          </Text>
+        </CategoryTotalsGrid>
+      </Box>
+      <Flex direction="column" gap="2" width="100%">
+        {visibleTotals.map((total) => (
+          <CategoryTotalsGrid key={total.key}>
+            <Text>{total.categoryName}</Text>
+            <CategoryTotalAmount amount={total.totalAmount} />
+            <CategoryBudgetDifference total={total} />
+          </CategoryTotalsGrid>
         ))}
-      </Grid>
+      </Flex>
       {hasOverflow && (
         <Flex justify="center">
           <Button
@@ -148,4 +126,70 @@ function CategoryTotalsContent({ categoryTotals, chunkSize }: CategoryTotalsCont
       )}
     </Flex>
   )
+}
+
+function CategoryTotalsGrid({ children }: { children: ReactNode }) {
+  return <Grid className={styles.row}>{children}</Grid>
+}
+
+function CategoryTotalAmount({ amount }: { amount: number }) {
+  return (
+    <Text align="right" className={styles.amount}>
+      {toCurrency(amount)}
+    </Text>
+  )
+}
+
+function CategoryBudgetDifference({ total }: { total: CategoryTotalsData[number] }) {
+  const text = formatBudgetDifference(total)
+
+  const color = getBudgetDifferenceColor(total)
+
+  return (
+    <Text align="right" className={styles.difference} size="1" color={color}>
+      {text}
+    </Text>
+  )
+}
+
+function formatBudgetDifference(total: CategoryTotalsData[number]): string {
+  if (total.budgetStatus === "none") {
+    return "No budget"
+  }
+
+  if (total.budgetStatus === "unset") {
+    return "Not set"
+  }
+
+  const difference = total.budgetDifference
+
+  if (difference === null) {
+    return "Failed"
+  }
+
+  if (difference > 0) {
+    return `${toCurrency(difference)} left`
+  }
+
+  if (difference < 0) {
+    return `${toCurrency(Math.abs(difference))} over`
+  }
+
+  return "On budget"
+}
+
+function getBudgetDifferenceColor(total: CategoryTotalsData[number]): "gray" | "green" | "red" {
+  if (total.budgetDifference === null) {
+    return "gray"
+  }
+
+  if (total.budgetDifference > 0) {
+    return "green"
+  }
+
+  if (total.budgetDifference < 0) {
+    return "red"
+  }
+
+  return "gray"
 }

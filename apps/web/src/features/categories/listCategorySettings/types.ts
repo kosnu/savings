@@ -5,4 +5,6 @@ export interface CategorySettingsItem {
     name: string
   }
   pinned: boolean
+  budgetStatus: "amount" | "none" | "unset"
+  budgetAmount: number | null
 }

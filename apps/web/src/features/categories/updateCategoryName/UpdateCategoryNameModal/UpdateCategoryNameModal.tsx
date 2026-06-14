@@ -11,6 +11,8 @@ interface UpdateCategoryNameModalProps {
     id: number
     name: string
     pinned: boolean
+    budgetStatus?: "amount" | "none" | "unset"
+    budgetAmount?: number | null
   }
   currentPinnedCount?: number
   trigger?: ReactElement

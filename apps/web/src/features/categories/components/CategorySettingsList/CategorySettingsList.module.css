@@ -1,0 +1,37 @@
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.header {
+  display: none;
+}
+
+.row {
+  min-width: 0;
+}
+
+.separator {
+  width: 100%;
+}
+
+@media (min-width: 520px) {
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(6rem, max-content) max-content;
+    column-gap: var(--space-2);
+  }
+
+  .header,
+  .row {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: center;
+  }
+
+  .separator {
+    grid-column: 1 / -1;
+  }
+}

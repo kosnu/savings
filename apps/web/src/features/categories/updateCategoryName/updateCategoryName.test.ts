@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { updateCategoryName } from "./updateCategoryName"
 
@@ -11,6 +11,12 @@ vi.mock("../../../lib/supabase", () => ({
 describe("updateCategoryName", () => {
   beforeEach(() => {
     mockRpc.mockReset()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 2, 20))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it("カテゴリID、名前、ピン状態で更新RPCを呼ぶ", async () => {
@@ -20,11 +26,16 @@ describe("updateCategoryName", () => {
       categoryId: 10,
       name: "Groceries",
       pinned: true,
+      budgetAmount: 0,
+      budgetAction: "set",
     })
 
-    expect(mockRpc).toHaveBeenCalledWith("update_category_with_pin", {
+    expect(mockRpc).toHaveBeenCalledWith("update_category_with_pin_and_budget", {
+      p_budget_action: "set",
+      p_budget_amount: 0,
       p_category_id: 10,
       p_category_name: "Groceries",
+      p_effective_month: "2026-03-01",
       p_pinned: true,
     })
   })
@@ -38,6 +49,8 @@ describe("updateCategoryName", () => {
         categoryId: 10,
         name: "Groceries",
         pinned: false,
+        budgetAmount: null,
+        budgetAction: "keep",
       }),
     ).rejects.toEqual(supabaseError)
   })

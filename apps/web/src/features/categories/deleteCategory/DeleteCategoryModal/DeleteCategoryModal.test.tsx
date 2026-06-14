@@ -20,11 +20,13 @@ describe("DeleteCategoryModal", () => {
 
     await user.click(await screen.findByRole("button", { name: "Delete Food category" }))
 
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category?",
+    })
     expect(within(dialog).getByText("Food")).toBeInTheDocument()
     expect(
       within(dialog).getByText(
-        "Payments keep their records, but this category will no longer be available.",
+        "Payments keep their records, but this category and its budget will no longer be available.",
       ),
     ).toBeInTheDocument()
   })
@@ -33,7 +35,9 @@ describe("DeleteCategoryModal", () => {
     const { user } = render(<DeleteCategoryModal category={category} />)
 
     await user.click(await screen.findByRole("button", { name: "Delete Food category" }))
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category?",
+    })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     await waitFor(() => {
@@ -49,7 +53,9 @@ describe("DeleteCategoryModal", () => {
     const { user } = render(<DeleteCategoryModal category={category} />)
 
     await user.click(await screen.findByRole("button", { name: "Delete Food category" }))
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category?",
+    })
     await user.click(within(dialog).getByRole("button", { name: /^delete$/i }))
 
     expect(await screen.findByText("Failed to delete category.")).toBeInTheDocument()
@@ -60,7 +66,9 @@ describe("DeleteCategoryModal", () => {
     const { user } = render(<DeleteCategoryModal category={null} />)
 
     await user.click(await screen.findByRole("button", { name: "Delete category" }))
-    const dialog = await screen.findByRole("dialog", { name: "Delete this category?" })
+    const dialog = await screen.findByRole("dialog", {
+      name: "Delete this category?",
+    })
 
     expect(within(dialog).getByText("Category not found.")).toBeInTheDocument()
     expect(within(dialog).getByRole("button", { name: /^delete$/i })).toBeDisabled()

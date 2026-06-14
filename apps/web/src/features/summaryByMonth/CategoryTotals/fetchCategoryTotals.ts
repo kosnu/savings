@@ -31,6 +31,9 @@ export interface CategoryTotal {
   categoryId: number | null
   categoryName: string
   totalAmount: number
+  budgetStatus: "amount" | "none" | "unset"
+  budgetAmount: number | null
+  budgetDifference: number | null
   pinned: boolean
   kind: "category" | "uncategorized"
 }
@@ -86,9 +89,19 @@ export async function fetchCategoryTotals([startDate, endDate]: [
     throw uncategorizedPaymentsResponse.error
   }
 
+  const categoryBudgetsResponse = await supabase.rpc("get_effective_category_budgets", {
+    p_target_month: toDateOnlyString(startDate ?? endDate ?? new Date()),
+  })
+
+  if (categoryBudgetsResponse.error) {
+    throw categoryBudgetsResponse.error
+  }
+
+  const categoryBudgetMap = toCategoryBudgetMap(categoryBudgetsResponse.data)
+
   const categoryTotals = (categoryTotalsResponse.data ?? [])
     .map(normalizeCategoryTotalsRow)
-    .map(toCategoryTotal)
+    .map((row) => toCategoryTotal(row, categoryBudgetMap))
     .sort(compareCategoryTotals)
 
   const uncategorizedTotal: CategoryTotal = {
@@ -98,6 +111,9 @@ export async function fetchCategoryTotals([startDate, endDate]: [
     totalAmount: (uncategorizedPaymentsResponse.data ?? [])
       .map(normalizeCategoryTotalsPaymentRow)
       .reduce((sum, payment) => sum + payment.amount, 0),
+    budgetStatus: "unset",
+    budgetAmount: null,
+    budgetDifference: null,
     pinned: false,
     kind: "uncategorized",
   }
@@ -125,15 +141,63 @@ function normalizeCategoryTotalsPaymentRow(value: unknown): CategoryTotalsPaymen
   return result.data
 }
 
-function toCategoryTotal(row: CategoryTotalsRow): CategoryTotal {
+function toCategoryTotal(
+  row: CategoryTotalsRow,
+  categoryBudgetMap: Map<number, CategoryBudgetState>,
+): CategoryTotal {
+  const totalAmount = row.payments.reduce((sum, payment) => sum + payment.amount, 0)
+  const budgetState = categoryBudgetMap.get(row.id) ?? { status: "unset", amount: null }
+  const budgetDifference =
+    budgetState.status === "amount" && budgetState.amount !== null
+      ? budgetState.amount - totalAmount
+      : null
+
   return {
     key: `category:${row.id}`,
     categoryId: row.id,
     categoryName: row.name,
-    totalAmount: row.payments.reduce((sum, payment) => sum + payment.amount, 0),
+    totalAmount,
+    budgetStatus: budgetState.status,
+    budgetAmount: budgetState.amount,
+    budgetDifference,
     pinned: (row.category_pins ?? []).some((pin) => pin.category_id === row.id),
     kind: "category",
   }
+}
+
+const effectiveCategoryBudgetSchema = z
+  .object({
+    category_id: z.number(),
+    status: z.enum(["amount", "none"]),
+    amount: z.number().nullable(),
+  })
+  .refine(
+    (value) =>
+      (value.status === "amount" && value.amount !== null) ||
+      (value.status === "none" && value.amount === null),
+  )
+
+type CategoryBudgetState = {
+  status: "amount" | "none" | "unset"
+  amount: number | null
+}
+
+function toCategoryBudgetMap(value: unknown): Map<number, CategoryBudgetState> {
+  const result = z.array(effectiveCategoryBudgetSchema).safeParse(value)
+
+  if (!result.success) {
+    throw new Error("Invalid category budget response")
+  }
+
+  return new Map(
+    result.data.map((budget) => [
+      budget.category_id,
+      {
+        status: budget.status,
+        amount: budget.status === "amount" ? budget.amount : null,
+      },
+    ]),
+  )
 }
 
 function compareCategoryTotals(left: CategoryTotal, right: CategoryTotal): number {
