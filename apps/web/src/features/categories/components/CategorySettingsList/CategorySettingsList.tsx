@@ -1,4 +1,4 @@
-import { Badge, Box, Flex, Grid, Separator, Skeleton, Text } from "@radix-ui/themes"
+import { Badge, Box, Flex, Separator, Skeleton, Text } from "@radix-ui/themes"
 import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
@@ -8,6 +8,8 @@ import { DeleteCategoryModal } from "../../deleteCategory/DeleteCategoryModal"
 import type { CategorySettingsItem } from "../../listCategorySettings/types"
 import { useCategorySettingsItems } from "../../listCategorySettings/useCategorySettingsItems"
 import { UpdateCategoryNameModal } from "../../updateCategoryName/UpdateCategoryNameModal"
+
+import styles from "./CategorySettingsList.module.css"
 
 export function CategorySettingsList() {
   const { promise } = useCategorySettingsItems()
@@ -43,15 +45,15 @@ function CategorySettingsListContent({ promise }: CategorySettingsListContentPro
       {items.length === 0 ? (
         <Text color="gray">No categories.</Text>
       ) : (
-        <>
+        <div className={styles.grid}>
           <CategorySettingsHeader />
           {items.map((item) => (
             <Fragment key={item.category.id}>
-              <Separator orientation="horizontal" size="4" />
+              <Separator className={styles.separator} orientation="horizontal" size="4" />
               <CategorySettingsRow item={item} currentPinnedCount={currentPinnedCount} />
             </Fragment>
           ))}
-        </>
+        </div>
       )}
     </Flex>
   )
@@ -70,13 +72,11 @@ function CategorySettingsTitle({ currentPinnedCount }: { currentPinnedCount: num
 
 function CategorySettingsHeader() {
   return (
-    <Box display={{ initial: "none", sm: "block" }}>
-      <Grid columns="1fr minmax(96px, auto) minmax(64px, auto)" gap="2">
-        <Text color="gray">Name</Text>
-        <Text color="gray">Budget</Text>
-        <Box aria-hidden />
-      </Grid>
-    </Box>
+    <div className={styles.header}>
+      <Text color="gray">Name</Text>
+      <Text color="gray">Budget</Text>
+      <Box aria-hidden />
+    </div>
   )
 }
 
@@ -93,24 +93,20 @@ function CategorySettingsLoadingRows() {
           <Text>Create category</Text>
         </Skeleton>
       </Flex>
-      <CategorySettingsHeader />
-      <Grid
-        columns={{
-          initial: "1fr",
-          sm: "1fr minmax(96px, auto) minmax(64px, auto)",
-        }}
-        gap="2"
-      >
-        <Skeleton loading>
-          <Text>Category name</Text>
-        </Skeleton>
-        <Skeleton loading>
-          <Text>￥0</Text>
-        </Skeleton>
-        <Skeleton loading>
-          <Text>Edit</Text>
-        </Skeleton>
-      </Grid>
+      <div className={styles.grid}>
+        <CategorySettingsHeader />
+        <div className={styles.row} aria-hidden>
+          <Skeleton loading>
+            <Text>Category name</Text>
+          </Skeleton>
+          <Skeleton loading>
+            <Text>￥0</Text>
+          </Skeleton>
+          <Skeleton loading>
+            <Text>Edit</Text>
+          </Skeleton>
+        </div>
+      </div>
     </Flex>
   )
 }
@@ -123,15 +119,7 @@ function CategorySettingsRow({
   currentPinnedCount: number
 }) {
   return (
-    <Grid
-      align="center"
-      aria-label={`${item.category.name} category settings`}
-      columns={{
-        initial: "1fr",
-        sm: "1fr minmax(96px, auto) minmax(64px, auto)",
-      }}
-      gap="2"
-    >
+    <div className={styles.row} aria-label={`${item.category.name} category settings`}>
       <CategoryNameWithMobileActionCell item={item} currentPinnedCount={currentPinnedCount} />
       <CategoryBudgetCell item={item} />
       <CategoryActionsCell
@@ -139,7 +127,7 @@ function CategorySettingsRow({
         currentPinnedCount={currentPinnedCount}
         placement="desktop"
       />
-    </Grid>
+    </div>
   )
 }
 
