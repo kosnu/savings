@@ -77,6 +77,7 @@ const createCategoryBodySchema = z.object({
 const createCategoryWithPinBodySchema = z.object({
   p_budget_amount: z.number().nullable(),
   p_category_name: z.string(),
+  p_effective_month: z.string(),
   p_pinned: z.boolean(),
 })
 
@@ -85,11 +86,16 @@ const updateCategoryWithPinBodySchema = z.object({
   p_budget_amount: z.number().nullable(),
   p_category_id: z.number(),
   p_category_name: z.string(),
+  p_effective_month: z.string(),
   p_pinned: z.boolean(),
 })
 
 const deleteCategoryWithBudgetBodySchema = z.object({
   p_category_id: z.number(),
+})
+
+const getEffectiveCategoryBudgetsBodySchema = z.object({
+  p_target_month: z.string(),
 })
 
 const categoryPinBodySchema = z.object({
@@ -233,12 +239,14 @@ export function createCategorySettingsHandlers({
 
       return HttpResponse.json("response" in deleteOptions ? deleteOptions.response : null)
     }),
-    http.post(GET_EFFECTIVE_CATEGORY_BUDGETS_RPC_URL, async () => {
+    http.post(GET_EFFECTIVE_CATEGORY_BUDGETS_RPC_URL, async ({ request }) => {
       await delay(durationOrMode)
 
       if (error) {
         return HttpResponse.json({ message: "Failed to fetch category budgets." }, { status: 500 })
       }
+
+      getEffectiveCategoryBudgetsBodySchema.parse(await request.json())
 
       return HttpResponse.json(budgetRows)
     }),
