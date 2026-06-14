@@ -119,11 +119,11 @@ Do not make unrelated repository changes while generating a Goal.
 
 ## Output Budget
 
-The generated `/goal` input must be 4000 characters or less, including any note before the Markdown Goal.
+The generated `/goal` input must be 3800 characters or less, including any note before the Markdown Goal.
 
-This is a hard response gate, not a best-effort target. Draft for 3600 characters or less so final edits have room. Before returning the Goal, measure the exact character count of the full response text. If tooling is available, write the candidate response to a temporary file outside the repository and run `wc -m` against that file. Do not rely on approximate token counts or visual length.
+This is a hard response gate, not a best-effort target. Draft for 3400 characters or less so final edits have room. Before returning the Goal, measure the exact character count of the full response text. If tooling is available, write the candidate response to a temporary file outside the repository and run `wc -m` against that file. Do not rely on approximate token counts or visual length.
 
-When the draft would exceed 4000 characters:
+When the draft would exceed 3800 characters:
 
 - Keep the Goal self-contained, but compress wording before returning it.
 - Prefer paths, issue or PR numbers, and concise evidence summaries over copied source text.
@@ -134,8 +134,8 @@ When the draft would exceed 4000 characters:
 - Merge repeated constraints into one bullet when they point to the same boundary.
 - Replace template checklist wording with phase-specific done checks that are traceable to the current request.
 - Do not omit phase, target artifact path, scope, constraints, required inputs, Done, Verification, or Stop sections.
-- After compression, measure the full response text again. Repeat until it is 4000 characters or less.
-- If the Goal still cannot fit within 4000 characters without losing required execution context, return a concise note naming the missing compression decision instead of producing an oversized Goal.
+- After compression, measure the full response text again. Repeat until it is 3800 characters or less.
+- If the Goal still cannot fit within 3800 characters without losing required execution context, return a concise note naming the missing compression decision instead of producing an oversized Goal.
 
 ## Token Budget
 
