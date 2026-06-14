@@ -79,7 +79,7 @@ describe("UpdateCategoryNameModal", () => {
     await user.type(nameInput, "Groceries")
     await user.click(within(dialog).getByRole("button", { name: "Save" }))
 
-    expect(await within(dialog).findByText("Failed to update category name.")).toBeInTheDocument()
+    expect(await within(dialog).findByText("Failed to save category.")).toBeInTheDocument()
     expect(screen.getByRole("dialog", { name: "Edit category" })).toBeInTheDocument()
   })
 })

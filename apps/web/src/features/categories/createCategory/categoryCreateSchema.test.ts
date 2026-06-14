@@ -5,13 +5,17 @@ import { CATEGORY_NAME_MAX_LENGTH } from "../categorySchema"
 import { categoryCreateSchema } from "./categoryCreateSchema"
 
 describe("categoryCreateSchema", () => {
-  test("カテゴリ名とピン留め状態で作成できる", () => {
+  test("カテゴリ名、ピン留め状態、任意の予算額で作成できる", () => {
     const result = categoryCreateSchema.safeParse({
       name: "Groceries",
+      budgetAmount: "0",
       pinned: false,
     })
 
     expect(result.success).toBe(true)
+    expect(result.data).toMatchObject({
+      budgetAmount: 0,
+    })
   })
 
   test("カテゴリ名は20文字以下に制限する", () => {

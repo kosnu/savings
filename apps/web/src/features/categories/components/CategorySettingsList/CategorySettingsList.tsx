@@ -1,12 +1,15 @@
-import { Badge, Box, Flex, Grid, Separator, Skeleton, Text } from "@radix-ui/themes"
+import { Badge, Box, Flex, Separator, Skeleton, Text } from "@radix-ui/themes"
 import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
+import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateCategoryModal } from "../../createCategory/CreateCategoryModal"
 import { DeleteCategoryModal } from "../../deleteCategory/DeleteCategoryModal"
 import type { CategorySettingsItem } from "../../listCategorySettings/types"
 import { useCategorySettingsItems } from "../../listCategorySettings/useCategorySettingsItems"
 import { UpdateCategoryNameModal } from "../../updateCategoryName/UpdateCategoryNameModal"
+
+import styles from "./CategorySettingsList.module.css"
 
 export function CategorySettingsList() {
   const { promise } = useCategorySettingsItems()
@@ -42,15 +45,15 @@ function CategorySettingsListContent({ promise }: CategorySettingsListContentPro
       {items.length === 0 ? (
         <Text color="gray">No categories.</Text>
       ) : (
-        <>
+        <div className={styles.grid}>
           <CategorySettingsHeader />
           {items.map((item) => (
             <Fragment key={item.category.id}>
-              <Separator orientation="horizontal" size="4" />
+              <Separator className={styles.separator} orientation="horizontal" size="4" />
               <CategorySettingsRow item={item} currentPinnedCount={currentPinnedCount} />
             </Fragment>
           ))}
-        </>
+        </div>
       )}
     </Flex>
   )
@@ -69,12 +72,11 @@ function CategorySettingsTitle({ currentPinnedCount }: { currentPinnedCount: num
 
 function CategorySettingsHeader() {
   return (
-    <Box display={{ initial: "none", sm: "block" }}>
-      <Grid columns="1fr minmax(64px, auto)" gap="3">
-        <Text color="gray">Name</Text>
-        <Box aria-hidden />
-      </Grid>
-    </Box>
+    <div className={styles.header}>
+      <Text color="gray">Name</Text>
+      <Text color="gray">Budget</Text>
+      <Box aria-hidden />
+    </div>
   )
 }
 
@@ -91,21 +93,20 @@ function CategorySettingsLoadingRows() {
           <Text>Create category</Text>
         </Skeleton>
       </Flex>
-      <CategorySettingsHeader />
-      <Grid
-        columns={{
-          initial: "1fr",
-          sm: "1fr minmax(64px, auto)",
-        }}
-        gap="2"
-      >
-        <Skeleton loading>
-          <Text>Category name</Text>
-        </Skeleton>
-        <Skeleton loading>
-          <Text>Edit</Text>
-        </Skeleton>
-      </Grid>
+      <div className={styles.grid}>
+        <CategorySettingsHeader />
+        <div className={styles.row} aria-hidden>
+          <Skeleton loading>
+            <Text>Category name</Text>
+          </Skeleton>
+          <Skeleton loading>
+            <Text>￥0</Text>
+          </Skeleton>
+          <Skeleton loading>
+            <Text>Edit</Text>
+          </Skeleton>
+        </div>
+      </div>
     </Flex>
   )
 }
@@ -118,22 +119,15 @@ function CategorySettingsRow({
   currentPinnedCount: number
 }) {
   return (
-    <Grid
-      align="center"
-      aria-label={`${item.category.name} category settings`}
-      columns={{
-        initial: "1fr",
-        sm: "1fr minmax(64px, auto)",
-      }}
-      gap="2"
-    >
+    <div className={styles.row} aria-label={`${item.category.name} category settings`}>
       <CategoryNameWithMobileActionCell item={item} currentPinnedCount={currentPinnedCount} />
+      <CategoryBudgetCell item={item} />
       <CategoryActionsCell
         item={item}
         currentPinnedCount={currentPinnedCount}
         placement="desktop"
       />
-    </Grid>
+    </div>
   )
 }
 
@@ -146,7 +140,12 @@ function CategoryNameWithMobileActionCell({
 }) {
   return (
     <Flex align="center" gap="3" justify="between">
-      <CategoryNameCell item={item} />
+      <Flex direction="column" gap="1" minWidth="0">
+        <CategoryNameCell item={item} />
+        <Box display={{ initial: "block", sm: "none" }}>
+          <CategoryBudgetText item={item} />
+        </Box>
+      </Flex>
       <CategoryActionsCell item={item} currentPinnedCount={currentPinnedCount} placement="mobile" />
     </Flex>
   )
@@ -158,6 +157,20 @@ function CategoryNameCell({ item }: { item: CategorySettingsItem }) {
       <Text>{item.category.name}</Text>
       {item.pinned && <PinBadge />}
     </Flex>
+  )
+}
+
+function CategoryBudgetCell({ item }: { item: CategorySettingsItem }) {
+  return (
+    <Box display={{ initial: "none", sm: "block" }}>
+      <CategoryBudgetText item={item} />
+    </Box>
+  )
+}
+
+function CategoryBudgetText({ item }: { item: CategorySettingsItem }) {
+  return (
+    <Text color={item.budgetStatus === "amount" ? undefined : "gray"}>{formatBudget(item)}</Text>
   )
 }
 
@@ -178,7 +191,12 @@ function CategoryActionsCell({
   return (
     <Flex align="center" display={display} flexShrink="0" gap="2">
       <UpdateCategoryNameModal
-        category={{ ...item.category, pinned: item.pinned }}
+        category={{
+          ...item.category,
+          pinned: item.pinned,
+          budgetStatus: item.budgetStatus,
+          budgetAmount: item.budgetAmount,
+        }}
         currentPinnedCount={currentPinnedCount}
       />
       <DeleteCategoryModal category={item.category} />
@@ -188,6 +206,18 @@ function CategoryActionsCell({
 
 function countPinnedItems(items: CategorySettingsItem[]): number {
   return items.filter((item) => item.pinned).length
+}
+
+function formatBudget(item: CategorySettingsItem): string {
+  if (item.budgetStatus === "none") {
+    return "No budget"
+  }
+
+  if (item.budgetStatus === "unset" || item.budgetAmount === null) {
+    return "Not set"
+  }
+
+  return toCurrency(item.budgetAmount)
 }
 
 function PinBadge() {

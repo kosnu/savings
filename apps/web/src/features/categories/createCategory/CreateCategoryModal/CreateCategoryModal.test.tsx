@@ -36,9 +36,7 @@ describe("CreateCategoryModal", () => {
     expect(dialog).toBeInTheDocument()
     expect(within(dialog).getByText("Create a category.")).toBeInTheDocument()
     expect(within(dialog).getByRole("textbox", { name: /Name/ })).toBeInTheDocument()
-    expect(
-      within(dialog).queryByRole("textbox", { name: /Monthly budget/ }),
-    ).not.toBeInTheDocument()
+    expect(within(dialog).getByRole("textbox", { name: "Budget" })).toBeInTheDocument()
   })
 
   test("Cancelをクリックするとダイアログを閉じる", async () => {

@@ -95,7 +95,7 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Name")).toBeInTheDocument()
     expect(await screen.findAllByText("Pin")).not.toHaveLength(0)
-    expect(screen.queryByText("Not set")).not.toBeInTheDocument()
+    expect(await screen.findAllByText("Not set")).not.toHaveLength(0)
     expect(screen.queryByText("Not pinned")).not.toBeInTheDocument()
     expect(screen.queryByText("Category Budgets")).not.toBeInTheDocument()
   })

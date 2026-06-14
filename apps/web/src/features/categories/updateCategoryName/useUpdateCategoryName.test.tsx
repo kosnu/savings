@@ -28,6 +28,8 @@ describe("useUpdateCategoryName", () => {
       categoryId: 10,
       name: "Groceries",
       pinned: true,
+      budgetAmount: null,
+      budgetAction: "keep" as const,
     }
     mockUpdateCategoryName.mockResolvedValue(undefined)
 
@@ -69,6 +71,8 @@ describe("useUpdateCategoryName", () => {
           categoryId: 10,
           name: "Groceries",
           pinned: false,
+          budgetAmount: null,
+          budgetAction: "keep",
         }),
       ).rejects.toEqual(error)
     })
