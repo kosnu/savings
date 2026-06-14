@@ -10,7 +10,7 @@ export function PaymentsPage() {
   const [paymentsPageCacheScope] = useState(() => `payments-page-${crypto.randomUUID()}`)
 
   return (
-    <Container size="4">
+    <Container size="2">
       <Flex direction="column" gap="3">
         <Summary cacheScope={paymentsPageCacheScope} />
         <Flex align="center" gap="3">
