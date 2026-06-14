@@ -114,6 +114,18 @@ describe("CategorySettingsList", () => {
     )
   })
 
+  test("desktop列のヘッダーと行を同じgrid構造に置く", async () => {
+    await renderCategorySettingsList(<Default />)
+
+    const foodRow = await screen.findByLabelText("Food category settings")
+    const dailyNecessitiesRow = await screen.findByLabelText("Daily Necessities category settings")
+    const listGrid = foodRow.parentElement
+    const budgetHeader = within(listGrid!).getByText("Budget")
+
+    expect(budgetHeader.parentElement?.parentElement).toBe(listGrid)
+    expect(dailyNecessitiesRow.parentElement).toBe(listGrid)
+  })
+
   test("カテゴリ名を更新して一覧に反映する", async () => {
     server.resetHandlers(
       ...createCategorySettingsHandlers({ response: defaultCategorySettingsResponse }),
