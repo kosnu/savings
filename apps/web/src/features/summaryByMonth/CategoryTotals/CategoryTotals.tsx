@@ -10,7 +10,6 @@ const initialVisibleCount = 3
 
 interface CategoryTotalsProps {
   cacheScope?: string
-  chunkSize?: number
 }
 
 export function CategoryTotals({ cacheScope }: CategoryTotalsProps) {
@@ -102,7 +101,7 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
         {visibleTotals.map((total) => (
           <CategoryTotalsGrid key={total.key}>
             <Text>{total.categoryName}</Text>
-            <Text align="right">{toCurrency(total.totalAmount)}</Text>
+            <CategoryTotalAmount amount={total.totalAmount} />
             <CategoryBudgetDifference total={total} />
           </CategoryTotalsGrid>
         ))}
@@ -132,7 +131,7 @@ function CategoryTotalsGrid({ children }: { children: ReactNode }) {
     <Grid
       align="center"
       columns={{
-        initial: "minmax(0, 1fr) minmax(88px, auto) minmax(96px, auto)",
+        initial: "1fr",
         sm: "minmax(0, 1fr) minmax(96px, auto) minmax(112px, auto)",
       }}
       gap="2"
@@ -143,13 +142,17 @@ function CategoryTotalsGrid({ children }: { children: ReactNode }) {
   )
 }
 
+function CategoryTotalAmount({ amount }: { amount: number }) {
+  return <Text align={{ initial: "left", sm: "right" }}>{toCurrency(amount)}</Text>
+}
+
 function CategoryBudgetDifference({ total }: { total: CategoryTotalsData[number] }) {
   const text = formatBudgetDifference(total)
 
   const color = getBudgetDifferenceColor(total)
 
   return (
-    <Text align="right" size="1" color={color}>
+    <Text align={{ initial: "left", sm: "right" }} size="1" color={color}>
       {text}
     </Text>
   )
