@@ -136,15 +136,17 @@ create trigger trg_ensure_category_budget_category_book
 create or replace function public.create_category_with_pin_and_budget(
   p_category_name text,
   p_pinned boolean,
+  p_effective_month date,
   p_budget_amount integer default null
 )
 returns bigint as $$
 declare
   authenticated_default_book_id bigint;
   created_category_id bigint;
-  current_month_start date := date_trunc('month', current_date)::date;
+  effective_month_start date;
 begin
   authenticated_default_book_id := public.get_authenticated_default_book_id();
+  effective_month_start := date_trunc('month', p_effective_month)::date;
 
   insert into public.categories (book_id, name)
   values (authenticated_default_book_id, p_category_name)
@@ -160,7 +162,7 @@ begin
     values (
       authenticated_default_book_id,
       created_category_id,
-      current_month_start,
+      effective_month_start,
       'amount',
       p_budget_amount
     )
@@ -174,15 +176,16 @@ begin
 end;
 $$ language plpgsql security invoker set search_path = public;
 
-revoke all on function public.create_category_with_pin_and_budget(text, boolean, integer) from public;
-revoke all on function public.create_category_with_pin_and_budget(text, boolean, integer) from anon;
-grant execute on function public.create_category_with_pin_and_budget(text, boolean, integer) to authenticated;
-grant execute on function public.create_category_with_pin_and_budget(text, boolean, integer) to service_role;
+revoke all on function public.create_category_with_pin_and_budget(text, boolean, date, integer) from public;
+revoke all on function public.create_category_with_pin_and_budget(text, boolean, date, integer) from anon;
+grant execute on function public.create_category_with_pin_and_budget(text, boolean, date, integer) to authenticated;
+grant execute on function public.create_category_with_pin_and_budget(text, boolean, date, integer) to service_role;
 
 create or replace function public.update_category_with_pin_and_budget(
   p_category_id bigint,
   p_category_name text,
   p_pinned boolean,
+  p_effective_month date,
   p_budget_amount integer default null,
   p_budget_action text default 'keep'
 )
@@ -190,7 +193,7 @@ returns void as $$
 declare
   authenticated_user_id bigint;
   category_book_id bigint;
-  current_month_start date := date_trunc('month', current_date)::date;
+  effective_month_start date;
   updated_category_count integer;
   has_pin boolean;
 begin
@@ -210,6 +213,7 @@ begin
   end if;
 
   authenticated_user_id := public.get_authenticated_user_id();
+  effective_month_start := date_trunc('month', p_effective_month)::date;
 
   update public.categories
   set name = p_category_name
@@ -244,7 +248,7 @@ begin
 
   if p_budget_action = 'set' then
     insert into public.category_budgets (book_id, category_id, effective_from, status, amount)
-    values (category_book_id, p_category_id, current_month_start, 'amount', p_budget_amount)
+    values (category_book_id, p_category_id, effective_month_start, 'amount', p_budget_amount)
     on conflict (book_id, category_id, effective_year, effective_month)
     do update
       set status = excluded.status,
@@ -253,7 +257,7 @@ begin
 
   if p_budget_action = 'unset' then
     insert into public.category_budgets (book_id, category_id, effective_from, status, amount)
-    values (category_book_id, p_category_id, current_month_start, 'none', null)
+    values (category_book_id, p_category_id, effective_month_start, 'none', null)
     on conflict (book_id, category_id, effective_year, effective_month)
     do update
       set status = excluded.status,
@@ -262,10 +266,10 @@ begin
 end;
 $$ language plpgsql security invoker set search_path = public;
 
-revoke all on function public.update_category_with_pin_and_budget(bigint, text, boolean, integer, text) from public;
-revoke all on function public.update_category_with_pin_and_budget(bigint, text, boolean, integer, text) from anon;
-grant execute on function public.update_category_with_pin_and_budget(bigint, text, boolean, integer, text) to authenticated;
-grant execute on function public.update_category_with_pin_and_budget(bigint, text, boolean, integer, text) to service_role;
+revoke all on function public.update_category_with_pin_and_budget(bigint, text, boolean, date, integer, text) from public;
+revoke all on function public.update_category_with_pin_and_budget(bigint, text, boolean, date, integer, text) from anon;
+grant execute on function public.update_category_with_pin_and_budget(bigint, text, boolean, date, integer, text) to authenticated;
+grant execute on function public.update_category_with_pin_and_budget(bigint, text, boolean, date, integer, text) to service_role;
 
 create or replace function public.delete_category_with_budget(
   p_category_id bigint

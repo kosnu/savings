@@ -352,6 +352,7 @@ export type Database = {
         Args: {
           p_budget_amount?: number | null
           p_category_name: string
+          p_effective_month: string
           p_pinned: boolean
         }
         Returns: number
@@ -391,6 +392,7 @@ export type Database = {
           p_budget_amount?: number | null
           p_category_id: number
           p_category_name: string
+          p_effective_month: string
           p_pinned: boolean
         }
         Returns: undefined

@@ -96,6 +96,7 @@ describe("UpdateCategoryNameForm", () => {
       p_budget_amount: null,
       p_category_id: 10,
       p_category_name: "Food",
+      p_effective_month: expect.any(String),
       p_pinned: false,
     })
   })
@@ -127,6 +128,7 @@ describe("UpdateCategoryNameForm", () => {
       p_budget_amount: null,
       p_category_id: 10,
       p_category_name: "Groceries",
+      p_effective_month: expect.any(String),
       p_pinned: false,
     })
   })
@@ -155,6 +157,7 @@ describe("UpdateCategoryNameForm", () => {
       p_budget_amount: 0,
       p_category_id: 10,
       p_category_name: "Food",
+      p_effective_month: expect.any(String),
       p_pinned: true,
     })
   })
@@ -197,6 +200,7 @@ describe("UpdateCategoryNameForm", () => {
       p_budget_amount: null,
       p_category_id: 10,
       p_category_name: "Food",
+      p_effective_month: expect.any(String),
       p_pinned: true,
     })
   })

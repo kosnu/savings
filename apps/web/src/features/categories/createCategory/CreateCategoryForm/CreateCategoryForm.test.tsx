@@ -89,6 +89,7 @@ describe("CreateCategoryForm", () => {
     expect(requestBody).toEqual({
       p_budget_amount: null,
       p_category_name: "Groceries",
+      p_effective_month: expect.any(String),
       p_pinned: false,
     })
   })
@@ -117,6 +118,7 @@ describe("CreateCategoryForm", () => {
     expect(requestBody).toEqual({
       p_budget_amount: 10000,
       p_category_name: "Groceries",
+      p_effective_month: expect.any(String),
       p_pinned: true,
     })
   })
@@ -144,6 +146,7 @@ describe("CreateCategoryForm", () => {
     expect(requestBody).toEqual({
       p_budget_amount: 0,
       p_category_name: "Groceries",
+      p_effective_month: expect.any(String),
       p_pinned: false,
     })
   })
