@@ -58,7 +58,7 @@ describe("fetchCategoryTotals", () => {
       {
         key: "uncategorized",
         categoryId: null,
-        categoryName: "Unknown",
+        categoryName: "Uncategorized",
         totalAmount: 0,
         budgetStatus: "unset",
         budgetAmount: null,
@@ -106,13 +106,13 @@ describe("fetchCategoryTotals", () => {
       budgetDifference: null,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
-      categoryName: "Unknown",
+      categoryName: "Uncategorized",
       totalAmount: 0,
       budgetDifference: null,
     })
   })
 
-  it("未分類支払いをUnknownに集計する", async () => {
+  it("未分類支払いをUncategorizedに集計する", async () => {
     const paymentRows = [
       {
         ...mapPaymentToRow(payments[0]),
@@ -145,7 +145,7 @@ describe("fetchCategoryTotals", () => {
       budgetDifference: 29000,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
-      categoryName: "Unknown",
+      categoryName: "Uncategorized",
       totalAmount: 2500,
       budgetDifference: null,
     })
@@ -202,7 +202,7 @@ describe("fetchCategoryTotals", () => {
       budgetDifference: null,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
-      categoryName: "Unknown",
+      categoryName: "Uncategorized",
       totalAmount: 2500,
       budgetDifference: null,
     })

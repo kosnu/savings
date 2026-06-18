@@ -3,11 +3,13 @@ import { createRoute } from "@tanstack/react-router"
 import { HttpResponse, http } from "msw"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
+import { payments } from "../../../../test/data/payments"
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import { createTestQueryClient, render, screen, waitFor, within } from "../../../../test/test-utils"
+import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
 import { paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentList } from "./PaymentList"
 import * as stories from "./PaymentList.stories"
@@ -50,6 +52,7 @@ function renderPaymentList(initialEntry: string) {
 describe("PaymentList", () => {
   afterEach(() => {
     vi.restoreAllMocks()
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
   })
 
   test("支払い行が button として並び、詳細内に削除導線がある", async () => {
@@ -58,6 +61,28 @@ describe("PaymentList", () => {
     expect(await screen.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
+  })
+
+  test("未分類の支払い行はカテゴリ名を表示しない", async () => {
+    const paymentRows = [
+      {
+        ...mapPaymentToRow(payments[0]),
+        category_id: null,
+      },
+    ]
+    server.resetHandlers(
+      ...createPaymentHandlers({
+        initialRows: paymentRows,
+      }),
+      ...createCategoryHandlers(),
+    )
+
+    renderPaymentList("/payments?year=2025&month=6")
+
+    expect(await screen.findByRole("button", { name: /コンビニ/ })).toBeInTheDocument()
+    expect(screen.queryByText("Food")).not.toBeInTheDocument()
+    expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
+    expect(screen.queryByText("Uncategorized")).not.toBeInTheDocument()
   })
 
   test("キーボード操作で詳細を開いて閉じると元の行へフォーカスが戻る", async () => {

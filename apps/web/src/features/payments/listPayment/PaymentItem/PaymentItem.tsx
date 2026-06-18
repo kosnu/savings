@@ -11,7 +11,7 @@ import styles from "./PaymentItem.module.css"
 const notePlaceholder = "No note"
 
 interface PaymentItemProps {
-  category: PaymentCategory
+  category: PaymentCategory | null
   payment: Payment
   onOpen: (trigger: HTMLButtonElement) => void
 }
@@ -21,7 +21,7 @@ export function PaymentItem({ category, payment, onOpen }: PaymentItemProps) {
   const noteValue = payment.note ? payment.note : notePlaceholder
   const amountValue = toCurrency(payment.amount)
 
-  const label = `${dateLabel} ${category.name} ${noteValue} ${amountValue}`
+  const label = [dateLabel, category?.name, noteValue, amountValue].filter(Boolean).join(" ")
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     onOpen(event.currentTarget)
@@ -42,7 +42,7 @@ export function PaymentItem({ category, payment, onOpen }: PaymentItemProps) {
               <Text size="3" color="gray">
                 {dateLabel}
               </Text>
-              <Badge size="3">{category.name}</Badge>
+              {category ? <Badge size="3">{category.name}</Badge> : null}
             </Flex>
             <ChevronRightIcon className={styles.chevron} width="20" height="20" aria-hidden />
           </Flex>

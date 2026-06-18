@@ -24,7 +24,7 @@ describe("CategoryTotals", () => {
     expect(screen.queryByLabelText(/category totals chunk/i)).not.toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
     expect(await screen.findByText("Entertainment")).toBeInTheDocument()
-    expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
+    expect(screen.queryByText("Uncategorized")).not.toBeInTheDocument()
     expect(await screen.findByText("￥1,000")).toBeInTheDocument()
     expect(await screen.findByText("￥4,000")).toBeInTheDocument()
     expect(await screen.findAllByText("￥0")).toHaveLength(1)
@@ -34,7 +34,7 @@ describe("CategoryTotals", () => {
 
     await user.click(screen.getByRole("button", { name: "Show more category totals" }))
 
-    expect(await screen.findByText("Unknown")).toBeInTheDocument()
+    expect(await screen.findByText("Uncategorized")).toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "Show more category totals" }),
     ).not.toBeInTheDocument()
@@ -42,7 +42,7 @@ describe("CategoryTotals", () => {
 
     await user.click(screen.getByRole("button", { name: "Show less category totals" }))
 
-    expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
+    expect(screen.queryByText("Uncategorized")).not.toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Show more category totals" })).toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "Show less category totals" }),
@@ -77,7 +77,7 @@ describe("CategoryTotals", () => {
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
-    expect(await screen.findByText("Unknown")).toBeInTheDocument()
+    expect(await screen.findByText("Uncategorized")).toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "Show more category totals" }),
     ).not.toBeInTheDocument()
@@ -100,7 +100,7 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
     expect(await screen.findByText("Entertainment")).toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
-    expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
+    expect(screen.queryByText("Uncategorized")).not.toBeInTheDocument()
   })
 
   test("予算超過を差分として表示し、予算なし状態を0差分と混同しない", async () => {
@@ -171,7 +171,8 @@ describe("CategoryTotals", () => {
     )
     renderStory()
 
-    expect(await screen.findAllByText("Unknown")).toHaveLength(2)
+    expect(await screen.findByText("Unknown")).toBeInTheDocument()
+    expect(await screen.findByText("Uncategorized")).toBeInTheDocument()
     expect(await screen.findByText("￥700")).toBeInTheDocument()
     expect(await screen.findByText("￥2,500")).toBeInTheDocument()
   })
