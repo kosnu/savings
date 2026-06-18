@@ -25,3 +25,14 @@ export const Default: Story = {
     onOpen: fn(),
   },
 }
+
+export const WithoutCategory: Story = {
+  args: {
+    payment: {
+      ...payments[0],
+      categoryId: null,
+    },
+    category: null,
+    onOpen: fn(),
+  },
+}
