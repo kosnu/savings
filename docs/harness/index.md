@@ -86,7 +86,7 @@ provenance は、ルールがどの作業成果物や検証に効いているか
 
 `docs/harness/` は、既存の `docs/` を置き換えません。
 
-- `docs/ai-driven-development/`: Goal、PRD、Design、Build / Verify、Ship、Learn などのAI駆動開発フロー。
+- `docs/ai-driven-development/`: Goal、PRD、Design、Build / Verify、Ship、learn skill などのAI駆動開発フロー。
 - `docs/harness/policies/`: リポジトリ横断の運用ガードレール。
 - `docs/harness/domain/`: ドメイン判断のガードレール。
 - `apps/*/docs/`: アプリ固有のADR、設計判断、実装方針。

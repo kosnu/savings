@@ -17,24 +17,23 @@ topics:
 when_to_read:
   - AI駆動開発の工程を選ぶとき
   - Codex GoalをPRD、Design Doc、実装、提出準備、学習整理に分けるとき
-  - ShipとLearnの役割を確認するとき
+  - Shipとlearn skillの役割を確認するとき
 ---
 
 # AI Driven Development Workflow
 
-このリポジトリでは、AI駆動開発のGoalを次の5工程に分けます。
+このリポジトリでは、AI駆動開発のGoalを次の4工程に分けます。
 
 1. Intent / Requirements Goal
 2. Design / Plan Goal
 3. Build / Verify Goal
 4. Ship Goal
-5. Learn Goal
 
 Build / Verifyは、Requirements / PRDとDesign Docを満たす実装と検証を完了する工程です。正常終了時に要件未達は残しません。Requirements / PRDまたはDesign Docが不足・矛盾して満たせない場合は、解釈で埋めずStop条件として扱います。
 
 Shipは、Build / Verify済みの成果をPR、説明、レビュー返信ができる形へ整える工程です。要件充足の一次確認はBuild / Verifyで完了している前提にします。
 
-Learnは、レビューコメント、検証結果、運用知見、ルール・ポリシー変更を、次回のRequirements入力、ルール、ポリシー、監督制約へ整理する工程です。次回のサイクルを回す場合は、前回の続きとして途中工程から再開せず、必ずIntent / Requirementsから始めます。
+LearnはGoalではなくskillです。レビューコメント、検証結果、運用知見、ルール・ポリシー変更を、次回のRequirements入力、ルール、ポリシー、監督制約へ整理します。次回のサイクルを回す場合は、前回の続きとして途中工程から再開せず、`$learn` で入力を整理してから、必ずIntent / Requirements Goalから始めます。
 
 このフローはHuman on the loopを前提にします。AIはStop条件に当たらない限り次工程へ進み、人間は各工程の逐次承認ではなく、リスク監督、例外処理、最終的な公開可否を担います。
 
@@ -155,11 +154,13 @@ Build / Verify済みの成果を提出できる形に整えます。
 - レビューコメントの対応が現在の差分やcommitに明確に紐づかない
 - review threadをresolveすると未解決の追従作業や確認事項を隠すおそれがある
 
-## 5. Learn Goal
+## Learn Skill
 
 レビューコメント、検証結果、運用知見、ルール・ポリシー変更を次回のAI実行単位の入力へ整理します。
 
-この工程は、次回Requirementsの初期Input、関連ルール、ポリシー、監督制約を更新または参照できる形にします。前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断は、次回Requirements / Designの入力にしません。
+LearnはGoalではないため、Goalを設定せず、実装もしません。次回Requirementsの初期Input、関連ルール、ポリシー、監督制約を更新または参照できる形にします。前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断は、次回Requirements / Designの入力にしません。
+
+workflow上の責務定義、工程上の位置づけ、禁止事項はこのセクションを正本とします。`$learn` の実行手順は、この責務定義に従います。
 
 主な成果物:
 
@@ -177,7 +178,7 @@ Build / Verify済みの成果を提出できる形に整えます。
 
 ## 小さな変更では省略する
 
-すべての変更を5工程に分ける必要はありません。
+すべての変更を4工程に分ける必要はありません。
 
 typo修正、軽微なログ追加、1文で差分を説明できる小さな変更は、PRDやDesign Docを独立Goalにしなくてよいです。
 

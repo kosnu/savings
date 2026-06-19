@@ -120,11 +120,24 @@
         "paths": ["docs/ai-driven-development/goal-templates/**"],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["create_goal", "write_goal_template", "execute_goal_phase"],
-        "topics": ["codex-goal", "goal-template", "requirements", "design", "verification", "ship", "learn"]
+        "topics": ["codex-goal", "goal-template", "requirements", "design", "verification", "ship"]
       },
       "depends_on": ["ai-driven.workflow"],
       "overrides": [],
       "priority": 84
+    },
+    {
+      "id": "ai-driven.learn",
+      "file": "docs/ai-driven-development/workflow.md",
+      "applies_to": {
+        "paths": ["docs/ai-driven-development/**", ".agents/skills/learn/**"],
+        "domains": ["repository", "ai-driven-development"],
+        "activities": ["prepare_next_requirements_input", "classify_review_feedback", "update_learning_input"],
+        "topics": ["learn", "review", "requirements", "policy"]
+      },
+      "depends_on": ["ai-driven.workflow", "policy.review-feedback-classification"],
+      "overrides": [],
+      "priority": 85
     },
     {
       "id": "policy.git-workflow",

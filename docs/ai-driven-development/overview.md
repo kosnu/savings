@@ -40,7 +40,7 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 
 このフローは、各工程で人間が逐次承認するHuman in the loopではなく、AIがStop条件に当たらない限り前進し、人間が監督、例外処理、公開可否を担うHuman on the loopを前提にします。
 
-人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Ship、Learnまで進められるように、目的、制約、監督観点、停止条件を先に与えます。
+人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果を次回Requirementsへ整理する場合は、Goalではなくlearn skillを使います。
 
 人間が介在すると、意図よりも実装詳細に寄りやすくなります。
 
@@ -50,7 +50,7 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 - Design Doc作成 Goal: どう実現するかを決める
 - Build / Verify Goal: 作って検証する
 - Ship Goal: Build / Verify済みの成果をPR、説明、レビュー返信ができる形に整える
-- Learn Goal: レビューコメント、検証結果、運用知見を次回Requirementsの入力へ整理する
+- Learn skill: レビューコメント、検証結果、運用知見を次回Requirementsの入力へ整理する
 
 IssueはRequirements / PRDの入力として扱います。Issueには、AIが要求整理を始められるだけの意図、制約、成功条件、Stop条件を書き、Design Doc相当の実装詳細は書きすぎません。
 
