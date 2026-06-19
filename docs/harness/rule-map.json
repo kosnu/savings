@@ -93,7 +93,7 @@
       "applies_to": {
         "paths": ["docs/ai-driven-development/**", "docs/**/*.md", "apps/**"],
         "domains": ["repository", "ai-driven-development"],
-        "activities": ["choose_goal_phase", "write_prd", "write_design_doc", "build_verify", "ship_learn"],
+        "activities": ["choose_goal_phase", "write_prd", "write_design_doc", "build_verify", "ship", "learn"],
         "topics": ["workflow", "prd", "design-doc", "pull-request", "verification"]
       },
       "depends_on": ["ai-driven.overview"],
@@ -120,7 +120,7 @@
         "paths": ["docs/ai-driven-development/goal-templates/**"],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["create_goal", "write_goal_template", "execute_goal_phase"],
-        "topics": ["codex-goal", "goal-template", "requirements", "design", "verification", "ship"]
+        "topics": ["codex-goal", "goal-template", "requirements", "design", "verification", "ship", "learn"]
       },
       "depends_on": ["ai-driven.workflow"],
       "overrides": [],

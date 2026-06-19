@@ -25,4 +25,5 @@ when_to_read:
 - [Intent / Requirements Goal](./intent-requirements-goal.md)
 - [Design / Plan Goal](./design-plan-goal.md)
 - [Build / Verify Goal](./build-verify-goal.md)
-- [Ship / Learn Goal](./ship-learn-goal.md)
+- [Ship Goal](./ship-goal.md)
+- [Learn Goal](./learn-goal.md)
