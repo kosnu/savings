@@ -1,6 +1,6 @@
 ---
 name: goal-setting
-description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, Ship, or Learn. Use when the user asks to set up a Goal, says 次のGoal, names a phase such as requirements, design, build, ship, or learn, or needs to turn review feedback into the next Requirements input. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
+description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship. Use when the user asks to set up a Goal, says 次のGoal, or names a phase such as requirements, design, build, or ship. For learning from review feedback or preparing the next Requirements input, use the learn skill first. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
 ---
 
 # Goal Setting
@@ -23,7 +23,6 @@ Accept these phase names:
 - `design`, `plan`: Design / Plan Goal
 - `build`, `verify`: Build / Verify Goal
 - `ship`: Ship Goal
-- `learn`: Learn Goal
 - `next`: infer the next phase from available artifacts and current branch context
 
 If the user does not provide a phase, infer `next` only when the current context is clear. Otherwise ask one short clarification question.
@@ -36,7 +35,6 @@ Read the matching template before drafting the Goal:
 - `docs/ai-driven-development/goal-templates/design-plan-goal.md`
 - `docs/ai-driven-development/goal-templates/build-verify-goal.md`
 - `docs/ai-driven-development/goal-templates/ship-goal.md`
-- `docs/ai-driven-development/goal-templates/learn-goal.md`
 
 Also read these harness docs before deciding additional references:
 
@@ -59,7 +57,7 @@ Use the smallest useful discovery set for the requested phase:
 - Existing workspace artifacts: `docs/ai-driven-development/workspaces/**/requirements.md` and `design.md`
 - Current PR when needed: `gh pr view --json number,title,url,baseRefName,headRefName,state,isDraft,body`
 - Issue input when provided: `gh issue view <number or URL>`
-- Review comments when requested or when generating Ship or Learn Goals: thread-aware GitHub review data
+- Review comments when requested or when generating Ship Goals: thread-aware GitHub review data
 
 Do not make unrelated repository changes while generating a Goal.
 
@@ -69,7 +67,7 @@ Do not inspect implementation files while setting Goals unless the requested pha
 
 A new cycle always starts from Intent / Requirements.
 
-When review comments, verification findings, operational findings, policy changes, or rule changes exist, do not set a continuation Goal from Design / Plan or Build / Verify by default. Use those inputs to decide how the next Requirements initial input, rules, policies, or oversight constraints should change.
+When review comments, verification findings, operational findings, policy changes, or rule changes exist, do not set a continuation Goal from Design / Plan or Build / Verify by default. Use `$learn` first to decide how the next Requirements initial input, rules, policies, or oversight constraints should change.
 
 Allowed inputs for the next Requirements Goal:
 
@@ -147,13 +145,6 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 - Include review thread replies and resolving only fully completed threads when review comments were handled.
 - Do not create next-cycle inputs, knowledge decisions, or Requirements changes in Ship.
 
-### Learn
-
-- Use review comments, verification findings, operational findings, changed rules or policies, and explicit oversight constraints.
-- Prepare the next Intent / Requirements input. Do not set Design / Plan or Build / Verify as the next-cycle starting point.
-- Do not use previous implementation code, previous UI behavior, current diff shape, or previous implementation-specific design choices as source of truth.
-- Never update memory unless the user explicitly asks for memory update.
-
 ## Goal Budget
 
 The configured Goal text must be 3800 characters or less, including any note before the Markdown Goal.
@@ -184,7 +175,7 @@ Prefer references over copied content, and avoid forcing the executor to redisco
 - Include the selected rule-map subgraph and concise selection reasons, not the full rule-map contents.
 - Tell the executor to read the provided references first and avoid broad searches unless the references conflict, are insufficient, or trigger a Stop condition.
 - Do not include unrelated workspace artifacts, old PR notes, or long command output in the configured Goal.
-- For small docs-only, one-file, or already-scoped changes, prepare one compact Goal instead of forcing the full five-phase flow.
+- For small docs-only, one-file, or already-scoped changes, prepare one compact Goal instead of forcing the full workflow.
 - Keep verification commands concrete, but do not include historical verification logs unless they are directly required.
 - Keep Context Packet content short enough that the executor can start from it without re-reading broad docs. Prefer 1000 to 1500 characters for the packet when practical.
 

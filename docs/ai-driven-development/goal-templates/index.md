@@ -26,4 +26,5 @@ when_to_read:
 - [Design / Plan Goal](./design-plan-goal.md)
 - [Build / Verify Goal](./build-verify-goal.md)
 - [Ship Goal](./ship-goal.md)
-- [Learn Goal](./learn-goal.md)
+
+レビューコメント、検証結果、運用知見、ルール・ポリシー変更を次回Requirementsの入力へ整理する場合は、Goalテンプレートではなく `$learn` skill を使います。
