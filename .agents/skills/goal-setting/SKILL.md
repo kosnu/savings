@@ -1,16 +1,19 @@
 ---
-name: goal-builder
-description: Build a ready-to-run Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship / Learn. Use when the user asks to generate the next Goal input, says 次のGoal, or names a phase such as design, build, or ship.
-argument-hint: "[intent|requirements|design|build|ship|next]"
+name: goal-setting
+description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, Ship, or Learn. Use when the user asks to set up a Goal, says 次のGoal, names a phase such as requirements, design, build, ship, or learn, or needs to turn review feedback into the next Requirements input. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
 ---
 
-# Goal Builder
+# Goal Setting
 
 ## Purpose
 
-Create a ready-to-run Codex Goal body from the repository AI Driven Development templates.
+Set the next Codex Goal with the Goal tool.
 
-Do not execute the Goal. Do not write the target artifact unless the user separately asks for that. The output must be self-contained because Codex Goal execution starts from the generated text.
+Do not execute the Goal's implementation work. Do not write the target artifact unless the user separately asks for that. The configured Goal text must be self-contained because Goal execution starts from that text.
+
+If `create_goal` is available and the user asked to set a Goal, call it with the prepared Goal text as the objective. Return only a concise confirmation after the tool succeeds. Do not print the full Goal body unless the user asks to see it.
+
+If Goal tools are unavailable, or the user explicitly asks for a draft, pasteable input, or review before setting, return the prepared Goal in Markdown instead of calling a tool.
 
 ## Supported Phases
 
@@ -19,7 +22,8 @@ Accept these phase names:
 - `intent`, `requirements`, `prd`: Intent / Requirements Goal
 - `design`, `plan`: Design / Plan Goal
 - `build`, `verify`: Build / Verify Goal
-- `ship`, `learn`: Ship / Learn Goal
+- `ship`: Ship Goal
+- `learn`: Learn Goal
 - `next`: infer the next phase from available artifacts and current branch context
 
 If the user does not provide a phase, infer `next` only when the current context is clear. Otherwise ask one short clarification question.
@@ -31,7 +35,8 @@ Read the matching template before drafting the Goal:
 - `docs/ai-driven-development/goal-templates/intent-requirements-goal.md`
 - `docs/ai-driven-development/goal-templates/design-plan-goal.md`
 - `docs/ai-driven-development/goal-templates/build-verify-goal.md`
-- `docs/ai-driven-development/goal-templates/ship-learn-goal.md`
+- `docs/ai-driven-development/goal-templates/ship-goal.md`
+- `docs/ai-driven-development/goal-templates/learn-goal.md`
 
 Also read these harness docs before deciding additional references:
 
@@ -39,11 +44,11 @@ Also read these harness docs before deciding additional references:
 - `docs/ai-driven-development/issue-guidelines.md`
 - `docs/harness/rule-map.json`
 
-Use `docs/harness/rule-map.json` to select any additional policy, domain, ADR, design, or app-specific documents. Classify the requested Goal by `path`, `domain`, `activity`, and `topic`, then include the selected document subgraph in the generated Goal inputs.
+Use `docs/harness/rule-map.json` to select any additional policy, domain, ADR, design, or app-specific documents. Classify the requested Goal by `path`, `domain`, `activity`, and `topic`, then include the selected document subgraph in the Goal-setting input.
 
-For non-trivial Goals, generate a compact Context Packet instead of copied document bodies or long discovery notes. The Context Packet is the executor's first-read input and must contain only scope, selected references, constraints, known risks, stop checks, and verification expectations.
+For non-trivial Goals, prepare a compact Context Packet instead of copied document bodies or long discovery notes. The Context Packet is the executor's first-read input and must contain only scope, selected references, constraints, known risks, stop checks, and verification expectations.
 
-The templates are checklists for required content, not output skeletons. Do not copy the template body into the generated Goal. Produce the shortest self-contained Goal that preserves the requested phase, target artifact, scope, constraints, required inputs, Done, Verification, and Stop conditions.
+The templates are checklists for required content, not output skeletons. Do not copy the template body into the configured Goal. Produce the shortest self-contained Goal that preserves the requested phase, target artifact, scope, constraints, required inputs, Done, Verification, and Stop conditions.
 
 ## Context Discovery
 
@@ -54,9 +59,34 @@ Use the smallest useful discovery set for the requested phase:
 - Existing workspace artifacts: `docs/ai-driven-development/workspaces/**/requirements.md` and `design.md`
 - Current PR when needed: `gh pr view --json number,title,url,baseRefName,headRefName,state,isDraft,body`
 - Issue input when provided: `gh issue view <number or URL>`
-- Review comments when requested or when generating Ship / Learn after review fixes: thread-aware GitHub review data
+- Review comments when requested or when generating Ship or Learn Goals: thread-aware GitHub review data
 
 Do not make unrelated repository changes while generating a Goal.
+
+Do not inspect implementation files while setting Goals unless the requested phase is Design / Plan or Build / Verify and the Goal explicitly needs implementation references. When creating a new cycle from review feedback, do not inspect implementation files.
+
+## Cycle Input Rules
+
+A new cycle always starts from Intent / Requirements.
+
+When review comments, verification findings, operational findings, policy changes, or rule changes exist, do not set a continuation Goal from Design / Plan or Build / Verify by default. Use those inputs to decide how the next Requirements initial input, rules, policies, or oversight constraints should change.
+
+Allowed inputs for the next Requirements Goal:
+
+- Original Issue or initial input.
+- Review comments or verification findings.
+- Changed rules or policies.
+- Explicit oversight constraints from the user.
+
+Forbidden inputs for the next Requirements or Design Goal:
+
+- Previous implementation code.
+- Previous UI behavior.
+- Current diff shape.
+- Previous implementation-specific design choices.
+- Assumptions derived from how the previous implementation happened to work.
+
+Build / Verify may later change existing code, but the Goal must be driven by the newly produced Requirements and Design, not by patching the previous implementation directly.
 
 ## Phase Rules
 
@@ -110,16 +140,23 @@ Do not make unrelated repository changes while generating a Goal.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
 - Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
 
-### Ship / Learn
+### Ship
 
 - Use the current implementation branch, PRD, Design Doc, verification results, related Issue, and related PR.
-- Include PR body update, residual risk, knowledge decision, and next Goal candidates.
+- Include PR body update, residual risk, review replies, and thread resolve decisions.
 - Include review thread replies and resolving only fully completed threads when review comments were handled.
+- Do not create next-cycle inputs, knowledge decisions, or Requirements changes in Ship.
+
+### Learn
+
+- Use review comments, verification findings, operational findings, changed rules or policies, and explicit oversight constraints.
+- Prepare the next Intent / Requirements input. Do not set Design / Plan or Build / Verify as the next-cycle starting point.
+- Do not use previous implementation code, previous UI behavior, current diff shape, or previous implementation-specific design choices as source of truth.
 - Never update memory unless the user explicitly asks for memory update.
 
-## Output Budget
+## Goal Budget
 
-The generated `/goal` input must be 3800 characters or less, including any note before the Markdown Goal.
+The configured Goal text must be 3800 characters or less, including any note before the Markdown Goal.
 
 This is a hard response gate, not a best-effort target. Draft for 3400 characters or less so final edits have room. Before returning the Goal, measure the exact character count of the full response text. If tooling is available, write the candidate response to a temporary file outside the repository and run `wc -m` against that file. Do not rely on approximate token counts or visual length.
 
@@ -146,8 +183,8 @@ Prefer references over copied content, and avoid forcing the executor to redisco
 - Pass paths, issue numbers, PR numbers, current branch, and selected rule-map entries instead of copying full document bodies.
 - Include the selected rule-map subgraph and concise selection reasons, not the full rule-map contents.
 - Tell the executor to read the provided references first and avoid broad searches unless the references conflict, are insufficient, or trigger a Stop condition.
-- Do not include unrelated workspace artifacts, old PR notes, or long command output in the generated Goal.
-- For small docs-only, one-file, or already-scoped changes, generate one compact Goal instead of forcing all four phases.
+- Do not include unrelated workspace artifacts, old PR notes, or long command output in the configured Goal.
+- For small docs-only, one-file, or already-scoped changes, prepare one compact Goal instead of forcing the full five-phase flow.
 - Keep verification commands concrete, but do not include historical verification logs unless they are directly required.
 - Keep Context Packet content short enough that the executor can start from it without re-reading broad docs. Prefer 1000 to 1500 characters for the packet when practical.
 
@@ -175,10 +212,15 @@ Prefer the project-scoped `context-scout` custom agent with `$context-scout` for
 
 ## Output
 
-Return only:
+When `create_goal` succeeds, return only:
 
 1. A concise note if required inputs are missing or ambiguous.
-2. A ready-to-run Codex Goal in Markdown.
+2. A concise confirmation that the Goal was set, including phase and main target.
+
+When Goal tools are unavailable or the user requested text only, return only:
+
+1. A concise note if required inputs are missing or ambiguous.
+2. A ready-to-set Codex Goal in Markdown.
 
 Do not include a long explanation. Do not list alternatives unless the user asks.
 

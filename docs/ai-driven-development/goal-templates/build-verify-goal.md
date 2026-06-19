@@ -31,7 +31,7 @@ when_to_read:
 - Requirements / PRD:
 - Design Doc:
 - 関連Issue / PR:
-- 対応するレビューコメント:
+- Build / Verify対象として分類済みのレビューコメント:
 - 関連ドキュメント:
   - docs/harness/rule-map.json で選択したサブグラフ:
 
@@ -67,7 +67,7 @@ when_to_read:
 - [ ] Design Docの方針から逸脱していない
 - [ ] Requirements / PRDとDesign Docの意図・制約・対象外から解釈を広げていない
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントから逸脱していない
-- [ ] レビューコメント起点の場合、`docs/harness/policies/review-feedback-classification.md` に沿って修正前に工程分類し、Build / Verify対象だけを修正している
+- [ ] レビューコメント起点の場合、`docs/harness/policies/review-feedback-classification.md` に沿ってBuild / Verify対象として分類済みのコメントだけを修正している
 - [ ] 関連テストが追加・更新されている
 - [ ] 指定の検証コマンドが通る
 - [ ] 差分がスコープ内に収まっている
@@ -104,7 +104,7 @@ when_to_read:
 
 ## Stop
 
-- レビューコメントがRequirements / PRD、Design Doc、またはpolicyへ戻すべき内容を含む
+- レビューコメントが次回Requirementsの初期Input、Design前提、またはpolicyへ整理すべき内容を含む
 - レビューコメントの工程分類が曖昧
 - Design Docまたは関連ドメインルールと違う実装が必要
 - `docs/harness/rule-map.json` で選択した関連ドキュメントと違う実装が必要
