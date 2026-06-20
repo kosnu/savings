@@ -9,6 +9,8 @@ import { render, screen } from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import * as stories from "./CategoryTotals.stories"
 
+import styles from "./CategoryTotals.module.css"
+
 const { Default } = composeStories(stories)
 
 function renderStory() {
@@ -34,8 +36,8 @@ describe("CategoryTotals", () => {
 
     await user.click(screen.getByRole("button", { name: "Show more category totals" }))
 
-    expect(await screen.findByText("Uncategorized")).toBeInTheDocument()
-    expect(await screen.findByText("No category")).toBeInTheDocument()
+    expect(await screen.findByText("Uncategorized")).toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "Show more category totals" }),
     ).not.toBeInTheDocument()
@@ -179,7 +181,7 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("￥2,500")).toBeInTheDocument()
   })
 
-  test("Uncategorizedという名前のカテゴリと未分類bucketを補助表示で区別する", async () => {
+  test("Uncategorizedという名前のカテゴリと未分類bucketを視覚表現で区別する", async () => {
     const categoryRows = [
       {
         id: 40,
@@ -216,8 +218,11 @@ describe("CategoryTotals", () => {
     )
     renderStory()
 
-    expect(await screen.findAllByText("Uncategorized")).toHaveLength(2)
-    expect(await screen.findByText("No category")).toBeInTheDocument()
+    const uncategorizedNames = await screen.findAllByText("Uncategorized")
+    expect(uncategorizedNames).toHaveLength(2)
+    expect(uncategorizedNames[0]).not.toHaveClass(styles.systemLabel)
+    expect(uncategorizedNames[1]).toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
     expect(await screen.findByText("￥700")).toBeInTheDocument()
     expect(await screen.findByText("￥2,500")).toBeInTheDocument()
   })

@@ -18,6 +18,8 @@ import { categoryQueryKeys } from "../../../categories"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE, paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 
+import styles from "./PaymentCategoryFilter.module.css"
+
 function renderPaymentCategoryFilter(
   initialEntry: string,
   {
@@ -83,9 +85,10 @@ describe("PaymentCategoryFilter", () => {
     expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
       "Uncategorized",
     )
-    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
-      "No category",
+    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveClass(
+      styles.systemLabel,
     )
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
   })
 
   test("実在カテゴリ名 Uncategorized とカテゴリ未設定条件を区別できる", async () => {
@@ -105,10 +108,13 @@ describe("PaymentCategoryFilter", () => {
     await user.click(await screen.findByRole("combobox", { name: /category filter/i }))
 
     const listbox = await screen.findByRole("listbox")
-    expect(
-      within(listbox).getByRole("option", { name: /uncategorized\s*no category/i }),
-    ).toBeInTheDocument()
-    expect(within(listbox).getByRole("option", { name: /^uncategorized$/i })).toBeInTheDocument()
+    const uncategorizedOptions = within(listbox).getAllByRole("option", {
+      name: /^uncategorized$/i,
+    })
+    expect(uncategorizedOptions).toHaveLength(2)
+    expect(uncategorizedOptions[0]).toHaveClass(styles.systemLabel)
+    expect(uncategorizedOptions[1]).not.toHaveClass(styles.systemLabel)
+    expect(within(listbox).queryByText("No category")).not.toBeInTheDocument()
   })
 
   test("URL search の登録済みカテゴリを表示する", async () => {
@@ -170,7 +176,7 @@ describe("PaymentCategoryFilter", () => {
   test("カテゴリ未設定を選ぶとcategory=noneをRouter searchに反映する", async () => {
     const { router, user } = renderPaymentCategoryFilter("/payments?year=2025&month=6")
 
-    await selectCategoryFilterOption(user, /uncategorized\s*no category/i)
+    await selectCategoryFilterOption(user, /^uncategorized$/i)
 
     await waitFor(() => {
       expect(router.state.location.search).toEqual({

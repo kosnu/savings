@@ -279,7 +279,7 @@ describe("PaymentsPage", () => {
     )
     const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
 
-    await selectCategoryFilterOption(user, /uncategorized\s*no category/i)
+    await selectCategoryFilterOption(user, /^uncategorized$/i)
 
     await waitFor(() => {
       expect(router.state.location.search).toEqual({

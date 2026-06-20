@@ -8,6 +8,9 @@ import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./CategoryField.stories"
 
+import categorySelectStyles from "../../../categories/components/CategorySelect/CategorySelect.module.css"
+import styles from "./CategoryField.module.css"
+
 const { Default, None, RealNoneCategory } = composeStories(stories)
 
 async function openCategoryEditor() {
@@ -66,7 +69,7 @@ describe("PaymentDetails CategoryField", () => {
 
     await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
-    await user.click(await screen.findByRole("option", { name: /none\s*no category/i }))
+    await user.click(await screen.findByRole("option", { name: /^none$/i }))
 
     await waitFor(() => {
       expect(screen.queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument()
@@ -78,21 +81,21 @@ describe("PaymentDetails CategoryField", () => {
   test("未設定カテゴリの編集開始時は None を選択状態にする", async () => {
     render(<None />)
 
-    expect(screen.getByText("None")).toBeInTheDocument()
-    expect(screen.getByText("No category")).toBeInTheDocument()
+    expect(screen.getByText("None")).toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
     expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
 
     const combobox = await openCategoryEditor()
     await waitFor(() => {
       expect(combobox).toHaveTextContent("None")
-      expect(combobox).toHaveTextContent("No category")
+      expect(combobox).toHaveClass(categorySelectStyles.systemLabel)
     })
   })
 
   test("実在カテゴリ名 None の詳細表示には未設定補助表示を出さない", () => {
     render(<RealNoneCategory />)
 
-    expect(screen.getByText("None")).toBeInTheDocument()
+    expect(screen.getByText("None")).not.toHaveClass(styles.systemLabel)
     expect(screen.queryByText("No category")).not.toBeInTheDocument()
   })
 
