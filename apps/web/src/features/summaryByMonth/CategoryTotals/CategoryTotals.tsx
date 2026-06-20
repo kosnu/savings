@@ -102,7 +102,7 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
       <Flex direction="column" gap="2" width="100%">
         {visibleTotals.map((total) => (
           <CategoryTotalsGrid key={total.key}>
-            <Text>{total.categoryName}</Text>
+            <CategoryTotalName total={total} />
             <CategoryTotalAmount amount={total.totalAmount} />
             <CategoryBudgetDifference total={total} />
           </CategoryTotalsGrid>
@@ -130,6 +130,16 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
 
 function CategoryTotalsGrid({ children }: { children: ReactNode }) {
   return <Grid className={styles.row}>{children}</Grid>
+}
+
+function CategoryTotalName({ total }: { total: CategoryTotalsData[number] }) {
+  return (
+    <Flex align="center" gap="2">
+      <Text className={total.kind === "uncategorized" ? styles.systemLabel : undefined}>
+        {total.categoryName}
+      </Text>
+    </Flex>
+  )
 }
 
 function CategoryTotalAmount({ amount }: { amount: number }) {

@@ -8,7 +8,10 @@ import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./CategoryField.stories"
 
-const { Default, Unknown } = composeStories(stories)
+import categorySelectStyles from "../../../categories/components/CategorySelect/CategorySelect.module.css"
+import styles from "./CategoryField.module.css"
+
+const { Default, None, RealNoneCategory } = composeStories(stories)
 
 async function openCategoryEditor() {
   await act(async () => {
@@ -76,14 +79,24 @@ describe("PaymentDetails CategoryField", () => {
   })
 
   test("未設定カテゴリの編集開始時は None を選択状態にする", async () => {
-    render(<Unknown />)
+    render(<None />)
 
-    expect(screen.getByText("Unknown")).toBeInTheDocument()
+    expect(screen.getByText("None")).toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
+    expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
 
     const combobox = await openCategoryEditor()
     await waitFor(() => {
       expect(combobox).toHaveTextContent("None")
+      expect(combobox).toHaveClass(categorySelectStyles.systemLabel)
     })
+  })
+
+  test("実在カテゴリ名 None の詳細表示には未設定補助表示を出さない", () => {
+    render(<RealNoneCategory />)
+
+    expect(screen.getByText("None")).not.toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
   })
 
   test("同じカテゴリを再選択すると API は呼ばずに editor を閉じる", async () => {

@@ -58,7 +58,7 @@ describe("fetchCategoryTotals", () => {
       {
         key: "uncategorized",
         categoryId: null,
-        categoryName: "Unknown",
+        categoryName: "Uncategorized",
         totalAmount: 0,
         budgetStatus: "unset",
         budgetAmount: null,
@@ -106,13 +106,13 @@ describe("fetchCategoryTotals", () => {
       budgetDifference: null,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
-      categoryName: "Unknown",
+      categoryName: "Uncategorized",
       totalAmount: 0,
       budgetDifference: null,
     })
   })
 
-  it("未分類支払いをUnknownに集計する", async () => {
+  it("未分類支払いをUncategorizedに集計する", async () => {
     const paymentRows = [
       {
         ...mapPaymentToRow(payments[0]),
@@ -145,7 +145,7 @@ describe("fetchCategoryTotals", () => {
       budgetDifference: 29000,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
-      categoryName: "Unknown",
+      categoryName: "Uncategorized",
       totalAmount: 2500,
       budgetDifference: null,
     })
@@ -202,9 +202,61 @@ describe("fetchCategoryTotals", () => {
       budgetDifference: null,
     })
     expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
-      categoryName: "Unknown",
+      categoryName: "Uncategorized",
       totalAmount: 2500,
       budgetDifference: null,
+    })
+  })
+
+  it("Uncategorizedという名前のカテゴリと未分類支払いを別keyで返す", async () => {
+    const categoryRows = [
+      {
+        id: 40,
+        book_id: 1,
+        name: "Uncategorized",
+        created_at: "2025-01-01T00:00:00.000Z",
+        updated_at: "2025-01-01T00:00:00.000Z",
+      },
+    ]
+    const paymentRows = [
+      {
+        ...mapPaymentToRow(payments[0]),
+        category_id: 40,
+        amount: 700,
+      },
+      {
+        ...mapPaymentToRow(payments[1]),
+        id: 999,
+        category_id: null,
+        amount: 2500,
+      },
+    ]
+
+    server.resetHandlers(
+      ...createCategoryHandlers({
+        get: {
+          response: categoryRows,
+          paymentRows,
+        },
+      }),
+      ...createPaymentHandlers({
+        initialRows: paymentRows,
+      }),
+    )
+
+    const totals = await fetchCategoryTotals([new Date("2025-06-01"), new Date("2025-06-30")])
+
+    expect(totals.find((total) => total.key === "category:40")).toMatchObject({
+      categoryId: 40,
+      categoryName: "Uncategorized",
+      totalAmount: 700,
+      kind: "category",
+    })
+    expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
+      categoryId: null,
+      categoryName: "Uncategorized",
+      totalAmount: 2500,
+      kind: "uncategorized",
     })
   })
 

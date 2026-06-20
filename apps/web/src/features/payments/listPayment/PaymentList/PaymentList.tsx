@@ -4,7 +4,6 @@ import { memo, Suspense, use, useCallback, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import type { Payment, PaymentId } from "../../../../types/payment"
-import { unknownCategory } from "../../../categories"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
 import { PaymentDetailsOverlay } from "../../paymentDetails/PaymentDetailsOverlay"
 import { usePaymentDetailsState } from "../../paymentDetails/usePaymentDetailsState"
@@ -106,12 +105,11 @@ const Items = memo(function Body({
           return null
         }
         const paymentId = payment.id
-        const category = payment.category ?? unknownCategory
 
         return (
           <PaymentItem
             key={paymentId}
-            category={category}
+            category={payment.category ?? null}
             payment={payment}
             onOpen={(trigger) => onOpenPayment(paymentId, trigger)}
           />

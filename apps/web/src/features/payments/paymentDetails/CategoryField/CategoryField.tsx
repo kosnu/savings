@@ -1,4 +1,4 @@
-import { Text } from "@radix-ui/themes"
+import { Flex, Text } from "@radix-ui/themes"
 import {
   type KeyboardEvent,
   type ReactNode,
@@ -24,6 +24,8 @@ import {
 } from "../../../categories"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
+
+import styles from "./CategoryField.module.css"
 
 interface CategoryFieldProps {
   paymentId: PaymentId
@@ -51,6 +53,7 @@ export function CategoryField({
   const editingRef = useRef(false)
   const [draftCategoryId, setDraftCategoryId] = useState(currentCategoryValue)
   const [messages, setMessages] = useState<string[] | undefined>()
+  const hasNoCategory = categoryId === null
 
   useEffect(() => {
     return () => {
@@ -136,9 +139,11 @@ export function CategoryField({
       error={Boolean(messages?.length)}
       messages={messages}
       view={
-        <Text size="4" style={{ flex: 1 }}>
-          {categoryName}
-        </Text>
+        <Flex align="center" gap="2" style={{ flex: 1 }}>
+          <Text className={hasNoCategory ? styles.systemLabel : undefined} size="4">
+            {categoryName}
+          </Text>
+        </Flex>
       }
       editor={
         <InlineEditor onCancel={handleCancel} saving={isPending}>

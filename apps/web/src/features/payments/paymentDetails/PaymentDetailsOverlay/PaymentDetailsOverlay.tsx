@@ -3,12 +3,13 @@ import { useCallback, useState } from "react"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Payment, PaymentDetails, PaymentId } from "../../../../types/payment"
-import { unknownCategory } from "../../../categories"
 import { AmountField } from "../AmountField"
 import { CategoryField } from "../CategoryField"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { usePaymentDetails } from "../usePaymentDetails"
+
+const paymentDetailNoCategoryName = "None"
 
 interface PaymentDetailsOverlayProps {
   paymentId: PaymentId | null
@@ -85,7 +86,7 @@ export function PaymentDetailsOverlay({
             <CategoryField
               paymentId={payment.id}
               categoryId={payment.category?.id ?? null}
-              categoryName={payment.category?.name ?? unknownCategory.name}
+              categoryName={payment.category?.name ?? paymentDetailNoCategoryName}
               disabled={isEditingField}
               onEditStart={handleEditStart}
               onEditEnd={handleEditEnd}
