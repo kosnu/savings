@@ -9,6 +9,8 @@ description: Convert review comments, verification findings, operational finding
 
 Prepare the input for the next Intent / Requirements Goal.
 
+Use this skill for Build / Verify-completed artifact feedback, PR review comments about the implementation result, verification findings that should change the next input, operational findings, and rule or policy updates.
+
 Do not set a Goal. Do not execute implementation work. Do not write target product artifacts unless the user separately asks for that. The output is a compact handoff that can be passed to `$goal-setting requirements`.
 
 ## Inputs
@@ -21,6 +23,8 @@ Use only these sources:
 - Operational findings.
 - Changed rules or policies.
 - Explicit oversight constraints from the user.
+
+Build / Verify-internal test failures, type errors, lint failures, implementation consistency fixes, and call-site adjustments are not automatically next Requirements input. Include them only when they reveal a changed requirement, rule, policy, oversight constraint, or durable verification expectation.
 
 Do not use these as source of truth for the next Requirements or Design:
 

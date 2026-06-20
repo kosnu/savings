@@ -67,7 +67,7 @@ Do not inspect implementation files while setting Goals unless the requested pha
 
 A new cycle always starts from Intent / Requirements.
 
-When review comments, verification findings, operational findings, policy changes, or rule changes exist, do not set a continuation Goal from Design / Plan or Build / Verify by default. Use `$learn` first to decide how the next Requirements initial input, rules, policies, or oversight constraints should change.
+When Build / Verify is complete and review comments, verification findings, operational findings, policy changes, or rule changes exist, do not set a local-fix Goal against the previous implementation. Use `$learn` first to convert the feedback into the next Requirements initial input, rules, policies, or oversight constraints.
 
 Allowed inputs for the next Requirements Goal:
 
@@ -138,9 +138,9 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 
 - Use the latest Requirements / PRD and Design Doc as constraints.
 - Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
+- Require test failures, type errors, lint failures, implementation consistency issues, and related call-site adjustments found during Build / Verify to be completed inside Build / Verify.
 - Include verification only for affected runtime, build, type, or DB behavior. For Web app changes, prefer the compact form `AGENTS.md の Web verification batch` instead of copying the full command list. Mention Storybook verification only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
-- If review comments are the trigger, require classification before implementation.
-- Stop if the comment belongs upstream to Requirements / PRD, Design Doc, or policy.
+- If Build / Verify is triggered by feedback after a completed Build / Verify result, do not set a local-fix Goal. Use `$learn` first so the next cycle starts from Requirements.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
 - Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
 - Include a Done item requiring the implementation diff and verification evidence to be checked for rule / policy violations against the Requirements / PRD, Design Doc, and selected rule-map subgraph.
@@ -150,8 +150,9 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 
 - Use the current implementation branch, PRD, Design Doc, verification results, related Issue, and related PR.
 - Include PR body update, residual risk, review replies, and thread resolve decisions.
-- Include review thread replies and resolving only fully completed threads when review comments were handled.
+- Include review thread replies and resolving only fully completed threads when Ship-scope review comments were handled.
 - Do not create next-cycle inputs, knowledge decisions, or Requirements changes in Ship.
+- Do not fix implementation-product feedback in Ship. Send it to `$learn` for the next Requirements input.
 - Include a Done item requiring PR text, summaries, review replies, and resolve decisions to be checked for rule / policy violations against the selected rule-map subgraph.
 - Add a Stop condition when Ship output violates or may violate selected rules or policies.
 
