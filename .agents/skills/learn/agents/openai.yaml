@@ -1,0 +1,7 @@
+interface:
+  display_name: "Learn"
+  short_description: "Prepare next Requirements input from feedback"
+  default_prompt: "Use $learn to turn review comments, verification findings, or policy changes into the next Requirements input."
+
+policy:
+  allow_implicit_invocation: true

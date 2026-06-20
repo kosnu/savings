@@ -1,0 +1,7 @@
+interface:
+  display_name: "Goal Setting"
+  short_description: "Set a Codex Goal from AI Driven Development templates"
+  default_prompt: "Use $goal-setting to set a Codex Goal for requirements, design, build, ship, or the next phase."
+
+policy:
+  allow_implicit_invocation: true
