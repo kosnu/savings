@@ -8,7 +8,7 @@ import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./CategoryField.stories"
 
-const { Default, None } = composeStories(stories)
+const { Default, None, RealNoneCategory } = composeStories(stories)
 
 async function openCategoryEditor() {
   await act(async () => {
@@ -66,7 +66,7 @@ describe("PaymentDetails CategoryField", () => {
 
     await openCategoryEditor()
     await user.click(await screen.findByRole("combobox", { name: /category/i }))
-    await user.click(await screen.findByRole("option", { name: /^none$/i }))
+    await user.click(await screen.findByRole("option", { name: /none\s*no category/i }))
 
     await waitFor(() => {
       expect(screen.queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument()
@@ -79,12 +79,21 @@ describe("PaymentDetails CategoryField", () => {
     render(<None />)
 
     expect(screen.getByText("None")).toBeInTheDocument()
+    expect(screen.getByText("No category")).toBeInTheDocument()
     expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
 
     const combobox = await openCategoryEditor()
     await waitFor(() => {
       expect(combobox).toHaveTextContent("None")
+      expect(combobox).toHaveTextContent("No category")
     })
+  })
+
+  test("実在カテゴリ名 None の詳細表示には未設定補助表示を出さない", () => {
+    render(<RealNoneCategory />)
+
+    expect(screen.getByText("None")).toBeInTheDocument()
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
   })
 
   test("同じカテゴリを再選択すると API は呼ばずに editor を閉じる", async () => {

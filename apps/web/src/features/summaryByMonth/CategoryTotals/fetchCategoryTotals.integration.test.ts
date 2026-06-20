@@ -208,6 +208,58 @@ describe("fetchCategoryTotals", () => {
     })
   })
 
+  it("Uncategorizedという名前のカテゴリと未分類支払いを別keyで返す", async () => {
+    const categoryRows = [
+      {
+        id: 40,
+        book_id: 1,
+        name: "Uncategorized",
+        created_at: "2025-01-01T00:00:00.000Z",
+        updated_at: "2025-01-01T00:00:00.000Z",
+      },
+    ]
+    const paymentRows = [
+      {
+        ...mapPaymentToRow(payments[0]),
+        category_id: 40,
+        amount: 700,
+      },
+      {
+        ...mapPaymentToRow(payments[1]),
+        id: 999,
+        category_id: null,
+        amount: 2500,
+      },
+    ]
+
+    server.resetHandlers(
+      ...createCategoryHandlers({
+        get: {
+          response: categoryRows,
+          paymentRows,
+        },
+      }),
+      ...createPaymentHandlers({
+        initialRows: paymentRows,
+      }),
+    )
+
+    const totals = await fetchCategoryTotals([new Date("2025-06-01"), new Date("2025-06-30")])
+
+    expect(totals.find((total) => total.key === "category:40")).toMatchObject({
+      categoryId: 40,
+      categoryName: "Uncategorized",
+      totalAmount: 700,
+      kind: "category",
+    })
+    expect(totals.find((total) => total.key === "uncategorized")).toMatchObject({
+      categoryId: null,
+      categoryName: "Uncategorized",
+      totalAmount: 2500,
+      kind: "uncategorized",
+    })
+  })
+
   it("ピン留めカテゴリを優先し、同一グループ内はID昇順で返す", async () => {
     server.resetHandlers(
       ...createCategoryHandlers({

@@ -1,4 +1,4 @@
-import { Text } from "@radix-ui/themes"
+import { Flex, Text } from "@radix-ui/themes"
 import {
   type KeyboardEvent,
   type ReactNode,
@@ -51,6 +51,7 @@ export function CategoryField({
   const editingRef = useRef(false)
   const [draftCategoryId, setDraftCategoryId] = useState(currentCategoryValue)
   const [messages, setMessages] = useState<string[] | undefined>()
+  const hasNoCategory = categoryId === null
 
   useEffect(() => {
     return () => {
@@ -136,9 +137,14 @@ export function CategoryField({
       error={Boolean(messages?.length)}
       messages={messages}
       view={
-        <Text size="4" style={{ flex: 1 }}>
-          {categoryName}
-        </Text>
+        <Flex align="center" gap="2" style={{ flex: 1 }}>
+          <Text size="4">{categoryName}</Text>
+          {hasNoCategory && (
+            <Text color="gray" size="2">
+              No category
+            </Text>
+          )}
+        </Flex>
       }
       editor={
         <InlineEditor onCancel={handleCancel} saving={isPending}>

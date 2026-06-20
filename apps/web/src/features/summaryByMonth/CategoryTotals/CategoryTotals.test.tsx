@@ -35,6 +35,7 @@ describe("CategoryTotals", () => {
     await user.click(screen.getByRole("button", { name: "Show more category totals" }))
 
     expect(await screen.findByText("Uncategorized")).toBeInTheDocument()
+    expect(await screen.findByText("No category")).toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "Show more category totals" }),
     ).not.toBeInTheDocument()
@@ -129,9 +130,10 @@ describe("CategoryTotals", () => {
     const categoryName = await screen.findByText("Food")
     const totalAmount = await screen.findByText("￥1,000")
     const budgetDifference = await screen.findByText("￥29,000 left")
+    const categoryRow = categoryName.parentElement?.parentElement
 
-    expect(totalAmount.parentElement).toBe(categoryName.parentElement)
-    expect(budgetDifference.parentElement).toBe(categoryName.parentElement)
+    expect(totalAmount.parentElement).toBe(categoryRow)
+    expect(budgetDifference.parentElement).toBe(categoryRow)
   })
 
   test("Unknownという名前のカテゴリと未分類支払いを別行で表示する", async () => {
@@ -173,6 +175,49 @@ describe("CategoryTotals", () => {
 
     expect(await screen.findByText("Unknown")).toBeInTheDocument()
     expect(await screen.findByText("Uncategorized")).toBeInTheDocument()
+    expect(await screen.findByText("￥700")).toBeInTheDocument()
+    expect(await screen.findByText("￥2,500")).toBeInTheDocument()
+  })
+
+  test("Uncategorizedという名前のカテゴリと未分類bucketを補助表示で区別する", async () => {
+    const categoryRows = [
+      {
+        id: 40,
+        book_id: 1,
+        name: "Uncategorized",
+        created_at: "2025-01-01T00:00:00.000Z",
+        updated_at: "2025-01-01T00:00:00.000Z",
+      },
+    ]
+    const paymentRows = [
+      {
+        ...mapPaymentToRow(payments[0]),
+        category_id: 40,
+        amount: 700,
+      },
+      {
+        ...mapPaymentToRow(payments[1]),
+        id: 999,
+        category_id: null,
+        amount: 2500,
+      },
+    ]
+
+    server.resetHandlers(
+      ...createCategoryHandlers({
+        get: {
+          response: categoryRows,
+          paymentRows,
+        },
+      }),
+      ...createPaymentHandlers({
+        initialRows: paymentRows,
+      }),
+    )
+    renderStory()
+
+    expect(await screen.findAllByText("Uncategorized")).toHaveLength(2)
+    expect(await screen.findByText("No category")).toBeInTheDocument()
     expect(await screen.findByText("￥700")).toBeInTheDocument()
     expect(await screen.findByText("￥2,500")).toBeInTheDocument()
   })

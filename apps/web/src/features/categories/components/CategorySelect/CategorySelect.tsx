@@ -1,4 +1,4 @@
-import { Select } from "@radix-ui/themes"
+import { Flex, Select, Text } from "@radix-ui/themes"
 import { type ComponentProps, type ReactNode, useCallback } from "react"
 
 import type { Category } from "../../../../types/category"
@@ -78,7 +78,16 @@ export function CategoryOption({ category }: CategoryOptionProps) {
 }
 
 export function NoneCategoryOption() {
-  return <Select.Item value={NONE_CATEGORY_VALUE}>None</Select.Item>
+  return (
+    <Select.Item aria-label="None No category" value={NONE_CATEGORY_VALUE}>
+      <Flex align="center" gap="2">
+        <Text as="span">None</Text>
+        <Text as="span" color="gray" size="1">
+          No category
+        </Text>
+      </Flex>
+    </Select.Item>
+  )
 }
 
 export function ErrorCategoryOption() {

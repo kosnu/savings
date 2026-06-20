@@ -165,12 +165,13 @@ describe("PaymentDetailsOverlay", () => {
       }),
       ...categoryHandlers,
     )
-    await user.click(await screen.findByRole("option", { name: /^none$/i }))
+    await user.click(await screen.findByRole("option", { name: /none\s*no category/i }))
 
     await waitFor(() => {
       expect(within(dialog).queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument()
     })
     expect(await within(dialog).findByText("None")).toBeInTheDocument()
+    expect(await within(dialog).findByText("No category")).toBeInTheDocument()
     expect(within(dialog).queryByText("Unknown")).not.toBeInTheDocument()
   })
 
