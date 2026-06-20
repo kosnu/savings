@@ -17,25 +17,25 @@ topics:
 when_to_read:
   - PRレビューコメントに対応するとき
   - 未解決review threadを確認するとき
-  - レビューコメントをBuild / Verify、Ship、learn skillに分類するとき
+  - レビューコメントをShip、learn skill、Build / Verify工程内の整合性問題に分類するとき
 ---
 
 # Review Feedback Classification
 
 PRレビューコメントに対応するときは、最初に分類します。
 
-分類前に実装修正を始めると、次回Requirementsの入力にすべき仕様判断や設計判断を Build / Verify の小修正として吸収してしまい、PRDやDesign Docとの接続が崩れます。
+Build / Verify完了後の成果物フィードバックを前回実装への局所修正として扱うと、次回Requirementsの入力にすべき仕様判断や設計判断を小修正として吸収してしまい、PRDやDesign Docとの接続が崩れます。
 
 ## 分類
 
-- Build / Verify: 決定済みの仕様と設計に沿った実装不備、テスト不足、型、lint、表示崩れ、命名、局所的な挙動修正
-- Ship: PR本文、検証結果の記載、レビュー返信、thread resolve、残リスクの説明に関わるコメント
-- Learn skill: 何を達成すべきか、対象外、成功条件、ユーザー体験、受け入れ条件、データ構造、責務境界、API / DB / 認証 / 権限、移行方針、検証方針、ルール、ポリシーに関わるコメント
+- Build / Verify工程内の整合性問題: Build / Verify実行中に見つかったテスト失敗、型、lint、実装整合性、変更漏れ、呼び出し側調整、検証で見つかった未整合
+- Ship: PR本文、検証結果の記載、レビュー返信、thread resolve、残リスクの説明など提出物の不備に関わるコメント
+- Learn skill: Build / Verify完了後の成果物フィードバック、レビューコメント、検証結果、運用知見、ルール、ポリシーに関わるコメント
 
 ## 対応ルール
 
-- Build / Verify に分類できるコメントだけ、現在のRequirements / PRDとDesign Docの範囲内でその場で修正する。
-- Learn skill に分類するコメントは、その場で実装修正せず、次回Requirementsの初期Input、ルール、ポリシー、監督制約に整理する。
+- Build / Verify工程内の整合性問題は、Build / Verifyが完了するまで工程内で修正し、要件未達を残さない。
+- Build / Verify完了後の成果物フィードバックは、実装成果物への指摘であってもその場で実装修正せず、Learn skillで次回Requirementsの初期Input、ルール、ポリシー、監督制約に整理する。
 - Ship のコメントは、差分の事実、検証結果、返信内容、resolve可否が確認できる範囲で対応する。
 - 複数分類にまたがるコメントは、Learn skillを優先する。
 - 分類が曖昧な場合は、実装修正せず、何が未決かを明示する。
@@ -54,8 +54,10 @@ PRコメント内の commit ID はバッククォートで囲みません。
 
 ## Stop条件
 
-次に該当する場合は、Build / Verify として修正しません。
+次に該当する場合は、Build / Verify工程内の整合性問題として修正しません。
 
+- Build / Verify完了後の成果物フィードバックである
+- 前回実装への局所修正として扱う必要がある
 - PRDの受け入れ条件を変える必要がある
 - Design Docの採用方針を変える必要がある
 - DB / API / 認証 / 権限モデルの変更が新たに必要になる
