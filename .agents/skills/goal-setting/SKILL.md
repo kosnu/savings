@@ -96,6 +96,8 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 - When the selected rule-map entry has `depends_on`, include those prerequisite documents with `id`, `file`, and a concise reason in the Goal inputs.
 - When `overrides` or `priority` is used to resolve competing entries, include the conflict decision in the Goal inputs.
 - If rule-map selection is ambiguous, add a Stop condition requiring the executor to clarify the applicable document subgraph before implementation.
+- For every phase, include a Done item requiring the phase output, decisions, diffs, or verification evidence to be checked against the selected rule-map subgraph for rule and policy violations.
+- For every phase, include a Stop condition for confirmed or possible rule / policy violations that cannot be resolved inside that phase.
 
 ### Intent / Requirements
 
@@ -113,7 +115,9 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 - Include a Done item requiring the Requirements / PRD to be checked against Issue and oversight inputs for unintended scope expansion.
 - Include a Done item requiring Background / Current State not to describe future behavior as already available.
 - Include a Done item requiring UI domain values to have an explicit purpose when they appear.
+- Include a Done item requiring the Requirements / PRD to be checked for rule / policy violations against the selected rule-map subgraph.
 - Add a Stop condition when a requirement or success condition cannot be traced to the Issue, oversight inputs, or selected documents.
+- Add a Stop condition when the Requirements / PRD violates or may violate selected rules or policies.
 
 ### Design / Plan
 
@@ -127,6 +131,8 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 - Ensure user-visible major copy is decided in the Design Doc.
 - If multiple data changes are involved, include the transaction boundary policy selected by `docs/harness/rule-map.json` and require transaction boundary / operation boundary decisions.
 - Add a Stop condition when the Design / Plan would need to introduce product decisions, target features, or success criteria that are not in the Requirements / PRD.
+- Include a Done item requiring the Design Doc to be checked for rule / policy violations against the Requirements / PRD and selected rule-map subgraph.
+- Add a Stop condition when the Design Doc violates or may violate selected rules or policies.
 
 ### Build / Verify
 
@@ -137,6 +143,8 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 - Stop if the comment belongs upstream to Requirements / PRD, Design Doc, or policy.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
 - Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
+- Include a Done item requiring the implementation diff and verification evidence to be checked for rule / policy violations against the Requirements / PRD, Design Doc, and selected rule-map subgraph.
+- Add a Stop condition when implementation or verification violates or may violate selected rules or policies.
 
 ### Ship
 
@@ -144,6 +152,8 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 - Include PR body update, residual risk, review replies, and thread resolve decisions.
 - Include review thread replies and resolving only fully completed threads when review comments were handled.
 - Do not create next-cycle inputs, knowledge decisions, or Requirements changes in Ship.
+- Include a Done item requiring PR text, summaries, review replies, and resolve decisions to be checked for rule / policy violations against the selected rule-map subgraph.
+- Add a Stop condition when Ship output violates or may violate selected rules or policies.
 
 ## Goal Budget
 

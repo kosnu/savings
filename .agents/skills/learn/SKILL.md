@@ -43,6 +43,12 @@ Read the smallest useful set:
 
 Use GitHub PR or issue data only when needed to read the referenced feedback or initial input.
 
+## Rule / Policy Compliance Check
+
+Before returning the handoff, check that the next Requirements input, rule / policy references, oversight constraints, exclusions, and Stop Checks do not violate the selected `docs/harness/rule-map.json` subgraph or this skill's input restrictions.
+
+If the handoff would rely on previous implementation code, previous UI behavior, current diff shape, previous implementation-specific design choices, or assumptions from the previous implementation, do not return it as complete. Treat it as a Stop condition.
+
 ## Classification
 
 Classify each finding by what it changes for the next Requirements input:
@@ -96,4 +102,5 @@ Stop before producing a handoff when:
 - The original Issue or initial input is missing and cannot be inferred.
 - A rule or policy update is required but the target document is ambiguous.
 - The next input cannot be explained without relying on previous implementation code, previous UI behavior, current diff shape, or previous implementation-specific design choices.
+- The handoff violates or may violate selected rules, policies, or this skill's input restrictions.
 - Memory update is needed but the user did not explicitly request it.
