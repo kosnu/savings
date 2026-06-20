@@ -1,4 +1,4 @@
-import { Flex, Select, Text } from "@radix-ui/themes"
+import { Select } from "@radix-ui/themes"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { memo, Suspense, use, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -6,6 +6,8 @@ import { ErrorBoundary } from "react-error-boundary"
 import { CategoryOption, ErrorCategoryOption, useCategories } from "../../../categories"
 import { toPaymentCategoryId, toPaymentCategorySearch } from "../paymentCategorySearch"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE } from "../paymentsSearchSchema"
+
+import styles from "./PaymentCategoryFilter.module.css"
 
 const PAYMENT_SEARCH_CATEGORY_ALL_VALUE = "all"
 const PAYMENT_SEARCH_CATEGORY_UNKNOWN_LABEL = "Unknown category"
@@ -37,19 +39,15 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
 
   return (
     <Select.Root name="category-filter" value={value} onValueChange={handleChange}>
-      <Select.Trigger aria-label="Category filter" style={{ width: "100%" }} />
+      <Select.Trigger
+        aria-label="Category filter"
+        className={categoryId === null ? styles.systemLabel : undefined}
+        style={{ width: "100%" }}
+      />
       <Select.Content>
         <Select.Item value={PAYMENT_SEARCH_CATEGORY_ALL_VALUE}>All categories</Select.Item>
-        <Select.Item
-          aria-label="Uncategorized No category"
-          value={PAYMENT_SEARCH_CATEGORY_NONE_VALUE}
-        >
-          <Flex align="center" gap="2">
-            <Text as="span">Uncategorized</Text>
-            <Text as="span" color="gray" size="1">
-              No category
-            </Text>
-          </Flex>
+        <Select.Item className={styles.systemLabel} value={PAYMENT_SEARCH_CATEGORY_NONE_VALUE}>
+          Uncategorized
         </Select.Item>
         <ErrorBoundary fallback={<ErrorCategoryOption />}>
           <Suspense

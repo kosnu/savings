@@ -11,6 +11,10 @@
   white-space: nowrap;
 }
 
+.systemLabel {
+  color: var(--gray-11);
+}
+
 @media (min-width: 520px) {
   .row {
     grid-template-columns: minmax(0, 1fr) minmax(6rem, max-content) minmax(7rem, max-content);

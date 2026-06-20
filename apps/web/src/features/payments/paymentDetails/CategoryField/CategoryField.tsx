@@ -25,6 +25,8 @@ import {
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 
+import styles from "./CategoryField.module.css"
+
 interface CategoryFieldProps {
   paymentId: PaymentId
   categoryId: number | null
@@ -138,12 +140,9 @@ export function CategoryField({
       messages={messages}
       view={
         <Flex align="center" gap="2" style={{ flex: 1 }}>
-          <Text size="4">{categoryName}</Text>
-          {hasNoCategory && (
-            <Text color="gray" size="2">
-              No category
-            </Text>
-          )}
+          <Text className={hasNoCategory ? styles.systemLabel : undefined} size="4">
+            {categoryName}
+          </Text>
         </Flex>
       }
       editor={

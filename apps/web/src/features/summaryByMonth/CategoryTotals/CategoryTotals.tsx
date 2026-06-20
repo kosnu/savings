@@ -135,12 +135,9 @@ function CategoryTotalsGrid({ children }: { children: ReactNode }) {
 function CategoryTotalName({ total }: { total: CategoryTotalsData[number] }) {
   return (
     <Flex align="center" gap="2">
-      <Text>{total.categoryName}</Text>
-      {total.kind === "uncategorized" && (
-        <Text color="gray" size="1">
-          No category
-        </Text>
-      )}
+      <Text className={total.kind === "uncategorized" ? styles.systemLabel : undefined}>
+        {total.categoryName}
+      </Text>
     </Flex>
   )
 }
