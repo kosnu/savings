@@ -8,7 +8,7 @@ import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./CategoryField.stories"
 
-const { Default, Unknown } = composeStories(stories)
+const { Default, None } = composeStories(stories)
 
 async function openCategoryEditor() {
   await act(async () => {
@@ -76,9 +76,10 @@ describe("PaymentDetails CategoryField", () => {
   })
 
   test("未設定カテゴリの編集開始時は None を選択状態にする", async () => {
-    render(<Unknown />)
+    render(<None />)
 
-    expect(screen.getByText("Unknown")).toBeInTheDocument()
+    expect(screen.getByText("None")).toBeInTheDocument()
+    expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
 
     const combobox = await openCategoryEditor()
     await waitFor(() => {

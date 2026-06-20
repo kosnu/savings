@@ -45,10 +45,10 @@ export const Default: Story = {
   },
 }
 
-export const Unknown: Story = {
+export const None: Story = {
   args: {
     categoryId: null,
-    categoryName: "Unknown",
+    categoryName: "None",
     onEditStart: fn(),
     onEditEnd: fn(),
   },
