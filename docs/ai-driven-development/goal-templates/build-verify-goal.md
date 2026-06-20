@@ -31,7 +31,7 @@ when_to_read:
 - Requirements / PRD:
 - Design Doc:
 - 関連Issue / PR:
-- 対応するレビューコメント:
+- Build / Verify工程中に発見した検証失敗・整合性問題:
 - 関連ドキュメント:
   - docs/harness/rule-map.json で選択したサブグラフ:
 
@@ -59,6 +59,7 @@ when_to_read:
 - 既存パターンに沿った実装判断は任せる
 - 必要なテスト追加・修正は任せる
 - 小さな型修正や呼び出し側調整は任せる
+- Build / Verify工程中のテスト失敗、型エラー、lint、実装整合性、変更漏れは工程内で完了させる
 - 新規依存、DB変更、API仕様変更、破壊的git操作が必要になった場合はStop条件としてエスカレーションする
 
 ## Done
@@ -67,10 +68,11 @@ when_to_read:
 - [ ] Design Docの方針から逸脱していない
 - [ ] Requirements / PRDとDesign Docの意図・制約・対象外から解釈を広げていない
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントから逸脱していない
-- [ ] レビューコメント起点の場合、`docs/harness/policies/review-feedback-classification.md` に沿って修正前に工程分類し、Build / Verify対象だけを修正している
+- [ ] Build / Verify工程中に発見した検証失敗・整合性問題を工程内で解消している
 - [ ] 関連テストが追加・更新されている
 - [ ] 指定の検証コマンドが通る
 - [ ] 差分がスコープ内に収まっている
+- [ ] 実装差分と検証結果が、選択したルール・ポリシーに違反していないことを確認している
 - [ ] PRで説明しやすい単位になっている
 
 ## Verification
@@ -104,14 +106,15 @@ when_to_read:
 
 ## Stop
 
-- レビューコメントがRequirements / PRD、Design Doc、またはpolicyへ戻すべき内容を含む
-- レビューコメントの工程分類が曖昧
+- Build / Verify完了後の成果物フィードバックを前回実装への局所修正として扱う必要がある
+- レビューコメント、検証結果、運用知見を次回Requirementsの初期Input、Design前提、またはpolicyへ整理すべき内容として扱う必要がある
 - Design Docまたは関連ドメインルールと違う実装が必要
 - `docs/harness/rule-map.json` で選択した関連ドキュメントと違う実装が必要
 - 実装中にRequirements / PRDまたはDesign Docの解釈を広げる必要がある
 - 実装に必要な主要文言がDesign Docで決まっていない
 - スコープ外の変更が必要
 - 受け入れ条件に矛盾がある
+- 実装差分または検証結果が選択したルール・ポリシーに違反している、または違反の可能性がある
 - 新規依存、DB変更、API仕様変更、破壊的git操作が必要
 - 検証失敗が今回の変更と無関係
 ```

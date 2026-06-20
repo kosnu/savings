@@ -1,5 +1,5 @@
 ---
-title: Ship / Learn Goal Template
+title: Ship Goal Template
 doc_type: template
 status: accepted
 area: repository
@@ -12,21 +12,20 @@ topics:
   - codex-goal
   - pull-request
   - delivery
-  - learning
   - review
 when_to_read:
-  - 実装差分をPR化して出荷判断可能な状態にするとき
-  - 検証結果、残リスク、学習候補を整理するとき
+  - Build / Verify済みの実装差分をPR化するとき
+  - 検証結果、残リスク、レビュー返信を提出用に整理するとき
 ---
 
-# Ship / Learn Goal
+# Ship Goal
 
 ```md
-# Ship / Learn Goal
+# Ship Goal
 
 ## Goal
 
-実装差分を出荷判断できる状態に整え、次回以降のAI実行単位に渡すべき学習を抽出する。
+Build / Verify済みの実装差分を、PR、説明、レビュー返信ができる状態に整える。
 
 ## Inputs
 
@@ -66,10 +65,11 @@ when_to_read:
 - AIは差分を確認してよい
 - AIはPR本文を作成してよい
 - AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
-- AIは `docs/harness/policies/review-feedback-classification.md` に沿って対応済みレビューコメントへ返信してよい
+- AIはPR本文、検証結果記載、レビュー返信、thread resolve判断に関わるShip範囲のレビューコメントへ返信してよい
 - AIは完全に完了したreview threadだけをresolveしてよい
-- AIは未解決の仕様判断を完了扱いしてはいけない
-- AIは恒久化すべき知見の候補を挙げてよい
+- AIは要件充足や仕様判断をShipで作り直してはいけない
+- AIは実装成果物へのレビュー指摘をShip内で修正してはいけない
+- AIはlearn skillに渡すべき知見をShip内で初期Input化してはいけない
 - AIはユーザーから明示されていないmemory更新を行ってはいけない
 
 ## Done
@@ -84,8 +84,7 @@ when_to_read:
 - [ ] 無関係な差分が含まれていない
 - [ ] 対応済みレビューコメントに分類、対応内容、commit ID、検証結果が具体的に返信されている
 - [ ] 完了済みreview threadだけがresolveされている
-- [ ] 恒久ナレッジ化するもの / しないものが整理されている
-- [ ] 次のGoal候補が必要に応じて整理されている
+- [ ] PR本文、変更要約、レビュー返信、thread resolve判断が、選択したルール・ポリシーに違反していないことを確認している
 
 ## Verification
 
@@ -98,14 +97,6 @@ when_to_read:
   - PR作成前に指定されたアプリ検証コマンド
   - Markdown lintやドキュメント生成コマンド
 
-## Knowledge Update
-
-- 恒久化する判断:
-- 更新するドキュメント / skill:
-- memory更新の明示依頼:
-- 更新しない判断:
-- 理由:
-
 ## Stop
 
 - 未解決の仕様判断が残っている
@@ -113,7 +104,8 @@ when_to_read:
 - 差分にスコープ外変更が混じっている
 - PR作成先、対象ブランチ、関連Issueが曖昧
 - レビューコメントの対応が現在の差分やcommitに明確に紐づかない
+- 実装成果物へのレビュー指摘をShip内で修正する必要がある
 - review threadをresolveすると未解決の追従作業や確認事項を隠すおそれがある
-- 恒久ナレッジにするか判断が必要
-- memory更新が必要だがユーザーの明示依頼がない
+- Learnで扱うべき知見をShip内で初期Input化する必要がある
+- Ship成果物やレビュー返信が選択したルール・ポリシーに違反している、または違反の可能性がある
 ```
