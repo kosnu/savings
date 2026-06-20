@@ -53,3 +53,12 @@ export const None: Story = {
     onEditEnd: fn(),
   },
 }
+
+export const RealNoneCategory: Story = {
+  args: {
+    categoryId: 999,
+    categoryName: "None",
+    onEditStart: fn(),
+    onEditEnd: fn(),
+  },
+}
