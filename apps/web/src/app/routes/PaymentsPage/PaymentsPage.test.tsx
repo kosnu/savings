@@ -131,7 +131,7 @@ function renderPaymentsPageRoute(initialEntry: string) {
   }
 }
 
-async function selectCategoryFilterOption(user: TestUser, optionName: string) {
+async function selectCategoryFilterOption(user: TestUser, optionName: string | RegExp) {
   await user.click(await screen.findByRole("combobox", { name: /category filter/i }))
 
   const listbox = await screen.findByRole("listbox")
@@ -279,7 +279,7 @@ describe("PaymentsPage", () => {
     )
     const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
 
-    await selectCategoryFilterOption(user, "Uncategorized")
+    await selectCategoryFilterOption(user, /^uncategorized$/i)
 
     await waitFor(() => {
       expect(router.state.location.search).toEqual({

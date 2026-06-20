@@ -150,7 +150,7 @@ describe("PaymentDetailsOverlay", () => {
     expect(within(dialog).getByText("Food")).toBeInTheDocument()
   })
 
-  test("category を None にすると未設定として保存して詳細表示は Unknown になる", async () => {
+  test("category を None にすると未設定として保存して詳細表示も None になる", async () => {
     const { user } = render(<Default />)
 
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
@@ -170,7 +170,9 @@ describe("PaymentDetailsOverlay", () => {
     await waitFor(() => {
       expect(within(dialog).queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument()
     })
-    expect(await within(dialog).findByText("Unknown")).toBeInTheDocument()
+    expect(await within(dialog).findByText("None")).toBeInTheDocument()
+    expect(within(dialog).queryByText("No category")).not.toBeInTheDocument()
+    expect(within(dialog).queryByText("Unknown")).not.toBeInTheDocument()
   })
 
   describe("Date editing", () => {

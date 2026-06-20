@@ -3,6 +3,8 @@ import { type ComponentProps, type ReactNode, useCallback } from "react"
 
 import type { Category } from "../../../../types/category"
 
+import styles from "./CategorySelect.module.css"
+
 interface CategorySelectProps {
   autoFocus?: boolean
   disabled?: boolean
@@ -29,6 +31,7 @@ export function CategorySelect({
   onOpenChange,
 }: CategorySelectProps) {
   const selectValue = value === undefined || value === "" ? NONE_CATEGORY_VALUE : value
+  const isNoneSelected = selectValue === NONE_CATEGORY_VALUE
 
   const handleChange = useCallback(
     (val: string) => {
@@ -52,6 +55,7 @@ export function CategorySelect({
     >
       <Select.Trigger
         autoFocus={autoFocus}
+        className={isNoneSelected ? styles.systemLabel : undefined}
         id={id}
         placeholder="Pick a category"
         style={{ width }}
@@ -78,7 +82,11 @@ export function CategoryOption({ category }: CategoryOptionProps) {
 }
 
 export function NoneCategoryOption() {
-  return <Select.Item value={NONE_CATEGORY_VALUE}>None</Select.Item>
+  return (
+    <Select.Item className={styles.systemLabel} value={NONE_CATEGORY_VALUE}>
+      None
+    </Select.Item>
+  )
 }
 
 export function ErrorCategoryOption() {

@@ -3,7 +3,11 @@ import { composeStories } from "@storybook/react-vite"
 import { describe, expect, test, vi } from "vite-plus/test"
 
 import { render, screen } from "../../../../test/test-utils"
+import type { Category } from "../../../../types/category"
+import { CategoryOption, CategorySelect } from "./CategorySelect"
 import * as stories from "./CategorySelect.stories"
+
+import styles from "./CategorySelect.module.css"
 
 const { Default, Empty, ErrorState, Filled, Loading } = composeStories(stories)
 
@@ -16,6 +20,8 @@ describe("CategorySelect", () => {
     renderWithTheme(<Empty />)
 
     expect(screen.getByRole("combobox")).toHaveTextContent("None")
+    expect(screen.getByRole("combobox")).toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
   })
 
   test("none を選ぶと空文字へ変換して通知する", async () => {
@@ -27,6 +33,31 @@ describe("CategorySelect", () => {
 
     expect(handleChange).toHaveBeenCalledWith("")
     expect(screen.getByRole("combobox")).toHaveTextContent("None")
+    expect(screen.getByRole("combobox")).toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
+  })
+
+  test("実在カテゴリ名 None と未選択状態の None を区別できる", async () => {
+    const noneCategory: Category = {
+      id: 999,
+      bookId: 1,
+      name: "None",
+      createdDate: new Date(),
+      updatedDate: new Date(),
+    }
+    const { user } = renderWithTheme(
+      <CategorySelect>
+        <CategoryOption category={noneCategory} />
+      </CategorySelect>,
+    )
+
+    await user.click(screen.getByRole("combobox"))
+
+    const noneOptions = screen.getAllByRole("option", { name: /^none$/i })
+    expect(noneOptions).toHaveLength(2)
+    expect(noneOptions[0]).toHaveClass(styles.systemLabel)
+    expect(noneOptions[1]).not.toHaveClass(styles.systemLabel)
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
   })
 
   test("Default story では category option を展開できる", async () => {

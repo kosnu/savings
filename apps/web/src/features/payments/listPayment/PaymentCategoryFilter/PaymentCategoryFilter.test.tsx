@@ -13,17 +13,23 @@ import {
   waitFor,
   within,
 } from "../../../../test/test-utils"
+import type { Category } from "../../../../types/category"
 import { categoryQueryKeys } from "../../../categories"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE, paymentsSearchSchema } from "../paymentsSearchSchema"
 import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 
+import styles from "./PaymentCategoryFilter.module.css"
+
 function renderPaymentCategoryFilter(
   initialEntry: string,
-  { cacheCategories = true }: { cacheCategories?: boolean } = {},
+  {
+    cacheCategories = true,
+    cachedCategories = categories,
+  }: { cacheCategories?: boolean; cachedCategories?: Category[] } = {},
 ) {
   const queryClient = createTestQueryClient()
   if (cacheCategories) {
-    queryClient.setQueryData(categoryQueryKeys.list, categories)
+    queryClient.setQueryData(categoryQueryKeys.list, cachedCategories)
   }
 
   return renderWithRouter(
@@ -47,7 +53,7 @@ function renderPaymentCategoryFilter(
   )
 }
 
-async function selectCategoryFilterOption(user: TestUser, optionName: string) {
+async function selectCategoryFilterOption(user: TestUser, optionName: string | RegExp) {
   await user.click(await screen.findByRole("combobox", { name: /category filter/i }))
 
   const listbox = await screen.findByRole("listbox")
@@ -79,6 +85,36 @@ describe("PaymentCategoryFilter", () => {
     expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveTextContent(
       "Uncategorized",
     )
+    expect(await screen.findByRole("combobox", { name: /category filter/i })).toHaveClass(
+      styles.systemLabel,
+    )
+    expect(screen.queryByText("No category")).not.toBeInTheDocument()
+  })
+
+  test("実在カテゴリ名 Uncategorized とカテゴリ未設定条件を区別できる", async () => {
+    const { user } = renderPaymentCategoryFilter("/payments?year=2025&month=6", {
+      cachedCategories: [
+        ...categories,
+        {
+          id: 999,
+          bookId: 1,
+          name: "Uncategorized",
+          createdDate: new Date(),
+          updatedDate: new Date(),
+        },
+      ],
+    })
+
+    await user.click(await screen.findByRole("combobox", { name: /category filter/i }))
+
+    const listbox = await screen.findByRole("listbox")
+    const uncategorizedOptions = within(listbox).getAllByRole("option", {
+      name: /^uncategorized$/i,
+    })
+    expect(uncategorizedOptions).toHaveLength(2)
+    expect(uncategorizedOptions[0]).toHaveClass(styles.systemLabel)
+    expect(uncategorizedOptions[1]).not.toHaveClass(styles.systemLabel)
+    expect(within(listbox).queryByText("No category")).not.toBeInTheDocument()
   })
 
   test("URL search の登録済みカテゴリを表示する", async () => {
@@ -140,7 +176,7 @@ describe("PaymentCategoryFilter", () => {
   test("カテゴリ未設定を選ぶとcategory=noneをRouter searchに反映する", async () => {
     const { router, user } = renderPaymentCategoryFilter("/payments?year=2025&month=6")
 
-    await selectCategoryFilterOption(user, "Uncategorized")
+    await selectCategoryFilterOption(user, /^uncategorized$/i)
 
     await waitFor(() => {
       expect(router.state.location.search).toEqual({

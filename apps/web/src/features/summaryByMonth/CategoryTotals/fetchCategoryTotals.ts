@@ -2,7 +2,6 @@ import * as z from "zod"
 
 import { toDateOnlyString } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
-import { unknownCategory } from "../../categories"
 
 const categoryTotalsPaymentRowSchema = z.object({
   amount: z.number(),
@@ -52,6 +51,8 @@ const categoryTotalsColumns = `
     date
   )
 `
+
+const uncategorizedCategoryName = "Uncategorized"
 
 export async function fetchCategoryTotals([startDate, endDate]: [
   Date | null,
@@ -107,7 +108,7 @@ export async function fetchCategoryTotals([startDate, endDate]: [
   const uncategorizedTotal: CategoryTotal = {
     key: "uncategorized",
     categoryId: null,
-    categoryName: unknownCategory.name,
+    categoryName: uncategorizedCategoryName,
     totalAmount: (uncategorizedPaymentsResponse.data ?? [])
       .map(normalizeCategoryTotalsPaymentRow)
       .reduce((sum, payment) => sum + payment.amount, 0),
