@@ -309,13 +309,13 @@
       "priority": 88
     },
     {
-      "id": "web.domain-rules",
-      "file": "apps/web/docs/policies/domain-rules.md",
+      "id": "web.domain-layer-rules",
+      "file": "apps/web/docs/policies/domain-layer-rules.md",
       "applies_to": {
         "paths": ["apps/web/src/domain/**", "apps/web/src/features/**", "apps/web/src/utils/**"],
         "domains": ["web", "domain"],
         "activities": ["add_domain_rule", "move_value_rule", "review_frontend_domain_boundary"],
-        "topics": ["domain-rules", "frontend-architecture", "project-structure"]
+        "topics": ["domain-layer", "frontend-architecture", "project-structure"]
       },
       "depends_on": [],
       "overrides": [],
