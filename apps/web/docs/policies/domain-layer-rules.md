@@ -1,5 +1,5 @@
 ---
-title: Domain Rules
+title: Domain Layer Rules
 doc_type: policy
 status: accepted
 area: web
@@ -8,7 +8,7 @@ applies_to:
   - apps/web/src/features
   - apps/web/src/utils
 topics:
-  - domain-rules
+  - domain-layer
   - project-structure
   - frontend-architecture
 when_to_read:
@@ -17,11 +17,13 @@ when_to_read:
   - Webアプリ内の値ルールの配置に迷うとき
 ---
 
-# Domain Rules
+# Domain Layer Rules
 
-`apps/web/src/domain` は、複数 feature で共有される値概念のルールを置く場所です。
+この文書は、`apps/web/src/domain` に置くコードの責務と配置ルールです。
 
-UIコンポーネントや特定画面の都合ではなく、入力、保存、比較、表示変換などで同じ扱いにすべき値ルールを集約します。
+UI上の文言、表示判断、状態表現、ドメイン値の見せ方は [Domain UI Rules](./domain-ui-rules.md) に従います。この文書では、UI判断そのものではなく、複数 feature で共有する値ルールをどの layer に置くかを扱います。
+
+UIコンポーネントや特定画面の都合ではなく、入力、保存、比較、表示変換などで同じ扱いにすべき値ルールを `apps/web/src/domain` に集約します。
 APIやDB契約の型を置くだけの場所ではなく、Webアプリ内で一貫させたい振る舞いを持つものを対象にします。
 
 ## 置くもの

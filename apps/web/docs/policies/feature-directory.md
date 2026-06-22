@@ -80,7 +80,7 @@ feature 共通ディレクトリを追加する場合は、既存の共通ディ
 
 ### 複数Featureで共有するコード
 
-複数 feature で共有される値ルールは、`apps/web/docs/policies/domain-rules.md` に従って `apps/web/src/domain` への切り出しを検討します。
+複数 feature で共有される値ルールは、`apps/web/docs/policies/domain-layer-rules.md` に従って `apps/web/src/domain` への切り出しを検討します。
 
 複数 feature で共有される UI は、`apps/web/src/components` に置くか、feature 間で共有してよい公開コンポーネントとして扱えるかを確認します。
 
