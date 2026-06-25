@@ -13,7 +13,9 @@ import {
 import { useSupabaseSession } from "./useSupabaseSession"
 
 const mockGetSession = vi.fn()
+const mockGetUser = vi.fn()
 const mockOnAuthStateChange = vi.fn()
+const mockSignOut = vi.fn()
 const mockUnsubscribe = vi.fn()
 const { mockCaptureSupabaseSessionError, mockEnsureAuthenticatedUser } = vi.hoisted(() => ({
   mockCaptureSupabaseSessionError: vi.fn(),
@@ -28,7 +30,9 @@ vi.mock("../../lib/supabase", () => ({
   getSupabaseClient: () => ({
     auth: {
       getSession: mockGetSession,
+      getUser: mockGetUser,
       onAuthStateChange: mockOnAuthStateChange,
+      signOut: mockSignOut,
     },
   }),
 }))
@@ -100,11 +104,14 @@ function expectSession(
 describe("SupabaseSessionProvider", () => {
   beforeEach(() => {
     mockGetSession.mockReset()
+    mockGetUser.mockReset()
     mockOnAuthStateChange.mockClear()
+    mockSignOut.mockReset()
     mockUnsubscribe.mockClear()
     mockCaptureSupabaseSessionError.mockReset()
     mockEnsureAuthenticatedUser.mockReset()
     mockEnsureAuthenticatedUser.mockResolvedValue(undefined)
+    mockGetUser.mockResolvedValue({ data: { user: createSession().user }, error: null })
     mockOnAuthStateChange.mockImplementation(() => ({
       data: { subscription: { unsubscribe: mockUnsubscribe } },
     }))
@@ -134,6 +141,7 @@ describe("SupabaseSessionProvider", () => {
     await waitFor(() => {
       expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith()
     })
+    expect(mockGetUser).toHaveBeenCalledWith()
     expectSession(result, "loading", null)
 
     await act(async () => {
@@ -177,6 +185,23 @@ describe("SupabaseSessionProvider", () => {
       expectSession(result, "unauthenticated", null)
     })
 
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+    expect(mockSignOut).toHaveBeenCalledWith()
+  })
+
+  test("保存済みsessionがAuth側で無効な場合はユーザー作成を実行せずサインアウトする", async () => {
+    const error = new Error("user not found")
+    mockGetUser.mockResolvedValueOnce({ data: { user: null }, error })
+    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+
+    const { result } = renderSessionHook()
+
+    await waitFor(() => {
+      expectSession(result, "unauthenticated", null)
+    })
+
+    expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
+    expect(mockSignOut).toHaveBeenCalledWith()
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
   })
 
