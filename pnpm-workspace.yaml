@@ -10,7 +10,7 @@ allowBuilds:
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@0.2.1
   vite-plus: 0.2.1
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
+  vitest: 4.1.9
 minimumReleaseAge: 10080
 overrides:
   eslint: "10.5.0"
@@ -20,8 +20,8 @@ overrides:
 peerDependencyRules:
   allowAny:
     - vite
-    - vitest
+    - vite-plus
   allowedVersions:
     vite: "*"
-    vitest: "*"
+    vite-plus: "*"
 savePrefix: ""
