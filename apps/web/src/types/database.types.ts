@@ -310,26 +310,29 @@ export type Database = {
       }
       users: {
         Row: {
+          auth_user_id: string | null
           created_at: string | null
           email: string
-          external_id: string
           id: number
+          legacy_external_id: string | null
           name: string
           updated_at: string | null
         }
         Insert: {
+          auth_user_id?: string | null
           created_at?: string | null
           email: string
-          external_id: string
           id?: never
+          legacy_external_id?: string | null
           name: string
           updated_at?: string | null
         }
         Update: {
+          auth_user_id?: string | null
           created_at?: string | null
           email?: string
-          external_id?: string
           id?: never
+          legacy_external_id?: string | null
           name?: string
           updated_at?: string | null
         }

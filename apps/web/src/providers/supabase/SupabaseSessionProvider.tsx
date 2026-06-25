@@ -74,6 +74,11 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
 
       try {
+        const { error: getUserError } = await supabase.auth.getUser()
+        if (getUserError) {
+          throw getUserError
+        }
+
         await ensureAuthenticatedUser()
         if (!isActive) return
         if (!isLatestSessionGeneration()) return
@@ -81,6 +86,11 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         setSessionState(toAuthenticatedSessionState(session))
       } catch (error) {
         captureSupabaseSessionError(error)
+        try {
+          await supabase.auth.signOut()
+        } catch (signOutError) {
+          captureSupabaseSessionError(signOutError)
+        }
         if (!isActive) return
         if (!isLatestSessionGeneration()) return
         if (shouldKeepCurrentSession) return
