@@ -56,10 +56,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     }
 
     const handleSession = async (session: Session | null, sessionGeneration: number) => {
-      const isLatestSessionGeneration = () => sessionGenerationRef.current === sessionGeneration
+      const canApplySessionSideEffect = () =>
+        isActive && sessionGenerationRef.current === sessionGeneration
 
-      if (!isActive) return
-      if (!isLatestSessionGeneration()) return
+      if (!canApplySessionSideEffect()) return
 
       if (!session) {
         setSessionState(unauthenticatedSessionState)
@@ -80,19 +80,21 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         }
 
         await ensureAuthenticatedUser()
-        if (!isActive) return
-        if (!isLatestSessionGeneration()) return
+        if (!canApplySessionSideEffect()) return
 
         setSessionState(toAuthenticatedSessionState(session))
       } catch (error) {
         captureSupabaseSessionError(error)
+        // signOut は Supabase の現在 session に作用するため、古い handler では実行しない。
+        if (!canApplySessionSideEffect()) return
+
         try {
           await supabase.auth.signOut()
         } catch (signOutError) {
           captureSupabaseSessionError(signOutError)
         }
-        if (!isActive) return
-        if (!isLatestSessionGeneration()) return
+        // signOut の待機中に新しい session が来た場合、古い handler で画面状態を戻さない。
+        if (!canApplySessionSideEffect()) return
         if (shouldKeepCurrentSession) return
 
         setSessionState(unauthenticatedSessionState)

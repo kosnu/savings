@@ -331,6 +331,51 @@ describe("SupabaseSessionProvider", () => {
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
   })
 
+  test("古いsessionのユーザー作成失敗では新しいsessionをサインアウトしない", async () => {
+    const oldEnsureDeferred = createDeferred<void>()
+    const newEnsureDeferred = createDeferred<void>()
+    mockGetSession.mockResolvedValueOnce({ data: { session: null }, error: null })
+    mockEnsureAuthenticatedUser
+      .mockReturnValueOnce(oldEnsureDeferred.promise)
+      .mockReturnValueOnce(newEnsureDeferred.promise)
+    const emitAuthStateChange = captureAuthCallback()
+
+    const { result } = renderSessionHook()
+
+    act(() => {
+      emitAuthStateChange("SIGNED_IN", createSession("old-user"))
+    })
+
+    await waitFor(() => {
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(1)
+    })
+
+    act(() => {
+      emitAuthStateChange("SIGNED_IN", createSession("new-user"))
+    })
+
+    await waitFor(() => {
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(2)
+    })
+
+    const error = new Error("failed to ensure old user")
+    await act(async () => {
+      oldEnsureDeferred.reject(error)
+      await oldEnsureDeferred.promise.catch(() => undefined)
+    })
+
+    await act(async () => {
+      newEnsureDeferred.resolve()
+      await newEnsureDeferred.promise
+    })
+
+    await waitFor(() => {
+      expectSession(result, "authenticated", "new-user")
+    })
+    expect(mockSignOut).not.toHaveBeenCalled()
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+  })
+
   test("認証購読で新sessionのensure中なら getSession の reject で未認証に戻さない", async () => {
     const getSessionDeferred = createDeferred<{
       data: { session: Session | null }
