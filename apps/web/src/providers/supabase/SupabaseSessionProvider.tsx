@@ -87,6 +87,8 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         captureSupabaseSessionError(error)
         // signOut は Supabase の現在 session に作用するため、古い handler では実行しない。
         if (!canApplySessionSideEffect()) return
+        // 同じユーザーの更新失敗では、検証前の有効な session を維持する。
+        if (shouldKeepCurrentSession) return
 
         try {
           await supabase.auth.signOut()
@@ -95,7 +97,6 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         }
         // signOut の待機中に新しい session が来た場合、古い handler で画面状態を戻さない。
         if (!canApplySessionSideEffect()) return
-        if (shouldKeepCurrentSession) return
 
         setSessionState(unauthenticatedSessionState)
       }
