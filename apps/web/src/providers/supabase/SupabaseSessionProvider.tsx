@@ -55,11 +55,48 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
     }
 
-    const handleSession = async (session: Session | null, sessionGeneration: number) => {
-      const canApplySessionSideEffect = () =>
-        isActive && sessionGenerationRef.current === sessionGeneration
+    const isCurrentSessionHandler = (sessionGeneration: number) =>
+      isActive && sessionGenerationRef.current === sessionGeneration
 
-      if (!canApplySessionSideEffect()) return
+    const verifyAuthenticatedSession = async () => {
+      const { error: getUserError } = await supabase.auth.getUser()
+      if (getUserError) {
+        throw getUserError
+      }
+
+      await ensureAuthenticatedUser()
+    }
+
+    const signOutCurrentSession = async () => {
+      try {
+        await supabase.auth.signOut()
+      } catch (signOutError) {
+        captureSupabaseSessionError(signOutError)
+      }
+    }
+
+    const handleSessionVerificationError = async (
+      error: unknown,
+      sessionGeneration: number,
+      shouldKeepCurrentSession: boolean,
+    ) => {
+      captureSupabaseSessionError(error)
+
+      // signOut は Supabase の現在 session に作用するため、古い handler では実行しない。
+      if (!isCurrentSessionHandler(sessionGeneration)) return
+      // 同じユーザーの更新失敗では、検証前の有効な session を維持する。
+      if (shouldKeepCurrentSession) return
+
+      await signOutCurrentSession()
+
+      // signOut の待機中に新しい session が来た場合、古い handler で画面状態を戻さない。
+      if (!isCurrentSessionHandler(sessionGeneration)) return
+
+      setSessionState(unauthenticatedSessionState)
+    }
+
+    const handleSession = async (session: Session | null, sessionGeneration: number) => {
+      if (!isCurrentSessionHandler(sessionGeneration)) return
 
       if (!session) {
         setSessionState(unauthenticatedSessionState)
@@ -74,31 +111,12 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
 
       try {
-        const { error: getUserError } = await supabase.auth.getUser()
-        if (getUserError) {
-          throw getUserError
-        }
-
-        await ensureAuthenticatedUser()
-        if (!canApplySessionSideEffect()) return
+        await verifyAuthenticatedSession()
+        if (!isCurrentSessionHandler(sessionGeneration)) return
 
         setSessionState(toAuthenticatedSessionState(session))
       } catch (error) {
-        captureSupabaseSessionError(error)
-        // signOut は Supabase の現在 session に作用するため、古い handler では実行しない。
-        if (!canApplySessionSideEffect()) return
-        // 同じユーザーの更新失敗では、検証前の有効な session を維持する。
-        if (shouldKeepCurrentSession) return
-
-        try {
-          await supabase.auth.signOut()
-        } catch (signOutError) {
-          captureSupabaseSessionError(signOutError)
-        }
-        // signOut の待機中に新しい session が来た場合、古い handler で画面状態を戻さない。
-        if (!canApplySessionSideEffect()) return
-
-        setSessionState(unauthenticatedSessionState)
+        await handleSessionVerificationError(error, sessionGeneration, shouldKeepCurrentSession)
       }
     }
 
