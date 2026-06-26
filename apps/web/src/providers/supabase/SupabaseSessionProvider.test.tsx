@@ -294,6 +294,7 @@ describe("SupabaseSessionProvider", () => {
 
     expectSession(result, "authenticated", "old-user", "old-token")
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+    expect(mockSignOut).not.toHaveBeenCalled()
   })
 
   test("認証済み状態から新しいsessionのユーザー作成に失敗した場合は旧sessionを残さない", async () => {
