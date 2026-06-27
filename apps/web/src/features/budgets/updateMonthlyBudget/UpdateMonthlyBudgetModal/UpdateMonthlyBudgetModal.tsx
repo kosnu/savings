@@ -8,11 +8,13 @@ import { UpdateMonthlyBudgetForm } from "../UpdateMonthlyBudgetForm"
 
 interface UpdateMonthlyBudgetModalProps {
   monthlyBudget: MonthlyBudget
+  targetMonth: Date
   trigger?: ReactElement
 }
 
 export function UpdateMonthlyBudgetModal({
   monthlyBudget,
+  targetMonth,
   trigger = <Button>Edit budget</Button>,
 }: UpdateMonthlyBudgetModalProps) {
   const { open, closeDialog, onOpenChange } = useDialog()
@@ -36,6 +38,7 @@ export function UpdateMonthlyBudgetModal({
     >
       <UpdateMonthlyBudgetForm
         monthlyBudget={monthlyBudget}
+        targetMonth={targetMonth}
         onSuccess={handleSuccess}
         onCancel={handleCancel}
       />

@@ -23,6 +23,7 @@ describe("useUpdateMonthlyBudget", () => {
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
     const input = {
+      targetMonth: new Date(2026, 2, 1),
       amount: 300000,
     }
     mockUpdateMonthlyBudget.mockResolvedValue(undefined)
@@ -62,6 +63,7 @@ describe("useUpdateMonthlyBudget", () => {
     await act(async () => {
       await expect(
         result.current.updateMonthlyBudget({
+          targetMonth: new Date(2026, 2, 1),
           amount: 300000,
         }),
       ).rejects.toEqual(error)

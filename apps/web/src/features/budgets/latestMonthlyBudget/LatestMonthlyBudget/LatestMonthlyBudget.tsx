@@ -11,7 +11,8 @@ import type { MonthlyBudget, MonthlyBudgetState } from "../../types"
 import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthlyBudgetModal"
 
 export function LatestMonthlyBudget() {
-  const { promise } = useEffectiveMonthlyBudget(new Date())
+  const targetMonth = new Date()
+  const { promise } = useEffectiveMonthlyBudget(targetMonth)
 
   return (
     <Flex direction="column" gap="3">
@@ -26,14 +27,20 @@ export function LatestMonthlyBudget() {
         }
       >
         <Suspense fallback={<LatestMonthlyBudgetLoading />}>
-          <LatestMonthlyBudgetContent promise={promise} />
+          <LatestMonthlyBudgetContent promise={promise} targetMonth={targetMonth} />
         </Suspense>
       </ErrorBoundary>
     </Flex>
   )
 }
 
-function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudgetState> }) {
+function LatestMonthlyBudgetContent({
+  promise,
+  targetMonth,
+}: {
+  promise: Promise<MonthlyBudgetState>
+  targetMonth: Date
+}) {
   const monthlyBudgetState = use(promise)
 
   if (monthlyBudgetState.status !== "amount") {
@@ -48,7 +55,12 @@ function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudge
     )
   }
 
-  return <LatestMonthlyBudgetRow monthlyBudget={monthlyBudgetState.monthlyBudget} />
+  return (
+    <LatestMonthlyBudgetRow
+      monthlyBudget={monthlyBudgetState.monthlyBudget}
+      targetMonth={targetMonth}
+    />
+  )
 }
 
 function LatestMonthlyBudgetLoading() {
@@ -61,13 +73,20 @@ function LatestMonthlyBudgetLoading() {
   )
 }
 
-function LatestMonthlyBudgetRow({ monthlyBudget }: { monthlyBudget: MonthlyBudget }) {
+function LatestMonthlyBudgetRow({
+  monthlyBudget,
+  targetMonth,
+}: {
+  monthlyBudget: MonthlyBudget
+  targetMonth: Date
+}) {
   return (
     <Flex align="center" justify="between" gap="3">
       <Text>{toCurrency(monthlyBudget.amount)}</Text>
       <Flex gap="2">
         <UpdateMonthlyBudgetModal
           monthlyBudget={monthlyBudget}
+          targetMonth={targetMonth}
           trigger={
             <Button variant="soft">
               <Pencil1Icon /> Edit budget
@@ -75,6 +94,7 @@ function LatestMonthlyBudgetRow({ monthlyBudget }: { monthlyBudget: MonthlyBudge
           }
         />
         <RemoveMonthlyBudgetModal
+          targetMonth={targetMonth}
           trigger={
             <Button color="red" variant="soft">
               <TrashIcon /> Remove budget

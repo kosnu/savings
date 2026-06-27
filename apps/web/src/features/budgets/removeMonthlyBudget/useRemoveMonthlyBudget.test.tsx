@@ -29,12 +29,15 @@ describe("useRemoveMonthlyBudget", () => {
     })
 
     await act(async () => {
-      const promise = result.current.removeMonthlyBudget()
+      const promise = result.current.removeMonthlyBudget({ targetMonth: new Date(2026, 2, 1) })
 
       expect(promise).toBeInstanceOf(Promise)
       await promise
     })
 
+    expect(mockRemoveMonthlyBudget.mock.calls[0]?.[0]).toEqual({
+      targetMonth: new Date(2026, 2, 1),
+    })
     expect(mockRemoveMonthlyBudget).toHaveBeenCalledTimes(1)
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: monthlyBudgetQueryKeys.listAll })
     expect(invalidateQueries).toHaveBeenCalledWith({
@@ -56,7 +59,9 @@ describe("useRemoveMonthlyBudget", () => {
     })
 
     await act(async () => {
-      await expect(result.current.removeMonthlyBudget()).rejects.toEqual(error)
+      await expect(
+        result.current.removeMonthlyBudget({ targetMonth: new Date(2026, 2, 1) }),
+      ).rejects.toEqual(error)
     })
 
     expect(invalidateQueries).not.toHaveBeenCalled()

@@ -2,10 +2,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import { monthlyBudgetQueryKeys } from "../queryKeys"
-import { removeMonthlyBudget as removeMonthlyBudgetRecord } from "./removeMonthlyBudget"
+import {
+  type MonthlyBudgetRemoveInput,
+  removeMonthlyBudget as removeMonthlyBudgetRecord,
+} from "./removeMonthlyBudget"
 
 interface UseRemoveMonthlyBudgetReturn {
-  removeMonthlyBudget: () => Promise<void>
+  removeMonthlyBudget: (value: MonthlyBudgetRemoveInput) => Promise<void>
   isPending: boolean
 }
 
@@ -22,9 +25,12 @@ export function useRemoveMonthlyBudget(): UseRemoveMonthlyBudgetReturn {
     },
   })
 
-  const removeMonthlyBudget = useCallback(async () => {
-    return mutateAsync()
-  }, [mutateAsync])
+  const removeMonthlyBudget = useCallback(
+    async (value: MonthlyBudgetRemoveInput) => {
+      return mutateAsync(value)
+    },
+    [mutateAsync],
+  )
 
   return { removeMonthlyBudget, isPending }
 }

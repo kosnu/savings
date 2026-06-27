@@ -14,16 +14,23 @@ describe("UpdateMonthlyBudgetForm", () => {
   test("月予算更新中は保存ボタンをローディング表示し操作ボタンを無効化する", async () => {
     const monthlyBudgetUpdated = createDeferred()
     const monthlyBudget = toMonthlyBudget(normalizeMonthlyBudgetRow(monthlyBudgets[2]))
+    const targetMonth = new Date(2026, 2, 20)
+    let requestBody: unknown
 
     server.resetHandlers(
-      http.post(UPDATE_MONTHLY_BUDGET_RPC_URL, async () => {
+      http.post(UPDATE_MONTHLY_BUDGET_RPC_URL, async ({ request }) => {
+        requestBody = await request.json()
         await monthlyBudgetUpdated.promise
         return HttpResponse.json(null)
       }),
     )
 
     const { user } = render(
-      <UpdateMonthlyBudgetForm monthlyBudget={monthlyBudget} onCancel={() => {}} />,
+      <UpdateMonthlyBudgetForm
+        monthlyBudget={monthlyBudget}
+        targetMonth={targetMonth}
+        onCancel={() => {}}
+      />,
     )
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
 
@@ -35,6 +42,10 @@ describe("UpdateMonthlyBudgetForm", () => {
     expect(await within(saveButton).findByLabelText("loading-spinner")).toBeInTheDocument()
     expect(saveButton).toBeDisabled()
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+    expect(requestBody).toEqual({
+      p_amount: 70000,
+      p_target_month: "2026-03-01",
+    })
 
     await act(async () => {
       monthlyBudgetUpdated.resolve()
@@ -49,6 +60,7 @@ describe("UpdateMonthlyBudgetForm", () => {
 
   test("金額が不正な文字列の場合は更新せずにエラーを表示する", async () => {
     const monthlyBudget = toMonthlyBudget(normalizeMonthlyBudgetRow(monthlyBudgets[2]))
+    const targetMonth = new Date(2026, 2, 20)
     let requestCount = 0
 
     server.resetHandlers(
@@ -59,7 +71,11 @@ describe("UpdateMonthlyBudgetForm", () => {
     )
 
     const { user } = render(
-      <UpdateMonthlyBudgetForm monthlyBudget={monthlyBudget} onCancel={() => {}} />,
+      <UpdateMonthlyBudgetForm
+        monthlyBudget={monthlyBudget}
+        targetMonth={targetMonth}
+        onCancel={() => {}}
+      />,
     )
     const amountInput = screen.getByRole("textbox", { name: /amount/i })
 

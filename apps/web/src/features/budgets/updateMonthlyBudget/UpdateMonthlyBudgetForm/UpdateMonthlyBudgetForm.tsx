@@ -25,12 +25,14 @@ interface UpdateMonthlyBudgetFormValues {
 
 interface UpdateMonthlyBudgetFormProps {
   monthlyBudget: MonthlyBudget
+  targetMonth: Date
   onSuccess?: () => void
   onCancel: () => void
 }
 
 export function UpdateMonthlyBudgetForm({
   monthlyBudget,
+  targetMonth,
   onSuccess,
   onCancel,
 }: UpdateMonthlyBudgetFormProps) {
@@ -54,6 +56,7 @@ export function UpdateMonthlyBudgetForm({
       try {
         setSubmitErrorMessage(undefined)
         await updateMonthlyBudget({
+          targetMonth,
           amount: parsedValue.amount,
         })
         onSuccess?.()
