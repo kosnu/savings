@@ -1,7 +1,7 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin"
 import { devtools as tanstackDevtools } from "@tanstack/devtools-vite"
 import react from "@vitejs/plugin-react"
-import { defineConfig, loadEnv } from "vite-plus"
+import { defineConfig, lazyPlugins, loadEnv } from "vite-plus"
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -9,24 +9,23 @@ export default defineConfig(({ mode }) => {
   const sentryEnabled =
     mode === "production" &&
     Boolean(buildEnv.SENTRY_AUTH_TOKEN && buildEnv.SENTRY_ORG && buildEnv.SENTRY_PROJECT)
+  const plugins = lazyPlugins(() => [
+    ...react(),
+    ...tanstackDevtools(),
+    ...(sentryEnabled
+      ? sentryVitePlugin({
+          authToken: buildEnv.SENTRY_AUTH_TOKEN,
+          org: buildEnv.SENTRY_ORG,
+          project: buildEnv.SENTRY_PROJECT,
+          sourcemaps: {
+            filesToDeleteAfterUpload: ["./dist/**/*.js.map", "./dist/**/*.css.map"],
+          },
+        })
+      : []),
+  ])
 
   return {
-    plugins: [
-      react(),
-      tanstackDevtools(),
-      ...(sentryEnabled
-        ? [
-            sentryVitePlugin({
-              authToken: buildEnv.SENTRY_AUTH_TOKEN,
-              org: buildEnv.SENTRY_ORG,
-              project: buildEnv.SENTRY_PROJECT,
-              sourcemaps: {
-                filesToDeleteAfterUpload: ["./dist/**/*.js.map", "./dist/**/*.css.map"],
-              },
-            }),
-          ]
-        : []),
-    ],
+    plugins,
     css: {
       modules: {
         localsConvention: "dashes",

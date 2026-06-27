@@ -24,7 +24,7 @@
   "devDependencies": {
     "supabase": "2.107.0",
     "vite-plus": "catalog:",
-    "wrangler": "4.101.0"
+    "wrangler": "4.103.0"
   },
   "engines": {
     "node": "24.17.0"
