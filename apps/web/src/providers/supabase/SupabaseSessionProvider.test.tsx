@@ -13,7 +13,9 @@ import {
 import { useSupabaseSession } from "./useSupabaseSession"
 
 const mockGetSession = vi.fn()
+const mockGetUser = vi.fn()
 const mockOnAuthStateChange = vi.fn()
+const mockSignOut = vi.fn()
 const mockUnsubscribe = vi.fn()
 const { mockCaptureSupabaseSessionError, mockEnsureAuthenticatedUser } = vi.hoisted(() => ({
   mockCaptureSupabaseSessionError: vi.fn(),
@@ -28,7 +30,9 @@ vi.mock("../../lib/supabase", () => ({
   getSupabaseClient: () => ({
     auth: {
       getSession: mockGetSession,
+      getUser: mockGetUser,
       onAuthStateChange: mockOnAuthStateChange,
+      signOut: mockSignOut,
     },
   }),
 }))
@@ -100,11 +104,15 @@ function expectSession(
 describe("SupabaseSessionProvider", () => {
   beforeEach(() => {
     mockGetSession.mockReset()
+    mockGetUser.mockReset()
     mockOnAuthStateChange.mockClear()
+    mockSignOut.mockReset()
     mockUnsubscribe.mockClear()
     mockCaptureSupabaseSessionError.mockReset()
     mockEnsureAuthenticatedUser.mockReset()
     mockEnsureAuthenticatedUser.mockResolvedValue(undefined)
+    mockGetUser.mockResolvedValue({ data: { user: createSession().user }, error: null })
+    mockSignOut.mockResolvedValue({ error: null })
     mockOnAuthStateChange.mockImplementation(() => ({
       data: { subscription: { unsubscribe: mockUnsubscribe } },
     }))
@@ -134,6 +142,7 @@ describe("SupabaseSessionProvider", () => {
     await waitFor(() => {
       expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith()
     })
+    expect(mockGetUser).toHaveBeenCalledWith()
     expectSession(result, "loading", null)
 
     await act(async () => {
@@ -177,6 +186,41 @@ describe("SupabaseSessionProvider", () => {
       expectSession(result, "unauthenticated", null)
     })
 
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+    expect(mockSignOut).toHaveBeenCalledWith()
+  })
+
+  test("ユーザー作成失敗後のサインアウトに失敗した場合は未認証へ遷移しない", async () => {
+    const ensureError = new Error("failed to ensure user")
+    const signOutError = new Error("failed to sign out")
+    mockEnsureAuthenticatedUser.mockRejectedValueOnce(ensureError)
+    mockSignOut.mockResolvedValueOnce({ error: signOutError })
+    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+
+    const { result } = renderSessionHook()
+
+    await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalledWith()
+    })
+
+    expectSession(result, "loading", null)
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(ensureError)
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(signOutError)
+  })
+
+  test("保存済みsessionがAuth側で無効な場合はユーザー作成を実行せずサインアウトする", async () => {
+    const error = new Error("user not found")
+    mockGetUser.mockResolvedValueOnce({ data: { user: null }, error })
+    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+
+    const { result } = renderSessionHook()
+
+    await waitFor(() => {
+      expectSession(result, "unauthenticated", null)
+    })
+
+    expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
+    expect(mockSignOut).toHaveBeenCalledWith()
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
   })
 
@@ -269,6 +313,7 @@ describe("SupabaseSessionProvider", () => {
 
     expectSession(result, "authenticated", "old-user", "old-token")
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+    expect(mockSignOut).not.toHaveBeenCalled()
   })
 
   test("認証済み状態から新しいsessionのユーザー作成に失敗した場合は旧sessionを残さない", async () => {
@@ -303,6 +348,51 @@ describe("SupabaseSessionProvider", () => {
       expectSession(result, "unauthenticated", null)
     })
 
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+  })
+
+  test("古いsessionのユーザー作成失敗では新しいsessionをサインアウトしない", async () => {
+    const oldEnsureDeferred = createDeferred<void>()
+    const newEnsureDeferred = createDeferred<void>()
+    mockGetSession.mockResolvedValueOnce({ data: { session: null }, error: null })
+    mockEnsureAuthenticatedUser
+      .mockReturnValueOnce(oldEnsureDeferred.promise)
+      .mockReturnValueOnce(newEnsureDeferred.promise)
+    const emitAuthStateChange = captureAuthCallback()
+
+    const { result } = renderSessionHook()
+
+    act(() => {
+      emitAuthStateChange("SIGNED_IN", createSession("old-user"))
+    })
+
+    await waitFor(() => {
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(1)
+    })
+
+    act(() => {
+      emitAuthStateChange("SIGNED_IN", createSession("new-user"))
+    })
+
+    await waitFor(() => {
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(2)
+    })
+
+    const error = new Error("failed to ensure old user")
+    await act(async () => {
+      oldEnsureDeferred.reject(error)
+      await oldEnsureDeferred.promise.catch(() => undefined)
+    })
+
+    await act(async () => {
+      newEnsureDeferred.resolve()
+      await newEnsureDeferred.promise
+    })
+
+    await waitFor(() => {
+      expectSession(result, "authenticated", "new-user")
+    })
+    expect(mockSignOut).not.toHaveBeenCalled()
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
   })
 

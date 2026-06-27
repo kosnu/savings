@@ -55,11 +55,56 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
     }
 
-    const handleSession = async (session: Session | null, sessionGeneration: number) => {
-      const isLatestSessionGeneration = () => sessionGenerationRef.current === sessionGeneration
+    const isCurrentSessionHandler = (sessionGeneration: number) =>
+      isActive && sessionGenerationRef.current === sessionGeneration
 
-      if (!isActive) return
-      if (!isLatestSessionGeneration()) return
+    const verifyAuthenticatedSession = async () => {
+      const { error: getUserError } = await supabase.auth.getUser()
+      if (getUserError) {
+        throw getUserError
+      }
+
+      await ensureAuthenticatedUser()
+    }
+
+    const signOutCurrentSession = async (): Promise<boolean> => {
+      try {
+        const { error } = await supabase.auth.signOut()
+        if (error) {
+          captureSupabaseSessionError(error)
+          return false
+        }
+
+        return true
+      } catch (signOutError) {
+        captureSupabaseSessionError(signOutError)
+        return false
+      }
+    }
+
+    const handleSessionVerificationError = async (
+      error: unknown,
+      sessionGeneration: number,
+      shouldKeepCurrentSession: boolean,
+    ) => {
+      captureSupabaseSessionError(error)
+
+      // signOut は Supabase の現在 session に作用するため、古い handler では実行しない。
+      if (!isCurrentSessionHandler(sessionGeneration)) return
+      // 同じユーザーの更新失敗では、検証前の有効な session を維持する。
+      if (shouldKeepCurrentSession) return
+
+      const didSignOut = await signOutCurrentSession()
+      if (!didSignOut) return
+
+      // signOut の待機中に新しい session が来た場合、古い handler で画面状態を戻さない。
+      if (!isCurrentSessionHandler(sessionGeneration)) return
+
+      setSessionState(unauthenticatedSessionState)
+    }
+
+    const handleSession = async (session: Session | null, sessionGeneration: number) => {
+      if (!isCurrentSessionHandler(sessionGeneration)) return
 
       if (!session) {
         setSessionState(unauthenticatedSessionState)
@@ -74,18 +119,12 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
 
       try {
-        await ensureAuthenticatedUser()
-        if (!isActive) return
-        if (!isLatestSessionGeneration()) return
+        await verifyAuthenticatedSession()
+        if (!isCurrentSessionHandler(sessionGeneration)) return
 
         setSessionState(toAuthenticatedSessionState(session))
       } catch (error) {
-        captureSupabaseSessionError(error)
-        if (!isActive) return
-        if (!isLatestSessionGeneration()) return
-        if (shouldKeepCurrentSession) return
-
-        setSessionState(unauthenticatedSessionState)
+        await handleSessionVerificationError(error, sessionGeneration, shouldKeepCurrentSession)
       }
     }
 
