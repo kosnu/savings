@@ -67,11 +67,18 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       await ensureAuthenticatedUser()
     }
 
-    const signOutCurrentSession = async () => {
+    const signOutCurrentSession = async (): Promise<boolean> => {
       try {
-        await supabase.auth.signOut()
+        const { error } = await supabase.auth.signOut()
+        if (error) {
+          captureSupabaseSessionError(error)
+          return false
+        }
+
+        return true
       } catch (signOutError) {
         captureSupabaseSessionError(signOutError)
+        return false
       }
     }
 
@@ -87,7 +94,8 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       // 同じユーザーの更新失敗では、検証前の有効な session を維持する。
       if (shouldKeepCurrentSession) return
 
-      await signOutCurrentSession()
+      const didSignOut = await signOutCurrentSession()
+      if (!didSignOut) return
 
       // signOut の待機中に新しい session が来た場合、古い handler で画面状態を戻さない。
       if (!isCurrentSessionHandler(sessionGeneration)) return
