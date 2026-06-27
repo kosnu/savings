@@ -1,0 +1,7 @@
+interface:
+  display_name: "Harness Task"
+  short_description: "Run scoped work with repository harness checks"
+  default_prompt: "Use $harness-task to handle this scoped repository change with harness checks and affected verification."
+
+policy:
+  allow_implicit_invocation: true
