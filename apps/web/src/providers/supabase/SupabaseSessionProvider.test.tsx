@@ -112,6 +112,7 @@ describe("SupabaseSessionProvider", () => {
     mockEnsureAuthenticatedUser.mockReset()
     mockEnsureAuthenticatedUser.mockResolvedValue(undefined)
     mockGetUser.mockResolvedValue({ data: { user: createSession().user }, error: null })
+    mockSignOut.mockResolvedValue({ error: null })
     mockOnAuthStateChange.mockImplementation(() => ({
       data: { subscription: { unsubscribe: mockUnsubscribe } },
     }))
@@ -187,6 +188,24 @@ describe("SupabaseSessionProvider", () => {
 
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
     expect(mockSignOut).toHaveBeenCalledWith()
+  })
+
+  test("ユーザー作成失敗後のサインアウトに失敗した場合は未認証へ遷移しない", async () => {
+    const ensureError = new Error("failed to ensure user")
+    const signOutError = new Error("failed to sign out")
+    mockEnsureAuthenticatedUser.mockRejectedValueOnce(ensureError)
+    mockSignOut.mockResolvedValueOnce({ error: signOutError })
+    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+
+    const { result } = renderSessionHook()
+
+    await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalledWith()
+    })
+
+    expectSession(result, "loading", null)
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(ensureError)
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(signOutError)
   })
 
   test("保存済みsessionがAuth側で無効な場合はユーザー作成を実行せずサインアウトする", async () => {
