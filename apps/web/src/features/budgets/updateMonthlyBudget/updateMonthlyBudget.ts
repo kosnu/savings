@@ -13,3 +13,9 @@ export async function updateMonthlyBudget(value: MonthlyBudgetUpdateInput): Prom
     throw error
   }
 }
+
+export async function updateCurrentMonthlyBudget(amount: number): Promise<void> {
+  const currentMonth = new Date()
+
+  await updateMonthlyBudget({ targetMonth: currentMonth, currentMonth, amount })
+}

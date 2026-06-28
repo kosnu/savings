@@ -9,7 +9,7 @@ const { mockRemoveMonthlyBudget } = vi.hoisted(() => ({
 }))
 
 vi.mock("./removeMonthlyBudget", () => ({
-  removeMonthlyBudget: mockRemoveMonthlyBudget,
+  removeCurrentMonthlyBudget: mockRemoveMonthlyBudget,
 }))
 
 describe("useRemoveMonthlyBudget", () => {
@@ -29,16 +29,14 @@ describe("useRemoveMonthlyBudget", () => {
     })
 
     await act(async () => {
-      const promise = result.current.removeMonthlyBudget({ targetMonth: new Date(2026, 2, 1) })
+      const promise = result.current.removeMonthlyBudget()
 
       expect(promise).toBeInstanceOf(Promise)
       await promise
     })
 
-    expect(mockRemoveMonthlyBudget.mock.calls[0]?.[0]).toEqual({
-      targetMonth: new Date(2026, 2, 1),
-    })
     expect(mockRemoveMonthlyBudget).toHaveBeenCalledTimes(1)
+    expect(mockRemoveMonthlyBudget.mock.calls[0]?.[0]).toBeUndefined()
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: monthlyBudgetQueryKeys.listAll })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: monthlyBudgetQueryKeys.effectiveAll,
@@ -59,9 +57,7 @@ describe("useRemoveMonthlyBudget", () => {
     })
 
     await act(async () => {
-      await expect(
-        result.current.removeMonthlyBudget({ targetMonth: new Date(2026, 2, 1) }),
-      ).rejects.toEqual(error)
+      await expect(result.current.removeMonthlyBudget()).rejects.toEqual(error)
     })
 
     expect(invalidateQueries).not.toHaveBeenCalled()

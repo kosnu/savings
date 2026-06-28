@@ -27,20 +27,14 @@ export function LatestMonthlyBudget() {
         }
       >
         <Suspense fallback={<LatestMonthlyBudgetLoading />}>
-          <LatestMonthlyBudgetContent promise={promise} targetMonth={targetMonth} />
+          <LatestMonthlyBudgetContent promise={promise} />
         </Suspense>
       </ErrorBoundary>
     </Flex>
   )
 }
 
-function LatestMonthlyBudgetContent({
-  promise,
-  targetMonth,
-}: {
-  promise: Promise<MonthlyBudgetState>
-  targetMonth: Date
-}) {
+function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudgetState> }) {
   const monthlyBudgetState = use(promise)
 
   if (monthlyBudgetState.status !== "amount") {
@@ -55,12 +49,7 @@ function LatestMonthlyBudgetContent({
     )
   }
 
-  return (
-    <LatestMonthlyBudgetRow
-      monthlyBudget={monthlyBudgetState.monthlyBudget}
-      targetMonth={targetMonth}
-    />
-  )
+  return <LatestMonthlyBudgetRow monthlyBudget={monthlyBudgetState.monthlyBudget} />
 }
 
 function LatestMonthlyBudgetLoading() {
@@ -73,20 +62,13 @@ function LatestMonthlyBudgetLoading() {
   )
 }
 
-function LatestMonthlyBudgetRow({
-  monthlyBudget,
-  targetMonth,
-}: {
-  monthlyBudget: MonthlyBudget
-  targetMonth: Date
-}) {
+function LatestMonthlyBudgetRow({ monthlyBudget }: { monthlyBudget: MonthlyBudget }) {
   return (
     <Flex align="center" justify="between" gap="3">
       <Text>{toCurrency(monthlyBudget.amount)}</Text>
       <Flex gap="2">
         <UpdateMonthlyBudgetModal
           monthlyBudget={monthlyBudget}
-          targetMonth={targetMonth}
           trigger={
             <Button variant="soft">
               <Pencil1Icon /> Edit budget
@@ -94,7 +76,6 @@ function LatestMonthlyBudgetRow({
           }
         />
         <RemoveMonthlyBudgetModal
-          targetMonth={targetMonth}
           trigger={
             <Button color="red" variant="soft">
               <TrashIcon /> Remove budget

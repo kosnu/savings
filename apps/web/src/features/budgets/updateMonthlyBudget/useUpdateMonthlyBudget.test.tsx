@@ -9,7 +9,7 @@ const { mockUpdateMonthlyBudget } = vi.hoisted(() => ({
 }))
 
 vi.mock("./updateMonthlyBudget", () => ({
-  updateMonthlyBudget: mockUpdateMonthlyBudget,
+  updateCurrentMonthlyBudget: mockUpdateMonthlyBudget,
 }))
 
 describe("useUpdateMonthlyBudget", () => {
@@ -22,10 +22,6 @@ describe("useUpdateMonthlyBudget", () => {
     const invalidateQueries = vi
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
-    const input = {
-      targetMonth: new Date(2026, 2, 1),
-      amount: 300000,
-    }
     mockUpdateMonthlyBudget.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useUpdateMonthlyBudget(), {
@@ -33,14 +29,14 @@ describe("useUpdateMonthlyBudget", () => {
     })
 
     await act(async () => {
-      const promise = result.current.updateMonthlyBudget(input)
+      const promise = result.current.updateMonthlyBudget(300000)
 
       expect(promise).toBeInstanceOf(Promise)
       await promise
     })
 
     expect(mockUpdateMonthlyBudget).toHaveBeenCalledTimes(1)
-    expect(mockUpdateMonthlyBudget.mock.calls[0]?.[0]).toBe(input)
+    expect(mockUpdateMonthlyBudget.mock.calls[0]?.[0]).toBe(300000)
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: monthlyBudgetQueryKeys.listAll })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: monthlyBudgetQueryKeys.effectiveAll,
@@ -61,12 +57,7 @@ describe("useUpdateMonthlyBudget", () => {
     })
 
     await act(async () => {
-      await expect(
-        result.current.updateMonthlyBudget({
-          targetMonth: new Date(2026, 2, 1),
-          amount: 300000,
-        }),
-      ).rejects.toEqual(error)
+      await expect(result.current.updateMonthlyBudget(300000)).rejects.toEqual(error)
     })
 
     expect(invalidateQueries).not.toHaveBeenCalled()

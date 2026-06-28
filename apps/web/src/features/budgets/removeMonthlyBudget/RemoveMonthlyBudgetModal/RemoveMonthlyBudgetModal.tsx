@@ -10,12 +10,10 @@ import { useRemoveMonthlyBudget } from "../useRemoveMonthlyBudget"
 const REMOVE_MONTHLY_BUDGET_ERROR_MESSAGE = "Failed to remove monthly budget."
 
 interface RemoveMonthlyBudgetModalProps {
-  targetMonth: Date
   trigger?: ReactElement
 }
 
 export function RemoveMonthlyBudgetModal({
-  targetMonth,
   trigger = <Button color="red">Remove budget</Button>,
 }: RemoveMonthlyBudgetModalProps) {
   const { open, closeDialog, onOpenChange } = useDialog()
@@ -27,12 +25,12 @@ export function RemoveMonthlyBudgetModal({
 
     try {
       setSubmitErrorMessage(undefined)
-      await removeMonthlyBudget({ targetMonth })
+      await removeMonthlyBudget()
       closeDialog()
     } catch {
       setSubmitErrorMessage(REMOVE_MONTHLY_BUDGET_ERROR_MESSAGE)
     }
-  }, [closeDialog, isPending, removeMonthlyBudget, targetMonth])
+  }, [closeDialog, isPending, removeMonthlyBudget])
 
   const handleCancel = useCallback(() => {
     if (isPending) return

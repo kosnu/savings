@@ -51,10 +51,12 @@ const createMonthlyBudgetBodySchema = z.object({
 
 const updateMonthlyBudgetBodySchema = z.object({
   p_amount: z.number(),
+  p_current_month: z.string(),
   p_target_month: z.string(),
 })
 
 const removeMonthlyBudgetBodySchema = z.object({
+  p_current_month: z.string(),
   p_target_month: z.string(),
 })
 

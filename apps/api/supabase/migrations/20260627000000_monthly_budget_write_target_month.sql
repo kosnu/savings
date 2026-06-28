@@ -1,8 +1,11 @@
 drop function if exists public.update_current_monthly_budget(integer);
+drop function if exists public.update_current_monthly_budget(date, integer);
 drop function if exists public.remove_current_monthly_budget();
+drop function if exists public.remove_current_monthly_budget(date);
 
 create or replace function public.update_current_monthly_budget(
   p_target_month date,
+  p_current_month date,
   p_amount integer
 )
 returns void as $$
@@ -16,7 +19,7 @@ declare
 begin
   authenticated_default_book_id := get_authenticated_default_book_id();
   target_month_start := date_trunc('month', p_target_month)::date;
-  current_month_start := date_trunc('month', current_date)::date;
+  current_month_start := date_trunc('month', p_current_month)::date;
   target_year := extract(year from target_month_start)::integer;
   target_month := extract(month from target_month_start)::integer;
 
@@ -51,13 +54,14 @@ begin
 end;
 $$ language plpgsql security invoker set search_path = public;
 
-revoke all on function public.update_current_monthly_budget(date, integer) from public;
-revoke all on function public.update_current_monthly_budget(date, integer) from anon;
-grant execute on function public.update_current_monthly_budget(date, integer) to authenticated;
-grant execute on function public.update_current_monthly_budget(date, integer) to service_role;
+revoke all on function public.update_current_monthly_budget(date, date, integer) from public;
+revoke all on function public.update_current_monthly_budget(date, date, integer) from anon;
+grant execute on function public.update_current_monthly_budget(date, date, integer) to authenticated;
+grant execute on function public.update_current_monthly_budget(date, date, integer) to service_role;
 
 create or replace function public.remove_current_monthly_budget(
-  p_target_month date
+  p_target_month date,
+  p_current_month date
 )
 returns void as $$
 declare
@@ -70,7 +74,7 @@ declare
 begin
   authenticated_default_book_id := get_authenticated_default_book_id();
   target_month_start := date_trunc('month', p_target_month)::date;
-  current_month_start := date_trunc('month', current_date)::date;
+  current_month_start := date_trunc('month', p_current_month)::date;
   target_year := extract(year from target_month_start)::integer;
   target_month := extract(month from target_month_start)::integer;
 
@@ -106,7 +110,7 @@ begin
 end;
 $$ language plpgsql security invoker set search_path = public;
 
-revoke all on function public.remove_current_monthly_budget(date) from public;
-revoke all on function public.remove_current_monthly_budget(date) from anon;
-grant execute on function public.remove_current_monthly_budget(date) to authenticated;
-grant execute on function public.remove_current_monthly_budget(date) to service_role;
+revoke all on function public.remove_current_monthly_budget(date, date) from public;
+revoke all on function public.remove_current_monthly_budget(date, date) from anon;
+grant execute on function public.remove_current_monthly_budget(date, date) to authenticated;
+grant execute on function public.remove_current_monthly_budget(date, date) to service_role;
