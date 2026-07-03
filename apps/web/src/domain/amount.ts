@@ -2,6 +2,8 @@ import * as z from "zod"
 
 const DECIMAL_NUMBER_PATTERN = /^-?\d+(?:\.\d+)?$/
 
+export const amountNotSetDisplayLabel = "Not set"
+
 const amountInputSchema = z.union([z.string(), z.number(), z.undefined()])
 
 const amountNumberSchema = z
