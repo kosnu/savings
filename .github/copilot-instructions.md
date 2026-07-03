@@ -1,9 +1,11 @@
 # Copilot Instructions for Savings Repository
 
-## Language
+## Repository Instructions
 
-Respond and comment in **Japanese**.
+- Respond and comment in **Japanese**.
+- Follow `AGENTS.md`.
+- Use `docs/harness/rule-map.json` as the index for task-specific repository documents.
 
-## General Rules
+## Path-Specific Instructions
 
 - Path-specific rules in `.github/instructions/*.instructions.md` take priority.
