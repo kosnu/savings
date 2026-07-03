@@ -55,6 +55,8 @@ schema、parser、formatter、form value 変換は、その概念の値ルール
 
 feature 固有のルールは `features/<feature>` に残します。
 
+UI表示用の文言、fallback label、empty state label、状態ラベル、画面上の状態表現は `domain` に置きません。
+
 現在の `categoryName` は categories feature に閉じたルールとして扱います。
 `payment note` も payments feature に閉じたルールとして扱います。
 

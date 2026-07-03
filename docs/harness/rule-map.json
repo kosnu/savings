@@ -317,7 +317,7 @@
         "activities": ["add_domain_rule", "move_value_rule", "review_frontend_domain_boundary"],
         "topics": ["domain-layer", "frontend-architecture", "project-structure"]
       },
-      "depends_on": [],
+      "depends_on": ["web.domain-ui-rules"],
       "overrides": [],
       "priority": 86
     },
