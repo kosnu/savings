@@ -14,4 +14,14 @@ describe("Snackbar", () => {
 
     expect(await screen.findByText("This is a message")).toBeInTheDocument()
   })
+
+  test("info snackbar は中立色を使う", async () => {
+    const { user } = render(<Default duration={60_000} />)
+
+    await user.click(screen.getByRole("button", { name: "Open snackbar" }))
+
+    const message = await screen.findByText("This is a message")
+
+    expect(message.closest("[data-accent-color]")).toHaveAttribute("data-accent-color", "gray")
+  })
 })
