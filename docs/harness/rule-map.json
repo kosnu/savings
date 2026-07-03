@@ -318,6 +318,7 @@
         "topics": ["domain-layer", "frontend-architecture", "project-structure"]
       },
       "depends_on": [],
+      "related": ["web.domain-ui-rules"],
       "overrides": [],
       "priority": 86
     },

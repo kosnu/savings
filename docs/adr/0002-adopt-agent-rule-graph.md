@@ -56,3 +56,20 @@ AI agent にすべてのドキュメントを毎回読ませると、context を
 - `priority` だけで仕様判断を隠さない。解決できない競合は人間に確認する。
 - provenance は補助情報であり、正本 Markdown と矛盾する場合は Markdown を優先して修正する。
 - 機械的に検出できる不変条件は、Markdown だけに置かず lint、CI、tests、scripts へ昇格する。
+
+## Clarification: Related rule references (2026-07-04)
+
+`depends_on` は、選ばれたノードを読む前提として追加で読むべき prerequisite edge として扱う。
+一方で、前提ではないが境界判断やレビュー時に併読するとよい文書がある場合は、`related` edge を使える。
+
+`related` は prerequisite ではなく、selected subgraph を必ず拡張する強制 edge でもない。
+agent は、変更内容、レビュー観点、見落としや誤検知のリスクに応じて `related` の参照先を併読候補として扱う。
+
+`related` は、`depends_on` を過剰に使って前提関係や読書順を歪めることを避けるための補助参照である。
+必要なノードにだけ任意フィールドとして追加し、全ノードへ機械的に付与しない。
+
+policy / domain docs は、見落としや誤検知が起きた場合、本文に次を必要最小限で補う。
+
+- 検知すべき違反
+- 違反扱いしない例外
+- 判断に迷う場合に併読すべき文書
