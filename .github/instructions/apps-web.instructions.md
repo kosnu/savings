@@ -4,18 +4,7 @@ applyTo: "apps/web/**"
 
 # Copilot Instructions for Web Frontend (apps/web/)
 
-## Rules
+## Repository Instructions
 
-- Before Web verification for application code changes, run `pnpm run web:format` from the repository root.
-- Then run Web verification from the repository root with `pnpm run web:lint`, `pnpm run web:format-check`, `pnpm run web:typecheck`, and `pnpm run web:test:unit-integration`.
-- Run `pnpm run web:test:storybook` only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
-- Use `pnpm install` from the repository root for installing/updating dependencies.
-- Add new components manually, following `apps/web/docs/policies/component-structure.md`.
-
-## References
-
-- `apps/web/README.md`
-- `apps/web/docs/adr/feature_directory.md`
-- `apps/web/docs/policies/msw-handlers.md`
-- `apps/web/docs/policies/suspense-boundaries.md`
-- `apps/web/docs/policies/test-policy.md`
+- Follow `AGENTS.md`.
+- Use `docs/harness/rule-map.json` as the index for Web-specific documents and verification rules.
