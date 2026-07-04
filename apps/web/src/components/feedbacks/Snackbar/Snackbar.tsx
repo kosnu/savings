@@ -3,23 +3,32 @@ import * as Toast from "@radix-ui/react-toast"
 import { IconButton } from "@radix-ui/themes"
 import { type ReactNode, useCallback, useEffect, useRef } from "react"
 
+import { useTheme } from "../../../providers/theme/ThemeProvider"
+import type { TTheme } from "../../../providers/theme/types"
+
 import styles from "./Snackbar.module.css"
 
 type SnackbarType = "info" | "success" | "warning" | "error"
 
+type SnackbarAccentColor = "gray" | "green" | "yellow" | "red"
+
+const infoAccentColorByTheme = {
+  light: "gray",
+  dark: "gray",
+} satisfies Record<TTheme, SnackbarAccentColor>
+
 const accentColorMap = {
-  info: {
-    color: "white",
-  },
-  success: {
-    color: "green",
-  },
-  warning: {
-    color: "yellow",
-  },
-  error: {
-    color: "red",
-  },
+  success: "green",
+  warning: "yellow",
+  error: "red",
+} satisfies Record<Exclude<SnackbarType, "info">, SnackbarAccentColor>
+
+function getAccentColor(type: SnackbarType, theme: TTheme): SnackbarAccentColor {
+  if (type === "info") {
+    return infoAccentColorByTheme[theme]
+  }
+
+  return accentColorMap[type]
 }
 
 type SnackbarProps = {
@@ -38,6 +47,7 @@ export function Snackbar({
   onClose,
 }: SnackbarProps) {
   const timerRef = useRef(0)
+  const { theme } = useTheme()
 
   const handleToastAction = useCallback(() => {
     window.clearTimeout(timerRef.current)
@@ -56,7 +66,7 @@ export function Snackbar({
     <Toast.Provider swipeDirection="right">
       <Toast.Root
         className={styles.toastRoot}
-        data-accent-color={accentColorMap[type].color}
+        data-accent-color={getAccentColor(type, theme)}
         open={open}
       >
         <Toast.Description className={styles.toastDescription}>{message}</Toast.Description>

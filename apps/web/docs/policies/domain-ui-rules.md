@@ -25,6 +25,9 @@ when_to_read:
 
 この文書は、ドメイン固有のUI判断で守るべき意味のルールです。
 
+ブランドイメージと視覚トーンはリポジトリルートの `DESIGN.md` を上位文脈
+として参照します。
+
 UIの土台、文字階層、余白、variant、フォーム、overlay、responsiveは [Web Design Rules](./design-rules.md) に従います。この文書は、画面にどの情報を持たせるか、どの項目をどの順番で表示するか、どのコンポーネントで実装するかを固定しません。
 複数 feature で共有する schema、parser、formatter、form value 変換などのコード配置は [Domain Layer Rules](./domain-layer-rules.md) に従います。この文書では、`apps/web/src/domain` へ何を置くかは扱いません。
 

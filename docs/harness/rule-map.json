@@ -296,6 +296,20 @@
       "priority": 90
     },
     {
+      "id": "web.design-system-brand",
+      "file": "DESIGN.md",
+      "applies_to": {
+        "paths": ["DESIGN.md", "apps/web/src/**", "apps/web/docs/**"],
+        "domains": ["web", "ui"],
+        "activities": ["change_ui", "design_screen", "change_form", "change_dialog", "change_responsive_layout"],
+        "topics": ["design-system", "brand", "visual-identity", "product-tone", "ui"]
+      },
+      "depends_on": [],
+      "related": ["web.design-rules", "web.domain-ui-rules"],
+      "overrides": [],
+      "priority": 89
+    },
+    {
       "id": "web.design-rules",
       "file": "apps/web/docs/policies/design-rules.md",
       "applies_to": {
@@ -305,6 +319,7 @@
         "topics": ["design-system", "ui", "typography", "layout", "responsive", "tables"]
       },
       "depends_on": [],
+      "related": ["web.design-system-brand"],
       "overrides": [],
       "priority": 88
     },
@@ -331,7 +346,7 @@
         "activities": ["change_domain_ui", "change_payment_ui", "change_category_ui", "change_budget_ui"],
         "topics": ["domain-ui", "payments", "categories", "budgets", "date", "amount", "difference"]
       },
-      "depends_on": ["web.design-rules", "domain.amount", "domain.date"],
+      "depends_on": ["web.design-system-brand", "web.design-rules", "domain.amount", "domain.date"],
       "overrides": [],
       "priority": 87
     },
