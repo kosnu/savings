@@ -156,7 +156,7 @@ function CategoryBudgetDifference({ total }: { total: CategoryTotalsData[number]
   const color = getBudgetDifferenceColor(total)
 
   return (
-    <Text align="right" className={styles.difference} size="1" color={color}>
+    <Text align="right" className={styles.difference} color={color} size="1">
       {text}
     </Text>
   )
@@ -188,9 +188,15 @@ function formatBudgetDifference(total: CategoryTotalsData[number]): string {
   return "On budget"
 }
 
-function getBudgetDifferenceColor(total: CategoryTotalsData[number]): "gray" | "green" | "red" {
-  if (total.budgetDifference === null) {
+function getBudgetDifferenceColor(
+  total: CategoryTotalsData[number],
+): "gray" | "green" | "yellow" | "red" {
+  if (total.budgetStatus === "none" || total.budgetStatus === "unset") {
     return "gray"
+  }
+
+  if (total.budgetDifference === null) {
+    return "red"
   }
 
   if (total.budgetDifference > 0) {
@@ -198,7 +204,7 @@ function getBudgetDifferenceColor(total: CategoryTotalsData[number]): "gray" | "
   }
 
   if (total.budgetDifference < 0) {
-    return "red"
+    return "yellow"
   }
 
   return "gray"

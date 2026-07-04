@@ -47,7 +47,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
               </Text>
             </Button>
           </Link>
-          <IconButton variant="ghost" onClick={onClose}>
+          <IconButton aria-label="Close sidebar" variant="ghost" onClick={onClose}>
             <Cross1Icon />
           </IconButton>
         </Flex>
