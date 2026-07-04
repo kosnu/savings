@@ -34,7 +34,7 @@ when_to_read:
 
 - Rule map: `docs/harness/rule-map.json`
 - Classification:
-  - path: `docs/ai-driven-development/workspaces/1480-uncategorized-payments/design.md`, `apps/web/src/features/payments/**`, `apps/web/src/features/summaryByMonth/**`
+  - path: `docs/ai-driven-development/workspaces/1480-uncategorized-payments/design-doc.md`, `apps/web/src/features/payments/**`, `apps/web/src/features/summaryByMonth/**`
   - domain: `payment`, `category`, `web-ui`
   - activity: `write_design_doc`, `change_payment_ui`, `change_category_ui`, `change_test`
   - topic: `design-doc`, `payment`, `category`, `domain-ui`, `summary`

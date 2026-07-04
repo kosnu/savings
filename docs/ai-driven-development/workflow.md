@@ -35,6 +35,8 @@ Shipは、Build / Verify済みの成果をPR、説明、レビュー返信がで
 
 LearnはGoalではなくskillです。Build / Verify完了後の成果物レビュー、レビューコメント、検証結果、運用知見、ルール・ポリシー変更を、次回のRequirements入力、ルール、ポリシー、監督制約へ整理します。次回のサイクルを回す場合は、前回の続きとして途中工程から再開せず、`$learn` で入力を整理してから、必ずIntent / Requirements Goalから始めます。
 
+`requirements.md` と `design-doc.md` は、各工程で生成された時点の成果物として扱います。後続工程では read-only の入力として参照し、追記、修正、整形、リネームをしてはいけません。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、既存成果物を直さず、Stop条件として扱い、`$learn` で次回Requirements入力へ整理してから新しいサイクルを始めます。
+
 このフローはHuman on the loopを前提にします。AIはStop条件に当たらない限り次工程へ進み、人間は各工程の逐次承認ではなく、リスク監督、例外処理、最終的な公開可否を担います。
 
 起点になるIssueは、Requirements / PRDの入力です。Issueには意図、境界、成功条件、Stop条件を書き、実装方針や作業手順はDesign / Plan Goalへ寄せます。詳細は [issue-guidelines.md](./issue-guidelines.md) を参照します。
@@ -98,7 +100,7 @@ Context Packetには次だけを含めます。
 
 どう作るかを定義します。
 
-最新のRequirements / PRDをもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。ここでもまだ実装しません。
+最新のRequirements / PRDをもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。ここでもまだ実装しません。入力の `requirements.md` は read-only とし、Design / Plan の都合で追記、修正、整形、リネームしてはいけません。
 
 主な成果物:
 
@@ -123,7 +125,7 @@ Context Packetには次だけを含めます。
 
 ## 3. Build / Verify Goal
 
-最新のDesign Docに従って実装し、検証まで完了します。
+最新のDesign Docに従って実装し、検証まで完了します。入力の `requirements.md` と `design-doc.md` は read-only とし、Build / Verify の都合で追記、修正、整形、リネームしてはいけません。
 
 この段階では、AIに既存パターンに沿った実装判断、必要なテスト追加、小さな型修正や呼び出し側調整を任せます。一方で、新規依存、DB変更、API仕様変更、破壊的git操作が必要になった場合はStop条件としてエスカレーションします。
 
