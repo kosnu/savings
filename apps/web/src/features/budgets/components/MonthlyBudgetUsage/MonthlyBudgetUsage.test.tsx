@@ -34,7 +34,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<Over />)
 
-    expect(await screen.findByText("￥15,000 over")).toBeInTheDocument()
+    expect(await screen.findByText("￥15,000 over")).toHaveAttribute("data-accent-color", "yellow")
   })
 
   test("月予算がない場合は利用状況を表示しない", async () => {
@@ -83,7 +83,10 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<FetchError />)
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Failed")
+    const failedStatus = await screen.findByRole("status")
+
+    expect(failedStatus).toHaveTextContent("Failed")
+    expect(failedStatus).toHaveAttribute("data-accent-color", "red")
   })
 
   test("読み込み中はスケルトンを表示する", async () => {

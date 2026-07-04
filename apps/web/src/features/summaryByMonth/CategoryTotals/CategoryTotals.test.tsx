@@ -31,8 +31,8 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("￥4,000")).toBeInTheDocument()
     expect(await screen.findAllByText("￥0")).toHaveLength(1)
     expect(await screen.findByText("￥29,000 left")).toBeInTheDocument()
-    expect(await screen.findByText("On budget")).toBeInTheDocument()
-    expect(await screen.findByText("Not set")).toBeInTheDocument()
+    expect(await screen.findByText("On budget")).toHaveAttribute("data-accent-color", "gray")
+    expect(await screen.findByText("Not set")).toHaveAttribute("data-accent-color", "gray")
 
     await user.click(screen.getByRole("button", { name: "Show more category totals" }))
 
@@ -120,9 +120,9 @@ describe("CategoryTotals", () => {
     )
     renderStory()
 
-    expect(await screen.findByText("￥1,000 over")).toBeInTheDocument()
+    expect(await screen.findByText("￥1,000 over")).toHaveAttribute("data-accent-color", "yellow")
     expect(screen.queryByText("￥4,000 left")).not.toBeInTheDocument()
-    expect(await screen.findByText("No budget")).toBeInTheDocument()
+    expect(await screen.findByText("No budget")).toHaveAttribute("data-accent-color", "gray")
   })
 
   test("カテゴリ名、合計額、予算差額を同じ行内の別セルに置く", async () => {
