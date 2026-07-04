@@ -132,13 +132,13 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    await expect(await canvas.findByText("On budget")).toBeInTheDocument()
-    await expect(await canvas.findByText("￥2,000 left")).toBeInTheDocument()
-    await expect(await canvas.findByText("￥500 over")).toBeInTheDocument()
+    expect(await canvas.findByText("On budget")).toBeInTheDocument()
+    expect(await canvas.findByText("￥2,000 left")).toBeInTheDocument()
+    expect(await canvas.findByText("￥500 over")).toBeInTheDocument()
 
     await userEvent.click(await canvas.findByRole("button", { name: "Show more category totals" }))
 
-    await expect(await canvas.findByText("Not set")).toBeInTheDocument()
-    await expect(await canvas.findByText("No budget")).toBeInTheDocument()
+    expect(await canvas.findByText("Not set")).toBeInTheDocument()
+    expect(await canvas.findByText("No budget")).toBeInTheDocument()
   },
 }
