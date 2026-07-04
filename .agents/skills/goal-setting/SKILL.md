@@ -54,7 +54,7 @@ Use the smallest useful discovery set for the requested phase:
 
 - Current branch: `git branch --show-current`
 - Local state: `git status --short`
-- Existing workspace artifacts: `docs/ai-driven-development/workspaces/**/requirements.md` and `design.md`
+- Existing workspace artifacts: `docs/ai-driven-development/workspaces/**/requirements.md` and `design-doc.md`
 - Current PR when needed: `gh pr view --json number,title,url,baseRefName,headRefName,state,isDraft,body`
 - Issue input when provided: `gh issue view <number or URL>`
 - Review comments when requested or when generating Ship Goals: thread-aware GitHub review data
@@ -85,6 +85,14 @@ Forbidden inputs for the next Requirements or Design Goal:
 - Assumptions derived from how the previous implementation happened to work.
 
 Build / Verify may later change existing code, but the Goal must be driven by the newly produced Requirements and Design, not by patching the previous implementation directly.
+
+## Generated Artifact Rules
+
+`requirements.md` and `design-doc.md` are generated artifacts for their creation phase. After a phase creates one of these files, later Goals must treat it as read-only input.
+
+Do not configure later Goals to append to, edit, reformat, rename, or otherwise modify existing generated `requirements.md` or `design-doc.md` files.
+
+If later work reveals a missing requirement, design mistake, contradiction, review finding, verification finding, operational finding, policy change, or rule change that would require changing an existing generated artifact, add a Stop condition instead. Use `$learn` to prepare the next Requirements input and start a new cycle from Intent / Requirements.
 
 ## Phase Rules
 
@@ -122,9 +130,10 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 ### Design / Plan
 
 - Use the latest Requirements / PRD as the source of truth.
+- Treat the input `requirements.md` as read-only. Do not let the Design / Plan Goal update, append to, reformat, or rename it.
 - Do not implement.
 - Require the Design / Plan to preserve the Requirements / PRD intent, constraints, out-of-scope items, and acceptance criteria without adding product scope.
-- Include output path for `design.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
+- Include output path for `design-doc.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
 - If domain values appear in UI, require `Domain Value UI Decisions` to map each value purpose to the primary thing shown: value, judgment result, state, breakdown, or identity.
 - Require Design / Plan to decide whether comparison sources, baselines, allowed ranges, categories, or periods should be shown as main information or supporting context.
 - Use the rule-map selected Web UI policies for typography, lists, spacing, button variants, forms, overlays, responsive behavior, and domain UI decisions.
@@ -137,6 +146,7 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 ### Build / Verify
 
 - Use the latest Requirements / PRD and Design Doc as constraints.
+- Treat `requirements.md` and `design-doc.md` as read-only inputs. Do not let Build / Verify update, append to, reformat, or rename them.
 - Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
 - Require test failures, type errors, lint failures, implementation consistency issues, and related call-site adjustments found during Build / Verify to be completed inside Build / Verify.
 - Include verification only for affected runtime, build, type, or DB behavior. For Web app changes, prefer the compact form `AGENTS.md の Web verification batch` instead of copying the full command list. Mention Storybook verification only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
@@ -149,6 +159,7 @@ Build / Verify may later change existing code, but the Goal must be driven by th
 ### Ship
 
 - Use the current implementation branch, PRD, Design Doc, verification results, related Issue, and related PR.
+- Treat `requirements.md` and `design-doc.md` as read-only inputs. Do not let Ship update, append to, reformat, or rename them.
 - Include PR body update, residual risk, review replies, and thread resolve decisions.
 - Include review thread replies and resolving only fully completed threads when Ship-scope review comments were handled.
 - Do not create next-cycle inputs, knowledge decisions, or Requirements changes in Ship.
