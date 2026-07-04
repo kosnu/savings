@@ -72,7 +72,7 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
         aria-hidden={loading}
         color={getTextColor(error, status)}
         role={error ? "status" : undefined}
-        size="2"
+        size="1"
         style={{ display: "inline-block", minHeight: "20px", minWidth: "12ch" }}
       >
         {content}
@@ -81,9 +81,12 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
   )
 })
 
-function getTextColor(error: boolean, status?: MonthlyBudgetUsageStatus): "green" | "red" | "gray" {
+function getTextColor(
+  error: boolean,
+  status?: MonthlyBudgetUsageStatus,
+): "green" | "yellow" | "red" | "gray" {
   if (error) {
-    return "gray"
+    return "red"
   }
 
   if (status === "remaining") {
@@ -91,7 +94,7 @@ function getTextColor(error: boolean, status?: MonthlyBudgetUsageStatus): "green
   }
 
   if (status === "over") {
-    return "red"
+    return "yellow"
   }
 
   return "gray"
