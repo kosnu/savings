@@ -26,6 +26,22 @@ function renderMonthSelector(initialEntry: string) {
   })
 }
 
+function expectPaymentsSearch(
+  search: unknown,
+  expected: { category?: string; month: string; year: string },
+) {
+  const { year, month, category } = search as {
+    category?: string
+    month?: string
+    year?: string
+  }
+  expect(year).toBe(expected.year)
+  expect(month).toBe(expected.month)
+  if (expected.category) {
+    expect(category).toBe(expected.category)
+  }
+}
+
 describe("MonthSelector", () => {
   test("クエリパラメータがある場合、その年月が表示される", async () => {
     renderMonthSelector("/payments?year=2025&month=5")
@@ -71,14 +87,77 @@ describe("MonthSelector", () => {
     await user.click(juneOption)
 
     await waitFor(() => {
-      const { year, month, category } = router.state.location.search as {
-        year?: string
-        month?: string
-        category?: string
-      }
-      expect(year).toBe("2025")
-      expect(month).toBe("6")
-      expect(category).toBe("10")
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2025",
+        month: "6",
+        category: "10",
+      })
+    })
+  })
+
+  test("前月を選択すると、クエリパラメータが1か月前に更新される", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
+
+    await user.click(await screen.findByRole("button", { name: "Previous month" }))
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2025",
+        month: "4",
+      })
+    })
+  })
+
+  test("1月から前月を選択すると、前年12月に更新される", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2026&month=1")
+
+    await user.click(await screen.findByRole("button", { name: "Previous month" }))
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2025",
+        month: "12",
+      })
+    })
+  })
+
+  test("翌月を選択すると、クエリパラメータが1か月後に更新される", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
+
+    await user.click(await screen.findByRole("button", { name: "Next month" }))
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2025",
+        month: "6",
+      })
+    })
+  })
+
+  test("12月から翌月を選択すると、翌年1月に更新される", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=12")
+
+    await user.click(await screen.findByRole("button", { name: "Next month" }))
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2026",
+        month: "1",
+      })
+    })
+  })
+
+  test("前月を選択してもカテゴリ条件を保持する", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=5&category=10")
+
+    await user.click(await screen.findByRole("button", { name: "Previous month" }))
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2025",
+        month: "4",
+        category: "10",
+      })
     })
   })
 })
