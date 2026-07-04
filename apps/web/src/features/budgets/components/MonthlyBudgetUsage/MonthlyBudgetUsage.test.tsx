@@ -10,6 +10,10 @@ import * as stories from "./MonthlyBudgetUsage.stories"
 const { FetchError, Loading, NoBudget, Over, Remaining } = composeStories(stories)
 const monthlyBudget = { ...monthlyBudgets[2], amount: 30000 }
 
+function expectAccentColor(element: Element, color: string) {
+  expect(element.closest("[data-accent-color]")).toHaveAttribute("data-accent-color", color)
+}
+
 describe("MonthlyBudgetUsage", () => {
   afterEach(() => {
     vi.restoreAllMocks()
@@ -34,7 +38,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<Over />)
 
-    expect(await screen.findByText("￥15,000 over")).toHaveAttribute("data-accent-color", "yellow")
+    expectAccentColor(await screen.findByText("￥15,000 over"), "yellow")
   })
 
   test("月予算がない場合は利用状況を表示しない", async () => {
@@ -86,7 +90,7 @@ describe("MonthlyBudgetUsage", () => {
     const failedStatus = await screen.findByRole("status")
 
     expect(failedStatus).toHaveTextContent("Failed")
-    expect(failedStatus).toHaveAttribute("data-accent-color", "red")
+    expectAccentColor(failedStatus, "red")
   })
 
   test("読み込み中はスケルトンを表示する", async () => {
