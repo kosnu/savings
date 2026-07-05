@@ -37,9 +37,7 @@ function expectPaymentsSearch(
   }
   expect(year).toBe(expected.year)
   expect(month).toBe(expected.month)
-  if (expected.category) {
-    expect(category).toBe(expected.category)
-  }
+  expect(category).toBe(expected.category)
 }
 
 describe("MonthSelector", () => {
@@ -108,6 +106,23 @@ describe("MonthSelector", () => {
     })
   })
 
+  test("下限月では前月を選択できず、クエリパラメータを更新しない", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2022&month=1")
+
+    const previousMonthButton = await screen.findByRole("button", { name: "Previous month" })
+
+    expect(previousMonthButton).toBeDisabled()
+
+    await user.click(previousMonthButton)
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2022",
+        month: "1",
+      })
+    })
+  })
+
   test("1月から前月を選択すると、前年12月に更新される", async () => {
     const { router, user } = renderMonthSelector("/payments?year=2026&month=1")
 
@@ -130,6 +145,23 @@ describe("MonthSelector", () => {
       expectPaymentsSearch(router.state.location.search, {
         year: "2025",
         month: "6",
+      })
+    })
+  })
+
+  test("上限月では翌月を選択できず、クエリパラメータを更新しない", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2032&month=12")
+
+    const nextMonthButton = await screen.findByRole("button", { name: "Next month" })
+
+    expect(nextMonthButton).toBeDisabled()
+
+    await user.click(nextMonthButton)
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2032",
+        month: "12",
       })
     })
   })
@@ -157,6 +189,20 @@ describe("MonthSelector", () => {
         year: "2025",
         month: "4",
         category: "10",
+      })
+    })
+  })
+
+  test("翌月を選択してもカテゴリなし条件を保持する", async () => {
+    const { router, user } = renderMonthSelector("/payments?year=2025&month=5&category=none")
+
+    await user.click(await screen.findByRole("button", { name: "Next month" }))
+
+    await waitFor(() => {
+      expectPaymentsSearch(router.state.location.search, {
+        year: "2025",
+        month: "6",
+        category: "none",
       })
     })
   })
