@@ -5,6 +5,22 @@ import { useCallback, useMemo } from "react"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
 
+const MIN_MONTH_INDEX = toMonthIndex(2022, 1)
+const MAX_MONTH_INDEX = toMonthIndex(2032, 12)
+
+function toMonthIndex(year: number, month: number) {
+  return year * 12 + month - 1
+}
+
+function getMonthIndex(date: Date) {
+  return toMonthIndex(date.getFullYear(), date.getMonth() + 1)
+}
+
+function isAllowedMonth(date: Date) {
+  const monthIndex = getMonthIndex(date)
+  return MIN_MONTH_INDEX <= monthIndex && monthIndex <= MAX_MONTH_INDEX
+}
+
 export function MonthSelector() {
   const yearParam = useLocation({
     select: (location) => location.search.year,
@@ -22,10 +38,13 @@ export function MonthSelector() {
         : null,
     [monthParam, yearParam],
   )
+  const currentMonthIndex = currentDate ? getMonthIndex(currentDate) : null
+  const isPreviousMonthDisabled = currentMonthIndex !== null && currentMonthIndex <= MIN_MONTH_INDEX
+  const isNextMonthDisabled = currentMonthIndex !== null && currentMonthIndex >= MAX_MONTH_INDEX
 
   const handleMonthChange = useCallback(
     (date: Date | undefined) => {
-      if (date) {
+      if (date && isAllowedMonth(date)) {
         const year = date.getFullYear().toString()
         const month = (date.getMonth() + 1).toString()
         void navigate({
@@ -54,6 +73,7 @@ export function MonthSelector() {
         size="2"
         type="button"
         variant="ghost"
+        disabled={isPreviousMonthDisabled}
         onClick={handlePreviousMonthClick}
       >
         <ChevronLeftIcon />
@@ -64,6 +84,7 @@ export function MonthSelector() {
         size="2"
         type="button"
         variant="ghost"
+        disabled={isNextMonthDisabled}
         onClick={handleNextMonthClick}
       >
         <ChevronRightIcon />
