@@ -28,3 +28,5 @@ when_to_read:
 - Book-owned dataの作成時に所有先Bookが未指定の場合、認証ユーザーのdefault bookを使う。
 - Book-owned dataは、対象Bookのmemberだけが参照・作成・更新・削除できる。
 - Book-owned dataの所有先Bookは更新時に維持される。
+- 同じテーブルでBook ownership補完・維持triggerと、`new.book_id` に依存する検証triggerを併用する場合、検証triggerは補完・維持triggerより後に実行される名前にする。
+- trigger実行順に依存する場合は、自然な動詞順に頼らず `trg_10_...`、`trg_20_...` のような番号付き命名で順序を固定する。
