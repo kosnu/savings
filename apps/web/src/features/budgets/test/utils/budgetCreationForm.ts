@@ -32,7 +32,7 @@ export async function selectBudgetMonth({
   await user.click(await optionScope.findByRole("option", { name: year }))
 
   await user.click(fieldScope.getByRole("combobox", { name: "Month" }))
-  await user.click(await optionScope.findByRole("option", { name: month }))
+  await user.click(await optionScope.findByRole("option", { name: getMonthOptionName(month) }))
 }
 
 export async function typeBudgetAmount({
@@ -53,4 +53,10 @@ export async function fillCreateMonthlyBudgetForm({
 }: FillCreateMonthlyBudgetFormOptions) {
   await selectBudgetMonth({ user, year, month, fieldScope, optionScope })
   await typeBudgetAmount({ user, amount, fieldScope })
+}
+
+function getMonthOptionName(month: string): string {
+  return new Intl.DateTimeFormat("en-US", { month: "long" }).format(
+    new Date(2025, Number(month) - 1, 1),
+  )
 }

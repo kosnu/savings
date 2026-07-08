@@ -1,6 +1,7 @@
 import { TrashIcon } from "@radix-ui/react-icons"
 import { Button, Dialog, Flex, Text } from "@radix-ui/themes"
 import { useCallback, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
@@ -20,12 +21,15 @@ export function DeleteCategoryModal({ category, trigger }: DeleteCategoryModalPr
   const { open, closeDialog, onOpenChange } = useDialog()
   const { openSnackbar } = useSnackbar()
   const { deleteCategory, isPending } = useDeleteCategory()
-  const categoryName = category?.name ?? "Category not found."
-  const triggerAriaLabel = category ? `Delete ${category.name} category` : "Delete category"
+  const { t } = useTranslation()
+  const categoryName = category?.name ?? t("categories.notFound")
+  const triggerAriaLabel = category
+    ? t("categories.deleteAria", { name: category.name })
+    : t("categories.deleteAriaFallback")
   const resolvedTrigger = trigger ?? (
     <Button aria-label={triggerAriaLabel} color="red" size="1" variant="ghost">
       <TrashIcon aria-hidden />
-      Delete
+      {t("categories.delete")}
     </Button>
   )
 
@@ -34,21 +38,19 @@ export function DeleteCategoryModal({ category, trigger }: DeleteCategoryModalPr
 
     try {
       await deleteCategory(category.id)
-      openSnackbar("success", "Category deleted successfully.")
+      openSnackbar("success", t("categories.deleteSuccess"))
       closeDialog()
     } catch {
-      openSnackbar("error", "Failed to delete category.")
+      openSnackbar("error", t("categories.deleteFailed"))
     }
-  }, [category, closeDialog, deleteCategory, openSnackbar])
+  }, [category, closeDialog, deleteCategory, openSnackbar, t])
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger>{resolvedTrigger}</Dialog.Trigger>
       <Dialog.Content>
-        <Dialog.Title>Delete this category?</Dialog.Title>
-        <Dialog.Description>
-          Payments keep their records, but this category and its budget will no longer be available.
-        </Dialog.Description>
+        <Dialog.Title>{t("categories.deleteTitle")}</Dialog.Title>
+        <Dialog.Description>{t("categories.deleteDescription")}</Dialog.Description>
         <Text as="p" mt="2" weight="medium">
           {categoryName}
         </Text>
@@ -63,7 +65,7 @@ export function DeleteCategoryModal({ category, trigger }: DeleteCategoryModalPr
             disabled={!category}
             onClick={handleSubmit}
           >
-            Delete
+            {t("common.delete")}
           </SubmitButton>
         </Flex>
       </Dialog.Content>

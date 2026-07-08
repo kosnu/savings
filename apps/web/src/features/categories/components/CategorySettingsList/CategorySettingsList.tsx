@@ -1,7 +1,9 @@
 import { Badge, Box, Flex, Separator, Skeleton, Text } from "@radix-ui/themes"
 import { Fragment, Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
+import { i18next } from "../../../../i18n"
 import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateCategoryModal } from "../../createCategory/CreateCategoryModal"
 import { DeleteCategoryModal } from "../../deleteCategory/DeleteCategoryModal"
@@ -13,13 +15,14 @@ import styles from "./CategorySettingsList.module.css"
 
 export function CategorySettingsList() {
   const { promise } = useCategorySettingsItems()
+  const { t } = useTranslation()
 
   return (
     <Flex direction="column" gap="3">
       <ErrorBoundary
         fallback={
           <Text color="red" role="alert">
-            Could not load categories.
+            {t("categories.loadError")}
           </Text>
         }
       >
@@ -38,12 +41,13 @@ interface CategorySettingsListContentProps {
 function CategorySettingsListContent({ promise }: CategorySettingsListContentProps) {
   const items = use(promise)
   const currentPinnedCount = countPinnedItems(items)
+  const { t } = useTranslation()
 
   return (
     <Flex direction="column" gap="2">
       <CategorySettingsTitle currentPinnedCount={currentPinnedCount} />
       {items.length === 0 ? (
-        <Text color="gray">No categories.</Text>
+        <Text color="gray">{t("categories.empty")}</Text>
       ) : (
         <div className={styles.grid}>
           <CategorySettingsHeader />
@@ -60,10 +64,12 @@ function CategorySettingsListContent({ promise }: CategorySettingsListContentPro
 }
 
 function CategorySettingsTitle({ currentPinnedCount }: { currentPinnedCount: number }) {
+  const { t } = useTranslation()
+
   return (
     <Flex align="center" gap="3" justify="between">
       <Text as="p" size="4" weight="medium">
-        Categories
+        {t("categories.title")}
       </Text>
       <CreateCategoryModal currentPinnedCount={currentPinnedCount} />
     </Flex>
@@ -71,39 +77,43 @@ function CategorySettingsTitle({ currentPinnedCount }: { currentPinnedCount: num
 }
 
 function CategorySettingsHeader() {
+  const { t } = useTranslation()
+
   return (
     <div className={styles.header}>
-      <Text color="gray">Name</Text>
-      <Text color="gray">Budget</Text>
+      <Text color="gray">{t("categories.name")}</Text>
+      <Text color="gray">{t("categories.budget")}</Text>
       <Box aria-hidden />
     </div>
   )
 }
 
 function CategorySettingsLoadingRows() {
+  const { t } = useTranslation()
+
   return (
-    <Flex aria-label="loading category settings" direction="column" gap="2">
+    <Flex aria-label={t("categories.loadingSettings")} direction="column" gap="2">
       <Flex align="center" gap="3" justify="between">
         <Skeleton loading>
           <Text as="p" size="4" weight="medium">
-            Categories
+            {t("categories.title")}
           </Text>
         </Skeleton>
         <Skeleton loading>
-          <Text>Create category</Text>
+          <Text>{t("categories.create")}</Text>
         </Skeleton>
       </Flex>
       <div className={styles.grid}>
         <CategorySettingsHeader />
         <div className={styles.row} aria-hidden>
           <Skeleton loading>
-            <Text>Category name</Text>
+            <Text>{t("categories.namePlaceholder")}</Text>
           </Skeleton>
           <Skeleton loading>
-            <Text>￥0</Text>
+            <Text>¥0</Text>
           </Skeleton>
           <Skeleton loading>
-            <Text>Edit</Text>
+            <Text>{t("common.edit")}</Text>
           </Skeleton>
         </div>
       </div>
@@ -118,8 +128,13 @@ function CategorySettingsRow({
   item: CategorySettingsItem
   currentPinnedCount: number
 }) {
+  const { t } = useTranslation()
+
   return (
-    <div className={styles.row} aria-label={`${item.category.name} category settings`}>
+    <div
+      className={styles.row}
+      aria-label={t("categories.rowSettings", { name: item.category.name })}
+    >
       <CategoryNameWithMobileActionCell item={item} currentPinnedCount={currentPinnedCount} />
       <CategoryBudgetCell item={item} />
       <CategoryActionsCell
@@ -210,20 +225,22 @@ function countPinnedItems(items: CategorySettingsItem[]): number {
 
 function formatBudget(item: CategorySettingsItem): string {
   if (item.budgetStatus === "none") {
-    return "No budget"
+    return i18next.t("common.noBudget")
   }
 
   if (item.budgetStatus === "unset" || item.budgetAmount === null) {
-    return "Not set"
+    return i18next.t("common.notSet")
   }
 
   return toCurrency(item.budgetAmount)
 }
 
 function PinBadge() {
+  const { t } = useTranslation()
+
   return (
     <Badge color="blue" variant="soft">
-      Pin
+      {t("categories.pin")}
     </Badge>
   )
 }

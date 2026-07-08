@@ -13,8 +13,8 @@ describe("PaymentItem", () => {
 
     expect(screen.getByText("コンビニ")).toBeInTheDocument()
     expect(screen.getByText("Food")).toBeInTheDocument()
-    expect(screen.getByText("2025/06/02")).toBeInTheDocument()
-    expect(screen.getByText("￥1,000")).toBeInTheDocument()
+    expect(screen.getByText("Jun 2, 2025")).toBeInTheDocument()
+    expect(screen.getByText("¥1,000")).toBeInTheDocument()
     const trigger = screen.getByRole("button", { name: /コンビニ/ })
     expect(trigger).toBeInTheDocument()
 
@@ -29,13 +29,13 @@ describe("PaymentItem", () => {
     const { user } = render(<WithoutCategory onOpen={onOpen} />)
 
     expect(screen.getByText("コンビニ")).toBeInTheDocument()
-    expect(screen.getByText("2025/06/02")).toBeInTheDocument()
-    expect(screen.getByText("￥1,000")).toBeInTheDocument()
+    expect(screen.getByText("Jun 2, 2025")).toBeInTheDocument()
+    expect(screen.getByText("¥1,000")).toBeInTheDocument()
     expect(screen.queryByText("Food")).not.toBeInTheDocument()
     expect(screen.queryByText("Unknown")).not.toBeInTheDocument()
     expect(screen.queryByText("Uncategorized")).not.toBeInTheDocument()
 
-    const trigger = screen.getByRole("button", { name: "2025/06/02 コンビニ ￥1,000" })
+    const trigger = screen.getByRole("button", { name: "Jun 2, 2025 コンビニ ¥1,000" })
     await user.click(trigger)
 
     expect(onOpen).toHaveBeenCalledTimes(1)

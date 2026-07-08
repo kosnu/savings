@@ -1,6 +1,7 @@
 import { PlusIcon } from "@radix-ui/react-icons"
 import { Button } from "@radix-ui/themes"
 import { useCallback, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import { useDialog } from "../../../../utils/useDialog"
@@ -11,16 +12,9 @@ interface CreateCategoryModalProps {
   trigger?: ReactElement
 }
 
-export function CreateCategoryModal({
-  currentPinnedCount = 0,
-  trigger = (
-    <Button size="2" variant="soft">
-      <PlusIcon aria-hidden />
-      Create category
-    </Button>
-  ),
-}: CreateCategoryModalProps) {
+export function CreateCategoryModal({ currentPinnedCount = 0, trigger }: CreateCategoryModalProps) {
   const { open, closeDialog, onOpenChange } = useDialog()
+  const { t } = useTranslation()
 
   const handleSuccess = useCallback(() => {
     closeDialog()
@@ -35,9 +29,16 @@ export function CreateCategoryModal({
       open={open}
       onOpenChange={onOpenChange}
       dismissible={false}
-      trigger={trigger}
-      title="Create category"
-      description="Create a category."
+      trigger={
+        trigger ?? (
+          <Button size="2" variant="soft">
+            <PlusIcon aria-hidden />
+            {t("categories.create")}
+          </Button>
+        )
+      }
+      title={t("categories.createTitle")}
+      description={t("categories.createDescription")}
     >
       <CreateCategoryForm
         currentPinnedCount={currentPinnedCount}

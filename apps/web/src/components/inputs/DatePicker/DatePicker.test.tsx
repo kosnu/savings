@@ -38,14 +38,14 @@ test("Select today", async () => {
   await user.click(dateInput)
 
   const todayButton = await screen.findByRole("button", {
-    name: /今日/i,
+    name: /today/i,
   })
 
   await user.click(todayButton)
 
   await waitFor(() => {
-    expect(dateInput).toHaveValue("2025/05/01")
-    expect(screen.queryByRole("button", { name: /今日/i })).not.toBeInTheDocument()
+    expect(dateInput).toHaveValue("May 1, 2025")
+    expect(screen.queryByRole("button", { name: /today/i })).not.toBeInTheDocument()
   })
 })
 
@@ -53,5 +53,5 @@ test("autoFocus のときは初期表示でカレンダーを開く", async () =
   render(<SelectToday autoFocus />, { userOptions: { delay: null } })
 
   expect(screen.getByRole("textbox")).toBeInTheDocument()
-  expect(await screen.findByRole("button", { name: /今日/i })).toBeInTheDocument()
+  expect(await screen.findByRole("button", { name: /today/i })).toBeInTheDocument()
 })

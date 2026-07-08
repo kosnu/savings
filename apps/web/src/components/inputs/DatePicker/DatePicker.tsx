@@ -1,10 +1,12 @@
 import { DayPicker } from "@daypicker/react"
-import { ja } from "@daypicker/react/locale"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Popover, TextField } from "@radix-ui/themes"
 import { isSameDay } from "date-fns"
+import { enUS, ja } from "date-fns/locale"
 import { type ComponentProps, type KeyboardEvent, useCallback, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
+import { getDateFormat, toAppLanguage } from "../../../i18n"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
 import "@daypicker/react/style.css"
@@ -25,6 +27,7 @@ type DatePickerProps = {
 } & ModeSingleProps
 
 export function DatePicker(props: DatePickerProps) {
+  const { i18n, t } = useTranslation()
   const {
     autoFocus,
     disabled,
@@ -39,6 +42,7 @@ export function DatePicker(props: DatePickerProps) {
   } = props
   const [open, setOpen] = useState(() => Boolean(autoFocus && !disabled))
   const sameDayClickRef = useRef(false)
+  const language = toAppLanguage(i18n.resolvedLanguage)
 
   const handleTriggerClick = useCallback(() => {
     if (disabled) return
@@ -108,9 +112,11 @@ export function DatePicker(props: DatePickerProps) {
               disabled={disabled}
               id={id}
               name={name}
-              placeholder="Pick a date"
+              placeholder={t("date.pick")}
               size={size}
-              value={value ? formatDateToLocaleString(value) : ""}
+              value={
+                value ? formatDateToLocaleString(value, getDateFormat(language), language) : ""
+              }
               onChange={handleInputChange}
               onKeyDown={handleInputKeyDown}
             >
@@ -123,7 +129,7 @@ export function DatePicker(props: DatePickerProps) {
         <Popover.Content onFocusOutside={handleFocusOut} onEscapeKeyDown={handleEscapeKeyDown}>
           <DayPicker
             {...restProps}
-            locale={ja}
+            locale={language === "ja" ? ja : enUS}
             mode="single"
             required={required}
             selected={value}

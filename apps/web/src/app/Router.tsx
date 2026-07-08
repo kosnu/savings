@@ -1,6 +1,7 @@
 import { Flex, Spinner, Text } from "@radix-ui/themes"
 import { RouterProvider } from "@tanstack/react-router"
 import { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 import { router } from "./routes"
@@ -21,11 +22,13 @@ export function Router() {
 }
 
 function AuthLoadingScreen() {
+  const { t } = useTranslation()
+
   return (
     <Flex align="center" direction="column" gap="3" justify="center" minHeight="100vh">
       <Spinner size="3" />
       <Text color="gray" size="2">
-        認証状態を確認しています...
+        {t("auth.loading")}
       </Text>
     </Flex>
   )

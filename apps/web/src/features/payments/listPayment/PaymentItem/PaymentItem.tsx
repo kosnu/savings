@@ -1,14 +1,14 @@
 import { ChevronRightIcon } from "@radix-ui/react-icons"
 import { Badge, Button, Card, Flex, Text } from "@radix-ui/themes"
 import type { MouseEvent } from "react"
+import { useTranslation } from "react-i18next"
 
+import { getDateFormat } from "../../../../i18n"
 import type { Payment, PaymentCategory } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
 import { toCurrency } from "../../../../utils/toCurrency"
 
 import styles from "./PaymentItem.module.css"
-
-const notePlaceholder = "No note"
 
 interface PaymentItemProps {
   category: PaymentCategory | null
@@ -17,8 +17,13 @@ interface PaymentItemProps {
 }
 
 export function PaymentItem({ category, payment, onOpen }: PaymentItemProps) {
-  const dateLabel = formatDateToLocaleString(payment.date)
-  const noteValue = payment.note ? payment.note : notePlaceholder
+  const { i18n, t } = useTranslation()
+  const dateLabel = formatDateToLocaleString(
+    payment.date,
+    getDateFormat(i18n.resolvedLanguage),
+    i18n.resolvedLanguage,
+  )
+  const noteValue = payment.note ? payment.note : t("payments.note.placeholder")
   const amountValue = toCurrency(payment.amount)
 
   const label = [dateLabel, category?.name, noteValue, amountValue].filter(Boolean).join(" ")

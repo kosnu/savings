@@ -31,10 +31,10 @@ describe("CategoryTotals", () => {
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
     expect(await screen.findByText("Entertainment")).toBeInTheDocument()
     expect(screen.queryByText("Uncategorized")).not.toBeInTheDocument()
-    expect(await screen.findByText("￥1,000")).toBeInTheDocument()
-    expect(await screen.findByText("￥4,000")).toBeInTheDocument()
-    expect(await screen.findAllByText("￥0")).toHaveLength(1)
-    expect(await screen.findByText("￥29,000 left")).toBeInTheDocument()
+    expect(await screen.findByText("¥1,000")).toBeInTheDocument()
+    expect(await screen.findByText("¥4,000")).toBeInTheDocument()
+    expect(await screen.findAllByText("¥0")).toHaveLength(1)
+    expect(await screen.findByText("¥29,000 left")).toBeInTheDocument()
     expectAccentColor(await screen.findByText("On budget"), "gray")
     expectAccentColor(await screen.findByText("Not set"), "gray")
 
@@ -124,8 +124,8 @@ describe("CategoryTotals", () => {
     )
     renderStory()
 
-    expectAccentColor(await screen.findByText("￥1,000 over"), "yellow")
-    expect(screen.queryByText("￥4,000 left")).not.toBeInTheDocument()
+    expectAccentColor(await screen.findByText("¥1,000 over"), "yellow")
+    expect(screen.queryByText("¥4,000 left")).not.toBeInTheDocument()
     expectAccentColor(await screen.findByText("No budget"), "gray")
   })
 
@@ -134,8 +134,8 @@ describe("CategoryTotals", () => {
     renderStory()
 
     const categoryName = await screen.findByText("Food")
-    const totalAmount = await screen.findByText("￥1,000")
-    const budgetDifference = await screen.findByText("￥29,000 left")
+    const totalAmount = await screen.findByText("¥1,000")
+    const budgetDifference = await screen.findByText("¥29,000 left")
     const categoryRow = categoryName.parentElement?.parentElement
 
     expect(totalAmount.parentElement).toBe(categoryRow)
@@ -181,8 +181,8 @@ describe("CategoryTotals", () => {
 
     expect(await screen.findByText("Unknown")).toBeInTheDocument()
     expect(await screen.findByText("Uncategorized")).toBeInTheDocument()
-    expect(await screen.findByText("￥700")).toBeInTheDocument()
-    expect(await screen.findByText("￥2,500")).toBeInTheDocument()
+    expect(await screen.findByText("¥700")).toBeInTheDocument()
+    expect(await screen.findByText("¥2,500")).toBeInTheDocument()
   })
 
   test("Uncategorizedという名前のカテゴリと未分類bucketを視覚表現で区別する", async () => {
@@ -227,7 +227,7 @@ describe("CategoryTotals", () => {
     expect(uncategorizedNames[0]).not.toHaveClass(styles.systemLabel)
     expect(uncategorizedNames[1]).toHaveClass(styles.systemLabel)
     expect(screen.queryByText("No category")).not.toBeInTheDocument()
-    expect(await screen.findByText("￥700")).toBeInTheDocument()
-    expect(await screen.findByText("￥2,500")).toBeInTheDocument()
+    expect(await screen.findByText("¥700")).toBeInTheDocument()
+    expect(await screen.findByText("¥2,500")).toBeInTheDocument()
   })
 })

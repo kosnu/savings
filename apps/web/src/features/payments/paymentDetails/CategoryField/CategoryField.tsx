@@ -11,6 +11,7 @@ import {
   useState,
 } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { Category } from "../../../../types/category"
@@ -45,6 +46,7 @@ export function CategoryField({
   onEditEnd,
 }: CategoryFieldProps) {
   const id = useId()
+  const { t } = useTranslation()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
   const { promise: categoriesPromise } = useCategories()
@@ -107,13 +109,13 @@ export function CategoryField({
         })
         closeEditor()
       } catch {
-        const message = "Failed to update category."
+        const message = t("payments.details.updateCategoryFailed")
 
         setMessages([message])
         openSnackbar("error", message)
       }
     },
-    [closeEditor, currentCategoryValue, isPending, openSnackbar, paymentId, updatePayment],
+    [closeEditor, currentCategoryValue, isPending, openSnackbar, paymentId, t, updatePayment],
   )
 
   const handleSelectOpenChange = useCallback(
@@ -130,11 +132,11 @@ export function CategoryField({
 
   return (
     <EditableField
-      label="Category"
+      label={t("payments.category.label")}
       htmlFor={id}
       editing={editing}
       disabled={disabled && !editing}
-      editButtonLabel="Edit category"
+      editButtonLabel={t("payments.details.editCategory")}
       onEdit={handleEdit}
       error={Boolean(messages?.length)}
       messages={messages}

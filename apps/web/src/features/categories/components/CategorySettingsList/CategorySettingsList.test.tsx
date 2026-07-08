@@ -70,7 +70,7 @@ describe("CategorySettingsList", () => {
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(screen.getByText("Daily Necessities")).toBeInTheDocument()
     expect(screen.getByText("Entertainment")).toBeInTheDocument()
-    expect(screen.getAllByText("￥30,000")).not.toHaveLength(0)
+    expect(screen.getAllByText("¥30,000")).not.toHaveLength(0)
     expect(screen.getAllByText("Not set")).not.toHaveLength(0)
     expect(screen.queryByText("-")).not.toBeInTheDocument()
     expect(
@@ -105,7 +105,7 @@ describe("CategorySettingsList", () => {
 
     await renderCategorySettingsList(<Default />)
 
-    expect(await screen.findByLabelText("Food category settings")).toHaveTextContent("￥0")
+    expect(await screen.findByLabelText("Food category settings")).toHaveTextContent("¥0")
     expect(await screen.findByLabelText("Daily Necessities category settings")).toHaveTextContent(
       "No budget",
     )

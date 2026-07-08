@@ -1,5 +1,6 @@
 import { Select } from "@radix-ui/themes"
 import { type ComponentProps, type ReactNode, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 
 import type { Category } from "../../../../types/category"
 
@@ -30,6 +31,7 @@ export function CategorySelect({
   onChange,
   onOpenChange,
 }: CategorySelectProps) {
+  const { t } = useTranslation()
   const selectValue = value === undefined || value === "" ? NONE_CATEGORY_VALUE : value
   const isNoneSelected = selectValue === NONE_CATEGORY_VALUE
 
@@ -57,7 +59,7 @@ export function CategorySelect({
         autoFocus={autoFocus}
         className={isNoneSelected ? styles.systemLabel : undefined}
         id={id}
-        placeholder="Pick a category"
+        placeholder={t("payments.category.pick")}
         style={{ width }}
       />
       <Select.Content>
@@ -82,25 +84,31 @@ export function CategoryOption({ category }: CategoryOptionProps) {
 }
 
 export function NoneCategoryOption() {
+  const { t } = useTranslation()
+
   return (
     <Select.Item className={styles.systemLabel} value={NONE_CATEGORY_VALUE}>
-      None
+      {t("payments.category.none")}
     </Select.Item>
   )
 }
 
 export function ErrorCategoryOption() {
+  const { t } = useTranslation()
+
   return (
     <Select.Item disabled value="error">
-      Error
+      {t("payments.category.error")}
     </Select.Item>
   )
 }
 
 export function LoadingCategoryOption() {
+  const { t } = useTranslation()
+
   return (
     <Select.Item disabled value="loading">
-      Loading
+      {t("payments.category.loading")}
     </Select.Item>
   )
 }

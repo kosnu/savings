@@ -45,9 +45,9 @@ describe("LatestMonthlyBudget", () => {
     await renderLatestMonthlyBudget(<Default />)
 
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
-    expect(await screen.findByText("￥75,000")).toBeInTheDocument()
+    expect(await screen.findByText("¥75,000")).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Edit budget" })).toBeInTheDocument()
-    expect(screen.queryByText("￥62,000")).not.toBeInTheDocument()
+    expect(screen.queryByText("¥62,000")).not.toBeInTheDocument()
   })
 
   test("月予算がない場合は作成導線を表示する", async () => {
@@ -96,7 +96,7 @@ describe("LatestMonthlyBudget", () => {
         screen.queryByRole("dialog", { name: "Create monthly budget" }),
       ).not.toBeInTheDocument()
     })
-    expect(await screen.findByText("￥300,000")).toBeInTheDocument()
+    expect(await screen.findByText("¥300,000")).toBeInTheDocument()
   })
 
   test("作成失敗時は既存のエラー表示を維持する", async () => {
@@ -165,8 +165,8 @@ describe("LatestMonthlyBudget", () => {
     await waitFor(() => {
       expect(screen.queryByRole("dialog", { name: "Edit monthly budget" })).not.toBeInTheDocument()
     })
-    expect(await screen.findByText("￥82,000")).toBeInTheDocument()
-    expect(screen.queryByText("￥75,000")).not.toBeInTheDocument()
+    expect(await screen.findByText("¥82,000")).toBeInTheDocument()
+    expect(screen.queryByText("¥75,000")).not.toBeInTheDocument()
   })
 
   test("編集失敗時はエラー表示を維持してダイアログを閉じない", async () => {
@@ -190,7 +190,7 @@ describe("LatestMonthlyBudget", () => {
 
     expect(await within(dialog).findByText("Failed to update monthly budget.")).toBeInTheDocument()
     expect(screen.getByRole("dialog", { name: "Edit monthly budget" })).toBeInTheDocument()
-    expect(screen.getByText("￥75,000")).toBeInTheDocument()
+    expect(screen.getByText("¥75,000")).toBeInTheDocument()
   })
 
   test("削除成功後は予算なしとして作成導線を表示する", async () => {
@@ -224,7 +224,7 @@ describe("LatestMonthlyBudget", () => {
       ).not.toBeInTheDocument()
     })
     expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
-    expect(screen.queryByText("￥75,000")).not.toBeInTheDocument()
+    expect(screen.queryByText("¥75,000")).not.toBeInTheDocument()
   })
 
   test("削除失敗時はエラー表示を維持してダイアログを閉じない", async () => {
@@ -245,7 +245,7 @@ describe("LatestMonthlyBudget", () => {
 
     expect(await within(dialog).findByText("Failed to remove monthly budget.")).toBeInTheDocument()
     expect(screen.getByRole("dialog", { name: "Remove this month's budget?" })).toBeInTheDocument()
-    expect(screen.getByText("￥75,000")).toBeInTheDocument()
+    expect(screen.getByText("¥75,000")).toBeInTheDocument()
   })
 
   test("取得中はスケルトンを表示する", async () => {

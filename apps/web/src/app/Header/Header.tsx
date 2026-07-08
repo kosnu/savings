@@ -1,9 +1,11 @@
 import { HamburgerMenuIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons"
 import { Box, IconButton } from "@radix-ui/themes"
 import { Link } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 
 import { Logo } from "../../components/misc/Logo"
 import { useTheme } from "../../providers/theme/ThemeProvider"
+import { LanguageSelect } from "../LanguageSelect"
 
 import styles from "./Header.module.css"
 
@@ -14,17 +16,20 @@ interface HeaderProps {
 const iconSize = { width: "22", height: "22" }
 
 export function Header({ onMenuClick }: HeaderProps) {
+  const { t } = useTranslation()
+
   return (
     <header className={styles.header}>
-      <IconButton aria-label="Menu button" size="3" variant="ghost" onClick={onMenuClick}>
+      <IconButton aria-label={t("header.menu")} size="3" variant="ghost" onClick={onMenuClick}>
         <HamburgerMenuIcon {...iconSize} />
       </IconButton>
-      <IconButton asChild aria-label="Logo button" size="3" radius="full" variant="ghost">
+      <IconButton asChild aria-label={t("header.logo")} size="3" radius="full" variant="ghost">
         <Link to="/payments">
           <Logo width={32} height={32} />
         </Link>
       </IconButton>
       <Box style={{ flexGrow: 1 }} />
+      <LanguageSelect />
       <ThemeToggle />
     </header>
   )
@@ -32,9 +37,10 @@ export function Header({ onMenuClick }: HeaderProps) {
 
 function ThemeToggle() {
   const { toggleTheme, theme } = useTheme()
+  const { t } = useTranslation()
 
   return (
-    <IconButton aria-label="Theme toggle" size="3" variant="ghost" onClick={toggleTheme}>
+    <IconButton aria-label={t("header.themeToggle")} size="3" variant="ghost" onClick={toggleTheme}>
       {theme === "light" ? <SunIcon {...iconSize} /> : <MoonIcon {...iconSize} />}
     </IconButton>
   )

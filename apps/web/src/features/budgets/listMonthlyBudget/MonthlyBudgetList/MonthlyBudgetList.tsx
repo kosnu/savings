@@ -1,6 +1,7 @@
 import { Flex, Skeleton, Table, Text } from "@radix-ui/themes"
 import { Suspense, use } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
 import { toCurrency } from "../../../../utils/toCurrency"
 import type { MonthlyBudget } from "../../types"
@@ -10,23 +11,22 @@ const monthlyBudgetListLimit = 10
 
 export function MonthlyBudgetList() {
   const { promise } = useMonthlyBudgets(monthlyBudgetListLimit)
+  const { t } = useTranslation()
 
   return (
     <Flex direction="column" gap="3">
       <Text as="p" size="4" weight="medium">
-        Monthly budgets
+        {t("budgets.title")}
       </Text>
-      <Table.Root aria-label="monthly budgets">
+      <Table.Root aria-label={t("budgets.title")}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeaderCell>Month</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell align="right">Amount</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>{t("date.month")}</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell align="right">{t("amount.label")}</Table.ColumnHeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          <ErrorBoundary
-            fallback={<StatusRow color="red" text="Could not load monthly budgets." />}
-          >
+          <ErrorBoundary fallback={<StatusRow color="red" text={t("budgets.loadError")} />}>
             <Suspense fallback={<LoadingRows />}>
               <MonthlyBudgetRows promise={promise} />
             </Suspense>
@@ -39,9 +39,10 @@ export function MonthlyBudgetList() {
 
 function MonthlyBudgetRows({ promise }: { promise: Promise<MonthlyBudget[]> }) {
   const monthlyBudgets = use(promise)
+  const { t } = useTranslation()
 
   if (monthlyBudgets.length === 0) {
-    return <StatusRow color="gray" text="No monthly budgets yet." />
+    return <StatusRow color="gray" text={t("budgets.empty")} />
   }
 
   return monthlyBudgets.map((monthlyBudget) => (
@@ -60,8 +61,10 @@ function LoadingRows() {
 }
 
 function LoadingRow() {
+  const { t } = useTranslation()
+
   return (
-    <Table.Row aria-label="loading monthly budget">
+    <Table.Row aria-label={t("budgets.loadingList")}>
       <Table.Cell>
         <Skeleton loading>
           <Text>0000/00</Text>
@@ -69,7 +72,7 @@ function LoadingRow() {
       </Table.Cell>
       <Table.Cell align="right">
         <Skeleton loading>
-          <Text>￥000,000</Text>
+          <Text>¥000,000</Text>
         </Skeleton>
       </Table.Cell>
     </Table.Row>

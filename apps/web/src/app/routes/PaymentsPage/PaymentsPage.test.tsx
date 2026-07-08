@@ -448,7 +448,7 @@ describe("PaymentsPage", () => {
 
     const targetPayment = payments[1]
     const targetLabel = new RegExp(
-      `${targetPayment.note}.*￥${targetPayment.amount.toLocaleString("ja-JP")}`,
+      `${targetPayment.note}.*¥${targetPayment.amount.toLocaleString("ja-JP")}`,
       "i",
     )
 
@@ -521,14 +521,14 @@ describe("PaymentsPage", () => {
     await user.click(within(detailDialog).getByRole("button", { name: /save amount/i }))
 
     await waitFor(() => {
-      expect(within(detailDialog).getByText(/￥2,500/)).toBeInTheDocument()
+      expect(within(detailDialog).getByText(/¥2,500/)).toBeInTheDocument()
     })
 
     await user.click(within(detailDialog).getByRole("button", { name: /delete this payment/i }))
 
     const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     await waitFor(() => {
-      expect(within(deleteDialog).getByText(/￥2,500/)).toBeInTheDocument()
+      expect(within(deleteDialog).getByText(/¥2,500/)).toBeInTheDocument()
     })
   })
 })

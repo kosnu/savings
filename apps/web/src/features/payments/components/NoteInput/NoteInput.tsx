@@ -1,5 +1,6 @@
 import { TextField } from "@radix-ui/themes"
 import type { ComponentProps } from "react"
+import { useTranslation } from "react-i18next"
 
 interface Props {
   autoFocus?: boolean
@@ -11,6 +12,8 @@ interface Props {
 }
 
 export function NoteInput({ autoFocus, disabled, id, size, value, onChange }: Props) {
+  const { t } = useTranslation()
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     onChange?.(e.target.value)
   }
@@ -23,7 +26,7 @@ export function NoteInput({ autoFocus, disabled, id, size, value, onChange }: Pr
       size={size}
       type="text"
       value={value}
-      aria-label="Note"
+      aria-label={t("payments.note.label")}
       onChange={handleChange}
     />
   )

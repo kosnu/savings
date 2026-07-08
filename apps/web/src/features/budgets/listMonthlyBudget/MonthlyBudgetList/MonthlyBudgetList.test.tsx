@@ -32,9 +32,9 @@ describe("MonthlyBudgetList", () => {
     expect(within(table).getByText("Month")).toBeInTheDocument()
     expect(within(table).getByText("Amount")).toBeInTheDocument()
     expect(await within(table).findByText("2025/07")).toBeInTheDocument()
-    expect(await within(table).findByText("￥75,000")).toBeInTheDocument()
+    expect(await within(table).findByText("¥75,000")).toBeInTheDocument()
     expect(await within(table).findByText("2025/03")).toBeInTheDocument()
-    expect(await within(table).findByText("￥62,000")).toBeInTheDocument()
+    expect(await within(table).findByText("¥62,000")).toBeInTheDocument()
   })
 
   test("月予算がない場合は空状態を表示する", async () => {
