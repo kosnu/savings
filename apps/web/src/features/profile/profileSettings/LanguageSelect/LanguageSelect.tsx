@@ -2,7 +2,7 @@ import { Select } from "@radix-ui/themes"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { appLanguageLabelKeys, appLanguages, toAppLanguage } from "../../i18n"
+import { appLanguageLabelKeys, appLanguages, toAppLanguage } from "../../../../i18n"
 
 export function LanguageSelect() {
   const { i18n, t } = useTranslation()
