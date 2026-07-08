@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next"
 
 import { Logo } from "../../components/misc/Logo"
 import { useTheme } from "../../providers/theme/ThemeProvider"
-import { LanguageSelect } from "../LanguageSelect"
 
 import styles from "./Header.module.css"
 
@@ -29,7 +28,6 @@ export function Header({ onMenuClick }: HeaderProps) {
         </Link>
       </IconButton>
       <Box style={{ flexGrow: 1 }} />
-      <LanguageSelect />
       <ThemeToggle />
     </header>
   )

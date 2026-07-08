@@ -3,6 +3,7 @@ import { createRoute } from "@tanstack/react-router"
 import { expect, within } from "storybook/test"
 
 import { BookSettings } from "../../../features/books"
+import { ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
@@ -25,7 +26,37 @@ export const Default: Story = {
 
     expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
     expect(canvas.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings")
+    expect(canvas.getByRole("link", { name: "Profile" })).toHaveAttribute(
+      "href",
+      "/settings/profile",
+    )
     expect(canvas.getByRole("link", { name: "Book" })).toHaveAttribute("href", "/settings/book")
+  },
+}
+
+export const Profile: Story = {
+  decorators: [
+    createStoryRouter("/settings/profile", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+
+      const settingsProfileRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "profile",
+        component: ProfileSettings,
+      })
+
+      return [settingsRoute.addChildren([settingsProfileRoute])]
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    expect(await canvas.findByText("Language")).toBeInTheDocument()
+    expect(await canvas.findByRole("combobox", { name: "Language" })).toBeInTheDocument()
   },
 }
 
