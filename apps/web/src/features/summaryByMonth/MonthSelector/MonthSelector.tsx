@@ -2,6 +2,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
 import { Flex, IconButton } from "@radix-ui/themes"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { useCallback, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
 
@@ -22,6 +23,7 @@ function isAllowedMonth(date: Date) {
 }
 
 export function MonthSelector() {
+  const { t } = useTranslation()
   const yearParam = useLocation({
     select: (location) => location.search.year,
   })
@@ -69,7 +71,7 @@ export function MonthSelector() {
   return (
     <Flex align="center" gap="2">
       <IconButton
-        aria-label="Previous month"
+        aria-label={t("date.previousMonth")}
         size="2"
         type="button"
         variant="ghost"
@@ -80,7 +82,7 @@ export function MonthSelector() {
       </IconButton>
       <MonthPicker value={currentDate ?? undefined} onChange={handleMonthChange} />
       <IconButton
-        aria-label="Next month"
+        aria-label={t("date.nextMonth")}
         size="2"
         type="button"
         variant="ghost"

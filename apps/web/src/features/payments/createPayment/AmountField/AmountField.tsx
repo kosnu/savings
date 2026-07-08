@@ -1,4 +1,5 @@
 import { useId } from "react"
+import { useTranslation } from "react-i18next"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { toAmountFormValue } from "../../../../domain/amount"
@@ -14,11 +15,12 @@ interface AmountFieldProps {
 
 export function AmountField({ error, messages, value, onChange, autoFocus }: AmountFieldProps) {
   const id = useId()
+  const { t } = useTranslation()
 
   return (
     <BaseField>
       <FieldLabel htmlFor={id} required>
-        Amount
+        {t("amount.label")}
       </FieldLabel>
       <AmountInput
         id={id}

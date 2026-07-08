@@ -1,6 +1,7 @@
 import { Cross1Icon } from "@radix-ui/react-icons"
 import { Dialog, IconButton } from "@radix-ui/themes"
 import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useMediaQuery } from "../../../utils/useMediaQuery"
 import { MOBILE_OVERLAY_MEDIA_QUERY } from "../constants"
@@ -30,6 +31,7 @@ export function ResponsiveOverlay({
   dismissible = true,
   onEscapeKeyDown,
 }: ResponsiveOverlayProps) {
+  const { t } = useTranslation()
   const isMobile = useMediaQuery(MOBILE_OVERLAY_MEDIA_QUERY)
   const contentClassName = [styles.content, isMobile ? styles.sheetContent : styles.dialogContent]
     .filter(Boolean)
@@ -71,7 +73,7 @@ export function ResponsiveOverlay({
           <div className={styles.mobileHeader}>
             <Dialog.Close>
               <IconButton
-                aria-label={`Close ${title}`}
+                aria-label={t("common.close", { target: title })}
                 className={styles.closeButton}
                 size="2"
                 variant="ghost"

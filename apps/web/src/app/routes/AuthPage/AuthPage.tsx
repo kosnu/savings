@@ -1,4 +1,5 @@
 import { Button, Container, Flex, Text } from "@radix-ui/themes"
+import { useTranslation } from "react-i18next"
 
 import { useAuthCallbackError } from "../../../utils/auth/useAuthCallbackError"
 import { useSupabaseSignIn } from "../../../utils/auth/useSupabaseSignIn"
@@ -6,12 +7,13 @@ import { useSupabaseSignIn } from "../../../utils/auth/useSupabaseSignIn"
 export function AuthPage() {
   const { signIn: signInWithSupabase } = useSupabaseSignIn()
   const authError = useAuthCallbackError(window.location.href)
+  const { t } = useTranslation()
 
   return (
     <Container size="2">
       <Flex direction="column" gap="3">
         <Text asChild size="5" weight="bold">
-          <h2>Sign in to My Savings</h2>
+          <h2>{t("auth.title")}</h2>
         </Text>
         {authError && (
           <Flex
@@ -26,14 +28,14 @@ export function AuthPage() {
             }}
           >
             <Text color="red" size="3" weight="bold">
-              ログインに失敗しました
+              {t("auth.callbackErrorTitle")}
             </Text>
-            <Text size="2">認証を完了できませんでした。時間をおいて、もう一度お試しください。</Text>
+            <Text size="2">{t("auth.callbackErrorDescription")}</Text>
           </Flex>
         )}
         <Flex direction="column" gap="2">
           <Button onClick={signInWithSupabase} variant="outline">
-            Continue with Google
+            {t("auth.continueWithGoogle")}
           </Button>
         </Flex>
       </Flex>

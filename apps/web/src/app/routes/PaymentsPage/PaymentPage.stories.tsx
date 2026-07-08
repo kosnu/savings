@@ -47,11 +47,11 @@ export const Default: Story = {
     expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
     expect(canvas.queryByText("スーパー")).not.toBeInTheDocument()
     const paymentList = await canvas.findByLabelText("payment-list")
-    expect(await within(paymentList).findByText("2025/06/02")).toBeInTheDocument()
-    expect(await within(paymentList).findByText("2025/06/03")).toBeInTheDocument()
-    expect(await within(paymentList).findByText("￥1,000")).toBeInTheDocument()
-    expect(await within(paymentList).findByText("￥4,000")).toBeInTheDocument()
-    expect(await canvas.findByText("￥20,000 left")).toBeInTheDocument()
+    expect(await within(paymentList).findByText("Jun 2, 2025")).toBeInTheDocument()
+    expect(await within(paymentList).findByText("Jun 3, 2025")).toBeInTheDocument()
+    expect(await within(paymentList).findByText("¥1,000")).toBeInTheDocument()
+    expect(await within(paymentList).findByText("¥4,000")).toBeInTheDocument()
+    expect(await canvas.findByText("¥20,000 left")).toBeInTheDocument()
   },
 }
 
@@ -61,7 +61,7 @@ export const OpenDetails: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
-    await canvas.findByText("2025/06/03")
+    await canvas.findByText("Jun 3, 2025")
     const paymentList = await canvas.findByLabelText("payment-list")
     expect(await within(paymentList).findByText("Daily Necessities")).toBeInTheDocument()
 
@@ -71,9 +71,9 @@ export const OpenDetails: Story = {
     expect(await within(detailDialog).findByText("Daily Necessities")).not.toHaveClass("rt-Badge")
     expect(await within(detailDialog).findAllByText(/Date|Category|Note|Amount/)).toHaveLength(4)
     expect(await within(detailDialog).findByText("Category")).toBeInTheDocument()
-    expect(await within(detailDialog).findByText("2025/06/03")).toBeInTheDocument()
+    expect(await within(detailDialog).findByText("Jun 3, 2025")).toBeInTheDocument()
     expect(await within(detailDialog).findByText("Daily Necessities")).toBeInTheDocument()
-    expect(await within(detailDialog).findByText("￥4,000")).toBeInTheDocument()
+    expect(await within(detailDialog).findByText("¥4,000")).toBeInTheDocument()
     expect(await within(detailDialog).findByRole("button", { name: /delete/i })).toBeInTheDocument()
   },
 }

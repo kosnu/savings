@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from "@radix-ui/react-icons"
 import { Badge, Card, Flex, Skeleton, Text } from "@radix-ui/themes"
+import { useTranslation } from "react-i18next"
 
 interface PaymentCardProps {
   loading?: boolean
@@ -18,6 +19,8 @@ export function PaymentCard({
   amount = "¥0,000,000",
   interactive = false,
 }: PaymentCardProps) {
+  const { t } = useTranslation()
+
   return (
     <Card aria-label={loading ? "loading-payment-item" : "payment-item"} size="2">
       <Flex direction="column" gap="1">
@@ -27,13 +30,15 @@ export function PaymentCard({
               <Text size="3" color="gray">
                 {date}
               </Text>
-              <Badge size="3">{categoryName}</Badge>
+              <Badge size="3">
+                {categoryName === "Category name" ? t("categories.namePlaceholder") : categoryName}
+              </Badge>
             </Skeleton>
           </Flex>
           {interactive ? <ChevronRightIcon width="20" height="20" aria-hidden /> : null}
         </Flex>
         <Skeleton loading={loading}>
-          <Text size="5">{note}</Text>
+          <Text size="5">{note === "Note" ? t("payments.note.label") : note}</Text>
         </Skeleton>
         <Skeleton loading={loading}>
           <Text align="right" size="6" weight="bold">

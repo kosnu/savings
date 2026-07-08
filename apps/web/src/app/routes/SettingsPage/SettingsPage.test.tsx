@@ -50,7 +50,7 @@ async function fillCreateMonthlyBudgetForm(
   await user.click(within(dialog).getByRole("combobox", { name: "Year" }))
   await user.click(await body.findByRole("option", { name: "2026" }))
   await user.click(within(dialog).getByRole("combobox", { name: "Month" }))
-  await user.click(await body.findByRole("option", { name: "10" }))
+  await user.click(await body.findByRole("option", { name: "October" }))
   await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "300000")
 }
 
@@ -89,8 +89,8 @@ describe("SettingsPage", () => {
     renderSettingsPage("/settings/book")
 
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
-    expect(await screen.findByText("￥75,000")).toBeInTheDocument()
-    expect(screen.queryByText("￥62,000")).not.toBeInTheDocument()
+    expect(await screen.findByText("¥75,000")).toBeInTheDocument()
+    expect(screen.queryByText("¥62,000")).not.toBeInTheDocument()
     expect(await screen.findByText("Categories")).toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Name")).toBeInTheDocument()

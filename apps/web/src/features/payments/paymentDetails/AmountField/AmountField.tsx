@@ -1,5 +1,6 @@
 import { Flex, Text } from "@radix-ui/themes"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { amountFieldSchema } from "../../../../domain/amount"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
@@ -28,6 +29,7 @@ export function AmountField({
   onEditEnd,
 }: AmountFieldProps) {
   const id = useId()
+  const { t } = useTranslation()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
   const [editing, setEditing] = useState(false)
@@ -97,21 +99,21 @@ export function AmountField({
       setEditing(false)
       onEditEnd()
     } catch {
-      const message = "Failed to update amount."
+      const message = t("payments.details.updateAmountFailed")
 
       setMessages([message])
       openSnackbar("error", message)
     }
-  }, [amount, draftAmount, isPending, onEditEnd, openSnackbar, paymentId, updatePayment])
+  }, [amount, draftAmount, isPending, onEditEnd, openSnackbar, paymentId, t, updatePayment])
 
   return (
     <EditableField
-      label="Amount"
+      label={t("amount.label")}
       htmlFor={id}
       required
       editing={editing}
       disabled={disabled && !editing}
-      editButtonLabel="Edit amount"
+      editButtonLabel={t("payments.details.editAmount")}
       onEdit={handleEdit}
       error={Boolean(messages?.length)}
       messages={messages}
@@ -133,7 +135,7 @@ export function AmountField({
                 disabled={isPending}
               />
             </div>
-            <SubmitIconButton ariaLabel="Save amount" loading={isPending} />
+            <SubmitIconButton ariaLabel={t("payments.details.saveAmount")} loading={isPending} />
           </Flex>
         </InlineForm>
       }

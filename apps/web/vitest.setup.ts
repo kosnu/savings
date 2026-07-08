@@ -43,6 +43,8 @@ Object.defineProperty(window, "localStorage", {
   value: localStorage,
 })
 
+await import("./src/i18n")
+
 afterEach(() => {
   cleanup()
 })

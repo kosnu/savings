@@ -1,15 +1,18 @@
 import { Box, Button, Container, Flex, Grid, Heading, Section, Separator } from "@radix-ui/themes"
 import { Link, Outlet } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 
 import styles from "./SettingsPage.module.css"
 
 export function SettingsPage() {
+  const { t } = useTranslation()
+
   return (
     <Container size="4">
       <Flex direction="column" gap="4">
         <Heading as="h1" size="6">
           <Link to="/settings" className={styles.headingLink}>
-            Settings
+            {t("settings.title")}
           </Link>
         </Heading>
         <Grid
@@ -18,11 +21,11 @@ export function SettingsPage() {
           align="stretch"
           minHeight="calc(100vh - 9rem)"
         >
-          <nav aria-label="Settings sections">
+          <nav aria-label={t("settings.sections")}>
             <Flex direction="column" gap="2" align="stretch">
               <Button asChild variant="ghost" size="3">
                 <Link to="/settings/book" className={styles.menuLink}>
-                  Book
+                  {t("navigation.book")}
                 </Link>
               </Button>
             </Flex>

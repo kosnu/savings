@@ -205,7 +205,7 @@ describe("PaymentDetailsOverlay", () => {
       const dialog = await screen.findByRole("dialog", { name: /payment details/i })
       await user.click(await within(dialog).findByRole("button", { name: /edit date/i }))
 
-      expect(await screen.findByRole("button", { name: /今日/i })).toBeInTheDocument()
+      expect(await screen.findByRole("button", { name: /today/i })).toBeInTheDocument()
       expect(within(dialog).getByRole("button", { name: /edit note/i })).toBeDisabled()
       expect(within(dialog).getByRole("button", { name: /edit amount/i })).toBeDisabled()
     })
@@ -220,7 +220,7 @@ describe("PaymentDetailsOverlay", () => {
 
       expect(screen.getByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
       expect(within(dialog).queryByRole("textbox", { name: /date/i })).not.toBeInTheDocument()
-      expect(within(dialog).getByText("2025/06/02")).toBeInTheDocument()
+      expect(within(dialog).getByText("Jun 2, 2025")).toBeInTheDocument()
     })
 
     test("オーバーレイを閉じて再表示すると date の draft はリセットされる", async () => {
@@ -237,7 +237,7 @@ describe("PaymentDetailsOverlay", () => {
       await user.click(await within(reopenedDialog).findByRole("button", { name: /edit date/i }))
 
       expect(within(reopenedDialog).getByRole("textbox", { name: /date/i })).toHaveValue(
-        "2025/06/02",
+        "Jun 2, 2025",
       )
     })
   })

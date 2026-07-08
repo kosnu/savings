@@ -1,5 +1,6 @@
 import { Checkbox, Flex, Text } from "@radix-ui/themes"
 import { useId } from "react"
+import { useTranslation } from "react-i18next"
 
 interface ContinueCreatingCheckboxProps {
   checked: boolean
@@ -11,6 +12,7 @@ export function ContinueCreatingCheckbox({
   onCheckedChange,
 }: ContinueCreatingCheckboxProps) {
   const checkboxId = useId()
+  const { t } = useTranslation()
 
   return (
     <Text as="label" size="2" htmlFor={checkboxId}>
@@ -20,7 +22,7 @@ export function ContinueCreatingCheckbox({
           checked={checked}
           onCheckedChange={(nextChecked) => onCheckedChange(nextChecked === true)}
         />
-        Continue creating
+        {t("payments.create.continue")}
       </Flex>
     </Text>
   )
