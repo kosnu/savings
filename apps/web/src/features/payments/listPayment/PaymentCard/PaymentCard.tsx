@@ -30,15 +30,13 @@ export function PaymentCard({
               <Text size="3" color="gray">
                 {date}
               </Text>
-              <Badge size="3">
-                {categoryName === "Category name" ? t("categories.namePlaceholder") : categoryName}
-              </Badge>
+              <Badge size="3">{loading ? t("categories.namePlaceholder") : categoryName}</Badge>
             </Skeleton>
           </Flex>
           {interactive ? <ChevronRightIcon width="20" height="20" aria-hidden /> : null}
         </Flex>
         <Skeleton loading={loading}>
-          <Text size="5">{note === "Note" ? t("payments.note.label") : note}</Text>
+          <Text size="5">{loading ? t("payments.note.label") : note}</Text>
         </Skeleton>
         <Skeleton loading={loading}>
           <Text align="right" size="6" weight="bold">

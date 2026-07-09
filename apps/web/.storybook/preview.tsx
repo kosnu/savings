@@ -10,6 +10,7 @@ import { mockSession } from "../src/test/data/supabaseSession"
 import { authHandlers } from "../src/test/msw/handlers/auth"
 
 import "../src/assets/global.css"
+import "../src/i18n"
 
 // Storybook では未ハンドルな内部リクエストを素通しし、
 // MSW の詳細ログも抑制してターミナル汚染を防ぐ。
