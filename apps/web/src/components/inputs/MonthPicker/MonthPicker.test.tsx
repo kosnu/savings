@@ -22,7 +22,7 @@ describe("MonthPicker", () => {
   test("年月が選択されている場合、選択された値が表示される", () => {
     renderWithTheme(<WithValue />)
 
-    expect(screen.getByText("5")).toBeInTheDocument()
+    expect(screen.getByText("May")).toBeInTheDocument()
     expect(screen.getByText("2025")).toBeInTheDocument()
   })
 
@@ -32,7 +32,7 @@ describe("MonthPicker", () => {
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
 
-    const juneOption = await screen.findByRole("option", { name: "6" })
+    const juneOption = await screen.findByRole("option", { name: "June" })
     await user.click(juneOption)
 
     expect(handleChange).toHaveBeenCalledTimes(1)
@@ -45,12 +45,12 @@ describe("MonthPicker", () => {
   test("月を選択すると表示も更新される", async () => {
     const { user } = renderWithTheme(<WithValue value={new Date(2025, 2, 1)} />)
 
-    expect(screen.getByText("3")).toBeInTheDocument()
+    expect(screen.getByText("March")).toBeInTheDocument()
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
-    await user.click(await screen.findByRole("option", { name: "5" }))
+    await user.click(await screen.findByRole("option", { name: "May" }))
 
-    expect(await screen.findByText("5")).toBeInTheDocument()
+    expect(await screen.findByText("May")).toBeInTheDocument()
   })
 
   test("年を選択するとonChangeが呼ばれる", async () => {

@@ -1,5 +1,6 @@
 import { Button } from "@radix-ui/themes"
 import { useCallback, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import { useDialog } from "../../../../utils/useDialog"
@@ -13,9 +14,10 @@ interface UpdateMonthlyBudgetModalProps {
 
 export function UpdateMonthlyBudgetModal({
   monthlyBudget,
-  trigger = <Button>Edit budget</Button>,
+  trigger,
 }: UpdateMonthlyBudgetModalProps) {
   const { open, closeDialog, onOpenChange } = useDialog()
+  const { t } = useTranslation()
 
   const handleSuccess = useCallback(() => {
     closeDialog()
@@ -30,9 +32,9 @@ export function UpdateMonthlyBudgetModal({
       open={open}
       onOpenChange={onOpenChange}
       dismissible={false}
-      trigger={trigger}
-      title="Edit monthly budget"
-      description="Update this month's budget amount."
+      trigger={trigger ?? <Button>{t("budgets.edit")}</Button>}
+      title={t("budgets.editTitle")}
+      description={t("budgets.editDescription")}
     >
       <UpdateMonthlyBudgetForm
         monthlyBudget={monthlyBudget}

@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { BookSettings } from "../../../features/books"
+import { ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
@@ -13,12 +14,17 @@ import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
 import { SettingsPage } from "./SettingsPage"
 
 type SettingsBookComponentType = () => ReactNode
+type SettingsProfileComponentType = () => ReactNode
 
 function renderSettingsPage(
   initialEntry = "/settings",
-  options: { settingsBookComponent?: SettingsBookComponentType } = {},
+  options: {
+    settingsBookComponent?: SettingsBookComponentType
+    settingsProfileComponent?: SettingsProfileComponentType
+  } = {},
 ) {
   const SettingsBookComponent = options.settingsBookComponent ?? BookSettings
+  const SettingsProfileComponent = options.settingsProfileComponent ?? ProfileSettings
 
   return renderWithRouter(initialEntry, (root) => {
     const authenticatedRoute = createRoute({
@@ -38,7 +44,17 @@ function renderSettingsPage(
       component: SettingsBookComponent,
     })
 
-    return [authenticatedRoute.addChildren([settingsRoute.addChildren([settingsBookRoute])])]
+    const settingsProfileRoute = createRoute({
+      getParentRoute: () => settingsRoute,
+      path: "profile",
+      component: SettingsProfileComponent,
+    })
+
+    return [
+      authenticatedRoute.addChildren([
+        settingsRoute.addChildren([settingsProfileRoute, settingsBookRoute]),
+      ]),
+    ]
   })
 }
 
@@ -50,7 +66,7 @@ async function fillCreateMonthlyBudgetForm(
   await user.click(within(dialog).getByRole("combobox", { name: "Year" }))
   await user.click(await body.findByRole("option", { name: "2026" }))
   await user.click(within(dialog).getByRole("combobox", { name: "Month" }))
-  await user.click(await body.findByRole("option", { name: "10" }))
+  await user.click(await body.findByRole("option", { name: "October" }))
   await user.type(within(dialog).getByRole("textbox", { name: /amount/i }), "300000")
 }
 
@@ -59,8 +75,9 @@ describe("SettingsPage", () => {
     vi.restoreAllMocks()
   })
 
-  test("Settings 見出しと Book への導線を表示する", async () => {
+  test("Settings 見出しと Profile / Book への導線を表示する", async () => {
     const { router, user } = renderSettingsPage("/settings", {
+      settingsProfileComponent: () => <div>Profile settings page</div>,
       settingsBookComponent: () => <div>Book settings page</div>,
     })
 
@@ -69,13 +86,29 @@ describe("SettingsPage", () => {
     const settingsLink = await screen.findByRole("link", { name: "Settings" })
     expect(settingsLink).toHaveAttribute("href", "/settings")
 
+    const profileLink = await screen.findByRole("link", { name: "Profile" })
+    expect(profileLink).toHaveAttribute("href", "/settings/profile")
+
     const bookLink = await screen.findByRole("link", { name: "Book" })
     expect(bookLink).toHaveAttribute("href", "/settings/book")
+
+    await user.click(profileLink)
+
+    expect(router.state.location.pathname).toBe("/settings/profile")
+    expect(await screen.findByText("Profile settings page")).toBeInTheDocument()
 
     await user.click(bookLink)
 
     expect(router.state.location.pathname).toBe("/settings/book")
     expect(await screen.findByText("Book settings page")).toBeInTheDocument()
+  })
+
+  test("Profile 設定では Language セクションだけを表示する", async () => {
+    renderSettingsPage("/settings/profile")
+
+    expect(await screen.findByText("Language")).toBeInTheDocument()
+    expect(await screen.findByRole("combobox", { name: "Language" })).toBeInTheDocument()
+    expect(screen.queryByText("Theme")).not.toBeInTheDocument()
   })
 
   test("Book 設定では既存の最新月予算表示を維持する", async () => {
@@ -89,8 +122,8 @@ describe("SettingsPage", () => {
     renderSettingsPage("/settings/book")
 
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
-    expect(await screen.findByText("￥75,000")).toBeInTheDocument()
-    expect(screen.queryByText("￥62,000")).not.toBeInTheDocument()
+    expect(await screen.findByText("¥75,000")).toBeInTheDocument()
+    expect(screen.queryByText("¥62,000")).not.toBeInTheDocument()
     expect(await screen.findByText("Categories")).toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Name")).toBeInTheDocument()

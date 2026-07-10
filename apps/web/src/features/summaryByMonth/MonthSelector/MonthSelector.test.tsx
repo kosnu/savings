@@ -45,7 +45,7 @@ describe("MonthSelector", () => {
     renderMonthSelector("/payments?year=2025&month=5")
 
     await waitFor(() => {
-      expect(screen.getByText("5")).toBeInTheDocument()
+      expect(screen.getByText("May")).toBeInTheDocument()
       expect(screen.getByText("2025")).toBeInTheDocument()
     })
   })
@@ -54,12 +54,12 @@ describe("MonthSelector", () => {
     const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
 
     await waitFor(() => {
-      expect(screen.getByText("5")).toBeInTheDocument()
+      expect(screen.getByText("May")).toBeInTheDocument()
     })
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
 
-    const juneOption = await screen.findByRole("option", { name: "6" })
+    const juneOption = await screen.findByRole("option", { name: "June" })
     await user.click(juneOption)
 
     await waitFor(() => {
@@ -76,12 +76,12 @@ describe("MonthSelector", () => {
     const { router, user } = renderMonthSelector("/payments?year=2025&month=5&category=10")
 
     await waitFor(() => {
-      expect(screen.getByText("5")).toBeInTheDocument()
+      expect(screen.getByText("May")).toBeInTheDocument()
     })
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
 
-    const juneOption = await screen.findByRole("option", { name: "6" })
+    const juneOption = await screen.findByRole("option", { name: "June" })
     await user.click(juneOption)
 
     await waitFor(() => {

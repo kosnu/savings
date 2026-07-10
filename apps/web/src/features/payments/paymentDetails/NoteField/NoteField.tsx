@@ -1,5 +1,6 @@
 import { Flex, Text } from "@radix-ui/themes"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { PaymentId } from "../../../../types/payment"
@@ -10,8 +11,6 @@ import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 import { InlineForm } from "../InlineForm"
 import { SubmitIconButton } from "../SubmitIconButton"
-
-const notePlaceholder = "No note"
 
 interface NoteFieldProps {
   paymentId: PaymentId
@@ -29,6 +28,7 @@ export function NoteField({
   onEditEnd,
 }: NoteFieldProps) {
   const id = useId()
+  const { t } = useTranslation()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
   const [editing, setEditing] = useState(false)
@@ -37,7 +37,7 @@ export function NoteField({
   const [draftNote, setDraftNote] = useState(note)
   const [messages, setMessages] = useState<string[] | undefined>()
   const hasNote = note.trim().length > 0
-  const value = hasNote ? note : notePlaceholder
+  const value = hasNote ? note : t("payments.note.placeholder")
 
   useEffect(() => {
     return () => {
@@ -98,20 +98,20 @@ export function NoteField({
       setEditing(false)
       onEditEnd()
     } catch {
-      const message = "Failed to update note."
+      const message = t("payments.details.updateNoteFailed")
 
       setMessages([message])
       openSnackbar("error", message)
     }
-  }, [draftNote, isPending, note, onEditEnd, openSnackbar, paymentId, updatePayment])
+  }, [draftNote, isPending, note, onEditEnd, openSnackbar, paymentId, t, updatePayment])
 
   return (
     <EditableField
-      label="Note"
+      label={t("payments.note.label")}
       htmlFor={id}
       editing={editing}
       disabled={disabled && !editing}
-      editButtonLabel="Edit note"
+      editButtonLabel={t("payments.details.editNote")}
       onEdit={handleEdit}
       error={Boolean(messages?.length)}
       messages={messages}
@@ -141,7 +141,7 @@ export function NoteField({
                 onChange={handleChange}
               />
             </div>
-            <SubmitIconButton ariaLabel="Save note" loading={isPending} />
+            <SubmitIconButton ariaLabel={t("payments.details.saveNote")} loading={isPending} />
           </Flex>
         </InlineForm>
       }

@@ -1,5 +1,6 @@
 import { memo, Suspense, use, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import type { Category } from "../../../../types/category"
@@ -25,11 +26,12 @@ export const CategoryField = memo(function CategoryField({
   onChange,
 }: CategoryFieldProps) {
   const id = useId()
+  const { t } = useTranslation()
   const { promise: promiseCategories } = useCategories()
 
   return (
     <BaseField width="300px">
-      <FieldLabel htmlFor={id}>Category</FieldLabel>
+      <FieldLabel htmlFor={id}>{t("payments.category.label")}</FieldLabel>
       <CategorySelect id={id} value={value} onChange={onChange}>
         <ErrorBoundary fallback={<ErrorCategoryOption />}>
           <Suspense fallback={<LoadingCategoryOption />}>

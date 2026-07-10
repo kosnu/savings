@@ -2,6 +2,7 @@ import { Cross1Icon } from "@radix-ui/react-icons"
 import * as Toast from "@radix-ui/react-toast"
 import { IconButton } from "@radix-ui/themes"
 import { type ReactNode, useCallback, useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useTheme } from "../../../providers/theme/ThemeProvider"
 import type { TTheme } from "../../../providers/theme/types"
@@ -48,6 +49,7 @@ export function Snackbar({
 }: SnackbarProps) {
   const timerRef = useRef(0)
   const { theme } = useTheme()
+  const { t } = useTranslation()
 
   const handleToastAction = useCallback(() => {
     window.clearTimeout(timerRef.current)
@@ -74,7 +76,7 @@ export function Snackbar({
           asChild
           className={styles.toastAction}
           onClick={handleToastAction}
-          altText="Close this snackbar."
+          altText={t("common.close", { target: "snackbar" })}
         >
           <CloseButton />
         </Toast.Action>

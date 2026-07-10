@@ -34,7 +34,7 @@ describe("PaymentDetails PaymentDateField", () => {
     render(<Default />, { userOptions: { delay: null } })
 
     expect(screen.getByText("Date")).toBeInTheDocument()
-    expect(screen.getByText("2025/06/02")).toBeInTheDocument()
+    expect(screen.getByText("Jun 2, 2025")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /edit date/i })).toBeInTheDocument()
   })
 
@@ -44,7 +44,7 @@ describe("PaymentDetails PaymentDateField", () => {
     await user.click(screen.getByRole("button", { name: /edit date/i }))
 
     expect(screen.getByRole("textbox", { name: /date/i })).toBeInTheDocument()
-    expect(await screen.findByRole("button", { name: /今日/i })).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: /today/i })).toBeInTheDocument()
   })
 
   test("日付を選ぶと保存して editor を閉じる", async () => {
@@ -52,7 +52,7 @@ describe("PaymentDetails PaymentDateField", () => {
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
     await user.click(screen.getByRole("textbox", { name: /date/i }))
-    await user.click(await screen.findByRole("button", { name: /2025年6月3日/ }))
+    await user.click(await screen.findByRole("button", { name: /^Tuesday, June 3rd, 2025$/i }))
 
     await waitFor(() => {
       expect(screen.queryByRole("textbox", { name: /date/i })).not.toBeInTheDocument()
@@ -73,7 +73,7 @@ describe("PaymentDetails PaymentDateField", () => {
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
     await user.click(screen.getByRole("textbox", { name: /date/i }))
-    await user.click(await screen.findByRole("button", { name: /2025年6月2日/ }))
+    await user.click(await screen.findByRole("button", { name: /June 2nd, 2025/i }))
 
     await waitFor(() => {
       expect(screen.queryByRole("textbox", { name: /date/i })).not.toBeInTheDocument()
@@ -92,7 +92,7 @@ describe("PaymentDetails PaymentDateField", () => {
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
     await user.click(screen.getByRole("textbox", { name: /date/i }))
-    await user.click(await screen.findByRole("button", { name: /2025年6月3日/ }))
+    await user.click(await screen.findByRole("button", { name: /^Tuesday, June 3rd, 2025$/i }))
 
     expect(
       await screen.findByText("Failed to update date.", { selector: "span" }),
@@ -111,7 +111,7 @@ describe("PaymentDetails PaymentDateField", () => {
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
     await user.click(screen.getByRole("textbox", { name: /date/i }))
-    await user.click(await screen.findByRole("button", { name: /2025年6月3日/ }))
+    await user.click(await screen.findByRole("button", { name: /^Tuesday, June 3rd, 2025$/i }))
 
     expect(screen.getByRole("textbox", { name: /date/i })).toBeDisabled()
   })

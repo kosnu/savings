@@ -2,9 +2,11 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Callout, Flex } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
+import { translateMessage } from "../../../../i18n/translateMessage"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { AmountField } from "../AmountField"
 import { MonthField } from "../MonthField"
@@ -28,6 +30,7 @@ export function CreateMonthlyBudgetForm({
   onCancel,
 }: CreateMonthlyBudgetFormProps) {
   const { createMonthlyBudget } = useCreateMonthlyBudget()
+  const { t } = useTranslation()
   const defaultValues = createMonthlyBudgetDefaultValues()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
 
@@ -71,7 +74,7 @@ export function CreateMonthlyBudgetForm({
             <Callout.Icon>
               <ExclamationTriangleIcon />
             </Callout.Icon>
-            <Callout.Text>{submitErrorMessage}</Callout.Text>
+            <Callout.Text>{translateMessage(t, submitErrorMessage)}</Callout.Text>
           </Callout.Root>
         ) : null}
         <Flex direction="column" gap="3">
@@ -108,7 +111,7 @@ export function CreateMonthlyBudgetForm({
           {(isSubmitting) => (
             <Flex gap="3" justify="end">
               <CancelButton disabled={isSubmitting} onClick={handleCancel} />
-              <SubmitButton loading={isSubmitting}>Create</SubmitButton>
+              <SubmitButton loading={isSubmitting}>{t("common.create")}</SubmitButton>
             </Flex>
           )}
         </form.Subscribe>

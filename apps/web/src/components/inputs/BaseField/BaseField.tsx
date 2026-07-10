@@ -1,5 +1,8 @@
 import { Flex, type FlexProps, Text } from "@radix-ui/themes"
 import { Fragment, type ReactNode } from "react"
+import { useTranslation } from "react-i18next"
+
+import { translateMessage } from "../../../i18n/translateMessage"
 
 export type BaseFieldProps = {
   children?: ReactNode
@@ -38,6 +41,8 @@ export interface FieldMessagesProps {
 }
 
 export function FieldMessages({ error, messages }: FieldMessagesProps) {
+  const { t } = useTranslation()
+
   if (!messages || messages.length === 0) {
     return null
   }
@@ -47,7 +52,7 @@ export function FieldMessages({ error, messages }: FieldMessagesProps) {
       {messages.map((message, index) => (
         <Fragment key={message}>
           {index > 0 && <br />}
-          {message}
+          {translateMessage(t, message)}
         </Fragment>
       ))}
     </Text>

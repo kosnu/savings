@@ -5,6 +5,7 @@ import { createQueryClient } from "../lib/queryClient"
 import { SnackbarProvider } from "../providers/snackbar/SnackbarProvider"
 import { SupabaseSessionProvider } from "../providers/supabase/SupabaseSessionProvider"
 import { ThemeProvider } from "../providers/theme/ThemeProvider"
+import "../i18n"
 
 const queryClient = createQueryClient()
 

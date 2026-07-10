@@ -13,7 +13,7 @@ const meta = {
     editing: false,
     view: (
       <Text size="4" style={{ flex: 1 }}>
-        ￥1,000
+        ¥1,000
       </Text>
     ),
     editor: (
