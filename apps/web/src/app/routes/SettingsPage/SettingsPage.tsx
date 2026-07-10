@@ -19,6 +19,7 @@ export function SettingsPage() {
           columns={{ initial: "1", sm: "minmax(160px, 220px) auto minmax(0, 1fr)" }}
           gap="4"
           align="stretch"
+          alignContent="start"
           minHeight="calc(100vh - 9rem)"
         >
           <nav aria-label={t("settings.sections")}>
