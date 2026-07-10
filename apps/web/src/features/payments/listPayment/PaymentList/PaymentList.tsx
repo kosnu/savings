@@ -2,6 +2,7 @@ import { Button, Flex, Text } from "@radix-ui/themes"
 import { useNavigate } from "@tanstack/react-router"
 import { memo, Suspense, use, useCallback, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
 import type { Payment, PaymentId } from "../../../../types/payment"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
@@ -17,6 +18,7 @@ interface PaymentListProps {
 }
 
 export const PaymentList = memo(function PaymentList({ cacheScope }: PaymentListProps) {
+  const { t } = useTranslation()
   const categoryId = useCategoryId()
   const navigate = useNavigate({ from: "/payments" })
   const { promise: promisePayments } = usePayments({ cacheScope, categoryId })
@@ -51,7 +53,7 @@ export const PaymentList = memo(function PaymentList({ cacheScope }: PaymentList
 
   return (
     <>
-      <Flex aria-label="payment-list" direction="column" gap="2" tabIndex={-1}>
+      <Flex aria-label={t("payments.list.label")} direction="column" gap="2" tabIndex={-1}>
         <ErrorBoundary fallback={<PaymentListError />} resetKeys={[promisePayments]}>
           <Suspense fallback={<SkeltonItems />}>
             <Items
@@ -126,12 +128,14 @@ function EmptyItems({
   filtered: boolean
   onClearCategory: () => void
 }) {
+  const { t } = useTranslation()
+
   return (
     <Flex align="start" direction="column" gap="2">
-      <Text color="gray">No payments found.</Text>
+      <Text color="gray">{t("payments.list.empty")}</Text>
       {filtered ? (
         <Button variant="soft" onClick={onClearCategory}>
-          Clear filter
+          {t("payments.list.clearFilter")}
         </Button>
       ) : null}
     </Flex>
@@ -149,9 +153,11 @@ function SkeltonItems() {
 }
 
 function PaymentListError() {
+  const { t } = useTranslation()
+
   return (
     <Text color="red" role="alert">
-      Could not load payments.
+      {t("payments.list.loadError")}
     </Text>
   )
 }

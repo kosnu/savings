@@ -1,5 +1,6 @@
 import { Button, Flex, Separator, Skeleton, Text } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
 import type { Payment, PaymentDetails, PaymentId } from "../../../../types/payment"
@@ -8,8 +9,6 @@ import { CategoryField } from "../CategoryField"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { usePaymentDetails } from "../usePaymentDetails"
-
-const paymentDetailNoCategoryName = "None"
 
 interface PaymentDetailsOverlayProps {
   paymentId: PaymentId | null
@@ -24,6 +23,7 @@ export function PaymentDetailsOverlay({
   onOpenChange,
   onDelete,
 }: PaymentDetailsOverlayProps) {
+  const { t } = useTranslation()
   const { data: payment, isLoading, error } = usePaymentDetails(paymentId)
   const [isEditingField, setIsEditingField] = useState(false)
   const hasPaymentId = paymentId !== null
@@ -31,10 +31,10 @@ export function PaymentDetailsOverlay({
   const canShowPaymentDetails = hasPaymentId && hasPaymentDetails
   const isNotFound = open && !isLoading && !error && !canShowPaymentDetails
   const description = error
-    ? "Failed to load payment details."
+    ? t("payments.details.loadError")
     : isNotFound
-      ? "Payment not found."
-      : "Review the payment details."
+      ? t("payments.details.notFound")
+      : t("payments.details.description")
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
       if (!nextOpen) {
@@ -61,7 +61,7 @@ export function PaymentDetailsOverlay({
       open={open}
       onOpenChange={handleOpenChange}
       onEscapeKeyDown={handleEscapeKeyDown}
-      title="Payment details"
+      title={t("payments.details.title")}
       description={description}
     >
       {isLoading ? (
@@ -86,7 +86,7 @@ export function PaymentDetailsOverlay({
             <CategoryField
               paymentId={payment.id}
               categoryId={payment.category?.id ?? null}
-              categoryName={payment.category?.name ?? paymentDetailNoCategoryName}
+              categoryName={payment.category?.name ?? t("payments.category.none")}
               disabled={isEditingField}
               onEditStart={handleEditStart}
               onEditEnd={handleEditEnd}
@@ -104,7 +104,7 @@ export function PaymentDetailsOverlay({
               <Separator size="4" />
               <Flex justify="end" pt="2">
                 <Button color="red" variant="soft" onClick={() => onDelete(toPayment(payment))}>
-                  Delete this payment
+                  {t("payments.details.delete")}
                 </Button>
               </Flex>
             </>
@@ -116,17 +116,21 @@ export function PaymentDetailsOverlay({
 }
 
 function PaymentDetailsLoading() {
+  const { t } = useTranslation()
+
   return (
-    <Flex aria-label="loading payment details" direction="column" gap="4">
-      <LoadingField label="Date" />
-      <LoadingField label="Amount" />
-      <LoadingField label="Category" />
-      <LoadingField label="Note" />
+    <Flex aria-label={t("payments.details.loadingAria")} direction="column" gap="4">
+      <LoadingField label={t("date.label")} />
+      <LoadingField label={t("amount.label")} />
+      <LoadingField label={t("payments.category.label")} />
+      <LoadingField label={t("payments.note.label")} />
     </Flex>
   )
 }
 
 function LoadingField({ label }: { label: string }) {
+  const { t } = useTranslation()
+
   return (
     <Flex direction="column" gap="2">
       <Text as="p" size="2" weight="bold">
@@ -134,7 +138,7 @@ function LoadingField({ label }: { label: string }) {
       </Text>
       <Skeleton loading>
         <Text aria-hidden size="4">
-          Loading payment details
+          {t("payments.details.loading")}
         </Text>
       </Skeleton>
     </Flex>

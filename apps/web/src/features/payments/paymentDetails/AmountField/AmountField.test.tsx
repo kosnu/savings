@@ -114,12 +114,12 @@ describe("AmountField", () => {
   test("非編集中の表示は amount prop の再描画に追従する", async () => {
     const view = render(<Default />)
 
-    expect(screen.getByText(/￥1,000/)).toBeInTheDocument()
+    expect(screen.getByText(/¥1,000/)).toBeInTheDocument()
 
     view.rerender(<Default amount={2500} />)
 
     await waitFor(() => {
-      expect(screen.getByText(/￥2,500/)).toBeInTheDocument()
+      expect(screen.getByText(/¥2,500/)).toBeInTheDocument()
     })
   })
 

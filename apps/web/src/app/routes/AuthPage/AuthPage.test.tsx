@@ -24,9 +24,9 @@ describe("AuthPage", () => {
   test("認証エラーがあるときは汎用メッセージを表示する", async () => {
     render(<WithAuthError />)
 
-    expect(await screen.findByText("ログインに失敗しました")).toBeInTheDocument()
+    expect(await screen.findByText("Sign-in failed")).toBeInTheDocument()
     expect(
-      screen.getByText("認証を完了できませんでした。時間をおいて、もう一度お試しください。"),
+      screen.getByText("Authentication could not be completed. Please wait and try again."),
     ).toBeInTheDocument()
     expect(screen.queryByText("Error code: unexpected_failure")).not.toBeInTheDocument()
     expect(screen.queryByText("Unable to exchange external code: abc")).not.toBeInTheDocument()

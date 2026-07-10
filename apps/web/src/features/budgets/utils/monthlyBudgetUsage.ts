@@ -1,3 +1,4 @@
+import { i18next } from "../../../i18n"
 import { toCurrency } from "../../../utils/toCurrency"
 
 export type MonthlyBudgetUsageStatus = "remaining" | "over"
@@ -19,13 +20,13 @@ export function getMonthlyBudgetUsageDisplay(
 
   if (difference >= 0) {
     return {
-      text: `${toCurrency(difference)} left`,
+      text: i18next.t("common.left", { amount: toCurrency(difference) }),
       status: "remaining",
     }
   }
 
   return {
-    text: `${toCurrency(Math.abs(difference))} over`,
+    text: i18next.t("common.over", { amount: toCurrency(Math.abs(difference)) }),
     status: "over",
   }
 }

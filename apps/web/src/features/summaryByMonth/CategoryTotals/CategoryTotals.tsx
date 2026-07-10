@@ -1,7 +1,9 @@
 import { Box, Button, Flex, Grid, Skeleton, Text } from "@radix-ui/themes"
 import { Suspense, use, useState, type ReactNode } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
+import { i18next } from "../../../i18n"
 import { toCurrency } from "../../../utils/toCurrency"
 import type { CategoryTotals as CategoryTotalsData } from "./fetchCategoryTotals"
 import { useCategoryTotals } from "./useCategoryTotals"
@@ -16,10 +18,11 @@ interface CategoryTotalsProps {
 
 export function CategoryTotals({ cacheScope }: CategoryTotalsProps) {
   const { promise, targetMonthKey } = useCategoryTotals({ cacheScope })
+  const { t } = useTranslation()
 
   return (
     <ErrorBoundary
-      fallback={<Text color="red">Failed</Text>}
+      fallback={<Text color="red">{t("common.failed")}</Text>}
       resetKeys={[cacheScope ?? "default", targetMonthKey]}
     >
       <Suspense fallback={<CategoryTotalsLoading />}>
@@ -54,18 +57,20 @@ function CategoryTotalsResolved({
 }
 
 function CategoryTotalsLoading() {
+  const { t } = useTranslation()
+
   return (
-    <Flex aria-label="loading category totals" direction="column" gap="2" width="100%">
+    <Flex aria-label={t("summary.loadingCategoryTotals")} direction="column" gap="2" width="100%">
       {["primary", "secondary", "tertiary"].map((row) => (
         <CategoryTotalsGrid key={row}>
           <Skeleton loading>
-            <Text aria-hidden>Category</Text>
+            <Text aria-hidden>{t("summary.category")}</Text>
           </Skeleton>
           <Skeleton loading>
-            <Text aria-hidden>￥0,000</Text>
+            <Text aria-hidden>¥0,000</Text>
           </Skeleton>
           <Skeleton loading>
-            <Text aria-hidden>￥0,000 left</Text>
+            <Text aria-hidden>¥0,000 left</Text>
           </Skeleton>
         </CategoryTotalsGrid>
       ))}
@@ -79,23 +84,24 @@ interface CategoryTotalsContentProps {
 
 function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount)
+  const { t } = useTranslation()
 
   const hasOverflow = categoryTotals.length > initialVisibleCount
   const isExpanded = visibleCount >= categoryTotals.length
   const visibleTotals = categoryTotals.slice(0, visibleCount)
-  const toggleLabel = isExpanded ? "Show less" : "Show more"
-  const toggleAriaLabel = isExpanded ? "Show less category totals" : "Show more category totals"
+  const toggleLabel = isExpanded ? t("summary.showLess") : t("summary.showMore")
+  const toggleAriaLabel = isExpanded ? t("summary.showLessAria") : t("summary.showMoreAria")
 
   return (
     <Flex direction="column" gap="3" width="100%">
       <Box display={{ initial: "none", sm: "block" }}>
         <CategoryTotalsGrid>
-          <Text color="gray">Category</Text>
+          <Text color="gray">{t("summary.category")}</Text>
           <Text align="right" color="gray">
-            Total
+            {t("summary.total")}
           </Text>
           <Text align="right" color="gray">
-            Difference
+            {t("summary.difference")}
           </Text>
         </CategoryTotalsGrid>
       </Box>
@@ -133,10 +139,14 @@ function CategoryTotalsGrid({ children }: { children: ReactNode }) {
 }
 
 function CategoryTotalName({ total }: { total: CategoryTotalsData[number] }) {
+  const { t } = useTranslation()
+  const categoryName =
+    total.kind === "uncategorized" ? t("payments.category.uncategorized") : total.categoryName
+
   return (
     <Flex align="center" gap="2">
       <Text className={total.kind === "uncategorized" ? styles.systemLabel : undefined}>
-        {total.categoryName}
+        {categoryName}
       </Text>
     </Flex>
   )
@@ -164,28 +174,28 @@ function CategoryBudgetDifference({ total }: { total: CategoryTotalsData[number]
 
 function formatBudgetDifference(total: CategoryTotalsData[number]): string {
   if (total.budgetStatus === "none") {
-    return "No budget"
+    return i18next.t("common.noBudget")
   }
 
   if (total.budgetStatus === "unset") {
-    return "Not set"
+    return i18next.t("common.notSet")
   }
 
   const difference = total.budgetDifference
 
   if (difference === null) {
-    return "Failed"
+    return i18next.t("common.failed")
   }
 
   if (difference > 0) {
-    return `${toCurrency(difference)} left`
+    return i18next.t("common.left", { amount: toCurrency(difference) })
   }
 
   if (difference < 0) {
-    return `${toCurrency(Math.abs(difference))} over`
+    return i18next.t("common.over", { amount: toCurrency(Math.abs(difference)) })
   }
 
-  return "On budget"
+  return i18next.t("common.onBudget")
 }
 
 function getBudgetDifferenceColor(

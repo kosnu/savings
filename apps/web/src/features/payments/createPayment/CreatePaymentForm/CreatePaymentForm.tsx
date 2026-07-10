@@ -1,6 +1,7 @@
 import { Flex } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
@@ -35,6 +36,7 @@ export function CreatePaymentForm({
   onContinuousModeChange,
 }: CreatePaymentFormProps) {
   const { createPayment } = useCreatePayment(onSuccess, onError)
+  const { t } = useTranslation()
   const defaultValues = createPaymentDefaultValues()
 
   const form = useForm({
@@ -146,7 +148,7 @@ export function CreatePaymentForm({
           {(isSubmitting) => (
             <Flex gap="3">
               <CancelButton disabled={isSubmitting} onClick={handleCancel} />
-              <SubmitButton loading={isSubmitting}>Create</SubmitButton>
+              <SubmitButton loading={isSubmitting}>{t("common.create")}</SubmitButton>
             </Flex>
           )}
         </form.Subscribe>

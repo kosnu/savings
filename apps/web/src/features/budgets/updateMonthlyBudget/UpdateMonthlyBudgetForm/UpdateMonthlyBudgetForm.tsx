@@ -2,6 +2,7 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Callout, Flex, Text } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useId, useState } from "react"
+import { useTranslation } from "react-i18next"
 import * as z from "zod"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
@@ -9,11 +10,12 @@ import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { amountFieldSchema, toAmountFormValue } from "../../../../domain/amount"
+import { translateMessage } from "../../../../i18n/translateMessage"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import type { MonthlyBudget } from "../../types"
 import { useUpdateMonthlyBudget } from "../useUpdateMonthlyBudget"
 
-const UPDATE_MONTHLY_BUDGET_ERROR_MESSAGE = "Failed to update monthly budget."
+const UPDATE_MONTHLY_BUDGET_ERROR_MESSAGE = "budgets.updateFailed"
 
 const updateMonthlyBudgetFormSubmitSchema = z.object({
   amount: amountFieldSchema,
@@ -35,6 +37,7 @@ export function UpdateMonthlyBudgetForm({
   onCancel,
 }: UpdateMonthlyBudgetFormProps) {
   const amountInputId = useId()
+  const { t } = useTranslation()
   const { updateMonthlyBudget, isPending } = useUpdateMonthlyBudget()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
   const defaultValues: UpdateMonthlyBudgetFormValues = {
@@ -88,13 +91,13 @@ export function UpdateMonthlyBudgetForm({
             <Callout.Icon>
               <ExclamationTriangleIcon />
             </Callout.Icon>
-            <Callout.Text>{submitErrorMessage}</Callout.Text>
+            <Callout.Text>{translateMessage(t, submitErrorMessage)}</Callout.Text>
           </Callout.Root>
         ) : null}
         <Flex direction="column" gap="3">
           <BaseField>
-            <FieldLabel>Month</FieldLabel>
-            <Text>This month</Text>
+            <FieldLabel>{t("date.month")}</FieldLabel>
+            <Text>{t("budgets.thisMonth")}</Text>
           </BaseField>
           <form.Field name="amount">
             {(field) => {
@@ -104,7 +107,7 @@ export function UpdateMonthlyBudgetForm({
               return (
                 <BaseField>
                   <FieldLabel htmlFor={amountInputId} required>
-                    Amount
+                    {t("amount.label")}
                   </FieldLabel>
                   <AmountInput
                     id={amountInputId}
@@ -126,7 +129,7 @@ export function UpdateMonthlyBudgetForm({
           {(isSubmitting) => (
             <Flex gap="3" justify="end">
               <CancelButton disabled={isSubmitting} onClick={handleCancel} />
-              <SubmitButton loading={isSubmitting}>Save</SubmitButton>
+              <SubmitButton loading={isSubmitting}>{t("common.save")}</SubmitButton>
             </Flex>
           )}
         </form.Subscribe>

@@ -36,7 +36,7 @@ describe("Router", () => {
 
     render(<Router />, { withProviders: false })
 
-    expect(screen.getByText("認証状態を確認しています...")).toBeInTheDocument()
+    expect(screen.getByText("Checking authentication status...")).toBeInTheDocument()
     expect(screen.queryByText("router-provider")).not.toBeInTheDocument()
     expect(mockRouterProvider).not.toHaveBeenCalled()
   })

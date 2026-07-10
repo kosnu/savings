@@ -1,5 +1,6 @@
 import { Skeleton, Text } from "@radix-ui/themes"
 import { memo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
 import {
@@ -63,7 +64,8 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
   status,
   text,
 }: MonthlyBudgetUsageTextProps) {
-  const content = error ? "Failed" : (text ?? "\u00A0")
+  const { t } = useTranslation()
+  const content = error ? t("common.failed") : (text ?? "\u00A0")
 
   return (
     <Skeleton loading={loading} data-testid={loading ? "budget-difference-skeleton" : undefined}>

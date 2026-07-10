@@ -27,7 +27,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<Remaining />)
 
-    expect(await screen.findByText("￥20,000 left")).toBeInTheDocument()
+    expect(await screen.findByText("¥20,000 left")).toBeInTheDocument()
   })
 
   test("月予算を超えたら超過額を表示する", async () => {
@@ -38,7 +38,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<Over />)
 
-    expectAccentColor(await screen.findByText("￥15,000 over"), "yellow")
+    expectAccentColor(await screen.findByText("¥15,000 over"), "yellow")
   })
 
   test("月予算がない場合は利用状況を表示しない", async () => {
@@ -75,7 +75,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<Remaining />)
 
-    expect(await screen.findByText("￥10,000 over")).toBeInTheDocument()
+    expect(await screen.findByText("¥10,000 over")).toBeInTheDocument()
   })
 
   test("月予算の取得に失敗した場合はエラー状態を表示する", async () => {

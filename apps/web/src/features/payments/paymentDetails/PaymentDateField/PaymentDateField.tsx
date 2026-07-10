@@ -1,8 +1,10 @@
 import { Text } from "@radix-ui/themes"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { DatePicker } from "../../../../components/inputs/DatePicker"
 import { toDateOnlyString } from "../../../../domain/date"
+import { getDateFormat } from "../../../../i18n"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import type { PaymentId } from "../../../../types/payment"
 import { formatDateToLocaleString } from "../../../../utils/formatter/formatDateToLocaleString"
@@ -27,6 +29,7 @@ export function PaymentDateField({
   onEditEnd,
 }: PaymentDateFieldProps) {
   const id = useId()
+  const { i18n, t } = useTranslation()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment()
   const [editing, setEditing] = useState(false)
@@ -93,29 +96,33 @@ export function PaymentDateField({
         })
         closeEditor()
       } catch {
-        const message = "Failed to update date."
+        const message = t("payments.details.updateDateFailed")
 
         setMessages([message])
         openSnackbar("error", message)
       }
     },
-    [closeEditor, date, isPending, openSnackbar, paymentId, updatePayment],
+    [closeEditor, date, isPending, openSnackbar, paymentId, t, updatePayment],
   )
 
   return (
     <EditableField
-      label="Date"
+      label={t("date.label")}
       htmlFor={id}
       required
       editing={editing}
       disabled={disabled && !editing}
-      editButtonLabel="Edit date"
+      editButtonLabel={t("payments.details.editDate")}
       onEdit={handleEdit}
       error={Boolean(messages?.length)}
       messages={messages}
       view={
         <Text size="4" style={{ flex: 1 }}>
-          {formatDateToLocaleString(date)}
+          {formatDateToLocaleString(
+            date,
+            getDateFormat(i18n.resolvedLanguage),
+            i18n.resolvedLanguage,
+          )}
         </Text>
       }
       editor={

@@ -2,6 +2,7 @@ import { Select } from "@radix-ui/themes"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { memo, Suspense, use, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
 import { CategoryOption, ErrorCategoryOption, useCategories } from "../../../categories"
 import { toPaymentCategoryId, toPaymentCategorySearch } from "../paymentCategorySearch"
@@ -10,9 +11,9 @@ import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE } from "../paymentsSearchSchema"
 import styles from "./PaymentCategoryFilter.module.css"
 
 const PAYMENT_SEARCH_CATEGORY_ALL_VALUE = "all"
-const PAYMENT_SEARCH_CATEGORY_UNKNOWN_LABEL = "Unknown category"
 
 export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
+  const { t } = useTranslation()
   const categorySearch = useLocation({
     select: (location) => location.search.category,
   })
@@ -40,14 +41,16 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
   return (
     <Select.Root name="category-filter" value={value} onValueChange={handleChange}>
       <Select.Trigger
-        aria-label="Category filter"
+        aria-label={t("payments.category.filter")}
         className={categoryId === null ? styles.systemLabel : undefined}
         style={{ width: "100%" }}
       />
       <Select.Content>
-        <Select.Item value={PAYMENT_SEARCH_CATEGORY_ALL_VALUE}>All categories</Select.Item>
+        <Select.Item value={PAYMENT_SEARCH_CATEGORY_ALL_VALUE}>
+          {t("payments.category.all")}
+        </Select.Item>
         <Select.Item className={styles.systemLabel} value={PAYMENT_SEARCH_CATEGORY_NONE_VALUE}>
-          Uncategorized
+          {t("payments.category.uncategorized")}
         </Select.Item>
         <ErrorBoundary fallback={<ErrorCategoryOption />}>
           <Suspense
@@ -89,17 +92,21 @@ const PaymentCategoryOptions = memo(function PaymentCategoryOptions({
 })
 
 function LoadingSelectedCategoryOption({ selectedValue }: { selectedValue?: string }) {
+  const { t } = useTranslation()
+
   return (
     <Select.Item disabled value={selectedValue ?? "loading"}>
-      Loading
+      {t("payments.category.loading")}
     </Select.Item>
   )
 }
 
 function UnknownCategoryOption({ value }: { value: string }) {
+  const { t } = useTranslation()
+
   return (
     <Select.Item disabled value={value}>
-      {PAYMENT_SEARCH_CATEGORY_UNKNOWN_LABEL}
+      {t("payments.category.unknown")}
     </Select.Item>
   )
 }

@@ -2,6 +2,7 @@ import { Cross1Icon } from "@radix-ui/react-icons"
 import { Button, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { useCallback, type ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 import { getSupabaseClient } from "../../lib/supabase"
 
@@ -16,6 +17,7 @@ interface SidebarProps {
 export function Sidebar({ children, open, onClose }: SidebarProps) {
   const navigate = useNavigate()
   const supabase = getSupabaseClient()
+  const { t } = useTranslation()
 
   const handleLogout = useCallback(async () => {
     const { error } = await supabase.auth.signOut()
@@ -43,11 +45,15 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
           <Link to="/" className={styles.link}>
             <Button className={styles.sidebarButton} variant="ghost" size="3">
               <Text size="3" weight="bold">
-                My Savings
+                {t("app.name")}
               </Text>
             </Button>
           </Link>
-          <IconButton aria-label="Close sidebar" variant="ghost" onClick={onClose}>
+          <IconButton
+            aria-label={t("common.close", { target: "sidebar" })}
+            variant="ghost"
+            onClick={onClose}
+          >
             <Cross1Icon />
           </IconButton>
         </Flex>
@@ -60,7 +66,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
         {/* Sidebar Footer */}
         <Flex className={styles.sidebarFooter} p="4">
           <Button color="red" variant="soft" onClick={handleLogout}>
-            Supabaseログアウト（検証用）
+            {t("auth.devLogout")}
           </Button>
         </Flex>
       </aside>

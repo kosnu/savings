@@ -2,6 +2,7 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Callout, Checkbox, Flex, Text, TextField } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useCallback, useId, useState } from "react"
+import { useTranslation } from "react-i18next"
 import * as z from "zod"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
@@ -9,6 +10,7 @@ import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { AmountInput } from "../../../../components/inputs/AmountInput"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { optionalAmountFieldSchema } from "../../../../domain/amount"
+import { translateMessage } from "../../../../i18n/translateMessage"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { CATEGORY_PIN_LIMIT, categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
 import { categoryNameSchema } from "../../categorySchema"
@@ -51,6 +53,7 @@ export function UpdateCategoryNameForm({
   const budgetInputId = useId()
   const budgetMessagesId = useId()
   const pinnedInputId = useId()
+  const { t } = useTranslation()
   const { updateCategoryName, isPending } = useUpdateCategoryName()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
   const defaultValues: UpdateCategoryNameFormValues = {
@@ -127,7 +130,7 @@ export function UpdateCategoryNameForm({
             <Callout.Icon>
               <ExclamationTriangleIcon />
             </Callout.Icon>
-            <Callout.Text>{submitErrorMessage}</Callout.Text>
+            <Callout.Text>{translateMessage(t, submitErrorMessage)}</Callout.Text>
           </Callout.Root>
         ) : null}
         <Flex direction="column" gap="3">
@@ -140,7 +143,7 @@ export function UpdateCategoryNameForm({
               return (
                 <BaseField>
                   <FieldLabel htmlFor={nameInputId} required>
-                    Name
+                    {t("categories.name")}
                   </FieldLabel>
                   <TextField.Root
                     autoFocus
@@ -148,7 +151,7 @@ export function UpdateCategoryNameForm({
                     id={nameInputId}
                     name="name"
                     value={field.state.value}
-                    aria-label="Name"
+                    aria-label={t("categories.name")}
                     aria-describedby={hasError ? nameErrorId : undefined}
                     aria-invalid={hasError}
                     onChange={(event) => {
@@ -168,17 +171,17 @@ export function UpdateCategoryNameForm({
               const isValid = field.state.meta.isValid
               const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
               const hasError = !isValid && errorMessages.length > 0
-              const messages = hasError ? errorMessages : ["Leave blank for no category budget."]
+              const messages = hasError ? errorMessages : [t("categories.budgetHelp")]
 
               return (
                 <BaseField>
-                  <FieldLabel htmlFor={budgetInputId}>Budget</FieldLabel>
+                  <FieldLabel htmlFor={budgetInputId}>{t("categories.budget")}</FieldLabel>
                   <AmountInput
                     disabled={isPending}
                     id={budgetInputId}
                     name="budgetAmount"
                     value={field.state.value === undefined ? "" : String(field.state.value)}
-                    aria-label="Budget"
+                    aria-label={t("categories.budget")}
                     aria-describedby={budgetMessagesId}
                     aria-invalid={hasError}
                     onChange={(value) => {
@@ -207,7 +210,7 @@ export function UpdateCategoryNameForm({
                       setSubmitErrorMessage(undefined)
                     }}
                   />
-                  Pin category
+                  {t("categories.pinCategory")}
                 </Flex>
               </Text>
             )}
@@ -217,7 +220,7 @@ export function UpdateCategoryNameForm({
           {(isSubmitting) => (
             <Flex gap="3" justify="end">
               <CancelButton disabled={isSubmitting || isPending} onClick={handleCancel} />
-              <SubmitButton loading={isSubmitting || isPending}>Save</SubmitButton>
+              <SubmitButton loading={isSubmitting || isPending}>{t("common.save")}</SubmitButton>
             </Flex>
           )}
         </form.Subscribe>
