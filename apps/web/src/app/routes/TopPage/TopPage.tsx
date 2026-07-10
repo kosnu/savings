@@ -7,7 +7,7 @@ export function TopPage() {
 
   return (
     <>
-      <Container size="2">
+      <Container px="4" size="2">
         <Flex direction="column" gap="3">
           <Text asChild size="5" weight="bold">
             <h2>{t("app.name")}</h2>

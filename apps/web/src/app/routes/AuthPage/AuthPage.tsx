@@ -10,7 +10,7 @@ export function AuthPage() {
   const { t } = useTranslation()
 
   return (
-    <Container size="2">
+    <Container px="4" size="2">
       <Flex direction="column" gap="3">
         <Text asChild size="5" weight="bold">
           <h2>{t("auth.title")}</h2>
