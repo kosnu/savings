@@ -13,7 +13,7 @@ export function ErrorPage({ error }: ErrorComponentProps) {
   }, [error])
 
   return (
-    <Container id={`error-page-${id}`} size="2">
+    <Container id={`error-page-${id}`} px="4" size="2">
       <Flex align="start" direction="column" gap="4">
         <Flex align="center" gap="2">
           <ExclamationTriangleIcon aria-hidden width="22" height="22" />
