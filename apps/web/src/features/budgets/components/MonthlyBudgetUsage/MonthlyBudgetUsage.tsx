@@ -1,12 +1,14 @@
-import { Skeleton, Text } from "@radix-ui/themes"
+import { Flex, Skeleton, Text } from "@radix-ui/themes"
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { toCurrency } from "../../../../utils/toCurrency"
 import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
 import {
   getMonthlyBudgetUsageDisplay,
   type MonthlyBudgetUsageStatus,
 } from "../../utils/monthlyBudgetUsage"
+import { BudgetProgress } from "../BudgetProgress"
 
 export interface MonthlyBudgetUsageProps {
   targetDate: Date | null
@@ -39,19 +41,27 @@ export function MonthlyBudgetUsage({
     return <MonthlyBudgetUsageText error />
   }
 
-  const display = getMonthlyBudgetUsageDisplay(
-    totalExpenditures,
-    monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null,
-  )
+  const budgetAmount =
+    monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null
+  const display = getMonthlyBudgetUsageDisplay(totalExpenditures, budgetAmount)
 
   if (display === null) {
     return null
   }
 
-  return <MonthlyBudgetUsageText status={display.status} text={display.text} />
+  return (
+    <MonthlyBudgetUsageText
+      amount={totalExpenditures}
+      budget={budgetAmount}
+      status={display.status}
+      text={display.text}
+    />
+  )
 }
 
 interface MonthlyBudgetUsageTextProps {
+  amount?: number
+  budget?: number | null
   error?: boolean
   loading?: boolean
   status?: MonthlyBudgetUsageStatus
@@ -59,6 +69,8 @@ interface MonthlyBudgetUsageTextProps {
 }
 
 const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
+  amount,
+  budget,
   error = false,
   loading = false,
   status,
@@ -66,20 +78,57 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
 }: MonthlyBudgetUsageTextProps) {
   const { t } = useTranslation()
   const content = error ? t("common.failed") : (text ?? "\u00A0")
-
-  return (
-    <Skeleton loading={loading} data-testid={loading ? "budget-difference-skeleton" : undefined}>
+  const canShowProgress =
+    !loading &&
+    !error &&
+    amount !== undefined &&
+    budget !== null &&
+    budget !== undefined &&
+    status !== undefined
+  const difference = (
+    <Skeleton
+      loading={loading}
+      data-testid={loading ? "budget-difference-skeleton" : undefined}
+      style={{ maxWidth: "100%" }}
+    >
       <Text
         align="right"
         aria-hidden={loading}
         color={getTextColor(error, status)}
         role={error ? "status" : undefined}
         size="1"
-        style={{ display: "inline-block", minHeight: "20px", minWidth: "12ch" }}
+        style={{
+          display: "inline-block",
+          maxWidth: "100%",
+          minHeight: "20px",
+          minWidth: "12ch",
+          overflowWrap: "anywhere",
+        }}
       >
         {content}
       </Text>
     </Skeleton>
+  )
+
+  return (
+    <Flex align="stretch" direction="column" gap="1" width="100%">
+      {canShowProgress && (
+        <BudgetProgress
+          amount={amount}
+          ariaLabel={t("summary.monthlyBudgetProgress")}
+          ariaValueText={t("summary.budgetProgressValue", {
+            amount: toCurrency(amount),
+            budget: toCurrency(budget),
+            difference: content,
+          })}
+          budget={budget}
+          status={status}
+        />
+      )}
+      <Flex justify="end" width="100%">
+        {difference}
+      </Flex>
+    </Flex>
   )
 })
 
