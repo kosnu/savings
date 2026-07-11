@@ -8,6 +8,8 @@ import { useDateRange } from "../../../utils/useDateRange"
 import { MonthlyBudgetUsage } from "../../budgets"
 import { useTotalExpenditures } from "./useTotalExpenditures"
 
+import styles from "./MonthlyTotals.module.css"
+
 function MonthlyTotals() {
   const { t } = useTranslation()
   const totalExpenditures = useTotalExpenditures()
@@ -15,20 +17,23 @@ function MonthlyTotals() {
 
   return (
     <Flex
-      align="end"
-      gap="1"
       direction="column"
       flexGrow="1"
+      gap="1"
       aria-label={t("payments.total.label")}
+      width="100%"
     >
-      <Flex justify="end" align="baseline" style={{ minWidth: "10ch" }}>
+      <Flex align="baseline" justify="between" width="100%">
+        <Text color="gray" mr="1" size="2">
+          {t("payments.total.heading")}
+        </Text>
         <ErrorBoundary fallback={<Text color="red">{t("common.failed")}</Text>}>
           <Suspense fallback={<TotalMoneyText loading />}>
             <MoneyText getValue={totalExpenditures.promise} />
           </Suspense>
         </ErrorBoundary>
       </Flex>
-      <Flex justify="end" align="center">
+      <Flex justify="end" align="center" width="100%">
         <MonthlyBudgetUsage
           targetDate={date}
           totalExpenditures={totalExpenditures.data}
@@ -61,15 +66,14 @@ function TotalMoneyText({ loading = false, text = "\u00A0" }: TotalMoneyTextProp
   const { t } = useTranslation()
 
   return (
-    <Skeleton loading={loading} data-testid={loading ? t("payments.total.skeleton") : undefined}>
-      <Flex align="baseline" justify="end" aria-hidden={loading} style={{ minWidth: "12ch" }}>
-        <Text size="2" color="gray" mr="1">
-          {t("payments.total.heading")}
-        </Text>
-        <Text align="right" size="6" weight="bold">
-          {text}
-        </Text>
-      </Flex>
+    <Skeleton
+      loading={loading}
+      data-testid={loading ? t("payments.total.skeleton") : undefined}
+      style={{ minWidth: 0 }}
+    >
+      <Text align="right" aria-hidden={loading} className={styles.amount} size="6" weight="bold">
+        {text}
+      </Text>
     </Skeleton>
   )
 }
