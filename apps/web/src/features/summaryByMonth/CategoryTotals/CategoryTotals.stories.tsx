@@ -1,3 +1,4 @@
+import { Box } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, userEvent, within } from "storybook/test"
 
@@ -99,6 +100,29 @@ const paymentRows: PaymentRow[] = [
   },
 ]
 
+const largeAmountCategoryRows: CategoryRow[] = [
+  {
+    id: 60,
+    book_id: 1,
+    name: "Large amount",
+    created_at: "2025-01-01T00:00:00.000Z",
+    updated_at: "2025-01-01T00:00:00.000Z",
+  },
+]
+
+const largeAmountPaymentRows: PaymentRow[] = [
+  {
+    id: 60,
+    book_id: 1,
+    category_id: 60,
+    amount: 9_000_000_000_000,
+    date: "2025-06-06",
+    note: "Large amount",
+    created_at: "2025-06-06T00:00:00.000Z",
+    updated_at: "2025-06-06T00:00:00.000Z",
+  },
+]
+
 const meta = {
   title: "Features/SummaryByMonth/CategoryTotals",
   component: CategoryTotals,
@@ -140,5 +164,42 @@ export const Default: Story = {
 
     expect(await canvas.findByText("Not set")).toBeInTheDocument()
     expect(await canvas.findByText("No budget")).toBeInTheDocument()
+  },
+}
+
+export const LargeAmounts: Story = {
+  tags: ["browser-test"],
+  decorators: [
+    (Story) => (
+      <Box data-testid="large-amount-summary" style={{ width: "14rem" }}>
+        <Story />
+      </Box>
+    ),
+  ],
+  parameters: {
+    msw: {
+      handlers: [
+        ...createCategoryHandlers({
+          get: {
+            response: largeAmountCategoryRows,
+            paymentRows: largeAmountPaymentRows,
+            budgetRows: [{ category_id: 60, status: "amount", amount: 1 }],
+          },
+        }),
+        ...createPaymentHandlers({ initialRows: largeAmountPaymentRows }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const container = await canvas.findByTestId("large-amount-summary")
+    const progress = await canvas.findByRole("progressbar", {
+      name: "Large amount budget progress",
+    })
+
+    expect(await canvas.findByText("¥9,000,000,000,000")).toBeInTheDocument()
+    expect(await canvas.findByText("¥8,999,999,999,999 over")).toBeInTheDocument()
+    expect(container.scrollWidth).toBeLessThanOrEqual(container.clientWidth)
+    expect(progress.getBoundingClientRect().width).toBe(container.getBoundingClientRect().width)
   },
 }

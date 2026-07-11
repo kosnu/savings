@@ -28,6 +28,9 @@ describe("MonthlyBudgetUsage", () => {
     render(<Remaining />)
 
     expect(await screen.findByText("¥20,000 left")).toBeInTheDocument()
+    expect(
+      await screen.findByRole("progressbar", { name: "Monthly total budget progress" }),
+    ).toHaveAttribute("aria-valuetext", "Spent ¥10,000 of ¥30,000. ¥20,000 left.")
   })
 
   test("月予算を超えたら超過額を表示する", async () => {
@@ -39,6 +42,9 @@ describe("MonthlyBudgetUsage", () => {
     render(<Over />)
 
     expectAccentColor(await screen.findByText("¥15,000 over"), "yellow")
+    expect(
+      await screen.findByRole("progressbar", { name: "Monthly total budget progress" }),
+    ).toHaveAttribute("aria-valuetext", "Spent ¥45,000 of ¥30,000. ¥15,000 over.")
   })
 
   test("月予算がない場合は利用状況を表示しない", async () => {
@@ -52,6 +58,7 @@ describe("MonthlyBudgetUsage", () => {
     await waitFor(() => {
       expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
     })
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 
   test("予算なし状態の場合は利用状況を表示しない", async () => {
@@ -65,6 +72,7 @@ describe("MonthlyBudgetUsage", () => {
     await waitFor(() => {
       expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
     })
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 
   test("0円予算は予算ありとして超過額を表示する", async () => {
@@ -76,6 +84,9 @@ describe("MonthlyBudgetUsage", () => {
     render(<Remaining />)
 
     expect(await screen.findByText("¥10,000 over")).toBeInTheDocument()
+    expect(
+      await screen.findByRole("progressbar", { name: "Monthly total budget progress" }),
+    ).toHaveAttribute("aria-valuetext", "Spent ¥10,000 of ¥0. ¥10,000 over.")
   })
 
   test("月予算の取得に失敗した場合はエラー状態を表示する", async () => {

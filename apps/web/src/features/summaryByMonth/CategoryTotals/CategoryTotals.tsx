@@ -1,10 +1,11 @@
-import { Box, Button, Flex, Grid, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense, use, useState, type ReactNode } from "react"
+import { Box, Button, Flex, Skeleton, Text } from "@radix-ui/themes"
+import { Suspense, use, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import { i18next } from "../../../i18n"
 import { toCurrency } from "../../../utils/toCurrency"
+import { BudgetProgress } from "../../budgets"
 import type { CategoryTotals as CategoryTotalsData } from "./fetchCategoryTotals"
 import { useCategoryTotals } from "./useCategoryTotals"
 
@@ -60,19 +61,26 @@ function CategoryTotalsLoading() {
   const { t } = useTranslation()
 
   return (
-    <Flex aria-label={t("summary.loadingCategoryTotals")} direction="column" gap="2" width="100%">
+    <Flex aria-label={t("summary.loadingCategoryTotals")} direction="column" gap="3" width="100%">
       {["primary", "secondary", "tertiary"].map((row) => (
-        <CategoryTotalsGrid key={row}>
-          <Skeleton loading>
-            <Text aria-hidden>{t("summary.category")}</Text>
+        <Flex key={row} direction="column" gap="1" width="100%">
+          <Flex justify="between" gap="2" width="100%">
+            <Skeleton loading>
+              <Text aria-hidden>{t("summary.category")}</Text>
+            </Skeleton>
+            <Skeleton loading>
+              <Text aria-hidden>¥0,000</Text>
+            </Skeleton>
+          </Flex>
+          <Skeleton loading width="100%">
+            <Text aria-hidden>　　　　</Text>
           </Skeleton>
-          <Skeleton loading>
-            <Text aria-hidden>¥0,000</Text>
-          </Skeleton>
-          <Skeleton loading>
-            <Text aria-hidden>¥0,000 left</Text>
-          </Skeleton>
-        </CategoryTotalsGrid>
+          <Flex justify="end" width="100%">
+            <Skeleton loading>
+              <Text aria-hidden>¥0,000 left</Text>
+            </Skeleton>
+          </Flex>
+        </Flex>
       ))}
     </Flex>
   )
@@ -94,24 +102,20 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
 
   return (
     <Flex direction="column" gap="3" width="100%">
-      <Box display={{ initial: "none", sm: "block" }}>
-        <CategoryTotalsGrid>
-          <Text color="gray">{t("summary.category")}</Text>
-          <Text align="right" color="gray">
-            {t("summary.total")}
-          </Text>
-          <Text align="right" color="gray">
-            {t("summary.difference")}
-          </Text>
-        </CategoryTotalsGrid>
-      </Box>
       <Flex direction="column" gap="2" width="100%">
         {visibleTotals.map((total) => (
-          <CategoryTotalsGrid key={total.key}>
-            <CategoryTotalName total={total} />
-            <CategoryTotalAmount amount={total.totalAmount} />
-            <CategoryBudgetDifference total={total} />
-          </CategoryTotalsGrid>
+          <Flex key={total.key} direction="column" gap="1" width="100%">
+            <Flex align="center" justify="between" gap="2" width="100%">
+              <Box flexGrow="1" minWidth="0">
+                <CategoryTotalName total={total} />
+              </Box>
+              <CategoryTotalAmount amount={total.totalAmount} />
+            </Flex>
+            <CategoryBudgetProgress total={total} />
+            <Flex justify="end" width="100%">
+              <CategoryBudgetDifference total={total} />
+            </Flex>
+          </Flex>
         ))}
       </Flex>
       {hasOverflow && (
@@ -134,8 +138,30 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
   )
 }
 
-function CategoryTotalsGrid({ children }: { children: ReactNode }) {
-  return <Grid className={styles.row}>{children}</Grid>
+function CategoryBudgetProgress({ total }: { total: CategoryTotalsData[number] }) {
+  const { t } = useTranslation()
+
+  if (total.budgetStatus !== "amount" || total.budgetAmount === null) {
+    return null
+  }
+
+  const categoryName =
+    total.kind === "uncategorized" ? t("payments.category.uncategorized") : total.categoryName
+  const difference = formatBudgetDifference(total)
+
+  return (
+    <BudgetProgress
+      amount={total.totalAmount}
+      ariaLabel={t("summary.categoryBudgetProgress", { category: categoryName })}
+      ariaValueText={t("summary.budgetProgressValue", {
+        amount: toCurrency(total.totalAmount),
+        budget: toCurrency(total.budgetAmount),
+        difference,
+      })}
+      budget={total.budgetAmount}
+      status={total.budgetDifference !== null && total.budgetDifference < 0 ? "over" : "remaining"}
+    />
+  )
 }
 
 function CategoryTotalName({ total }: { total: CategoryTotalsData[number] }) {
