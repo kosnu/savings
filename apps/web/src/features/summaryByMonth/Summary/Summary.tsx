@@ -1,4 +1,4 @@
-import { Card, Flex, Separator } from "@radix-ui/themes"
+import { Card, Flex } from "@radix-ui/themes"
 
 import { CategoryTotals } from "../CategoryTotals"
 import { MonthlyTotals } from "../MonthlyTotals"
@@ -10,15 +10,18 @@ interface SummaryProps {
 
 export function Summary({ cacheScope }: SummaryProps) {
   return (
-    <Card size="2">
-      <Flex gap="3" direction="column" width="100%">
-        <Flex align="start" justify="between" gap="2" wrap="wrap">
-          <MonthSelector />
+    <Flex direction="column" gap="3" width="100%">
+      <Flex justify="center">
+        <MonthSelector />
+      </Flex>
+      <Card size="2">
+        <Flex direction="column" width="100%">
           <MonthlyTotals />
         </Flex>
-        <Separator size="4" />
+      </Card>
+      <Card size="2">
         <CategoryTotals cacheScope={cacheScope} />
-      </Flex>
-    </Card>
+      </Card>
+    </Flex>
   )
 }

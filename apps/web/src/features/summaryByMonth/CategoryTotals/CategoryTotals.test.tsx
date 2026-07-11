@@ -127,19 +127,28 @@ describe("CategoryTotals", () => {
     expectAccentColor(await screen.findByText("¥1,000 over"), "yellow")
     expect(screen.queryByText("¥4,000 left")).not.toBeInTheDocument()
     expectAccentColor(await screen.findByText("No budget"), "gray")
+    expect(screen.getAllByRole("progressbar")).toHaveLength(1)
+    expect(
+      screen.queryByRole("progressbar", { name: "Daily Necessities budget progress" }),
+    ).not.toBeInTheDocument()
   })
 
-  test("カテゴリ名、合計額、予算差額を同じ行内の別セルに置く", async () => {
+  test("カテゴリ名と合計額の行の下に、Progressと予算差額を表示する", async () => {
     server.resetHandlers(...createCategoryHandlers(), ...createPaymentHandlers())
     renderStory()
 
     const categoryName = await screen.findByText("Food")
     const totalAmount = await screen.findByText("¥1,000")
     const budgetDifference = await screen.findByText("¥29,000 left")
-    const categoryRow = categoryName.parentElement?.parentElement
+    const categoryHeader = totalAmount.parentElement
+    const progress = screen.getByRole("progressbar", { name: "Food budget progress" })
+    const categoryTotal = categoryHeader?.parentElement
 
-    expect(totalAmount.parentElement).toBe(categoryRow)
-    expect(budgetDifference.parentElement).toBe(categoryRow)
+    expect(categoryHeader).toContainElement(categoryName)
+    expect(categoryTotal?.children[1]).toBe(progress)
+    expect(categoryTotal?.children[2]).toContainElement(budgetDifference)
+    expect(progress).toHaveAttribute("aria-valuetext", "Spent ¥1,000 of ¥30,000. ¥29,000 left.")
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2)
   })
 
   test("Unknownという名前のカテゴリと未分類支払いを別行で表示する", async () => {
