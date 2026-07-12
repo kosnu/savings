@@ -17,7 +17,7 @@ topics:
 when_to_read:
   - PRレビューコメントに対応するとき
   - 未解決review threadを確認するとき
-  - レビューコメントをShip、Learn skill、Build / Verify工程内の整合性問題に分類するとき
+  - レビューコメントをShip、学びの抽出、Build / Verify工程内の整合性問題に分類するとき
 ---
 
 # Review Feedback Classification
