@@ -42,6 +42,8 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 
 人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果を次回Requirementsへ整理する場合は、Goalではなくlearn skillを使います。
 
+レビューコメントを次回Requirementsへ整理する扱いは、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに限ります。これらを独立したGoalとして作らない通常タスクでは、レビューコメントごとに修正要否を判断し、必要な修正を現在のタスク内で行います。
+
 人間が介在すると、意図よりも実装詳細に寄りやすくなります。
 
 そのため、前半のGoalほど「ユーザー課題」「成功条件」「制約」「未決事項」を中心に書き、ファイル名、関数名、実装手順は後半に寄せます。
