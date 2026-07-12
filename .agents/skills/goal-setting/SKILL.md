@@ -1,6 +1,6 @@
 ---
 name: goal-setting
-description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship. Use when the user asks to set up a Goal, says 次のGoal, or names a phase such as requirements, design, build, or ship. For learning from review feedback or preparing the next Requirements input, use the learn skill first. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
+description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship. Use when the user asks to set up a Goal, says 次のGoal, or names a phase such as requirements, design, build, or ship. For learning from review feedback or preparing the next Requirements input, use the Learn skill first. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
 ---
 
 # Goal Setting

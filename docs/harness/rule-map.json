@@ -127,15 +127,28 @@
       "priority": 84
     },
     {
+      "id": "policy.learning-extraction",
+      "file": "docs/harness/policies/learning-extraction.md",
+      "applies_to": {
+        "paths": ["docs/harness/policies/learning-extraction.md", ".agents/skills/learn/**", ".agents/skills/harness-task/**"],
+        "domains": ["repository", "harness", "ai-driven-development"],
+        "activities": ["extract_learning", "prepare_task_context", "update_learning_rule"],
+        "topics": ["learning", "review", "verification", "operations", "task-context", "policy"]
+      },
+      "depends_on": ["documentation.policy"],
+      "overrides": [],
+      "priority": 94
+    },
+    {
       "id": "ai-driven.learn",
       "file": "docs/ai-driven-development/workflow.md",
       "applies_to": {
-        "paths": ["docs/ai-driven-development/**", ".agents/skills/learn/**"],
+        "paths": ["docs/ai-driven-development/**"],
         "domains": ["repository", "ai-driven-development"],
-        "activities": ["prepare_next_requirements_input", "classify_review_feedback", "update_learning_input"],
+        "activities": ["extract_learning", "prepare_task_context", "update_learning_rule"],
         "topics": ["learn", "review", "requirements", "policy"]
       },
-      "depends_on": ["ai-driven.workflow", "policy.review-feedback-classification"],
+      "depends_on": ["ai-driven.workflow", "policy.learning-extraction", "policy.review-feedback-classification"],
       "overrides": [],
       "priority": 85
     },
@@ -161,7 +174,8 @@
         "activities": ["address_review_comment", "classify_review_feedback", "reply_review_comment", "resolve_review_thread"],
         "topics": ["review", "pull-request", "requirements", "design", "verification"]
       },
-      "depends_on": ["ai-driven.workflow", "policy.git-workflow"],
+      "depends_on": ["policy.git-workflow", "policy.learning-extraction"],
+      "related": ["ai-driven.workflow"],
       "overrides": [],
       "priority": 94
     },

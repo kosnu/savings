@@ -77,6 +77,8 @@ Implement the smallest practical diff that satisfies the scoped task.
 
 Keep representations synchronized. Treat one-sided updates as likely bugs even when tests pass.
 
+During review and verification, extract reusable learning from review comments, findings, or changed constraints. Apply an explicitly requested, in-scope rule or policy update directly; otherwise report the learning as task context that can be used as Requirements material or harness-task input, or as a rule / policy candidate. This capability does not require invoking `learn`, although `learn` may be used when a dedicated learning handoff is requested.
+
 Use subagents sparingly:
 
 - Small: main agent implements and reviews by default.
@@ -126,5 +128,6 @@ Return a concise outcome-first report:
 - Main harness refs or selected rule-map nodes used.
 - Verification run, skipped, or blocked.
 - Review result and remaining risks, if any.
+- Reusable learning as Task Context or a Rule / Policy candidate, only when one exists; omit it otherwise.
 
 Do not reconstruct a long plan in the final report.
