@@ -40,7 +40,9 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 
 このフローは、各工程で人間が逐次承認するHuman in the loopではなく、AIがStop条件に当たらない限り前進し、人間が監督、例外処理、公開可否を担うHuman on the loopを前提にします。
 
-人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果を次回Requirementsへ整理する場合は、Goalではなくlearn skillを使います。
+人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果を次回Requirementsへ整理する場合は、GoalではなくLearn skillを使います。
+
+レビューコメントを次回Requirementsへ整理する扱いは、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに限ります。現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない通常タスクでは、レビューコメントごとに修正要否を判断し、必要な修正を現在のタスク内で行います。
 
 人間が介在すると、意図よりも実装詳細に寄りやすくなります。
 
