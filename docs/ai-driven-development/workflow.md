@@ -29,7 +29,7 @@ when_to_read:
 3. Build / Verify Goal
 4. Ship Goal
 
-この4工程とLearnによる次回Requirementsへの整理は、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに適用します。これらを独立したGoalとして作らない通常タスクでは、Build / Verify完了後という理由だけでレビュー修正をStopせず、[Review Feedback Classification](../harness/policies/review-feedback-classification.md) に従ってコメントごとに修正要否を判断します。
+この4工程とLearnによる次回Requirementsへの整理は、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに適用します。現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない通常タスクでは、Build / Verify完了後という理由だけでレビュー修正をStopせず、[Review Feedback Classification](../harness/policies/review-feedback-classification.md) に従ってコメントごとに修正要否を判断します。
 
 Build / Verifyは、Requirements / PRDとDesign Docを満たす実装と検証を完了する工程です。正常終了時に要件未達は残しません。工程中の検証失敗、型エラー、lint、実装整合性、変更漏れは工程内で解消します。Requirements / PRDまたはDesign Docが不足・矛盾して満たせない場合は、解釈で埋めずStop条件として扱います。
 
@@ -213,7 +213,7 @@ workflow上の責務定義、工程上の位置づけ、禁止事項はこのセ
 
 すべての変更を4工程に分ける必要はありません。
 
-typo修正、軽微なログ追加、1文で差分を説明できる小さな変更は、PRDやDesign Docを独立Goalにしなくてよいです。
+typo修正、軽微なログ追加、1文で差分を説明できる小さな変更など、現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない変更は、PRDやDesign Docを独立Goalにしなくてよいです。
 
 このような通常タスクのレビューコメントは、現在のIssueや依頼の範囲で修正要否を判断し、必要な修正だけをそのタスクまたはPR内で実施します。AI Driven Developmentサイクルの成果物フィードバックをLearnへ送るルールは適用しません。
 

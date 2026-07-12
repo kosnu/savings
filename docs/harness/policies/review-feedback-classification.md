@@ -25,7 +25,7 @@ when_to_read:
 PRレビューコメントに対応するときは、最初にタスク種別を判定してからコメントを分類します。
 
 - AI Driven Developmentサイクル: Requirements / PRDとDesign Docを入力に、Build / Verify、Shipまでの工程を進めるタスク
-- 通常タスク: Requirements / PRDやDesign Docを独立したGoalとして作らず、現在のIssueや依頼を直接実行する軽微修正、ドキュメント変更、レビュー修正など
+- 通常タスク: 現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にせず、現在のIssueや依頼を直接実行する軽微修正、ドキュメント変更、レビュー修正など
 
 AI Driven Developmentサイクルでは、Build / Verify完了後の成果物フィードバックを前回実装への局所修正として扱うと、次回Requirementsの入力にすべき仕様判断や設計判断を小修正として吸収してしまい、PRDやDesign Docとの接続が崩れます。この制約を通常タスクへ適用しません。
 
