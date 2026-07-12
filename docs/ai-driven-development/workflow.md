@@ -17,7 +17,7 @@ topics:
 when_to_read:
   - AI駆動開発の工程を選ぶとき
   - Codex GoalをPRD、Design Doc、実装、提出準備、学習整理に分けるとき
-  - Shipとlearn skillの役割を確認するとき
+  - ShipとLearn skillの役割を確認するとき
 ---
 
 # AI Driven Development Workflow
@@ -29,13 +29,15 @@ when_to_read:
 3. Build / Verify Goal
 4. Ship Goal
 
+この4工程と、LearnでタスクコンテキストをRequirementsの材料として整理する扱いは、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに適用します。現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない通常タスクでは、Build / Verify完了後という理由だけでレビュー修正をStopせず、[Review Feedback Classification](../harness/policies/review-feedback-classification.md) に従ってコメントごとに修正要否を判断します。
+
 Build / Verifyは、Requirements / PRDとDesign Docを満たす実装と検証を完了する工程です。正常終了時に要件未達は残しません。工程中の検証失敗、型エラー、lint、実装整合性、変更漏れは工程内で解消します。Requirements / PRDまたはDesign Docが不足・矛盾して満たせない場合は、解釈で埋めずStop条件として扱います。
 
 Shipは、Build / Verify済みの成果をPR、説明、レビュー返信ができる形へ整える工程です。要件充足の一次確認はBuild / Verifyで完了している前提にします。Shipは実装成果物へのレビュー指摘を修正する工程ではありません。
 
-LearnはGoalではなくskillです。Build / Verify完了後の成果物レビュー、レビューコメント、検証結果、運用知見、ルール・ポリシー変更を、次回のRequirements入力、ルール、ポリシー、監督制約へ整理します。次回のサイクルを回す場合は、前回の続きとして途中工程から再開せず、`$learn` で入力を整理してから、必ずIntent / Requirements Goalから始めます。
+LearnはGoalではなくskillです。Build / Verify完了後の成果物レビュー、レビューコメント、検証結果、運用知見、ルール・ポリシー変更を、Requirementsの材料となるタスクコンテキスト、ルール、ポリシー、監督制約へ整理します。新しいサイクルを回す場合は、前回の続きとして途中工程から再開せず、`$learn` でタスクコンテキストを整理してから、必ずIntent / Requirements Goalから始めます。
 
-`requirements.md` と `design-doc.md` は、各工程で生成された時点の成果物として扱います。後続工程では read-only の入力として参照し、追記、修正、整形、リネームをしてはいけません。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、既存成果物を直さず、Stop条件として扱い、`$learn` で次回Requirements入力へ整理してから新しいサイクルを始めます。
+`requirements.md` と `design-doc.md` は、各工程で生成された時点の成果物として扱います。後続工程では read-only の入力として参照し、追記、修正、整形、リネームをしてはいけません。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、既存成果物を直さず、Stop条件として扱い、`$learn` でRequirementsの材料となるタスクコンテキストへ整理してから新しいサイクルを始めます。
 
 このフローはHuman on the loopを前提にします。AIはStop条件に当たらない限り次工程へ進み、人間は各工程の逐次承認ではなく、リスク監督、例外処理、最終的な公開可否を担います。
 
@@ -131,7 +133,7 @@ Context Packetには次だけを含めます。
 
 Build / Verifyは、Requirements / PRDとDesign Docを満たすまで実装と検証を行う工程です。正常終了時に要件未達は残しません。工程中のテスト失敗、型エラー、lint、実装整合性、変更漏れ、呼び出し側調整はこの工程内で修正して再検証します。Requirements / PRDまたはDesign Docの不足・矛盾で満たせない場合は、勝手に仕様を補わずStopします。
 
-Build / Verify完了後の成果物フィードバックは、この工程を再開して前回実装へ局所修正する入力にしません。`$learn` で次回Requirements入力へ整理し、次のサイクルをRequirementsから始めます。
+Build / Verify完了後の成果物フィードバックは、この工程を再開して前回実装へ局所修正する入力にしません。`$learn` でRequirementsの材料となるタスクコンテキストへ整理し、新しいサイクルをRequirementsから始めます。
 
 主な成果物:
 
@@ -156,7 +158,7 @@ Build / Verify完了後の成果物フィードバックは、この工程を再
 
 Build / Verify済みの成果を提出できる形に整えます。
 
-この工程は、PR作成、変更内容の要約、検証結果の記録、Ship範囲のレビューコメントへの返信、完了済みthreadのresolveを扱います。Requirements / PRDやDesign Docの判断を作り直したり、実装成果物へのレビュー指摘を修正したり、次回の入力を整理したりしません。
+この工程は、PR作成、変更内容の要約、検証結果の記録、Ship範囲のレビューコメントへの返信、完了済みthreadのresolveを扱います。Requirements / PRDやDesign Docの判断を作り直したり、実装成果物へのレビュー指摘を修正したり、タスクコンテキストを整理したりしません。
 
 主な成果物:
 
@@ -169,7 +171,7 @@ Build / Verify済みの成果を提出できる形に整えます。
 完了時チェック:
 
 - PR本文、変更要約、検証結果、レビュー返信、thread resolve判断が、Build / Verify済み成果と選択したrule-mapサブグラフに違反していないか確認する。
-- Shipで要件充足判断、仕様判断、次回Requirements入力の作成をしていないか確認する。
+- Shipで要件充足判断、仕様判断、タスクコンテキストの作成をしていないか確認する。
 
 止まる条件:
 
@@ -182,27 +184,29 @@ Build / Verify済みの成果を提出できる形に整えます。
 
 ## Learn Skill
 
-レビューコメント、検証結果、運用知見、ルール・ポリシー変更を次回のAI実行単位の入力へ整理します。
+レビューコメント、検証結果、運用知見、ルール・ポリシー変更をタスクコンテキストまたはルール・ポリシーへ整理します。
 
-LearnはGoalではないため、Goalを設定せず、実装もしません。次回Requirementsの初期Input、関連ルール、ポリシー、監督制約を更新または参照できる形にします。前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断は、次回Requirements / Designの入力にしません。
+このセクションはAI Driven DevelopmentサイクルでのLearnの使い方を定義します。AIDDに限定されない学びの定義と整理先は、[Learning Extraction](../harness/policies/learning-extraction.md) を正本とします。
+
+LearnはGoalではないため、Goalを設定せず、実装もしません。Requirementsの材料となるタスクコンテキスト、関連ルール、ポリシー、監督制約を更新または参照できる形にします。前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断は、Requirements / Designの入力にしません。
 
 workflow上の責務定義、工程上の位置づけ、禁止事項はこのセクションを正本とします。`$learn` の実行手順は、この責務定義に従います。
 
 主な成果物:
 
-- 次回Requirementsへ渡す初期Input
-- 次回に参照するレビューコメント、検証結果、監督制約
+- Requirementsの材料となるタスクコンテキスト
+- 参照するレビューコメント、検証結果、監督制約
 - 更新または参照するルール・ポリシー
-- 次回に含めない学習項目と理由
+- タスクコンテキストに含めない学習項目と理由
 
 完了時チェック:
 
-- 次回Requirements入力、参照するルール・ポリシー、監督制約が、選択したrule-mapサブグラフとLearnの禁止事項に違反していないか確認する。
+- タスクコンテキスト、参照するルール・ポリシー、監督制約が、選択したrule-mapサブグラフとLearnの禁止事項に違反していないか確認する。
 - 前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断を入力化していないか確認する。
 
 止まる条件:
 
-- 次回Requirementsへ渡すべき入力が分類できない
+- タスクコンテキストへ渡すべき学びが分類できない
 - ルール・ポリシー更新が必要だが、更新対象が曖昧
 - 前回実装を根拠にしないと入力を説明できない
 - memory更新が必要だがユーザーの明示依頼がない
@@ -211,6 +215,10 @@ workflow上の責務定義、工程上の位置づけ、禁止事項はこのセ
 
 すべての変更を4工程に分ける必要はありません。
 
-typo修正、軽微なログ追加、1文で差分を説明できる小さな変更は、PRDやDesign Docを独立Goalにしなくてよいです。
+typo修正、軽微なログ追加、1文で差分を説明できる小さな変更など、現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない変更は、PRDやDesign Docを独立Goalにしなくてよいです。
+
+このような通常タスクのレビューコメントは、現在のIssueや依頼の範囲で修正要否を判断し、必要な修正だけをそのタスクまたはPR内で実施します。AI Driven Developmentサイクルの成果物フィードバックをLearnへ送るルールは適用しません。
+
+通常タスクでも、レビューや検証から再利用可能な学びを抽出できます。harness-task内でタスクコンテキストやルール・ポリシーへ整理しても、専用handoffとしてLearn skillを使っても構いません。
 
 逆に、複数ファイルにまたがる変更、仕様判断を含む変更、初見の領域を触る変更、検証方法が重要な変更では、探索と計画を実装から分離します。
