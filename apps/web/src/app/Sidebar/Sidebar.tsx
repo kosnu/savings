@@ -82,7 +82,14 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
         {/* Sidebar Footer */}
         <Flex className={styles.sidebarFooter} direction="column" gap="3" p="4">
           {logoutFailed ? (
-            <Callout.Root aria-live="polite" role="alert" color="red" variant="surface" size="1">
+            <Callout.Root
+              aria-live="polite"
+              className={styles.logoutError}
+              role="alert"
+              color="red"
+              variant="surface"
+              size="1"
+            >
               <Callout.Icon>
                 <ExclamationTriangleIcon />
               </Callout.Icon>

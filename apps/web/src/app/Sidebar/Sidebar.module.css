@@ -58,6 +58,10 @@
   /*  */
 }
 
+.logout-error {
+  white-space: normal;
+}
+
 /* リンクのスタイル */
 .link {
   /* リンクの下線を削除 */
