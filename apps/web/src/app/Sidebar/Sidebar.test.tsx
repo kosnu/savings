@@ -1,7 +1,7 @@
 import { composeStories } from "@storybook/react-vite"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { render, screen, waitFor } from "../../test/test-utils"
+import { createTestQueryClient, render, screen, waitFor } from "../../test/test-utils"
 import * as stories from "./Sidebar.stories"
 
 const mockSignOut = vi.fn()
@@ -72,7 +72,9 @@ describe("Sidebar", () => {
 
   test("ユーザー向けのログアウト表示で、成功時にサイドバーを閉じる", async () => {
     const onClose = vi.fn()
-    const { user } = render(<Default onClose={onClose} />)
+    const queryClient = createTestQueryClient()
+    queryClient.setQueryData(["private-data"], { owner: "user-a" })
+    const { user } = render(<Default onClose={onClose} />, { queryClient })
 
     expect(screen.queryByText(/Supabase|verification/)).not.toBeInTheDocument()
     const logoutButton = await screen.findByRole("button", { name: "Log out" })
@@ -81,6 +83,7 @@ describe("Sidebar", () => {
     await user.click(logoutButton)
 
     expect(mockSignOut).toHaveBeenCalledTimes(1)
+    expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
   })
 

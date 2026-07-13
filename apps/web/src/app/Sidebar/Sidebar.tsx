@@ -1,5 +1,6 @@
 import { Cross1Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
+import { useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { useCallback, useState, type ReactNode } from "react"
 import { useTranslation } from "react-i18next"
@@ -16,6 +17,7 @@ interface SidebarProps {
 
 export function Sidebar({ children, open, onClose }: SidebarProps) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const supabase = getSupabaseClient()
   const { t } = useTranslation()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -35,6 +37,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
         return
       }
 
+      queryClient.clear()
       await navigate({ to: "/" })
       onClose()
     } catch (error) {
@@ -43,7 +46,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
     } finally {
       setIsLoggingOut(false)
     }
-  }, [isLoggingOut, navigate, onClose, supabase])
+  }, [isLoggingOut, navigate, onClose, queryClient, supabase])
 
   return (
     <>
