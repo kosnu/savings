@@ -30,7 +30,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
     setLogoutFailed(false)
 
     try {
-      const { error } = await supabase.auth.signOut()
+      const { error } = await supabase.auth.signOut({ scope: "local" })
       if (error) {
         console.error("Failed to sign out from supabase:", error)
         setLogoutFailed(true)
