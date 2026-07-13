@@ -83,6 +83,7 @@ describe("Sidebar", () => {
     await user.click(logoutButton)
 
     expect(mockSignOut).toHaveBeenCalledTimes(1)
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: "local" })
     expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
   })
