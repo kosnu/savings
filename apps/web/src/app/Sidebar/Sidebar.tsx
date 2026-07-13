@@ -1,7 +1,7 @@
-import { Cross1Icon } from "@radix-ui/react-icons"
-import { Button, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
+import { Cross1Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import { Button, Callout, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { useCallback, type ReactNode } from "react"
+import { useCallback, useState, type ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getSupabaseClient } from "../../lib/supabase"
@@ -18,16 +18,32 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
   const navigate = useNavigate()
   const supabase = getSupabaseClient()
   const { t } = useTranslation()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [logoutFailed, setLogoutFailed] = useState(false)
 
   const handleLogout = useCallback(async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
+    if (isLoggingOut) return
+
+    setIsLoggingOut(true)
+    setLogoutFailed(false)
+
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error("Failed to sign out from supabase:", error)
+        setLogoutFailed(true)
+        return
+      }
+
+      await navigate({ to: "/" })
+      onClose()
+    } catch (error) {
       console.error("Failed to sign out from supabase:", error)
-      return
+      setLogoutFailed(true)
+    } finally {
+      setIsLoggingOut(false)
     }
-    await navigate({ to: "/" })
-    onClose()
-  }, [navigate, onClose, supabase])
+  }, [isLoggingOut, navigate, onClose, supabase])
 
   return (
     <>
@@ -64,9 +80,22 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
         </Flex>
         <Separator size="4" />
         {/* Sidebar Footer */}
-        <Flex className={styles.sidebarFooter} p="4">
-          <Button color="red" variant="soft" onClick={handleLogout}>
-            {t("auth.devLogout")}
+        <Flex className={styles.sidebarFooter} direction="column" gap="3" p="4">
+          {logoutFailed ? (
+            <Callout.Root aria-live="polite" role="alert" color="red" variant="surface" size="1">
+              <Callout.Icon>
+                <ExclamationTriangleIcon />
+              </Callout.Icon>
+              <Callout.Text>{t("auth.logoutFailed")}</Callout.Text>
+            </Callout.Root>
+          ) : null}
+          <Button
+            color="gray"
+            loading={isLoggingOut}
+            variant="soft"
+            onClick={() => void handleLogout()}
+          >
+            {t("auth.logout")}
           </Button>
         </Flex>
       </aside>

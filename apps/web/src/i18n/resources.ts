@@ -21,7 +21,8 @@ export const resources = {
       "auth.callbackErrorTitle": "Sign-in failed",
       "auth.callbackErrorDescription":
         "Authentication could not be completed. Please wait and try again.",
-      "auth.devLogout": "Supabase logout (verification)",
+      "auth.logout": "Log out",
+      "auth.logoutFailed": "Could not log out. Please try again.",
       "error.title": "Something went wrong",
       "error.description":
         "The page could not be displayed. Try reloading the page, or go back home.",
@@ -197,7 +198,8 @@ export const resources = {
       "auth.callbackErrorTitle": "ログインに失敗しました",
       "auth.callbackErrorDescription":
         "認証を完了できませんでした。時間をおいて、もう一度お試しください。",
-      "auth.devLogout": "Supabaseログアウト（検証用）",
+      "auth.logout": "ログアウト",
+      "auth.logoutFailed": "ログアウトできませんでした。もう一度お試しください。",
       "error.title": "問題が発生しました",
       "error.description":
         "ページを表示できませんでした。再読み込みするか、ホームへ戻ってください。",
