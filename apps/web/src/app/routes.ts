@@ -15,6 +15,7 @@ import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
 import { ErrorPage } from "./routes/ErrorPage"
 import { PaymentsPage } from "./routes/PaymentsPage"
+import { SettingsOverview } from "./routes/SettingsOverview"
 import { SettingsPage } from "./routes/SettingsPage"
 import { TopPage } from "./routes/TopPage"
 import { parseSearch, stringifySearch } from "./searchSerialization"
@@ -86,6 +87,12 @@ const settingsRoute = createRoute({
   component: SettingsPage,
 })
 
+const settingsIndexRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "/",
+  component: SettingsOverview,
+})
+
 const settingsBookRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "book",
@@ -104,7 +111,7 @@ const routeTree = rootRoute.addChildren([
   authenticatedRoute.addChildren([
     paymentsRoute.addChildren([paymentDetailsRoute]),
     aggregatesRoute,
-    settingsRoute.addChildren([settingsProfileRoute, settingsBookRoute]),
+    settingsRoute.addChildren([settingsIndexRoute, settingsProfileRoute, settingsBookRoute]),
   ]),
 ])
 

@@ -11,6 +11,7 @@ import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyB
 import { server } from "../../../test/msw/server"
 import { screen, within } from "../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
+import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 
 type SettingsBookComponentType = () => ReactNode
@@ -38,6 +39,12 @@ function renderSettingsPage(
       component: SettingsPage,
     })
 
+    const settingsIndexRoute = createRoute({
+      getParentRoute: () => settingsRoute,
+      path: "/",
+      component: SettingsOverview,
+    })
+
     const settingsBookRoute = createRoute({
       getParentRoute: () => settingsRoute,
       path: "book",
@@ -52,7 +59,7 @@ function renderSettingsPage(
 
     return [
       authenticatedRoute.addChildren([
-        settingsRoute.addChildren([settingsProfileRoute, settingsBookRoute]),
+        settingsRoute.addChildren([settingsIndexRoute, settingsProfileRoute, settingsBookRoute]),
       ]),
     ]
   })
@@ -75,13 +82,24 @@ describe("SettingsPage", () => {
     vi.restoreAllMocks()
   })
 
-  test("Settings 見出しと Profile / Book への導線を表示する", async () => {
+  test("Settings 見出しと設定概要、Profile / Book への導線を表示する", async () => {
     const { router, user } = renderSettingsPage("/settings", {
       settingsProfileComponent: () => <div>Profile settings page</div>,
       settingsBookComponent: () => <div>Book settings page</div>,
     })
 
     expect(await screen.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
+    expect(await screen.findByText("Choose a setting to manage.")).toBeInTheDocument()
+
+    const profileOverviewLink = screen
+      .getAllByRole("link", { name: /Profile/ })
+      .find((link) => link.textContent?.includes("Change the language used by the app."))
+    expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
+
+    const bookOverviewLink = screen
+      .getAllByRole("link", { name: /Book/ })
+      .find((link) => link.textContent?.includes("Manage monthly budgets and categories."))
+    expect(bookOverviewLink?.getAttribute("href")).toBe("/settings/book")
 
     const settingsLink = await screen.findByRole("link", { name: "Settings" })
     expect(settingsLink).toHaveAttribute("href", "/settings")
