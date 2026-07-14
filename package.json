@@ -22,7 +22,7 @@
     "eslint-plugin-react-hooks": "7.1.1"
   },
   "devDependencies": {
-    "supabase": "2.109.0",
+    "supabase": "2.109.1",
     "vite-plus": "catalog:",
     "wrangler": "4.107.0"
   },
