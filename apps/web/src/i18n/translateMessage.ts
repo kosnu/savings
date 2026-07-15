@@ -20,6 +20,7 @@ const messageKeyByText: Record<string, string> = {
   "Month cannot be before the current month.": "validation.month.past",
   "Category name cannot be empty": "validation.categoryName.empty",
   "Category name must be 20 characters or less": "validation.categoryName.max",
+  "Display name cannot be empty": "validation.displayName.empty",
   "A category with this name already exists.": "categories.duplicateName",
   "Failed to create category.": "categories.createFailed",
   "Failed to save category.": "categories.updateFailed",
