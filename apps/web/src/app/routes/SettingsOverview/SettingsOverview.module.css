@@ -1,0 +1,10 @@
+.item-link {
+  display: block;
+  padding-block: var(--space-3);
+  color: inherit;
+  text-decoration: none;
+}
+
+.item-link:hover .item-title {
+  text-decoration: underline;
+}
