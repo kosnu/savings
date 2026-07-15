@@ -8,6 +8,7 @@ import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
+import { createProfileHandlers } from "../../../test/msw/handlers/profile"
 import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 
@@ -45,7 +46,7 @@ export const Default: Story = {
     expect(await canvas.findByText("Choose a setting to manage.")).toBeInTheDocument()
     const profileOverviewLink = canvas
       .getAllByRole("link", { name: /Profile/ })
-      .find((link) => link.textContent?.includes("Change the language used by the app."))
+      .find((link) => link.textContent?.includes("Manage profile information and language."))
     expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
 
     const bookOverviewLink = canvas
@@ -79,9 +80,18 @@ export const Profile: Story = {
       return [settingsRoute.addChildren([settingsProfileRoute])]
     }),
   ],
+  parameters: {
+    msw: {
+      handlers: createProfileHandlers(),
+    },
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
+    expect(await canvas.findByRole("heading", { name: "Account information" })).toBeInTheDocument()
+    expect(await canvas.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
+    expect(await canvas.findByText("test@example.com")).toBeInTheDocument()
+    expect(await canvas.findByText("Google")).toBeInTheDocument()
     expect(await canvas.findByText("Language")).toBeInTheDocument()
     expect(await canvas.findByRole("combobox", { name: "Language" })).toBeInTheDocument()
   },

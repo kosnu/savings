@@ -14,7 +14,7 @@ export function mockSession(overrides?: Partial<Session>): Session {
       aud: "authenticated",
       role: "authenticated",
       email: "test@example.com",
-      app_metadata: {},
+      app_metadata: { provider: "google" },
       user_metadata: {},
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
