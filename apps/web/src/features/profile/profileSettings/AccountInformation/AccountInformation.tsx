@@ -1,9 +1,18 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Flex, Heading, Skeleton, Text, TextField } from "@radix-ui/themes"
+import {
+  Button,
+  Callout,
+  Flex,
+  Heading,
+  Skeleton,
+  Spinner,
+  Text,
+  TextField,
+} from "@radix-ui/themes"
 import type { Session } from "@supabase/supabase-js"
 import { useForm } from "@tanstack/react-form"
 import { useQueryClient } from "@tanstack/react-query"
-import { Suspense, use, useId, useState } from "react"
+import { Suspense, use, useEffect, useId, useRef, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 import * as z from "zod"
@@ -25,27 +34,38 @@ export function AccountInformation() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const authUserId = session?.user.id
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const [focusHeadingRequest, setFocusHeadingRequest] = useState(0)
+
+  useEffect(() => {
+    if (focusHeadingRequest === 0) return
+
+    headingRef.current?.focus({ preventScroll: true })
+  }, [focusHeadingRequest])
 
   return (
     <Flex direction="column" gap="3">
-      <Heading as="h2" size="4">
+      <Heading ref={headingRef} as="h2" size="4" tabIndex={-1}>
         {t("profile.accountInformation")}
       </Heading>
       <ErrorBoundary
         fallbackRender={({ resetErrorBoundary }) => (
           <ProfileLoadError
-            onRetry={() => {
+            onRetry={async () => {
               if (!authUserId) {
                 resetErrorBoundary()
                 return
               }
 
-              void queryClient
-                .refetchQueries({
+              await queryClient.refetchQueries(
+                {
                   queryKey: profileQueryKeys.current(authUserId),
                   type: "all",
-                })
-                .then(() => resetErrorBoundary())
+                },
+                { throwOnError: true },
+              )
+              resetErrorBoundary()
+              setFocusHeadingRequest((request) => request + 1)
             }}
           />
         )}
@@ -90,7 +110,7 @@ function AccountInformationForm({
   profile,
 }: {
   authUserId: string
-  loginMethod: "google"
+  loginMethod: LoginMethod
   profile: Profile
 }) {
   const nameInputId = useId()
@@ -170,12 +190,16 @@ function AccountInformationForm({
           <ReadOnlyProfileValue label={t("profile.email")} value={profile.email} />
           <ReadOnlyProfileValue
             label={t("profile.loginMethod")}
-            value={t(`profile.providers.${loginMethod}`)}
+            value={
+              loginMethod === "unavailable"
+                ? t("profile.providerUnavailable")
+                : t(`profile.providers.${loginMethod}`)
+            }
           />
         </Flex>
         <form.Subscribe selector={(state) => state.isSubmitting}>
           {(isSubmitting) => (
-            <Flex justify="end">
+            <Flex justify="start">
               <SubmitButton loading={isSubmitting || isPending}>{t("common.save")}</SubmitButton>
             </Flex>
           )}
@@ -222,8 +246,23 @@ function ProfileLoading() {
   )
 }
 
-function ProfileLoadError({ onRetry }: { onRetry: () => void }) {
+function ProfileLoadError({ onRetry }: { onRetry: () => Promise<void> | void }) {
   const { t } = useTranslation()
+  const retryButtonRef = useRef<HTMLButtonElement>(null)
+  const [isRetrying, setIsRetrying] = useState(false)
+
+  const handleRetry = async () => {
+    if (isRetrying) return
+
+    setIsRetrying(true)
+    try {
+      await onRetry()
+    } catch {
+      retryButtonRef.current?.focus({ preventScroll: true })
+    } finally {
+      setIsRetrying(false)
+    }
+  }
 
   return (
     <Flex direction="column" gap="3" align="start">
@@ -233,21 +272,32 @@ function ProfileLoadError({ onRetry }: { onRetry: () => void }) {
         </Callout.Icon>
         <Callout.Text>{t("profile.loadError")}</Callout.Text>
       </Callout.Root>
-      <Button type="button" variant="soft" size="2" onClick={onRetry}>
+      <Button
+        ref={retryButtonRef}
+        type="button"
+        variant="soft"
+        size="2"
+        disabled={isRetrying}
+        aria-busy={isRetrying}
+        onClick={() => void handleRetry()}
+      >
+        {isRetrying ? <Spinner aria-label={t("common.loadingSpinner")} /> : null}
         {t("profile.retry")}
       </Button>
     </Flex>
   )
 }
 
-function getLoginMethod(session: Session): "google" {
+type LoginMethod = "google" | "unavailable"
+
+function getLoginMethod(session: Session): LoginMethod {
   const metadataProvider = session.user.app_metadata.provider
   const identityProvider = session.user.identities?.[0]?.provider
-  const provider = typeof metadataProvider === "string" ? metadataProvider : identityProvider
+  const provider = [metadataProvider, identityProvider].find(isNonEmptyString)
 
-  if (provider !== "google") {
-    throw new Error("Unable to resolve login provider")
-  }
+  return provider === "google" ? "google" : "unavailable"
+}
 
-  return "google"
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0
 }

@@ -12,9 +12,15 @@ interface UseUpdateDisplayNameReturn {
 export function useUpdateDisplayName(authUserId: string): UseUpdateDisplayNameReturn {
   const queryClient = useQueryClient()
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (name: string) => updateDisplayNameRecord({ authUserId, name }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: profileQueryKeys.current(authUserId) })
+    mutationFn: async (name: string) => {
+      await updateDisplayNameRecord({ authUserId, name })
+      await queryClient.refetchQueries(
+        {
+          queryKey: profileQueryKeys.current(authUserId),
+          type: "all",
+        },
+        { throwOnError: true },
+      )
     },
   })
 

@@ -23,7 +23,7 @@ describe("updateDisplayName", () => {
       http.patch("*/rest/v1/users*", async ({ request }) => {
         requestUrl = new URL(request.url)
         requestBody = await request.json()
-        return new HttpResponse(null, { status: 204 })
+        return HttpResponse.json({ auth_user_id: "mock-user-id" })
       }),
     )
 
@@ -39,5 +39,15 @@ describe("updateDisplayName", () => {
     await expect(updateDisplayName({ authUserId: "mock-user-id", name: "Taro" })).rejects.toThrow(
       "Failed to save display name.",
     )
+  })
+
+  it("更新対象が0件なら成功扱いにしない", async () => {
+    server.use(
+      http.patch("*/rest/v1/users*", () => {
+        return HttpResponse.json([])
+      }),
+    )
+
+    await expect(updateDisplayName({ authUserId: "mock-user-id", name: "Taro" })).rejects.toThrow()
   })
 })

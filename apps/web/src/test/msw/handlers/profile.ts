@@ -60,7 +60,7 @@ export function createProfileHandlers({
       const body = profileBodySchema.parse(await request.json())
       profile = { ...profile, name: body.name }
 
-      return new HttpResponse(null, { status: 204 })
+      return HttpResponse.json({ auth_user_id: "mock-user-id" })
     }),
   ]
 }
