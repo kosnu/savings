@@ -10,9 +10,18 @@ export async function updateDisplayName({
   name,
 }: UpdateDisplayNameInput): Promise<void> {
   const supabase = getSupabaseClient()
-  const { error } = await supabase.from("users").update({ name }).eq("auth_user_id", authUserId)
+  const { data, error } = await supabase
+    .from("users")
+    .update({ name })
+    .eq("auth_user_id", authUserId)
+    .select("auth_user_id")
+    .single()
 
   if (error) {
     throw error
+  }
+
+  if (!data || Array.isArray(data) || data.auth_user_id !== authUserId) {
+    throw new Error("Unable to confirm display name update.")
   }
 }
