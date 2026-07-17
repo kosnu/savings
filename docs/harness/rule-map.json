@@ -302,10 +302,23 @@
       "applies_to": {
         "paths": ["apps/web/src/components/**", "apps/web/src/features/**"],
         "domains": ["web", "ui"],
-        "activities": ["add_component", "move_component", "extract_component"],
-        "topics": ["component-structure", "frontend-architecture", "project-structure"]
+        "activities": [
+          "add_component",
+          "move_component",
+          "extract_component",
+          "split_component_responsibility",
+          "add_component_story"
+        ],
+        "topics": [
+          "component-structure",
+          "component-boundary",
+          "frontend-architecture",
+          "project-structure",
+          "storybook"
+        ]
       },
       "depends_on": [],
+      "related": ["web.test-policy", "web.storybook-browser-tests"],
       "overrides": [],
       "priority": 90
     },
@@ -422,10 +435,11 @@
       "applies_to": {
         "paths": ["apps/web/src/**"],
         "domains": ["web", "test"],
-        "activities": ["add_test", "change_test", "review_test_gap"],
-        "topics": ["test", "regression"]
+        "activities": ["add_test", "change_test", "review_test_gap", "reuse_story_in_test"],
+        "topics": ["test", "regression", "storybook"]
       },
       "depends_on": [],
+      "related": ["web.component-structure", "web.storybook-browser-tests"],
       "overrides": [],
       "priority": 84
     },
@@ -435,7 +449,12 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/web/.storybook-test/**"],
         "domains": ["web", "test"],
-        "activities": ["change_storybook_browser_test", "add_page_story", "change_browser_test_config"],
+        "activities": [
+          "add_component_story",
+          "change_storybook_browser_test",
+          "add_page_story",
+          "change_browser_test_config"
+        ],
         "topics": ["storybook", "browser-test", "vitest"]
       },
       "depends_on": ["web.test-policy"],
