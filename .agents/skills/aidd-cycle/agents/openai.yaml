@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIDD Cycle"
+  short_description: "Run the full AIDD cycle with sequential Goals"
+  default_prompt: "Use $aidd-cycle to run Requirements, Design, Build, and Ship as sequential Goals."

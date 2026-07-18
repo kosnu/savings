@@ -106,8 +106,6 @@ when_to_read:
 
 ## Stop
 
-- Build / Verify完了後の成果物フィードバックを前回実装への局所修正として扱う必要がある
-- レビューコメント、検証結果、運用知見を次回Requirementsの初期Input、Design前提、またはpolicyへ整理すべき内容として扱う必要がある
 - Design Docまたは関連ドメインルールと違う実装が必要
 - `docs/harness/rule-map.json` で選択した関連ドキュメントと違う実装が必要
 - 実装中にRequirements / PRDまたはDesign Docの解釈を広げる必要がある
