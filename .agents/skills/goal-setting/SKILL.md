@@ -1,6 +1,6 @@
 ---
 name: goal-setting
-description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship. Use when the user asks to set up a Goal, says 次のGoal, or names a phase such as requirements, design, build, or ship. For learning from review feedback or preparing the next Requirements input, use the Learn skill first. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
+description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship. Use when the user asks to set up a Goal, says 次のGoal, or names a phase such as requirements, design, build, or ship. After Ship, use the Learn skill when the user asks to learn from feedback or prepare the next Requirements input. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
 ---
 
 # Goal Setting
@@ -14,6 +14,19 @@ Do not execute the Goal's implementation work. Do not write the target artifact 
 If `create_goal` is available and the user asked to set a Goal, call it with the prepared Goal text as the objective. Return only a concise confirmation after the tool succeeds. Do not print the full Goal body unless the user asks to see it.
 
 If Goal tools are unavailable, or the user explicitly asks for a draft, pasteable input, or review before setting, return the prepared Goal in Markdown instead of calling a tool.
+
+## Orchestrated Use
+
+When `.agents/skills/aidd-cycle/SKILL.md` calls this procedure, keep the same phase selection, Goal construction, character budget, and `create_goal` behavior, but use this responsibility split:
+
+- `goal-setting` constructs and sets exactly one phase Goal.
+- `aidd-cycle` executes the newly active Goal and owns the remaining cycle.
+- Put the cycle ID, workspace, Issue or initial input, artifact lineage, and
+  current phase supplied by `aidd-cycle` in the phase Goal's Context Packet.
+- After `create_goal` succeeds, return control to `aidd-cycle` instead of ending the overall invocation.
+- Do not add next-phase creation or other cycle-control work to the phase Goal objective.
+
+This exception changes only control flow for the caller. Standalone `$goal-setting` behavior remains unchanged and does not execute the configured Goal.
 
 ## Supported Phases
 
@@ -67,7 +80,7 @@ Do not inspect implementation files while setting Goals unless the requested pha
 
 A new cycle always starts from Intent / Requirements.
 
-When Build / Verify is complete and review comments, verification findings, operational findings, policy changes, or rule changes exist, do not set a local-fix Goal against the previous implementation. Use `$learn` first to convert the feedback into the next Requirements initial input, rules, policies, or oversight constraints.
+After Build / Verify completes, advance to Ship. Do not replace or delay Ship with `$learn` or a local-fix Goal. After Ship completes, use `$learn` when the user asks to convert review comments, verification findings, operational findings, policy changes, or rule changes into the next Requirements initial input, rules, policies, or oversight constraints.
 
 Allowed inputs for the next Requirements Goal:
 
@@ -150,7 +163,7 @@ If later work reveals a missing requirement, design mistake, contradiction, revi
 - Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
 - Require test failures, type errors, lint failures, implementation consistency issues, and related call-site adjustments found during Build / Verify to be completed inside Build / Verify.
 - Include verification only for affected runtime, build, type, or DB behavior. For Web app changes, prefer the compact form `AGENTS.md の Web verification batch` instead of copying the full command list. Mention Storybook verification only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
-- If Build / Verify is triggered by feedback after a completed Build / Verify result, do not set a local-fix Goal. Use `$learn` first so the next cycle starts from Requirements.
+- Do not set another Build / Verify Goal for feedback after Build / Verify completes. Advance to Ship; after Ship, the user may run `$learn` so the next cycle starts from Requirements.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
 - Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
 - Include a Done item requiring the implementation diff and verification evidence to be checked for rule / policy violations against the Requirements / PRD, Design Doc, and selected rule-map subgraph.
@@ -225,7 +238,7 @@ Prefer the project-scoped `context-scout` custom agent with `$context-scout` for
 
 ## Output
 
-When `create_goal` succeeds, return only:
+When `create_goal` succeeds in standalone use, return only:
 
 1. A concise note if required inputs are missing or ambiguous.
 2. A concise confirmation that the Goal was set, including phase and main target.
@@ -236,6 +249,8 @@ When Goal tools are unavailable or the user requested text only, return only:
 2. A ready-to-set Codex Goal in Markdown.
 
 Do not include a long explanation. Do not list alternatives unless the user asks.
+
+In orchestrated `aidd-cycle` use, do not emit this as the final response. Return control to the cycle after setting the phase Goal.
 
 ## Stop
 
