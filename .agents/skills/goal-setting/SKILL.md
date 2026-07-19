@@ -80,7 +80,7 @@ Do not inspect implementation files while setting Goals unless the requested pha
 
 A new cycle always starts from Intent / Requirements.
 
-After Build / Verify completes, advance to Ship. Do not replace or delay Ship with `$learn` or a local-fix Goal. After Ship completes, use `$learn` when the user asks to convert review comments, verification findings, operational findings, policy changes, or rule changes into the next Requirements initial input, rules, policies, or oversight constraints.
+The phase after a completed Build / Verify Goal is Ship. After Ship completes, use `$learn` when the user asks to convert review comments, verification findings, operational findings, policy changes, or rule changes into the next Requirements initial input, rules, policies, or oversight constraints.
 
 Allowed inputs for the next Requirements Goal:
 
@@ -163,7 +163,7 @@ If later work reveals a missing requirement, design mistake, contradiction, revi
 - Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
 - Require test failures, type errors, lint failures, implementation consistency issues, and related call-site adjustments found during Build / Verify to be completed inside Build / Verify.
 - Include verification only for affected runtime, build, type, or DB behavior. For Web app changes, prefer the compact form `AGENTS.md の Web verification batch` instead of copying the full command list. Mention Storybook verification only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
-- Do not set another Build / Verify Goal for feedback after Build / Verify completes. Advance to Ship; after Ship, the user may run `$learn` so the next cycle starts from Requirements.
+- Set Ship as the next phase after Build / Verify completes. After Ship, the user may run `$learn` so the next cycle starts from Requirements.
 - Do not let Build invent major user-visible copy that the Design Doc has not decided.
 - Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
 - Include a Done item requiring the implementation diff and verification evidence to be checked for rule / policy violations against the Requirements / PRD, Design Doc, and selected rule-map subgraph.

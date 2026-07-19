@@ -36,7 +36,7 @@ when_to_read:
 
 ## 実行文脈
 
-- AI Driven Development: Build / Verify完了後の成果物フィードバックを、Requirementsの材料となるタスクコンテキストまたはルール・ポリシーへ整理する。
+- AI Driven Development: Ship完了後にユーザーがLearn skillを手動実行し、成果物フィードバックをRequirementsの材料となるタスクコンテキストまたはルール・ポリシーへ整理する。
 - harness-task: レビューや検証で得た学びを、harness-taskのInputとなるタスクコンテキスト、もしくはルール・ポリシーへ整理する。明示されたスコープ内のルール更新はタスク内で実施できる。
 
 Learn skillは学びの抽出と整理に特化した導線ですが、学び抽出を独占しません。`harness-task`も作業中に学びを抽出し、スコープ内のルール更新またはタスクコンテキストのhandoffを行えます。
