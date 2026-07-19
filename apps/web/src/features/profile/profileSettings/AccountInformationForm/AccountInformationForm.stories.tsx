@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn, userEvent, within } from "storybook/test"
 
+import { DISPLAY_NAME_MAX_LENGTH } from "../../../../domain/displayName"
 import { SnackbarProvider } from "../../../../providers/snackbar/SnackbarProvider"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { DISPLAY_NAME_MAX_LENGTH } from "../profileSchema"
 import { AccountInformationForm } from "./AccountInformationForm"
 
 const defaultProfile = {
@@ -83,8 +83,15 @@ export const DisplayNameTooLong: Story = {
 
 export const Saving: Story = {
   args: {
-    profile: { ...defaultProfile, name: "Pending User" },
-    isPending: true,
+    onSaveDisplayName: fn(async () => new Promise<void>(() => undefined)),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole("textbox", { name: "Display name" })
+
+    await userEvent.clear(input)
+    await userEvent.type(input, "Pending User")
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }))
   },
 }
 

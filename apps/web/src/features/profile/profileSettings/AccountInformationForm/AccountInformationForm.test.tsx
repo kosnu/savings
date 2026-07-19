@@ -66,7 +66,8 @@ describe("AccountInformationForm", () => {
   })
 
   test("Saving Storyで入力と保存操作を無効化する", async () => {
-    await renderStory(<Saving />)
+    const { container } = await renderStory(<Saving />)
+    await Saving.play?.({ canvasElement: container })
 
     expect(screen.getByRole("textbox", { name: "Display name" })).toBeDisabled()
     expect(screen.getByRole("button", { name: /Save$/ })).toBeDisabled()

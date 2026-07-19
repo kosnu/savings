@@ -17,18 +17,20 @@ describe("ensureAuthenticatedUser", () => {
     mockRpc.mockReset()
   })
 
-  test("ユーザー作成RPCを引数なしで呼ぶ", async () => {
+  test("初期表示名を渡してユーザー作成RPCを呼ぶ", async () => {
     mockRpc.mockResolvedValueOnce({ error: null })
 
-    await ensureAuthenticatedUser()
+    await ensureAuthenticatedUser("Initial User")
 
-    expect(mockRpc).toHaveBeenCalledWith("ensure_authenticated_user")
+    expect(mockRpc).toHaveBeenCalledWith("ensure_authenticated_user", {
+      p_initial_display_name: "Initial User",
+    })
   })
 
   test("RPCがエラーを返した場合はthrowする", async () => {
     const error = new Error("failed to ensure user")
     mockRpc.mockResolvedValueOnce({ error })
 
-    await expect(ensureAuthenticatedUser()).rejects.toBe(error)
+    await expect(ensureAuthenticatedUser("Initial User")).rejects.toBe(error)
   })
 })

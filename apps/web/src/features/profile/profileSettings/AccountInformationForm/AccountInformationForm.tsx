@@ -7,9 +7,10 @@ import * as z from "zod"
 
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
+import { displayNameSchema } from "../../../../domain/displayName"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
-import { displayNameSchema, type Profile } from "../profileSchema"
+import type { Profile } from "../profileSchema"
 
 const profileFormSchema = z.object({ name: displayNameSchema })
 
@@ -58,65 +59,75 @@ export function AccountInformationForm({
         void form.handleSubmit()
       }}
     >
-      <Flex direction="column" gap="4">
-        {submitErrorMessage ? (
-          <Callout.Root aria-live="polite" role="alert" color="red" variant="surface" size="1">
-            <Callout.Icon>
-              <ExclamationTriangleIcon />
-            </Callout.Icon>
-            <Callout.Text>{submitErrorMessage}</Callout.Text>
-          </Callout.Root>
-        ) : null}
-        <Flex direction="column" gap="3">
-          <form.Field name="name">
-            {(field) => {
-              const isValid = field.state.meta.isValid
-              const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
-              const hasError = !isValid && errorMessages.length > 0
+      <form.Subscribe selector={(state) => state.isSubmitting}>
+        {(isSubmitting) => {
+          const isSaving = isSubmitting || isPending
 
-              return (
-                <BaseField>
-                  <FieldLabel htmlFor={nameInputId} required>
-                    {t("profile.displayName")}
-                  </FieldLabel>
-                  <TextField.Root
-                    disabled={isPending}
-                    id={nameInputId}
-                    name="name"
-                    value={field.state.value}
-                    aria-label={t("profile.displayName")}
-                    aria-describedby={hasError ? nameErrorId : undefined}
-                    aria-invalid={hasError}
-                    onChange={(event) => {
-                      field.handleChange(event.target.value)
-                      setSubmitErrorMessage(undefined)
-                    }}
-                  />
-                  <span id={nameErrorId}>
-                    <FieldMessages error={hasError} messages={errorMessages} />
-                  </span>
-                </BaseField>
-              )
-            }}
-          </form.Field>
-          <ReadOnlyProfileValue label={t("profile.email")} value={profile.email} />
-          <ReadOnlyProfileValue
-            label={t("profile.loginMethod")}
-            value={
-              loginMethod === "unavailable"
-                ? t("profile.providerUnavailable")
-                : t(`profile.providers.${loginMethod}`)
-            }
-          />
-        </Flex>
-        <form.Subscribe selector={(state) => state.isSubmitting}>
-          {(isSubmitting) => (
-            <Flex justify="start">
-              <SubmitButton loading={isSubmitting || isPending}>{t("common.save")}</SubmitButton>
+          return (
+            <Flex direction="column" gap="4">
+              {submitErrorMessage ? (
+                <Callout.Root
+                  aria-live="polite"
+                  role="alert"
+                  color="red"
+                  variant="surface"
+                  size="1"
+                >
+                  <Callout.Icon>
+                    <ExclamationTriangleIcon />
+                  </Callout.Icon>
+                  <Callout.Text>{submitErrorMessage}</Callout.Text>
+                </Callout.Root>
+              ) : null}
+              <Flex direction="column" gap="3">
+                <form.Field name="name">
+                  {(field) => {
+                    const isValid = field.state.meta.isValid
+                    const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
+                    const hasError = !isValid && errorMessages.length > 0
+
+                    return (
+                      <BaseField>
+                        <FieldLabel htmlFor={nameInputId} required>
+                          {t("profile.displayName")}
+                        </FieldLabel>
+                        <TextField.Root
+                          disabled={isSaving}
+                          id={nameInputId}
+                          name="name"
+                          value={field.state.value}
+                          aria-label={t("profile.displayName")}
+                          aria-describedby={hasError ? nameErrorId : undefined}
+                          aria-invalid={hasError}
+                          onChange={(event) => {
+                            field.handleChange(event.target.value)
+                            setSubmitErrorMessage(undefined)
+                          }}
+                        />
+                        <span id={nameErrorId}>
+                          <FieldMessages error={hasError} messages={errorMessages} />
+                        </span>
+                      </BaseField>
+                    )
+                  }}
+                </form.Field>
+                <ReadOnlyProfileValue label={t("profile.email")} value={profile.email} />
+                <ReadOnlyProfileValue
+                  label={t("profile.loginMethod")}
+                  value={
+                    loginMethod === "unavailable"
+                      ? t("profile.providerUnavailable")
+                      : t(`profile.providers.${loginMethod}`)
+                  }
+                />
+              </Flex>
+              <Flex justify="start">
+                <SubmitButton loading={isSaving}>{t("common.save")}</SubmitButton>
+              </Flex>
             </Flex>
-          )}
-        </form.Subscribe>
-      </Flex>
+          )
+        }}
+      </form.Subscribe>
     </form>
   )
 }
