@@ -80,6 +80,19 @@ Do not inspect implementation files while setting Goals unless the requested pha
 
 A new cycle always starts from Intent / Requirements.
 
+Select every phase from the current cycle state:
+
+- a new cycle -> Intent / Requirements
+- completed Intent / Requirements -> Design / Plan
+- completed Design / Plan -> Build / Verify
+- completed Build / Verify -> Ship
+- completed Ship -> the cycle ends; after any separately invoked `$learn`, a
+  new cycle starts from Intent / Requirements
+
+An explicitly named phase identifies the requested phase but does not change
+this sequence. Configure that phase only when it is the next phase of the
+identifiable current cycle.
+
 The phase after a completed Build / Verify Goal is Ship. After Ship completes, use `$learn` when the user asks to convert review comments, verification findings, operational findings, policy changes, or rule changes into the next Requirements initial input, rules, policies, or oversight constraints.
 
 Allowed inputs for the next Requirements Goal:
@@ -158,6 +171,8 @@ If later work reveals a missing requirement, design mistake, contradiction, revi
 
 ### Build / Verify
 
+- Select Build / Verify for the current cycle after its Design / Plan Goal is
+  complete. Its next phase is Ship.
 - Use the latest Requirements / PRD and Design Doc as constraints.
 - Treat `requirements.md` and `design-doc.md` as read-only inputs. Do not let Build / Verify update, append to, reformat, or rename them.
 - Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
