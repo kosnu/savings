@@ -1,155 +1,83 @@
 ---
 name: aidd-cycle
-description: Run one complete repository AI Driven Development cycle in a single invocation by sequentially setting and completing separate Codex Goals for Intent / Requirements, Design / Plan, Build / Verify, and Ship. Use when the user asks to run or start an AIDD cycle or wants Requirements through Ship completed end to end. Start every new or ambiguous cycle from Requirements, and resume only when the same cycle is identifiable. Keep only one phase Goal active at a time. Keep Learn outside this cycle, after Ship, and run it only when the user invokes it separately.
+description: Run one complete repository AI Driven Development cycle in a single invocation by setting, executing, and completing one phase Goal at a time according to the repository workflow. Use when the user asks to run or start an AIDD cycle or wants the full cycle completed end to end. Resume only when the same cycle is identifiable; otherwise start a new cycle from the workflow-defined entry phase.
 ---
 
 # AIDD Cycle
 
 ## Purpose
 
-Run one complete AIDD cycle in one invocation while preserving a separate Codex
-Goal for each phase. Create, execute, and complete the phase Goals sequentially;
-never run them in parallel or combine them into one Goal.
+Run one complete AIDD cycle in one invocation while keeping one active Codex
+Goal at a time. Use `goal-setting` to construct each phase Goal; this skill owns
+Goal execution and cycle control. Keep workflow phases in separate Goals.
 
-Keep `goal-setting` responsible for constructing each phase Goal. Keep this
-skill responsible for executing the current Goal and advancing the cycle.
+## Canonical Sources
 
-## Required Inputs
+Read these before starting:
 
-Before starting the cycle, read:
-
-- `.agents/skills/goal-setting/SKILL.md`
 - `docs/ai-driven-development/workflow.md`
+- `.agents/skills/goal-setting/SKILL.md`
 - `docs/harness/rule-map.json`
 
-For each phase, read the matching Goal template and the references selected by
-`goal-setting`. Treat the workflow and selected Markdown documents as the source
-of truth; this skill is only an orchestration layer.
+`workflow.md` is the source of truth for phase order, phase responsibilities,
+artifact boundaries, phase completion, Stop conditions, and post-cycle handling.
+This skill only orchestrates that workflow and must not redefine it.
 
-## Cycle Contract
+## Cycle Identity
 
-Run only this sequence:
+Call `get_goal` when available before creating a Goal. Identify a cycle by a
+stable cycle ID, workspace, Issue or initial input, and artifact lineage. Put
+that identity in every phase Goal's Context Packet.
 
-1. Intent / Requirements
-2. Design / Plan
-3. Build / Verify
-4. Ship
+Start a new cycle when the user requests a fresh cycle, supplies fresh initial
+input, the previous cycle is complete, or the available identity is ambiguous.
+Allocate a new cycle ID and safe workspace or artifact lineage; earlier-cycle
+artifacts remain read-only.
 
-One `$aidd-cycle` invocation owns and continues through the full sequence to
-Ship. Advance automatically after the active phase reaches Done, completes
-Verification, and has no Stop condition.
+Resume only when the same cycle identity and its active or last completed phase
+are clear. Goal completion evidence, not artifact existence alone, determines
+where execution continues. An unfinished Goal belonging to another task is a
+conflict and must not be replaced.
 
-Use one active Goal at a time:
+## Execution
 
-- Set one phase Goal with the `goal-setting` procedure.
-- Execute only that Goal until it is complete or stopped.
-- Mark it complete only after its own objective has no required work remaining.
-- Create the next phase Goal only after the previous Goal is complete.
-- Keep next-Goal creation outside every phase Goal objective.
+Repeat until the canonical workflow reaches its final phase:
 
-The phase after a completed Build / Verify Goal is Ship, and Ship completes this
-cycle. `Learn` is a separate, user-invoked skill after Ship. When another cycle
-is needed, the user may run `$learn` and start another `$aidd-cycle` invocation.
+1. Determine the current or next phase from `workflow.md` and verified Goal
+   state.
+2. Confirm that no unfinished unrelated Goal conflicts with the phase.
+3. If the phase Goal is not active, follow the orchestrated-use procedure in
+   `goal-setting` to construct and set exactly one Goal. Do not put cycle-control
+   work in that Goal.
+4. Execute only the active Goal under its Context Packet, matching template,
+   selected rule-map subgraph, and canonical workflow boundaries.
+5. When a Stop condition applies, leave the Goal unfinished, report the blocker,
+   and end this invocation.
+6. When the objective, Done checks, and Verification are complete, call
+   `update_goal` with `status: complete`, confirm completion with `get_goal`, and
+   continue according to `workflow.md`.
 
-For a request that names only one phase rather than the full cycle, use
-`$goal-setting` instead of this skill.
-
-## Cycle Identity and Entry State
-
-Call `get_goal` before creating the first phase Goal when it is available.
-
-Identify a cycle by one stable cycle ID, workspace, Issue or initial input, and
-artifact lineage. Include that identity in every phase Goal's Context Packet and
-keep it consistent through all four Goals. Artifact existence alone does not
-prove phase completion; use Goal Done and Verification evidence.
-
-Resolve new-cycle intent before considering resume. Start a new cycle from
-Intent / Requirements when any of these applies:
-
-- The user says `new cycle`, `2周目`, `最初から`, or otherwise explicitly asks
-  for a fresh cycle.
-- The invocation supplies fresh initial input or output from a separately run
-  `$learn`.
-- The previous cycle's Ship Goal is complete.
-- No existing cycle can be identified, or the available evidence is ambiguous.
-
-For a new cycle, allocate a new cycle ID and a new workspace or artifact
-lineage. Treat artifacts from earlier cycles as read-only and never overwrite
-them, even when the topic or Issue is the same. If the new initial input or a
-safe new lineage cannot be determined, stop for that missing input; do not fall
-back to resuming an older cycle.
-
-Resume only when no new-cycle signal applies and the same cycle identity is
-clear. Resume the active phase when its Goal is unfinished. When a same-cycle
-Goal completed before the next Goal was created, continue from its successor:
-
-- completed Intent / Requirements -> Design / Plan
-- completed Design / Plan -> Build / Verify
-- completed Build / Verify -> Ship
-
-An explicit `再開` or `続き` request still requires evidence of the same cycle
-identity. If that identity cannot be established, stop rather than attaching the
-request to a possibly unrelated cycle.
-
-An unfinished Goal that clearly belongs to another task remains a conflict;
-stop without creating another Goal.
-
-## Sequential Execution
-
-Repeat these steps for Intent / Requirements, Design / Plan, Build / Verify, and
-Ship:
-
-1. Call `get_goal` when available. Confirm that no unfinished unrelated Goal
-   conflicts with the phase.
-2. If the phase Goal is not already active, follow the orchestrated-use rules in
-   `.agents/skills/goal-setting/SKILL.md` to construct and set exactly one Goal.
-   Put the stable cycle ID, workspace, Issue or initial input, artifact lineage,
-   and current phase in its Context Packet. Keep the 3800-character limit, phase
-   boundaries, Done, Verification, and Stop conditions. Do not add cycle-control
-   work to the Goal objective.
-3. Execute the active phase Goal. Keep generated `requirements.md` and
-   `design-doc.md` read-only after their creation phase.
-4. Complete all phase-local test failures, type errors, lint failures,
-   consistency issues, and required verification inside the current phase when
-   its rules permit them.
-5. If a Stop condition applies, do not mark the Goal complete and do not create
-   the next Goal. Report the blocker and end the cycle invocation.
-6. When the phase objective is fully achieved, call `update_goal` with
-   `status: complete`.
-7. Call `get_goal` when available and confirm completion before creating the
-   next phase Goal.
-
-After Ship completes, end the invocation and report the completed cycle. Do not
-start another cycle.
+After the canonical final phase completes, end the invocation and report the
+completed cycle. Do not start another cycle or invoke a separate post-cycle
+skill automatically.
 
 ## Goal Tool Fallback
 
-Running the full cycle with separate phase Goals requires `create_goal`,
-`get_goal`, and `update_goal`.
-
-If the required Goal tools are unavailable, or the user asks for drafts or text
-only, do not claim to have run the cycle. Return a concise blocker and use
-`$goal-setting` to prepare only the explicitly requested phase draft.
+The full cycle requires `create_goal`, `get_goal`, and `update_goal`. If they are
+unavailable, or the user asks for text only, do not claim to have run the cycle.
+Return a concise blocker and use `goal-setting` only to prepare an explicitly
+requested phase draft.
 
 ## Stop
 
-Stop the sequence when:
-
-- An unfinished unrelated Goal exists.
-- An explicit resume request lacks evidence of the same cycle identity.
-- A new cycle lacks usable initial input or a safe new workspace or artifact
-  lineage.
-- The current phase is missing required upstream inputs.
-- Advancing would edit a generated upstream artifact.
-- The next phase would require scope, behavior, or constraints not established
-  by upstream inputs.
-- A phase Goal cannot fit the `goal-setting` character budget.
-- A workflow, selected rule, or policy violation cannot be resolved inside the
-  current phase.
+Stop when cycle identity is unsafe, an unrelated unfinished Goal exists,
+required upstream input is missing, a safe new artifact lineage cannot be
+allocated, advancing would violate the canonical workflow or selected rules, or
+the phase Goal cannot fit the `goal-setting` budget.
 
 ## Output
 
-Use concise commentary for intermediate phase transitions. Return a final
-response only after Ship completes or a Stop condition ends the sequence. The
-final response must name the last completed phase, verification evidence, and
-any blocker or residual risk.
+Use concise commentary for phase transitions. Return the final response only
+after the canonical final phase completes or a Stop condition ends the cycle.
+Name the last completed phase, verification evidence, and any blocker or
+residual risk.
