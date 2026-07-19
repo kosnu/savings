@@ -35,9 +35,9 @@ Run only this sequence:
 3. Build / Verify
 4. Ship
 
-One `$aidd-cycle` invocation owns the sequence through Ship. Do not return after
-merely setting Requirements, Design, or Build. Advance automatically after the
-active phase reaches Done, completes Verification, and has no Stop condition.
+One `$aidd-cycle` invocation owns and continues through the full sequence to
+Ship. Advance automatically after the active phase reaches Done, completes
+Verification, and has no Stop condition.
 
 Use one active Goal at a time:
 
@@ -47,11 +47,9 @@ Use one active Goal at a time:
 - Create the next phase Goal only after the previous Goal is complete.
 - Keep next-Goal creation outside every phase Goal objective.
 
-`Learn` is outside this cycle and follows Ship. Never interrupt the transition
-from Build / Verify to Ship to run `$learn` or because feedback is pending.
-Never invoke `$learn`, create a Learning Handoff, or start a second cycle
-automatically. After Ship completes, the user may run `$learn` separately and
-start another `$aidd-cycle` invocation when a new cycle is needed.
+The phase after a completed Build / Verify Goal is Ship, and Ship completes this
+cycle. `Learn` is a separate, user-invoked skill after Ship. When another cycle
+is needed, the user may run `$learn` and start another `$aidd-cycle` invocation.
 
 For a request that names only one phase rather than the full cycle, use
 `$goal-setting` instead of this skill.

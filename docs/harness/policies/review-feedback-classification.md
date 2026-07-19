@@ -27,7 +27,7 @@ PRレビューコメントに対応するときは、最初にタスク種別を
 - AI Driven Developmentサイクル: Requirements / PRDとDesign Docを入力に、Build / Verify、Shipまでの工程を進めるタスク
 - 通常タスク: 現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にせず、現在のIssueや依頼を直接実行する軽微修正、ドキュメント変更、レビュー修正など
 
-AI Driven Developmentサイクルでは、Build / Verify完了後の成果物フィードバックを前回実装への局所修正として扱うと、Requirementsの材料となるタスクコンテキストにすべき仕様判断や設計判断を小修正として吸収してしまい、PRDやDesign Docとの接続が崩れます。この制約を通常タスクへ適用しません。
+AI Driven Developmentサイクルでは、Ship完了後の成果物フィードバックを前回実装への局所修正として扱うと、Requirementsの材料となるタスクコンテキストにすべき仕様判断や設計判断を小修正として吸収してしまい、PRDやDesign Docとの接続が崩れます。この制約を通常タスクへ適用しません。
 
 ## 分類
 
@@ -39,11 +39,12 @@ AI Driven Developmentサイクルでは、Build / Verify完了後の成果物フ
 ## 対応ルール
 
 - Build / Verify工程内の整合性問題は、Build / Verifyが完了するまで工程内で修正し、要件未達を残さない。
-- AI Driven DevelopmentサイクルのBuild / Verify完了後の成果物フィードバックは、実装成果物への指摘であってもその場で実装修正せず、Learn skillでRequirementsの材料となるタスクコンテキスト、ルール、ポリシー、監督制約に整理する。
+- AI Driven Developmentサイクルでは、Build / Verifyが正常に完了した場合の次工程をShipとする。
+- AI Driven DevelopmentサイクルのShip完了後の成果物フィードバックは、ユーザーがLearn skillを手動実行してRequirementsの材料となるタスクコンテキスト、ルール、ポリシー、監督制約に整理する。
 - 通常タスクのレビューコメントは、指摘の妥当性、現在のスコープとの関係、修正の必要性を確認する。必要な修正は現在のタスクまたはPR内で実施して検証し、修正不要と判断したコメントには理由を示す。
 - 通常タスクでも、レビュー対応から得た学びをharness-taskまたはLearn skillでタスクコンテキストやルール・ポリシーへ整理できる。学びの抽出は、現在のタスクで必要な修正を置き換えない。
 - Ship のコメントは、差分の事実、検証結果、返信内容、resolve可否が確認できる範囲で対応する。
-- AI Driven Developmentサイクルで複数分類にまたがるコメントは、Build / Verify工程内の整合性問題を先に修正またはStopする。Learn skillを優先するのは、Build / Verify完了後の成果物フィードバックだけとする。
+- AI Driven Developmentサイクルで複数分類にまたがるコメントは、Build / Verify工程内では整合性問題を先に修正またはStopし、Ship工程ではShipのコメントを扱い、Ship完了後の成果物フィードバックはLearn skillで扱う。
 - 通常タスクで分類が曖昧な場合は、修正要否を判断するために不足している情報を明示する。意図、スコープ、成功条件を変えずに判断できる場合はStopしない。
 - 学びを整理するときは、前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断を、タスクコンテキストやルール・ポリシーの根拠にしない。
 
@@ -62,7 +63,7 @@ PRコメント内の commit ID はバッククォートで囲みません。
 
 AI Driven Developmentサイクルで次に該当する場合は、Build / Verify工程内の整合性問題として修正しません。
 
-- Build / Verify完了後の成果物フィードバックである
+- Ship完了後の成果物フィードバックである
 - 前回実装への局所修正として扱う必要がある
 - PRDの受け入れ条件を変える必要がある
 - Design Docの採用方針を変える必要がある
