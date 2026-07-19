@@ -3,6 +3,7 @@ import { fn, userEvent, within } from "storybook/test"
 
 import { SnackbarProvider } from "../../../../providers/snackbar/SnackbarProvider"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
+import { DISPLAY_NAME_MAX_LENGTH } from "../profileSchema"
 import { AccountInformationForm } from "./AccountInformationForm"
 
 const defaultProfile = {
@@ -48,6 +49,34 @@ export const ValidationError: Story = {
     const input = canvas.getByRole("textbox", { name: "Display name" })
 
     await userEvent.clear(input)
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }))
+  },
+}
+
+export const DisplayNameAtLimit: Story = {
+  args: {
+    onSaveDisplayName: fn(async () => undefined),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole("textbox", { name: "Display name" })
+
+    await userEvent.clear(input)
+    await userEvent.type(input, "a".repeat(DISPLAY_NAME_MAX_LENGTH))
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }))
+  },
+}
+
+export const DisplayNameTooLong: Story = {
+  args: {
+    onSaveDisplayName: fn(async () => undefined),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole("textbox", { name: "Display name" })
+
+    await userEvent.clear(input)
+    await userEvent.type(input, "a".repeat(DISPLAY_NAME_MAX_LENGTH + 1))
     await userEvent.click(canvas.getByRole("button", { name: "Save" }))
   },
 }

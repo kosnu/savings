@@ -5,7 +5,15 @@ import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 import { render, screen } from "../../../../test/test-utils"
 import * as stories from "./AccountInformationForm.stories"
 
-const { Default, ValidationError, Saving, SaveError, Saved } = composeStories(stories)
+const {
+  Default,
+  ValidationError,
+  DisplayNameAtLimit,
+  DisplayNameTooLong,
+  Saving,
+  SaveError,
+  Saved,
+} = composeStories(stories)
 
 async function renderStory(story: ReactElement) {
   const result = render(story, { withProviders: false })
@@ -35,6 +43,26 @@ describe("AccountInformationForm", () => {
 
     expect(input).toHaveAttribute("aria-invalid", "true")
     expect(input).toHaveAccessibleDescription(message.textContent ?? "")
+  })
+
+  test("DisplayNameAtLimit Storyで64文字の表示名を保存する", async () => {
+    const { container } = await renderStory(<DisplayNameAtLimit />)
+    await DisplayNameAtLimit.play?.({ canvasElement: container })
+
+    expect(DisplayNameAtLimit.args.onSaveDisplayName).toHaveBeenCalledWith("a".repeat(64))
+  })
+
+  test("DisplayNameTooLong Storyで65文字を保持して保存を拒否する", async () => {
+    const { container } = await renderStory(<DisplayNameTooLong />)
+    await DisplayNameTooLong.play?.({ canvasElement: container })
+
+    const input = screen.getByRole("textbox", { name: "Display name" })
+    const message = await screen.findByText("Display name must be 64 characters or less")
+
+    expect(input).toHaveValue("a".repeat(65))
+    expect(input).toHaveAttribute("aria-invalid", "true")
+    expect(input).toHaveAccessibleDescription(message.textContent ?? "")
+    expect(DisplayNameTooLong.args.onSaveDisplayName).not.toHaveBeenCalled()
   })
 
   test("Saving Storyで入力と保存操作を無効化する", async () => {

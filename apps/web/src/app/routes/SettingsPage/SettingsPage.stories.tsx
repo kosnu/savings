@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { QueryClientProvider } from "@tanstack/react-query"
 import { createRoute } from "@tanstack/react-router"
-import { expect, within } from "storybook/test"
+import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { BookSettings } from "../../../features/books"
 import { ProfileSettings } from "../../../features/profile"
+import { createQueryClient } from "../../../lib/queryClient"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
@@ -94,6 +96,49 @@ export const Profile: Story = {
     expect(await canvas.findByText("Google")).toBeInTheDocument()
     expect(await canvas.findByText("Language")).toBeInTheDocument()
     expect(await canvas.findByRole("combobox", { name: "Language" })).toBeInTheDocument()
+  },
+}
+
+export const ProfileRetryFailed: Story = {
+  decorators: [
+    (Story) => (
+      <QueryClientProvider
+        client={createQueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <Story />
+      </QueryClientProvider>
+    ),
+    createStoryRouter("/settings/profile", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+
+      const settingsProfileRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "profile",
+        component: ProfileSettings,
+      })
+
+      return [settingsRoute.addChildren([settingsProfileRoute])]
+    }),
+  ],
+  parameters: {
+    msw: {
+      handlers: createProfileHandlers({ get: { error: true } }),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const retryButton = await canvas.findByRole("button", { name: "Try again" })
+
+    expect(canvas.getByRole("combobox", { name: "Language" })).toBeEnabled()
+    await userEvent.click(retryButton)
+    await waitFor(() => {
+      expect(retryButton).toBeEnabled()
+      expect(retryButton).toHaveFocus()
+    })
   },
 }
 

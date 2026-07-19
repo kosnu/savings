@@ -1,6 +1,6 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Flex, Spinner } from "@radix-ui/themes"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 interface ProfileLoadErrorProps {
@@ -10,7 +10,15 @@ interface ProfileLoadErrorProps {
 export function ProfileLoadError({ onRetry }: ProfileLoadErrorProps) {
   const { t } = useTranslation()
   const retryButtonRef = useRef<HTMLButtonElement>(null)
+  const shouldFocusRetryRef = useRef(false)
   const [isRetrying, setIsRetrying] = useState(false)
+
+  useEffect(() => {
+    if (!shouldFocusRetryRef.current || isRetrying) return
+
+    shouldFocusRetryRef.current = false
+    retryButtonRef.current?.focus({ preventScroll: true })
+  }, [isRetrying])
 
   const handleRetry = async () => {
     if (isRetrying) return
@@ -19,7 +27,7 @@ export function ProfileLoadError({ onRetry }: ProfileLoadErrorProps) {
     try {
       await onRetry()
     } catch {
-      retryButtonRef.current?.focus({ preventScroll: true })
+      shouldFocusRetryRef.current = true
     } finally {
       setIsRetrying(false)
     }
