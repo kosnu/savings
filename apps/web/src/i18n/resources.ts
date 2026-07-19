@@ -190,6 +190,7 @@ export const resources = {
       "validation.categoryName.empty": "Category name cannot be empty",
       "validation.categoryName.max": "Category name must be {{max}} characters or less",
       "validation.displayName.empty": "Display name cannot be empty",
+      "validation.displayName.max": "Display name must be {{max}} characters or less",
     },
   },
   ja: {
@@ -383,6 +384,7 @@ export const resources = {
       "validation.categoryName.empty": "カテゴリ名を入力してください",
       "validation.categoryName.max": "カテゴリ名は{{max}}文字以内で入力してください",
       "validation.displayName.empty": "表示名を入力してください",
+      "validation.displayName.max": "表示名は{{max}}文字以内で入力してください",
     },
   },
 } as const
