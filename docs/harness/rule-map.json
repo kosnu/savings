@@ -117,7 +117,7 @@
       "id": "ai-driven.goal-templates",
       "file": "docs/ai-driven-development/goal-templates/index.md",
       "applies_to": {
-        "paths": ["docs/ai-driven-development/goal-templates/**", ".agents/skills/goal-setting/**"],
+        "paths": ["docs/ai-driven-development/goal-templates/**", ".agents/skills/goal-setting/**", ".agents/skills/aidd-cycle/**"],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["create_goal", "write_goal_template", "execute_goal_phase"],
         "topics": ["codex-goal", "goal-template", "requirements", "design", "verification", "ship"]
