@@ -26,6 +26,8 @@ when_to_read:
 
 最新のRequirements / PRDとDesign Docに従って実装し、検証まで完了する。
 
+このGoalは、同じサイクルのIntent / RequirementsとDesign / Planが完了した後に実行する。完了後の次工程はShipとする。Ship完了でそのサイクルを終え、その後の成果物フィードバックは、ユーザーが必要に応じてLearnを手動実行し、次サイクルのIntent / Requirementsの入力として扱う。
+
 ## Inputs
 
 - Requirements / PRD:
