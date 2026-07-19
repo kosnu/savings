@@ -1,6 +1,6 @@
 import type { TFunction } from "i18next"
 
-import { DISPLAY_NAME_MAX_LENGTH } from "../features/profile/profileSettings/profileSchema"
+import { DISPLAY_NAME_MAX_LENGTH } from "../domain/displayName"
 
 const interpolationByMessageKey: Record<string, Record<string, number>> = {
   "validation.note.max": { max: 30 },

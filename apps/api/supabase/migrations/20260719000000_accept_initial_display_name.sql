@@ -1,9 +1,10 @@
-create or replace function public.ensure_authenticated_user()
+drop function if exists public.ensure_authenticated_user();
+
+create function public.ensure_authenticated_user(p_initial_display_name text)
 returns void as $$
 declare
   authenticated_auth_user_id uuid := auth.uid();
   authenticated_email text := auth.jwt() ->> 'email';
-  authenticated_name text;
   existing_user_id bigint;
   existing_auth_user_id uuid;
 begin
@@ -44,20 +45,10 @@ begin
       'User account cannot be synchronized. Sign out and sign in again before continuing.';
   end if;
 
-  authenticated_name := left(
-    coalesce(
-      nullif(trim(auth.jwt() #>> '{user_metadata,name}'), ''),
-      nullif(trim(auth.jwt() #>> '{user_metadata,full_name}'), ''),
-      nullif(split_part(authenticated_email, '@', 1), ''),
-      'User'
-    ),
-    64
-  );
-
   insert into public.users (auth_user_id, name, email)
   values (
     authenticated_auth_user_id,
-    authenticated_name,
+    p_initial_display_name,
     authenticated_email
   )
   on conflict (auth_user_id) do nothing;
@@ -91,6 +82,6 @@ exception
 end;
 $$ language plpgsql security definer set search_path = '';
 
-revoke all on function public.ensure_authenticated_user() from public;
-revoke all on function public.ensure_authenticated_user() from anon;
-grant execute on function public.ensure_authenticated_user() to authenticated;
+revoke all on function public.ensure_authenticated_user(text) from public;
+revoke all on function public.ensure_authenticated_user(text) from anon;
+grant execute on function public.ensure_authenticated_user(text) to authenticated;
