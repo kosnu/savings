@@ -1,8 +1,11 @@
 import type { TFunction } from "i18next"
 
+import { DISPLAY_NAME_MAX_LENGTH } from "../domain/displayName"
+
 const interpolationByMessageKey: Record<string, Record<string, number>> = {
   "validation.note.max": { max: 30 },
   "validation.categoryName.max": { max: 20 },
+  "validation.displayName.max": { max: DISPLAY_NAME_MAX_LENGTH },
   "categories.pinLimit": { count: 3 },
 }
 
@@ -20,6 +23,9 @@ const messageKeyByText: Record<string, string> = {
   "Month cannot be before the current month.": "validation.month.past",
   "Category name cannot be empty": "validation.categoryName.empty",
   "Category name must be 20 characters or less": "validation.categoryName.max",
+  "Display name cannot be empty": "validation.displayName.empty",
+  [`Display name must be ${DISPLAY_NAME_MAX_LENGTH} characters or less`]:
+    "validation.displayName.max",
   "A category with this name already exists.": "categories.duplicateName",
   "Failed to create category.": "categories.createFailed",
   "Failed to save category.": "categories.updateFailed",

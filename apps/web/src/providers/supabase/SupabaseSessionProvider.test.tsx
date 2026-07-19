@@ -134,13 +134,15 @@ describe("SupabaseSessionProvider", () => {
 
   test("getSession が認証済みの場合はユーザーを作成済みにしてから authenticated にする", async () => {
     const ensureDeferred = createDeferred<void>()
+    const session = createSession()
+    session.user.user_metadata = { name: "  Initial User  " }
     mockEnsureAuthenticatedUser.mockReturnValueOnce(ensureDeferred.promise)
-    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+    mockGetSession.mockResolvedValueOnce({ data: { session }, error: null })
 
     const { result } = renderSessionHook()
 
     await waitFor(() => {
-      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith()
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith("Initial User")
     })
     expect(mockGetUser).toHaveBeenCalledWith()
     expectSession(result, "loading", null)
@@ -413,7 +415,7 @@ describe("SupabaseSessionProvider", () => {
     })
 
     await waitFor(() => {
-      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith()
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith("event-user")
     })
     expectSession(result, "loading", null)
 

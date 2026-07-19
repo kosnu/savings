@@ -93,7 +93,7 @@ describe("SettingsPage", () => {
 
     const profileOverviewLink = screen
       .getAllByRole("link", { name: /Profile/ })
-      .find((link) => link.textContent?.includes("Change the language used by the app."))
+      .find((link) => link.textContent?.includes("Manage profile information and language."))
     expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
 
     const bookOverviewLink = screen
@@ -121,9 +121,13 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("Book settings page")).toBeInTheDocument()
   })
 
-  test("Profile 設定では Language セクションだけを表示する", async () => {
+  test("Profile 設定ではアカウント情報とLanguage設定を表示する", async () => {
     renderSettingsPage("/settings/profile")
 
+    expect(await screen.findByRole("heading", { name: "Account information" })).toBeInTheDocument()
+    expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
+    expect(await screen.findByText("test@example.com")).toBeInTheDocument()
+    expect(await screen.findByText("Google")).toBeInTheDocument()
     expect(await screen.findByText("Language")).toBeInTheDocument()
     expect(await screen.findByRole("combobox", { name: "Language" })).toBeInTheDocument()
     expect(screen.queryByText("Theme")).not.toBeInTheDocument()

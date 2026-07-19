@@ -11,6 +11,7 @@ topics:
   - vitest
 when_to_read:
   - Storybookのブラウザテスト対象を変更するとき
+  - component storyを追加または変更するとき
   - Page storyを追加または変更するとき
   - `pnpm --filter web test:storybook` の対象範囲を確認するとき
 ---
@@ -18,6 +19,8 @@ when_to_read:
 # Storybook Browser Tests
 
 Storybook のブラウザテストは opt-in で運用します。
+
+コンポーネントに Story を作成する条件は `apps/web/docs/policies/component-structure.md` で定義します。そこで作成対象になった component Story も、以下の条件に該当しない限り browser test の対象にはしません。
 
 `pnpm --filter web test:storybook --reporter=dot --silent` の Storybook project は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
 
