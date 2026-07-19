@@ -8,12 +8,12 @@ allowBuilds:
   supabase: true
   workerd: true
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.2.3
-  vite-plus: 0.2.3
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.4
+  vite-plus: 0.2.4
   vitest: 4.1.10
 minimumReleaseAge: 10080
 overrides:
-  eslint: "10.6.0"
+  eslint: "10.7.0"
   undici@>=7.0.0 <7.24.0: "^8.0.0"
   vite: "catalog:"
   vitest: "catalog:"

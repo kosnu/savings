@@ -1,248 +1,78 @@
 ---
 name: goal-setting
-description: Set a Codex Goal from the repository AI Driven Development templates for Intent / Requirements, Design / Plan, Build / Verify, or Ship. Use when the user asks to set up a Goal, says 次のGoal, or names a phase such as requirements, design, build, or ship. For learning from review feedback or preparing the next Requirements input, use the Learn skill first. If Goal tools are unavailable or the user explicitly asks for text only, prepare a ready-to-set Goal input instead.
+description: Set exactly one Codex Goal from the repository AI Driven Development workflow and matching phase template. Use when the user asks to set a Goal, says 次のGoal, or names requirements, design, build, verify, or ship. This skill prepares and sets the Goal but does not execute it. If Goal tools are unavailable or the user requests text only, return a ready-to-set Goal instead.
 ---
 
 # Goal Setting
 
 ## Purpose
 
-Set the next Codex Goal with the Goal tool.
+Set exactly one self-contained Codex Goal. Do not execute the Goal or create its
+target artifact.
 
-Do not execute the Goal's implementation work. Do not write the target artifact unless the user separately asks for that. The configured Goal text must be self-contained because Goal execution starts from that text.
+When called by `.agents/skills/aidd-cycle/SKILL.md`, construct and set one phase
+Goal, then return control to `aidd-cycle`.
 
-If `create_goal` is available and the user asked to set a Goal, call it with the prepared Goal text as the objective. Return only a concise confirmation after the tool succeeds. Do not print the full Goal body unless the user asks to see it.
+## Canonical Sources
 
-If Goal tools are unavailable, or the user explicitly asks for a draft, pasteable input, or review before setting, return the prepared Goal in Markdown instead of calling a tool.
+Read `docs/ai-driven-development/workflow.md` first. It is the source of truth
+for phase order, phase responsibilities, upstream artifact boundaries, Done,
+Verification, Stop conditions, and the relationship between Ship and Learn.
+Do not restate or reinterpret those rules in this skill.
 
-## Supported Phases
+Then read:
 
-Accept these phase names:
+- the matching file under `docs/ai-driven-development/goal-templates/`
+- `docs/ai-driven-development/issue-guidelines.md` when Issue input is involved
+- `docs/harness/rule-map.json` and the smallest selected document subgraph
 
-- `intent`, `requirements`, `prd`: Intent / Requirements Goal
-- `design`, `plan`: Design / Plan Goal
-- `build`, `verify`: Build / Verify Goal
-- `ship`: Ship Goal
-- `next`: infer the next phase from available artifacts and current branch context
+Treat Goal templates as construction checklists, not as a second workflow
+definition and not as output skeletons.
 
-If the user does not provide a phase, infer `next` only when the current context is clear. Otherwise ask one short clarification question.
+## Procedure
 
-## Required Repository Templates
+1. Determine the requested phase or the next phase from the canonical workflow,
+   current Goal state, workspace artifacts, branch, Issue, and PR context. A
+   named phase does not override the workflow. If the phase is unclear, ask one
+   short clarification question.
+2. Read the matching Goal template and only the references needed for that
+   phase. Use `rule-map.json` to select documented policies, domain rules, ADRs,
+   designs, and app guidance.
+3. Use the smallest useful discovery set. Start with `git branch --show-current`,
+   `git status --short`, existing workspace artifacts, and the supplied Issue or
+   PR. Fetch thread-aware review data for Ship when needed. Inspect implementation
+   files only when Design / Plan or Build / Verify needs them.
+4. Build a compact Context Packet containing scope, selected references and
+   reasons, constraints, known risks, Stop checks, and verification expectations.
+   Preserve every requirement from the workflow and matching template without
+   copying their full text.
+5. Set the Goal with `create_goal`. In orchestrated use, include the cycle ID,
+   workspace, initial input, artifact lineage, and current phase supplied by
+   `aidd-cycle`; do not put cycle control or next-Goal creation in the objective.
 
-Read the matching template before drafting the Goal:
-
-- `docs/ai-driven-development/goal-templates/intent-requirements-goal.md`
-- `docs/ai-driven-development/goal-templates/design-plan-goal.md`
-- `docs/ai-driven-development/goal-templates/build-verify-goal.md`
-- `docs/ai-driven-development/goal-templates/ship-goal.md`
-
-Also read these harness docs before deciding additional references:
-
-- `docs/ai-driven-development/workflow.md`
-- `docs/ai-driven-development/issue-guidelines.md`
-- `docs/harness/rule-map.json`
-
-Use `docs/harness/rule-map.json` to select any additional policy, domain, ADR, design, or app-specific documents. Classify the requested Goal by `path`, `domain`, `activity`, and `topic`, then include the selected document subgraph in the Goal-setting input.
-
-For non-trivial Goals, prepare a compact Context Packet instead of copied document bodies or long discovery notes. The Context Packet is the executor's first-read input and must contain only scope, selected references, constraints, known risks, stop checks, and verification expectations.
-
-The templates are checklists for required content, not output skeletons. Do not copy the template body into the configured Goal. Produce the shortest self-contained Goal that preserves the requested phase, target artifact, scope, constraints, required inputs, Done, Verification, and Stop conditions.
-
-## Context Discovery
-
-Use the smallest useful discovery set for the requested phase:
-
-- Current branch: `git branch --show-current`
-- Local state: `git status --short`
-- Existing workspace artifacts: `docs/ai-driven-development/workspaces/**/requirements.md` and `design-doc.md`
-- Current PR when needed: `gh pr view --json number,title,url,baseRefName,headRefName,state,isDraft,body`
-- Issue input when provided: `gh issue view <number or URL>`
-- Review comments when requested or when generating Ship Goals: thread-aware GitHub review data
-
-Do not make unrelated repository changes while generating a Goal.
-
-Do not inspect implementation files while setting Goals unless the requested phase is Design / Plan or Build / Verify and the Goal explicitly needs implementation references. When creating a new cycle from review feedback, do not inspect implementation files.
-
-## Cycle Input Rules
-
-A new cycle always starts from Intent / Requirements.
-
-When Build / Verify is complete and review comments, verification findings, operational findings, policy changes, or rule changes exist, do not set a local-fix Goal against the previous implementation. Use `$learn` first to convert the feedback into the next Requirements initial input, rules, policies, or oversight constraints.
-
-Allowed inputs for the next Requirements Goal:
-
-- Original Issue or initial input.
-- Review comments or verification findings.
-- Changed rules or policies.
-- Explicit oversight constraints from the user.
-
-Forbidden inputs for the next Requirements or Design Goal:
-
-- Previous implementation code.
-- Previous UI behavior.
-- Current diff shape.
-- Previous implementation-specific design choices.
-- Assumptions derived from how the previous implementation happened to work.
-
-Build / Verify may later change existing code, but the Goal must be driven by the newly produced Requirements and Design, not by patching the previous implementation directly.
-
-## Generated Artifact Rules
-
-`requirements.md` and `design-doc.md` are generated artifacts for their creation phase. After a phase creates one of these files, later Goals must treat it as read-only input.
-
-Do not configure later Goals to append to, edit, reformat, rename, or otherwise modify existing generated `requirements.md` or `design-doc.md` files.
-
-If later work reveals a missing requirement, design mistake, contradiction, review finding, verification finding, operational finding, policy change, or rule change that would require changing an existing generated artifact, add a Stop condition instead. Use `$learn` to prepare the next Requirements input and start a new cycle from Intent / Requirements.
-
-## Phase Rules
-
-### Rule Selection
-
-- Include `docs/harness/rule-map.json` in every non-trivial Goal that may touch documented behavior, policies, domain rules, ADRs, design decisions, or app-specific guidance.
-- Do not copy all docs into the Goal. Add only the selected subgraph and the reason each selected document applies.
-- For each selected rule-map entry, include `id`, `file`, and a concise selection reason in the Goal inputs.
-- When the selected rule-map entry has `depends_on`, include those prerequisite documents with `id`, `file`, and a concise reason in the Goal inputs.
-- When `overrides` or `priority` is used to resolve competing entries, include the conflict decision in the Goal inputs.
-- If rule-map selection is ambiguous, add a Stop condition requiring the executor to clarify the applicable document subgraph before implementation.
-- For every phase, include a Done item requiring the phase output, decisions, diffs, or verification evidence to be checked against the selected rule-map subgraph for rule and policy violations.
-- For every phase, include a Stop condition for confirmed or possible rule / policy violations that cannot be resolved inside that phase.
-
-### Intent / Requirements
-
-- Treat Issue content as input, not final requirements.
-- Require the Goal to check that the Requirements / PRD does not expand beyond the intent, constraints, out-of-scope items, and success criteria present in the Issue, oversight inputs, and selected documents.
-- Preserve the artifact premise: use the PRD title, Goal, and Issue summary to determine whether a capability is existing behavior or a future capability being introduced.
-- Do not describe future capabilities, states, workflows, UI, APIs, or data models as current behavior.
-- Put current facts and current gaps in Background / Current State; put desired future behavior in Scope, Functional Requirements, Acceptance Criteria, or Q&A.
-- Keep implementation, Design Doc creation, and PR creation out of scope.
-- Prefer output path `docs/ai-driven-development/workspaces/<issue-number-or-topic>/requirements.md`.
-- If domain values appear in UI, require the PRD to state what the user wants to judge with each value, using `Domain Value Intent`.
-- Do not turn the domain value purpose into a fixed UI layout, display order, or component choice in Requirements / PRD.
-- If user-visible text or feedback matters, require the PRD to state what the user must understand, not the final copy.
-- Include a Done item requiring added Requirements / PRD text to be checked against the artifact premise.
-- Include a Done item requiring the Requirements / PRD to be checked against Issue and oversight inputs for unintended scope expansion.
-- Include a Done item requiring Background / Current State not to describe future behavior as already available.
-- Include a Done item requiring UI domain values to have an explicit purpose when they appear.
-- Include a Done item requiring the Requirements / PRD to be checked for rule / policy violations against the selected rule-map subgraph.
-- Add a Stop condition when a requirement or success condition cannot be traced to the Issue, oversight inputs, or selected documents.
-- Add a Stop condition when the Requirements / PRD violates or may violate selected rules or policies.
-
-### Design / Plan
-
-- Use the latest Requirements / PRD as the source of truth.
-- Treat the input `requirements.md` as read-only. Do not let the Design / Plan Goal update, append to, reformat, or rename it.
-- Do not implement.
-- Require the Design / Plan to preserve the Requirements / PRD intent, constraints, out-of-scope items, and acceptance criteria without adding product scope.
-- Include output path for `design-doc.md` in the same workspace as the Requirements / PRD unless the user specifies another path.
-- If domain values appear in UI, require `Domain Value UI Decisions` to map each value purpose to the primary thing shown: value, judgment result, state, breakdown, or identity.
-- Require Design / Plan to decide whether comparison sources, baselines, allowed ranges, categories, or periods should be shown as main information or supporting context.
-- Use the rule-map selected Web UI policies for typography, lists, spacing, button variants, forms, overlays, responsive behavior, and domain UI decisions.
-- Ensure user-visible major copy is decided in the Design Doc.
-- If multiple data changes are involved, include the transaction boundary policy selected by `docs/harness/rule-map.json` and require transaction boundary / operation boundary decisions.
-- Add a Stop condition when the Design / Plan would need to introduce product decisions, target features, or success criteria that are not in the Requirements / PRD.
-- Include a Done item requiring the Design Doc to be checked for rule / policy violations against the Requirements / PRD and selected rule-map subgraph.
-- Add a Stop condition when the Design Doc violates or may violate selected rules or policies.
-
-### Build / Verify
-
-- Use the latest Requirements / PRD and Design Doc as constraints.
-- Treat `requirements.md` and `design-doc.md` as read-only inputs. Do not let Build / Verify update, append to, reformat, or rename them.
-- Require the implementation to stay within the Requirements / PRD and Design Doc and to stop instead of filling in missing product scope.
-- Require test failures, type errors, lint failures, implementation consistency issues, and related call-site adjustments found during Build / Verify to be completed inside Build / Verify.
-- Include verification only for affected runtime, build, type, or DB behavior. For Web app changes, prefer the compact form `AGENTS.md の Web verification batch` instead of copying the full command list. Mention Storybook verification only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
-- If Build / Verify is triggered by feedback after a completed Build / Verify result, do not set a local-fix Goal. Use `$learn` first so the next cycle starts from Requirements.
-- Do not let Build invent major user-visible copy that the Design Doc has not decided.
-- Stop if implementation would require expanding the interpretation of Requirements / PRD or Design Doc.
-- Include a Done item requiring the implementation diff and verification evidence to be checked for rule / policy violations against the Requirements / PRD, Design Doc, and selected rule-map subgraph.
-- Add a Stop condition when implementation or verification violates or may violate selected rules or policies.
-
-### Ship
-
-- Use the current implementation branch, PRD, Design Doc, verification results, related Issue, and related PR.
-- Treat `requirements.md` and `design-doc.md` as read-only inputs. Do not let Ship update, append to, reformat, or rename them.
-- Include PR body update, residual risk, review replies, and thread resolve decisions.
-- Include review thread replies and resolving only fully completed threads when Ship-scope review comments were handled.
-- Do not create next-cycle inputs, knowledge decisions, or Requirements changes in Ship.
-- Do not fix implementation-product feedback in Ship. Send it to `$learn` for the next Requirements input.
-- Include a Done item requiring PR text, summaries, review replies, and resolve decisions to be checked for rule / policy violations against the selected rule-map subgraph.
-- Add a Stop condition when Ship output violates or may violate selected rules or policies.
+Do not edit repository files or create a git diff while preparing the Goal.
 
 ## Goal Budget
 
-The configured Goal text must be 3800 characters or less, including any note before the Markdown Goal.
+The complete Goal text must be at most 3800 characters. Draft below 3400
+characters when practical and measure the exact character count before setting
+or returning it. Compress discovery notes and repeated wording before removing
+phase, target, scope, constraints, required inputs, Done, Verification, or Stop
+content.
 
-This is a hard response gate, not a best-effort target. Draft for 3400 characters or less so final edits have room. Before returning the Goal, measure the exact character count of the full response text. If tooling is available, write the candidate response to a temporary file outside the repository and run `wc -m` against that file. Do not rely on approximate token counts or visual length.
+## Tool Fallback and Output
 
-When the draft would exceed 3800 characters:
+When `create_goal` succeeds, return only a concise confirmation naming the phase
+and main target. In orchestrated use, return that control directly to
+`aidd-cycle` instead of ending the overall invocation.
 
-- Keep the Goal self-contained, but compress wording before returning it.
-- Prefer paths, issue or PR numbers, and concise evidence summaries over copied source text.
-- Keep only the selected rule-map subgraph and one short reason per document.
-- Collapse long discovery notes, Q&A, risks, subagent instructions, and verification details into short bullets.
-- Replace long verification command lists with a pointer to the applicable repository verification section when the executor will have the same repository instructions.
-- Omit optional background, alternatives, and explanation that are not needed to execute the Goal.
-- Merge repeated constraints into one bullet when they point to the same boundary.
-- Replace template checklist wording with phase-specific done checks that are traceable to the current request.
-- Do not omit phase, target artifact path, scope, constraints, required inputs, Done, Verification, or Stop sections.
-- After compression, measure the full response text again. Repeat until it is 3800 characters or less.
-- If the Goal still cannot fit within 3800 characters without losing required execution context, return a concise note naming the missing compression decision instead of producing an oversized Goal.
-
-## Token Budget
-
-Prefer references over copied content, and avoid forcing the executor to rediscover context.
-
-- For non-trivial Goals, pass a compact Context Packet before detailed phase instructions.
-- Build the Context Packet from deterministic selection first: `docs/harness/rule-map.json`, Markdown front matter, path, issue or PR number, branch context, and targeted `rg` results.
-- Pass paths, issue numbers, PR numbers, current branch, and selected rule-map entries instead of copying full document bodies.
-- Include the selected rule-map subgraph and concise selection reasons, not the full rule-map contents.
-- Tell the executor to read the provided references first and avoid broad searches unless the references conflict, are insufficient, or trigger a Stop condition.
-- Do not include unrelated workspace artifacts, old PR notes, or long command output in the configured Goal.
-- For small docs-only, one-file, or already-scoped changes, prepare one compact Goal instead of forcing the full workflow.
-- Keep verification commands concrete, but do not include historical verification logs unless they are directly required.
-- Keep Context Packet content short enough that the executor can start from it without re-reading broad docs. Prefer 1000 to 1500 characters for the packet when practical.
-
-## Context Packet Shape
-
-Use this shape when the Goal is non-trivial:
-
-- Scope: target artifact, in-scope work, out-of-scope work.
-- Selected refs: file paths, rule-map IDs, and one short reason per reference.
-- Constraints: issue, PRD, Design Doc, policy, and domain boundaries.
-- Known risks: only risks that affect scope, design, verification, or Stop decisions.
-- Stop checks: conditions that require clarification before continuing.
-- Verification expectations: affected app or docs-only verification scope.
-
-## Scout Agent Use
-
-Prefer the project-scoped `context-scout` custom agent with `$context-scout` for bounded discovery and summarization before the main executor makes scope, design, or edit decisions.
-
-- Use deterministic selection before Scout work when possible.
-- Use the Scout Agent for rule-map candidate selection, front matter scanning, related docs discovery, existing-pattern summaries, affected-file discovery, upstream scope checks, or verification-failure summaries.
-- Require Scout output to be concise findings with file references, not raw document bodies, copied source text, or long logs.
-- Require the main executor to reduce Scout findings into the Context Packet before making the main decision.
-- Do not use Scout for product scope decisions, final design decisions, file edits, GitHub writes, or ambiguous Stop-condition judgments.
-- Do not add Scout instructions to small one-file, docs-only, or already-scoped Goals when direct execution is cheaper.
-
-## Output
-
-When `create_goal` succeeds, return only:
-
-1. A concise note if required inputs are missing or ambiguous.
-2. A concise confirmation that the Goal was set, including phase and main target.
-
-When Goal tools are unavailable or the user requested text only, return only:
-
-1. A concise note if required inputs are missing or ambiguous.
-2. A ready-to-set Codex Goal in Markdown.
-
-Do not include a long explanation. Do not list alternatives unless the user asks.
+If Goal tools are unavailable, or the user explicitly requests a draft or text
+only, return one ready-to-set Markdown Goal and do not claim that it was set.
 
 ## Stop
 
-Stop before producing a Goal when:
-
-- The requested phase cannot be determined.
-- Required upstream artifact paths are missing and cannot be inferred.
-- The target Issue, PR, branch, or workspace is ambiguous.
-- The requested Goal would need to ignore a user constraint.
-- Review comment handling cannot be tied to the current branch, current diff, or recent commits.
+Stop before producing a Goal when the canonical workflow cannot determine the
+phase, required upstream inputs are missing, the target Issue, PR, branch, or
+workspace is ambiguous, a user constraint would be ignored, the selected
+rule-map subgraph is unresolved, or the Goal cannot fit the character budget
+without losing required execution context.
