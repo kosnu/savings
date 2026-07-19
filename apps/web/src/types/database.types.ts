@@ -364,7 +364,10 @@ export type Database = {
         Args: { p_category_id: number }
         Returns: undefined
       }
-      ensure_authenticated_user: { Args: never; Returns: undefined }
+      ensure_authenticated_user: {
+        Args: { p_initial_display_name: string }
+        Returns: undefined
+      }
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
       get_effective_category_budgets: {

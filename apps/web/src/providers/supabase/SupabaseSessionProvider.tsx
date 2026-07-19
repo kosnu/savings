@@ -1,6 +1,7 @@
 import type { Session } from "@supabase/supabase-js"
 import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
+import { toInitialDisplayName } from "../../domain/displayName"
 import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
@@ -58,13 +59,19 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     const isCurrentSessionHandler = (sessionGeneration: number) =>
       isActive && sessionGenerationRef.current === sessionGeneration
 
-    const verifyAuthenticatedSession = async () => {
+    const verifyAuthenticatedSession = async (session: Session) => {
       const { error: getUserError } = await supabase.auth.getUser()
       if (getUserError) {
         throw getUserError
       }
 
-      await ensureAuthenticatedUser()
+      await ensureAuthenticatedUser(
+        toInitialDisplayName({
+          name: session.user.user_metadata.name,
+          fullName: session.user.user_metadata.full_name,
+          email: session.user.email,
+        }),
+      )
     }
 
     const signOutCurrentSession = async (): Promise<boolean> => {
@@ -119,7 +126,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
 
       try {
-        await verifyAuthenticatedSession()
+        await verifyAuthenticatedSession(session)
         if (!isCurrentSessionHandler(sessionGeneration)) return
 
         setSessionState(toAuthenticatedSessionState(session))
