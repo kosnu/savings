@@ -50,7 +50,7 @@ definition and not as output skeletons.
    workspace, initial input, artifact lineage, and current phase supplied by
    `aidd-cycle`; do not put cycle control or next-Goal creation in the objective.
 
-Do not make repository changes while preparing the Goal.
+Do not edit repository files or create a git diff while preparing the Goal.
 
 ## Goal Budget
 
