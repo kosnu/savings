@@ -6,6 +6,7 @@ import { BookSettings } from "../../../features/books"
 import { ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../test/msw/server"
@@ -98,7 +99,11 @@ describe("SettingsPage", () => {
 
     const bookOverviewLink = screen
       .getAllByRole("link", { name: /Book/ })
-      .find((link) => link.textContent?.includes("Manage monthly budgets and categories."))
+      .find((link) =>
+        link.textContent?.includes(
+          "View the current book and manage its monthly budget and categories.",
+        ),
+      )
     expect(bookOverviewLink?.getAttribute("href")).toBe("/settings/book")
 
     const settingsLink = await screen.findByRole("link", { name: "Settings" })
@@ -135,6 +140,7 @@ describe("SettingsPage", () => {
 
   test("Book 設定では既存の最新月予算表示を維持する", async () => {
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createMonthlyBudgetHandlers({
         get: { response: monthlyBudgets[3] },
       }),
@@ -143,6 +149,11 @@ describe("SettingsPage", () => {
 
     renderSettingsPage("/settings/book")
 
+    expect(await screen.findByRole("heading", { name: "Default Book" })).toBeInTheDocument()
+    expect(await screen.findByText("Current book")).toBeInTheDocument()
+    expect(
+      await screen.findByText("The monthly budget and categories below belong to this book."),
+    ).toBeInTheDocument()
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await screen.findByText("¥75,000")).toBeInTheDocument()
     expect(screen.queryByText("¥62,000")).not.toBeInTheDocument()
