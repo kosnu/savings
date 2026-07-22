@@ -49,6 +49,24 @@
       "priority": 95
     },
     {
+      "id": "policy.issue-template-selection",
+      "file": "docs/harness/policies/issue-template-selection.md",
+      "applies_to": {
+        "paths": [
+          ".github/ISSUE_TEMPLATE/**",
+          ".agents/skills/**",
+          "docs/harness/policies/issue-template-selection.md"
+        ],
+        "domains": ["repository", "github", "ai-driven-development"],
+        "activities": ["create_issue", "select_issue_template", "update_issue_template"],
+        "topics": ["issue", "issue-template", "ai-driven-development", "requirements"]
+      },
+      "depends_on": ["documentation.policy"],
+      "related": ["ai-driven.issue-guidelines"],
+      "overrides": [],
+      "priority": 95
+    },
+    {
       "id": "architecture.overview",
       "file": "docs/architecture.md",
       "applies_to": {
