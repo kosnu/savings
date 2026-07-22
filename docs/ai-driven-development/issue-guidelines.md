@@ -9,11 +9,12 @@ applies_to:
   - apps/api
 topics:
   - ai-driven-development
+  - feature-request
   - issue
   - requirements
   - codex-goal
 when_to_read:
-  - AI駆動開発の起点になるIssueを書くとき
+  - Feature RequestテンプレートでIssueを書くとき
   - Issue、Requirements / PRD、Design Docの役割分担を確認するとき
   - Issueに実装詳細を書きすぎるか迷うとき
 ---
@@ -74,6 +75,8 @@ AIが自律的に進めてよい前提でも、次の条件では止まって監
 
 ## Issueテンプレート
 
-GitHubで使うIssueテンプレートは、[.github/ISSUE_TEMPLATE/ai_driven_development.md](../../.github/ISSUE_TEMPLATE/ai_driven_development.md) に置きます。
+GitHubで使うFeature Requestテンプレートは、[.github/ISSUE_TEMPLATE/feature_request.md](../../.github/ISSUE_TEMPLATE/feature_request.md) に置きます。
+
+Feature Requestは新機能や改善の提案だけを保管する別工程ではなく、Requirements / PRDへ意図と境界を渡すIssueとして扱います。
 
 このドキュメントでは、テンプレートの意図と運用方針だけを説明します。
