@@ -8,6 +8,7 @@ import { ProfileSettings } from "../../../features/profile"
 import { createQueryClient } from "../../../lib/queryClient"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createProfileHandlers } from "../../../test/msw/handlers/profile"
@@ -53,7 +54,11 @@ export const Default: Story = {
 
     const bookOverviewLink = canvas
       .getAllByRole("link", { name: /Book/ })
-      .find((link) => link.textContent?.includes("Manage monthly budgets and categories."))
+      .find((link) =>
+        link.textContent?.includes(
+          "View the current book and manage its monthly budget and categories.",
+        ),
+      )
     expect(bookOverviewLink?.getAttribute("href")).toBe("/settings/book")
     expect(canvas.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings")
     expect(canvas.getByRole("link", { name: "Profile" })).toHaveAttribute(
@@ -163,6 +168,7 @@ export const BookManagement: Story = {
   parameters: {
     msw: {
       handlers: [
+        ...createBookHandlers(),
         ...createMonthlyBudgetHandlers({
           list: { response: [monthlyBudgets[3]] },
         }),
@@ -173,6 +179,8 @@ export const BookManagement: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
+    expect(await canvas.findByRole("heading", { name: "Default Book" })).toBeInTheDocument()
+    expect(await canvas.findByText("Current book")).toBeInTheDocument()
     expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await canvas.findByText("Categories")).toBeInTheDocument()
     expect(await canvas.findByText("Food")).toBeInTheDocument()

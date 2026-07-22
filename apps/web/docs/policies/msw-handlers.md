@@ -47,6 +47,13 @@ handler 内で request の filter、order、limit などを汎用的に解釈し
 
 これにより、mock 側に本番と同じ選択ロジックが重複することを避けます。
 
+リクエストを検査するときは、文字列化された表現全体ではなく、仕様として必要な意味を検証します。
+
+- select対象は、必要なcolumnやrelationをそれぞれ検証します。
+- filter、order、limit、response cardinalityなど、API境界の振る舞いを決める条件を個別に検証します。
+- 空白、改行、column順など、APIの意味を変えないserializationの差には依存しません。
+- 完全なserialization自体が外部契約である場合だけ、文字列全体の一致を要求します。
+
 ## 状態を持つ mock
 
 stateful な mock は、mutation の結果を同一テスト内の後続 request に反映する必要がある場合だけ使います。

@@ -30,3 +30,13 @@ when_to_read:
 - Book-owned dataの所有先Bookは更新時に維持される。
 - 同じテーブルでBook ownership補完・維持triggerと、`new.book_id` に依存する検証triggerを併用する場合、検証triggerは補完・維持triggerより後に実行される名前にする。
 - trigger実行順に依存する場合は、自然な動詞順に頼らず `trg_10_...`、`trg_20_...` のような番号付き命名で順序を固定する。
+
+## 暫定監督ルール
+
+### 複数Book管理を提供するまで
+
+- Bookに関するすべてのタスクとレビューで、default bookをユーザーが操作できる唯一のBookとして扱う。
+- DBやschemaが複数のBook membershipを許容することだけを理由に、複数Book対応を受け入れ条件へ追加したり、未対応をブロッキング指摘にしたりしない。
+- タスクが複数Book管理または既存の複数Book membershipを明示的に対象とする場合は、この暫定ルールを根拠に対象外へ戻さない。
+- ユーザーが複数のBookを作成または選択できる体験を導入した時点で、この暫定ルールは失効する。
+- 失効時には、選択中のBookとBook-owned dataの対応、およびBook選択とmembershipによる認可の責務差を、体験のRequirementsと恒久ルールとして定義する。
