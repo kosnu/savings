@@ -55,6 +55,7 @@
         "paths": [
           ".github/ISSUE_TEMPLATE/**",
           ".agents/skills/**",
+          "docs/ai-driven-development/**",
           "docs/harness/policies/issue-template-selection.md"
         ],
         "domains": ["repository", "github", "ai-driven-development"],
