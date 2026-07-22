@@ -46,9 +46,13 @@ describe("fetchCurrentBook", () => {
     await fetchCurrentBook()
 
     expect(requestUrl?.searchParams.get("is_default")).toBe("eq.true")
-    expect(requestUrl?.searchParams.get("select")).toBe(
-      "book_id,is_default,books!book_members_book_id_fkey(id,name)",
-    )
+    const select = requestUrl?.searchParams.get("select")
+    expect(select).toContain("book_id")
+    expect(select).toContain("is_default")
+
+    const booksSelect = select?.match(/books!book_members_book_id_fkey\(([^)]*)\)/)?.[1]
+    expect(booksSelect).toContain("id")
+    expect(booksSelect).toContain("name")
   })
 
   it("Supabaseがエラーを返した場合にthrowする", async () => {

@@ -166,6 +166,27 @@ describe("SettingsPage", () => {
     expect(screen.queryByText("Category Budgets")).not.toBeInTheDocument()
   })
 
+  test("現在のBook情報を取得できない場合も月予算とカテゴリを表示する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createBookHandlers({ error: true }),
+      ...createMonthlyBudgetHandlers({
+        get: { response: monthlyBudgets[3] },
+      }),
+      ...createCategorySettingsHandlers(),
+    )
+
+    renderSettingsPage("/settings/book")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Could not load current book information.",
+    )
+    expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await screen.findByText("¥75,000")).toBeInTheDocument()
+    expect(await screen.findByText("Categories")).toBeInTheDocument()
+    expect(await screen.findByText("Food")).toBeInTheDocument()
+  })
+
   test("月予算が未登録の場合は予算登録ボタンを表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
