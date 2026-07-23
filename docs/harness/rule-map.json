@@ -49,6 +49,25 @@
       "priority": 95
     },
     {
+      "id": "policy.issue-template-selection",
+      "file": "docs/harness/policies/issue-template-selection.md",
+      "applies_to": {
+        "paths": [
+          ".github/ISSUE_TEMPLATE/**",
+          ".agents/skills/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/policies/issue-template-selection.md"
+        ],
+        "domains": ["repository", "github", "ai-driven-development"],
+        "activities": ["create_issue", "select_issue_template", "update_issue_template"],
+        "topics": ["issue", "issue-template", "feature-request", "ai-driven-development", "requirements"]
+      },
+      "depends_on": ["documentation.policy"],
+      "related": ["ai-driven.issue-guidelines"],
+      "overrides": [],
+      "priority": 95
+    },
+    {
       "id": "architecture.overview",
       "file": "docs/architecture.md",
       "applies_to": {
@@ -107,7 +126,7 @@
         "paths": [".github/ISSUE_TEMPLATE/**", "docs/ai-driven-development/**"],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["create_issue", "write_prd_issue", "refine_requirements"],
-        "topics": ["issue", "prd", "requirements", "ai-driven-development"]
+        "topics": ["issue", "feature-request", "prd", "requirements", "ai-driven-development"]
       },
       "depends_on": ["ai-driven.workflow"],
       "overrides": [],
