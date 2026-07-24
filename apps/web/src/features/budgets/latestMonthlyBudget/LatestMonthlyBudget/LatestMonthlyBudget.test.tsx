@@ -7,7 +7,10 @@ import { createMonthlyBudgetHandlers } from "../../../../test/msw/handlers/month
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
-import { fillCreateMonthlyBudgetForm } from "../../test/utils/budgetCreationForm"
+import {
+  fillCreateMonthlyBudgetForm,
+  getCurrentBudgetMonth,
+} from "../../test/utils/budgetCreationForm"
 import * as stories from "./LatestMonthlyBudget.stories"
 
 const { Default, Empty, FetchError, Loading } = composeStories(stories)
@@ -275,17 +278,3 @@ describe("LatestMonthlyBudget", () => {
     )
   })
 })
-
-function getCurrentBudgetMonth() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = now.getMonth() + 1
-
-  return {
-    year: String(year),
-    month: String(month),
-    yearNumber: year,
-    monthNumber: month,
-    effectiveFrom: `${year}-${String(month).padStart(2, "0")}-01`,
-  }
-}

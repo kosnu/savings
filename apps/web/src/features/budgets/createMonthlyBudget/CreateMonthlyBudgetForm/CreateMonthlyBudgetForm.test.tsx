@@ -6,7 +6,11 @@ import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { createDeferred } from "../../../../test/utils/createDeferred"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
-import { fillCreateMonthlyBudgetForm, selectBudgetMonth } from "../../test/utils/budgetCreationForm"
+import {
+  fillCreateMonthlyBudgetForm,
+  getCurrentBudgetMonth,
+  selectBudgetMonth,
+} from "../../test/utils/budgetCreationForm"
 import * as stories from "./CreateMonthlyBudgetForm.stories"
 
 const { Default } = composeStories(stories)
@@ -285,15 +289,3 @@ describe("CreateMonthlyBudgetForm", () => {
     expect(onSuccess).not.toHaveBeenCalled()
   })
 })
-
-function getCurrentBudgetMonth() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = now.getMonth() + 1
-
-  return {
-    year: String(year),
-    month: String(month),
-    effectiveFrom: `${year}-${String(month).padStart(2, "0")}-01`,
-  }
-}
