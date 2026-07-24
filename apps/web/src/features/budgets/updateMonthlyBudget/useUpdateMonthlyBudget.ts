@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
-import { monthlyBudgetQueryKeys } from "../queryKeys"
+import { invalidateMonthlyBudgetQueries } from "../queryKeys"
 import type { MonthlyBudgetUpdateInput } from "./monthlyBudgetUpdateMappers"
 import { updateMonthlyBudget as updateMonthlyBudgetRecord } from "./updateMonthlyBudget"
 
@@ -16,10 +16,7 @@ export function useUpdateMonthlyBudget(): UseUpdateMonthlyBudgetReturn {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: updateMonthlyBudgetRecord,
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: monthlyBudgetQueryKeys.listAll }),
-        queryClient.invalidateQueries({ queryKey: monthlyBudgetQueryKeys.effectiveAll }),
-      ])
+      await invalidateMonthlyBudgetQueries(queryClient)
     },
   })
 
