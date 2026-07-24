@@ -2,8 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import type { PaymentId } from "../../../types/payment"
-import { summaryQueryKeys } from "../../summaryByMonth"
-import { paymentQueryKeys } from "../queryKeys"
+import { invalidatePaymentMutationQueries } from "../invalidatePaymentMutationQueries"
 import { removePayment } from "./removePayment"
 
 interface UseDeletePaymentReturn {
@@ -20,12 +19,7 @@ export function useDeletePayment(
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (paymentId: PaymentId) => removePayment(paymentId),
     onSuccess: async (__, paymentId) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.all }),
-        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.details(paymentId) }),
-        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.totalExpendituresAll }),
-        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll }),
-      ])
+      await invalidatePaymentMutationQueries(queryClient, paymentId)
       onSuccess?.()
     },
     onError: (error) => {

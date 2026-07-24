@@ -2,9 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 
 import { getSupabaseClient } from "../../../lib/supabase"
-import { summaryQueryKeys } from "../../summaryByMonth"
+import { invalidatePaymentMutationQueries } from "../invalidatePaymentMutationQueries"
 import { type PaymentWriteInput, toPaymentWriteInsert } from "../paymentFormMappers"
-import { paymentQueryKeys } from "../queryKeys"
 
 async function postPayment(value: PaymentWriteInput): Promise<void> {
   const supabase = getSupabaseClient()
@@ -30,11 +29,7 @@ export function useCreatePayment(
   const { mutateAsync, isPending } = useMutation({
     mutationFn: postPayment,
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: paymentQueryKeys.all }),
-        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.totalExpendituresAll }),
-        queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll }),
-      ])
+      await invalidatePaymentMutationQueries(queryClient)
       onSuccess?.()
     },
     onError: (error) => {
