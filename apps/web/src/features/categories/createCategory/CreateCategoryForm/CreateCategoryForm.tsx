@@ -1,16 +1,14 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout, Checkbox, Flex, Text, TextField } from "@radix-ui/themes"
+import { Callout, Flex } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
-import { useCallback, useId, useState } from "react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
-import { AmountInput } from "../../../../components/inputs/AmountInput"
-import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
 import { translateMessage } from "../../../../i18n/translateMessage"
-import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { CATEGORY_PIN_LIMIT, categoryPinLimitErrorMessage } from "../../categoryPinLimitError"
+import { CategoryFormFields } from "../../components/CategoryFormFields"
 import { toCategoryCreateErrorMessage } from "../categoryCreateError"
 import { categoryCreateSchema, type CategoryCreateFormValues } from "../categoryCreateSchema"
 import { useCreateCategory } from "../useCreateCategory"
@@ -32,11 +30,6 @@ export function CreateCategoryForm({
   onSuccess,
   onCancel,
 }: CreateCategoryFormProps) {
-  const nameInputId = useId()
-  const nameErrorId = useId()
-  const budgetInputId = useId()
-  const budgetMessagesId = useId()
-  const pinnedInputId = useId()
   const { t } = useTranslation()
   const { createCategory, isPending } = useCreateCategory()
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
@@ -97,87 +90,38 @@ export function CreateCategoryForm({
         ) : null}
         <form.Subscribe selector={(state) => state.isSubmitting}>
           {(isSubmitting) => (
-            <Flex direction="column" gap="3">
-              <form.Field name="name">
-                {(field) => {
-                  const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
-                  const hasError = !field.state.meta.isValid && errorMessages.length > 0
-
-                  return (
-                    <BaseField>
-                      <FieldLabel htmlFor={nameInputId} required>
-                        {t("categories.name")}
-                      </FieldLabel>
-                      <TextField.Root
-                        autoFocus
-                        disabled={isSubmitting || isPending}
-                        id={nameInputId}
-                        name="name"
-                        value={field.state.value}
-                        aria-label={t("categories.name")}
-                        aria-describedby={hasError ? nameErrorId : undefined}
-                        aria-invalid={hasError}
-                        onChange={(event) => {
-                          field.handleChange(event.target.value)
-                          setSubmitErrorMessage(undefined)
-                        }}
-                      />
-                      <span id={nameErrorId}>
-                        <FieldMessages error={hasError} messages={errorMessages} />
-                      </span>
-                    </BaseField>
-                  )
-                }}
-              </form.Field>
-              <form.Field name="budgetAmount">
-                {(field) => {
-                  const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
-                  const hasError = !field.state.meta.isValid && errorMessages.length > 0
-                  const messages = hasError ? errorMessages : [t("categories.budgetHelp")]
-
-                  return (
-                    <BaseField>
-                      <FieldLabel htmlFor={budgetInputId}>{t("categories.budget")}</FieldLabel>
-                      <AmountInput
-                        disabled={isSubmitting || isPending}
-                        id={budgetInputId}
-                        name="budgetAmount"
-                        value={field.state.value === undefined ? "" : String(field.state.value)}
-                        aria-label={t("categories.budget")}
-                        aria-describedby={budgetMessagesId}
-                        aria-invalid={hasError}
-                        onChange={(value) => {
-                          field.handleChange(value)
-                          setSubmitErrorMessage(undefined)
-                        }}
-                      />
-                      <span id={budgetMessagesId}>
-                        <FieldMessages error={hasError} messages={messages} />
-                      </span>
-                    </BaseField>
-                  )
-                }}
-              </form.Field>
-              <form.Field name="pinned">
-                {(field) => (
-                  <Text as="label" size="2" htmlFor={pinnedInputId}>
-                    <Flex gap="2" align="center">
-                      <Checkbox
-                        id={pinnedInputId}
-                        name="pinned"
-                        checked={field.state.value}
-                        disabled={isSubmitting || isPending}
-                        onCheckedChange={(nextChecked) => {
-                          field.handleChange(nextChecked === true)
-                          setSubmitErrorMessage(undefined)
-                        }}
-                      />
-                      {t("categories.pinCategory")}
-                    </Flex>
-                  </Text>
-                )}
-              </form.Field>
-            </Flex>
+            <form.Field name="name">
+              {(nameField) => (
+                <form.Field name="budgetAmount">
+                  {(budgetField) => (
+                    <form.Field name="pinned">
+                      {(pinnedField) => (
+                        <CategoryFormFields
+                          name={nameField.state.value}
+                          nameErrors={nameField.state.meta.errors}
+                          budgetAmount={budgetField.state.value}
+                          budgetErrors={budgetField.state.meta.errors}
+                          pinned={pinnedField.state.value}
+                          disabled={isSubmitting || isPending}
+                          onNameChange={(name) => {
+                            nameField.handleChange(name)
+                            setSubmitErrorMessage(undefined)
+                          }}
+                          onBudgetAmountChange={(budgetAmount) => {
+                            budgetField.handleChange(budgetAmount)
+                            setSubmitErrorMessage(undefined)
+                          }}
+                          onPinnedChange={(pinned) => {
+                            pinnedField.handleChange(pinned)
+                            setSubmitErrorMessage(undefined)
+                          }}
+                        />
+                      )}
+                    </form.Field>
+                  )}
+                </form.Field>
+              )}
+            </form.Field>
           )}
         </form.Subscribe>
         <form.Subscribe selector={(state) => state.isSubmitting}>
