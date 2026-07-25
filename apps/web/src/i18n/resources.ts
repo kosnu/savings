@@ -82,7 +82,8 @@ export const resources = {
       "payments.create.description": "Create a new payment. Please fill in the details below.",
       "payments.create.continue": "Continue creating",
       "payments.create.frequent.label": "Frequent payments",
-      "payments.create.frequent.select": "Use frequent payment: {{note}}, {{amount}}, {{category}}",
+      "payments.create.frequent.select":
+        "Use frequent payment: Note {{note}}, Amount {{amount}}, Category {{category}}",
       "payments.category.label": "Category",
       "payments.category.none": "None",
       "payments.category.error": "Error",
@@ -282,7 +283,8 @@ export const resources = {
       "payments.create.description": "新しい支払いを作成します。詳細を入力してください。",
       "payments.create.continue": "続けて作成する",
       "payments.create.frequent.label": "よくある支払い",
-      "payments.create.frequent.select": "よくある支払いを使用: {{note}}、{{amount}}、{{category}}",
+      "payments.create.frequent.select":
+        "よくある支払いを使用: メモ {{note}}、金額 {{amount}}、カテゴリ {{category}}",
       "payments.category.label": "カテゴリ",
       "payments.category.none": "なし",
       "payments.category.error": "エラー",

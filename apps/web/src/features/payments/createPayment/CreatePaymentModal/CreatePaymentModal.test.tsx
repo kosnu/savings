@@ -184,11 +184,11 @@ describe("CreatePaymentModal", () => {
     const currentDialog = body.getByRole("dialog", { name: /create payment/i })
     expect(
       await within(currentDialog).findByRole("button", {
-        name: /use frequent payment: recurring lunch, ¥1,000, food/i,
+        name: /use frequent payment: note recurring lunch, amount ¥1,000, category food/i,
       }),
     ).toBeEnabled()
-    expect(within(currentDialog).getByLabelText(/amount/i)).toHaveValue("")
-    expect(within(currentDialog).getByLabelText(/note/i)).toHaveValue("")
+    expect(within(currentDialog).getByRole("textbox", { name: /^amount/i })).toHaveValue("")
+    expect(within(currentDialog).getByRole("textbox", { name: /^note/i })).toHaveValue("")
     expect(within(currentDialog).getByRole("combobox", { name: /category/i })).toHaveTextContent(
       "None",
     )

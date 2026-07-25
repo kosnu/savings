@@ -107,7 +107,7 @@ describe("CreatePaymentForm", () => {
     await user.type(noteInput, "Before")
     await user.click(
       await screen.findByRole("button", {
-        name: /use frequent payment: lunch/i,
+        name: /use frequent payment: note lunch/i,
       }),
     )
 
@@ -284,7 +284,7 @@ describe("CreatePaymentForm", () => {
 
     const { user } = await renderStory(<Default />)
     const candidate = await screen.findByRole("button", {
-      name: /use frequent payment: lunch/i,
+      name: /use frequent payment: note lunch/i,
     })
     await user.click(candidate)
     await user.click(screen.getByRole("button", { name: /create/i }))
