@@ -100,7 +100,9 @@ createExample/
 - export され、ユーザーが直接見る表示または操作を担当するコンポーネント
 - 「責務によるコンポーネントの切り出し」に従って切り出したコンポーネント
 
-Story は対象コンポーネント自体を `component` に指定し、少なくとも通常状態を定義します。loading、error、validation error、disabled、pending など、ユーザーの判断または操作が変わる永続的な状態をそのコンポーネントが持つ場合は、それらも Story として定義します。
+Story は対象コンポーネント自体を `component` に指定し、少なくとも通常状態を定義します。loading、error、validation error、disabled、pending など、ユーザーが利用できる表示または操作が変わる主要な状態をそのコンポーネントが持つ場合は、それらも Story として定義します。
+
+コンポーネントが所有するloading状態は、loading中に対象コンポーネントが何も表示せず `null` 相当になる場合もStoryを定義します。一時的な状態であることや、UIを表示しないことを理由にloading Storyを省略してはいけません。
 
 Page Story から子コンポーネントが表示されていても、子コンポーネント自身の Story を作成したことにはなりません。各 Story は、対象コンポーネントの責務と状態を単独で確認できる境界にします。
 
