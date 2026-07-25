@@ -1,16 +1,18 @@
 ---
 name: learn
-description: Extract reusable learnings from review comments, verification findings, operational findings, changed rules, or policy updates in AI Driven Development or harness-task contexts, then route them into task context or durable rules and policies. Use when the user asks to learn from feedback, prepare task context, capture findings for another task, update rules from recurring feedback, or says 学習, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
+description: Extract learning from review comments, verification findings, operational findings, changed constraints, or policy updates, then route every supplied finding to task-context additions or changes, rule or policy additions or changes, or sharpening an existing rule. Use in AI Driven Development or harness-task contexts when the user asks to learn from feedback, prepare task context, update rules, or says 学習, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
 ---
 
 # Learn
 
 ## Purpose
 
-Extract reusable learning and route it to one of these destinations:
+Treat every supplied finding as learning and route it to one primary
+destination:
 
-- Task context: intent, scope, constraints, success criteria, or oversight context used as Requirements material or harness-task input.
-- Rule / policy: durable guidance that should apply across tasks.
+- Task context addition or change: task-specific intent, scope, constraints, success criteria, or oversight context used as Requirements material or harness-task input.
+- Rule / policy addition or change: new durable guidance, or a change to an existing rule's meaning, applicability, or ownership.
+- Existing rule / policy sharpening: clarify normal behavior, responsibility, terminology, or a decision boundary without changing the rule's meaning or applicability.
 
 Use this skill in both AI Driven Development and harness-task contexts. In an AI Driven Development cycle, task context becomes material for Requirements. In a harness task, the same task context becomes the skill input.
 
@@ -27,7 +29,8 @@ Use only these sources:
 - Changed rules or policies.
 - Explicit oversight constraints from the user.
 
-Task-local defects, test failures, type errors, lint failures, and call-site adjustments are not automatically reusable learning. Include them only when they reveal changed task context, a durable rule, policy, oversight constraint, or verification expectation.
+Treat every finding supplied to this skill as an improvement signal, including
+findings already covered by an existing rule.
 
 ## Boundaries
 
@@ -43,7 +46,13 @@ Do not use these as source of truth for task context or rules:
 
 Do not inspect implementation files while using this skill. Use the supplied feedback, task context, verification evidence, and selected canonical documents.
 
-When the user explicitly asks to update a named rule or policy and the target is unambiguous, update that canonical document. Otherwise, return a handoff that identifies the proposed rule target and content. Do not write product artifacts unless the user separately asks for that work.
+Do not update Requirements / PRD or Design Doc. Return task-context additions or
+changes as a handoff for the next Requirements Goal or harness task.
+
+When the user explicitly asks to apply a rule or policy addition, change, or
+sharpening and the target is unambiguous, update that canonical document.
+Otherwise, return a handoff that identifies the proposed rule target and
+content. A classification-only result is not an applied rule change.
 
 ## Required Repository Context
 
@@ -62,47 +71,51 @@ Use GitHub PR or Issue data only when needed to read the referenced feedback or 
 
 ## Classification
 
-Classify each finding by its reusable destination:
+Classify each supplied finding by one primary destination:
 
-- Task context: the task intent, scope, constraints, success criteria, or oversight context needs revision.
-- Rule / policy: durable guidance needs creation, update, or explicit reference.
-- Exclude: the finding is task-local, already represented, unsupported, or should not affect future work.
+- Task context addition or change: task intent, scope, constraints, success criteria, or oversight context needs revision.
+- Rule / policy addition or change: durable guidance must be introduced, or an existing rule's meaning, applicability, or ownership must change.
+- Existing rule / policy sharpening: an existing rule remains correct but its normal behavior, responsibility, terminology, or decision boundary needs to be more precise.
 
-A finding may require both destinations only when task context must reference a new or changed rule. State the dependency explicitly instead of duplicating the same content.
+If task context depends on a new or changed rule, make the primary
+classification explicit and state the reference dependency instead of
+duplicating the same content.
+
+When an existing rule already covers the finding, route it to a rule / policy
+addition or change if its meaning, applicability, or ownership must change;
+otherwise route it to existing rule / policy sharpening.
+
+Preserve the user's finding and stated reason before adding interpretation. If
+an interpretation would introduce visible information, an operation, a
+constraint, or a success criterion that the feedback did not state, stop
+instead of inferring it.
 
 ## Output
 
-When no rule or policy write was explicitly requested, return only a concise handoff:
+Return a concise handoff organized by finding, not a flat list grouped by
+destination:
 
 ```md
-# Learning Handoff
+# Learn結果
 
-## Source
+## 学び
 
-- Task context:
-- Feedback or finding:
-- Relevant rules:
+### <finding>
 
-## Task Context
-
-- Change:
-- Reason:
-
-## Rule / Policy
-
-- Target:
-- Change:
-- Reason:
-
-## Exclude
-
-- Item:
-- Reason:
+- 明示された理由:
+- 振り分け: タスクコンテキストの追加・変更 | ルール・ポリシーの追加・変更 | 既存ルール・ポリシーのsharp化
+- 反映先:
+- 変更:
+- 参照関係:
 ```
 
-Omit empty sections when they add no information. Keep the handoff compact and directly usable as task context.
+Omit empty fields. Account for every supplied finding under `学び`, preserve the
+relationship between each finding and its destination, and do not repeat the
+same learning under multiple headings.
 
-When an explicit rule or policy update was completed, return a concise outcome report with the changed canonical files, extracted learning, verification, and any remaining task-context handoff.
+When an explicit rule or policy update was completed, return a concise outcome
+report with the changed canonical files, extracted learning, verification, and
+any remaining task-context handoff.
 
 ## Stop
 
@@ -110,7 +123,8 @@ Stop before producing a handoff or updating a rule when:
 
 - The feedback or finding is ambiguous.
 - The task whose context should change is missing and cannot be inferred.
-- A rule or policy update is required but the canonical target is ambiguous.
+- The primary destination cannot be selected from the three classifications.
+- A rule or policy addition, change, or sharpening is required but the canonical target is ambiguous.
 - The learning cannot be explained without relying on previous implementation code, previous UI behavior, current diff shape, or previous implementation-specific design choices.
 - The result violates or may violate the selected rule-map subgraph.
 - Memory update is needed but the user did not explicitly request it.

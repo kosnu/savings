@@ -1,7 +1,7 @@
 interface:
   display_name: "Learn"
-  short_description: "Extract learnings into task context or rules"
-  default_prompt: "Use $learn to extract reusable learning from feedback and route it into task context or durable rules."
+  short_description: "Route learnings to context, rules, or policies"
+  default_prompt: "Use $learn to route each finding to task context, a rule or policy change, or rule or policy sharpening."
 
 policy:
   allow_implicit_invocation: true

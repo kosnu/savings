@@ -34,7 +34,8 @@ definition and not as output skeletons.
 1. Determine the requested phase or the next phase from the canonical workflow,
    current Goal state, workspace artifacts, branch, Issue, and PR context. A
    named phase does not override the workflow. If the phase is unclear, ask one
-   short clarification question.
+   short clarification question. An unfinished same-cycle phase Goal remains
+   owned by `aidd-cycle`, so return control to it.
 2. Read the matching Goal template and only the references needed for that
    phase. Use `rule-map.json` to select documented policies, domain rules, ADRs,
    designs, and app guidance.
@@ -45,10 +46,13 @@ definition and not as output skeletons.
 4. Build a compact Context Packet containing scope, selected references and
    reasons, constraints, known risks, Stop checks, and verification expectations.
    Preserve every requirement from the workflow and matching template without
-   copying their full text.
-5. Set the Goal with `create_goal`. In orchestrated use, include the cycle ID,
-   workspace, initial input, artifact lineage, and current phase supplied by
-   `aidd-cycle`; do not put cycle control or next-Goal creation in the objective.
+   copying their full text. Every Done, Verification, and Stop condition must be
+   traceable to the workflow, matching template, selected repository rules, or
+   an explicit user constraint.
+5. Set the Goal with `create_goal`. In orchestrated use, include the
+   workflow-defined cycle identity, phase inputs, artifact references, and
+   current phase supplied by `aidd-cycle`. Keep cycle control and next-Goal
+   creation in `aidd-cycle`.
 
 Do not edit repository files or create a git diff while preparing the Goal.
 
