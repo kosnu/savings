@@ -55,6 +55,20 @@ export async function fillCreateMonthlyBudgetForm({
   await typeBudgetAmount({ user, amount, fieldScope })
 }
 
+export function getCurrentBudgetMonth() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  return {
+    year: String(year),
+    month: String(month),
+    yearNumber: year,
+    monthNumber: month,
+    effectiveFrom: `${year}-${String(month).padStart(2, "0")}-01`,
+  }
+}
+
 function getMonthOptionName(month: string): string {
   return new Intl.DateTimeFormat("en-US", { month: "long" }).format(
     new Date(2025, Number(month) - 1, 1),
