@@ -29,4 +29,4 @@ when_to_read:
 - [Build / Verify Goal](./build-verify-goal.md)
 - [Ship Goal](./ship-goal.md)
 
-レビューコメント、検証結果、運用知見、ルール・ポリシー変更を次回Requirementsの入力へ整理する場合は、Goalテンプレートではなく `$learn` skill を使います。
+レビューコメント、検証結果、運用知見をタスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する場合は、Goalテンプレートではなく `$learn` skill を使います。
