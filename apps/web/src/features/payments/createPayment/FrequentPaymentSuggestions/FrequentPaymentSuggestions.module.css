@@ -1,0 +1,18 @@
+.candidate {
+  max-width: 100%;
+  height: auto;
+  min-height: var(--space-7);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.note,
+.details {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.note {
+  font-weight: var(--font-weight-medium);
+}

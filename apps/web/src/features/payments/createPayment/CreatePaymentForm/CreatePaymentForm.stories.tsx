@@ -2,7 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
 
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
+import { createBookHandlers } from "../../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
+import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { CreatePaymentForm } from "./CreatePaymentForm"
 
 const meta = {
@@ -11,7 +13,7 @@ const meta = {
   parameters: {
     layout: "centered",
     msw: {
-      handlers: createCategoryHandlers(),
+      handlers: [...createBookHandlers(), ...createPaymentHandlers(), ...createCategoryHandlers()],
     },
   },
   tags: ["autodocs"],

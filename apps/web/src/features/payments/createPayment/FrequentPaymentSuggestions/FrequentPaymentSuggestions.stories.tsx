@@ -1,0 +1,80 @@
+import type { Meta, StoryObj } from "@storybook/react-vite"
+import type { ComponentProps } from "react"
+import { fn } from "storybook/test"
+
+import { toDateOnlyString } from "../../../../domain/date"
+import { createBookHandlers } from "../../../../test/msw/handlers/books"
+import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
+import type { PaymentRow } from "../../../../types/payment"
+import { FrequentPaymentSuggestions } from "./FrequentPaymentSuggestions"
+
+const today = toDateOnlyString(new Date())
+
+function createPaymentRow(id: number, note: string, amount: number): PaymentRow {
+  return {
+    id,
+    note,
+    amount,
+    date: today,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    book_id: 1,
+    category_id: 10,
+  }
+}
+
+const candidateRows = [
+  createPaymentRow(100, "Lunch", 1200),
+  createPaymentRow(101, "Lunch", 1200),
+  createPaymentRow(102, "Lunch", 1200),
+  createPaymentRow(103, "123456789012345678901234567890", 800),
+  createPaymentRow(104, "123456789012345678901234567890", 800),
+  createPaymentRow(105, "123456789012345678901234567890", 800),
+]
+
+const onSelect: ComponentProps<typeof FrequentPaymentSuggestions>["onSelect"] = fn()
+
+const meta = {
+  title: "Features/Payments/CreatePayment/FrequentPaymentSuggestions",
+  component: FrequentPaymentSuggestions,
+  parameters: {
+    layout: "centered",
+    msw: {
+      handlers: [
+        ...createBookHandlers(),
+        ...createPaymentHandlers({ get: { response: candidateRows } }),
+      ],
+    },
+  },
+  tags: ["autodocs"],
+  args: {
+    onSelect,
+  },
+} satisfies Meta<typeof FrequentPaymentSuggestions>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
+
+export const Empty: Story = {
+  parameters: {
+    msw: {
+      handlers: [...createBookHandlers(), ...createPaymentHandlers({ get: { response: [] } })],
+    },
+  },
+}
+
+export const Error: Story = {
+  parameters: {
+    msw: {
+      handlers: [...createBookHandlers(), ...createPaymentHandlers({ get: { error: true } })],
+    },
+  },
+}
+
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+  },
+}
