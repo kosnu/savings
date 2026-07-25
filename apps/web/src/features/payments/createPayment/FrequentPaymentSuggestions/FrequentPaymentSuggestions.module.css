@@ -22,7 +22,6 @@
   opacity: 0.5;
 }
 
-.field,
 .value {
   min-width: 0;
   max-width: 100%;
