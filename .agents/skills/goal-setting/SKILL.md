@@ -48,13 +48,11 @@ definition and not as output skeletons.
    Preserve every requirement from the workflow and matching template without
    copying their full text. Every Done, Verification, and Stop condition must be
    traceable to the workflow, matching template, selected repository rules, or
-   an explicit user constraint. The Goal lifetime ends when those defined
-   conditions are satisfied; observations outside them remain context.
-5. Set the Goal with `create_goal`. In orchestrated use, include the cycle ID,
-   workspace, initial input, supplied Task Context, canonical
-   artifact paths, and current phase supplied by `aidd-cycle`. Keep cycle
-   control and next-Goal creation in `aidd-cycle`. For a new cycle of the same
-   Issue or task, use the existing workspace and canonical artifact paths.
+   an explicit user constraint.
+5. Set the Goal with `create_goal`. In orchestrated use, include the
+   workflow-defined cycle identity, phase inputs, artifact references, and
+   current phase supplied by `aidd-cycle`. Keep cycle control and next-Goal
+   creation in `aidd-cycle`.
 
 Do not edit repository files or create a git diff while preparing the Goal.
 

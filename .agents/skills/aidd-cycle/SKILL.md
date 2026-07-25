@@ -29,17 +29,10 @@ Call `get_goal` when available before creating a Goal. Identify a cycle by a
 stable cycle ID, workspace, Issue or initial input, and canonical artifact
 paths. Put that identity in every phase Goal's Context Packet.
 
-Start a new cycle when the user requests a fresh cycle, supplies fresh initial
-input, the previous cycle is complete, or only the previous cycle identity is
-ambiguous while the canonical Issue or task, workspace, and artifact paths are
-clear and no unrelated unfinished Goal exists.
-Allocate a new cycle ID, but reuse the same workspace and canonical
-`requirements.md` and `design-doc.md` paths for the same Issue or task. The
-Requirements phase owns writing `requirements.md`; the Design phase owns
-writing `design-doc.md`. In a new cycle, each phase replaces the prior-cycle
-content at its canonical path. Later phases read the current-cycle upstream
-artifacts without modifying them. Include supplied Task Context in the new
-cycle's Requirements Goal.
+Apply the new-cycle and resume conditions from `workflow.md`. When a new cycle
+is permitted, allocate its cycle ID and pass the workflow-defined workspace,
+initial input, supplied Task Context, artifact references, and entry phase to
+`goal-setting`.
 
 Resume only when the same cycle identity and its active or last completed phase
 are clear. Goal completion evidence, not artifact existence alone, determines
@@ -64,25 +57,16 @@ Repeat until the canonical workflow reaches its final phase:
    outside the phase Goal.
 4. Execute only the active Goal under its Context Packet, matching template,
    selected rule-map subgraph, and canonical workflow boundaries.
-5. When a Stop condition applies, leave the Goal unfinished, report the blocker,
-   and end this invocation.
+5. When a Stop condition applies, follow `workflow.md` and the Goal tool
+   contract to transition the Goal to `status: blocked` with `update_goal`,
+   confirm the terminal state with `get_goal`, report the blocker, and end this
+   invocation.
 6. When the objective, Done checks, and Verification are complete, call
    `update_goal` with `status: complete`, confirm completion with `get_goal`, and
    continue according to `workflow.md`.
 
-Each phase's Done, Verification, and Stop conditions consist of the canonical
-workflow, matching template, selected repository rules, and explicit user
-constraints. Complete the phase when those defined conditions are satisfied.
-Report observations outside those conditions as context without extending the
-phase Goal's lifetime.
-
-Requirements, Design, and Build / Verify own their phase artifacts and
-verification. Ship owns stage, commit, push, and PR state transitions when the
-full-cycle request or a separate delivery request authorizes them.
-
 After the canonical final phase completes, end the invocation and report the
-completed cycle. A later cycle begins from a separate request, and post-cycle
-Learn remains user-initiated.
+completed cycle according to the post-cycle handling in `workflow.md`.
 
 ## Goal Tool Fallback
 
