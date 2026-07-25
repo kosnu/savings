@@ -63,6 +63,7 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 ## Autonomy
 
 - AIは差分を確認してよい
+- AIは許可された提出範囲でstage、commit、push、PR作成・更新を行ってよい
 - AIはPR本文を作成してよい
 - AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
 - AIはPR本文、検証結果記載、レビュー返信、thread resolve判断に関わるShip範囲のレビューコメントへ返信してよい
@@ -70,8 +71,9 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 - AIは要件充足や仕様判断をShipで作り直してはいけない
 - AIは実装成果物へのレビュー指摘をShip内で修正してはいけない
 - AIはLearn skillに渡すべき知見をShip内でタスクコンテキストとして整理してはいけない
-- AIはremote CIの完了を待ってはいけない
 - AIはユーザーから明示されていないmemory更新を行ってはいけない
+
+Ship Goalの完了は、以下のDoneとVerificationで判定する。定義外の観測結果は補足情報として報告する。
 
 ## Done
 
@@ -97,8 +99,6 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
   - `gh api graphql` によるreview thread状態確認
   - PR作成前に指定されたアプリ検証コマンド
   - Markdown lintやドキュメント生成コマンド
-- 実行しない:
-  - remote CIの完了待機
 
 ## Stop
 

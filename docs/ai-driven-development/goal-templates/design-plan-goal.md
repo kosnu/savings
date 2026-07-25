@@ -30,7 +30,7 @@ when_to_read:
 ## Inputs
 
 - Requirements / PRD:
-- 出力先: 同じworkspaceの無印`design-doc.md`。新しいサイクルではこのpathを上書きする。
+- 出力先: 同じworkspaceのcanonical pathである`design-doc.md`。このGoalが書き込みを所有する。
 - 関連コード:
 - 関連ドキュメント:
   - docs/harness/rule-map.json で選択したサブグラフ:
@@ -100,7 +100,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 追加、変更、削除する各ユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できる
 - [ ] Requirements / PRDの意図・制約・対象外・受け入れ条件から解釈を広げていない
 - [ ] 現在サイクルのRequirements / PRDをread-only入力として扱っている
-- [ ] 同じworkspaceの無印`design-doc.md`を使い、version suffixを追加していない
+- [ ] 成果物が同じworkspaceのcanonical pathである`design-doc.md`にある
 - [ ] Design Docが、選択したルール・ポリシーに違反していないことを確認している
 - [ ] リスクと確認事項が残っている
 

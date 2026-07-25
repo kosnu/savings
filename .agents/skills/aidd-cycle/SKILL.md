@@ -33,24 +33,23 @@ Start a new cycle when the user requests a fresh cycle, supplies fresh initial
 input, the previous cycle is complete, or only the previous cycle identity is
 ambiguous while the canonical Issue or task, workspace, and artifact paths are
 clear and no unrelated unfinished Goal exists.
-Allocate a new cycle ID, but reuse the same workspace and unversioned
-`requirements.md` and `design-doc.md` paths for the same Issue or task. Do not
-create `-v2`, `-v3`, or another versioned workspace. The Requirements phase
-overwrites `requirements.md`; the Design phase overwrites `design-doc.md`.
-Read-only applies only to upstream artifacts in later phases of the same cycle.
-Include supplied Task Context in the new cycle's Requirements Goal; do not treat
-an unsupplied prior Learn conversation as current input.
+Allocate a new cycle ID, but reuse the same workspace and canonical
+`requirements.md` and `design-doc.md` paths for the same Issue or task. The
+Requirements phase owns writing `requirements.md`; the Design phase owns
+writing `design-doc.md`. In a new cycle, each phase replaces the prior-cycle
+content at its canonical path. Later phases read the current-cycle upstream
+artifacts without modifying them. Include supplied Task Context in the new
+cycle's Requirements Goal.
 
 Resume only when the same cycle identity and its active or last completed phase
 are clear. Goal completion evidence, not artifact existence alone, determines
 where execution continues. An unfinished Goal belonging to another task is a
 conflict and must not be replaced.
 
-When the same-cycle Goal is unfinished, reuse it instead of creating a
-replacement. Continue an active Goal directly. If a callable Goal resume action
-is available for a paused Goal, use it; never click or automate the Codex UI.
-If no callable resume action is available, report that capability blocker and
-stop without creating another Goal or changing artifact paths.
+An unfinished same-cycle Goal remains the current Goal. `aidd-cycle` owns its
+state transition: continue it when active and resume it through a callable Goal
+action when paused. If the required state transition is not callable, report
+that capability blocker and stop.
 
 ## Execution
 
@@ -59,10 +58,10 @@ Repeat until the canonical workflow reaches its final phase:
 1. Determine the current or next phase from `workflow.md` and verified Goal
    state.
 2. Confirm that no unfinished unrelated Goal conflicts with the phase.
-3. Resume an unfinished same-cycle Goal as defined above. Only when no Goal
+3. Transition an unfinished same-cycle Goal as defined above. When no Goal
    exists for the phase, follow the orchestrated-use procedure in `goal-setting`
-   to construct and set exactly one Goal. Do not put cycle-control work in that
-   Goal.
+   to construct and set exactly one Goal. Keep cycle control in `aidd-cycle`,
+   outside the phase Goal.
 4. Execute only the active Goal under its Context Packet, matching template,
    selected rule-map subgraph, and canonical workflow boundaries.
 5. When a Stop condition applies, leave the Goal unfinished, report the blocker,
@@ -71,18 +70,19 @@ Repeat until the canonical workflow reaches its final phase:
    `update_goal` with `status: complete`, confirm completion with `get_goal`, and
    continue according to `workflow.md`.
 
-Do not add phase conditions that cannot be traced to the workflow, matching
-template, selected repository rules, or explicit user constraints. In
-particular, remote CI status is not a Done, Verification, or Stop condition, and
-the cycle must not wait for remote CI completion.
+Each phase's Done, Verification, and Stop conditions consist of the canonical
+workflow, matching template, selected repository rules, and explicit user
+constraints. Complete the phase when those defined conditions are satisfied.
+Report observations outside those conditions as context without extending the
+phase Goal's lifetime.
 
-Completing Requirements, Design, or Build / Verify does not authorize a commit.
-Perform stage, commit, push, and PR updates only in Ship when the full-cycle
-request or a separate delivery request authorizes them.
+Requirements, Design, and Build / Verify own their phase artifacts and
+verification. Ship owns stage, commit, push, and PR state transitions when the
+full-cycle request or a separate delivery request authorizes them.
 
 After the canonical final phase completes, end the invocation and report the
-completed cycle. Do not start another cycle or invoke a separate post-cycle
-skill automatically.
+completed cycle. A later cycle begins from a separate request, and post-cycle
+Learn remains user-initiated.
 
 ## Goal Tool Fallback
 
