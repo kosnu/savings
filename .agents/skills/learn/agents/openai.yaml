@@ -1,7 +1,7 @@
 interface:
   display_name: "Learn"
-  short_description: "Route learnings to task context or precise rules"
-  default_prompt: "Use $learn to route each finding to task context, a rule change, or rule sharpening."
+  short_description: "Route learnings to context, rules, or policies"
+  default_prompt: "Use $learn to route each finding to task context, a rule or policy change, or rule or policy sharpening."
 
 policy:
   allow_implicit_invocation: true

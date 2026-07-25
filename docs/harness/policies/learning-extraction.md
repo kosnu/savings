@@ -59,7 +59,7 @@ when_to_read:
 ## 実行文脈
 
 - AI Driven Development: Ship完了後、または上流成果物の不足・誤り・矛盾によるサイクルStop後に、ユーザーがLearn skillを手動実行し、findingを3つの振り分け先へ整理する。正常系のBuild / VerifyとShipの間には挟まない。タスクコンテキストは次のRequirementsの入力であり、LearnはPRDやDesign Docを直接変更しない。
-- harness-task: レビューや検証で得た学びを、harness-taskのInputとなるタスクコンテキスト、ルールの追加・変更、または既存ルールのsharp化へ整理する。明示されたスコープ内のルール更新はタスク内で実施できる。
+- harness-task: レビューや検証で得た学びを、harness-taskのInputとなるタスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する。明示されたスコープ内のルール・ポリシー更新はタスク内で実施できる。
 
 Learn skillは学びの抽出と整理に特化した導線ですが、学び抽出を独占しません。`harness-task`も作業中に学びを抽出し、スコープ内のルール更新またはタスクコンテキストのhandoffを行えます。
 

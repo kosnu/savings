@@ -95,6 +95,8 @@ Ship Goalの完了は、以下のDoneとVerificationで判定する。定義外�
 - 必ず実行:
   - `git status --short`
   - `git diff --stat`
+  - `git log main..HEAD --oneline`
+  - `git diff main..HEAD --stat`
 - 必要なら実行:
   - `gh pr view <PR番号> --json number,title,body,baseRefName,headRefName,url,state,isDraft`
   - `gh api graphql` によるreview thread状態確認
