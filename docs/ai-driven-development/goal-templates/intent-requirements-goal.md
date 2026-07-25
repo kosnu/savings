@@ -27,6 +27,12 @@ when_to_read:
 
 背景・ありたい姿・既存コード・既存ドキュメントをもとに、実装前にRequirements / PRD相当の要求整理を作成する。
 
+## Inputs
+
+- Task Context:
+- 既存Requirements / PRD:
+- 出力先: 同じworkspaceの無印`requirements.md`。新しいサイクルではこのpathを上書きする。
+
 ## Oversight Inputs
 
 - なぜ今これをやりたいか:
@@ -97,6 +103,8 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] Q&Aログに判断と理由が残っている
 - [ ] 技術的考慮事項が参考情報として整理されている
 - [ ] Issue、Oversight Inputs、関連ドキュメントから読み取れる意図・制約・対象外を超えて解釈を広げていない
+- [ ] 渡されたTask Contextの追加・変更が反映されている
+- [ ] 同じworkspaceの無印`requirements.md`を使い、version suffixを追加していない
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントとの整合性が確認されている
 - [ ] Requirements / PRDが、選択したルール・ポリシーに違反していないことを確認している
 
