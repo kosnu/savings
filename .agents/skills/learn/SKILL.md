@@ -1,13 +1,14 @@
 ---
 name: learn
-description: Extract reusable learnings from review comments, verification findings, operational findings, changed constraints, or policy updates, then route each finding to task-context additions or changes, rule or policy additions or changes, or sharpening an existing rule. Use in AI Driven Development or harness-task contexts when the user asks to learn from feedback, prepare task context, update rules, or says 学習, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
+description: Extract learning from review comments, verification findings, operational findings, changed constraints, or policy updates, then route every supplied finding to task-context additions or changes, rule or policy additions or changes, or sharpening an existing rule. Use in AI Driven Development or harness-task contexts when the user asks to learn from feedback, prepare task context, update rules, or says 学習, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
 ---
 
 # Learn
 
 ## Purpose
 
-Extract reusable learning and route each finding to one primary destination:
+Treat every supplied finding as learning and route it to one primary
+destination:
 
 - Task context addition or change: task-specific intent, scope, constraints, success criteria, or oversight context used as Requirements material or harness-task input.
 - Rule / policy addition or change: new durable guidance, or a change to an existing rule's meaning, applicability, or ownership.
@@ -28,7 +29,8 @@ Use only these sources:
 - Changed rules or policies.
 - Explicit oversight constraints from the user.
 
-Task-local defects, test failures, type errors, lint failures, and call-site adjustments are not automatically reusable learning. Include them only when they reveal changed task context, a durable rule, policy, oversight constraint, or verification expectation.
+Treat every finding supplied to this skill as an improvement signal, including
+findings already covered by an existing rule.
 
 ## Boundaries
 
@@ -69,7 +71,7 @@ Use GitHub PR or Issue data only when needed to read the referenced feedback or 
 
 ## Classification
 
-Classify each reusable finding by one primary destination:
+Classify each supplied finding by one primary destination:
 
 - Task context addition or change: task intent, scope, constraints, success criteria, or oversight context needs revision.
 - Rule / policy addition or change: durable guidance must be introduced, or an existing rule's meaning, applicability, or ownership must change.
@@ -79,9 +81,9 @@ If task context depends on a new or changed rule, make the primary
 classification explicit and state the reference dependency instead of
 duplicating the same content.
 
-Do not classify task-local, already represented, unsupported, or non-reusable
-findings as learning. Keep them associated with the input and state why they do
-not produce a learning change.
+When an existing rule already covers the finding, route it to a rule / policy
+addition or change if its meaning, applicability, or ownership must change;
+otherwise route it to existing rule / policy sharpening.
 
 Preserve the user's finding and stated reason before adding interpretation. If
 an interpretation would introduce visible information, an operation, a
@@ -105,17 +107,11 @@ destination:
 - 反映先:
 - 変更:
 - 参照関係:
-
-## 学びにしないfinding
-
-### <finding>
-
-- 理由:
 ```
 
-Omit empty fields and sections. Account for every supplied finding, preserve
-the relationship between each finding and its destination, and do not repeat
-the same learning under multiple headings.
+Omit empty fields. Account for every supplied finding under `学び`, preserve the
+relationship between each finding and its destination, and do not repeat the
+same learning under multiple headings.
 
 When an explicit rule or policy update was completed, return a concise outcome
 report with the changed canonical files, extracted learning, verification, and

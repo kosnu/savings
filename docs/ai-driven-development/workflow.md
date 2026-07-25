@@ -35,9 +35,11 @@ Build / Verifyは、Requirements / PRDとDesign Docを満たす実装と検証�
 
 Shipは、Build / Verify済みの成果をPR、説明、レビュー返信ができる形へ整える工程です。要件充足の一次確認はBuild / Verifyで完了している前提にします。Shipは実装成果物へのレビュー指摘を修正する工程ではありません。
 
-LearnはGoalではなく、Ship完了後、または上流成果物の不足・誤り・矛盾によってサイクルをStopした後に、ユーザーが必要に応じて手動実行するskillです。Build / Verifyが正常に完了した場合の次工程はShipであり、正常系の途中にLearnを挟みません。成果物レビュー、レビューコメント、検証結果、運用知見を、Requirementsの材料となるタスクコンテキストの追加・変更、ルールの追加・変更、または既存ルールのsharp化へ整理します。新しいサイクルを回す場合は、前回の続きとして途中工程から再開せず、整理済みのタスクコンテキストと最新ルールを入力にして、必ずIntent / Requirements Goalから始めます。
+LearnはGoalではなく、Ship完了後、または上流成果物の不足・誤り・矛盾によってサイクルをStopした後に、ユーザーが必要に応じて手動実行するskillです。Build / Verifyが正常に完了した場合の次工程はShipであり、正常系の途中にLearnを挟みません。成果物レビュー、レビューコメント、検証結果、運用知見を、Requirementsの材料となるタスクコンテキストの追加・変更、ルールの追加・変更、または既存ルールのsharp化へ整理します。
 
-同じIssueまたはタスクでは、サイクルをまたいで同じworkspaceとcanonical artifact pathを使います。新しいサイクルには新しいcycle IDを発行します。Intent / Requirements Goalは`requirements.md`、Design / Plan Goalは`design-doc.md`への書き込みを所有し、新しいサイクルでは各pathの前サイクル内容を置き換えます。過去サイクルの内容はGit履歴で参照します。
+Stopしたサイクルでは、Goal tool contractに従って`update_goal`を`status: blocked`で呼び出し、phase Goalを終端化してからLearnへ進みます。新しいサイクルを回す場合は、前回の続きとして途中工程から再開せず、整理済みのタスクコンテキストと最新ルールを入力にして、必ずIntent / Requirements Goalから始めます。
+
+同じIssueまたはタスクでは、サイクルをまたいで同じworkspaceとcanonical artifact pathを使います。新しいサイクルには新しいcycle IDを発行します。Intent / Requirements Goalは`requirements.md`、Design / Plan Goalは`design-doc.md`への書き込みを所有し、新しいサイクルでは各pathの前サイクル内容を置き換えます。Ship済みのサイクルはcommit済みであり、その内容はGit履歴で参照します。Stopしたサイクルの成果物はunstagedのまま保持し、次サイクルの生成工程で置き換えます。
 
 read-only境界は同一サイクルの後続工程にだけ適用します。現在サイクルで生成した`requirements.md`はDesign / Plan以降、`design-doc.md`はBuild / Verify以降でread-onlyです。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、現在の工程で上流成果物を直さずStopし、`$learn`で次サイクルのタスクコンテキストの追加・変更、ルールの追加・変更、または既存ルールのsharp化へ整理します。次サイクルの各生成工程では、対応する前サイクルの成果物を同じpathへ上書きします。
 
@@ -145,7 +147,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 
 Build / Verifyは、Requirements / PRDとDesign Docを満たすまで実装と検証を行う工程です。正常終了時に要件未達は残しません。工程中のテスト失敗、型エラー、lint、実装整合性、変更漏れ、呼び出し側調整はこの工程内で修正して再検証します。Requirements / PRDまたはDesign Docの不足・矛盾で満たせない場合は、勝手に仕様を補わずStopします。
 
-Build / Verifyが正常に完了した場合の次工程はShipです。Ship後の成果物フィードバックは、ユーザーが手動で`$learn`を実行してRequirementsの材料となるタスクコンテキストへ整理し、新しいサイクルをRequirementsから始めます。
+Build / Verifyが正常に完了した場合の次工程はShipです。Ship後の成果物フィードバックは、ユーザーが手動で`$learn`を実行してタスクコンテキストの追加・変更、ルールの追加・変更、または既存ルールのsharp化へ整理し、新しいサイクルをRequirementsから始めます。
 
 主な成果物:
 
@@ -172,7 +174,7 @@ Build / Verify済みの成果を提出できる形に整えます。
 
 この工程は、PR作成、変更内容の要約、検証結果の記録、Ship範囲のレビューコメントへの返信、完了済みthreadのresolveを扱います。Requirements / PRDやDesign Docの判断を作り直したり、実装成果物へのレビュー指摘を修正したり、タスクコンテキストを整理したりしません。
 
-Requirements、Design、Build / Verifyは各工程の成果物と検証を所有します。Shipは、フルサイクルまたは明示された提出作業で許可されたstage、commit、push、PRの状態遷移を所有します。Ship Goalは定義済みのDoneとVerificationが満たされた時点で完了し、定義外の観測結果は補足情報として報告します。
+Requirements、Design、Build / Verifyは各工程の成果物と検証を所有します。Shipは、フルサイクルまたは明示された提出作業で許可されたstage、commit、push、PRの状態遷移を所有します。AIDDフルサイクルでは対象差分のcommitまでをShipに含め、commit完了後にShip済みとして扱います。Ship Goalは定義済みのDoneとVerificationが満たされた時点で完了し、定義外の観測結果は補足情報として報告します。
 
 主な成果物:
 
@@ -204,7 +206,7 @@ Ship完了後、または上流成果物の不足・誤り・矛盾によるサ�
 
 LearnはGoalではないため、Goalを設定せず、実装もしません。LearnはPRDやDesign Docを直接変更せず、Requirementsの材料となるタスクコンテキストを返します。ルールの追加・変更またはsharp化は、ユーザーが反映を明示した場合だけ正本へ適用します。前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断は、Requirements / Designの入力にしません。
 
-再利用可能なfindingは、次のうち1つを主な振り分け先にします。
+Learnへ渡された各findingは学びとして扱い、次のうち1つを主な振り分け先にします。
 
 1. タスクコンテキストの追加・変更
 2. ルールの追加・変更
@@ -230,7 +232,7 @@ workflow上の責務定義、工程上の位置づけ、禁止事項はこのセ
 
 止まる条件:
 
-- タスクコンテキストへ渡すべき学びが分類できない
+- 3つの振り分け先から主な振り分けを選べない
 - ルール・ポリシー更新が必要だが、更新対象が曖昧
 - 前回実装を根拠にしないと入力を説明できない
 - memory更新が必要だがユーザーの明示依頼がない
