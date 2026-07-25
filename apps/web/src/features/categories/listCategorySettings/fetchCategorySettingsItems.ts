@@ -1,5 +1,6 @@
 import * as z from "zod"
 
+import { toCategoryBudgetMap, type CategoryBudgetState } from "../../../domain/categoryBudget"
 import { toDateOnlyString } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
 import type { CategorySettingsItem } from "./types"
@@ -88,39 +89,4 @@ function toCategorySettingsItem(
     budgetStatus: budgetState.status,
     budgetAmount: budgetState.amount,
   }
-}
-
-const effectiveCategoryBudgetSchema = z
-  .object({
-    category_id: z.number(),
-    status: z.enum(["amount", "none"]),
-    amount: z.number().nullable(),
-  })
-  .refine(
-    (value) =>
-      (value.status === "amount" && value.amount !== null) ||
-      (value.status === "none" && value.amount === null),
-  )
-
-type CategoryBudgetState = {
-  status: "amount" | "none" | "unset"
-  amount: number | null
-}
-
-function toCategoryBudgetMap(value: unknown): Map<number, CategoryBudgetState> {
-  const result = z.array(effectiveCategoryBudgetSchema).safeParse(value)
-
-  if (!result.success) {
-    throw new Error("Invalid category budget response")
-  }
-
-  return new Map(
-    result.data.map((budget) => [
-      budget.category_id,
-      {
-        status: budget.status,
-        amount: budget.status === "amount" ? budget.amount : null,
-      },
-    ]),
-  )
 }

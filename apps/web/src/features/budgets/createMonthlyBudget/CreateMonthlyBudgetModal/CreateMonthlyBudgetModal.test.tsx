@@ -5,7 +5,10 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import { server } from "../../../../test/msw/server"
 import { act, fireEvent, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../../utils/postgresError"
-import { fillCreateMonthlyBudgetForm } from "../../test/utils/budgetCreationForm"
+import {
+  fillCreateMonthlyBudgetForm,
+  getCurrentBudgetMonth,
+} from "../../test/utils/budgetCreationForm"
 import * as stories from "./CreateMonthlyBudgetModal.stories"
 
 const { Default } = composeStories(stories)
@@ -153,14 +156,3 @@ describe("CreateMonthlyBudgetModal", () => {
     expect(screen.getByRole("dialog", { name: "Create monthly budget" })).toBeInTheDocument()
   })
 })
-
-function getCurrentBudgetMonth() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = now.getMonth() + 1
-
-  return {
-    year: String(year),
-    month: String(month),
-  }
-}
