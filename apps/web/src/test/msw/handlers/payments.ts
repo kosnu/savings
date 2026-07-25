@@ -23,6 +23,7 @@ const initialCategoryRows: CategoryRow[] = allCategories.map((category) => ({
 interface PaymentDetailsRow extends PaymentRow {
   category: {
     id: number
+    book_id: number
     name: string
   } | null
 }
@@ -55,6 +56,7 @@ interface GetMonthlyTotalAmountOptions extends BaseOptions {
 interface CreatePaymentHandlersOptions {
   initialRows?: PaymentRow[]
   currentBookId?: number
+  persistCreatedRows?: boolean
   get?: GetPaymentsOptions
   create?: CreatePaymentOptions
   update?: UpdatePaymentOptions
@@ -132,6 +134,7 @@ function toPaymentDetailsRow(row: PaymentRow, categoryRows: CategoryRow[]): Paym
     category: category
       ? {
           id: category.id,
+          book_id: category.book_id,
           name: category.name,
         }
       : null,
@@ -196,6 +199,7 @@ function calculateMonthlyTotalAmount(
 export function createPaymentHandlers({
   initialRows = initialPaymentRows,
   currentBookId = CURRENT_BOOK_ID,
+  persistCreatedRows = false,
   get = {},
   create = {},
   update = {},
@@ -203,7 +207,7 @@ export function createPaymentHandlers({
   getMonthlyTotalAmount = {},
 }: CreatePaymentHandlersOptions = {}) {
   const categoryRows = [...initialCategoryRows]
-  const rows = get.response ?? initialRows
+  const rows = [...(get.response ?? initialRows)]
 
   const getPaymentsHandler = http.get(REST_URL, async ({ request }) => {
     await delay(get.durationOrMode)
@@ -245,6 +249,9 @@ export function createPaymentHandlers({
     const body = await request.json()
     const parsedBody = createPaymentBodySchema.parse(body)
     const newRow = buildPaymentRow(parsedBody, rows, currentBookId)
+    if (persistCreatedRows) {
+      rows.push(newRow)
+    }
 
     return HttpResponse.json([newRow], { status: 201 })
   })

@@ -14,6 +14,8 @@ import {
   createPaymentDefaultValues,
   mapSubmitFormValuesToPaymentWriteInput,
 } from "../createPaymentFormAdapters"
+import type { FrequentPayment } from "../frequentPayment"
+import { FrequentPaymentSuggestions } from "../FrequentPaymentSuggestions"
 import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
@@ -68,6 +70,15 @@ export function CreatePaymentForm({
       onCancel()
     },
     [onCancel],
+  )
+
+  const handleFrequentPaymentSelect = useCallback(
+    (payment: FrequentPayment) => {
+      form.setFieldValue("note", payment.note)
+      form.setFieldValue("amount", String(payment.amount))
+      form.setFieldValue("category", payment.categoryId === null ? "" : String(payment.categoryId))
+    },
+    [form],
   )
 
   return (
@@ -136,6 +147,14 @@ export function CreatePaymentForm({
             )
           }}
         </form.Field>
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => (
+            <FrequentPaymentSuggestions
+              disabled={isSubmitting}
+              onSelect={handleFrequentPaymentSelect}
+            />
+          )}
+        </form.Subscribe>
       </Flex>
       <Flex mt="4" gap="3" align="center" justify={onContinuousModeChange ? "between" : "end"}>
         {onContinuousModeChange ? (

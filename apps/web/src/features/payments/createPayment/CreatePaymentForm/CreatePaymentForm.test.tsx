@@ -2,16 +2,34 @@ import { composeStories } from "@storybook/react-vite"
 import { HttpResponse, http } from "msw"
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
+import { toDateOnlyString } from "../../../../domain/date"
+import { createBookHandlers } from "../../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
 import { act, render, screen, type TestUser, waitFor, within } from "../../../../test/test-utils"
 import { createDeferred } from "../../../../test/utils/createDeferred"
+import type { PaymentRow } from "../../../../types/payment"
 import { PAYMENT_NOTE_MAX_LENGTH } from "../../paymentFormSchema"
 import * as stories from "./CreatePaymentForm.stories"
 
 const { Default } = composeStories(stories)
 const PAYMENTS_REST_URL = "*/rest/v1/payments*"
+
+function createFrequentPaymentRows(): PaymentRow[] {
+  const now = new Date()
+
+  return Array.from({ length: 3 }, (_, index) => ({
+    id: 100 + index,
+    note: "Lunch",
+    amount: 1200,
+    date: toDateOnlyString(now),
+    created_at: now.toISOString(),
+    updated_at: now.toISOString(),
+    book_id: 1,
+    category_id: 10,
+  }))
+}
 
 async function renderStory(story: React.ReactElement) {
   return await act(async () => {
@@ -34,7 +52,11 @@ async function selectFoodCategory(user: TestUser) {
 
 describe("CreatePaymentForm", () => {
   beforeEach(() => {
-    server.resetHandlers(...createCategoryHandlers(), ...createPaymentHandlers())
+    server.resetHandlers(
+      ...createBookHandlers(),
+      ...createCategoryHandlers(),
+      ...createPaymentHandlers(),
+    )
   })
 
   test("Default story では amount 入力欄に自動フォーカスする", async () => {
@@ -59,6 +81,45 @@ describe("CreatePaymentForm", () => {
     expect(screen.getByRole("combobox", { name: /category/i })).toHaveTextContent("Food")
     expect(noteInput).toHaveValue("Test_FSf5qxLNxAC265uSTcNa")
     expect(amountInput).toHaveValue("1080")
+  })
+
+  test("よくある支払いを選ぶとメモ・金額・カテゴリだけを置換し、送信しない", async () => {
+    let createRequestCount = 0
+    server.resetHandlers(
+      ...createBookHandlers(),
+      ...createCategoryHandlers(),
+      ...createPaymentHandlers({ get: { response: createFrequentPaymentRows() } }),
+    )
+    server.use(
+      http.post(PAYMENTS_REST_URL, () => {
+        createRequestCount += 1
+        return HttpResponse.json([{ id: 999 }], { status: 201 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default />)
+    const dateInput = screen.getByRole("textbox", { name: /date/i })
+    const dateBeforeSelection = (dateInput as HTMLInputElement).value
+    const amountInput = screen.getByRole("textbox", { name: /amount/i })
+    const noteInput = screen.getByRole("textbox", { name: /note/i })
+
+    await user.type(amountInput, "99")
+    await user.type(noteInput, "Before")
+    await user.click(
+      await screen.findByRole("button", {
+        name: /use frequent payment: lunch/i,
+      }),
+    )
+
+    expect(noteInput).toHaveValue("Lunch")
+    expect(amountInput).toHaveValue("1200")
+    expect(await screen.findByRole("combobox", { name: /category/i })).toHaveTextContent("Food")
+    expect(dateInput).toHaveValue(dateBeforeSelection)
+    expect(createRequestCount).toBe(0)
+
+    await user.clear(noteInput)
+    await user.type(noteInput, "Edited")
+    expect(noteInput).toHaveValue("Edited")
   })
 
   test("amount 未入力で送信するとバリデーションエラーを表示する", async () => {
@@ -204,6 +265,60 @@ describe("CreatePaymentForm", () => {
     })
     expect(createButton).toBeEnabled()
     expect(screen.getByRole("button", { name: /cancel/i })).toBeEnabled()
+  })
+
+  test("支払い作成中はよくある支払いの候補も無効化する", async () => {
+    const paymentCreated = createDeferred()
+
+    server.resetHandlers(
+      ...createBookHandlers(),
+      ...createCategoryHandlers(),
+      ...createPaymentHandlers({ get: { response: createFrequentPaymentRows() } }),
+    )
+    server.use(
+      http.post(PAYMENTS_REST_URL, async () => {
+        await paymentCreated.promise
+        return HttpResponse.json([{ id: 1001 }], { status: 201 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default />)
+    const candidate = await screen.findByRole("button", {
+      name: /use frequent payment: lunch/i,
+    })
+    await user.click(candidate)
+    await user.click(screen.getByRole("button", { name: /create/i }))
+
+    expect(candidate).toBeDisabled()
+
+    await act(async () => {
+      paymentCreated.resolve()
+    })
+    await waitFor(() => {
+      expect(candidate).toBeEnabled()
+    })
+  })
+
+  test("候補取得に失敗しても手入力した支払いを作成できる", async () => {
+    const onSuccess = vi.fn()
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined)
+
+    server.resetHandlers(
+      ...createBookHandlers(),
+      ...createCategoryHandlers(),
+      ...createPaymentHandlers({ get: { error: true } }),
+    )
+
+    const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
+    await user.type(screen.getByRole("textbox", { name: /note/i }), "Manual")
+    await user.click(screen.getByRole("button", { name: /create/i }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(screen.queryByText("Frequent payments")).not.toBeInTheDocument()
+    consoleError.mockRestore()
   })
 
   test("支払い作成に失敗するとonErrorを呼んで操作ボタンを再度有効化する", async () => {
