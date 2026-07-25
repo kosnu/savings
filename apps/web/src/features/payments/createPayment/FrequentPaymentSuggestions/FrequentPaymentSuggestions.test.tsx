@@ -65,7 +65,7 @@ describe("FrequentPaymentSuggestions", () => {
     )
   })
 
-  test("候補を項目ラベル付きCardとして表示し、clickで候補を通知する", async () => {
+  test("候補を主情報と補助情報に分けたCardとして表示し、clickで候補を通知する", async () => {
     const onSelect = vi.fn()
     const { user } = await renderStory(<Default onSelect={onSelect} />)
 
@@ -77,12 +77,12 @@ describe("FrequentPaymentSuggestions", () => {
         name: "Frequent payments",
       }),
     ).toContainElement(candidate)
-    expect(candidate).toHaveTextContent("Note")
-    expect(candidate).toHaveTextContent("Lunch")
-    expect(candidate).toHaveTextContent("Amount")
-    expect(candidate).toHaveTextContent("¥1,200")
-    expect(candidate).toHaveTextContent("Category")
-    expect(candidate).toHaveTextContent("Food")
+    expect(within(candidate).getByText("Lunch")).toBeInTheDocument()
+    expect(within(candidate).getByText("¥1,200")).toBeInTheDocument()
+    expect(within(candidate).getByText("Food")).toBeInTheDocument()
+    expect(within(candidate).queryByText("Note")).not.toBeInTheDocument()
+    expect(within(candidate).queryByText("Amount")).not.toBeInTheDocument()
+    expect(within(candidate).queryByText("Category")).not.toBeInTheDocument()
 
     await user.click(candidate)
 

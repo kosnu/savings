@@ -113,31 +113,16 @@ function FrequentPaymentSuggestionsForBook({
                   onClick={() => onSelect(payment)}
                 >
                   <Flex direction="column" align="start" gap="2">
-                    <Flex direction="column" align="start" gap="1" className={styles.field}>
-                      <Text size="1" color="gray">
-                        {t("payments.note.label")}
-                      </Text>
-                      <Text size="2" weight="medium" className={styles.value}>
-                        {payment.note}
-                      </Text>
-                    </Flex>
+                    <Text size="2" weight="medium" className={styles.value}>
+                      {payment.note}
+                    </Text>
                     <Flex gap="3" wrap="wrap">
-                      <Flex direction="column" align="start" gap="1" className={styles.field}>
-                        <Text size="1" color="gray">
-                          {t("amount.label")}
-                        </Text>
-                        <Text size="2" className={styles.value}>
-                          {amount}
-                        </Text>
-                      </Flex>
-                      <Flex direction="column" align="start" gap="1" className={styles.field}>
-                        <Text size="1" color="gray">
-                          {t("payments.category.label")}
-                        </Text>
-                        <Text size="2" className={styles.value}>
-                          {category}
-                        </Text>
-                      </Flex>
+                      <Text size="1" color="gray" className={styles.value}>
+                        {amount}
+                      </Text>
+                      <Text size="1" color="gray" className={styles.value}>
+                        {category}
+                      </Text>
                     </Flex>
                   </Flex>
                 </button>

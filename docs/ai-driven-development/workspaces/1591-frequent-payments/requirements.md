@@ -1,5 +1,5 @@
 ---
-title: "Requirements: よくある支払い候補を識別しやすいCardで表示する"
+title: "Requirements: よくある支払い候補を読みやすいCardで表示する"
 doc_type: requirements
 status: accepted
 area: web
@@ -15,32 +15,32 @@ topics:
   - card
   - accessibility
 when_to_read:
-  - Issue #1591のレビュー後改善を設計、実装、検証するとき
-  - よくある支払い候補の表示、選択、非blocking状態を確認するとき
+  - Issue #1591の要求を設計、実装、検証するとき
+  - よくある支払い候補の抽出、表示、選択、非blocking状態を確認するとき
 ---
 
-# Requirements: よくある支払い候補を識別しやすいCardで表示する
+# Requirements: よくある支払い候補を読みやすいCardで表示する
 
 ## 1. 文書の位置づけ
 
 - Initial input: GitHub Issue #1591
-- Cycle ID: `14221d02-7b08-44e2-ba12-b391d62bb3cc`
+- Cycle ID: `71984042-27B9-4460-9C75-DD91FAE9FB9F`
 - Artifact lineage: `docs/ai-driven-development/workspaces/1591-frequent-payments/`
 - Related future work: GitHub Issue #1601
 
-この文書は、Issue #1591と現在の正本ルールをRequirementsへ展開した正本である。前サイクルのRequirements、Design Doc、実装差分、UI挙動は入力として扱わない。
+この文書は、更新済みIssue #1591、明示された監督制約、現在の正本ルールをRequirementsへ展開する。前サイクルのRequirements、Design Doc、実装、現在の差分は要求の入力として扱わない。
 
 ## 2. 背景
 
 支払い登録では、繰り返し発生する同じ内容の支払いでも、メモ、金額、カテゴリを毎回入力する必要がある。
 
-最近の登録内容を入力候補として再利用できれば入力負担を減らせる。一方、候補が余白の少ないButton風表示では情報が詰まって見え、メモ、金額、カテゴリのどの値を示しているのか理解しにくい。候補は、選択前に内容を把握できるコンパクトな情報単位として示す必要がある。
+最近の登録内容を候補として再利用できれば入力負担を減らせる。一方、メモ、金額、カテゴリをButtonのラベルとして一つの操作要素へ詰め込むと、情報のまとまりと主従が読み取りにくい。候補は、選択前に内容を確認できる小さな情報単位として表示する必要がある。
 
 ## 3. 解決したい課題
 
 - 最近繰り返し登録した支払いを、再利用する候補として素早く選べるようにする。
-- 候補内のメモ、金額、カテゴリが何の情報か分かるようにする。
-- 候補を詰まったButtonや状態badgeのように見せず、読みやすい余白を持つ小さめのCardとして示す。
+- 候補をButtonや状態badgeのように見せず、余白のある小さめのCardとして示す。
+- 可視項目ラベルを追加せず、配置と文字階層によってメモ、金額、カテゴリのまとまりと主従を読み取れるようにする。
 - 候補選択だけでは登録を確定せず、既存フォームで確認・編集できる状態を維持する。
 - 候補取得の状態によって、既存の支払い作成を妨げない。
 
@@ -53,15 +53,15 @@ when_to_read:
 ### 利用シーン
 
 - 支払い作成フォームを開き、過去1か月に繰り返し登録した支払いを再入力するとき。
-- 候補Cardのラベルと値を確認して、意図した候補を選ぶとき。
+- 候補Cardの主情報と補助情報を確認して、意図した候補を選ぶとき。
 - 候補をpointerまたはkeyboardで選択し、今回の支払いに合わせてフォームを編集してから登録するとき。
 - 候補がない、取得中、または取得失敗の場合も、手入力で支払いを作成するとき。
 
 ## 5. ユーザーストーリー
 
 - ユーザーとして、最近繰り返し登録した支払いを候補として見つけたい。そうすることで、再入力する内容を素早く選べる。
-- ユーザーとして、候補内の各値がメモ、金額、カテゴリのどれかを理解したい。そうすることで、選択前に内容を判断できる。
-- ユーザーとして、余白のある小さめのCardから候補を選びたい。そうすることで、情報が詰まった操作要素より落ち着いて内容を確認できる。
+- ユーザーとして、余白と文字階層のある小さめのCardから候補を選びたい。そうすることで、情報を詰め込んだButtonより内容を確認しやすい。
+- ユーザーとして、メモを主情報、金額とカテゴリを補助情報として読みたい。そうすることで、可視項目ラベルがなくても候補を識別できる。
 - ユーザーとして、候補選択後に内容を確認・編集してから登録したい。そうすることで、今回だけ異なる内容にも対応できる。
 - ユーザーとして、候補を利用できない状態でも従来どおり支払いを作成したい。
 
@@ -73,7 +73,9 @@ when_to_read:
 - 支払い作成フォームを開いた日を基準にしたrolling 1か月の期間。
 - メモ、金額、カテゴリの完全一致による集計。
 - 同一候補3件以上を頻度降順で最大5件提示すること。
-- メモ、金額、カテゴリの意味をラベルと文字階層で識別できる小さめのCard表示。
+- 配置、文字階層、内側余白によって読みやすくした小さめのCard表示。
+- メモを主情報、金額とカテゴリを補助情報として示すこと。
+- `Note`、`Amount`、`Category`などの可視項目ラベルを追加しないこと。
 - 候補Cardのpointerおよびkeyboardによる選択。
 - 候補選択によるメモ、金額、カテゴリのフォーム値置換。
 - loading、error、empty、送信中、連続作成、再取得の境界。
@@ -95,13 +97,13 @@ when_to_read:
 
 - path: `apps/web/src/features/payments/createPayment/**`
 - domain: `payment`, `book`, `amount`, `date`, `category`, `web-ui`
-- activity: `write_prd`, `change_payment_ui`, `change_form`, `add_component_story`
-- topic: `frequent-payments`, `form`, `card`, `accessibility`, `storybook`
+- activity: `write_prd`, `change_payment_ui`, `change_form`
+- topic: `frequent-payments`, `form`, `card`, `accessibility`
 
 ### Selected nodes
 
 - `ai-driven.workflow` -> `docs/ai-driven-development/workflow.md`
-  - Requirementsの責務、artifact境界、Stop条件を守るため。
+  - Requirementsの責務、工程境界、Stop条件を守るため。
 - `ai-driven.issue-guidelines` -> `docs/ai-driven-development/issue-guidelines.md`
   - Issueの意図とDesign判断を分離するため。
 - `domain.book` -> `docs/harness/domain/book.md`
@@ -111,11 +113,11 @@ when_to_read:
 - `policy.temporal-data` -> `docs/harness/policies/temporal-data.md`
   - rolling期間の基準日とdate-only境界を定義するため。
 - `web.design-rules` -> `apps/web/docs/policies/design-rules.md`
-  - Card、余白、文字階層、操作集合のアクセシブルな関係を守るため。
+  - Card、余白、文字階層、操作集合の関係を守るため。
 - `web.domain-ui-rules` -> `apps/web/docs/policies/domain-ui-rules.md`
-  - 候補の値、分類、未設定状態の意味を守るため。
+  - 候補の値と主従をユーザーの識別目的から決めるため。
 - `web.component-structure` -> `apps/web/docs/policies/component-structure.md`
-  - コンポーネントが所有する状態とStoryの境界を守るため。
+  - 後続工程でコンポーネントが所有する主要状態を欠落させないため。
 
 ### Depends-on nodes
 
@@ -123,22 +125,22 @@ when_to_read:
 - `domain.amount`: 金額0、整数、入力値の前提。
 - `domain.date`: ローカルdate-onlyの前提。
 - `domain.category`: カテゴリなしと同一Book内カテゴリの前提。
-- `web.design-system-brand`: 小さく繰り返す支払い登録に適した視覚トーン。
-- `documentation.policy`: 新規Requirementsのfront matterと責務。
+- `web.design-system-brand`: 日常の支払い登録に適した視覚トーン。
+- `documentation.policy`: Requirementsのfront matterと責務。
 
 ### Conflict decision
 
 - `domain.book`の暫定監督ルールを適用し、現在はdefault Bookを唯一の操作対象として扱う。
-- 候補は選択操作だが、Buttonやbadge風の見た目にはしない。Cardの視覚表現とアクセシブルな操作semanticsを両立する方法はDesign / Planで決定する。
-- 同名のシステムラベルと実在カテゴリは`web.domain-ui-rules`に従い、UI上の特別な衝突対策を追加しない。
+- Cardの具体的なcomponent構造はDesign / Planで決める。Card要求を、可視項目ラベルの追加要求へ読み替えない。
+- 同名のシステム表示と実在カテゴリは`web.domain-ui-rules`に従い、UI上の特別な衝突対策を追加しない。
 
 ## 8. Domain Value Intent
 
-| 値 | 利用目的 | UI上の扱い |
+| 値 | 利用目的 | UI上の要求 |
 | --- | --- | --- |
-| メモ | 候補の主対象を識別する | Card内の主情報として、項目の意味が分かるラベルとともに保存値を表示する。空メモは候補から除外する。 |
-| 金額 | 候補を識別し、入力値を再利用する | Card内の補助情報として、金額であることが分かるラベルと通貨表記を表示する。0円を未設定と混同しない。 |
-| カテゴリ | 候補を識別し、分類を再利用する | Card内の補助情報として、カテゴリであることが分かるラベルとカテゴリ名またはカテゴリなしを表示する。 |
+| メモ | 候補の主対象を識別する | Card内の主情報として保存値を表示する。空メモは候補から除外する。可視項目ラベルは付けない。 |
+| 金額 | 候補を識別し、入力値を再利用する | Card内の補助情報として通貨表記で表示する。0円を未設定と混同しない。可視項目ラベルは付けない。 |
+| カテゴリ | 候補を識別し、分類を再利用する | Card内の補助情報としてカテゴリ名またはカテゴリなしを表示する。可視項目ラベルは付けない。 |
 | 頻度 | 候補の優先順位を決める | 内部の順位付けに利用し、件数表示自体は要求しない。 |
 | 支払い日 | 集計対象期間を判断する | `payment.date`をローカルdate-onlyとして期間判定に利用する。候補選択では変更しない。 |
 | default Book ID | 現在操作中のBookを限定する | 候補取得条件として利用し、候補Cardには表示しない。 |
@@ -194,10 +196,10 @@ when_to_read:
 
 ### FR-3: 候補を小さめのCardとして表示する
 
-- 各候補はButtonや状態badge風ではなく、小さめのCard風選択UIとして表示する。
+- 各候補はButtonや状態badge風ではなく、小さめのCardとして表示する。
 - Card内には、詰まって見えない十分な左右の内側余白を設ける。
-- メモ、金額、カテゴリを、それぞれ何の値か分かるラベルと文字階層で表示する。
-- メモを主情報、金額とカテゴリを補助情報として扱う。
+- メモを主情報、金額とカテゴリを補助情報として、配置と文字階層で区別する。
+- `Note`、`Amount`、`Category`などの可視項目ラベルを表示しない。
 - 候補は既存の支払い作成操作より弱い視覚的優先度にする。
 - 候補をpointerとkeyboardの両方で選択できるようにする。
 
@@ -242,43 +244,38 @@ when_to_read:
 - AC-5: 空または未入力として扱われるメモは、他の値が同じで3件以上あっても候補にならない。
 - AC-6: 金額0とカテゴリなしは有効な候補値として集計される。
 - AC-7: 候補は件数の多い順に最大5件表示される。
-- AC-8: 各候補が小さめのCard風UIで表示され、十分な左右の内側余白を持つ。
-- AC-9: Card内でメモ、金額、カテゴリの各値が何の情報か分かり、メモが主情報として識別できる。
-- AC-10: 候補をpointerとkeyboardの両方で選択できる。
-- AC-11: 候補選択でメモ、金額、カテゴリだけが置き換わり、日付は変わらず、支払いは作成されず、フォームは閉じない。
-- AC-12: 候補選択後の値を既存フォームで編集できる。
-- AC-13: 候補0件、loading中、取得失敗時は候補領域を表示せず、既存フォームで作成・キャンセルできる。
-- AC-14: 一時的な取得失敗後に再取得が成功すると、同じフォーム内で候補を再表示できる。
-- AC-15: 支払い送信中は候補選択で送信値を変更できない。
-- AC-16: 連続作成で支払いが成功すると、保存済み支払いを含めて候補が再評価され、フォームreset後に未保存入力が残らない。
-- AC-17: 候補機能のためにDB schema、API契約、RLS、認証、権限、新規依存を変更しない。
+- AC-8: 各候補が小さめのCardとして表示され、十分な左右の内側余白を持つ。
+- AC-9: Card内でメモが主情報、金額とカテゴリが補助情報として識別できる。
+- AC-10: Card内に`Note`、`Amount`、`Category`などの可視項目ラベルが表示されない。
+- AC-11: 候補をpointerとkeyboardの両方で選択できる。
+- AC-12: 候補選択でメモ、金額、カテゴリだけが置き換わり、日付は変わらず、支払いは作成されず、フォームは閉じない。
+- AC-13: 候補選択後の値を既存フォームで編集できる。
+- AC-14: 候補0件、loading中、取得失敗時は候補領域を表示せず、既存フォームで作成・キャンセルできる。
+- AC-15: 一時的な取得失敗後に再取得が成功すると、同じフォーム内で候補を再表示できる。
+- AC-16: 支払い送信中は候補選択で送信値を変更できない。
+- AC-17: 連続作成で支払いが成功すると、保存済み支払いを含めて候補が再評価され、フォームreset後に未保存入力が残らない。
+- AC-18: 候補機能のためにDB schema、API契約、RLS、認証、権限、新規依存を変更しない。
 
 ## 13. Q&Aログ
 
-- Q: 候補を従来のButtonまたはbadge風表示にするか？
-  - A: しない。候補内容を確認しやすい小さめのCard風表示にし、操作semanticsとの両立方法はDesign / Planで決める。
-- Q: Card内で値だけを並べればよいか？
-  - A: いいえ。メモ、金額、カテゴリが何の値か分かるラベルと文字階層を設ける。
-- Q: Card選択で支払いを登録するか？
-  - A: しない。フォームへ3項目だけ入力し、ユーザーが確認・編集して既存操作で登録する。
-- Q: API返却上限を超えるデータ量へ対応するか？
-  - A: しない。対象Book・対象期間では上限を超えない運用を前提とし、必要になった場合は別タスクで扱う。
-- Q: Book選択機能を追加するか？
-  - A: しない。現在はdefault Bookを操作対象とし、共通の選択中Book境界はIssue #1601で扱う。
-- Q: 取得失敗時にretry buttonを追加するか？
-  - A: 追加しない。フォームを妨げず非表示にし、後続の自動再取得成功時に復帰できるようにする。
+- Q: 「ラベル情報が見づらい」という指摘は、可視項目ラベルが不足しているという意味か？
+  - A: 違う。Buttonのラベルとして候補の全情報を詰め込んでいることへの指摘であり、Card内に項目名を追加する要求ではない。
+- Q: Card内へ`Note`、`Amount`、`Category`を表示するか？
+  - A: 表示しない。配置、余白、文字階層によってメモを主情報、金額とカテゴリを補助情報として示す。
+- Q: Cardの具体的なcomponent構造をRequirementsで固定するか？
+  - A: 固定しない。Cardの視覚表現とpointer / keyboard操作を両立する方法はDesign / Planで決める。
+- Q: 候補取得のloading、error、empty時に新しいメッセージやretryを追加するか？
+  - A: 追加しない。候補領域を表示せず、既存フォームの作成・キャンセルを妨げない。
+- Q: 対象Book・対象期間の件数がAPI返却上限を超える場合へ対応するか？
+  - A: 対応しない。その運用を想定せず、pagination、DB側集計、境界テストは対象外とする。
+- Q: カテゴリなしと同名の実在カテゴリをUIで特別に区別するか？
+  - A: しない。データ・コード上の区別を維持し、同名衝突だけを理由に表示を変更しない。
 
 ## 14. 技術的考慮事項
 
-- Cardの視覚表現とpointer・keyboard操作を両立する具体的なsemantic structureはDesign / Planで決定する。
-- 見出しと候補操作群のプログラム上の関連付けは`web.design-rules`に従う。
-- loading中に候補領域を表示しない状態も、`web.component-structure`に従って独立したStoryを用意する。
-- default Bookの取得と候補取得の接続方法はDesign / Planで決定する。
-- Book ID、開始日、終了日が異なる候補結果をcache上で区別する。
-- default Book取得または候補取得の失敗を、親フォームのSuspense/error境界へ伝播させない。
-- responseの妥当性を検証し、取得失敗と候補0件を同じデータ状態へ変換しない。
-- 連続作成では、保存成功、query invalidation、再取得、フォームresetの順序と接続を検証する。
-
-## 15. Verification
-
-Requirements工程ではアプリ検証を実行しない。Issue、Rule Selection、機能要件、受け入れ条件の整合と`git diff --check`を確認する。
+- rolling 1か月の開始日はローカルdate-onlyとして計算し、月末丸めを含めてDesign / Planで既存domain utilityとの接続を確認する。
+- default Book ID、開始日、終了日は取得境界へ明示し、Bookまたは期間が異なる結果を混在させない。
+- 候補は保存値のメモ、金額、カテゴリIDで集計し、カテゴリ表示名は表示にだけ使う。
+- Cardの視覚表現は操作semanticsを弱めない。pointer、Enter、Space、focus、disabledをDesign / Planで具体化する。
+- 可視項目ラベルを表示しないことと、支援技術向けに候補の操作と内容を理解できることを両立する。
+- loading Storyなど主要状態の確認方法は、`web.component-structure`とtest policyをDesign / Planで選定する。
