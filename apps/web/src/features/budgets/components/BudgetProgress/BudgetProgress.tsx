@@ -1,5 +1,7 @@
 import { Progress } from "@radix-ui/themes"
 
+import styles from "./BudgetProgress.module.css"
+
 interface BudgetProgressProps {
   amount: number
   ariaLabel: string
@@ -22,8 +24,10 @@ export function BudgetProgress({
     <Progress
       aria-label={ariaLabel}
       aria-valuetext={ariaValueText}
+      className={styles.progress}
       color={status === "over" ? "yellow" : "green"}
       max={max}
+      radius="full"
       size="2"
       value={value}
     />

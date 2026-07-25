@@ -27,34 +27,23 @@ export function CategoryTotals({ cacheScope }: CategoryTotalsProps) {
       resetKeys={[cacheScope ?? "default", targetMonthKey]}
     >
       <Suspense fallback={<CategoryTotalsLoading />}>
-        <CategoryTotalsResolved promise={promise} targetMonthKey={targetMonthKey} />
+        <CategoryTotalsResolved
+          key={`${cacheScope ?? "default"}:${targetMonthKey}`}
+          promise={promise}
+        />
       </Suspense>
     </ErrorBoundary>
   )
 }
 
-function CategoryTotalsResolved({
-  promise,
-  targetMonthKey,
-}: {
-  promise: Promise<CategoryTotalsData>
-  targetMonthKey: string
-}) {
+function CategoryTotalsResolved({ promise }: { promise: Promise<CategoryTotalsData> }) {
   const categoryTotals = use(promise)
 
   if (categoryTotals.length === 0) {
     return null
   }
 
-  const categoryTotalsKey = [
-    targetMonthKey,
-    ...categoryTotals.map(
-      (total) =>
-        `${total.key}:${total.kind}:${total.totalAmount}:${total.budgetStatus}:${total.budgetAmount ?? "none"}:${total.pinned ? "1" : "0"}`,
-    ),
-  ].join(":")
-
-  return <CategoryTotalsContent key={categoryTotalsKey} categoryTotals={categoryTotals} />
+  return <CategoryTotalsContent categoryTotals={categoryTotals} />
 }
 
 function CategoryTotalsLoading() {
