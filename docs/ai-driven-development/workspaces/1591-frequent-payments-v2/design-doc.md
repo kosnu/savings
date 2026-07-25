@@ -1,209 +1,258 @@
 ---
-title: "Design: よくある支払いを入力候補として再利用できるようにする"
+title: "Design: よくある支払い候補をCard選択UIへ変更する"
 doc_type: design
 status: accepted
 area: web
 applies_to:
-  - apps/web/src/features/books
   - apps/web/src/features/payments/createPayment
-  - apps/web/src/features/payments/queryKeys.ts
-  - apps/web/src/test/msw/handlers
 topics:
   - ai-driven-development
-  - design
+  - design-doc
   - payments
   - frequent-payments
-  - book
-  - react-query
-  - form
+  - card
+  - accessibility
+  - storybook
 when_to_read:
-  - Issue #1591の「よくある支払い」を実装・検証するとき
-  - default Book取得と支払い候補queryの接続を確認するとき
+  - Issue #1591のレビュー後改善を実装、検証するとき
+  - よくある支払い候補のCard構造、表示ラベル、状態Storyを確認するとき
 ---
 
-# Design: よくある支払いを入力候補として再利用できるようにする
+# Design: よくある支払い候補をCard選択UIへ変更する
 
 ## 1. 文書の位置づけ
 
-- Initial input: GitHub Issue #1591
 - Requirements: `docs/ai-driven-development/workspaces/1591-frequent-payments-v2/requirements.md`
-- Cycle ID: `d30893e2-55c4-4e11-8a6d-3f6eae8a94e4`
+- Cycle ID: `14221d02-7b08-44e2-ba12-b391d62bb3cc`
 - Artifact lineage: `docs/ai-driven-development/workspaces/1591-frequent-payments-v2/`
-- Related future work: GitHub Issue #1601
+- Branch / PR: `issue-1591/frequent-payments`, PR #1602
 
-この文書は、同じlineageのRequirementsを実装へ変換する設計正本である。前サイクルのRequirementsとDesign Docは入力として扱わない。
+この文書はv3 Requirementsを実装方針へ展開する。Requirementsはread-onlyとし、この文書の都合で要求を追加または変更しない。
 
-## 2. 設計概要
+## 2. Inputs
 
-支払い作成フォーム内の独立した候補コンポーネントが、認証ユーザーのdefault Bookをbooks featureの公開hookから取得し、そのBook IDとフォームを開いた日のrolling期間を使って候補queryを実行する。
+### 対象コード
 
-候補queryは`book_id`と期間を明示的に絞り、カテゴリrelationを含む行を検証した後、メモ・金額・カテゴリIDの完全一致で集計する。候補取得はoptional enhancementとして通常の`useQuery`状態を観測し、未取得・loading・error・emptyでは何も表示しない。成功後は、メモを主表示、金額とカテゴリを補助表示にしたbuttonを最大5件表示する。
+- `FrequentPaymentSuggestions/FrequentPaymentSuggestions.tsx`
+- `FrequentPaymentSuggestions/FrequentPaymentSuggestions.module.css`
+- `FrequentPaymentSuggestions/FrequentPaymentSuggestions.stories.tsx`
+- `FrequentPaymentSuggestions/FrequentPaymentSuggestions.test.tsx`
+- `apps/web/src/i18n/resources.ts`
 
-候補選択はフォームのメモ・金額・カテゴリだけを置換する。作成成功後は既存のpayments root invalidationを利用し、保存済み行を再取得して候補を再集計する。
+### 回帰確認する既存境界
+
+- `CreatePaymentForm/CreatePaymentForm.test.tsx`
+  - 候補選択が3fieldだけを置換し、自動submitしないこと。
+- `CreatePaymentModal/CreatePaymentModal.test.tsx`
+  - 連続作成後の候補再評価とフォームreset。
+- `frequentPayment.test.ts`
+  - rolling期間、完全一致、閾値、順位、最大5件。
+- `fetchFrequentPayments.integration.test.ts`
+  - default Bookと期間filter、relation response。
+
+取得・集計・query key・invalidation・フォーム値置換の実装は変更対象にしない。
 
 ## 3. Rule Selection
 
 ### 作業分類
 
-- path: `apps/web/src/features/books/**`, `apps/web/src/features/payments/**`, `apps/web/src/test/msw/handlers/**`
-- domain: `book`, `payment`, `amount`, `date`, `category`, `web-ui`
-- activity: `change_query`, `change_cache_invalidation`, `change_async_loading`, `change_component`, `change_test`
-- topic: `frequent-payments`, `react-query`, `error-recovery`, `form`, `msw`
+- path: `apps/web/src/features/payments/createPayment/**`, `apps/web/src/i18n/resources.ts`
+- domain: `payment`, `amount`, `category`, `web-ui`
+- activity: `change_payment_ui`, `change_form`, `change_component_story`, `change_test`
+- topic: `frequent-payments`, `card`, `accessibility`, `storybook`
 
 ### Selected nodes
 
-- `ai-driven.workflow`: phaseと成果物境界。
-- `domain.book` / `domain.user`: default Bookの暫定操作境界とmembership認可の区別。
-- `domain.payment` / `domain.amount` / `domain.date` / `domain.category`: 支払い行、0円、date-only、カテゴリなしの値境界。
-- `policy.temporal-data`: rolling期間とローカル日付。
-- `web.domain-ui-rules` / `web.design-rules`: 候補の識別情報、主従、button、状態表現。
-- `web.component-structure` / `web.feature-directory`: 候補コンポーネントとfeature間公開面。
-- `web.query-cache`: 保存済みデータの再取得とcache非直接更新。
-- `web.suspense-boundaries`: optional表示のloading/error/recovery方式。
-- `web.msw-handlers` / `web.test-policy`: API意味の検証とstateful integration test。
+- `ai-driven.workflow`
+  - Designの責務、上流artifactのread-only境界、Stop条件。
+- `web.design-system-brand`
+  - 日常的な支払い登録を落ち着いた道具として見せる。
+- `web.design-rules`
+  - Card、token余白、文字階層、responsive、操作集合のprogrammatic relation。
+- `web.domain-ui-rules`
+  - メモ、金額、カテゴリを候補識別のための値として扱う。
+- `web.component-structure`
+  - 既存component境界を維持し、非表示loading状態にもStoryを用意する。
+- `web.test-policy`
+  - component Story再利用とユーザーに残る挙動の回帰テスト。
+- `web.storybook-browser-tests`
+  - leaf component Storyをbrowser-test対象へ自動追加しない。
+- `web.msw-handlers`
+  - 既存payment handlerのdelay optionでloadingを表現する。
 
 ### Depends-on nodes
 
-- `web.domain-layer-rules`: 金額表示は既存共通formatterを再利用し、feature固有集計はcreatePayment sliceに置く。
-- `web.storybook-browser-tests`: component Storyへ`browser-test` tagを付けない。
+- `domain.payment`: メモ、金額、任意カテゴリの支払い値。
+- `domain.amount`: 0を含む整数金額。
+- `domain.category`: 実在カテゴリとカテゴリ未設定のデータ上の区別。
+- `web.feature-directory`: `createPayment` slice内の既存配置を維持する。
+- `documentation.policy`: Design Docのfront matterと責務。
 
 ### Conflict decision
 
-- 現在はdefault Bookを唯一の選択中Bookとして明示filterする。
-- RLSのmembership境界だけに候補範囲を委ねない。
-- 共通の選択中Book contextと支払いCRUD全体の境界変更は#1601へ残す。
+- Cardを視覚表現、native buttonを操作semanticsとして組み合わせる。Button componentのvariantでCard風に寄せない。
+- 同名のシステムラベルと実在カテゴリはデータ上の値を維持し、表示文言、accessible name、visual styleによる特別な衝突対策は追加しない。
 
-## 4. 変更対象と責務
+## 4. 現状と変更境界
 
-### books feature
+現状はRadix Themes `Button`の`soft`、`size="1"`、`radius="full"`を候補全体へ適用し、1行目にメモ、2行目に`金額 · カテゴリ`を表示している。操作semanticsは適切だが、pill状Buttonの密度とラベルなしの値並びがv3 Requirementsを満たさない。
 
-- `features/books/index.ts`
-  - `useCurrentBook`と必要な型をfeature公開面からexportする。
-- `bookSettings/useCurrentBook.ts`
-  - 既存の`promise`に加え、optional表示がSuspense外で状態を観測できる`book`、`isPending`、`isError`を返す。
-  - query keyは認証ユーザーIDを含む既存keyを維持する。
-- `bookSettings/CurrentBookInformation/**`
-  - 既存consumerの表示挙動は変更しない。
+変更は候補の表示構造、見出しとの関係、状態Story、対応テスト、i18n文言に限定する。候補配列、選択callback、disabled入力、非表示条件は維持する。
 
-paymentsから`books/bookSettings/**`を直接importせず、`features/books`の公開面だけに依存する。
+## 5. 採用する実装方針
 
-### payments createPayment slice
+### 5.1 Cardと操作semantics
 
-- `frequentPayment.ts`
-  - rolling期間、候補型、完全一致集計、閾値、最大件数、決定的順位を所有する。
-  - `FrequentPayment`へ表示用`categoryName: string | null`を持たせる。
-  - tie-breakerは`count`降順、`note`昇順、`amount`昇順、`categoryId`のnull先頭・数値昇順とする。
-- `fetchFrequentPayments.ts`
-  - 引数を`{ bookId, startDate, endDate }`にする。
-  - `payments`へ`book_id = bookId`、`date >= startDate`、`date <= endDate`を送る。
-  - `book_id, note, amount, category_id`と、カテゴリの`id, book_id, name`を取得する。
-  - responseで支払いのBook ID、カテゴリID、カテゴリのBook IDが引数と整合することを検証する。不整合は空候補ではなくerrorにする。
-- `useFrequentPayments.ts`
-  - query keyへ`bookId/startDate/endDate`を含める。
-  - `useQuery`の`data/isPending/isError`を返し、promiseをUIの唯一の読み取り経路にしない。
-- `FrequentPaymentSuggestions/**`
-  - 認証ユーザーIDがない、default Book未取得、いずれかのqueryがloading/error、候補0件の場合は`null`。
-  - default Book成功後だけ候補queryをmountする。
-  - error時にもquery observerをmountしたままにし、invalidation等の後続refetch成功で通常表示へ戻す。
-  - `Suspense`と`ErrorBoundary`は使わない。候補がフォームを阻害せず、error fallbackでobserverを失わず自動復帰することを優先するための、`web.suspense-boundaries`に対する明示的な例外とする。
-- `CreatePaymentForm/**`
-  - 候補選択で既存form instanceの`note`、`amount`、`category`だけを更新する。
-  - `isSubmitting`を候補buttonの`disabled`へ渡す。
-- `queryKeys.ts`
-  - frequent keyを`["payments", "frequent", bookId, startDate, endDate]`とする。
-  - `paymentQueryKeys.all` prefix配下を維持し、既存mutation成功後のroot invalidation対象に含める。
+各候補はRadix Themes `Card`の`asChild`を使い、そのchildをnative `button type="button"`にする。
 
-### test infrastructure
+```tsx
+<Card asChild size="1" variant="surface">
+  <button type="button" disabled={disabled} ...>
+    ...
+  </button>
+</Card>
+```
 
-- `test/msw/handlers/books.ts`
-  - 既存default Book handlerを候補component/storyでも使う。
-- `test/msw/handlers/payments.ts`
-  - category relationを選択したresponse shapeに対応する。
-  - 連続作成テストに限り、POSTした行を後続GETへ反映できる明示optionを追加する。
-  - handlerへ候補集計、順位、閾値ロジックを持たせない。
+- `Card`がsurface、角丸、`--space-3`相当の内側余白を所有する。
+- native buttonがpointer、Enter、Space、focus、disabledのsemanticsを所有する。
+- Button componentの`soft`、`radius="full"`は使わない。
+- candidate classはbrowser既定button appearanceをresetし、Cardのsurfaceを上書きしない。
+- `max-width: 100%`、長文折り返し、左揃えを維持する。
+- hover、focus-visible、disabledは既存tokenを使う。通常surfaceへ独自shadowや独自色を追加しない。
 
-## 5. データフロー
+Cardは候補内容に応じた幅でwrapし、モバイルでは親幅を超えない。固定heightは設けない。
 
-1. 候補コンポーネントmount時にローカル`Date`を一度だけ固定する。
-2. sessionの認証ユーザーIDで既存current Book queryを観測する。
-3. default Book取得成功後、Book IDと固定日から候補query key・期間を作る。
-4. SupabaseからBook・期間を明示filterした行とカテゴリrelationを取得する。
-5. response境界を検証し、純粋関数で候補を集計する。
-6. 成功かつ1件以上なら候補buttonを表示する。
-7. 選択時に3fieldだけを置換する。
-8. 支払い作成成功時、既存mutationが`paymentQueryKeys.all`をinvalidateし、activeな候補queryをrefetchする。
-9. source of truthの再取得成功後に既存`onSuccess`へ進み、連続作成ならフォームをresetする。
+### 5.2 Card内の情報構造
 
-cacheへ候補を手動追加せず、未保存値を件数へ含めない。
+Card内は次の順序で縦方向に構成する。
 
-## 6. Domain Value UI Decisions
+1. `Note / メモ`の小さいgrayラベル。
+2. 保存済みメモの主情報。標準本文以上、medium weight。
+3. 金額とカテゴリの2つのlabel-value pair。
+   - `Amount / 金額`ラベルと通貨表記値。
+   - `Category / カテゴリ`ラベルとカテゴリ名または`None / なし`。
 
-| 値 | 目的 | 主な表示 |
-| --- | --- | --- |
-| メモ | 候補対象の識別 | button内の先頭・強い文字階層。保存値をそのまま表示する。 |
-| 金額 | 同一メモ候補の識別、入力再利用 | `toCurrency`による補助文字。0円も`¥0`として表示する。 |
-| カテゴリ | 同一メモ・金額候補の識別、入力再利用 | relation名。nullは既存`payments.category.none`を表示する。 |
-| 頻度 | 順位判断 | 表示せず並び順だけに使う。 |
-| default Book | 操作対象限定 | UIには表示せずquery条件にする。 |
+金額とカテゴリは`Flex`で横並びにし、狭幅ではwrapを許可する。ラベルは`size="1"`かつgray、値は`size="2"`を基本とし、メモより強くしない。
 
-候補buttonは、1行目にメモ、2行目相当の弱い文字階層に`金額 · カテゴリ`を置く。長いメモはbutton内で折り返す。accessible nameは新しいi18n文言`Use frequent payment: {{note}}, {{amount}}, {{category}}` / `よくある支払いを使用: {{note}}、{{amount}}、{{category}}`とし、同一メモの候補を名前でも区別する。
+既存i18nの次のkeyをvisible labelへ再利用する。
 
-見出しは既存`Frequent payments` / `よくある支払い`を維持する。loading、error、empty用の文言とretry操作は追加しない。
+- `payments.note.label`
+- `amount.label`
+- `payments.category.label`
+- `payments.category.none`
 
-## 7. 状態設計
+新しいvisible文言keyは追加しない。
 
-| 状態 | 候補領域 | フォーム |
-| --- | --- | --- |
-| sessionなし | 非表示 | 既存親境界に従う |
-| default Book loading/error | 非表示 | 利用可能 |
-| 候補loading/error/empty | 非表示 | 利用可能 |
-| 候補success | 最大5件表示 | 利用可能 |
-| submitting | 表示維持、全候補disabled | 既存送信中挙動 |
-| error後のrefetch成功 | 自動再表示 | 入力値を変更しない |
-| 連続作成成功 | 保存行で再集計 | 既存default値へreset、continuous設定は維持 |
+### 5.3 Accessible name
 
-## 8. 採用しない案
+既存`payments.create.frequent.select`を次の内容へ更新する。
 
-- RLSだけで候補範囲を限定する: membership可能な全Bookと現在の操作対象を区別できない。
-- payments内から`bookSettings/useCurrentBook.ts`を直接importする: feature公開面を破る。
-- 候補query内でdefault Bookを毎回直接取得する: current Book cacheと責務が重複し、Book IDをquery keyへ確実に含めにくい。
-- ErrorBoundaryの`fallback={null}`を維持する: error後に候補query observerを失い、後続refetch成功だけでは復帰できない。
-- query cacheへ作成値を直接加算する: 保存前データを候補に含める可能性があり、source of truth方針に反する。
-- memoだけをbuttonへ表示する: 同一memoの別候補を選択前に識別できない。
-- 件数を表示する: Requirementsは順位付けだけを目的としており、新たな表示価値を追加する。
+- English: `Use frequent payment: Note {{note}}, Amount {{amount}}, Category {{category}}`
+- Japanese: `よくある支払いを使用: メモ {{note}}、金額 {{amount}}、カテゴリ {{category}}`
 
-## 9. テスト計画
+Card内のvisible labelと同じ項目名をaccessible nameにも含める。カテゴリ未設定と同名の実在カテゴリに対する追加語や別表現は入れない。
 
-| Requirements | テスト境界 |
+### 5.4 見出しと候補操作群
+
+`useId()`で見出しIDを生成する。
+
+- 見出しはRadix Themes `Heading as="h3" size="2"`で表示する。
+- 候補をwrapする`Flex`へ`role="group"`と`aria-labelledby={headingId}`を付ける。
+- 見出し自身へ`id={headingId}`を付ける。
+
+これにより、視覚的な「Frequent payments / よくある支払い」と候補操作群の関係をprogrammaticに表現する。新しいユーザー操作は追加しない。
+
+### 5.5 状態
+
+既存状態を次のまま維持する。
+
+| 状態 | 候補領域 |
 | --- | --- |
-| AC-1, AC-2 | `frequentPayment.test.ts`: rolling両端、月末丸め |
-| AC-3, AC-16 | `fetchFrequentPayments.integration.test.ts`: `book_id` filter、期間filter、relation select、response Book整合、error |
-| AC-4〜AC-7 | `frequentPayment.test.ts`: 空メモ除外、完全一致、0円、カテゴリなし、閾値、順位、最大5件 |
-| AC-8, AC-9 | `FrequentPaymentSuggestions.test.tsx`: 同一memo別候補の表示・accessible name、pointer/keyboard |
-| AC-10, AC-11 | `CreatePaymentForm.test.tsx`: 3fieldだけ置換、非submit、日付維持、再編集 |
-| AC-12 | 候補component/form test: default Book・候補のloading/error/emptyでも非表示かつform操作可能 |
-| AC-13 | `FrequentPaymentSuggestions.test.tsx`: 初回error後、同じqueryの自動refetch成功で候補が再表示 |
-| AC-14 | `CreatePaymentForm.test.tsx`: submitting中disabled |
-| AC-15 | `CreatePaymentModal.test.tsx`: stateful MSWで3件目をPOSTし、再取得後に候補表示、amount/note/category/dateのreset、continuous設定維持 |
+| sessionなし | 非表示 |
+| default Book loading/error | 非表示 |
+| 候補loading/error/empty | 非表示 |
+| 候補success | 見出しと最大5件のCard |
+| submitting | Card表示を維持し、全候補disabled |
+| error後のrefetch成功 | 同じ境界でCardを再表示 |
 
-fetch integration testはselect文字列全体でなく、必要column/relation、`book_id`、date条件を個別に検証する。component testは既存Storyを再利用し、Storyへbooks handlerを追加する。新規component Storyに`browser-test` tagは付けない。
+`Loading` Storyを追加し、`createPaymentHandlers({ get: { durationOrMode: "infinite" } })`で候補queryをpendingに保つ。Storyは候補領域が非表示になる状態を単独確認するためのもので、`browser-test` tagは付けない。
 
-## 10. 既存挙動への影響
+## 6. 変更対象
 
-- 支払い作成payload、validation、作成button、キャンセル、通常作成時のcloseは変更しない。
-- categories queryとfieldの編集方法は変更しない。
-- current Book設定表示は同じqueryとpromiseを継続利用する。
-- payments root invalidationは既存の一覧・集計に加えて候補queryも更新するが、追加invalidateは不要。
-- 候補の取得失敗はフォームや支払い作成のerrorへ昇格させない。
+| ファイル | 変更 |
+| --- | --- |
+| `FrequentPaymentSuggestions.tsx` | ButtonをCard + native buttonへ変更。visible labels、Heading、group relationを追加。 |
+| `FrequentPaymentSuggestions.module.css` | native button reset、Card幅、折り返し、focus-visible、hover、disabledを定義。 |
+| `FrequentPaymentSuggestions.stories.tsx` | infinite delayを使う`Loading` Storyを追加。 |
+| `FrequentPaymentSuggestions.test.tsx` | Card内ラベル、group accessible name、pointer/keyboard、loading Storyを検証。 |
+| `apps/web/src/i18n/resources.ts` | 候補操作のaccessible nameへ項目名を追加。 |
 
-## 11. リスクと確認結果
+新しいcomponent、hook、query、handler option、依存は追加しない。
 
-- current Bookと候補の2 queryにより初回候補表示は順次取得になるが、両方を独立cacheし、optional表示のためフォームを待たせない。
-- category relationの不正・削除済みカテゴリはresponse不整合として候補領域を非表示にする。誤ったカテゴリをフォームへ設定しないことを優先する。
-- error後の復帰はquery observerを維持する設計で可能であり、新しいretry UIは不要。
-- 連続作成は既存の「invalidation完了後にonSuccess」の順序を利用でき、mutation境界変更は不要。
-- DB/API/RLS/Auth変更、#1601の先行実装、新操作の追加は不要で、Stop条件には該当しない。
+## 7. 採用しない案
 
-## 12. Verification
+- Radix `Button`へpaddingだけ追加する。
+  - Button風表示を維持し、Cardとして内容を読む要求を満たさない。
+- Card全体を`div`にし、`onClick`と`tabIndex`、keyboard handlerを手動実装する。
+  - native button semanticsを再実装する必要があり、disabledやkeyboard挙動の欠落リスクがある。
+- Card内に別のButtonを配置する。
+  - Cardと選択操作が二重に見え、操作領域も分かれる。
+- `PaymentCard`を再利用する。
+  - 支払い一覧向けのdate、chevron、強い金額階層を持ち、候補識別の情報順と責務が異なる。
+- loading用の新しいMSW handlerを追加する。
+  - 既存payment handlerのdelay optionで表現できる。
+- 候補Storyへ`browser-test` tagを付ける。
+  - leaf componentであり、同名component testで操作を検証できる。
 
-Design工程ではアプリ検証を実行しない。文書構造、RequirementsのAC、選択ルール、現行コードとの接続を確認する。
+## 8. テスト方針
+
+### Component test
+
+- AC-8, AC-9:
+  - Card内に`Note / Amount / Category`と各値が表示される。
+  - メモ、金額、カテゴリの長文が候補から失われない。
+- AC-10:
+  - candidateはbutton roleを持ち、pointer clickとEnterで`onSelect`を呼ぶ。
+  - accessible nameに操作名と3項目の名前・値を含む。
+- `web.design-rules`:
+  - 候補群が`Frequent payments`をaccessible nameに持つgroupになる。
+- AC-13:
+  - `Loading` Storyで候補領域を表示しない。
+  - Empty、Errorの既存testを維持する。
+- AC-14, AC-15:
+  - error後refetch成功で再表示し、disabled時に選択できない既存testを維持する。
+
+### 既存回帰
+
+- `CreatePaymentForm.test.tsx`: 3field置換、日付維持、非submit、編集可能、送信中disabled。
+- `CreatePaymentModal.test.tsx`: 連続作成後の再評価とreset。
+- domain / fetch tests: rolling期間、候補集計、default Book filter。
+
+### Story
+
+- Default: Card表示と長いメモのwrap。
+- Loading: 候補領域非表示。
+- Empty: 候補領域非表示。
+- Error: 候補領域非表示。
+- Disabled: Card表示と操作不可。
+
+## 9. 既存挙動への影響
+
+- 候補の抽出条件、順序、件数、Book/date境界は変えない。
+- 候補選択後に置換するfield、非submit、日付維持は変えない。
+- loading/error/empty時にフォームを利用できる挙動は変えない。
+- query key、cache invalidation、連続作成の再取得順序は変えない。
+- visible UIはpill状Buttonから小さめCardへ変わり、項目ラベルを追加するため候補1件あたりの高さは増える。
+- Cardは最大5件かつwrap可能であり、モバイルでは横スクロールを発生させない。
+
+## 10. リスクと確認事項
+
+- `Card asChild`でnative buttonへCard classを適用した際、browser既定appearanceがCard surfaceを上書きしないようCSS resetを確認する。
+- focus-visibleがCard輪郭として認識でき、hoverだけに操作可能性を依存しないことをStorybookで確認する。
+- visible label追加後も長いメモ、長いカテゴリ、通貨表記が親幅を超えないことを確認する。
+- 候補群のHeading levelはフォーム内の既存見出し階層へ接続するため`h3`とする。ページタイトル級へ上げない。
+- API返却上限はRequirementsの運用前提に従い、実装・テスト対象へ戻さない。
+
+## 11. Verification
+
+Design工程ではアプリ検証を実行しない。Requirements、選択ルール、実装可能性、ACとテスト方針の対応、`git diff --check`を確認する。
