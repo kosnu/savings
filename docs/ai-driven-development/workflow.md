@@ -37,7 +37,7 @@ Shipは、Build / Verify済みの成果をPR、説明、レビュー返信がで
 
 LearnはGoalではなく、Ship完了後、または上流成果物の不足・誤り・矛盾によってサイクルをStopした後に、ユーザーが必要に応じて手動実行するskillです。Build / Verifyが正常に完了した場合の次工程はShipであり、正常系の途中にLearnを挟みません。成果物レビュー、レビューコメント、検証結果、運用知見を、Requirementsの材料となるタスクコンテキストの追加・変更、ルールの追加・変更、または既存ルールのsharp化へ整理します。新しいサイクルを回す場合は、前回の続きとして途中工程から再開せず、整理済みのタスクコンテキストと最新ルールを入力にして、必ずIntent / Requirements Goalから始めます。
 
-同じIssueまたはタスクのworkspaceはサイクルをまたいで同じ無印pathを使います。新しいサイクルでは新しいcycle IDを発行しますが、`-v2`や`-v3`などのsuffixを付けたworkspaceや成果物を自動作成しません。Intent / Requirements Goalは同じworkspaceの`requirements.md`を上書きし、Design / Plan Goalは同じworkspaceの`design-doc.md`を上書きします。過去サイクルの内容はGit履歴で参照します。
+同じIssueまたはタスクでは、サイクルをまたいで同じworkspaceとcanonical artifact pathを使います。新しいサイクルには新しいcycle IDを発行します。Intent / Requirements Goalは`requirements.md`、Design / Plan Goalは`design-doc.md`への書き込みを所有し、新しいサイクルでは各pathの前サイクル内容を置き換えます。過去サイクルの内容はGit履歴で参照します。
 
 read-only境界は同一サイクルの後続工程にだけ適用します。現在サイクルで生成した`requirements.md`はDesign / Plan以降、`design-doc.md`はBuild / Verify以降でread-onlyです。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、現在の工程で上流成果物を直さずStopし、`$learn`で次サイクルのタスクコンテキストの追加・変更、ルールの追加・変更、または既存ルールのsharp化へ整理します。次サイクルの各生成工程では、対応する前サイクルの成果物を同じpathへ上書きします。
 
@@ -75,7 +75,7 @@ Context Packetには次だけを含めます。
 
 何を作るかを定義します。
 
-この段階では、実装手順に寄せすぎません。人間は必要に応じて「意図」「対象ユーザー」「成功条件」「制約」「未決事項」を渡し、AIはタスクコンテキスト、既存仕様、コード、ドキュメント、Issueを調査してRequirements / PRDを作成します。同じworkspaceに前サイクルの`requirements.md`がある場合も、別名を作らず同じpathへ上書きします。
+この段階では、実装手順に寄せすぎません。人間は必要に応じて「意図」「対象ユーザー」「成功条件」「制約」「未決事項」を渡し、AIはタスクコンテキスト、既存仕様、コード、ドキュメント、Issueを調査してRequirements / PRDを作成します。成果物は同じworkspaceのcanonical pathである`requirements.md`へ書き込みます。
 
 error、empty、権限不足などの状態で、ユーザーに再試行、取消、確認、画面遷移などの操作を提供するかはRequirements / PRDで決めるプロダクト判断です。状態や失敗理由を表示する要求だけを、復帰操作も要求しているものとして扱ってはいけません。
 
@@ -96,7 +96,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 - Issue、Oversight Inputs、選択したrule-mapサブグラフから、要求、制約、対象外、受け入れ条件が逸脱していないか確認する。
 - 渡されたタスクコンテキストの追加・変更がRequirements / PRDへ反映されているか確認する。
 - Requirements / PRD内のRule Selectionが、成果物内の判断と矛盾していないか確認する。
-- 成果物が同じworkspaceの無印`requirements.md`にあり、version suffixを追加していないか確認する。
+- 成果物が同じworkspaceのcanonical pathである`requirements.md`にあるか確認する。
 
 止まる条件:
 
@@ -109,7 +109,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 
 どう作るかを定義します。
 
-現在サイクルの最新Requirements / PRDをもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。ここでもまだ実装しません。入力の`requirements.md`はread-onlyとし、Design / Planの都合で追記、修正、整形、リネームしてはいけません。Design Docは別名を作らず、同じworkspaceの`design-doc.md`へ上書きします。
+現在サイクルの最新Requirements / PRDをもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。ここでもまだ実装しません。入力の`requirements.md`はread-onlyとし、Design / Planの都合で追記、修正、整形、リネームしてはいけません。成果物は同じworkspaceのcanonical pathである`design-doc.md`へ書き込みます。
 
 ユーザーが実行できる操作、画面遷移、再試行・取消・確認などの復帰経路を追加、変更、削除する判断は、プロダクト判断として扱います。Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できない場合、Design / Planは一般的なUX、既存実装、既存パターンを根拠に補わずStopします。
 
@@ -127,7 +127,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 - Requirements / PRD、選択したrule-mapサブグラフ、Design Docの実装判断が矛盾していないか確認する。
 - Design / Planで追加した実装方針、テスト方針、文言、操作境界がルール・ポリシーに違反していないか確認する。
 - Design Docで追加、変更、削除するユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できるか確認する。
-- Design Docが同じworkspaceの無印`design-doc.md`にあり、version suffixを追加していないか確認する。
+- Design Docが同じworkspaceのcanonical pathである`design-doc.md`にあるか確認する。
 
 止まる条件:
 
@@ -172,7 +172,7 @@ Build / Verify済みの成果を提出できる形に整えます。
 
 この工程は、PR作成、変更内容の要約、検証結果の記録、Ship範囲のレビューコメントへの返信、完了済みthreadのresolveを扱います。Requirements / PRDやDesign Docの判断を作り直したり、実装成果物へのレビュー指摘を修正したり、タスクコンテキストを整理したりしません。
 
-Requirements、Design、Build / VerifyのGoal完了はcommit境界ではありません。stage、commit、pushは、フルサイクルまたは明示された提出作業のShipでだけ行います。Shipではremote CIの完了を待たず、remote CIの状態をDoneまたはStop条件にしません。
+Requirements、Design、Build / Verifyは各工程の成果物と検証を所有します。Shipは、フルサイクルまたは明示された提出作業で許可されたstage、commit、push、PRの状態遷移を所有します。Ship Goalは定義済みのDoneとVerificationが満たされた時点で完了し、定義外の観測結果は補足情報として報告します。
 
 主な成果物:
 
