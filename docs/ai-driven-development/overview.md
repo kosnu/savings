@@ -52,7 +52,7 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 - Design Doc作成 Goal: どう実現するかを決める
 - Build / Verify Goal: 作って検証する
 - Ship Goal: Build / Verify済みの成果をPR、説明、レビュー返信ができる形に整える
-- Learn skill: レビューコメント、検証結果、運用知見を、Task Contextの追加・変更、Ruleの追加・変更、または既存Ruleのsharp化へ整理する
+- Learn skill: レビューコメント、検証結果、運用知見を、タスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する
 
 IssueはRequirements / PRDの入力として扱います。Issueには、AIが要求整理を始められるだけの意図、制約、成功条件、Stop条件を書き、Design Doc相当の実装詳細は書きすぎません。
 

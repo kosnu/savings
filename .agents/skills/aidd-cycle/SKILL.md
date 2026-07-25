@@ -57,10 +57,11 @@ Repeat until the canonical workflow reaches its final phase:
    outside the phase Goal.
 4. Execute only the active Goal under its Context Packet, matching template,
    selected rule-map subgraph, and canonical workflow boundaries.
-5. When a Stop condition applies, follow `workflow.md` and the Goal tool
-   contract to transition the Goal to `status: blocked` with `update_goal`,
-   confirm the terminal state with `get_goal`, report the blocker, and end this
-   invocation.
+5. When a Stop condition applies, first check whether the Goal tool contract
+   permits transition to `status: blocked`. Until it does, leave the Goal
+   unfinished, report the same blocker, and do not start Learn or another
+   phase. Once permitted, call `update_goal`, confirm the terminal state with
+   `get_goal`, report the blocker, and end this invocation.
 6. When the objective, Done checks, and Verification are complete, call
    `update_goal` with `status: complete`, confirm completion with `get_goal`, and
    continue according to `workflow.md`.
