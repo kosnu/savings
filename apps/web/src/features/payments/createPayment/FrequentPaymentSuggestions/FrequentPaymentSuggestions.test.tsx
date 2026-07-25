@@ -6,13 +6,19 @@ import { toDateOnlyString } from "../../../../domain/date"
 import { createBookHandlers } from "../../../../test/msw/handlers/books"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { act, createTestQueryClient, render, screen, waitFor } from "../../../../test/test-utils"
-import { createDeferred } from "../../../../test/utils/createDeferred"
+import {
+  act,
+  createTestQueryClient,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "../../../../test/test-utils"
 import type { PaymentRow } from "../../../../types/payment"
 import { paymentQueryKeys } from "../../queryKeys"
 import * as stories from "./FrequentPaymentSuggestions.stories"
 
-const { Default, Disabled, Empty, Error: ErrorStory } = composeStories(stories)
+const { Default, Disabled, Empty, Error: ErrorStory, Loading } = composeStories(stories)
 
 function createPaymentRow(id: number, note = "Lunch"): PaymentRow {
   const now = new Date()
@@ -59,16 +65,24 @@ describe("FrequentPaymentSuggestions", () => {
     )
   })
 
-  test("候補のメモ・金額・カテゴリをbuttonとして表示し、clickで候補を通知する", async () => {
+  test("候補を項目ラベル付きCardとして表示し、clickで候補を通知する", async () => {
     const onSelect = vi.fn()
     const { user } = await renderStory(<Default onSelect={onSelect} />)
 
     const candidate = await screen.findByRole("button", {
-      name: /use frequent payment: lunch, ¥1,200, food/i,
+      name: /use frequent payment: note lunch, amount ¥1,200, category food/i,
     })
-    expect(screen.getByText("Frequent payments")).toBeInTheDocument()
+    expect(
+      screen.getByRole("group", {
+        name: "Frequent payments",
+      }),
+    ).toContainElement(candidate)
+    expect(candidate).toHaveTextContent("Note")
     expect(candidate).toHaveTextContent("Lunch")
-    expect(candidate).toHaveTextContent("¥1,200 · Food")
+    expect(candidate).toHaveTextContent("Amount")
+    expect(candidate).toHaveTextContent("¥1,200")
+    expect(candidate).toHaveTextContent("Category")
+    expect(candidate).toHaveTextContent("Food")
 
     await user.click(candidate)
 
@@ -85,7 +99,7 @@ describe("FrequentPaymentSuggestions", () => {
     const onSelect = vi.fn()
     const { user } = await renderStory(<Default onSelect={onSelect} />)
     const candidate = await screen.findByRole("button", {
-      name: /use frequent payment: lunch, ¥1,200, food/i,
+      name: /use frequent payment: note lunch, amount ¥1,200, category food/i,
     })
 
     await user.tab()
@@ -111,16 +125,17 @@ describe("FrequentPaymentSuggestions", () => {
 
     await renderStory(<Default />)
 
-    expect(
-      await screen.findByRole("button", {
-        name: /use frequent payment: lunch, ¥1,200, food/i,
-      }),
-    ).toHaveTextContent("¥1,200 · Food")
-    expect(
-      await screen.findByRole("button", {
-        name: /use frequent payment: lunch, ¥1,500, none/i,
-      }),
-    ).toHaveTextContent("¥1,500 · None")
+    const foodCandidate = await screen.findByRole("button", {
+      name: /use frequent payment: note lunch, amount ¥1,200, category food/i,
+    })
+    const categorylessCandidate = await screen.findByRole("button", {
+      name: /use frequent payment: note lunch, amount ¥1,500, category none/i,
+    })
+
+    expect(within(foodCandidate).getByText("¥1,200")).toBeInTheDocument()
+    expect(within(foodCandidate).getByText("Food")).toBeInTheDocument()
+    expect(within(categorylessCandidate).getByText("¥1,500")).toBeInTheDocument()
+    expect(within(categorylessCandidate).getByText("None")).toBeInTheDocument()
   })
 
   test("候補が0件の場合は関連UIを表示しない", async () => {
@@ -141,28 +156,10 @@ describe("FrequentPaymentSuggestions", () => {
     expect(screen.queryByText("Frequent payments")).not.toBeInTheDocument()
   })
 
-  test("取得中は関連UIを表示しない", async () => {
-    const paymentLoaded = createDeferred()
-    let requestStarted = false
-    server.resetHandlers(
-      ...createBookHandlers(),
-      http.get("*/rest/v1/payments*", async () => {
-        requestStarted = true
-        await paymentLoaded.promise
-        return HttpResponse.json(toFrequentPaymentResponseRows(candidateRows))
-      }),
-    )
+  test("取得中のStoryでは関連UIを表示しない", async () => {
+    await renderStory(<Loading />)
 
-    await renderStory(<Default />)
-
-    await waitFor(() => {
-      expect(requestStarted).toBe(true)
-    })
     expect(screen.queryByText("Frequent payments")).not.toBeInTheDocument()
-
-    await act(async () => {
-      paymentLoaded.resolve()
-    })
   })
 
   test("取得失敗時は関連UIを表示しない", async () => {
@@ -220,7 +217,7 @@ describe("FrequentPaymentSuggestions", () => {
 
     expect(
       await screen.findByRole("button", {
-        name: /use frequent payment: lunch, ¥1,200, food/i,
+        name: /use frequent payment: note lunch, amount ¥1,200, category food/i,
       }),
     ).toBeInTheDocument()
     consoleError.mockRestore()
@@ -230,7 +227,7 @@ describe("FrequentPaymentSuggestions", () => {
     const onSelect = vi.fn()
     const { user } = await renderStory(<Disabled onSelect={onSelect} />)
     const candidate = await screen.findByRole("button", {
-      name: /use frequent payment: lunch, ¥1,200, food/i,
+      name: /use frequent payment: note lunch, amount ¥1,200, category food/i,
     })
 
     expect(candidate).toBeDisabled()

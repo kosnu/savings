@@ -57,6 +57,17 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
 
+export const Loading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createBookHandlers(),
+        ...createPaymentHandlers({ get: { durationOrMode: "infinite" } }),
+      ],
+    },
+  },
+}
+
 export const Empty: Story = {
   parameters: {
     msw: {

@@ -1,18 +1,30 @@
+.group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .candidate {
+  appearance: none;
   max-width: 100%;
-  height: auto;
-  min-height: var(--space-7);
+  margin: 0;
+  font: inherit;
+  color: inherit;
   white-space: normal;
   overflow-wrap: anywhere;
   text-align: left;
+  cursor: pointer;
 }
 
-.note,
-.details {
+.candidate:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.field,
+.value {
+  min-width: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
-}
-
-.note {
-  font-weight: var(--font-weight-medium);
 }
