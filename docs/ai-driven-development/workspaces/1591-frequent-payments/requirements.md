@@ -25,7 +25,7 @@ when_to_read:
 
 - Initial input: GitHub Issue #1591
 - Cycle ID: `14221d02-7b08-44e2-ba12-b391d62bb3cc`
-- Artifact lineage: `docs/ai-driven-development/workspaces/1591-frequent-payments-v2/`
+- Artifact lineage: `docs/ai-driven-development/workspaces/1591-frequent-payments/`
 - Related future work: GitHub Issue #1601
 
 この文書は、Issue #1591と現在の正本ルールをRequirementsへ展開した正本である。前サイクルのRequirements、Design Doc、実装差分、UI挙動は入力として扱わない。

@@ -22,9 +22,9 @@ when_to_read:
 
 ## 1. 文書の位置づけ
 
-- Requirements: `docs/ai-driven-development/workspaces/1591-frequent-payments-v2/requirements.md`
+- Requirements: `docs/ai-driven-development/workspaces/1591-frequent-payments/requirements.md`
 - Cycle ID: `14221d02-7b08-44e2-ba12-b391d62bb3cc`
-- Artifact lineage: `docs/ai-driven-development/workspaces/1591-frequent-payments-v2/`
+- Artifact lineage: `docs/ai-driven-development/workspaces/1591-frequent-payments/`
 - Branch / PR: `issue-1591/frequent-payments`, PR #1602
 
 この文書はv3 Requirementsを実装方針へ展開する。Requirementsはread-onlyとし、この文書の都合で要求を追加または変更しない。
