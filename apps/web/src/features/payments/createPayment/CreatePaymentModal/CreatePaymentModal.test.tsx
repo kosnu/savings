@@ -1,6 +1,8 @@
 import { composeStories } from "@storybook/react-vite"
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
+import { toDateOnlyString } from "../../../../domain/date"
+import { createBookHandlers } from "../../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
@@ -13,9 +15,25 @@ import {
   waitFor,
   within,
 } from "../../../../test/test-utils"
+import type { PaymentRow } from "../../../../types/payment"
 import * as stories from "./CreatePaymentModal.stories"
 
 const { Default } = composeStories(stories)
+
+function createFrequentPaymentRow(id: number): PaymentRow {
+  const now = new Date()
+
+  return {
+    id,
+    note: "Recurring lunch",
+    amount: 1000,
+    date: toDateOnlyString(now),
+    created_at: now.toISOString(),
+    updated_at: now.toISOString(),
+    book_id: 1,
+    category_id: 10,
+  }
+}
 
 async function renderStory(story: React.ReactElement) {
   return await act(async () => {
@@ -63,7 +81,11 @@ async function fillAndSubmit(
 
 describe("CreatePaymentModal", () => {
   beforeEach(() => {
-    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+    server.resetHandlers(
+      ...createBookHandlers(),
+      ...createPaymentHandlers(),
+      ...createCategoryHandlers(),
+    )
   })
 
   test("should stay open when Escape is pressed", async () => {
@@ -133,6 +155,47 @@ describe("CreatePaymentModal", () => {
       name: /continue creating/i,
     })
     expect(checkboxAfterSubmit).toBeChecked()
+    expect(onSuccess).toHaveBeenCalledTimes(1)
+  })
+
+  test("連続作成では保存済みの3件目を再集計して候補を表示し、フォームをresetする", async () => {
+    const onSuccess = vi.fn()
+    server.resetHandlers(
+      ...createBookHandlers(),
+      ...createPaymentHandlers({
+        initialRows: [createFrequentPaymentRow(1), createFrequentPaymentRow(2)],
+        persistCreatedRows: true,
+      }),
+      ...createCategoryHandlers(),
+    )
+
+    const { user, baseElement } = await renderStory(<Default onSuccess={onSuccess} />)
+    const body = within(baseElement)
+    const dialog = await openCreatePaymentModal()
+    const dateInput = within(dialog).getByRole("textbox", { name: /date/i })
+    const initialDate = (dateInput as HTMLInputElement).value
+
+    expect(within(dialog).queryByText("Frequent payments")).not.toBeInTheDocument()
+
+    const checkbox = within(dialog).getByRole("checkbox", { name: /continue creating/i })
+    await user.click(checkbox)
+    await fillAndSubmit(user, dialog, body, "Recurring lunch")
+
+    const currentDialog = body.getByRole("dialog", { name: /create payment/i })
+    expect(
+      await within(currentDialog).findByRole("button", {
+        name: /use frequent payment: note recurring lunch, amount ¥1,000, category food/i,
+      }),
+    ).toBeEnabled()
+    expect(within(currentDialog).getByRole("textbox", { name: /^amount/i })).toHaveValue("")
+    expect(within(currentDialog).getByRole("textbox", { name: /^note/i })).toHaveValue("")
+    expect(within(currentDialog).getByRole("combobox", { name: /category/i })).toHaveTextContent(
+      "None",
+    )
+    expect(within(currentDialog).getByRole("textbox", { name: /date/i })).toHaveValue(initialDate)
+    expect(
+      within(currentDialog).getByRole("checkbox", { name: /continue creating/i }),
+    ).toBeChecked()
     expect(onSuccess).toHaveBeenCalledTimes(1)
   })
 
