@@ -63,6 +63,7 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 ## Autonomy
 
 - AIは差分を確認してよい
+- AIは許可された提出範囲でstage、commit、push、PR作成・更新を行ってよい
 - AIはPR本文を作成してよい
 - AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
 - AIはPR本文、検証結果記載、レビュー返信、thread resolve判断に関わるShip範囲のレビューコメントへ返信してよい
@@ -71,6 +72,8 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 - AIは実装成果物へのレビュー指摘をShip内で修正してはいけない
 - AIはLearn skillに渡すべき知見をShip内でタスクコンテキストとして整理してはいけない
 - AIはユーザーから明示されていないmemory更新を行ってはいけない
+
+Ship Goalの完了は、以下のDoneとVerificationで判定する。定義外の観測結果は補足情報として報告する。
 
 ## Done
 
@@ -82,6 +85,7 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 - [ ] 検証結果が書かれている
 - [ ] 未確認事項・残リスクが書かれている
 - [ ] 無関係な差分が含まれていない
+- [ ] AIDDフルサイクルでは対象差分がcommit済みである
 - [ ] 対応済みレビューコメントに分類、対応内容、commit ID、検証結果が具体的に返信されている
 - [ ] 完了済みreview threadだけがresolveされている
 - [ ] PR本文、変更要約、レビュー返信、thread resolve判断が、選択したルール・ポリシーに違反していないことを確認している
@@ -91,6 +95,8 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 - 必ず実行:
   - `git status --short`
   - `git diff --stat`
+  - `git log main..HEAD --oneline`
+  - `git diff main..HEAD --stat`
 - 必要なら実行:
   - `gh pr view <PR番号> --json number,title,body,baseRefName,headRefName,url,state,isDraft`
   - `gh api graphql` によるreview thread状態確認
