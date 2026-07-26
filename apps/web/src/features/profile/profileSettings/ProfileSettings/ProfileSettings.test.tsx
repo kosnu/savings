@@ -27,21 +27,22 @@ describe("ProfileSettings", () => {
     vi.restoreAllMocks()
   })
 
-  test("プロフィール読み込み中もLanguageSelectを操作できる", async () => {
+  test("プロフィール読み込み中はアカウント情報のSkeletonを表示する", async () => {
     resetHandlersForStory(ProfileLoading)
 
     await renderStory(<ProfileLoading />)
 
-    expect(screen.getByRole("combobox", { name: "Language" })).toBeEnabled()
+    expect(screen.getByLabelText("Loading")).toBeInTheDocument()
+    expect(screen.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument()
   })
 
-  test("プロフィール読み込み失敗時もLanguageSelectを操作できる", async () => {
+  test("プロフィール読み込み失敗時はエラーを表示する", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     resetHandlersForStory(ProfileError)
 
     await renderStory(<ProfileError />)
 
     expect(await screen.findByRole("alert")).toBeInTheDocument()
-    expect(screen.getByRole("combobox", { name: "Language" })).toBeEnabled()
+    expect(screen.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument()
   })
 })

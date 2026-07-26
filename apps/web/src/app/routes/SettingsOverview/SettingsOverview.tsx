@@ -25,6 +25,17 @@ export function SettingsOverview() {
             </Flex>
           </Link>
           <Separator size="4" />
+          <Link to="/settings/appearance" className={styles.itemLink}>
+            <Flex direction="column" gap="1">
+              <Text as="span" size="4" weight="medium" className={styles.itemTitle}>
+                {t("navigation.appearance")}
+              </Text>
+              <Text as="span" size="3" color="gray">
+                {t("settings.appearanceDescription")}
+              </Text>
+            </Flex>
+          </Link>
+          <Separator size="4" />
           <Link to="/settings/book" className={styles.itemLink}>
             <Flex direction="column" gap="1">
               <Text as="span" size="4" weight="medium" className={styles.itemTitle}>

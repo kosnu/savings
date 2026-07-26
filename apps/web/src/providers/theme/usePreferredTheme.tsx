@@ -17,8 +17,12 @@ export function usePreferredTheme() {
   }, [theme])
 
   const toggleTheme = useCallback(() => {
-    setTheme((theme) => (theme === "dark" ? "light" : "dark"))
+    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"))
   }, [])
 
-  return { theme, toggleTheme }
+  const changeTheme = useCallback((nextTheme: TTheme) => {
+    setTheme(nextTheme)
+  }, [])
+
+  return { theme, toggleTheme, changeTheme }
 }

@@ -4,6 +4,7 @@ import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { BookSettings } from "../../../features/books"
+import { AppearanceSettings } from "../../../features/preferences"
 import { ProfileSettings } from "../../../features/profile"
 import { createQueryClient } from "../../../lib/queryClient"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
@@ -49,8 +50,13 @@ export const Default: Story = {
     expect(await canvas.findByText("Choose a setting to manage.")).toBeInTheDocument()
     const profileOverviewLink = canvas
       .getAllByRole("link", { name: /Profile/ })
-      .find((link) => link.textContent?.includes("Manage profile information and language."))
+      .find((link) => link.textContent?.includes("Manage profile information."))
     expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
+
+    const appearanceOverviewLink = canvas
+      .getAllByRole("link", { name: /Appearance/ })
+      .find((link) => link.textContent?.includes("Manage language and theme."))
+    expect(appearanceOverviewLink?.getAttribute("href")).toBe("/settings/appearance")
 
     const bookOverviewLink = canvas
       .getAllByRole("link", { name: /Book/ })
@@ -64,6 +70,10 @@ export const Default: Story = {
     expect(canvas.getByRole("link", { name: "Profile" })).toHaveAttribute(
       "href",
       "/settings/profile",
+    )
+    expect(canvas.getByRole("link", { name: "Appearance" })).toHaveAttribute(
+      "href",
+      "/settings/appearance",
     )
     expect(canvas.getByRole("link", { name: "Book" })).toHaveAttribute("href", "/settings/book")
   },
@@ -99,8 +109,35 @@ export const Profile: Story = {
     expect(await canvas.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
     expect(await canvas.findByText("test@example.com")).toBeInTheDocument()
     expect(await canvas.findByText("Google")).toBeInTheDocument()
-    expect(await canvas.findByText("Language")).toBeInTheDocument()
-    expect(await canvas.findByRole("combobox", { name: "Language" })).toBeInTheDocument()
+    expect(canvas.queryByText("Language")).not.toBeInTheDocument()
+    expect(canvas.queryByText("Theme")).not.toBeInTheDocument()
+  },
+}
+
+export const Appearance: Story = {
+  decorators: [
+    createStoryRouter("/settings/appearance", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+
+      const settingsAppearanceRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "appearance",
+        component: AppearanceSettings,
+      })
+
+      return [settingsRoute.addChildren([settingsAppearanceRoute])]
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    expect(await canvas.findByRole("heading", { name: "Appearance" })).toBeInTheDocument()
+    expect(await canvas.findByRole("combobox", { name: "Language" })).toHaveTextContent("English")
+    expect(await canvas.findByRole("combobox", { name: "Theme" })).toHaveTextContent("Light")
   },
 }
 
@@ -138,7 +175,7 @@ export const ProfileRetryFailed: Story = {
     const canvas = within(canvasElement)
     const retryButton = await canvas.findByRole("button", { name: "Try again" })
 
-    expect(canvas.getByRole("combobox", { name: "Language" })).toBeEnabled()
+    expect(canvas.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument()
     await userEvent.click(retryButton)
     await waitFor(() => {
       expect(retryButton).toBeEnabled()

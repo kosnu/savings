@@ -8,6 +8,7 @@ import {
 
 import { BookSettings } from "../features/books"
 import { paymentsSearchSchema } from "../features/payments"
+import { AppearanceSettings } from "../features/preferences"
 import { ProfileSettings } from "../features/profile"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
@@ -105,13 +106,24 @@ const settingsProfileRoute = createRoute({
   component: ProfileSettings,
 })
 
+const settingsAppearanceRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "appearance",
+  component: AppearanceSettings,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
   authenticatedRoute.addChildren([
     paymentsRoute.addChildren([paymentDetailsRoute]),
     aggregatesRoute,
-    settingsRoute.addChildren([settingsIndexRoute, settingsProfileRoute, settingsBookRoute]),
+    settingsRoute.addChildren([
+      settingsIndexRoute,
+      settingsProfileRoute,
+      settingsAppearanceRoute,
+      settingsBookRoute,
+    ]),
   ]),
 ])
 
