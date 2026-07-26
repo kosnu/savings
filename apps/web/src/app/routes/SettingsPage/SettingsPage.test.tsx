@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { BookSettings } from "../../../features/books"
+import { AppearanceSettings } from "../../../features/preferences"
 import { ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
@@ -16,16 +17,19 @@ import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 
 type SettingsBookComponentType = () => ReactNode
+type SettingsAppearanceComponentType = () => ReactNode
 type SettingsProfileComponentType = () => ReactNode
 
 function renderSettingsPage(
   initialEntry = "/settings",
   options: {
     settingsBookComponent?: SettingsBookComponentType
+    settingsAppearanceComponent?: SettingsAppearanceComponentType
     settingsProfileComponent?: SettingsProfileComponentType
   } = {},
 ) {
   const SettingsBookComponent = options.settingsBookComponent ?? BookSettings
+  const SettingsAppearanceComponent = options.settingsAppearanceComponent ?? AppearanceSettings
   const SettingsProfileComponent = options.settingsProfileComponent ?? ProfileSettings
 
   return renderWithRouter(initialEntry, (root) => {
@@ -58,9 +62,20 @@ function renderSettingsPage(
       component: SettingsProfileComponent,
     })
 
+    const settingsAppearanceRoute = createRoute({
+      getParentRoute: () => settingsRoute,
+      path: "appearance",
+      component: SettingsAppearanceComponent,
+    })
+
     return [
       authenticatedRoute.addChildren([
-        settingsRoute.addChildren([settingsIndexRoute, settingsProfileRoute, settingsBookRoute]),
+        settingsRoute.addChildren([
+          settingsIndexRoute,
+          settingsProfileRoute,
+          settingsAppearanceRoute,
+          settingsBookRoute,
+        ]),
       ]),
     ]
   })
@@ -83,9 +98,10 @@ describe("SettingsPage", () => {
     vi.restoreAllMocks()
   })
 
-  test("Settings 見出しと設定概要、Profile / Book への導線を表示する", async () => {
+  test("Settings 見出しと設定概要、Profile / Appearance / Book への導線を表示する", async () => {
     const { router, user } = renderSettingsPage("/settings", {
       settingsProfileComponent: () => <div>Profile settings page</div>,
+      settingsAppearanceComponent: () => <div>Appearance settings page</div>,
       settingsBookComponent: () => <div>Book settings page</div>,
     })
 
@@ -94,8 +110,13 @@ describe("SettingsPage", () => {
 
     const profileOverviewLink = screen
       .getAllByRole("link", { name: /Profile/ })
-      .find((link) => link.textContent?.includes("Manage profile information and language."))
+      .find((link) => link.textContent?.includes("Manage profile information."))
     expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
+
+    const appearanceOverviewLink = screen
+      .getAllByRole("link", { name: /Appearance/ })
+      .find((link) => link.textContent?.includes("Manage language and theme."))
+    expect(appearanceOverviewLink?.getAttribute("href")).toBe("/settings/appearance")
 
     const bookOverviewLink = screen
       .getAllByRole("link", { name: /Book/ })
@@ -112,6 +133,9 @@ describe("SettingsPage", () => {
     const profileLink = await screen.findByRole("link", { name: "Profile" })
     expect(profileLink).toHaveAttribute("href", "/settings/profile")
 
+    const appearanceLink = await screen.findByRole("link", { name: "Appearance" })
+    expect(appearanceLink).toHaveAttribute("href", "/settings/appearance")
+
     const bookLink = await screen.findByRole("link", { name: "Book" })
     expect(bookLink).toHaveAttribute("href", "/settings/book")
 
@@ -120,22 +144,34 @@ describe("SettingsPage", () => {
     expect(router.state.location.pathname).toBe("/settings/profile")
     expect(await screen.findByText("Profile settings page")).toBeInTheDocument()
 
+    await user.click(appearanceLink)
+
+    expect(router.state.location.pathname).toBe("/settings/appearance")
+    expect(await screen.findByText("Appearance settings page")).toBeInTheDocument()
+
     await user.click(bookLink)
 
     expect(router.state.location.pathname).toBe("/settings/book")
     expect(await screen.findByText("Book settings page")).toBeInTheDocument()
   })
 
-  test("Profile 設定ではアカウント情報とLanguage設定を表示する", async () => {
+  test("Profile 設定ではアカウント情報だけを表示する", async () => {
     renderSettingsPage("/settings/profile")
 
     expect(await screen.findByRole("heading", { name: "Account information" })).toBeInTheDocument()
     expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
     expect(await screen.findByText("test@example.com")).toBeInTheDocument()
     expect(await screen.findByText("Google")).toBeInTheDocument()
-    expect(await screen.findByText("Language")).toBeInTheDocument()
-    expect(await screen.findByRole("combobox", { name: "Language" })).toBeInTheDocument()
+    expect(screen.queryByText("Language")).not.toBeInTheDocument()
     expect(screen.queryByText("Theme")).not.toBeInTheDocument()
+  })
+
+  test("Appearance 設定では現在のLanguageとThemeを表示する", async () => {
+    renderSettingsPage("/settings/appearance")
+
+    expect(await screen.findByRole("heading", { name: "Appearance" })).toBeInTheDocument()
+    expect(await screen.findByRole("combobox", { name: "Language" })).toHaveTextContent("English")
+    expect(await screen.findByRole("combobox", { name: "Theme" })).toHaveTextContent("Light")
   })
 
   test("Book 設定では既存の最新月予算表示を維持する", async () => {

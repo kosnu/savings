@@ -8,9 +8,9 @@ import "@radix-ui/themes/styles.css"
 import "./radixTheme.css"
 
 // NOTE: 外部公開してはいけない
-const ThemeContext = createContext<{ theme: TTheme; toggleTheme: () => void } | undefined>(
-  undefined,
-)
+const ThemeContext = createContext<
+  { theme: TTheme; toggleTheme: () => void; changeTheme: (theme: TTheme) => void } | undefined
+>(undefined)
 
 const accentColor = "violet"
 const panelBackground = "solid"
@@ -21,10 +21,10 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const { theme, toggleTheme } = usePreferredTheme()
+  const { theme, toggleTheme, changeTheme } = usePreferredTheme()
 
   return (
-    <ThemeContext.Provider value={{ theme: theme, toggleTheme: toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, changeTheme }}>
       <RadixUiTheme
         accentColor={accentColor}
         panelBackground={panelBackground}
