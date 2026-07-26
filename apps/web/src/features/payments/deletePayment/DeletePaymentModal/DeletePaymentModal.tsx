@@ -27,8 +27,8 @@ export function DeletePaymentModal({ payment, open, onClose, onSuccess }: Delete
     : t("payments.details.notFound")
 
   const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (!open) {
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
         onClose?.()
       }
     },

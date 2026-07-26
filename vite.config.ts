@@ -45,6 +45,7 @@ export default defineConfig({
       "jsx_a11y/no-autofocus": "off",
       "eslint/eqeqeq": "error",
       "eslint/no-duplicate-imports": "error",
+      "eslint/no-shadow": "error",
       "oxc/no-barrel-file": [
         "error",
         {

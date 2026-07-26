@@ -25,14 +25,14 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
 
   const handleChange = useCallback(
     (nextValue: string) => {
-      const categorySearch =
+      const nextCategorySearch =
         nextValue === PAYMENT_SEARCH_CATEGORY_ALL_VALUE
           ? undefined
           : toPaymentCategorySearch(nextValue)
 
       void navigate({
         to: "/payments",
-        search: (prev) => ({ ...prev, category: categorySearch }),
+        search: (prev) => ({ ...prev, category: nextCategorySearch }),
       })
     },
     [navigate],
