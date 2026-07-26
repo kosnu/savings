@@ -146,7 +146,7 @@ function toCategoryTotalsRow(
   const dateFilters = url.searchParams.getAll("payments.date")
   const from = dateFilters.find((value) => value.startsWith("gte."))?.replace("gte.", "")
   const to = dateFilters.find((value) => value.startsWith("lte."))?.replace("lte.", "")
-  const payments = paymentRows
+  const categoryPayments = paymentRows
     .filter((payment) => payment.book_id === currentBookId)
     .filter((payment) => payment.category_id === category.id)
     .filter((payment) => {
@@ -170,7 +170,7 @@ function toCategoryTotalsRow(
           },
         ]
       : [],
-    payments,
+    payments: categoryPayments,
   }
 }
 

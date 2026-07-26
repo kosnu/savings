@@ -14,9 +14,9 @@ export function useDeletePaymentModal(): UseDeletePaymentModalReturn {
   const [payment, setPayment] = useState<Payment | null>(null)
 
   const openDeleteModal = useCallback(
-    (payment: Payment) => {
+    (selectedPayment: Payment) => {
       openDialog()
-      setPayment(payment)
+      setPayment(selectedPayment)
     },
     [openDialog],
   )

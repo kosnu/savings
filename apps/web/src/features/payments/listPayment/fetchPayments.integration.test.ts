@@ -18,9 +18,9 @@ describe("fetchPayments", () => {
   })
 
   it("date, createdDate, updatedDateをDateオブジェクトに変換する", async () => {
-    const payments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments([null, null])
 
-    for (const payment of payments) {
+    for (const payment of fetchedPayments) {
       expect(payment.date).toBeInstanceOf(Date)
       expect(payment.createdDate).toBeInstanceOf(Date)
       expect(payment.updatedDate).toBeInstanceOf(Date)
@@ -28,17 +28,17 @@ describe("fetchPayments", () => {
   })
 
   it("nullのcategory_idをnullに変換する", async () => {
-    const payments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments([null, null])
 
-    for (const payment of payments) {
+    for (const payment of fetchedPayments) {
       expect(payment.categoryId).toSatisfy((v) => v === null || typeof v === "number")
     }
   })
 
   it("JOINしたカテゴリ情報を支払いに含める", async () => {
-    const payments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments([null, null])
 
-    expect(payments.find((payment) => payment.categoryId === 10)?.category).toEqual({
+    expect(fetchedPayments.find((payment) => payment.categoryId === 10)?.category).toEqual({
       id: 10,
       name: "Food",
     })
@@ -63,9 +63,9 @@ describe("fetchPayments", () => {
   })
 
   it("nullのnoteを空文字に変換する", async () => {
-    const payments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments([null, null])
 
-    for (const payment of payments) {
+    for (const payment of fetchedPayments) {
       expect(typeof payment.note).toBe("string")
     }
   })
@@ -90,21 +90,21 @@ describe("fetchPayments", () => {
   })
 
   it("startDateを指定するとそれ以降の支払いのみ返す", async () => {
-    const payments = await fetchPayments([new Date("2025-04-01"), null])
+    const fetchedPayments = await fetchPayments([new Date("2025-04-01"), null])
 
-    expect(payments).toHaveLength(3) // id:2, id:1, id:3
+    expect(fetchedPayments).toHaveLength(3) // id:2, id:1, id:3
   })
 
   it("endDateを指定するとそれ以前の支払いのみ返す", async () => {
-    const payments = await fetchPayments([null, new Date("2025-05-31")])
+    const fetchedPayments = await fetchPayments([null, new Date("2025-05-31")])
 
-    expect(payments).toHaveLength(2) // id:3, id:4
+    expect(fetchedPayments).toHaveLength(2) // id:3, id:4
   })
 
   it("startDate と endDate を両方指定すると範囲内のみ返す", async () => {
-    const payments = await fetchPayments([new Date("2025-04-01"), new Date("2025-05-31")])
+    const fetchedPayments = await fetchPayments([new Date("2025-04-01"), new Date("2025-05-31")])
 
-    expect(payments).toHaveLength(1) // id:3
+    expect(fetchedPayments).toHaveLength(1) // id:3
   })
 
   it("登録済みカテゴリIDを指定するとcategory_idのeq条件を送る", async () => {

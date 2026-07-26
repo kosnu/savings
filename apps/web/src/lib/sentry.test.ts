@@ -7,21 +7,21 @@ import {
 } from "./sentry"
 
 const { mockCaptureMessage, mockSetContext, mockSetTag, mockWithScope } = vi.hoisted(() => {
-  const mockSetContext = vi.fn()
-  const mockSetTag = vi.fn()
-  const mockCaptureMessage = vi.fn()
-  const mockWithScope = vi.fn((callback: (scope: object) => void) => {
+  const setContextMock = vi.fn()
+  const setTagMock = vi.fn()
+  const captureMessageMock = vi.fn()
+  const withScopeMock = vi.fn((callback: (scope: object) => void) => {
     callback({
-      setContext: mockSetContext,
-      setTag: mockSetTag,
+      setContext: setContextMock,
+      setTag: setTagMock,
     })
   })
 
   return {
-    mockCaptureMessage,
-    mockSetContext,
-    mockSetTag,
-    mockWithScope,
+    mockCaptureMessage: captureMessageMock,
+    mockSetContext: setContextMock,
+    mockSetTag: setTagMock,
+    mockWithScope: withScopeMock,
   }
 })
 
