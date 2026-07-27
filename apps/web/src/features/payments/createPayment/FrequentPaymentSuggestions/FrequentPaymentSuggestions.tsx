@@ -88,7 +88,7 @@ function FrequentPaymentSuggestionsForBook({
       <Heading id={headingId} as="h3" size="2">
         {t("payments.create.frequent.label")}
       </Heading>
-      <Flex asChild gap="2" wrap="wrap">
+      <Flex asChild gap="2" wrap="nowrap">
         <fieldset aria-labelledby={headingId} className={styles.group}>
           {payments.map((payment) => {
             const amount = toCurrency(payment.amount)

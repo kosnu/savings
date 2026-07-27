@@ -32,6 +32,16 @@ const candidateRows = [
   createPaymentRow(105, "123456789012345678901234567890", 800),
 ]
 
+const manyCandidateRows = Array.from({ length: 5 }, (_candidate, candidateIndex) =>
+  Array.from({ length: 3 }, (_occurrence, occurrenceIndex) =>
+    createPaymentRow(
+      200 + candidateIndex * 3 + occurrenceIndex,
+      `Candidate ${candidateIndex + 1}`,
+      1000 + candidateIndex * 100,
+    ),
+  ),
+).flat()
+
 const onSelect: ComponentProps<typeof FrequentPaymentSuggestions>["onSelect"] = fn()
 
 const meta = {
@@ -56,6 +66,24 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
+
+export const ManyCandidates: Story = {
+  decorators: [
+    (Story) => (
+      <div style={{ width: "20rem", maxWidth: "100%" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  parameters: {
+    msw: {
+      handlers: [
+        ...createBookHandlers(),
+        ...createPaymentHandlers({ get: { response: manyCandidateRows } }),
+      ],
+    },
+  },
+}
 
 export const Loading: Story = {
   parameters: {
