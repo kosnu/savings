@@ -43,6 +43,8 @@ Web の通常検証では Storybook browser test を常時実行しません。`
 
 ## 追加ルール
 
+Storybook test project の収集範囲は、Story の責務を Page へ移す理由にしません。子コンポーネントが所有する状態は、そのコンポーネント自身の Story に定義し、browser test で実行するためだけに Page Story へ重複して定義してはいけません。現行の収集範囲に含まれない component Story はカタログ用途として扱い、browser test の対象にする必要がある場合は、収集範囲の変更を別途判断します。
+
 新しい Page story を追加するときは、meta の `tags` に `browser-test` を付けます。
 
 ```ts
