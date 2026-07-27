@@ -1,12 +1,15 @@
 .group {
   min-width: 0;
+  max-width: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: auto;
   border: 0;
 }
 
 .candidate {
   appearance: none;
+  flex-shrink: 0;
   max-width: 100%;
   margin: 0;
   font: inherit;
