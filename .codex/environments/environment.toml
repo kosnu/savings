@@ -9,3 +9,13 @@ script = "pnpm ci"
 name = "web:dev"
 icon = "run"
 command = "pnpm web:dev"
+
+[[actions]]
+name = "web:storybook"
+icon = "run"
+command = "pnpm --filter web storybook --no-open"
+
+[[actions]]
+name = "api:start"
+icon = "run"
+command = "pnpm run api:start"
