@@ -18,7 +18,7 @@ describe("fetchPaymentDetails", () => {
   })
 
   it("支払い詳細とカテゴリを 1 件取得して Date に変換する", async () => {
-    const payment = await fetchPaymentDetails(1)
+    const payment = await fetchPaymentDetails(1, 1)
 
     expect(payment).not.toBeNull()
     expect(payment?.id).toBe(1)
@@ -44,7 +44,7 @@ describe("fetchPaymentDetails", () => {
       }),
     )
 
-    const payment = await fetchPaymentDetails(1)
+    const payment = await fetchPaymentDetails(1, 1)
 
     expect(payment).not.toBeNull()
     expect(payment?.category).toBeNull()
@@ -62,14 +62,14 @@ describe("fetchPaymentDetails", () => {
       }),
     )
 
-    const payment = await fetchPaymentDetails(1)
+    const payment = await fetchPaymentDetails(1, 1)
 
     expect(payment).not.toBeNull()
     expect(payment?.category).toBeNull()
   })
 
   it("対象が存在しないときは null を返す", async () => {
-    const payment = await fetchPaymentDetails(999)
+    const payment = await fetchPaymentDetails(1, 999)
 
     expect(payment).toBeNull()
   })
@@ -87,7 +87,7 @@ describe("fetchPaymentDetails", () => {
       }),
     )
 
-    await expect(fetchPaymentDetails(1)).rejects.toThrow("Invalid payment details response")
+    await expect(fetchPaymentDetails(1, 1)).rejects.toThrow("Invalid payment details response")
   })
 
   it("現在のbookに属さない支払いは null を返す", async () => {
@@ -102,8 +102,37 @@ describe("fetchPaymentDetails", () => {
       }),
     )
 
-    const payment = await fetchPaymentDetails(1)
+    const payment = await fetchPaymentDetails(1, 1)
 
     expect(payment).toBeNull()
+  })
+
+  it("Payment IDとselected Book IDを取得条件にする", async () => {
+    const requestCapture: { url: URL | null } = { url: null }
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requestCapture.url = new URL(request.url)
+        return HttpResponse.json(null)
+      }),
+    )
+
+    await fetchPaymentDetails(42, 10)
+
+    expect(requestCapture.url?.searchParams.get("id")).toBe("eq.10")
+    expect(requestCapture.url?.searchParams.get("book_id")).toBe("eq.42")
+  })
+
+  it("selected Bookと異なる詳細レスポンスを正常扱いしない", async () => {
+    server.use(
+      http.get("*/rest/v1/payments*", () =>
+        HttpResponse.json({
+          ...mapPaymentToRow(payments[0]),
+          book_id: 2,
+          category: null,
+        }),
+      ),
+    )
+
+    await expect(fetchPaymentDetails(1, 1)).rejects.toThrow("Invalid payment details response")
   })
 })

@@ -23,6 +23,10 @@ when_to_read:
 - Book membershipはユーザーとBookの所属関係を表す。
 - 同じユーザーは同じBookに重複所属できない。
 - 認証ユーザーのdefault bookはBook membershipで判定する。
+- Book membershipは認可境界であり、選択中Bookはアプリケーション上の操作対象境界である。
+- Book membershipがあることだけでは、そのBookが現在の操作対象であることを意味しない。
+- Book追加・選択UIがない現在は、認証ユーザーのdefault bookを選択中Bookとして扱う。
+- 選択中Book以外のBookへmembershipがある場合も、そのBookを現在の操作対象にはしない。
 - 新規ユーザーにはdefault bookとmembershipを作成する。
 - 認証ユーザーにはdefault bookが存在する前提で扱う。
 - Book-owned dataの作成時に所有先Bookが未指定の場合、認証ユーザーのdefault bookを使う。

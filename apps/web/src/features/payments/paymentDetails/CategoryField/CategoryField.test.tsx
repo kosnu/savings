@@ -61,7 +61,7 @@ describe("PaymentDetails CategoryField", () => {
     server.use(
       http.patch("*/rest/v1/payments*", async ({ request }) => {
         updatePayload = await request.json()
-        return HttpResponse.json({ message: "Updated" })
+        return HttpResponse.json({ id: 1 })
       }),
     )
 

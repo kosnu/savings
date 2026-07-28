@@ -14,6 +14,7 @@ import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 
 interface PaymentDateFieldProps {
+  bookId: number
   paymentId: PaymentId
   date: Date
   disabled?: boolean
@@ -22,6 +23,7 @@ interface PaymentDateFieldProps {
 }
 
 export function PaymentDateField({
+  bookId,
   paymentId,
   date,
   disabled = false,
@@ -31,7 +33,7 @@ export function PaymentDateField({
   const id = useId()
   const { i18n, t } = useTranslation()
   const { openSnackbar } = useSnackbar()
-  const { updatePayment, isPending } = useUpdatePayment()
+  const { updatePayment, isPending } = useUpdatePayment(bookId)
   const [editing, setEditing] = useState(false)
   const editingRef = useRef(false)
   const [draftDate, setDraftDate] = useState<Date | undefined>(date)

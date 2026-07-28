@@ -34,7 +34,7 @@ function renderPaymentList(initialEntry: string) {
       const paymentsRoute = createRoute({
         getParentRoute: () => authenticatedRoute,
         path: "/payments",
-        component: PaymentList,
+        component: () => <PaymentList bookId={1} />,
         validateSearch: paymentsSearchSchema,
       })
 

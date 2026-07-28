@@ -12,15 +12,22 @@ import { toCurrency } from "../../../../utils/toCurrency"
 import { useDeletePayment } from "../useDeletePayment"
 
 interface DeletePaymentModalProps {
+  bookId: number
   payment?: Payment | null
   open: boolean
   onClose: () => void
   onSuccess: () => void
 }
 
-export function DeletePaymentModal({ payment, open, onClose, onSuccess }: DeletePaymentModalProps) {
+export function DeletePaymentModal({
+  bookId,
+  payment,
+  open,
+  onClose,
+  onSuccess,
+}: DeletePaymentModalProps) {
   const { openSnackbar } = useSnackbar()
-  const { deletePayment, isPending } = useDeletePayment()
+  const { deletePayment, isPending } = useDeletePayment(bookId)
   const { i18n, t } = useTranslation()
   const paymentInfo = payment
     ? `${formatDateToLocaleString(payment.date, getDateFormat(i18n.resolvedLanguage), i18n.resolvedLanguage)} ${payment.note} ${toCurrency(payment.amount)}`

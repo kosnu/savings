@@ -197,7 +197,7 @@ describe("CreatePaymentForm", () => {
       note: null,
     })
     expect(requestBody).not.toHaveProperty("user_id")
-    expect(requestBody).not.toHaveProperty("book_id")
+    expect(requestBody?.book_id).toBe(1)
     expect(requestBody?.date).toEqual(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
   })
 
@@ -231,7 +231,7 @@ describe("CreatePaymentForm", () => {
       note: "dinner",
     })
     expect(requestBody).not.toHaveProperty("user_id")
-    expect(requestBody).not.toHaveProperty("book_id")
+    expect(requestBody?.book_id).toBe(1)
     expect(requestBody?.date).toEqual(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
   })
 

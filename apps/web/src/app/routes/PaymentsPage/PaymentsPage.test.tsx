@@ -13,6 +13,7 @@ import { categories, entertainmentCat, foodCat } from "../../../test/data/catego
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
@@ -81,12 +82,13 @@ function renderPaymentsPageRoute(initialEntry: string) {
   const queryClient = createTestQueryClient()
   queryClient.setQueryData(categoryQueryKeys.list, categories)
   queryClient.setQueryData(
-    paymentQueryKeys.list(paymentsPageCacheScope, currentMonthPaymentsQueryDate, foodCat.id),
+    paymentQueryKeys.list(1, paymentsPageCacheScope, currentMonthPaymentsQueryDate, foodCat.id),
     initialCurrentMonthPaymentRows.filter((payment) => payment.category_id === foodCat.id),
     { updatedAt: 0 },
   )
   queryClient.setQueryData(
     paymentQueryKeys.list(
+      1,
       paymentsPageCacheScope,
       currentMonthPaymentsQueryDate,
       entertainmentCat.id,
@@ -95,7 +97,7 @@ function renderPaymentsPageRoute(initialEntry: string) {
     { updatedAt: 0 },
   )
   queryClient.setQueryData(
-    paymentQueryKeys.list(paymentsPageCacheScope, currentMonthPaymentsQueryDate, null),
+    paymentQueryKeys.list(1, paymentsPageCacheScope, currentMonthPaymentsQueryDate, null),
     [uncategorizedPayment],
     { updatedAt: 0 },
   )
@@ -150,6 +152,7 @@ describe("PaymentsPage", () => {
   beforeEach(() => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue(paymentsPageCacheScopeId)
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: initialPaymentRows,
         create: {
@@ -353,7 +356,7 @@ describe("PaymentsPage", () => {
 
     queryClient.removeQueries({
       queryKey: paymentQueryKeys.all,
-      predicate: (query) => query.queryKey[3] === "all-categories",
+      predicate: (query) => query.queryKey[5] === "all-categories",
     })
 
     router.history.back()
@@ -421,6 +424,7 @@ describe("PaymentsPage", () => {
     )
     await user.type(within(createDialog).getByLabelText(/note/i), createdPaymentFormInput.note)
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: [...initialPaymentRows, createdPayment],
         create: {
@@ -485,10 +489,14 @@ describe("PaymentsPage", () => {
 
     const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: initialPaymentRows.filter((row) => row.id !== targetPayment.id),
         create: {
           response: createdPayment,
+        },
+        delete: {
+          response: { id: targetPayment.id },
         },
       }),
       ...createCategoryHandlers(),
@@ -525,6 +533,7 @@ describe("PaymentsPage", () => {
     await user.clear(amountInput)
     await user.type(amountInput, "2500")
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: initialPaymentRows.map((row) => {
           if (row.id !== payments[1].id) {

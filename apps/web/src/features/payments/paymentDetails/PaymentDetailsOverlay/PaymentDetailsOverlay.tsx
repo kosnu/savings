@@ -11,6 +11,7 @@ import { PaymentDateField } from "../PaymentDateField"
 import { usePaymentDetails } from "../usePaymentDetails"
 
 interface PaymentDetailsOverlayProps {
+  bookId: number
   paymentId: PaymentId | null
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -18,13 +19,14 @@ interface PaymentDetailsOverlayProps {
 }
 
 export function PaymentDetailsOverlay({
+  bookId,
   paymentId,
   open,
   onOpenChange,
   onDelete,
 }: PaymentDetailsOverlayProps) {
   const { t } = useTranslation()
-  const { data: payment, isLoading, error } = usePaymentDetails(paymentId)
+  const { data: payment, isLoading, error } = usePaymentDetails(bookId, paymentId)
   const [isEditingField, setIsEditingField] = useState(false)
   const hasPaymentId = paymentId !== null
   const hasPaymentDetails = payment !== null && payment !== undefined
@@ -70,6 +72,7 @@ export function PaymentDetailsOverlay({
         <Flex direction="column" gap="4">
           <Flex direction="column" gap="4">
             <PaymentDateField
+              bookId={bookId}
               paymentId={payment.id}
               date={payment.date}
               disabled={isEditingField}
@@ -77,6 +80,7 @@ export function PaymentDetailsOverlay({
               onEditEnd={handleEditEnd}
             />
             <AmountField
+              bookId={bookId}
               paymentId={payment.id}
               amount={payment.amount}
               disabled={isEditingField}
@@ -84,6 +88,7 @@ export function PaymentDetailsOverlay({
               onEditEnd={handleEditEnd}
             />
             <CategoryField
+              bookId={bookId}
               paymentId={payment.id}
               categoryId={payment.category?.id ?? null}
               categoryName={payment.category?.name ?? t("payments.category.none")}
@@ -92,6 +97,7 @@ export function PaymentDetailsOverlay({
               onEditEnd={handleEditEnd}
             />
             <NoteField
+              bookId={bookId}
               paymentId={payment.id}
               note={payment.note}
               disabled={isEditingField}

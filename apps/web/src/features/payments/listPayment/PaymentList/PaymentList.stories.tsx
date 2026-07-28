@@ -12,13 +12,15 @@ const meta = {
   tags: ["autodocs"],
   decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
   argTypes: {},
+  args: {
+    bookId: 1,
+  },
 } satisfies Meta<typeof PaymentList>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: {},
   parameters: {
     msw: {
       handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],

@@ -29,6 +29,7 @@ import { EditableField } from "../EditableField"
 import styles from "./CategoryField.module.css"
 
 interface CategoryFieldProps {
+  bookId: number
   paymentId: PaymentId
   categoryId: number | null
   categoryName: string
@@ -38,6 +39,7 @@ interface CategoryFieldProps {
 }
 
 export function CategoryField({
+  bookId,
   paymentId,
   categoryId,
   categoryName,
@@ -48,7 +50,7 @@ export function CategoryField({
   const id = useId()
   const { t } = useTranslation()
   const { openSnackbar } = useSnackbar()
-  const { updatePayment, isPending } = useUpdatePayment()
+  const { updatePayment, isPending } = useUpdatePayment(bookId)
   const { promise: categoriesPromise } = useCategories()
   const currentCategoryValue = toCategoryValue(categoryId)
   const [editing, setEditing] = useState(false)

@@ -10,14 +10,17 @@ interface UsePaymentDetailsReturn {
   error: Error | null
 }
 
-export function usePaymentDetails(paymentId: PaymentId | null): UsePaymentDetailsReturn {
+export function usePaymentDetails(
+  bookId: number,
+  paymentId: PaymentId | null,
+): UsePaymentDetailsReturn {
   const query = useQuery({
-    queryKey: paymentQueryKeys.details(paymentId),
+    queryKey: paymentQueryKeys.details(bookId, paymentId),
     queryFn: async () => {
       if (paymentId === null) {
         return Promise.resolve(null)
       }
-      return fetchPaymentDetails(paymentId)
+      return fetchPaymentDetails(bookId, paymentId)
     },
     enabled: paymentId !== null,
   })

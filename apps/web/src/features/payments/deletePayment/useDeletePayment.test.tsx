@@ -27,7 +27,7 @@ describe("useDeletePayment", () => {
     const onError = vi.fn()
     mockRemovePayment.mockResolvedValue(undefined)
 
-    const { result } = renderHook(() => useDeletePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useDeletePayment(1, onSuccess, onError), {
       queryClient,
     })
 
@@ -38,13 +38,13 @@ describe("useDeletePayment", () => {
       await promise
     })
 
-    expect(mockRemovePayment).toHaveBeenCalledWith(42)
+    expect(mockRemovePayment).toHaveBeenCalledWith(1, 42)
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(onError).not.toHaveBeenCalled()
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.all })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.details(42) })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.book(1) })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.detailsBook(1) })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: summaryQueryKeys.totalExpendituresAll,
     })
@@ -61,7 +61,7 @@ describe("useDeletePayment", () => {
     const error = new Error("failed")
     mockRemovePayment.mockRejectedValue(error)
 
-    const { result } = renderHook(() => useDeletePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useDeletePayment(1, onSuccess, onError), {
       queryClient,
     })
 

@@ -8,6 +8,7 @@ interface FetchPaymentsOptions {
 }
 
 export async function fetchPayments(
+  bookId: number,
   [startDate, endDate]: [Date | null, Date | null],
   { categoryId }: FetchPaymentsOptions = {},
 ): Promise<Payment[]> {
@@ -29,6 +30,7 @@ export async function fetchPayments(
         )
       `,
     )
+    .eq("book_id", bookId)
     .order("date", { ascending: false })
     .order("id", { ascending: false })
 
@@ -51,5 +53,10 @@ export async function fetchPayments(
     throw error
   }
 
-  return (data ?? []).map(toPayment)
+  const payments = (data ?? []).map(toPayment)
+  if (payments.some((payment) => payment.bookId !== bookId)) {
+    throw new Error("Invalid payments response")
+  }
+
+  return payments
 }

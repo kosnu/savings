@@ -34,7 +34,7 @@ describe("DeletePaymentModal", () => {
 
   test("ClickDeleteButton story では削除成功後に onSuccess を呼ぶ", async () => {
     const onSuccess = vi.fn()
-    server.resetHandlers(...createPaymentHandlers({ delete: { response: {} } }))
+    server.resetHandlers(...createPaymentHandlers({ delete: { response: { id: 1 } } }))
     const { user } = render(<ClickDeleteButton onSuccess={onSuccess} />)
 
     const dialog = await screen.findByRole("dialog", { name: /delete this payment/i })
