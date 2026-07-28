@@ -7,10 +7,11 @@ import { useDialog } from "../../../../utils/useDialog"
 import { CreatePaymentForm } from "../CreatePaymentForm"
 
 interface CreatePaymentModalProps {
+  bookId: number
   onSuccess?: () => void
 }
 
-export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
+export function CreatePaymentModal({ bookId, onSuccess }: CreatePaymentModalProps) {
   const { open, closeDialog, onOpenChange } = useDialog()
   const { t } = useTranslation()
   const [continuousMode, setContinuousMode] = useState(false)
@@ -50,6 +51,7 @@ export function CreatePaymentModal({ onSuccess }: CreatePaymentModalProps) {
       description={t("payments.create.description")}
     >
       <CreatePaymentForm
+        bookId={bookId}
         onSuccess={handleSuccess}
         onError={handleError}
         onCancel={handleCancel}

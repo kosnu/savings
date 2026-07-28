@@ -3,7 +3,6 @@ import type { ComponentProps } from "react"
 import { fn } from "storybook/test"
 
 import { toDateOnlyString } from "../../../../domain/date"
-import { createBookHandlers } from "../../../../test/msw/handlers/books"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import type { PaymentRow } from "../../../../types/payment"
 import { FrequentPaymentSuggestions } from "./FrequentPaymentSuggestions"
@@ -50,14 +49,12 @@ const meta = {
   parameters: {
     layout: "centered",
     msw: {
-      handlers: [
-        ...createBookHandlers(),
-        ...createPaymentHandlers({ get: { response: candidateRows } }),
-      ],
+      handlers: createPaymentHandlers({ get: { response: candidateRows } }),
     },
   },
   tags: ["autodocs"],
   args: {
+    bookId: 1,
     onSelect,
   },
 } satisfies Meta<typeof FrequentPaymentSuggestions>
@@ -77,10 +74,7 @@ export const ManyCandidates: Story = {
   ],
   parameters: {
     msw: {
-      handlers: [
-        ...createBookHandlers(),
-        ...createPaymentHandlers({ get: { response: manyCandidateRows } }),
-      ],
+      handlers: createPaymentHandlers({ get: { response: manyCandidateRows } }),
     },
   },
 }
@@ -88,10 +82,7 @@ export const ManyCandidates: Story = {
 export const Loading: Story = {
   parameters: {
     msw: {
-      handlers: [
-        ...createBookHandlers(),
-        ...createPaymentHandlers({ get: { durationOrMode: "infinite" } }),
-      ],
+      handlers: createPaymentHandlers({ get: { durationOrMode: "infinite" } }),
     },
   },
 }
@@ -99,7 +90,7 @@ export const Loading: Story = {
 export const Empty: Story = {
   parameters: {
     msw: {
-      handlers: [...createBookHandlers(), ...createPaymentHandlers({ get: { response: [] } })],
+      handlers: createPaymentHandlers({ get: { response: [] } }),
     },
   },
 }
@@ -107,7 +98,7 @@ export const Empty: Story = {
 export const Error: Story = {
   parameters: {
     msw: {
-      handlers: [...createBookHandlers(), ...createPaymentHandlers({ get: { error: true } })],
+      handlers: createPaymentHandlers({ get: { error: true } }),
     },
   },
 }

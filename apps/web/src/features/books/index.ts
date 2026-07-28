@@ -1,2 +1,3 @@
 export { BookSettings } from "./bookSettings/BookSettings"
-export { useCurrentBook } from "./bookSettings/useCurrentBook"
+export { type SelectedBook } from "./fetchSelectedBook"
+export { useSelectedBook } from "./useSelectedBook"

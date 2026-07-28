@@ -1,21 +1,21 @@
 import { HttpResponse, http } from "msw"
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import { createBookHandlers } from "../../../test/msw/handlers/books"
-import { server } from "../../../test/msw/server"
-import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
-import { fetchCurrentBook } from "./fetchCurrentBook"
+import { createBookHandlers } from "../../test/msw/handlers/books"
+import { server } from "../../test/msw/server"
+import { supabaseTestClient } from "../../test/utils/createSupabaseTestClient"
+import { fetchSelectedBook } from "./fetchSelectedBook"
 
-vi.mock("../../../lib/supabase", () => ({
+vi.mock("../../lib/supabase", () => ({
   getSupabaseClient: () => supabaseTestClient,
 }))
 
-describe("fetchCurrentBook", () => {
+describe("fetchSelectedBook", () => {
   beforeEach(() => {
     server.resetHandlers(...createBookHandlers())
   })
 
-  it("現在のdefault bookを取得する", async () => {
+  it("現在のdefault bookをselected bookとして取得する", async () => {
     server.resetHandlers(
       ...createBookHandlers({
         response: {
@@ -26,7 +26,7 @@ describe("fetchCurrentBook", () => {
       }),
     )
 
-    await expect(fetchCurrentBook()).resolves.toEqual({ id: 42, name: "Family Book" })
+    await expect(fetchSelectedBook()).resolves.toEqual({ id: 42, name: "Family Book" })
   })
 
   it("default membershipに絞り、必要なBook情報だけを取得する", async () => {
@@ -43,7 +43,7 @@ describe("fetchCurrentBook", () => {
       }),
     )
 
-    await fetchCurrentBook()
+    await fetchSelectedBook()
 
     expect(requestUrl?.searchParams.get("is_default")).toBe("eq.true")
     const select = requestUrl?.searchParams.get("select")
@@ -58,7 +58,7 @@ describe("fetchCurrentBook", () => {
   it("Supabaseがエラーを返した場合にthrowする", async () => {
     server.resetHandlers(...createBookHandlers({ error: true }))
 
-    await expect(fetchCurrentBook()).rejects.toThrow("Failed to fetch current book.")
+    await expect(fetchSelectedBook()).rejects.toThrow("Failed to fetch current book.")
   })
 
   it("レスポンスshapeが不正ならエラーにする", async () => {
@@ -72,6 +72,6 @@ describe("fetchCurrentBook", () => {
       }),
     )
 
-    await expect(fetchCurrentBook()).rejects.toThrow("Invalid current book response")
+    await expect(fetchSelectedBook()).rejects.toThrow("Invalid selected book response")
   })
 })

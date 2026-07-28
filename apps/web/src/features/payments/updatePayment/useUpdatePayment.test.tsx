@@ -27,7 +27,7 @@ describe("useUpdatePayment", () => {
     const onError = vi.fn()
     mockUpdatePayment.mockResolvedValue(undefined)
 
-    const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useUpdatePayment(1, onSuccess, onError), {
       queryClient,
     })
 
@@ -41,13 +41,13 @@ describe("useUpdatePayment", () => {
       await promise
     })
 
-    expect(mockUpdatePayment).toHaveBeenCalledWith(42, { amount: 1080 })
+    expect(mockUpdatePayment).toHaveBeenCalledWith(1, 42, { amount: 1080 })
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(onError).not.toHaveBeenCalled()
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.all })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.details(42) })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.book(1) })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.detailsBook(1) })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: summaryQueryKeys.totalExpendituresAll,
     })
@@ -64,7 +64,7 @@ describe("useUpdatePayment", () => {
     const error = new Error("failed")
     mockUpdatePayment.mockRejectedValue(error)
 
-    const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useUpdatePayment(1, onSuccess, onError), {
       queryClient,
     })
 
@@ -91,7 +91,7 @@ describe("useUpdatePayment", () => {
     const error = { message: "failed", code: "PGRST301" }
     mockUpdatePayment.mockRejectedValue(error)
 
-    const { result } = renderHook(() => useUpdatePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useUpdatePayment(1, onSuccess, onError), {
       queryClient,
     })
 

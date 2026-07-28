@@ -18,7 +18,7 @@ describe("fetchPayments", () => {
   })
 
   it("date, createdDate, updatedDateをDateオブジェクトに変換する", async () => {
-    const fetchedPayments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments(1, [null, null])
 
     for (const payment of fetchedPayments) {
       expect(payment.date).toBeInstanceOf(Date)
@@ -28,7 +28,7 @@ describe("fetchPayments", () => {
   })
 
   it("nullのcategory_idをnullに変換する", async () => {
-    const fetchedPayments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments(1, [null, null])
 
     for (const payment of fetchedPayments) {
       expect(payment.categoryId).toSatisfy((v) => v === null || typeof v === "number")
@@ -36,7 +36,7 @@ describe("fetchPayments", () => {
   })
 
   it("JOINしたカテゴリ情報を支払いに含める", async () => {
-    const fetchedPayments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments(1, [null, null])
 
     expect(fetchedPayments.find((payment) => payment.categoryId === 10)?.category).toEqual({
       id: 10,
@@ -56,14 +56,14 @@ describe("fetchPayments", () => {
       }),
     )
 
-    const fetchedPayments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments(1, [null, null])
 
     expect(fetchedPayments[0]?.categoryId).toBeNull()
     expect(fetchedPayments[0]?.category).toBeNull()
   })
 
   it("nullのnoteを空文字に変換する", async () => {
-    const fetchedPayments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments(1, [null, null])
 
     for (const payment of fetchedPayments) {
       expect(typeof payment.note).toBe("string")
@@ -83,26 +83,26 @@ describe("fetchPayments", () => {
       }),
     )
 
-    const fetchedPayments = await fetchPayments([null, null])
+    const fetchedPayments = await fetchPayments(1, [null, null])
 
     expect(fetchedPayments).toHaveLength(1)
     expect(fetchedPayments[0]?.bookId).toBe(1)
   })
 
   it("startDateを指定するとそれ以降の支払いのみ返す", async () => {
-    const fetchedPayments = await fetchPayments([new Date("2025-04-01"), null])
+    const fetchedPayments = await fetchPayments(1, [new Date("2025-04-01"), null])
 
     expect(fetchedPayments).toHaveLength(3) // id:2, id:1, id:3
   })
 
   it("endDateを指定するとそれ以前の支払いのみ返す", async () => {
-    const fetchedPayments = await fetchPayments([null, new Date("2025-05-31")])
+    const fetchedPayments = await fetchPayments(1, [null, new Date("2025-05-31")])
 
     expect(fetchedPayments).toHaveLength(2) // id:3, id:4
   })
 
   it("startDate と endDate を両方指定すると範囲内のみ返す", async () => {
-    const fetchedPayments = await fetchPayments([new Date("2025-04-01"), new Date("2025-05-31")])
+    const fetchedPayments = await fetchPayments(1, [new Date("2025-04-01"), new Date("2025-05-31")])
 
     expect(fetchedPayments).toHaveLength(1) // id:3
   })
@@ -117,7 +117,7 @@ describe("fetchPayments", () => {
       }),
     )
 
-    await fetchPayments([null, null], { categoryId: 10 })
+    await fetchPayments(1, [null, null], { categoryId: 10 })
 
     expect(requestCapture.url?.searchParams.get("category_id")).toBe("eq.10")
   })
@@ -132,7 +132,7 @@ describe("fetchPayments", () => {
       }),
     )
 
-    await fetchPayments([null, null], { categoryId: null })
+    await fetchPayments(1, [null, null], { categoryId: null })
 
     expect(requestCapture.url?.searchParams.get("category_id")).toBe("is.null")
   })
@@ -147,7 +147,9 @@ describe("fetchPayments", () => {
       }),
     )
 
-    await fetchPayments([new Date("2025-04-01"), new Date("2025-04-30")], { categoryId: 10 })
+    await fetchPayments(1, [new Date("2025-04-01"), new Date("2025-04-30")], {
+      categoryId: 10,
+    })
 
     expect(requestCapture.url?.searchParams.getAll("date")).toEqual([
       "gte.2025-04-01",
@@ -166,7 +168,7 @@ describe("fetchPayments", () => {
       }),
     )
 
-    await fetchPayments([null, null])
+    await fetchPayments(1, [null, null])
 
     expect(requestCapture.url?.searchParams.has("category_id")).toBe(false)
   })
@@ -181,10 +183,34 @@ describe("fetchPayments", () => {
       }),
     )
 
-    await fetchPayments([null, null])
+    await fetchPayments(1, [null, null])
 
     expect(requestCapture.url?.searchParams.get("select")).toContain(
       "category:categories!payments_category_id_fkey",
     )
+  })
+
+  it("selected Book IDを取得条件にする", async () => {
+    const requestCapture: { url: URL | null } = { url: null }
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requestCapture.url = new URL(request.url)
+        return HttpResponse.json([])
+      }),
+    )
+
+    await fetchPayments(42, [null, null])
+
+    expect(requestCapture.url?.searchParams.get("book_id")).toBe("eq.42")
+  })
+
+  it("selected Bookと異なる支払いを正常なレスポンスとして扱わない", async () => {
+    server.use(
+      http.get("*/rest/v1/payments*", () =>
+        HttpResponse.json([{ ...mapPaymentToRow(payments[0]), book_id: 2 }]),
+      ),
+    )
+
+    await expect(fetchPayments(1, [null, null])).rejects.toThrow("Invalid payments response")
   })
 })

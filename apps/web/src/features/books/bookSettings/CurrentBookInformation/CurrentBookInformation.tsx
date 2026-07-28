@@ -4,8 +4,8 @@ import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
-import type { CurrentBook } from "../fetchCurrentBook"
-import { useCurrentBook } from "../useCurrentBook"
+import type { SelectedBook } from "../../fetchSelectedBook"
+import { useSelectedBook } from "../../useSelectedBook"
 
 export function CurrentBookInformation() {
   const { session } = useSupabaseSession()
@@ -35,13 +35,13 @@ export function CurrentBookInformation() {
 }
 
 function CurrentBookInformationContent({ authUserId }: { authUserId: string }) {
-  const { promise } = useCurrentBook(authUserId)
+  const { promise } = useSelectedBook(authUserId)
   const book = use(promise)
 
   return <CurrentBookDetails book={book} />
 }
 
-function CurrentBookDetails({ book }: { book: CurrentBook }) {
+function CurrentBookDetails({ book }: { book: SelectedBook }) {
   const { t } = useTranslation()
 
   return (

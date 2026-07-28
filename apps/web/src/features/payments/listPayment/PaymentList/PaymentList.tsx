@@ -14,14 +14,15 @@ import { useCategoryId } from "../useCategoryId"
 import { usePayments } from "../usePayments"
 
 interface PaymentListProps {
+  bookId: number
   cacheScope?: string
 }
 
-export const PaymentList = memo(function PaymentList({ cacheScope }: PaymentListProps) {
+export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: PaymentListProps) {
   const { t } = useTranslation()
   const categoryId = useCategoryId()
   const navigate = useNavigate({ from: "/payments" })
-  const { promise: promisePayments } = usePayments({ cacheScope, categoryId })
+  const { promise: promisePayments } = usePayments(bookId, { cacheScope, categoryId })
   const {
     hasPaymentDetailsRoute,
     selectedPaymentId,
@@ -66,12 +67,14 @@ export const PaymentList = memo(function PaymentList({ cacheScope }: PaymentList
         </ErrorBoundary>
       </Flex>
       <PaymentDetailsOverlay
+        bookId={bookId}
         open={hasPaymentDetailsRoute}
         paymentId={selectedPaymentId}
         onOpenChange={onOpenChange}
         onDelete={handleDeleteIntent}
       />
       <DeletePaymentModal
+        bookId={bookId}
         open={paymentPendingDelete !== null}
         payment={paymentPendingDelete}
         onClose={handleDeleteClose}

@@ -30,7 +30,7 @@ describe("useCreatePayment", () => {
     const onError = vi.fn()
     mockInsert.mockResolvedValue({ error: null })
 
-    const { result } = renderHook(() => useCreatePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useCreatePayment(1, onSuccess, onError), {
       queryClient,
     })
 
@@ -51,7 +51,15 @@ describe("useCreatePayment", () => {
     })
     expect(onError).not.toHaveBeenCalled()
     expect(mockFrom).toHaveBeenCalledWith("payments")
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.all })
+    expect(mockInsert).toHaveBeenCalledWith({
+      amount: 1000,
+      book_id: 1,
+      category_id: 10,
+      date: "2025-06-01",
+      note: "lunch",
+    })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.book(1) })
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.detailsBook(1) })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: summaryQueryKeys.totalExpendituresAll,
     })
@@ -68,7 +76,7 @@ describe("useCreatePayment", () => {
     const error = new Error("failed")
     mockInsert.mockResolvedValue({ error })
 
-    const { result } = renderHook(() => useCreatePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useCreatePayment(1, onSuccess, onError), {
       queryClient,
     })
 

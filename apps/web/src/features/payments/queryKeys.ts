@@ -1,13 +1,27 @@
 import type { PaymentId } from "../../types/payment"
 
 export const paymentQueryKeys = {
-  all: ["payments"],
-  list: (cacheScope: string, dateKey: string, categoryId: number | null | undefined) =>
-    ["payments", cacheScope, dateKey, getCategoryQueryKey(categoryId)] as const,
+  all: ["payments"] as const,
+  book: (bookId: number) => ["payments", bookId] as const,
+  list: (
+    bookId: number,
+    cacheScope: string,
+    dateKey: string,
+    categoryId: number | null | undefined,
+  ) =>
+    [
+      ...paymentQueryKeys.book(bookId),
+      "list",
+      cacheScope,
+      dateKey,
+      getCategoryQueryKey(categoryId),
+    ] as const,
   frequent: (bookId: number, startDate: string, endDate: string) =>
-    ["payments", "frequent", bookId, startDate, endDate] as const,
-  detailsAll: ["paymentDetails"],
-  details: (paymentId: PaymentId | null) => ["paymentDetails", paymentId] as const,
+    [...paymentQueryKeys.book(bookId), "frequent", startDate, endDate] as const,
+  detailsAll: ["paymentDetails"] as const,
+  detailsBook: (bookId: number) => ["paymentDetails", bookId] as const,
+  details: (bookId: number, paymentId: PaymentId | null) =>
+    [...paymentQueryKeys.detailsBook(bookId), paymentId] as const,
 } as const
 
 function getCategoryQueryKey(categoryId: number | null | undefined): string {

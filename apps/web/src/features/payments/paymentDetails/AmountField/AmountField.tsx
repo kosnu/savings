@@ -14,6 +14,7 @@ import { InlineForm } from "../InlineForm"
 import { SubmitIconButton } from "../SubmitIconButton"
 
 interface AmountFieldProps {
+  bookId: number
   paymentId?: PaymentId
   amount: number
   disabled?: boolean
@@ -22,6 +23,7 @@ interface AmountFieldProps {
 }
 
 export function AmountField({
+  bookId,
   paymentId,
   amount,
   disabled = false,
@@ -31,7 +33,7 @@ export function AmountField({
   const id = useId()
   const { t } = useTranslation()
   const { openSnackbar } = useSnackbar()
-  const { updatePayment, isPending } = useUpdatePayment()
+  const { updatePayment, isPending } = useUpdatePayment(bookId)
   const [editing, setEditing] = useState(false)
   // 親が open=false を直接渡して field が unmount されるときに、編集中だった場合だけ onEditEnd を返す。
   const editingRef = useRef(false)

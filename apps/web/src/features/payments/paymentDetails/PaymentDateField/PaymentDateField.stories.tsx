@@ -19,6 +19,7 @@ const meta = {
     },
   },
   args: {
+    bookId: 1,
     paymentId: 1,
     date: new Date(2025, 5, 2),
   },

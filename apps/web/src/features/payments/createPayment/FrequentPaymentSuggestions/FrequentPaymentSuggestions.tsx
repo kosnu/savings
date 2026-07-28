@@ -2,79 +2,24 @@ import { Card, Flex, Heading, Text } from "@radix-ui/themes"
 import { memo, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
 import { toCurrency } from "../../../../utils/toCurrency"
-import { useCurrentBook } from "../../../books"
 import type { FrequentPayment } from "../frequentPayment"
 import { useFrequentPayments } from "../useFrequentPayments"
 
 import styles from "./FrequentPaymentSuggestions.module.css"
 
 interface FrequentPaymentSuggestionsProps {
+  bookId: number
   disabled?: boolean
   onSelect: (payment: FrequentPayment) => void
 }
 
 export const FrequentPaymentSuggestions = memo(function FrequentPaymentSuggestions({
-  disabled = false,
-  onSelect,
-}: FrequentPaymentSuggestionsProps) {
-  const { session } = useSupabaseSession()
-  const authUserId = session?.user.id
-  const [referenceDate] = useState(() => new Date())
-
-  if (!authUserId) {
-    return null
-  }
-
-  return (
-    <FrequentPaymentSuggestionsForCurrentBook
-      authUserId={authUserId}
-      disabled={disabled}
-      onSelect={onSelect}
-      referenceDate={referenceDate}
-    />
-  )
-})
-
-interface FrequentPaymentSuggestionsForCurrentBookProps extends FrequentPaymentSuggestionsProps {
-  authUserId: string
-  referenceDate: Date
-}
-
-function FrequentPaymentSuggestionsForCurrentBook({
-  authUserId,
-  disabled = false,
-  onSelect,
-  referenceDate,
-}: FrequentPaymentSuggestionsForCurrentBookProps) {
-  const { book, isPending, isError } = useCurrentBook(authUserId)
-
-  if (isPending || isError || !book) {
-    return null
-  }
-
-  return (
-    <FrequentPaymentSuggestionsForBook
-      bookId={book.id}
-      disabled={disabled}
-      onSelect={onSelect}
-      referenceDate={referenceDate}
-    />
-  )
-}
-
-interface FrequentPaymentSuggestionsForBookProps extends FrequentPaymentSuggestionsProps {
-  bookId: number
-  referenceDate: Date
-}
-
-function FrequentPaymentSuggestionsForBook({
   bookId,
   disabled = false,
   onSelect,
-  referenceDate,
-}: FrequentPaymentSuggestionsForBookProps) {
+}: FrequentPaymentSuggestionsProps) {
+  const [referenceDate] = useState(() => new Date())
   const { payments, isPending, isError } = useFrequentPayments(bookId, referenceDate)
   const { t } = useTranslation()
   const headingId = useId()
@@ -133,4 +78,4 @@ function FrequentPaymentSuggestionsForBook({
       </Flex>
     </Flex>
   )
-}
+})
