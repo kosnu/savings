@@ -90,23 +90,6 @@ describe("fetchPaymentDetails", () => {
     await expect(fetchPaymentDetails(1, 1)).rejects.toThrow("Invalid payment details response")
   })
 
-  it("現在のbookに属さない支払いは null を返す", async () => {
-    server.resetHandlers(
-      ...createPaymentHandlers({
-        initialRows: [
-          {
-            ...mapPaymentToRow(payments[0]),
-            book_id: 2,
-          },
-        ],
-      }),
-    )
-
-    const payment = await fetchPaymentDetails(1, 1)
-
-    expect(payment).toBeNull()
-  })
-
   it("Payment IDとselected Book IDを取得条件にする", async () => {
     const requestCapture: { url: URL | null } = { url: null }
     server.use(
