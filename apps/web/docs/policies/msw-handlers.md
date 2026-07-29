@@ -44,6 +44,8 @@ fetch 系のテストなど、MSW server/handler を使う `.ts` テストは `.
 
 handler 内で request の filter、order、limit などを汎用的に解釈しません。
 
+特に Book のような重要な filter は、handler の fallback や汎用的な filter 解釈で伝播漏れを隠さず、テスト側で有無と値を直接検証します。
+
 リクエスト条件そのものが重要な仕様である場合は、handler が条件を解釈して正しい結果を返すのではなく、テスト側で request を検査して期待する query が送られていることを確認します。
 
 これにより、mock 側に本番と同じ選択ロジックが重複することを避けます。
