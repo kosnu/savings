@@ -42,4 +42,10 @@ describe("removePayment", () => {
 
     await expect(removePayment(7, 1)).rejects.toThrow("Payment not found")
   })
+
+  it("削除結果のIDが対象と一致しない場合は成功扱いしない", async () => {
+    mockMaybeSingle.mockResolvedValue({ data: { id: 2 }, error: null })
+
+    await expect(removePayment(7, 1)).rejects.toThrow("Payment not found")
+  })
 })

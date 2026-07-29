@@ -16,7 +16,7 @@ export async function invalidatePaymentMutationQueries(
 
   await Promise.all(
     queryKeys.map(async (queryKey) => {
-      await queryClient.invalidateQueries({ queryKey })
+      await queryClient.invalidateQueries({ queryKey }, { throwOnError: true })
     }),
   )
 }

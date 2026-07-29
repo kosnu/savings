@@ -54,4 +54,10 @@ describe("updatePayment", () => {
 
     await expect(updatePayment(7, 1, { note: "updated" })).rejects.toThrow("Payment not found")
   })
+
+  it("更新結果のIDが対象と一致しない場合は成功扱いしない", async () => {
+    mockMaybeSingle.mockResolvedValue({ data: { id: 2 }, error: null })
+
+    await expect(updatePayment(7, 1, { note: "updated" })).rejects.toThrow("Payment not found")
+  })
 })
