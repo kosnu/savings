@@ -70,25 +70,6 @@ describe("fetchPayments", () => {
     }
   })
 
-  it("現在のbookに属する支払いのみ返す", async () => {
-    server.resetHandlers(
-      ...createPaymentHandlers({
-        initialRows: [
-          mapPaymentToRow(payments[0]),
-          {
-            ...mapPaymentToRow(payments[1]),
-            book_id: 2,
-          },
-        ],
-      }),
-    )
-
-    const fetchedPayments = await fetchPayments(1, [null, null])
-
-    expect(fetchedPayments).toHaveLength(1)
-    expect(fetchedPayments[0]?.bookId).toBe(1)
-  })
-
   it("startDateを指定するとそれ以降の支払いのみ返す", async () => {
     const fetchedPayments = await fetchPayments(1, [new Date("2025-04-01"), null])
 

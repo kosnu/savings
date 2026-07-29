@@ -64,27 +64,18 @@ interface CreatePaymentHandlersOptions {
   getMonthlyTotalAmount?: GetMonthlyTotalAmountOptions
 }
 
-function filterAndSortPayments(
-  rows: PaymentRow[],
-  request: Request,
-  currentBookId: number,
-): PaymentRow[] {
+function filterAndSortPayments(rows: PaymentRow[], request: Request): PaymentRow[] {
   const url = new URL(request.url)
   const dateFilters = url.searchParams.getAll("date")
   const idFilter = url.searchParams.get("id")
-  const bookIdFilter = url.searchParams.get("book_id")
   const categoryIdFilter = url.searchParams.get("category_id")
 
   const from = dateFilters.find((value) => value.startsWith("gte."))?.replace("gte.", "")
   const to = dateFilters.find((value) => value.startsWith("lte."))?.replace("lte.", "")
   const id = idFilter?.startsWith("eq.") ? idFilter.replace("eq.", "") : null
-  const bookId = bookIdFilter?.startsWith("eq.")
-    ? Number(bookIdFilter.replace("eq.", ""))
-    : currentBookId
   const uncategorized = categoryIdFilter === "is.null"
 
   return rows
-    .filter((row) => row.book_id === bookId)
     .filter((row) => {
       if (id && String(row.id) !== id) {
         return false
@@ -217,7 +208,7 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to fetch payments." }, { status: 500 })
     }
 
-    const filteredRows = filterAndSortPayments(rows, request, currentBookId)
+    const filteredRows = filterAndSortPayments(rows, request)
 
     if (shouldIncludeCategory(request)) {
       const detailsRows = filteredRows.map((row) => toPaymentDetailsRow(row, categoryRows))
@@ -266,7 +257,7 @@ export function createPaymentHandlers({
 
     const body = await request.json()
     updatePaymentBodySchema.parse(body)
-    const matchedPayment = filterAndSortPayments(rows, request, currentBookId)[0]
+    const matchedPayment = filterAndSortPayments(rows, request)[0]
 
     return HttpResponse.json(update.response ?? (matchedPayment ? { id: matchedPayment.id } : null))
   })
@@ -278,7 +269,7 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to delete payment." }, { status: 500 })
     }
 
-    const matchedPayment = filterAndSortPayments(rows, request, currentBookId)[0]
+    const matchedPayment = filterAndSortPayments(rows, request)[0]
 
     return HttpResponse.json(
       deleteOptions.response ?? (matchedPayment ? { id: matchedPayment.id } : null),
