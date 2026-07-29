@@ -134,8 +134,7 @@ describe("CreatePaymentForm", () => {
     const onSuccess = vi.fn()
     let requestCount = 0
 
-    server.resetHandlers(
-      ...createCategoryHandlers(),
+    server.use(
       http.post(PAYMENTS_REST_URL, () => {
         requestCount += 1
         return HttpResponse.json([{ id: 999 }], { status: 201 })
@@ -174,8 +173,7 @@ describe("CreatePaymentForm", () => {
     const onSuccess = vi.fn()
     let requestBody: Record<string, unknown> | undefined
 
-    server.resetHandlers(
-      ...createCategoryHandlers(),
+    server.use(
       http.post(PAYMENTS_REST_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
         return HttpResponse.json([{ id: 999, ...requestBody }], { status: 201 })
@@ -205,8 +203,7 @@ describe("CreatePaymentForm", () => {
     const onSuccess = vi.fn()
     let requestBody: Record<string, unknown> | undefined
 
-    server.resetHandlers(
-      ...createCategoryHandlers(),
+    server.use(
       http.post(PAYMENTS_REST_URL, async ({ request }) => {
         requestBody = (await request.json()) as Record<string, unknown>
         return HttpResponse.json([{ id: 1000, ...requestBody }], { status: 201 })
@@ -238,8 +235,7 @@ describe("CreatePaymentForm", () => {
   test("支払い作成中は作成ボタンをローディング表示し操作ボタンを無効化する", async () => {
     const paymentCreated = createDeferred()
 
-    server.resetHandlers(
-      ...createCategoryHandlers(),
+    server.use(
       http.post(PAYMENTS_REST_URL, async () => {
         await paymentCreated.promise
         return HttpResponse.json([{ id: 1001 }], { status: 201 })
@@ -302,14 +298,28 @@ describe("CreatePaymentForm", () => {
   test("候補取得に失敗しても手入力した支払いを作成できる", async () => {
     const onSuccess = vi.fn()
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    let frequentPaymentRequestCount = 0
 
     server.resetHandlers(
       ...createBookHandlers(),
       ...createCategoryHandlers(),
-      ...createPaymentHandlers({ get: { error: true } }),
+      ...createPaymentHandlers(),
+    )
+    server.use(
+      http.get(
+        PAYMENTS_REST_URL,
+        () => {
+          frequentPaymentRequestCount += 1
+          return HttpResponse.json({ message: "Failed to fetch payments." }, { status: 500 })
+        },
+        { once: true },
+      ),
     )
 
     const { user } = await renderStory(<Default onSuccess={onSuccess} />)
+    await waitFor(() => {
+      expect(frequentPaymentRequestCount).toBe(1)
+    })
     await user.type(screen.getByRole("textbox", { name: /amount/i }), "1080")
     await user.type(screen.getByRole("textbox", { name: /note/i }), "Manual")
     await user.click(screen.getByRole("button", { name: /create/i }))
