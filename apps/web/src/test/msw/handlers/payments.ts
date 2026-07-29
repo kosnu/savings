@@ -64,11 +64,7 @@ interface CreatePaymentHandlersOptions {
   getMonthlyTotalAmount?: GetMonthlyTotalAmountOptions
 }
 
-function filterAndSortPayments(
-  rows: PaymentRow[],
-  request: Request,
-  currentBookId: number,
-): PaymentRow[] {
+function filterAndSortPayments(rows: PaymentRow[], request: Request): PaymentRow[] {
   const url = new URL(request.url)
   const dateFilters = url.searchParams.getAll("date")
   const idFilter = url.searchParams.get("id")
@@ -80,7 +76,6 @@ function filterAndSortPayments(
   const uncategorized = categoryIdFilter === "is.null"
 
   return rows
-    .filter((row) => row.book_id === currentBookId)
     .filter((row) => {
       if (id && String(row.id) !== id) {
         return false
@@ -143,6 +138,7 @@ function toPaymentDetailsRow(row: PaymentRow, categoryRows: CategoryRow[]): Paym
 
 const createPaymentBodySchema = z.object({
   amount: z.number(),
+  book_id: z.number(),
   date: z.string(),
   note: z.string().nullable(),
   category_id: z.number().nullable(),
@@ -161,11 +157,7 @@ const getMonthlyTotalAmountRequestBodySchema = z.object({
   p_month: z.string().optional(),
 })
 
-function buildPaymentRow(
-  body: CreatePaymentBody,
-  paymentRows: PaymentRow[],
-  currentBookId: number,
-): PaymentRow {
+function buildPaymentRow(body: CreatePaymentBody, paymentRows: PaymentRow[]): PaymentRow {
   const now = new Date().toISOString()
 
   return {
@@ -175,7 +167,7 @@ function buildPaymentRow(
     date: body.date,
     created_at: now,
     updated_at: now,
-    book_id: currentBookId,
+    book_id: body.book_id,
     category_id: body.category_id,
   }
 }
@@ -216,7 +208,7 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to fetch payments." }, { status: 500 })
     }
 
-    const filteredRows = filterAndSortPayments(rows, request, currentBookId)
+    const filteredRows = filterAndSortPayments(rows, request)
 
     if (shouldIncludeCategory(request)) {
       const detailsRows = filteredRows.map((row) => toPaymentDetailsRow(row, categoryRows))
@@ -248,7 +240,7 @@ export function createPaymentHandlers({
 
     const body = await request.json()
     const parsedBody = createPaymentBodySchema.parse(body)
-    const newRow = buildPaymentRow(parsedBody, rows, currentBookId)
+    const newRow = buildPaymentRow(parsedBody, rows)
     if (persistCreatedRows) {
       rows.push(newRow)
     }
@@ -265,18 +257,23 @@ export function createPaymentHandlers({
 
     const body = await request.json()
     updatePaymentBodySchema.parse(body)
+    const matchedPayment = filterAndSortPayments(rows, request)[0]
 
-    return HttpResponse.json(update.response ?? { message: "Updated" })
+    return HttpResponse.json(update.response ?? (matchedPayment ? { id: matchedPayment.id } : null))
   })
 
-  const deletePaymentHandler = http.delete(REST_URL, async () => {
+  const deletePaymentHandler = http.delete(REST_URL, async ({ request }) => {
     await delay(deleteOptions.durationOrMode)
 
     if (deleteOptions.error) {
       return HttpResponse.json({ message: "Failed to delete payment." }, { status: 500 })
     }
 
-    return HttpResponse.json(deleteOptions.response ?? { message: "Deleted" })
+    const matchedPayment = filterAndSortPayments(rows, request)[0]
+
+    return HttpResponse.json(
+      deleteOptions.response ?? (matchedPayment ? { id: matchedPayment.id } : null),
+    )
   })
 
   const getMonthlyTotalAmountHandler = http.post(

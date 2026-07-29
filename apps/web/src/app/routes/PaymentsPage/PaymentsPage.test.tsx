@@ -3,6 +3,7 @@ import { createRoute } from "@tanstack/react-router"
 import { HttpResponse, http } from "msw"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
+import { selectedBookQueryKeys } from "../../../features/books/selectedBookQueryKeys"
 import { categoryQueryKeys } from "../../../features/categories"
 import {
   PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
@@ -13,6 +14,7 @@ import { categories, entertainmentCat, foodCat } from "../../../test/data/catego
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
@@ -81,12 +83,13 @@ function renderPaymentsPageRoute(initialEntry: string) {
   const queryClient = createTestQueryClient()
   queryClient.setQueryData(categoryQueryKeys.list, categories)
   queryClient.setQueryData(
-    paymentQueryKeys.list(paymentsPageCacheScope, currentMonthPaymentsQueryDate, foodCat.id),
+    paymentQueryKeys.list(1, paymentsPageCacheScope, currentMonthPaymentsQueryDate, foodCat.id),
     initialCurrentMonthPaymentRows.filter((payment) => payment.category_id === foodCat.id),
     { updatedAt: 0 },
   )
   queryClient.setQueryData(
     paymentQueryKeys.list(
+      1,
       paymentsPageCacheScope,
       currentMonthPaymentsQueryDate,
       entertainmentCat.id,
@@ -95,7 +98,7 @@ function renderPaymentsPageRoute(initialEntry: string) {
     { updatedAt: 0 },
   )
   queryClient.setQueryData(
-    paymentQueryKeys.list(paymentsPageCacheScope, currentMonthPaymentsQueryDate, null),
+    paymentQueryKeys.list(1, paymentsPageCacheScope, currentMonthPaymentsQueryDate, null),
     [uncategorizedPayment],
     { updatedAt: 0 },
   )
@@ -150,6 +153,7 @@ describe("PaymentsPage", () => {
   beforeEach(() => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue(paymentsPageCacheScopeId)
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: initialPaymentRows,
         create: {
@@ -167,6 +171,98 @@ describe("PaymentsPage", () => {
     server.resetHandlers()
     vi.restoreAllMocks()
     vi.useRealTimers()
+  })
+
+  test("selected Bookの解決中はPayment APIを呼ばない", async () => {
+    let paymentRequestCount = 0
+    server.resetHandlers(...createBookHandlers({ durationOrMode: "infinite" }))
+    server.use(
+      http.get("*/rest/v1/payments*", () => {
+        paymentRequestCount += 1
+        return HttpResponse.json([])
+      }),
+    )
+
+    const { queryClient } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState(selectedBookQueryKeys.selected("mock-user-id"))?.fetchStatus,
+      ).toBe("fetching")
+    })
+    expect(paymentRequestCount).toBe(0)
+    expect(screen.queryByLabelText("payment-list")).not.toBeInTheDocument()
+  })
+
+  test("selected Bookの取得失敗時はPayment APIを呼ばない", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined)
+    let paymentRequestCount = 0
+    server.resetHandlers(...createBookHandlers({ error: true }))
+    server.use(
+      http.get("*/rest/v1/payments*", () => {
+        paymentRequestCount += 1
+        return HttpResponse.json([])
+      }),
+    )
+
+    const { queryClient } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState(selectedBookQueryKeys.selected("mock-user-id"))?.status,
+      ).toBe("error")
+    })
+    expect(paymentRequestCount).toBe(0)
+    expect(screen.queryByLabelText("payment-list")).not.toBeInTheDocument()
+  })
+
+  test("解決したselected Book IDを一覧取得と作成へ渡す", async () => {
+    const paymentGetRequests: URL[] = []
+    let createRequestBody: Record<string, unknown> | undefined
+    server.resetHandlers(
+      ...createBookHandlers({
+        response: {
+          book_id: 42,
+          is_default: true,
+          books: { id: 42, name: "Selected Book" },
+        },
+      }),
+      ...createPaymentHandlers(),
+      ...createCategoryHandlers(),
+      ...createMonthlyBudgetHandlers(),
+    )
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        paymentGetRequests.push(new URL(request.url))
+        return HttpResponse.json([])
+      }),
+      http.post("*/rest/v1/payments*", async ({ request }) => {
+        createRequestBody = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json([{ id: 999, ...createRequestBody }], { status: 201 })
+      }),
+    )
+
+    const { user } = renderPaymentsPageRoute("/payments?year=2025&month=6")
+
+    await waitFor(() => {
+      expect(paymentGetRequests.some((url) => url.searchParams.get("book_id") === "eq.42")).toBe(
+        true,
+      )
+    })
+    await user.click(screen.getByRole("button", { name: /create payment/i }))
+    const createDialog = await screen.findByRole("dialog", { name: /create payment/i })
+    await user.type(within(createDialog).getByLabelText(/amount/i), "1080")
+    await user.click(within(createDialog).getByRole("button", { name: /^create$/i }))
+
+    await waitFor(() => {
+      expect(createRequestBody?.book_id).toBe(42)
+      expect(screen.queryByRole("dialog", { name: /create payment/i })).not.toBeInTheDocument()
+    })
+    const bookScopedRequests = paymentGetRequests.filter((url) => url.searchParams.has("book_id"))
+    expect(bookScopedRequests.length).toBeGreaterThanOrEqual(2)
+    expect(bookScopedRequests.every((url) => url.searchParams.get("book_id") === "eq.42")).toBe(
+      true,
+    )
   })
 
   test("初期URL searchの登録済みカテゴリIDを一覧取得条件に反映する", async () => {
@@ -353,7 +449,7 @@ describe("PaymentsPage", () => {
 
     queryClient.removeQueries({
       queryKey: paymentQueryKeys.all,
-      predicate: (query) => query.queryKey[3] === "all-categories",
+      predicate: (query) => query.queryKey[5] === "all-categories",
     })
 
     router.history.back()
@@ -421,6 +517,7 @@ describe("PaymentsPage", () => {
     )
     await user.type(within(createDialog).getByLabelText(/note/i), createdPaymentFormInput.note)
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: [...initialPaymentRows, createdPayment],
         create: {
@@ -485,10 +582,14 @@ describe("PaymentsPage", () => {
 
     const deleteDialog = await screen.findByRole("dialog", { name: /delete this payment/i })
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: initialPaymentRows.filter((row) => row.id !== targetPayment.id),
         create: {
           response: createdPayment,
+        },
+        delete: {
+          response: { id: targetPayment.id },
         },
       }),
       ...createCategoryHandlers(),
@@ -525,6 +626,7 @@ describe("PaymentsPage", () => {
     await user.clear(amountInput)
     await user.type(amountInput, "2500")
     server.resetHandlers(
+      ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: initialPaymentRows.map((row) => {
           if (row.id !== payments[1].id) {

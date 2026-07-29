@@ -4,6 +4,7 @@ import { expect, within } from "storybook/test"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
@@ -17,6 +18,7 @@ const meta = {
     mockingDate: new Date(2025, 5, 15),
     msw: {
       handlers: [
+        ...createBookHandlers(),
         ...createPaymentHandlers({
           initialRows: payments.map(mapPaymentToRow),
         }),
@@ -41,7 +43,7 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    canvas.getByRole("button", { name: /create payment/i })
+    await canvas.findByRole("button", { name: /create payment/i })
 
     expect(await canvas.findAllByText("コンビニ")).toHaveLength(2)
     expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)

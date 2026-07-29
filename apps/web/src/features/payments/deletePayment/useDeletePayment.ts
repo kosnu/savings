@@ -11,15 +11,16 @@ interface UseDeletePaymentReturn {
 }
 
 export function useDeletePayment(
+  bookId: number,
   onSuccess?: () => void,
   onError?: (error?: Error) => void,
 ): UseDeletePaymentReturn {
   const queryClient = useQueryClient()
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (paymentId: PaymentId) => removePayment(paymentId),
-    onSuccess: async (__, paymentId) => {
-      await invalidatePaymentMutationQueries(queryClient, paymentId)
+    mutationFn: async (paymentId: PaymentId) => removePayment(bookId, paymentId),
+    onSuccess: async () => {
+      await invalidatePaymentMutationQueries(queryClient, bookId)
       onSuccess?.()
     },
     onError: (error) => {

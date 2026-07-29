@@ -127,6 +127,7 @@ describe("PaymentDetails PaymentDateField", () => {
     }
     const { user } = render(
       <PaymentDateField
+        bookId={1}
         paymentId={1}
         date={new Date(2025, 5, 2)}
         onEditStart={onEditStart}
