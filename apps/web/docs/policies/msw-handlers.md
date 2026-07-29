@@ -31,6 +31,7 @@ handler には、アプリの業務ロジックや DB の問い合わせロジ�
 - 未使用の HTTP method handler や option は追加しません。
 - error や delay は既存 handler と同じく option で制御します。
 - handler factory は `server.resetHandlers(...createXHandlers())` で使える形にします。
+- テスト対象が複数の API 境界へ依存する場合、1つの endpoint の差分は局所的に上書きし、他の依存 handler を維持します。`server.resetHandlers` で handler 一式を置き換える場合は、mount 中のコンポーネントが依存するすべての API 境界の handler を含めます。
 - Suspense のためだけに特殊な thenable、未解決 promise の手動制御、test-only の query result mock を増やしません。
 
 ## テストファイル名

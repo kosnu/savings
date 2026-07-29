@@ -26,6 +26,7 @@ React Query cache などの client-side cache を、業務状態そのものの�
 - 原則として `setQueryData` などで query cache を直接変更しません。
 - mutation 後の反映は、refetch、invalidation、query option の見直し、または source of truth 側の更新で行います。
 - mutation の成功通知や完了状態は、source of truth の再取得が成功するまで確定させません。invalidation の完了だけを再取得成功とみなさず、再取得に失敗した場合は成功として扱わずエラー状態へ遷移させます。
+- mutation の完了条件として invalidation や refetch を待つ場合は、再取得失敗が呼び出し元へ伝播する設定またはAPIを使います。再取得エラーを成功値へ変換する処理の完了を、source of truth の再取得成功として扱いません。
 - staleTime や refetchOnMount などの設定によって古いデータが残る場合も、まず query の取得・無効化・再取得の責務を見直します。
 - cache の内容にだけ存在する状態を作らないようにします。
 
