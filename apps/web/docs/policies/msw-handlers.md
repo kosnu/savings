@@ -31,6 +31,7 @@ handler には、アプリの業務ロジックや DB の問い合わせロジ�
 - 未使用の HTTP method handler や option は追加しません。
 - error や delay は既存 handler と同じく option で制御します。
 - handler factory は `server.resetHandlers(...createXHandlers())` で使える形にします。
+- テスト対象が複数の API 境界へ依存する場合、1つの endpoint の差分は局所的に上書きし、他の依存 handler を維持します。`server.resetHandlers` で handler 一式を置き換える場合は、mount 中のコンポーネントが依存するすべての API 境界の handler を含めます。
 - Suspense のためだけに特殊な thenable、未解決 promise の手動制御、test-only の query result mock を増やしません。
 
 ## テストファイル名
@@ -42,6 +43,8 @@ fetch 系のテストなど、MSW server/handler を使う `.ts` テストは `.
 ## リクエスト条件の扱い
 
 handler 内で request の filter、order、limit などを汎用的に解釈しません。
+
+特に Book のような重要な filter は、handler の fallback や汎用的な filter 解釈で伝播漏れを隠さず、テスト側で有無と値を直接検証します。
 
 リクエスト条件そのものが重要な仕様である場合は、handler が条件を解釈して正しい結果を返すのではなく、テスト側で request を検査して期待する query が送られていることを確認します。
 

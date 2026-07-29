@@ -17,6 +17,7 @@ const meta = {
   },
   tags: ["autodocs"],
   args: {
+    bookId: 1,
     open: true,
     payment: payments[0],
   },

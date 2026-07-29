@@ -2,7 +2,10 @@ import { getSupabaseClient } from "../../../lib/supabase"
 import type { PaymentDetails, PaymentId } from "../../../types/payment"
 import { toPaymentDetails } from "../paymentResponseMappers"
 
-export async function fetchPaymentDetails(paymentId: PaymentId): Promise<PaymentDetails | null> {
+export async function fetchPaymentDetails(
+  bookId: number,
+  paymentId: PaymentId,
+): Promise<PaymentDetails | null> {
   const supabase = getSupabaseClient()
   const { data, error } = await supabase
     .from("payments")
@@ -22,6 +25,7 @@ export async function fetchPaymentDetails(paymentId: PaymentId): Promise<Payment
       `,
     )
     .eq("id", paymentId)
+    .eq("book_id", bookId)
     .maybeSingle()
 
   if (error) {
@@ -32,5 +36,10 @@ export async function fetchPaymentDetails(paymentId: PaymentId): Promise<Payment
     return null
   }
 
-  return toPaymentDetails(data)
+  const payment = toPaymentDetails(data)
+  if (payment.bookId !== bookId) {
+    throw new Error("Invalid payment details response")
+  }
+
+  return payment
 }

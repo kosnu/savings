@@ -4,7 +4,6 @@ import { fn } from "storybook/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { createBookHandlers } from "../../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { CreatePaymentModal } from "./CreatePaymentModal"
@@ -15,11 +14,14 @@ const meta = {
   parameters: {
     layout: "centered",
     msw: {
-      handlers: [...createBookHandlers(), ...createPaymentHandlers(), ...createCategoryHandlers()],
+      handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
     },
   },
   tags: ["autodocs"],
   argTypes: {},
+  args: {
+    bookId: 1,
+  },
   decorators: (Story) => {
     const queryClient = createQueryClient()
 

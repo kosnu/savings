@@ -17,6 +17,7 @@ const meta = {
     },
   },
   args: {
+    bookId: 1,
     paymentId: 1,
     amount: 1000,
   },

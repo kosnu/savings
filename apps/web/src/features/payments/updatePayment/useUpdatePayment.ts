@@ -17,6 +17,7 @@ interface UseUpdatePaymentReturn {
 }
 
 export function useUpdatePayment(
+  bookId: number,
   onSuccess?: () => void,
   onError?: (error: unknown) => void,
 ): UseUpdatePaymentReturn {
@@ -24,9 +25,9 @@ export function useUpdatePayment(
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ paymentId, patch }: UpdatePaymentInput) =>
-      updatePaymentRecord(paymentId, patch),
-    onSuccess: async (_, { paymentId }) => {
-      await invalidatePaymentMutationQueries(queryClient, paymentId)
+      updatePaymentRecord(bookId, paymentId, patch),
+    onSuccess: async () => {
+      await invalidatePaymentMutationQueries(queryClient, bookId)
       onSuccess?.()
     },
     onError: (error) => {

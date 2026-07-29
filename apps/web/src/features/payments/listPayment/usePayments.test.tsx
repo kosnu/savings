@@ -40,13 +40,13 @@ describe("usePayments", () => {
     const payment = buildPayment(1)
     vi.mocked(fetchPayments).mockResolvedValue([payment])
 
-    const { result } = renderHook(() => usePayments({ categoryId: 10 }))
+    const { result } = renderHook(() => usePayments(1, { categoryId: 10 }))
 
     await waitFor(() => {
       expect(result.current.data).toEqual([payment])
     })
     expect(fetchPayments).toHaveBeenCalledTimes(1)
-    expect(fetchPayments).toHaveBeenCalledWith(dateRange, { categoryId: 10 })
+    expect(fetchPayments).toHaveBeenCalledWith(1, dateRange, { categoryId: 10 })
   })
 
   test("カテゴリIDが変わると別queryとして取得し直す", async () => {
@@ -57,7 +57,7 @@ describe("usePayments", () => {
       .mockResolvedValueOnce([secondPayment])
 
     const { result, rerender } = renderHook(
-      ({ categoryId }: { categoryId: number }) => usePayments({ categoryId }),
+      ({ categoryId }: { categoryId: number }) => usePayments(1, { categoryId }),
       {
         initialProps: { categoryId: 10 },
       },
@@ -72,8 +72,8 @@ describe("usePayments", () => {
     await waitFor(() => {
       expect(fetchPayments).toHaveBeenCalledTimes(2)
     })
-    expect(fetchPayments).toHaveBeenNthCalledWith(1, dateRange, { categoryId: 10 })
-    expect(fetchPayments).toHaveBeenNthCalledWith(2, dateRange, { categoryId: 20 })
+    expect(fetchPayments).toHaveBeenNthCalledWith(1, 1, dateRange, { categoryId: 10 })
+    expect(fetchPayments).toHaveBeenNthCalledWith(2, 1, dateRange, { categoryId: 20 })
   })
 
   test("同じcacheScopeでは同じ年月とカテゴリ条件のqueryを再利用する", async () => {
@@ -81,7 +81,7 @@ describe("usePayments", () => {
     vi.mocked(fetchPayments).mockResolvedValue([payment])
 
     const { result, rerender } = renderHook(
-      ({ cacheScope }: { cacheScope: string }) => usePayments({ cacheScope, categoryId: 10 }),
+      ({ cacheScope }: { cacheScope: string }) => usePayments(1, { cacheScope, categoryId: 10 }),
       {
         initialProps: { cacheScope: "payments-page-1" },
       },
@@ -107,7 +107,7 @@ describe("usePayments", () => {
       .mockResolvedValueOnce([secondPayment])
 
     const { result, rerender } = renderHook(
-      ({ cacheScope }: { cacheScope: string }) => usePayments({ cacheScope, categoryId: 10 }),
+      ({ cacheScope }: { cacheScope: string }) => usePayments(1, { cacheScope, categoryId: 10 }),
       {
         initialProps: { cacheScope: "payments-page-1" },
       },
@@ -129,11 +129,31 @@ describe("usePayments", () => {
     const payment = buildPayment(1)
     vi.mocked(fetchPayments).mockResolvedValue([payment])
 
-    const { result } = renderHook(() => usePayments())
+    const { result } = renderHook(() => usePayments(1))
 
     await waitFor(() => {
       expect(result.current.data).toEqual([payment])
     })
-    expect(fetchPayments).toHaveBeenCalledWith(dateRange, { categoryId: undefined })
+    expect(fetchPayments).toHaveBeenCalledWith(1, dateRange, { categoryId: undefined })
+  })
+
+  test("Book IDが変わると別queryとして取得し直す", async () => {
+    vi.mocked(fetchPayments).mockResolvedValue([])
+
+    const { rerender } = renderHook(({ bookId }: { bookId: number }) => usePayments(bookId), {
+      initialProps: { bookId: 1 },
+    })
+
+    await waitFor(() => {
+      expect(fetchPayments).toHaveBeenCalledTimes(1)
+    })
+
+    rerender({ bookId: 2 })
+
+    await waitFor(() => {
+      expect(fetchPayments).toHaveBeenCalledTimes(2)
+    })
+    expect(fetchPayments).toHaveBeenNthCalledWith(1, 1, dateRange, { categoryId: undefined })
+    expect(fetchPayments).toHaveBeenNthCalledWith(2, 2, dateRange, { categoryId: undefined })
   })
 })

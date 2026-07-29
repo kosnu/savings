@@ -13,6 +13,7 @@ import { InlineForm } from "../InlineForm"
 import { SubmitIconButton } from "../SubmitIconButton"
 
 interface NoteFieldProps {
+  bookId: number
   paymentId: PaymentId
   note: string
   disabled?: boolean
@@ -21,6 +22,7 @@ interface NoteFieldProps {
 }
 
 export function NoteField({
+  bookId,
   paymentId,
   note,
   disabled = false,
@@ -30,7 +32,7 @@ export function NoteField({
   const id = useId()
   const { t } = useTranslation()
   const { openSnackbar } = useSnackbar()
-  const { updatePayment, isPending } = useUpdatePayment()
+  const { updatePayment, isPending } = useUpdatePayment(bookId)
   const [editing, setEditing] = useState(false)
   // 親が open=false を直接渡して field が unmount されるときに、編集中だった場合だけ onEditEnd を返す。
   const editingRef = useRef(false)

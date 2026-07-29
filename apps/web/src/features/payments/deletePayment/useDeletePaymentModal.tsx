@@ -9,7 +9,7 @@ interface UseDeletePaymentModalReturn {
   DeletePaymentModal: ({ onSuccess }: { onSuccess: () => void }) => JSX.Element
 }
 
-export function useDeletePaymentModal(): UseDeletePaymentModalReturn {
+export function useDeletePaymentModal(bookId: number): UseDeletePaymentModalReturn {
   const { open, openDialog, closeDialog } = useDialog()
   const [payment, setPayment] = useState<Payment | null>(null)
 
@@ -25,6 +25,7 @@ export function useDeletePaymentModal(): UseDeletePaymentModalReturn {
     ({ onSuccess }: { onSuccess: () => void }) => {
       return (
         <DeletePaymentModal
+          bookId={bookId}
           open={open}
           payment={payment}
           onClose={closeDialog}
@@ -32,7 +33,7 @@ export function useDeletePaymentModal(): UseDeletePaymentModalReturn {
         />
       )
     },
-    [open, closeDialog, payment],
+    [bookId, open, closeDialog, payment],
   )
 
   return {

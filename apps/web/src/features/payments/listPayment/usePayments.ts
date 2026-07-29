@@ -17,14 +17,14 @@ interface UsePaymentsOptions {
   categoryId?: number | null
 }
 
-export function usePayments({
-  cacheScope = "default",
-  categoryId,
-}: UsePaymentsOptions = {}): UseGetPaymentsReturn {
+export function usePayments(
+  bookId: number,
+  { cacheScope = "default", categoryId }: UsePaymentsOptions = {},
+): UseGetPaymentsReturn {
   const { date, dateRange } = useDateRange()
   const query = useQuery({
-    queryKey: paymentQueryKeys.list(cacheScope, date?.toISOString() ?? "all", categoryId),
-    queryFn: async () => fetchPayments(dateRange, { categoryId }),
+    queryKey: paymentQueryKeys.list(bookId, cacheScope, date?.toISOString() ?? "all", categoryId),
+    queryFn: async () => fetchPayments(bookId, dateRange, { categoryId }),
     enabled: date !== null,
     staleTime: 3000, // 3秒
   })

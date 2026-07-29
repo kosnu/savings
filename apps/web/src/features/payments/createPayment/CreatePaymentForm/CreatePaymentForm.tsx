@@ -21,6 +21,7 @@ import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
 
 interface CreatePaymentFormProps {
+  bookId: number
   onSuccess?: () => void
   onError?: (error?: Error) => void
   onCancel: () => void
@@ -30,6 +31,7 @@ interface CreatePaymentFormProps {
 }
 
 export function CreatePaymentForm({
+  bookId,
   onSuccess,
   onError,
   onCancel,
@@ -37,7 +39,7 @@ export function CreatePaymentForm({
   continuousMode,
   onContinuousModeChange,
 }: CreatePaymentFormProps) {
-  const { createPayment } = useCreatePayment(onSuccess, onError)
+  const { createPayment } = useCreatePayment(bookId, onSuccess, onError)
   const { t } = useTranslation()
   const defaultValues = createPaymentDefaultValues()
 
@@ -150,6 +152,7 @@ export function CreatePaymentForm({
         <form.Subscribe selector={(state) => state.isSubmitting}>
           {(isSubmitting) => (
             <FrequentPaymentSuggestions
+              bookId={bookId}
               disabled={isSubmitting}
               onSelect={handleFrequentPaymentSelect}
             />

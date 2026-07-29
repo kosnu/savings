@@ -27,7 +27,7 @@ describe("useDeletePayment", () => {
     const onError = vi.fn()
     mockRemovePayment.mockResolvedValue(undefined)
 
-    const { result } = renderHook(() => useDeletePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useDeletePayment(1, onSuccess, onError), {
       queryClient,
     })
 
@@ -38,17 +38,51 @@ describe("useDeletePayment", () => {
       await promise
     })
 
-    expect(mockRemovePayment).toHaveBeenCalledWith(42)
+    expect(mockRemovePayment).toHaveBeenCalledWith(1, 42)
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledTimes(1)
     })
     expect(onError).not.toHaveBeenCalled()
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.all })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: paymentQueryKeys.details(42) })
-    expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: summaryQueryKeys.totalExpendituresAll,
+    expect(invalidateQueries).toHaveBeenCalledWith(
+      { queryKey: paymentQueryKeys.book(1) },
+      { throwOnError: true },
+    )
+    expect(invalidateQueries).toHaveBeenCalledWith(
+      { queryKey: paymentQueryKeys.detailsBook(1) },
+      { throwOnError: true },
+    )
+    expect(invalidateQueries).toHaveBeenCalledWith(
+      { queryKey: summaryQueryKeys.totalExpendituresAll },
+      { throwOnError: true },
+    )
+    expect(invalidateQueries).toHaveBeenCalledWith(
+      { queryKey: summaryQueryKeys.categoryTotalsAll },
+      { throwOnError: true },
+    )
+  })
+
+  it("refetch失敗時にonErrorを呼んで削除成功扱いにしない", async () => {
+    const queryClient = createTestQueryClient()
+    const refetchError = new Error("refetch failed")
+    vi.spyOn(queryClient, "invalidateQueries")
+      .mockRejectedValueOnce(refetchError)
+      .mockResolvedValue(undefined)
+    const onSuccess = vi.fn()
+    const onError = vi.fn()
+    mockRemovePayment.mockResolvedValue(undefined)
+
+    const { result } = renderHook(() => useDeletePayment(1, onSuccess, onError), {
+      queryClient,
     })
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: summaryQueryKeys.categoryTotalsAll })
+
+    await act(async () => {
+      await expect(result.current.deletePayment(42)).rejects.toThrow(refetchError)
+    })
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(refetchError)
+    })
+    expect(onSuccess).not.toHaveBeenCalled()
   })
 
   it("失敗時にonErrorを呼んでエラーをrethrowする", async () => {
@@ -61,7 +95,7 @@ describe("useDeletePayment", () => {
     const error = new Error("failed")
     mockRemovePayment.mockRejectedValue(error)
 
-    const { result } = renderHook(() => useDeletePayment(onSuccess, onError), {
+    const { result } = renderHook(() => useDeletePayment(1, onSuccess, onError), {
       queryClient,
     })
 
