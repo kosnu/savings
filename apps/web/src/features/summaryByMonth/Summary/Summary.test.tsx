@@ -51,6 +51,7 @@ describe("Summary", () => {
 
     expect(await screen.findByText("Failed")).toBeInTheDocument()
 
+    await user.click(screen.getByRole("button", { name: "June 2025" }))
     await user.click(screen.getByRole("combobox", { name: "Month" }))
     await user.click(await screen.findByRole("option", { name: "May" }))
 

@@ -1,14 +1,16 @@
 import { createRoute } from "@tanstack/react-router"
-import { describe, expect, test } from "vite-plus/test"
+import { afterEach, describe, expect, test } from "vite-plus/test"
 
+import { i18next } from "../../../i18n"
 import { renderWithRouter as renderWithTestRouter } from "../../../test/helpers/renderWithRouter"
-import { screen, waitFor } from "../../../test/test-utils"
+import { screen, waitFor, within } from "../../../test/test-utils"
 import { paymentsSearchSchema } from "../../payments"
 import { MonthSelector } from "./MonthSelector"
 
 function renderMonthSelector(initialEntry: string) {
   window.history.replaceState({}, "", initialEntry)
 
+  // URLごとのrouter state遷移を検証するため、固定argsのStoryではなくtest routerへ直接mountする。
   return renderWithTestRouter(initialEntry, (root) => {
     const authenticatedRoute = createRoute({
       getParentRoute: () => root,
@@ -25,6 +27,10 @@ function renderMonthSelector(initialEntry: string) {
     return [authenticatedRoute.addChildren([paymentsRoute])]
   })
 }
+
+afterEach(async () => {
+  await i18next.changeLanguage("en")
+})
 
 function expectPaymentsSearch(
   search: unknown,
@@ -44,18 +50,44 @@ describe("MonthSelector", () => {
   test("クエリパラメータがある場合、その年月が表示される", async () => {
     renderMonthSelector("/payments?year=2025&month=5")
 
+    expect(await screen.findByRole("button", { name: "May 2025" })).toBeInTheDocument()
+    expect(screen.queryByRole("combobox", { name: "Year" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("combobox", { name: "Month" })).not.toBeInTheDocument()
+  })
+
+  test("年月表示からダイアログを開き、閉じると年月表示へフォーカスを戻す", async () => {
+    const { user } = renderMonthSelector("/payments?year=2025&month=5")
+    const trigger = await screen.findByRole("button", { name: "May 2025" })
+
+    await user.click(trigger)
+
+    const dialog = await screen.findByRole("dialog", { name: "Select year and month" })
+    expect(within(dialog).getByRole("combobox", { name: "Year" })).toBeInTheDocument()
+    expect(within(dialog).getByRole("combobox", { name: "Month" })).toBeInTheDocument()
+
+    await user.click(within(dialog).getByRole("button", { name: "Close Select year and month" }))
+
     await waitFor(() => {
-      expect(screen.getByText("May")).toBeInTheDocument()
-      expect(screen.getByText("2025")).toBeInTheDocument()
+      expect(
+        screen.queryByRole("dialog", { name: "Select year and month" }),
+      ).not.toBeInTheDocument()
+      expect(trigger).toHaveFocus()
     })
+  })
+
+  test("日本語では現在年月とダイアログ名を日本語で表示する", async () => {
+    await i18next.changeLanguage("ja")
+    const { user } = renderMonthSelector("/payments?year=2025&month=5")
+
+    await user.click(await screen.findByRole("button", { name: "2025年5月" }))
+
+    expect(await screen.findByRole("dialog", { name: "年月を選択" })).toBeInTheDocument()
   })
 
   test("年月を選択すると、クエリパラメータが更新される", async () => {
     const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
 
-    await waitFor(() => {
-      expect(screen.getByText("May")).toBeInTheDocument()
-    })
+    await user.click(await screen.findByRole("button", { name: "May 2025" }))
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
 
@@ -75,9 +107,7 @@ describe("MonthSelector", () => {
   test("年月を選択してもカテゴリ条件を保持する", async () => {
     const { router, user } = renderMonthSelector("/payments?year=2025&month=5&category=10")
 
-    await waitFor(() => {
-      expect(screen.getByText("May")).toBeInTheDocument()
-    })
+    await user.click(await screen.findByRole("button", { name: "May 2025" }))
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
 
