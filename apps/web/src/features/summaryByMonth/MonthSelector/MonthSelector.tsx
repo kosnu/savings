@@ -1,10 +1,11 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
-import { Flex, IconButton } from "@radix-ui/themes"
+import { ChevronLeftIcon, ChevronRightIcon, Cross1Icon } from "@radix-ui/react-icons"
+import { Button, Dialog, Flex, IconButton } from "@radix-ui/themes"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
+import { getDateLocale } from "../../../i18n"
 
 const MIN_MONTH_INDEX = toMonthIndex(2022, 1)
 const MAX_MONTH_INDEX = toMonthIndex(2032, 12)
@@ -23,7 +24,7 @@ function isAllowedMonth(date: Date) {
 }
 
 export function MonthSelector() {
-  const { t } = useTranslation()
+  const { i18n, t } = useTranslation()
   const yearParam = useLocation({
     select: (location) => location.search.year,
   })
@@ -41,6 +42,12 @@ export function MonthSelector() {
     [monthParam, yearParam],
   )
   const currentMonthIndex = currentDate ? getMonthIndex(currentDate) : null
+  const currentMonthLabel = currentDate
+    ? new Intl.DateTimeFormat(getDateLocale(i18n.resolvedLanguage), {
+        year: "numeric",
+        month: "long",
+      }).format(currentDate)
+    : t("date.selectYearMonth")
   const isPreviousMonthDisabled = currentMonthIndex !== null && currentMonthIndex <= MIN_MONTH_INDEX
   const isNextMonthDisabled = currentMonthIndex !== null && currentMonthIndex >= MAX_MONTH_INDEX
 
@@ -80,7 +87,31 @@ export function MonthSelector() {
       >
         <ChevronLeftIcon />
       </IconButton>
-      <MonthPicker value={currentDate ?? undefined} onChange={handleMonthChange} />
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button type="button" size="3" variant="ghost">
+            {currentMonthLabel}
+          </Button>
+        </Dialog.Trigger>
+        <Dialog.Content aria-describedby={undefined} maxWidth="24rem">
+          <Flex align="center" justify="between" gap="3">
+            <Dialog.Title mb="0">{t("date.selectYearMonth")}</Dialog.Title>
+            <Dialog.Close>
+              <IconButton
+                aria-label={t("common.close", { target: t("date.selectYearMonth") })}
+                type="button"
+                size="2"
+                variant="ghost"
+              >
+                <Cross1Icon aria-hidden />
+              </IconButton>
+            </Dialog.Close>
+          </Flex>
+          <Flex justify="center" mt="4">
+            <MonthPicker size="3" value={currentDate ?? undefined} onChange={handleMonthChange} />
+          </Flex>
+        </Dialog.Content>
+      </Dialog.Root>
       <IconButton
         aria-label={t("date.nextMonth")}
         size="2"

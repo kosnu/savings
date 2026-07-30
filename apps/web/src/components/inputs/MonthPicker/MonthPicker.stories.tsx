@@ -39,3 +39,10 @@ export const WithValue: Story = {
     value: new Date(2025, 4, 1),
   },
 }
+
+export const Large: Story = {
+  args: {
+    size: "3",
+    value: new Date(2025, 4, 1),
+  },
+}
