@@ -1,10 +1,12 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
-import { Flex, IconButton } from "@radix-ui/themes"
-import { useLocation, useNavigate } from "@tanstack/react-router"
-import { useCallback, useMemo } from "react"
+import { ChevronLeftIcon, ChevronRightIcon, Cross1Icon } from "@radix-ui/react-icons"
+import { Button, Flex, IconButton, Popover, Text } from "@radix-ui/themes"
+import { useNavigate } from "@tanstack/react-router"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
+import { getDateLocale } from "../../../i18n"
+import { useDateRange } from "../../../utils/useDateRange"
 
 const MIN_MONTH_INDEX = toMonthIndex(2022, 1)
 const MAX_MONTH_INDEX = toMonthIndex(2032, 12)
@@ -23,24 +25,20 @@ function isAllowedMonth(date: Date) {
 }
 
 export function MonthSelector() {
-  const { t } = useTranslation()
-  const yearParam = useLocation({
-    select: (location) => location.search.year,
-  })
-  const monthParam = useLocation({
-    select: (location) => location.search.month,
-  })
+  const { i18n, t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const { date: parsedDate } = useDateRange()
   const navigate = useNavigate({ from: "/payments" })
 
-  // 現在選択されている年月。未指定の場合は初期化処理に任せる。
-  const currentDate = useMemo(
-    () =>
-      yearParam && monthParam
-        ? new Date(Number.parseInt(yearParam, 10), Number.parseInt(monthParam, 10) - 1, 1)
-        : null,
-    [monthParam, yearParam],
-  )
+  // 未指定や不正な年月は、URLの初期化・検証処理に任せる。
+  const currentDate = parsedDate && isAllowedMonth(parsedDate) ? parsedDate : null
   const currentMonthIndex = currentDate ? getMonthIndex(currentDate) : null
+  const currentMonthLabel = currentDate
+    ? new Intl.DateTimeFormat(getDateLocale(i18n.resolvedLanguage), {
+        year: "numeric",
+        month: "long",
+      }).format(currentDate)
+    : t("date.selectYearMonth")
   const isPreviousMonthDisabled = currentMonthIndex !== null && currentMonthIndex <= MIN_MONTH_INDEX
   const isNextMonthDisabled = currentMonthIndex !== null && currentMonthIndex >= MAX_MONTH_INDEX
 
@@ -68,8 +66,18 @@ export function MonthSelector() {
     handleMonthChange(new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 1))
   }, [currentDate, handleMonthChange])
 
+  const handleOverlayMonthChange = useCallback(
+    (date: Date | undefined) => {
+      if (!date || !isAllowedMonth(date)) return
+
+      handleMonthChange(date)
+      setOpen(false)
+    },
+    [handleMonthChange],
+  )
+
   return (
-    <Flex align="center" gap="2">
+    <Flex align="center" gap="3">
       <IconButton
         aria-label={t("date.previousMonth")}
         size="2"
@@ -80,7 +88,37 @@ export function MonthSelector() {
       >
         <ChevronLeftIcon />
       </IconButton>
-      <MonthPicker value={currentDate ?? undefined} onChange={handleMonthChange} />
+      <Popover.Root open={open} onOpenChange={setOpen}>
+        <Popover.Trigger>
+          <Button type="button" size="3" variant="ghost">
+            {currentMonthLabel}
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content aria-label={t("date.selectYearMonth")}>
+          <Flex direction="column" gap="4">
+            <Flex align="center" justify="between" gap="3">
+              <Text weight="bold">{t("date.selectYearMonth")}</Text>
+              <Popover.Close>
+                <IconButton
+                  aria-label={t("common.close", { target: t("date.selectYearMonth") })}
+                  size="2"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Cross1Icon />
+                </IconButton>
+              </Popover.Close>
+            </Flex>
+            <Flex justify="center">
+              <MonthPicker
+                size="3"
+                value={currentDate ?? undefined}
+                onChange={handleOverlayMonthChange}
+              />
+            </Flex>
+          </Flex>
+        </Popover.Content>
+      </Popover.Root>
       <IconButton
         aria-label={t("date.nextMonth")}
         size="2"

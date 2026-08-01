@@ -29,7 +29,9 @@ describe("Summary", () => {
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(await screen.findByText("¥5,000")).toBeInTheDocument()
     expect(await screen.findByText("¥20,000 left")).toBeInTheDocument()
-    expect(await screen.findAllByRole("progressbar")).toHaveLength(3)
+    await waitFor(() => {
+      expect(screen.getAllByRole("progressbar")).toHaveLength(3)
+    })
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
@@ -51,6 +53,7 @@ describe("Summary", () => {
 
     expect(await screen.findByText("Failed")).toBeInTheDocument()
 
+    await user.click(screen.getByRole("button", { name: "June 2025" }))
     await user.click(screen.getByRole("combobox", { name: "Month" }))
     await user.click(await screen.findByRole("option", { name: "May" }))
 
