@@ -1,11 +1,10 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
-import { Button, Flex, IconButton } from "@radix-ui/themes"
+import { ChevronLeftIcon, ChevronRightIcon, Cross1Icon } from "@radix-ui/react-icons"
+import { Button, Flex, IconButton, Popover, Text } from "@radix-ui/themes"
 import { useNavigate } from "@tanstack/react-router"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
-import { ResponsiveOverlay } from "../../../components/overlay/ResponsiveOverlay"
 import { getDateLocale } from "../../../i18n"
 import { useDateRange } from "../../../utils/useDateRange"
 
@@ -89,24 +88,37 @@ export function MonthSelector() {
       >
         <ChevronLeftIcon />
       </IconButton>
-      <ResponsiveOverlay
-        open={open}
-        onOpenChange={setOpen}
-        trigger={
+      <Popover.Root open={open} onOpenChange={setOpen}>
+        <Popover.Trigger>
           <Button type="button" size="3" variant="ghost">
             {currentMonthLabel}
           </Button>
-        }
-        title={t("date.selectYearMonth")}
-      >
-        <Flex justify="center" mt="4">
-          <MonthPicker
-            size="3"
-            value={currentDate ?? undefined}
-            onChange={handleOverlayMonthChange}
-          />
-        </Flex>
-      </ResponsiveOverlay>
+        </Popover.Trigger>
+        <Popover.Content aria-label={t("date.selectYearMonth")}>
+          <Flex direction="column" gap="4">
+            <Flex align="center" justify="between" gap="3">
+              <Text weight="bold">{t("date.selectYearMonth")}</Text>
+              <Popover.Close>
+                <IconButton
+                  aria-label={t("common.close", { target: t("date.selectYearMonth") })}
+                  size="2"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Cross1Icon />
+                </IconButton>
+              </Popover.Close>
+            </Flex>
+            <Flex justify="center">
+              <MonthPicker
+                size="3"
+                value={currentDate ?? undefined}
+                onChange={handleOverlayMonthChange}
+              />
+            </Flex>
+          </Flex>
+        </Popover.Content>
+      </Popover.Root>
       <IconButton
         aria-label={t("date.nextMonth")}
         size="2"
