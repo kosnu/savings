@@ -62,6 +62,7 @@ describe("MonthSelector", () => {
     await user.click(trigger)
 
     const dialog = await screen.findByRole("dialog", { name: "Select year and month" })
+    expect(dialog).toHaveAttribute("data-overlay-variant", "dialog")
     expect(within(dialog).getByRole("combobox", { name: "Year" })).toBeInTheDocument()
     expect(within(dialog).getByRole("combobox", { name: "Month" })).toBeInTheDocument()
 
@@ -86,8 +87,9 @@ describe("MonthSelector", () => {
 
   test("年月を選択すると、クエリパラメータが更新される", async () => {
     const { router, user } = renderMonthSelector("/payments?year=2025&month=5")
+    const trigger = await screen.findByRole("button", { name: "May 2025" })
 
-    await user.click(await screen.findByRole("button", { name: "May 2025" }))
+    await user.click(trigger)
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
 
@@ -101,7 +103,25 @@ describe("MonthSelector", () => {
       }
       expect(year).toBe("2025")
       expect(month).toBe("6")
+      expect(screen.queryByRole("dialog", { name: "Select year and month" })).toBeNull()
+      expect(trigger).toHaveTextContent("June 2025")
+      expect(trigger).toHaveFocus()
     })
+  })
+
+  test.each([
+    "/payments?year=abc&month=5",
+    "/payments?year=2025&month=abc",
+    "/payments?year=2025&month=0",
+    "/payments?year=2025&month=13",
+    "/payments?year=2021&month=12",
+    "/payments?year=2033&month=1",
+    "/payments?year=2025",
+    "/payments?month=5",
+  ])("不正または未解決の年月クエリ %s はfallback表示にする", async (initialEntry) => {
+    renderMonthSelector(initialEntry)
+
+    expect(await screen.findByRole("button", { name: "Select year and month" })).toBeInTheDocument()
   })
 
   test("年月を選択してもカテゴリ条件を保持する", async () => {

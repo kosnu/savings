@@ -1,11 +1,13 @@
-import { ChevronLeftIcon, ChevronRightIcon, Cross1Icon } from "@radix-ui/react-icons"
-import { Button, Dialog, Flex, IconButton } from "@radix-ui/themes"
-import { useLocation, useNavigate } from "@tanstack/react-router"
-import { useCallback, useMemo } from "react"
+import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
+import { Button, Flex, IconButton } from "@radix-ui/themes"
+import { useNavigate } from "@tanstack/react-router"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
+import { ResponsiveOverlay } from "../../../components/overlay/ResponsiveOverlay"
 import { getDateLocale } from "../../../i18n"
+import { useDateRange } from "../../../utils/useDateRange"
 
 const MIN_MONTH_INDEX = toMonthIndex(2022, 1)
 const MAX_MONTH_INDEX = toMonthIndex(2032, 12)
@@ -25,22 +27,12 @@ function isAllowedMonth(date: Date) {
 
 export function MonthSelector() {
   const { i18n, t } = useTranslation()
-  const yearParam = useLocation({
-    select: (location) => location.search.year,
-  })
-  const monthParam = useLocation({
-    select: (location) => location.search.month,
-  })
+  const [open, setOpen] = useState(false)
+  const { date: parsedDate } = useDateRange()
   const navigate = useNavigate({ from: "/payments" })
 
-  // 現在選択されている年月。未指定の場合は初期化処理に任せる。
-  const currentDate = useMemo(
-    () =>
-      yearParam && monthParam
-        ? new Date(Number.parseInt(yearParam, 10), Number.parseInt(monthParam, 10) - 1, 1)
-        : null,
-    [monthParam, yearParam],
-  )
+  // 未指定や不正な年月は、URLの初期化・検証処理に任せる。
+  const currentDate = parsedDate && isAllowedMonth(parsedDate) ? parsedDate : null
   const currentMonthIndex = currentDate ? getMonthIndex(currentDate) : null
   const currentMonthLabel = currentDate
     ? new Intl.DateTimeFormat(getDateLocale(i18n.resolvedLanguage), {
@@ -75,8 +67,18 @@ export function MonthSelector() {
     handleMonthChange(new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 1))
   }, [currentDate, handleMonthChange])
 
+  const handleOverlayMonthChange = useCallback(
+    (date: Date | undefined) => {
+      if (!date || !isAllowedMonth(date)) return
+
+      handleMonthChange(date)
+      setOpen(false)
+    },
+    [handleMonthChange],
+  )
+
   return (
-    <Flex align="center" gap="2">
+    <Flex align="center" gap="3">
       <IconButton
         aria-label={t("date.previousMonth")}
         size="2"
@@ -87,31 +89,24 @@ export function MonthSelector() {
       >
         <ChevronLeftIcon />
       </IconButton>
-      <Dialog.Root>
-        <Dialog.Trigger>
+      <ResponsiveOverlay
+        open={open}
+        onOpenChange={setOpen}
+        trigger={
           <Button type="button" size="3" variant="ghost">
             {currentMonthLabel}
           </Button>
-        </Dialog.Trigger>
-        <Dialog.Content aria-describedby={undefined} maxWidth="24rem">
-          <Flex align="center" justify="between" gap="3">
-            <Dialog.Title mb="0">{t("date.selectYearMonth")}</Dialog.Title>
-            <Dialog.Close>
-              <IconButton
-                aria-label={t("common.close", { target: t("date.selectYearMonth") })}
-                type="button"
-                size="2"
-                variant="ghost"
-              >
-                <Cross1Icon aria-hidden />
-              </IconButton>
-            </Dialog.Close>
-          </Flex>
-          <Flex justify="center" mt="4">
-            <MonthPicker size="3" value={currentDate ?? undefined} onChange={handleMonthChange} />
-          </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
+        }
+        title={t("date.selectYearMonth")}
+      >
+        <Flex justify="center" mt="4">
+          <MonthPicker
+            size="3"
+            value={currentDate ?? undefined}
+            onChange={handleOverlayMonthChange}
+          />
+        </Flex>
+      </ResponsiveOverlay>
       <IconButton
         aria-label={t("date.nextMonth")}
         size="2"
