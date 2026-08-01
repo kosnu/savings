@@ -55,18 +55,17 @@ describe("MonthSelector", () => {
     expect(screen.queryByRole("combobox", { name: "Month" })).not.toBeInTheDocument()
   })
 
-  test("年月表示からダイアログを開き、閉じると年月表示へフォーカスを戻す", async () => {
+  test("年月表示からポップオーバーを開き、閉じると年月表示へフォーカスを戻す", async () => {
     const { user } = renderMonthSelector("/payments?year=2025&month=5")
     const trigger = await screen.findByRole("button", { name: "May 2025" })
 
     await user.click(trigger)
 
-    const dialog = await screen.findByRole("dialog", { name: "Select year and month" })
-    expect(dialog).toHaveAttribute("data-overlay-variant", "dialog")
-    expect(within(dialog).getByRole("combobox", { name: "Year" })).toBeInTheDocument()
-    expect(within(dialog).getByRole("combobox", { name: "Month" })).toBeInTheDocument()
+    const popover = await screen.findByRole("dialog", { name: "Select year and month" })
+    expect(within(popover).getByRole("combobox", { name: "Year" })).toBeInTheDocument()
+    expect(within(popover).getByRole("combobox", { name: "Month" })).toBeInTheDocument()
 
-    await user.click(within(dialog).getByRole("button", { name: "Close Select year and month" }))
+    await user.click(within(popover).getByRole("button", { name: "Close Select year and month" }))
 
     await waitFor(() => {
       expect(
@@ -76,7 +75,7 @@ describe("MonthSelector", () => {
     })
   })
 
-  test("日本語では現在年月とダイアログ名を日本語で表示する", async () => {
+  test("日本語では現在年月とポップオーバー名を日本語で表示する", async () => {
     await i18next.changeLanguage("ja")
     const { user } = renderMonthSelector("/payments?year=2025&month=5")
 
@@ -92,6 +91,9 @@ describe("MonthSelector", () => {
     await user.click(trigger)
 
     await user.click(screen.getByRole("combobox", { name: "Month" }))
+    expect(
+      screen.getByRole("dialog", { name: "Select year and month", hidden: true }),
+    ).toHaveAttribute("data-state", "open")
 
     const juneOption = await screen.findByRole("option", { name: "June" })
     await user.click(juneOption)
