@@ -1,6 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { ReactNode } from "react"
 
+import { LanguagePreferenceSync } from "../features/preferences"
 import { createQueryClient } from "../lib/queryClient"
 import { SnackbarProvider } from "../providers/snackbar/SnackbarProvider"
 import { SupabaseSessionProvider } from "../providers/supabase/SupabaseSessionProvider"
@@ -18,7 +19,10 @@ export function Provider({ children }: ProviderProps) {
     <QueryClientProvider client={queryClient}>
       <SupabaseSessionProvider>
         <ThemeProvider>
-          <SnackbarProvider>{children}</SnackbarProvider>
+          <SnackbarProvider>
+            <LanguagePreferenceSync />
+            {children}
+          </SnackbarProvider>
         </ThemeProvider>
       </SupabaseSessionProvider>
     </QueryClientProvider>

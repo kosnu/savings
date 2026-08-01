@@ -6,12 +6,14 @@ const USERS_REST_URL = "*/rest/v1/users*"
 export interface ProfileResponse {
   name: string
   email: string
+  language?: "en" | "ja" | null
 }
 
 interface ProfileGetOptions {
   response?: ProfileResponse
   error?: boolean
   errorOnce?: boolean
+  errorAfterUpdate?: boolean
   durationOrMode?: number | DelayMode | undefined
 }
 
@@ -21,7 +23,10 @@ interface ProfileUpdateOptions {
   durationOrMode?: number | DelayMode | undefined
 }
 
-const profileBodySchema = z.object({ name: z.string() })
+const profileBodySchema = z.union([
+  z.object({ name: z.string() }),
+  z.object({ language: z.enum(["en", "ja"]) }),
+])
 
 export function createProfileHandlers({
   get = {},
@@ -33,14 +38,16 @@ export function createProfileHandlers({
   let profile: ProfileResponse = get.response ?? {
     name: "Test User",
     email: "test@example.com",
+    language: null,
   }
   let hasErrored = false
+  let hasUpdated = false
 
   return [
     http.get(USERS_REST_URL, async () => {
       await delay(get.durationOrMode)
 
-      if (get.error || (get.errorOnce && !hasErrored)) {
+      if (get.error || (get.errorOnce && !hasErrored) || (get.errorAfterUpdate && hasUpdated)) {
         hasErrored = true
         return HttpResponse.json({ message: "Failed to fetch profile." }, { status: 500 })
       }
@@ -58,9 +65,14 @@ export function createProfileHandlers({
       }
 
       const body = profileBodySchema.parse(await request.json())
-      profile = { ...profile, name: body.name }
+      profile =
+        "name" in body ? { ...profile, name: body.name } : { ...profile, language: body.language }
+      hasUpdated = true
 
-      return HttpResponse.json({ auth_user_id: "mock-user-id" })
+      return HttpResponse.json({
+        auth_user_id: "mock-user-id",
+        language: profile.language ?? null,
+      })
     }),
   ]
 }

@@ -315,6 +315,7 @@ export type Database = {
           email: string
           id: number
           legacy_external_id: string | null
+          language: string | null
           name: string
           updated_at: string | null
         }
@@ -324,6 +325,7 @@ export type Database = {
           email: string
           id?: never
           legacy_external_id?: string | null
+          language?: string | null
           name: string
           updated_at?: string | null
         }
@@ -333,6 +335,7 @@ export type Database = {
           email?: string
           id?: never
           legacy_external_id?: string | null
+          language?: string | null
           name?: string
           updated_at?: string | null
         }

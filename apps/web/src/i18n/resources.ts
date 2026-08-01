@@ -15,6 +15,10 @@ export const resources = {
       "language.label": "Language",
       "language.en": "English",
       "language.ja": "Japanese",
+      "language.loadError":
+        "Could not load your saved language. You can keep using this device's language.",
+      "language.saveSuccess": "Language preference saved.",
+      "language.saveError": "Could not save the language. Your previous language is still active.",
       "theme.label": "Theme",
       "theme.light": "Light",
       "theme.dark": "Dark",
@@ -223,6 +227,10 @@ export const resources = {
       "language.label": "言語",
       "language.en": "英語",
       "language.ja": "日本語",
+      "language.loadError":
+        "保存済みの言語を読み込めませんでした。この端末の言語で引き続き利用できます。",
+      "language.saveSuccess": "言語設定を保存しました。",
+      "language.saveError": "言語設定を保存できませんでした。以前の言語を使用します。",
       "theme.label": "テーマ",
       "theme.light": "ライト",
       "theme.dark": "ダーク",
