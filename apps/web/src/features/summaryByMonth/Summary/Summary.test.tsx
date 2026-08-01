@@ -29,7 +29,9 @@ describe("Summary", () => {
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(await screen.findByText("¥5,000")).toBeInTheDocument()
     expect(await screen.findByText("¥20,000 left")).toBeInTheDocument()
-    expect(await screen.findAllByRole("progressbar")).toHaveLength(3)
+    await waitFor(() => {
+      expect(screen.getAllByRole("progressbar")).toHaveLength(3)
+    })
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(await screen.findByText("Daily Necessities")).toBeInTheDocument()
