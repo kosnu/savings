@@ -20,6 +20,17 @@ export function toAppLanguage(language: string | undefined): AppLanguage {
   return "en"
 }
 
+export function findSupportedAppLanguage(languages: readonly string[]): AppLanguage | null {
+  for (const language of languages) {
+    const primaryLanguage = language.toLowerCase().split("-")[0]
+    if (primaryLanguage === "en" || primaryLanguage === "ja") {
+      return primaryLanguage
+    }
+  }
+
+  return null
+}
+
 function getInitialLanguage(): AppLanguage {
   if (typeof window === "undefined") {
     return DEFAULT_LANGUAGE

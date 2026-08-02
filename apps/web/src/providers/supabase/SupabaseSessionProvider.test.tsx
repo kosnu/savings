@@ -1,7 +1,7 @@
 import type { Session } from "@supabase/supabase-js"
 import { renderHook } from "@testing-library/react"
 import type { PropsWithChildren } from "react"
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { act, waitFor } from "../../test/test-utils"
 import { createDeferred } from "../../test/utils/createDeferred"
@@ -17,6 +17,7 @@ const mockGetUser = vi.fn()
 const mockOnAuthStateChange = vi.fn()
 const mockSignOut = vi.fn()
 const mockUnsubscribe = vi.fn()
+const mockNavigatorLanguages = vi.fn<() => readonly string[]>()
 const { mockCaptureSupabaseSessionError, mockEnsureAuthenticatedUser } = vi.hoisted(() => ({
   mockCaptureSupabaseSessionError: vi.fn(),
   mockEnsureAuthenticatedUser: vi.fn(),
@@ -103,6 +104,9 @@ function expectSession(
 
 describe("SupabaseSessionProvider", () => {
   beforeEach(() => {
+    mockNavigatorLanguages.mockReset()
+    mockNavigatorLanguages.mockReturnValue(["fr-FR", "ja-JP", "en-US"])
+    vi.spyOn(window.navigator, "languages", "get").mockImplementation(mockNavigatorLanguages)
     mockGetSession.mockReset()
     mockGetUser.mockReset()
     mockOnAuthStateChange.mockClear()
@@ -116,6 +120,10 @@ describe("SupabaseSessionProvider", () => {
     mockOnAuthStateChange.mockImplementation(() => ({
       data: { subscription: { unsubscribe: mockUnsubscribe } },
     }))
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   test("getSession が reject した場合は unauthenticated にフォールバックする", async () => {
@@ -142,7 +150,7 @@ describe("SupabaseSessionProvider", () => {
     const { result } = renderSessionHook()
 
     await waitFor(() => {
-      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith("Initial User")
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith("Initial User", "ja")
     })
     expect(mockGetUser).toHaveBeenCalledWith()
     expectSession(result, "loading", null)
@@ -154,6 +162,17 @@ describe("SupabaseSessionProvider", () => {
 
     await waitFor(() => {
       expectSession(result, "authenticated", "user-id")
+    })
+  })
+
+  test("対応するブラウザ言語がない場合は初期言語を指定せずユーザーを作成する", async () => {
+    mockNavigatorLanguages.mockReturnValue(["fr-FR", "de-DE"])
+    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+
+    renderSessionHook()
+
+    await waitFor(() => {
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith("user-id", null)
     })
   })
 
@@ -415,7 +434,7 @@ describe("SupabaseSessionProvider", () => {
     })
 
     await waitFor(() => {
-      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith("event-user")
+      expect(mockEnsureAuthenticatedUser).toHaveBeenCalledWith("event-user", "ja")
     })
     expectSession(result, "loading", null)
 

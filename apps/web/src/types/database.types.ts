@@ -368,7 +368,7 @@ export type Database = {
         Returns: undefined
       }
       ensure_authenticated_user: {
-        Args: { p_initial_display_name: string }
+        Args: { p_initial_display_name: string; p_initial_language: string | null }
         Returns: undefined
       }
       get_authenticated_default_book_id: { Args: never; Returns: number }

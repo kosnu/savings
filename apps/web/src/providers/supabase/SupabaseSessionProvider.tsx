@@ -2,6 +2,7 @@ import type { Session } from "@supabase/supabase-js"
 import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
 import { toInitialDisplayName } from "../../domain/displayName"
+import { findSupportedAppLanguage } from "../../i18n"
 import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
@@ -71,6 +72,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
           fullName: session.user.user_metadata.full_name,
           email: session.user.email,
         }),
+        findSupportedAppLanguage(window.navigator.languages),
       )
     }
 
