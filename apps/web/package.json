@@ -60,7 +60,7 @@
     "@vitest/coverage-v8": "4.1.10",
     "esbuild": "0.28.1",
     "eslint-plugin-react-hooks": "7.1.1",
-    "jsdom": "29.1.1",
+    "jsdom": "30.0.0",
     "msw": "2.15.0",
     "msw-storybook-addon": "2.0.7",
     "playwright": "1.62.0",
