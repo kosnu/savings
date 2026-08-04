@@ -41,7 +41,7 @@ describe("updateLanguagePreference", () => {
 
     await expect(
       updateLanguagePreference({ authUserId: "mock-user-id", language: "ja" }),
-    ).rejects.toThrow("Failed to save display name.")
+    ).rejects.toThrow()
   })
 
   it("更新対象のIDまたはlanguageが一致しなければ成功扱いにしない", async () => {

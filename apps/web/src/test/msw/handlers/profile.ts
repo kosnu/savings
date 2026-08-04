@@ -58,10 +58,9 @@ export function createProfileHandlers({
       await delay(update.durationOrMode)
 
       if (update.error) {
-        return HttpResponse.json(
-          update.errorResponse ?? { message: "Failed to save display name." },
-          { status: 500 },
-        )
+        return HttpResponse.json(update.errorResponse ?? { message: "Failed to update profile." }, {
+          status: 500,
+        })
       }
 
       const body = profileBodySchema.parse(await request.json())

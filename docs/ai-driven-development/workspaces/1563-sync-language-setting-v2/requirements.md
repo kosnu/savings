@@ -67,14 +67,20 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 - Rule map: `docs/harness/rule-map.json`
 - Classification:
   - path: `docs/ai-driven-development/**`, `apps/web/**`, `apps/api/**`
-  - domain: `user`, `auth`
-  - activity: `requirements`, `change_user_behavior`
-  - topic: `language`, `profile`, `supabase`
+  - domain: `user`, `auth`, `web`, `test`
+  - activity: `requirements`, `change_user_behavior`, `test_api_interaction`
+  - topic: `language`, `profile`, `supabase`, `msw`, `test`
 - Selected nodes:
   - `ai-driven.workflow` -> `docs/ai-driven-development/workflow.md`: AIDDのphase、成果物、Stop境界を確認するため。
+  - `ai-driven.issue-guidelines` -> `docs/ai-driven-development/issue-guidelines.md`: IssueをRequirementsへ展開する責務境界を確認するため。
+  - `documentation.policy` -> `docs/harness/policies/documentation-policy.md`: Requirements文書の責務とfront matterを確認するため。
   - `domain.user` -> `docs/harness/domain/user.md`: 言語の正本、初期登録、更新可能なプロフィール列を確認するため。
+  - `web.msw-handlers` -> `apps/web/docs/policies/msw-handlers.md`: 共通handlerのエラー応答、factory option、テスト契約の境界を確認するため。
 - Depends-on nodes:
   - `ai-driven.overview` -> `docs/ai-driven-development/overview.md`: Requirementsと後続phaseの責務を確認するため。
+  - `web.test-policy` -> `apps/web/docs/policies/test-policy.md`: API失敗とユーザー向け挙動の回帰テスト責務を確認するため。
+  - `web.suspense-boundaries` -> `apps/web/docs/policies/suspense-boundaries.md`: 非同期処理のエラー境界を確認するため。
+  - `web.query-cache` -> `apps/web/docs/policies/query-cache.md`: DB正本の再取得と保存成功の確定条件を確認するため。
 - Conflict decision: none。
 
 ## Domain Value Intent
@@ -123,6 +129,8 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 - DB、API、Webの型とvalidationは`en`、`ja`、未設定の境界で一致させる。
 - 初期値候補の取得はブラウザ環境に閉じ、DBには正規化後の対応言語だけを渡す。
 - 言語の初期登録は認証同期処理の責務内で行い、クライアントから`public.users`を直接作成しない。
+- 複数操作で共有するAPI handlerのエラー応答を、表示名や言語など特定操作のユーザー向け文言へ結び付けない。
+- 生のエラーコードやresponse bodyは、アプリが解釈して分岐するか外部仕様として公開する場合だけ厳密なテスト契約とする。それ以外はAPI失敗の伝播と操作固有のUI表示をそれぞれの境界で検証する。
 - Issue #1563、監督入力、`domain.user`から追跡できない要求を追加しない。
 
 ## 受け入れ条件
@@ -137,6 +145,7 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 - AC-8: 言語更新対象が0件の場合、保存成功として扱わない。
 - AC-9: 言語取得または保存失敗時もアプリ全体を利用でき、未保存を成功済みと表示しない。
 - AC-10: 既存の日本語・英語表示と既存ユーザーの保存値が壊れていないことを回帰テストで確認できる。
+- AC-11: 言語更新のAPI失敗は、共通handlerの操作固有文言へ依存せず失敗として伝播することを確認でき、言語固有の表示文言と画面状態はUI境界で確認できる。
 
 ## Q&Aログ
 
@@ -150,19 +159,23 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
   - A: しない。fallbackは未決定であり、今回推測して追加しない。
 - Q: 既存ユーザーの未設定値をブラウザ候補で補完するか？
   - A: 補完しない。既存ユーザーに推測値を強制保存しないというIssue制約を維持する。
+- Q: 言語更新のAPI失敗テストは、共通handlerが返す文言まで契約にするか？
+  - A: アプリが生の値を解釈する場合を除き契約にしない。API境界では失敗伝播を、UI境界では言語固有の表示を検証する。
 
 ## 技術的考慮事項
 
 - 後続Designでは、ブラウザ候補を正規化する責務、認証同期APIへ渡す契約、既存ユーザーを更新しないDB境界を決める。
 - 新規ユーザー作成と初期言語保存の原子性を保つため、既存の認証同期処理内で扱う。
 - 回帰テストは、候補順序、地域付き言語タグ、対応候補なし、既存ユーザー非上書き、保存失敗を対象にする。
+- 共通MSW handlerの既定エラーは操作中立とし、factory optionはstatus、response body、delayなどAPI境界の差分だけを表現する。
 - 具体的な関数名、migration名、コンポーネント構成はDesignで決める。
 
 ## Verification
 
 この成果物はdocumentation-onlyのためアプリ検証は実行しない。次を手動確認する。
 
-- Issue #1563、Task Context、`docs/harness/domain/user.md`から各要求を追跡できる。
+- Issue #1563、監督入力、`docs/harness/domain/user.md`から各要求を追跡できる。
+- `apps/web/docs/policies/msw-handlers.md`と`apps/web/docs/policies/test-policy.md`からAPI失敗とUI表示の検証境界を追跡できる。
 - 未決定fallback、対応言語追加、登録時UIを要求へ追加していない。
 - `git diff --check`が成功する。
 

@@ -36,9 +36,7 @@ describe("updateDisplayName", () => {
   it("Supabaseがエラーを返した場合にthrowする", async () => {
     server.resetHandlers(...createProfileHandlers({ update: { error: true } }))
 
-    await expect(updateDisplayName({ authUserId: "mock-user-id", name: "Taro" })).rejects.toThrow(
-      "Failed to save display name.",
-    )
+    await expect(updateDisplayName({ authUserId: "mock-user-id", name: "Taro" })).rejects.toThrow()
   })
 
   it("更新対象が0件なら成功扱いにしない", async () => {
