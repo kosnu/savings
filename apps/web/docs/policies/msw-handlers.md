@@ -63,6 +63,14 @@ stateful な mock は、mutation の結果を同一テスト内の後続 request
 
 単に成功・失敗・特定レスポンスを確認したいだけなら、固定 response を option で指定します。
 
+## エラー応答の責務
+
+複数の操作から再利用する handler の default error response は、特定の操作に依存しない内容にします。表示名や言語など、操作固有のユーザー向け文言は共通 handler に持たせません。
+
+handler factory の option は、status、response body、delay など API 境界の差分を表現します。ユーザー向け文言を切り替えるために操作別の error option を追加したり、request body を見て操作固有の文言を選んだりしません。一度限りの特殊な API 応答はテスト側で handler を局所的に上書きし、複数のテストで必要になってから factory option への昇格を判断します。
+
+テストでエラーコードや response body の文言を厳密に検証するのは、アプリがその値を解釈して分岐するか、外部仕様としてその値を公開する場合に限ります。それ以外の API 境界のテストでは失敗応答が reject または失敗状態として伝播することを検証し、操作固有の表示文言や画面状態は UI のテストで検証します。
+
 ## 追加タイミング
 
 handler は、必要なテストができた時点で追加します。
