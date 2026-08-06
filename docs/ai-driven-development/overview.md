@@ -40,9 +40,9 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 
 このフローは、各工程で人間が逐次承認するHuman in the loopではなく、AIがStop条件に当たらない限り前進し、人間が監督、例外処理、公開可否を担うHuman on the loopを前提にします。
 
-人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果を次回Requirementsへ整理する場合は、GoalではなくLearn skillを使います。
+人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果から次回Task Contextの変更案を整理する場合は、GoalではなくLearn skillを使います。
 
-レビューコメントを次回Requirementsへ整理する扱いは、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに限ります。現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない通常タスクでは、レビューコメントごとに修正要否を判断し、必要な修正を現在のタスク内で行います。
+レビューコメントを対象Issue本文の変更案へ整理する扱いは、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに限ります。現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない通常タスクでは、レビューコメントごとに修正要否を判断し、必要な修正を現在のタスク内で行います。
 
 人間が介在すると、意図よりも実装詳細に寄りやすくなります。
 
@@ -52,11 +52,11 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 - Design Doc作成 Goal: どう実現するかを決める
 - Build / Verify Goal: 作って検証する
 - Ship Goal: Build / Verify済みの成果をPR、説明、レビュー返信ができる形に整える
-- Learn skill: レビューコメント、検証結果、運用知見を、タスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する
+- Learn skill: レビューコメント、検証結果、運用知見を、対象Issue本文の変更案、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する。Issue本文の変更案は適用されるまで次のTask Contextではない
 
-IssueはRequirements / PRDの入力として扱います。Issueには、AIが要求整理を始められるだけの意図、制約、成功条件、Stop条件を書き、Design Doc相当の実装詳細は書きすぎません。
+Issue本文はRequirements / PRDのTask Context正本として扱います。Issueには、AIが要求整理を始められるだけの意図、制約、成功条件、Stop条件を書き、Design Doc相当の実装詳細は書きすぎません。会話、review、現在diff、前回artifact、直前に更新されたルールをIssue本文にないTask Contextとして追加しません。
 
-同じIssueまたはタスクで新しいサイクルを始める場合、workspaceと無印の`requirements.md`、`design-doc.md`は再利用します。read-onlyは同一サイクルの後続工程にだけ適用し、新サイクルの各生成工程は対応する成果物を同じpathへ上書きします。
+同じIssueまたはタスクで新しいサイクルを始める場合、workspaceと無印の`requirements.md`、`design-doc.md`は再利用します。新しいサイクルは最新Issue本文を再取得してTask Contextを固定し、read-onlyは同一サイクルの後続工程にだけ適用します。新サイクルの各生成工程は対応する成果物を同じpathへ上書きします。
 
 ## Goalに含める要素
 

@@ -20,7 +20,7 @@ when_to_read:
 
 # Intent / Requirements Goal
 
-```md
+````md
 # Intent / Requirements Goal
 
 ## Goal
@@ -29,8 +29,12 @@ when_to_read:
 
 ## Inputs
 
-- Task Context:
-- 既存Requirements / PRD:
+- Task Context正本: サイクル開始時に取得した最新Issue本文だけ
+- Issue: `owner/repo#number`
+- Issue URL:
+- Issue updatedAt:
+- Issue本文SHA-256:
+- 既存Requirements / PRD: 履歴参照のみ。Task Contextへ追加しない
 - 出力先: 同じworkspaceのcanonical pathである`requirements.md`。このGoalが書き込みを所有する。
 
 ## Oversight Inputs
@@ -41,6 +45,8 @@ when_to_read:
 - ユーザーが判断したいこと:
 - 守りたい制約:
 - まだ決めていないこと:
+
+Oversight Inputsが意図、scope、制約、成功条件を変える場合は、先にIssue本文を更新して再取得する。会話上の補足だけでRequirements入力を増やさない。
 
 ## Scope
 
@@ -58,9 +64,44 @@ when_to_read:
   - domain:
   - activity:
   - topic:
-- Selected nodes: `id` -> `file`: reason
-- Depends-on nodes: `id` -> `file`: reason
+- Direct nodes: `id` -> `file`: Issue本文の根拠 / `applies_to`の一致fieldと値 / reason
+- Depends-on nodes: `id` -> `file`: directまたはdependency nodeからのedge / reason
 - Conflict decision: none / overrides / priority
+
+実装、test、fixture、mock、app固有のpolicyは、Issue本文がそのsurfaceを明示している場合を除き、Design / PlanまたはBuild / Verifyで選ぶ。実装policyからプロダクト要求、受け入れ条件、Q&A判断を新設しない。
+
+## Requirements Input Gate
+
+以下のJSONだけを機械検証対象としてGoalに含め、生成する`requirements.md`にも同じ内容を記録する。`issue_evidence`はIssue本文の原文抜粋、`match`はrule-map nodeの`applies_to`と一致させる。
+
+```json
+{
+  "task_context": {
+    "source": "issue_body",
+    "issue": "owner/repo#123",
+    "url": "https://github.com/owner/repo/issues/123",
+    "updated_at": "2026-01-01T00:00:00Z",
+    "body_sha256": "64文字のSHA-256"
+  },
+  "direct_rules": [
+    {
+      "id": "domain.user",
+      "issue_evidence": "Issue本文の根拠",
+      "match": { "field": "domains", "value": "user" },
+      "reason": "Issueの対象domainに適用するため"
+    }
+  ],
+  "depends_on": [
+    { "id": "依存node id", "via": "依存元node id" }
+  ]
+}
+```
+
+## Requirement Provenance
+
+| 判断 | 根拠 | 種別 |
+| --- | --- | --- |
+| Scope / FR / NFR / AC / Q&Aの各判断 | Issue本文のsectionまたは選択したproduct/domain rule | Issue / rule |
 
 ## Domain Value Intent
 
@@ -102,9 +143,16 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 受け入れ条件がテスト可能
 - [ ] Q&Aログに判断と理由が残っている
 - [ ] 技術的考慮事項が参考情報として整理されている
-- [ ] Issue、Oversight Inputs、関連ドキュメントから読み取れる意図・制約・対象外を超えて解釈を広げていない
-- [ ] 渡されたTask Contextの追加・変更が反映されている
+- [ ] Issue本文から読み取れる意図・制約・対象外を超えて解釈を広げていない
+- [ ] Task ContextがIssue本文だけで、Issue番号、URL、updatedAt、本文SHA-256が記録されている
+- [ ] direct nodeごとにIssue本文の根拠、`applies_to`一致fieldと値、選択理由がある
+- [ ] dependency nodeごとにrule-mapの`depends_on` edgeがある
+- [ ] プロダクト要求、受け入れ条件、Q&A判断がIssue本文または選択したproduct/domain ruleへ追跡できる
+- [ ] 実装、test、fixture、mock、app policyからプロダクト要求を新設していない
+- [ ] 会話、review、現在diff、前回artifact、直前に更新されたruleをTask Contextへ追加していない
 - [ ] 成果物が同じworkspaceのcanonical pathである`requirements.md`にある
+- [ ] 成果物にIssue番号、URL、updatedAt、本文SHA-256が記録されている
+- [ ] 成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通る
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントとの整合性が確認されている
 - [ ] Requirements / PRDが、選択したルール・ポリシーに違反していないことを確認している
 
@@ -122,7 +170,11 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - 既存仕様と矛盾する
 - スコープ外の変更が必要そう
 - error、empty、権限不足などの状態でユーザー向け操作が必要か一意に決められず、Design / Planでプロダクト判断が必要になる
-- Issue、Oversight Inputs、関連ドキュメントから読み取れない要求や成功条件を追加する必要がある
+- Issue本文または選択したproduct/domain ruleから読み取れない要求や成功条件を追加する必要がある
+- 対象Issue本文を取得できない
+- Requirements Input Gateが失敗する
+- Requirements作成中にIssueのURL、updatedAt、本文、または本文SHA-256が変わった
+- direct nodeの選択をIssue本文の根拠と`applies_to`一致へ追跡できない
 - `docs/harness/rule-map.json` で選ぶべき関連ドキュメントが曖昧
 - Requirements / PRDが選択したルール・ポリシーに違反している、または違反の可能性がある
-```
+````

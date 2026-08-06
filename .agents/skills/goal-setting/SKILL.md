@@ -43,6 +43,9 @@ definition and not as output skeletons.
    `git status --short`, existing workspace artifacts, and the supplied Issue or
    PR. Fetch thread-aware review data for Ship when needed. Inspect implementation
    files only when Design / Plan or Build / Verify needs them.
+   For Intent / Requirements, fetch the latest Issue body, URL, and `updatedAt`.
+   The exact Issue body is the only Task Context. Conversation, review, current
+   diff, previous artifacts, and recently changed rules may not extend it.
 4. Build a compact Context Packet containing scope, selected references and
    reasons, constraints, known risks, Stop checks, and verification expectations.
    Preserve every requirement from the workflow and matching template without
@@ -53,6 +56,28 @@ definition and not as output skeletons.
    workflow-defined cycle identity, phase inputs, artifact references, and
    current phase supplied by `aidd-cycle`. Keep cycle control and next-Goal
    creation in `aidd-cycle`.
+
+## Intent / Requirements Provenance
+
+For an Intent / Requirements Goal:
+
+- Select each direct rule-map node from Issue evidence and an exact
+  `applies_to` field/value match. Record the evidence, match, and reason.
+- Add dependency nodes only through declared `depends_on` edges.
+- Do not select implementation, test, fixture, mock, or app policies because a
+  surface appears in conversation, the current diff, a previous artifact, or a
+  recently updated rule. Defer those policies to Design / Plan or Build /
+  Verify unless the Issue explicitly names that surface.
+- Do not turn an implementation policy into a product requirement, acceptance
+  criterion, or Q&A decision.
+- Include the exact `Requirements Input Gate` JSON block from the matching Goal
+  template. Before `create_goal`, validate it with the command defined in
+  `.agents/skills/aidd-cycle/SKILL.md`.
+
+If user oversight changes intent, scope, constraints, or success criteria,
+stop before creating the Goal until the target Issue body is updated and
+refetched. Oversight may clarify execution or trigger a Stop without becoming
+an unrecorded Requirements input.
 
 Do not edit repository files or create a git diff while preparing the Goal.
 
@@ -77,6 +102,7 @@ only, return one ready-to-set Markdown Goal and do not claim that it was set.
 
 Stop before producing a Goal when the canonical workflow cannot determine the
 phase, required upstream inputs are missing, the target Issue, PR, branch, or
-workspace is ambiguous, a user constraint would be ignored, the selected
-rule-map subgraph is unresolved, or the Goal cannot fit the character budget
-without losing required execution context.
+workspace is ambiguous, the latest Issue body cannot be fetched, the
+Requirements Input Gate fails, a user constraint would be ignored, the
+selected rule-map subgraph is unresolved, or the Goal cannot fit the character
+budget without losing required execution context.
