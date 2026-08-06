@@ -16,6 +16,7 @@ Goal execution and cycle control. Keep workflow phases in separate Goals.
 Read these before starting:
 
 - `docs/ai-driven-development/workflow.md`
+- `docs/ai-driven-development/issue-guidelines.md`
 - `.agents/skills/goal-setting/SKILL.md`
 - `docs/harness/rule-map.json`
 
@@ -26,13 +27,17 @@ This skill only orchestrates that workflow and must not redefine it.
 ## Cycle Identity
 
 Call `get_goal` when available before creating a Goal. Identify a cycle by a
-stable cycle ID, workspace, Issue or initial input, and canonical artifact
-paths. Put that identity in every phase Goal's Context Packet.
+stable cycle ID, workspace, GitHub Issue, the SHA-256 of its latest body, and
+canonical artifact paths. Put that identity in every phase Goal's Context
+Packet.
 
 Apply the new-cycle and resume conditions from `workflow.md`. When a new cycle
-is permitted, allocate its cycle ID and pass the workflow-defined workspace,
-initial input, supplied Task Context, artifact references, and entry phase to
-`goal-setting`.
+is permitted, fetch the latest Issue body, URL, and `updatedAt`, calculate the
+body SHA-256, allocate its cycle ID, and pass that Issue snapshot, the
+workflow-defined workspace, artifact references, and entry phase to
+`goal-setting`. The Issue body is the only AIDD Task Context; do not pass
+conversation, review, current diff, previous artifacts, or a recently changed
+rule as additional Task Context.
 
 Resume only when the same cycle identity and its active or last completed phase
 are clear. Goal completion evidence, not artifact existence alone, determines
@@ -44,6 +49,27 @@ state transition: continue it when active and resume it through a callable Goal
 action when paused. If the required state transition is not callable, report
 that capability blocker and stop.
 
+## Requirements Input Gate
+
+Before creating an Intent / Requirements Goal:
+
+1. Save the exact fetched Issue body and proposed Goal in temporary files.
+2. Include the template's `Requirements Input Gate` JSON block in the Goal.
+   Record only the Issue snapshot, Issue-evidenced direct rules, and declared
+   `depends_on` edges.
+3. Run:
+
+   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json`
+
+4. Create the Goal only when validation succeeds. Remove the temporary files.
+
+The generated `requirements.md` must contain the same gate block. Before
+completing the Requirements Goal, run the validator again with
+`--document <requirements-file>`, then fetch the Issue again. Its URL,
+`updatedAt`, body, and body SHA-256 must still match the snapshot in the Goal
+and generated Requirements artifact. If validation fails or the Issue changed,
+stop and restart Requirements from the latest Issue body.
+
 ## Execution
 
 Repeat until the canonical workflow reaches its final phase:
@@ -54,7 +80,8 @@ Repeat until the canonical workflow reaches its final phase:
 3. Transition an unfinished same-cycle Goal as defined above. When no Goal
    exists for the phase, follow the orchestrated-use procedure in `goal-setting`
    to construct and set exactly one Goal. Keep cycle control in `aidd-cycle`,
-   outside the phase Goal.
+   outside the phase Goal. Apply the Requirements Input Gate before creating an
+   Intent / Requirements Goal.
 4. Execute only the active Goal under its Context Packet, matching template,
    selected rule-map subgraph, and canonical workflow boundaries.
 5. When a Stop condition applies, first check whether the Goal tool contract
@@ -79,10 +106,12 @@ explicitly requested phase draft.
 
 ## Stop
 
-Stop when cycle identity is unsafe, an unrelated unfinished Goal exists,
-required upstream input is missing, the canonical workspace or artifact paths
-are ambiguous, advancing would violate the canonical workflow or selected
-rules, or the phase Goal cannot fit the `goal-setting` budget.
+Stop when cycle identity is unsafe, the GitHub Issue is missing or unreadable,
+the Requirements Input Gate fails, the Issue snapshot changes during
+Requirements, an unrelated unfinished Goal exists, required upstream input is
+missing, the canonical workspace or artifact paths are ambiguous, advancing
+would violate the canonical workflow or selected rules, or the phase Goal
+cannot fit the `goal-setting` budget.
 
 ## Output
 

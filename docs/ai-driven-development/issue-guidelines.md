@@ -21,18 +21,18 @@ when_to_read:
 
 # AI Driven Development Issue Guidelines
 
-Issueは、Requirements / PRDの入力です。
+Issue本文は、AIDD Requirements / PRDのTask Context正本です。
 
 Issueに書くべきものは、AIがRequirements / PRDを作れるだけの「意図と境界」です。Design Doc相当の実装方針や、具体的な作業手順まで書きすぎると、人間が作業分解し、AIが代行する形に戻りやすくなります。
 
 ## 役割分担
 
-- Issue: なぜやるか、何が成功か、どこまで任せるか
+- Issue: Task Context正本として、なぜやるか、何が成功か、どこまで任せるか
 - Requirements / PRD: AIがIssueと既存文脈から、要求と受け入れ条件に展開する
 - Design Doc: AIがRequirements / PRDから、実装方針、影響範囲、検証方針に展開する
 - Build / Verify: AIがDesign Docに沿って実装し、検証する
 - Ship: AIがBuild / Verify済みの成果をPR、検証結果、残リスク、レビュー返信として提出できる形に整える
-- Learn skill: AIがレビューコメント、検証結果、運用知見、ルール・ポリシー変更を次回Requirementsの入力へ整理する
+- Learn skill: AIがレビューコメント、検証結果、運用知見を、対象Issue本文の変更案またはルール・ポリシー変更へ整理する
 
 ## Issueに書くもの
 
