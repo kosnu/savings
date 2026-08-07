@@ -55,7 +55,7 @@ read-only境界は同一サイクルの後続工程にだけ適用します。�
 
 Goal本文には、選んだ関連ドキュメントと、選択理由を入力として含めます。すべての `docs/` を読むのではなく、`depends_on` で追加される前提文書を含む最小のサブグラフだけを参照します。
 
-Intent / Requirementsでは、Issue本文から抽出した分類だけをdirect node選択の根拠にします。各direct nodeについて、根拠となるIssue本文の箇所、`applies_to`の一致fieldと値、選択理由を記録します。`depends_on` nodeはdirect nodeからのedgeを記録します。候補実装、現在diff、前回artifact、review、会話上の近さ、ルールの更新時刻は選択根拠にしません。
+Intent / Requirementsでは、Issue本文から抽出した分類だけをdirect node選択の根拠にします。各direct nodeについて、根拠となるIssue本文の箇所、根拠内に同じ文字列で存在する`applies_to`の一致fieldと値、選択理由を記録します。`depends_on` nodeはdirect nodeからの推移的閉包を満たし、選択済みnodeからのedgeを記録します。候補実装、現在diff、前回artifact、review、会話上の近さ、ルールの更新時刻は選択根拠にしません。
 
 実装・テスト・mockなどの具体的なsurfaceにだけ適用するpolicyは、Issue本文がそのsurfaceを明示的な制約として指定している場合を除き、Requirementsで先回りして選びません。Design / Plan以降は、現在サイクルのread-only artifactと具体化した変更対象pathから追加のnodeを選択できますが、そのnodeを根拠にRequirementsへ要求を遡及追加してはいけません。
 
@@ -83,12 +83,13 @@ Context Packetには次だけを含めます。
 
 Intent / Requirements Goalを作成する前に、Task ContextとRule Selectionのprovenanceを検証します。
 
-- GitHubから最新Issueの本文、URL、`updatedAt`を取得し、本文SHA-256を計算する。
+- GitHubから最新Issueの`owner/repo#number`、正規URL、`updatedAt`、本文を取得し、本文SHA-256を計算する。取得した識別子、URL、`updatedAt`をvalidatorへ独立した入力として渡し、Goalおよび成果物のmanifestと完全一致させる。
 - GoalのTask Context sourceを`issue_body`だけに固定する。
 - Issue本文以外のTask Context sourceが含まれる場合はGoalを作成しない。
 - Goalと生成する`requirements.md`に同じRequirements Input Gateを記録し、両方をvalidatorで検証する。
-- Requirementsで選ぶ各direct rule-map nodeに、Issue本文中の根拠、`applies_to`の一致fieldと値、選択理由を付ける。
+- Requirementsで選ぶ各direct rule-map nodeに、Issue本文中の根拠、`applies_to`の一致fieldと値、選択理由を付ける。一致値は正規化後のIssue根拠内に同じ文字列として存在しなければならず、翻訳、類義語、選択理由で補完しない。
 - direct nodeの根拠をIssue本文へ追跡できない場合、そのnodeを除外する。必要なnodeか判断できなければStopする。
+- direct nodeからの推移的`depends_on`閉包をすべて含める。各非direct dependencyは一度だけ記録し、選択済み`via` nodeからの実在edgeでdirect nodeへ接続する。閉包外のnodeは含めない。
 - Requirementsのscope、機能要件、非機能要件、受け入れ条件、Q&A判断を、Issue本文または上記手順で選択したproduct / domain ruleへ追跡する。
 - 実装、テスト、mock、運用のpolicyはRequirementsの作り方を制約できるが、Issue本文から追跡できない新しいプロダクト要求や受け入れ条件を作ってはいけない。
 - Requirements完了前にIssueの`updatedAt`または本文SHA-256が変わった場合は、古いsnapshotで完了せず、最新Issue本文からRequirementsをやり直す。
@@ -118,7 +119,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 完了時チェック:
 
 - snapshotしたIssue本文、選択したrule-mapサブグラフから、要求、制約、対象外、受け入れ条件が逸脱していないか確認する。
-- Issue番号、URL、`updatedAt`、本文SHA-256が成果物とGoalで一致しているか確認する。
+- Issue番号、URL、`updatedAt`、本文SHA-256が取得値、成果物、Goalで一致しているか確認する。
 - Goalと成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通るか確認する。
 - scope、機能要件、非機能要件、受け入れ条件、Q&A判断のsource provenanceが欠落していないか確認する。
 - Requirements / PRD内のRule Selectionが、成果物内の判断と矛盾していないか確認する。
