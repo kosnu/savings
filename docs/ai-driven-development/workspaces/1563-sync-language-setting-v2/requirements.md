@@ -14,6 +14,10 @@ topics:
   - auth
   - language
   - profile
+  - storybook
+when_to_read:
+  - Issue #1563 の言語設定同期と初期登録の要求を確認するとき
+  - 言語設定を利用するStoryのAPI境界を確認するとき
 ---
 
 # Requirements / PRD: 言語設定のアカウント同期と初期登録
@@ -75,10 +79,11 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
   - `ai-driven.issue-guidelines` -> `docs/ai-driven-development/issue-guidelines.md`: IssueをRequirementsへ展開する責務境界を確認するため。
   - `documentation.policy` -> `docs/harness/policies/documentation-policy.md`: Requirements文書の責務とfront matterを確認するため。
   - `domain.user` -> `docs/harness/domain/user.md`: 言語の正本、初期登録、更新可能なプロフィール列を確認するため。
+  - `web.storybook-browser-tests` -> `apps/web/docs/policies/storybook-browser-tests.md`: 言語取得を含むStoryが必要なAPI境界を自己完結させる制約を確認するため。
   - `web.msw-handlers` -> `apps/web/docs/policies/msw-handlers.md`: 共通handlerのエラー応答、factory option、テスト契約の境界を確認するため。
 - Depends-on nodes:
   - `ai-driven.overview` -> `docs/ai-driven-development/overview.md`: Requirementsと後続phaseの責務を確認するため。
-  - `web.test-policy` -> `apps/web/docs/policies/test-policy.md`: API失敗とユーザー向け挙動の回帰テスト責務を確認するため。
+  - `web.test-policy` -> `apps/web/docs/policies/test-policy.md`: `web.storybook-browser-tests`と`web.msw-handlers`の前提として、API失敗とユーザー向け挙動の回帰テスト責務を確認するため。
   - `web.suspense-boundaries` -> `apps/web/docs/policies/suspense-boundaries.md`: 非同期処理のエラー境界を確認するため。
   - `web.query-cache` -> `apps/web/docs/policies/query-cache.md`: DB正本の再取得と保存成功の確定条件を確認するため。
 - Conflict decision: none。
@@ -131,6 +136,8 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 - 言語の初期登録は認証同期処理の責務内で行い、クライアントから`public.users`を直接作成しない。
 - 複数操作で共有するAPI handlerのエラー応答を、表示名や言語など特定操作のユーザー向け文言へ結び付けない。
 - 生のエラーコードやresponse bodyは、アプリが解釈して分岐するか外部仕様として公開する場合だけ厳密なテスト契約とする。それ以外はAPI失敗の伝播と操作固有のUI表示をそれぞれの境界で検証する。
+- 言語取得を含むStoryは、Story内のコンポーネントだけでなく共通providerやdecoratorから発生する通信も含め、表示・操作に必要なすべてのAPI境界をMSW handlerで再現する。未処理requestのbypass、実API、外部通信、偶発的な失敗状態へ依存させない。
+- Story用handlerは、そのAPI境界を必要とする最小のStoryまたはStoryグループへ設定する。すべてのStoryが同じ境界へ依存しない限り、共通previewへ広げない。
 - Issue #1563、監督入力、`domain.user`から追跡できない要求を追加しない。
 
 ## 受け入れ条件
@@ -146,6 +153,7 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 - AC-9: 言語取得または保存失敗時もアプリ全体を利用でき、未保存を成功済みと表示しない。
 - AC-10: 既存の日本語・英語表示と既存ユーザーの保存値が壊れていないことを回帰テストで確認できる。
 - AC-11: 言語更新のAPI失敗は、共通handlerの操作固有文言へ依存せず失敗として伝播することを確認でき、言語固有の表示文言と画面状態はUI境界で確認できる。
+- AC-12: 言語取得を行うStoryは必要なusers API境界をMSWで再現し、Storybook browser testが実Supabaseや未処理requestの失敗状態に依存せず完了する。
 
 ## Q&Aログ
 
@@ -161,6 +169,8 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
   - A: 補完しない。既存ユーザーに推測値を強制保存しないというIssue制約を維持する。
 - Q: 言語更新のAPI失敗テストは、共通handlerが返す文言まで契約にするか？
   - A: アプリが生の値を解釈する場合を除き契約にしない。API境界では失敗伝播を、UI境界では言語固有の表示を検証する。
+- Q: 言語取得が共通providerから発生するStoryは、実APIへ接続して確認するか？
+  - A: 接続しない。Storyが必要とするusers API境界を最小のStoryまたはStoryグループのMSW handlerで再現する。
 
 ## 技術的考慮事項
 
@@ -168,6 +178,7 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 - 新規ユーザー作成と初期言語保存の原子性を保つため、既存の認証同期処理内で扱う。
 - 回帰テストは、候補順序、地域付き言語タグ、対応候補なし、既存ユーザー非上書き、保存失敗を対象にする。
 - 共通MSW handlerの既定エラーは操作中立とし、factory optionはstatus、response body、delayなどAPI境界の差分だけを表現する。
+- 後続Designでは、言語取得を行うPage Storyと既存handler配置を監査し、必要な境界だけを局所的に補う。共通previewへの追加は全Storyが同じ依存を持つ場合に限る。
 - 具体的な関数名、migration名、コンポーネント構成はDesignで決める。
 
 ## Verification
@@ -176,6 +187,7 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 
 - Issue #1563、監督入力、`docs/harness/domain/user.md`から各要求を追跡できる。
 - `apps/web/docs/policies/msw-handlers.md`と`apps/web/docs/policies/test-policy.md`からAPI失敗とUI表示の検証境界を追跡できる。
+- `apps/web/docs/policies/storybook-browser-tests.md`からStoryのAPI通信分離とAC-12を追跡できる。
 - 未決定fallback、対応言語追加、登録時UIを要求へ追加していない。
 - `git diff --check`が成功する。
 
@@ -184,4 +196,5 @@ Issue #1563では、ブラウザの`localStorage`だけに保存されていた�
 - `navigator.languages`からの初期候補、DB正本、既存値非上書きの境界が複数解釈になる。
 - 対応言語がない場合のfallbackを決めなければ今回の必須成功条件を満たせない。
 - `name`と`language`以外のプロフィール列、対応言語追加、登録時UIが必要になる。
+- 言語取得を行うStoryを外部通信や実Supabaseへ依存させなければ検証できない。
 - Requirementsがselected rule-map subgraphと矛盾する。

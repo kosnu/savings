@@ -132,6 +132,11 @@ export const Appearance: Story = {
       return [settingsRoute.addChildren([settingsAppearanceRoute])]
     }),
   ],
+  parameters: {
+    msw: {
+      handlers: createProfileHandlers(),
+    },
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 

@@ -1,156 +1,148 @@
 ---
-title: "Design Doc: MSWエラー応答とテスト契約を分離する"
+title: "Design Doc: 言語取得を行うStoryのAPI通信を分離する"
 doc_type: design
 status: draft
 area: web
 applies_to:
   - docs/ai-driven-development
-  - apps/web/src/test/msw/handlers
-  - apps/web/src/features/profile
-  - apps/web/src/features/preferences
+  - apps/web/src/app/routes/SettingsPage
 topics:
   - ai-driven-development
   - design
+  - storybook
+  - browser-test
   - msw
-  - test
-  - profile
   - language
+when_to_read:
+  - Issue #1563 の言語取得を含むStoryを変更するとき
+  - SettingsPageのbrowser-test Storyが依存するAPI境界を確認するとき
 ---
 
-# Design Doc: MSWエラー応答とテスト契約を分離する
+# Design Doc: 言語取得を行うStoryのAPI通信を分離する
 
 ## 目的
 
-[Requirements](./requirements.md)をread-only入力とし、表示名とlanguageが共有するusers endpoint handlerから操作固有のエラー文言を除き、API失敗の伝播とユーザー向け表示のテスト責務を分離する。production code、API契約、UI文言、ユーザー操作は変更しない。
+[Requirements](./requirements.md)をread-only入力とし、言語取得を行う`SettingsPage.Appearance` Storyがusers API境界をMSW内で完結させ、未処理requestのbypass、実Supabase、外部通信、偶発的な取得失敗へ依存しない状態にする。
+
+このDesignではStoryのテスト環境だけを変更する。production code、DB/API/Auth/RLS、ユーザー向け表示・操作、共通MSW handlerの契約は変更しない。
 
 ## Current Stateと原因境界
 
-- `createProfileHandlers`は表示名とlanguageの取得・更新で同じ`/rest/v1/users` handlerを共有する。
-- PATCHの既定500 responseは`Failed to save display name.`であり、共有endpointではなく表示名操作に意味が固定されている。
-- 表示名とlanguageのintegration testはいずれも、この生のresponse文言をthrow messageとして厳密比較している。
-- applicationはこの生文言を解釈して分岐せず、各UIは既存のlocalized文言と失敗状態を表示する。
-- 表示名とlanguageのUIテストは、保存失敗時の操作固有文言、入力・言語・`localStorage`の維持、成功通知を出さないことをすでに検証している。
+- `SettingsPage.stories.tsx`はPage Storyであり、全Storyが`browser-test`対象である。
+- Storybook previewは認証済みsessionとQueryClientを提供し、未処理requestを`bypass`する。
+- `Appearance`が描画する`LanguageSelect`は、認証済みユーザーIDで`useLanguagePreference`を実行し、`/rest/v1/users`へGETする。
+- `Appearance`にはusers API handlerがなく、言語取得がStoryのMSW境界を越える。
+- 同じファイルの`Profile`と`ProfileRetryFailed`は、必要な状態に応じて`createProfileHandlers()`を各Storyへ局所設定している。
+- `Default`と`BookManagement`はusers APIを必要としないため、全Story共通の依存ではない。
 
-したがって、共有fixtureの操作固有文言とintegration testの厳密比較が責務の食い違いである。productionの保存処理やUI表示を変更する根拠はない。
+不足しているのは`Appearance`固有のusers GET境界であり、productionの言語取得実装やhandler factoryの機能ではない。
 
 ## Rule Selection
 
 - Rule map: `docs/harness/rule-map.json`
 - Classification:
-  - path: `apps/web/src/test/msw/handlers/**`, `apps/web/src/features/profile/**`, `apps/web/src/features/preferences/**`, `docs/ai-driven-development/**`
+  - path: `apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx`, `docs/ai-driven-development/**`
   - domain: `web`, `test`, `user`
-  - activity: `change_msw_handler`, `test_api_interaction`, `change_test`
-  - topic: `msw`, `test`, `profile`, `language`
+  - activity: `change_storybook_browser_test`, `test_api_interaction`
+  - topic: `storybook`, `browser-test`, `msw`, `language`
 - Selected nodes:
   - `ai-driven.workflow` -> `docs/ai-driven-development/workflow.md`: DesignとBuildのartifact境界を守るため。
-  - `documentation.policy` -> `docs/harness/policies/documentation-policy.md`: Design Docの責務を守るため。
-  - `domain.user` -> `docs/harness/domain/user.md`: 表示名とlanguageが共有するプロフィール更新境界を確認するため。
-  - `web.msw-handlers` -> `apps/web/docs/policies/msw-handlers.md`: 共有handler、factory option、raw error contractの責務を適用するため。
-  - `web.test-policy` -> `apps/web/docs/policies/test-policy.md`: API失敗とユーザー可視挙動の検証境界を確認するため。
+  - `documentation.policy` -> `docs/harness/policies/documentation-policy.md`: Design Docのfront matterと責務を守るため。
+  - `domain.user` -> `docs/harness/domain/user.md`: `public.users.language`の正本境界を確認するため。
+  - `web.storybook-browser-tests` -> `apps/web/docs/policies/storybook-browser-tests.md`: API通信Storyの全境界再現と最小配置を適用するため。
+  - `web.msw-handlers` -> `apps/web/docs/policies/msw-handlers.md`: 既存factoryの代表正常系をAPI境界として再利用するため。
 - Depends-on nodes:
   - `ai-driven.overview` -> `docs/ai-driven-development/overview.md`。
+  - `web.test-policy` -> `apps/web/docs/policies/test-policy.md`。
   - `web.suspense-boundaries` -> `apps/web/docs/policies/suspense-boundaries.md`。
   - `web.query-cache` -> `apps/web/docs/policies/query-cache.md`。
 - Conflict decision: none。
 
 ## 採用する設計
 
-### 1. 共有PATCH handlerの既定エラーをendpoint中立にする
+### `Appearance` Storyへusers API handlerを局所設定する
 
-`createProfileHandlers({ update: { error: true } })`の既定responseを、status 500と`{ message: "Failed to update profile." }`にする。
+`SettingsPage.stories.tsx`の`Appearance`へ次のStory parametersを追加する。
 
-- 表示名、languageのどちらにも依存しないプロフィール更新失敗として表現する。
-- `errorResponse` optionはstatus 500で任意のAPI response bodyを返す既存責務のまま維持する。
-- 表示名用・language用のoptionを追加しない。
-- request bodyを見てエラー文言を分岐しない。
-- 成功時のstateful更新、GET失敗mode、delayは変更しない。
+```ts
+parameters: {
+  msw: {
+    handlers: createProfileHandlers(),
+  },
+},
+```
 
-### 2. integration testはAPI失敗の伝播だけを契約にする
-
-次の2テストは、既定500 responseによって対象関数がrejectすることを`rejects.toThrow()`で確認する。
-
-- `updateLanguagePreference.integration.test.ts`
-- `updateDisplayName.integration.test.ts`
-
-両関数とも生のerror messageを分類・表示契約として利用しないため、fixture文言を厳密比較しない。対象ID、更新値、0件、別対象、不一致などapplicationが解釈する値の検証は既存どおり維持する。
-
-### 3. 操作固有の失敗表示は既存UIテストが所有する
-
-- language UIは保存失敗時に言語と`localStorage`を維持し、言語固有の通知を表示して成功通知を出さないことを検証する。
-- 表示名UIは保存失敗時に入力値を維持し、表示名固有のalertを表示して成功通知を出さないことを検証する。
-- UI文言、translation resource、コンポーネント、Storyは変更しない。
+- 既に同ファイルでimportされている`createProfileHandlers`を再利用する。
+- factoryの既定GET responseは`language: null`を返し、既存のAppearance Storyが表す通常状態を維持する。
+- handlerはAPI境界を必要とする`Appearance`だけへ置く。
+- Storyのplay、UI文言、args、router、providerは変更しない。
+- handler factory、共通preview、未処理request設定は変更しない。
 
 ## 責務分離
 
-| 境界 | 所有する契約 | 所有しないもの |
+| 境界 | 所有する責務 | 今回変更しない責務 |
 | --- | --- | --- |
-| 共通MSW handler | users PATCHの成功shape、500失敗、API response差分 | 操作固有のユーザー向け文言 |
-| handler factory option | status 500で返すresponse body、delayなどAPI境界差分 | 表示名・language別のUI選択 |
-| integration test | request条件、response解釈、reject伝播 | applicationが解釈しないfixture文言 |
-| UI test | 操作固有の表示文言、保持状態、成功/失敗の区別 | MSW response bodyの内部文言 |
+| `Appearance` Story | 描画に必要なusers API正常系を局所的に提供する | productionの取得・保存挙動 |
+| `createProfileHandlers` | users GET/PATCHの代表的response shapeを再現する | Story固有の配置判断 |
+| Storybook preview | 共通provider、認証session、auth handlerを提供する | 一部Storyだけが使うusers handler |
+| `Appearance` play | 言語・テーマの正常表示を確認する | handler内部や外部通信の実装詳細 |
 
-## 変更対象
+## Requirements・受け入れ条件との対応
 
-- `apps/web/src/test/msw/handlers/profile.ts`: PATCH既定エラーをendpoint中立にする。
-- `apps/web/src/features/preferences/languagePreference/updateLanguagePreference.integration.test.ts`: raw message依存を外す。
-- `apps/web/src/features/profile/profileSettings/updateDisplayName.integration.test.ts`: 同じ共有fixture依存を外す。
-- `docs/ai-driven-development/workspaces/1563-sync-language-setting-v2/design-doc.md`: 本設計。
-
-## 対象外
-
-- productionのprofile/language query、mutation、hook、component。
-- i18n resourceとユーザー向け文言。
-- DB migration、generated type、RLS、RPC、認証処理。
-- handlerのsuccess response、stateful更新、GET error mode。
-- `errorResponse` optionの削除、操作別optionの追加。
-- 現在サイクルの`requirements.md`。
-
-## テスト方針
-
-| Requirements | 検証 |
+| Requirements | 設計・検証 |
 | --- | --- |
-| AC-6、AC-8 | language integrationの成功、対象ID・値不一致、0件テストを維持する。 |
-| AC-9 | 共有500 responseでlanguage更新がrejectし、language UIが保存成功扱いしない既存テストを確認する。 |
-| AC-10 | Webの全unit/integration batchで表示名、language、既存プロフィール経路の回帰を確認する。 |
-| AC-11 | languageと表示名のintegration testが生文言へ依存せずrejectを確認し、各UI testが操作固有の表示と状態を確認する。 |
+| AC-5、AC-9 | 既存のlanguage query実装と回帰テストを変更せず、Web unit/integration batchで維持する。 |
+| AC-10 | Web全検証で既存言語表示と保存値の回帰がないことを確認する。 |
+| AC-12 | `Appearance`へ`createProfileHandlers()`を設定し、Storybook browser testを実行する。 |
 
-Build / Verifyでは、AGENTS.mdに従い`pnpm run web:format`後、`web:lint`、`web:format-check`、`web:typecheck`、`web:test:unit-integration`を同じbatchで実行する。browser-test tagged storyやStorybook設定は変更しないため、`web:test:storybook`は対象外とする。
+Story自身が`browser-test`対象であるため、新しいテストファイルは追加しない。変更後のStorybook browser testを回帰証拠とする。
 
 ## 採用しない案
 
 | 案 | 理由 |
 | --- | --- |
-| languageだけ期待文言を変更する | 共有handlerが表示名固有のままで、endpoint中立性を満たさない。 |
-| language用のerror optionを追加する | API差分ではなくUI操作名をfactoryへ持ち込み、再利用責務を分断する。 |
-| request bodyでエラー文言を切り替える | mockがUI固有ロジックを実装することになる。 |
-| integration testで中立文言を厳密比較する | applicationが解釈しないfixture内部値を新しい契約にしてしまう。 |
-| UI文言やproduction error handlingを変更する | 既存UI testがRequirementsの失敗挙動を満たしており、今回の責務修正に不要。 |
+| 共通previewへprofile handlerを追加する | `Default`と`BookManagement`はusers APIへ依存せず、最小配置のルールに反する。 |
+| `LanguageSelect`のqueryをStoryで無効化する | productionと異なる経路を作り、API境界の欠落を隠す。 |
+| 未処理requestのbypassを成功条件にする | 実API・外部通信・偶発的失敗へ依存し、AC-12を満たさない。 |
+| profile handler factoryを変更する | 既存factoryは必要な正常系をすでに提供しており、変更理由がない。 |
+| 新しい専用handlerを作る | users endpointの既存handlerと責務が重複する。 |
 
 ## 既存挙動への影響
 
-- production runtime、DB正本、保存・再取得、端末間同期、初期登録は変わらない。
-- テストfixtureの500 response bodyだけが操作中立になる。
-- 表示名とlanguageのintegration testは、実際に必要な失敗伝播だけを固定する。
-- 操作固有のユーザー体験は既存UIテストで引き続き保護される。
+- production runtime、言語のDB正本、取得・保存、初期登録、端末間同期は変わらない。
+- Storybookの`Appearance`は、従来と同じ英語・Lightの正常表示を、外部通信なしで再現する。
+- `Profile`、`ProfileRetryFailed`、他のSettingsPage Storyのhandlerと表示は変わらない。
+- ユーザー向け操作や文言は追加・変更・削除しない。
 
 ## リスクと確認事項
 
-- 共有handlerを使う他テストが生文言へ依存していないことは検索済みだが、Web全unit/integration batchで確認する。
-- `errorResponse` optionの明示payloadを必要とする将来テストは維持できる。
-- 新しいAPI response仕様を定義する変更ではなく、テストfixtureの既定値を実契約以上に固定しないための修正である。
+- Story-level parametersがpreviewのauth handlerと併用されることは、同ファイルの既存StoryパターンおよびStorybook browser testで確認する。
+- `createProfileHandlers()`はGETとPATCHの両方を返すが、既存factoryの再利用単位であり、新しいAPI責務は追加しない。
+- `Appearance`のplayは未処理request自体を直接assertしないため、handler配置の差分監査とbrowser test成功を組み合わせて確認する。
+
+## Build / Verify手順
+
+1. `SettingsPage.stories.tsx`の`Appearance`へ既存`createProfileHandlers()`を局所設定する。
+2. RequirementsとDesign Docをread-onlyのまま、実装差分がAC-12とselected rulesに一致することを確認する。
+3. repository rootで`pnpm run web:format`を実行する。
+4. `pnpm run web:lint`、`pnpm run web:format-check`、`pnpm run web:typecheck`、`pnpm run web:test:unit-integration`を同じbatchで実行する。
+5. browser-test対象Storyの変更として`pnpm run web:test:storybook`を実行する。
+6. `git diff --check`とscope監査を行う。
 
 ## Verification
 
 Designはdocumentation-onlyのためapplication commandを実行しない。
 
-- RequirementsのAC-9〜AC-11とテスト方針を照合する。
-- 現在サイクルのRequirementsを変更していないことを確認する。
-- selected ruleと設計判断の整合を確認する。
-- `git diff --check`を実行する。
+- RequirementsのAC-12と採用設計・検証が一対一で対応する。
+- current cycleのRequirementsを変更していない。
+- production、共通preview、handler factory、ユーザー操作を変更対象にしていない。
+- selected ruleと設計判断が整合する。
+- `git diff --check`が成功する。
 
 ## Stop条件
 
-- 生のerror responseをapplicationが解釈することが判明する。
-- production code、API契約、DB/Auth/RLS、UI文言またはユーザー操作の変更が必要になる。
-- 共有handlerの他利用箇所が操作固有のresponseを外部契約として必要とする。
+- `Appearance`への局所handlerだけではAPI通信を分離できない。
+- 共通preview、handler factory、production code、DB/API/Auth/RLSを変更する必要がある。
+- 新しいユーザー向け操作・文言またはRequirementsにない成功条件が必要になる。
+- 他のStoryへ想定外の影響が広がる。
 - Requirementsまたはselected ruleと矛盾する。
