@@ -477,6 +477,7 @@
         "topics": ["storybook", "browser-test", "vitest"]
       },
       "depends_on": ["web.test-policy"],
+      "related": ["web.msw-handlers"],
       "overrides": [],
       "priority": 83
     }

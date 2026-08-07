@@ -13,6 +13,7 @@ when_to_read:
   - Storybookのブラウザテスト対象を変更するとき
   - component storyを追加または変更するとき
   - Page storyを追加または変更するとき
+  - StoryがAPI通信を行うとき
   - `pnpm --filter web test:storybook` の対象範囲を確認するとき
 ---
 
@@ -57,4 +58,18 @@ const meta = {
 
 Page 以外の story に `browser-test` を付ける場合は、ブラウザテスト対象にする理由が story の責務から読み取れるようにしてください。
 
+## API通信の分離
+
+API通信を行うStoryは、表示または操作に必要なすべてのAPI境界をMSW handlerで再現します。Story内のコンポーネントだけでなく、共通providerやdecoratorから発生するAPI通信も対象に含めます。
+
+- 未処理requestのbypass、実APIの可用性、外部通信、偶発的な失敗状態に依存してStoryやbrowser testを成立させません。
+- handlerは、API境界を必要とする最小のStoryまたはStoryグループへ設定します。
+- すべてのStoryが同じAPI境界へ依存する場合だけ、共通decoratorまたはpreviewへhandlerを置きます。
+- handlerのresponseやfactory optionは、`apps/web/docs/policies/msw-handlers.md`に従います。
+
 通常の Storybook は `apps/web/.storybook/` を使い、カタログ用途として全 story を読み込みます。`apps/web/.storybook-test/` は Storybook test project 専用で、テスト実行時の読み込み負荷を抑えるために Page story へ限定します。
+
+## 関連ポリシー
+
+- `apps/web/docs/policies/test-policy.md`
+- `apps/web/docs/policies/msw-handlers.md`
