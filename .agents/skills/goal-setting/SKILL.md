@@ -62,8 +62,12 @@ definition and not as output skeletons.
 For an Intent / Requirements Goal:
 
 - Select each direct rule-map node from Issue evidence and an exact
-  `applies_to` field/value match. Record the evidence, match, and reason.
-- Add dependency nodes only through declared `depends_on` edges.
+  `applies_to` field/value match. The normalized `match.value` must occur in the
+  Issue evidence; translation, aliases, and `reason` are not evidence. Record
+  the evidence, match, and reason.
+- Add the complete transitive dependency closure through declared `depends_on`
+  edges. Each non-direct dependency appears once and names a selected `via`
+  node with a declared edge.
 - Do not select implementation, test, fixture, mock, or app policies because a
   surface appears in conversation, the current diff, a previous artifact, or a
   recently updated rule. Defer those policies to Design / Plan or Build /

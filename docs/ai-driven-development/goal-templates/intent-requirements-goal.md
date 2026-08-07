@@ -64,15 +64,15 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
   - domain:
   - activity:
   - topic:
-- Direct nodes: `id` -> `file`: Issue本文の根拠 / `applies_to`の一致fieldと値 / reason
-- Depends-on nodes: `id` -> `file`: directまたはdependency nodeからのedge / reason
+- Direct nodes: `id` -> `file`: Issue本文の根拠 / 根拠内に同じ文字列で存在する`applies_to`の一致fieldと値 / reason
+- Depends-on nodes: `id` -> `file`: direct nodeからの推移的閉包を満たす、選択済みdirectまたはdependency nodeからのedge / reason
 - Conflict decision: none / overrides / priority
 
 実装、test、fixture、mock、app固有のpolicyは、Issue本文がそのsurfaceを明示している場合を除き、Design / PlanまたはBuild / Verifyで選ぶ。実装policyからプロダクト要求、受け入れ条件、Q&A判断を新設しない。
 
 ## Requirements Input Gate
 
-以下のJSONだけを機械検証対象としてGoalに含め、生成する`requirements.md`にも同じ内容を記録する。`issue_evidence`はIssue本文の原文抜粋、`match`はrule-map nodeの`applies_to`と一致させる。
+以下のJSONだけを機械検証対象としてGoalに含め、生成する`requirements.md`にも同じ内容を記録する。`issue_evidence`はIssue本文の原文抜粋、`match`はrule-map nodeの`applies_to`と一致させ、その値を正規化後の`issue_evidence`内に同じ文字列で含める。`depends_on`はdirect nodeからの推移的閉包をすべて記録する。
 
 ```json
 {
@@ -86,14 +86,12 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
   "direct_rules": [
     {
       "id": "domain.user",
-      "issue_evidence": "Issue本文の根拠",
+      "issue_evidence": "userの言語設定を保存する",
       "match": { "field": "domains", "value": "user" },
       "reason": "Issueの対象domainに適用するため"
     }
   ],
-  "depends_on": [
-    { "id": "依存node id", "via": "依存元node id" }
-  ]
+  "depends_on": []
 }
 ```
 
@@ -145,8 +143,8 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 技術的考慮事項が参考情報として整理されている
 - [ ] Issue本文から読み取れる意図・制約・対象外を超えて解釈を広げていない
 - [ ] Task ContextがIssue本文だけで、Issue番号、URL、updatedAt、本文SHA-256が記録されている
-- [ ] direct nodeごとにIssue本文の根拠、`applies_to`一致fieldと値、選択理由がある
-- [ ] dependency nodeごとにrule-mapの`depends_on` edgeがある
+- [ ] direct nodeごとにIssue本文の根拠、根拠内に存在する`applies_to`一致fieldと値、選択理由がある
+- [ ] direct nodeからの推移的dependency閉包がすべてあり、各非direct nodeが選択済み`via`からのrule-map edgeで接続されている
 - [ ] プロダクト要求、受け入れ条件、Q&A判断がIssue本文または選択したproduct/domain ruleへ追跡できる
 - [ ] 実装、test、fixture、mock、app policyからプロダクト要求を新設していない
 - [ ] 会話、review、現在diff、前回artifact、直前に更新されたruleをTask Contextへ追加していない
@@ -174,7 +172,8 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - 対象Issue本文を取得できない
 - Requirements Input Gateが失敗する
 - Requirements作成中にIssueのURL、updatedAt、本文、または本文SHA-256が変わった
-- direct nodeの選択をIssue本文の根拠と`applies_to`一致へ追跡できない
+- direct nodeの選択をIssue本文の根拠内に存在する`applies_to`一致値へ追跡できない
+- direct nodeから必要な推移的`depends_on`閉包または接続edgeが欠けている
 - `docs/harness/rule-map.json` で選ぶべき関連ドキュメントが曖昧
 - Requirements / PRDが選択したルール・ポリシーに違反している、または違反の可能性がある
 ````

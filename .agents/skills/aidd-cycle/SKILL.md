@@ -53,22 +53,26 @@ that capability blocker and stop.
 
 Before creating an Intent / Requirements Goal:
 
-1. Save the exact fetched Issue body and proposed Goal in temporary files.
+1. Save the exact fetched Issue body and proposed Goal in temporary files. Keep
+   the fetched `owner/repo#number`, canonical URL, and `updatedAt` as separate
+   validator inputs.
 2. Include the template's `Requirements Input Gate` JSON block in the Goal.
    Record only the Issue snapshot, Issue-evidenced direct rules, and declared
-   `depends_on` edges.
+   `depends_on` closure. Every direct rule's `match.value` must occur in its
+   Issue evidence after normalization.
 3. Run:
 
-   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json`
+   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json`
 
 4. Create the Goal only when validation succeeds. Remove the temporary files.
 
 The generated `requirements.md` must contain the same gate block. Before
 completing the Requirements Goal, run the validator again with
-`--document <requirements-file>`, then fetch the Issue again. Its URL,
-`updatedAt`, body, and body SHA-256 must still match the snapshot in the Goal
-and generated Requirements artifact. If validation fails or the Issue changed,
-stop and restart Requirements from the latest Issue body.
+the same Issue metadata inputs and `--document <requirements-file>`, then fetch
+the Issue again. Its identifier, URL, `updatedAt`, body, and body SHA-256 must
+still match the snapshot in the Goal and generated Requirements artifact. If
+validation fails or the Issue changed, stop and restart Requirements from the
+latest Issue body.
 
 ## Execution
 
