@@ -113,7 +113,9 @@ parsed Gate objects must exactly match their counterparts in the validated
 Goal. Remove the temporary Issue and Goal files only after both artifact gates
 and the final Issue snapshot check succeed.
 The artifact must use the canonical workspace path, contain every required
-Requirements section, preserve unchanged requirement and section content
+Requirements section in its own level-two heading without assigning one
+heading to multiple canonical section IDs, preserve unchanged requirement and
+section content
 including indented continuation lines of bullet requirements, and
 provide exact Issue evidence for every changed or new item. Then fetch the Issue again. Its
 identifier, URL, `updatedAt`, body, and body SHA-256 must still match the
@@ -129,30 +131,33 @@ current Requirements, never as a design for only the newly added delta.
 
 Before creating a Design / Plan Goal:
 
-1. Confirm the current `requirements.md` passed both Requirements artifact
-   gates. Read the complete artifact, calculate its SHA-256, and
+1. Confirm the current canonical workspace `requirements.md` passed both
+   Requirements artifact gates. Reject any caller-supplied copy, temporary
+   path, or symlink alias. Read the complete artifact, calculate its SHA-256, and
    collect every stable `FR-*`, `NFR-*`, and `AC-*` identifier.
 2. Include the template's `Design Coverage Gate` JSON block in the Goal with
    that hash, the complete canonical identifier list, and the Git `HEAD` Design
    baseline SHA-256. Outside the gate, include one substantive design and
    verification scope line per requirement ID and one review scope line per
-   Git baseline section. Grouped coverage is invalid. A changed or
+   Git baseline section. Each requirement scope line must contain only its
+   target requirement ID. Grouped coverage is invalid. A changed or
    newly added requirement may be called out as the cycle delta, but it may not
    narrow the Goal scope.
 3. Run:
 
-   `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <requirements-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
+   `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
 
 4. Create the Goal only when validation succeeds.
 
 The generated `design-doc.md` must contain the artifact form of the same gate.
 Each current requirement ID must have its own `coverage` entry with substantive
-ID-bearing design and verification evidence outside the gate. Every Git `HEAD`
+design and verification evidence on a unique outside-the-gate source line that
+contains only that requirement ID. Every Git `HEAD`
 Design section must be classified in order as exact-content `preserved` or
 explicitly `replaced` with new Design evidence. Before completing Design / Plan,
 run:
 
-`python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
+`python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
 
 ID and heading presence is necessary but not semantic proof. Stop when an
 evidence line does not actually resolve its specific requirement or baseline

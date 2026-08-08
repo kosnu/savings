@@ -168,18 +168,26 @@ def extract_required_requirements_sections(
     sections = extract_level_two_sections(document)
     normalized_sections = [
         (
+            index,
             section,
             normalize_markdown_text(section.heading),
             normalize_markdown_text(section.body),
         )
-        for section in sections
+        for index, section in enumerate(sections)
     ]
     matched_sections: dict[str, DocumentSection] = {}
+    assigned_sections: dict[int, str] = {}
     for section_id, aliases in REQUIRED_REQUIREMENTS_SECTIONS.items():
         matches = [
-            (section, content)
-            for section, heading, content in normalized_sections
-            if any(alias in heading for alias in aliases)
+            (index, section, content)
+            for index, section, heading, content in normalized_sections
+            if any(
+                any(
+                    segment.strip().startswith(alias)
+                    for segment in re.split(r"[/／|｜・]", heading)
+                )
+                for alias in aliases
+            )
             and not (
                 section_id == "functional"
                 and (
@@ -195,7 +203,13 @@ def extract_required_requirements_sections(
             raise ValueError(
                 f"Requirements must contain exactly one {section_id} section"
             )
-        section, content = matches[0]
+        section_index, section, content = matches[0]
+        if section_index in assigned_sections:
+            raise ValueError(
+                "Requirements sections must map one-to-one to headings: "
+                f"{assigned_sections[section_index]} and {section_id}"
+            )
+        assigned_sections[section_index] = section_id
         if len(content) < 2:
             raise ValueError(f"Requirements section is empty: {section_id}")
         matched_sections[section_id] = section

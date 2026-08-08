@@ -99,7 +99,7 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
 
 ## Requirements Completeness Gate
 
-新サイクルでは、最新Issue全体を満たすRequirements / PRDの完成版を作る。今回追加・変更された内容は差分であり、Goalまたは成果物のscopeではない。baselineは呼び出し側で選ばず、validatorが`--workspace`に対応するcanonical `requirements.md`をGit `HEAD`から取得する。前回の全要求項目と必須section、新しい全要求項目について状態遷移を記録する。箇条書き要求では、次の同階層項目またはsection境界までのインデントされた継続行も要求内容としてhash化する。`changed`と`new`には最新Issue本文の原文根拠が必要であり、廃止根拠は対象IDと明示的な廃止表現を含まなければならない。
+新サイクルでは、最新Issue全体を満たすRequirements / PRDの完成版を作る。今回追加・変更された内容は差分であり、Goalまたは成果物のscopeではない。baselineは呼び出し側で選ばず、validatorが`--workspace`に対応するcanonical `requirements.md`をGit `HEAD`から取得する。前回の全要求項目と必須section、新しい全要求項目について状態遷移を記録する。生成する`requirements.md`の各必須sectionは別々のlevel-two見出しへ一対一で対応させ、1つの見出しで複数sectionを満たさない。箇条書き要求では、次の同階層項目またはsection境界までのインデントされた継続行も要求内容としてhash化する。`changed`と`new`には最新Issue本文の原文根拠が必要であり、廃止根拠は対象IDと明示的な廃止表現を含まなければならない。
 
 ```json
 {
@@ -204,6 +204,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 成果物のRequirements Input GateとRequirements Completeness Gateが、保持したGoalの対応するparsed Gate objectと完全一致する
 - [ ] 成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、根拠なしに前回要求項目または主要sectionを欠落・変更させていない
 - [ ] 前回と現在の背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項が状態遷移として追跡されている
+- [ ] 各必須sectionが別々のlevel-two見出しへ一対一で対応し、1つの見出しを複数sectionへ使っていない
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントとの整合性が確認されている
 - [ ] Requirements / PRDが、選択したルール・ポリシーに違反していないことを確認している
 
