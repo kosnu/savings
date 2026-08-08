@@ -23,6 +23,9 @@ MACHINE_GATE_PATTERN = re.compile(
 LEVEL_TWO_SECTION_PATTERN = re.compile(
     r"(?ms)^## (?!#)(?P<heading>[^\n]+)\n(?P<body>.*?)(?=^## (?!#)|\Z)"
 )
+FENCED_CODE_OPEN_PATTERN = re.compile(
+    r"^(?P<indent> {0,3})(?P<fence>`{3,}|~{3,})(?P<info>[^\r\n]*)$"
+)
 REQUIRED_REQUIREMENTS_SECTIONS = {
     "background": ("背景", "background"),
     "users": ("対象ユーザー", "target users"),
@@ -65,8 +68,50 @@ def strip_machine_gates(document: str) -> str:
     return MACHINE_GATE_PATTERN.sub("", document)
 
 
+def mask_fenced_code_blocks(document: str) -> str:
+    masked = list(document)
+    fence_character: str | None = None
+    fence_length = 0
+    offset = 0
+
+    for line in document.splitlines(keepends=True):
+        content = line.rstrip("\r\n")
+        should_mask = fence_character is not None
+
+        if fence_character is None:
+            opening = FENCED_CODE_OPEN_PATTERN.fullmatch(content)
+            if opening is not None:
+                fence = opening.group("fence")
+                info = opening.group("info")
+                if fence[0] != "`" or "`" not in info:
+                    fence_character = fence[0]
+                    fence_length = len(fence)
+                    should_mask = True
+        else:
+            stripped = content.lstrip(" ")
+            indent = len(content) - len(stripped)
+            closing = re.match(
+                rf"{re.escape(fence_character)}{{{fence_length},}}",
+                stripped,
+            )
+            if (
+                indent <= 3
+                and closing is not None
+                and not stripped[closing.end():].strip(" \t")
+            ):
+                fence_character = None
+                fence_length = 0
+
+        if should_mask:
+            masked[offset : offset + len(content)] = " " * len(content)
+        offset += len(line)
+
+    return "".join(masked)
+
+
 def extract_requirement_mentions(document: str) -> list[str]:
     document = strip_machine_gates(document)
+    document = mask_fenced_code_blocks(document)
     return sorted(
         {match.group(0) for match in REQUIREMENT_ID_PATTERN.finditer(document)},
         key=requirement_sort_key,
@@ -115,7 +160,8 @@ def bullet_item_end(document: str, match: re.Match[str]) -> int:
 
 def extract_requirement_items(document: str) -> dict[str, RequirementItem]:
     document = strip_machine_gates(document)
-    matches = list(REQUIREMENT_DEFINITION_PATTERN.finditer(document))
+    structure = mask_fenced_code_blocks(document)
+    matches = list(REQUIREMENT_DEFINITION_PATTERN.finditer(structure))
     items: dict[str, RequirementItem] = {}
     for index, match in enumerate(matches):
         requirement_id = match.group("requirement_id")
@@ -126,7 +172,10 @@ def extract_requirement_items(document: str) -> dict[str, RequirementItem]:
         if marker.startswith("#"):
             heading_level = len(marker)
             end = len(document)
-            for heading in re.finditer(r"(?m)^(?P<marker>#{1,6})[ \t]+", document[match.end():]):
+            for heading in re.finditer(
+                r"(?m)^(?P<marker>#{1,6})[ \t]+",
+                structure[match.end():],
+            ):
                 if len(heading.group("marker")) <= heading_level:
                     end = match.end() + heading.start()
                     break
@@ -146,10 +195,11 @@ def extract_requirement_items(document: str) -> dict[str, RequirementItem]:
 
 def extract_level_two_sections(document: str) -> list[DocumentSection]:
     document = strip_machine_gates(document)
+    structure = mask_fenced_code_blocks(document)
     sections: list[DocumentSection] = []
-    for match in LEVEL_TWO_SECTION_PATTERN.finditer(document):
-        heading = match.group("heading").strip()
-        body = match.group("body").strip()
+    for match in LEVEL_TWO_SECTION_PATTERN.finditer(structure):
+        heading = document[match.start("heading") : match.end("heading")].strip()
+        body = document[match.start("body") : match.end("body")].strip()
         if heading in {
             "Requirements Input Gate",
             "Requirements Completeness Gate",

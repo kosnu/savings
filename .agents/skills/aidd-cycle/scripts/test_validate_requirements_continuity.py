@@ -502,6 +502,14 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "map one-to-one to headings"):
             self.validate_document(manifest(), kind="artifact", body=local)
 
+    def test_artifact_rejects_requirements_structure_inside_code_fence(self) -> None:
+        fenced = (
+            f"````markdown\n{CURRENT}\n\n"
+            "## Example wrapper tail\n\nliteral content\n````"
+        )
+        with self.assertRaisesRegex(ValidationError, "has no requirement definition"):
+            self.validate_document(manifest(), kind="artifact", body=fenced)
+
     def test_artifact_accepts_requirement_scope_metadata_heading(self) -> None:
         local = f"{CURRENT}\n\n## Requirement Scope\n\n要求全体を確認する。"
         self.validate_document(manifest(), kind="artifact", body=local)
