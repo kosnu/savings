@@ -41,7 +41,9 @@ LearnはGoalではなく、Ship完了後、または上流成果物の不足・�
 
 Stop条件を検出したphase Goalは、Goal tool contractが`status: blocked`への遷移を許可するまで未完了のまま同じblockerを報告し、Learnまたは別の工程を開始しません。許可された時点で`update_goal`を`status: blocked`で呼び出して終端化してからLearnへ進みます。新しいサイクルを回す場合は、前回の続きとして途中工程から再開せず、最新のIssue本文をTask Contextとして取得し、必ずIntent / Requirements Goalから始めます。最新ルールはTask Contextとは別にrule-mapから選択します。
 
-同じIssueまたはタスクでは、サイクルをまたいで同じworkspaceとcanonical artifact pathを使います。新しいサイクルには新しいcycle IDを発行します。Intent / Requirements Goalは`requirements.md`、Design / Plan Goalは`design-doc.md`への書き込みを所有し、新しいサイクルでは各pathの前サイクル内容を置き換えます。Ship済みのサイクルはcommit済みであり、その内容はGit履歴で参照します。Stopしたサイクルの成果物はunstagedのまま保持し、次サイクルの生成工程で置き換えます。
+同じIssueまたはタスクでは、サイクルをまたいで同じworkspaceとcanonical artifact pathを使います。新しいサイクルには新しいcycle IDだけを発行し、workspace名へ`v2`、`v3`、`version`、`revision`、`cycle`、`retry`、`rerun`などの派生markerを含めません。Issue-based cycleの開始前にGit `HEAD`とworktreeから同じIssue番号のworkspaceを検証し、1件なら必ず再利用、0件なら`<Issue番号>-<短いtitle>`で新規作成、複数なら統合先を暗黙に決めずStopします。Intent / Requirements Goalは`requirements.md`、Design / Plan Goalは`design-doc.md`への書き込みを所有し、新しいサイクルでは各pathの前サイクル内容を置き換えます。各生成工程は現在の上流入力全体を満たすcomplete replacementを作り、今回増えた内容やPR指摘だけへGoalまたは成果物のscopeを狭めません。Ship済みのサイクルはcommit済みであり、その内容はGit履歴で参照します。Stopしたサイクルの成果物はunstagedのまま保持し、次サイクルの生成工程で置き換えます。
+
+前回成果物は新しいRequirementsのTask Contextではありません。ただし、作り直しで既存内容を意図せず欠落させないため、validatorは同じworkspaceのcanonical Requirements / Design DocをGit `HEAD`から自動取得してcontinuity baselineにします。呼び出し側はbaselineの有無や別ファイルを指定できません。差分は変更点を特定する補助情報であり、生成対象の全体scopeを置き換えません。
 
 read-only境界は同一サイクルの後続工程にだけ適用します。現在サイクルで生成した`requirements.md`はDesign / Plan以降、`design-doc.md`はBuild / Verify以降でread-onlyです。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、現在の工程で上流成果物を直さずStopし、`$learn`で対象Issue本文の変更案、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理します。次サイクルの各生成工程では、対応する前サイクルの成果物を同じpathへ上書きします。
 
@@ -79,18 +81,26 @@ Context Packetには次だけを含めます。
 
 実行者はContext Packetから開始し、引用されたファイルだけを読むことを基本にします。Packetが不足、矛盾、またはStop条件を示す場合だけ、追加探索または人間への確認に進みます。
 
-## Requirements Input / Provenance Gate
+## Requirements Provenance / Completeness Gates
 
 Intent / Requirements Goalを作成する前に、Task ContextとRule Selectionのprovenanceを検証します。
 
+- Issue番号とworkspaceをworkspace identity validatorへ渡す。同じIssue番号の既存workspaceが1件ならその名前との完全一致を要求し、0件ならIssue番号prefixとversion/retry派生markerの不在を要求する。複数件は既存状態が曖昧なためStopする。
 - GitHubから最新Issueの`owner/repo#number`、正規URL、`updatedAt`、本文を取得し、本文SHA-256を計算する。取得した識別子、URL、`updatedAt`をvalidatorへ独立した入力として渡し、Goalおよび成果物のmanifestと完全一致させる。
 - GoalのTask Context sourceを`issue_body`だけに固定する。
 - Issue本文以外のTask Context sourceが含まれる場合はGoalを作成しない。
 - Goalと生成する`requirements.md`に同じRequirements Input Gateを記録し、両方をvalidatorで検証する。
+- validatorへrepo rootとworkspaceを渡し、Git `HEAD`のcanonical `requirements.md`からbaselineを自動取得する。Goal作成者がbaselineの有無や取得元を選ばない。
+- Requirements Goalと生成する`requirements.md`は最新Issue全体をscopeとし、今回追加または変更された内容だけへ狭めない。
+- 前回と現在の各要求項目、および背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項を`unchanged`、`changed`、`new`として追跡する。`unchanged`は正規化した内容hashの一致、`changed`と`new`は最新Issueの原文根拠を必須とする。
+- 前回の要求IDを削除する場合は、ID自体と明示的な廃止・対象外表現を含む最新Issue原文をGateへ記録する。根拠なしの欠落をvalidatorで拒否する。
+- validatorによる文字列存在確認は必要条件であり、意味的な十分条件ではない。引用したIssue原文がその要求項目またはsectionの変更・追加・廃止を一意に正当化しない場合はStopする。
+- 最新Issue本文自身に安定要求IDがある場合、新Requirementsからの欠落をvalidatorで拒否する。
 - Requirementsで選ぶ各direct rule-map nodeに、Issue本文中の根拠、`applies_to`の一致fieldと値、選択理由を付ける。一致値は正規化後のIssue根拠内に同じ文字列として存在しなければならず、翻訳、類義語、選択理由で補完しない。
 - direct nodeの根拠をIssue本文へ追跡できない場合、そのnodeを除外する。必要なnodeか判断できなければStopする。
 - direct nodeからの推移的`depends_on`閉包をすべて含める。各非direct dependencyは一度だけ記録し、選択済み`via` nodeからの実在edgeでdirect nodeへ接続する。閉包外のnodeは含めない。
 - Requirementsのscope、機能要件、非機能要件、受け入れ条件、Q&A判断を、Issue本文または上記手順で選択したproduct / domain ruleへ追跡する。
+- Requirements / PRDの各機能要件、非機能要件、受け入れ条件へ、それぞれ一意な`FR-*`、`NFR-*`、`AC-*`識別子と実質的な要約を付ける。IDだけの空定義や、Design / Planで全体coverageを機械検証できない無印の要求を残さない。
 - 実装、テスト、mock、運用のpolicyはRequirementsの作り方を制約できるが、Issue本文から追跡できない新しいプロダクト要求や受け入れ条件を作ってはいけない。
 - Requirements完了前にIssueの`updatedAt`または本文SHA-256が変わった場合は、古いsnapshotで完了せず、最新Issue本文からRequirementsをやり直す。
 
@@ -100,7 +110,7 @@ Intent / Requirements Goalを作成する前に、Task ContextとRule Selection�
 
 何を作るかを定義します。
 
-この段階では、実装手順に寄せすぎません。AIはTask Context正本である最新Issue本文、既存仕様、コード、選択したドキュメントを調査してRequirements / PRDを作成します。人間からの追加情報が意図、scope、制約、成功条件を変える場合は、Issue本文へ適用されるまでRequirements入力にしません。成果物は同じworkspaceのcanonical pathである`requirements.md`へ書き込みます。
+この段階では、実装手順に寄せすぎません。AIはTask Context正本である最新Issue本文全体、既存仕様、コード、選択したドキュメントを調査してRequirements / PRDの完成版を作成します。今回追加・変更されたIssue内容はRequirementsへ統合する差分であり、Requirements Goalや成果物のscopeではありません。人間からの追加情報が意図、scope、制約、成功条件を変える場合は、Issue本文へ適用されるまでRequirements入力にしません。成果物は同じworkspaceのcanonical pathである`requirements.md`へ書き込みます。
 
 error、empty、権限不足などの状態で、ユーザーに再試行、取消、確認、画面遷移などの操作を提供するかはRequirements / PRDで決めるプロダクト判断です。状態や失敗理由を表示する要求だけを、復帰操作も要求しているものとして扱ってはいけません。
 
@@ -121,6 +131,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 - snapshotしたIssue本文、選択したrule-mapサブグラフから、要求、制約、対象外、受け入れ条件が逸脱していないか確認する。
 - Issue番号、URL、`updatedAt`、本文SHA-256が取得値、成果物、Goalで一致しているか確認する。
 - Goalと成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通るか確認する。
+- Goalと成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、要求項目または主要sectionを根拠なく欠落・変更していないか確認する。
 - scope、機能要件、非機能要件、受け入れ条件、Q&A判断のsource provenanceが欠落していないか確認する。
 - Requirements / PRD内のRule Selectionが、成果物内の判断と矛盾していないか確認する。
 - 成果物が同じworkspaceのcanonical pathである`requirements.md`にあるか確認する。
@@ -131,12 +142,19 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 - 対象ユーザーや成功条件が不明
 - 既存仕様と矛盾する
 - スコープ外の変更が必要そう
+- Requirements Goalまたは成果物が今回の差分だけへ狭められている、前回要求項目・主要sectionが根拠なく欠落または変更されている、またはRequirements Completeness Gateが失敗する
 
 ## 2. Design / Plan Goal
 
 どう作るかを定義します。
 
-現在サイクルの最新Requirements / PRDをもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。ここでもまだ実装しません。入力の`requirements.md`はread-onlyとし、Design / Planの都合で追記、修正、整形、リネームしてはいけません。成果物は同じworkspaceのcanonical pathである`design-doc.md`へ書き込みます。
+現在サイクルの最新Requirements / PRD全体をもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。今回追加、変更された要求は設計へ統合する差分であり、Design / Plan GoalやDesign Docのscopeではありません。入力の`requirements.md`はread-onlyとし、Design / Planの都合で追記、修正、整形、リネームしてはいけません。成果物は同じworkspaceのcanonical pathである`design-doc.md`へ書き込みます。
+
+Design / Plan Goalを作成する前に、現在の`requirements.md`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGate外へ記載します。Design Doc完了時は、各IDを専用の設計根拠と検証根拠へ一度ずつ対応付けます。複数IDの一括coverage、IDを含まない共通文、Gate内にしかない根拠は拒否します。
+
+IDまたはheadingの文字列が根拠に含まれることは必要条件であり、意味的な十分条件ではありません。その根拠が特定要求または前回sectionを実際に解決していると判断できない場合はStopします。
+
+validatorは前回Design Docも同じworkspaceのcanonical pathからGit `HEAD`で自動取得します。前回の全level-two sectionを、内容hashが一致する`preserved`または新Design根拠を持つ`replaced`として追跡します。前回Designは現在のRequirementsを拡張するTask Contextではなく、引き継ぐ判断は現在のRequirements、選択したrule-mapサブグラフ、既存実装に対して再検証します。
 
 ユーザーが実行できる操作、画面遷移、再試行・取消・確認などの復帰経路を追加、変更、削除する判断は、プロダクト判断として扱います。Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できない場合、Design / Planは一般的なUX、既存実装、既存パターンを根拠に補わずStopします。
 
@@ -147,11 +165,13 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 - 採用しない案と理由
 - 既存挙動への影響
 - 受け入れ条件と対応するテスト方針
+- 全`FR-*`、`NFR-*`、`AC-*`と設計根拠・検証根拠の対応
 - リスクと確認事項
 
 完了時チェック:
 
 - Requirements / PRD、選択したrule-mapサブグラフ、Design Docの実装判断が矛盾していないか確認する。
+- Design Coverage GateがRequirementsの全識別子を含み、各識別子が専用の設計根拠と検証根拠へ一度ずつ対応し、Git baselineの全sectionが維持または置換として追跡されているか確認する。
 - Design / Planで追加した実装方針、テスト方針、文言、操作境界がルール・ポリシーに違反していないか確認する。
 - Design Docで追加、変更、削除するユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できるか確認する。
 - Design Docが同じworkspaceのcanonical pathである`design-doc.md`にあるか確認する。
@@ -161,12 +181,13 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 - 実装方針がプロダクト判断を含む
 - ユーザー向け操作の根拠をRequirements / PRDまたは明示された正本ルールに追跡できない
 - PRDの受け入れ条件が曖昧
+- Requirementsの識別子が不足している、Design Goalが差分だけへ狭められている、要求別coverageや前回Design sectionの追跡が欠けている、またはDesign Coverage Gateが失敗する
 - 影響範囲が想定より広い
 - DB / API / 認証 / 権限変更が必要
 
 ## 3. Build / Verify Goal
 
-最新のDesign Docに従って実装し、検証まで完了します。入力の `requirements.md` と `design-doc.md` は read-only とし、Build / Verify の都合で追記、修正、整形、リネームしてはいけません。
+最新のDesign Docに従って実装し、検証まで完了します。Build / Verify Goalを作成する前にRequirements Completeness GateとDesign Coverage Gateのartifact検証が成功していることを確認し、現在の上流入力全体を覆わない成果物から実装を開始しません。入力の `requirements.md` と `design-doc.md` は read-only とし、Build / Verify の都合で追記、修正、整形、リネームしてはいけません。
 
 この段階では、AIに既存パターンに沿った実装判断、必要なテスト追加、小さな型修正や呼び出し側調整を任せます。一方で、新規依存、DB変更、API仕様変更、破壊的git操作が必要になった場合はStop条件としてエスカレーションします。
 
@@ -183,11 +204,13 @@ Build / Verifyが正常に完了した場合の次工程はShipです。Ship後�
 完了時チェック:
 
 - Requirements / PRD、Design Doc、選択したrule-mapサブグラフ、実装差分、検証結果が矛盾していないか確認する。
+- Requirements Completeness GateとDesign Coverage Gateが成功したRequirements / Design Docの組み合わせを入力にしているか確認する。
 - ルール・ポリシー違反または違反の可能性がある場合、Build / Verifyは完了扱いにせず、この工程内で修正またはStopする。
 
 止まる条件:
 
 - Design Docと違う実装が必要
+- Requirements Completeness GateまたはDesign Coverage Gateが失敗する、または生成成果物が上流入力全体を覆っていない
 - スコープ外の変更が必要
 - 受け入れ条件に矛盾がある
 - 新規依存、DB変更、API仕様変更、破壊的git操作が必要

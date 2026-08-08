@@ -34,6 +34,8 @@ when_to_read:
 - Issue URL:
 - Issue updatedAt:
 - Issue本文SHA-256:
+- Workspace: `<Issue番号>-<短いtitle>`。同じIssueの既存workspaceがあれば必ず同じ名前を使う
+- Workspace identity検証結果:
 - 既存Requirements / PRD: 履歴参照のみ。Task Contextへ追加しない
 - 出力先: 同じworkspaceのcanonical pathである`requirements.md`。このGoalが書き込みを所有する。
 
@@ -95,11 +97,55 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
 }
 ```
 
+## Requirements Completeness Gate
+
+新サイクルでは、最新Issue全体を満たすRequirements / PRDの完成版を作る。今回追加・変更された内容は差分であり、Goalまたは成果物のscopeではない。baselineは呼び出し側で選ばず、validatorが`--workspace`に対応するcanonical `requirements.md`をGit `HEAD`から取得する。前回の全要求項目と必須section、新しい全要求項目について状態遷移を記録する。`changed`と`new`には最新Issue本文の原文根拠が必要であり、廃止根拠は対象IDと明示的な廃止表現を含まなければならない。
+
+```json
+{
+  "issue_body_sha256": "64文字のSHA-256",
+  "workspace": "123-example",
+  "baseline": {
+    "source": "git_head",
+    "body_sha256": "64文字のSHA-256"
+  },
+  "requirements": [
+    {"id": "FR-1", "status": "unchanged", "issue_evidence": null},
+    {"id": "AC-1", "status": "unchanged", "issue_evidence": null},
+    {"id": "AC-2", "status": "new", "issue_evidence": "Issue本文の原文"}
+  ],
+  "sections": [
+    {"id": "background", "status": "unchanged", "issue_evidence": null},
+    {"id": "users", "status": "unchanged", "issue_evidence": null},
+    {"id": "stories", "status": "unchanged", "issue_evidence": null},
+    {"id": "scope", "status": "unchanged", "issue_evidence": null},
+    {"id": "functional", "status": "changed", "issue_evidence": "Issue本文の原文"},
+    {"id": "non_functional", "status": "unchanged", "issue_evidence": null},
+    {"id": "acceptance", "status": "changed", "issue_evidence": "Issue本文の原文"},
+    {"id": "qa", "status": "unchanged", "issue_evidence": null},
+    {"id": "technical", "status": "unchanged", "issue_evidence": null}
+  ],
+  "retired": []
+}
+```
+
+Git `HEAD`に前回成果物がない初回サイクルでは、baselineの`source`を`none`、`body_sha256`を`null`にする。この判定とbaseline内の全要求項目・必須section inventoryの導出はvalidatorが行い、呼び出し側の一覧を信頼しない。Goalと生成する`requirements.md`へ同じGateを記録する。前回成果物はTask Contextではなく、欠落検出だけに使う。
+
+## Requirement Scope
+
+Gate外に、`requirements`配列と完全一致する全IDをcanonical順で実質的な定義として記載する。今回の差分だけを列挙しない。
+
+- FR-1: Goalが扱う要求の要約
+- AC-1: Goalが扱う受け入れ条件の要約
+- AC-2: Goalが扱う新しい受け入れ条件の要約
+
 ## Requirement Provenance
 
 | 判断 | 根拠 | 種別 |
 | --- | --- | --- |
 | Scope / FR / NFR / AC / Q&Aの各判断 | Issue本文のsectionまたは選択したproduct/domain rule | Issue / rule |
+
+機能要件、非機能要件、受け入れ条件には、それぞれ一意な`FR-*`、`NFR-*`、`AC-*`識別子を付ける。次のDesign / Plan Goalはこの全識別子をscopeとしてcoverageを検証するため、識別子のない要求を残さない。
 
 ## Domain Value Intent
 
@@ -131,7 +177,9 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 対象ユーザーと利用シーンが明確
 - [ ] ユーザーストーリーがある
 - [ ] スコープ内 / 外が明確
+- [ ] Requirements Goalと成果物が最新Issue全体をscopeとし、今回追加・変更された内容だけへ狭まっていない
 - [ ] 機能要件が検証可能な形で書かれている
+- [ ] すべての機能要件、非機能要件、受け入れ条件に一意な`FR-*`、`NFR-*`、`AC-*`識別子がある
 - [ ] UIにドメイン値が出る場合、値ごとの利用目的が整理されている
 - [ ] UI文言やエラー表示が関わる場合、ユーザーが状態や失敗理由を理解できることが必要か整理されている
 - [ ] error、empty、権限不足などの状態でユーザー向け操作が必要な場合、その操作が機能要件または受け入れ条件として明示されている
@@ -143,6 +191,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 技術的考慮事項が参考情報として整理されている
 - [ ] Issue本文から読み取れる意図・制約・対象外を超えて解釈を広げていない
 - [ ] Task ContextがIssue本文だけで、Issue番号、URL、updatedAt、本文SHA-256が記録されている
+- [ ] Workspace identity validatorが成功し、同じIssueの別workspaceやversion/retry派生directoryを作っていない
 - [ ] direct nodeごとにIssue本文の根拠、根拠内に存在する`applies_to`一致fieldと値、選択理由がある
 - [ ] direct nodeからの推移的dependency閉包がすべてあり、各非direct nodeが選択済み`via`からのrule-map edgeで接続されている
 - [ ] プロダクト要求、受け入れ条件、Q&A判断がIssue本文または選択したproduct/domain ruleへ追跡できる
@@ -151,13 +200,17 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 成果物が同じworkspaceのcanonical pathである`requirements.md`にある
 - [ ] 成果物にIssue番号、URL、updatedAt、本文SHA-256が記録されている
 - [ ] 成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通る
+- [ ] 成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、根拠なしに前回要求項目または主要sectionを欠落・変更させていない
+- [ ] 前回と現在の背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項が状態遷移として追跡されている
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントとの整合性が確認されている
 - [ ] Requirements / PRDが、選択したルール・ポリシーに違反していないことを確認している
 
 ## Verification
 
 - 必ず実行:
-  - なし
+  - `python3 .agents/skills/aidd-cycle/scripts/validate_workspace.py --repo-root <repo-root> --issue <owner/repo#number> --workspace <workspace>`
+  - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json`
+  - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <requirements-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
 - 手動確認:
   - 必要に応じて監督者が受け入れ条件とStop条件を確認する
 
@@ -170,7 +223,10 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - error、empty、権限不足などの状態でユーザー向け操作が必要か一意に決められず、Design / Planでプロダクト判断が必要になる
 - Issue本文または選択したproduct/domain ruleから読み取れない要求や成功条件を追加する必要がある
 - 対象Issue本文を取得できない
+- 同じIssue番号のworkspaceが複数ある、既存の唯一のworkspaceと指定名が一致しない、またはworkspace名がversion/retry派生である
 - Requirements Input Gateが失敗する
+- Requirements Goalまたは成果物が今回の差分だけへ狭められている、前回要求項目・主要sectionが根拠なく欠落または変更されている、またはRequirements Completeness Gateが失敗する
+- validator上は存在するIssue根拠が、対応する要求項目またはsectionの変更・追加・廃止を意味的に一意に正当化しない
 - Requirements作成中にIssueのURL、updatedAt、本文、または本文SHA-256が変わった
 - direct nodeの選択をIssue本文の根拠内に存在する`applies_to`一致値へ追跡できない
 - direct nodeから必要な推移的`depends_on`閉包または接続edgeが欠けている
