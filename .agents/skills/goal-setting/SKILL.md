@@ -45,7 +45,11 @@ definition and not as output skeletons.
    files only when Design / Plan or Build / Verify needs them.
    For Intent / Requirements, fetch the latest Issue body, URL, and `updatedAt`.
    The exact Issue body is the only Task Context. Conversation, review, current
-   diff, previous artifacts, and recently changed rules may not extend it.
+   diff, previous artifacts, and recently changed rules may not extend it. When
+   the phase belongs to an Issue-based AIDD cycle, require the workspace
+   validator from `aidd-cycle` to succeed before constructing the Goal. Reuse
+   the Issue's only existing workspace; never invent a versioned or retry
+   directory for a new cycle.
 4. Build a compact Context Packet containing scope, selected references and
    reasons, constraints, known risks, Stop checks, and verification expectations.
    Preserve every requirement from the workflow and matching template without
@@ -77,11 +81,63 @@ For an Intent / Requirements Goal:
 - Include the exact `Requirements Input Gate` JSON block from the matching Goal
   template. Before `create_goal`, validate it with the command defined in
   `.agents/skills/aidd-cycle/SKILL.md`.
+- Treat a new-cycle `requirements.md` as a complete replacement for the current
+  Issue, not a document for only the new or changed Issue fragment. Resolve the
+  previous canonical Requirements from Git `HEAD`; do not let the Goal author
+  choose whether a baseline exists or which file is the baseline.
+- Include the exact `Requirements Completeness Gate` JSON block. Classify every
+  previous requirement item and required section as unchanged, changed, or
+  retired, and every added item as new. Changed and new entries require exact
+  current-Issue evidence. Retirement evidence must name the ID and explicitly
+  retire it. Include substantive definitions for every resulting ID outside the
+  gate and validate the proposed Goal with the `--kind goal` command.
+- Treat validator string presence as a structural gate only. Stop when the Issue
+  evidence does not unambiguously justify its specific changed, new, or retired
+  item or section.
 
 If user oversight changes intent, scope, constraints, or success criteria,
 stop before creating the Goal until the target Issue body is updated and
 refetched. Oversight may clarify execution or trigger a Stop without becoming
 an unrecorded Requirements input.
+
+## Generated Artifact Completeness
+
+The Requirements continuity gate and Design coverage gate are phase-specific
+enforcement of one invariant: every regenerated canonical document is a
+complete replacement for its current upstream input. Deltas describe change;
+they do not define Goal or artifact scope.
+
+### Design / Plan Coverage
+
+For a Design / Plan Goal:
+
+- Require the current `requirements.md` to have passed both Requirements
+  artifact gates. Do not construct Design from a locally narrowed upstream
+  artifact.
+- Treat the complete current `requirements.md` as the Goal scope. A requirement
+  added in the current cycle is a delta to integrate, not permission to design
+  only that requirement.
+- Calculate the Requirements SHA-256 and collect every stable `FR-*`, `NFR-*`,
+  and `AC-*` identifier. Include one separate substantive design and
+  verification scope entry for every ID in the template's Design Coverage
+  Gate; grouped or generic coverage is invalid.
+- Before `create_goal`, validate the Goal with the `--kind goal` command defined
+  in `.agents/skills/aidd-cycle/SKILL.md`.
+- Resolve the committed previous-cycle Design Doc from the canonical workspace
+  path in Git `HEAD`, not from a caller-supplied file. Require every prior
+  level-two section to have a unique heading-bearing baseline scope line in the
+  Goal, then be classified as exact-content preserved or explicitly replaced
+  with unique heading-bearing evidence in the new Design Doc.
+- Require the output `design-doc.md` to resolve every identifier through design
+  and verification evidence that names that identifier. Each ID gets its own
+  entry; omission, grouping, and generic shared evidence are invalid.
+- Stop when ID-bearing or heading-bearing evidence is structurally valid but
+  does not actually resolve that specific requirement or prior section.
+
+Before setting a Build / Verify Goal, require the current `requirements.md` and
+`design-doc.md` to pass their artifact completeness commands. Do not treat
+existing files or completed phase Goals alone as evidence that the complete
+upstream inputs remain covered.
 
 Do not edit repository files or create a git diff while preparing the Goal.
 
@@ -106,7 +162,9 @@ only, return one ready-to-set Markdown Goal and do not claim that it was set.
 
 Stop before producing a Goal when the canonical workflow cannot determine the
 phase, required upstream inputs are missing, the target Issue, PR, branch, or
-workspace is ambiguous, the latest Issue body cannot be fetched, the
+workspace is ambiguous, workspace identity validation fails, the latest Issue
+body cannot be fetched, the
 Requirements Input Gate fails, a user constraint would be ignored, the
-selected rule-map subgraph is unresolved, or the Goal cannot fit the character
+Requirements Completeness Gate fails, the selected rule-map subgraph is
+unresolved, the Design Coverage Gate fails, or the Goal cannot fit the character
 budget without losing required execution context.
