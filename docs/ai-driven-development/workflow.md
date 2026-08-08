@@ -89,10 +89,10 @@ Intent / Requirements Goalを作成する前に、Task ContextとRule Selection�
 - GitHubから最新Issueの`owner/repo#number`、正規URL、`updatedAt`、本文を取得し、本文SHA-256を計算する。取得した識別子、URL、`updatedAt`をvalidatorへ独立した入力として渡し、Goalおよび成果物のmanifestと完全一致させる。
 - GoalのTask Context sourceを`issue_body`だけに固定する。
 - Issue本文以外のTask Context sourceが含まれる場合はGoalを作成しない。
-- Goalと生成する`requirements.md`に同じRequirements Input Gateを記録し、両方をvalidatorで検証する。
+- Goalと生成する`requirements.md`に同じRequirements Input Gateを記録する。direct nodeを少なくとも1件要求し、空の`direct_rules`でrule-map選択を回避させない。Goal作成時は単体検証し、成果物完了時は単体検証に加えて、保持したGoalのparsed Gate objectとの完全一致を検証する。
 - validatorへrepo rootとworkspaceを渡し、Git `HEAD`のcanonical `requirements.md`からbaselineを自動取得する。Goal作成者がbaselineの有無や取得元を選ばない。
 - Requirements Goalと生成する`requirements.md`は最新Issue全体をscopeとし、今回追加または変更された内容だけへ狭めない。
-- 前回と現在の各要求項目、および背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項を`unchanged`、`changed`、`new`として追跡する。`unchanged`は正規化した内容hashの一致、`changed`と`new`は最新Issueの原文根拠を必須とする。
+- 前回と現在の各要求項目、および背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項を`unchanged`、`changed`、`new`として追跡する。箇条書き要求は次の同階層項目またはsection境界までのインデントされた継続行を同じ要求内容へ含める。`unchanged`は正規化した内容hashの一致、`changed`と`new`は最新Issueの原文根拠を必須とする。
 - 前回の要求IDを削除する場合は、ID自体と明示的な廃止・対象外表現を含む最新Issue原文をGateへ記録する。根拠なしの欠落をvalidatorで拒否する。
 - validatorによる文字列存在確認は必要条件であり、意味的な十分条件ではない。引用したIssue原文がその要求項目またはsectionの変更・追加・廃止を一意に正当化しない場合はStopする。
 - 最新Issue本文自身に安定要求IDがある場合、新Requirementsからの欠落をvalidatorで拒否する。
@@ -130,8 +130,8 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 
 - snapshotしたIssue本文、選択したrule-mapサブグラフから、要求、制約、対象外、受け入れ条件が逸脱していないか確認する。
 - Issue番号、URL、`updatedAt`、本文SHA-256が取得値、成果物、Goalで一致しているか確認する。
-- Goalと成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通るか確認する。
-- Goalと成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、要求項目または主要sectionを根拠なく欠落・変更していないか確認する。
+- Goalと成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通り、成果物のparsed Gate objectが保持したGoalと完全一致するか確認する。
+- Goalと成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、成果物のparsed Gate objectが保持したGoalと完全一致し、要求項目または主要sectionを継続行も含めて根拠なく欠落・変更していないか確認する。
 - scope、機能要件、非機能要件、受け入れ条件、Q&A判断のsource provenanceが欠落していないか確認する。
 - Requirements / PRD内のRule Selectionが、成果物内の判断と矛盾していないか確認する。
 - 成果物が同じworkspaceのcanonical pathである`requirements.md`にあるか確認する。

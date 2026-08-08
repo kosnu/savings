@@ -56,6 +56,16 @@ def payment_direct_rule() -> dict[str, object]:
     }
 
 
+def user_direct_rule(issue_evidence: str | None = None) -> dict[str, object]:
+    return {
+        "id": "domain.user",
+        "issue_evidence": issue_evidence
+        or "user の言語設定を `public.users.language` に保存する。",
+        "match": {"field": "domains", "value": "user"},
+        "reason": "user domainの要求だから",
+    }
+
+
 def payment_dependencies() -> list[dict[str, str]]:
     return [
         {"id": "domain.amount", "via": "domain.payment"},
@@ -73,17 +83,29 @@ class RequirementsInputGateTest(unittest.TestCase):
         issue: str = ISSUE,
         issue_url: str = ISSUE_URL,
         issue_updated_at: str = ISSUE_UPDATED_AT,
+        kind: str = "goal",
+        goal_manifest: dict[str, object] | None = None,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             directory_path = Path(directory)
             issue_path = directory_path / "issue.md"
-            document_path = directory_path / "goal.md"
+            document_path = directory_path / (
+                "requirements.md" if kind == "artifact" else "goal.md"
+            )
             issue_path.write_text(issue_body, encoding="utf-8")
             document_path.write_text(
                 "## Requirements Input Gate\n\n"
                 f"```json\n{json.dumps(value, ensure_ascii=False)}\n```\n",
                 encoding="utf-8",
             )
+            goal_path = None
+            if kind == "artifact":
+                goal_path = directory_path / "goal.md"
+                goal_path.write_text(
+                    "## Requirements Input Gate\n\n"
+                    f"```json\n{json.dumps(goal_manifest or value, ensure_ascii=False)}\n```\n",
+                    encoding="utf-8",
+                )
             validate(
                 issue_path,
                 document_path,
@@ -91,23 +113,16 @@ class RequirementsInputGateTest(unittest.TestCase):
                 issue,
                 issue_url,
                 issue_updated_at,
+                kind,
+                goal_path,
             )
 
     def test_accepts_issue_evidenced_domain_rule(self) -> None:
-        self.validate_manifest(
-            manifest(
-                [
-                    {
-                        "id": "domain.user",
-                        "issue_evidence": (
-                            "user の言語設定を `public.users.language` に保存する。"
-                        ),
-                        "match": {"field": "domains", "value": "user"},
-                        "reason": "user domainの要求だから",
-                    }
-                ]
-            )
-        )
+        self.validate_manifest(manifest([user_direct_rule()]))
+
+    def test_rejects_empty_direct_rules(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "at least one"):
+            self.validate_manifest(manifest([]))
 
     def test_rejects_match_value_missing_from_issue_evidence(self) -> None:
         value = manifest(
@@ -260,48 +275,120 @@ class RequirementsInputGateTest(unittest.TestCase):
             self.validate_manifest(value, issue_body=PAYMENT_ISSUE_BODY)
 
     def test_rejects_manifest_issue_metadata_mismatch(self) -> None:
-        value = manifest([], issue="kosnu/savings#1")
+        value = manifest([user_direct_rule()], issue="kosnu/savings#1")
 
         with self.assertRaisesRegex(ValidationError, "does not match the fetched"):
             self.validate_manifest(value)
 
     def test_rejects_manifest_url_metadata_mismatch(self) -> None:
-        value = manifest([], issue_url="https://github.com/kosnu/savings/issues/1")
+        value = manifest(
+            [user_direct_rule()],
+            issue_url="https://github.com/kosnu/savings/issues/1",
+        )
 
         with self.assertRaisesRegex(ValidationError, "does not match the fetched"):
             self.validate_manifest(value)
 
     def test_rejects_manifest_updated_at_metadata_mismatch(self) -> None:
-        value = manifest([], issue_updated_at="2026-08-07T00:00:00Z")
+        value = manifest(
+            [user_direct_rule()],
+            issue_updated_at="2026-08-07T00:00:00Z",
+        )
 
         with self.assertRaisesRegex(ValidationError, "does not match the fetched"):
             self.validate_manifest(value)
 
     def test_rejects_noncanonical_issue_url(self) -> None:
         mismatched_url = "https://github.com/kosnu/savings/issues/999"
-        value = manifest([], issue_url=mismatched_url)
+        value = manifest([user_direct_rule()], issue_url=mismatched_url)
 
         with self.assertRaisesRegex(ValidationError, "URL does not match"):
             self.validate_manifest(value, issue_url=mismatched_url)
 
     def test_rejects_invalid_issue_updated_at(self) -> None:
-        value = manifest([], issue_updated_at="not-a-timestamp")
+        value = manifest([user_direct_rule()], issue_updated_at="not-a-timestamp")
 
         with self.assertRaisesRegex(ValidationError, "RFC 3339 UTC"):
             self.validate_manifest(value, issue_updated_at="not-a-timestamp")
 
     def test_rejects_incomplete_issue_updated_at(self) -> None:
-        value = manifest([], issue_updated_at="2026-08-06Z")
+        value = manifest([user_direct_rule()], issue_updated_at="2026-08-06Z")
 
         with self.assertRaisesRegex(ValidationError, "RFC 3339 UTC"):
             self.validate_manifest(value, issue_updated_at="2026-08-06Z")
 
     def test_rejects_non_issue_task_context_key(self) -> None:
-        value = manifest([])
+        value = manifest([user_direct_rule()])
         value["conversation"] = "直前の会話"
 
         with self.assertRaisesRegex(ValidationError, "non-Issue input keys"):
             self.validate_manifest(value)
+
+    def test_artifact_accepts_the_same_goal_gate(self) -> None:
+        value = manifest([user_direct_rule()])
+        self.validate_manifest(value, kind="artifact", goal_manifest=value)
+
+    def test_artifact_rejects_a_different_valid_goal_gate(self) -> None:
+        issue_body = "user payment amount date category を変更する。\n"
+        goal_rule = user_direct_rule(issue_body.strip())
+        artifact_rule = payment_direct_rule()
+        artifact_rule["issue_evidence"] = issue_body.strip()
+        goal_value = manifest([goal_rule], issue_body=issue_body)
+        artifact_value = manifest(
+            [artifact_rule],
+            issue_body=issue_body,
+            depends_on=payment_dependencies(),
+        )
+
+        with self.assertRaisesRegex(ValidationError, "does not match the Goal"):
+            self.validate_manifest(
+                artifact_value,
+                issue_body=issue_body,
+                kind="artifact",
+                goal_manifest=goal_value,
+            )
+
+    def test_cli_artifact_accepts_matching_goal_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            directory_path = Path(directory)
+            issue_path = directory_path / "issue.md"
+            goal_path = directory_path / "goal.md"
+            artifact_path = directory_path / "requirements.md"
+            value = manifest([user_direct_rule()])
+            gate = (
+                "## Requirements Input Gate\n\n"
+                f"```json\n{json.dumps(value, ensure_ascii=False)}\n```\n"
+            )
+            issue_path.write_text(ISSUE_BODY, encoding="utf-8")
+            goal_path.write_text(gate, encoding="utf-8")
+            artifact_path.write_text(gate, encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VALIDATOR_PATH),
+                    "--issue",
+                    ISSUE,
+                    "--issue-url",
+                    ISSUE_URL,
+                    "--issue-updated-at",
+                    ISSUE_UPDATED_AT,
+                    "--issue-body",
+                    str(issue_path),
+                    "--document",
+                    str(artifact_path),
+                    "--rule-map",
+                    str(RULE_MAP_PATH),
+                    "--kind",
+                    "artifact",
+                    "--goal-document",
+                    str(goal_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_cli_accepts_fetched_issue_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -311,7 +398,7 @@ class RequirementsInputGateTest(unittest.TestCase):
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
             document_path.write_text(
                 "## Requirements Input Gate\n\n"
-                f"```json\n{json.dumps(manifest([]), ensure_ascii=False)}\n```\n",
+                f"```json\n{json.dumps(manifest([user_direct_rule()]), ensure_ascii=False)}\n```\n",
                 encoding="utf-8",
             )
             result = subprocess.run(
@@ -330,6 +417,8 @@ class RequirementsInputGateTest(unittest.TestCase):
                     str(document_path),
                     "--rule-map",
                     str(RULE_MAP_PATH),
+                    "--kind",
+                    "goal",
                 ],
                 capture_output=True,
                 text=True,

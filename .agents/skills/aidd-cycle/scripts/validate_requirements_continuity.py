@@ -320,7 +320,18 @@ def validate(
     document_kind: str,
     repo_root: Path,
     workspace: str,
+    goal_document_path: Path | None = None,
 ) -> None:
+    if document_kind == "goal" and goal_document_path is not None:
+        raise ValidationError("--goal-document is only valid for artifact validation")
+    if document_kind == "artifact" and goal_document_path is None:
+        raise ValidationError("artifact validation requires --goal-document")
+    if (
+        document_kind == "artifact"
+        and goal_document_path is not None
+        and goal_document_path.resolve() == document_path.resolve()
+    ):
+        raise ValidationError("--goal-document must be distinct from the artifact")
     validate_workspace_identity(repo_root, issue, workspace)
     issue_body_bytes = issue_body_path.read_bytes()
     issue_body = issue_body_bytes.decode("utf-8")
@@ -417,6 +428,13 @@ def validate(
                 f"changed Requirements section is identical to Git HEAD: {section_id}"
             )
 
+    assert goal_document_path is not None
+    goal_manifest = extract_manifest(goal_document_path.read_text(encoding="utf-8"))
+    if manifest != goal_manifest:
+        raise ValidationError(
+            "artifact Requirements Completeness Gate does not match the Goal"
+        )
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -426,6 +444,7 @@ def main() -> int:
     parser.add_argument("--kind", required=True, choices=("goal", "artifact"))
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--workspace", required=True)
+    parser.add_argument("--goal-document", type=Path)
     args = parser.parse_args()
 
     try:
@@ -436,6 +455,7 @@ def main() -> int:
             args.kind,
             args.repo_root,
             args.workspace,
+            args.goal_document,
         )
     except (
         OSError,

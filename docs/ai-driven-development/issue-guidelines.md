@@ -38,7 +38,7 @@ Issueに書くべきものは、AIがRequirements / PRDを作れるだけの「�
 
 Issueには、目的、制約、成功条件、AIの自律範囲、Stop条件を書きます。
 
-AIDDのrule選択を機械検証するため、対象domainや明示的なsurfaceを表すrule-mapの`applies_to`値を、対応するIssue本文の根拠内に同じ文字列で含めます。翻訳や類義語で補完せず、必要な値が本文にない場合はIssueを更新してからRequirementsを開始します。専用の分類欄は追加せず、目的や境界を説明する本文へ必要なdomain語を含めます。
+AIDDのrule選択を機械検証するため、対象domainや明示的なsurfaceを表すrule-mapの`applies_to`値を少なくとも1つ、対応するIssue本文の根拠内に同じ文字列で含めます。翻訳や類義語で補完せず、必要な値が本文にない場合はIssueを更新してからRequirementsを開始します。専用の分類欄は追加せず、目的や境界を説明する本文へ必要なdomain語を含めます。
 
 - 背景
 - 解決したい課題

@@ -57,6 +57,7 @@ DB正本へ選択値を保存する。
 ## 受け入れ条件
 
 - AC-1: 言語設定を再表示できる。
+  - 保存済みの選択値と一致する。
 - AC-2: 保存失敗を成功扱いにしない。
 
 ## Q&Aログ
@@ -201,6 +202,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         issue_body: str = ISSUE_BODY,
         baseline: str | None = BASELINE,
         canonical: bool = True,
+        goal_manifest: dict[str, object] | None = None,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
@@ -210,7 +212,22 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             document_path = canonical_path if canonical else repo_root / "document.md"
             document_path.parent.mkdir(parents=True, exist_ok=True)
             document_path.write_text(document(value, body), encoding="utf-8")
-            validate(ISSUE, issue_path, document_path, kind, repo_root, WORKSPACE)
+            goal_path = None
+            if kind == "artifact":
+                goal_path = repo_root / "goal.md"
+                goal_path.write_text(
+                    document(goal_manifest or value, body),
+                    encoding="utf-8",
+                )
+            validate(
+                ISSUE,
+                issue_path,
+                document_path,
+                kind,
+                repo_root,
+                WORKSPACE,
+                goal_path,
+            )
 
     def test_goal_accepts_complete_transition_inventory(self) -> None:
         self.validate_document(manifest(), kind="goal", body=CURRENT, canonical=False)
@@ -246,6 +263,33 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValidationError, "unchanged requirement content changed"):
             self.validate_document(manifest(), kind="artifact", body=changed)
+
+    def test_artifact_rejects_removed_bullet_continuation_marked_unchanged(self) -> None:
+        changed = CURRENT.replace("  - 保存済みの選択値と一致する。\n", "")
+        with self.assertRaisesRegex(ValidationError, "unchanged requirement content changed"):
+            self.validate_document(manifest(), kind="artifact", body=changed)
+
+    def test_artifact_rejects_a_different_goal_gate(self) -> None:
+        goal_value = manifest()
+        artifact_value = manifest()
+        artifact_value["requirements"] = [
+            *unchanged_entries(),
+            {
+                "id": "AC-3",
+                "status": "new",
+                "issue_evidence": "Storybookで状態を確認できるようにする。",
+            },
+        ]
+        artifact_value["sections"] = section_entries()
+        goal_value["requirements"] = list(reversed(artifact_value["requirements"]))
+
+        with self.assertRaisesRegex(ValidationError, "does not match the Goal"):
+            self.validate_document(
+                artifact_value,
+                kind="artifact",
+                body=CURRENT,
+                goal_manifest=goal_value,
+            )
 
     def test_artifact_rejects_changed_major_section_marked_unchanged(self) -> None:
         changed = CURRENT.replace(
@@ -399,6 +443,8 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             issue_path = repo_root / "issue.md"
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
             canonical_path.write_text(document(manifest(), CURRENT), encoding="utf-8")
+            goal_path = repo_root / "goal.md"
+            goal_path.write_text(document(manifest(), CURRENT), encoding="utf-8")
             result = subprocess.run(
                 [
                     sys.executable,
@@ -415,6 +461,8 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                     str(repo_root),
                     "--workspace",
                     WORKSPACE,
+                    "--goal-document",
+                    str(goal_path),
                 ],
                 capture_output=True,
                 text=True,
