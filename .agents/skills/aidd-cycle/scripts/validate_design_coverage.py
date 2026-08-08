@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -16,6 +15,7 @@ from git_baseline import (
     GitBaselineError,
     canonical_artifact_path,
     load_git_head_artifact,
+    require_canonical_worktree_path,
     validate_workspace_identity,
 )
 from requirement_ids import (
@@ -40,10 +40,39 @@ def normalize(value: str) -> str:
     return " ".join(value.split()).casefold()
 
 
+def names_other_baseline_heading(
+    line: str,
+    target_heading: str,
+    baseline_headings: list[str],
+) -> bool:
+    normalized_line = normalize(line)
+    normalized_target = normalize(target_heading)
+    return any(
+        other_heading != target_heading
+        and (normalized_other := normalize(other_heading)) in normalized_line
+        and normalized_other not in normalized_target
+        for other_heading in baseline_headings
+    )
+
+
 def require_string(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{label} must be a non-empty string")
     return value.strip()
+
+
+def require_canonical_input(
+    repo_root: Path,
+    supplied_path: Path,
+    relative_path: Path,
+    label: str,
+) -> Path:
+    try:
+        return require_canonical_worktree_path(
+            repo_root, supplied_path, relative_path, label
+        )
+    except GitBaselineError as error:
+        raise ValidationError(str(error)) from error
 
 
 def content_sha256(value: str) -> str:
@@ -116,6 +145,9 @@ def design_section_manifest(document: str) -> list[dict[str, str]]:
         }
         for section in sections
     ]
+    headings = [entry["heading"] for entry in manifest]
+    if len(headings) != len(set(headings)):
+        raise ValidationError("Git HEAD Design baseline has duplicate section headings")
     hashes = [entry["content_sha256"] for entry in manifest]
     if len(hashes) != len(set(hashes)):
         raise ValidationError("Git HEAD Design baseline has duplicate section content")
@@ -193,12 +225,18 @@ def validate_goal_scope(
             raise ValidationError(
                 f"{requirement_id} design and verification scope must use separate lines"
             )
+    baseline_scope_lines: set[int] = set()
     for section in baseline_sections:
-        require_unique_scope_line(
+        line_number = require_unique_scope_line(
             document_without_gate,
             (section["heading"], "baseline scope"),
             f"{section['heading']} baseline",
         )
+        if line_number in baseline_scope_lines:
+            raise ValidationError(
+                "baseline section scopes must use separate source lines"
+            )
+        baseline_scope_lines.add(line_number)
 
 
 def validate_requirement_evidence(
@@ -322,9 +360,11 @@ def validate_baseline_sections(
         content_sha256(section.content)
         for section in extract_level_two_sections(document_without_gate)
     }
-    normalized_document = normalize(document_without_gate)
     seen: set[str] = set()
     seen_evidence: set[str] = set()
+    source_line_numbers: set[int] = set()
+    document_lines = document_without_gate.splitlines()
+    baseline_headings = [heading for heading, _ in expected_identities]
     for index, entry in enumerate(transitions):
         if not isinstance(entry, dict) or set(entry) != {
             "heading",
@@ -361,8 +401,27 @@ def validate_baseline_sections(
         if normalized_evidence in seen_evidence:
             raise ValidationError("baseline section design_evidence must be unique")
         seen_evidence.add(normalized_evidence)
-        if normalized_evidence not in normalized_document:
-            raise ValidationError("baseline section design_evidence is not in Design Doc")
+        matching_lines = [
+            (line_number, line)
+            for line_number, line in enumerate(document_lines)
+            if normalized_evidence in normalize(line)
+        ]
+        if len(matching_lines) != 1:
+            raise ValidationError(
+                "baseline section design_evidence must map to exactly one source line"
+            )
+        source_line_number, source_line = matching_lines[0]
+        if source_line_number in source_line_numbers:
+            raise ValidationError(
+                "baseline section evidence must use separate source lines"
+            )
+        source_line_numbers.add(source_line_number)
+        if names_other_baseline_heading(
+            source_line, heading, baseline_headings
+        ):
+            raise ValidationError(
+                "baseline section evidence source line must name only its target heading"
+            )
         if status == "preserved" and section_hash not in current_hashes:
             raise ValidationError("preserved baseline section content changed")
         if status == "replaced" and section_hash in current_hashes:
@@ -378,39 +437,32 @@ def validate(
     workspace: str,
 ) -> None:
     validate_workspace_identity(repo_root, issue, workspace)
-    absolute_repo_root = Path(os.path.abspath(repo_root))
-    canonical_requirements_path = canonical_artifact_path(
-        absolute_repo_root,
-        workspace,
-        "requirements.md",
-    )
-    supplied_requirements_path = Path(os.path.abspath(requirements_path))
-    if supplied_requirements_path != canonical_requirements_path:
-        raise ValidationError(
-            "Design coverage must use the canonical workspace Requirements path"
+    if document_kind == "artifact":
+        require_canonical_input(
+            repo_root,
+            document_path,
+            canonical_artifact_path(Path(), workspace, "design-doc.md"),
+            "Design artifact",
         )
-    relative_requirements_path = supplied_requirements_path.relative_to(
-        absolute_repo_root
+    requirements_relative_path = canonical_artifact_path(
+        Path(), workspace, "requirements.md"
     )
-    current_path = absolute_repo_root
-    for part in relative_requirements_path.parts:
-        current_path /= part
-        if current_path.is_symlink():
-            raise ValidationError(
-                "canonical workspace Requirements path must not contain symlinks"
-            )
-    requirements_bytes = requirements_path.read_bytes()
+    canonical_requirements_path = require_canonical_input(
+        repo_root,
+        requirements_path,
+        requirements_relative_path,
+        "Design coverage Requirements input",
+    )
+    requirements_bytes = canonical_requirements_path.read_bytes()
     requirements = requirements_bytes.decode("utf-8")
     document = document_path.read_text(encoding="utf-8")
     requirement_ids = require_complete_requirement_ids(requirements)
     manifest, document_without_gate = extract_manifest(document)
-    canonical_path, baseline_bytes = load_git_head_artifact(
+    _, baseline_bytes = load_git_head_artifact(
         repo_root,
         workspace,
         "design-doc.md",
     )
-    if document_kind == "artifact" and document_path.resolve() != canonical_path.resolve():
-        raise ValidationError("Design artifact must use the canonical workspace path")
     if manifest.get("workspace") != workspace:
         raise ValidationError("manifest workspace does not match --workspace")
     baseline_sections = validate_baseline(manifest.get("baseline"), baseline_bytes)

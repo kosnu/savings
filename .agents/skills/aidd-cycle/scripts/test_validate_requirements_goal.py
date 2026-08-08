@@ -25,6 +25,22 @@ ISSUE_BODY = (
 PAYMENT_ISSUE_BODY = "payment の金額、日付、categoryを保存する。\n"
 
 
+def initialize_repo(repo_root: Path) -> None:
+    subprocess.run(["git", "-C", str(repo_root), "init", "-q"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo_root), "config", "user.name", "AIDD Test"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo_root), "config", "user.email", "aidd@example.com"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo_root), "commit", "--allow-empty", "-qm", "baseline"],
+        check=True,
+    )
+
+
 def manifest(
     direct_rules: list[dict[str, object]],
     *,
@@ -85,6 +101,8 @@ class RequirementsInputGateTest(unittest.TestCase):
         issue_updated_at: str = ISSUE_UPDATED_AT,
         kind: str = "goal",
         goal_manifest: dict[str, object] | None = None,
+        rule_map_path: Path = RULE_MAP_PATH,
+        repo_root: Path = REPOSITORY_ROOT,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             directory_path = Path(directory)
@@ -109,11 +127,12 @@ class RequirementsInputGateTest(unittest.TestCase):
             validate(
                 issue_path,
                 document_path,
-                RULE_MAP_PATH,
+                rule_map_path,
                 issue,
                 issue_url,
                 issue_updated_at,
                 kind,
+                repo_root,
                 goal_path,
             )
 
@@ -324,6 +343,92 @@ class RequirementsInputGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "non-Issue input keys"):
             self.validate_manifest(value)
 
+    def test_rejects_noncanonical_rule_map_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            copied_rule_map = Path(directory) / "rule-map.json"
+            copied_rule_map.write_bytes(RULE_MAP_PATH.read_bytes())
+            with self.assertRaisesRegex(ValidationError, "canonical repository path"):
+                self.validate_manifest(
+                    manifest([user_direct_rule()]),
+                    rule_map_path=copied_rule_map,
+                )
+
+    def test_rejects_canonical_rule_map_symlink(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            initialize_repo(repo_root)
+            rule_map_path = repo_root / "docs/harness/rule-map.json"
+            rule_map_path.parent.mkdir(parents=True)
+            rule_map_path.symlink_to(RULE_MAP_PATH)
+            with self.assertRaisesRegex(ValidationError, "must not contain symlinks"):
+                self.validate_manifest(
+                    manifest([user_direct_rule()]),
+                    rule_map_path=rule_map_path,
+                    repo_root=repo_root,
+                )
+
+    def test_cli_rejects_malformed_canonical_rule_map_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            initialize_repo(repo_root)
+            rule_map_path = repo_root / "docs/harness/rule-map.json"
+            rule_map_path.parent.mkdir(parents=True)
+            rule_map_path.write_text(
+                json.dumps(
+                    {
+                        "rules": [
+                            {
+                                "id": "domain.user",
+                                "applies_to": None,
+                                "depends_on": [],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            issue_path = repo_root / "issue.md"
+            document_path = repo_root / "goal.md"
+            issue_path.write_text(ISSUE_BODY, encoding="utf-8")
+            document_path.write_text(
+                "## Requirements Input Gate\n\n"
+                f"```json\n{json.dumps(manifest([user_direct_rule()]), ensure_ascii=False)}\n```\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VALIDATOR_PATH),
+                    "--issue",
+                    ISSUE,
+                    "--issue-url",
+                    ISSUE_URL,
+                    "--issue-updated-at",
+                    ISSUE_UPDATED_AT,
+                    "--issue-body",
+                    str(issue_path),
+                    "--document",
+                    str(document_path),
+                    "--rule-map",
+                    str(rule_map_path),
+                    "--repo-root",
+                    str(repo_root),
+                    "--kind",
+                    "goal",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("domain.user.applies_to must be an object", result.stderr)
+        self.assertTrue(
+            result.stderr.rstrip().endswith(
+                "requirements input gate: failed: "
+                "domain.user.applies_to must be an object"
+            )
+        )
+
     def test_artifact_accepts_the_same_goal_gate(self) -> None:
         value = manifest([user_direct_rule()])
         self.validate_manifest(value, kind="artifact", goal_manifest=value)
@@ -378,6 +483,8 @@ class RequirementsInputGateTest(unittest.TestCase):
                     str(artifact_path),
                     "--rule-map",
                     str(RULE_MAP_PATH),
+                    "--repo-root",
+                    str(REPOSITORY_ROOT),
                     "--kind",
                     "artifact",
                     "--goal-document",
@@ -417,6 +524,8 @@ class RequirementsInputGateTest(unittest.TestCase):
                     str(document_path),
                     "--rule-map",
                     str(RULE_MAP_PATH),
+                    "--repo-root",
+                    str(REPOSITORY_ROOT),
                     "--kind",
                     "goal",
                 ],

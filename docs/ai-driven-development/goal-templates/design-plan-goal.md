@@ -63,7 +63,7 @@ when_to_read:
 
 ## Design Coverage Gate
 
-Goal作成前は、以下のJSONへcanonical RequirementsのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを対象IDだけを含む別々の行へ作って`--kind goal`で検証する。baselineはvalidatorがcanonical `design-doc.md`をGit `HEAD`から取得する。生成する`design-doc.md`では各IDを、対象IDだけを含む専用の根拠行へ対応させた`coverage`と、Git baselineの全level-two sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDの一括coverage、別IDを含む行の部分文字列、IDを含まない共通文は使えない。
+Goal作成前は、以下のJSONへcanonical RequirementsのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを対象IDだけを含む別々の行へ作って`--kind goal`で検証する。baselineはvalidatorがcanonical `design-doc.md`をGit `HEAD`から取得し、各baseline sectionのreview scopeも別々の物理行へ記載する。生成する`design-doc.md`では各IDを、対象IDだけを含む専用の根拠行へ対応させた`coverage`と、Git baselineの全level-two sectionに対する`preserved`または`replaced`の判断をsectionごとに別々の物理根拠行で記録して`--kind artifact`で検証する。baseline根拠行は対象外のdistinctなbaseline headingを含めない。複数IDまたは複数baseline sectionの一括coverage、別IDを含む行の部分文字列、IDを含まない共通文は使えない。
 
 ```json
 {
