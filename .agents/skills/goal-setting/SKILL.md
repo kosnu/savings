@@ -68,7 +68,8 @@ For an Intent / Requirements Goal:
 - Select each direct rule-map node from Issue evidence and an exact
   `applies_to` field/value match. The normalized `match.value` must occur in the
   Issue evidence; translation, aliases, and `reason` are not evidence. Record
-  the evidence, match, and reason.
+  the evidence, match, and reason. Select at least one direct node; an empty
+  `direct_rules` array is never a valid fallback.
 - Add the complete transitive dependency closure through declared `depends_on`
   edges. Each non-direct dependency appears once and names a selected `via`
   node with a declared edge.
@@ -91,6 +92,9 @@ For an Intent / Requirements Goal:
   current-Issue evidence. Retirement evidence must name the ID and explicitly
   retire it. Include substantive definitions for every resulting ID outside the
   gate and validate the proposed Goal with the `--kind goal` command.
+- Preserve the exact validated Goal until artifact completion. Require the
+  artifact forms of both Requirements gates to equal the corresponding parsed
+  Goal Gate objects; independent validity is not sufficient.
 - Treat validator string presence as a structural gate only. Stop when the Issue
   evidence does not unambiguously justify its specific changed, new, or retired
   item or section.

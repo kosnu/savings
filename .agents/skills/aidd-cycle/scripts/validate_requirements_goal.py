@@ -288,6 +288,8 @@ def validate(
     issue: str,
     issue_url: str,
     issue_updated_at: str,
+    document_kind: str,
+    goal_document_path: Path | None = None,
 ) -> None:
     issue_body_bytes = issue_body_path.read_bytes()
     issue_body = issue_body_bytes.decode("utf-8")
@@ -308,6 +310,8 @@ def validate(
     direct_rules = manifest.get("direct_rules")
     if not isinstance(direct_rules, list):
         raise ValidationError("direct_rules must be an array")
+    if not direct_rules:
+        raise ValidationError("direct_rules must contain at least one Issue-evidenced rule")
     direct_rule_ids = {
         validate_direct_rule(entry, issue_body, rules_by_id) for entry in direct_rules
     }
@@ -315,6 +319,22 @@ def validate(
         raise ValidationError("direct_rules contains duplicate ids")
 
     validate_dependencies(manifest.get("depends_on"), direct_rule_ids, rules_by_id)
+
+    if document_kind == "goal":
+        if goal_document_path is not None:
+            raise ValidationError("--goal-document is only valid for artifact validation")
+        return
+    if document_kind != "artifact":
+        raise ValidationError("document kind must be goal or artifact")
+    if goal_document_path is None:
+        raise ValidationError("artifact validation requires --goal-document")
+    if goal_document_path.resolve() == document_path.resolve():
+        raise ValidationError("--goal-document must be distinct from the artifact")
+    goal_manifest = extract_manifest(goal_document_path.read_text(encoding="utf-8"))
+    if manifest != goal_manifest:
+        raise ValidationError(
+            "artifact Requirements Input Gate does not match the Goal"
+        )
 
 
 def main() -> int:
@@ -325,6 +345,8 @@ def main() -> int:
     parser.add_argument("--issue-body", required=True, type=Path)
     parser.add_argument("--document", required=True, type=Path)
     parser.add_argument("--rule-map", required=True, type=Path)
+    parser.add_argument("--kind", required=True, choices=("goal", "artifact"))
+    parser.add_argument("--goal-document", type=Path)
     args = parser.parse_args()
 
     try:
@@ -335,6 +357,8 @@ def main() -> int:
             args.issue,
             args.issue_url,
             args.issue_updated_at,
+            args.kind,
+            args.goal_document,
         )
     except (OSError, UnicodeDecodeError, KeyError, json.JSONDecodeError, ValidationError) as error:
         print(f"requirements input gate: failed: {error}", file=sys.stderr)

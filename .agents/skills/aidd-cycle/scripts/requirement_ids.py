@@ -81,6 +81,38 @@ def normalize_markdown_text(value: str) -> str:
     return " ".join(value.split()).casefold()
 
 
+def indentation_width(value: str) -> int:
+    return len(value.expandtabs(4))
+
+
+def bullet_item_end(document: str, match: re.Match[str]) -> int:
+    first_line_end = document.find("\n", match.start())
+    if first_line_end == -1:
+        return len(document)
+
+    parent_indent = indentation_width(match.group("indent"))
+    content_end = first_line_end
+    line_start = first_line_end + 1
+    while line_start < len(document):
+        line_end = document.find("\n", line_start)
+        if line_end == -1:
+            line_end = len(document)
+        line = document[line_start:line_end]
+        if not line.strip():
+            content_end = line_end
+            line_start = line_end + 1
+            continue
+
+        leading = re.match(r"[ \t]*", line)
+        assert leading is not None
+        if indentation_width(leading.group(0)) <= parent_indent:
+            break
+
+        content_end = line_end
+        line_start = line_end + 1
+    return content_end
+
+
 def extract_requirement_items(document: str) -> dict[str, RequirementItem]:
     document = strip_machine_gates(document)
     matches = list(REQUIREMENT_DEFINITION_PATTERN.finditer(document))
@@ -100,10 +132,8 @@ def extract_requirement_items(document: str) -> dict[str, RequirementItem]:
                     break
             content = document[match.start():end].strip()
         else:
-            line_end = document.find("\n", match.start())
-            if line_end == -1:
-                line_end = len(document)
-            content = document[match.start():line_end].strip()
+            end = bullet_item_end(document, match)
+            content = document[match.start():end].strip()
 
         summary = re.sub(r"^[\s:*：*_`-]+|[\s*`]+$", "", match.group("summary"))
         if len(normalize_markdown_text(summary)) < 2:

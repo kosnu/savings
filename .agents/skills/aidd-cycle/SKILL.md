@@ -80,7 +80,8 @@ Before creating an Intent / Requirements Goal:
 2. Include the template's `Requirements Input Gate` and `Requirements
    Completeness Gate` JSON blocks in the Goal.
    Record only the Issue snapshot, Issue-evidenced direct rules, and declared
-   `depends_on` closure. Every direct rule's `match.value` must occur in its
+   `depends_on` closure. Include at least one direct rule; an empty selection is
+   invalid. Every direct rule's `match.value` must occur in its
    Issue evidence after normalization. The completeness block records the
    Git baseline SHA-256 and every requirement item and required-section
    `unchanged`, `changed`, `new`, or retired transition. The validator derives
@@ -90,18 +91,30 @@ Before creating an Intent / Requirements Goal:
    requirement ID outside the gate in the Goal.
 3. Run:
 
-   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json`
+   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json --kind goal`
 
    `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
 
-4. Create the Goal only when validation succeeds. Remove the temporary files.
+4. Create the Goal only when validation succeeds. Retain the exact validated
+   Goal temporary file until Requirements artifact validation completes.
 
 The generated `requirements.md` must contain both same gate blocks. Before
 completing the Requirements Goal, run the provenance validator again with the
-same Issue metadata inputs and `--document <requirements-file>`, and run the
-continuity validator with `--kind artifact`, the same repo root, and workspace.
+same Issue metadata inputs:
+
+`python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --kind artifact --goal-document <goal-file>`
+
+Run the continuity validator with the same Goal reference:
+
+`python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <requirements-file> --kind artifact --repo-root <repo-root> --workspace <workspace> --goal-document <goal-file>`
+
+Both
+parsed Gate objects must exactly match their counterparts in the validated
+Goal. Remove the temporary Issue and Goal files only after both artifact gates
+and the final Issue snapshot check succeed.
 The artifact must use the canonical workspace path, contain every required
-Requirements section, preserve unchanged requirement and section content, and
+Requirements section, preserve unchanged requirement and section content
+including indented continuation lines of bullet requirements, and
 provide exact Issue evidence for every changed or new item. Then fetch the Issue again. Its
 identifier, URL, `updatedAt`, body, and body SHA-256 must still match the
 snapshot in the Goal and generated Requirements artifact. If validation fails
