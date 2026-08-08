@@ -12,6 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from git_baseline import GitBaselineError, require_canonical_worktree_path
+
 
 GENERIC_IMPLEMENTATION_TOPICS = {
     "documentation",
@@ -45,6 +47,53 @@ def require_string(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{label} must be a non-empty string")
     return value.strip()
+
+
+def require_canonical_input(
+    repo_root: Path,
+    supplied_path: Path,
+    relative_path: Path,
+    label: str,
+) -> Path:
+    try:
+        return require_canonical_worktree_path(
+            repo_root, supplied_path, relative_path, label
+        )
+    except GitBaselineError as error:
+        raise ValidationError(str(error)) from error
+
+
+def validate_rule_map(rule_map: Any) -> dict[str, dict[str, Any]]:
+    rules = rule_map.get("rules") if isinstance(rule_map, dict) else None
+    if not isinstance(rules, list):
+        raise ValidationError("rule-map.rules must be an array")
+
+    rules_by_id: dict[str, dict[str, Any]] = {}
+    for rule in rules:
+        if not isinstance(rule, dict):
+            raise ValidationError("each rule-map rule must be an object")
+        rule_id = require_string(rule.get("id"), "rule-map rule id")
+        if rule_id in rules_by_id:
+            raise ValidationError(f"duplicate rule-map node: {rule_id}")
+        applies_to = rule.get("applies_to")
+        if not isinstance(applies_to, dict):
+            raise ValidationError(f"{rule_id}.applies_to must be an object")
+        for field in ("paths", "domains", "activities", "topics"):
+            values = applies_to.get(field, [])
+            if not isinstance(values, list) or any(
+                not isinstance(value, str) or not value.strip() for value in values
+            ):
+                raise ValidationError(
+                    f"{rule_id}.applies_to.{field} must be an array of strings"
+                )
+        dependencies = rule.get("depends_on", [])
+        if not isinstance(dependencies, list) or any(
+            not isinstance(dependency, str) or not dependency.strip()
+            for dependency in dependencies
+        ):
+            raise ValidationError(f"{rule_id}.depends_on must be an array of strings")
+        rules_by_id[rule_id] = rule
+    return rules_by_id
 
 
 def extract_manifest(document: str) -> dict[str, Any]:
@@ -289,13 +338,20 @@ def validate(
     issue_url: str,
     issue_updated_at: str,
     document_kind: str,
+    repo_root: Path,
     goal_document_path: Path | None = None,
 ) -> None:
+    canonical_rule_map_path = require_canonical_input(
+        repo_root,
+        rule_map_path,
+        Path("docs/harness/rule-map.json"),
+        "rule-map",
+    )
     issue_body_bytes = issue_body_path.read_bytes()
     issue_body = issue_body_bytes.decode("utf-8")
     document = document_path.read_text(encoding="utf-8")
-    rule_map = json.loads(rule_map_path.read_text(encoding="utf-8"))
-    rules_by_id = {rule["id"]: rule for rule in rule_map["rules"]}
+    rule_map = json.loads(canonical_rule_map_path.read_text(encoding="utf-8"))
+    rules_by_id = validate_rule_map(rule_map)
     manifest = extract_manifest(document)
 
     validate_issue_metadata(issue, issue_url, issue_updated_at)
@@ -345,6 +401,7 @@ def main() -> int:
     parser.add_argument("--issue-body", required=True, type=Path)
     parser.add_argument("--document", required=True, type=Path)
     parser.add_argument("--rule-map", required=True, type=Path)
+    parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--kind", required=True, choices=("goal", "artifact"))
     parser.add_argument("--goal-document", type=Path)
     args = parser.parse_args()
@@ -358,9 +415,17 @@ def main() -> int:
             args.issue_url,
             args.issue_updated_at,
             args.kind,
+            args.repo_root,
             args.goal_document,
         )
-    except (OSError, UnicodeDecodeError, KeyError, json.JSONDecodeError, ValidationError) as error:
+    except (
+        OSError,
+        UnicodeDecodeError,
+        KeyError,
+        json.JSONDecodeError,
+        GitBaselineError,
+        ValidationError,
+    ) as error:
         print(f"requirements input gate: failed: {error}", file=sys.stderr)
         return 1
 

@@ -71,7 +71,7 @@ DB、API、型、RLSを同期する。
 CURRENT = BASELINE.replace(
     "- AC-2: 保存失敗を成功扱いにしない。",
     "- AC-2: 保存失敗を成功扱いにしない。\n"
-    "- AC-3: Storybookで状態を確認できる。",
+    "- AC-3: Storybookで状態を確認できるようにする。",
 )
 BASELINE_IDS = ["FR-1", "FR-2", "NFR-1", "AC-1", "AC-2"]
 SECTION_IDS = [
@@ -85,6 +85,25 @@ SECTION_IDS = [
     "qa",
     "technical",
 ]
+FIRST_CYCLE_REQUIREMENT_EVIDENCE = {
+    "FR-1": "DB正本へ選択値を保存する。",
+    "FR-2": "保存済みの選択値を初期表示する。",
+    "NFR-1": "既存プロフィール更新を維持する。",
+    "AC-1": "保存済みの選択値と一致する。",
+    "AC-2": "保存失敗を成功扱いにしない。",
+    "AC-3": "Storybookで状態を確認できるようにする。",
+}
+FIRST_CYCLE_SECTION_EVIDENCE = {
+    "background": "言語設定が永続化されていない。",
+    "users": "ログイン済みユーザーが設定画面を利用する。",
+    "stories": "ユーザーとして言語設定を維持したい。",
+    "scope": "言語設定の保存と復元を対象にする。",
+    "functional": "DB正本へ選択値を保存する。",
+    "non_functional": "既存プロフィール更新を維持する。",
+    "acceptance": "Storybookで状態を確認できるようにする。",
+    "qa": "未決事項なし。",
+    "technical": "DB、API、型、RLSを同期する。",
+}
 
 
 def run_git(repo_root: Path, *arguments: str) -> None:
@@ -142,7 +161,7 @@ def section_entries(
     for section_id in SECTION_IDS:
         if not baseline:
             status = "new"
-            evidence = "言語設定を保存し、既存のプロフィール更新を維持する。"
+            evidence = FIRST_CYCLE_SECTION_EVIDENCE[section_id]
         elif section_id in changed:
             status = "changed"
             evidence = changed[section_id]
@@ -202,6 +221,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         issue_body: str = ISSUE_BODY,
         baseline: str | None = BASELINE,
         canonical: bool = True,
+        canonical_symlink: bool = False,
         goal_manifest: dict[str, object] | None = None,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -209,9 +229,17 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             canonical_path = initialize_repo(repo_root, baseline)
             issue_path = repo_root / "issue.md"
             issue_path.write_text(issue_body, encoding="utf-8")
-            document_path = canonical_path if canonical else repo_root / "document.md"
+            if canonical_symlink:
+                document_target = repo_root / "temporary-requirements.md"
+                document_target.write_text(document(value, body), encoding="utf-8")
+                canonical_path.unlink()
+                canonical_path.symlink_to(document_target)
+                document_path = canonical_path
+            else:
+                document_path = canonical_path if canonical else repo_root / "document.md"
             document_path.parent.mkdir(parents=True, exist_ok=True)
-            document_path.write_text(document(value, body), encoding="utf-8")
+            if not canonical_symlink:
+                document_path.write_text(document(value, body), encoding="utf-8")
             goal_path = None
             if kind == "artifact":
                 goal_path = repo_root / "goal.md"
@@ -237,7 +265,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
 
 ## Requirement Scope
 
-- AC-3: Storybookで状態を確認できる。
+- AC-3: Storybookで状態を確認できるようにする。
 """
         with self.assertRaisesRegex(ValidationError, "must exactly match"):
             self.validate_document(
@@ -300,7 +328,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             self.validate_document(manifest(), kind="artifact", body=changed)
 
     def test_artifact_accepts_changed_content_with_issue_evidence(self) -> None:
-        issue_body = f"{ISSUE_BODY}\n言語設定を必ず復元する。\n"
+        issue_body = f"{ISSUE_BODY}\n言語設定を必ず復元する\n"
         changed = CURRENT.replace(
             "### FR-2: 言語設定を復元する",
             "### FR-2: 言語設定を必ず復元する",
@@ -309,7 +337,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         requirements[1] = {
             "id": "FR-2",
             "status": "changed",
-            "issue_evidence": "言語設定を必ず復元する。",
+            "issue_evidence": "言語設定を必ず復元する",
         }
         requirements.append(
             {
@@ -323,13 +351,132 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                 issue_body=issue_body,
                 requirements=requirements,
                 sections=section_entries(
-                    changed={"functional": "言語設定を必ず復元する。"}
+                    changed={"functional": "言語設定を必ず復元する"}
                 ),
             ),
             kind="artifact",
             body=changed,
             issue_body=issue_body,
         )
+
+    def test_artifact_rejects_issue_evidence_unrelated_to_target_requirement(
+        self,
+    ) -> None:
+        issue_body = f"{ISSUE_BODY}\n保存失敗を成功扱いにしない。\n"
+        requirements = [
+            *unchanged_entries(),
+            {
+                "id": "AC-3",
+                "status": "new",
+                "issue_evidence": "保存失敗を成功扱いにしない。",
+            },
+        ]
+        with self.assertRaisesRegex(
+            ValidationError,
+            "AC-3 issue_evidence is not present in its requirement content",
+        ):
+            self.validate_document(
+                manifest(issue_body=issue_body, requirements=requirements),
+                kind="artifact",
+                body=CURRENT,
+                issue_body=issue_body,
+            )
+
+    def test_goal_rejects_reused_issue_evidence_for_requirements(self) -> None:
+        requirements = unchanged_entries()
+        requirements[1] = {
+            "id": "FR-2",
+            "status": "changed",
+            "issue_evidence": "Storybookで状態を確認できるようにする。",
+        }
+        requirements.append(
+            {
+                "id": "AC-3",
+                "status": "new",
+                "issue_evidence": "Storybookで状態を確認できるようにする。",
+            }
+        )
+        body = CURRENT.replace(
+            "### FR-2: 言語設定を復元する",
+            "### FR-2: Storybookで状態を確認できるようにする。",
+        )
+        with self.assertRaisesRegex(ValidationError, "also maps to another requirement"):
+            self.validate_document(
+                manifest(requirements=requirements),
+                kind="goal",
+                body=body,
+                canonical=False,
+            )
+
+    def test_artifact_rejects_section_evidence_from_another_section(self) -> None:
+        issue_body = f"{ISSUE_BODY}\n言語設定を必ず復元する\n保存失敗を成功扱いにしない。\n"
+        changed = CURRENT.replace(
+            "### FR-2: 言語設定を復元する",
+            "### FR-2: 言語設定を必ず復元する",
+        )
+        requirements = unchanged_entries()
+        requirements[1] = {
+            "id": "FR-2",
+            "status": "changed",
+            "issue_evidence": "言語設定を必ず復元する",
+        }
+        requirements.append(
+            {
+                "id": "AC-3",
+                "status": "new",
+                "issue_evidence": "Storybookで状態を確認できるようにする。",
+            }
+        )
+        sections = section_entries(
+            changed={
+                "functional": "Storybookで状態を確認できるようにする。",
+                "acceptance": "保存失敗を成功扱いにしない。",
+            }
+        )
+        with self.assertRaisesRegex(
+            ValidationError,
+            "functional section evidence is not present in its section content",
+        ):
+            self.validate_document(
+                manifest(
+                    issue_body=issue_body,
+                    requirements=requirements,
+                    sections=sections,
+                ),
+                kind="artifact",
+                body=changed,
+                issue_body=issue_body,
+            )
+
+    def test_artifact_rejects_reused_issue_evidence_for_sections(self) -> None:
+        sections = section_entries(
+            changed={
+                "functional": "Storybookで状態を確認できるようにする。",
+                "acceptance": "Storybookで状態を確認できるようにする。",
+            }
+        )
+        with self.assertRaisesRegex(ValidationError, "also maps to another section"):
+            self.validate_document(
+                manifest(sections=sections),
+                kind="artifact",
+                body=CURRENT.replace(
+                    "## 機能要件\n\n",
+                    "## 機能要件\n\n"
+                    "Storybookで状態を確認できるようにする。\n\n",
+                ),
+            )
+
+    def test_rejects_non_string_requirement_status(self) -> None:
+        value = manifest()
+        value["requirements"][-1]["status"] = []
+        with self.assertRaisesRegex(ValidationError, r"requirements\[5\].status"):
+            self.validate_document(value, kind="goal", body=CURRENT, canonical=False)
+
+    def test_rejects_non_string_section_status(self) -> None:
+        value = manifest()
+        value["sections"][0]["status"] = {}
+        with self.assertRaisesRegex(ValidationError, r"sections\[0\].status"):
+            self.validate_document(value, kind="artifact", body=CURRENT)
 
     def test_artifact_rejects_id_only_definition(self) -> None:
         local = CURRENT.replace(
@@ -401,6 +548,10 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             "### FR-2: 言語設定を復元する\n\n保存済みの選択値を初期表示する。\n\n",
             "",
         )
+        current = current.replace(
+            "## 機能要件\n\n",
+            "## 機能要件\n\nFR-2を対象外として廃止する。\n\n",
+        )
         self.validate_document(
             manifest(
                 issue_body=issue_body,
@@ -415,12 +566,93 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             issue_body=issue_body,
         )
 
+    def test_retirement_rejects_japanese_negation(self) -> None:
+        requirements = [
+            *unchanged_entries(["FR-1", "NFR-1", "AC-1", "AC-2"]),
+            {
+                "id": "AC-3",
+                "status": "new",
+                "issue_evidence": "Storybookで状態を確認できるようにする。",
+            },
+        ]
+        for evidence in (
+            "FR-2は削除しない。",
+            "FR-2は削除をしない。",
+            "FR-2の削除は不要。",
+            "FR-2は不要ではない。",
+            "FR-2は対象外とはしない。",
+        ):
+            with self.subTest(evidence=evidence):
+                issue_body = f"{ISSUE_BODY}\n{evidence}\n"
+                with self.assertRaisesRegex(
+                    ValidationError, "must not negate retirement"
+                ):
+                    self.validate_document(
+                        manifest(
+                            issue_body=issue_body,
+                            requirements=requirements,
+                            retired=[{"id": "FR-2", "issue_evidence": evidence}],
+                        ),
+                        kind="goal",
+                        body=CURRENT.replace(
+                            "### FR-2: 言語設定を復元する\n\n"
+                            "保存済みの選択値を初期表示する。\n\n",
+                            "",
+                        ),
+                        issue_body=issue_body,
+                        canonical=False,
+                    )
+
+    def test_retirement_rejects_english_negation(self) -> None:
+        requirements = [
+            *unchanged_entries(["FR-1", "NFR-1", "AC-1", "AC-2"]),
+            {
+                "id": "AC-3",
+                "status": "new",
+                "issue_evidence": "Storybookで状態を確認できるようにする。",
+            },
+        ]
+        for evidence in (
+            "FR-2 must not be removed.",
+            "FR-2 is not out of scope.",
+            "FR-2 shouldn't be removed.",
+            "FR-2 isn't out of scope.",
+        ):
+            with self.subTest(evidence=evidence):
+                issue_body = f"{ISSUE_BODY}\n{evidence}\n"
+                with self.assertRaisesRegex(
+                    ValidationError, "must not negate retirement"
+                ):
+                    self.validate_document(
+                        manifest(
+                            issue_body=issue_body,
+                            requirements=requirements,
+                            retired=[{"id": "FR-2", "issue_evidence": evidence}],
+                        ),
+                        kind="goal",
+                        body=CURRENT.replace(
+                            "### FR-2: 言語設定を復元する\n\n"
+                            "保存済みの選択値を初期表示する。\n\n",
+                            "",
+                        ),
+                        issue_body=issue_body,
+                        canonical=False,
+                    )
+
     def test_first_cycle_accepts_git_verified_missing_baseline(self) -> None:
+        issue_body = "\n".join(
+            dict.fromkeys(
+                [
+                    *FIRST_CYCLE_REQUIREMENT_EVIDENCE.values(),
+                    *FIRST_CYCLE_SECTION_EVIDENCE.values(),
+                ]
+            )
+        )
         requirements = [
             {
                 "id": requirement_id,
                 "status": "new",
-                "issue_evidence": "言語設定を保存し、既存のプロフィール更新を維持する。",
+                "issue_evidence": FIRST_CYCLE_REQUIREMENT_EVIDENCE[requirement_id],
             }
             for requirement_id in BASELINE_IDS
         ]
@@ -428,27 +660,38 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             {
                 "id": "AC-3",
                 "status": "new",
-                "issue_evidence": "Storybookで状態を確認できるようにする。",
+                "issue_evidence": FIRST_CYCLE_REQUIREMENT_EVIDENCE["AC-3"],
             }
         )
         self.validate_document(
             manifest(
+                issue_body=issue_body,
                 baseline=None,
                 requirements=requirements,
                 sections=section_entries(baseline=False),
             ),
             kind="artifact",
             body=CURRENT,
+            issue_body=issue_body,
             baseline=None,
         )
 
     def test_artifact_rejects_noncanonical_path(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "canonical workspace path"):
+        with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_document(
                 manifest(),
                 kind="artifact",
                 body=CURRENT,
                 canonical=False,
+            )
+
+    def test_artifact_rejects_canonical_path_symlink(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "must not contain symlinks"):
+            self.validate_document(
+                manifest(),
+                kind="artifact",
+                body=CURRENT,
+                canonical_symlink=True,
             )
 
     def test_cli_accepts_complete_replacement(self) -> None:
@@ -484,6 +727,49 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                 check=False,
             )
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_cli_rejects_non_string_status_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            canonical_path = initialize_repo(repo_root, BASELINE)
+            issue_path = repo_root / "issue.md"
+            issue_path.write_text(ISSUE_BODY, encoding="utf-8")
+            value = manifest()
+            value["sections"][0]["status"] = []
+            canonical_path.write_text(document(value, CURRENT), encoding="utf-8")
+            goal_path = repo_root / "goal.md"
+            goal_path.write_text(document(value, CURRENT), encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VALIDATOR_PATH),
+                    "--issue",
+                    ISSUE,
+                    "--issue-body",
+                    str(issue_path),
+                    "--document",
+                    str(canonical_path),
+                    "--kind",
+                    "artifact",
+                    "--repo-root",
+                    str(repo_root),
+                    "--workspace",
+                    WORKSPACE,
+                    "--goal-document",
+                    str(goal_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("sections[0].status must be a non-empty string", result.stderr)
+        self.assertTrue(
+            result.stderr.rstrip().endswith(
+                "requirements completeness gate: failed: "
+                "sections[0].status must be a non-empty string"
+            )
+        )
 
 
 def re_sub_section(document_body: str, start: str, end: str) -> str:

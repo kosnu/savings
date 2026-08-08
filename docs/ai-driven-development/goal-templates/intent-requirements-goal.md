@@ -99,7 +99,7 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
 
 ## Requirements Completeness Gate
 
-新サイクルでは、最新Issue全体を満たすRequirements / PRDの完成版を作る。今回追加・変更された内容は差分であり、Goalまたは成果物のscopeではない。baselineは呼び出し側で選ばず、validatorが`--workspace`に対応するcanonical `requirements.md`をGit `HEAD`から取得する。前回の全要求項目と必須section、新しい全要求項目について状態遷移を記録する。生成する`requirements.md`の各必須sectionは別々のlevel-two見出しへ一対一で対応させ、1つの見出しで複数sectionを満たさない。箇条書き要求では、次の同階層項目またはsection境界までのインデントされた継続行も要求内容としてhash化する。`changed`と`new`には最新Issue本文の原文根拠が必要であり、廃止根拠は対象IDと明示的な廃止表現を含まなければならない。
+新サイクルでは、最新Issue全体を満たすRequirements / PRDの完成版を作る。今回追加・変更された内容は差分であり、Goalまたは成果物のscopeではない。baselineは呼び出し側で選ばず、validatorが`--workspace`に対応するcanonical `requirements.md`をGit `HEAD`から取得する。前回の全要求項目と必須section、新しい全要求項目について状態遷移を記録する。生成する`requirements.md`の各必須sectionは別々のlevel-two見出しへ一対一で対応させ、1つの見出しで複数sectionを満たさない。箇条書き要求では、次の同階層項目またはsection境界までのインデントされた継続行も要求内容としてhash化する。`changed`と`new`には最新Issue本文の原文根拠が必要であり、その原文を対象requirementまたはcanonical sectionの本文内に含め、同種の別targetへ再利用しない。廃止根拠は対象IDと明示的な廃止表現を含み、廃止を否定する文であってはならない。
 
 ```json
 {
@@ -212,7 +212,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 
 - 必ず実行:
   - `python3 .agents/skills/aidd-cycle/scripts/validate_workspace.py --repo-root <repo-root> --issue <owner/repo#number> --workspace <workspace>`
-  - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --kind artifact --goal-document <goal-file>`
+  - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --repo-root <repo-root> --kind artifact --goal-document <goal-file>`
   - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <requirements-file> --kind artifact --repo-root <repo-root> --workspace <workspace> --goal-document <goal-file>`
 - 手動確認:
   - 必要に応じて監督者が受け入れ条件とStop条件を確認する

@@ -86,12 +86,15 @@ Before creating an Intent / Requirements Goal:
    Git baseline SHA-256 and every requirement item and required-section
    `unchanged`, `changed`, `new`, or retired transition. The validator derives
    the full baseline inventories from Git instead of trusting manifest lists. A
-   retirement is valid only when exact current-Issue evidence names the ID and
-   explicitly retires it. Include substantive definitions for every resulting
-   requirement ID outside the gate in the Goal.
+   retirement is valid only when exact current-Issue evidence names the ID,
+   explicitly retires it, and does not negate retirement. Every changed or new
+   requirement must include its exact Issue evidence in that requirement's
+   substantive definition without reusing it for another requirement. Include
+   substantive definitions for every resulting requirement ID outside the gate
+   in the Goal.
 3. Run:
 
-   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json --kind goal`
+   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json --repo-root <repo-root> --kind goal`
 
    `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
 
@@ -102,7 +105,7 @@ The generated `requirements.md` must contain both same gate blocks. Before
 completing the Requirements Goal, run the provenance validator again with the
 same Issue metadata inputs:
 
-`python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --kind artifact --goal-document <goal-file>`
+`python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --repo-root <repo-root> --kind artifact --goal-document <goal-file>`
 
 Run the continuity validator with the same Goal reference:
 
@@ -117,7 +120,10 @@ Requirements section in its own level-two heading without assigning one
 heading to multiple canonical section IDs, preserve unchanged requirement and
 section content
 including indented continuation lines of bullet requirements, and
-provide exact Issue evidence for every changed or new item. Then fetch the Issue again. Its
+provide exact Issue evidence for every changed or new item. That evidence must
+occur in its target content; requirement evidence must not map to another
+requirement, and section evidence must not map to another canonical section.
+Then fetch the Issue again. Its
 identifier, URL, `updatedAt`, body, and body SHA-256 must still match the
 snapshot in the Goal and generated Requirements artifact. If validation fails
 or the Issue changed, stop and restart Requirements from the latest Issue body.
@@ -140,7 +146,8 @@ Before creating a Design / Plan Goal:
    baseline SHA-256. Outside the gate, include one substantive design and
    verification scope line per requirement ID and one review scope line per
    Git baseline section. Each requirement scope line must contain only its
-   target requirement ID. Grouped coverage is invalid. A changed or
+   target requirement ID. Every Git baseline section also gets its own physical
+   review-scope line. Grouped coverage is invalid. A changed or
    newly added requirement may be called out as the cycle delta, but it may not
    narrow the Goal scope.
 3. Run:
@@ -154,7 +161,9 @@ Each current requirement ID must have its own `coverage` entry with substantive
 design and verification evidence on a unique outside-the-gate source line that
 contains only that requirement ID. Every Git `HEAD`
 Design section must be classified in order as exact-content `preserved` or
-explicitly `replaced` with new Design evidence. Before completing Design / Plan,
+explicitly `replaced` with new Design evidence on its own physical source line;
+one line cannot cover multiple baseline sections or name another distinct
+baseline heading. Before completing Design / Plan,
 run:
 
 `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`

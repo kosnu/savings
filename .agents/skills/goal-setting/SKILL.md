@@ -81,7 +81,9 @@ For an Intent / Requirements Goal:
   criterion, or Q&A decision.
 - Include the exact `Requirements Input Gate` JSON block from the matching Goal
   template. Before `create_goal`, validate it with the command defined in
-  `.agents/skills/aidd-cycle/SKILL.md`.
+  `.agents/skills/aidd-cycle/SKILL.md`. The validator must receive the repository
+  root and reject any `--rule-map` other than the non-symlink canonical
+  `docs/harness/rule-map.json` path.
 - Treat a new-cycle `requirements.md` as a complete replacement for the current
   Issue, not a document for only the new or changed Issue fragment. Resolve the
   previous canonical Requirements from Git `HEAD`; do not let the Goal author
@@ -90,10 +92,14 @@ For an Intent / Requirements Goal:
   previous requirement item and required section as unchanged, changed, or
   retired, and every added item as new. Changed and new entries require exact
   current-Issue evidence. Retirement evidence must name the ID and explicitly
-  retire it. Include substantive definitions for every resulting ID outside the
-  gate. Require every canonical section in the generated `requirements.md` to
+  retire it without negating that decision. Each changed or new requirement's
+  exact Issue evidence must occur in that requirement definition and may not
+  map to another requirement. Include substantive definitions for
+  every resulting ID outside the gate. Require every canonical section in the generated `requirements.md` to
   use its own level-two heading; one heading cannot satisfy multiple section
-  IDs. Validate the proposed Goal with the `--kind goal` command.
+  IDs. Each changed or new section's evidence must occur in that section and
+  may not map to another section. Validate the proposed Goal with
+  the `--kind goal` command.
 - Preserve the exact validated Goal until artifact completion. Require the
   artifact forms of both Requirements gates to equal the corresponding parsed
   Goal Gate objects; independent validity is not sufficient.
@@ -133,9 +139,11 @@ For a Design / Plan Goal:
   in `.agents/skills/aidd-cycle/SKILL.md`.
 - Resolve the committed previous-cycle Design Doc from the canonical workspace
   path in Git `HEAD`, not from a caller-supplied file. Require every prior
-  level-two section to have a unique heading-bearing baseline scope line in the
-  Goal, then be classified as exact-content preserved or explicitly replaced
-  with unique heading-bearing evidence in the new Design Doc.
+  level-two section to have its own physical, heading-bearing baseline scope
+  line in the Goal, then be classified as exact-content preserved or explicitly
+  replaced with heading-bearing evidence on its own physical line in the new
+  Design Doc. A baseline evidence line must not name another distinct baseline
+  heading.
 - Require the output `design-doc.md` to resolve every identifier through design
   and verification evidence on a unique source line that contains only that
   identifier. Each ID gets its own entry; omission, grouping, and generic

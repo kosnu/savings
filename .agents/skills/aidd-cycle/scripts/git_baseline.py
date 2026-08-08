@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -46,6 +47,29 @@ def canonical_artifact_path(
         / workspace
         / filename
     )
+
+
+def require_canonical_worktree_path(
+    repo_root: Path,
+    supplied_path: Path,
+    relative_path: Path,
+    label: str,
+) -> Path:
+    """Require an exact, non-symlink path below the canonical worktree root."""
+
+    absolute_root = Path(os.path.abspath(repo_root))
+    require_repository_root(absolute_root)
+    canonical_path = absolute_root / relative_path
+    absolute_supplied_path = Path(os.path.abspath(supplied_path))
+    if absolute_supplied_path != canonical_path:
+        raise GitBaselineError(f"{label} must use the canonical repository path")
+
+    current_path = absolute_root
+    for part in relative_path.parts:
+        current_path /= part
+        if current_path.is_symlink():
+            raise GitBaselineError(f"{label} canonical path must not contain symlinks")
+    return canonical_path
 
 
 def run_git(repo_root: Path, arguments: list[str]) -> subprocess.CompletedProcess[bytes]:

@@ -218,6 +218,7 @@ class DesignCoverageGateTest(unittest.TestCase):
         baseline_design: str | None = None,
         canonical: bool = True,
         requirements_path_kind: str = "canonical",
+        canonical_design_symlink: bool = False,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
@@ -243,9 +244,17 @@ class DesignCoverageGateTest(unittest.TestCase):
                 raise AssertionError(
                     f"unknown requirements path kind: {requirements_path_kind}"
                 )
-            document_path = canonical_path if canonical else repo_root / "goal.md"
+            if canonical_design_symlink:
+                design_target = repo_root / "temporary-design.md"
+                design_target.write_text(document(value, body), encoding="utf-8")
+                canonical_path.unlink()
+                canonical_path.symlink_to(design_target)
+                document_path = canonical_path
+            else:
+                document_path = canonical_path if canonical else repo_root / "goal.md"
             document_path.parent.mkdir(parents=True, exist_ok=True)
-            document_path.write_text(document(value, body), encoding="utf-8")
+            if not canonical_design_symlink:
+                document_path.write_text(document(value, body), encoding="utf-8")
             validate(
                 ISSUE,
                 requirements_path,
@@ -324,6 +333,22 @@ class DesignCoverageGateTest(unittest.TestCase):
             baseline_design=BASELINE_DESIGN,
             canonical=False,
         )
+
+    def test_goal_rejects_baseline_sections_sharing_scope_line(self) -> None:
+        body = goal_body(baseline_design=BASELINE_DESIGN).replace(
+            "- 実装方針 baseline scope: 現在Requirementsへ再適合させる。\n"
+            "- 検証方針 baseline scope: 現在Requirementsへ再適合させる。",
+            "- 実装方針 検証方針 baseline scope: "
+            "両sectionを現在Requirementsへ再適合させる。",
+        )
+        with self.assertRaisesRegex(ValidationError, "separate source lines"):
+            self.validate_document(
+                goal_manifest(baseline_design=BASELINE_DESIGN),
+                kind="goal",
+                body=body,
+                baseline_design=BASELINE_DESIGN,
+                canonical=False,
+            )
 
     def test_artifact_accepts_per_requirement_coverage(self) -> None:
         self.validate_document(
@@ -482,7 +507,10 @@ class DesignCoverageGateTest(unittest.TestCase):
             }
             for section in sections
         ]
-        with self.assertRaisesRegex(ValidationError, "design_evidence must be unique"):
+        with self.assertRaisesRegex(
+            ValidationError,
+            "must be unique|only its target heading",
+        ):
             self.validate_document(
                 artifact_manifest(
                     baseline_design=BASELINE_DESIGN,
@@ -493,8 +521,113 @@ class DesignCoverageGateTest(unittest.TestCase):
                 baseline_design=BASELINE_DESIGN,
             )
 
+    def test_artifact_rejects_distinct_baseline_evidence_on_same_line(self) -> None:
+        sections = design_section_manifest(BASELINE_DESIGN)
+        first_evidence = "実装方針を新しい要求別設計へ置換する。"
+        second_evidence = "検証方針を新しい要求別テストへ置換する。"
+        transitions = [
+            {
+                "heading": sections[0]["heading"],
+                "content_sha256": sections[0]["content_sha256"],
+                "status": "replaced",
+                "design_evidence": first_evidence,
+            },
+            {
+                "heading": sections[1]["heading"],
+                "content_sha256": sections[1]["content_sha256"],
+                "status": "replaced",
+                "design_evidence": second_evidence,
+            },
+        ]
+        with self.assertRaisesRegex(
+            ValidationError, "separate source lines|only its target heading"
+        ):
+            self.validate_document(
+                artifact_manifest(
+                    baseline_design=BASELINE_DESIGN,
+                    baseline_sections=transitions,
+                ),
+                kind="artifact",
+                body=f"{design_body()}\n{first_evidence} / {second_evidence}",
+                baseline_design=BASELINE_DESIGN,
+            )
+
+    def test_artifact_rejects_baseline_evidence_naming_another_heading(self) -> None:
+        sections = design_section_manifest(BASELINE_DESIGN)
+        first_evidence = "実装方針と検証方針を要求別設計へ置換する。"
+        second_evidence = "検証方針を要求別テストへ置換する。"
+        transitions = [
+            {
+                "heading": sections[0]["heading"],
+                "content_sha256": sections[0]["content_sha256"],
+                "status": "replaced",
+                "design_evidence": first_evidence,
+            },
+            {
+                "heading": sections[1]["heading"],
+                "content_sha256": sections[1]["content_sha256"],
+                "status": "replaced",
+                "design_evidence": second_evidence,
+            },
+        ]
+        with self.assertRaisesRegex(ValidationError, "only its target heading"):
+            self.validate_document(
+                artifact_manifest(
+                    baseline_design=BASELINE_DESIGN,
+                    baseline_sections=transitions,
+                ),
+                kind="artifact",
+                body=(
+                    f"{design_body()}\n{first_evidence}\n{second_evidence}"
+                ),
+                baseline_design=BASELINE_DESIGN,
+            )
+
+    def test_artifact_accepts_heading_substring_collision_on_separate_lines(
+        self,
+    ) -> None:
+        baseline_design = """# Design Doc
+
+## 実装方針
+
+旧実装を維持する。
+
+## 方針
+
+旧方針を維持する。
+"""
+        sections = design_section_manifest(baseline_design)
+        transitions = [
+            {
+                "heading": sections[0]["heading"],
+                "content_sha256": sections[0]["content_sha256"],
+                "status": "replaced",
+                "design_evidence": "実装方針を要求別設計へ置換する。",
+            },
+            {
+                "heading": sections[1]["heading"],
+                "content_sha256": sections[1]["content_sha256"],
+                "status": "replaced",
+                "design_evidence": "方針を要求別レビューへ置換する。",
+            },
+        ]
+        body = (
+            f"{design_body()}\n"
+            "実装方針を要求別設計へ置換する。\n"
+            "方針を要求別レビューへ置換する。"
+        )
+        self.validate_document(
+            artifact_manifest(
+                baseline_design=baseline_design,
+                baseline_sections=transitions,
+            ),
+            kind="artifact",
+            body=body,
+            baseline_design=baseline_design,
+        )
+
     def test_artifact_rejects_noncanonical_path(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "canonical workspace path"):
+        with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_document(
                 artifact_manifest(),
                 kind="artifact",
@@ -503,7 +636,7 @@ class DesignCoverageGateTest(unittest.TestCase):
             )
 
     def test_goal_rejects_noncanonical_requirements_path(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "canonical workspace Requirements"):
+        with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_document(
                 goal_manifest(),
                 kind="goal",
@@ -513,7 +646,7 @@ class DesignCoverageGateTest(unittest.TestCase):
             )
 
     def test_artifact_rejects_noncanonical_requirements_path(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "canonical workspace Requirements"):
+        with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_document(
                 artifact_manifest(),
                 kind="artifact",
@@ -522,7 +655,7 @@ class DesignCoverageGateTest(unittest.TestCase):
             )
 
     def test_goal_rejects_requirements_symlink_alias(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "canonical workspace Requirements"):
+        with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_document(
                 goal_manifest(),
                 kind="goal",
@@ -538,6 +671,16 @@ class DesignCoverageGateTest(unittest.TestCase):
                 kind="artifact",
                 body=design_body(),
                 requirements_path_kind="canonical_symlink",
+            )
+
+    def test_artifact_rejects_canonical_design_symlink(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "must not contain symlinks"):
+            self.validate_document(
+                artifact_manifest(baseline_design=BASELINE_DESIGN),
+                kind="artifact",
+                body=design_body(),
+                baseline_design=BASELINE_DESIGN,
+                canonical_design_symlink=True,
             )
 
     def test_cli_accepts_complete_design_artifact(self) -> None:
