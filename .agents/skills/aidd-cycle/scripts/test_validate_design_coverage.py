@@ -281,6 +281,17 @@ class DesignCoverageGateTest(unittest.TestCase):
                 canonical=False,
             )
 
+    def test_goal_rejects_requirements_defined_only_in_code_fence(self) -> None:
+        fenced = f"````markdown\n{REQUIREMENTS}\n````"
+        with self.assertRaisesRegex(ValidationError, "stable FR-, NFR-, or AC-"):
+            self.validate_document(
+                goal_manifest(requirements=fenced),
+                kind="goal",
+                body=goal_body(),
+                requirements=fenced,
+                canonical=False,
+            )
+
     def test_goal_rejects_scope_text_without_requirement_id(self) -> None:
         body = goal_body().replace(
             "- FR-1 design scope: 保存・復元境界を具体化する。",
