@@ -92,7 +92,7 @@ Intent / Requirements Goalを作成する前に、Task ContextとRule Selection�
 - Goalと生成する`requirements.md`に同じRequirements Input Gateを記録する。direct nodeを少なくとも1件要求し、空の`direct_rules`でrule-map選択を回避させない。Goal作成時は単体検証し、成果物完了時は単体検証に加えて、保持したGoalのparsed Gate objectとの完全一致を検証する。
 - validatorへrepo rootとworkspaceを渡し、Git `HEAD`のcanonical `requirements.md`からbaselineを自動取得する。Goal作成者がbaselineの有無や取得元を選ばない。
 - Requirements Goalと生成する`requirements.md`は最新Issue全体をscopeとし、今回追加または変更された内容だけへ狭めない。
-- 前回と現在の各要求項目、および背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項を`unchanged`、`changed`、`new`として追跡する。箇条書き要求は次の同階層項目またはsection境界までのインデントされた継続行を同じ要求内容へ含める。`unchanged`は正規化した内容hashの一致、`changed`と`new`は最新Issueの原文根拠を必須とする。
+- 前回と現在の各要求項目、および背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項を`unchanged`、`changed`、`new`として追跡する。各必須sectionは別々のlevel-two見出しへ一対一で対応させ、1つの見出しで複数sectionを満たさない。箇条書き要求は次の同階層項目またはsection境界までのインデントされた継続行を同じ要求内容へ含める。`unchanged`は正規化した内容hashの一致、`changed`と`new`は最新Issueの原文根拠を必須とする。
 - 前回の要求IDを削除する場合は、ID自体と明示的な廃止・対象外表現を含む最新Issue原文をGateへ記録する。根拠なしの欠落をvalidatorで拒否する。
 - validatorによる文字列存在確認は必要条件であり、意味的な十分条件ではない。引用したIssue原文がその要求項目またはsectionの変更・追加・廃止を一意に正当化しない場合はStopする。
 - 最新Issue本文自身に安定要求IDがある場合、新Requirementsからの欠落をvalidatorで拒否する。
@@ -131,7 +131,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 - snapshotしたIssue本文、選択したrule-mapサブグラフから、要求、制約、対象外、受け入れ条件が逸脱していないか確認する。
 - Issue番号、URL、`updatedAt`、本文SHA-256が取得値、成果物、Goalで一致しているか確認する。
 - Goalと成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通り、成果物のparsed Gate objectが保持したGoalと完全一致するか確認する。
-- Goalと成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、成果物のparsed Gate objectが保持したGoalと完全一致し、要求項目または主要sectionを継続行も含めて根拠なく欠落・変更していないか確認する。
+- Goalと成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、成果物のparsed Gate objectが保持したGoalと完全一致し、要求項目または主要sectionを継続行も含めて根拠なく欠落・変更しておらず、成果物の各必須sectionが別々のlevel-two見出しへ一対一で対応しているか確認する。
 - scope、機能要件、非機能要件、受け入れ条件、Q&A判断のsource provenanceが欠落していないか確認する。
 - Requirements / PRD内のRule Selectionが、成果物内の判断と矛盾していないか確認する。
 - 成果物が同じworkspaceのcanonical pathである`requirements.md`にあるか確認する。
@@ -148,9 +148,9 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 
 どう作るかを定義します。
 
-現在サイクルの最新Requirements / PRD全体をもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。今回追加、変更された要求は設計へ統合する差分であり、Design / Plan GoalやDesign Docのscopeではありません。入力の`requirements.md`はread-onlyとし、Design / Planの都合で追記、修正、整形、リネームしてはいけません。成果物は同じworkspaceのcanonical pathである`design-doc.md`へ書き込みます。
+現在サイクルの最新Requirements / PRD全体をもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。今回追加、変更された要求は設計へ統合する差分であり、Design / Plan GoalやDesign Docのscopeではありません。入力は同じworkspaceのcanonical pathにある`requirements.md`だけを許可し、コピー、一時ファイル、symlink経由の別pathを使いません。この`requirements.md`はread-onlyとし、Design / Planの都合で追記、修正、整形、リネームしてはいけません。成果物は同じworkspaceのcanonical pathである`design-doc.md`へ書き込みます。
 
-Design / Plan Goalを作成する前に、現在の`requirements.md`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGate外へ記載します。Design Doc完了時は、各IDを専用の設計根拠と検証根拠へ一度ずつ対応付けます。複数IDの一括coverage、IDを含まない共通文、Gate内にしかない根拠は拒否します。
+Design / Plan Goalを作成する前に、現在のcanonical `requirements.md`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGate外の別々の行へ記載します。各根拠行は対象IDだけを含めます。Design Doc完了時も、各IDを対象IDだけを含む専用行の設計根拠と検証根拠へ一度ずつ対応付けます。複数IDの一括coverage、別IDを含む行の部分文字列、IDを含まない共通文、Gate内にしかない根拠は拒否します。
 
 IDまたはheadingの文字列が根拠に含まれることは必要条件であり、意味的な十分条件ではありません。その根拠が特定要求または前回sectionを実際に解決していると判断できない場合はStopします。
 
@@ -171,7 +171,7 @@ validatorは前回Design Docも同じworkspaceのcanonical pathからGit `HEAD`�
 完了時チェック:
 
 - Requirements / PRD、選択したrule-mapサブグラフ、Design Docの実装判断が矛盾していないか確認する。
-- Design Coverage GateがRequirementsの全識別子を含み、各識別子が専用の設計根拠と検証根拠へ一度ずつ対応し、Git baselineの全sectionが維持または置換として追跡されているか確認する。
+- Design Coverage Gateがcanonical Requirementsの全識別子を含み、各識別子が対象IDだけを含む専用行の設計根拠と検証根拠へ一度ずつ対応し、Git baselineの全sectionが維持または置換として追跡されているか確認する。
 - Design / Planで追加した実装方針、テスト方針、文言、操作境界がルール・ポリシーに違反していないか確認する。
 - Design Docで追加、変更、削除するユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できるか確認する。
 - Design Docが同じworkspaceのcanonical pathである`design-doc.md`にあるか確認する。

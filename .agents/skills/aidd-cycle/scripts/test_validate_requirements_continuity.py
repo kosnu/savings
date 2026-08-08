@@ -344,6 +344,21 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "exactly one qa section"):
             self.validate_document(manifest(), kind="artifact", body=local)
 
+    def test_artifact_rejects_heading_shared_by_required_sections(self) -> None:
+        local = CURRENT.replace(
+            "## 背景と課題",
+            "## 背景と課題 / スコープ",
+        ).replace(
+            "## スコープ\n\n言語設定の保存と復元を対象にする。\n\n",
+            "",
+        )
+        with self.assertRaisesRegex(ValidationError, "map one-to-one to headings"):
+            self.validate_document(manifest(), kind="artifact", body=local)
+
+    def test_artifact_accepts_requirement_scope_metadata_heading(self) -> None:
+        local = f"{CURRENT}\n\n## Requirement Scope\n\n要求全体を確認する。"
+        self.validate_document(manifest(), kind="artifact", body=local)
+
     def test_retirement_requires_id_and_explicit_term(self) -> None:
         issue_body = f"{ISSUE_BODY}\n復元は今回扱わない。\n"
         requirements = [

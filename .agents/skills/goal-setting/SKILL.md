@@ -91,7 +91,9 @@ For an Intent / Requirements Goal:
   retired, and every added item as new. Changed and new entries require exact
   current-Issue evidence. Retirement evidence must name the ID and explicitly
   retire it. Include substantive definitions for every resulting ID outside the
-  gate and validate the proposed Goal with the `--kind goal` command.
+  gate. Require every canonical section in the generated `requirements.md` to
+  use its own level-two heading; one heading cannot satisfy multiple section
+  IDs. Validate the proposed Goal with the `--kind goal` command.
 - Preserve the exact validated Goal until artifact completion. Require the
   artifact forms of both Requirements gates to equal the corresponding parsed
   Goal Gate objects; independent validity is not sufficient.
@@ -115,8 +117,9 @@ they do not define Goal or artifact scope.
 
 For a Design / Plan Goal:
 
-- Require the current `requirements.md` to have passed both Requirements
-  artifact gates. Do not construct Design from a locally narrowed upstream
+- Require the current canonical workspace `requirements.md` to have passed both
+  Requirements artifact gates. Reject a caller-supplied copy, temporary path,
+  or symlink alias; do not construct Design from a locally narrowed upstream
   artifact.
 - Treat the complete current `requirements.md` as the Goal scope. A requirement
   added in the current cycle is a delta to integrate, not permission to design
@@ -124,7 +127,8 @@ For a Design / Plan Goal:
 - Calculate the Requirements SHA-256 and collect every stable `FR-*`, `NFR-*`,
   and `AC-*` identifier. Include one separate substantive design and
   verification scope entry for every ID in the template's Design Coverage
-  Gate; grouped or generic coverage is invalid.
+  Gate. Each scope source line must contain only its target ID; grouped or
+  generic coverage is invalid.
 - Before `create_goal`, validate the Goal with the `--kind goal` command defined
   in `.agents/skills/aidd-cycle/SKILL.md`.
 - Resolve the committed previous-cycle Design Doc from the canonical workspace
@@ -133,8 +137,9 @@ For a Design / Plan Goal:
   Goal, then be classified as exact-content preserved or explicitly replaced
   with unique heading-bearing evidence in the new Design Doc.
 - Require the output `design-doc.md` to resolve every identifier through design
-  and verification evidence that names that identifier. Each ID gets its own
-  entry; omission, grouping, and generic shared evidence are invalid.
+  and verification evidence on a unique source line that contains only that
+  identifier. Each ID gets its own entry; omission, grouping, and generic
+  shared evidence are invalid.
 - Stop when ID-bearing or heading-bearing evidence is structurally valid but
   does not actually resolve that specific requirement or prior section.
 

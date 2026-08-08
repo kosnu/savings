@@ -76,6 +76,17 @@ def initialize_repo(repo_root: Path, baseline_design: str | None) -> Path:
     return canonical_path
 
 
+def canonical_requirements_path(repo_root: Path) -> Path:
+    return (
+        repo_root
+        / "docs"
+        / "ai-driven-development"
+        / "workspaces"
+        / WORKSPACE
+        / "requirements.md"
+    )
+
+
 def baseline_manifest(baseline_design: str | None) -> dict[str, object]:
     if baseline_design is None:
         return {"source": "none", "body_sha256": None}
@@ -206,12 +217,32 @@ class DesignCoverageGateTest(unittest.TestCase):
         requirements: str = REQUIREMENTS,
         baseline_design: str | None = None,
         canonical: bool = True,
+        requirements_path_kind: str = "canonical",
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
             canonical_path = initialize_repo(repo_root, baseline_design)
-            requirements_path = repo_root / "requirements.md"
-            requirements_path.write_text(requirements, encoding="utf-8")
+            canonical_requirements = canonical_requirements_path(repo_root)
+            canonical_requirements.parent.mkdir(parents=True, exist_ok=True)
+            if requirements_path_kind == "canonical":
+                requirements_path = canonical_requirements
+                requirements_path.write_text(requirements, encoding="utf-8")
+            elif requirements_path_kind == "noncanonical":
+                requirements_path = repo_root / "requirements.md"
+                requirements_path.write_text(requirements, encoding="utf-8")
+            elif requirements_path_kind == "alias_symlink":
+                canonical_requirements.write_text(requirements, encoding="utf-8")
+                requirements_path = repo_root / "requirements-link.md"
+                requirements_path.symlink_to(canonical_requirements)
+            elif requirements_path_kind == "canonical_symlink":
+                temporary_requirements = repo_root / "temporary-requirements.md"
+                temporary_requirements.write_text(requirements, encoding="utf-8")
+                canonical_requirements.symlink_to(temporary_requirements)
+                requirements_path = canonical_requirements
+            else:
+                raise AssertionError(
+                    f"unknown requirements path kind: {requirements_path_kind}"
+                )
             document_path = canonical_path if canonical else repo_root / "goal.md"
             document_path.parent.mkdir(parents=True, exist_ok=True)
             document_path.write_text(document(value, body), encoding="utf-8")
@@ -247,6 +278,37 @@ class DesignCoverageGateTest(unittest.TestCase):
             "- design scope: 保存・復元境界を具体化する。",
         )
         with self.assertRaisesRegex(ValidationError, "must have exactly one scope line"):
+            self.validate_document(
+                goal_manifest(),
+                kind="goal",
+                body=body,
+                canonical=False,
+            )
+
+    def test_goal_rejects_scope_line_shared_by_requirement_ids(self) -> None:
+        body = goal_body().replace(
+            "- FR-1 design scope: 保存・復元境界を具体化する。\n"
+            "- FR-1 verification scope: 対応する挙動を個別に検証する。\n"
+            "- FR-2 design scope: 保存・復元境界を具体化する。",
+            "- FR-1 FR-2 design scope: 保存・復元境界をまとめて具体化する。\n"
+            "- FR-1 verification scope: 対応する挙動を個別に検証する。",
+        )
+        with self.assertRaisesRegex(ValidationError, "must contain only FR-1"):
+            self.validate_document(
+                goal_manifest(),
+                kind="goal",
+                body=body,
+                canonical=False,
+            )
+
+    def test_goal_rejects_design_and_verification_scope_on_same_line(self) -> None:
+        body = goal_body().replace(
+            "- FR-1 design scope: 保存・復元境界を具体化する。\n"
+            "- FR-1 verification scope: 対応する挙動を個別に検証する。",
+            "- FR-1 design scope and verification scope: "
+            "保存・復元境界と検証対象を同じ行へまとめる。",
+        )
+        with self.assertRaisesRegex(ValidationError, "must use separate lines"):
             self.validate_document(
                 goal_manifest(),
                 kind="goal",
@@ -305,6 +367,52 @@ class DesignCoverageGateTest(unittest.TestCase):
                 artifact_manifest(artifact_coverage=entries),
                 kind="artifact",
                 body=f"{design_body()}\n{entries[0]['design_evidence']}",
+            )
+
+    def test_artifact_rejects_evidence_substring_from_shared_id_line(self) -> None:
+        entries = coverage()
+        entries[1]["design_evidence"] = (
+            "FR-2 design: 複数要件の保存・復元境界をまとめて設計する。"
+        )
+        shared_line = (
+            "FR-1 FR-2 design: 複数要件の保存・復元境界をまとめて設計する。"
+        )
+        with self.assertRaisesRegex(
+            ValidationError,
+            "source line must contain only FR-2",
+        ):
+            self.validate_document(
+                artifact_manifest(artifact_coverage=entries),
+                kind="artifact",
+                body=f"{design_body()}\n{shared_line}",
+            )
+
+    def test_artifact_rejects_design_and_verification_evidence_on_same_line(
+        self,
+    ) -> None:
+        entries = coverage()
+        entries[0]["design_evidence"] = (
+            "FR-1 design: 言語設定の保存境界を設計する。"
+        )
+        entries[0]["verification_evidence"] = (
+            "FR-1 verification: 言語設定の保存境界を検証する。"
+        )
+        body = design_body().replace(
+            "FR-1 design: 保存・復元境界を具体的に設計する。\n",
+            "",
+        ).replace(
+            "FR-1 verification: 対応する挙動を個別テストで検証する。\n",
+            "",
+        )
+        shared_line = (
+            "FR-1 design: 言語設定の保存境界を設計する。 "
+            "FR-1 verification: 言語設定の保存境界を検証する。"
+        )
+        with self.assertRaisesRegex(ValidationError, "separate source lines"):
+            self.validate_document(
+                artifact_manifest(artifact_coverage=entries),
+                kind="artifact",
+                body=f"{body}\n{shared_line}",
             )
 
     def test_artifact_rejects_missing_requirement_entry(self) -> None:
@@ -394,11 +502,50 @@ class DesignCoverageGateTest(unittest.TestCase):
                 canonical=False,
             )
 
+    def test_goal_rejects_noncanonical_requirements_path(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "canonical workspace Requirements"):
+            self.validate_document(
+                goal_manifest(),
+                kind="goal",
+                body=goal_body(),
+                canonical=False,
+                requirements_path_kind="noncanonical",
+            )
+
+    def test_artifact_rejects_noncanonical_requirements_path(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "canonical workspace Requirements"):
+            self.validate_document(
+                artifact_manifest(),
+                kind="artifact",
+                body=design_body(),
+                requirements_path_kind="noncanonical",
+            )
+
+    def test_goal_rejects_requirements_symlink_alias(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "canonical workspace Requirements"):
+            self.validate_document(
+                goal_manifest(),
+                kind="goal",
+                body=goal_body(),
+                canonical=False,
+                requirements_path_kind="alias_symlink",
+            )
+
+    def test_artifact_rejects_canonical_requirements_symlink(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "must not contain symlinks"):
+            self.validate_document(
+                artifact_manifest(),
+                kind="artifact",
+                body=design_body(),
+                requirements_path_kind="canonical_symlink",
+            )
+
     def test_cli_accepts_complete_design_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
             canonical_path = initialize_repo(repo_root, None)
-            requirements_path = repo_root / "requirements.md"
+            requirements_path = canonical_requirements_path(repo_root)
+            requirements_path.parent.mkdir(parents=True, exist_ok=True)
             requirements_path.write_text(REQUIREMENTS, encoding="utf-8")
             canonical_path.parent.mkdir(parents=True, exist_ok=True)
             canonical_path.write_text(

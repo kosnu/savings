@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -13,6 +14,7 @@ from typing import Any
 
 from git_baseline import (
     GitBaselineError,
+    canonical_artifact_path,
     load_git_head_artifact,
     validate_workspace_identity,
 )
@@ -141,11 +143,11 @@ def require_unique_scope_line(
     required_terms: tuple[str, ...],
     label: str,
     requirement_id: str | None = None,
-) -> None:
+) -> int:
     normalized_terms = tuple(normalize(term) for term in required_terms)
     matches = [
-        normalize(line)
-        for line in document.splitlines()
+        (line_number, line)
+        for line_number, line in enumerate(document.splitlines())
         if all(term in normalize(line) for term in normalized_terms)
         and (
             requirement_id is None
@@ -154,11 +156,19 @@ def require_unique_scope_line(
     ]
     if len(matches) != 1:
         raise ValidationError(f"{label} must have exactly one scope line")
-    substantive = matches[0]
+    if (
+        requirement_id is not None
+        and extract_requirement_mentions(matches[0][1]) != [requirement_id]
+    ):
+        raise ValidationError(
+            f"{label} scope line must contain only {requirement_id}"
+        )
+    substantive = normalize(matches[0][1])
     for term in normalized_terms:
         substantive = substantive.replace(term, "")
     if len(substantive.strip(" :-：`*_#")) < 8:
         raise ValidationError(f"{label} scope line is not substantive")
+    return matches[0][0]
 
 
 def validate_goal_scope(
@@ -167,18 +177,22 @@ def validate_goal_scope(
     baseline_sections: list[dict[str, str]],
 ) -> None:
     for requirement_id in requirement_ids:
-        require_unique_scope_line(
+        design_line = require_unique_scope_line(
             document_without_gate,
             (requirement_id, "design scope"),
             f"{requirement_id} design",
             requirement_id,
         )
-        require_unique_scope_line(
+        verification_line = require_unique_scope_line(
             document_without_gate,
             (requirement_id, "verification scope"),
             f"{requirement_id} verification",
             requirement_id,
         )
+        if design_line == verification_line:
+            raise ValidationError(
+                f"{requirement_id} design and verification scope must use separate lines"
+            )
     for section in baseline_sections:
         require_unique_scope_line(
             document_without_gate,
@@ -191,20 +205,35 @@ def validate_requirement_evidence(
     evidence: Any,
     label: str,
     requirement_id: str,
-    normalized_document: str,
-) -> str:
+    document_without_gate: str,
+) -> tuple[str, int]:
     evidence = require_string(evidence, label)
     normalized_evidence = normalize(evidence)
     if normalized_evidence in PLACEHOLDERS:
         raise ValidationError(f"{label} is unresolved")
-    if requirement_id not in extract_requirement_mentions(evidence):
-        raise ValidationError(f"{label} must name {requirement_id}")
-    substantive = normalized_evidence.replace(normalize(requirement_id), "").strip(" :-：`*_#")
+    if extract_requirement_mentions(evidence) != [requirement_id]:
+        raise ValidationError(
+            f"{label} must name {requirement_id} and no other requirement ID"
+        )
+    substantive = normalized_evidence.replace(
+        normalize(requirement_id),
+        "",
+    ).strip(" :-：`*_#")
     if len(substantive) < 8:
         raise ValidationError(f"{label} is not substantive")
-    if normalized_evidence not in normalized_document:
-        raise ValidationError(f"{label} is not present outside the gate")
-    return normalized_evidence
+    matching_lines = [
+        (line_number, line)
+        for line_number, line in enumerate(document_without_gate.splitlines())
+        if normalized_evidence in normalize(line)
+        and requirement_id in extract_requirement_mentions(line)
+    ]
+    if len(matching_lines) != 1:
+        raise ValidationError(f"{label} must map to exactly one line outside the gate")
+    if extract_requirement_mentions(matching_lines[0][1]) != [requirement_id]:
+        raise ValidationError(
+            f"{label} source line must contain only {requirement_id}"
+        )
+    return normalized_evidence, matching_lines[0][0]
 
 
 def validate_per_requirement_entries(
@@ -217,7 +246,6 @@ def validate_per_requirement_entries(
     if not isinstance(entries, list):
         raise ValidationError(f"{label} must be an array")
 
-    normalized_document = normalize(document_without_gate)
     seen_ids: set[str] = set()
     seen_evidence: dict[str, set[str]] = {field: set() for field in fields}
     for index, entry in enumerate(entries):
@@ -233,16 +261,22 @@ def validate_per_requirement_entries(
             raise ValidationError(f"duplicate {label} ID: {requirement_id}")
         seen_ids.add(requirement_id)
 
+        evidence_lines: dict[str, int] = {}
         for field in fields:
-            evidence = validate_requirement_evidence(
+            evidence, line_number = validate_requirement_evidence(
                 entry[field],
                 f"{label}[{index}].{field}",
                 requirement_id,
-                normalized_document,
+                document_without_gate,
             )
             if evidence in seen_evidence[field]:
                 raise ValidationError(f"duplicate {label} {field} evidence")
             seen_evidence[field].add(evidence)
+            evidence_lines[field] = line_number
+        if len(set(evidence_lines.values())) != len(fields):
+            raise ValidationError(
+                f"{label}[{index}] fields must map to separate source lines"
+            )
 
     if list(entry["id"] for entry in entries) != requirement_ids:
         raise ValidationError(
@@ -334,6 +368,7 @@ def validate_baseline_sections(
         if status == "replaced" and section_hash in current_hashes:
             raise ValidationError("replaced baseline section is still unchanged")
 
+
 def validate(
     issue: str,
     requirements_path: Path,
@@ -343,6 +378,27 @@ def validate(
     workspace: str,
 ) -> None:
     validate_workspace_identity(repo_root, issue, workspace)
+    absolute_repo_root = Path(os.path.abspath(repo_root))
+    canonical_requirements_path = canonical_artifact_path(
+        absolute_repo_root,
+        workspace,
+        "requirements.md",
+    )
+    supplied_requirements_path = Path(os.path.abspath(requirements_path))
+    if supplied_requirements_path != canonical_requirements_path:
+        raise ValidationError(
+            "Design coverage must use the canonical workspace Requirements path"
+        )
+    relative_requirements_path = supplied_requirements_path.relative_to(
+        absolute_repo_root
+    )
+    current_path = absolute_repo_root
+    for part in relative_requirements_path.parts:
+        current_path /= part
+        if current_path.is_symlink():
+            raise ValidationError(
+                "canonical workspace Requirements path must not contain symlinks"
+            )
     requirements_bytes = requirements_path.read_bytes()
     requirements = requirements_bytes.decode("utf-8")
     document = document_path.read_text(encoding="utf-8")

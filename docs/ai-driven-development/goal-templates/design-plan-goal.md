@@ -29,7 +29,7 @@ when_to_read:
 
 ## Inputs
 
-- Requirements / PRD:
+- Requirements / PRD: 同じworkspaceのcanonical `requirements.md`。コピー、一時ファイル、symlink aliasは不可。
 - Requirements Completeness Gate検証結果:
 - Requirements SHA-256:
 - Requirements IDs: 全`FR-*`、`NFR-*`、`AC-*`
@@ -63,7 +63,7 @@ when_to_read:
 
 ## Design Coverage Gate
 
-Goal作成前は、以下のJSONへ現在のRequirements SHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを作って`--kind goal`で検証する。baselineはvalidatorがcanonical `design-doc.md`をGit `HEAD`から取得する。生成する`design-doc.md`では各ID専用の`coverage`と、Git baselineの全level-two sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDの一括coverageやIDを含まない共通文は使えない。
+Goal作成前は、以下のJSONへcanonical RequirementsのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを対象IDだけを含む別々の行へ作って`--kind goal`で検証する。baselineはvalidatorがcanonical `design-doc.md`をGit `HEAD`から取得する。生成する`design-doc.md`では各IDを、対象IDだけを含む専用の根拠行へ対応させた`coverage`と、Git baselineの全level-two sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDの一括coverage、別IDを含む行の部分文字列、IDを含まない共通文は使えない。
 
 ```json
 {
@@ -110,7 +110,7 @@ Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`b
 
 ## Requirement Design Scope
 
-Gate外に、全Requirements IDそれぞれの`design_scope`と`verification_scope`を原文一致で記載する。
+Gate外に、全Requirements IDそれぞれの`design_scope`と`verification_scope`を、対象IDだけを含む別々の行として原文一致で記載する。
 
 - FR-1 design scope: 設計対象を具体的に記載する。
 - FR-1 verification scope: 検証対象を具体的に記載する。
@@ -163,8 +163,8 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 既存挙動への影響が整理されている
 - [ ] テスト方針がPRDの受け入れ条件と対応している
 - [ ] Design GoalとDesign Docが現在のRequirements全体をscopeとし、今回の差分だけへ狭まっていない
-- [ ] 入力RequirementsのRequirements Completeness Gateが成功している
-- [ ] 全`FR-*`、`NFR-*`、`AC-*`に、IDを明記した専用の設計根拠と検証根拠が1件ずつある
+- [ ] 入力が同じworkspaceのcanonical `requirements.md`であり、Requirements Completeness Gateが成功している
+- [ ] 全`FR-*`、`NFR-*`、`AC-*`に、対象IDだけを含む専用行の設計根拠と検証根拠が1件ずつある
 - [ ] Git `HEAD`の前回Design Docにある全level-two sectionが、headingを明記した一意な根拠とともに`preserved`または`replaced`へ分類されている
 - [ ] Design Coverage GateがGoal作成前とDesign Doc完了前の両方で成功している
 - [ ] 追加、変更、削除する各ユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できる
@@ -177,7 +177,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 ## Verification
 
 - 必ず実行:
-  - `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
+  - `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
 - 必要なら実行:
   - 既存テストや型定義の調査コマンド
 - 手動確認:
