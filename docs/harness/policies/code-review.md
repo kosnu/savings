@@ -61,7 +61,7 @@ APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure.
 | DB schema / migration | `apps/api/supabase/migrations/**` のtable、column、constraint、index、triggerの追加・変更 | `review_api_schema` | `infrastructure.overview`, `policy.transaction-boundaries`、該当する `domain.*` |
 | RPC / database function | `CREATE FUNCTION`、RPC、DB function、複数更新をまとめる処理の追加・変更 | `review_api_rpc` | `infrastructure.overview`, `policy.transaction-boundaries`、該当する `domain.*` |
 | RLS / Auth / ownership | RLS policy、Auth設定、認証済みユーザー確認、`user_id`やownership境界の追加・変更 | `review_api_auth` | `infrastructure.overview`, `policy.transaction-boundaries`, `domain.user` |
-| 期間・履歴・月次状態 | `current_date`、`now()`、有効期間、履歴、月次状態、削除・無効化の扱いの追加・変更 | `review_api_temporal` | `policy.temporal-data`, `domain.date`、該当する `domain.*` |
+| 期間・履歴・月次状態 | `current_date`、`now()`、有効期間、履歴、月次状態、削除・無効化の扱いの追加・変更 | `review_api_temporal` | `infrastructure.overview`, `policy.temporal-data`, `domain.date`、該当する `domain.*` |
 | API domain | 金額、日付、支払い、カテゴリ、予算、Book、ユーザーのschema・RPC・seedの追加・変更 | 対象domainの `review_*` | 該当する `domain.amount`、`domain.date`、`domain.payment`、`domain.category`、`domain.monthly-budget`、`domain.book`、`domain.user` |
 | API config / seed | `apps/api/supabase/config.toml` または `apps/api/supabase/seed/**` の追加・変更 | `review_infrastructure` | `infrastructure.overview` と該当する `domain.*` |
 

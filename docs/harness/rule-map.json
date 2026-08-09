@@ -86,7 +86,7 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/api/**", "docs/infrastructure.md"],
         "domains": ["infrastructure", "web", "api"],
-        "activities": ["change_hosting", "change_auth", "change_database", "inspect_infrastructure", "review_infrastructure", "review_api_schema", "review_api_rpc", "review_api_auth"],
+        "activities": ["change_hosting", "change_auth", "change_database", "inspect_infrastructure", "review_infrastructure", "review_api_schema", "review_api_rpc", "review_api_auth", "review_api_temporal"],
         "topics": ["cloudflare", "supabase", "hosting", "database"]
       },
       "depends_on": ["architecture.overview"],
@@ -295,7 +295,7 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/api/**"],
         "domains": ["domain", "budget"],
-        "activities": ["change_monthly_budget", "change_budget_ui", "review_budget_domain", "review_api_temporal"],
+        "activities": ["change_monthly_budget", "change_budget_ui", "review_budget_domain"],
         "topics": ["monthly-budget", "budget", "month"]
       },
       "depends_on": ["domain.amount", "domain.date", "policy.temporal-data"],
