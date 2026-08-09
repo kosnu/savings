@@ -11,8 +11,8 @@ description: リポジトリのルールと正本文書に基づいて、実装�
 
 1. ルートの `AGENTS.md` を読む。
 2. レビュー対象の差分、変更ファイル、PRの関連コンテキストを確認する。
-3. 設計判断、ポリシー、ドメインルール、検証方針に関係する差分では、`docs/harness/rule-map.json` を読み、`path`、`domain`、`activity`、`topic` に一致する有効なルールを選ぶ。
-4. 選んだルールノードと `depends_on` の正本文書だけを読み、廃止文書や無関係な文書は根拠にしない。
+3. 設計判断、ポリシー、ドメインルール、検証方針に関係する差分では、`docs/harness/rule-map.json` を読み、`applies_to.paths`、`applies_to.domains`、`applies_to.activities`、`applies_to.topics` に一致する有効なルールを選ぶ。
+4. 選んだルールノードと `depends_on` の正本文書を読み、`related` は変更の影響範囲や検証要件に関係する場合の併読候補として扱う。廃止文書や無関係な文書は根拠にしない。
 5. レビューコメントへの対応を評価する場合は、`docs/harness/policies/review-feedback-classification.md` と `docs/harness/policies/git-workflow.md` を必要に応じて読む。
 
 正本文書と差分の間に解決できない矛盾がある場合は、推測で判定せず、矛盾と確認事項を報告する。
