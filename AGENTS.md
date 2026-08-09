@@ -31,6 +31,12 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
 - If you intentionally diverge from an existing pattern, explain why before applying the change.
 
+## Code Review Rules
+
+- If the review target involves design decisions or policies, read
+  `docs/harness/rule-map.json` and select the applicable active documents.
+- Confirm that the diff does not conflict with the rules in the selected documents.
+
 ## Agent Operating Guidance
 
 Use these rules to apply the repository conventions efficiently without weakening the mandatory rules below.
