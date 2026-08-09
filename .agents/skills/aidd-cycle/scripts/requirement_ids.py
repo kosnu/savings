@@ -68,26 +68,18 @@ def strip_machine_gates(document: str) -> str:
     return MACHINE_GATE_PATTERN.sub("", document)
 
 
-def mask_fenced_code_blocks(document: str) -> str:
+def mask_non_rendered_markdown(document: str) -> str:
     masked = list(document)
     fence_character: str | None = None
     fence_length = 0
+    in_html_comment = False
     offset = 0
 
     for line in document.splitlines(keepends=True):
         content = line.rstrip("\r\n")
-        should_mask = fence_character is not None
 
-        if fence_character is None:
-            opening = FENCED_CODE_OPEN_PATTERN.fullmatch(content)
-            if opening is not None:
-                fence = opening.group("fence")
-                info = opening.group("info")
-                if fence[0] != "`" or "`" not in info:
-                    fence_character = fence[0]
-                    fence_length = len(fence)
-                    should_mask = True
-        else:
+        if fence_character is not None:
+            masked[offset : offset + len(content)] = " " * len(content)
             stripped = content.lstrip(" ")
             indent = len(content) - len(stripped)
             closing = re.match(
@@ -101,9 +93,42 @@ def mask_fenced_code_blocks(document: str) -> str:
             ):
                 fence_character = None
                 fence_length = 0
+            offset += len(line)
+            continue
 
-        if should_mask:
-            masked[offset : offset + len(content)] = " " * len(content)
+        if not in_html_comment:
+            opening_fence = FENCED_CODE_OPEN_PATTERN.fullmatch(content)
+            if opening_fence is not None:
+                fence = opening_fence.group("fence")
+                info = opening_fence.group("info")
+                if fence[0] != "`" or "`" not in info:
+                    fence_character = fence[0]
+                    fence_length = len(fence)
+                    masked[offset : offset + len(content)] = " " * len(content)
+                    offset += len(line)
+                    continue
+
+        cursor = 0
+        while cursor < len(content):
+            if in_html_comment:
+                closing_comment = content.find("-->", cursor)
+                if closing_comment == -1:
+                    masked[offset + cursor : offset + len(content)] = (
+                        " " * (len(content) - cursor)
+                    )
+                    break
+                end = closing_comment + len("-->")
+                masked[offset + cursor : offset + end] = " " * (end - cursor)
+                in_html_comment = False
+                cursor = end
+                continue
+
+            opening_comment = content.find("<!--", cursor)
+            if opening_comment == -1:
+                break
+            in_html_comment = True
+            cursor = opening_comment
+
         offset += len(line)
 
     return "".join(masked)
@@ -111,7 +136,7 @@ def mask_fenced_code_blocks(document: str) -> str:
 
 def extract_requirement_mentions(document: str) -> list[str]:
     document = strip_machine_gates(document)
-    document = mask_fenced_code_blocks(document)
+    document = mask_non_rendered_markdown(document)
     return sorted(
         {match.group(0) for match in REQUIREMENT_ID_PATTERN.finditer(document)},
         key=requirement_sort_key,
@@ -160,7 +185,7 @@ def bullet_item_end(document: str, match: re.Match[str]) -> int:
 
 def extract_requirement_items(document: str) -> dict[str, RequirementItem]:
     document = strip_machine_gates(document)
-    structure = mask_fenced_code_blocks(document)
+    structure = mask_non_rendered_markdown(document)
     matches = list(REQUIREMENT_DEFINITION_PATTERN.finditer(structure))
     items: dict[str, RequirementItem] = {}
     for index, match in enumerate(matches):
@@ -195,7 +220,7 @@ def extract_requirement_items(document: str) -> dict[str, RequirementItem]:
 
 def extract_level_two_sections(document: str) -> list[DocumentSection]:
     document = strip_machine_gates(document)
-    structure = mask_fenced_code_blocks(document)
+    structure = mask_non_rendered_markdown(document)
     sections: list[DocumentSection] = []
     for match in LEVEL_TWO_SECTION_PATTERN.finditer(structure):
         heading = document[match.start("heading") : match.end("heading")].strip()

@@ -64,6 +64,12 @@ NEGATED_RETIREMENT_PATTERNS = (
         r"ではない|でない|は不要)"
     ),
     re.compile(
+        r"(?:対象外|廃止|削除|撤回|不要)"
+        r"(?:(?:に|と)?(?:する|される)?こと)?(?:に|と|を|は)?"
+        r"禁止(?:する|します|される|されます|されている|されています|"
+        r"とする|とされる|だ|です)?(?=[\s。．、,;；]|$)"
+    ),
+    re.compile(
         r"\b(?:do|does|must|should|shall|will|can)\s+not\s+"
         r"(?:remove|retire|drop|deprecate)\b"
     ),
