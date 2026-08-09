@@ -510,6 +510,16 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "has no requirement definition"):
             self.validate_document(manifest(), kind="artifact", body=fenced)
 
+    def test_artifact_rejects_requirements_structure_inside_html_comment(
+        self,
+    ) -> None:
+        commented = (
+            f"<!--\n{CURRENT}\n\n"
+            "## Requirements Completeness Gate\n\n-->"
+        )
+        with self.assertRaisesRegex(ValidationError, "has no requirement definition"):
+            self.validate_document(manifest(), kind="artifact", body=commented)
+
     def test_artifact_accepts_requirement_scope_metadata_heading(self) -> None:
         local = f"{CURRENT}\n\n## Requirement Scope\n\n要求全体を確認する。"
         self.validate_document(manifest(), kind="artifact", body=local)
@@ -541,7 +551,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                 canonical=False,
             )
 
-    def test_artifact_accepts_explicit_retirement(self) -> None:
+    def test_goal_and_artifact_accept_explicit_retirement(self) -> None:
         issue_body = f"{ISSUE_BODY}\nFR-2を対象外として廃止する。\n"
         requirements = [
             *unchanged_entries(["FR-1", "NFR-1", "AC-1", "AC-2"]),
@@ -560,19 +570,22 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             "## 機能要件\n\n",
             "## 機能要件\n\nFR-2を対象外として廃止する。\n\n",
         )
-        self.validate_document(
-            manifest(
-                issue_body=issue_body,
-                requirements=requirements,
-                sections=section_entries(
-                    changed={"functional": "FR-2を対象外として廃止する。"}
+        for kind in ("goal", "artifact"):
+            with self.subTest(kind=kind):
+                self.validate_document(
+                    manifest(
+                        issue_body=issue_body,
+                        requirements=requirements,
+                        sections=section_entries(
+                            changed={"functional": "FR-2を対象外として廃止する。"}
+                        ),
+                        retired=retired,
+                    ),
+                    kind=kind,
+                    body=current,
+                    issue_body=issue_body,
+                    canonical=kind == "artifact",
                 ),
-                retired=retired,
-            ),
-            kind="artifact",
-            body=current,
-            issue_body=issue_body,
-        )
 
     def test_retirement_rejects_japanese_negation(self) -> None:
         requirements = [
@@ -589,27 +602,32 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             "FR-2の削除は不要。",
             "FR-2は不要ではない。",
             "FR-2は対象外とはしない。",
+            "FR-2の削除は禁止する。",
+            "FR-2の廃止を禁止する。",
         ):
-            with self.subTest(evidence=evidence):
-                issue_body = f"{ISSUE_BODY}\n{evidence}\n"
-                with self.assertRaisesRegex(
-                    ValidationError, "must not negate retirement"
-                ):
-                    self.validate_document(
-                        manifest(
+            for kind in ("goal", "artifact"):
+                with self.subTest(evidence=evidence, kind=kind):
+                    issue_body = f"{ISSUE_BODY}\n{evidence}\n"
+                    with self.assertRaisesRegex(
+                        ValidationError, "must not negate retirement"
+                    ):
+                        self.validate_document(
+                            manifest(
+                                issue_body=issue_body,
+                                requirements=requirements,
+                                retired=[
+                                    {"id": "FR-2", "issue_evidence": evidence}
+                                ],
+                            ),
+                            kind=kind,
+                            body=CURRENT.replace(
+                                "### FR-2: 言語設定を復元する\n\n"
+                                "保存済みの選択値を初期表示する。\n\n",
+                                "",
+                            ),
                             issue_body=issue_body,
-                            requirements=requirements,
-                            retired=[{"id": "FR-2", "issue_evidence": evidence}],
-                        ),
-                        kind="goal",
-                        body=CURRENT.replace(
-                            "### FR-2: 言語設定を復元する\n\n"
-                            "保存済みの選択値を初期表示する。\n\n",
-                            "",
-                        ),
-                        issue_body=issue_body,
-                        canonical=False,
-                    )
+                            canonical=kind == "artifact",
+                        )
 
     def test_retirement_rejects_english_negation(self) -> None:
         requirements = [

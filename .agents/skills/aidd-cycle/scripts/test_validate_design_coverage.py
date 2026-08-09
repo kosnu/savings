@@ -292,6 +292,38 @@ class DesignCoverageGateTest(unittest.TestCase):
                 canonical=False,
             )
 
+    def test_goal_rejects_scope_inside_code_fence(self) -> None:
+        body = f"````markdown\n{goal_body()}\n````"
+        with self.assertRaisesRegex(
+            ValidationError, "must have exactly one scope line"
+        ):
+            self.validate_document(
+                goal_manifest(),
+                kind="goal",
+                body=body,
+                canonical=False,
+            )
+
+    def test_goal_rejects_baseline_scope_inside_code_fence(self) -> None:
+        baseline_scope = (
+            "- 実装方針 baseline scope: 現在Requirementsへ再適合させる。\n"
+            "- 検証方針 baseline scope: 現在Requirementsへ再適合させる。"
+        )
+        body = goal_body(baseline_design=BASELINE_DESIGN).replace(
+            baseline_scope,
+            f"````markdown\n{baseline_scope}\n````",
+        )
+        with self.assertRaisesRegex(
+            ValidationError, "must have exactly one scope line"
+        ):
+            self.validate_document(
+                goal_manifest(baseline_design=BASELINE_DESIGN),
+                kind="goal",
+                body=body,
+                baseline_design=BASELINE_DESIGN,
+                canonical=False,
+            )
+
     def test_goal_rejects_scope_text_without_requirement_id(self) -> None:
         body = goal_body().replace(
             "- FR-1 design scope: 保存・復元境界を具体化する。",
@@ -367,6 +399,17 @@ class DesignCoverageGateTest(unittest.TestCase):
             kind="artifact",
             body=design_body(),
         )
+
+    def test_artifact_rejects_coverage_inside_code_fence(self) -> None:
+        body = f"````markdown\n{design_body()}\n````"
+        with self.assertRaisesRegex(
+            ValidationError, "must map to exactly one line outside the gate"
+        ):
+            self.validate_document(
+                artifact_manifest(),
+                kind="artifact",
+                body=body,
+            )
 
     def test_artifact_rejects_grouped_coverage(self) -> None:
         grouped = [
@@ -484,6 +527,44 @@ class DesignCoverageGateTest(unittest.TestCase):
             body=design_body(preserve_baseline=True),
             baseline_design=BASELINE_DESIGN,
         )
+
+    def test_artifact_rejects_baseline_evidence_inside_code_fence(self) -> None:
+        sections = design_section_manifest(BASELINE_DESIGN)
+        transitions = [
+            {
+                "heading": sections[0]["heading"],
+                "content_sha256": sections[0]["content_sha256"],
+                "status": "preserved",
+                "design_evidence": "実装方針として既存の保存境界を維持する。",
+            },
+            {
+                "heading": sections[1]["heading"],
+                "content_sha256": sections[1]["content_sha256"],
+                "status": "replaced",
+                "design_evidence": "検証方針をFR-1 verificationの個別テストへ置換する。",
+            },
+        ]
+        baseline_evidence = (
+            "実装方針として既存の保存境界を維持する。\n"
+            "検証方針をFR-1 verificationの個別テストへ置換する。"
+        )
+        body = design_body(preserve_baseline=True).replace(
+            baseline_evidence,
+            f"````markdown\n{baseline_evidence}\n````",
+        )
+        with self.assertRaisesRegex(
+            ValidationError,
+            "baseline section design_evidence must map to exactly one source line",
+        ):
+            self.validate_document(
+                artifact_manifest(
+                    baseline_design=BASELINE_DESIGN,
+                    baseline_sections=transitions,
+                ),
+                kind="artifact",
+                body=body,
+                baseline_design=BASELINE_DESIGN,
+            )
 
     def test_artifact_rejects_unclassified_git_baseline_section(self) -> None:
         sections = design_section_manifest(BASELINE_DESIGN)

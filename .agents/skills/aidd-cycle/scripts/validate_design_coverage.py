@@ -23,6 +23,7 @@ from requirement_ids import (
     extract_level_two_sections,
     extract_requirement_mentions,
     is_requirement_id,
+    mask_non_rendered_markdown,
     normalize_markdown_text,
 )
 
@@ -340,6 +341,7 @@ def validate_baseline_sections(
     transitions: Any,
     baseline_sections: list[dict[str, str]],
     document_without_gate: str,
+    visible_document: str,
 ) -> None:
     if not isinstance(transitions, list):
         raise ValidationError("baseline_sections must be an array")
@@ -363,7 +365,7 @@ def validate_baseline_sections(
     seen: set[str] = set()
     seen_evidence: set[str] = set()
     source_line_numbers: set[int] = set()
-    document_lines = document_without_gate.splitlines()
+    document_lines = visible_document.splitlines()
     baseline_headings = [heading for heading, _ in expected_identities]
     for index, entry in enumerate(transitions):
         if not isinstance(entry, dict) or set(entry) != {
@@ -458,6 +460,7 @@ def validate(
     document = document_path.read_text(encoding="utf-8")
     requirement_ids = require_complete_requirement_ids(requirements)
     manifest, document_without_gate = extract_manifest(document)
+    visible_document = mask_non_rendered_markdown(document_without_gate)
     _, baseline_bytes = load_git_head_artifact(
         repo_root,
         workspace,
@@ -480,7 +483,7 @@ def validate(
             },
         )
         validate_goal_scope(
-            document_without_gate,
+            visible_document,
             requirement_ids,
             baseline_sections,
         )
@@ -502,12 +505,13 @@ def validate(
     validate_artifact_coverage(
         manifest["coverage"],
         requirement_ids,
-        document_without_gate,
+        visible_document,
     )
     validate_baseline_sections(
         manifest["baseline_sections"],
         baseline_sections,
         document_without_gate,
+        visible_document,
     )
 
 
