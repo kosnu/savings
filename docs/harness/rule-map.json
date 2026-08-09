@@ -86,7 +86,7 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/api/**", "docs/infrastructure.md"],
         "domains": ["infrastructure", "web", "api"],
-        "activities": ["change_hosting", "change_auth", "change_database", "inspect_infrastructure"],
+        "activities": ["change_hosting", "change_auth", "change_database", "inspect_infrastructure", "review_infrastructure", "review_api_schema", "review_api_rpc", "review_api_auth"],
         "topics": ["cloudflare", "supabase", "hosting", "database"]
       },
       "depends_on": ["architecture.overview"],
@@ -199,12 +199,25 @@
       "priority": 94
     },
     {
+      "id": "policy.code-review",
+      "file": "docs/harness/policies/code-review.md",
+      "applies_to": {
+        "paths": ["AGENTS.md", ".github/skills/code-review/**", "docs/harness/**", "apps/**"],
+        "domains": ["repository", "review", "github"],
+        "activities": ["review_diff", "select_review_rules", "report_review_coverage"],
+        "topics": ["review", "rule-graph", "pull-request", "verification"]
+      },
+      "depends_on": ["documentation.policy"],
+      "overrides": [],
+      "priority": 97
+    },
+    {
       "id": "policy.transaction-boundaries",
       "file": "docs/harness/policies/transaction-boundaries.md",
       "applies_to": {
         "paths": ["apps/api/**", "apps/web/**", "docs/harness/policies/transaction-boundaries.md"],
         "domains": ["api", "web", "database"],
-        "activities": ["change_mutation", "change_rpc", "change_transaction_boundary", "review_data_consistency"],
+        "activities": ["change_mutation", "change_rpc", "change_transaction_boundary", "review_data_consistency", "review_api_schema", "review_api_rpc", "review_api_auth"],
         "topics": ["transaction", "rpc", "database", "consistency"]
       },
       "depends_on": ["architecture.overview"],
@@ -217,7 +230,7 @@
       "applies_to": {
         "paths": ["apps/api/**", "apps/web/**", "docs/harness/domain/**", "docs/harness/policies/temporal-data.md"],
         "domains": ["domain", "database", "web", "api"],
-        "activities": ["change_temporal_rule", "change_month_scope", "change_effective_date", "review_time_dependent_behavior"],
+        "activities": ["change_temporal_rule", "change_month_scope", "change_effective_date", "review_time_dependent_behavior", "review_api_temporal"],
         "topics": ["temporal-data", "date", "month", "history", "timezone"]
       },
       "depends_on": ["domain.date"],
@@ -243,7 +256,7 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/api/**"],
         "domains": ["domain", "date"],
-        "activities": ["change_date_logic", "change_month_scope", "review_date_behavior"],
+        "activities": ["change_date_logic", "change_month_scope", "review_date_behavior", "review_api_temporal"],
         "topics": ["date", "month", "timezone"]
       },
       "depends_on": [],
@@ -282,7 +295,7 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/api/**"],
         "domains": ["domain", "budget"],
-        "activities": ["change_monthly_budget", "change_budget_ui", "review_budget_domain"],
+        "activities": ["change_monthly_budget", "change_budget_ui", "review_budget_domain", "review_api_temporal"],
         "topics": ["monthly-budget", "budget", "month"]
       },
       "depends_on": ["domain.amount", "domain.date", "policy.temporal-data"],
@@ -308,7 +321,7 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/api/**"],
         "domains": ["domain", "user", "auth"],
-        "activities": ["change_user_behavior", "change_auth_assumption", "review_user_domain"],
+        "activities": ["change_user_behavior", "change_auth_assumption", "review_user_domain", "review_api_auth"],
         "topics": ["user", "auth"]
       },
       "depends_on": [],
