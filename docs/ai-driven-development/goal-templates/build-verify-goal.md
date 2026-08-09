@@ -32,6 +32,8 @@ when_to_read:
 
 - Requirements / PRD:
 - Design Doc:
+- Requirements Completeness Gate検証結果:
+- Design Coverage Gate検証結果:
 - 関連Issue / PR:
 - Build / Verify工程中に発見した検証失敗・整合性問題:
 - 関連ドキュメント:
@@ -69,6 +71,7 @@ when_to_read:
 - [ ] PRDの受け入れ条件を満たしている
 - [ ] Design Docの方針から逸脱していない
 - [ ] Requirements / PRDとDesign Docの意図・制約・対象外から解釈を広げていない
+- [ ] Requirements Completeness GateとDesign Coverage Gateのartifact検証がGit `HEAD`のcanonical baselineに対して成功し、全要求項目・主要Requirements section・要求別Design coverage・前回Design sectionが追跡されている
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントから逸脱していない
 - [ ] Build / Verify工程中に発見した検証失敗・整合性問題を工程内で解消している
 - [ ] 関連テストが追加・更新されている
@@ -109,6 +112,7 @@ when_to_read:
 ## Stop
 
 - Design Docまたは関連ドメインルールと違う実装が必要
+- Requirements Completeness GateまたはDesign Coverage Gateが失敗する、または生成成果物が現在の上流入力全体を覆っていない
 - `docs/harness/rule-map.json` で選択した関連ドキュメントと違う実装が必要
 - 実装中にRequirements / PRDまたはDesign Docの解釈を広げる必要がある
 - 実装に必要な主要文言がDesign Docで決まっていない
