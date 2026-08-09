@@ -35,6 +35,9 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 
 - If the review target involves design decisions or policies, read
   `docs/harness/rule-map.json` and select the applicable active documents.
+- For every code review, read `docs/harness/policies/code-review.md` and apply
+  all review-required rule IDs for every changed surface. Do not reduce the
+  review scope by priority or stop after finding one issue.
 - Confirm that the diff does not conflict with the rules in the selected documents.
 
 ## Agent Operating Guidance
