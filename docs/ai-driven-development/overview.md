@@ -40,9 +40,9 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 
 このフローは、各工程で人間が逐次承認するHuman in the loopではなく、AIがStop条件に当たらない限り前進し、人間が監督、例外処理、公開可否を担うHuman on the loopを前提にします。
 
-人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果を次回Requirementsへ整理する場合は、GoalではなくLearn skillを使います。
+人間は各成果物を毎回承認する gatekeeper ではありません。AIが自律的にPRD、Design Doc、実装、Shipまで進められるように、目的、制約、監督観点、停止条件を先に与えます。レビューコメントや検証結果から次回Task Contextの変更案を整理する場合は、GoalではなくLearn skillを使います。
 
-レビューコメントを次回Requirementsへ整理する扱いは、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに限ります。現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない通常タスクでは、レビューコメントごとに修正要否を判断し、必要な修正を現在のタスク内で行います。
+レビューコメントを対象Issue本文の変更案へ整理する扱いは、Requirements / PRDとDesign Docを使うAI Driven Developmentサイクルに限ります。現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にしない通常タスクでは、レビューコメントごとに修正要否を判断し、必要な修正を現在のタスク内で行います。
 
 人間が介在すると、意図よりも実装詳細に寄りやすくなります。
 
@@ -52,11 +52,13 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 - Design Doc作成 Goal: どう実現するかを決める
 - Build / Verify Goal: 作って検証する
 - Ship Goal: Build / Verify済みの成果をPR、説明、レビュー返信ができる形に整える
-- Learn skill: レビューコメント、検証結果、運用知見を、タスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する
+- Learn skill: レビューコメント、検証結果、運用知見を、対象Issue本文の変更案、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する。Issue本文の変更案は適用されるまで次のTask Contextではない
 
-IssueはRequirements / PRDの入力として扱います。Issueには、AIが要求整理を始められるだけの意図、制約、成功条件、Stop条件を書き、Design Doc相当の実装詳細は書きすぎません。
+Issue本文はRequirements / PRDのTask Context正本として扱います。Issueには、AIが要求整理を始められるだけの意図、制約、成功条件、Stop条件を書き、Design Doc相当の実装詳細は書きすぎません。会話、review、現在diff、前回artifact、直前に更新されたルールをIssue本文にないTask Contextとして追加しません。
 
-同じIssueまたはタスクで新しいサイクルを始める場合、workspaceと無印の`requirements.md`、`design-doc.md`は再利用します。read-onlyは同一サイクルの後続工程にだけ適用し、新サイクルの各生成工程は対応する成果物を同じpathへ上書きします。
+同じIssueまたはタスクで新しいサイクルを始める場合、workspaceと無印の`requirements.md`、`design-doc.md`は再利用します。Issueごとのworkspaceは1つだけとし、新サイクルを理由に`v2`、`v3`、`version`、`revision`、`cycle`、`retry`、`rerun`などの派生directoryを作りません。開始時にGit `HEAD`とworktreeの両方からIssue番号で既存workspaceを探索し、1つなら必ず再利用、0件なら`<Issue番号>-<短いtitle>`で新規作成、複数なら暗黙に選ばずStopします。新しいサイクルは最新Issue本文を再取得してTask Contextを固定し、read-onlyは同一サイクルの後続工程にだけ適用します。新サイクルの各生成工程は対応する成果物を同じpathへ上書きします。
+
+上書きは今回増えた内容だけを局所的に文書化することを意味しません。各生成工程は現在の上流入力全体を満たす完成版を同じcanonical pathへ作り直します。Requirements / PRDは最新Issue全体を覆い、前回の全要求項目と主要sectionを状態遷移として追跡します。Design / Planは現在の各要求IDへ専用の設計・検証根拠を与え、前回Designの全sectionを維持または置換として追跡します。baselineは呼び出し側が選ばず、validatorがcanonical workspace pathのGit `HEAD`から取得します。前回成果物はTask Contextではなく、欠落検出またはまだ有効な設計を維持するためにだけ参照できます。
 
 ## Goalに含める要素
 
