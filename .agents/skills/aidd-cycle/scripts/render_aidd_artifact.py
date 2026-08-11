@@ -10,6 +10,7 @@ from pathlib import Path
 
 from artifact_source import (
     ARTIFACT_KINDS,
+    DISPLAY_FILENAMES,
     SOURCE_FILENAMES,
     SourceError,
     canonical_display_path,
@@ -107,6 +108,21 @@ def check_all(repo_root: Path) -> int:
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces"
     )
+    display_kinds = {
+        DISPLAY_FILENAMES[kind]: kind
+        for kind in ARTIFACT_KINDS
+    }
+    for output_path in sorted(workspace_root.glob("*/*.md")):
+        kind = display_kinds.get(output_path.name)
+        if kind is None:
+            continue
+        source_path = canonical_source_path(
+            repo_root,
+            output_path.parent.name,
+            kind,
+        )
+        if not source_path.is_file():
+            raise SourceError(f"artifact source is missing: {source_path}")
     checked = 0
     for source_path in sorted(workspace_root.glob("*/*.json")):
         source = load_source(source_path)

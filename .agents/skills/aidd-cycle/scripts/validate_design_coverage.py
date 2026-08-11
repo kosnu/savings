@@ -324,6 +324,7 @@ def validate_baseline_sections(
         raise ValidationError("baseline_sections must classify every Git HEAD section")
     current_hashes = {entry["content_sha256"] for entry in current_sections}
     baseline_headings = [entry["heading"] for entry in baseline_sections]
+    seen_evidence: set[str] = set()
     for index, entry in enumerate(transitions):
         if not isinstance(entry, dict) or set(entry) != {
             "heading",
@@ -338,7 +339,11 @@ def validate_baseline_sections(
             entry["design_evidence"],
             f"baseline_sections[{index}].design_evidence",
         )
-        if normalize(heading) not in normalize(evidence):
+        normalized_evidence = normalize(evidence)
+        if normalized_evidence in seen_evidence:
+            raise ValidationError("baseline evidence must be unique")
+        seen_evidence.add(normalized_evidence)
+        if normalize(heading) not in normalized_evidence:
             raise ValidationError("baseline evidence must name its heading")
         if names_other_baseline_heading(evidence, heading, baseline_headings):
             raise ValidationError("baseline evidence must name only its target heading")

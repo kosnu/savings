@@ -260,6 +260,27 @@ class ArtifactSourceTest(unittest.TestCase):
             with self.assertRaisesRegex(SourceError, "requirements.json"):
                 check_all(repo_root)
 
+    def test_check_all_rejects_missing_artifact_source(self) -> None:
+        for display_filename in ("requirements.md", "design-doc.md"):
+            with self.subTest(display_filename=display_filename):
+                with tempfile.TemporaryDirectory() as directory:
+                    repo_root = Path(directory).resolve()
+                    initialize_repository(repo_root)
+                    workspace_root = (
+                        repo_root
+                        / "docs"
+                        / "ai-driven-development"
+                        / "workspaces"
+                        / WORKSPACE
+                    )
+                    workspace_root.mkdir(parents=True)
+                    (workspace_root / display_filename).write_text(
+                        "# Artifact\n", encoding="utf-8"
+                    )
+
+                    with self.assertRaisesRegex(SourceError, "source is missing"):
+                        check_all(repo_root)
+
 
 if __name__ == "__main__":
     unittest.main()

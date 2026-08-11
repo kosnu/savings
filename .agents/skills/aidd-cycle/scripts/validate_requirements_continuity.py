@@ -38,6 +38,18 @@ class StructuredContent:
     content: str
 
 
+REQUIREMENT_CONTENT_PLACEHOLDER_PATTERN = re.compile(
+    r"\b(?:pending|tbd|todo)\b|未定",
+    re.IGNORECASE,
+)
+REQUIREMENT_CONTENT_PLACEHOLDER_ONLY_PATTERN = re.compile(
+    r"(?:(?:pending|tbd|todo|未定)\s*"
+    r"(?:(?:です|である|対応待ち|待ち)\s*)*"
+    r"[\s:：,，、.。;；*`_#-]*)+",
+    re.IGNORECASE,
+)
+
+
 RETIREMENT_TERMS = {
     "対象外",
     "廃止",
@@ -136,6 +148,27 @@ def content_sha256(value: str) -> str:
     return hashlib.sha256(normalize_structured_text(value).encode("utf-8")).hexdigest()
 
 
+def require_substantive_requirement_content(
+    requirement_id: str,
+    content: str,
+) -> None:
+    content_without_id = normalize(content).replace(normalize(requirement_id), "")
+    content_without_id = content_without_id.strip(" :-：,，、.。;；`*_#")
+    if REQUIREMENT_CONTENT_PLACEHOLDER_ONLY_PATTERN.fullmatch(content_without_id):
+        raise ValidationError(
+            "requirement content must have a substantive summary: "
+            f"{requirement_id}"
+        )
+    substantive = content_without_id
+    substantive = REQUIREMENT_CONTENT_PLACEHOLDER_PATTERN.sub("", substantive)
+    substantive = re.sub(r"[\W_]+", "", substantive)
+    if len(substantive) < 2:
+        raise ValidationError(
+            "requirement content must have a substantive summary: "
+            f"{requirement_id}"
+        )
+
+
 def structured_requirements(source: dict[str, Any]) -> dict[str, StructuredContent]:
     entries = source["validation"].get("requirements")
     if not isinstance(entries, list):
@@ -150,6 +183,7 @@ def structured_requirements(source: dict[str, Any]) -> dict[str, StructuredConte
         content = require_string(entry["content"], f"requirements[{index}].content")
         if not is_requirement_id(requirement_id):
             raise ValidationError(f"invalid structured requirement ID: {requirement_id}")
+        require_substantive_requirement_content(requirement_id, content)
         if requirement_id in items:
             raise ValidationError(f"duplicate structured requirement: {requirement_id}")
         items[requirement_id] = StructuredContent(content)
