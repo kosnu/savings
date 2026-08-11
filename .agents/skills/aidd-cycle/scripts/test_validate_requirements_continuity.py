@@ -74,13 +74,19 @@ def completeness_gate() -> dict[str, object]:
     }
 
 
-def source(kind: str, gate: dict[str, object], markdown: str = "# display\n") -> dict[str, object]:
+def source(
+    kind: str,
+    gate: dict[str, object],
+    markdown: str = "# display\n",
+    requirements: list[tuple[str, str]] | None = None,
+) -> dict[str, object]:
+    active_requirements = requirements or REQUIREMENTS
     validation: dict[str, object] = {
         "mode": "managed",
         "completeness_gate": gate,
         "requirements": [
             {"id": requirement_id, "content": content}
-            for requirement_id, content in REQUIREMENTS
+            for requirement_id, content in active_requirements
         ],
     }
     if kind == "requirements":
@@ -111,6 +117,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         kind: str,
         gate: dict[str, object] | None = None,
         markdown: str = "# display\n",
+        requirements: list[tuple[str, str]] | None = None,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
@@ -120,7 +127,13 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             active_gate = gate or completeness_gate()
             goal_path = repo_root / "goal.json"
             goal_path.write_text(
-                serialize_source(source("requirements_goal", active_gate)),
+                serialize_source(
+                    source(
+                        "requirements_goal",
+                        active_gate,
+                        requirements=requirements,
+                    )
+                ),
                 encoding="utf-8",
             )
             if kind == "goal":
@@ -137,7 +150,14 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                 )
                 document_path.parent.mkdir(parents=True)
                 document_path.write_text(
-                    serialize_source(source("requirements", active_gate, markdown)),
+                    serialize_source(
+                        source(
+                            "requirements",
+                            active_gate,
+                            markdown,
+                            requirements,
+                        )
+                    ),
                     encoding="utf-8",
                 )
                 goal_document = goal_path
@@ -162,6 +182,26 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             kind="artifact",
             markdown="```json\nFR-999 fake\n```\n<!-- ## 偽セクション -->\n",
         )
+
+    def test_rejects_requirement_content_without_substantive_summary(self) -> None:
+        for kind in ("goal", "artifact"):
+            for content in (
+                "FR-1",
+                "FR-1 TODO",
+                "FR-1 pending 未定",
+                "FR-1 TODOです",
+                "FR-1 未定です",
+                "FR-1 TBD対応待ち",
+            ):
+                with self.subTest(kind=kind, content=content):
+                    with self.assertRaisesRegex(ValidationError, "substantive summary"):
+                        self.validate_source(
+                            kind=kind,
+                            requirements=[
+                                ("FR-1", content),
+                                REQUIREMENTS[1],
+                            ],
+                        )
 
     def test_rejects_shared_structured_section_evidence(self) -> None:
         gate = deepcopy(completeness_gate())

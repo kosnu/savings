@@ -325,6 +325,42 @@ class DesignCoverageGateTest(unittest.TestCase):
                         ],
                     )
 
+    def test_rejects_reused_normalized_baseline_evidence(self) -> None:
+        shared_evidence = (
+            "Build / Verifyへの入力を現在Requirementsへ適合させたまま維持する。"
+        )
+        with self.assertRaisesRegex(ValidationError, "evidence must be unique"):
+            validate_baseline_sections(
+                [
+                    {
+                        "heading": "入力",
+                        "content_sha256": "first",
+                        "status": "preserved",
+                        "design_evidence": shared_evidence,
+                    },
+                    {
+                        "heading": "Build / Verifyへの入力",
+                        "content_sha256": "second",
+                        "status": "preserved",
+                        "design_evidence": f"  {shared_evidence}  ",
+                    },
+                ],
+                [
+                    {"heading": "入力", "content_sha256": "first"},
+                    {
+                        "heading": "Build / Verifyへの入力",
+                        "content_sha256": "second",
+                    },
+                ],
+                [
+                    {"heading": "入力", "content_sha256": "first"},
+                    {
+                        "heading": "Build / Verifyへの入力",
+                        "content_sha256": "second",
+                    },
+                ],
+            )
+
     def test_rejects_noncanonical_requirements_source(self) -> None:
         with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_source(kind="goal", canonical_requirements=False)
