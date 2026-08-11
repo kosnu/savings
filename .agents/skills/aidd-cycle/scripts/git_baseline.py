@@ -49,6 +49,28 @@ def canonical_artifact_path(
     )
 
 
+def canonical_source_path(
+    repo_root: Path,
+    workspace: str,
+    kind: str,
+) -> Path:
+    validate_workspace_name(workspace)
+    filenames = {
+        "requirements": "requirements.json",
+        "design": "design.json",
+    }
+    if kind not in filenames:
+        raise GitBaselineError(f"unsupported canonical source kind: {kind}")
+    return (
+        repo_root
+        / "docs"
+        / "ai-driven-development"
+        / "workspaces"
+        / workspace
+        / filenames[kind]
+    )
+
+
 def require_canonical_worktree_path(
     repo_root: Path,
     supplied_path: Path,
@@ -182,3 +204,28 @@ def load_git_head_artifact(
     if content.returncode != 0:
         raise GitBaselineError("failed to read the canonical artifact from Git HEAD")
     return artifact_path, content.stdout
+
+
+def load_git_head_source(
+    repo_root: Path,
+    workspace: str,
+    kind: str,
+) -> tuple[Path, bytes | None]:
+    resolved_root = require_repository_root(repo_root)
+    source_path = canonical_source_path(resolved_root, workspace, kind)
+    relative_path = source_path.relative_to(resolved_root).as_posix()
+    listing = run_git(
+        resolved_root,
+        ["ls-tree", "-r", "--name-only", "HEAD", "--", relative_path],
+    )
+    if listing.returncode != 0:
+        raise GitBaselineError("failed to inspect the canonical JSON source in Git HEAD")
+    tracked_paths = listing.stdout.decode("utf-8").splitlines()
+    if not tracked_paths:
+        return source_path, None
+    if tracked_paths != [relative_path]:
+        raise GitBaselineError("canonical JSON source lookup returned an unexpected path")
+    content = run_git(resolved_root, ["show", f"HEAD:{relative_path}"])
+    if content.returncode != 0:
+        raise GitBaselineError("failed to read the canonical JSON source from Git HEAD")
+    return source_path, content.stdout

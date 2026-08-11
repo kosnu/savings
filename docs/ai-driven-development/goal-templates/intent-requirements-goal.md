@@ -37,7 +37,8 @@ when_to_read:
 - Workspace: `<Issue番号>-<短いtitle>`。同じIssueの既存workspaceがあれば必ず同じ名前を使う
 - Workspace identity検証結果:
 - 既存Requirements / PRD: 履歴参照のみ。Task Contextへ追加しない
-- 出力先: 同じworkspaceのcanonical pathである`requirements.md`。このGoalが書き込みを所有する。
+- Goal source: temporary `requirements_goal` JSON。このJSONを検証してから`display.markdown`をGoal objectiveに使う。
+- 出力先: 同じworkspaceのcanonical `requirements.json`。このGoalが書き込みを所有し、`requirements.md`を生成する。
 
 ## Oversight Inputs
 
@@ -74,7 +75,7 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
 
 ## Requirements Input Gate
 
-以下のJSONだけを機械検証対象としてGoalに含め、生成する`requirements.md`にも同じ内容を記録する。`direct_rules`はIssue本文から選んだnodeを少なくとも1件含め、空配列を許可しない。`issue_evidence`はIssue本文の原文抜粋、`match`はrule-map nodeの`applies_to`と一致させ、その値を正規化後の`issue_evidence`内に同じ文字列で含める。`depends_on`はdirect nodeからの推移的閉包をすべて記録する。
+以下のobjectをtemporary `requirements_goal` JSONの`validation.input_gate`へ含め、生成する`requirements.json`にも同じobjectを記録する。Goal Markdownと生成Markdownは機械検証入力にしない。`direct_rules`はIssue本文から選んだnodeを少なくとも1件含め、空配列を許可しない。`issue_evidence`はIssue本文の原文抜粋、`match`はrule-map nodeの`applies_to`と一致させ、その値を正規化後の`issue_evidence`内に同じ文字列で含める。`depends_on`はdirect nodeからの推移的閉包をすべて記録する。
 
 ```json
 {
@@ -99,7 +100,7 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
 
 ## Requirements Completeness Gate
 
-新サイクルでは、最新Issue全体を満たすRequirements / PRDの完成版を作る。今回追加・変更された内容は差分であり、Goalまたは成果物のscopeではない。baselineは呼び出し側で選ばず、validatorが`--workspace`に対応するcanonical `requirements.md`をGit `HEAD`から取得する。前回の全要求項目と必須section、新しい全要求項目について状態遷移を記録する。生成する`requirements.md`の各必須sectionは別々のlevel-two見出しへ一対一で対応させ、1つの見出しで複数sectionを満たさない。箇条書き要求では、次の同階層項目またはsection境界までのインデントされた継続行も要求内容としてhash化する。`changed`と`new`には最新Issue本文の原文根拠が必要であり、その原文を対象requirementまたはcanonical sectionの本文内に含め、同種の別targetへ再利用しない。廃止根拠は対象IDと明示的な廃止表現を含み、廃止を否定する文であってはならない。
+新サイクルでは、最新Issue全体を満たすRequirements / PRDの完成版を作る。今回追加・変更された内容は差分であり、Goalまたは成果物のscopeではない。baselineは呼び出し側で選ばず、validatorが`--workspace`に対応するcanonical `requirements.json`をGit `HEAD`から取得する。前回の全要求項目と必須section、新しい全要求項目について状態遷移を記録する。各必須sectionは`validation.sections`の別entryへ一対一で記録する。`changed`と`new`には最新Issue本文の原文根拠が必要であり、その原文を対象requirementまたはcanonical sectionのcontent内に含め、同種の別targetへ再利用しない。廃止根拠は対象IDと明示的な廃止表現を含み、廃止を否定する文であってはならない。
 
 ```json
 {
@@ -129,11 +130,11 @@ Oversight Inputsが意図、scope、制約、成功条件を変える場合は�
 }
 ```
 
-Git `HEAD`に前回成果物がない初回サイクルでは、baselineの`source`を`none`、`body_sha256`を`null`にする。この判定とbaseline内の全要求項目・必須section inventoryの導出はvalidatorが行い、呼び出し側の一覧を信頼しない。Goalと生成する`requirements.md`へ同じGateを記録し、成果物検証では両Requirements Gateのparsed objectを保持したGoalと完全一致させる。前回成果物はTask Contextではなく、欠落検出だけに使う。
+Git `HEAD`に前回成果物がない初回サイクルでは、baselineの`source`を`none`、`body_sha256`を`null`にする。この判定とbaseline内の全要求項目・必須section inventoryの導出はvalidatorが行い、呼び出し側の一覧を信頼しない。Goal JSONと生成する`requirements.json`へ同じGateを記録し、成果物検証では両Requirements Gate objectを保持したGoal JSONと完全一致させる。前回成果物はTask Contextではなく、欠落検出だけに使う。
 
 ## Requirement Scope
 
-Gate外に、`requirements`配列と完全一致する全IDをcanonical順で実質的な定義として記載する。今回の差分だけを列挙しない。
+Goal JSONの`validation.requirements`に、Gateの`requirements`配列と完全一致する全IDをcanonical順で実質的な定義として記載する。今回の差分だけを列挙しない。
 
 - FR-1: Goalが扱う要求の要約
 - AC-1: Goalが扱う受け入れ条件の要約
@@ -198,13 +199,13 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] プロダクト要求、受け入れ条件、Q&A判断がIssue本文または選択したproduct/domain ruleへ追跡できる
 - [ ] 実装、test、fixture、mock、app policyからプロダクト要求を新設していない
 - [ ] 会話、review、現在diff、前回artifact、直前に更新されたruleをTask Contextへ追加していない
-- [ ] 成果物が同じworkspaceのcanonical pathである`requirements.md`にある
+- [ ] 成果物が同じworkspaceのcanonical `requirements.json`にあり、rendererで`requirements.md`とのbyte一致を確認している
 - [ ] 成果物にIssue番号、URL、updatedAt、本文SHA-256が記録されている
 - [ ] 成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通る
 - [ ] 成果物のRequirements Input GateとRequirements Completeness Gateが、保持したGoalの対応するparsed Gate objectと完全一致する
 - [ ] 成果物のRequirements Completeness GateがGit `HEAD`のcanonical baselineと最新Issueに対するvalidatorを通り、根拠なしに前回要求項目または主要sectionを欠落・変更させていない
 - [ ] 前回と現在の背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項が状態遷移として追跡されている
-- [ ] 各必須sectionが別々のlevel-two見出しへ一対一で対応し、1つの見出しを複数sectionへ使っていない
+- [ ] 各必須sectionがJSONの別entryへ一対一で対応し、1つのentryを複数sectionへ使っていない
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントとの整合性が確認されている
 - [ ] Requirements / PRDが、選択したルール・ポリシーに違反していないことを確認している
 
@@ -214,6 +215,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
   - `python3 .agents/skills/aidd-cycle/scripts/validate_workspace.py --repo-root <repo-root> --issue <owner/repo#number> --workspace <workspace>`
   - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --repo-root <repo-root> --kind artifact --goal-document <goal-file>`
   - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <requirements-file> --kind artifact --repo-root <repo-root> --workspace <workspace> --goal-document <goal-file>`
+  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --source <requirements-file> --output <generated-requirements-md> --check`
 - 手動確認:
   - 必要に応じて監督者が受け入れ条件とStop条件を確認する
 
