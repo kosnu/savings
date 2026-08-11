@@ -171,7 +171,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 追加、変更、削除する各ユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できる
 - [ ] Requirements / PRDの意図・制約・対象外・受け入れ条件から解釈を広げていない
 - [ ] 現在サイクルのRequirements / PRDをread-only入力として扱っている
-- [ ] 成果物が同じworkspaceのcanonical `design.json`にあり、rendererで`design-doc.md`とのbyte一致を確認している
+- [ ] 成果物が同じworkspaceのcanonical `design.json`にあり、rendererで`design-doc.md`とのUTF-8文字列一致（CRLF/LF差は正規化）を確認している
 - [ ] Design Docが、選択したルール・ポリシーに違反していないことを確認している
 - [ ] リスクと確認事項が残っている
 

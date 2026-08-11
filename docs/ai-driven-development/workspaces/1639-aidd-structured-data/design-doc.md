@@ -27,7 +27,7 @@ when_to_read:
 - Requirements SHA-256: `6682fbe4800aba130710002140104772a3b75dec4e8cab2c9e2b3f5a802a9df9`
 - Requirements Input Gate / Completeness Gate: artifact検証成功。
 - Git `HEAD`の同workspace Design baseline: なし。
-- Requirementsは本phase以降read-onlyとし、Buildではbyteを変更せずJSON sidecarへ移行する。
+- Requirementsは本phase以降read-onlyとし、Buildでは本文を変更せずJSON sidecarへ移行する。
 
 ## Rule Selection
 
@@ -69,7 +69,7 @@ when_to_read:
 
 ### Markdown生成
 
-`render_aidd_artifact.py`はJSONの`display.path`をkindに対応するcanonical Markdown pathへ固定し、`display.markdown`をそのままUTF-8で出力する。`--check`は書き込まず、現在のMarkdownとのbyte一致を検証する。validatorはdisplay本文を解釈せず、rendererだけが表示を扱う。
+`render_aidd_artifact.py`はJSONの`display.path`をkindに対応するcanonical Markdown pathへ固定し、`display.markdown`をそのままUTF-8で出力する。`--check`は書き込まず、現在のMarkdownとのUTF-8文字列一致を検証し、CRLFとLFの改行コード差は同一として扱う。validatorはdisplay本文を解釈せず、rendererだけが表示を扱う。
 
 Goal JSONも同じrendererのstdout modeでGoal objectiveを生成する。skill/templateはJSON作成、validator、renderer、Goal設定の順を唯一の正規経路として記載する。
 
@@ -77,7 +77,7 @@ Goal JSONも同じrendererのstdout modeでGoal objectiveを生成する。skill
 
 `migrate_aidd_artifacts.py`を一回限りのcompatibility boundaryとする。
 
-1. Git `HEAD`または現在のread-only Markdownを読み、workspace、artifact kind、表示byte、既存ID/section inventoryを抽出する。
+1. Git `HEAD`または現在のread-only Markdownを読み、workspace、artifact kind、表示文字列、既存ID/section inventoryを抽出する。
 2. 既存17 workspaceは`legacy_import`、本workspaceは完全なv1 validation dataを持つmanaged sourceとしてsidecar JSONを生成する。
 3. 全18 workspaceのJSON schema検証とrenderer `--check`を実行し、既存Markdownを一切書き換えずround-tripを確認する。
 4. 移行後の通常workflowはMarkdown importerを呼ばない。移行scriptは`--check`で全sidecar存在と表示一致を継続確認する。
@@ -90,7 +90,7 @@ Goal JSONも同じrendererのstdout modeでGoal objectiveを生成する。skill
 - 3 validator、`git_baseline.py`、legacy parser、対応unit tests。
 - `.agents/skills/aidd-cycle/SKILL.md`、`.agents/skills/goal-setting/SKILL.md`。
 - workflow、overview、4 Goal templates、workspace全体のJSON sidecar。
-- `requirements.md`と`design-doc.md`は生成表示として維持し、本cycle入力の既存byteは変更しない。
+- `requirements.md`と`design-doc.md`は生成表示として維持し、本cycle入力の既存Markdown本文は変更しない。
 
 ## 採用しない案
 
@@ -104,7 +104,7 @@ blockの所在をMarkdown構造から探す時点で偽装面が残り、表示�
 
 ### 既存Markdownを一括再整形する
 
-人間向け履歴に大きなnoiseを生み、read-onlyな本cycle artifactも変更するため採用しない。sidecar化とbyte一致で移行する。
+人間向け履歴に大きなnoiseを生み、read-onlyな本cycle artifactも変更するため採用しない。sidecar化とUTF-8文字列一致で移行する。
 
 ### JSON Schema runtime dependencyを追加する
 
@@ -118,7 +118,7 @@ FR-3 design: rendererがJSON display payloadからMarkdownを決定的生成す�
 FR-4 design: legacy importerが全workspaceをsidecar JSONへlossless移行する。
 NFR-1 design: JSONだけを手編集正本としMarkdownを生成物へ固定する。
 NFR-2 design: provenance、continuity、coverageをtyped validation fieldで保持する。
-NFR-3 design: canonical Markdown filenameとbyteをrenderer契約で維持する。
+NFR-3 design: canonical Markdown filenameとUTF-8文字列一致（CRLF/LF差は正規化）をrenderer契約で維持する。
 AC-1 design: canonical JSON path以外を通常validatorが拒否する。
 AC-2 design: display payloadをvalidation modelから完全に隔離する。
 AC-3 design: migration checkが全sidecar schemaとround-tripを検査する。
@@ -128,7 +128,7 @@ AC-4 design: workflow、skills、templatesをJSON-first順序へ同期する。
 
 FR-1 verification: invalid JSON、unknown key、kind不一致、順序違反をunit testで拒否する。
 FR-2 verification: Markdownだけを変異させてもvalidator判定が変わらないことを確認する。
-FR-3 verification: render、check、再renderのbyte一致を確認する。
+FR-3 verification: render、check、再renderのUTF-8文字列一致（CRLF/LF差は正規化）を確認する。
 FR-4 verification: 全既存workspaceのimportと表示round-tripを確認する。
 NFR-1 verification: 通常validatorがMarkdown pathを受け付けないことを確認する。
 NFR-2 verification: Issue evidence、dependency、baseline、coverageの既存拒否caseを維持する。
@@ -142,7 +142,7 @@ AC-4 verification: 全script unit tests、旧Markdown parser参照search、git d
 
 ## 既存挙動への影響
 
-- 人間が読むMarkdownのpathとbyteは移行時に変えない。
+- 人間が読むMarkdownのpathと本文は移行時に変えない。
 - AIDDのGoal準備順序はJSON作成が先になり、Markdownを直接validatorへ渡す操作は失敗する。
 - Git baselineはShip後からJSON sidecarを読み、旧Markdownは表示とmigration auditのためだけに残る。
 - apps/web、apps/api、ユーザー向け機能、DB/API/Authには影響しない。
@@ -157,5 +157,5 @@ AC-4 verification: 全script unit tests、旧Markdown parser参照search、git d
 ## Design Coverage Gate
 
 ```json
-{"requirements_sha256":"6682fbe4800aba130710002140104772a3b75dec4e8cab2c9e2b3f5a802a9df9","workspace":"1639-aidd-structured-data","requirement_ids":["FR-1","FR-2","FR-3","FR-4","NFR-1","NFR-2","NFR-3","AC-1","AC-2","AC-3","AC-4"],"baseline":{"source":"none","body_sha256":null},"coverage":[{"id":"FR-1","design_evidence":"FR-1 design: JSON v1 envelopeとstdlib loaderで形式を一意にする。","verification_evidence":"FR-1 verification: invalid JSON、unknown key、kind不一致、順序違反をunit testで拒否する。"},{"id":"FR-2","design_evidence":"FR-2 design: 通常validatorの全入力をGoal/artifact JSONへ限定する。","verification_evidence":"FR-2 verification: Markdownだけを変異させてもvalidator判定が変わらないことを確認する。"},{"id":"FR-3","design_evidence":"FR-3 design: rendererがJSON display payloadからMarkdownを決定的生成する。","verification_evidence":"FR-3 verification: render、check、再renderのbyte一致を確認する。"},{"id":"FR-4","design_evidence":"FR-4 design: legacy importerが全workspaceをsidecar JSONへlossless移行する。","verification_evidence":"FR-4 verification: 全既存workspaceのimportと表示round-tripを確認する。"},{"id":"NFR-1","design_evidence":"NFR-1 design: JSONだけを手編集正本としMarkdownを生成物へ固定する。","verification_evidence":"NFR-1 verification: 通常validatorがMarkdown pathを受け付けないことを確認する。"},{"id":"NFR-2","design_evidence":"NFR-2 design: provenance、continuity、coverageをtyped validation fieldで保持する。","verification_evidence":"NFR-2 verification: Issue evidence、dependency、baseline、coverageの既存拒否caseを維持する。"},{"id":"NFR-3","design_evidence":"NFR-3 design: canonical Markdown filenameとbyteをrenderer契約で維持する。","verification_evidence":"NFR-3 verification: requirements.mdとdesign-doc.mdが全workspaceで存在し一致することを確認する。"},{"id":"AC-1","design_evidence":"AC-1 design: canonical JSON path以外を通常validatorが拒否する。","verification_evidence":"AC-1 verification: RequirementsとDesignのartifact validatorをJSON入力だけで通す。"},{"id":"AC-2","design_evidence":"AC-2 design: display payloadをvalidation modelから完全に隔離する。","verification_evidence":"AC-2 verification: fence、HTML comment、偽headingをdisplayへ入れてもvalidation dataにならないことを確認する。"},{"id":"AC-3","design_evidence":"AC-3 design: migration checkが全sidecar schemaとround-tripを検査する。","verification_evidence":"AC-3 verification: migration --checkで全18 workspaceのschemaと表示一致を確認する。"},{"id":"AC-4","design_evidence":"AC-4 design: workflow、skills、templatesをJSON-first順序へ同期する。","verification_evidence":"AC-4 verification: 全script unit tests、旧Markdown parser参照search、git diff --checkを通す。"}],"baseline_sections":[]}
+{"requirements_sha256":"6682fbe4800aba130710002140104772a3b75dec4e8cab2c9e2b3f5a802a9df9","workspace":"1639-aidd-structured-data","requirement_ids":["FR-1","FR-2","FR-3","FR-4","NFR-1","NFR-2","NFR-3","AC-1","AC-2","AC-3","AC-4"],"baseline":{"source":"none","body_sha256":null},"coverage":[{"id":"FR-1","design_evidence":"FR-1 design: JSON v1 envelopeとstdlib loaderで形式を一意にする。","verification_evidence":"FR-1 verification: invalid JSON、unknown key、kind不一致、順序違反をunit testで拒否する。"},{"id":"FR-2","design_evidence":"FR-2 design: 通常validatorの全入力をGoal/artifact JSONへ限定する。","verification_evidence":"FR-2 verification: Markdownだけを変異させてもvalidator判定が変わらないことを確認する。"},{"id":"FR-3","design_evidence":"FR-3 design: rendererがJSON display payloadからMarkdownを決定的生成する。","verification_evidence":"FR-3 verification: render、check、再renderのUTF-8文字列一致（CRLF/LF差は正規化）を確認する。"},{"id":"FR-4","design_evidence":"FR-4 design: legacy importerが全workspaceをsidecar JSONへlossless移行する。","verification_evidence":"FR-4 verification: 全既存workspaceのimportと表示round-tripを確認する。"},{"id":"NFR-1","design_evidence":"NFR-1 design: JSONだけを手編集正本としMarkdownを生成物へ固定する。","verification_evidence":"NFR-1 verification: 通常validatorがMarkdown pathを受け付けないことを確認する。"},{"id":"NFR-2","design_evidence":"NFR-2 design: provenance、continuity、coverageをtyped validation fieldで保持する。","verification_evidence":"NFR-2 verification: Issue evidence、dependency、baseline、coverageの既存拒否caseを維持する。"},{"id":"NFR-3","design_evidence":"NFR-3 design: canonical Markdown filenameとUTF-8文字列一致（CRLF/LF差は正規化）をrenderer契約で維持する。","verification_evidence":"NFR-3 verification: requirements.mdとdesign-doc.mdが全workspaceで存在し一致することを確認する。"},{"id":"AC-1","design_evidence":"AC-1 design: canonical JSON path以外を通常validatorが拒否する。","verification_evidence":"AC-1 verification: RequirementsとDesignのartifact validatorをJSON入力だけで通す。"},{"id":"AC-2","design_evidence":"AC-2 design: display payloadをvalidation modelから完全に隔離する。","verification_evidence":"AC-2 verification: fence、HTML comment、偽headingをdisplayへ入れてもvalidation dataにならないことを確認する。"},{"id":"AC-3","design_evidence":"AC-3 design: migration checkが全sidecar schemaとround-tripを検査する。","verification_evidence":"AC-3 verification: migration --checkで全18 workspaceのschemaと表示一致を確認する。"},{"id":"AC-4","design_evidence":"AC-4 design: workflow、skills、templatesをJSON-first順序へ同期する。","verification_evidence":"AC-4 verification: 全script unit tests、旧Markdown parser参照search、git diff --checkを通す。"}],"baseline_sections":[]}
 ```

@@ -121,6 +121,16 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
 
             self.assertEqual(migrate(repo_root, False), 1)
 
+    def test_check_accepts_crlf_and_lf_as_the_same_markdown(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            display_path, source_path = artifact_paths(repo_root)
+            display_path.write_bytes(b"# Requirements\r\n")
+            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
+            source_path.write_text(serialize_source(legacy), encoding="utf-8")
+
+            self.assertEqual(migrate(repo_root, False), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
