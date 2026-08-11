@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -17,8 +18,54 @@ from artifact_source import (
 )
 
 
-def check_or_write(source_path: Path, output_path: Path, check: bool) -> None:
+def normalized_path(path: Path) -> Path:
+    return Path(os.path.abspath(path))
+
+
+def require_no_symlinks(repo_root: Path, path: Path, label: str) -> None:
+    current_path = repo_root
+    for part in normalized_path(path).relative_to(repo_root).parts:
+        current_path /= part
+        if current_path.is_symlink():
+            raise SourceError(f"{label} canonical path must not contain symlinks")
+
+
+def require_canonical_artifact_paths(
+    repo_root: Path,
+    source_path: Path,
+    output_path: Path,
+    source: dict[str, object],
+) -> None:
+    kind = source["kind"]
+    workspace = source["workspace"]
+    if not isinstance(kind, str) or not isinstance(workspace, str):
+        raise SourceError("artifact source kind and workspace must be strings")
+    expected_source = canonical_source_path(repo_root, workspace, kind)
+    expected_output = canonical_display_path(repo_root, workspace, kind)
+    if normalized_path(source_path) != expected_source:
+        raise SourceError(f"artifact source must be canonical: {expected_source}")
+    if normalized_path(output_path) != expected_output:
+        raise SourceError(f"artifact output must be canonical: {expected_output}")
+    require_no_symlinks(repo_root, expected_source, "artifact source")
+    require_no_symlinks(repo_root, expected_output, "artifact output")
+
+
+def check_or_write(
+    source_path: Path,
+    output_path: Path,
+    check: bool,
+    repo_root: Path | None = None,
+) -> None:
     source = load_source(source_path)
+    if source["kind"] in ARTIFACT_KINDS:
+        if repo_root is None:
+            raise SourceError("artifact rendering requires --repo-root")
+        require_canonical_artifact_paths(
+            normalized_path(repo_root),
+            source_path,
+            output_path,
+            source,
+        )
     markdown = source["display"]["markdown"]
     if check:
         if not output_path.is_file():
@@ -56,7 +103,7 @@ def check_all(repo_root: Path) -> int:
         )
         if source_path.is_symlink():
             raise SourceError(f"artifact source must not use a symlink: {source_path}")
-        check_or_write(source_path, output_path, True)
+        check_or_write(source_path, output_path, True, repo_root)
         checked += 1
     print(f"AIDD render check passed: {checked} artifacts")
     return checked
@@ -82,11 +129,15 @@ def main() -> int:
             raise SourceError("--source is required")
         source = load_source(args.source)
         if args.stdout:
+            if source["kind"] in ARTIFACT_KINDS:
+                raise SourceError(
+                    "artifact rendering requires canonical --output and --repo-root"
+                )
             sys.stdout.write(source["display"]["markdown"])
             return 0
         if args.output is None:
             raise SourceError("--output is required without --stdout")
-        check_or_write(args.source, args.output, args.check)
+        check_or_write(args.source, args.output, args.check, args.repo_root)
     except (OSError, SourceError) as error:
         print(f"AIDD render failed: {error}", file=sys.stderr)
         return 1

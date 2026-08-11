@@ -192,7 +192,13 @@ def migrate(repo_root: Path, write: bool) -> int:
     for display_path, source_path, kind in expected_pairs(repo_root):
         markdown = display_path.read_text(encoding="utf-8")
         expected = build_source(display_path.parent.name, kind, markdown)
-        if write:
+        existing = load_source(source_path, kind) if source_path.is_file() else None
+        preserves_managed_source = (
+            existing is not None
+            and existing["validation"].get("mode") == "managed"
+            and expected["validation"].get("mode") == "managed"
+        )
+        if write and not preserves_managed_source:
             source_path.write_text(serialize_source(expected), encoding="utf-8")
         source = load_source(source_path, kind)
         if source["workspace"] != display_path.parent.name:
@@ -203,8 +209,11 @@ def migrate(repo_root: Path, write: bool) -> int:
             markdown.encode("utf-8")
         ).hexdigest():
             raise SourceError(f"Markdown digest mismatch: {source_path}")
-        if write and source != expected:
-            raise SourceError(f"written source differs from migration model: {source_path}")
+        if (
+            expected["validation"].get("mode") == "legacy_import"
+            and source != expected
+        ):
+            raise SourceError(f"legacy import differs from migration model: {source_path}")
         checked += 1
     print(f"AIDD migration {'wrote' if write else 'check passed'}: {checked} artifacts")
     return checked

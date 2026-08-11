@@ -215,7 +215,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
   - `python3 .agents/skills/aidd-cycle/scripts/validate_workspace.py --repo-root <repo-root> --issue <owner/repo#number> --workspace <workspace>`
   - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --repo-root <repo-root> --kind artifact --goal-document <goal-file>`
   - `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <requirements-file> --kind artifact --repo-root <repo-root> --workspace <workspace> --goal-document <goal-file>`
-  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --source <requirements-file> --output <generated-requirements-md> --check`
+  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --repo-root <repo-root> --source <requirements-file> --output <generated-requirements-md> --check`
 - 手動確認:
   - 必要に応じて監督者が受け入れ条件とStop条件を確認する
 
