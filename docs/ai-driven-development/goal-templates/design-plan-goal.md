@@ -179,7 +179,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 
 - 必ず実行:
   - `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
-  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --source <design-file> --output <generated-design-md> --check`
+  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --repo-root <repo-root> --source <design-file> --output <generated-design-md> --check`
 - 必要なら実行:
   - 既存テストや型定義の調査コマンド
 - 手動確認:

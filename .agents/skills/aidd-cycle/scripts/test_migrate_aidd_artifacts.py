@@ -1,0 +1,85 @@
+from __future__ import annotations
+
+import copy
+import tempfile
+import unittest
+from pathlib import Path
+
+from artifact_source import SourceError, serialize_source
+from migrate_aidd_artifacts import build_source, migrate
+
+
+WORKSPACE = "1639-structured-data"
+MARKDOWN = "# Requirements\n"
+MANAGED_MARKDOWN = """# Requirements
+
+## Requirements Input Gate
+
+```json
+{}
+```
+
+## Requirements Completeness Gate
+
+```json
+{}
+```
+"""
+
+
+def artifact_paths(repo_root: Path) -> tuple[Path, Path]:
+    workspace_root = (
+        repo_root
+        / "docs"
+        / "ai-driven-development"
+        / "workspaces"
+        / WORKSPACE
+    )
+    workspace_root.mkdir(parents=True)
+    return workspace_root / "requirements.md", workspace_root / "requirements.json"
+
+
+class MigrateAiddArtifactsTest(unittest.TestCase):
+    def test_write_preserves_existing_managed_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            display_path, source_path = artifact_paths(repo_root)
+            display_path.write_text(MANAGED_MARKDOWN, encoding="utf-8")
+            managed = build_source(WORKSPACE, "requirements", MANAGED_MARKDOWN)
+            managed["validation"]["managed_evidence"] = "preserve"
+            serialized = serialize_source(managed)
+            source_path.write_text(serialized, encoding="utf-8")
+
+            migrate(repo_root, True)
+
+            self.assertEqual(source_path.read_text(encoding="utf-8"), serialized)
+
+    def test_check_rejects_tampered_legacy_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            display_path, source_path = artifact_paths(repo_root)
+            display_path.write_text(MARKDOWN, encoding="utf-8")
+            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
+            tampered = copy.deepcopy(legacy)
+            tampered["validation"]["mode"] = "managed"
+            tampered["validation"]["requirements"] = [
+                {"id": "FR-1", "content": "tampered"}
+            ]
+            source_path.write_text(serialize_source(tampered), encoding="utf-8")
+
+            with self.assertRaisesRegex(SourceError, "legacy import differs"):
+                migrate(repo_root, False)
+
+    def test_check_accepts_exact_legacy_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            display_path, source_path = artifact_paths(repo_root)
+            display_path.write_text(MARKDOWN, encoding="utf-8")
+            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
+            source_path.write_text(serialize_source(legacy), encoding="utf-8")
+
+            self.assertEqual(migrate(repo_root, False), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

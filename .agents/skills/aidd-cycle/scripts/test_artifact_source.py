@@ -43,13 +43,68 @@ class ArtifactSourceTest(unittest.TestCase):
 
     def test_renderer_detects_stale_markdown(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            repo_root = Path(directory)
+            root = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / WORKSPACE
+            )
+            root.mkdir(parents=True)
             source_path = root / "requirements.json"
             output_path = root / "requirements.md"
             source_path.write_text(serialize_source(source()), encoding="utf-8")
             output_path.write_text("# stale\n", encoding="utf-8")
             with self.assertRaisesRegex(SourceError, "stale"):
-                check_or_write(source_path, output_path, True)
+                check_or_write(source_path, output_path, True, repo_root)
+
+    def test_renderer_rejects_noncanonical_artifact_output(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            workspace_root = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
+            source_path = workspace_root / "requirements.json"
+            source_path.write_text(serialize_source(source()), encoding="utf-8")
+            with self.assertRaisesRegex(SourceError, "output must be canonical"):
+                check_or_write(
+                    source_path,
+                    repo_root / "temporary.md",
+                    True,
+                    repo_root,
+                )
+
+    def test_renderer_rejects_noncanonical_artifact_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            source_path = repo_root / "temporary.json"
+            source_path.write_text(serialize_source(source()), encoding="utf-8")
+            with self.assertRaisesRegex(SourceError, "source must be canonical"):
+                check_or_write(
+                    source_path,
+                    repo_root
+                    / "docs"
+                    / "ai-driven-development"
+                    / "workspaces"
+                    / WORKSPACE
+                    / "requirements.md",
+                    True,
+                    repo_root,
+                )
+
+    def test_renderer_requires_repo_root_for_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source_path = root / "requirements.json"
+            source_path.write_text(serialize_source(source()), encoding="utf-8")
+            with self.assertRaisesRegex(SourceError, "requires --repo-root"):
+                check_or_write(source_path, root / "requirements.md", True)
 
     def test_check_all_rejects_kind_filename_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
