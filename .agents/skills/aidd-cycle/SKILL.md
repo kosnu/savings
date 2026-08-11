@@ -67,9 +67,12 @@ artifacts may be used only as omission-detection or still-valid-design
 baselines, never as additional Requirements Task Context.
 
 `requirements.json` and `design.json` are the only machine-validation sources.
-Their `display.markdown` values generate `requirements.md` and `design-doc.md`;
-the Markdown files are human-readable outputs and are never parsed by normal
-validators. Use `migrate_aidd_artifacts.py` as the sole legacy Markdown parser.
+For managed artifacts, the renderer builds `requirements.md` and
+`design-doc.md` from structured sections and Gate fields; `display.markdown`
+supplies only the static preamble and is never the artifact body source. Legacy
+imports retain their lossless Markdown payload. The Markdown files are
+human-readable outputs and are never parsed by normal validators. Use
+`migrate_aidd_artifacts.py` as the sole legacy Markdown parser.
 For temporary Requirements and Design Goal JSON, the renderer must verify that
 the Goal objective retains the required Context Packet markers and exactly
 represents every structured Gate and scope before writing or printing it. The
@@ -147,10 +150,11 @@ current Requirements, never as a design for only the newly added delta.
 
 Before creating a Design / Plan Goal:
 
-1. Confirm the current canonical workspace `requirements.json` passed both
-   Requirements artifact gates. Reject any caller-supplied copy, temporary
-   path, or symlink alias. Read the complete artifact, calculate its SHA-256, and
-   collect every stable `FR-*`, `NFR-*`, and `AC-*` identifier.
+1. Revalidate both Requirements artifact gates from the current Issue body,
+   canonical Issue metadata, and canonical rule map while reading the current
+   canonical workspace `requirements.json`. Reject any caller-supplied copy,
+   temporary path, or symlink alias. Read the complete artifact, calculate its
+   SHA-256, and collect every stable `FR-*`, `NFR-*`, and `AC-*` identifier.
 2. Create a temporary `design_goal` JSON source containing the template's
    `Design Coverage Gate` object with
    that hash, the complete canonical identifier list, and the Git `HEAD` Design
@@ -164,7 +168,7 @@ Before creating a Design / Plan Goal:
    narrow the Goal scope.
 3. Run:
 
-   `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
+   `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --rule-map <canonical-rule-map> --requirements <canonical-requirements-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
 
 4. Create the Goal only when validation succeeds.
 
@@ -179,7 +183,7 @@ one entry cannot cover multiple baseline sections or name another distinct
 baseline heading. Before completing Design / Plan,
 run:
 
-`python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
+`python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --rule-map <canonical-rule-map> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
 
 ID and heading presence is necessary but not semantic proof. Stop when an
 evidence line does not actually resolve its specific requirement or baseline

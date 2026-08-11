@@ -334,6 +334,7 @@ def validate(
     document_kind: str,
     repo_root: Path,
     goal_document_path: Path | None = None,
+    require_goal_document: bool = True,
 ) -> None:
     canonical_rule_map_path = require_canonical_input(
         repo_root,
@@ -386,6 +387,12 @@ def validate(
     if document_kind == "goal":
         if goal_document_path is not None:
             raise ValidationError("--goal-document is only valid for artifact validation")
+        return
+    if not require_goal_document:
+        if goal_document_path is not None:
+            raise ValidationError(
+                "goal document must be omitted when only revalidating the artifact gate"
+            )
         return
     if goal_document_path is None:
         raise ValidationError("artifact validation requires --goal-document")

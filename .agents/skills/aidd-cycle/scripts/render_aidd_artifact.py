@@ -23,6 +23,7 @@ from artifact_source import (
     normalize_markdown_newlines,
 )
 from git_baseline import GitBaselineError, require_repository_root, run_git
+from structured_ids import extract_requirement_mentions, requirement_sort_key
 
 
 GOAL_REQUIRED_MARKERS = (
@@ -54,6 +55,11 @@ NARROW_GOAL_SCOPE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 VALIDATED_SCOPE_PREFIX = "- Validated Scope:"
+REQUIREMENT_SECTION_BY_PREFIX = {
+    "FR": "functional",
+    "NFR": "non_functional",
+    "AC": "acceptance",
+}
 
 
 def normalized_path(path: Path) -> Path:
@@ -293,6 +299,186 @@ def render_goal_objective(source: dict[str, Any]) -> str:
     return add_validated_scope(markdown, structured_goal_ids(source))
 
 
+def compact_json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+def artifact_preamble(markdown: str) -> str:
+    first_section = re.search(r"(?m)^## ", markdown)
+    preamble = markdown if first_section is None else markdown[: first_section.start()]
+    if not preamble.strip():
+        raise SourceError("managed artifact display must contain a Markdown preamble")
+    return preamble.strip()
+
+
+def render_section(heading: Any, content: Any, label: str) -> str:
+    if not isinstance(heading, str) or not heading.strip():
+        raise SourceError(f"{label}.heading must be a non-empty string")
+    if not isinstance(content, str) or not content.strip():
+        raise SourceError(f"{label}.content must be a non-empty string")
+    lines = content.strip().splitlines()
+    expected_heading = f"## {heading.strip()}"
+    if lines[0].strip() != expected_heading:
+        raise SourceError(f"{label}.content must start with {expected_heading}")
+    body = "\n".join(lines[1:]).strip()
+    return expected_heading if not body else f"{expected_heading}\n\n{body}"
+
+
+def render_requirements_sections(validation: dict[str, Any]) -> list[str]:
+    entries = validation.get("sections")
+    if not isinstance(entries, list) or not entries:
+        raise SourceError("managed Requirements must contain validation.sections")
+    sections_by_id: dict[str, str] = {}
+    rendered: list[str] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {"id", "heading", "content"}:
+            raise SourceError(
+                "each Requirements section must contain only id, heading, and content"
+            )
+        section_id = entry["id"]
+        if not isinstance(section_id, str) or not section_id:
+            raise SourceError(f"validation.sections[{index}].id must be a string")
+        if section_id in sections_by_id:
+            raise SourceError(f"duplicate Requirements section: {section_id}")
+        sections_by_id[section_id] = entry["content"]
+        rendered.append(
+            render_section(
+                entry["heading"],
+                entry["content"],
+                f"validation.sections[{index}]",
+            )
+        )
+
+    requirements = validation.get("requirements")
+    if not isinstance(requirements, list) or not requirements:
+        raise SourceError("managed Requirements must contain validation.requirements")
+    requirements_by_section: dict[str, list[tuple[str, str]]] = {
+        section_id: [] for section_id in REQUIREMENT_SECTION_BY_PREFIX.values()
+    }
+    for index, entry in enumerate(requirements):
+        if not isinstance(entry, dict) or set(entry) != {"id", "content"}:
+            raise SourceError(
+                "each requirement must contain only id and content"
+            )
+        requirement_id = entry["id"]
+        content = entry["content"]
+        if not isinstance(requirement_id, str) or not isinstance(content, str):
+            raise SourceError(f"validation.requirements[{index}] is invalid")
+        prefix = requirement_id.split("-", 1)[0]
+        section_id = REQUIREMENT_SECTION_BY_PREFIX.get(prefix)
+        if section_id is None:
+            raise SourceError(f"unsupported requirement ID: {requirement_id}")
+        requirements_by_section[section_id].append((requirement_id, content.strip()))
+
+    for section_id, section_requirements in requirements_by_section.items():
+        section_content = sections_by_id.get(section_id)
+        if section_content is None:
+            raise SourceError(f"managed Requirements is missing section: {section_id}")
+        expected_ids = sorted(
+            (requirement_id for requirement_id, _ in section_requirements),
+            key=requirement_sort_key,
+        )
+        if extract_requirement_mentions(section_content) != expected_ids:
+            raise SourceError(
+                f"Requirements section {section_id} does not match validation.requirements"
+            )
+        for requirement_id, content in section_requirements:
+            if not content or content not in section_content:
+                raise SourceError(
+                    f"Requirements section {section_id} is missing {requirement_id} content"
+                )
+    return rendered
+
+
+def render_design_sections(validation: dict[str, Any]) -> list[str]:
+    entries = validation.get("sections")
+    if not isinstance(entries, list) or not entries:
+        raise SourceError("managed Design must contain validation.sections")
+    rendered: list[str] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {"heading", "content"}:
+            raise SourceError(
+                "each Design section must contain only heading and content"
+            )
+        rendered.append(
+            render_section(
+                entry["heading"],
+                entry["content"],
+                f"validation.sections[{index}]",
+            )
+        )
+    return rendered
+
+
+def render_gate(heading: str, value: Any) -> str:
+    if not isinstance(value, dict):
+        raise SourceError(f"validation gate must be an object: {heading}")
+    return f"## {heading}\n\n```json\n{compact_json(value)}\n```"
+
+
+def render_rule_selection(input_gate: Any) -> str:
+    if not isinstance(input_gate, dict):
+        raise SourceError("validation.input_gate must be an object")
+    direct_rules = input_gate.get("direct_rules")
+    dependencies = input_gate.get("depends_on")
+    if not isinstance(direct_rules, list) or not isinstance(dependencies, list):
+        raise SourceError("Requirements Input Gate rule selection is invalid")
+    lines = ["## Rule Selection", ""]
+    for index, entry in enumerate(direct_rules):
+        if not isinstance(entry, dict):
+            raise SourceError(f"direct_rules[{index}] must be an object")
+        rule_id = entry.get("id")
+        reason = entry.get("reason")
+        if not isinstance(rule_id, str) or not isinstance(reason, str):
+            raise SourceError(f"direct_rules[{index}] is invalid")
+        lines.append(f"- Direct: `{rule_id}`。{reason.rstrip('。')}。")
+    for index, entry in enumerate(dependencies):
+        if not isinstance(entry, dict):
+            raise SourceError(f"depends_on[{index}] must be an object")
+        rule_id = entry.get("id")
+        via = entry.get("via")
+        if not isinstance(rule_id, str) or not isinstance(via, str):
+            raise SourceError(f"depends_on[{index}] is invalid")
+        lines.append(f"- Depends-on: `{rule_id}`（via `{via}`）。")
+    lines.append("- Conflict: none。")
+    return "\n".join(lines)
+
+
+def render_artifact_markdown(source: dict[str, Any]) -> str:
+    kind = source["kind"]
+    if kind not in ARTIFACT_KINDS:
+        raise SourceError("artifact Markdown rendering requires an artifact source")
+    validation = source["validation"]
+    mode = validation.get("mode")
+    if mode == "legacy_import":
+        return source["display"]["markdown"]
+    if mode != "managed":
+        raise SourceError("validation.mode must be managed or legacy_import")
+
+    blocks = [artifact_preamble(source["display"]["markdown"])]
+    if kind == "requirements":
+        input_gate = validation.get("input_gate")
+        blocks.extend(
+            [
+                render_gate("Requirements Input Gate", input_gate),
+                render_gate(
+                    "Requirements Completeness Gate",
+                    validation.get("completeness_gate"),
+                ),
+                *render_requirements_sections(validation),
+                render_rule_selection(input_gate),
+            ]
+        )
+    else:
+        blocks.extend(
+            [
+                *render_design_sections(validation),
+                render_gate("Design Coverage Gate", validation.get("coverage_gate")),
+            ]
+        )
+    return "\n\n".join(block.rstrip() for block in blocks) + "\n"
+
+
 def check_or_write(
     source_path: Path,
     output_path: Path,
@@ -313,7 +499,7 @@ def check_or_write(
     markdown = (
         render_goal_objective(source)
         if source["kind"] in GOAL_KINDS
-        else source["display"]["markdown"]
+        else render_artifact_markdown(source)
     )
     check_or_write_markdown(markdown, output_path, check)
 
@@ -410,7 +596,7 @@ def check_all(repo_root: Path) -> int:
         if source_path.is_symlink():
             raise SourceError(f"artifact source must not use a symlink: {source_path}")
         require_canonical_artifact_paths(repo_root, source_path, output_path, source)
-        check_or_write_markdown(source["display"]["markdown"], output_path, True)
+        check_or_write_markdown(render_artifact_markdown(source), output_path, True)
         checked += 1
     for workspace, kind in sorted(expected_pairs):
         source_path = canonical_source_path(repo_root, workspace, kind)
