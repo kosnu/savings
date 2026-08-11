@@ -222,9 +222,20 @@ def coverage() -> list[dict[str, str]]:
 
 
 def sections() -> list[dict[str, str]]:
+    evidence = coverage()
     return [
-        {"heading": "構造化設計", "content": "JSON正本と表示生成の境界を定義する。"},
-        {"heading": "検証方針", "content": "構造化フィールドだけを検証入力にする。"},
+        {
+            "heading": "構造化設計",
+            "content": "\n".join(
+                entry["design_evidence"] for entry in evidence
+            ),
+        },
+        {
+            "heading": "検証方針",
+            "content": "\n".join(
+                entry["verification_evidence"] for entry in evidence
+            ),
+        },
     ]
 
 
@@ -236,6 +247,7 @@ class DesignCoverageGateTest(unittest.TestCase):
         goal_scopes: list[dict[str, str]] | None = None,
         goal_baseline_scopes: list[dict[str, str]] | None = None,
         artifact_coverage: list[dict[str, str]] | None = None,
+        artifact_sections: list[dict[str, str]] | None = None,
         markdown: str = "# display\n",
         canonical_requirements: bool = True,
         with_design_baseline: bool = False,
@@ -304,7 +316,11 @@ class DesignCoverageGateTest(unittest.TestCase):
                 value = envelope(
                     "design",
                     {
-                        "sections": sections(),
+                        "sections": (
+                            artifact_sections
+                            if artifact_sections is not None
+                            else sections()
+                        ),
                         "coverage_gate": {
                             **common_gate,
                             "coverage": (
@@ -444,6 +460,33 @@ class DesignCoverageGateTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValidationError, "evidence must differ"):
             self.validate_source(kind="artifact", artifact_coverage=identical)
+
+    def test_rejects_coverage_evidence_missing_from_design_sections(self) -> None:
+        missing = coverage()
+        missing[0]["design_evidence"] = (
+            "FR-1 の構造化設計を別の根拠として実装する。"
+        )
+
+        with self.assertRaisesRegex(
+            ValidationError,
+            "design_evidence must be exactly one Design section line",
+        ):
+            self.validate_source(kind="artifact", artifact_coverage=missing)
+
+    def test_rejects_coverage_evidence_repeated_in_design_sections(self) -> None:
+        repeated_sections = sections()
+        repeated_sections[1]["content"] += (
+            f"\n{coverage()[0]['design_evidence']}"
+        )
+
+        with self.assertRaisesRegex(
+            ValidationError,
+            "design_evidence must be exactly one Design section line",
+        ):
+            self.validate_source(
+                kind="artifact",
+                artifact_sections=repeated_sections,
+            )
 
     def test_rejects_heading_only_baseline_evidence(self) -> None:
         for evidence in (

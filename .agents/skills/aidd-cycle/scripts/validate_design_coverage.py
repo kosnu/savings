@@ -124,7 +124,13 @@ def design_sections(source: dict[str, Any]) -> list[dict[str, str]]:
             raise ValidationError("duplicate Design section content")
         headings.add(heading)
         hashes.add(section_hash)
-        sections.append({"heading": heading, "content_sha256": section_hash})
+        sections.append(
+            {
+                "heading": heading,
+                "content": content,
+                "content_sha256": section_hash,
+            }
+        )
     if not sections:
         raise ValidationError("Design source has no structured sections")
     return sections
@@ -270,7 +276,11 @@ def validate_baseline_scopes(
         seen_scopes.add(scope)
 
 
-def validate_coverage(entries: Any, ids: list[str]) -> None:
+def validate_coverage(
+    entries: Any,
+    ids: list[str],
+    sections: list[dict[str, str]],
+) -> None:
     if not isinstance(entries, list):
         raise ValidationError("coverage must be an array")
     if [entry.get("id") if isinstance(entry, dict) else None for entry in entries] != ids:
@@ -308,6 +318,20 @@ def validate_coverage(entries: Any, ids: list[str]) -> None:
             or normalized_verification in seen_verification
         ):
             raise ValidationError("coverage evidence must be unique")
+        for label, evidence in (
+            ("design_evidence", normalized_design),
+            ("verification_evidence", normalized_verification),
+        ):
+            occurrences = sum(
+                normalize(line) == evidence
+                for section in sections
+                for line in section["content"].splitlines()
+            )
+            if occurrences != 1:
+                raise ValidationError(
+                    f"coverage[{index}].{label} must be exactly one "
+                    "Design section line"
+                )
         seen_design.add(normalized_design)
         seen_verification.add(normalized_verification)
 
@@ -467,11 +491,12 @@ def validate(
             "baseline_sections",
         },
     )
-    validate_coverage(manifest.get("coverage"), ids)
+    current_sections = design_sections(source)
+    validate_coverage(manifest.get("coverage"), ids, current_sections)
     validate_baseline_sections(
         manifest.get("baseline_sections"),
         baseline_sections,
-        design_sections(source),
+        current_sections,
     )
 
 
