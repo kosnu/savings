@@ -3,539 +3,264 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
+from artifact_source import serialize_source
 from validate_requirements_goal import ValidationError, validate
 
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
-RULE_MAP_PATH = REPOSITORY_ROOT / "docs/harness/rule-map.json"
-VALIDATOR_PATH = Path(__file__).with_name("validate_requirements_goal.py")
-ISSUE = "kosnu/savings#1563"
-ISSUE_URL = "https://github.com/kosnu/savings/issues/1563"
-ISSUE_UPDATED_AT = "2026-08-06T00:00:00Z"
-ISSUE_BODY = (
-    "# 言語設定を保存する\n\n"
-    "user の言語設定を `public.users.language` に保存する。\n\n"
-    "test で言語設定の保存と復元を確認する。\n"
-)
-PAYMENT_ISSUE_BODY = "payment の金額、日付、categoryを保存する。\n"
+ISSUE = "owner/repo#1639"
+ISSUE_URL = "https://github.com/owner/repo/issues/1639"
+UPDATED_AT = "2026-08-09T06:19:50Z"
+ISSUE_BODY = "user の設定を保存する。\npayment の金額を保存する。\n"
+WORKSPACE = "1639-structured-data"
 
 
-def initialize_repo(repo_root: Path) -> None:
-    subprocess.run(["git", "-C", str(repo_root), "init", "-q"], check=True)
+def run_git(repo_root: Path, *arguments: str) -> None:
     subprocess.run(
-        ["git", "-C", str(repo_root), "config", "user.name", "AIDD Test"],
+        ["git", "-C", str(repo_root), *arguments],
         check=True,
-    )
-    subprocess.run(
-        ["git", "-C", str(repo_root), "config", "user.email", "aidd@example.com"],
-        check=True,
-    )
-    subprocess.run(
-        ["git", "-C", str(repo_root), "commit", "--allow-empty", "-qm", "baseline"],
-        check=True,
+        capture_output=True,
     )
 
 
-def manifest(
-    direct_rules: list[dict[str, object]],
-    *,
-    issue_body: str = ISSUE_BODY,
-    depends_on: list[dict[str, str]] | None = None,
-    issue: str = ISSUE,
-    issue_url: str = ISSUE_URL,
-    issue_updated_at: str = ISSUE_UPDATED_AT,
-) -> dict[str, object]:
+def initialize_repo(repo_root: Path) -> Path:
+    run_git(repo_root, "init", "-q")
+    run_git(repo_root, "config", "user.name", "AIDD Test")
+    run_git(repo_root, "config", "user.email", "aidd@example.com")
+    rule_map = repo_root / "docs" / "harness" / "rule-map.json"
+    rule_map.parent.mkdir(parents=True)
+    rule_map.write_text(
+        json.dumps(
+            {
+                "rules": [
+                    {
+                        "id": "domain.user",
+                        "file": "docs/user.md",
+                        "applies_to": {
+                            "paths": [],
+                            "domains": ["user"],
+                            "activities": [],
+                            "topics": [],
+                        },
+                        "depends_on": [],
+                    },
+                    {
+                        "id": "domain.payment",
+                        "file": "docs/payment.md",
+                        "applies_to": {
+                            "paths": [],
+                            "domains": ["payment"],
+                            "activities": [],
+                            "topics": [],
+                        },
+                        "depends_on": ["policy.base"],
+                    },
+                    {
+                        "id": "policy.base",
+                        "file": "docs/base.md",
+                        "applies_to": {
+                            "paths": [],
+                            "domains": [],
+                            "activities": ["validation"],
+                            "topics": [],
+                        },
+                        "depends_on": [],
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    run_git(repo_root, "add", "docs/harness/rule-map.json")
+    run_git(repo_root, "commit", "-qm", "baseline")
+    return rule_map
+
+
+def input_gate(*, direct: bool = True) -> dict[str, object]:
     return {
         "task_context": {
             "source": "issue_body",
-            "issue": issue,
-            "url": issue_url,
-            "updated_at": issue_updated_at,
-            "body_sha256": hashlib.sha256(issue_body.encode()).hexdigest(),
+            "issue": ISSUE,
+            "url": ISSUE_URL,
+            "updated_at": UPDATED_AT,
+            "body_sha256": hashlib.sha256(ISSUE_BODY.encode()).hexdigest(),
         },
-        "direct_rules": direct_rules,
-        "depends_on": depends_on or [],
+        "direct_rules": (
+            [
+                {
+                    "id": "domain.user",
+                    "issue_evidence": "user の設定を保存する。",
+                    "match": {"field": "domains", "value": "user"},
+                    "reason": "Issueがuser domainを明示するため",
+                }
+            ]
+            if direct
+            else []
+        ),
+        "depends_on": [],
     }
 
 
-def payment_direct_rule() -> dict[str, object]:
+def source(kind: str, gate: dict[str, object], markdown: str = "# display\n") -> dict[str, object]:
     return {
-        "id": "domain.payment",
-        "issue_evidence": PAYMENT_ISSUE_BODY.strip(),
-        "match": {"field": "topics", "value": "payment"},
-        "reason": "payment domainの要求だから",
+        "schema_version": 1,
+        "kind": kind,
+        "workspace": WORKSPACE,
+        "display": {
+            "path": "goal.md" if kind == "requirements_goal" else "requirements.md",
+            "markdown": markdown,
+        },
+        "validation": {"mode": "managed", "input_gate": gate},
     }
-
-
-def user_direct_rule(issue_evidence: str | None = None) -> dict[str, object]:
-    return {
-        "id": "domain.user",
-        "issue_evidence": issue_evidence
-        or "user の言語設定を `public.users.language` に保存する。",
-        "match": {"field": "domains", "value": "user"},
-        "reason": "user domainの要求だから",
-    }
-
-
-def payment_dependencies() -> list[dict[str, str]]:
-    return [
-        {"id": "domain.amount", "via": "domain.payment"},
-        {"id": "domain.date", "via": "domain.payment"},
-        {"id": "domain.category", "via": "domain.payment"},
-    ]
 
 
 class RequirementsInputGateTest(unittest.TestCase):
-    def validate_manifest(
+    def validate_source(
         self,
-        value: dict[str, object],
+        gate: dict[str, object],
         *,
-        issue_body: str = ISSUE_BODY,
-        issue: str = ISSUE,
-        issue_url: str = ISSUE_URL,
-        issue_updated_at: str = ISSUE_UPDATED_AT,
         kind: str = "goal",
-        goal_manifest: dict[str, object] | None = None,
-        rule_map_path: Path = RULE_MAP_PATH,
-        repo_root: Path = REPOSITORY_ROOT,
+        goal_gate: dict[str, object] | None = None,
+        markdown: str = "# display\n",
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            directory_path = Path(directory)
-            issue_path = directory_path / "issue.md"
-            document_path = directory_path / (
-                "requirements.md" if kind == "artifact" else "goal.md"
-            )
-            issue_path.write_text(issue_body, encoding="utf-8")
-            document_path.write_text(
-                "## Requirements Input Gate\n\n"
-                f"```json\n{json.dumps(value, ensure_ascii=False)}\n```\n",
-                encoding="utf-8",
-            )
-            goal_path = None
-            if kind == "artifact":
-                goal_path = directory_path / "goal.md"
-                goal_path.write_text(
-                    "## Requirements Input Gate\n\n"
-                    f"```json\n{json.dumps(goal_manifest or value, ensure_ascii=False)}\n```\n",
+            repo_root = Path(directory)
+            rule_map = initialize_repo(repo_root)
+            issue_path = repo_root / "issue.md"
+            issue_path.write_text(ISSUE_BODY, encoding="utf-8")
+            if kind == "goal":
+                document = repo_root / "goal.json"
+                document.write_text(
+                    serialize_source(source("requirements_goal", gate, markdown)),
+                    encoding="utf-8",
+                )
+                goal_document = None
+            else:
+                document = (
+                    repo_root
+                    / "docs"
+                    / "ai-driven-development"
+                    / "workspaces"
+                    / WORKSPACE
+                    / "requirements.json"
+                )
+                document.parent.mkdir(parents=True)
+                document.write_text(
+                    serialize_source(source("requirements", gate, markdown)),
+                    encoding="utf-8",
+                )
+                goal_document = repo_root / "goal.json"
+                goal_document.write_text(
+                    serialize_source(
+                        source("requirements_goal", goal_gate or gate)
+                    ),
                     encoding="utf-8",
                 )
             validate(
                 issue_path,
-                document_path,
-                rule_map_path,
-                issue,
-                issue_url,
-                issue_updated_at,
+                document,
+                rule_map,
+                ISSUE,
+                ISSUE_URL,
+                UPDATED_AT,
                 kind,
                 repo_root,
-                goal_path,
+                goal_document,
             )
 
-    def test_accepts_issue_evidenced_domain_rule(self) -> None:
-        self.validate_manifest(manifest([user_direct_rule()]))
+    def test_accepts_goal_json(self) -> None:
+        self.validate_source(input_gate())
+
+    def test_accepts_artifact_with_matching_goal_json(self) -> None:
+        self.validate_source(input_gate(), kind="artifact")
 
     def test_rejects_empty_direct_rules(self) -> None:
         with self.assertRaisesRegex(ValidationError, "at least one"):
-            self.validate_manifest(manifest([]))
+            self.validate_source(input_gate(direct=False))
+
+    def test_rejects_artifact_gate_different_from_goal(self) -> None:
+        changed = input_gate()
+        changed["direct_rules"][0]["reason"] = "別の理由"
+        with self.assertRaisesRegex(ValidationError, "does not match the Goal"):
+            self.validate_source(changed, kind="artifact", goal_gate=input_gate())
+
+    def test_display_markdown_cannot_supply_rule_evidence(self) -> None:
+        gate = input_gate()
+        gate["direct_rules"][0]["issue_evidence"] = "displayだけのuser evidence"
+        with self.assertRaisesRegex(ValidationError, "not present in the Issue body"):
+            self.validate_source(
+                gate,
+                markdown="```json\ndisplayだけのuser evidence\n```\n",
+            )
 
     def test_rejects_match_value_missing_from_issue_evidence(self) -> None:
-        value = manifest(
-            [
-                {
-                    "id": "domain.payment",
-                    "issue_evidence": "設定画面の説明文を変更する。",
-                    "match": {"field": "topics", "value": "payment"},
-                    "reason": "直前の会話でpaymentが話題だったため",
-                }
-            ],
-            issue_body="設定画面の説明文を変更する。\n",
-        )
-
-        with self.assertRaisesRegex(
-            ValidationError,
-            "match.value must be present in Issue evidence",
-        ):
-            self.validate_manifest(value, issue_body="設定画面の説明文を変更する。\n")
-
-    def test_rejects_recent_msw_context_without_issue_evidence(self) -> None:
-        with self.assertRaisesRegex(
-            ValidationError,
-            "explicit_surface must be explicitly present in Issue evidence",
-        ):
-            self.validate_manifest(
-                manifest(
-                    [
-                        {
-                            "id": "web.msw-handlers",
-                            "issue_evidence": (
-                                "test で言語設定の保存と復元を確認する。"
-                            ),
-                            "match": {"field": "topics", "value": "test"},
-                            "reason": "直前の会話で更新済みだったため",
-                            "explicit_surface": "msw",
-                        }
-                    ]
-                )
-            )
-
-    def test_accepts_complete_dependency_closure(self) -> None:
-        self.validate_manifest(
-            manifest(
-                [payment_direct_rule()],
-                issue_body=PAYMENT_ISSUE_BODY,
-                depends_on=payment_dependencies(),
-            ),
-            issue_body=PAYMENT_ISSUE_BODY,
-        )
-
-    def test_accepts_dependency_that_is_also_a_direct_rule(self) -> None:
-        issue_body = "payment amount date category を変更する。\n"
-        direct_rules = [
-            {
-                "id": rule_id,
-                "issue_evidence": issue_body.strip(),
-                "match": {"field": "topics", "value": topic},
-                "reason": f"{topic} domainの要求だから",
-            }
-            for rule_id, topic in [
-                ("domain.payment", "payment"),
-                ("domain.amount", "amount"),
-                ("domain.date", "date"),
-                ("domain.category", "category"),
-            ]
-        ]
-
-        self.validate_manifest(
-            manifest(direct_rules, issue_body=issue_body),
-            issue_body=issue_body,
-        )
-
-    def test_accepts_shared_dependency_once(self) -> None:
-        issue_body = "payment budget amount date category を変更する。\n"
-        direct_rules = [
-            payment_direct_rule(),
-            {
-                "id": "domain.monthly-budget",
-                "issue_evidence": issue_body.strip(),
-                "match": {"field": "topics", "value": "budget"},
-                "reason": "budget domainの要求だから",
-            },
-        ]
-        direct_rules[0]["issue_evidence"] = issue_body.strip()
-        dependencies = [
-            {"id": "domain.amount", "via": "domain.payment"},
-            {"id": "domain.date", "via": "domain.monthly-budget"},
-            {"id": "domain.category", "via": "domain.payment"},
-            {"id": "policy.temporal-data", "via": "domain.monthly-budget"},
-        ]
-
-        self.validate_manifest(
-            manifest(
-                direct_rules,
-                issue_body=issue_body,
-                depends_on=dependencies,
-            ),
-            issue_body=issue_body,
-        )
-
-    def test_rejects_missing_dependency_closure(self) -> None:
-        value = manifest([payment_direct_rule()], issue_body=PAYMENT_ISSUE_BODY)
-
-        with self.assertRaisesRegex(ValidationError, "missing required nodes"):
-            self.validate_manifest(value, issue_body=PAYMENT_ISSUE_BODY)
-
-    def test_rejects_dependency_with_unselected_via(self) -> None:
-        dependencies = payment_dependencies()
-        dependencies[0] = {
-            "id": "domain.amount",
-            "via": "domain.monthly-budget",
-        }
-        value = manifest(
-            [payment_direct_rule()],
-            issue_body=PAYMENT_ISSUE_BODY,
-            depends_on=dependencies,
-        )
-
-        with self.assertRaisesRegex(ValidationError, "via must reference a selected"):
-            self.validate_manifest(value, issue_body=PAYMENT_ISSUE_BODY)
-
-    def test_rejects_dependency_outside_required_closure(self) -> None:
-        value = manifest(
-            [
-                {
-                    "id": "domain.user",
-                    "issue_evidence": "user の設定を変更する。",
-                    "match": {"field": "domains", "value": "user"},
-                    "reason": "user domainの要求だから",
-                }
-            ],
-            issue_body="user の設定を変更する。\n",
-            depends_on=[{"id": "domain.amount", "via": "domain.payment"}],
-        )
-
-        with self.assertRaisesRegex(ValidationError, "outside the required closure"):
-            self.validate_manifest(value, issue_body="user の設定を変更する。\n")
-
-    def test_rejects_duplicate_dependency(self) -> None:
-        dependencies = payment_dependencies()
-        dependencies.append({"id": "domain.amount", "via": "domain.payment"})
-        value = manifest(
-            [payment_direct_rule()],
-            issue_body=PAYMENT_ISSUE_BODY,
-            depends_on=dependencies,
-        )
-
-        with self.assertRaisesRegex(ValidationError, "duplicate rule-map node"):
-            self.validate_manifest(value, issue_body=PAYMENT_ISSUE_BODY)
+        gate = input_gate()
+        gate["direct_rules"][0]["issue_evidence"] = "設定を保存する。"
+        with self.assertRaisesRegex(ValidationError, "match.value"):
+            self.validate_source(gate)
 
     def test_rejects_manifest_issue_metadata_mismatch(self) -> None:
-        value = manifest([user_direct_rule()], issue="kosnu/savings#1")
-
-        with self.assertRaisesRegex(ValidationError, "does not match the fetched"):
-            self.validate_manifest(value)
-
-    def test_rejects_manifest_url_metadata_mismatch(self) -> None:
-        value = manifest(
-            [user_direct_rule()],
-            issue_url="https://github.com/kosnu/savings/issues/1",
-        )
-
-        with self.assertRaisesRegex(ValidationError, "does not match the fetched"):
-            self.validate_manifest(value)
-
-    def test_rejects_manifest_updated_at_metadata_mismatch(self) -> None:
-        value = manifest(
-            [user_direct_rule()],
-            issue_updated_at="2026-08-07T00:00:00Z",
-        )
-
-        with self.assertRaisesRegex(ValidationError, "does not match the fetched"):
-            self.validate_manifest(value)
-
-    def test_rejects_noncanonical_issue_url(self) -> None:
-        mismatched_url = "https://github.com/kosnu/savings/issues/999"
-        value = manifest([user_direct_rule()], issue_url=mismatched_url)
-
-        with self.assertRaisesRegex(ValidationError, "URL does not match"):
-            self.validate_manifest(value, issue_url=mismatched_url)
-
-    def test_rejects_invalid_issue_updated_at(self) -> None:
-        value = manifest([user_direct_rule()], issue_updated_at="not-a-timestamp")
-
-        with self.assertRaisesRegex(ValidationError, "RFC 3339 UTC"):
-            self.validate_manifest(value, issue_updated_at="not-a-timestamp")
-
-    def test_rejects_incomplete_issue_updated_at(self) -> None:
-        value = manifest([user_direct_rule()], issue_updated_at="2026-08-06Z")
-
-        with self.assertRaisesRegex(ValidationError, "RFC 3339 UTC"):
-            self.validate_manifest(value, issue_updated_at="2026-08-06Z")
+        gate = input_gate()
+        gate["task_context"]["issue"] = "owner/repo#1640"
+        with self.assertRaisesRegex(ValidationError, "does not match"):
+            self.validate_source(gate)
 
     def test_rejects_non_issue_task_context_key(self) -> None:
-        value = manifest([user_direct_rule()])
-        value["conversation"] = "直前の会話"
+        gate = input_gate()
+        gate["task_context"]["conversation"] = "not allowed"
+        with self.assertRaisesRegex(ValidationError, "must contain only"):
+            self.validate_source(gate)
 
-        with self.assertRaisesRegex(ValidationError, "non-Issue input keys"):
-            self.validate_manifest(value)
+    def test_accepts_complete_dependency_closure(self) -> None:
+        gate = input_gate()
+        gate["direct_rules"] = [
+            {
+                "id": "domain.payment",
+                "issue_evidence": "payment の金額を保存する。",
+                "match": {"field": "domains", "value": "payment"},
+                "reason": "Issueがpayment domainを明示するため",
+            }
+        ]
+        gate["depends_on"] = [{"id": "policy.base", "via": "domain.payment"}]
+        self.validate_source(gate)
 
-    def test_rejects_noncanonical_rule_map_copy(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            copied_rule_map = Path(directory) / "rule-map.json"
-            copied_rule_map.write_bytes(RULE_MAP_PATH.read_bytes())
-            with self.assertRaisesRegex(ValidationError, "canonical repository path"):
-                self.validate_manifest(
-                    manifest([user_direct_rule()]),
-                    rule_map_path=copied_rule_map,
-                )
+    def test_rejects_missing_dependency_closure(self) -> None:
+        gate = input_gate()
+        gate["direct_rules"] = [
+            {
+                "id": "domain.payment",
+                "issue_evidence": "payment の金額を保存する。",
+                "match": {"field": "domains", "value": "payment"},
+                "reason": "Issueがpayment domainを明示するため",
+            }
+        ]
+        with self.assertRaisesRegex(ValidationError, "missing required nodes"):
+            self.validate_source(gate)
 
-    def test_rejects_canonical_rule_map_symlink(self) -> None:
+    def test_rejects_legacy_import_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
-            initialize_repo(repo_root)
-            rule_map_path = repo_root / "docs/harness/rule-map.json"
-            rule_map_path.parent.mkdir(parents=True)
-            rule_map_path.symlink_to(RULE_MAP_PATH)
-            with self.assertRaisesRegex(ValidationError, "must not contain symlinks"):
-                self.validate_manifest(
-                    manifest([user_direct_rule()]),
-                    rule_map_path=rule_map_path,
-                    repo_root=repo_root,
-                )
-
-    def test_cli_rejects_malformed_canonical_rule_map_without_traceback(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
-            initialize_repo(repo_root)
-            rule_map_path = repo_root / "docs/harness/rule-map.json"
-            rule_map_path.parent.mkdir(parents=True)
-            rule_map_path.write_text(
-                json.dumps(
-                    {
-                        "rules": [
-                            {
-                                "id": "domain.user",
-                                "applies_to": None,
-                                "depends_on": [],
-                            }
-                        ]
-                    }
-                ),
-                encoding="utf-8",
-            )
+            rule_map = initialize_repo(repo_root)
             issue_path = repo_root / "issue.md"
-            document_path = repo_root / "goal.md"
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
-            document_path.write_text(
-                "## Requirements Input Gate\n\n"
-                f"```json\n{json.dumps(manifest([user_direct_rule()]), ensure_ascii=False)}\n```\n",
-                encoding="utf-8",
-            )
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    str(VALIDATOR_PATH),
-                    "--issue",
+            value = source("requirements_goal", input_gate())
+            value["validation"]["mode"] = "legacy_import"
+            document = repo_root / "goal.json"
+            document.write_text(serialize_source(value), encoding="utf-8")
+            with self.assertRaisesRegex(ValidationError, "mode=managed"):
+                validate(
+                    issue_path,
+                    document,
+                    rule_map,
                     ISSUE,
-                    "--issue-url",
                     ISSUE_URL,
-                    "--issue-updated-at",
-                    ISSUE_UPDATED_AT,
-                    "--issue-body",
-                    str(issue_path),
-                    "--document",
-                    str(document_path),
-                    "--rule-map",
-                    str(rule_map_path),
-                    "--repo-root",
-                    str(repo_root),
-                    "--kind",
+                    UPDATED_AT,
                     "goal",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("domain.user.applies_to must be an object", result.stderr)
-        self.assertTrue(
-            result.stderr.rstrip().endswith(
-                "requirements input gate: failed: "
-                "domain.user.applies_to must be an object"
-            )
-        )
-
-    def test_artifact_accepts_the_same_goal_gate(self) -> None:
-        value = manifest([user_direct_rule()])
-        self.validate_manifest(value, kind="artifact", goal_manifest=value)
-
-    def test_artifact_rejects_a_different_valid_goal_gate(self) -> None:
-        issue_body = "user payment amount date category を変更する。\n"
-        goal_rule = user_direct_rule(issue_body.strip())
-        artifact_rule = payment_direct_rule()
-        artifact_rule["issue_evidence"] = issue_body.strip()
-        goal_value = manifest([goal_rule], issue_body=issue_body)
-        artifact_value = manifest(
-            [artifact_rule],
-            issue_body=issue_body,
-            depends_on=payment_dependencies(),
-        )
-
-        with self.assertRaisesRegex(ValidationError, "does not match the Goal"):
-            self.validate_manifest(
-                artifact_value,
-                issue_body=issue_body,
-                kind="artifact",
-                goal_manifest=goal_value,
-            )
-
-    def test_cli_artifact_accepts_matching_goal_gate(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            directory_path = Path(directory)
-            issue_path = directory_path / "issue.md"
-            goal_path = directory_path / "goal.md"
-            artifact_path = directory_path / "requirements.md"
-            value = manifest([user_direct_rule()])
-            gate = (
-                "## Requirements Input Gate\n\n"
-                f"```json\n{json.dumps(value, ensure_ascii=False)}\n```\n"
-            )
-            issue_path.write_text(ISSUE_BODY, encoding="utf-8")
-            goal_path.write_text(gate, encoding="utf-8")
-            artifact_path.write_text(gate, encoding="utf-8")
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    str(VALIDATOR_PATH),
-                    "--issue",
-                    ISSUE,
-                    "--issue-url",
-                    ISSUE_URL,
-                    "--issue-updated-at",
-                    ISSUE_UPDATED_AT,
-                    "--issue-body",
-                    str(issue_path),
-                    "--document",
-                    str(artifact_path),
-                    "--rule-map",
-                    str(RULE_MAP_PATH),
-                    "--repo-root",
-                    str(REPOSITORY_ROOT),
-                    "--kind",
-                    "artifact",
-                    "--goal-document",
-                    str(goal_path),
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-
-        self.assertEqual(result.returncode, 0, result.stderr)
-
-    def test_cli_accepts_fetched_issue_metadata(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            directory_path = Path(directory)
-            issue_path = directory_path / "issue.md"
-            document_path = directory_path / "goal.md"
-            issue_path.write_text(ISSUE_BODY, encoding="utf-8")
-            document_path.write_text(
-                "## Requirements Input Gate\n\n"
-                f"```json\n{json.dumps(manifest([user_direct_rule()]), ensure_ascii=False)}\n```\n",
-                encoding="utf-8",
-            )
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    str(VALIDATOR_PATH),
-                    "--issue",
-                    ISSUE,
-                    "--issue-url",
-                    ISSUE_URL,
-                    "--issue-updated-at",
-                    ISSUE_UPDATED_AT,
-                    "--issue-body",
-                    str(issue_path),
-                    "--document",
-                    str(document_path),
-                    "--rule-map",
-                    str(RULE_MAP_PATH),
-                    "--repo-root",
-                    str(REPOSITORY_ROOT),
-                    "--kind",
-                    "goal",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), "requirements input gate: ok")
+                    repo_root,
+                )
 
 
 if __name__ == "__main__":

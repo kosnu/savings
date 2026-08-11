@@ -8,34 +8,34 @@ import hashlib
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from artifact_source import SourceError, load_source, load_source_bytes
 from git_baseline import (
     GitBaselineError,
-    canonical_artifact_path,
-    load_git_head_artifact,
+    canonical_source_path,
+    load_git_head_source,
     require_canonical_worktree_path,
     validate_workspace_identity,
 )
-from requirement_ids import (
+from structured_ids import (
     REQUIRED_REQUIREMENTS_SECTIONS,
-    extract_required_requirements_sections,
-    extract_requirement_items,
     extract_requirement_mentions,
     is_requirement_id,
-    normalize_markdown_text,
+    normalize_structured_text,
     requirement_sort_key,
-)
-
-
-GATE_PATTERN = re.compile(
-    r"(?ms)^## Requirements Completeness Gate\s*$.*?```json\s*\n(.*?)\n```"
 )
 
 
 class ValidationError(ValueError):
     pass
+
+
+@dataclass(frozen=True)
+class StructuredContent:
+    content: str
 
 
 RETIREMENT_TERMS = {
@@ -113,18 +113,10 @@ def require_canonical_input(
         raise ValidationError(str(error)) from error
 
 
-def extract_manifest(document: str) -> dict[str, Any]:
-    match = GATE_PATTERN.search(document)
-    if match is None:
-        raise ValidationError("Requirements Completeness Gate JSON block is missing")
-    try:
-        manifest = json.loads(match.group(1))
-    except json.JSONDecodeError as error:
-        raise ValidationError(
-            f"Requirements Completeness Gate JSON is invalid: {error}"
-        ) from error
+def extract_manifest(source: dict[str, Any]) -> dict[str, Any]:
+    manifest = source["validation"].get("completeness_gate")
     if not isinstance(manifest, dict):
-        raise ValidationError("Requirements Completeness Gate must be a JSON object")
+        raise ValidationError("validation.completeness_gate must be an object")
     if set(manifest) != {
         "issue_body_sha256",
         "workspace",
@@ -141,14 +133,57 @@ def extract_manifest(document: str) -> dict[str, Any]:
 
 
 def content_sha256(value: str) -> str:
-    return hashlib.sha256(normalize_markdown_text(value).encode("utf-8")).hexdigest()
+    return hashlib.sha256(normalize_structured_text(value).encode("utf-8")).hexdigest()
+
+
+def structured_requirements(source: dict[str, Any]) -> dict[str, StructuredContent]:
+    entries = source["validation"].get("requirements")
+    if not isinstance(entries, list):
+        raise ValidationError("validation.requirements must be an array")
+    items: dict[str, StructuredContent] = {}
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {"id", "content"}:
+            raise ValidationError(
+                "each validation.requirements entry must contain only id and content"
+            )
+        requirement_id = require_string(entry["id"], f"requirements[{index}].id")
+        content = require_string(entry["content"], f"requirements[{index}].content")
+        if not is_requirement_id(requirement_id):
+            raise ValidationError(f"invalid structured requirement ID: {requirement_id}")
+        if requirement_id in items:
+            raise ValidationError(f"duplicate structured requirement: {requirement_id}")
+        items[requirement_id] = StructuredContent(content)
+    if list(items) != sorted(items, key=requirement_sort_key):
+        raise ValidationError("structured requirements must use canonical ID order")
+    return items
+
+
+def structured_sections(source: dict[str, Any]) -> dict[str, StructuredContent]:
+    entries = source["validation"].get("sections")
+    if not isinstance(entries, list):
+        raise ValidationError("validation.sections must be an array")
+    sections: dict[str, StructuredContent] = {}
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {"id", "heading", "content"}:
+            raise ValidationError(
+                "each validation.sections entry must contain only id, heading, and content"
+            )
+        section_id = require_string(entry["id"], f"sections[{index}].id")
+        require_string(entry["heading"], f"sections[{index}].heading")
+        content = require_string(entry["content"], f"sections[{index}].content")
+        if section_id in sections:
+            raise ValidationError(f"duplicate structured section: {section_id}")
+        sections[section_id] = StructuredContent(content)
+    expected_order = [
+        section_id for section_id in REQUIRED_REQUIREMENTS_SECTIONS if section_id in sections
+    ]
+    if list(sections) != expected_order:
+        raise ValidationError("structured sections must use canonical section order")
+    return sections
 
 
 def baseline_item_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
-    try:
-        items = extract_requirement_items(baseline_bytes.decode("utf-8"))
-    except ValueError as error:
-        raise ValidationError(str(error)) from error
+    items = structured_requirements(load_source_bytes(baseline_bytes, "requirements"))
     if not items:
         raise ValidationError(
             "Git HEAD Requirements baseline has no stable requirement definitions"
@@ -160,15 +195,7 @@ def baseline_item_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
 
 
 def baseline_section_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
-    try:
-        sections = extract_required_requirements_sections(
-            baseline_bytes.decode("utf-8"),
-            require_all=False,
-        )
-    except ValueError as error:
-        raise ValidationError(
-            f"Git HEAD Requirements baseline is structurally incomplete: {error}"
-        ) from error
+    sections = structured_sections(load_source_bytes(baseline_bytes, "requirements"))
     return [
         {"id": section_id, "content_sha256": content_sha256(sections[section_id].content)}
         for section_id in REQUIRED_REQUIREMENTS_SECTIONS
@@ -443,18 +470,26 @@ def validate(
         require_canonical_input(
             repo_root,
             document_path,
-            canonical_artifact_path(Path(), workspace, "requirements.md"),
-            "Requirements artifact",
+            canonical_source_path(Path(), workspace, "requirements"),
+            "Requirements source",
         )
+        source = load_source(document_path, "requirements")
+    elif document_kind == "goal":
+        source = load_source(document_path, "requirements_goal")
+    else:
+        raise ValidationError("document kind must be goal or artifact")
+    if source["workspace"] != workspace:
+        raise ValidationError("source workspace does not match --workspace")
+    if source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
     issue_body_bytes = issue_body_path.read_bytes()
     issue_body = issue_body_bytes.decode("utf-8")
-    document = document_path.read_text(encoding="utf-8")
-    _, baseline_bytes = load_git_head_artifact(
+    _, baseline_bytes = load_git_head_source(
         repo_root,
         workspace,
-        "requirements.md",
+        "requirements",
     )
-    manifest = extract_manifest(document)
+    manifest = extract_manifest(source)
 
     if manifest.get("workspace") != workspace:
         raise ValidationError("manifest workspace does not match --workspace")
@@ -465,10 +500,7 @@ def validate(
     baseline = validate_baseline(manifest.get("baseline"), baseline_bytes)
     baseline_items = baseline["requirements"]
     baseline_sections = baseline["sections"]
-    try:
-        current_items = extract_requirement_items(document)
-    except ValueError as error:
-        raise ValidationError(str(error)) from error
+    current_items = structured_requirements(source)
     statuses = validate_requirements_manifest(
         manifest.get("requirements"), baseline_items, issue_body, current_items
     )
@@ -477,12 +509,13 @@ def validate(
         set(baseline_items),
         issue_body,
     )
-    current_sections = None
-    if document_kind == "artifact":
-        try:
-            current_sections = extract_required_requirements_sections(document)
-        except ValueError as error:
-            raise ValidationError(str(error)) from error
+    current_sections = structured_sections(source) if document_kind == "artifact" else None
+    if current_sections is not None and list(current_sections) != list(
+        REQUIRED_REQUIREMENTS_SECTIONS
+    ):
+        raise ValidationError(
+            "Requirements artifact must contain every canonical structured section"
+        )
     section_statuses = validate_sections_manifest(
         manifest.get("sections"), baseline_sections, issue_body, current_sections
     )
@@ -539,7 +572,12 @@ def validate(
             )
 
     assert goal_document_path is not None
-    goal_manifest = extract_manifest(goal_document_path.read_text(encoding="utf-8"))
+    goal_source = load_source(goal_document_path, "requirements_goal")
+    if goal_source["workspace"] != workspace:
+        raise ValidationError("Goal source workspace does not match --workspace")
+    if goal_source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
+    goal_manifest = extract_manifest(goal_source)
     if manifest != goal_manifest:
         raise ValidationError(
             "artifact Requirements Completeness Gate does not match the Goal"
@@ -572,6 +610,7 @@ def main() -> int:
         UnicodeDecodeError,
         json.JSONDecodeError,
         GitBaselineError,
+        SourceError,
         ValidationError,
     ) as error:
         print(f"requirements completeness gate: failed: {error}", file=sys.stderr)

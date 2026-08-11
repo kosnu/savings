@@ -30,8 +30,8 @@ when_to_read:
 
 ## Inputs
 
-- Requirements / PRD:
-- Design Doc:
+- Requirements / PRD: canonical `requirements.json`と生成済み`requirements.md`（read-only）
+- Design Doc: canonical `design.json`と生成済み`design-doc.md`（read-only）
 - Requirements Completeness Gate検証結果:
 - Design Coverage Gate検証結果:
 - 関連Issue / PR:
@@ -72,6 +72,7 @@ when_to_read:
 - [ ] Design Docの方針から逸脱していない
 - [ ] Requirements / PRDとDesign Docの意図・制約・対象外から解釈を広げていない
 - [ ] Requirements Completeness GateとDesign Coverage Gateのartifact検証がGit `HEAD`のcanonical baselineに対して成功し、全要求項目・主要Requirements section・要求別Design coverage・前回Design sectionが追跡されている
+- [ ] renderer checkが成功し、JSON正本と生成Markdown表示が一致している
 - [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントから逸脱していない
 - [ ] Build / Verify工程中に発見した検証失敗・整合性問題を工程内で解消している
 - [ ] 関連テストが追加・更新されている
@@ -102,6 +103,7 @@ when_to_read:
 - 無関係なリファクタをしない
 - 既存の設計・命名・ディレクトリ構成に合わせる
 - Requirements / PRDとDesign Docで決まっていない仕様、対象機能、成功条件を実装で補わない
+- Requirements / DesignのJSON正本と生成MarkdownをBuild / Verifyで変更しない
 - ユーザーに表示される主要文言はDesign Docで決まった内容から勝手に変えない
 - 決定済みの上限値・閾値・文言内数値は二重管理しない
 - 実装方式を変えたテストでは、旧方式の不要なmock、setup、expectationを残さない

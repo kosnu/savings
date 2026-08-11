@@ -56,7 +56,12 @@ definition and not as output skeletons.
    copying their full text. Every Done, Verification, and Stop condition must be
    traceable to the workflow, matching template, selected repository rules, or
    an explicit user constraint.
-5. Set the Goal with `create_goal`. In orchestrated use, include the
+5. For Requirements and Design, serialize that packet and the structured gates
+   as `requirements_goal` or `design_goal` JSON, validate the JSON, and render
+   `display.markdown` for the Goal objective. The JSON is retained as the
+   comparison source until the phase artifact passes; Goal Markdown is not a
+   validator input.
+6. Set the Goal with `create_goal`. In orchestrated use, include the
    workflow-defined cycle identity, phase inputs, artifact references, and
    current phase supplied by `aidd-cycle`. Keep cycle control and next-Goal
    creation in `aidd-cycle`.
@@ -84,7 +89,7 @@ For an Intent / Requirements Goal:
   `.agents/skills/aidd-cycle/SKILL.md`. The validator must receive the repository
   root and reject any `--rule-map` other than the non-symlink canonical
   `docs/harness/rule-map.json` path.
-- Treat a new-cycle `requirements.md` as a complete replacement for the current
+- Treat a new-cycle `requirements.json` as a complete replacement for the current
   Issue, not a document for only the new or changed Issue fragment. Resolve the
   previous canonical Requirements from Git `HEAD`; do not let the Goal author
   choose whether a baseline exists or which file is the baseline.
@@ -95,9 +100,9 @@ For an Intent / Requirements Goal:
   retire it without negating that decision. Each changed or new requirement's
   exact Issue evidence must occur in that requirement definition and may not
   map to another requirement. Include substantive definitions for
-  every resulting ID outside the gate. Require every canonical section in the generated `requirements.md` to
-  use its own level-two heading; one heading cannot satisfy multiple section
-  IDs. Each changed or new section's evidence must occur in that section and
+  every resulting ID in `validation.requirements`. Require every canonical
+  section in generated `requirements.json` to use its own structured entry.
+  Each changed or new section's evidence must occur in that entry and
   may not map to another section. Validate the proposed Goal with
   the `--kind goal` command.
 - Preserve the exact validated Goal until artifact completion. Require the
@@ -123,36 +128,35 @@ they do not define Goal or artifact scope.
 
 For a Design / Plan Goal:
 
-- Require the current canonical workspace `requirements.md` to have passed both
+- Require the current canonical workspace `requirements.json` to have passed both
   Requirements artifact gates. Reject a caller-supplied copy, temporary path,
   or symlink alias; do not construct Design from a locally narrowed upstream
   artifact.
-- Treat the complete current `requirements.md` as the Goal scope. A requirement
+- Treat the complete current `requirements.json` as the Goal scope. A requirement
   added in the current cycle is a delta to integrate, not permission to design
   only that requirement.
 - Calculate the Requirements SHA-256 and collect every stable `FR-*`, `NFR-*`,
   and `AC-*` identifier. Include one separate substantive design and
   verification scope entry for every ID in the template's Design Coverage
-  Gate. Each scope source line must contain only its target ID; grouped or
+  Gate. Each scope entry must contain only its target ID; grouped or
   generic coverage is invalid.
 - Before `create_goal`, validate the Goal with the `--kind goal` command defined
   in `.agents/skills/aidd-cycle/SKILL.md`.
-- Resolve the committed previous-cycle Design Doc from the canonical workspace
+- Resolve the committed previous-cycle `design.json` from the canonical workspace
   path in Git `HEAD`, not from a caller-supplied file. Require every prior
-  level-two section to have its own physical, heading-bearing baseline scope
-  line in the Goal, then be classified as exact-content preserved or explicitly
-  replaced with heading-bearing evidence on its own physical line in the new
-  Design Doc. A baseline evidence line must not name another distinct baseline
-  heading.
-- Require the output `design-doc.md` to resolve every identifier through design
-  and verification evidence on a unique source line that contains only that
+  structured section to have its own heading-bearing baseline scope entry in
+  the Goal JSON, then be classified as exact-content preserved or explicitly
+  replaced with heading-bearing evidence in the new Design JSON.
+- Require the output `design.json` to resolve every identifier through design
+  and verification evidence in a unique entry that contains only that
   identifier. Each ID gets its own entry; omission, grouping, and generic
   shared evidence are invalid.
 - Stop when ID-bearing or heading-bearing evidence is structurally valid but
   does not actually resolve that specific requirement or prior section.
 
-Before setting a Build / Verify Goal, require the current `requirements.md` and
-`design-doc.md` to pass their artifact completeness commands. Do not treat
+Before setting a Build / Verify Goal, require the current `requirements.json`
+and `design.json` to pass their artifact completeness commands and require
+renderer checks for `requirements.md` and `design-doc.md`. Do not treat
 existing files or completed phase Goals alone as evidence that the complete
 upstream inputs remain covered.
 

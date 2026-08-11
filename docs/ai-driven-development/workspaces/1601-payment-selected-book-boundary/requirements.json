@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "kind": "requirements",
+  "workspace": "1601-payment-selected-book-boundary",
+  "display": {
+    "path": "requirements.md",
+    "markdown": "---\ntitle: \"Requirements: 支払い操作を選択中Bookの境界へ統一する\"\ndoc_type: requirements\nstatus: accepted\narea: web\napplies_to:\n  - apps/web/src/features/books\n  - apps/web/src/features/payments\n  - docs/harness/domain/book.md\n  - docs/harness/domain/payment.md\ntopics:\n  - ai-driven-development\n  - requirements\n  - book\n  - payment\n  - authorization\n  - query-cache\nwhen_to_read:\n  - Issue #1601の要求を設計、実装、検証するとき\n  - 支払い操作の選択中Book境界とmembership認可の責務差を確認するとき\n---\n\n# Requirements: 支払い操作を選択中Bookの境界へ統一する\n\n## 1. 文書の位置づけ\n\n- Initial input: GitHub Issue #1601\n- Cycle ID: `AIDD-1601-20260728-01`\n- Artifact lineage: `docs/ai-driven-development/workspaces/1601-payment-selected-book-boundary/`\n- Related issues: GitHub Issue #1209, GitHub Issue #1591\n\nこの文書は、Issue #1601と、ユーザーによる今回のAIDD cycle実行指示をRequirementsへ展開する。Issue内で未チェックだった実装・検証の自律範囲は、今回の明示的なcycle実行指示によって後続工程まで許可されたものとして扱う。\n\n## 2. 背景\n\n支払いを含むBook-owned dataは、Issue #1209でユーザー所有からBook所有へ移行した。現在のWeb UIにはBookを追加・選択・切り替える操作がなく、認証ユーザーのdefault Bookが唯一の操作対象である。\n\n一方、DBとRLSは複数のBook membershipを許容する。現行Web実装では、支払い作成はDBによるdefault Book補完に依存し、一覧・詳細・更新・削除はmembership RLSが許可する全Bookを操作対象にし得る。よくある支払いだけはdefault Book IDを明示しているため、支払い機能内で操作境界が統一されていない。\n\n## 3. 解決したい課題\n\n- membershipによる認可と、ユーザーが現在操作しているBookの選択境界を分離する。\n- 支払いの作成、一覧、詳細、更新、削除、よくある支払い候補を、同じ選択中Bookへ限定する。\n- 支払いquery cacheをBookごとに分離し、将来Bookが切り替わっても別Bookの結果を再利用しない。\n- 現在のdefault Bookだけを操作する体験を変えず、将来のBook選択UIを先行実装しない。\n\n## 4. 対象ユーザーと利用シーン\n\n### 対象ユーザー\n\n- 認証済みで、現在のdefault Bookへ支払いを記録・確認・変更・削除するユーザー。\n\n### 利用シーン\n\n- 支払いを作成し、その支払いが現在のdefault Bookに保存される。\n- 対象月の支払い一覧を見て、現在のdefault Bookの支払いだけを確認する。\n- 一覧から支払い詳細を開き、同じBookに属する支払いだけを更新または削除する。\n- 支払い作成フォームで、現在のdefault Bookの履歴だけから抽出された「よくある支払い」を選ぶ。\n- 将来、選択中Bookの解決結果が変わった場合に、以前のBookの支払いcacheを表示しない。\n\n## 5. ユーザーストーリー\n\n- ユーザーとして、現在操作中のBookにだけ支払いを作成したい。そうすることで、意図しないBookへ支払いが保存されない。\n- ユーザーとして、一覧と詳細で現在操作中のBookの支払いだけを見たい。そうすることで、別Bookの支払いが混在しない。\n- ユーザーとして、現在操作中のBookに属する支払いだけを更新・削除したい。そうすることで、アクセス権があっても選択していないBookを誤操作しない。\n- ユーザーとして、よくある支払いを現在操作中のBookの履歴だけから選びたい。\n- ユーザーとして、現在のdefault Book運用では従来と同じ画面と操作を使い続けたい。\n\n## 6. スコープ\n\n### 対象\n\n- Webアプリケーションで一意に解決される選択中Book。\n- 現在のdefault Bookを選択中Bookとして扱う接続。\n- 支払いの作成、一覧、詳細、更新、削除の選択中Book限定。\n- Issue #1591のよくある支払い候補取得の選択中Book限定。\n- 支払い一覧、詳細、候補のquery keyとmutation後のcache invalidation。\n- membership認可と選択中Book操作境界に関するBook・Payment domain ruleの同期。\n- 上記境界を確認するunit / integration test。\n\n### 対象外\n\n- Bookの追加、選択、切り替えUIまたは選択状態の永続化。\n- Book共有、招待、メンバー管理、ロール。\n- Category、Budget、月次集計機能全体の選択中Book対応。\n- DB schema、RLS、認証方式、Supabase API契約の変更。\n- Issue #1591の候補抽出条件、表示UI、選択時のフォーム挙動の変更。\n- 新規依存の追加。\n\n## 7. Rule Selection\n\n### 作業分類\n\n- path: `apps/web/src/features/books/**`, `apps/web/src/features/payments/**`, `docs/harness/domain/{book,payment}.md`\n- domain: `book`, `payment`, `user`, `amount`, `date`, `category`, `web-cache`\n- activity: `write_prd`, `change_payment_behavior`, `change_query`, `change_mutation`, `change_cache_invalidation`\n- topic: `selected-book`, `authorization`, `payment`, `react-query`, `cache`\n\n### Selected nodes\n\n- `ai-driven.workflow` -> `docs/ai-driven-development/workflow.md`: Requirementsの責務と後続工程のread-only境界。\n- `ai-driven.issue-guidelines` -> `docs/ai-driven-development/issue-guidelines.md`: Issueの意図とDesign判断の分離。\n- `domain.book` -> `docs/harness/domain/book.md`: default Book、membership、Book ownershipの境界。\n- `domain.payment` -> `docs/harness/domain/payment.md`: 支払いの所有先とCRUD規則。\n- `web.query-cache` -> `apps/web/docs/policies/query-cache.md`: Book別cacheとmutation後再取得。\n- `documentation.policy` -> `docs/harness/policies/documentation-policy.md`: Requirementsとdomain docsの責務、front matter。\n\n### Depends-on nodes\n\n- `ai-driven.overview`: Goalと成果物の分離。\n- `domain.user`: 認証ユーザーとBook membershipの前提。\n- `domain.amount`: 支払い金額の既存規則。\n- `domain.date`: 支払い日と月範囲の既存規則。\n- `domain.category`: 支払いとカテゴリが同じBookに属する規則。\n\n### Conflict decision\n\n- `domain.book`の暫定監督ルールに従い、現在はdefault Bookを唯一の選択中Bookとする。\n- Issue #1601は既存の複数Book membershipを明示的に対象とするため、membershipが許可する全Bookと操作対象Bookを同一視しない。\n- DBのdefault Book補完は互換性のため維持できるが、Webの支払い操作境界を暗黙補完だけへ依存させない。\n\n## 8. Domain Value Intent\n\n| 値 | 利用目的 | 要求 |\n| --- | --- | --- |\n| 選択中Book ID | 支払い操作の対象Bookを一意に識別する | 現在は認証ユーザーのdefault Book IDを使い、UIへ新しい値として表示しない。 |\n| membership | ユーザーがBook-owned dataへアクセス可能か判定する | 認可にだけ使い、現在の操作対象を選ぶ情報として扱わない。 |\n| Payment ID | 詳細・更新・削除対象を識別する | 選択中Book IDとの組み合わせで対象を限定する。 |\n| PaymentのBook ID | 支払いの所有先を識別する | 選択中Bookと一致することを取得・操作境界で保証し、更新値にはしない。 |\n| query key内のBook ID | cache結果の対象Bookを識別する | Bookが異なる一覧・詳細・候補を別cacheとして扱う。 |\n\n## 9. 用語と責務境界\n\n### 選択中Book\n\n- アプリケーションが現在の操作対象として一意に解決したBookである。\n- 現在は認証ユーザーのdefault Bookを選択中Bookとする。\n- 選択中Bookを解決できるまで、支払いの取得やmutationを別の暗黙Bookへfallbackして実行しない。\n- 今回はBookを切り替えるUIや状態を追加しない。\n\n### membership認可\n\n- membershipは、認証ユーザーが対象BookへアクセスできるかをDB/RLSで判定する境界である。\n- membershipがあることだけでは、そのBookが現在の操作対象であることを意味しない。\n- Webは選択中Bookで操作対象を限定し、RLSはその限定後も認可の防御境界として残る。\n\n## 10. 機能要件\n\n### FR-1: 選択中Bookを一意に解決する\n\n- 認証ユーザーのdefault Bookを、支払い機能で共通利用できる選択中Bookとして解決する。\n- 同じ認証セッション内の支払い操作は、同じ解決済みBook IDを境界に使う。\n- 解決前または解決失敗時に、Book IDを省略した支払い取得・mutationを開始しない。\n- 新しいBook選択UI、手動retry、画面遷移を追加しない。\n\n### FR-2: 支払い作成を選択中Bookへ限定する\n\n- 新しい支払いの所有先は、作成時点の選択中Bookである。\n- 支払い作成で指定するカテゴリは、選択中Bookと同じBookに属する既存規則を維持する。\n- DBの暗黙default補完だけを、Webの操作対象決定として扱わない。\n\n### FR-3: 支払い一覧を選択中Bookへ限定する\n\n- 日付範囲とカテゴリ条件に加えて、選択中Book IDを取得条件にする。\n- membershipがある別Bookの支払いを一覧結果へ含めない。\n- 返却された各支払いのBook IDが選択中Book IDと一致しない場合は、正常な一覧結果として扱わない。\n\n### FR-4: 支払い詳細を選択中Bookへ限定する\n\n- Payment IDと選択中Book IDの両方で詳細対象を限定する。\n- membershipがあっても、別BookのPayment IDは現在の詳細として取得しない。\n- 詳細レスポンスのBook IDが選択中Bookと一致しない場合は、正常な詳細結果として扱わない。\n\n### FR-5: 支払い更新・削除を選択中Bookへ限定する\n\n- Payment IDと選択中Book IDの両方で更新・削除対象を限定する。\n- 選択中Bookに対象が存在しない場合、別Bookの支払いを変更せず、操作成功として扱わない。\n- 更新payloadにBook IDを含めず、所有先Bookを変更しない。\n\n### FR-6: よくある支払い候補を選択中Bookへ限定する\n\n- Issue #1591で定義した候補取得は、同じ選択中Book IDを取得条件とcache境界に使う。\n- 候補レスポンス内の支払いとカテゴリのBook IDが選択中Bookと一致することを維持する。\n- 候補抽出条件、期間、件数、UI、フォーム反映は変更しない。\n\n### FR-7: 支払いcacheをBookごとに分離する\n\n- 支払い一覧、詳細、よくある支払い候補のquery keyは選択中Book IDを含む。\n- 同じ日付・カテゴリ・Payment ID・候補期間でも、Book IDが異なれば別query keyになる。\n- 支払いmutation後は、操作対象Bookの支払いcacheを再取得可能な状態にする。\n- cacheの直接書き換えやoptimistic updateを追加せず、source of truthの再取得を使う。\n\n### FR-8: domain ruleを同期する\n\n- Book domain ruleに、membershipが認可境界、選択中Bookが操作対象境界であることを記録する。\n- Payment domain ruleに、Webの支払いCRUDと候補が選択中Bookへ限定されることを記録する。\n- 現在はdefault Bookが唯一の選択中Bookである暫定状態と、将来のBook選択機能を区別する。\n\n## 11. 非機能要件と制約\n\n- 現在のdefault Bookだけを使うユーザーの表示、入力項目、操作手順を変えない。\n- DB schema、RLS、認証方式、Supabase API契約を変更しない。\n- Book選択機能、Category/Budget全体のBook対応、新規依存を先行実装しない。\n- PaymentのBook IDを更新可能なフォーム値またはpatch値にしない。\n- 選択中Bookの境界は型とテストから追跡可能にする。\n- client-side cacheをBook選択状態や業務状態のsource of truthにしない。\n\n## 12. 受け入れ条件\n\n- AC-1: default Book IDが42なら、支払い機能の選択中Bookは42として一意に解決される。\n- AC-2: 選択中Bookが未解決または取得失敗の間は、Book IDを省略した支払いquery / mutationが実行されない。\n- AC-3: 選択中Book IDが42の支払い作成はBook 42を所有先とし、DBの暗黙補完だけへ依存しない。\n- AC-4: 選択中Book IDが42の一覧取得はBook 42で限定され、membershipがあるBook 43の支払いを返さない。\n- AC-5: Payment IDが同じ取得操作でも、Book 42の詳細条件からBook 43の支払いを取得しない。\n- AC-6: Book 42を選択中にBook 43のPayment IDを更新・削除しても対象は変更されず、成功として扱われない。\n- AC-7: 支払い更新payloadにBook IDが含まれず、既存の所有先Bookが維持される。\n- AC-8: よくある支払い候補は選択中Bookだけを取得・検証し、Issue #1591の抽出・表示・選択挙動は変わらない。\n- AC-9: 一覧条件が同じでもBook 42とBook 43のquery keyは異なる。\n- AC-10: 同じPayment IDでもBook 42とBook 43の詳細query keyは異なる。\n- AC-11: 同じ期間でもBook 42とBook 43の候補query keyは異なる。\n- AC-12: 支払いmutation成功後は、対象Bookの一覧・詳細・候補cacheを再取得できる。\n- AC-13: Book・Payment domain ruleにmembership認可と選択中Book操作境界の責務差が記録される。\n- AC-14: default Bookだけを利用する既存ユーザーの画面、入力項目、操作手順は変わらない。\n- AC-15: Book UI、Category/Budget全体、DB schema、RLS、認証方式、API契約、新規依存に差分がない。\n\n## 13. Q&Aログ\n\n- Q: 現在の選択中Bookは何か？\n  - A: Book選択UIがない現在は、認証ユーザーのdefault Bookである。\n- Q: membershipがあるBookをすべて操作対象にするか？\n  - A: しない。membershipは認可、選択中Bookは操作対象であり、責務を分離する。\n- Q: DBのdefault Book補完を削除するか？\n  - A: 削除しない。DB変更は対象外であり、Webが操作対象を暗黙補完だけへ依存しないことを要求する。\n- Q: 支払い詳細・更新・削除はPayment IDだけで十分か？\n  - A: 不十分。現在の操作境界を保証するため、選択中Book IDとの組み合わせで対象を限定する。\n- Q: Book切り替えUIや選択状態を今回作るか？\n  - A: 作らない。将来の選択元を差し替えられる境界だけを定義し、現在はdefault Bookへ接続する。\n- Q: Issue内の実装・検証チェックが未選択でも後続工程へ進むか？\n  - A: 進む。ユーザーがこのbranchでAIDD cycle全体を明示実行したため、その指示を今回cycleの自律許可として扱う。\n\n## 14. 技術的考慮事項\n\n- 現行の`fetchCurrentBook` / `useCurrentBook`はdefault membershipからBookを一意に取得しており、Design / Planでは設定画面固有の配置からアプリケーション境界へどう接続するかを検討する。\n- 現行一覧・詳細・更新・削除はPayment ID、日付、カテゴリだけでDB queryを限定し、Book IDを条件にしていない。\n- 現行作成はBook IDを送らずDB default補完へ依存している。\n- 現行のよくある支払いはBook IDをquery条件・レスポンス検証・query keyに含めており、共通境界へ接続する既存例になる。\n- 現行一覧query keyは任意の`cacheScope`、日付、カテゴリ、詳細query keyはPayment IDだけであり、Book IDを識別できない。\n- mutation後のinvalidationは支払い全体と月次集計を対象にする。Design / Planでは既存の月次集計無効化を維持しつつ、Payment cacheのBook境界を明確にする。\n- 更新・削除で対象なしを成功にしないためのレスポンス確認方法は、既存Supabase client APIの範囲でDesign / Planにて決定する。\n"
+  },
+  "validation": {
+    "mode": "legacy_import",
+    "source_markdown_sha256": "ca1399c854842b8b3db18b711b30f3cbf674750316cfea27f57e19bd8e999f62",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "content": "### FR-1: 選択中Bookを一意に解決する\n\n- 認証ユーザーのdefault Bookを、支払い機能で共通利用できる選択中Bookとして解決する。\n- 同じ認証セッション内の支払い操作は、同じ解決済みBook IDを境界に使う。\n- 解決前または解決失敗時に、Book IDを省略した支払い取得・mutationを開始しない。\n- 新しいBook選択UI、手動retry、画面遷移を追加しない。"
+      },
+      {
+        "id": "FR-2",
+        "content": "### FR-2: 支払い作成を選択中Bookへ限定する\n\n- 新しい支払いの所有先は、作成時点の選択中Bookである。\n- 支払い作成で指定するカテゴリは、選択中Bookと同じBookに属する既存規則を維持する。\n- DBの暗黙default補完だけを、Webの操作対象決定として扱わない。"
+      },
+      {
+        "id": "FR-3",
+        "content": "### FR-3: 支払い一覧を選択中Bookへ限定する\n\n- 日付範囲とカテゴリ条件に加えて、選択中Book IDを取得条件にする。\n- membershipがある別Bookの支払いを一覧結果へ含めない。\n- 返却された各支払いのBook IDが選択中Book IDと一致しない場合は、正常な一覧結果として扱わない。"
+      },
+      {
+        "id": "FR-4",
+        "content": "### FR-4: 支払い詳細を選択中Bookへ限定する\n\n- Payment IDと選択中Book IDの両方で詳細対象を限定する。\n- membershipがあっても、別BookのPayment IDは現在の詳細として取得しない。\n- 詳細レスポンスのBook IDが選択中Bookと一致しない場合は、正常な詳細結果として扱わない。"
+      },
+      {
+        "id": "FR-5",
+        "content": "### FR-5: 支払い更新・削除を選択中Bookへ限定する\n\n- Payment IDと選択中Book IDの両方で更新・削除対象を限定する。\n- 選択中Bookに対象が存在しない場合、別Bookの支払いを変更せず、操作成功として扱わない。\n- 更新payloadにBook IDを含めず、所有先Bookを変更しない。"
+      },
+      {
+        "id": "FR-6",
+        "content": "### FR-6: よくある支払い候補を選択中Bookへ限定する\n\n- Issue #1591で定義した候補取得は、同じ選択中Book IDを取得条件とcache境界に使う。\n- 候補レスポンス内の支払いとカテゴリのBook IDが選択中Bookと一致することを維持する。\n- 候補抽出条件、期間、件数、UI、フォーム反映は変更しない。"
+      },
+      {
+        "id": "FR-7",
+        "content": "### FR-7: 支払いcacheをBookごとに分離する\n\n- 支払い一覧、詳細、よくある支払い候補のquery keyは選択中Book IDを含む。\n- 同じ日付・カテゴリ・Payment ID・候補期間でも、Book IDが異なれば別query keyになる。\n- 支払いmutation後は、操作対象Bookの支払いcacheを再取得可能な状態にする。\n- cacheの直接書き換えやoptimistic updateを追加せず、source of truthの再取得を使う。"
+      },
+      {
+        "id": "FR-8",
+        "content": "### FR-8: domain ruleを同期する\n\n- Book domain ruleに、membershipが認可境界、選択中Bookが操作対象境界であることを記録する。\n- Payment domain ruleに、Webの支払いCRUDと候補が選択中Bookへ限定されることを記録する。\n- 現在はdefault Bookが唯一の選択中Bookである暫定状態と、将来のBook選択機能を区別する。"
+      },
+      {
+        "id": "AC-1",
+        "content": "- AC-1: default Book IDが42なら、支払い機能の選択中Bookは42として一意に解決される。"
+      },
+      {
+        "id": "AC-2",
+        "content": "- AC-2: 選択中Bookが未解決または取得失敗の間は、Book IDを省略した支払いquery / mutationが実行されない。"
+      },
+      {
+        "id": "AC-3",
+        "content": "- AC-3: 選択中Book IDが42の支払い作成はBook 42を所有先とし、DBの暗黙補完だけへ依存しない。"
+      },
+      {
+        "id": "AC-4",
+        "content": "- AC-4: 選択中Book IDが42の一覧取得はBook 42で限定され、membershipがあるBook 43の支払いを返さない。"
+      },
+      {
+        "id": "AC-5",
+        "content": "- AC-5: Payment IDが同じ取得操作でも、Book 42の詳細条件からBook 43の支払いを取得しない。"
+      },
+      {
+        "id": "AC-6",
+        "content": "- AC-6: Book 42を選択中にBook 43のPayment IDを更新・削除しても対象は変更されず、成功として扱われない。"
+      },
+      {
+        "id": "AC-7",
+        "content": "- AC-7: 支払い更新payloadにBook IDが含まれず、既存の所有先Bookが維持される。"
+      },
+      {
+        "id": "AC-8",
+        "content": "- AC-8: よくある支払い候補は選択中Bookだけを取得・検証し、Issue #1591の抽出・表示・選択挙動は変わらない。"
+      },
+      {
+        "id": "AC-9",
+        "content": "- AC-9: 一覧条件が同じでもBook 42とBook 43のquery keyは異なる。"
+      },
+      {
+        "id": "AC-10",
+        "content": "- AC-10: 同じPayment IDでもBook 42とBook 43の詳細query keyは異なる。"
+      },
+      {
+        "id": "AC-11",
+        "content": "- AC-11: 同じ期間でもBook 42とBook 43の候補query keyは異なる。"
+      },
+      {
+        "id": "AC-12",
+        "content": "- AC-12: 支払いmutation成功後は、対象Bookの一覧・詳細・候補cacheを再取得できる。"
+      },
+      {
+        "id": "AC-13",
+        "content": "- AC-13: Book・Payment domain ruleにmembership認可と選択中Book操作境界の責務差が記録される。"
+      },
+      {
+        "id": "AC-14",
+        "content": "- AC-14: default Bookだけを利用する既存ユーザーの画面、入力項目、操作手順は変わらない。"
+      },
+      {
+        "id": "AC-15",
+        "content": "- AC-15: Book UI、Category/Budget全体、DB schema、RLS、認証方式、API契約、新規依存に差分がない。"
+      }
+    ],
+    "sections": []
+  }
+}

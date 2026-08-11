@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "requirements",
+  "workspace": "1608-frequent-payments-scroll",
+  "display": {
+    "path": "requirements.md",
+    "markdown": "---\ntitle: \"Requirements: よくある支払い候補を横スクロールで表示する\"\ndoc_type: requirements\nstatus: accepted\narea: web\napplies_to:\n  - apps/web/src/features/payments/createPayment\ntopics:\n  - ai-driven-development\n  - requirements\n  - payments\n  - frequent-payments\n  - card\n  - horizontal-scroll\n  - responsive\nwhen_to_read:\n  - Issue #1608の要求を設計、実装、検証するとき\n  - よくある支払い候補の折り返しとoverflow境界を確認するとき\n---\n\n# Requirements: よくある支払い候補を横スクロールで表示する\n\n## 1. 文書の位置づけ\n\n- Initial input: GitHub Issue #1608\n- Cycle ID: `444977F1-BCFE-4306-A319-A6CF46F7595E`\n- Artifact lineage: `docs/ai-driven-development/workspaces/1608-frequent-payments-scroll/`\n- Related existing feature: GitHub Issue #1591\n\nこの文書は、Issue #1608と現在の正本ルールをRequirementsへ展開する。Issue #1591のaccepted Requirementsは、既存の候補内容、表示、選択、非blocking状態の境界確認にだけ使い、当時のDesign判断を今回の要求へ流用しない。\n\n## 2. 背景\n\n支払い作成フォームでは、過去に繰り返し登録した支払いを「よくある支払い」の候補Cardとして最大5件表示し、選択した内容をフォームへ入力できる。\n\n現在は候補Cardを折り返して表示するため、候補数が増えた場合や候補Cardの合計幅が表示領域を超えた場合に、候補列が複数行になり、支払い作成フォームの縦方向を押し広げる。\n\n## 3. 解決したい課題\n\n- 候補数や候補Cardの幅によって候補列が複数行になることを防ぐ。\n- 表示領域を超えた候補も、候補領域内を横方向に移動して確認・選択できるようにする。\n- 候補の配置だけを変え、既存の候補内容、抽出、順序、選択、フォーム入力を維持する。\n\n## 4. 対象ユーザーと利用シーン\n\n### 対象ユーザー\n\n- 支払い作成フォームで「よくある支払い」から入力候補を選ぶユーザー。\n\n### 利用シーン\n\n- 複数の候補Cardが表示領域の幅に収まるとき、横一列で候補を確認する。\n- 候補Cardの数または合計幅が表示領域を超えるとき、候補領域を横スクロールして後続候補を確認・選択する。\n- pointerまたはkeyboardで候補を選び、既存どおりフォームのメモ、金額、カテゴリを置き換える。\n\n## 5. ユーザーストーリー\n\n- ユーザーとして、候補数やCard幅にかかわらず候補を一列で確認したい。そうすることで、候補によってフォームが縦方向へ伸びることを避けられる。\n- ユーザーとして、表示領域の外に続く候補へ横方向に移動したい。そうすることで、折り返しを使わず目的の候補を確認・選択できる。\n\n## 6. スコープ\n\n### 対象\n\n- 支払い作成フォーム内の「よくある支払い」候補Card列。\n- 候補Card同士を次行へ折り返さない一列表示。\n- 候補Cardの合計幅が候補領域を超えた場合の、候補領域内での横スクロール。\n- 横スクロール後も全候補を確認し、pointerとkeyboardで選択できること。\n- viewport幅が異なる場合も同じ配置方針を維持すること。\n\n### 対象外\n\n- 候補の抽出条件、最大表示件数、並び順の変更。\n- 候補Card内のメモ、金額、カテゴリの情報構造、文字階層、文言の変更。\n- Card内の長い値の折り返し方針の変更。\n- 候補選択後のフォーム入力、validation、submit、closeの変更。\n- loading、error、empty、disabled、再取得の状態境界の変更。\n- 横スクロールを説明する新しい文言、操作、表示件数設定の追加。\n- DB schema、API契約、RLS、認証、権限、新規依存の変更。\n\n## 7. Rule Selection\n\n### 作業分類\n\n- path: `apps/web/src/features/payments/createPayment/**`\n- domain: `payment`, `amount`, `date`, `category`, `web-ui`\n- activity: `write_prd`, `change_payment_ui`, `change_responsive_layout`\n- topic: `frequent-payments`, `card`, `horizontal-scroll`, `responsive`, `accessibility`\n\n### Selected nodes\n\n- `ai-driven.workflow` -> `docs/ai-driven-development/workflow.md`\n  - Requirementsの責務、工程境界、Stop条件を守るため。\n- `ai-driven.issue-guidelines` -> `docs/ai-driven-development/issue-guidelines.md`\n  - Issueの意図とDesign判断を分離するため。\n- `documentation.policy` -> `docs/harness/policies/documentation-policy.md`\n  - front matterと文書責務を守るため。\n- `domain.payment` -> `docs/harness/domain/payment.md`\n  - 既存候補が扱う支払い値と選択境界を維持するため。\n- `web.design-rules` -> `apps/web/docs/policies/design-rules.md`\n  - responsive、横並び、overflowの判断境界を定義するため。\n- `web.domain-ui-rules` -> `apps/web/docs/policies/domain-ui-rules.md`\n  - 候補内の値と識別目的を維持するため。\n\n### Depends-on nodes\n\n- `ai-driven.overview`: GoalとRequirementsの位置づけ。\n- `domain.amount`: 金額の既存意味を維持する前提。\n- `domain.date`: 支払い日を変更しない前提。\n- `domain.category`: カテゴリ任意の既存意味を維持する前提。\n- `web.design-system-brand`: 日常の支払い登録に適した視覚トーン。\n\n### Conflict decision\n\n- `web.design-rules`はmobileで横スクロールを原則禁止している一方、個別Requirementsで明示された差分がない限り同ルールから外れないことも定めている。Issue #1608は候補Card列を折り返さず横スクロールすることを明示しているため、本Requirementsを候補領域に限定した機能固有の差分として扱う。\n- 横スクロールはページ全体ではなく「よくある支払い」の候補領域だけに限定する。\n- Card列の非折り返しと、Card内の長い値の折り返しは別の境界として扱い、後者を変更しない。\n\n## 8. Domain Value Intent\n\n| 値 | 利用目的 | 今回維持する要求 |\n| --- | --- | --- |\n| メモ | 候補の主対象を識別する | Card内の主情報として表示し、内容や文字階層を変更しない。 |\n| 金額 | 候補を識別し、入力値を再利用する | Card内の補助情報として表示し、表記や意味を変更しない。 |\n| カテゴリ | 候補を識別し、分類を再利用する | Card内の補助情報として表示し、カテゴリなしを含む既存表現を変更しない。 |\n| 候補順序 | 目的の候補を探す | 既存の頻度順を維持し、横方向の読み順とkeyboard順序を一致させる。 |\n\n今回の変更はドメイン値の意味や主従を変えず、候補Card列のoverflow時の到達方法だけを変更する。\n\n## 9. 機能要件\n\n### FR-1: 候補Cardを一列に表示する\n\n- 表示される候補Card同士を次行へ折り返さない。\n- 候補数や個々のCard幅にかかわらず、候補Cardの並び順を一列で維持する。\n- Card内の情報構造と長い値の折り返しは変更しない。\n\n### FR-2: overflowした候補を横スクロールで確認できる\n\n- 候補Cardの合計幅が候補領域を超えた場合、候補領域を横スクロールできる。\n- 横スクロールによって、先頭から末尾までの全候補を表示領域内へ移動して確認できる。\n- 横スクロールによってページ全体へ不要な横overflowを発生させない。\n\n### FR-3: 既存の選択操作を維持する\n\n- 横方向の表示位置にかかわらず、各候補をpointerとkeyboardで選択できる。\n- keyboardのfocus順序は候補の表示順序と一致する。\n- 候補選択によるフォーム値置換と、選択だけでは支払いを作成しない既存挙動を変更しない。\n\n### FR-4: 既存の候補機能を変更しない\n\n- 候補の抽出条件、最大5件、頻度順、候補内容を変更しない。\n- loading、error、empty時に候補領域を表示しない既存挙動を変更しない。\n- 支払い送信中のdisabled動作、支払い作成後の再取得を変更しない。\n\n## 10. 非機能要件と制約\n\n- mobileを含む異なるviewport幅で、候補Card列の一列表示と候補領域内の横スクロールを維持する。\n- 全候補のpointer操作とkeyboard focusを維持する。\n- DOM上の候補順序と視覚上の候補順序を一致させる。\n- 既存のsemantic heading、accessible group name、Cardのbutton semantics、ARIA labelを維持する。\n- 新しい依存、文言、操作、装飾、独自色を追加しない。\n- ページ全体のレイアウトや支払い作成フォームの他領域へ横overflowを波及させない。\n\n## 11. 受け入れ条件\n\n- AC-1: 候補Cardが複数ある場合、候補Card同士が次行へ折り返されず一列に表示される。\n- AC-2: 候補Cardの合計幅が候補領域以下の場合、既存順序のまま一列で表示される。\n- AC-3: 候補Cardの数または合計幅が候補領域を超える場合、候補領域を横スクロールできる。\n- AC-4: 横スクロールによって先頭から末尾までの全候補を確認できる。\n- AC-5: mobileを含む狭いviewportでも、候補Cardは折り返されず、候補領域内で横スクロールできる。\n- AC-6: 横方向の位置にかかわらず、全候補をpointerとkeyboardで選択できる。\n- AC-7: keyboardのfocus順序が表示順序と一致し、既存のbutton semanticsとARIA labelが維持される。\n- AC-8: 横スクロールは候補領域に限定され、ページ全体へ不要な横overflowを発生させない。\n- AC-9: Card内のメモ、金額、カテゴリの内容、文字階層、長い値の折り返しが変更されない。\n- AC-10: 候補抽出、最大件数、順序、フォーム値置換、非blocking状態、disabled、再取得の既存挙動が維持される。\n- AC-11: DB schema、API契約、RLS、認証、権限、新規依存を変更しない。\n\n## 12. Q&Aログ\n\n- Q: 「折り返さない」の対象は何か？\n  - A: 候補Card同士の列である。Card内の長いメモ、金額、カテゴリの折り返し方針は変更しない。\n- Q: 横スクロールはどこに発生させるか？\n  - A: 「よくある支払い」の候補領域に限定する。ページ全体を横スクロールさせない。\n- Q: mobileで横スクロールを使うか？\n  - A: 使う。Issue #1608が候補Card列を折り返さず横スクロールすることを明示しており、この候補領域に限った機能固有の差分として扱う。\n- Q: 横スクロールを説明する文言や専用操作を追加するか？\n  - A: 追加しない。具体的なoverflow表現はDesign / Planで、既存の操作semanticsを維持する範囲に限定して決める。\n- Q: 候補の抽出や選択後の挙動も変更するか？\n  - A: 変更しない。今回の対象は候補Card列の配置とoverflow境界だけである。\n\n## 13. 技術的考慮事項\n\n- 現行実装は候補操作群にwrapを指定しているため、Design / Planでは候補列の非折り返し、子要素の縮小可否、候補領域のoverflow所有者を一体で検討する。\n- 候補Cardの合計幅が親要素へ伝播してページ全体を押し広げないよう、候補領域と祖先flex itemの最小幅境界を確認する。\n- layoutはCSSの視覚変更であっても、候補順序、focus、click、disabled、ARIA関係を変えないことをテスト方針へ接続する。\n- scroll位置やscrollbarの具体表現をRequirementsでは固定しない。\n"
+  },
+  "validation": {
+    "mode": "legacy_import",
+    "source_markdown_sha256": "7edfe909c5591b16f34beb1d2f0edf48fb3109ac05d2883c7d24b25f5907ffa7",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "content": "### FR-1: 候補Cardを一列に表示する\n\n- 表示される候補Card同士を次行へ折り返さない。\n- 候補数や個々のCard幅にかかわらず、候補Cardの並び順を一列で維持する。\n- Card内の情報構造と長い値の折り返しは変更しない。"
+      },
+      {
+        "id": "FR-2",
+        "content": "### FR-2: overflowした候補を横スクロールで確認できる\n\n- 候補Cardの合計幅が候補領域を超えた場合、候補領域を横スクロールできる。\n- 横スクロールによって、先頭から末尾までの全候補を表示領域内へ移動して確認できる。\n- 横スクロールによってページ全体へ不要な横overflowを発生させない。"
+      },
+      {
+        "id": "FR-3",
+        "content": "### FR-3: 既存の選択操作を維持する\n\n- 横方向の表示位置にかかわらず、各候補をpointerとkeyboardで選択できる。\n- keyboardのfocus順序は候補の表示順序と一致する。\n- 候補選択によるフォーム値置換と、選択だけでは支払いを作成しない既存挙動を変更しない。"
+      },
+      {
+        "id": "FR-4",
+        "content": "### FR-4: 既存の候補機能を変更しない\n\n- 候補の抽出条件、最大5件、頻度順、候補内容を変更しない。\n- loading、error、empty時に候補領域を表示しない既存挙動を変更しない。\n- 支払い送信中のdisabled動作、支払い作成後の再取得を変更しない。"
+      },
+      {
+        "id": "AC-1",
+        "content": "- AC-1: 候補Cardが複数ある場合、候補Card同士が次行へ折り返されず一列に表示される。"
+      },
+      {
+        "id": "AC-2",
+        "content": "- AC-2: 候補Cardの合計幅が候補領域以下の場合、既存順序のまま一列で表示される。"
+      },
+      {
+        "id": "AC-3",
+        "content": "- AC-3: 候補Cardの数または合計幅が候補領域を超える場合、候補領域を横スクロールできる。"
+      },
+      {
+        "id": "AC-4",
+        "content": "- AC-4: 横スクロールによって先頭から末尾までの全候補を確認できる。"
+      },
+      {
+        "id": "AC-5",
+        "content": "- AC-5: mobileを含む狭いviewportでも、候補Cardは折り返されず、候補領域内で横スクロールできる。"
+      },
+      {
+        "id": "AC-6",
+        "content": "- AC-6: 横方向の位置にかかわらず、全候補をpointerとkeyboardで選択できる。"
+      },
+      {
+        "id": "AC-7",
+        "content": "- AC-7: keyboardのfocus順序が表示順序と一致し、既存のbutton semanticsとARIA labelが維持される。"
+      },
+      {
+        "id": "AC-8",
+        "content": "- AC-8: 横スクロールは候補領域に限定され、ページ全体へ不要な横overflowを発生させない。"
+      },
+      {
+        "id": "AC-9",
+        "content": "- AC-9: Card内のメモ、金額、カテゴリの内容、文字階層、長い値の折り返しが変更されない。"
+      },
+      {
+        "id": "AC-10",
+        "content": "- AC-10: 候補抽出、最大件数、順序、フォーム値置換、非blocking状態、disabled、再取得の既存挙動が維持される。"
+      },
+      {
+        "id": "AC-11",
+        "content": "- AC-11: DB schema、API契約、RLS、認証、権限、新規依存を変更しない。"
+      }
+    ],
+    "sections": []
+  }
+}

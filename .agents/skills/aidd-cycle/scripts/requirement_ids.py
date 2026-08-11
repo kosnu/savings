@@ -5,17 +5,18 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
-REQUIREMENT_ID_PATTERN = re.compile(
-    r"(?<![A-Za-z0-9_-])(?P<prefix>FR|NFR|AC)-(?P<number>[1-9][0-9]*)"
-    r"(?![A-Za-z0-9_-])"
+from structured_ids import (
+    REQUIRED_REQUIREMENTS_SECTIONS,
+    REQUIREMENT_ID_PATTERN,
+    is_requirement_id,
+    requirement_sort_key,
 )
+
 REQUIREMENT_DEFINITION_PATTERN = re.compile(
     r"(?m)^(?P<indent>[ \t]*)(?P<marker>#{2,6}|[-*+])[ \t]+(?:\*\*)?"
     r"(?P<requirement_id>(?:FR|NFR|AC)-[1-9][0-9]*)"
     r"(?![A-Za-z0-9_-])(?P<summary>[^\n]*)"
 )
-PREFIX_ORDER = {"FR": 0, "NFR": 1, "AC": 2}
 MACHINE_GATE_PATTERN = re.compile(
     r"(?ms)^## (?:Requirements Input Gate|Requirements Completeness Gate|"
     r"Design Coverage Gate)\s*$.*?```json\s*\n.*?\n```"
@@ -26,23 +27,6 @@ LEVEL_TWO_SECTION_PATTERN = re.compile(
 FENCED_CODE_OPEN_PATTERN = re.compile(
     r"^(?P<indent> {0,3})(?P<fence>`{3,}|~{3,})(?P<info>[^\r\n]*)$"
 )
-REQUIRED_REQUIREMENTS_SECTIONS = {
-    "background": ("背景", "background"),
-    "users": ("対象ユーザー", "target users"),
-    "stories": ("ユーザーストーリー", "user stories"),
-    "scope": ("スコープ", "scope"),
-    "functional": ("機能要件", "functional requirements"),
-    "non_functional": (
-        "非機能要件",
-        "non-functional requirements",
-        "non functional requirements",
-    ),
-    "acceptance": ("受け入れ条件", "acceptance criteria"),
-    "qa": ("q&a", "q＆a", "qa log"),
-    "technical": ("技術的考慮事項", "technical considerations"),
-}
-
-
 @dataclass(frozen=True)
 class RequirementItem:
     requirement_id: str
@@ -57,11 +41,6 @@ class DocumentSection:
     @property
     def content(self) -> str:
         return f"## {self.heading}\n{self.body}".strip()
-
-
-def requirement_sort_key(requirement_id: str) -> tuple[int, int]:
-    prefix, number = requirement_id.split("-", 1)
-    return PREFIX_ORDER[prefix], int(number)
 
 
 def strip_machine_gates(document: str) -> str:
@@ -293,7 +272,3 @@ def extract_required_requirements_sections(
 
 def validate_required_requirements_sections(document: str) -> None:
     extract_required_requirements_sections(document)
-
-
-def is_requirement_id(value: str) -> bool:
-    return REQUIREMENT_ID_PATTERN.fullmatch(value) is not None
