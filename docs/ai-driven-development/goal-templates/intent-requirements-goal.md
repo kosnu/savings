@@ -199,7 +199,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] プロダクト要求、受け入れ条件、Q&A判断がIssue本文または選択したproduct/domain ruleへ追跡できる
 - [ ] 実装、test、fixture、mock、app policyからプロダクト要求を新設していない
 - [ ] 会話、review、現在diff、前回artifact、直前に更新されたruleをTask Contextへ追加していない
-- [ ] 成果物が同じworkspaceのcanonical `requirements.json`にあり、rendererで`requirements.md`とのbyte一致を確認している
+- [ ] 成果物が同じworkspaceのcanonical `requirements.json`にあり、rendererで`requirements.md`とのUTF-8文字列一致（CRLF/LF差は正規化）を確認している
 - [ ] 成果物にIssue番号、URL、updatedAt、本文SHA-256が記録されている
 - [ ] 成果物のRequirements Input Gateが同じIssue本文に対するvalidatorを通る
 - [ ] 成果物のRequirements Input GateとRequirements Completeness Gateが、保持したGoalの対応するparsed Gate objectと完全一致する

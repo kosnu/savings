@@ -15,11 +15,24 @@ from artifact_source import (
     canonical_display_path,
     canonical_source_path,
     load_source,
+    normalize_markdown_newlines,
 )
+from git_baseline import GitBaselineError, require_repository_root
 
 
 def normalized_path(path: Path) -> Path:
     return Path(os.path.abspath(path))
+
+
+def require_git_worktree_root(repo_root: Path) -> Path:
+    absolute_root = normalized_path(repo_root)
+    try:
+        resolved_root = require_repository_root(absolute_root)
+    except GitBaselineError as error:
+        raise SourceError(str(error)) from error
+    if absolute_root != resolved_root:
+        raise SourceError("repo-root must not contain symlinks")
+    return resolved_root
 
 
 def require_no_symlinks(repo_root: Path, path: Path, label: str) -> None:
@@ -60,24 +73,37 @@ def check_or_write(
     if source["kind"] in ARTIFACT_KINDS:
         if repo_root is None:
             raise SourceError("artifact rendering requires --repo-root")
+        repo_root = require_git_worktree_root(repo_root)
         require_canonical_artifact_paths(
-            normalized_path(repo_root),
+            repo_root,
             source_path,
             output_path,
             source,
         )
-    markdown = source["display"]["markdown"]
+    check_or_write_markdown(source["display"]["markdown"], output_path, check)
+
+
+def check_or_write_markdown(markdown: str, output_path: Path, check: bool) -> None:
     if check:
         if not output_path.is_file():
             raise SourceError(f"generated Markdown is missing: {output_path}")
-        if output_path.read_text(encoding="utf-8") != markdown:
+        try:
+            current_markdown = output_path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise SourceError(
+                f"generated Markdown must be UTF-8: {output_path}"
+            ) from error
+        if normalize_markdown_newlines(
+            current_markdown
+        ) != normalize_markdown_newlines(markdown):
             raise SourceError(f"generated Markdown is stale: {output_path}")
         return
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(markdown, encoding="utf-8")
+    output_path.write_bytes(markdown.encode("utf-8"))
 
 
 def check_all(repo_root: Path) -> int:
+    repo_root = require_git_worktree_root(repo_root)
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces"
     )
@@ -103,7 +129,8 @@ def check_all(repo_root: Path) -> int:
         )
         if source_path.is_symlink():
             raise SourceError(f"artifact source must not use a symlink: {source_path}")
-        check_or_write(source_path, output_path, True, repo_root)
+        require_canonical_artifact_paths(repo_root, source_path, output_path, source)
+        check_or_write_markdown(source["display"]["markdown"], output_path, True)
         checked += 1
     print(f"AIDD render check passed: {checked} artifacts")
     return checked
@@ -123,7 +150,7 @@ def main() -> int:
         if args.check_all:
             if args.repo_root is None:
                 raise SourceError("--check-all requires --repo-root")
-            check_all(args.repo_root.resolve())
+            check_all(args.repo_root)
             return 0
         if args.source is None:
             raise SourceError("--source is required")

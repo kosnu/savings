@@ -15,6 +15,7 @@ from artifact_source import (
     SourceError,
     canonical_source_path,
     load_source,
+    normalize_markdown_newlines,
     serialize_source,
 )
 from requirement_ids import (
@@ -84,6 +85,7 @@ def design_inventory(markdown: str) -> list[dict[str, str]]:
 
 
 def build_source(workspace: str, kind: str, markdown: str) -> dict[str, Any]:
+    markdown = normalize_markdown_newlines(markdown)
     digest = hashlib.sha256(markdown.encode("utf-8")).hexdigest()
     if kind == "requirements":
         requirements, sections = requirements_inventory(markdown)
@@ -122,6 +124,7 @@ def build_source(workspace: str, kind: str, markdown: str) -> dict[str, Any]:
 
 
 def build_goal_source(workspace: str, kind: str, markdown: str) -> dict[str, Any]:
+    markdown = normalize_markdown_newlines(markdown)
     if kind == "requirements":
         input_gate = parse_gate(markdown, "input_gate")
         completeness_gate = parse_gate(markdown, "completeness_gate")
@@ -201,7 +204,9 @@ def expected_pairs(repo_root: Path) -> list[tuple[Path, Path, str]]:
 def migrate(repo_root: Path, write: bool) -> int:
     checked = 0
     for display_path, source_path, kind in expected_pairs(repo_root):
-        markdown = display_path.read_text(encoding="utf-8")
+        markdown = normalize_markdown_newlines(
+            display_path.read_bytes().decode("utf-8")
+        )
         expected = build_source(display_path.parent.name, kind, markdown)
         existing = load_source(source_path, kind) if source_path.is_file() else None
         preserves_managed_source = (
@@ -213,7 +218,7 @@ def migrate(repo_root: Path, write: bool) -> int:
         source = load_source(source_path, kind)
         if source["workspace"] != display_path.parent.name:
             raise SourceError(f"workspace mismatch: {source_path}")
-        if source["display"]["markdown"] != markdown:
+        if normalize_markdown_newlines(source["display"]["markdown"]) != markdown:
             raise SourceError(f"Markdown round-trip mismatch: {display_path}")
         if source["validation"].get("source_markdown_sha256") != hashlib.sha256(
             markdown.encode("utf-8")

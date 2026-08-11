@@ -29,6 +29,10 @@ class SourceError(ValueError):
     pass
 
 
+def normalize_markdown_newlines(markdown: str) -> str:
+    return markdown.replace("\r\n", "\n")
+
+
 def require_string(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise SourceError(f"{label} must be a non-empty string")
