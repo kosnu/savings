@@ -53,7 +53,7 @@ when_to_read:
 
 - `requirements_goal`: Issue snapshot、direct rules、dependency closure、baseline、全requirement transition、全section transition、requirement definitions、Goal scope。
 - `requirements`: Goalと同じprovenance/continuity情報、canonical requirement definitions、section contents、retirementを保持する。
-- `design_goal`: Requirements hash、全ID、Design baseline、ID別design/verification scopeを保持する。
+- `design_goal`: Requirements hash、全ID、Design baseline、ID別design/verification scope、baseline section別review scopeを保持する。
 - `design`: 同じsnapshot、ID別coverage、Design baseline section transitionsを保持する。
 - `legacy_import`: 旧Markdownから一度だけ抽出したrequirement IDs、canonical section content、Design section heading/hashを構造化して保持する。通常artifact作成では選択できない。
 

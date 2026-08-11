@@ -64,7 +64,7 @@ when_to_read:
 
 ## Design Coverage Gate
 
-Goal作成前は、temporary `design_goal` JSONの`validation.coverage_gate`へcanonical Requirements JSONのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを`validation.scopes`へ作って`--kind goal`で検証する。baselineはvalidatorがcanonical `design.json`をGit `HEAD`から取得する。生成する`design.json`では各IDを専用の`coverage` entryへ対応させ、Git baselineの全構造化sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は使えない。Goal Markdownと生成Markdownは機械検証入力にしない。
+Goal作成前は、temporary `design_goal` JSONの`validation.coverage_gate`へcanonical Requirements JSONのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを`validation.scopes`へ作る。Git baselineがある場合は全section専用のreview scopeを`validation.baseline_scopes`へ作り、`--kind goal`で検証する。baselineはvalidatorがcanonical `design.json`をGit `HEAD`から取得する。生成する`design.json`では各IDを専用の`coverage` entryへ対応させ、Git baselineの全構造化sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は使えない。Goal Markdownと生成Markdownは機械検証入力にしない。
 
 ```json
 {
@@ -116,7 +116,7 @@ Goal JSONの`validation.scopes`に、全Requirements IDそれぞれの`design_sc
 - FR-1 design scope: 設計対象を具体的に記載する。
 - FR-1 verification scope: 検証対象を具体的に記載する。
 
-Git baselineがある場合は、全構造化sectionごとにheadingを含む一意なreview scopeも記載する。
+Git baselineがある場合は、Goal JSONの`validation.baseline_scopes`へ全構造化sectionごとに`heading`と一意な`review_scope`を記載する。
 
 - 実装方針 baseline scope: 現在Requirementsへ再適合させる。
 

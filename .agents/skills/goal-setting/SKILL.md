@@ -144,8 +144,8 @@ For a Design / Plan Goal:
   in `.agents/skills/aidd-cycle/SKILL.md`.
 - Resolve the committed previous-cycle `design.json` from the canonical workspace
   path in Git `HEAD`, not from a caller-supplied file. Require every prior
-  structured section to have its own heading-bearing baseline scope entry in
-  the Goal JSON, then be classified as exact-content preserved or explicitly
+  structured section to have its own heading-bearing `validation.baseline_scopes`
+  entry in the Goal JSON, then be classified as exact-content preserved or explicitly
   replaced with heading-bearing evidence in the new Design JSON.
 - Require the output `design.json` to resolve every identifier through design
   and verification evidence in a unique entry that contains only that
