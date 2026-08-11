@@ -150,8 +150,9 @@ Before creating a Design / Plan Goal:
    `Design Coverage Gate` object with
    that hash, the complete canonical identifier list, and the Git `HEAD` Design
    baseline SHA-256. Outside the gate, include one substantive design and
-   verification scope line per requirement ID and one review scope line per
-   Git baseline section. Each requirement scope line must contain only its
+   verification scope line per requirement ID in `validation.scopes` and one
+   review scope entry per Git baseline section in `validation.baseline_scopes`.
+   Each requirement scope line must contain only its
    target requirement ID. Every Git baseline section also gets its own physical
    review-scope line. Grouped coverage is invalid. A changed or
    newly added requirement may be called out as the cycle delta, but it may not

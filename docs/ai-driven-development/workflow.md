@@ -153,7 +153,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 
 現在サイクルの最新Requirements / PRD全体をもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。今回追加、変更された要求は設計へ統合する差分であり、Design / Plan GoalやDesign Docのscopeではありません。入力は同じworkspaceのcanonical pathにある`requirements.json`だけを許可し、コピー、一時ファイル、symlink経由の別pathを使いません。このJSONと生成済み`requirements.md`はread-onlyです。成果物は同じworkspaceのcanonical `design.json`へ書き込み、`design-doc.md`を生成します。
 
-Design / Plan Goalを作成する前に、現在のcanonical `requirements.json`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGoal JSONの`validation.scopes`へ記載します。Design完了時も、各IDを専用の設計根拠と検証根拠へ一度ずつ対応付け、baseline sectionごとの根拠を構造化して記録します。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は拒否します。
+Design / Plan Goalを作成する前に、現在のcanonical `requirements.json`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGoal JSONの`validation.scopes`へ記載します。Git baselineがある場合は全section専用のreview scopeを`validation.baseline_scopes`へ記載します。Design完了時も、各IDを専用の設計根拠と検証根拠へ一度ずつ対応付け、baseline sectionごとの根拠を構造化して記録します。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は拒否します。
 
 IDまたはheadingの文字列が根拠に含まれることは必要条件であり、意味的な十分条件ではありません。その根拠が特定要求または前回sectionを実際に解決していると判断できない場合はStopします。
 

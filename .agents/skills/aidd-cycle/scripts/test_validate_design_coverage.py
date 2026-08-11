@@ -8,7 +8,12 @@ from copy import deepcopy
 from pathlib import Path
 
 from artifact_source import serialize_source
-from validate_design_coverage import ValidationError, content_sha256, validate
+from validate_design_coverage import (
+    ValidationError,
+    content_sha256,
+    validate,
+    validate_baseline_scopes,
+)
 
 
 ISSUE = "owner/repo#1639"
@@ -61,6 +66,18 @@ def scopes() -> list[dict[str, str]]:
     ]
 
 
+def baseline_scopes() -> list[dict[str, str]]:
+    return [
+        {
+            "heading": entry["heading"],
+            "review_scope": (
+                f"{entry['heading']} baseline scope: 現在Requirementsへ再適合させる。"
+            ),
+        }
+        for entry in sections()
+    ]
+
+
 def coverage() -> list[dict[str, str]]:
     return [
         {
@@ -85,8 +102,10 @@ class DesignCoverageGateTest(unittest.TestCase):
         *,
         kind: str,
         goal_scopes: list[dict[str, str]] | None = None,
+        goal_baseline_scopes: list[dict[str, str]] | None = None,
         markdown: str = "# display\n",
         canonical_requirements: bool = True,
+        with_design_baseline: bool = False,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
@@ -113,17 +132,40 @@ class DesignCoverageGateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             requirements_hash = hashlib.sha256(requirements_path.read_bytes()).hexdigest()
+            if with_design_baseline:
+                baseline_path = workspace_root / "design.json"
+                baseline_path.write_text(
+                    serialize_source(envelope("design", {"sections": sections()})),
+                    encoding="utf-8",
+                )
+                run_git(repo_root, "add", str(baseline_path.relative_to(repo_root)))
+                run_git(repo_root, "commit", "-qm", "design baseline")
+                baseline_bytes = baseline_path.read_bytes()
+                baseline = {
+                    "source": "git_head",
+                    "body_sha256": hashlib.sha256(baseline_bytes).hexdigest(),
+                }
+            else:
+                baseline = {"source": "none", "body_sha256": None}
             common_gate = {
                 "requirements_sha256": requirements_hash,
                 "workspace": WORKSPACE,
                 "requirement_ids": IDS,
-                "baseline": {"source": "none", "body_sha256": None},
+                "baseline": baseline,
             }
             if kind == "goal":
                 document_path = repo_root / "goal.json"
                 value = envelope(
                     "design_goal",
-                    {"coverage_gate": common_gate, "scopes": goal_scopes or scopes()},
+                    {
+                        "coverage_gate": common_gate,
+                        "scopes": goal_scopes or scopes(),
+                        "baseline_scopes": (
+                            goal_baseline_scopes
+                            if goal_baseline_scopes is not None
+                            else []
+                        ),
+                    },
                     markdown,
                 )
             else:
@@ -152,6 +194,68 @@ class DesignCoverageGateTest(unittest.TestCase):
 
     def test_accepts_goal_json(self) -> None:
         self.validate_source(kind="goal")
+
+    def test_accepts_goal_with_every_git_head_design_section(self) -> None:
+        self.validate_source(
+            kind="goal",
+            goal_baseline_scopes=baseline_scopes(),
+            with_design_baseline=True,
+        )
+
+    def test_rejects_goal_without_git_head_design_sections(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "every Git HEAD section"):
+            self.validate_source(kind="goal", with_design_baseline=True)
+
+    def test_allows_scope_for_heading_that_contains_another_heading(self) -> None:
+        validate_baseline_scopes(
+            [
+                {
+                    "heading": "入力",
+                    "review_scope": "入力 baseline scope: 現在Requirementsで再確認する。",
+                },
+                {
+                    "heading": "Build / Verifyへの入力",
+                    "review_scope": (
+                        "Build / Verifyへの入力 baseline scope: "
+                        "現在Requirementsで再確認する。"
+                    ),
+                },
+            ],
+            [
+                {"heading": "入力", "content_sha256": "first"},
+                {
+                    "heading": "Build / Verifyへの入力",
+                    "content_sha256": "second",
+                },
+            ],
+        )
+
+    def test_rejects_nested_scope_that_also_names_shorter_heading(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "only its target heading"):
+            validate_baseline_scopes(
+                [
+                    {
+                        "heading": "入力",
+                        "review_scope": (
+                            "入力 baseline scope: 現在Requirementsで再確認する。"
+                        ),
+                    },
+                    {
+                        "heading": "Build / Verifyへの入力",
+                        "review_scope": (
+                            "Build / Verifyへの入力 baseline scope: "
+                            "入力も同時に再確認する。"
+                        ),
+                    },
+                ],
+                [
+                    {"heading": "入力", "content_sha256": "first"},
+                    {
+                        "heading": "Build / Verifyへの入力",
+                        "content_sha256": "second",
+                    },
+                ],
+            )
 
     def test_accepts_artifact_json(self) -> None:
         self.validate_source(kind="artifact")

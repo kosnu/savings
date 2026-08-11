@@ -167,6 +167,21 @@ def validate_id_text(value: Any, label: str, requirement_id: str) -> str:
     return text
 
 
+def names_other_baseline_heading(
+    value: str,
+    target_heading: str,
+    baseline_headings: list[str],
+) -> bool:
+    normalized_value = normalize(value)
+    normalized_target = normalize(target_heading)
+    value_without_target = normalized_value.replace(normalized_target, "", 1)
+    return any(
+        other != target_heading
+        and normalize(other) in value_without_target
+        for other in baseline_headings
+    )
+
+
 def validate_scopes(entries: Any, ids: list[str]) -> None:
     if not isinstance(entries, list):
         raise ValidationError("validation.scopes must be an array")
@@ -188,6 +203,50 @@ def validate_scopes(entries: Any, ids: list[str]) -> None:
             f"scopes[{index}].verification_scope",
             requirement_id,
         )
+
+
+def validate_baseline_scopes(
+    entries: Any,
+    baseline_sections: list[dict[str, str]],
+) -> None:
+    if not isinstance(entries, list):
+        raise ValidationError("validation.baseline_scopes must be an array")
+    expected_headings = [entry["heading"] for entry in baseline_sections]
+    actual_headings = [
+        entry.get("heading") if isinstance(entry, dict) else None
+        for entry in entries
+    ]
+    if actual_headings != expected_headings:
+        raise ValidationError(
+            "baseline_scopes must cover every Git HEAD section in order"
+        )
+    seen_scopes: set[str] = set()
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {
+            "heading",
+            "review_scope",
+        }:
+            raise ValidationError(
+                "each baseline scope must contain only heading and review_scope"
+            )
+        heading = entry["heading"]
+        scope = require_string(
+            entry["review_scope"],
+            f"baseline_scopes[{index}].review_scope",
+        )
+        if normalize(heading) not in normalize(scope):
+            raise ValidationError("baseline review scope must name its heading")
+        if names_other_baseline_heading(scope, heading, expected_headings):
+            raise ValidationError(
+                "baseline review scope must name only its target heading"
+            )
+        substantive = normalize(scope).replace(normalize(heading), "")
+        substantive = substantive.replace("baseline scope", "").strip(" :-：`*_#")
+        if len(substantive) < 8:
+            raise ValidationError("baseline review scope is not substantive")
+        if scope in seen_scopes:
+            raise ValidationError("baseline review scopes must be unique")
+        seen_scopes.add(scope)
 
 
 def validate_coverage(entries: Any, ids: list[str]) -> None:
@@ -259,10 +318,7 @@ def validate_baseline_sections(
         )
         if normalize(heading) not in normalize(evidence):
             raise ValidationError("baseline evidence must name its heading")
-        if any(
-            other != heading and normalize(other) in normalize(evidence)
-            for other in baseline_headings
-        ):
+        if names_other_baseline_heading(evidence, heading, baseline_headings):
             raise ValidationError("baseline evidence must name only its target heading")
         section_hash = entry["content_sha256"]
         if status == "preserved" and section_hash not in current_hashes:
@@ -326,6 +382,10 @@ def validate(
             {"requirements_sha256", "workspace", "requirement_ids", "baseline"},
         )
         validate_scopes(source["validation"].get("scopes"), ids)
+        validate_baseline_scopes(
+            source["validation"].get("baseline_scopes"),
+            baseline_sections,
+        )
         return
 
     validate_snapshot(

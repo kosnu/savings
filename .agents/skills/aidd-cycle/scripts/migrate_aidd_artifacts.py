@@ -41,6 +41,9 @@ GOAL_SCOPE_PATTERN = re.compile(
     r"(?m)^-\s+((?:FR|NFR|AC)-[1-9][0-9]*) "
     r"(design|verification) scope:\s*(.+)$"
 )
+BASELINE_SCOPE_PATTERN = re.compile(
+    r"(?m)^-\s+(.+?) baseline scope:\s*(.+)$"
+)
 
 
 def parse_gate(markdown: str, name: str) -> dict[str, Any] | None:
@@ -152,10 +155,18 @@ def build_goal_source(workspace: str, kind: str, markdown: str) -> dict[str, Any
             for entry in scopes
         ):
             raise SourceError("Design Goal scopes are incomplete")
+        baseline_scopes = [
+            {
+                "heading": heading.strip(),
+                "review_scope": f"{heading.strip()} baseline scope: {text}",
+            }
+            for heading, text in BASELINE_SCOPE_PATTERN.findall(markdown)
+        ]
         validation = {
             "mode": "managed",
             "coverage_gate": coverage_gate,
             "scopes": scopes,
+            "baseline_scopes": baseline_scopes,
         }
         source_kind = "design_goal"
     return {
@@ -196,7 +207,6 @@ def migrate(repo_root: Path, write: bool) -> int:
         preserves_managed_source = (
             existing is not None
             and existing["validation"].get("mode") == "managed"
-            and expected["validation"].get("mode") == "managed"
         )
         if write and not preserves_managed_source:
             source_path.write_text(serialize_source(expected), encoding="utf-8")
