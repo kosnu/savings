@@ -70,6 +70,11 @@ baselines, never as additional Requirements Task Context.
 Their `display.markdown` values generate `requirements.md` and `design-doc.md`;
 the Markdown files are human-readable outputs and are never parsed by normal
 validators. Use `migrate_aidd_artifacts.py` as the sole legacy Markdown parser.
+For temporary Requirements and Design Goal JSON, the renderer must verify that
+the Goal objective retains the required Context Packet markers and exactly
+represents every structured Gate and scope before writing or printing it. The
+renderer adds the complete structured ID set as Validated Scope and rejects a
+Goal objective that narrows execution to the current delta.
 
 ## Requirements Provenance And Completeness Gates
 
