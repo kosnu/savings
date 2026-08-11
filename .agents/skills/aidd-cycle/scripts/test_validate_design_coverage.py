@@ -13,6 +13,7 @@ from validate_design_coverage import (
     content_sha256,
     validate,
     validate_baseline_scopes,
+    validate_baseline_sections,
 )
 
 
@@ -103,6 +104,7 @@ class DesignCoverageGateTest(unittest.TestCase):
         kind: str,
         goal_scopes: list[dict[str, str]] | None = None,
         goal_baseline_scopes: list[dict[str, str]] | None = None,
+        artifact_coverage: list[dict[str, str]] | None = None,
         markdown: str = "# display\n",
         canonical_requirements: bool = True,
         with_design_baseline: bool = False,
@@ -176,7 +178,11 @@ class DesignCoverageGateTest(unittest.TestCase):
                         "sections": sections(),
                         "coverage_gate": {
                             **common_gate,
-                            "coverage": coverage(),
+                            "coverage": (
+                                artifact_coverage
+                                if artifact_coverage is not None
+                                else coverage()
+                            ),
                             "baseline_sections": [],
                         },
                     },
@@ -272,6 +278,53 @@ class DesignCoverageGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "must name only FR-1"):
             self.validate_source(kind="goal", goal_scopes=grouped)
 
+    def test_rejects_identical_design_and_verification_scopes(self) -> None:
+        identical = deepcopy(scopes())
+        identical[0]["verification_scope"] = (
+            f"{identical[0]['id']}   の構造化設計境界を定義する。"
+        )
+        with self.assertRaisesRegex(ValidationError, "scopes must differ"):
+            self.validate_source(kind="goal", goal_scopes=identical)
+
+    def test_rejects_identical_design_and_verification_evidence(self) -> None:
+        identical = coverage()
+        identical[0]["verification_evidence"] = (
+            f"{identical[0]['id']}   の構造化設計を実装する。"
+        )
+        with self.assertRaisesRegex(ValidationError, "evidence must differ"):
+            self.validate_source(kind="artifact", artifact_coverage=identical)
+
+    def test_rejects_heading_only_baseline_evidence(self) -> None:
+        for evidence in (
+            "構造化設計",
+            "構造化設計 構造化設計 構造化設計",
+            "構造化設計.........***",
+        ):
+            with self.subTest(evidence=evidence):
+                with self.assertRaisesRegex(ValidationError, "not substantive"):
+                    validate_baseline_sections(
+                        [
+                            {
+                                "heading": "構造化設計",
+                                "content_sha256": "baseline-hash",
+                                "status": "preserved",
+                                "design_evidence": evidence,
+                            }
+                        ],
+                        [
+                            {
+                                "heading": "構造化設計",
+                                "content_sha256": "baseline-hash",
+                            }
+                        ],
+                        [
+                            {
+                                "heading": "構造化設計",
+                                "content_sha256": "baseline-hash",
+                            }
+                        ],
+                    )
+
     def test_rejects_noncanonical_requirements_source(self) -> None:
         with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_source(kind="goal", canonical_requirements=False)
@@ -317,7 +370,10 @@ class DesignCoverageGateTest(unittest.TestCase):
                         "heading": entry["heading"],
                         "content_sha256": content_sha256(entry["content"]),
                         "status": "preserved",
-                        "design_evidence": f"{entry['heading']}を維持する。",
+                        "design_evidence": (
+                            f"{entry['heading']}を現在Requirementsへ"
+                            "適合させたまま維持する。"
+                        ),
                     }
                     for entry in sections()
                 ],

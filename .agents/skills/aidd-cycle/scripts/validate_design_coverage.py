@@ -37,6 +37,13 @@ def normalize(value: str) -> str:
     return " ".join(value.split()).casefold()
 
 
+def substantive_length_without(value: str, *ignored_terms: str) -> int:
+    normalized_value = normalize(value)
+    for term in ignored_terms:
+        normalized_value = normalized_value.replace(normalize(term), "")
+    return sum(character.isalnum() for character in normalized_value)
+
+
 def require_string(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{label} must be a non-empty string")
@@ -197,12 +204,20 @@ def validate_scopes(entries: Any, ids: list[str]) -> None:
                 "each scope must contain only id, design_scope, and verification_scope"
             )
         requirement_id = entry["id"]
-        validate_id_text(entry["design_scope"], f"scopes[{index}].design_scope", requirement_id)
-        validate_id_text(
+        design = validate_id_text(
+            entry["design_scope"],
+            f"scopes[{index}].design_scope",
+            requirement_id,
+        )
+        verification = validate_id_text(
             entry["verification_scope"],
             f"scopes[{index}].verification_scope",
             requirement_id,
         )
+        if normalize(design) == normalize(verification):
+            raise ValidationError(
+                f"scopes[{index}] design and verification scopes must differ"
+            )
 
 
 def validate_baseline_scopes(
@@ -240,9 +255,7 @@ def validate_baseline_scopes(
             raise ValidationError(
                 "baseline review scope must name only its target heading"
             )
-        substantive = normalize(scope).replace(normalize(heading), "")
-        substantive = substantive.replace("baseline scope", "").strip(" :-：`*_#")
-        if len(substantive) < 8:
+        if substantive_length_without(scope, heading, "baseline scope") < 8:
             raise ValidationError("baseline review scope is not substantive")
         if scope in seen_scopes:
             raise ValidationError("baseline review scopes must be unique")
@@ -276,10 +289,19 @@ def validate_coverage(entries: Any, ids: list[str]) -> None:
             f"coverage[{index}].verification_evidence",
             requirement_id,
         )
-        if design in seen_design or verification in seen_verification:
+        normalized_design = normalize(design)
+        normalized_verification = normalize(verification)
+        if normalized_design == normalized_verification:
+            raise ValidationError(
+                f"coverage[{index}] design and verification evidence must differ"
+            )
+        if (
+            normalized_design in seen_design
+            or normalized_verification in seen_verification
+        ):
             raise ValidationError("coverage evidence must be unique")
-        seen_design.add(design)
-        seen_verification.add(verification)
+        seen_design.add(normalized_design)
+        seen_verification.add(normalized_verification)
 
 
 def validate_baseline_sections(
@@ -320,6 +342,8 @@ def validate_baseline_sections(
             raise ValidationError("baseline evidence must name its heading")
         if names_other_baseline_heading(evidence, heading, baseline_headings):
             raise ValidationError("baseline evidence must name only its target heading")
+        if substantive_length_without(evidence, heading) < 8:
+            raise ValidationError("baseline evidence is not substantive")
         section_hash = entry["content_sha256"]
         if status == "preserved" and section_hash not in current_hashes:
             raise ValidationError("preserved baseline section changed")
