@@ -47,7 +47,7 @@ Stop条件を検出したphase Goalは、Goal tool contractが`status: blocked`�
 
 read-only境界は同一サイクルの後続工程にだけ適用します。現在サイクルで生成した`requirements.json`と`requirements.md`はDesign / Plan以降、`design.json`と`design-doc.md`はBuild / Verify以降でread-onlyです。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、現在の工程で上流成果物を直さずStopし、`$learn`で対象Issue本文の変更案、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理します。次サイクルの各生成工程では、対応する前サイクルの成果物を同じpathへ上書きします。
 
-RequirementsとDesignの通常機械検証は、共通envelope `schema_version`、`kind`、`workspace`、`display`、`validation`を持つJSONだけを入力にします。`requirements_goal` / `design_goal`の一時JSONを先に作成・検証し、その`display.markdown`をGoal objectiveへ渡します。artifactはcanonical `requirements.json` / `design.json`として保存し、rendererがMarkdown表示を生成します。通常validatorは`display.markdown`を解釈せず、表示の同期はrendererのUTF-8文字列一致検証で確認します。CRLFとLFの改行コード差は同一として扱います。旧Markdownの解析は一回限りの移行scriptだけに許可します。
+RequirementsとDesignの通常機械検証は、共通envelope `schema_version`、`kind`、`workspace`、`display`、`validation`を持つJSONだけを入力にします。`requirements_goal` / `design_goal`の一時JSONを先に作成・検証し、その`display.markdown`をGoal objectiveへ渡します。rendererはGoal objectiveを出力する前に、Context PacketのGoal、constraints、Stop、Done / Verificationと、構造化Gateおよび全scopeが欠落・不一致でないことを確認します。さらに全構造化IDからcanonical Validated Scopeを生成し、現在の差分だけへ実行scopeを狭めるobjectiveを拒否します。artifactはcanonical `requirements.json` / `design.json`として保存し、rendererがMarkdown表示を生成します。通常validatorは`display.markdown`を解釈せず、表示の同期はrendererのUTF-8文字列一致検証で確認します。CRLFとLFの改行コード差は同一として扱います。旧Markdownの解析は一回限りの移行scriptだけに許可します。
 
 このフローはHuman on the loopを前提にします。AIはStop条件に当たらない限り次工程へ進み、人間は各工程の逐次承認ではなく、リスク監督、例外処理、最終的な公開可否を担います。
 

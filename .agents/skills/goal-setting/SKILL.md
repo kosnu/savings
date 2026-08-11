@@ -58,9 +58,14 @@ definition and not as output skeletons.
    an explicit user constraint.
 5. For Requirements and Design, serialize that packet and the structured gates
    as `requirements_goal` or `design_goal` JSON, validate the JSON, and render
-   `display.markdown` for the Goal objective. The JSON is retained as the
+   `display.markdown` for the Goal objective. The renderer must reject the
+   objective unless its Context Packet keeps Goal, constraints, Stop, and
+   Done / Verification markers and its Gate and per-ID or baseline scope content
+   matches the structured validation fields. The renderer adds a canonical
+   Validated Scope line from every structured ID and rejects objective text that
+   narrows execution to the current delta. The JSON is retained as the
    comparison source until the phase artifact passes; Goal Markdown is not a
-   validator input.
+   phase validator input.
 6. Set the Goal with `create_goal`. In orchestrated use, include the
    workflow-defined cycle identity, phase inputs, artifact references, and
    current phase supplied by `aidd-cycle`. Keep cycle control and next-Goal

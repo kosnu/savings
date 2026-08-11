@@ -4,13 +4,17 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
+import re
 import sys
 from pathlib import Path
+from typing import Any
 
 from artifact_source import (
     ARTIFACT_KINDS,
     DISPLAY_FILENAMES,
+    GOAL_KINDS,
     SOURCE_FILENAMES,
     SourceError,
     canonical_display_path,
@@ -18,7 +22,38 @@ from artifact_source import (
     load_source,
     normalize_markdown_newlines,
 )
-from git_baseline import GitBaselineError, require_repository_root
+from git_baseline import GitBaselineError, require_repository_root, run_git
+
+
+GOAL_REQUIRED_MARKERS = (
+    ("## Goal", r"^## Goal[ \t]*$"),
+    ("## Context Packet", r"^## Context Packet[ \t]*$"),
+    ("- Constraints:", r"^- Constraints:[ \t]*\S.+$"),
+    ("- Stop:", r"^- Stop:[ \t]*\S.+$"),
+    ("## Done / Verification", r"^## Done / Verification[ \t]*$"),
+)
+GOAL_GATE_FIELDS = {
+    "requirements_goal": (
+        ("Requirements Input Gate", "input_gate"),
+        ("Requirements Completeness Gate", "completeness_gate"),
+    ),
+    "design_goal": (("Design Coverage Gate", "coverage_gate"),),
+}
+GOAL_SCOPE_FIELDS = {
+    "requirements_goal": (("requirements", ("content",)),),
+    "design_goal": (
+        ("scopes", ("design_scope", "verification_scope")),
+        ("baseline_scopes", ("review_scope",)),
+    ),
+}
+NARROW_GOAL_SCOPE_PATTERN = re.compile(
+    r"(?:差分|変更|追加|指摘).{0,6}(?:だけ|のみ|限定)"
+    r"(?![^。\n]{0,8}(?:扱わない|対象としない|限定しない|狭めない))"
+    r"|(?:only|limited to)\s+(?:the\s+)?"
+    r"(?:delta|change|changes|addition|review comments?)",
+    re.IGNORECASE,
+)
+VALIDATED_SCOPE_PREFIX = "- Validated Scope:"
 
 
 def normalized_path(path: Path) -> Path:
@@ -64,6 +99,200 @@ def require_canonical_artifact_paths(
     require_no_symlinks(repo_root, expected_output, "artifact output")
 
 
+def extract_goal_gate(markdown: str, heading: str) -> Any:
+    lines = re.sub(r"(?s)<!--.*?-->", "", markdown).splitlines()
+    heading_line = f"## {heading}"
+    heading_indices: list[int] = []
+    fence: tuple[str, int] | None = None
+    for index, line in enumerate(lines):
+        stripped = line.lstrip()
+        if fence is None:
+            if line.rstrip() == heading_line:
+                heading_indices.append(index)
+            match = re.match(r"(?P<fence>`{3,}|~{3,})", stripped)
+            if match is not None:
+                opening = match.group("fence")
+                fence = (opening[0], len(opening))
+        else:
+            fence_character, minimum_length = fence
+            closing = re.match(rf"{re.escape(fence_character)}+", stripped)
+            if (
+                closing is not None
+                and len(closing.group(0)) >= minimum_length
+                and stripped[closing.end() :].strip() == ""
+            ):
+                fence = None
+    if len(heading_indices) != 1:
+        raise SourceError(f"Goal objective is missing {heading}")
+
+    index = heading_indices[0] + 1
+    while index < len(lines) and not lines[index].strip():
+        index += 1
+    if index >= len(lines):
+        raise SourceError(f"Goal objective is missing {heading} JSON")
+    opening_match = re.fullmatch(
+        r"(?P<fence>`{3,}|~{3,})json[ \t]*", lines[index]
+    )
+    if opening_match is None:
+        raise SourceError(f"Goal objective is missing {heading} JSON")
+    opening = opening_match.group("fence")
+    index += 1
+    content_lines: list[str] = []
+    while index < len(lines):
+        stripped = lines[index]
+        closing = re.match(rf"{re.escape(opening[0])}+", stripped)
+        if (
+            closing is not None
+            and len(closing.group(0)) >= len(opening)
+            and stripped[closing.end() :].strip() == ""
+        ):
+            break
+        content_lines.append(lines[index])
+        index += 1
+    else:
+        raise SourceError(f"Goal objective is missing {heading} JSON closing fence")
+    try:
+        return json.loads("\n".join(content_lines))
+    except json.JSONDecodeError as error:
+        raise SourceError(f"Goal objective {heading} JSON is invalid: {error}") from error
+
+
+def visible_goal_markdown(markdown: str) -> str:
+    without_comments = re.sub(r"(?s)<!--.*?-->", "", markdown)
+    visible_lines: list[str] = []
+    fence: tuple[str, int] | None = None
+    for line in without_comments.splitlines(keepends=True):
+        stripped = line.lstrip()
+        if fence is None:
+            if line.startswith(("\t", "    ")) or stripped.startswith(">"):
+                visible_lines.append("\n" if line.endswith("\n") else "")
+                continue
+            match = re.match(r"(?P<fence>`{3,}|~{3,})", stripped)
+            if match is None:
+                visible_lines.append(line)
+                continue
+            opening = match.group("fence")
+            fence = (opening[0], len(opening))
+        else:
+            fence_character, minimum_length = fence
+            closing = re.match(rf"{re.escape(fence_character)}+", stripped)
+            if (
+                closing is not None
+                and len(closing.group(0)) >= minimum_length
+                and stripped[closing.end() :].strip() == ""
+            ):
+                fence = None
+        visible_lines.append("\n" if line.endswith("\n") else "")
+    return "".join(visible_lines)
+
+
+def normalize_goal_block(value: str) -> str:
+    return "\n".join(line.strip() for line in value.strip().splitlines())
+
+
+def goal_section(markdown: str, heading: str) -> str:
+    matches = list(
+        re.finditer(rf"(?m)^## {re.escape(heading)}[ \t]*$", markdown)
+    )
+    if len(matches) != 1:
+        raise SourceError(f"Goal objective must contain exactly one ## {heading}")
+    start = matches[0].end()
+    next_heading = re.search(r"(?m)^## ", markdown[start:])
+    end = start + next_heading.start() if next_heading is not None else len(markdown)
+    return markdown[start:end]
+
+
+def structured_goal_ids(source: dict[str, Any]) -> list[str]:
+    validation = source["validation"]
+    if source["kind"] == "requirements_goal":
+        entries = validation.get("requirements")
+        if not isinstance(entries, list):
+            raise SourceError("Goal source must contain structured scope IDs")
+        ids = [entry.get("id") if isinstance(entry, dict) else None for entry in entries]
+    else:
+        gate = validation.get("coverage_gate")
+        ids = gate.get("requirement_ids") if isinstance(gate, dict) else None
+    if not isinstance(ids, list) or not ids or not all(
+        isinstance(requirement_id, str) and requirement_id for requirement_id in ids
+    ):
+        raise SourceError("Goal source must contain structured scope IDs")
+    return ids
+
+
+def add_validated_scope(markdown: str, ids: list[str]) -> str:
+    statement = (
+        f"{VALIDATED_SCOPE_PREFIX} {', '.join(ids)}。"
+        "全IDを扱い、今回の差分だけへ狭めない。"
+    )
+    existing = [
+        line.strip()
+        for line in visible_goal_markdown(markdown).splitlines()
+        if line.strip().startswith(VALIDATED_SCOPE_PREFIX)
+    ]
+    if existing:
+        if existing != [statement]:
+            raise SourceError("Goal objective has an invalid Validated Scope statement")
+        return markdown
+    return re.sub(
+        r"(?m)^## Goal[ \t]*$",
+        lambda match: f"{match.group(0)}\n\n{statement}",
+        markdown,
+        count=1,
+    )
+
+
+def render_goal_objective(source: dict[str, Any]) -> str:
+    kind = source["kind"]
+    if kind not in GOAL_KINDS:
+        raise SourceError("Goal objective rendering requires a Goal source")
+    markdown = source["display"]["markdown"]
+    visible_markdown = visible_goal_markdown(markdown)
+    normalized_visible_markdown = normalize_goal_block(visible_markdown)
+    for marker, pattern in GOAL_REQUIRED_MARKERS:
+        if re.search(pattern, visible_markdown, re.MULTILINE) is None:
+            raise SourceError(f"Goal objective is missing required marker: {marker}")
+    goal_instructions = goal_section(visible_markdown, "Goal")
+    context_packet = goal_section(visible_markdown, "Context Packet")
+    goal_section(visible_markdown, "Done / Verification")
+    for marker in ("Constraints", "Stop"):
+        if re.search(rf"(?m)^- {marker}:[ \t]*\S.+$", context_packet) is None:
+            raise SourceError(f"Goal objective Context Packet is missing {marker}")
+
+    validation = source["validation"]
+    if validation.get("mode") != "managed":
+        raise SourceError("Goal objective rendering requires validation.mode=managed")
+    if NARROW_GOAL_SCOPE_PATTERN.search(
+        f"{goal_instructions}\n{context_packet}"
+    ) is not None:
+        raise SourceError("Goal objective must not narrow scope to the current delta")
+    for heading, field in GOAL_GATE_FIELDS[kind]:
+        if field not in validation:
+            raise SourceError(f"Goal source is missing validation.{field}")
+        if extract_goal_gate(markdown, heading) != validation[field]:
+            raise SourceError(f"Goal objective {heading} does not match validation.{field}")
+
+    for entries_field, content_fields in GOAL_SCOPE_FIELDS[kind]:
+        entries = validation.get(entries_field)
+        if not isinstance(entries, list):
+            raise SourceError(f"validation.{entries_field} must be an array")
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                raise SourceError(f"validation.{entries_field}[{index}] must be an object")
+            for content_field in content_fields:
+                content = entry.get(content_field)
+                normalized_content = content.strip() if isinstance(content, str) else ""
+                if (
+                    not normalized_content
+                    or normalize_goal_block(normalized_content)
+                    not in normalized_visible_markdown
+                ):
+                    raise SourceError(
+                        "Goal objective is missing structured scope: "
+                        f"validation.{entries_field}[{index}].{content_field}"
+                    )
+    return add_validated_scope(markdown, structured_goal_ids(source))
+
+
 def check_or_write(
     source_path: Path,
     output_path: Path,
@@ -81,7 +310,12 @@ def check_or_write(
             output_path,
             source,
         )
-    check_or_write_markdown(source["display"]["markdown"], output_path, check)
+    markdown = (
+        render_goal_objective(source)
+        if source["kind"] in GOAL_KINDS
+        else source["display"]["markdown"]
+    )
+    check_or_write_markdown(markdown, output_path, check)
 
 
 def check_or_write_markdown(markdown: str, output_path: Path, check: bool) -> None:
@@ -108,21 +342,51 @@ def check_all(repo_root: Path) -> int:
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces"
     )
-    display_kinds = {
-        DISPLAY_FILENAMES[kind]: kind
-        for kind in ARTIFACT_KINDS
+    pair_filenames = {
+        SOURCE_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
+    } | {
+        DISPLAY_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
     }
-    for output_path in sorted(workspace_root.glob("*/*.md")):
-        kind = display_kinds.get(output_path.name)
-        if kind is None:
+    expected_pairs: set[tuple[str, str]] = set()
+    listing = run_git(
+        repo_root,
+        [
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "HEAD",
+            "--",
+            "docs/ai-driven-development/workspaces",
+        ],
+    )
+    if listing.returncode != 0:
+        raise SourceError("failed to inspect AIDD artifacts in Git HEAD")
+    prefix = "docs/ai-driven-development/workspaces/"
+    for tracked_path in listing.stdout.decode("utf-8").splitlines():
+        if not tracked_path.startswith(prefix):
             continue
-        source_path = canonical_source_path(
-            repo_root,
-            output_path.parent.name,
-            kind,
-        )
-        if not source_path.is_file():
-            raise SourceError(f"artifact source is missing: {source_path}")
+        workspace_and_filename = tracked_path.removeprefix(prefix).split("/", 1)
+        if len(workspace_and_filename) != 2:
+            continue
+        workspace, filename = workspace_and_filename
+        kind = pair_filenames.get(filename)
+        if kind is not None:
+            expected_pairs.add((workspace, kind))
+
+    if workspace_root.is_dir():
+        for workspace_path in workspace_root.iterdir():
+            if not workspace_path.is_dir():
+                continue
+            for kind in ARTIFACT_KINDS:
+                source_path = canonical_source_path(
+                    repo_root, workspace_path.name, kind
+                )
+                output_path = canonical_display_path(
+                    repo_root, workspace_path.name, kind
+                )
+                if source_path.exists() or output_path.exists():
+                    expected_pairs.add((workspace_path.name, kind))
+
     checked = 0
     for source_path in sorted(workspace_root.glob("*/*.json")):
         source = load_source(source_path)
@@ -148,6 +412,13 @@ def check_all(repo_root: Path) -> int:
         require_canonical_artifact_paths(repo_root, source_path, output_path, source)
         check_or_write_markdown(source["display"]["markdown"], output_path, True)
         checked += 1
+    for workspace, kind in sorted(expected_pairs):
+        source_path = canonical_source_path(repo_root, workspace, kind)
+        output_path = canonical_display_path(repo_root, workspace, kind)
+        if not source_path.is_file():
+            raise SourceError(f"artifact source is missing: {source_path}")
+        if not output_path.is_file():
+            raise SourceError(f"generated Markdown is missing: {output_path}")
     print(f"AIDD render check passed: {checked} artifacts")
     return checked
 
@@ -176,7 +447,7 @@ def main() -> int:
                 raise SourceError(
                     "artifact rendering requires canonical --output and --repo-root"
                 )
-            sys.stdout.write(source["display"]["markdown"])
+            sys.stdout.write(render_goal_objective(source))
             return 0
         if args.output is None:
             raise SourceError("--output is required without --stdout")
