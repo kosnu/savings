@@ -24,7 +24,9 @@ from requirement_ids import (
     extract_required_requirements_sections,
     extract_requirement_items,
     requirement_sort_key,
+    strip_machine_gates,
 )
+from render_aidd_artifact import artifact_preamble, render_artifact_markdown
 
 
 GATE_PATTERNS = {
@@ -80,7 +82,7 @@ def requirements_inventory(markdown: str) -> tuple[list[dict[str, str]], list[di
 def design_inventory(markdown: str) -> list[dict[str, str]]:
     return [
         {"heading": section.heading, "content": section.content}
-        for section in extract_level_two_sections(markdown)
+        for section in extract_level_two_sections(strip_machine_gates(markdown))
     ]
 
 
@@ -111,13 +113,14 @@ def build_source(workspace: str, kind: str, markdown: str) -> dict[str, Any]:
         if coverage_gate is not None:
             validation["coverage_gate"] = coverage_gate
 
+    managed = validation["mode"] == "managed"
     return {
         "schema_version": 1,
         "kind": kind,
         "workspace": workspace,
         "display": {
             "path": "requirements.md" if kind == "requirements" else "design-doc.md",
-            "markdown": markdown,
+            "markdown": artifact_preamble(markdown) if managed else markdown,
         },
         "validation": validation,
     }
@@ -218,11 +221,13 @@ def migrate(repo_root: Path, write: bool) -> int:
         source = load_source(source_path, kind)
         if source["workspace"] != display_path.parent.name:
             raise SourceError(f"workspace mismatch: {source_path}")
-        if normalize_markdown_newlines(source["display"]["markdown"]) != markdown:
+        if normalize_markdown_newlines(render_artifact_markdown(source)) != markdown:
             raise SourceError(f"Markdown round-trip mismatch: {display_path}")
-        if source["validation"].get("source_markdown_sha256") != hashlib.sha256(
-            markdown.encode("utf-8")
-        ).hexdigest():
+        if (
+            source["validation"].get("mode") == "legacy_import"
+            and source["validation"].get("source_markdown_sha256")
+            != hashlib.sha256(markdown.encode("utf-8")).hexdigest()
+        ):
             raise SourceError(f"Markdown digest mismatch: {source_path}")
         if (
             expected["validation"].get("mode") == "legacy_import"

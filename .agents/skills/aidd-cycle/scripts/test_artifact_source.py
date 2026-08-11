@@ -7,7 +7,12 @@ import unittest
 from pathlib import Path
 
 from artifact_source import SourceError, load_source, serialize_source, validate_source
-from render_aidd_artifact import check_all, check_or_write, render_goal_objective
+from render_aidd_artifact import (
+    check_all,
+    check_or_write,
+    render_artifact_markdown,
+    render_goal_objective,
+)
 
 
 WORKSPACE = "1639-structured-data"
@@ -46,7 +51,62 @@ def source() -> dict[str, object]:
         "kind": "requirements",
         "workspace": WORKSPACE,
         "display": {"path": "requirements.md", "markdown": "# Requirements\n"},
-        "validation": {"mode": "managed"},
+        "validation": {"mode": "legacy_import"},
+    }
+
+
+def managed_source(kind: str) -> dict[str, object]:
+    if kind == "requirements":
+        requirements = [
+            {"id": "FR-1", "content": "- FR-1: 構造化本文を生成する。"},
+            {"id": "NFR-1", "content": "- NFR-1: 二重正本を避ける。"},
+            {"id": "AC-1", "content": "- AC-1: 生成結果を確認する。"},
+        ]
+        validation = {
+            "mode": "managed",
+            "input_gate": {"direct_rules": [], "depends_on": []},
+            "completeness_gate": {"workspace": WORKSPACE},
+            "requirements": requirements,
+            "sections": [
+                {
+                    "id": "functional",
+                    "heading": "機能要件",
+                    "content": "## 機能要件\n- FR-1: 構造化本文を生成する。",
+                },
+                {
+                    "id": "non_functional",
+                    "heading": "非機能要件",
+                    "content": "## 非機能要件\n- NFR-1: 二重正本を避ける。",
+                },
+                {
+                    "id": "acceptance",
+                    "heading": "受け入れ条件",
+                    "content": "## 受け入れ条件\n- AC-1: 生成結果を確認する。",
+                },
+            ],
+        }
+        display_path = "requirements.md"
+    else:
+        validation = {
+            "mode": "managed",
+            "sections": [
+                {
+                    "heading": "構造化設計",
+                    "content": "## 構造化設計\nJSONのsectionから本文を生成する。",
+                }
+            ],
+            "coverage_gate": {"requirement_ids": ["FR-1"]},
+        }
+        display_path = "design-doc.md"
+    return {
+        "schema_version": 1,
+        "kind": kind,
+        "workspace": WORKSPACE,
+        "display": {
+            "path": display_path,
+            "markdown": "# Generated Artifact\n\n## stale\n古い本文。\n",
+        },
+        "validation": validation,
     }
 
 
@@ -223,6 +283,41 @@ class ArtifactSourceTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(SourceError, "missing"):
             render_goal_objective(value)
+
+    def test_managed_requirements_are_rendered_from_structured_fields(self) -> None:
+        value = managed_source("requirements")
+
+        rendered = render_artifact_markdown(value)
+
+        self.assertIn("## 機能要件\n\n- FR-1: 構造化本文を生成する。", rendered)
+        self.assertIn("## Requirements Completeness Gate", rendered)
+        self.assertNotIn("古い本文。", rendered)
+
+    def test_managed_requirements_reject_divergent_requirement_content(self) -> None:
+        value = managed_source("requirements")
+        value["validation"]["requirements"][0]["content"] = (
+            "- FR-1: 更新された構造化本文を生成する。"
+        )
+
+        with self.assertRaisesRegex(SourceError, "missing FR-1 content"):
+            render_artifact_markdown(value)
+
+    def test_managed_design_is_rendered_from_sections_and_coverage(self) -> None:
+        value = managed_source("design")
+        value["validation"]["coverage_gate"]["evidence"] = "updated"
+
+        rendered = render_artifact_markdown(value)
+
+        self.assertIn("## 構造化設計\n\nJSONのsectionから本文を生成する。", rendered)
+        self.assertIn('"evidence":"updated"', rendered)
+        self.assertNotIn("古い本文。", rendered)
+
+    def test_artifact_renderer_rejects_unknown_validation_mode(self) -> None:
+        value = source()
+        value["validation"]["mode"] = "typo"
+
+        with self.assertRaisesRegex(SourceError, "validation.mode"):
+            render_artifact_markdown(value)
 
     def test_rejects_unknown_envelope_key(self) -> None:
         value = source()

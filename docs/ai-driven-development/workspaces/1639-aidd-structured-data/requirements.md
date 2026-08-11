@@ -108,7 +108,7 @@ RequirementsとDesignの構造化正本を導入し、次を満たす。
 
 ## Rule Selection
 
-- Direct: `ai-driven.workflow`。Issueの`workflow`同期をRequirementsと後続phaseへ適用する。
-- Direct: `ai-driven.goal-templates`。IssueのRequirements / Designとtemplate同期をGoal構築へ適用する。
-- Depends-on: `ai-driven.overview`。AIDDのGoal責務とHuman on the loopを前提にする。
+- Direct: `ai-driven.workflow`。workflow同期がscope。
+- Direct: `ai-driven.goal-templates`。AIDD template同期がscope。
+- Depends-on: `ai-driven.overview`（via `ai-driven.workflow`）。
 - Conflict: none。

@@ -488,10 +488,15 @@ def validate(
     repo_root: Path,
     workspace: str,
     goal_document_path: Path | None = None,
+    require_goal_document: bool = True,
 ) -> None:
     if document_kind == "goal" and goal_document_path is not None:
         raise ValidationError("--goal-document is only valid for artifact validation")
-    if document_kind == "artifact" and goal_document_path is None:
+    if (
+        document_kind == "artifact"
+        and require_goal_document
+        and goal_document_path is None
+    ):
         raise ValidationError("artifact validation requires --goal-document")
     if (
         document_kind == "artifact"
@@ -604,6 +609,13 @@ def validate(
             raise ValidationError(
                 f"changed Requirements section is identical to Git HEAD: {section_id}"
             )
+
+    if not require_goal_document:
+        if goal_document_path is not None:
+            raise ValidationError(
+                "goal document must be omitted when only revalidating the artifact gate"
+            )
+        return
 
     assert goal_document_path is not None
     goal_source = load_source(goal_document_path, "requirements_goal")

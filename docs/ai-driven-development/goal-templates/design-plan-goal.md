@@ -30,7 +30,9 @@ when_to_read:
 ## Inputs
 
 - Requirements / PRD: 同じworkspaceのcanonical `requirements.json`。コピー、一時ファイル、symlink aliasは不可。生成`requirements.md`もread-only。
-- Requirements Completeness Gate検証結果:
+- Requirements Input / Completeness Gate再検証結果:
+- Issue snapshot再検証入力: canonical URL、`updatedAt`、Issue本文file
+- Rule map: canonical `docs/harness/rule-map.json`
 - Requirements SHA-256:
 - Requirements IDs: 全`FR-*`、`NFR-*`、`AC-*`
 - Workspace identity検証結果: Requirementsと同じ検証済みworkspace
@@ -164,7 +166,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 既存挙動への影響が整理されている
 - [ ] テスト方針がPRDの受け入れ条件と対応している
 - [ ] Design GoalとDesign Docが現在のRequirements全体をscopeとし、今回の差分だけへ狭まっていない
-- [ ] 入力が同じworkspaceのcanonical `requirements.json`であり、Requirements Completeness Gateが成功している
+- [ ] 入力が同じworkspaceのcanonical `requirements.json`であり、Requirements Input / Completeness Gateの再検証が成功している
 - [ ] 全`FR-*`、`NFR-*`、`AC-*`に、対象IDだけを含む専用行の設計根拠と検証根拠が1件ずつある
 - [ ] Git `HEAD`の前回Design JSONにある全構造化sectionが、headingを明記した一意な根拠とともに`preserved`または`replaced`へ分類されている
 - [ ] Design Coverage GateがGoal作成前とDesign Doc完了前の両方で成功している
@@ -178,7 +180,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 ## Verification
 
 - 必ず実行:
-  - `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
+  - `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --rule-map <canonical-rule-map> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
   - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --repo-root <repo-root> --source <design-file> --output <generated-design-md> --check`
 - 必要なら実行:
   - 既存テストや型定義の調査コマンド

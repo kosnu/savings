@@ -24,6 +24,14 @@ from structured_ids import (
     normalize_structured_text,
     requirement_sort_key,
 )
+from validate_requirements_continuity import (
+    ValidationError as RequirementsContinuityError,
+    validate as validate_requirements_continuity,
+)
+from validate_requirements_goal import (
+    ValidationError as RequirementsInputError,
+    validate as validate_requirements_input,
+)
 
 
 PLACEHOLDERS = {"pending", "tbd", "todo", "未定"}
@@ -360,6 +368,10 @@ def validate_baseline_sections(
 
 def validate(
     issue: str,
+    issue_url: str,
+    issue_updated_at: str,
+    issue_body_path: Path,
+    rule_map_path: Path,
     requirements_path: Path,
     document_path: Path,
     document_kind: str,
@@ -379,6 +391,31 @@ def validate(
         raise ValidationError("Requirements source workspace does not match")
     if requirements_source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
+    try:
+        validate_requirements_input(
+            issue_body_path,
+            requirements_path,
+            rule_map_path,
+            issue,
+            issue_url,
+            issue_updated_at,
+            "artifact",
+            repo_root,
+            require_goal_document=False,
+        )
+        validate_requirements_continuity(
+            issue,
+            issue_body_path,
+            requirements_path,
+            "artifact",
+            repo_root,
+            workspace,
+            require_goal_document=False,
+        )
+    except (RequirementsInputError, RequirementsContinuityError) as error:
+        raise ValidationError(
+            f"Requirements artifact gate revalidation failed: {error}"
+        ) from error
     ids = requirement_ids(requirements_source)
 
     if document_kind == "artifact":
@@ -441,6 +478,10 @@ def validate(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--issue", required=True)
+    parser.add_argument("--issue-url", required=True)
+    parser.add_argument("--issue-updated-at", required=True)
+    parser.add_argument("--issue-body", required=True, type=Path)
+    parser.add_argument("--rule-map", required=True, type=Path)
     parser.add_argument("--requirements", required=True, type=Path)
     parser.add_argument("--document", required=True, type=Path)
     parser.add_argument("--kind", required=True, choices=("goal", "artifact"))
@@ -450,6 +491,10 @@ def main() -> int:
     try:
         validate(
             args.issue,
+            args.issue_url,
+            args.issue_updated_at,
+            args.issue_body,
+            args.rule_map,
             args.requirements,
             args.document,
             args.kind,
