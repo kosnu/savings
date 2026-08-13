@@ -45,3 +45,20 @@ def extract_requirement_mentions(value: str) -> list[str]:
 
 def normalize_structured_text(value: str) -> str:
     return " ".join(value.split()).casefold()
+
+
+def requirement_section_ids_for_heading(heading: str) -> tuple[str, ...]:
+    normalized_heading = normalize_structured_text(heading)
+    segments = [
+        segment.strip()
+        for segment in re.split(r"[/／|｜・]", normalized_heading)
+    ]
+    return tuple(
+        section_id
+        for section_id, aliases in REQUIRED_REQUIREMENTS_SECTIONS.items()
+        if any(
+            segment.startswith(normalize_structured_text(alias))
+            for segment in segments
+            for alias in aliases
+        )
+    )

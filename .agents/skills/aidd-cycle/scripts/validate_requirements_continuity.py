@@ -25,6 +25,7 @@ from structured_ids import (
     extract_requirement_mentions,
     is_requirement_id,
     normalize_structured_text,
+    requirement_section_ids_for_heading,
     requirement_sort_key,
 )
 
@@ -203,7 +204,11 @@ def structured_sections(source: dict[str, Any]) -> dict[str, StructuredContent]:
                 "each validation.sections entry must contain only id, heading, and content"
             )
         section_id = require_string(entry["id"], f"sections[{index}].id")
-        require_string(entry["heading"], f"sections[{index}].heading")
+        heading = require_string(entry["heading"], f"sections[{index}].heading")
+        if requirement_section_ids_for_heading(heading) != (section_id,):
+            raise ValidationError(
+                f"section {section_id} heading does not match its canonical aliases"
+            )
         content = require_string(entry["content"], f"sections[{index}].content")
         if section_id in sections:
             raise ValidationError(f"duplicate structured section: {section_id}")

@@ -9,7 +9,11 @@ from pathlib import Path
 
 from artifact_source import serialize_source
 from structured_ids import REQUIRED_REQUIREMENTS_SECTIONS
-from validate_requirements_continuity import ValidationError, validate
+from validate_requirements_continuity import (
+    ValidationError,
+    structured_sections,
+    validate,
+)
 
 
 ISSUE = "owner/repo#1639"
@@ -111,6 +115,13 @@ def source(
 
 
 class RequirementsContinuityGateTest(unittest.TestCase):
+    def test_rejects_section_heading_for_another_section_id(self) -> None:
+        value = source("requirements", completeness_gate())
+        value["validation"]["sections"][4]["heading"] = "非機能要件"
+
+        with self.assertRaisesRegex(ValidationError, "heading does not match"):
+            structured_sections(value)
+
     def validate_source(
         self,
         *,
