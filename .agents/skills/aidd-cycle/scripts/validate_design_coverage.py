@@ -384,8 +384,19 @@ def validate_baseline_sections(
         section_hash = entry["content_sha256"]
         if status == "preserved" and section_hash not in current_hashes:
             raise ValidationError("preserved baseline section changed")
-        if status == "replaced" and section_hash in current_hashes:
-            raise ValidationError("replaced baseline section is unchanged")
+        if status == "replaced":
+            if section_hash in current_hashes:
+                raise ValidationError("replaced baseline section is unchanged")
+            occurrences = sum(
+                normalize(line) == normalized_evidence
+                for section in current_sections
+                for line in section["content"].splitlines()
+            )
+            if occurrences != 1:
+                raise ValidationError(
+                    "replaced baseline design_evidence must be exactly one "
+                    "Design section line"
+                )
         if status not in {"preserved", "replaced"}:
             raise ValidationError(f"invalid baseline section status: {status}")
 
