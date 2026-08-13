@@ -23,7 +23,11 @@ from artifact_source import (
     normalize_markdown_newlines,
 )
 from git_baseline import GitBaselineError, require_repository_root, run_git
-from structured_ids import extract_requirement_mentions, requirement_sort_key
+from structured_ids import (
+    extract_requirement_mentions,
+    requirement_section_ids_for_heading,
+    requirement_sort_key,
+)
 
 
 GOAL_REQUIRED_MARKERS = (
@@ -60,6 +64,11 @@ REQUIREMENT_SECTION_BY_PREFIX = {
     "NFR": "non_functional",
     "AC": "acceptance",
 }
+REQUIREMENT_DEFINITION_LINE_PATTERN = re.compile(
+    r"^[ \t]{0,3}(?:#{2,6}|[-*+])[ \t]+(?:\*\*)?"
+    r"(?P<id>(?:FR|NFR|AC)-[1-9][0-9]*)"
+    r"(?![A-Za-z0-9_-])"
+)
 
 
 def normalized_path(path: Path) -> Path:
@@ -324,6 +333,26 @@ def render_section(heading: Any, content: Any, label: str) -> str:
     return expected_heading if not body else f"{expected_heading}\n\n{body}"
 
 
+def requirement_definitions(content: str) -> list[tuple[str, str]]:
+    definitions: list[tuple[str, str]] = []
+    requirement_id: str | None = None
+    lines: list[str] = []
+    for line in content.strip().splitlines():
+        match = REQUIREMENT_DEFINITION_LINE_PATTERN.match(line)
+        if match is not None:
+            if requirement_id is not None:
+                definitions.append(
+                    (requirement_id, "\n".join(lines).strip())
+                )
+            requirement_id = match.group("id")
+            lines = [line]
+        elif requirement_id is not None:
+            lines.append(line)
+    if requirement_id is not None:
+        definitions.append((requirement_id, "\n".join(lines).strip()))
+    return definitions
+
+
 def render_requirements_sections(validation: dict[str, Any]) -> list[str]:
     entries = validation.get("sections")
     if not isinstance(entries, list) or not entries:
@@ -340,14 +369,18 @@ def render_requirements_sections(validation: dict[str, Any]) -> list[str]:
             raise SourceError(f"validation.sections[{index}].id must be a string")
         if section_id in sections_by_id:
             raise SourceError(f"duplicate Requirements section: {section_id}")
-        sections_by_id[section_id] = entry["content"]
-        rendered.append(
-            render_section(
-                entry["heading"],
-                entry["content"],
-                f"validation.sections[{index}]",
-            )
+        heading = entry["heading"]
+        rendered_section = render_section(
+            heading,
+            entry["content"],
+            f"validation.sections[{index}]",
         )
+        if requirement_section_ids_for_heading(heading) != (section_id,):
+            raise SourceError(
+                f"Requirements section {section_id} heading does not match its canonical aliases"
+            )
+        sections_by_id[section_id] = entry["content"]
+        rendered.append(rendered_section)
 
     requirements = validation.get("requirements")
     if not isinstance(requirements, list) or not requirements:
@@ -368,7 +401,16 @@ def render_requirements_sections(validation: dict[str, Any]) -> list[str]:
         section_id = REQUIREMENT_SECTION_BY_PREFIX.get(prefix)
         if section_id is None:
             raise SourceError(f"unsupported requirement ID: {requirement_id}")
-        requirements_by_section[section_id].append((requirement_id, content.strip()))
+        normalized_content = content.strip()
+        if requirement_definitions(normalized_content) != [
+            (requirement_id, normalized_content)
+        ]:
+            raise SourceError(
+                f"validation.requirements[{index}].content must define only {requirement_id}"
+            )
+        requirements_by_section[section_id].append(
+            (requirement_id, normalized_content)
+        )
 
     for section_id, section_requirements in requirements_by_section.items():
         section_content = sections_by_id.get(section_id)
@@ -382,10 +424,19 @@ def render_requirements_sections(validation: dict[str, Any]) -> list[str]:
             raise SourceError(
                 f"Requirements section {section_id} does not match validation.requirements"
             )
-        for requirement_id, content in section_requirements:
-            if not content or content not in section_content:
+        actual_definitions = requirement_definitions(section_content)
+        if [requirement_id for requirement_id, _ in actual_definitions] != expected_ids:
+            raise SourceError(
+                f"Requirements section {section_id} definitions do not match validation.requirements"
+            )
+        for (requirement_id, content), (_, actual_content) in zip(
+            section_requirements,
+            actual_definitions,
+        ):
+            if actual_content != content:
                 raise SourceError(
-                    f"Requirements section {section_id} is missing {requirement_id} content"
+                    f"Requirements section {section_id} definition for {requirement_id} "
+                    "does not match validation.requirements"
                 )
     return rendered
 

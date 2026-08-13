@@ -299,7 +299,27 @@ class ArtifactSourceTest(unittest.TestCase):
             "- FR-1: 更新された構造化本文を生成する。"
         )
 
-        with self.assertRaisesRegex(SourceError, "missing FR-1 content"):
+        with self.assertRaisesRegex(SourceError, "definition for FR-1"):
+            render_artifact_markdown(value)
+
+    def test_managed_requirements_require_id_in_structured_content(self) -> None:
+        value = managed_source("requirements")
+        value["validation"]["requirements"][0]["content"] = "保存できる。"
+        value["validation"]["sections"][0]["content"] = (
+            "## 機能要件\n- FR-1: 削除できる。\n保存できる。"
+        )
+
+        with self.assertRaisesRegex(SourceError, "must define only FR-1"):
+            render_artifact_markdown(value)
+
+    def test_managed_requirements_reject_mismatched_section_heading(self) -> None:
+        value = managed_source("requirements")
+        value["validation"]["sections"][0]["heading"] = "非機能要件"
+        value["validation"]["sections"][0]["content"] = (
+            "## 非機能要件\n- FR-1: 構造化本文を生成する。"
+        )
+
+        with self.assertRaisesRegex(SourceError, "heading does not match"):
             render_artifact_markdown(value)
 
     def test_managed_design_is_rendered_from_sections_and_coverage(self) -> None:
