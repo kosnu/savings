@@ -555,6 +555,62 @@ class DesignCoverageGateTest(unittest.TestCase):
                 ],
             )
 
+    def test_accepts_replaced_baseline_evidence_in_current_section(self) -> None:
+        evidence = "構造化設計を現在Requirementsに合わせて置き換える。"
+        validate_baseline_sections(
+            [
+                {
+                    "heading": "構造化設計",
+                    "content_sha256": "baseline-hash",
+                    "status": "replaced",
+                    "design_evidence": evidence,
+                }
+            ],
+            [{"heading": "構造化設計", "content_sha256": "baseline-hash"}],
+            [
+                {
+                    "heading": "現在の設計",
+                    "content_sha256": "current-hash",
+                    "content": f"## 現在の設計\n{evidence}",
+                }
+            ],
+        )
+
+    def test_rejects_replaced_baseline_evidence_not_unique_in_sections(self) -> None:
+        evidence = "構造化設計を現在Requirementsに合わせて置き換える。"
+        for content in (
+            "## 現在の設計\n別の設計根拠を記録する。",
+            f"## 現在の設計\n{evidence}\n{evidence}",
+        ):
+            with self.subTest(content=content):
+                with self.assertRaisesRegex(
+                    ValidationError,
+                    "design_evidence must be exactly one Design section line",
+                ):
+                    validate_baseline_sections(
+                        [
+                            {
+                                "heading": "構造化設計",
+                                "content_sha256": "baseline-hash",
+                                "status": "replaced",
+                                "design_evidence": evidence,
+                            }
+                        ],
+                        [
+                            {
+                                "heading": "構造化設計",
+                                "content_sha256": "baseline-hash",
+                            }
+                        ],
+                        [
+                            {
+                                "heading": "現在の設計",
+                                "content_sha256": "current-hash",
+                                "content": content,
+                            }
+                        ],
+                    )
+
     def test_rejects_noncanonical_requirements_source(self) -> None:
         with self.assertRaisesRegex(ValidationError, "canonical repository path"):
             self.validate_source(kind="goal", canonical_requirements=False)
