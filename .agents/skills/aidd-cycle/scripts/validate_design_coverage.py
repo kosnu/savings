@@ -28,6 +28,7 @@ from git_baseline import (
 )
 from validate_requirements_continuity import (
     ValidationError as RequirementsContinuityError,
+    extract_requirement_mentions,
     validate as validate_requirements_continuity,
 )
 from validate_requirements_goal import (
@@ -207,6 +208,44 @@ def require_substantive_text(
     return text
 
 
+def reject_other_requirement_ids(
+    text: str,
+    label: str,
+    requirement_id: str,
+) -> None:
+    other_ids = [
+        mentioned_id
+        for mentioned_id in extract_requirement_mentions(text)
+        if mentioned_id != requirement_id
+    ]
+    if other_ids:
+        raise ValidationError(
+            f"{label} must not name requirement IDs other than {requirement_id}: "
+            f"{', '.join(other_ids)}"
+        )
+
+
+def names_other_baseline_heading(
+    value: str,
+    target_heading: str,
+    baseline_headings: list[str],
+) -> bool:
+    normalized_value = normalize(value)
+    normalized_target = normalize(target_heading)
+    value_without_target = normalized_value.replace(normalized_target, "", 1)
+    return any(
+        other != target_heading
+        and (
+            normalize(other) in value_without_target
+            or (
+                len(normalize(other)) > len(normalized_target)
+                and normalize(other) in normalized_value
+            )
+        )
+        for other in baseline_headings
+    )
+
+
 def validate_scopes(entries: Any, ids: list[str]) -> None:
     if not isinstance(entries, list):
         raise ValidationError("validation.scopes must be an array")
@@ -230,6 +269,16 @@ def validate_scopes(entries: Any, ids: list[str]) -> None:
             f"scopes[{index}].verification_scope",
             entry["id"],
             "verification scope",
+        )
+        reject_other_requirement_ids(
+            design,
+            f"scopes[{index}].design_scope",
+            entry["id"],
+        )
+        reject_other_requirement_ids(
+            verification,
+            f"scopes[{index}].verification_scope",
+            entry["id"],
         )
         if normalize(design) == normalize(verification):
             raise ValidationError(
@@ -256,6 +305,7 @@ def validate_baseline_scopes(
         raise ValidationError(
             "baseline_scopes must cover every Git HEAD section in order"
         )
+    baseline_headings = [entry["heading"] for entry in baseline_sections]
     seen_scopes: set[str] = set()
     for index, entry in enumerate(entries):
         if not isinstance(entry, dict) or set(entry) != {
@@ -273,6 +323,16 @@ def validate_baseline_scopes(
             entry["heading"],
             "baseline scope",
         )
+        if normalize(entry["heading"]) not in normalize(scope):
+            raise ValidationError("baseline review scope must name its heading")
+        if names_other_baseline_heading(
+            scope,
+            entry["heading"],
+            baseline_headings,
+        ):
+            raise ValidationError(
+                "baseline review scope must name only its target heading"
+            )
         normalized_scope = normalize(scope)
         if normalized_scope in seen_scopes:
             raise ValidationError("baseline review scopes must be unique")
@@ -300,6 +360,12 @@ def require_evidence_reference(
         f"{label} evidence text",
         expected_owner,
     )
+    if expected_role in {"design", "verification"}:
+        reject_other_requirement_ids(
+            block["text"],
+            f"{label} evidence text",
+            expected_owner,
+        )
     return reference
 
 
@@ -374,6 +440,7 @@ def validate_baseline_sections(
         if entry["section_id"] is not None
     }
     current_by_heading = {entry["heading"]: entry for entry in current_sections}
+    baseline_headings = [entry["heading"] for entry in baseline_sections]
     references: list[str] = []
     for index, entry in enumerate(transitions):
         if not isinstance(entry, dict) or set(entry) != {
@@ -389,6 +456,17 @@ def validate_baseline_sections(
             expected_role="baseline",
             expected_owner=expected_owner,
         )
+        evidence_text = blocks[reference]["text"]
+        if normalize(entry["heading"]) not in normalize(evidence_text):
+            raise ValidationError("baseline evidence must name its heading")
+        if names_other_baseline_heading(
+            evidence_text,
+            entry["heading"],
+            baseline_headings,
+        ):
+            raise ValidationError(
+                "baseline evidence must name only its target heading"
+            )
         references.append(reference)
         section_hash = entry["content_sha256"]
         status = entry["status"]
