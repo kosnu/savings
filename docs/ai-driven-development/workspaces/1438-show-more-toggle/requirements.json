@@ -121,6 +121,7 @@
         "heading": "技術的考慮事項",
         "content": "## 技術的考慮事項\n- 現行の `CategoryTotals` は、初期表示件数を 3 件にしている。\n- 現行の `CategoryTotals` は、表示対象を `categoryTotals.slice(0, visibleCount)` で制限している。\n- 現行の `Show more` は、`visibleCount` を取得済みカテゴリ別サマリーの全件数へ更新し、残りを表示する。\n- 現行の `Show more` は、展開後に非表示になり、元の表示量へ戻す操作を提供しない。\n- 現行の `Show more` は、追加 network request ではなく、取得済み配列の表示範囲を広げる操作である。\n- 現行の `CategoryTotals` は、対象月、カテゴリ別サマリーの key、kind、totalAmount、pinned を含む key により、月変更または集計結果変更時に表示状態を初期化できる。\n- 既存の `CategoryTotals` のテストには、`Show more` で残りが表示されること、3 件以下では `Show more` が表示されないこと、ピン留め優先順の先頭 3 件を初期表示することの確認がある。\n- Design / Plan Goal では、既存の Radix Themes コンポーネント、アクセシブルな名前、タッチ操作での押しやすさ、視覚的優先度、バッジなどの状態表示要素との見分けやすさ、既存のカテゴリ別サマリー layout との整合を確認する。"
       }
-    ]
+    ],
+    "inventory_sha256": "cecc560b041a8a89a77086ca60a57b804577a59877eb4be74bb518cc20f786e7"
   }
 }

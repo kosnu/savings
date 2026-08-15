@@ -103,6 +103,7 @@
         "content": "- AC-15: Book UI、Category/Budget全体、DB schema、RLS、認証方式、API契約、新規依存に差分がない。"
       }
     ],
-    "sections": []
+    "sections": [],
+    "inventory_sha256": "65df9b1a6d7db841e685eeec003f445b482d893de8336ac53ea621485af6ed58"
   }
 }

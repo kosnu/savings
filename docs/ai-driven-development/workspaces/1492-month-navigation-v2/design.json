@@ -62,6 +62,7 @@
         "heading": "Rule / Policy Compliance Check",
         "content": "## Rule / Policy Compliance Check\n- Workflow: creates a new Design Doc from the latest Requirements and treats Requirements as read-only.\n- Issue guidelines: keeps implementation detail in Design, not Issue/Requirements, and does not expand product scope.\n- Date / temporal rules: treats target month as year/month and keeps the range explicit.\n- Payment / category rules: treats category as an optional filter and does not change payment/category data meaning.\n- Web design / domain UI rules: uses operation state for range boundary and leaves concrete visual styling to existing UI patterns.\n- Component structure: no new component is required by the preferred design.\n- Test policy: requires category absence to be asserted, not skipped."
       }
-    ]
+    ],
+    "inventory_sha256": "d888e571e43118071898ae7ba2b89c7f924d1baddddd1dac04d32f1f80756bab"
   }
 }

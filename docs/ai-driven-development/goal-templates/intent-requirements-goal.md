@@ -37,7 +37,7 @@ when_to_read:
 - Workspace: `<Issue番号>-<短いtitle>`。同じIssueの既存workspaceがあれば必ず同じ名前を使う
 - Workspace identity検証結果:
 - 既存Requirements / PRD: 履歴参照のみ。Task Contextへ追加しない
-- Goal source: temporary `requirements_goal` JSON。このJSONを検証してから`display.markdown`をGoal objectiveに使う。
+- Goal source: temporary `requirements_goal` JSON。このJSONを検証し、型付き`display` fieldから生成したGoal objectiveを使う。
 - 出力先: 同じworkspaceのcanonical `requirements.json`。このGoalが書き込みを所有し、`requirements.md`を生成する。
 
 ## Oversight Inputs

@@ -125,6 +125,7 @@
         "heading": "技術的考慮事項",
         "content": "## 技術的考慮事項\n- Current Stateの根拠は、`apps/web/src/app/routes.ts`、`apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.tsx`、`apps/web/src/providers/supabase/SupabaseSessionProvider.tsx`、`apps/web/src/utils/auth/useSupabaseSignIn.tsx` にある。\n- Auth user とアプリ内ユーザーの対応付け、emailの一意性、`name` の更新可能範囲は `docs/harness/domain/user.md` と `apps/api/supabase/migrations/20260621000000_link_users_to_auth_users.sql` を根拠にする。\n- 後続 Design / Plan では、既存の読み取り・更新境界で表示名の保存を完結できるか、Auth userとアプリ内ユーザーのemailの整合をどう確認するか、取得・保存失敗時の状態をどう表現するかを決める。\n- 後続 Design / Plan では、具体的な表示順、フォーム構造、編集開始操作、保存操作、アクセシブルな名前、最終文言を決める。Requirementsではこれらを固定しない。\n- Webアプリケーションコードを変更するBuild / Verifyでは、AGENTS.mdのWeb verification batchを実行する。Requirements作成自体にはアプリ検証を適用しない。"
       }
-    ]
+    ],
+    "inventory_sha256": "56a31f598b27a82af4a2174630cb00e058afb665d49c426378dc5defeeeabdea"
   }
 }

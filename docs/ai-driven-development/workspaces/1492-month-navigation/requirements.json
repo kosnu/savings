@@ -121,6 +121,7 @@
         "heading": "技術的考慮事項",
         "content": "## 技術的考慮事項\n- `/payments` は支払い一覧、カテゴリ絞り込み、月次サマリーを同じページで扱う。\n- 現行の対象月は `year` / `month` search params で表される。\n- 対象月 search params が不足している場合、認証済みユーザーでは現在年月が補完される。\n- 現行の月選択導線は、選択した年月を `/payments` の search params に反映する。\n- カテゴリ絞り込みは `category` search param として扱われる。\n- 後続 Design / Plan では、月送り操作がどの route の search params を更新するか、カテゴリ条件などをどう保持するか、支払い詳細など `/payments` 配下での扱いを決める。\n- 後続 Design / Plan では、操作名、アクセシブルな名前、前月/翌月の年またぎ、現在月補完との関係、既存の任意年月選択導線との配置関係を決める。\n- 後続 Build / Verify で Web アプリケーションコードを変更する場合は、AGENTS.md の Web verification batch が必要になる。"
       }
-    ]
+    ],
+    "inventory_sha256": "92393d28204a13fc717a2c6e62bf03c75ddf48a4f68ad63e45052151332c62bd"
   }
 }

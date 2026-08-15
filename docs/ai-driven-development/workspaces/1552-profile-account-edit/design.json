@@ -46,6 +46,7 @@
         "heading": "9. Stop条件",
         "content": "## 9. Stop条件\n- DB schema、API契約、Auth方式/設定、RLS、権限モデルの変更が必要になる。\n- Auth userと`public.users`のemail責務・表示元を既存仕様だけで決められない、または不一致修復が必要になる。\n- 複数データ更新のtransaction boundary、保存成功/再取得失敗のユーザー結果にRequirements外の仕様判断が必要になる。\n- Requirementsにない機能、主要文言、成功条件、UI目的を追加する必要がある。\n- selected rule-map subgraphに矛盾があり、Design Docがルール・ポリシーに違反する可能性を解消できない。"
       }
-    ]
+    ],
+    "inventory_sha256": "dd34d196e303f7297b2a96475f2ab4de4c4725d53fb085016838f2418084241c"
   }
 }

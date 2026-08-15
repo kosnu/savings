@@ -1,105 +1,171 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "kind": "requirements",
   "workspace": "1639-aidd-structured-data",
   "display": {
     "path": "requirements.md",
-    "markdown": "---\ntitle: \"Requirements: AIDD成果物の正本を構造化データへ移行する\"\ndoc_type: requirements\nstatus: proposed\narea: repository\napplies_to:\n  - .agents/skills/aidd-cycle\n  - .agents/skills/goal-setting\n  - docs/ai-driven-development\ntopics:\n  - ai-driven-development\n  - requirements\n  - design-doc\n  - structured-data\n  - validation\nwhen_to_read:\n  - Issue #1639の設計、実装、検証を行うとき\n  - AIDD成果物の機械検証正本とMarkdown表示の責務を確認するとき\n---\n\n# Requirements: AIDD成果物の正本を構造化データへ移行する\n\n- Issue: `kosnu/savings#1639`\n- Issue URL: `https://github.com/kosnu/savings/issues/1639`\n- Issue updatedAt: `2026-08-09T06:19:50Z`\n- Issue本文SHA-256: `d523361f46e547e89baf0eaa5dba8b2a3d24b10f8c00e2be9ad0a0dd43bc40f7`\n- Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`\n- Workspace: `1639-aidd-structured-data`\n\n## Requirements Input Gate\n\n```json\n{\"task_context\":{\"source\":\"issue_body\",\"issue\":\"kosnu/savings#1639\",\"url\":\"https://github.com/kosnu/savings/issues/1639\",\"updated_at\":\"2026-08-09T06:19:50Z\",\"body_sha256\":\"d523361f46e547e89baf0eaa5dba8b2a3d24b10f8c00e2be9ad0a0dd43bc40f7\"},\"direct_rules\":[{\"id\":\"ai-driven.workflow\",\"issue_evidence\":\"validator、workflow、template\",\"match\":{\"field\":\"topics\",\"value\":\"workflow\"},\"reason\":\"workflow同期がscope\",\"explicit_surface\":\"workflow\"},{\"id\":\"ai-driven.goal-templates\",\"issue_evidence\":\"RequirementsとDesignの構造化正本\\n- validator、workflow、template\",\"match\":{\"field\":\"topics\",\"value\":\"requirements\"},\"reason\":\"AIDD template同期がscope\"}],\"depends_on\":[{\"id\":\"ai-driven.overview\",\"via\":\"ai-driven.workflow\"}]}\n```\n\n## Requirements Completeness Gate\n\n```json\n{\"issue_body_sha256\":\"d523361f46e547e89baf0eaa5dba8b2a3d24b10f8c00e2be9ad0a0dd43bc40f7\",\"workspace\":\"1639-aidd-structured-data\",\"baseline\":{\"source\":\"none\",\"body_sha256\":null},\"requirements\":[{\"id\":\"FR-1\",\"status\":\"new\",\"issue_evidence\":\"YAMLとJSONのどちらにするか\"},{\"id\":\"FR-2\",\"status\":\"new\",\"issue_evidence\":\"validatorはその正本だけを検証する\"},{\"id\":\"FR-3\",\"status\":\"new\",\"issue_evidence\":\"Markdownを正本から生成する方法\"},{\"id\":\"FR-4\",\"status\":\"new\",\"issue_evidence\":\"既存成果物の移行方法\"},{\"id\":\"NFR-1\",\"status\":\"new\",\"issue_evidence\":\"二重の手編集正本にしない\"},{\"id\":\"NFR-2\",\"status\":\"new\",\"issue_evidence\":\"provenance検証を弱めない\"},{\"id\":\"NFR-3\",\"status\":\"new\",\"issue_evidence\":\"requirements.mdとdesign-doc.mdの2つを維持する\"},{\"id\":\"AC-1\",\"status\":\"new\",\"issue_evidence\":\"RequirementsとDesignの機械検証が構造化正本のみを入力として行われる\"},{\"id\":\"AC-2\",\"status\":\"new\",\"issue_evidence\":\"Markdownの表示構造を偽装してvalidatorを通過できない\"},{\"id\":\"AC-3\",\"status\":\"new\",\"issue_evidence\":\"既存成果物の移行方針と検証が用意される\"},{\"id\":\"AC-4\",\"status\":\"new\",\"issue_evidence\":\"workflow・template・テストが新しい正本に同期する\"}],\"sections\":[{\"id\":\"background\",\"status\":\"new\",\"issue_evidence\":\"見出し表現に由来する検証の抜け道が繰り返し発生している\"},{\"id\":\"users\",\"status\":\"new\",\"issue_evidence\":\"人間向けの表現性と機械検証の正確性\"},{\"id\":\"stories\",\"status\":\"new\",\"issue_evidence\":\"Markdownは人間が読む表示として残す\"},{\"id\":\"scope\",\"status\":\"new\",\"issue_evidence\":\"AIDD以外の文書形式変更\"},{\"id\":\"functional\",\"status\":\"new\",\"issue_evidence\":\"RequirementsとDesignの構造化正本\"},{\"id\":\"non_functional\",\"status\":\"new\",\"issue_evidence\":\"構造化データとMarkdownを二重の手編集正本にしない\"},{\"id\":\"acceptance\",\"status\":\"new\",\"issue_evidence\":\"RequirementsとDesignの機械検証が構造化正本のみを入力として行われる\"},{\"id\":\"qa\",\"status\":\"new\",\"issue_evidence\":\"判断したいこと\"},{\"id\":\"technical\",\"status\":\"new\",\"issue_evidence\":\"Markdown表示の生成と回帰テスト\"}],\"retired\":[]}\n```\n\n## 背景\n\nAIDD成果物はMarkdown本文の構造から機械検証用データを抽出しており、コードフェンス・HTMLブロック・見出し表現に由来する検証の抜け道が繰り返し発生している。人間向け表示の自由度と機械判定の境界を分離し、検証対象を曖昧さのない構造へ固定する必要がある。\n\n## 対象ユーザーと利用シーン\n\n人間向けの表現性と機械検証の正確性を両立させる必要がある、AIDD成果物の作成者・レビュー担当者・workflow実行者を対象とする。人間は従来のMarkdownを読み、agentとvalidatorは構造化正本を生成・検証・移行に利用する。\n\n## ユーザーストーリー\n\n- AIDD成果物の作成者として、機械判定可能な正本を一か所だけ編集し、表示文書との不整合を生じさせたくない。\n- レビュー担当者として、Markdownは人間が読む表示として残すことで、既存のレビュー導線を維持したい。\n- workflow実行者として、表示上の細工に影響されず、同じ構造化入力から同じ検証結果を得たい。\n\n## スコープ\n\n### 対象\n\n- 両AIDD成果物の構造化正本、および機械検証に必要なprovenance・continuity・coverage情報。\n- 構造化正本からのMarkdown表示生成。\n- validator、workflow、Goal template、skill、回帰テストの同期。\n- Git `HEAD`に存在する既存AIDD workspace成果物の移行と検証。\n\n### 対象外\n\n- Markdownの個別表現だけを塞ぐ対症療法。\n- AIDD以外の文書形式変更。\n- アプリケーションのDB、API、認証、UIデータモデル。\n\n## 機能要件\n\nRequirementsとDesignの構造化正本を導入し、次を満たす。\n\n- FR-1: Issueの「YAMLとJSONのどちらにするか」に対し、Python標準ライブラリで厳密にparseでき、既存validatorとrule-mapで実績があるJSONを構造化正本形式として採用する。\n- FR-2: 構造化正本を機械判定の唯一の入力とし、validatorはその正本だけを検証する。生成Markdownの見出し、コードフェンス、HTMLは機械判定へ入力しない。\n- FR-3: 構造化正本から決定的にMarkdownを出力する「Markdownを正本から生成する方法」を提供し、生成差分によって表示の同期を確認できるようにする。\n- FR-4: Git `HEAD`の全AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する「既存成果物の移行方法」を定義し、一括変換と検証を可能にする。\n\n## 非機能要件\n\n- NFR-1: 構造化データとMarkdownを二重の手編集正本にしない。人が編集する機械判定の正本はJSONだけとし、Markdownは再生成可能な派生成果物にする。\n- NFR-2: 既存のIssue snapshot、direct rule evidence、dependency closure、baseline continuity、requirement coverageを保持し、provenance検証を弱めない。\n- NFR-3: 人間向け導線とcanonical workspaceを維持するため、requirements.mdとdesign-doc.mdの2つを維持する。\n\n## 受け入れ条件\n\n- AC-1: RequirementsとDesignの機械検証が構造化正本のみを入力として行われる。Markdownを変更しても構造化正本の検証結果は変わらず、生成一致検証だけが表示のずれを検出する。\n- AC-2: Markdownの表示構造を偽装してvalidatorを通過できない。コードフェンス、HTML comment、偽見出しを含む表示は機械判定データとして解釈されないことを回帰テストで確認する。\n- AC-3: 既存成果物の移行方針と検証が用意される。全workspaceのJSONがschema検証を通り、生成Markdownが期待する人間向け内容とcanonical pathを保持する。\n- AC-4: workflow・template・テストが新しい正本に同期する。skillとGoal templateもJSON正本を入力・出力として案内し、旧Markdown抽出を正規経路に残さない。\n\n## Q&A\n\n- Q: Issueの判断したいことにある正本形式は何か。\n  - A: JSONとする。YAMLより記法の解釈幅が狭く、Python標準ライブラリで処理でき、新規依存を要しないため。\n- Q: Markdownはどう生成するか。\n  - A: JSON schemaで順序を持つ表示sectionを表現し、共通rendererが`requirements.md`または`design-doc.md`を決定的に生成する。生成後のMarkdownを手編集しない。\n- Q: 既存成果物はどう移行するか。\n  - A: 現行validatorが認識する内容と人間向け本文を一度だけJSONへ移し、schema検証、Markdown再生成、全workspace回帰検証を同じ変更で完了する。履歴はGitに残す。\n\n## 技術的考慮事項\n\n- Markdown表示の生成と回帰テストは、JSON parse・schema検証・render・生成一致確認を分離して失敗理由を明確にする。\n- JSON schemaはRequirementsとDesignの共通metadataと、各artifact固有のrequirements/sections/coverageを識別可能にする。\n- validator APIはcanonical JSON pathだけを受け付け、temporary copyやsymlink aliasを既存と同等に拒否する。\n- 移行後もworkflow上の同一cycle read-only境界、Goal gate一致、Issue再取得確認を維持する。\n\n## Rule Selection\n\n- Direct: `ai-driven.workflow`。Issueの`workflow`同期をRequirementsと後続phaseへ適用する。\n- Direct: `ai-driven.goal-templates`。IssueのRequirements / Designとtemplate同期をGoal構築へ適用する。\n- Depends-on: `ai-driven.overview`。AIDDのGoal責務とHuman on the loopを前提にする。\n- Conflict: none。\n"
+    "preamble": "---\ntitle: \"Requirements: AIDD成果物の正本を構造化データへ移行する\"\ndoc_type: requirements\nstatus: proposed\narea: repository\napplies_to:\n  - .agents/skills/aidd-cycle\n  - .agents/skills/goal-setting\n  - docs/ai-driven-development\ntopics:\n  - ai-driven-development\n  - requirements\n  - design-doc\n  - structured-data\n  - validation\nwhen_to_read:\n  - Issue #1639の設計、実装、検証を行うとき\n  - AIDD成果物の機械検証正本とMarkdown表示の責務を確認するとき\n---\n\n# Requirements: AIDD成果物の正本を構造化データへ移行する\n\n- Issue: `kosnu/savings#1639`\n- Issue URL: `https://github.com/kosnu/savings/issues/1639`\n- Issue updatedAt: `2026-08-09T06:19:50Z`\n- Issue本文SHA-256: `d523361f46e547e89baf0eaa5dba8b2a3d24b10f8c00e2be9ad0a0dd43bc40f7`\n- Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`\n- Workspace: `1639-aidd-structured-data`"
   },
   "validation": {
     "mode": "managed",
-    "source_markdown_sha256": "a45ef878a69ac6265a4213fc1eec424c526af0516c74a59c1790e0ba7e39dd2c",
     "requirements": [
       {
         "id": "FR-1",
-        "content": "- FR-1: Issueの「YAMLとJSONのどちらにするか」に対し、Python標準ライブラリで厳密にparseでき、既存validatorとrule-mapで実績があるJSONを構造化正本形式として採用する。"
+        "section_id": "functional",
+        "text": "Issueの「YAMLとJSONのどちらにするか」に対し、Python標準ライブラリで厳密にparseでき、既存validatorとrule-mapで実績があるJSONを構造化正本形式として採用する。"
       },
       {
         "id": "FR-2",
-        "content": "- FR-2: 構造化正本を機械判定の唯一の入力とし、validatorはその正本だけを検証する。生成Markdownの見出し、コードフェンス、HTMLは機械判定へ入力しない。"
+        "section_id": "functional",
+        "text": "構造化正本を機械判定の唯一の入力とし、validatorはその正本だけを検証する。生成Markdownの見出し、コードフェンス、HTMLは機械判定へ入力しない。"
       },
       {
         "id": "FR-3",
-        "content": "- FR-3: 構造化正本から決定的にMarkdownを出力する「Markdownを正本から生成する方法」を提供し、生成差分によって表示の同期を確認できるようにする。"
+        "section_id": "functional",
+        "text": "構造化正本から決定的にMarkdownを出力する「Markdownを正本から生成する方法」を提供し、生成差分によって表示の同期を確認できるようにする。"
       },
       {
         "id": "FR-4",
-        "content": "- FR-4: Git `HEAD`の全AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する「既存成果物の移行方法」を定義し、一括変換と検証を可能にする。"
+        "section_id": "functional",
+        "text": "Git `HEAD`の全AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する「既存成果物の移行方法」を定義し、一括変換と検証を可能にする。"
       },
       {
         "id": "NFR-1",
-        "content": "- NFR-1: 構造化データとMarkdownを二重の手編集正本にしない。人が編集する機械判定の正本はJSONだけとし、Markdownは再生成可能な派生成果物にする。"
+        "section_id": "non-functional",
+        "text": "構造化データとMarkdownを二重の手編集正本にしない。人が編集する機械判定の正本はJSONだけとし、Markdownは再生成可能な派生成果物にする。"
       },
       {
         "id": "NFR-2",
-        "content": "- NFR-2: 既存のIssue snapshot、direct rule evidence、dependency closure、baseline continuity、requirement coverageを保持し、provenance検証を弱めない。"
+        "section_id": "non-functional",
+        "text": "既存のIssue snapshot、direct rule evidence、dependency closure、baseline continuity、requirement coverageを保持し、provenance検証を弱めない。"
       },
       {
         "id": "NFR-3",
-        "content": "- NFR-3: 人間向け導線とcanonical workspaceを維持するため、requirements.mdとdesign-doc.mdの2つを維持する。"
+        "section_id": "non-functional",
+        "text": "人間向け導線とcanonical workspaceを維持するため、requirements.mdとdesign-doc.mdの2つを維持する。"
       },
       {
         "id": "AC-1",
-        "content": "- AC-1: RequirementsとDesignの機械検証が構造化正本のみを入力として行われる。Markdownを変更しても構造化正本の検証結果は変わらず、生成一致検証だけが表示のずれを検出する。"
+        "section_id": "acceptance",
+        "text": "RequirementsとDesignの機械検証が構造化正本のみを入力として行われる。Markdownを変更しても構造化正本の検証結果は変わらず、生成一致検証だけが表示のずれを検出する。"
       },
       {
         "id": "AC-2",
-        "content": "- AC-2: Markdownの表示構造を偽装してvalidatorを通過できない。コードフェンス、HTML comment、偽見出しを含む表示は機械判定データとして解釈されないことを回帰テストで確認する。"
+        "section_id": "acceptance",
+        "text": "Markdownの表示構造を偽装してvalidatorを通過できない。コードフェンス、HTML comment、偽見出しを含む表示は機械判定データとして解釈されないことを回帰テストで確認する。"
       },
       {
         "id": "AC-3",
-        "content": "- AC-3: 既存成果物の移行方針と検証が用意される。全workspaceのJSONがschema検証を通り、生成Markdownが期待する人間向け内容とcanonical pathを保持する。"
+        "section_id": "acceptance",
+        "text": "既存成果物の移行方針と検証が用意される。全workspaceのJSONがschema検証を通り、生成Markdownが期待する人間向け内容とcanonical pathを保持する。"
       },
       {
         "id": "AC-4",
-        "content": "- AC-4: workflow・template・テストが新しい正本に同期する。skillとGoal templateもJSON正本を入力・出力として案内し、旧Markdown抽出を正規経路に残さない。"
+        "section_id": "acceptance",
+        "text": "workflow・template・テストが新しい正本に同期する。skillとGoal templateもJSON正本を入力・出力として案内し、旧Markdown抽出を正規経路に残さない。"
       }
     ],
     "sections": [
       {
         "id": "background",
         "heading": "背景",
-        "content": "## 背景\nAIDD成果物はMarkdown本文の構造から機械検証用データを抽出しており、コードフェンス・HTMLブロック・見出し表現に由来する検証の抜け道が繰り返し発生している。人間向け表示の自由度と機械判定の境界を分離し、検証対象を曖昧さのない構造へ固定する必要がある。"
+        "blocks": [
+          {
+            "id": "background-body",
+            "type": "markdown",
+            "markdown": "AIDD成果物はMarkdown本文の構造から機械検証用データを抽出しており、コードフェンス・HTMLブロック・見出し表現に由来する検証の抜け道が繰り返し発生している。人間向け表示の自由度と機械判定の境界を分離し、検証対象を曖昧さのない構造へ固定する必要がある。"
+          }
+        ]
       },
       {
         "id": "users",
         "heading": "対象ユーザーと利用シーン",
-        "content": "## 対象ユーザーと利用シーン\n人間向けの表現性と機械検証の正確性を両立させる必要がある、AIDD成果物の作成者・レビュー担当者・workflow実行者を対象とする。人間は従来のMarkdownを読み、agentとvalidatorは構造化正本を生成・検証・移行に利用する。"
+        "blocks": [
+          {
+            "id": "users-body",
+            "type": "markdown",
+            "markdown": "人間向けの表現性と機械検証の正確性を両立させる必要がある、AIDD成果物の作成者・レビュー担当者・workflow実行者を対象とする。人間は従来のMarkdownを読み、agentとvalidatorは構造化正本を生成・検証・移行に利用する。"
+          }
+        ]
       },
       {
         "id": "stories",
         "heading": "ユーザーストーリー",
-        "content": "## ユーザーストーリー\n- AIDD成果物の作成者として、機械判定可能な正本を一か所だけ編集し、表示文書との不整合を生じさせたくない。\n- レビュー担当者として、Markdownは人間が読む表示として残すことで、既存のレビュー導線を維持したい。\n- workflow実行者として、表示上の細工に影響されず、同じ構造化入力から同じ検証結果を得たい。"
+        "blocks": [
+          {
+            "id": "stories-body",
+            "type": "markdown",
+            "markdown": "- AIDD成果物の作成者として、機械判定可能な正本を一か所だけ編集し、表示文書との不整合を生じさせたくない。\n- レビュー担当者として、Markdownは人間が読む表示として残すことで、既存のレビュー導線を維持したい。\n- workflow実行者として、表示上の細工に影響されず、同じ構造化入力から同じ検証結果を得たい。"
+          }
+        ]
       },
       {
         "id": "scope",
         "heading": "スコープ",
-        "content": "## スコープ\n### 対象\n\n- 両AIDD成果物の構造化正本、および機械検証に必要なprovenance・continuity・coverage情報。\n- 構造化正本からのMarkdown表示生成。\n- validator、workflow、Goal template、skill、回帰テストの同期。\n- Git `HEAD`に存在する既存AIDD workspace成果物の移行と検証。\n\n### 対象外\n\n- Markdownの個別表現だけを塞ぐ対症療法。\n- AIDD以外の文書形式変更。\n- アプリケーションのDB、API、認証、UIデータモデル。"
+        "blocks": [
+          {
+            "id": "scope-body",
+            "type": "markdown",
+            "markdown": "### 対象\n\n- 両AIDD成果物の構造化正本、および機械検証に必要なprovenance・continuity・coverage情報。\n- 構造化正本からのMarkdown表示生成。\n- validator、workflow、Goal template、skill、回帰テストの同期。\n- Git `HEAD`に存在する既存AIDD workspace成果物の移行と検証。\n\n### 対象外\n\n- Markdownの個別表現だけを塞ぐ対症療法。\n- AIDD以外の文書形式変更。\n- アプリケーションのDB、API、認証、UIデータモデル。"
+          }
+        ]
       },
       {
         "id": "functional",
         "heading": "機能要件",
-        "content": "## 機能要件\nRequirementsとDesignの構造化正本を導入し、次を満たす。\n\n- FR-1: Issueの「YAMLとJSONのどちらにするか」に対し、Python標準ライブラリで厳密にparseでき、既存validatorとrule-mapで実績があるJSONを構造化正本形式として採用する。\n- FR-2: 構造化正本を機械判定の唯一の入力とし、validatorはその正本だけを検証する。生成Markdownの見出し、コードフェンス、HTMLは機械判定へ入力しない。\n- FR-3: 構造化正本から決定的にMarkdownを出力する「Markdownを正本から生成する方法」を提供し、生成差分によって表示の同期を確認できるようにする。\n- FR-4: Git `HEAD`の全AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する「既存成果物の移行方法」を定義し、一括変換と検証を可能にする。"
+        "blocks": [
+          {
+            "id": "functional-body",
+            "type": "markdown",
+            "markdown": "RequirementsとDesignの構造化正本を導入し、次を満たす。"
+          },
+          {
+            "id": "functional-requirements",
+            "type": "requirements"
+          }
+        ]
       },
       {
-        "id": "non_functional",
+        "id": "non-functional",
         "heading": "非機能要件",
-        "content": "## 非機能要件\n- NFR-1: 構造化データとMarkdownを二重の手編集正本にしない。人が編集する機械判定の正本はJSONだけとし、Markdownは再生成可能な派生成果物にする。\n- NFR-2: 既存のIssue snapshot、direct rule evidence、dependency closure、baseline continuity、requirement coverageを保持し、provenance検証を弱めない。\n- NFR-3: 人間向け導線とcanonical workspaceを維持するため、requirements.mdとdesign-doc.mdの2つを維持する。"
+        "blocks": [
+          {
+            "id": "non-functional-requirements",
+            "type": "requirements"
+          }
+        ]
       },
       {
         "id": "acceptance",
         "heading": "受け入れ条件",
-        "content": "## 受け入れ条件\n- AC-1: RequirementsとDesignの機械検証が構造化正本のみを入力として行われる。Markdownを変更しても構造化正本の検証結果は変わらず、生成一致検証だけが表示のずれを検出する。\n- AC-2: Markdownの表示構造を偽装してvalidatorを通過できない。コードフェンス、HTML comment、偽見出しを含む表示は機械判定データとして解釈されないことを回帰テストで確認する。\n- AC-3: 既存成果物の移行方針と検証が用意される。全workspaceのJSONがschema検証を通り、生成Markdownが期待する人間向け内容とcanonical pathを保持する。\n- AC-4: workflow・template・テストが新しい正本に同期する。skillとGoal templateもJSON正本を入力・出力として案内し、旧Markdown抽出を正規経路に残さない。"
+        "blocks": [
+          {
+            "id": "acceptance-requirements",
+            "type": "requirements"
+          }
+        ]
       },
       {
         "id": "qa",
         "heading": "Q&A",
-        "content": "## Q&A\n- Q: Issueの判断したいことにある正本形式は何か。\n  - A: JSONとする。YAMLより記法の解釈幅が狭く、Python標準ライブラリで処理でき、新規依存を要しないため。\n- Q: Markdownはどう生成するか。\n  - A: JSON schemaで順序を持つ表示sectionを表現し、共通rendererが`requirements.md`または`design-doc.md`を決定的に生成する。生成後のMarkdownを手編集しない。\n- Q: 既存成果物はどう移行するか。\n  - A: 現行validatorが認識する内容と人間向け本文を一度だけJSONへ移し、schema検証、Markdown再生成、全workspace回帰検証を同じ変更で完了する。履歴はGitに残す。"
+        "blocks": [
+          {
+            "id": "qa-body",
+            "type": "markdown",
+            "markdown": "- Q: Issueの判断したいことにある正本形式は何か。\n  - A: JSONとする。YAMLより記法の解釈幅が狭く、Python標準ライブラリで処理でき、新規依存を要しないため。\n- Q: Markdownはどう生成するか。\n  - A: JSON schemaで順序を持つ表示sectionを表現し、共通rendererが`requirements.md`または`design-doc.md`を決定的に生成する。生成後のMarkdownを手編集しない。\n- Q: 既存成果物はどう移行するか。\n  - A: 現行validatorが認識する内容と人間向け本文を一度だけJSONへ移し、schema検証、Markdown再生成、全workspace回帰検証を同じ変更で完了する。履歴はGitに残す。"
+          }
+        ]
       },
       {
         "id": "technical",
         "heading": "技術的考慮事項",
-        "content": "## 技術的考慮事項\n- Markdown表示の生成と回帰テストは、JSON parse・schema検証・render・生成一致確認を分離して失敗理由を明確にする。\n- JSON schemaはRequirementsとDesignの共通metadataと、各artifact固有のrequirements/sections/coverageを識別可能にする。\n- validator APIはcanonical JSON pathだけを受け付け、temporary copyやsymlink aliasを既存と同等に拒否する。\n- 移行後もworkflow上の同一cycle read-only境界、Goal gate一致、Issue再取得確認を維持する。"
+        "blocks": [
+          {
+            "id": "technical-body",
+            "type": "markdown",
+            "markdown": "- Markdown表示の生成と回帰テストは、JSON parse・schema検証・render・生成一致確認を分離して失敗理由を明確にする。\n- JSON schemaはRequirementsとDesignの共通metadataと、各artifact固有のrequirements/sections/coverageを識別可能にする。\n- validator APIはcanonical JSON pathだけを受け付け、temporary copyやsymlink aliasを既存と同等に拒否する。\n- 移行後もworkflow上の同一cycle read-only境界、Goal gate一致、Issue再取得確認を維持する。"
+          }
+        ]
       }
     ],
     "input_gate": {
@@ -142,110 +208,110 @@
       "issue_body_sha256": "d523361f46e547e89baf0eaa5dba8b2a3d24b10f8c00e2be9ad0a0dd43bc40f7",
       "workspace": "1639-aidd-structured-data",
       "baseline": {
-        "source": "none",
-        "body_sha256": null
+        "source": "git_head",
+        "body_sha256": "6682fbe4800aba130710002140104772a3b75dec4e8cab2c9e2b3f5a802a9df9"
       },
       "requirements": [
         {
           "id": "FR-1",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "YAMLとJSONのどちらにするか"
         },
         {
           "id": "FR-2",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "validatorはその正本だけを検証する"
         },
         {
           "id": "FR-3",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "Markdownを正本から生成する方法"
         },
         {
           "id": "FR-4",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "既存成果物の移行方法"
         },
         {
           "id": "NFR-1",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "二重の手編集正本にしない"
         },
         {
           "id": "NFR-2",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "provenance検証を弱めない"
         },
         {
           "id": "NFR-3",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "requirements.mdとdesign-doc.mdの2つを維持する"
         },
         {
           "id": "AC-1",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "RequirementsとDesignの機械検証が構造化正本のみを入力として行われる"
         },
         {
           "id": "AC-2",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "Markdownの表示構造を偽装してvalidatorを通過できない"
         },
         {
           "id": "AC-3",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "既存成果物の移行方針と検証が用意される"
         },
         {
           "id": "AC-4",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "workflow・template・テストが新しい正本に同期する"
         }
       ],
       "sections": [
         {
           "id": "background",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "見出し表現に由来する検証の抜け道が繰り返し発生している"
         },
         {
           "id": "users",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "人間向けの表現性と機械検証の正確性"
         },
         {
           "id": "stories",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "Markdownは人間が読む表示として残す"
         },
         {
           "id": "scope",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "AIDD以外の文書形式変更"
         },
         {
           "id": "functional",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "RequirementsとDesignの構造化正本"
         },
         {
-          "id": "non_functional",
-          "status": "new",
+          "id": "non-functional",
+          "status": "changed",
           "issue_evidence": "構造化データとMarkdownを二重の手編集正本にしない"
         },
         {
           "id": "acceptance",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "RequirementsとDesignの機械検証が構造化正本のみを入力として行われる"
         },
         {
           "id": "qa",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "判断したいこと"
         },
         {
           "id": "technical",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "Markdown表示の生成と回帰テスト"
         }
       ],

@@ -50,6 +50,7 @@
         "heading": "Build / Verify Goal への入力",
         "content": "## Build / Verify Goal への入力\n- 実装対象:\n  - `apps/web/src/features/summaryByMonth/CategoryTotals/CategoryTotals.tsx`\n  - `apps/web/src/features/summaryByMonth/CategoryTotals/CategoryTotals.test.tsx`\n- 守ること:\n  - 初期表示件数は 3 件のままにする。\n  - 取得、集計、並び順、ピン留め優先順、未分類行は変更しない。\n  - 追加 network request を発生させない。\n  - 主要文言と aria-label は Design Doc の決定に従う。\n  - 新規依存は追加しない。\n- Verification:\n  - `pnpm run web:lint`\n  - `pnpm run web:format-check`\n  - `pnpm run web:typecheck`\n  - `pnpm --filter web exec vp test run --project unit --project integration --reporter=dot --silent`"
       }
-    ]
+    ],
+    "inventory_sha256": "85fd4f35d12bf4801cb0591622f2fdcc8186c8bb67ba969d7333e2cb902aa9b3"
   }
 }

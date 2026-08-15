@@ -46,6 +46,7 @@
         "heading": "リスクと確認事項",
         "content": "## リスクと確認事項\n- `monthly_budgets.amount` nullable 化により、既存 mapper / 型 / テストデータの更新漏れが起きやすい。`status = amount` のときだけ `amount` 必須にする正規化を明確にする。\n- RPC 戻り値を nullable row ではなく discriminated union にするため、Supabase 型生成結果だけでは表現しきれない可能性がある。Web 側で zod 正規化を置く。\n- 操作月の基準は DB の `current_date` で決める。ブラウザのタイムゾーンと DB 日付が月境界でずれる可能性は残るが、操作制約を DB 側で一貫させることを優先する。\n- 既存の `fetchMonthlyBudgets(limit)` を金額あり一覧に維持するため、none marker を見せる履歴表示は追加しない。将来、状態履歴を表示したい場合は別要求にする。\n- 現行の `monthly-budget.md` と実装が矛盾するため、Build / Verify では domain doc 更新を実装差分に含める。"
       }
-    ]
+    ],
+    "inventory_sha256": "09aef4e32f780b39066ed32a8d95f2eee1823d15b7bbdecaee5846f2da2e5c66"
   }
 }

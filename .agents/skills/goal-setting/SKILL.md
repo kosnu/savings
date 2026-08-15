@@ -58,12 +58,12 @@ definition and not as output skeletons.
    an explicit user constraint.
 5. For Requirements and Design, serialize that packet and the structured gates
    as `requirements_goal` or `design_goal` JSON, validate the JSON, and render
-   `display.markdown` for the Goal objective. The renderer must reject the
+   the Goal objective from typed `display.title`, `display.goal`, `display.context`, and `display.done` fields. The renderer must reject the
    objective unless its Context Packet keeps Goal, constraints, Stop, and
    Done / Verification markers and its Gate and per-ID or baseline scope content
    matches the structured validation fields. The renderer adds a canonical
-   Validated Scope line from every structured ID and rejects objective text that
-   narrows execution to the current delta. The JSON is retained as the
+   Validated Scope line from every structured ID, so the generated objective
+   always carries the full validated scope. The JSON is retained as the
    comparison source until the phase artifact passes; Goal Markdown is not a
    phase validator input.
 6. Set the Goal with `create_goal`. In orchestrated use, include the
@@ -149,9 +149,10 @@ For a Design / Plan Goal:
   in `.agents/skills/aidd-cycle/SKILL.md`.
 - Resolve the committed previous-cycle `design.json` from the canonical workspace
   path in Git `HEAD`, not from a caller-supplied file. Require every prior
-  structured section to have its own heading-bearing `validation.baseline_scopes`
-  entry in the Goal JSON, then be classified as exact-content preserved or explicitly
-  replaced with heading-bearing evidence in the new Design JSON.
+  structured section to have its own `section_id`- and heading-bearing
+  `validation.baseline_scopes` entry in the Goal JSON (`section_id: null` only
+  for legacy), then be classified as exact-content preserved or explicitly
+  replaced with identity-bound evidence in the new Design JSON.
 - Require the output `design.json` to resolve every identifier through design
   and verification evidence in a unique entry that contains only that
   identifier. Each ID gets its own entry; omission, grouping, and generic

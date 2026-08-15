@@ -71,6 +71,7 @@
         "content": "- AC-11: DB schema、API契約、RLS、認証、権限、新規依存を変更しない。"
       }
     ],
-    "sections": []
+    "sections": [],
+    "inventory_sha256": "50014fdaa80ec8176d7080a0d520a2533546e2d936b8e46f96f61be1a198c455"
   }
 }

@@ -36,7 +36,7 @@ when_to_read:
 - Requirements SHA-256:
 - Requirements IDs: 全`FR-*`、`NFR-*`、`AC-*`
 - Workspace identity検証結果: Requirementsと同じ検証済みworkspace
-- Goal source: temporary `design_goal` JSON。このJSONを検証してから`display.markdown`をGoal objectiveに使う。
+- Goal source: temporary `design_goal` JSON。このJSONを検証し、型付き`display` fieldから生成したGoal objectiveを使う。
 - 出力先: 同じworkspaceのcanonical `design.json`。このGoalが書き込みを所有し、`design-doc.md`を生成する。
 - Git `HEAD`のcanonical Design baseline: validatorが`--workspace`から自動取得したSHA-256とsection inventory
 - 関連コード:
@@ -94,31 +94,32 @@ Design Docのartifact form:
   "coverage": [
     {
       "id": "FR-1",
-      "design_evidence": "FR-1 design: 実質的な設計根拠。",
-      "verification_evidence": "FR-1 verification: 実質的な検証根拠。"
+      "design_block_id": "fr-1-design-evidence",
+      "verification_block_id": "fr-1-verification-evidence"
     }
   ],
   "baseline_sections": [
     {
+      "section_id": "implementation-policy",
       "heading": "実装方針",
       "content_sha256": "validatorがGitから導出したsectionと同じSHA-256",
       "status": "preserved",
-      "design_evidence": "実装方針を明記した維持または置換判断の原文"
+      "design_block_id": "implementation-policy-baseline-evidence"
     }
   ]
 }
 ```
 
-Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
+各block IDは`design.json`のtyped `evidence` blockを参照する。requirement coverage blockは`role: design`または`role: verification`と対象Requirements IDの`owner_id`を持ち、baseline blockは`role: baseline`と対象`section_id`の`owner_id`を持つ。`text`には根拠本文だけを入れ、owner/roleラベルはrendererが構造化fieldから生成する。legacy baselineだけは`section_id: null`とし、見出しを`owner_id`に使う。Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
 
 ## Requirement Design Scope
 
-Goal JSONの`validation.scopes`に、全Requirements IDそれぞれの`design_scope`と`verification_scope`を、対象IDだけを含む別entryとして記載する。
+Goal JSONの`validation.scopes`に、全Requirements IDそれぞれの`design_scope`と`verification_scope`を別entryとして記載する。各scope fieldには本文だけを入れ、IDとscope種別のラベルはrendererがentryの`id`から生成する。
 
 - FR-1 design scope: 設計対象を具体的に記載する。
 - FR-1 verification scope: 検証対象を具体的に記載する。
 
-Git baselineがある場合は、Goal JSONの`validation.baseline_scopes`へ全構造化sectionごとに`heading`と一意な`review_scope`を記載する。
+Git baselineがある場合は、Goal JSONの`validation.baseline_scopes`へ全構造化sectionごとに`section_id`、`heading`、一意な`review_scope`を記載する。legacy baselineだけは`section_id: null`とする。
 
 - 実装方針 baseline scope: 現在Requirementsへ再適合させる。
 

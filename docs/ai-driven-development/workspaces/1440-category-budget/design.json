@@ -62,6 +62,7 @@
         "heading": "Risks / Follow-up",
         "content": "## Risks / Follow-up\n- 既存 DB 履歴にはカテゴリ別予算の作成と削除が含まれるため、Build では最終 schema から再導入する migration として扱う必要がある。\n- 現在月の算出は date-only / local date ルールに合わせる必要がある。\n- 削除済みカテゴリの過去履歴UIは対象外。将来必要になった場合は別 Requirements / Design が必要。\n- RPC 名や引数は Build で既存 function layer との互換性を確認して決めてよいが、操作境界はこの Design から変えない。"
       }
-    ]
+    ],
+    "inventory_sha256": "e86f427d25d992590255d7899ae2692bf85eaae948f987371d48c0ad5eae2e69"
   }
 }

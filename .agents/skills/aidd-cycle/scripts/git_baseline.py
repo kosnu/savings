@@ -16,6 +16,7 @@ VERSIONED_WORKSPACE_MARKER_PATTERN = re.compile(
     r"(?:^|-)(?:v[0-9]+|(?:ver|version|rev|revision|cycle)-?[0-9]+|"
     r"retry(?:-[0-9]+)?|rerun(?:-[0-9]+)?)(?:-|$)"
 )
+MAX_GIT_BLOB_BYTES = 16 * 1024 * 1024
 
 
 class GitBaselineError(ValueError):
@@ -103,7 +104,10 @@ def run_git(repo_root: Path, arguments: list[str]) -> subprocess.CompletedProces
 
 
 def require_repository_root(repo_root: Path) -> Path:
-    resolved_root = repo_root.resolve()
+    absolute_root = Path(os.path.abspath(repo_root))
+    resolved_root = absolute_root.resolve()
+    if absolute_root != resolved_root:
+        raise GitBaselineError("repo-root must not contain symlinks")
     result = run_git(resolved_root, ["rev-parse", "--show-toplevel"])
     if result.returncode != 0:
         raise GitBaselineError("repo-root is not a readable Git worktree")
@@ -188,22 +192,49 @@ def load_git_head_artifact(
     resolved_root = require_repository_root(repo_root)
     artifact_path = canonical_artifact_path(resolved_root, workspace, filename)
     relative_path = artifact_path.relative_to(resolved_root).as_posix()
+    return artifact_path, load_regular_head_blob(
+        resolved_root, relative_path, "canonical artifact"
+    )
+
+
+def load_regular_head_blob(
+    repo_root: Path,
+    relative_path: str,
+    label: str,
+) -> bytes | None:
     listing = run_git(
-        resolved_root,
-        ["ls-tree", "-r", "--name-only", "HEAD", "--", relative_path],
+        repo_root,
+        ["ls-tree", "-z", "HEAD", "--", relative_path],
     )
     if listing.returncode != 0:
-        raise GitBaselineError("failed to inspect the canonical artifact in Git HEAD")
-    tracked_paths = listing.stdout.decode("utf-8").splitlines()
-    if not tracked_paths:
-        return artifact_path, None
-    if tracked_paths != [relative_path]:
-        raise GitBaselineError("canonical artifact lookup returned an unexpected path")
-
-    content = run_git(resolved_root, ["show", f"HEAD:{relative_path}"])
+        raise GitBaselineError(f"failed to inspect the {label} in Git HEAD")
+    entries = [entry for entry in listing.stdout.split(b"\0") if entry]
+    if not entries:
+        return None
+    if len(entries) != 1 or b"\t" not in entries[0]:
+        raise GitBaselineError(f"{label} lookup returned an unexpected entry")
+    metadata, encoded_path = entries[0].split(b"\t", 1)
+    fields = metadata.decode("ascii").split()
+    if encoded_path.decode("utf-8") != relative_path or len(fields) != 3:
+        raise GitBaselineError(f"{label} lookup returned an unexpected path")
+    mode, object_type, object_id = fields
+    if mode not in {"100644", "100755"} or object_type != "blob":
+        raise GitBaselineError(f"{label} in Git HEAD must be a regular file")
+    size = run_git(repo_root, ["cat-file", "-s", object_id])
+    if size.returncode != 0:
+        raise GitBaselineError(f"failed to inspect the {label} size in Git HEAD")
+    try:
+        blob_size = int(size.stdout.decode("ascii").strip())
+    except ValueError as error:
+        raise GitBaselineError(f"{label} size in Git HEAD is invalid") from error
+    if blob_size > MAX_GIT_BLOB_BYTES:
+        raise GitBaselineError(
+            f"{label} in Git HEAD exceeds {MAX_GIT_BLOB_BYTES} bytes"
+        )
+    content = run_git(repo_root, ["cat-file", "blob", object_id])
     if content.returncode != 0:
-        raise GitBaselineError("failed to read the canonical artifact from Git HEAD")
-    return artifact_path, content.stdout
+        raise GitBaselineError(f"failed to read the {label} from Git HEAD")
+    return content.stdout
 
 
 def load_git_head_source(
@@ -214,18 +245,6 @@ def load_git_head_source(
     resolved_root = require_repository_root(repo_root)
     source_path = canonical_source_path(resolved_root, workspace, kind)
     relative_path = source_path.relative_to(resolved_root).as_posix()
-    listing = run_git(
-        resolved_root,
-        ["ls-tree", "-r", "--name-only", "HEAD", "--", relative_path],
+    return source_path, load_regular_head_blob(
+        resolved_root, relative_path, "canonical JSON source"
     )
-    if listing.returncode != 0:
-        raise GitBaselineError("failed to inspect the canonical JSON source in Git HEAD")
-    tracked_paths = listing.stdout.decode("utf-8").splitlines()
-    if not tracked_paths:
-        return source_path, None
-    if tracked_paths != [relative_path]:
-        raise GitBaselineError("canonical JSON source lookup returned an unexpected path")
-    content = run_git(resolved_root, ["show", f"HEAD:{relative_path}"])
-    if content.returncode != 0:
-        raise GitBaselineError("failed to read the canonical JSON source from Git HEAD")
-    return source_path, content.stdout

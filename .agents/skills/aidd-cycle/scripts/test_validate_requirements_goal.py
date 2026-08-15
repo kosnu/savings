@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from artifact_source import serialize_source
+from artifact_source import SourceError, serialize_source
 from validate_requirements_goal import ValidationError, validate
 
 
@@ -104,16 +104,69 @@ def input_gate(*, direct: bool = True) -> dict[str, object]:
     }
 
 
-def source(kind: str, gate: dict[str, object], markdown: str = "# display\n") -> dict[str, object]:
+def source(
+    kind: str,
+    gate: dict[str, object],
+    preamble: str = "---\ntitle: display\n---\n\n# display",
+) -> dict[str, object]:
+    validation: dict[str, object] = {
+        "mode": "managed",
+        "input_gate": gate,
+        "completeness_gate": {
+            "issue_body_sha256": "0" * 64,
+            "workspace": WORKSPACE,
+            "baseline": {"source": "none", "body_sha256": None},
+            "requirements": [
+                {"id": "FR-1", "status": "new", "issue_evidence": "scope"}
+            ],
+            "sections": [],
+            "retired": [],
+        },
+        "requirements": (
+            [{"id": "FR-1", "text": "fixture"}]
+            if kind == "requirements_goal"
+            else [{"id": "FR-1", "section_id": "functional", "text": "fixture"}]
+        ),
+    }
+    if kind == "requirements":
+        validation["completeness_gate"]["sections"] = [
+            {"id": "functional", "status": "new", "issue_evidence": "scope"}
+        ]
+        validation.update(
+            {
+                "sections": [
+                    {
+                        "id": "functional",
+                        "heading": "機能要件",
+                        "blocks": [
+                            {
+                                "id": "functional-requirements",
+                                "type": "requirements",
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        display = {"path": "requirements.md", "preamble": preamble}
+    else:
+        display = {
+            "path": "goal.md",
+            "title": "Requirements Goal",
+            "goal": "Issue本文を正本にRequirementsを作成する。",
+            "context": {
+                "body": ["Issue本文とrule-mapを検証する。"],
+                "constraints": ["Issue本文以外をTask Contextにしない。"],
+                "stop": ["Gateが不正なら停止する。"],
+            },
+            "done": ["Requirements Input Gateが成功する。"],
+        }
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "kind": kind,
         "workspace": WORKSPACE,
-        "display": {
-            "path": "goal.md" if kind == "requirements_goal" else "requirements.md",
-            "markdown": markdown,
-        },
-        "validation": {"mode": "managed", "input_gate": gate},
+        "display": display,
+        "validation": validation,
     }
 
 
@@ -124,17 +177,17 @@ class RequirementsInputGateTest(unittest.TestCase):
         *,
         kind: str = "goal",
         goal_gate: dict[str, object] | None = None,
-        markdown: str = "# display\n",
+        preamble: str = "---\ntitle: display\n---\n\n# display",
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             rule_map = initialize_repo(repo_root)
             issue_path = repo_root / "issue.md"
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
             if kind == "goal":
                 document = repo_root / "goal.json"
                 document.write_text(
-                    serialize_source(source("requirements_goal", gate, markdown)),
+                    serialize_source(source("requirements_goal", gate, preamble)),
                     encoding="utf-8",
                 )
                 goal_document = None
@@ -149,7 +202,7 @@ class RequirementsInputGateTest(unittest.TestCase):
                 )
                 document.parent.mkdir(parents=True)
                 document.write_text(
-                    serialize_source(source("requirements", gate, markdown)),
+                    serialize_source(source("requirements", gate, preamble)),
                     encoding="utf-8",
                 )
                 goal_document = repo_root / "goal.json"
@@ -178,7 +231,7 @@ class RequirementsInputGateTest(unittest.TestCase):
         self.validate_source(input_gate(), kind="artifact")
 
     def test_rejects_empty_direct_rules(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "at least one"):
+        with self.assertRaisesRegex(SourceError, "must be non-empty"):
             self.validate_source(input_gate(direct=False))
 
     def test_rejects_artifact_gate_different_from_goal(self) -> None:
@@ -193,7 +246,8 @@ class RequirementsInputGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "not present in the Issue body"):
             self.validate_source(
                 gate,
-                markdown="```json\ndisplayだけのuser evidence\n```\n",
+                kind="artifact",
+                preamble="```json\ndisplayだけのuser evidence\n```",
             )
 
     def test_rejects_match_value_missing_from_issue_evidence(self) -> None:
@@ -211,7 +265,7 @@ class RequirementsInputGateTest(unittest.TestCase):
     def test_rejects_non_issue_task_context_key(self) -> None:
         gate = input_gate()
         gate["task_context"]["conversation"] = "not allowed"
-        with self.assertRaisesRegex(ValidationError, "must contain only"):
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
             self.validate_source(gate)
 
     def test_accepts_complete_dependency_closure(self) -> None:
@@ -242,15 +296,18 @@ class RequirementsInputGateTest(unittest.TestCase):
 
     def test_rejects_legacy_import_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             rule_map = initialize_repo(repo_root)
             issue_path = repo_root / "issue.md"
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
             value = source("requirements_goal", input_gate())
             value["validation"]["mode"] = "legacy_import"
             document = repo_root / "goal.json"
-            document.write_text(serialize_source(value), encoding="utf-8")
-            with self.assertRaisesRegex(ValidationError, "mode=managed"):
+            document.write_text(
+                f"{json.dumps(value, ensure_ascii=False, indent=2)}\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(SourceError, "mode must be managed"):
                 validate(
                     issue_path,
                     document,

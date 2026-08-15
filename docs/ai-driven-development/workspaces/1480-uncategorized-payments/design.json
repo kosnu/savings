@@ -58,6 +58,7 @@
         "heading": "Risks / Stop",
         "content": "## Risks / Stop\n- `unknownCategory` を rename したくなった場合は停止する。カテゴリなし state と unknown/missing-reference fallback を混同するため。\n- カテゴリなし状態の `None` を category entity として扱いたくなった場合は停止する。Requirements は状態表示として扱っているため。\n- カテゴリなし bucket の `Uncategorized` を category entity や固定ドメイン概念にしたくなった場合は停止する。\n- `None` / `Uncategorized` / `Unknown` をカテゴリ名として禁止したくなった場合は停止する。\n- 同名衝突を追加説明テキスト、補助ラベル、ARIA label などの非表示ラベルへの追加説明語で解決したくなった場合は停止する。\n- 視覚表現だけでは accessible な区別が成立しないと判断した場合は停止し、Requirements の no-extra-label constraint とアクセシビリティ要件の衝突として扱う。\n- DB/API/Auth/RLS/RPC、カテゴリ/支払い mutation 仕様、i18n 基盤、ユーザー作成カテゴリ追加が必要になった場合は停止する。\n- Requirements にない copy、layout、成功条件を Design に追加する必要がある場合は停止する。\n- Design が選択したルール・ポリシーに違反する可能性がある場合は停止する。"
       }
-    ]
+    ],
+    "inventory_sha256": "c87a3a0fb0b91f557f7662a9659f30ee030c2d7aa6a77a112b0c8d4d40d102fd"
   }
 }

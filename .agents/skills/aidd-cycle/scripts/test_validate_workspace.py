@@ -4,9 +4,16 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
-from git_baseline import GitBaselineError, validate_workspace_identity
+import git_baseline
+
+from git_baseline import (
+    GitBaselineError,
+    load_git_head_source,
+    validate_workspace_identity,
+)
 
 
 VALIDATOR_PATH = Path(__file__).with_name("validate_workspace.py")
@@ -40,9 +47,76 @@ def initialize_repo(repo_root: Path, workspaces: tuple[str, ...] = ()) -> None:
 
 
 class WorkspaceValidationTest(unittest.TestCase):
+    def test_accepts_executable_regular_git_head_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            source_path = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / "1639-structured-data"
+                / "requirements.json"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"regular blob")
+            source_path.chmod(0o755)
+            run_git(repo_root, "add", str(source_path.relative_to(repo_root)))
+            run_git(repo_root, "commit", "-qm", "executable regular source")
+
+            _, content = load_git_head_source(
+                repo_root, "1639-structured-data", "requirements"
+            )
+
+            self.assertEqual(content, b"regular blob")
+
+    def test_rejects_git_head_source_symlink_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            source_path = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / "1639-structured-data"
+                / "requirements.json"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.symlink_to('{"schema_version":1}')
+            run_git(repo_root, "add", str(source_path.relative_to(repo_root)))
+            run_git(repo_root, "commit", "-qm", "symlink source")
+
+            with self.assertRaisesRegex(GitBaselineError, "regular file"):
+                load_git_head_source(repo_root, "1639-structured-data", "requirements")
+
+    def test_rejects_git_head_source_over_size_limit_before_read(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            source_path = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / "1639-structured-data"
+                / "requirements.json"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"oversized")
+            run_git(repo_root, "add", str(source_path.relative_to(repo_root)))
+            run_git(repo_root, "commit", "-qm", "oversized source")
+
+            with mock.patch.object(git_baseline, "MAX_GIT_BLOB_BYTES", 4):
+                with self.assertRaisesRegex(GitBaselineError, "exceeds"):
+                    load_git_head_source(
+                        repo_root, "1639-structured-data", "requirements"
+                    )
+
     def test_accepts_first_unversioned_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
             existing = validate_workspace_identity(
                 repo_root,
@@ -53,7 +127,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
     def test_reuses_the_only_existing_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root, ("1563-sync-language-setting",))
             existing = validate_workspace_identity(
                 repo_root,
@@ -64,7 +138,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
     def test_rejects_a_second_workspace_for_the_same_issue(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root, ("1563-sync-language-setting",))
             with self.assertRaisesRegex(GitBaselineError, "reuse"):
                 validate_workspace_identity(
@@ -75,7 +149,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
     def test_rejects_untracked_second_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root, ("1563-sync-language-setting",))
             untracked = (
                 repo_root
@@ -94,7 +168,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
     def test_rejects_ambiguous_legacy_workspaces(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(
                 repo_root,
                 ("1492-month-navigation", "1492-month-navigation-v2"),
@@ -108,7 +182,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
     def test_rejects_issue_number_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
             with self.assertRaisesRegex(GitBaselineError, "1563-"):
                 validate_workspace_identity(
@@ -119,7 +193,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
     def test_rejects_version_and_retry_markers(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
             for workspace in (
                 "1563-sync-language-setting-v2",
@@ -140,7 +214,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
     def test_cli_reports_reused_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root, ("1563-sync-language-setting",))
             result = subprocess.run(
                 [

@@ -105,6 +105,7 @@
         "heading": "技術的考慮事項",
         "content": "## 技術的考慮事項\n- Design / Planでは、表示名上限の正本とWeb validation、初期登録境界での正規化、翻訳メッセージ、境界値テストの同期方法を決める。\n- 初期登録値の切り詰めは既存の初期登録処理内で完結させ、tableやAPI契約を増やさない。\n- Retry失敗時focusはDOMエミュレーションだけに依存せず、実ブラウザでのfocusabilityを検証する。\n- 文字数判定の具体的な実装は、既存の文字列validation規約と整合させ、Design / Planで明示する。"
       }
-    ]
+    ],
+    "inventory_sha256": "861944a85e3b632b2c1936689b0255afd2f8948d824ade93a80c63811622426b"
   }
 }
