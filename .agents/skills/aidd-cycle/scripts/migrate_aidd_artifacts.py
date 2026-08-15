@@ -55,6 +55,12 @@ GOAL_SCOPE_PATTERN = re.compile(
 BASELINE_SCOPE_PATTERN = re.compile(
     r"(?m)^ {0,3}-\s+(.+?) baseline scope:\s*(.+)$"
 )
+GOAL_CONTEXT_CONTRACT_PATTERN = re.compile(
+    r"- (Constraints|Stop) \[([a-z0-9][a-z0-9-]*)\]:\s*(.+)"
+)
+GOAL_DONE_CONTRACT_PATTERN = re.compile(
+    r"- \[([a-z0-9][a-z0-9-]*)\]\s+(.+)"
+)
 
 
 def legacy_artifact_preamble(markdown: str) -> str:
@@ -188,23 +194,33 @@ def legacy_goal_display(markdown: str) -> dict[str, Any]:
     if len(titles) != 1:
         raise SourceError("Goal objective must contain exactly one level-one title")
     context_lines = legacy_goal_section(markdown, "Context Packet").splitlines()
-    constraints = [
-        line.removeprefix("- Constraints:").strip()
-        for line in context_lines
-        if line.startswith("- Constraints:")
-    ]
-    stops = [
-        line.removeprefix("- Stop:").strip()
-        for line in context_lines
-        if line.startswith("- Stop:")
-    ]
-    body = "\n".join(
-        line
-        for line in context_lines
-        if not line.startswith(("- Constraints:", "- Stop:"))
-    ).strip()
+    constraints: list[dict[str, str]] = []
+    stops: list[dict[str, str]] = []
+    body_lines: list[str] = []
+    for line in context_lines:
+        stripped_line = line.strip()
+        if stripped_line.startswith(("- Constraints", "- Stop")):
+            match = GOAL_CONTEXT_CONTRACT_PATTERN.fullmatch(stripped_line)
+            if match is None:
+                raise SourceError(
+                    "Goal Constraints and Stop entries must include stable IDs"
+                )
+            entry = {"id": match.group(2), "text": match.group(3).strip()}
+            (constraints if match.group(1) == "Constraints" else stops).append(entry)
+        else:
+            body_lines.append(line)
+    body = "\n".join(body_lines).strip()
     if not constraints or not stops:
         raise SourceError("Goal context must contain Constraints and Stop")
+    done: list[dict[str, str]] = []
+    for line in legacy_goal_section(markdown, "Done / Verification").splitlines():
+        stripped_line = line.strip()
+        if not stripped_line:
+            continue
+        match = GOAL_DONE_CONTRACT_PATTERN.fullmatch(stripped_line)
+        if match is None:
+            raise SourceError("Goal Done entries must include stable IDs")
+        done.append({"id": match.group(1), "text": match.group(2).strip()})
     return {
         "path": "goal.md",
         "title": titles[0],
@@ -214,13 +230,7 @@ def legacy_goal_display(markdown: str) -> dict[str, Any]:
             "constraints": constraints,
             "stop": stops,
         },
-        "done": [
-            line.strip()
-            for line in legacy_goal_section(
-                markdown, "Done / Verification"
-            ).splitlines()
-            if line.strip()
-        ],
+        "done": done,
     }
 
 

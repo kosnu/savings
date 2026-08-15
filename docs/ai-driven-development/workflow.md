@@ -49,6 +49,23 @@ read-only境界は同一サイクルの後続工程にだけ適用します。�
 
 RequirementsとDesignの通常機械検証は、共通envelope `schema_version`、`kind`、`workspace`、`display`、`validation`を持つJSONだけを入力にします。`requirements_goal` / `design_goal`の一時JSONを先に作成・検証し、型付き`display` fieldから生成したGoal objectiveを渡します。rendererはGoal objectiveを出力する前に、Context PacketのGoal、constraints、Stop、Done / Verificationと、構造化Gateおよび全scopeが欠落・不一致でないことを確認します。さらに全構造化IDからcanonical Validated Scopeを生成し、生成objectiveが常に検証済みの全scopeを含むようにします。managed artifactはcanonical `requirements.json` / `design.json`として保存し、rendererが構造化section、requirement、coverage、GateからMarkdown本文を生成します。Requirementsのrequirement定義と対応sectionが一致しない場合は生成を拒否します。通常validatorはMarkdown表示を解釈せず、生成結果の同期はrendererのUTF-8文字列一致検証で確認します。CRLFとLFの改行コード差は同一として扱います。旧Markdownの解析は移行scriptだけに許可し、`legacy_import`の`--check`では保存inventoryが元Markdownからの再import結果と一致することをメモリ上で検証します。managed sourceをMarkdownから再構築することはありません。
 
+Goal JSONの`display.context.constraints`、`display.context.stop`、`display.done`は、自由文字列ではなく`id`と`text`を持つentry配列にします。次の必須entryを表の順序とcanonical textで記録し、その後のtask固有entryには別の安定IDを付けます。`display.goal`、Context Packet本文、各entryの`text`はplaceholderまたは実質8文字未満を拒否し、IDだけ残した空の実行契約や、必須IDへ無関係な説明を割り当てたGoalを渡しません。
+
+| Goal kind | Field | ID | Canonical text |
+| --- | --- | --- | --- |
+| `requirements_goal` | constraints | `task-context` | 最新Issue本文だけをTask Context正本として扱う。 |
+| `requirements_goal` | constraints | `phase-boundary` | Requirements Goal内では実装しない。 |
+| `requirements_goal` | stop | `validation-failure` | workspaceまたはRequirements Gateの検証が失敗した場合は停止する。 |
+| `requirements_goal` | stop | `scope-ambiguity` | Issue本文から要求scopeを一意に決められない場合は停止する。 |
+| `requirements_goal` | done | `complete-scope` | 最新Issue全体を覆うRequirementsと全要求IDを定義する。 |
+| `requirements_goal` | done | `validated-artifact` | Requirements Gateと生成成果物の同期検証を成功させる。 |
+| `design_goal` | constraints | `canonical-input` | 検証済みのcanonical requirements.jsonをread-only入力として扱う。 |
+| `design_goal` | constraints | `phase-boundary` | Design Goal内では実装しない。 |
+| `design_goal` | stop | `validation-failure` | Requirements再検証またはDesign Coverage Gateが失敗した場合は停止する。 |
+| `design_goal` | stop | `scope-ambiguity` | 要求ごとの設計・検証scopeを一意に決められない場合は停止する。 |
+| `design_goal` | done | `complete-scope` | 全Requirements IDとbaseline sectionのDesign coverageを定義する。 |
+| `design_goal` | done | `validated-artifact` | Design Coverage Gateと生成成果物の同期検証を成功させる。 |
+
 このフローはHuman on the loopを前提にします。AIはStop条件に当たらない限り次工程へ進み、人間は各工程の逐次承認ではなく、リスク監督、例外処理、最終的な公開可否を担います。
 
 起点になるIssue本文は、Requirements / PRDのTask Context正本です。Issueには意図、境界、成功条件、Stop条件を書き、実装方針や作業手順はDesign / Plan Goalへ寄せます。詳細は [issue-guidelines.md](./issue-guidelines.md) を参照します。

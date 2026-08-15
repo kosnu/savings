@@ -78,8 +78,13 @@ Use `--import-legacy` only for the one-way bootstrap; routine validation uses
 memory and requires the saved inventory to match; it never writes or upgrades
 JSON. Managed sources are never rebuilt or validated from Markdown.
 For temporary Requirements and Design Goal JSON, the renderer must verify that
-the Goal objective retains the required Context Packet markers and exactly
-represents every structured Gate and scope before writing or printing it. The
+the Goal objective retains the required Context Packet markers, substantive
+Goal and Context text, and the phase-specific stable contract IDs for
+constraints, Stop, and Done / Verification. Each contract entry contains `id`
+and the workflow's canonical `text`; missing, reordered, rewritten,
+placeholder, or non-substantive required entries are invalid. The renderer must
+exactly represent every structured Gate
+and scope before writing or printing it. The
 renderer adds the complete structured ID set as Validated Scope, so the
 generated Goal objective always carries the full validated scope.
 

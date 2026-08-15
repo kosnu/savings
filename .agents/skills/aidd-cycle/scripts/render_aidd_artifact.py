@@ -211,11 +211,12 @@ def render_goal_objective(source: dict[str, Any]) -> str:
         + "\n".join(
             [
                 *(
-                    f"- Constraints: {render_plain_text(item)}"
+                    f"- Constraints [{item['id']}]: "
+                    f"{render_plain_text(item['text'])}"
                     for item in context["constraints"]
                 ),
                 *(
-                    f"- Stop: {render_plain_text(item)}"
+                    f"- Stop [{item['id']}]: {render_plain_text(item['text'])}"
                     for item in context["stop"]
                 ),
                 f"- Validated Scope: {', '.join(scope_ids)}",
@@ -274,7 +275,10 @@ def render_goal_objective(source: dict[str, Any]) -> str:
         blocks.append("## Requirement Design Scope\n\n" + "\n".join(scope_lines))
     blocks.append(
         "## Done / Verification\n\n"
-        + "\n".join(render_plain_text(item) for item in display["done"])
+        + "\n".join(
+            f"- [{item['id']}] {render_plain_text(item['text'])}"
+            for item in display["done"]
+        )
     )
     return "\n\n".join(block.rstrip() for block in blocks) + "\n"
 

@@ -37,6 +37,7 @@ when_to_read:
 - Requirements IDs: 全`FR-*`、`NFR-*`、`AC-*`
 - Workspace identity検証結果: Requirementsと同じ検証済みworkspace
 - Goal source: temporary `design_goal` JSON。このJSONを検証し、型付き`display` fieldから生成したGoal objectiveを使う。
+- Goal contract IDs: constraintsは`canonical-input`、`phase-boundary`、Stopは`validation-failure`、`scope-ambiguity`、Done / Verificationは`complete-scope`、`validated-artifact`を必須とする。各entryは`id`と[workflow](../workflow.md)のcanonical textを持ち、task固有条件には別の安定IDを付ける。
 - 出力先: 同じworkspaceのcanonical `design.json`。このGoalが書き込みを所有し、`design-doc.md`を生成する。
 - Git `HEAD`のcanonical Design baseline: validatorが`--workspace`から自動取得したSHA-256とsection inventory
 - 関連コード:
