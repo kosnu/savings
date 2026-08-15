@@ -22,7 +22,9 @@ from validate_design_coverage import (
     structured_sha256,
     validate,
     validate_baseline_sections,
+    validate_baseline_scopes,
     validate_coverage,
+    validate_scopes,
 )
 
 
@@ -416,6 +418,25 @@ class DesignCoverageGateTest(unittest.TestCase):
         with self.assertRaisesRegex(SourceError, "single line"):
             validate_loaded_source(source)
 
+    def test_rejects_non_substantive_goal_scope(self) -> None:
+        broken = scopes()
+        broken[0]["design_scope"] = "x"
+        with self.assertRaisesRegex(ValidationError, "not substantive"):
+            validate_scopes(broken, IDS)
+
+    def test_rejects_non_substantive_baseline_scope(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "not substantive"):
+            validate_baseline_scopes(
+                [
+                    {
+                        "section_id": "old-design",
+                        "heading": "旧設計",
+                        "review_scope": "x",
+                    }
+                ],
+                [{"section_id": "old-design", "heading": "旧設計"}],
+            )
+
     def test_accepts_artifact_using_evidence_block_ids(self) -> None:
         self.validate_source(kind="artifact")
 
@@ -429,14 +450,14 @@ class DesignCoverageGateTest(unittest.TestCase):
                 "type": "evidence",
                 "role": "design",
                 "owner_id": "FR-1",
-                "text": "<!-- hidden -->",
+                "text": "<!-- hidden evidence remains visible -->",
             },
             "verify": {
                 "id": "verify",
                 "type": "evidence",
                 "role": "verification",
                 "owner_id": "FR-1",
-                "text": "`code` [link](x)",
+                "text": "`code evidence` [link remains visible](target)",
             },
         }
         validate_coverage(
@@ -457,6 +478,14 @@ class DesignCoverageGateTest(unittest.TestCase):
         )
         blocks["fr-1-design"]["text"] = "（TBD）"
         with self.assertRaisesRegex(ValidationError, "unresolved"):
+            validate_coverage(coverage(), IDS, blocks)
+
+    def test_rejects_non_substantive_coverage_evidence(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        blocks["fr-1-design"]["text"] = "x"
+        with self.assertRaisesRegex(ValidationError, "not substantive"):
             validate_coverage(coverage(), IDS, blocks)
 
     def test_rejects_coverage_evidence_with_wrong_owner(self) -> None:
@@ -521,6 +550,14 @@ class DesignCoverageGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "verification evidence"):
             validate_coverage(broken, IDS, blocks)
 
+    def test_rejects_identical_design_and_verification_evidence_text(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        blocks["fr-1-verification"]["text"] = blocks["fr-1-design"]["text"]
+        with self.assertRaisesRegex(ValidationError, "evidence text must differ"):
+            validate_coverage(coverage(), IDS, blocks)
+
     def test_validates_baseline_transitions_using_digests_and_block_ids(self) -> None:
         blocks = {
             "baseline": {
@@ -528,7 +565,7 @@ class DesignCoverageGateTest(unittest.TestCase):
                 "type": "evidence",
                 "role": "baseline",
                 "owner_id": "旧設計",
-                "text": "置換根拠",
+                "text": "旧設計の置換根拠を十分に説明する。",
             }
         }
         validate_baseline_sections(
@@ -560,7 +597,7 @@ class DesignCoverageGateTest(unittest.TestCase):
                 ],
                 [{"section_id": None, "heading": "旧設計", "content_sha256": "old"}],
                 [{"section_id": "new", "heading": "新設計", "content_sha256": "new"}],
-                {"baseline": {"id": "baseline", "type": "evidence", "role": "baseline", "owner_id": "旧設計", "text": "根拠"}},
+                {"baseline": {"id": "baseline", "type": "evidence", "role": "baseline", "owner_id": "旧設計", "text": "旧設計の変更根拠を十分に説明する。"}},
             )
 
     def test_rejects_replaced_baseline_digest_still_in_current_json(self) -> None:
@@ -577,7 +614,7 @@ class DesignCoverageGateTest(unittest.TestCase):
                 ],
                 [{"section_id": None, "heading": "旧設計", "content_sha256": "same"}],
                 [{"section_id": "new", "heading": "旧設計", "content_sha256": "same"}],
-                {"baseline": {"id": "baseline", "type": "evidence", "role": "baseline", "owner_id": "旧設計", "text": "根拠"}},
+                {"baseline": {"id": "baseline", "type": "evidence", "role": "baseline", "owner_id": "旧設計", "text": "旧設計の変更根拠を十分に説明する。"}},
             )
 
     def test_same_digest_under_different_section_id_is_not_preserved(self) -> None:
@@ -612,7 +649,7 @@ class DesignCoverageGateTest(unittest.TestCase):
                         "type": "evidence",
                         "role": "baseline",
                         "owner_id": "old-section",
-                        "text": "根拠",
+                        "text": "対象sectionの変更根拠を十分に説明する。",
                     }
                 },
             )
