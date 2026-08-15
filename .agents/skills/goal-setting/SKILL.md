@@ -58,7 +58,11 @@ definition and not as output skeletons.
    an explicit user constraint.
 5. For Requirements and Design, serialize that packet and the structured gates
    as `requirements_goal` or `design_goal` JSON, validate the JSON, and render
-   the Goal objective from typed `display.title`, `display.goal`, `display.context`, and `display.done` fields. The renderer must reject the
+   the Goal objective from typed `display.title`, `display.goal`,
+   `display.context`, and `display.done` fields. Represent constraints, Stop,
+   and Done / Verification as `id` plus `text` entries, including every
+   phase-specific required ID with its canonical workflow text before
+   task-specific entries. The renderer must reject the
    objective unless its Context Packet keeps Goal, constraints, Stop, and
    Done / Verification markers and its Gate and per-ID or baseline scope content
    matches the structured validation fields. The renderer adds a canonical

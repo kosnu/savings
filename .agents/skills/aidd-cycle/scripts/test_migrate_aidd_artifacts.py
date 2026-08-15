@@ -69,8 +69,10 @@ Designを定義する。
 ## Context Packet
 
 Issue本文を扱う。
-- Constraints: JSONを正本にする。
-- Stop: scopeが変わる場合。
+- Constraints [canonical-input]: 検証済みのcanonical requirements.jsonをread-only入力として扱う。
+- Constraints [phase-boundary]: Design Goal内では実装しない。
+- Stop [validation-failure]: Requirements再検証またはDesign Coverage Gateが失敗した場合は停止する。
+- Stop [scope-ambiguity]: 要求ごとの設計・検証scopeを一意に決められない場合は停止する。
 
 ## Design Coverage Gate
 
@@ -86,7 +88,8 @@ Issue本文を扱う。
 
 ## Done / Verification
 
-Design coverageを確認する。
+- [complete-scope] 全Requirements IDとbaseline sectionのDesign coverageを定義する。
+- [validated-artifact] Design Coverage Gateと生成成果物の同期検証を成功させる。
 """
 MANAGED_DESIGN_MARKDOWN = """# Design Doc
 
@@ -315,6 +318,16 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
                 }
             ],
         )
+
+    def test_goal_import_rejects_contract_without_stable_ids(self) -> None:
+        markdown = DESIGN_GOAL_MARKDOWN.replace(
+            "- Constraints [canonical-input]:",
+            "- Constraints:",
+            1,
+        )
+
+        with self.assertRaisesRegex(SourceError, "must include stable IDs"):
+            build_goal_source(WORKSPACE, "design", markdown)
 
     def test_design_goal_import_rejects_unknown_gate_fields(self) -> None:
         markdown = DESIGN_GOAL_MARKDOWN.replace(

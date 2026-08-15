@@ -148,10 +148,37 @@ def goal_display() -> dict[str, object]:
         "goal": "構造化Designを作成する。",
         "context": {
             "body": ["Requirements JSONを入力にする。"],
-            "constraints": ["Markdownを解析しない。"],
-            "stop": ["JSON参照が不整合なら停止する。"],
+            "constraints": [
+                {
+                    "id": "canonical-input",
+                    "text": "検証済みのcanonical requirements.jsonをread-only入力として扱う。",
+                },
+                {
+                    "id": "phase-boundary",
+                    "text": "Design Goal内では実装しない。",
+                },
+            ],
+            "stop": [
+                {
+                    "id": "validation-failure",
+                    "text": "Requirements再検証またはDesign Coverage Gateが失敗した場合は停止する。",
+                },
+                {
+                    "id": "scope-ambiguity",
+                    "text": "要求ごとの設計・検証scopeを一意に決められない場合は停止する。",
+                },
+            ],
         },
-        "done": ["coverageを検証する。"],
+        "done": [
+            {
+                "id": "complete-scope",
+                "text": "全Requirements IDとbaseline sectionのDesign coverageを定義する。",
+            },
+            {
+                "id": "validated-artifact",
+                "text": "Design Coverage Gateと生成成果物の同期検証を成功させる。",
+            },
+        ],
     }
 
 

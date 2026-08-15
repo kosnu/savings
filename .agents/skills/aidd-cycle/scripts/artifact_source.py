@@ -92,6 +92,71 @@ WORKSPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
 DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}")
 MAX_SOURCE_BYTES = 16 * 1024 * 1024
 EVIDENCE_ROLES = {"design", "verification", "baseline"}
+MIN_SUBSTANTIVE_TEXT_LENGTH = 8
+GOAL_REQUIRED_CONTRACT = {
+    "requirements_goal": {
+        "constraints": (
+            (
+                "task-context",
+                "最新Issue本文だけをTask Context正本として扱う。",
+            ),
+            ("phase-boundary", "Requirements Goal内では実装しない。"),
+        ),
+        "stop": (
+            (
+                "validation-failure",
+                "workspaceまたはRequirements Gateの検証が"
+                "失敗した場合は停止する。",
+            ),
+            (
+                "scope-ambiguity",
+                "Issue本文から要求scopeを一意に決められない場合は"
+                "停止する。",
+            ),
+        ),
+        "done": (
+            (
+                "complete-scope",
+                "最新Issue全体を覆うRequirementsと全要求IDを定義する。",
+            ),
+            (
+                "validated-artifact",
+                "Requirements Gateと生成成果物の同期検証を成功させる。",
+            ),
+        ),
+    },
+    "design_goal": {
+        "constraints": (
+            (
+                "canonical-input",
+                "検証済みのcanonical requirements.jsonをread-only入力として扱う。",
+            ),
+            ("phase-boundary", "Design Goal内では実装しない。"),
+        ),
+        "stop": (
+            (
+                "validation-failure",
+                "Requirements再検証またはDesign Coverage Gateが"
+                "失敗した場合は停止する。",
+            ),
+            (
+                "scope-ambiguity",
+                "要求ごとの設計・検証scopeを一意に決められない場合は"
+                "停止する。",
+            ),
+        ),
+        "done": (
+            (
+                "complete-scope",
+                "全Requirements IDとbaseline sectionのDesign coverageを定義する。",
+            ),
+            (
+                "validated-artifact",
+                "Design Coverage Gateと生成成果物の同期検証を成功させる。",
+            ),
+        ),
+    },
+}
 EVIDENCE_PLACEHOLDERS = {
     "pending",
     "tbd",
@@ -150,14 +215,31 @@ def require_evidence_text(value: Any, label: str) -> str:
     return text
 
 
-def is_placeholder_text(value: str) -> bool:
+def canonical_substantive_text(value: str) -> str:
     normalized = unicodedata.normalize("NFKC", value).casefold()
-    canonical = "".join(
+    return "".join(
         character
         for character in normalized
         if unicodedata.category(character)[0] not in {"P", "S", "Z", "C", "M"}
     )
+
+
+def is_placeholder_text(value: str) -> bool:
+    canonical = canonical_substantive_text(value)
     return not canonical or canonical in EVIDENCE_PLACEHOLDERS
+
+
+def require_substantive_inline_text(value: Any, label: str) -> str:
+    text = require_inline_markdown(value, label)
+    if (
+        is_placeholder_text(text)
+        or len(canonical_substantive_text(text)) < MIN_SUBSTANTIVE_TEXT_LENGTH
+    ):
+        raise SourceError(
+            f"{label} must contain at least "
+            f"{MIN_SUBSTANTIVE_TEXT_LENGTH} substantive characters"
+        )
+    return text
 
 
 def require_object_keys(value: Any, expected: set[str], label: str) -> dict[str, Any]:
@@ -172,6 +254,40 @@ def require_object_array(value: Any, label: str) -> list[dict[str, Any]]:
     ):
         raise SourceError(f"{label} must be an object array")
     return value
+
+
+def require_goal_contract_entries(
+    value: Any,
+    label: str,
+    required_contract: tuple[tuple[str, str], ...],
+) -> list[dict[str, Any]]:
+    entries = require_object_array(value, label)
+    if not entries:
+        raise SourceError(f"{label} must be non-empty")
+    ids: list[str] = []
+    for index, entry in enumerate(entries):
+        entry_label = f"{label}[{index}]"
+        require_object_keys(entry, {"id", "text"}, entry_label)
+        contract_id = require_string(entry["id"], f"{entry_label}.id")
+        if BLOCK_ID_PATTERN.fullmatch(contract_id) is None:
+            raise SourceError(f"{entry_label}.id must use lowercase ASCII kebab-case")
+        if contract_id in ids:
+            raise SourceError(f"duplicate {label} ID: {contract_id}")
+        ids.append(contract_id)
+        require_substantive_inline_text(entry["text"], f"{entry_label}.text")
+
+    required_ids = [contract_id for contract_id, _ in required_contract]
+    if ids[: len(required_contract)] != required_ids:
+        raise SourceError(
+            f"{label} must contain required IDs in canonical order: "
+            f"{', '.join(required_ids)}"
+        )
+    for index, (contract_id, canonical_text) in enumerate(required_contract):
+        if entries[index]["text"] != canonical_text:
+            raise SourceError(
+                f"{label} required ID {contract_id} must use canonical text"
+            )
+    return entries
 
 
 def require_string_array(value: Any, label: str) -> list[str]:
@@ -413,28 +529,35 @@ def validate_source(value: Any, expected_kind: str | None = None) -> dict[str, A
             "managed Goal display",
         )
         require_inline_markdown(display["title"], "display.title")
-        require_inline_markdown(display["goal"], "display.goal")
+        require_substantive_inline_text(display["goal"], "display.goal")
         context = require_object_keys(
             display["context"],
             {"body", "constraints", "stop"},
             "display.context",
         )
         require_string_array(context["body"], "display.context.body")
-        require_string_array(
-            context["constraints"], "display.context.constraints"
+        if not context["body"]:
+            raise SourceError("display.context.body must be non-empty")
+        for index, entry in enumerate(context["body"]):
+            require_substantive_inline_text(
+                entry, f"display.context.body[{index}]"
+            )
+        required_contract = GOAL_REQUIRED_CONTRACT[kind]
+        require_goal_contract_entries(
+            context["constraints"],
+            "display.context.constraints",
+            required_contract["constraints"],
         )
-        require_string_array(context["stop"], "display.context.stop")
-        require_string_array(display["done"], "display.done")
-        for field, entries in (
-            ("display.context.body", context["body"]),
-            ("display.context.constraints", context["constraints"]),
-            ("display.context.stop", context["stop"]),
-            ("display.done", display["done"]),
-        ):
-            if not entries:
-                raise SourceError(f"{field} must be non-empty")
-            for index, entry in enumerate(entries):
-                require_inline_markdown(entry, f"{field}[{index}]")
+        require_goal_contract_entries(
+            context["stop"],
+            "display.context.stop",
+            required_contract["stop"],
+        )
+        require_goal_contract_entries(
+            display["done"],
+            "display.done",
+            required_contract["done"],
+        )
 
     display_path = require_string(display["path"], "display.path")
     if display_path != DISPLAY_FILENAMES[kind]:

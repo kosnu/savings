@@ -167,10 +167,37 @@ def source(
             "goal": "構造化Requirementsを検証する。",
             "context": {
                 "body": ["Issue本文を正本とする。"],
-                "constraints": ["Markdownを解析しない。"],
-                "stop": ["JSONが不正なら停止する。"],
+                "constraints": [
+                    {
+                        "id": "task-context",
+                        "text": "最新Issue本文だけをTask Context正本として扱う。",
+                    },
+                    {
+                        "id": "phase-boundary",
+                        "text": "Requirements Goal内では実装しない。",
+                    },
+                ],
+                "stop": [
+                    {
+                        "id": "validation-failure",
+                        "text": "workspaceまたはRequirements Gateの検証が失敗した場合は停止する。",
+                    },
+                    {
+                        "id": "scope-ambiguity",
+                        "text": "Issue本文から要求scopeを一意に決められない場合は停止する。",
+                    },
+                ],
             },
-            "done": ["continuity gateが成功する。"],
+            "done": [
+                {
+                    "id": "complete-scope",
+                    "text": "最新Issue全体を覆うRequirementsと全要求IDを定義する。",
+                },
+                {
+                    "id": "validated-artifact",
+                    "text": "Requirements Gateと生成成果物の同期検証を成功させる。",
+                },
+            ],
         }
     return {
         "schema_version": 2,

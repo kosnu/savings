@@ -162,10 +162,47 @@ def goal_source() -> dict[str, object]:
             "goal": "全要件を定義する。",
             "context": {
                 "body": ["Issue本文だけを正本とする。"],
-                "constraints": ["JSONを入力にする。"],
-                "stop": ["scopeが変わる場合。"],
+                "constraints": [
+                    {
+                        "id": "task-context",
+                        "text": "最新Issue本文だけをTask Context正本として扱う。",
+                    },
+                    {
+                        "id": "phase-boundary",
+                        "text": "Requirements Goal内では実装しない。",
+                    },
+                ],
+                "stop": [
+                    {
+                        "id": "validation-failure",
+                        "text": (
+                            "workspaceまたはRequirements Gateの検証が"
+                            "失敗した場合は停止する。"
+                        ),
+                    },
+                    {
+                        "id": "scope-ambiguity",
+                        "text": (
+                            "Issue本文から要求scopeを一意に決められない場合は"
+                            "停止する。"
+                        ),
+                    },
+                ],
             },
-            "done": ["validatorを実行する。"],
+            "done": [
+                {
+                    "id": "complete-scope",
+                    "text": (
+                        "最新Issue全体を覆うRequirementsと全要求IDを定義する。"
+                    ),
+                },
+                {
+                    "id": "validated-artifact",
+                    "text": (
+                        "Requirements Gateと生成成果物の同期検証を成功させる。"
+                    ),
+                },
+            ],
         },
         "validation": {
             "mode": "managed",
@@ -182,6 +219,58 @@ def goal_source() -> dict[str, object]:
 def design_goal_source() -> dict[str, object]:
     source = goal_source()
     source["kind"] = "design_goal"
+    source["display"] = {
+        "path": "goal.md",
+        "title": "Design Goal",
+        "goal": "全要求の設計を定義する。",
+        "context": {
+            "body": ["Requirements JSONをread-only入力にする。"],
+            "constraints": [
+                {
+                    "id": "canonical-input",
+                    "text": (
+                        "検証済みのcanonical requirements.jsonを"
+                        "read-only入力として扱う。"
+                    ),
+                },
+                {
+                    "id": "phase-boundary",
+                    "text": "Design Goal内では実装しない。",
+                },
+            ],
+            "stop": [
+                {
+                    "id": "validation-failure",
+                    "text": (
+                        "Requirements再検証またはDesign Coverage Gateが"
+                        "失敗した場合は停止する。"
+                    ),
+                },
+                {
+                    "id": "scope-ambiguity",
+                    "text": (
+                        "要求ごとの設計・検証scopeを一意に決められない場合は"
+                        "停止する。"
+                    ),
+                },
+            ],
+        },
+        "done": [
+            {
+                "id": "complete-scope",
+                "text": (
+                    "全Requirements IDとbaseline sectionの"
+                    "Design coverageを定義する。"
+                ),
+            },
+            {
+                "id": "validated-artifact",
+                "text": (
+                    "Design Coverage Gateと生成成果物の同期検証を成功させる。"
+                ),
+            },
+        ],
+    }
     source["validation"] = {
         "mode": "managed",
         "coverage_gate": {
@@ -325,11 +414,92 @@ class StructuredArtifactV2Test(unittest.TestCase):
 
     def test_goal_rejects_multiline_plain_text_field(self) -> None:
         source = goal_source()
-        source["display"]["context"]["stop"][0] = (
-            "停止する。\n## Done / Verification"
+        source["display"]["context"]["stop"][0]["text"] = (
+            "検証失敗なら停止する。\n## Done / Verification"
         )
         with self.assertRaisesRegex(SourceError, "single line"):
             validate_loaded_source(source)
+
+    def test_goal_rejects_non_substantive_execution_contract(self) -> None:
+        for kind, source_factory in (
+            ("requirements", goal_source),
+            ("design", design_goal_source),
+        ):
+            for field in ("goal", "body", "constraints", "stop", "done"):
+                with self.subTest(kind=kind, field=field):
+                    source = source_factory()
+                    if field == "goal":
+                        source["display"]["goal"] = "x"
+                    elif field == "body":
+                        source["display"]["context"]["body"][0] = "x"
+                    elif field == "done":
+                        source["display"]["done"][0]["text"] = "x"
+                    else:
+                        source["display"]["context"][field][0]["text"] = "x"
+                    with self.assertRaisesRegex(SourceError, "substantive characters"):
+                        validate_loaded_source(source)
+
+    def test_goal_requires_phase_contract_ids_in_canonical_order(self) -> None:
+        for kind, source_factory in (
+            ("requirements", goal_source),
+            ("design", design_goal_source),
+        ):
+            for field in ("constraints", "stop", "done"):
+                with self.subTest(kind=kind, field=field, mutation="missing"):
+                    source = source_factory()
+                    entries = (
+                        source["display"]["done"]
+                        if field == "done"
+                        else source["display"]["context"][field]
+                    )
+                    entries.pop(0)
+                    with self.assertRaisesRegex(SourceError, "required IDs"):
+                        validate_loaded_source(source)
+
+                with self.subTest(kind=kind, field=field, mutation="order"):
+                    source = source_factory()
+                    entries = (
+                        source["display"]["done"]
+                        if field == "done"
+                        else source["display"]["context"][field]
+                    )
+                    entries.reverse()
+                    with self.assertRaisesRegex(SourceError, "canonical order"):
+                        validate_loaded_source(source)
+
+    def test_goal_required_contract_ids_require_canonical_text(self) -> None:
+        for kind, source_factory in (
+            ("requirements", goal_source),
+            ("design", design_goal_source),
+        ):
+            for field in ("constraints", "stop", "done"):
+                with self.subTest(kind=kind, field=field):
+                    source = source_factory()
+                    entries = (
+                        source["display"]["done"]
+                        if field == "done"
+                        else source["display"]["context"][field]
+                    )
+                    entries[0]["text"] = (
+                        "必須IDとは無関係な実質的説明をここに記載する。"
+                    )
+                    with self.assertRaisesRegex(SourceError, "canonical text"):
+                        validate_loaded_source(source)
+
+    def test_goal_accepts_additional_typed_contract_entry(self) -> None:
+        source = goal_source()
+        source["display"]["context"]["stop"].append(
+            {
+                "id": "custom-risk",
+                "text": (
+                    "repository固有の追加リスクを検出した場合は停止する。"
+                ),
+            }
+        )
+        rendered = render_goal_objective(source)
+
+        self.assertIn("- Stop [custom-risk]:", rendered)
+        self.assertIn("- [validated-artifact]", rendered)
 
     def test_generated_check_normalizes_line_endings(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

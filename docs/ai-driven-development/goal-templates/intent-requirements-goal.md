@@ -38,6 +38,7 @@ when_to_read:
 - Workspace identity検証結果:
 - 既存Requirements / PRD: 履歴参照のみ。Task Contextへ追加しない
 - Goal source: temporary `requirements_goal` JSON。このJSONを検証し、型付き`display` fieldから生成したGoal objectiveを使う。
+- Goal contract IDs: constraintsは`task-context`、`phase-boundary`、Stopは`validation-failure`、`scope-ambiguity`、Done / Verificationは`complete-scope`、`validated-artifact`を必須とする。各entryは`id`と[workflow](../workflow.md)のcanonical textを持ち、task固有条件には別の安定IDを付ける。
 - 出力先: 同じworkspaceのcanonical `requirements.json`。このGoalが書き込みを所有し、`requirements.md`を生成する。
 
 ## Oversight Inputs
