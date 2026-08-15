@@ -421,6 +421,8 @@ def validate_sections_manifest(
     sections: Any,
     baseline_sections: dict[str, str],
     issue_body: str,
+    current_sections: dict[str, StructuredSection] | None,
+    current_items: dict[str, StructuredRequirement],
 ) -> dict[str, str]:
     if not isinstance(sections, list):
         raise ValidationError("sections must be an array")
@@ -431,6 +433,27 @@ def validate_sections_manifest(
         )
 
     normalized_issue_body = normalize(issue_body)
+    normalized_section_contents: dict[str, str] = {}
+    if current_sections is not None:
+        for section_id, section in current_sections.items():
+            content_parts: list[str] = []
+            if section.blocks is None:
+                content_parts.append(section.content)
+            else:
+                for block in section.blocks:
+                    if block["type"] == "markdown":
+                        content_parts.append(block["markdown"])
+                    elif block["type"] == "evidence":
+                        content_parts.append(block["text"])
+                    elif block["type"] == "requirements":
+                        content_parts.extend(
+                            item.text
+                            for item in current_items.values()
+                            if item.section_id == section_id
+                        )
+            normalized_section_contents[section_id] = normalize(
+                "\n".join(content_parts)
+            )
     statuses: dict[str, str] = {}
     evidence_owners: dict[str, str] = {}
     for index, entry in enumerate(sections):
@@ -469,6 +492,19 @@ def validate_sections_manifest(
                     "changed or new section issue_evidence must be unique per section"
                 )
             evidence_owners[normalized_evidence] = section_id
+            if current_sections is not None:
+                if normalized_evidence not in normalized_section_contents[section_id]:
+                    raise ValidationError(
+                        f"{section_id} section evidence is not present in its section content"
+                    )
+                if any(
+                    normalized_evidence in other_content
+                    for other_id, other_content in normalized_section_contents.items()
+                    if other_id != section_id
+                ):
+                    raise ValidationError(
+                        f"{section_id} section evidence also maps to another section"
+                    )
         statuses[section_id] = status
     return statuses
 
@@ -695,7 +731,11 @@ def validate(
             "Requirements artifact must contain every canonical structured section"
         )
     section_statuses = validate_sections_manifest(
-        manifest.get("sections"), baseline_sections, issue_body
+        manifest.get("sections"),
+        baseline_sections,
+        issue_body,
+        current_sections,
+        current_items,
     )
 
     missing_baseline = set(baseline_items) - set(statuses) - retired_ids

@@ -371,6 +371,9 @@ def check_all(repo_root: Path) -> int:
     } | {
         DISPLAY_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
     }
+    source_filename_kinds = {
+        SOURCE_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
+    }
     expected_pairs: set[tuple[str, str]] = set()
     listing = run_git(
         repo_root,
@@ -415,6 +418,11 @@ def check_all(repo_root: Path) -> int:
     for source_path in sorted(workspace_root.glob("*/*.json")):
         source = load_regular_source(source_path)
         kind = source["kind"]
+        canonical_kind = source_filename_kinds.get(source_path.name)
+        if canonical_kind is not None and kind != canonical_kind:
+            raise SourceError(
+                f"{source_path.name} must contain {canonical_kind} artifact source"
+            )
         if kind not in ARTIFACT_KINDS:
             continue
         expected_source = canonical_source_path(

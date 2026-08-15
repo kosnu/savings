@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import copy
 import hashlib
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,6 +15,7 @@ from artifact_source import (
     validate_loaded_source,
 )
 from render_aidd_artifact import (
+    check_all,
     check_or_write_markdown,
     render_artifact_markdown,
     render_goal_objective,
@@ -341,6 +343,72 @@ class StructuredArtifactV2Test(unittest.TestCase):
             path.write_text("different\n", encoding="utf-8")
             with self.assertRaisesRegex(SourceError, "stale"):
                 check_or_write_markdown("expected\n", path, True)
+
+    def test_check_all_rejects_goal_kind_at_canonical_artifact_path(self) -> None:
+        for artifact_kind, source_filename, display_filename, source in (
+            ("requirements", "requirements.json", "requirements.md", goal_source()),
+            ("design", "design.json", "design-doc.md", design_goal_source()),
+        ):
+            with self.subTest(artifact_kind=artifact_kind):
+                with tempfile.TemporaryDirectory() as directory:
+                    repo_root = Path(directory).resolve()
+                    subprocess.run(
+                        ["git", "-C", str(repo_root), "init", "-q"], check=True
+                    )
+                    subprocess.run(
+                        [
+                            "git",
+                            "-C",
+                            str(repo_root),
+                            "config",
+                            "user.name",
+                            "AIDD Test",
+                        ],
+                        check=True,
+                    )
+                    subprocess.run(
+                        [
+                            "git",
+                            "-C",
+                            str(repo_root),
+                            "config",
+                            "user.email",
+                            "aidd@example.com",
+                        ],
+                        check=True,
+                    )
+                    subprocess.run(
+                        [
+                            "git",
+                            "-C",
+                            str(repo_root),
+                            "commit",
+                            "--allow-empty",
+                            "-qm",
+                            "baseline",
+                        ],
+                        check=True,
+                    )
+                    workspace_root = (
+                        repo_root
+                        / "docs"
+                        / "ai-driven-development"
+                        / "workspaces"
+                        / WORKSPACE
+                    )
+                    workspace_root.mkdir(parents=True)
+                    (workspace_root / source_filename).write_text(
+                        serialize_source(source), encoding="utf-8"
+                    )
+                    (workspace_root / display_filename).write_text(
+                        render_goal_objective(source), encoding="utf-8"
+                    )
+
+                    with self.assertRaisesRegex(
+                        SourceError,
+                        f"{source_filename} must contain {artifact_kind} artifact source",
+                    ):
+                        check_all(repo_root)
 
     def test_managed_modules_do_not_import_markdown_parsers(self) -> None:
         scripts = Path(__file__).parent

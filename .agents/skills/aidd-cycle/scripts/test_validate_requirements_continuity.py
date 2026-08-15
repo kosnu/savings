@@ -296,7 +296,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             ],
         )
 
-    def test_section_blocks_are_not_searched_for_gate_evidence(self) -> None:
+    def test_section_block_evidence_is_not_interpreted_as_markdown(self) -> None:
         self.validate_source(
             kind="artifact",
             block_overrides={
@@ -304,7 +304,9 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                     {
                         "id": "background-markdown",
                         "type": "markdown",
-                        "markdown": "```text\n表示専用\n```",
+                        "markdown": (
+                            f"```text\n{SECTION_EVIDENCE['background']}\n```"
+                        ),
                     }
                 ]
             },
@@ -372,6 +374,57 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         gate["sections"][1]["issue_evidence"] = gate["sections"][0]["issue_evidence"]
         with self.assertRaisesRegex(ValidationError, "unique per section"):
             self.validate_source(kind="artifact", gate=gate)
+
+    def test_rejects_issue_evidence_unrelated_to_section_content(self) -> None:
+        with self.assertRaisesRegex(
+            ValidationError, "not present in its section content"
+        ):
+            self.validate_source(
+                kind="artifact",
+                block_overrides={
+                    "background": [
+                        {
+                            "id": "background-unrelated",
+                            "type": "markdown",
+                            "markdown": "Issue根拠とは無関係な本文",
+                        }
+                    ]
+                },
+            )
+
+    def test_rejects_section_evidence_mapped_to_another_section(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "also maps to another section"):
+            self.validate_source(
+                kind="artifact",
+                block_overrides={
+                    "users": [
+                        {
+                            "id": "users-evidence",
+                            "type": "markdown",
+                            "markdown": (
+                                f"{SECTION_EVIDENCE['users']}\n"
+                                f"{SECTION_EVIDENCE['background']}"
+                            ),
+                        }
+                    ]
+                },
+            )
+
+    def test_accepts_section_evidence_from_assigned_requirement(self) -> None:
+        gate = deepcopy(completeness_gate())
+        gate["sections"][4]["issue_evidence"] = REQUIREMENTS[0][1]
+        self.validate_source(
+            kind="artifact",
+            gate=gate,
+            block_overrides={
+                "functional": [
+                    {
+                        "id": "functional-requirements",
+                        "type": "requirements",
+                    }
+                ]
+            },
+        )
 
     def test_rejects_issue_evidence_unrelated_to_requirement_text(self) -> None:
         requirements = [
