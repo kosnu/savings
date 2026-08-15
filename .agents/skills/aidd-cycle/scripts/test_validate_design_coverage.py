@@ -198,7 +198,10 @@ def typed_design_sections(
             "type": "evidence",
             "role": "baseline",
             "owner_id": ("旧設計", "旧検証")[index],
-            "text": f"baseline section {index + 1}の置換根拠を保持する。",
+            "text": (
+                f"{('旧設計', '旧検証')[index]}の"
+                f"baseline section {index + 1}の置換根拠を保持する。"
+            ),
         }
         for index in range(include_baseline_evidence)
     )
@@ -365,7 +368,10 @@ class DesignCoverageGateTest(unittest.TestCase):
                             {
                                 "section_id": entry["section_id"],
                                 "heading": entry["heading"],
-                                "review_scope": f"旧section {index + 1}を再確認する。",
+                                "review_scope": (
+                                    f"{entry['heading']} baseline scope: "
+                                    f"旧section {index + 1}を再確認する。"
+                                ),
                             }
                             for index, entry in enumerate(baseline_inventory)
                         ],
@@ -424,6 +430,12 @@ class DesignCoverageGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "not substantive"):
             validate_scopes(broken, IDS)
 
+    def test_rejects_goal_scope_for_another_requirement_id(self) -> None:
+        broken = scopes()
+        broken[0]["design_scope"] = "AC-1の設計方針をそのまま採用する。"
+        with self.assertRaisesRegex(ValidationError, "other than FR-1: AC-1"):
+            validate_scopes(broken, IDS)
+
     def test_rejects_non_substantive_baseline_scope(self) -> None:
         with self.assertRaisesRegex(ValidationError, "not substantive"):
             validate_baseline_scopes(
@@ -435,6 +447,88 @@ class DesignCoverageGateTest(unittest.TestCase):
                     }
                 ],
                 [{"section_id": "old-design", "heading": "旧設計"}],
+            )
+
+    def test_allows_scope_for_heading_that_contains_another_heading(self) -> None:
+        validate_baseline_scopes(
+            [
+                {
+                    "section_id": "input",
+                    "heading": "入力",
+                    "review_scope": "入力 baseline scope: 現在Requirementsで再確認する。",
+                },
+                {
+                    "section_id": "build-input",
+                    "heading": "Build / Verifyへの入力",
+                    "review_scope": (
+                        "Build / Verifyへの入力 baseline scope: "
+                        "現在Requirementsで再確認する。"
+                    ),
+                },
+            ],
+            [
+                {"section_id": "input", "heading": "入力"},
+                {"section_id": "build-input", "heading": "Build / Verifyへの入力"},
+            ],
+        )
+
+    def test_rejects_baseline_scope_that_names_another_heading(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "only its target heading"):
+            validate_baseline_scopes(
+                [
+                    {
+                        "section_id": "input",
+                        "heading": "入力",
+                        "review_scope": (
+                            "入力 baseline scope: 現在Requirementsで再確認する。"
+                        ),
+                    },
+                    {
+                        "section_id": "build-input",
+                        "heading": "Build / Verifyへの入力",
+                        "review_scope": (
+                            "Build / Verifyへの入力 baseline scope: "
+                            "入力も同時に再確認する。"
+                        ),
+                    },
+                ],
+                [
+                    {"section_id": "input", "heading": "入力"},
+                    {
+                        "section_id": "build-input",
+                        "heading": "Build / Verifyへの入力",
+                    },
+                ],
+            )
+
+    def test_rejects_short_heading_scope_that_only_names_nested_heading(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "only its target heading"):
+            validate_baseline_scopes(
+                [
+                    {
+                        "section_id": "input",
+                        "heading": "入力",
+                        "review_scope": (
+                            "Build / Verifyへの入力 baseline scope: "
+                            "現在Requirementsで再確認する。"
+                        ),
+                    },
+                    {
+                        "section_id": "build-input",
+                        "heading": "Build / Verifyへの入力",
+                        "review_scope": (
+                            "Build / Verifyへの入力 baseline scope: "
+                            "現在Requirementsで再確認する。"
+                        ),
+                    },
+                ],
+                [
+                    {"section_id": "input", "heading": "入力"},
+                    {
+                        "section_id": "build-input",
+                        "heading": "Build / Verifyへの入力",
+                    },
+                ],
             )
 
     def test_accepts_artifact_using_evidence_block_ids(self) -> None:
@@ -486,6 +580,14 @@ class DesignCoverageGateTest(unittest.TestCase):
         )
         blocks["fr-1-design"]["text"] = "x"
         with self.assertRaisesRegex(ValidationError, "not substantive"):
+            validate_coverage(coverage(), IDS, blocks)
+
+    def test_rejects_coverage_evidence_for_another_requirement_id(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        blocks["fr-1-design"]["text"] = "AC-1の設計方針をそのまま採用する。"
+        with self.assertRaisesRegex(ValidationError, "other than FR-1: AC-1"):
             validate_coverage(coverage(), IDS, blocks)
 
     def test_rejects_coverage_evidence_with_wrong_owner(self) -> None:
@@ -583,6 +685,57 @@ class DesignCoverageGateTest(unittest.TestCase):
             blocks,
         )
 
+    def test_rejects_baseline_evidence_that_names_another_heading(self) -> None:
+        blocks = {
+            "baseline-a": {
+                "id": "baseline-a",
+                "type": "evidence",
+                "role": "baseline",
+                "owner_id": "old-a",
+                "text": "旧設計Aと旧設計Bの判断をまとめて置換する。",
+            },
+            "baseline-b": {
+                "id": "baseline-b",
+                "type": "evidence",
+                "role": "baseline",
+                "owner_id": "old-b",
+                "text": "旧設計Bの判断を個別に置換する。",
+            },
+        }
+        with self.assertRaisesRegex(ValidationError, "only its target heading"):
+            validate_baseline_sections(
+                [
+                    {
+                        "section_id": "old-a",
+                        "heading": "旧設計A",
+                        "content_sha256": "old-a",
+                        "status": "replaced",
+                        "design_block_id": "baseline-a",
+                    },
+                    {
+                        "section_id": "old-b",
+                        "heading": "旧設計B",
+                        "content_sha256": "old-b",
+                        "status": "replaced",
+                        "design_block_id": "baseline-b",
+                    },
+                ],
+                [
+                    {
+                        "section_id": "old-a",
+                        "heading": "旧設計A",
+                        "content_sha256": "old-a",
+                    },
+                    {
+                        "section_id": "old-b",
+                        "heading": "旧設計B",
+                        "content_sha256": "old-b",
+                    },
+                ],
+                [],
+                blocks,
+            )
+
     def test_rejects_preserved_baseline_digest_missing_from_current_json(self) -> None:
         with self.assertRaisesRegex(ValidationError, "preserved baseline section changed"):
             validate_baseline_sections(
@@ -649,7 +802,7 @@ class DesignCoverageGateTest(unittest.TestCase):
                         "type": "evidence",
                         "role": "baseline",
                         "owner_id": "old-section",
-                        "text": "対象sectionの変更根拠を十分に説明する。",
+                        "text": "設計を対象sectionとして変更根拠を十分に説明する。",
                     }
                 },
             )
