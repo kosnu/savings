@@ -74,7 +74,7 @@ def completeness_gate() -> dict[str, object]:
             {
                 "id": requirement_id,
                 "status": "new",
-                "issue_evidence": f"{requirement_id} {text}",
+                "issue_evidence": text,
             }
             for requirement_id, text, _ in REQUIREMENTS
         ],
@@ -287,7 +287,11 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         self.validate_source(
             kind="artifact",
             requirements=[
-                ("FR-1", "<!-- JSONを検証正本として扱う。 -->", "functional"),
+                (
+                    "FR-1",
+                    "JSONを検証正本として扱う。 <!-- 表示専用 -->",
+                    "functional",
+                ),
                 REQUIREMENTS[1],
             ],
         )
@@ -368,6 +372,35 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         gate["sections"][1]["issue_evidence"] = gate["sections"][0]["issue_evidence"]
         with self.assertRaisesRegex(ValidationError, "unique per section"):
             self.validate_source(kind="artifact", gate=gate)
+
+    def test_rejects_issue_evidence_unrelated_to_requirement_text(self) -> None:
+        requirements = [
+            ("FR-1", "FR-1 削除できるようにする。", "functional"),
+            REQUIREMENTS[1],
+        ]
+        for kind in ("goal", "artifact"):
+            with self.subTest(kind=kind):
+                with self.assertRaisesRegex(
+                    ValidationError, "not present in its requirement text"
+                ):
+                    self.validate_source(kind=kind, requirements=requirements)
+
+    def test_rejects_issue_evidence_mapped_to_another_requirement(self) -> None:
+        requirements = [
+            REQUIREMENTS[0],
+            (
+                "AC-1",
+                "AC-1 表示Markdownだけの変更は検証結果を変えない。"
+                " JSONを検証正本として扱う。",
+                "acceptance",
+            ),
+        ]
+        for kind in ("goal", "artifact"):
+            with self.subTest(kind=kind):
+                with self.assertRaisesRegex(
+                    ValidationError, "also maps to another requirement"
+                ):
+                    self.validate_source(kind=kind, requirements=requirements)
 
     def test_accepts_unchanged_git_head_json_baseline(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

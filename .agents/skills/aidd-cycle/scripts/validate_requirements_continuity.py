@@ -535,6 +535,18 @@ def validate_requirements_manifest(
                 raise ValidationError(
                     f"{requirement_id} has no requirement definition for issue_evidence"
                 )
+            if normalized_evidence not in normalize(current_items[requirement_id].text):
+                raise ValidationError(
+                    f"{requirement_id} issue_evidence is not present in its requirement text"
+                )
+            if any(
+                normalized_evidence in normalize(other_item.text)
+                for other_id, other_item in current_items.items()
+                if other_id != requirement_id
+            ):
+                raise ValidationError(
+                    f"{requirement_id} issue_evidence also maps to another requirement"
+                )
         statuses[requirement_id] = status
 
     ordered_ids = sorted(statuses, key=requirement_sort_key)

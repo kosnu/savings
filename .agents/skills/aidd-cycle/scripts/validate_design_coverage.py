@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -37,6 +38,9 @@ from validate_requirements_goal import (
 
 class ValidationError(ValueError):
     pass
+
+
+SUBSTANTIVE_TEXT_MIN_LENGTH = 8
 
 
 def normalize(value: str) -> str:
@@ -186,10 +190,20 @@ def validate_baseline(
     return design_sections(baseline_source)
 
 
-def require_non_placeholder(value: Any, label: str) -> str:
+def require_substantive_text(
+    value: Any,
+    label: str,
+    *metadata: str,
+) -> str:
     text = require_string(value, label)
     if is_placeholder_text(text):
         raise ValidationError(f"{label} is unresolved")
+    substantive = normalize(text)
+    for term in metadata:
+        substantive = substantive.replace(normalize(term), "")
+    substantive = re.sub(r"[\W_]+", "", substantive)
+    if len(substantive) < SUBSTANTIVE_TEXT_MIN_LENGTH:
+        raise ValidationError(f"{label} is not substantive")
     return text
 
 
@@ -205,11 +219,17 @@ def validate_scopes(entries: Any, ids: list[str]) -> None:
             raise ValidationError(
                 "each scope must contain only id, design_scope, and verification_scope"
             )
-        design = require_non_placeholder(
-            entry["design_scope"], f"scopes[{index}].design_scope"
+        design = require_substantive_text(
+            entry["design_scope"],
+            f"scopes[{index}].design_scope",
+            entry["id"],
+            "design scope",
         )
-        verification = require_non_placeholder(
-            entry["verification_scope"], f"scopes[{index}].verification_scope"
+        verification = require_substantive_text(
+            entry["verification_scope"],
+            f"scopes[{index}].verification_scope",
+            entry["id"],
+            "verification scope",
         )
         if normalize(design) == normalize(verification):
             raise ValidationError(
@@ -246,8 +266,12 @@ def validate_baseline_scopes(
             raise ValidationError(
                 "each baseline scope must contain section_id, heading, and review_scope"
             )
-        scope = require_non_placeholder(
-            entry["review_scope"], f"baseline_scopes[{index}].review_scope"
+        scope = require_substantive_text(
+            entry["review_scope"],
+            f"baseline_scopes[{index}].review_scope",
+            entry["section_id"] or "",
+            entry["heading"],
+            "baseline scope",
         )
         normalized_scope = normalize(scope)
         if normalized_scope in seen_scopes:
@@ -271,7 +295,11 @@ def require_evidence_reference(
         raise ValidationError(f"{label} must reference {expected_role} evidence")
     if block.get("owner_id") != expected_owner:
         raise ValidationError(f"{label} evidence owner must be {expected_owner}")
-    require_non_placeholder(block.get("text"), f"{label} evidence text")
+    require_substantive_text(
+        block.get("text"),
+        f"{label} evidence text",
+        expected_owner,
+    )
     return reference
 
 
@@ -309,6 +337,12 @@ def validate_coverage(
         if design_reference == verification_reference:
             raise ValidationError(
                 f"coverage[{index}] design and verification block IDs must differ"
+            )
+        if normalize(blocks[design_reference]["text"]) == normalize(
+            blocks[verification_reference]["text"]
+        ):
+            raise ValidationError(
+                f"coverage[{index}] design and verification evidence text must differ"
             )
         references.extend((design_reference, verification_reference))
     if len(references) != len(set(references)):
