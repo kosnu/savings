@@ -70,6 +70,7 @@
         "heading": "Stop条件",
         "content": "## Stop条件\n- Requirementsの修正または新しいユーザー操作が必要になる。\n- anchored popoverでは成立せず、既定と異なるdialogの意図・成功条件が必要になる。\n- `ResponsiveOverlay`、`MonthPicker`、`useDateRange`、支払い画面外の契約変更が必要になる。\n- URL自動正規化や復帰UIの仕様追加が必要になる。\n- 新規依存、DB/API/Auth/RLS/RPC、domain/query/cache変更が必要になる。\n- Designまたは実装方針が選択したrule/policyに違反する、または違反の可能性がある。"
       }
-    ]
+    ],
+    "inventory_sha256": "37231982b435afb3d0932a60520687debb607ed701d78485fb32bc3e1a4a380a"
   }
 }

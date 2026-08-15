@@ -76,6 +76,7 @@
         "heading": "Technical Considerations",
         "content": "## Technical Considerations\n- Design / Planでは、月送り可能範囲と任意年月選択導線の扱える範囲が同期していることを確認する必要がある。\n- Design / Planでは、範囲境界で月送り操作をどう扱うかを決める必要がある。ただしRequirementsでは、境界外へ移動できないことだけを要求する。\n- Build / Verifyでは、category filter がある場合とない場合の両方を検証する必要がある。\n- Build / Verifyでは、任意項目の期待値有無で検証を省略せず、存在しないことも期待状態として検証する必要がある。\n- このRequirements作成はdocs-only変更であり、アプリ検証コマンドは不要。"
       }
-    ]
+    ],
+    "inventory_sha256": "07fdfbd1c6c230a2a62419502cb7e35ba9a4fe7687175709f7aeb8cd9d47c13a"
   }
 }

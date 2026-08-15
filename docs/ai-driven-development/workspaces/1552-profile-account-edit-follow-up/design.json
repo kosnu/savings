@@ -54,6 +54,7 @@
         "heading": "Stop条件",
         "content": "## Stop条件\n- Requirementsにないプロダクト判断、対象機能、成功条件を追加する必要がある。\n- DB/API/Auth/権限/RLS変更、新規依存、複数データ更新のトランザクション境界が必要になる。\n- React Queryの再取得失敗を成功通知へ伝播させない設計とdraft保持を両立できない。\n- Retryのfocus、LanguageSelectとのloading/error共存、provider表示の意図が一意に決められない。\n- Design DocがRequirementsまたはselected rule-map subgraphに違反する、または違反の可能性を解消できない。"
       }
-    ]
+    ],
+    "inventory_sha256": "3a55539e940c2249bcc5a1baa246677ba2304864486c4bfd388d2cee825812af"
   }
 }

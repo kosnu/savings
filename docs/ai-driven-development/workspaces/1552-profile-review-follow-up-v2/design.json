@@ -74,6 +74,7 @@
         "heading": "Build Input",
         "content": "## Build Input\n- Artifact lineage: `docs/ai-driven-development/workspaces/1552-profile-review-follow-up-v2/`\n- Build / VerifyはこのDesign DocとRequirementsをread-only入力として、上記Files to Changeと検証範囲に限定する。"
       }
-    ]
+    ],
+    "inventory_sha256": "f3760a1e14ee264a5aa0e54545c6dcaa57cbfd21bc645fb45e1f2b2392bb3f7a"
   }
 }

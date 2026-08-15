@@ -70,6 +70,7 @@
         "heading": "Build / Verify Handoff",
         "content": "## Build / Verify Handoff\n- Artifact lineage: `docs/ai-driven-development/workspaces/1552-profile-boundary-correction-v3/`\n- 実装順序:\n  1. Web domainへ表示名ruleとtestを移す。\n  2. session providerから初期名をRPC引数へ渡し、unit testとgenerated typeを同期する。\n  3. migrationとSQL testをDB非依存の64文字ruleからpass-through契約へ置き換える。\n  4. Formの`isSaving`を統一し、Saving Story/testを保存受付直後へ変更する。\n  5. Web verification、SQL test可能性確認、diff確認を行う。"
       }
-    ]
+    ],
+    "inventory_sha256": "eb171a00df6085c4e5632c89be4e0c5abeea0e4a200aa903ec41237830c74a88"
   }
 }

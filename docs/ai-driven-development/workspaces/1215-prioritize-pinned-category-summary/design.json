@@ -46,6 +46,7 @@
         "heading": "リスクと確認事項",
         "content": "## リスクと確認事項\n- この設計は DB / API 変更を必要とする。Design / Plan Goal ではここで止め、Build / Verify へ自動で進まない。\n- ピン留め登録数の上限は Web / アプリケーション層で制御するため、複数画面・同時操作では 4 件目が作られる競合リスクが残る。今回の設計では DB constraint / trigger / RPC 内制限では塞がない。\n- `category_pins` は user 境界と Book membership 境界に依存するため、既存 RLS / trigger / function grant を壊さないことを確認する必要がある。\n- Supabase 型生成が必要な場合、`database.types.ts` の更新方法と検証範囲を Build / Verify で明確にする。\n- 既存の独立 `updateCategoryPin` 実装とテストを削除するか、将来用途として残すかを Build / Verify 開始時に決める必要がある。\n- `Show more` の reset 判定に `totalAmount` と `pinned` を含めないと、同じカテゴリ構成で集計結果だけ変わった場合に表示件数が戻らない。\n- 未分類 `Unknown` を登録カテゴリの後ろに置くため、登録カテゴリが 3 件以上ある月では初期表示から外れる。この方針は本 Design Doc の決定とする。"
       }
-    ]
+    ],
+    "inventory_sha256": "e7d7c8e7613436148d347d5056ed064faeb58d9440bc4423ff61b3e22fb8c3d7"
   }
 }

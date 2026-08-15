@@ -82,6 +82,7 @@
         "heading": "Verification",
         "content": "## Verification\nDesign phaseではアプリコードを変更しないため、アプリverificationは実行しない。\n\n- RequirementsのFR/NFR/ACとDesignの責務、Story、test対応を照合する。\n- Requirementsが変更されていないことを確認する。\n- Files to Changeがprofile featureと関連component Story/testに閉じていることを確認する。\n- Design Docと選択rule-mapサブグラフに違反がないことを確認する。\n- `git diff --check`とMarkdown text hygieneを実行する。"
       }
-    ]
+    ],
+    "inventory_sha256": "07bf755a77bd703b0ba6f92b107e0e0dc87b703f6aa9bb119ca6bf1d630957f6"
   }
 }

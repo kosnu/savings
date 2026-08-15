@@ -12,7 +12,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from artifact_source import SourceError, load_source
+from artifact_source import (
+    SourceError,
+    load_source,
+    load_source_bytes,
+    read_regular_file_bytes,
+)
 from git_baseline import (
     GitBaselineError,
     canonical_source_path,
@@ -335,6 +340,9 @@ def validate(
     repo_root: Path,
     goal_document_path: Path | None = None,
     require_goal_document: bool = True,
+    document_bytes: bytes | None = None,
+    issue_body_bytes: bytes | None = None,
+    rule_map_bytes: bytes | None = None,
 ) -> None:
     canonical_rule_map_path = require_canonical_input(
         repo_root,
@@ -343,9 +351,17 @@ def validate(
         "rule-map",
     )
     if document_kind == "goal":
-        source = load_source(document_path, "requirements_goal")
+        source = (
+            load_source_bytes(document_bytes, "requirements_goal")
+            if document_bytes is not None
+            else load_source(document_path, "requirements_goal")
+        )
     elif document_kind == "artifact":
-        source = load_source(document_path, "requirements")
+        source = (
+            load_source_bytes(document_bytes, "requirements")
+            if document_bytes is not None
+            else load_source(document_path, "requirements")
+        )
         require_canonical_input(
             repo_root,
             document_path,
@@ -356,9 +372,12 @@ def validate(
         raise ValidationError("document kind must be goal or artifact")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
-    issue_body_bytes = issue_body_path.read_bytes()
+    if issue_body_bytes is None:
+        issue_body_bytes = read_regular_file_bytes(issue_body_path)
     issue_body = issue_body_bytes.decode("utf-8")
-    rule_map = json.loads(canonical_rule_map_path.read_text(encoding="utf-8"))
+    if rule_map_bytes is None:
+        rule_map_bytes = read_regular_file_bytes(canonical_rule_map_path)
+    rule_map = json.loads(rule_map_bytes.decode("utf-8"))
     rules_by_id = validate_rule_map(rule_map)
     manifest = extract_manifest(source)
 

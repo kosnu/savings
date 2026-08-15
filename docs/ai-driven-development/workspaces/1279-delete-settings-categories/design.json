@@ -42,6 +42,7 @@
         "heading": "リスクと確認事項",
         "content": "## リスクと確認事項\n- `categories` delete policy 追加は DB / 権限変更なので、実装時に policy 条件が read / insert / update と同じ Book membership 境界になっていることを重点確認する。\n- `payments.category_id on delete set null` は既存契約だが、migration 適用済み環境で FK 名や挙動が保持されているかを確認する。\n- `PaymentCategoryFilter` は削除済みIDが URL search に残ると `Unknown category` を表示する。この挙動を変更しない前提で進める。\n- 削除後の支払い表示を `Unknown` のままにするか、将来 `Uncategorized` に寄せるかは別判断。今回の実装では既存の `unknownCategory` 経路を維持する。\n- category delete 後の cache invalidate 範囲が不足すると、カテゴリ選択肢や支払い詳細に古いカテゴリ名が残るため、`detailsAll` を含めて invalidate する。"
       }
-    ]
+    ],
+    "inventory_sha256": "9741158dc2b9a4e6f08b6b9b30980dc8d462d4e949b6be74ed848e804d00da42"
   }
 }

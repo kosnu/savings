@@ -117,6 +117,7 @@
         "heading": "技術的考慮事項",
         "content": "## 技術的考慮事項\n- 後続Design / Planでは、source of truthの再取得失敗を成功通知へ伝播させない責務境界、更新対象1件の確認方法、Retry後のfocus先、LanguageSelectとの状態境界、provider値の表示方針を決める。\n- API通信を伴う回帰テストでは、実際のコンポーネント操作とAPI境界を通して、保存中状態・再取得失敗・loading/error中のLanguageSelect操作・provider fallbackを確認する。\n- Requirementsでは、具体的なquery API、hook、component、API名、mock実装、レイアウトを指定しない。\n- Settingsの操作群を左寄せにする場合は、視線の流れと操作対象のまとまりを理由としてDesignに残す。Requirementsでは配置を固定しない。"
       }
-    ]
+    ],
+    "inventory_sha256": "8e9d72639dbdc377daa1c3dc54a76e4c785fc9579cc41dba3ae978a78ca2bfb4"
   }
 }

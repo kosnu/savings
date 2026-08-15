@@ -58,6 +58,7 @@
         "heading": "12. Verification",
         "content": "## 12. Verification\nDesign工程ではアプリ検証を実行しない。Requirements、選択ルール、現行実装、ACとテスト方針の対応、変更対象のscope、`git diff --check`を確認する。"
       }
-    ]
+    ],
+    "inventory_sha256": "031ee1c736780ade750c394b8c9f5e8de6061ac1631e5853e130366b323aff6e"
   }
 }

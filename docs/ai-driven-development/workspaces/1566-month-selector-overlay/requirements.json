@@ -125,6 +125,7 @@
         "heading": "技術的考慮事項",
         "content": "## 技術的考慮事項\n- 現在の対象月は`/payments`の`year` / `month` search paramsが正本である。\n- Design / Planは、年月選択を短い値選択としてWeb Design Rulesの表現分類へ対応付け、component選択の根拠を記録する。\n- Design / Planで既定と異なるダイアログを採用する必要が生じた場合は、このRequirementsに意図・成功条件がないためStopする。\n- Design / Planは、route search schema、URL初期化、年月変換、navigation、対象月依存queryの境界を実装前に監査する。\n- Build / Verifyは、不正年月URLを含む不足する回帰テストと、安定状態を待つ非同期テストを維持または追加する。\n- コンポーネントの追加、移動、抽出を伴う場合は、着手前にComponent Structure Policyを読む。"
       }
-    ]
+    ],
+    "inventory_sha256": "96d3fe20b523a05847f3cb4434d0e172448ce6456355f0ad24341c9c2736a92c"
   }
 }

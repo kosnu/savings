@@ -9,6 +9,7 @@ from structured_ids import (
     REQUIRED_REQUIREMENTS_SECTIONS,
     REQUIREMENT_ID_PATTERN,
     is_requirement_id,
+    mask_non_rendered_markdown as mask_legacy_markdown,
     requirement_sort_key,
 )
 
@@ -48,70 +49,7 @@ def strip_machine_gates(document: str) -> str:
 
 
 def mask_non_rendered_markdown(document: str) -> str:
-    masked = list(document)
-    fence_character: str | None = None
-    fence_length = 0
-    in_html_comment = False
-    offset = 0
-
-    for line in document.splitlines(keepends=True):
-        content = line.rstrip("\r\n")
-
-        if fence_character is not None:
-            masked[offset : offset + len(content)] = " " * len(content)
-            stripped = content.lstrip(" ")
-            indent = len(content) - len(stripped)
-            closing = re.match(
-                rf"{re.escape(fence_character)}{{{fence_length},}}",
-                stripped,
-            )
-            if (
-                indent <= 3
-                and closing is not None
-                and not stripped[closing.end():].strip(" \t")
-            ):
-                fence_character = None
-                fence_length = 0
-            offset += len(line)
-            continue
-
-        if not in_html_comment:
-            opening_fence = FENCED_CODE_OPEN_PATTERN.fullmatch(content)
-            if opening_fence is not None:
-                fence = opening_fence.group("fence")
-                info = opening_fence.group("info")
-                if fence[0] != "`" or "`" not in info:
-                    fence_character = fence[0]
-                    fence_length = len(fence)
-                    masked[offset : offset + len(content)] = " " * len(content)
-                    offset += len(line)
-                    continue
-
-        cursor = 0
-        while cursor < len(content):
-            if in_html_comment:
-                closing_comment = content.find("-->", cursor)
-                if closing_comment == -1:
-                    masked[offset + cursor : offset + len(content)] = (
-                        " " * (len(content) - cursor)
-                    )
-                    break
-                end = closing_comment + len("-->")
-                masked[offset + cursor : offset + end] = " " * (end - cursor)
-                in_html_comment = False
-                cursor = end
-                continue
-
-            opening_comment = content.find("<!--", cursor)
-            if opening_comment == -1:
-                break
-            in_html_comment = True
-            cursor = opening_comment
-
-        offset += len(line)
-
-    return "".join(masked)
-
+    return mask_legacy_markdown(document)
 
 def extract_requirement_mentions(document: str) -> list[str]:
     document = strip_machine_gates(document)
@@ -268,6 +206,39 @@ def extract_required_requirements_sections(
             raise ValueError(f"Requirements section is empty: {section_id}")
         matched_sections[section_id] = section
     return matched_sections
+
+
+def legacy_requirements_inventory(
+    document: str,
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Extract the deterministic legacy Requirements inventory."""
+
+    items = extract_requirement_items(document)
+    sections = extract_required_requirements_sections(document, require_all=False)
+    return (
+        [
+            {"id": requirement_id, "content": items[requirement_id].content}
+            for requirement_id in sorted(items, key=requirement_sort_key)
+        ],
+        [
+            {
+                "id": section_id,
+                "heading": sections[section_id].heading,
+                "content": sections[section_id].content,
+            }
+            for section_id in REQUIRED_REQUIREMENTS_SECTIONS
+            if section_id in sections
+        ],
+    )
+
+
+def legacy_design_inventory(document: str) -> list[dict[str, str]]:
+    """Extract the deterministic legacy Design section inventory."""
+
+    return [
+        {"heading": section.heading, "content": section.content}
+        for section in extract_level_two_sections(strip_machine_gates(document))
+    ]
 
 
 def validate_required_requirements_sections(document: str) -> None:

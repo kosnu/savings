@@ -5,17 +5,24 @@ import json
 import subprocess
 import tempfile
 import unittest
-from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch
 
-from artifact_source import serialize_source
-from structured_ids import REQUIRED_REQUIREMENTS_SECTIONS
+from artifact_source import (
+    SourceError,
+    serialize_source,
+    structured_sha256,
+    validate_loaded_source,
+)
 from validate_design_coverage import (
     ValidationError,
     content_sha256,
+    design_sections,
+    evidence_blocks,
+    structured_sha256,
     validate,
-    validate_baseline_scopes,
     validate_baseline_sections,
+    validate_coverage,
 )
 
 
@@ -23,30 +30,19 @@ ISSUE = "owner/repo#1639"
 ISSUE_URL = "https://github.com/owner/repo/issues/1639"
 ISSUE_UPDATED_AT = "2026-08-11T00:00:00Z"
 WORKSPACE = "1639-structured-data"
-REQUIREMENTS = [
-    {"id": "FR-1", "content": "- FR-1: JSON正本を検証する。"},
-    {"id": "AC-1", "content": "- AC-1: 表示Markdownを検証入力にしない。"},
+IDS = ["FR-1", "AC-1"]
+ISSUE_BODY = "workflow\nJSON正本を検証する\n表示Markdownを検証入力にしない"
+REQUIREMENTS_SECTIONS = [
+    ("background", "背景"),
+    ("users", "対象ユーザー"),
+    ("stories", "ユーザーストーリー"),
+    ("scope", "スコープ"),
+    ("functional", "機能要件"),
+    ("non-functional", "非機能要件"),
+    ("acceptance", "受け入れ条件"),
+    ("qa", "Q&A"),
+    ("technical", "技術的考慮事項"),
 ]
-IDS = [entry["id"] for entry in REQUIREMENTS]
-SECTION_EVIDENCE = {
-    "background": "背景情報の根拠を定義する",
-    "users": "対象利用者の根拠を定義する",
-    "stories": "利用場面の根拠を定義する",
-    "scope": "対象範囲の根拠を定義する",
-    "functional": "機能一覧の根拠を定義する",
-    "non_functional": "品質制約の根拠を定義する",
-    "acceptance": "完了条件の根拠を定義する",
-    "qa": "確認事項の根拠を定義する",
-    "technical": "技術考慮の根拠を定義する",
-}
-ISSUE_BODY = "\n".join(
-    [
-        "workflow",
-        "JSON正本を検証する",
-        "表示Markdownを検証入力にしない",
-        *SECTION_EVIDENCE.values(),
-    ]
-)
 
 
 def run_git(repo_root: Path, *arguments: str) -> None:
@@ -64,149 +60,107 @@ def initialize_repo(repo_root: Path) -> None:
     run_git(repo_root, "commit", "--allow-empty", "-qm", "baseline")
 
 
-def envelope(kind: str, validation: dict[str, object], markdown: str = "# display\n") -> dict[str, object]:
-    return {
-        "schema_version": 1,
-        "kind": kind,
-        "workspace": WORKSPACE,
-        "display": {
-            "path": "goal.md" if kind == "design_goal" else (
-                "requirements.md" if kind == "requirements" else "design-doc.md"
-            ),
-            "markdown": markdown,
-        },
-        "validation": {"mode": "managed", **validation},
-    }
-
-
-def requirements_sections() -> list[dict[str, str]]:
-    values: list[dict[str, str]] = []
-    for section_id, headings in REQUIRED_REQUIREMENTS_SECTIONS.items():
-        content_lines = [f"## {headings[0]}", SECTION_EVIDENCE[section_id]]
-        if section_id == "functional":
-            content_lines.append(REQUIREMENTS[0]["content"])
-        if section_id == "acceptance":
-            content_lines.append(REQUIREMENTS[1]["content"])
-        values.append(
-            {
-                "id": section_id,
-                "heading": headings[0],
-                "content": "\n".join(content_lines),
-            }
-        )
-    return values
-
-
-def requirements_validation() -> dict[str, object]:
-    body_bytes = ISSUE_BODY.encode("utf-8")
-    return {
-        "input_gate": {
-            "task_context": {
-                "source": "issue_body",
-                "issue": ISSUE,
-                "url": ISSUE_URL,
-                "updated_at": ISSUE_UPDATED_AT,
-                "body_sha256": hashlib.sha256(body_bytes).hexdigest(),
-            },
-            "direct_rules": [
+def requirements_source() -> dict[str, object]:
+    issue_digest = hashlib.sha256(ISSUE_BODY.encode("utf-8")).hexdigest()
+    sections: list[dict[str, object]] = []
+    for section_id, heading in REQUIREMENTS_SECTIONS:
+        if section_id in {"functional", "acceptance"}:
+            blocks = [{"id": f"{section_id}-requirements", "type": "requirements"}]
+        else:
+            blocks = [
                 {
-                    "id": "ai-driven.workflow",
-                    "issue_evidence": "workflow",
-                    "match": {"field": "topics", "value": "workflow"},
-                    "reason": "workflowを検証する",
+                    "id": f"{section_id}-body",
+                    "type": "markdown",
+                    "markdown": f"{heading}の内容を定義する。",
                 }
-            ],
-            "depends_on": [],
-        },
-        "completeness_gate": {
-            "issue_body_sha256": hashlib.sha256(body_bytes).hexdigest(),
-            "workspace": WORKSPACE,
-            "baseline": {"source": "none", "body_sha256": None},
+            ]
+        sections.append({"id": section_id, "heading": heading, "blocks": blocks})
+    return {
+        "schema_version": 2,
+        "kind": "requirements",
+        "workspace": WORKSPACE,
+        "display": {"path": "requirements.md", "preamble": "# Requirements"},
+        "validation": {
+            "mode": "managed",
+            "input_gate": {
+                "task_context": {
+                    "source": "issue_body",
+                    "issue": ISSUE,
+                    "url": ISSUE_URL,
+                    "updated_at": ISSUE_UPDATED_AT,
+                    "body_sha256": issue_digest,
+                },
+                "direct_rules": [
+                    {
+                        "id": "ai-driven.workflow",
+                        "issue_evidence": "workflow",
+                        "match": {"field": "topics", "value": "workflow"},
+                        "reason": "workflowを検証する",
+                    }
+                ],
+                "depends_on": [],
+            },
+            "completeness_gate": {
+                "issue_body_sha256": issue_digest,
+                "workspace": WORKSPACE,
+                "baseline": {"source": "none", "body_sha256": None},
+                "requirements": [
+                    {
+                        "id": "FR-1",
+                        "status": "new",
+                        "issue_evidence": "JSON正本を検証する",
+                    },
+                    {
+                        "id": "AC-1",
+                        "status": "new",
+                        "issue_evidence": "表示Markdownを検証入力にしない",
+                    },
+                ],
+                "sections": [
+                    {"id": section_id, "status": "new", "issue_evidence": None}
+                    for section_id, _ in REQUIREMENTS_SECTIONS
+                ],
+                "retired": [],
+            },
             "requirements": [
                 {
                     "id": "FR-1",
-                    "status": "new",
-                    "issue_evidence": "JSON正本を検証する",
+                    "section_id": "functional",
+                    "text": "JSON正本を検証する。",
                 },
                 {
                     "id": "AC-1",
-                    "status": "new",
-                    "issue_evidence": "表示Markdownを検証入力にしない",
+                    "section_id": "acceptance",
+                    "text": "表示Markdownを検証入力にしない。",
                 },
             ],
-            "sections": [
-                {
-                    "id": section_id,
-                    "status": "new",
-                    "issue_evidence": SECTION_EVIDENCE[section_id],
-                }
-                for section_id in REQUIRED_REQUIREMENTS_SECTIONS
-            ],
-            "retired": [],
+            "sections": sections,
         },
-        "requirements": REQUIREMENTS,
-        "sections": requirements_sections(),
     }
 
 
-def write_requirements_gate_inputs(
-    repo_root: Path,
-    requirements_path: Path,
-    missing_gate: str | None = None,
-) -> tuple[Path, Path]:
-    issue_body_path = repo_root / "issue-body.md"
-    issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
-    rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
-    rule_map_path.parent.mkdir(parents=True, exist_ok=True)
-    rule_map_path.write_text(
-        json.dumps(
-            {
-                "rules": [
-                    {
-                        "id": "ai-driven.workflow",
-                        "applies_to": {
-                            "paths": [],
-                            "domains": [],
-                            "activities": [],
-                            "topics": ["workflow"],
-                        },
-                        "depends_on": [],
-                    }
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
-    validation = requirements_validation()
-    if missing_gate is not None:
-        validation.pop(missing_gate)
-    requirements_path.write_text(
-        serialize_source(envelope("requirements", validation)),
-        encoding="utf-8",
-    )
-    return issue_body_path, rule_map_path
+def goal_display() -> dict[str, object]:
+    return {
+        "path": "goal.md",
+        "title": "Design Goal",
+        "goal": "構造化Designを作成する。",
+        "context": {
+            "body": ["Requirements JSONを入力にする。"],
+            "constraints": ["Markdownを解析しない。"],
+            "stop": ["JSON参照が不整合なら停止する。"],
+        },
+        "done": ["coverageを検証する。"],
+    }
 
 
 def scopes() -> list[dict[str, str]]:
     return [
         {
             "id": requirement_id,
-            "design_scope": f"{requirement_id} の構造化設計境界を定義する。",
-            "verification_scope": f"{requirement_id} の構造化検証を個別に確認する。",
+            "design_scope": f"{requirement_id}の設計境界を定義する。",
+            "verification_scope": f"{requirement_id}の検証境界を定義する。",
         }
         for requirement_id in IDS
-    ]
-
-
-def baseline_scopes() -> list[dict[str, str]]:
-    return [
-        {
-            "heading": entry["heading"],
-            "review_scope": (
-                f"{entry['heading']} baseline scope: 現在Requirementsへ再適合させる。"
-            ),
-        }
-        for entry in sections()
     ]
 
 
@@ -214,29 +168,135 @@ def coverage() -> list[dict[str, str]]:
     return [
         {
             "id": requirement_id,
-            "design_evidence": f"{requirement_id} の構造化設計を実装する。",
-            "verification_evidence": f"{requirement_id} の構造化検証を実行する。",
+            "design_block_id": f"{requirement_id.lower()}-design",
+            "verification_block_id": f"{requirement_id.lower()}-verification",
         }
         for requirement_id in IDS
     ]
 
 
-def sections() -> list[dict[str, str]]:
-    evidence = coverage()
+def typed_design_sections(
+    *,
+    include_baseline_evidence: int = 0,
+    fake_markdown: str | None = None,
+) -> list[dict[str, object]]:
+    design_blocks: list[dict[str, str]] = [
+        {
+            "id": f"{requirement_id.lower()}-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": requirement_id,
+            "text": f"{requirement_id}の設計根拠を保持する。",
+        }
+        for requirement_id in IDS
+    ]
+    design_blocks.extend(
+        {
+            "id": f"baseline-{index + 1}",
+            "type": "evidence",
+            "role": "baseline",
+            "owner_id": ("旧設計", "旧検証")[index],
+            "text": f"baseline section {index + 1}の置換根拠を保持する。",
+        }
+        for index in range(include_baseline_evidence)
+    )
+    if fake_markdown is not None:
+        design_blocks.append(
+            {"id": "display-only", "type": "markdown", "markdown": fake_markdown}
+        )
     return [
+        {"id": "design", "heading": "構造化設計", "blocks": design_blocks},
         {
-            "heading": "構造化設計",
-            "content": "\n".join(
-                entry["design_evidence"] for entry in evidence
-            ),
-        },
-        {
+            "id": "verification",
             "heading": "検証方針",
-            "content": "\n".join(
-                entry["verification_evidence"] for entry in evidence
-            ),
+            "blocks": [
+                {
+                    "id": f"{requirement_id.lower()}-verification",
+                    "type": "evidence",
+                    "role": "verification",
+                    "owner_id": requirement_id,
+                    "text": f"{requirement_id}の検証根拠を保持する。",
+                }
+                for requirement_id in IDS
+            ],
         },
     ]
+
+
+def design_source(
+    requirements_digest: str,
+    *,
+    baseline: dict[str, object] | None = None,
+    baseline_sections: list[dict[str, str]] | None = None,
+    coverage_entries: list[dict[str, str]] | None = None,
+    sections: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
+    return {
+        "schema_version": 2,
+        "kind": "design",
+        "workspace": WORKSPACE,
+        "display": {"path": "design-doc.md", "preamble": "# Design"},
+        "validation": {
+            "mode": "managed",
+            "sections": sections if sections is not None else typed_design_sections(),
+            "coverage_gate": {
+                "requirements_sha256": requirements_digest,
+                "workspace": WORKSPACE,
+                "requirement_ids": IDS,
+                "baseline": baseline or {"source": "none", "body_sha256": None},
+                "coverage": coverage_entries if coverage_entries is not None else coverage(),
+                "baseline_sections": baseline_sections or [],
+            },
+        },
+    }
+
+
+def design_goal_source(
+    requirements_digest: str,
+    *,
+    baseline: dict[str, object] | None = None,
+    baseline_scopes: list[dict[str, str]] | None = None,
+    scope_entries: list[dict[str, str]] | None = None,
+) -> dict[str, object]:
+    return {
+        "schema_version": 2,
+        "kind": "design_goal",
+        "workspace": WORKSPACE,
+        "display": goal_display(),
+        "validation": {
+            "mode": "managed",
+            "coverage_gate": {
+                "requirements_sha256": requirements_digest,
+                "workspace": WORKSPACE,
+                "requirement_ids": IDS,
+                "baseline": baseline or {"source": "none", "body_sha256": None},
+            },
+            "scopes": scope_entries if scope_entries is not None else scopes(),
+            "baseline_scopes": baseline_scopes or [],
+        },
+    }
+
+
+def legacy_design_source() -> dict[str, object]:
+    markdown = "# Design\n\n## 旧設計\n旧設計の本文。\n\n## 旧検証\n旧検証の本文。\n"
+    sections = [
+        {"heading": "旧設計", "content": "## 旧設計\n旧設計の本文。"},
+        {"heading": "旧検証", "content": "## 旧検証\n旧検証の本文。"},
+    ]
+    return {
+        "schema_version": 1,
+        "kind": "design",
+        "workspace": WORKSPACE,
+        "display": {"path": "design-doc.md", "markdown": markdown},
+        "validation": {
+            "mode": "legacy_import",
+            "source_markdown_sha256": hashlib.sha256(
+                markdown.encode("utf-8")
+            ).hexdigest(),
+            "inventory_sha256": structured_sha256({"sections": sections}),
+            "sections": sections,
+        },
+    }
 
 
 class DesignCoverageGateTest(unittest.TestCase):
@@ -244,42 +304,35 @@ class DesignCoverageGateTest(unittest.TestCase):
         self,
         *,
         kind: str,
-        goal_scopes: list[dict[str, str]] | None = None,
-        goal_baseline_scopes: list[dict[str, str]] | None = None,
-        artifact_coverage: list[dict[str, str]] | None = None,
-        artifact_sections: list[dict[str, str]] | None = None,
-        markdown: str = "# display\n",
-        canonical_requirements: bool = True,
-        with_design_baseline: bool = False,
-        missing_requirements_gate: str | None = None,
+        document: dict[str, object] | None = None,
+        with_legacy_baseline: bool = False,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
+            repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
             workspace_root = (
-                repo_root
-                / "docs"
-                / "ai-driven-development"
-                / "workspaces"
-                / WORKSPACE
+                repo_root / "docs" / "ai-driven-development" / "workspaces" / WORKSPACE
             )
             workspace_root.mkdir(parents=True)
-            requirements_path = (
-                workspace_root / "requirements.json"
-                if canonical_requirements
-                else repo_root / "requirements.json"
+            requirements_path = workspace_root / "requirements.json"
+            requirements_path.write_text(
+                serialize_source(requirements_source()), encoding="utf-8"
             )
-            issue_body_path, rule_map_path = write_requirements_gate_inputs(
-                repo_root,
-                requirements_path,
-                missing_requirements_gate,
-            )
-            requirements_hash = hashlib.sha256(requirements_path.read_bytes()).hexdigest()
-            if with_design_baseline:
+            requirements_digest = hashlib.sha256(
+                requirements_path.read_bytes()
+            ).hexdigest()
+            issue_body_path = repo_root / "issue-body.md"
+            issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
+            rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
+            rule_map_path.parent.mkdir(parents=True)
+            rule_map_path.write_text('{"rules": []}\n', encoding="utf-8")
+
+            baseline: dict[str, object] = {"source": "none", "body_sha256": None}
+            baseline_inventory: list[dict[str, str]] = []
+            if with_legacy_baseline:
                 baseline_path = workspace_root / "design.json"
                 baseline_path.write_text(
-                    serialize_source(envelope("design", {"sections": sections()})),
-                    encoding="utf-8",
+                    serialize_source(legacy_design_source()), encoding="utf-8"
                 )
                 run_git(repo_root, "add", str(baseline_path.relative_to(repo_root)))
                 run_git(repo_root, "commit", "-qm", "design baseline")
@@ -288,403 +341,339 @@ class DesignCoverageGateTest(unittest.TestCase):
                     "source": "git_head",
                     "body_sha256": hashlib.sha256(baseline_bytes).hexdigest(),
                 }
-            else:
-                baseline = {"source": "none", "body_sha256": None}
-            common_gate = {
-                "requirements_sha256": requirements_hash,
-                "workspace": WORKSPACE,
-                "requirement_ids": IDS,
-                "baseline": baseline,
-            }
-            if kind == "goal":
-                document_path = repo_root / "goal.json"
-                value = envelope(
-                    "design_goal",
+                baseline_inventory = [
                     {
-                        "coverage_gate": common_gate,
-                        "scopes": goal_scopes or scopes(),
-                        "baseline_scopes": (
-                            goal_baseline_scopes
-                            if goal_baseline_scopes is not None
-                            else []
-                        ),
-                    },
-                    markdown,
-                )
-            else:
-                document_path = workspace_root / "design.json"
-                value = envelope(
-                    "design",
-                    {
-                        "sections": (
-                            artifact_sections
-                            if artifact_sections is not None
-                            else sections()
-                        ),
-                        "coverage_gate": {
-                            **common_gate,
-                            "coverage": (
-                                artifact_coverage
-                                if artifact_coverage is not None
-                                else coverage()
-                            ),
-                            "baseline_sections": [],
-                        },
-                    },
-                    markdown,
-                )
-            document_path.write_text(serialize_source(value), encoding="utf-8")
-            validate(
-                ISSUE,
-                ISSUE_URL,
-                ISSUE_UPDATED_AT,
-                issue_body_path,
-                rule_map_path,
-                requirements_path,
-                document_path,
-                kind,
-                repo_root,
-                WORKSPACE,
-            )
+                        "section_id": None,
+                        "heading": entry["heading"],
+                        "content_sha256": content_sha256(entry["content"]),
+                        "status": "replaced",
+                        "design_block_id": f"baseline-{index + 1}",
+                    }
+                    for index, entry in enumerate(
+                        legacy_design_source()["validation"]["sections"]
+                    )
+                ]
 
-    def test_accepts_goal_json(self) -> None:
-        self.validate_source(kind="goal")
-
-    def test_accepts_goal_with_every_git_head_design_section(self) -> None:
-        self.validate_source(
-            kind="goal",
-            goal_baseline_scopes=baseline_scopes(),
-            with_design_baseline=True,
-        )
-
-    def test_rejects_goal_without_git_head_design_sections(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "every Git HEAD section"):
-            self.validate_source(kind="goal", with_design_baseline=True)
-
-    def test_allows_scope_for_heading_that_contains_another_heading(self) -> None:
-        validate_baseline_scopes(
-            [
-                {
-                    "heading": "入力",
-                    "review_scope": "入力 baseline scope: 現在Requirementsで再確認する。",
-                },
-                {
-                    "heading": "Build / Verifyへの入力",
-                    "review_scope": (
-                        "Build / Verifyへの入力 baseline scope: "
-                        "現在Requirementsで再確認する。"
-                    ),
-                },
-            ],
-            [
-                {"heading": "入力", "content_sha256": "first"},
-                {
-                    "heading": "Build / Verifyへの入力",
-                    "content_sha256": "second",
-                },
-            ],
-        )
-
-    def test_rejects_nested_scope_that_also_names_shorter_heading(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "only its target heading"):
-            validate_baseline_scopes(
-                [
-                    {
-                        "heading": "入力",
-                        "review_scope": (
-                            "入力 baseline scope: 現在Requirementsで再確認する。"
-                        ),
-                    },
-                    {
-                        "heading": "Build / Verifyへの入力",
-                        "review_scope": (
-                            "Build / Verifyへの入力 baseline scope: "
-                            "入力も同時に再確認する。"
-                        ),
-                    },
-                ],
-                [
-                    {"heading": "入力", "content_sha256": "first"},
-                    {
-                        "heading": "Build / Verifyへの入力",
-                        "content_sha256": "second",
-                    },
-                ],
-            )
-
-    def test_accepts_artifact_json(self) -> None:
-        self.validate_source(kind="artifact")
-
-    def test_display_markdown_cannot_supply_coverage(self) -> None:
-        self.validate_source(
-            kind="artifact",
-            markdown="```json\nFR-999 fake coverage\n```\n",
-        )
-
-    def test_rejects_requirements_without_input_gate(self) -> None:
-        with self.assertRaisesRegex(
-            ValidationError, "Requirements artifact gate revalidation failed"
-        ):
-            self.validate_source(
-                kind="goal",
-                missing_requirements_gate="input_gate",
-            )
-
-    def test_rejects_requirements_without_completeness_gate(self) -> None:
-        with self.assertRaisesRegex(
-            ValidationError, "Requirements artifact gate revalidation failed"
-        ):
-            self.validate_source(
-                kind="goal",
-                missing_requirements_gate="completeness_gate",
-            )
-
-    def test_rejects_scope_that_groups_requirement_ids(self) -> None:
-        grouped = deepcopy(scopes())
-        grouped[0]["design_scope"] += " AC-1も同時に扱う。"
-        with self.assertRaisesRegex(ValidationError, "must name only FR-1"):
-            self.validate_source(kind="goal", goal_scopes=grouped)
-
-    def test_rejects_identical_design_and_verification_scopes(self) -> None:
-        identical = deepcopy(scopes())
-        identical[0]["verification_scope"] = (
-            f"{identical[0]['id']}   の構造化設計境界を定義する。"
-        )
-        with self.assertRaisesRegex(ValidationError, "scopes must differ"):
-            self.validate_source(kind="goal", goal_scopes=identical)
-
-    def test_rejects_identical_design_and_verification_evidence(self) -> None:
-        identical = coverage()
-        identical[0]["verification_evidence"] = (
-            f"{identical[0]['id']}   の構造化設計を実装する。"
-        )
-        with self.assertRaisesRegex(ValidationError, "evidence must differ"):
-            self.validate_source(kind="artifact", artifact_coverage=identical)
-
-    def test_rejects_coverage_evidence_missing_from_design_sections(self) -> None:
-        missing = coverage()
-        missing[0]["design_evidence"] = (
-            "FR-1 の構造化設計を別の根拠として実装する。"
-        )
-
-        with self.assertRaisesRegex(
-            ValidationError,
-            "design_evidence must be exactly one Design section line",
-        ):
-            self.validate_source(kind="artifact", artifact_coverage=missing)
-
-    def test_rejects_coverage_evidence_repeated_in_design_sections(self) -> None:
-        repeated_sections = sections()
-        repeated_sections[1]["content"] += (
-            f"\n{coverage()[0]['design_evidence']}"
-        )
-
-        with self.assertRaisesRegex(
-            ValidationError,
-            "design_evidence must be exactly one Design section line",
-        ):
-            self.validate_source(
-                kind="artifact",
-                artifact_sections=repeated_sections,
-            )
-
-    def test_rejects_heading_only_baseline_evidence(self) -> None:
-        for evidence in (
-            "構造化設計",
-            "構造化設計 構造化設計 構造化設計",
-            "構造化設計.........***",
-        ):
-            with self.subTest(evidence=evidence):
-                with self.assertRaisesRegex(ValidationError, "not substantive"):
-                    validate_baseline_sections(
-                        [
+            if document is None:
+                if kind == "goal":
+                    document = design_goal_source(
+                        requirements_digest,
+                        baseline=baseline,
+                        baseline_scopes=[
                             {
-                                "heading": "構造化設計",
-                                "content_sha256": "baseline-hash",
-                                "status": "preserved",
-                                "design_evidence": evidence,
+                                "section_id": entry["section_id"],
+                                "heading": entry["heading"],
+                                "review_scope": f"旧section {index + 1}を再確認する。",
                             }
-                        ],
-                        [
-                            {
-                                "heading": "構造化設計",
-                                "content_sha256": "baseline-hash",
-                            }
-                        ],
-                        [
-                            {
-                                "heading": "構造化設計",
-                                "content_sha256": "baseline-hash",
-                            }
+                            for index, entry in enumerate(baseline_inventory)
                         ],
                     )
+                else:
+                    document = design_source(
+                        requirements_digest,
+                        baseline=baseline,
+                        baseline_sections=baseline_inventory,
+                        sections=typed_design_sections(
+                            include_baseline_evidence=len(baseline_inventory)
+                        ),
+                    )
+            document_path = (
+                repo_root / "goal.json"
+                if kind == "goal"
+                else workspace_root / "design.json"
+            )
+            document_path.write_text(
+                json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            with patch("validate_design_coverage.validate_requirements_input"), patch(
+                "validate_design_coverage.validate_requirements_continuity"
+            ):
+                validate(
+                    ISSUE,
+                    ISSUE_URL,
+                    ISSUE_UPDATED_AT,
+                    issue_body_path,
+                    rule_map_path,
+                    requirements_path,
+                    document_path,
+                    kind,
+                    repo_root,
+                    WORKSPACE,
+                )
 
-    def test_rejects_reused_normalized_baseline_evidence(self) -> None:
-        shared_evidence = (
-            "Build / Verifyへの入力を現在Requirementsへ適合させたまま維持する。"
+    def test_accepts_goal_using_requirement_ids(self) -> None:
+        self.validate_source(kind="goal")
+
+    def test_accepts_goal_with_legacy_baseline_inventory(self) -> None:
+        self.validate_source(kind="goal", with_legacy_baseline=True)
+
+    def test_rejects_multiline_goal_scope(self) -> None:
+        source = design_goal_source("0" * 64)
+        source["validation"]["scopes"][0]["design_scope"] = (
+            "FR-1 design scope\n## injected"
         )
-        with self.assertRaisesRegex(ValidationError, "evidence must be unique"):
-            validate_baseline_sections(
+        with self.assertRaisesRegex(SourceError, "single line"):
+            validate_loaded_source(source)
+
+    def test_accepts_artifact_using_evidence_block_ids(self) -> None:
+        self.validate_source(kind="artifact")
+
+    def test_accepts_artifact_with_legacy_baseline_inventory(self) -> None:
+        self.validate_source(kind="artifact", with_legacy_baseline=True)
+
+    def test_evidence_text_is_not_interpreted_as_markdown(self) -> None:
+        blocks = {
+            "design": {
+                "id": "design",
+                "type": "evidence",
+                "role": "design",
+                "owner_id": "FR-1",
+                "text": "<!-- hidden -->",
+            },
+            "verify": {
+                "id": "verify",
+                "type": "evidence",
+                "role": "verification",
+                "owner_id": "FR-1",
+                "text": "`code` [link](x)",
+            },
+        }
+        validate_coverage(
+            [
+                {
+                    "id": "FR-1",
+                    "design_block_id": "design",
+                    "verification_block_id": "verify",
+                }
+            ],
+            ["FR-1"],
+            blocks,
+        )
+
+    def test_rejects_placeholder_coverage_evidence(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        blocks["fr-1-design"]["text"] = "（TBD）"
+        with self.assertRaisesRegex(ValidationError, "unresolved"):
+            validate_coverage(coverage(), IDS, blocks)
+
+    def test_rejects_coverage_evidence_with_wrong_owner(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        blocks["fr-1-design"]["owner_id"] = "FR-2"
+        with self.assertRaisesRegex(ValidationError, "owner must be FR-1"):
+            validate_coverage(coverage(), IDS, blocks)
+
+    def test_markdown_block_cannot_supply_coverage(self) -> None:
+        sections = typed_design_sections(fake_markdown="FR-999 fake coverage")
+        blocks = evidence_blocks(
+            {
+                "validation": {"sections": sections},
+            }
+        )
+        with self.assertRaisesRegex(ValidationError, "reference an evidence block"):
+            validate_coverage(
                 [
                     {
-                        "heading": "入力",
-                        "content_sha256": "first",
-                        "status": "preserved",
-                        "design_evidence": shared_evidence,
-                    },
-                    {
-                        "heading": "Build / Verifyへの入力",
-                        "content_sha256": "second",
-                        "status": "preserved",
-                        "design_evidence": f"  {shared_evidence}  ",
-                    },
+                        "id": "FR-1",
+                        "design_block_id": "display-only",
+                        "verification_block_id": "fr-1-verification",
+                    }
                 ],
-                [
-                    {"heading": "入力", "content_sha256": "first"},
-                    {
-                        "heading": "Build / Verifyへの入力",
-                        "content_sha256": "second",
-                    },
-                ],
-                [
-                    {"heading": "入力", "content_sha256": "first"},
-                    {
-                        "heading": "Build / Verifyへの入力",
-                        "content_sha256": "second",
-                    },
-                ],
+                ["FR-1"],
+                blocks,
             )
 
-    def test_accepts_replaced_baseline_evidence_in_current_section(self) -> None:
-        evidence = "構造化設計を現在Requirementsに合わせて置き換える。"
+    def test_rejects_missing_evidence_block_reference(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        broken = coverage()
+        broken[0]["design_block_id"] = "missing"
+        with self.assertRaisesRegex(ValidationError, "reference an evidence block"):
+            validate_coverage(broken, IDS, blocks)
+
+    def test_rejects_reused_evidence_block_reference(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        broken = coverage()
+        broken[1]["design_block_id"] = broken[0]["design_block_id"]
+        with self.assertRaisesRegex(ValidationError, "owner must be AC-1"):
+            validate_coverage(broken, IDS, blocks)
+
+    def test_rejects_coverage_ids_that_do_not_match_requirements(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        with self.assertRaisesRegex(ValidationError, "every Requirements ID"):
+            validate_coverage(coverage()[:-1], IDS, blocks)
+
+    def test_rejects_identical_design_and_verification_block_ids(self) -> None:
+        blocks = evidence_blocks(
+            {"validation": {"sections": typed_design_sections()}}
+        )
+        broken = coverage()
+        broken[0]["verification_block_id"] = broken[0]["design_block_id"]
+        with self.assertRaisesRegex(ValidationError, "verification evidence"):
+            validate_coverage(broken, IDS, blocks)
+
+    def test_validates_baseline_transitions_using_digests_and_block_ids(self) -> None:
+        blocks = {
+            "baseline": {
+                "id": "baseline",
+                "type": "evidence",
+                "role": "baseline",
+                "owner_id": "旧設計",
+                "text": "置換根拠",
+            }
+        }
         validate_baseline_sections(
             [
                 {
-                    "heading": "構造化設計",
-                    "content_sha256": "baseline-hash",
+                    "section_id": None,
+                    "heading": "旧設計",
+                    "content_sha256": "old",
                     "status": "replaced",
-                    "design_evidence": evidence,
+                    "design_block_id": "baseline",
                 }
             ],
-            [{"heading": "構造化設計", "content_sha256": "baseline-hash"}],
-            [
-                {
-                    "heading": "現在の設計",
-                    "content_sha256": "current-hash",
-                    "content": f"## 現在の設計\n{evidence}",
-                }
-            ],
+            [{"section_id": None, "heading": "旧設計", "content_sha256": "old"}],
+            [{"section_id": "new", "heading": "新設計", "content_sha256": "new"}],
+            blocks,
         )
 
-    def test_rejects_replaced_baseline_evidence_not_unique_in_sections(self) -> None:
-        evidence = "構造化設計を現在Requirementsに合わせて置き換える。"
-        for content in (
-            "## 現在の設計\n別の設計根拠を記録する。",
-            f"## 現在の設計\n{evidence}\n{evidence}",
-        ):
-            with self.subTest(content=content):
-                with self.assertRaisesRegex(
-                    ValidationError,
-                    "design_evidence must be exactly one Design section line",
-                ):
-                    validate_baseline_sections(
-                        [
-                            {
-                                "heading": "構造化設計",
-                                "content_sha256": "baseline-hash",
-                                "status": "replaced",
-                                "design_evidence": evidence,
-                            }
-                        ],
-                        [
-                            {
-                                "heading": "構造化設計",
-                                "content_sha256": "baseline-hash",
-                            }
-                        ],
-                        [
-                            {
-                                "heading": "現在の設計",
-                                "content_sha256": "current-hash",
-                                "content": content,
-                            }
-                        ],
-                    )
+    def test_rejects_preserved_baseline_digest_missing_from_current_json(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "preserved baseline section changed"):
+            validate_baseline_sections(
+                [
+                    {
+                        "section_id": None,
+                        "heading": "旧設計",
+                        "content_sha256": "old",
+                        "status": "preserved",
+                        "design_block_id": "baseline",
+                    }
+                ],
+                [{"section_id": None, "heading": "旧設計", "content_sha256": "old"}],
+                [{"section_id": "new", "heading": "新設計", "content_sha256": "new"}],
+                {"baseline": {"id": "baseline", "type": "evidence", "role": "baseline", "owner_id": "旧設計", "text": "根拠"}},
+            )
+
+    def test_rejects_replaced_baseline_digest_still_in_current_json(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "replaced baseline section is unchanged"):
+            validate_baseline_sections(
+                [
+                    {
+                        "section_id": None,
+                        "heading": "旧設計",
+                        "content_sha256": "same",
+                        "status": "replaced",
+                        "design_block_id": "baseline",
+                    }
+                ],
+                [{"section_id": None, "heading": "旧設計", "content_sha256": "same"}],
+                [{"section_id": "new", "heading": "旧設計", "content_sha256": "same"}],
+                {"baseline": {"id": "baseline", "type": "evidence", "role": "baseline", "owner_id": "旧設計", "text": "根拠"}},
+            )
+
+    def test_same_digest_under_different_section_id_is_not_preserved(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "preserved baseline section changed"):
+            validate_baseline_sections(
+                [
+                    {
+                        "section_id": "old-section",
+                        "heading": "設計",
+                        "content_sha256": "same",
+                        "status": "preserved",
+                        "design_block_id": "baseline",
+                    }
+                ],
+                [
+                    {
+                        "section_id": "old-section",
+                        "heading": "設計",
+                        "content_sha256": "same",
+                    }
+                ],
+                [
+                    {
+                        "section_id": "new-section",
+                        "heading": "設計",
+                        "content_sha256": "same",
+                    }
+                ],
+                {
+                    "baseline": {
+                        "id": "baseline",
+                        "type": "evidence",
+                        "role": "baseline",
+                        "owner_id": "old-section",
+                        "text": "根拠",
+                    }
+                },
+            )
+
+    def test_legacy_inventory_hash_only_normalizes_newline_style(self) -> None:
+        self.assertEqual(
+            content_sha256("## 設計\r\n本文"), content_sha256("## 設計\n本文")
+        )
+        self.assertNotEqual(
+            content_sha256("## 設計\n本文"), content_sha256("## 設計 本文")
+        )
+
+    def test_v2_section_digest_uses_structured_json(self) -> None:
+        section = typed_design_sections()[0]
+        source = {
+            "schema_version": 2,
+            "validation": {"sections": [section]},
+        }
+        self.assertEqual(
+            design_sections(source)[0]["content_sha256"], structured_sha256(section)
+        )
+
+    def test_validator_has_no_managed_markdown_parser_dependency(self) -> None:
+        source = Path(__file__).with_name("validate_design_coverage.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn("from structured_ids import", source)
+        self.assertNotIn("mask_non_rendered_markdown", source)
+        self.assertNotIn('["display"]', source)
 
     def test_rejects_noncanonical_requirements_source(self) -> None:
-        with self.assertRaisesRegex(ValidationError, "canonical repository path"):
-            self.validate_source(kind="goal", canonical_requirements=False)
-
-    def test_accepts_preserved_git_head_design_sections(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
-            run_git(repo_root, "init", "-q")
-            run_git(repo_root, "config", "user.name", "AIDD Test")
-            run_git(repo_root, "config", "user.email", "aidd@example.com")
-            workspace_root = (
-                repo_root
-                / "docs"
-                / "ai-driven-development"
-                / "workspaces"
-                / WORKSPACE
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            requirements_path = repo_root / "requirements.json"
+            requirements_path.write_text(
+                serialize_source(requirements_source()), encoding="utf-8"
             )
-            workspace_root.mkdir(parents=True)
-            requirements_path = workspace_root / "requirements.json"
-            issue_body_path, rule_map_path = write_requirements_gate_inputs(
-                repo_root,
-                requirements_path,
+            document = design_goal_source(
+                hashlib.sha256(requirements_path.read_bytes()).hexdigest()
             )
-            design_path = workspace_root / "design.json"
-            baseline_source = envelope("design", {"sections": sections()})
-            design_path.write_text(serialize_source(baseline_source), encoding="utf-8")
-            run_git(repo_root, "add", str(design_path.relative_to(repo_root)))
-            run_git(repo_root, "commit", "-qm", "baseline")
-            baseline_bytes = design_path.read_bytes()
-            gate = {
-                "requirements_sha256": hashlib.sha256(
-                    requirements_path.read_bytes()
-                ).hexdigest(),
-                "workspace": WORKSPACE,
-                "requirement_ids": IDS,
-                "baseline": {
-                    "source": "git_head",
-                    "body_sha256": hashlib.sha256(baseline_bytes).hexdigest(),
-                },
-                "coverage": coverage(),
-                "baseline_sections": [
-                    {
-                        "heading": entry["heading"],
-                        "content_sha256": content_sha256(entry["content"]),
-                        "status": "preserved",
-                        "design_evidence": (
-                            f"{entry['heading']}を現在Requirementsへ"
-                            "適合させたまま維持する。"
-                        ),
-                    }
-                    for entry in sections()
-                ],
-            }
-            design_path.write_text(
-                serialize_source(
-                    envelope(
-                        "design",
-                        {"sections": sections(), "coverage_gate": gate},
-                    )
-                ),
-                encoding="utf-8",
-            )
-            validate(
-                ISSUE,
-                ISSUE_URL,
-                ISSUE_UPDATED_AT,
-                issue_body_path,
-                rule_map_path,
-                requirements_path,
-                design_path,
-                "artifact",
-                repo_root,
-                WORKSPACE,
-            )
+            document_path = repo_root / "goal.json"
+            document_path.write_text(json.dumps(document), encoding="utf-8")
+            issue_body_path = repo_root / "issue-body.md"
+            issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
+            rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
+            rule_map_path.parent.mkdir(parents=True)
+            rule_map_path.write_text('{"rules": []}', encoding="utf-8")
+            with self.assertRaisesRegex(ValidationError, "canonical repository path"):
+                validate(
+                    ISSUE,
+                    ISSUE_URL,
+                    ISSUE_UPDATED_AT,
+                    issue_body_path,
+                    rule_map_path,
+                    requirements_path,
+                    document_path,
+                    "goal",
+                    repo_root,
+                    WORKSPACE,
+                )
 
 
 if __name__ == "__main__":

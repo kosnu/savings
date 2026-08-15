@@ -66,6 +66,7 @@
         "heading": "Stop 条件",
         "content": "## Stop 条件\n- 実装時に `MonthPicker` の year range と前後月移動の整合が Requirements の範囲で解決できない。\n- 支払い詳細を開いたまま月だけ変える必要がある。\n- category 以外の search params を含む保持ルールで Requirements にない判断が必要になる。\n- DB/API/Auth/RLS/RPC、データ構造、集計ロジック、新規依存、月以外の期間単位への拡張が必要になる。\n- `requirements.md` の修正が必要になる。\n- Design または実装方針が選択したルールやポリシーに違反する、または違反の可能性がある。"
       }
-    ]
+    ],
+    "inventory_sha256": "a8db197e20696fea94ba9896100385fbdea62e4df51cc94c4d9d997d3c8b04ec"
   }
 }

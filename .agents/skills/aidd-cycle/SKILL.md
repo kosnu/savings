@@ -68,16 +68,20 @@ baselines, never as additional Requirements Task Context.
 
 `requirements.json` and `design.json` are the only machine-validation sources.
 For managed artifacts, the renderer builds `requirements.md` and
-`design-doc.md` from structured sections and Gate fields; `display.markdown`
+`design-doc.md` from structured sections and Gate fields; `display.preamble`
 supplies only the static preamble and is never the artifact body source. Legacy
 imports retain their lossless Markdown payload. The Markdown files are
 human-readable outputs and are never parsed by normal validators. Use
 `migrate_aidd_artifacts.py` as the sole legacy Markdown parser.
+Use `--import-legacy` only for the one-way bootstrap; routine validation uses
+`--check`. For `legacy_import` sources only, `--check` re-imports Markdown in
+memory and requires the saved inventory to match; it never writes or upgrades
+JSON. Managed sources are never rebuilt or validated from Markdown.
 For temporary Requirements and Design Goal JSON, the renderer must verify that
 the Goal objective retains the required Context Packet markers and exactly
 represents every structured Gate and scope before writing or printing it. The
-renderer adds the complete structured ID set as Validated Scope and rejects a
-Goal objective that narrows execution to the current delta.
+renderer adds the complete structured ID set as Validated Scope, so the
+generated Goal objective always carries the full validated scope.
 
 ## Requirements Provenance And Completeness Gates
 
@@ -160,7 +164,8 @@ Before creating a Design / Plan Goal:
    that hash, the complete canonical identifier list, and the Git `HEAD` Design
    baseline SHA-256. Outside the gate, include one substantive design and
    verification scope line per requirement ID in `validation.scopes` and one
-   review scope entry per Git baseline section in `validation.baseline_scopes`.
+   review scope entry with `section_id` (or `null` for legacy), heading, and
+   scope text per Git baseline section in `validation.baseline_scopes`.
    Each requirement scope line must contain only its
    target requirement ID. Every Git baseline section also gets its own physical
    review-scope line. Grouped coverage is invalid. A changed or

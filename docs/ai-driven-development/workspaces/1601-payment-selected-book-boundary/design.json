@@ -54,6 +54,7 @@
         "heading": "11. リスクと確認事項",
         "content": "## 11. リスクと確認事項\n- selected Book error時はPayment操作を安全に止める代わりにPage contentを表示しない。新しい復帰操作はRequirementsにないため追加しない。\n- component propsの伝播範囲が広いため、型エラーと既存Story/testでcall site漏れを検出する。\n- MSWの既存`currentBookId` filteringはRLSを模しておりBook条件漏れを隠し得る。integration testではrequest URLの`book_id`を直接検証し、別Bookレスポンス検証も独立して置く。\n- update/deleteの`.select(\"id\").maybeSingle()`は返却表現を要求するが、schema/RLS/API定義は変更しない。対象なしをUI成功にしないための既存client API利用である。\n- Summary queryは対象外でありselected Book IDを伝播しない。現在default Bookのみの体験では結果を変えず、将来の全体切り替えは別Requirementsで扱う。"
       }
-    ]
+    ],
+    "inventory_sha256": "928e0ac549cc12d46a805c93ecc2cdc6736adc71ee7fdc6a3178848ce80b6a82"
   }
 }

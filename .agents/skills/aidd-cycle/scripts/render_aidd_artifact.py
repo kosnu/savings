@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -19,56 +18,14 @@ from artifact_source import (
     SourceError,
     canonical_display_path,
     canonical_source_path,
-    load_source,
+    load_regular_source,
     normalize_markdown_newlines,
+    read_regular_file_bytes,
+    require_inline_markdown,
+    validate_loaded_source,
+    write_regular_file_atomically,
 )
 from git_baseline import GitBaselineError, require_repository_root, run_git
-from structured_ids import (
-    extract_requirement_mentions,
-    requirement_section_ids_for_heading,
-    requirement_sort_key,
-)
-
-
-GOAL_REQUIRED_MARKERS = (
-    ("## Goal", r"^## Goal[ \t]*$"),
-    ("## Context Packet", r"^## Context Packet[ \t]*$"),
-    ("- Constraints:", r"^- Constraints:[ \t]*\S.+$"),
-    ("- Stop:", r"^- Stop:[ \t]*\S.+$"),
-    ("## Done / Verification", r"^## Done / Verification[ \t]*$"),
-)
-GOAL_GATE_FIELDS = {
-    "requirements_goal": (
-        ("Requirements Input Gate", "input_gate"),
-        ("Requirements Completeness Gate", "completeness_gate"),
-    ),
-    "design_goal": (("Design Coverage Gate", "coverage_gate"),),
-}
-GOAL_SCOPE_FIELDS = {
-    "requirements_goal": (("requirements", ("content",)),),
-    "design_goal": (
-        ("scopes", ("design_scope", "verification_scope")),
-        ("baseline_scopes", ("review_scope",)),
-    ),
-}
-NARROW_GOAL_SCOPE_PATTERN = re.compile(
-    r"(?:差分|変更|追加|指摘).{0,6}(?:だけ|のみ|限定)"
-    r"(?![^。\n]{0,8}(?:扱わない|対象としない|限定しない|狭めない))"
-    r"|(?:only|limited to)\s+(?:the\s+)?"
-    r"(?:delta|change|changes|addition|review comments?)",
-    re.IGNORECASE,
-)
-VALIDATED_SCOPE_PREFIX = "- Validated Scope:"
-REQUIREMENT_SECTION_BY_PREFIX = {
-    "FR": "functional",
-    "NFR": "non_functional",
-    "AC": "acceptance",
-}
-REQUIREMENT_DEFINITION_LINE_PATTERN = re.compile(
-    r"^[ \t]{0,3}(?:#{2,6}|[-*+])[ \t]+(?:\*\*)?"
-    r"(?P<id>(?:FR|NFR|AC)-[1-9][0-9]*)"
-    r"(?![A-Za-z0-9_-])"
-)
 
 
 def normalized_path(path: Path) -> Path:
@@ -81,8 +38,6 @@ def require_git_worktree_root(repo_root: Path) -> Path:
         resolved_root = require_repository_root(absolute_root)
     except GitBaselineError as error:
         raise SourceError(str(error)) from error
-    if absolute_root != resolved_root:
-        raise SourceError("repo-root must not contain symlinks")
     return resolved_root
 
 
@@ -114,351 +69,22 @@ def require_canonical_artifact_paths(
     require_no_symlinks(repo_root, expected_output, "artifact output")
 
 
-def extract_goal_gate(markdown: str, heading: str) -> Any:
-    lines = re.sub(r"(?s)<!--.*?-->", "", markdown).splitlines()
-    heading_line = f"## {heading}"
-    heading_indices: list[int] = []
-    fence: tuple[str, int] | None = None
-    for index, line in enumerate(lines):
-        stripped = line.lstrip()
-        if fence is None:
-            if line.rstrip() == heading_line:
-                heading_indices.append(index)
-            match = re.match(r"(?P<fence>`{3,}|~{3,})", stripped)
-            if match is not None:
-                opening = match.group("fence")
-                fence = (opening[0], len(opening))
-        else:
-            fence_character, minimum_length = fence
-            closing = re.match(rf"{re.escape(fence_character)}+", stripped)
-            if (
-                closing is not None
-                and len(closing.group(0)) >= minimum_length
-                and stripped[closing.end() :].strip() == ""
-            ):
-                fence = None
-    if len(heading_indices) != 1:
-        raise SourceError(f"Goal objective is missing {heading}")
-
-    index = heading_indices[0] + 1
-    while index < len(lines) and not lines[index].strip():
-        index += 1
-    if index >= len(lines):
-        raise SourceError(f"Goal objective is missing {heading} JSON")
-    opening_match = re.fullmatch(
-        r"(?P<fence>`{3,}|~{3,})json[ \t]*", lines[index]
-    )
-    if opening_match is None:
-        raise SourceError(f"Goal objective is missing {heading} JSON")
-    opening = opening_match.group("fence")
-    index += 1
-    content_lines: list[str] = []
-    while index < len(lines):
-        stripped = lines[index]
-        closing = re.match(rf"{re.escape(opening[0])}+", stripped)
-        if (
-            closing is not None
-            and len(closing.group(0)) >= len(opening)
-            and stripped[closing.end() :].strip() == ""
-        ):
-            break
-        content_lines.append(lines[index])
-        index += 1
-    else:
-        raise SourceError(f"Goal objective is missing {heading} JSON closing fence")
-    try:
-        return json.loads("\n".join(content_lines))
-    except json.JSONDecodeError as error:
-        raise SourceError(f"Goal objective {heading} JSON is invalid: {error}") from error
-
-
-def visible_goal_markdown(markdown: str) -> str:
-    without_comments = re.sub(r"(?s)<!--.*?-->", "", markdown)
-    visible_lines: list[str] = []
-    fence: tuple[str, int] | None = None
-    for line in without_comments.splitlines(keepends=True):
-        stripped = line.lstrip()
-        if fence is None:
-            if line.startswith(("\t", "    ")) or stripped.startswith(">"):
-                visible_lines.append("\n" if line.endswith("\n") else "")
-                continue
-            match = re.match(r"(?P<fence>`{3,}|~{3,})", stripped)
-            if match is None:
-                visible_lines.append(line)
-                continue
-            opening = match.group("fence")
-            fence = (opening[0], len(opening))
-        else:
-            fence_character, minimum_length = fence
-            closing = re.match(rf"{re.escape(fence_character)}+", stripped)
-            if (
-                closing is not None
-                and len(closing.group(0)) >= minimum_length
-                and stripped[closing.end() :].strip() == ""
-            ):
-                fence = None
-        visible_lines.append("\n" if line.endswith("\n") else "")
-    return "".join(visible_lines)
-
-
-def normalize_goal_block(value: str) -> str:
-    return "\n".join(line.strip() for line in value.strip().splitlines())
-
-
-def goal_section(markdown: str, heading: str) -> str:
-    matches = list(
-        re.finditer(rf"(?m)^## {re.escape(heading)}[ \t]*$", markdown)
-    )
-    if len(matches) != 1:
-        raise SourceError(f"Goal objective must contain exactly one ## {heading}")
-    start = matches[0].end()
-    next_heading = re.search(r"(?m)^## ", markdown[start:])
-    end = start + next_heading.start() if next_heading is not None else len(markdown)
-    return markdown[start:end]
-
-
-def structured_goal_ids(source: dict[str, Any]) -> list[str]:
-    validation = source["validation"]
-    if source["kind"] == "requirements_goal":
-        entries = validation.get("requirements")
-        if not isinstance(entries, list):
-            raise SourceError("Goal source must contain structured scope IDs")
-        ids = [entry.get("id") if isinstance(entry, dict) else None for entry in entries]
-    else:
-        gate = validation.get("coverage_gate")
-        ids = gate.get("requirement_ids") if isinstance(gate, dict) else None
-    if not isinstance(ids, list) or not ids or not all(
-        isinstance(requirement_id, str) and requirement_id for requirement_id in ids
-    ):
-        raise SourceError("Goal source must contain structured scope IDs")
-    return ids
-
-
-def add_validated_scope(markdown: str, ids: list[str]) -> str:
-    statement = (
-        f"{VALIDATED_SCOPE_PREFIX} {', '.join(ids)}。"
-        "全IDを扱い、今回の差分だけへ狭めない。"
-    )
-    existing = [
-        line.strip()
-        for line in visible_goal_markdown(markdown).splitlines()
-        if line.strip().startswith(VALIDATED_SCOPE_PREFIX)
-    ]
-    if existing:
-        if existing != [statement]:
-            raise SourceError("Goal objective has an invalid Validated Scope statement")
-        return markdown
-    return re.sub(
-        r"(?m)^## Goal[ \t]*$",
-        lambda match: f"{match.group(0)}\n\n{statement}",
-        markdown,
-        count=1,
-    )
-
-
-def render_goal_objective(source: dict[str, Any]) -> str:
-    kind = source["kind"]
-    if kind not in GOAL_KINDS:
-        raise SourceError("Goal objective rendering requires a Goal source")
-    markdown = source["display"]["markdown"]
-    visible_markdown = visible_goal_markdown(markdown)
-    normalized_visible_markdown = normalize_goal_block(visible_markdown)
-    for marker, pattern in GOAL_REQUIRED_MARKERS:
-        if re.search(pattern, visible_markdown, re.MULTILINE) is None:
-            raise SourceError(f"Goal objective is missing required marker: {marker}")
-    goal_instructions = goal_section(visible_markdown, "Goal")
-    context_packet = goal_section(visible_markdown, "Context Packet")
-    goal_section(visible_markdown, "Done / Verification")
-    for marker in ("Constraints", "Stop"):
-        if re.search(rf"(?m)^- {marker}:[ \t]*\S.+$", context_packet) is None:
-            raise SourceError(f"Goal objective Context Packet is missing {marker}")
-
-    validation = source["validation"]
-    if validation.get("mode") != "managed":
-        raise SourceError("Goal objective rendering requires validation.mode=managed")
-    if NARROW_GOAL_SCOPE_PATTERN.search(
-        f"{goal_instructions}\n{context_packet}"
-    ) is not None:
-        raise SourceError("Goal objective must not narrow scope to the current delta")
-    for heading, field in GOAL_GATE_FIELDS[kind]:
-        if field not in validation:
-            raise SourceError(f"Goal source is missing validation.{field}")
-        if extract_goal_gate(markdown, heading) != validation[field]:
-            raise SourceError(f"Goal objective {heading} does not match validation.{field}")
-
-    for entries_field, content_fields in GOAL_SCOPE_FIELDS[kind]:
-        entries = validation.get(entries_field)
-        if not isinstance(entries, list):
-            raise SourceError(f"validation.{entries_field} must be an array")
-        for index, entry in enumerate(entries):
-            if not isinstance(entry, dict):
-                raise SourceError(f"validation.{entries_field}[{index}] must be an object")
-            for content_field in content_fields:
-                content = entry.get(content_field)
-                normalized_content = content.strip() if isinstance(content, str) else ""
-                if (
-                    not normalized_content
-                    or normalize_goal_block(normalized_content)
-                    not in normalized_visible_markdown
-                ):
-                    raise SourceError(
-                        "Goal objective is missing structured scope: "
-                        f"validation.{entries_field}[{index}].{content_field}"
-                    )
-    return add_validated_scope(markdown, structured_goal_ids(source))
-
-
 def compact_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
-def artifact_preamble(markdown: str) -> str:
-    first_section = re.search(r"(?m)^## ", markdown)
-    preamble = markdown if first_section is None else markdown[: first_section.start()]
-    if not preamble.strip():
-        raise SourceError("managed artifact display must contain a Markdown preamble")
-    return preamble.strip()
+MARKDOWN_ASCII_PUNCTUATION = frozenset(
+    "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+)
 
 
-def render_section(heading: Any, content: Any, label: str) -> str:
-    if not isinstance(heading, str) or not heading.strip():
-        raise SourceError(f"{label}.heading must be a non-empty string")
-    if not isinstance(content, str) or not content.strip():
-        raise SourceError(f"{label}.content must be a non-empty string")
-    lines = content.strip().splitlines()
-    expected_heading = f"## {heading.strip()}"
-    if lines[0].strip() != expected_heading:
-        raise SourceError(f"{label}.content must start with {expected_heading}")
-    body = "\n".join(lines[1:]).strip()
-    return expected_heading if not body else f"{expected_heading}\n\n{body}"
+def render_plain_text(value: str) -> str:
+    """Make a typed plain-text field visible without interpreting Markdown."""
 
-
-def requirement_definitions(content: str) -> list[tuple[str, str]]:
-    definitions: list[tuple[str, str]] = []
-    requirement_id: str | None = None
-    lines: list[str] = []
-    for line in content.strip().splitlines():
-        match = REQUIREMENT_DEFINITION_LINE_PATTERN.match(line)
-        if match is not None:
-            if requirement_id is not None:
-                definitions.append(
-                    (requirement_id, "\n".join(lines).strip())
-                )
-            requirement_id = match.group("id")
-            lines = [line]
-        elif requirement_id is not None:
-            lines.append(line)
-    if requirement_id is not None:
-        definitions.append((requirement_id, "\n".join(lines).strip()))
-    return definitions
-
-
-def render_requirements_sections(validation: dict[str, Any]) -> list[str]:
-    entries = validation.get("sections")
-    if not isinstance(entries, list) or not entries:
-        raise SourceError("managed Requirements must contain validation.sections")
-    sections_by_id: dict[str, str] = {}
-    rendered: list[str] = []
-    for index, entry in enumerate(entries):
-        if not isinstance(entry, dict) or set(entry) != {"id", "heading", "content"}:
-            raise SourceError(
-                "each Requirements section must contain only id, heading, and content"
-            )
-        section_id = entry["id"]
-        if not isinstance(section_id, str) or not section_id:
-            raise SourceError(f"validation.sections[{index}].id must be a string")
-        if section_id in sections_by_id:
-            raise SourceError(f"duplicate Requirements section: {section_id}")
-        heading = entry["heading"]
-        rendered_section = render_section(
-            heading,
-            entry["content"],
-            f"validation.sections[{index}]",
-        )
-        if requirement_section_ids_for_heading(heading) != (section_id,):
-            raise SourceError(
-                f"Requirements section {section_id} heading does not match its canonical aliases"
-            )
-        sections_by_id[section_id] = entry["content"]
-        rendered.append(rendered_section)
-
-    requirements = validation.get("requirements")
-    if not isinstance(requirements, list) or not requirements:
-        raise SourceError("managed Requirements must contain validation.requirements")
-    requirements_by_section: dict[str, list[tuple[str, str]]] = {
-        section_id: [] for section_id in REQUIREMENT_SECTION_BY_PREFIX.values()
-    }
-    for index, entry in enumerate(requirements):
-        if not isinstance(entry, dict) or set(entry) != {"id", "content"}:
-            raise SourceError(
-                "each requirement must contain only id and content"
-            )
-        requirement_id = entry["id"]
-        content = entry["content"]
-        if not isinstance(requirement_id, str) or not isinstance(content, str):
-            raise SourceError(f"validation.requirements[{index}] is invalid")
-        prefix = requirement_id.split("-", 1)[0]
-        section_id = REQUIREMENT_SECTION_BY_PREFIX.get(prefix)
-        if section_id is None:
-            raise SourceError(f"unsupported requirement ID: {requirement_id}")
-        normalized_content = content.strip()
-        if requirement_definitions(normalized_content) != [
-            (requirement_id, normalized_content)
-        ]:
-            raise SourceError(
-                f"validation.requirements[{index}].content must define only {requirement_id}"
-            )
-        requirements_by_section[section_id].append(
-            (requirement_id, normalized_content)
-        )
-
-    for section_id, section_requirements in requirements_by_section.items():
-        section_content = sections_by_id.get(section_id)
-        if section_content is None:
-            raise SourceError(f"managed Requirements is missing section: {section_id}")
-        expected_ids = sorted(
-            (requirement_id for requirement_id, _ in section_requirements),
-            key=requirement_sort_key,
-        )
-        if extract_requirement_mentions(section_content) != expected_ids:
-            raise SourceError(
-                f"Requirements section {section_id} does not match validation.requirements"
-            )
-        actual_definitions = requirement_definitions(section_content)
-        if [requirement_id for requirement_id, _ in actual_definitions] != expected_ids:
-            raise SourceError(
-                f"Requirements section {section_id} definitions do not match validation.requirements"
-            )
-        for (requirement_id, content), (_, actual_content) in zip(
-            section_requirements,
-            actual_definitions,
-        ):
-            if actual_content != content:
-                raise SourceError(
-                    f"Requirements section {section_id} definition for {requirement_id} "
-                    "does not match validation.requirements"
-                )
-    return rendered
-
-
-def render_design_sections(validation: dict[str, Any]) -> list[str]:
-    entries = validation.get("sections")
-    if not isinstance(entries, list) or not entries:
-        raise SourceError("managed Design must contain validation.sections")
-    rendered: list[str] = []
-    for index, entry in enumerate(entries):
-        if not isinstance(entry, dict) or set(entry) != {"heading", "content"}:
-            raise SourceError(
-                "each Design section must contain only heading and content"
-            )
-        rendered.append(
-            render_section(
-                entry["heading"],
-                entry["content"],
-                f"validation.sections[{index}]",
-            )
-        )
-    return rendered
+    return "".join(
+        f"\\{character}" if character in MARKDOWN_ASCII_PUNCTUATION else character
+        for character in value
+    )
 
 
 def render_gate(heading: str, value: Any) -> str:
@@ -480,51 +106,209 @@ def render_rule_selection(input_gate: Any) -> str:
             raise SourceError(f"direct_rules[{index}] must be an object")
         rule_id = entry.get("id")
         reason = entry.get("reason")
-        if not isinstance(rule_id, str) or not isinstance(reason, str):
-            raise SourceError(f"direct_rules[{index}] is invalid")
-        lines.append(f"- Direct: `{rule_id}`。{reason.rstrip('。')}。")
+        rule_id = require_inline_markdown(rule_id, f"direct_rules[{index}].id")
+        reason = require_inline_markdown(reason, f"direct_rules[{index}].reason")
+        lines.append(
+            f"- Direct: `{rule_id}`。{render_plain_text(reason.rstrip('。'))}。"
+        )
     for index, entry in enumerate(dependencies):
         if not isinstance(entry, dict):
             raise SourceError(f"depends_on[{index}] must be an object")
         rule_id = entry.get("id")
         via = entry.get("via")
-        if not isinstance(rule_id, str) or not isinstance(via, str):
-            raise SourceError(f"depends_on[{index}] is invalid")
+        rule_id = require_inline_markdown(rule_id, f"depends_on[{index}].id")
+        via = require_inline_markdown(via, f"depends_on[{index}].via")
         lines.append(f"- Depends-on: `{rule_id}`（via `{via}`）。")
     lines.append("- Conflict: none。")
     return "\n".join(lines)
 
 
+def render_v2_blocks(
+    blocks: list[dict[str, Any]],
+    requirements: list[dict[str, Any]],
+    section_id: str,
+) -> str:
+    """Render typed display blocks without parsing their Markdown output."""
+
+    rendered: list[tuple[str, str]] = []
+    for block in blocks:
+        block_type = block["type"]
+        if block_type == "markdown":
+            rendered.append((block_type, block["markdown"].strip()))
+        elif block_type == "evidence":
+            owner_id = block["owner_id"].strip()
+            role = block["role"]
+            text = block["text"].strip()
+            redundant_prefix = f"{owner_id} {role}: "
+            if text.startswith(redundant_prefix):
+                text = text.removeprefix(redundant_prefix)
+            rendered.append(
+                (
+                    block_type,
+                    f"{render_plain_text(owner_id)} {role}: {render_plain_text(text)}",
+                )
+            )
+        elif block_type == "requirements":
+            rendered.append(
+                (
+                    block_type,
+                    "\n".join(
+                        f"- {entry['id']}: {render_plain_text(entry['text'].strip())}"
+                        for entry in requirements
+                        if entry["section_id"] == section_id
+                    ),
+                )
+            )
+        else:
+            raise SourceError(f"unsupported block type: {block_type}")
+    output = ""
+    previous_type: str | None = None
+    for block_type, part in rendered:
+        if not part:
+            continue
+        separator = "\n" if previous_type == block_type == "evidence" else "\n\n"
+        output += (separator if output else "") + part
+        previous_type = block_type
+    return output
+
+
+def render_v2_sections(
+    sections: list[dict[str, Any]],
+    requirements: list[dict[str, Any]] | None = None,
+) -> list[str]:
+    requirement_entries = requirements or []
+    rendered: list[str] = []
+    for section in sections:
+        body = render_v2_blocks(
+            section["blocks"], requirement_entries, section["id"]
+        )
+        heading = f"## {render_plain_text(section['heading'])}"
+        rendered.append(heading if not body else f"{heading}\n\n{body}")
+    return rendered
+
+
+def render_goal_objective(source: dict[str, Any]) -> str:
+    """Render a Goal from typed JSON fields only."""
+
+    source = validate_loaded_source(source)
+    kind = source["kind"]
+    if kind not in GOAL_KINDS:
+        raise SourceError("Goal objective rendering requires a Goal source")
+    display = source["display"]
+    validation = source["validation"]
+    context = display["context"]
+    scope_ids = (
+        [entry["id"] for entry in validation["requirements"]]
+        if kind == "requirements_goal"
+        else validation["coverage_gate"]["requirement_ids"]
+    )
+    blocks = [
+        f"# {render_plain_text(display['title'])}",
+        f"## Goal\n\n{render_plain_text(display['goal'].strip())}",
+        "## Context Packet\n\n"
+        + "\n\n".join(render_plain_text(item) for item in context["body"])
+        + "\n\n"
+        + "\n".join(
+            [
+                *(
+                    f"- Constraints: {render_plain_text(item)}"
+                    for item in context["constraints"]
+                ),
+                *(
+                    f"- Stop: {render_plain_text(item)}"
+                    for item in context["stop"]
+                ),
+                f"- Validated Scope: {', '.join(scope_ids)}",
+            ]
+        ),
+    ]
+    if kind == "requirements_goal":
+        blocks.extend(
+            [
+                render_gate("Requirements Input Gate", validation["input_gate"]),
+                render_gate(
+                    "Requirements Completeness Gate",
+                    validation["completeness_gate"],
+                ),
+                "## Requirement Scope\n\n"
+                + "\n".join(
+                    f"- {entry['id']}: {render_plain_text(entry['text'].strip())}"
+                    for entry in validation["requirements"]
+                ),
+            ]
+        )
+    else:
+        blocks.append(render_gate("Design Coverage Gate", validation["coverage_gate"]))
+        scope_lines: list[str] = []
+        for entry in validation["scopes"]:
+            requirement_id = entry["id"]
+            design_scope = entry["design_scope"]
+            verification_scope = entry["verification_scope"]
+            design_scope = design_scope.removeprefix(
+                f"{requirement_id} design scope: "
+            )
+            verification_scope = verification_scope.removeprefix(
+                f"{requirement_id} verification scope: "
+            )
+            scope_lines.extend(
+                [
+                    f"- {render_plain_text(requirement_id)} design scope: {render_plain_text(design_scope)}",
+                    f"- {render_plain_text(requirement_id)} verification scope: {render_plain_text(verification_scope)}",
+                ]
+            )
+        for entry in validation["baseline_scopes"]:
+            section_id = entry["section_id"]
+            heading = entry["heading"]
+            identity = heading if section_id is None else f"{section_id} ({heading})"
+            review_scope = entry["review_scope"]
+            for prefix in (
+                f"{identity} baseline scope: ",
+                f"{heading} baseline scope: ",
+            ):
+                if review_scope.startswith(prefix):
+                    review_scope = review_scope.removeprefix(prefix)
+                    break
+            scope_lines.append(
+                f"- {render_plain_text(identity)} baseline scope: {render_plain_text(review_scope)}"
+            )
+        blocks.append("## Requirement Design Scope\n\n" + "\n".join(scope_lines))
+    blocks.append(
+        "## Done / Verification\n\n"
+        + "\n".join(render_plain_text(item) for item in display["done"])
+    )
+    return "\n\n".join(block.rstrip() for block in blocks) + "\n"
+
+
 def render_artifact_markdown(source: dict[str, Any]) -> str:
+    """Render an artifact from JSON fields without interpreting Markdown."""
+
+    source = validate_loaded_source(source)
     kind = source["kind"]
     if kind not in ARTIFACT_KINDS:
         raise SourceError("artifact Markdown rendering requires an artifact source")
     validation = source["validation"]
-    mode = validation.get("mode")
-    if mode == "legacy_import":
+    if validation["mode"] == "legacy_import":
         return source["display"]["markdown"]
-    if mode != "managed":
-        raise SourceError("validation.mode must be managed or legacy_import")
-
-    blocks = [artifact_preamble(source["display"]["markdown"])]
+    blocks = [source["display"]["preamble"].strip()]
     if kind == "requirements":
-        input_gate = validation.get("input_gate")
         blocks.extend(
             [
-                render_gate("Requirements Input Gate", input_gate),
+                render_gate("Requirements Input Gate", validation["input_gate"]),
                 render_gate(
                     "Requirements Completeness Gate",
-                    validation.get("completeness_gate"),
+                    validation["completeness_gate"],
                 ),
-                *render_requirements_sections(validation),
-                render_rule_selection(input_gate),
+                *render_v2_sections(
+                    validation["sections"], validation["requirements"]
+                ),
+                render_rule_selection(validation["input_gate"]),
             ]
         )
     else:
         blocks.extend(
             [
-                *render_design_sections(validation),
-                render_gate("Design Coverage Gate", validation.get("coverage_gate")),
+                *render_v2_sections(validation["sections"]),
+                render_gate("Design Coverage Gate", validation["coverage_gate"]),
             ]
         )
     return "\n\n".join(block.rstrip() for block in blocks) + "\n"
@@ -536,11 +320,12 @@ def check_or_write(
     check: bool,
     repo_root: Path | None = None,
 ) -> None:
-    source = load_source(source_path)
+    if repo_root is not None:
+        repo_root = require_git_worktree_root(repo_root)
+    source = load_regular_source(source_path)
     if source["kind"] in ARTIFACT_KINDS:
         if repo_root is None:
             raise SourceError("artifact rendering requires --repo-root")
-        repo_root = require_git_worktree_root(repo_root)
         require_canonical_artifact_paths(
             repo_root,
             source_path,
@@ -560,7 +345,7 @@ def check_or_write_markdown(markdown: str, output_path: Path, check: bool) -> No
         if not output_path.is_file():
             raise SourceError(f"generated Markdown is missing: {output_path}")
         try:
-            current_markdown = output_path.read_bytes().decode("utf-8")
+            current_markdown = read_regular_file_bytes(output_path).decode("utf-8")
         except UnicodeDecodeError as error:
             raise SourceError(
                 f"generated Markdown must be UTF-8: {output_path}"
@@ -570,8 +355,10 @@ def check_or_write_markdown(markdown: str, output_path: Path, check: bool) -> No
         ) != normalize_markdown_newlines(markdown):
             raise SourceError(f"generated Markdown is stale: {output_path}")
         return
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_bytes(markdown.encode("utf-8"))
+    write_regular_file_atomically(
+        Path(os.path.abspath(output_path)),
+        markdown,
+    )
 
 
 def check_all(repo_root: Path) -> int:
@@ -626,7 +413,7 @@ def check_all(repo_root: Path) -> int:
 
     checked = 0
     for source_path in sorted(workspace_root.glob("*/*.json")):
-        source = load_source(source_path)
+        source = load_regular_source(source_path)
         kind = source["kind"]
         if kind not in ARTIFACT_KINDS:
             continue
@@ -678,7 +465,7 @@ def main() -> int:
             return 0
         if args.source is None:
             raise SourceError("--source is required")
-        source = load_source(args.source)
+        source = load_regular_source(args.source)
         if args.stdout:
             if source["kind"] in ARTIFACT_KINDS:
                 raise SourceError(

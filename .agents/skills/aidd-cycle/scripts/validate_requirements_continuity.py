@@ -12,7 +12,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from artifact_source import SourceError, load_source, load_source_bytes
+from artifact_source import (
+    SourceError,
+    load_baseline_source_bytes,
+    load_source,
+    load_source_bytes,
+    read_regular_file_bytes,
+)
 from git_baseline import (
     GitBaselineError,
     canonical_source_path,
@@ -20,23 +26,60 @@ from git_baseline import (
     require_canonical_worktree_path,
     validate_workspace_identity,
 )
-from structured_ids import (
-    REQUIRED_REQUIREMENTS_SECTIONS,
-    extract_requirement_mentions,
-    is_requirement_id,
-    normalize_structured_text,
-    requirement_section_ids_for_heading,
-    requirement_sort_key,
-)
-
-
 class ValidationError(ValueError):
     pass
 
 
 @dataclass(frozen=True)
-class StructuredContent:
+class StructuredRequirement:
+    section_id: str | None
+    text: str
+
+
+@dataclass(frozen=True)
+class StructuredSection:
+    heading: str
+    blocks: tuple[dict[str, Any], ...] | None
     content: str
+
+
+REQUIRED_REQUIREMENTS_SECTIONS = (
+    "background",
+    "users",
+    "stories",
+    "scope",
+    "functional",
+    "non-functional",
+    "acceptance",
+    "qa",
+    "technical",
+)
+LEGACY_REQUIRED_REQUIREMENTS_SECTIONS = tuple(
+    "non_functional" if section_id == "non-functional" else section_id
+    for section_id in REQUIRED_REQUIREMENTS_SECTIONS
+)
+SECTION_HEADINGS = {
+    "background": "背景",
+    "users": "対象ユーザー",
+    "stories": "ユーザーストーリー",
+    "scope": "スコープ",
+    "functional": "機能要件",
+    "non-functional": "非機能要件",
+    "non_functional": "非機能要件",
+    "acceptance": "受け入れ条件",
+    "qa": "Q&A",
+    "technical": "技術的考慮事項",
+}
+REQUIREMENT_ID_PATTERN = re.compile(r"(?:FR|NFR|AC)-[1-9][0-9]*")
+REQUIREMENT_MENTION_PATTERN = re.compile(
+    r"(?<![A-Z0-9_-])(?:FR|NFR|AC)-[1-9][0-9]*(?![A-Z0-9_-])"
+)
+REQUIREMENT_PREFIX_ORDER = {"FR": 0, "NFR": 1, "AC": 2}
+REQUIREMENT_SECTION_BY_PREFIX = {
+    "FR": "functional",
+    "NFR": "non-functional",
+    "AC": "acceptance",
+}
 
 
 REQUIREMENT_CONTENT_PLACEHOLDER_PATTERN = re.compile(
@@ -112,6 +155,21 @@ def require_string(value: Any, label: str) -> str:
     return value.strip()
 
 
+def is_requirement_id(value: str) -> bool:
+    return REQUIREMENT_ID_PATTERN.fullmatch(value) is not None
+
+
+def requirement_sort_key(requirement_id: str) -> tuple[int, int]:
+    prefix, number = requirement_id.split("-", 1)
+    return REQUIREMENT_PREFIX_ORDER[prefix], int(number)
+
+
+def extract_requirement_mentions(value: str) -> tuple[str, ...]:
+    return tuple(
+        sorted(set(REQUIREMENT_MENTION_PATTERN.findall(value)), key=requirement_sort_key)
+    )
+
+
 def require_canonical_input(
     repo_root: Path,
     supplied_path: Path,
@@ -146,7 +204,31 @@ def extract_manifest(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def content_sha256(value: str) -> str:
-    return hashlib.sha256(normalize_structured_text(value).encode("utf-8")).hexdigest()
+    return hashlib.sha256(value.replace("\r\n", "\n").encode("utf-8")).hexdigest()
+
+
+def structured_sha256(value: Any) -> str:
+    """Hash JSON structure after newline normalization, without parsing strings."""
+
+    def normalize_newlines(item: Any) -> Any:
+        if isinstance(item, str):
+            return item.replace("\r\n", "\n")
+        if isinstance(item, list):
+            return [normalize_newlines(entry) for entry in item]
+        if isinstance(item, dict):
+            return {
+                key: normalize_newlines(entry)
+                for key, entry in item.items()
+            }
+        return item
+
+    serialized = json.dumps(
+        normalize_newlines(value),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
 def require_substantive_requirement_content(
@@ -170,51 +252,97 @@ def require_substantive_requirement_content(
         )
 
 
-def structured_requirements(source: dict[str, Any]) -> dict[str, StructuredContent]:
+def structured_requirements(
+    source: dict[str, Any],
+) -> dict[str, StructuredRequirement]:
     entries = source["validation"].get("requirements")
     if not isinstance(entries, list):
         raise ValidationError("validation.requirements must be an array")
-    items: dict[str, StructuredContent] = {}
+    is_legacy_inventory = source.get("schema_version") == 1
+    is_goal = source.get("kind") == "requirements_goal"
+    items: dict[str, StructuredRequirement] = {}
     for index, entry in enumerate(entries):
-        if not isinstance(entry, dict) or set(entry) != {"id", "content"}:
+        expected_keys = (
+            {"id", "content"}
+            if is_legacy_inventory
+            else ({"id", "text"} if is_goal else {"id", "section_id", "text"})
+        )
+        if not isinstance(entry, dict) or set(entry) != expected_keys:
             raise ValidationError(
-                "each validation.requirements entry must contain only id and content"
+                "each validation.requirements entry must match its schema"
             )
         requirement_id = require_string(entry["id"], f"requirements[{index}].id")
-        content = require_string(entry["content"], f"requirements[{index}].content")
         if not is_requirement_id(requirement_id):
             raise ValidationError(f"invalid structured requirement ID: {requirement_id}")
-        require_substantive_requirement_content(requirement_id, content)
+        text_field = "content" if is_legacy_inventory else "text"
+        require_string(entry[text_field], f"requirements[{index}].{text_field}")
+        text = entry[text_field]
+        require_substantive_requirement_content(requirement_id, text)
+        section_id = None
+        if not is_legacy_inventory and not is_goal:
+            section_id = require_string(
+                entry["section_id"], f"requirements[{index}].section_id"
+            )
+            prefix = requirement_id.split("-", 1)[0]
+            if section_id != REQUIREMENT_SECTION_BY_PREFIX[prefix]:
+                raise ValidationError(
+                    f"{requirement_id} must reference "
+                    f"{REQUIREMENT_SECTION_BY_PREFIX[prefix]} section"
+                )
         if requirement_id in items:
             raise ValidationError(f"duplicate structured requirement: {requirement_id}")
-        items[requirement_id] = StructuredContent(content)
+        items[requirement_id] = StructuredRequirement(section_id, text)
     if list(items) != sorted(items, key=requirement_sort_key):
         raise ValidationError("structured requirements must use canonical ID order")
     return items
 
 
-def structured_sections(source: dict[str, Any]) -> dict[str, StructuredContent]:
+def structured_sections(source: dict[str, Any]) -> dict[str, StructuredSection]:
     entries = source["validation"].get("sections")
     if not isinstance(entries, list):
         raise ValidationError("validation.sections must be an array")
-    sections: dict[str, StructuredContent] = {}
+    is_legacy_inventory = source.get("schema_version") == 1
+    sections: dict[str, StructuredSection] = {}
     for index, entry in enumerate(entries):
-        if not isinstance(entry, dict) or set(entry) != {"id", "heading", "content"}:
+        expected_keys = (
+            {"id", "heading", "content"}
+            if is_legacy_inventory
+            else {"id", "heading", "blocks"}
+        )
+        if not isinstance(entry, dict) or set(entry) != expected_keys:
             raise ValidationError(
-                "each validation.sections entry must contain only id, heading, and content"
+                "each validation.sections entry must match its schema"
             )
         section_id = require_string(entry["id"], f"sections[{index}].id")
+        if is_legacy_inventory and section_id == "non_functional":
+            section_id = "non-functional"
         heading = require_string(entry["heading"], f"sections[{index}].heading")
-        if requirement_section_ids_for_heading(heading) != (section_id,):
+        canonical_heading = SECTION_HEADINGS.get(section_id)
+        if canonical_heading is None or not heading.startswith(canonical_heading):
             raise ValidationError(
                 f"section {section_id} heading does not match its canonical aliases"
             )
-        content = require_string(entry["content"], f"sections[{index}].content")
+        if is_legacy_inventory:
+            require_string(entry["content"], f"sections[{index}].content")
+            content = entry["content"]
+            blocks = None
+        else:
+            raw_blocks = entry["blocks"]
+            if not isinstance(raw_blocks, list) or not raw_blocks:
+                raise ValidationError(f"sections[{index}].blocks must be non-empty")
+            blocks = tuple(raw_blocks)
+            content = json.dumps(
+                raw_blocks,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
         if section_id in sections:
             raise ValidationError(f"duplicate structured section: {section_id}")
-        sections[section_id] = StructuredContent(content)
+        sections[section_id] = StructuredSection(heading, blocks, content)
+    canonical_sections = REQUIRED_REQUIREMENTS_SECTIONS
     expected_order = [
-        section_id for section_id in REQUIRED_REQUIREMENTS_SECTIONS if section_id in sections
+        section_id for section_id in canonical_sections if section_id in sections
     ]
     if list(sections) != expected_order:
         raise ValidationError("structured sections must use canonical section order")
@@ -222,22 +350,33 @@ def structured_sections(source: dict[str, Any]) -> dict[str, StructuredContent]:
 
 
 def baseline_item_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
-    items = structured_requirements(load_source_bytes(baseline_bytes, "requirements"))
+    items = structured_requirements(
+        load_baseline_source_bytes(baseline_bytes, "requirements")
+    )
     if not items:
         raise ValidationError(
             "Git HEAD Requirements baseline has no stable requirement definitions"
         )
     return [
-        {"id": requirement_id, "content_sha256": content_sha256(items[requirement_id].content)}
+        {"id": requirement_id, "content_sha256": content_sha256(items[requirement_id].text)}
         for requirement_id in sorted(items, key=requirement_sort_key)
     ]
 
 
 def baseline_section_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
-    sections = structured_sections(load_source_bytes(baseline_bytes, "requirements"))
+    source = load_baseline_source_bytes(baseline_bytes, "requirements")
+    sections = structured_sections(source)
+    canonical_sections = REQUIRED_REQUIREMENTS_SECTIONS
     return [
-        {"id": section_id, "content_sha256": content_sha256(sections[section_id].content)}
-        for section_id in REQUIRED_REQUIREMENTS_SECTIONS
+        {
+            "id": section_id,
+            "content_sha256": (
+                content_sha256(sections[section_id].content)
+                if sections[section_id].blocks is None
+                else structured_sha256(list(sections[section_id].blocks))
+            ),
+        }
+        for section_id in canonical_sections
         if section_id in sections
     ]
 
@@ -282,7 +421,6 @@ def validate_sections_manifest(
     sections: Any,
     baseline_sections: dict[str, str],
     issue_body: str,
-    current_sections: dict[str, Any] | None,
 ) -> dict[str, str]:
     if not isinstance(sections, list):
         raise ValidationError("sections must be an array")
@@ -292,6 +430,7 @@ def validate_sections_manifest(
             "sections must contain every canonical Requirements section in order"
         )
 
+    normalized_issue_body = normalize(issue_body)
     statuses: dict[str, str] = {}
     evidence_owners: dict[str, str] = {}
     for index, entry in enumerate(sections):
@@ -320,31 +459,16 @@ def validate_sections_manifest(
                 )
         else:
             evidence = require_string(evidence, f"sections[{index}].issue_evidence")
-            if normalize(evidence) not in normalize(issue_body):
+            if normalize(evidence) not in normalized_issue_body:
                 raise ValidationError(
                     f"{section_id} section evidence is not in the current Issue"
                 )
-            if current_sections is not None:
-                normalized_evidence = normalize(evidence)
-                if normalized_evidence in evidence_owners:
-                    raise ValidationError(
-                        "changed or new section issue_evidence must be unique per section"
-                    )
-                evidence_owners[normalized_evidence] = section_id
-                if normalized_evidence not in normalize(
-                    current_sections[section_id].content
-                ):
-                    raise ValidationError(
-                        f"{section_id} section evidence is not present in its section content"
-                    )
-                if any(
-                    normalized_evidence in normalize(other_section.content)
-                    for other_id, other_section in current_sections.items()
-                    if other_id != section_id
-                ):
-                    raise ValidationError(
-                        f"{section_id} section evidence also maps to another section"
-                    )
+            normalized_evidence = normalize(evidence)
+            if normalized_evidence in evidence_owners:
+                raise ValidationError(
+                    "changed or new section issue_evidence must be unique per section"
+                )
+            evidence_owners[normalized_evidence] = section_id
         statuses[section_id] = status
     return statuses
 
@@ -358,6 +482,7 @@ def validate_requirements_manifest(
     if not isinstance(requirements, list):
         raise ValidationError("requirements must be an array")
 
+    normalized_issue_body = normalize(issue_body)
     statuses: dict[str, str] = {}
     evidence_owners: dict[str, str] = {}
     for index, entry in enumerate(requirements):
@@ -396,7 +521,7 @@ def validate_requirements_manifest(
                 evidence,
                 f"requirements[{index}].issue_evidence",
             )
-            if normalize(evidence) not in normalize(issue_body):
+            if normalize(evidence) not in normalized_issue_body:
                 raise ValidationError(
                     f"{requirement_id} issue_evidence is not present in the current Issue"
                 )
@@ -409,20 +534,6 @@ def validate_requirements_manifest(
             if requirement_id not in current_items:
                 raise ValidationError(
                     f"{requirement_id} has no requirement definition for issue_evidence"
-                )
-            if normalized_evidence not in normalize(
-                current_items[requirement_id].content
-            ):
-                raise ValidationError(
-                    f"{requirement_id} issue_evidence is not present in its requirement content"
-                )
-            if any(
-                normalized_evidence in normalize(other_item.content)
-                for other_id, other_item in current_items.items()
-                if other_id != requirement_id
-            ):
-                raise ValidationError(
-                    f"{requirement_id} issue_evidence also maps to another requirement"
                 )
         statuses[requirement_id] = status
 
@@ -494,6 +605,8 @@ def validate(
     workspace: str,
     goal_document_path: Path | None = None,
     require_goal_document: bool = True,
+    document_bytes: bytes | None = None,
+    issue_body_bytes: bytes | None = None,
 ) -> None:
     if document_kind == "goal" and goal_document_path is not None:
         raise ValidationError("--goal-document is only valid for artifact validation")
@@ -517,16 +630,25 @@ def validate(
             canonical_source_path(Path(), workspace, "requirements"),
             "Requirements source",
         )
-        source = load_source(document_path, "requirements")
+        source = (
+            load_source_bytes(document_bytes, "requirements")
+            if document_bytes is not None
+            else load_source(document_path, "requirements")
+        )
     elif document_kind == "goal":
-        source = load_source(document_path, "requirements_goal")
+        source = (
+            load_source_bytes(document_bytes, "requirements_goal")
+            if document_bytes is not None
+            else load_source(document_path, "requirements_goal")
+        )
     else:
         raise ValidationError("document kind must be goal or artifact")
     if source["workspace"] != workspace:
         raise ValidationError("source workspace does not match --workspace")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
-    issue_body_bytes = issue_body_path.read_bytes()
+    if issue_body_bytes is None:
+        issue_body_bytes = read_regular_file_bytes(issue_body_path)
     issue_body = issue_body_bytes.decode("utf-8")
     _, baseline_bytes = load_git_head_source(
         repo_root,
@@ -561,7 +683,7 @@ def validate(
             "Requirements artifact must contain every canonical structured section"
         )
     section_statuses = validate_sections_manifest(
-        manifest.get("sections"), baseline_sections, issue_body, current_sections
+        manifest.get("sections"), baseline_sections, issue_body
     )
 
     missing_baseline = set(baseline_items) - set(statuses) - retired_ids
@@ -590,13 +712,8 @@ def validate(
             f"{', '.join(sorted(missing_issue_ids, key=requirement_sort_key))}"
         )
 
-    if document_kind == "goal":
-        return
-
-    assert current_sections is not None
-
     for requirement_id, status in statuses.items():
-        current_hash = content_sha256(current_items[requirement_id].content)
+        current_hash = content_sha256(current_items[requirement_id].text)
         if status == "unchanged" and current_hash != baseline_items[requirement_id]:
             raise ValidationError(
                 f"unchanged requirement content changed: {requirement_id}"
@@ -606,8 +723,18 @@ def validate(
                 f"changed requirement content is identical to Git HEAD: {requirement_id}"
             )
 
+    if document_kind == "goal":
+        return
+
+    assert current_sections is not None
+
     for section_id, status in section_statuses.items():
-        current_hash = content_sha256(current_sections[section_id].content)
+        section = current_sections[section_id]
+        current_hash = (
+            content_sha256(section.content)
+            if section.blocks is None
+            else structured_sha256(list(section.blocks))
+        )
         if status == "unchanged" and current_hash != baseline_sections[section_id]:
             raise ValidationError(f"unchanged Requirements section changed: {section_id}")
         if status == "changed" and current_hash == baseline_sections[section_id]:

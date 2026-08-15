@@ -117,6 +117,7 @@
         "heading": "Technical Considerations",
         "content": "## Technical Considerations\n- 具体的なコンポーネント名、配置、公開面、Story構成、test fixtureはDesign / Planで決定する。\n- Design / Planでは、各状態の所有者を明示し、どのStoryとテストがどの受け入れ条件を担うか対応付ける。\n- component Storyは通常のStorybookカタログで確認可能にし、browser test追加は統合境界の価値から判断する。"
       }
-    ]
+    ],
+    "inventory_sha256": "bcfda76f89f9f2a9ab0aa6f31011e2f161a91d29edd4a85961a475493b3557f8"
   }
 }

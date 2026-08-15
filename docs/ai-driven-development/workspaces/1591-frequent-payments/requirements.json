@@ -107,6 +107,7 @@
         "content": "- AC-18: 候補機能のためにDB schema、API契約、RLS、認証、権限、新規依存を変更しない。"
       }
     ],
-    "sections": []
+    "sections": [],
+    "inventory_sha256": "5aef4e99c2f45dda172a61a441ca6e0559c35d7b7af738099c4a07f406d57cb3"
   }
 }

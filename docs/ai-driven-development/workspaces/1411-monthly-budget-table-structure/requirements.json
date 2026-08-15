@@ -133,6 +133,7 @@
         "heading": "技術的考慮事項",
         "content": "## 技術的考慮事項\n- 現行のドメイン文書では、有効な月次予算は「対象月末日以前に開始した予算のうち最新の 1 件」と定義されている。\n- 現行の `fetchEffectiveMonthlyBudget` は `monthly_budgets` から `effective_from <= 対象月末日`、`effective_from desc`、`limit 1` で 1 件を取得している。\n- 現行の `monthly_budgets` は `book_id, effective_year, effective_month` の一意制約を持ち、同一 Book・同一年・同月の月次予算を重複できない。\n- 現行の月予算作成は `effective_from` と `amount` を insert し、月予算更新は対象レコードの `amount` を update する。\n- 現行の Web 実装には月予算削除処理は見当たらない。Issue の「削除」は、今後追加または整理される操作意図として扱う必要がある。\n- 現行の RLS には月予算の select / insert / update policy があるが、delete policy は見当たらない。\n- 「予算なし」を表現する場合、既存の一意制約、読み取りクエリ、一覧表示、作成・更新フォーム、型定義、テストデータへの影響を Design Doc で確認する必要がある。\n- 参考記事では、状態カラムや NULL 許容カラムを継ぎ足すだけでは要求追加に伴ってテーブルが複雑化しやすく、出来事を別の記録として扱う設計が比較対象として示されている。\n- 参考 X 投稿は現在の取得環境では本文を確認できなかったため、Design Doc で必要なら監督者に内容確認を依頼する。"
       }
-    ]
+    ],
+    "inventory_sha256": "530c86f98275cb2f50cef3223de30ce40c2af3bee05de1a74bd53339a1a333f2"
   }
 }
