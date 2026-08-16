@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import subprocess
 import tempfile
 import unittest
@@ -10,7 +9,6 @@ from pathlib import Path
 
 from artifact_source import serialize_source
 from validate_requirements_continuity import (
-    LEGACY_REQUIRED_REQUIREMENTS_SECTIONS,
     REQUIRED_REQUIREMENTS_SECTIONS,
     ValidationError,
     baseline_item_manifest,
@@ -420,44 +418,20 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             structured_sha256([{"markdown": "A\nB", "id": "a"}]),
         )
 
-    def test_legacy_baseline_uses_saved_inventory_not_display_markdown(self) -> None:
-        markdown = "# legacy display\n\nFR-999 表示専用\n"
+    def test_managed_baseline_uses_structured_fields_not_display_preamble(self) -> None:
         value = source("requirements", completeness_gate())
-        legacy = {
-            "schema_version": 1,
-            "kind": "requirements",
-            "workspace": WORKSPACE,
-            "display": {"path": "requirements.md", "markdown": markdown},
-            "validation": {
-                "mode": "managed",
-                "input_gate": value["validation"]["input_gate"],
-                "completeness_gate": value["validation"]["completeness_gate"],
-                "requirements": [
-                    {"id": "FR-1", "content": "inventory FR content"},
-                    {"id": "AC-1", "content": "inventory AC content"},
-                ],
-                "sections": [
-                    {
-                        "id": section_id,
-                        "heading": SECTION_HEADINGS[section_id],
-                        "content": f"inventory {section_id} content",
-                    }
-                    for section_id in LEGACY_REQUIRED_REQUIREMENTS_SECTIONS
-                ],
-                "source_markdown_sha256": hashlib.sha256(
-                    markdown.encode("utf-8")
-                ).hexdigest(),
-            },
-        }
-        baseline_bytes = json.dumps(legacy, ensure_ascii=False).encode("utf-8")
+        value["display"]["preamble"] = "# display\n\nFR-999 表示専用\n"
+        baseline_bytes = serialize_source(value).encode("utf-8")
+        items = structured_requirements(value)
+        sections = structured_sections(value)
 
         self.assertEqual(
             baseline_item_manifest(baseline_bytes)[0]["content_sha256"],
-            content_sha256("inventory FR content"),
+            content_sha256(items["FR-1"].text),
         )
         self.assertEqual(
             baseline_section_manifest(baseline_bytes)[0]["content_sha256"],
-            content_sha256("inventory background content"),
+            section_content_hash("background", sections["background"], items),
         )
 
     def test_rejects_shared_structured_section_evidence(self) -> None:
