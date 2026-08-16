@@ -1086,40 +1086,6 @@ def load_baseline_source_bytes(
     except UnicodeDecodeError as error:
         raise SourceError(f"AIDD source JSON is invalid: {error}") from error
     value = decode_source_json(decoded)
-    if (
-        isinstance(value, dict)
-        and value.get("schema_version") == LEGACY_SCHEMA_VERSION
-        and isinstance(value.get("validation"), dict)
-        and value["validation"].get("mode") == "managed"
-    ):
-        require_object_keys(
-            value,
-            {"schema_version", "kind", "workspace", "display", "validation"},
-            "legacy managed Git baseline",
-        )
-        if value["kind"] != expected_kind:
-            raise SourceError(f"AIDD source kind must be {expected_kind}")
-        validate_workspace_name(
-            require_string(value["workspace"], "legacy managed workspace")
-        )
-        display = require_object_keys(
-            value["display"], {"path", "markdown"}, "legacy managed display"
-        )
-        if display["path"] != DISPLAY_FILENAMES[expected_kind]:
-            raise SourceError("legacy managed display path mismatch")
-        markdown = require_string(display["markdown"], "legacy managed Markdown")
-        validation = value["validation"]
-        expected_keys = MANAGED_VALIDATION_KEYS[expected_kind] | {
-            "source_markdown_sha256"
-        }
-        require_object_keys(validation, expected_keys, "legacy managed validation")
-        digest = require_digest(
-            validation["source_markdown_sha256"],
-            "legacy managed source_markdown_sha256",
-        )
-        if digest != hashlib.sha256(markdown.encode("utf-8")).hexdigest():
-            raise SourceError("legacy managed Git baseline Markdown digest mismatch")
-        return value
     return validate_loaded_source(value, expected_kind)
 
 

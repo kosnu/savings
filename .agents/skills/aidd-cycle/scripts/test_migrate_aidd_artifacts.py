@@ -177,6 +177,22 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
 
         self.assertEqual(loaded, current)
 
+    def test_git_baseline_loader_rejects_removed_managed_v1_source(self) -> None:
+        source = {
+            "schema_version": 1,
+            "kind": "requirements",
+            "workspace": WORKSPACE,
+            "display": {"path": "requirements.md", "markdown": "# Requirements\n"},
+            "validation": {"mode": "managed"},
+        }
+
+        with self.assertRaisesRegex(
+            SourceError, "schema_version 1 is only supported for legacy_import"
+        ):
+            load_baseline_source_bytes(
+                json.dumps(source).encode("utf-8"), "requirements"
+            )
+
     def test_regular_loader_rejects_managed_display_shadow_body(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             source_path = Path(directory).resolve() / "requirements.json"

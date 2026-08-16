@@ -63,13 +63,6 @@ GOAL_DONE_CONTRACT_PATTERN = re.compile(
 )
 
 
-def legacy_artifact_preamble(markdown: str) -> str:
-    """Extract text before the first level-two heading during one-way import."""
-
-    match = re.search(r"(?m)^##[ \t]+", normalize_markdown_newlines(markdown))
-    return markdown[: match.start()].strip() if match is not None else markdown.strip()
-
-
 def legacy_level_two_headings(markdown: str) -> list[tuple[int, str]]:
     return [
         (match.start(), match.group("heading").strip())
@@ -371,8 +364,6 @@ def expected_pairs(repo_root: Path) -> list[tuple[Path, Path, str]]:
 def normalized_managed_source(
     source: dict[str, Any],
 ) -> dict[str, Any]:
-    if source["schema_version"] == 1:
-        return upgrade_managed_source_v2(source)
     normalized = copy.deepcopy(source)
     normalized["validation"].pop("source_markdown_sha256", None)
     return validate_managed_artifact_source(normalized)
@@ -390,181 +381,6 @@ def normalized_legacy_source(source: dict[str, Any]) -> dict[str, Any]:
         ).encode("utf-8")
     ).hexdigest()
     return validate_legacy_artifact_source(normalized)
-
-
-def legacy_section_body(section: dict[str, Any]) -> str:
-    """Extract a v1 section body inside the one-way migration boundary."""
-
-    heading = section["heading"]
-    content = normalize_markdown_newlines(section["content"]).strip()
-    prefix = f"## {heading}"
-    if content != prefix and not content.startswith(f"{prefix}\n"):
-        raise SourceError(f"legacy managed section heading mismatch: {heading}")
-    return content[len(prefix) :].strip()
-
-
-def upgrade_managed_source_v2(source: dict[str, Any]) -> dict[str, Any]:
-    """Convert the former managed v1 JSON model to typed v2 fields once."""
-
-    if source.get("schema_version") != 1:
-        return validate_managed_artifact_source(copy.deepcopy(source))
-    validation = source["validation"]
-    if validation.get("mode") != "managed":
-        raise SourceError("only managed schema_version 1 sources can be upgraded")
-    upgraded = copy.deepcopy(source)
-    upgraded["schema_version"] = 2
-    upgraded["display"] = {
-        "path": source["display"]["path"],
-        "preamble": legacy_artifact_preamble(source["display"]["markdown"]),
-    }
-
-    if source["kind"] == "requirements":
-        requirement_sections = {
-            "FR": "functional",
-            "NFR": "non-functional",
-            "AC": "acceptance",
-        }
-        requirements: list[dict[str, str]] = []
-        requirement_lines: set[str] = set()
-        for entry in validation["requirements"]:
-            requirement_id = entry["id"]
-            prefix = f"- {requirement_id}: "
-            content = normalize_markdown_newlines(entry["content"]).strip()
-            if not content.startswith(prefix) or "\n" in content:
-                raise SourceError(
-                    f"legacy managed requirement is not a canonical list item: {requirement_id}"
-                )
-            requirement_lines.add(content)
-            requirements.append(
-                {
-                    "id": requirement_id,
-                    "section_id": requirement_sections[requirement_id.split("-", 1)[0]],
-                    "text": content[len(prefix) :],
-                }
-            )
-        sections: list[dict[str, Any]] = []
-        for section in validation["sections"]:
-            section_id = section["id"]
-            normalized_section_id = section_id.replace("_", "-")
-            body_lines = legacy_section_body(section).splitlines()
-            prose = "\n".join(
-                line for line in body_lines if line.strip() not in requirement_lines
-            ).strip()
-            blocks: list[dict[str, str]] = []
-            if prose:
-                blocks.append(
-                    {
-                        "id": f"{normalized_section_id}-body",
-                        "type": "markdown",
-                        "markdown": prose,
-                    }
-                )
-            if any(
-                entry["section_id"] == normalized_section_id
-                for entry in requirements
-            ):
-                blocks.append(
-                    {
-                        "id": f"{normalized_section_id}-requirements",
-                        "type": "requirements",
-                    }
-                )
-            sections.append(
-                {
-                    "id": normalized_section_id,
-                    "heading": section["heading"],
-                    "blocks": blocks,
-                }
-            )
-        upgraded["validation"]["requirements"] = requirements
-        upgraded["validation"]["sections"] = sections
-        for entry in upgraded["validation"]["completeness_gate"]["sections"]:
-            entry["id"] = entry["id"].replace("_", "-")
-    else:
-        coverage = validation["coverage_gate"]["coverage"]
-        design_evidence = {
-            entry["design_evidence"]: f"{entry['id'].lower()}-design-evidence"
-            for entry in coverage
-        }
-        verification_evidence = {
-            entry["verification_evidence"]: f"{entry['id'].lower()}-verification-evidence"
-            for entry in coverage
-        }
-        evidence_ids = design_evidence | verification_evidence
-        evidence_metadata = {
-            entry["design_evidence"]: ("design", entry["id"])
-            for entry in coverage
-        } | {
-            entry["verification_evidence"]: ("verification", entry["id"])
-            for entry in coverage
-        }
-        sections = []
-        for index, section in enumerate(validation["sections"], start=1):
-            blocks: list[dict[str, str]] = []
-            prose_lines: list[str] = []
-            for line in legacy_section_body(section).splitlines():
-                text = line.strip()
-                block_id = evidence_ids.get(text)
-                if block_id is not None:
-                    if prose_lines and "\n".join(prose_lines).strip():
-                        blocks.append(
-                            {
-                                "id": f"section-{index}-body-{len(blocks) + 1}",
-                                "type": "markdown",
-                                "markdown": "\n".join(prose_lines).strip(),
-                            }
-                        )
-                    prose_lines = []
-                    role, owner_id = evidence_metadata[text]
-                    evidence_text = text.removeprefix(f"{owner_id} {role}: ")
-                    blocks.append(
-                        {
-                            "id": block_id,
-                            "type": "evidence",
-                            "role": role,
-                            "owner_id": owner_id,
-                            "text": evidence_text,
-                        }
-                    )
-                else:
-                    prose_lines.append(line)
-            if prose_lines and "\n".join(prose_lines).strip():
-                blocks.append(
-                    {
-                        "id": f"section-{index}-body-{len(blocks) + 1}",
-                        "type": "markdown",
-                        "markdown": "\n".join(prose_lines).strip(),
-                    }
-                )
-            sections.append(
-                {
-                    "id": f"section-{index}",
-                    "heading": section["heading"],
-                    "blocks": blocks,
-                }
-            )
-        upgraded["validation"]["sections"] = sections
-        upgraded["validation"]["coverage_gate"]["coverage"] = [
-            {
-                "id": entry["id"],
-                "design_block_id": design_evidence[entry["design_evidence"]],
-                "verification_block_id": verification_evidence[
-                    entry["verification_evidence"]
-                ],
-            }
-            for entry in coverage
-        ]
-        upgraded["validation"]["coverage_gate"]["baseline_sections"] = [
-            {
-                "section_id": None,
-                "heading": entry["heading"],
-                "content_sha256": entry["content_sha256"],
-                "status": entry["status"],
-                "design_block_id": entry["design_block_id"],
-            }
-            for entry in validation["coverage_gate"]["baseline_sections"]
-        ]
-    return validate_managed_artifact_source(upgraded)
 
 
 def regular_file_matches(path: Path, content: str) -> bool:
@@ -609,16 +425,7 @@ def migrate(repo_root: Path, write: bool) -> int:
             decoded = decode_source_json(
                 read_regular_file_bytes(source_path).decode("utf-8")
             )
-            if (
-                isinstance(decoded, dict)
-                and decoded.get("schema_version") == 1
-                and isinstance(decoded.get("validation"), dict)
-                and decoded["validation"].get("mode") == "managed"
-                and decoded.get("kind") == kind
-            ):
-                existing = decoded
-            else:
-                existing = validate_source(decoded, kind)
+            existing = validate_source(decoded, kind)
         head_source_bytes = load_regular_head_blob(
             repo_root,
             source_path.relative_to(repo_root).as_posix(),
@@ -637,12 +444,6 @@ def migrate(repo_root: Path, write: bool) -> int:
                     head_source = load_baseline_source_bytes(head_source_bytes, kind)
                 elif head_validation.get("mode") == "legacy_import":
                     head_source = normalized_legacy_source(head_value)
-        upgraded_from_v1 = bool(
-            isinstance(existing, dict)
-            and existing.get("schema_version") == 1
-            and isinstance(existing.get("validation"), dict)
-            and existing["validation"].get("mode") == "managed"
-        )
         if existing is None:
             if head_source_bytes is not None:
                 raise SourceError(
@@ -693,7 +494,6 @@ def migrate(repo_root: Path, write: bool) -> int:
                 )
         if (
             normalize_markdown_newlines(render_artifact_markdown(source)) != markdown
-            and not (write and upgraded_from_v1)
         ):
             raise SourceError(f"Markdown round-trip mismatch: {display_path}")
         if (
