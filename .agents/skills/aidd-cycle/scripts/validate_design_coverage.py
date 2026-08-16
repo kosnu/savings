@@ -68,12 +68,6 @@ def require_canonical_input(
         raise ValidationError(str(error)) from error
 
 
-def content_sha256(value: str) -> str:
-    """Hash legacy inventory text without interpreting its Markdown syntax."""
-
-    return hashlib.sha256(value.replace("\r\n", "\n").encode("utf-8")).hexdigest()
-
-
 def structured_sha256(value: Any) -> str:
     serialized = json.dumps(
         value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
@@ -102,7 +96,7 @@ def requirement_ids(source: dict[str, Any]) -> list[str]:
 
 
 def design_sections(source: dict[str, Any]) -> list[dict[str, Any]]:
-    """Return the saved section inventory for either schema generation."""
+    """Return the saved structured section inventory."""
 
     entries = source["validation"].get("sections")
     if not isinstance(entries, list) or not entries:
@@ -115,13 +109,8 @@ def design_sections(source: dict[str, Any]) -> list[dict[str, Any]]:
         heading = require_string(entry.get("heading"), f"sections[{index}].heading")
         if heading in headings:
             raise ValidationError(f"duplicate Design section heading: {heading}")
-        if source.get("schema_version") == 1:
-            content = require_string(entry.get("content"), f"sections[{index}].content")
-            digest = content_sha256(content)
-            section_id = None
-        else:
-            digest = structured_sha256(entry)
-            section_id = require_string(entry.get("id"), f"sections[{index}].id")
+        digest = structured_sha256(entry)
+        section_id = require_string(entry.get("id"), f"sections[{index}].id")
         headings.add(heading)
         sections.append(
             {

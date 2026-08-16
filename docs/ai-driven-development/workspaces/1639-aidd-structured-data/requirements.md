@@ -45,7 +45,7 @@ AIDD成果物はMarkdown本文の構造から機械検証用データを抽出�
 
 ## 対象ユーザーと利用シーン
 
-人間向けの表現性と機械検証の正確性を両立させる必要がある、AIDD成果物の作成者・レビュー担当者・workflow実行者を対象とする。人間は従来のMarkdownを読み、agentとvalidatorは構造化正本を生成・検証・移行に利用する。
+人間向けの表現性と機械検証の正確性を両立させる必要がある、AIDD成果物の作成者・レビュー担当者・workflow実行者を対象とする。人間は従来のMarkdownを読み、agentとvalidatorは構造化正本を生成・検証に利用する。
 
 ## ユーザーストーリー
 
@@ -60,7 +60,8 @@ AIDD成果物はMarkdown本文の構造から機械検証用データを抽出�
 - 両AIDD成果物の構造化正本、および機械検証に必要なprovenance・continuity・coverage情報。
 - 構造化正本からのMarkdown表示生成。
 - validator、workflow、Goal template、skill、回帰テストの同期。
-- Git `HEAD`に存在する既存AIDD workspace成果物の移行と検証。
+- Git `HEAD`またはworktreeに存在するschema v2 managed artifactの検証。
+- 過去Markdown-only workspaceとschema v1 sidecarを機械検証・再取り込み対象にしない運用。
 
 ### 対象外
 
@@ -75,7 +76,7 @@ RequirementsとDesignの構造化正本を導入し、次を満たす。
 - FR-1: Issueの「YAMLとJSONのどちらにするか」に対し、Python標準ライブラリで厳密にparseでき、既存validatorとrule\-mapで実績があるJSONを構造化正本形式として採用する。
 - FR-2: 構造化正本を機械判定の唯一の入力とし、validatorはその正本だけを検証する。生成Markdownの見出し、コードフェンス、HTMLは機械判定へ入力しない。
 - FR-3: 構造化正本から決定的にMarkdownを出力する「Markdownを正本から生成する方法」を提供し、生成差分によって表示の同期を確認できるようにする。
-- FR-4: Git \`HEAD\`の全AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する「既存成果物の移行方法」を定義し、一括変換と検証を可能にする。
+- FR-4: Issueの「既存成果物の移行方法」に対し、Git \`HEAD\`またはworktreeに存在するschema v2のmanaged AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する正本と生成表示の同期確認方法を定義する。過去Markdown\-only workspaceは履歴表示として残し、schema v1 sidecarは作成・再取り込みせず、いずれも機械検証の入力にしない。
 
 ## 非機能要件
 
@@ -87,7 +88,7 @@ RequirementsとDesignの構造化正本を導入し、次を満たす。
 
 - AC-1: RequirementsとDesignの機械検証が構造化正本のみを入力として行われる。Markdownを変更しても構造化正本の検証結果は変わらず、生成一致検証だけが表示のずれを検出する。
 - AC-2: Markdownの表示構造を偽装してvalidatorを通過できない。コードフェンス、HTML comment、偽見出しを含む表示は機械判定データとして解釈されないことを回帰テストで確認する。
-- AC-3: 既存成果物の移行方針と検証が用意される。全workspaceのJSONがschema検証を通り、生成Markdownが期待する人間向け内容とcanonical pathを保持する。
+- AC-3: 既存成果物の移行方針と検証が用意される。Git \`HEAD\`またはworktreeに存在するschema v2 managed JSONがschema検証を通り、対応する生成Markdownが期待する人間向け内容とcanonical pathを保持する。Markdown\-only workspaceとschema v1 sidecarは機械検証・再取り込み対象外とする。
 - AC-4: workflow・template・テストが新しい正本に同期する。skillとGoal templateもJSON正本を入力・出力として案内し、旧Markdown抽出を正規経路に残さない。
 
 ## Q\&A
@@ -96,15 +97,15 @@ RequirementsとDesignの構造化正本を導入し、次を満たす。
   - A: JSONとする。YAMLより記法の解釈幅が狭く、Python標準ライブラリで処理でき、新規依存を要しないため。
 - Q: Markdownはどう生成するか。
   - A: JSON schemaで順序を持つ表示sectionを表現し、共通rendererが`requirements.md`または`design-doc.md`を決定的に生成する。生成後のMarkdownを手編集しない。
-- Q: 既存成果物はどう移行するか。
-  - A: 現行validatorが認識する内容と人間向け本文を一度だけJSONへ移し、schema検証、Markdown再生成、全workspace回帰検証を同じ変更で完了する。履歴はGitに残す。
+- Q: 既存成果物はどう扱うか。
+  - A: schema v2 managed JSONを正本として生成Markdownとの同期を確認する。過去Markdown-only workspaceは履歴表示として残すが再解析せず、schema v1 sidecarは削除してJSONへ変換しない。
 
 ## 技術的考慮事項
 
 - Markdown表示の生成と回帰テストは、JSON parse・schema検証・render・生成一致確認を分離して失敗理由を明確にする。
 - JSON schemaはRequirementsとDesignの共通metadataと、各artifact固有のrequirements/sections/coverageを識別可能にする。
 - validator APIはcanonical JSON pathだけを受け付け、temporary copyやsymlink aliasを既存と同等に拒否する。
-- 移行後もworkflow上の同一cycle read-only境界、Goal gate一致、Issue再取得確認を維持する。
+- schema v2 managed JSONへの切り替え後もworkflow上の同一cycle read-only境界、Goal gate一致、Issue再取得確認を維持する。
 
 ## Rule Selection
 

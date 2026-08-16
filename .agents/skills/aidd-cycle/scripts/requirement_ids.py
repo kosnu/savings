@@ -232,14 +232,5 @@ def legacy_requirements_inventory(
     )
 
 
-def legacy_design_inventory(document: str) -> list[dict[str, str]]:
-    """Extract the deterministic legacy Design section inventory."""
-
-    return [
-        {"heading": section.heading, "content": section.content}
-        for section in extract_level_two_sections(strip_machine_gates(document))
-    ]
-
-
 def validate_required_requirements_sections(document: str) -> None:
     extract_required_requirements_sections(document)

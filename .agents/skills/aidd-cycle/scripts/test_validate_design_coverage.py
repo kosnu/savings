@@ -16,7 +16,6 @@ from artifact_source import (
 )
 from validate_design_coverage import (
     ValidationError,
-    content_sha256,
     design_sections,
     evidence_blocks,
     structured_sha256,
@@ -309,35 +308,12 @@ def design_goal_source(
     }
 
 
-def legacy_design_source() -> dict[str, object]:
-    markdown = "# Design\n\n## 旧設計\n旧設計の本文。\n\n## 旧検証\n旧検証の本文。\n"
-    sections = [
-        {"heading": "旧設計", "content": "## 旧設計\n旧設計の本文。"},
-        {"heading": "旧検証", "content": "## 旧検証\n旧検証の本文。"},
-    ]
-    return {
-        "schema_version": 1,
-        "kind": "design",
-        "workspace": WORKSPACE,
-        "display": {"path": "design-doc.md", "markdown": markdown},
-        "validation": {
-            "mode": "legacy_import",
-            "source_markdown_sha256": hashlib.sha256(
-                markdown.encode("utf-8")
-            ).hexdigest(),
-            "inventory_sha256": structured_sha256({"sections": sections}),
-            "sections": sections,
-        },
-    }
-
-
 class DesignCoverageGateTest(unittest.TestCase):
     def validate_source(
         self,
         *,
         kind: str,
         document: dict[str, object] | None = None,
-        with_legacy_baseline: bool = False,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -360,57 +336,19 @@ class DesignCoverageGateTest(unittest.TestCase):
             rule_map_path.write_text('{"rules": []}\n', encoding="utf-8")
 
             baseline: dict[str, object] = {"source": "none", "body_sha256": None}
-            baseline_inventory: list[dict[str, str]] = []
-            if with_legacy_baseline:
-                baseline_path = workspace_root / "design-doc.json"
-                baseline_path.write_text(
-                    serialize_source(legacy_design_source()), encoding="utf-8"
-                )
-                run_git(repo_root, "add", str(baseline_path.relative_to(repo_root)))
-                run_git(repo_root, "commit", "-qm", "design baseline")
-                baseline_bytes = baseline_path.read_bytes()
-                baseline = {
-                    "source": "git_head",
-                    "body_sha256": hashlib.sha256(baseline_bytes).hexdigest(),
-                }
-                baseline_inventory = [
-                    {
-                        "section_id": None,
-                        "heading": entry["heading"],
-                        "content_sha256": content_sha256(entry["content"]),
-                        "status": "replaced",
-                        "design_block_id": f"baseline-{index + 1}",
-                    }
-                    for index, entry in enumerate(
-                        legacy_design_source()["validation"]["sections"]
-                    )
-                ]
 
             if document is None:
                 if kind == "goal":
                     document = design_goal_source(
                         requirements_digest,
                         baseline=baseline,
-                        baseline_scopes=[
-                            {
-                                "section_id": entry["section_id"],
-                                "heading": entry["heading"],
-                                "review_scope": (
-                                    f"{entry['heading']} baseline scope: "
-                                    f"旧section {index + 1}を再確認する。"
-                                ),
-                            }
-                            for index, entry in enumerate(baseline_inventory)
-                        ],
                     )
                 else:
                     document = design_source(
                         requirements_digest,
                         baseline=baseline,
-                        baseline_sections=baseline_inventory,
-                        sections=typed_design_sections(
-                            include_baseline_evidence=len(baseline_inventory)
-                        ),
+                        baseline_sections=[],
+                        sections=typed_design_sections(),
                     )
             document_path = (
                 repo_root / "goal.json"
@@ -439,9 +377,6 @@ class DesignCoverageGateTest(unittest.TestCase):
 
     def test_accepts_goal_using_requirement_ids(self) -> None:
         self.validate_source(kind="goal")
-
-    def test_accepts_goal_with_legacy_baseline_inventory(self) -> None:
-        self.validate_source(kind="goal", with_legacy_baseline=True)
 
     def test_rejects_multiline_goal_scope(self) -> None:
         source = design_goal_source("0" * 64)
@@ -560,9 +495,6 @@ class DesignCoverageGateTest(unittest.TestCase):
 
     def test_accepts_artifact_using_evidence_block_ids(self) -> None:
         self.validate_source(kind="artifact")
-
-    def test_accepts_artifact_with_legacy_baseline_inventory(self) -> None:
-        self.validate_source(kind="artifact", with_legacy_baseline=True)
 
     def test_evidence_text_is_not_interpreted_as_markdown(self) -> None:
         blocks = {
@@ -833,14 +765,6 @@ class DesignCoverageGateTest(unittest.TestCase):
                     }
                 },
             )
-
-    def test_legacy_inventory_hash_only_normalizes_newline_style(self) -> None:
-        self.assertEqual(
-            content_sha256("## 設計\r\n本文"), content_sha256("## 設計\n本文")
-        )
-        self.assertNotEqual(
-            content_sha256("## 設計\n本文"), content_sha256("## 設計 本文")
-        )
 
     def test_v2_section_digest_uses_structured_json(self) -> None:
         section = typed_design_sections()[0]

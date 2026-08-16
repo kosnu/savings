@@ -16,7 +16,7 @@
           {
             "id": "section-1-body-1",
             "type": "markdown",
-            "markdown": "- Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`\n- Requirements canonical source: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.json`\n- Generated Requirements display: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.md`\n- Requirements SHA-256: `2f16c6403202e674a1e3bd3e140da71d0d081ba11d93a4867bdc668e314ccee0`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline: なし。\n- Requirementsは本phase以降read-onlyとし、Buildでは本文を変更せずJSON sidecarへ移行する。"
+            "markdown": "- Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`\n- Requirements canonical source: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.json`\n- Generated Requirements display: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.md`\n- Requirements SHA-256: `6ee8bc99f02f74b8c5977e1a6e4a6a082195ac59e07355dea85f34afe1f41d32`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline: なし。\n- Requirementsは本phase以降read-onlyとし、Buildでは本文を変更せずcanonical design-doc.jsonを正本として扱う。"
           }
         ]
       },
@@ -38,7 +38,7 @@
           {
             "id": "section-3-body-1",
             "type": "markdown",
-            "markdown": "### 正本と表示の境界\n\n- workspaceごとに`requirements.json`と`design-doc.json`を機械判定のcanonical sourceとして追加する。\n- `requirements.md`と`design-doc.md`はJSON内のstructured fieldsから決定的に生成されるhuman-readable outputとする。\n- Goal準備ではtemporary Goal JSON（`kind: requirements_goal` / `kind: design_goal`）を正本とし、Goal objective Markdownも同じrendererで生成する。\n- 通常validatorはJSONだけをloadし、Markdownの見出し、fence、HTML、文字列検索を判定に使わない。\n\n### JSON v2 envelope\n\n共通fieldは`schema_version: 2`、`kind`、`workspace`、`display`、`validation`とする。`display`は出力filenameとmanaged artifactのMarkdown preambleを保持し、`validation`はkind別の構造化objectを保持する。\n\n- `requirements_goal`: Issue snapshot、direct rules、dependency closure、baseline、全requirement transition、全section transition、requirement definitions、Goal scope。\n- `requirements`: Goalと同じprovenance/continuity情報、canonical requirement definitions、section contents、retirementを保持する。\n- `design_goal`: Requirements hash、全ID、Design baseline、ID別design/verification scope、baseline section別review scopeを保持する。\n- `design`: 同じsnapshot、ID別coverage、Design baseline section transitionsを保持する。\n- `legacy_import`: 旧Markdownから一度だけ抽出したrequirement IDs、canonical section content、Design section heading/hashを構造化して保持する。通常artifact作成では選択できない。\n\n`artifact_source.py`がJSON decode、必須key、型、順序、一意性、kind、workspace、canonical path、symlink不在を検証する。標準`json`だけを使い、新規dependencyを追加しない。\n\n### validator切替\n\n- `validate_requirements_goal.py`はGoal/artifact JSONのIssue snapshotとrule selectionを検証する。\n- `validate_requirements_continuity.py`はJSONのrequirement/section transitionとGit `HEAD`の`requirements.json` baselineを比較する。\n- `validate_design_coverage.py`はcanonical `requirements.json`とGoal/artifact JSONのID coverage、Git `HEAD`の`design-doc.json` section baselineを比較する。\n- `git_baseline.py`はcanonical JSON sourceと生成Markdown pathを別関数で解決する。baselineが`legacy_import`でも保存済みの構造化inventoryだけを読む。\n- `requirement_ids.py`のMarkdown抽出はlegacy importer専用へ移し、通常validatorからimportしない。\n\n### Markdown生成\n\n`render_aidd_artifact.py`はJSONの`display.path`をkindに対応するcanonical Markdown pathへ固定し、managed artifactでは`display.preamble`とvalidation内の型付きblock・gateからUTF-8 Markdownを構成する。`--check`は書き込まず、現在のMarkdownとのUTF-8文字列一致を検証し、CRLFとLFの改行コード差は同一として扱う。validatorはdisplay本文を解釈せず、rendererだけが表示を扱う。\n\nGoal JSONも同じrendererのstdout modeでGoal objectiveを生成する。skill/templateはJSON作成、validator、renderer、Goal設定の順を唯一の正規経路として記載する。\n\n### 既存成果物の移行\n\n`migrate_aidd_artifacts.py`を一回限りのcompatibility boundaryとする。\n\n1. Git `HEAD`または現在のread-only Markdownを読み、workspace、artifact kind、表示文字列、既存ID/section inventoryを抽出する。\n2. 既存17 workspaceは`legacy_import`として表示をlossless保持し、本workspaceは型付きblockとevidence block IDを持つmanaged v2 sourceへ一方向変換する。\n3. 全18 workspaceのJSON schema検証とrenderer `--check`を実行し、legacy表示のround-tripとmanaged v2表示の決定的生成を確認する。\n4. `--import-legacy`は旧Markdownをsidecarへ一方向importする。`legacy_import`の`--check`は元Markdownをメモリ上で再importし、保存inventoryと一致することを検証する。managed sourceはMarkdownから再構築しない。"
+            "markdown": "### 正本と表示の境界\n\n- workspaceごとに`requirements.json`と`design-doc.json`を機械判定のcanonical sourceとして追加する。\n- `requirements.md`と`design-doc.md`はJSON内のstructured fieldsから決定的に生成されるhuman-readable outputとする。\n- Goal準備ではtemporary Goal JSON（`kind: requirements_goal` / `kind: design_goal`）を正本とし、Goal objective Markdownも同じrendererで生成する。\n- 通常validatorはJSONだけをloadし、Markdownの見出し、fence、HTML、文字列検索を判定に使わない。\n\n### JSON v2 envelope\n\n共通fieldは`schema_version: 2`、`kind`、`workspace`、`display`、`validation`とする。`display`は出力filenameとmanaged artifactのMarkdown preambleを保持し、`validation`はkind別の構造化objectを保持する。\n\n- `requirements_goal`: Issue snapshot、direct rules、dependency closure、baseline、全requirement transition、全section transition、requirement definitions、Goal scope。\n- `requirements`: Goalと同じprovenance/continuity情報、canonical requirement definitions、section contents、retirementを保持する。\n- `design_goal`: Requirements hash、全ID、Design baseline、ID別design/verification scope、baseline section別review scopeを保持する。\n- `design`: 同じsnapshot、ID別coverage、Design baseline section transitionsを保持する。\n\n`artifact_source.py`がJSON decode、必須key、型、順序、一意性、kind、workspace、canonical path、symlink不在を検証する。標準`json`だけを使い、新規dependencyを追加しない。\n\n### validator切替\n\n- `validate_requirements_goal.py`はGoal/artifact JSONのIssue snapshotとrule selectionを検証する。\n- `validate_requirements_continuity.py`はJSONのrequirement/section transitionとGit `HEAD`の`requirements.json` baselineを比較する。\n- `validate_design_coverage.py`はcanonical `requirements.json`とGoal/artifact JSONのID coverage、Git `HEAD`の`design-doc.json` section baselineを比較する。\n- `git_baseline.py`はcanonical JSON sourceと生成Markdown pathを別関数で解決する。baselineはmanaged v2 JSONだけを読む。\n- `requirement_ids.py`のMarkdown抽出は一時Goal入力の変換にだけ使い、通常validatorからimportしない。\n\n### Markdown生成\n\n`render_aidd_artifact.py`はJSONの`display.path`をkindに対応するcanonical Markdown pathへ固定し、managed artifactでは`display.preamble`とvalidation内の型付きblock・gateからUTF-8 Markdownを構成する。`--check`は書き込まず、現在のMarkdownとのUTF-8文字列一致を検証し、CRLFとLFの改行コード差は同一として扱う。validatorはdisplay本文を解釈せず、rendererだけが表示を扱う。\n\nGoal JSONも同じrendererのstdout modeでGoal objectiveを生成する。skill/templateはJSON作成、validator、renderer、Goal設定の順を唯一の正規経路として記載する。\n\n### 既存成果物の扱い\n\n過去workspaceのMarkdownは履歴表示として残すが、artifact sourceへ再取り込みせず、v1 sidecarも作成しない。managed workspaceは型付きblockとevidence block IDを持つJSONを正本とする。\n\n`migrate_aidd_artifacts.py --check`は既存managed JSONと生成Markdownの同期だけを確認する。`--import-goal`は一時Goal入力の変換だけに使い、artifact sidecarは生成しない。"
           }
         ]
       },
@@ -49,7 +49,7 @@
           {
             "id": "section-4-body-1",
             "type": "markdown",
-            "markdown": "- `.agents/skills/aidd-cycle/scripts/artifact_source.py`: JSON v2 typed-block model、canonical path、loader、validation helper。\n- `.agents/skills/aidd-cycle/scripts/render_aidd_artifact.py`: artifact/Goal Markdown生成と`--check`。\n- `.agents/skills/aidd-cycle/scripts/migrate_aidd_artifacts.py`: legacy importと全workspace check。\n- 3 validator、`git_baseline.py`、legacy parser、対応unit tests。\n- `.agents/skills/aidd-cycle/SKILL.md`、`.agents/skills/goal-setting/SKILL.md`。\n- workflow、overview、4 Goal templates、workspace全体のJSON sidecar。\n- `requirements.md`と`design-doc.md`は生成表示として維持し、本cycle入力の既存Markdown本文は変更しない。"
+            "markdown": "- `.agents/skills/aidd-cycle/scripts/artifact_source.py`: JSON v2 typed-block model、canonical path、loader、validation helper。\n- `.agents/skills/aidd-cycle/scripts/render_aidd_artifact.py`: artifact/Goal Markdown生成と`--check`。\n- `.agents/skills/aidd-cycle/scripts/migrate_aidd_artifacts.py`: 既存managed JSONと生成Markdownの同期確認。\n- 3 validator、`git_baseline.py`、Goal入力用Markdown parser、対応unit tests。\n- `.agents/skills/aidd-cycle/SKILL.md`、`.agents/skills/goal-setting/SKILL.md`。\n- workflow、overview、4 Goal templates、managed workspaceのJSON source。\n- `requirements.md`と`design-doc.md`は生成表示として維持し、本cycle入力の既存Markdown本文は変更しない。"
           }
         ]
       },
@@ -60,7 +60,7 @@
           {
             "id": "section-5-body-1",
             "type": "markdown",
-            "markdown": "### YAML\n\n標準ライブラリ外のparser依存とschema解釈差が増えるため採用しない。JSONの厳格構文と既存利用実績を優先する。\n\n### Markdown内JSON blockを継続する\n\nblockの所在をMarkdown構造から探す時点で偽装面が残り、表示と検証正本を分離できないため採用しない。\n\n### 既存Markdownを一括再整形する\n\n人間向け履歴に大きなnoiseを生み、read-onlyな本cycle artifactも変更するため採用しない。sidecar化とUTF-8文字列一致で移行する。\n\n### JSON Schema runtime dependencyを追加する\n\n新規依存なしの制約に反する。v2はPythonの明示的な型・key検証とunit testで固定する。"
+            "markdown": "### YAML\n\n標準ライブラリ外のparser依存とschema解釈差が増えるため採用しない。JSONの厳格構文と既存利用実績を優先する。\n\n### Markdown内JSON blockを継続する\n\nblockの所在をMarkdown構造から探す時点で偽装面が残り、表示と検証正本を分離できないため採用しない。\n\n### 既存Markdownを一括再整形する\n\n人間向け履歴に大きなnoiseを生み、read-onlyな本cycle artifactも変更するため採用しない。過去Markdownを再解析せず、managed JSONからの生成とUTF-8文字列一致で同期を確認する。\n\n### JSON Schema runtime dependencyを追加する\n\n新規依存なしの制約に反する。v2はPythonの明示的な型・key検証とunit testで固定する。"
           }
         ]
       },
@@ -94,7 +94,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "FR-4",
-            "text": "legacy importerが全workspaceをsidecar JSONへlossless移行する。"
+            "text": "managed JSONを正本とし、過去Markdownを再解析せず、既存managed workspaceだけを生成表示と同期確認する。"
           },
           {
             "id": "nfr-1-design-evidence",
@@ -136,7 +136,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-3",
-            "text": "migration checkが全sidecar schemaとround-tripを検査する。"
+            "text": "migration checkが既存managed JSONのschemaと生成表示の同期を検査する。"
           },
           {
             "id": "ac-4-design-evidence",
@@ -240,7 +240,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "FR-4",
-            "text": "全既存workspaceのimportと表示round-tripを確認する。"
+            "text": "既存managed workspaceのschemaと生成表示を確認し、Markdown-only workspaceを入力にしない。"
           },
           {
             "id": "nfr-1-verification-evidence",
@@ -261,7 +261,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "NFR-3",
-            "text": "requirements.mdとdesign-doc.mdが全workspaceで存在し一致することを確認する。"
+            "text": "managed workspaceのrequirements.mdとdesign-doc.mdがJSONから生成され一致することを確認する。"
           },
           {
             "id": "ac-1-verification-evidence",
@@ -282,7 +282,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-3",
-            "text": "migration --checkで全18 workspaceのschemaと表示一致を確認する。"
+            "text": "migration --checkで既存managed workspaceのschemaと生成表示の同期を確認する。"
           },
           {
             "id": "ac-4-verification-evidence",
@@ -305,7 +305,7 @@
           {
             "id": "section-8-body-1",
             "type": "markdown",
-            "markdown": "- 人間が読むMarkdownのpathと本文は移行時に変えない。\n- AIDDのGoal準備順序はJSON作成が先になり、Markdownを直接validatorへ渡す操作は失敗する。\n- Git baselineはShip後からJSON sidecarを読み、旧Markdownは表示とmigration auditのためだけに残る。\n- apps/web、apps/api、ユーザー向け機能、DB/API/Authには影響しない。"
+            "markdown": "- 人間が読むMarkdownのpathと本文は移行時に変えない。\n- AIDDのGoal準備順序はJSON作成が先になり、Markdownを直接validatorへ渡す操作は失敗する。\n- Git baselineはShip後からmanaged JSONを読み、過去Markdownは人間向けの履歴表示としてだけ残る。\n- apps/web、apps/api、ユーザー向け機能、DB/API/Authには影響しない。"
           }
         ]
       },
@@ -316,13 +316,13 @@
           {
             "id": "section-9-body-1",
             "type": "markdown",
-            "markdown": "- managed artifactの`display.preamble`はpreambleだけを保持し、本文の重複によるstale shadowを作らない。\n- legacy importerはMarkdownを読む唯一の例外であり、通常validatorから参照されないことをtestとsearchで固定する。\n- worktreeのJSON sidecarはGit `HEAD` baselineにはならないため、本cycleの事前gateは現行validatorで完了し、Build後の検証は新JSON validatorで行う。\n- 移行checkに失敗したworkspaceが1つでもあればBuild / Verifyを完了しない。"
+            "markdown": "- managed artifactの`display.preamble`はpreambleだけを保持し、本文の重複によるstale shadowを作らない。\n- artifact validatorはMarkdownを解析せず、rendererだけがmanaged JSONから表示を生成することをtestとsearchで固定する。\n- worktreeのmanaged JSONはGit `HEAD` baselineにはならないため、本cycleの事前gateは現行validatorで完了し、Build後の検証は新JSON validatorで行う。\n- 移行checkに失敗したworkspaceが1つでもあればBuild / Verifyを完了しない。"
           }
         ]
       }
     ],
     "coverage_gate": {
-      "requirements_sha256": "e857bfbdb4d94d87933cd5b62aeab24f4c49ebdc7f2b65b433d9253095c651e5",
+      "requirements_sha256": "6ee8bc99f02f74b8c5977e1a6e4a6a082195ac59e07355dea85f34afe1f41d32",
       "workspace": "1639-aidd-structured-data",
       "requirement_ids": [
         "FR-1",

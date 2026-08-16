@@ -26,10 +26,7 @@ from git_baseline import (
     require_canonical_worktree_path,
     validate_workspace_identity,
 )
-from section_aliases import (
-    canonical_requirement_section_ids_for_heading,
-    exact_requirement_section_ids_for_heading,
-)
+from section_aliases import exact_requirement_section_ids_for_heading
 
 
 class ValidationError(ValueError):
@@ -45,7 +42,7 @@ class StructuredRequirement:
 @dataclass(frozen=True)
 class StructuredSection:
     heading: str
-    blocks: tuple[dict[str, Any], ...] | None
+    blocks: tuple[dict[str, Any], ...]
     content: str
 
 
@@ -59,10 +56,6 @@ REQUIRED_REQUIREMENTS_SECTIONS = (
     "acceptance",
     "qa",
     "technical",
-)
-LEGACY_REQUIRED_REQUIREMENTS_SECTIONS = tuple(
-    "non_functional" if section_id == "non-functional" else section_id
-    for section_id in REQUIRED_REQUIREMENTS_SECTIONS
 )
 REQUIREMENT_ID_PATTERN = re.compile(r"(?:FR|NFR|AC)-[1-9][0-9]*")
 REQUIREMENT_MENTION_PATTERN = re.compile(
@@ -232,14 +225,7 @@ def section_requirement_entries(
     entries: list[dict[str, str]] = []
     for requirement_id in sorted(current_items, key=requirement_sort_key):
         requirement = current_items[requirement_id]
-        requirement_section_id = requirement.section_id
-        if requirement_section_id is None:
-            requirement_section_id = REQUIREMENT_SECTION_BY_PREFIX[
-                requirement_id.split("-", 1)[0]
-            ]
-        if requirement_section_id == "non_functional":
-            requirement_section_id = "non-functional"
-        if requirement_section_id == section_id:
+        if requirement.section_id == section_id:
             entries.append({"id": requirement_id, "text": requirement.text})
     return entries
 
@@ -249,8 +235,6 @@ def section_content_hash(
     section: StructuredSection,
     current_items: dict[str, StructuredRequirement],
 ) -> str:
-    if section.blocks is None:
-        return content_sha256(section.content)
     value: dict[str, Any] = {
         "heading": section.heading,
         "blocks": list(section.blocks),
@@ -286,15 +270,10 @@ def structured_requirements(
     entries = source["validation"].get("requirements")
     if not isinstance(entries, list):
         raise ValidationError("validation.requirements must be an array")
-    is_legacy_inventory = source.get("schema_version") == 1
     is_goal = source.get("kind") == "requirements_goal"
     items: dict[str, StructuredRequirement] = {}
     for index, entry in enumerate(entries):
-        expected_keys = (
-            {"id", "content"}
-            if is_legacy_inventory
-            else ({"id", "text"} if is_goal else {"id", "section_id", "text"})
-        )
+        expected_keys = {"id", "text"} if is_goal else {"id", "section_id", "text"}
         if not isinstance(entry, dict) or set(entry) != expected_keys:
             raise ValidationError(
                 "each validation.requirements entry must match its schema"
@@ -302,12 +281,10 @@ def structured_requirements(
         requirement_id = require_string(entry["id"], f"requirements[{index}].id")
         if not is_requirement_id(requirement_id):
             raise ValidationError(f"invalid structured requirement ID: {requirement_id}")
-        text_field = "content" if is_legacy_inventory else "text"
-        require_string(entry[text_field], f"requirements[{index}].{text_field}")
-        text = entry[text_field]
+        text = require_string(entry["text"], f"requirements[{index}].text")
         require_substantive_requirement_content(requirement_id, text)
         section_id = None
-        if not is_legacy_inventory and not is_goal:
+        if not is_goal:
             section_id = require_string(
                 entry["section_id"], f"requirements[{index}].section_id"
             )
@@ -329,46 +306,30 @@ def structured_sections(source: dict[str, Any]) -> dict[str, StructuredSection]:
     entries = source["validation"].get("sections")
     if not isinstance(entries, list):
         raise ValidationError("validation.sections must be an array")
-    is_legacy_inventory = source.get("schema_version") == 1
     sections: dict[str, StructuredSection] = {}
     for index, entry in enumerate(entries):
-        expected_keys = (
-            {"id", "heading", "content"}
-            if is_legacy_inventory
-            else {"id", "heading", "blocks"}
-        )
+        expected_keys = {"id", "heading", "blocks"}
         if not isinstance(entry, dict) or set(entry) != expected_keys:
             raise ValidationError(
                 "each validation.sections entry must match its schema"
             )
         section_id = require_string(entry["id"], f"sections[{index}].id")
-        if is_legacy_inventory and section_id == "non_functional":
-            section_id = "non-functional"
         heading = require_string(entry["heading"], f"sections[{index}].heading")
-        matched_section_ids = (
-            canonical_requirement_section_ids_for_heading(heading)
-            if is_legacy_inventory
-            else exact_requirement_section_ids_for_heading(heading)
-        )
+        matched_section_ids = exact_requirement_section_ids_for_heading(heading)
         if matched_section_ids != (section_id,):
             raise ValidationError(
                 f"section {section_id} heading must map to exactly one canonical section"
             )
-        if is_legacy_inventory:
-            require_string(entry["content"], f"sections[{index}].content")
-            content = entry["content"]
-            blocks = None
-        else:
-            raw_blocks = entry["blocks"]
-            if not isinstance(raw_blocks, list) or not raw_blocks:
-                raise ValidationError(f"sections[{index}].blocks must be non-empty")
-            blocks = tuple(raw_blocks)
-            content = json.dumps(
-                raw_blocks,
-                ensure_ascii=False,
-                sort_keys=True,
-                separators=(",", ":"),
-            )
+        raw_blocks = entry["blocks"]
+        if not isinstance(raw_blocks, list) or not raw_blocks:
+            raise ValidationError(f"sections[{index}].blocks must be non-empty")
+        blocks = tuple(raw_blocks)
+        content = json.dumps(
+            raw_blocks,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
         if section_id in sections:
             raise ValidationError(f"duplicate structured section: {section_id}")
         sections[section_id] = StructuredSection(heading, blocks, content)
@@ -468,20 +429,17 @@ def validate_sections_manifest(
     if current_sections is not None:
         for section_id, section in current_sections.items():
             content_parts: list[str] = []
-            if section.blocks is None:
-                content_parts.append(section.content)
-            else:
-                for block in section.blocks:
-                    if block["type"] == "markdown":
-                        content_parts.append(block["markdown"])
-                    elif block["type"] == "evidence":
-                        content_parts.append(block["text"])
-                    elif block["type"] == "requirements":
-                        content_parts.extend(
-                            item.text
-                            for item in current_items.values()
-                            if item.section_id == section_id
-                        )
+            for block in section.blocks:
+                if block["type"] == "markdown":
+                    content_parts.append(block["markdown"])
+                elif block["type"] == "evidence":
+                    content_parts.append(block["text"])
+                elif block["type"] == "requirements":
+                    content_parts.extend(
+                        item.text
+                        for item in current_items.values()
+                        if item.section_id == section_id
+                    )
             normalized_section_contents[section_id] = normalize(
                 "\n".join(content_parts)
             )

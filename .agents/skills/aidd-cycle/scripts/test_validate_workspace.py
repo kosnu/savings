@@ -71,7 +71,7 @@ class WorkspaceValidationTest(unittest.TestCase):
 
             self.assertEqual(content, b"regular blob")
 
-    def test_accepts_legacy_design_source_during_filename_migration(self) -> None:
+    def test_ignores_legacy_design_source_after_filename_migration(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
@@ -92,7 +92,7 @@ class WorkspaceValidationTest(unittest.TestCase):
                 repo_root, "1639-structured-data", "design"
             )
 
-            self.assertEqual(content, b"legacy design source")
+            self.assertIsNone(content)
 
     def test_rejects_git_head_source_symlink_entry(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-"""Import existing AIDD Markdown once and verify structured sidecars."""
+"""Import temporary Goal Markdown and verify managed AIDD artifacts."""
 
 from __future__ import annotations
 
 import argparse
 import copy
-import errno
-import hashlib
 import json
 import os
 import re
-import stat
 import sys
 from pathlib import Path
 from typing import Any
@@ -19,20 +16,16 @@ from artifact_source import (
     SourceError,
     canonical_source_path,
     decode_source_json,
-    load_baseline_source_bytes,
     normalize_markdown_newlines,
-    open_directory_without_symlinks,
     read_regular_file_bytes,
     serialize_source,
-    validate_legacy_artifact_source,
     validate_managed_artifact_source,
     validate_managed_goal_source,
     validate_source,
     write_regular_file_atomically,
 )
-from git_baseline import load_regular_head_blob, run_git
+from git_baseline import list_git_head_managed_artifact_keys
 from requirement_ids import (
-    legacy_design_inventory,
     legacy_requirements_inventory,
     mask_non_rendered_markdown,
 )
@@ -108,53 +101,6 @@ def parse_gate(markdown: str, name: str) -> dict[str, Any] | None:
     if not isinstance(value, dict):
         raise SourceError(f"{name} must contain a JSON object")
     return value
-
-
-def requirements_inventory(markdown: str) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
-    return legacy_requirements_inventory(markdown)
-
-
-def design_inventory(markdown: str) -> list[dict[str, str]]:
-    return legacy_design_inventory(markdown)
-
-
-def build_source(workspace: str, kind: str, markdown: str) -> dict[str, Any]:
-    """Import an unmanaged Markdown artifact into an immutable legacy envelope."""
-
-    markdown = normalize_markdown_newlines(markdown)
-    digest = hashlib.sha256(markdown.encode("utf-8")).hexdigest()
-    if kind == "requirements":
-        requirements, sections = requirements_inventory(markdown)
-        validation: dict[str, Any] = {
-            "mode": "legacy_import",
-            "source_markdown_sha256": digest,
-            "requirements": requirements,
-            "sections": sections,
-        }
-        inventory = {"requirements": requirements, "sections": sections}
-    else:
-        sections = design_inventory(markdown)
-        validation = {
-            "mode": "legacy_import",
-            "source_markdown_sha256": digest,
-            "sections": sections,
-        }
-        inventory = {"sections": sections}
-    validation["inventory_sha256"] = hashlib.sha256(
-        json.dumps(
-            inventory, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-        ).encode("utf-8")
-    ).hexdigest()
-    return {
-        "schema_version": 1,
-        "kind": kind,
-        "workspace": workspace,
-        "display": {
-            "path": "requirements.md" if kind == "requirements" else "design-doc.md",
-            "markdown": markdown,
-        },
-        "validation": validation,
-    }
 
 
 def legacy_goal_section(markdown: str, heading: str) -> str:
@@ -307,41 +253,15 @@ def build_goal_source(workspace: str, kind: str, markdown: str) -> dict[str, Any
 def expected_pairs(repo_root: Path) -> list[tuple[Path, Path, str]]:
     root = repo_root / "docs" / "ai-driven-development" / "workspaces"
     require_no_symlinks(repo_root, root, "AIDD workspace root")
-    artifact_names = {
-        "requirements.md": "requirements",
-        "requirements.json": "requirements",
-        "design-doc.md": "design",
-        "design-doc.json": "design",
-    }
-    keys: set[tuple[str, str]] = set()
-
-    listing = run_git(
-        repo_root,
-        [
-            "ls-tree",
-            "-r",
-            "--name-only",
-            "HEAD",
-            "--",
-            "docs/ai-driven-development/workspaces",
-        ],
-    )
-    if listing.returncode != 0:
-        raise SourceError("failed to inspect AIDD artifacts in Git HEAD")
-    for value in listing.stdout.decode("utf-8").splitlines():
-        relative = Path(value)
-        if len(relative.parts) != 5:
-            continue
-        kind = artifact_names.get(relative.name)
-        if kind is not None:
-            keys.add((relative.parent.name, kind))
+    source_names = {"requirements.json": "requirements", "design-doc.json": "design"}
+    keys = list_git_head_managed_artifact_keys(repo_root)
 
     if root.is_dir():
         for workspace_dir in sorted(root.iterdir()):
             require_no_symlinks(repo_root, workspace_dir, "AIDD workspace")
             if not workspace_dir.is_dir():
                 continue
-            for filename, kind in artifact_names.items():
+            for filename, kind in source_names.items():
                 path = workspace_dir / filename
                 if path.exists() or path.is_symlink():
                     keys.add((workspace_dir.name, kind))
@@ -369,146 +289,34 @@ def normalized_managed_source(
     return validate_managed_artifact_source(normalized)
 
 
-def normalized_legacy_source(source: dict[str, Any]) -> dict[str, Any]:
-    normalized = copy.deepcopy(source)
-    validation = normalized["validation"]
-    inventory = {"sections": validation["sections"]}
-    if normalized["kind"] == "requirements":
-        inventory["requirements"] = validation["requirements"]
-    validation["inventory_sha256"] = hashlib.sha256(
-        json.dumps(
-            inventory, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-        ).encode("utf-8")
-    ).hexdigest()
-    return validate_legacy_artifact_source(normalized)
-
-
-def regular_file_matches(path: Path, content: str) -> bool:
-    """Compare a destination without following its final symlink component."""
-
-    directory_fd = open_directory_without_symlinks(path.parent)
-    expected = content.encode("utf-8")
-    file_flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)
-    if hasattr(os, "O_NOFOLLOW"):
-        file_flags |= os.O_NOFOLLOW
-    try:
-        try:
-            file_descriptor = os.open(path.name, file_flags, dir_fd=directory_fd)
-        except FileNotFoundError:
-            return False
-        except OSError as error:
-            if error.errno == errno.ELOOP:
-                return False
-            raise
-        with os.fdopen(file_descriptor, "rb") as source:
-            if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
-                return False
-            return source.read(len(expected) + 1) == expected
-    finally:
-        os.close(directory_fd)
-
-
-def migrate(repo_root: Path, write: bool) -> int:
+def migrate(repo_root: Path) -> int:
     repo_root = require_git_worktree_root(repo_root)
-    prepared: list[tuple[Path, str]] = []
     checked = 0
     for display_path, source_path, kind in expected_pairs(repo_root):
         require_no_symlinks(repo_root, display_path, "artifact display")
         require_no_symlinks(repo_root, source_path, "artifact source")
+        if not source_path.is_file():
+            raise SourceError(f"artifact source is missing: {source_path}")
         if not display_path.is_file():
             raise SourceError(f"artifact display is missing: {display_path}")
         markdown = normalize_markdown_newlines(
             read_regular_file_bytes(display_path).decode("utf-8")
         )
-        existing = None
-        if source_path.is_file():
-            decoded = decode_source_json(
-                read_regular_file_bytes(source_path).decode("utf-8")
-            )
-            existing = validate_source(decoded, kind)
-        head_source_bytes = load_regular_head_blob(
-            repo_root,
-            source_path.relative_to(repo_root).as_posix(),
-            "AIDD migration source",
+        decoded = decode_source_json(
+            read_regular_file_bytes(source_path).decode("utf-8")
         )
-        head_source = None
-        if head_source_bytes is not None:
-            head_value = decode_source_json(head_source_bytes.decode("utf-8"))
-            head_validation = (
-                head_value.get("validation")
-                if isinstance(head_value, dict)
-                else None
-            )
-            if isinstance(head_validation, dict):
-                if head_validation.get("mode") == "managed":
-                    head_source = load_baseline_source_bytes(head_source_bytes, kind)
-                elif head_validation.get("mode") == "legacy_import":
-                    head_source = normalized_legacy_source(head_value)
-        if existing is None:
-            if head_source_bytes is not None:
-                raise SourceError(
-                    f"Git HEAD source is missing from worktree: {source_path}"
-                )
-            if not write:
-                raise SourceError(f"artifact source is missing: {source_path}")
-            source = build_source(display_path.parent.name, kind, markdown)
-        elif existing["validation"].get("mode") == "managed":
-            normalized = normalized_managed_source(existing)
-            if not write and existing != normalized:
-                raise SourceError(f"managed source is not normalized: {source_path}")
-            source = normalized if write else existing
-        else:
-            normalized = normalized_legacy_source(existing)
-            if not write and existing != normalized:
-                raise SourceError(f"legacy source is not normalized: {source_path}")
-            source = normalized if write else existing
-        if (
-            head_source is not None
-            and head_source["validation"].get("mode") == "managed"
-            and source["validation"].get("mode") != "managed"
-        ):
-            raise SourceError(f"managed Git HEAD source cannot be downgraded: {source_path}")
-        if (
-            head_source is not None
-            and head_source["validation"].get("mode") == "legacy_import"
-            and source["validation"].get("mode") == "legacy_import"
-            and source != head_source
-        ):
-            raise SourceError(
-                f"legacy Git HEAD source is immutable: {source_path}"
-            )
+        source = validate_source(decoded, kind)
+        normalized = normalized_managed_source(source)
+        if source != normalized:
+            raise SourceError(f"managed source is not normalized: {source_path}")
         if source["workspace"] != display_path.parent.name:
             raise SourceError(f"workspace mismatch: {source_path}")
-        if source["validation"].get("mode") == "managed":
-            validate_managed_artifact_source(source)
-        else:
-            validate_legacy_artifact_source(source)
-            expected_legacy_source = build_source(
-                display_path.parent.name,
-                kind,
-                markdown,
-            )
-            if source != expected_legacy_source:
-                raise SourceError(
-                    f"legacy import differs from source Markdown: {source_path}"
-                )
         if (
             normalize_markdown_newlines(render_artifact_markdown(source)) != markdown
         ):
             raise SourceError(f"Markdown round-trip mismatch: {display_path}")
-        if (
-            source["validation"].get("mode") == "legacy_import"
-            and source["validation"].get("source_markdown_sha256")
-            != hashlib.sha256(markdown.encode("utf-8")).hexdigest()
-        ):
-            raise SourceError(f"Markdown digest mismatch: {source_path}")
-        if write:
-            prepared.append((source_path, serialize_source(source)))
         checked += 1
-    for source_path, serialized in prepared:
-        if not regular_file_matches(source_path, serialized):
-            write_regular_file_atomically(source_path, serialized)
-    print(f"AIDD migration {'wrote' if write else 'check passed'}: {checked} artifacts")
+    print(f"AIDD migration check passed: {checked} managed artifacts")
     return checked
 
 
@@ -516,7 +324,6 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, required=True)
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--import-legacy", action="store_true")
     mode.add_argument("--check", action="store_true")
     mode.add_argument("--import-goal", choices=("requirements", "design"))
     parser.add_argument("--goal-markdown", type=Path)
@@ -538,7 +345,7 @@ def main() -> int:
             write_regular_file_atomically(output_path, serialize_source(source))
             print(f"AIDD Goal migration wrote: {args.output}")
             return 0
-        migrate(args.repo_root, args.import_legacy)
+        migrate(args.repo_root)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError, SourceError) as error:
         print(f"AIDD migration failed: {error}", file=sys.stderr)
         return 1

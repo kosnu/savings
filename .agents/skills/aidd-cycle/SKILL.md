@@ -69,14 +69,12 @@ baselines, never as additional Requirements Task Context.
 `requirements.json` and `design-doc.json` are the only machine-validation sources.
 For managed artifacts, the renderer builds `requirements.md` and
 `design-doc.md` from structured sections and Gate fields; `display.preamble`
-supplies only the static preamble and is never the artifact body source. Legacy
-imports retain their lossless Markdown payload. The Markdown files are
-human-readable outputs and are never parsed by normal validators. Use
-`migrate_aidd_artifacts.py` as the sole legacy Markdown parser.
-Use `--import-legacy` only for the one-way bootstrap; routine validation uses
-`--check`. For `legacy_import` sources only, `--check` re-imports Markdown in
-memory and requires the saved inventory to match; it never writes or upgrades
-JSON. Managed sources are never rebuilt or validated from Markdown.
+supplies only the static preamble and is never the artifact body source. The
+Markdown files are human-readable outputs and are never parsed as artifact
+sources. Use `migrate_aidd_artifacts.py --check` only to validate existing
+managed JSON sources against their generated Markdown. It does not import,
+rebuild, or validate historical artifact Markdown. `--import-goal` is limited
+to converting a temporary Goal input and does not create artifact sidecars.
 For temporary Requirements and Design Goal JSON, the renderer must verify that
 the Goal objective retains the required Context Packet markers, substantive
 Goal and Context text, and the phase-specific stable contract IDs for
@@ -173,7 +171,8 @@ Before creating a Design / Plan Goal:
    that hash, the complete canonical identifier list, and the Git `HEAD` Design
    baseline SHA-256. Outside the gate, include one substantive design and
    verification scope line per requirement ID in `validation.scopes` and one
-   review scope entry with `section_id` (or `null` for legacy), heading, and
+   review scope entry with `section_id` (or `null` when the historical section
+   has no stable ID), heading, and
    scope text per Git baseline section in `validation.baseline_scopes`.
    Each requirement scope line must contain only its
    target requirement ID. Every Git baseline section also gets its own physical
