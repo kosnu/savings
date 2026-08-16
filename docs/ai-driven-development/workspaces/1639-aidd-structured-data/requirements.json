@@ -27,7 +27,7 @@
       {
         "id": "FR-4",
         "section_id": "functional",
-        "text": "Issueの「既存成果物の移行方法」に対し、Git `HEAD`またはworktreeに存在するschema v2のmanaged AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する正本と生成表示の同期確認方法を定義する。過去Markdown-only workspaceは履歴表示として残し、schema v1 sidecarは作成・再取り込みせず、いずれも機械検証の入力にしない。"
+        "text": "Git `HEAD`の全AIDD workspaceについて、要求ID、section、coverage、provenance、本文表示を保持する「既存成果物の移行方法」を定義し、一括変換と検証を可能にする。"
       },
       {
         "id": "NFR-1",
@@ -57,7 +57,7 @@
       {
         "id": "AC-3",
         "section_id": "acceptance",
-        "text": "既存成果物の移行方針と検証が用意される。Git `HEAD`またはworktreeに存在するschema v2 managed JSONがschema検証を通り、対応する生成Markdownが期待する人間向け内容とcanonical pathを保持する。Markdown-only workspaceとschema v1 sidecarは機械検証・再取り込み対象外とする。"
+        "text": "既存成果物の移行方針と検証が用意される。全workspaceのJSONがschema検証を通り、生成Markdownが期待する人間向け内容とcanonical pathを保持する。"
       },
       {
         "id": "AC-4",
@@ -84,7 +84,7 @@
           {
             "id": "users-body",
             "type": "markdown",
-            "markdown": "人間向けの表現性と機械検証の正確性を両立させる必要がある、AIDD成果物の作成者・レビュー担当者・workflow実行者を対象とする。人間は従来のMarkdownを読み、agentとvalidatorは構造化正本を生成・検証に利用する。"
+            "markdown": "人間向けの表現性と機械検証の正確性を両立させる必要がある、AIDD成果物の作成者・レビュー担当者・workflow実行者を対象とする。人間は従来のMarkdownを読み、agentとvalidatorは構造化正本を生成・検証・移行に利用する。"
           }
         ]
       },
@@ -106,7 +106,7 @@
           {
             "id": "scope-body",
             "type": "markdown",
-            "markdown": "### 対象\n\n- 両AIDD成果物の構造化正本、および機械検証に必要なprovenance・continuity・coverage情報。\n- 構造化正本からのMarkdown表示生成。\n- validator、workflow、Goal template、skill、回帰テストの同期。\n- Git `HEAD`またはworktreeに存在するschema v2 managed artifactの検証。\n- 過去Markdown-only workspaceとschema v1 sidecarを機械検証・再取り込み対象にしない運用。\n\n### 対象外\n\n- Markdownの個別表現だけを塞ぐ対症療法。\n- AIDD以外の文書形式変更。\n- アプリケーションのDB、API、認証、UIデータモデル。"
+            "markdown": "### 対象\n\n- 両AIDD成果物の構造化正本、および機械検証に必要なprovenance・continuity・coverage情報。\n- 構造化正本からのMarkdown表示生成。\n- validator、workflow、Goal template、skill、回帰テストの同期。\n- Git `HEAD`に存在する既存AIDD workspace成果物の移行と検証。\n\n### 対象外\n\n- Markdownの個別表現だけを塞ぐ対症療法。\n- AIDD以外の文書形式変更。\n- アプリケーションのDB、API、認証、UIデータモデル。"
           }
         ]
       },
@@ -152,7 +152,7 @@
           {
             "id": "qa-body",
             "type": "markdown",
-            "markdown": "- Q: Issueの判断したいことにある正本形式は何か。\n  - A: JSONとする。YAMLより記法の解釈幅が狭く、Python標準ライブラリで処理でき、新規依存を要しないため。\n- Q: Markdownはどう生成するか。\n  - A: JSON schemaで順序を持つ表示sectionを表現し、共通rendererが`requirements.md`または`design-doc.md`を決定的に生成する。生成後のMarkdownを手編集しない。\n- Q: 既存成果物はどう扱うか。\n  - A: schema v2 managed JSONを正本として生成Markdownとの同期を確認する。過去Markdown-only workspaceは履歴表示として残すが再解析せず、schema v1 sidecarは削除してJSONへ変換しない。"
+            "markdown": "- Q: Issueの判断したいことにある正本形式は何か。\n  - A: JSONとする。YAMLより記法の解釈幅が狭く、Python標準ライブラリで処理でき、新規依存を要しないため。\n- Q: Markdownはどう生成するか。\n  - A: JSON schemaで順序を持つ表示sectionを表現し、共通rendererが`requirements.md`または`design-doc.md`を決定的に生成する。生成後のMarkdownを手編集しない。\n- Q: 既存成果物はどう移行するか。\n  - A: 現行validatorが認識する内容と人間向け本文を一度だけJSONへ移し、schema検証、Markdown再生成、全workspace回帰検証を同じ変更で完了する。履歴はGitに残す。"
           }
         ]
       },
@@ -163,7 +163,7 @@
           {
             "id": "technical-body",
             "type": "markdown",
-            "markdown": "- Markdown表示の生成と回帰テストは、JSON parse・schema検証・render・生成一致確認を分離して失敗理由を明確にする。\n- JSON schemaはRequirementsとDesignの共通metadataと、各artifact固有のrequirements/sections/coverageを識別可能にする。\n- validator APIはcanonical JSON pathだけを受け付け、temporary copyやsymlink aliasを既存と同等に拒否する。\n- schema v2 managed JSONへの切り替え後もworkflow上の同一cycle read-only境界、Goal gate一致、Issue再取得確認を維持する。"
+            "markdown": "- Markdown表示の生成と回帰テストは、JSON parse・schema検証・render・生成一致確認を分離して失敗理由を明確にする。\n- JSON schemaはRequirementsとDesignの共通metadataと、各artifact固有のrequirements/sections/coverageを識別可能にする。\n- validator APIはcanonical JSON pathだけを受け付け、temporary copyやsymlink aliasを既存と同等に拒否する。\n- 移行後もworkflow上の同一cycle read-only境界、Goal gate一致、Issue再取得確認を維持する。"
           }
         ]
       }

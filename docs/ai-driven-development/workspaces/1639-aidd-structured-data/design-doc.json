@@ -16,7 +16,7 @@
           {
             "id": "section-1-body-1",
             "type": "markdown",
-            "markdown": "- Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`\n- Requirements canonical source: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.json`\n- Generated Requirements display: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.md`\n- Requirements SHA-256: `6ee8bc99f02f74b8c5977e1a6e4a6a082195ac59e07355dea85f34afe1f41d32`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline: なし。\n- Requirementsは本phase以降read-onlyとし、Buildでは本文を変更せずcanonical design-doc.jsonを正本として扱う。"
+            "markdown": "- Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`\n- Requirements canonical source: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.json`\n- Generated Requirements display: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.md`\n- Requirements SHA-256: `2f16c6403202e674a1e3bd3e140da71d0d081ba11d93a4867bdc668e314ccee0`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline: なし。\n- Requirementsは本phase以降read-onlyとし、Buildでは本文を変更せずcanonical design-doc.jsonを正本として扱う。"
           }
         ]
       },
@@ -322,7 +322,7 @@
       }
     ],
     "coverage_gate": {
-      "requirements_sha256": "6ee8bc99f02f74b8c5977e1a6e4a6a082195ac59e07355dea85f34afe1f41d32",
+      "requirements_sha256": "e857bfbdb4d94d87933cd5b62aeab24f4c49ebdc7f2b65b433d9253095c651e5",
       "workspace": "1639-aidd-structured-data",
       "requirement_ids": [
         "FR-1",
