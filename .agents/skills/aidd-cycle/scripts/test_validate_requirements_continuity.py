@@ -16,7 +16,9 @@ from validate_requirements_continuity import (
     baseline_item_manifest,
     baseline_section_manifest,
     content_sha256,
+    section_content_hash,
     structured_sha256,
+    structured_requirements,
     structured_sections,
     validate,
 )
@@ -96,6 +98,7 @@ def source(
     preamble: str = "---\ntitle: display\n---\n\n# display",
     requirements: list[tuple[str, str, str]] | None = None,
     block_overrides: dict[str, list[dict[str, str]]] | None = None,
+    heading_overrides: dict[str, str] | None = None,
 ) -> dict[str, object]:
     active_requirements = requirements or REQUIREMENTS
     validation: dict[str, object] = {
@@ -132,7 +135,9 @@ def source(
         validation["sections"] = [
             {
                 "id": section_id,
-                "heading": SECTION_HEADINGS[section_id],
+                "heading": (heading_overrides or {}).get(
+                    section_id, SECTION_HEADINGS[section_id]
+                ),
                 "blocks": (block_overrides or {}).get(
                     section_id,
                     [
@@ -213,7 +218,64 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         value = source("requirements", completeness_gate())
         value["validation"]["sections"][4]["heading"] = "非機能要件"
 
-        with self.assertRaisesRegex(ValidationError, "heading does not match"):
+        with self.assertRaisesRegex(ValidationError, "exactly one canonical section"):
+            structured_sections(value)
+
+    def test_section_hash_includes_owned_requirement_text(self) -> None:
+        baseline = source("requirements", completeness_gate())
+        changed = deepcopy(baseline)
+        changed["validation"]["requirements"][0]["text"] = (
+            "FR-1 JSONを検証正本として扱う。追加の要件。"
+        )
+
+        baseline_items = structured_requirements(baseline)
+        changed_items = structured_requirements(changed)
+        baseline_sections = structured_sections(baseline)
+        changed_sections = structured_sections(changed)
+
+        self.assertNotEqual(
+            section_content_hash(
+                "functional",
+                baseline_sections["functional"],
+                baseline_items,
+            ),
+            section_content_hash(
+                "functional",
+                changed_sections["functional"],
+                changed_items,
+            ),
+        )
+
+    def test_section_hash_includes_heading(self) -> None:
+        baseline = source("requirements", completeness_gate())
+        changed = deepcopy(baseline)
+        changed["validation"]["sections"][4]["heading"] = (
+            "Functional Requirements"
+        )
+
+        baseline_items = structured_requirements(baseline)
+        changed_items = structured_requirements(changed)
+        baseline_sections = structured_sections(baseline)
+        changed_sections = structured_sections(changed)
+
+        self.assertNotEqual(
+            section_content_hash(
+                "functional",
+                baseline_sections["functional"],
+                baseline_items,
+            ),
+            section_content_hash(
+                "functional",
+                changed_sections["functional"],
+                changed_items,
+            ),
+        )
+
+    def test_rejects_unapproved_section_heading_suffix(self) -> None:
+        value = source("requirements", completeness_gate())
+        value["validation"]["sections"][4]["heading"] = "機能要件と追加説明"
+
+        with self.assertRaisesRegex(ValidationError, "exactly one canonical section"):
             structured_sections(value)
 
     def validate_source(
@@ -224,6 +286,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         preamble: str = "---\ntitle: display\n---\n\n# display",
         requirements: list[tuple[str, str, str]] | None = None,
         block_overrides: dict[str, list[dict[str, str]]] | None = None,
+        heading_overrides: dict[str, str] | None = None,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -263,6 +326,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                             preamble,
                             requirements,
                             block_overrides,
+                            heading_overrides,
                         )
                     ),
                     encoding="utf-8",
@@ -625,7 +689,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                             WORKSPACE,
                         )
 
-    def test_artifact_rejects_section_status_that_disagrees_with_blocks(self) -> None:
+    def test_artifact_rejects_section_status_that_disagrees_with_content(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
@@ -649,7 +713,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
             goal_path = repo_root / "goal.json"
 
-            for status, block_overrides, expected_error in (
+            for status, block_overrides, heading_overrides, expected_error in (
                 (
                     "unchanged",
                     {
@@ -661,12 +725,20 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                             }
                         ]
                     },
+                    None,
                     "unchanged Requirements section changed",
                 ),
                 (
                     "changed",
                     None,
+                    None,
                     "changed Requirements section is identical",
+                ),
+                (
+                    "unchanged",
+                    None,
+                    {"functional": "Functional Requirements"},
+                    "unchanged Requirements section changed",
                 ),
             ):
                 with self.subTest(status=status):
@@ -705,6 +777,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                                 "requirements",
                                 gate,
                                 block_overrides=block_overrides,
+                                heading_overrides=heading_overrides,
                             )
                         ),
                         encoding="utf-8",

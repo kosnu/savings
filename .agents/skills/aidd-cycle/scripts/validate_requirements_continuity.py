@@ -26,6 +26,12 @@ from git_baseline import (
     require_canonical_worktree_path,
     validate_workspace_identity,
 )
+from section_aliases import (
+    canonical_requirement_section_ids_for_heading,
+    exact_requirement_section_ids_for_heading,
+)
+
+
 class ValidationError(ValueError):
     pass
 
@@ -58,18 +64,6 @@ LEGACY_REQUIRED_REQUIREMENTS_SECTIONS = tuple(
     "non_functional" if section_id == "non-functional" else section_id
     for section_id in REQUIRED_REQUIREMENTS_SECTIONS
 )
-SECTION_HEADINGS = {
-    "background": "背景",
-    "users": "対象ユーザー",
-    "stories": "ユーザーストーリー",
-    "scope": "スコープ",
-    "functional": "機能要件",
-    "non-functional": "非機能要件",
-    "non_functional": "非機能要件",
-    "acceptance": "受け入れ条件",
-    "qa": "Q&A",
-    "technical": "技術的考慮事項",
-}
 REQUIREMENT_ID_PATTERN = re.compile(r"(?:FR|NFR|AC)-[1-9][0-9]*")
 REQUIREMENT_MENTION_PATTERN = re.compile(
     r"(?<![A-Z0-9_-])(?:FR|NFR|AC)-[1-9][0-9]*(?![A-Z0-9_-])"
@@ -231,6 +225,40 @@ def structured_sha256(value: Any) -> str:
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
+def section_requirement_entries(
+    section_id: str,
+    current_items: dict[str, StructuredRequirement],
+) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    for requirement_id in sorted(current_items, key=requirement_sort_key):
+        requirement = current_items[requirement_id]
+        requirement_section_id = requirement.section_id
+        if requirement_section_id is None:
+            requirement_section_id = REQUIREMENT_SECTION_BY_PREFIX[
+                requirement_id.split("-", 1)[0]
+            ]
+        if requirement_section_id == "non_functional":
+            requirement_section_id = "non-functional"
+        if requirement_section_id == section_id:
+            entries.append({"id": requirement_id, "text": requirement.text})
+    return entries
+
+
+def section_content_hash(
+    section_id: str,
+    section: StructuredSection,
+    current_items: dict[str, StructuredRequirement],
+) -> str:
+    if section.blocks is None:
+        return content_sha256(section.content)
+    value: dict[str, Any] = {
+        "heading": section.heading,
+        "blocks": list(section.blocks),
+        "requirements": section_requirement_entries(section_id, current_items),
+    }
+    return structured_sha256(value)
+
+
 def require_substantive_requirement_content(
     requirement_id: str,
     content: str,
@@ -317,10 +345,14 @@ def structured_sections(source: dict[str, Any]) -> dict[str, StructuredSection]:
         if is_legacy_inventory and section_id == "non_functional":
             section_id = "non-functional"
         heading = require_string(entry["heading"], f"sections[{index}].heading")
-        canonical_heading = SECTION_HEADINGS.get(section_id)
-        if canonical_heading is None or not heading.startswith(canonical_heading):
+        matched_section_ids = (
+            canonical_requirement_section_ids_for_heading(heading)
+            if is_legacy_inventory
+            else exact_requirement_section_ids_for_heading(heading)
+        )
+        if matched_section_ids != (section_id,):
             raise ValidationError(
-                f"section {section_id} heading does not match its canonical aliases"
+                f"section {section_id} heading must map to exactly one canonical section"
             )
         if is_legacy_inventory:
             require_string(entry["content"], f"sections[{index}].content")
@@ -365,15 +397,14 @@ def baseline_item_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
 
 def baseline_section_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
     source = load_baseline_source_bytes(baseline_bytes, "requirements")
+    items = structured_requirements(source)
     sections = structured_sections(source)
     canonical_sections = REQUIRED_REQUIREMENTS_SECTIONS
     return [
         {
             "id": section_id,
-            "content_sha256": (
-                content_sha256(sections[section_id].content)
-                if sections[section_id].blocks is None
-                else structured_sha256(list(sections[section_id].blocks))
+            "content_sha256": section_content_hash(
+                section_id, sections[section_id], items
             ),
         }
         for section_id in canonical_sections
@@ -782,11 +813,7 @@ def validate(
 
     for section_id, status in section_statuses.items():
         section = current_sections[section_id]
-        current_hash = (
-            content_sha256(section.content)
-            if section.blocks is None
-            else structured_sha256(list(section.blocks))
-        )
+        current_hash = section_content_hash(section_id, section, current_items)
         if status == "unchanged" and current_hash != baseline_sections[section_id]:
             raise ValidationError(f"unchanged Requirements section changed: {section_id}")
         if status == "changed" and current_hash == baseline_sections[section_id]:

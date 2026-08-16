@@ -112,7 +112,7 @@ Intent / Requirements Goalを作成する前に、Task ContextとRule Selection�
 - Goal JSONと生成する`requirements.json`に同じRequirements Input Gateを記録する。direct nodeを少なくとも1件要求し、空の`direct_rules`でrule-map選択を回避させない。Goal作成時は単体検証し、成果物完了時は単体検証に加えて、保持したGoal JSONのGate objectとの完全一致を検証する。
 - validatorへrepo rootとworkspaceを渡し、Git `HEAD`のcanonical `requirements.json`からbaselineを自動取得する。Goal作成者がbaselineの有無や取得元を選ばない。
 - Requirements Goalと生成する`requirements.json`は最新Issue全体をscopeとし、今回追加または変更された内容だけへ狭めない。
-- 前回と現在の各要求項目、および背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項を`unchanged`、`changed`、`new`として追跡する。各必須sectionはJSONの別entryへ一対一で対応させる。`unchanged`は正規化した構造化content hashの一致、`changed`と`new`は最新Issueの原文根拠を必須とする。根拠原文は対象requirementまたはcanonical sectionのcontent内に存在し、同種の別targetへ重複対応または再利用されないことをvalidatorで確認する。
+- 前回と現在の各要求項目、および背景、対象ユーザー、ユーザーストーリー、スコープ、機能要件、非機能要件、受け入れ条件、Q&A、技術的考慮事項を`unchanged`、`changed`、`new`として追跡する。各必須sectionはJSONの別entryへ一対一で対応させ、managed v2では明示的に許可したcanonical aliasへ完全一致させる。`unchanged`はsection見出し、typed block、およびそのsectionに所属する現在のrequirement定義を含む正規化済み構造化content hashの一致、`changed`と`new`は最新Issueの原文根拠を必須とする。legacy inventoryは既存見出しの互換マッチングを維持する。根拠原文は対象requirementまたはcanonical sectionのcontent内に存在し、同種の別targetへ重複対応または再利用されないことをvalidatorで確認する。
 - 前回の要求IDを削除する場合は、ID自体と明示的な廃止・対象外表現を含む最新Issue原文をGateへ記録する。廃止語を否定する文は根拠として拒否し、根拠なしの欠落をvalidatorで拒否する。
 - validatorによる文字列存在確認は必要条件であり、意味的な十分条件ではない。引用したIssue原文がその要求項目またはsectionの変更・追加・廃止を一意に正当化しない場合はStopする。
 - 最新Issue本文自身に安定要求IDがある場合、新Requirementsからの欠落をvalidatorで拒否する。
