@@ -21,7 +21,7 @@ GOAL_KINDS = {"requirements_goal", "design_goal"}
 SUPPORTED_KINDS = ARTIFACT_KINDS | GOAL_KINDS
 SOURCE_FILENAMES = {
     "requirements": "requirements.json",
-    "design": "design.json",
+    "design": "design-doc.json",
 }
 DISPLAY_FILENAMES = {
     "requirements": "requirements.md",

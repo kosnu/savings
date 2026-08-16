@@ -56,7 +56,7 @@ AnthropicのClaude Codeでも、agentic codingでは探索、計画、実装、c
 
 Issue本文はRequirements / PRDのTask Context正本として扱います。Issueには、AIが要求整理を始められるだけの意図、制約、成功条件、Stop条件を書き、Design Doc相当の実装詳細は書きすぎません。会話、review、現在diff、前回artifact、直前に更新されたルールをIssue本文にないTask Contextとして追加しません。
 
-同じIssueまたはタスクで新しいサイクルを始める場合、workspaceと無印の`requirements.json`、`design.json`を再利用します。JSONは機械検証の正本であり、`requirements.md`、`design-doc.md`はJSONから生成する人間向け表示です。Issueごとのworkspaceは1つだけとし、新サイクルを理由に`v2`、`v3`、`version`、`revision`、`cycle`、`retry`、`rerun`などの派生directoryを作りません。開始時にGit `HEAD`とworktreeの両方からIssue番号で既存workspaceを探索し、1つなら必ず再利用、0件なら`<Issue番号>-<短いtitle>`で新規作成、複数なら暗黙に選ばずStopします。新しいサイクルは最新Issue本文を再取得してTask Contextを固定し、read-onlyは同一サイクルの後続工程にだけ適用します。新サイクルの各生成工程は対応するJSON正本を同じpathへ上書きし、Markdown表示を再生成します。
+同じIssueまたはタスクで新しいサイクルを始める場合、workspaceと無印の`requirements.json`、`design-doc.json`を再利用します。JSONは機械検証の正本であり、`requirements.md`、`design-doc.md`はJSONから生成する人間向け表示です。Issueごとのworkspaceは1つだけとし、新サイクルを理由に`v2`、`v3`、`version`、`revision`、`cycle`、`retry`、`rerun`などの派生directoryを作りません。開始時にGit `HEAD`とworktreeの両方からIssue番号で既存workspaceを探索し、1つなら必ず再利用、0件なら`<Issue番号>-<短いtitle>`で新規作成、複数なら暗黙に選ばずStopします。新しいサイクルは最新Issue本文を再取得してTask Contextを固定し、read-onlyは同一サイクルの後続工程にだけ適用します。新サイクルの各生成工程は対応するJSON正本を同じpathへ上書きし、Markdown表示を再生成します。
 
 上書きは今回増えた内容だけを局所的に文書化することを意味しません。各生成工程は現在の上流入力全体を満たす完成版を同じcanonical pathへ作り直します。Requirements / PRDは最新Issue全体を覆い、前回の全要求項目と主要sectionをJSONの構造化fieldで状態遷移として追跡します。Design / Planは現在の各要求IDへ専用の設計・検証根拠を与え、前回Designの全sectionを維持または置換として追跡します。baselineは呼び出し側が選ばず、validatorがcanonical JSON pathのGit `HEAD`から取得します。通常validatorはMarkdown表示を解析しません。前回成果物はTask Contextではなく、欠落検出またはまだ有効な設計を維持するためにだけ参照できます。
 

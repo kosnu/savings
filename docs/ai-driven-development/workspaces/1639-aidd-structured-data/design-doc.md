@@ -42,7 +42,7 @@ when_to_read:
 
 ### 正本と表示の境界
 
-- workspaceごとに`requirements.json`と`design.json`を機械判定のcanonical sourceとして追加する。
+- workspaceごとに`requirements.json`と`design-doc.json`を機械判定のcanonical sourceとして追加する。
 - `requirements.md`と`design-doc.md`はJSON内のstructured fieldsから決定的に生成されるhuman-readable outputとする。
 - Goal準備ではtemporary Goal JSON（`kind: requirements_goal` / `kind: design_goal`）を正本とし、Goal objective Markdownも同じrendererで生成する。
 - 通常validatorはJSONだけをloadし、Markdownの見出し、fence、HTML、文字列検索を判定に使わない。
@@ -63,7 +63,7 @@ when_to_read:
 
 - `validate_requirements_goal.py`はGoal/artifact JSONのIssue snapshotとrule selectionを検証する。
 - `validate_requirements_continuity.py`はJSONのrequirement/section transitionとGit `HEAD`の`requirements.json` baselineを比較する。
-- `validate_design_coverage.py`はcanonical `requirements.json`とGoal/artifact JSONのID coverage、Git `HEAD`の`design.json` section baselineを比較する。
+- `validate_design_coverage.py`はcanonical `requirements.json`とGoal/artifact JSONのID coverage、Git `HEAD`の`design-doc.json` section baselineを比較する。
 - `git_baseline.py`はcanonical JSON sourceと生成Markdown pathを別関数で解決する。baselineが`legacy_import`でも保存済みの構造化inventoryだけを読む。
 - `requirement_ids.py`のMarkdown抽出はlegacy importer専用へ移し、通常validatorからimportしない。
 

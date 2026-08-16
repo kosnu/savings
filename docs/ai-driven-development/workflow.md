@@ -41,13 +41,13 @@ LearnはGoalではなく、Ship完了後、または上流成果物の不足・�
 
 Stop条件を検出したphase Goalは、Goal tool contractが`status: blocked`への遷移を許可するまで未完了のまま同じblockerを報告し、Learnまたは別の工程を開始しません。許可された時点で`update_goal`を`status: blocked`で呼び出して終端化してからLearnへ進みます。新しいサイクルを回す場合は、前回の続きとして途中工程から再開せず、最新のIssue本文をTask Contextとして取得し、必ずIntent / Requirements Goalから始めます。最新ルールはTask Contextとは別にrule-mapから選択します。
 
-同じIssueまたはタスクでは、サイクルをまたいで同じworkspaceとcanonical artifact pathを使います。新しいサイクルには新しいcycle IDだけを発行し、workspace名へ`v2`、`v3`、`version`、`revision`、`cycle`、`retry`、`rerun`などの派生markerを含めません。Issue-based cycleの開始前にGit `HEAD`とworktreeから同じIssue番号のworkspaceを検証し、1件なら必ず再利用、0件なら`<Issue番号>-<短いtitle>`で新規作成、複数なら統合先を暗黙に決めずStopします。Intent / Requirements Goalは`requirements.json`、Design / Plan Goalは`design.json`への書き込みを所有し、新しいサイクルでは各pathの前サイクル内容を置き換えます。managed artifactの`requirements.md`または`design-doc.md`はJSONの構造化sectionとGateから生成し、`display.preamble`はfront matterやH1などの静的preambleだけに使います。legacy importだけはlosslessなMarkdown payloadを維持します。各生成工程は現在の上流入力全体を満たすcomplete replacementを作り、今回増えた内容やPR指摘だけへGoalまたは成果物のscopeを狭めません。Ship済みのサイクルはcommit済みであり、その内容はGit履歴で参照します。Stopしたサイクルの成果物はunstagedのまま保持し、次サイクルの生成工程で置き換えます。
+同じIssueまたはタスクでは、サイクルをまたいで同じworkspaceとcanonical artifact pathを使います。新しいサイクルには新しいcycle IDだけを発行し、workspace名へ`v2`、`v3`、`version`、`revision`、`cycle`、`retry`、`rerun`などの派生markerを含めません。Issue-based cycleの開始前にGit `HEAD`とworktreeから同じIssue番号のworkspaceを検証し、1件なら必ず再利用、0件なら`<Issue番号>-<短いtitle>`で新規作成、複数なら統合先を暗黙に決めずStopします。Intent / Requirements Goalは`requirements.json`、Design / Plan Goalは`design-doc.json`への書き込みを所有し、新しいサイクルでは各pathの前サイクル内容を置き換えます。managed artifactの`requirements.md`または`design-doc.md`はJSONの構造化sectionとGateから生成し、`display.preamble`はfront matterやH1などの静的preambleだけに使います。legacy importだけはlosslessなMarkdown payloadを維持します。各生成工程は現在の上流入力全体を満たすcomplete replacementを作り、今回増えた内容やPR指摘だけへGoalまたは成果物のscopeを狭めません。Ship済みのサイクルはcommit済みであり、その内容はGit履歴で参照します。Stopしたサイクルの成果物はunstagedのまま保持し、次サイクルの生成工程で置き換えます。
 
-前回成果物は新しいRequirementsのTask Contextではありません。ただし、作り直しで既存内容を意図せず欠落させないため、validatorは同じworkspaceのcanonical `requirements.json` / `design.json`をGit `HEAD`から自動取得してcontinuity baselineにします。呼び出し側はbaselineの有無や別ファイルを指定できません。差分は変更点を特定する補助情報であり、生成対象の全体scopeを置き換えません。
+前回成果物は新しいRequirementsのTask Contextではありません。ただし、作り直しで既存内容を意図せず欠落させないため、validatorは同じworkspaceのcanonical `requirements.json` / `design-doc.json`をGit `HEAD`から自動取得してcontinuity baselineにします。呼び出し側はbaselineの有無や別ファイルを指定できません。差分は変更点を特定する補助情報であり、生成対象の全体scopeを置き換えません。
 
-read-only境界は同一サイクルの後続工程にだけ適用します。現在サイクルで生成した`requirements.json`と`requirements.md`はDesign / Plan以降、`design.json`と`design-doc.md`はBuild / Verify以降でread-onlyです。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、現在の工程で上流成果物を直さずStopし、`$learn`で対象Issue本文の変更案、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理します。次サイクルの各生成工程では、対応する前サイクルの成果物を同じpathへ上書きします。
+read-only境界は同一サイクルの後続工程にだけ適用します。現在サイクルで生成した`requirements.json`と`requirements.md`はDesign / Plan以降、`design-doc.json`と`design-doc.md`はBuild / Verify以降でread-onlyです。成果物の不足、誤り、矛盾、レビュー指摘、検証結果、運用知見を反映する必要がある場合は、現在の工程で上流成果物を直さずStopし、`$learn`で対象Issue本文の変更案、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理します。次サイクルの各生成工程では、対応する前サイクルの成果物を同じpathへ上書きします。
 
-RequirementsとDesignの通常機械検証は、共通envelope `schema_version`、`kind`、`workspace`、`display`、`validation`を持つJSONだけを入力にします。`requirements_goal` / `design_goal`の一時JSONを先に作成・検証し、型付き`display` fieldから生成したGoal objectiveを渡します。rendererはGoal objectiveを出力する前に、Context PacketのGoal、constraints、Stop、Done / Verificationと、構造化Gateおよび全scopeが欠落・不一致でないことを確認します。さらに全構造化IDからcanonical Validated Scopeを生成し、生成objectiveが常に検証済みの全scopeを含むようにします。managed artifactはcanonical `requirements.json` / `design.json`として保存し、rendererが構造化section、requirement、coverage、GateからMarkdown本文を生成します。Requirementsのrequirement定義と対応sectionが一致しない場合は生成を拒否します。通常validatorはMarkdown表示を解釈せず、生成結果の同期はrendererのUTF-8文字列一致検証で確認します。CRLFとLFの改行コード差は同一として扱います。旧Markdownの解析は移行scriptだけに許可し、`legacy_import`の`--check`では保存inventoryが元Markdownからの再import結果と一致することをメモリ上で検証します。managed sourceをMarkdownから再構築することはありません。
+RequirementsとDesignの通常機械検証は、共通envelope `schema_version`、`kind`、`workspace`、`display`、`validation`を持つJSONだけを入力にします。`requirements_goal` / `design_goal`の一時JSONを先に作成・検証し、型付き`display` fieldから生成したGoal objectiveを渡します。rendererはGoal objectiveを出力する前に、Context PacketのGoal、constraints、Stop、Done / Verificationと、構造化Gateおよび全scopeが欠落・不一致でないことを確認します。さらに全構造化IDからcanonical Validated Scopeを生成し、生成objectiveが常に検証済みの全scopeを含むようにします。managed artifactはcanonical `requirements.json` / `design-doc.json`として保存し、rendererが構造化section、requirement、coverage、GateからMarkdown本文を生成します。Requirementsのrequirement定義と対応sectionが一致しない場合は生成を拒否します。通常validatorはMarkdown表示を解釈せず、生成結果の同期はrendererのUTF-8文字列一致検証で確認します。CRLFとLFの改行コード差は同一として扱います。旧Markdownの解析は移行scriptだけに許可し、`legacy_import`の`--check`では保存inventoryが元Markdownからの再import結果と一致することをメモリ上で検証します。managed sourceをMarkdownから再構築することはありません。
 
 Goal JSONの`display.context.constraints`、`display.context.stop`、`display.done`は、自由文字列ではなく`id`と`text`を持つentry配列にします。次の必須entryを表の順序とcanonical textで記録し、その後のtask固有entryには別の安定IDを付けます。`display.goal`、Context Packet本文、各entryの`text`はplaceholderまたは実質8文字未満を拒否し、IDだけ残した空の実行契約や、必須IDへ無関係な説明を割り当てたGoalを渡しません。
 
@@ -168,7 +168,7 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 
 どう作るかを定義します。
 
-現在サイクルの最新Requirements / PRD全体をもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。今回追加、変更された要求は設計へ統合する差分であり、Design / Plan GoalやDesign Docのscopeではありません。入力は同じworkspaceのcanonical pathにある`requirements.json`だけを許可し、コピー、一時ファイル、symlink経由の別pathを使いません。このJSONと生成済み`requirements.md`はread-onlyです。成果物は同じworkspaceのcanonical `design.json`へ書き込み、`design-doc.md`を生成します。
+現在サイクルの最新Requirements / PRD全体をもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。今回追加、変更された要求は設計へ統合する差分であり、Design / Plan GoalやDesign Docのscopeではありません。入力は同じworkspaceのcanonical pathにある`requirements.json`だけを許可し、コピー、一時ファイル、symlink経由の別pathを使いません。このJSONと生成済み`requirements.md`はread-onlyです。成果物は同じworkspaceのcanonical `design-doc.json`へ書き込み、`design-doc.md`を生成します。
 
 Design / Plan Goalを作成する前に、現在のcanonical `requirements.json`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGoal JSONの`validation.scopes`へ記載します。Git baselineがある場合は全sectionの`section_id`（legacyは`null`）、heading、専用review scopeを`validation.baseline_scopes`へ記載します。Design完了時も、各IDを専用の設計根拠と検証根拠へ一度ずつ対応付け、baseline sectionごとのidentityと根拠を構造化して記録します。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は拒否します。
 
@@ -176,7 +176,7 @@ Design Coverage Gateを評価する前に、同じvalidatorが最新Issue本文�
 
 IDまたはheadingの文字列が根拠に含まれることは必要条件であり、意味的な十分条件ではありません。その根拠が特定要求または前回sectionを実際に解決していると判断できない場合はStopします。
 
-validatorは前回`design.json`も同じworkspaceのcanonical pathからGit `HEAD`で自動取得します。前回の全構造化sectionを、内容hashが一致する`preserved`または新Design根拠を持つ`replaced`として追跡します。前回Designは現在のRequirementsを拡張するTask Contextではなく、引き継ぐ判断は現在のRequirements、選択したrule-mapサブグラフ、既存実装に対して再検証します。
+validatorは前回`design-doc.json`も同じworkspaceのcanonical pathからGit `HEAD`で自動取得します。前回の全構造化sectionを、内容hashが一致する`preserved`または新Design根拠を持つ`replaced`として追跡します。前回Designは現在のRequirementsを拡張するTask Contextではなく、引き継ぐ判断は現在のRequirements、選択したrule-mapサブグラフ、既存実装に対して再検証します。
 
 ユーザーが実行できる操作、画面遷移、再試行・取消・確認などの復帰経路を追加、変更、削除する判断は、プロダクト判断として扱います。Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できない場合、Design / Planは一般的なUX、既存実装、既存パターンを根拠に補わずStopします。
 
@@ -196,7 +196,7 @@ validatorは前回`design.json`も同じworkspaceのcanonical pathからGit `HEA
 - Design Coverage Gateがcanonical Requirements JSONの全識別子を含み、各識別子が専用の設計根拠と検証根拠へ一度ずつ対応し、Git baselineの全sectionが維持または置換として追跡されているか確認する。
 - Design / Planで追加した実装方針、テスト方針、文言、操作境界がルール・ポリシーに違反していないか確認する。
 - Design Docで追加、変更、削除するユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できるか確認する。
-- Design Docが同じworkspaceのcanonical pathである`design.json`にあり、rendererで`design-doc.md`とのUTF-8文字列一致（CRLF/LF差は正規化）を確認する。
+- Design Docが同じworkspaceのcanonical pathである`design-doc.json`にあり、rendererで`design-doc.md`とのUTF-8文字列一致（CRLF/LF差は正規化）を確認する。
 
 止まる条件:
 
@@ -209,7 +209,7 @@ validatorは前回`design.json`も同じworkspaceのcanonical pathからGit `HEA
 
 ## 3. Build / Verify Goal
 
-最新のDesign Docに従って実装し、検証まで完了します。Build / Verify Goalを作成する前にRequirements Completeness GateとDesign Coverage Gateのartifact検証、およびrendererの生成一致検証が成功していることを確認し、現在の上流入力全体を覆わない成果物から実装を開始しません。入力の`requirements.json`、`requirements.md`、`design.json`、`design-doc.md`はread-onlyです。
+最新のDesign Docに従って実装し、検証まで完了します。Build / Verify Goalを作成する前にRequirements Completeness GateとDesign Coverage Gateのartifact検証、およびrendererの生成一致検証が成功していることを確認し、現在の上流入力全体を覆わない成果物から実装を開始しません。入力の`requirements.json`、`requirements.md`、`design-doc.json`、`design-doc.md`はread-onlyです。
 
 この段階では、AIに既存パターンに沿った実装判断、必要なテスト追加、小さな型修正や呼び出し側調整を任せます。一方で、新規依存、DB変更、API仕様変更、破壊的git操作が必要になった場合はStop条件としてエスカレーションします。
 

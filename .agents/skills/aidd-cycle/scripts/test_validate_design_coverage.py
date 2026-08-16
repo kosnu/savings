@@ -362,7 +362,7 @@ class DesignCoverageGateTest(unittest.TestCase):
             baseline: dict[str, object] = {"source": "none", "body_sha256": None}
             baseline_inventory: list[dict[str, str]] = []
             if with_legacy_baseline:
-                baseline_path = workspace_root / "design.json"
+                baseline_path = workspace_root / "design-doc.json"
                 baseline_path.write_text(
                     serialize_source(legacy_design_source()), encoding="utf-8"
                 )
@@ -415,7 +415,7 @@ class DesignCoverageGateTest(unittest.TestCase):
             document_path = (
                 repo_root / "goal.json"
                 if kind == "goal"
-                else workspace_root / "design.json"
+                else workspace_root / "design-doc.json"
             )
             document_path.write_text(
                 json.dumps(document, ensure_ascii=False, indent=2) + "\n",

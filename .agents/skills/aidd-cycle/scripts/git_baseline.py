@@ -17,6 +17,14 @@ VERSIONED_WORKSPACE_MARKER_PATTERN = re.compile(
     r"retry(?:-[0-9]+)?|rerun(?:-[0-9]+)?)(?:-|$)"
 )
 MAX_GIT_BLOB_BYTES = 16 * 1024 * 1024
+CANONICAL_SOURCE_FILENAMES = {
+    "requirements": "requirements.json",
+    "design": "design-doc.json",
+}
+LEGACY_SOURCE_FILENAMES = {
+    # Read only a committed pre-rename baseline; current inputs use the canonical name above.
+    "design": "design.json",
+}
 
 
 class GitBaselineError(ValueError):
@@ -56,11 +64,7 @@ def canonical_source_path(
     kind: str,
 ) -> Path:
     validate_workspace_name(workspace)
-    filenames = {
-        "requirements": "requirements.json",
-        "design": "design.json",
-    }
-    if kind not in filenames:
+    if kind not in CANONICAL_SOURCE_FILENAMES:
         raise GitBaselineError(f"unsupported canonical source kind: {kind}")
     return (
         repo_root
@@ -68,7 +72,7 @@ def canonical_source_path(
         / "ai-driven-development"
         / "workspaces"
         / workspace
-        / filenames[kind]
+        / CANONICAL_SOURCE_FILENAMES[kind]
     )
 
 
@@ -244,7 +248,15 @@ def load_git_head_source(
 ) -> tuple[Path, bytes | None]:
     resolved_root = require_repository_root(repo_root)
     source_path = canonical_source_path(resolved_root, workspace, kind)
-    relative_path = source_path.relative_to(resolved_root).as_posix()
-    return source_path, load_regular_head_blob(
-        resolved_root, relative_path, "canonical JSON source"
-    )
+    candidate_paths = [source_path]
+    legacy_filename = LEGACY_SOURCE_FILENAMES.get(kind)
+    if legacy_filename is not None:
+        candidate_paths.append(source_path.with_name(legacy_filename))
+    for candidate_path in candidate_paths:
+        relative_path = candidate_path.relative_to(resolved_root).as_posix()
+        content = load_regular_head_blob(
+            resolved_root, relative_path, "canonical JSON source"
+        )
+        if content is not None:
+            return source_path, content
+    return source_path, None

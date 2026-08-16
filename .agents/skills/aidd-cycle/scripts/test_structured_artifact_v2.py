@@ -529,7 +529,7 @@ class StructuredArtifactV2Test(unittest.TestCase):
     def test_check_all_rejects_goal_kind_at_canonical_artifact_path(self) -> None:
         for artifact_kind, source_filename, display_filename, source in (
             ("requirements", "requirements.json", "requirements.md", goal_source()),
-            ("design", "design.json", "design-doc.md", design_goal_source()),
+            ("design", "design-doc.json", "design-doc.md", design_goal_source()),
         ):
             with self.subTest(artifact_kind=artifact_kind):
                 with tempfile.TemporaryDirectory() as directory:

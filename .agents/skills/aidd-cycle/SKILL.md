@@ -66,7 +66,7 @@ previous cycle; it never narrows the artifact or phase Goal scope. Previous
 artifacts may be used only as omission-detection or still-valid-design
 baselines, never as additional Requirements Task Context.
 
-`requirements.json` and `design.json` are the only machine-validation sources.
+`requirements.json` and `design-doc.json` are the only machine-validation sources.
 For managed artifacts, the renderer builds `requirements.md` and
 `design-doc.md` from structured sections and Gate fields; `display.preamble`
 supplies only the static preamble and is never the artifact body source. Legacy
@@ -186,7 +186,7 @@ Before creating a Design / Plan Goal:
 
 4. Create the Goal only when validation succeeds.
 
-The generated canonical `design.json` must contain the artifact form of the
+The generated canonical `design-doc.json` must contain the artifact form of the
 same gate. Render its human-readable `design-doc.md` with
 `render_aidd_artifact.py`; do not hand-edit that output.
 Each current requirement ID must have its own `coverage` entry with substantive
