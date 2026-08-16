@@ -31,7 +31,7 @@ when_to_read:
 ## Inputs
 
 - Requirements / PRD: canonical `requirements.json`と生成済み`requirements.md`（read-only）
-- Design Doc: canonical `design.json`と生成済み`design-doc.md`（read-only）
+- Design Doc: canonical `design-doc.json`と生成済み`design-doc.md`（read-only）
 - Requirements Completeness Gate検証結果:
 - Design Coverage Gate検証結果:
 - 関連Issue / PR:

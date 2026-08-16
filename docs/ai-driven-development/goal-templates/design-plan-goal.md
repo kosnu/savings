@@ -38,7 +38,7 @@ when_to_read:
 - Workspace identity検証結果: Requirementsと同じ検証済みworkspace
 - Goal source: temporary `design_goal` JSON。このJSONを検証し、型付き`display` fieldから生成したGoal objectiveを使う。
 - Goal contract IDs: constraintsは`canonical-input`、`phase-boundary`、Stopは`validation-failure`、`scope-ambiguity`、Done / Verificationは`complete-scope`、`validated-artifact`を必須とする。各entryは`id`と[workflow](../workflow.md)のcanonical textを持ち、task固有条件には別の安定IDを付ける。
-- 出力先: 同じworkspaceのcanonical `design.json`。このGoalが書き込みを所有し、`design-doc.md`を生成する。
+- 出力先: 同じworkspaceのcanonical `design-doc.json`。このGoalが書き込みを所有し、`design-doc.md`を生成する。
 - Git `HEAD`のcanonical Design baseline: validatorが`--workspace`から自動取得したSHA-256とsection inventory
 - 関連コード:
 - 関連ドキュメント:
@@ -67,7 +67,7 @@ when_to_read:
 
 ## Design Coverage Gate
 
-Goal作成前は、temporary `design_goal` JSONの`validation.coverage_gate`へcanonical Requirements JSONのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを`validation.scopes`へ作る。Git baselineがある場合は全section専用のreview scopeを`validation.baseline_scopes`へ作り、`--kind goal`で検証する。baselineはvalidatorがcanonical `design.json`をGit `HEAD`から取得する。生成する`design.json`では各IDを専用の`coverage` entryへ対応させ、Git baselineの全構造化sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は使えない。Goal Markdownと生成Markdownは機械検証入力にしない。
+Goal作成前は、temporary `design_goal` JSONの`validation.coverage_gate`へcanonical Requirements JSONのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを`validation.scopes`へ作る。Git baselineがある場合は全section専用のreview scopeを`validation.baseline_scopes`へ作り、`--kind goal`で検証する。baselineはvalidatorがcanonical `design-doc.json`をGit `HEAD`から取得する。生成する`design-doc.json`では各IDを専用の`coverage` entryへ対応させ、Git baselineの全構造化sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は使えない。Goal Markdownと生成Markdownは機械検証入力にしない。
 
 ```json
 {
@@ -111,7 +111,7 @@ Design Docのartifact form:
 }
 ```
 
-各block IDは`design.json`のtyped `evidence` blockを参照する。requirement coverage blockは`role: design`または`role: verification`と対象Requirements IDの`owner_id`を持ち、baseline blockは`role: baseline`と対象`section_id`の`owner_id`を持つ。`text`には根拠本文だけを入れ、owner/roleラベルはrendererが構造化fieldから生成する。legacy baselineだけは`section_id: null`とし、見出しを`owner_id`に使う。Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
+各block IDは`design-doc.json`のtyped `evidence` blockを参照する。requirement coverage blockは`role: design`または`role: verification`と対象Requirements IDの`owner_id`を持ち、baseline blockは`role: baseline`と対象`section_id`の`owner_id`を持つ。`text`には根拠本文だけを入れ、owner/roleラベルはrendererが構造化fieldから生成する。legacy baselineだけは`section_id: null`とし、見出しを`owner_id`に使う。Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
 
 ## Requirement Design Scope
 
@@ -175,7 +175,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 追加、変更、削除する各ユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できる
 - [ ] Requirements / PRDの意図・制約・対象外・受け入れ条件から解釈を広げていない
 - [ ] 現在サイクルのRequirements / PRDをread-only入力として扱っている
-- [ ] 成果物が同じworkspaceのcanonical `design.json`にあり、rendererで`design-doc.md`とのUTF-8文字列一致（CRLF/LF差は正規化）を確認している
+- [ ] 成果物が同じworkspaceのcanonical `design-doc.json`にあり、rendererで`design-doc.md`とのUTF-8文字列一致（CRLF/LF差は正規化）を確認している
 - [ ] Design Docが、選択したルール・ポリシーに違反していないことを確認している
 - [ ] リスクと確認事項が残っている
 

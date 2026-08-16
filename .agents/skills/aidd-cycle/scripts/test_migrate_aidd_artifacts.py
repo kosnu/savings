@@ -118,7 +118,7 @@ def artifact_paths(
     )
     workspace_root.mkdir(parents=True)
     display_name = "requirements.md" if kind == "requirements" else "design-doc.md"
-    source_name = "requirements.json" if kind == "requirements" else "design.json"
+    source_name = "requirements.json" if kind == "requirements" else "design-doc.json"
     return workspace_root / display_name, workspace_root / source_name
 
 

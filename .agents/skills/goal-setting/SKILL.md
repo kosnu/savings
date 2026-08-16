@@ -151,13 +151,13 @@ For a Design / Plan Goal:
   generic coverage is invalid.
 - Before `create_goal`, validate the Goal with the `--kind goal` command defined
   in `.agents/skills/aidd-cycle/SKILL.md`.
-- Resolve the committed previous-cycle `design.json` from the canonical workspace
+- Resolve the committed previous-cycle `design-doc.json` from the canonical workspace
   path in Git `HEAD`, not from a caller-supplied file. Require every prior
   structured section to have its own `section_id`- and heading-bearing
   `validation.baseline_scopes` entry in the Goal JSON (`section_id: null` only
   for legacy), then be classified as exact-content preserved or explicitly
   replaced with identity-bound evidence in the new Design JSON.
-- Require the output `design.json` to resolve every identifier through design
+- Require the output `design-doc.json` to resolve every identifier through design
   and verification evidence in a unique entry that contains only that
   identifier. Each ID gets its own entry; omission, grouping, and generic
   shared evidence are invalid.
@@ -165,7 +165,7 @@ For a Design / Plan Goal:
   does not actually resolve that specific requirement or prior section.
 
 Before setting a Build / Verify Goal, require the current `requirements.json`
-and `design.json` to pass their artifact completeness commands and require
+and `design-doc.json` to pass their artifact completeness commands and require
 renderer checks for `requirements.md` and `design-doc.md`. Do not treat
 existing files or completed phase Goals alone as evidence that the complete
 upstream inputs remain covered.

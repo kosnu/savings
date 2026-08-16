@@ -31,7 +31,7 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 
 - 実装ブランチ:
 - Requirements / PRD: canonical `requirements.json`と生成済み`requirements.md`
-- Design Doc: canonical `design.json`と生成済み`design-doc.md`
+- Design Doc: canonical `design-doc.json`と生成済み`design-doc.md`
 - 検証結果:
 - 関連Issue:
 - 関連PR:

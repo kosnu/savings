@@ -318,7 +318,7 @@ def expected_pairs(repo_root: Path) -> list[tuple[Path, Path, str]]:
         "requirements.md": "requirements",
         "requirements.json": "requirements",
         "design-doc.md": "design",
-        "design.json": "design",
+        "design-doc.json": "design",
     }
     keys: set[tuple[str, str]] = set()
 
