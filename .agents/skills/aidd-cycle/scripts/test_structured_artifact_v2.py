@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import copy
-import hashlib
 import subprocess
 import tempfile
 import unittest
@@ -592,6 +591,67 @@ class StructuredArtifactV2Test(unittest.TestCase):
                     ):
                         check_all(repo_root)
 
+    def test_check_all_rejects_missing_managed_source_from_git_head(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            subprocess.run(["git", "-C", str(repo_root), "init", "-q"], check=True)
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repo_root),
+                    "config",
+                    "user.name",
+                    "AIDD Test",
+                ],
+                check=True,
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repo_root),
+                    "config",
+                    "user.email",
+                    "aidd@example.com",
+                ],
+                check=True,
+            )
+            workspace_root = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
+            source_path = workspace_root / "requirements.json"
+            display_path = workspace_root / "requirements.md"
+            source = requirements_source()
+            source_path.write_text(serialize_source(source), encoding="utf-8")
+            display_path.write_text(
+                render_artifact_markdown(source),
+                encoding="utf-8",
+            )
+            subprocess.run(
+                ["git", "-C", str(repo_root), "add", "."], check=True
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repo_root),
+                    "commit",
+                    "-qm",
+                    "managed artifact baseline",
+                ],
+                check=True,
+            )
+            source_path.unlink()
+
+            with self.assertRaisesRegex(SourceError, "artifact source is missing"):
+                check_all(repo_root)
+
     def test_managed_modules_do_not_import_markdown_parsers(self) -> None:
         scripts = Path(__file__).parent
         managed_modules = [
@@ -616,27 +676,6 @@ class StructuredArtifactV2Test(unittest.TestCase):
                     for alias in node.names
                 }
                 self.assertTrue(forbidden.isdisjoint(imported))
-
-    def test_legacy_source_keeps_exact_display_string(self) -> None:
-        markdown = "# Legacy\r\n"
-        source = {
-            "schema_version": 1,
-            "kind": "design",
-            "workspace": WORKSPACE,
-            "display": {"path": "design-doc.md", "markdown": markdown},
-            "validation": {
-                "mode": "legacy_import",
-                "source_markdown_sha256": hashlib.sha256(
-                    markdown.encode("utf-8")
-                ).hexdigest(),
-                "inventory_sha256": hashlib.sha256(
-                    b'{"sections":[]}'
-                ).hexdigest(),
-                "sections": [],
-            },
-        }
-        self.assertEqual(render_artifact_markdown(source), markdown)
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import copy
-import hashlib
 import json
-import os
 import subprocess
 import tempfile
 import unittest
@@ -18,9 +16,7 @@ from artifact_source import (
 )
 from migrate_aidd_artifacts import (
     build_goal_source,
-    build_source,
     migrate,
-    regular_file_matches,
     write_regular_file_atomically,
 )
 from render_aidd_artifact import render_artifact_markdown
@@ -103,9 +99,6 @@ MANAGED_DESIGN_MARKDOWN = """# Design Doc
 {"requirements_sha256":"0000000000000000000000000000000000000000000000000000000000000000","workspace":"1639-structured-data","requirement_ids":["FR-1"],"baseline":{"source":"none","body_sha256":null},"coverage":[{"id":"FR-1","design_evidence":"構造化設計を定義する。","verification_evidence":"構造化設計を確認する。"}],"baseline_sections":[]}
 ```
 """
-LEGACY_DESIGN_MARKDOWN = "# Design Doc\n"
-
-
 def artifact_paths(
     repo_root: Path, kind: str = "requirements"
 ) -> tuple[Path, Path]:
@@ -187,7 +180,7 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
         }
 
         with self.assertRaisesRegex(
-            SourceError, "schema_version 1 is only supported for legacy_import"
+            SourceError, "unsupported AIDD schema_version: 1"
         ):
             load_baseline_source_bytes(
                 json.dumps(source).encode("utf-8"), "requirements"
@@ -200,27 +193,6 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
             managed["display"]["markdown"] = MANAGED_MARKDOWN
             with self.assertRaisesRegex(SourceError, "invalid keys"):
                 serialize_source(managed)
-
-    def test_legacy_baseline_loader_rejects_tampered_inventory(self) -> None:
-        requirements = build_source(WORKSPACE, "requirements", MARKDOWN)
-        requirements["validation"]["requirements"] = [
-            {"id": "FR-9", "content": "- FR-9: tampered"}
-        ]
-        with self.assertRaisesRegex(SourceError, "requirements inventory mismatch"):
-            load_baseline_source_bytes(
-                serialize_source(requirements).encode("utf-8"),
-                "requirements",
-            )
-
-        design = build_source(WORKSPACE, "design", LEGACY_DESIGN_MARKDOWN)
-        design["validation"]["sections"] = [
-            {"heading": "tampered", "content": "## tampered"}
-        ]
-        with self.assertRaisesRegex(SourceError, "design inventory mismatch"):
-            load_baseline_source_bytes(
-                serialize_source(design).encode("utf-8"),
-                "design",
-            )
 
     def test_managed_loader_requires_gate_ids_and_workspace_alignment(self) -> None:
         managed = managed_source()
@@ -265,27 +237,6 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
 
             self.assertFalse((outside / "requirements.json").exists())
 
-    def test_regular_file_comparison_does_not_follow_destination_symlink(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory).resolve()
-            outside = root / "outside.json"
-            outside.write_text("same", encoding="utf-8")
-            destination = root / "requirements.json"
-            destination.symlink_to(outside)
-
-            self.assertFalse(regular_file_matches(destination, "same"))
-
-            write_regular_file_atomically(destination, "same")
-            self.assertFalse(destination.is_symlink())
-            self.assertEqual(outside.read_text(encoding="utf-8"), "same")
-
-    def test_regular_file_comparison_rejects_fifo_without_blocking(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            destination = Path(directory).resolve() / "requirements.json"
-            os.mkfifo(destination)
-
-            self.assertFalse(regular_file_matches(destination, "same"))
-
     def test_migration_rejects_duplicate_json_keys(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -303,23 +254,24 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
             initialize_repository(repo_root)
 
             with self.assertRaisesRegex(SourceError, "duplicate key"):
-                migrate(repo_root, False)
+                migrate(repo_root)
 
-    def test_check_accepts_managed_and_legacy_design_sources(self) -> None:
-        for markdown in (MANAGED_DESIGN_MARKDOWN, LEGACY_DESIGN_MARKDOWN):
-            with self.subTest(managed="Design Coverage Gate" in markdown):
-                with tempfile.TemporaryDirectory() as directory:
-                    repo_root = Path(directory).resolve()
-                    display_path, source_path = artifact_paths(repo_root, "design")
-                    display_path.write_text(markdown, encoding="utf-8")
-                    source = build_source(WORKSPACE, "design", markdown)
-                    source_path.write_text(serialize_source(source), encoding="utf-8")
-                    initialize_repository(repo_root)
+    def test_check_accepts_managed_design_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            display_path, source_path = artifact_paths(repo_root, "design")
+            source = managed_source("design")
+            display_path.write_text(
+                render_artifact_markdown(source), encoding="utf-8"
+            )
+            source_path.write_text(serialize_source(source), encoding="utf-8")
+            initialize_repository(repo_root)
 
-                    self.assertEqual(migrate(repo_root, False), 1)
-                    if source["validation"]["mode"] == "managed":
-                        rendered = render_artifact_markdown(source)
-                        self.assertEqual(rendered.count("## Design Coverage Gate"), 1)
+            self.assertEqual(migrate(repo_root), 1)
+            self.assertEqual(
+                render_artifact_markdown(source).count("## Design Coverage Gate"),
+                1,
+            )
 
     def test_design_goal_import_preserves_baseline_scopes(self) -> None:
         source = build_goal_source(WORKSPACE, "design", DESIGN_GOAL_MARKDOWN)
@@ -413,214 +365,6 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
 
         self.assertEqual(len(source["validation"]["scopes"]), 2)
 
-    def test_write_normalizes_existing_managed_source(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            managed = managed_source()
-            display_path.write_text(
-                render_artifact_markdown(managed), encoding="utf-8"
-            )
-            source_path.write_text(serialize_source(managed), encoding="utf-8")
-            initialize_repository(repo_root)
-
-            migrate(repo_root, True)
-
-            normalized = managed_source()
-            self.assertEqual(
-                source_path.read_text(encoding="utf-8"),
-                serialize_source(normalized),
-            )
-
-    def test_check_rejects_tampered_legacy_inventory(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            display_path.write_text(MARKDOWN, encoding="utf-8")
-            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
-            tampered = copy.deepcopy(legacy)
-            tampered["validation"]["requirements"] = [
-                {"id": "FR-1", "content": "- FR-1: tampered"}
-            ]
-            inventory = {
-                "requirements": tampered["validation"]["requirements"],
-                "sections": tampered["validation"]["sections"],
-            }
-            tampered["validation"]["inventory_sha256"] = hashlib.sha256(
-                json.dumps(
-                    inventory,
-                    ensure_ascii=False,
-                    sort_keys=True,
-                    separators=(",", ":"),
-                ).encode("utf-8")
-            ).hexdigest()
-            source_path.write_text(
-                serialize_source(tampered), encoding="utf-8"
-            )
-            initialize_repository(repo_root)
-
-            with self.assertRaisesRegex(
-                SourceError, "legacy import differs from source Markdown"
-            ):
-                migrate(repo_root, False)
-
-    def test_check_rejects_coordinated_legacy_markdown_and_inventory_change(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
-            display_path.write_text(MARKDOWN, encoding="utf-8")
-            source_path.write_text(serialize_source(legacy), encoding="utf-8")
-            initialize_repository(repo_root)
-
-            changed_markdown = "# Requirements\n\n変更後。\n"
-            changed = build_source(WORKSPACE, "requirements", changed_markdown)
-            display_path.write_text(changed_markdown, encoding="utf-8")
-            source_path.write_text(serialize_source(changed), encoding="utf-8")
-
-            with self.assertRaisesRegex(
-                SourceError, "legacy Git HEAD source is immutable"
-            ):
-                migrate(repo_root, False)
-
-    def test_write_never_downgrades_existing_managed_source(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            managed = managed_source()
-            serialized = serialize_source(managed)
-            source_path.write_text(serialized, encoding="utf-8")
-            display_path.write_text(MARKDOWN, encoding="utf-8")
-            initialize_repository(repo_root)
-
-            with self.assertRaisesRegex(SourceError, "round-trip mismatch"):
-                migrate(repo_root, True)
-
-            self.assertEqual(source_path.read_text(encoding="utf-8"), serialized)
-
-    def test_rejects_downgrade_of_managed_git_head_source(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            managed = managed_source()
-            display_path.write_text(
-                render_artifact_markdown(managed),
-                encoding="utf-8",
-            )
-            source_path.write_text(serialize_source(managed), encoding="utf-8")
-            initialize_repository(repo_root)
-
-            display_path.write_text(MARKDOWN, encoding="utf-8")
-            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
-            source_path.write_text(serialize_source(legacy), encoding="utf-8")
-
-            with self.assertRaisesRegex(
-                SourceError,
-                "managed Git HEAD source cannot be downgraded",
-            ):
-                migrate(repo_root, False)
-
-    def test_write_rejects_missing_managed_git_head_source(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            managed = managed_source()
-            display_path.write_text(
-                render_artifact_markdown(managed),
-                encoding="utf-8",
-            )
-            source_path.write_text(serialize_source(managed), encoding="utf-8")
-            initialize_repository(repo_root)
-
-            source_path.unlink()
-            display_path.write_text(
-                render_artifact_markdown(managed).replace(
-                    "構造化本文を生成する。",
-                    "Markdownから再生成する。",
-                    1,
-                ),
-                encoding="utf-8",
-            )
-
-            with self.assertRaisesRegex(
-                SourceError,
-                "Git HEAD source is missing from worktree",
-            ):
-                migrate(repo_root, True)
-
-            self.assertFalse(source_path.exists())
-
-    def test_write_rejects_missing_legacy_git_head_source(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
-            display_path.write_text(MARKDOWN, encoding="utf-8")
-            source_path.write_text(serialize_source(legacy), encoding="utf-8")
-            initialize_repository(repo_root)
-
-            source_path.unlink()
-            display_path.write_text(
-                "# Requirements\n\nFR-9: Markdownから再生成する。\n",
-                encoding="utf-8",
-            )
-
-            with self.assertRaisesRegex(
-                SourceError,
-                "Git HEAD source is missing from worktree",
-            ):
-                migrate(repo_root, True)
-
-            self.assertFalse(source_path.exists())
-
-    def test_rejects_requirements_markdown_with_only_one_managed_gate(self) -> None:
-        gate_start = MANAGED_MARKDOWN.index("## Requirements Completeness Gate")
-        section_start = MANAGED_MARKDOWN.index("## 機能要件")
-        partial = MANAGED_MARKDOWN[:gate_start] + MANAGED_MARKDOWN[section_start:]
-
-        imported = build_source(WORKSPACE, "requirements", partial)
-        self.assertEqual(imported["validation"]["mode"], "legacy_import")
-
-    def test_write_does_not_import_edited_markdown_preamble_into_json(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            managed = managed_source()
-            serialized = serialize_source(managed)
-            source_path.write_text(serialized, encoding="utf-8")
-            display_path.write_text(
-                render_artifact_markdown(managed).replace(
-                    "# Requirements", "# Edited Requirements", 1
-                ),
-                encoding="utf-8",
-            )
-            initialize_repository(repo_root)
-
-            with self.assertRaisesRegex(SourceError, "round-trip mismatch"):
-                migrate(repo_root, True)
-
-            self.assertEqual(source_path.read_text(encoding="utf-8"), serialized)
-
-    def test_rejects_legacy_source_for_managed_markdown(self) -> None:
-        for write in (False, True):
-            with self.subTest(write=write):
-                with tempfile.TemporaryDirectory() as directory:
-                    repo_root = Path(directory).resolve()
-                    display_path, source_path = artifact_paths(repo_root)
-                    display_path.write_text(MANAGED_MARKDOWN, encoding="utf-8")
-                    legacy = build_source(
-                        WORKSPACE, "requirements", MANAGED_MARKDOWN
-                    )
-                    serialized = serialize_source(legacy)
-                    source_path.write_text(serialized, encoding="utf-8")
-                    initialize_repository(repo_root)
-
-                    self.assertEqual(migrate(repo_root, write), 1)
-
-                    self.assertEqual(
-                        source_path.read_text(encoding="utf-8"), serialized
-                    )
-
     def test_load_source_rejects_invalid_nested_managed_schema(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             source_path = Path(directory).resolve() / "requirements.json"
@@ -633,72 +377,89 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
             with self.assertRaisesRegex(SourceError, "baseline has invalid keys"):
                 load_source(source_path, "requirements")
 
-    def test_check_accepts_exact_legacy_inventory(self) -> None:
+    def test_historical_markdown_only_workspace_is_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            display_path, _ = artifact_paths(repo_root)
+            display_path.write_text(MARKDOWN, encoding="utf-8")
+            initialize_repository(repo_root)
+
+            self.assertEqual(migrate(repo_root), 0)
+
+    def test_check_rejects_missing_managed_source_from_git_head(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             display_path, source_path = artifact_paths(repo_root)
-            display_path.write_text(MARKDOWN, encoding="utf-8")
-            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
-            source_path.write_text(serialize_source(legacy), encoding="utf-8")
+            source = managed_source()
+            display_path.write_text(
+                render_artifact_markdown(source),
+                encoding="utf-8",
+            )
+            source_path.write_text(serialize_source(source), encoding="utf-8")
             initialize_repository(repo_root)
 
-            self.assertEqual(migrate(repo_root, False), 1)
+            source_path.unlink()
+
+            with self.assertRaisesRegex(SourceError, "artifact source is missing"):
+                migrate(repo_root)
 
     def test_check_accepts_crlf_and_lf_as_the_same_markdown(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             display_path, source_path = artifact_paths(repo_root)
-            display_path.write_bytes(b"# Requirements\r\n")
-            legacy = build_source(WORKSPACE, "requirements", MARKDOWN)
-            source_path.write_text(serialize_source(legacy), encoding="utf-8")
+            source = managed_source()
+            display_path.write_bytes(
+                render_artifact_markdown(source).replace("\n", "\r\n").encode()
+            )
+            source_path.write_text(serialize_source(source), encoding="utf-8")
             initialize_repository(repo_root)
 
-            self.assertEqual(migrate(repo_root, False), 1)
+            self.assertEqual(migrate(repo_root), 1)
 
-    def test_check_rejects_missing_source(self) -> None:
+    def test_check_rejects_v1_sidecar(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             display_path, source_path = artifact_paths(repo_root)
             display_path.write_text(MARKDOWN, encoding="utf-8")
+            source_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "kind": "requirements",
+                        "workspace": WORKSPACE,
+                        "display": {
+                            "path": "requirements.md",
+                            "markdown": MARKDOWN,
+                        },
+                        "validation": {"mode": "legacy_import"},
+                    }
+                ),
+                encoding="utf-8",
+            )
             initialize_repository(repo_root)
 
-            with self.assertRaisesRegex(SourceError, "source is missing"):
-                migrate(repo_root, False)
-
-            self.assertFalse(source_path.exists())
+            with self.assertRaisesRegex(
+                SourceError, "unsupported AIDD schema_version: 1"
+            ):
+                migrate(repo_root)
 
     def test_check_rejects_orphan_source(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             display_path, source_path = artifact_paths(repo_root)
+            source = managed_source()
             source_path.write_text(
-                serialize_source(build_source(WORKSPACE, "requirements", MARKDOWN)),
+                serialize_source(source),
                 encoding="utf-8",
             )
             initialize_repository(repo_root)
 
             with self.assertRaisesRegex(SourceError, "display is missing"):
-                migrate(repo_root, False)
+                migrate(repo_root)
 
             self.assertFalse(display_path.exists())
 
-    def test_check_rejects_tracked_pair_deleted_from_worktree(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            display_path, source_path = artifact_paths(repo_root)
-            display_path.write_text(MARKDOWN, encoding="utf-8")
-            source_path.write_text(
-                serialize_source(build_source(WORKSPACE, "requirements", MARKDOWN)),
-                encoding="utf-8",
-            )
-            initialize_repository(repo_root)
-            display_path.unlink()
-            source_path.unlink()
-
-            with self.assertRaisesRegex(SourceError, "display is missing"):
-                migrate(repo_root, False)
-
-    def test_write_rejects_symlinked_workspace_before_external_write(self) -> None:
+    def test_check_rejects_symlinked_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             temporary_root = Path(directory).resolve()
             repo_root = temporary_root / "repo"
@@ -720,7 +481,7 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
             )
 
             with self.assertRaisesRegex(SourceError, "must not contain symlinks"):
-                migrate(repo_root, True)
+                migrate(repo_root)
 
             self.assertFalse((outside_workspace / "requirements.json").exists())
 
@@ -737,7 +498,7 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
             initialize_repository(repo_root)
 
             with self.assertRaisesRegex(SourceError, "input_gate has invalid keys"):
-                migrate(repo_root, False)
+                migrate(repo_root)
 
 
 if __name__ == "__main__":

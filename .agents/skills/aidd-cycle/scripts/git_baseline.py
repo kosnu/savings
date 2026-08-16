@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import subprocess
@@ -20,10 +21,6 @@ MAX_GIT_BLOB_BYTES = 16 * 1024 * 1024
 CANONICAL_SOURCE_FILENAMES = {
     "requirements": "requirements.json",
     "design": "design-doc.json",
-}
-LEGACY_SOURCE_FILENAMES = {
-    # Read only a committed pre-rename baseline; current inputs use the canonical name above.
-    "design": "design.json",
 }
 
 
@@ -248,15 +245,62 @@ def load_git_head_source(
 ) -> tuple[Path, bytes | None]:
     resolved_root = require_repository_root(repo_root)
     source_path = canonical_source_path(resolved_root, workspace, kind)
-    candidate_paths = [source_path]
-    legacy_filename = LEGACY_SOURCE_FILENAMES.get(kind)
-    if legacy_filename is not None:
-        candidate_paths.append(source_path.with_name(legacy_filename))
-    for candidate_path in candidate_paths:
-        relative_path = candidate_path.relative_to(resolved_root).as_posix()
-        content = load_regular_head_blob(
-            resolved_root, relative_path, "canonical JSON source"
+    relative_path = source_path.relative_to(resolved_root).as_posix()
+    return source_path, load_regular_head_blob(
+        resolved_root, relative_path, "canonical JSON source"
+    )
+
+
+def list_git_head_managed_artifact_keys(
+    repo_root: Path,
+) -> set[tuple[str, str]]:
+    """List schema v2 artifact paths without importing historical sidecars."""
+
+    resolved_root = require_repository_root(repo_root)
+    listing = run_git(
+        resolved_root,
+        [
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "HEAD",
+            "--",
+            "docs/ai-driven-development/workspaces",
+        ],
+    )
+    if listing.returncode != 0:
+        raise GitBaselineError(
+            "failed to inspect managed AIDD sources in Git HEAD"
         )
-        if content is not None:
-            return source_path, content
-    return source_path, None
+
+    source_kinds = {
+        filename: kind for kind, filename in CANONICAL_SOURCE_FILENAMES.items()
+    }
+    prefix = "docs/ai-driven-development/workspaces/"
+    managed: set[tuple[str, str]] = set()
+    for value in listing.stdout.decode("utf-8").splitlines():
+        if not value.startswith(prefix):
+            continue
+        workspace, separator, filename = value.removeprefix(prefix).partition("/")
+        if not separator or "/" in filename:
+            continue
+        kind = source_kinds.get(filename)
+        if kind is None:
+            continue
+        relative_path = value
+        content = load_regular_head_blob(
+            resolved_root, relative_path, "managed AIDD source"
+        )
+        if content is None:
+            continue
+        try:
+            source = json.loads(content.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(source, dict):
+            continue
+        if source.get("schema_version") != 2:
+            continue
+        validate_workspace_name(workspace)
+        managed.add((workspace, kind))
+    return managed

@@ -25,7 +25,11 @@ from artifact_source import (
     validate_loaded_source,
     write_regular_file_atomically,
 )
-from git_baseline import GitBaselineError, require_repository_root, run_git
+from git_baseline import (
+    GitBaselineError,
+    list_git_head_managed_artifact_keys,
+    require_repository_root,
+)
 
 
 def normalized_path(path: Path) -> Path:
@@ -291,8 +295,6 @@ def render_artifact_markdown(source: dict[str, Any]) -> str:
     if kind not in ARTIFACT_KINDS:
         raise SourceError("artifact Markdown rendering requires an artifact source")
     validation = source["validation"]
-    if validation["mode"] == "legacy_import":
-        return source["display"]["markdown"]
     blocks = [source["display"]["preamble"].strip()]
     if kind == "requirements":
         blocks.extend(
@@ -370,55 +372,12 @@ def check_all(repo_root: Path) -> int:
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces"
     )
-    pair_filenames = {
-        SOURCE_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
-    } | {
-        DISPLAY_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
-    }
     source_filename_kinds = {
         SOURCE_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
     }
-    expected_pairs: set[tuple[str, str]] = set()
-    listing = run_git(
-        repo_root,
-        [
-            "ls-tree",
-            "-r",
-            "--name-only",
-            "HEAD",
-            "--",
-            "docs/ai-driven-development/workspaces",
-        ],
-    )
-    if listing.returncode != 0:
-        raise SourceError("failed to inspect AIDD artifacts in Git HEAD")
-    prefix = "docs/ai-driven-development/workspaces/"
-    for tracked_path in listing.stdout.decode("utf-8").splitlines():
-        if not tracked_path.startswith(prefix):
-            continue
-        workspace_and_filename = tracked_path.removeprefix(prefix).split("/", 1)
-        if len(workspace_and_filename) != 2:
-            continue
-        workspace, filename = workspace_and_filename
-        kind = pair_filenames.get(filename)
-        if kind is not None:
-            expected_pairs.add((workspace, kind))
 
-    if workspace_root.is_dir():
-        for workspace_path in workspace_root.iterdir():
-            if not workspace_path.is_dir():
-                continue
-            for kind in ARTIFACT_KINDS:
-                source_path = canonical_source_path(
-                    repo_root, workspace_path.name, kind
-                )
-                output_path = canonical_display_path(
-                    repo_root, workspace_path.name, kind
-                )
-                if source_path.exists() or output_path.exists():
-                    expected_pairs.add((workspace_path.name, kind))
-
-    checked = 0
+    expected_keys = list_git_head_managed_artifact_keys(repo_root)
+    current_sources: dict[Path, dict[str, Any]] = {}
     for source_path in sorted(workspace_root.glob("*/*.json")):
         source = load_regular_source(source_path)
         kind = source["kind"]
@@ -438,23 +397,26 @@ def check_all(repo_root: Path) -> int:
             raise SourceError(
                 f"{kind} source must be {SOURCE_FILENAMES[kind]} in its workspace"
             )
+        expected_keys.add((source["workspace"], kind))
+        current_sources[source_path] = source
+
+    checked = 0
+    for workspace, kind in sorted(expected_keys):
+        source_path = canonical_source_path(repo_root, workspace, kind)
+        require_no_symlinks(repo_root, source_path, "artifact source")
+        if not source_path.is_file():
+            raise SourceError(f"artifact source is missing: {source_path}")
+        source = current_sources.get(source_path)
+        if source is None:
+            source = load_regular_source(source_path, kind)
         output_path = canonical_display_path(
             repo_root,
-            source["workspace"],
+            workspace,
             kind,
         )
-        if source_path.is_symlink():
-            raise SourceError(f"artifact source must not use a symlink: {source_path}")
         require_canonical_artifact_paths(repo_root, source_path, output_path, source)
         check_or_write_markdown(render_artifact_markdown(source), output_path, True)
         checked += 1
-    for workspace, kind in sorted(expected_pairs):
-        source_path = canonical_source_path(repo_root, workspace, kind)
-        output_path = canonical_display_path(repo_root, workspace, kind)
-        if not source_path.is_file():
-            raise SourceError(f"artifact source is missing: {source_path}")
-        if not output_path.is_file():
-            raise SourceError(f"generated Markdown is missing: {output_path}")
     print(f"AIDD render check passed: {checked} artifacts")
     return checked
 

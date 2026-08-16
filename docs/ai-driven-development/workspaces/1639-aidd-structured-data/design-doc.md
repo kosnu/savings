@@ -24,10 +24,10 @@ when_to_read:
 - Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`
 - Requirements canonical source: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.json`
 - Generated Requirements display: `docs/ai-driven-development/workspaces/1639-aidd-structured-data/requirements.md`
-- Requirements SHA-256: `2f16c6403202e674a1e3bd3e140da71d0d081ba11d93a4867bdc668e314ccee0`
+- Requirements SHA-256: `6ee8bc99f02f74b8c5977e1a6e4a6a082195ac59e07355dea85f34afe1f41d32`
 - Requirements Input Gate / Completeness Gate: artifact検証成功。
 - Git `HEAD`の同workspace Design baseline: なし。
-- Requirementsは本phase以降read-onlyとし、Buildでは本文を変更せずJSON sidecarへ移行する。
+- Requirementsは本phase以降read-onlyとし、Buildでは本文を変更せずcanonical design-doc.jsonを正本として扱う。
 
 ## Rule Selection
 
@@ -55,7 +55,6 @@ when_to_read:
 - `requirements`: Goalと同じprovenance/continuity情報、canonical requirement definitions、section contents、retirementを保持する。
 - `design_goal`: Requirements hash、全ID、Design baseline、ID別design/verification scope、baseline section別review scopeを保持する。
 - `design`: 同じsnapshot、ID別coverage、Design baseline section transitionsを保持する。
-- `legacy_import`: 旧Markdownから一度だけ抽出したrequirement IDs、canonical section content、Design section heading/hashを構造化して保持する。通常artifact作成では選択できない。
 
 `artifact_source.py`がJSON decode、必須key、型、順序、一意性、kind、workspace、canonical path、symlink不在を検証する。標準`json`だけを使い、新規dependencyを追加しない。
 
@@ -64,8 +63,8 @@ when_to_read:
 - `validate_requirements_goal.py`はGoal/artifact JSONのIssue snapshotとrule selectionを検証する。
 - `validate_requirements_continuity.py`はJSONのrequirement/section transitionとGit `HEAD`の`requirements.json` baselineを比較する。
 - `validate_design_coverage.py`はcanonical `requirements.json`とGoal/artifact JSONのID coverage、Git `HEAD`の`design-doc.json` section baselineを比較する。
-- `git_baseline.py`はcanonical JSON sourceと生成Markdown pathを別関数で解決する。baselineが`legacy_import`でも保存済みの構造化inventoryだけを読む。
-- `requirement_ids.py`のMarkdown抽出はlegacy importer専用へ移し、通常validatorからimportしない。
+- `git_baseline.py`はcanonical JSON sourceと生成Markdown pathを別関数で解決する。baselineはmanaged v2 JSONだけを読む。
+- `requirement_ids.py`のMarkdown抽出は一時Goal入力の変換にだけ使い、通常validatorからimportしない。
 
 ### Markdown生成
 
@@ -73,23 +72,20 @@ when_to_read:
 
 Goal JSONも同じrendererのstdout modeでGoal objectiveを生成する。skill/templateはJSON作成、validator、renderer、Goal設定の順を唯一の正規経路として記載する。
 
-### 既存成果物の移行
+### 既存成果物の扱い
 
-`migrate_aidd_artifacts.py`を一回限りのcompatibility boundaryとする。
+過去workspaceのMarkdownは履歴表示として残すが、artifact sourceへ再取り込みせず、v1 sidecarも作成しない。managed workspaceは型付きblockとevidence block IDを持つJSONを正本とする。
 
-1. Git `HEAD`または現在のread-only Markdownを読み、workspace、artifact kind、表示文字列、既存ID/section inventoryを抽出する。
-2. 既存17 workspaceは`legacy_import`として表示をlossless保持し、本workspaceは型付きblockとevidence block IDを持つmanaged v2 sourceへ一方向変換する。
-3. 全18 workspaceのJSON schema検証とrenderer `--check`を実行し、legacy表示のround-tripとmanaged v2表示の決定的生成を確認する。
-4. `--import-legacy`は旧Markdownをsidecarへ一方向importする。`legacy_import`の`--check`は元Markdownをメモリ上で再importし、保存inventoryと一致することを検証する。managed sourceはMarkdownから再構築しない。
+`migrate_aidd_artifacts.py --check`は既存managed JSONと生成Markdownの同期だけを確認する。`--import-goal`は一時Goal入力の変換だけに使い、artifact sidecarは生成しない。
 
 ## 変更対象
 
 - `.agents/skills/aidd-cycle/scripts/artifact_source.py`: JSON v2 typed-block model、canonical path、loader、validation helper。
 - `.agents/skills/aidd-cycle/scripts/render_aidd_artifact.py`: artifact/Goal Markdown生成と`--check`。
-- `.agents/skills/aidd-cycle/scripts/migrate_aidd_artifacts.py`: legacy importと全workspace check。
-- 3 validator、`git_baseline.py`、legacy parser、対応unit tests。
+- `.agents/skills/aidd-cycle/scripts/migrate_aidd_artifacts.py`: 既存managed JSONと生成Markdownの同期確認。
+- 3 validator、`git_baseline.py`、Goal入力用Markdown parser、対応unit tests。
 - `.agents/skills/aidd-cycle/SKILL.md`、`.agents/skills/goal-setting/SKILL.md`。
-- workflow、overview、4 Goal templates、workspace全体のJSON sidecar。
+- workflow、overview、4 Goal templates、managed workspaceのJSON source。
 - `requirements.md`と`design-doc.md`は生成表示として維持し、本cycle入力の既存Markdown本文は変更しない。
 
 ## 採用しない案
@@ -104,7 +100,7 @@ blockの所在をMarkdown構造から探す時点で偽装面が残り、表示�
 
 ### 既存Markdownを一括再整形する
 
-人間向け履歴に大きなnoiseを生み、read-onlyな本cycle artifactも変更するため採用しない。sidecar化とUTF-8文字列一致で移行する。
+人間向け履歴に大きなnoiseを生み、read-onlyな本cycle artifactも変更するため採用しない。過去Markdownを再解析せず、managed JSONからの生成とUTF-8文字列一致で同期を確認する。
 
 ### JSON Schema runtime dependencyを追加する
 
@@ -115,13 +111,13 @@ blockの所在をMarkdown構造から探す時点で偽装面が残り、表示�
 FR\-1 design: JSON v2 typed\-block envelopeとstdlib loaderで形式を一意にする。
 FR\-2 design: 通常validatorの全入力をGoal\/artifact JSONへ限定する。
 FR\-3 design: rendererがJSONのstructured fieldsからMarkdownを決定的生成する。
-FR\-4 design: legacy importerが全workspaceをsidecar JSONへlossless移行する。
+FR\-4 design: managed JSONを正本とし、過去Markdownを再解析せず、既存managed workspaceだけを生成表示と同期確認する。
 NFR\-1 design: JSONだけを手編集正本としMarkdownを生成物へ固定する。
 NFR\-2 design: provenance、continuity、coverageをtyped validation fieldで保持する。
 NFR\-3 design: canonical Markdown filenameとUTF\-8文字列一致（CRLF\/LF差は正規化）をrenderer契約で維持する。
 AC\-1 design: canonical JSON path以外を通常validatorが拒否する。
 AC\-2 design: managedのdisplay\.preambleと型付きblockを分離し、coverageはevidence block IDで参照する。
-AC\-3 design: migration checkが全sidecar schemaとround\-tripを検査する。
+AC\-3 design: migration checkが既存managed JSONのschemaと生成表示の同期を検査する。
 AC\-4 design: workflow、skills、templatesをJSON\-first順序へ同期する。
 入力と前提 baseline: typed v2 blockへ置換する。
 Rule Selection baseline: typed v2 blockへ置換する。
@@ -138,13 +134,13 @@ Rule Selection baseline: typed v2 blockへ置換する。
 FR\-1 verification: invalid JSON、unknown key、kind不一致、順序違反をunit testで拒否する。
 FR\-2 verification: Markdownだけを変異させてもvalidator判定が変わらないことを確認する。
 FR\-3 verification: render、check、再renderのUTF\-8文字列一致（CRLF\/LF差は正規化）を確認する。
-FR\-4 verification: 全既存workspaceのimportと表示round\-tripを確認する。
+FR\-4 verification: 既存managed workspaceのschemaと生成表示を確認し、Markdown\-only workspaceを入力にしない。
 NFR\-1 verification: 通常validatorがMarkdown pathを受け付けないことを確認する。
 NFR\-2 verification: Issue evidence、dependency、baseline、coverageの既存拒否caseを維持する。
-NFR\-3 verification: requirements\.mdとdesign\-doc\.mdが全workspaceで存在し一致することを確認する。
+NFR\-3 verification: managed workspaceのrequirements\.mdとdesign\-doc\.mdがJSONから生成され一致することを確認する。
 AC\-1 verification: RequirementsとDesignのartifact validatorをJSON入力だけで通す。
 AC\-2 verification: fence、HTML comment、偽headingをdisplayへ入れてもvalidation dataにならないことを確認する。
-AC\-3 verification: migration \-\-checkで全18 workspaceのschemaと表示一致を確認する。
+AC\-3 verification: migration \-\-checkで既存managed workspaceのschemaと生成表示の同期を確認する。
 AC\-4 verification: 全script unit tests、managed経路のMarkdown parser import不在確認、git diff \-\-checkを通す。
 
 実行コマンドは`/usr/bin/python3 -m unittest discover -s .agents/skills/aidd-cycle/scripts -p 'test_*.py'`、migration/renderer check、`git diff --check`とする。アプリコードを変更しないためWeb verificationは実行しない。
@@ -153,18 +149,18 @@ AC\-4 verification: 全script unit tests、managed経路のMarkdown parser impor
 
 - 人間が読むMarkdownのpathと本文は移行時に変えない。
 - AIDDのGoal準備順序はJSON作成が先になり、Markdownを直接validatorへ渡す操作は失敗する。
-- Git baselineはShip後からJSON sidecarを読み、旧Markdownは表示とmigration auditのためだけに残る。
+- Git baselineはShip後からmanaged JSONを読み、過去Markdownは人間向けの履歴表示としてだけ残る。
 - apps/web、apps/api、ユーザー向け機能、DB/API/Authには影響しない。
 
 ## リスクと確認事項
 
 - managed artifactの`display.preamble`はpreambleだけを保持し、本文の重複によるstale shadowを作らない。
-- legacy importerはMarkdownを読む唯一の例外であり、通常validatorから参照されないことをtestとsearchで固定する。
-- worktreeのJSON sidecarはGit `HEAD` baselineにはならないため、本cycleの事前gateは現行validatorで完了し、Build後の検証は新JSON validatorで行う。
+- artifact validatorはMarkdownを解析せず、rendererだけがmanaged JSONから表示を生成することをtestとsearchで固定する。
+- worktreeのmanaged JSONはGit `HEAD` baselineにはならないため、本cycleの事前gateは現行validatorで完了し、Build後の検証は新JSON validatorで行う。
 - 移行checkに失敗したworkspaceが1つでもあればBuild / Verifyを完了しない。
 
 ## Design Coverage Gate
 
 ```json
-{"requirements_sha256":"e857bfbdb4d94d87933cd5b62aeab24f4c49ebdc7f2b65b433d9253095c651e5","workspace":"1639-aidd-structured-data","requirement_ids":["FR-1","FR-2","FR-3","FR-4","NFR-1","NFR-2","NFR-3","AC-1","AC-2","AC-3","AC-4"],"baseline":{"source":"git_head","body_sha256":"4376b0319eee04d1bba1bb4d1d70851fd8b769ce24f69587ac52cb72ee32c0f4"},"coverage":[{"id":"FR-1","design_block_id":"fr-1-design-evidence","verification_block_id":"fr-1-verification-evidence"},{"id":"FR-2","design_block_id":"fr-2-design-evidence","verification_block_id":"fr-2-verification-evidence"},{"id":"FR-3","design_block_id":"fr-3-design-evidence","verification_block_id":"fr-3-verification-evidence"},{"id":"FR-4","design_block_id":"fr-4-design-evidence","verification_block_id":"fr-4-verification-evidence"},{"id":"NFR-1","design_block_id":"nfr-1-design-evidence","verification_block_id":"nfr-1-verification-evidence"},{"id":"NFR-2","design_block_id":"nfr-2-design-evidence","verification_block_id":"nfr-2-verification-evidence"},{"id":"NFR-3","design_block_id":"nfr-3-design-evidence","verification_block_id":"nfr-3-verification-evidence"},{"id":"AC-1","design_block_id":"ac-1-design-evidence","verification_block_id":"ac-1-verification-evidence"},{"id":"AC-2","design_block_id":"ac-2-design-evidence","verification_block_id":"ac-2-verification-evidence"},{"id":"AC-3","design_block_id":"ac-3-design-evidence","verification_block_id":"ac-3-verification-evidence"},{"id":"AC-4","design_block_id":"ac-4-design-evidence","verification_block_id":"ac-4-verification-evidence"}],"baseline_sections":[{"section_id":null,"heading":"入力と前提","content_sha256":"5a4257094e8bf36c6ebce19402b23e042d809bceae14cef31f465bdd8639ff68","status":"replaced","design_block_id":"baseline-section-1-evidence"},{"section_id":null,"heading":"Rule Selection","content_sha256":"019f70d53b7abfe25271aeaa46b706fe1fec036ad4afd1dc84964ffb8c4879df","status":"replaced","design_block_id":"baseline-section-2-evidence"},{"section_id":null,"heading":"採用する構成","content_sha256":"3c41e141f12926c8baff95b9f41321a02794654bf16c03d6e6ebf74bbdc569f9","status":"replaced","design_block_id":"baseline-section-3-evidence"},{"section_id":null,"heading":"変更対象","content_sha256":"e34170184e5731083595ad7d1e6bdd768e471df8d0c667279203f43827e7748a","status":"replaced","design_block_id":"baseline-section-4-evidence"},{"section_id":null,"heading":"採用しない案","content_sha256":"225f340f954037fc1cdab34d1dc2c7bada9b84aea2fbfc0d54df5fc30619064d","status":"replaced","design_block_id":"baseline-section-5-evidence"},{"section_id":null,"heading":"要求別設計根拠","content_sha256":"0817c242b2a3642131fb59bd575d76c401bc57af88f66104b84f3312c9ec2462","status":"replaced","design_block_id":"baseline-section-6-evidence"},{"section_id":null,"heading":"検証方針","content_sha256":"2d2023d434fb5374b13273a255bef4da91674c6fb1e912a1536a54a03f6ae36b","status":"replaced","design_block_id":"baseline-section-7-evidence"},{"section_id":null,"heading":"既存挙動への影響","content_sha256":"667c92dbd36ee18f89a7e1fec96a9dd00633fc99ce277fd4debde1cfe1375e98","status":"replaced","design_block_id":"baseline-section-8-evidence"},{"section_id":null,"heading":"リスクと確認事項","content_sha256":"a905fe0fe38b20a0ccbaab53c0c0d246251641f154498a8fcd9b6ac8f0eaca4b","status":"replaced","design_block_id":"baseline-section-9-evidence"}]}
+{"requirements_sha256":"6ee8bc99f02f74b8c5977e1a6e4a6a082195ac59e07355dea85f34afe1f41d32","workspace":"1639-aidd-structured-data","requirement_ids":["FR-1","FR-2","FR-3","FR-4","NFR-1","NFR-2","NFR-3","AC-1","AC-2","AC-3","AC-4"],"baseline":{"source":"git_head","body_sha256":"4376b0319eee04d1bba1bb4d1d70851fd8b769ce24f69587ac52cb72ee32c0f4"},"coverage":[{"id":"FR-1","design_block_id":"fr-1-design-evidence","verification_block_id":"fr-1-verification-evidence"},{"id":"FR-2","design_block_id":"fr-2-design-evidence","verification_block_id":"fr-2-verification-evidence"},{"id":"FR-3","design_block_id":"fr-3-design-evidence","verification_block_id":"fr-3-verification-evidence"},{"id":"FR-4","design_block_id":"fr-4-design-evidence","verification_block_id":"fr-4-verification-evidence"},{"id":"NFR-1","design_block_id":"nfr-1-design-evidence","verification_block_id":"nfr-1-verification-evidence"},{"id":"NFR-2","design_block_id":"nfr-2-design-evidence","verification_block_id":"nfr-2-verification-evidence"},{"id":"NFR-3","design_block_id":"nfr-3-design-evidence","verification_block_id":"nfr-3-verification-evidence"},{"id":"AC-1","design_block_id":"ac-1-design-evidence","verification_block_id":"ac-1-verification-evidence"},{"id":"AC-2","design_block_id":"ac-2-design-evidence","verification_block_id":"ac-2-verification-evidence"},{"id":"AC-3","design_block_id":"ac-3-design-evidence","verification_block_id":"ac-3-verification-evidence"},{"id":"AC-4","design_block_id":"ac-4-design-evidence","verification_block_id":"ac-4-verification-evidence"}],"baseline_sections":[{"section_id":null,"heading":"入力と前提","content_sha256":"5a4257094e8bf36c6ebce19402b23e042d809bceae14cef31f465bdd8639ff68","status":"replaced","design_block_id":"baseline-section-1-evidence"},{"section_id":null,"heading":"Rule Selection","content_sha256":"019f70d53b7abfe25271aeaa46b706fe1fec036ad4afd1dc84964ffb8c4879df","status":"replaced","design_block_id":"baseline-section-2-evidence"},{"section_id":null,"heading":"採用する構成","content_sha256":"3c41e141f12926c8baff95b9f41321a02794654bf16c03d6e6ebf74bbdc569f9","status":"replaced","design_block_id":"baseline-section-3-evidence"},{"section_id":null,"heading":"変更対象","content_sha256":"e34170184e5731083595ad7d1e6bdd768e471df8d0c667279203f43827e7748a","status":"replaced","design_block_id":"baseline-section-4-evidence"},{"section_id":null,"heading":"採用しない案","content_sha256":"225f340f954037fc1cdab34d1dc2c7bada9b84aea2fbfc0d54df5fc30619064d","status":"replaced","design_block_id":"baseline-section-5-evidence"},{"section_id":null,"heading":"要求別設計根拠","content_sha256":"0817c242b2a3642131fb59bd575d76c401bc57af88f66104b84f3312c9ec2462","status":"replaced","design_block_id":"baseline-section-6-evidence"},{"section_id":null,"heading":"検証方針","content_sha256":"2d2023d434fb5374b13273a255bef4da91674c6fb1e912a1536a54a03f6ae36b","status":"replaced","design_block_id":"baseline-section-7-evidence"},{"section_id":null,"heading":"既存挙動への影響","content_sha256":"667c92dbd36ee18f89a7e1fec96a9dd00633fc99ce277fd4debde1cfe1375e98","status":"replaced","design_block_id":"baseline-section-8-evidence"},{"section_id":null,"heading":"リスクと確認事項","content_sha256":"a905fe0fe38b20a0ccbaab53c0c0d246251641f154498a8fcd9b6ac8f0eaca4b","status":"replaced","design_block_id":"baseline-section-9-evidence"}]}
 ```

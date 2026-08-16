@@ -14,7 +14,6 @@ from typing import Any
 
 from section_aliases import exact_requirement_section_ids_for_heading
 
-LEGACY_SCHEMA_VERSION = 1
 SCHEMA_VERSION = 2
 ARTIFACT_KINDS = {"requirements", "design"}
 GOAL_KINDS = {"requirements_goal", "design_goal"}
@@ -38,16 +37,6 @@ MANAGED_VALIDATION_KEYS = {
         "sections",
     },
     "design": {"mode", "coverage_gate", "sections"},
-}
-LEGACY_VALIDATION_KEYS = {
-    "requirements": {
-        "mode",
-        "source_markdown_sha256",
-        "inventory_sha256",
-        "requirements",
-        "sections",
-    },
-    "design": {"mode", "source_markdown_sha256", "inventory_sha256", "sections"},
 }
 MANAGED_GOAL_VALIDATION_KEYS = {
     "requirements_goal": {
@@ -497,10 +486,7 @@ def validate_source(value: Any, expected_kind: str | None = None) -> dict[str, A
         "AIDD source",
     )
     version = source["schema_version"]
-    if type(version) is not int or version not in {
-        LEGACY_SCHEMA_VERSION,
-        SCHEMA_VERSION,
-    }:
+    if type(version) is not int or version != SCHEMA_VERSION:
         raise SourceError(f"unsupported AIDD schema_version: {version}")
     kind = require_string(source["kind"], "kind")
     if kind not in SUPPORTED_KINDS:
@@ -514,14 +500,7 @@ def validate_source(value: Any, expected_kind: str | None = None) -> dict[str, A
         raise SourceError("validation must be an object")
 
     display = source["display"]
-    if version == LEGACY_SCHEMA_VERSION:
-        require_object_keys(display, {"path", "markdown"}, "legacy display")
-        if kind not in ARTIFACT_KINDS:
-            raise SourceError("schema_version 1 is only supported for legacy artifacts")
-        if validation.get("mode") != "legacy_import":
-            raise SourceError("schema_version 1 is only supported for legacy_import")
-        require_string(display["markdown"], "legacy display.markdown")
-    elif kind in ARTIFACT_KINDS:
+    if kind in ARTIFACT_KINDS:
         require_object_keys(display, {"path", "preamble"}, "managed display")
         require_string(display["preamble"], "managed display.preamble")
     else:
@@ -826,34 +805,6 @@ def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
     return source
 
 
-def validate_legacy_artifact_source(value: Any) -> dict[str, Any]:
-    source = validate_source(value)
-    if source["schema_version"] != LEGACY_SCHEMA_VERSION:
-        raise SourceError("legacy artifacts require schema_version 1")
-    kind = source["kind"]
-    validation = source["validation"]
-    if set(validation) != LEGACY_VALIDATION_KEYS[kind]:
-        raise SourceError(f"legacy {kind} validation has invalid keys")
-    digest = require_digest(
-        validation["source_markdown_sha256"],
-        f"legacy {kind} source_markdown_sha256",
-    )
-    markdown = source["display"]["markdown"]
-    if digest != hashlib.sha256(markdown.encode("utf-8")).hexdigest():
-        raise SourceError("legacy source Markdown digest mismatch")
-    inventory = {"sections": validation["sections"]}
-    if kind == "requirements":
-        inventory["requirements"] = validation["requirements"]
-    if require_digest(
-        validation["inventory_sha256"], "legacy inventory_sha256"
-    ) != structured_sha256(inventory):
-        raise SourceError(f"legacy {kind} inventory mismatch")
-    require_object_array(validation["sections"], f"legacy {kind} sections")
-    if kind == "requirements":
-        require_object_array(validation["requirements"], "legacy requirements")
-    return source
-
-
 def validate_managed_goal_source(value: Any) -> dict[str, Any]:
     source = validate_source(value)
     if source["schema_version"] != SCHEMA_VERSION:
@@ -934,11 +885,9 @@ def validate_loaded_source(
     source = validate_source(value, expected_kind)
     mode = source["validation"].get("mode")
     if source["kind"] in ARTIFACT_KINDS:
-        if mode == "managed":
-            return validate_managed_artifact_source(source)
-        if mode == "legacy_import":
-            return validate_legacy_artifact_source(source)
-        raise SourceError("artifact validation.mode must be managed or legacy_import")
+        if mode != "managed":
+            raise SourceError("artifact validation.mode must be managed")
+        return validate_managed_artifact_source(source)
     if mode != "managed":
         raise SourceError("Goal validation.mode must be managed")
     return validate_managed_goal_source(source)
