@@ -141,8 +141,12 @@ Goal. Remove the temporary Issue and Goal files only after both artifact gates
 and the final Issue snapshot check succeed.
 The artifact must use the canonical workspace JSON path, contain every required
 Requirements section as a separate structured entry, preserve unchanged
-requirement and section content, and
-provide exact Issue evidence for every changed or new item. That evidence must
+requirement and section content. Each managed v2 section ID must map to exactly
+one explicitly allowed shared canonical heading alias, and section content
+hashes include the section heading, current requirement definitions, and typed
+blocks. Legacy inventory matching remains compatible with existing headings.
+The artifact must provide exact Issue evidence for every changed or new item.
+That evidence must
 occur in its target content; requirement evidence must not map to another
 requirement, and section evidence must not map to another canonical section.
 Then fetch the Issue again. Its

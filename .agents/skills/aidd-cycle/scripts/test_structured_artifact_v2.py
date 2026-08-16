@@ -302,6 +302,18 @@ class StructuredArtifactV2Test(unittest.TestCase):
         self.assertIn("- FR-1: 生成する。", rendered)
         self.assertIn("## 機能要件", rendered)
 
+    def test_requirements_reject_heading_that_matches_multiple_aliases(self) -> None:
+        source = requirements_source()
+        source["validation"]["sections"][0]["heading"] = "機能要件 / 非機能要件"
+        with self.assertRaisesRegex(SourceError, "exactly one canonical section"):
+            validate_loaded_source(source)
+
+    def test_requirements_reject_heading_with_unapproved_suffix(self) -> None:
+        source = requirements_source()
+        source["validation"]["sections"][0]["heading"] = "機能要件と追加説明"
+        with self.assertRaisesRegex(SourceError, "exactly one canonical section"):
+            validate_loaded_source(source)
+
     def test_design_coverage_references_evidence_blocks(self) -> None:
         rendered = render_artifact_markdown(design_source())
         self.assertIn(

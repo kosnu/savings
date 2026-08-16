@@ -12,6 +12,8 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
+from section_aliases import exact_requirement_section_ids_for_heading
+
 LEGACY_SCHEMA_VERSION = 1
 SCHEMA_VERSION = 2
 ARTIFACT_KINDS = {"requirements", "design"}
@@ -628,6 +630,14 @@ def validate_v2_sections(
         if section_id in section_ids:
             raise SourceError(f"duplicate section ID: {section_id}")
         heading = require_inline_markdown(section["heading"], f"{label}.heading")
+        if (
+            kind == "requirements"
+            and exact_requirement_section_ids_for_heading(heading)
+            != (section_id,)
+        ):
+            raise SourceError(
+                f"{label}.heading must map to exactly one canonical section"
+            )
         if heading in headings:
             raise SourceError(f"duplicate section heading: {heading}")
         blocks = validate_blocks(
