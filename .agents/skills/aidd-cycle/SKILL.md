@@ -193,8 +193,9 @@ Each current requirement ID must have its own `coverage` entry with substantive
 design and verification evidence that names only that requirement ID. Every Git `HEAD`
 Design section must be classified in order as exact-content `preserved` or
 explicitly `replaced` with new Design evidence in its own structured entry;
-one entry cannot cover multiple baseline sections or name another distinct
-baseline heading. Before completing Design / Plan,
+`preserved` does not require baseline evidence, while `replaced` requires its
+own identity-bound baseline evidence. One entry cannot cover multiple baseline
+sections or name another distinct baseline heading. Before completing Design / Plan,
 run:
 
 `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --rule-map <canonical-rule-map> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`

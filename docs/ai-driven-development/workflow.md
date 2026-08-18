@@ -170,13 +170,13 @@ error、empty、権限不足などの状態で、ユーザーに再試行、取�
 
 現在サイクルの最新Requirements / PRD全体をもとに、AIが既存実装を調査し、実装方針、影響範囲、テスト方針、リスクを整理します。今回追加、変更された要求は設計へ統合する差分であり、Design / Plan GoalやDesign Docのscopeではありません。入力は同じworkspaceのcanonical pathにある`requirements.json`だけを許可し、コピー、一時ファイル、symlink経由の別pathを使いません。このJSONと生成済み`requirements.md`はread-onlyです。成果物は同じworkspaceのcanonical `design-doc.json`へ書き込み、`design-doc.md`を生成します。
 
-Design / Plan Goalを作成する前に、現在のcanonical `requirements.json`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGoal JSONの`validation.scopes`へ記載します。Git baselineがある場合は全sectionの`section_id`（履歴上のsectionで安定IDがない場合は`null`）、heading、専用review scopeを`validation.baseline_scopes`へ記載します。Design完了時も、各IDを専用の設計根拠と検証根拠へ一度ずつ対応付け、baseline sectionごとのidentityと根拠を構造化して記録します。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は拒否します。
+Design / Plan Goalを作成する前に、現在のcanonical `requirements.json`のSHA-256と全`FR-*`、`NFR-*`、`AC-*`識別子をDesign Coverage Gateへ記録し、各ID専用の実質的な設計scopeと検証scopeをGoal JSONの`validation.scopes`へ記載します。Git baselineがある場合は全sectionの`section_id`（履歴上のsectionで安定IDがない場合は`null`）、heading、専用review scopeを`validation.baseline_scopes`へ記載します。Design完了時も、各IDを専用の設計根拠と検証根拠へ一度ずつ対応付け、baseline sectionごとのidentityとstatusを構造化して記録し、`replaced`だけに対象sectionの根拠を付けます。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は拒否します。
 
 Design Coverage Gateを評価する前に、同じvalidatorが最新Issue本文、canonical Issue metadata、canonical rule mapを使って入力RequirementsのInput GateとCompleteness Gateを再実行します。`validation.mode=managed`とID一覧だけではDesign入力として受理しません。
 
 IDまたはheadingの文字列が根拠に含まれることは必要条件であり、意味的な十分条件ではありません。その根拠が特定要求または前回sectionを実際に解決していると判断できない場合はStopします。
 
-validatorは前回`design-doc.json`も同じworkspaceのcanonical pathからGit `HEAD`で自動取得します。前回の全構造化sectionを、内容hashが一致する`preserved`または新Design根拠を持つ`replaced`として追跡します。前回Designは現在のRequirementsを拡張するTask Contextではなく、引き継ぐ判断は現在のRequirements、選択したrule-mapサブグラフ、既存実装に対して再検証します。
+validatorは前回`design-doc.json`も同じworkspaceのcanonical pathからGit `HEAD`で自動取得します。前回の全構造化sectionを、内容hashが一致する`preserved`または新Design根拠を持つ`replaced`として追跡します。`preserved`にはbaseline evidenceを要求せず、`replaced`だけに対象sectionへidentity-boundなbaseline evidenceを要求します。前回Designは現在のRequirementsを拡張するTask Contextではなく、引き継ぐ判断は現在のRequirements、選択したrule-mapサブグラフ、既存実装に対して再検証します。
 
 ユーザーが実行できる操作、画面遷移、再試行・取消・確認などの復帰経路を追加、変更、削除する判断は、プロダクト判断として扱います。Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できない場合、Design / Planは一般的なUX、既存実装、既存パターンを根拠に補わずStopします。
 

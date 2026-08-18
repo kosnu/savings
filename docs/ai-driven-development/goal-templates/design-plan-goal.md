@@ -104,14 +104,13 @@ Design Docのartifact form:
       "section_id": "implementation-policy",
       "heading": "実装方針",
       "content_sha256": "validatorがGitから導出したsectionと同じSHA-256",
-      "status": "preserved",
-      "design_block_id": "implementation-policy-baseline-evidence"
+      "status": "preserved"
     }
   ]
 }
 ```
 
-各block IDは`design-doc.json`のtyped `evidence` blockを参照する。requirement coverage blockは`role: design`または`role: verification`と対象Requirements IDの`owner_id`を持ち、baseline blockは`role: baseline`と対象`section_id`の`owner_id`を持つ。`text`には根拠本文だけを入れ、owner/roleラベルはrendererが構造化fieldから生成する。legacy baselineだけは`section_id: null`とし、見出しを`owner_id`に使う。Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
+各block IDは`design-doc.json`のtyped `evidence` blockを参照する。requirement coverage blockは`role: design`または`role: verification`と対象Requirements IDの`owner_id`を持ち、`replaced`のbaseline blockは`role: baseline`と対象`section_id`の`owner_id`を持つ。`preserved`のbaseline sectionはbaseline evidenceを持たず、`replaced`の場合だけ`design_block_id`と根拠本文を必須とする。`text`には根拠本文だけを入れ、owner/roleラベルはrendererが構造化fieldから生成する。legacy baselineだけは`section_id: null`とし、見出しを`owner_id`に使う。Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
 
 ## Requirement Design Scope
 
@@ -170,7 +169,7 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] Design GoalとDesign Docが現在のRequirements全体をscopeとし、今回の差分だけへ狭まっていない
 - [ ] 入力が同じworkspaceのcanonical `requirements.json`であり、Requirements Input / Completeness Gateの再検証が成功している
 - [ ] 全`FR-*`、`NFR-*`、`AC-*`に、対象IDだけを含む専用行の設計根拠と検証根拠が1件ずつある
-- [ ] Git `HEAD`の前回Design JSONにある全構造化sectionが、headingを明記した一意な根拠とともに`preserved`または`replaced`へ分類されている
+- [ ] Git `HEAD`の前回Design JSONにある全構造化sectionが、identityとheadingを保った`preserved`または`replaced`へ分類され、`replaced`だけに一意なbaseline根拠がある
 - [ ] Design Coverage GateがGoal作成前とDesign Doc完了前の両方で成功している
 - [ ] 追加、変更、削除する各ユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できる
 - [ ] Requirements / PRDの意図・制約・対象外・受け入れ条件から解釈を広げていない
