@@ -64,7 +64,7 @@ when_to_read:
 - `validate_requirements_continuity.py`はJSONのrequirement/section transitionとGit `HEAD`の`requirements.json` baselineを比較する。
 - `validate_design_coverage.py`はcanonical `requirements.json`とGoal/artifact JSONのID coverage、Git `HEAD`の`design-doc.json` section baselineを比較する。
 - `git_baseline.py`はcanonical JSON sourceと生成Markdown pathを別関数で解決する。baselineはmanaged v2 JSONだけを読む。
-- `requirement_ids.py`のMarkdown抽出は一時Goal入力の変換にだけ使い、通常validatorからimportしない。
+- Goal sourceはtemporary `requirements_goal` / `design_goal` JSONを直接検証し、Markdown解析処理を持たない。
 
 ### Markdown生成
 
@@ -76,14 +76,14 @@ Goal JSONも同じrendererのstdout modeでGoal objectiveを生成する。skill
 
 過去workspaceのMarkdownは履歴表示として残すが、artifact sourceへ再取り込みせず、v1 sidecarも作成しない。managed workspaceは型付きblockとevidence block IDを持つJSONを正本とする。
 
-`migrate_aidd_artifacts.py --check`は既存managed JSONと生成Markdownの同期だけを確認する。`--import-goal`は一時Goal入力の変換だけに使い、artifact sidecarは生成しない。
+`migrate_aidd_artifacts.py --check`は既存managed JSONと生成Markdownの同期だけを確認する。Goal inputはJSONのみとし、MarkdownからGoal sourceを再構成する経路は持たない。
 
 ## 変更対象
 
 - `.agents/skills/aidd-cycle/scripts/artifact_source.py`: JSON v2 typed-block model、canonical path、loader、validation helper。
 - `.agents/skills/aidd-cycle/scripts/render_aidd_artifact.py`: artifact/Goal Markdown生成と`--check`。
 - `.agents/skills/aidd-cycle/scripts/migrate_aidd_artifacts.py`: 既存managed JSONと生成Markdownの同期確認。
-- 3 validator、`git_baseline.py`、Goal入力用Markdown parser、対応unit tests。
+- 3 validator、`git_baseline.py`、Goal JSON renderer、対応unit tests。
 - `.agents/skills/aidd-cycle/SKILL.md`、`.agents/skills/goal-setting/SKILL.md`。
 - workflow、overview、4 Goal templates、managed workspaceのJSON source。
 - `requirements.md`と`design-doc.md`は生成表示として維持し、本cycle入力の既存Markdown本文は変更しない。

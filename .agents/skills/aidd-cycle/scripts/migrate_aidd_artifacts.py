@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""Import temporary Goal Markdown and verify managed AIDD artifacts."""
+"""Verify managed AIDD artifacts."""
 
 from __future__ import annotations
 
 import argparse
 import copy
 import json
-import os
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -18,236 +16,15 @@ from artifact_source import (
     decode_source_json,
     normalize_markdown_newlines,
     read_regular_file_bytes,
-    serialize_source,
     validate_managed_artifact_source,
-    validate_managed_goal_source,
     validate_source,
-    write_regular_file_atomically,
 )
 from git_baseline import list_git_head_managed_artifact_keys
-from requirement_ids import (
-    legacy_requirements_inventory,
-    mask_non_rendered_markdown,
-)
 from render_aidd_artifact import (
     render_artifact_markdown,
     require_git_worktree_root,
     require_no_symlinks,
 )
-
-
-GATE_HEADINGS = {
-    "input_gate": "Requirements Input Gate",
-    "completeness_gate": "Requirements Completeness Gate",
-    "coverage_gate": "Design Coverage Gate",
-}
-GOAL_SCOPE_PATTERN = re.compile(
-    r"(?m)^ {0,3}-\s+((?:FR|NFR|AC)-[1-9][0-9]*) "
-    r"(design|verification) scope:\s*(.+)$"
-)
-BASELINE_SCOPE_PATTERN = re.compile(
-    r"(?m)^ {0,3}-\s+(.+?) baseline scope:\s*(.+)$"
-)
-GOAL_CONTEXT_CONTRACT_PATTERN = re.compile(
-    r"- (Constraints|Stop) \[([a-z0-9][a-z0-9-]*)\]:\s*(.+)"
-)
-GOAL_DONE_CONTRACT_PATTERN = re.compile(
-    r"- \[([a-z0-9][a-z0-9-]*)\]\s+(.+)"
-)
-
-
-def legacy_level_two_headings(markdown: str) -> list[tuple[int, str]]:
-    return [
-        (match.start(), match.group("heading").strip())
-        for match in re.finditer(
-            r"(?m)^ {0,3}##(?:[ \t]+|$)(?P<heading>.*?)(?:[ \t]+#+[ \t]*)?$",
-            markdown,
-        )
-    ]
-
-
-def parse_gate(markdown: str, name: str) -> dict[str, Any] | None:
-    heading = GATE_HEADINGS[name]
-    visible = mask_non_rendered_markdown(markdown)
-    matches = [
-        candidate
-        for _, candidate in legacy_level_two_headings(visible)
-        if candidate == heading
-    ]
-    if not matches:
-        return None
-    if len(matches) != 1:
-        raise SourceError(f"{name} must appear exactly once")
-    source_lines = markdown.splitlines()
-    visible_lines = visible.splitlines()
-    heading_index = next(
-        index
-        for index, line in enumerate(visible_lines)
-        if line.rstrip() == f"## {heading}"
-    )
-    index = heading_index + 1
-    while index < len(source_lines) and not source_lines[index].strip():
-        index += 1
-    if index >= len(source_lines) or source_lines[index].strip() != "```json":
-        raise SourceError(f"{name} JSON fence is missing")
-    index += 1
-    content: list[str] = []
-    while index < len(source_lines) and source_lines[index].strip() != "```":
-        content.append(source_lines[index])
-        index += 1
-    if index >= len(source_lines):
-        raise SourceError(f"{name} JSON fence is not closed")
-    value = decode_source_json("\n".join(content))
-    if not isinstance(value, dict):
-        raise SourceError(f"{name} must contain a JSON object")
-    return value
-
-
-def legacy_goal_section(markdown: str, heading: str) -> str:
-    """Read one canonical Goal section inside the explicit import boundary."""
-
-    source_lines = markdown.splitlines()
-    visible_lines = mask_non_rendered_markdown(markdown).splitlines()
-    indexes = [
-        index
-        for index, line in enumerate(visible_lines)
-        if line.rstrip() == f"## {heading}"
-    ]
-    if len(indexes) != 1:
-        raise SourceError(f"Goal objective must contain exactly one ## {heading}")
-    start = indexes[0] + 1
-    end = next(
-        (
-            index
-            for index in range(start, len(visible_lines))
-            if visible_lines[index].startswith("## ")
-        ),
-        len(source_lines),
-    )
-    return "\n".join(source_lines[start:end]).strip()
-
-
-def legacy_goal_display(markdown: str) -> dict[str, Any]:
-    visible_lines = mask_non_rendered_markdown(markdown).splitlines()
-    titles = [line[2:].strip() for line in visible_lines if line.startswith("# ")]
-    if len(titles) != 1:
-        raise SourceError("Goal objective must contain exactly one level-one title")
-    context_lines = legacy_goal_section(markdown, "Context Packet").splitlines()
-    constraints: list[dict[str, str]] = []
-    stops: list[dict[str, str]] = []
-    body_lines: list[str] = []
-    for line in context_lines:
-        stripped_line = line.strip()
-        if stripped_line.startswith(("- Constraints", "- Stop")):
-            match = GOAL_CONTEXT_CONTRACT_PATTERN.fullmatch(stripped_line)
-            if match is None:
-                raise SourceError(
-                    "Goal Constraints and Stop entries must include stable IDs"
-                )
-            entry = {"id": match.group(2), "text": match.group(3).strip()}
-            (constraints if match.group(1) == "Constraints" else stops).append(entry)
-        else:
-            body_lines.append(line)
-    body = "\n".join(body_lines).strip()
-    if not constraints or not stops:
-        raise SourceError("Goal context must contain Constraints and Stop")
-    done: list[dict[str, str]] = []
-    for line in legacy_goal_section(markdown, "Done / Verification").splitlines():
-        stripped_line = line.strip()
-        if not stripped_line:
-            continue
-        match = GOAL_DONE_CONTRACT_PATTERN.fullmatch(stripped_line)
-        if match is None:
-            raise SourceError("Goal Done entries must include stable IDs")
-        done.append({"id": match.group(1), "text": match.group(2).strip()})
-    return {
-        "path": "goal.md",
-        "title": titles[0],
-        "goal": " ".join(legacy_goal_section(markdown, "Goal").split()),
-        "context": {
-            "body": [line.strip() for line in body.splitlines() if line.strip()],
-            "constraints": constraints,
-            "stop": stops,
-        },
-        "done": done,
-    }
-
-
-def build_goal_source(workspace: str, kind: str, markdown: str) -> dict[str, Any]:
-    markdown = normalize_markdown_newlines(markdown)
-    if kind == "requirements":
-        input_gate = parse_gate(markdown, "input_gate")
-        completeness_gate = parse_gate(markdown, "completeness_gate")
-        if input_gate is None or completeness_gate is None:
-            raise SourceError("Requirements Goal gates are missing")
-        requirements, _ = requirements_inventory(markdown)
-        validation = {
-            "mode": "managed",
-            "input_gate": input_gate,
-            "completeness_gate": completeness_gate,
-            "requirements": [
-                {
-                    "id": entry["id"],
-                    "text": entry["content"].removeprefix(f"- {entry['id']}: "),
-                }
-                for entry in requirements
-            ],
-        }
-        source_kind = "requirements_goal"
-    else:
-        coverage_gate = parse_gate(markdown, "coverage_gate")
-        if coverage_gate is None:
-            raise SourceError("Design Goal coverage gate is missing")
-        visible_markdown = mask_non_rendered_markdown(markdown)
-        scopes_by_id: dict[str, dict[str, str]] = {}
-        for requirement_id, scope_kind, text in GOAL_SCOPE_PATTERN.findall(
-            visible_markdown
-        ):
-            entry = scopes_by_id.setdefault(requirement_id, {"id": requirement_id})
-            field = f"{scope_kind}_scope"
-            if field in entry:
-                raise SourceError(
-                    f"duplicate Design Goal scope: {requirement_id} {scope_kind}"
-                )
-            entry[field] = text
-        expected_ids = coverage_gate.get("requirement_ids")
-        if not isinstance(expected_ids, list) or not all(
-            isinstance(requirement_id, str) for requirement_id in expected_ids
-        ):
-            raise SourceError("Design Goal requirement_ids are missing")
-        if set(scopes_by_id) != set(expected_ids):
-            raise SourceError(
-                "Design Goal scope IDs must exactly match requirement_ids"
-            )
-        scopes = [scopes_by_id.get(requirement_id) for requirement_id in expected_ids]
-        if any(
-            not isinstance(entry, dict)
-            or set(entry) != {"id", "design_scope", "verification_scope"}
-            for entry in scopes
-        ):
-            raise SourceError("Design Goal scopes are incomplete")
-        baseline_scopes = [
-            {
-                "section_id": None,
-                "heading": heading.strip(),
-                "review_scope": text,
-            }
-            for heading, text in BASELINE_SCOPE_PATTERN.findall(visible_markdown)
-        ]
-        validation = {
-            "mode": "managed",
-            "coverage_gate": coverage_gate,
-            "scopes": scopes,
-            "baseline_scopes": baseline_scopes,
-        }
-        source_kind = "design_goal"
-    return validate_managed_goal_source({
-        "schema_version": 2,
-        "kind": source_kind,
-        "workspace": workspace,
-        "display": legacy_goal_display(markdown),
-        "validation": validation,
-    })
 
 
 def expected_pairs(repo_root: Path) -> list[tuple[Path, Path, str]]:
@@ -323,28 +100,9 @@ def migrate(repo_root: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, required=True)
-    mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--check", action="store_true")
-    mode.add_argument("--import-goal", choices=("requirements", "design"))
-    parser.add_argument("--goal-markdown", type=Path)
-    parser.add_argument("--workspace")
-    parser.add_argument("--output", type=Path)
+    parser.add_argument("--check", action="store_true", required=True)
     args = parser.parse_args()
     try:
-        if args.import_goal:
-            if args.goal_markdown is None or args.workspace is None or args.output is None:
-                raise SourceError(
-                    "--import-goal requires --goal-markdown, --workspace, and --output"
-                )
-            source = build_goal_source(
-                args.workspace,
-                args.import_goal,
-                read_regular_file_bytes(args.goal_markdown).decode("utf-8"),
-            )
-            output_path = Path(os.path.abspath(args.output))
-            write_regular_file_atomically(output_path, serialize_source(source))
-            print(f"AIDD Goal migration wrote: {args.output}")
-            return 0
         migrate(args.repo_root)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError, SourceError) as error:
         print(f"AIDD migration failed: {error}", file=sys.stderr)

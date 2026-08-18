@@ -13,12 +13,9 @@ from artifact_source import (
     load_source,
     serialize_source,
     validate_managed_artifact_source,
-)
-from migrate_aidd_artifacts import (
-    build_goal_source,
-    migrate,
     write_regular_file_atomically,
 )
+from migrate_aidd_artifacts import migrate
 from render_aidd_artifact import render_artifact_markdown
 from test_structured_artifact_v2 import design_source, requirements_source
 
@@ -55,37 +52,6 @@ MANAGED_MARKDOWN = """# Requirements
 
 - Direct: `rule`。scope。
 - Conflict: none。
-"""
-DESIGN_GOAL_MARKDOWN = """# Design Goal
-
-## Goal
-
-Designを定義する。
-
-## Context Packet
-
-Issue本文を扱う。
-- Constraints [canonical-input]: 検証済みのcanonical requirements.jsonをread-only入力として扱う。
-- Constraints [phase-boundary]: Design Goal内では実装しない。
-- Stop [validation-failure]: Requirements再検証またはDesign Coverage Gateが失敗した場合は停止する。
-- Stop [scope-ambiguity]: 要求ごとの設計・検証scopeを一意に決められない場合は停止する。
-
-## Design Coverage Gate
-
-```json
-{"requirements_sha256":"0000000000000000000000000000000000000000000000000000000000000000","workspace":"1639-structured-data","requirement_ids":["FR-1","AC-1"],"baseline":{"source":"none","body_sha256":null}}
-```
-
-- FR-1 design scope: 構造化設計を定義する。
-- FR-1 verification scope: 構造化検証を実行する。
-- AC-1 design scope: 生成結果を確認する設計を定義する。
-- AC-1 verification scope: 生成結果を確認する。
-- 実装方針 baseline scope: 現在Requirementsへ再適合させる。
-
-## Done / Verification
-
-- [complete-scope] 全Requirements IDとbaseline sectionのDesign coverageを定義する。
-- [validated-artifact] Design Coverage Gateと生成成果物の同期検証を成功させる。
 """
 MANAGED_DESIGN_MARKDOWN = """# Design Doc
 
@@ -272,98 +238,6 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
                 render_artifact_markdown(source).count("## Design Coverage Gate"),
                 1,
             )
-
-    def test_design_goal_import_preserves_baseline_scopes(self) -> None:
-        source = build_goal_source(WORKSPACE, "design", DESIGN_GOAL_MARKDOWN)
-
-        self.assertEqual(
-            source["validation"]["baseline_scopes"],
-            [
-                {
-                    "section_id": None,
-                    "heading": "実装方針",
-                    "review_scope": "現在Requirementsへ再適合させる。",
-                }
-            ],
-        )
-
-    def test_goal_import_rejects_contract_without_stable_ids(self) -> None:
-        markdown = DESIGN_GOAL_MARKDOWN.replace(
-            "- Constraints [canonical-input]:",
-            "- Constraints:",
-            1,
-        )
-
-        with self.assertRaisesRegex(SourceError, "must include stable IDs"):
-            build_goal_source(WORKSPACE, "design", markdown)
-
-    def test_design_goal_import_rejects_unknown_gate_fields(self) -> None:
-        markdown = DESIGN_GOAL_MARKDOWN.replace(
-            '"workspace":"1639-structured-data",',
-            '"workspace":"1639-structured-data","unknown":true,',
-        )
-
-        with self.assertRaisesRegex(SourceError, "invalid keys"):
-            build_goal_source(WORKSPACE, "design", markdown)
-
-    def test_design_goal_import_rejects_duplicate_gate_and_scope(self) -> None:
-        gate_block = DESIGN_GOAL_MARKDOWN.split(
-            "- FR-1 design scope:", 1
-        )[0].split("# Design Goal\n\n", 1)[1]
-        duplicate_gate = DESIGN_GOAL_MARKDOWN.replace(
-            "- FR-1 design scope:", f"{gate_block}- FR-1 design scope:", 1
-        )
-        with self.assertRaisesRegex(SourceError, "exactly once"):
-            build_goal_source(WORKSPACE, "design", duplicate_gate)
-
-        duplicate_scope = DESIGN_GOAL_MARKDOWN.replace(
-            "- FR-1 verification scope:",
-            "- FR-1 design scope: 重複。\n- FR-1 verification scope:",
-            1,
-        )
-        with self.assertRaisesRegex(SourceError, "duplicate Design Goal scope"):
-            build_goal_source(WORKSPACE, "design", duplicate_scope)
-
-        extra_scope = DESIGN_GOAL_MARKDOWN + (
-            "- NFR-9 design scope: Gate外。\n"
-            "- NFR-9 verification scope: Gate外。\n"
-        )
-        with self.assertRaisesRegex(SourceError, "exactly match requirement_ids"):
-            build_goal_source(WORKSPACE, "design", extra_scope)
-
-        indented_gate = DESIGN_GOAL_MARKDOWN.replace(
-            "- FR-1 design scope:",
-            "   ## Design Coverage Gate\n```json\n{}\n```\n"
-            "- FR-1 design scope:",
-            1,
-        )
-        with self.assertRaisesRegex(SourceError, "exactly once"):
-            build_goal_source(WORKSPACE, "design", indented_gate)
-
-        indented_scope = DESIGN_GOAL_MARKDOWN.replace(
-            "- FR-1 verification scope:",
-            "   - FR-1 design scope: 重複。\n"
-            "- FR-1 verification scope:",
-            1,
-        )
-        with self.assertRaisesRegex(SourceError, "duplicate Design Goal scope"):
-            build_goal_source(WORKSPACE, "design", indented_scope)
-
-    def test_design_goal_import_ignores_hidden_gate_and_scope_examples(self) -> None:
-        hidden_example = (
-            "~~~~markdown\n"
-            "## Design Coverage Gate\n```json\n{}\n```\n"
-            "- FR-1 design scope: 非表示の例。\n"
-            "~~~~\n\n"
-        )
-
-        source = build_goal_source(
-            WORKSPACE,
-            "design",
-            hidden_example + DESIGN_GOAL_MARKDOWN,
-        )
-
-        self.assertEqual(len(source["validation"]["scopes"]), 2)
 
     def test_load_source_rejects_invalid_nested_managed_schema(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
