@@ -71,10 +71,11 @@ For managed artifacts, the renderer builds `requirements.md` and
 `design-doc.md` from structured sections and Gate fields; `display.preamble`
 supplies only the static preamble and is never the artifact body source. The
 Markdown files are human-readable outputs and are never parsed as artifact
-sources. Use `migrate_aidd_artifacts.py --check` only to validate existing
-managed JSON sources against their generated Markdown. It does not import,
-rebuild, or validate historical artifact Markdown. `--import-goal` is limited
-to converting a temporary Goal input and does not create artifact sidecars.
+sources. Goal preparation also starts from validated `requirements_goal` or
+`design_goal` JSON; no Goal Markdown import path is supported. Use
+`migrate_aidd_artifacts.py --check` only to validate existing managed JSON
+sources against their generated Markdown. It does not import, rebuild, or
+validate historical artifact Markdown.
 For temporary Requirements and Design Goal JSON, the renderer must verify that
 the Goal objective retains the required Context Packet markers, substantive
 Goal and Context text, and the phase-specific stable contract IDs for
