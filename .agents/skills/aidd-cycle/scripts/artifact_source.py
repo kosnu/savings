@@ -720,17 +720,13 @@ def validate_design_coverage_gate(
         require_object_array(gate["baseline_sections"], "coverage_gate.baseline_sections")
     ):
         label = f"coverage_gate.baseline_sections[{index}]"
-        require_object_keys(
-            entry,
-            {
-                "section_id",
-                "heading",
-                "content_sha256",
-                "status",
-                "design_block_id",
-            },
-            label,
-        )
+        status = require_string(entry.get("status"), f"{label}.status")
+        if status not in {"preserved", "replaced"}:
+            raise SourceError(f"{label}.status must be preserved or replaced")
+        expected_keys = {"section_id", "heading", "content_sha256", "status"}
+        if status == "replaced":
+            expected_keys.add("design_block_id")
+        require_object_keys(entry, expected_keys, label)
         section_id = entry["section_id"]
         if section_id is not None:
             require_string(section_id, f"{label}.section_id")
@@ -740,20 +736,20 @@ def validate_design_coverage_gate(
                 )
         heading = require_string(entry["heading"], f"{label}.heading")
         require_digest(entry["content_sha256"], f"{label}.content_sha256")
-        require_string(entry["status"], f"{label}.status")
-        block_id = require_string(entry["design_block_id"], f"{label}.design_block_id")
-        references.append(block_id)
-        if blocks_by_id is not None:
-            block = blocks_by_id.get(block_id)
-            if block is None or block.get("type") != "evidence":
-                raise SourceError(
-                    f"{label}.design_block_id must reference an evidence block"
-                )
-            expected_owner = section_id if section_id is not None else heading
-            if block.get("role") != "baseline" or block.get("owner_id") != expected_owner:
-                raise SourceError(
-                    f"{label}.design_block_id must reference baseline evidence owned by {expected_owner}"
-                )
+        if status == "replaced":
+            block_id = require_string(entry["design_block_id"], f"{label}.design_block_id")
+            references.append(block_id)
+            if blocks_by_id is not None:
+                block = blocks_by_id.get(block_id)
+                if block is None or block.get("type") != "evidence":
+                    raise SourceError(
+                        f"{label}.design_block_id must reference an evidence block"
+                    )
+                expected_owner = section_id if section_id is not None else heading
+                if block.get("role") != "baseline" or block.get("owner_id") != expected_owner:
+                    raise SourceError(
+                        f"{label}.design_block_id must reference baseline evidence owned by {expected_owner}"
+                    )
         if heading in baseline_headings:
             raise SourceError(f"duplicate coverage baseline heading: {heading}")
         baseline_headings.add(heading)

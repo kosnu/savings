@@ -387,6 +387,31 @@ class StructuredArtifactV2Test(unittest.TestCase):
         with self.assertRaisesRegex(SourceError, "verification evidence"):
             validate_loaded_source(source)
 
+    def test_accepts_preserved_baseline_without_evidence(self) -> None:
+        source = design_source()
+        source["validation"]["coverage_gate"]["baseline_sections"] = [
+            {
+                "section_id": "old-section",
+                "heading": "旧設計",
+                "content_sha256": DIGEST,
+                "status": "preserved",
+            }
+        ]
+        validate_loaded_source(source)
+
+    def test_rejects_replaced_baseline_without_evidence(self) -> None:
+        source = design_source()
+        source["validation"]["coverage_gate"]["baseline_sections"] = [
+            {
+                "section_id": "old-section",
+                "heading": "旧設計",
+                "content_sha256": DIGEST,
+                "status": "replaced",
+            }
+        ]
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
+
     def test_rejects_unknown_keys(self) -> None:
         source = requirements_source()
         source["unexpected"] = True

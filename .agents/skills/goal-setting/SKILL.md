@@ -156,7 +156,8 @@ For a Design / Plan Goal:
   structured section to have its own `section_id`- and heading-bearing
   `validation.baseline_scopes` entry in the Goal JSON (`section_id: null` only
   for legacy), then be classified as exact-content preserved or explicitly
-  replaced with identity-bound evidence in the new Design JSON.
+  replaced with identity-bound evidence in the new Design JSON. Preserved
+  entries do not require a baseline evidence reference; replaced entries do.
 - Require the output `design-doc.json` to resolve every identifier through design
   and verification evidence in a unique entry that contains only that
   identifier. Each ID gets its own entry; omission, grouping, and generic

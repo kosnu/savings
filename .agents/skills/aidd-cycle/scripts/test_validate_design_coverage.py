@@ -704,7 +704,6 @@ class DesignCoverageGateTest(unittest.TestCase):
                         "heading": "旧設計",
                         "content_sha256": "old",
                         "status": "preserved",
-                        "design_block_id": "baseline",
                     }
                 ],
                 [{"section_id": None, "heading": "旧設計", "content_sha256": "old"}],
@@ -738,7 +737,6 @@ class DesignCoverageGateTest(unittest.TestCase):
                         "heading": "設計",
                         "content_sha256": "same",
                         "status": "preserved",
-                        "design_block_id": "baseline",
                     }
                 ],
                 [
@@ -765,6 +763,33 @@ class DesignCoverageGateTest(unittest.TestCase):
                     }
                 },
             )
+
+    def test_preserved_baseline_does_not_require_evidence(self) -> None:
+        validate_baseline_sections(
+            [
+                {
+                    "section_id": "section",
+                    "heading": "設計",
+                    "content_sha256": "same",
+                    "status": "preserved",
+                }
+            ],
+            [
+                {
+                    "section_id": "section",
+                    "heading": "設計",
+                    "content_sha256": "same",
+                }
+            ],
+            [
+                {
+                    "section_id": "section",
+                    "heading": "設計",
+                    "content_sha256": "same",
+                }
+            ],
+            {},
+        )
 
     def test_v2_section_digest_uses_structured_json(self) -> None:
         section = typed_design_sections()[0]

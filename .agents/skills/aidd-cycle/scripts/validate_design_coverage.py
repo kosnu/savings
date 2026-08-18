@@ -432,33 +432,39 @@ def validate_baseline_sections(
     baseline_headings = [entry["heading"] for entry in baseline_sections]
     references: list[str] = []
     for index, entry in enumerate(transitions):
-        if not isinstance(entry, dict) or set(entry) != {
-            "section_id", "heading", "content_sha256", "status", "design_block_id"
-        }:
+        if not isinstance(entry, dict):
+            raise ValidationError("invalid baseline_sections entry")
+        status = entry.get("status")
+        if status not in ("preserved", "replaced"):
+            raise ValidationError(f"invalid baseline section status: {status}")
+        expected_keys = {"section_id", "heading", "content_sha256", "status"}
+        if status == "replaced":
+            expected_keys.add("design_block_id")
+        if set(entry) != expected_keys:
             raise ValidationError("invalid baseline_sections entry")
         section_id = entry["section_id"]
-        expected_owner = section_id if section_id is not None else entry["heading"]
-        reference = require_evidence_reference(
-            entry["design_block_id"],
-            f"baseline_sections[{index}].design_block_id",
-            blocks,
-            expected_role="baseline",
-            expected_owner=expected_owner,
-        )
-        evidence_text = blocks[reference]["text"]
-        if normalize(entry["heading"]) not in normalize(evidence_text):
-            raise ValidationError("baseline evidence must name its heading")
-        if names_other_baseline_heading(
-            evidence_text,
-            entry["heading"],
-            baseline_headings,
-        ):
-            raise ValidationError(
-                "baseline evidence must name only its target heading"
+        if status == "replaced":
+            expected_owner = section_id if section_id is not None else entry["heading"]
+            reference = require_evidence_reference(
+                entry["design_block_id"],
+                f"baseline_sections[{index}].design_block_id",
+                blocks,
+                expected_role="baseline",
+                expected_owner=expected_owner,
             )
-        references.append(reference)
+            evidence_text = blocks[reference]["text"]
+            if normalize(entry["heading"]) not in normalize(evidence_text):
+                raise ValidationError("baseline evidence must name its heading")
+            if names_other_baseline_heading(
+                evidence_text,
+                entry["heading"],
+                baseline_headings,
+            ):
+                raise ValidationError(
+                    "baseline evidence must name only its target heading"
+                )
+            references.append(reference)
         section_hash = entry["content_sha256"]
-        status = entry["status"]
         current = (
             current_by_id.get(section_id)
             if section_id is not None
@@ -469,8 +475,6 @@ def validate_baseline_sections(
             raise ValidationError("preserved baseline section changed")
         if status == "replaced" and unchanged:
             raise ValidationError("replaced baseline section is unchanged")
-        if status not in {"preserved", "replaced"}:
-            raise ValidationError(f"invalid baseline section status: {status}")
     if len(references) != len(set(references)):
         raise ValidationError("baseline evidence block references must be unique")
 
