@@ -4,22 +4,19 @@
 from __future__ import annotations
 
 import argparse
-import copy
-import json
 import sys
 from pathlib import Path
-from typing import Any
 
 from artifact_source import (
+    SOURCE_FILENAMES,
     SourceError,
+    canonical_display_path,
     canonical_source_path,
-    decode_source_json,
+    load_regular_source,
     normalize_markdown_newlines,
     read_regular_file_bytes,
-    validate_managed_artifact_source,
-    validate_source,
 )
-from git_baseline import list_git_head_managed_artifact_keys
+from git_baseline import GitBaselineError, list_git_head_managed_artifact_keys
 from render_aidd_artifact import (
     render_artifact_markdown,
     require_git_worktree_root,
@@ -30,7 +27,9 @@ from render_aidd_artifact import (
 def expected_pairs(repo_root: Path) -> list[tuple[Path, Path, str]]:
     root = repo_root / "docs" / "ai-driven-development" / "workspaces"
     require_no_symlinks(repo_root, root, "AIDD workspace root")
-    source_names = {"requirements.json": "requirements", "design-doc.json": "design"}
+    source_names = {
+        filename: kind for kind, filename in SOURCE_FILENAMES.items()
+    }
     keys = list_git_head_managed_artifact_keys(repo_root)
 
     if root.is_dir():
@@ -45,25 +44,12 @@ def expected_pairs(repo_root: Path) -> list[tuple[Path, Path, str]]:
 
     return [
         (
-            repo_root
-            / "docs"
-            / "ai-driven-development"
-            / "workspaces"
-            / workspace
-            / ("requirements.md" if kind == "requirements" else "design-doc.md"),
+            canonical_display_path(repo_root, workspace, kind),
             canonical_source_path(repo_root, workspace, kind),
             kind,
         )
         for workspace, kind in sorted(keys)
     ]
-
-
-def normalized_managed_source(
-    source: dict[str, Any],
-) -> dict[str, Any]:
-    normalized = copy.deepcopy(source)
-    normalized["validation"].pop("source_markdown_sha256", None)
-    return validate_managed_artifact_source(normalized)
 
 
 def migrate(repo_root: Path) -> int:
@@ -79,13 +65,7 @@ def migrate(repo_root: Path) -> int:
         markdown = normalize_markdown_newlines(
             read_regular_file_bytes(display_path).decode("utf-8")
         )
-        decoded = decode_source_json(
-            read_regular_file_bytes(source_path).decode("utf-8")
-        )
-        source = validate_source(decoded, kind)
-        normalized = normalized_managed_source(source)
-        if source != normalized:
-            raise SourceError(f"managed source is not normalized: {source_path}")
+        source = load_regular_source(source_path, kind)
         if source["workspace"] != display_path.parent.name:
             raise SourceError(f"workspace mismatch: {source_path}")
         if (
@@ -104,7 +84,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         migrate(args.repo_root)
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError, SourceError) as error:
+    except (OSError, UnicodeDecodeError, GitBaselineError, SourceError) as error:
         print(f"AIDD migration failed: {error}", file=sys.stderr)
         return 1
     return 0

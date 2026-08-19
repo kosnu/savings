@@ -188,7 +188,9 @@ and main target. In orchestrated use, return that control directly to
 `aidd-cycle` instead of ending the overall invocation.
 
 If Goal tools are unavailable, or the user explicitly requests a draft or text
-only, return one ready-to-set Markdown Goal and do not claim that it was set.
+only, return one ready-to-set rendered Goal objective for Codex Goal
+(human-facing Markdown, not a phase validator input) and do not claim that it
+was set.
 
 ## Stop
 

@@ -7,7 +7,7 @@ import unittest
 from copy import deepcopy
 from pathlib import Path
 
-from artifact_source import serialize_source
+from artifact_source import serialize_source, structured_sha256
 from validate_requirements_continuity import (
     REQUIRED_REQUIREMENTS_SECTIONS,
     ValidationError,
@@ -15,10 +15,10 @@ from validate_requirements_continuity import (
     baseline_section_manifest,
     content_sha256,
     section_content_hash,
-    structured_sha256,
     structured_requirements,
     structured_sections,
     validate,
+    validate_retired,
 )
 
 
@@ -409,6 +409,36 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         self.assertNotIn("structured_ids", validator)
         self.assertNotIn("mask_non_rendered_markdown", validator)
         self.assertNotIn('display["markdown"]', validator)
+
+    def test_rejects_retirement_term_inside_dropdown(self) -> None:
+        with self.assertRaisesRegex(
+            ValidationError, "retired evidence must explicitly state retirement"
+        ):
+            validate_retired(
+                [
+                    {
+                        "id": "FR-1",
+                        "issue_evidence": "FR-1 dropdown navigation",
+                    }
+                ],
+                {"FR-1"},
+                "FR-1 dropdown navigation",
+            )
+
+    def test_accepts_standalone_english_retirement_term(self) -> None:
+        self.assertEqual(
+            validate_retired(
+                [
+                    {
+                        "id": "FR-1",
+                        "issue_evidence": "FR-1 drop this requirement",
+                    }
+                ],
+                {"FR-1"},
+                "FR-1 drop this requirement",
+            ),
+            {"FR-1"},
+        )
 
     def test_content_hash_preserves_whitespace_except_newline_style(self) -> None:
         self.assertEqual(content_sha256("A\r\nB"), content_sha256("A\nB"))

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import subprocess
 import tempfile
@@ -8,6 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import validate_design_coverage as design_coverage
 from artifact_source import (
     SourceError,
     serialize_source,
@@ -18,7 +20,6 @@ from validate_design_coverage import (
     ValidationError,
     design_sections,
     evidence_blocks,
-    structured_sha256,
     validate,
     validate_baseline_sections,
     validate_baseline_scopes,
@@ -801,6 +802,23 @@ class DesignCoverageGateTest(unittest.TestCase):
             design_sections(source)[0]["content_sha256"], structured_sha256(section)
         )
 
+    def test_v2_section_digest_ignores_newline_style(self) -> None:
+        crlf_section = typed_design_sections(fake_markdown="line1\r\nline2")[0]
+        lf_section = typed_design_sections(fake_markdown="line1\nline2")[0]
+        crlf_source = {
+            "schema_version": 2,
+            "validation": {"sections": [crlf_section]},
+        }
+        lf_source = {
+            "schema_version": 2,
+            "validation": {"sections": [lf_section]},
+        }
+
+        self.assertEqual(
+            design_sections(crlf_source)[0]["content_sha256"],
+            design_sections(lf_source)[0]["content_sha256"],
+        )
+
     def test_validator_has_no_managed_markdown_parser_dependency(self) -> None:
         source = Path(__file__).with_name("validate_design_coverage.py").read_text(
             encoding="utf-8"
@@ -808,6 +826,43 @@ class DesignCoverageGateTest(unittest.TestCase):
         self.assertNotIn("from structured_ids import", source)
         self.assertNotIn("mask_non_rendered_markdown", source)
         self.assertNotIn('["display"]', source)
+
+    def test_main_reports_invalid_utf8_as_gate_failure(self) -> None:
+        argv = [
+            "validate_design_coverage.py",
+            "--issue",
+            ISSUE,
+            "--issue-url",
+            ISSUE_URL,
+            "--issue-updated-at",
+            ISSUE_UPDATED_AT,
+            "--issue-body",
+            "issue-body.md",
+            "--rule-map",
+            "rule-map.json",
+            "--requirements",
+            "requirements.json",
+            "--document",
+            "design-doc.json",
+            "--kind",
+            "artifact",
+            "--repo-root",
+            ".",
+            "--workspace",
+            WORKSPACE,
+        ]
+        decode_error = UnicodeDecodeError(
+            "utf-8", b"\xff", 0, 1, "invalid start byte"
+        )
+        with (
+            patch.object(design_coverage, "validate", side_effect=decode_error),
+            patch("sys.argv", argv),
+            patch("sys.stderr", new_callable=io.StringIO) as stderr,
+        ):
+            result = design_coverage.main()
+
+        self.assertEqual(result, 1)
+        self.assertIn("design coverage gate: failed", stderr.getvalue())
 
     def test_rejects_noncanonical_requirements_source(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

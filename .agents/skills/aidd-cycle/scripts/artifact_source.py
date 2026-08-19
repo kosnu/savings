@@ -80,6 +80,10 @@ BLOCK_ID_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
 REQUIREMENT_ID_PATTERN = re.compile(r"(?P<prefix>FR|NFR|AC)-(?P<number>[1-9][0-9]*)")
 REQUIREMENT_PREFIX_ORDER = {"FR": 0, "NFR": 1, "AC": 2}
 WORKSPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
+VERSIONED_WORKSPACE_MARKER_PATTERN = re.compile(
+    r"(?:^|-)(?:v[0-9]+|(?:ver|version|rev|revision|cycle)-?[0-9]+|"
+    r"retry(?:-[0-9]+)?|rerun(?:-[0-9]+)?)(?:-|$)"
+)
 DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}")
 MAX_SOURCE_BYTES = 16 * 1024 * 1024
 EVIDENCE_ROLES = {"design", "verification", "baseline"}
@@ -174,8 +178,25 @@ def requirement_sort_key(value: str) -> tuple[int, int]:
 
 
 def structured_sha256(value: Any) -> str:
+    """Hash JSON structure after newline normalization."""
+
+    def normalize_newlines(item: Any) -> Any:
+        if isinstance(item, str):
+            return item.replace("\r\n", "\n")
+        if isinstance(item, list):
+            return [normalize_newlines(entry) for entry in item]
+        if isinstance(item, dict):
+            return {
+                key: normalize_newlines(entry)
+                for key, entry in item.items()
+            }
+        return item
+
     serialized = json.dumps(
-        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        normalize_newlines(value),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
     )
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
@@ -447,6 +468,10 @@ def validate_design_goal_coverage_gate(value: Any) -> None:
 def validate_workspace_name(workspace: str) -> None:
     if WORKSPACE_PATTERN.fullmatch(workspace) is None:
         raise SourceError("workspace must use lowercase ASCII kebab-case")
+    if VERSIONED_WORKSPACE_MARKER_PATTERN.search(workspace) is not None:
+        raise SourceError(
+            "workspace must not use a version, cycle, retry, or rerun marker"
+        )
 
 
 def canonical_source_path(repo_root: Path, workspace: str, kind: str) -> Path:
@@ -1012,20 +1037,6 @@ def load_source_bytes(
     content: bytes,
     expected_kind: str | None = None,
 ) -> dict[str, Any]:
-    try:
-        decoded = content.decode("utf-8")
-    except UnicodeDecodeError as error:
-        raise SourceError(f"AIDD source JSON is invalid: {error}") from error
-    value = decode_source_json(decoded)
-    return validate_loaded_source(value, expected_kind)
-
-
-def load_baseline_source_bytes(
-    content: bytes,
-    expected_kind: str,
-) -> dict[str, Any]:
-    """Load Git HEAD source without reinterpreting its Markdown display."""
-
     try:
         decoded = content.decode("utf-8")
     except UnicodeDecodeError as error:
