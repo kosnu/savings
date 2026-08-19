@@ -1,6 +1,7 @@
 import type { Preview } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { initialize, mswLoader } from "msw-storybook-addon"
+import { mswLoader } from "msw-storybook-addon/csf3"
+import { setupWorker } from "msw/browser"
 
 import { createQueryClient } from "../src/lib/queryClient"
 import { SnackbarProvider } from "../src/providers/snackbar/SnackbarProvider"
@@ -11,10 +12,6 @@ import { authHandlers } from "../src/test/msw/handlers/auth"
 
 import "../src/assets/global.css"
 import "../src/i18n"
-
-// Storybook では未ハンドルな内部リクエストを素通しし、
-// MSW の詳細ログも抑制してターミナル汚染を防ぐ。
-initialize({ onUnhandledRequest: "bypass", quiet: true })
 
 const preview: Preview = {
   parameters: {
@@ -28,7 +25,14 @@ const preview: Preview = {
       handlers: authHandlers,
     },
   },
-  loaders: [mswLoader],
+  loaders: [
+    mswLoader(async () => {
+      const worker = setupWorker()
+
+      await worker.start({ onUnhandledRequest: "bypass", quiet: true })
+      return worker
+    }),
+  ],
   decorators: [
     (Story) => {
       const queryClient = createQueryClient()
