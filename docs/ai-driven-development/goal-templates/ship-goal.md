@@ -30,8 +30,8 @@ Build / Verify済みの実装差分を、PR、説明、レビュー返信がで�
 ## Inputs
 
 - 実装ブランチ:
-- Requirements / PRD:
-- Design Doc:
+- Requirements / PRD: canonical `requirements.json`と生成済み`requirements.md`
+- Design Doc: canonical `design-doc.json`と生成済み`design-doc.md`
 - 検証結果:
 - 関連Issue:
 - 関連PR:
@@ -86,6 +86,7 @@ Ship Goalの完了は、以下のDoneとVerificationで判定する。定義外�
 - [ ] 未確認事項・残リスクが書かれている
 - [ ] 無関係な差分が含まれていない
 - [ ] AIDDフルサイクルでは対象差分がcommit済みである
+- [ ] AIDD JSON正本のvalidatorと生成Markdownのrenderer checkがBuild / Verify結果に含まれている
 - [ ] 対応済みレビューコメントに分類、対応内容、commit ID、検証結果が具体的に返信されている
 - [ ] 完了済みreview threadだけがresolveされている
 - [ ] PR本文、変更要約、レビュー返信、thread resolve判断が、選択したルール・ポリシーに違反していないことを確認している
@@ -102,6 +103,7 @@ Ship Goalの完了は、以下のDoneとVerificationで判定する。定義外�
   - `gh api graphql` によるreview thread状態確認
   - PR作成前に指定されたアプリ検証コマンド
   - Markdown lintやドキュメント生成コマンド
+  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --repo-root <repo-root> --check-all`
 
 ## Stop
 

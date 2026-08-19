@@ -12,7 +12,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from git_baseline import GitBaselineError, require_canonical_worktree_path
+from artifact_source import (
+    SourceError,
+    load_source,
+    load_source_bytes,
+    read_regular_file_bytes,
+)
+from git_baseline import (
+    GitBaselineError,
+    canonical_source_path,
+    require_canonical_worktree_path,
+)
 
 
 GENERIC_IMPLEMENTATION_TOPICS = {
@@ -96,21 +106,10 @@ def validate_rule_map(rule_map: Any) -> dict[str, dict[str, Any]]:
     return rules_by_id
 
 
-def extract_manifest(document: str) -> dict[str, Any]:
-    match = re.search(
-        r"(?ms)^## Requirements Input Gate\s*$.*?```json\s*\n(.*?)\n```",
-        document,
-    )
-    if match is None:
-        raise ValidationError("Requirements Input Gate JSON block is missing")
-
-    try:
-        manifest = json.loads(match.group(1))
-    except json.JSONDecodeError as error:
-        raise ValidationError(f"Requirements Input Gate JSON is invalid: {error}") from error
-
+def extract_manifest(source: dict[str, Any]) -> dict[str, Any]:
+    manifest = source["validation"].get("input_gate")
     if not isinstance(manifest, dict):
-        raise ValidationError("Requirements Input Gate must be a JSON object")
+        raise ValidationError("validation.input_gate must be an object")
 
     allowed_keys = {"task_context", "direct_rules", "depends_on"}
     unknown_keys = set(manifest) - allowed_keys
@@ -340,6 +339,10 @@ def validate(
     document_kind: str,
     repo_root: Path,
     goal_document_path: Path | None = None,
+    require_goal_document: bool = True,
+    document_bytes: bytes | None = None,
+    issue_body_bytes: bytes | None = None,
+    rule_map_bytes: bytes | None = None,
 ) -> None:
     canonical_rule_map_path = require_canonical_input(
         repo_root,
@@ -347,12 +350,36 @@ def validate(
         Path("docs/harness/rule-map.json"),
         "rule-map",
     )
-    issue_body_bytes = issue_body_path.read_bytes()
+    if document_kind == "goal":
+        source = (
+            load_source_bytes(document_bytes, "requirements_goal")
+            if document_bytes is not None
+            else load_source(document_path, "requirements_goal")
+        )
+    elif document_kind == "artifact":
+        source = (
+            load_source_bytes(document_bytes, "requirements")
+            if document_bytes is not None
+            else load_source(document_path, "requirements")
+        )
+        require_canonical_input(
+            repo_root,
+            document_path,
+            canonical_source_path(Path(), source["workspace"], "requirements"),
+            "Requirements source",
+        )
+    else:
+        raise ValidationError("document kind must be goal or artifact")
+    if source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
+    if issue_body_bytes is None:
+        issue_body_bytes = read_regular_file_bytes(issue_body_path)
     issue_body = issue_body_bytes.decode("utf-8")
-    document = document_path.read_text(encoding="utf-8")
-    rule_map = json.loads(canonical_rule_map_path.read_text(encoding="utf-8"))
+    if rule_map_bytes is None:
+        rule_map_bytes = read_regular_file_bytes(canonical_rule_map_path)
+    rule_map = json.loads(rule_map_bytes.decode("utf-8"))
     rules_by_id = validate_rule_map(rule_map)
-    manifest = extract_manifest(document)
+    manifest = extract_manifest(source)
 
     validate_issue_metadata(issue, issue_url, issue_updated_at)
     validate_task_context(
@@ -380,13 +407,20 @@ def validate(
         if goal_document_path is not None:
             raise ValidationError("--goal-document is only valid for artifact validation")
         return
-    if document_kind != "artifact":
-        raise ValidationError("document kind must be goal or artifact")
+    if not require_goal_document:
+        if goal_document_path is not None:
+            raise ValidationError(
+                "goal document must be omitted when only revalidating the artifact gate"
+            )
+        return
     if goal_document_path is None:
         raise ValidationError("artifact validation requires --goal-document")
     if goal_document_path.resolve() == document_path.resolve():
         raise ValidationError("--goal-document must be distinct from the artifact")
-    goal_manifest = extract_manifest(goal_document_path.read_text(encoding="utf-8"))
+    goal_source = load_source(goal_document_path, "requirements_goal")
+    if goal_source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
+    goal_manifest = extract_manifest(goal_source)
     if manifest != goal_manifest:
         raise ValidationError(
             "artifact Requirements Input Gate does not match the Goal"
@@ -424,6 +458,7 @@ def main() -> int:
         KeyError,
         json.JSONDecodeError,
         GitBaselineError,
+        SourceError,
         ValidationError,
     ) as error:
         print(f"requirements input gate: failed: {error}", file=sys.stderr)

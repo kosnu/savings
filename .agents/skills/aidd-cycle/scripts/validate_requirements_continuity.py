@@ -8,34 +8,77 @@ import hashlib
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from artifact_source import (
+    SourceError,
+    load_source,
+    load_source_bytes,
+    read_regular_file_bytes,
+    structured_sha256,
+)
 from git_baseline import (
     GitBaselineError,
-    canonical_artifact_path,
-    load_git_head_artifact,
+    canonical_source_path,
+    load_git_head_source,
     require_canonical_worktree_path,
     validate_workspace_identity,
 )
-from requirement_ids import (
-    REQUIRED_REQUIREMENTS_SECTIONS,
-    extract_required_requirements_sections,
-    extract_requirement_items,
-    extract_requirement_mentions,
-    is_requirement_id,
-    normalize_markdown_text,
-    requirement_sort_key,
-)
-
-
-GATE_PATTERN = re.compile(
-    r"(?ms)^## Requirements Completeness Gate\s*$.*?```json\s*\n(.*?)\n```"
-)
+from section_aliases import exact_requirement_section_ids_for_heading
 
 
 class ValidationError(ValueError):
     pass
+
+
+@dataclass(frozen=True)
+class StructuredRequirement:
+    section_id: str | None
+    text: str
+
+
+@dataclass(frozen=True)
+class StructuredSection:
+    heading: str
+    blocks: tuple[dict[str, Any], ...]
+    content: str
+
+
+REQUIRED_REQUIREMENTS_SECTIONS = (
+    "background",
+    "users",
+    "stories",
+    "scope",
+    "functional",
+    "non-functional",
+    "acceptance",
+    "qa",
+    "technical",
+)
+REQUIREMENT_ID_PATTERN = re.compile(r"(?:FR|NFR|AC)-[1-9][0-9]*")
+REQUIREMENT_MENTION_PATTERN = re.compile(
+    r"(?<![A-Z0-9_-])(?:FR|NFR|AC)-[1-9][0-9]*(?![A-Z0-9_-])"
+)
+REQUIREMENT_PREFIX_ORDER = {"FR": 0, "NFR": 1, "AC": 2}
+REQUIREMENT_SECTION_BY_PREFIX = {
+    "FR": "functional",
+    "NFR": "non-functional",
+    "AC": "acceptance",
+}
+
+
+REQUIREMENT_CONTENT_PLACEHOLDER_PATTERN = re.compile(
+    r"\b(?:pending|tbd|todo)\b|未定",
+    re.IGNORECASE,
+)
+REQUIREMENT_CONTENT_PLACEHOLDER_ONLY_PATTERN = re.compile(
+    r"(?:(?:pending|tbd|todo|未定)\s*"
+    r"(?:(?:です|である|対応待ち|待ち)\s*)*"
+    r"[\s:：,，、.。;；*`_#-]*)+",
+    re.IGNORECASE,
+)
 
 
 RETIREMENT_TERMS = {
@@ -44,6 +87,8 @@ RETIREMENT_TERMS = {
     "削除",
     "撤回",
     "不要",
+}
+RETIREMENT_ENGLISH_TERMS = {
     "out of scope",
     "remove",
     "removed",
@@ -54,6 +99,10 @@ RETIREMENT_TERMS = {
     "deprecate",
     "deprecated",
 }
+RETIREMENT_ENGLISH_TERM_PATTERNS = tuple(
+    re.compile(rf"\b{re.escape(term)}\b")
+    for term in RETIREMENT_ENGLISH_TERMS
+)
 
 NEGATED_RETIREMENT_PATTERNS = (
     re.compile(
@@ -99,6 +148,21 @@ def require_string(value: Any, label: str) -> str:
     return value.strip()
 
 
+def is_requirement_id(value: str) -> bool:
+    return REQUIREMENT_ID_PATTERN.fullmatch(value) is not None
+
+
+def requirement_sort_key(requirement_id: str) -> tuple[int, int]:
+    prefix, number = requirement_id.split("-", 1)
+    return REQUIREMENT_PREFIX_ORDER[prefix], int(number)
+
+
+def extract_requirement_mentions(value: str) -> tuple[str, ...]:
+    return tuple(
+        sorted(set(REQUIREMENT_MENTION_PATTERN.findall(value)), key=requirement_sort_key)
+    )
+
+
 def require_canonical_input(
     repo_root: Path,
     supplied_path: Path,
@@ -113,18 +177,10 @@ def require_canonical_input(
         raise ValidationError(str(error)) from error
 
 
-def extract_manifest(document: str) -> dict[str, Any]:
-    match = GATE_PATTERN.search(document)
-    if match is None:
-        raise ValidationError("Requirements Completeness Gate JSON block is missing")
-    try:
-        manifest = json.loads(match.group(1))
-    except json.JSONDecodeError as error:
-        raise ValidationError(
-            f"Requirements Completeness Gate JSON is invalid: {error}"
-        ) from error
+def extract_manifest(source: dict[str, Any]) -> dict[str, Any]:
+    manifest = source["validation"].get("completeness_gate")
     if not isinstance(manifest, dict):
-        raise ValidationError("Requirements Completeness Gate must be a JSON object")
+        raise ValidationError("validation.completeness_gate must be an object")
     if set(manifest) != {
         "issue_body_sha256",
         "workspace",
@@ -141,37 +197,160 @@ def extract_manifest(document: str) -> dict[str, Any]:
 
 
 def content_sha256(value: str) -> str:
-    return hashlib.sha256(normalize_markdown_text(value).encode("utf-8")).hexdigest()
+    return hashlib.sha256(value.replace("\r\n", "\n").encode("utf-8")).hexdigest()
+
+
+def section_requirement_entries(
+    section_id: str,
+    current_items: dict[str, StructuredRequirement],
+) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    for requirement_id in sorted(current_items, key=requirement_sort_key):
+        requirement = current_items[requirement_id]
+        if requirement.section_id == section_id:
+            entries.append({"id": requirement_id, "text": requirement.text})
+    return entries
+
+
+def section_content_hash(
+    section_id: str,
+    section: StructuredSection,
+    current_items: dict[str, StructuredRequirement],
+) -> str:
+    value: dict[str, Any] = {
+        "heading": section.heading,
+        "blocks": list(section.blocks),
+        "requirements": section_requirement_entries(section_id, current_items),
+    }
+    return structured_sha256(value)
+
+
+def require_substantive_requirement_content(
+    requirement_id: str,
+    content: str,
+) -> None:
+    content_without_id = normalize(content).replace(normalize(requirement_id), "")
+    content_without_id = content_without_id.strip(" :-：,，、.。;；`*_#")
+    if REQUIREMENT_CONTENT_PLACEHOLDER_ONLY_PATTERN.fullmatch(content_without_id):
+        raise ValidationError(
+            "requirement content must have a substantive summary: "
+            f"{requirement_id}"
+        )
+    substantive = content_without_id
+    substantive = REQUIREMENT_CONTENT_PLACEHOLDER_PATTERN.sub("", substantive)
+    substantive = re.sub(r"[\W_]+", "", substantive)
+    if len(substantive) < 2:
+        raise ValidationError(
+            "requirement content must have a substantive summary: "
+            f"{requirement_id}"
+        )
+
+
+def structured_requirements(
+    source: dict[str, Any],
+) -> dict[str, StructuredRequirement]:
+    entries = source["validation"].get("requirements")
+    if not isinstance(entries, list):
+        raise ValidationError("validation.requirements must be an array")
+    is_goal = source.get("kind") == "requirements_goal"
+    items: dict[str, StructuredRequirement] = {}
+    for index, entry in enumerate(entries):
+        expected_keys = {"id", "text"} if is_goal else {"id", "section_id", "text"}
+        if not isinstance(entry, dict) or set(entry) != expected_keys:
+            raise ValidationError(
+                "each validation.requirements entry must match its schema"
+            )
+        requirement_id = require_string(entry["id"], f"requirements[{index}].id")
+        if not is_requirement_id(requirement_id):
+            raise ValidationError(f"invalid structured requirement ID: {requirement_id}")
+        text = require_string(entry["text"], f"requirements[{index}].text")
+        require_substantive_requirement_content(requirement_id, text)
+        section_id = None
+        if not is_goal:
+            section_id = require_string(
+                entry["section_id"], f"requirements[{index}].section_id"
+            )
+            prefix = requirement_id.split("-", 1)[0]
+            if section_id != REQUIREMENT_SECTION_BY_PREFIX[prefix]:
+                raise ValidationError(
+                    f"{requirement_id} must reference "
+                    f"{REQUIREMENT_SECTION_BY_PREFIX[prefix]} section"
+                )
+        if requirement_id in items:
+            raise ValidationError(f"duplicate structured requirement: {requirement_id}")
+        items[requirement_id] = StructuredRequirement(section_id, text)
+    if list(items) != sorted(items, key=requirement_sort_key):
+        raise ValidationError("structured requirements must use canonical ID order")
+    return items
+
+
+def structured_sections(source: dict[str, Any]) -> dict[str, StructuredSection]:
+    entries = source["validation"].get("sections")
+    if not isinstance(entries, list):
+        raise ValidationError("validation.sections must be an array")
+    sections: dict[str, StructuredSection] = {}
+    for index, entry in enumerate(entries):
+        expected_keys = {"id", "heading", "blocks"}
+        if not isinstance(entry, dict) or set(entry) != expected_keys:
+            raise ValidationError(
+                "each validation.sections entry must match its schema"
+            )
+        section_id = require_string(entry["id"], f"sections[{index}].id")
+        heading = require_string(entry["heading"], f"sections[{index}].heading")
+        matched_section_ids = exact_requirement_section_ids_for_heading(heading)
+        if matched_section_ids != (section_id,):
+            raise ValidationError(
+                f"section {section_id} heading must map to exactly one canonical section"
+            )
+        raw_blocks = entry["blocks"]
+        if not isinstance(raw_blocks, list) or not raw_blocks:
+            raise ValidationError(f"sections[{index}].blocks must be non-empty")
+        blocks = tuple(raw_blocks)
+        content = json.dumps(
+            raw_blocks,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        if section_id in sections:
+            raise ValidationError(f"duplicate structured section: {section_id}")
+        sections[section_id] = StructuredSection(heading, blocks, content)
+    canonical_sections = REQUIRED_REQUIREMENTS_SECTIONS
+    expected_order = [
+        section_id for section_id in canonical_sections if section_id in sections
+    ]
+    if list(sections) != expected_order:
+        raise ValidationError("structured sections must use canonical section order")
+    return sections
 
 
 def baseline_item_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
-    try:
-        items = extract_requirement_items(baseline_bytes.decode("utf-8"))
-    except ValueError as error:
-        raise ValidationError(str(error)) from error
+    items = structured_requirements(
+        load_source_bytes(baseline_bytes, "requirements")
+    )
     if not items:
         raise ValidationError(
             "Git HEAD Requirements baseline has no stable requirement definitions"
         )
     return [
-        {"id": requirement_id, "content_sha256": content_sha256(items[requirement_id].content)}
+        {"id": requirement_id, "content_sha256": content_sha256(items[requirement_id].text)}
         for requirement_id in sorted(items, key=requirement_sort_key)
     ]
 
 
 def baseline_section_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
-    try:
-        sections = extract_required_requirements_sections(
-            baseline_bytes.decode("utf-8"),
-            require_all=False,
-        )
-    except ValueError as error:
-        raise ValidationError(
-            f"Git HEAD Requirements baseline is structurally incomplete: {error}"
-        ) from error
+    source = load_source_bytes(baseline_bytes, "requirements")
+    items = structured_requirements(source)
+    sections = structured_sections(source)
+    canonical_sections = REQUIRED_REQUIREMENTS_SECTIONS
     return [
-        {"id": section_id, "content_sha256": content_sha256(sections[section_id].content)}
-        for section_id in REQUIRED_REQUIREMENTS_SECTIONS
+        {
+            "id": section_id,
+            "content_sha256": section_content_hash(
+                section_id, sections[section_id], items
+            ),
+        }
+        for section_id in canonical_sections
         if section_id in sections
     ]
 
@@ -216,7 +395,8 @@ def validate_sections_manifest(
     sections: Any,
     baseline_sections: dict[str, str],
     issue_body: str,
-    current_sections: dict[str, Any] | None,
+    current_sections: dict[str, StructuredSection] | None,
+    current_items: dict[str, StructuredRequirement],
 ) -> dict[str, str]:
     if not isinstance(sections, list):
         raise ValidationError("sections must be an array")
@@ -226,6 +406,25 @@ def validate_sections_manifest(
             "sections must contain every canonical Requirements section in order"
         )
 
+    normalized_issue_body = normalize(issue_body)
+    normalized_section_contents: dict[str, str] = {}
+    if current_sections is not None:
+        for section_id, section in current_sections.items():
+            content_parts: list[str] = []
+            for block in section.blocks:
+                if block["type"] == "markdown":
+                    content_parts.append(block["markdown"])
+                elif block["type"] == "evidence":
+                    content_parts.append(block["text"])
+                elif block["type"] == "requirements":
+                    content_parts.extend(
+                        item.text
+                        for item in current_items.values()
+                        if item.section_id == section_id
+                    )
+            normalized_section_contents[section_id] = normalize(
+                "\n".join(content_parts)
+            )
     statuses: dict[str, str] = {}
     evidence_owners: dict[str, str] = {}
     for index, entry in enumerate(sections):
@@ -254,26 +453,24 @@ def validate_sections_manifest(
                 )
         else:
             evidence = require_string(evidence, f"sections[{index}].issue_evidence")
-            if normalize(evidence) not in normalize(issue_body):
+            if normalize(evidence) not in normalized_issue_body:
                 raise ValidationError(
                     f"{section_id} section evidence is not in the current Issue"
                 )
+            normalized_evidence = normalize(evidence)
+            if normalized_evidence in evidence_owners:
+                raise ValidationError(
+                    "changed or new section issue_evidence must be unique per section"
+                )
+            evidence_owners[normalized_evidence] = section_id
             if current_sections is not None:
-                normalized_evidence = normalize(evidence)
-                if normalized_evidence in evidence_owners:
-                    raise ValidationError(
-                        "changed or new section issue_evidence must be unique per section"
-                    )
-                evidence_owners[normalized_evidence] = section_id
-                if normalized_evidence not in normalize(
-                    current_sections[section_id].content
-                ):
+                if normalized_evidence not in normalized_section_contents[section_id]:
                     raise ValidationError(
                         f"{section_id} section evidence is not present in its section content"
                     )
                 if any(
-                    normalized_evidence in normalize(other_section.content)
-                    for other_id, other_section in current_sections.items()
+                    normalized_evidence in other_content
+                    for other_id, other_content in normalized_section_contents.items()
                     if other_id != section_id
                 ):
                     raise ValidationError(
@@ -292,6 +489,7 @@ def validate_requirements_manifest(
     if not isinstance(requirements, list):
         raise ValidationError("requirements must be an array")
 
+    normalized_issue_body = normalize(issue_body)
     statuses: dict[str, str] = {}
     evidence_owners: dict[str, str] = {}
     for index, entry in enumerate(requirements):
@@ -330,7 +528,7 @@ def validate_requirements_manifest(
                 evidence,
                 f"requirements[{index}].issue_evidence",
             )
-            if normalize(evidence) not in normalize(issue_body):
+            if normalize(evidence) not in normalized_issue_body:
                 raise ValidationError(
                     f"{requirement_id} issue_evidence is not present in the current Issue"
                 )
@@ -344,14 +542,12 @@ def validate_requirements_manifest(
                 raise ValidationError(
                     f"{requirement_id} has no requirement definition for issue_evidence"
                 )
-            if normalized_evidence not in normalize(
-                current_items[requirement_id].content
-            ):
+            if normalized_evidence not in normalize(current_items[requirement_id].text):
                 raise ValidationError(
-                    f"{requirement_id} issue_evidence is not present in its requirement content"
+                    f"{requirement_id} issue_evidence is not present in its requirement text"
                 )
             if any(
-                normalized_evidence in normalize(other_item.content)
+                normalized_evidence in normalize(other_item.text)
                 for other_id, other_item in current_items.items()
                 if other_id != requirement_id
             ):
@@ -408,7 +604,13 @@ def validate_retired(
             raise ValidationError(
                 f"retired evidence must name its requirement ID: {requirement_id}"
             )
-        if not any(term in normalized_evidence for term in RETIREMENT_TERMS):
+        if not (
+            any(term in normalized_evidence for term in RETIREMENT_TERMS)
+            or any(
+                pattern.search(normalized_evidence)
+                for pattern in RETIREMENT_ENGLISH_TERM_PATTERNS
+            )
+        ):
             raise ValidationError(
                 f"retired evidence must explicitly state retirement: {requirement_id}"
             )
@@ -427,10 +629,17 @@ def validate(
     repo_root: Path,
     workspace: str,
     goal_document_path: Path | None = None,
+    require_goal_document: bool = True,
+    document_bytes: bytes | None = None,
+    issue_body_bytes: bytes | None = None,
 ) -> None:
     if document_kind == "goal" and goal_document_path is not None:
         raise ValidationError("--goal-document is only valid for artifact validation")
-    if document_kind == "artifact" and goal_document_path is None:
+    if (
+        document_kind == "artifact"
+        and require_goal_document
+        and goal_document_path is None
+    ):
         raise ValidationError("artifact validation requires --goal-document")
     if (
         document_kind == "artifact"
@@ -443,18 +652,35 @@ def validate(
         require_canonical_input(
             repo_root,
             document_path,
-            canonical_artifact_path(Path(), workspace, "requirements.md"),
-            "Requirements artifact",
+            canonical_source_path(Path(), workspace, "requirements"),
+            "Requirements source",
         )
-    issue_body_bytes = issue_body_path.read_bytes()
+        source = (
+            load_source_bytes(document_bytes, "requirements")
+            if document_bytes is not None
+            else load_source(document_path, "requirements")
+        )
+    elif document_kind == "goal":
+        source = (
+            load_source_bytes(document_bytes, "requirements_goal")
+            if document_bytes is not None
+            else load_source(document_path, "requirements_goal")
+        )
+    else:
+        raise ValidationError("document kind must be goal or artifact")
+    if source["workspace"] != workspace:
+        raise ValidationError("source workspace does not match --workspace")
+    if source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
+    if issue_body_bytes is None:
+        issue_body_bytes = read_regular_file_bytes(issue_body_path)
     issue_body = issue_body_bytes.decode("utf-8")
-    document = document_path.read_text(encoding="utf-8")
-    _, baseline_bytes = load_git_head_artifact(
+    _, baseline_bytes = load_git_head_source(
         repo_root,
         workspace,
-        "requirements.md",
+        "requirements",
     )
-    manifest = extract_manifest(document)
+    manifest = extract_manifest(source)
 
     if manifest.get("workspace") != workspace:
         raise ValidationError("manifest workspace does not match --workspace")
@@ -465,10 +691,7 @@ def validate(
     baseline = validate_baseline(manifest.get("baseline"), baseline_bytes)
     baseline_items = baseline["requirements"]
     baseline_sections = baseline["sections"]
-    try:
-        current_items = extract_requirement_items(document)
-    except ValueError as error:
-        raise ValidationError(str(error)) from error
+    current_items = structured_requirements(source)
     statuses = validate_requirements_manifest(
         manifest.get("requirements"), baseline_items, issue_body, current_items
     )
@@ -477,14 +700,19 @@ def validate(
         set(baseline_items),
         issue_body,
     )
-    current_sections = None
-    if document_kind == "artifact":
-        try:
-            current_sections = extract_required_requirements_sections(document)
-        except ValueError as error:
-            raise ValidationError(str(error)) from error
+    current_sections = structured_sections(source) if document_kind == "artifact" else None
+    if current_sections is not None and list(current_sections) != list(
+        REQUIRED_REQUIREMENTS_SECTIONS
+    ):
+        raise ValidationError(
+            "Requirements artifact must contain every canonical structured section"
+        )
     section_statuses = validate_sections_manifest(
-        manifest.get("sections"), baseline_sections, issue_body, current_sections
+        manifest.get("sections"),
+        baseline_sections,
+        issue_body,
+        current_sections,
+        current_items,
     )
 
     missing_baseline = set(baseline_items) - set(statuses) - retired_ids
@@ -513,13 +741,8 @@ def validate(
             f"{', '.join(sorted(missing_issue_ids, key=requirement_sort_key))}"
         )
 
-    if document_kind == "goal":
-        return
-
-    assert current_sections is not None
-
     for requirement_id, status in statuses.items():
-        current_hash = content_sha256(current_items[requirement_id].content)
+        current_hash = content_sha256(current_items[requirement_id].text)
         if status == "unchanged" and current_hash != baseline_items[requirement_id]:
             raise ValidationError(
                 f"unchanged requirement content changed: {requirement_id}"
@@ -529,8 +752,14 @@ def validate(
                 f"changed requirement content is identical to Git HEAD: {requirement_id}"
             )
 
+    if document_kind == "goal":
+        return
+
+    assert current_sections is not None
+
     for section_id, status in section_statuses.items():
-        current_hash = content_sha256(current_sections[section_id].content)
+        section = current_sections[section_id]
+        current_hash = section_content_hash(section_id, section, current_items)
         if status == "unchanged" and current_hash != baseline_sections[section_id]:
             raise ValidationError(f"unchanged Requirements section changed: {section_id}")
         if status == "changed" and current_hash == baseline_sections[section_id]:
@@ -538,8 +767,20 @@ def validate(
                 f"changed Requirements section is identical to Git HEAD: {section_id}"
             )
 
+    if not require_goal_document:
+        if goal_document_path is not None:
+            raise ValidationError(
+                "goal document must be omitted when only revalidating the artifact gate"
+            )
+        return
+
     assert goal_document_path is not None
-    goal_manifest = extract_manifest(goal_document_path.read_text(encoding="utf-8"))
+    goal_source = load_source(goal_document_path, "requirements_goal")
+    if goal_source["workspace"] != workspace:
+        raise ValidationError("Goal source workspace does not match --workspace")
+    if goal_source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
+    goal_manifest = extract_manifest(goal_source)
     if manifest != goal_manifest:
         raise ValidationError(
             "artifact Requirements Completeness Gate does not match the Goal"
@@ -572,6 +813,7 @@ def main() -> int:
         UnicodeDecodeError,
         json.JSONDecodeError,
         GitBaselineError,
+        SourceError,
         ValidationError,
     ) as error:
         print(f"requirements completeness gate: failed: {error}", file=sys.stderr)
