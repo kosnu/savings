@@ -29,12 +29,16 @@ when_to_read:
 
 ## Inputs
 
-- Requirements / PRD: 同じworkspaceのcanonical `requirements.md`。コピー、一時ファイル、symlink aliasは不可。
-- Requirements Completeness Gate検証結果:
+- Requirements / PRD: 同じworkspaceのcanonical `requirements.json`。コピー、一時ファイル、symlink aliasは不可。生成`requirements.md`もread-only。
+- Requirements Input / Completeness Gate再検証結果:
+- Issue snapshot再検証入力: canonical URL、`updatedAt`、Issue本文file
+- Rule map: canonical `docs/harness/rule-map.json`
 - Requirements SHA-256:
 - Requirements IDs: 全`FR-*`、`NFR-*`、`AC-*`
 - Workspace identity検証結果: Requirementsと同じ検証済みworkspace
-- 出力先: 同じworkspaceのcanonical pathである`design-doc.md`。このGoalが書き込みを所有する。
+- Goal source: temporary `design_goal` JSON。このJSONを検証し、型付き`display` fieldから生成したGoal objectiveを使う。
+- Goal contract IDs: constraintsは`canonical-input`、`phase-boundary`、Stopは`validation-failure`、`scope-ambiguity`、Done / Verificationは`complete-scope`、`validated-artifact`を必須とする。各entryは`id`と[workflow](../workflow.md)のcanonical textを持ち、task固有条件には別の安定IDを付ける。
+- 出力先: 同じworkspaceのcanonical `design-doc.json`。このGoalが書き込みを所有し、`design-doc.md`を生成する。
 - Git `HEAD`のcanonical Design baseline: validatorが`--workspace`から自動取得したSHA-256とsection inventory
 - 関連コード:
 - 関連ドキュメント:
@@ -63,7 +67,7 @@ when_to_read:
 
 ## Design Coverage Gate
 
-Goal作成前は、以下のJSONへcanonical RequirementsのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを対象IDだけを含む別々の行へ作って`--kind goal`で検証する。baselineはvalidatorがcanonical `design-doc.md`をGit `HEAD`から取得し、各baseline sectionのreview scopeも別々の物理行へ記載する。生成する`design-doc.md`では各IDを、対象IDだけを含む専用の根拠行へ対応させた`coverage`と、Git baselineの全level-two sectionに対する`preserved`または`replaced`の判断をsectionごとに別々の物理根拠行で記録して`--kind artifact`で検証する。baseline根拠行は対象外のdistinctなbaseline headingを含めない。複数IDまたは複数baseline sectionの一括coverage、別IDを含む行の部分文字列、IDを含まない共通文は使えない。
+Goal作成前は、temporary `design_goal` JSONの`validation.coverage_gate`へcanonical Requirements JSONのSHA-256と全識別子をcanonical順で記録し、各ID専用の設計scopeと検証scopeを`validation.scopes`へ作る。Git baselineがある場合は全section専用のreview scopeを`validation.baseline_scopes`へ作り、`--kind goal`で検証する。baselineはvalidatorがcanonical `design-doc.json`をGit `HEAD`から取得する。生成する`design-doc.json`では各IDを専用の`coverage` entryへ対応させ、Git baselineの全構造化sectionに対する`preserved`または`replaced`の判断を記録して`--kind artifact`で検証する。複数IDまたは複数baseline sectionの一括coverage、別IDを含む根拠、IDを含まない共通文は使えない。Goal Markdownと生成Markdownは機械検証入力にしない。
 
 ```json
 {
@@ -91,31 +95,31 @@ Design Docのartifact form:
   "coverage": [
     {
       "id": "FR-1",
-      "design_evidence": "FR-1 design: Gate外にある実質的な設計原文。",
-      "verification_evidence": "FR-1 verification: Gate外にある実質的な検証原文。"
+      "design_block_id": "fr-1-design-evidence",
+      "verification_block_id": "fr-1-verification-evidence"
     }
   ],
   "baseline_sections": [
     {
+      "section_id": "implementation-policy",
       "heading": "実装方針",
       "content_sha256": "validatorがGitから導出したsectionと同じSHA-256",
-      "status": "preserved",
-      "design_evidence": "実装方針を明記したGate外の維持または置換判断の原文"
+      "status": "preserved"
     }
   ]
 }
 ```
 
-Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
+各block IDは`design-doc.json`のtyped `evidence` blockを参照する。requirement coverage blockは`role: design`または`role: verification`と対象Requirements IDの`owner_id`を持ち、`replaced`のbaseline blockは`role: baseline`と対象`section_id`の`owner_id`を持つ。`preserved`のbaseline sectionはbaseline evidenceを持たず、`replaced`の場合だけ`design_block_id`と根拠本文を必須とする。`text`には根拠本文だけを入れ、owner/roleラベルはrendererが構造化fieldから生成する。legacy baselineだけは`section_id: null`とし、見出しを`owner_id`に使う。Git `HEAD`に前回Design Docがない場合は、baselineを`source: none`、`body_sha256: null`とし、artifactの`baseline_sections`も空配列にする。baselineの全section inventoryはvalidatorがGitから導出する。
 
 ## Requirement Design Scope
 
-Gate外に、全Requirements IDそれぞれの`design_scope`と`verification_scope`を、対象IDだけを含む別々の行として原文一致で記載する。
+Goal JSONの`validation.scopes`に、全Requirements IDそれぞれの`design_scope`と`verification_scope`を別entryとして記載する。各scope fieldには本文だけを入れ、IDとscope種別のラベルはrendererがentryの`id`から生成する。
 
 - FR-1 design scope: 設計対象を具体的に記載する。
 - FR-1 verification scope: 検証対象を具体的に記載する。
 
-Git baselineがある場合は、全level-two sectionごとにheadingを含む一意なreview scopeも記載する。
+Git baselineがある場合は、Goal JSONの`validation.baseline_scopes`へ全構造化sectionごとに`section_id`、`heading`、一意な`review_scope`を記載する。legacy baselineだけは`section_id: null`とする。
 
 - 実装方針 baseline scope: 現在Requirementsへ再適合させる。
 
@@ -163,21 +167,22 @@ UIに表示、入力、比較、集計、状態化するドメイン値がある
 - [ ] 既存挙動への影響が整理されている
 - [ ] テスト方針がPRDの受け入れ条件と対応している
 - [ ] Design GoalとDesign Docが現在のRequirements全体をscopeとし、今回の差分だけへ狭まっていない
-- [ ] 入力が同じworkspaceのcanonical `requirements.md`であり、Requirements Completeness Gateが成功している
+- [ ] 入力が同じworkspaceのcanonical `requirements.json`であり、Requirements Input / Completeness Gateの再検証が成功している
 - [ ] 全`FR-*`、`NFR-*`、`AC-*`に、対象IDだけを含む専用行の設計根拠と検証根拠が1件ずつある
-- [ ] Git `HEAD`の前回Design Docにある全level-two sectionが、headingを明記した一意な根拠とともに`preserved`または`replaced`へ分類されている
+- [ ] Git `HEAD`の前回Design JSONにある全構造化sectionが、identityとheadingを保った`preserved`または`replaced`へ分類され、`replaced`だけに一意なbaseline根拠がある
 - [ ] Design Coverage GateがGoal作成前とDesign Doc完了前の両方で成功している
 - [ ] 追加、変更、削除する各ユーザー向け操作が、Requirements / PRDの機能要件・受け入れ条件、または明示された正本ルールに追跡できる
 - [ ] Requirements / PRDの意図・制約・対象外・受け入れ条件から解釈を広げていない
 - [ ] 現在サイクルのRequirements / PRDをread-only入力として扱っている
-- [ ] 成果物が同じworkspaceのcanonical pathである`design-doc.md`にある
+- [ ] 成果物が同じworkspaceのcanonical `design-doc.json`にあり、rendererで`design-doc.md`とのUTF-8文字列一致（CRLF/LF差は正規化）を確認している
 - [ ] Design Docが、選択したルール・ポリシーに違反していないことを確認している
 - [ ] リスクと確認事項が残っている
 
 ## Verification
 
 - 必ず実行:
-  - `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
+  - `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --rule-map <canonical-rule-map> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
+  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --repo-root <repo-root> --source <design-file> --output <generated-design-md> --check`
 - 必要なら実行:
   - 既存テストや型定義の調査コマンド
 - 手動確認:

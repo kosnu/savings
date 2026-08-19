@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate full Requirements coverage for an AIDD Design Goal or Design Doc."""
+"""Validate Design coverage from structured AIDD JSON sources."""
 
 from __future__ import annotations
 
@@ -11,49 +11,41 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from artifact_source import (
+    SourceError,
+    is_placeholder_text,
+    load_source,
+    load_source_bytes,
+    read_regular_file_bytes,
+    structured_sha256,
+)
 from git_baseline import (
     GitBaselineError,
-    canonical_artifact_path,
-    load_git_head_artifact,
+    canonical_source_path,
+    load_git_head_source,
     require_canonical_worktree_path,
     validate_workspace_identity,
 )
-from requirement_ids import (
-    extract_requirement_definitions,
-    extract_level_two_sections,
+from validate_requirements_continuity import (
+    ValidationError as RequirementsContinuityError,
     extract_requirement_mentions,
-    is_requirement_id,
-    mask_non_rendered_markdown,
-    normalize_markdown_text,
+    validate as validate_requirements_continuity,
 )
-
-GATE_PATTERN = re.compile(
-    r"(?ms)^## Design Coverage Gate\s*$.*?```json\s*\n(.*?)\n```"
+from validate_requirements_goal import (
+    ValidationError as RequirementsInputError,
+    validate as validate_requirements_input,
 )
-PLACEHOLDERS = {"pending", "tbd", "todo", "未定"}
 
 
 class ValidationError(ValueError):
     pass
 
 
+SUBSTANTIVE_TEXT_MIN_LENGTH = 8
+
+
 def normalize(value: str) -> str:
     return " ".join(value.split()).casefold()
-
-
-def names_other_baseline_heading(
-    line: str,
-    target_heading: str,
-    baseline_headings: list[str],
-) -> bool:
-    normalized_line = normalize(line)
-    normalized_target = normalize(target_heading)
-    return any(
-        other_heading != target_heading
-        and (normalized_other := normalize(other_heading)) in normalized_line
-        and normalized_other not in normalized_target
-        for other_heading in baseline_headings
-    )
 
 
 def require_string(value: Any, label: str) -> str:
@@ -76,362 +68,416 @@ def require_canonical_input(
         raise ValidationError(str(error)) from error
 
 
-def content_sha256(value: str) -> str:
-    return hashlib.sha256(normalize_markdown_text(value).encode("utf-8")).hexdigest()
-
-
-def require_complete_requirement_ids(requirements: str) -> list[str]:
-    requirement_ids = extract_requirement_definitions(requirements)
-    if not requirement_ids:
-        raise ValidationError(
-            "requirements must contain stable FR-, NFR-, or AC- identifiers"
+def requirement_ids(source: dict[str, Any]) -> list[str]:
+    entries = source["validation"].get("requirements")
+    if not isinstance(entries, list):
+        raise ValidationError("Requirements validation.requirements must be an array")
+    ids = [
+        require_string(
+            entry.get("id") if isinstance(entry, dict) else None,
+            f"requirements[{index}].id",
         )
-    if not any(requirement_id.startswith("FR-") for requirement_id in requirement_ids):
-        raise ValidationError("requirements must contain at least one FR- identifier")
-    if not any(requirement_id.startswith("AC-") for requirement_id in requirement_ids):
-        raise ValidationError("requirements must contain at least one AC- identifier")
-    return requirement_ids
-
-
-def extract_manifest(document: str) -> tuple[dict[str, Any], str]:
-    match = GATE_PATTERN.search(document)
-    if match is None:
-        raise ValidationError("Design Coverage Gate JSON block is missing")
-    try:
-        manifest = json.loads(match.group(1))
-    except json.JSONDecodeError as error:
-        raise ValidationError(f"Design Coverage Gate JSON is invalid: {error}") from error
-    if not isinstance(manifest, dict):
-        raise ValidationError("Design Coverage Gate must be a JSON object")
-    document_without_gate = f"{document[:match.start()]}{document[match.end():]}"
-    return manifest, document_without_gate
-
-
-def validate_requirement_snapshot(
-    manifest: dict[str, Any],
-    requirements_bytes: bytes,
-    requirement_ids: list[str],
-    allowed_keys: set[str],
-) -> None:
-    if set(manifest) != allowed_keys:
-        raise ValidationError(
-            "Design Coverage Gate has invalid keys for the selected document kind"
-        )
-
-    actual_hash = hashlib.sha256(requirements_bytes).hexdigest()
-    if manifest.get("requirements_sha256") != actual_hash:
-        raise ValidationError(
-            "requirements_sha256 does not match the supplied Requirements"
-        )
-
-    declared_ids = manifest.get("requirement_ids")
-    if not isinstance(declared_ids, list) or not all(
-        isinstance(requirement_id, str) for requirement_id in declared_ids
-    ):
-        raise ValidationError("requirement_ids must be an array of strings")
-    if declared_ids != requirement_ids:
-        raise ValidationError(
-            "requirement_ids must exactly match all IDs in the supplied Requirements"
-        )
-
-
-def design_section_manifest(document: str) -> list[dict[str, str]]:
-    sections = extract_level_two_sections(document)
-    if not sections:
-        raise ValidationError("Git HEAD Design baseline has no level-two sections")
-    manifest = [
-        {
-            "heading": section.heading,
-            "content_sha256": content_sha256(section.content),
-        }
-        for section in sections
+        for index, entry in enumerate(entries)
     ]
-    headings = [entry["heading"] for entry in manifest]
-    if len(headings) != len(set(headings)):
-        raise ValidationError("Git HEAD Design baseline has duplicate section headings")
-    hashes = [entry["content_sha256"] for entry in manifest]
-    if len(hashes) != len(set(hashes)):
-        raise ValidationError("Git HEAD Design baseline has duplicate section content")
+    if len(ids) != len(set(ids)):
+        raise ValidationError("Requirements IDs must be unique")
+    if not any(value.startswith("FR-") for value in ids):
+        raise ValidationError("Requirements must contain at least one FR- identifier")
+    if not any(value.startswith("AC-") for value in ids):
+        raise ValidationError("Requirements must contain at least one AC- identifier")
+    return ids
+
+
+def design_sections(source: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return the saved structured section inventory."""
+
+    entries = source["validation"].get("sections")
+    if not isinstance(entries, list) or not entries:
+        raise ValidationError("Design source has no structured sections")
+    sections: list[dict[str, Any]] = []
+    headings: set[str] = set()
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            raise ValidationError(f"sections[{index}] must be an object")
+        heading = require_string(entry.get("heading"), f"sections[{index}].heading")
+        if heading in headings:
+            raise ValidationError(f"duplicate Design section heading: {heading}")
+        digest = structured_sha256(entry)
+        section_id = require_string(entry.get("id"), f"sections[{index}].id")
+        headings.add(heading)
+        sections.append(
+            {
+                "section_id": section_id,
+                "heading": heading,
+                "content_sha256": digest,
+            }
+        )
+    return sections
+
+
+def evidence_blocks(source: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    blocks: dict[str, dict[str, Any]] = {}
+    for section in source["validation"].get("sections", []):
+        if not isinstance(section, dict):
+            continue
+        for block in section.get("blocks", []):
+            if isinstance(block, dict) and block.get("type") == "evidence":
+                block_id = require_string(block.get("id"), "evidence block id")
+                if block_id in blocks:
+                    raise ValidationError(f"duplicate evidence block ID: {block_id}")
+                blocks[block_id] = block
+    return blocks
+
+
+def extract_manifest(source: dict[str, Any]) -> dict[str, Any]:
+    manifest = source["validation"].get("coverage_gate")
+    if not isinstance(manifest, dict):
+        raise ValidationError("validation.coverage_gate must be an object")
     return manifest
 
 
-def validate_baseline(baseline: Any, baseline_bytes: bytes | None) -> list[dict[str, str]]:
+def validate_snapshot(
+    manifest: dict[str, Any],
+    requirements_bytes: bytes,
+    ids: list[str],
+    allowed_keys: set[str],
+) -> None:
+    if set(manifest) != allowed_keys:
+        raise ValidationError("Design Coverage Gate has invalid keys")
+    if manifest.get("requirements_sha256") != hashlib.sha256(
+        requirements_bytes
+    ).hexdigest():
+        raise ValidationError("requirements_sha256 does not match Requirements JSON")
+    if manifest.get("requirement_ids") != ids:
+        raise ValidationError("requirement_ids must exactly match Requirements JSON")
+
+
+def validate_baseline(
+    baseline: Any,
+    baseline_bytes: bytes | None,
+) -> list[dict[str, Any]]:
     if not isinstance(baseline, dict) or set(baseline) != {"source", "body_sha256"}:
         raise ValidationError("baseline must contain only source and body_sha256")
     if baseline_bytes is None:
         if baseline != {"source": "none", "body_sha256": None}:
-            raise ValidationError("baseline must declare none when Git HEAD has no Design Doc")
+            raise ValidationError("baseline must declare none without Design JSON")
         return []
-
-    expected_sections = design_section_manifest(baseline_bytes.decode("utf-8"))
     if baseline.get("source") != "git_head":
-        raise ValidationError("baseline.source must be git_head with a Git baseline")
+        raise ValidationError("baseline.source must be git_head")
     if baseline.get("body_sha256") != hashlib.sha256(baseline_bytes).hexdigest():
-        raise ValidationError("baseline.body_sha256 does not match Git HEAD Design Doc")
-    return expected_sections
+        raise ValidationError("baseline.body_sha256 does not match Git HEAD Design JSON")
+    try:
+        baseline_source = load_source_bytes(baseline_bytes, "design")
+    except SourceError as error:
+        raise ValidationError(f"invalid Git HEAD Design JSON: {error}") from error
+    return design_sections(baseline_source)
 
 
-def require_unique_scope_line(
-    document: str,
-    required_terms: tuple[str, ...],
+def require_substantive_text(
+    value: Any,
     label: str,
-    requirement_id: str | None = None,
-) -> int:
-    normalized_terms = tuple(normalize(term) for term in required_terms)
-    matches = [
-        (line_number, line)
-        for line_number, line in enumerate(document.splitlines())
-        if all(term in normalize(line) for term in normalized_terms)
-        and (
-            requirement_id is None
-            or requirement_id in extract_requirement_mentions(line)
-        )
-    ]
-    if len(matches) != 1:
-        raise ValidationError(f"{label} must have exactly one scope line")
-    if (
-        requirement_id is not None
-        and extract_requirement_mentions(matches[0][1]) != [requirement_id]
-    ):
-        raise ValidationError(
-            f"{label} scope line must contain only {requirement_id}"
-        )
-    substantive = normalize(matches[0][1])
-    for term in normalized_terms:
-        substantive = substantive.replace(term, "")
-    if len(substantive.strip(" :-：`*_#")) < 8:
-        raise ValidationError(f"{label} scope line is not substantive")
-    return matches[0][0]
+    *metadata: str,
+) -> str:
+    text = require_string(value, label)
+    if is_placeholder_text(text):
+        raise ValidationError(f"{label} is unresolved")
+    substantive = normalize(text)
+    for term in metadata:
+        substantive = substantive.replace(normalize(term), "")
+    substantive = re.sub(r"[\W_]+", "", substantive)
+    if len(substantive) < SUBSTANTIVE_TEXT_MIN_LENGTH:
+        raise ValidationError(f"{label} is not substantive")
+    return text
 
 
-def validate_goal_scope(
-    document_without_gate: str,
-    requirement_ids: list[str],
-    baseline_sections: list[dict[str, str]],
-) -> None:
-    for requirement_id in requirement_ids:
-        design_line = require_unique_scope_line(
-            document_without_gate,
-            (requirement_id, "design scope"),
-            f"{requirement_id} design",
-            requirement_id,
-        )
-        verification_line = require_unique_scope_line(
-            document_without_gate,
-            (requirement_id, "verification scope"),
-            f"{requirement_id} verification",
-            requirement_id,
-        )
-        if design_line == verification_line:
-            raise ValidationError(
-                f"{requirement_id} design and verification scope must use separate lines"
-            )
-    baseline_scope_lines: set[int] = set()
-    for section in baseline_sections:
-        line_number = require_unique_scope_line(
-            document_without_gate,
-            (section["heading"], "baseline scope"),
-            f"{section['heading']} baseline",
-        )
-        if line_number in baseline_scope_lines:
-            raise ValidationError(
-                "baseline section scopes must use separate source lines"
-            )
-        baseline_scope_lines.add(line_number)
-
-
-def validate_requirement_evidence(
-    evidence: Any,
+def reject_other_requirement_ids(
+    text: str,
     label: str,
     requirement_id: str,
-    document_without_gate: str,
-) -> tuple[str, int]:
-    evidence = require_string(evidence, label)
-    normalized_evidence = normalize(evidence)
-    if normalized_evidence in PLACEHOLDERS:
-        raise ValidationError(f"{label} is unresolved")
-    if extract_requirement_mentions(evidence) != [requirement_id]:
-        raise ValidationError(
-            f"{label} must name {requirement_id} and no other requirement ID"
-        )
-    substantive = normalized_evidence.replace(
-        normalize(requirement_id),
-        "",
-    ).strip(" :-：`*_#")
-    if len(substantive) < 8:
-        raise ValidationError(f"{label} is not substantive")
-    matching_lines = [
-        (line_number, line)
-        for line_number, line in enumerate(document_without_gate.splitlines())
-        if normalized_evidence in normalize(line)
-        and requirement_id in extract_requirement_mentions(line)
+) -> None:
+    other_ids = [
+        mentioned_id
+        for mentioned_id in extract_requirement_mentions(text)
+        if mentioned_id != requirement_id
     ]
-    if len(matching_lines) != 1:
-        raise ValidationError(f"{label} must map to exactly one line outside the gate")
-    if extract_requirement_mentions(matching_lines[0][1]) != [requirement_id]:
+    if other_ids:
         raise ValidationError(
-            f"{label} source line must contain only {requirement_id}"
+            f"{label} must not name requirement IDs other than {requirement_id}: "
+            f"{', '.join(other_ids)}"
         )
-    return normalized_evidence, matching_lines[0][0]
 
 
-def validate_per_requirement_entries(
+def names_other_baseline_heading(
+    value: str,
+    target_heading: str,
+    baseline_headings: list[str],
+) -> bool:
+    normalized_value = normalize(value)
+    normalized_target = normalize(target_heading)
+    value_without_target = normalized_value.replace(normalized_target, "", 1)
+    return any(
+        other != target_heading
+        and (
+            normalize(other) in value_without_target
+            or (
+                len(normalize(other)) > len(normalized_target)
+                and normalize(other) in normalized_value
+            )
+        )
+        for other in baseline_headings
+    )
+
+
+def validate_scopes(entries: Any, ids: list[str]) -> None:
+    if not isinstance(entries, list):
+        raise ValidationError("validation.scopes must be an array")
+    if [entry.get("id") if isinstance(entry, dict) else None for entry in entries] != ids:
+        raise ValidationError("scopes must contain every Requirements ID in order")
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {
+            "id", "design_scope", "verification_scope"
+        }:
+            raise ValidationError(
+                "each scope must contain only id, design_scope, and verification_scope"
+            )
+        design = require_substantive_text(
+            entry["design_scope"],
+            f"scopes[{index}].design_scope",
+            entry["id"],
+            "design scope",
+        )
+        verification = require_substantive_text(
+            entry["verification_scope"],
+            f"scopes[{index}].verification_scope",
+            entry["id"],
+            "verification scope",
+        )
+        reject_other_requirement_ids(
+            design,
+            f"scopes[{index}].design_scope",
+            entry["id"],
+        )
+        reject_other_requirement_ids(
+            verification,
+            f"scopes[{index}].verification_scope",
+            entry["id"],
+        )
+        if normalize(design) == normalize(verification):
+            raise ValidationError(
+                f"scopes[{index}] design and verification scopes must differ"
+            )
+
+
+def validate_baseline_scopes(
     entries: Any,
-    requirement_ids: list[str],
-    document_without_gate: str,
-    fields: tuple[str, str],
-    label: str,
+    baseline_sections: list[dict[str, Any]],
 ) -> None:
     if not isinstance(entries, list):
-        raise ValidationError(f"{label} must be an array")
-
-    seen_ids: set[str] = set()
-    seen_evidence: dict[str, set[str]] = {field: set() for field in fields}
-    for index, entry in enumerate(entries):
-        expected_keys = {"id", *fields}
-        if not isinstance(entry, dict) or set(entry) != expected_keys:
-            raise ValidationError(
-                f"each {label} entry must contain only id, {fields[0]}, and {fields[1]}"
-            )
-        requirement_id = require_string(entry["id"], f"{label}[{index}].id")
-        if not is_requirement_id(requirement_id):
-            raise ValidationError(f"invalid {label} requirement ID: {requirement_id}")
-        if requirement_id in seen_ids:
-            raise ValidationError(f"duplicate {label} ID: {requirement_id}")
-        seen_ids.add(requirement_id)
-
-        evidence_lines: dict[str, int] = {}
-        for field in fields:
-            evidence, line_number = validate_requirement_evidence(
-                entry[field],
-                f"{label}[{index}].{field}",
-                requirement_id,
-                document_without_gate,
-            )
-            if evidence in seen_evidence[field]:
-                raise ValidationError(f"duplicate {label} {field} evidence")
-            seen_evidence[field].add(evidence)
-            evidence_lines[field] = line_number
-        if len(set(evidence_lines.values())) != len(fields):
-            raise ValidationError(
-                f"{label}[{index}] fields must map to separate source lines"
-            )
-
-    if list(entry["id"] for entry in entries) != requirement_ids:
+        raise ValidationError("validation.baseline_scopes must be an array")
+    expected_sections = [
+        (entry["section_id"], entry["heading"]) for entry in baseline_sections
+    ]
+    actual_sections = [
+        (entry.get("section_id"), entry.get("heading"))
+        if isinstance(entry, dict)
+        else (None, None)
+        for entry in entries
+    ]
+    if actual_sections != expected_sections:
         raise ValidationError(
-            f"{label} must contain exactly one entry per Requirements ID in canonical order"
+            "baseline_scopes must cover every Git HEAD section in order"
         )
+    baseline_headings = [entry["heading"] for entry in baseline_sections]
+    seen_scopes: set[str] = set()
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {
+            "section_id",
+            "heading",
+            "review_scope",
+        }:
+            raise ValidationError(
+                "each baseline scope must contain section_id, heading, and review_scope"
+            )
+        scope = require_substantive_text(
+            entry["review_scope"],
+            f"baseline_scopes[{index}].review_scope",
+            entry["section_id"] or "",
+            entry["heading"],
+            "baseline scope",
+        )
+        if normalize(entry["heading"]) not in normalize(scope):
+            raise ValidationError("baseline review scope must name its heading")
+        if names_other_baseline_heading(
+            scope,
+            entry["heading"],
+            baseline_headings,
+        ):
+            raise ValidationError(
+                "baseline review scope must name only its target heading"
+            )
+        normalized_scope = normalize(scope)
+        if normalized_scope in seen_scopes:
+            raise ValidationError("baseline review scopes must be unique")
+        seen_scopes.add(normalized_scope)
 
 
-def validate_artifact_coverage(
-    coverage: Any,
-    requirement_ids: list[str],
-    document_without_gate: str,
-) -> None:
-    validate_per_requirement_entries(
-        coverage,
-        requirement_ids,
-        document_without_gate,
-        ("design_evidence", "verification_evidence"),
-        "coverage",
+def require_evidence_reference(
+    block_id: Any,
+    label: str,
+    blocks: dict[str, dict[str, Any]],
+    *,
+    expected_role: str,
+    expected_owner: str,
+) -> str:
+    reference = require_string(block_id, label)
+    block = blocks.get(reference)
+    if block is None:
+        raise ValidationError(f"{label} must reference an evidence block")
+    if block.get("role") != expected_role:
+        raise ValidationError(f"{label} must reference {expected_role} evidence")
+    if block.get("owner_id") != expected_owner:
+        raise ValidationError(f"{label} evidence owner must be {expected_owner}")
+    require_substantive_text(
+        block.get("text"),
+        f"{label} evidence text",
+        expected_owner,
     )
+    if expected_role in {"design", "verification"}:
+        reject_other_requirement_ids(
+            block["text"],
+            f"{label} evidence text",
+            expected_owner,
+        )
+    return reference
+
+
+def validate_coverage(
+    entries: Any,
+    ids: list[str],
+    blocks: dict[str, dict[str, Any]],
+) -> None:
+    if not isinstance(entries, list):
+        raise ValidationError("coverage must be an array")
+    if [entry.get("id") if isinstance(entry, dict) else None for entry in entries] != ids:
+        raise ValidationError("coverage must contain every Requirements ID in order")
+    references: list[str] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != {
+            "id", "design_block_id", "verification_block_id"
+        }:
+            raise ValidationError(
+                "each coverage entry must contain only id and both evidence block IDs"
+            )
+        design_reference = require_evidence_reference(
+            entry["design_block_id"],
+            f"coverage[{index}].design_block_id",
+            blocks,
+            expected_role="design",
+            expected_owner=entry["id"],
+        )
+        verification_reference = require_evidence_reference(
+            entry["verification_block_id"],
+            f"coverage[{index}].verification_block_id",
+            blocks,
+            expected_role="verification",
+            expected_owner=entry["id"],
+        )
+        if design_reference == verification_reference:
+            raise ValidationError(
+                f"coverage[{index}] design and verification block IDs must differ"
+            )
+        if normalize(blocks[design_reference]["text"]) == normalize(
+            blocks[verification_reference]["text"]
+        ):
+            raise ValidationError(
+                f"coverage[{index}] design and verification evidence text must differ"
+            )
+        references.extend((design_reference, verification_reference))
+    if len(references) != len(set(references)):
+        raise ValidationError("coverage evidence block references must be unique")
 
 
 def validate_baseline_sections(
     transitions: Any,
-    baseline_sections: list[dict[str, str]],
-    document_without_gate: str,
-    visible_document: str,
+    baseline_sections: list[dict[str, Any]],
+    current_sections: list[dict[str, Any]],
+    blocks: dict[str, dict[str, Any]],
 ) -> None:
     if not isinstance(transitions, list):
         raise ValidationError("baseline_sections must be an array")
-    expected_identities = [
-        (entry["heading"], entry["content_sha256"]) for entry in baseline_sections
+    expected = [
+        (entry["section_id"], entry["heading"], entry["content_sha256"])
+        for entry in baseline_sections
     ]
-    transition_identities = [
-        (entry.get("heading"), entry.get("content_sha256"))
-        if isinstance(entry, dict)
-        else (None, None)
+    actual = [
+        (entry.get("section_id"), entry.get("heading"), entry.get("content_sha256"))
+        if isinstance(entry, dict) else (None, None, None)
         for entry in transitions
     ]
-    if transition_identities != expected_identities:
-        raise ValidationError(
-            "baseline_sections must classify every Git HEAD section in canonical order"
-        )
-    current_hashes = {
-        content_sha256(section.content)
-        for section in extract_level_two_sections(document_without_gate)
+    if actual != expected:
+        raise ValidationError("baseline_sections must classify every Git HEAD section")
+    current_by_id = {
+        entry["section_id"]: entry
+        for entry in current_sections
+        if entry["section_id"] is not None
     }
-    seen: set[str] = set()
-    seen_evidence: set[str] = set()
-    source_line_numbers: set[int] = set()
-    document_lines = visible_document.splitlines()
-    baseline_headings = [heading for heading, _ in expected_identities]
+    current_by_heading = {entry["heading"]: entry for entry in current_sections}
+    baseline_headings = [entry["heading"] for entry in baseline_sections]
+    references: list[str] = []
     for index, entry in enumerate(transitions):
-        if not isinstance(entry, dict) or set(entry) != {
-            "heading",
-            "content_sha256",
-            "status",
-            "design_evidence",
-        }:
-            raise ValidationError(
-                "each baseline_sections entry must contain only heading, "
-                "content_sha256, status, and design_evidence"
-            )
-        heading = require_string(entry["heading"], f"baseline_sections[{index}].heading")
-        section_hash = require_string(
-            entry["content_sha256"],
-            f"baseline_sections[{index}].content_sha256",
-        )
-        if section_hash in seen:
-            raise ValidationError(f"duplicate baseline section: {section_hash}")
-        seen.add(section_hash)
-        if (heading, section_hash) not in expected_identities:
-            raise ValidationError("baseline_sections contains a section outside Git HEAD")
-        status = entry["status"]
-        if status not in {"preserved", "replaced"}:
+        if not isinstance(entry, dict):
+            raise ValidationError("invalid baseline_sections entry")
+        status = entry.get("status")
+        if status not in ("preserved", "replaced"):
             raise ValidationError(f"invalid baseline section status: {status}")
-        evidence = require_string(
-            entry["design_evidence"],
-            f"baseline_sections[{index}].design_evidence",
+        expected_keys = {"section_id", "heading", "content_sha256", "status"}
+        if status == "replaced":
+            expected_keys.add("design_block_id")
+        if set(entry) != expected_keys:
+            raise ValidationError("invalid baseline_sections entry")
+        section_id = entry["section_id"]
+        if status == "replaced":
+            expected_owner = section_id if section_id is not None else entry["heading"]
+            reference = require_evidence_reference(
+                entry["design_block_id"],
+                f"baseline_sections[{index}].design_block_id",
+                blocks,
+                expected_role="baseline",
+                expected_owner=expected_owner,
+            )
+            evidence_text = blocks[reference]["text"]
+            if normalize(entry["heading"]) not in normalize(evidence_text):
+                raise ValidationError("baseline evidence must name its heading")
+            if names_other_baseline_heading(
+                evidence_text,
+                entry["heading"],
+                baseline_headings,
+            ):
+                raise ValidationError(
+                    "baseline evidence must name only its target heading"
+                )
+            references.append(reference)
+        section_hash = entry["content_sha256"]
+        current = (
+            current_by_id.get(section_id)
+            if section_id is not None
+            else current_by_heading.get(entry["heading"])
         )
-        normalized_evidence = normalize(evidence)
-        if len(normalized_evidence) < 12:
-            raise ValidationError("baseline section design_evidence is not substantive")
-        if normalize(heading) not in normalized_evidence:
-            raise ValidationError("baseline section design_evidence must name its heading")
-        if normalized_evidence in seen_evidence:
-            raise ValidationError("baseline section design_evidence must be unique")
-        seen_evidence.add(normalized_evidence)
-        matching_lines = [
-            (line_number, line)
-            for line_number, line in enumerate(document_lines)
-            if normalized_evidence in normalize(line)
-        ]
-        if len(matching_lines) != 1:
-            raise ValidationError(
-                "baseline section design_evidence must map to exactly one source line"
-            )
-        source_line_number, source_line = matching_lines[0]
-        if source_line_number in source_line_numbers:
-            raise ValidationError(
-                "baseline section evidence must use separate source lines"
-            )
-        source_line_numbers.add(source_line_number)
-        if names_other_baseline_heading(
-            source_line, heading, baseline_headings
-        ):
-            raise ValidationError(
-                "baseline section evidence source line must name only its target heading"
-            )
-        if status == "preserved" and section_hash not in current_hashes:
-            raise ValidationError("preserved baseline section content changed")
-        if status == "replaced" and section_hash in current_hashes:
-            raise ValidationError("replaced baseline section is still unchanged")
+        unchanged = current is not None and current["content_sha256"] == section_hash
+        if status == "preserved" and not unchanged:
+            raise ValidationError("preserved baseline section changed")
+        if status == "replaced" and unchanged:
+            raise ValidationError("replaced baseline section is unchanged")
+    if len(references) != len(set(references)):
+        raise ValidationError("baseline evidence block references must be unique")
 
 
 def validate(
     issue: str,
+    issue_url: str,
+    issue_updated_at: str,
+    issue_body_path: Path,
+    rule_map_path: Path,
     requirements_path: Path,
     document_path: Path,
     document_kind: str,
@@ -439,60 +485,102 @@ def validate(
     workspace: str,
 ) -> None:
     validate_workspace_identity(repo_root, issue, workspace)
-    if document_kind == "artifact":
-        require_canonical_input(
-            repo_root,
-            document_path,
-            canonical_artifact_path(Path(), workspace, "design-doc.md"),
-            "Design artifact",
-        )
-    requirements_relative_path = canonical_artifact_path(
-        Path(), workspace, "requirements.md"
-    )
-    canonical_requirements_path = require_canonical_input(
+    require_canonical_input(
         repo_root,
         requirements_path,
-        requirements_relative_path,
-        "Design coverage Requirements input",
+        canonical_source_path(Path(), workspace, "requirements"),
+        "Design coverage Requirements source",
     )
-    requirements_bytes = canonical_requirements_path.read_bytes()
-    requirements = requirements_bytes.decode("utf-8")
-    document = document_path.read_text(encoding="utf-8")
-    requirement_ids = require_complete_requirement_ids(requirements)
-    manifest, document_without_gate = extract_manifest(document)
-    visible_document = mask_non_rendered_markdown(document_without_gate)
-    _, baseline_bytes = load_git_head_artifact(
-        repo_root,
-        workspace,
-        "design-doc.md",
+    requirements_bytes = read_regular_file_bytes(requirements_path)
+    try:
+        requirements_source = load_source_bytes(requirements_bytes, "requirements")
+    except SourceError as error:
+        raise ValidationError(
+            f"Requirements artifact gate revalidation failed: {error}"
+        ) from error
+    if requirements_source["workspace"] != workspace:
+        raise ValidationError("Requirements source workspace does not match")
+    if requirements_source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
+    issue_body_bytes = read_regular_file_bytes(issue_body_path)
+    canonical_rule_map_path = require_canonical_input(
+        repo_root, rule_map_path, Path("docs/harness/rule-map.json"), "rule-map"
     )
+    rule_map_bytes = read_regular_file_bytes(canonical_rule_map_path)
+    try:
+        validate_requirements_input(
+            issue_body_path,
+            requirements_path,
+            rule_map_path,
+            issue,
+            issue_url,
+            issue_updated_at,
+            "artifact",
+            repo_root,
+            require_goal_document=False,
+            document_bytes=requirements_bytes,
+            issue_body_bytes=issue_body_bytes,
+            rule_map_bytes=rule_map_bytes,
+        )
+        validate_requirements_continuity(
+            issue,
+            issue_body_path,
+            requirements_path,
+            "artifact",
+            repo_root,
+            workspace,
+            require_goal_document=False,
+            document_bytes=requirements_bytes,
+            issue_body_bytes=issue_body_bytes,
+        )
+    except (RequirementsInputError, RequirementsContinuityError) as error:
+        raise ValidationError(
+            f"Requirements artifact gate revalidation failed: {error}"
+        ) from error
+    ids = requirement_ids(requirements_source)
+
+    try:
+        if document_kind == "artifact":
+            require_canonical_input(
+                repo_root,
+                document_path,
+                canonical_source_path(Path(), workspace, "design"),
+                "Design source",
+            )
+            source = load_source(document_path, "design")
+        elif document_kind == "goal":
+            source = load_source(document_path, "design_goal")
+        else:
+            raise ValidationError("document kind must be goal or artifact")
+    except SourceError as error:
+        raise ValidationError(f"Design source validation failed: {error}") from error
+    if source["workspace"] != workspace:
+        raise ValidationError("Design source workspace does not match")
+    if source["validation"].get("mode") != "managed":
+        raise ValidationError("normal validation requires validation.mode=managed")
+    manifest = extract_manifest(source)
     if manifest.get("workspace") != workspace:
-        raise ValidationError("manifest workspace does not match --workspace")
+        raise ValidationError("manifest workspace does not match")
+    _, baseline_bytes = load_git_head_source(repo_root, workspace, "design")
     baseline_sections = validate_baseline(manifest.get("baseline"), baseline_bytes)
 
     if document_kind == "goal":
-        validate_requirement_snapshot(
+        validate_snapshot(
             manifest,
             requirements_bytes,
-            requirement_ids,
-            {
-                "requirements_sha256",
-                "workspace",
-                "requirement_ids",
-                "baseline",
-            },
+            ids,
+            {"requirements_sha256", "workspace", "requirement_ids", "baseline"},
         )
-        validate_goal_scope(
-            visible_document,
-            requirement_ids,
-            baseline_sections,
+        validate_scopes(source["validation"].get("scopes"), ids)
+        validate_baseline_scopes(
+            source["validation"].get("baseline_scopes"), baseline_sections
         )
         return
 
-    validate_requirement_snapshot(
+    validate_snapshot(
         manifest,
         requirements_bytes,
-        requirement_ids,
+        ids,
         {
             "requirements_sha256",
             "workspace",
@@ -502,32 +590,34 @@ def validate(
             "baseline_sections",
         },
     )
-    validate_artifact_coverage(
-        manifest["coverage"],
-        requirement_ids,
-        visible_document,
-    )
+    current_sections = design_sections(source)
+    blocks = evidence_blocks(source)
+    validate_coverage(manifest.get("coverage"), ids, blocks)
     validate_baseline_sections(
-        manifest["baseline_sections"],
-        baseline_sections,
-        document_without_gate,
-        visible_document,
+        manifest.get("baseline_sections"), baseline_sections, current_sections, blocks
     )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--issue", required=True)
+    parser.add_argument("--issue-url", required=True)
+    parser.add_argument("--issue-updated-at", required=True)
+    parser.add_argument("--issue-body", required=True, type=Path)
+    parser.add_argument("--rule-map", required=True, type=Path)
     parser.add_argument("--requirements", required=True, type=Path)
     parser.add_argument("--document", required=True, type=Path)
     parser.add_argument("--kind", required=True, choices=("goal", "artifact"))
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--workspace", required=True)
     args = parser.parse_args()
-
     try:
         validate(
             args.issue,
+            args.issue_url,
+            args.issue_updated_at,
+            args.issue_body,
+            args.rule_map,
             args.requirements,
             args.document,
             args.kind,
@@ -539,11 +629,11 @@ def main() -> int:
         UnicodeDecodeError,
         json.JSONDecodeError,
         GitBaselineError,
+        SourceError,
         ValidationError,
     ) as error:
         print(f"design coverage gate: failed: {error}", file=sys.stderr)
         return 1
-
     print("design coverage gate: ok")
     return 0
 

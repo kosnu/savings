@@ -2,20 +2,32 @@
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import subprocess
 from pathlib import Path
 
+from artifact_source import (
+    ARTIFACT_KINDS,
+    DISPLAY_FILENAMES,
+    SOURCE_FILENAMES,
+    SourceError,
+    canonical_display_path as source_canonical_display_path,
+    canonical_source_path as source_canonical_source_path,
+    validate_workspace_name as validate_source_workspace_name,
+)
 
-WORKSPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
+
 ISSUE_PATTERN = re.compile(
     r"(?P<owner>[A-Za-z0-9_.-]+)/(?P<repo>[A-Za-z0-9_.-]+)#(?P<number>[1-9][0-9]*)"
 )
-VERSIONED_WORKSPACE_MARKER_PATTERN = re.compile(
-    r"(?:^|-)(?:v[0-9]+|(?:ver|version|rev|revision|cycle)-?[0-9]+|"
-    r"retry(?:-[0-9]+)?|rerun(?:-[0-9]+)?)(?:-|$)"
-)
+MAX_GIT_BLOB_BYTES = 16 * 1024 * 1024
+CANONICAL_ARTIFACT_FILENAMES = {
+    filename: kind
+    for kind, filename in DISPLAY_FILENAMES.items()
+    if kind in ARTIFACT_KINDS
+}
 
 
 class GitBaselineError(ValueError):
@@ -23,12 +35,10 @@ class GitBaselineError(ValueError):
 
 
 def validate_workspace_name(workspace: str) -> None:
-    if WORKSPACE_PATTERN.fullmatch(workspace) is None:
-        raise GitBaselineError("workspace must use lowercase ASCII kebab-case")
-    if VERSIONED_WORKSPACE_MARKER_PATTERN.search(workspace) is not None:
-        raise GitBaselineError(
-            "workspace must not use a version, cycle, retry, or rerun marker"
-        )
+    try:
+        validate_source_workspace_name(workspace)
+    except SourceError as error:
+        raise GitBaselineError(str(error)) from error
 
 
 def canonical_artifact_path(
@@ -36,17 +46,24 @@ def canonical_artifact_path(
     workspace: str,
     filename: str,
 ) -> Path:
-    validate_workspace_name(workspace)
-    if filename not in {"requirements.md", "design-doc.md"}:
+    kind = CANONICAL_ARTIFACT_FILENAMES.get(filename)
+    if kind is None:
         raise GitBaselineError(f"unsupported canonical artifact: {filename}")
-    return (
-        repo_root
-        / "docs"
-        / "ai-driven-development"
-        / "workspaces"
-        / workspace
-        / filename
-    )
+    try:
+        return source_canonical_display_path(repo_root, workspace, kind)
+    except SourceError as error:
+        raise GitBaselineError(str(error)) from error
+
+
+def canonical_source_path(
+    repo_root: Path,
+    workspace: str,
+    kind: str,
+) -> Path:
+    try:
+        return source_canonical_source_path(repo_root, workspace, kind)
+    except SourceError as error:
+        raise GitBaselineError(str(error)) from error
 
 
 def require_canonical_worktree_path(
@@ -81,7 +98,10 @@ def run_git(repo_root: Path, arguments: list[str]) -> subprocess.CompletedProces
 
 
 def require_repository_root(repo_root: Path) -> Path:
-    resolved_root = repo_root.resolve()
+    absolute_root = Path(os.path.abspath(repo_root))
+    resolved_root = absolute_root.resolve()
+    if absolute_root != resolved_root:
+        raise GitBaselineError("repo-root must not contain symlinks")
     result = run_git(resolved_root, ["rev-parse", "--show-toplevel"])
     if result.returncode != 0:
         raise GitBaselineError("repo-root is not a readable Git worktree")
@@ -166,19 +186,112 @@ def load_git_head_artifact(
     resolved_root = require_repository_root(repo_root)
     artifact_path = canonical_artifact_path(resolved_root, workspace, filename)
     relative_path = artifact_path.relative_to(resolved_root).as_posix()
+    return artifact_path, load_regular_head_blob(
+        resolved_root, relative_path, "canonical artifact"
+    )
+
+
+def load_regular_head_blob(
+    repo_root: Path,
+    relative_path: str,
+    label: str,
+) -> bytes | None:
     listing = run_git(
-        resolved_root,
-        ["ls-tree", "-r", "--name-only", "HEAD", "--", relative_path],
+        repo_root,
+        ["ls-tree", "-z", "HEAD", "--", relative_path],
     )
     if listing.returncode != 0:
-        raise GitBaselineError("failed to inspect the canonical artifact in Git HEAD")
-    tracked_paths = listing.stdout.decode("utf-8").splitlines()
-    if not tracked_paths:
-        return artifact_path, None
-    if tracked_paths != [relative_path]:
-        raise GitBaselineError("canonical artifact lookup returned an unexpected path")
-
-    content = run_git(resolved_root, ["show", f"HEAD:{relative_path}"])
+        raise GitBaselineError(f"failed to inspect the {label} in Git HEAD")
+    entries = [entry for entry in listing.stdout.split(b"\0") if entry]
+    if not entries:
+        return None
+    if len(entries) != 1 or b"\t" not in entries[0]:
+        raise GitBaselineError(f"{label} lookup returned an unexpected entry")
+    metadata, encoded_path = entries[0].split(b"\t", 1)
+    fields = metadata.decode("ascii").split()
+    if encoded_path.decode("utf-8") != relative_path or len(fields) != 3:
+        raise GitBaselineError(f"{label} lookup returned an unexpected path")
+    mode, object_type, object_id = fields
+    if mode not in {"100644", "100755"} or object_type != "blob":
+        raise GitBaselineError(f"{label} in Git HEAD must be a regular file")
+    size = run_git(repo_root, ["cat-file", "-s", object_id])
+    if size.returncode != 0:
+        raise GitBaselineError(f"failed to inspect the {label} size in Git HEAD")
+    try:
+        blob_size = int(size.stdout.decode("ascii").strip())
+    except ValueError as error:
+        raise GitBaselineError(f"{label} size in Git HEAD is invalid") from error
+    if blob_size > MAX_GIT_BLOB_BYTES:
+        raise GitBaselineError(
+            f"{label} in Git HEAD exceeds {MAX_GIT_BLOB_BYTES} bytes"
+        )
+    content = run_git(repo_root, ["cat-file", "blob", object_id])
     if content.returncode != 0:
-        raise GitBaselineError("failed to read the canonical artifact from Git HEAD")
-    return artifact_path, content.stdout
+        raise GitBaselineError(f"failed to read the {label} from Git HEAD")
+    return content.stdout
+
+
+def load_git_head_source(
+    repo_root: Path,
+    workspace: str,
+    kind: str,
+) -> tuple[Path, bytes | None]:
+    resolved_root = require_repository_root(repo_root)
+    source_path = canonical_source_path(resolved_root, workspace, kind)
+    relative_path = source_path.relative_to(resolved_root).as_posix()
+    return source_path, load_regular_head_blob(
+        resolved_root, relative_path, "canonical JSON source"
+    )
+
+
+def list_git_head_managed_artifact_keys(
+    repo_root: Path,
+) -> set[tuple[str, str]]:
+    """List schema v2 artifact paths without importing historical sidecars."""
+
+    resolved_root = require_repository_root(repo_root)
+    listing = run_git(
+        resolved_root,
+        [
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "HEAD",
+            "--",
+            "docs/ai-driven-development/workspaces",
+        ],
+    )
+    if listing.returncode != 0:
+        raise GitBaselineError(
+            "failed to inspect managed AIDD sources in Git HEAD"
+        )
+
+    source_kinds = {filename: kind for kind, filename in SOURCE_FILENAMES.items()}
+    prefix = "docs/ai-driven-development/workspaces/"
+    managed: set[tuple[str, str]] = set()
+    for value in listing.stdout.decode("utf-8").splitlines():
+        if not value.startswith(prefix):
+            continue
+        workspace, separator, filename = value.removeprefix(prefix).partition("/")
+        if not separator or "/" in filename:
+            continue
+        kind = source_kinds.get(filename)
+        if kind is None:
+            continue
+        relative_path = value
+        content = load_regular_head_blob(
+            resolved_root, relative_path, "managed AIDD source"
+        )
+        if content is None:
+            continue
+        try:
+            source = json.loads(content.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(source, dict):
+            continue
+        if source.get("schema_version") != 2:
+            continue
+        validate_workspace_name(workspace)
+        managed.add((workspace, kind))
+    return managed
