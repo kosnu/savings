@@ -14,10 +14,10 @@ from typing import Any
 from artifact_source import (
     SourceError,
     is_placeholder_text,
-    load_baseline_source_bytes,
     load_source,
     load_source_bytes,
     read_regular_file_bytes,
+    structured_sha256,
 )
 from git_baseline import (
     GitBaselineError,
@@ -66,13 +66,6 @@ def require_canonical_input(
         )
     except GitBaselineError as error:
         raise ValidationError(str(error)) from error
-
-
-def structured_sha256(value: Any) -> str:
-    serialized = json.dumps(
-        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-    )
-    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
 def requirement_ids(source: dict[str, Any]) -> list[str]:
@@ -174,7 +167,7 @@ def validate_baseline(
     if baseline.get("body_sha256") != hashlib.sha256(baseline_bytes).hexdigest():
         raise ValidationError("baseline.body_sha256 does not match Git HEAD Design JSON")
     try:
-        baseline_source = load_baseline_source_bytes(baseline_bytes, "design")
+        baseline_source = load_source_bytes(baseline_bytes, "design")
     except SourceError as error:
         raise ValidationError(f"invalid Git HEAD Design JSON: {error}") from error
     return design_sections(baseline_source)
@@ -633,6 +626,7 @@ def main() -> int:
         )
     except (
         OSError,
+        UnicodeDecodeError,
         json.JSONDecodeError,
         GitBaselineError,
         SourceError,

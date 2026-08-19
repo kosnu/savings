@@ -313,6 +313,18 @@ class StructuredArtifactV2Test(unittest.TestCase):
         with self.assertRaisesRegex(SourceError, "exactly one canonical section"):
             validate_loaded_source(source)
 
+    def test_rejects_versioned_workspace_marker(self) -> None:
+        for workspace in (
+            "1639-structured-data-v2",
+            "1639-structured-data-retry",
+            "1639-structured-data-rerun-2",
+        ):
+            with self.subTest(workspace=workspace):
+                source = requirements_source()
+                source["workspace"] = workspace
+                with self.assertRaisesRegex(SourceError, "marker"):
+                    validate_loaded_source(source)
+
     def test_design_coverage_references_evidence_blocks(self) -> None:
         rendered = render_artifact_markdown(design_source())
         self.assertIn(

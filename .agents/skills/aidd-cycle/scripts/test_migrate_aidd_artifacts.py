@@ -9,8 +9,8 @@ from pathlib import Path
 
 from artifact_source import (
     SourceError,
-    load_baseline_source_bytes,
     load_source,
+    load_source_bytes,
     serialize_source,
     validate_managed_artifact_source,
     write_regular_file_atomically,
@@ -106,37 +106,27 @@ def managed_source(kind: str = "requirements") -> dict[str, object]:
 
 
 class MigrateAiddArtifactsTest(unittest.TestCase):
-    def test_git_baseline_loader_normalizes_previous_managed_shape(self) -> None:
-        previous = managed_source()
-
-        loaded = load_baseline_source_bytes(
-            serialize_source(previous).encode("utf-8"), "requirements"
-        )
-
-        self.assertNotIn("source_markdown_sha256", loaded["validation"])
-        self.assertEqual(loaded, previous)
-
-    def test_git_baseline_loader_rejects_tampered_previous_managed_inventory(self) -> None:
+    def test_baseline_source_rejects_tampered_managed_inventory(self) -> None:
         previous = managed_source()
         tampered = json.loads(serialize_source(previous))
         tampered["validation"]["requirements"].pop(0)
 
         with self.assertRaisesRegex(SourceError, "requirements block|exactly match"):
-            load_baseline_source_bytes(
+            load_source_bytes(
                 json.dumps(tampered).encode("utf-8"),
                 "requirements",
             )
 
-    def test_git_baseline_loader_accepts_current_managed_shape(self) -> None:
+    def test_baseline_source_accepts_current_managed_shape(self) -> None:
         current = managed_source()
 
-        loaded = load_baseline_source_bytes(
+        loaded = load_source_bytes(
             serialize_source(current).encode("utf-8"), "requirements"
         )
 
         self.assertEqual(loaded, current)
 
-    def test_git_baseline_loader_rejects_removed_managed_v1_source(self) -> None:
+    def test_baseline_source_rejects_removed_managed_v1_source(self) -> None:
         source = {
             "schema_version": 1,
             "kind": "requirements",
@@ -148,7 +138,7 @@ class MigrateAiddArtifactsTest(unittest.TestCase):
         with self.assertRaisesRegex(
             SourceError, "unsupported AIDD schema_version: 1"
         ):
-            load_baseline_source_bytes(
+            load_source_bytes(
                 json.dumps(source).encode("utf-8"), "requirements"
             )
 

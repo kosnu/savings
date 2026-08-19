@@ -14,10 +14,10 @@ from typing import Any
 
 from artifact_source import (
     SourceError,
-    load_baseline_source_bytes,
     load_source,
     load_source_bytes,
     read_regular_file_bytes,
+    structured_sha256,
 )
 from git_baseline import (
     GitBaselineError,
@@ -87,6 +87,8 @@ RETIREMENT_TERMS = {
     "削除",
     "撤回",
     "不要",
+}
+RETIREMENT_ENGLISH_TERMS = {
     "out of scope",
     "remove",
     "removed",
@@ -97,6 +99,10 @@ RETIREMENT_TERMS = {
     "deprecate",
     "deprecated",
 }
+RETIREMENT_ENGLISH_TERM_PATTERNS = tuple(
+    re.compile(rf"\b{re.escape(term)}\b")
+    for term in RETIREMENT_ENGLISH_TERMS
+)
 
 NEGATED_RETIREMENT_PATTERNS = (
     re.compile(
@@ -192,30 +198,6 @@ def extract_manifest(source: dict[str, Any]) -> dict[str, Any]:
 
 def content_sha256(value: str) -> str:
     return hashlib.sha256(value.replace("\r\n", "\n").encode("utf-8")).hexdigest()
-
-
-def structured_sha256(value: Any) -> str:
-    """Hash JSON structure after newline normalization, without parsing strings."""
-
-    def normalize_newlines(item: Any) -> Any:
-        if isinstance(item, str):
-            return item.replace("\r\n", "\n")
-        if isinstance(item, list):
-            return [normalize_newlines(entry) for entry in item]
-        if isinstance(item, dict):
-            return {
-                key: normalize_newlines(entry)
-                for key, entry in item.items()
-            }
-        return item
-
-    serialized = json.dumps(
-        normalize_newlines(value),
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
 def section_requirement_entries(
@@ -344,7 +326,7 @@ def structured_sections(source: dict[str, Any]) -> dict[str, StructuredSection]:
 
 def baseline_item_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
     items = structured_requirements(
-        load_baseline_source_bytes(baseline_bytes, "requirements")
+        load_source_bytes(baseline_bytes, "requirements")
     )
     if not items:
         raise ValidationError(
@@ -357,7 +339,7 @@ def baseline_item_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
 
 
 def baseline_section_manifest(baseline_bytes: bytes) -> list[dict[str, str]]:
-    source = load_baseline_source_bytes(baseline_bytes, "requirements")
+    source = load_source_bytes(baseline_bytes, "requirements")
     items = structured_requirements(source)
     sections = structured_sections(source)
     canonical_sections = REQUIRED_REQUIREMENTS_SECTIONS
@@ -622,7 +604,13 @@ def validate_retired(
             raise ValidationError(
                 f"retired evidence must name its requirement ID: {requirement_id}"
             )
-        if not any(term in normalized_evidence for term in RETIREMENT_TERMS):
+        if not (
+            any(term in normalized_evidence for term in RETIREMENT_TERMS)
+            or any(
+                pattern.search(normalized_evidence)
+                for pattern in RETIREMENT_ENGLISH_TERM_PATTERNS
+            )
+        ):
             raise ValidationError(
                 f"retired evidence must explicitly state retirement: {requirement_id}"
             )

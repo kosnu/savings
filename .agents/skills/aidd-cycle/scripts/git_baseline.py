@@ -8,19 +8,25 @@ import re
 import subprocess
 from pathlib import Path
 
+from artifact_source import (
+    ARTIFACT_KINDS,
+    DISPLAY_FILENAMES,
+    SOURCE_FILENAMES,
+    SourceError,
+    canonical_display_path as source_canonical_display_path,
+    canonical_source_path as source_canonical_source_path,
+    validate_workspace_name as validate_source_workspace_name,
+)
 
-WORKSPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
+
 ISSUE_PATTERN = re.compile(
     r"(?P<owner>[A-Za-z0-9_.-]+)/(?P<repo>[A-Za-z0-9_.-]+)#(?P<number>[1-9][0-9]*)"
 )
-VERSIONED_WORKSPACE_MARKER_PATTERN = re.compile(
-    r"(?:^|-)(?:v[0-9]+|(?:ver|version|rev|revision|cycle)-?[0-9]+|"
-    r"retry(?:-[0-9]+)?|rerun(?:-[0-9]+)?)(?:-|$)"
-)
 MAX_GIT_BLOB_BYTES = 16 * 1024 * 1024
-CANONICAL_SOURCE_FILENAMES = {
-    "requirements": "requirements.json",
-    "design": "design-doc.json",
+CANONICAL_ARTIFACT_FILENAMES = {
+    filename: kind
+    for kind, filename in DISPLAY_FILENAMES.items()
+    if kind in ARTIFACT_KINDS
 }
 
 
@@ -29,12 +35,10 @@ class GitBaselineError(ValueError):
 
 
 def validate_workspace_name(workspace: str) -> None:
-    if WORKSPACE_PATTERN.fullmatch(workspace) is None:
-        raise GitBaselineError("workspace must use lowercase ASCII kebab-case")
-    if VERSIONED_WORKSPACE_MARKER_PATTERN.search(workspace) is not None:
-        raise GitBaselineError(
-            "workspace must not use a version, cycle, retry, or rerun marker"
-        )
+    try:
+        validate_source_workspace_name(workspace)
+    except SourceError as error:
+        raise GitBaselineError(str(error)) from error
 
 
 def canonical_artifact_path(
@@ -42,17 +46,13 @@ def canonical_artifact_path(
     workspace: str,
     filename: str,
 ) -> Path:
-    validate_workspace_name(workspace)
-    if filename not in {"requirements.md", "design-doc.md"}:
+    kind = CANONICAL_ARTIFACT_FILENAMES.get(filename)
+    if kind is None:
         raise GitBaselineError(f"unsupported canonical artifact: {filename}")
-    return (
-        repo_root
-        / "docs"
-        / "ai-driven-development"
-        / "workspaces"
-        / workspace
-        / filename
-    )
+    try:
+        return source_canonical_display_path(repo_root, workspace, kind)
+    except SourceError as error:
+        raise GitBaselineError(str(error)) from error
 
 
 def canonical_source_path(
@@ -60,17 +60,10 @@ def canonical_source_path(
     workspace: str,
     kind: str,
 ) -> Path:
-    validate_workspace_name(workspace)
-    if kind not in CANONICAL_SOURCE_FILENAMES:
-        raise GitBaselineError(f"unsupported canonical source kind: {kind}")
-    return (
-        repo_root
-        / "docs"
-        / "ai-driven-development"
-        / "workspaces"
-        / workspace
-        / CANONICAL_SOURCE_FILENAMES[kind]
-    )
+    try:
+        return source_canonical_source_path(repo_root, workspace, kind)
+    except SourceError as error:
+        raise GitBaselineError(str(error)) from error
 
 
 def require_canonical_worktree_path(
@@ -273,9 +266,7 @@ def list_git_head_managed_artifact_keys(
             "failed to inspect managed AIDD sources in Git HEAD"
         )
 
-    source_kinds = {
-        filename: kind for kind, filename in CANONICAL_SOURCE_FILENAMES.items()
-    }
+    source_kinds = {filename: kind for kind, filename in SOURCE_FILENAMES.items()}
     prefix = "docs/ai-driven-development/workspaces/"
     managed: set[tuple[str, str]] = set()
     for value in listing.stdout.decode("utf-8").splitlines():
