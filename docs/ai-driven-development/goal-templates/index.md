@@ -12,21 +12,16 @@ topics:
   - codex-goal
   - templates
 when_to_read:
-  - Codex Goalのテンプレート一覧を確認するとき
-  - AI駆動開発の各工程に対応するGoalテンプレートを選ぶとき
+  - AIDD工程のGoalを構築するとき
 ---
 
 # AI Driven Development Goal Templates
 
-必要なGoalだけコピーして使うためのテンプレート集です。
+各ファイルはGoalへ含める情報のチェックリストです。工程順、成果物境界、完了・停止条件は[workflow.md](../workflow.md)を正本とし、テンプレート本文をそのままGoalへ貼り付けません。
 
-非自明なGoalを作る場合は、テンプレート本文を長くコピーするのではなく、[../workflow.md](../workflow.md) のContext Packetに入力を圧縮します。探索や要約が必要な場合も、長い調査ログではなく、選択した参照、制約、リスク、Stop条件だけをGoalに残します。
+- [Intent / Requirements](./intent-requirements-goal.md)
+- [Design / Plan](./design-plan-goal.md)
+- [Build / Verify](./build-verify-goal.md)
+- [Ship](./ship-goal.md)
 
-工程順序、各工程の責務、成果物境界、ShipとLearnの扱いは [../workflow.md](../workflow.md) を正本とします。各テンプレートはGoal構築用のチェックリストであり、workflowを再定義しません。
-
-- [Intent / Requirements Goal](./intent-requirements-goal.md)
-- [Design / Plan Goal](./design-plan-goal.md)
-- [Build / Verify Goal](./build-verify-goal.md)
-- [Ship Goal](./ship-goal.md)
-
-レビューコメント、検証結果、運用知見を対象Issue本文の変更案、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する場合は、Goalテンプレートではなく `$learn` skill を使います。Issue本文の変更案は、適用されるまで次のAIDD Task Contextではありません。
+レビューや検証のfindingを次回へ反映する場合は、GoalテンプレートではなくユーザーがLearnを実行します。
