@@ -372,6 +372,10 @@ def check_all(repo_root: Path) -> int:
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces"
     )
+    require_no_symlinks(repo_root, workspace_root, "AIDD workspace root")
+    if workspace_root.is_dir():
+        for workspace_path in sorted(workspace_root.iterdir()):
+            require_no_symlinks(repo_root, workspace_path, "AIDD workspace")
     source_filename_kinds = {
         SOURCE_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
     }
