@@ -5,6 +5,9 @@ status: accepted
 area: web
 applies_to:
   - apps/web/src/features
+  - apps/web/src/app
+  - apps/web/src/components
+  - apps/web/src/providers
 topics:
   - feature-directory
   - project-structure
@@ -12,6 +15,7 @@ topics:
 when_to_read:
   - Webアプリに新しい機能ディレクトリを追加するとき
   - features配下の構成を変更するとき
+  - feature外のapp、provider、別featureからfeature APIを参照するとき
 ---
 
 # Feature Directory
@@ -89,7 +93,7 @@ feature 共通ディレクトリを追加する場合は、既存の共通ディ
 ユースケース slice 名は、既存の `createPayment`, `listPayment`, `paymentDetails`, `updateMonthlyBudget` のように、操作または目的と対象が分かる名前にします。
 read 系の slice を追加または整理するときは、画面単位、操作単位、取得単位のどれを表すのかが分かる名前を選びます。
 
-### Feature間Import
+### Feature公開面へのImport
 
-feature 間 import は、所有境界が曖昧になりやすいため、依存先 feature の公開面に限定します。
-外部 feature からは `features/<feature-name>` から import し、依存先 feature 配下の個別ファイルやユースケース slice を直接 import してはいけません。
+feature外からのimportは、所有境界が曖昧になりやすいため、依存先featureの公開面に限定します。
+別featureだけでなく、app、provider、共通componentなど、所有featureの外にあるすべての利用側は `features/<feature-name>` からimportします。依存先feature配下の個別ファイルやユースケースsliceを直接importしてはいけません。

@@ -15,6 +15,7 @@ topics:
 when_to_read:
   - 複数のデータ作成・更新・削除を1つのユーザー操作で扱うとき
   - 片方だけ成功する状態を避ける必要があるとき
+  - 書き込み後のread-backまたはrefetch失敗を扱うとき
   - RPC、API、DB transaction、アプリケーション層の責務境界を決めるとき
 ---
 
@@ -43,6 +44,18 @@ when_to_read:
 - 片成功が起きた場合のユーザー影響
 - 採用しない案と理由
 - 残る競合リスクやスコープ外の補償
+
+## Write後の確認失敗
+
+source of truthへのwriteと、その結果を確認するread-backまたはrefetchは、別の成功・失敗境界として扱います。writeが成功した後に確認だけが失敗した状態をwrite失敗とみなし、write前の値へ戻したように見せてはいけません。source of truthには新しい値が残っている可能性があるためです。
+
+Design / Planでは、少なくとも次の状態を区別し、それぞれの遷移とユーザーへの伝え方を定義します。
+
+- write失敗
+- write成功・確認失敗
+- write成功・確認成功
+
+write成功・確認失敗では、再確認のretry、source of truthへの収束、または明示的な補償のどれを行うかを決めます。client-side cacheや画面上の値だけを以前の状態へ戻して、source of truthも戻ったと推測してはいけません。
 
 ## 実行境界とルール所有境界
 

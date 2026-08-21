@@ -321,8 +321,8 @@
       "applies_to": {
         "paths": ["apps/web/**", "apps/api/**"],
         "domains": ["domain", "user", "auth"],
-        "activities": ["change_user_behavior", "change_auth_assumption", "review_user_domain", "review_api_auth"],
-        "topics": ["user", "auth"]
+        "activities": ["change_user_behavior", "change_auth_assumption", "change_user_language", "review_user_domain", "review_api_auth"],
+        "topics": ["user", "auth", "language", "preferences"]
       },
       "depends_on": [],
       "overrides": [],
@@ -413,10 +413,10 @@
       "id": "web.feature-directory",
       "file": "apps/web/docs/policies/feature-directory.md",
       "applies_to": {
-        "paths": ["apps/web/src/features/**"],
+        "paths": ["apps/web/src/features/**", "apps/web/src/app/**", "apps/web/src/components/**", "apps/web/src/providers/**"],
         "domains": ["web"],
-        "activities": ["add_feature_directory", "move_feature_code", "change_feature_boundary"],
-        "topics": ["feature-directory", "project-structure", "frontend-architecture"]
+        "activities": ["add_feature_directory", "move_feature_code", "change_feature_boundary", "consume_feature_public_api"],
+        "topics": ["feature-directory", "feature-public-api", "project-structure", "frontend-architecture"]
       },
       "depends_on": ["web.component-structure"],
       "overrides": [],
@@ -431,7 +431,7 @@
         "activities": ["change_query", "change_mutation", "change_cache_invalidation"],
         "topics": ["react-query", "cache", "frontend-architecture"]
       },
-      "depends_on": [],
+      "depends_on": ["policy.transaction-boundaries"],
       "overrides": [],
       "priority": 86
     },
