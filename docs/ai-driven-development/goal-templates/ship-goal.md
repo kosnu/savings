@@ -21,7 +21,7 @@ when_to_read:
 ## Goalへ含める情報
 
 - 目的: Build / Verify済み成果を要求されたdelivery状態にする。
-- Cycle identity: Issue、workspace、branch、Requirements、Design。
+- Cycle identity: Issue、workspace、branch、Requirements・DesignのhashとDesign completion receipt。cycle-start titleはRequirements所有値を参照し、Ship入力として再指定しない。
 - Build evidence: 現在diffに対応するverification結果。
 - Delivery target: commit、remote branch、base branch、PR、review threads。
 - Scope: 含めるdiff、除外するdiff、許可されたGitHub操作。

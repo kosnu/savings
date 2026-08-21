@@ -26,14 +26,15 @@ from validate_design_coverage import (
     validate_coverage,
     validate_scopes,
 )
+from git_baseline import canonical_workspace_name
 
 
 ISSUE = "owner/repo#1639"
+ISSUE_TITLE = "Structured Data"
 ISSUE_URL = "https://github.com/owner/repo/issues/1639"
 ISSUE_UPDATED_AT = "2026-08-11T00:00:00Z"
-WORKSPACE = "1639-structured-data"
+WORKSPACE = canonical_workspace_name(ISSUE, ISSUE_TITLE)
 IDS = ["FR-1", "AC-1"]
-ISSUE_BODY = "workflow\nJSON正本を検証する\n表示Markdownを検証入力にしない"
 REQUIREMENTS_SECTIONS = [
     ("background", "背景"),
     ("users", "対象ユーザー"),
@@ -45,6 +46,14 @@ REQUIREMENTS_SECTIONS = [
     ("qa", "Q&A"),
     ("technical", "技術的考慮事項"),
 ]
+ISSUE_BODY = "\n".join(
+    [
+        "workflow",
+        "JSON正本を検証する",
+        "表示Markdownを検証入力にしない",
+        *(f"section-{section_id}-scope" for section_id, _ in REQUIREMENTS_SECTIONS),
+    ]
+)
 
 
 def run_git(repo_root: Path, *arguments: str) -> None:
@@ -62,20 +71,55 @@ def initialize_repo(repo_root: Path) -> None:
     run_git(repo_root, "commit", "--allow-empty", "-qm", "baseline")
 
 
+def write_rule_map(repo_root: Path) -> Path:
+    rule_path = repo_root / "docs" / "ai-driven-development" / "workflow.md"
+    rule_path.parent.mkdir(parents=True, exist_ok=True)
+    rule_path.write_text(
+        "# Workflow\n\ncanonical workflow rule evidence.\n",
+        encoding="utf-8",
+    )
+    rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
+    rule_map_path.parent.mkdir(parents=True, exist_ok=True)
+    rule_map_path.write_text(
+        json.dumps(
+            {
+                "rules": [
+                    {
+                        "id": "ai-driven.workflow",
+                        "file": "docs/ai-driven-development/workflow.md",
+                        "applies_to": {
+                            "paths": [],
+                            "domains": [],
+                            "activities": [],
+                            "topics": ["workflow"],
+                        },
+                        "depends_on": [],
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return rule_map_path
+
+
 def requirements_source() -> dict[str, object]:
     issue_digest = hashlib.sha256(ISSUE_BODY.encode("utf-8")).hexdigest()
     sections: list[dict[str, object]] = []
     for section_id, heading in REQUIREMENTS_SECTIONS:
+        blocks: list[dict[str, object]] = [
+            {
+                "id": f"{section_id}-body",
+                "type": "markdown",
+                "markdown": f"{heading}をsection-{section_id}-scopeとして定義する。",
+            }
+        ]
         if section_id in {"functional", "acceptance"}:
-            blocks = [{"id": f"{section_id}-requirements", "type": "requirements"}]
-        else:
-            blocks = [
-                {
-                    "id": f"{section_id}-body",
-                    "type": "markdown",
-                    "markdown": f"{heading}の内容を定義する。",
-                }
-            ]
+            blocks.append(
+                {"id": f"{section_id}-requirements", "type": "requirements"}
+            )
         sections.append({"id": section_id, "heading": heading, "blocks": blocks})
     return {
         "schema_version": 2,
@@ -84,6 +128,7 @@ def requirements_source() -> dict[str, object]:
         "display": {"path": "requirements.md", "preamble": "# Requirements"},
         "validation": {
             "mode": "managed",
+            "cycle_start_issue_title": ISSUE_TITLE,
             "input_gate": {
                 "task_context": {
                     "source": "issue_body",
@@ -119,8 +164,12 @@ def requirements_source() -> dict[str, object]:
                     },
                 ],
                 "sections": [
-                    {"id": section_id, "status": "new", "issue_evidence": None}
-                    for section_id, _ in REQUIREMENTS_SECTIONS
+                    {
+                        "id": section_id,
+                        "status": "new",
+                        "issue_evidence": f"section-{section_id}-scope",
+                    }
+                    for section_id, heading in REQUIREMENTS_SECTIONS
                 ],
                 "retired": [],
             },
@@ -176,7 +225,10 @@ def goal_display() -> dict[str, object]:
             },
             {
                 "id": "validated-artifact",
-                "text": "Design Coverage Gateと生成成果物の同期検証を成功させる。",
+                "text": (
+                    "Design Coverage Gateと生成成果物の同期検証後に"
+                    "completion receiptを固定する。"
+                ),
             },
         ],
     }
@@ -215,6 +267,7 @@ def typed_design_sections(
             "type": "evidence",
             "role": "design",
             "owner_id": requirement_id,
+            "product_behavior_ids": ["PB-1"] if requirement_id == "FR-1" else [],
             "text": f"{requirement_id}の設計根拠を保持する。",
         }
         for requirement_id in IDS
@@ -271,6 +324,14 @@ def design_source(
         "validation": {
             "mode": "managed",
             "sections": sections if sections is not None else typed_design_sections(),
+            "product_behaviors": [
+                {
+                    "id": "PB-1",
+                    "type": "state_transition",
+                    "change": "changed",
+                    "requirement_id": "FR-1",
+                }
+            ],
             "coverage_gate": {
                 "requirements_sha256": requirements_digest,
                 "workspace": WORKSPACE,
@@ -303,6 +364,14 @@ def design_goal_source(
                 "requirement_ids": IDS,
                 "baseline": baseline or {"source": "none", "body_sha256": None},
             },
+            "product_behaviors": [
+                {
+                    "id": "PB-1",
+                    "type": "state_transition",
+                    "change": "changed",
+                    "requirement_id": "FR-1",
+                }
+            ],
             "scopes": scope_entries if scope_entries is not None else scopes(),
             "baseline_scopes": baseline_scopes or [],
         },
@@ -315,6 +384,8 @@ class DesignCoverageGateTest(unittest.TestCase):
         *,
         kind: str,
         document: dict[str, object] | None = None,
+        include_goal_document: bool = True,
+        requirements_document_bytes: bytes | None = None,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -332,9 +403,7 @@ class DesignCoverageGateTest(unittest.TestCase):
             ).hexdigest()
             issue_body_path = repo_root / "issue-body.md"
             issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
-            rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
-            rule_map_path.parent.mkdir(parents=True)
-            rule_map_path.write_text('{"rules": []}\n', encoding="utf-8")
+            rule_map_path = write_rule_map(repo_root)
 
             baseline: dict[str, object] = {"source": "none", "body_sha256": None}
 
@@ -360,24 +429,50 @@ class DesignCoverageGateTest(unittest.TestCase):
                 json.dumps(document, ensure_ascii=False, indent=2) + "\n",
                 encoding="utf-8",
             )
-            with patch("validate_design_coverage.validate_requirements_input"), patch(
-                "validate_design_coverage.validate_requirements_continuity"
-            ):
-                validate(
-                    ISSUE,
-                    ISSUE_URL,
-                    ISSUE_UPDATED_AT,
-                    issue_body_path,
-                    rule_map_path,
-                    requirements_path,
-                    document_path,
-                    kind,
-                    repo_root,
-                    WORKSPACE,
+            goal_document_path: Path | None = None
+            if kind == "artifact" and include_goal_document:
+                goal_document_path = repo_root / "design-goal.json"
+                goal_document_path.write_text(
+                    json.dumps(
+                        design_goal_source(requirements_digest, baseline=baseline),
+                        ensure_ascii=False,
+                        indent=2,
+                    )
+                    + "\n",
+                    encoding="utf-8",
                 )
+            validate(
+                ISSUE,
+                ISSUE_URL,
+                ISSUE_UPDATED_AT,
+                issue_body_path,
+                rule_map_path,
+                requirements_path,
+                document_path,
+                kind,
+                repo_root,
+                WORKSPACE,
+                goal_document_path,
+                requirements_document_bytes=requirements_document_bytes,
+            )
 
     def test_accepts_goal_using_requirement_ids(self) -> None:
         self.validate_source(kind="goal")
+
+    def test_rejects_replacement_requirements_snapshot_bytes(self) -> None:
+        replacement = requirements_source()
+        replacement["validation"]["cycle_start_issue_title"] = "Replacement title"
+
+        with self.assertRaisesRegex(
+            ValidationError,
+            "do not match the canonical Requirements source",
+        ):
+            self.validate_source(
+                kind="goal",
+                requirements_document_bytes=serialize_source(replacement).encode(
+                    "utf-8"
+                ),
+            )
 
     def test_rejects_multiline_goal_scope(self) -> None:
         source = design_goal_source("0" * 64)
@@ -497,6 +592,67 @@ class DesignCoverageGateTest(unittest.TestCase):
     def test_accepts_artifact_using_evidence_block_ids(self) -> None:
         self.validate_source(kind="artifact")
 
+    def test_artifact_gate_requires_the_retained_design_goal(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "requires --goal-document"):
+            self.validate_source(kind="artifact", include_goal_document=False)
+
+    def test_requires_a_requirement_binding(self) -> None:
+        source = design_source("0" * 64)
+        del source["validation"]["product_behaviors"][0]["requirement_id"]
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
+
+    def test_rejects_product_behavior_changed_after_design_goal(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            workspace_root = (
+                repo_root / "docs" / "ai-driven-development" / "workspaces" / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
+            requirements_path = workspace_root / "requirements.json"
+            requirements_path.write_text(
+                serialize_source(requirements_source()), encoding="utf-8"
+            )
+            requirements_digest = hashlib.sha256(
+                requirements_path.read_bytes()
+            ).hexdigest()
+            artifact = design_source(requirements_digest)
+            artifact["validation"]["product_behaviors"][0]["change"] = "removed"
+            artifact_path = workspace_root / "design-doc.json"
+            artifact_path.write_text(
+                json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            goal_path = repo_root / "design-goal.json"
+            goal_path.write_text(
+                json.dumps(
+                    design_goal_source(requirements_digest),
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            issue_body_path = repo_root / "issue-body.md"
+            issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
+            rule_map_path = write_rule_map(repo_root)
+
+            with self.assertRaisesRegex(ValidationError, "retained Design Goal"):
+                validate(
+                    ISSUE,
+                    ISSUE_URL,
+                    ISSUE_UPDATED_AT,
+                    issue_body_path,
+                    rule_map_path,
+                    requirements_path,
+                    artifact_path,
+                    "artifact",
+                    repo_root,
+                    WORKSPACE,
+                    goal_path,
+                )
+
     def test_evidence_text_is_not_interpreted_as_markdown(self) -> None:
         blocks = {
             "design": {
@@ -504,6 +660,7 @@ class DesignCoverageGateTest(unittest.TestCase):
                 "type": "evidence",
                 "role": "design",
                 "owner_id": "FR-1",
+                "product_behavior_ids": [],
                 "text": "<!-- hidden evidence remains visible -->",
             },
             "verify": {
@@ -868,6 +1025,13 @@ class DesignCoverageGateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
+            (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / WORKSPACE
+            ).mkdir(parents=True)
             requirements_path = repo_root / "requirements.json"
             requirements_path.write_text(
                 serialize_source(requirements_source()), encoding="utf-8"
@@ -879,9 +1043,7 @@ class DesignCoverageGateTest(unittest.TestCase):
             document_path.write_text(json.dumps(document), encoding="utf-8")
             issue_body_path = repo_root / "issue-body.md"
             issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
-            rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
-            rule_map_path.parent.mkdir(parents=True)
-            rule_map_path.write_text('{"rules": []}', encoding="utf-8")
+            rule_map_path = write_rule_map(repo_root)
             with self.assertRaisesRegex(ValidationError, "canonical repository path"):
                 validate(
                     ISSUE,
@@ -894,6 +1056,7 @@ class DesignCoverageGateTest(unittest.TestCase):
                     "goal",
                     repo_root,
                     WORKSPACE,
+                    None,
                 )
 
 

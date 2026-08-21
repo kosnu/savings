@@ -23,7 +23,7 @@ when_to_read:
 ## Goalへ含める情報
 
 - 目的: 最新Issue本文全体を、安定IDを持つ検証可能なRequirementsへ変換する。
-- Cycle identity: Issue ID、URL、`updatedAt`、本文SHA-256、workspace。
+- Cycle identity: Issue ID、URL、`updatedAt`、本文SHA-256、workspaceと、Requirementsだけが`validation.cycle_start_issue_title`として所有する取得済みtitle。
 - Task Context: 保存した最新Issue本文だけ。
 - Rule selection: Issueに基づくdirect nodeと宣言済み`depends_on` closure。
 - Baseline: validatorがGit `HEAD`のcanonical `requirements.json`から取得したinventoryとhash。

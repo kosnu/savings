@@ -15,7 +15,7 @@ repository files, or create its artifact.
 3. `docs/ai-driven-development/issue-guidelines.md` for Requirements
 4. `docs/harness/rule-map.json` and the smallest applicable subgraph
 5. `.agents/skills/aidd-cycle/references/artifact-validation.md` for
-   Requirements or Design
+   Requirements, Design, or Build
 
 The workflow defines phase order and contracts. Templates are construction
 checklists only.
@@ -48,9 +48,19 @@ Every condition must trace to the workflow, the matching template, an
 applicable repository rule, or an explicit user constraint. Do not paste
 discovery logs or restate the workflow.
 
+For Requirements, run the workspace validator with the latest Issue title and
+use the workspace it prints. Store that exact title in
+`validation.cycle_start_issue_title` in the temporary Requirements Goal JSON.
+For every later phase, use the validated canonical Requirements bytes or the
+Design completion receipt as cycle identity. Do not refetch, retype, copy from
+Goal prose, or accept a caller-supplied cycle title. Do not supply or construct
+a workspace candidate outside the validator.
+
 For Requirements:
 
-- fetch and snapshot the latest Issue body; it is the only Task Context;
+- fetch the latest Issue title and snapshot the latest body; the body is the
+  only Task Context and the exact title is the Requirements-owned typed cycle
+  identity and workspace derivation input;
 - select direct rule-map nodes from Issue-supported classifications, then add
   their declared dependency closure;
 - resolve the Git `HEAD` Requirements baseline and classify every baseline and
@@ -61,9 +71,27 @@ For Requirements:
 For Design:
 
 - require the canonical Requirements artifact gates to pass again;
+- derive the cycle-start title only from the validated canonical Requirements
+  source and bind Design to those Requirements bytes by path and SHA-256;
 - cover every current requirement ID and every Git `HEAD` Design baseline
   section;
+- define every added, changed, or removed user operation and state transition
+  as a typed product behavior record with one canonical `requirement_id` and one
+  design evidence block owned by the same Requirement ID. Requirement content
+  remains only in canonical `requirements.json`. Selected rules constrain the
+  Requirement and Design but cannot replace a missing Requirement binding;
 - create and validate a temporary `design_goal` JSON before setting the Goal.
+
+For Build:
+
+- obtain the canonical Design completion receipt path and SHA-256 from the
+  preceding Design Goal completion evidence;
+- fetch the current Issue snapshot and run the Build Entry gate against that
+  receipt;
+- record the verified receipt path, unchanged SHA-256, and its complete
+  artifact and selected-rule identity in the Build Goal.
+- take the cycle-start title only from the verified receipt; the Build entry
+  command has no title input.
 
 Typed IDs and references define ownership. Reject missing records, invalid
 owners, broken dependency edges, stale hashes, incomplete inventories, and any
@@ -88,6 +116,6 @@ return one ready-to-set Goal and do not claim it was set.
 
 Stop before setting when phase identity is unresolved, a required upstream
 phase is not confirmed complete, the Issue or workspace is ambiguous, a
-Requirements or Design gate fails, the rule subgraph is unresolved, a user
+required phase entry gate fails, the rule subgraph is unresolved, a user
 constraint conflicts with the phase contract, or the Goal cannot fit without
 losing required context.

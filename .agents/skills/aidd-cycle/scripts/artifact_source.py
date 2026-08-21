@@ -31,21 +31,29 @@ DISPLAY_FILENAMES = {
 MANAGED_VALIDATION_KEYS = {
     "requirements": {
         "mode",
+        "cycle_start_issue_title",
         "input_gate",
         "completeness_gate",
         "requirements",
         "sections",
     },
-    "design": {"mode", "coverage_gate", "sections"},
+    "design": {"mode", "product_behaviors", "coverage_gate", "sections"},
 }
 MANAGED_GOAL_VALIDATION_KEYS = {
     "requirements_goal": {
         "mode",
+        "cycle_start_issue_title",
         "input_gate",
         "completeness_gate",
         "requirements",
     },
-    "design_goal": {"mode", "coverage_gate", "scopes", "baseline_scopes"},
+    "design_goal": {
+        "mode",
+        "coverage_gate",
+        "product_behaviors",
+        "scopes",
+        "baseline_scopes",
+    },
 }
 DESIGN_GOAL_GATE_KEYS = {
     "requirements_sha256",
@@ -78,12 +86,9 @@ MANAGED_GATE_KEYS = {
 }
 BLOCK_ID_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
 REQUIREMENT_ID_PATTERN = re.compile(r"(?P<prefix>FR|NFR|AC)-(?P<number>[1-9][0-9]*)")
+PRODUCT_BEHAVIOR_ID_PATTERN = re.compile(r"PB-(?P<number>[1-9][0-9]*)")
 REQUIREMENT_PREFIX_ORDER = {"FR": 0, "NFR": 1, "AC": 2}
 WORKSPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
-VERSIONED_WORKSPACE_MARKER_PATTERN = re.compile(
-    r"(?:^|-)(?:v[0-9]+|(?:ver|version|rev|revision|cycle)-?[0-9]+|"
-    r"retry(?:-[0-9]+)?|rerun(?:-[0-9]+)?)(?:-|$)"
-)
 DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}")
 MAX_SOURCE_BYTES = 16 * 1024 * 1024
 EVIDENCE_ROLES = {"design", "verification", "baseline"}
@@ -147,7 +152,8 @@ GOAL_REQUIRED_CONTRACT = {
             ),
             (
                 "validated-artifact",
-                "Design Coverage Gateと生成成果物の同期検証を成功させる。",
+                "Design Coverage Gateと生成成果物の同期検証後に"
+                "completion receiptを固定する。",
             ),
         ),
     },
@@ -175,6 +181,13 @@ def requirement_sort_key(value: str) -> tuple[int, int]:
     if match is None:
         raise SourceError(f"invalid requirement ID: {value}")
     return REQUIREMENT_PREFIX_ORDER[match.group("prefix")], int(match.group("number"))
+
+
+def product_behavior_sort_key(value: str) -> int:
+    match = PRODUCT_BEHAVIOR_ID_PATTERN.fullmatch(value)
+    if match is None:
+        raise SourceError(f"invalid product behavior ID: {value}")
+    return int(match.group("number"))
 
 
 def structured_sha256(value: Any) -> str:
@@ -468,10 +481,6 @@ def validate_design_goal_coverage_gate(value: Any) -> None:
 def validate_workspace_name(workspace: str) -> None:
     if WORKSPACE_PATTERN.fullmatch(workspace) is None:
         raise SourceError("workspace must use lowercase ASCII kebab-case")
-    if VERSIONED_WORKSPACE_MARKER_PATTERN.search(workspace) is not None:
-        raise SourceError(
-            "workspace must not use a version, cycle, retry, or rerun marker"
-        )
 
 
 def canonical_source_path(repo_root: Path, workspace: str, kind: str) -> Path:
@@ -590,16 +599,30 @@ def validate_blocks(
             require_object_keys(block, {"id", "type", "markdown"}, block_label)
             require_string(block["markdown"], f"{block_label}.markdown")
         elif block_type == "evidence":
+            role = require_string(block.get("role"), f"{block_label}.role")
+            expected_keys = {"id", "type", "role", "owner_id", "text"}
+            if role == "design":
+                expected_keys.add("product_behavior_ids")
             require_object_keys(
                 block,
-                {"id", "type", "role", "owner_id", "text"},
+                expected_keys,
                 block_label,
             )
-            role = require_string(block["role"], f"{block_label}.role")
             if role not in EVIDENCE_ROLES:
                 raise SourceError(f"{block_label}.role is unsupported")
             require_inline_markdown(block["owner_id"], f"{block_label}.owner_id")
             require_evidence_text(block["text"], f"{block_label}.text")
+            if role == "design":
+                behavior_ids = require_string_array(
+                    block["product_behavior_ids"],
+                    f"{block_label}.product_behavior_ids",
+                )
+                if behavior_ids != sorted(
+                    set(behavior_ids), key=product_behavior_sort_key
+                ):
+                    raise SourceError(
+                        f"{block_label}.product_behavior_ids must be canonical and unique"
+                    )
         elif block_type == "requirements" and allow_requirements:
             require_object_keys(block, {"id", "type"}, block_label)
         else:
@@ -782,6 +805,72 @@ def validate_design_coverage_gate(
         raise SourceError("coverage evidence block references must be unique")
 
 
+def validate_product_behavior_entries(
+    value: Any,
+    requirement_ids: list[str],
+) -> list[str]:
+    entries = require_object_array(value, "managed design product_behaviors")
+    behavior_ids: list[str] = []
+    for index, entry in enumerate(entries):
+        label = f"product_behaviors[{index}]"
+        require_object_keys(
+            entry,
+            {"id", "type", "change", "requirement_id"},
+            label,
+        )
+        behavior_id = require_string(entry["id"], f"{label}.id")
+        if PRODUCT_BEHAVIOR_ID_PATTERN.fullmatch(behavior_id) is None:
+            raise SourceError(f"invalid product behavior ID: {behavior_id}")
+        behavior_type = require_string(entry["type"], f"{label}.type")
+        if behavior_type not in {"user_operation", "state_transition"}:
+            raise SourceError(f"{label}.type is unsupported")
+        change = require_string(entry["change"], f"{label}.change")
+        if change not in {"added", "changed", "removed"}:
+            raise SourceError(f"{label}.change is unsupported")
+        requirement_id = require_inline_markdown(
+            entry["requirement_id"], f"{label}.requirement_id"
+        )
+        if requirement_id not in requirement_ids:
+            raise SourceError(
+                f"{label}.requirement_id must reference a covered requirement"
+            )
+        behavior_ids.append(behavior_id)
+    if behavior_ids != sorted(set(behavior_ids), key=product_behavior_sort_key):
+        raise SourceError("product behavior IDs must be canonical and unique")
+    return behavior_ids
+
+
+def validate_product_behaviors(
+    value: Any,
+    requirement_ids: list[str],
+    blocks_by_id: dict[str, dict[str, Any]],
+) -> None:
+    behavior_ids = validate_product_behavior_entries(value, requirement_ids)
+
+    references: list[str] = []
+    owners: dict[str, str] = {}
+    for block in blocks_by_id.values():
+        if block.get("type") == "evidence" and block.get("role") == "design":
+            references.extend(block["product_behavior_ids"])
+            owners.update(
+                {
+                    behavior_id: block["owner_id"]
+                    for behavior_id in block["product_behavior_ids"]
+                }
+            )
+    if len(references) != len(set(references)):
+        raise SourceError("each product behavior must have one design evidence owner")
+    if sorted(references, key=product_behavior_sort_key) != behavior_ids:
+        raise SourceError(
+            "design evidence product behavior references must exactly own the inventory"
+        )
+    for entry in value:
+        if owners[entry["id"]] != entry["requirement_id"]:
+            raise SourceError(
+                f"product behavior {entry['id']} design evidence owner must equal requirement ID"
+            )
+
+
 def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
     source = validate_source(value)
     if source["schema_version"] != SCHEMA_VERSION:
@@ -798,6 +887,10 @@ def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
         validation["sections"], kind
     )
     if kind == "requirements":
+        require_inline_markdown(
+            validation["cycle_start_issue_title"],
+            "validation.cycle_start_issue_title",
+        )
         validate_requirements_input_gate(validation["input_gate"])
         validate_requirements_completeness_gate(validation["completeness_gate"])
         requirements = validate_v2_requirements(
@@ -820,6 +913,11 @@ def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
         gate_workspace = validation["completeness_gate"]["workspace"]
     else:
         validate_design_coverage_gate(validation["coverage_gate"], blocks_by_id)
+        validate_product_behaviors(
+            validation["product_behaviors"],
+            validation["coverage_gate"]["requirement_ids"],
+            blocks_by_id,
+        )
         gate_workspace = validation["coverage_gate"]["workspace"]
     if gate_workspace != source["workspace"]:
         raise SourceError("Gate workspace must match source.workspace")
@@ -839,6 +937,10 @@ def validate_managed_goal_source(value: Any) -> dict[str, Any]:
     if set(validation) != MANAGED_GOAL_VALIDATION_KEYS[kind]:
         raise SourceError(f"managed {kind} validation has invalid keys")
     if kind == "requirements_goal":
+        require_inline_markdown(
+            validation["cycle_start_issue_title"],
+            "validation.cycle_start_issue_title",
+        )
         validate_requirements_input_gate(validation["input_gate"])
         validate_requirements_completeness_gate(validation["completeness_gate"])
         entries = require_object_array(validation["requirements"], "Goal requirements")
@@ -858,6 +960,10 @@ def validate_managed_goal_source(value: Any) -> dict[str, Any]:
         gate_workspace = validation["completeness_gate"]["workspace"]
     else:
         validate_design_goal_coverage_gate(validation["coverage_gate"])
+        validate_product_behavior_entries(
+            validation["product_behaviors"],
+            validation["coverage_gate"]["requirement_ids"],
+        )
         scope_ids: list[str] = []
         for index, entry in enumerate(
             require_object_array(validation["scopes"], "design_goal scopes")

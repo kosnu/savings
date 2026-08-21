@@ -12,6 +12,7 @@ from validate_requirements_goal import ValidationError, validate
 
 
 ISSUE = "owner/repo#1639"
+ISSUE_TITLE = "Structured Data"
 ISSUE_URL = "https://github.com/owner/repo/issues/1639"
 UPDATED_AT = "2026-08-09T06:19:50Z"
 ISSUE_BODY = "user の設定を保存する。\npayment の金額を保存する。\n"
@@ -111,6 +112,7 @@ def source(
 ) -> dict[str, object]:
     validation: dict[str, object] = {
         "mode": "managed",
+        "cycle_start_issue_title": ISSUE_TITLE,
         "input_gate": gate,
         "completeness_gate": {
             "issue_body_sha256": "0" * 64,
@@ -244,6 +246,7 @@ class RequirementsInputGateTest(unittest.TestCase):
                 document,
                 rule_map,
                 ISSUE,
+                ISSUE_TITLE,
                 ISSUE_URL,
                 UPDATED_AT,
                 kind,
@@ -266,6 +269,36 @@ class RequirementsInputGateTest(unittest.TestCase):
         changed["direct_rules"][0]["reason"] = "別の理由"
         with self.assertRaisesRegex(ValidationError, "does not match the Goal"):
             self.validate_source(changed, kind="artifact", goal_gate=input_gate())
+
+    def test_rejects_cycle_title_different_from_fetched_issue(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            rule_map = initialize_repo(repo_root)
+            issue_path = repo_root / "issue.md"
+            issue_path.write_text(ISSUE_BODY, encoding="utf-8")
+            document = repo_root / "goal.json"
+            document.write_text(
+                serialize_source(source("requirements_goal", input_gate())),
+                encoding="utf-8",
+            )
+
+            for supplied_title in ("Different title", f" {ISSUE_TITLE} "):
+                with self.subTest(supplied_title=supplied_title):
+                    with self.assertRaisesRegex(
+                        ValidationError,
+                        "fetched Issue title",
+                    ):
+                        validate(
+                            issue_path,
+                            document,
+                            rule_map,
+                            ISSUE,
+                            supplied_title,
+                            ISSUE_URL,
+                            UPDATED_AT,
+                            "goal",
+                            repo_root,
+                        )
 
     def test_display_markdown_cannot_supply_rule_evidence(self) -> None:
         gate = input_gate()
@@ -340,6 +373,7 @@ class RequirementsInputGateTest(unittest.TestCase):
                     document,
                     rule_map,
                     ISSUE,
+                    ISSUE_TITLE,
                     ISSUE_URL,
                     UPDATED_AT,
                     "goal",
