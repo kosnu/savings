@@ -6,8 +6,9 @@ description: Run one complete repository AI Driven Development cycle in a single
 # AIDD Cycle
 
 Run the repository AIDD workflow end to end. This skill owns cycle identity,
-phase transitions, and Goal execution. `goal-setting` owns construction of one
-phase Goal.
+phase transitions, Goal orchestration, and completion confirmation.
+`goal-setting` owns construction of one phase Goal. The executor assigned below
+owns execution of that Goal.
 
 ## Read First
 
@@ -57,7 +58,7 @@ For each phase in the workflow:
    artifacts and generated displays against the current Issue snapshot and the
    Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
-   subgraph.
+   subgraph, using the phase executor assigned below.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path
@@ -75,6 +76,42 @@ For each phase in the workflow:
 
 Never have two phase Goals active at once. Never advance because files exist,
 tests happened to pass, or a phase draft was produced.
+
+## Phase Execution Assignment
+
+The parent agent remains the cycle orchestrator and keeps its currently
+selected model and reasoning effort. Assign each phase exactly as follows:
+
+| Phase | Executor | Model | Reasoning effort |
+| --- | --- | --- | --- |
+| Requirements | `worker` subagent | `gpt-5.6-sol` | `high` |
+| Design | `worker` subagent | `gpt-5.6-sol` | `high` |
+| Build | `worker` subagent | `gpt-5.6-luna` | `max` |
+| Ship | parent agent | current selection | current selection |
+
+For Requirements, Design, and Build:
+
+1. The parent sets or identifies the one active phase Goal before delegation.
+2. Spawn exactly one `worker` for the phase with the assigned `model` and
+   `reasoning_effort`. Use `fork_turns: "none"` so the explicit model override
+   is preserved.
+3. Give the worker a self-contained task containing the repository root,
+   current branch, phase, active Goal identity and Context Packet, required
+   workflow and validation references, upstream artifact or receipt identity,
+   read/write boundary, Verification, and Stop conditions.
+4. The worker executes only the active Goal. It must not create the next Goal,
+   start another phase, run Learn, or delegate further.
+5. Wait for the worker before doing more phase work. Reuse that worker for
+   same-phase continuation when possible, and never run two phase executors at
+   once.
+6. After the worker finishes, the parent calls `get_goal` and independently
+   confirms the required phase evidence. Advance only when the Goal is
+   terminal `complete`; otherwise continue or stop under the existing Goal
+   rules.
+
+If the assigned model, reasoning effort, or subagent capability is unavailable,
+preserve the active Goal and stop. Do not inherit, substitute, or silently run
+the delegated phase in the parent.
 
 ## Artifact Boundary
 
