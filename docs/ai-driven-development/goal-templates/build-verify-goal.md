@@ -11,116 +11,37 @@ topics:
   - codex-goal
   - implementation
   - verification
-  - review
 when_to_read:
-  - Design Docに従って実装と検証を行うとき
-  - AIに実装作業を自律実行させるとき
+  - Build / Verify Goalを構築するとき
 ---
 
 # Build / Verify Goal
 
-```md
-# Build / Verify Goal
+## Goalへ含める情報
 
-## Goal
-
-最新のRequirements / PRDとDesign Docに従って実装し、検証まで完了する。
-
-工程上の位置、入力境界、次工程、Ship完了後の扱いは [workflow.md](../workflow.md) を正本として従う。
-
-## Inputs
-
-- Requirements / PRD: canonical `requirements.json`と生成済み`requirements.md`（read-only）
-- Design Doc: canonical `design-doc.json`と生成済み`design-doc.md`（read-only）
-- Requirements Completeness Gate検証結果:
-- Design Coverage Gate検証結果:
-- 関連Issue / PR:
-- Build / Verify工程中に発見した検証失敗・整合性問題:
-- 関連ドキュメント:
-  - docs/harness/rule-map.json で選択したサブグラフ:
-
-## Scope
-
-- 対象リポジトリ:
-- 対象ディレクトリ:
-- 変更してよい領域:
-- 変更しない領域:
-
-## Rule Selection
-
-- Rule map: `docs/harness/rule-map.json`
-- 作業分類:
-  - path:
-  - domain:
-  - activity:
-  - topic:
-- Selected nodes: `id` -> `file`: reason
-- Depends-on nodes: `id` -> `file`: reason
-- Conflict decision: none / overrides / priority
-
-## Autonomy
-
-- 既存パターンに沿った実装判断は任せる
-- 必要なテスト追加・修正は任せる
-- 小さな型修正や呼び出し側調整は任せる
-- Build / Verify工程中のテスト失敗、型エラー、lint、実装整合性、変更漏れは工程内で完了させる
-- 新規依存、DB変更、API仕様変更、破壊的git操作が必要になった場合はStop条件としてエスカレーションする
+- 目的: validation済みRequirementsとDesignの全scopeを実装し検証する。
+- Cycle identity: Issue、workspace、branch、Design完了証拠のreceipt pathとSHA-256。cycle-start titleは検証済みRequirementsとreceiptからのみ取得し、Build入力として再指定しない。
+- Entry validation: Build entry gateが記録SHA-256に一致するreceipt bytesをidentityとして読み込み、現在のIssue snapshot、canonical Requirements / Design、両生成Markdown、canonical rule map、選択済みrule文書の同一byte snapshotを再検証し、receiptの全pathとhashに一致した結果。
+- Read-only inputs: canonical RequirementsとDesign、生成Markdown、Design completion receipt。検証中の比較には読み込み済みreceipt bytesを使い、receipt pathの継続占有をidentityとはしない。
+- Scope: 変更してよい領域、変更しない領域、全Requirement ID、typed product behavior inventory、影響するapp。
+- Rule selection: 関連policy、ADR、domain rule、test guidance。
+- Implementation context: 関連コード、既存pattern、tests、known risks。
+- Verification: 対象appについてAGENTS.mdが定義する具体的command。
 
 ## Done
 
-- [ ] PRDの受け入れ条件を満たしている
-- [ ] Design Docの方針から逸脱していない
-- [ ] Requirements / PRDとDesign Docの意図・制約・対象外から解釈を広げていない
-- [ ] Requirements Completeness GateとDesign Coverage Gateのartifact検証がGit `HEAD`のcanonical baselineに対して成功し、全要求項目・主要Requirements section・要求別Design coverage・前回Design sectionが追跡されている
-- [ ] renderer checkが成功し、JSON正本と生成Markdown表示が一致している
-- [ ] `docs/harness/rule-map.json` で選択した関連ドキュメントから逸脱していない
-- [ ] Build / Verify工程中に発見した検証失敗・整合性問題を工程内で解消している
-- [ ] 関連テストが追加・更新されている
-- [ ] 指定の検証コマンドが通る
-- [ ] 差分がスコープ内に収まっている
-- [ ] 実装差分と検証結果が、選択したルール・ポリシーに違反していないことを確認している
-- [ ] PRで説明しやすい単位になっている
-
-## Verification
-
-- 検証前に実行:
-  - `pnpm run web:format`
-- 必ず実行:
-  - `pnpm run web:lint`
-  - `pnpm run web:format-check`
-  - `pnpm run web:typecheck`
-  - `pnpm run web:test:unit-integration`
-- 必要なら実行:
-  - `pnpm run web:test:storybook`
-- 実行しない:
-  -
-- 手動確認:
-  -
-
-## Constraints
-
-- 最小差分で対応する
-- 無関係なリファクタをしない
-- 既存の設計・命名・ディレクトリ構成に合わせる
-- Requirements / PRDとDesign Docで決まっていない仕様、対象機能、成功条件を実装で補わない
-- Requirements / DesignのJSON正本と生成MarkdownをBuild / Verifyで変更しない
-- ユーザーに表示される主要文言はDesign Docで決まった内容から勝手に変えない
-- 決定済みの上限値・閾値・文言内数値は二重管理しない
-- 実装方式を変えたテストでは、旧方式の不要なmock、setup、expectationを残さない
-- ユーザーの未コミット変更を戻さない
-- 変更範囲外の問題は発見しても勝手に直さない
-- 新しい抽象化は必要性が明確な場合だけ作る
+- 全RequirementとDesign decisionを満たす実装が完了している。
+- 必要なcode、test、fixture、doc表現が同期している。
+- 対象appの必須verificationが現在diffに対して成功している。
+- Build entry gateを再実行し、Goalへ記録したreceipt SHA-256と一致している。
+- 未解消のlint、type、test、整合性、scope漏れがない。
 
 ## Stop
 
-- Design Docまたは関連ドメインルールと違う実装が必要
-- Requirements Completeness GateまたはDesign Coverage Gateが失敗する、または生成成果物が現在の上流入力全体を覆っていない
-- `docs/harness/rule-map.json` で選択した関連ドキュメントと違う実装が必要
-- 実装中にRequirements / PRDまたはDesign Docの解釈を広げる必要がある
-- 実装に必要な主要文言がDesign Docで決まっていない
-- スコープ外の変更が必要
-- 受け入れ条件に矛盾がある
-- 実装差分または検証結果が選択したルール・ポリシーに違反している、または違反の可能性がある
-- 新規依存、DB変更、API仕様変更、破壊的git操作が必要
-- 検証失敗が今回の変更と無関係
-```
+- Build entryのartifact gateまたはrender同期が失敗する。
+- RequirementsまたはDesignの不足・矛盾を推測で埋める必要がある。
+- typed inventoryにないproduct behaviorが実装に必要になる。
+- 明示scopeや権限を越える変更が必要。
+- 必須verificationが外部条件のため完了不能。
+
+成功時の次工程はShipです。上流成果物はこのGoal内で変更しません。

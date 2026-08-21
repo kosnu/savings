@@ -11,6 +11,7 @@ import git_baseline
 
 from git_baseline import (
     GitBaselineError,
+    canonical_workspace_name,
     load_git_head_source,
     validate_workspace_identity,
 )
@@ -137,16 +138,71 @@ class WorkspaceValidationTest(unittest.TestCase):
                         repo_root, "1639-structured-data", "requirements"
                     )
 
-    def test_accepts_first_unversioned_workspace(self) -> None:
+    def test_derives_first_workspace_from_the_complete_normalized_title(self) -> None:
+        self.assertEqual(
+            canonical_workspace_name(
+                "owner/repo#1563",
+                "  Sync Language Setting / 言語設定  ",
+            ),
+            "1563-sync-language-setting-86153b5ef15b",
+        )
+
+    def test_accepts_only_the_issue_derived_first_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
+            issue_title = "Sync Language Setting / 言語設定"
+            workspace = canonical_workspace_name(
+                "owner/repo#1563", issue_title
+            )
             existing = validate_workspace_identity(
                 repo_root,
                 "owner/repo#1563",
-                "1563-sync-language-setting",
+                workspace,
+                issue_title,
             )
         self.assertEqual(existing, [])
+
+    def test_rejects_arbitrary_first_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            with self.assertRaisesRegex(GitBaselineError, "canonical Issue-derived"):
+                validate_workspace_identity(
+                    repo_root,
+                    "owner/repo#1563",
+                    "1563-sync-language-setting-attempt-2",
+                    "Sync Language Setting / 言語設定",
+                )
+
+    def test_requires_issue_title_for_first_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            with self.assertRaisesRegex(GitBaselineError, "issue title is required"):
+                validate_workspace_identity(
+                    repo_root,
+                    "owner/repo#1563",
+                    "1563-sync-language-setting",
+                )
+
+    def test_untracked_directory_does_not_establish_arbitrary_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / "1563-sync-language-setting-attempt-2"
+            ).mkdir(parents=True)
+            with self.assertRaisesRegex(GitBaselineError, "issue title is required"):
+                validate_workspace_identity(
+                    repo_root,
+                    "owner/repo#1563",
+                    "1563-sync-language-setting-attempt-2",
+                )
 
     def test_reuses_the_only_existing_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -214,27 +270,6 @@ class WorkspaceValidationTest(unittest.TestCase):
                     "1600-sync-language-setting",
                 )
 
-    def test_rejects_version_and_retry_markers(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory).resolve()
-            initialize_repo(repo_root)
-            for workspace in (
-                "1563-sync-language-setting-v2",
-                "1563-v2-sync-language-setting",
-                "1563-sync-language-setting-v02",
-                "1563-sync-language-setting-version-3",
-                "1563-sync-language-setting-cycle-2",
-                "1563-sync-language-setting-retry",
-                "1563-sync-language-setting-rerun-2",
-            ):
-                with self.subTest(workspace=workspace):
-                    with self.assertRaisesRegex(GitBaselineError, "marker"):
-                        validate_workspace_identity(
-                            repo_root,
-                            "owner/repo#1563",
-                            workspace,
-                        )
-
     def test_cli_reports_reused_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -247,8 +282,8 @@ class WorkspaceValidationTest(unittest.TestCase):
                     str(repo_root),
                     "--issue",
                     "owner/repo#1563",
-                    "--workspace",
-                    "1563-sync-language-setting",
+                    "--issue-title",
+                    "Changed title does not rename an existing workspace",
                 ],
                 capture_output=True,
                 text=True,
@@ -256,6 +291,87 @@ class WorkspaceValidationTest(unittest.TestCase):
             )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("(reused)", result.stdout)
+
+    def test_cli_derives_the_first_workspace_without_a_candidate_name(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VALIDATOR_PATH),
+                    "--repo-root",
+                    str(repo_root),
+                    "--issue",
+                    "owner/repo#1563",
+                    "--issue-title",
+                    "Sync Language Setting / 言語設定",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("1563-sync-language-setting-86153b5ef15b (new)", result.stdout)
+
+    def test_cli_accepts_an_empty_canonical_workspace_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            workspace = "1563-sync-language-setting-86153b5ef15b"
+            (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / workspace
+            ).mkdir(parents=True)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VALIDATOR_PATH),
+                    "--repo-root",
+                    str(repo_root),
+                    "--issue",
+                    "owner/repo#1563",
+                    "--issue-title",
+                    "Sync Language Setting / 言語設定",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f"{workspace} (reused)", result.stdout)
+
+    def test_cli_rejects_an_empty_arbitrary_workspace_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / "1563-sync-language-setting-attempt-2"
+            ).mkdir(parents=True)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VALIDATOR_PATH),
+                    "--repo-root",
+                    str(repo_root),
+                    "--issue",
+                    "owner/repo#1563",
+                    "--issue-title",
+                    "Sync Language Setting / 言語設定",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("canonical Issue-derived name", result.stderr)
 
 
 if __name__ == "__main__":

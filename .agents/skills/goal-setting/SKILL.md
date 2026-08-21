@@ -5,200 +5,117 @@ description: Set exactly one Codex Goal from the repository AI Driven Developmen
 
 # Goal Setting
 
-## Purpose
+Construct and set exactly one AIDD phase Goal. Do not execute the Goal, edit
+repository files, or create its artifact.
 
-Set exactly one self-contained Codex Goal. Do not execute the Goal or create its
-target artifact.
+## Read First
 
-When called by `.agents/skills/aidd-cycle/SKILL.md`, construct and set one phase
-Goal, then return control to `aidd-cycle`.
+1. `docs/ai-driven-development/workflow.md`
+2. The matching file under `docs/ai-driven-development/goal-templates/`
+3. `docs/ai-driven-development/issue-guidelines.md` for Requirements
+4. `docs/harness/rule-map.json` and the smallest applicable subgraph
+5. `.agents/skills/aidd-cycle/references/artifact-validation.md` for
+   Requirements, Design, or Build
 
-## Canonical Sources
+The workflow defines phase order and contracts. Templates are construction
+checklists only.
 
-Read `docs/ai-driven-development/workflow.md` first. It is the source of truth
-for phase order, phase responsibilities, upstream artifact boundaries, Done,
-Verification, Stop conditions, and the relationship between Ship and Learn.
-Do not restate or reinterpret those rules in this skill.
+## Select the Phase
 
-Then read:
+- Call `get_goal` before selecting a phase.
+- Use the phase explicitly requested by the user when it is compatible with the
+  workflow.
+- Otherwise use verified terminal Goal state: a new cycle starts at
+  Requirements; each later phase requires the immediately preceding Goal to be
+  complete.
+- Artifact existence, current diffs, branch names, or tests do not authorize
+  skipping a phase.
+- Return control to `aidd-cycle` when the same-cycle phase Goal is already
+  unfinished. Stop when another task owns the unfinished Goal.
 
-- the matching file under `docs/ai-driven-development/goal-templates/`
-- `docs/ai-driven-development/issue-guidelines.md` when Issue input is involved
-- `docs/harness/rule-map.json` and the smallest selected document subgraph
+## Construct the Goal
 
-Treat Goal templates as construction checklists, not as a second workflow
-definition and not as output skeletons.
+Create one compact Context Packet containing:
 
-## Procedure
+- objective and current phase;
+- cycle, Issue, workspace, branch, and artifact identity needed by the phase;
+- complete upstream scope and read/write boundaries;
+- selected rule-map nodes with reasons;
+- explicit user constraints and known risks;
+- phase Done, Verification, and Stop conditions.
 
-1. Determine the requested phase or the next phase from the canonical workflow,
-   current Goal state, workspace artifacts, branch, Issue, and PR context. A
-   named phase does not override the workflow. If the phase is unclear, ask one
-   short clarification question. An unfinished same-cycle phase Goal remains
-   owned by `aidd-cycle`, so return control to it.
-2. Read the matching Goal template and only the references needed for that
-   phase. Use `rule-map.json` to select documented policies, domain rules, ADRs,
-   designs, and app guidance.
-3. Use the smallest useful discovery set. Start with `git branch --show-current`,
-   `git status --short`, existing workspace artifacts, and the supplied Issue or
-   PR. Fetch thread-aware review data for Ship when needed. Inspect implementation
-   files only when Design / Plan or Build / Verify needs them.
-   For Intent / Requirements, fetch the latest Issue body, URL, and `updatedAt`.
-   The exact Issue body is the only Task Context. Conversation, review, current
-   diff, previous artifacts, and recently changed rules may not extend it. When
-   the phase belongs to an Issue-based AIDD cycle, require the workspace
-   validator from `aidd-cycle` to succeed before constructing the Goal. Reuse
-   the Issue's only existing workspace; never invent a versioned or retry
-   directory for a new cycle.
-4. Build a compact Context Packet containing scope, selected references and
-   reasons, constraints, known risks, Stop checks, and verification expectations.
-   Preserve every requirement from the workflow and matching template without
-   copying their full text. Every Done, Verification, and Stop condition must be
-   traceable to the workflow, matching template, selected repository rules, or
-   an explicit user constraint.
-5. For Requirements and Design, serialize that packet and the structured gates
-   as `requirements_goal` or `design_goal` JSON, validate the JSON, and render
-   the Goal objective from typed `display.title`, `display.goal`,
-   `display.context`, and `display.done` fields. Represent constraints, Stop,
-   and Done / Verification as `id` plus `text` entries, including every
-   phase-specific required ID with its canonical workflow text before
-   task-specific entries. The renderer must reject the
-   objective unless its Context Packet keeps Goal, constraints, Stop, and
-   Done / Verification markers and its Gate and per-ID or baseline scope content
-   matches the structured validation fields. The renderer adds a canonical
-   Validated Scope line from every structured ID, so the generated objective
-   always carries the full validated scope. The JSON is retained as the
-   comparison source until the phase artifact passes; Goal Markdown is not a
-   phase validator input.
-6. Set the Goal with `create_goal`. In orchestrated use, include the
-   workflow-defined cycle identity, phase inputs, artifact references, and
-   current phase supplied by `aidd-cycle`. Keep cycle control and next-Goal
-   creation in `aidd-cycle`.
+Every condition must trace to the workflow, the matching template, an
+applicable repository rule, or an explicit user constraint. Do not paste
+discovery logs or restate the workflow.
 
-## Intent / Requirements Provenance
+For Requirements, run the workspace validator with the latest Issue title and
+use the workspace it prints. Store that exact title in
+`validation.cycle_start_issue_title` in the temporary Requirements Goal JSON.
+For every later phase, use the validated canonical Requirements bytes or the
+Design completion receipt as cycle identity. Do not refetch, retype, copy from
+Goal prose, or accept a caller-supplied cycle title. Do not supply or construct
+a workspace candidate outside the validator.
 
-For an Intent / Requirements Goal:
+For Requirements:
 
-- Select each direct rule-map node from Issue evidence and an exact
-  `applies_to` field/value match. The normalized `match.value` must occur in the
-  Issue evidence; translation, aliases, and `reason` are not evidence. Record
-  the evidence, match, and reason. Select at least one direct node; an empty
-  `direct_rules` array is never a valid fallback.
-- Add the complete transitive dependency closure through declared `depends_on`
-  edges. Each non-direct dependency appears once and names a selected `via`
-  node with a declared edge.
-- Do not select implementation, test, fixture, mock, or app policies because a
-  surface appears in conversation, the current diff, a previous artifact, or a
-  recently updated rule. Defer those policies to Design / Plan or Build /
-  Verify unless the Issue explicitly names that surface.
-- Do not turn an implementation policy into a product requirement, acceptance
-  criterion, or Q&A decision.
-- Include the exact `Requirements Input Gate` JSON block from the matching Goal
-  template. Before `create_goal`, validate it with the command defined in
-  `.agents/skills/aidd-cycle/SKILL.md`. The validator must receive the repository
-  root and reject any `--rule-map` other than the non-symlink canonical
-  `docs/harness/rule-map.json` path.
-- Treat a new-cycle `requirements.json` as a complete replacement for the current
-  Issue, not a document for only the new or changed Issue fragment. Resolve the
-  previous canonical Requirements from Git `HEAD`; do not let the Goal author
-  choose whether a baseline exists or which file is the baseline.
-- Include the exact `Requirements Completeness Gate` JSON block. Classify every
-  previous requirement item and required section as unchanged, changed, or
-  retired, and every added item as new. Changed and new entries require exact
-  current-Issue evidence. Retirement evidence must name the ID and explicitly
-  retire it without negating that decision. Each changed or new requirement's
-  exact Issue evidence must occur in that requirement definition and may not
-  map to another requirement. Include substantive definitions for
-  every resulting ID in `validation.requirements`. Require every canonical
-  section in generated `requirements.json` to use its own structured entry.
-  Each changed or new section's evidence must occur in that entry and
-  may not map to another section. Validate the proposed Goal with
-  the `--kind goal` command.
-- Preserve the exact validated Goal until artifact completion. Require the
-  artifact forms of both Requirements gates to equal the corresponding parsed
-  Goal Gate objects; independent validity is not sufficient.
-- Treat validator string presence as a structural gate only. Stop when the Issue
-  evidence does not unambiguously justify its specific changed, new, or retired
-  item or section.
+- fetch the latest Issue title and snapshot the latest body; the body is the
+  only Task Context and the exact title is the Requirements-owned typed cycle
+  identity and workspace derivation input;
+- select direct rule-map nodes from Issue-supported classifications, then add
+  their declared dependency closure;
+- resolve the Git `HEAD` Requirements baseline and classify every baseline and
+  current requirement/section transition;
+- create and validate a temporary `requirements_goal` JSON before setting the
+  Goal.
 
-If user oversight changes intent, scope, constraints, or success criteria,
-stop before creating the Goal until the target Issue body is updated and
-refetched. Oversight may clarify execution or trigger a Stop without becoming
-an unrecorded Requirements input.
+For Design:
 
-## Generated Artifact Completeness
+- require the canonical Requirements artifact gates to pass again;
+- derive the cycle-start title only from the validated canonical Requirements
+  source and bind Design to those Requirements bytes by path and SHA-256;
+- cover every current requirement ID and every Git `HEAD` Design baseline
+  section;
+- define every added, changed, or removed user operation and state transition
+  as a typed product behavior record with one canonical `requirement_id` and one
+  design evidence block owned by the same Requirement ID. Requirement content
+  remains only in canonical `requirements.json`. Selected rules constrain the
+  Requirement and Design but cannot replace a missing Requirement binding;
+- create and validate a temporary `design_goal` JSON before setting the Goal.
 
-The Requirements continuity gate and Design coverage gate are phase-specific
-enforcement of one invariant: every regenerated canonical document is a
-complete replacement for its current upstream input. Deltas describe change;
-they do not define Goal or artifact scope.
+For Build:
 
-### Design / Plan Coverage
+- obtain the canonical Design completion receipt path and SHA-256 from the
+  preceding Design Goal completion evidence;
+- fetch the current Issue snapshot and run the Build Entry gate against that
+  receipt;
+- record the verified receipt path, unchanged SHA-256, and its complete
+  artifact and selected-rule identity in the Build Goal.
+- take the cycle-start title only from the verified receipt; the Build entry
+  command has no title input.
 
-For a Design / Plan Goal:
+Typed IDs and references define ownership. Reject missing records, invalid
+owners, broken dependency edges, stale hashes, incomplete inventories, and any
+schema-v2 text or evidence condition reported by the phase validators.
 
-- Require the current canonical workspace `requirements.json` to have passed both
-  Requirements artifact gates. Reject a caller-supplied copy, temporary path,
-  or symlink alias; do not construct Design from a locally narrowed upstream
-  artifact.
-- Treat the complete current `requirements.json` as the Goal scope. A requirement
-  added in the current cycle is a delta to integrate, not permission to design
-  only that requirement.
-- Calculate the Requirements SHA-256 and collect every stable `FR-*`, `NFR-*`,
-  and `AC-*` identifier. Include one separate substantive design and
-  verification scope entry for every ID in the template's Design Coverage
-  Gate. Each scope entry must contain only its target ID; grouped or
-  generic coverage is invalid.
-- Before `create_goal`, validate the Goal with the `--kind goal` command defined
-  in `.agents/skills/aidd-cycle/SKILL.md`.
-- Resolve the committed previous-cycle `design-doc.json` from the canonical workspace
-  path in Git `HEAD`, not from a caller-supplied file. Require every prior
-  structured section to have its own `section_id`- and heading-bearing
-  `validation.baseline_scopes` entry in the Goal JSON (`section_id: null` only
-  for legacy), then be classified as exact-content preserved or explicitly
-  replaced with identity-bound evidence in the new Design JSON. Preserved
-  entries do not require a baseline evidence reference; replaced entries do.
-- Require the output `design-doc.json` to resolve every identifier through design
-  and verification evidence in a unique entry that contains only that
-  identifier. Each ID gets its own entry; omission, grouping, and generic
-  shared evidence are invalid.
-- Stop when ID-bearing or heading-bearing evidence is structurally valid but
-  does not actually resolve that specific requirement or prior section.
+Requirements and Design Goal JSON must include the phase contract IDs defined
+by the workflow in its canonical order and with its canonical text. Add
+task-specific entries only after the required entries and give each a stable ID.
 
-Before setting a Build / Verify Goal, require the current `requirements.json`
-and `design-doc.json` to pass their artifact completeness commands and require
-renderer checks for `requirements.md` and `design-doc.md`. Do not treat
-existing files or completed phase Goals alone as evidence that the complete
-upstream inputs remain covered.
+## Set and Return
 
-Do not edit repository files or create a git diff while preparing the Goal.
+Keep the complete Goal text at most 3800 characters. Preserve objective, scope,
+constraints, inputs, Done, Verification, and Stop before compressing optional
+context.
 
-## Goal Budget
+Call `create_goal` once. Do not set `token_budget` unless the user explicitly
+requested one. On success, return a concise confirmation naming the phase and
+target; in orchestrated use, return control to `aidd-cycle`.
 
-The complete Goal text must be at most 3800 characters. Draft below 3400
-characters when practical and measure the exact character count before setting
-or returning it. Compress discovery notes and repeated wording before removing
-phase, target, scope, constraints, required inputs, Done, Verification, or Stop
-content.
+If `create_goal` is unavailable or the user explicitly requests text only,
+return one ready-to-set Goal and do not claim it was set.
 
-## Tool Fallback and Output
-
-When `create_goal` succeeds, return only a concise confirmation naming the phase
-and main target. In orchestrated use, return that control directly to
-`aidd-cycle` instead of ending the overall invocation.
-
-If Goal tools are unavailable, or the user explicitly requests a draft or text
-only, return one ready-to-set rendered Goal objective for Codex Goal
-(human-facing Markdown, not a phase validator input) and do not claim that it
-was set.
-
-## Stop
-
-Stop before producing a Goal when the canonical workflow cannot determine the
-phase, required upstream inputs are missing, the target Issue, PR, branch, or
-workspace is ambiguous, workspace identity validation fails, the latest Issue
-body cannot be fetched, the
-Requirements Input Gate fails, a user constraint would be ignored, the
-Requirements Completeness Gate fails, the selected rule-map subgraph is
-unresolved, the Design Coverage Gate fails, or the Goal cannot fit the character
-budget without losing required execution context.
+Stop before setting when phase identity is unresolved, a required upstream
+phase is not confirmed complete, the Issue or workspace is ambiguous, a
+required phase entry gate fails, the rule subgraph is unresolved, a user
+constraint conflicts with the phase contract, or the Goal cannot fit without
+losing required context.

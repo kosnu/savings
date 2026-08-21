@@ -33,12 +33,20 @@ from validate_requirements_continuity import (
 )
 from validate_requirements_goal import (
     ValidationError as RequirementsInputError,
+    validate_rule_map,
     validate as validate_requirements_input,
 )
 
 
 class ValidationError(ValueError):
     pass
+
+
+class _UnsetBaseline:
+    pass
+
+
+UNSET_BASELINE = _UnsetBaseline()
 
 
 SUBSTANTIVE_TEXT_MIN_LENGTH = 8
@@ -52,6 +60,12 @@ def require_string(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{label} must be a non-empty string")
     return value.strip()
+
+
+def require_exact_string(value: Any, label: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValidationError(f"{label} must be a non-empty string")
+    return value
 
 
 def require_canonical_input(
@@ -397,6 +411,75 @@ def validate_coverage(
         raise ValidationError("coverage evidence block references must be unique")
 
 
+def selected_rule_ids(requirements_source: dict[str, Any]) -> list[str]:
+    input_gate = requirements_source["validation"]["input_gate"]
+    return [
+        entry["id"]
+        for field in ("direct_rules", "depends_on")
+        for entry in input_gate[field]
+    ]
+
+
+def load_selected_rule_records(
+    repo_root: Path,
+    rule_map_bytes: bytes,
+    requirements_source: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    try:
+        rule_map = json.loads(rule_map_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValidationError(f"canonical rule-map is invalid: {error}") from error
+    try:
+        rules_by_id = validate_rule_map(rule_map)
+    except RequirementsInputError as error:
+        raise ValidationError(f"canonical rule-map is invalid: {error}") from error
+    records: dict[str, dict[str, Any]] = {}
+    for rule_id in selected_rule_ids(requirements_source):
+        rule = rules_by_id.get(rule_id)
+        if rule is None:
+            raise ValidationError(f"selected canonical rule is missing: {rule_id}")
+        relative_path = Path(require_string(rule.get("file"), f"{rule_id}.file"))
+        if relative_path.is_absolute() or ".." in relative_path.parts:
+            raise ValidationError(f"{rule_id}.file must be a repository-relative path")
+        rule_path = require_canonical_input(
+            repo_root,
+            repo_root / relative_path,
+            relative_path,
+            f"{rule_id} canonical rule",
+        )
+        rule_bytes = read_regular_file_bytes(rule_path)
+        try:
+            rule_text = rule_bytes.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise ValidationError(f"{rule_id} canonical rule must be UTF-8") from error
+        records[rule_id] = {
+            "id": rule_id,
+            "path": relative_path.as_posix(),
+            "sha256": hashlib.sha256(rule_bytes).hexdigest(),
+            "text": rule_text,
+        }
+    return records
+
+
+def validate_design_goal_contract(
+    source: dict[str, Any],
+    requirements_bytes: bytes,
+    ids: list[str],
+    baseline_sections: list[dict[str, Any]],
+) -> None:
+    manifest = extract_manifest(source)
+    validate_snapshot(
+        manifest,
+        requirements_bytes,
+        ids,
+        {"requirements_sha256", "workspace", "requirement_ids", "baseline"},
+    )
+    validate_scopes(source["validation"].get("scopes"), ids)
+    validate_baseline_scopes(
+        source["validation"].get("baseline_scopes"), baseline_sections
+    )
+
+
 def validate_baseline_sections(
     transitions: Any,
     baseline_sections: list[dict[str, Any]],
@@ -483,15 +566,36 @@ def validate(
     document_kind: str,
     repo_root: Path,
     workspace: str,
+    goal_document_path: Path | None = None,
+    require_goal_document: bool = True,
+    requirements_document_bytes: bytes | None = None,
+    design_document_bytes: bytes | None = None,
+    goal_document_bytes: bytes | None = None,
+    issue_body_bytes: bytes | None = None,
+    rule_map_bytes: bytes | None = None,
+    requirements_baseline_bytes: bytes | None | _UnsetBaseline = UNSET_BASELINE,
+    design_baseline_bytes: bytes | None | _UnsetBaseline = UNSET_BASELINE,
 ) -> None:
-    validate_workspace_identity(repo_root, issue, workspace)
     require_canonical_input(
         repo_root,
         requirements_path,
         canonical_source_path(Path(), workspace, "requirements"),
         "Design coverage Requirements source",
     )
-    requirements_bytes = read_regular_file_bytes(requirements_path)
+    canonical_requirements_bytes = read_regular_file_bytes(requirements_path)
+    if (
+        requirements_document_bytes is not None
+        and requirements_document_bytes != canonical_requirements_bytes
+    ):
+        raise ValidationError(
+            "provided Requirements snapshot bytes do not match the canonical "
+            "Requirements source"
+        )
+    requirements_bytes = (
+        requirements_document_bytes
+        if requirements_document_bytes is not None
+        else canonical_requirements_bytes
+    )
     try:
         requirements_source = load_source_bytes(requirements_bytes, "requirements")
     except SourceError as error:
@@ -502,17 +606,30 @@ def validate(
         raise ValidationError("Requirements source workspace does not match")
     if requirements_source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
-    issue_body_bytes = read_regular_file_bytes(issue_body_path)
+    cycle_start_issue_title = require_exact_string(
+        requirements_source["validation"].get("cycle_start_issue_title"),
+        "Requirements cycle_start_issue_title",
+    )
+    validate_workspace_identity(
+        repo_root,
+        issue,
+        workspace,
+        cycle_start_issue_title,
+    )
+    if issue_body_bytes is None:
+        issue_body_bytes = read_regular_file_bytes(issue_body_path)
     canonical_rule_map_path = require_canonical_input(
         repo_root, rule_map_path, Path("docs/harness/rule-map.json"), "rule-map"
     )
-    rule_map_bytes = read_regular_file_bytes(canonical_rule_map_path)
+    if rule_map_bytes is None:
+        rule_map_bytes = read_regular_file_bytes(canonical_rule_map_path)
     try:
         validate_requirements_input(
             issue_body_path,
             requirements_path,
             rule_map_path,
             issue,
+            cycle_start_issue_title,
             issue_url,
             issue_updated_at,
             "artifact",
@@ -522,8 +639,14 @@ def validate(
             issue_body_bytes=issue_body_bytes,
             rule_map_bytes=rule_map_bytes,
         )
+        continuity_baseline = (
+            {}
+            if isinstance(requirements_baseline_bytes, _UnsetBaseline)
+            else {"baseline_document_bytes": requirements_baseline_bytes}
+        )
         validate_requirements_continuity(
             issue,
+            cycle_start_issue_title,
             issue_body_path,
             requirements_path,
             "artifact",
@@ -532,13 +655,13 @@ def validate(
             require_goal_document=False,
             document_bytes=requirements_bytes,
             issue_body_bytes=issue_body_bytes,
+            **continuity_baseline,
         )
     except (RequirementsInputError, RequirementsContinuityError) as error:
         raise ValidationError(
             f"Requirements artifact gate revalidation failed: {error}"
         ) from error
     ids = requirement_ids(requirements_source)
-
     try:
         if document_kind == "artifact":
             require_canonical_input(
@@ -547,9 +670,17 @@ def validate(
                 canonical_source_path(Path(), workspace, "design"),
                 "Design source",
             )
-            source = load_source(document_path, "design")
+            source = (
+                load_source_bytes(design_document_bytes, "design")
+                if design_document_bytes is not None
+                else load_source(document_path, "design")
+            )
         elif document_kind == "goal":
-            source = load_source(document_path, "design_goal")
+            source = (
+                load_source_bytes(design_document_bytes, "design_goal")
+                if design_document_bytes is not None
+                else load_source(document_path, "design_goal")
+            )
         else:
             raise ValidationError("document kind must be goal or artifact")
     except SourceError as error:
@@ -561,19 +692,19 @@ def validate(
     manifest = extract_manifest(source)
     if manifest.get("workspace") != workspace:
         raise ValidationError("manifest workspace does not match")
-    _, baseline_bytes = load_git_head_source(repo_root, workspace, "design")
+    if isinstance(design_baseline_bytes, _UnsetBaseline):
+        _, baseline_bytes = load_git_head_source(repo_root, workspace, "design")
+    else:
+        baseline_bytes = design_baseline_bytes
     baseline_sections = validate_baseline(manifest.get("baseline"), baseline_bytes)
-
     if document_kind == "goal":
-        validate_snapshot(
-            manifest,
+        if goal_document_path is not None:
+            raise ValidationError("--goal-document is only valid for artifact validation")
+        validate_design_goal_contract(
+            source,
             requirements_bytes,
             ids,
-            {"requirements_sha256", "workspace", "requirement_ids", "baseline"},
-        )
-        validate_scopes(source["validation"].get("scopes"), ids)
-        validate_baseline_scopes(
-            source["validation"].get("baseline_scopes"), baseline_sections
+            baseline_sections,
         )
         return
 
@@ -590,6 +721,38 @@ def validate(
             "baseline_sections",
         },
     )
+    if require_goal_document and goal_document_path is None:
+        raise ValidationError("artifact validation requires --goal-document")
+    if not require_goal_document and goal_document_path is not None:
+        raise ValidationError(
+            "goal document must be omitted when validating the receipt handoff"
+        )
+    if goal_document_path is not None:
+        try:
+            goal_source = (
+                load_source_bytes(goal_document_bytes, "design_goal")
+                if goal_document_bytes is not None
+                else load_source(goal_document_path, "design_goal")
+            )
+        except SourceError as error:
+            raise ValidationError(
+                f"Design Goal source validation failed: {error}"
+            ) from error
+        if goal_source["workspace"] != workspace:
+            raise ValidationError("Design Goal source workspace does not match")
+        validate_design_goal_contract(
+            goal_source,
+            requirements_bytes,
+            ids,
+            baseline_sections,
+        )
+        if (
+            source["validation"]["product_behaviors"]
+            != goal_source["validation"]["product_behaviors"]
+        ):
+            raise ValidationError(
+                "Design artifact product_behaviors must match the retained Design Goal"
+            )
     current_sections = design_sections(source)
     blocks = evidence_blocks(source)
     validate_coverage(manifest.get("coverage"), ids, blocks)
@@ -610,6 +773,7 @@ def main() -> int:
     parser.add_argument("--kind", required=True, choices=("goal", "artifact"))
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--workspace", required=True)
+    parser.add_argument("--goal-document", type=Path)
     args = parser.parse_args()
     try:
         validate(
@@ -623,6 +787,7 @@ def main() -> int:
             args.kind,
             args.repo_root,
             args.workspace,
+            args.goal_document,
         )
     except (
         OSError,

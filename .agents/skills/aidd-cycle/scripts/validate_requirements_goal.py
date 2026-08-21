@@ -59,6 +59,12 @@ def require_string(value: Any, label: str) -> str:
     return value.strip()
 
 
+def require_exact_string(value: Any, label: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValidationError(f"{label} must be a non-empty string")
+    return value
+
+
 def require_canonical_input(
     repo_root: Path,
     supplied_path: Path,
@@ -334,6 +340,7 @@ def validate(
     document_path: Path,
     rule_map_path: Path,
     issue: str,
+    issue_title: str,
     issue_url: str,
     issue_updated_at: str,
     document_kind: str,
@@ -372,6 +379,14 @@ def validate(
         raise ValidationError("document kind must be goal or artifact")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
+    cycle_start_issue_title = require_exact_string(
+        source["validation"].get("cycle_start_issue_title"),
+        "validation.cycle_start_issue_title",
+    )
+    if cycle_start_issue_title != require_exact_string(issue_title, "issue title"):
+        raise ValidationError(
+            "validation.cycle_start_issue_title does not match the fetched Issue title"
+        )
     if issue_body_bytes is None:
         issue_body_bytes = read_regular_file_bytes(issue_body_path)
     issue_body = issue_body_bytes.decode("utf-8")
@@ -421,6 +436,13 @@ def validate(
     if goal_source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
     goal_manifest = extract_manifest(goal_source)
+    if (
+        goal_source["validation"]["cycle_start_issue_title"]
+        != cycle_start_issue_title
+    ):
+        raise ValidationError(
+            "artifact cycle_start_issue_title does not match the retained Goal"
+        )
     if manifest != goal_manifest:
         raise ValidationError(
             "artifact Requirements Input Gate does not match the Goal"
@@ -430,6 +452,7 @@ def validate(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--issue", required=True)
+    parser.add_argument("--issue-title", required=True)
     parser.add_argument("--issue-url", required=True)
     parser.add_argument("--issue-updated-at", required=True)
     parser.add_argument("--issue-body", required=True, type=Path)
@@ -446,6 +469,7 @@ def main() -> int:
             args.document,
             args.rule_map,
             args.issue,
+            args.issue_title,
             args.issue_url,
             args.issue_updated_at,
             args.kind,

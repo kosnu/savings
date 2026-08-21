@@ -33,6 +33,13 @@ class ValidationError(ValueError):
     pass
 
 
+class _UnsetBaseline:
+    pass
+
+
+UNSET_BASELINE = _UnsetBaseline()
+
+
 @dataclass(frozen=True)
 class StructuredRequirement:
     section_id: str | None
@@ -146,6 +153,12 @@ def require_string(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{label} must be a non-empty string")
     return value.strip()
+
+
+def require_exact_string(value: Any, label: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValidationError(f"{label} must be a non-empty string")
+    return value
 
 
 def is_requirement_id(value: str) -> bool:
@@ -623,6 +636,7 @@ def validate_retired(
 
 def validate(
     issue: str,
+    issue_title: str,
     issue_body_path: Path,
     document_path: Path,
     document_kind: str,
@@ -632,6 +646,7 @@ def validate(
     require_goal_document: bool = True,
     document_bytes: bytes | None = None,
     issue_body_bytes: bytes | None = None,
+    baseline_document_bytes: bytes | None | _UnsetBaseline = UNSET_BASELINE,
 ) -> None:
     if document_kind == "goal" and goal_document_path is not None:
         raise ValidationError("--goal-document is only valid for artifact validation")
@@ -647,7 +662,6 @@ def validate(
         and goal_document_path.resolve() == document_path.resolve()
     ):
         raise ValidationError("--goal-document must be distinct from the artifact")
-    validate_workspace_identity(repo_root, issue, workspace)
     if document_kind == "artifact":
         require_canonical_input(
             repo_root,
@@ -672,14 +686,31 @@ def validate(
         raise ValidationError("source workspace does not match --workspace")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
+    cycle_start_issue_title = require_exact_string(
+        source["validation"].get("cycle_start_issue_title"),
+        "validation.cycle_start_issue_title",
+    )
+    if cycle_start_issue_title != require_exact_string(issue_title, "issue title"):
+        raise ValidationError(
+            "validation.cycle_start_issue_title does not match the fetched Issue title"
+        )
+    validate_workspace_identity(
+        repo_root,
+        issue,
+        workspace,
+        cycle_start_issue_title,
+    )
     if issue_body_bytes is None:
         issue_body_bytes = read_regular_file_bytes(issue_body_path)
     issue_body = issue_body_bytes.decode("utf-8")
-    _, baseline_bytes = load_git_head_source(
-        repo_root,
-        workspace,
-        "requirements",
-    )
+    if isinstance(baseline_document_bytes, _UnsetBaseline):
+        _, baseline_bytes = load_git_head_source(
+            repo_root,
+            workspace,
+            "requirements",
+        )
+    else:
+        baseline_bytes = baseline_document_bytes
     manifest = extract_manifest(source)
 
     if manifest.get("workspace") != workspace:
@@ -781,6 +812,13 @@ def validate(
     if goal_source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
     goal_manifest = extract_manifest(goal_source)
+    if (
+        goal_source["validation"]["cycle_start_issue_title"]
+        != cycle_start_issue_title
+    ):
+        raise ValidationError(
+            "artifact cycle_start_issue_title does not match the retained Goal"
+        )
     if manifest != goal_manifest:
         raise ValidationError(
             "artifact Requirements Completeness Gate does not match the Goal"
@@ -790,6 +828,7 @@ def validate(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--issue", required=True)
+    parser.add_argument("--issue-title", required=True)
     parser.add_argument("--issue-body", required=True, type=Path)
     parser.add_argument("--document", required=True, type=Path)
     parser.add_argument("--kind", required=True, choices=("goal", "artifact"))
@@ -801,6 +840,7 @@ def main() -> int:
     try:
         validate(
             args.issue,
+            args.issue_title,
             args.issue_body,
             args.document,
             args.kind,

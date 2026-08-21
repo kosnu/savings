@@ -97,6 +97,10 @@ def render_gate(heading: str, value: Any) -> str:
     return f"## {heading}\n\n```json\n{compact_json(value)}\n```"
 
 
+def render_json_value(heading: str, value: Any) -> str:
+    return f"## {heading}\n\n```json\n{compact_json(value)}\n```"
+
+
 def render_rule_selection(input_gate: Any) -> str:
     if not isinstance(input_gate, dict):
         raise SourceError("validation.input_gate must be an object")
@@ -230,6 +234,9 @@ def render_goal_objective(source: dict[str, Any]) -> str:
     if kind == "requirements_goal":
         blocks.extend(
             [
+                "## Cycle Identity\n\n"
+                "- Cycle-start Issue title: "
+                + render_plain_text(validation["cycle_start_issue_title"]),
                 render_gate("Requirements Input Gate", validation["input_gate"]),
                 render_gate(
                     "Requirements Completeness Gate",
@@ -244,6 +251,11 @@ def render_goal_objective(source: dict[str, Any]) -> str:
         )
     else:
         blocks.append(render_gate("Design Coverage Gate", validation["coverage_gate"]))
+        blocks.append(
+            render_json_value(
+                "Product Behavior Scope", validation["product_behaviors"]
+            )
+        )
         scope_lines: list[str] = []
         for entry in validation["scopes"]:
             requirement_id = entry["id"]
@@ -299,6 +311,9 @@ def render_artifact_markdown(source: dict[str, Any]) -> str:
     if kind == "requirements":
         blocks.extend(
             [
+                "## Cycle Identity\n\n"
+                "- Cycle-start Issue title: "
+                + render_plain_text(validation["cycle_start_issue_title"]),
                 render_gate("Requirements Input Gate", validation["input_gate"]),
                 render_gate(
                     "Requirements Completeness Gate",
@@ -314,6 +329,9 @@ def render_artifact_markdown(source: dict[str, Any]) -> str:
         blocks.extend(
             [
                 *render_v2_sections(validation["sections"]),
+                render_json_value(
+                    "Product Behavior Trace", validation["product_behaviors"]
+                ),
                 render_gate("Design Coverage Gate", validation["coverage_gate"]),
             ]
         )
@@ -372,6 +390,10 @@ def check_all(repo_root: Path) -> int:
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces"
     )
+    require_no_symlinks(repo_root, workspace_root, "AIDD workspace root")
+    if workspace_root.is_dir():
+        for workspace_path in sorted(workspace_root.iterdir()):
+            require_no_symlinks(repo_root, workspace_path, "AIDD workspace")
     source_filename_kinds = {
         SOURCE_FILENAMES[kind]: kind for kind in ARTIFACT_KINDS
     }

@@ -12,108 +12,28 @@ topics:
   - codex-goal
   - pull-request
   - delivery
-  - review
 when_to_read:
-  - Build / Verify済みの実装差分をPR化するとき
-  - 検証結果、残リスク、レビュー返信を提出用に整理するとき
+  - Ship Goalを構築するとき
 ---
 
 # Ship Goal
 
-```md
-# Ship Goal
+## Goalへ含める情報
 
-## Goal
+- 目的: Build / Verify済み成果を要求されたdelivery状態にする。
+- Cycle identity: Issue、workspace、branch、Requirements・DesignのhashとDesign completion receipt。cycle-start titleはRequirements所有値を参照し、Ship入力として再指定しない。
+- Build evidence: 現在diffに対応するverification結果。
+- Delivery target: commit、remote branch、base branch、PR、review threads。
+- Scope: 含めるdiff、除外するdiff、許可されたGitHub操作。
+- Rule selection: git workflow、PR、review、CIに関するpolicy。
+- Stop条件: target、authority、diff、CI、review stateの曖昧さ。
 
-Build / Verify済みの実装差分を、PR、説明、レビュー返信ができる状態に整える。
+## Done / Verification
 
-## Inputs
+- dependency-closedな対象diffだけがcommitされている。
+- 要求されたpushとopen PR作成または更新が完了している。
+- PR本文がIssue、変更内容、verification、残riskを正確に説明する。
+- 許可されたreview replyと、fully addressed threadのResolveが完了している。
+- 報告直前にGit、PR、CI、review thread状態を再取得している。
 
-- 実装ブランチ:
-- Requirements / PRD: canonical `requirements.json`と生成済み`requirements.md`
-- Design Doc: canonical `design-doc.json`と生成済み`design-doc.md`
-- 検証結果:
-- 関連Issue:
-- 関連PR:
-- 対応済みレビューコメント:
-- 関連ドキュメント:
-  - docs/harness/rule-map.json で選択したサブグラフ:
-
-## Scope
-
-- 対象ブランチ:
-- PR作成先:
-- PRに含める差分:
-- PRに含めない差分:
-- 更新してよいドキュメント:
-- 更新しない領域:
-
-## Rule Selection
-
-- Rule map: `docs/harness/rule-map.json`
-- 作業分類:
-  - path:
-  - domain:
-  - activity:
-  - topic:
-- Selected nodes: `id` -> `file`: reason
-- Depends-on nodes: `id` -> `file`: reason
-- Conflict decision: none / overrides / priority
-
-## Autonomy
-
-- AIは差分を確認してよい
-- AIは許可された提出範囲でstage、commit、push、PR作成・更新を行ってよい
-- AIはPR本文を作成してよい
-- AIは関連Issue、PRD、Design Doc、検証結果をPR本文に反映してよい
-- AIはPR本文、検証結果記載、レビュー返信、thread resolve判断に関わるShip範囲のレビューコメントへ返信してよい
-- AIは完全に完了したreview threadだけをresolveしてよい
-- AIは要件充足や仕様判断をShipで作り直してはいけない
-- AIは実装成果物へのレビュー指摘をShip内で修正してはいけない
-- AIはLearn skillに渡すべき知見をShip内でタスクコンテキストとして整理してはいけない
-- AIはユーザーから明示されていないmemory更新を行ってはいけない
-
-Ship Goalの完了は、以下のDoneとVerificationで判定する。定義外の観測結果は補足情報として報告する。
-
-## Done
-
-- [ ] PR本文に関連PRDがある
-- [ ] PR本文に関連Design Docがある
-- [ ] PR本文または残リスクに、必要な関連ドキュメントとの接続がある
-- [ ] 変更内容が要約されている
-- [ ] 受け入れ条件との対応が説明されている
-- [ ] 検証結果が書かれている
-- [ ] 未確認事項・残リスクが書かれている
-- [ ] 無関係な差分が含まれていない
-- [ ] AIDDフルサイクルでは対象差分がcommit済みである
-- [ ] AIDD JSON正本のvalidatorと生成Markdownのrenderer checkがBuild / Verify結果に含まれている
-- [ ] 対応済みレビューコメントに分類、対応内容、commit ID、検証結果が具体的に返信されている
-- [ ] 完了済みreview threadだけがresolveされている
-- [ ] PR本文、変更要約、レビュー返信、thread resolve判断が、選択したルール・ポリシーに違反していないことを確認している
-
-## Verification
-
-- 必ず実行:
-  - `git status --short`
-  - `git diff --stat`
-  - `git log main..HEAD --oneline`
-  - `git diff main..HEAD --stat`
-- 必要なら実行:
-  - `gh pr view <PR番号> --json number,title,body,baseRefName,headRefName,url,state,isDraft`
-  - `gh api graphql` によるreview thread状態確認
-  - PR作成前に指定されたアプリ検証コマンド
-  - Markdown lintやドキュメント生成コマンド
-  - `python3 .agents/skills/aidd-cycle/scripts/render_aidd_artifact.py --repo-root <repo-root> --check-all`
-
-## Stop
-
-- 未解決の仕様判断が残っている
-- 検証が未完了
-- 差分にスコープ外変更が混じっている
-- PR作成先、対象ブランチ、関連Issueが曖昧
-- レビューコメントの対応が現在の差分やcommitに明確に紐づかない
-- 実装成果物へのレビュー指摘をShip内で修正する必要がある
-- review threadをresolveすると未解決の追従作業や確認事項を隠すおそれがある
-- Learnで扱うべき知見をShip内で初期Input化する必要がある
-- Ship成果物やレビュー返信が選択したルール・ポリシーに違反している、または違反の可能性がある
-```
+ShipはBuild成果を公開可能な形へ整える工程です。実装変更が必要になった場合、古いBuild verificationを流用せず停止します。LearnはShip完了後にユーザーが別途実行します。
