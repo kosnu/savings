@@ -1,0 +1,57 @@
+import { HttpResponse, http } from "msw"
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
+
+import { createProfileHandlers } from "../../../test/msw/handlers/profile"
+import { server } from "../../../test/msw/server"
+import { supabaseTestClient } from "../../../test/utils/createSupabaseTestClient"
+import { updateLanguage } from "./updateLanguage"
+
+vi.mock("../../../lib/supabase", () => ({
+  getSupabaseClient: () => supabaseTestClient,
+}))
+
+describe("updateLanguage", () => {
+  beforeEach(() => {
+    server.resetHandlers(...createProfileHandlers())
+  })
+
+  it("現在ユーザーのlanguageだけを更新する", async () => {
+    let requestUrl: URL | undefined
+    let requestBody: unknown
+
+    server.use(
+      http.patch("*/rest/v1/users*", async ({ request }) => {
+        requestUrl = new URL(request.url)
+        requestBody = await request.json()
+        return HttpResponse.json({ auth_user_id: "mock-user-id" })
+      }),
+    )
+
+    await updateLanguage({ authUserId: "mock-user-id", language: "ja" })
+
+    expect(requestUrl?.searchParams.get("auth_user_id")).toBe("eq.mock-user-id")
+    expect(requestBody).toEqual({ language: "ja" })
+  })
+
+  it("Supabaseがエラーを返した場合にthrowする", async () => {
+    server.resetHandlers(
+      ...createProfileHandlers({
+        update: { error: true, errorResponse: { message: "Failed to save language." } },
+      }),
+    )
+
+    await expect(updateLanguage({ authUserId: "mock-user-id", language: "ja" })).rejects.toThrow(
+      "Failed to save language.",
+    )
+  })
+
+  it("更新対象が0件なら成功扱いにしない", async () => {
+    server.use(
+      http.patch("*/rest/v1/users*", () => {
+        return HttpResponse.json([])
+      }),
+    )
+
+    await expect(updateLanguage({ authUserId: "mock-user-id", language: "ja" })).rejects.toThrow()
+  })
+})

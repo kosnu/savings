@@ -2,6 +2,8 @@ import { composeStories } from "@storybook/react-vite"
 import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test"
 
 import { i18next } from "../../../../i18n"
+import { createProfileHandlers } from "../../../../test/msw/handlers/profile"
+import { server } from "../../../../test/msw/server"
 import { render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./AppearanceSettings.stories"
 
@@ -43,5 +45,22 @@ describe("AppearanceSettings", () => {
     expect(screen.getByRole("combobox", { name: "言語" })).toHaveTextContent("日本語")
     expect(screen.getByRole("combobox", { name: "テーマ" })).toHaveTextContent("ダーク")
     expect(window.localStorage.getItem("appLanguage")).toBe("ja")
+  })
+
+  test("アカウント保存に失敗した場合は変更前の言語へ戻す", async () => {
+    server.resetHandlers(
+      ...createProfileHandlers({
+        update: { error: true, errorResponse: { message: "Failed to save language." } },
+      }),
+    )
+    const { user } = render(<Default />)
+
+    await user.click(screen.getByRole("combobox", { name: "Language" }))
+    await user.click(await screen.findByRole("option", { name: "Japanese" }))
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("English")
+      expect(window.localStorage.getItem("appLanguage")).toBe("en")
+    })
   })
 })

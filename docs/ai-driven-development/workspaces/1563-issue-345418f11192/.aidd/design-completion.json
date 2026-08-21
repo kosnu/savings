@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "design_completion",
+  "issue": {
+    "id": "kosnu/savings#1563",
+    "title": "言語設定をアカウントに保存して端末間で同期する",
+    "url": "https://github.com/kosnu/savings/issues/1563",
+    "updated_at": "2026-08-01T15:52:57Z",
+    "body_sha256": "7cff29ec2a1a443569aebc540d93b761214dd5d7fcd627e3e4babd3f5cb95e9c"
+  },
+  "workspace": "1563-issue-345418f11192",
+  "design_goal_sha256": "45deaf7e22703d3e82c337335b5544be574161f5a72c41cfb1dd7e02f08599ab",
+  "rule_map": {
+    "path": "docs/harness/rule-map.json",
+    "sha256": "e2b4aaee40567d2ba88d730bec170aa36f62b26d94038484c515c6ec2379395c"
+  },
+  "selected_rules": [
+    {
+      "id": "domain.user",
+      "path": "docs/harness/domain/user.md",
+      "sha256": "6a61239d096b4e2f06989606f6563e477769403d2c39aa40e7c371e55e58db47"
+    }
+  ],
+  "artifacts": {
+    "requirements": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
+        "sha256": "c43d7a9a1ee41753fe5bf51ad7653f6bd8e95ebd6214c0dd669a8c1ced2b879f"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
+        "sha256": "e4c755f74fa2ec09820bff130fb4050e46157b97c60aed1a4cf651fc4b4b5d11"
+      }
+    },
+    "design": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
+        "sha256": "bee7992f0e2faf6060cc57c1425a34d534c53107620c360e4c1727041820f05a"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
+        "sha256": "88fd074aa2211f54bbfc6ebfbae956bf05532b6fb1d6aaf4816219e27bc3b37a"
+      }
+    }
+  }
+}

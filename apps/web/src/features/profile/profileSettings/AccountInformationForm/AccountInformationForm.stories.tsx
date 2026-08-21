@@ -9,6 +9,7 @@ import { AccountInformationForm } from "./AccountInformationForm"
 const defaultProfile = {
   name: "Test User",
   email: "test@example.com",
+  language: null,
 }
 
 const meta = {

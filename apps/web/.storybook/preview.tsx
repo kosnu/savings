@@ -9,6 +9,7 @@ import { SupabaseSessionContext } from "../src/providers/supabase/SupabaseSessio
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 import { mockSession } from "../src/test/data/supabaseSession"
 import { authHandlers } from "../src/test/msw/handlers/auth"
+import { profileHandlers } from "../src/test/msw/handlers/profile"
 
 import "../src/assets/global.css"
 import "../src/i18n"
@@ -22,7 +23,7 @@ const preview: Preview = {
       },
     },
     msw: {
-      handlers: authHandlers,
+      handlers: [...authHandlers, ...profileHandlers],
     },
   },
   loaders: [

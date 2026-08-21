@@ -1,7 +1,7 @@
 import { getSupabaseClient } from "../../../lib/supabase"
 import { profileResponseSchema, type Profile } from "./profileSchema"
 
-const profileColumns = "name, email"
+const profileColumns = "name, email, language"
 
 export async function fetchProfile(authUserId: string): Promise<Profile> {
   const supabase = getSupabaseClient()

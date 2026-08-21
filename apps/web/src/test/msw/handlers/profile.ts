@@ -6,10 +6,15 @@ const USERS_REST_URL = "*/rest/v1/users*"
 export interface ProfileResponse {
   name: string
   email: string
+  language: "en" | "ja" | null
+}
+
+type ProfileResponseInput = Omit<ProfileResponse, "language"> & {
+  language?: ProfileResponse["language"]
 }
 
 interface ProfileGetOptions {
-  response?: ProfileResponse
+  response?: ProfileResponseInput
   error?: boolean
   errorOnce?: boolean
   durationOrMode?: number | DelayMode | undefined
@@ -21,7 +26,12 @@ interface ProfileUpdateOptions {
   durationOrMode?: number | DelayMode | undefined
 }
 
-const profileBodySchema = z.object({ name: z.string() })
+const profileBodySchema = z
+  .object({
+    name: z.string().optional(),
+    language: z.enum(["en", "ja"]).optional(),
+  })
+  .strict()
 
 export function createProfileHandlers({
   get = {},
@@ -30,9 +40,11 @@ export function createProfileHandlers({
   get?: ProfileGetOptions
   update?: ProfileUpdateOptions
 } = {}) {
-  let profile: ProfileResponse = get.response ?? {
+  let profile: ProfileResponse = {
     name: "Test User",
     email: "test@example.com",
+    language: null,
+    ...get.response,
   }
   let hasErrored = false
 
@@ -58,7 +70,7 @@ export function createProfileHandlers({
       }
 
       const body = profileBodySchema.parse(await request.json())
-      profile = { ...profile, name: body.name }
+      profile = { ...profile, ...body }
 
       return HttpResponse.json({ auth_user_id: "mock-user-id" })
     }),

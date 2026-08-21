@@ -15,16 +15,17 @@ describe("fetchProfile", () => {
     server.resetHandlers(...createProfileHandlers())
   })
 
-  it("現在ユーザーの表示名とemailを取得する", async () => {
+  it("現在ユーザーの表示名、email、言語を取得する", async () => {
     server.resetHandlers(
       ...createProfileHandlers({
-        get: { response: { name: "Taro", email: "taro@example.com" } },
+        get: { response: { name: "Taro", email: "taro@example.com", language: "ja" } },
       }),
     )
 
     await expect(fetchProfile("mock-user-id")).resolves.toEqual({
       name: "Taro",
       email: "taro@example.com",
+      language: "ja",
     })
   })
 
@@ -34,14 +35,14 @@ describe("fetchProfile", () => {
     server.use(
       http.get("*/rest/v1/users*", ({ request }) => {
         requestUrl = new URL(request.url)
-        return HttpResponse.json({ name: "Taro", email: "taro@example.com" })
+        return HttpResponse.json({ name: "Taro", email: "taro@example.com", language: null })
       }),
     )
 
     await fetchProfile("mock-user-id")
 
     expect(requestUrl?.searchParams.get("auth_user_id")).toBe("eq.mock-user-id")
-    expect(requestUrl?.searchParams.get("select")).toBe("name,email")
+    expect(requestUrl?.searchParams.get("select")).toBe("name,email,language")
   })
 
   it("Supabaseがエラーを返した場合にthrowする", async () => {
@@ -53,7 +54,7 @@ describe("fetchProfile", () => {
   it("レスポンスshapeが不正ならエラーにする", async () => {
     server.use(
       http.get("*/rest/v1/users*", () => {
-        return HttpResponse.json({ name: "Taro", email: "invalid-email" })
+        return HttpResponse.json({ name: "Taro", email: "invalid-email", language: null })
       }),
     )
 
