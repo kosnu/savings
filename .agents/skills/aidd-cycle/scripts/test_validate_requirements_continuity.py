@@ -8,6 +8,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from artifact_source import serialize_source, structured_sha256
+from git_baseline import canonical_workspace_name
 from validate_requirements_continuity import (
     REQUIRED_REQUIREMENTS_SECTIONS,
     ValidationError,
@@ -23,7 +24,8 @@ from validate_requirements_continuity import (
 
 
 ISSUE = "owner/repo#1639"
-WORKSPACE = "1639-structured-data"
+ISSUE_TITLE = "Structured Data"
+WORKSPACE = canonical_workspace_name(ISSUE, ISSUE_TITLE)
 REQUIREMENTS = [
     ("FR-1", "JSONを検証正本として扱う。", "functional"),
     ("AC-1", "表示Markdownだけの変更は検証結果を変えない。", "acceptance"),
@@ -101,6 +103,7 @@ def source(
     active_requirements = requirements or REQUIREMENTS
     validation: dict[str, object] = {
         "mode": "managed",
+        "cycle_start_issue_title": ISSUE_TITLE,
         "input_gate": {
             "task_context": {
                 "source": "issue_body",
@@ -285,10 +288,19 @@ class RequirementsContinuityGateTest(unittest.TestCase):
         requirements: list[tuple[str, str, str]] | None = None,
         block_overrides: dict[str, list[dict[str, str]]] | None = None,
         heading_overrides: dict[str, str] | None = None,
+        issue_title: str = ISSUE_TITLE,
     ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
             initialize_repo(repo_root)
+            workspace_root = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
             issue_path = repo_root / "issue.md"
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
             active_gate = gate or completeness_gate()
@@ -307,15 +319,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                 document_path = goal_path
                 goal_document = None
             else:
-                document_path = (
-                    repo_root
-                    / "docs"
-                    / "ai-driven-development"
-                    / "workspaces"
-                    / WORKSPACE
-                    / "requirements.json"
-                )
-                document_path.parent.mkdir(parents=True)
+                document_path = workspace_root / "requirements.json"
                 document_path.write_text(
                     serialize_source(
                         source(
@@ -332,6 +336,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                 goal_document = goal_path
             validate(
                 ISSUE,
+                issue_title,
                 issue_path,
                 document_path,
                 kind,
@@ -345,6 +350,13 @@ class RequirementsContinuityGateTest(unittest.TestCase):
 
     def test_accepts_artifact_json_matching_goal(self) -> None:
         self.validate_source(kind="artifact")
+
+    def test_rejects_trim_equivalent_fetched_issue_title(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "fetched Issue title"):
+            self.validate_source(
+                kind="goal",
+                issue_title=f" {ISSUE_TITLE} ",
+            )
 
     def test_display_preamble_cannot_add_requirement_or_section(self) -> None:
         self.validate_source(
@@ -597,6 +609,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
             issue_path.write_text(ISSUE_BODY, encoding="utf-8")
             validate(
                 ISSUE,
+                ISSUE_TITLE,
                 issue_path,
                 artifact_path,
                 "artifact",
@@ -686,6 +699,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                     with self.assertRaisesRegex(ValidationError, expected_error):
                         validate(
                             ISSUE,
+                            ISSUE_TITLE,
                             issue_path,
                             goal_path,
                             "goal",
@@ -790,6 +804,7 @@ class RequirementsContinuityGateTest(unittest.TestCase):
                     with self.assertRaisesRegex(ValidationError, expected_error):
                         validate(
                             ISSUE,
+                            ISSUE_TITLE,
                             issue_path,
                             artifact_path,
                             "artifact",

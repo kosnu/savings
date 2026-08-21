@@ -27,6 +27,10 @@ when_to_read:
 - Cycle ID: `69f83938-0905-46a7-abad-0003607c057a`
 - Workspace: `1639-aidd-structured-data`
 
+## Cycle Identity
+
+- Cycle-start Issue title: AIDD成果物の正本を構造化データへ移行する
+
 ## Requirements Input Gate
 
 ```json

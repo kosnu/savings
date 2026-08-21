@@ -5,258 +5,117 @@ description: Run one complete repository AI Driven Development cycle in a single
 
 # AIDD Cycle
 
-## Purpose
+Run the repository AIDD workflow end to end. This skill owns cycle identity,
+phase transitions, and Goal execution. `goal-setting` owns construction of one
+phase Goal.
 
-Run one complete AIDD cycle in one invocation while keeping one active Codex
-Goal at a time. Use `goal-setting` to construct each phase Goal; this skill owns
-Goal execution and cycle control. Keep workflow phases in separate Goals.
-
-## Canonical Sources
-
-Read these before starting:
+## Read First
 
 - `docs/ai-driven-development/workflow.md`
 - `docs/ai-driven-development/issue-guidelines.md`
 - `.agents/skills/goal-setting/SKILL.md`
 - `docs/harness/rule-map.json`
+- `references/artifact-validation.md` when entering Requirements, Design, or Build
 
-`workflow.md` is the source of truth for phase order, phase responsibilities,
-artifact boundaries, phase completion, Stop conditions, and post-cycle handling.
-This skill only orchestrates that workflow and must not redefine it.
+The workflow is canonical. Do not add phase rules here or infer a phase from an
+artifact's mere existence.
 
-## Cycle Identity
+## Establish the Cycle
 
-Call `get_goal` when available before creating a Goal. Identify a cycle by a
-stable cycle ID, workspace, GitHub Issue, the SHA-256 of its latest body, and
-canonical artifact paths. Put that identity in every phase Goal's Context
-Packet.
+1. Call `get_goal` before `create_goal`.
+2. If an unfinished Goal belongs to another task, preserve it and stop.
+3. If an unfinished Goal belongs to this cycle, continue that Goal. A paused
+   Goal is user- or system-owned state; report it and wait for resume instead of
+   inventing a resume action.
+4. Otherwise fetch the latest Issue title, body, canonical URL, and `updatedAt`.
+   The exact body is the cycle's only Task Context; the title is workspace
+   identity input and is recorded once in the Requirements typed source.
+5. Resolve one workspace for the Issue with the workspace validator. Reuse its
+   sole existing result, or use the validator's deterministic Issue-title-derived
+   result when none exists; stop when more than one exists.
+6. Record the Issue identity, exact cycle-start title, body SHA-256, and
+   workspace in the Requirements Goal. Design identifies that cycle through
+   the validated canonical Requirements path and SHA-256. Build and Ship use
+   the Design completion receipt and its upstream hashes. Never retype or
+   accept another cycle title after Requirements.
 
-Apply the new-cycle and resume conditions from `workflow.md`. When a new cycle
-is permitted, fetch the latest Issue body, URL, and `updatedAt`, calculate the
-body SHA-256, allocate its cycle ID, and resolve the workspace before creating
-any Goal. An Issue has exactly one workspace: reuse the only existing directory
-whose name starts with its Issue number, or create `<number>-<short-title>` when
-none exists. Never create `v2`, `v3`, `version`, `revision`, `cycle`, `retry`, or
-`rerun` variants. If multiple directories already exist for the Issue, do not
-choose one implicitly; stop until they are consolidated. Validate the choice
-with:
+Conversation, review comments, current diffs, prior artifacts, and newly
+changed rules may explain execution or trigger a Stop, but cannot extend the
+Requirements Task Context. Prior canonical artifacts are continuity baselines,
+not additional requirements.
 
-`python3 .agents/skills/aidd-cycle/scripts/validate_workspace.py --repo-root <repo-root> --issue <owner/repo#number> --workspace <workspace>`
+## Run the State Machine
 
-Pass that Issue snapshot, the validated workspace, artifact references, and entry phase to
-`goal-setting`. The Issue body is the only AIDD Task Context; do not pass
-conversation, review, current diff, previous artifacts, or a recently changed
-rule as additional Task Context.
+For each phase in the workflow:
 
-Resume only when the same cycle identity and its active or last completed phase
-are clear. Goal completion evidence, not artifact existence alone, determines
-where execution continues. An unfinished Goal belonging to another task is a
-conflict and must not be replaced.
+1. Reconfirm the current Goal state and the preceding phase's completion
+   evidence.
+2. Apply the `goal-setting` construction procedure to set exactly the current
+   phase Goal. Before `create_goal`, that procedure runs the phase entry checks
+   from `references/artifact-validation.md`: Requirements and Design validate
+   their temporary Goal input; Build revalidates both canonical upstream
+   artifacts and generated displays against the current Issue snapshot and the
+   Design completion receipt.
+3. Execute only that Goal under its Context Packet and selected rule-map
+   subgraph.
+4. For Requirements and Design, retain the validated temporary Goal JSON and
+   run the artifact gates before completing the phase. After the Design gates
+   succeed, capture the canonical Design completion receipt and record its path
+   and SHA-256 in the phase completion evidence.
+5. For Build, immediately before completion, rerun the Build Entry gate with
+   the receipt path and SHA-256 recorded by Design and require it to print that
+   same SHA-256. Only after this phase-specific check and the objective, Done
+   conditions, and Verification are satisfied, call
+   `update_goal(status: complete)` and confirm the terminal state with
+   `get_goal` before advancing.
+6. While useful progress remains possible, keep the Goal active. Call
+   `update_goal(status: blocked)` only after the same blocking condition has
+   recurred for at least three consecutive Goal turns and no in-scope path can
+   make progress; confirm the terminal state and end the cycle invocation.
 
-An unfinished same-cycle Goal remains the current Goal. `aidd-cycle` owns its
-state transition: continue it when active and resume it through a callable Goal
-action when paused. If the required state transition is not callable, report
-that capability blocker and stop.
+Never have two phase Goals active at once. Never advance because files exist,
+tests happened to pass, or a phase draft was produced.
 
-## Generated Artifact Completeness
+## Artifact Boundary
 
-Every canonical JSON source regenerated by a new cycle is a complete replacement
-for its current upstream input. A cycle delta identifies what changed since the
-previous cycle; it never narrows the artifact or phase Goal scope. Previous
-artifacts may be used only as omission-detection or still-valid-design
-baselines, never as additional Requirements Task Context.
-
-`requirements.json` and `design-doc.json` are the only machine-validation sources.
-For managed artifacts, the renderer builds `requirements.md` and
-`design-doc.md` from structured sections and Gate fields; `display.preamble`
-supplies only the static preamble and is never the artifact body source. The
-Markdown files are human-readable outputs and are never parsed as artifact
-sources. Goal preparation also starts from validated `requirements_goal` or
-`design_goal` JSON; no Goal Markdown import path is supported. Use
-`migrate_aidd_artifacts.py --check` only to validate existing managed JSON
-sources against their generated Markdown. It does not import, rebuild, or
-validate historical artifact Markdown.
-For temporary Requirements and Design Goal JSON, the renderer must verify that
-the Goal objective retains the required Context Packet markers, substantive
-Goal and Context text, and the phase-specific stable contract IDs for
-constraints, Stop, and Done / Verification. Each contract entry contains `id`
-and the workflow's canonical `text`; missing, reordered, rewritten,
-placeholder, or non-substantive required entries are invalid. The renderer must
-exactly represent every structured Gate
-and scope before writing or printing it. The
-renderer adds the complete structured ID set as Validated Scope, so the
-generated Goal objective always carries the full validated scope.
-
-## Requirements Provenance And Completeness Gates
-
-Before creating an Intent / Requirements Goal:
-
-1. Confirm that the workspace identity validator succeeded for the fetched
-   Issue and fixed workspace. Save the exact fetched Issue body and proposed
-   Goal in temporary files. Keep
-   the fetched `owner/repo#number`, canonical URL, and `updatedAt` as separate
-   validator inputs. Do not supply or classify a baseline manually: the
-   continuity validator resolves the canonical workspace `requirements.json`
-   directly from Git `HEAD`.
-2. Create a temporary `requirements_goal` JSON source containing the template's
-   `Requirements Input Gate` and `Requirements Completeness Gate` objects.
-   Record only the Issue snapshot, Issue-evidenced direct rules, and declared
-   `depends_on` closure. Include at least one direct rule; an empty selection is
-   invalid. Every direct rule's `match.value` must occur in its
-   Issue evidence after normalization. The completeness block records the
-   Git baseline SHA-256 and every requirement item and required-section
-   `unchanged`, `changed`, `new`, or retired transition. The validator derives
-   the full baseline inventories from Git instead of trusting manifest lists. A
-   retirement is valid only when exact current-Issue evidence names the ID,
-   explicitly retires it, and does not negate retirement. Every changed or new
-   requirement must include its exact Issue evidence in that requirement's
-   substantive definition without reusing it for another requirement. Include
-   substantive definitions for every resulting requirement ID outside the gate
-   in the Goal.
-3. Run:
-
-   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <goal-file> --rule-map docs/harness/rule-map.json --repo-root <repo-root> --kind goal`
-
-   `python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
-
-4. Create the Goal only when validation succeeds. Retain the exact validated
-   Goal temporary file until Requirements artifact validation completes.
-
-The generated canonical `requirements.json` must contain both same gate
-objects. Render its human-readable `requirements.md` with
-`render_aidd_artifact.py`; do not hand-edit that output. Before
-completing the Requirements Goal, run the provenance validator again with the
-same Issue metadata inputs:
-
-`python3 .agents/skills/aidd-cycle/scripts/validate_requirements_goal.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --document <requirements-file> --rule-map docs/harness/rule-map.json --repo-root <repo-root> --kind artifact --goal-document <goal-file>`
-
-Run the continuity validator with the same Goal reference:
-
-`python3 .agents/skills/aidd-cycle/scripts/validate_requirements_continuity.py --issue <owner/repo#number> --issue-body <issue-body-file> --document <requirements-file> --kind artifact --repo-root <repo-root> --workspace <workspace> --goal-document <goal-file>`
-
-Both
-parsed Gate objects must exactly match their counterparts in the validated
-Goal. Remove the temporary Issue and Goal files only after both artifact gates
-and the final Issue snapshot check succeed.
-The artifact must use the canonical workspace JSON path, contain every required
-Requirements section as a separate structured entry, preserve unchanged
-requirement and section content. Each managed v2 section ID must map to exactly
-one explicitly allowed shared canonical heading alias, and section content
-hashes include the section heading, current requirement definitions, and typed
-blocks. Legacy inventory matching remains compatible with existing headings.
-The artifact must provide exact Issue evidence for every changed or new item.
-That evidence must
-occur in its target content; requirement evidence must not map to another
-requirement, and section evidence must not map to another canonical section.
-Then fetch the Issue again. Its
-identifier, URL, `updatedAt`, body, and body SHA-256 must still match the
-snapshot in the Goal and generated Requirements artifact. If validation fails
-or the Issue changed, stop and restart Requirements from the latest Issue body.
-Substring presence is necessary but not semantic proof: if the cited Issue text
-does not unambiguously justify that specific item or section transition, stop.
-
-## Design Coverage Gate
-
-Treat a new-cycle Design / Plan as a complete replacement derived from the
-current Requirements, never as a design for only the newly added delta.
-
-Before creating a Design / Plan Goal:
-
-1. Revalidate both Requirements artifact gates from the current Issue body,
-   canonical Issue metadata, and canonical rule map while reading the current
-   canonical workspace `requirements.json`. Reject any caller-supplied copy,
-   temporary path, or symlink alias. Read the complete artifact, calculate its
-   SHA-256, and collect every stable `FR-*`, `NFR-*`, and `AC-*` identifier.
-2. Create a temporary `design_goal` JSON source containing the template's
-   `Design Coverage Gate` object with
-   that hash, the complete canonical identifier list, and the Git `HEAD` Design
-   baseline SHA-256. Outside the gate, include one substantive design and
-   verification scope line per requirement ID in `validation.scopes` and one
-   review scope entry with `section_id` (or `null` when the historical section
-   has no stable ID), heading, and
-   scope text per Git baseline section in `validation.baseline_scopes`.
-   Each requirement scope line must contain only its
-   target requirement ID. Every Git baseline section also gets its own physical
-   review-scope line. Grouped coverage is invalid. A changed or
-   newly added requirement may be called out as the cycle delta, but it may not
-   narrow the Goal scope.
-3. Run:
-
-   `python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --rule-map <canonical-rule-map> --requirements <canonical-requirements-file> --document <goal-file> --kind goal --repo-root <repo-root> --workspace <workspace>`
-
-4. Create the Goal only when validation succeeds.
-
-The generated canonical `design-doc.json` must contain the artifact form of the
-same gate. Render its human-readable `design-doc.md` with
-`render_aidd_artifact.py`; do not hand-edit that output.
-Each current requirement ID must have its own `coverage` entry with substantive
-design and verification evidence that names only that requirement ID. Every Git `HEAD`
-Design section must be classified in order as exact-content `preserved` or
-explicitly `replaced` with new Design evidence in its own structured entry;
-`preserved` does not require baseline evidence, while `replaced` requires its
-own identity-bound baseline evidence. One entry cannot cover multiple baseline
-sections or name another distinct baseline heading. Before completing Design / Plan,
-run:
-
-`python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py --issue <owner/repo#number> --issue-url <canonical-issue-url> --issue-updated-at <updatedAt> --issue-body <issue-body-file> --rule-map <canonical-rule-map> --requirements <canonical-requirements-file> --document <design-file> --kind artifact --repo-root <repo-root> --workspace <workspace>`
-
-ID and heading presence is necessary but not semantic proof. Stop when an
-evidence line does not actually resolve its specific requirement or baseline
-section.
-
-When a committed previous-cycle Design Doc exists, it may be read as a baseline
-for still-valid design decisions. It does not extend Requirements and every
-carried-forward decision must be revalidated against the current Requirements,
-selected rules, and implementation context.
-
-## Execution
-
-Repeat until the canonical workflow reaches its final phase:
-
-1. Determine the current or next phase from `workflow.md` and verified Goal
-   state.
-2. Confirm that no unfinished unrelated Goal conflicts with the phase.
-3. Transition an unfinished same-cycle Goal as defined above. When no Goal
-   exists for the phase, follow the orchestrated-use procedure in `goal-setting`
-   to construct and set exactly one Goal. Keep cycle control in `aidd-cycle`,
-   outside the phase Goal. Apply both Requirements gates before creating or
-   completing an Intent / Requirements Goal and the Design Coverage Gate before
-   creating or completing a Design / Plan Goal.
-4. Execute only the active Goal under its Context Packet, matching template,
-   selected rule-map subgraph, and canonical workflow boundaries.
-5. When a Stop condition applies, first check whether the Goal tool contract
-   permits transition to `status: blocked`. Until it does, leave the Goal
-   unfinished, report the same blocker, and do not start Learn or another
-   phase. Once permitted, call `update_goal`, confirm the terminal state with
-   `get_goal`, report the blocker, and end this invocation.
-6. When the objective, Done checks, and Verification are complete, call
-   `update_goal` with `status: complete`, confirm completion with `get_goal`, and
-   continue according to `workflow.md`.
-
-After the canonical final phase completes, end the invocation and report the
-completed cycle according to the post-cycle handling in `workflow.md`.
-
-## Goal Tool Fallback
-
-The full cycle requires `create_goal`, `get_goal`, and `update_goal`. Resuming a
-paused Goal also requires a callable resume action. If a required Goal action is
-unavailable, or the user asks for text only, do not claim to have run or resumed
-the cycle. Return a concise blocker and use `goal-setting` only to prepare an
-explicitly requested phase draft.
+- `requirements.json` and `design-doc.json` are machine sources of truth.
+- `requirements.md` and `design-doc.md` are deterministic display outputs.
+- Requirements owns only the Requirements pair; Design owns only the Design
+  pair; later phases treat both pairs as read-only.
+- Requirements alone owns `cycle_start_issue_title`. Its Goal and artifact must
+  exactly match the fetched title. Design derives cycle identity from the
+  validated Requirements bytes, and the receipt carries that owned value into
+  Build and Ship; no later phase accepts a title argument.
+- Every regenerated artifact covers its complete upstream input. A delta marks
+  changed records but never narrows Goal scope.
+- Semantic identity lives in typed IDs, statuses, owners, roles, hashes, and
+  references. Current schema-v2 validators also enforce canonical headings,
+  substantive text, and unambiguous evidence mapping as artifact format gates;
+  follow those gates from `references/artifact-validation.md`.
+- Product behavior exists only as a typed `product_behaviors` record with one
+  canonical `requirement_id` and one design-evidence owner with that Requirement
+  ID. Requirement content remains only in canonical `requirements.json`.
+  Selected rules constrain Requirements and Design; they never define product
+  behavior directly or substitute for a missing Requirement. Build consumes the
+  Design completion receipt as its upstream identity instead of accepting
+  freshly recomputed artifact hashes.
 
 ## Stop
 
-Stop when cycle identity is unsafe, the GitHub Issue is missing or unreadable,
-either Requirements gate fails, the Issue snapshot changes during
-Requirements, an unrelated unfinished Goal exists, required upstream input is
-missing, workspace validation fails, more than one workspace exists for the
-Issue, the canonical workspace or artifact paths are ambiguous, advancing
-would violate the canonical workflow or selected rules, the Design Coverage
-Gate fails, or the phase Goal cannot fit the `goal-setting` budget.
+Stop the current phase when cycle identity is ambiguous, the Issue snapshot
+changes during Requirements, an upstream artifact or selected rule graph is
+invalid, a phase contract cannot be satisfied without changing an upstream
+decision, required authority is missing, or a validation gate fails after
+in-scope correction attempts. Apply the Goal terminal rule above; do not start
+another phase or Learn while the Goal remains unfinished.
 
-## Output
+The full-cycle request requires `create_goal`, `get_goal`, and `update_goal`.
+When one is unavailable, report the missing capability and do not claim that
+the cycle ran. A text-only phase draft is allowed only when explicitly
+requested.
 
-Use concise commentary for phase transitions. Return the final response only
-after the canonical final phase completes or a Stop condition ends the cycle.
-Name the last completed phase, verification evidence, and any blocker or
-residual risk.
+## Finish
+
+After Ship is confirmed complete, end the invocation. Report the completed
+phase sequence, artifact and verification evidence, delivery state, and any
+residual risk. Learn is a separate user-invoked action.

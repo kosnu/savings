@@ -23,6 +23,7 @@ from render_aidd_artifact import (
 
 WORKSPACE = "1639-structured-data"
 DIGEST = "0" * 64
+ISSUE_TITLE = "Structured Data"
 
 
 def input_gate() -> dict[str, object]:
@@ -71,6 +72,7 @@ def requirements_source() -> dict[str, object]:
         "display": {"path": "requirements.md", "preamble": "# Requirements"},
         "validation": {
             "mode": "managed",
+            "cycle_start_issue_title": ISSUE_TITLE,
             "input_gate": input_gate(),
             "completeness_gate": completeness_gate(),
             "requirements": [
@@ -120,6 +122,7 @@ def design_source() -> dict[str, object]:
                             "type": "evidence",
                             "role": "design",
                             "owner_id": "FR-1",
+                            "product_behavior_ids": ["PB-1"],
                             "text": "設計する。",
                         },
                         {
@@ -130,6 +133,14 @@ def design_source() -> dict[str, object]:
                             "text": "確認する。",
                         },
                     ],
+                }
+            ],
+            "product_behaviors": [
+                {
+                    "id": "PB-1",
+                    "type": "user_operation",
+                    "change": "added",
+                    "requirement_id": "FR-1",
                 }
             ],
             "coverage_gate": {
@@ -205,6 +216,7 @@ def goal_source() -> dict[str, object]:
         },
         "validation": {
             "mode": "managed",
+            "cycle_start_issue_title": ISSUE_TITLE,
             "input_gate": input_gate(),
             "completeness_gate": completeness_gate(),
             "requirements": [
@@ -265,7 +277,8 @@ def design_goal_source() -> dict[str, object]:
             {
                 "id": "validated-artifact",
                 "text": (
-                    "Design Coverage Gateと生成成果物の同期検証を成功させる。"
+                    "Design Coverage Gateと生成成果物の同期検証後に"
+                    "completion receiptを固定する。"
                 ),
             },
         ],
@@ -278,6 +291,14 @@ def design_goal_source() -> dict[str, object]:
             "requirement_ids": ["FR-1", "AC-1"],
             "baseline": {"source": "none", "body_sha256": None},
         },
+        "product_behaviors": [
+            {
+                "id": "PB-1",
+                "type": "user_operation",
+                "change": "added",
+                "requirement_id": "FR-1",
+            }
+        ],
         "scopes": [
             {
                 "id": "FR-1",
@@ -298,8 +319,16 @@ def design_goal_source() -> dict[str, object]:
 class StructuredArtifactV2Test(unittest.TestCase):
     def test_requirements_render_from_typed_fields(self) -> None:
         rendered = render_artifact_markdown(requirements_source())
+        self.assertIn(f"Cycle-start Issue title: {ISSUE_TITLE}", rendered)
         self.assertIn("- FR-1: 生成する。", rendered)
         self.assertIn("## 機能要件", rendered)
+
+    def test_requirements_and_goal_require_the_typed_cycle_title(self) -> None:
+        for source in (requirements_source(), goal_source()):
+            with self.subTest(kind=source["kind"]):
+                source["validation"].pop("cycle_start_issue_title")
+                with self.assertRaisesRegex(SourceError, "invalid keys"):
+                    validate_loaded_source(source)
 
     def test_requirements_reject_heading_that_matches_multiple_aliases(self) -> None:
         source = requirements_source()
@@ -313,17 +342,13 @@ class StructuredArtifactV2Test(unittest.TestCase):
         with self.assertRaisesRegex(SourceError, "exactly one canonical section"):
             validate_loaded_source(source)
 
-    def test_rejects_versioned_workspace_marker(self) -> None:
-        for workspace in (
-            "1639-structured-data-v2",
-            "1639-structured-data-retry",
-            "1639-structured-data-rerun-2",
-        ):
-            with self.subTest(workspace=workspace):
-                source = requirements_source()
-                source["workspace"] = workspace
-                with self.assertRaisesRegex(SourceError, "marker"):
-                    validate_loaded_source(source)
+    def test_workspace_shape_does_not_guess_task_identity_from_words(self) -> None:
+        source = requirements_source()
+        source["workspace"] = "1639-retry-workflow"
+        source["validation"]["completeness_gate"]["workspace"] = (
+            "1639-retry-workflow"
+        )
+        validate_loaded_source(source)
 
     def test_design_coverage_references_evidence_blocks(self) -> None:
         rendered = render_artifact_markdown(design_source())
@@ -331,6 +356,59 @@ class StructuredArtifactV2Test(unittest.TestCase):
             "FR\\-1 design: 設計する。\nFR\\-1 verification: 確認する。",
             rendered,
         )
+        self.assertIn("## Product Behavior Trace", rendered)
+        self.assertIn(
+            '{"id":"PB-1","type":"user_operation","change":"added",'
+            '"requirement_id":"FR-1"}',
+            rendered,
+        )
+
+    def test_rejects_unowned_product_behavior(self) -> None:
+        source = design_source()
+        source["validation"]["sections"][0]["blocks"][0][
+            "product_behavior_ids"
+        ] = []
+        with self.assertRaisesRegex(SourceError, "exactly own the inventory"):
+            validate_loaded_source(source)
+
+    def test_rejects_product_behavior_definition_outside_requirement_binding(self) -> None:
+        source = design_source()
+        source["validation"]["product_behaviors"][0]["description"] = (
+            "正本根拠とは別のユーザー操作を定義する。"
+        )
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
+
+    def test_rejects_product_behavior_owned_by_two_design_blocks(self) -> None:
+        source = design_source()
+        source["validation"]["sections"][0]["blocks"].append(
+            {
+                "id": "second-design",
+                "type": "evidence",
+                "role": "design",
+                "owner_id": "FR-1",
+                "product_behavior_ids": ["PB-1"],
+                "text": "別の設計根拠を十分に説明する。",
+            }
+        )
+        with self.assertRaisesRegex(SourceError, "one design evidence owner"):
+            validate_loaded_source(source)
+
+    def test_rejects_product_behavior_without_covered_requirement(self) -> None:
+        source = design_source()
+        source["validation"]["product_behaviors"][0]["requirement_id"] = "FR-2"
+        with self.assertRaisesRegex(SourceError, "covered requirement"):
+            validate_loaded_source(source)
+
+    def test_product_behavior_schema_has_no_generic_source_variant(self) -> None:
+        source = design_source()
+        source["validation"]["product_behaviors"][0]["source"] = {
+            "kind": "rule",
+            "id": "ai-driven.workflow",
+            "evidence": "canonical ruleが状態遷移を定義する。",
+        }
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
 
     def test_rule_reason_is_rendered_as_plain_text(self) -> None:
         source = requirements_source()
@@ -453,6 +531,12 @@ class StructuredArtifactV2Test(unittest.TestCase):
         rendered = render_goal_objective(design_goal_source())
         self.assertIn(r"- FR\-1 design scope: 設計する。", rendered)
         self.assertIn(r"- FR\-1 verification scope: 確認する。", rendered)
+        self.assertIn("## Product Behavior Scope", rendered)
+        self.assertIn(
+            '{"id":"PB-1","type":"user_operation","change":"added",'
+            '"requirement_id":"FR-1"}',
+            rendered,
+        )
 
     def test_goal_requires_non_empty_context_contract(self) -> None:
         source = goal_source()

@@ -73,6 +73,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "FR-1",
+            "product_behavior_ids": [],
             "text": "JSON v2 typed-block envelopeとstdlib loaderで形式を一意にする。"
           },
           {
@@ -80,6 +81,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "FR-2",
+            "product_behavior_ids": [],
             "text": "通常validatorの全入力をGoal/artifact JSONへ限定する。"
           },
           {
@@ -87,6 +89,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "FR-3",
+            "product_behavior_ids": [],
             "text": "rendererがJSONのstructured fieldsからMarkdownを決定的生成する。"
           },
           {
@@ -94,6 +97,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "FR-4",
+            "product_behavior_ids": [],
             "text": "managed JSONを正本とし、過去Markdownを再解析せず、既存managed workspaceだけを生成表示と同期確認する。"
           },
           {
@@ -101,6 +105,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "NFR-1",
+            "product_behavior_ids": [],
             "text": "JSONだけを手編集正本としMarkdownを生成物へ固定する。"
           },
           {
@@ -108,6 +113,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "NFR-2",
+            "product_behavior_ids": [],
             "text": "provenance、continuity、coverageをtyped validation fieldで保持する。"
           },
           {
@@ -115,6 +121,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "NFR-3",
+            "product_behavior_ids": [],
             "text": "canonical Markdown filenameとUTF-8文字列一致（CRLF/LF差は正規化）をrenderer契約で維持する。"
           },
           {
@@ -122,6 +129,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-1",
+            "product_behavior_ids": [],
             "text": "canonical JSON path以外を通常validatorが拒否する。"
           },
           {
@@ -129,6 +137,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-2",
+            "product_behavior_ids": [],
             "text": "managedのdisplay.preambleと型付きblockを分離し、coverageはevidence block IDで参照する。"
           },
           {
@@ -136,6 +145,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-3",
+            "product_behavior_ids": [],
             "text": "migration checkが既存managed JSONのschemaと生成表示の同期を検査する。"
           },
           {
@@ -143,6 +153,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-4",
+            "product_behavior_ids": [],
             "text": "workflow、skills、templatesをJSON-first順序へ同期する。"
           },
           {
@@ -321,8 +332,9 @@
         ]
       }
     ],
+    "product_behaviors": [],
     "coverage_gate": {
-      "requirements_sha256": "e857bfbdb4d94d87933cd5b62aeab24f4c49ebdc7f2b65b433d9253095c651e5",
+      "requirements_sha256": "78b84b12113d3738e90b933d16c26efd279aa993fdb25a58933f6992ccdf1a69",
       "workspace": "1639-aidd-structured-data",
       "requirement_ids": [
         "FR-1",
