@@ -17,6 +17,7 @@ owns execution of that Goal.
 - `.agents/skills/goal-setting/SKILL.md`
 - `docs/harness/rule-map.json`
 - `references/artifact-validation.md` when entering Requirements, Design, or Build
+- `.codex/config.toml` and the selected phase agent file before delegation
 
 The workflow is canonical. Do not add phase rules here or infer a phase from an
 artifact's mere existence.
@@ -82,36 +83,38 @@ tests happened to pass, or a phase draft was produced.
 The parent agent remains the cycle orchestrator and keeps its currently
 selected model and reasoning effort. Assign each phase exactly as follows:
 
-| Phase | Executor | Model | Reasoning effort |
-| --- | --- | --- | --- |
-| Requirements | `worker` subagent | `gpt-5.6-sol` | `high` |
-| Design | `worker` subagent | `gpt-5.6-sol` | `high` |
-| Build | `worker` subagent | `gpt-5.6-luna` | `max` |
-| Ship | parent agent | current selection | current selection |
+| Phase | Executor | Configuration |
+| --- | --- | --- |
+| Requirements | `aidd-requirements-design` | `.codex/agents/aidd-requirements-design.toml` |
+| Design | `aidd-requirements-design` | `.codex/agents/aidd-requirements-design.toml` |
+| Build | `aidd-build` | `.codex/agents/aidd-build.toml` |
+| Ship | parent agent | current selection |
 
 For Requirements, Design, and Build:
 
 1. The parent sets or identifies the one active phase Goal before delegation.
-2. Spawn exactly one `worker` for the phase with the assigned `model` and
-   `reasoning_effort`. Use `fork_turns: "none"` so the explicit model override
-   is preserved.
-3. Give the worker a self-contained task containing the repository root,
+2. Spawn exactly one registered project-scoped agent from the table. Its
+   configuration file, registered by `.codex/config.toml`, is the source of
+   truth for its model, reasoning effort, and phase instructions; do not
+   override those settings at the call site. Sandbox and approval settings
+   follow the parent turn's active runtime policy.
+3. Give the phase agent a self-contained task containing the repository root,
    current branch, phase, active Goal identity and Context Packet, required
    workflow and validation references, upstream artifact or receipt identity,
    read/write boundary, Verification, and Stop conditions.
-4. The worker executes only the active Goal. It must not create the next Goal,
-   start another phase, run Learn, or delegate further.
-5. Wait for the worker before doing more phase work. Reuse that worker for
+4. The phase agent executes only the active Goal. It must not create the next
+   Goal, start another phase, run Learn, or delegate further.
+5. Wait for the phase agent before doing more phase work. Reuse that agent for
    same-phase continuation when possible, and never run two phase executors at
    once.
-6. After the worker finishes, the parent calls `get_goal` and independently
-   confirms the required phase evidence. Advance only when the Goal is
-   terminal `complete`; otherwise continue or stop under the existing Goal
-   rules.
+6. After the phase agent finishes, the parent calls `get_goal` and
+   independently confirms the required phase evidence. Advance only when the
+   Goal is terminal `complete`; otherwise continue or stop under the existing
+   Goal rules.
 
-If the assigned model, reasoning effort, or subagent capability is unavailable,
-preserve the active Goal and stop. Do not inherit, substitute, or silently run
-the delegated phase in the parent.
+If the registered phase agent or its configured model and reasoning effort is
+unavailable, preserve the active Goal and stop. Do not inherit, substitute, or
+silently run the delegated phase in the parent.
 
 ## Artifact Boundary
 
