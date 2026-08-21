@@ -8,6 +8,7 @@
   },
   "validation": {
     "mode": "managed",
+    "cycle_start_issue_title": "AIDD成果物の正本を構造化データへ移行する",
     "requirements": [
       {
         "id": "FR-1",

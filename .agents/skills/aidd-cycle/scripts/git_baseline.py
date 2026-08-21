@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
 import subprocess
+import unicodedata
 from pathlib import Path
 
 from artifact_source import (
@@ -22,6 +24,9 @@ from artifact_source import (
 ISSUE_PATTERN = re.compile(
     r"(?P<owner>[A-Za-z0-9_.-]+)/(?P<repo>[A-Za-z0-9_.-]+)#(?P<number>[1-9][0-9]*)"
 )
+ASCII_TITLE_TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
+WORKSPACE_TITLE_MAX_LENGTH = 48
+WORKSPACE_TITLE_DIGEST_LENGTH = 12
 MAX_GIT_BLOB_BYTES = 16 * 1024 * 1024
 CANONICAL_ARTIFACT_FILENAMES = {
     filename: kind
@@ -120,6 +125,23 @@ def issue_number(issue: str) -> str:
     return match.group("number")
 
 
+def canonical_workspace_name(issue: str, issue_title: str) -> str:
+    """Derive the only allowed first workspace name from Issue identity."""
+
+    number = issue_number(issue)
+    normalized_title = " ".join(
+        unicodedata.normalize("NFKC", issue_title).casefold().split()
+    )
+    if not normalized_title:
+        raise GitBaselineError("issue title must be non-empty")
+    title_digest = hashlib.sha256(normalized_title.encode("utf-8")).hexdigest()[
+        :WORKSPACE_TITLE_DIGEST_LENGTH
+    ]
+    readable = "-".join(ASCII_TITLE_TOKEN_PATTERN.findall(normalized_title))
+    readable = readable[:WORKSPACE_TITLE_MAX_LENGTH].strip("-") or "issue"
+    return f"{number}-{readable}-{title_digest}"
+
+
 def list_issue_workspaces(repo_root: Path, number: str) -> list[str]:
     resolved_root = require_repository_root(repo_root)
     workspace_root = (
@@ -152,10 +174,36 @@ def list_issue_workspaces(repo_root: Path, number: str) -> list[str]:
     return sorted(name for name in names if name.startswith(issue_prefix))
 
 
+def git_head_workspace_names(repo_root: Path, number: str) -> set[str]:
+    resolved_root = require_repository_root(repo_root)
+    listing = run_git(
+        resolved_root,
+        [
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "HEAD",
+            "--",
+            "docs/ai-driven-development/workspaces",
+        ],
+    )
+    if listing.returncode != 0:
+        raise GitBaselineError("failed to inspect AIDD workspaces in Git HEAD")
+    prefix = "docs/ai-driven-development/workspaces/"
+    issue_prefix = f"{number}-"
+    return {
+        path.removeprefix(prefix).split("/", 1)[0]
+        for path in listing.stdout.decode("utf-8").splitlines()
+        if path.startswith(prefix)
+        and path.removeprefix(prefix).split("/", 1)[0].startswith(issue_prefix)
+    }
+
+
 def validate_workspace_identity(
     repo_root: Path,
     issue: str,
     workspace: str,
+    issue_title: str | None = None,
 ) -> list[str]:
     validate_workspace_name(workspace)
     number = issue_number(issue)
@@ -175,6 +223,18 @@ def validate_workspace_identity(
             "the Issue already has a canonical workspace; reuse "
             f"{existing[0]} instead of {workspace}"
         )
+    established = workspace in git_head_workspace_names(repo_root, number)
+    if not established:
+        if issue_title is None:
+            raise GitBaselineError(
+                "issue title is required to establish the canonical workspace"
+            )
+        expected = canonical_workspace_name(issue, issue_title)
+        if workspace != expected:
+            raise GitBaselineError(
+                "first workspace must equal the canonical Issue-derived name: "
+                f"{expected}"
+            )
     return existing
 
 

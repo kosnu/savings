@@ -45,7 +45,9 @@ when_to_read:
 
 RequirementsのTask Context正本は、サイクル開始時に取得した最新Issue本文だけです。会話、レビューコメント、現在のdiff、前回成果物、変更直後のルールはRequirementsを追加しません。前回成果物は欠落検出用baselineとしてのみ利用します。
 
-Issueごとにworkspaceは1件です。既存が1件なら再利用し、0件なら`<Issue番号>-<短いtitle>`を作成し、複数なら統合先を推測せず停止します。新しいサイクルを別workspaceへ逃がさないため、workspace名にはversion、revision、cycle、retry、rerunを表すmarkerを使いません。Issue番号との一意な対応とcanonical pathで同一性を検証します。
+Issueごとにworkspaceは1件です。既存が1件ならその名前をtask identityとして再利用し、複数なら停止します。0件ならworkspace validatorがサイクル開始時の最新Issue titleをNFKC正規化・casefoldし、ASCII英数字列を最大48文字のkebabへ変換した表示部分（空なら`issue`）と、正規化titleのSHA-256先頭12桁から`<Issue番号>-<表示部分>-<title hash>`を一意に導出します。呼び出し側は別名を考案せずvalidatorの出力を使います。
+
+cycle-start Issue titleはRequirementsだけが`validation.cycle_start_issue_title`として所有します。Requirements Goalとartifactは取得したtitleとの完全一致を検証します。Designは検証済みcanonical RequirementsのpathとSHA-256をcycle identityとして参照し、titleを再入力・再記述しません。Design completion receiptはRequirements bytesからtitleを導出して固定し、BuildとShipはそのreceiptと上流hashをidentityにします。後工程がtitle引数を受け取る経路は持ちません。
 
 ## 成果物モデル
 
@@ -56,8 +58,9 @@ Issueごとにworkspaceは1件です。既存が1件なら再利用し、0件な
 - requirement、section、block、contractの安定ID
 - transitionのstatus
 - evidenceの`role`と`owner_id`
-- artifact、Issue、baselineのSHA-256
+- Requirementsが所有するcycle-start Issue titleと、artifact、Issue、baselineのSHA-256
 - gate内の参照関係と完全なinventory
+- Designが所有する根拠付きproduct behavior inventoryとDesign completion receipt
 
 ID、owner、role、reference、hash、inventoryが成果物の主要な機械構造です。現行schema v2はこれに加えて、canonical heading、非placeholderの実質的な説明、Issueに実在して対象recordへ一意に対応するevidenceをartifact format gateとして検証します。これらの表示・証拠条件だけで工程完了とは判断せず、Goalのobjective、Done、Verificationも満たす必要があります。
 
@@ -66,23 +69,25 @@ ID、owner、role、reference、hash、inventoryが成果物の主要な機械�
 ### Intent / Requirements
 
 - 入力: 最新Issue snapshot、canonical rule map、Git `HEAD`の同一workspace Requirements baseline。
+- Cycle identity: 取得したcycle-start Issue titleを型付きfieldとして唯一所有し、Goalとartifactの両方で同じ値を検証する。
 - 所有: canonical `requirements.json`と生成`requirements.md`。
 - 完了: Issue全体を表す全Requirement IDと必須sectionが定義され、baselineの全recordが`unchanged`、`changed`、`new`、`retired`のいずれかで説明され、provenance、continuity、render同期が成功している。
 - 停止: Issueまたはworkspaceが曖昧、Issue snapshotが工程中に変化、rule dependencyが解けない、完全な要求scopeを決められない、gateを満たせない。
 
 ### Design / Plan
 
-- 入力: 検証済みcanonical Requirements全体、選択ルール、実装文脈、Git `HEAD`の同一workspace Design baseline。Requirementsはread-only。
-- 所有: canonical `design-doc.json`と生成`design-doc.md`。
-- 完了: 全Requirement IDがdesign evidenceとverification evidenceを所有し、全baseline sectionがhashにより`preserved`または`replaced`へ分類され、coverageとrender同期が成功している。
-- 停止: Requirements再検証失敗、要求ごとの実装または検証方針を決められない、baseline transitionが不完全、Design gateを満たせない。
+- 入力: 検証済みcanonical Requirements全体とそのpath・SHA-256、選択ルール、実装文脈、Git `HEAD`の同一workspace Design baseline。Requirementsはread-onlyで、cycle titleはRequirementsからのみ導出する。
+- Product behavior: 追加・変更・削除するユーザー操作と状態遷移は`product_behaviors`のtyped inventoryだけで定義する。各recordは`PB-*` ID、種別、change、canonical `requirement_id`だけを持つ。Requirement本文は検証済み`requirements.json`だけが所有する。genericなsource kindや挙動本文の複製は置かない。選択済みruleはRequirementsとDesignを制約するが、不足するRequirement bindingの代替にはしない。同じRequirement IDをownerとするちょうど1件のdesign evidenceがそのrecordを所有する。Design proseはrecordを参照・説明できるが、新しいproduct behaviorの定義場所にはならない。
+- 所有: canonical `design-doc.json`、生成`design-doc.md`、同じbyte snapshotから完全再検証したretained Design Goal・両成果物・Issue snapshot・canonical rule map・選択済みrule文書・Git `HEAD` Requirements / Design baselineを固定するcanonical Design completion receipt。
+- 完了: 全Requirement IDがdesign evidenceとverification evidenceを所有し、全baseline sectionがhashにより`preserved`または`replaced`へ分類され、product behavior inventoryのRequirement bindingとownerが検証され、同じbyte snapshotに対するcoverageとrender同期の成功後にDesign completion receiptとそのSHA-256が固定されている。
+- 停止: Requirements再検証失敗、要求ごとの実装または検証方針を決められない、ユーザー操作または状態遷移を所有するRequirement IDがない、baseline transitionが不完全、Design gateを満たせない。
 
 ### Build / Verify
 
-- 入力: 検証済みRequirementsとDesign全体。両成果物はread-only。
+- 入力: 直前のDesign Goal完了証拠に記録されたDesign completion receiptとそのSHA-256。Build entry gateは記録SHA-256に一致するreceipt bytesを読み、その後はそのbytesをreceipt identityとして扱う。現在のIssue snapshot、canonical Requirements / Design、両生成Markdown、canonical rule map、選択済みrule文書、Git `HEAD` Requirements / Design baselineを1回だけ読み込んだ同一byte snapshotから再検証し、そのsnapshotの全pathとhashがreceiptに完全一致し、最終drift checkで再読込した各入力も同じ場合だけ成功する。cycle titleはRequirements bytesとreceiptからのみ得て、Build入力として受け取らない。pathの継続占有ではなく検証済みsnapshot bytesがidentityであり、上流成果物とreceiptはread-only。
 - 所有: 必要な実装、テスト、fixture、runtime設定と、その検証証拠。
-- 完了: 全RequirementとDesign方針を実装し、対象appの必須verificationが成功し、未解消の要件漏れや整合性問題がない。
-- 停止: 上流成果物の不足・矛盾を解釈で埋める必要がある、許可範囲を越える変更が必要、外部権限なしでは検証不能。
+- 完了: 全RequirementとDesign方針を実装し、対象appの必須verificationが成功し、Build entry gateを同じreceipt SHA-256に対して再実行して、上流成果物が不変である。
+- 停止: Build entryのartifact gateまたはrender同期が失敗、上流成果物の不足・矛盾を解釈で埋める必要がある、typed inventoryにないproduct behaviorが必要、許可範囲を越える変更が必要、外部権限なしでは検証不能。
 
 ### Ship
 
@@ -108,7 +113,7 @@ RequirementsとDesignの一時Goal JSONは、次のentryを表の順序とtext�
 | Design | stop | `validation-failure` | Requirements再検証またはDesign Coverage Gateが失敗した場合は停止する。 |
 | Design | stop | `scope-ambiguity` | 要求ごとの設計・検証scopeを一意に決められない場合は停止する。 |
 | Design | done | `complete-scope` | 全Requirements IDとbaseline sectionのDesign coverageを定義する。 |
-| Design | done | `validated-artifact` | Design Coverage Gateと生成成果物の同期検証を成功させる。 |
+| Design | done | `validated-artifact` | Design Coverage Gateと生成成果物の同期検証後にcompletion receiptを固定する。 |
 
 ## Learn
 
