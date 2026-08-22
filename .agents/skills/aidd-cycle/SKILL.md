@@ -57,7 +57,12 @@ For each phase in the workflow:
    artifacts and generated displays against the current Issue snapshot and the
    Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
-   subgraph.
+   subgraph. In Design, re-evaluate coverage from Requirements, typed product
+   behaviors, and implementation and verification scope. In Build, re-evaluate
+   coverage from the actual changed files and call paths using the code review
+   policy and retain its Coverage record. If either phase finds an applicable
+   rule outside the validated upstream selected subgraph, stop as an upstream
+   rule-coverage defect instead of silently supplementing it and completing.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path

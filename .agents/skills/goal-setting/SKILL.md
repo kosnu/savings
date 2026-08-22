@@ -61,8 +61,10 @@ For Requirements:
 - fetch the latest Issue title and snapshot the latest body; the body is the
   only Task Context and the exact title is the Requirements-owned typed cycle
   identity and workspace derivation input;
-- select direct rule-map nodes from Issue-supported classifications, then add
-  their declared dependency closure;
+- classify every Issue-supported path, domain, activity, topic, operation, and
+  user-facing loading, success, failure, or fallback state; select the union of
+  all matching direct rule-map nodes, then add their declared dependency
+  closure;
 - resolve the Git `HEAD` Requirements baseline and classify every baseline and
   current requirement/section transition;
 - create and validate a temporary `requirements_goal` JSON before setting the
@@ -75,6 +77,10 @@ For Design:
   source and bind Design to those Requirements bytes by path and SHA-256;
 - cover every current requirement ID and every Git `HEAD` Design baseline
   section;
+- re-evaluate rule coverage from the validated Requirements, typed product
+  behaviors, and implementation and verification scope; stop if an applicable
+  rule is absent from the Requirements-selected subgraph instead of silently
+  adding it in Design;
 - define every added, changed, or removed user operation and state transition
   as a typed product behavior record with one canonical `requirement_id` and one
   design evidence block owned by the same Requirement ID. Requirement content
@@ -90,6 +96,10 @@ For Build:
   receipt;
 - record the verified receipt path, unchanged SHA-256, and its complete
   artifact and selected-rule identity in the Build Goal.
+- require completion-time classification of the actual changed files and call
+  paths under the code review policy, a Coverage record for every required rule
+  and dependency, and a Stop when an applicable rule is absent from the
+  receipt-selected subgraph;
 - take the cycle-start title only from the verified receipt; the Build entry
   command has no title input.
 
