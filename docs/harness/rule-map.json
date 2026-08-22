@@ -441,8 +441,20 @@
       "applies_to": {
         "paths": ["apps/web/src/**"],
         "domains": ["web"],
-        "activities": ["change_suspense", "change_error_boundary", "change_async_loading"],
-        "topics": ["suspense", "react-query", "error-boundary"]
+        "activities": [
+          "change_suspense",
+          "change_error_boundary",
+          "change_async_loading",
+          "change_async_readiness",
+          "change_session_lifecycle"
+        ],
+        "topics": [
+          "suspense",
+          "react-query",
+          "error-boundary",
+          "async-readiness",
+          "session-lifecycle"
+        ]
       },
       "depends_on": ["web.query-cache", "web.test-policy"],
       "overrides": [],
