@@ -169,8 +169,8 @@ importers:
         specifier: 10.5.8
         version: 10.5.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(typescript@7.0.2))(esbuild@0.28.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.15.0(@types/node@26.2.0)(typescript@7.0.2))(typescript@7.0.2))
       storybook-addon-mock-date:
-        specifier: 3.2.0
-        version: 3.2.0(storybook@10.5.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(typescript@7.0.2))(esbuild@0.28.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.15.0(@types/node@26.2.0)(typescript@7.0.2))(typescript@7.0.2)))
+        specifier: 3.2.1
+        version: 3.2.1(storybook@10.5.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(typescript@7.0.2))(esbuild@0.28.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.15.0(@types/node@26.2.0)(typescript@7.0.2))(typescript@7.0.2)))
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -4765,8 +4765,8 @@ packages:
   std-env@4.1.0:
     resolution: {integrity: sha512-Rq7ybcX2RuC55r9oaPVEW7/xu3tj8u4GeBYHBWCychFtzMIr86A7e3PPEBPT37sHStKX3+TiX/Fr/ACmJLVlLQ==}
 
-  storybook-addon-mock-date@3.2.0:
-    resolution: {integrity: sha512-F/qjSNWSoyxMftqSEfUMU+8xEaRWQVHXGCTwPt78OS2tL2Ma6+FeGyPi0DHe5usMu9RLgc4m8T8wA+UHSYF6tA==}
+  storybook-addon-mock-date@3.2.1:
+    resolution: {integrity: sha512-/bTgEz59TkcYs+jcn5iieyenQRF8BDF6/2gQ0eRr10gmqujWlYh6bDK42crey1a7PeipUrkWCJUyUqyYqMBGHg==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       storybook: ^10.0.0
@@ -9323,7 +9323,7 @@ snapshots:
 
   std-env@4.1.0: {}
 
-  storybook-addon-mock-date@3.2.0(storybook@10.5.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(typescript@7.0.2))(esbuild@0.28.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.15.0(@types/node@26.2.0)(typescript@7.0.2))(typescript@7.0.2))):
+  storybook-addon-mock-date@3.2.1(storybook@10.5.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(typescript@7.0.2))(esbuild@0.28.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.15.0(@types/node@26.2.0)(typescript@7.0.2))(typescript@7.0.2))):
     dependencies:
       '@sinonjs/fake-timers': 15.4.0
       storybook: 10.5.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(typescript@7.0.2))(esbuild@0.28.2)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.15.0(@types/node@26.2.0)(typescript@7.0.2))(typescript@7.0.2))
