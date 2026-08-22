@@ -8,3 +8,11 @@ network_access = true
 [agents.context-scout]
 description = "Low-cost read-heavy repository discovery agent for Context Packet material."
 config_file = "./agents/context-scout.toml"
+
+[agents.aidd-requirements-design]
+description = "Execute an active AIDD Requirements or Design Goal with high reasoning."
+config_file = "./agents/aidd-requirements-design.toml"
+
+[agents.aidd-build]
+description = "Execute an active AIDD Build Goal with a cost-efficient maximum-effort model."
+config_file = "./agents/aidd-build.toml"
