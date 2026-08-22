@@ -14,8 +14,8 @@
         "source": "issue_body",
         "issue": "kosnu/savings#1563",
         "url": "https://github.com/kosnu/savings/issues/1563",
-        "updated_at": "2026-08-01T15:52:57Z",
-        "body_sha256": "7cff29ec2a1a443569aebc540d93b761214dd5d7fcd627e3e4babd3f5cb95e9c"
+        "updated_at": "2026-08-21T18:21:05Z",
+        "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
       },
       "direct_rules": [
         {
@@ -31,134 +31,144 @@
       "depends_on": []
     },
     "completeness_gate": {
-      "issue_body_sha256": "7cff29ec2a1a443569aebc540d93b761214dd5d7fcd627e3e4babd3f5cb95e9c",
+      "issue_body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b",
       "workspace": "1563-issue-345418f11192",
       "baseline": {
-        "source": "none",
-        "body_sha256": null
+        "source": "git_head",
+        "body_sha256": "c43d7a9a1ee41753fe5bf51ad7653f6bd8e95ebd6214c0dd669a8c1ced2b879f"
       },
       "requirements": [
         {
           "id": "FR-1",
-          "status": "new",
-          "issue_evidence": "永続的な保存先として追加する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-2",
-          "status": "new",
-          "issue_evidence": "ログイン時の言語設定取得"
+          "status": "changed",
+          "issue_evidence": "アカウント言語の取得成功またはfallback決定前に"
         },
         {
           "id": "FR-3",
-          "status": "new",
-          "issue_evidence": "言語変更時の保存"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-4",
-          "status": "new",
-          "issue_evidence": "既存localStorage値との優先順位"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-5",
-          "status": "new",
-          "issue_evidence": "言語設定を取得・保存できたか"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-1",
-          "status": "new",
-          "issue_evidence": "対応言語は既存の日本語と英語を維持する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-2",
-          "status": "new",
-          "issue_evidence": "クライアントが自身の `language` を更新できるよう"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-3",
-          "status": "new",
-          "issue_evidence": "既存の `name` のみというルールは `language` の追加範囲で変更し"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-1",
-          "status": "new",
-          "issue_evidence": "言語設定の保存先と所有責務が定義されている"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-2",
-          "status": "new",
-          "issue_evidence": "ログイン時に保存済み言語が反映される"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-3",
-          "status": "new",
-          "issue_evidence": "言語変更がアカウントへ保存される"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-4",
-          "status": "new",
-          "issue_evidence": "別端末で同じ言語設定が反映される"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-5",
-          "status": "new",
-          "issue_evidence": "未設定・取得失敗・保存失敗時の挙動が定義されている"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-6",
-          "status": "new",
-          "issue_evidence": "既存の日本語・英語表示が壊れていない"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-7",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-8",
           "status": "new",
-          "issue_evidence": "必要な検証ができる"
+          "issue_evidence": "アカウント値と端末値が異なる場合も"
+        },
+        {
+          "id": "AC-9",
+          "status": "new",
+          "issue_evidence": "取得失敗時はfallback決定後に"
         }
       ],
       "sections": [
         {
           "id": "background",
-          "status": "new",
-          "issue_evidence": "現在の言語設定はブラウザの `localStorage` にだけ保存される"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "users",
-          "status": "new",
-          "issue_evidence": "同じユーザーが別端末や別ブラウザでログインしても"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "stories",
-          "status": "new",
-          "issue_evidence": "プロフィール設定として選択した言語が"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "scope",
-          "status": "new",
-          "issue_evidence": "### 対象"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "functional",
-          "status": "new",
-          "issue_evidence": "- 言語設定の保存先"
+          "status": "changed",
+          "issue_evidence": "ユーザー向け画面を確定表示しない"
         },
         {
           "id": "non-functional",
-          "status": "new",
-          "issue_evidence": "- 対応言語は既存の日本語と英語を維持する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "acceptance",
-          "status": "new",
-          "issue_evidence": "## 成功条件"
+          "status": "changed",
+          "issue_evidence": "初回のユーザー向け表示がアカウント言語で行われる"
         },
         {
           "id": "qa",
-          "status": "new",
-          "issue_evidence": "## 判断したいこと"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "technical",
-          "status": "new",
-          "issue_evidence": "必要なDB migration、型・API境界、RLS・更新条件、回帰テストを同期して変更する"
+          "status": "unchanged",
+          "issue_evidence": null
         }
       ],
       "retired": []
@@ -172,7 +182,7 @@
       {
         "id": "FR-2",
         "section_id": "functional",
-        "text": "ログイン時の言語設定取得により、認証済みユーザーの保存済み言語を現在の端末へ反映する。"
+        "text": "認証済みユーザーのログイン時はアカウント言語を取得し、アカウント言語の取得成功またはfallback決定前にユーザー向け画面を確定表示しない。保存済み言語がある場合は現在の端末へ反映する。"
       },
       {
         "id": "FR-3",
@@ -238,6 +248,16 @@
         "id": "AC-7",
         "section_id": "acceptance",
         "text": "必要な検証ができるよう、migration・型・API境界・RLS・更新条件・回帰テストを同期する。"
+      },
+      {
+        "id": "AC-8",
+        "section_id": "acceptance",
+        "text": "アカウント値と端末値が異なる場合も、初回のユーザー向け表示がアカウント言語で行われることを確認できる。"
+      },
+      {
+        "id": "AC-9",
+        "section_id": "acceptance",
+        "text": "取得失敗時はfallback決定後にアプリを継続利用できることを確認できる。"
       }
     ],
     "sections": [

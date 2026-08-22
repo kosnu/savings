@@ -2,6 +2,7 @@ import { composeStories } from "@storybook/react-vite"
 import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test"
 
 import { i18next } from "../../../../i18n"
+import { LanguageSyncProvider } from "../../../../providers/language/LanguageSyncProvider"
 import { createProfileHandlers } from "../../../../test/msw/handlers/profile"
 import { server } from "../../../../test/msw/server"
 import { render, screen, waitFor } from "../../../../test/test-utils"
@@ -61,6 +62,25 @@ describe("AppearanceSettings", () => {
     await waitFor(() => {
       expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("English")
       expect(window.localStorage.getItem("appLanguage")).toBe("en")
+    })
+  })
+
+  test("アカウント保存後の再取得に失敗した場合は変更後の言語を維持する", async () => {
+    const { user } = render(
+      <LanguageSyncProvider>
+        <Default />
+      </LanguageSyncProvider>,
+    )
+
+    const languageSelect = await screen.findByRole("combobox", { name: "Language" })
+    server.resetHandlers(...createProfileHandlers({ get: { error: true } }))
+
+    await user.click(languageSelect)
+    await user.click(await screen.findByRole("option", { name: "Japanese" }))
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: "言語" })).toHaveTextContent("日本語")
+      expect(window.localStorage.getItem("appLanguage")).toBe("ja")
     })
   })
 })

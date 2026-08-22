@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
-import { type ReactNode, useEffect, useRef } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
 
-import { fetchProfile } from "../../features/profile/profileSettings/fetchProfile"
-import { profileQueryKeys } from "../../features/profile/profileSettings/profileQueryKeys"
+import { fetchProfile, profileQueryKeys } from "../../features/profile"
 import { i18next } from "../../i18n"
 import { useSupabaseSession } from "../supabase/useSupabaseSession"
 
@@ -13,28 +12,83 @@ interface LanguageSyncProviderProps {
 export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
   const { session, status } = useSupabaseSession()
   const authUserId = session?.user.id
-  const appliedUserIdRef = useRef<string | null>(null)
+  const [readySession, setReadySession] = useState<typeof session>(null)
+  const [resolvedSnapshot, setResolvedSnapshot] = useState<string | null>(null)
+  const languageSyncQueueRef = useRef(Promise.resolve())
 
-  const { data: profile } = useQuery({
+  const {
+    data: profile,
+    dataUpdatedAt,
+    isError,
+    isFetching,
+    isRefetchError,
+  } = useQuery({
     queryKey: profileQueryKeys.current(authUserId ?? ""),
     queryFn: async () => fetchProfile(authUserId ?? ""),
     enabled: status === "authenticated" && authUserId !== undefined,
     staleTime: 3000,
+    refetchOnMount: "always",
   })
 
+  const profileLanguage = profile?.language
+  const hasFallback =
+    isError || isRefetchError || profileLanguage === undefined || profileLanguage === null
+  const snapshot =
+    authUserId !== undefined && profileLanguage !== undefined && profileLanguage !== null
+      ? `${authUserId}:${profileLanguage}:${dataUpdatedAt}`
+      : null
+
   useEffect(() => {
-    if (status !== "authenticated" || authUserId === undefined) {
-      appliedUserIdRef.current = null
-      return
+    if (status !== "authenticated" || authUserId === undefined || session === null) return
+
+    if (isFetching) return
+
+    if (hasFallback) {
+      let isActive = true
+      queueMicrotask(() => {
+        if (isActive) setReadySession(session)
+      })
+      return () => {
+        isActive = false
+      }
     }
 
-    if (profile === undefined || appliedUserIdRef.current === authUserId) return
+    if (snapshot === null || resolvedSnapshot === snapshot) return
 
-    appliedUserIdRef.current = authUserId
-    if (profile.language !== null) {
-      void i18next.changeLanguage(profile.language)
+    let isActive = true
+
+    languageSyncQueueRef.current = languageSyncQueueRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        if (!isActive) return
+
+        try {
+          await i18next.changeLanguage(profileLanguage)
+        } finally {
+          if (isActive) {
+            setReadySession(session)
+            setResolvedSnapshot(snapshot)
+          }
+        }
+      })
+
+    return () => {
+      isActive = false
     }
-  }, [authUserId, profile, status])
+  }, [
+    authUserId,
+    hasFallback,
+    isFetching,
+    profileLanguage,
+    resolvedSnapshot,
+    session,
+    snapshot,
+    status,
+  ])
 
-  return <>{children}</>
+  const canRenderChildren =
+    status === "unauthenticated" ||
+    (status === "authenticated" && session !== null && readySession === session)
+
+  return canRenderChildren ? <>{children}</> : null
 }

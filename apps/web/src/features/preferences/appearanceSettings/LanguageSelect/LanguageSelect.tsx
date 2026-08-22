@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { appLanguageLabelKeys, appLanguages, toAppLanguage } from "../../../../i18n"
 import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
-import { useUpdateLanguage } from "../../../profile/profileSettings/useUpdateLanguage"
+import { isLanguageUpdateWriteFailure, useUpdateLanguage } from "../../../profile"
 
 const selectId = "appearance-language"
 
@@ -23,7 +23,13 @@ export function LanguageSelect() {
       try {
         await i18n.changeLanguage(nextAppLanguage)
         if (authUserId !== undefined) {
-          await updateLanguage(nextAppLanguage)
+          try {
+            await updateLanguage(nextAppLanguage)
+          } catch (error) {
+            if (isLanguageUpdateWriteFailure(error)) {
+              await i18n.changeLanguage(value)
+            }
+          }
         }
       } catch {
         await i18n.changeLanguage(value)
