@@ -93,12 +93,18 @@ selected model and reasoning effort. Assign each phase exactly as follows:
 For Requirements, Design, and Build:
 
 1. The parent sets or identifies the one active phase Goal before delegation.
-2. Spawn exactly one registered project-scoped agent from the table. Its
-   configuration file, registered by `.codex/config.toml`, is the source of
-   truth for its model, reasoning effort, and phase instructions; do not
-   override those settings at the call site. Sandbox and approval settings
-   follow the parent turn's active runtime policy.
-3. Give the phase agent a self-contained task containing the repository root,
+2. Call `spawn_agent` exactly once with `agent_type` set to the table's exact
+   Executor value, `fork_turns` set to `"none"`, and a separate
+   lowercase-underscore `task_name` such as `aidd_requirements`, `aidd_design`,
+   or `aidd_build`. A custom `agent_type` cannot use the default full-history
+   fork; the self-contained `message` below replaces inherited conversation
+   context. `agent_type` selects the registered project-scoped agent; never use
+   `task_name` as the executor selector. The selected configuration file,
+   registered by `.codex/config.toml`, is the source of truth for its model,
+   reasoning effort, and phase instructions; do not override those settings at
+   the call site. Sandbox and approval settings follow the parent turn's active
+   runtime policy.
+3. Give the phase agent a self-contained `message` containing the repository root,
    current branch, phase, active Goal identity and Context Packet, required
    workflow and validation references, upstream artifact or receipt identity,
    read/write boundary, Verification, and Stop conditions.
