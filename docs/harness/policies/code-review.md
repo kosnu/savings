@@ -69,6 +69,12 @@ APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure.
 
 Web/APIの表に該当しない差分は、`docs/harness/rule-map.json` の有効な `applies_to.paths`、`domains`、`activities`、`topics` に一致するノードをすべて選び、同じ和集合ルールを適用します。`apps/api/**` の差分で変更面を分類できない場合は、汎用マッチングだけで完了扱いにせず、未定義のAPIレビュー面として報告します。
 
+## AIDD Buildの機械ルーティング
+
+AIDD Buildでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。Designは予定する`implementation_surfaces`を構造化して所有し、Design completion receiptはsurface、最終selected rule文書、Build開始前のGit `HEAD`を固定します。
+
+Build完了時はreceiptのGit基準点から実差分を取得し、全governed pathに一致するsurfaceを自動的に和集合します。実差分にDesign未宣言surface、receiptにないsurface必須ruleまたは依存node、surfaceへ分類できないgoverned pathが1件でもあればCoverage成功としてはいけません。`Checked rules`の自己申告だけでこの判定を代替できません。
+
 ## レビュー結果
 
 レビュー結果には、PR概要ではなくレビュー結果のサマリとして、次を記録します。

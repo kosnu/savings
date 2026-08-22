@@ -51,13 +51,14 @@ cycle-start Issue titleはRequirementsだけが`validation.cycle_start_issue_tit
 
 ## Rule coverage
 
-rule-mapの選択は、priorityの高いノードや主要な変更面だけへ狭めず、各工程で利用可能になった根拠から該当するdirect nodeをすべて和集合し、その`depends_on` closureを加えた最小の完全なsubgraphにします。全ドキュメントを読むことを完全性の代わりにしてはいけません。
+rule-mapの選択は、priorityの高いノードや主要な変更面だけへ狭めず、各工程が所有する根拠から該当するdirect nodeをすべて和集合し、その`depends_on` closureを加えた最小の完全なsubgraphにします。全ドキュメントを読むことを完全性の代わりにしてはいけません。
 
-- Requirementsは、Issue本文が明示するpath、domain、activity、topicに加えて、対象操作とloading、成功、失敗、fallbackなどのユーザー向け状態からdirect nodeを選びます。
-- Designは、検証済みRequirements、typed product behavior、実装・検証scopeから、Requirementsで固定したselected rule subgraphが完全かを再評価します。
-- Build / Verifyは、実際の変更ファイルと呼び出し経路を`docs/harness/policies/code-review.md`の変更面へ分類し、レビュー必須rule IDと依存closureをすべて確認します。完了証拠には同policyのCoverage形式で確認済みrule IDと未解決事項を記録します。
+- Requirementsは、Issue本文にliteral evidenceがあるpath、domain、activity、topicだけからdirect nodeを選びます。後工程の技術的変更面をIssueへ追記したり、Issueにない語をRequirements evidenceとして扱ったりしません。
+- Designは、`rule-map.json`の`review_routing.surfaces`から実装予定面を`rule_coverage.implementation_surfaces`へ固定します。surfaceの必須rule、Requirements選択、Designで判明した`additional_rules`の和集合と依存closureをvalidatorが最終selected ruleとして計算し、Design Goalとartifactの一致を検証します。
+- Design completion receiptは、最終selected rule文書、Designのimplementation surfaces、Build開始前のGit `HEAD`を固定します。
+- Build / Verifyは、receiptのGit基準点から得た実際の変更pathを`review_routing`で自動分類します。実差分に未宣言surface、receiptにない必須rule、またはsurface未定義のgoverned pathがあれば失敗し、成功時だけcanonical Build Coverage recordを生成します。
 
-DesignまたはBuild / Verifyで新たに適用対象と判定したrule IDが、検証済み上流成果物またはDesign completion receiptのselected rule subgraphに存在しない場合、後工程で黙って補完して完了してはいけません。上流のrule coverage不足としてStopします。
+DesignはRequirementsのliteral rule selectionを変更せず、自工程が所有する構造化coverageとして必要なruleを追加できます。Build / Verifyで実差分がDesign coverageを超えた場合は後工程で黙って補完せず、Design coverage不足としてStopします。
 
 ## 成果物モデル
 
@@ -78,26 +79,27 @@ ID、owner、role、reference、hash、inventoryが成果物の主要な機械�
 
 ### Intent / Requirements
 
-- 入力: 最新Issue snapshot、canonical rule map、Issue本文が明示する全変更面から選んだdirect nodeの和集合と依存closure、Git `HEAD`の同一workspace Requirements baseline。
+- 入力: 最新Issue snapshot、canonical rule map、Issue本文にliteral evidenceがあるdirect nodeと依存closure、Git `HEAD`の同一workspace Requirements baseline。
 - Cycle identity: 取得したcycle-start Issue titleを型付きfieldとして唯一所有し、Goalとartifactの両方で同じ値を検証する。
 - 所有: canonical `requirements.json`と生成`requirements.md`。
-- 完了: Issue全体を表す全Requirement IDと必須sectionが定義され、Issue本文が明示する全変更面のrule coverageが完全で、baselineの全recordが`unchanged`、`changed`、`new`、`retired`のいずれかで説明され、provenance、continuity、render同期が成功している。
-- 停止: Issueまたはworkspaceが曖昧、Issue snapshotが工程中に変化、rule dependencyまたはIssue-supportedな変更面のcoverageが解けない、完全な要求scopeを決められない、gateを満たせない。
+- 完了: Issue全体を表す全Requirement IDと必須sectionが定義され、baselineの全recordが`unchanged`、`changed`、`new`、`retired`のいずれかで説明され、provenance、literal rule selection、continuity、render同期が成功している。
+- 停止: Issueまたはworkspaceが曖昧、Issue snapshotが工程中に変化、Issue evidenceからrule dependencyが解けない、完全な要求scopeを決められない、gateを満たせない。
 
 ### Design / Plan
 
 - 入力: 検証済みcanonical Requirements全体とそのpath・SHA-256、選択ルール、実装文脈、Git `HEAD`の同一workspace Design baseline。Requirementsはread-onlyで、cycle titleはRequirementsからのみ導出する。
 - Product behavior: 追加・変更・削除するユーザー操作と状態遷移は`product_behaviors`のtyped inventoryだけで定義する。各recordは`PB-*` ID、種別、change、canonical `requirement_id`だけを持つ。Requirement本文は検証済み`requirements.json`だけが所有する。genericなsource kindや挙動本文の複製は置かない。選択済みruleはRequirementsとDesignを制約するが、不足するRequirement bindingの代替にはしない。同じRequirement IDをownerとするちょうど1件のdesign evidenceがそのrecordを所有する。Design proseはrecordを参照・説明できるが、新しいproduct behaviorの定義場所にはならない。
-- 所有: canonical `design-doc.json`、生成`design-doc.md`、同じbyte snapshotから完全再検証したretained Design Goal・両成果物・Issue snapshot・canonical rule map・選択済みrule文書・Git `HEAD` Requirements / Design baselineを固定するcanonical Design completion receipt。
-- 完了: 全Requirement IDがdesign evidenceとverification evidenceを所有し、全baseline sectionがhashにより`preserved`または`replaced`へ分類され、product behavior inventoryのRequirement bindingとownerが検証され、同じbyte snapshotに対するcoverageとrender同期の成功後にDesign completion receiptとそのSHA-256が固定されている。
-- 停止: Requirements再検証失敗、要求ごとの実装または検証方針を決められない、ユーザー操作または状態遷移を所有するRequirement IDがない、Designで判明した適用ruleがRequirementsのselected rule subgraphにない、baseline transitionが不完全、Design gateを満たせない。
+- Rule coverage: `rule_coverage.implementation_surfaces`と、surfaceから自動選択できないDesign固有の`additional_rules`をDesign Goalとartifactが同じ値で所有する。validatorがRequirements選択、surface必須rule、additional rule、依存closureから最終selected ruleを計算する。
+- 所有: canonical `design-doc.json`、生成`design-doc.md`、同じbyte snapshotから完全再検証したretained Design Goal・両成果物・Issue snapshot・canonical rule map・最終selected rule文書・implementation surfaces・Build基準Git `HEAD`を固定するcanonical Design completion receipt。
+- 完了: 全Requirement IDがdesign evidenceとverification evidenceを所有し、全baseline sectionがhashにより`preserved`または`replaced`へ分類され、product behavior inventoryのRequirement bindingとowner、rule coverageが検証され、同じbyte snapshotに対するcoverageとrender同期の成功後にDesign completion receiptとそのSHA-256が固定されている。
+- 停止: Requirements再検証失敗、要求ごとの実装または検証方針を決められない、ユーザー操作または状態遷移を所有するRequirement IDがない、実装予定面をmachine review surfaceへ分類できない、baseline transitionが不完全、Design gateを満たせない。
 
 ### Build / Verify
 
 - 入力: 直前のDesign Goal完了証拠に記録されたDesign completion receiptとそのSHA-256。Build entry gateは記録SHA-256に一致するreceipt bytesを読み、その後はそのbytesをreceipt identityとして扱う。現在のIssue snapshot、canonical Requirements / Design、両生成Markdown、canonical rule map、選択済みrule文書、Git `HEAD` Requirements / Design baselineを1回だけ読み込んだ同一byte snapshotから再検証し、そのsnapshotの全pathとhashがreceiptに完全一致し、最終drift checkで再読込した各入力も同じ場合だけ成功する。cycle titleはRequirements bytesとreceiptからのみ得て、Build入力として受け取らない。pathの継続占有ではなく検証済みsnapshot bytesがidentityであり、上流成果物とreceiptはread-only。
-- 所有: 必要な実装、テスト、fixture、runtime設定と、その検証証拠。
-- 完了: 全RequirementとDesign方針を実装し、対象appの必須verificationが成功し、実差分の全変更面に対するcode review Coverageに未解決がなく、Build entry gateを同じreceipt SHA-256に対して再実行して、上流成果物が不変である。
-- 停止: Build entryのartifact gateまたはrender同期が失敗、上流成果物の不足・矛盾を解釈で埋める必要がある、typed inventoryにないproduct behaviorが必要、実差分に適用されるruleがreceiptのselected rule subgraphにない、許可範囲を越える変更が必要、外部権限なしでは検証不能。
+- 所有: 必要な実装、テスト、fixture、runtime設定と、canonical `.aidd/build-rule-coverage.json`を含む検証証拠。
+- 完了: 全RequirementとDesign方針を実装し、対象appの必須verificationが成功し、receipt基準の実差分から生成したBuild rule coverageに未解決がなく、Build entry gateを同じreceipt SHA-256に対して再実行して、上流成果物が不変である。
+- 停止: Build entryのartifact gateまたはrender同期が失敗、上流成果物の不足・矛盾を解釈で埋める必要がある、typed inventoryにないproduct behaviorが必要、実差分に未宣言surface・receiptにない必須rule・未分類governed pathがある、許可範囲を越える変更が必要、外部権限なしでは検証不能。
 
 ### Ship
 

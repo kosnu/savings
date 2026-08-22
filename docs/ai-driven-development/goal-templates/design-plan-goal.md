@@ -25,7 +25,7 @@ when_to_read:
 - 目的: 検証済みRequirements全体について実装方針と検証方針を定義する。
 - Cycle identity: Issue snapshot、workspace、Requirements pathとSHA-256。cycle-start titleは検証済みRequirementsが所有し、Design Goalへ再入力・複製しない。
 - Canonical input: validation済み`requirements.json`。生成Markdownを含めread-only。
-- Rule coverage: 検証済みRequirements、typed product behavior、実装・検証scopeから、Requirementsで固定したselected rule subgraphが最小かつ完全であることを再評価する。
+- Rule coverage: 実装予定面を`rule-map.json`のmachine review surfaceへ分類し、`rule_coverage.implementation_surfaces`と必要な`additional_rules`をDesign Goalとartifactへ同一に記録する。最終selected ruleはvalidatorがRequirements選択、surface必須rule、additional rule、依存closureから計算する。
 - Implementation context: 関連コード、ADR、policy、tests。
 - Baseline: validatorがGit `HEAD`のcanonical `design-doc.json`から取得したsection inventoryとhash。
 - Scope: 全Requirement IDのdesign/verification scopeと、全baseline sectionのreview scope。
@@ -47,13 +47,13 @@ when_to_read:
 - replaced sectionはowned baseline evidenceを持つ。
 - typed inventoryにないproduct behaviorをDesign proseへ追加せず、全recordの`requirement_id`が検証済みRequirementsに存在し、同じRequirement IDのdesign evidenceが1件だけ所有する。
 - Requirements再検証、完全なretained Design Goal、Design coverage、canonical path、render同期が同じbyte snapshotに対して成功し、そのsnapshotから選択済みrule文書を含むDesign completion receiptを生成してSHA-256を完了証拠へ記録する。
-- Designで判明した全変更面に適用されるrule IDが、Requirementsのselected rule subgraphに含まれている。
+- Design Goalとartifactのrule coverageが一致し、全implementation surfaceに必要なrule IDと依存closureがDesign completion receiptへ固定されている。
 
 ## Stop
 
 - canonical Requirementsが無効または現在Issue snapshotと不整合。
 - 要求ごとの実装・検証方針を一意に決められない。
 - ユーザー操作または状態遷移を所有するRequirement IDがない。
-- Designで判明した適用ruleがRequirementsのselected rule subgraphにない。
+- 実装予定面をmachine review surfaceへ分類できない、または必要なadditional ruleを一意に決められない。
 - 上流Requirementsの変更なしでは整合するDesignを作れない。
 - in-scope修正後もDesign gateを満たせない。

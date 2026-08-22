@@ -78,11 +78,24 @@ def write_rule_map(repo_root: Path) -> Path:
         "# Workflow\n\ncanonical workflow rule evidence.\n",
         encoding="utf-8",
     )
+    extra_rule_path = repo_root / "docs" / "harness" / "policies" / "extra.md"
+    extra_rule_path.parent.mkdir(parents=True, exist_ok=True)
+    extra_rule_path.write_text("# Extra\n\nadditional design rule.\n", encoding="utf-8")
     rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
     rule_map_path.parent.mkdir(parents=True, exist_ok=True)
     rule_map_path.write_text(
         json.dumps(
             {
+                "review_routing": {
+                    "governed_paths": ["apps/**"],
+                    "surfaces": [
+                        {
+                            "id": "test-workflow",
+                            "paths": ["apps/**"],
+                            "required_rules": ["ai-driven.workflow"],
+                        }
+                    ],
+                },
                 "rules": [
                     {
                         "id": "ai-driven.workflow",
@@ -94,6 +107,17 @@ def write_rule_map(repo_root: Path) -> Path:
                             "topics": ["workflow"],
                         },
                         "depends_on": [],
+                    },
+                    {
+                        "id": "policy.extra",
+                        "file": "docs/harness/policies/extra.md",
+                        "applies_to": {
+                            "paths": [],
+                            "domains": [],
+                            "activities": ["additional_design_rule"],
+                            "topics": [],
+                        },
+                        "depends_on": ["ai-driven.workflow"],
                     }
                 ]
             },
@@ -315,6 +339,7 @@ def design_source(
     baseline_sections: list[dict[str, str]] | None = None,
     coverage_entries: list[dict[str, str]] | None = None,
     sections: list[dict[str, object]] | None = None,
+    additional_rules: list[dict[str, str]] | None = None,
 ) -> dict[str, object]:
     return {
         "schema_version": 2,
@@ -332,6 +357,10 @@ def design_source(
                     "requirement_id": "FR-1",
                 }
             ],
+            "rule_coverage": {
+                "implementation_surfaces": ["test-workflow"],
+                "additional_rules": additional_rules or [],
+            },
             "coverage_gate": {
                 "requirements_sha256": requirements_digest,
                 "workspace": WORKSPACE,
@@ -350,6 +379,7 @@ def design_goal_source(
     baseline: dict[str, object] | None = None,
     baseline_scopes: list[dict[str, str]] | None = None,
     scope_entries: list[dict[str, str]] | None = None,
+    additional_rules: list[dict[str, str]] | None = None,
 ) -> dict[str, object]:
     return {
         "schema_version": 2,
@@ -372,6 +402,10 @@ def design_goal_source(
                     "requirement_id": "FR-1",
                 }
             ],
+            "rule_coverage": {
+                "implementation_surfaces": ["test-workflow"],
+                "additional_rules": additional_rules or [],
+            },
             "scopes": scope_entries if scope_entries is not None else scopes(),
             "baseline_scopes": baseline_scopes or [],
         },
@@ -458,6 +492,107 @@ class DesignCoverageGateTest(unittest.TestCase):
 
     def test_accepts_goal_using_requirement_ids(self) -> None:
         self.validate_source(kind="goal")
+
+    def test_accepts_design_owned_additional_rule(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            workspace_root = (
+                repo_root / "docs" / "ai-driven-development" / "workspaces" / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
+            requirements_path = workspace_root / "requirements.json"
+            requirements_path.write_text(
+                serialize_source(requirements_source()), encoding="utf-8"
+            )
+            requirements_digest = hashlib.sha256(
+                requirements_path.read_bytes()
+            ).hexdigest()
+            issue_body_path = repo_root / "issue-body.md"
+            issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
+            rule_map_path = write_rule_map(repo_root)
+            goal_path = repo_root / "goal.json"
+            goal_path.write_text(
+                serialize_source(
+                    design_goal_source(
+                        requirements_digest,
+                        additional_rules=[
+                            {
+                                "id": "policy.extra",
+                                "reason": "Designで追加の制約が判明したため。",
+                            }
+                        ],
+                    )
+                ),
+                encoding="utf-8",
+            )
+
+            validate(
+                ISSUE,
+                ISSUE_URL,
+                ISSUE_UPDATED_AT,
+                issue_body_path,
+                rule_map_path,
+                requirements_path,
+                goal_path,
+                "goal",
+                repo_root,
+                WORKSPACE,
+            )
+
+    def test_rejects_artifact_rule_coverage_different_from_goal(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            workspace_root = (
+                repo_root / "docs" / "ai-driven-development" / "workspaces" / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
+            requirements_path = workspace_root / "requirements.json"
+            requirements_path.write_text(
+                serialize_source(requirements_source()), encoding="utf-8"
+            )
+            requirements_digest = hashlib.sha256(
+                requirements_path.read_bytes()
+            ).hexdigest()
+            issue_body_path = repo_root / "issue-body.md"
+            issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
+            rule_map_path = write_rule_map(repo_root)
+            design_path = workspace_root / "design-doc.json"
+            design_path.write_text(
+                serialize_source(
+                    design_source(
+                        requirements_digest,
+                        additional_rules=[
+                            {
+                                "id": "policy.extra",
+                                "reason": "Designで追加の制約が判明したため。",
+                            }
+                        ],
+                    )
+                ),
+                encoding="utf-8",
+            )
+            goal_path = repo_root / "design-goal.json"
+            goal_path.write_text(
+                serialize_source(design_goal_source(requirements_digest)),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValidationError, "rule_coverage must match"):
+                validate(
+                    ISSUE,
+                    ISSUE_URL,
+                    ISSUE_UPDATED_AT,
+                    issue_body_path,
+                    rule_map_path,
+                    requirements_path,
+                    design_path,
+                    "artifact",
+                    repo_root,
+                    WORKSPACE,
+                    goal_path,
+                )
 
     def test_rejects_replacement_requirements_snapshot_bytes(self) -> None:
         replacement = requirements_source()

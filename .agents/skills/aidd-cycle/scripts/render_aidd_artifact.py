@@ -251,6 +251,8 @@ def render_goal_objective(source: dict[str, Any]) -> str:
         )
     else:
         blocks.append(render_gate("Design Coverage Gate", validation["coverage_gate"]))
+        if "rule_coverage" in validation:
+            blocks.append(render_json_value("Rule Coverage", validation["rule_coverage"]))
         blocks.append(
             render_json_value(
                 "Product Behavior Scope", validation["product_behaviors"]
@@ -331,6 +333,11 @@ def render_artifact_markdown(source: dict[str, Any]) -> str:
                 *render_v2_sections(validation["sections"]),
                 render_json_value(
                     "Product Behavior Trace", validation["product_behaviors"]
+                ),
+                *(
+                    [render_json_value("Rule Coverage", validation["rule_coverage"])]
+                    if "rule_coverage" in validation
+                    else []
                 ),
                 render_gate("Design Coverage Gate", validation["coverage_gate"]),
             ]

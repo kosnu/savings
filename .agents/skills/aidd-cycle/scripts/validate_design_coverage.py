@@ -36,6 +36,13 @@ from validate_requirements_goal import (
     validate_rule_map,
     validate as validate_requirements_input,
 )
+from rule_coverage import (
+    RuleCoverageError,
+    expand_rule_closure,
+    rules_for_surfaces,
+    surface_ids as canonical_surface_ids,
+    validate_review_routing,
+)
 
 
 class ValidationError(ValueError):
@@ -411,7 +418,7 @@ def validate_coverage(
         raise ValidationError("coverage evidence block references must be unique")
 
 
-def selected_rule_ids(requirements_source: dict[str, Any]) -> list[str]:
+def requirements_selected_rule_ids(requirements_source: dict[str, Any]) -> list[str]:
     input_gate = requirements_source["validation"]["input_gate"]
     return [
         entry["id"]
@@ -420,10 +427,79 @@ def selected_rule_ids(requirements_source: dict[str, Any]) -> list[str]:
     ]
 
 
+def design_selected_rule_ids(
+    rule_map_bytes: bytes,
+    requirements_source: dict[str, Any],
+    design_source: dict[str, Any],
+) -> list[str]:
+    try:
+        rule_map = json.loads(rule_map_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValidationError(f"canonical rule-map is invalid: {error}") from error
+    try:
+        rules_by_id = validate_rule_map(rule_map)
+        routing = validate_review_routing(rule_map, rules_by_id)
+    except (RequirementsInputError, RuleCoverageError) as error:
+        raise ValidationError(f"canonical rule-map is invalid: {error}") from error
+
+    coverage = design_source["validation"].get("rule_coverage")
+    if not isinstance(coverage, dict):
+        raise ValidationError(
+            "Design rule_coverage is required for Goal validation and completion"
+        )
+    declared_surfaces = coverage["implementation_surfaces"]
+    known_surfaces = canonical_surface_ids(routing)
+    unknown_surfaces = set(declared_surfaces) - set(known_surfaces)
+    if unknown_surfaces:
+        raise ValidationError(
+            "rule_coverage contains unknown implementation surfaces: "
+            f"{', '.join(sorted(unknown_surfaces))}"
+        )
+    expected_surface_order = [
+        surface_id for surface_id in known_surfaces if surface_id in declared_surfaces
+    ]
+    if declared_surfaces != expected_surface_order:
+        raise ValidationError(
+            "rule_coverage.implementation_surfaces must use canonical rule-map order"
+        )
+
+    requirements_rules = requirements_selected_rule_ids(requirements_source)
+    surface_rules = rules_for_surfaces(declared_surfaces, routing)
+    automatic_rules = list(dict.fromkeys([*requirements_rules, *surface_rules]))
+    additional_ids = [entry["id"] for entry in coverage["additional_rules"]]
+    unknown_rules = set(additional_ids) - set(rules_by_id)
+    if unknown_rules:
+        raise ValidationError(
+            "rule_coverage.additional_rules contains unknown nodes: "
+            f"{', '.join(sorted(unknown_rules))}"
+        )
+    redundant_rules = set(additional_ids) & set(automatic_rules)
+    if redundant_rules:
+        raise ValidationError(
+            "rule_coverage.additional_rules contains automatically selected nodes: "
+            f"{', '.join(sorted(redundant_rules))}"
+        )
+    expected_additional_order = [
+        rule_id for rule_id in rules_by_id if rule_id in additional_ids
+    ]
+    if additional_ids != expected_additional_order:
+        raise ValidationError(
+            "rule_coverage.additional_rules must use canonical rule-map order"
+        )
+    try:
+        return expand_rule_closure(
+            [*automatic_rules, *additional_ids],
+            rules_by_id,
+        )
+    except RuleCoverageError as error:
+        raise ValidationError(str(error)) from error
+
+
 def load_selected_rule_records(
     repo_root: Path,
     rule_map_bytes: bytes,
     requirements_source: dict[str, Any],
+    design_source: dict[str, Any],
 ) -> dict[str, dict[str, Any]]:
     try:
         rule_map = json.loads(rule_map_bytes.decode("utf-8"))
@@ -434,7 +510,11 @@ def load_selected_rule_records(
     except RequirementsInputError as error:
         raise ValidationError(f"canonical rule-map is invalid: {error}") from error
     records: dict[str, dict[str, Any]] = {}
-    for rule_id in selected_rule_ids(requirements_source):
+    for rule_id in design_selected_rule_ids(
+        rule_map_bytes,
+        requirements_source,
+        design_source,
+    ):
         rule = rules_by_id.get(rule_id)
         if rule is None:
             raise ValidationError(f"selected canonical rule is missing: {rule_id}")
@@ -706,6 +786,7 @@ def validate(
             ids,
             baseline_sections,
         )
+        design_selected_rule_ids(rule_map_bytes, requirements_source, source)
         return
 
     validate_snapshot(
@@ -753,6 +834,14 @@ def validate(
             raise ValidationError(
                 "Design artifact product_behaviors must match the retained Design Goal"
             )
+        if (
+            source["validation"]["rule_coverage"]
+            != goal_source["validation"]["rule_coverage"]
+        ):
+            raise ValidationError(
+                "Design artifact rule_coverage must match the retained Design Goal"
+            )
+    design_selected_rule_ids(rule_map_bytes, requirements_source, source)
     current_sections = design_sections(source)
     blocks = evidence_blocks(source)
     validate_coverage(manifest.get("coverage"), ids, blocks)

@@ -37,7 +37,13 @@ MANAGED_VALIDATION_KEYS = {
         "requirements",
         "sections",
     },
-    "design": {"mode", "product_behaviors", "coverage_gate", "sections"},
+    "design": {
+        "mode",
+        "product_behaviors",
+        "rule_coverage",
+        "coverage_gate",
+        "sections",
+    },
 }
 MANAGED_GOAL_VALIDATION_KEYS = {
     "requirements_goal": {
@@ -51,6 +57,7 @@ MANAGED_GOAL_VALIDATION_KEYS = {
         "mode",
         "coverage_gate",
         "product_behaviors",
+        "rule_coverage",
         "scopes",
         "baseline_scopes",
     },
@@ -840,6 +847,36 @@ def validate_product_behavior_entries(
     return behavior_ids
 
 
+def validate_rule_coverage_shape(value: Any) -> None:
+    if not isinstance(value, dict) or set(value) != {
+        "implementation_surfaces",
+        "additional_rules",
+    }:
+        raise SourceError(
+            "rule_coverage must contain only implementation_surfaces and additional_rules"
+        )
+    surfaces = value["implementation_surfaces"]
+    if not isinstance(surfaces, list) or not surfaces:
+        raise SourceError("rule_coverage.implementation_surfaces must be non-empty")
+    if any(not isinstance(surface, str) or not surface.strip() for surface in surfaces):
+        raise SourceError(
+            "rule_coverage.implementation_surfaces must contain non-empty strings"
+        )
+    if len(surfaces) != len(set(surfaces)):
+        raise SourceError("rule_coverage.implementation_surfaces must be unique")
+    additional_rules = value["additional_rules"]
+    if not isinstance(additional_rules, list):
+        raise SourceError("rule_coverage.additional_rules must be an array")
+    additional_ids: list[str] = []
+    for index, entry in enumerate(additional_rules):
+        label = f"rule_coverage.additional_rules[{index}]"
+        require_object_keys(entry, {"id", "reason"}, label)
+        additional_ids.append(require_string(entry["id"], f"{label}.id"))
+        require_inline_markdown(entry["reason"], f"{label}.reason")
+    if len(additional_ids) != len(set(additional_ids)):
+        raise SourceError("rule_coverage.additional_rules IDs must be unique")
+
+
 def validate_product_behaviors(
     value: Any,
     requirement_ids: list[str],
@@ -881,7 +918,11 @@ def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
     validation = source["validation"]
     if validation.get("mode") != "managed":
         raise SourceError("managed artifact validation requires validation.mode=managed")
-    if set(validation) != MANAGED_VALIDATION_KEYS[kind]:
+    valid_keys = MANAGED_VALIDATION_KEYS[kind]
+    legacy_design_keys = valid_keys - {"rule_coverage"}
+    if set(validation) != valid_keys and not (
+        kind == "design" and set(validation) == legacy_design_keys
+    ):
         raise SourceError(f"managed {kind} validation has invalid keys")
     sections, sections_by_id, blocks_by_id = validate_v2_sections(
         validation["sections"], kind
@@ -913,6 +954,8 @@ def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
         gate_workspace = validation["completeness_gate"]["workspace"]
     else:
         validate_design_coverage_gate(validation["coverage_gate"], blocks_by_id)
+        if "rule_coverage" in validation:
+            validate_rule_coverage_shape(validation["rule_coverage"])
         validate_product_behaviors(
             validation["product_behaviors"],
             validation["coverage_gate"]["requirement_ids"],
@@ -934,7 +977,11 @@ def validate_managed_goal_source(value: Any) -> dict[str, Any]:
     validation = source["validation"]
     if validation.get("mode") != "managed":
         raise SourceError("Goal validation.mode must be managed")
-    if set(validation) != MANAGED_GOAL_VALIDATION_KEYS[kind]:
+    valid_keys = MANAGED_GOAL_VALIDATION_KEYS[kind]
+    legacy_design_goal_keys = valid_keys - {"rule_coverage"}
+    if set(validation) != valid_keys and not (
+        kind == "design_goal" and set(validation) == legacy_design_goal_keys
+    ):
         raise SourceError(f"managed {kind} validation has invalid keys")
     if kind == "requirements_goal":
         require_inline_markdown(
@@ -960,6 +1007,8 @@ def validate_managed_goal_source(value: Any) -> dict[str, Any]:
         gate_workspace = validation["completeness_gate"]["workspace"]
     else:
         validate_design_goal_coverage_gate(validation["coverage_gate"])
+        if "rule_coverage" in validation:
+            validate_rule_coverage_shape(validation["rule_coverage"])
         validate_product_behavior_entries(
             validation["product_behaviors"],
             validation["coverage_gate"]["requirement_ids"],

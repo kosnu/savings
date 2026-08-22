@@ -95,6 +95,14 @@ When an existing rule already covers the finding, route it to a rule / policy
 addition or change if its meaning, applicability, or ownership must change;
 otherwise route it to existing rule / policy sharpening.
 
+For a finding caused by a rule or workflow omission, perform the policy's
+root-cause check before choosing the destination. If the invariant is
+machine-detectable, do not treat prose or self-reported Coverage alone as the
+completed learning. Name the owning structured field, validator, and regression
+test needed to close equivalent paths. Keep Issue literal evidence, Design
+implementation surfaces, and Build actual-diff evidence in their owning phases;
+do not repair a later-phase gap by adding technical terms to Task Context.
+
 Preserve the user's finding and stated reason before adding interpretation. If
 an interpretation would introduce visible information, an operation, a
 constraint, or a success criterion that the feedback did not state, stop

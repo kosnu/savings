@@ -26,6 +26,7 @@ from git_baseline import (
     load_git_head_source,
     require_canonical_worktree_path,
     require_repository_root,
+    run_git,
 )
 from render_aidd_artifact import render_artifact_markdown
 from validate_design_coverage import (
@@ -35,7 +36,7 @@ from validate_design_coverage import (
 )
 
 
-RECEIPT_SCHEMA_VERSION = 1
+RECEIPT_SCHEMA_VERSION = 2
 RECEIPT_RELATIVE_PATH = Path(".aidd") / "design-completion.json"
 
 
@@ -54,12 +55,23 @@ class HandoffSnapshot:
     requirements_display: bytes
     design_display: bytes
     selected_rules: dict[str, dict[str, Any]]
+    build_baseline_head: str
     design_goal: bytes | None = None
     receipt: bytes | None = None
 
 
 def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def current_git_head(repo_root: Path) -> str:
+    result = run_git(repo_root, ["rev-parse", "--verify", "HEAD"])
+    if result.returncode != 0:
+        raise ValidationError("Git HEAD is unavailable")
+    head = result.stdout.decode("utf-8").strip()
+    if len(head) != 40 or any(character not in "0123456789abcdef" for character in head):
+        raise ValidationError("Git HEAD must be a full lowercase commit ID")
+    return head
 
 
 def canonical_receipt_path(repo_root: Path, workspace: str) -> Path:
@@ -127,10 +139,15 @@ def read_handoff_snapshot(
     )
     rule_map = read_regular_file_bytes(canonical_rule_map_path)
     requirements_source = load_source_bytes(requirements, "requirements")
+    design = read_regular_file_bytes(
+        canonical_source_path(repo_root, workspace, "design")
+    )
+    design_source = load_source_bytes(design, "design")
     selected_rules = load_selected_rule_records(
         repo_root,
         rule_map,
         requirements_source,
+        design_source,
     )
     _, requirements_baseline = load_git_head_source(
         repo_root,
@@ -140,13 +157,37 @@ def read_handoff_snapshot(
     _, design_baseline = load_git_head_source(repo_root, workspace, "design")
     for record in selected_rules.values():
         record["bytes"] = record["text"].encode("utf-8")
+    receipt = (
+        read_regular_file_bytes(receipt_path)
+        if receipt_path is not None
+        else None
+    )
+    if receipt is None:
+        build_baseline_head = current_git_head(repo_root)
+    else:
+        try:
+            receipt_source = decode_source_json(receipt.decode("utf-8"))
+            build_baseline_head = receipt_source["build_baseline"]["head"]
+        except (UnicodeDecodeError, KeyError, TypeError) as error:
+            raise ValidationError(
+                "design completion receipt has no valid build baseline"
+            ) from error
+        if (
+            not isinstance(build_baseline_head, str)
+            or len(build_baseline_head) != 40
+            or any(
+                character not in "0123456789abcdef"
+                for character in build_baseline_head
+            )
+        ):
+            raise ValidationError(
+                "design completion receipt build baseline must be a full commit ID"
+            )
     return HandoffSnapshot(
         issue_body=read_regular_file_bytes(issue_body_path),
         rule_map=rule_map,
         requirements=requirements,
-        design=read_regular_file_bytes(
-            canonical_source_path(repo_root, workspace, "design")
-        ),
+        design=design,
         requirements_baseline=requirements_baseline,
         design_baseline=design_baseline,
         requirements_display=read_regular_file_bytes(
@@ -156,16 +197,13 @@ def read_handoff_snapshot(
             canonical_display_path(repo_root, workspace, "design")
         ),
         selected_rules=selected_rules,
+        build_baseline_head=build_baseline_head,
         design_goal=(
             read_regular_file_bytes(goal_document_path)
             if goal_document_path is not None
             else None
         ),
-        receipt=(
-            read_regular_file_bytes(receipt_path)
-            if receipt_path is not None
-            else None
-        ),
+        receipt=receipt,
     )
 
 
@@ -180,6 +218,7 @@ def build_receipt(
     design_goal_sha256: str,
 ) -> dict[str, Any]:
     requirements_source = load_source_bytes(snapshot.requirements, "requirements")
+    design_source = load_source_bytes(snapshot.design, "design")
     issue_title = requirements_source["validation"]["cycle_start_issue_title"]
     return {
         "schema_version": RECEIPT_SCHEMA_VERSION,
@@ -198,6 +237,12 @@ def build_receipt(
             "sha256": sha256_bytes(snapshot.rule_map),
         },
         "selected_rules": selected_rule_receipt_records(snapshot),
+        "rule_coverage": {
+            "implementation_surfaces": design_source["validation"]["rule_coverage"][
+                "implementation_surfaces"
+            ],
+        },
+        "build_baseline": {"head": snapshot.build_baseline_head},
         "artifacts": {
             "requirements": artifact_record(
                 repo_root,
@@ -303,6 +348,11 @@ def assert_snapshot_current(
         raise ValidationError("Requirements Git HEAD baseline changed after the handoff snapshot")
     if current_design_baseline != snapshot.design_baseline:
         raise ValidationError("Design Git HEAD baseline changed after the handoff snapshot")
+    if (
+        goal_document_path is not None
+        and current_git_head(repo_root) != snapshot.build_baseline_head
+    ):
+        raise ValidationError("Git HEAD changed during Design completion capture")
 
 
 def validate_or_capture(

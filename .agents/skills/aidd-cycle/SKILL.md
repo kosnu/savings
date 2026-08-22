@@ -57,19 +57,20 @@ For each phase in the workflow:
    artifacts and generated displays against the current Issue snapshot and the
    Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
-   subgraph. In Design, re-evaluate coverage from Requirements, typed product
-   behaviors, and implementation and verification scope. In Build, re-evaluate
-   coverage from the actual changed files and call paths using the code review
-   policy and retain its Coverage record. If either phase finds an applicable
-   rule outside the validated upstream selected subgraph, stop as an upstream
-   rule-coverage defect instead of silently supplementing it and completing.
+   subgraph. In Design, record the machine review surfaces for the planned
+   implementation and any additional Design-owned rules; the validator derives
+   the final selected rules and dependency closure. In Build, run the Build rule
+   coverage validator against the actual Git diff and retain its canonical
+   Coverage record. Stop if the diff has an undeclared surface, a required rule
+   absent from the receipt, or a governed path with no routing surface.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path
    and SHA-256 in the phase completion evidence.
-5. For Build, immediately before completion, rerun the Build Entry gate with
-   the receipt path and SHA-256 recorded by Design and require it to print that
-   same SHA-256. Only after this phase-specific check and the objective, Done
+5. For Build, immediately before completion, run the Build rule coverage
+   validator, then rerun the Build Entry gate with the receipt path and SHA-256
+   recorded by Design and require it to print that same SHA-256. Only after
+   these phase-specific checks and the objective, Done
    conditions, and Verification are satisfied, call
    `update_goal(status: complete)` and confirm the terminal state with
    `get_goal` before advancing.

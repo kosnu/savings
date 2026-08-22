@@ -61,10 +61,9 @@ For Requirements:
 - fetch the latest Issue title and snapshot the latest body; the body is the
   only Task Context and the exact title is the Requirements-owned typed cycle
   identity and workspace derivation input;
-- classify every Issue-supported path, domain, activity, topic, operation, and
-  user-facing loading, success, failure, or fallback state; select the union of
-  all matching direct rule-map nodes, then add their declared dependency
-  closure;
+- select direct rule-map nodes only when their path, domain, activity, or topic
+  has literal evidence in the Issue body, then add their declared dependency
+  closure; do not encode later implementation terminology into Requirements;
 - resolve the Git `HEAD` Requirements baseline and classify every baseline and
   current requirement/section transition;
 - create and validate a temporary `requirements_goal` JSON before setting the
@@ -77,10 +76,10 @@ For Design:
   source and bind Design to those Requirements bytes by path and SHA-256;
 - cover every current requirement ID and every Git `HEAD` Design baseline
   section;
-- re-evaluate rule coverage from the validated Requirements, typed product
-  behaviors, and implementation and verification scope; stop if an applicable
-  rule is absent from the Requirements-selected subgraph instead of silently
-  adding it in Design;
+- classify the planned implementation into machine review surfaces from
+  `rule-map.json`; record the canonical `implementation_surfaces` and only
+  Design-specific `additional_rules` in `rule_coverage`. The validator derives
+  the union with Requirements-selected rules and the dependency closure;
 - define every added, changed, or removed user operation and state transition
   as a typed product behavior record with one canonical `requirement_id` and one
   design evidence block owned by the same Requirement ID. Requirement content
@@ -96,10 +95,10 @@ For Build:
   receipt;
 - record the verified receipt path, unchanged SHA-256, and its complete
   artifact and selected-rule identity in the Build Goal.
-- require completion-time classification of the actual changed files and call
-  paths under the code review policy, a Coverage record for every required rule
-  and dependency, and a Stop when an applicable rule is absent from the
-  receipt-selected subgraph;
+- require the Build rule coverage validator at completion. It classifies the
+  actual Git diff from the receipt baseline, writes the canonical Coverage
+  record, and stops on undeclared surfaces, missing receipt rules, or governed
+  paths without a routing surface;
 - take the cycle-start title only from the verified receipt; the Build entry
   command has no title input.
 

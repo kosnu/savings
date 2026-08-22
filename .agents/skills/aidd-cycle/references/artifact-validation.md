@@ -25,6 +25,10 @@ snapshot identity, full inventories, baseline hashes, rule dependencies,
 transition status, block references, evidence roles, and evidence owners.
 Schema v2 additionally enforces canonical headings, substantive non-placeholder
 text, unique evidence references, and unambiguous evidence-to-owner mapping.
+Design Goal and artifact also own identical `rule_coverage` records. Their
+`implementation_surfaces` must use the canonical `review_routing` order;
+`additional_rules` holds only Design-specific nodes not already selected by
+Requirements or a surface. The validator computes the final dependency closure.
 
 ## Workspace
 
@@ -132,6 +136,10 @@ the same Requirement ID owns the record. There is no generic source kind or
 copied behavior prose. Selected rules constrain Requirements and Design but
 never define product behavior directly or substitute for a missing Requirement.
 Design prose does not define behavior outside this inventory.
+The retained Design Goal and artifact must also contain identical
+`rule_coverage`. Do not copy implementation terms into the Issue or Requirements
+to make a rule selectable. Select the planned machine review surfaces in Design;
+use `additional_rules` only when no surface automatically owns the needed node.
 
 After the artifact command succeeds, capture the Design-owned completion
 receipt before completing the Design Goal:
@@ -147,8 +155,9 @@ python3 .agents/skills/aidd-cycle/scripts/capture_design_completion.py \
 
 Record the exact receipt path and printed SHA-256 in the Design completion
 evidence. The receipt snapshots the fully revalidated retained Design Goal hash,
-Requirements-owned cycle title, Issue body, canonical rule map, every selected
-rule document, and the canonical
+Requirements-owned cycle title, Issue body, canonical rule map, every final
+selected rule document, Design implementation surfaces, the Build baseline Git
+`HEAD`, and the canonical
 source and display paths and hashes. Capture reads those inputs and the Git
 `HEAD` Requirements / Design baselines once, validates and renders from those
 exact bytes, constructs the receipt from the same bytes, and fails if any input
@@ -183,7 +192,21 @@ the receipt; there is no Build caller input that can replace it.
 
 Create the Build Goal only when this command succeeds and prints the same
 receipt SHA-256 recorded by Design. Put that receipt identity in the Goal, and
-run the same command again before completing Build. The exact receipt recorded
+before completing Build run:
+
+```sh
+python3 .agents/skills/aidd-cycle/scripts/validate_build_rule_coverage.py \
+  --repo-root <repo-root> --workspace <workspace> \
+  --expected-receipt-sha256 <design-completion-sha256>
+```
+
+This command derives changed paths from the receipt's Git baseline, classifies
+every governed path through `rule-map.json` `review_routing`, verifies that all
+actual surfaces were declared by Design and every required closure node exists
+in the receipt, and writes canonical
+`<workspace>/.aidd/build-rule-coverage.json`. An undeclared surface, missing
+receipt rule, or governed path without a surface is a failure. Then run the
+Build Entry command again before completing Build. The exact receipt recorded
 by the preceding Design completion evidence is the Build phase's upstream
 identity.
 

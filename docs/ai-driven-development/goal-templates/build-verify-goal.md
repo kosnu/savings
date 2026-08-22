@@ -33,7 +33,7 @@ when_to_read:
 - 全RequirementとDesign decisionを満たす実装が完了している。
 - 必要なcode、test、fixture、doc表現が同期している。
 - 対象appの必須verificationが現在diffに対して成功している。
-- 実際の変更ファイルと呼び出し経路をcode review policyの変更面へ分類し、全レビュー必須rule IDと依存closureを確認したCoverageに未解決がない。
+- receiptのGit基準点から実際の変更pathをmachine review surfaceへ自動分類し、canonical Build rule coverage recordに未解決がない。
 - Build entry gateを再実行し、Goalへ記録したreceipt SHA-256と一致している。
 - 未解消のlint、type、test、整合性、scope漏れがない。
 
@@ -42,7 +42,7 @@ when_to_read:
 - Build entryのartifact gateまたはrender同期が失敗する。
 - RequirementsまたはDesignの不足・矛盾を推測で埋める必要がある。
 - typed inventoryにないproduct behaviorが実装に必要になる。
-- 実差分に適用されるrule IDがDesign completion receiptのselected rule subgraphにない。
+- 実差分に未宣言surface、receiptにない必須rule、またはsurface未定義のgoverned pathがある。
 - 明示scopeや権限を越える変更が必要。
 - 必須verificationが外部条件のため完了不能。
 

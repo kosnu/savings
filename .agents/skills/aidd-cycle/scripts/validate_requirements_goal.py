@@ -23,6 +23,7 @@ from git_baseline import (
     canonical_source_path,
     require_canonical_worktree_path,
 )
+from rule_coverage import RuleCoverageError, validate_review_routing
 
 
 GENERIC_IMPLEMENTATION_TOPICS = {
@@ -109,6 +110,10 @@ def validate_rule_map(rule_map: Any) -> dict[str, dict[str, Any]]:
         ):
             raise ValidationError(f"{rule_id}.depends_on must be an array of strings")
         rules_by_id[rule_id] = rule
+    try:
+        validate_review_routing(rule_map, rules_by_id)
+    except RuleCoverageError as error:
+        raise ValidationError(str(error)) from error
     return rules_by_id
 
 

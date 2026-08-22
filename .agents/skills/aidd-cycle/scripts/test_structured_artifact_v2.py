@@ -143,6 +143,10 @@ def design_source() -> dict[str, object]:
                     "requirement_id": "FR-1",
                 }
             ],
+            "rule_coverage": {
+                "implementation_surfaces": ["test-workflow"],
+                "additional_rules": [],
+            },
             "coverage_gate": {
                 "requirements_sha256": DIGEST,
                 "workspace": WORKSPACE,
@@ -299,6 +303,10 @@ def design_goal_source() -> dict[str, object]:
                 "requirement_id": "FR-1",
             }
         ],
+        "rule_coverage": {
+            "implementation_surfaces": ["test-workflow"],
+            "additional_rules": [],
+        },
         "scopes": [
             {
                 "id": "FR-1",
