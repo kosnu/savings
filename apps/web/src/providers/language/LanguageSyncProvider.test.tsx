@@ -1,11 +1,35 @@
+import { QueryClientProvider, type QueryClient } from "@tanstack/react-query"
 import { beforeEach, describe, expect, test } from "vite-plus/test"
 
 import { profileQueryKeys } from "../../features/profile"
 import { i18next } from "../../i18n"
+import { mockSession } from "../../test/data/supabaseSession"
 import { createProfileHandlers } from "../../test/msw/handlers/profile"
 import { server } from "../../test/msw/server"
-import { createTestQueryClient, render, screen, waitFor } from "../../test/test-utils"
+import { act, createTestQueryClient, render, screen, waitFor } from "../../test/test-utils"
+import {
+  SupabaseSessionContext,
+  type SupabaseSessionState,
+} from "../supabase/SupabaseSessionProvider"
 import { LanguageSyncProvider } from "./LanguageSyncProvider"
+
+function LanguageSyncHarness({
+  queryClient,
+  sessionState,
+}: {
+  queryClient: QueryClient
+  sessionState: SupabaseSessionState
+}) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SupabaseSessionContext value={sessionState}>
+        <LanguageSyncProvider>
+          <span>Application</span>
+        </LanguageSyncProvider>
+      </SupabaseSessionContext>
+    </QueryClientProvider>
+  )
+}
 
 describe("LanguageSyncProvider", () => {
   beforeEach(async () => {
@@ -89,5 +113,79 @@ describe("LanguageSyncProvider", () => {
     expect(screen.queryByText("Application")).not.toBeInTheDocument()
     expect(await screen.findByText("Application")).toBeInTheDocument()
     await waitFor(() => expect(i18next.resolvedLanguage).toBe("en"))
+  })
+
+  test("同じユーザーのsession更新では表示準備済み状態を維持する", async () => {
+    const queryClient = createTestQueryClient()
+    const initialSession = mockSession({ access_token: "initial-token" })
+    server.resetHandlers(
+      ...createProfileHandlers({
+        get: { response: { name: "Test User", email: "test@example.com", language: "ja" } },
+      }),
+    )
+
+    const { rerender } = render(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{ status: "authenticated", session: initialSession }}
+      />,
+      { withProviders: false },
+    )
+
+    expect(await screen.findByText("Application")).toBeInTheDocument()
+
+    rerender(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{
+          status: "authenticated",
+          session: mockSession({ access_token: "refreshed-token" }),
+        }}
+      />,
+    )
+
+    expect(screen.getByText("Application")).toBeInTheDocument()
+  })
+
+  test("サインアウト後の同一ユーザー再ログインでは準備完了を再判定する", async () => {
+    const queryClient = createTestQueryClient()
+    const session = mockSession()
+
+    const { rerender } = render(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{ status: "authenticated", session }}
+      />,
+      { withProviders: false },
+    )
+
+    expect(await screen.findByText("Application")).toBeInTheDocument()
+
+    rerender(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{ status: "unauthenticated", session: null }}
+      />,
+    )
+    await act(async () => Promise.resolve())
+    await queryClient.invalidateQueries({ queryKey: profileQueryKeys.current(session.user.id) })
+    server.resetHandlers(
+      ...createProfileHandlers({
+        get: {
+          response: { name: "Test User", email: "test@example.com", language: "en" },
+          durationOrMode: 100,
+        },
+      }),
+    )
+
+    rerender(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{ status: "authenticated", session: mockSession() }}
+      />,
+    )
+
+    expect(screen.queryByText("Application")).not.toBeInTheDocument()
+    expect(await screen.findByText("Application")).toBeInTheDocument()
   })
 })

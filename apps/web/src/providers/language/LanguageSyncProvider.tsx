@@ -12,7 +12,7 @@ interface LanguageSyncProviderProps {
 export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
   const { session, status } = useSupabaseSession()
   const authUserId = session?.user.id
-  const [readySession, setReadySession] = useState<typeof session>(null)
+  const [readyAuthUserId, setReadyAuthUserId] = useState<string | null>(null)
   const [resolvedSnapshot, setResolvedSnapshot] = useState<string | null>(null)
   const languageSyncQueueRef = useRef(Promise.resolve())
 
@@ -39,14 +39,29 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
       : null
 
   useEffect(() => {
-    if (status !== "authenticated" || authUserId === undefined || session === null) return
+    if (status === "authenticated") return
+
+    let isActive = true
+    queueMicrotask(() => {
+      if (!isActive) return
+      setReadyAuthUserId(null)
+      setResolvedSnapshot(null)
+    })
+
+    return () => {
+      isActive = false
+    }
+  }, [status])
+
+  useEffect(() => {
+    if (status !== "authenticated" || authUserId === undefined) return
 
     if (isFetching) return
 
     if (hasFallback) {
       let isActive = true
       queueMicrotask(() => {
-        if (isActive) setReadySession(session)
+        if (isActive) setReadyAuthUserId(authUserId)
       })
       return () => {
         isActive = false
@@ -66,7 +81,7 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
           await i18next.changeLanguage(profileLanguage)
         } finally {
           if (isActive) {
-            setReadySession(session)
+            setReadyAuthUserId(authUserId)
             setResolvedSnapshot(snapshot)
           }
         }
@@ -75,20 +90,11 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
     return () => {
       isActive = false
     }
-  }, [
-    authUserId,
-    hasFallback,
-    isFetching,
-    profileLanguage,
-    resolvedSnapshot,
-    session,
-    snapshot,
-    status,
-  ])
+  }, [authUserId, hasFallback, isFetching, profileLanguage, resolvedSnapshot, snapshot, status])
 
   const canRenderChildren =
     status === "unauthenticated" ||
-    (status === "authenticated" && session !== null && readySession === session)
+    (status === "authenticated" && authUserId !== undefined && readyAuthUserId === authUserId)
 
   return canRenderChildren ? <>{children}</> : null
 }

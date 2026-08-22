@@ -16,7 +16,7 @@
           {
             "id": "context-body",
             "type": "markdown",
-            "markdown": "- Requirements canonical source: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `6ee3971b100c260d2fee149687292d83d22d3013265eec0c35a60a0ab37da0b1`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline SHA-256: `bee7992f0e2faf6060cc57c1425a34d534c53107620c360e4c1727041820f05a`。\n- Requirementsと生成requirements.mdはread-onlyとし、BuildはこのDesignのreceiptを上流identityとして扱う。"
+            "markdown": "- Requirements canonical source: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `2e53628ec90e7e98b9f34f9ec8f74067bcae4a54a41aad164bd55da1ae3c0891`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline SHA-256: `9ac15ee065f3f82d891098b64dd981659658a5b5d14964f63c079acde91957a3`。\n- Requirementsと生成requirements.mdはread-onlyとし、BuildはこのDesignのreceiptを上流identityとして扱う。"
           },
           {
             "id": "baseline-context-evidence",
@@ -34,14 +34,14 @@
           {
             "id": "rule-selection-body",
             "type": "markdown",
-            "markdown": "- Requirements direct/selected: `domain.user`。public.users.languageをアカウント所有・認証境界のユーザードメインとして設計する。宣言済みdependency closureはない。\n- Implementation surface: `web.query-cache`と`policy.transaction-boundaries`をquery/mutationへ、`web.feature-directory`と`web.component-structure`をprofile公開面へ、`web.test-policy`を回帰testへ適用する。\n- Conflict decision: profile update allowlistはnameとlanguageだけを許可し、他の列へ広げない。"
+            "markdown": "- Requirements direct/selected: `domain.user`。public.users.languageをアカウント所有・認証境界のユーザードメインとして設計する。宣言済みdependency closureはない。\n- Implementation surface: `web.suspense-boundaries`を非同期readyと認証ライフサイクルへ、`web.query-cache`と`policy.transaction-boundaries`をquery/mutationへ、`web.feature-directory`と`web.component-structure`をprofile公開面へ、`web.test-policy`を回帰testへ適用する。\n- Conflict decision: profile update allowlistはnameとlanguageだけを許可し、他の列へ広げない。"
           },
           {
             "id": "baseline-rule-selection-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "rule-selection",
-            "text": "Rule Selection baselineへ、実装surfaceから適用するquery cache、transaction、feature公開面、test policyを加えて置換する。"
+            "text": "Rule Selection baselineへ、認証ライフサイクルに適用するweb.suspense-boundariesを加えて置換する。"
           }
         ]
       },
@@ -52,14 +52,14 @@
           {
             "id": "architecture-body",
             "type": "markdown",
-            "markdown": "### 永続化とAPI\n\n`public.users.language`、生成型、プロフィール取得・更新API、RLSとサーバー側allowlistの既存契約を維持する。\n\n### 初回Web状態\n\n認証判定中と、認証済みユーザーのfresh profile取得中はchildrenを表示しない。取得成功時はaccount languageの非同期適用完了後、取得失敗または未設定時は端末値か既定値をfallbackとして決定後に初回表示を解放する。queryはmount時にsource of truthを再取得し、cached値をuser IDだけのguardで確定済みにしない。\n\n### Feature境界\n\nprofile feature外のlanguage providerとpreferences featureは、profile rootの`index.ts`公開面からquery key、fetch、mutation hookを参照する。"
+            "markdown": "### 永続化とAPI\n\n`public.users.language`、生成型、プロフィール取得・更新API、RLSとサーバー側allowlistの既存契約を維持する。\n\n### 初回Web状態\n\n認証判定中と、認証済みユーザーのfresh profile取得中はchildrenを表示しない。取得成功時はaccount languageの非同期適用完了後、取得失敗または未設定時は端末値か既定値をfallbackとして決定後に初回表示を解放する。readyはSessionオブジェクト参照ではなくユーザーIDで照合し、同一ログイン中のtoken refreshでは維持する。一方、unauthenticatedへの遷移ではreadyと処理済みsnapshotを破棄し、同じユーザーの再ログインでもfresh結果まで再び待機する。\n\n### Feature境界\n\nprofile feature外のlanguage providerとpreferences featureは、profile rootの`index.ts`公開面からquery key、fetch、mutation hookを参照する。"
           },
           {
             "id": "baseline-architecture-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "architecture",
-            "text": "採用する構成 baselineを、初回表示ready境界、fresh query追従、profile feature公開面を明示した内容へ置換する。"
+            "text": "採用する構成 baselineを、Session参照に依存しないready同一性とsign-out時の破棄条件へ置換する。"
           }
         ]
       },
@@ -81,14 +81,14 @@
           {
             "id": "state-flow-body",
             "type": "markdown",
-            "markdown": "1. session判定中は表示を待機し、未認証なら端末値または既定値で表示する。\n2. 認証済みならmount時にprofileを必ず再取得し、初回fresh結果が決まるまで表示を待機する。\n3. account languageがあれば非同期適用完了後に表示し、nullなら端末値、取得失敗なら端末値または既定値をfallbackとして確定後に表示する。推測値はaccountへ保存しない。\n4. queryが後続のfresh値を返した場合はuser、language、data generationを識別して適用し、古い非同期処理の完了で上書きしない。\n5. selector変更では先に端末言語を反映してwriteを行う。write失敗だけは直前値へ戻す。\n6. write成功後のrefetch失敗は確認失敗としてerrorにし、端末言語を戻さず、次のrefetchでsource of truthへ収束可能にする。"
+            "markdown": "1. session判定中は表示を待機し、未認証なら端末値または既定値で表示する。同時に認証済みreadyと処理済みsnapshotを破棄する。\n2. 認証済みならmount時にprofileを必ず再取得し、初回fresh結果が決まるまで表示を待機する。\n3. account languageがあれば非同期適用完了後にuser IDをreadyとして記録し、nullなら端末値、取得失敗なら端末値または既定値をfallbackとして確定後に同じreadyを記録する。推測値はaccountへ保存しない。\n4. 同じuser IDのSessionオブジェクトだけがtoken refreshで置換されてもreadyは維持する。unauthenticatedを経た後は同じuser IDでもfresh結果まで待機する。\n5. queryが後続のfresh値を返した場合はuser、language、data generationを識別して適用し、古い非同期処理の完了で上書きしない。\n6. selector変更では先に端末言語を反映してwriteを行う。write失敗だけは直前値へ戻す。\n7. write成功後のrefetch失敗は確認失敗としてerrorにし、端末言語を戻さず、次のrefetchでsource of truthへ収束可能にする。"
           },
           {
             "id": "baseline-state-flow-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "state-flow",
-            "text": "状態遷移と優先順位 baselineを、初回ready、fresh generation、write失敗と確認失敗を分ける内容へ置換する。"
+            "text": "状態遷移と優先順位 baselineを、token refreshでのready維持とsign-outでの破棄を分ける内容へ置換する。"
           }
         ]
       },
@@ -110,7 +110,7 @@
             "role": "design",
             "owner_id": "FR-2",
             "product_behavior_ids": ["PB-2"],
-            "text": "fresh profile取得とaccount language適用の完了をuser単位のready stateへ記録し、それまでは初回children表示を保留する。"
+            "text": "fresh profile取得とaccount language適用の完了をuser ID単位のreadyへ記録する。同一ログイン中のtoken refreshでは維持し、sign-outで破棄する。"
           },
           {
             "id": "fr-3-design-evidence",
@@ -174,7 +174,7 @@
             "role": "design",
             "owner_id": "AC-2",
             "product_behavior_ids": [],
-            "text": "ログイン初期化ではfresh profileとlanguage適用が完了するまで表示を待機し、保存済み値で初回表示を解放する。"
+            "text": "ログイン初期化ではfresh profileとlanguage適用が完了するまで表示を待機し、完了後のtoken refreshでは表示を継続する。"
           },
           {
             "id": "ac-3-design-evidence",
@@ -222,7 +222,7 @@
             "role": "design",
             "owner_id": "AC-8",
             "product_behavior_ids": [],
-            "text": "端末値とcached profileがaccount値と異なる場合も、fresh値の適用完了前にはchildrenを表示しない。"
+            "text": "初回またはsign-out後の再ログインではfresh値適用前にchildrenを表示せず、同一ログイン中のtoken refreshでは既に正しいchildrenを隠さない。"
           },
           {
             "id": "ac-9-design-evidence",
@@ -237,7 +237,7 @@
             "type": "evidence",
             "role": "baseline",
             "owner_id": "requirement-design",
-            "text": "要求別設計根拠 baselineへ、初回readyと確認失敗、および追加受け入れ条件のowned evidenceを加えて置換する。"
+            "text": "要求別設計根拠 baselineへ、readyの維持と破棄を認証ライフサイクルで区別するowned evidenceを加えて置換する。"
           }
         ]
       },
@@ -257,7 +257,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "FR-2",
-            "text": "cached端末値とaccount値が異なるfixtureで、fresh値適用前にchildrenが表示されず、適用後に解放されることを確認する。"
+            "text": "初回fresh値適用前はchildrenが表示されず、適用後に同じuser IDのSessionオブジェクトが置換されても表示が継続することを確認する。"
           },
           {
             "id": "fr-3-verification-evidence",
@@ -313,7 +313,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-2",
-            "text": "ログインfixtureで保存済み言語が適用された後に初回表示され、loading中は誤った端末値を表示しないことを確認する。"
+            "text": "ログインfixtureで保存済み言語適用後に初回表示され、token refresh後も表示が継続し、sign-out後の再ログインでは再び待機することを確認する。"
           },
           {
             "id": "ac-3-verification-evidence",
@@ -355,7 +355,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-8",
-            "text": "端末en、cached en、account jaの条件で、ja適用完了前はchildren不在、完了後は表示されることを確認する。"
+            "text": "端末en、cached en、account jaの初回条件に加え、token refreshとsign-out後の同一ユーザー再ログインでready境界を確認する。"
           },
           {
             "id": "ac-9-verification-evidence",
@@ -369,7 +369,7 @@
             "type": "evidence",
             "role": "baseline",
             "owner_id": "verification",
-            "text": "検証方針 baselineを、初回表示順序、fresh query追従、write後確認失敗の回帰testを加えた内容へ置換する。"
+            "text": "検証方針 baselineへ、Sessionオブジェクト置換とsign-out後の同一ユーザー再ログインの回帰testを加えて置換する。"
           }
         ]
       },
@@ -380,14 +380,14 @@
           {
             "id": "implementation-scope-body",
             "type": "markdown",
-            "markdown": "- `apps/web/src/providers/language/LanguageSyncProvider.tsx`とtest: 初回ready、fresh query、非同期適用generation。\n- `apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx`とtest: write失敗と確認失敗の分離。\n- `apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts`とprofile root `index.ts`: mutation result境界とfeature公開面。\n- profile MSW fixtureは既存機能で不足する失敗順序だけを追加する。DB migration、生成型、RLSは既存契約がRequirementsを満たすため変更しない。\n- RequirementsとDesignのcanonical JSON/MarkdownはDesign完了後にread-onlyとする。"
+            "markdown": "- `apps/web/src/providers/language/LanguageSyncProvider.tsx`: readyをSession参照からuser IDへ変更し、unauthenticatedでreadyと処理済みsnapshotを破棄する。\n- `apps/web/src/providers/language/LanguageSyncProvider.test.tsx`: 同一user IDのSessionオブジェクト置換でchildrenが消えないことと、sign-out後の同一ユーザー再ログインでfresh結果まで待つことを追加する。\n- DB、API、RLS、selector、profile mutationは既存契約がRequirementsを満たすため変更しない。\n- RequirementsとDesignのcanonical JSON/MarkdownはDesign完了後にread-onlyとする。"
           },
           {
             "id": "baseline-implementation-scope-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "implementation-scope",
-            "text": "変更対象 baselineを、language provider、selector、profile mutation、feature公開面、関連testへ限定して置換する。"
+            "text": "変更対象 baselineを、LanguageSyncProviderのready同一性と関連回帰testだけへ限定して置換する。"
           }
         ]
       },
@@ -398,14 +398,14 @@
           {
             "id": "risks-body",
             "type": "markdown",
-            "markdown": "- 初回待機中は空表示になるが、誤言語の確定表示を防ぐRequirements上の境界として採用する。\n- cached値適用とfresh値適用の非同期完了順が逆転しないよう、effect cleanupとdata generationを検証する。\n- write成功後確認失敗ではserver値が変わっている可能性があるため端末値を戻さず、mutation errorとquery再取得可能性を保持する。\n- profile公開面は既存実装を再エクスポートする最小差分にし、新しい共有層を追加しない。\n- DB、API、RLSの既存契約に不整合が見つかった場合はDesign scopeを越えて修正せず停止する。"
+            "markdown": "- user IDだけでreadyを保持すると、sign-out後に同じユーザーが再ログインしたとき古いreadyを再利用し得るため、unauthenticated遷移でreadyと処理済みsnapshotを明示的に破棄する。\n- Sessionオブジェクト参照でreadyを照合するとtoken refreshで誤って非表示へ戻るため、同一ログイン中の意味的なユーザー同一性を使う。\n- cached値適用とfresh値適用の非同期完了順が逆転しないよう、effect cleanupとdata generationを維持する。\n- DB、API、RLSの既存契約に不整合が見つかった場合はDesign scopeを越えて修正せず停止する。"
           },
           {
             "id": "baseline-risks-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "risks",
-            "text": "リスクと確認事項 baselineを、cache鮮度、非同期完了順、write後確認失敗、公開面の観点へ更新して置換する。"
+            "text": "リスクと確認事項 baselineを、token refreshでのready維持とsign-outでの破棄を取り違えない観点へ置換する。"
           }
         ]
       }
@@ -455,7 +455,7 @@
       }
     ],
     "coverage_gate": {
-      "requirements_sha256": "6ee3971b100c260d2fee149687292d83d22d3013265eec0c35a60a0ab37da0b1",
+      "requirements_sha256": "2e53628ec90e7e98b9f34f9ec8f74067bcae4a54a41aad164bd55da1ae3c0891",
       "workspace": "1563-issue-345418f11192",
       "requirement_ids": [
         "FR-1",
@@ -478,7 +478,7 @@
       ],
       "baseline": {
         "source": "git_head",
-        "body_sha256": "bee7992f0e2faf6060cc57c1425a34d534c53107620c360e4c1727041820f05a"
+        "body_sha256": "9ac15ee065f3f82d891098b64dd981659658a5b5d14964f63c079acde91957a3"
       },
       "coverage": [
         {
@@ -571,21 +571,21 @@
         {
           "section_id": "context",
           "heading": "入力と前提",
-          "content_sha256": "a765787e7f2e86c727015adc9015d323d25ba9669c621d5ebcb64285a7e9b5c4",
+          "content_sha256": "2ea898e67700542a6e018ae08108a21249e6f9d110685a626d5e3bb5052ecd1b",
           "status": "replaced",
           "design_block_id": "baseline-context-evidence"
         },
         {
           "section_id": "rule-selection",
           "heading": "Rule Selection",
-          "content_sha256": "2740a8b58903668adddebd2dd80916601fa716171691c454a3e360d30ef6ef82",
+          "content_sha256": "b6597855bee2678824d126aaf8296983306f59ac5fc1f16784a6d6f3a338cd81",
           "status": "replaced",
           "design_block_id": "baseline-rule-selection-evidence"
         },
         {
           "section_id": "architecture",
           "heading": "採用する構成",
-          "content_sha256": "a00f867960071c7b6a11a664737382433410130268468f68957d756ebb06d62c",
+          "content_sha256": "c9ef531fe981233f7b32860d8913fb20c2ebc76e630375f894fc99e376397c1b",
           "status": "replaced",
           "design_block_id": "baseline-architecture-evidence"
         },
@@ -598,35 +598,35 @@
         {
           "section_id": "state-flow",
           "heading": "状態遷移と優先順位",
-          "content_sha256": "503b7daf3a9af916bf45460fe0d8faec9876bcba83f50c16db652d1f79fa5d0e",
+          "content_sha256": "68c4fd18ef76f990fea1133b59b36f42796471c5f131d7ac4ac574fa7f054da4",
           "status": "replaced",
           "design_block_id": "baseline-state-flow-evidence"
         },
         {
           "section_id": "requirement-design",
           "heading": "要求別設計根拠",
-          "content_sha256": "190c76ca14518dafd44b1e736b433beb2ceb0296b6922a5b2928f37cb1f79e88",
+          "content_sha256": "b16e4216a1de394282eba893594b2f2ead08f165dfe97ed87126def2417b0523",
           "status": "replaced",
           "design_block_id": "baseline-requirement-design-evidence"
         },
         {
           "section_id": "verification",
           "heading": "検証方針",
-          "content_sha256": "7491b80492047a96cee613e6dd4c41ad00bec2c3ebb0a347755339a4f321b3fe",
+          "content_sha256": "f7a947eabe35cc4e2422313c56a14aadb5216ad76389cb91647b2c912e65e429",
           "status": "replaced",
           "design_block_id": "baseline-verification-evidence"
         },
         {
           "section_id": "implementation-scope",
           "heading": "変更対象",
-          "content_sha256": "1f65d6192b9917789a66195772331f9b263cdaa92557f9f1c63954da6b921656",
+          "content_sha256": "671ec49db46188edcff7fe2a34ac8d3b4099ba2fb5bc3c1f24701c736690dc51",
           "status": "replaced",
           "design_block_id": "baseline-implementation-scope-evidence"
         },
         {
           "section_id": "risks",
           "heading": "リスクと確認事項",
-          "content_sha256": "2c37ac39ac50caa7bf477908c4561e702668aebe5934bd0917d4d36258577ac1",
+          "content_sha256": "5996a3f453792a53107d65a833f432684653ebc4f0380e0ea46f77a26411cf46",
           "status": "replaced",
           "design_block_id": "baseline-risks-evidence"
         }

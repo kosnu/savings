@@ -35,7 +35,7 @@
       "workspace": "1563-issue-345418f11192",
       "baseline": {
         "source": "git_head",
-        "body_sha256": "c43d7a9a1ee41753fe5bf51ad7653f6bd8e95ebd6214c0dd669a8c1ced2b879f"
+        "body_sha256": "6ee3971b100c260d2fee149687292d83d22d3013265eec0c35a60a0ab37da0b1"
       },
       "requirements": [
         {
@@ -45,8 +45,8 @@
         },
         {
           "id": "FR-2",
-          "status": "changed",
-          "issue_evidence": "アカウント言語の取得成功またはfallback決定前に"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-3",
@@ -115,13 +115,13 @@
         },
         {
           "id": "AC-8",
-          "status": "new",
-          "issue_evidence": "アカウント値と端末値が異なる場合も"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-9",
-          "status": "new",
-          "issue_evidence": "取得失敗時はfallback決定後に"
+          "status": "unchanged",
+          "issue_evidence": null
         }
       ],
       "sections": [
@@ -147,8 +147,8 @@
         },
         {
           "id": "functional",
-          "status": "changed",
-          "issue_evidence": "ユーザー向け画面を確定表示しない"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "non-functional",
@@ -157,8 +157,8 @@
         },
         {
           "id": "acceptance",
-          "status": "changed",
-          "issue_evidence": "初回のユーザー向け表示がアカウント言語で行われる"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "qa",
