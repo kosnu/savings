@@ -11,6 +11,7 @@ export type AuthStatus = "loading" | "unauthenticated" | "authenticated"
 export interface SupabaseSessionState {
   status: AuthStatus
   session: Session | null
+  authenticationGeneration: number
 }
 
 export const SupabaseSessionContext = createContext<SupabaseSessionState | undefined>(undefined)
@@ -22,15 +23,18 @@ interface SupabaseSessionProviderProps {
 const initialSessionState: SupabaseSessionState = {
   status: "loading",
   session: null,
+  authenticationGeneration: 0,
 }
 
 const unauthenticatedSessionState: SupabaseSessionState = {
   status: "unauthenticated",
   session: null,
+  authenticationGeneration: 0,
 }
 
 export function SupabaseSessionProvider({ children }: SupabaseSessionProviderProps) {
   const sessionGenerationRef = useRef(0)
+  const authenticationGenerationRef = useRef(0)
   const stateRef = useRef<SupabaseSessionState>(initialSessionState)
   const [state, setState] = useState<SupabaseSessionState>(initialSessionState)
 
@@ -122,14 +126,21 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       const shouldKeepCurrentSession = isSameAuthenticatedUser(currentState, session)
 
       if (!shouldKeepCurrentSession) {
-        setSessionState({ status: "loading", session: null })
+        setSessionState({
+          status: "loading",
+          session: null,
+          authenticationGeneration: authenticationGenerationRef.current,
+        })
       }
 
       try {
         await verifyAuthenticatedSession(session)
         if (!isCurrentSessionHandler(sessionGeneration)) return
 
-        setSessionState(toAuthenticatedSessionState(session))
+        if (!shouldKeepCurrentSession) {
+          authenticationGenerationRef.current += 1
+        }
+        setSessionState(toAuthenticatedSessionState(session, authenticationGenerationRef.current))
       } catch (error) {
         await handleSessionVerificationError(error, sessionGeneration, shouldKeepCurrentSession)
       }
@@ -172,9 +183,13 @@ function isSameAuthenticatedUser(currentState: SupabaseSessionState, session: Se
   )
 }
 
-function toAuthenticatedSessionState(session: Session): SupabaseSessionState {
+function toAuthenticatedSessionState(
+  session: Session,
+  authenticationGeneration: number,
+): SupabaseSessionState {
   return {
     status: "authenticated",
     session,
+    authenticationGeneration,
   }
 }

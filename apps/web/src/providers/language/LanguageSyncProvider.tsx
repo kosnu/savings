@@ -10,9 +10,16 @@ interface LanguageSyncProviderProps {
 }
 
 export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
-  const { session, status } = useSupabaseSession()
+  const { authenticationGeneration, session, status } = useSupabaseSession()
   const authUserId = session?.user.id
-  const [readyAuthUserId, setReadyAuthUserId] = useState<string | null>(null)
+  const authenticationIdentity =
+    authUserId === undefined ? null : `${authUserId}:${authenticationGeneration}`
+  const [readyAuthenticationIdentity, setReadyAuthenticationIdentity] = useState<string | null>(
+    null,
+  )
+  const [revalidatedAuthenticationIdentity, setRevalidatedAuthenticationIdentity] = useState<
+    string | null
+  >(null)
   const [resolvedSnapshot, setResolvedSnapshot] = useState<string | null>(null)
   const languageSyncQueueRef = useRef(Promise.resolve())
 
@@ -22,6 +29,7 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
     isError,
     isFetching,
     isRefetchError,
+    refetch,
   } = useQuery({
     queryKey: profileQueryKeys.current(authUserId ?? ""),
     queryFn: async () => fetchProfile(authUserId ?? ""),
@@ -44,7 +52,8 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
     let isActive = true
     queueMicrotask(() => {
       if (!isActive) return
-      setReadyAuthUserId(null)
+      setReadyAuthenticationIdentity(null)
+      setRevalidatedAuthenticationIdentity(null)
       setResolvedSnapshot(null)
     })
 
@@ -54,14 +63,33 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
   }, [status])
 
   useEffect(() => {
-    if (status !== "authenticated" || authUserId === undefined) return
+    if (status !== "authenticated" || authenticationIdentity === null) return
+
+    let isActive = true
+    void refetch().finally(() => {
+      if (isActive) setRevalidatedAuthenticationIdentity(authenticationIdentity)
+    })
+
+    return () => {
+      isActive = false
+    }
+  }, [authenticationIdentity, refetch, status])
+
+  useEffect(() => {
+    if (
+      status !== "authenticated" ||
+      authUserId === undefined ||
+      authenticationIdentity === null ||
+      revalidatedAuthenticationIdentity !== authenticationIdentity
+    )
+      return
 
     if (isFetching) return
 
     if (hasFallback) {
       let isActive = true
       queueMicrotask(() => {
-        if (isActive) setReadyAuthUserId(authUserId)
+        if (isActive) setReadyAuthenticationIdentity(authenticationIdentity)
       })
       return () => {
         isActive = false
@@ -81,7 +109,7 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
           await i18next.changeLanguage(profileLanguage)
         } finally {
           if (isActive) {
-            setReadyAuthUserId(authUserId)
+            setReadyAuthenticationIdentity(authenticationIdentity)
             setResolvedSnapshot(snapshot)
           }
         }
@@ -90,11 +118,23 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
     return () => {
       isActive = false
     }
-  }, [authUserId, hasFallback, isFetching, profileLanguage, resolvedSnapshot, snapshot, status])
+  }, [
+    authUserId,
+    authenticationIdentity,
+    hasFallback,
+    isFetching,
+    profileLanguage,
+    revalidatedAuthenticationIdentity,
+    resolvedSnapshot,
+    snapshot,
+    status,
+  ])
 
   const canRenderChildren =
     status === "unauthenticated" ||
-    (status === "authenticated" && authUserId !== undefined && readyAuthUserId === authUserId)
+    (status === "authenticated" &&
+      authenticationIdentity !== null &&
+      readyAuthenticationIdentity === authenticationIdentity)
 
   return canRenderChildren ? <>{children}</> : null
 }

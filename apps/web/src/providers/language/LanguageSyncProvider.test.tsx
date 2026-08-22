@@ -1,4 +1,5 @@
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query"
+import { HttpResponse, delay, http } from "msw"
 import { beforeEach, describe, expect, test } from "vite-plus/test"
 
 import { profileQueryKeys } from "../../features/profile"
@@ -127,7 +128,11 @@ describe("LanguageSyncProvider", () => {
     const { rerender } = render(
       <LanguageSyncHarness
         queryClient={queryClient}
-        sessionState={{ status: "authenticated", session: initialSession }}
+        sessionState={{
+          status: "authenticated",
+          session: initialSession,
+          authenticationGeneration: 1,
+        }}
       />,
       { withProviders: false },
     )
@@ -140,6 +145,7 @@ describe("LanguageSyncProvider", () => {
         sessionState={{
           status: "authenticated",
           session: mockSession({ access_token: "refreshed-token" }),
+          authenticationGeneration: 1,
         }}
       />,
     )
@@ -150,42 +156,64 @@ describe("LanguageSyncProvider", () => {
   test("サインアウト後の同一ユーザー再ログインでは準備完了を再判定する", async () => {
     const queryClient = createTestQueryClient()
     const session = mockSession()
+    let profileGetCount = 0
+    let profileLanguage: "en" | "ja" = "en"
+
+    server.resetHandlers(
+      http.get("*/rest/v1/users*", async () => {
+        profileGetCount += 1
+        await delay(100)
+        return HttpResponse.json({
+          name: "Test User",
+          email: "test@example.com",
+          language: profileLanguage,
+        })
+      }),
+    )
 
     const { rerender } = render(
       <LanguageSyncHarness
         queryClient={queryClient}
-        sessionState={{ status: "authenticated", session }}
+        sessionState={{
+          status: "authenticated",
+          session,
+          authenticationGeneration: 1,
+        }}
       />,
       { withProviders: false },
     )
 
     expect(await screen.findByText("Application")).toBeInTheDocument()
+    expect(profileGetCount).toBe(1)
+    expect(i18next.resolvedLanguage).toBe("en")
 
     rerender(
       <LanguageSyncHarness
         queryClient={queryClient}
-        sessionState={{ status: "unauthenticated", session: null }}
+        sessionState={{
+          status: "unauthenticated",
+          session: null,
+          authenticationGeneration: 1,
+        }}
       />,
     )
     await act(async () => Promise.resolve())
-    await queryClient.invalidateQueries({ queryKey: profileQueryKeys.current(session.user.id) })
-    server.resetHandlers(
-      ...createProfileHandlers({
-        get: {
-          response: { name: "Test User", email: "test@example.com", language: "en" },
-          durationOrMode: 100,
-        },
-      }),
-    )
+    profileLanguage = "ja"
 
     rerender(
       <LanguageSyncHarness
         queryClient={queryClient}
-        sessionState={{ status: "authenticated", session: mockSession() }}
+        sessionState={{
+          status: "authenticated",
+          session: mockSession(),
+          authenticationGeneration: 2,
+        }}
       />,
     )
 
     expect(screen.queryByText("Application")).not.toBeInTheDocument()
     expect(await screen.findByText("Application")).toBeInTheDocument()
+    expect(profileGetCount).toBe(2)
+    expect(i18next.resolvedLanguage).toBe("ja")
   })
 })

@@ -92,12 +92,17 @@ function expectSession(
   status: AuthStatus,
   userId: string | null,
   accessToken?: string,
+  authenticationGeneration?: number,
 ) {
   expect(result.current.status).toBe(status)
   expect(result.current.session?.user.id ?? null).toBe(userId)
 
   if (accessToken !== undefined) {
     expect(result.current.session?.access_token ?? null).toBe(accessToken)
+  }
+
+  if (authenticationGeneration !== undefined) {
+    expect(result.current.authenticationGeneration).toBe(authenticationGeneration)
   }
 }
 
@@ -264,7 +269,7 @@ describe("SupabaseSessionProvider", () => {
     const { result } = renderSessionHook()
 
     await waitFor(() => {
-      expectSession(result, "authenticated", "old-user", "old-token")
+      expectSession(result, "authenticated", "old-user", "old-token", 1)
     })
 
     mockEnsureAuthenticatedUser.mockReturnValueOnce(ensureDeferred.promise)
@@ -273,7 +278,7 @@ describe("SupabaseSessionProvider", () => {
       emitAuthStateChange("TOKEN_REFRESHED", createSession("old-user", "refreshed-token"))
     })
 
-    expectSession(result, "authenticated", "old-user", "old-token")
+    expectSession(result, "authenticated", "old-user", "old-token", 1)
 
     await act(async () => {
       ensureDeferred.resolve()
@@ -281,7 +286,37 @@ describe("SupabaseSessionProvider", () => {
     })
 
     await waitFor(() => {
-      expectSession(result, "authenticated", "old-user", "refreshed-token")
+      expectSession(result, "authenticated", "old-user", "refreshed-token", 1)
+    })
+  })
+
+  test("サインアウト後の同一ユーザー再ログインでは認証世代を進める", async () => {
+    mockGetSession.mockResolvedValueOnce({
+      data: { session: createSession("same-user", "initial-token") },
+      error: null,
+    })
+    const emitAuthStateChange = captureAuthCallback()
+
+    const { result } = renderSessionHook()
+
+    await waitFor(() => {
+      expectSession(result, "authenticated", "same-user", "initial-token", 1)
+    })
+
+    act(() => {
+      emitAuthStateChange("SIGNED_OUT", null)
+    })
+
+    await waitFor(() => {
+      expectSession(result, "unauthenticated", null)
+    })
+
+    act(() => {
+      emitAuthStateChange("SIGNED_IN", createSession("same-user", "next-token"))
+    })
+
+    await waitFor(() => {
+      expectSession(result, "authenticated", "same-user", "next-token", 2)
     })
   })
 
