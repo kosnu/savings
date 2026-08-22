@@ -1,28 +1,74 @@
-import { Flex, Select, Text } from "@radix-ui/themes"
-import { useCallback } from "react"
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import { Button, Callout, Flex, Select, Text } from "@radix-ui/themes"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { appLanguageLabelKeys, appLanguages, toAppLanguage } from "../../../../i18n"
+import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
+import {
+  isLanguageUpdateVerificationFailure,
+  isLanguageUpdateWriteFailure,
+  useUpdateLanguage,
+} from "../../../profile"
 
 const selectId = "appearance-language"
 
 export function LanguageSelect() {
   const { i18n, t } = useTranslation()
+  const { session } = useSupabaseSession()
+  const authUserId = session?.user.id
+  const { updateLanguage, retryLanguageVerification, isPending } = useUpdateLanguage(
+    authUserId ?? "",
+  )
+  const [verificationFailed, setVerificationFailed] = useState(false)
   const value = toAppLanguage(i18n.resolvedLanguage)
 
   const handleValueChange = useCallback(
-    (nextLanguage: string) => {
-      void i18n.changeLanguage(toAppLanguage(nextLanguage))
+    async (nextLanguage: string) => {
+      const nextAppLanguage = toAppLanguage(nextLanguage)
+      if (nextAppLanguage === value) return
+
+      try {
+        await i18n.changeLanguage(nextAppLanguage)
+        if (authUserId !== undefined) {
+          try {
+            await updateLanguage(nextAppLanguage)
+          } catch (error) {
+            if (isLanguageUpdateWriteFailure(error)) {
+              await i18n.changeLanguage(value)
+            } else if (isLanguageUpdateVerificationFailure(error)) {
+              setVerificationFailed(true)
+            } else {
+              throw error
+            }
+          }
+        }
+      } catch {
+        await i18n.changeLanguage(value)
+      }
     },
-    [i18n],
+    [authUserId, i18n, updateLanguage, value],
   )
+  const handleVerificationRetry = useCallback(async () => {
+    try {
+      await retryLanguageVerification()
+      setVerificationFailed(false)
+    } catch {
+      // 未確認状態と再確認経路を維持する。
+    }
+  }, [retryLanguageVerification])
 
   return (
-    <Flex direction="column" gap="1" align="start">
+    <Flex direction="column" gap="2" align="start">
       <Text as="label" htmlFor={selectId} size="2" weight="bold">
         {t("language.label")}
       </Text>
-      <Select.Root size="2" value={value} onValueChange={handleValueChange}>
+      <Select.Root
+        size="2"
+        value={value}
+        onValueChange={(nextLanguage) => void handleValueChange(nextLanguage)}
+        disabled={isPending || verificationFailed}
+      >
         <Select.Trigger id={selectId} />
         <Select.Content>
           {appLanguages.map((language) => (
@@ -32,6 +78,25 @@ export function LanguageSelect() {
           ))}
         </Select.Content>
       </Select.Root>
+      {verificationFailed ? (
+        <Flex direction="column" gap="2" align="start">
+          <Callout.Root role="alert" color="red" variant="surface" size="1">
+            <Callout.Icon>
+              <ExclamationTriangleIcon />
+            </Callout.Icon>
+            <Callout.Text>{t("language.verificationError")}</Callout.Text>
+          </Callout.Root>
+          <Button
+            type="button"
+            variant="soft"
+            size="2"
+            loading={isPending}
+            onClick={() => void handleVerificationRetry()}
+          >
+            {t("language.retryVerification")}
+          </Button>
+        </Flex>
+      ) : null}
     </Flex>
   )
 }

@@ -48,6 +48,7 @@ function createDefaultSessionState(): SupabaseSessionState {
   return {
     status: "authenticated",
     session: mockSession(),
+    authenticationGeneration: 1,
   }
 }
 

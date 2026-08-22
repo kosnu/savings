@@ -1,0 +1,377 @@
+{
+  "schema_version": 2,
+  "kind": "requirements",
+  "workspace": "1563-issue-345418f11192",
+  "display": {
+    "path": "requirements.md",
+    "preamble": "---\ntitle: \"Requirements: 言語設定をアカウントに保存して端末間で同期する\"\ndoc_type: requirements\nstatus: proposed\narea: web\napplies_to:\n  - apps/web\n  - apps/api\ntopics:\n  - user\n  - auth\n  - language\n  - synchronization\nwhen_to_read:\n  - Issue #1563の言語設定同期を設計、実装、検証するとき\n---"
+  },
+  "validation": {
+    "mode": "managed",
+    "cycle_start_issue_title": "言語設定をアカウントに保存して端末間で同期する",
+    "input_gate": {
+      "task_context": {
+        "source": "issue_body",
+        "issue": "kosnu/savings#1563",
+        "url": "https://github.com/kosnu/savings/issues/1563",
+        "updated_at": "2026-08-21T18:21:05Z",
+        "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
+      },
+      "direct_rules": [
+        {
+          "id": "domain.user",
+          "issue_evidence": "public.users.language",
+          "match": {
+            "field": "domains",
+            "value": "user"
+          },
+          "reason": "アカウントの言語列をユーザードメインの責務として定義する。"
+        }
+      ],
+      "depends_on": []
+    },
+    "completeness_gate": {
+      "issue_body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b",
+      "workspace": "1563-issue-345418f11192",
+      "baseline": {
+        "source": "git_head",
+        "body_sha256": "3c22e7d31cd1a54722fc6485dbd30c5b9969673da59d2e224db4319ae98d8585"
+      },
+      "requirements": [
+        {
+          "id": "FR-1",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "FR-2",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "FR-3",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "FR-4",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "FR-5",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-1",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-2",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-3",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-1",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-2",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-3",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-4",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-5",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-6",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-7",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-8",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-9",
+          "status": "unchanged",
+          "issue_evidence": null
+        }
+      ],
+      "sections": [
+        {
+          "id": "background",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "users",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "stories",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "scope",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "functional",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "non-functional",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "acceptance",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "qa",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "technical",
+          "status": "unchanged",
+          "issue_evidence": null
+        }
+      ],
+      "retired": []
+    },
+    "requirements": [
+      {
+        "id": "FR-1",
+        "section_id": "functional",
+        "text": "言語設定はpublic.users.languageを永続的な保存先として追加する。ブラウザだけに分散させずアカウントが所有する。"
+      },
+      {
+        "id": "FR-2",
+        "section_id": "functional",
+        "text": "認証済みユーザーのログイン時はアカウント言語を取得し、アカウント言語の取得成功またはfallback決定前にユーザー向け画面を確定表示しない。保存済み言語がある場合は現在の端末へ反映する。"
+      },
+      {
+        "id": "FR-3",
+        "section_id": "functional",
+        "text": "言語変更時の保存を実行し、選択した日本語または英語をアカウントへ記録する。"
+      },
+      {
+        "id": "FR-4",
+        "section_id": "functional",
+        "text": "既存localStorage値との優先順位を明示し、アカウント設定と端末設定の競合時に決定的な値を採用する。"
+      },
+      {
+        "id": "FR-5",
+        "section_id": "functional",
+        "text": "言語設定を取得・保存できたかを判断できるよう、各種未設定や取得・保存の失敗時の挙動を定義し、失敗してもアプリを利用不能にせず安全な既定値へ戻す。"
+      },
+      {
+        "id": "NFR-1",
+        "section_id": "non-functional",
+        "text": "対応言語は既存の日本語と英語を維持する。"
+      },
+      {
+        "id": "NFR-2",
+        "section_id": "non-functional",
+        "text": "クライアントが自身の `language` を更新できるようにし、認証・RLS・API境界で他ユーザーのデータ更新を許可しない。"
+      },
+      {
+        "id": "NFR-3",
+        "section_id": "non-functional",
+        "text": "既存の `name` のみというルールは `language` の追加範囲で変更し、他のプロフィール列は更新可能にしない。"
+      },
+      {
+        "id": "AC-1",
+        "section_id": "acceptance",
+        "text": "言語設定の保存先と所有責務が定義されていることを確認できる。"
+      },
+      {
+        "id": "AC-2",
+        "section_id": "acceptance",
+        "text": "ログイン時に保存済み言語が反映されることを確認できる。"
+      },
+      {
+        "id": "AC-3",
+        "section_id": "acceptance",
+        "text": "言語変更がアカウントへ保存されることを確認できる。"
+      },
+      {
+        "id": "AC-4",
+        "section_id": "acceptance",
+        "text": "別端末で同じ言語設定が反映されることを確認できる。"
+      },
+      {
+        "id": "AC-5",
+        "section_id": "acceptance",
+        "text": "未設定・取得失敗・保存失敗時の挙動が定義されていることを確認できる。"
+      },
+      {
+        "id": "AC-6",
+        "section_id": "acceptance",
+        "text": "既存の日本語・英語表示が壊れていないことを回帰検証する。"
+      },
+      {
+        "id": "AC-7",
+        "section_id": "acceptance",
+        "text": "必要な検証ができるよう、migration・型・API境界・RLS・更新条件・回帰テストを同期する。"
+      },
+      {
+        "id": "AC-8",
+        "section_id": "acceptance",
+        "text": "アカウント値と端末値が異なる場合も、初回のユーザー向け表示がアカウント言語で行われることを確認できる。"
+      },
+      {
+        "id": "AC-9",
+        "section_id": "acceptance",
+        "text": "取得失敗時はfallback決定後にアプリを継続利用できることを確認できる。"
+      }
+    ],
+    "sections": [
+      {
+        "id": "background",
+        "heading": "背景",
+        "blocks": [
+          {
+            "id": "background-body",
+            "type": "markdown",
+            "markdown": "現在の言語設定はブラウザの `localStorage` にだけ保存される。同じアカウントの設定がブラウザ外へ共有されず、端末ごとに異なる言語状態になる課題を解消する。"
+          }
+        ]
+      },
+      {
+        "id": "users",
+        "heading": "対象ユーザーと利用シーン",
+        "blocks": [
+          {
+            "id": "users-body",
+            "type": "markdown",
+            "markdown": "同じユーザーが別端末や別ブラウザでログインしても、アカウントを起点に同じ言語を利用できるユーザーシナリオを対象とする。未認証ユーザーのアカウント設定は対象外とする。"
+          }
+        ]
+      },
+      {
+        "id": "stories",
+        "heading": "ユーザーストーリー",
+        "blocks": [
+          {
+            "id": "stories-body",
+            "type": "markdown",
+            "markdown": "プロフィール設定として選択した言語がアカウントに保存され、次のログイン時に端末へ反映されてほしい。利用者は設定の取得・保存結果を判断でき、失敗時もアプリを継続利用したい。"
+          }
+        ]
+      },
+      {
+        "id": "scope",
+        "heading": "スコープ",
+        "blocks": [
+          {
+            "id": "scope-body",
+            "type": "markdown",
+            "markdown": "### 対象\n\n- 保存先とログイン時取得の責務\n- 言語変更時の保存と既存localStorage値との優先順位\n- 未設定・取得失敗・保存失敗時の挙動\n\n### 対象外\n\n- 対応言語の追加\n- テーマ設定の同期\n- 未認証ユーザーのアカウント設定\n- その他のプロフィール項目"
+          }
+        ]
+      },
+      {
+        "id": "functional",
+        "heading": "機能要件",
+        "blocks": [
+          {
+            "id": "functional-body",
+            "type": "markdown",
+            "markdown": "機能として次を定義する。\n\n- 言語設定の保存先\n- ログイン時の保存値取得\n- 言語変更時の保存\n- アカウント設定と端末設定の優先順位\n- 未設定・取得失敗・保存失敗時の安全な継続"
+          },
+          {
+            "id": "functional-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "non-functional",
+        "heading": "非機能要件",
+        "blocks": [
+          {
+            "id": "non-functional-body",
+            "type": "markdown",
+            "markdown": "- 対応言語は既存の日本語と英語を維持する\n- 認証済みユーザー自身のlanguageだけを更新対象にする\n- DB migration、型・API境界、RLS・更新条件、回帰テストを同期する"
+          },
+          {
+            "id": "non-functional-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "acceptance",
+        "heading": "受け入れ条件",
+        "blocks": [
+          {
+            "id": "acceptance-body",
+            "type": "markdown",
+            "markdown": "## 成功条件\n\n保存先、ログイン時反映、変更保存、端末間同期、異常系、既存表示、検証可能性を確認できること。"
+          },
+          {
+            "id": "acceptance-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "qa",
+        "heading": "Q&A",
+        "blocks": [
+          {
+            "id": "qa-body",
+            "type": "markdown",
+            "markdown": "## 判断したいこと\n\n- アカウント設定と端末設定のどちらを優先するか\n- 言語設定を取得・保存できたか\n- 未設定や失敗時にどの既定値で継続するか"
+          }
+        ]
+      },
+      {
+        "id": "technical",
+        "heading": "技術的考慮事項",
+        "blocks": [
+          {
+            "id": "technical-body",
+            "type": "markdown",
+            "markdown": "必要なDB migration、型・API境界、RLS・更新条件、回帰テストを同期して変更する。既存のプロフィール更新境界をlanguageの追加範囲に限って拡張し、他のプロフィール列へ波及させない。"
+          }
+        ]
+      }
+    ]
+  }
+}

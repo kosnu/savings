@@ -9,6 +9,7 @@ import { SupabaseSessionContext } from "../src/providers/supabase/SupabaseSessio
 import { ThemeProvider } from "../src/providers/theme/ThemeProvider"
 import { mockSession } from "../src/test/data/supabaseSession"
 import { authHandlers } from "../src/test/msw/handlers/auth"
+import { profileHandlers } from "../src/test/msw/handlers/profile"
 
 import "../src/assets/global.css"
 import "../src/i18n"
@@ -22,7 +23,7 @@ const preview: Preview = {
       },
     },
     msw: {
-      handlers: authHandlers,
+      handlers: [...authHandlers, ...profileHandlers],
     },
   },
   loaders: [
@@ -39,7 +40,13 @@ const preview: Preview = {
 
       return (
         <QueryClientProvider client={queryClient}>
-          <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
+          <SupabaseSessionContext
+            value={{
+              session: mockSession(),
+              status: "authenticated",
+              authenticationGeneration: 1,
+            }}
+          >
             <ThemeProvider>
               <SnackbarProvider>
                 <Story />

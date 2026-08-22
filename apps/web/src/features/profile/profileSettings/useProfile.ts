@@ -11,7 +11,7 @@ interface UseProfileReturn {
 export function useProfile(authUserId: string): UseProfileReturn {
   const query = useQuery({
     queryKey: profileQueryKeys.current(authUserId),
-    queryFn: async () => fetchProfile(authUserId),
+    queryFn: async ({ signal }) => fetchProfile(authUserId, signal),
     staleTime: 3000,
   })
 

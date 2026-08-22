@@ -1,0 +1,167 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { type ReactNode, useEffect, useRef, useState } from "react"
+
+import { fetchProfile, profileQueryKeys } from "../../features/profile"
+import { i18next } from "../../i18n"
+import { useSupabaseSession } from "../supabase/useSupabaseSession"
+
+interface LanguageSyncProviderProps {
+  children: ReactNode
+}
+
+export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
+  const { authenticationGeneration, session, status } = useSupabaseSession()
+  const queryClient = useQueryClient()
+  const authUserId = session?.user.id
+  const authenticationIdentity =
+    authUserId === undefined ? null : `${authUserId}:${authenticationGeneration}`
+  const [readyAuthenticationIdentity, setReadyAuthenticationIdentity] = useState<string | null>(
+    null,
+  )
+  const [revalidatedAuthenticationIdentity, setRevalidatedAuthenticationIdentity] = useState<
+    string | null
+  >(null)
+  const [resolvedSnapshot, setResolvedSnapshot] = useState<string | null>(null)
+  const languageSyncQueueRef = useRef(Promise.resolve())
+  const previousAuthenticationRef = useRef<{
+    identity: string
+    authUserId: string
+  } | null>(null)
+
+  const {
+    data: profile,
+    dataUpdatedAt,
+    isError,
+    isFetching,
+    isRefetchError,
+    refetch,
+  } = useQuery({
+    queryKey: profileQueryKeys.current(authUserId ?? ""),
+    queryFn: async ({ signal }) => fetchProfile(authUserId ?? "", signal),
+    enabled: status === "authenticated" && authUserId !== undefined,
+    staleTime: 3000,
+    refetchOnMount: "always",
+  })
+
+  const profileLanguage = profile?.language
+  const hasFallback =
+    isError || isRefetchError || profileLanguage === undefined || profileLanguage === null
+  const snapshot =
+    authUserId !== undefined && profileLanguage !== undefined && profileLanguage !== null
+      ? `${authUserId}:${profileLanguage}:${dataUpdatedAt}`
+      : null
+
+  useEffect(() => {
+    if (status === "authenticated") return
+
+    let isActive = true
+    queueMicrotask(() => {
+      if (!isActive) return
+      setReadyAuthenticationIdentity(null)
+      setRevalidatedAuthenticationIdentity(null)
+      setResolvedSnapshot(null)
+    })
+
+    return () => {
+      isActive = false
+    }
+  }, [status])
+
+  useEffect(() => {
+    if (status !== "authenticated" || authUserId === undefined || authenticationIdentity === null)
+      return
+
+    let isActive = true
+    const previousAuthentication = previousAuthenticationRef.current
+    previousAuthenticationRef.current = {
+      identity: authenticationIdentity,
+      authUserId,
+    }
+
+    const revalidateProfile = async () => {
+      if (
+        previousAuthentication !== null &&
+        previousAuthentication.identity !== authenticationIdentity
+      ) {
+        await queryClient.cancelQueries({
+          queryKey: profileQueryKeys.current(previousAuthentication.authUserId),
+          exact: true,
+        })
+      }
+
+      if (!isActive) return
+
+      await refetch()
+      if (isActive) setRevalidatedAuthenticationIdentity(authenticationIdentity)
+    }
+
+    void revalidateProfile()
+
+    return () => {
+      isActive = false
+    }
+  }, [authUserId, authenticationIdentity, queryClient, refetch, status])
+
+  useEffect(() => {
+    if (
+      status !== "authenticated" ||
+      authUserId === undefined ||
+      authenticationIdentity === null ||
+      revalidatedAuthenticationIdentity !== authenticationIdentity
+    )
+      return
+
+    if (isFetching) return
+
+    if (hasFallback) {
+      let isActive = true
+      queueMicrotask(() => {
+        if (isActive) setReadyAuthenticationIdentity(authenticationIdentity)
+      })
+      return () => {
+        isActive = false
+      }
+    }
+
+    if (snapshot === null || resolvedSnapshot === snapshot) return
+
+    let isActive = true
+
+    languageSyncQueueRef.current = languageSyncQueueRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        if (!isActive) return
+
+        try {
+          await i18next.changeLanguage(profileLanguage)
+        } finally {
+          if (isActive) {
+            setReadyAuthenticationIdentity(authenticationIdentity)
+            setResolvedSnapshot(snapshot)
+          }
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [
+    authUserId,
+    authenticationIdentity,
+    hasFallback,
+    isFetching,
+    profileLanguage,
+    revalidatedAuthenticationIdentity,
+    resolvedSnapshot,
+    snapshot,
+    status,
+  ])
+
+  const canRenderChildren =
+    status === "unauthenticated" ||
+    (status === "authenticated" &&
+      authenticationIdentity !== null &&
+      readyAuthenticationIdentity === authenticationIdentity)
+
+  return canRenderChildren ? <>{children}</> : null
+}

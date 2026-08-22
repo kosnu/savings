@@ -1,4 +1,4 @@
-import { HttpResponse, http } from "msw"
+import { HttpResponse, delay, http } from "msw"
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { createProfileHandlers } from "../../../test/msw/handlers/profile"
@@ -15,16 +15,17 @@ describe("fetchProfile", () => {
     server.resetHandlers(...createProfileHandlers())
   })
 
-  it("現在ユーザーの表示名とemailを取得する", async () => {
+  it("現在ユーザーの表示名、email、言語を取得する", async () => {
     server.resetHandlers(
       ...createProfileHandlers({
-        get: { response: { name: "Taro", email: "taro@example.com" } },
+        get: { response: { name: "Taro", email: "taro@example.com", language: "ja" } },
       }),
     )
 
     await expect(fetchProfile("mock-user-id")).resolves.toEqual({
       name: "Taro",
       email: "taro@example.com",
+      language: "ja",
     })
   })
 
@@ -34,14 +35,14 @@ describe("fetchProfile", () => {
     server.use(
       http.get("*/rest/v1/users*", ({ request }) => {
         requestUrl = new URL(request.url)
-        return HttpResponse.json({ name: "Taro", email: "taro@example.com" })
+        return HttpResponse.json({ name: "Taro", email: "taro@example.com", language: null })
       }),
     )
 
     await fetchProfile("mock-user-id")
 
     expect(requestUrl?.searchParams.get("auth_user_id")).toBe("eq.mock-user-id")
-    expect(requestUrl?.searchParams.get("select")).toBe("name,email")
+    expect(requestUrl?.searchParams.get("select")).toBe("name,email,language")
   })
 
   it("Supabaseがエラーを返した場合にthrowする", async () => {
@@ -50,10 +51,33 @@ describe("fetchProfile", () => {
     await expect(fetchProfile("mock-user-id")).rejects.toThrow("Failed to fetch profile.")
   })
 
+  it("AbortSignalで進行中の取得を中断する", async () => {
+    let markRequestStarted: (() => void) | undefined
+    const requestStarted = new Promise<void>((resolve) => {
+      markRequestStarted = resolve
+    })
+    server.use(
+      http.get("*/rest/v1/users*", async () => {
+        markRequestStarted?.()
+        await delay("infinite")
+        return HttpResponse.json({ name: "Taro", email: "taro@example.com", language: "ja" })
+      }),
+    )
+    const controller = new AbortController()
+
+    const profilePromise = fetchProfile("mock-user-id", controller.signal)
+    await requestStarted
+    controller.abort()
+
+    await expect(profilePromise).rejects.toMatchObject({
+      message: expect.stringContaining("AbortError"),
+    })
+  })
+
   it("レスポンスshapeが不正ならエラーにする", async () => {
     server.use(
       http.get("*/rest/v1/users*", () => {
-        return HttpResponse.json({ name: "Taro", email: "invalid-email" })
+        return HttpResponse.json({ name: "Taro", email: "invalid-email", language: null })
       }),
     )
 
