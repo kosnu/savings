@@ -15,6 +15,9 @@ export const resources = {
       "language.label": "Language",
       "language.en": "English",
       "language.ja": "Japanese",
+      "language.verificationError":
+        "The language was saved, but the account setting could not be confirmed.",
+      "language.retryVerification": "Check again",
       "theme.label": "Theme",
       "theme.light": "Light",
       "theme.dark": "Dark",
@@ -223,6 +226,9 @@ export const resources = {
       "language.label": "言語",
       "language.en": "英語",
       "language.ja": "日本語",
+      "language.verificationError":
+        "言語は保存されましたが、アカウント設定を確認できませんでした。",
+      "language.retryVerification": "もう一度確認",
       "theme.label": "テーマ",
       "theme.light": "ライト",
       "theme.dark": "ダーク",

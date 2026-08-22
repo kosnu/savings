@@ -9,7 +9,7 @@
     "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
   },
   "workspace": "1563-issue-345418f11192",
-  "design_goal_sha256": "3a0184235f00bbf1a00d0ca4907a6e130cb5494ce29a7d688dabc03693f63313",
+  "design_goal_sha256": "13545e2fc1d518a2f8af8a8afb61f53c2ef6b875ae6df856023e12048a52588e",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "a50be2664de3f81c5384dac18b051b27338d4eb3b0bb824ca935e0af9e62fcf7"
@@ -25,21 +25,21 @@
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
-        "sha256": "2e53628ec90e7e98b9f34f9ec8f74067bcae4a54a41aad164bd55da1ae3c0891"
+        "sha256": "baab3d83687814c8a355e882c111bad98e47c852c59fd10c41336290cf16e834"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
-        "sha256": "408125805d0691d18ed719f08aebc16281a334a9490a4c3b5c771dc0260ee568"
+        "sha256": "377b8c35d6a8917e91719b41af040f565993747e5a85b94465277c804ce4027f"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
-        "sha256": "2a6986a08b990580f473f465e2c78efb75a9165d54f51633a15ed536b9ea48e7"
+        "sha256": "81fa853170dcfc7784c6ec4119febb4dc49282869dea469c86955f2b1cb30bc9"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
-        "sha256": "2556331f11cae7d0282897c0477a2e69eab6381fcf6034b7f968e73b75225aa9"
+        "sha256": "1edb6f0257dcebdae46cf0c3e354a08323238aba3f2d73807784bab362c7d96c"
       }
     }
   }

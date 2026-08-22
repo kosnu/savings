@@ -6,6 +6,7 @@ import { updateLanguage as updateLanguageRecord } from "./updateLanguage"
 
 interface UseUpdateLanguageReturn {
   updateLanguage: (language: "en" | "ja") => Promise<void>
+  retryLanguageVerification: () => Promise<void>
   isPending: boolean
 }
 
@@ -27,9 +28,22 @@ export function isLanguageUpdateWriteFailure(error: unknown): boolean {
   return error instanceof LanguageUpdateError && error.phase === "write"
 }
 
+export function isLanguageUpdateVerificationFailure(error: unknown): boolean {
+  return error instanceof LanguageUpdateError && error.phase === "verification"
+}
+
 export function useUpdateLanguage(authUserId: string): UseUpdateLanguageReturn {
   const queryClient = useQueryClient()
-  const { mutateAsync, isPending } = useMutation({
+  const verifyLanguageUpdate = useCallback(async () => {
+    await queryClient.refetchQueries(
+      {
+        queryKey: profileQueryKeys.current(authUserId),
+        type: "all",
+      },
+      { throwOnError: true },
+    )
+  }, [authUserId, queryClient])
+  const { mutateAsync, isPending: isUpdatePending } = useMutation({
     mutationFn: async (language: "en" | "ja") => {
       try {
         await updateLanguageRecord({ authUserId, language })
@@ -38,17 +52,14 @@ export function useUpdateLanguage(authUserId: string): UseUpdateLanguageReturn {
       }
 
       try {
-        await queryClient.refetchQueries(
-          {
-            queryKey: profileQueryKeys.current(authUserId),
-            type: "all",
-          },
-          { throwOnError: true },
-        )
+        await verifyLanguageUpdate()
       } catch (error) {
         throw new LanguageUpdateError("verification", error)
       }
     },
+  })
+  const { mutateAsync: retryVerification, isPending: isVerificationPending } = useMutation({
+    mutationFn: verifyLanguageUpdate,
   })
 
   const updateLanguage = useCallback(
@@ -57,6 +68,13 @@ export function useUpdateLanguage(authUserId: string): UseUpdateLanguageReturn {
     },
     [mutateAsync],
   )
+  const retryLanguageVerification = useCallback(async () => {
+    await retryVerification()
+  }, [retryVerification])
 
-  return { updateLanguage, isPending }
+  return {
+    updateLanguage,
+    retryLanguageVerification,
+    isPending: isUpdatePending || isVerificationPending,
+  }
 }
