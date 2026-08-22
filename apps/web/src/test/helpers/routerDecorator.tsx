@@ -6,6 +6,7 @@ import {
   type AnyRoute,
   type RouteComponent,
 } from "@tanstack/react-router"
+import { useState } from "react"
 
 import { paymentsSearchSchema } from "../../features/payments"
 import { createTestRouter } from "./createTestRouter"
@@ -17,17 +18,19 @@ export function createStoryRouter(
   routeBuilder?: StoryRouteBuilder,
 ): Decorator<Args> {
   return (Story) => {
-    const defaultBuilder: StoryRouteBuilder = (root, StoryComponent) => [
-      createRoute({
-        getParentRoute: () => root,
-        path: initialEntry.split("?")[0],
-        component: StoryComponent,
-      }),
-    ]
+    const [router] = useState(() => {
+      const defaultBuilder: StoryRouteBuilder = (root, StoryComponent) => [
+        createRoute({
+          getParentRoute: () => root,
+          path: initialEntry.split("?")[0],
+          component: StoryComponent,
+        }),
+      ]
 
-    const builder = routeBuilder ?? defaultBuilder
+      const builder = routeBuilder ?? defaultBuilder
 
-    const router = createTestRouter(initialEntry, (root) => builder(root, Story))
+      return createTestRouter(initialEntry, (root) => builder(root, Story))
+    })
 
     return <RouterProvider router={router} />
   }
