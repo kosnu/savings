@@ -16,7 +16,7 @@
           {
             "id": "context-body",
             "type": "markdown",
-            "markdown": "- Requirements canonical source: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `3c22e7d31cd1a54722fc6485dbd30c5b9969673da59d2e224db4319ae98d8585`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline SHA-256: `81fa853170dcfc7784c6ec4119febb4dc49282869dea469c86955f2b1cb30bc9`。\n- Requirementsと生成requirements.mdはread-onlyとし、BuildはこのDesignのreceiptを上流identityとして扱う。"
+            "markdown": "- Requirements canonical source: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `3c7ad17535b170548ca5b473442584675eae9554a6c78f70dc35f7aaad4a4c66`\n- Requirements Input Gate / Completeness Gate: artifact検証成功。\n- Git `HEAD`の同workspace Design baseline SHA-256: `affd908aa8bca2d5964e981a269c3a55ce1dd13e8f0d020a32bf3e25540096e8`。\n- Requirementsと生成requirements.mdはread-onlyとし、BuildはこのDesignのreceiptを上流identityとして扱う。"
           },
           {
             "id": "baseline-context-evidence",
@@ -34,14 +34,14 @@
           {
             "id": "rule-selection-body",
             "type": "markdown",
-            "markdown": "- Requirements direct/selected: `domain.user`。public.users.languageをアカウント所有・認証境界のユーザードメインとして設計する。宣言済みdependency closureはない。\n- Implementation surface: `web.suspense-boundaries`を認証世代ごとの非同期readyへ適用し、そのdependencyである`web.query-cache`、`policy.transaction-boundaries`、`web.test-policy`を再取得・既存write境界・回帰testへ適用する。\n- Session boundary: 継続中のtoken更新では認証世代を維持し、サインアウトを挟む新しい認証セッションでは同じユーザーでも世代を更新して、cache freshnessに依存せずprofileを再取得する。\n- Conflict decision: profile update allowlistはnameとlanguageだけを許可し、他の列へ広げない。"
+            "markdown": "- Requirements direct/selected: `domain.user`。public.users.languageをアカウント所有・認証境界のユーザードメインとして設計する。宣言済みdependency closureはない。\n- Implementation surface: `web.suspense-boundaries`を認証世代ごとの非同期readyへ適用し、そのdependencyである`web.query-cache`、`policy.transaction-boundaries`、`web.test-policy`を再取得・既存write境界・回帰testへ適用する。\n- Session boundary: 継続中のtoken更新では認証世代を維持し、サインアウトを挟む新しい認証セッションでは同じユーザーでも世代を更新する。新しい世代はcache freshnessだけでなく旧世代の進行中取得にも依存せず、自身に帰属するprofile取得またはfallbackだけをready根拠にする。\n- Conflict decision: profile update allowlistはnameとlanguageだけを許可し、他の列へ広げない。"
           },
           {
             "id": "baseline-rule-selection-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "rule-selection",
-            "text": "Rule Selection baselineを、新しい認証セッションでのfresh取得責務とtoken更新の継続条件へ置換する。"
+            "text": "Rule Selection baselineを、新しい認証セッションに帰属するfresh取得責務、旧取得の非昇格、token更新の継続条件へ置換する。"
           }
         ]
       },
@@ -52,14 +52,14 @@
           {
             "id": "architecture-body",
             "type": "markdown",
-            "markdown": "### 永続化とAPI\n\n`public.users.language`、生成型、プロフィール取得・更新API、RLSとサーバー側allowlistの既存契約を維持する。\n\n### 認証世代\n\n`SupabaseSessionProvider`が継続中セッションと新しい認証セッションの境界を所有し、認証済みstateへ`authenticationGeneration`を含める。初回認証、別ユーザーへの切替、サインアウト後の再ログインでは世代を進め、同じログイン中のtoken refreshでは維持する。\n\n### 初回Web状態\n\n`LanguageSyncProvider`はユーザーIDと認証世代をready identityにし、世代ごとにprofileを明示refetchする。cache値だけではreadyにせず、refetchの最新値を適用するか取得失敗・未設定のfallbackを決定してからchildrenを解放する。token refreshでは世代が変わらないため既存表示を維持する。\n\n### Feature境界\n\nprofile feature外のlanguage providerは、profile rootの`index.ts`公開面からquery keyとfetchを参照する。"
+            "markdown": "### 永続化とAPI\n\n`public.users.language`、生成型、プロフィール取得・更新API、RLSとサーバー側allowlistの既存契約を維持する。\n\n### 認証世代\n\n`SupabaseSessionProvider`が継続中セッションと新しい認証セッションの境界を所有し、認証済みstateへ`authenticationGeneration`を含める。初回認証、別ユーザーへの切替、サインアウト後の再ログインでは世代を進め、同じログイン中のtoken refreshでは維持する。\n\n### 初回Web状態\n\n`LanguageSyncProvider`はユーザーIDと認証世代をready identityにする。新しい世代では同じprofile query keyの旧取得をcancelし、その完了を待ってから明示refetchを開始する。profile queryFnはTanStack QueryのAbortSignalを`fetchProfile`経由でSupabase requestへ渡し、旧取得を実際に中断可能にする。cache値や旧取得の結果だけではreadyにせず、新世代で開始したrefetchの最新値を適用するか、そのrefetchの取得失敗・未設定としてfallbackを決定してからchildrenを解放する。token refreshでは世代が変わらないため既存表示を維持する。\n\n### Feature境界\n\nprofile feature外のlanguage providerは、profile rootの`index.ts`公開面からquery keyとfetchを参照する。"
           },
           {
             "id": "baseline-architecture-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "architecture",
-            "text": "採用する構成 baselineを、認証世代の所有境界と世代ごとの明示refetchへ置換する。"
+            "text": "採用する構成 baselineを、認証世代の所有境界、旧取得のcancel、世代ごとの中断可能な明示refetchへ置換する。"
           }
         ]
       },
@@ -81,14 +81,14 @@
           {
             "id": "state-flow-body",
             "type": "markdown",
-            "markdown": "1. session判定中は表示を待機し、未認証なら端末値または既定値で表示する。同時に認証済みreadyと処理済みsnapshotを破棄する。\n2. `SupabaseSessionProvider`は非認証または別ユーザーから認証済みへ移ると認証世代を進める。同じ認証済みユーザーのtoken refreshでは世代を維持する。\n3. `LanguageSyncProvider`は認証世代が変わるたびにprofileを明示refetchし、refetchが解決するまでその世代を未確認としてchildrenを表示しない。既存cacheがfreshでも完了扱いにしない。\n4. account languageがあれば非同期適用完了後にuser IDと認証世代をreadyとして記録する。nullまたは取得失敗なら端末値か既定値をfallbackとして確定後に同じreadyを記録し、推測値はaccountへ保存しない。\n5. queryが後続のfresh値を返した場合はuser、language、data generationを識別して適用し、古い非同期処理の完了で上書きしない。\n6. selector変更では先に端末言語を反映してwriteを行う。write失敗だけは直前値へ戻す。\n7. write成功後のrefetch失敗は未確認状態としてLanguageSelectへ伝播する。端末言語は戻さず、未確認中はselectorを無効化し、確認できなかったことと再確認操作を表示する。\n8. 再確認はprofile refetchだけを行い、成功済みwriteを繰り返さない。再確認が失敗した場合は未確認状態を維持し、成功した場合は通知を消してselectorを再び有効にし、source of truthへ収束する。"
+            "markdown": "1. session判定中は表示を待機し、未認証なら端末値または既定値で表示する。同時に認証済みreadyと処理済みsnapshotを破棄する。\n2. `SupabaseSessionProvider`は非認証または別ユーザーから認証済みへ移ると認証世代を進める。同じ認証済みユーザーのtoken refreshでは世代を維持する。\n3. `LanguageSyncProvider`は認証世代が変わるたびに、同じユーザーの旧profile取得をcancelして完了を待ち、新世代の明示refetchを開始する。新世代のrefetchが解決するまでその世代を未確認としてchildrenを表示せず、既存cacheや旧取得の完了を新世代の完了扱いにしない。\n4. account languageがあれば新世代refetchの値を非同期適用した後にuser IDと認証世代をreadyとして記録する。新世代refetchがnullまたは取得失敗なら端末値か既定値をfallbackとして確定後に同じreadyを記録し、推測値はaccountへ保存しない。\n5. queryが後続のfresh値を返した場合はuser、language、data generationを識別して適用し、古い非同期処理の完了で上書きしない。\n6. selector変更では先に端末言語を反映してwriteを行う。write失敗だけは直前値へ戻す。\n7. write成功後のrefetch失敗は未確認状態としてLanguageSelectへ伝播する。端末言語は戻さず、未確認中はselectorを無効化し、確認できなかったことと再確認操作を表示する。\n8. 再確認はprofile refetchだけを行い、成功済みwriteを繰り返さない。再確認が失敗した場合は未確認状態を維持し、成功した場合は通知を消してselectorを再び有効にし、source of truthへ収束する。"
           },
           {
             "id": "baseline-state-flow-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "state-flow",
-            "text": "状態遷移と優先順位 baselineを、認証世代ごとの明示refetchとready解放条件を含む内容へ置換する。"
+            "text": "状態遷移と優先順位 baselineを、旧取得のcancel完了、新世代の明示refetch、その結果だけに基づくready解放条件へ置換する。"
           }
         ]
       },
@@ -110,7 +110,7 @@
             "role": "design",
             "owner_id": "FR-2",
             "product_behavior_ids": ["PB-2"],
-            "text": "認証ライフサイクル所有者が新しい認証世代を発行し、profileの明示refetchとaccount language適用の完了をuser ID・世代単位のreadyへ記録する。"
+            "text": "認証ライフサイクル所有者が新しい認証世代を発行し、旧profile取得のcancel完了後に開始した新世代refetchとaccount language適用の完了をuser ID・世代単位のreadyへ記録する。"
           },
           {
             "id": "fr-3-design-evidence",
@@ -134,7 +134,7 @@
             "role": "design",
             "owner_id": "FR-5",
             "product_behavior_ids": ["PB-4"],
-            "text": "未設定、取得失敗、write失敗、write成功後確認失敗を別状態にする。確認失敗はLanguageSelectへ伝播し、未確認中の追加writeを止め、確認用refetchだけで収束可能にする。"
+            "text": "未設定、認証世代に帰属する取得失敗、write失敗、write成功後確認失敗を別状態にする。旧世代の失敗を新世代のfallback根拠にせず、確認失敗はLanguageSelectへ伝播し、未確認中の追加writeを止め、確認用refetchだけで収束可能にする。"
           },
           {
             "id": "nfr-1-design-evidence",
@@ -174,7 +174,7 @@
             "role": "design",
             "owner_id": "AC-2",
             "product_behavior_ids": [],
-            "text": "ログイン初期化では認証世代ごとのfresh profileとlanguage適用が完了するまで表示を待機し、同一世代のtoken refreshでは表示を継続する。"
+            "text": "ログイン初期化では旧世代の進行中取得を中断し、新しい認証世代で開始したfresh profileとlanguage適用が完了するまで表示を待機し、同一世代のtoken refreshでは表示を継続する。"
           },
           {
             "id": "ac-3-design-evidence",
@@ -190,7 +190,7 @@
             "role": "design",
             "owner_id": "AC-4",
             "product_behavior_ids": [],
-            "text": "同じユーザーの再ログインでも認証世代ごとのfresh account取得をready条件にし、fresh cacheよりsource of truthを優先する。"
+            "text": "同じユーザーの再ログインでも新しい認証世代自身のfresh account取得をready条件にし、fresh cacheや旧世代の進行中取得よりsource of truthを優先する。"
           },
           {
             "id": "ac-5-design-evidence",
@@ -198,7 +198,7 @@
             "role": "design",
             "owner_id": "AC-5",
             "product_behavior_ids": [],
-            "text": "未設定、取得失敗、write失敗、確認失敗を個別のfallback、rollback、通知、再確認境界へ分解する。"
+            "text": "未設定、新しい認証世代に帰属する取得失敗、write失敗、確認失敗を個別のfallback、rollback、通知、再確認境界へ分解する。"
           },
           {
             "id": "ac-6-design-evidence",
@@ -222,7 +222,7 @@
             "role": "design",
             "owner_id": "AC-8",
             "product_behavior_ids": [],
-            "text": "初回またはsign-out後の再ログインでは認証世代を更新してfresh値適用前にchildrenを表示せず、同一世代のtoken refreshでは既に正しいchildrenを隠さない。"
+            "text": "初回またはsign-out後の再ログインでは認証世代を更新し、旧取得の中断後に開始した新世代のfresh値適用前にchildrenを表示せず、同一世代のtoken refreshでは既に正しいchildrenを隠さない。"
           },
           {
             "id": "ac-9-design-evidence",
@@ -237,7 +237,7 @@
             "type": "evidence",
             "role": "baseline",
             "owner_id": "requirement-design",
-            "text": "要求別設計根拠 baselineを、FR-2が所有する認証世代とfresh profile取得のready境界へ置換する。"
+            "text": "要求別設計根拠 baselineを、FR-2が所有する認証世代、旧取得の非昇格、新世代fresh profile取得のready境界へ置換する。"
           }
         ]
       },
@@ -257,7 +257,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "FR-2",
-            "text": "同一ユーザー再ログインで事前invalidateなしにprofile GETが発生し、fresh値適用前はchildrenが表示されず、同一認証世代のtoken refreshでは表示が継続することを確認する。"
+            "text": "旧世代のprofile GETを未完了にした同一ユーザー再ログインで、事前invalidateなしに旧GETが中断されて新世代GETが発生し、新世代のfresh値適用前はchildrenが表示されず、同一認証世代のtoken refreshでは表示が継続することを確認する。"
           },
           {
             "id": "fr-3-verification-evidence",
@@ -313,7 +313,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-2",
-            "text": "ログインfixtureで認証世代が初回認証とsign-out後の再ログインで進み、token refreshでは維持されることを確認する。"
+            "text": "ログインfixtureで認証世代が初回認証とsign-out後の再ログインで進み、token refreshでは維持されることに加え、世代切替時の取得完了が新世代に帰属することを確認する。"
           },
           {
             "id": "ac-3-verification-evidence",
@@ -327,14 +327,14 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-4",
-            "text": "fresh cache期間内の再ログインでserver応答を変更し、事前invalidateなしにGETして最新account値へ収束することをintegration testで確認する。"
+            "text": "旧世代GETを未完了にしたままserver応答を変更して再ログインし、事前invalidateなしに旧GETの中断後、新世代GETで最新account値へ収束することをintegration testで確認する。"
           },
           {
             "id": "ac-5-verification-evidence",
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-5",
-            "text": "取得、write、write後確認の各失敗でアプリが利用不能にならず、確認失敗の表示、再確認失敗時の継続、再確認成功時の収束を確認する。"
+            "text": "新しい認証世代に帰属する取得、write、write後確認の各失敗でアプリが利用不能にならず、旧世代の失敗をfallback根拠にしないこと、確認失敗の表示、再確認失敗時の継続、再確認成功時の収束を確認する。"
           },
           {
             "id": "ac-6-verification-evidence",
@@ -355,7 +355,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-8",
-            "text": "端末en、cached en、account jaの条件で、token refreshは表示を維持し、sign-out後の同一ユーザー再ログインはGET完了まで待機することを確認する。"
+            "text": "端末en、account ja、旧世代GET未完了の条件で、token refreshは表示を維持し、sign-out後の同一ユーザー再ログインは旧GETを中断して新世代GETが完了するまで待機することを確認する。"
           },
           {
             "id": "ac-9-verification-evidence",
@@ -369,7 +369,7 @@
             "type": "evidence",
             "role": "baseline",
             "owner_id": "verification",
-            "text": "検証方針 baselineを、事前invalidateなしの同一ユーザー再ログインとtoken refreshを分離する回帰testへ置換する。"
+            "text": "検証方針 baselineを、旧GET未完了かつ事前invalidateなしの同一ユーザー再ログインとtoken refreshを分離する回帰testへ置換する。"
           }
         ]
       },
@@ -380,14 +380,14 @@
           {
             "id": "implementation-scope-body",
             "type": "markdown",
-            "markdown": "- `apps/web/src/providers/supabase/SupabaseSessionProvider.tsx`: 初回認証、別ユーザー切替、sign-out後の再ログインで進み、同一ユーザーのtoken refreshでは維持される`authenticationGeneration`をsession stateへ追加する。\n- `apps/web/src/providers/language/LanguageSyncProvider.tsx`: user IDと認証世代をready identityにし、世代ごとの明示profile refetchが解決してからlanguage適用またはfallbackでchildrenを解放する。\n- `apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx`: 認証世代の更新・維持条件を検証する。\n- `apps/web/src/providers/language/LanguageSyncProvider.test.tsx`: 事前invalidateを削除し、fresh cache期間内の同一ユーザー再ログインでGET、待機、最新言語反映を検証する。\n- `apps/web/src/test/test-utils.tsx`とsession context fixture: 新しいsession state契約へ同期する。\n- DB、API、RLS、言語変更write・確認の既存契約は変更しない。\n- RequirementsとDesignのcanonical JSON/MarkdownはDesign完了後にread-onlyとする。"
+            "markdown": "- `apps/web/src/features/profile/profileSettings/fetchProfile.ts`: 任意のAbortSignalを受け取り、Supabase profile requestへ渡してquery cancellationを通信中断へ接続する。\n- `apps/web/src/providers/language/LanguageSyncProvider.tsx`: user IDと認証世代をready identityにし、旧profile queryのcancel完了後に世代固有の明示refetchを開始し、その結果のlanguage適用またはfallbackでchildrenを解放する。\n- `apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts`: AbortSignalによる通信中断をAPI境界で検証する。\n- `apps/web/src/providers/language/LanguageSyncProvider.test.tsx`: 旧GETを未完了のまま同一ユーザーを再ログインさせ、事前invalidateなしで旧GETの中断、新世代GET、待機、最新言語反映を検証する。\n- `apps/web/src/providers/supabase/SupabaseSessionProvider.tsx`と関連fixture: 既存の認証世代契約を維持する。\n- DB、RLS、言語変更write・確認の既存契約は変更しない。\n- RequirementsとDesignのcanonical JSON/MarkdownはDesign完了後にread-onlyとする。"
           },
           {
             "id": "baseline-implementation-scope-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "implementation-scope",
-            "text": "変更対象 baselineを、認証世代を所有するsession provider、language同期、関連fixtureと回帰testへ限定して置換する。"
+            "text": "変更対象 baselineを、中断可能なprofile取得、旧取得をcancelするlanguage同期、取得中の世代切替回帰testへ限定して置換する。"
           }
         ]
       },
@@ -398,14 +398,14 @@
           {
             "id": "risks-body",
             "type": "markdown",
-            "markdown": "- Sessionオブジェクトやuser IDだけではtoken refreshと同一ユーザー再ログインを区別できないため、認証ライフサイクル所有者が明示的な世代を提供する。\n- 新しい認証世代でcache値を先にready扱いすると古い言語が表示されるため、明示refetchの解決をready条件に含める。\n- token refreshごとに世代を進めると不要な待機とGETが発生するため、継続中の同一ユーザーセッションでは世代を維持する。\n- 再ログインtestで事前invalidateすると欠陥を隠すため、fresh cacheを残したままserver応答変更とGET発生を確認する。\n- DB、API、RLS、言語変更write・確認の既存契約に不整合が見つかった場合はDesign scopeを越えて修正せず停止する。"
+            "markdown": "- Sessionオブジェクトやuser IDだけではtoken refreshと同一ユーザー再ログインを区別できないため、認証ライフサイクル所有者が明示的な世代を提供する。\n- 新しい認証世代でcache値または旧世代の進行中取得をready扱いすると古い言語や旧セッション由来の失敗で表示を解放するため、旧取得のcancel完了後に開始した明示refetchだけをready条件にする。\n- queryFnがAbortSignalを通信へ渡さなければcancel完了と実通信の中断が分離するため、profile API境界までsignalを伝播する。\n- token refreshごとに世代を進めると不要な待機とGETが発生するため、継続中の同一ユーザーセッションでは世代を維持する。\n- 再ログインtestで初回GETの完了や事前invalidateを前提にすると欠陥を隠すため、旧GETを未完了にしたままserver応答変更、旧GET中断、新世代GET発生を確認する。\n- DB、RLS、言語変更write・確認の既存契約に不整合が見つかった場合はDesign scopeを越えて修正せず停止する。"
           },
           {
             "id": "baseline-risks-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "risks",
-            "text": "リスクと確認事項 baselineを、token refreshと同一ユーザー再ログインの誤同一視を防ぐ観点へ置換する。"
+            "text": "リスクと確認事項 baselineを、token refresh、同一ユーザー再ログイン、世代間の進行中取得を誤同一視しない観点へ置換する。"
           }
         ]
       }
@@ -455,7 +455,7 @@
       }
     ],
     "coverage_gate": {
-      "requirements_sha256": "3c22e7d31cd1a54722fc6485dbd30c5b9969673da59d2e224db4319ae98d8585",
+      "requirements_sha256": "3c7ad17535b170548ca5b473442584675eae9554a6c78f70dc35f7aaad4a4c66",
       "workspace": "1563-issue-345418f11192",
       "requirement_ids": [
         "FR-1",
@@ -478,7 +478,7 @@
       ],
       "baseline": {
         "source": "git_head",
-        "body_sha256": "81fa853170dcfc7784c6ec4119febb4dc49282869dea469c86955f2b1cb30bc9"
+        "body_sha256": "affd908aa8bca2d5964e981a269c3a55ce1dd13e8f0d020a32bf3e25540096e8"
       },
       "coverage": [
         {
@@ -571,21 +571,21 @@
         {
           "section_id": "context",
           "heading": "入力と前提",
-          "content_sha256": "8b8ab4d6c8cfc2ec903c5b9a3afea812d50e5d6e4aa300d980019417b99c50bd",
+          "content_sha256": "c3dace06c55d381b04fa6f1fc68727da2aaf28cb0d1080bbcb60535022a264a9",
           "status": "replaced",
           "design_block_id": "baseline-context-evidence"
         },
         {
           "section_id": "rule-selection",
           "heading": "Rule Selection",
-          "content_sha256": "76ff9066751cad2fb6200b51008fec47568e2b2fdcfd404581e39565790ba818",
+          "content_sha256": "cd9a28e6c1e8cf688c033c05780c44e87b917e7d0a2cb69dcaa920db393f89f9",
           "status": "replaced",
           "design_block_id": "baseline-rule-selection-evidence"
         },
         {
           "section_id": "architecture",
           "heading": "採用する構成",
-          "content_sha256": "2616b39aa3b35bc2ac622a40af53b432ef144881ddeb308d1723b560e9ae7503",
+          "content_sha256": "16c862c43e908c174e8b9da08c17782846a00889536cff0cc9b2a1f4f82722e9",
           "status": "replaced",
           "design_block_id": "baseline-architecture-evidence"
         },
@@ -598,35 +598,35 @@
         {
           "section_id": "state-flow",
           "heading": "状態遷移と優先順位",
-          "content_sha256": "3702252868a15929d41206defc81a9408aa05e5da6d689a9c31d2c9360a0af9e",
+          "content_sha256": "faa2fa9270c950ad011876828b2acc402a76bf0c8e65ca1a5e1521973b859679",
           "status": "replaced",
           "design_block_id": "baseline-state-flow-evidence"
         },
         {
           "section_id": "requirement-design",
           "heading": "要求別設計根拠",
-          "content_sha256": "9d2c5f269051e0e4cf5849f623c95dc9fe0c02a8595cb09c1e94e4868bb1fc1a",
+          "content_sha256": "a000338d15a95de4268080d074c7f966fa360a9bdbb631c0e1e7568f56e639d2",
           "status": "replaced",
           "design_block_id": "baseline-requirement-design-evidence"
         },
         {
           "section_id": "verification",
           "heading": "検証方針",
-          "content_sha256": "35ef58e32b1667de3ed63642bf5aa376a14062d932eb7169972828e1768a1256",
+          "content_sha256": "f296b9045d4a058156e0df3352a4f9dfd2a7c65bc345365f0ba3b610c345e647",
           "status": "replaced",
           "design_block_id": "baseline-verification-evidence"
         },
         {
           "section_id": "implementation-scope",
           "heading": "変更対象",
-          "content_sha256": "1856e221087bc8d1d5dbf82d96b5dacee7c6c47932f84398c98270af31311be7",
+          "content_sha256": "81fd2581c3fbe3a2a37d6b4cc88a5b376ca32b5fe04939abab1657f21ff91633",
           "status": "replaced",
           "design_block_id": "baseline-implementation-scope-evidence"
         },
         {
           "section_id": "risks",
           "heading": "リスクと確認事項",
-          "content_sha256": "eb8dfe3dc94175f0968d7afddc72f6387f3cb4fa2ebc76eb2aaf59bdd4e2e5d9",
+          "content_sha256": "98fffaea21ba2859b6401487cefe3cdc1401e583eded53077d24bcddf34acfee",
           "status": "replaced",
           "design_block_id": "baseline-risks-evidence"
         }

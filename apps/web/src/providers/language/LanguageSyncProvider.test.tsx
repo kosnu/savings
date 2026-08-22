@@ -216,4 +216,85 @@ describe("LanguageSyncProvider", () => {
     expect(profileGetCount).toBe(2)
     expect(i18next.resolvedLanguage).toBe("ja")
   })
+
+  test("旧セッションの取得中に再ログインしても新しい認証世代で再取得する", async () => {
+    const queryClient = createTestQueryClient()
+    const session = mockSession()
+    let profileGetCount = 0
+    let firstRequestAborted = false
+
+    server.resetHandlers(
+      http.get("*/rest/v1/users*", async ({ request }) => {
+        profileGetCount += 1
+
+        if (profileGetCount === 1) {
+          request.signal.addEventListener(
+            "abort",
+            () => {
+              firstRequestAborted = true
+            },
+            { once: true },
+          )
+          await delay("infinite")
+          return HttpResponse.json({
+            name: "Old Session User",
+            email: "old@example.com",
+            language: "en",
+          })
+        }
+
+        await delay(100)
+        return HttpResponse.json({
+          name: "New Session User",
+          email: "new@example.com",
+          language: "ja",
+        })
+      }),
+    )
+
+    // 未完了のAPI取得と認証世代の遷移順を直接制御するため、Storyは再利用しない。
+    const { rerender } = render(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{
+          status: "authenticated",
+          session,
+          authenticationGeneration: 1,
+        }}
+      />,
+      { withProviders: false },
+    )
+
+    await waitFor(() => expect(profileGetCount).toBe(1))
+    expect(screen.queryByText("Application")).not.toBeInTheDocument()
+
+    rerender(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{
+          status: "unauthenticated",
+          session: null,
+          authenticationGeneration: 1,
+        }}
+      />,
+    )
+    await act(async () => Promise.resolve())
+
+    rerender(
+      <LanguageSyncHarness
+        queryClient={queryClient}
+        sessionState={{
+          status: "authenticated",
+          session: mockSession(),
+          authenticationGeneration: 2,
+        }}
+      />,
+    )
+
+    expect(screen.queryByText("Application")).not.toBeInTheDocument()
+    expect(await screen.findByText("Application")).toBeInTheDocument()
+    expect(profileGetCount).toBe(2)
+    expect(firstRequestAborted).toBe(true)
+    expect(i18next.resolvedLanguage).toBe("ja")
+  })
 })

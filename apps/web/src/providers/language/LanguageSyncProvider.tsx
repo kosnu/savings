@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { type ReactNode, useEffect, useRef, useState } from "react"
 
 import { fetchProfile, profileQueryKeys } from "../../features/profile"
@@ -11,6 +11,7 @@ interface LanguageSyncProviderProps {
 
 export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
   const { authenticationGeneration, session, status } = useSupabaseSession()
+  const queryClient = useQueryClient()
   const authUserId = session?.user.id
   const authenticationIdentity =
     authUserId === undefined ? null : `${authUserId}:${authenticationGeneration}`
@@ -22,6 +23,10 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
   >(null)
   const [resolvedSnapshot, setResolvedSnapshot] = useState<string | null>(null)
   const languageSyncQueueRef = useRef(Promise.resolve())
+  const previousAuthenticationRef = useRef<{
+    identity: string
+    authUserId: string
+  } | null>(null)
 
   const {
     data: profile,
@@ -32,7 +37,7 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
     refetch,
   } = useQuery({
     queryKey: profileQueryKeys.current(authUserId ?? ""),
-    queryFn: async () => fetchProfile(authUserId ?? ""),
+    queryFn: async ({ signal }) => fetchProfile(authUserId ?? "", signal),
     enabled: status === "authenticated" && authUserId !== undefined,
     staleTime: 3000,
     refetchOnMount: "always",
@@ -63,17 +68,39 @@ export function LanguageSyncProvider({ children }: LanguageSyncProviderProps) {
   }, [status])
 
   useEffect(() => {
-    if (status !== "authenticated" || authenticationIdentity === null) return
+    if (status !== "authenticated" || authUserId === undefined || authenticationIdentity === null)
+      return
 
     let isActive = true
-    void refetch().finally(() => {
+    const previousAuthentication = previousAuthenticationRef.current
+    previousAuthenticationRef.current = {
+      identity: authenticationIdentity,
+      authUserId,
+    }
+
+    const revalidateProfile = async () => {
+      if (
+        previousAuthentication !== null &&
+        previousAuthentication.identity !== authenticationIdentity
+      ) {
+        await queryClient.cancelQueries({
+          queryKey: profileQueryKeys.current(previousAuthentication.authUserId),
+          exact: true,
+        })
+      }
+
+      if (!isActive) return
+
+      await refetch()
       if (isActive) setRevalidatedAuthenticationIdentity(authenticationIdentity)
-    })
+    }
+
+    void revalidateProfile()
 
     return () => {
       isActive = false
     }
-  }, [authenticationIdentity, refetch, status])
+  }, [authUserId, authenticationIdentity, queryClient, refetch, status])
 
   useEffect(() => {
     if (

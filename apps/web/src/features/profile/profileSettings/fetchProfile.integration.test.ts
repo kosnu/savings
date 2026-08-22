@@ -1,4 +1,4 @@
-import { HttpResponse, http } from "msw"
+import { HttpResponse, delay, http } from "msw"
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { createProfileHandlers } from "../../../test/msw/handlers/profile"
@@ -49,6 +49,29 @@ describe("fetchProfile", () => {
     server.resetHandlers(...createProfileHandlers({ get: { error: true } }))
 
     await expect(fetchProfile("mock-user-id")).rejects.toThrow("Failed to fetch profile.")
+  })
+
+  it("AbortSignalで進行中の取得を中断する", async () => {
+    let markRequestStarted: (() => void) | undefined
+    const requestStarted = new Promise<void>((resolve) => {
+      markRequestStarted = resolve
+    })
+    server.use(
+      http.get("*/rest/v1/users*", async () => {
+        markRequestStarted?.()
+        await delay("infinite")
+        return HttpResponse.json({ name: "Taro", email: "taro@example.com", language: "ja" })
+      }),
+    )
+    const controller = new AbortController()
+
+    const profilePromise = fetchProfile("mock-user-id", controller.signal)
+    await requestStarted
+    controller.abort()
+
+    await expect(profilePromise).rejects.toMatchObject({
+      message: expect.stringContaining("AbortError"),
+    })
   })
 
   it("レスポンスshapeが不正ならエラーにする", async () => {
