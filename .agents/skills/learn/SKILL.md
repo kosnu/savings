@@ -108,6 +108,17 @@ an interpretation would introduce visible information, an operation, a
 constraint, or a success criterion that the feedback did not state, stop
 instead of inferring it.
 
+Before routing a finding, state the boundary where its evidence was confirmed,
+whether the claimed impact is reachable through an operation the product
+actually provides, and whether action is required. A component, hook, or
+function test with artificial ordering proves only that local mechanism; it
+does not by itself prove an impact that crosses page, auth, network, or user
+boundaries. When the supplied evidence does not establish that cross-boundary
+operation and only a low-feasibility hypothetical remains, mark the product
+response as not required and do not promote it to Task Context or a product
+rule. Do not reject a finding merely because its test layer is low; distinguish
+the confirmed boundary from the missing reachability evidence.
+
 ## Output
 
 Return a concise handoff organized by finding, not a flat list grouped by
@@ -121,6 +132,8 @@ destination:
 ### <finding>
 
 - 明示された理由:
+- 根拠境界と実現可能性:
+- 対応要否:
 - 振り分け: タスクコンテキストの追加・変更 | ルール・ポリシーの追加・変更 | 既存ルール・ポリシーのsharp化
 - 反映先:
 - 変更:
