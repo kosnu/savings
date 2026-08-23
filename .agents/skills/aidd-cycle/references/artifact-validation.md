@@ -139,7 +139,8 @@ Design prose does not define behavior outside this inventory.
 The retained Design Goal and artifact must also contain identical
 `rule_coverage`. Do not copy implementation terms into the Issue or Requirements
 to make a rule selectable. Select the planned machine review surfaces in Design;
-use `additional_rules` only when no surface automatically owns the needed node.
+use `additional_rules` when no surface automatically owns the needed node,
+including a rule whose `applies_to.paths` matches a known planned path.
 
 After the artifact command succeeds, capture the Design-owned completion
 receipt before completing the Design Goal:
@@ -201,12 +202,14 @@ python3 .agents/skills/aidd-cycle/scripts/validate_build_rule_coverage.py \
 ```
 
 This command derives changed paths from the receipt's Git baseline, classifies
-every governed path through `rule-map.json` `review_routing`, verifies that all
-actual surfaces were declared by Design and every required closure node exists
-in the receipt, and writes canonical
+every governed path through `rule-map.json` `review_routing`, unions the
+surface requirements with every rule node whose `applies_to.paths` matches
+each changed path, verifies that all actual surfaces were declared by Design
+and every required closure node exists in the receipt, and writes canonical
 `<workspace>/.aidd/build-rule-coverage.json`. An undeclared surface, missing
-receipt rule, or governed path without a surface is a failure. Then run the
-Build Entry command again before completing Build. The exact receipt recorded
+receipt rule, or governed path without a surface is a failure. The record keeps
+the direct path-rule matches for each change so the selection is reproducible.
+Then run the Build Entry command again before completing Build. The exact receipt recorded
 by the preceding Design completion evidence is the Build phase's upstream
 identity.
 

@@ -73,7 +73,7 @@ Web/APIの表に該当しない差分は、`docs/harness/rule-map.json` の有�
 
 AIDD Buildでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。Designは予定する`implementation_surfaces`を構造化して所有し、Design completion receiptはsurface、最終selected rule文書、Build開始前のGit `HEAD`を固定します。
 
-Build完了時はreceiptのGit基準点から実差分を取得し、全governed pathに一致するsurfaceを自動的に和集合します。実差分にDesign未宣言surface、receiptにないsurface必須ruleまたは依存node、surfaceへ分類できないgoverned pathが1件でもあればCoverage成功としてはいけません。`Checked rules`の自己申告だけでこの判定を代替できません。
+Build完了時はreceiptのGit基準点から実差分を取得し、全governed pathに一致するsurfaceと、各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。実差分にDesign未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあればCoverage成功としてはいけません。Coverage recordはpathごとの一致ruleを保持し、`Checked rules`の自己申告だけでこの判定を代替できません。
 
 ## レビュー結果
 

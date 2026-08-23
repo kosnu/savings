@@ -54,9 +54,9 @@ cycle-start Issue titleはRequirementsだけが`validation.cycle_start_issue_tit
 rule-mapの選択は、priorityの高いノードや主要な変更面だけへ狭めず、各工程が所有する根拠から該当するdirect nodeをすべて和集合し、その`depends_on` closureを加えた最小の完全なsubgraphにします。全ドキュメントを読むことを完全性の代わりにしてはいけません。
 
 - Requirementsは、Issue本文にliteral evidenceがあるpath、domain、activity、topicだけからdirect nodeを選びます。後工程の技術的変更面をIssueへ追記したり、Issueにない語をRequirements evidenceとして扱ったりしません。
-- Designは、`rule-map.json`の`review_routing.surfaces`から実装予定面を`rule_coverage.implementation_surfaces`へ固定します。surfaceの必須rule、Requirements選択、Designで判明した`additional_rules`の和集合と依存closureをvalidatorが最終selected ruleとして計算し、Design Goalとartifactの一致を検証します。
+- Designは、`rule-map.json`の`review_routing.surfaces`から実装予定面を`rule_coverage.implementation_surfaces`へ固定します。予定pathに`applies_to.paths`が一致する固有nodeなど、surfaceから自動選択されないruleは`additional_rules`へ記録します。surfaceの必須rule、Requirements選択、Designで判明した`additional_rules`の和集合と依存closureをvalidatorが最終selected ruleとして計算し、Design Goalとartifactの一致を検証します。
 - Design completion receiptは、最終selected rule文書、Designのimplementation surfaces、Build開始前のGit `HEAD`を固定します。
-- Build / Verifyは、receiptのGit基準点から得た実際の変更pathを`review_routing`で自動分類します。実差分に未宣言surface、receiptにない必須rule、またはsurface未定義のgoverned pathがあれば失敗し、成功時だけcanonical Build Coverage recordを生成します。
+- Build / Verifyは、receiptのGit基準点から得た実際の変更pathを`review_routing`で自動分類し、各pathに一致するrule nodeの`applies_to.paths`もdirect ruleとして和集合します。実差分に未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、またはsurface未定義のgoverned pathがあれば失敗し、成功時だけpathごとの選択根拠を持つcanonical Build Coverage recordを生成します。
 
 DesignはRequirementsのliteral rule selectionを変更せず、自工程が所有する構造化coverageとして必要なruleを追加できます。Build / Verifyで実差分がDesign coverageを超えた場合は後工程で黙って補完せず、Design coverage不足としてStopします。
 
@@ -98,8 +98,8 @@ ID、owner、role、reference、hash、inventoryが成果物の主要な機械�
 
 - 入力: 直前のDesign Goal完了証拠に記録されたDesign completion receiptとそのSHA-256。Build entry gateは記録SHA-256に一致するreceipt bytesを読み、その後はそのbytesをreceipt identityとして扱う。現在のIssue snapshot、canonical Requirements / Design、両生成Markdown、canonical rule map、選択済みrule文書、Git `HEAD` Requirements / Design baselineを1回だけ読み込んだ同一byte snapshotから再検証し、そのsnapshotの全pathとhashがreceiptに完全一致し、最終drift checkで再読込した各入力も同じ場合だけ成功する。cycle titleはRequirements bytesとreceiptからのみ得て、Build入力として受け取らない。pathの継続占有ではなく検証済みsnapshot bytesがidentityであり、上流成果物とreceiptはread-only。
 - 所有: 必要な実装、テスト、fixture、runtime設定と、canonical `.aidd/build-rule-coverage.json`を含む検証証拠。
-- 完了: 全RequirementとDesign方針を実装し、対象appの必須verificationが成功し、receipt基準の実差分から生成したBuild rule coverageに未解決がなく、Build entry gateを同じreceipt SHA-256に対して再実行して、上流成果物が不変である。
-- 停止: Build entryのartifact gateまたはrender同期が失敗、上流成果物の不足・矛盾を解釈で埋める必要がある、typed inventoryにないproduct behaviorが必要、実差分に未宣言surface・receiptにない必須rule・未分類governed pathがある、許可範囲を越える変更が必要、外部権限なしでは検証不能。
+- 完了: 全RequirementとDesign方針を実装し、対象appの必須verificationが成功し、receipt基準の実差分についてsurface必須ruleとpath一致ruleの依存closureを記録したBuild rule coverageに未解決がなく、Build entry gateを同じreceipt SHA-256に対して再実行して、上流成果物が不変である。
+- 停止: Build entryのartifact gateまたはrender同期が失敗、上流成果物の不足・矛盾を解釈で埋める必要がある、typed inventoryにないproduct behaviorが必要、実差分に未宣言surface・receiptにないsurface必須rule・path一致rule・依存node・未分類governed pathがある、許可範囲を越える変更が必要、外部権限なしでは検証不能。
 
 ### Ship
 

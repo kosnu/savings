@@ -26,6 +26,7 @@ from rule_coverage import (
     expand_rule_closure,
     matching_surfaces,
     path_is_governed,
+    rules_for_path,
     rules_for_surfaces,
     validate_review_routing,
 )
@@ -34,7 +35,7 @@ from validate_requirements_goal import ValidationError as RuleMapValidationError
 from validate_requirements_goal import validate_rule_map
 
 
-COVERAGE_SCHEMA_VERSION = 1
+COVERAGE_SCHEMA_VERSION = 2
 COVERAGE_RELATIVE_PATH = Path(".aidd") / "build-rule-coverage.json"
 
 
@@ -160,6 +161,7 @@ def validate(
     baseline_head = receipt["build_baseline"]["head"]
     governed_changes: list[dict[str, Any]] = []
     actual_surfaces: list[str] = []
+    actual_path_rules: list[str] = []
     for change in changed_paths(repo_root, baseline_head):
         path = change["path"]
         if not path_is_governed(path, routing):
@@ -169,8 +171,12 @@ def validate(
             raise ValidationError(
                 f"governed Build path has no review surface: {path}"
             )
-        governed_changes.append({**change, "surfaces": matched})
+        path_rules = rules_for_path(path, rules_by_id)
+        governed_changes.append(
+            {**change, "surfaces": matched, "path_rules": path_rules}
+        )
         actual_surfaces.extend(matched)
+        actual_path_rules.extend(path_rules)
     actual_surfaces = list(dict.fromkeys(actual_surfaces))
     undeclared = set(actual_surfaces) - set(declared_surfaces)
     if undeclared:
@@ -179,8 +185,14 @@ def validate(
             f"{', '.join(sorted(undeclared))}"
         )
     try:
+        direct_rule_set = set(rules_for_surfaces(actual_surfaces, routing)) | set(
+            actual_path_rules
+        )
+        direct_rules = [
+            rule_id for rule_id in rules_by_id if rule_id in direct_rule_set
+        ]
         required_rules = expand_rule_closure(
-            rules_for_surfaces(actual_surfaces, routing),
+            direct_rules,
             rules_by_id,
         )
     except RuleCoverageError as error:
@@ -199,6 +211,7 @@ def validate(
         "build_baseline_head": baseline_head,
         "changes": governed_changes,
         "implementation_surfaces": actual_surfaces,
+        "direct_rules": direct_rules,
         "checked_rules": required_rules,
         "unresolved": [],
     }

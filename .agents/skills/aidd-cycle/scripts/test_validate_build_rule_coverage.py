@@ -15,6 +15,7 @@ from validate_build_rule_coverage import ValidationError, validate
 from rule_coverage import (
     expand_rule_closure,
     matching_surfaces,
+    rules_for_path,
     rules_for_surfaces,
     validate_review_routing,
 )
@@ -49,20 +50,42 @@ def add_surface(repo_root: Path, surface: dict[str, object]) -> None:
     )
 
 
-def set_design_surfaces(repo_root: Path, surfaces: list[str]) -> Path:
+def set_rule_paths(repo_root: Path, rule_id: str, paths: list[str]) -> None:
+    rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
+    rule_map = json.loads(rule_map_path.read_text(encoding="utf-8"))
+    rule = next(rule for rule in rule_map["rules"] if rule["id"] == rule_id)
+    rule["applies_to"]["paths"] = paths
+    rule_map_path.write_text(
+        json.dumps(rule_map, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def set_design_surfaces(
+    repo_root: Path,
+    surfaces: list[str],
+    *,
+    additional_rules: list[dict[str, str]] | None = None,
+) -> Path:
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces" / WORKSPACE
     )
     requirements_path = workspace_root / "requirements.json"
     requirements_digest = hashlib.sha256(requirements_path.read_bytes()).hexdigest()
-    design = design_source(requirements_digest)
+    design = design_source(
+        requirements_digest,
+        additional_rules=additional_rules,
+    )
     design["validation"]["rule_coverage"]["implementation_surfaces"] = surfaces
     design_path = workspace_root / "design-doc.json"
     design_path.write_text(serialize_source(design), encoding="utf-8")
     (workspace_root / "design-doc.md").write_text(
         render_artifact_markdown(design), encoding="utf-8"
     )
-    goal = design_goal_source(requirements_digest)
+    goal = design_goal_source(
+        requirements_digest,
+        additional_rules=additional_rules,
+    )
     goal["validation"]["rule_coverage"]["implementation_surfaces"] = surfaces
     goal_path = repo_root / "design-goal.json"
     goal_path.write_text(serialize_source(goal), encoding="utf-8")
@@ -85,9 +108,69 @@ class BuildRuleCoverageTest(unittest.TestCase):
 
             record = validate(repo_root, WORKSPACE, receipt_sha256)
 
+            self.assertEqual(record["schema_version"], 2)
             self.assertEqual(record["implementation_surfaces"], ["test-workflow"])
+            self.assertEqual(record["changes"][0]["path_rules"], [])
+            self.assertEqual(record["direct_rules"], ["ai-driven.workflow"])
             self.assertEqual(record["checked_rules"], ["ai-driven.workflow"])
             self.assertEqual(record["unresolved"], [])
+
+    def test_rejects_path_rule_missing_from_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            set_rule_paths(repo_root, "policy.extra", ["apps/web/special/**"])
+            receipt_sha256 = capture(repo_root)
+            write_changed_file(repo_root, "apps/web/special/feature.ts")
+
+            with self.assertRaisesRegex(
+                ValidationError,
+                "absent from the Design receipt: policy.extra",
+            ):
+                validate(repo_root, WORKSPACE, receipt_sha256)
+
+    def test_accepts_path_rule_declared_as_design_additional_rule(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            set_rule_paths(repo_root, "policy.extra", ["apps/web/special/**"])
+            goal_path = set_design_surfaces(
+                repo_root,
+                ["test-workflow"],
+                additional_rules=[
+                    {
+                        "id": "policy.extra",
+                        "reason": "予定pathに固有のruleであるため。",
+                    }
+                ],
+            )
+            _, receipt_sha256 = validate_or_capture(
+                "owner/repo#1639",
+                "https://github.com/owner/repo/issues/1639",
+                "2026-08-11T00:00:00Z",
+                repo_root / "issue-body.md",
+                repo_root / "docs" / "harness" / "rule-map.json",
+                repo_root,
+                WORKSPACE,
+                capture=True,
+                goal_document_path=goal_path,
+            )
+            write_changed_file(repo_root, "apps/web/special/feature.ts")
+
+            record = validate(repo_root, WORKSPACE, receipt_sha256)
+
+            self.assertEqual(
+                record["changes"][0]["path_rules"],
+                ["policy.extra"],
+            )
+            self.assertEqual(
+                record["direct_rules"],
+                ["ai-driven.workflow", "policy.extra"],
+            )
+            self.assertEqual(
+                record["checked_rules"],
+                ["ai-driven.workflow", "policy.extra"],
+            )
 
     def test_rejects_surface_found_only_in_actual_diff(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -185,13 +268,40 @@ class CanonicalRoutingTest(unittest.TestCase):
             routing,
         )
         selected_rules = expand_rule_closure(
-            rules_for_surfaces(surfaces, routing),
+            [
+                *rules_for_surfaces(surfaces, routing),
+                *rules_for_path(
+                    "apps/web/src/features/settings/LanguageForm.tsx",
+                    rules_by_id,
+                ),
+            ],
             rules_by_id,
         )
 
         self.assertEqual(surfaces, ["web-project", "web-source"])
         self.assertIn("web.design-rules", selected_rules)
         self.assertIn("web.test-policy", selected_rules)
+
+    def test_msw_handler_path_selects_path_specific_rule(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        rule_map = json.loads(
+            (repo_root / "docs" / "harness" / "rule-map.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rules_by_id = validate_rule_map(rule_map)
+
+        selected_rules = rules_for_path(
+            "apps/web/src/test/msw/handlers/profile.ts",
+            rules_by_id,
+        )
+        ordinary_rules = rules_for_path(
+            "apps/web/src/features/settings/LanguageForm.tsx",
+            rules_by_id,
+        )
+
+        self.assertIn("web.msw-handlers", selected_rules)
+        self.assertNotIn("web.msw-handlers", ordinary_rules)
 
 
 if __name__ == "__main__":

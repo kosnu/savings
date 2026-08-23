@@ -63,9 +63,11 @@ For each phase in the workflow:
    machine review surfaces for the planned
    implementation and any additional Design-owned rules; the validator derives
    the final selected rules and dependency closure. In Build, run the Build rule
-   coverage validator against the actual Git diff and retain its canonical
-   Coverage record. Stop if the diff has an undeclared surface, a required rule
-   absent from the receipt, or a governed path with no routing surface.
+   coverage validator against the actual Git diff, union every rule node whose
+   `applies_to.paths` matches each changed path with the surface requirements,
+   and retain the per-path selection evidence in its canonical Coverage record.
+   Stop if the diff has an undeclared surface, a surface or path rule absent
+   from the receipt, or a governed path with no routing surface.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path

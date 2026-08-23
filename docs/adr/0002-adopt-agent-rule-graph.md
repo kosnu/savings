@@ -74,3 +74,9 @@ policy / domain docs は、見落としや誤検知が起きた場合、本文�
 - 検知すべき違反
 - 違反扱いしない例外
 - 判断に迷う場合に併読すべき文書
+
+## Clarification: Build path-specific rule selection (2026-08-23)
+
+AIDD Buildのreview surfaceは広い変更面を分類するための索引であり、各rule nodeの`applies_to.paths`を置き換えない。Buildは実差分のgoverned pathごとに、一致surfaceの必須ruleと、pathが一致するrule nodeを和集合し、その依存closureを検証する。
+
+Designで予定pathが判明している場合、surfaceから選ばれないpath固有ruleは`additional_rules`へ固定する。Buildで必要ruleがreceiptにない場合は黙って追加せずDesign coverage不足として失敗し、Coverage recordにはpathごとの直接一致ruleを残す。

@@ -78,8 +78,10 @@ For Design:
   section;
 - classify the planned implementation into machine review surfaces from
   `rule-map.json`; record the canonical `implementation_surfaces` and only
-  Design-specific `additional_rules` in `rule_coverage`. The validator derives
-  the union with Requirements-selected rules and the dependency closure;
+  Design-specific `additional_rules`, including nodes whose `applies_to.paths`
+  match a known planned path but are not owned by a surface, in `rule_coverage`.
+  The validator derives the union with Requirements-selected rules and the
+  dependency closure;
 - define every added, changed, or removed user operation and state transition
   as a typed product behavior record with one canonical `requirement_id` and one
   design evidence block owned by the same Requirement ID. Requirement content
@@ -96,9 +98,10 @@ For Build:
 - record the verified receipt path, unchanged SHA-256, and its complete
   artifact and selected-rule identity in the Build Goal.
 - require the Build rule coverage validator at completion. It classifies the
-  actual Git diff from the receipt baseline, writes the canonical Coverage
-  record, and stops on undeclared surfaces, missing receipt rules, or governed
-  paths without a routing surface;
+  actual Git diff from the receipt baseline, unions surface requirements with
+  rule nodes whose `applies_to.paths` match each changed path, writes the
+  canonical per-path Coverage record, and stops on undeclared surfaces, missing
+  receipt rules, or governed paths without a routing surface;
 - take the cycle-start title only from the verified receipt; the Build entry
   command has no title input.
 

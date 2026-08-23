@@ -116,6 +116,20 @@ def rules_for_surfaces(
     )
 
 
+def rules_for_path(
+    path: str,
+    rules_by_id: dict[str, dict[str, Any]],
+) -> list[str]:
+    return [
+        rule_id
+        for rule_id, rule in rules_by_id.items()
+        if any(
+            matches_path(path, pattern)
+            for pattern in rule["applies_to"].get("paths", [])
+        )
+    ]
+
+
 def expand_rule_closure(
     direct_rule_ids: list[str],
     rules_by_id: dict[str, dict[str, Any]],

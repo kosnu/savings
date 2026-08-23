@@ -25,7 +25,7 @@ when_to_read:
 - 目的: 検証済みRequirements全体について実装方針と検証方針を定義する。
 - Cycle identity: Issue snapshot、workspace、Requirements pathとSHA-256。cycle-start titleは検証済みRequirementsが所有し、Design Goalへ再入力・複製しない。
 - Canonical input: validation済み`requirements.json`。生成Markdownを含めread-only。
-- Rule coverage: 実装予定面を`rule-map.json`のmachine review surfaceへ分類し、`rule_coverage.implementation_surfaces`と必要な`additional_rules`をDesign Goalとartifactへ同一に記録する。最終selected ruleはvalidatorがRequirements選択、surface必須rule、additional rule、依存closureから計算する。
+- Rule coverage: 実装予定面を`rule-map.json`のmachine review surfaceへ分類し、`rule_coverage.implementation_surfaces`と、予定pathに`applies_to.paths`が一致する固有nodeを含む必要な`additional_rules`をDesign Goalとartifactへ同一に記録する。最終selected ruleはvalidatorがRequirements選択、surface必須rule、additional rule、依存closureから計算する。
 - Implementation context: 関連コード、ADR、policy、tests。
 - Baseline: validatorがGit `HEAD`のcanonical `design-doc.json`から取得したsection inventoryとhash。
 - Scope: 全Requirement IDのdesign/verification scopeと、全baseline sectionのreview scope。
