@@ -30,6 +30,21 @@ Design Goal and artifact also own identical `rule_coverage` records. Their
 `additional_rules` holds only Design-specific nodes not already selected by
 Requirements or a surface. The validator computes the final dependency closure.
 
+## Repository Root Contract
+
+Each CLI that accepts `--repo-root` must call `require_repository_root` once and
+use the returned canonical absolute path for every subsequent path resolution,
+read, and write. After validation, do not reconstruct an input or output path
+from the raw argument value.
+
+When a CLI accepts a relative repository root, that input and the equivalent
+absolute path must produce the same canonical output and exit behavior. Cover
+each file-writing AIDD entrypoint that accepts relative roots with regression
+tests that invoke the CLI through its entrypoint using both forms; a traceback
+or a different output path is a failure. An entrypoint whose contract requires
+an absolute root must reject a relative value before any write and test that
+boundary instead of silently adding a second path-resolution contract.
+
 ## Workspace
 
 ```sh
