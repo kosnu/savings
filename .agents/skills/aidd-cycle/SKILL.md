@@ -6,8 +6,9 @@ description: Run one complete repository AI Driven Development cycle in a single
 # AIDD Cycle
 
 Run the repository AIDD workflow end to end. This skill owns cycle identity,
-phase transitions, and Goal execution. `goal-setting` owns construction of one
-phase Goal.
+phase transitions, Goal orchestration, and completion confirmation.
+`goal-setting` owns construction of one phase Goal. The executor assigned below
+owns execution of that Goal.
 
 ## Read First
 
@@ -16,6 +17,7 @@ phase Goal.
 - `.agents/skills/goal-setting/SKILL.md`
 - `docs/harness/rule-map.json`
 - `references/artifact-validation.md` when entering Requirements, Design, or Build
+- `.codex/config.toml` and the selected phase agent file before delegation
 
 The workflow is canonical. Do not add phase rules here or infer a phase from an
 artifact's mere existence.
@@ -57,7 +59,8 @@ For each phase in the workflow:
    artifacts and generated displays against the current Issue snapshot and the
    Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
-   subgraph. In Design, record the machine review surfaces for the planned
+   subgraph, using the phase executor assigned below. In Design, record the
+   machine review surfaces for the planned
    implementation and any additional Design-owned rules; the validator derives
    the final selected rules and dependency closure. In Build, run the Build rule
    coverage validator against the actual Git diff and retain its canonical
@@ -81,6 +84,49 @@ For each phase in the workflow:
 
 Never have two phase Goals active at once. Never advance because files exist,
 tests happened to pass, or a phase draft was produced.
+
+## Phase Execution Assignment
+
+The parent agent remains the cycle orchestrator and keeps its currently
+selected model and reasoning effort. Assign each phase exactly as follows:
+
+| Phase | Executor | Configuration |
+| --- | --- | --- |
+| Requirements | `aidd-requirements-design` | `.codex/agents/aidd-requirements-design.toml` |
+| Design | `aidd-requirements-design` | `.codex/agents/aidd-requirements-design.toml` |
+| Build | `aidd-build` | `.codex/agents/aidd-build.toml` |
+| Ship | parent agent | current selection |
+
+For Requirements, Design, and Build:
+
+1. The parent sets or identifies the one active phase Goal before delegation.
+2. Call `spawn_agent` exactly once with `agent_type` set to the table's exact
+   Executor value, `fork_turns` set to `"none"`, and a separate
+   lowercase-underscore `task_name` such as `aidd_requirements`, `aidd_design`,
+   or `aidd_build`. A custom `agent_type` cannot use the default full-history
+   fork; the self-contained `message` below replaces inherited conversation
+   context. `agent_type` selects the registered project-scoped agent; never use
+   `task_name` as the executor selector. The selected configuration file,
+   registered by `.codex/config.toml`, is the source of truth for its model,
+   reasoning effort, and phase instructions; do not override those settings at
+   the call site. Sandbox and approval settings follow the parent turn's active
+   runtime policy.
+3. Give the phase agent a self-contained `message` containing the repository
+   root, current branch, phase, active Goal identity and Context Packet,
+   required workflow and validation references, upstream artifact or receipt
+   identity, read/write boundary, Verification, and Stop conditions.
+4. The phase agent executes only the active Goal. It must not create the next
+   Goal, start another phase, run Learn, or delegate further.
+5. Wait for the phase agent before doing more phase work. Reuse that agent for
+   same-phase continuation when possible, and never run two phase executors at
+   once.
+6. After the phase agent finishes, the parent calls `get_goal` and independently
+   confirms the required phase evidence. Advance only when the Goal is terminal
+   `complete`; otherwise continue or stop under the existing Goal rules.
+
+If the registered phase agent or its configured model and reasoning effort is
+unavailable, preserve the active Goal and stop. Do not inherit, substitute, or
+silently run the delegated phase in the parent.
 
 ## Artifact Boundary
 
