@@ -9,7 +9,7 @@
     "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
   },
   "workspace": "1563-issue-345418f11192",
-  "design_goal_sha256": "84db640f2628130300cd84771c7b5b3a69b4267a81f6408fb65ace4214a25908",
+  "design_goal_sha256": "40d6c89ead8792c2d3c5727c357be472fdbdc1a269c031f81422cac92efa4bf4",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "650a9912d28822e18a0369d43b6b765fa45045c410ecc197637daa85289aa5cb"
@@ -31,14 +31,74 @@
       "sha256": "abac8167db5a2e0c81f7a00fa22f9db79e999661723e791837b81e6a8d07c7dc"
     },
     {
+      "id": "ai-driven.overview",
+      "path": "docs/ai-driven-development/overview.md",
+      "sha256": "011d120cdb8880e51ea55f63835a663299fd4ddd53af5fd9ecf4779561a6e856"
+    },
+    {
+      "id": "ai-driven.workflow",
+      "path": "docs/ai-driven-development/workflow.md",
+      "sha256": "05adc3366afc395f21272edc4696de7d3c8f55970612c72f7311c5888eed8a11"
+    },
+    {
+      "id": "policy.learning-extraction",
+      "path": "docs/harness/policies/learning-extraction.md",
+      "sha256": "0aa83192d696910c1c287be7c70ba20de66612356a59df4bd0de2f619f695259"
+    },
+    {
+      "id": "policy.git-workflow",
+      "path": "docs/harness/policies/git-workflow.md",
+      "sha256": "bcf5517bba3934942f7464d286ec45c93e8fda32a9aeba6c4ea301ac75dfc92e"
+    },
+    {
+      "id": "policy.review-feedback-classification",
+      "path": "docs/harness/policies/review-feedback-classification.md",
+      "sha256": "be628dc59aaabd468e9dc608d4cad4781f9165f2912d7248a01bb2986c2df5f9"
+    },
+    {
       "id": "policy.code-review",
       "path": "docs/harness/policies/code-review.md",
-      "sha256": "0c53f72a0676f38a73d042efdc1b597f318fff4e406908cda1a4712d697509f0"
+      "sha256": "b694e2840c83d53bada9a564dffdec40e7e843777784f53e18766901aaa0f83a"
     },
     {
       "id": "policy.transaction-boundaries",
       "path": "docs/harness/policies/transaction-boundaries.md",
-      "sha256": "126687adea5d5a67d712316b58e5f22c0b0fc859415da41f6a6bf7bdbb3395de"
+      "sha256": "89fee98e03cecb7a0ae46dd18daa0ef675a424b128a9356603e3ee009be912d8"
+    },
+    {
+      "id": "policy.temporal-data",
+      "path": "docs/harness/policies/temporal-data.md",
+      "sha256": "997f68293dd2f0089eb19b15b7d13ec71a22fc90c89b302b1e9fc908e1942380"
+    },
+    {
+      "id": "domain.amount",
+      "path": "docs/harness/domain/amount.md",
+      "sha256": "81a972f0fab93f1b939edd253a9521af2481ebb277fc72468740084131b6e48d"
+    },
+    {
+      "id": "domain.date",
+      "path": "docs/harness/domain/date.md",
+      "sha256": "5fcd83f8ab4225ab0c0aa6ec072755158174701435bf5d59e6e86a84e0f17fd3"
+    },
+    {
+      "id": "domain.payment",
+      "path": "docs/harness/domain/payment.md",
+      "sha256": "e646e03142eaf1068a75aecbf341ffa925be9067a9397a7b01ad023c30df879f"
+    },
+    {
+      "id": "domain.category",
+      "path": "docs/harness/domain/category.md",
+      "sha256": "72041b6c8ff43cee9e50763335ab26a24580501250233529e6d4f8e48d4061c1"
+    },
+    {
+      "id": "domain.monthly-budget",
+      "path": "docs/harness/domain/monthly-budget.md",
+      "sha256": "9bb51acb779c81feee607517cfd6c54501a5bbee29d9f5d6119d8142a85d8ace"
+    },
+    {
+      "id": "domain.book",
+      "path": "docs/harness/domain/book.md",
+      "sha256": "9f148def6802a6e0a6252d6133ca14ff8673291910c37faf8915d9216ffe54fc"
     },
     {
       "id": "domain.user",
@@ -61,6 +121,16 @@
       "sha256": "363d860a7d6b4f43b3f39b2b00f355912c2ed20be5b5447e28810767c2a748eb"
     },
     {
+      "id": "web.domain-layer-rules",
+      "path": "apps/web/docs/policies/domain-layer-rules.md",
+      "sha256": "d92147118b567a835a12ac7c17b5f6629640334fe30f5965229552324f5dbc94"
+    },
+    {
+      "id": "web.domain-ui-rules",
+      "path": "apps/web/docs/policies/domain-ui-rules.md",
+      "sha256": "2789e068a8b82c89b1177de985be6a6649ec35eb94c0e79c6981d8343cbf977a"
+    },
+    {
       "id": "web.feature-directory",
       "path": "apps/web/docs/policies/feature-directory.md",
       "sha256": "a249f457165c9ad0f0eed3bf42f379de5c251bb8484212b07cc9a39ba8303a14"
@@ -68,7 +138,7 @@
     {
       "id": "web.query-cache",
       "path": "apps/web/docs/policies/query-cache.md",
-      "sha256": "a935f59a026379f9508eacfa83678dbae849444ff94399885c8685476ed2a7a4"
+      "sha256": "636b9520909a87bd321a85484c7c9a81b8bfa01e55bd0281f8698574240675b3"
     },
     {
       "id": "web.suspense-boundaries",
@@ -79,6 +149,11 @@
       "id": "web.test-policy",
       "path": "apps/web/docs/policies/test-policy.md",
       "sha256": "7b6ae37a11dcb71bc5741c5910cc8374c58ac404aa022cd0a93479fdfedac3f2"
+    },
+    {
+      "id": "web.storybook-browser-tests",
+      "path": "apps/web/docs/policies/storybook-browser-tests.md",
+      "sha256": "afdb5edf7d356e46fcb65daf97a9dc0a92ed6faf20f0327abd1985a857a7ea9f"
     }
   ],
   "rule_coverage": {
@@ -88,27 +163,27 @@
     ]
   },
   "build_baseline": {
-    "head": "c8bca1fcb0771e702c37bb84a5fe10f35580a1cc"
+    "head": "584978a6bbdab748a4d14c8edd1e961c76bbddbd"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
-        "sha256": "8cb0f90cd345b2800015e5af8f3d461f9bd57d509a6d8e4b2e037c43a65f310a"
+        "sha256": "d07e46327f6b79687e9cf43a917e04458e1dbd39c882b46d1069469f0763b663"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
-        "sha256": "4fd55204699744734e8920d1a8c078ab9181372ed8c15b23bfdf8db094777e4d"
+        "sha256": "f483a86742e880a07cb37f0cbd946670a18f0f539d944e98c04800ee48a2da60"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
-        "sha256": "ee8eb181a809e682c9846bc0555d4b95fa971287acb1987624ca5284df27b5ea"
+        "sha256": "d98e5cb4660cddf4f2a7784b2ac2c6ccf224325148a4ce46f737bf960bde7572"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
-        "sha256": "6e241277ac65f588a544b0690b50a832e225e056aca1f5fc70a597bccdc5a070"
+        "sha256": "5fbf9b5a23297084689211a7765256abb34a3755871f20702edc1ebab936a80e"
       }
     }
   }

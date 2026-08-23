@@ -6,60 +6,38 @@ import { updateLanguage as updateLanguageRecord } from "./updateLanguage"
 
 interface UseUpdateLanguageReturn {
   updateLanguage: (language: "en" | "ja") => Promise<void>
-  retryLanguageVerification: () => Promise<void>
   isPending: boolean
 }
 
-type LanguageUpdateFailurePhase = "write" | "verification"
-
-class LanguageUpdateError extends Error {
-  readonly phase: LanguageUpdateFailurePhase
+class LanguageUpdateWriteError extends Error {
   readonly originalError: unknown
 
-  constructor(phase: LanguageUpdateFailurePhase, cause: unknown) {
-    super(`Language update ${phase} failed.`)
-    this.name = "LanguageUpdateError"
-    this.phase = phase
+  constructor(cause: unknown) {
+    super("Language update write failed.")
+    this.name = "LanguageUpdateWriteError"
     this.originalError = cause
   }
 }
 
 export function isLanguageUpdateWriteFailure(error: unknown): boolean {
-  return error instanceof LanguageUpdateError && error.phase === "write"
-}
-
-export function isLanguageUpdateVerificationFailure(error: unknown): boolean {
-  return error instanceof LanguageUpdateError && error.phase === "verification"
+  return error instanceof LanguageUpdateWriteError
 }
 
 export function useUpdateLanguage(authUserId: string): UseUpdateLanguageReturn {
   const queryClient = useQueryClient()
-  const verifyLanguageUpdate = useCallback(async () => {
-    await queryClient.refetchQueries(
-      {
-        queryKey: profileQueryKeys.current(authUserId),
-        type: "all",
-      },
-      { throwOnError: true },
-    )
-  }, [authUserId, queryClient])
-  const { mutateAsync, isPending: isUpdatePending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: async (language: "en" | "ja") => {
       try {
         await updateLanguageRecord({ authUserId, language })
       } catch (error) {
-        throw new LanguageUpdateError("write", error)
+        throw new LanguageUpdateWriteError(error)
       }
 
-      try {
-        await verifyLanguageUpdate()
-      } catch (error) {
-        throw new LanguageUpdateError("verification", error)
-      }
+      void queryClient.invalidateQueries({
+        queryKey: profileQueryKeys.current(authUserId),
+        exact: true,
+      })
     },
-  })
-  const { mutateAsync: retryVerification, isPending: isVerificationPending } = useMutation({
-    mutationFn: verifyLanguageUpdate,
   })
 
   const updateLanguage = useCallback(
@@ -68,13 +46,8 @@ export function useUpdateLanguage(authUserId: string): UseUpdateLanguageReturn {
     },
     [mutateAsync],
   )
-  const retryLanguageVerification = useCallback(async () => {
-    await retryVerification()
-  }, [retryVerification])
-
   return {
     updateLanguage,
-    retryLanguageVerification,
-    isPending: isUpdatePending || isVerificationPending,
+    isPending,
   }
 }

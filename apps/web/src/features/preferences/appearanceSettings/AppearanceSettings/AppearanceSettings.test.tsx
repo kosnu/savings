@@ -78,21 +78,21 @@ describe("AppearanceSettings", () => {
     })
   })
 
-  test("アカウント保存後の確認失敗を通知し、writeを繰り返さず再確認する", async () => {
+  test("アカウント保存後の内部再取得失敗をユーザーへ通知しない", async () => {
     let getRequestCount = 0
     let patchRequestCount = 0
     server.resetHandlers(
       http.get("*/rest/v1/users*", () => {
         getRequestCount += 1
 
-        if (getRequestCount === 2 || getRequestCount === 3) {
+        if (getRequestCount >= 2) {
           return HttpResponse.json({ message: "Failed to fetch profile." }, { status: 500 })
         }
 
         return HttpResponse.json({
           name: "Test User",
           email: "test@example.com",
-          language: getRequestCount === 1 ? "en" : "ja",
+          language: "en",
         })
       }),
       http.patch("*/rest/v1/users*", () => {
@@ -110,33 +110,13 @@ describe("AppearanceSettings", () => {
     await user.click(languageSelect)
     await user.click(await screen.findByRole("option", { name: "Japanese" }))
 
-    expect(
-      await screen.findByText("言語は保存されましたが、アカウント設定を確認できませんでした。"),
-    ).toBeInTheDocument()
-    expect(screen.getByRole("combobox", { name: "言語" })).toBeDisabled()
+    await waitFor(() => {
+      expect(getRequestCount).toBe(2)
+    })
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(screen.getByRole("combobox", { name: "言語" })).toBeEnabled()
     expect(screen.getByRole("combobox", { name: "言語" })).toHaveTextContent("日本語")
     expect(window.localStorage.getItem("appLanguage")).toBe("ja")
-    expect(patchRequestCount).toBe(1)
-    expect(getRequestCount).toBe(2)
-
-    const retryButton = screen.getByRole("button", { name: "もう一度確認" })
-    await user.click(retryButton)
-
-    await waitFor(() => {
-      expect(retryButton).toBeEnabled()
-      expect(getRequestCount).toBe(3)
-    })
-    expect(screen.getByRole("alert")).toBeInTheDocument()
-    expect(patchRequestCount).toBe(1)
-
-    await user.click(retryButton)
-
-    await waitFor(() => {
-      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
-      expect(screen.getByRole("combobox", { name: "言語" })).toBeEnabled()
-      expect(getRequestCount).toBe(4)
-    })
-    expect(screen.getByRole("combobox", { name: "言語" })).toHaveTextContent("日本語")
     expect(patchRequestCount).toBe(1)
   })
 })
