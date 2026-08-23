@@ -49,7 +49,7 @@ describe("AppearanceSettings", () => {
     expect(window.localStorage.getItem("appLanguage")).toBe("ja")
   })
 
-  test("アカウント保存に失敗した場合は変更前の言語へ戻す", async () => {
+  test("アカウント保存に失敗した場合は変更前の言語へ戻して通知し、再試行できる", async () => {
     server.resetHandlers(
       ...createProfileHandlers({
         update: { error: true, errorResponse: { message: "Failed to save language." } },
@@ -63,6 +63,18 @@ describe("AppearanceSettings", () => {
     await waitFor(() => {
       expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("English")
       expect(window.localStorage.getItem("appLanguage")).toBe("en")
+    })
+    expect(screen.getByRole("alert")).toHaveTextContent("Could not save your language setting.")
+    expect(screen.getByRole("combobox", { name: "Language" })).toBeEnabled()
+
+    server.resetHandlers(...createProfileHandlers())
+    await user.click(screen.getByRole("combobox", { name: "Language" }))
+    await user.click(await screen.findByRole("option", { name: "Japanese" }))
+
+    expect(screen.queryByText("Could not save your language setting.")).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: "言語" })).toHaveTextContent("日本語")
+      expect(window.localStorage.getItem("appLanguage")).toBe("ja")
     })
   })
 

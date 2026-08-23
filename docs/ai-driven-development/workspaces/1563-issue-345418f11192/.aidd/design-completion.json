@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "kind": "design_completion",
   "issue": {
     "id": "kosnu/savings#1563",
@@ -9,37 +9,106 @@
     "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
   },
   "workspace": "1563-issue-345418f11192",
-  "design_goal_sha256": "878866a8fb09cdfdc5aeae5e50c79c418044bcc17ac8a201f5ca3a3dcc2bbe7f",
+  "design_goal_sha256": "84db640f2628130300cd84771c7b5b3a69b4267a81f6408fb65ace4214a25908",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
-    "sha256": "a50be2664de3f81c5384dac18b051b27338d4eb3b0bb824ca935e0af9e62fcf7"
+    "sha256": "650a9912d28822e18a0369d43b6b765fa45045c410ecc197637daa85289aa5cb"
   },
   "selected_rules": [
+    {
+      "id": "documentation.policy",
+      "path": "docs/harness/policies/documentation-policy.md",
+      "sha256": "3e52e1d494675099a46b429bd4df37e2790ad571ddd93831643148fc6e1e85b9"
+    },
+    {
+      "id": "architecture.overview",
+      "path": "docs/architecture.md",
+      "sha256": "2554fdac7f47048f6cc2de04927924b6a72d02f9cebdf47786a755e71097e593"
+    },
+    {
+      "id": "infrastructure.overview",
+      "path": "docs/infrastructure.md",
+      "sha256": "abac8167db5a2e0c81f7a00fa22f9db79e999661723e791837b81e6a8d07c7dc"
+    },
+    {
+      "id": "policy.code-review",
+      "path": "docs/harness/policies/code-review.md",
+      "sha256": "0c53f72a0676f38a73d042efdc1b597f318fff4e406908cda1a4712d697509f0"
+    },
+    {
+      "id": "policy.transaction-boundaries",
+      "path": "docs/harness/policies/transaction-boundaries.md",
+      "sha256": "126687adea5d5a67d712316b58e5f22c0b0fc859415da41f6a6bf7bdbb3395de"
+    },
     {
       "id": "domain.user",
       "path": "docs/harness/domain/user.md",
       "sha256": "f30aa64c548df7e892bb814b83302a7dd1d4333b1557aa4353a02b53a5f816f3"
+    },
+    {
+      "id": "web.component-structure",
+      "path": "apps/web/docs/policies/component-structure.md",
+      "sha256": "991d65221347a19394a73ba5d03df7000a25f183db33465439fcfa30bf0e2347"
+    },
+    {
+      "id": "web.design-system-brand",
+      "path": "DESIGN.md",
+      "sha256": "66bfde89c44eb3137092be741356377cc5f6fcd1e175328ae29f5fe3526ebb0d"
+    },
+    {
+      "id": "web.design-rules",
+      "path": "apps/web/docs/policies/design-rules.md",
+      "sha256": "363d860a7d6b4f43b3f39b2b00f355912c2ed20be5b5447e28810767c2a748eb"
+    },
+    {
+      "id": "web.feature-directory",
+      "path": "apps/web/docs/policies/feature-directory.md",
+      "sha256": "a249f457165c9ad0f0eed3bf42f379de5c251bb8484212b07cc9a39ba8303a14"
+    },
+    {
+      "id": "web.query-cache",
+      "path": "apps/web/docs/policies/query-cache.md",
+      "sha256": "a935f59a026379f9508eacfa83678dbae849444ff94399885c8685476ed2a7a4"
+    },
+    {
+      "id": "web.suspense-boundaries",
+      "path": "apps/web/docs/policies/suspense-boundaries.md",
+      "sha256": "ff779dd59a8a97b5f5b58f10b9495df5bbd723c39fbf37ba430c6b4762d590bf"
+    },
+    {
+      "id": "web.test-policy",
+      "path": "apps/web/docs/policies/test-policy.md",
+      "sha256": "7b6ae37a11dcb71bc5741c5910cc8374c58ac404aa022cd0a93479fdfedac3f2"
     }
   ],
+  "rule_coverage": {
+    "implementation_surfaces": [
+      "web-project",
+      "web-source"
+    ]
+  },
+  "build_baseline": {
+    "head": "c8bca1fcb0771e702c37bb84a5fe10f35580a1cc"
+  },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
-        "sha256": "3c7ad17535b170548ca5b473442584675eae9554a6c78f70dc35f7aaad4a4c66"
+        "sha256": "8cb0f90cd345b2800015e5af8f3d461f9bd57d509a6d8e4b2e037c43a65f310a"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
-        "sha256": "b8a72f6d408dc57cde5aca02a787a0cde26f6f4d75ef06338ea779e2dbe5fe96"
+        "sha256": "4fd55204699744734e8920d1a8c078ab9181372ed8c15b23bfdf8db094777e4d"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
-        "sha256": "145793d110ad706c7bdc8af082b7a0e5bb2e52e0107aea5f9cd6a9cd18c018c1"
+        "sha256": "ee8eb181a809e682c9846bc0555d4b95fa971287acb1987624ca5284df27b5ea"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
-        "sha256": "f9713163d568cf8c0db894d65f08cbb1ba84fe62982ea2726a36e044d777d4ad"
+        "sha256": "6e241277ac65f588a544b0690b50a832e225e056aca1f5fc70a597bccdc5a070"
       }
     }
   }

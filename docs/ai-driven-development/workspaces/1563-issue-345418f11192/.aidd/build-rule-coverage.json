@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "kind": "build_rule_coverage",
+  "workspace": "1563-issue-345418f11192",
+  "receipt_sha256": "457f7c17c0438cb71caaae9ddca9d586a162d2a6354ad045b04def00667fdcf5",
+  "build_baseline_head": "c8bca1fcb0771e702c37bb84a5fe10f35580a1cc",
+  "changes": [
+    {
+      "status": "M",
+      "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "surfaces": [
+        "web-project",
+        "web-source"
+      ]
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+      "surfaces": [
+        "web-project",
+        "web-source"
+      ]
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/i18n/resources.ts",
+      "surfaces": [
+        "web-project",
+        "web-source"
+      ]
+    }
+  ],
+  "implementation_surfaces": [
+    "web-project",
+    "web-source"
+  ],
+  "checked_rules": [
+    "documentation.policy",
+    "architecture.overview",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-system-brand",
+    "web.design-rules",
+    "web.feature-directory",
+    "web.query-cache",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ],
+  "unresolved": []
+}

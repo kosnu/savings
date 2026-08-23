@@ -20,6 +20,7 @@ export function LanguageSelect() {
   const { updateLanguage, retryLanguageVerification, isPending } = useUpdateLanguage(
     authUserId ?? "",
   )
+  const [writeFailed, setWriteFailed] = useState(false)
   const [verificationFailed, setVerificationFailed] = useState(false)
   const value = toAppLanguage(i18n.resolvedLanguage)
 
@@ -28,6 +29,7 @@ export function LanguageSelect() {
       const nextAppLanguage = toAppLanguage(nextLanguage)
       if (nextAppLanguage === value) return
 
+      setWriteFailed(false)
       try {
         await i18n.changeLanguage(nextAppLanguage)
         if (authUserId !== undefined) {
@@ -35,6 +37,7 @@ export function LanguageSelect() {
             await updateLanguage(nextAppLanguage)
           } catch (error) {
             if (isLanguageUpdateWriteFailure(error)) {
+              setWriteFailed(true)
               await i18n.changeLanguage(value)
             } else if (isLanguageUpdateVerificationFailure(error)) {
               setVerificationFailed(true)
@@ -78,6 +81,14 @@ export function LanguageSelect() {
           ))}
         </Select.Content>
       </Select.Root>
+      {writeFailed ? (
+        <Callout.Root role="alert" color="red" variant="surface" size="1">
+          <Callout.Icon>
+            <ExclamationTriangleIcon />
+          </Callout.Icon>
+          <Callout.Text>{t("language.saveError")}</Callout.Text>
+        </Callout.Root>
+      ) : null}
       {verificationFailed ? (
         <Flex direction="column" gap="2" align="start">
           <Callout.Root role="alert" color="red" variant="surface" size="1">
