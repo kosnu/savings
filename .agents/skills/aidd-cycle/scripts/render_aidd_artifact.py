@@ -255,7 +255,10 @@ def render_goal_objective(source: dict[str, Any]) -> str:
             blocks.append(render_json_value("Rule Coverage", validation["rule_coverage"]))
         blocks.append(
             render_json_value(
-                "Product Behavior Scope", validation["product_behaviors"]
+                "Target State"
+                if "target_state" in validation
+                else "Product Behavior Scope",
+                validation.get("target_state", validation.get("product_behaviors")),
             )
         )
         scope_lines: list[str] = []
@@ -328,12 +331,17 @@ def render_artifact_markdown(source: dict[str, Any]) -> str:
             ]
         )
     else:
+        target_block = (
+            render_json_value("Target State", validation["target_state"])
+            if "target_state" in validation
+            else render_json_value(
+                "Product Behavior Trace", validation["product_behaviors"]
+            )
+        )
         blocks.extend(
             [
                 *render_v2_sections(validation["sections"]),
-                render_json_value(
-                    "Product Behavior Trace", validation["product_behaviors"]
-                ),
+                target_block,
                 *(
                     [render_json_value("Rule Coverage", validation["rule_coverage"])]
                     if "rule_coverage" in validation

@@ -9,12 +9,14 @@ import re
 import secrets
 import stat
 import unicodedata
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from section_aliases import exact_requirement_section_ids_for_heading
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
+LEGACY_SCHEMA_VERSION = 2
+SUPPORTED_SCHEMA_VERSIONS = {LEGACY_SCHEMA_VERSION, SCHEMA_VERSION}
 ARTIFACT_KINDS = {"requirements", "design"}
 GOAL_KINDS = {"requirements_goal", "design_goal"}
 SUPPORTED_KINDS = ARTIFACT_KINDS | GOAL_KINDS
@@ -45,6 +47,16 @@ MANAGED_VALIDATION_KEYS = {
         "sections",
     },
 }
+MANAGED_V3_VALIDATION_KEYS = {
+    **MANAGED_VALIDATION_KEYS,
+    "design": {
+        "mode",
+        "target_state",
+        "rule_coverage",
+        "coverage_gate",
+        "sections",
+    },
+}
 MANAGED_GOAL_VALIDATION_KEYS = {
     "requirements_goal": {
         "mode",
@@ -57,6 +69,17 @@ MANAGED_GOAL_VALIDATION_KEYS = {
         "mode",
         "coverage_gate",
         "product_behaviors",
+        "rule_coverage",
+        "scopes",
+        "baseline_scopes",
+    },
+}
+MANAGED_V3_GOAL_VALIDATION_KEYS = {
+    **MANAGED_GOAL_VALIDATION_KEYS,
+    "design_goal": {
+        "mode",
+        "coverage_gate",
+        "target_state",
         "rule_coverage",
         "scopes",
         "baseline_scopes",
@@ -94,6 +117,9 @@ MANAGED_GATE_KEYS = {
 BLOCK_ID_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
 REQUIREMENT_ID_PATTERN = re.compile(r"(?P<prefix>FR|NFR|AC)-(?P<number>[1-9][0-9]*)")
 PRODUCT_BEHAVIOR_ID_PATTERN = re.compile(r"PB-(?P<number>[1-9][0-9]*)")
+VERIFICATION_CASE_ID_PATTERN = re.compile(r"VC-(?P<number>[1-9][0-9]*)")
+REPRESENTATION_ID_PATTERN = re.compile(r"REP-(?P<number>[1-9][0-9]*)")
+EXPORT_NAME_PATTERN = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
 REQUIREMENT_PREFIX_ORDER = {"FR": 0, "NFR": 1, "AC": 2}
 WORKSPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
 DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}")
@@ -165,6 +191,16 @@ GOAL_REQUIRED_CONTRACT = {
         ),
     },
 }
+V3_DESIGN_GOAL_REQUIRED_CONTRACT = {
+    **GOAL_REQUIRED_CONTRACT["design_goal"],
+    "done": (
+        (
+            "complete-scope",
+            "全Requirements IDとtask-owned範囲の完成状態を定義する。",
+        ),
+        GOAL_REQUIRED_CONTRACT["design_goal"]["done"][1],
+    ),
+}
 EVIDENCE_PLACEHOLDERS = {
     "pending",
     "tbd",
@@ -195,6 +231,21 @@ def product_behavior_sort_key(value: str) -> int:
     if match is None:
         raise SourceError(f"invalid product behavior ID: {value}")
     return int(match.group("number"))
+
+
+def numbered_id_sort_key(value: str, pattern: re.Pattern[str], label: str) -> int:
+    match = pattern.fullmatch(value)
+    if match is None:
+        raise SourceError(f"invalid {label} ID: {value}")
+    return int(match.group("number"))
+
+
+def verification_case_sort_key(value: str) -> int:
+    return numbered_id_sort_key(value, VERIFICATION_CASE_ID_PATTERN, "verification case")
+
+
+def representation_sort_key(value: str) -> int:
+    return numbered_id_sort_key(value, REPRESENTATION_ID_PATTERN, "representation")
 
 
 def structured_sha256(value: Any) -> str:
@@ -527,7 +578,7 @@ def validate_source(value: Any, expected_kind: str | None = None) -> dict[str, A
         "AIDD source",
     )
     version = source["schema_version"]
-    if type(version) is not int or version != SCHEMA_VERSION:
+    if type(version) is not int or version not in SUPPORTED_SCHEMA_VERSIONS:
         raise SourceError(f"unsupported AIDD schema_version: {version}")
     kind = require_string(source["kind"], "kind")
     if kind not in SUPPORTED_KINDS:
@@ -564,7 +615,11 @@ def validate_source(value: Any, expected_kind: str | None = None) -> dict[str, A
             require_substantive_inline_text(
                 entry, f"display.context.body[{index}]"
             )
-        required_contract = GOAL_REQUIRED_CONTRACT[kind]
+        required_contract = (
+            V3_DESIGN_GOAL_REQUIRED_CONTRACT
+            if kind == "design_goal" and version == SCHEMA_VERSION
+            else GOAL_REQUIRED_CONTRACT[kind]
+        )
         require_goal_contract_entries(
             context["constraints"],
             "display.context.constraints",
@@ -847,7 +902,313 @@ def validate_product_behavior_entries(
     return behavior_ids
 
 
-def validate_rule_coverage_shape(value: Any) -> None:
+def validate_repository_relative_path(value: Any, label: str) -> str:
+    if not isinstance(value, str) or not value or value != value.strip():
+        raise SourceError(f"{label} must be an exact repository-relative path")
+    path = value
+    if "\\" in path or "*" in path or "?" in path:
+        raise SourceError(f"{label} must be an exact POSIX repository-relative path")
+    parsed = PurePosixPath(path)
+    if parsed.is_absolute() or path != parsed.as_posix() or any(
+        part in {"", ".", ".."} for part in parsed.parts
+    ):
+        raise SourceError(f"{label} must be a normalized repository-relative path")
+    if parsed.parts[0] in {".git", ".hg", ".svn"}:
+        raise SourceError(f"{label} must not target version-control metadata")
+    return path
+
+
+def path_is_within_scope(path: str, scope: dict[str, str]) -> bool:
+    scope_path = scope["path"]
+    return path == scope_path or (
+        scope["kind"] == "tree" and path.startswith(f"{scope_path}/")
+    )
+
+
+def inventory_owned_paths(repo_root: Path, target_state: dict[str, Any]) -> list[str]:
+    """Inventory regular files in the closed task-owned boundary without following links."""
+
+    paths: list[str] = []
+    for scope in target_state["ownership_scopes"]:
+        relative = scope["path"]
+        absolute = repo_root / relative
+        if not os.path.lexists(absolute):
+            continue
+        if absolute.is_symlink():
+            raise SourceError(f"ownership scope must not be a symlink: {relative}")
+        if scope["kind"] == "file":
+            if not absolute.is_file():
+                raise SourceError(f"file ownership scope is not a regular file: {relative}")
+            paths.append(relative)
+            continue
+        if not absolute.is_dir():
+            raise SourceError(f"tree ownership scope is not a directory: {relative}")
+        for directory, names, filenames in os.walk(absolute, followlinks=False):
+            directory_path = Path(directory)
+            for name in names:
+                child = directory_path / name
+                if child.is_symlink():
+                    raise SourceError(
+                        "ownership tree must not contain a symlink: "
+                        f"{child.relative_to(repo_root).as_posix()}"
+                    )
+            for filename in filenames:
+                child = directory_path / filename
+                relative_child = child.relative_to(repo_root).as_posix()
+                if child.is_symlink() or not child.is_file():
+                    raise SourceError(
+                        f"ownership tree contains a non-regular file: {relative_child}"
+                    )
+                paths.append(relative_child)
+    return sorted(set(paths))
+
+
+def validate_target_product_behaviors(
+    value: Any,
+    requirement_ids: list[str],
+) -> list[str]:
+    entries = require_object_array(value, "target_state.product_behaviors")
+    ids: list[str] = []
+    for index, entry in enumerate(entries):
+        label = f"target_state.product_behaviors[{index}]"
+        require_object_keys(entry, {"id", "type", "requirement_id"}, label)
+        behavior_id = require_string(entry["id"], f"{label}.id")
+        if PRODUCT_BEHAVIOR_ID_PATTERN.fullmatch(behavior_id) is None:
+            raise SourceError(f"invalid product behavior ID: {behavior_id}")
+        behavior_type = require_string(entry["type"], f"{label}.type")
+        if behavior_type not in {"user_operation", "state_transition"}:
+            raise SourceError(f"{label}.type is unsupported")
+        requirement_id = require_string(entry["requirement_id"], f"{label}.requirement_id")
+        if requirement_id not in requirement_ids:
+            raise SourceError(f"{label}.requirement_id must reference a covered requirement")
+        ids.append(behavior_id)
+    if ids != sorted(set(ids), key=product_behavior_sort_key):
+        raise SourceError("target product behavior IDs must be canonical and unique")
+    return ids
+
+
+def validate_target_state(value: Any, requirement_ids: list[str]) -> dict[str, Any]:
+    target = require_object_keys(
+        value,
+        {
+            "product_behaviors",
+            "verification_cases",
+            "ownership_scopes",
+            "representations",
+        },
+        "target_state",
+    )
+    behavior_ids = validate_target_product_behaviors(
+        target["product_behaviors"], requirement_ids
+    )
+
+    case_entries = require_object_array(
+        target["verification_cases"], "target_state.verification_cases"
+    )
+    case_ids: list[str] = []
+    case_behavior_references: list[str] = []
+    case_requirements: list[str] = []
+    behavior_requirements = {
+        entry["id"]: entry["requirement_id"]
+        for entry in target["product_behaviors"]
+    }
+    for index, entry in enumerate(case_entries):
+        label = f"target_state.verification_cases[{index}]"
+        case_type = entry.get("type")
+        expected_keys = {
+            "id",
+            "type",
+            "requirement_id",
+            "product_behavior_ids",
+            "command" if case_type == "automated" else "procedure",
+        }
+        require_object_keys(entry, expected_keys, label)
+        case_id = require_string(entry["id"], f"{label}.id")
+        if VERIFICATION_CASE_ID_PATTERN.fullmatch(case_id) is None:
+            raise SourceError(f"invalid verification case ID: {case_id}")
+        case_type = require_string(entry["type"], f"{label}.type")
+        if case_type not in {"automated", "manual"}:
+            raise SourceError(f"{label}.type is unsupported")
+        if case_type == "automated":
+            command = require_string_array(entry["command"], f"{label}.command")
+            if not command:
+                raise SourceError(f"{label}.command must be non-empty")
+        else:
+            require_inline_markdown(entry["procedure"], f"{label}.procedure")
+        requirement_id = require_string(entry["requirement_id"], f"{label}.requirement_id")
+        if requirement_id not in requirement_ids:
+            raise SourceError(f"{label}.requirement_id must reference a covered requirement")
+        references = require_string_array(
+            entry["product_behavior_ids"], f"{label}.product_behavior_ids"
+        )
+        if references != sorted(set(references), key=product_behavior_sort_key):
+            raise SourceError(f"{label}.product_behavior_ids must be canonical and unique")
+        if set(references) - set(behavior_ids):
+            raise SourceError(f"{label}.product_behavior_ids contains an unknown behavior")
+        if any(
+            behavior_requirements[behavior_id] != requirement_id
+            for behavior_id in references
+        ):
+            raise SourceError(
+                f"{label}.product_behavior_ids must share the verification case Requirement owner"
+            )
+        case_ids.append(case_id)
+        case_requirements.append(requirement_id)
+        case_behavior_references.extend(references)
+    if case_ids != sorted(set(case_ids), key=verification_case_sort_key):
+        raise SourceError("verification case IDs must be canonical and unique")
+    if set(case_requirements) != set(requirement_ids):
+        raise SourceError("verification cases must cover every Requirement ID")
+    if set(case_behavior_references) != set(behavior_ids):
+        raise SourceError("verification cases must cover every product behavior")
+
+    scopes = require_object_array(
+        target["ownership_scopes"], "target_state.ownership_scopes"
+    )
+    if not scopes:
+        raise SourceError("target_state.ownership_scopes must be non-empty")
+    scope_paths: list[str] = []
+    forbidden_tree_roots = {"apps", "apps/web", "apps/api", "docs", ".agents", ".codex"}
+    for index, scope in enumerate(scopes):
+        label = f"target_state.ownership_scopes[{index}]"
+        require_object_keys(scope, {"path", "kind"}, label)
+        path = validate_repository_relative_path(scope["path"], f"{label}.path")
+        kind = require_string(scope["kind"], f"{label}.kind")
+        if kind not in {"file", "tree"}:
+            raise SourceError(f"{label}.kind must be file or tree")
+        if kind == "tree" and path in forbidden_tree_roots:
+            raise SourceError(f"{label}.path is too broad for task-owned reconciliation")
+        scope_paths.append(path)
+    if scope_paths != sorted(set(scope_paths)):
+        raise SourceError("ownership scopes must be unique and sorted by path")
+    for index, scope in enumerate(scopes):
+        for other in scopes[:index]:
+            if path_is_within_scope(scope["path"], other) or path_is_within_scope(
+                other["path"], scope
+            ):
+                raise SourceError("ownership scopes must not overlap")
+
+    representations = require_object_array(
+        target["representations"], "target_state.representations"
+    )
+    if not representations:
+        raise SourceError("target_state.representations must be non-empty")
+    representation_ids: list[str] = []
+    representation_behavior_references: list[str] = []
+    representation_case_references: list[str] = []
+    locator_identities: list[tuple[str, str, str]] = []
+    locator_kinds_by_path: dict[str, set[str]] = {}
+    supported_kinds = {
+        "implementation",
+        "test",
+        "story",
+        "fixture",
+        "configuration",
+        "migration",
+        "documentation",
+    }
+    case_requirements_by_id = {
+        entry["id"]: entry["requirement_id"] for entry in case_entries
+    }
+    for index, entry in enumerate(representations):
+        label = f"target_state.representations[{index}]"
+        require_object_keys(
+            entry,
+            {
+                "id",
+                "kind",
+                "path",
+                "locator",
+                "requirement_id",
+                "product_behavior_ids",
+                "verification_case_ids",
+            },
+            label,
+        )
+        representation_id = require_string(entry["id"], f"{label}.id")
+        if REPRESENTATION_ID_PATTERN.fullmatch(representation_id) is None:
+            raise SourceError(f"invalid representation ID: {representation_id}")
+        kind = require_string(entry["kind"], f"{label}.kind")
+        if kind not in supported_kinds:
+            raise SourceError(f"{label}.kind is unsupported")
+        path = validate_repository_relative_path(entry["path"], f"{label}.path")
+        if not any(path_is_within_scope(path, scope) for scope in scopes):
+            raise SourceError(f"{label}.path must be inside an ownership scope")
+        requirement_id = require_string(entry["requirement_id"], f"{label}.requirement_id")
+        if requirement_id not in requirement_ids:
+            raise SourceError(f"{label}.requirement_id must reference a covered requirement")
+        behavior_references = require_string_array(
+            entry["product_behavior_ids"], f"{label}.product_behavior_ids"
+        )
+        if behavior_references != sorted(
+            set(behavior_references), key=product_behavior_sort_key
+        ) or set(behavior_references) - set(behavior_ids):
+            raise SourceError(f"{label}.product_behavior_ids must be canonical known IDs")
+        if any(
+            behavior_requirements[behavior_id] != requirement_id
+            for behavior_id in behavior_references
+        ):
+            raise SourceError(
+                f"{label}.product_behavior_ids must share the representation Requirement owner"
+            )
+        case_references = require_string_array(
+            entry["verification_case_ids"], f"{label}.verification_case_ids"
+        )
+        if case_references != sorted(
+            set(case_references), key=verification_case_sort_key
+        ) or set(case_references) - set(case_ids):
+            raise SourceError(f"{label}.verification_case_ids must be canonical known IDs")
+        if any(
+            case_requirements_by_id[case_id] != requirement_id
+            for case_id in case_references
+        ):
+            raise SourceError(
+                f"{label}.verification_case_ids must share the representation Requirement owner"
+            )
+        locator = entry["locator"]
+        if not isinstance(locator, dict):
+            raise SourceError(f"{label}.locator must be an object")
+        locator_kind = require_string(locator.get("kind"), f"{label}.locator.kind")
+        if locator_kind == "file":
+            require_object_keys(locator, {"kind"}, f"{label}.locator")
+            locator_name = ""
+        elif locator_kind in {"export", "test_case"}:
+            require_object_keys(locator, {"kind", "name"}, f"{label}.locator")
+            locator_name = require_inline_markdown(
+                locator["name"], f"{label}.locator.name"
+            )
+            if (
+                locator_kind == "export"
+                and EXPORT_NAME_PATTERN.fullmatch(locator_name) is None
+            ):
+                raise SourceError(f"{label}.export locator name must be an identifier")
+        else:
+            raise SourceError(f"{label}.locator.kind is unsupported")
+        if kind == "story" and locator_kind != "export":
+            raise SourceError(f"{label}.story representation must use an export locator")
+        if kind == "test" and locator_kind != "test_case":
+            raise SourceError(f"{label}.test representation must use a test_case locator")
+        if locator_kind == "test_case" and kind != "test":
+            raise SourceError(f"{label}.test_case locator requires kind=test")
+        locator_identities.append((path, locator_kind, locator_name))
+        locator_kinds_by_path.setdefault(path, set()).add(locator_kind)
+        representation_ids.append(representation_id)
+        representation_behavior_references.extend(behavior_references)
+        representation_case_references.extend(case_references)
+    if representation_ids != sorted(set(representation_ids), key=representation_sort_key):
+        raise SourceError("representation IDs must be canonical and unique")
+    if len(locator_identities) != len(set(locator_identities)):
+        raise SourceError("representation locators must be unique")
+    if any(len(kinds) != 1 for kinds in locator_kinds_by_path.values()):
+        raise SourceError("a representation path must use exactly one locator kind")
+    if set(representation_behavior_references) != set(behavior_ids):
+        raise SourceError("representations must cover every product behavior")
+    if set(representation_case_references) != set(case_ids):
+        raise SourceError("representations must cover every verification case")
+    return target
+
+
+def validate_rule_coverage_shape(value: Any, *, allow_empty_surfaces: bool = False) -> None:
     if not isinstance(value, dict) or set(value) != {
         "implementation_surfaces",
         "additional_rules",
@@ -856,8 +1217,13 @@ def validate_rule_coverage_shape(value: Any) -> None:
             "rule_coverage must contain only implementation_surfaces and additional_rules"
         )
     surfaces = value["implementation_surfaces"]
-    if not isinstance(surfaces, list) or not surfaces:
-        raise SourceError("rule_coverage.implementation_surfaces must be non-empty")
+    if not isinstance(surfaces, list) or (
+        not surfaces and not allow_empty_surfaces
+    ):
+        qualifier = "an array" if allow_empty_surfaces else "a non-empty array"
+        raise SourceError(
+            f"rule_coverage.implementation_surfaces must be {qualifier}"
+        )
     if any(not isinstance(surface, str) or not surface.strip() for surface in surfaces):
         raise SourceError(
             "rule_coverage.implementation_surfaces must contain non-empty strings"
@@ -908,20 +1274,49 @@ def validate_product_behaviors(
             )
 
 
+def validate_target_behavior_ownership(
+    target_state: dict[str, Any],
+    blocks_by_id: dict[str, dict[str, Any]],
+) -> None:
+    behaviors = target_state["product_behaviors"]
+    behavior_ids = [entry["id"] for entry in behaviors]
+    references: list[str] = []
+    owners: dict[str, str] = {}
+    for block in blocks_by_id.values():
+        if block.get("type") == "evidence" and block.get("role") == "design":
+            for behavior_id in block["product_behavior_ids"]:
+                references.append(behavior_id)
+                owners[behavior_id] = block["owner_id"]
+    if len(references) != len(set(references)):
+        raise SourceError("each target product behavior must have one design evidence owner")
+    if sorted(references, key=product_behavior_sort_key) != behavior_ids:
+        raise SourceError("design evidence must exactly own the target product behaviors")
+    for entry in behaviors:
+        if owners[entry["id"]] != entry["requirement_id"]:
+            raise SourceError(
+                f"product behavior {entry['id']} design evidence owner must equal requirement ID"
+            )
+
+
 def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
     source = validate_source(value)
-    if source["schema_version"] != SCHEMA_VERSION:
-        raise SourceError("managed artifacts require schema_version 2")
     kind = source["kind"]
     if kind not in ARTIFACT_KINDS:
         raise SourceError("managed artifact validation requires an artifact source")
     validation = source["validation"]
     if validation.get("mode") != "managed":
         raise SourceError("managed artifact validation requires validation.mode=managed")
-    valid_keys = MANAGED_VALIDATION_KEYS[kind]
+    version = source["schema_version"]
+    valid_keys = (
+        MANAGED_V3_VALIDATION_KEYS[kind]
+        if version == SCHEMA_VERSION
+        else MANAGED_VALIDATION_KEYS[kind]
+    )
     legacy_design_keys = valid_keys - {"rule_coverage"}
     if set(validation) != valid_keys and not (
-        kind == "design" and set(validation) == legacy_design_keys
+        kind == "design"
+        and version == LEGACY_SCHEMA_VERSION
+        and set(validation) == legacy_design_keys
     ):
         raise SourceError(f"managed {kind} validation has invalid keys")
     sections, sections_by_id, blocks_by_id = validate_v2_sections(
@@ -955,12 +1350,22 @@ def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
     else:
         validate_design_coverage_gate(validation["coverage_gate"], blocks_by_id)
         if "rule_coverage" in validation:
-            validate_rule_coverage_shape(validation["rule_coverage"])
-        validate_product_behaviors(
-            validation["product_behaviors"],
-            validation["coverage_gate"]["requirement_ids"],
-            blocks_by_id,
-        )
+            validate_rule_coverage_shape(
+                validation["rule_coverage"],
+                allow_empty_surfaces=version == SCHEMA_VERSION,
+            )
+        if version == SCHEMA_VERSION:
+            target_state = validate_target_state(
+                validation["target_state"],
+                validation["coverage_gate"]["requirement_ids"],
+            )
+            validate_target_behavior_ownership(target_state, blocks_by_id)
+        else:
+            validate_product_behaviors(
+                validation["product_behaviors"],
+                validation["coverage_gate"]["requirement_ids"],
+                blocks_by_id,
+            )
         gate_workspace = validation["coverage_gate"]["workspace"]
     if gate_workspace != source["workspace"]:
         raise SourceError("Gate workspace must match source.workspace")
@@ -969,18 +1374,23 @@ def validate_managed_artifact_source(value: Any) -> dict[str, Any]:
 
 def validate_managed_goal_source(value: Any) -> dict[str, Any]:
     source = validate_source(value)
-    if source["schema_version"] != SCHEMA_VERSION:
-        raise SourceError("managed Goals require schema_version 2")
     kind = source["kind"]
     if kind not in GOAL_KINDS:
         raise SourceError("managed Goal validation requires a Goal source")
     validation = source["validation"]
     if validation.get("mode") != "managed":
         raise SourceError("Goal validation.mode must be managed")
-    valid_keys = MANAGED_GOAL_VALIDATION_KEYS[kind]
+    version = source["schema_version"]
+    valid_keys = (
+        MANAGED_V3_GOAL_VALIDATION_KEYS[kind]
+        if version == SCHEMA_VERSION
+        else MANAGED_GOAL_VALIDATION_KEYS[kind]
+    )
     legacy_design_goal_keys = valid_keys - {"rule_coverage"}
     if set(validation) != valid_keys and not (
-        kind == "design_goal" and set(validation) == legacy_design_goal_keys
+        kind == "design_goal"
+        and version == LEGACY_SCHEMA_VERSION
+        and set(validation) == legacy_design_goal_keys
     ):
         raise SourceError(f"managed {kind} validation has invalid keys")
     if kind == "requirements_goal":
@@ -1008,11 +1418,20 @@ def validate_managed_goal_source(value: Any) -> dict[str, Any]:
     else:
         validate_design_goal_coverage_gate(validation["coverage_gate"])
         if "rule_coverage" in validation:
-            validate_rule_coverage_shape(validation["rule_coverage"])
-        validate_product_behavior_entries(
-            validation["product_behaviors"],
-            validation["coverage_gate"]["requirement_ids"],
-        )
+            validate_rule_coverage_shape(
+                validation["rule_coverage"],
+                allow_empty_surfaces=version == SCHEMA_VERSION,
+            )
+        if version == SCHEMA_VERSION:
+            validate_target_state(
+                validation["target_state"],
+                validation["coverage_gate"]["requirement_ids"],
+            )
+        else:
+            validate_product_behavior_entries(
+                validation["product_behaviors"],
+                validation["coverage_gate"]["requirement_ids"],
+            )
         scope_ids: list[str] = []
         for index, entry in enumerate(
             require_object_array(validation["scopes"], "design_goal scopes")

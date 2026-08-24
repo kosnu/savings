@@ -12,13 +12,16 @@ from pathlib import Path
 from typing import Any
 
 from artifact_source import (
+    SCHEMA_VERSION,
     SourceError,
     canonical_display_path,
     canonical_source_path,
     decode_source_json,
+    inventory_owned_paths,
     load_source_bytes,
     normalize_markdown_newlines,
     read_regular_file_bytes,
+    structured_sha256,
     write_regular_file_atomically,
 )
 from git_baseline import (
@@ -36,7 +39,7 @@ from validate_design_coverage import (
 )
 
 
-RECEIPT_SCHEMA_VERSION = 2
+RECEIPT_SCHEMA_VERSION = 3
 RECEIPT_RELATIVE_PATH = Path(".aidd") / "design-completion.json"
 
 
@@ -56,6 +59,7 @@ class HandoffSnapshot:
     design_display: bytes
     selected_rules: dict[str, dict[str, Any]]
     build_baseline_head: str
+    baseline_inventory: list[str]
     design_goal: bytes | None = None
     receipt: bytes | None = None
 
@@ -143,6 +147,10 @@ def read_handoff_snapshot(
         canonical_source_path(repo_root, workspace, "design")
     )
     design_source = load_source_bytes(design, "design")
+    if requirements_source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("Design completion requires Requirements schema_version 3")
+    if design_source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("Design completion requires Design schema_version 3")
     selected_rules = load_selected_rule_records(
         repo_root,
         rule_map,
@@ -164,10 +172,22 @@ def read_handoff_snapshot(
     )
     if receipt is None:
         build_baseline_head = current_git_head(repo_root)
+        try:
+            baseline_inventory = inventory_owned_paths(
+                repo_root, design_source["validation"]["target_state"]
+            )
+        except SourceError as error:
+            raise ValidationError(str(error)) from error
     else:
         try:
             receipt_source = decode_source_json(receipt.decode("utf-8"))
             build_baseline_head = receipt_source["build_baseline"]["head"]
+            baseline_record = receipt_source["baseline_inventory"]
+            baseline_inventory = baseline_record["value"]
+            if baseline_record["sha256"] != structured_sha256(baseline_inventory):
+                raise ValidationError(
+                    "design completion receipt baseline inventory hash does not match"
+                )
         except (UnicodeDecodeError, KeyError, TypeError) as error:
             raise ValidationError(
                 "design completion receipt has no valid build baseline"
@@ -198,6 +218,7 @@ def read_handoff_snapshot(
         ),
         selected_rules=selected_rules,
         build_baseline_head=build_baseline_head,
+        baseline_inventory=baseline_inventory,
         design_goal=(
             read_regular_file_bytes(goal_document_path)
             if goal_document_path is not None
@@ -219,6 +240,7 @@ def build_receipt(
 ) -> dict[str, Any]:
     requirements_source = load_source_bytes(snapshot.requirements, "requirements")
     design_source = load_source_bytes(snapshot.design, "design")
+    target_state = design_source["validation"]["target_state"]
     issue_title = requirements_source["validation"]["cycle_start_issue_title"]
     return {
         "schema_version": RECEIPT_SCHEMA_VERSION,
@@ -238,9 +260,22 @@ def build_receipt(
         },
         "selected_rules": selected_rule_receipt_records(snapshot),
         "rule_coverage": {
-            "implementation_surfaces": design_source["validation"]["rule_coverage"][
-                "implementation_surfaces"
-            ],
+            "sha256": structured_sha256(
+                design_source["validation"]["rule_coverage"]
+            ),
+            "value": design_source["validation"]["rule_coverage"],
+        },
+        "target_state": {
+            "sha256": structured_sha256(target_state),
+            "value": target_state,
+        },
+        "ownership_scopes": {
+            "sha256": structured_sha256(target_state["ownership_scopes"]),
+            "value": target_state["ownership_scopes"],
+        },
+        "baseline_inventory": {
+            "sha256": structured_sha256(snapshot.baseline_inventory),
+            "value": snapshot.baseline_inventory,
         },
         "build_baseline": {"head": snapshot.build_baseline_head},
         "artifacts": {

@@ -7,8 +7,9 @@ description: Run one complete repository AI Driven Development cycle in a single
 
 Run the repository AIDD workflow end to end. This skill owns cycle identity,
 phase transitions, Goal orchestration, and completion confirmation.
-`goal-setting` owns construction of one phase Goal. The executor assigned below
-owns execution of that Goal.
+`goal-setting` owns construction of one phase Goal. The parent orchestrator is
+the sole owner of Goal lifecycle operations. The executor assigned below owns
+only the delegated phase work and returns evidence to the parent.
 
 ## Read First
 
@@ -60,14 +61,18 @@ For each phase in the workflow:
    Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
    subgraph, using the phase executor assigned below. In Design, record the
-   machine review surfaces for the planned
-   implementation and any additional Design-owned rules; the validator derives
-   the final selected rules and dependency closure. In Build, run the Build rule
-   coverage validator against the actual Git diff, union every rule node whose
-   `applies_to.paths` matches each changed path with the surface requirements,
-   and retain the per-path selection evidence in its canonical Coverage record.
-   Stop if the diff has an undeclared surface, a surface or path rule absent
-   from the receipt, or a governed path with no routing surface.
+   complete schema-v3 target state: final product behaviors, verification
+   cases, normalized ownership scopes, and all final machine-addressable
+   representations. Automated verification cases own shell-free command
+   argument arrays; manual cases own concrete procedures. Derive machine review surfaces and path rules from the
+   union of target paths and the current owned baseline, including paths that
+   disappear in the target. In Build, reconstruct exactly that target state in
+   the ownership scopes, record every verification result, and run the Build
+   rule coverage validator against both the final owned tree and actual Git
+   diff. Stop on missing or extra owned representations, failed or missing
+   verification evidence, out-of-scope changes, undeclared surfaces, a surface
+   or path rule absent from the receipt, or a governed path with no routing
+   surface.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path
@@ -76,10 +81,10 @@ For each phase in the workflow:
    validator, then rerun the Build Entry gate with the receipt path and SHA-256
    recorded by Design and require it to print that same SHA-256. Only after
    these phase-specific checks and the objective, Done
-   conditions, and Verification are satisfied, call
-   `update_goal(status: complete)` and confirm the terminal state with
+   conditions, and Verification are satisfied, the parent calls
+   `update_goal(status: complete)` and confirms the terminal state with
    `get_goal` before advancing.
-6. While useful progress remains possible, keep the Goal active. Call
+6. While useful progress remains possible, keep the Goal active. The parent calls
    `update_goal(status: blocked)` only after the same blocking condition has
    recurred for at least three consecutive Goal turns and no in-scope path can
    make progress; confirm the terminal state and end the cycle invocation.
@@ -101,7 +106,9 @@ selected model and reasoning effort. Assign each phase exactly as follows:
 
 For Requirements, Design, and Build:
 
-1. The parent sets or identifies the one active phase Goal before delegation.
+1. The parent sets or identifies the one active phase Goal before delegation
+   and remains its sole lifecycle owner. Only the parent calls `create_goal`,
+   `get_goal`, or `update_goal`; these operations are not delegated.
 2. Call `spawn_agent` exactly once with `agent_type` set to the table's exact
    Executor value, `fork_turns` set to `"none"`, and a separate
    lowercase-underscore `task_name` such as `aidd_requirements`, `aidd_design`,
@@ -114,17 +121,31 @@ For Requirements, Design, and Build:
    the call site. Sandbox and approval settings follow the parent turn's active
    runtime policy.
 3. Give the phase agent a self-contained `message` containing the repository
-   root, current branch, phase, active Goal identity and Context Packet,
+   root, current branch, phase, a copy of the active Goal identity and Context
+   Packet,
    required workflow and validation references, upstream artifact or receipt
    identity, read/write boundary, Verification, and Stop conditions.
-4. The phase agent executes only the active Goal. It must not create the next
-   Goal, start another phase, run Learn, or delegate further.
+   This message is the phase execution contract; it does not transfer Goal
+   lifecycle state or authority to the phase agent.
+4. The phase agent executes only the delegated phase contract. It must not call
+   Goal lifecycle tools, create the next Goal, start another phase, run Learn,
+   or delegate further. It returns exact artifact paths and hashes, commands and
+   results, and any Stop finding to the parent without claiming Goal completion.
 5. Wait for the phase agent before doing more phase work. Reuse that agent for
    same-phase continuation when possible, and never run two phase executors at
-   once.
-6. After the phase agent finishes, the parent calls `get_goal` and independently
-   confirms the required phase evidence. Advance only when the Goal is terminal
-   `complete`; otherwise continue or stop under the existing Goal rules.
+   once. If the user or system pauses, replaces, or ends the active Goal while
+   the phase agent is running, interrupt the agent, preserve any worktree
+   changes for inspection, do not accept its evidence or update the Goal, and
+   stop.
+6. After the phase agent finishes, the parent first calls `get_goal` and requires
+   the same phase Goal to remain active. The parent then independently inspects
+   the owned changes and reruns every Verification command recorded in the Goal
+   and every required phase gate instead of treating the agent's report as
+   authoritative. The parent alone decides whether the objective, Done
+   conditions, Verification, or terminal blocking rule is satisfied and
+   performs the corresponding Goal update. Advance only after the parent calls
+   `get_goal` again and confirms terminal `complete`; otherwise continue or stop
+   under the existing Goal rules.
 
 If the registered phase agent or its configured model and reasoning effort is
 unavailable, preserve the active Goal and stop. Do not inherit, substitute, or
@@ -140,19 +161,21 @@ silently run the delegated phase in the parent.
   exactly match the fetched title. Design derives cycle identity from the
   validated Requirements bytes, and the receipt carries that owned value into
   Build and Ship; no later phase accepts a title argument.
-- Every regenerated artifact covers its complete upstream input. A delta marks
-  changed records but never narrows Goal scope.
+- Every regenerated artifact covers its complete upstream input. New cycles use
+  schema v3; schema v2 is history/baseline input only and cannot complete a new
+  phase, produce a receipt, or enter Build.
 - Semantic identity lives in typed IDs, statuses, owners, roles, hashes, and
-  references. Current schema-v2 validators also enforce canonical headings,
-  substantive text, and unambiguous evidence mapping as artifact format gates;
-  follow those gates from `references/artifact-validation.md`.
-- Product behavior exists only as a typed `product_behaviors` record with one
-  canonical `requirement_id` and one design-evidence owner with that Requirement
-  ID. Requirement content remains only in canonical `requirements.json`.
-  Selected rules constrain Requirements and Design; they never define product
-  behavior directly or substitute for a missing Requirement. Build consumes the
-  Design completion receipt as its upstream identity instead of accepting
-  freshly recomputed artifact hashes.
+  references. Current validators also enforce canonical headings, substantive
+  text, and unambiguous evidence mapping as artifact format gates; follow those
+  gates from `references/artifact-validation.md`.
+- Design `target_state` is the only completed-state source of truth. It contains
+  final product behaviors, verification cases, ownership scopes, and
+  representations, never an add/change/remove list. Requirement content remains
+  only in canonical `requirements.json`. Selected rules constrain Requirements
+  and Design; they never define product behavior directly or substitute for a
+  missing Requirement. Build consumes the receipt target state and removes any
+  owned baseline impurity by making the final state match it; no explicit
+  deletion record is required.
 
 ## Stop
 

@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from artifact_source import (
+    SCHEMA_VERSION,
     SourceError,
     load_source,
     load_source_bytes,
@@ -384,6 +385,8 @@ def validate(
         raise ValidationError("document kind must be goal or artifact")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
+    if source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("new Requirements Goals and artifacts require schema_version 3")
     cycle_start_issue_title = require_exact_string(
         source["validation"].get("cycle_start_issue_title"),
         "validation.cycle_start_issue_title",
@@ -438,6 +441,8 @@ def validate(
     if goal_document_path.resolve() == document_path.resolve():
         raise ValidationError("--goal-document must be distinct from the artifact")
     goal_source = load_source(goal_document_path, "requirements_goal")
+    if goal_source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("retained Requirements Goal requires schema_version 3")
     if goal_source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
     goal_manifest = extract_manifest(goal_source)

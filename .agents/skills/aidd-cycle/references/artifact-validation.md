@@ -5,7 +5,9 @@ Build phase entry check.
 
 ## Structural Model
 
-Managed AIDD artifacts use schema version 2.
+New managed AIDD artifacts use schema version 3. Schema version 2 remains
+readable and renderable only as historical or Git-baseline input; it cannot
+complete a new phase, create a Design completion receipt, or enter Build.
 
 - Goal inputs: temporary `requirements_goal` or `design_goal` JSON.
 - Cycle title owner: `validation.cycle_start_issue_title` in the Requirements
@@ -23,8 +25,9 @@ Managed AIDD artifacts use schema version 2.
 The validators enforce canonical paths, regular non-symlink inputs, Issue
 snapshot identity, full inventories, baseline hashes, rule dependencies,
 transition status, block references, evidence roles, and evidence owners.
-Schema v2 additionally enforces canonical headings, substantive non-placeholder
-text, unique evidence references, and unambiguous evidence-to-owner mapping.
+The managed schemas additionally enforce canonical headings, substantive
+non-placeholder text, unique evidence references, and unambiguous
+evidence-to-owner mapping.
 Design Goal and artifact also own identical `rule_coverage` records. Their
 `implementation_surfaces` must use the canonical `review_routing` order;
 `additional_rules` holds only Design-specific nodes not already selected by
@@ -143,19 +146,54 @@ python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py \
 Each requirement must own one design evidence reference and one verification
 evidence reference. Each replaced baseline section must own baseline evidence.
 Hashes decide preserved versus replaced; headings remain display labels.
-`product_behaviors` is the complete typed inventory of added, changed, or
-removed user operations and state transitions. Every `PB-*` record has one
-canonical `requirement_id`. Canonical Requirement content remains only in the
-validated `requirements.json` snapshot. Exactly one design-evidence owner with
-the same Requirement ID owns the record. There is no generic source kind or
-copied behavior prose. Selected rules constrain Requirements and Design but
-never define product behavior directly or substitute for a missing Requirement.
-Design prose does not define behavior outside this inventory.
+
+For schema v3, `validation.target_state` is the only completion source of truth:
+
+- `product_behaviors` inventories only the user operations and state
+  transitions that must exist when the cycle is complete. A target behavior
+  has `id`, `type`, and one canonical `requirement_id`; it has no `change`
+  operation.
+- `verification_cases` inventories every final automated or manual case. An
+  automated case owns a shell-free command argument array; a manual case owns
+  a concrete procedure. Every Requirement and product behavior must be covered,
+  and every referenced behavior must have the same Requirement owner as its
+  case.
+- `ownership_scopes` is a canonical, non-overlapping inventory of normalized
+  repository-relative `file` or `tree` scopes. Broad implicit application or
+  repository ownership is rejected. Version-control metadata and Git-ignored
+  paths are rejected because their changes cannot be proven by the Build diff.
+- `representations` inventories every final implementation, test, Story,
+  fixture, configuration, migration, or documentation representation. Each
+  record has a stable `REP-*` ID, an owned path, Requirement/product-behavior/
+  verification references, and a machine locator: whole `file`, named
+  module-level `export`, or named `test_case`. Namespace, ambient module,
+  function, and class-internal exports do not satisfy an `export` locator. A
+  representation may reference only behaviors
+  and verification cases with the same Requirement owner. `file` treats the
+  whole file as one indivisible representation and guarantees path inventory,
+  not an inventory of arbitrary internal entries; use a granular locator when
+  a named entry must be independently included or excluded.
+  A `test_case` locator recognizes only literal cases registered through an
+  unaliased `test` or `it` named import from the repository-approved
+  `vite-plus/test` runner. Local declarations, alias substitution, and
+  ambiguous shadowing do not satisfy the inventory. Final cases must be
+  runnable: focused or disabled modifiers (`only`, `skip`, `todo`, `fails`)
+  are rejected; `concurrent` and a statically non-empty array-form `each`
+  remain eligible. Dynamic, empty, or tagged-template tables are fail-closed.
+
+Canonical Requirement content remains only in the validated
+`requirements.json` snapshot. Selected rules constrain Requirements and Design
+but never define product behavior directly or substitute for a missing
+Requirement. Design prose does not define behavior outside `target_state`.
 The retained Design Goal and artifact must also contain identical
-`rule_coverage`. Do not copy implementation terms into the Issue or Requirements
-to make a rule selectable. Select the planned machine review surfaces in Design;
-use `additional_rules` when no surface automatically owns the needed node,
-including a rule whose `applies_to.paths` matches a known planned path.
+`target_state` and `rule_coverage`. Rule coverage is derived from the union of
+target representation paths and the files currently present in the owned
+baseline. This ensures a baseline-only Story or other representation still
+selects the rules needed to remove it. Do not copy implementation terms into
+the Issue or Requirements to make a rule selectable. `implementation_surfaces`
+must exactly match the derived canonical surfaces and may be empty only when
+none of those paths is governed by a review surface. Use `additional_rules`
+for every required path-specific node not already owned by a surface.
 
 After the artifact command succeeds, capture the Design-owned completion
 receipt before completing the Design Goal:
@@ -172,13 +210,15 @@ python3 .agents/skills/aidd-cycle/scripts/capture_design_completion.py \
 Record the exact receipt path and printed SHA-256 in the Design completion
 evidence. The receipt snapshots the fully revalidated retained Design Goal hash,
 Requirements-owned cycle title, Issue body, canonical rule map, every final
-selected rule document, Design implementation surfaces, the Build baseline Git
-`HEAD`, and the canonical
-source and display paths and hashes. Capture reads those inputs and the Git
-`HEAD` Requirements / Design baselines once, validates and renders from those
-exact bytes, constructs the receipt from the same bytes, and fails if any input
-differs when the final drift check reads it again. The validated snapshot bytes,
-not path permanence, are the completion identity.
+selected rule document, the complete `target_state`, ownership scopes, owned
+baseline path inventory, rule coverage, the Build baseline Git `HEAD`, and the
+canonical source and display paths and hashes. Capture reads those inputs and
+the Git `HEAD` Requirements / Design baselines once, validates and renders from
+those exact bytes, stores separate canonical SHA-256 records for target state,
+ownership scopes, baseline inventory, and rule coverage, constructs the
+schema-v3 receipt from the same bytes, and
+fails if any input differs when the final drift check reads it again. The
+validated snapshot bytes, not path permanence, are the completion identity.
 
 ## Build Entry
 
@@ -207,8 +247,36 @@ cycle title is derived from canonical Requirements and must equal the title in
 the receipt; there is no Build caller input that can replace it.
 
 Create the Build Goal only when this command succeeds and prints the same
-receipt SHA-256 recorded by Design. Put that receipt identity in the Goal, and
-before completing Build run:
+receipt SHA-256 recorded by Design. Build must reconstruct the owned final state
+from the receipt instead of layering the target behaviors onto the baseline.
+Before completing Build, write the canonical verification evidence file:
+
+```json
+{
+  "schema_version": 3,
+  "kind": "build_verification",
+  "workspace": "<workspace>",
+  "receipt_sha256": "<design-completion-sha256>",
+  "results": [
+    {
+      "id": "VC-1",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "<lowercase SHA-256 of captured output>"
+    }
+  ]
+}
+```
+
+The result inventory must exactly match the target verification cases in
+canonical order. Automated evidence must repeat the exact Design-owned command,
+record exit code 0, and hash its captured output; the validator never executes
+an artifact-provided command. Manual evidence must repeat the Design-owned
+procedure and include a non-empty observation. The Build Goal's Verification
+still executes the commands and is independently rerun by the parent
+orchestrator. Then run:
 
 ```sh
 python3 .agents/skills/aidd-cycle/scripts/validate_build_rule_coverage.py \
@@ -216,14 +284,21 @@ python3 .agents/skills/aidd-cycle/scripts/validate_build_rule_coverage.py \
   --expected-receipt-sha256 <design-completion-sha256>
 ```
 
-This command derives changed paths from the receipt's Git baseline, classifies
-every governed path through `rule-map.json` `review_routing`, unions the
-surface requirements with every rule node whose `applies_to.paths` matches
-each changed path, verifies that all actual surfaces were declared by Design
-and every required closure node exists in the receipt, and writes canonical
-`<workspace>/.aidd/build-rule-coverage.json`. An undeclared surface, missing
-receipt rule, or governed path without a surface is a failure. The record keeps
-the direct path-rule matches for each change so the selection is reproducible.
+This command first reconciles the final owned tree with `target_state`: every
+required path and locator must exist, and no unregistered owned file, named
+export, or named test case may remain. A baseline-only A4 therefore fails while
+present and passes once absent, without adding an A4 deletion record. Existing
+files outside the ownership scopes are neither impurities nor writable Build
+targets. The command also derives changed paths from the receipt's Git
+baseline, rejects changes outside the ownership scopes except canonical AIDD
+evidence paths, classifies every governed path through `rule-map.json`
+`review_routing`, unions surface requirements with every matching path rule,
+and writes canonical `<workspace>/.aidd/build-rule-coverage.json`. An
+undeclared surface, missing receipt rule, governed path without a surface,
+missing verification result, missing target representation, extra owned
+representation, or out-of-scope change is a failure. The record keeps the
+baseline/final inventories, actual representation locators, verification
+evidence identity, and per-path rule selection so the decision is reproducible.
 Then run the Build Entry command again before completing Build. The exact receipt recorded
 by the preceding Design completion evidence is the Build phase's upstream
 identity.

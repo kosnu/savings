@@ -71,9 +71,13 @@ Web/APIの表に該当しない差分は、`docs/harness/rule-map.json` の有�
 
 ## AIDD Buildの機械ルーティング
 
-AIDD Buildでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。Designは予定する`implementation_surfaces`を構造化して所有し、Design completion receiptはsurface、最終selected rule文書、Build開始前のGit `HEAD`を固定します。
+AIDD Buildでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。通常のコードレビュー対象は引き続き実差分です。AIDD Buildの完了判定に限り、Designが明示したtask-owned範囲の最終状態も照合します。この照合はレビュー範囲やBuildの書込権限をtask-owned範囲外へ広げません。
 
-Build完了時はreceiptのGit基準点から実差分を取得し、全governed pathに一致するsurfaceと、各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。実差分にDesign未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあればCoverage成功としてはいけません。Coverage recordはpathごとの一致ruleを保持し、`Checked rules`の自己申告だけでこの判定を代替できません。
+Designはschema v3の`target_state`に、最終product behavior、verification case、正規化したownership scope、最終representationを構造化して所有します。rule coverageはtarget representation pathとownership scope内のbaseline pathの和集合から導出します。Design completion receiptはtarget state、ownership scope、baseline inventory、surface、最終selected rule文書、Build開始前のGit `HEAD`を固定します。
+
+Build完了時は、task-owned範囲の全必須representationが存在し、正本未登録のpath・named export・test caseが残らず、全verification caseにcase type別の構造化成功証拠があることを先に確認します。`file` locatorはfile全体を不可分な1 representationとしてpath単位で照合し、任意の内部entry列挙は保証しません。独立して有無を照合するnamed entryには粒度locatorを使います。baselineにだけ存在するrepresentationは、削除要求を追加せず、target stateとの差として最終成果から除外されていなければ失敗します。ownership scope外の既存ファイルは不純物として扱いませんが、Build差分を作ることも許可しません。VCS metadataとGit ignore対象はownership scopeにできず、Build差分を機械観測できないpathを正本へ登録しません。
+
+そのうえでreceiptのGit基準点から実差分を取得し、全governed pathに一致するsurfaceと、各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。実差分にDesign未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあればCoverage成功としてはいけません。Coverage recordは最終inventory、verification証拠identity、pathごとの一致ruleを保持し、`Checked rules`の自己申告だけでこの判定を代替できません。
 
 ## レビュー結果
 
