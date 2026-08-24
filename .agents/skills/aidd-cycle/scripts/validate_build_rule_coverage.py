@@ -235,6 +235,26 @@ def javascript_tokens(
             import_declaration_active = False
             import_declaration_can_end = False
             import_equals_active = False
+        is_jsx_tag_slash = (
+            mask_regular_expressions
+            and character == "/"
+            and (
+                (
+                    tokens
+                    and tokens[-1] == ("punctuation", "<")
+                    and index > 0
+                    and text[index - 1] == "<"
+                    and IDENTIFIER_PATTERN.match(text, index + 1) is not None
+                )
+                or text.startswith("/>", index)
+            )
+        )
+        if is_jsx_tag_slash:
+            tokens.append(("punctuation", "/"))
+            regex_allowed_after_control = False
+            line_terminator_since_token = False
+            index += 1
+            continue
         if (
             mask_regular_expressions
             and character == "/"

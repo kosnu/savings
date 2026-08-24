@@ -367,6 +367,13 @@ class BuildRuleCoverageTest(unittest.TestCase):
             ),
             ["A4"],
         )
+        self.assertEqual(
+            exported_names(
+                "export const A1 = { render: () => <Provider><Story /></Provider> }; "
+                "export const A4 = {};"
+            ),
+            ["A1", "A4"],
+        )
         with self.assertRaisesRegex(ValidationError, "ambiguous slash"):
             exported_names(
                 "type N<T> = number; const value = 4; "
@@ -378,6 +385,15 @@ class BuildRuleCoverageTest(unittest.TestCase):
                 "export const A1 = value < /pattern/.test(input); "
                 "export const A4 = {};"
             )
+
+    def test_finds_literal_test_cases_in_tsx(self) -> None:
+        self.assertEqual(
+            literal_test_case_names(
+                'import { test } from "vite-plus/test"; '
+                'test("renders", () => { render(<Provider><Story /></Provider>); });'
+            ),
+            ["renders"],
+        )
 
     def test_rejects_unlisted_story_export_until_final_state_is_materialized(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
