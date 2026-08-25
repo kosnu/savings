@@ -9,7 +9,7 @@
     "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
   },
   "workspace": "1563-issue-345418f11192",
-  "design_goal_sha256": "81aede7d57d6b90d752ee4ba77fc30e06ae799ac5b1ff8da2770d5798324beb8",
+  "design_goal_sha256": "800a3cc602e24de49d151e32cfb43a17e2b0caaab2afd94a5df1123d2e9460f4",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "650a9912d28822e18a0369d43b6b765fa45045c410ecc197637daa85289aa5cb"
@@ -38,7 +38,7 @@
     {
       "id": "ai-driven.workflow",
       "path": "docs/ai-driven-development/workflow.md",
-      "sha256": "9b7afe54fc3241b2ad784b94a1245f93f46eaa6e4c68394611bc0a624f08b966"
+      "sha256": "3e94a254c6061a416691229e37ce4c8b37a3f26f5164ef3cbb609af0c92fed62"
     },
     {
       "id": "policy.learning-extraction",
@@ -1484,27 +1484,27 @@
     ]
   },
   "build_baseline": {
-    "head": "e9f6b63a2ce935308cf39102c0371c7e96b98242"
+    "head": "b9b415b7d7380093553175e548d27e77d2fb7369"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
-        "sha256": "eba2f3a8648e96940ce0feee480ac89b36decad813dbbe97d86813d602aa4d97"
+        "sha256": "3478e8bdf364a57f599f4fd6dddaa02f7d1f92e5dadcffd2949232a36da1dff6"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
-        "sha256": "2cdefd02992c155e6af4a9a5b04507e71e4606f0232002783209f9d1ab83c351"
+        "sha256": "1e3559175014abc842b5e8a58263384ba27d30693cb7b4d0da474b45338c2b2e"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
-        "sha256": "b8ceb93b77ee86965d8e028b13becb88fefc1ee981619f2dfe83d98e48cbb304"
+        "sha256": "f93680d4fc3ce82ce0dd0360516af4edf650a3785221db68d21bb466ec529973"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
-        "sha256": "27cf147e1f38ba0a7315038eff87741dcfc4c6590ba647e854957b74b4fbb051"
+        "sha256": "bfc040d2b190366d82839a90cb8ae417e8805172f8f30497c20803d084fb1b55"
       }
     }
   }

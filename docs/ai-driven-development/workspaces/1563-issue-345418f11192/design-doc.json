@@ -16,7 +16,7 @@
           {
             "id": "context-body",
             "type": "markdown",
-            "markdown": "- Canonical Requirements: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `eba2f3a8648e96940ce0feee480ac89b36decad813dbbe97d86813d602aa4d97`\n- Git HEAD Design baseline SHA-256: `d98e5cb4660cddf4f2a7784b2ac2c6ccf224325148a4ce46f737bf960bde7572`\n- 完成状態の機械正本は `validation.target_state` の product behavior 7件、verification case 17件、ownership scope 26件、representation 62件とする。\n- Requirements pair、Issue snapshot、rule文書、実装、Git stateはDesignではread-onlyとする。"
+            "markdown": "- Canonical Requirements: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `3478e8bdf364a57f599f4fd6dddaa02f7d1f92e5dadcffd2949232a36da1dff6`\n- Git HEAD Design baseline SHA-256: `b8ceb93b77ee86965d8e028b13becb88fefc1ee981619f2dfe83d98e48cbb304`\n- 完成状態の機械正本は `validation.target_state` の product behavior 7件、verification case 17件、ownership scope 26件、representation 62件とする。\n- Requirements pair、Issue snapshot、rule文書、実装、Git stateはDesignではread-onlyとする。"
           },
           {
             "id": "baseline-context-evidence",
@@ -1618,7 +1618,7 @@
       ]
     },
     "coverage_gate": {
-      "requirements_sha256": "eba2f3a8648e96940ce0feee480ac89b36decad813dbbe97d86813d602aa4d97",
+      "requirements_sha256": "3478e8bdf364a57f599f4fd6dddaa02f7d1f92e5dadcffd2949232a36da1dff6",
       "workspace": "1563-issue-345418f11192",
       "requirement_ids": [
         "FR-1",
@@ -1641,7 +1641,7 @@
       ],
       "baseline": {
         "source": "git_head",
-        "body_sha256": "d98e5cb4660cddf4f2a7784b2ac2c6ccf224325148a4ce46f737bf960bde7572"
+        "body_sha256": "b8ceb93b77ee86965d8e028b13becb88fefc1ee981619f2dfe83d98e48cbb304"
       },
       "coverage": [
         {
@@ -1734,65 +1734,57 @@
         {
           "section_id": "context",
           "heading": "入力と前提",
-          "content_sha256": "782bbb800952cbf551c9054dc5f5d09ad8c96b3f62df1f75558ffafa4bd8667c",
+          "content_sha256": "9da838b18cd48eb0a5fba781b46a08b46e7c6db8dd0014fd26a636e28defb6e6",
           "status": "replaced",
           "design_block_id": "baseline-context-evidence"
         },
         {
           "section_id": "rule-selection",
           "heading": "Rule Selection",
-          "content_sha256": "07d43728baf5e3dfef86dcbe771ffdd97c8405c23c19ea3d7204b766a9b69673",
-          "status": "replaced",
-          "design_block_id": "baseline-rule-selection-evidence"
+          "content_sha256": "5302e37042a1891921939a0407284f0aa07c9e21e6e285a2d93895493940e1b6",
+          "status": "preserved"
         },
         {
           "section_id": "architecture",
           "heading": "採用する構成",
-          "content_sha256": "52d87f4a82a5ae7cbfddf8a9e1c2bbca66030e720892879b0f4bff8dfdc010e9",
-          "status": "replaced",
-          "design_block_id": "baseline-architecture-evidence"
+          "content_sha256": "64444693e4dea6c82f7946678719683c6523e20236a1fa613f677221f9486135",
+          "status": "preserved"
         },
         {
           "section_id": "data-contract",
           "heading": "データ・API境界",
-          "content_sha256": "9f359f4de03240cbd7814609e72d4f70fb7281da3fdb9e504a7b5d918bed23bc",
-          "status": "replaced",
-          "design_block_id": "baseline-data-contract-evidence"
+          "content_sha256": "e6c893ca3b42284074c1bfc3cd72b7486daeecf16ed9585cab3803c93ec27e9a",
+          "status": "preserved"
         },
         {
           "section_id": "state-flow",
           "heading": "状態遷移と優先順位",
-          "content_sha256": "ae4940e727ad6cbd82a41ef5fb4b231bd5e7d2ca57afe3e12b763ed6ed32038b",
-          "status": "replaced",
-          "design_block_id": "baseline-state-flow-evidence"
+          "content_sha256": "ad886daa7b78249ec651fc5915777345e055ed16c317a7b6f674dd0b8b5a00e7",
+          "status": "preserved"
         },
         {
           "section_id": "requirement-design",
           "heading": "要求別設計根拠",
-          "content_sha256": "10e04127d6147cd17326bf8dd9be5e05b79432f07603613202c7eb1ebe448b33",
-          "status": "replaced",
-          "design_block_id": "baseline-requirement-design-evidence"
+          "content_sha256": "d495f445a77a0518229cd613da64e7c1bb1e2ba10df1be6f8ccba9295565c665",
+          "status": "preserved"
         },
         {
           "section_id": "verification",
           "heading": "検証方針",
-          "content_sha256": "b1acfee0cf238294847c607b46e1e678da0fbd61f145e6f556106c9997723560",
-          "status": "replaced",
-          "design_block_id": "baseline-verification-evidence"
+          "content_sha256": "7c325e5fa094184dad8a6ff82ef9315d0e08025c0304c1f8494731a9bd238860",
+          "status": "preserved"
         },
         {
           "section_id": "implementation-scope",
-          "heading": "変更対象",
-          "content_sha256": "2bb6a0532f7eb8ca37f3c2c056e54660bd33aa13bd0dad1824c432f016bd2844",
-          "status": "replaced",
-          "design_block_id": "baseline-implementation-scope-evidence"
+          "heading": "完成状態の所有範囲",
+          "content_sha256": "2855b6ff8b6578f4f75daeb1075cc1a984e819b116ee3d4ea2ab4972465b507e",
+          "status": "preserved"
         },
         {
           "section_id": "risks",
           "heading": "リスクと確認事項",
-          "content_sha256": "b3bf447cf6927a92fe0b7efed96d0bb0e6858f5d1b450b6510c06091215f4e48",
-          "status": "replaced",
-          "design_block_id": "baseline-risks-evidence"
+          "content_sha256": "982f3de48e3eb4afd39880de3e60c2e7b4b048600633fb19fa5e0ee6d13ddb66",
+          "status": "preserved"
         }
       ]
     }

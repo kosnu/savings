@@ -2,9 +2,9 @@
   "schema_version": 3,
   "kind": "build_rule_coverage",
   "workspace": "1563-issue-345418f11192",
-  "receipt_sha256": "2660502b0123a899bf5dc9f5a69b232057317fbd4ad1cd91aedc4a22348c56bb",
+  "receipt_sha256": "ef78325e748c45ff4ba32d53a0305d59d728213371d909dfac3601b1730c2a5b",
   "target_state_sha256": "98b72b41b87ee90d225a81292545f0c469ff34b7a1cf5cf283fe33671512dafa",
-  "build_baseline_head": "e9f6b63a2ce935308cf39102c0371c7e96b98242",
+  "build_baseline_head": "b9b415b7d7380093553175e548d27e77d2fb7369",
   "baseline_inventory": [
     "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
     "apps/web/.storybook/preview.tsx",
@@ -374,7 +374,7 @@
     }
   ],
   "verification": {
-    "sha256": "ab72bea4f19c43c876099486131d417f5f13a56c5ea85135f32ca62cb4252995",
+    "sha256": "28e5e24030bcc682aebfa129bb8130c2fab7cd2a578bb4f30c5f20c5d3796b63",
     "results": [
       {
         "id": "VC-1",
@@ -399,7 +399,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-3",
@@ -411,7 +411,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-4",
@@ -423,7 +423,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-5",
@@ -435,7 +435,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-6",
@@ -447,7 +447,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-7",
@@ -459,7 +459,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-8",
@@ -496,7 +496,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-11",
@@ -508,7 +508,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-12",
@@ -520,7 +520,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-13",
@@ -532,7 +532,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-14",
@@ -544,7 +544,7 @@
           "web:test:storybook"
         ],
         "exit_code": 0,
-        "output_sha256": "b3e9abe1bf2398da24196f9a8def9bbcc648585104bcea82489c3957546aa73f"
+        "output_sha256": "62cc2691c4d4bffb6564c0053b50da25f8b6098dbe71946a58033460365242fe"
       },
       {
         "id": "VC-15",
@@ -568,7 +568,7 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       },
       {
         "id": "VC-17",
@@ -580,208 +580,13 @@
           "web:test:unit-integration"
         ],
         "exit_code": 0,
-        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+        "output_sha256": "8ce95fc981ce130e5b63fb23265ea73eaf44b433cfb64899eb78029a72c4f30e"
       }
     ]
   },
-  "changes": [
-    {
-      "status": "M",
-      "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
-      "surfaces": [
-        "web-project",
-        "web-source",
-        "web-storybook"
-      ],
-      "path_rules": [
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.workflow",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user",
-        "web.component-structure",
-        "web.design-system-brand",
-        "web.design-rules",
-        "web.domain-layer-rules",
-        "web.domain-ui-rules",
-        "web.feature-directory",
-        "web.query-cache",
-        "web.suspense-boundaries",
-        "web.test-policy",
-        "web.storybook-browser-tests"
-      ]
-    },
-    {
-      "status": "M",
-      "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
-      "surfaces": [
-        "web-project",
-        "web-source"
-      ],
-      "path_rules": [
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.workflow",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user",
-        "web.component-structure",
-        "web.design-system-brand",
-        "web.design-rules",
-        "web.domain-layer-rules",
-        "web.domain-ui-rules",
-        "web.feature-directory",
-        "web.query-cache",
-        "web.suspense-boundaries",
-        "web.test-policy",
-        "web.storybook-browser-tests"
-      ]
-    },
-    {
-      "status": "M",
-      "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
-      "surfaces": [
-        "web-project",
-        "web-source"
-      ],
-      "path_rules": [
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.workflow",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user",
-        "web.design-system-brand",
-        "web.design-rules",
-        "web.feature-directory",
-        "web.query-cache",
-        "web.suspense-boundaries",
-        "web.test-policy",
-        "web.storybook-browser-tests"
-      ]
-    },
-    {
-      "status": "M",
-      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
-      "surfaces": [
-        "web-project",
-        "web-source"
-      ],
-      "path_rules": [
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.workflow",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user",
-        "web.design-system-brand",
-        "web.design-rules",
-        "web.feature-directory",
-        "web.query-cache",
-        "web.suspense-boundaries",
-        "web.test-policy",
-        "web.storybook-browser-tests"
-      ]
-    }
-  ],
-  "implementation_surfaces": [
-    "web-project",
-    "web-source",
-    "web-storybook"
-  ],
-  "direct_rules": [
-    "architecture.overview",
-    "infrastructure.overview",
-    "ai-driven.workflow",
-    "policy.git-workflow",
-    "policy.review-feedback-classification",
-    "policy.code-review",
-    "policy.transaction-boundaries",
-    "policy.temporal-data",
-    "domain.amount",
-    "domain.date",
-    "domain.payment",
-    "domain.category",
-    "domain.monthly-budget",
-    "domain.book",
-    "domain.user",
-    "web.component-structure",
-    "web.design-system-brand",
-    "web.design-rules",
-    "web.domain-layer-rules",
-    "web.domain-ui-rules",
-    "web.feature-directory",
-    "web.query-cache",
-    "web.suspense-boundaries",
-    "web.test-policy",
-    "web.storybook-browser-tests"
-  ],
-  "checked_rules": [
-    "documentation.policy",
-    "architecture.overview",
-    "infrastructure.overview",
-    "ai-driven.overview",
-    "ai-driven.workflow",
-    "policy.learning-extraction",
-    "policy.git-workflow",
-    "policy.review-feedback-classification",
-    "policy.code-review",
-    "policy.transaction-boundaries",
-    "policy.temporal-data",
-    "domain.amount",
-    "domain.date",
-    "domain.payment",
-    "domain.category",
-    "domain.monthly-budget",
-    "domain.book",
-    "domain.user",
-    "web.component-structure",
-    "web.design-system-brand",
-    "web.design-rules",
-    "web.domain-layer-rules",
-    "web.domain-ui-rules",
-    "web.feature-directory",
-    "web.query-cache",
-    "web.suspense-boundaries",
-    "web.test-policy",
-    "web.storybook-browser-tests"
-  ],
+  "changes": [],
+  "implementation_surfaces": [],
+  "direct_rules": [],
+  "checked_rules": [],
   "unresolved": []
 }

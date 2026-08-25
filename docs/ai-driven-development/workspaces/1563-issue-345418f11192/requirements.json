@@ -35,7 +35,7 @@
       "workspace": "1563-issue-345418f11192",
       "baseline": {
         "source": "git_head",
-        "body_sha256": "d07e46327f6b79687e9cf43a917e04458e1dbd39c882b46d1069469f0763b663"
+        "body_sha256": "eba2f3a8648e96940ce0feee480ac89b36decad813dbbe97d86813d602aa4d97"
       },
       "requirements": [
         {
