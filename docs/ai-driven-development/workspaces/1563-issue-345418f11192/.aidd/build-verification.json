@@ -1,0 +1,144 @@
+{
+  "schema_version": 3,
+  "kind": "build_verification",
+  "workspace": "1563-issue-345418f11192",
+  "receipt_sha256": "2660502b0123a899bf5dc9f5a69b232057317fbd4ad1cd91aedc4a22348c56bb",
+  "results": [
+    {
+      "id": "VC-1",
+      "type": "automated",
+      "status": "passed",
+      "command": ["rg", "-n", "add column language|check \\(language in", "apps/api/supabase/migrations/20260822000000_add_user_language.sql"],
+      "exit_code": 0,
+      "output_sha256": "0fd61ec403b2c80130ec9f0ef96fde09766c64b851af2732f62026d2e879092f"
+    },
+    {
+      "id": "VC-2",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-3",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-4",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-5",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-6",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-7",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-8",
+      "type": "automated",
+      "status": "passed",
+      "command": ["rg", "-n", "grant update \\(name, language\\)", "apps/api/supabase/migrations/20260822000000_add_user_language.sql"],
+      "exit_code": 0,
+      "output_sha256": "5d58e0f8a6918a948a5d2ae72a8f13880ece4899ae3b7db8b6468a2d9359ac33"
+    },
+    {
+      "id": "VC-9",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:typecheck"],
+      "exit_code": 0,
+      "output_sha256": "d30c50c950e9bb55dfb3e03f4613155820dcce7ca297a146b2ed307c3cb13dd6"
+    },
+    {
+      "id": "VC-10",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-11",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-12",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-13",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-14",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:storybook"],
+      "exit_code": 0,
+      "output_sha256": "b3e9abe1bf2398da24196f9a8def9bbcc648585104bcea82489c3957546aa73f"
+    },
+    {
+      "id": "VC-15",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:typecheck"],
+      "exit_code": 0,
+      "output_sha256": "d30c50c950e9bb55dfb3e03f4613155820dcce7ca297a146b2ed307c3cb13dd6"
+    },
+    {
+      "id": "VC-16",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    },
+    {
+      "id": "VC-17",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+    }
+  ]
+}

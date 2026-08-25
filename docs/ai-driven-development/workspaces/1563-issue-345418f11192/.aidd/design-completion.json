@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "kind": "design_completion",
   "issue": {
     "id": "kosnu/savings#1563",
@@ -9,7 +9,7 @@
     "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
   },
   "workspace": "1563-issue-345418f11192",
-  "design_goal_sha256": "40d6c89ead8792c2d3c5727c357be472fdbdc1a269c031f81422cac92efa4bf4",
+  "design_goal_sha256": "81aede7d57d6b90d752ee4ba77fc30e06ae799ac5b1ff8da2770d5798324beb8",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "650a9912d28822e18a0369d43b6b765fa45045c410ecc197637daa85289aa5cb"
@@ -33,12 +33,12 @@
     {
       "id": "ai-driven.overview",
       "path": "docs/ai-driven-development/overview.md",
-      "sha256": "011d120cdb8880e51ea55f63835a663299fd4ddd53af5fd9ecf4779561a6e856"
+      "sha256": "3ff6703fecea2d2b8d2024d3b41f38e0aad8477d3374bc9a5e06d21baadaf888"
     },
     {
       "id": "ai-driven.workflow",
       "path": "docs/ai-driven-development/workflow.md",
-      "sha256": "05adc3366afc395f21272edc4696de7d3c8f55970612c72f7311c5888eed8a11"
+      "sha256": "9b7afe54fc3241b2ad784b94a1245f93f46eaa6e4c68394611bc0a624f08b966"
     },
     {
       "id": "policy.learning-extraction",
@@ -53,12 +53,12 @@
     {
       "id": "policy.review-feedback-classification",
       "path": "docs/harness/policies/review-feedback-classification.md",
-      "sha256": "be628dc59aaabd468e9dc608d4cad4781f9165f2912d7248a01bb2986c2df5f9"
+      "sha256": "b324b53d28252f40dcc103b40e0433ff7c2deea0d40d66a5ab0a60cb32ebedd2"
     },
     {
       "id": "policy.code-review",
       "path": "docs/harness/policies/code-review.md",
-      "sha256": "b694e2840c83d53bada9a564dffdec40e7e843777784f53e18766901aaa0f83a"
+      "sha256": "f6341922399ce39dcc932e15b194bf7c1d97fefa938e5149de2ac1058313e91d"
     },
     {
       "id": "policy.transaction-boundaries",
@@ -143,7 +143,12 @@
     {
       "id": "web.suspense-boundaries",
       "path": "apps/web/docs/policies/suspense-boundaries.md",
-      "sha256": "ff779dd59a8a97b5f5b58f10b9495df5bbd723c39fbf37ba430c6b4762d590bf"
+      "sha256": "45a81e1c7f540d6b98861a9e2ef4e9e1399d41b53e5047097369bf096d9d90be"
+    },
+    {
+      "id": "web.msw-handlers",
+      "path": "apps/web/docs/policies/msw-handlers.md",
+      "sha256": "445775414e077c53f9b57fd85d26652ee8aaa8e5e9765f97821544732224b17e"
     },
     {
       "id": "web.test-policy",
@@ -157,33 +162,1349 @@
     }
   ],
   "rule_coverage": {
-    "implementation_surfaces": [
-      "web-project",
-      "web-source"
+    "sha256": "12d8d824c04a12ff01a8aa0d1c73621ba43e95902683a3c0acde321c43c6eb3a",
+    "value": {
+      "implementation_surfaces": [
+        "web-project",
+        "web-source",
+        "web-storybook",
+        "api-project"
+      ],
+      "additional_rules": [
+        {
+          "id": "architecture.overview",
+          "reason": "app providerとAPI migrationを跨ぐ最終構成を確認するため。"
+        },
+        {
+          "id": "ai-driven.workflow",
+          "reason": "schema v3完成状態とBuild receipt契約を適用するため。"
+        },
+        {
+          "id": "policy.git-workflow",
+          "reason": "task-owned最終差分とShip境界を確認するため。"
+        },
+        {
+          "id": "policy.review-feedback-classification",
+          "reason": "過去レビュー由来の仮想経路をRequirementsへ混入させないため。"
+        },
+        {
+          "id": "web.domain-layer-rules",
+          "reason": "profile domain APIと型の公開境界を確認するため。"
+        },
+        {
+          "id": "web.domain-ui-rules",
+          "reason": "言語設定UIのdomain依存を確認するため。"
+        },
+        {
+          "id": "web.msw-handlers",
+          "reason": "profile取得・更新fixtureを同期するため。"
+        }
+      ]
+    }
+  },
+  "target_state": {
+    "sha256": "98b72b41b87ee90d225a81292545f0c469ff34b7a1cf5cf283fe33671512dafa",
+    "value": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "user_operation",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "requirement_id": "FR-4"
+        },
+        {
+          "id": "PB-5",
+          "type": "state_transition",
+          "requirement_id": "FR-5"
+        },
+        {
+          "id": "PB-6",
+          "type": "user_operation",
+          "requirement_id": "NFR-2"
+        },
+        {
+          "id": "PB-7",
+          "type": "user_operation",
+          "requirement_id": "NFR-3"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "command": [
+            "rg",
+            "-n",
+            "add column language|check \\(language in",
+            "apps/api/supabase/migrations/20260822000000_add_user_language.sql"
+          ],
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ]
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ]
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ]
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ]
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ]
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-7",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-6"
+          ]
+        },
+        {
+          "id": "VC-8",
+          "type": "automated",
+          "command": [
+            "rg",
+            "-n",
+            "grant update \\(name, language\\)",
+            "apps/api/supabase/migrations/20260822000000_add_user_language.sql"
+          ],
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-7"
+          ]
+        },
+        {
+          "id": "VC-9",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:typecheck"
+          ],
+          "requirement_id": "AC-1",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-10",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "AC-2",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-11",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "AC-3",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-12",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "AC-4",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-13",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "AC-5",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-14",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:storybook"
+          ],
+          "requirement_id": "AC-6",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-15",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:typecheck"
+          ],
+          "requirement_id": "AC-7",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-16",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "AC-8",
+          "product_behavior_ids": []
+        },
+        {
+          "id": "VC-17",
+          "type": "automated",
+          "command": [
+            "pnpm",
+            "run",
+            "web:test:unit-integration"
+          ],
+          "requirement_id": "AC-9",
+          "product_behavior_ids": []
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/.storybook/preview.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Provider.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/index.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/fetchProfile.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/profileSchema.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/updateLanguage.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/useProfile.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/resources.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/language/LanguageSyncProvider.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/test/msw/handlers/profile.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/test/test-utils.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/types/database.types.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "configuration",
+          "path": "apps/web/.storybook/preview.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-8",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-16"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "apps/web/src/app/Provider.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-10"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "apps/web/src/features/profile/index.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "apps/web/src/features/profile/profileSettings/fetchProfile.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "apps/web/src/features/profile/profileSettings/profileSchema.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "apps/web/src/features/profile/profileSettings/updateLanguage.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "apps/web/src/features/profile/profileSettings/useProfile.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/resources.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "apps/web/src/providers/language/LanguageSyncProvider.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-13",
+          "kind": "implementation",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-14",
+          "kind": "fixture",
+          "path": "apps/web/src/test/msw/handlers/profile.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-12"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "fixture",
+          "path": "apps/web/src/test/test-utils.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-16",
+          "kind": "implementation",
+          "path": "apps/web/src/types/database.types.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-9"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "story",
+          "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Default"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-14"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "story",
+          "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Loading"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-19",
+          "kind": "story",
+          "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "FetchError"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-20",
+          "kind": "story",
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Default"
+          },
+          "requirement_id": "AC-3",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-11"
+          ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Default"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-22",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Loading"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-23",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "LoadError"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-24",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "IdentityProviderFallback"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-25",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "UnavailableLoginMethod"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-26",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Default"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-27",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "UnavailableLoginMethod"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-28",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "ValidationError"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-29",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "DisplayNameAtLimit"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-30",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "DisplayNameTooLong"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-31",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Saving"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-32",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "SaveError"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-33",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Saved"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-34",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "Default"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-35",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "ProfileLoading"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-36",
+          "kind": "story",
+          "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+          "locator": {
+            "kind": "export",
+            "name": "ProfileError"
+          },
+          "requirement_id": "AC-6",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-37",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "現在の言語とテーマを表示し、選択した値を既存のlocalStorageへ保存する"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-38",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント保存に失敗した場合は変更前の言語へ戻して通知し、再試行できる"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-39",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント保存後の内部再取得失敗をユーザーへ通知しない"
+          },
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-40",
+          "kind": "test",
+          "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "現在ユーザーの表示名、email、言語を取得する"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-41",
+          "kind": "test",
+          "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "現在ユーザーの行に絞り、必要な列だけを取得する"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-42",
+          "kind": "test",
+          "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "Supabaseがエラーを返した場合にthrowする"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-43",
+          "kind": "test",
+          "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "レスポンスshapeが不正ならエラーにする"
+          },
+          "requirement_id": "AC-7",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-15"
+          ]
+        },
+        {
+          "id": "REP-44",
+          "kind": "test",
+          "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "現在ユーザーのlanguageだけを更新する"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-45",
+          "kind": "test",
+          "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "Supabaseがエラーを返した場合にthrowする"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-46",
+          "kind": "test",
+          "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "更新対象が0件なら成功扱いにしない"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-47",
+          "kind": "test",
+          "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "保存済みのアカウント言語を端末へ反映する"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-48",
+          "kind": "test",
+          "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "cache後に取得したアカウント言語を初回表示へ反映する"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-49",
+          "kind": "test",
+          "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウントが未設定なら既存の端末言語を維持する"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-50",
+          "kind": "test",
+          "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "取得に失敗してもアプリを表示し続ける"
+          },
+          "requirement_id": "AC-9",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-17"
+          ]
+        },
+        {
+          "id": "REP-51",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "getSession が reject した場合は unauthenticated にフォールバックする"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-52",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "getSession が認証済みの場合はユーザーを作成済みにしてから authenticated にする"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-53",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "unmount後にgetSessionが解決してもユーザー作成を実行しない"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-54",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "ユーザー作成に失敗した場合は unauthenticated にフォールバックする"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-55",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "ユーザー作成失敗後のサインアウトに失敗した場合は未認証へ遷移しない"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-56",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "保存済みsessionがAuth側で無効な場合はユーザー作成を実行せずサインアウトする"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-57",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "認証購読でサインアウト済みなら遅れて返った getSession の古いsessionを破棄する"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-58",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "認証済み状態から同じユーザーのsession更新中は既存sessionを維持する"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-59",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "認証済み状態から同じユーザーのsession更新に失敗しても既存sessionを維持する"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-60",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "認証済み状態から新しいsessionのユーザー作成に失敗した場合は旧sessionを残さない"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-61",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "古いsessionのユーザー作成失敗では新しいsessionをサインアウトしない"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-62",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "認証購読で新sessionのensure中なら getSession の reject で未認証に戻さない"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        }
+      ]
+    }
+  },
+  "ownership_scopes": {
+    "sha256": "de09efa0397deefda1da83189d1b6be4689c03cf9da3f546e57c5d25f08f55bc",
+    "value": [
+      {
+        "path": "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/.storybook/preview.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/app/Provider.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/index.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/fetchProfile.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/profileSchema.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/updateLanguage.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/useProfile.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/i18n/resources.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/providers/language/LanguageSyncProvider.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/test/msw/handlers/profile.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/test/test-utils.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/types/database.types.ts",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_inventory": {
+    "sha256": "1bbef24f41749f45e55d4d159cea401fcfb16ecb77ae1307c7896da28b5684db",
+    "value": [
+      "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
+      "apps/web/.storybook/preview.tsx",
+      "apps/web/src/app/Provider.tsx",
+      "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+      "apps/web/src/features/profile/index.ts",
+      "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+      "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+      "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+      "apps/web/src/features/profile/profileSettings/fetchProfile.ts",
+      "apps/web/src/features/profile/profileSettings/profileSchema.ts",
+      "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+      "apps/web/src/features/profile/profileSettings/updateLanguage.ts",
+      "apps/web/src/features/profile/profileSettings/useProfile.ts",
+      "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
+      "apps/web/src/i18n/resources.ts",
+      "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+      "apps/web/src/providers/language/LanguageSyncProvider.tsx",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+      "apps/web/src/test/msw/handlers/profile.ts",
+      "apps/web/src/test/test-utils.tsx",
+      "apps/web/src/types/database.types.ts"
     ]
   },
   "build_baseline": {
-    "head": "584978a6bbdab748a4d14c8edd1e961c76bbddbd"
+    "head": "e9f6b63a2ce935308cf39102c0371c7e96b98242"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
-        "sha256": "d07e46327f6b79687e9cf43a917e04458e1dbd39c882b46d1069469f0763b663"
+        "sha256": "eba2f3a8648e96940ce0feee480ac89b36decad813dbbe97d86813d602aa4d97"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
-        "sha256": "f483a86742e880a07cb37f0cbd946670a18f0f539d944e98c04800ee48a2da60"
+        "sha256": "2cdefd02992c155e6af4a9a5b04507e71e4606f0232002783209f9d1ab83c351"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
-        "sha256": "d98e5cb4660cddf4f2a7784b2ac2c6ccf224325148a4ce46f737bf960bde7572"
+        "sha256": "b8ceb93b77ee86965d8e028b13becb88fefc1ee981619f2dfe83d98e48cbb304"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
-        "sha256": "5fbf9b5a23297084689211a7765256abb34a3755871f20702edc1ebab936a80e"
+        "sha256": "27cf147e1f38ba0a7315038eff87741dcfc4c6590ba647e854957b74b4fbb051"
       }
     }
   }

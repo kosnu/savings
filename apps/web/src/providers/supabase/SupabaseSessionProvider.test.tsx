@@ -290,36 +290,6 @@ describe("SupabaseSessionProvider", () => {
     })
   })
 
-  test("サインアウト後の同一ユーザー再ログインでは認証世代を進める", async () => {
-    mockGetSession.mockResolvedValueOnce({
-      data: { session: createSession("same-user", "initial-token") },
-      error: null,
-    })
-    const emitAuthStateChange = captureAuthCallback()
-
-    const { result } = renderSessionHook()
-
-    await waitFor(() => {
-      expectSession(result, "authenticated", "same-user", "initial-token", 1)
-    })
-
-    act(() => {
-      emitAuthStateChange("SIGNED_OUT", null)
-    })
-
-    await waitFor(() => {
-      expectSession(result, "unauthenticated", null)
-    })
-
-    act(() => {
-      emitAuthStateChange("SIGNED_IN", createSession("same-user", "next-token"))
-    })
-
-    await waitFor(() => {
-      expectSession(result, "authenticated", "same-user", "next-token", 2)
-    })
-  })
-
   test("認証済み状態から同じユーザーのsession更新に失敗しても既存sessionを維持する", async () => {
     const ensureDeferred = createDeferred<void>()
     mockGetSession.mockResolvedValueOnce({

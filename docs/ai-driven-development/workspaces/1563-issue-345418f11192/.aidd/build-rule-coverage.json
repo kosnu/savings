@@ -1,13 +1,629 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "kind": "build_rule_coverage",
   "workspace": "1563-issue-345418f11192",
-  "receipt_sha256": "09774e1f5a91b80fa3da5828757db0628ac82ba2bd50f9d15e7ed4f0950028e3",
-  "build_baseline_head": "584978a6bbdab748a4d14c8edd1e961c76bbddbd",
+  "receipt_sha256": "2660502b0123a899bf5dc9f5a69b232057317fbd4ad1cd91aedc4a22348c56bb",
+  "target_state_sha256": "98b72b41b87ee90d225a81292545f0c469ff34b7a1cf5cf283fe33671512dafa",
+  "build_baseline_head": "e9f6b63a2ce935308cf39102c0371c7e96b98242",
+  "baseline_inventory": [
+    "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
+    "apps/web/.storybook/preview.tsx",
+    "apps/web/src/app/Provider.tsx",
+    "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+    "apps/web/src/features/profile/index.ts",
+    "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+    "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+    "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+    "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+    "apps/web/src/features/profile/profileSettings/fetchProfile.ts",
+    "apps/web/src/features/profile/profileSettings/profileSchema.ts",
+    "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+    "apps/web/src/features/profile/profileSettings/updateLanguage.ts",
+    "apps/web/src/features/profile/profileSettings/useProfile.ts",
+    "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+    "apps/web/src/providers/language/LanguageSyncProvider.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/web/src/test/msw/handlers/profile.ts",
+    "apps/web/src/test/test-utils.tsx",
+    "apps/web/src/types/database.types.ts"
+  ],
+  "final_inventory": [
+    "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
+    "apps/web/.storybook/preview.tsx",
+    "apps/web/src/app/Provider.tsx",
+    "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+    "apps/web/src/features/profile/index.ts",
+    "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+    "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+    "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+    "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+    "apps/web/src/features/profile/profileSettings/fetchProfile.ts",
+    "apps/web/src/features/profile/profileSettings/profileSchema.ts",
+    "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+    "apps/web/src/features/profile/profileSettings/updateLanguage.ts",
+    "apps/web/src/features/profile/profileSettings/useProfile.ts",
+    "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+    "apps/web/src/providers/language/LanguageSyncProvider.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/web/src/test/msw/handlers/profile.ts",
+    "apps/web/src/test/test-utils.tsx",
+    "apps/web/src/types/database.types.ts"
+  ],
+  "representations": [
+    {
+      "path": "apps/api/supabase/migrations/20260822000000_add_user_language.sql",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/.storybook/preview.tsx",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/app/Provider.tsx",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+      "locator": "export",
+      "name": "Default"
+    },
+    {
+      "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+      "locator": "export",
+      "name": "FetchError"
+    },
+    {
+      "path": "apps/web/src/features/books/bookSettings/CurrentBookInformation/CurrentBookInformation.stories.tsx",
+      "locator": "export",
+      "name": "Loading"
+    },
+    {
+      "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "locator": "test_case",
+      "name": "アカウント保存に失敗した場合は変更前の言語へ戻して通知し、再試行できる"
+    },
+    {
+      "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "locator": "test_case",
+      "name": "アカウント保存後の内部再取得失敗をユーザーへ通知しない"
+    },
+    {
+      "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "locator": "test_case",
+      "name": "現在の言語とテーマを表示し、選択した値を既存のlocalStorageへ保存する"
+    },
+    {
+      "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+      "locator": "export",
+      "name": "Default"
+    },
+    {
+      "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/features/profile/index.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+      "locator": "export",
+      "name": "Default"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+      "locator": "export",
+      "name": "IdentityProviderFallback"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+      "locator": "export",
+      "name": "LoadError"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+      "locator": "export",
+      "name": "Loading"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.stories.tsx",
+      "locator": "export",
+      "name": "UnavailableLoginMethod"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "Default"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "DisplayNameAtLimit"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "DisplayNameTooLong"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "SaveError"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "Saved"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "Saving"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "UnavailableLoginMethod"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/AccountInformationForm/AccountInformationForm.stories.tsx",
+      "locator": "export",
+      "name": "ValidationError"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+      "locator": "export",
+      "name": "Default"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+      "locator": "export",
+      "name": "ProfileError"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.stories.tsx",
+      "locator": "export",
+      "name": "ProfileLoading"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+      "locator": "test_case",
+      "name": "Supabaseがエラーを返した場合にthrowする"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+      "locator": "test_case",
+      "name": "レスポンスshapeが不正ならエラーにする"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+      "locator": "test_case",
+      "name": "現在ユーザーの行に絞り、必要な列だけを取得する"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
+      "locator": "test_case",
+      "name": "現在ユーザーの表示名、email、言語を取得する"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/fetchProfile.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/profileSchema.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+      "locator": "test_case",
+      "name": "Supabaseがエラーを返した場合にthrowする"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+      "locator": "test_case",
+      "name": "更新対象が0件なら成功扱いにしない"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/updateLanguage.integration.test.ts",
+      "locator": "test_case",
+      "name": "現在ユーザーのlanguageだけを更新する"
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/updateLanguage.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/useProfile.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/i18n/resources.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+      "locator": "test_case",
+      "name": "cache後に取得したアカウント言語を初回表示へ反映する"
+    },
+    {
+      "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+      "locator": "test_case",
+      "name": "アカウントが未設定なら既存の端末言語を維持する"
+    },
+    {
+      "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+      "locator": "test_case",
+      "name": "保存済みのアカウント言語を端末へ反映する"
+    },
+    {
+      "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
+      "locator": "test_case",
+      "name": "取得に失敗してもアプリを表示し続ける"
+    },
+    {
+      "path": "apps/web/src/providers/language/LanguageSyncProvider.tsx",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "getSession が reject した場合は unauthenticated にフォールバックする"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "getSession が認証済みの場合はユーザーを作成済みにしてから authenticated にする"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "unmount後にgetSessionが解決してもユーザー作成を実行しない"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "ユーザー作成に失敗した場合は unauthenticated にフォールバックする"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "ユーザー作成失敗後のサインアウトに失敗した場合は未認証へ遷移しない"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "保存済みsessionがAuth側で無効な場合はユーザー作成を実行せずサインアウトする"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "古いsessionのユーザー作成失敗では新しいsessionをサインアウトしない"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "認証済み状態から同じユーザーのsession更新に失敗しても既存sessionを維持する"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "認証済み状態から同じユーザーのsession更新中は既存sessionを維持する"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "認証済み状態から新しいsessionのユーザー作成に失敗した場合は旧sessionを残さない"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "認証購読でサインアウト済みなら遅れて返った getSession の古いsessionを破棄する"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "locator": "test_case",
+      "name": "認証購読で新sessionのensure中なら getSession の reject で未認証に戻さない"
+    },
+    {
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/test/msw/handlers/profile.ts",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/test/test-utils.tsx",
+      "locator": "file",
+      "name": ""
+    },
+    {
+      "path": "apps/web/src/types/database.types.ts",
+      "locator": "file",
+      "name": ""
+    }
+  ],
+  "verification": {
+    "sha256": "ab72bea4f19c43c876099486131d417f5f13a56c5ea85135f32ca62cb4252995",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "rg",
+          "-n",
+          "add column language|check \\(language in",
+          "apps/api/supabase/migrations/20260822000000_add_user_language.sql"
+        ],
+        "exit_code": 0,
+        "output_sha256": "0fd61ec403b2c80130ec9f0ef96fde09766c64b851af2732f62026d2e879092f"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-6",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-7",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-8",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "rg",
+          "-n",
+          "grant update \\(name, language\\)",
+          "apps/api/supabase/migrations/20260822000000_add_user_language.sql"
+        ],
+        "exit_code": 0,
+        "output_sha256": "5d58e0f8a6918a948a5d2ae72a8f13880ece4899ae3b7db8b6468a2d9359ac33"
+      },
+      {
+        "id": "VC-9",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit_code": 0,
+        "output_sha256": "d30c50c950e9bb55dfb3e03f4613155820dcce7ca297a146b2ed307c3cb13dd6"
+      },
+      {
+        "id": "VC-10",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-11",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-12",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-13",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-14",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:storybook"
+        ],
+        "exit_code": 0,
+        "output_sha256": "b3e9abe1bf2398da24196f9a8def9bbcc648585104bcea82489c3957546aa73f"
+      },
+      {
+        "id": "VC-15",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit_code": 0,
+        "output_sha256": "d30c50c950e9bb55dfb3e03f4613155820dcce7ca297a146b2ed307c3cb13dd6"
+      },
+      {
+        "id": "VC-16",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      },
+      {
+        "id": "VC-17",
+        "type": "automated",
+        "status": "passed",
+        "command": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e6d3d42ef0a3d75d80510117966753a211120aad177bcdec86e73e4367884b74"
+      }
+    ]
+  },
   "changes": [
     {
       "status": "M",
-      "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+      "surfaces": [
+        "web-project",
+        "web-source",
+        "web-storybook"
+      ],
+      "path_rules": [
+        "architecture.overview",
+        "infrastructure.overview",
+        "ai-driven.workflow",
+        "policy.git-workflow",
+        "policy.review-feedback-classification",
+        "policy.code-review",
+        "policy.transaction-boundaries",
+        "policy.temporal-data",
+        "domain.amount",
+        "domain.date",
+        "domain.payment",
+        "domain.category",
+        "domain.monthly-budget",
+        "domain.book",
+        "domain.user",
+        "web.component-structure",
+        "web.design-system-brand",
+        "web.design-rules",
+        "web.domain-layer-rules",
+        "web.domain-ui-rules",
+        "web.feature-directory",
+        "web.query-cache",
+        "web.suspense-boundaries",
+        "web.test-policy",
+        "web.storybook-browser-tests"
+      ]
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/features/profile/profileSettings/fetchProfile.integration.test.ts",
       "surfaces": [
         "web-project",
         "web-source"
@@ -42,7 +658,7 @@
     },
     {
       "status": "M",
-      "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+      "path": "apps/web/src/providers/language/LanguageSyncProvider.test.tsx",
       "surfaces": [
         "web-project",
         "web-source"
@@ -63,11 +679,8 @@
         "domain.monthly-budget",
         "domain.book",
         "domain.user",
-        "web.component-structure",
         "web.design-system-brand",
         "web.design-rules",
-        "web.domain-layer-rules",
-        "web.domain-ui-rules",
         "web.feature-directory",
         "web.query-cache",
         "web.suspense-boundaries",
@@ -77,7 +690,7 @@
     },
     {
       "status": "M",
-      "path": "apps/web/src/features/profile/index.ts",
+      "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
       "surfaces": [
         "web-project",
         "web-source"
@@ -98,78 +711,9 @@
         "domain.monthly-budget",
         "domain.book",
         "domain.user",
-        "web.component-structure",
         "web.design-system-brand",
         "web.design-rules",
-        "web.domain-layer-rules",
-        "web.domain-ui-rules",
         "web.feature-directory",
-        "web.query-cache",
-        "web.suspense-boundaries",
-        "web.test-policy",
-        "web.storybook-browser-tests"
-      ]
-    },
-    {
-      "status": "M",
-      "path": "apps/web/src/features/profile/profileSettings/useUpdateLanguage.ts",
-      "surfaces": [
-        "web-project",
-        "web-source"
-      ],
-      "path_rules": [
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.workflow",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user",
-        "web.component-structure",
-        "web.design-system-brand",
-        "web.design-rules",
-        "web.domain-layer-rules",
-        "web.domain-ui-rules",
-        "web.feature-directory",
-        "web.query-cache",
-        "web.suspense-boundaries",
-        "web.test-policy",
-        "web.storybook-browser-tests"
-      ]
-    },
-    {
-      "status": "M",
-      "path": "apps/web/src/i18n/resources.ts",
-      "surfaces": [
-        "web-project",
-        "web-source"
-      ],
-      "path_rules": [
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.workflow",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user",
-        "web.design-system-brand",
-        "web.design-rules",
         "web.query-cache",
         "web.suspense-boundaries",
         "web.test-policy",
@@ -179,7 +723,8 @@
   ],
   "implementation_surfaces": [
     "web-project",
-    "web-source"
+    "web-source",
+    "web-storybook"
   ],
   "direct_rules": [
     "architecture.overview",
