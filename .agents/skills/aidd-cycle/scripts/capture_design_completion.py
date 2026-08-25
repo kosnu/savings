@@ -7,8 +7,10 @@ import argparse
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+
 from artifact_source import SourceError
-from git_baseline import GitBaselineError
+from git_baseline import GitBaselineError, require_repository_root
 from validate_build_entry import ValidationError, validate_or_capture
 from validate_design_coverage import ValidationError as DesignValidationError
 
@@ -26,13 +28,14 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        repo_root = require_repository_root(args.repo_root)
         receipt_path, receipt_sha256 = validate_or_capture(
             args.issue,
             args.issue_url,
             args.issue_updated_at,
             args.issue_body,
             args.rule_map,
-            args.repo_root,
+            repo_root,
             args.workspace,
             capture=True,
             goal_document_path=args.goal_document,

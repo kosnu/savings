@@ -14,6 +14,7 @@ from artifact_source import (
     ARTIFACT_KINDS,
     DISPLAY_FILENAMES,
     SOURCE_FILENAMES,
+    SUPPORTED_SCHEMA_VERSIONS,
     SourceError,
     canonical_display_path as source_canonical_display_path,
     canonical_source_path as source_canonical_source_path,
@@ -307,7 +308,7 @@ def load_git_head_source(
 def list_git_head_managed_artifact_keys(
     repo_root: Path,
 ) -> set[tuple[str, str]]:
-    """List schema v2 artifact paths without importing historical sidecars."""
+    """List supported managed artifact paths without importing historical sidecars."""
 
     resolved_root = require_repository_root(repo_root)
     listing = run_git(
@@ -350,7 +351,7 @@ def list_git_head_managed_artifact_keys(
             continue
         if not isinstance(source, dict):
             continue
-        if source.get("schema_version") != 2:
+        if source.get("schema_version") not in SUPPORTED_SCHEMA_VERSIONS:
             continue
         validate_workspace_name(workspace)
         managed.add((workspace, kind))

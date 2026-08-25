@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import validate_build_entry
-from artifact_source import serialize_source
+from artifact_source import SourceError, serialize_source
 from render_aidd_artifact import render_artifact_markdown
 from test_validate_design_coverage import (
     ISSUE,
@@ -104,6 +104,28 @@ def write_design_goal(repo_root: Path) -> Path:
 
 
 class BuildEntryGateTest(unittest.TestCase):
+    def test_capture_rejects_legacy_v2_design(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            design_path = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / WORKSPACE
+                / "design-doc.json"
+            )
+            design = json.loads(design_path.read_text(encoding="utf-8"))
+            design["schema_version"] = 2
+            design_path.write_text(
+                json.dumps(design, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(SourceError, "invalid keys"):
+                self.run_gate(repo_root, capture=True)
+
     def run_gate(
         self,
         repo_root: Path,
@@ -149,7 +171,98 @@ class BuildEntryGateTest(unittest.TestCase):
                 receipt["selected_rules"][0]["path"],
                 "docs/ai-driven-development/workflow.md",
             )
+            self.assertEqual(
+                receipt["target_state"]["value"]["ownership_scopes"],
+                receipt["ownership_scopes"]["value"],
+            )
+            for field in (
+                "target_state",
+                "ownership_scopes",
+                "baseline_inventory",
+                "rule_coverage",
+            ):
+                self.assertEqual(
+                    receipt[field]["sha256"],
+                    validate_build_entry.structured_sha256(receipt[field]["value"]),
+                )
             self.assertEqual(len(receipt_sha256), 64)
+
+    def test_capture_selects_surface_and_rule_from_baseline_only_story(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            workspace_root = canonical_receipt_path(repo_root, WORKSPACE).parent.parent
+            requirements_path = workspace_root / "requirements.json"
+            requirements_digest = hashlib.sha256(
+                requirements_path.read_bytes()
+            ).hexdigest()
+            story_path = "apps/web/src/Feature.stories.tsx"
+            story = repo_root / story_path
+            story.parent.mkdir(parents=True, exist_ok=True)
+            story.write_text("export const BaselineOnly = {};\n", encoding="utf-8")
+
+            rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
+            rule_map = json.loads(rule_map_path.read_text(encoding="utf-8"))
+            rule_map["review_routing"]["surfaces"].append(
+                {
+                    "id": "web-storybook",
+                    "paths": [story_path],
+                    "required_rules": ["policy.extra"],
+                }
+            )
+            rule_map_path.write_text(
+                json.dumps(rule_map, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            target_scope = {"path": story_path, "kind": "file"}
+            design = design_source(requirements_digest)
+            design["validation"]["target_state"]["ownership_scopes"].append(
+                target_scope
+            )
+            design["validation"]["rule_coverage"]["implementation_surfaces"] = [
+                "test-workflow",
+                "web-storybook",
+            ]
+            (workspace_root / "design-doc.json").write_text(
+                serialize_source(design), encoding="utf-8"
+            )
+            (workspace_root / "design-doc.md").write_text(
+                render_artifact_markdown(design), encoding="utf-8"
+            )
+            goal = design_goal_source(requirements_digest)
+            goal["validation"]["target_state"]["ownership_scopes"].append(
+                target_scope
+            )
+            goal["validation"]["rule_coverage"]["implementation_surfaces"] = [
+                "test-workflow",
+                "web-storybook",
+            ]
+            goal_path = repo_root / "design-goal.json"
+            goal_path.write_text(serialize_source(goal), encoding="utf-8")
+
+            receipt_path, _ = validate_or_capture(
+                ISSUE,
+                ISSUE_URL,
+                ISSUE_UPDATED_AT,
+                repo_root / "issue-body.md",
+                rule_map_path,
+                repo_root,
+                WORKSPACE,
+                capture=True,
+                goal_document_path=goal_path,
+            )
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+
+            self.assertIn(story_path, receipt["baseline_inventory"]["value"])
+            self.assertEqual(
+                receipt["rule_coverage"]["value"]["implementation_surfaces"],
+                ["test-workflow", "web-storybook"],
+            )
+            self.assertIn(
+                "policy.extra",
+                [entry["id"] for entry in receipt["selected_rules"]],
+            )
 
     def test_capture_and_build_entry_run_the_real_cli_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -168,7 +281,7 @@ class BuildEntryGateTest(unittest.TestCase):
                 "--rule-map",
                 str(rule_map_path),
                 "--repo-root",
-                str(repo_root),
+                ".",
                 "--workspace",
                 WORKSPACE,
             ]
@@ -180,12 +293,17 @@ class BuildEntryGateTest(unittest.TestCase):
                     "--goal-document",
                     str(goal_path),
                 ],
+                cwd=repo_root,
                 capture_output=True,
                 text=True,
                 check=False,
             )
             self.assertEqual(capture.returncode, 0, capture.stderr)
             receipt_sha256 = capture.stdout.strip().rsplit("sha256=", 1)[1]
+            self.assertIn(
+                str(canonical_receipt_path(repo_root, WORKSPACE)),
+                capture.stdout,
+            )
             build = subprocess.run(
                 [
                     sys.executable,
@@ -194,12 +312,31 @@ class BuildEntryGateTest(unittest.TestCase):
                     "--expected-receipt-sha256",
                     receipt_sha256,
                 ],
+                cwd=repo_root,
                 capture_output=True,
                 text=True,
                 check=False,
             )
             self.assertEqual(build.returncode, 0, build.stderr)
             self.assertIn(f"sha256={receipt_sha256}", build.stdout)
+
+            absolute_common = common.copy()
+            absolute_common[absolute_common.index(".")] = str(repo_root)
+            absolute_build = subprocess.run(
+                [
+                    sys.executable,
+                    str(BUILD_ENTRY_PATH),
+                    *absolute_common,
+                    "--expected-receipt-sha256",
+                    receipt_sha256,
+                ],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(absolute_build.returncode, 0, absolute_build.stderr)
+            self.assertEqual(build.stdout, absolute_build.stdout)
 
     def test_capture_rejects_a_goal_with_invalid_scope_contract(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -237,7 +374,9 @@ class BuildEntryGateTest(unittest.TestCase):
             display_path = workspace_root / "design-doc.md"
             snapshot_design = design_path.read_bytes()
             mismatched = json.loads(snapshot_design.decode("utf-8"))
-            mismatched["validation"]["product_behaviors"][0]["change"] = "removed"
+            mismatched["validation"]["target_state"]["product_behaviors"][0][
+                "type"
+            ] = "user_operation"
             mismatched_design = serialize_source(mismatched).encode("utf-8")
             mismatched_display = render_artifact_markdown(mismatched).encode("utf-8")
             original_validate = validate_build_entry.validate_design_artifact
@@ -277,7 +416,9 @@ class BuildEntryGateTest(unittest.TestCase):
             design_path = workspace_root / "design-doc.json"
             display_path = workspace_root / "design-doc.md"
             changed = json.loads(design_path.read_text(encoding="utf-8"))
-            changed["validation"]["product_behaviors"][0]["change"] = "removed"
+            changed["validation"]["target_state"]["product_behaviors"][0][
+                "type"
+            ] = "user_operation"
             changed_design = serialize_source(changed).encode("utf-8")
             changed_display = render_artifact_markdown(changed).encode("utf-8")
             original_validate = validate_build_entry.validate_design_artifact
