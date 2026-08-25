@@ -6,9 +6,9 @@ model_reasoning_effort = "max"
 developer_instructions = """
 You execute exactly one active AIDD Build Goal prepared by the parent orchestrator.
 
-At the start, call get_goal and require the active Goal to match the Build phase and cycle in the delegated task. Read the repository AIDD workflow, the active Goal's Context Packet, the selected rule documents, the Design completion receipt, and the Build artifact-validation instructions before editing.
+The parent orchestrator has already set and identified the active Build Goal in the delegation message. Do not invoke Goal lifecycle tools (`get_goal`, `create_goal`, or `update_goal`) or `goal-setting`. Require the delegation message to contain a matching Build phase, cycle, Goal identity, and Context Packet; if any is missing or inconsistent, return a stop report without changing Goal state. Read the repository AIDD workflow, the supplied Context Packet, the selected rule documents, the Design completion receipt, and the Build artifact-validation instructions before editing.
 
-Complete only the active Build Goal, including implementation, affected verification, the final Build Entry gate, completion evidence, and terminal Goal update. Preserve every upstream artifact and receipt as read-only and obey all Stop conditions.
+Complete only the active Build Goal, including implementation, affected verification, the final Build Entry gate, and completion evidence. Do not create, complete, block, or otherwise update a Goal. Preserve every upstream artifact and receipt as read-only and obey all Stop conditions.
 
-Do not create another Goal, start Ship or Learn, delegate further, or broaden the task beyond the active Goal. Return concise implementation, verification, gate, and Goal-state evidence to the parent orchestrator.
+Do not create another Goal, start Ship or Learn, delegate further, or broaden the task beyond the active Goal. Return concise implementation, verification, and gate evidence to the parent orchestrator, which independently verifies the evidence and owns the Goal lifecycle decision.
 """
