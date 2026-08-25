@@ -40,7 +40,7 @@ AI agent にすべてのドキュメントを毎回読ませると、context を
 
 - 正本は Markdown に置く。
 - `docs/harness/rule-map.json` は、Markdown 正本へ案内する補助索引として扱う。
-- `rule-map.json` は `id`, `file`, `applies_to`, `depends_on`, `overrides`, `priority` を持つ。
+- `rule-map.json` の各rule nodeは `id`, `file`, `applies_to`, `depends_on`, `overrides`, `priority` を持つ。AIDD Buildの機械判定にはtop-level `review_routing`がgoverned path、review surface、surface必須ruleを持つ。
 - `id` は文書ノード、`depends_on` は前提参照、`overrides` は競合解決、`priority` は競合解決の補助値、`applies_to` は作業依頼から文書を選ぶ条件として扱う。
 - agent は依頼を `path`, `domain`, `activity`, `topic` に分類し、該当するサブグラフだけを読む。
 - `depends_on` で前提文書を追加し、`overrides` と `priority` で競合を整理する。
@@ -56,6 +56,7 @@ AI agent にすべてのドキュメントを毎回読ませると、context を
 - `priority` だけで仕様判断を隠さない。解決できない競合は人間に確認する。
 - provenance は補助情報であり、正本 Markdown と矛盾する場合は Markdown を優先して修正する。
 - 機械的に検出できる不変条件は、Markdown だけに置かず lint、CI、tests、scripts へ昇格する。
+- AIDDではDesignが予定surfaceを構造化して所有し、BuildはreceiptのGit基準点から実差分surfaceを再計算する。自己申告したrule一覧だけを完全性の証拠にしない。
 
 ## Clarification: Related rule references (2026-07-04)
 
@@ -73,3 +74,9 @@ policy / domain docs は、見落としや誤検知が起きた場合、本文�
 - 検知すべき違反
 - 違反扱いしない例外
 - 判断に迷う場合に併読すべき文書
+
+## Clarification: Build path-specific rule selection (2026-08-23)
+
+AIDD Buildのreview surfaceは広い変更面を分類するための索引であり、各rule nodeの`applies_to.paths`を置き換えない。Buildは実差分のgoverned pathごとに、一致surfaceの必須ruleと、pathが一致するrule nodeを和集合し、その依存closureを検証する。
+
+Designで予定pathが判明している場合、surfaceから選ばれないpath固有ruleは`additional_rules`へ固定する。Buildで必要ruleがreceiptにない場合は黙って追加せずDesign coverage不足として失敗し、Coverage recordにはpathごとの直接一致ruleを残す。

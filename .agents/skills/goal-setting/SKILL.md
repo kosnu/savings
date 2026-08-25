@@ -61,12 +61,14 @@ For Requirements:
 - fetch the latest Issue title and snapshot the latest body; the body is the
   only Task Context and the exact title is the Requirements-owned typed cycle
   identity and workspace derivation input;
-- select direct rule-map nodes from Issue-supported classifications, then add
-  their declared dependency closure;
+- select direct rule-map nodes only when their path, domain, activity, or topic
+  has literal evidence in the Issue body, then add their declared dependency
+  closure; do not encode later implementation terminology into Requirements;
 - resolve the Git `HEAD` Requirements baseline and classify every baseline and
   current requirement/section transition;
-- create and validate a temporary `requirements_goal` JSON before setting the
-  Goal.
+- create and validate a schema-v3 temporary `requirements_goal` JSON before
+  setting the Goal. A schema-v2 artifact may be inspected only as a Git
+  continuity baseline and cannot be retained as the current Goal or artifact.
 
 For Design:
 
@@ -75,11 +77,21 @@ For Design:
   source and bind Design to those Requirements bytes by path and SHA-256;
 - cover every current requirement ID and every Git `HEAD` Design baseline
   section;
-- define every added, changed, or removed user operation and state transition
-  as a typed product behavior record with one canonical `requirement_id` and one
-  design evidence block owned by the same Requirement ID. Requirement content
-  remains only in canonical `requirements.json`. Selected rules constrain the
-  Requirement and Design but cannot replace a missing Requirement binding;
+- define schema-v3 `target_state` as the only completed-state source of truth:
+  all final product behaviors, all final verification cases with an automated
+  shell-free command or manual procedure, normalized
+  non-overlapping `file` or `tree` ownership scopes, and every final
+  machine-addressable implementation/test/Story/fixture/configuration/
+  migration/documentation representation. Do not encode add/change/remove
+  operations. Requirement content remains only in canonical
+  `requirements.json`, and every behavior, verification case, and
+  representation must retain its required Requirement references;
+- inventory the paths currently present in the ownership scopes and derive
+  rule coverage from their union with target representation paths. Record the
+  exact canonical `implementation_surfaces` and all Design-specific or
+  path-specific `additional_rules`, including rules selected only because a
+  baseline representation will be absent from the target. The validator adds
+  Requirements-selected rules and dependency closure;
 - create and validate a temporary `design_goal` JSON before setting the Goal.
 
 For Build:
@@ -89,13 +101,26 @@ For Build:
 - fetch the current Issue snapshot and run the Build Entry gate against that
   receipt;
 - record the verified receipt path, unchanged SHA-256, and its complete
-  artifact and selected-rule identity in the Build Goal.
+  target-state, owned-baseline, artifact, and selected-rule identity in the
+  Build Goal;
+- require Build to materialize exactly the receipt target state inside the
+  ownership scopes, not to append a delta to the baseline. Require canonical,
+  case-type-specific `.aidd/build-verification.json` evidence for every target
+  verification case. The validator validates command identity, exit code, and
+  output hash but never executes an artifact-provided command;
+- require the Build rule coverage validator at completion. It rejects missing
+  target representations, unregistered owned paths/exports/test cases,
+  out-of-scope changes, failed or missing verification evidence, undeclared
+  surfaces, missing receipt rules, and governed paths without a routing
+  surface, then writes canonical final-state and per-path Coverage evidence;
 - take the cycle-start title only from the verified receipt; the Build entry
   command has no title input.
 
 Typed IDs and references define ownership. Reject missing records, invalid
 owners, broken dependency edges, stale hashes, incomplete inventories, and any
-schema-v2 text or evidence condition reported by the phase validators.
+schema-v3 format condition reported by the phase validators. Accept schema-v2
+sources only for historical rendering or Git-baseline continuity; never promote
+them into a new Goal, receipt, or Build.
 
 Requirements and Design Goal JSON must include the phase contract IDs defined
 by the workflow in its canonical order and with its canonical text. Add

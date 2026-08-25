@@ -206,7 +206,7 @@ def source(
             ],
         }
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "kind": kind,
         "workspace": WORKSPACE,
         "display": display,

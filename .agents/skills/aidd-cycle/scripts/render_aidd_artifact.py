@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 from artifact_source import (
     ARTIFACT_KINDS,
     DISPLAY_FILENAMES,
@@ -251,9 +253,14 @@ def render_goal_objective(source: dict[str, Any]) -> str:
         )
     else:
         blocks.append(render_gate("Design Coverage Gate", validation["coverage_gate"]))
+        if "rule_coverage" in validation:
+            blocks.append(render_json_value("Rule Coverage", validation["rule_coverage"]))
         blocks.append(
             render_json_value(
-                "Product Behavior Scope", validation["product_behaviors"]
+                "Target State"
+                if "target_state" in validation
+                else "Product Behavior Scope",
+                validation.get("target_state", validation.get("product_behaviors")),
             )
         )
         scope_lines: list[str] = []
@@ -326,11 +333,21 @@ def render_artifact_markdown(source: dict[str, Any]) -> str:
             ]
         )
     else:
+        target_block = (
+            render_json_value("Target State", validation["target_state"])
+            if "target_state" in validation
+            else render_json_value(
+                "Product Behavior Trace", validation["product_behaviors"]
+            )
+        )
         blocks.extend(
             [
                 *render_v2_sections(validation["sections"]),
-                render_json_value(
-                    "Product Behavior Trace", validation["product_behaviors"]
+                target_block,
+                *(
+                    [render_json_value("Rule Coverage", validation["rule_coverage"])]
+                    if "rule_coverage" in validation
+                    else []
                 ),
                 render_gate("Design Coverage Gate", validation["coverage_gate"]),
             ]
@@ -344,8 +361,6 @@ def check_or_write(
     check: bool,
     repo_root: Path | None = None,
 ) -> None:
-    if repo_root is not None:
-        repo_root = require_git_worktree_root(repo_root)
     source = load_regular_source(source_path)
     if source["kind"] in ARTIFACT_KINDS:
         if repo_root is None:
@@ -355,6 +370,16 @@ def check_or_write(
             source_path,
             output_path,
             source,
+        )
+        source_path = canonical_source_path(
+            repo_root,
+            source["workspace"],
+            source["kind"],
+        )
+        output_path = canonical_display_path(
+            repo_root,
+            source["workspace"],
+            source["kind"],
         )
     markdown = (
         render_goal_objective(source)
@@ -386,7 +411,6 @@ def check_or_write_markdown(markdown: str, output_path: Path, check: bool) -> No
 
 
 def check_all(repo_root: Path) -> int:
-    repo_root = require_git_worktree_root(repo_root)
     workspace_root = (
         repo_root / "docs" / "ai-driven-development" / "workspaces"
     )
@@ -454,10 +478,15 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        repo_root = (
+            require_git_worktree_root(args.repo_root)
+            if args.repo_root is not None
+            else None
+        )
         if args.check_all:
-            if args.repo_root is None:
+            if repo_root is None:
                 raise SourceError("--check-all requires --repo-root")
-            check_all(args.repo_root)
+            check_all(repo_root)
             return 0
         if args.source is None:
             raise SourceError("--source is required")
@@ -471,7 +500,7 @@ def main() -> int:
             return 0
         if args.output is None:
             raise SourceError("--output is required without --stdout")
-        check_or_write(args.source, args.output, args.check, args.repo_root)
+        check_or_write(args.source, args.output, args.check, repo_root)
     except (OSError, SourceError) as error:
         print(f"AIDD render failed: {error}", file=sys.stderr)
         return 1

@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 from artifact_source import (
     SourceError,
     load_source,
@@ -24,6 +26,7 @@ from git_baseline import (
     canonical_source_path,
     load_git_head_source,
     require_canonical_worktree_path,
+    require_repository_root,
     validate_workspace_identity,
 )
 from section_aliases import exact_requirement_section_ids_for_heading
@@ -838,13 +841,14 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        repo_root = require_repository_root(args.repo_root)
         validate(
             args.issue,
             args.issue_title,
             args.issue_body,
             args.document,
             args.kind,
-            args.repo_root,
+            repo_root,
             args.workspace,
             args.goal_document,
         )
