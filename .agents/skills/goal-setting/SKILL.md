@@ -8,6 +8,10 @@ description: Set exactly one Codex Goal from the repository AI Driven Developmen
 Construct and set exactly one AIDD phase Goal. Do not execute the Goal, edit
 repository files, or create its artifact.
 
+This skill is used by the parent AIDD orchestrator. Delegated phase executors
+must not invoke this skill or any Goal lifecycle tool; they return phase output
+and validation evidence to the parent instead.
+
 ## Read First
 
 1. `docs/ai-driven-development/workflow.md`
