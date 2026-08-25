@@ -18,11 +18,21 @@ and validation evidence to the parent instead.
 2. The matching file under `docs/ai-driven-development/goal-templates/`
 3. `docs/ai-driven-development/issue-guidelines.md` for Requirements
 4. `docs/harness/rule-map.json` and the smallest applicable subgraph
-5. `.agents/skills/aidd-cycle/references/artifact-validation.md` for
+5. `.agents/skills/aidd-cycle/references/phase-execution-contract.toml` as the
+   canonical `aidd-phase-execution-v1` parent ownership contract
+6. `.agents/skills/aidd-cycle/references/artifact-validation.md` for
    Requirements, Design, or Build
 
 The workflow defines phase order and contracts. Templates are construction
 checklists only.
+
+Before selecting or creating a Goal, run:
+
+```bash
+python3 .agents/skills/aidd-cycle/scripts/validate_phase_execution_contract.py
+```
+
+Stop before `create_goal` when this contract validation fails.
 
 ## Select the Phase
 

@@ -19,12 +19,23 @@ owns phase work and evidence for that Goal; the parent retains its lifecycle.
 - `docs/ai-driven-development/workflow.md`
 - `docs/ai-driven-development/issue-guidelines.md`
 - `.agents/skills/goal-setting/SKILL.md`
+- `.agents/skills/aidd-cycle/references/phase-execution-contract.toml` as the
+  canonical `aidd-phase-execution-v1` ownership, executor, and capability
+  contract
 - `docs/harness/rule-map.json`
 - `references/artifact-validation.md` when entering Requirements, Design, or Build
 - `.codex/config.toml` and the selected phase agent file before delegation
 
 The workflow is canonical. Do not add phase rules here or infer a phase from an
 artifact's mere existence.
+
+Before setting or delegating a phase Goal, run:
+
+```bash
+python3 .agents/skills/aidd-cycle/scripts/validate_phase_execution_contract.py
+```
+
+Stop without delegation when this contract validation fails.
 
 ## Establish the Cycle
 
