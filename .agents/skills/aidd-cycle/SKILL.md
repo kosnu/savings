@@ -6,21 +6,36 @@ description: Run one complete repository AI Driven Development cycle in a single
 # AIDD Cycle
 
 Run the repository AIDD workflow end to end. This skill owns cycle identity,
-phase transitions, Goal orchestration, and completion confirmation.
+phase transitions, Goal orchestration, and completion confirmation. The parent
+orchestrator exclusively owns every phase Goal lifecycle operation:
+`get_goal`, `create_goal`, and `update_goal`. Delegated phase executors never
+invoke Goal tools or change Goal state; they create their phase outputs and
+return validation evidence to the parent.
 `goal-setting` owns construction of one phase Goal. The executor assigned below
-owns execution of that Goal.
+owns phase work and evidence for that Goal; the parent retains its lifecycle.
 
 ## Read First
 
 - `docs/ai-driven-development/workflow.md`
 - `docs/ai-driven-development/issue-guidelines.md`
 - `.agents/skills/goal-setting/SKILL.md`
+- `.agents/skills/aidd-cycle/references/phase-execution-contract.toml` as the
+  canonical `aidd-phase-execution-v1` ownership, executor, and capability
+  contract
 - `docs/harness/rule-map.json`
 - `references/artifact-validation.md` when entering Requirements, Design, or Build
 - `.codex/config.toml` and the selected phase agent file before delegation
 
 The workflow is canonical. Do not add phase rules here or infer a phase from an
 artifact's mere existence.
+
+Before setting or delegating a phase Goal, run:
+
+```bash
+python3 .agents/skills/aidd-cycle/scripts/validate_phase_execution_contract.py
+```
+
+Stop without delegation when this contract validation fails.
 
 ## Establish the Cycle
 
@@ -52,12 +67,12 @@ For each phase in the workflow:
 
 1. Reconfirm the current Goal state and the preceding phase's completion
    evidence.
-2. Apply the `goal-setting` construction procedure to set exactly the current
-   phase Goal. Before `create_goal`, that procedure runs the phase entry checks
-   from `references/artifact-validation.md`: Requirements and Design validate
-   their temporary Goal input; Build revalidates both canonical upstream
-   artifacts and generated displays against the current Issue snapshot and the
-   Design completion receipt.
+2. The parent applies the `goal-setting` construction procedure to set exactly
+   the current phase Goal. Before `create_goal`, that procedure runs the phase
+   entry checks from `references/artifact-validation.md`: Requirements and
+   Design validate their temporary Goal input; Build revalidates both canonical
+   upstream artifacts and generated displays against the current Issue snapshot
+   and the Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
    subgraph, using the phase executor assigned below.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
@@ -66,9 +81,9 @@ For each phase in the workflow:
    and SHA-256 in the phase completion evidence.
 5. For Build, immediately before completion, rerun the Build Entry gate with
    the receipt path and SHA-256 recorded by Design and require it to print that
-   same SHA-256. Only after this phase-specific check and the objective, Done
-   conditions, and Verification are satisfied, call
-   `update_goal(status: complete)` and confirm the terminal state with
+   same SHA-256. For every phase, only after its phase-specific checks and the
+   objective, Done conditions, and Verification are satisfied, the parent calls
+   `update_goal(status: complete)` and confirms the terminal state with
    `get_goal` before advancing.
 6. While useful progress remains possible, keep the Goal active. Call
    `update_goal(status: blocked)` only after the same blocking condition has
@@ -92,7 +107,9 @@ selected model and reasoning effort. Assign each phase exactly as follows:
 
 For Requirements, Design, and Build:
 
-1. The parent sets or identifies the one active phase Goal before delegation.
+1. The parent owns the active phase Goal and sets or identifies it before
+   delegation. The phase agent receives the Goal identity and Context Packet;
+   it does not inspect or mutate Goal state itself.
 2. Call `spawn_agent` exactly once with `agent_type` set to the table's exact
    Executor value, `fork_turns` set to `"none"`, and a separate
    lowercase-underscore `task_name` such as `aidd_requirements`, `aidd_design`,
@@ -108,15 +125,19 @@ For Requirements, Design, and Build:
    current branch, phase, active Goal identity and Context Packet, required
    workflow and validation references, upstream artifact or receipt identity,
    read/write boundary, Verification, and Stop conditions.
-4. The phase agent executes only the active Goal. It must not create the next
-   Goal, start another phase, run Learn, or delegate further.
+4. The phase agent executes only the active Goal. It must not invoke
+   `get_goal`, `create_goal`, or `update_goal`, invoke `goal-setting`, create
+   another Goal, start another phase, run Learn, or delegate further. If the
+   delegated Goal identity or Context Packet is missing or inconsistent, it
+   returns a stop report without changing Goal state.
 5. Wait for the phase agent before doing more phase work. Reuse that agent for
    same-phase continuation when possible, and never run two phase executors at
    once.
-6. After the phase agent finishes, the parent calls `get_goal` and
-   independently confirms the required phase evidence. Advance only when the
-   Goal is terminal `complete`; otherwise continue or stop under the existing
-   Goal rules.
+6. After the phase agent finishes, it returns artifact and verification
+   evidence without a Goal update. The parent calls `get_goal`, independently
+   confirms the required phase evidence, and owns any `update_goal` call.
+   Advance only when the Goal is terminal `complete`; otherwise continue or stop
+   under the existing Goal rules.
 
 If the registered phase agent or its configured model and reasoning effort is
 unavailable, preserve the active Goal and stop. Do not inherit, substitute, or
