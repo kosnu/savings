@@ -48,6 +48,23 @@ or a different output path is a failure. An entrypoint whose contract requires
 an absolute root must reject a relative value before any write and test that
 boundary instead of silently adding a second path-resolution contract.
 
+## Validator Side-Effect Contract
+
+An AIDD validator that observes repository state or derives an actual diff may
+create or modify only the canonical output paths declared by its phase
+contract. Prevent runtime caches, bytecode, and implicit temporary files from
+being created inside the repository at the execution boundary. Do not make an
+undeclared validator side effect pass by adding it to an ignore list or
+filtering it out of the observed diff; that hides repository mutation and
+weakens the inventory boundary.
+
+For each public entrypoint that observes repository state, run a regression
+test in a clean temporary repository under the runtime's default settings.
+Snapshot Git status before invocation and require the status delta afterward
+to contain exactly the declared canonical outputs. The Build rule coverage
+entrypoint must exercise the normal Python bytecode behavior without relying
+on `PYTHONDONTWRITEBYTECODE` supplied by the caller.
+
 ## Workspace
 
 ```sh
