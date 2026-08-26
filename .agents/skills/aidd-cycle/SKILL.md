@@ -87,7 +87,7 @@ For each phase in the workflow:
    reconstruct exactly that target state in the ownership scopes, use the
    repository Build verification runner to observe named exports and test cases
    independently of declared locator kinds, validate the final inventory before
-   execution, reject missing inline test callbacks and per-case mutation of an
+   execution, reject missing or generator inline test callbacks and per-case mutation of an
    owned file's content or Git mode, and bind every result to the unchanged
    final-state hash. Run the Build rule coverage validator against both
    the final owned tree and actual Git diff. Stop on missing or extra owned

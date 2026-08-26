@@ -758,14 +758,54 @@ class BuildRuleCoverageTest(unittest.TestCase):
                     'import { test } from "vite-plus/test";\n' + call
                 )
 
+    def test_rejects_generator_runner_callbacks(self) -> None:
+        for callback in (
+            "function* () {}",
+            "async function* () {}",
+        ):
+            for call in (
+                f'test("case", {callback});',
+                f'describe("suite", {callback});',
+            ):
+                with self.subTest(call=call), self.assertRaisesRegex(
+                    ValidationError,
+                    "callback must not be a generator",
+                ):
+                    literal_test_case_names(
+                        'import { describe, test } from "vite-plus/test";\n' + call
+                    )
+
+    def test_accepts_non_generator_runner_callbacks(self) -> None:
+        for callback in (
+            "function () {}",
+            "async function () {}",
+            "() => {}",
+            "async () => {}",
+        ):
+            with self.subTest(callback=callback):
+                self.assertEqual(
+                    literal_test_case_names(
+                        'import { test } from "vite-plus/test";\n'
+                        f'test("case", {callback});'
+                    ),
+                    ["case"],
+                )
+
     def test_accepts_tests_in_direct_describe_callback(self) -> None:
-        self.assertEqual(
-            literal_test_case_names(
-                'import { describe, test } from "vite-plus/test";\n'
-                'describe("group", () => { test("registered", () => {}); });'
-            ),
-            ["registered"],
-        )
+        for callback in (
+            '() => { test("registered", () => {}); }',
+            'async () => { test("registered", () => {}); }',
+            'function () { test("registered", () => {}); }',
+            'async function () { test("registered", () => {}); }',
+        ):
+            with self.subTest(callback=callback):
+                self.assertEqual(
+                    literal_test_case_names(
+                        'import { describe, test } from "vite-plus/test";\n'
+                        f'describe("group", {callback});'
+                    ),
+                    ["registered"],
+                )
 
     def test_rejects_unreachable_tests_in_direct_describe_callback(self) -> None:
         for body in (

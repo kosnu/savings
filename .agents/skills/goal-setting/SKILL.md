@@ -100,7 +100,7 @@ For Design:
   migration/documentation representation. Story locators inventory semantic
   runtime named exports and reject every `default` form, type-only, `const enum`,
   import/source-backed, and wildcard re-exports; test locators require nonalias
-  named imports from the approved runner and inline function callbacks. A
+  named imports from the approved runner and inline non-generator function callbacks. A
   whole-file locator is exclusive for its path while granular export and test
   locators may coexist. Do not encode add/change/remove
   operations. Requirement content remains only in canonical

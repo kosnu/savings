@@ -314,6 +314,25 @@ function requireLiteralTitle(call, label) {
   return title;
 }
 
+function requireInlineRunnerCallback(call, label, { block = false } = {}) {
+  const callback = call.arguments[1];
+  if (
+    !callback ||
+    !["ArrowFunctionExpression", "FunctionExpression"].includes(callback.type)
+  ) {
+    fail(
+      `${label} requires an inline${block ? " block" : ""} function callback`,
+    );
+  }
+  if (callback.generator) {
+    fail(`${label} callback must not be a generator`);
+  }
+  if (block && callback.body.type !== "BlockStatement") {
+    fail(`${label} requires an inline block function callback`);
+  }
+  return callback;
+}
+
 function parseTestCall(call, testBindings) {
   let chain = propertyChain(call.callee);
   let eachTable = null;
@@ -341,13 +360,7 @@ function parseTestCall(call, testBindings) {
     }
   }
   const title = requireLiteralTitle(call, "final test case");
-  const callback = call.arguments[1];
-  if (
-    !callback ||
-    !["ArrowFunctionExpression", "FunctionExpression"].includes(callback.type)
-  ) {
-    fail("final test case requires an inline function callback");
-  }
+  requireInlineRunnerCallback(call, "final test case");
   if (
     call.arguments
       .slice(1)
@@ -368,14 +381,9 @@ function parseSuiteCall(call, suiteBindings) {
     fail(`unsupported final test suite modifier: ${modifier}`);
   }
   requireLiteralTitle(call, "final test suite");
-  const callback = call.arguments[1];
-  if (
-    !callback ||
-    !["ArrowFunctionExpression", "FunctionExpression"].includes(callback.type) ||
-    callback.body.type !== "BlockStatement"
-  ) {
-    fail("final test suite requires an inline block callback");
-  }
+  const callback = requireInlineRunnerCallback(call, "final test suite", {
+    block: true,
+  });
   return callback.body.body;
 }
 

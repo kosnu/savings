@@ -208,9 +208,9 @@ For schema v3, `validation.target_state` is the only completion source of truth:
   unaliased `test` or `it` named import from the repository-approved
   `vite-plus/test` runner. Alias, namespace, default, or dynamic runner imports,
   local declarations, and ambiguous shadowing are rejected. Final cases must be
-  statically registered at module level or in a direct inline callback from an
+  statically registered at module level or in a direct inline non-generator callback from an
   unaliased `describe` named import from the same runner, and every case must
-  provide its own inline function callback. Arbitrary callbacks,
+  provide its own inline non-generator function callback. Generator callbacks, arbitrary callbacks,
   functions, control-flow blocks, and registrations after a possible
   `return`/`throw` are not treated as registrations. Focused or disabled suites/cases (`only`, `skip`, `todo`, `fails`)
   are rejected; `concurrent` and a statically non-empty array-form `each`
