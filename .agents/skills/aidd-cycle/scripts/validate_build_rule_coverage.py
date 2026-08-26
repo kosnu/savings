@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -15,9 +16,11 @@ sys.dont_write_bytecode = True
 
 from artifact_source import (
     SourceError,
+    canonical_workspace_path,
     decode_source_json,
     inventory_owned_paths,
     read_regular_file_bytes,
+    require_substantive_inline_text,
     structured_sha256,
     write_regular_file_atomically,
 )
@@ -30,9 +33,7 @@ from git_baseline import (
 from rule_coverage import (
     RuleCoverageError,
     expand_rule_closure,
-    matching_surfaces,
-    path_is_governed,
-    rules_for_path,
+    resolve_path_coverage,
     rules_for_surfaces,
     validate_review_routing,
 )
@@ -44,28 +45,7 @@ from validate_requirements_goal import validate_rule_map
 COVERAGE_SCHEMA_VERSION = 3
 COVERAGE_RELATIVE_PATH = Path(".aidd") / "build-rule-coverage.json"
 VERIFICATION_RELATIVE_PATH = Path(".aidd") / "build-verification.json"
-IDENTIFIER_PATTERN = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
-ALLOWED_TEST_MODIFIERS = {"concurrent"}
-FORBIDDEN_FINAL_TEST_MODIFIERS = {"only", "skip", "todo", "fails"}
-APPROVED_TEST_RUNNER_MODULES = {"vite-plus/test"}
-REGEX_PREFIX_IDENTIFIERS = {
-    "return",
-    "case",
-    "throw",
-    "yield",
-    "await",
-    "else",
-    "do",
-    "typeof",
-    "instanceof",
-    "in",
-    "delete",
-    "void",
-    "new",
-    "extends",
-    "default",
-}
-CONTROL_HEAD_IDENTIFIERS = {"if", "while", "for", "with", "switch", "catch"}
+VERIFICATION_GENERATOR = "capture_build_verification.py/v2"
 
 
 class ValidationError(ValueError):
@@ -77,24 +57,18 @@ def sha256_bytes(value: bytes) -> str:
 
 
 def canonical_coverage_path(repo_root: Path, workspace: str) -> Path:
-    return (
-        repo_root
-        / "docs"
-        / "ai-driven-development"
-        / "workspaces"
-        / workspace
-        / COVERAGE_RELATIVE_PATH
+    return canonical_workspace_path(
+        repo_root,
+        workspace,
+        COVERAGE_RELATIVE_PATH.as_posix(),
     )
 
 
 def canonical_verification_path(repo_root: Path, workspace: str) -> Path:
-    return (
-        repo_root
-        / "docs"
-        / "ai-driven-development"
-        / "workspaces"
-        / workspace
-        / VERIFICATION_RELATIVE_PATH
+    return canonical_workspace_path(
+        repo_root,
+        workspace,
+        VERIFICATION_RELATIVE_PATH.as_posix(),
     )
 
 
@@ -111,13 +85,27 @@ def load_verification_results(
     except UnicodeDecodeError as error:
         raise ValidationError("Build verification evidence must be UTF-8 JSON") from error
     if not isinstance(source, dict) or set(source) != {
-        "schema_version", "kind", "workspace", "receipt_sha256", "results"
+        "schema_version",
+        "kind",
+        "workspace",
+        "receipt_sha256",
+        "final_state_sha256",
+        "generator",
+        "results",
     }:
         raise ValidationError("Build verification evidence has invalid keys")
     if source["schema_version"] != 3 or source["kind"] != "build_verification":
         raise ValidationError("Build verification evidence requires schema_version 3")
     if source["workspace"] != workspace or source["receipt_sha256"] != receipt_sha256:
         raise ValidationError("Build verification evidence identity does not match")
+    if source["generator"] != VERIFICATION_GENERATOR:
+        raise ValidationError("Build verification evidence must use the repository generator")
+    try:
+        expected_final_state = final_state_sha256(repo_root, target_state)
+    except SourceError as error:
+        raise ValidationError(str(error)) from error
+    if source["final_state_sha256"] != expected_final_state:
+        raise ValidationError("Build verification evidence does not match the current final state")
     expected_ids = [entry["id"] for entry in target_state["verification_cases"]]
     results = source["results"]
     if not isinstance(results, list) or [
@@ -134,6 +122,8 @@ def load_verification_results(
                 "status",
                 "command",
                 "exit_code",
+                "stdout_bytes",
+                "stderr_bytes",
                 "output_sha256",
             }:
                 raise ValidationError(
@@ -146,6 +136,10 @@ def load_verification_results(
                 or entry["command"] != case["command"]
                 or type(entry["exit_code"]) is not int
                 or entry["exit_code"] != 0
+                or type(entry["stdout_bytes"]) is not int
+                or entry["stdout_bytes"] < 0
+                or type(entry["stderr_bytes"]) is not int
+                or entry["stderr_bytes"] < 0
                 or not isinstance(digest, str)
                 or re.fullmatch(r"[0-9a-f]{64}", digest) is None
             ):
@@ -163,12 +157,18 @@ def load_verification_results(
                 raise ValidationError(
                     f"manual Build verification result {index} has invalid keys"
                 )
+            try:
+                observation = require_substantive_inline_text(
+                    entry["observation"],
+                    f"manual Build verification observation {entry['id']}",
+                )
+            except SourceError as error:
+                raise ValidationError(str(error)) from error
             if (
                 entry["type"] != "manual"
                 or entry["status"] != "passed"
                 or entry["procedure"] != case["procedure"]
-                or not isinstance(entry["observation"], str)
-                or not entry["observation"].strip()
+                or observation != entry["observation"]
             ):
                 raise ValidationError(
                     f"manual verification evidence does not match target: {entry['id']}"
@@ -181,618 +181,56 @@ def representation_identity(entry: dict[str, Any]) -> tuple[str, str, str]:
     return entry["path"], locator["kind"], locator.get("name", "")
 
 
-def token_ends_javascript_expression(token: tuple[str, str]) -> bool:
-    kind, value = token
-    return (
-        kind in {"identifier", "string", "template", "regex", "postfix"}
-        or token in {("punctuation", ")"), ("punctuation", "]")}
-        or (kind == "punctuation" and value.isdigit())
+def final_state_sha256(repo_root: Path, target_state: dict[str, Any]) -> str:
+    inventory = inventory_owned_paths(repo_root, target_state)
+    files = [
+        {
+            "path": path,
+            "sha256": sha256_bytes(read_regular_file_bytes(repo_root / path)),
+        }
+        for path in inventory
+    ]
+    return structured_sha256(
+        {
+            "target_state_sha256": structured_sha256(target_state),
+            "files": files,
+        }
     )
 
 
-def javascript_tokens(
-    text: str, *, mask_regular_expressions: bool = True
-) -> list[tuple[str, str]]:
-    """Tokenize the JS/TS subset needed for export and literal test locators."""
-
-    tokens: list[tuple[str, str]] = []
-    parenthesis_contexts: list[str] = []
-    regex_allowed_after_control = False
-    line_terminator_since_token = False
-    import_declaration_active = False
-    import_declaration_can_end = False
-    import_equals_active = False
-    index = 0
-    while index < len(text):
-        character = text[index]
-        if character.isspace():
-            if character in {"\n", "\r", "\u2028", "\u2029"}:
-                line_terminator_since_token = True
-            index += 1
-            continue
-        if text.startswith("//", index):
-            newline = text.find("\n", index + 2)
-            if newline == -1:
-                index = len(text)
-            else:
-                line_terminator_since_token = True
-                index = newline + 1
-            continue
-        if text.startswith("/*", index):
-            end = text.find("*/", index + 2)
-            if end == -1:
-                raise ValidationError("unterminated JavaScript block comment")
-            if any(marker in text[index : end + 2] for marker in ("\n", "\r", "\u2028", "\u2029")):
-                line_terminator_since_token = True
-            index = end + 2
-            continue
-        if (
-            import_declaration_active
-            and import_declaration_can_end
-            and line_terminator_since_token
-            and character not in {"/", "."}
-            and not (import_equals_active and character in {"(", ")"})
-            and re.match(r"(?:with|assert)\b", text[index:]) is None
-        ):
-            import_declaration_active = False
-            import_declaration_can_end = False
-            import_equals_active = False
-        is_jsx_tag_slash = (
-            mask_regular_expressions
-            and character == "/"
-            and (
-                (
-                    tokens
-                    and tokens[-1] == ("punctuation", "<")
-                    and index > 0
-                    and text[index - 1] == "<"
-                    and IDENTIFIER_PATTERN.match(text, index + 1) is not None
-                )
-                or text.startswith("/>", index)
-            )
-        )
-        if is_jsx_tag_slash:
-            tokens.append(("punctuation", "/"))
-            regex_allowed_after_control = False
-            line_terminator_since_token = False
-            index += 1
-            continue
-        if (
-            mask_regular_expressions
-            and character == "/"
-            and tokens
-            and tokens[-1] == ("punctuation", "}")
-        ):
-            raise ValidationError(
-                "ambiguous slash after closing brace in granular representation file"
-            )
-        if (
-            mask_regular_expressions
-            and character == "/"
-            and tokens
-            and tokens[-1]
-            in {("punctuation", "."), ("punctuation", "#")}
-        ):
-            raise ValidationError(
-                "unsupported slash after member punctuation in granular representation file"
-            )
-        if (
-            mask_regular_expressions
-            and character == "/"
-            and tokens
-            and tokens[-1]
-            in {("punctuation", "<"), ("punctuation", ">")}
-            and not (
-                tokens[-1] == ("punctuation", ">")
-                and len(tokens) >= 2
-                and tokens[-2] == ("punctuation", "=")
-            )
-        ):
-            raise ValidationError(
-                "ambiguous slash after angle bracket in granular representation file"
-            )
-        if mask_regular_expressions and character == "/" and (
-            not tokens
-            or regex_allowed_after_control
-            or (
-                import_declaration_active
-                and line_terminator_since_token
-            )
-            or (
-                line_terminator_since_token
-                and (
-                    tokens[-1]
-                    in {
-                        ("identifier", "break"),
-                        ("identifier", "continue"),
-                        ("identifier", "debugger"),
-                    }
-                    or (
-                        len(tokens) >= 2
-                        and tokens[-2]
-                        in {
-                            ("identifier", "break"),
-                            ("identifier", "continue"),
-                        }
-                        and tokens[-1][0] == "identifier"
-                    )
-                )
-            )
-            or (
-                tokens[-1][0] == "identifier"
-                and tokens[-1][1] in REGEX_PREFIX_IDENTIFIERS
-                and (
-                    len(tokens) < 2
-                    or tokens[-2]
-                    not in {("punctuation", "."), ("punctuation", "#")}
-                )
-            )
-            or (
-                tokens[-1] == ("identifier", "of")
-                and parenthesis_contexts
-                and parenthesis_contexts[-1] == "for"
-            )
-            or (
-                tokens[-1] == ("punctuation", ">")
-                and len(tokens) >= 2
-                and tokens[-2] == ("punctuation", "=")
-            )
-            or not token_ends_javascript_expression(tokens[-1])
-        ):
-            index += 1
-            escaped = False
-            in_character_class = False
-            while index < len(text):
-                current = text[index]
-                if current == "\n" and not escaped:
-                    raise ValidationError("unterminated JavaScript regular expression")
-                if current == "[" and not escaped:
-                    in_character_class = True
-                elif current == "]" and not escaped:
-                    in_character_class = False
-                elif current == "/" and not escaped and not in_character_class:
-                    index += 1
-                    while index < len(text) and text[index].isalpha():
-                        index += 1
-                    tokens.append(("regex", ""))
-                    regex_allowed_after_control = False
-                    line_terminator_since_token = False
-                    import_declaration_active = False
-                    import_declaration_can_end = False
-                    import_equals_active = False
-                    break
-                if current == "\\" and not escaped:
-                    escaped = True
-                else:
-                    escaped = False
-                index += 1
-            else:
-                raise ValidationError("unterminated JavaScript regular expression")
-            continue
-        if character in {"'", '"'}:
-            quote = character
-            index += 1
-            start = index
-            escaped = False
-            while index < len(text):
-                current = text[index]
-                if current == quote and not escaped:
-                    previous_token = tokens[-1] if tokens else None
-                    tokens.append(("string", text[start:index]))
-                    if import_declaration_active and previous_token in {
-                        ("identifier", "import"),
-                        ("identifier", "from"),
-                    }:
-                        import_declaration_can_end = True
-                    index += 1
-                    regex_allowed_after_control = False
-                    line_terminator_since_token = False
-                    break
-                if current == "\n" and not escaped:
-                    raise ValidationError("unterminated JavaScript string literal")
-                if current == "\\" and not escaped:
-                    escaped = True
-                else:
-                    escaped = False
-                index += 1
-            else:
-                raise ValidationError("unterminated JavaScript string literal")
-            continue
-        if character == "`":
-            index += 1
-            escaped = False
-            while index < len(text):
-                current = text[index]
-                if current == "`" and not escaped:
-                    tokens.append(("template", ""))
-                    index += 1
-                    regex_allowed_after_control = False
-                    line_terminator_since_token = False
-                    break
-                if current == "\\" and not escaped:
-                    escaped = True
-                else:
-                    escaped = False
-                index += 1
-            else:
-                raise ValidationError("unterminated JavaScript template literal")
-            continue
-        identifier = IDENTIFIER_PATTERN.match(text, index)
-        if identifier is not None:
-            identifier_value = identifier.group(0)
-            tokens.append(("identifier", identifier_value))
-            if identifier_value == "import":
-                import_declaration_active = True
-                import_declaration_can_end = False
-                import_equals_active = False
-            elif import_equals_active:
-                import_declaration_can_end = True
-            index = identifier.end()
-            regex_allowed_after_control = False
-            line_terminator_since_token = False
-            continue
-        if text.startswith(("++", "--"), index):
-            operator = text[index : index + 2]
-            kind = (
-                "postfix"
-                if tokens and token_ends_javascript_expression(tokens[-1])
-                else "prefix"
-            )
-            tokens.append((kind, operator))
-            regex_allowed_after_control = False
-            line_terminator_since_token = False
-            index += 2
-            continue
-        if (
-            character == "!"
-            and tokens
-            and (
-                tokens[-1][0]
-                in {"identifier", "string", "template", "regex", "postfix"}
-                or tokens[-1]
-                in {
-                    ("punctuation", ")"),
-                    ("punctuation", "]"),
-                    ("punctuation", "}"),
-                }
-            )
-        ):
-            # TypeScript postfix non-null assertion. Keeping it distinct from
-            # prefix `!` prevents a following division slash from being masked
-            # as a regular expression.
-            tokens.append(("postfix", "!"))
-            regex_allowed_after_control = False
-            line_terminator_since_token = False
-            index += 1
-            continue
-        if character == "(":
-            if tokens and tokens[-1] == ("identifier", "import"):
-                import_declaration_active = False
-                import_declaration_can_end = False
-                import_equals_active = False
-            elif import_equals_active:
-                import_declaration_can_end = False
-            context = (
-                tokens[-1][1]
-                if tokens
-                and tokens[-1][0] == "identifier"
-                and tokens[-1][1] in CONTROL_HEAD_IDENTIFIERS
-                and (
-                    len(tokens) < 2
-                    or tokens[-2]
-                    not in {("punctuation", "."), ("punctuation", "#")}
-                )
-                else "for"
-                if len(tokens) >= 2
-                and tokens[-2:] == [
-                    ("identifier", "for"),
-                    ("identifier", "await"),
-                ]
-                else "ordinary"
-            )
-            parenthesis_contexts.append(context)
-            regex_allowed_after_control = False
-        elif character == ")":
-            if not parenthesis_contexts:
-                raise ValidationError("unbalanced JavaScript parentheses")
-            regex_allowed_after_control = (
-                parenthesis_contexts.pop() in CONTROL_HEAD_IDENTIFIERS
-            )
-            if import_equals_active:
-                import_declaration_can_end = True
-        elif character == "." and tokens and tokens[-1] == ("identifier", "import"):
-            import_declaration_active = False
-            import_declaration_can_end = False
-            import_equals_active = False
-            regex_allowed_after_control = False
-        elif character == "." and import_equals_active:
-            import_declaration_can_end = False
-            regex_allowed_after_control = False
-        elif character == "=" and import_declaration_active:
-            import_equals_active = True
-            import_declaration_can_end = False
-            regex_allowed_after_control = False
-        elif character == ";" and import_declaration_active:
-            import_declaration_active = False
-            import_declaration_can_end = False
-            import_equals_active = False
-            regex_allowed_after_control = False
-        else:
-            regex_allowed_after_control = False
-        tokens.append(("punctuation", character))
-        line_terminator_since_token = False
-        index += 1
-    return tokens
+def extract_typescript_representations(
+    text: str,
+    mode: str,
+    path: str = "representation.tsx",
+) -> list[str]:
+    extractor = Path(__file__).with_name("extract_typescript_representations.mjs")
+    result = subprocess.run(
+        ["node", str(extractor)],
+        input=json.dumps({"mode": mode, "path": path, "text": text}),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or "representation extractor failed"
+        raise ValidationError(detail)
+    try:
+        values = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise ValidationError("representation extractor returned invalid JSON") from error
+    if not isinstance(values, list) or any(
+        not isinstance(value, str) or not value for value in values
+    ):
+        raise ValidationError("representation extractor returned invalid names")
+    return values
 
 
-def skip_balanced_parentheses(
-    tokens: list[tuple[str, str]], index: int
-) -> int | None:
-    if index >= len(tokens) or tokens[index] != ("punctuation", "("):
-        return None
-    depth = 0
-    for cursor in range(index, len(tokens)):
-        token = tokens[cursor]
-        if token == ("punctuation", "("):
-            depth += 1
-        elif token == ("punctuation", ")"):
-            depth -= 1
-            if depth == 0:
-                return cursor + 1
-    raise ValidationError("unbalanced JavaScript parentheses")
+def exported_names(text: str, path: str = "representation.tsx") -> list[str]:
+    return extract_typescript_representations(text, "exports", path)
 
 
-def exported_names(text: str) -> list[str]:
-    tokens = javascript_tokens(text)
-    names: list[str] = []
-    declaration_kinds = {
-        "const",
-        "let",
-        "var",
-        "function",
-        "class",
-        "type",
-        "interface",
-        "enum",
-        "namespace",
-        "module",
-    }
-    index = 0
-    brace_depth = 0
-    while index < len(tokens):
-        if tokens[index] == ("punctuation", "{"):
-            brace_depth += 1
-            index += 1
-            continue
-        if tokens[index] == ("punctuation", "}"):
-            brace_depth -= 1
-            if brace_depth < 0:
-                raise ValidationError("unbalanced JavaScript braces")
-            index += 1
-            continue
-        if tokens[index] != ("identifier", "export"):
-            index += 1
-            continue
-        if brace_depth != 0:
-            index += 1
-            continue
-        cursor = index + 1
-        if cursor < len(tokens) and tokens[cursor] == ("identifier", "declare"):
-            cursor += 1
-        if cursor < len(tokens) and tokens[cursor] == ("identifier", "default"):
-            index = cursor + 1
-            continue
-        if cursor < len(tokens) and tokens[cursor] == ("identifier", "async"):
-            cursor += 1
-        if (
-            cursor < len(tokens)
-            and tokens[cursor] == ("identifier", "type")
-            and cursor + 1 < len(tokens)
-            and tokens[cursor + 1] == ("punctuation", "{")
-        ):
-            cursor += 1
-        if cursor < len(tokens) and tokens[cursor][0] == "identifier":
-            declaration_kind = tokens[cursor][1]
-            if declaration_kind in {"const", "let", "var"}:
-                cursor += 1
-                expect_name = True
-                depth = 0
-                while cursor < len(tokens):
-                    token = tokens[cursor]
-                    if token == ("identifier", "export") and depth == 0:
-                        break
-                    if expect_name:
-                        if token[0] != "identifier":
-                            raise ValidationError(
-                                "granular export locator requires identifier variable declarations"
-                            )
-                        names.append(token[1])
-                        expect_name = False
-                    elif token[0] == "punctuation":
-                        if token[1] in "([{":
-                            depth += 1
-                        elif token[1] in ")]}":
-                            depth -= 1
-                        elif token[1] == "," and depth == 0:
-                            expect_name = True
-                        elif token[1] == ";" and depth == 0:
-                            cursor += 1
-                            break
-                    cursor += 1
-                if expect_name or depth != 0:
-                    raise ValidationError("unsupported granular export declaration")
-                index = cursor
-                continue
-            if (
-                declaration_kind in declaration_kinds - {"const", "let", "var"}
-                and cursor + 1 < len(tokens)
-                and tokens[cursor + 1][0] == "identifier"
-            ):
-                names.append(tokens[cursor + 1][1])
-                index = cursor + 2
-                continue
-        if cursor < len(tokens) and tokens[cursor] == ("punctuation", "{"):
-            cursor += 1
-            specifier: list[tuple[str, str]] = []
-            while cursor < len(tokens) and tokens[cursor] != ("punctuation", "}"):
-                if tokens[cursor] == ("punctuation", ","):
-                    identifiers = [
-                        value for kind, value in specifier if kind == "identifier"
-                    ]
-                    if identifiers:
-                        names.append(identifiers[-1])
-                    specifier = []
-                else:
-                    specifier.append(tokens[cursor])
-                cursor += 1
-            identifiers = [
-                value for kind, value in specifier if kind == "identifier"
-            ]
-            if identifiers:
-                names.append(identifiers[-1])
-            index = cursor + 1
-            continue
-        raise ValidationError(
-            "unsupported export syntax in granular representation file"
-        )
-    if brace_depth != 0:
-        raise ValidationError("unbalanced JavaScript braces")
-    return names
-
-
-def direct_test_runner_bindings(
-    tokens: list[tuple[str, str]],
-) -> tuple[set[str], set[int]]:
-    bindings: set[str] = set()
-    import_token_indexes: set[int] = set()
-    index = 0
-    while index < len(tokens):
-        if tokens[index] != ("identifier", "import"):
-            index += 1
-            continue
-        start = index
-        cursor = index + 1
-        if cursor >= len(tokens) or tokens[cursor] != ("punctuation", "{"):
-            index += 1
-            continue
-        cursor += 1
-        specifiers: list[list[tuple[str, str]]] = []
-        specifier: list[tuple[str, str]] = []
-        while cursor < len(tokens) and tokens[cursor] != ("punctuation", "}"):
-            if tokens[cursor] == ("punctuation", ","):
-                specifiers.append(specifier)
-                specifier = []
-            else:
-                specifier.append(tokens[cursor])
-            cursor += 1
-        if cursor >= len(tokens):
-            raise ValidationError("unterminated test runner import")
-        specifiers.append(specifier)
-        cursor += 1
-        if (
-            cursor + 1 >= len(tokens)
-            or tokens[cursor] != ("identifier", "from")
-            or tokens[cursor + 1][0] != "string"
-        ):
-            index = cursor
-            continue
-        end = cursor + 2
-        import_token_indexes.update(range(start, end))
-        if tokens[cursor + 1][1] in APPROVED_TEST_RUNNER_MODULES:
-            for entry in specifiers:
-                if len(entry) == 1 and entry[0] in {
-                    ("identifier", "test"),
-                    ("identifier", "it"),
-                }:
-                    bindings.add(entry[0][1])
-        index = end
-    return bindings, import_token_indexes
-
-
-def literal_test_case_names(text: str) -> list[str]:
-    tokens = javascript_tokens(text)
-    runner_bindings, import_token_indexes = direct_test_runner_bindings(tokens)
-    names: list[str] = []
-    for index, token in enumerate(tokens):
-        if token not in {("identifier", "test"), ("identifier", "it")}:
-            continue
-        if index in import_token_indexes:
-            continue
-        if index > 0 and tokens[index - 1] in {
-            ("punctuation", "."),
-            ("punctuation", "#"),
-        }:
-            continue
-        if token[1] not in runner_bindings:
-            continue
-        if (
-            index > 0
-            and tokens[index - 1][0] == "identifier"
-            and tokens[index - 1][1]
-            in {"const", "let", "var", "function", "class"}
-        ) or (
-            index + 1 >= len(tokens)
-            or tokens[index + 1]
-            not in {("punctuation", "("), ("punctuation", ".")}
-        ):
-            raise ValidationError(
-                f"ambiguous or shadowed test runner binding: {token[1]}"
-            )
-        cursor = index + 1
-        valid_chain = True
-        while (
-            cursor + 1 < len(tokens)
-            and tokens[cursor] == ("punctuation", ".")
-            and tokens[cursor + 1][0] == "identifier"
-        ):
-            modifier = tokens[cursor + 1][1]
-            cursor += 2
-            if modifier in FORBIDDEN_FINAL_TEST_MODIFIERS:
-                raise ValidationError(
-                    f"disabled or focused final test case is forbidden: {modifier}"
-                )
-            if modifier == "each":
-                if cursor < len(tokens) and tokens[cursor] == ("punctuation", "("):
-                    balanced = skip_balanced_parentheses(tokens, cursor)
-                    if balanced is None:
-                        valid_chain = False
-                        break
-                    arguments = tokens[cursor + 1 : balanced - 1]
-                    spread_table = any(
-                        arguments[offset : offset + 3]
-                        == [("punctuation", ".")] * 3
-                        for offset in range(max(0, len(arguments) - 2))
-                    )
-                    if (
-                        len(arguments) < 3
-                        or arguments[0] != ("punctuation", "[")
-                        or arguments[-1] != ("punctuation", "]")
-                        or arguments[1:-1] == []
-                        or spread_table
-                    ):
-                        raise ValidationError(
-                            "final test.each requires a statically non-empty array table"
-                        )
-                    cursor = balanced
-                elif cursor < len(tokens) and tokens[cursor][0] == "template":
-                    raise ValidationError(
-                        "final test.each tagged template execution count is not provable"
-                    )
-                else:
-                    valid_chain = False
-                break
-            if modifier not in ALLOWED_TEST_MODIFIERS:
-                valid_chain = False
-                break
-        if (
-            valid_chain
-            and cursor < len(tokens)
-            and tokens[cursor] == ("punctuation", "(")
-            and cursor + 1 < len(tokens)
-            and tokens[cursor + 1][0] == "string"
-        ):
-            names.append(tokens[cursor + 1][1])
-    return names
+def literal_test_case_names(text: str, path: str = "representation.tsx") -> list[str]:
+    return extract_typescript_representations(text, "tests", path)
 
 
 def validate_final_target_state(
@@ -805,7 +243,13 @@ def validate_final_target_state(
         raise ValidationError(str(error)) from error
     representations = target_state["representations"]
     target_paths = {entry["path"] for entry in representations}
-    missing_paths = sorted(path for path in target_paths if not (repo_root / path).is_file())
+    source_bytes_by_path: dict[str, bytes] = {}
+    missing_paths: list[str] = []
+    for path in sorted(target_paths):
+        try:
+            source_bytes_by_path[path] = read_regular_file_bytes(repo_root / path)
+        except (OSError, SourceError):
+            missing_paths.append(path)
     if missing_paths:
         raise ValidationError(
             "target representations are missing: " + ", ".join(missing_paths)
@@ -829,17 +273,18 @@ def validate_final_target_state(
             actual_records.append({"path": path, "locator": "file", "name": ""})
             continue
         try:
-            text = (repo_root / path).read_text(encoding="utf-8")
+            text = source_bytes_by_path[path].decode("utf-8")
         except UnicodeDecodeError as error:
             raise ValidationError(f"granular representation must be UTF-8: {path}") from error
         actual_entries: list[tuple[str, str, str]] = []
         if "export" in locator_kinds:
             actual_entries.extend(
-                (path, "export", name) for name in exported_names(text)
+                (path, "export", name) for name in exported_names(text, path)
             )
         if "test_case" in locator_kinds:
             actual_entries.extend(
-                (path, "test_case", name) for name in literal_test_case_names(text)
+                (path, "test_case", name)
+                for name in literal_test_case_names(text, path)
             )
         if len(actual_entries) != len(set(actual_entries)):
             raise ValidationError(
@@ -948,6 +393,25 @@ def load_receipt(
         raise ValidationError("Build rule coverage requires receipt schema_version 3")
     if receipt.get("workspace") != workspace:
         raise ValidationError("Design completion receipt workspace does not match")
+    target_record = receipt.get("target_state")
+    ownership_record = receipt.get("ownership_scopes")
+    if not isinstance(target_record, dict) or set(target_record) != {"sha256", "value"}:
+        raise ValidationError("Design receipt target_state record is invalid")
+    if not isinstance(ownership_record, dict) or set(ownership_record) != {
+        "sha256",
+        "value",
+    }:
+        raise ValidationError("Design receipt ownership scope record is invalid")
+    target_state = target_record["value"]
+    ownership_scopes = ownership_record["value"]
+    if target_record["sha256"] != structured_sha256(target_state):
+        raise ValidationError("Design receipt target_state hash does not match")
+    if ownership_record["sha256"] != structured_sha256(ownership_scopes):
+        raise ValidationError("Design receipt ownership scope hash does not match")
+    if not isinstance(target_state, dict) or ownership_scopes != target_state.get(
+        "ownership_scopes"
+    ):
+        raise ValidationError("Design receipt ownership scopes do not match target state")
     return receipt, receipt_bytes
 
 
@@ -984,13 +448,7 @@ def validate(
     declared_surfaces = rule_coverage["implementation_surfaces"]
     baseline_head = receipt["build_baseline"]["head"]
     target_state = receipt["target_state"]["value"]
-    if receipt["target_state"]["sha256"] != structured_sha256(target_state):
-        raise ValidationError("Design receipt target_state hash does not match")
     ownership_scopes = receipt["ownership_scopes"]["value"]
-    if receipt["ownership_scopes"]["sha256"] != structured_sha256(ownership_scopes):
-        raise ValidationError("Design receipt ownership scope hash does not match")
-    if ownership_scopes != target_state["ownership_scopes"]:
-        raise ValidationError("Design receipt ownership scopes do not match target state")
     baseline_inventory = receipt["baseline_inventory"]["value"]
     if receipt["baseline_inventory"]["sha256"] != structured_sha256(
         baseline_inventory
@@ -1021,11 +479,13 @@ def validate(
         canonical_verification_path(repo_root, workspace).relative_to(repo_root).as_posix(),
         canonical_coverage_path(repo_root, workspace).relative_to(repo_root).as_posix(),
     }
+    build_changes = [
+        change for change in all_changes if change["path"] not in workflow_paths
+    ]
     out_of_scope = [
         change["path"]
-        for change in all_changes
-        if change["path"] not in workflow_paths
-        and not any(
+        for change in build_changes
+        if not any(
             change["path"] == scope["path"]
             or (
                 scope["kind"] == "tree"
@@ -1039,24 +499,25 @@ def validate(
             "actual Build diff exceeds task-owned scope: "
             + ", ".join(sorted(out_of_scope))
         )
-    governed_changes: list[dict[str, Any]] = []
+    resolved_changes: list[dict[str, Any]] = []
     actual_surfaces: list[str] = []
     actual_path_rules: list[str] = []
-    for change in all_changes:
+    for change in build_changes:
         path = change["path"]
-        if not path_is_governed(path, routing):
-            continue
-        matched = matching_surfaces(path, routing)
-        if not matched:
-            raise ValidationError(
-                f"governed Build path has no review surface: {path}"
-            )
-        path_rules = rules_for_path(path, rules_by_id)
-        governed_changes.append(
-            {**change, "surfaces": matched, "path_rules": path_rules}
+        try:
+            resolution = resolve_path_coverage(path, routing, rules_by_id)
+        except RuleCoverageError as error:
+            raise ValidationError(str(error)) from error
+        resolved_changes.append(
+            {
+                **change,
+                "governed": resolution["governed"],
+                "surfaces": resolution["surfaces"],
+                "path_rules": resolution["path_rules"],
+            }
         )
-        actual_surfaces.extend(matched)
-        actual_path_rules.extend(path_rules)
+        actual_surfaces.extend(resolution["surfaces"])
+        actual_path_rules.extend(resolution["path_rules"])
     actual_surfaces = list(dict.fromkeys(actual_surfaces))
     undeclared = set(actual_surfaces) - set(declared_surfaces)
     if undeclared:
@@ -1097,7 +558,7 @@ def validate(
             "sha256": sha256_bytes(verification_bytes),
             "results": verification_results,
         },
-        "changes": governed_changes,
+        "changes": resolved_changes,
         "implementation_surfaces": actual_surfaces,
         "direct_rules": direct_rules,
         "checked_rules": required_rules,

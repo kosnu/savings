@@ -29,7 +29,7 @@ when_to_read:
 - Implementation context: 関連コード、ADR、policy、tests。
 - Baseline: validatorがGit `HEAD`のcanonical `design-doc.json`から取得したsection inventoryとhash。
 - Scope: 全Requirement IDのdesign/verification scopeと、全baseline sectionのreview scope。
-- Target state: schema v3の`validation.target_state`へ、最終product behavior、全Requirementを覆うverification case、有限で非重複な`ownership_scopes`、最終representationを定義する。product behaviorに`change`を置かず、automated caseはshell-free command引数列、manual caseはprocedureを持つ。Storyはmodule-level `export`、testは`test_case` locatorで機械識別する。全参照は同じRequirement owner内に閉じる。
+- Target state: schema v3の`validation.target_state`へ、最終product behavior、全Requirementを覆うverification case、有限で非重複な`ownership_scopes`、最終representationを定義する。product behaviorに`change`を置かず、automated caseはrepo allowlist（`pnpm`、Python 3、`node`、`git`、`jq`）の実行fileを使う直接command引数列、manual caseは実質的なprocedureを持つ。Storyはdefault・type-only・`const enum`を除き、import/source-backed・wildcard re-exportを拒否したruntime named module-level `export`、testは承認runnerから非aliasで直接importして静的登録された`test_case` locatorで機械識別する。全参照は同じRequirement owner内に閉じる。
 - 所有する出力: canonical `design-doc.json`、生成`design-doc.md`、検証後に固定するDesign completion receipt。
 
 ## 必須contract ID

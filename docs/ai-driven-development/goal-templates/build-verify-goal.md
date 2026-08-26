@@ -33,7 +33,7 @@ when_to_read:
 - target stateだけを実体化し、既存実装のtask-owned範囲をその完成状態へ再構成している。
 - 必要なcode、test、fixture、doc表現が同期している。
 - 対象appの必須verificationが現在diffに対して成功している。
-- 全`VC-*`にcase type別の構造化成功証拠があり、automated evidenceはDesign固定command、exit code 0、出力hashに一致し、必須representationが存在し、task-owned範囲に未登録path・export・test caseが残っていない。`test_case`はrepository承認runner `vite-plus/test`から非aliasで直接importした`test`/`it`へ登録し、同名bindingをshadowせず、`only`/`skip`/`todo`/`fails`を使わない。`each`は静的に非空なarray tableに限る。
+- repo-owned Build verification runnerが実行前のfinal inventoryと各case後のtask-owned state不変を確認して全`VC-*`のcase type別成功証拠を生成し、Design固定command、exit code 0、stream境界・byte長を固定した出力hash、同一final-state hashに一致する。必須representationが存在し、task-owned範囲に未登録path・runtime named export・test caseが残っていない。default・type-only・`const enum`を除外し、import/source-backed・wildcard re-export、runnerのalias・namespace・default/dynamic import、到達不能登録を拒否する。`test_case`はrepository承認runner `vite-plus/test`から非aliasで直接importした`test`/`it`をmodule level、または同じrunnerから非aliasで直接importした`describe`のinline callbackへ登録する。同名bindingをshadowせず、suite/caseに`only`/`skip`/`todo`/`fails`を使わない。`each`は静的に非空なarray tableに限る。
 - receiptのGit基準点から実際の変更pathを分類し、全変更がownership scopeまたは固定workflow evidence path内にあり、path ruleと依存closureを含むcanonical Build rule coverage recordに未解決がない。
 - Build entry gateを再実行し、Goalへ記録したreceipt SHA-256と一致している。
 - 未解消のlint、type、test、整合性、scope漏れがない。

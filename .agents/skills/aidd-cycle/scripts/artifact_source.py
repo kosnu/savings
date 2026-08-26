@@ -129,6 +129,7 @@ DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}")
 MAX_SOURCE_BYTES = 16 * 1024 * 1024
 EVIDENCE_ROLES = {"design", "verification", "baseline"}
 MIN_SUBSTANTIVE_TEXT_LENGTH = 8
+APPROVED_COMMAND_EXECUTABLES = {"git", "jq", "node", "pnpm", "python3"}
 GOAL_REQUIRED_CONTRACT = {
     "requirements_goal": {
         "constraints": (
@@ -326,6 +327,25 @@ def require_substantive_inline_text(value: Any, label: str) -> str:
             f"{MIN_SUBSTANTIVE_TEXT_LENGTH} substantive characters"
         )
     return text
+
+
+def require_shell_free_command(value: Any, label: str) -> list[str]:
+    command = require_string_array(value, label)
+    if not command:
+        raise SourceError(f"{label} must be non-empty")
+    executable = command[0].lower()
+    if executable not in APPROVED_COMMAND_EXECUTABLES:
+        raise SourceError(
+            f"{label} executable is not approved for repository verification"
+        )
+    if any(
+        not argument or argument != argument.strip() or any(
+            character in argument for character in ("\x00", "\n", "\r")
+        )
+        for argument in command
+    ):
+        raise SourceError(f"{label} must contain exact single-line argv values")
+    return command
 
 
 def require_object_keys(value: Any, expected: set[str], label: str) -> dict[str, Any]:
@@ -916,9 +936,49 @@ def validate_repository_relative_path(value: Any, label: str) -> str:
         part in {"", ".", ".."} for part in parsed.parts
     ):
         raise SourceError(f"{label} must be a normalized repository-relative path")
-    if parsed.parts[0] in {".git", ".hg", ".svn"}:
+    if any(part in {".git", ".hg", ".svn"} for part in parsed.parts):
         raise SourceError(f"{label} must not target version-control metadata")
     return path
+
+
+def require_repository_path_without_symlinks(
+    repo_root: Path,
+    relative_path: str,
+    label: str,
+) -> Path:
+    normalized = validate_repository_relative_path(relative_path, label)
+    absolute_root = Path(os.path.abspath(repo_root))
+    if absolute_root != absolute_root.resolve():
+        raise SourceError("repo-root must not contain symlinks")
+    current = absolute_root
+    for part in PurePosixPath(normalized).parts:
+        current /= part
+        if not os.path.lexists(current):
+            break
+        if current.is_symlink():
+            raise SourceError(f"{label} must not contain symlinks: {normalized}")
+    return absolute_root / normalized
+
+
+def canonical_workspace_path(
+    repo_root: Path,
+    workspace: str,
+    relative_path: str,
+) -> Path:
+    validate_workspace_name(workspace)
+    suffix = validate_repository_relative_path(relative_path, "workspace-relative path")
+    canonical_relative = (
+        PurePosixPath("docs")
+        / "ai-driven-development"
+        / "workspaces"
+        / workspace
+        / suffix
+    ).as_posix()
+    return require_repository_path_without_symlinks(
+        repo_root,
+        canonical_relative,
+        "canonical workspace path",
+    )
 
 
 def path_is_within_scope(path: str, scope: dict[str, str]) -> bool:
@@ -934,11 +994,11 @@ def inventory_owned_paths(repo_root: Path, target_state: dict[str, Any]) -> list
     paths: list[str] = []
     for scope in target_state["ownership_scopes"]:
         relative = scope["path"]
-        absolute = repo_root / relative
+        absolute = require_repository_path_without_symlinks(
+            repo_root, relative, "ownership scope"
+        )
         if not os.path.lexists(absolute):
             continue
-        if absolute.is_symlink():
-            raise SourceError(f"ownership scope must not be a symlink: {relative}")
         if scope["kind"] == "file":
             if not absolute.is_file():
                 raise SourceError(f"file ownership scope is not a regular file: {relative}")
@@ -1033,11 +1093,9 @@ def validate_target_state(value: Any, requirement_ids: list[str]) -> dict[str, A
         if case_type not in {"automated", "manual"}:
             raise SourceError(f"{label}.type is unsupported")
         if case_type == "automated":
-            command = require_string_array(entry["command"], f"{label}.command")
-            if not command:
-                raise SourceError(f"{label}.command must be non-empty")
+            require_shell_free_command(entry["command"], f"{label}.command")
         else:
-            require_inline_markdown(entry["procedure"], f"{label}.procedure")
+            require_substantive_inline_text(entry["procedure"], f"{label}.procedure")
         requirement_id = require_string(entry["requirement_id"], f"{label}.requirement_id")
         if requirement_id not in requirement_ids:
             raise SourceError(f"{label}.requirement_id must reference a covered requirement")

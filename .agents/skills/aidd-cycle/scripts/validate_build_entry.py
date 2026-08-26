@@ -16,6 +16,7 @@ sys.dont_write_bytecode = True
 from artifact_source import (
     SCHEMA_VERSION,
     SourceError,
+    canonical_workspace_path,
     canonical_display_path,
     canonical_source_path,
     decode_source_json,
@@ -81,13 +82,10 @@ def current_git_head(repo_root: Path) -> str:
 
 
 def canonical_receipt_path(repo_root: Path, workspace: str) -> Path:
-    return (
-        repo_root
-        / "docs"
-        / "ai-driven-development"
-        / "workspaces"
-        / workspace
-        / RECEIPT_RELATIVE_PATH
+    return canonical_workspace_path(
+        repo_root,
+        workspace,
+        RECEIPT_RELATIVE_PATH.as_posix(),
     )
 
 

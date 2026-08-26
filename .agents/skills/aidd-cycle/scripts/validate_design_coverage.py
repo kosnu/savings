@@ -45,9 +45,7 @@ from validate_requirements_goal import (
 from rule_coverage import (
     RuleCoverageError,
     expand_rule_closure,
-    matching_surfaces,
-    path_is_governed,
-    rules_for_path,
+    resolve_path_coverage,
     rules_for_surfaces,
     surface_ids as canonical_surface_ids,
     validate_review_routing,
@@ -539,12 +537,12 @@ def validate_target_rule_coverage(
     expected_surface_set: set[str] = set()
     path_rule_set: set[str] = set()
     for path in relevant_paths:
-        if path_is_governed(path, routing):
-            matched = matching_surfaces(path, routing)
-            if not matched:
-                raise ValidationError(f"task-owned governed path has no review surface: {path}")
-            expected_surface_set.update(matched)
-        path_rule_set.update(rules_for_path(path, rules_by_id))
+        try:
+            resolution = resolve_path_coverage(path, routing, rules_by_id)
+        except RuleCoverageError as error:
+            raise ValidationError(str(error)) from error
+        expected_surface_set.update(resolution["surfaces"])
+        path_rule_set.update(resolution["path_rules"])
     known_surfaces = canonical_surface_ids(routing)
     expected_surfaces = [
         surface for surface in known_surfaces if surface in expected_surface_set

@@ -16,9 +16,11 @@ from test_validate_design_coverage import WORKSPACE, design_goal_source, design_
 from validate_build_entry import canonical_receipt_path, validate_or_capture
 from validate_build_rule_coverage import (
     COVERAGE_SCHEMA_VERSION,
+    VERIFICATION_GENERATOR,
     ValidationError,
     canonical_verification_path,
     exported_names,
+    final_state_sha256,
     literal_test_case_names,
     validate,
 )
@@ -90,6 +92,16 @@ def write_default_target(repo_root: Path) -> None:
 def write_verification(repo_root: Path, receipt_sha256: str) -> None:
     path = canonical_verification_path(repo_root, WORKSPACE)
     path.parent.mkdir(parents=True, exist_ok=True)
+    design = json.loads(
+        (
+            repo_root
+            / "docs"
+            / "ai-driven-development"
+            / "workspaces"
+            / WORKSPACE
+            / "design-doc.json"
+        ).read_text(encoding="utf-8")
+    )
     path.write_text(
         json.dumps(
             {
@@ -97,6 +109,10 @@ def write_verification(repo_root: Path, receipt_sha256: str) -> None:
                 "kind": "build_verification",
                 "workspace": WORKSPACE,
                 "receipt_sha256": receipt_sha256,
+                "final_state_sha256": final_state_sha256(
+                    repo_root, design["validation"]["target_state"]
+                ),
+                "generator": VERIFICATION_GENERATOR,
                 "results": [
                     {
                         "id": "VC-1",
@@ -104,6 +120,8 @@ def write_verification(repo_root: Path, receipt_sha256: str) -> None:
                         "status": "passed",
                         "command": ["python3", "-c", "raise SystemExit(0)"],
                         "exit_code": 0,
+                        "stdout_bytes": 0,
+                        "stderr_bytes": 0,
                         "output_sha256": "0" * 64,
                     },
                     {
@@ -112,6 +130,8 @@ def write_verification(repo_root: Path, receipt_sha256: str) -> None:
                         "status": "passed",
                         "command": ["python3", "-c", "raise SystemExit(0)"],
                         "exit_code": 0,
+                        "stdout_bytes": 0,
+                        "stderr_bytes": 0,
                         "output_sha256": "0" * 64,
                     },
                 ],
@@ -183,6 +203,111 @@ def write_changed_file(repo_root: Path, relative_path: str) -> None:
 
 
 class BuildRuleCoverageTest(unittest.TestCase):
+    def test_repository_runner_captures_automated_verification(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            receipt_sha256 = capture(repo_root)
+            verification_path = canonical_verification_path(repo_root, WORKSPACE)
+            verification_path.unlink()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    os.fspath(Path(__file__).with_name("capture_build_verification.py")),
+                    "--repo-root",
+                    os.fspath(repo_root),
+                    "--workspace",
+                    WORKSPACE,
+                    "--expected-receipt-sha256",
+                    receipt_sha256,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            evidence = json.loads(verification_path.read_text(encoding="utf-8"))
+            self.assertEqual(evidence["generator"], VERIFICATION_GENERATOR)
+            empty_output_frame = b"AIDD-output-v1\0" + (0).to_bytes(
+                8, "big"
+            ) * 2
+            self.assertEqual(
+                evidence["results"][0]["output_sha256"],
+                hashlib.sha256(empty_output_frame).hexdigest(),
+            )
+            self.assertEqual(evidence["results"][0]["stderr_bytes"], 0)
+            self.assertTrue(all(entry["status"] == "passed" for entry in evidence["results"]))
+
+    def test_repository_runner_rejects_verification_that_mutates_final_state(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            goal_path = write_design_goal(repo_root)
+            mutating_command = [
+                "python3",
+                "-c",
+                "from pathlib import Path; Path('apps/web/feature.ts').write_text('changed')",
+            ]
+            goal = json.loads(goal_path.read_text(encoding="utf-8"))
+            goal["validation"]["target_state"]["verification_cases"][0]["command"] = (
+                mutating_command
+            )
+            goal_path.write_text(serialize_source(goal), encoding="utf-8")
+            design_path = (
+                repo_root
+                / "docs"
+                / "ai-driven-development"
+                / "workspaces"
+                / WORKSPACE
+                / "design-doc.json"
+            )
+            design = json.loads(design_path.read_text(encoding="utf-8"))
+            design["validation"]["target_state"]["verification_cases"][0]["command"] = (
+                mutating_command
+            )
+            design_path.write_text(serialize_source(design), encoding="utf-8")
+            design_path.with_name("design-doc.md").write_text(
+                render_artifact_markdown(design), encoding="utf-8"
+            )
+            receipt_sha256 = capture(repo_root, goal_path)
+            verification_path = canonical_verification_path(repo_root, WORKSPACE)
+            verification_path.unlink()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    os.fspath(Path(__file__).with_name("capture_build_verification.py")),
+                    "--repo-root",
+                    os.fspath(repo_root),
+                    "--workspace",
+                    WORKSPACE,
+                    "--expected-receipt-sha256",
+                    receipt_sha256,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("modified the task-owned final state", result.stderr)
+            self.assertFalse(verification_path.exists())
+
+    def test_rejects_verification_captured_for_stale_final_state(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            receipt_sha256 = capture(repo_root)
+            (repo_root / "apps/web/feature.ts").write_text(
+                "export const changed = false;\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValidationError, "current final state"):
+                validate(repo_root, WORKSPACE, receipt_sha256)
+
     def test_cli_relative_repo_root_does_not_write_bytecode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -262,15 +387,13 @@ class BuildRuleCoverageTest(unittest.TestCase):
 
         self.assertEqual(exported_names(text), ["Actual"])
         self.assertEqual(literal_test_case_names(text), ["Actual test"])
-        self.assertEqual(
+        with self.assertRaisesRegex(ValidationError, "must not be aliased"):
             literal_test_case_names(
                 'import { test as runner } from "vite-plus/test";\n'
                 'const test = (_name, _fn) => {};\n'
                 'runner("real smoke", () => {});\n'
                 'test("VC target", () => {});'
-            ),
-            [],
-        )
+            )
         with self.assertRaisesRegex(ValidationError, "shadowed"):
             literal_test_case_names(
                 'import { test } from "vite-plus/test";\n'
@@ -442,17 +565,74 @@ class BuildRuleCoverageTest(unittest.TestCase):
             ),
             ["A1", "A4"],
         )
-        with self.assertRaisesRegex(ValidationError, "ambiguous slash"):
+        self.assertEqual(
             exported_names(
                 "type N<T> = number; const value = 4; "
                 "export const A1 = value as N<number> / 2; "
                 "export const A4 = {}; /pattern/.test(1);"
-            )
-        with self.assertRaisesRegex(ValidationError, "ambiguous slash"):
+            ),
+            ["A1", "A4"],
+        )
+        self.assertEqual(
             exported_names(
                 "export const A1 = value < /pattern/.test(input); "
                 "export const A4 = {};"
-            )
+            ),
+            ["A1", "A4"],
+        )
+
+    def test_runtime_export_inventory_excludes_type_only_exports(self) -> None:
+        self.assertEqual(
+            exported_names(
+                "export type Story = {}; export interface Other {}; "
+                "const Runtime = {}; export { type Story, Runtime };"
+            ),
+            ["Runtime"],
+        )
+
+    def test_runtime_export_inventory_rejects_wildcard_reexports(self) -> None:
+        for source in (
+            'export * from "./other";',
+            'export * as Other from "./other";',
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(
+                ValidationError, "wildcard re-exports"
+            ):
+                exported_names(source)
+
+    def test_runtime_export_inventory_rejects_source_and_import_backed_reexports(self) -> None:
+        for source in (
+            'export { Runtime } from "./other";',
+            'import { Runtime } from "./other"; export { Runtime };',
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(
+                ValidationError, "re-export"
+            ):
+                exported_names(source)
+
+    def test_runtime_export_inventory_skips_default_and_local_type_exports(self) -> None:
+        self.assertEqual(
+            exported_names(
+                "interface Props {} export { Props }; "
+                "const Runtime = {}; export { Runtime }; export default {};"
+            ),
+            ["Runtime"],
+        )
+        self.assertEqual(
+            exported_names(
+                "export const enum CompileTime { A } export enum Runtime { A }"
+            ),
+            ["Runtime"],
+        )
+
+    def test_typescript_representation_uses_ts_parser_mode(self) -> None:
+        self.assertEqual(
+            exported_names(
+                "export const identity = <T>(value: T) => value;",
+                "apps/web/identity.ts",
+            ),
+            ["identity"],
+        )
 
     def test_finds_literal_test_cases_in_tsx(self) -> None:
         self.assertEqual(
@@ -462,6 +642,54 @@ class BuildRuleCoverageTest(unittest.TestCase):
             ),
             ["renders"],
         )
+
+    def test_rejects_tests_that_are_not_statically_registered(self) -> None:
+        for body in (
+            'if (false) test("hidden", () => {});',
+            'function register() { test("hidden", () => {}); }',
+            'describe.skip("hidden", () => { test("hidden", () => {}); });',
+            'test("outer", () => { test("hidden", () => {}); });',
+        ):
+            with self.subTest(body=body), self.assertRaises(ValidationError):
+                literal_test_case_names(
+                    'import { describe, test } from "vite-plus/test";\n' + body
+                )
+
+    def test_rejects_aliased_namespace_and_unimported_runner_calls(self) -> None:
+        for source in (
+            'import { test as hidden } from "vite-plus/test"; hidden("x", () => {});',
+            'import * as runner from "vite-plus/test"; runner.test("x", () => {});',
+            'import { test } from "vite-plus/test"; test["skip"]("x", () => {});',
+            'import { test } from "vite-plus/test"; const hidden = test; hidden("x", () => {});',
+            'const runner = await import("vite-plus/test"); runner.test("x", () => {});',
+            'test("x", () => {});',
+        ):
+            with self.subTest(source=source), self.assertRaises(ValidationError):
+                literal_test_case_names(source)
+
+    def test_accepts_tests_in_direct_describe_callback(self) -> None:
+        self.assertEqual(
+            literal_test_case_names(
+                'import { describe, test } from "vite-plus/test";\n'
+                'describe("group", () => { test("registered", () => {}); });'
+            ),
+            ["registered"],
+        )
+
+    def test_rejects_unreachable_tests_in_direct_describe_callback(self) -> None:
+        for body in (
+            'return; test("hidden", () => {});',
+            'if (condition) return; test("hidden", () => {});',
+            'throw new Error("stop"); test("hidden", () => {});',
+        ):
+            source = (
+                'import { describe, test } from "vite-plus/test";\n'
+                f'describe("group", () => {{ {body} }});'
+            )
+            with self.subTest(body=body), self.assertRaisesRegex(
+                ValidationError, "unreachable"
+            ):
+                literal_test_case_names(source)
 
     def test_rejects_unlisted_story_export_until_final_state_is_materialized(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -558,6 +786,7 @@ class BuildRuleCoverageTest(unittest.TestCase):
                 "export const A1 = {};\nexport const A2 = {};\nexport const A3 = {};\n",
                 encoding="utf-8",
             )
+            write_verification(repo_root, receipt_sha256)
             record = validate(repo_root, WORKSPACE, receipt_sha256)
             self.assertEqual(
                 [entry["name"] for entry in record["representations"]],
@@ -614,6 +843,14 @@ class BuildRuleCoverageTest(unittest.TestCase):
 
             with self.assertRaisesRegex(ValidationError, "invalid keys"):
                 validate(repo_root, WORKSPACE, receipt_sha256)
+
+    def test_rejects_noncanonical_workspace_before_build_output_resolution(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+
+            with self.assertRaisesRegex(Exception, "workspace"):
+                canonical_verification_path(repo_root, "../outside")
 
     def test_accepts_actual_diff_covered_by_design_surface(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -672,6 +909,42 @@ class BuildRuleCoverageTest(unittest.TestCase):
                 record["checked_rules"],
                 ["ai-driven.workflow", "policy.extra"],
             )
+
+    def test_ungoverned_build_path_still_resolves_path_specific_rules(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
+            rule_map = json.loads(rule_map_path.read_text(encoding="utf-8"))
+            rule_map["review_routing"]["governed_paths"] = ["apps/api/**"]
+            rule_map_path.write_text(
+                json.dumps(rule_map, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            set_rule_paths(repo_root, "policy.extra", ["apps/web/feature.ts"])
+            goal_path = set_design_surfaces(
+                repo_root,
+                [],
+                additional_rules=[
+                    {
+                        "id": "policy.extra",
+                        "reason": "ungoverned pathにも固有ruleが適用されるため。",
+                    }
+                ],
+            )
+            receipt_sha256 = capture(repo_root, goal_path)
+
+            record = validate(repo_root, WORKSPACE, receipt_sha256)
+
+            feature_change = next(
+                change
+                for change in record["changes"]
+                if change["path"] == "apps/web/feature.ts"
+            )
+            self.assertFalse(feature_change["governed"])
+            self.assertEqual(feature_change["surfaces"], [])
+            self.assertEqual(feature_change["path_rules"], ["policy.extra"])
+            self.assertIn("policy.extra", record["checked_rules"])
 
     def test_rejects_surface_found_only_in_actual_diff(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -732,6 +1005,54 @@ class BuildRuleCoverageTest(unittest.TestCase):
 
 
 class CanonicalRoutingTest(unittest.TestCase):
+    def test_rejects_ambiguous_double_star_rule_pattern(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        rule_map = json.loads(
+            (repo_root / "docs" / "harness" / "rule-map.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rules_by_id = validate_rule_map(rule_map)
+        rules_by_id["policy.code-review"]["applies_to"]["paths"] = [
+            "apps/**foo/*.tsx"
+        ]
+
+        with self.assertRaisesRegex(Exception, "complete path segment"):
+            validate_review_routing(rule_map, rules_by_id)
+
+    def test_rejects_malformed_character_class_rule_pattern(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        rule_map = json.loads(
+            (repo_root / "docs" / "harness" / "rule-map.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rules_by_id = validate_rule_map(rule_map)
+        rules_by_id["policy.code-review"]["applies_to"]["paths"] = ["apps/["]
+
+        with self.assertRaisesRegex(Exception, "character class"):
+            validate_review_routing(rule_map, rules_by_id)
+
+    def test_double_star_matches_zero_or_more_directories(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        rule_map = json.loads(
+            (repo_root / "docs" / "harness" / "rule-map.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        routing = validate_review_routing(rule_map, validate_rule_map(rule_map))
+
+        self.assertIn(
+            "web-storybook",
+            matching_surfaces("apps/web/src/Button.stories.tsx", routing),
+        )
+        self.assertIn(
+            "web-storybook",
+            matching_surfaces(
+                "apps/web/src/components/Button/Button.stories.tsx", routing
+            ),
+        )
+
     def test_web_tsx_surface_requires_design_rules(self) -> None:
         repo_root = Path(__file__).resolve().parents[4]
         rule_map = json.loads(
