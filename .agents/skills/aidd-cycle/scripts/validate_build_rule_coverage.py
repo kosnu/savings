@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import re
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -45,7 +46,8 @@ from validate_requirements_goal import validate_rule_map
 COVERAGE_SCHEMA_VERSION = 3
 COVERAGE_RELATIVE_PATH = Path(".aidd") / "build-rule-coverage.json"
 VERIFICATION_RELATIVE_PATH = Path(".aidd") / "build-verification.json"
-VERIFICATION_GENERATOR = "capture_build_verification.py/v2"
+VERIFICATION_GENERATOR = "capture_build_verification.py/v3"
+OWNED_STATE_MANIFEST_VERSION = 1
 
 
 class ValidationError(ValueError):
@@ -181,32 +183,43 @@ def representation_identity(entry: dict[str, Any]) -> tuple[str, str, str]:
     return entry["path"], locator["kind"], locator.get("name", "")
 
 
-def final_state_sha256(repo_root: Path, target_state: dict[str, Any]) -> str:
+def owned_state_manifest(
+    repo_root: Path,
+    target_state: dict[str, Any],
+) -> dict[str, Any]:
     inventory = inventory_owned_paths(repo_root, target_state)
     files = [
         {
             "path": path,
+            "type": "regular",
+            "git_mode": (
+                "100755"
+                if (repo_root / path).stat().st_mode & stat.S_IXUSR
+                else "100644"
+            ),
             "sha256": sha256_bytes(read_regular_file_bytes(repo_root / path)),
         }
         for path in inventory
     ]
-    return structured_sha256(
-        {
-            "target_state_sha256": structured_sha256(target_state),
-            "files": files,
-        }
-    )
+    return {
+        "version": OWNED_STATE_MANIFEST_VERSION,
+        "target_state_sha256": structured_sha256(target_state),
+        "files": files,
+    }
+
+
+def final_state_sha256(repo_root: Path, target_state: dict[str, Any]) -> str:
+    return structured_sha256(owned_state_manifest(repo_root, target_state))
 
 
 def extract_typescript_representations(
     text: str,
-    mode: str,
     path: str = "representation.tsx",
-) -> list[str]:
+) -> dict[str, list[str]]:
     extractor = Path(__file__).with_name("extract_typescript_representations.mjs")
     result = subprocess.run(
         ["node", str(extractor)],
-        input=json.dumps({"mode": mode, "path": path, "text": text}),
+        input=json.dumps({"path": path, "text": text}),
         capture_output=True,
         text=True,
         check=False,
@@ -215,22 +228,33 @@ def extract_typescript_representations(
         detail = result.stderr.strip() or "representation extractor failed"
         raise ValidationError(detail)
     try:
-        values = json.loads(result.stdout)
+        inventory = json.loads(result.stdout)
     except json.JSONDecodeError as error:
         raise ValidationError("representation extractor returned invalid JSON") from error
-    if not isinstance(values, list) or any(
-        not isinstance(value, str) or not value for value in values
+    if (
+        not isinstance(inventory, dict)
+        or set(inventory) != {"schema_version", "exports", "test_cases"}
+        or inventory["schema_version"] != 1
     ):
-        raise ValidationError("representation extractor returned invalid names")
-    return values
+        raise ValidationError("representation extractor returned invalid inventory")
+    for key in ("exports", "test_cases"):
+        values = inventory[key]
+        if not isinstance(values, list) or any(
+            not isinstance(value, str) or not value for value in values
+        ):
+            raise ValidationError("representation extractor returned invalid names")
+    return {
+        "exports": inventory["exports"],
+        "test_cases": inventory["test_cases"],
+    }
 
 
 def exported_names(text: str, path: str = "representation.tsx") -> list[str]:
-    return extract_typescript_representations(text, "exports", path)
+    return extract_typescript_representations(text, path)["exports"]
 
 
 def literal_test_case_names(text: str, path: str = "representation.tsx") -> list[str]:
-    return extract_typescript_representations(text, "tests", path)
+    return extract_typescript_representations(text, path)["test_cases"]
 
 
 def validate_final_target_state(
@@ -276,16 +300,11 @@ def validate_final_target_state(
             text = source_bytes_by_path[path].decode("utf-8")
         except UnicodeDecodeError as error:
             raise ValidationError(f"granular representation must be UTF-8: {path}") from error
-        actual_entries: list[tuple[str, str, str]] = []
-        if "export" in locator_kinds:
-            actual_entries.extend(
-                (path, "export", name) for name in exported_names(text, path)
-            )
-        if "test_case" in locator_kinds:
-            actual_entries.extend(
-                (path, "test_case", name)
-                for name in literal_test_case_names(text, path)
-            )
+        inventory = extract_typescript_representations(text, path)
+        actual_entries = [
+            *((path, "export", name) for name in inventory["exports"]),
+            *((path, "test_case", name) for name in inventory["test_cases"]),
+        ]
         if len(actual_entries) != len(set(actual_entries)):
             raise ValidationError(
                 f"granular representation locators must be unique in {path}"

@@ -144,6 +144,8 @@ function runtimeExports(program) {
     }
     for (const specifier of statement.specifiers ?? []) {
       if (specifier.exportKind === "type") continue;
+      const exportedName = specifier.exported.name ?? specifier.exported.value;
+      if (exportedName === "default") continue;
       if (!statement.source) {
         const localName = specifier.local?.name ?? specifier.local?.value;
         if (typeBindings.has(localName) && !valueBindings.has(localName)) continue;
@@ -154,7 +156,7 @@ function runtimeExports(program) {
           fail(`unresolved local export binding: ${localName}`);
         }
       }
-      names.push(specifier.exported.name ?? specifier.exported.value);
+      names.push(exportedName);
     }
   }
   return names;
@@ -339,6 +341,13 @@ function parseTestCall(call, testBindings) {
     }
   }
   const title = requireLiteralTitle(call, "final test case");
+  const callback = call.arguments[1];
+  if (
+    !callback ||
+    !["ArrowFunctionExpression", "FunctionExpression"].includes(callback.type)
+  ) {
+    fail("final test case requires an inline function callback");
+  }
   if (
     call.arguments
       .slice(1)
@@ -373,8 +382,8 @@ function parseSuiteCall(call, suiteBindings) {
 function registeredTestCases(program) {
   const { tests, suites } = directRunnerImports(program);
   const runnerNames = new Set([...tests, ...suites]);
-  const reservedRunnerNames = new Set(["test", "it", "describe"]);
-  rejectShadowedBindings(program, reservedRunnerNames);
+  if (runnerNames.size === 0) return [];
+  rejectShadowedBindings(program, runnerNames);
   const names = [];
 
   function inspectStatements(statements) {
@@ -383,7 +392,7 @@ function registeredTestCases(program) {
       if (["ImportDeclaration", "EmptyStatement"].includes(statement.type)) continue;
       if (
         registrationMayBeTerminated &&
-        containsRunnerReference(statement, reservedRunnerNames)
+        containsRunnerReference(statement, runnerNames)
       ) {
         fail("final test registration must not be unreachable");
       }
@@ -402,7 +411,7 @@ function registeredTestCases(program) {
           continue;
         }
       }
-      if (containsRunnerReference(statement, reservedRunnerNames)) {
+      if (containsRunnerReference(statement, runnerNames)) {
         fail("final test registration must be top-level or inside a direct describe callback");
       }
       if (containsAbruptCompletion(statement)) registrationMayBeTerminated = true;
@@ -427,10 +436,9 @@ try {
 if (
   !input ||
   typeof input.text !== "string" ||
-  typeof input.path !== "string" ||
-  !["exports", "tests"].includes(input.mode)
+  typeof input.path !== "string"
 ) {
-  fail("extractor input requires text, path, and mode");
+  fail("extractor input requires text and path");
 }
 
 const extension = input.path.toLowerCase().match(/\.(?:[cm]?ts|tsx|[cm]?js|jsx)$/)?.[0];
@@ -448,7 +456,9 @@ const result = parseSync(input.path, input.text, {
   showSemanticErrors: true,
 });
 if (result.errors.length > 0) fail(result.errors[0].message);
-const values = input.mode === "exports"
-  ? runtimeExports(result.program)
-  : registeredTestCases(result.program);
-process.stdout.write(`${JSON.stringify(values)}\n`);
+const inventory = {
+  schema_version: 1,
+  exports: runtimeExports(result.program),
+  test_cases: registeredTestCases(result.program),
+};
+process.stdout.write(`${JSON.stringify(inventory)}\n`);

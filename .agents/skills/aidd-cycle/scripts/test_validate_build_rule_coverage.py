@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from collections.abc import Callable
 from pathlib import Path
 
 from artifact_source import serialize_source
@@ -196,6 +197,30 @@ def set_design_surfaces(
     return goal_path
 
 
+def update_target_state(
+    repo_root: Path,
+    goal_path: Path,
+    update: Callable[[dict[str, object]], None],
+) -> None:
+    design_path = (
+        repo_root
+        / "docs"
+        / "ai-driven-development"
+        / "workspaces"
+        / WORKSPACE
+        / "design-doc.json"
+    )
+    for path in (design_path, goal_path):
+        source = json.loads(path.read_text(encoding="utf-8"))
+        update(source["validation"]["target_state"])
+        path.write_text(serialize_source(source), encoding="utf-8")
+        if path == design_path:
+            path.with_name("design-doc.md").write_text(
+                render_artifact_markdown(source),
+                encoding="utf-8",
+            )
+
+
 def write_changed_file(repo_root: Path, relative_path: str) -> None:
     path = repo_root / relative_path
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -295,6 +320,45 @@ class BuildRuleCoverageTest(unittest.TestCase):
             self.assertIn("modified the task-owned final state", result.stderr)
             self.assertFalse(verification_path.exists())
 
+    def test_repository_runner_rejects_verification_that_changes_executable_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            goal_path = write_design_goal(repo_root)
+            chmod_command = [
+                "python3",
+                "-c",
+                "from pathlib import Path; Path('apps/web/feature.ts').chmod(0o755)",
+            ]
+
+            def set_command(target_state: dict[str, object]) -> None:
+                target_state["verification_cases"][0]["command"] = chmod_command
+
+            update_target_state(repo_root, goal_path, set_command)
+            receipt_sha256 = capture(repo_root, goal_path)
+            verification_path = canonical_verification_path(repo_root, WORKSPACE)
+            verification_path.unlink()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    os.fspath(Path(__file__).with_name("capture_build_verification.py")),
+                    "--repo-root",
+                    os.fspath(repo_root),
+                    "--workspace",
+                    WORKSPACE,
+                    "--expected-receipt-sha256",
+                    receipt_sha256,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("modified the task-owned final state", result.stderr)
+            self.assertFalse(verification_path.exists())
+
     def test_rejects_verification_captured_for_stale_final_state(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -304,6 +368,16 @@ class BuildRuleCoverageTest(unittest.TestCase):
                 "export const changed = false;\n",
                 encoding="utf-8",
             )
+
+            with self.assertRaisesRegex(ValidationError, "current final state"):
+                validate(repo_root, WORKSPACE, receipt_sha256)
+
+    def test_rejects_verification_captured_before_executable_mode_change(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            receipt_sha256 = capture(repo_root)
+            (repo_root / "apps/web/feature.ts").chmod(0o755)
 
             with self.assertRaisesRegex(ValidationError, "current final state"):
                 validate(repo_root, WORKSPACE, receipt_sha256)
@@ -614,7 +688,8 @@ class BuildRuleCoverageTest(unittest.TestCase):
         self.assertEqual(
             exported_names(
                 "interface Props {} export { Props }; "
-                "const Runtime = {}; export { Runtime }; export default {};"
+                "const Runtime = {}; const Aliased = {}; "
+                "export { Runtime, Aliased as default }; export default {};"
             ),
             ["Runtime"],
         )
@@ -655,17 +730,33 @@ class BuildRuleCoverageTest(unittest.TestCase):
                     'import { describe, test } from "vite-plus/test";\n' + body
                 )
 
-    def test_rejects_aliased_namespace_and_unimported_runner_calls(self) -> None:
+    def test_rejects_aliased_and_namespace_runner_calls(self) -> None:
         for source in (
             'import { test as hidden } from "vite-plus/test"; hidden("x", () => {});',
             'import * as runner from "vite-plus/test"; runner.test("x", () => {});',
             'import { test } from "vite-plus/test"; test["skip"]("x", () => {});',
             'import { test } from "vite-plus/test"; const hidden = test; hidden("x", () => {});',
             'const runner = await import("vite-plus/test"); runner.test("x", () => {});',
-            'test("x", () => {});',
         ):
             with self.subTest(source=source), self.assertRaises(ValidationError):
                 literal_test_case_names(source)
+
+    def test_ignores_calls_without_an_approved_runner_import(self) -> None:
+        self.assertEqual(literal_test_case_names('test("x", () => {});'), [])
+
+    def test_rejects_test_cases_without_inline_function_callbacks(self) -> None:
+        for call in (
+            'test("missing");',
+            'test("non-function", callback);',
+            'test.each([1])("missing each");',
+        ):
+            with self.subTest(call=call), self.assertRaisesRegex(
+                ValidationError,
+                "inline function callback",
+            ):
+                literal_test_case_names(
+                    'import { test } from "vite-plus/test";\n' + call
+                )
 
     def test_accepts_tests_in_direct_describe_callback(self) -> None:
         self.assertEqual(
@@ -690,6 +781,85 @@ class BuildRuleCoverageTest(unittest.TestCase):
                 ValidationError, "unreachable"
             ):
                 literal_test_case_names(source)
+
+    def test_rejects_test_case_hidden_in_export_locator_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            goal_path = write_design_goal(repo_root)
+
+            def use_export_locator(target_state: dict[str, object]) -> None:
+                target_state["representations"][0]["locator"] = {
+                    "kind": "export",
+                    "name": "changed",
+                }
+
+            update_target_state(repo_root, goal_path, use_export_locator)
+            receipt_sha256 = capture(repo_root, goal_path)
+            (repo_root / "apps/web/feature.ts").write_text(
+                'import { test } from "vite-plus/test";\n'
+                "export const changed = true;\n"
+                'test("hidden case", () => {});\n',
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValidationError, "extra=.*hidden case"):
+                validate(repo_root, WORKSPACE, receipt_sha256)
+
+    def test_rejects_export_hidden_in_test_case_locator_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            receipt_sha256 = capture(repo_root)
+            test_path = repo_root / "apps/web/feature.test.ts"
+            test_path.write_text(
+                test_path.read_text(encoding="utf-8")
+                + "export const Hidden = true;\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValidationError, "extra=.*Hidden"):
+                validate(repo_root, WORKSPACE, receipt_sha256)
+
+    def test_accepts_fully_declared_mixed_granular_representations(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            goal_path = write_design_goal(repo_root)
+
+            def add_export_representation(target_state: dict[str, object]) -> None:
+                target_state["representations"].append(
+                    {
+                        "id": "REP-4",
+                        "kind": "implementation",
+                        "path": "apps/web/feature.test.ts",
+                        "locator": {"kind": "export", "name": "Helper"},
+                        "requirement_id": "AC-1",
+                        "product_behavior_ids": [],
+                        "verification_case_ids": [],
+                    }
+                )
+
+            update_target_state(repo_root, goal_path, add_export_representation)
+            receipt_sha256 = capture(repo_root, goal_path)
+            test_path = repo_root / "apps/web/feature.test.ts"
+            test_path.write_text(
+                test_path.read_text(encoding="utf-8")
+                + "export const Helper = true;\n",
+                encoding="utf-8",
+            )
+            write_verification(repo_root, receipt_sha256)
+
+            record = validate(repo_root, WORKSPACE, receipt_sha256)
+
+            self.assertIn(
+                {
+                    "path": "apps/web/feature.test.ts",
+                    "locator": "export",
+                    "name": "Helper",
+                },
+                record["representations"],
+            )
 
     def test_rejects_unlisted_story_export_until_final_state_is_materialized(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

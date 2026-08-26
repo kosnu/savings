@@ -20,8 +20,10 @@ from artifact_source import (
     is_placeholder_text,
     load_source,
     load_source_bytes,
+    path_is_within_scope,
     read_regular_file_bytes,
     structured_sha256,
+    validate_repository_relative_path,
 )
 from git_baseline import (
     GitBaselineError,
@@ -507,14 +509,12 @@ def validate_target_rule_coverage(
     rule_map_bytes: bytes,
     requirements_source: dict[str, Any],
     design_source: dict[str, Any],
+    baseline_paths: list[str],
 ) -> list[str]:
     try:
         rule_map = json.loads(rule_map_bytes.decode("utf-8"))
         rules_by_id = validate_rule_map(rule_map)
         routing = validate_review_routing(rule_map, rules_by_id)
-        baseline_paths = inventory_owned_paths(
-            repo_root, design_source["validation"]["target_state"]
-        )
     except (UnicodeDecodeError, json.JSONDecodeError, SourceError, RuleCoverageError) as error:
         raise ValidationError(f"target-state rule coverage is invalid: {error}") from error
     target_paths = [
@@ -566,6 +566,48 @@ def validate_target_rule_coverage(
             f"{', '.join(sorted(missing_path_rules))}"
         )
     return baseline_paths
+
+
+def validate_rule_coverage_baseline_inventory(
+    value: Any,
+    target_state: dict[str, Any],
+) -> list[str]:
+    if not isinstance(value, list):
+        raise ValidationError("rule coverage baseline inventory must be an array")
+    paths: list[str] = []
+    for index, entry in enumerate(value):
+        try:
+            path = validate_repository_relative_path(
+                entry,
+                f"rule coverage baseline inventory[{index}]",
+            )
+        except SourceError as error:
+            raise ValidationError(str(error)) from error
+        if not any(
+            path_is_within_scope(path, scope)
+            for scope in target_state["ownership_scopes"]
+        ):
+            raise ValidationError(
+                "rule coverage baseline inventory path must be inside an ownership scope: "
+                f"{path}"
+            )
+        paths.append(path)
+    if paths != sorted(set(paths)):
+        raise ValidationError(
+            "rule coverage baseline inventory must be unique and sorted by path"
+        )
+    return paths
+
+
+def capture_rule_coverage_baseline_inventory(
+    repo_root: Path,
+    target_state: dict[str, Any],
+) -> list[str]:
+    try:
+        paths = inventory_owned_paths(repo_root, target_state)
+    except SourceError as error:
+        raise ValidationError(f"target-state rule coverage is invalid: {error}") from error
+    return validate_rule_coverage_baseline_inventory(paths, target_state)
 
 
 def load_selected_rule_records(
@@ -728,6 +770,7 @@ def validate(
     rule_map_bytes: bytes | None = None,
     requirements_baseline_bytes: bytes | None | _UnsetBaseline = UNSET_BASELINE,
     design_baseline_bytes: bytes | None | _UnsetBaseline = UNSET_BASELINE,
+    rule_coverage_baseline_inventory: list[str] | None = None,
 ) -> None:
     require_canonical_input(
         repo_root,
@@ -846,6 +889,15 @@ def validate(
         raise ValidationError("new Design completion requires schema_version 3")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
+    target_state = source["validation"]["target_state"]
+    baseline_inventory = (
+        capture_rule_coverage_baseline_inventory(repo_root, target_state)
+        if rule_coverage_baseline_inventory is None
+        else validate_rule_coverage_baseline_inventory(
+            rule_coverage_baseline_inventory,
+            target_state,
+        )
+    )
     manifest = extract_manifest(source)
     if manifest.get("workspace") != workspace:
         raise ValidationError("manifest workspace does not match")
@@ -864,7 +916,11 @@ def validate(
             baseline_sections,
         )
         validate_target_rule_coverage(
-            repo_root, rule_map_bytes, requirements_source, source
+            repo_root,
+            rule_map_bytes,
+            requirements_source,
+            source,
+            baseline_inventory,
         )
         design_selected_rule_ids(rule_map_bytes, requirements_source, source)
         return
@@ -918,7 +974,13 @@ def validate(
             raise ValidationError(
                 "Design artifact rule_coverage must match the retained Design Goal"
             )
-    validate_target_rule_coverage(repo_root, rule_map_bytes, requirements_source, source)
+    validate_target_rule_coverage(
+        repo_root,
+        rule_map_bytes,
+        requirements_source,
+        source,
+        baseline_inventory,
+    )
     design_selected_rule_ids(rule_map_bytes, requirements_source, source)
     current_sections = design_sections(source)
     blocks = evidence_blocks(source)

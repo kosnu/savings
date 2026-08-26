@@ -1238,6 +1238,10 @@ def validate_target_state(value: Any, requirement_ids: list[str]) -> dict[str, A
             locator_name = require_inline_markdown(
                 locator["name"], f"{label}.locator.name"
             )
+            if locator_kind == "export" and locator_name == "default":
+                raise SourceError(
+                    f"{label}.export locator name must be a non-default identifier"
+                )
             if (
                 locator_kind == "export"
                 and EXPORT_NAME_PATTERN.fullmatch(locator_name) is None
@@ -1260,8 +1264,13 @@ def validate_target_state(value: Any, requirement_ids: list[str]) -> dict[str, A
         raise SourceError("representation IDs must be canonical and unique")
     if len(locator_identities) != len(set(locator_identities)):
         raise SourceError("representation locators must be unique")
-    if any(len(kinds) != 1 for kinds in locator_kinds_by_path.values()):
-        raise SourceError("a representation path must use exactly one locator kind")
+    if any(
+        "file" in kinds and len(kinds) != 1
+        for kinds in locator_kinds_by_path.values()
+    ):
+        raise SourceError(
+            "a representation path must use either a whole-file locator or granular locators"
+        )
     if set(representation_behavior_references) != set(behavior_ids):
         raise SourceError("representations must cover every product behavior")
     if set(representation_case_references) != set(case_ids):
