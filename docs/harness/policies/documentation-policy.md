@@ -76,3 +76,11 @@ front matter は探索用メタデータであり、強制ルールではあり�
 ADRは意思決定時点の記録です。採択済みADRのDecision、Context、Consequences本文を後から現在方針に合わせて書き換えてはいけません。
 
 既存ADRの補足が必要な場合は、日付付きのClarificationとして追記します。意思決定が変わる場合は、既存ADRを改変せず、新しいADRを作成して置き換え関係を明示します。
+
+採択済みADRを含む差分では、PRのbase branchとのmerge-baseを基準に次を実行します。
+
+```bash
+python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/<base-branch>
+```
+
+validatorは指定したorigin remote-tracking branchとの単一merge-baseをbaselineにし、shallow historyと任意commit指定を拒否します。baselineで`doc_type: adr`かつ`status: accepted`の全文書を対象に、Context、Decision、Consequences、既存Clarificationのsource変更と文書の削除・移動を拒否します。既存履歴の末尾への日付付きClarification追記と、新しいADRの追加は許可します。
