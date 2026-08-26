@@ -889,6 +889,46 @@ class DesignCoverageGateTest(unittest.TestCase):
         with self.assertRaisesRegex(SourceError, "must be an identifier"):
             validate_loaded_source(source)
 
+    def test_v3_rejects_default_export_locator(self) -> None:
+        source = design_source("0" * 64)
+        representation = source["validation"]["target_state"]["representations"][0]
+        representation["kind"] = "story"
+        representation["locator"] = {"kind": "export", "name": "default"}
+        with self.assertRaisesRegex(SourceError, "non-default identifier"):
+            validate_loaded_source(source)
+
+    def test_v3_allows_multiple_granular_locator_kinds_on_one_path(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["representations"].append(
+            {
+                "id": "REP-4",
+                "kind": "implementation",
+                "path": "apps/web/feature.test.ts",
+                "locator": {"kind": "export", "name": "Helper"},
+                "requirement_id": "AC-1",
+                "product_behavior_ids": [],
+                "verification_case_ids": [],
+            }
+        )
+
+        validate_loaded_source(source)
+
+    def test_v3_rejects_whole_file_and_granular_locators_on_one_path(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["representations"].append(
+            {
+                "id": "REP-4",
+                "kind": "implementation",
+                "path": "apps/web/feature.ts",
+                "locator": {"kind": "export", "name": "Feature"},
+                "requirement_id": "AC-1",
+                "product_behavior_ids": [],
+                "verification_case_ids": [],
+            }
+        )
+        with self.assertRaisesRegex(SourceError, "whole-file locator"):
+            validate_loaded_source(source)
+
     def test_v3_rejects_app_wide_tree_ownership(self) -> None:
         source = design_source("0" * 64)
         source["validation"]["target_state"]["ownership_scopes"] = [

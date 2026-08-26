@@ -472,6 +472,7 @@ def validate_or_capture(
         rule_map_bytes=snapshot.rule_map,
         requirements_baseline_bytes=snapshot.requirements_baseline,
         design_baseline_bytes=snapshot.design_baseline,
+        rule_coverage_baseline_inventory=snapshot.baseline_inventory,
     )
     validate_display_snapshot(
         snapshot.requirements,

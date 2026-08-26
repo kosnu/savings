@@ -186,15 +186,19 @@ For schema v3, `validation.target_state` is the only completion source of truth:
   fixture, configuration, migration, or documentation representation. Each
   record has a stable `REP-*` ID, an owned path, Requirement/product-behavior/
   verification references, and a machine locator: whole `file`, named
-  runtime named module-level `export`, or named `test_case`. Default exports
-  are not named representation locators. Type-only exports,
+  runtime named module-level `export`, or named `test_case`. Any export whose
+  semantic exported name is `default`, including an aliased local export, is
+  not a named representation locator. Type-only exports,
   namespace or ambient-module internals,
   function, and class-internal exports do not satisfy an `export` locator. A
   local export specifier must resolve to a runtime binding. `const enum`,
   import-backed, source-backed, and wildcard re-exports are excluded or
   rejected because their runtime inventory cannot be proven without module
-  graph resolution. Granular source is parsed in the mode selected by its
-  `.ts`, `.tsx`, `.js`, or `.jsx` family extension. A
+  graph resolution. Granular source is parsed once using its `.ts`, `.tsx`,
+  `.js`, or `.jsx` family extension, and the extractor always inventories both
+  runtime named exports and statically registered test cases independently of
+  the locator kinds declared by the target. A whole-file locator is exclusive
+  for its path; granular export and test-case locators may coexist. A
   representation may reference only behaviors
   and verification cases with the same Requirement owner. `file` treats the
   whole file as one indivisible representation and guarantees path inventory,
@@ -205,7 +209,8 @@ For schema v3, `validation.target_state` is the only completion source of truth:
   `vite-plus/test` runner. Alias, namespace, default, or dynamic runner imports,
   local declarations, and ambiguous shadowing are rejected. Final cases must be
   statically registered at module level or in a direct inline callback from an
-  unaliased `describe` named import from the same runner. Arbitrary callbacks,
+  unaliased `describe` named import from the same runner, and every case must
+  provide its own inline function callback. Arbitrary callbacks,
   functions, control-flow blocks, and registrations after a possible
   `return`/`throw` are not treated as registrations. Focused or disabled suites/cases (`only`, `skip`, `todo`, `fails`)
   are rejected; `concurrent` and a statically non-empty array-form `each`
@@ -224,6 +229,9 @@ the Issue or Requirements to make a rule selectable. `implementation_surfaces`
 must exactly match the derived canonical surfaces and may be empty only when
 none of those paths is governed by a review surface. Use `additional_rules`
 for every required path-specific node not already owned by a surface.
+Design completion captures that baseline inventory once. Build Entry and Build
+completion revalidation must consume the hashed receipt inventory and must not
+reconstruct the Design baseline from the post-Build worktree.
 
 After the artifact command succeeds, capture the Design-owned completion
 receipt before completing the Design Goal:
@@ -269,7 +277,9 @@ The command loads the receipt bytes whose SHA-256 was recorded by Design, then
 loads the Issue, rule map, selected rules, Requirements, Design, displays, and
 Git `HEAD` Requirements / Design baselines once. It revalidates Requirements Input and Continuity,
 Design coverage, Requirement-owned product behavior, and generated displays
-from that immutable byte snapshot. It requires the snapshot to equal the
+from that immutable byte snapshot and the receipt-frozen baseline inventory.
+It never reconstructs the Design rule-coverage baseline from the current
+worktree. It requires the snapshot to equal the
 receipt and performs the same final drift check. Later
 Build comparisons use the already loaded receipt bytes and recorded SHA-256;
 they do not treat continued occupancy of the receipt path as identity. The
@@ -295,8 +305,8 @@ python3 .agents/skills/aidd-cycle/scripts/capture_build_verification.py \
   "kind": "build_verification",
   "workspace": "<workspace>",
   "receipt_sha256": "<design-completion-sha256>",
-  "final_state_sha256": "<target state and current owned files SHA-256>",
-  "generator": "capture_build_verification.py/v2",
+  "final_state_sha256": "<target state and current owned state manifest SHA-256>",
+  "generator": "capture_build_verification.py/v3",
   "results": [
     {
       "id": "VC-1",
@@ -319,7 +329,9 @@ case that changes the task-owned final state. It writes evidence only when
 every automated case exits successfully, every manual case has a substantive
 observation, and the pre/post final-state hash is unchanged. The result
 inventory must exactly match the target verification cases in canonical order
-and is bound to that final-state hash. The coverage validator validates this
+and is bound to that final-state hash. The canonical final-state manifest
+contains the target-state hash and every owned regular file's normalized path,
+Git mode (`100644` or `100755`), and content SHA-256. The coverage validator validates this
 evidence without executing an artifact-provided command. Automated
 `output_sha256` uses an unambiguous binary frame: the `AIDD-output-v1` marker,
 one NUL byte, an unsigned 8-byte big-endian stdout length and stdout bytes,
@@ -341,7 +353,9 @@ python3 .agents/skills/aidd-cycle/scripts/validate_build_rule_coverage.py \
 
 This command first reconciles the final owned tree with `target_state`: every
 required path and locator must exist, and no unregistered owned file, named
-export, or named test case may remain. A baseline-only A4 therefore fails while
+export, or named test case may remain. For every granular source it observes
+exports and test cases together, regardless of which locator kinds the target
+declares, so a declaration cannot suppress the opposite inventory class. A baseline-only A4 therefore fails while
 present and passes once absent, without adding an A4 deletion record. Existing
 files outside the ownership scopes are neither impurities nor writable Build
 targets. The command also derives changed paths from the receipt's Git

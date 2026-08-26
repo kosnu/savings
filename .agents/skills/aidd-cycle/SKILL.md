@@ -82,11 +82,14 @@ For each phase in the workflow:
    `git`, or `jq`). Manual cases own substantive concrete
    procedures. Derive machine review
    surfaces and path rules from the union of target paths and the current owned
-   baseline, including paths that disappear in the target. In Build,
+   baseline, including paths that disappear in the target, and freeze that
+   baseline inventory in the Design receipt. In Build,
    reconstruct exactly that target state in the ownership scopes, use the
-   repository Build verification runner to validate the final inventory before
-   execution, reject per-case owned-state mutation, and bind every result to the
-   unchanged final-state hash. Run the Build rule coverage validator against both
+   repository Build verification runner to observe named exports and test cases
+   independently of declared locator kinds, validate the final inventory before
+   execution, reject missing inline test callbacks and per-case mutation of an
+   owned file's content or Git mode, and bind every result to the unchanged
+   final-state hash. Run the Build rule coverage validator against both
    the final owned tree and actual Git diff. Stop on missing or extra owned
    representations, failed or missing verification evidence, out-of-scope
    changes, undeclared surfaces, a surface or path rule absent from the receipt,
@@ -188,8 +191,9 @@ silently run the delegated phase in the parent.
   only in canonical `requirements.json`. Selected rules constrain Requirements
   and Design; they never define product behavior directly or substitute for a
   missing Requirement. Build consumes the Design completion receipt as its
-  upstream identity and materializes the target state rather than layering a
-  delta onto the baseline.
+  upstream identity, reuses its frozen baseline inventory for rule coverage,
+  and materializes the target state rather than layering a delta onto the
+  baseline.
 
 ## Stop
 

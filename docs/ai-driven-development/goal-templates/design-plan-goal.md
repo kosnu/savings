@@ -25,11 +25,11 @@ when_to_read:
 - 目的: 検証済みRequirements全体からtask-owned範囲の完成状態と検証方針を定義する。
 - Cycle identity: Issue snapshot、workspace、Requirements pathとSHA-256。cycle-start titleは検証済みRequirementsが所有し、Design Goalへ再入力・複製しない。
 - Canonical input: validation済み`requirements.json`。生成Markdownを含めread-only。
-- Rule coverage: task-owned範囲のbaseline pathと最終representation pathの和集合をmachine review surfaceへ分類し、`implementation_surfaces`と必要なpath固有`additional_rules`をDesign Goalとartifactへ同一に記録する。
+- Rule coverage: Design時点のtask-owned範囲のbaseline pathと最終representation pathの和集合をmachine review surfaceへ分類し、`implementation_surfaces`と必要なpath固有`additional_rules`をDesign Goalとartifactへ同一に記録する。baseline inventoryはDesign completion receiptへ一度だけ固定し、Build側でworktreeから再構築させない。
 - Implementation context: 関連コード、ADR、policy、tests。
 - Baseline: validatorがGit `HEAD`のcanonical `design-doc.json`から取得したsection inventoryとhash。
 - Scope: 全Requirement IDのdesign/verification scopeと、全baseline sectionのreview scope。
-- Target state: schema v3の`validation.target_state`へ、最終product behavior、全Requirementを覆うverification case、有限で非重複な`ownership_scopes`、最終representationを定義する。product behaviorに`change`を置かず、automated caseはrepo allowlist（`pnpm`、Python 3、`node`、`git`、`jq`）の実行fileを使う直接command引数列、manual caseは実質的なprocedureを持つ。Storyはdefault・type-only・`const enum`を除き、import/source-backed・wildcard re-exportを拒否したruntime named module-level `export`、testは承認runnerから非aliasで直接importして静的登録された`test_case` locatorで機械識別する。全参照は同じRequirement owner内に閉じる。
+- Target state: schema v3の`validation.target_state`へ、最終product behavior、全Requirementを覆うverification case、有限で非重複な`ownership_scopes`、最終representationを定義する。product behaviorに`change`を置かず、automated caseはrepo allowlist（`pnpm`、Python 3、`node`、`git`、`jq`）の実行fileを使う直接command引数列、manual caseは実質的なprocedureを持つ。Storyは意味上のexport名が`default`となる全構文・type-only・`const enum`を除き、import/source-backed・wildcard re-exportを拒否したruntime named module-level `export`、testは承認runnerから非aliasで直接importしinline function callbackを持って静的登録された`test_case` locatorで機械識別する。同じpathでは`file`を粒度locatorと併用せず、named exportとtest caseの両方を粒度inventoryへ登録できる。全参照は同じRequirement owner内に閉じる。
 - 所有する出力: canonical `design-doc.json`、生成`design-doc.md`、検証後に固定するDesign completion receipt。
 
 ## 必須contract ID

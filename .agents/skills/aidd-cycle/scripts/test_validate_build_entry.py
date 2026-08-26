@@ -241,7 +241,7 @@ class BuildEntryGateTest(unittest.TestCase):
             goal_path = repo_root / "design-goal.json"
             goal_path.write_text(serialize_source(goal), encoding="utf-8")
 
-            receipt_path, _ = validate_or_capture(
+            receipt_path, receipt_sha256 = validate_or_capture(
                 ISSUE,
                 ISSUE_URL,
                 ISSUE_UPDATED_AT,
@@ -263,6 +263,22 @@ class BuildEntryGateTest(unittest.TestCase):
                 "policy.extra",
                 [entry["id"] for entry in receipt["selected_rules"]],
             )
+
+            story.unlink()
+            validated_path, validated_sha256 = validate_or_capture(
+                ISSUE,
+                ISSUE_URL,
+                ISSUE_UPDATED_AT,
+                repo_root / "issue-body.md",
+                rule_map_path,
+                repo_root,
+                WORKSPACE,
+                capture=False,
+                expected_receipt_sha256=receipt_sha256,
+            )
+
+            self.assertEqual(validated_path, receipt_path)
+            self.assertEqual(validated_sha256, receipt_sha256)
 
     def test_capture_and_build_entry_run_the_real_cli_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
