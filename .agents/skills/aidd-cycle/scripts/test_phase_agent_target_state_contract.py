@@ -21,16 +21,17 @@ class PhaseAgentTargetStateContractTest(unittest.TestCase):
                 self.assertIn("ownership scopes", instructions)
                 self.assertIn("verification case", instructions)
 
-    def test_goal_lifecycle_contract_remains_with_the_phase_agent(self) -> None:
+    def test_goal_lifecycle_contract_remains_with_the_parent(self) -> None:
         for path in PHASE_AGENT_PATHS:
             with self.subTest(path=path):
                 instructions = path.read_text(encoding="utf-8")
-                self.assertIn("call get_goal", instructions)
-                self.assertIn("terminal Goal update", instructions)
-                self.assertNotIn(
-                    "Do not call create_goal, get_goal, or update_goal",
+                self.assertIn("parent orchestrator", instructions)
+                self.assertIn(
+                    "Do not create, complete, block, or otherwise update a Goal",
                     instructions,
                 )
+                self.assertNotIn("call get_goal", instructions)
+                self.assertNotIn("terminal Goal update", instructions)
 
 
 if __name__ == "__main__":
