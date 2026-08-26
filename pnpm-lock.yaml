@@ -24,6 +24,9 @@ importers:
         specifier: 7.1.1
         version: 7.1.1(eslint@10.8.1(supports-color@10.2.2))(supports-color@10.2.2)
     devDependencies:
+      oxc-parser:
+        specifier: 0.127.0
+        version: 0.127.0
       supabase:
         specifier: 2.114.0
         version: 2.114.0

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from artifact_source import (
     SourceError,
+    inventory_owned_paths,
     load_source,
     load_source_bytes,
     serialize_source,
@@ -130,6 +131,24 @@ class ArtifactSourceTest(unittest.TestCase):
                 write_regular_file_atomically(alias / "requirements.json", "data")
 
             self.assertFalse((outside / "requirements.json").exists())
+
+    def test_inventory_rejects_symlinked_ownership_ancestor(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            outside = root / "outside"
+            outside.mkdir()
+            (outside / "feature.ts").write_text("export {};\n", encoding="utf-8")
+            (root / "apps").symlink_to(outside, target_is_directory=True)
+
+            with self.assertRaisesRegex(SourceError, "must not contain symlinks"):
+                inventory_owned_paths(
+                    root,
+                    {
+                        "ownership_scopes": [
+                            {"path": "apps/feature.ts", "kind": "file"}
+                        ]
+                    },
+                )
 
     def test_loader_rejects_invalid_nested_schema(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

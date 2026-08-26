@@ -833,6 +833,46 @@ class DesignCoverageGateTest(unittest.TestCase):
         with self.assertRaisesRegex(SourceError, "verification case Requirement owner"):
             validate_loaded_source(source)
 
+    def test_v3_rejects_shell_interpreter_verification_command(self) -> None:
+        for command in (
+            ["sh", "-c", "exit 0"],
+            ["dash", "-c", "exit 0"],
+            ["env", "sh", "-c", "exit 0"],
+            ["busybox", "sh", "-c", "exit 0"],
+            ["nice", "sh", "-c", "exit 0"],
+            ["nohup", "sh", "-c", "exit 0"],
+            ["timeout", "5", "sh", "-c", "exit 0"],
+            ["sudo", "sh", "-c", "exit 0"],
+            ["./python3", "-c", "raise SystemExit(0)"],
+        ):
+            with self.subTest(command=command):
+                source = design_source("0" * 64)
+                source["validation"]["target_state"]["verification_cases"][0][
+                    "command"
+                ] = command
+                with self.assertRaisesRegex(SourceError, "not approved"):
+                    validate_loaded_source(source)
+
+    def test_v3_rejects_nested_version_control_metadata(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["ownership_scopes"][0]["path"] = (
+            "vendor/.git/config"
+        )
+        source["validation"]["target_state"]["representations"][0]["path"] = (
+            "vendor/.git/config"
+        )
+        with self.assertRaisesRegex(SourceError, "version-control metadata"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_placeholder_manual_verification_procedure(self) -> None:
+        source = design_source("0" * 64)
+        case = source["validation"]["target_state"]["verification_cases"][0]
+        case["type"] = "manual"
+        case["procedure"] = "TODO"
+        del case["command"]
+        with self.assertRaisesRegex(SourceError, "substantive"):
+            validate_loaded_source(source)
+
     def test_v3_rejects_cross_requirement_representation_reference(self) -> None:
         source = design_source("0" * 64)
         source["validation"]["target_state"]["representations"][2][

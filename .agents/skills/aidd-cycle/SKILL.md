@@ -62,12 +62,16 @@ For each phase in the workflow:
    subgraph, using the phase executor assigned below. In Design, record the
    complete schema-v3 target state: final product behaviors, verification
    cases, normalized ownership scopes, and all final machine-addressable
-   representations. Automated verification cases own shell-free command
-   argument arrays; manual cases own concrete procedures. Derive machine review
+   representations. Automated verification cases own direct argv commands
+   whose executable is in the repository allowlist (`pnpm`, Python 3, `node`,
+   `git`, or `jq`). Manual cases own substantive concrete
+   procedures. Derive machine review
    surfaces and path rules from the union of target paths and the current owned
    baseline, including paths that disappear in the target. In Build,
-   reconstruct exactly that target state in the ownership scopes, record every
-   verification result, and run the Build rule coverage validator against both
+   reconstruct exactly that target state in the ownership scopes, use the
+   repository Build verification runner to validate the final inventory before
+   execution, reject per-case owned-state mutation, and bind every result to the
+   unchanged final-state hash. Run the Build rule coverage validator against both
    the final owned tree and actual Git diff. Stop on missing or extra owned
    representations, failed or missing verification evidence, out-of-scope
    changes, undeclared surfaces, a surface or path rule absent from the receipt,

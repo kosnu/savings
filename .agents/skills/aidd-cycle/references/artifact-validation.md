@@ -171,20 +171,30 @@ For schema v3, `validation.target_state` is the only completion source of truth:
   has `id`, `type`, and one canonical `requirement_id`; it has no `change`
   operation.
 - `verification_cases` inventories every final automated or manual case. An
-  automated case owns a shell-free command argument array; a manual case owns
-  a concrete procedure. Every Requirement and product behavior must be covered,
+  automated case owns a direct command argument array whose executable is in
+  the repository allowlist: `pnpm`, `python3`, `node`, `git`, or `jq`.
+  Executable paths, generic launchers, and shell interpreters are not
+  allowlisted; a manual case owns a substantive concrete procedure. Every Requirement and product behavior must be covered,
   and every referenced behavior must have the same Requirement owner as its
   case.
 - `ownership_scopes` is a canonical, non-overlapping inventory of normalized
   repository-relative `file` or `tree` scopes. Broad implicit application or
-  repository ownership is rejected. Version-control metadata and Git-ignored
-  paths are rejected because their changes cannot be proven by the Build diff.
+  repository ownership is rejected. Version-control metadata in any path
+  segment and Git-ignored paths are rejected because their changes cannot be
+  proven by the Build diff.
 - `representations` inventories every final implementation, test, Story,
   fixture, configuration, migration, or documentation representation. Each
   record has a stable `REP-*` ID, an owned path, Requirement/product-behavior/
   verification references, and a machine locator: whole `file`, named
-  module-level `export`, or named `test_case`. Namespace, ambient module,
+  runtime named module-level `export`, or named `test_case`. Default exports
+  are not named representation locators. Type-only exports,
+  namespace or ambient-module internals,
   function, and class-internal exports do not satisfy an `export` locator. A
+  local export specifier must resolve to a runtime binding. `const enum`,
+  import-backed, source-backed, and wildcard re-exports are excluded or
+  rejected because their runtime inventory cannot be proven without module
+  graph resolution. Granular source is parsed in the mode selected by its
+  `.ts`, `.tsx`, `.js`, or `.jsx` family extension. A
   representation may reference only behaviors
   and verification cases with the same Requirement owner. `file` treats the
   whole file as one indivisible representation and guarantees path inventory,
@@ -192,9 +202,12 @@ For schema v3, `validation.target_state` is the only completion source of truth:
   a named entry must be independently included or excluded.
   A `test_case` locator recognizes only literal cases registered through an
   unaliased `test` or `it` named import from the repository-approved
-  `vite-plus/test` runner. Local declarations, alias substitution, and
-  ambiguous shadowing do not satisfy the inventory. Final cases must be
-  runnable: focused or disabled modifiers (`only`, `skip`, `todo`, `fails`)
+  `vite-plus/test` runner. Alias, namespace, default, or dynamic runner imports,
+  local declarations, and ambiguous shadowing are rejected. Final cases must be
+  statically registered at module level or in a direct inline callback from an
+  unaliased `describe` named import from the same runner. Arbitrary callbacks,
+  functions, control-flow blocks, and registrations after a possible
+  `return`/`throw` are not treated as registrations. Focused or disabled suites/cases (`only`, `skip`, `todo`, `fails`)
   are rejected; `concurrent` and a statically non-empty array-form `each`
   remain eligible. Dynamic, empty, or tagged-template tables are fail-closed.
 
@@ -266,7 +279,15 @@ the receipt; there is no Build caller input that can replace it.
 Create the Build Goal only when this command succeeds and prints the same
 receipt SHA-256 recorded by Design. Build must reconstruct the owned final state
 from the receipt instead of layering the target behaviors onto the baseline.
-Before completing Build, write the canonical verification evidence file:
+Before completing Build, use the repository runner to execute every automated
+case and write the canonical verification evidence file. Supply one
+`--manual-observation VC-ID=text` for each manual case:
+
+```sh
+python3 .agents/skills/aidd-cycle/scripts/capture_build_verification.py \
+  --repo-root <repo-root> --workspace <workspace> \
+  --expected-receipt-sha256 <design-completion-sha256>
+```
 
 ```json
 {
@@ -274,6 +295,8 @@ Before completing Build, write the canonical verification evidence file:
   "kind": "build_verification",
   "workspace": "<workspace>",
   "receipt_sha256": "<design-completion-sha256>",
+  "final_state_sha256": "<target state and current owned files SHA-256>",
+  "generator": "capture_build_verification.py/v2",
   "results": [
     {
       "id": "VC-1",
@@ -281,19 +304,34 @@ Before completing Build, write the canonical verification evidence file:
       "status": "passed",
       "command": ["pnpm", "run", "web:test:unit-integration"],
       "exit_code": 0,
+      "stdout_bytes": 123,
+      "stderr_bytes": 0,
       "output_sha256": "<lowercase SHA-256 of captured output>"
     }
   ]
 }
 ```
 
-The result inventory must exactly match the target verification cases in
-canonical order. Automated evidence must repeat the exact Design-owned command,
-record exit code 0, and hash its captured output; the validator never executes
-an artifact-provided command. Manual evidence must repeat the Design-owned
-procedure and include a non-empty observation. The Build Goal's Verification
-still executes the commands and is independently rerun by the parent
-orchestrator. Then run:
+The repository runner first validates the complete target representation
+inventory, executes commands directly as argv from the canonical repo root,
+suppresses Python bytecode for child verification processes, and rejects a
+case that changes the task-owned final state. It writes evidence only when
+every automated case exits successfully, every manual case has a substantive
+observation, and the pre/post final-state hash is unchanged. The result
+inventory must exactly match the target verification cases in canonical order
+and is bound to that final-state hash. The coverage validator validates this
+evidence without executing an artifact-provided command. Automated
+`output_sha256` uses an unambiguous binary frame: the `AIDD-output-v1` marker,
+one NUL byte, an unsigned 8-byte big-endian stdout length and stdout bytes,
+then an unsigned 8-byte big-endian stderr length and stderr bytes. The two byte
+lengths are also recorded in evidence.
+
+The generator label and output hashes provide canonical, reviewable evidence
+identity; they are not a cryptographic attestation against a contributor who
+can edit repository artifacts. Authenticity remains inside the normal Git,
+review, and CI trust boundary. The coverage validator deliberately does not
+re-execute Design commands to manufacture stronger-looking provenance.
+Then run:
 
 ```sh
 python3 .agents/skills/aidd-cycle/scripts/validate_build_rule_coverage.py \
@@ -309,7 +347,9 @@ files outside the ownership scopes are neither impurities nor writable Build
 targets. The command also derives changed paths from the receipt's Git
 baseline, rejects changes outside the ownership scopes except canonical AIDD
 evidence paths, classifies every governed path through `rule-map.json`
-`review_routing`, unions surface requirements with every matching path rule,
+`review_routing`, records every non-workflow changed path, and unions governed
+surface requirements with every matching path rule, including rules for
+ungoverned paths,
 and writes canonical `<workspace>/.aidd/build-rule-coverage.json`. An
 undeclared surface, missing receipt rule, governed path without a surface,
 missing verification result, missing target representation, extra owned
