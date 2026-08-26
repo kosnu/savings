@@ -69,6 +69,8 @@ APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure.
 
 Web/APIの表に該当しない差分は、`docs/harness/rule-map.json` の有効な `applies_to.paths`、`domains`、`activities`、`topics` に一致するノードをすべて選び、同じ和集合ルールを適用します。`apps/api/**` の差分で変更面を分類できない場合は、汎用マッチングだけで完了扱いにせず、未定義のAPIレビュー面として報告します。
 
+採択済みADRを含む差分では`documentation.policy`を必ず適用し、PRのbase branchに対応するorigin remote-tracking branchを`--base-ref`に指定して`docs/harness/scripts/validate_accepted_adrs.py`を実行します。validatorが拒否した既存履歴の変更や文書の削除・移動は、末尾の日付付きClarificationまたは新しいADRへ置き換わるまで解決済みとしてはいけません。
+
 ## AIDD Buildの機械ルーティング
 
 AIDD Buildでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。通常のコードレビュー対象は引き続き実差分です。AIDD Buildの完了判定に限り、Designが明示したtask-owned範囲の最終状態も照合します。この照合はレビュー範囲やBuildの書込権限をtask-owned範囲外へ広げません。

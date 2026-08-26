@@ -94,7 +94,7 @@
       "id": "documentation.policy",
       "file": "docs/harness/policies/documentation-policy.md",
       "applies_to": {
-        "paths": ["docs/**/*.md", "apps/*/docs/**/*.md", "AGENTS.md"],
+        "paths": ["docs/**/*.md", "docs/harness/scripts/**", "apps/*/docs/**/*.md", "AGENTS.md"],
         "domains": ["repository", "documentation"],
         "activities": ["add_doc", "update_doc", "classify_docs", "update_front_matter"],
         "topics": ["documentation", "front-matter", "agent-guidance"]
