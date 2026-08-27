@@ -413,6 +413,37 @@ class BuildRuleCoverageTest(unittest.TestCase):
             with self.assertRaisesRegex(ValidationError, "current final state"):
                 validate(repo_root, WORKSPACE, receipt_sha256)
 
+    def test_rejects_receipt_artifact_changed_after_verification(self) -> None:
+        artifact_paths = (
+            "requirements.json",
+            "requirements.md",
+            "design-doc.json",
+            "design-doc.md",
+        )
+        for filename in artifact_paths:
+            with (
+                self.subTest(filename=filename),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                repo_root = Path(directory).resolve()
+                initialize_repo(repo_root)
+                receipt_sha256 = capture(repo_root)
+                artifact_path = (
+                    repo_root
+                    / "docs"
+                    / "ai-driven-development"
+                    / "workspaces"
+                    / WORKSPACE
+                    / filename
+                )
+                artifact_path.write_text("{}\n", encoding="utf-8")
+
+                with self.assertRaisesRegex(
+                    ValidationError,
+                    "changed after Design completion",
+                ):
+                    validate(repo_root, WORKSPACE, receipt_sha256)
+
     def test_cli_relative_repo_root_does_not_write_bytecode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
