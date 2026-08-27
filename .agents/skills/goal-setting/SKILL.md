@@ -97,12 +97,9 @@ For Design:
   Python 3, `node`, `git`, or `jq`) or a substantive manual procedure, normalized
   non-overlapping `file` or `tree` ownership scopes, and every final
   machine-addressable implementation/test/Story/fixture/configuration/
-  migration/documentation representation. Story locators inventory semantic
-  runtime named exports and reject every `default` form, type-only, `const enum`,
-  import/source-backed, and wildcard re-exports; test locators require nonalias
-  named imports from the approved runner and inline non-generator function callbacks. A
-  whole-file locator is exclusive for its path while granular export and test
-  locators may coexist. Do not encode add/change/remove
+  migration/documentation representation with owned paths and locator metadata.
+  Do not infer source-code syntax or test-runner policy from locator metadata,
+  and do not encode add/change/remove
   operations. Requirement content remains only in canonical
   `requirements.json`, and every behavior, verification case, and
   representation must retain its required Requirement references;
@@ -134,8 +131,7 @@ For Build:
   identity, exit code, output hash, generator, and final-state identity without
   executing an artifact-provided command;
 - require the Build rule coverage validator at completion. It rejects missing
-  target representations, unregistered owned paths/exports/test cases after
-  observing both granular inventory classes independently of declared locators,
+  target representation paths and unregistered owned paths,
   out-of-scope changes, failed or missing verification evidence, undeclared
   surfaces, missing receipt rules, and governed paths without a routing
   surface, then writes canonical final-state and per-path Coverage evidence;
