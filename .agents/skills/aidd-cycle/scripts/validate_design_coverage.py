@@ -538,7 +538,7 @@ def validate_target_rule_coverage(
     path_rule_set: set[str] = set()
     for path in relevant_paths:
         try:
-            resolution = resolve_path_coverage(path, routing, rules_by_id)
+            resolution = resolve_path_coverage(path, routing)
         except RuleCoverageError as error:
             raise ValidationError(str(error)) from error
         expected_surface_set.update(resolution["surfaces"])

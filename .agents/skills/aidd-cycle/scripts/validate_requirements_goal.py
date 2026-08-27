@@ -114,10 +114,6 @@ def validate_rule_map(rule_map: Any) -> dict[str, dict[str, Any]]:
         ):
             raise ValidationError(f"{rule_id}.depends_on must be an array of strings")
         rules_by_id[rule_id] = rule
-    try:
-        validate_review_routing(rule_map, rules_by_id)
-    except RuleCoverageError as error:
-        raise ValidationError(str(error)) from error
     return rules_by_id
 
 
@@ -405,6 +401,10 @@ def validate(
         rule_map_bytes = read_regular_file_bytes(canonical_rule_map_path)
     rule_map = json.loads(rule_map_bytes.decode("utf-8"))
     rules_by_id = validate_rule_map(rule_map)
+    try:
+        validate_review_routing(rule_map, rules_by_id)
+    except RuleCoverageError as error:
+        raise ValidationError(str(error)) from error
     manifest = extract_manifest(source)
 
     validate_issue_metadata(issue, issue_url, issue_updated_at)
