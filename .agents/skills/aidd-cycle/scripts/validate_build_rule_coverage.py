@@ -16,6 +16,8 @@ sys.dont_write_bytecode = True
 
 from artifact_source import (
     SourceError,
+    canonical_display_path,
+    canonical_source_path,
     canonical_workspace_path,
     decode_source_json,
     inventory_owned_paths,
@@ -344,6 +346,50 @@ def load_receipt(
     return receipt, receipt_bytes
 
 
+def validate_receipt_artifacts(
+    repo_root: Path,
+    workspace: str,
+    receipt: dict[str, Any],
+) -> set[str]:
+    artifacts = receipt.get("artifacts")
+    if not isinstance(artifacts, dict) or set(artifacts) != {
+        "requirements",
+        "design",
+    }:
+        raise ValidationError("Design receipt artifacts record is invalid")
+
+    pinned_paths: set[str] = set()
+    for kind in ("requirements", "design"):
+        artifact = artifacts[kind]
+        if not isinstance(artifact, dict) or set(artifact) != {"source", "display"}:
+            raise ValidationError(f"Design receipt {kind} artifact record is invalid")
+        canonical_paths = {
+            "source": canonical_source_path(repo_root, workspace, kind),
+            "display": canonical_display_path(repo_root, workspace, kind),
+        }
+        for part, canonical_path in canonical_paths.items():
+            record = artifact[part]
+            if not isinstance(record, dict) or set(record) != {"path", "sha256"}:
+                raise ValidationError(
+                    f"Design receipt {kind} {part} record is invalid"
+                )
+            relative_path = canonical_path.relative_to(repo_root).as_posix()
+            digest = record["sha256"]
+            if record["path"] != relative_path or (
+                not isinstance(digest, str)
+                or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+            ):
+                raise ValidationError(
+                    f"Design receipt {kind} {part} identity is invalid"
+                )
+            if sha256_bytes(read_regular_file_bytes(canonical_path)) != digest:
+                raise ValidationError(
+                    f"Design receipt {kind} {part} changed after Design completion"
+                )
+            pinned_paths.add(relative_path)
+    return pinned_paths
+
+
 def validate(
     repo_root: Path,
     workspace: str,
@@ -398,18 +444,18 @@ def validate(
     verification_results, verification_bytes = load_verification_results(
         repo_root, workspace, receipt_sha256, target_state
     )
+    receipt_artifact_paths = validate_receipt_artifacts(repo_root, workspace, receipt)
     all_changes = changed_paths(repo_root, baseline_head)
-    workflow_paths = {
-        receipt["artifacts"][kind][part]["path"]
-        for kind in ("requirements", "design")
-        for part in ("source", "display")
-    } | {
+    generated_evidence_paths = {
         canonical_receipt_path(repo_root, workspace).relative_to(repo_root).as_posix(),
         canonical_verification_path(repo_root, workspace).relative_to(repo_root).as_posix(),
         canonical_coverage_path(repo_root, workspace).relative_to(repo_root).as_posix(),
     }
+    excluded_paths = receipt_artifact_paths | generated_evidence_paths
     build_changes = [
-        change for change in all_changes if change["path"] not in workflow_paths
+        change
+        for change in all_changes
+        if change["path"] not in excluded_paths
     ]
     out_of_scope = [
         change["path"]
