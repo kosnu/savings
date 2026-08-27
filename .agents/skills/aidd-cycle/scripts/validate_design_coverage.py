@@ -11,19 +11,27 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 from artifact_source import (
+    SCHEMA_VERSION,
     SourceError,
+    inventory_owned_paths,
     is_placeholder_text,
     load_source,
     load_source_bytes,
+    path_is_within_scope,
     read_regular_file_bytes,
     structured_sha256,
+    validate_repository_relative_path,
 )
 from git_baseline import (
     GitBaselineError,
     canonical_source_path,
     load_git_head_source,
     require_canonical_worktree_path,
+    require_repository_root,
+    run_git,
     validate_workspace_identity,
 )
 from validate_requirements_continuity import (
@@ -35,6 +43,14 @@ from validate_requirements_goal import (
     ValidationError as RequirementsInputError,
     validate_rule_map,
     validate as validate_requirements_input,
+)
+from rule_coverage import (
+    RuleCoverageError,
+    expand_rule_closure,
+    resolve_path_coverage,
+    rules_for_surfaces,
+    surface_ids as canonical_surface_ids,
+    validate_review_routing,
 )
 
 
@@ -411,7 +427,7 @@ def validate_coverage(
         raise ValidationError("coverage evidence block references must be unique")
 
 
-def selected_rule_ids(requirements_source: dict[str, Any]) -> list[str]:
+def requirements_selected_rule_ids(requirements_source: dict[str, Any]) -> list[str]:
     input_gate = requirements_source["validation"]["input_gate"]
     return [
         entry["id"]
@@ -420,10 +436,185 @@ def selected_rule_ids(requirements_source: dict[str, Any]) -> list[str]:
     ]
 
 
+def design_selected_rule_ids(
+    rule_map_bytes: bytes,
+    requirements_source: dict[str, Any],
+    design_source: dict[str, Any],
+) -> list[str]:
+    try:
+        rule_map = json.loads(rule_map_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValidationError(f"canonical rule-map is invalid: {error}") from error
+    try:
+        rules_by_id = validate_rule_map(rule_map)
+        routing = validate_review_routing(rule_map, rules_by_id)
+    except (RequirementsInputError, RuleCoverageError) as error:
+        raise ValidationError(f"canonical rule-map is invalid: {error}") from error
+
+    coverage = design_source["validation"].get("rule_coverage")
+    if not isinstance(coverage, dict):
+        raise ValidationError(
+            "Design rule_coverage is required for Goal validation and completion"
+        )
+    declared_surfaces = coverage["implementation_surfaces"]
+    known_surfaces = canonical_surface_ids(routing)
+    unknown_surfaces = set(declared_surfaces) - set(known_surfaces)
+    if unknown_surfaces:
+        raise ValidationError(
+            "rule_coverage contains unknown implementation surfaces: "
+            f"{', '.join(sorted(unknown_surfaces))}"
+        )
+    expected_surface_order = [
+        surface_id for surface_id in known_surfaces if surface_id in declared_surfaces
+    ]
+    if declared_surfaces != expected_surface_order:
+        raise ValidationError(
+            "rule_coverage.implementation_surfaces must use canonical rule-map order"
+        )
+
+    requirements_rules = requirements_selected_rule_ids(requirements_source)
+    surface_rules = rules_for_surfaces(declared_surfaces, routing)
+    automatic_rules = list(dict.fromkeys([*requirements_rules, *surface_rules]))
+    additional_ids = [entry["id"] for entry in coverage["additional_rules"]]
+    unknown_rules = set(additional_ids) - set(rules_by_id)
+    if unknown_rules:
+        raise ValidationError(
+            "rule_coverage.additional_rules contains unknown nodes: "
+            f"{', '.join(sorted(unknown_rules))}"
+        )
+    redundant_rules = set(additional_ids) & set(automatic_rules)
+    if redundant_rules:
+        raise ValidationError(
+            "rule_coverage.additional_rules contains automatically selected nodes: "
+            f"{', '.join(sorted(redundant_rules))}"
+        )
+    expected_additional_order = [
+        rule_id for rule_id in rules_by_id if rule_id in additional_ids
+    ]
+    if additional_ids != expected_additional_order:
+        raise ValidationError(
+            "rule_coverage.additional_rules must use canonical rule-map order"
+        )
+    try:
+        return expand_rule_closure(
+            [*automatic_rules, *additional_ids],
+            rules_by_id,
+        )
+    except RuleCoverageError as error:
+        raise ValidationError(str(error)) from error
+
+
+def validate_target_rule_coverage(
+    repo_root: Path,
+    rule_map_bytes: bytes,
+    requirements_source: dict[str, Any],
+    design_source: dict[str, Any],
+    baseline_paths: list[str],
+) -> list[str]:
+    try:
+        rule_map = json.loads(rule_map_bytes.decode("utf-8"))
+        rules_by_id = validate_rule_map(rule_map)
+        routing = validate_review_routing(rule_map, rules_by_id)
+    except (UnicodeDecodeError, json.JSONDecodeError, SourceError, RuleCoverageError) as error:
+        raise ValidationError(f"target-state rule coverage is invalid: {error}") from error
+    target_paths = [
+        entry["path"]
+        for entry in design_source["validation"]["target_state"]["representations"]
+    ]
+    scope_paths = [
+        entry["path"]
+        for entry in design_source["validation"]["target_state"]["ownership_scopes"]
+    ]
+    relevant_paths = sorted(set([*baseline_paths, *target_paths]))
+    for path in sorted(set([*scope_paths, *relevant_paths])):
+        ignored = run_git(repo_root, ["check-ignore", "-q", "--", path])
+        if ignored.returncode == 0:
+            raise ValidationError(
+                f"task-owned path must be visible to Git diff inspection: {path}"
+            )
+        if ignored.returncode != 1:
+            raise ValidationError(f"Git visibility check failed for task-owned path: {path}")
+    expected_surface_set: set[str] = set()
+    path_rule_set: set[str] = set()
+    for path in relevant_paths:
+        try:
+            resolution = resolve_path_coverage(path, routing)
+        except RuleCoverageError as error:
+            raise ValidationError(str(error)) from error
+        expected_surface_set.update(resolution["surfaces"])
+        path_rule_set.update(resolution["path_rules"])
+    known_surfaces = canonical_surface_ids(routing)
+    expected_surfaces = [
+        surface for surface in known_surfaces if surface in expected_surface_set
+    ]
+    declared = design_source["validation"]["rule_coverage"]["implementation_surfaces"]
+    if declared != expected_surfaces:
+        raise ValidationError(
+            "rule_coverage.implementation_surfaces must exactly cover target and baseline-owned paths"
+        )
+    automatic = set(requirements_selected_rule_ids(requirements_source)) | set(
+        rules_for_surfaces(expected_surfaces, routing)
+    )
+    additional = {
+        entry["id"]
+        for entry in design_source["validation"]["rule_coverage"]["additional_rules"]
+    }
+    missing_path_rules = path_rule_set - automatic - additional
+    if missing_path_rules:
+        raise ValidationError(
+            "target and baseline-owned paths require additional Design rules: "
+            f"{', '.join(sorted(missing_path_rules))}"
+        )
+    return baseline_paths
+
+
+def validate_rule_coverage_baseline_inventory(
+    value: Any,
+    target_state: dict[str, Any],
+) -> list[str]:
+    if not isinstance(value, list):
+        raise ValidationError("rule coverage baseline inventory must be an array")
+    paths: list[str] = []
+    for index, entry in enumerate(value):
+        try:
+            path = validate_repository_relative_path(
+                entry,
+                f"rule coverage baseline inventory[{index}]",
+            )
+        except SourceError as error:
+            raise ValidationError(str(error)) from error
+        if not any(
+            path_is_within_scope(path, scope)
+            for scope in target_state["ownership_scopes"]
+        ):
+            raise ValidationError(
+                "rule coverage baseline inventory path must be inside an ownership scope: "
+                f"{path}"
+            )
+        paths.append(path)
+    if paths != sorted(set(paths)):
+        raise ValidationError(
+            "rule coverage baseline inventory must be unique and sorted by path"
+        )
+    return paths
+
+
+def capture_rule_coverage_baseline_inventory(
+    repo_root: Path,
+    target_state: dict[str, Any],
+) -> list[str]:
+    try:
+        paths = inventory_owned_paths(repo_root, target_state)
+    except SourceError as error:
+        raise ValidationError(f"target-state rule coverage is invalid: {error}") from error
+    return validate_rule_coverage_baseline_inventory(paths, target_state)
+
+
 def load_selected_rule_records(
     repo_root: Path,
     rule_map_bytes: bytes,
     requirements_source: dict[str, Any],
+    design_source: dict[str, Any],
 ) -> dict[str, dict[str, Any]]:
     try:
         rule_map = json.loads(rule_map_bytes.decode("utf-8"))
@@ -434,7 +625,11 @@ def load_selected_rule_records(
     except RequirementsInputError as error:
         raise ValidationError(f"canonical rule-map is invalid: {error}") from error
     records: dict[str, dict[str, Any]] = {}
-    for rule_id in selected_rule_ids(requirements_source):
+    for rule_id in design_selected_rule_ids(
+        rule_map_bytes,
+        requirements_source,
+        design_source,
+    ):
         rule = rules_by_id.get(rule_id)
         if rule is None:
             raise ValidationError(f"selected canonical rule is missing: {rule_id}")
@@ -575,6 +770,7 @@ def validate(
     rule_map_bytes: bytes | None = None,
     requirements_baseline_bytes: bytes | None | _UnsetBaseline = UNSET_BASELINE,
     design_baseline_bytes: bytes | None | _UnsetBaseline = UNSET_BASELINE,
+    rule_coverage_baseline_inventory: list[str] | None = None,
 ) -> None:
     require_canonical_input(
         repo_root,
@@ -604,6 +800,8 @@ def validate(
         ) from error
     if requirements_source["workspace"] != workspace:
         raise ValidationError("Requirements source workspace does not match")
+    if requirements_source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("new Design requires Requirements schema_version 3")
     if requirements_source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
     cycle_start_issue_title = require_exact_string(
@@ -687,8 +885,19 @@ def validate(
         raise ValidationError(f"Design source validation failed: {error}") from error
     if source["workspace"] != workspace:
         raise ValidationError("Design source workspace does not match")
+    if source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("new Design completion requires schema_version 3")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
+    target_state = source["validation"]["target_state"]
+    baseline_inventory = (
+        capture_rule_coverage_baseline_inventory(repo_root, target_state)
+        if rule_coverage_baseline_inventory is None
+        else validate_rule_coverage_baseline_inventory(
+            rule_coverage_baseline_inventory,
+            target_state,
+        )
+    )
     manifest = extract_manifest(source)
     if manifest.get("workspace") != workspace:
         raise ValidationError("manifest workspace does not match")
@@ -706,6 +915,14 @@ def validate(
             ids,
             baseline_sections,
         )
+        validate_target_rule_coverage(
+            repo_root,
+            rule_map_bytes,
+            requirements_source,
+            source,
+            baseline_inventory,
+        )
+        design_selected_rule_ids(rule_map_bytes, requirements_source, source)
         return
 
     validate_snapshot(
@@ -746,13 +963,25 @@ def validate(
             ids,
             baseline_sections,
         )
+        if source["validation"]["target_state"] != goal_source["validation"]["target_state"]:
+            raise ValidationError(
+                "Design artifact target_state must match the retained Design Goal"
+            )
         if (
-            source["validation"]["product_behaviors"]
-            != goal_source["validation"]["product_behaviors"]
+            source["validation"]["rule_coverage"]
+            != goal_source["validation"]["rule_coverage"]
         ):
             raise ValidationError(
-                "Design artifact product_behaviors must match the retained Design Goal"
+                "Design artifact rule_coverage must match the retained Design Goal"
             )
+    validate_target_rule_coverage(
+        repo_root,
+        rule_map_bytes,
+        requirements_source,
+        source,
+        baseline_inventory,
+    )
+    design_selected_rule_ids(rule_map_bytes, requirements_source, source)
     current_sections = design_sections(source)
     blocks = evidence_blocks(source)
     validate_coverage(manifest.get("coverage"), ids, blocks)
@@ -776,6 +1005,7 @@ def main() -> int:
     parser.add_argument("--goal-document", type=Path)
     args = parser.parse_args()
     try:
+        repo_root = require_repository_root(args.repo_root)
         validate(
             args.issue,
             args.issue_url,
@@ -785,7 +1015,7 @@ def main() -> int:
             args.requirements,
             args.document,
             args.kind,
-            args.repo_root,
+            repo_root,
             args.workspace,
             args.goal_document,
         )

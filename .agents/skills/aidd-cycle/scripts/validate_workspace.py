@@ -7,11 +7,14 @@ import argparse
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+
 from git_baseline import (
     GitBaselineError,
     canonical_workspace_name,
     issue_number,
     list_issue_workspaces,
+    require_repository_root,
     validate_workspace_identity,
 )
 
@@ -25,10 +28,11 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        repo_root = require_repository_root(args.repo_root)
         workspace = args.workspace
         if workspace is None:
             existing = list_issue_workspaces(
-                args.repo_root, issue_number(args.issue)
+                repo_root, issue_number(args.issue)
             )
             if len(existing) > 1:
                 raise GitBaselineError(
@@ -44,7 +48,7 @@ def main() -> int:
                     )
                 workspace = canonical_workspace_name(args.issue, args.issue_title)
         existing = validate_workspace_identity(
-            args.repo_root,
+            repo_root,
             args.issue,
             workspace,
             args.issue_title,

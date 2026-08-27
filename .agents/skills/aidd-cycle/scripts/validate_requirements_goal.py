@@ -12,7 +12,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 from artifact_source import (
+    SCHEMA_VERSION,
     SourceError,
     load_source,
     load_source_bytes,
@@ -22,7 +25,9 @@ from git_baseline import (
     GitBaselineError,
     canonical_source_path,
     require_canonical_worktree_path,
+    require_repository_root,
 )
+from rule_coverage import RuleCoverageError, validate_review_routing
 
 
 GENERIC_IMPLEMENTATION_TOPICS = {
@@ -379,6 +384,8 @@ def validate(
         raise ValidationError("document kind must be goal or artifact")
     if source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
+    if source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("new Requirements Goals and artifacts require schema_version 3")
     cycle_start_issue_title = require_exact_string(
         source["validation"].get("cycle_start_issue_title"),
         "validation.cycle_start_issue_title",
@@ -394,6 +401,10 @@ def validate(
         rule_map_bytes = read_regular_file_bytes(canonical_rule_map_path)
     rule_map = json.loads(rule_map_bytes.decode("utf-8"))
     rules_by_id = validate_rule_map(rule_map)
+    try:
+        validate_review_routing(rule_map, rules_by_id)
+    except RuleCoverageError as error:
+        raise ValidationError(str(error)) from error
     manifest = extract_manifest(source)
 
     validate_issue_metadata(issue, issue_url, issue_updated_at)
@@ -433,6 +444,8 @@ def validate(
     if goal_document_path.resolve() == document_path.resolve():
         raise ValidationError("--goal-document must be distinct from the artifact")
     goal_source = load_source(goal_document_path, "requirements_goal")
+    if goal_source["schema_version"] != SCHEMA_VERSION:
+        raise ValidationError("retained Requirements Goal requires schema_version 3")
     if goal_source["validation"].get("mode") != "managed":
         raise ValidationError("normal validation requires validation.mode=managed")
     goal_manifest = extract_manifest(goal_source)
@@ -464,6 +477,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        repo_root = require_repository_root(args.repo_root)
         validate(
             args.issue_body,
             args.document,
@@ -473,7 +487,7 @@ def main() -> int:
             args.issue_url,
             args.issue_updated_at,
             args.kind,
-            args.repo_root,
+            repo_root,
             args.goal_document,
         )
     except (

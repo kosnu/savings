@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "description": "AI agentが作業対象に応じて読むべきリポジトリ内ドキュメントを選ぶための初期ルールマップ。Markdown本文を置き換えず、docs配下の正本へ案内する補助索引として扱う。",
   "resolution_order": [
     "specific_applies_to",
@@ -8,6 +8,61 @@
     "priority",
     "stop_and_clarify"
   ],
+  "review_routing": {
+    "governed_paths": ["apps/web/**", "apps/api/**"],
+    "surfaces": [
+      {
+        "id": "web-project",
+        "paths": ["apps/web/**"],
+        "required_rules": [
+          "policy.code-review",
+          "infrastructure.overview",
+          "web.test-policy"
+        ]
+      },
+      {
+        "id": "web-source",
+        "paths": ["apps/web/src/**"],
+        "required_rules": [
+          "web.component-structure",
+          "web.design-system-brand",
+          "web.design-rules",
+          "web.feature-directory",
+          "web.query-cache",
+          "web.suspense-boundaries"
+        ]
+      },
+      {
+        "id": "web-storybook",
+        "paths": [
+          "apps/web/src/**/*.stories.tsx",
+          "apps/web/.storybook/**",
+          "apps/web/.storybook-test/**"
+        ],
+        "required_rules": [
+          "web.component-structure",
+          "web.storybook-browser-tests"
+        ]
+      },
+      {
+        "id": "api-project",
+        "paths": ["apps/api/**"],
+        "required_rules": [
+          "policy.code-review",
+          "infrastructure.overview",
+          "policy.transaction-boundaries",
+          "policy.temporal-data",
+          "domain.amount",
+          "domain.date",
+          "domain.payment",
+          "domain.category",
+          "domain.monthly-budget",
+          "domain.book",
+          "domain.user"
+        ]
+      }
+    ]
+  },
   "rules": [
     {
       "id": "adr.harness-engineering",
@@ -39,7 +94,7 @@
       "id": "documentation.policy",
       "file": "docs/harness/policies/documentation-policy.md",
       "applies_to": {
-        "paths": ["docs/**/*.md", "apps/*/docs/**/*.md", "AGENTS.md"],
+        "paths": ["docs/**/*.md", "docs/harness/scripts/**", "apps/*/docs/**/*.md", "AGENTS.md"],
         "domains": ["repository", "documentation"],
         "activities": ["add_doc", "update_doc", "classify_docs", "update_front_matter"],
         "topics": ["documentation", "front-matter", "agent-guidance"]
