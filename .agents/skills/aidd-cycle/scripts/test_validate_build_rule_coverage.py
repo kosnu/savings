@@ -10,7 +10,7 @@ import unittest
 from collections.abc import Callable
 from pathlib import Path
 
-from artifact_source import serialize_source
+from artifact_source import serialize_source, structured_sha256
 from git_baseline import GitBaselineError, decode_git_path, split_nul_records
 from render_aidd_artifact import render_artifact_markdown
 from test_validate_build_entry import initialize_repo, write_design_goal
@@ -295,6 +295,66 @@ class BuildRuleCoverageTest(unittest.TestCase):
             )
             self.assertEqual(evidence["results"][0]["stderr_bytes"], 0)
             self.assertTrue(all(entry["status"] == "passed" for entry in evidence["results"]))
+            design = json.loads(
+                (
+                    repo_root
+                    / "docs"
+                    / "ai-driven-development"
+                    / "workspaces"
+                    / WORKSPACE
+                    / "design-doc.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                [entry["command"] for entry in evidence["results"]],
+                [
+                    entry["command"]
+                    for entry in design["validation"]["target_state"][
+                        "verification_cases"
+                    ]
+                ],
+            )
+
+    def test_repository_runner_rejects_noncanonical_receipt_executable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            capture(repo_root)
+            receipt_path = canonical_receipt_path(repo_root, WORKSPACE)
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            target_state = receipt["target_state"]["value"]
+            target_state["verification_cases"][0]["command"] = [
+                "Python3",
+                "-c",
+                "raise SystemExit(0)",
+            ]
+            receipt["target_state"]["sha256"] = structured_sha256(target_state)
+            receipt_bytes = (
+                json.dumps(receipt, ensure_ascii=False, indent=2) + "\n"
+            ).encode("utf-8")
+            receipt_path.write_bytes(receipt_bytes)
+            verification_path = canonical_verification_path(repo_root, WORKSPACE)
+            verification_path.unlink()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    os.fspath(Path(__file__).with_name("capture_build_verification.py")),
+                    "--repo-root",
+                    os.fspath(repo_root),
+                    "--workspace",
+                    WORKSPACE,
+                    "--expected-receipt-sha256",
+                    hashlib.sha256(receipt_bytes).hexdigest(),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("executable is not approved", result.stderr)
+            self.assertFalse(verification_path.exists())
 
     def test_repository_runner_rejects_verification_that_mutates_final_state(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

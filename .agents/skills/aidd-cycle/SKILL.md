@@ -75,12 +75,13 @@ For each phase in the workflow:
    and the Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
    subgraph, using the phase executor assigned below. In Design, record the
-   complete schema-v3 target state: final product behaviors, verification
+   complete schema-v3 target state: final product behaviors with substantive
+   descriptions of their final observable effects, verification
    cases, normalized ownership scopes, and all final machine-addressable
    representations. Automated verification cases own direct argv commands
-   whose executable is in the repository allowlist (`pnpm`, Python 3, `node`,
-   `git`, or `jq`). Manual cases own substantive concrete
-   procedures. Derive machine review
+   whose executable exactly matches a case-sensitive canonical repository
+   allowlist name (`pnpm`, `python3`, `node`, `git`, or `jq`). Manual cases own
+   substantive concrete procedures. Derive machine review
    surfaces and path rules from the union of target paths and the current owned
    baseline, including paths that disappear in the target, and freeze that
    baseline inventory in the Design receipt. In Build,
@@ -184,7 +185,9 @@ silently run the delegated phase in the parent.
 - Design's `validation.target_state` is the only completed-state source of truth.
   It owns final product behaviors, verification cases, normalized ownership
   scopes, and machine-addressable representations. Product behavior records
-  have one canonical `requirement_id` and no add/change/remove operation;
+  have one canonical `requirement_id`, a substantive description that uniquely
+  identifies the final observable effect within that Requirement and type, and
+  no add/change/remove operation;
   verification cases use the same Requirement owner, and representations may
   reference only that owner's behavior and cases. Requirement content remains
   only in canonical `requirements.json`. Selected rules constrain Requirements

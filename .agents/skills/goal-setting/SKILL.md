@@ -92,10 +92,12 @@ For Design:
 - cover every current requirement ID and every Git `HEAD` Design baseline
   section;
 - define schema-v3 `target_state` as the only completed-state source of truth:
-  all final product behaviors, all final verification cases with an automated
-  direct argv command whose executable is in the repository allowlist (`pnpm`,
-  Python 3, `node`, `git`, or `jq`) or a substantive manual procedure, normalized
-  non-overlapping `file` or `tree` ownership scopes, and every final
+  all final product behaviors with substantive descriptions that uniquely
+  identify their final observable effects within each Requirement and type,
+  all final verification cases with an automated direct argv command whose
+  executable exactly matches a case-sensitive canonical repository allowlist
+  name (`pnpm`, `python3`, `node`, `git`, or `jq`) or a substantive manual
+  procedure, normalized non-overlapping `file` or `tree` ownership scopes, and every final
   machine-addressable implementation/test/Story/fixture/configuration/
   migration/documentation representation with owned paths and locator metadata.
   Do not infer source-code syntax or test-runner policy from locator metadata,
