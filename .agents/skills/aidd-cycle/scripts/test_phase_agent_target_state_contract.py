@@ -21,6 +21,15 @@ class PhaseAgentTargetStateContractTest(unittest.TestCase):
                 self.assertIn("ownership scopes", instructions)
                 self.assertIn("verification case", instructions)
 
+    def test_phase_agents_preserve_behavior_and_executable_identity(self) -> None:
+        design_instructions = PHASE_AGENT_PATHS[0].read_text(encoding="utf-8")
+        build_instructions = PHASE_AGENT_PATHS[1].read_text(encoding="utf-8")
+
+        self.assertIn("substantive descriptions", design_instructions)
+        self.assertIn("case-sensitive canonical", design_instructions)
+        self.assertIn("receipt-fixed product behavior descriptions", build_instructions)
+        self.assertIn("case-sensitive canonical", build_instructions)
+
     def test_goal_lifecycle_contract_remains_with_the_parent(self) -> None:
         for path in PHASE_AGENT_PATHS:
             with self.subTest(path=path):

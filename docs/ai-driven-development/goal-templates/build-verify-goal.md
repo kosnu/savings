@@ -33,8 +33,8 @@ when_to_read:
 - target stateだけを実体化し、既存実装のtask-owned範囲をその完成状態へ再構成している。
 - 必要なcode、test、fixture、doc表現が同期している。
 - 対象appの必須verificationが現在diffに対して成功している。
-- repo-owned Build verification runnerが実行前のfinal owned-path inventoryと各case後のtask-owned state不変を確認して全`VC-*`のcase type別成功証拠を生成し、Design固定command、exit code 0、stream境界・byte長を固定した出力hash、同一final-state hashに一致する。final-state manifestはtarget-state hashと全owned regular fileのpath・Git実行mode・content hashを含む。必須representation pathが存在し、task-owned範囲に未登録pathが残っていない。locator metadataからsource構文やtest runner規則を推論しない。Build Entryはreceipt固定baseline inventoryでDesign rule coverageを再検証し、現在のworktreeからbaselineを再計算しない。
-- receiptのGit基準点から実際の変更pathを分類し、全変更がownership scopeまたは固定workflow evidence path内にあり、path ruleと依存closureを含むcanonical Build rule coverage recordに未解決がない。
+- repo-owned Build verification runnerが実行前のfinal owned-path inventoryと各case後のtask-owned state不変を確認して全`VC-*`のcase type別成功証拠を生成し、case-sensitiveなrepo allowlist正規名と完全一致するDesign固定command、exit code 0、stream境界・byte長を固定した出力hash、同一final-state hashに一致する。final-state manifestはtarget-state hashと全owned regular fileのpath・Git実行mode・content hashを含む。必須representation pathが存在し、task-owned範囲に未登録pathが残っていない。locator metadataからsource構文やtest runner規則を推論しない。Build Entryはreceipt固定baseline inventoryでDesign rule coverageを再検証し、現在のworktreeからbaselineを再計算しない。
+- receiptのGit基準点から実際の変更pathを分類し、全変更がownership scope、receipt hashへ再照合済みのcanonical artifact path、またはvalidatorが所有するcanonical evidence path内にあり、path ruleと依存closureを含むcanonical Build rule coverage recordに未解決がない。
 - Build entry gateを再実行し、Goalへ記録したreceipt SHA-256と一致している。
 - 未解消のlint、type、test、整合性、scope漏れがない。
 

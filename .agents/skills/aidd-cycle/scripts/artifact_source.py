@@ -332,7 +332,7 @@ def require_shell_free_command(value: Any, label: str) -> list[str]:
     command = require_string_array(value, label)
     if not command:
         raise SourceError(f"{label} must be non-empty")
-    executable = command[0].lower()
+    executable = command[0]
     if executable not in APPROVED_COMMAND_EXECUTABLES:
         raise SourceError(
             f"{label} executable is not approved for repository verification"
@@ -1031,21 +1031,40 @@ def validate_target_product_behaviors(
 ) -> list[str]:
     entries = require_object_array(value, "target_state.product_behaviors")
     ids: list[str] = []
+    semantic_identities: list[tuple[str, str, str]] = []
     for index, entry in enumerate(entries):
         label = f"target_state.product_behaviors[{index}]"
-        require_object_keys(entry, {"id", "type", "requirement_id"}, label)
+        require_object_keys(
+            entry,
+            {"id", "type", "description", "requirement_id"},
+            label,
+        )
         behavior_id = require_string(entry["id"], f"{label}.id")
         if PRODUCT_BEHAVIOR_ID_PATTERN.fullmatch(behavior_id) is None:
             raise SourceError(f"invalid product behavior ID: {behavior_id}")
         behavior_type = require_string(entry["type"], f"{label}.type")
         if behavior_type not in {"user_operation", "state_transition"}:
             raise SourceError(f"{label}.type is unsupported")
+        description = require_substantive_inline_text(
+            entry["description"], f"{label}.description"
+        )
         requirement_id = require_string(entry["requirement_id"], f"{label}.requirement_id")
         if requirement_id not in requirement_ids:
             raise SourceError(f"{label}.requirement_id must reference a covered requirement")
         ids.append(behavior_id)
+        semantic_identities.append(
+            (
+                requirement_id,
+                behavior_type,
+                canonical_substantive_text(description),
+            )
+        )
     if ids != sorted(set(ids), key=product_behavior_sort_key):
         raise SourceError("target product behavior IDs must be canonical and unique")
+    if len(semantic_identities) != len(set(semantic_identities)):
+        raise SourceError(
+            "target product behavior descriptions must be unique per Requirement and type"
+        )
     return ids
 
 

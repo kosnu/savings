@@ -15,6 +15,7 @@ from artifact_source import (
     serialize_source,
     structured_sha256,
     validate_loaded_source,
+    validate_target_product_behaviors,
 )
 from validate_design_coverage import (
     ValidationError,
@@ -27,6 +28,7 @@ from validate_design_coverage import (
     validate_scopes,
 )
 from git_baseline import canonical_workspace_name
+from render_aidd_artifact import render_artifact_markdown
 
 
 ISSUE = "owner/repo#1639"
@@ -335,7 +337,12 @@ def typed_design_sections(
 def target_state() -> dict[str, object]:
     return {
         "product_behaviors": [
-            {"id": "PB-1", "type": "state_transition", "requirement_id": "FR-1"}
+            {
+                "id": "PB-1",
+                "type": "state_transition",
+                "description": "FR-1の最終状態へ更新する。",
+                "requirement_id": "FR-1",
+            }
         ],
         "verification_cases": [
             {
@@ -778,6 +785,11 @@ class DesignCoverageGateTest(unittest.TestCase):
     def test_accepts_artifact_using_evidence_block_ids(self) -> None:
         self.validate_source(kind="artifact")
 
+    def test_rendered_target_state_includes_behavior_description(self) -> None:
+        rendered = render_artifact_markdown(design_source("0" * 64))
+
+        self.assertIn("FR-1の最終状態へ更新する。", rendered)
+
     def test_artifact_gate_requires_the_retained_design_goal(self) -> None:
         with self.assertRaisesRegex(ValidationError, "requires --goal-document"):
             self.validate_source(kind="artifact", include_goal_document=False)
@@ -789,6 +801,40 @@ class DesignCoverageGateTest(unittest.TestCase):
         ]
         with self.assertRaisesRegex(SourceError, "invalid keys"):
             validate_loaded_source(source)
+
+    def test_v3_requires_a_substantive_product_behavior_description(self) -> None:
+        source = design_source("0" * 64)
+        del source["validation"]["target_state"]["product_behaviors"][0][
+            "description"
+        ]
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
+
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["product_behaviors"][0][
+            "description"
+        ] = "TODO"
+        with self.assertRaisesRegex(SourceError, "substantive"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_duplicate_product_behavior_semantics(self) -> None:
+        behaviors = [
+            {
+                "id": "PB-1",
+                "type": "user_operation",
+                "description": "利用者が項目を追加できる。",
+                "requirement_id": "FR-1",
+            },
+            {
+                "id": "PB-2",
+                "type": "user_operation",
+                "description": "利用者が項目を追加できる!",
+                "requirement_id": "FR-1",
+            },
+        ]
+
+        with self.assertRaisesRegex(SourceError, "descriptions must be unique"):
+            validate_target_product_behaviors(behaviors, ["FR-1"])
 
     def test_v3_rejects_delta_change_in_target_behavior(self) -> None:
         source = design_source("0" * 64)
@@ -844,6 +890,8 @@ class DesignCoverageGateTest(unittest.TestCase):
             ["timeout", "5", "sh", "-c", "exit 0"],
             ["sudo", "sh", "-c", "exit 0"],
             ["./python3", "-c", "raise SystemExit(0)"],
+            ["Python3", "-c", "raise SystemExit(0)"],
+            ["PNPM", "--version"],
         ):
             with self.subTest(command=command):
                 source = design_source("0" * 64)
@@ -914,8 +962,8 @@ class DesignCoverageGateTest(unittest.TestCase):
             ).hexdigest()
             artifact = design_source(requirements_digest)
             artifact["validation"]["target_state"]["product_behaviors"][0][
-                "type"
-            ] = "user_operation"
+                "description"
+            ] = "FR-1の別の最終状態へ更新する。"
             artifact_path = workspace_root / "design-doc.json"
             artifact_path.write_text(
                 json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",

@@ -168,11 +168,13 @@ For schema v3, `validation.target_state` is the only completion source of truth:
 
 - `product_behaviors` inventories only the user operations and state
   transitions that must exist when the cycle is complete. A target behavior
-  has `id`, `type`, and one canonical `requirement_id`; it has no `change`
-  operation.
+  has `id`, `type`, a substantive `description` of its final observable effect,
+  and one canonical `requirement_id`; it has no `change` operation. Descriptions
+  must distinguish behaviors within the same Requirement and type.
 - `verification_cases` inventories every final automated or manual case. An
   automated case owns a direct command argument array whose executable is in
-  the repository allowlist: `pnpm`, `python3`, `node`, `git`, or `jq`.
+  the repository allowlist: `pnpm`, `python3`, `node`, `git`, or `jq`. The
+  executable must exactly match one of those case-sensitive canonical names.
   Executable paths, generic launchers, and shell interpreters are not
   allowlisted; a manual case owns a substantive concrete procedure. Every Requirement and product behavior must be covered,
   and every referenced behavior must have the same Requirement owner as its
