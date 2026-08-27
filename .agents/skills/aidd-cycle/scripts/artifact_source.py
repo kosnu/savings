@@ -122,7 +122,6 @@ REQUIREMENT_ID_PATTERN = re.compile(r"(?P<prefix>FR|NFR|AC)-(?P<number>[1-9][0-9
 PRODUCT_BEHAVIOR_ID_PATTERN = re.compile(r"PB-(?P<number>[1-9][0-9]*)")
 VERIFICATION_CASE_ID_PATTERN = re.compile(r"VC-(?P<number>[1-9][0-9]*)")
 REPRESENTATION_ID_PATTERN = re.compile(r"REP-(?P<number>[1-9][0-9]*)")
-EXPORT_NAME_PATTERN = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
 REQUIREMENT_PREFIX_ORDER = {"FR": 0, "NFR": 1, "AC": 2}
 WORKSPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
 DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}")
@@ -1158,7 +1157,6 @@ def validate_target_state(value: Any, requirement_ids: list[str]) -> dict[str, A
     representation_behavior_references: list[str] = []
     representation_case_references: list[str] = []
     locator_identities: list[tuple[str, str, str]] = []
-    locator_kinds_by_path: dict[str, set[str]] = {}
     supported_kinds = {
         "implementation",
         "test",
@@ -1238,25 +1236,9 @@ def validate_target_state(value: Any, requirement_ids: list[str]) -> dict[str, A
             locator_name = require_inline_markdown(
                 locator["name"], f"{label}.locator.name"
             )
-            if locator_kind == "export" and locator_name == "default":
-                raise SourceError(
-                    f"{label}.export locator name must be a non-default identifier"
-                )
-            if (
-                locator_kind == "export"
-                and EXPORT_NAME_PATTERN.fullmatch(locator_name) is None
-            ):
-                raise SourceError(f"{label}.export locator name must be an identifier")
         else:
             raise SourceError(f"{label}.locator.kind is unsupported")
-        if kind == "story" and locator_kind != "export":
-            raise SourceError(f"{label}.story representation must use an export locator")
-        if kind == "test" and locator_kind != "test_case":
-            raise SourceError(f"{label}.test representation must use a test_case locator")
-        if locator_kind == "test_case" and kind != "test":
-            raise SourceError(f"{label}.test_case locator requires kind=test")
         locator_identities.append((path, locator_kind, locator_name))
-        locator_kinds_by_path.setdefault(path, set()).add(locator_kind)
         representation_ids.append(representation_id)
         representation_behavior_references.extend(behavior_references)
         representation_case_references.extend(case_references)
@@ -1264,13 +1246,6 @@ def validate_target_state(value: Any, requirement_ids: list[str]) -> dict[str, A
         raise SourceError("representation IDs must be canonical and unique")
     if len(locator_identities) != len(set(locator_identities)):
         raise SourceError("representation locators must be unique")
-    if any(
-        "file" in kinds and len(kinds) != 1
-        for kinds in locator_kinds_by_path.values()
-    ):
-        raise SourceError(
-            "a representation path must use either a whole-file locator or granular locators"
-        )
     if set(representation_behavior_references) != set(behavior_ids):
         raise SourceError("representations must cover every product behavior")
     if set(representation_case_references) != set(case_ids):

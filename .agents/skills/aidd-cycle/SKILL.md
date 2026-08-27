@@ -84,16 +84,15 @@ For each phase in the workflow:
    surfaces and path rules from the union of target paths and the current owned
    baseline, including paths that disappear in the target, and freeze that
    baseline inventory in the Design receipt. In Build,
-   reconstruct exactly that target state in the ownership scopes, use the
-   repository Build verification runner to observe named exports and test cases
-   independently of declared locator kinds, validate the final inventory before
-   execution, reject missing or generator inline test callbacks and per-case mutation of an
+   reconstruct exactly that target state in the ownership scopes, validate the
+   final owned-path inventory before execution, reject per-case mutation of an
    owned file's content or Git mode, and bind every result to the unchanged
    final-state hash. Run the Build rule coverage validator against both
    the final owned tree and actual Git diff. Stop on missing or extra owned
    representations, failed or missing verification evidence, out-of-scope
    changes, undeclared surfaces, a surface or path rule absent from the receipt,
-   or a governed path with no routing surface.
+   or a governed path with no routing surface. Representation locator metadata
+   is not used to infer source-code syntax or test-runner policy.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path

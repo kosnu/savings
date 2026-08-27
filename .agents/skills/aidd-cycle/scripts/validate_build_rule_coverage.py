@@ -8,7 +8,6 @@ import hashlib
 import json
 import re
 import stat
-import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -212,51 +211,6 @@ def final_state_sha256(repo_root: Path, target_state: dict[str, Any]) -> str:
     return structured_sha256(owned_state_manifest(repo_root, target_state))
 
 
-def extract_typescript_representations(
-    text: str,
-    path: str = "representation.tsx",
-) -> dict[str, list[str]]:
-    extractor = Path(__file__).with_name("extract_typescript_representations.mjs")
-    result = subprocess.run(
-        ["node", str(extractor)],
-        input=json.dumps({"path": path, "text": text}),
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
-        detail = result.stderr.strip() or "representation extractor failed"
-        raise ValidationError(detail)
-    try:
-        inventory = json.loads(result.stdout)
-    except json.JSONDecodeError as error:
-        raise ValidationError("representation extractor returned invalid JSON") from error
-    if (
-        not isinstance(inventory, dict)
-        or set(inventory) != {"schema_version", "exports", "test_cases"}
-        or inventory["schema_version"] != 1
-    ):
-        raise ValidationError("representation extractor returned invalid inventory")
-    for key in ("exports", "test_cases"):
-        values = inventory[key]
-        if not isinstance(values, list) or any(
-            not isinstance(value, str) or not value for value in values
-        ):
-            raise ValidationError("representation extractor returned invalid names")
-    return {
-        "exports": inventory["exports"],
-        "test_cases": inventory["test_cases"],
-    }
-
-
-def exported_names(text: str, path: str = "representation.tsx") -> list[str]:
-    return extract_typescript_representations(text, path)["exports"]
-
-
-def literal_test_case_names(text: str, path: str = "representation.tsx") -> list[str]:
-    return extract_typescript_representations(text, path)["test_cases"]
-
-
 def validate_final_target_state(
     repo_root: Path,
     target_state: dict[str, Any],
@@ -267,11 +221,10 @@ def validate_final_target_state(
         raise ValidationError(str(error)) from error
     representations = target_state["representations"]
     target_paths = {entry["path"] for entry in representations}
-    source_bytes_by_path: dict[str, bytes] = {}
     missing_paths: list[str] = []
     for path in sorted(target_paths):
         try:
-            source_bytes_by_path[path] = read_regular_file_bytes(repo_root / path)
+            read_regular_file_bytes(repo_root / path)
         except (OSError, SourceError):
             missing_paths.append(path)
     if missing_paths:
@@ -284,48 +237,12 @@ def validate_final_target_state(
             "task-owned paths absent from target state remain: " + ", ".join(extra_paths)
         )
 
-    expected_by_path: dict[str, set[tuple[str, str, str]]] = {}
-    for entry in representations:
-        expected_by_path.setdefault(entry["path"], set()).add(
-            representation_identity(entry)
+    actual_records = [
+        {"path": identity[0], "locator": identity[1], "name": identity[2]}
+        for identity in sorted(
+            {representation_identity(entry) for entry in representations}
         )
-    actual_records: list[dict[str, str]] = []
-    for path in sorted(expected_by_path):
-        expected = expected_by_path[path]
-        locator_kinds = {identity[1] for identity in expected}
-        if locator_kinds == {"file"}:
-            actual_records.append({"path": path, "locator": "file", "name": ""})
-            continue
-        try:
-            text = source_bytes_by_path[path].decode("utf-8")
-        except UnicodeDecodeError as error:
-            raise ValidationError(f"granular representation must be UTF-8: {path}") from error
-        inventory = extract_typescript_representations(text, path)
-        actual_entries = [
-            *((path, "export", name) for name in inventory["exports"]),
-            *((path, "test_case", name) for name in inventory["test_cases"]),
-        ]
-        if len(actual_entries) != len(set(actual_entries)):
-            raise ValidationError(
-                f"granular representation locators must be unique in {path}"
-            )
-        actual = set(actual_entries)
-        if actual != expected:
-            missing = sorted(expected - actual)
-            extra = sorted(actual - expected)
-            detail = []
-            if missing:
-                detail.append(f"missing={missing}")
-            if extra:
-                detail.append(f"extra={extra}")
-            raise ValidationError(
-                f"final representations do not match target state for {path}: "
-                + "; ".join(detail)
-            )
-        actual_records.extend(
-            {"path": identity[0], "locator": identity[1], "name": identity[2]}
-            for identity in sorted(actual)
-        )
+    ]
     return current_paths, actual_records
 
 
