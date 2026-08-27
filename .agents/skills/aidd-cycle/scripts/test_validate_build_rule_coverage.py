@@ -11,6 +11,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from artifact_source import serialize_source
+from git_baseline import GitBaselineError, decode_git_path, split_nul_records
 from render_aidd_artifact import render_artifact_markdown
 from test_validate_build_entry import initialize_repo, write_design_goal
 from test_validate_design_coverage import WORKSPACE, design_goal_source, design_source
@@ -217,6 +218,38 @@ def update_target_state(
                 render_artifact_markdown(source),
                 encoding="utf-8",
             )
+
+
+def configure_non_ascii_target(
+    repo_root: Path,
+    target_path: str,
+    *,
+    baseline_path: str | None = None,
+) -> Path:
+    set_rule_paths(repo_root, "policy.extra", ["docs/*.md"])
+    goal_path = set_design_surfaces(
+        repo_root,
+        [],
+        additional_rules=[
+            {
+                "id": "policy.extra",
+                "reason": "非ASCII pathに適用される固有ruleであるため。",
+            }
+        ],
+    )
+
+    def set_paths(target_state: dict[str, object]) -> None:
+        scope_paths = {target_path}
+        if baseline_path is not None:
+            scope_paths.add(baseline_path)
+        target_state["ownership_scopes"] = [
+            {"path": path, "kind": "file"} for path in sorted(scope_paths)
+        ]
+        for representation in target_state["representations"]:
+            representation["path"] = target_path
+
+    update_target_state(repo_root, goal_path, set_paths)
+    return goal_path
 
 
 def write_changed_file(repo_root: Path, relative_path: str) -> None:
@@ -490,6 +523,78 @@ class BuildRuleCoverageTest(unittest.TestCase):
             self.assertEqual(record["checked_rules"], ["ai-driven.workflow"])
             self.assertEqual(record["unresolved"], [])
 
+    def test_accepts_tracked_non_ascii_git_path_with_quote_path_enabled(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            run_git(repo_root, "config", "core.quotePath", "true")
+            target_path = "docs/仕様.md"
+            target = repo_root / target_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("baseline\n", encoding="utf-8")
+            run_git(repo_root, "add", target_path)
+            run_git(repo_root, "commit", "-qm", "non-ascii baseline")
+            goal_path = configure_non_ascii_target(repo_root, target_path)
+            receipt_sha256 = capture(repo_root, goal_path, materialize=False)
+            target.write_text("changed\n", encoding="utf-8")
+            write_verification(repo_root, receipt_sha256)
+
+            record = validate(repo_root, WORKSPACE, receipt_sha256)
+
+            change = next(
+                entry for entry in record["changes"] if entry["path"] == target_path
+            )
+            self.assertEqual(change["status"], "M")
+            self.assertEqual(change["path_rules"], ["policy.extra"])
+
+    def test_accepts_untracked_non_ascii_git_path_with_quote_path_enabled(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            run_git(repo_root, "config", "core.quotePath", "true")
+            target_path = "docs/仕様.md"
+            goal_path = configure_non_ascii_target(repo_root, target_path)
+            receipt_sha256 = capture(repo_root, goal_path, materialize=False)
+            target = repo_root / target_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("untracked\n", encoding="utf-8")
+            write_verification(repo_root, receipt_sha256)
+
+            record = validate(repo_root, WORKSPACE, receipt_sha256)
+
+            change = next(
+                entry for entry in record["changes"] if entry["path"] == target_path
+            )
+            self.assertEqual(change["status"], "A")
+            self.assertEqual(change["path_rules"], ["policy.extra"])
+
+    def test_accepts_renamed_non_ascii_git_paths_with_quote_path_enabled(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            run_git(repo_root, "config", "core.quotePath", "true")
+            baseline_path = "docs/旧仕様.md"
+            target_path = "docs/仕様.md"
+            baseline = repo_root / baseline_path
+            baseline.parent.mkdir(parents=True, exist_ok=True)
+            baseline.write_text("content\n", encoding="utf-8")
+            run_git(repo_root, "add", baseline_path)
+            run_git(repo_root, "commit", "-qm", "rename baseline")
+            goal_path = configure_non_ascii_target(
+                repo_root,
+                target_path,
+                baseline_path=baseline_path,
+            )
+            receipt_sha256 = capture(repo_root, goal_path, materialize=False)
+            run_git(repo_root, "mv", baseline_path, target_path)
+            write_verification(repo_root, receipt_sha256)
+
+            record = validate(repo_root, WORKSPACE, receipt_sha256)
+
+            paths = {entry["path"] for entry in record["changes"]}
+            self.assertIn(baseline_path, paths)
+            self.assertIn(target_path, paths)
+
     def test_rejects_path_rule_missing_from_receipt(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory).resolve()
@@ -655,6 +760,56 @@ class CanonicalRoutingTest(unittest.TestCase):
         with self.assertRaisesRegex(Exception, "character class"):
             validate_review_routing(rule_map, rules_by_id)
 
+    def test_rejects_empty_character_class_rule_pattern(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        rule_map = json.loads(
+            (repo_root / "docs" / "harness" / "rule-map.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rules_by_id = validate_rule_map(rule_map)
+        rules_by_id["policy.code-review"]["applies_to"]["paths"] = ["apps/[]/**"]
+
+        with self.assertRaisesRegex(Exception, "character class"):
+            validate_review_routing(rule_map, rules_by_id)
+
+    def test_rejects_reverse_character_class_range(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        rule_map = json.loads(
+            (repo_root / "docs" / "harness" / "rule-map.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rules_by_id = validate_rule_map(rule_map)
+        rules_by_id["policy.code-review"]["applies_to"]["paths"] = [
+            "apps/[z-a]/**"
+        ]
+
+        with self.assertRaisesRegex(Exception, "character class range"):
+            validate_review_routing(rule_map, rules_by_id)
+
+    def test_compiled_character_class_range_matches_path(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        rule_map = json.loads(
+            (repo_root / "docs" / "harness" / "rule-map.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rules_by_id = validate_rule_map(rule_map)
+        rules_by_id["policy.code-review"]["applies_to"]["paths"] = [
+            "apps/web/src/[A-Z]*.tsx"
+        ]
+        routing = validate_review_routing(rule_map, rules_by_id)
+
+        self.assertIn(
+            "policy.code-review",
+            rules_for_path("apps/web/src/Button.tsx", routing),
+        )
+        self.assertNotIn(
+            "policy.code-review",
+            rules_for_path("apps/web/src/button.tsx", routing),
+        )
+
     def test_double_star_matches_zero_or_more_directories(self) -> None:
         repo_root = Path(__file__).resolve().parents[4]
         rule_map = json.loads(
@@ -694,7 +849,7 @@ class CanonicalRoutingTest(unittest.TestCase):
                 *rules_for_surfaces(surfaces, routing),
                 *rules_for_path(
                     "apps/web/src/features/settings/LanguageForm.tsx",
-                    rules_by_id,
+                    routing,
                 ),
             ],
             rules_by_id,
@@ -712,18 +867,29 @@ class CanonicalRoutingTest(unittest.TestCase):
             )
         )
         rules_by_id = validate_rule_map(rule_map)
+        routing = validate_review_routing(rule_map, rules_by_id)
 
         selected_rules = rules_for_path(
             "apps/web/src/test/msw/handlers/profile.ts",
-            rules_by_id,
+            routing,
         )
         ordinary_rules = rules_for_path(
             "apps/web/src/features/settings/LanguageForm.tsx",
-            rules_by_id,
+            routing,
         )
 
         self.assertIn("web.msw-handlers", selected_rules)
         self.assertNotIn("web.msw-handlers", ordinary_rules)
+
+
+class GitPathAdapterTest(unittest.TestCase):
+    def test_rejects_non_utf8_git_path(self) -> None:
+        with self.assertRaisesRegex(GitBaselineError, "must be UTF-8"):
+            decode_git_path(b"docs/\xff.md", "tracked path")
+
+    def test_rejects_non_nul_terminated_git_output(self) -> None:
+        with self.assertRaisesRegex(GitBaselineError, "NUL-terminated"):
+            split_nul_records(b"docs/example.md", "tracked paths")
 
 
 if __name__ == "__main__":

@@ -26,6 +26,8 @@ from artifact_source import (
 )
 from git_baseline import (
     GitBaselineError,
+    git_name_status_changes,
+    list_git_paths,
     require_canonical_worktree_path,
     require_repository_root,
     run_git,
@@ -280,32 +282,23 @@ def changed_paths(repo_root: Path, baseline_head: str) -> list[dict[str, str]]:
         ["merge-base", "--is-ancestor", baseline_head, "HEAD"],
         "build baseline ancestry check",
     )
-    output = run_checked_git(
-        repo_root,
-        ["diff", "--name-status", "--find-renames", baseline_head, "--"],
-        "build diff inspection",
-    )
-    changes: list[dict[str, str]] = []
-    for line in output.splitlines():
-        fields = line.split("\t")
-        status = fields[0]
-        if status.startswith(("R", "C")) and len(fields) == 3:
-            changes.append({"status": "D", "path": fields[1]})
-            changes.append({"status": "A", "path": fields[2]})
-        elif len(fields) == 2:
-            changes.append({"status": status[0], "path": fields[1]})
-        else:
-            raise ValidationError(f"unsupported Git name-status record: {line}")
-    untracked = run_checked_git(
-        repo_root,
-        ["ls-files", "--others", "--exclude-standard"],
-        "untracked file inspection",
-    )
+    try:
+        changes = [
+            change.as_record()
+            for change in git_name_status_changes(repo_root, baseline_head)
+        ]
+        untracked = list_git_paths(
+            repo_root,
+            ["ls-files", "-z", "--others", "--exclude-standard"],
+            "untracked file inspection",
+        )
+    except GitBaselineError as error:
+        raise ValidationError(str(error)) from error
     tracked_paths = {entry["path"] for entry in changes}
     changes.extend(
         {"status": "A", "path": path}
-        for path in untracked.splitlines()
-        if path and path not in tracked_paths
+        for path in untracked
+        if path not in tracked_paths
     )
     return sorted(changes, key=lambda entry: (entry["path"], entry["status"]))
 
@@ -441,7 +434,7 @@ def validate(
     for change in build_changes:
         path = change["path"]
         try:
-            resolution = resolve_path_coverage(path, routing, rules_by_id)
+            resolution = resolve_path_coverage(path, routing)
         except RuleCoverageError as error:
             raise ValidationError(str(error)) from error
         resolved_changes.append(

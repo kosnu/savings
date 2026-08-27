@@ -8,7 +8,9 @@ import os
 import re
 import subprocess
 import unicodedata
+from dataclasses import dataclass
 from pathlib import Path
+from typing import NewType
 
 from artifact_source import (
     ARTIFACT_KINDS,
@@ -18,6 +20,7 @@ from artifact_source import (
     SourceError,
     canonical_display_path as source_canonical_display_path,
     canonical_source_path as source_canonical_source_path,
+    validate_repository_relative_path,
     validate_workspace_name as validate_source_workspace_name,
 )
 
@@ -38,6 +41,26 @@ CANONICAL_ARTIFACT_FILENAMES = {
 
 class GitBaselineError(ValueError):
     pass
+
+
+GitPath = NewType("GitPath", str)
+
+
+@dataclass(frozen=True)
+class GitChange:
+    status: str
+    path: GitPath
+
+    def as_record(self) -> dict[str, str]:
+        return {"status": self.status, "path": self.path}
+
+
+@dataclass(frozen=True)
+class GitTreeEntry:
+    mode: str
+    object_type: str
+    object_id: str
+    path: GitPath
 
 
 def validate_workspace_name(workspace: str) -> None:
@@ -103,6 +126,118 @@ def run_git(repo_root: Path, arguments: list[str]) -> subprocess.CompletedProces
     )
 
 
+def require_successful_git(
+    repo_root: Path,
+    arguments: list[str],
+    label: str,
+) -> bytes:
+    result = run_git(repo_root, arguments)
+    if result.returncode != 0:
+        detail = result.stderr.decode("utf-8", errors="replace").strip()
+        raise GitBaselineError(f"{label} failed: {detail or 'unknown Git error'}")
+    return result.stdout
+
+
+def decode_git_path(value: bytes, label: str) -> GitPath:
+    try:
+        decoded = value.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise GitBaselineError(f"{label} must be UTF-8") from error
+    try:
+        normalized = validate_repository_relative_path(decoded, label)
+    except SourceError as error:
+        raise GitBaselineError(str(error)) from error
+    return GitPath(normalized)
+
+
+def split_nul_records(value: bytes, label: str) -> list[bytes]:
+    if not value:
+        return []
+    if not value.endswith(b"\0"):
+        raise GitBaselineError(f"{label} must use NUL-terminated records")
+    records = value[:-1].split(b"\0")
+    if any(not record for record in records):
+        raise GitBaselineError(f"{label} contains an empty record")
+    return records
+
+
+def list_git_paths(
+    repo_root: Path,
+    arguments: list[str],
+    label: str,
+) -> list[GitPath]:
+    output = require_successful_git(repo_root, arguments, label)
+    return [
+        decode_git_path(record, f"{label} path")
+        for record in split_nul_records(output, label)
+    ]
+
+
+def git_name_status_changes(
+    repo_root: Path,
+    baseline_head: str,
+) -> list[GitChange]:
+    output = require_successful_git(
+        repo_root,
+        ["diff", "--name-status", "-z", "--find-renames", baseline_head, "--"],
+        "build diff inspection",
+    )
+    records = split_nul_records(output, "build diff inspection")
+    changes: list[GitChange] = []
+    index = 0
+    while index < len(records):
+        try:
+            status = records[index].decode("ascii")
+        except UnicodeDecodeError as error:
+            raise GitBaselineError(
+                "Git name-status must use ASCII status values"
+            ) from error
+        index += 1
+        path_count = 2 if status.startswith(("R", "C")) else 1
+        if not status or index + path_count > len(records):
+            raise GitBaselineError("unsupported Git name-status record")
+        paths = [
+            decode_git_path(records[index + offset], "build diff path")
+            for offset in range(path_count)
+        ]
+        index += path_count
+        if path_count == 2:
+            changes.append(GitChange(status="D", path=paths[0]))
+            changes.append(GitChange(status="A", path=paths[1]))
+        else:
+            changes.append(GitChange(status=status[0], path=paths[0]))
+    return changes
+
+
+def git_tree_entries(
+    repo_root: Path,
+    arguments: list[str],
+    label: str,
+) -> list[GitTreeEntry]:
+    output = require_successful_git(repo_root, arguments, label)
+    entries: list[GitTreeEntry] = []
+    for record in split_nul_records(output, label):
+        if b"\t" not in record:
+            raise GitBaselineError(f"{label} returned an unexpected entry")
+        metadata, encoded_path = record.split(b"\t", 1)
+        try:
+            fields = metadata.decode("ascii").split()
+        except UnicodeDecodeError as error:
+            raise GitBaselineError(f"{label} metadata must be ASCII") from error
+        if len(fields) != 3:
+            raise GitBaselineError(f"{label} returned invalid metadata")
+        mode, object_type, object_id = fields
+        entries.append(
+            GitTreeEntry(
+                mode=mode,
+                object_type=object_type,
+                object_id=object_id,
+                path=decode_git_path(encoded_path, f"{label} path"),
+            )
+        )
+    return entries
+
+
 def require_repository_root(repo_root: Path) -> Path:
     absolute_root = Path(os.path.abspath(repo_root))
     resolved_root = absolute_root.resolve()
@@ -150,21 +285,21 @@ def list_issue_workspaces(repo_root: Path, number: str) -> list[str]:
     )
     names: set[str] = set()
 
-    listing = run_git(
+    listing = list_git_paths(
         resolved_root,
         [
             "ls-tree",
             "-r",
             "--name-only",
+            "-z",
             "HEAD",
             "--",
             "docs/ai-driven-development/workspaces",
         ],
+        "AIDD workspace listing",
     )
-    if listing.returncode != 0:
-        raise GitBaselineError("failed to inspect AIDD workspaces in Git HEAD")
     prefix = "docs/ai-driven-development/workspaces/"
-    for path in listing.stdout.decode("utf-8").splitlines():
+    for path in listing:
         if path.startswith(prefix):
             names.add(path.removeprefix(prefix).split("/", 1)[0])
 
@@ -177,24 +312,24 @@ def list_issue_workspaces(repo_root: Path, number: str) -> list[str]:
 
 def git_head_workspace_names(repo_root: Path, number: str) -> set[str]:
     resolved_root = require_repository_root(repo_root)
-    listing = run_git(
+    listing = list_git_paths(
         resolved_root,
         [
             "ls-tree",
             "-r",
             "--name-only",
+            "-z",
             "HEAD",
             "--",
             "docs/ai-driven-development/workspaces",
         ],
+        "AIDD workspace listing",
     )
-    if listing.returncode != 0:
-        raise GitBaselineError("failed to inspect AIDD workspaces in Git HEAD")
     prefix = "docs/ai-driven-development/workspaces/"
     issue_prefix = f"{number}-"
     return {
         path.removeprefix(prefix).split("/", 1)[0]
-        for path in listing.stdout.decode("utf-8").splitlines()
+        for path in listing
         if path.startswith(prefix)
         and path.removeprefix(prefix).split("/", 1)[0].startswith(issue_prefix)
     }
@@ -257,25 +392,21 @@ def load_regular_head_blob(
     relative_path: str,
     label: str,
 ) -> bytes | None:
-    listing = run_git(
+    entries = git_tree_entries(
         repo_root,
         ["ls-tree", "-z", "HEAD", "--", relative_path],
+        f"{label} lookup",
     )
-    if listing.returncode != 0:
-        raise GitBaselineError(f"failed to inspect the {label} in Git HEAD")
-    entries = [entry for entry in listing.stdout.split(b"\0") if entry]
     if not entries:
         return None
-    if len(entries) != 1 or b"\t" not in entries[0]:
+    if len(entries) != 1:
         raise GitBaselineError(f"{label} lookup returned an unexpected entry")
-    metadata, encoded_path = entries[0].split(b"\t", 1)
-    fields = metadata.decode("ascii").split()
-    if encoded_path.decode("utf-8") != relative_path or len(fields) != 3:
+    entry = entries[0]
+    if entry.path != relative_path:
         raise GitBaselineError(f"{label} lookup returned an unexpected path")
-    mode, object_type, object_id = fields
-    if mode not in {"100644", "100755"} or object_type != "blob":
+    if entry.mode not in {"100644", "100755"} or entry.object_type != "blob":
         raise GitBaselineError(f"{label} in Git HEAD must be a regular file")
-    size = run_git(repo_root, ["cat-file", "-s", object_id])
+    size = run_git(repo_root, ["cat-file", "-s", entry.object_id])
     if size.returncode != 0:
         raise GitBaselineError(f"failed to inspect the {label} size in Git HEAD")
     try:
@@ -286,7 +417,7 @@ def load_regular_head_blob(
         raise GitBaselineError(
             f"{label} in Git HEAD exceeds {MAX_GIT_BLOB_BYTES} bytes"
         )
-    content = run_git(repo_root, ["cat-file", "blob", object_id])
+    content = run_git(repo_root, ["cat-file", "blob", entry.object_id])
     if content.returncode != 0:
         raise GitBaselineError(f"failed to read the {label} from Git HEAD")
     return content.stdout
@@ -311,26 +442,24 @@ def list_git_head_managed_artifact_keys(
     """List supported managed artifact paths without importing historical sidecars."""
 
     resolved_root = require_repository_root(repo_root)
-    listing = run_git(
+    listing = list_git_paths(
         resolved_root,
         [
             "ls-tree",
             "-r",
             "--name-only",
+            "-z",
             "HEAD",
             "--",
             "docs/ai-driven-development/workspaces",
         ],
+        "managed AIDD source listing",
     )
-    if listing.returncode != 0:
-        raise GitBaselineError(
-            "failed to inspect managed AIDD sources in Git HEAD"
-        )
 
     source_kinds = {filename: kind for kind, filename in SOURCE_FILENAMES.items()}
     prefix = "docs/ai-driven-development/workspaces/"
     managed: set[tuple[str, str]] = set()
-    for value in listing.stdout.decode("utf-8").splitlines():
+    for value in listing:
         if not value.startswith(prefix):
             continue
         workspace, separator, filename = value.removeprefix(prefix).partition("/")
