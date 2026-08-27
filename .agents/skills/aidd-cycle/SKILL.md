@@ -74,14 +74,34 @@ For each phase in the workflow:
    upstream artifacts and generated displays against the current Issue snapshot
    and the Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
-   subgraph, using the phase executor assigned below.
+   subgraph, using the phase executor assigned below. In Design, record the
+   complete schema-v3 target state: final product behaviors with substantive
+   descriptions of their final observable effects, verification
+   cases, normalized ownership scopes, and all final machine-addressable
+   representations. Automated verification cases own direct argv commands
+   whose executable exactly matches a case-sensitive canonical repository
+   allowlist name (`pnpm`, `python3`, `node`, `git`, or `jq`). Manual cases own
+   substantive concrete procedures. Derive machine review
+   surfaces and path rules from the union of target paths and the current owned
+   baseline, including paths that disappear in the target, and freeze that
+   baseline inventory in the Design receipt. In Build,
+   reconstruct exactly that target state in the ownership scopes, validate the
+   final owned-path inventory before execution, reject per-case mutation of an
+   owned file's content or Git mode, and bind every result to the unchanged
+   final-state hash. Run the Build rule coverage validator against both
+   the final owned tree and actual Git diff. Stop on missing or extra owned
+   representations, failed or missing verification evidence, out-of-scope
+   changes, undeclared surfaces, a surface or path rule absent from the receipt,
+   or a governed path with no routing surface. Representation locator metadata
+   is not used to infer source-code syntax or test-runner policy.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path
    and SHA-256 in the phase completion evidence.
-5. For Build, immediately before completion, rerun the Build Entry gate with
-   the receipt path and SHA-256 recorded by Design and require it to print that
-   same SHA-256. For every phase, only after its phase-specific checks and the
+5. For Build, immediately before completion, run the Build rule coverage
+   validator, then rerun the Build Entry gate with the receipt path and SHA-256
+   recorded by Design and require it to print that same SHA-256. For every
+   phase, only after its phase-specific checks and the
    objective, Done conditions, and Verification are satisfied, the parent calls
    `update_goal(status: complete)` and confirms the terminal state with
    `get_goal` before advancing.
@@ -156,16 +176,26 @@ silently run the delegated phase in the parent.
 - Every regenerated artifact covers its complete upstream input. A delta marks
   changed records but never narrows Goal scope.
 - Semantic identity lives in typed IDs, statuses, owners, roles, hashes, and
-  references. Current schema-v2 validators also enforce canonical headings,
-  substantive text, and unambiguous evidence mapping as artifact format gates;
-  follow those gates from `references/artifact-validation.md`.
-- Product behavior exists only as a typed `product_behaviors` record with one
-  canonical `requirement_id` and one design-evidence owner with that Requirement
-  ID. Requirement content remains only in canonical `requirements.json`.
-  Selected rules constrain Requirements and Design; they never define product
-  behavior directly or substitute for a missing Requirement. Build consumes the
-  Design completion receipt as its upstream identity instead of accepting
-  freshly recomputed artifact hashes.
+  references. New cycles use schema v3. Schema v2 is readable only for
+  historical display and Git-baseline continuity; it cannot be promoted to a
+  new Design completion, receipt, or Build input. Current validators also
+  enforce canonical headings, substantive text, and unambiguous evidence
+  mapping as artifact format gates; follow those gates from
+  `references/artifact-validation.md`.
+- Design's `validation.target_state` is the only completed-state source of truth.
+  It owns final product behaviors, verification cases, normalized ownership
+  scopes, and machine-addressable representations. Product behavior records
+  have one canonical `requirement_id`, a substantive description that uniquely
+  identifies the final observable effect within that Requirement and type, and
+  no add/change/remove operation;
+  verification cases use the same Requirement owner, and representations may
+  reference only that owner's behavior and cases. Requirement content remains
+  only in canonical `requirements.json`. Selected rules constrain Requirements
+  and Design; they never define product behavior directly or substitute for a
+  missing Requirement. Build consumes the Design completion receipt as its
+  upstream identity, reuses its frozen baseline inventory for rule coverage,
+  and materializes the target state rather than layering a delta onto the
+  baseline.
 
 ## Stop
 

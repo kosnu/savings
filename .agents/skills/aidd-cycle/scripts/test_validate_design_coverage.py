@@ -15,6 +15,7 @@ from artifact_source import (
     serialize_source,
     structured_sha256,
     validate_loaded_source,
+    validate_target_product_behaviors,
 )
 from validate_design_coverage import (
     ValidationError,
@@ -27,6 +28,7 @@ from validate_design_coverage import (
     validate_scopes,
 )
 from git_baseline import canonical_workspace_name
+from render_aidd_artifact import render_artifact_markdown
 
 
 ISSUE = "owner/repo#1639"
@@ -78,11 +80,24 @@ def write_rule_map(repo_root: Path) -> Path:
         "# Workflow\n\ncanonical workflow rule evidence.\n",
         encoding="utf-8",
     )
+    extra_rule_path = repo_root / "docs" / "harness" / "policies" / "extra.md"
+    extra_rule_path.parent.mkdir(parents=True, exist_ok=True)
+    extra_rule_path.write_text("# Extra\n\nadditional design rule.\n", encoding="utf-8")
     rule_map_path = repo_root / "docs" / "harness" / "rule-map.json"
     rule_map_path.parent.mkdir(parents=True, exist_ok=True)
     rule_map_path.write_text(
         json.dumps(
             {
+                "review_routing": {
+                    "governed_paths": ["apps/**"],
+                    "surfaces": [
+                        {
+                            "id": "test-workflow",
+                            "paths": ["apps/**"],
+                            "required_rules": ["ai-driven.workflow"],
+                        }
+                    ],
+                },
                 "rules": [
                     {
                         "id": "ai-driven.workflow",
@@ -94,6 +109,17 @@ def write_rule_map(repo_root: Path) -> Path:
                             "topics": ["workflow"],
                         },
                         "depends_on": [],
+                    },
+                    {
+                        "id": "policy.extra",
+                        "file": "docs/harness/policies/extra.md",
+                        "applies_to": {
+                            "paths": [],
+                            "domains": [],
+                            "activities": ["additional_design_rule"],
+                            "topics": [],
+                        },
+                        "depends_on": ["ai-driven.workflow"],
                     }
                 ]
             },
@@ -122,7 +148,7 @@ def requirements_source() -> dict[str, object]:
             )
         sections.append({"id": section_id, "heading": heading, "blocks": blocks})
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "kind": "requirements",
         "workspace": WORKSPACE,
         "display": {"path": "requirements.md", "preamble": "# Requirements"},
@@ -221,7 +247,7 @@ def goal_display() -> dict[str, object]:
         "done": [
             {
                 "id": "complete-scope",
-                "text": "全Requirements IDとbaseline sectionのDesign coverageを定義する。",
+                "text": "全Requirements IDとtask-owned範囲の完成状態を定義する。",
             },
             {
                 "id": "validated-artifact",
@@ -308,6 +334,68 @@ def typed_design_sections(
     ]
 
 
+def target_state() -> dict[str, object]:
+    return {
+        "product_behaviors": [
+            {
+                "id": "PB-1",
+                "type": "state_transition",
+                "description": "FR-1の最終状態へ更新する。",
+                "requirement_id": "FR-1",
+            }
+        ],
+        "verification_cases": [
+            {
+                "id": "VC-1",
+                "type": "automated",
+                "command": ["python3", "-c", "raise SystemExit(0)"],
+                "requirement_id": "FR-1",
+                "product_behavior_ids": ["PB-1"],
+            },
+            {
+                "id": "VC-2",
+                "type": "automated",
+                "command": ["python3", "-c", "raise SystemExit(0)"],
+                "requirement_id": "AC-1",
+                "product_behavior_ids": [],
+            },
+        ],
+        "ownership_scopes": [
+            {"path": "apps/web/feature.test.ts", "kind": "file"},
+            {"path": "apps/web/feature.ts", "kind": "file"},
+        ],
+        "representations": [
+            {
+                "id": "REP-1",
+                "kind": "implementation",
+                "path": "apps/web/feature.ts",
+                "locator": {"kind": "file"},
+                "requirement_id": "FR-1",
+                "product_behavior_ids": ["PB-1"],
+                "verification_case_ids": [],
+            },
+            {
+                "id": "REP-2",
+                "kind": "test",
+                "path": "apps/web/feature.test.ts",
+                "locator": {"kind": "test_case", "name": "FR-1 target"},
+                "requirement_id": "FR-1",
+                "product_behavior_ids": ["PB-1"],
+                "verification_case_ids": ["VC-1"],
+            },
+            {
+                "id": "REP-3",
+                "kind": "test",
+                "path": "apps/web/feature.test.ts",
+                "locator": {"kind": "test_case", "name": "AC-1 target"},
+                "requirement_id": "AC-1",
+                "product_behavior_ids": [],
+                "verification_case_ids": ["VC-2"],
+            },
+        ],
+    }
+
+
 def design_source(
     requirements_digest: str,
     *,
@@ -315,23 +403,21 @@ def design_source(
     baseline_sections: list[dict[str, str]] | None = None,
     coverage_entries: list[dict[str, str]] | None = None,
     sections: list[dict[str, object]] | None = None,
+    additional_rules: list[dict[str, str]] | None = None,
 ) -> dict[str, object]:
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "kind": "design",
         "workspace": WORKSPACE,
         "display": {"path": "design-doc.md", "preamble": "# Design"},
         "validation": {
             "mode": "managed",
             "sections": sections if sections is not None else typed_design_sections(),
-            "product_behaviors": [
-                {
-                    "id": "PB-1",
-                    "type": "state_transition",
-                    "change": "changed",
-                    "requirement_id": "FR-1",
-                }
-            ],
+            "target_state": target_state(),
+            "rule_coverage": {
+                "implementation_surfaces": ["test-workflow"],
+                "additional_rules": additional_rules or [],
+            },
             "coverage_gate": {
                 "requirements_sha256": requirements_digest,
                 "workspace": WORKSPACE,
@@ -350,9 +436,10 @@ def design_goal_source(
     baseline: dict[str, object] | None = None,
     baseline_scopes: list[dict[str, str]] | None = None,
     scope_entries: list[dict[str, str]] | None = None,
+    additional_rules: list[dict[str, str]] | None = None,
 ) -> dict[str, object]:
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "kind": "design_goal",
         "workspace": WORKSPACE,
         "display": goal_display(),
@@ -364,14 +451,11 @@ def design_goal_source(
                 "requirement_ids": IDS,
                 "baseline": baseline or {"source": "none", "body_sha256": None},
             },
-            "product_behaviors": [
-                {
-                    "id": "PB-1",
-                    "type": "state_transition",
-                    "change": "changed",
-                    "requirement_id": "FR-1",
-                }
-            ],
+            "target_state": target_state(),
+            "rule_coverage": {
+                "implementation_surfaces": ["test-workflow"],
+                "additional_rules": additional_rules or [],
+            },
             "scopes": scope_entries if scope_entries is not None else scopes(),
             "baseline_scopes": baseline_scopes or [],
         },
@@ -458,6 +542,115 @@ class DesignCoverageGateTest(unittest.TestCase):
 
     def test_accepts_goal_using_requirement_ids(self) -> None:
         self.validate_source(kind="goal")
+
+    def test_rejects_git_ignored_task_owned_path(self) -> None:
+        with patch(
+            "validate_design_coverage.run_git",
+            return_value=subprocess.CompletedProcess([], 0, b"", b""),
+        ):
+            with self.assertRaisesRegex(ValidationError, "visible to Git diff"):
+                self.validate_source(kind="goal")
+
+    def test_accepts_design_owned_additional_rule(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            workspace_root = (
+                repo_root / "docs" / "ai-driven-development" / "workspaces" / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
+            requirements_path = workspace_root / "requirements.json"
+            requirements_path.write_text(
+                serialize_source(requirements_source()), encoding="utf-8"
+            )
+            requirements_digest = hashlib.sha256(
+                requirements_path.read_bytes()
+            ).hexdigest()
+            issue_body_path = repo_root / "issue-body.md"
+            issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
+            rule_map_path = write_rule_map(repo_root)
+            goal_path = repo_root / "goal.json"
+            goal_path.write_text(
+                serialize_source(
+                    design_goal_source(
+                        requirements_digest,
+                        additional_rules=[
+                            {
+                                "id": "policy.extra",
+                                "reason": "Designで追加の制約が判明したため。",
+                            }
+                        ],
+                    )
+                ),
+                encoding="utf-8",
+            )
+
+            validate(
+                ISSUE,
+                ISSUE_URL,
+                ISSUE_UPDATED_AT,
+                issue_body_path,
+                rule_map_path,
+                requirements_path,
+                goal_path,
+                "goal",
+                repo_root,
+                WORKSPACE,
+            )
+
+    def test_rejects_artifact_rule_coverage_different_from_goal(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory).resolve()
+            initialize_repo(repo_root)
+            workspace_root = (
+                repo_root / "docs" / "ai-driven-development" / "workspaces" / WORKSPACE
+            )
+            workspace_root.mkdir(parents=True)
+            requirements_path = workspace_root / "requirements.json"
+            requirements_path.write_text(
+                serialize_source(requirements_source()), encoding="utf-8"
+            )
+            requirements_digest = hashlib.sha256(
+                requirements_path.read_bytes()
+            ).hexdigest()
+            issue_body_path = repo_root / "issue-body.md"
+            issue_body_path.write_text(ISSUE_BODY, encoding="utf-8")
+            rule_map_path = write_rule_map(repo_root)
+            design_path = workspace_root / "design-doc.json"
+            design_path.write_text(
+                serialize_source(
+                    design_source(
+                        requirements_digest,
+                        additional_rules=[
+                            {
+                                "id": "policy.extra",
+                                "reason": "Designで追加の制約が判明したため。",
+                            }
+                        ],
+                    )
+                ),
+                encoding="utf-8",
+            )
+            goal_path = repo_root / "design-goal.json"
+            goal_path.write_text(
+                serialize_source(design_goal_source(requirements_digest)),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValidationError, "rule_coverage must match"):
+                validate(
+                    ISSUE,
+                    ISSUE_URL,
+                    ISSUE_UPDATED_AT,
+                    issue_body_path,
+                    rule_map_path,
+                    requirements_path,
+                    design_path,
+                    "artifact",
+                    repo_root,
+                    WORKSPACE,
+                    goal_path,
+                )
 
     def test_rejects_replacement_requirements_snapshot_bytes(self) -> None:
         replacement = requirements_source()
@@ -592,14 +785,164 @@ class DesignCoverageGateTest(unittest.TestCase):
     def test_accepts_artifact_using_evidence_block_ids(self) -> None:
         self.validate_source(kind="artifact")
 
+    def test_rendered_target_state_includes_behavior_description(self) -> None:
+        rendered = render_artifact_markdown(design_source("0" * 64))
+
+        self.assertIn("FR-1の最終状態へ更新する。", rendered)
+
     def test_artifact_gate_requires_the_retained_design_goal(self) -> None:
         with self.assertRaisesRegex(ValidationError, "requires --goal-document"):
             self.validate_source(kind="artifact", include_goal_document=False)
 
     def test_requires_a_requirement_binding(self) -> None:
         source = design_source("0" * 64)
-        del source["validation"]["product_behaviors"][0]["requirement_id"]
+        del source["validation"]["target_state"]["product_behaviors"][0][
+            "requirement_id"
+        ]
         with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
+
+    def test_v3_requires_a_substantive_product_behavior_description(self) -> None:
+        source = design_source("0" * 64)
+        del source["validation"]["target_state"]["product_behaviors"][0][
+            "description"
+        ]
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
+
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["product_behaviors"][0][
+            "description"
+        ] = "TODO"
+        with self.assertRaisesRegex(SourceError, "substantive"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_duplicate_product_behavior_semantics(self) -> None:
+        behaviors = [
+            {
+                "id": "PB-1",
+                "type": "user_operation",
+                "description": "利用者が項目を追加できる。",
+                "requirement_id": "FR-1",
+            },
+            {
+                "id": "PB-2",
+                "type": "user_operation",
+                "description": "利用者が項目を追加できる!",
+                "requirement_id": "FR-1",
+            },
+        ]
+
+        with self.assertRaisesRegex(SourceError, "descriptions must be unique"):
+            validate_target_product_behaviors(behaviors, ["FR-1"])
+
+    def test_v3_rejects_delta_change_in_target_behavior(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["product_behaviors"][0][
+            "change"
+        ] = "removed"
+        with self.assertRaisesRegex(SourceError, "invalid keys"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_representation_outside_ownership(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["representations"][0][
+            "path"
+        ] = "apps/api/outside.sql"
+        with self.assertRaisesRegex(SourceError, "inside an ownership scope"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_noncanonical_ownership_path(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["ownership_scopes"][0][
+            "path"
+        ] = " apps/web/feature.test.ts"
+        with self.assertRaisesRegex(SourceError, "exact repository-relative path"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_version_control_metadata_ownership(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["ownership_scopes"] = [
+            {"path": ".git/config", "kind": "file"}
+        ]
+        source["validation"]["target_state"]["representations"][0][
+            "path"
+        ] = ".git/config"
+        with self.assertRaisesRegex(SourceError, "version-control metadata"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_cross_requirement_verification_reference(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["verification_cases"][1][
+            "product_behavior_ids"
+        ] = ["PB-1"]
+        with self.assertRaisesRegex(SourceError, "verification case Requirement owner"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_shell_interpreter_verification_command(self) -> None:
+        for command in (
+            ["sh", "-c", "exit 0"],
+            ["dash", "-c", "exit 0"],
+            ["env", "sh", "-c", "exit 0"],
+            ["busybox", "sh", "-c", "exit 0"],
+            ["nice", "sh", "-c", "exit 0"],
+            ["nohup", "sh", "-c", "exit 0"],
+            ["timeout", "5", "sh", "-c", "exit 0"],
+            ["sudo", "sh", "-c", "exit 0"],
+            ["./python3", "-c", "raise SystemExit(0)"],
+            ["Python3", "-c", "raise SystemExit(0)"],
+            ["PNPM", "--version"],
+        ):
+            with self.subTest(command=command):
+                source = design_source("0" * 64)
+                source["validation"]["target_state"]["verification_cases"][0][
+                    "command"
+                ] = command
+                with self.assertRaisesRegex(SourceError, "not approved"):
+                    validate_loaded_source(source)
+
+    def test_v3_rejects_nested_version_control_metadata(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["ownership_scopes"][0]["path"] = (
+            "vendor/.git/config"
+        )
+        source["validation"]["target_state"]["representations"][0]["path"] = (
+            "vendor/.git/config"
+        )
+        with self.assertRaisesRegex(SourceError, "version-control metadata"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_placeholder_manual_verification_procedure(self) -> None:
+        source = design_source("0" * 64)
+        case = source["validation"]["target_state"]["verification_cases"][0]
+        case["type"] = "manual"
+        case["procedure"] = "TODO"
+        del case["command"]
+        with self.assertRaisesRegex(SourceError, "substantive"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_cross_requirement_representation_reference(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["representations"][2][
+            "product_behavior_ids"
+        ] = ["PB-1"]
+        with self.assertRaisesRegex(SourceError, "representation Requirement owner"):
+            validate_loaded_source(source)
+
+    def test_v3_rejects_app_wide_tree_ownership(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["ownership_scopes"] = [
+            {"path": "apps/web", "kind": "tree"}
+        ]
+        with self.assertRaisesRegex(SourceError, "too broad"):
+            validate_loaded_source(source)
+
+    def test_v3_requires_verification_for_every_requirement(self) -> None:
+        source = design_source("0" * 64)
+        source["validation"]["target_state"]["verification_cases"] = source[
+            "validation"
+        ]["target_state"]["verification_cases"][:1]
+        with self.assertRaisesRegex(SourceError, "every Requirement ID"):
             validate_loaded_source(source)
 
     def test_rejects_product_behavior_changed_after_design_goal(self) -> None:
@@ -618,7 +961,9 @@ class DesignCoverageGateTest(unittest.TestCase):
                 requirements_path.read_bytes()
             ).hexdigest()
             artifact = design_source(requirements_digest)
-            artifact["validation"]["product_behaviors"][0]["change"] = "removed"
+            artifact["validation"]["target_state"]["product_behaviors"][0][
+                "description"
+            ] = "FR-1の別の最終状態へ更新する。"
             artifact_path = workspace_root / "design-doc.json"
             artifact_path.write_text(
                 json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",

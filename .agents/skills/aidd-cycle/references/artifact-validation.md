@@ -5,7 +5,9 @@ Build phase entry check.
 
 ## Structural Model
 
-Managed AIDD artifacts use schema version 2.
+New managed AIDD artifacts use schema version 3. Schema version 2 remains
+readable and renderable only as historical or Git-baseline input; it cannot
+complete a new phase, create a Design completion receipt, or enter Build.
 
 - Goal inputs: temporary `requirements_goal` or `design_goal` JSON.
 - Cycle title owner: `validation.cycle_start_issue_title` in the Requirements
@@ -23,8 +25,45 @@ Managed AIDD artifacts use schema version 2.
 The validators enforce canonical paths, regular non-symlink inputs, Issue
 snapshot identity, full inventories, baseline hashes, rule dependencies,
 transition status, block references, evidence roles, and evidence owners.
-Schema v2 additionally enforces canonical headings, substantive non-placeholder
-text, unique evidence references, and unambiguous evidence-to-owner mapping.
+The managed schemas additionally enforce canonical headings, substantive
+non-placeholder text, unique evidence references, and unambiguous
+evidence-to-owner mapping.
+Design Goal and artifact also own identical `rule_coverage` records. Their
+`implementation_surfaces` must use the canonical `review_routing` order;
+`additional_rules` holds only Design-specific nodes not already selected by
+Requirements or a surface. The validator computes the final dependency closure.
+
+## Repository Root Contract
+
+Each CLI that accepts `--repo-root` must call `require_repository_root` once and
+use the returned canonical absolute path for every subsequent path resolution,
+read, and write. After validation, do not reconstruct an input or output path
+from the raw argument value.
+
+When a CLI accepts a relative repository root, that input and the equivalent
+absolute path must produce the same canonical output and exit behavior. Cover
+each file-writing AIDD entrypoint that accepts relative roots with regression
+tests that invoke the CLI through its entrypoint using both forms; a traceback
+or a different output path is a failure. An entrypoint whose contract requires
+an absolute root must reject a relative value before any write and test that
+boundary instead of silently adding a second path-resolution contract.
+
+## Validator Side-Effect Contract
+
+An AIDD validator that observes repository state or derives an actual diff may
+create or modify only the canonical output paths declared by its phase
+contract. Prevent runtime caches, bytecode, and implicit temporary files from
+being created inside the repository at the execution boundary. Do not make an
+undeclared validator side effect pass by adding it to an ignore list or
+filtering it out of the observed diff; that hides repository mutation and
+weakens the inventory boundary.
+
+For each public entrypoint that observes repository state, run a regression
+test in a clean temporary repository under the runtime's default settings.
+Snapshot Git status before invocation and require the status delta afterward
+to contain exactly the declared canonical outputs. The Build rule coverage
+entrypoint must exercise the normal Python bytecode behavior without relying
+on `PYTHONDONTWRITEBYTECODE` supplied by the caller.
 
 ## Workspace
 
@@ -124,14 +163,52 @@ python3 .agents/skills/aidd-cycle/scripts/validate_design_coverage.py \
 Each requirement must own one design evidence reference and one verification
 evidence reference. Each replaced baseline section must own baseline evidence.
 Hashes decide preserved versus replaced; headings remain display labels.
-`product_behaviors` is the complete typed inventory of added, changed, or
-removed user operations and state transitions. Every `PB-*` record has one
-canonical `requirement_id`. Canonical Requirement content remains only in the
-validated `requirements.json` snapshot. Exactly one design-evidence owner with
-the same Requirement ID owns the record. There is no generic source kind or
-copied behavior prose. Selected rules constrain Requirements and Design but
-never define product behavior directly or substitute for a missing Requirement.
-Design prose does not define behavior outside this inventory.
+
+For schema v3, `validation.target_state` is the only completion source of truth:
+
+- `product_behaviors` inventories only the user operations and state
+  transitions that must exist when the cycle is complete. A target behavior
+  has `id`, `type`, a substantive `description` of its final observable effect,
+  and one canonical `requirement_id`; it has no `change` operation. Descriptions
+  must distinguish behaviors within the same Requirement and type.
+- `verification_cases` inventories every final automated or manual case. An
+  automated case owns a direct command argument array whose executable is in
+  the repository allowlist: `pnpm`, `python3`, `node`, `git`, or `jq`. The
+  executable must exactly match one of those case-sensitive canonical names.
+  Executable paths, generic launchers, and shell interpreters are not
+  allowlisted; a manual case owns a substantive concrete procedure. Every Requirement and product behavior must be covered,
+  and every referenced behavior must have the same Requirement owner as its
+  case.
+- `ownership_scopes` is a canonical, non-overlapping inventory of normalized
+  repository-relative `file` or `tree` scopes. Broad implicit application or
+  repository ownership is rejected. Version-control metadata in any path
+  segment and Git-ignored paths are rejected because their changes cannot be
+  proven by the Build diff.
+- `representations` inventories every final implementation, test, Story,
+  fixture, configuration, migration, or documentation representation. Each
+  record has a stable `REP-*` ID, an owned path, Requirement/product-behavior/
+  verification references, and locator metadata. A representation may
+  reference only behaviors and verification cases with the same Requirement
+  owner. The validator proves owned-path existence and inventory; it does not
+  parse source syntax or derive test-runner eligibility rules from locator
+  metadata.
+
+Canonical Requirement content remains only in the validated
+`requirements.json` snapshot. Selected rules constrain Requirements and Design
+but never define product behavior directly or substitute for a missing
+Requirement. Design prose does not define behavior outside `target_state`.
+The retained Design Goal and artifact must also contain identical
+`target_state` and `rule_coverage`. Rule coverage is derived from the union of
+target representation paths and the files currently present in the owned
+baseline. This ensures a baseline-only Story or other representation still
+selects the rules needed to remove it. Do not copy implementation terms into
+the Issue or Requirements to make a rule selectable. `implementation_surfaces`
+must exactly match the derived canonical surfaces and may be empty only when
+none of those paths is governed by a review surface. Use `additional_rules`
+for every required path-specific node not already owned by a surface.
+Design completion captures that baseline inventory once. Build Entry and Build
+completion revalidation must consume the hashed receipt inventory and must not
+reconstruct the Design baseline from the post-Build worktree.
 
 After the artifact command succeeds, capture the Design-owned completion
 receipt before completing the Design Goal:
@@ -147,13 +224,16 @@ python3 .agents/skills/aidd-cycle/scripts/capture_design_completion.py \
 
 Record the exact receipt path and printed SHA-256 in the Design completion
 evidence. The receipt snapshots the fully revalidated retained Design Goal hash,
-Requirements-owned cycle title, Issue body, canonical rule map, every selected
-rule document, and the canonical
-source and display paths and hashes. Capture reads those inputs and the Git
-`HEAD` Requirements / Design baselines once, validates and renders from those
-exact bytes, constructs the receipt from the same bytes, and fails if any input
-differs when the final drift check reads it again. The validated snapshot bytes,
-not path permanence, are the completion identity.
+Requirements-owned cycle title, Issue body, canonical rule map, every final
+selected rule document, the complete `target_state`, ownership scopes, owned
+baseline path inventory, rule coverage, the Build baseline Git `HEAD`, and the
+canonical source and display paths and hashes. Capture reads those inputs and
+the Git `HEAD` Requirements / Design baselines once, validates and renders from
+those exact bytes, stores separate canonical SHA-256 records for target state,
+ownership scopes, baseline inventory, and rule coverage, constructs the
+schema-v3 receipt from the same bytes, and
+fails if any input differs when the final drift check reads it again. The
+validated snapshot bytes, not path permanence, are the completion identity.
 
 ## Build Entry
 
@@ -174,7 +254,9 @@ The command loads the receipt bytes whose SHA-256 was recorded by Design, then
 loads the Issue, rule map, selected rules, Requirements, Design, displays, and
 Git `HEAD` Requirements / Design baselines once. It revalidates Requirements Input and Continuity,
 Design coverage, Requirement-owned product behavior, and generated displays
-from that immutable byte snapshot. It requires the snapshot to equal the
+from that immutable byte snapshot and the receipt-frozen baseline inventory.
+It never reconstructs the Design rule-coverage baseline from the current
+worktree. It requires the snapshot to equal the
 receipt and performs the same final drift check. Later
 Build comparisons use the already loaded receipt bytes and recorded SHA-256;
 they do not treat continued occupancy of the receipt path as identity. The
@@ -182,8 +264,88 @@ cycle title is derived from canonical Requirements and must equal the title in
 the receipt; there is no Build caller input that can replace it.
 
 Create the Build Goal only when this command succeeds and prints the same
-receipt SHA-256 recorded by Design. Put that receipt identity in the Goal, and
-run the same command again before completing Build. The exact receipt recorded
+receipt SHA-256 recorded by Design. Build must reconstruct the owned final state
+from the receipt instead of layering the target behaviors onto the baseline.
+Before completing Build, use the repository runner to execute every automated
+case and write the canonical verification evidence file. Supply one
+`--manual-observation VC-ID=text` for each manual case:
+
+```sh
+python3 .agents/skills/aidd-cycle/scripts/capture_build_verification.py \
+  --repo-root <repo-root> --workspace <workspace> \
+  --expected-receipt-sha256 <design-completion-sha256>
+```
+
+```json
+{
+  "schema_version": 3,
+  "kind": "build_verification",
+  "workspace": "<workspace>",
+  "receipt_sha256": "<design-completion-sha256>",
+  "final_state_sha256": "<target state and current owned state manifest SHA-256>",
+  "generator": "capture_build_verification.py/v3",
+  "results": [
+    {
+      "id": "VC-1",
+      "type": "automated",
+      "status": "passed",
+      "command": ["pnpm", "run", "web:test:unit-integration"],
+      "exit_code": 0,
+      "stdout_bytes": 123,
+      "stderr_bytes": 0,
+      "output_sha256": "<lowercase SHA-256 of captured output>"
+    }
+  ]
+}
+```
+
+The repository runner first validates the complete target representation
+inventory, executes commands directly as argv from the canonical repo root,
+suppresses Python bytecode for child verification processes, and rejects a
+case that changes the task-owned final state. It writes evidence only when
+every automated case exits successfully, every manual case has a substantive
+observation, and the pre/post final-state hash is unchanged. The result
+inventory must exactly match the target verification cases in canonical order
+and is bound to that final-state hash. The canonical final-state manifest
+contains the target-state hash and every owned regular file's normalized path,
+Git mode (`100644` or `100755`), and content SHA-256. The coverage validator validates this
+evidence without executing an artifact-provided command. Automated
+`output_sha256` uses an unambiguous binary frame: the `AIDD-output-v1` marker,
+one NUL byte, an unsigned 8-byte big-endian stdout length and stdout bytes,
+then an unsigned 8-byte big-endian stderr length and stderr bytes. The two byte
+lengths are also recorded in evidence.
+
+The generator label and output hashes provide canonical, reviewable evidence
+identity; they are not a cryptographic attestation against a contributor who
+can edit repository artifacts. Authenticity remains inside the normal Git,
+review, and CI trust boundary. The coverage validator deliberately does not
+re-execute Design commands to manufacture stronger-looking provenance.
+Then run:
+
+```sh
+python3 .agents/skills/aidd-cycle/scripts/validate_build_rule_coverage.py \
+  --repo-root <repo-root> --workspace <workspace> \
+  --expected-receipt-sha256 <design-completion-sha256>
+```
+
+This command first reconciles the final owned tree with `target_state`: every
+required path must exist and no unregistered owned file may remain. Locator
+metadata is retained in the coverage record without parsing source syntax. A baseline-only A4 therefore fails while
+present and passes once absent, without adding an A4 deletion record. Existing
+files outside the ownership scopes are neither impurities nor writable Build
+targets. The command also derives changed paths from the receipt's Git
+baseline, rejects changes outside the ownership scopes except canonical AIDD
+evidence paths, classifies every governed path through `rule-map.json`
+`review_routing`, records every non-workflow changed path, and unions governed
+surface requirements with every matching path rule, including rules for
+ungoverned paths,
+and writes canonical `<workspace>/.aidd/build-rule-coverage.json`. An
+undeclared surface, missing receipt rule, governed path without a surface,
+missing verification result, missing target representation, extra owned
+representation, or out-of-scope change is a failure. The record keeps the
+baseline/final inventories, actual representation locators, verification
+evidence identity, and per-path rule selection so the decision is reproducible.
+Then run the Build Entry command again before completing Build. The exact receipt recorded
 by the preceding Design completion evidence is the Build phase's upstream
 identity.
 

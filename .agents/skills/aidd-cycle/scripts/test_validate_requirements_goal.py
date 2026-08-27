@@ -36,6 +36,16 @@ def initialize_repo(repo_root: Path) -> Path:
     rule_map.write_text(
         json.dumps(
             {
+                "review_routing": {
+                    "governed_paths": ["apps/**"],
+                    "surfaces": [
+                        {
+                            "id": "test-workflow",
+                            "paths": ["apps/**"],
+                            "required_rules": ["domain.user"],
+                        }
+                    ],
+                },
                 "rules": [
                     {
                         "id": "domain.user",
@@ -191,7 +201,7 @@ def source(
             ],
         }
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "kind": kind,
         "workspace": WORKSPACE,
         "display": display,

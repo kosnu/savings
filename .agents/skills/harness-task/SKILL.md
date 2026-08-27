@@ -117,6 +117,7 @@ Run verification from the repository root according to `AGENTS.md`:
 - Web application code: run `pnpm run web:format` before the Web verification batch.
 - Documentation-only or non-runtime skill/docs changes: do not run app verification.
 - Storybook browser tests: run only when affected by the change.
+- Accepted ADR changes: run `python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/<base-branch>` before completion.
 
 If verification fails, fix in scope and rerun the affected checks after any already-started verification batch finishes. Stop when the failure is unrelated to the task or requires scope expansion.
 

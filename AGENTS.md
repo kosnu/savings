@@ -20,6 +20,7 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 - Repository-wide docs: `docs/`
 - App-specific docs: `apps/*/docs/`
 - Documentation policy: `docs/harness/policies/documentation-policy.md`
+- Do not rewrite accepted ADR history. For ADR changes, append a dated Clarification or add a replacement ADR, then run `python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/<base-branch>`.
 - Harness engineering ADR: `docs/adr/0001-adopt-harness-engineering.md`
 - Agent rule graph ADR: `docs/adr/0002-adopt-agent-rule-graph.md`
 - Agent rule map: `docs/harness/rule-map.json`
