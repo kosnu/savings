@@ -1,0 +1,58 @@
+name: AIDD Checker CI
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/aidd_checker_ci.yaml"
+      - ".agents/skills/aidd-cycle/**"
+      - ".agents/skills/goal-setting/**"
+      - ".codex/agents/aidd-*.toml"
+      - ".codex/config.toml"
+      - "docs/ai-driven-development/**"
+      - "docs/harness/rule-map.json"
+      - "tools/aidd/checker/**"
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/aidd/checker/go.mod
+          cache-dependency-path: tools/aidd/checker/go.sum
+
+      - name: Verify Go modules
+        run: go mod verify
+        working-directory: tools/aidd/checker
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+        working-directory: tools/aidd/checker
+
+      - name: Vet
+        run: go vet ./...
+        working-directory: tools/aidd/checker
+
+      - name: Test
+        run: go test ./...
+        working-directory: tools/aidd/checker
+
+      - name: Build current source
+        run: go build -o /tmp/aidd-checker ./cmd/aidd-checker
+        working-directory: tools/aidd/checker
+
+      - name: Validate phase contract
+        run: /tmp/aidd-checker validate-phase-contract --repo-root .
+
+      - name: Check repository artifacts
+        run: /tmp/aidd-checker check-all --repo-root .

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "id": "aidd-checker-tests",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "tools/aidd/checker",
+      "argv": ["go", "test", "./..."]
+    },
+    {
+      "id": "aidd-python-unittest",
+      "contract": "test_case",
+      "runner": "python_unittest",
+      "selector_kind": "test_case",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["python3", "-m", "unittest", "-v"]
+    },
+    {
+      "id": "git-diff-check",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["git", "diff", "--check"]
+    },
+    {
+      "id": "web-format-check",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["pnpm", "run", "web:format-check"]
+    },
+    {
+      "id": "web-lint",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["pnpm", "run", "web:lint"]
+    },
+    {
+      "id": "web-storybook-suite",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["pnpm", "run", "web:test:storybook"]
+    },
+    {
+      "id": "web-typecheck",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["pnpm", "run", "web:typecheck"]
+    },
+    {
+      "id": "web-unit-integration-suite",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["pnpm", "run", "web:test:unit-integration"]
+    },
+    {
+      "id": "web-vitest-storybook",
+      "contract": "test_case",
+      "runner": "vitest_json",
+      "selector_kind": "test_case",
+      "selector_root": "apps/web",
+      "working_directory": "apps/web",
+      "argv": ["pnpm", "run", "test:storybook"]
+    },
+    {
+      "id": "web-vitest-unit-integration",
+      "contract": "test_case",
+      "runner": "vitest_json",
+      "selector_kind": "test_case",
+      "selector_root": "apps/web",
+      "working_directory": "apps/web",
+      "argv": ["pnpm", "run", "test:unit-integration"]
+    }
+  ]
+}

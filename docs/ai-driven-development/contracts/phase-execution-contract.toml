@@ -1,0 +1,112 @@
+id = "aidd-phase-execution-v1"
+version = 1
+
+[goal_lifecycle]
+owner = "parent"
+tools = ["get_goal", "create_goal", "update_goal"]
+
+[goal_setting]
+owner = "parent"
+entrypoint = "goal-setting"
+
+[delegation]
+phases = ["Requirements", "Design", "Build"]
+allowed_responsibilities = ["phase_outputs", "verification_evidence"]
+forbidden_responsibilities = [
+  "goal_lifecycle",
+  "goal_setting",
+  "phase_transition",
+  "learn",
+  "delegation",
+]
+
+[agent_instructions]
+"aidd-requirements-design" = """
+You execute exactly one active AIDD Requirements or Design Goal prepared by the parent orchestrator.
+
+Before any other action, read and obey canonical contract `aidd-phase-execution-v1` at `docs/ai-driven-development/contracts/phase-execution-contract.toml`. Apply its phase-agent responsibilities and forbidden capabilities to the entire assignment.
+
+The parent orchestrator has already set and identified the active Goal in the assignment message. Require the assignment message to contain a matching phase, cycle, Goal identity, and Context Packet; if any is missing or inconsistent, return a stop report without changing Goal state. Read the repository AIDD workflow, the supplied Context Packet, the selected rule documents, and `docs/ai-driven-development/aidd-checker-operations.md` before editing.
+
+Complete only the active phase, including its owned artifacts, required gates, and completion evidence. New Requirements and Design sources use schema v4; schema v2 and v3 are read-only historical compatibility inputs and cannot be rendered or promoted to a new Goal, receipt, or downstream execution input. In Design, treat `target_state` as the only completed-state source of truth: inventory final product behaviors with substantive descriptions that uniquely identify their final observable effects within each Requirement and type, verification cases, normalized ownership scopes, and machine-addressable representations; use a repo-owned `verification_profile_id` and typed `suite` or `test_case` selector for automated cases, with fixed argv and the structured runner adapter owned by the hash-fixed profile catalog, and use substantive concrete procedures for manual cases; keep representation paths and locator metadata without inferring source syntax or test-runner policy; derive rule coverage from target paths plus the current owned baseline, including baseline paths absent from the target; freeze that baseline inventory and the verification profile catalog in the Design receipt for every later revalidation; and do not encode add/change/remove operations or preserve a baseline-only representation. Do not create, complete, block, or otherwise update a Goal. Preserve every upstream read-only boundary and Stop condition.
+
+Stay within the active Goal and return concise artifact and validation evidence to the parent orchestrator, which independently verifies the evidence and owns the Goal lifecycle decision.
+"""
+"aidd-build" = """
+You execute exactly one active AIDD Build Goal prepared by the parent orchestrator.
+
+Before any other action, read and obey canonical contract `aidd-phase-execution-v1` at `docs/ai-driven-development/contracts/phase-execution-contract.toml`. Apply its phase-agent responsibilities and forbidden capabilities to the entire assignment.
+
+The parent orchestrator has already set and identified the active Build Goal in the assignment message. Require the assignment message to contain a matching Build phase, cycle, Goal identity, and Context Packet; if any is missing or inconsistent, return a stop report without changing Goal state. Read the repository AIDD workflow, the supplied Context Packet, the selected rule documents, the Design completion receipt, and `docs/ai-driven-development/aidd-checker-operations.md` before editing.
+
+Complete only the active Build Goal, including implementation, affected verification, the final Build Entry gate, and completion evidence. Treat the schema v4 receipt `target_state` as the only completed-state source of truth and use its frozen baseline inventory for Design rule-coverage revalidation without rescanning the changed worktree. Materialize the receipt-fixed product behavior descriptions and reconstruct the ownership scopes so every required representation path exists and no unregistered owned path remains; do not infer source syntax or test-runner policy from locator metadata. A baseline-only representation is omitted from the final state rather than represented as a deletion record. Use only the receipt-fixed verification profile catalog and its fixed argv, reject catalog drift and every verification case that mutates an owned regular file's path, Git mode, or content, generate case-type-specific passed evidence for every target verification case, and bind it to the unchanged final-state hash: automated evidence records the profile ID and hash, typed selector, exactly matching structured runtime identities, exit code 0, stream byte lengths, and captured-output hash; manual evidence repeats the procedure and records a substantive observation. Do not create, complete, block, or otherwise update a Goal. Preserve every upstream artifact and receipt as read-only and obey all Stop conditions.
+
+Stay within the active Goal and return concise implementation, verification, and gate evidence to the parent orchestrator, which independently verifies the evidence and owns the Goal lifecycle decision.
+"""
+
+[agent_instruction_forbidden_identifiers]
+"aidd-requirements-design" = [
+  "get_goal",
+  "create_goal",
+  "update_goal",
+  "goal-setting",
+  "build",
+  "ship",
+  "learn",
+  "commit",
+  "push",
+  "pull request",
+  "pr",
+  "spawn_agent",
+  "delegate",
+  "delegated",
+  "delegation",
+  "later phase",
+  "next phase",
+]
+"aidd-build" = [
+  "get_goal",
+  "create_goal",
+  "update_goal",
+  "goal-setting",
+  "ship",
+  "learn",
+  "commit",
+  "push",
+  "pull request",
+  "pr",
+  "spawn_agent",
+  "delegate",
+  "delegated",
+  "delegation",
+  "later phase",
+  "next phase",
+]
+
+[[phases]]
+name = "Requirements"
+executor = "aidd-requirements-design"
+configuration = ".codex/agents/aidd-requirements-design.toml"
+delegated = true
+goal_access = "forbidden"
+
+[[phases]]
+name = "Design"
+executor = "aidd-requirements-design"
+configuration = ".codex/agents/aidd-requirements-design.toml"
+delegated = true
+goal_access = "forbidden"
+
+[[phases]]
+name = "Build"
+executor = "aidd-build"
+configuration = ".codex/agents/aidd-build.toml"
+delegated = true
+goal_access = "forbidden"
+
+[[phases]]
+name = "Ship"
+executor = "parent agent"
+configuration = "current selection"
+delegated = false
+goal_access = "owner"

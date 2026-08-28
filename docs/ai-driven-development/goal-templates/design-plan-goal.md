@@ -29,7 +29,7 @@ when_to_read:
 - Implementation context: 関連コード、ADR、policy、tests。
 - Baseline: validatorがGit `HEAD`のcanonical `design-doc.json`から取得したsection inventoryとhash。
 - Scope: 全Requirement IDのdesign/verification scopeと、全baseline sectionのreview scope。
-- Target state: schema v3の`validation.target_state`へ、最終的に観測可能な効果を表す実質的で同一Requirement/type内に一意なdescriptionを持つproduct behavior、全Requirementを覆うverification case、有限で非重複な`ownership_scopes`、最終representationを定義する。product behaviorに`change`を置かず、automated caseはrepo allowlistのcase-sensitiveな正規名（`pnpm`、`python3`、`node`、`git`、`jq`）と完全一致する実行fileを使う直接command引数列、manual caseは実質的なprocedureを持つ。representationはowned pathとlocator metadataを持つが、locatorからsource構文やtest runner規則を推論しない。全参照は同じRequirement owner内に閉じる。
+- Target state: schema v4の`validation.target_state`へ、最終的に観測可能な効果を表す実質的で同一Requirement/type内に一意なdescriptionを持つproduct behavior、全Requirementを覆うverification case、有限で非重複な`ownership_scopes`、最終representationを定義する。product behaviorに`change`を置かない。automated caseはrepo-owned `verification_profile_id`と`suite`または`test_case`のtyped selectorだけを持ち、直接commandを持たない。fixed argv、working directory、runner adapter、allowed selector kindはprofile catalogが所有し、Design completionでcatalogと選択profileをhash固定する。manual caseは実質的なprocedureを持つ。representationはowned pathとlocator metadataを持つが、locatorからsource構文やtest runner規則を推論しない。全参照は同じRequirement owner内に閉じる。
 - 所有する出力: canonical `design-doc.json`、生成`design-doc.md`、検証後に固定するDesign completion receipt。
 
 ## 必須contract ID
@@ -47,7 +47,7 @@ when_to_read:
 - replaced sectionはowned baseline evidenceを持つ。
 - 全product behavior、verification case、representationがcanonical Requirementへbindingされ、全Requirementとbehaviorに検証経路がある。
 - 全representationがownership scope内にあり、Story/testはmachine-addressable locatorを持つ。
-- Requirements再検証、完全なretained Design Goal、Design coverage、canonical path、render同期が同じbyte snapshotに対して成功し、そのsnapshotから選択済みrule文書を含むDesign completion receiptを生成してSHA-256を完了証拠へ記録する。
+- Requirements再検証、完全なretained Design Goal、Design coverage、canonical path、render同期、profile selector contractが同じbyte snapshotに対して成功し、そのsnapshotから選択済みrule文書とverification profile catalogを含むDesign completion receiptを生成してSHA-256を完了証拠へ記録する。
 - Design Goalとartifactのrule coverageが一致し、全implementation surfaceに必要なrule IDと依存closureがDesign completion receiptへ固定されている。
 
 ## Stop
