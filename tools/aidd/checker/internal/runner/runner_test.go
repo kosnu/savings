@@ -175,6 +175,57 @@ func TestOutputHashFramesStreamsUnambiguously(t *testing.T) {
 	}
 }
 
+func TestParseManualObservationsRequiresSubstantiveSingleLineText(t *testing.T) {
+	for name, observation := range map[string]string{
+		"single character": "x",
+		"punctuation only": "...（！）...",
+		"multiline":        "画面表示が崩れていないことを\n確認した",
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := ParseManualObservations([]string{"VC-1=" + observation}); err == nil {
+				t.Fatal("expected manual observation rejection")
+			}
+		})
+	}
+	observations, err := ParseManualObservations([]string{"VC-1=画面表示が崩れていないことを確認した"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if observations["VC-1"] != "画面表示が崩れていないことを確認した" {
+		t.Fatalf("unexpected manual observation: %#v", observations)
+	}
+}
+
+func TestExecuteRejectsNonSubstantiveManualObservation(t *testing.T) {
+	snapshot := newRunnerSnapshot(t)
+	ownedPath := filepath.Join(snapshot.Root, "owned.txt")
+	if err := os.WriteFile(ownedPath, []byte("complete\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	procedure := "画面表示が崩れていないことを確認する"
+	target := model.TargetState{
+		VerificationCases: []model.VerificationCase{{ID: "VC-1", Type: "manual", RequirementID: "AC-1", Procedure: procedure}},
+		OwnershipScopes:   []model.OwnershipScope{{Path: "owned.txt", Kind: "file"}},
+		Representations:   []model.Representation{{ID: "REP-1", Path: "owned.txt"}},
+	}
+	loaded := &receipt.Loaded{
+		Value:   model.Receipt{Workspace: "fixture", TargetState: model.HashValue[model.TargetState]{Value: target}},
+		SHA256:  "receipt-hash",
+		Catalog: &catalog.Resolved{},
+	}
+	_, err := Execute(context.Background(), snapshot, loaded, Options{ManualObservations: map[string]string{"VC-1": "x"}})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_MANUAL_OBSERVATION") {
+		t.Fatalf("expected manual observation rejection, got %v", err)
+	}
+	evidence, err := Execute(context.Background(), snapshot, loaded, Options{ManualObservations: map[string]string{"VC-1": "画面表示が崩れていないことを確認した"}})
+	if err != nil {
+		t.Fatalf("valid manual observation rejected: %v", err)
+	}
+	if len(evidence.Results) != 1 || evidence.Results[0].Observation != "画面表示が崩れていないことを確認した" {
+		t.Fatalf("unexpected manual evidence: %#v", evidence.Results)
+	}
+}
+
 func TestExecuteRejectsOwnedFileMutation(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("fixture uses the repository shell available on Unix runners")

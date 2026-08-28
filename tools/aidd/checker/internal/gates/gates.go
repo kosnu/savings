@@ -437,7 +437,9 @@ func validateDesignRuleCoverage(snapshot *repository.Snapshot, design, requireme
 	}
 	selectedDirect := map[string]struct{}{}
 	var input inputGate
-	_ = json.Unmarshal(requirements.Requirements.InputGate, &input)
+	if err := canonical.Decode(requirements.Requirements.InputGate, "requirements.input_gate", &input); err != nil {
+		return err
+	}
 	for _, direct := range input.DirectRules {
 		selectedDirect[direct.ID] = struct{}{}
 	}

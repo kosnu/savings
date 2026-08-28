@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/manualcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
@@ -47,8 +48,8 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 	for _, verificationCase := range target.VerificationCases {
 		if verificationCase.Type == "manual" {
 			observation, ok := options.ManualObservations[verificationCase.ID]
-			if !ok || strings.TrimSpace(observation) == "" || strings.ContainsAny(observation, "\r\n") {
-				return nil, diagnostic.New("AIDD_MANUAL_OBSERVATION", verificationCase.ID, "build_verification", "manual verification case requires one substantive single-line observation", nil, observation)
+			if !ok || !manualcontract.ValidObservation(observation) {
+				return nil, diagnostic.New("AIDD_MANUAL_OBSERVATION", verificationCase.ID, "build_verification", "manual verification case requires one substantive single-line observation", map[string]any{"minimum_substantive_runes": manualcontract.MinimumSubstantiveRunes, "single_line": true}, observation)
 			}
 			usedManual[verificationCase.ID] = struct{}{}
 			evidence.Results = append(evidence.Results, model.VerificationResult{
@@ -111,8 +112,10 @@ func executeAutomated(ctx context.Context, snapshot *repository.Snapshot, profil
 			return nil, diagnostic.New("AIDD_RUNNER_TEMP", verificationCase.ID, "build_verification", "Vitest result file cannot be created", nil, err.Error())
 		}
 		resultFile = temporary.Name()
-		_ = temporary.Close()
 		defer os.Remove(resultFile)
+		if err := temporary.Close(); err != nil {
+			return nil, diagnostic.New("AIDD_RUNNER_TEMP", verificationCase.ID, "build_verification", "Vitest result file cannot be closed before execution", nil, err.Error())
+		}
 		selectorPath, err := selectorPath(profile, *verificationCase.Selector)
 		if err != nil {
 			return nil, err
@@ -378,9 +381,12 @@ func outputHash(stdout, stderr []byte) string {
 	var framed bytes.Buffer
 	framed.WriteString("AIDD-output-v1")
 	framed.WriteByte(0)
-	_ = binary.Write(&framed, binary.BigEndian, uint64(len(stdout)))
+	var length [8]byte
+	binary.BigEndian.PutUint64(length[:], uint64(len(stdout)))
+	framed.Write(length[:])
 	framed.Write(stdout)
-	_ = binary.Write(&framed, binary.BigEndian, uint64(len(stderr)))
+	binary.BigEndian.PutUint64(length[:], uint64(len(stderr)))
+	framed.Write(length[:])
 	framed.Write(stderr)
 	digest := sha256.Sum256(framed.Bytes())
 	return hex.EncodeToString(digest[:])
@@ -390,8 +396,8 @@ func ParseManualObservations(values []string) (map[string]string, error) {
 	result := map[string]string{}
 	for _, value := range values {
 		id, observation, found := strings.Cut(value, "=")
-		if !found || id == "" || strings.TrimSpace(observation) == "" {
-			return nil, fmt.Errorf("manual observation must use VC-ID=text")
+		if !found || id == "" || !manualcontract.ValidObservation(observation) {
+			return nil, fmt.Errorf("manual observation must use VC-ID=text with at least %d substantive characters on one line", manualcontract.MinimumSubstantiveRunes)
 		}
 		if _, duplicate := result[id]; duplicate {
 			return nil, fmt.Errorf("manual observation ID must be unique: %s", id)

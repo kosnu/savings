@@ -27,6 +27,16 @@ func TestValidatePinnedInputsRejectsNonCanonicalArtifactPath(t *testing.T) {
 	}
 }
 
+func TestGeneratedArtifactPathsRejectInvalidWorkspace(t *testing.T) {
+	verificationPath, coveragePath, receiptPath, err := generatedArtifactPaths("../outside")
+	if err == nil {
+		t.Fatal("expected invalid workspace rejection")
+	}
+	if verificationPath != "" || coveragePath != "" || receiptPath != "" {
+		t.Fatalf("generated paths leaked after error: %q %q %q", verificationPath, coveragePath, receiptPath)
+	}
+}
+
 func TestChangedPathsRejectsBaselineOutsideCurrentHistory(t *testing.T) {
 	repoRoot := t.TempDir()
 	runCoverageGit(t, repoRoot, "init", "-q")
