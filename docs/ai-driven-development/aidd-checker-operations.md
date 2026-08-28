@@ -199,10 +199,13 @@ ID / hash、typed selector、executed identities、exit code、stdout / stderr b
 `AIDD-output-v1` framing hash、同一 final-state hash を保持する。
 
 case の欠落、余剰、重複、順序ずれ、profile drift、旧 command evidence、失敗 status、
-不一致 runtime identity を拒否する。各 case 後に task-owned regular file の path、Git
-mode、content と target-state hash が不変であることを確認する。coverage は receipt の
-Git baseline から実差分を得て、ownership scope、surface、path rule、dependency closure
-を再検証し、artifact 由来 command を再実行しない。
+不一致 runtime identity を拒否する。final-state manifest は task-owned regular file の
+path、worktree 上の Git 投影 mode・content と target-state hash を固定する。これとは
+別の verification 専用manifestで、各 case 前後のGit index entryのpresence・mode・
+object ID・stageが不変であることを確認する。この分離により、Ship時の正常なstage /
+commitでfinal-state hashを変えず、verification中のindex-only変更を拒否する。coverage は
+receipt の Git baselineから実差分を得て、ownership scope、surface、path rule、
+dependency closure を再検証し、artifact 由来 command を再実行しない。
 
 ## Compatibility and Go-only Ownership
 

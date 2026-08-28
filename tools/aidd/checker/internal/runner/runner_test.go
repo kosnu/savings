@@ -261,6 +261,67 @@ func TestExecuteRejectsOwnedFileMutation(t *testing.T) {
 	}
 }
 
+func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
+	tests := []struct {
+		name      string
+		arguments func(t *testing.T, repoRoot string) []string
+	}{
+		{
+			name: "mode",
+			arguments: func(t *testing.T, repoRoot string) []string {
+				return []string{"git", "update-index", "--chmod=+x", "owned.txt"}
+			},
+		},
+		{
+			name: "object",
+			arguments: func(t *testing.T, repoRoot string) []string {
+				objectID := runRunnerGitWithInput(t, repoRoot, "changed\n", "hash-object", "-w", "--stdin")
+				return []string{"git", "update-index", "--cacheinfo", "100644", strings.TrimSpace(objectID), "owned.txt"}
+			},
+		},
+		{
+			name: "presence",
+			arguments: func(t *testing.T, repoRoot string) []string {
+				return []string{"git", "rm", "--cached", "--quiet", "--", "owned.txt"}
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			snapshot := newRunnerSnapshot(t)
+			ownedPath := filepath.Join(snapshot.Root, "owned.txt")
+			if err := os.WriteFile(ownedPath, []byte("before\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			runRunnerGit(t, snapshot.Root, "add", "--", "owned.txt")
+			profile := model.VerificationProfile{
+				ID: "mutating-suite", Contract: "suite", Runner: "command_suite", SelectorKind: "suite",
+				Argv: test.arguments(t, snapshot.Root),
+			}
+			target := model.TargetState{
+				VerificationCases: []model.VerificationCase{{
+					ID: "VC-1", Type: "automated", RequirementID: "FR-1", VerificationProfileID: profile.ID,
+					Selector: &model.Selector{Kind: "suite"},
+				}},
+				OwnershipScopes: []model.OwnershipScope{{Path: "owned.txt", Kind: "file"}},
+				Representations: []model.Representation{{ID: "REP-1", Path: "owned.txt"}},
+			}
+			loaded := &receipt.Loaded{
+				Value:  model.Receipt{Workspace: "fixture", TargetState: model.HashValue[model.TargetState]{Value: target}},
+				SHA256: "receipt-hash",
+				Catalog: &catalog.Resolved{
+					Profiles:    map[string]model.VerificationProfile{profile.ID: profile},
+					ProfileHash: map[string]string{profile.ID: "profile-hash"},
+				},
+			}
+			_, err := Execute(context.Background(), snapshot, loaded, Options{})
+			if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_MUTATION") {
+				t.Fatalf("expected Git index mutation rejection, got %v", err)
+			}
+		})
+	}
+}
+
 func newRunnerSnapshot(t *testing.T) *repository.Snapshot {
 	t.Helper()
 	root := t.TempDir()
@@ -278,4 +339,20 @@ func newRunnerSnapshot(t *testing.T) *repository.Snapshot {
 		}
 	})
 	return snapshot
+}
+
+func runRunnerGit(t *testing.T, repoRoot string, arguments ...string) string {
+	t.Helper()
+	return runRunnerGitWithInput(t, repoRoot, "", arguments...)
+}
+
+func runRunnerGitWithInput(t *testing.T, repoRoot, input string, arguments ...string) string {
+	t.Helper()
+	command := exec.Command("git", append([]string{"-C", repoRoot}, arguments...)...)
+	command.Stdin = strings.NewReader(input)
+	output, err := command.CombinedOutput()
+	if err != nil {
+		t.Fatalf("git %v failed: %v\n%s", arguments, err, output)
+	}
+	return string(output)
 }

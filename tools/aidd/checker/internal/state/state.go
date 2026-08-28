@@ -1,6 +1,7 @@
 package state
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"sort"
@@ -10,6 +11,12 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
+
+type GitIndexEntry struct {
+	Mode     string `json:"mode"`
+	ObjectID string `json:"object_id"`
+	Stage    int    `json:"stage"`
+}
 
 type File struct {
 	Path    string `json:"path"`
@@ -22,6 +29,16 @@ type Manifest struct {
 	Version           int    `json:"version"`
 	TargetStateSHA256 string `json:"target_state_sha256"`
 	Files             []File `json:"files"`
+}
+
+type GitIndexFile struct {
+	Path    string          `json:"path"`
+	Entries []GitIndexEntry `json:"entries"`
+}
+
+type GitIndexManifest struct {
+	Version int            `json:"version"`
+	Files   []GitIndexFile `json:"files"`
 }
 
 func Inventory(snapshot *repository.Snapshot, target *model.TargetState) ([]string, error) {
@@ -116,6 +133,26 @@ func FinalHash(snapshot *repository.Snapshot, target *model.TargetState) (string
 	manifest, err := BuildManifest(snapshot, target)
 	if err != nil {
 		return "", err
+	}
+	return canonical.Hash(manifest)
+}
+
+func GitIndexHash(ctx context.Context, snapshot *repository.Snapshot, target *model.TargetState) (string, error) {
+	inventory, err := ValidateFinal(snapshot, target)
+	if err != nil {
+		return "", err
+	}
+	entriesByPath, err := snapshot.GitIndexEntries(ctx, inventory)
+	if err != nil {
+		return "", err
+	}
+	manifest := GitIndexManifest{Version: 1}
+	for _, path := range inventory {
+		entries := make([]GitIndexEntry, 0, len(entriesByPath[path]))
+		for _, entry := range entriesByPath[path] {
+			entries = append(entries, GitIndexEntry{Mode: entry.Mode, ObjectID: entry.ObjectID, Stage: entry.Stage})
+		}
+		manifest.Files = append(manifest.Files, GitIndexFile{Path: path, Entries: entries})
 	}
 	return canonical.Hash(manifest)
 }
