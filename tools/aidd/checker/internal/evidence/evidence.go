@@ -38,18 +38,39 @@ type manualResultWire struct {
 }
 
 type automatedResultWire struct {
-	ID                    string                  `json:"id"`
-	Type                  string                  `json:"type"`
-	Status                string                  `json:"status"`
-	VerificationProfileID string                  `json:"verification_profile_id"`
-	ProfileSHA256         string                  `json:"profile_sha256"`
-	Selector              *model.Selector         `json:"selector"`
-	ExecutedIdentities    []model.RuntimeIdentity `json:"executed_identities"`
-	ExitCode              *int                    `json:"exit_code"`
-	StdoutBytes           *int                    `json:"stdout_bytes"`
-	StderrBytes           *int                    `json:"stderr_bytes"`
-	OutputSHA256          string                  `json:"output_sha256"`
-	FinalStateSHA256      string                  `json:"final_state_sha256"`
+	ID                    string            `json:"id"`
+	Type                  string            `json:"type"`
+	Status                string            `json:"status"`
+	VerificationProfileID string            `json:"verification_profile_id"`
+	ProfileSHA256         string            `json:"profile_sha256"`
+	Selector              json.RawMessage   `json:"selector"`
+	ExecutedIdentities    []json.RawMessage `json:"executed_identities"`
+	ExitCode              *int              `json:"exit_code"`
+	StdoutBytes           *int              `json:"stdout_bytes"`
+	StderrBytes           *int              `json:"stderr_bytes"`
+	OutputSHA256          string            `json:"output_sha256"`
+	FinalStateSHA256      string            `json:"final_state_sha256"`
+}
+
+type suiteSelectorWire struct {
+	Kind string `json:"kind"`
+}
+
+type testCaseSelectorWire struct {
+	Kind string `json:"kind"`
+	Path string `json:"path"`
+	Name string `json:"name"`
+}
+
+type suiteIdentityWire struct {
+	Kind string `json:"kind"`
+	ID   string `json:"id"`
+}
+
+type testCaseIdentityWire struct {
+	Kind string `json:"kind"`
+	Path string `json:"path"`
+	Name string `json:"name"`
 }
 
 func Path(workspace string) (string, error) {
@@ -125,15 +146,77 @@ func decodeResult(raw json.RawMessage, index int) (model.VerificationResult, err
 		if err := canonical.Decode(raw, artifact, &wire); err != nil {
 			return model.VerificationResult{}, err
 		}
+		selector, err := decodeSelector(wire.Selector, path+".selector")
+		if err != nil {
+			return model.VerificationResult{}, err
+		}
+		identities := make([]model.RuntimeIdentity, 0, len(wire.ExecutedIdentities))
+		for identityIndex, rawIdentity := range wire.ExecutedIdentities {
+			identity, err := decodeRuntimeIdentity(rawIdentity, fmt.Sprintf("%s.executed_identities[%d]", path, identityIndex))
+			if err != nil {
+				return model.VerificationResult{}, err
+			}
+			identities = append(identities, identity)
+		}
 		return model.VerificationResult{
 			ID: wire.ID, Type: wire.Type, Status: wire.Status,
 			VerificationProfileID: wire.VerificationProfileID, ProfileSHA256: wire.ProfileSHA256,
-			Selector: wire.Selector, ExecutedIdentities: wire.ExecutedIdentities,
+			Selector: selector, ExecutedIdentities: identities,
 			ExitCode: wire.ExitCode, StdoutBytes: wire.StdoutBytes, StderrBytes: wire.StderrBytes,
 			OutputSHA256: wire.OutputSHA256, FinalStateSHA256: wire.FinalStateSHA256,
 		}, nil
 	default:
 		return model.VerificationResult{}, diagnostic.New("AIDD_EVIDENCE_RESULT_SHAPE", path+".type", "build_verification", "verification result type is unsupported", []string{"automated", "manual"}, discriminator.Type)
+	}
+}
+
+func decodeSelector(raw json.RawMessage, path string) (*model.Selector, error) {
+	var discriminator struct {
+		Kind string `json:"kind"`
+	}
+	if err := json.Unmarshal(raw, &discriminator); err != nil {
+		return nil, diagnostic.New("AIDD_EVIDENCE_SELECTOR", path, "build_verification", "selector kind discriminator is invalid", []string{"suite", "test_case"}, err.Error())
+	}
+	switch discriminator.Kind {
+	case "suite":
+		var wire suiteSelectorWire
+		if err := canonical.Decode(raw, "build_verification."+path, &wire); err != nil {
+			return nil, err
+		}
+		return &model.Selector{Kind: wire.Kind}, nil
+	case "test_case":
+		var wire testCaseSelectorWire
+		if err := canonical.Decode(raw, "build_verification."+path, &wire); err != nil {
+			return nil, err
+		}
+		return &model.Selector{Kind: wire.Kind, Path: wire.Path, Name: wire.Name}, nil
+	default:
+		return nil, diagnostic.New("AIDD_EVIDENCE_SELECTOR", path+".kind", "build_verification", "selector kind is unsupported", []string{"suite", "test_case"}, discriminator.Kind)
+	}
+}
+
+func decodeRuntimeIdentity(raw json.RawMessage, path string) (model.RuntimeIdentity, error) {
+	var discriminator struct {
+		Kind string `json:"kind"`
+	}
+	if err := json.Unmarshal(raw, &discriminator); err != nil {
+		return model.RuntimeIdentity{}, diagnostic.New("AIDD_EVIDENCE_RUNTIME_IDENTITY", path, "build_verification", "runtime identity kind discriminator is invalid", []string{"suite", "test_case"}, err.Error())
+	}
+	switch discriminator.Kind {
+	case "suite":
+		var wire suiteIdentityWire
+		if err := canonical.Decode(raw, "build_verification."+path, &wire); err != nil {
+			return model.RuntimeIdentity{}, err
+		}
+		return model.RuntimeIdentity{Kind: wire.Kind, ID: wire.ID}, nil
+	case "test_case":
+		var wire testCaseIdentityWire
+		if err := canonical.Decode(raw, "build_verification."+path, &wire); err != nil {
+			return model.RuntimeIdentity{}, err
+		}
+		return model.RuntimeIdentity{Kind: wire.Kind, Path: wire.Path, Name: wire.Name}, nil
+	default:
+		return model.RuntimeIdentity{}, diagnostic.New("AIDD_EVIDENCE_RUNTIME_IDENTITY", path+".kind", "build_verification", "runtime identity kind is unsupported", []string{"suite", "test_case"}, discriminator.Kind)
 	}
 }
 

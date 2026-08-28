@@ -49,10 +49,7 @@ func TestCheckAllRejectsSymlinkWorkspace(t *testing.T) {
 		t.Skip("symlink fixture requires platform-specific privileges on Windows")
 	}
 	root := t.TempDir()
-	command := exec.Command("git", "init", "--quiet", root)
-	if output, err := command.CombinedOutput(); err != nil {
-		t.Fatalf("git init: %v: %s", err, output)
-	}
+	initializeMainRepository(t, root)
 	workspaces := filepath.Join(root, "docs", "ai-driven-development", "workspaces")
 	if err := os.MkdirAll(filepath.Join(workspaces, "real"), 0o755); err != nil {
 		t.Fatal(err)
@@ -65,6 +62,153 @@ func TestCheckAllRejectsSymlinkWorkspace(t *testing.T) {
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_PATH_SYMLINK" {
 		t.Fatalf("expected AIDD_PATH_SYMLINK, got %#v", err)
+	}
+}
+
+func TestCheckAllRejectsTrackedManagedSourceDeletion(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	sourcePath := filepath.Join(root, "docs", "ai-driven-development", "workspaces", "1671-checker", "requirements.json")
+	writeMainFile(t, root, "docs/ai-driven-development/workspaces/1671-checker/requirements.json", []byte("{}\n"))
+	runMainGit(t, root, "add", ".")
+	runMainGit(t, root, "commit", "-qm", "managed source")
+	if err := os.Remove(sourcePath); err != nil {
+		t.Fatal(err)
+	}
+	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	item, ok := err.(*diagnostic.Diagnostic)
+	if !ok || item.Code != "AIDD_SOURCE_MISSING" {
+		t.Fatalf("expected AIDD_SOURCE_MISSING, got %#v", err)
+	}
+}
+
+func TestCheckAllRejectsGitHeadSymlinkHiddenByCurrentRegularFile(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink fixture requires platform-specific privileges on Windows")
+	}
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	relative := "docs/ai-driven-development/workspaces/1671-checker/requirements.json"
+	path := filepath.Join(root, filepath.FromSlash(relative))
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("outside.json", path); err != nil {
+		t.Fatal(err)
+	}
+	runMainGit(t, root, "add", relative)
+	runMainGit(t, root, "commit", "-qm", "managed symlink source")
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	writeMainFile(t, root, relative, []byte("{}\n"))
+
+	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	item, ok := err.(*diagnostic.Diagnostic)
+	if !ok || item.Code != "AIDD_GIT_HEAD_TYPE" {
+		t.Fatalf("expected AIDD_GIT_HEAD_TYPE, got %#v", err)
+	}
+}
+
+func TestCheckAllRejectsGoalAtCanonicalArtifactSourcePath(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	writeMainFile(t, root, "docs/ai-driven-development/workspaces/1671-checker/requirements.json", []byte(`{"schema_version":4,"kind":"requirements_goal","workspace":"1671-checker","display":{},"validation":{}}`))
+	runMainGit(t, root, "add", ".")
+	runMainGit(t, root, "commit", "-qm", "goal at artifact path")
+	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	item, ok := err.(*diagnostic.Diagnostic)
+	if !ok || item.Code != "AIDD_SOURCE_KIND" {
+		t.Fatalf("expected AIDD_SOURCE_KIND, got %#v", err)
+	}
+}
+
+func TestCheckAllRejectsSelfContainedSemanticContractBypasses(t *testing.T) {
+	tests := []struct {
+		name     string
+		file     string
+		source   map[string]any
+		wantCode string
+	}{
+		{
+			name: "empty direct rule inventory",
+			file: "requirements.json",
+			source: map[string]any{
+				"schema_version": 4, "kind": "requirements", "workspace": "1671-checker",
+				"display": map[string]any{"path": "requirements.md", "preamble": "# Requirements"},
+				"validation": map[string]any{
+					"mode": "managed", "cycle_start_issue_title": "AIDD Checker",
+					"input_gate": map[string]any{
+						"task_context": map[string]any{"source": "issue_body", "issue": "owner/repo#1671", "url": "https://github.com/owner/repo/issues/1671", "updated_at": "2026-08-28T00:00:00Z", "body_sha256": strings.Repeat("0", 64)},
+						"direct_rules": []any{}, "depends_on": []any{},
+					},
+					"completeness_gate": map[string]any{
+						"issue_body_sha256": strings.Repeat("0", 64), "workspace": "1671-checker", "baseline": map[string]any{"source": "none", "body_sha256": nil},
+						"requirements": []any{map[string]any{"id": "FR-1", "status": "new", "issue_evidence": "checker"}}, "sections": []any{map[string]any{"id": "functional", "status": "new", "issue_evidence": "checker"}}, "retired": []any{},
+					},
+					"requirements": []any{map[string]any{"id": "FR-1", "section_id": "functional", "text": "checker契約を厳密に検証する"}},
+					"sections":     []any{map[string]any{"id": "functional", "heading": "機能要件", "blocks": []any{map[string]any{"id": "functional-requirements", "type": "requirements"}}}},
+				},
+			},
+			wantCode: "AIDD_DIRECT_RULES_EMPTY",
+		},
+		{
+			name: "unowned product behavior",
+			file: "design-doc.json",
+			source: map[string]any{
+				"schema_version": 4, "kind": "design", "workspace": "1671-checker",
+				"display": map[string]any{"path": "design-doc.md", "preamble": "# Design"},
+				"validation": map[string]any{
+					"mode": "managed",
+					"sections": []any{map[string]any{"id": "architecture", "heading": "Architecture", "blocks": []any{
+						map[string]any{"id": "fr-1-design", "type": "evidence", "role": "design", "owner_id": "FR-1", "text": "設計根拠を十分に記録する。", "product_behavior_ids": []any{}},
+						map[string]any{"id": "fr-1-verification", "type": "evidence", "role": "verification", "owner_id": "FR-1", "text": "検証根拠を十分に記録する。"},
+					}}},
+					"target_state": model.TargetState{
+						ProductBehaviors:  []model.ProductBehavior{{ID: "PB-1", Type: "state_transition", Description: "profile固定後の最終状態になる", RequirementID: "FR-1"}},
+						VerificationCases: []model.VerificationCase{{ID: "VC-1", Type: "automated", RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationProfileID: "git-diff-check", Selector: &model.Selector{Kind: "suite"}}},
+						OwnershipScopes:   []model.OwnershipScope{{Path: "tool.go", Kind: "file"}, {Path: "tool_test.go", Kind: "file"}},
+						Representations: []model.Representation{
+							{ID: "REP-1", Kind: "implementation", Path: "tool.go", Locator: model.Locator{Kind: "file"}, RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationCaseIDs: []string{}},
+							{ID: "REP-2", Kind: "test", Path: "tool_test.go", Locator: model.Locator{Kind: "test_case", Name: "profile evidence"}, RequirementID: "FR-1", ProductBehaviorIDs: []string{}, VerificationCaseIDs: []string{"VC-1"}},
+						},
+					},
+					"rule_coverage": map[string]any{"implementation_surfaces": []any{}, "additional_rules": []any{}},
+					"coverage_gate": map[string]any{
+						"requirements_sha256": strings.Repeat("0", 64), "workspace": "1671-checker", "requirement_ids": []any{"FR-1"}, "baseline": map[string]any{"source": "none", "body_sha256": nil},
+						"coverage": []any{map[string]any{"id": "FR-1", "design_block_id": "fr-1-design", "verification_block_id": "fr-1-verification"}}, "baseline_sections": []any{},
+					},
+				},
+			},
+			wantCode: "AIDD_BEHAVIOR_EVIDENCE_INVENTORY",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			root := t.TempDir()
+			initializeMainRepository(t, root)
+			content, err := canonical.Pretty(test.source)
+			if err != nil {
+				t.Fatal(err)
+			}
+			writeMainFile(t, root, "docs/ai-driven-development/workspaces/1671-checker/"+test.file, content)
+			err = run(context.Background(), []string{"check-all", "--repo-root", root})
+			item, ok := err.(*diagnostic.Diagnostic)
+			if !ok || item.Code != test.wantCode {
+				t.Fatalf("expected %s, got %#v", test.wantCode, err)
+			}
+		})
+	}
+}
+
+func TestCheckAllIgnoresHistoricalMarkdownOnlyWorkspace(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	writeMainFile(t, root, "docs/ai-driven-development/workspaces/1492-legacy/requirements.md", []byte("# Historical Requirements\n"))
+	runMainGit(t, root, "add", ".")
+	runMainGit(t, root, "commit", "-qm", "historical workspace")
+	if err := run(context.Background(), []string{"check-all", "--repo-root", root}); err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -216,4 +360,12 @@ func runMainGit(t *testing.T, root string, arguments ...string) string {
 		t.Fatalf("git %v failed: %v\n%s", arguments, err, output)
 	}
 	return string(output)
+}
+
+func initializeMainRepository(t *testing.T, root string) {
+	t.Helper()
+	runMainGit(t, root, "init", "--quiet")
+	runMainGit(t, root, "config", "user.name", "AIDD Test")
+	runMainGit(t, root, "config", "user.email", "aidd@example.com")
+	runMainGit(t, root, "commit", "--allow-empty", "-qm", "fixture")
 }

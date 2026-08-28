@@ -17,13 +17,37 @@ type Source struct {
 	Validation    json.RawMessage `json:"validation"`
 }
 
+type ArtifactDisplay struct {
+	Path     string `json:"path"`
+	Preamble string `json:"preamble"`
+}
+
+type GoalDisplay struct {
+	Path    string              `json:"path"`
+	Title   string              `json:"title"`
+	Goal    string              `json:"goal"`
+	Context GoalContext         `json:"context"`
+	Done    []GoalContractEntry `json:"done"`
+}
+
+type GoalContext struct {
+	Body        []string            `json:"body"`
+	Constraints []GoalContractEntry `json:"constraints"`
+	Stop        []GoalContractEntry `json:"stop"`
+}
+
+type GoalContractEntry struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
+
 type RequirementsValidation struct {
-	Mode                 string          `json:"mode"`
-	CycleStartIssueTitle string          `json:"cycle_start_issue_title"`
-	InputGate            json.RawMessage `json:"input_gate"`
-	CompletenessGate     json.RawMessage `json:"completeness_gate"`
-	Requirements         []Requirement   `json:"requirements"`
-	Sections             json.RawMessage `json:"sections"`
+	Mode                 string                       `json:"mode"`
+	CycleStartIssueTitle string                       `json:"cycle_start_issue_title"`
+	InputGate            RequirementsInputGate        `json:"input_gate"`
+	CompletenessGate     RequirementsCompletenessGate `json:"completeness_gate"`
+	Requirements         []Requirement                `json:"requirements"`
+	Sections             []Section                    `json:"sections"`
 }
 
 type Requirement struct {
@@ -33,13 +57,107 @@ type Requirement struct {
 }
 
 type DesignValidation struct {
-	Mode           string          `json:"mode"`
-	Sections       json.RawMessage `json:"sections,omitempty"`
-	TargetState    TargetState     `json:"target_state"`
-	RuleCoverage   RuleCoverage    `json:"rule_coverage"`
-	CoverageGate   json.RawMessage `json:"coverage_gate"`
-	Scopes         json.RawMessage `json:"scopes,omitempty"`
-	BaselineScopes json.RawMessage `json:"baseline_scopes,omitempty"`
+	Mode         string             `json:"mode"`
+	Sections     []Section          `json:"sections"`
+	TargetState  TargetState        `json:"target_state"`
+	RuleCoverage RuleCoverage       `json:"rule_coverage"`
+	CoverageGate DesignCoverageGate `json:"coverage_gate"`
+}
+
+type RequirementsInputGate struct {
+	TaskContext TaskContext      `json:"task_context"`
+	DirectRules []DirectRule     `json:"direct_rules"`
+	DependsOn   []RuleDependency `json:"depends_on"`
+}
+
+type TaskContext struct {
+	Source     string `json:"source"`
+	Issue      string `json:"issue"`
+	URL        string `json:"url"`
+	UpdatedAt  string `json:"updated_at"`
+	BodySHA256 string `json:"body_sha256"`
+}
+
+type DirectRule struct {
+	ID              string    `json:"id"`
+	IssueEvidence   string    `json:"issue_evidence"`
+	Match           RuleMatch `json:"match"`
+	Reason          string    `json:"reason"`
+	ExplicitSurface string    `json:"explicit_surface,omitempty"`
+}
+
+type RuleMatch struct {
+	Field string `json:"field"`
+	Value string `json:"value"`
+}
+
+type RuleDependency struct {
+	ID  string `json:"id"`
+	Via string `json:"via"`
+}
+
+type Baseline struct {
+	Source     string  `json:"source"`
+	BodySHA256 *string `json:"body_sha256"`
+}
+
+type RequirementTransition struct {
+	ID            string  `json:"id"`
+	Status        string  `json:"status"`
+	IssueEvidence *string `json:"issue_evidence"`
+}
+
+type RequirementRetirement struct {
+	ID            string `json:"id"`
+	IssueEvidence string `json:"issue_evidence"`
+}
+
+type RequirementsCompletenessGate struct {
+	IssueBodySHA256 string                  `json:"issue_body_sha256"`
+	Workspace       string                  `json:"workspace"`
+	Baseline        Baseline                `json:"baseline"`
+	Requirements    []RequirementTransition `json:"requirements"`
+	Sections        []RequirementTransition `json:"sections"`
+	Retired         []RequirementRetirement `json:"retired"`
+}
+
+type Section struct {
+	ID      string  `json:"id"`
+	Heading string  `json:"heading"`
+	Blocks  []Block `json:"blocks"`
+}
+
+type Block struct {
+	ID                 string   `json:"id"`
+	Type               string   `json:"type"`
+	Markdown           string   `json:"markdown,omitempty"`
+	Role               string   `json:"role,omitempty"`
+	OwnerID            string   `json:"owner_id,omitempty"`
+	Text               string   `json:"text,omitempty"`
+	ProductBehaviorIDs []string `json:"product_behavior_ids,omitempty"`
+}
+
+type DesignCoverageGate struct {
+	RequirementsSHA256 string            `json:"requirements_sha256"`
+	Workspace          string            `json:"workspace"`
+	RequirementIDs     []string          `json:"requirement_ids"`
+	Baseline           Baseline          `json:"baseline"`
+	Coverage           []CoverageEntry   `json:"coverage"`
+	BaselineSections   []BaselineSection `json:"baseline_sections"`
+}
+
+type CoverageEntry struct {
+	ID                  string `json:"id"`
+	DesignBlockID       string `json:"design_block_id"`
+	VerificationBlockID string `json:"verification_block_id"`
+}
+
+type BaselineSection struct {
+	SectionID     *string `json:"section_id"`
+	Heading       string  `json:"heading"`
+	ContentSHA256 string  `json:"content_sha256"`
+	Status        string  `json:"status"`
+	DesignBlockID string  `json:"design_block_id,omitempty"`
 }
 
 type RuleCoverage struct {

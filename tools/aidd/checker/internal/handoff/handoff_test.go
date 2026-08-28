@@ -117,15 +117,6 @@ func TestCaptureRejectsIncompleteRequirementCoverage(t *testing.T) {
 		coverageGate["coverage"] = []any{}
 		writeJSON(t, path, source)
 	}
-	designBytes, err := os.ReadFile(designPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	designDisplay, err := render.Markdown(designBytes, "design", "design")
-	if err != nil {
-		t.Fatal(err)
-	}
-	writeFile(t, filepath.Join(workspaceRoot, "design-doc.md"), []byte(designDisplay))
 	designGoal, err := os.ReadFile(goalPath)
 	if err != nil {
 		t.Fatal(err)
@@ -305,7 +296,25 @@ func initializeFixtureRepository(t *testing.T) string {
 	}
 	designGoal := map[string]any{
 		"schema_version": 4, "kind": "design_goal", "workspace": testWorkspace,
-		"display": map[string]any{"path": "goal.md"}, "validation": designValidation,
+		"display": map[string]any{
+			"path": "goal.md", "title": "Design Goal", "goal": "全Requirements IDの完成状態と検証方針を定義する。",
+			"context": map[string]any{
+				"body": []any{"検証済みRequirementsをread-only入力としてDesignを定義する。"},
+				"constraints": []any{
+					map[string]any{"id": "canonical-input", "text": "検証済みのcanonical requirements.jsonをread-only入力として扱う。"},
+					map[string]any{"id": "phase-boundary", "text": "Design Goal内では実装しない。"},
+				},
+				"stop": []any{
+					map[string]any{"id": "validation-failure", "text": "Requirements再検証またはDesign Coverage Gateが失敗した場合は停止する。"},
+					map[string]any{"id": "scope-ambiguity", "text": "要求ごとの設計・検証scopeを一意に決められない場合は停止する。"},
+				},
+			},
+			"done": []any{
+				map[string]any{"id": "complete-scope", "text": "全Requirements IDとtask-owned範囲の完成状態を定義する。"},
+				map[string]any{"id": "validated-artifact", "text": "Design Coverage Gateと生成成果物の同期検証後にcompletion receiptを固定する。"},
+			},
+		},
+		"validation": designValidation,
 	}
 	workspaceRoot := filepath.Join(repoRoot, "docs", "ai-driven-development", "workspaces", testWorkspace)
 	writeFile(t, filepath.Join(workspaceRoot, "requirements.json"), requirementsBytes)

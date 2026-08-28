@@ -72,6 +72,38 @@ func TestRequirementsAcceptsCompleteNewInventory(t *testing.T) {
 	}
 }
 
+func TestRequirementsGoalGateRejectsMissingDisplayContract(t *testing.T) {
+	repoRoot := requirementsFixtureRepository(t)
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	issue := IssueSnapshot{
+		ID: "owner/repo#1671", Title: "Checker profile boundary",
+		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
+		Body: []byte("repo-owned checker profileでverificationを固定する"),
+	}
+	_, goal := requirementsFixtureSources(t, issue, "new")
+	var source map[string]any
+	if err := json.Unmarshal(goal, &source); err != nil {
+		t.Fatal(err)
+	}
+	display := source["display"].(map[string]any)
+	display["context"].(map[string]any)["stop"] = []any{}
+	goal, err = canonical.Pretty(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = ValidateRequirements(context.Background(), snapshot, RequirementsInput{
+		Issue: issue, Workspace: "1671-checker", Kind: "requirements_goal", Document: goal,
+		RuleMapPath: "docs/harness/rule-map.json",
+	})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_GOAL_CONTRACT_ORDER") {
+		t.Fatalf("expected Goal contract rejection at Requirements gate, got %v", err)
+	}
+}
+
 func TestRequirementsRejectsHeadingThatDoesNotMapToSectionID(t *testing.T) {
 	repoRoot := requirementsFixtureRepository(t)
 	snapshot, err := repository.Open(context.Background(), repoRoot)
@@ -310,7 +342,7 @@ func TestRequirementsRejectsEmptyRuleReason(t *testing.T) {
 		Issue: issue, Workspace: "1671-checker", Kind: "requirements", Document: document,
 		Goal: goal, RuleMapPath: "docs/harness/rule-map.json",
 	})
-	if err == nil || !strings.Contains(err.Error(), "AIDD_RULE_REASON") {
+	if err == nil || !strings.Contains(err.Error(), "AIDD_DIRECT_RULE_TEXT") {
 		t.Fatalf("expected empty reason rejection, got %v", err)
 	}
 }
@@ -451,7 +483,32 @@ func requirementsFixtureSources(t *testing.T, issue IssueSnapshot, status string
 	}
 	goal := map[string]any{
 		"schema_version": 4, "kind": "requirements_goal", "workspace": "1671-checker",
-		"display": map[string]any{"path": "goal.md"}, "validation": validation,
+		"display": map[string]any{
+			"path": "goal.md", "title": "Requirements Goal", "goal": "最新Issue全体のRequirementsを完成させる。",
+			"context": map[string]any{
+				"body": []any{"最新Issue本文と選択済みルールからRequirementsを定義する。"},
+				"constraints": []any{
+					map[string]any{"id": "task-context", "text": "最新Issue本文だけをTask Context正本として扱う。"},
+					map[string]any{"id": "phase-boundary", "text": "Requirements Goal内では実装しない。"},
+				},
+				"stop": []any{
+					map[string]any{"id": "validation-failure", "text": "workspaceまたはRequirements Gateの検証が失敗した場合は停止する。"},
+					map[string]any{"id": "scope-ambiguity", "text": "Issue本文から要求scopeを一意に決められない場合は停止する。"},
+				},
+			},
+			"done": []any{
+				map[string]any{"id": "complete-scope", "text": "最新Issue全体を覆うRequirementsと全要求IDを定義する。"},
+				map[string]any{"id": "validated-artifact", "text": "Requirements Gateと生成成果物の同期検証を成功させる。"},
+			},
+		},
+		"validation": map[string]any{
+			"mode":                    validation["mode"],
+			"cycle_start_issue_title": validation["cycle_start_issue_title"],
+			"input_gate":              validation["input_gate"],
+			"completeness_gate":       validation["completeness_gate"],
+			"requirements":            []any{map[string]any{"id": "FR-1", "text": evidence + "でverificationを固定する"}},
+			"sections":                validation["sections"],
+		},
 	}
 	documentBytes, err := canonical.Pretty(document)
 	if err != nil {
