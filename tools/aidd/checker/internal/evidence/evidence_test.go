@@ -36,6 +36,139 @@ func evidenceFixture() (*model.BuildEvidence, *receipt.Loaded) {
 	return value, loaded
 }
 
+func manualEvidenceFixture() (*model.BuildEvidence, *receipt.Loaded) {
+	procedure := "画面表示が崩れていないことを確認する"
+	verificationCase := model.VerificationCase{ID: "VC-1", Type: "manual", RequirementID: "AC-1", Procedure: procedure}
+	loaded := &receipt.Loaded{
+		SHA256: evidenceHash,
+		Value: model.Receipt{
+			Workspace:   "1671-checker",
+			TargetState: model.HashValue[model.TargetState]{Value: model.TargetState{VerificationCases: []model.VerificationCase{verificationCase}}},
+		},
+		Catalog: &catalog.Resolved{SHA256: evidenceHash},
+	}
+	value := &model.BuildEvidence{
+		SchemaVersion: model.EvidenceSchemaVersion, Kind: "build_verification", Workspace: "1671-checker",
+		ReceiptSHA256: evidenceHash, CatalogSHA256: evidenceHash, FinalStateSHA256: evidenceHash, Generator: runner.Generator,
+		Results: []model.VerificationResult{{
+			ID: "VC-1", Type: "manual", Status: "passed", FinalStateSHA256: evidenceHash,
+			Procedure: procedure, Observation: "画面表示が崩れていないことを確認した",
+		}},
+	}
+	return value, loaded
+}
+
+func evidenceWireJSON(t *testing.T, results ...map[string]any) []byte {
+	t.Helper()
+	entries := make([]any, len(results))
+	for index, result := range results {
+		entries[index] = result
+	}
+	content, err := canonical.Pretty(map[string]any{
+		"schema_version":     model.EvidenceSchemaVersion,
+		"kind":               "build_verification",
+		"workspace":          "1671-checker",
+		"receipt_sha256":     evidenceHash,
+		"catalog_sha256":     evidenceHash,
+		"final_state_sha256": evidenceHash,
+		"generator":          runner.Generator,
+		"results":            entries,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return content
+}
+
+func manualResultJSON() map[string]any {
+	return map[string]any{
+		"id": "VC-1", "type": "manual", "status": "passed",
+		"final_state_sha256": evidenceHash,
+		"procedure":          "画面表示が崩れていないことを確認する",
+		"observation":        "画面表示が崩れていないことを確認した",
+	}
+}
+
+func automatedResultJSON() map[string]any {
+	return map[string]any{
+		"id": "VC-2", "type": "automated", "status": "passed",
+		"verification_profile_id": "suite-profile", "profile_sha256": evidenceHash,
+		"selector":            map[string]any{"kind": "suite"},
+		"executed_identities": []any{map[string]any{"kind": "suite", "id": "suite-profile"}},
+		"exit_code":           0, "stdout_bytes": 10, "stderr_bytes": 0,
+		"output_sha256": evidenceHash, "final_state_sha256": evidenceHash,
+	}
+}
+
+func cloneResult(result map[string]any) map[string]any {
+	clone := make(map[string]any, len(result)+1)
+	for key, value := range result {
+		clone[key] = value
+	}
+	return clone
+}
+
+func TestEvidenceDecodeAcceptsCaseTypeSpecificResults(t *testing.T) {
+	automated, _ := evidenceFixture()
+	manual, _ := manualEvidenceFixture()
+	for _, test := range []struct {
+		name  string
+		value *model.BuildEvidence
+	}{
+		{name: "automated", value: automated},
+		{name: "manual", value: manual},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			content, err := canonical.Pretty(test.value)
+			if err != nil {
+				t.Fatal(err)
+			}
+			value, err := decodeValue(content)
+			if err != nil {
+				t.Fatalf("valid case-specific evidence rejected: %v", err)
+			}
+			if len(value.Results) != 1 || value.Results[0].Type != test.name {
+				t.Fatalf("unexpected decoded results: %#v", value.Results)
+			}
+		})
+	}
+}
+
+func TestEvidenceDecodeRejectsCrossTypeFieldsIncludingZeroValues(t *testing.T) {
+	tests := []struct {
+		name   string
+		result map[string]any
+		field  string
+		value  any
+	}{
+		{name: "manual profile id", result: manualResultJSON(), field: "verification_profile_id", value: "suite-profile"},
+		{name: "manual profile hash", result: manualResultJSON(), field: "profile_sha256", value: evidenceHash},
+		{name: "manual selector", result: manualResultJSON(), field: "selector", value: map[string]any{"kind": "suite"}},
+		{name: "manual identities", result: manualResultJSON(), field: "executed_identities", value: []any{map[string]any{"kind": "suite", "id": "suite-profile"}}},
+		{name: "manual exit code", result: manualResultJSON(), field: "exit_code", value: 0},
+		{name: "manual stdout", result: manualResultJSON(), field: "stdout_bytes", value: 0},
+		{name: "manual stderr", result: manualResultJSON(), field: "stderr_bytes", value: 0},
+		{name: "manual output hash", result: manualResultJSON(), field: "output_sha256", value: evidenceHash},
+		{name: "manual empty profile hash", result: manualResultJSON(), field: "profile_sha256", value: ""},
+		{name: "manual empty identities", result: manualResultJSON(), field: "executed_identities", value: []any{}},
+		{name: "manual null exit code", result: manualResultJSON(), field: "exit_code", value: nil},
+		{name: "automated procedure", result: automatedResultJSON(), field: "procedure", value: "画面表示を確認する"},
+		{name: "automated observation", result: automatedResultJSON(), field: "observation", value: "画面表示を確認した"},
+		{name: "automated empty procedure", result: automatedResultJSON(), field: "procedure", value: ""},
+		{name: "automated null observation", result: automatedResultJSON(), field: "observation", value: nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := cloneResult(test.result)
+			result[test.field] = test.value
+			_, err := decodeValue(evidenceWireJSON(t, result))
+			if err == nil || !strings.Contains(err.Error(), "AIDD_JSON_SHAPE") {
+				t.Fatalf("expected case-specific shape diagnostic, got %v", err)
+			}
+		})
+	}
+}
+
 func TestEvidenceRejectsMissingAndExtraResults(t *testing.T) {
 	for _, count := range []int{0, 2} {
 		value, loaded := evidenceFixture()
@@ -74,24 +207,7 @@ func TestEvidenceRejectsDuplicateResultID(t *testing.T) {
 }
 
 func TestEvidenceRejectsNonSubstantiveManualObservation(t *testing.T) {
-	procedure := "画面表示が崩れていないことを確認する"
-	verificationCase := model.VerificationCase{ID: "VC-1", Type: "manual", RequirementID: "AC-1", Procedure: procedure}
-	loaded := &receipt.Loaded{
-		SHA256: evidenceHash,
-		Value: model.Receipt{
-			Workspace:   "1671-checker",
-			TargetState: model.HashValue[model.TargetState]{Value: model.TargetState{VerificationCases: []model.VerificationCase{verificationCase}}},
-		},
-		Catalog: &catalog.Resolved{SHA256: evidenceHash},
-	}
-	value := &model.BuildEvidence{
-		SchemaVersion: model.EvidenceSchemaVersion, Kind: "build_verification", Workspace: "1671-checker",
-		ReceiptSHA256: evidenceHash, CatalogSHA256: evidenceHash, FinalStateSHA256: evidenceHash, Generator: runner.Generator,
-		Results: []model.VerificationResult{{
-			ID: "VC-1", Type: "manual", Status: "passed", FinalStateSHA256: evidenceHash,
-			Procedure: procedure, Observation: "画面表示が崩れていないことを確認した",
-		}},
-	}
+	value, loaded := manualEvidenceFixture()
 	if err := validateValue(value, loaded, evidenceHash); err != nil {
 		t.Fatalf("valid manual evidence rejected: %v", err)
 	}
@@ -110,9 +226,58 @@ func TestEvidenceRejectsNonSubstantiveManualObservation(t *testing.T) {
 	}
 }
 
+func TestEvidenceRejectsAutomatedFieldsOnManualResult(t *testing.T) {
+	exitCode := 0
+	stdoutBytes := 0
+	stderrBytes := 0
+	mutations := []struct {
+		name   string
+		mutate func(*model.VerificationResult)
+	}{
+		{name: "profile id", mutate: func(result *model.VerificationResult) { result.VerificationProfileID = "suite-profile" }},
+		{name: "profile hash", mutate: func(result *model.VerificationResult) { result.ProfileSHA256 = evidenceHash }},
+		{name: "selector", mutate: func(result *model.VerificationResult) { result.Selector = &model.Selector{Kind: "suite"} }},
+		{name: "identities", mutate: func(result *model.VerificationResult) {
+			result.ExecutedIdentities = []model.RuntimeIdentity{{Kind: "suite", ID: "suite-profile"}}
+		}},
+		{name: "exit code", mutate: func(result *model.VerificationResult) { result.ExitCode = &exitCode }},
+		{name: "stdout", mutate: func(result *model.VerificationResult) { result.StdoutBytes = &stdoutBytes }},
+		{name: "stderr", mutate: func(result *model.VerificationResult) { result.StderrBytes = &stderrBytes }},
+		{name: "output hash", mutate: func(result *model.VerificationResult) { result.OutputSHA256 = evidenceHash }},
+	}
+	for _, mutation := range mutations {
+		t.Run(mutation.name, func(t *testing.T) {
+			value, loaded := manualEvidenceFixture()
+			mutation.mutate(&value.Results[0])
+			err := validateValue(value, loaded, evidenceHash)
+			if err == nil || !strings.Contains(err.Error(), "AIDD_EVIDENCE_MANUAL") {
+				t.Fatalf("expected manual evidence diagnostic, got %v", err)
+			}
+		})
+	}
+}
+
+func TestEvidenceRejectsManualFieldsOnAutomatedResult(t *testing.T) {
+	for _, mutation := range []struct {
+		name   string
+		mutate func(*model.VerificationResult)
+	}{
+		{name: "procedure", mutate: func(result *model.VerificationResult) { result.Procedure = "画面表示を確認する" }},
+		{name: "observation", mutate: func(result *model.VerificationResult) { result.Observation = "画面表示を確認した" }},
+	} {
+		t.Run(mutation.name, func(t *testing.T) {
+			value, loaded := evidenceFixture()
+			mutation.mutate(&value.Results[0])
+			err := validateValue(value, loaded, evidenceHash)
+			if err == nil || !strings.Contains(err.Error(), "AIDD_EVIDENCE_AUTOMATED") {
+				t.Fatalf("expected automated evidence diagnostic, got %v", err)
+			}
+		})
+	}
+}
+
 func TestEvidenceRejectsLegacyCommandField(t *testing.T) {
-	var value model.BuildEvidence
-	err := canonical.Decode([]byte(`{"schema_version":4,"kind":"build_verification","workspace":"w","receipt_sha256":"a","catalog_sha256":"a","final_state_sha256":"a","generator":"aidd-checker/v4","results":[{"id":"VC-1","type":"automated","status":"passed","command":["python3"]}]}`), "fixture", &value)
+	_, err := decodeValue([]byte(`{"schema_version":4,"kind":"build_verification","workspace":"w","receipt_sha256":"a","catalog_sha256":"a","final_state_sha256":"a","generator":"aidd-checker/v4","results":[{"id":"VC-1","type":"automated","status":"passed","command":["python3"]}]}`))
 	if err == nil || !strings.Contains(err.Error(), "AIDD_JSON_SHAPE") {
 		t.Fatalf("expected legacy command rejection, got %v", err)
 	}
