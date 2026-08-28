@@ -18,18 +18,28 @@ and validation evidence to the parent instead.
 2. The matching file under `docs/ai-driven-development/goal-templates/`
 3. `docs/ai-driven-development/issue-guidelines.md` for Requirements
 4. `docs/harness/rule-map.json` and the smallest applicable subgraph
-5. `.agents/skills/aidd-cycle/references/phase-execution-contract.toml` as the
+5. `docs/ai-driven-development/contracts/phase-execution-contract.toml` as the
    canonical `aidd-phase-execution-v1` parent ownership contract
-6. `.agents/skills/aidd-cycle/references/artifact-validation.md` for
+6. `docs/ai-driven-development/aidd-checker-operations.md` for
    Requirements, Design, or Build
 
 The workflow defines phase order and contracts. Templates are construction
 checklists only.
 
-Before selecting or creating a Goal, run:
+Before selecting or creating a Goal, ensure the current invocation has built
+the checker from the current checkout. When the parent AIDD cycle has not
+already completed this bootstrap in the same invocation, run the following
+from the canonical repository root. Require `go env GOVERSION` to report Go
+1.27.x. Stop if Go is absent, the version does not match, the build or rename
+fails, or the resulting binary does not report its version. Never fall back to
+a pre-existing `/tmp/aidd-checker`.
 
 ```bash
-python3 .agents/skills/aidd-cycle/scripts/validate_phase_execution_contract.py
+go env GOVERSION
+go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker
+mv /tmp/aidd-checker.next /tmp/aidd-checker
+/tmp/aidd-checker version
+/tmp/aidd-checker validate-phase-contract --repo-root .
 ```
 
 Stop before `create_goal` when this contract validation fails.
@@ -80,9 +90,9 @@ For Requirements:
   closure; do not encode later implementation terminology into Requirements;
 - resolve the Git `HEAD` Requirements baseline and classify every baseline and
   current requirement/section transition;
-- create and validate a schema-v3 temporary `requirements_goal` JSON before
-  setting the Goal. A schema-v2 artifact may be inspected only as a Git
-  continuity baseline and cannot be retained as the current Goal or artifact.
+- create and validate a schema-v4 temporary `requirements_goal` JSON before
+  setting the Goal. A schema-v2 / v3 artifact may be inspected only as
+  historical compatibility input and cannot be retained as the current Goal or artifact.
 
 For Design:
 
@@ -91,13 +101,14 @@ For Design:
   source and bind Design to those Requirements bytes by path and SHA-256;
 - cover every current requirement ID and every Git `HEAD` Design baseline
   section;
-- define schema-v3 `target_state` as the only completed-state source of truth:
+- define schema-v4 `target_state` as the only completed-state source of truth:
   all final product behaviors with substantive descriptions that uniquely
   identify their final observable effects within each Requirement and type,
-  all final verification cases with an automated direct argv command whose
-  executable exactly matches a case-sensitive canonical repository allowlist
-  name (`pnpm`, `python3`, `node`, `git`, or `jq`) or a substantive manual
-  procedure, normalized non-overlapping `file` or `tree` ownership scopes, and every final
+  all final verification cases with a repo-owned `verification_profile_id` and
+  typed `suite` or `test_case` selector, or a substantive manual procedure.
+  Fixed argv, working directory, runner adapter, and allowed selector kind
+  belong to the profile catalog and are hash-fixed at Design completion. Also define
+  normalized non-overlapping `file` or `tree` ownership scopes, and every final
   machine-addressable implementation/test/Story/fixture/configuration/
   migration/documentation representation with owned paths and locator metadata.
   Do not infer source-code syntax or test-runner policy from locator metadata,
@@ -142,9 +153,9 @@ For Build:
 
 Typed IDs and references define ownership. Reject missing records, invalid
 owners, broken dependency edges, stale hashes, incomplete inventories, and any
-schema-v3 format condition reported by the phase validators. Accept schema-v2
-sources only for historical rendering or Git-baseline continuity; never promote
-them into a new Goal, receipt, or Build.
+schema-v4 format condition reported by the phase validators. Accept schema-v2 /
+v3 sources only as read-only historical compatibility input; never render or
+promote them into a new Goal, receipt, or Build.
 
 Requirements and Design Goal JSON must include the phase contract IDs defined
 by the workflow in its canonical order and with its canonical text. Add

@@ -33,7 +33,7 @@ when_to_read:
 - target stateだけを実体化し、既存実装のtask-owned範囲をその完成状態へ再構成している。
 - 必要なcode、test、fixture、doc表現が同期している。
 - 対象appの必須verificationが現在diffに対して成功している。
-- repo-owned Build verification runnerが実行前のfinal owned-path inventoryと各case後のtask-owned state不変を確認して全`VC-*`のcase type別成功証拠を生成し、case-sensitiveなrepo allowlist正規名と完全一致するDesign固定command、exit code 0、stream境界・byte長を固定した出力hash、同一final-state hashに一致する。final-state manifestはtarget-state hashと全owned regular fileのpath・Git実行mode・content hashを含む。必須representation pathが存在し、task-owned範囲に未登録pathが残っていない。locator metadataからsource構文やtest runner規則を推論しない。Build Entryはreceipt固定baseline inventoryでDesign rule coverageを再検証し、現在のworktreeからbaselineを再計算しない。
+- repo-owned Build verification runnerがreceipt固定profileのfixed argvだけを実行し、実行前のfinal owned-path inventoryと各case後のtask-owned state不変を確認して全`VC-*`のcase type別成功証拠を生成する。automated evidenceはprofile ID / hash、typed selector、structured adapterが完全一致を証明したruntime path / full name、exit code 0、stream境界・byte長を固定した出力hash、同一final-state hashを持つ。final-state manifestはtarget-state hashと全owned regular fileのpath・Git実行mode・content hashを含む。必須representation pathが存在し、task-owned範囲に未登録pathが残っていない。locator metadataやartifact由来commandからtest runner規則を推論しない。Build Entryはreceipt固定baseline inventoryとprofile catalogを再検証し、現在のworktreeからbaselineを再計算しない。
 - receiptのGit基準点から実際の変更pathを分類し、全変更がownership scope、receipt hashへ再照合済みのcanonical artifact path、またはvalidatorが所有するcanonical evidence path内にあり、path ruleと依存closureを含むcanonical Build rule coverage recordに未解決がない。
 - Build entry gateを再実行し、Goalへ記録したreceipt SHA-256と一致している。
 - 未解消のlint、type、test、整合性、scope漏れがない。
@@ -41,6 +41,7 @@ when_to_read:
 ## Stop
 
 - Build entryのartifact gateまたはrender同期が失敗する。
+- Design completion後にverification profile catalogが変化している。
 - RequirementsまたはDesignの不足・矛盾を推測で埋める必要がある。
 - target stateにないproduct behavior、verification case、representationが必要になる。
 - task-owned範囲に不純物が残る、または実差分がownership scopeを越える。

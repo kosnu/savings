@@ -27,6 +27,7 @@ when_to_read:
     詳細: [apps/api/README.md](../apps/api/README.md)
 - docker/ — Docker 用イメージと設定（現在未使用）
 - docs/ — リポジトリ全体のドキュメント（このファイルを含む）
+- tools/ — リポジトリ所有の開発・検証CLI（`tools/aidd/checker/`はGo製AIDD checker）
 - その他: CI ワークフロー、タスクランナー、環境設定ファイル（.env 等）
 
 ## 開発フローのポイント（短く）
