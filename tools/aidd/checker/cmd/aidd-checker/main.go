@@ -475,7 +475,10 @@ func buildEntry(ctx context.Context, arguments []string) error {
 	if err != nil {
 		return err
 	}
-	path, _ := receipt.Path(*workspace)
+	path, err := receipt.Path(*workspace)
+	if err != nil {
+		return err
+	}
 	fmt.Printf("Build entry: verified: %s sha256=%s\n", filepath.Join(snapshot.Root, filepath.FromSlash(path)), loaded.SHA256)
 	return nil
 }

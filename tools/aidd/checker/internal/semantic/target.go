@@ -11,6 +11,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/manualcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
@@ -266,8 +267,11 @@ func validateVerificationContract(verificationCase model.VerificationCase, path,
 			return diagnostic.New("AIDD_SELECTOR_KIND", path+".selector.kind", artifact, "selector kind is unsupported", []string{"suite", "test_case"}, verificationCase.Selector.Kind)
 		}
 	case "manual":
-		if substantive(verificationCase.Procedure) == "" || verificationCase.VerificationProfileID != "" || verificationCase.Selector != nil {
-			return diagnostic.New("AIDD_MANUAL_CASE_SHAPE", path, artifact, "manual case must own only a substantive procedure", "procedure", verificationCase)
+		if verificationCase.VerificationProfileID != "" || verificationCase.Selector != nil {
+			return diagnostic.New("AIDD_MANUAL_CASE_SHAPE", path, artifact, "manual case must own only a procedure", "procedure without automated profile or selector", verificationCase)
+		}
+		if !manualcontract.ValidProcedure(verificationCase.Procedure) {
+			return diagnostic.New("AIDD_MANUAL_PROCEDURE", path+".procedure", artifact, "manual procedure must be substantive", map[string]any{"minimum_substantive_runes": manualcontract.MinimumSubstantiveRunes}, verificationCase.Procedure)
 		}
 	default:
 		return diagnostic.New("AIDD_CASE_TYPE", path+".type", artifact, "verification case type is unsupported", []string{"automated", "manual"}, verificationCase.Type)

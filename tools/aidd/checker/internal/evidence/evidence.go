@@ -6,6 +6,7 @@ import (
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/manualcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
@@ -58,7 +59,7 @@ func validateValue(value *model.BuildEvidence, loadedReceipt *receipt.Loaded, cu
 		}
 		seen[result.ID] = struct{}{}
 		if verificationCase.Type == "manual" {
-			if result.Procedure != verificationCase.Procedure || result.Observation == "" || result.VerificationProfileID != "" || result.Selector != nil {
+			if result.Procedure != verificationCase.Procedure || !manualcontract.ValidObservation(result.Observation) || result.VerificationProfileID != "" || result.Selector != nil {
 				return diagnostic.New("AIDD_EVIDENCE_MANUAL", fmt.Sprintf("results[%d]", index), "build_verification", "manual verification evidence does not match the target case", verificationCase, result)
 			}
 			continue

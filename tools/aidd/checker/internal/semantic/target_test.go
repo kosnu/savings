@@ -43,6 +43,18 @@ func TestValidateTargetStateRejectsMissingProfile(t *testing.T) {
 	}
 }
 
+func TestManualProcedureRequiresSubstantiveText(t *testing.T) {
+	verificationCase := model.VerificationCase{ID: "VC-1", Type: "manual", RequirementID: "AC-1", Procedure: "x"}
+	err := validateVerificationContract(verificationCase, "verification_cases[0]", "design")
+	if err == nil || !strings.Contains(err.Error(), "AIDD_MANUAL_PROCEDURE") {
+		t.Fatalf("expected manual procedure diagnostic, got %v", err)
+	}
+	verificationCase.Procedure = "画面表示が崩れていないことを確認する"
+	if err := validateVerificationContract(verificationCase, "verification_cases[0]", "design"); err != nil {
+		t.Fatalf("valid manual procedure rejected: %v", err)
+	}
+}
+
 func TestParseSourceRejectsLegacyCommandInV4(t *testing.T) {
 	target := validTarget()
 	targetBytes, err := json.Marshal(target)

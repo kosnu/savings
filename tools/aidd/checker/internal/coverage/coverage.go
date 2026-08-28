@@ -41,6 +41,22 @@ func Path(workspace string) (string, error) {
 	return repository.WorkspacePath(workspace, ".aidd/build-rule-coverage.json")
 }
 
+func generatedArtifactPaths(workspace string) (string, string, string, error) {
+	verificationPath, err := evidence.Path(workspace)
+	if err != nil {
+		return "", "", "", err
+	}
+	coveragePath, err := Path(workspace)
+	if err != nil {
+		return "", "", "", err
+	}
+	receiptPath, err := receipt.Path(workspace)
+	if err != nil {
+		return "", "", "", err
+	}
+	return verificationPath, coveragePath, receiptPath, nil
+}
+
 func ValidateAndBuild(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt.Loaded) (*Record, error) {
 	_, evidenceBytes, err := evidence.LoadAndValidate(snapshot, loaded)
 	if err != nil {
@@ -61,9 +77,10 @@ func ValidateAndBuild(ctx context.Context, snapshot *repository.Snapshot, loaded
 	if err != nil {
 		return nil, err
 	}
-	verificationPath, _ := evidence.Path(loaded.Value.Workspace)
-	coveragePath, _ := Path(loaded.Value.Workspace)
-	receiptPath, _ := receipt.Path(loaded.Value.Workspace)
+	verificationPath, coveragePath, receiptPath, err := generatedArtifactPaths(loaded.Value.Workspace)
+	if err != nil {
+		return nil, err
+	}
 	excluded := map[string]bool{receiptPath: true, verificationPath: true, coveragePath: true}
 	for _, pair := range []model.ArtifactPair{loaded.Value.Artifacts.Requirements, loaded.Value.Artifacts.Design} {
 		excluded[pair.Source.Path] = true
@@ -101,7 +118,10 @@ func ValidateAndBuild(ctx context.Context, snapshot *repository.Snapshot, loaded
 		}
 		pathRecords = append(pathRecords, PathRecord{Path: change.Path, Status: change.Status, Surfaces: surfaces, Rules: requiredRules})
 	}
-	targetHash, _ := canonical.Hash(loaded.Value.TargetState.Value)
+	targetHash, err := canonical.Hash(loaded.Value.TargetState.Value)
+	if err != nil {
+		return nil, err
+	}
 	finalHash, err := state.FinalHash(snapshot, &loaded.Value.TargetState.Value)
 	if err != nil {
 		return nil, err

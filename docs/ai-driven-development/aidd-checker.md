@@ -77,6 +77,11 @@ test-case profileは区別し、suite成功を単一test-case成功へ読み替�
 profile ID / hash、selector、executed identities、exit / stream境界、framed output
 hash、final-state hashを保持する。
 
+manual verificationはDesign procedureとBuild observationへ同じ実質性契約を適用する。
+空白、記号、symbol、control / combining markを除いたUnicode文字を8文字以上要求し、
+observationはさらに単一行だけを受理する。captureとevidence再検証は同じ共有実装を
+使い、短文化または複数行へ編集されたmanual evidenceを拒否する。
+
 ## Version and Retirement Policy
 
 - v4: active schema。Go checkerの全gateを利用できる。

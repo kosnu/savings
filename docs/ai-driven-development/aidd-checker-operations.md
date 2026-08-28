@@ -137,7 +137,8 @@ schema v4 `validation.target_state` は完成状態の唯一の正本である�
 `command` を持たない。selector は profile 固定 suite 全体を表す
 `{"kind":"suite"}`、または単一 test を表す
 `{"kind":"test_case","path":"<repo-relative>","name":"<exact name>"}` である。
-manual case は concrete `procedure` だけを持つ。
+manual case は concrete `procedure` だけを持つ。procedureは空白、記号、symbol、
+control / combining markを除いたUnicode文字を8文字以上持つ場合だけ実質的とみなす。
 
 repo-owned catalog は
 `docs/ai-driven-development/contracts/verification-profiles.json` であり、各 profile が fixed argv、
@@ -187,6 +188,9 @@ rules、target state、ownership scopes、baseline inventory、Git `HEAD`、prof
   --repo-root <repo-root> --workspace <workspace> \
   --expected-receipt-sha256 <design-completion-sha256>
 ```
+
+manual observationはprocedureと同じ8文字以上の実質性契約に加えて単一行を要求する。
+この契約はcapture時と保存済みevidenceの再検証時に同じGo実装から適用する。
 
 runner は catalog の fixed argv だけを直接実行し、artifact の command や locator
 metadata から実行方法を組み立てない。test-case adapter は実行 path / name が selector

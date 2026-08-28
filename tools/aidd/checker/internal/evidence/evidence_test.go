@@ -64,12 +64,49 @@ func TestEvidenceRejectsDuplicateResultID(t *testing.T) {
 	value, loaded := evidenceFixture()
 	loaded.Value.TargetState.Value.VerificationCases = append(
 		loaded.Value.TargetState.Value.VerificationCases,
-		model.VerificationCase{ID: "VC-2", Type: "manual", RequirementID: "AC-1", Procedure: "確認する"},
+		model.VerificationCase{ID: "VC-2", Type: "manual", RequirementID: "AC-1", Procedure: "画面表示が崩れていないことを確認する"},
 	)
 	value.Results = append(value.Results, value.Results[0])
 	err := validateValue(value, loaded, evidenceHash)
 	if err == nil || !strings.Contains(err.Error(), "AIDD_EVIDENCE_RESULT") {
 		t.Fatalf("expected duplicate result diagnostic, got %v", err)
+	}
+}
+
+func TestEvidenceRejectsNonSubstantiveManualObservation(t *testing.T) {
+	procedure := "画面表示が崩れていないことを確認する"
+	verificationCase := model.VerificationCase{ID: "VC-1", Type: "manual", RequirementID: "AC-1", Procedure: procedure}
+	loaded := &receipt.Loaded{
+		SHA256: evidenceHash,
+		Value: model.Receipt{
+			Workspace:   "1671-checker",
+			TargetState: model.HashValue[model.TargetState]{Value: model.TargetState{VerificationCases: []model.VerificationCase{verificationCase}}},
+		},
+		Catalog: &catalog.Resolved{SHA256: evidenceHash},
+	}
+	value := &model.BuildEvidence{
+		SchemaVersion: model.EvidenceSchemaVersion, Kind: "build_verification", Workspace: "1671-checker",
+		ReceiptSHA256: evidenceHash, CatalogSHA256: evidenceHash, FinalStateSHA256: evidenceHash, Generator: runner.Generator,
+		Results: []model.VerificationResult{{
+			ID: "VC-1", Type: "manual", Status: "passed", FinalStateSHA256: evidenceHash,
+			Procedure: procedure, Observation: "画面表示が崩れていないことを確認した",
+		}},
+	}
+	if err := validateValue(value, loaded, evidenceHash); err != nil {
+		t.Fatalf("valid manual evidence rejected: %v", err)
+	}
+	for name, observation := range map[string]string{
+		"single character": "x",
+		"punctuation only": "...（！）...",
+		"multiline":        "画面表示が崩れていないことを\n確認した",
+	} {
+		t.Run(name, func(t *testing.T) {
+			value.Results[0].Observation = observation
+			err := validateValue(value, loaded, evidenceHash)
+			if err == nil || !strings.Contains(err.Error(), "AIDD_EVIDENCE_MANUAL") {
+				t.Fatalf("expected manual evidence diagnostic, got %v", err)
+			}
+		})
 	}
 }
 
