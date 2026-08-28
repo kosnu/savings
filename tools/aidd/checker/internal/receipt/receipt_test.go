@@ -19,13 +19,14 @@ func TestReceiptCanonicalGolden(t *testing.T) {
 		TargetState:       model.HashValue[model.TargetState]{SHA256: "target-hash", Value: model.TargetState{}},
 		OwnershipScopes:   model.HashValue[[]model.OwnershipScope]{SHA256: "scope-hash", Value: []model.OwnershipScope{}},
 		BaselineInventory: model.HashValue[[]string]{SHA256: "inventory-hash", Value: []string{}},
+		UntrackedBaseline: model.HashValue[[]model.UntrackedEntry]{SHA256: "untracked-hash", Value: []model.UntrackedEntry{}},
 		BuildBaseline:     model.BuildBaseline{Head: "0123456789012345678901234567890123456789"},
 	}
 	digest, err := canonical.Hash(value)
 	if err != nil {
 		t.Fatal(err)
 	}
-	const expected = "11226f9b1858676ce04e3c26e7a685334f0b4fefc8739e59aa15dda3e8503098"
+	const expected = "f191b1e25a9359520bc88000b0ec188daf6827088bc41419c7cd48a829bb5cf3"
 	if digest != expected {
 		t.Fatalf("receipt canonical golden = %s, want %s", digest, expected)
 	}

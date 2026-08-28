@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
@@ -285,6 +286,28 @@ func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
 				return []string{"git", "rm", "--cached", "--quiet", "--", "owned.txt"}
 			},
 		},
+		{
+			name: "outside ownership",
+			arguments: func(t *testing.T, repoRoot string) []string {
+				if err := os.WriteFile(filepath.Join(repoRoot, "outside.txt"), []byte("outside\n"), 0o644); err != nil {
+					t.Fatal(err)
+				}
+				return []string{"git", "add", "--", "outside.txt"}
+			},
+		},
+		{
+			name: "index flags",
+			arguments: func(t *testing.T, repoRoot string) []string {
+				return []string{"git", "update-index", "--assume-unchanged", "owned.txt"}
+			},
+		},
+		{
+			name: "head reference",
+			arguments: func(t *testing.T, repoRoot string) []string {
+				runRunnerGit(t, repoRoot, "branch", "same-head")
+				return []string{"git", "symbolic-ref", "HEAD", "refs/heads/same-head"}
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -322,6 +345,79 @@ func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
 	}
 }
 
+func TestExecuteRejectsIgnoredRepositoryMutations(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("fixture uses the repository shell available on Unix runners")
+	}
+	tests := []struct {
+		name         string
+		command      string
+		wantMutation bool
+	}{
+		{name: "new ignored file", command: "printf new > ignored/new.txt", wantMutation: true},
+		{name: "same size rewrite with restored mtime", command: "printf 'after!\\n' > ignored/existing.txt && touch -r reference.txt ignored/existing.txt", wantMutation: true},
+		{name: "delete ignored file", command: "rm ignored/existing.txt", wantMutation: true},
+		{name: "create then delete ignored file", command: "printf transient > ignored/transient.txt && rm ignored/transient.txt", wantMutation: true},
+		{name: "unchanged repository", command: "git diff --check", wantMutation: false},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			snapshot := newRunnerSnapshot(t)
+			for path, content := range map[string]string{
+				".gitignore":           "ignored/\n",
+				"owned.txt":            "complete\n",
+				"reference.txt":        "reference\n",
+				"ignored/existing.txt": "before\n",
+			} {
+				absolute := filepath.Join(snapshot.Root, filepath.FromSlash(path))
+				if err := os.MkdirAll(filepath.Dir(absolute), 0o755); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.WriteFile(absolute, []byte(content), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			fixedTime := time.Unix(1_700_000_000, 0)
+			for _, path := range []string{"reference.txt", "ignored/existing.txt"} {
+				if err := os.Chtimes(filepath.Join(snapshot.Root, filepath.FromSlash(path)), fixedTime, fixedTime); err != nil {
+					t.Fatal(err)
+				}
+			}
+			runRunnerGit(t, snapshot.Root, "add", ".gitignore", "owned.txt", "reference.txt")
+			runRunnerGit(t, snapshot.Root, "commit", "-qm", "runner fixture")
+
+			profile := model.VerificationProfile{
+				ID: "suite", Contract: "suite", Runner: "command_suite", SelectorKind: "suite",
+				Argv: []string{"sh", "-c", test.command},
+			}
+			target := model.TargetState{
+				VerificationCases: []model.VerificationCase{{
+					ID: "VC-1", Type: "automated", RequirementID: "FR-1", VerificationProfileID: profile.ID,
+					Selector: &model.Selector{Kind: "suite"},
+				}},
+				OwnershipScopes: []model.OwnershipScope{{Path: "owned.txt", Kind: "file"}},
+				Representations: []model.Representation{{ID: "REP-1", Path: "owned.txt"}},
+			}
+			loaded := &receipt.Loaded{
+				Value: model.Receipt{Workspace: "fixture", TargetState: model.HashValue[model.TargetState]{Value: target}},
+				Catalog: &catalog.Resolved{
+					Profiles: map[string]model.VerificationProfile{profile.ID: profile}, ProfileHash: map[string]string{profile.ID: "profile-hash"},
+				},
+			}
+			_, err := Execute(context.Background(), snapshot, loaded, Options{})
+			if test.wantMutation {
+				if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_MUTATION") {
+					t.Fatalf("expected ignored mutation rejection, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unchanged verification rejected: %v", err)
+			}
+		})
+	}
+}
+
 func newRunnerSnapshot(t *testing.T) *repository.Snapshot {
 	t.Helper()
 	root := t.TempDir()
@@ -329,6 +425,9 @@ func newRunnerSnapshot(t *testing.T) *repository.Snapshot {
 	if output, err := command.CombinedOutput(); err != nil {
 		t.Fatalf("git init: %v: %s", err, output)
 	}
+	runRunnerGit(t, root, "config", "user.name", "AIDD Test")
+	runRunnerGit(t, root, "config", "user.email", "aidd@example.com")
+	runRunnerGit(t, root, "commit", "--allow-empty", "-qm", "initial")
 	snapshot, err := repository.Open(context.Background(), root)
 	if err != nil {
 		t.Fatal(err)

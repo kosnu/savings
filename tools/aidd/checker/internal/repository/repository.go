@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -22,6 +23,10 @@ import (
 type observedEntry struct {
 	content    []byte
 	hasContent bool
+	digest     string
+	hasDigest  bool
+	linkTarget string
+	hasLink    bool
 	mode       fs.FileMode
 }
 
@@ -31,10 +36,11 @@ type Snapshot struct {
 	observed map[string]observedEntry
 }
 
-type GitIndexEntry struct {
-	Mode     string
-	ObjectID string
-	Stage    int
+type WorktreeIdentity struct {
+	Path   string
+	Type   string
+	Mode   string
+	SHA256 string
 }
 
 func Open(ctx context.Context, root string) (*Snapshot, error) {
@@ -269,7 +275,7 @@ func (snapshot *Snapshot) AssertUnchanged() error {
 	sort.Strings(paths)
 	for _, path := range paths {
 		expected := snapshot.observed[path]
-		info, exists, err := snapshot.inspect(path, false)
+		info, exists, err := snapshot.inspectEntry(path, false, expected.hasLink)
 		if err != nil || !exists || info.Mode() != expected.mode {
 			actual := "missing or changed type/mode"
 			if err != nil {
@@ -287,8 +293,90 @@ func (snapshot *Snapshot) AssertUnchanged() error {
 				return diagnostic.New("AIDD_SNAPSHOT_DRIFT", path, "repository", "input changed after snapshot", "unchanged bytes", actual)
 			}
 		}
+		if expected.hasDigest {
+			current, readErr := snapshot.hashRegularFile(path)
+			if readErr != nil || current != expected.digest {
+				actual := current
+				if readErr != nil {
+					actual = readErr.Error()
+				}
+				return diagnostic.New("AIDD_SNAPSHOT_DRIFT", path, "repository", "input changed after snapshot", expected.digest, actual)
+			}
+		}
+		if expected.hasLink {
+			current, readErr := snapshot.root.Readlink(filepath.FromSlash(path))
+			if readErr != nil || current != expected.linkTarget {
+				actual := current
+				if readErr != nil {
+					actual = readErr.Error()
+				}
+				return diagnostic.New("AIDD_SNAPSHOT_DRIFT", path, "repository", "symbolic link target changed after snapshot", expected.linkTarget, actual)
+			}
+		}
 	}
 	return nil
+}
+
+func (snapshot *Snapshot) ObserveWorktreeIdentity(path string) (WorktreeIdentity, error) {
+	normalized, err := ValidateRelativePath(path)
+	if err != nil {
+		return WorktreeIdentity{}, err
+	}
+	info, exists, err := snapshot.inspectEntry(normalized, false, true)
+	if err != nil {
+		return WorktreeIdentity{}, err
+	}
+	if !exists {
+		return WorktreeIdentity{}, diagnostic.New("AIDD_UNTRACKED_MISSING", normalized, "repository", "untracked path disappeared while its identity was captured", "existing entry", "missing")
+	}
+	mode := fmt.Sprintf("%04o", info.Mode().Perm())
+	if info.Mode()&os.ModeSymlink != 0 {
+		target, readErr := snapshot.root.Readlink(filepath.FromSlash(normalized))
+		if readErr != nil {
+			return WorktreeIdentity{}, diagnostic.New("AIDD_UNTRACKED_READ", normalized, "repository", "untracked symbolic link target cannot be read", nil, readErr.Error())
+		}
+		current, currentExists, statErr := snapshot.inspectEntry(normalized, false, true)
+		if statErr != nil || !currentExists || current.Mode() != info.Mode() {
+			actual := "missing or changed type/mode"
+			if statErr != nil {
+				actual = statErr.Error()
+			}
+			return WorktreeIdentity{}, diagnostic.New("AIDD_SNAPSHOT_DRIFT", normalized, "repository", "untracked symbolic link changed while its identity was captured", info.Mode().String(), actual)
+		}
+		digest := sha256.Sum256([]byte(target))
+		snapshot.observed[normalized] = observedEntry{mode: info.Mode(), linkTarget: target, hasLink: true}
+		return WorktreeIdentity{Path: normalized, Type: "symlink", Mode: mode, SHA256: hex.EncodeToString(digest[:])}, nil
+	}
+	if !info.Mode().IsRegular() {
+		return WorktreeIdentity{}, diagnostic.New("AIDD_UNTRACKED_TYPE", normalized, "repository", "untracked baseline accepts only regular files and symbolic links", []string{"regular", "symlink"}, info.Mode().String())
+	}
+	digest, readErr := snapshot.hashRegularFile(normalized)
+	if readErr != nil {
+		return WorktreeIdentity{}, readErr
+	}
+	current, currentExists, statErr := snapshot.inspectEntry(normalized, false, false)
+	if statErr != nil || !currentExists || current.Mode() != info.Mode() || current.Size() != info.Size() || current.ModTime() != info.ModTime() {
+		actual := "missing or changed mode/size/mtime"
+		if statErr != nil {
+			actual = statErr.Error()
+		}
+		return WorktreeIdentity{}, diagnostic.New("AIDD_SNAPSHOT_DRIFT", normalized, "repository", "untracked file changed while its identity was captured", map[string]any{"mode": info.Mode().String(), "size": info.Size(), "mtime": info.ModTime()}, actual)
+	}
+	snapshot.observed[normalized] = observedEntry{mode: info.Mode(), digest: digest, hasDigest: true}
+	return WorktreeIdentity{Path: normalized, Type: "regular", Mode: mode, SHA256: digest}, nil
+}
+
+func (snapshot *Snapshot) hashRegularFile(path string) (string, error) {
+	file, err := snapshot.root.Open(filepath.FromSlash(path))
+	if err != nil {
+		return "", diagnostic.New("AIDD_UNTRACKED_READ", path, "repository", "untracked regular file cannot be opened", nil, err.Error())
+	}
+	defer file.Close()
+	digest := sha256.New()
+	if _, err := io.Copy(digest, file); err != nil {
+		return "", diagnostic.New("AIDD_UNTRACKED_READ", path, "repository", "untracked regular file cannot be hashed", nil, err.Error())
+	}
+	return hex.EncodeToString(digest.Sum(nil)), nil
 }
 
 func (snapshot *Snapshot) WriteAtomic(path string, content []byte) error {
@@ -354,6 +442,10 @@ func (snapshot *Snapshot) WriteAtomic(path string, content []byte) error {
 }
 
 func (snapshot *Snapshot) inspect(path string, allowMissing bool) (os.FileInfo, bool, error) {
+	return snapshot.inspectEntry(path, allowMissing, false)
+}
+
+func (snapshot *Snapshot) inspectEntry(path string, allowMissing, allowFinalSymlink bool) (os.FileInfo, bool, error) {
 	parts := strings.Split(path, "/")
 	for index := range parts {
 		current := filepath.FromSlash(strings.Join(parts[:index+1], "/"))
@@ -364,7 +456,7 @@ func (snapshot *Snapshot) inspect(path string, allowMissing bool) (os.FileInfo, 
 		if err != nil {
 			return nil, false, diagnostic.New("AIDD_PATH_STAT", path, "repository", "path cannot be inspected", nil, err.Error())
 		}
-		if info.Mode()&os.ModeSymlink != 0 {
+		if info.Mode()&os.ModeSymlink != 0 && !(allowFinalSymlink && index == len(parts)-1) {
 			return nil, false, diagnostic.New("AIDD_PATH_SYMLINK", path, "repository", "repository inputs and outputs must not traverse symlinks", nil, filepath.ToSlash(current))
 		}
 		if index < len(parts)-1 && !info.IsDir() {
@@ -389,65 +481,6 @@ func (snapshot *Snapshot) Git(ctx context.Context, arguments ...string) ([]byte,
 		return nil, diagnostic.New("AIDD_GIT", strings.Join(arguments, " "), "git", "Git command failed", "exit 0", actual)
 	}
 	return output, nil
-}
-
-func (snapshot *Snapshot) GitIndexEntries(ctx context.Context, paths []string) (map[string][]GitIndexEntry, error) {
-	requested := make(map[string]struct{}, len(paths))
-	for _, path := range paths {
-		normalized, err := ValidateRelativePath(path)
-		if err != nil {
-			return nil, err
-		}
-		requested[normalized] = struct{}{}
-	}
-	result := make(map[string][]GitIndexEntry, len(requested))
-	if len(requested) == 0 {
-		return result, nil
-	}
-	output, err := snapshot.Git(ctx, "ls-files", "--stage", "--full-name", "--no-abbrev", "-z")
-	if err != nil {
-		return nil, err
-	}
-	for _, record := range bytes.Split(output, []byte{0}) {
-		if len(record) == 0 {
-			continue
-		}
-		header, rawPath, ok := bytes.Cut(record, []byte{'\t'})
-		if !ok {
-			return nil, diagnostic.New("AIDD_GIT_INDEX_FORMAT", "", "git", "Git index entry is malformed", "<mode> <object> <stage>\\t<path>", string(record))
-		}
-		path := string(rawPath)
-		if _, wanted := requested[path]; !wanted {
-			continue
-		}
-		fields := strings.Fields(string(header))
-		if len(fields) != 3 || len(fields[0]) != 6 {
-			return nil, diagnostic.New("AIDD_GIT_INDEX_FORMAT", path, "git", "Git index entry header is malformed", "<mode> <object> <stage>", string(header))
-		}
-		if _, parseErr := strconv.ParseUint(fields[0], 8, 32); parseErr != nil {
-			return nil, diagnostic.New("AIDD_GIT_INDEX_FORMAT", path, "git", "Git index mode is invalid", "six octal digits", fields[0])
-		}
-		if _, decodeErr := hex.DecodeString(fields[1]); decodeErr != nil || fields[1] == "" {
-			return nil, diagnostic.New("AIDD_GIT_INDEX_FORMAT", path, "git", "Git index object ID is invalid", "full hexadecimal object ID", fields[1])
-		}
-		stage, parseErr := strconv.Atoi(fields[2])
-		if parseErr != nil || stage < 0 || stage > 3 {
-			return nil, diagnostic.New("AIDD_GIT_INDEX_FORMAT", path, "git", "Git index stage is invalid", "0 through 3", fields[2])
-		}
-		result[path] = append(result[path], GitIndexEntry{Mode: fields[0], ObjectID: fields[1], Stage: stage})
-	}
-	for path := range result {
-		sort.Slice(result[path], func(left, right int) bool {
-			if result[path][left].Stage != result[path][right].Stage {
-				return result[path][left].Stage < result[path][right].Stage
-			}
-			if result[path][left].Mode != result[path][right].Mode {
-				return result[path][left].Mode < result[path][right].Mode
-			}
-			return result[path][left].ObjectID < result[path][right].ObjectID
-		})
-	}
-	return result, nil
 }
 
 func (snapshot *Snapshot) Ignored(ctx context.Context, paths []string) ([]string, error) {

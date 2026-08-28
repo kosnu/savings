@@ -25,7 +25,7 @@ when_to_read:
 - 目的: 検証済みRequirements全体からtask-owned範囲の完成状態と検証方針を定義する。
 - Cycle identity: Issue snapshot、workspace、Requirements pathとSHA-256。cycle-start titleは検証済みRequirementsが所有し、Design Goalへ再入力・複製しない。
 - Canonical input: validation済み`requirements.json`。生成Markdownを含めread-only。
-- Rule coverage: Design時点のtask-owned範囲のbaseline pathと最終representation pathの和集合をmachine review surfaceへ分類し、`implementation_surfaces`と必要なpath固有`additional_rules`をDesign Goalとartifactへ同一に記録する。baseline inventoryはDesign completion receiptへ一度だけ固定し、Build側でworktreeから再構築させない。
+- Rule coverage: Design時点のtask-owned範囲のbaseline pathと最終representation pathの和集合をmachine review surfaceへ分類し、`implementation_surfaces`と必要なpath固有`additional_rules`をDesign Goalとartifactへ同一に記録する。task-owned baseline inventoryとrepository全体の非ignore untracked identityはDesign completion receiptへ一度だけ固定し、Build側でworktreeから再構築させない。
 - Implementation context: 関連コード、ADR、policy、tests。
 - Baseline: validatorがGit `HEAD`のcanonical `design-doc.json`から取得したsection inventoryとhash。
 - Scope: 全Requirement IDのdesign/verification scopeと、全baseline sectionのreview scope。
@@ -47,7 +47,7 @@ when_to_read:
 - replaced sectionはowned baseline evidenceを持つ。
 - 全product behavior、verification case、representationがcanonical Requirementへbindingされ、全Requirementとbehaviorに検証経路がある。
 - 全representationがownership scope内にあり、Story/testはmachine-addressable locatorを持つ。
-- Requirements再検証、完全なretained Design Goal、Design coverage、canonical path、render同期、profile selector contractが同じbyte snapshotに対して成功し、そのsnapshotから選択済みrule文書とverification profile catalogを含むDesign completion receiptを生成してSHA-256を完了証拠へ記録する。
+- Requirements再検証、完全なretained Design Goal、Design coverage、canonical path、render同期、profile selector contractが同じbyte snapshotに対して成功し、そのsnapshotから選択済みrule文書、verification profile catalog、非ignore untracked pathのtype・mode・contentまたはsymlink target identityを含むDesign completion receiptを生成してSHA-256を完了証拠へ記録する。
 - Design Goalとartifactのrule coverageが一致し、全implementation surfaceに必要なrule IDと依存closureがDesign completion receiptへ固定されている。
 
 ## Stop

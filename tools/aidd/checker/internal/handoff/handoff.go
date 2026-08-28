@@ -3,9 +3,6 @@ package handoff
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
@@ -126,6 +123,14 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 	if err != nil {
 		return "", "", err
 	}
+	receiptPath, err := receipt.Path(input.Workspace)
+	if err != nil {
+		return "", "", err
+	}
+	untrackedBaseline, err := state.UntrackedInventory(ctx, snapshot, map[string]struct{}{receiptPath: {}})
+	if err != nil {
+		return "", "", err
+	}
 	headBytes, err := snapshot.Git(ctx, "rev-parse", "--verify", "HEAD")
 	if err != nil {
 		return "", "", err
@@ -151,6 +156,7 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 		TargetState:          hashValue(design.Design.TargetState),
 		OwnershipScopes:      hashValue(design.Design.TargetState.OwnershipScopes),
 		BaselineInventory:    hashValue(baselineInventory),
+		UntrackedBaseline:    hashValue(untrackedBaseline),
 		BuildBaseline:        model.BuildBaseline{Head: head},
 		Artifacts: model.ReceiptArtifacts{
 			Requirements: model.ArtifactPair{
@@ -170,8 +176,7 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 	if err := snapshot.AssertUnchanged(); err != nil {
 		return "", "", err
 	}
-	receiptPath, err := receipt.Path(input.Workspace)
-	if err != nil {
+	if err := state.AssertUntrackedPaths(ctx, snapshot, untrackedBaseline, map[string]struct{}{receiptPath: {}}); err != nil {
 		return "", "", err
 	}
 	if err := snapshot.WriteAtomic(receiptPath, serialized); err != nil {
@@ -289,19 +294,4 @@ func equalJSON(left, right any) bool {
 	leftBytes, leftErr := canonical.Marshal(left)
 	rightBytes, rightErr := canonical.Marshal(right)
 	return leftErr == nil && rightErr == nil && string(leftBytes) == string(rightBytes)
-}
-
-func ReadExternal(path string) ([]byte, error) {
-	absolute, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-	info, err := os.Lstat(absolute)
-	if err != nil {
-		return nil, err
-	}
-	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
-		return nil, fmt.Errorf("external input must be a regular non-symlink file: %s", path)
-	}
-	return os.ReadFile(absolute)
 }

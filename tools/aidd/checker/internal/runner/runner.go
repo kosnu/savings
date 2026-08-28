@@ -35,9 +35,21 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 	if err != nil {
 		return nil, err
 	}
-	initialGitIndex, err := state.GitIndexHash(ctx, snapshot, target)
-	if err != nil {
-		return nil, err
+	var initialRepositoryManifest *repository.MutationManifest
+	initialGitState := ""
+	for _, verificationCase := range target.VerificationCases {
+		if verificationCase.Type != "automated" {
+			continue
+		}
+		initialRepositoryManifest, err = snapshot.MutationManifest()
+		if err != nil {
+			return nil, err
+		}
+		initialGitState, err = state.RepositoryGitStateHash(ctx, snapshot)
+		if err != nil {
+			return nil, err
+		}
+		break
 	}
 	evidence := &model.BuildEvidence{
 		SchemaVersion:    model.EvidenceSchemaVersion,
@@ -70,15 +82,22 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 			return nil, err
 		}
 		evidence.Results = append(evidence.Results, *result)
-		if err := snapshot.AssertUnchanged(); err != nil {
-			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified a repository input", "unchanged snapshot", err.Error())
-		}
-		currentGitIndex, err := state.GitIndexHash(ctx, snapshot, target)
+		currentRepositoryManifest, err := snapshot.MutationManifest()
 		if err != nil {
 			return nil, err
 		}
-		if currentGitIndex != initialGitIndex {
-			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified the task-owned Git index", initialGitIndex, currentGitIndex)
+		if difference := repository.CompareMutationManifests(initialRepositoryManifest, currentRepositoryManifest); difference != nil {
+			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", difference.Path, "build_verification", "verification case modified repository state, including ignored paths", difference.Expected, difference.Actual)
+		}
+		if err := snapshot.AssertUnchanged(); err != nil {
+			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified a repository input", "unchanged snapshot", err.Error())
+		}
+		currentGitState, err := state.RepositoryGitStateHash(ctx, snapshot)
+		if err != nil {
+			return nil, err
+		}
+		if currentGitState != initialGitState {
+			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified repository HEAD or Git index state", initialGitState, currentGitState)
 		}
 		currentFinalState, err := state.FinalHash(snapshot, target)
 		if err != nil {
@@ -146,7 +165,13 @@ func executeAutomated(ctx context.Context, snapshot *repository.Snapshot, profil
 	var stderr bytes.Buffer
 	command.Stdout = &stdout
 	command.Stderr = &stderr
-	runErr := command.Run()
+	runErr, residualProcess, cleanupErr := runVerificationCommand(command)
+	if cleanupErr != nil {
+		return nil, diagnostic.New("AIDD_VERIFICATION_PROCESS_CLEANUP", verificationCase.ID, "build_verification", "verification runner process group could not be terminated", "no residual verification process", cleanupErr.Error())
+	}
+	if residualProcess {
+		return nil, diagnostic.New("AIDD_VERIFICATION_PROCESS_LEAK", verificationCase.ID, "build_verification", "verification runner left a residual process after its direct process exited", "no residual verification process", profile.Argv)
+	}
 	exitCode := 0
 	if runErr != nil {
 		if exitErr, ok := runErr.(*exec.ExitError); ok {

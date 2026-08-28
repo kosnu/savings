@@ -73,7 +73,7 @@ func ValidateAndBuild(ctx context.Context, snapshot *repository.Snapshot, loaded
 	if err := validatePinnedInputs(snapshot, loaded, loadedRules); err != nil {
 		return nil, err
 	}
-	changed, err := changedPaths(ctx, snapshot, loaded.Value.BuildBaseline.Head)
+	changed, err := changedPaths(ctx, snapshot, loaded.Value.BuildBaseline.Head, loaded.Value.UntrackedBaseline.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ type change struct {
 	Status string
 }
 
-func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline string) ([]change, error) {
+func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline string, untrackedBaseline []model.UntrackedEntry) ([]change, error) {
 	if len(baseline) != 40 {
 		return nil, diagnostic.New("AIDD_BUILD_BASELINE", "build_baseline.head", "build_rule_coverage", "receipt Build baseline is invalid", "full commit ID", baseline)
 	}
@@ -220,27 +220,50 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	if err != nil {
 		return nil, err
 	}
-	changes, err := parseNameStatus(trackedOutput)
+	trackedChanges, err := parseNameStatus(trackedOutput)
 	if err != nil {
 		return nil, err
 	}
-	untrackedOutput, err := snapshot.Git(ctx, "ls-files", "--others", "--exclude-standard", "-z")
+	currentUntracked, err := state.UntrackedInventory(ctx, snapshot, nil)
 	if err != nil {
 		return nil, err
 	}
-	for _, raw := range bytes.Split(untrackedOutput, []byte{0}) {
-		if len(raw) == 0 {
+	trackedByPath := map[string]change{}
+	for _, item := range trackedChanges {
+		trackedByPath[item.Path] = item
+	}
+	baselineByPath := make(map[string]model.UntrackedEntry, len(untrackedBaseline))
+	for _, item := range untrackedBaseline {
+		baselineByPath[item.Path] = item
+	}
+	currentByPath := make(map[string]model.UntrackedEntry, len(currentUntracked))
+	for _, item := range currentUntracked {
+		currentByPath[item.Path] = item
+	}
+	byPath := make(map[string]change, len(trackedByPath)+len(baselineByPath)+len(currentByPath))
+	for path, item := range trackedByPath {
+		byPath[path] = item
+	}
+	for path, expected := range baselineByPath {
+		if _, tracked := trackedByPath[path]; tracked {
 			continue
 		}
-		path := string(raw)
-		if _, pathErr := repository.ValidateRelativePath(path); pathErr != nil {
-			return nil, pathErr
+		actual, exists := currentByPath[path]
+		if !exists {
+			byPath[path] = change{Path: path, Status: "D"}
+			continue
 		}
-		changes = append(changes, change{Path: path, Status: "A"})
+		if actual != expected {
+			byPath[path] = change{Path: path, Status: "M"}
+		}
 	}
-	byPath := map[string]change{}
-	for _, item := range changes {
-		byPath[item.Path] = item
+	for path := range currentByPath {
+		if _, tracked := trackedByPath[path]; tracked {
+			continue
+		}
+		if _, existed := baselineByPath[path]; !existed {
+			byPath[path] = change{Path: path, Status: "A"}
+		}
 	}
 	result := make([]change, 0, len(byPath))
 	for _, item := range byPath {

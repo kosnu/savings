@@ -25,7 +25,7 @@ when_to_read:
 - 目的: 最新Issue本文全体を、安定IDを持つ検証可能なRequirementsへ変換する。
 - Cycle identity: Issue ID、URL、`updatedAt`、本文SHA-256、workspaceと、Requirementsだけが`validation.cycle_start_issue_title`として所有する取得済みtitle。
 - Task Context: 保存した最新Issue本文だけ。
-- Rule selection: Issue本文にliteral evidenceがあるpath、domain、activity、topicに該当するdirect nodeと、宣言済み`depends_on` closure。
+- Rule selection: 空白正規化・Unicode case fold後のIssue evidence内にmatch値が存在するpath、domain、activity、topicのdirect nodeと、宣言済み`depends_on` closure。non-domain implementation ruleのdistinctive `explicit_surface`も同じevidence内に置く。
 - Baseline: validatorがGit `HEAD`のcanonical `requirements.json`から取得したinventoryとhash。
 - Scope: baselineと現在の全requirement、必須section、そのtransition status。
 - 所有する出力: canonical `requirements.json`と生成`requirements.md`。
@@ -43,7 +43,7 @@ when_to_read:
 
 - 全current requirement IDに定義があり、全baseline IDが維持・変更・明示retireのいずれかで説明されている。
 - 必須sectionのinventoryとtransitionが完全である。
-- Issue provenance、literal rule selection、rule dependency、continuity、canonical path、render同期のgateが成功する。
+- Issue provenance、evidenceとmatch値を結合したrule selection、rule dependency、continuity、canonical path、render同期のgateが成功する。
 - 完了直前にIssue snapshotが変わっていない。
 
 ## Stop
