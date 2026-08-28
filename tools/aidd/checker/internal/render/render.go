@@ -6,18 +6,13 @@ import (
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/semantic"
 )
 
 const punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 
 func Markdown(content []byte, expectedKind, artifact string) (result string, err error) {
-	defer func() {
-		if recovered := recover(); recovered != nil {
-			result = ""
-			err = diagnostic.New("AIDD_DISPLAY_SHAPE", "display", artifact, "display data is incomplete or has an invalid type", "valid display structure", fmt.Sprint(recovered))
-		}
-	}()
 	parsed, err := semantic.ParseSource(content, expectedKind, artifact)
 	if err != nil {
 		return "", err
@@ -25,126 +20,102 @@ func Markdown(content []byte, expectedKind, artifact string) (result string, err
 	if parsed.ReadOnlyLegacy {
 		return "", diagnostic.New("AIDD_LEGACY_RENDER", "schema_version", artifact, "schema v2/v3 rendering remains on the compatibility renderer", 4, parsed.Envelope.SchemaVersion)
 	}
-	var source map[string]any
-	if err := canonical.Decode(content, artifact, &source); err != nil {
-		return "", err
-	}
 	if strings.HasSuffix(parsed.Envelope.Kind, "_goal") {
-		return renderGoal(source)
+		return renderGoal(parsed)
 	}
-	return renderArtifact(source)
+	return renderArtifact(parsed)
 }
 
-func renderArtifact(source map[string]any) (string, error) {
-	kind := source["kind"].(string)
-	display, ok := source["display"].(map[string]any)
-	if !ok {
-		return "", diagnostic.New("AIDD_DISPLAY", "display", kind, "artifact display must be an object", nil, source["display"])
-	}
-	preamble, ok := display["preamble"].(string)
-	if !ok || strings.TrimSpace(preamble) == "" {
-		return "", diagnostic.New("AIDD_DISPLAY_PREAMBLE", "display.preamble", kind, "artifact display preamble must be non-empty", nil, display["preamble"])
-	}
-	validation := source["validation"].(map[string]any)
-	blocks := []string{strings.TrimSpace(preamble)}
+func renderArtifact(parsed *semantic.ParsedSource) (string, error) {
+	kind := parsed.Envelope.Kind
+	display := *parsed.ArtifactDisplay
+	blocks := []string{strings.TrimSpace(display.Preamble)}
 	if kind == "requirements" {
+		validation := parsed.Requirements
 		blocks = append(blocks,
-			"## Cycle Identity\n\n- Cycle-start Issue title: "+plain(validation["cycle_start_issue_title"].(string)),
-			renderJSON("Requirements Input Gate", validation["input_gate"]),
-			renderJSON("Requirements Completeness Gate", validation["completeness_gate"]),
+			"## Cycle Identity\n\n- Cycle-start Issue title: "+plain(validation.CycleStartIssueTitle),
+			renderJSON("Requirements Input Gate", validation.InputGate),
+			renderJSON("Requirements Completeness Gate", validation.CompletenessGate),
 		)
-		sections, _ := validation["sections"].([]any)
-		requirements, _ := validation["requirements"].([]any)
-		blocks = append(blocks, renderSections(sections, requirements)...)
-		blocks = append(blocks, renderRuleSelection(validation["input_gate"]))
+		blocks = append(blocks, renderSections(validation.Sections, validation.Requirements)...)
+		blocks = append(blocks, renderRuleSelection(validation.InputGate))
 	} else {
-		sections, _ := validation["sections"].([]any)
-		blocks = append(blocks, renderSections(sections, nil)...)
+		validation := parsed.Design
+		blocks = append(blocks, renderSections(validation.Sections, nil)...)
 		blocks = append(blocks,
-			renderJSON("Target State", validation["target_state"]),
-			renderJSON("Rule Coverage", validation["rule_coverage"]),
-			renderJSON("Design Coverage Gate", validation["coverage_gate"]),
+			renderJSON("Target State", validation.TargetState),
+			renderJSON("Rule Coverage", validation.RuleCoverage),
+			renderJSON("Design Coverage Gate", validation.CoverageGate),
 		)
 	}
 	return strings.Join(trimBlocks(blocks), "\n\n") + "\n", nil
 }
 
-func renderGoal(source map[string]any) (string, error) {
-	kind := source["kind"].(string)
-	display, ok := source["display"].(map[string]any)
-	if !ok {
-		return "", diagnostic.New("AIDD_GOAL_DISPLAY", "display", kind, "Goal display must be an object", nil, source["display"])
-	}
-	title, _ := display["title"].(string)
-	goal, _ := display["goal"].(string)
-	context, _ := display["context"].(map[string]any)
-	done, _ := display["done"].([]any)
-	if title == "" || goal == "" || context == nil || done == nil {
-		return "", diagnostic.New("AIDD_GOAL_DISPLAY", "display", kind, "Goal display is incomplete", nil, display)
-	}
-	validation := source["validation"].(map[string]any)
-	blocks := []string{"# " + plain(title), "## Goal\n\n" + plain(strings.TrimSpace(goal))}
+func renderGoal(parsed *semantic.ParsedSource) (string, error) {
+	kind := parsed.Envelope.Kind
+	display := *parsed.GoalDisplay
+	blocks := []string{"# " + plain(display.Title), "## Goal\n\n" + plain(strings.TrimSpace(display.Goal))}
 	contextLines := []string{}
-	for _, item := range context["body"].([]any) {
-		contextLines = append(contextLines, plain(item.(string)))
+	for _, item := range display.Context.Body {
+		contextLines = append(contextLines, plain(item))
 	}
-	for _, field := range []string{"constraints", "stop"} {
-		label := map[string]string{"constraints": "Constraints", "stop": "Stop"}[field]
-		for _, raw := range context[field].([]any) {
-			entry := raw.(map[string]any)
-			contextLines = append(contextLines, fmt.Sprintf("- %s [%s]: %s", label, entry["id"], plain(entry["text"].(string))))
+	for _, field := range []struct {
+		label   string
+		entries []model.GoalContractEntry
+	}{
+		{label: "Constraints", entries: display.Context.Constraints},
+		{label: "Stop", entries: display.Context.Stop},
+	} {
+		for _, entry := range field.entries {
+			contextLines = append(contextLines, fmt.Sprintf("- %s [%s]: %s", field.label, entry.ID, plain(entry.Text)))
 		}
 	}
 	blocks = append(blocks, "## Context Packet\n\n"+strings.Join(contextLines, "\n"))
 	if kind == "requirements_goal" {
+		validation := parsed.Requirements
 		blocks = append(blocks,
-			"## Cycle Identity\n\n- Cycle-start Issue title: "+plain(validation["cycle_start_issue_title"].(string)),
-			renderJSON("Requirements Input Gate", validation["input_gate"]),
-			renderJSON("Requirements Completeness Gate", validation["completeness_gate"]),
+			"## Cycle Identity\n\n- Cycle-start Issue title: "+plain(validation.CycleStartIssueTitle),
+			renderJSON("Requirements Input Gate", validation.InputGate),
+			renderJSON("Requirements Completeness Gate", validation.CompletenessGate),
 		)
 	} else {
+		validation := parsed.Design
 		blocks = append(blocks,
-			renderJSON("Design Coverage Gate", validation["coverage_gate"]),
-			renderJSON("Rule Coverage", validation["rule_coverage"]),
-			renderJSON("Target State", validation["target_state"]),
+			renderJSON("Design Coverage Gate", validation.CoverageGate),
+			renderJSON("Rule Coverage", validation.RuleCoverage),
+			renderJSON("Target State", validation.TargetState),
 		)
 	}
 	doneLines := []string{}
-	for _, raw := range done {
-		entry := raw.(map[string]any)
-		doneLines = append(doneLines, fmt.Sprintf("- [%s] %s", entry["id"], plain(entry["text"].(string))))
+	for _, entry := range display.Done {
+		doneLines = append(doneLines, fmt.Sprintf("- [%s] %s", entry.ID, plain(entry.Text)))
 	}
 	blocks = append(blocks, "## Done / Verification\n\n"+strings.Join(doneLines, "\n"))
 	return strings.Join(trimBlocks(blocks), "\n\n") + "\n", nil
 }
 
-func renderSections(sections, requirements []any) []string {
+func renderSections(sections []model.Section, requirements []model.Requirement) []string {
 	result := []string{}
-	for _, raw := range sections {
-		section := raw.(map[string]any)
-		sectionID, _ := section["id"].(string)
-		heading, _ := section["heading"].(string)
+	for _, section := range sections {
 		parts := []string{}
-		for _, blockRaw := range section["blocks"].([]any) {
-			block := blockRaw.(map[string]any)
-			switch block["type"] {
+		for _, block := range section.Blocks {
+			switch block.Type {
 			case "markdown":
-				parts = append(parts, strings.TrimSpace(block["markdown"].(string)))
+				parts = append(parts, strings.TrimSpace(block.Markdown))
 			case "evidence":
-				parts = append(parts, fmt.Sprintf("%s %s: %s", plain(block["owner_id"].(string)), block["role"], plain(block["text"].(string))))
+				parts = append(parts, fmt.Sprintf("%s %s: %s", plain(block.OwnerID), block.Role, plain(block.Text)))
 			case "requirements":
 				lines := []string{}
-				for _, requirementRaw := range requirements {
-					requirement := requirementRaw.(map[string]any)
-					if requirement["section_id"] == sectionID {
-						lines = append(lines, fmt.Sprintf("- %s: %s", requirement["id"], plain(requirement["text"].(string))))
+				for _, requirement := range requirements {
+					if requirement.SectionID == section.ID {
+						lines = append(lines, fmt.Sprintf("- %s: %s", requirement.ID, plain(requirement.Text)))
 					}
 				}
 				parts = append(parts, strings.Join(lines, "\n"))
 			}
 		}
 		body := strings.Join(trimBlocks(parts), "\n\n")
-		sectionText := "## " + plain(heading)
+		sectionText := "## " + plain(section.Heading)
 		if body != "" {
 			sectionText += "\n\n" + body
 		}
@@ -153,16 +124,13 @@ func renderSections(sections, requirements []any) []string {
 	return result
 }
 
-func renderRuleSelection(raw any) string {
-	gate := raw.(map[string]any)
+func renderRuleSelection(gate model.RequirementsInputGate) string {
 	lines := []string{"## Rule Selection", ""}
-	for _, rawRule := range gate["direct_rules"].([]any) {
-		rule := rawRule.(map[string]any)
-		lines = append(lines, fmt.Sprintf("- Direct: `%s`。%s。", rule["id"], plain(strings.TrimSuffix(rule["reason"].(string), "。"))))
+	for _, rule := range gate.DirectRules {
+		lines = append(lines, fmt.Sprintf("- Direct: `%s`。%s。", rule.ID, plain(strings.TrimSuffix(rule.Reason, "。"))))
 	}
-	for _, rawDependency := range gate["depends_on"].([]any) {
-		dependency := rawDependency.(map[string]any)
-		lines = append(lines, fmt.Sprintf("- Depends-on: `%s`（via `%s`）。", dependency["id"], dependency["via"]))
+	for _, dependency := range gate.DependsOn {
+		lines = append(lines, fmt.Sprintf("- Depends-on: `%s`（via `%s`）。", dependency.ID, dependency.Via))
 	}
 	lines = append(lines, "- Conflict: none。")
 	return strings.Join(lines, "\n")

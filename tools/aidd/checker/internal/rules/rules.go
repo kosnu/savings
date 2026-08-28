@@ -1,7 +1,6 @@
 package rules
 
 import (
-	"encoding/json"
 	"path"
 	"sort"
 	"strings"
@@ -204,22 +203,15 @@ func validatePattern(pattern, owner string, index int) error {
 	return nil
 }
 
-func SelectedIDs(requirementsContent, designContent []byte, loaded *Loaded) ([]string, error) {
+func SelectedIDs(requirements *model.RequirementsValidation, design *model.DesignValidation, loaded *Loaded) ([]string, error) {
 	direct := map[string]struct{}{}
-	var requirements map[string]any
-	if err := json.Unmarshal(requirementsContent, &requirements); err != nil {
-		return nil, err
+	for _, rule := range requirements.InputGate.DirectRules {
+		direct[rule.ID] = struct{}{}
 	}
-	collectRequirementRules(requirements, direct)
-	var design model.Source
-	if err := json.Unmarshal(designContent, &design); err != nil {
-		return nil, err
+	for _, dependency := range requirements.InputGate.DependsOn {
+		direct[dependency.ID] = struct{}{}
 	}
-	var validation model.DesignValidation
-	if err := json.Unmarshal(design.Validation, &validation); err != nil {
-		return nil, err
-	}
-	for _, surfaceID := range validation.RuleCoverage.ImplementationSurfaces {
+	for _, surfaceID := range design.RuleCoverage.ImplementationSurfaces {
 		found := false
 		for _, surface := range loaded.Map.ReviewRouting.Surfaces {
 			if surface.ID != surfaceID {
@@ -234,7 +226,7 @@ func SelectedIDs(requirementsContent, designContent []byte, loaded *Loaded) ([]s
 			return nil, diagnostic.New("AIDD_SURFACE_UNKNOWN", "validation.rule_coverage.implementation_surfaces", "design", "implementation surface is not present in rule-map", nil, surfaceID)
 		}
 	}
-	for _, additional := range validation.RuleCoverage.AdditionalRules {
+	for _, additional := range design.RuleCoverage.AdditionalRules {
 		direct[additional.ID] = struct{}{}
 	}
 	closure, err := ExpandClosure(loaded, direct)
@@ -308,21 +300,6 @@ func ResolvePath(loaded *Loaded, repositoryPath string) ([]string, []string, err
 		return nil, nil, err
 	}
 	return surfaces, orderedSelection(loaded.Order, closure), nil
-}
-
-func collectRequirementRules(source map[string]any, selected map[string]struct{}) {
-	validation, _ := source["validation"].(map[string]any)
-	inputGate, _ := validation["input_gate"].(map[string]any)
-	for _, field := range []string{"direct_rules", "depends_on"} {
-		entries, _ := inputGate[field].([]any)
-		for _, value := range entries {
-			entry, _ := value.(map[string]any)
-			id, _ := entry["id"].(string)
-			if id != "" {
-				selected[id] = struct{}{}
-			}
-		}
-	}
 }
 
 func orderedSelection(order []string, selected map[string]struct{}) []string {

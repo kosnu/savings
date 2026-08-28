@@ -169,6 +169,42 @@ func TestEvidenceDecodeRejectsCrossTypeFieldsIncludingZeroValues(t *testing.T) {
 	}
 }
 
+func TestEvidenceDecodeRejectsCrossVariantSelectorAndIdentityFields(t *testing.T) {
+	tests := []struct {
+		name   string
+		mutate func(map[string]any)
+	}{
+		{name: "suite selector path", mutate: func(result map[string]any) {
+			result["selector"].(map[string]any)["path"] = ""
+		}},
+		{name: "suite selector name", mutate: func(result map[string]any) {
+			result["selector"].(map[string]any)["name"] = ""
+		}},
+		{name: "suite identity path", mutate: func(result map[string]any) {
+			result["executed_identities"].([]any)[0].(map[string]any)["path"] = ""
+		}},
+		{name: "suite identity name", mutate: func(result map[string]any) {
+			result["executed_identities"].([]any)[0].(map[string]any)["name"] = ""
+		}},
+		{name: "test-case identity id", mutate: func(result map[string]any) {
+			result["selector"] = map[string]any{"kind": "test_case", "path": "tools/example_test.go", "name": "TestExample"}
+			result["executed_identities"] = []any{map[string]any{
+				"kind": "test_case", "path": "tools/example_test.go", "name": "TestExample", "id": "",
+			}}
+		}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := automatedResultJSON()
+			test.mutate(result)
+			_, err := decodeValue(evidenceWireJSON(t, result))
+			if err == nil || !strings.Contains(err.Error(), "AIDD_JSON_SHAPE") {
+				t.Fatalf("expected strict selector or identity shape rejection, got %v", err)
+			}
+		})
+	}
+}
+
 func TestEvidenceRejectsMissingAndExtraResults(t *testing.T) {
 	for _, count := range []int{0, 2} {
 		value, loaded := evidenceFixture()

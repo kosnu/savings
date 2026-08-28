@@ -12,7 +12,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -42,6 +44,10 @@ type WorktreeIdentity struct {
 	Mode   string
 	SHA256 string
 }
+
+const MaxHeadBlobBytes = 16 * 1024 * 1024
+
+var workspaceNamePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
 
 func Open(ctx context.Context, root string) (*Snapshot, error) {
 	absolute, err := filepath.Abs(root)
@@ -95,6 +101,13 @@ func ValidateRelativePath(path string) (string, error) {
 		}
 	}
 	return path, nil
+}
+
+func ValidateWorkspaceName(workspace string) error {
+	if !workspaceNamePattern.MatchString(workspace) {
+		return diagnostic.New("AIDD_WORKSPACE", workspace, "workspace", "workspace must use lowercase ASCII kebab-case", "lowercase ASCII kebab-case", workspace)
+	}
+	return nil
 }
 
 func (snapshot *Snapshot) Read(path string) ([]byte, error) {
@@ -483,6 +496,64 @@ func (snapshot *Snapshot) Git(ctx context.Context, arguments ...string) ([]byte,
 	return output, nil
 }
 
+// ReadHeadBlobはGit HEADの通常ファイルblobだけを読む。
+// symlink、tree、上限超過objectは内容を読む前に拒否する。
+func (snapshot *Snapshot) ReadHeadBlob(ctx context.Context, path string) ([]byte, bool, error) {
+	return snapshot.readHeadBlob(ctx, path, MaxHeadBlobBytes)
+}
+
+func (snapshot *Snapshot) readHeadBlob(ctx context.Context, path string, maximum int64) ([]byte, bool, error) {
+	normalized, err := ValidateRelativePath(path)
+	if err != nil {
+		return nil, false, err
+	}
+	listing, err := snapshot.Git(ctx, "ls-tree", "-z", "HEAD", "--", normalized)
+	if err != nil {
+		return nil, false, err
+	}
+	if len(listing) == 0 {
+		return nil, false, nil
+	}
+	if listing[len(listing)-1] != 0 {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_ENTRY", normalized, "git", "Git HEAD entry must be NUL-terminated", "NUL-terminated entry", string(listing))
+	}
+	records := bytes.Split(listing[:len(listing)-1], []byte{0})
+	if len(records) != 1 {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_ENTRY", normalized, "git", "Git HEAD lookup must return exactly one entry", 1, len(records))
+	}
+	parts := bytes.SplitN(records[0], []byte{'\t'}, 2)
+	if len(parts) != 2 || string(parts[1]) != normalized {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_ENTRY", normalized, "git", "Git HEAD lookup returned a different path", normalized, string(records[0]))
+	}
+	metadata := strings.Fields(string(parts[0]))
+	if len(metadata) != 3 {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_ENTRY", normalized, "git", "Git HEAD entry metadata is invalid", "mode type object-id", string(parts[0]))
+	}
+	mode, objectType, objectID := metadata[0], metadata[1], metadata[2]
+	if (mode != "100644" && mode != "100755") || objectType != "blob" {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_TYPE", normalized, "git", "Git HEAD input must be a regular file", []string{"100644 blob", "100755 blob"}, map[string]string{"mode": mode, "type": objectType})
+	}
+	sizeBytes, err := snapshot.Git(ctx, "cat-file", "-s", objectID)
+	if err != nil {
+		return nil, false, err
+	}
+	size, err := strconv.ParseInt(strings.TrimSpace(string(sizeBytes)), 10, 64)
+	if err != nil || size < 0 {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_SIZE", normalized, "git", "Git HEAD blob size is invalid", "non-negative decimal size", strings.TrimSpace(string(sizeBytes)))
+	}
+	if size > maximum {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_SIZE", normalized, "git", "Git HEAD blob exceeds the size limit", maximum, size)
+	}
+	content, err := snapshot.Git(ctx, "cat-file", "blob", objectID)
+	if err != nil {
+		return nil, false, err
+	}
+	if int64(len(content)) != size {
+		return nil, false, diagnostic.New("AIDD_GIT_HEAD_SIZE", normalized, "git", "Git HEAD blob size changed while it was read", size, len(content))
+	}
+	return content, true, nil
+}
+
 func (snapshot *Snapshot) Ignored(ctx context.Context, paths []string) ([]string, error) {
 	arguments := []string{"-C", snapshot.Root, "check-ignore", "--stdin", "-z"}
 	input := make([][]byte, 0, len(paths))
@@ -515,8 +586,8 @@ func (snapshot *Snapshot) Ignored(ctx context.Context, paths []string) ([]string
 }
 
 func WorkspacePath(workspace, suffix string) (string, error) {
-	if workspace == "" || strings.Contains(workspace, "/") || strings.Contains(workspace, "\\") || workspace == "." || workspace == ".." {
-		return "", diagnostic.New("AIDD_WORKSPACE", workspace, "workspace", "workspace name is invalid", "single path segment", workspace)
+	if err := ValidateWorkspaceName(workspace); err != nil {
+		return "", err
 	}
 	return ValidateRelativePath(fmt.Sprintf("docs/ai-driven-development/workspaces/%s/%s", workspace, suffix))
 }

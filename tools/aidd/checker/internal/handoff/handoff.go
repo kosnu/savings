@@ -106,7 +106,7 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 		return "", "", err
 	}
 	loadedRules := gateResult.Rules
-	selectedRuleIDs, err := rules.SelectedIDs(requirementsBytes, designBytes, loadedRules)
+	selectedRuleIDs, err := rules.SelectedIDs(requirements.Requirements, design.Design, loadedRules)
 	if err != nil {
 		return "", "", err
 	}

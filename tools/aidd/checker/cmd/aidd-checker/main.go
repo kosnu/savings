@@ -126,7 +126,7 @@ func resolveWorkspace(ctx context.Context, arguments []string) error {
 		return err
 	}
 	defer snapshot.Close()
-	name, err := workspace.Resolve(snapshot, *issue, *issueTitle)
+	name, err := workspace.Resolve(ctx, snapshot, *issue, *issueTitle)
 	if err != nil {
 		return err
 	}
@@ -244,6 +244,30 @@ func checkAll(ctx context.Context, arguments []string) error {
 		return err
 	}
 	defer snapshot.Close()
+	trackedSources, err := gitHeadManagedSources(ctx, snapshot)
+	if err != nil {
+		return err
+	}
+	trackedPaths := make([]string, 0, len(trackedSources))
+	for path := range trackedSources {
+		trackedPaths = append(trackedPaths, path)
+	}
+	sort.Strings(trackedPaths)
+	for _, path := range trackedPaths {
+		kind := trackedSources[path]
+		if _, existsAtHead, headErr := snapshot.ReadHeadBlob(ctx, path); headErr != nil {
+			return headErr
+		} else if !existsAtHead {
+			return diagnostic.New("AIDD_SOURCE_MISSING", path, kind, "managed artifact source disappeared from Git HEAD", "existing regular Git HEAD source", "not found")
+		}
+		exists, existsErr := snapshot.Exists(path)
+		if existsErr != nil {
+			return existsErr
+		}
+		if !exists {
+			return diagnostic.New("AIDD_SOURCE_MISSING", path, kind, "managed artifact source tracked at Git HEAD is missing", "existing managed source", "not found")
+		}
+	}
 	entries, err := snapshot.ReadDir("docs/ai-driven-development/workspaces")
 	if err != nil {
 		return err
@@ -301,6 +325,49 @@ func checkAll(ctx context.Context, arguments []string) error {
 	}
 	fmt.Printf("AIDD check: verified: artifacts=%d read_only_legacy=%d\n", validated, legacy)
 	return nil
+}
+
+func gitHeadManagedSources(ctx context.Context, snapshot *repository.Snapshot) (map[string]string, error) {
+	const root = "docs/ai-driven-development/workspaces"
+	output, err := snapshot.Git(ctx, "ls-tree", "-r", "--name-only", "-z", "HEAD", "--", root)
+	if err != nil {
+		return nil, err
+	}
+	if len(output) > 0 && output[len(output)-1] != 0 {
+		return nil, diagnostic.New("AIDD_GIT_SOURCE_LIST", root, "git", "managed source listing must use NUL-terminated paths", "NUL-terminated paths", string(output))
+	}
+	result := map[string]string{}
+	prefix := root + "/"
+	for _, raw := range bytes.Split(output, []byte{0}) {
+		if len(raw) == 0 {
+			continue
+		}
+		path, pathErr := repository.ValidateRelativePath(string(raw))
+		if pathErr != nil {
+			return nil, pathErr
+		}
+		if !strings.HasPrefix(path, prefix) {
+			continue
+		}
+		remainder := strings.TrimPrefix(path, prefix)
+		parts := strings.Split(remainder, "/")
+		if len(parts) != 2 {
+			continue
+		}
+		kind := map[string]string{"requirements.json": "requirements", "design-doc.json": "design"}[parts[1]]
+		if kind == "" {
+			continue
+		}
+		expected, pathErr := repository.WorkspacePath(parts[0], parts[1])
+		if pathErr != nil || expected != path {
+			if pathErr != nil {
+				return nil, pathErr
+			}
+			return nil, diagnostic.New("AIDD_GIT_SOURCE_PATH", path, "git", "managed source path is non-canonical", expected, path)
+		}
+		result[path] = kind
+	}
+	return result, nil
 }
 
 func validateRequirements(ctx context.Context, arguments []string) error {

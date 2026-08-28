@@ -149,6 +149,50 @@ func TestValidateRelativePathRejectsTraversal(t *testing.T) {
 	}
 }
 
+func TestReadHeadBlobAcceptsExecutableRegularFile(t *testing.T) {
+	root := newGitRepository(t)
+	content := []byte("#!/bin/sh\nexit 0\n")
+	writeRepositoryFile(t, root, "tools/check", content, 0o755)
+	commitRepositoryFixture(t, root)
+
+	snapshot := openSnapshot(t, root)
+	actual, exists, err := snapshot.ReadHeadBlob(context.Background(), "tools/check")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !exists || string(actual) != string(content) {
+		t.Fatalf("ReadHeadBlob() = (%q, %t), want (%q, true)", actual, exists, content)
+	}
+}
+
+func TestReadHeadBlobRejectsSymlinkEntry(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink fixture requires platform-specific privileges on Windows")
+	}
+	root := newGitRepository(t)
+	path := filepath.Join(root, "requirements.json")
+	if err := os.Symlink("outside.json", path); err != nil {
+		t.Fatal(err)
+	}
+	commitRepositoryFixture(t, root)
+
+	snapshot := openSnapshot(t, root)
+	if _, _, err := snapshot.ReadHeadBlob(context.Background(), "requirements.json"); diagnosticCode(err) != "AIDD_GIT_HEAD_TYPE" {
+		t.Fatalf("ReadHeadBlob() error code = %q, want AIDD_GIT_HEAD_TYPE: %v", diagnosticCode(err), err)
+	}
+}
+
+func TestReadHeadBlobRejectsOversizeBeforeContentRead(t *testing.T) {
+	root := newGitRepository(t)
+	writeRepositoryFile(t, root, "requirements.json", []byte("oversized"), 0o644)
+	commitRepositoryFixture(t, root)
+
+	snapshot := openSnapshot(t, root)
+	if _, _, err := snapshot.readHeadBlob(context.Background(), "requirements.json", 4); diagnosticCode(err) != "AIDD_GIT_HEAD_SIZE" {
+		t.Fatalf("readHeadBlob() error code = %q, want AIDD_GIT_HEAD_SIZE: %v", diagnosticCode(err), err)
+	}
+}
+
 func TestMutationManifestDetectsSameSizeRewriteWithRestoredMtime(t *testing.T) {
 	if runtime.GOOS != "darwin" && runtime.GOOS != "linux" {
 		t.Skip("change-time identity is supported on Darwin and Linux")
@@ -301,6 +345,12 @@ func runRepositoryGit(t *testing.T, root string, arguments ...string) string {
 		t.Fatalf("git %v failed: %v\n%s", arguments, err, output)
 	}
 	return string(output)
+}
+
+func commitRepositoryFixture(t *testing.T, root string) {
+	t.Helper()
+	runRepositoryGit(t, root, "add", ".")
+	runRepositoryGit(t, root, "-c", "user.name=AIDD Test", "-c", "user.email=aidd@example.com", "commit", "-qm", "fixture")
 }
 
 func diagnosticCode(err error) string {
