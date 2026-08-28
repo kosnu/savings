@@ -97,7 +97,7 @@ Issue body と Goal JSON は repository 外の一時 regular file に保存す�
   --goal-document <requirements-goal-json>
 ```
 
-gate は Issue snapshot identity、literal direct rule evidence、完全な dependency
+gate は Issue snapshot identity、正規化後もmatch値を含むdirect rule evidence、完全な dependency
 closure、Requirement inventory / transition、Git `HEAD` baseline、Goal と artifact
 の gate identity を検証する。section ID、順序、heading aliasの正本は
 `docs/ai-driven-development/contracts/requirements-sections.json`であり、artifact、
@@ -172,7 +172,8 @@ profileとtest-case profileは別IDとし、suite実行を単一caseの証拠と
 ```
 
 receipt は Issue、Goal、Requirements / Design source と display、rule map と selected
-rules、target state、ownership scopes、baseline inventory、Git `HEAD`、profile catalog
+rules、target state、ownership scopes、task-owned baseline inventory、非ignore untracked
+pathのtype・permission mode・contentまたはsymlink target identity、Git `HEAD`、profile catalog
 と selected profile hash を同じ snapshot から固定する。Build Goal 作成前と Build
 完了直前に同じ receipt hash で Build Entry を実行する。
 
@@ -201,11 +202,16 @@ ID / hash、typed selector、executed identities、exit code、stdout / stderr b
 case の欠落、余剰、重複、順序ずれ、profile drift、旧 command evidence、失敗 status、
 不一致 runtime identity を拒否する。final-state manifest は task-owned regular file の
 path、worktree 上の Git 投影 mode・content と target-state hash を固定する。これとは
-別の verification 専用manifestで、各 case 前後のGit index entryのpresence・mode・
-object ID・stageが不変であることを確認する。この分離により、Ship時の正常なstage /
-commitでfinal-state hashを変えず、verification中のindex-only変更を拒否する。coverage は
-receipt の Git baselineから実差分を得て、ownership scope、surface、path rule、
-dependency closure を再検証し、artifact 由来 command を再実行しない。
+別に、`.git` metadata以外のrepository全体をGit ignoreに関係なく走査し、directory、
+regular file、symlinkのtype・permission mode・size・mtime・ctime・device・inodeを
+各automated case前後で比較する。automated caseは専用process groupで実行し、direct
+runner終了後に残留processがあれば終了させてcaseを失敗にした後、stateを比較する。
+Git `HEAD`のcommit・symbolic referenceとraw index
+bytes全体も比較し、ignored cache、作成後削除した一時file、ownership外のindex-only
+変更やindex flagだけの変更を成功証拠から除外する。
+coverage はreceiptのGit baselineと非ignore untracked baselineから実差分を得る。
+Design時点から不変のuntracked pathは除外し、新規・変更・削除・tracked化だけを
+ownership scope、surface、path rule、dependency closureへ再照合する。
 
 ## Compatibility and Go-only Ownership
 

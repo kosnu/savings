@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+	"time"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 )
@@ -34,6 +35,24 @@ func TestSnapshotRejectsSymlinksInEveryAccessPath(t *testing.T) {
 	}
 	if err := snapshot.WriteAtomic("linked/output.txt", []byte("unsafe\n")); diagnosticCode(err) != "AIDD_PATH_SYMLINK" {
 		t.Fatalf("WriteAtomic() error code = %q, want AIDD_PATH_SYMLINK: %v", diagnosticCode(err), err)
+	}
+}
+
+func TestReadExternalRejectsSymlink(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink fixture requires platform-specific privileges on Windows")
+	}
+	directory := t.TempDir()
+	target := filepath.Join(directory, "target.json")
+	if err := os.WriteFile(target, []byte("{}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(directory, "input.json")
+	if err := os.Symlink(target, link); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ReadExternal(link); diagnosticCode(err) != "AIDD_EXTERNAL_TYPE" {
+		t.Fatalf("ReadExternal() error code = %q, want AIDD_EXTERNAL_TYPE: %v", diagnosticCode(err), err)
 	}
 }
 
@@ -105,33 +124,6 @@ func TestSnapshotDetectsContentModeAndTypeDrift(t *testing.T) {
 	}
 }
 
-func TestGitIndexEntriesCaptureExactOwnedIdentity(t *testing.T) {
-	root := newGitRepository(t)
-	writeRepositoryFile(t, root, "owned[1].txt", []byte("owned\n"), 0o644)
-	writeRepositoryFile(t, root, "owned1.txt", []byte("other\n"), 0o644)
-	writeRepositoryFile(t, root, "untracked.txt", []byte("untracked\n"), 0o644)
-	runRepositoryGit(t, root, "add", "--", "owned[1].txt", "owned1.txt")
-
-	snapshot := openSnapshot(t, root)
-	entries, err := snapshot.GitIndexEntries(context.Background(), []string{"owned[1].txt", "untracked.txt"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(entries["owned[1].txt"]) != 1 {
-		t.Fatalf("owned index entries = %#v, want exactly one", entries["owned[1].txt"])
-	}
-	entry := entries["owned[1].txt"][0]
-	if entry.Mode != "100644" || entry.ObjectID == "" || entry.Stage != 0 {
-		t.Fatalf("owned index entry = %#v", entry)
-	}
-	if len(entries["untracked.txt"]) != 0 {
-		t.Fatalf("untracked index entries = %#v, want none", entries["untracked.txt"])
-	}
-	if _, leaked := entries["owned1.txt"]; leaked {
-		t.Fatalf("unrequested index entry leaked: %#v", entries["owned1.txt"])
-	}
-}
-
 func TestWriteAtomicCreatesConfinedFile(t *testing.T) {
 	root := newGitRepository(t)
 	snapshot := openSnapshot(t, root)
@@ -154,6 +146,114 @@ func TestValidateRelativePathRejectsTraversal(t *testing.T) {
 				t.Fatalf("ValidateRelativePath(%q) succeeded", path)
 			}
 		})
+	}
+}
+
+func TestMutationManifestDetectsSameSizeRewriteWithRestoredMtime(t *testing.T) {
+	if runtime.GOOS != "darwin" && runtime.GOOS != "linux" {
+		t.Skip("change-time identity is supported on Darwin and Linux")
+	}
+	root := newGitRepository(t)
+	path := writeRepositoryFile(t, root, "ignored/cache.txt", []byte("before\n"), 0o644)
+	fixedTime := time.Unix(1_700_000_000, 0)
+	if err := os.Chtimes(path, fixedTime, fixedTime); err != nil {
+		t.Fatal(err)
+	}
+	snapshot := openSnapshot(t, root)
+	before, err := snapshot.MutationManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte("after!\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chtimes(path, fixedTime, fixedTime); err != nil {
+		t.Fatal(err)
+	}
+	after, err := snapshot.MutationManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if difference := CompareMutationManifests(before, after); difference == nil || difference.Path != "ignored/cache.txt" {
+		t.Fatalf("same-size restored-mtime rewrite was not identified: %#v", difference)
+	}
+}
+
+func TestMutationManifestDetectsTransientDirectoryMutation(t *testing.T) {
+	if runtime.GOOS != "darwin" && runtime.GOOS != "linux" {
+		t.Skip("change-time identity is supported on Darwin and Linux")
+	}
+	root := newGitRepository(t)
+	if err := os.Mkdir(filepath.Join(root, "ignored"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	snapshot := openSnapshot(t, root)
+	before, err := snapshot.MutationManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	temporary := filepath.Join(root, "ignored", "transient.txt")
+	if err := os.WriteFile(temporary, []byte("transient\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(temporary); err != nil {
+		t.Fatal(err)
+	}
+	after, err := snapshot.MutationManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if difference := CompareMutationManifests(before, after); difference == nil || difference.Path != "ignored" {
+		t.Fatalf("transient directory mutation was not identified: %#v", difference)
+	}
+}
+
+func TestMutationManifestRecordsSymlinkWithoutFollowingIt(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink fixture requires platform-specific privileges on Windows")
+	}
+	root := newGitRepository(t)
+	outside := filepath.Join(t.TempDir(), "outside.txt")
+	if err := os.WriteFile(outside, []byte("outside\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(root, "outside-link")); err != nil {
+		t.Fatal(err)
+	}
+	snapshot := openSnapshot(t, root)
+	manifest, err := snapshot.MutationManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, entry := range manifest.Entries {
+		if entry.Path == "outside-link" {
+			found = entry.Type == "symlink"
+		}
+	}
+	if !found {
+		t.Fatalf("symlink identity missing from manifest: %#v", manifest.Entries)
+	}
+}
+
+func BenchmarkMutationManifest(b *testing.B) {
+	repoRoot := os.Getenv("AIDD_BENCH_REPO_ROOT")
+	if repoRoot == "" {
+		b.Skip("set AIDD_BENCH_REPO_ROOT to benchmark a real worktree")
+	}
+	snapshot, err := Open(context.Background(), repoRoot)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer snapshot.Close()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for index := 0; index < b.N; index++ {
+		manifest, manifestErr := snapshot.MutationManifest()
+		if manifestErr != nil {
+			b.Fatal(manifestErr)
+		}
+		b.ReportMetric(float64(len(manifest.Entries)), "entries")
 	}
 }
 

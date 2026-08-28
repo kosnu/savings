@@ -35,7 +35,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: rule-map の読取、closure、path / surface routing。
-- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、全path segmentのsymlink拒否、型・権限・内容drift、Git index entryのpresence・mode・object ID・stage取得、atomic output。
+- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、raw Git index identity、atomic output。
 - `internal/handoff` / `internal/receipt`: Design completion capture と Build Entry。
 - `internal/runner` / `internal/evidence`: profile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
@@ -69,7 +69,9 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - caseの欠落、余剰、重複、順序ずれ
 - selectorと一致しないruntime test path / full name、または単一`passed`以外のreport
 - 旧command allowlist形式のsourceまたはevidence
-- case後に変化したtask-owned path、worktree上のGit投影mode・content、またはverification前の専用manifestから変化したGit index entryのpresence・mode・object ID・stage
+- direct runner終了後に残ったverification process。専用process groupを終了して残留がないことを確認してからcase後stateを検査する
+- case後に変化したtask-owned final state
+- case後に変化したignore対象を含むrepository pathのtype・permission mode・size・mtime・ctime・device・inode、Git `HEAD`のcommit・symbolic reference、またはraw Git index bytes全体
 
 Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime identityへ
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと
@@ -112,3 +114,12 @@ wall timeとpeak RSSはmacOS `/usr/bin/time -lp`で取得した。subprocess数�
 `run_git` / `exec.CommandContext`呼出しから算出した。DTraceによるruntime exec countは
 hostのSystem Integrity Protectionにより取得できなかった。この値は旧実装削除後の
 回帰比較用baselineとして保持する。
+
+### 2026-08-28 Repository Mutation Manifest Baseline
+
+38,056件のignored pathと1.0 GiBの`node_modules`を含む実worktreeで、`.git` metadataを
+除く44,559 entryを走査した。`BenchmarkMutationManifest`を5回実行した結果は平均
+0.517 s/op、58,765,472 alloc bytes/op、478,746 allocs/opだった。regular fileの内容は
+読まずmetadataだけを取得するため、2回の前後比較は約1.03秒である。macOS sandboxが
+`sysctl kern.clockrate`を拒否したため、この計測のpeak RSSは未取得であり、allocation
+bytesをpeak RSSとして扱わない。

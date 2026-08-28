@@ -214,7 +214,7 @@ func validateSource(arguments []string) error {
 	if *sourcePath == "" {
 		return diagnostic.New("AIDD_CLI_ARGUMENT", "--source", "cli", "--source is required", nil, nil)
 	}
-	content, err := handoff.ReadExternal(*sourcePath)
+	content, err := repository.ReadExternal(*sourcePath)
 	if err != nil {
 		return err
 	}
@@ -322,17 +322,17 @@ func validateRequirements(ctx context.Context, arguments []string) error {
 	if *repoRoot == "" || *workspace == "" || *issue == "" || *issueTitle == "" || *issueURL == "" || *issueUpdatedAt == "" || *issueBodyPath == "" || *documentPath == "" || *kind == "" {
 		return diagnostic.New("AIDD_CLI_ARGUMENT", "validate-requirements", "cli", "validate-requirements requires repository, workspace, Issue snapshot, document, and kind arguments", nil, arguments)
 	}
-	issueBody, err := handoff.ReadExternal(*issueBodyPath)
+	issueBody, err := repository.ReadExternal(*issueBodyPath)
 	if err != nil {
 		return err
 	}
-	document, err := handoff.ReadExternal(*documentPath)
+	document, err := repository.ReadExternal(*documentPath)
 	if err != nil {
 		return err
 	}
 	var goal []byte
 	if *goalPath != "" {
-		goal, err = handoff.ReadExternal(*goalPath)
+		goal, err = repository.ReadExternal(*goalPath)
 		if err != nil {
 			return err
 		}
@@ -374,21 +374,21 @@ func validateDesign(ctx context.Context, arguments []string) error {
 	if *repoRoot == "" || *workspace == "" || *issue == "" || *issueTitle == "" || *issueURL == "" || *issueUpdatedAt == "" || *issueBodyPath == "" || *requirementsPath == "" || *documentPath == "" || *kind == "" {
 		return diagnostic.New("AIDD_CLI_ARGUMENT", "validate-design", "cli", "validate-design requires repository, workspace, Issue snapshot, Requirements, document, and kind arguments", nil, arguments)
 	}
-	issueBody, err := handoff.ReadExternal(*issueBodyPath)
+	issueBody, err := repository.ReadExternal(*issueBodyPath)
 	if err != nil {
 		return err
 	}
-	requirements, err := handoff.ReadExternal(*requirementsPath)
+	requirements, err := repository.ReadExternal(*requirementsPath)
 	if err != nil {
 		return err
 	}
-	document, err := handoff.ReadExternal(*documentPath)
+	document, err := repository.ReadExternal(*documentPath)
 	if err != nil {
 		return err
 	}
 	var goal []byte
 	if *goalPath != "" {
-		goal, err = handoff.ReadExternal(*goalPath)
+		goal, err = repository.ReadExternal(*goalPath)
 		if err != nil {
 			return err
 		}
@@ -426,11 +426,11 @@ func captureDesign(ctx context.Context, arguments []string) error {
 	if *repoRoot == "" || *workspace == "" || *issue == "" || *issueURL == "" || *issueUpdatedAt == "" || *issueBodyPath == "" || *goalPath == "" {
 		return diagnostic.New("AIDD_CLI_ARGUMENT", "capture-design", "cli", "capture-design requires repository, workspace, Issue snapshot, and retained Goal arguments", nil, arguments)
 	}
-	issueBody, err := handoff.ReadExternal(*issueBodyPath)
+	issueBody, err := repository.ReadExternal(*issueBodyPath)
 	if err != nil {
 		return err
 	}
-	goal, err := handoff.ReadExternal(*goalPath)
+	goal, err := repository.ReadExternal(*goalPath)
 	if err != nil {
 		return err
 	}
@@ -462,7 +462,7 @@ func buildEntry(ctx context.Context, arguments []string) error {
 	if *repoRoot == "" || *workspace == "" || *issue == "" || *issueURL == "" || *issueUpdatedAt == "" || *issueBodyPath == "" || *expectedReceipt == "" {
 		return diagnostic.New("AIDD_CLI_ARGUMENT", "build-entry", "cli", "build-entry requires repository, workspace, Issue snapshot, and expected receipt hash arguments", nil, arguments)
 	}
-	issueBody, err := handoff.ReadExternal(*issueBodyPath)
+	issueBody, err := repository.ReadExternal(*issueBodyPath)
 	if err != nil {
 		return err
 	}

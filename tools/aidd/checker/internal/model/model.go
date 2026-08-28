@@ -156,6 +156,13 @@ type BuildBaseline struct {
 	Head string `json:"head"`
 }
 
+type UntrackedEntry struct {
+	Path   string `json:"path"`
+	Type   string `json:"type"`
+	Mode   string `json:"mode"`
+	SHA256 string `json:"sha256"`
+}
+
 type ArtifactPair struct {
 	Source  PathHash `json:"source"`
 	Display PathHash `json:"display"`
@@ -179,6 +186,7 @@ type Receipt struct {
 	TargetState          HashValue[TargetState]      `json:"target_state"`
 	OwnershipScopes      HashValue[[]OwnershipScope] `json:"ownership_scopes"`
 	BaselineInventory    HashValue[[]string]         `json:"baseline_inventory"`
+	UntrackedBaseline    HashValue[[]UntrackedEntry] `json:"untracked_baseline"`
 	BuildBaseline        BuildBaseline               `json:"build_baseline"`
 	Artifacts            ReceiptArtifacts            `json:"artifacts"`
 }

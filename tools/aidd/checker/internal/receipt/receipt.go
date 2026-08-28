@@ -12,6 +12,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/semantic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
 )
 
 var (
@@ -63,6 +64,15 @@ func Load(snapshot *repository.Snapshot, workspace, expectedSHA256 string) (*Loa
 		return nil, err
 	}
 	if err := requireHashValue("baseline_inventory", value.BaselineInventory.SHA256, value.BaselineInventory.Value); err != nil {
+		return nil, err
+	}
+	if value.UntrackedBaseline.SHA256 == "" || value.UntrackedBaseline.Value == nil {
+		return nil, diagnostic.New("AIDD_RECEIPT_UNTRACKED_BASELINE", "untracked_baseline", "design_completion", "receipt must contain a hash-fixed non-ignored untracked baseline captured at Design completion", "recaptured Design completion receipt", nil)
+	}
+	if err := requireHashValue("untracked_baseline", value.UntrackedBaseline.SHA256, value.UntrackedBaseline.Value); err != nil {
+		return nil, err
+	}
+	if err := state.ValidateUntrackedBaseline(value.UntrackedBaseline.Value); err != nil {
 		return nil, err
 	}
 	if err := requireHashValue("rule_coverage", value.RuleCoverage.SHA256, value.RuleCoverage.Value); err != nil {

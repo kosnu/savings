@@ -7,6 +7,9 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
@@ -17,6 +20,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/semantic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
+	"golang.org/x/text/cases"
 )
 
 type IssueSnapshot struct {
@@ -128,7 +132,20 @@ var (
 	lowerKebabPattern    = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
 	requirementIDPattern = regexp.MustCompile(`^(?:FR|NFR|AC)-[1-9][0-9]*$`)
 	sha256Pattern        = regexp.MustCompile(`^[0-9a-f]{64}$`)
+	issueIDPattern       = regexp.MustCompile(`^([A-Za-z0-9][A-Za-z0-9-]{0,38})/([A-Za-z0-9_.-]+)#([1-9][0-9]*)$`)
+	issueEvidenceFolder  = cases.Fold()
 )
+
+var genericImplementationTopics = map[string]struct{}{
+	"documentation": {},
+	"mock":          {},
+	"repository":    {},
+	"review":        {},
+	"test":          {},
+	"ui":            {},
+	"verification":  {},
+	"web":           {},
+}
 
 func ValidateRequirements(ctx context.Context, snapshot *repository.Snapshot, input RequirementsInput) (*semantic.ParsedSource, error) {
 	expectedKind := input.Kind
@@ -151,6 +168,9 @@ func ValidateRequirements(ctx context.Context, snapshot *repository.Snapshot, in
 	}
 	if parsed.Requirements.CycleStartIssueTitle != input.Issue.Title {
 		return nil, diagnostic.New("AIDD_CYCLE_TITLE", "validation.cycle_start_issue_title", expectedKind, "cycle-start Issue title must exactly match the fetched title", input.Issue.Title, parsed.Requirements.CycleStartIssueTitle)
+	}
+	if err := validateIssueSnapshot(input.Issue, expectedKind); err != nil {
+		return nil, err
 	}
 	var gate inputGate
 	if err := canonical.Decode(parsed.Requirements.InputGate, expectedKind+".input_gate", &gate); err != nil {
@@ -178,11 +198,21 @@ func ValidateRequirements(ctx context.Context, snapshot *repository.Snapshot, in
 			return nil, diagnostic.New("AIDD_DIRECT_RULE_DUPLICATE", path+".id", expectedKind, "direct rule IDs must be unique", "unique ID", selection.ID)
 		}
 		directIDs[selection.ID] = struct{}{}
-		if selection.IssueEvidence == "" || !strings.Contains(string(input.Issue.Body), selection.IssueEvidence) {
-			return nil, diagnostic.New("AIDD_RULE_EVIDENCE", path+".issue_evidence", expectedKind, "direct rule evidence must be a literal substring of the Issue body", "Issue substring", selection.IssueEvidence)
+		normalizedEvidence := normalizeIssueEvidence(selection.IssueEvidence)
+		if normalizedEvidence == "" || !strings.Contains(normalizeIssueEvidence(string(input.Issue.Body)), normalizedEvidence) {
+			return nil, diagnostic.New("AIDD_RULE_EVIDENCE", path+".issue_evidence", expectedKind, "direct rule evidence must be present in the Issue body after whitespace and case normalization", "normalized Issue substring", selection.IssueEvidence)
 		}
-		if !ruleMatches(rule, selection.Match) {
+		if strings.TrimSpace(selection.Match.Field) == "" || strings.TrimSpace(selection.Match.Value) == "" || !ruleMatches(rule, selection.Match) {
 			return nil, diagnostic.New("AIDD_RULE_MATCH", path+".match", expectedKind, "direct rule match does not exist in the selected rule node", selection.Match, rule.AppliesTo)
+		}
+		if strings.TrimSpace(selection.Reason) == "" {
+			return nil, diagnostic.New("AIDD_RULE_REASON", path+".reason", expectedKind, "direct rule reason must be non-empty", "substantive reason", selection.Reason)
+		}
+		if !strings.Contains(normalizedEvidence, normalizeIssueEvidence(selection.Match.Value)) {
+			return nil, diagnostic.New("AIDD_RULE_MATCH_EVIDENCE", path+".match.value", expectedKind, "direct rule match value must be present in Issue evidence", selection.Match.Value, selection.IssueEvidence)
+		}
+		if err := validateExplicitSurface(rule, selection, normalizedEvidence, path, expectedKind); err != nil {
+			return nil, err
 		}
 	}
 	closure, err := rules.ExpandClosure(loadedRules, directIDs)
@@ -203,6 +233,22 @@ func ValidateRequirements(ctx context.Context, snapshot *repository.Snapshot, in
 		}
 		if declared.Via == "" {
 			return nil, diagnostic.New("AIDD_DEPENDENCY_VIA", fmt.Sprintf("validation.input_gate.depends_on[%d].via", index), expectedKind, "dependency must record a via rule", nil, declared.Via)
+		}
+		if _, selectedDirect := directIDs[declared.Via]; !selectedDirect {
+			if _, selectedDependency := closure[declared.Via]; !selectedDependency {
+				return nil, diagnostic.New("AIDD_DEPENDENCY_VIA", fmt.Sprintf("validation.input_gate.depends_on[%d].via", index), expectedKind, "dependency via must reference a selected rule", rules.Sorted(directIDs), declared.Via)
+			}
+		}
+		viaRule := loadedRules.ByID[declared.Via]
+		declaresEdge := false
+		for _, child := range viaRule.DependsOn {
+			if child == declared.ID {
+				declaresEdge = true
+				break
+			}
+		}
+		if !declaresEdge {
+			return nil, diagnostic.New("AIDD_DEPENDENCY_VIA", fmt.Sprintf("validation.input_gate.depends_on[%d].via", index), expectedKind, "dependency via must name a declared rule-map edge", declared.Via+" -> "+declared.ID, declared.Via)
 		}
 	}
 	if !sameStringSet(closure, declaredDependencies) {
@@ -911,6 +957,70 @@ func normalizeEvidence(value string) string {
 		result.WriteRune(character)
 	}
 	return result.String()
+}
+
+func normalizeIssueEvidence(value string) string {
+	fields := strings.FieldsFunc(value, unicode.IsSpace)
+	return issueEvidenceFolder.String(strings.Join(fields, " "))
+}
+
+func validateIssueSnapshot(issue IssueSnapshot, artifact string) error {
+	match := issueIDPattern.FindStringSubmatch(issue.ID)
+	if match == nil {
+		return diagnostic.New("AIDD_ISSUE_ID", "validation.input_gate.task_context.issue", artifact, "Issue identity must use owner/repo#number", "owner/repo#number", issue.ID)
+	}
+	expectedURL := "https://github.com/" + match[1] + "/" + match[2] + "/issues/" + match[3]
+	if issue.URL != expectedURL {
+		return diagnostic.New("AIDD_ISSUE_URL", "validation.input_gate.task_context.url", artifact, "Issue URL must match the Issue identity", expectedURL, issue.URL)
+	}
+	if !strings.HasSuffix(issue.UpdatedAt, "Z") {
+		return diagnostic.New("AIDD_ISSUE_UPDATED_AT", "validation.input_gate.task_context.updated_at", artifact, "Issue updatedAt must be an RFC 3339 UTC timestamp", "RFC 3339 ending in Z", issue.UpdatedAt)
+	}
+	if _, err := time.Parse(time.RFC3339Nano, issue.UpdatedAt); err != nil {
+		return diagnostic.New("AIDD_ISSUE_UPDATED_AT", "validation.input_gate.task_context.updated_at", artifact, "Issue updatedAt must be an RFC 3339 UTC timestamp", "RFC 3339 ending in Z", issue.UpdatedAt)
+	}
+	if strings.TrimSpace(issue.Title) == "" {
+		return diagnostic.New("AIDD_ISSUE_TITLE", "validation.cycle_start_issue_title", artifact, "cycle-start Issue title must be non-empty", "non-empty exact title", issue.Title)
+	}
+	if !utf8.Valid(issue.Body) {
+		return diagnostic.New("AIDD_ISSUE_BODY_UTF8", "validation.input_gate.task_context.body_sha256", artifact, "Issue body must be valid UTF-8", "valid UTF-8", nil)
+	}
+	return nil
+}
+
+func validateExplicitSurface(rule rules.Rule, selection directRule, normalizedEvidence, path, artifact string) error {
+	implementationRule := false
+	for _, pattern := range rule.AppliesTo.Paths {
+		if strings.HasPrefix(pattern, "apps/") {
+			implementationRule = true
+			break
+		}
+	}
+	if !implementationRule || strings.HasPrefix(rule.ID, "domain.") {
+		return nil
+	}
+	normalizedSurface := normalizeIssueEvidence(selection.ExplicitSurface)
+	if normalizedSurface == "" {
+		return diagnostic.New("AIDD_RULE_EXPLICIT_SURFACE", path+".explicit_surface", artifact, "non-domain implementation rule requires a distinctive explicit_surface", "declared distinctive topic", selection.ExplicitSurface)
+	}
+	distinctive := false
+	for _, topic := range rule.AppliesTo.Topics {
+		normalizedTopic := normalizeIssueEvidence(topic)
+		if _, generic := genericImplementationTopics[normalizedTopic]; generic {
+			continue
+		}
+		if normalizedSurface == normalizedTopic {
+			distinctive = true
+			break
+		}
+	}
+	if !distinctive {
+		return diagnostic.New("AIDD_RULE_EXPLICIT_SURFACE", path+".explicit_surface", artifact, "explicit_surface must equal a distinctive declared topic", rule.AppliesTo.Topics, selection.ExplicitSurface)
+	}
+	if !strings.Contains(normalizedEvidence, normalizedSurface) {
+		return diagnostic.New("AIDD_RULE_EXPLICIT_SURFACE_EVIDENCE", path+".explicit_surface", artifact, "explicit_surface must be present in Issue evidence", selection.ExplicitSurface, selection.IssueEvidence)
+	}
+	return nil
 }
 
 func validateTransition(item transition, issueBody, artifact string) error {

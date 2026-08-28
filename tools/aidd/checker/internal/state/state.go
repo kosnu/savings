@@ -1,10 +1,13 @@
 package state
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
@@ -12,11 +15,10 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
-type GitIndexEntry struct {
-	Mode     string `json:"mode"`
-	ObjectID string `json:"object_id"`
-	Stage    int    `json:"stage"`
-}
+var (
+	untrackedDigestPattern = regexp.MustCompile(`^[0-9a-f]{64}$`)
+	untrackedModePattern   = regexp.MustCompile(`^0[0-7]{3}$`)
+)
 
 type File struct {
 	Path    string `json:"path"`
@@ -31,14 +33,122 @@ type Manifest struct {
 	Files             []File `json:"files"`
 }
 
-type GitIndexFile struct {
-	Path    string          `json:"path"`
-	Entries []GitIndexEntry `json:"entries"`
+type RepositoryGitState struct {
+	Version       int    `json:"version"`
+	HeadCommit    string `json:"head_commit"`
+	HeadReference string `json:"head_reference"`
+	IndexSHA256   string `json:"index_sha256"`
 }
 
-type GitIndexManifest struct {
-	Version int            `json:"version"`
-	Files   []GitIndexFile `json:"files"`
+func UntrackedInventory(ctx context.Context, snapshot *repository.Snapshot, excluded map[string]struct{}) ([]model.UntrackedEntry, error) {
+	paths, err := untrackedPaths(ctx, snapshot, excluded)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]model.UntrackedEntry, 0, len(paths))
+	for _, path := range paths {
+		identity, identityErr := snapshot.ObserveWorktreeIdentity(path)
+		if identityErr != nil {
+			return nil, identityErr
+		}
+		result = append(result, model.UntrackedEntry{Path: identity.Path, Type: identity.Type, Mode: identity.Mode, SHA256: identity.SHA256})
+	}
+	currentPaths, err := untrackedPaths(ctx, snapshot, excluded)
+	if err != nil {
+		return nil, err
+	}
+	if !equal(paths, currentPaths) {
+		return nil, diagnostic.New("AIDD_UNTRACKED_DRIFT", "untracked_baseline", "repository", "non-ignored untracked path inventory changed while it was captured", paths, currentPaths)
+	}
+	if err := snapshot.AssertUnchanged(); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func AssertUntrackedPaths(ctx context.Context, snapshot *repository.Snapshot, expected []model.UntrackedEntry, excluded map[string]struct{}) error {
+	paths, err := untrackedPaths(ctx, snapshot, excluded)
+	if err != nil {
+		return err
+	}
+	expectedPaths := make([]string, len(expected))
+	for index, entry := range expected {
+		expectedPaths[index] = entry.Path
+	}
+	if !equal(expectedPaths, paths) {
+		return diagnostic.New("AIDD_UNTRACKED_DRIFT", "untracked_baseline", "repository", "non-ignored untracked path inventory changed before Design completion was written", expectedPaths, paths)
+	}
+	return nil
+}
+
+func ValidateUntrackedBaseline(entries []model.UntrackedEntry) error {
+	previous := ""
+	for index, entry := range entries {
+		if _, err := repository.ValidateRelativePath(entry.Path); err != nil {
+			return diagnostic.New("AIDD_UNTRACKED_BASELINE_PATH", "untracked_baseline.value", "design_completion", "untracked baseline path is invalid", "canonical repository-relative path", entry.Path)
+		}
+		if index > 0 && entry.Path <= previous {
+			return diagnostic.New("AIDD_UNTRACKED_BASELINE_ORDER", "untracked_baseline.value", "design_completion", "untracked baseline paths must be unique and sorted", "strict path order", entry.Path)
+		}
+		if entry.Type != "regular" && entry.Type != "symlink" {
+			return diagnostic.New("AIDD_UNTRACKED_BASELINE_TYPE", entry.Path, "design_completion", "untracked baseline entry type is unsupported", []string{"regular", "symlink"}, entry.Type)
+		}
+		if !untrackedModePattern.MatchString(entry.Mode) {
+			return diagnostic.New("AIDD_UNTRACKED_BASELINE_MODE", entry.Path, "design_completion", "untracked baseline mode must use four octal permission digits", "0xxx", entry.Mode)
+		}
+		if !untrackedDigestPattern.MatchString(entry.SHA256) {
+			return diagnostic.New("AIDD_UNTRACKED_BASELINE_HASH", entry.Path, "design_completion", "untracked baseline identity must use a lowercase SHA-256 digest", "64 lowercase hexadecimal characters", entry.SHA256)
+		}
+		previous = entry.Path
+	}
+	return nil
+}
+
+func RepositoryGitStateHash(ctx context.Context, snapshot *repository.Snapshot) (string, error) {
+	headBytes, err := snapshot.Git(ctx, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	headCommit := strings.TrimSpace(string(headBytes))
+	if len(headCommit) != 40 {
+		return "", diagnostic.New("AIDD_GIT_STATE_HEAD", "HEAD", "repository", "verification Git state requires a full commit ID", "40 hexadecimal characters", headCommit)
+	}
+	headReferenceBytes, err := snapshot.Git(ctx, "rev-parse", "--symbolic-full-name", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	headReference := strings.TrimSpace(string(headReferenceBytes))
+	if headReference == "" {
+		return "", diagnostic.New("AIDD_GIT_STATE_HEAD", "HEAD", "repository", "verification Git state requires a symbolic HEAD identity or detached HEAD marker", "refs/... or HEAD", headReference)
+	}
+	indexSHA256, err := snapshot.GitIndexIdentity(ctx)
+	if err != nil {
+		return "", err
+	}
+	return canonical.Hash(RepositoryGitState{Version: 2, HeadCommit: headCommit, HeadReference: headReference, IndexSHA256: indexSHA256})
+}
+
+func untrackedPaths(ctx context.Context, snapshot *repository.Snapshot, excluded map[string]struct{}) ([]string, error) {
+	output, err := snapshot.Git(ctx, "ls-files", "--others", "--exclude-standard", "-z")
+	if err != nil {
+		return nil, err
+	}
+	result := []string{}
+	for _, raw := range bytes.Split(output, []byte{0}) {
+		if len(raw) == 0 {
+			continue
+		}
+		path := string(raw)
+		if _, err := repository.ValidateRelativePath(path); err != nil {
+			return nil, err
+		}
+		if _, skip := excluded[path]; skip {
+			continue
+		}
+		result = append(result, path)
+	}
+	sort.Strings(result)
+	return result, nil
 }
 
 func Inventory(snapshot *repository.Snapshot, target *model.TargetState) ([]string, error) {
@@ -133,26 +243,6 @@ func FinalHash(snapshot *repository.Snapshot, target *model.TargetState) (string
 	manifest, err := BuildManifest(snapshot, target)
 	if err != nil {
 		return "", err
-	}
-	return canonical.Hash(manifest)
-}
-
-func GitIndexHash(ctx context.Context, snapshot *repository.Snapshot, target *model.TargetState) (string, error) {
-	inventory, err := ValidateFinal(snapshot, target)
-	if err != nil {
-		return "", err
-	}
-	entriesByPath, err := snapshot.GitIndexEntries(ctx, inventory)
-	if err != nil {
-		return "", err
-	}
-	manifest := GitIndexManifest{Version: 1}
-	for _, path := range inventory {
-		entries := make([]GitIndexEntry, 0, len(entriesByPath[path]))
-		for _, entry := range entriesByPath[path] {
-			entries = append(entries, GitIndexEntry{Mode: entry.Mode, ObjectID: entry.ObjectID, Stage: entry.Stage})
-		}
-		manifest.Files = append(manifest.Files, GitIndexFile{Path: path, Entries: entries})
 	}
 	return canonical.Hash(manifest)
 }

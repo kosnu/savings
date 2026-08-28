@@ -93,14 +93,19 @@ For each phase in the workflow:
    argv and the structured runner adapter belong only to the profile catalog
    and are hash-fixed by the Design receipt. Manual cases own substantive
    concrete procedures. Derive machine review
-   surfaces and path rules from the union of target paths and the current owned
-   baseline, including paths that disappear in the target, and freeze that
-   baseline inventory in the Design receipt. In Build,
-   reconstruct exactly that target state in the ownership scopes, validate the
-   final owned-path inventory before execution, reject per-case mutation of an
-   owned file's content or Git mode, and bind every result to the unchanged
-   final-state hash. Run the Build rule coverage validator against both
-   the final owned tree and actual Git diff. Stop on missing or extra owned
+  surfaces and path rules from the union of target paths and the current owned
+  baseline, including paths that disappear in the target, and freeze that
+  baseline inventory plus the repository-wide non-ignored untracked identity in
+  the Design receipt. In Build,
+  reconstruct exactly that target state in the ownership scopes, validate the
+  final owned-path inventory before execution, run each automated case in a
+  dedicated process group, terminate and reject any residual process before
+  post-case state checks, reject per-case mutation of any ignored or
+  non-ignored repository path, Git HEAD object ID/reference, or raw
+  repository-wide index bytes,
+  and bind every result to the unchanged final-state hash. Run the Build rule
+  coverage validator against both the final owned tree and the actual Git diff
+  relative to the frozen untracked baseline. Stop on missing or extra owned
    representations, failed or missing verification evidence, out-of-scope
    changes, undeclared surfaces, a surface or path rule absent from the receipt,
    or a governed path with no routing surface. Representation locator metadata
@@ -204,9 +209,9 @@ silently run the delegated phase in the parent.
   only in canonical `requirements.json`. Selected rules constrain Requirements
   and Design; they never define product behavior directly or substitute for a
   missing Requirement. Build consumes the Design completion receipt as its
-  upstream identity, reuses its frozen baseline inventory for rule coverage,
-  and materializes the target state rather than layering a delta onto the
-  baseline.
+  upstream identity, reuses its frozen task-owned and untracked baselines for
+  rule coverage, and materializes the target state rather than layering a delta
+  onto the baseline.
 
 ## Stop
 

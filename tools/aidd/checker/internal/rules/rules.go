@@ -68,30 +68,52 @@ func Load(snapshot *repository.Snapshot, ruleMapPath string) (*Loaded, error) {
 	if ruleMap.Version != 2 {
 		return nil, diagnostic.New("AIDD_RULE_MAP_VERSION", "version", "rule_map", "rule-map version is unsupported", 2, ruleMap.Version)
 	}
+	if len(ruleMap.ReviewRouting.GovernedPaths) == 0 {
+		return nil, diagnostic.New("AIDD_GOVERNED_PATHS_EMPTY", "review_routing.governed_paths", "rule_map", "governed paths must be a non-empty array", "at least one path pattern", ruleMap.ReviewRouting.GovernedPaths)
+	}
 	for index, pattern := range ruleMap.ReviewRouting.GovernedPaths {
 		if err := validatePattern(pattern, "review_routing.governed_paths", index); err != nil {
 			return nil, err
 		}
 	}
+	if len(ruleMap.ReviewRouting.Surfaces) == 0 {
+		return nil, diagnostic.New("AIDD_SURFACES_EMPTY", "review_routing.surfaces", "rule_map", "review surfaces must be a non-empty array", "at least one review surface", ruleMap.ReviewRouting.Surfaces)
+	}
 	surfaceIDs := map[string]struct{}{}
 	for index, surface := range ruleMap.ReviewRouting.Surfaces {
-		if surface.ID == "" {
+		if surface.ID == "" || surface.ID != strings.TrimSpace(surface.ID) {
 			return nil, diagnostic.New("AIDD_SURFACE_ID", "review_routing.surfaces", "rule_map", "surface ID is required", nil, index)
 		}
 		if _, duplicate := surfaceIDs[surface.ID]; duplicate {
 			return nil, diagnostic.New("AIDD_SURFACE_DUPLICATE", "review_routing.surfaces", "rule_map", "surface IDs must be unique", "unique ID", surface.ID)
 		}
 		surfaceIDs[surface.ID] = struct{}{}
+		if len(surface.Paths) == 0 {
+			return nil, diagnostic.New("AIDD_SURFACE_PATHS_EMPTY", "review_routing.surfaces."+surface.ID+".paths", "rule_map", "surface paths must be a non-empty array", "at least one path pattern", surface.Paths)
+		}
 		for patternIndex, pattern := range surface.Paths {
 			if err := validatePattern(pattern, "review_routing.surfaces."+surface.ID+".paths", patternIndex); err != nil {
 				return nil, err
 			}
 		}
+		if len(surface.RequiredRules) == 0 {
+			return nil, diagnostic.New("AIDD_SURFACE_RULES_EMPTY", "review_routing.surfaces."+surface.ID+".required_rules", "rule_map", "surface required rules must be a non-empty array", "at least one rule ID", surface.RequiredRules)
+		}
+		seenRequiredRules := map[string]struct{}{}
+		for requiredIndex, ruleID := range surface.RequiredRules {
+			if ruleID == "" || ruleID != strings.TrimSpace(ruleID) {
+				return nil, diagnostic.New("AIDD_SURFACE_RULE", "review_routing.surfaces."+surface.ID+".required_rules", "rule_map", "surface required rule ID must be non-empty", "exact non-empty rule ID", map[string]any{"index": requiredIndex, "id": ruleID})
+			}
+			if _, duplicate := seenRequiredRules[ruleID]; duplicate {
+				return nil, diagnostic.New("AIDD_SURFACE_RULE_DUPLICATE", "review_routing.surfaces."+surface.ID+".required_rules", "rule_map", "surface required rule IDs must be unique", "unique rule IDs", ruleID)
+			}
+			seenRequiredRules[ruleID] = struct{}{}
+		}
 	}
 	byID := make(map[string]Rule, len(ruleMap.Rules))
 	order := make([]string, 0, len(ruleMap.Rules))
 	for index, rule := range ruleMap.Rules {
-		if rule.ID == "" || rule.File == "" {
+		if rule.ID == "" || rule.ID != strings.TrimSpace(rule.ID) || rule.File == "" || rule.File != strings.TrimSpace(rule.File) {
 			return nil, diagnostic.New("AIDD_RULE_SHAPE", "rules", "rule_map", "rule ID and file are required", nil, index)
 		}
 		if _, exists := byID[rule.ID]; exists {
@@ -104,6 +126,31 @@ func Load(snapshot *repository.Snapshot, ruleMapPath string) (*Loaded, error) {
 			if err := validatePattern(pattern, "rules."+rule.ID+".applies_to.paths", patternIndex); err != nil {
 				return nil, err
 			}
+		}
+		applicability := []struct {
+			field  string
+			values []string
+		}{
+			{field: "domains", values: rule.AppliesTo.Domains},
+			{field: "activities", values: rule.AppliesTo.Activities},
+			{field: "topics", values: rule.AppliesTo.Topics},
+		}
+		for _, item := range applicability {
+			for valueIndex, value := range item.values {
+				if value == "" || value != strings.TrimSpace(value) {
+					return nil, diagnostic.New("AIDD_RULE_APPLIES_TO", "rules."+rule.ID+".applies_to."+item.field, "rule_map", "rule applicability values must be exact non-empty strings", "exact non-empty string", map[string]any{"index": valueIndex, "value": value})
+				}
+			}
+		}
+		seenDependencies := map[string]struct{}{}
+		for dependencyIndex, dependency := range rule.DependsOn {
+			if dependency == "" || dependency != strings.TrimSpace(dependency) {
+				return nil, diagnostic.New("AIDD_RULE_DEPENDENCY", "rules."+rule.ID+".depends_on", "rule_map", "rule dependency IDs must be exact non-empty strings", "exact non-empty rule ID", map[string]any{"index": dependencyIndex, "id": dependency})
+			}
+			if _, duplicate := seenDependencies[dependency]; duplicate {
+				return nil, diagnostic.New("AIDD_RULE_DEPENDENCY_DUPLICATE", "rules."+rule.ID+".depends_on", "rule_map", "rule dependency IDs must be unique", "unique rule IDs", dependency)
+			}
+			seenDependencies[dependency] = struct{}{}
 		}
 		byID[rule.ID] = rule
 		order = append(order, rule.ID)
@@ -134,14 +181,14 @@ func Load(snapshot *repository.Snapshot, ruleMapPath string) (*Loaded, error) {
 }
 
 func validatePattern(pattern, owner string, index int) error {
-	if pattern == "" || strings.Contains(pattern, "\\") || strings.HasPrefix(pattern, "/") || strings.HasSuffix(pattern, "/") {
+	if pattern == "" || pattern != strings.TrimSpace(pattern) || strings.Contains(pattern, "\\") || strings.HasPrefix(pattern, "/") || strings.HasSuffix(pattern, "/") {
 		return diagnostic.New("AIDD_RULE_PATTERN", owner, "rule_map", "path pattern must be a non-empty repository-relative slash pattern", nil, pattern)
 	}
 	for _, segment := range strings.Split(pattern, "/") {
 		if segment == "" {
 			return diagnostic.New("AIDD_RULE_PATTERN", owner, "rule_map", "path pattern must not contain empty segments", nil, map[string]any{"index": index, "pattern": pattern})
 		}
-		if segment == ".." {
+		if (segment == "." && pattern != ".") || segment == ".." {
 			return diagnostic.New("AIDD_RULE_PATTERN", owner, "rule_map", "path pattern contains a forbidden segment", nil, map[string]any{"index": index, "pattern": pattern})
 		}
 		if strings.Contains(segment, "**") && segment != "**" {

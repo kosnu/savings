@@ -32,7 +32,7 @@ func TestReceiptFixesProfileCatalogAndBuildEntry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	issueBody := []byte("repo-owned profileでverificationを固定する")
+	issueBody := []byte("repo-owned checker profileでverificationを固定する")
 	statusBefore := statusLines(runGitOutput(t, repoRoot, "status", "--porcelain=v1", "--untracked-files=all"))
 	receiptPath, receiptHash, err := Capture(context.Background(), snapshot, CaptureInput{
 		IssueID: "owner/repo#1671", IssueURL: "https://github.com/owner/repo/issues/1671",
@@ -66,6 +66,16 @@ func TestReceiptFixesProfileCatalogAndBuildEntry(t *testing.T) {
 	}
 	if loaded.Value.VerificationProfiles.Selected[0].ID != "git-diff-check" {
 		t.Fatalf("selected profile was not fixed: %#v", loaded.Value.VerificationProfiles)
+	}
+	untrackedPaths := map[string]struct{}{}
+	for _, entry := range loaded.Value.UntrackedBaseline.Value {
+		untrackedPaths[entry.Path] = struct{}{}
+	}
+	if _, exists := untrackedPaths["design-goal.json"]; !exists {
+		t.Fatalf("pre-existing untracked path was not fixed: %#v", loaded.Value.UntrackedBaseline.Value)
+	}
+	if _, exists := untrackedPaths[receiptPath]; exists {
+		t.Fatalf("receipt output recursively entered its own baseline: %#v", loaded.Value.UntrackedBaseline.Value)
 	}
 
 	profilePath := filepath.Join(repoRoot, filepath.FromSlash(catalog.DefaultPath))
@@ -126,11 +136,58 @@ func TestCaptureRejectsIncompleteRequirementCoverage(t *testing.T) {
 	}
 	_, _, err = Capture(context.Background(), snapshot, CaptureInput{
 		IssueID: "owner/repo#1671", IssueURL: "https://github.com/owner/repo/issues/1671",
-		IssueUpdatedAt: "2026-08-28T00:00:00Z", IssueBody: []byte("repo-owned profileでverificationを固定する"),
+		IssueUpdatedAt: "2026-08-28T00:00:00Z", IssueBody: []byte("repo-owned checker profileでverificationを固定する"),
 		DesignGoal: designGoal, Workspace: testWorkspace, ProfilePath: catalog.DefaultPath,
 	})
 	if err == nil || !strings.Contains(err.Error(), "AIDD_COVERAGE_INVENTORY") {
 		t.Fatalf("expected incomplete coverage rejection, got %v", err)
+	}
+}
+
+func TestReceiptWithoutUntrackedBaselineFailsClosed(t *testing.T) {
+	repoRoot := initializeFixtureRepository(t)
+	designGoal, err := os.ReadFile(filepath.Join(repoRoot, "design-goal.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	receiptPath, _, err := Capture(context.Background(), snapshot, CaptureInput{
+		IssueID: "owner/repo#1671", IssueURL: "https://github.com/owner/repo/issues/1671",
+		IssueUpdatedAt: "2026-08-28T00:00:00Z", IssueBody: []byte("repo-owned checker profileでverificationを固定する"),
+		DesignGoal: designGoal, Workspace: testWorkspace, ProfilePath: catalog.DefaultPath,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := snapshot.Close(); err != nil {
+		t.Fatal(err)
+	}
+	absoluteReceiptPath := filepath.Join(repoRoot, filepath.FromSlash(receiptPath))
+	content, err := os.ReadFile(absoluteReceiptPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var value map[string]any
+	if err := json.Unmarshal(content, &value); err != nil {
+		t.Fatal(err)
+	}
+	delete(value, "untracked_baseline")
+	writeJSON(t, absoluteReceiptPath, value)
+	modified, err := os.ReadFile(absoluteReceiptPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkSnapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer checkSnapshot.Close()
+	_, err = receipt.Load(checkSnapshot, testWorkspace, canonical.HashBytes(modified))
+	if err == nil || !strings.Contains(err.Error(), "AIDD_RECEIPT_UNTRACKED_BASELINE") {
+		t.Fatalf("receipt without untracked baseline was accepted: %v", err)
 	}
 }
 
@@ -147,7 +204,12 @@ func initializeFixtureRepository(t *testing.T) string {
 		"version":          2,
 		"description":      "fixture",
 		"resolution_order": []string{"depends_on"},
-		"review_routing":   map[string]any{"governed_paths": []string{}, "surfaces": []any{}},
+		"review_routing": map[string]any{
+			"governed_paths": []string{"unrelated/**"},
+			"surfaces": []any{map[string]any{
+				"id": "unrelated", "paths": []string{"unrelated/**"}, "required_rules": []string{"ai-driven.checker"},
+			}},
+		},
 		"rules": []any{map[string]any{
 			"id": "ai-driven.checker", "file": "docs/rules/checker.md",
 			"applies_to": map[string]any{"paths": []string{"tool.txt"}, "domains": []string{}, "activities": []string{}, "topics": []string{"checker"}},
@@ -183,25 +245,25 @@ func initializeFixtureRepository(t *testing.T) string {
 		Representations:   []model.Representation{{ID: "REP-1", Kind: "implementation", Path: "tool.txt", Locator: model.Locator{Kind: "file"}, RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationCaseIDs: []string{"VC-1"}}},
 	}
 	inputGate := map[string]any{
-		"task_context": map[string]any{"source": "issue_body", "issue": "owner/repo#1671", "url": "https://github.com/owner/repo/issues/1671", "updated_at": "2026-08-28T00:00:00Z", "body_sha256": canonical.HashBytes([]byte("repo-owned profileでverificationを固定する"))},
-		"direct_rules": []any{map[string]any{"id": "ai-driven.checker", "issue_evidence": "repo-owned profile", "match": map[string]any{"field": "topics", "value": "checker"}, "reason": "profile boundary"}},
+		"task_context": map[string]any{"source": "issue_body", "issue": "owner/repo#1671", "url": "https://github.com/owner/repo/issues/1671", "updated_at": "2026-08-28T00:00:00Z", "body_sha256": canonical.HashBytes([]byte("repo-owned checker profileでverificationを固定する"))},
+		"direct_rules": []any{map[string]any{"id": "ai-driven.checker", "issue_evidence": "repo-owned checker profile", "match": map[string]any{"field": "topics", "value": "checker"}, "reason": "profile boundary"}},
 		"depends_on":   []any{},
 	}
 	requirementsSections := make([]any, len(requirementsSectionIDs))
 	sectionTransitions := make([]any, len(requirementsSectionIDs))
 	for index, id := range requirementsSectionIDs {
-		block := map[string]any{"id": id + "-body", "type": "markdown", "markdown": "repo-owned profile を " + id + " で扱う。"}
+		block := map[string]any{"id": id + "-body", "type": "markdown", "markdown": "repo-owned checker profile を " + id + " で扱う。"}
 		if id == "functional" {
 			block = map[string]any{"id": id + "-requirements", "type": "requirements"}
 		}
 		requirementsSections[index] = map[string]any{"id": id, "heading": requirementsSectionHeadings[id], "blocks": []any{block}}
-		sectionTransitions[index] = map[string]any{"id": id, "status": "new", "issue_evidence": "repo-owned profile"}
+		sectionTransitions[index] = map[string]any{"id": id, "status": "new", "issue_evidence": "repo-owned checker profile"}
 	}
 	completeness := map[string]any{
-		"issue_body_sha256": canonical.HashBytes([]byte("repo-owned profileでverificationを固定する")),
+		"issue_body_sha256": canonical.HashBytes([]byte("repo-owned checker profileでverificationを固定する")),
 		"workspace":         testWorkspace,
 		"baseline":          map[string]any{"source": "none", "body_sha256": nil},
-		"requirements":      []any{map[string]any{"id": "FR-1", "status": "new", "issue_evidence": "repo-owned profile"}},
+		"requirements":      []any{map[string]any{"id": "FR-1", "status": "new", "issue_evidence": "repo-owned checker profile"}},
 		"sections":          sectionTransitions,
 		"retired":           []any{},
 	}
@@ -211,7 +273,7 @@ func initializeFixtureRepository(t *testing.T) string {
 		"validation": map[string]any{
 			"mode": "managed", "cycle_start_issue_title": "Checker profile boundary",
 			"input_gate": inputGate, "completeness_gate": completeness,
-			"requirements": []any{map[string]any{"id": "FR-1", "section_id": "functional", "text": "repo-owned profileでverificationを固定する"}},
+			"requirements": []any{map[string]any{"id": "FR-1", "section_id": "functional", "text": "repo-owned checker profileでverificationを固定する"}},
 			"sections":     requirementsSections,
 		},
 	}
