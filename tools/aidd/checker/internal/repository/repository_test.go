@@ -105,6 +105,33 @@ func TestSnapshotDetectsContentModeAndTypeDrift(t *testing.T) {
 	}
 }
 
+func TestGitIndexEntriesCaptureExactOwnedIdentity(t *testing.T) {
+	root := newGitRepository(t)
+	writeRepositoryFile(t, root, "owned[1].txt", []byte("owned\n"), 0o644)
+	writeRepositoryFile(t, root, "owned1.txt", []byte("other\n"), 0o644)
+	writeRepositoryFile(t, root, "untracked.txt", []byte("untracked\n"), 0o644)
+	runRepositoryGit(t, root, "add", "--", "owned[1].txt", "owned1.txt")
+
+	snapshot := openSnapshot(t, root)
+	entries, err := snapshot.GitIndexEntries(context.Background(), []string{"owned[1].txt", "untracked.txt"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries["owned[1].txt"]) != 1 {
+		t.Fatalf("owned index entries = %#v, want exactly one", entries["owned[1].txt"])
+	}
+	entry := entries["owned[1].txt"][0]
+	if entry.Mode != "100644" || entry.ObjectID == "" || entry.Stage != 0 {
+		t.Fatalf("owned index entry = %#v", entry)
+	}
+	if len(entries["untracked.txt"]) != 0 {
+		t.Fatalf("untracked index entries = %#v, want none", entries["untracked.txt"])
+	}
+	if _, leaked := entries["owned1.txt"]; leaked {
+		t.Fatalf("unrequested index entry leaked: %#v", entries["owned1.txt"])
+	}
+}
+
 func TestWriteAtomicCreatesConfinedFile(t *testing.T) {
 	root := newGitRepository(t)
 	snapshot := openSnapshot(t, root)
@@ -164,6 +191,16 @@ func writeRepositoryFile(t *testing.T, root, relative string, content []byte, mo
 		t.Fatal(err)
 	}
 	return path
+}
+
+func runRepositoryGit(t *testing.T, root string, arguments ...string) string {
+	t.Helper()
+	command := exec.Command("git", append([]string{"-C", root}, arguments...)...)
+	output, err := command.CombinedOutput()
+	if err != nil {
+		t.Fatalf("git %v failed: %v\n%s", arguments, err, output)
+	}
+	return string(output)
 }
 
 func diagnosticCode(err error) string {

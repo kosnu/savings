@@ -35,7 +35,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: rule-map の読取、closure、path / surface routing。
-- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、全path segmentのsymlink拒否、型・権限・内容drift、atomic output。
+- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、全path segmentのsymlink拒否、型・権限・内容drift、Git index entryのpresence・mode・object ID・stage取得、atomic output。
 - `internal/handoff` / `internal/receipt`: Design completion capture と Build Entry。
 - `internal/runner` / `internal/evidence`: profile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
@@ -69,7 +69,7 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - caseの欠落、余剰、重複、順序ずれ
 - selectorと一致しないruntime test path / full name、または単一`passed`以外のreport
 - 旧command allowlist形式のsourceまたはevidence
-- case後に変化したtask-owned path、Git mode、content
+- case後に変化したtask-owned path、worktree上のGit投影mode・content、またはverification前の専用manifestから変化したGit index entryのpresence・mode・object ID・stage
 
 Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime identityへ
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと

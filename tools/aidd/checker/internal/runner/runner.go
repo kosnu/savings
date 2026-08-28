@@ -35,6 +35,10 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 	if err != nil {
 		return nil, err
 	}
+	initialGitIndex, err := state.GitIndexHash(ctx, snapshot, target)
+	if err != nil {
+		return nil, err
+	}
 	evidence := &model.BuildEvidence{
 		SchemaVersion:    model.EvidenceSchemaVersion,
 		Kind:             "build_verification",
@@ -68,6 +72,13 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 		evidence.Results = append(evidence.Results, *result)
 		if err := snapshot.AssertUnchanged(); err != nil {
 			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified a repository input", "unchanged snapshot", err.Error())
+		}
+		currentGitIndex, err := state.GitIndexHash(ctx, snapshot, target)
+		if err != nil {
+			return nil, err
+		}
+		if currentGitIndex != initialGitIndex {
+			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified the task-owned Git index", initialGitIndex, currentGitIndex)
 		}
 		currentFinalState, err := state.FinalHash(snapshot, target)
 		if err != nil {
