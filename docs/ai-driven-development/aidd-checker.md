@@ -28,6 +28,44 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 各skillとphase agentはcheckerを所有せず、
 [AIDD Checker Operations](./aidd-checker-operations.md)に従って呼び出す。
 
+## Operating Contract and Threat Boundary
+
+AIDDの1実行は専用Git worktreeを1つだけ使用し、そのworktreeを1つのCodex sessionと
+1つのagentが排他的に所有する。所有agentはchecker、verification command、Git commandを
+同一sessionから順次実行し、checker実行中に別session、別agent、ユーザー操作、常駐processが
+同じworktree、Git index、`HEAD`を変更しない。
+
+Requirements、Design、Build / Verifyはworktreeの成果物だけを変更する。Build Entryから
+Build / Verify完了までは`HEAD`、current branch、Git indexが表すstaged treeを変更しない。
+`git add`、`git commit`、`git commit --amend`、`git merge`、`git rebase`、`git reset`、`git switch`、
+`git checkout`はShipだけが所有する。Git indexのraw bytes、stat cache、visibility flagは
+AIDD成果物のidentityとして扱わない。
+
+Ship対象はBuild / Verifyで検証したworktreeのfile contentとGit modeである。Shipはその
+検証済み状態だけをstageし、stage後のindexが表すcontentまたはmodeが検証済みworktreeと
+異なる場合、あるいは検証後にworktreeが変わった場合はcommitせずBuild / Verifyへ戻る。
+
+Git判定の意味はcanonical worktree、repo-owned contract、checkerが明示する引数だけが
+決定し、ユーザーまたはsystemのGit configに依存させない。sparse checkout、submodule、
+alternate index、`assume-unchanged`、`skip-worktree`は通常のAIDD worktreeに持ち込まない
+運用前提とし、checkerはこれらの契約外状態を個別に検出しない。
+
+Git状態についてcheckerが検証するのは、Build EntryとBuild / Verify完了で契約上の
+`HEAD`とstaged treeが不変であること、checkerが起動したverification commandが宣言外の
+repository変更を残していないこと、Ship候補が検証済みworktreeと一致することに限定する。
+
+checkerが正常系として扱うrepository変更は、所有agentが明示的に起動したcheckerまたは
+verification commandによる変更だけである。checkerは各commandの開始時に現在のrepository
+状態を読み、checker自身が起動したcommandの終了後にそのcommandが契約外の変更を残して
+いないことを検証する。verification commandの子processはそのcommandの一部として扱い、
+command完了時に残留していれば失敗とする。
+
+別session、別agent、ユーザー操作、常駐processによる並行変更、`.git`内部の直接改変、
+checkerまたはGit実行ファイルの差し替え、OSまたはfilesystemの破損は運用契約違反であり、
+checkerの防御対象に含めない。これらの契約外事象を仮定したlock、critical section、反復確認を
+追加せず、通常の単一所有経路で検査対象と後続phaseへ渡す対象が一致するために必要な検証だけを
+実装する。
+
 ## Boundaries
 
 - `internal/model` と `internal/semantic`: typed domain model と pure semantic rules。
@@ -36,7 +74,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: canonical `docs/harness/rule-map.json` のpath契約と読取、closure、path / surface routing。
-- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、親processの全`GIT_*`を除去したGit実行境界、snapshot作成時に正本worktreeから固定して各Git commandへ明示するindex path、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、snapshotへ固定したraw Git index identity、index visibility flagや`core.fileMode`設定に依存しないworktree差分、atomic output。
+- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、親processの全`GIT_*`を除去したGit実行境界、正本worktreeのindex path、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、verification command前後のstaged tree identity、atomic output。
 - `internal/handoff` / `internal/receipt`: source / displayのcontent hashとpermission modeを固定するDesign completion capture と、全Build entrypointで同じidentityを再検証するBuild Entry。
 - `internal/runner` / `internal/evidence`: 親processの全`GIT_*`を除去したprofile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
@@ -48,10 +86,9 @@ file、directory、ownership tree、selector、runner working directoryの実在
 `internal/repository`だけから解決する。path traversal、`.git`・`.hg`・`.svn` metadata segment、symlink、非regular fileをfail
 closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味判定ごとに
 再読込しない。artifact gateはcanonical workspace sourceだけをsnapshotから読み、
-repository外の一時sourceはGoal kindだけに許可する。出力直前とverification case実行後に
-cached inputの内容、型、権限driftを検査する。Design completionは固定したGit `HEAD`から
-baseline blobを読み、receipt出力直前にもHEAD driftを検査してから、CLIが宣言した
-canonical outputだけをatomic writeする。checkerが起動した親processの`GIT_INDEX_FILE`、
+repository外の一時sourceはGoal kindだけに許可する。verification case実行後にcached inputの
+内容、型、権限driftを検査する。Design completionは固定したGit `HEAD`からbaseline blobを読み、
+CLIが宣言したcanonical outputだけをatomic writeする。checkerが起動した親processの`GIT_INDEX_FILE`、
 `GIT_DIR`、`GIT_WORK_TREE`、config injectionを含む全`GIT_*`はGit subprocessへ継承せず、
 canonical rootから解決したworktree indexだけを通常Git検証へ明示する。Git、filesystem、
 process実行はpure semantic packageへ入れない。
@@ -85,7 +122,7 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - 旧command allowlist形式のsourceまたはevidence
 - direct runner終了後に残ったverification process。専用process groupを終了して残留がないことを確認してからcase後stateを検査する
 - case後に変化したtask-owned final state
-- case後に変化したignore対象を含むrepository pathのtype・permission mode・size・mtime・ctime・device・inode、Git `HEAD`のcommit・symbolic reference、またはraw Git index bytes全体
+- case後に変化したignore対象を含むrepository pathのtype・permission mode・size・mtime・ctime・device・inode、Git `HEAD`のcommit・symbolic reference、またはGit indexが表すstaged tree
 
 Requirements / Designのcanonical sourceとdisplayはcontent hashだけでなくpermission modeも
 receiptへ固定し、`receipt.Load`を使う全Build entrypointで再検証する。receipt自身は
