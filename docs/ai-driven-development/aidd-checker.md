@@ -45,7 +45,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 
 checker はpathとworkspace名の字句検証を`internal/pathcontract`へ集約し、repository内の
 file、directory、ownership tree、selector、runner working directoryの実在性とsymlinkを
-`internal/repository`だけから解決する。path traversal、symlink、非regular fileをfail
+`internal/repository`だけから解決する。path traversal、`.git`・`.hg`・`.svn` metadata segment、symlink、非regular fileをfail
 closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味判定ごとに
 再読込しない。artifact gateはcanonical workspace sourceだけをsnapshotから読み、
 repository外の一時sourceはGoal kindだけに許可する。出力直前とverification case実行後に

@@ -212,6 +212,54 @@ func TestCheckAllRejectsGoalAtCanonicalArtifactSourcePath(t *testing.T) {
 	}
 }
 
+func TestCheckAllRejectsManagedArtifactAtNonCanonicalSourcePath(t *testing.T) {
+	source := map[string]any{
+		"schema_version": 4,
+		"kind":           "requirements",
+		"workspace":      "1671-checker",
+		"display":        map[string]any{"path": "requirements.md", "preamble": "# Requirements"},
+		"validation": map[string]any{
+			"mode":                    "managed",
+			"cycle_start_issue_title": "AIDD CheckerをGoで再設計する",
+			"input_gate": map[string]any{
+				"task_context": map[string]any{"source": "issue_body", "issue": "owner/repo#1671", "url": "https://github.com/owner/repo/issues/1671", "updated_at": "2026-08-29T00:00:00Z", "body_sha256": strings.Repeat("0", 64)},
+				"direct_rules": []any{map[string]any{"id": "ai-driven.checker", "issue_evidence": "checker", "match": map[string]any{"field": "topics", "value": "checker"}, "reason": "checker contract"}},
+				"depends_on":   []any{},
+			},
+			"completeness_gate": map[string]any{
+				"issue_body_sha256": strings.Repeat("0", 64), "workspace": "1671-checker", "baseline": map[string]any{"source": "none", "body_sha256": nil},
+				"requirements": []any{map[string]any{"id": "FR-1", "status": "new", "issue_evidence": "checker"}},
+				"sections":     []any{map[string]any{"id": "functional", "status": "new", "issue_evidence": "checker"}},
+				"retired":      []any{},
+			},
+			"requirements": []any{map[string]any{"id": "FR-1", "section_id": "functional", "text": "checker契約をGoで厳密に検証する"}},
+			"sections": []any{map[string]any{
+				"id": "functional", "heading": "機能要件", "blocks": []any{map[string]any{"id": "functional-requirements", "type": "requirements"}},
+			}},
+		},
+	}
+	content, err := canonical.Pretty(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{
+		"docs/ai-driven-development/workspaces/1671-checker/backup.json",
+		"docs/ai-driven-development/workspaces/1671-copy/requirements.json",
+	} {
+		t.Run(path, func(t *testing.T) {
+			root := t.TempDir()
+			initializeMainRepository(t, root)
+			writeMainFile(t, root, path, content)
+
+			err := run(context.Background(), []string{"check-all", "--repo-root", root})
+			item, ok := err.(*diagnostic.Diagnostic)
+			if !ok || item.Code != "AIDD_SOURCE_PATH" {
+				t.Fatalf("expected AIDD_SOURCE_PATH, got %#v", err)
+			}
+		})
+	}
+}
+
 func TestCheckAllRejectsSelfContainedSemanticContractBypasses(t *testing.T) {
 	tests := []struct {
 		name     string

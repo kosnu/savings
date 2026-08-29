@@ -17,6 +17,8 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/workspace"
 )
 
+const workspacesRoot = "docs/ai-driven-development/workspaces"
+
 func resolveWorkspace(ctx context.Context, arguments []string) error {
 	flags := newFlagSet("workspace")
 	repoRoot := flags.String("repo-root", "", "repository root")
@@ -175,7 +177,7 @@ func checkAll(ctx context.Context, arguments []string) error {
 			return diagnostic.New("AIDD_SOURCE_MISSING", path, kind, "managed artifact source tracked at Git HEAD is missing", "existing managed source", "not found")
 		}
 	}
-	entries, err := snapshot.ReadDir("docs/ai-driven-development/workspaces")
+	entries, err := snapshot.ReadDir(workspacesRoot)
 	if err != nil {
 		return err
 	}
@@ -185,8 +187,12 @@ func checkAll(ctx context.Context, arguments []string) error {
 		if !entry.IsDir() {
 			continue
 		}
-		for _, item := range []struct{ file, kind string }{{"requirements.json", "requirements"}, {"design-doc.json", "design"}} {
-			path, pathErr := repository.WorkspacePath(entry.Name(), item.file)
+		if err := validateWorkspaceJSONSources(snapshot, entry.Name()); err != nil {
+			return err
+		}
+		for _, kind := range []string{"requirements", "design"} {
+			file := canonicalArtifactSourceFilename(kind)
+			path, pathErr := repository.WorkspacePath(entry.Name(), file)
 			if pathErr != nil {
 				return pathErr
 			}
@@ -201,7 +207,7 @@ func checkAll(ctx context.Context, arguments []string) error {
 			if readErr != nil {
 				return readErr
 			}
-			parsed, parseErr := semantic.ParseSource(content, item.kind, path)
+			parsed, parseErr := semantic.ParseSource(content, kind, path)
 			if parseErr != nil {
 				return parseErr
 			}
@@ -210,11 +216,11 @@ func checkAll(ctx context.Context, arguments []string) error {
 				legacy++
 				continue
 			}
-			displayPath, pathErr := repository.WorkspacePath(entry.Name(), strings.TrimSuffix(item.file, ".json")+".md")
+			displayPath, pathErr := repository.WorkspacePath(entry.Name(), strings.TrimSuffix(file, ".json")+".md")
 			if pathErr != nil {
 				return pathErr
 			}
-			expected, renderErr := render.Markdown(content, item.kind, path)
+			expected, renderErr := render.Markdown(content, kind, path)
 			if renderErr != nil {
 				return renderErr
 			}
@@ -223,7 +229,7 @@ func checkAll(ctx context.Context, arguments []string) error {
 				return readErr
 			}
 			if !bytes.Equal(actual, []byte(expected)) {
-				return diagnostic.New("AIDD_DISPLAY_DRIFT", displayPath, item.kind, "Markdown display does not match the canonical source", canonical.HashBytes([]byte(expected)), canonical.HashBytes(actual))
+				return diagnostic.New("AIDD_DISPLAY_DRIFT", displayPath, kind, "Markdown display does not match the canonical source", canonical.HashBytes([]byte(expected)), canonical.HashBytes(actual))
 			}
 		}
 	}
@@ -234,17 +240,81 @@ func checkAll(ctx context.Context, arguments []string) error {
 	return nil
 }
 
+func validateWorkspaceJSONSources(snapshot *repository.Snapshot, workspaceName string) error {
+	if err := pathcontract.ValidateWorkspaceName(workspaceName); err != nil {
+		return err
+	}
+	workspacePath, err := pathcontract.ValidateRelativePath(workspacesRoot + "/" + workspaceName)
+	if err != nil {
+		return err
+	}
+	entries, err := snapshot.ReadDir(workspacePath)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+			continue
+		}
+		path, pathErr := repository.WorkspacePath(workspaceName, entry.Name())
+		if pathErr != nil {
+			return pathErr
+		}
+		content, readErr := snapshot.Read(path)
+		if readErr != nil {
+			return readErr
+		}
+		parsed, parseErr := semantic.ParseSource(content, canonicalArtifactKind(entry.Name()), path)
+		if parseErr != nil {
+			return parseErr
+		}
+		filename := canonicalArtifactSourceFilename(parsed.Envelope.Kind)
+		if filename == "" {
+			continue
+		}
+		expectedPath, pathErr := repository.WorkspacePath(parsed.Envelope.Workspace, filename)
+		if pathErr != nil {
+			return pathErr
+		}
+		if path != expectedPath {
+			return diagnostic.New("AIDD_SOURCE_PATH", path, parsed.Envelope.Kind, "managed artifact source must use its canonical workspace path", expectedPath, path)
+		}
+	}
+	return nil
+}
+
+func canonicalArtifactSourceFilename(kind string) string {
+	switch kind {
+	case "requirements":
+		return "requirements.json"
+	case "design":
+		return "design-doc.json"
+	default:
+		return ""
+	}
+}
+
+func canonicalArtifactKind(filename string) string {
+	switch filename {
+	case "requirements.json":
+		return "requirements"
+	case "design-doc.json":
+		return "design"
+	default:
+		return ""
+	}
+}
+
 func gitHeadManagedSources(ctx context.Context, snapshot *repository.Snapshot) (map[string]string, error) {
-	const root = "docs/ai-driven-development/workspaces"
-	output, err := snapshot.Git(ctx, "ls-tree", "-r", "--name-only", "-z", "HEAD", "--", root)
+	output, err := snapshot.Git(ctx, "ls-tree", "-r", "--name-only", "-z", "HEAD", "--", workspacesRoot)
 	if err != nil {
 		return nil, err
 	}
 	if len(output) > 0 && output[len(output)-1] != 0 {
-		return nil, diagnostic.New("AIDD_GIT_SOURCE_LIST", root, "git", "managed source listing must use NUL-terminated paths", "NUL-terminated paths", string(output))
+		return nil, diagnostic.New("AIDD_GIT_SOURCE_LIST", workspacesRoot, "git", "managed source listing must use NUL-terminated paths", "NUL-terminated paths", string(output))
 	}
 	result := map[string]string{}
-	prefix := root + "/"
+	prefix := workspacesRoot + "/"
 	for _, raw := range bytes.Split(output, []byte{0}) {
 		if len(raw) == 0 {
 			continue
@@ -261,7 +331,7 @@ func gitHeadManagedSources(ctx context.Context, snapshot *repository.Snapshot) (
 		if len(parts) != 2 {
 			continue
 		}
-		kind := map[string]string{"requirements.json": "requirements", "design-doc.json": "design"}[parts[1]]
+		kind := canonicalArtifactKind(parts[1])
 		if kind == "" {
 			continue
 		}

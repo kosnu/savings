@@ -246,6 +246,10 @@ path rule、dependency closureへ再照合する。
 
 repository 全体は次で検査する。
 
+`check-all`は各workspace直下の全JSONをstrict parseする。`requirements`または`design`
+kindのsourceは、envelopeのworkspaceとkindから決まるcanonical filename/pathにある場合だけ
+受理し、別名copyや別workspaceへの配置を拒否する。
+
 ```sh
 /tmp/aidd-checker check-all --repo-root <repo-root>
 /tmp/aidd-checker validate-phase-contract --repo-root <repo-root>

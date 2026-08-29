@@ -27,8 +27,9 @@ func ValidateRelativePath(path string) (string, error) {
 		return "", diagnostic.New("AIDD_PATH_NONCANONICAL", path, "repository", "path is not canonical", cleaned, path)
 	}
 	for _, part := range strings.Split(path, "/") {
-		if part == ".git" {
-			return "", diagnostic.New("AIDD_PATH_GIT_METADATA", path, "repository", "path must not enter Git metadata", nil, path)
+		switch part {
+		case ".git", ".hg", ".svn":
+			return "", diagnostic.New("AIDD_PATH_VCS_METADATA", path, "repository", "path must not enter version-control metadata", nil, path)
 		}
 	}
 	return path, nil
