@@ -22,7 +22,7 @@ import (
 func TestValidateSourceCLIReadsLegacyV3WithoutWriting(t *testing.T) {
 	directory := t.TempDir()
 	path := filepath.Join(directory, "design-doc.json")
-	content := []byte(`{"schema_version":3,"kind":"design","workspace":"legacy","display":{},"validation":{}}`)
+	content := []byte(`{"schema_version":3,"kind":"design","workspace":"legacy","display":{"path":"design-doc.md","preamble":"# Design"},"validation":{}}`)
 	if err := os.WriteFile(path, content, 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -168,6 +168,18 @@ func TestCheckAllRejectsTrackedManagedSourceDeletion(t *testing.T) {
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_SOURCE_MISSING" {
 		t.Fatalf("expected AIDD_SOURCE_MISSING, got %#v", err)
+	}
+}
+
+func TestCheckAllRejectsTruncatedLegacyEnvelope(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	writeMainFile(t, root, "docs/ai-driven-development/workspaces/1671-checker/requirements.json", []byte(`{"schema_version":2,"kind":"requirements","workspace":"legacy"}`))
+
+	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	item, ok := err.(*diagnostic.Diagnostic)
+	if !ok || item.Code != "AIDD_LEGACY_ENVELOPE" {
+		t.Fatalf("expected AIDD_LEGACY_ENVELOPE, got %#v", err)
 	}
 }
 

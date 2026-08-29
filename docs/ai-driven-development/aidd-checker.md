@@ -122,7 +122,7 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - 旧command allowlist形式のsourceまたはevidence
 - direct runner終了後に残ったverification process。専用process groupを終了して残留がないことを確認してからcase後stateを検査する
 - case後に変化したtask-owned final state
-- case後に変化したignore対象を含むrepository pathのtype・permission mode・size・mtime・ctime・device・inode、Git `HEAD`のcommit・symbolic reference、またはGit indexが表すstaged tree
+- case後に変化したignore対象を含むrepository pathのtype・permission mode・size・mtime・ctime・device・inode、Git `HEAD`のcommit、またはGit indexが表すstaged tree。current branchはShipだけが変更できるphase ownership contractであり、checkerの成果物identityには含めない
 
 Requirements / Designのcanonical sourceとdisplayはcontent hashだけでなくpermission modeも
 receiptへ固定し、`receipt.Load`を使う全Build entrypointで再検証する。receipt自身は
@@ -146,8 +146,10 @@ result内のprocedure / observationは、empty、`null`、空配列を含めて�
 ## Version and Retirement Policy
 
 - v4: active schema。Go checkerの全gateを利用できる。
-- v3 / v2: historical read-only schema。Goのenvelope検査とhistorical corpus回帰だけに
-  利用できる。
+- v3 / v2: historical read-only schema。`requirements`または`design`のkindと、
+  `schema_version`、`kind`、`workspace`、`display`、`validation`の完全な共通envelopeを要求する。
+  `display`はkindに対応するpathと非空preamble、`validation`はJSON objectでなければならない。
+  Goのenvelope検査とhistorical corpus回帰だけに利用できる。
 - AIDD checker、phase contract validator、profile adapter、その回帰testはGoだけで
   実装する。旧Python validatorをfallbackまたは互換実装として保持しない。
 

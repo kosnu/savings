@@ -267,7 +267,7 @@ func TestRequirementsRejectsLegacyPromotion(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer snapshot.Close()
-	document := []byte(`{"schema_version":3,"kind":"requirements","workspace":"1671-checker","display":{},"validation":{}}`)
+	document := []byte(`{"schema_version":3,"kind":"requirements","workspace":"1671-checker","display":{"path":"requirements.md","preamble":"# Requirements"},"validation":{}}`)
 	_, err = ValidateRequirements(context.Background(), snapshot, RequirementsInput{
 		Workspace: "1671-checker", Kind: "requirements", Document: document,
 	})

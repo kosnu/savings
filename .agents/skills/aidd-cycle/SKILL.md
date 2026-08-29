@@ -101,10 +101,11 @@ For each phase in the workflow:
    final owned-path inventory before execution, run each automated case in a
    dedicated process group, terminate and reject any residual process before
    post-case state checks, reject per-case mutation of any ignored or
-   non-ignored repository path, Git HEAD object ID/reference, or the staged
-   tree represented by stage-entry mode, blob ID, and path,
-   and bind every result to the unchanged final-state hash. Run the Build rule
-   coverage validator against both the final owned tree and the actual Git diff
+   non-ignored repository path, Git HEAD object ID, or the staged tree
+   represented by stage-entry mode, blob ID, and path. Keep the current branch
+   unchanged through phase command ownership without making it checker evidence
+   identity, and bind every result to the unchanged final-state hash. Run the
+   Build rule coverage validator against both the final owned tree and the actual Git diff
    relative to the frozen untracked baseline. Stop on missing or extra owned
    representations, failed or missing verification evidence, out-of-scope
    changes, undeclared surfaces, a surface or path rule absent from the receipt,

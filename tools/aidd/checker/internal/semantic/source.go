@@ -75,6 +75,11 @@ func ParseSource(content []byte, expectedKind, artifact string) (*ParsedSource, 
 	parsed := &ParsedSource{Envelope: source}
 	switch source.SchemaVersion {
 	case 2, 3:
+		display, err := parseLegacyEnvelope(source, artifact)
+		if err != nil {
+			return nil, err
+		}
+		parsed.ArtifactDisplay = display
 		parsed.ReadOnlyLegacy = true
 		return parsed, nil
 	case model.CurrentSchemaVersion:
@@ -137,6 +142,30 @@ func ParseSource(content []byte, expectedKind, artifact string) (*ParsedSource, 
 		parsed.Design = validation
 	}
 	return parsed, nil
+}
+
+func parseLegacyEnvelope(source model.Source, artifact string) (*model.ArtifactDisplay, error) {
+	if source.Kind != "requirements" && source.Kind != "design" {
+		return nil, diagnostic.New("AIDD_SOURCE_KIND", "kind", artifact, "legacy AIDD source kind is unsupported", []string{"requirements", "design"}, source.Kind)
+	}
+	if len(source.Display) == 0 {
+		return nil, diagnostic.New("AIDD_LEGACY_ENVELOPE", "display", artifact, "legacy AIDD source must contain the complete read-only envelope", "display object", "missing")
+	}
+	display, err := parseArtifactDisplay(source.Display, source.Kind, artifact)
+	if err != nil {
+		return nil, err
+	}
+	if len(source.Validation) == 0 {
+		return nil, diagnostic.New("AIDD_LEGACY_ENVELOPE", "validation", artifact, "legacy AIDD source must contain the complete read-only envelope", "validation object", "missing")
+	}
+	var validation map[string]json.RawMessage
+	if err := canonical.Decode(source.Validation, artifact+".validation", &validation); err != nil {
+		return nil, err
+	}
+	if validation == nil {
+		return nil, diagnostic.New("AIDD_LEGACY_ENVELOPE", "validation", artifact, "legacy AIDD validation must be a JSON object", "object", "null")
+	}
+	return display, nil
 }
 
 func parseArtifactDisplay(raw json.RawMessage, kind, artifact string) (*model.ArtifactDisplay, error) {
