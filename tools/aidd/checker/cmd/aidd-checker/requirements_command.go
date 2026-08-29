@@ -22,7 +22,7 @@ func validateRequirements(ctx context.Context, arguments []string) error {
 	documentPath := flags.String("document", "", "Requirements source")
 	kind := flags.String("kind", "", "requirements or requirements_goal")
 	goalPath := flags.String("goal-document", "", "retained Requirements Goal")
-	ruleMapPath := flags.String("rule-map", handoff.RuleMapPath, "rule map")
+	ruleMapPath := flags.String("rule-map", handoff.RuleMapPath, "canonical rule map")
 	if err := parseFlags(flags, arguments); err != nil {
 		return err
 	}

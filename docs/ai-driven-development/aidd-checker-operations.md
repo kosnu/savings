@@ -49,6 +49,9 @@ Markdown、receipt、Build evidence、Build coverage だけである。失敗は
 `path`、`artifact`、`expected`、`actual`、`message` を持つ JSON diagnostic と nonzero
 exit で返す。
 
+rule mapは`docs/harness/rule-map.json`だけを正本として受理する。`--rule-map`を明示する
+場合もこのpath以外は拒否し、RequirementsまたはDesignの入力へ代替rule mapを使用しない。
+
 phase ownership contractも同じbinaryで検証する。
 
 ```sh
