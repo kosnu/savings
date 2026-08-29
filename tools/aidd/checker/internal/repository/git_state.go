@@ -14,16 +14,9 @@ import (
 )
 
 func (snapshot *Snapshot) GitIndexIdentity(ctx context.Context) (string, error) {
-	pathBytes, err := snapshot.Git(ctx, "rev-parse", "--git-path", "index")
+	path, err := snapshot.gitIndexPath(ctx)
 	if err != nil {
 		return "", err
-	}
-	path := strings.TrimSuffix(string(pathBytes), "\n")
-	if path == "" || strings.ContainsRune(path, '\x00') {
-		return "", diagnostic.New("AIDD_GIT_STATE_INDEX_PATH", "index", "repository", "verification Git index path is invalid", "non-empty path without NUL", path)
-	}
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(snapshot.Root, path)
 	}
 	before, err := os.Lstat(path)
 	if err != nil {
@@ -46,6 +39,79 @@ func (snapshot *Snapshot) GitIndexIdentity(ctx context.Context) (string, error) 
 	}
 	digest := sha256.Sum256(content)
 	return hex.EncodeToString(digest[:]), nil
+}
+
+func (snapshot *Snapshot) gitIndexPath(ctx context.Context) (string, error) {
+	pathBytes, err := snapshot.Git(ctx, "rev-parse", "--git-path", "index")
+	if err != nil {
+		return "", err
+	}
+	path := strings.TrimSuffix(string(pathBytes), "\n")
+	if path == "" || strings.ContainsRune(path, '\x00') {
+		return "", diagnostic.New("AIDD_GIT_STATE_INDEX_PATH", "index", "repository", "verification Git index path is invalid", "non-empty path without NUL", path)
+	}
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(snapshot.Root, path)
+	}
+	return path, nil
+}
+
+// PinGitIndexはsnapshotが最初に観測したraw index bytesのidentityを固定する。
+func (snapshot *Snapshot) PinGitIndex(ctx context.Context) error {
+	current, err := snapshot.GitIndexIdentity(ctx)
+	if err != nil {
+		return err
+	}
+	if snapshot.gitIndexSHA256 == "" {
+		snapshot.gitIndexSHA256 = current
+		return nil
+	}
+	if current != snapshot.gitIndexSHA256 {
+		return diagnostic.New("AIDD_GIT_STATE_INDEX_DRIFT", "index", "repository", "Git index changed after its snapshot identity was fixed", snapshot.gitIndexSHA256, current)
+	}
+	return nil
+}
+
+func (snapshot *Snapshot) AssertGitIndexUnchanged(ctx context.Context) error {
+	if snapshot.gitIndexSHA256 == "" {
+		return diagnostic.New("AIDD_GIT_STATE_INDEX_UNPINNED", "index", "repository", "Git index identity must be fixed before post-Design validation", "pinned raw index identity", nil)
+	}
+	return snapshot.PinGitIndex(ctx)
+}
+
+// WithStableGitIndexはGit writerを標準index lockで排他し、固定済みindexの再照合から
+// action完了後の再照合までを同じcritical sectionで実行する。
+func (snapshot *Snapshot) WithStableGitIndex(ctx context.Context, action func() error) (resultErr error) {
+	indexPath, err := snapshot.gitIndexPath(ctx)
+	if err != nil {
+		return err
+	}
+	lockPath := indexPath + ".lock"
+	lock, err := os.OpenFile(lockPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	if err != nil {
+		return diagnostic.New("AIDD_GIT_STATE_INDEX_LOCK", "index", "repository", "Git index cannot be locked while a canonical Build output is written", "available Git index lock", err.Error())
+	}
+	defer func() {
+		closeErr := lock.Close()
+		removeErr := os.Remove(lockPath)
+		if closeErr != nil || removeErr != nil {
+			details := []string{}
+			if closeErr != nil {
+				details = append(details, "close: "+closeErr.Error())
+			}
+			if removeErr != nil {
+				details = append(details, "remove: "+removeErr.Error())
+			}
+			resultErr = diagnostic.New("AIDD_GIT_STATE_INDEX_UNLOCK", "index", "repository", "Git index lock could not be released after canonical Build output", "closed and removed index lock", strings.Join(details, "; "))
+		}
+	}()
+	if err := snapshot.AssertGitIndexUnchanged(ctx); err != nil {
+		return err
+	}
+	if err := action(); err != nil {
+		return err
+	}
+	return snapshot.AssertGitIndexUnchanged(ctx)
 }
 
 // GitIndexWorktreeDiffは実indexを変更せず、worktree差分を隠すindex flagを除いた

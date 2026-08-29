@@ -39,6 +39,9 @@ func Load(ctx context.Context, snapshot *repository.Snapshot, workspace, expecte
 	if _, err := snapshot.Head(ctx); err != nil {
 		return nil, err
 	}
+	if err := snapshot.PinGitIndex(ctx); err != nil {
+		return nil, err
+	}
 	path, err := Path(workspace)
 	if err != nil {
 		return nil, err

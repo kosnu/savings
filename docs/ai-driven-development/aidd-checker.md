@@ -36,7 +36,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: canonical `docs/harness/rule-map.json` のpath契約と読取、closure、path / surface routing。
-- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、raw Git index identity、index visibility flagや`core.fileMode`設定に依存しないworktree差分、atomic output。
+- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、snapshotへ固定したraw Git index identity、index visibility flagや`core.fileMode`設定に依存しないworktree差分、atomic output。
 - `internal/handoff` / `internal/receipt`: Design completion capture と Build Entry。
 - `internal/runner` / `internal/evidence`: profile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
@@ -59,6 +59,9 @@ artifact、retained Goal、Git `HEAD` baselineのすべてが同じID順序とno
 heading aliasを使う。managed Requirementsは最低1件のRequirementを持つ。Requirements
 Input GateはIssue本文内に実在する各declared evidence spanについてrule-map全nodeを再評価し、
 同じ`match.field/value`条件を満たすdirect node集合と宣言集合の完全一致を要求する。
+
+Design rule coverageはRequirementsとimplementation surfaceから得た自動rule closureを
+`additional_rules`へ再掲することを拒否し、手動追加ruleをcanonical rule-map順に固定する。
 
 ## Verification Profile Trust Boundary
 

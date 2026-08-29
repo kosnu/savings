@@ -68,6 +68,50 @@ func TestValidateDesignAcceptsCanonicalFixture(t *testing.T) {
 	}
 }
 
+func TestValidateDesignRejectsAutomaticAdditionalRule(t *testing.T) {
+	repoRoot := initializeFixtureRepository(t)
+	workspaceRoot := filepath.Join(repoRoot, "docs", "ai-driven-development", "workspaces", testWorkspace)
+	requirements, err := os.ReadFile(filepath.Join(workspaceRoot, "requirements.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	design, err := os.ReadFile(filepath.Join(workspaceRoot, "design-doc.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	goal, err := os.ReadFile(filepath.Join(repoRoot, "design-goal.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var source map[string]any
+	if err := json.Unmarshal(design, &source); err != nil {
+		t.Fatal(err)
+	}
+	validation := source["validation"].(map[string]any)
+	coverage := validation["rule_coverage"].(map[string]any)
+	coverage["additional_rules"] = []any{map[string]any{"id": "ai-driven.checker", "reason": "重複した自動rule"}}
+	design, err = canonical.Pretty(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	_, err = gates.ValidateDesign(context.Background(), snapshot, gates.DesignInput{
+		Issue: gates.IssueSnapshot{
+			ID: "owner/repo#1671", URL: "https://github.com/owner/repo/issues/1671",
+			UpdatedAt: "2026-08-28T00:00:00Z", Body: handoffIssueBody(),
+		},
+		Workspace: testWorkspace, Kind: "design", Requirements: requirements,
+		Document: design, Goal: goal, RuleMapPath: RuleMapPath, ProfilePath: catalog.DefaultPath,
+	})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_ADDITIONAL_RULE_AUTOMATIC") {
+		t.Fatalf("expected automatic additional rule rejection, got %v", err)
+	}
+}
+
 func TestReceiptFixesProfileCatalogAndBuildEntry(t *testing.T) {
 	repoRoot := initializeFixtureRepository(t)
 	snapshot, err := repository.Open(context.Background(), repoRoot)
@@ -369,7 +413,7 @@ func initializeFixtureRepository(t *testing.T) string {
 	}}
 	designValidation := map[string]any{
 		"mode": "managed", "sections": designSections, "target_state": target,
-		"rule_coverage": model.RuleCoverage{ImplementationSurfaces: []string{}, AdditionalRules: []model.AdditionalRule{{ID: "ai-driven.checker", Reason: "checker path rule"}}},
+		"rule_coverage": model.RuleCoverage{ImplementationSurfaces: []string{}, AdditionalRules: []model.AdditionalRule{}},
 		"coverage_gate": map[string]any{
 			"requirements_sha256": canonical.HashBytes(requirementsBytes),
 			"workspace":           testWorkspace,

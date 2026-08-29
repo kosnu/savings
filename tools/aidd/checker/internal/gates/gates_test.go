@@ -14,6 +14,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/requirementscontract"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
 )
 
 var fixtureRequirementsSections = []struct {
@@ -137,6 +138,46 @@ func TestRequirementsSectionHashIncludesOwnedRequirementText(t *testing.T) {
 	}
 	if beforeHash == afterHash {
 		t.Fatal("owned Requirement text did not change the section transition hash")
+	}
+}
+
+func TestAdditionalRulesPreserveManualProvenanceAndCanonicalOrder(t *testing.T) {
+	loaded := &rules.Loaded{
+		ByID: map[string]rules.Rule{
+			"automatic":            {ID: "automatic", DependsOn: []string{"automatic-dependency"}},
+			"automatic-dependency": {ID: "automatic-dependency"},
+			"additional-a":         {ID: "additional-a"},
+			"additional-b":         {ID: "additional-b"},
+		},
+		Order: []string{"automatic", "automatic-dependency", "additional-a", "additional-b"},
+	}
+	automatic := map[string]struct{}{"automatic": {}}
+	for _, test := range []struct {
+		name       string
+		additional []model.AdditionalRule
+		wantCode   string
+	}{
+		{name: "valid", additional: []model.AdditionalRule{{ID: "additional-a"}, {ID: "additional-b"}}},
+		{name: "automatic direct", additional: []model.AdditionalRule{{ID: "automatic"}}, wantCode: "AIDD_ADDITIONAL_RULE_AUTOMATIC"},
+		{name: "automatic dependency", additional: []model.AdditionalRule{{ID: "automatic-dependency"}}, wantCode: "AIDD_ADDITIONAL_RULE_AUTOMATIC"},
+		{name: "unknown", additional: []model.AdditionalRule{{ID: "missing"}}, wantCode: "AIDD_ADDITIONAL_RULE_UNKNOWN"},
+		{name: "reordered", additional: []model.AdditionalRule{{ID: "additional-b"}, {ID: "additional-a"}}, wantCode: "AIDD_ADDITIONAL_RULE_ORDER"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			selected, err := validateAdditionalRules(test.additional, automatic, loaded, "design")
+			if test.wantCode == "" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				if len(selected) != 3 {
+					t.Fatalf("selected direct rule count = %d, want 3", len(selected))
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), test.wantCode) {
+				t.Fatalf("expected %s, got %v", test.wantCode, err)
+			}
+		})
 	}
 }
 
