@@ -146,43 +146,8 @@ func ValidateAndBuild(ctx context.Context, snapshot *repository.Snapshot, loaded
 }
 
 func validatePinnedInputs(snapshot *repository.Snapshot, loaded *receipt.Loaded, loadedRules *rules.Loaded) error {
-	expectedArtifactPaths := map[string]string{}
-	for _, item := range []struct {
-		label    string
-		filename string
-	}{
-		{label: "requirements.source", filename: "requirements.json"},
-		{label: "requirements.display", filename: "requirements.md"},
-		{label: "design.source", filename: "design-doc.json"},
-		{label: "design.display", filename: "design-doc.md"},
-	} {
-		path, err := repository.WorkspacePath(loaded.Value.Workspace, item.filename)
-		if err != nil {
-			return err
-		}
-		expectedArtifactPaths[item.label] = path
-	}
-	records := []struct {
-		label  string
-		record model.PathHash
-	}{
-		{label: "requirements.source", record: loaded.Value.Artifacts.Requirements.Source},
-		{label: "requirements.display", record: loaded.Value.Artifacts.Requirements.Display},
-		{label: "design.source", record: loaded.Value.Artifacts.Design.Source},
-		{label: "design.display", record: loaded.Value.Artifacts.Design.Display},
-	}
-	for _, item := range records {
-		expectedPath := expectedArtifactPaths[item.label]
-		if item.record.Path != expectedPath {
-			return diagnostic.New("AIDD_ARTIFACT_PATH", item.label+".path", "build_rule_coverage", "receipt artifact path is not canonical", expectedPath, item.record.Path)
-		}
-		content, err := snapshot.Read(item.record.Path)
-		if err != nil {
-			return err
-		}
-		if currentHash := canonical.HashBytes(content); currentHash != item.record.SHA256 {
-			return diagnostic.New("AIDD_ARTIFACT_DRIFT", item.record.Path, "build_rule_coverage", "receipt-pinned artifact changed after Design completion", item.record.SHA256, currentHash)
-		}
+	if err := receipt.ValidateArtifacts(snapshot, loaded.Value.Workspace, loaded.Value.Artifacts, "build_rule_coverage"); err != nil {
+		return err
 	}
 	if loaded.Value.RuleMap.Path != "docs/harness/rule-map.json" || loaded.Value.RuleMap.SHA256 != loadedRules.SHA256 {
 		return diagnostic.New("AIDD_RULE_MAP_DRIFT", loaded.Value.RuleMap.Path, "build_rule_coverage", "canonical rule map changed after Design completion", loaded.Value.RuleMap, model.PathHash{Path: "docs/harness/rule-map.json", SHA256: loadedRules.SHA256})

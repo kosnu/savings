@@ -245,6 +245,12 @@ type PathHash struct {
 	SHA256 string `json:"sha256"`
 }
 
+type ArtifactIdentity struct {
+	Path   string `json:"path"`
+	SHA256 string `json:"sha256"`
+	Mode   string `json:"mode"`
+}
+
 type SelectedProfile struct {
 	ID     string `json:"id"`
 	SHA256 string `json:"sha256"`
@@ -282,8 +288,8 @@ type UntrackedEntry struct {
 }
 
 type ArtifactPair struct {
-	Source  PathHash `json:"source"`
-	Display PathHash `json:"display"`
+	Source  ArtifactIdentity `json:"source"`
+	Display ArtifactIdentity `json:"display"`
 }
 
 type ReceiptArtifacts struct {

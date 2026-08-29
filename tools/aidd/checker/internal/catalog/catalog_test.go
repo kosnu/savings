@@ -27,6 +27,7 @@ func TestRepositoryCatalogLoadsWithDistinctSuiteAndTestCaseProfiles(t *testing.T
 	}
 	suite := loaded.Profiles["web-unit-integration-suite"]
 	testCase := loaded.Profiles["web-vitest-unit-integration"]
+	gitDiff := loaded.Profiles["git-diff-check"]
 	if suite.Contract != "suite" || suite.Runner != "command_suite" {
 		t.Fatalf("unexpected suite profile: %#v", suite)
 	}
@@ -36,6 +37,9 @@ func TestRepositoryCatalogLoadsWithDistinctSuiteAndTestCaseProfiles(t *testing.T
 	if loaded.ProfileHash[suite.ID] == loaded.ProfileHash[testCase.ID] {
 		t.Fatal("suite and test-case profiles must have distinct identities")
 	}
+	if strings.Join(gitDiff.Argv, "\x00") != strings.Join([]string{"git", "diff", "HEAD", "--check", "--"}, "\x00") {
+		t.Fatalf("git-diff-check does not inspect HEAD through the final worktree: %#v", gitDiff.Argv)
+	}
 }
 
 func TestRunnerSpecificArgvShapesAreFailClosed(t *testing.T) {
@@ -43,6 +47,7 @@ func TestRunnerSpecificArgvShapesAreFailClosed(t *testing.T) {
 		{Runner: "python_unittest", Argv: []string{"python3", "-m", "unittest", "-v", "arbitrary.target"}},
 		{Runner: "vitest_json", Argv: []string{"pnpm", "run", "test", "--reporter=default"}},
 		{Runner: "vitest_json", Argv: []string{"npx", "vitest"}},
+		{ID: "git-diff-check", Contract: "suite", Runner: "command_suite", SelectorKind: "suite", Argv: []string{"git", "diff", "--check"}},
 	}
 	for _, profile := range tests {
 		if err := validateRunnerArgv(profile, "profiles[0]"); err == nil {

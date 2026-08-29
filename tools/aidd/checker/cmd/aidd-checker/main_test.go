@@ -483,6 +483,12 @@ func assertCaptureVerificationFailure(t *testing.T, arguments []string, diagnost
 			RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationCaseIDs: []string{"VC-1"},
 		}},
 	}
+	artifactIdentity := func(filename, content string) model.ArtifactIdentity {
+		relative := "docs/ai-driven-development/workspaces/fixture/" + filename
+		bytes := []byte(content)
+		writeMainFile(t, root, relative, bytes)
+		return model.ArtifactIdentity{Path: relative, SHA256: canonical.HashBytes(bytes), Mode: "0644"}
+	}
 	receiptValue := model.Receipt{
 		SchemaVersion: model.ReceiptSchemaVersion, Kind: "design_completion", Workspace: "fixture",
 		VerificationProfiles: model.ProfileReceipt{
@@ -495,6 +501,16 @@ func assertCaptureVerificationFailure(t *testing.T, arguments []string, diagnost
 		BaselineInventory: mainHashValue(t, []string{"owned.txt"}),
 		UntrackedBaseline: mainHashValue(t, []model.UntrackedEntry{}),
 		BuildBaseline:     model.BuildBaseline{Head: head},
+		Artifacts: model.ReceiptArtifacts{
+			Requirements: model.ArtifactPair{
+				Source:  artifactIdentity("requirements.json", "{}\n"),
+				Display: artifactIdentity("requirements.md", "# Requirements\n"),
+			},
+			Design: model.ArtifactPair{
+				Source:  artifactIdentity("design-doc.json", "{}\n"),
+				Display: artifactIdentity("design-doc.md", "# Design\n"),
+			},
+		},
 	}
 	receiptBytes, err := canonical.Pretty(receiptValue)
 	if err != nil {

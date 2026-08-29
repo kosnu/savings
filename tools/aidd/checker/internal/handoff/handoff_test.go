@@ -175,7 +175,9 @@ func TestReceiptFixesProfileCatalogAndBuildEntry(t *testing.T) {
 	if err := json.Unmarshal(profileBytes, &profiles); err != nil {
 		t.Fatal(err)
 	}
-	profiles.Profiles[0].Argv = append(profiles.Profiles[0].Argv, "--quiet")
+	profiles.Profiles = append(profiles.Profiles, model.VerificationProfile{
+		ID: "z-added-profile", Contract: "suite", Runner: "command_suite", SelectorKind: "suite", Argv: []string{"true"},
+	})
 	writeJSON(t, profilePath, profiles)
 
 	driftSnapshot, err := repository.Open(context.Background(), repoRoot)
@@ -185,6 +187,53 @@ func TestReceiptFixesProfileCatalogAndBuildEntry(t *testing.T) {
 	_, err = receipt.Load(context.Background(), driftSnapshot, testWorkspace, receiptHash)
 	if err == nil || !strings.Contains(err.Error(), "AIDD_PROFILE_DRIFT") {
 		t.Fatalf("expected profile drift rejection, got %v", err)
+	}
+}
+
+func TestBuildEntryRejectsArtifactModeDrift(t *testing.T) {
+	repoRoot := initializeFixtureRepository(t)
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	designGoal, err := os.ReadFile(filepath.Join(repoRoot, "design-goal.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	issueBody := handoffIssueBody()
+	_, receiptHash, err := Capture(context.Background(), snapshot, CaptureInput{
+		IssueID: "owner/repo#1671", IssueURL: "https://github.com/owner/repo/issues/1671",
+		IssueUpdatedAt: "2026-08-28T00:00:00Z", IssueBody: issueBody,
+		DesignGoal: designGoal, Workspace: testWorkspace, ProfilePath: catalog.DefaultPath,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := snapshot.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	artifactPath := filepath.Join(repoRoot, "docs", "ai-driven-development", "workspaces", testWorkspace, "requirements.json")
+	info, err := os.Stat(artifactPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(artifactPath, info.Mode().Perm()^0o100); err != nil {
+		t.Fatal(err)
+	}
+
+	driftSnapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer driftSnapshot.Close()
+	_, err = Check(context.Background(), driftSnapshot, CheckInput{
+		IssueID: "owner/repo#1671", IssueURL: "https://github.com/owner/repo/issues/1671",
+		IssueUpdatedAt: "2026-08-28T00:00:00Z", IssueBody: issueBody,
+		Workspace: testWorkspace, ExpectedSHA256: receiptHash,
+	})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_ARTIFACT_MODE_DRIFT") {
+		t.Fatalf("expected pinned artifact mode drift rejection, got %v", err)
 	}
 }
 
@@ -342,7 +391,7 @@ func initializeFixtureRepository(t *testing.T) string {
 
 	profiles := model.ProfileCatalog{SchemaVersion: 1, Profiles: []model.VerificationProfile{{
 		ID: "git-diff-check", Contract: "suite", Runner: "command_suite", SelectorKind: "suite",
-		SelectorRoot: "", WorkingDirectory: "", Argv: []string{"git", "diff", "--check"},
+		SelectorRoot: "", WorkingDirectory: "", Argv: []string{"git", "diff", "HEAD", "--check", "--"},
 	}}}
 	writeJSON(t, filepath.Join(repoRoot, filepath.FromSlash(catalog.DefaultPath)), profiles)
 	requirementsSectionHeadings := map[string]string{

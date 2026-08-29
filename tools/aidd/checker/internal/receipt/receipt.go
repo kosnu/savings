@@ -85,6 +85,9 @@ func Load(ctx context.Context, snapshot *repository.Snapshot, workspace, expecte
 	if err := state.ValidateUntrackedBaseline(value.UntrackedBaseline.Value); err != nil {
 		return nil, err
 	}
+	if err := ValidateArtifacts(snapshot, workspace, value.Artifacts, "design_completion"); err != nil {
+		return nil, err
+	}
 	if err := requireHashValue("rule_coverage", value.RuleCoverage.SHA256, value.RuleCoverage.Value); err != nil {
 		return nil, err
 	}
