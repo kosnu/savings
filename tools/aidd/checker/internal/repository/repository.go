@@ -34,6 +34,7 @@ type Snapshot struct {
 	Root     string
 	root     *os.Root
 	observed map[string]observedEntry
+	gitHead  string
 }
 
 type WorktreeIdentity struct {
@@ -464,6 +465,32 @@ func (snapshot *Snapshot) Git(ctx context.Context, arguments ...string) ([]byte,
 	return output, nil
 }
 
+// Headはsnapshotが最初に観測したGit HEADを固定し、以後のdriftを拒否する。
+func (snapshot *Snapshot) Head(ctx context.Context) (string, error) {
+	output, err := snapshot.Git(ctx, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	current := strings.TrimSpace(string(output))
+	decoded, decodeErr := hex.DecodeString(current)
+	if decodeErr != nil || len(decoded) != 20 {
+		return "", diagnostic.New("AIDD_GIT_HEAD", "HEAD", "repository", "Git HEAD must be a full lowercase commit ID", "40 lowercase hexadecimal characters", current)
+	}
+	if snapshot.gitHead == "" {
+		snapshot.gitHead = current
+		return current, nil
+	}
+	if current != snapshot.gitHead {
+		return "", diagnostic.New("AIDD_GIT_HEAD_DRIFT", "HEAD", "repository", "Git HEAD changed during repository snapshot validation", snapshot.gitHead, current)
+	}
+	return snapshot.gitHead, nil
+}
+
+func (snapshot *Snapshot) AssertGitHeadUnchanged(ctx context.Context) error {
+	_, err := snapshot.Head(ctx)
+	return err
+}
+
 // ReadHeadBlobはGit HEADの通常ファイルblobだけを読む。
 // symlink、tree、上限超過objectは内容を読む前に拒否する。
 func (snapshot *Snapshot) ReadHeadBlob(ctx context.Context, path string) ([]byte, bool, error) {
@@ -475,7 +502,11 @@ func (snapshot *Snapshot) readHeadBlob(ctx context.Context, path string, maximum
 	if err != nil {
 		return nil, false, err
 	}
-	listing, err := snapshot.Git(ctx, "ls-tree", "-z", "HEAD", "--", normalized)
+	head, err := snapshot.Head(ctx)
+	if err != nil {
+		return nil, false, err
+	}
+	listing, err := snapshot.Git(ctx, "ls-tree", "-z", head, "--", normalized)
 	if err != nil {
 		return nil, false, err
 	}

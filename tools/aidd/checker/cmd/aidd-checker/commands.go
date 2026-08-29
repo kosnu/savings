@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/phasecontract"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
 const version = "0.1.0"
@@ -95,6 +97,19 @@ func parseFlags(flags *flag.FlagSet, arguments []string) error {
 		return diagnostic.New("AIDD_CLI_FLAGS", flags.Name(), "cli", "unexpected positional arguments are not allowed", "flags only", flags.Args())
 	}
 	return nil
+}
+
+func readCanonicalWorkspaceSource(snapshot *repository.Snapshot, workspace, filename, providedPath, flagName string) ([]byte, error) {
+	expectedPath, err := repository.WorkspacePath(workspace, filename)
+	if err != nil {
+		return nil, err
+	}
+	expectedAbsolute := filepath.Join(snapshot.Root, filepath.FromSlash(expectedPath))
+	actual := filepath.Clean(providedPath)
+	if actual != filepath.Clean(expectedPath) && actual != expectedAbsolute {
+		return nil, diagnostic.New("AIDD_CLI_ARTIFACT_PATH", flagName, "cli", "artifact validation requires the canonical workspace source", []string{expectedPath, expectedAbsolute}, providedPath)
+	}
+	return snapshot.Read(expectedPath)
 }
 
 type repeatedFlag []string

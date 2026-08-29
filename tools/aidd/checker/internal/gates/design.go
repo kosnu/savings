@@ -111,6 +111,9 @@ func ValidateDesign(ctx context.Context, snapshot *repository.Snapshot, input De
 	if err := snapshot.AssertUnchanged(); err != nil {
 		return nil, err
 	}
+	if err := snapshot.AssertGitHeadUnchanged(ctx); err != nil {
+		return nil, err
+	}
 	return &DesignResult{Requirements: requirements, Document: parsed, Goal: goal, Catalog: resolvedCatalog, Rules: loadedRules}, nil
 }
 

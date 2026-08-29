@@ -33,10 +33,6 @@ func validateRequirements(ctx context.Context, arguments []string) error {
 	if err != nil {
 		return err
 	}
-	document, err := repository.ReadExternal(*documentPath)
-	if err != nil {
-		return err
-	}
 	var goal []byte
 	if *goalPath != "" {
 		goal, err = repository.ReadExternal(*goalPath)
@@ -49,6 +45,15 @@ func validateRequirements(ctx context.Context, arguments []string) error {
 		return err
 	}
 	defer snapshot.Close()
+	var document []byte
+	if *kind == "requirements" {
+		document, err = readCanonicalWorkspaceSource(snapshot, *workspace, "requirements.json", *documentPath, "--document")
+	} else {
+		document, err = repository.ReadExternal(*documentPath)
+	}
+	if err != nil {
+		return err
+	}
 	_, err = gates.ValidateRequirements(ctx, snapshot, gates.RequirementsInput{
 		Issue:     gates.IssueSnapshot{ID: *issue, Title: *issueTitle, URL: *issueURL, UpdatedAt: *issueUpdatedAt, Body: issueBody},
 		Workspace: *workspace, Kind: *kind, Document: document, Goal: goal, RuleMapPath: *ruleMapPath,

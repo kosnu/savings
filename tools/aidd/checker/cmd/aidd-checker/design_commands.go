@@ -37,14 +37,6 @@ func validateDesign(ctx context.Context, arguments []string) error {
 	if err != nil {
 		return err
 	}
-	requirements, err := repository.ReadExternal(*requirementsPath)
-	if err != nil {
-		return err
-	}
-	document, err := repository.ReadExternal(*documentPath)
-	if err != nil {
-		return err
-	}
 	var goal []byte
 	if *goalPath != "" {
 		goal, err = repository.ReadExternal(*goalPath)
@@ -57,6 +49,19 @@ func validateDesign(ctx context.Context, arguments []string) error {
 		return err
 	}
 	defer snapshot.Close()
+	requirements, err := readCanonicalWorkspaceSource(snapshot, *workspace, "requirements.json", *requirementsPath, "--requirements")
+	if err != nil {
+		return err
+	}
+	var document []byte
+	if *kind == "design" {
+		document, err = readCanonicalWorkspaceSource(snapshot, *workspace, "design-doc.json", *documentPath, "--document")
+	} else {
+		document, err = repository.ReadExternal(*documentPath)
+	}
+	if err != nil {
+		return err
+	}
 	_, err = gates.ValidateDesign(ctx, snapshot, gates.DesignInput{
 		Issue:     gates.IssueSnapshot{ID: *issue, URL: *issueURL, UpdatedAt: *issueUpdatedAt, Body: issueBody},
 		Workspace: *workspace, Kind: *kind, Requirements: requirements, Document: document, Goal: goal,

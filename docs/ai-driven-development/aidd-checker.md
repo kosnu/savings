@@ -36,7 +36,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: rule-map の読取、closure、path / surface routing。
-- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、raw Git index identity、atomic output。
+- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、raw Git index identity、atomic output。
 - `internal/handoff` / `internal/receipt`: Design completion capture と Build Entry。
 - `internal/runner` / `internal/evidence`: profile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
@@ -47,9 +47,11 @@ checker はpathとworkspace名の字句検証を`internal/pathcontract`へ集約
 file、directory、ownership tree、selector、runner working directoryの実在性とsymlinkを
 `internal/repository`だけから解決する。path traversal、symlink、非regular fileをfail
 closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味判定ごとに
-再読込しない。出力直前とverification case実行後にcached inputの内容、型、権限driftを
-検査し、CLIが宣言したcanonical outputだけをatomic writeする。Git、filesystem、
-process実行はpure semantic packageへ入れない。
+再読込しない。artifact gateはcanonical workspace sourceだけをsnapshotから読み、
+repository外の一時sourceはGoal kindだけに許可する。出力直前とverification case実行後に
+cached inputの内容、型、権限driftを検査する。Design completionは固定したGit `HEAD`から
+baseline blobを読み、receipt出力直前にもHEAD driftを検査してから、CLIが宣言した
+canonical outputだけをatomic writeする。Git、filesystem、process実行はpure semantic packageへ入れない。
 
 Requirements section contractは
 `docs/ai-driven-development/contracts/requirements-sections.json`が所有し、current

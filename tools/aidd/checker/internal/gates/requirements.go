@@ -169,6 +169,9 @@ func ValidateRequirements(ctx context.Context, snapshot *repository.Snapshot, in
 	if err := snapshot.AssertUnchanged(); err != nil {
 		return nil, err
 	}
+	if err := snapshot.AssertGitHeadUnchanged(ctx); err != nil {
+		return nil, err
+	}
 	return parsed, nil
 }
 

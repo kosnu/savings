@@ -124,6 +124,20 @@ func TestChangedPathsRejectsIndexOnlyModeChange(t *testing.T) {
 	}
 }
 
+func TestChangedPathsRejectsTrackedPathLeftUntrackedInWorktree(t *testing.T) {
+	repoRoot, baselineHead := coverageFixtureRepository(t)
+	runCoverageGit(t, repoRoot, "rm", "--cached", "tracked.txt")
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	_, err = changedPaths(context.Background(), snapshot, baselineHead, nil)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_INDEX_WORKTREE_DRIFT") {
+		t.Fatalf("expected tracked/untracked drift rejection, got %v", err)
+	}
+}
+
 func TestChangedPathsUsesDesignUntrackedBaseline(t *testing.T) {
 	tests := []struct {
 		name       string

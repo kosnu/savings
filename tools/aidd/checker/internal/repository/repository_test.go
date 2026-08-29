@@ -155,6 +155,21 @@ func TestReadHeadBlobAcceptsExecutableRegularFile(t *testing.T) {
 	}
 }
 
+func TestSnapshotRejectsGitHeadDriftAfterBaselineRead(t *testing.T) {
+	root := newGitRepository(t)
+	writeRepositoryFile(t, root, "requirements.json", []byte("baseline\n"), 0o644)
+	commitRepositoryFixture(t, root)
+
+	snapshot := openSnapshot(t, root)
+	if _, _, err := snapshot.ReadHeadBlob(context.Background(), "requirements.json"); err != nil {
+		t.Fatal(err)
+	}
+	runRepositoryGit(t, root, "commit", "--allow-empty", "-qm", "concurrent head advance")
+	if err := snapshot.AssertGitHeadUnchanged(context.Background()); diagnosticCode(err) != "AIDD_GIT_HEAD_DRIFT" {
+		t.Fatalf("AssertGitHeadUnchanged() error code = %q, want AIDD_GIT_HEAD_DRIFT: %v", diagnosticCode(err), err)
+	}
+}
+
 func TestReadHeadBlobRejectsSymlinkEntry(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink fixture requires platform-specific privileges on Windows")
