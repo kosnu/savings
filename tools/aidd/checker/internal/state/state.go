@@ -12,6 +12,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
@@ -84,7 +85,7 @@ func AssertUntrackedPaths(ctx context.Context, snapshot *repository.Snapshot, ex
 func ValidateUntrackedBaseline(entries []model.UntrackedEntry) error {
 	previous := ""
 	for index, entry := range entries {
-		if _, err := repository.ValidateRelativePath(entry.Path); err != nil {
+		if _, err := pathcontract.ValidateRelativePath(entry.Path); err != nil {
 			return diagnostic.New("AIDD_UNTRACKED_BASELINE_PATH", "untracked_baseline.value", "design_completion", "untracked baseline path is invalid", "canonical repository-relative path", entry.Path)
 		}
 		if index > 0 && entry.Path <= previous {
@@ -139,7 +140,7 @@ func untrackedPaths(ctx context.Context, snapshot *repository.Snapshot, excluded
 			continue
 		}
 		path := string(raw)
-		if _, err := repository.ValidateRelativePath(path); err != nil {
+		if _, err := pathcontract.ValidateRelativePath(path); err != nil {
 			return nil, err
 		}
 		if _, skip := excluded[path]; skip {

@@ -18,6 +18,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/manualcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
@@ -204,7 +205,7 @@ func vitestArguments(base []string, resultFile, selectorPath, testName string) [
 }
 
 func requireRegularSelectorFile(snapshot *repository.Snapshot, selector string) error {
-	if _, err := repository.ValidateRelativePath(selector); err != nil {
+	if _, err := pathcontract.ValidateRelativePath(selector); err != nil {
 		return diagnostic.New("AIDD_SELECTOR_PATH", selector, "build_verification", "selector must be a canonical repository-relative path", nil, err.Error())
 	}
 	mode, exists, err := snapshot.Mode(selector)
@@ -267,7 +268,7 @@ func parseRuntimeIdentities(snapshot *repository.Snapshot, profile model.Verific
 				return nil, diagnostic.New("AIDD_VITEST_PATH", verificationCase.ID, "build_verification", "Vitest reported a test path outside the repository", snapshot.Root, file.Name)
 			}
 			repositoryPath := filepath.ToSlash(relative)
-			if _, err := repository.ValidateRelativePath(repositoryPath); err != nil {
+			if _, err := pathcontract.ValidateRelativePath(repositoryPath); err != nil {
 				return nil, diagnostic.New("AIDD_VITEST_PATH", verificationCase.ID, "build_verification", "Vitest reported a non-canonical repository path", nil, file.Name)
 			}
 			if err := requireRegularSelectorFile(snapshot, repositoryPath); err != nil {

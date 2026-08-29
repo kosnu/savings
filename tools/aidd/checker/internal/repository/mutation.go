@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 )
 
 type MutationEntry struct {
@@ -70,7 +71,7 @@ func (snapshot *Snapshot) MutationManifest() (*MutationManifest, error) {
 			if directory != "" {
 				path = directory + "/" + entry.Name()
 			}
-			if _, pathErr := ValidateRelativePath(path); pathErr != nil {
+			if _, pathErr := pathcontract.ValidateRelativePath(path); pathErr != nil {
 				return pathErr
 			}
 			info, statErr := entry.Info()

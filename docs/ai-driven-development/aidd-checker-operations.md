@@ -102,15 +102,19 @@ closure、Requirement inventory / transition、Git `HEAD` baseline、Goal と ar
 の gate identity を検証する。section ID、順序、heading aliasの正本は
 `docs/ai-driven-development/contracts/requirements-sections.json`であり、artifact、
 retained Goal、Git `HEAD` baselineのすべてへ同じ規則を適用する。Requirementが0件の
-managed sourceは完成状態として受理しない。完了直前に Issue snapshot を再取得して
-再検証する。
+managed sourceは完成状態として受理しない。changed / newのIssue evidenceは正規化後も
+Issue本文と一致し、Requirementまたはsectionの所有content内だけに存在する一意の根拠を
+要求する。section content identityはheading、block、owned Requirement ID / textを含む。
+retired evidenceは対象Requirement IDだけと肯定的な廃止意思を同じIssue文内に要求し、
+別Requirement IDの併記や廃止を否定する文を拒否する。完了直前に Issue snapshot を
+再取得して再検証する。
 
 ## Design and Verification Profiles
 
 ```sh
 /tmp/aidd-checker validate-design \
   --repo-root <repo-root> --workspace <workspace> \
-  --issue <owner/repo#number> --issue-title <cycle-start-title> \
+  --issue <owner/repo#number> \
   --issue-url <canonical-url> --issue-updated-at <updatedAt> \
   --issue-body <issue-body-file> \
   --requirements <canonical-requirements-json> \
@@ -124,7 +128,7 @@ managed sourceは完成状態として受理しない。完了直前に Issue sn
 
 /tmp/aidd-checker validate-design \
   --repo-root <repo-root> --workspace <workspace> \
-  --issue <owner/repo#number> --issue-title <cycle-start-title> \
+  --issue <owner/repo#number> \
   --issue-url <canonical-url> --issue-updated-at <updatedAt> \
   --issue-body <issue-body-file> \
   --requirements <canonical-requirements-json> \
@@ -139,6 +143,7 @@ schema v4 `validation.target_state` は完成状態の唯一の正本である�
 `{"kind":"test_case","path":"<repo-relative>","name":"<exact name>"}` である。
 manual case は concrete `procedure` だけを持つ。procedureは空白、記号、symbol、
 control / combining markを除いたUnicode文字を8文字以上持つ場合だけ実質的とみなす。
+cycle-start Issue titleは渡さず、検証済みcanonical Requirementsからだけ導出する。
 
 repo-owned catalog は
 `docs/ai-driven-development/contracts/verification-profiles.json` であり、各 profile が fixed argv、
@@ -200,7 +205,8 @@ ID / hash、typed selector、executed identities、exit code、stdout / stderr b
 `AIDD-output-v1` framing hash、同一 final-state hash を保持する。
 
 case の欠落、余剰、重複、順序ずれ、profile drift、旧 command evidence、失敗 status、
-不一致 runtime identity を拒否する。final-state manifest は task-owned regular file の
+不一致 runtime identity、canonical JSONと一致しない保存evidence bytesを拒否する。
+final-state manifest は task-owned regular file の
 path、worktree 上の Git 投影 mode・content と target-state hash を固定する。これとは
 別に、`.git` metadata以外のrepository全体をGit ignoreに関係なく走査し、directory、
 regular file、symlinkのtype・permission mode・size・mtime・ctime・device・inodeを
@@ -209,9 +215,11 @@ runner終了後に残留processがあれば終了させてcaseを失敗にした
 Git `HEAD`のcommit・symbolic referenceとraw index
 bytes全体も比較し、ignored cache、作成後削除した一時file、ownership外のindex-only
 変更やindex flagだけの変更を成功証拠から除外する。
-coverage はreceiptのGit baselineと非ignore untracked baselineから実差分を得る。
-Design時点から不変のuntracked pathは除外し、新規・変更・削除・tracked化だけを
-ownership scope、surface、path rule、dependency closureへ再照合する。
+coverage はShip前までGit `HEAD`がreceipt baselineと完全一致することを要求し、baseline
+対worktreeとbaseline対indexの差分を和集合する。staged pathにindex対worktree差分が
+残る場合は、検証状態とShip候補が一致しないため拒否する。Design時点から不変の
+untracked pathは除外し、新規・変更・削除・tracked化だけをownership scope、surface、
+path rule、dependency closureへ再照合する。
 
 ## Compatibility and Go-only Ownership
 

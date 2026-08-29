@@ -12,14 +12,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 )
 
 type observedEntry struct {
@@ -46,8 +44,6 @@ type WorktreeIdentity struct {
 }
 
 const MaxHeadBlobBytes = 16 * 1024 * 1024
-
-var workspaceNamePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
 
 func Open(ctx context.Context, root string) (*Snapshot, error) {
 	absolute, err := filepath.Abs(root)
@@ -82,36 +78,8 @@ func (snapshot *Snapshot) Close() error {
 	return snapshot.root.Close()
 }
 
-func ValidateRelativePath(path string) (string, error) {
-	if path == "" || !utf8.ValidString(path) || strings.Contains(path, "\\") || filepath.IsAbs(path) {
-		return "", diagnostic.New("AIDD_PATH_INVALID", path, "repository", "path must be a normalized UTF-8 repository-relative path", nil, path)
-	}
-	for _, character := range path {
-		if unicode.IsControl(character) {
-			return "", diagnostic.New("AIDD_PATH_CONTROL", path, "repository", "path must not contain control characters", nil, path)
-		}
-	}
-	cleaned := filepath.ToSlash(filepath.Clean(path))
-	if cleaned != path || cleaned == "." || strings.HasPrefix(cleaned, "../") {
-		return "", diagnostic.New("AIDD_PATH_NONCANONICAL", path, "repository", "path is not canonical", cleaned, path)
-	}
-	for _, part := range strings.Split(path, "/") {
-		if part == ".git" {
-			return "", diagnostic.New("AIDD_PATH_GIT_METADATA", path, "repository", "path must not enter Git metadata", nil, path)
-		}
-	}
-	return path, nil
-}
-
-func ValidateWorkspaceName(workspace string) error {
-	if !workspaceNamePattern.MatchString(workspace) {
-		return diagnostic.New("AIDD_WORKSPACE", workspace, "workspace", "workspace must use lowercase ASCII kebab-case", "lowercase ASCII kebab-case", workspace)
-	}
-	return nil
-}
-
 func (snapshot *Snapshot) Read(path string) ([]byte, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +113,7 @@ func (snapshot *Snapshot) Read(path string) ([]byte, error) {
 }
 
 func (snapshot *Snapshot) Exists(path string) (bool, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return false, err
 	}
@@ -158,7 +126,7 @@ func (snapshot *Snapshot) Exists(path string) (bool, error) {
 }
 
 func (snapshot *Snapshot) Mode(path string) (fs.FileMode, bool, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return 0, false, err
 	}
@@ -173,7 +141,7 @@ func (snapshot *Snapshot) Mode(path string) (fs.FileMode, bool, error) {
 }
 
 func (snapshot *Snapshot) RegularFiles(path string) ([]string, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +193,7 @@ func (snapshot *Snapshot) RegularFiles(path string) ([]string, error) {
 }
 
 func (snapshot *Snapshot) ReadDir(path string) ([]os.DirEntry, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +229,7 @@ func (snapshot *Snapshot) ReadDir(path string) ([]os.DirEntry, error) {
 }
 
 func (snapshot *Snapshot) ResolveDirectory(path string) (string, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return "", err
 	}
@@ -331,7 +299,7 @@ func (snapshot *Snapshot) AssertUnchanged() error {
 }
 
 func (snapshot *Snapshot) ObserveWorktreeIdentity(path string) (WorktreeIdentity, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return WorktreeIdentity{}, err
 	}
@@ -393,7 +361,7 @@ func (snapshot *Snapshot) hashRegularFile(path string) (string, error) {
 }
 
 func (snapshot *Snapshot) WriteAtomic(path string, content []byte) error {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return err
 	}
@@ -503,7 +471,7 @@ func (snapshot *Snapshot) ReadHeadBlob(ctx context.Context, path string) ([]byte
 }
 
 func (snapshot *Snapshot) readHeadBlob(ctx context.Context, path string, maximum int64) ([]byte, bool, error) {
-	normalized, err := ValidateRelativePath(path)
+	normalized, err := pathcontract.ValidateRelativePath(path)
 	if err != nil {
 		return nil, false, err
 	}
@@ -558,7 +526,7 @@ func (snapshot *Snapshot) Ignored(ctx context.Context, paths []string) ([]string
 	arguments := []string{"-C", snapshot.Root, "check-ignore", "--stdin", "-z"}
 	input := make([][]byte, 0, len(paths))
 	for _, path := range paths {
-		normalized, err := ValidateRelativePath(path)
+		normalized, err := pathcontract.ValidateRelativePath(path)
 		if err != nil {
 			return nil, err
 		}
@@ -586,8 +554,8 @@ func (snapshot *Snapshot) Ignored(ctx context.Context, paths []string) ([]string
 }
 
 func WorkspacePath(workspace, suffix string) (string, error) {
-	if err := ValidateWorkspaceName(workspace); err != nil {
+	if err := pathcontract.ValidateWorkspaceName(workspace); err != nil {
 		return "", err
 	}
-	return ValidateRelativePath(fmt.Sprintf("docs/ai-driven-development/workspaces/%s/%s", workspace, suffix))
+	return pathcontract.ValidateRelativePath(fmt.Sprintf("docs/ai-driven-development/workspaces/%s/%s", workspace, suffix))
 }

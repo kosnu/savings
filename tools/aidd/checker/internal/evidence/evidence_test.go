@@ -330,3 +330,18 @@ func TestEvidenceCanonicalGolden(t *testing.T) {
 		t.Fatalf("evidence canonical golden = %s, want %s", digest, expected)
 	}
 }
+
+func TestEvidenceBytesMustUseCanonicalSerialization(t *testing.T) {
+	value, _ := evidenceFixture()
+	canonicalContent, err := canonical.Pretty(value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := canonicalEvidenceBytes(value, canonicalContent); err != nil {
+		t.Fatalf("canonical evidence rejected: %v", err)
+	}
+	reformatted := []byte(strings.ReplaceAll(string(canonicalContent), "  ", "    "))
+	if _, err := canonicalEvidenceBytes(value, reformatted); err == nil || !strings.Contains(err.Error(), "AIDD_EVIDENCE_CANONICAL") {
+		t.Fatalf("expected non-canonical evidence rejection, got %v", err)
+	}
+}

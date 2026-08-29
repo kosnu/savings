@@ -139,16 +139,6 @@ func TestWriteAtomicCreatesConfinedFile(t *testing.T) {
 	}
 }
 
-func TestValidateRelativePathRejectsTraversal(t *testing.T) {
-	for _, path := range []string{"../outside", "inside/../../outside", "/absolute", ".git/config"} {
-		t.Run(path, func(t *testing.T) {
-			if _, err := ValidateRelativePath(path); err == nil {
-				t.Fatalf("ValidateRelativePath(%q) succeeded", path)
-			}
-		})
-	}
-}
-
 func TestReadHeadBlobAcceptsExecutableRegularFile(t *testing.T) {
 	root := newGitRepository(t)
 	content := []byte("#!/bin/sh\nexit 0\n")

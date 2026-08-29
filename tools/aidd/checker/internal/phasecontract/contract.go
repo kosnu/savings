@@ -10,6 +10,7 @@ import (
 	"github.com/pelletier/go-toml/v2"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
@@ -197,7 +198,7 @@ func Validate(ctx context.Context, repoRoot string) error {
 		}
 		checked[item.Executor] = struct{}{}
 
-		if _, err := repository.ValidateRelativePath(item.Configuration); err != nil {
+		if _, err := pathcontract.ValidateRelativePath(item.Configuration); err != nil {
 			return failure(item.Configuration, "agent configuration path is invalid", "canonical repository-relative path", err.Error())
 		}
 		var configured agentConfig

@@ -17,6 +17,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/gates"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/handoff"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/phasecontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/render"
@@ -342,7 +343,7 @@ func gitHeadManagedSources(ctx context.Context, snapshot *repository.Snapshot) (
 		if len(raw) == 0 {
 			continue
 		}
-		path, pathErr := repository.ValidateRelativePath(string(raw))
+		path, pathErr := pathcontract.ValidateRelativePath(string(raw))
 		if pathErr != nil {
 			return nil, pathErr
 		}
@@ -425,7 +426,6 @@ func validateDesign(ctx context.Context, arguments []string) error {
 	repoRoot := flags.String("repo-root", "", "repository root")
 	workspace := flags.String("workspace", "", "workspace")
 	issue := flags.String("issue", "", "Issue identity")
-	issueTitle := flags.String("issue-title", "", "cycle-start Issue title")
 	issueURL := flags.String("issue-url", "", "Issue URL")
 	issueUpdatedAt := flags.String("issue-updated-at", "", "Issue updatedAt")
 	issueBodyPath := flags.String("issue-body", "", "Issue body file")
@@ -438,7 +438,7 @@ func validateDesign(ctx context.Context, arguments []string) error {
 	if err := parseFlags(flags, arguments); err != nil {
 		return err
 	}
-	if *repoRoot == "" || *workspace == "" || *issue == "" || *issueTitle == "" || *issueURL == "" || *issueUpdatedAt == "" || *issueBodyPath == "" || *requirementsPath == "" || *documentPath == "" || *kind == "" {
+	if *repoRoot == "" || *workspace == "" || *issue == "" || *issueURL == "" || *issueUpdatedAt == "" || *issueBodyPath == "" || *requirementsPath == "" || *documentPath == "" || *kind == "" {
 		return diagnostic.New("AIDD_CLI_ARGUMENT", "validate-design", "cli", "validate-design requires repository, workspace, Issue snapshot, Requirements, document, and kind arguments", nil, arguments)
 	}
 	issueBody, err := repository.ReadExternal(*issueBodyPath)
@@ -466,7 +466,7 @@ func validateDesign(ctx context.Context, arguments []string) error {
 	}
 	defer snapshot.Close()
 	_, err = gates.ValidateDesign(ctx, snapshot, gates.DesignInput{
-		Issue:     gates.IssueSnapshot{ID: *issue, Title: *issueTitle, URL: *issueURL, UpdatedAt: *issueUpdatedAt, Body: issueBody},
+		Issue:     gates.IssueSnapshot{ID: *issue, URL: *issueURL, UpdatedAt: *issueUpdatedAt, Body: issueBody},
 		Workspace: *workspace, Kind: *kind, Requirements: requirements, Document: document, Goal: goal,
 		RuleMapPath: *ruleMapPath, ProfilePath: *profilePath,
 	})

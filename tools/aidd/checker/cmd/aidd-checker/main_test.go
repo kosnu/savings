@@ -44,6 +44,27 @@ func TestCLIFlagErrorsUseStructuredDiagnostic(t *testing.T) {
 	}
 }
 
+func TestValidateDesignRejectsCallerSuppliedIssueTitle(t *testing.T) {
+	err := run(context.Background(), []string{"validate-design", "--issue-title", "stale title"})
+	item, ok := err.(*diagnostic.Diagnostic)
+	if !ok || item.Code != "AIDD_CLI_FLAGS" {
+		t.Fatalf("expected caller-supplied Design title rejection, got %#v", err)
+	}
+}
+
+func TestValidateDesignDoesNotRequireIssueTitle(t *testing.T) {
+	err := run(context.Background(), []string{
+		"validate-design", "--repo-root", "missing", "--workspace", "1671-checker",
+		"--issue", "owner/repo#1671", "--issue-url", "https://github.com/owner/repo/issues/1671",
+		"--issue-updated-at", "2026-08-28T00:00:00Z", "--issue-body", "missing",
+		"--requirements", "missing", "--document", "missing", "--kind", "design",
+	})
+	item, ok := err.(*diagnostic.Diagnostic)
+	if !ok || item.Code == "AIDD_CLI_ARGUMENT" {
+		t.Fatalf("validate-design still requires a caller-supplied title: %#v", err)
+	}
+}
+
 func TestCheckAllRejectsSymlinkWorkspace(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink fixture requires platform-specific privileges on Windows")

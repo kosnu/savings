@@ -11,6 +11,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/evidence"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
@@ -216,6 +217,14 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	if _, err := snapshot.Git(ctx, "merge-base", "--is-ancestor", baseline, "HEAD"); err != nil {
 		return nil, diagnostic.New("AIDD_BUILD_BASELINE_ANCESTRY", "build_baseline.head", "build_rule_coverage", "receipt Build baseline must be an ancestor of current HEAD", baseline, err.Error())
 	}
+	headBytes, err := snapshot.Git(ctx, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return nil, err
+	}
+	currentHead := strings.TrimSpace(string(headBytes))
+	if currentHead != baseline {
+		return nil, diagnostic.New("AIDD_BUILD_HEAD_DRIFT", "build_baseline.head", "build_rule_coverage", "Build must not commit or switch HEAD before Ship", baseline, currentHead)
+	}
 	trackedOutput, err := snapshot.Git(ctx, "diff", "--name-status", "-z", "--find-renames", baseline, "--")
 	if err != nil {
 		return nil, err
@@ -224,13 +233,40 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	if err != nil {
 		return nil, err
 	}
+	stagedOutput, err := snapshot.Git(ctx, "diff", "--cached", "--name-status", "-z", "--find-renames", baseline, "--")
+	if err != nil {
+		return nil, err
+	}
+	stagedChanges, err := parseNameStatus(stagedOutput)
+	if err != nil {
+		return nil, err
+	}
+	indexWorktreeOutput, err := snapshot.Git(ctx, "diff", "--name-status", "-z", "--find-renames", "--")
+	if err != nil {
+		return nil, err
+	}
+	indexWorktreeChanges, err := parseNameStatus(indexWorktreeOutput)
+	if err != nil {
+		return nil, err
+	}
+	stagedPaths := changePaths(stagedChanges)
+	for path := range changePaths(indexWorktreeChanges) {
+		if _, staged := stagedPaths[path]; staged {
+			return nil, diagnostic.New("AIDD_BUILD_INDEX_WORKTREE_DRIFT", path, "build_rule_coverage", "a staged Build path must match the validated worktree state", "identical index and worktree content/mode", path)
+		}
+	}
 	currentUntracked, err := state.UntrackedInventory(ctx, snapshot, nil)
 	if err != nil {
 		return nil, err
 	}
 	trackedByPath := map[string]change{}
-	for _, item := range trackedChanges {
-		trackedByPath[item.Path] = item
+	for _, group := range [][]change{trackedChanges, stagedChanges} {
+		for _, item := range group {
+			if previous, exists := trackedByPath[item.Path]; exists && previous.Status != item.Status {
+				return nil, diagnostic.New("AIDD_BUILD_GIT_STATE_CONFLICT", item.Path, "build_rule_coverage", "worktree and index classify the Build path differently", previous.Status, item.Status)
+			}
+			trackedByPath[item.Path] = item
+		}
 	}
 	baselineByPath := make(map[string]model.UntrackedEntry, len(untrackedBaseline))
 	for _, item := range untrackedBaseline {
@@ -273,6 +309,14 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	return result, nil
 }
 
+func changePaths(changes []change) map[string]struct{} {
+	result := make(map[string]struct{}, len(changes))
+	for _, item := range changes {
+		result[item.Path] = struct{}{}
+	}
+	return result
+}
+
 func parseNameStatus(output []byte) ([]change, error) {
 	parts := bytes.Split(output, []byte{0})
 	result := []change{}
@@ -288,7 +332,7 @@ func parseNameStatus(output []byte) ([]change, error) {
 		}
 		firstPath := string(parts[index])
 		index++
-		if _, err := repository.ValidateRelativePath(firstPath); err != nil {
+		if _, err := pathcontract.ValidateRelativePath(firstPath); err != nil {
 			return nil, err
 		}
 		if strings.HasPrefix(status, "R") || strings.HasPrefix(status, "C") {
@@ -297,7 +341,7 @@ func parseNameStatus(output []byte) ([]change, error) {
 			}
 			secondPath := string(parts[index])
 			index++
-			if _, err := repository.ValidateRelativePath(secondPath); err != nil {
+			if _, err := pathcontract.ValidateRelativePath(secondPath); err != nil {
 				return nil, err
 			}
 			result = append(result, change{Path: firstPath, Status: "D"}, change{Path: secondPath, Status: "A"})

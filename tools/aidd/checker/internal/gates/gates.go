@@ -56,11 +56,38 @@ type coverageEntry = model.CoverageEntry
 type baselineSection = model.BaselineSection
 
 var (
-	requirementIDPattern = regexp.MustCompile(`^(?:FR|NFR|AC)-[1-9][0-9]*$`)
-	sha256Pattern        = regexp.MustCompile(`^[0-9a-f]{64}$`)
-	issueIDPattern       = regexp.MustCompile(`^([A-Za-z0-9][A-Za-z0-9-]{0,38})/([A-Za-z0-9_.-]+)#([1-9][0-9]*)$`)
-	issueEvidenceFolder  = cases.Fold()
+	requirementIDPattern      = regexp.MustCompile(`^(?:FR|NFR|AC)-[1-9][0-9]*$`)
+	requirementMentionPattern = regexp.MustCompile(`(?:FR|NFR|AC)-[1-9][0-9]*`)
+	sha256Pattern             = regexp.MustCompile(`^[0-9a-f]{64}$`)
+	issueIDPattern            = regexp.MustCompile(`^([A-Za-z0-9][A-Za-z0-9-]{0,38})/([A-Za-z0-9_.-]+)#([1-9][0-9]*)$`)
+	issueEvidenceFolder       = cases.Fold()
 )
+
+var retirementTerms = []string{"対象外", "廃止", "削除", "撤回", "不要"}
+
+var retirementEnglishTermPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`\bout of scope\b`),
+	regexp.MustCompile(`\bremove\b`),
+	regexp.MustCompile(`\bremoved\b`),
+	regexp.MustCompile(`\bretire\b`),
+	regexp.MustCompile(`\bretired\b`),
+	regexp.MustCompile(`\bdrop\b`),
+	regexp.MustCompile(`\bdropped\b`),
+	regexp.MustCompile(`\bdeprecate\b`),
+	regexp.MustCompile(`\bdeprecated\b`),
+}
+
+var negatedRetirementPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`(?:対象外|廃止|削除|撤回|不要)(?:に|と|を)?(?:は)?(?:しない|しません|されない|されません|する必要はない|する必要がない|する必要はありません|の必要はない|することはない|されることはない|ではない|でない|は不要)`),
+	regexp.MustCompile(`(?:対象外|廃止|削除|撤回|不要)(?:(?:に|と)?(?:する|される)?こと)?(?:に|と|を|は)?禁止`),
+	regexp.MustCompile(`\b(?:do|does|must|should|shall|will|can) not (?:remove|retire|drop|deprecate)\b`),
+	regexp.MustCompile(`\bnever (?:remove|retire|drop|deprecate)\b`),
+	regexp.MustCompile(`\b(?:don't|doesn't|mustn't|shouldn't|won't|can't) (?:be )?(?:remove|removed|retire|retired|drop|dropped|deprecate|deprecated)\b`),
+	regexp.MustCompile(`\bnot (?:be )?(?:removed|retired|dropped|deprecated)\b`),
+	regexp.MustCompile(`\bnot (?:be |considered )?out of scope\b`),
+	regexp.MustCompile(`\b(?:isn't|aren't) out of scope\b`),
+	regexp.MustCompile(`\b(?:removal|retirement|dropping|deprecation) (?:is )?not (?:required|needed)\b`),
+}
 
 var genericImplementationTopics = map[string]struct{}{
 	"documentation": {},
@@ -270,13 +297,11 @@ func ValidateDesign(ctx context.Context, snapshot *repository.Snapshot, input De
 	if err != nil {
 		return nil, err
 	}
-	if preparsedRequirements.ReadOnlyLegacy || preparsedRequirements.Envelope.Workspace != input.Workspace || (input.Issue.Title != "" && preparsedRequirements.Requirements.CycleStartIssueTitle != input.Issue.Title) {
+	if preparsedRequirements.ReadOnlyLegacy || preparsedRequirements.Envelope.Workspace != input.Workspace {
 		return nil, diagnostic.New("AIDD_DESIGN_REQUIREMENTS", "requirements", input.Kind, "Design requires current schema v4 canonical Requirements for the same cycle", input.Workspace, preparsedRequirements.Envelope)
 	}
 	issue := input.Issue
-	if issue.Title == "" {
-		issue.Title = preparsedRequirements.Requirements.CycleStartIssueTitle
-	}
+	issue.Title = preparsedRequirements.Requirements.CycleStartIssueTitle
 	requirements, err := ValidateRequirements(ctx, snapshot, RequirementsInput{
 		Issue: issue, Workspace: input.Workspace, Kind: "requirements", Document: input.Requirements,
 		RuleMapPath: input.RuleMapPath, SkipGoalComparison: true,
@@ -445,9 +470,6 @@ func validateRequirementsCompleteness(parsed *semantic.ParsedSource, gate comple
 	sectionIDs := make([]string, len(gate.Sections))
 	for index, item := range gate.Sections {
 		sectionIDs[index] = item.ID
-		if err := validateTransition(item, issueBody, artifact); err != nil {
-			return err
-		}
 	}
 	if !equalStrings(sectionIDs, sectionContract.IDs) {
 		return diagnostic.New(
@@ -461,13 +483,17 @@ func validateRequirementsCompleteness(parsed *semantic.ParsedSource, gate comple
 	}
 
 	requirementsByID := make(map[string]model.Requirement, len(parsed.Requirements.Requirements))
+	requirementContents := make(map[string]string, len(parsed.Requirements.Requirements))
 	for _, requirement := range parsed.Requirements.Requirements {
 		requirementsByID[requirement.ID] = requirement
+		requirementContents[requirement.ID] = requirement.Text
 	}
-	for _, item := range gate.Requirements {
-		if item.IssueEvidence != nil && !strings.Contains(requirementsByID[item.ID].Text, *item.IssueEvidence) {
-			return diagnostic.New("AIDD_REQUIREMENT_EVIDENCE_OWNER", item.ID, artifact, "Requirement transition evidence must occur in its owned Requirement text", requirementsByID[item.ID].Text, *item.IssueEvidence)
-		}
+	if err := validateOwnedTransitions(gate.Requirements, issueBody, requirementContents, artifact, "Requirement"); err != nil {
+		return err
+	}
+	sectionContents := requirementsSectionContents(parsed.Requirements.Sections, parsed.Requirements.Requirements)
+	if err := validateOwnedTransitions(gate.Sections, issueBody, sectionContents, artifact, "section"); err != nil {
+		return err
 	}
 
 	retiredIDs := map[string]struct{}{}
@@ -482,8 +508,8 @@ func validateRequirementsCompleteness(parsed *semantic.ParsedSource, gate comple
 		if _, current := requirementsByID[item.ID]; current {
 			return diagnostic.New("AIDD_RETIRED_CURRENT", path+".id", artifact, "a retired Requirement must not remain in the current inventory", "absent current Requirement", item.ID)
 		}
-		if strings.TrimSpace(item.IssueEvidence) == "" || !strings.Contains(issueBody, item.IssueEvidence) {
-			return diagnostic.New("AIDD_RETIRED_EVIDENCE", path+".issue_evidence", artifact, "retirement evidence must be a literal substring of the Issue body", "Issue substring", item.IssueEvidence)
+		if err := validateRetirementEvidence(item, issueBody, path, artifact); err != nil {
+			return err
 		}
 		retiredIDs[item.ID] = struct{}{}
 	}
@@ -566,11 +592,11 @@ func validateRequirementsBaselineContinuity(parsed *semantic.ParsedSource, gate 
 			return diagnostic.New("AIDD_SECTION_TRANSITION_BASELINE", item.ID, artifact, "changed or unchanged section must exist in Git HEAD", "existing baseline", item.Status)
 		}
 		if existed {
-			previousHash, hashErr := canonical.Hash(previous)
+			previousHash, hashErr := requirementsSectionHash(previous, baselineRequirements)
 			if hashErr != nil {
 				return hashErr
 			}
-			currentHash, hashErr := canonical.Hash(currentSections[item.ID])
+			currentHash, hashErr := requirementsSectionHash(currentSections[item.ID], currentRequirements)
 			if hashErr != nil {
 				return hashErr
 			}
@@ -789,6 +815,126 @@ func normalizeIssueEvidence(value string) string {
 	return issueEvidenceFolder.String(strings.Join(fields, " "))
 }
 
+func validateOwnedTransitions(items []transition, issueBody string, ownerContents map[string]string, artifact, ownerKind string) error {
+	evidenceOwners := map[string]string{}
+	codeOwner := "AIDD_" + strings.ToUpper(ownerKind) + "_EVIDENCE_OWNER"
+	codeDuplicate := "AIDD_" + strings.ToUpper(ownerKind) + "_EVIDENCE_DUPLICATE"
+	codeAmbiguous := "AIDD_" + strings.ToUpper(ownerKind) + "_EVIDENCE_AMBIGUOUS"
+	for _, item := range items {
+		if err := validateTransition(item, issueBody, artifact); err != nil {
+			return err
+		}
+		if item.IssueEvidence == nil {
+			continue
+		}
+		normalizedEvidence := normalizeIssueEvidence(*item.IssueEvidence)
+		if previous, duplicate := evidenceOwners[normalizedEvidence]; duplicate {
+			return diagnostic.New(codeDuplicate, item.ID, artifact, ownerKind+" transition evidence must be unique per owner", previous, item.ID)
+		}
+		evidenceOwners[normalizedEvidence] = item.ID
+		ownerContent, exists := ownerContents[item.ID]
+		if !exists || !strings.Contains(normalizeIssueEvidence(ownerContent), normalizedEvidence) {
+			return diagnostic.New(codeOwner, item.ID, artifact, ownerKind+" transition evidence must occur in its owned content", ownerContent, *item.IssueEvidence)
+		}
+		for otherID, otherContent := range ownerContents {
+			if otherID != item.ID && strings.Contains(normalizeIssueEvidence(otherContent), normalizedEvidence) {
+				return diagnostic.New(codeAmbiguous, item.ID, artifact, ownerKind+" transition evidence must not map to another owner", item.ID, otherID)
+			}
+		}
+	}
+	return nil
+}
+
+func validateRetirementEvidence(item retirement, issueBody, path, artifact string) error {
+	normalizedEvidence := normalizeIssueEvidence(item.IssueEvidence)
+	if normalizedEvidence == "" || !strings.Contains(normalizeIssueEvidence(issueBody), normalizedEvidence) {
+		return diagnostic.New("AIDD_RETIRED_EVIDENCE", path+".issue_evidence", artifact, "retirement evidence must be a literal substring of the Issue body", "Issue substring", item.IssueEvidence)
+	}
+	mentionedIDs := map[string]struct{}{}
+	for _, mention := range requirementMentionPattern.FindAllString(item.IssueEvidence, -1) {
+		mentionedIDs[mention] = struct{}{}
+	}
+	if _, mentioned := mentionedIDs[item.ID]; !mentioned {
+		return diagnostic.New("AIDD_RETIRED_EVIDENCE_ID", path+".issue_evidence", artifact, "retirement evidence must name its Requirement ID", item.ID, item.IssueEvidence)
+	}
+	if len(mentionedIDs) != 1 {
+		return diagnostic.New("AIDD_RETIRED_EVIDENCE_AMBIGUOUS", path+".issue_evidence", artifact, "retirement evidence must name only its retired Requirement ID", item.ID, rules.Sorted(mentionedIDs))
+	}
+	explicit := false
+	for _, term := range retirementTerms {
+		if strings.Contains(normalizedEvidence, term) {
+			explicit = true
+			break
+		}
+	}
+	if !explicit {
+		for _, pattern := range retirementEnglishTermPatterns {
+			if pattern.MatchString(normalizedEvidence) {
+				explicit = true
+				break
+			}
+		}
+	}
+	if !explicit {
+		return diagnostic.New("AIDD_RETIRED_EVIDENCE_INTENT", path+".issue_evidence", artifact, "retirement evidence must explicitly state retirement", "affirmative retirement term", item.IssueEvidence)
+	}
+	for _, pattern := range negatedRetirementPatterns {
+		if pattern.MatchString(normalizedEvidence) {
+			return diagnostic.New("AIDD_RETIRED_EVIDENCE_NEGATED", path+".issue_evidence", artifact, "retirement evidence must not negate retirement", "affirmative retirement", item.IssueEvidence)
+		}
+	}
+	return nil
+}
+
+func requirementsSectionContents(sections []sourceSection, requirements []model.Requirement) map[string]string {
+	contents := make(map[string]string, len(sections))
+	for _, section := range sections {
+		parts := []string{}
+		for _, block := range section.Blocks {
+			switch block.Type {
+			case "markdown":
+				parts = append(parts, block.Markdown)
+			case "evidence":
+				parts = append(parts, block.Text)
+			case "requirements":
+				for _, requirement := range requirements {
+					if requirement.SectionID == section.ID {
+						parts = append(parts, requirement.Text)
+					}
+				}
+			}
+		}
+		contents[section.ID] = strings.Join(parts, "\n")
+	}
+	return contents
+}
+
+type sectionRequirementHashEntry struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
+
+type requirementsSectionHashValue struct {
+	Heading      string                        `json:"heading"`
+	Blocks       []sourceBlock                 `json:"blocks"`
+	Requirements []sectionRequirementHashEntry `json:"requirements"`
+}
+
+func requirementsSectionHash(section sourceSection, requirements map[string]model.Requirement) (string, error) {
+	ids := make([]string, 0, len(requirements))
+	for id, requirement := range requirements {
+		if requirement.SectionID == section.ID {
+			ids = append(ids, id)
+		}
+	}
+	sort.Slice(ids, func(i, j int) bool { return requirementSortKey(ids[i]) < requirementSortKey(ids[j]) })
+	entries := make([]sectionRequirementHashEntry, len(ids))
+	for index, id := range ids {
+		entries[index] = sectionRequirementHashEntry{ID: id, Text: requirements[id].Text}
+	}
+	return canonical.Hash(requirementsSectionHashValue{Heading: section.Heading, Blocks: section.Blocks, Requirements: entries})
+}
+
 func validateIssueSnapshot(issue IssueSnapshot, artifact string) error {
 	match := issueIDPattern.FindStringSubmatch(issue.ID)
 	if match == nil {
@@ -854,7 +1000,7 @@ func validateTransition(item transition, issueBody, artifact string) error {
 		return diagnostic.New("AIDD_TRANSITION_STATUS", item.ID, artifact, "transition status is unsupported", []string{"new", "changed", "unchanged"}, item.Status)
 	}
 	if item.Status == "new" || item.Status == "changed" {
-		if item.IssueEvidence == nil || *item.IssueEvidence == "" || !strings.Contains(issueBody, *item.IssueEvidence) {
+		if item.IssueEvidence == nil || normalizeIssueEvidence(*item.IssueEvidence) == "" || !strings.Contains(normalizeIssueEvidence(issueBody), normalizeIssueEvidence(*item.IssueEvidence)) {
 			return diagnostic.New("AIDD_TRANSITION_EVIDENCE", item.ID, artifact, "new or changed transition requires literal Issue evidence", "Issue substring", item.IssueEvidence)
 		}
 	} else if item.IssueEvidence != nil {

@@ -70,6 +70,60 @@ func TestChangedPathsRejectsBaselineOutsideCurrentHistory(t *testing.T) {
 	}
 }
 
+func TestChangedPathsRejectsHeadAdvanceBeforeShip(t *testing.T) {
+	repoRoot, baselineHead := coverageFixtureRepository(t)
+	path := filepath.Join(repoRoot, "tracked.txt")
+	if err := os.WriteFile(path, []byte("after\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runCoverageGit(t, repoRoot, "add", "tracked.txt")
+	runCoverageGit(t, repoRoot, "commit", "-qm", "premature Build commit")
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	_, err = changedPaths(context.Background(), snapshot, baselineHead, nil)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_HEAD_DRIFT") {
+		t.Fatalf("expected pre-Ship HEAD drift rejection, got %v", err)
+	}
+}
+
+func TestChangedPathsRejectsStagedStateThatDiffersFromWorktree(t *testing.T) {
+	repoRoot, baselineHead := coverageFixtureRepository(t)
+	path := filepath.Join(repoRoot, "tracked.txt")
+	if err := os.WriteFile(path, []byte("staged\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runCoverageGit(t, repoRoot, "add", "tracked.txt")
+	if err := os.WriteFile(path, []byte("validated worktree\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	_, err = changedPaths(context.Background(), snapshot, baselineHead, nil)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_INDEX_WORKTREE_DRIFT") {
+		t.Fatalf("expected staged/worktree drift rejection, got %v", err)
+	}
+}
+
+func TestChangedPathsRejectsIndexOnlyModeChange(t *testing.T) {
+	repoRoot, baselineHead := coverageFixtureRepository(t)
+	runCoverageGit(t, repoRoot, "update-index", "--chmod=+x", "tracked.txt")
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	_, err = changedPaths(context.Background(), snapshot, baselineHead, nil)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_INDEX_WORKTREE_DRIFT") {
+		t.Fatalf("expected index-only mode drift rejection, got %v", err)
+	}
+}
+
 func TestChangedPathsUsesDesignUntrackedBaseline(t *testing.T) {
 	tests := []struct {
 		name       string

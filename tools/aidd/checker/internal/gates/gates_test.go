@@ -3,6 +3,7 @@ package gates
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/requirementscontract"
 )
@@ -29,6 +31,15 @@ var fixtureRequirementsSections = []struct {
 	{"technical", "技術的考慮事項"},
 }
 
+func fixtureIssueBody(extra ...string) []byte {
+	lines := []string{"repo-owned checker profileでverificationを固定する"}
+	for index := range fixtureRequirementsSections {
+		lines = append(lines, fmt.Sprintf("section-evidence-%02d", index+1))
+	}
+	lines = append(lines, extra...)
+	return []byte(strings.Join(lines, "\n"))
+}
+
 func TestRequirementsRejectsTransitionWithoutBaseline(t *testing.T) {
 	repoRoot := requirementsFixtureRepository(t)
 	snapshot, err := repository.Open(context.Background(), repoRoot)
@@ -39,7 +50,7 @@ func TestRequirementsRejectsTransitionWithoutBaseline(t *testing.T) {
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("repo-owned checker profileでverificationを固定する"),
+		Body: fixtureIssueBody(),
 	}
 	document, goal := requirementsFixtureSources(t, issue, "changed")
 	_, err = ValidateRequirements(context.Background(), snapshot, RequirementsInput{
@@ -48,6 +59,84 @@ func TestRequirementsRejectsTransitionWithoutBaseline(t *testing.T) {
 	})
 	if err == nil || !strings.Contains(err.Error(), "AIDD_TRANSITION_BASELINE") {
 		t.Fatalf("expected transition baseline rejection, got %v", err)
+	}
+}
+
+func TestTransitionEvidenceHasExactlyOneContentOwner(t *testing.T) {
+	for _, ownerKind := range []string{"Requirement", "section"} {
+		t.Run(ownerKind, func(t *testing.T) {
+			evidenceA := "根拠A"
+			evidenceB := "根拠B"
+			items := []transition{
+				{ID: "owner-a", Status: "new", IssueEvidence: &evidenceA},
+				{ID: "owner-b", Status: "new", IssueEvidence: &evidenceB},
+			}
+			issueBody := evidenceA + "\n" + evidenceB
+			contents := map[string]string{"owner-a": evidenceA, "owner-b": evidenceB}
+			if err := validateOwnedTransitions(items, issueBody, contents, "requirements", ownerKind); err != nil {
+				t.Fatalf("valid ownership rejected: %v", err)
+			}
+
+			duplicate := append([]transition(nil), items...)
+			duplicate[1].IssueEvidence = &evidenceA
+			if err := validateOwnedTransitions(duplicate, issueBody, contents, "requirements", ownerKind); err == nil || !strings.Contains(err.Error(), "EVIDENCE_DUPLICATE") {
+				t.Fatalf("expected duplicate evidence rejection, got %v", err)
+			}
+
+			ambiguousContents := map[string]string{"owner-a": evidenceA, "owner-b": evidenceB + " " + evidenceA}
+			if err := validateOwnedTransitions(items, issueBody, ambiguousContents, "requirements", ownerKind); err == nil || !strings.Contains(err.Error(), "EVIDENCE_AMBIGUOUS") {
+				t.Fatalf("expected cross-owner evidence rejection, got %v", err)
+			}
+
+			wrongOwner := map[string]string{"owner-a": "別の内容", "owner-b": evidenceB}
+			if err := validateOwnedTransitions(items, issueBody, wrongOwner, "requirements", ownerKind); err == nil || !strings.Contains(err.Error(), "EVIDENCE_OWNER") {
+				t.Fatalf("expected missing owner evidence rejection, got %v", err)
+			}
+		})
+	}
+}
+
+func TestRetirementEvidenceMustNameAndAffirmRetirement(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		evidence string
+		wantCode string
+	}{
+		{name: "japanese", evidence: "FR-1を廃止する"},
+		{name: "english", evidence: "FR-1 is removed"},
+		{name: "missing id", evidence: "この要件を廃止する", wantCode: "AIDD_RETIRED_EVIDENCE_ID"},
+		{name: "wrong id", evidence: "FR-10を廃止する", wantCode: "AIDD_RETIRED_EVIDENCE_ID"},
+		{name: "ambiguous ids", evidence: "FR-1とFR-2を廃止する", wantCode: "AIDD_RETIRED_EVIDENCE_AMBIGUOUS"},
+		{name: "missing intent", evidence: "FR-1を維持する", wantCode: "AIDD_RETIRED_EVIDENCE_INTENT"},
+		{name: "negated japanese", evidence: "FR-1を削除しない", wantCode: "AIDD_RETIRED_EVIDENCE_NEGATED"},
+		{name: "negated english", evidence: "FR-1 must not be removed", wantCode: "AIDD_RETIRED_EVIDENCE_NEGATED"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := validateRetirementEvidence(retirement{ID: "FR-1", IssueEvidence: test.evidence}, test.evidence, "retired[0]", "requirements")
+			if test.wantCode == "" && err != nil {
+				t.Fatalf("valid retirement evidence rejected: %v", err)
+			}
+			if test.wantCode != "" && (err == nil || !strings.Contains(err.Error(), test.wantCode)) {
+				t.Fatalf("expected %s, got %v", test.wantCode, err)
+			}
+		})
+	}
+}
+
+func TestRequirementsSectionHashIncludesOwnedRequirementText(t *testing.T) {
+	section := sourceSection{ID: "functional", Heading: "機能要件", Blocks: []sourceBlock{{ID: "requirements", Type: "requirements"}}}
+	before := map[string]model.Requirement{"FR-1": {ID: "FR-1", SectionID: "functional", Text: "変更前"}}
+	after := map[string]model.Requirement{"FR-1": {ID: "FR-1", SectionID: "functional", Text: "変更後"}}
+	beforeHash, err := requirementsSectionHash(section, before)
+	if err != nil {
+		t.Fatal(err)
+	}
+	afterHash, err := requirementsSectionHash(section, after)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if beforeHash == afterHash {
+		t.Fatal("owned Requirement text did not change the section transition hash")
 	}
 }
 
@@ -61,7 +150,7 @@ func TestRequirementsAcceptsCompleteNewInventory(t *testing.T) {
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("repo-owned checker profileでverificationを固定する"),
+		Body: fixtureIssueBody(),
 	}
 	document, goal := requirementsFixtureSources(t, issue, "new")
 	if _, err := ValidateRequirements(context.Background(), snapshot, RequirementsInput{
@@ -82,7 +171,7 @@ func TestRequirementsGoalGateRejectsMissingDisplayContract(t *testing.T) {
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("repo-owned checker profileでverificationを固定する"),
+		Body: fixtureIssueBody(),
 	}
 	_, goal := requirementsFixtureSources(t, issue, "new")
 	var source map[string]any
@@ -114,7 +203,7 @@ func TestRequirementsRejectsHeadingThatDoesNotMapToSectionID(t *testing.T) {
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("repo-owned checker profileでverificationを固定する"),
+		Body: fixtureIssueBody(),
 	}
 	document, goal := requirementsFixtureSources(t, issue, "new")
 	document = mutateRequirementsSource(t, document, func(validation map[string]any) {
@@ -157,7 +246,7 @@ func TestRequirementsBaselineUsesTheSameHeadingContract(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	issue := IssueSnapshot{Title: "Checker profile boundary", Body: []byte("repo-owned checker profileでverificationを固定する")}
+	issue := IssueSnapshot{Title: "Checker profile boundary", Body: fixtureIssueBody()}
 	document, _ := requirementsFixtureSources(t, issue, "new")
 	document = mutateRequirementsSource(t, document, func(validation map[string]any) {
 		sections := validation["sections"].([]any)
@@ -194,7 +283,7 @@ func TestRequirementsRejectsMatchValueMissingFromIssueEvidence(t *testing.T) {
 			issue := IssueSnapshot{
 				ID: "owner/repo#1671", Title: "Checker profile boundary",
 				URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-				Body: []byte("設定を保存する。checkerは別の段落にある。"),
+				Body: fixtureIssueBody("設定を保存する。checkerは別の段落にある。"),
 			}
 			document, goal := requirementsFixtureSources(t, issue, "new")
 			document = mutateDirectRule(t, document, func(rule map[string]any) {
@@ -226,7 +315,7 @@ func TestRequirementsAcceptsNormalizedRuleEvidenceRelationship(t *testing.T) {
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("repo-owned checker profileでverificationを固定する。REPO-OWNED\n\tCHECKER   PROFILEも同じ根拠である。"),
+		Body: fixtureIssueBody("REPO-OWNED\n\tCHECKER   PROFILEも同じ根拠である。"),
 	}
 	document, goal := requirementsFixtureSources(t, issue, "new")
 	for _, source := range []*[]byte{&document, &goal} {
@@ -266,7 +355,7 @@ func TestRequirementsRejectsImplementationRuleWithoutIssueEvidencedExplicitSurfa
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("webの設定を保存する。checkerは別の段落にある。"),
+		Body: fixtureIssueBody("webの設定を保存する。checkerは別の段落にある。"),
 	}
 	document, goal := requirementsFixtureSources(t, issue, "new")
 	for _, source := range []*[]byte{&document, &goal} {
@@ -307,7 +396,7 @@ func TestRequirementsRejectsInvalidIssueMetadata(t *testing.T) {
 			issue := IssueSnapshot{
 				ID: "owner/repo#1671", Title: "Checker profile boundary",
 				URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-				Body: []byte("repo-owned checker profileでverificationを固定する"),
+				Body: fixtureIssueBody(),
 			}
 			test.mutate(&issue)
 			document, goal := requirementsFixtureSources(t, issue, "new")
@@ -332,7 +421,7 @@ func TestRequirementsRejectsEmptyRuleReason(t *testing.T) {
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("repo-owned checker profileでverificationを固定する"),
+		Body: fixtureIssueBody(),
 	}
 	document, goal := requirementsFixtureSources(t, issue, "new")
 	for _, source := range []*[]byte{&document, &goal} {
@@ -378,7 +467,7 @@ func TestRequirementsRejectsDependencyViaWithoutDeclaredEdge(t *testing.T) {
 	issue := IssueSnapshot{
 		ID: "owner/repo#1671", Title: "Checker profile boundary",
 		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
-		Body: []byte("repo-owned checker profileでverificationを固定する"),
+		Body: fixtureIssueBody(),
 	}
 	document, goal := requirementsFixtureSources(t, issue, "new")
 	for _, source := range []*[]byte{&document, &goal} {
@@ -447,12 +536,13 @@ func requirementsFixtureSources(t *testing.T, issue IssueSnapshot, status string
 	transitions := make([]any, len(fixtureRequirementsSections))
 	for index, definition := range fixtureRequirementsSections {
 		id := definition.ID
-		block := map[string]any{"id": id + "-body", "type": "markdown", "markdown": evidence + " を " + id + " で扱う。"}
+		sectionEvidence := fmt.Sprintf("section-evidence-%02d", index+1)
+		block := map[string]any{"id": id + "-body", "type": "markdown", "markdown": sectionEvidence + " を " + id + " で扱う。"}
 		if id == "functional" {
 			block = map[string]any{"id": id + "-requirements", "type": "requirements"}
 		}
 		sections[index] = map[string]any{"id": id, "heading": definition.Heading, "blocks": []any{block}}
-		transitions[index] = map[string]any{"id": id, "status": status, "issue_evidence": evidence}
+		transitions[index] = map[string]any{"id": id, "status": status, "issue_evidence": sectionEvidence}
 	}
 	inputGate := map[string]any{
 		"task_context": map[string]any{
@@ -474,7 +564,7 @@ func requirementsFixtureSources(t *testing.T, issue IssueSnapshot, status string
 	validation := map[string]any{
 		"mode": "managed", "cycle_start_issue_title": issue.Title, "input_gate": inputGate,
 		"completeness_gate": completeness,
-		"requirements":      []any{map[string]any{"id": "FR-1", "section_id": "functional", "text": evidence + "でverificationを固定する"}},
+		"requirements":      []any{map[string]any{"id": "FR-1", "section_id": "functional", "text": evidence + "でverificationを固定する。section-evidence-05"}},
 		"sections":          sections,
 	}
 	document := map[string]any{
@@ -506,7 +596,7 @@ func requirementsFixtureSources(t *testing.T, issue IssueSnapshot, status string
 			"cycle_start_issue_title": validation["cycle_start_issue_title"],
 			"input_gate":              validation["input_gate"],
 			"completeness_gate":       validation["completeness_gate"],
-			"requirements":            []any{map[string]any{"id": "FR-1", "text": evidence + "でverificationを固定する"}},
+			"requirements":            []any{map[string]any{"id": "FR-1", "text": evidence + "でverificationを固定する。section-evidence-05"}},
 			"sections":                validation["sections"],
 		},
 	}

@@ -12,6 +12,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/unicode/norm"
@@ -54,7 +55,7 @@ func Resolve(ctx context.Context, snapshot *repository.Snapshot, issue, title st
 	}
 	existing := make([]string, 0, len(existingSet))
 	for name := range existingSet {
-		if err := repository.ValidateWorkspaceName(name); err != nil {
+		if err := pathcontract.ValidateWorkspaceName(name); err != nil {
 			return "", err
 		}
 		existing = append(existing, name)
@@ -129,7 +130,7 @@ func gitHeadWorkspaceNames(ctx context.Context, snapshot *repository.Snapshot, n
 		if !utf8.Valid(raw) {
 			return nil, diagnostic.New("AIDD_WORKSPACE_GIT", "workspace", "workspace", "Git workspace path must be UTF-8", "UTF-8 path", raw)
 		}
-		path, pathErr := repository.ValidateRelativePath(string(raw))
+		path, pathErr := pathcontract.ValidateRelativePath(string(raw))
 		if pathErr != nil {
 			return nil, pathErr
 		}

@@ -1,6 +1,7 @@
 package evidence
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -90,6 +91,10 @@ func LoadAndValidate(snapshot *repository.Snapshot, loadedReceipt *receipt.Loade
 	if err != nil {
 		return nil, nil, err
 	}
+	canonicalContent, err := canonicalEvidenceBytes(value, content)
+	if err != nil {
+		return nil, nil, err
+	}
 	currentFinalState, err := state.FinalHash(snapshot, &loadedReceipt.Value.TargetState.Value)
 	if err != nil {
 		return nil, nil, err
@@ -97,7 +102,18 @@ func LoadAndValidate(snapshot *repository.Snapshot, loadedReceipt *receipt.Loade
 	if err := validateValue(value, loadedReceipt, currentFinalState); err != nil {
 		return nil, nil, err
 	}
-	return value, content, nil
+	return value, canonicalContent, nil
+}
+
+func canonicalEvidenceBytes(value *model.BuildEvidence, content []byte) ([]byte, error) {
+	canonicalContent, err := canonical.Pretty(value)
+	if err != nil {
+		return nil, err
+	}
+	if !bytes.Equal(canonicalContent, content) {
+		return nil, diagnostic.New("AIDD_EVIDENCE_CANONICAL", "", "build_verification", "Build evidence must use canonical JSON serialization", string(canonicalContent), string(content))
+	}
+	return canonicalContent, nil
 }
 
 func decodeValue(content []byte) (*model.BuildEvidence, error) {
