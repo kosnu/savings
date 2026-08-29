@@ -40,6 +40,9 @@ func loadRecord(snapshot *repository.Snapshot, loaded *receipt.Loaded, expectedS
 	if err != nil {
 		return nil, err
 	}
+	if err := snapshot.AssertCanonicalOutputMode(path, "build_rule_coverage"); err != nil {
+		return nil, err
+	}
 	content, err := snapshot.Read(path)
 	if err != nil {
 		return nil, err

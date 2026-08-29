@@ -292,7 +292,7 @@ func validateRequirements(validation *model.RequirementsValidation, kind, worksp
 		}
 		ids = append(ids, requirement.ID)
 	}
-	if err := requireCanonicalIDs(ids, requirementSortKey, "AIDD_REQUIREMENT_ORDER", "validation.requirements", artifact); err != nil {
+	if err := requireCanonicalIDs(ids, RequirementIDLess, "AIDD_REQUIREMENT_ORDER", "validation.requirements", artifact); err != nil {
 		return err
 	}
 	gate := validation.CompletenessGate
@@ -336,7 +336,7 @@ func coverageRequirementIDs(gate model.DesignCoverageGate, artifact string) ([]s
 	if len(gate.RequirementIDs) == 0 {
 		return nil, diagnostic.New("AIDD_COVERAGE_REQUIREMENTS", "validation.coverage_gate.requirement_ids", artifact, "coverage gate must own at least one Requirement", nil, gate.RequirementIDs)
 	}
-	if err := requireCanonicalIDs(gate.RequirementIDs, requirementSortKey, "AIDD_COVERAGE_REQUIREMENTS", "validation.coverage_gate.requirement_ids", artifact); err != nil {
+	if err := requireCanonicalIDs(gate.RequirementIDs, RequirementIDLess, "AIDD_COVERAGE_REQUIREMENTS", "validation.coverage_gate.requirement_ids", artifact); err != nil {
 		return nil, err
 	}
 	return gate.RequirementIDs, nil

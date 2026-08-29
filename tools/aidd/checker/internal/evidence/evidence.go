@@ -83,6 +83,9 @@ func LoadAndValidate(snapshot *repository.Snapshot, loadedReceipt *receipt.Loade
 	if err != nil {
 		return nil, nil, err
 	}
+	if err := snapshot.AssertCanonicalOutputMode(path, "build_verification"); err != nil {
+		return nil, nil, err
+	}
 	content, err := snapshot.Read(path)
 	if err != nil {
 		return nil, nil, err

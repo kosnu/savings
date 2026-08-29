@@ -49,7 +49,7 @@ func ValidateTargetState(target *model.TargetState, requirementIDs []string, art
 		behaviorIDs = append(behaviorIDs, behavior.ID)
 		behaviorRequirements[behavior.ID] = behavior.RequirementID
 	}
-	if err := requireCanonicalIDs(behaviorIDs, numberedSortKey("PB-"), "AIDD_BEHAVIOR_ORDER", "validation.target_state.product_behaviors", artifact); err != nil {
+	if err := requireCanonicalIDs(behaviorIDs, numberedIDLess("PB-"), "AIDD_BEHAVIOR_ORDER", "validation.target_state.product_behaviors", artifact); err != nil {
 		return err
 	}
 
@@ -68,7 +68,7 @@ func ValidateTargetState(target *model.TargetState, requirementIDs []string, art
 		if err := validateVerificationContract(verificationCase, path, artifact); err != nil {
 			return err
 		}
-		if err := requireCanonicalIDs(verificationCase.ProductBehaviorIDs, numberedSortKey("PB-"), "AIDD_CASE_BEHAVIORS", path+".product_behavior_ids", artifact); err != nil {
+		if err := requireCanonicalIDs(verificationCase.ProductBehaviorIDs, numberedIDLess("PB-"), "AIDD_CASE_BEHAVIORS", path+".product_behavior_ids", artifact); err != nil {
 			return err
 		}
 		for _, behaviorID := range verificationCase.ProductBehaviorIDs {
@@ -82,7 +82,7 @@ func ValidateTargetState(target *model.TargetState, requirementIDs []string, art
 		caseRequirements[verificationCase.ID] = verificationCase.RequirementID
 		coveredRequirements[verificationCase.RequirementID] = struct{}{}
 	}
-	if err := requireCanonicalIDs(caseIDs, numberedSortKey("VC-"), "AIDD_CASE_ORDER", "validation.target_state.verification_cases", artifact); err != nil {
+	if err := requireCanonicalIDs(caseIDs, numberedIDLess("VC-"), "AIDD_CASE_ORDER", "validation.target_state.verification_cases", artifact); err != nil {
 		return err
 	}
 	if !sameSet(coveredRequirements, requirementSet) {
@@ -216,7 +216,7 @@ func validateRepresentations(target *model.TargetState, requirementSet map[strin
 			return diagnostic.New("AIDD_LOCATOR_DUPLICATE", path+".locator", artifact, "representation locator identity must be unique", "unique path/kind/name", locatorIdentity)
 		}
 		locators[locatorIdentity] = struct{}{}
-		if err := requireCanonicalIDs(representation.ProductBehaviorIDs, numberedSortKey("PB-"), "AIDD_REPRESENTATION_BEHAVIORS", path+".product_behavior_ids", artifact); err != nil {
+		if err := requireCanonicalIDs(representation.ProductBehaviorIDs, numberedIDLess("PB-"), "AIDD_REPRESENTATION_BEHAVIORS", path+".product_behavior_ids", artifact); err != nil {
 			return err
 		}
 		for _, behaviorID := range representation.ProductBehaviorIDs {
@@ -225,7 +225,7 @@ func validateRepresentations(target *model.TargetState, requirementSet map[strin
 			}
 			coveredBehaviors[behaviorID] = struct{}{}
 		}
-		if err := requireCanonicalIDs(representation.VerificationCaseIDs, numberedSortKey("VC-"), "AIDD_REPRESENTATION_CASES", path+".verification_case_ids", artifact); err != nil {
+		if err := requireCanonicalIDs(representation.VerificationCaseIDs, numberedIDLess("VC-"), "AIDD_REPRESENTATION_CASES", path+".verification_case_ids", artifact); err != nil {
 			return err
 		}
 		for _, caseID := range representation.VerificationCaseIDs {
@@ -236,7 +236,7 @@ func validateRepresentations(target *model.TargetState, requirementSet map[strin
 		}
 		ids = append(ids, representation.ID)
 	}
-	if err := requireCanonicalIDs(ids, numberedSortKey("REP-"), "AIDD_REPRESENTATION_ORDER", "validation.target_state.representations", artifact); err != nil {
+	if err := requireCanonicalIDs(ids, numberedIDLess("REP-"), "AIDD_REPRESENTATION_ORDER", "validation.target_state.representations", artifact); err != nil {
 		return err
 	}
 	if !sameSet(coveredBehaviors, stringSet(keys(behaviorRequirements))) {
@@ -278,9 +278,9 @@ func normalizedText(value string) string {
 	return cases.Fold().String(norm.NFKC.String(value))
 }
 
-func requireCanonicalIDs(ids []string, key func(string) int, code, path, artifact string) error {
+func requireCanonicalIDs(ids []string, less func(string, string) bool, code, path, artifact string) error {
 	canonicalIDs := append([]string(nil), ids...)
-	sort.Slice(canonicalIDs, func(i, j int) bool { return key(canonicalIDs[i]) < key(canonicalIDs[j]) })
+	sort.Slice(canonicalIDs, func(i, j int) bool { return less(canonicalIDs[i], canonicalIDs[j]) })
 	canonicalIDs = uniqueStrings(canonicalIDs)
 	if !equalStrings(ids, canonicalIDs) {
 		return diagnostic.New(code, path, artifact, "IDs must be unique and in canonical numeric order", canonicalIDs, ids)
@@ -288,24 +288,37 @@ func requireCanonicalIDs(ids []string, key func(string) int, code, path, artifac
 	return nil
 }
 
-func requirementSortKey(value string) int {
-	prefixWeight := map[string]int{"FR": 0, "NFR": 1, "AC": 2}
-	parts := strings.Split(value, "-")
-	if len(parts) != 2 {
-		return 1 << 30
+func RequirementIDLess(left, right string) bool {
+	leftPrefix, leftNumber, leftOK := strings.Cut(left, "-")
+	rightPrefix, rightNumber, rightOK := strings.Cut(right, "-")
+	weights := map[string]int{"FR": 0, "NFR": 1, "AC": 2}
+	leftWeight, leftPrefixOK := weights[leftPrefix]
+	rightWeight, rightPrefixOK := weights[rightPrefix]
+	if !leftOK || !rightOK || !leftPrefixOK || !rightPrefixOK {
+		return left < right
 	}
-	number, _ := strconv.Atoi(parts[1])
-	return prefixWeight[parts[0]]*1_000_000 + number
+	if leftWeight != rightWeight {
+		return leftWeight < rightWeight
+	}
+	return decimalIDLess(leftNumber, rightNumber)
 }
 
-func numberedSortKey(prefix string) func(string) int {
-	return func(value string) int {
-		number, err := strconv.Atoi(strings.TrimPrefix(value, prefix))
-		if err != nil || !strings.HasPrefix(value, prefix) {
-			return 1 << 30
+func numberedIDLess(prefix string) func(string, string) bool {
+	return func(left, right string) bool {
+		leftNumber, leftOK := strings.CutPrefix(left, prefix)
+		rightNumber, rightOK := strings.CutPrefix(right, prefix)
+		if !leftOK || !rightOK {
+			return left < right
 		}
-		return number
+		return decimalIDLess(leftNumber, rightNumber)
 	}
+}
+
+func decimalIDLess(left, right string) bool {
+	if len(left) != len(right) {
+		return len(left) < len(right)
+	}
+	return left < right
 }
 
 func stringSet(values []string) map[string]struct{} {

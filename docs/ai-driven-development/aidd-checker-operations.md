@@ -229,6 +229,8 @@ ID / hash、typed selector、executed identities、exit code、stdout / stderr b
 
 case の欠落、余剰、重複、順序ずれ、profile drift、旧 command evidence、失敗 status、
 不一致 runtime identity、canonical JSONと一致しない保存evidence bytesを拒否する。
+canonical `build-verification.json`と`build-rule-coverage.json`は生成時と再検証時にmode
+`0600`を要求し、Build完了後のmode-only変更をShip前に拒否する。
 final-state manifest は task-owned regular file の
 path、worktree 上の Git 投影 mode・content と target-state hash を固定する。これとは
 別に、`.git` metadata以外のrepository全体をGit ignoreに関係なく走査し、directory、

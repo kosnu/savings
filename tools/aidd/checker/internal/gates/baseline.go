@@ -12,6 +12,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/requirementscontract"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/semantic"
 )
 
 func validateSourceSections(sections []model.Section) ([]model.Section, map[string]model.Block, error) {
@@ -100,7 +101,7 @@ func requirementsSectionHash(section model.Section, requirements map[string]mode
 			ids = append(ids, id)
 		}
 	}
-	sort.Slice(ids, func(i, j int) bool { return requirementSortKey(ids[i]) < requirementSortKey(ids[j]) })
+	sort.Slice(ids, func(i, j int) bool { return semantic.RequirementIDLess(ids[i], ids[j]) })
 	entries := make([]sectionRequirementHashEntry, len(ids))
 	for index, id := range ids {
 		entries[index] = sectionRequirementHashEntry{ID: id, Text: requirements[id].Text}

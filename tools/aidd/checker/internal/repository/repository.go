@@ -30,6 +30,11 @@ type observedEntry struct {
 	mode       fs.FileMode
 }
 
+const (
+	CanonicalOutputMode       fs.FileMode = 0o600
+	CanonicalOutputModeString             = "0600"
+)
+
 type Snapshot struct {
 	Root                  string
 	root                  *os.Root
@@ -415,7 +420,7 @@ func (snapshot *Snapshot) WriteAtomic(path string, content []byte) error {
 	if directory != "" {
 		temporaryPath = directory + "/" + temporaryName
 	}
-	temporary, err := snapshot.root.OpenFile(filepath.FromSlash(temporaryPath), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	temporary, err := snapshot.root.OpenFile(filepath.FromSlash(temporaryPath), os.O_WRONLY|os.O_CREATE|os.O_EXCL, CanonicalOutputMode)
 	if err != nil {
 		return diagnostic.New("AIDD_WRITE_TEMP", normalized, "repository", "temporary output cannot be created", nil, err.Error())
 	}
@@ -441,6 +446,25 @@ func (snapshot *Snapshot) WriteAtomic(path string, content []byte) error {
 	}
 	cleanup = false
 	delete(snapshot.observed, normalized)
+	return nil
+}
+
+func (snapshot *Snapshot) AssertCanonicalOutputMode(path, artifact string) error {
+	mode, exists, err := snapshot.Mode(path)
+	if err != nil {
+		return err
+	}
+	if !exists || !mode.IsRegular() {
+		actual := "missing"
+		if exists {
+			actual = mode.String()
+		}
+		return diagnostic.New("AIDD_OUTPUT_TYPE", path, artifact, "canonical AIDD output must be a regular file", "regular file", actual)
+	}
+	actual := fmt.Sprintf("%04o", mode.Perm())
+	if actual != CanonicalOutputModeString {
+		return diagnostic.New("AIDD_OUTPUT_MODE_DRIFT", path, artifact, "canonical AIDD output mode changed after generation", CanonicalOutputModeString, actual)
+	}
 	return nil
 }
 

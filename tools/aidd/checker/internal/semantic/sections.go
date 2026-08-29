@@ -142,7 +142,7 @@ func decodeBlock(raw json.RawMessage, allowRequirements bool, path, artifact str
 			if err := canonical.Decode(raw, artifact+"."+path, &wire); err != nil {
 				return model.Block{}, err
 			}
-			if err := requireCanonicalIDs(wire.ProductBehaviorIDs, numberedSortKey("PB-"), "AIDD_EVIDENCE_BEHAVIORS", path+".product_behavior_ids", artifact); err != nil {
+			if err := requireCanonicalIDs(wire.ProductBehaviorIDs, numberedIDLess("PB-"), "AIDD_EVIDENCE_BEHAVIORS", path+".product_behavior_ids", artifact); err != nil {
 				return model.Block{}, err
 			}
 			block = model.Block{ID: wire.ID, Type: wire.Type, Role: wire.Role, OwnerID: wire.OwnerID, Text: wire.Text, ProductBehaviorIDs: wire.ProductBehaviorIDs}

@@ -4,8 +4,6 @@ import (
 	"context"
 	"regexp"
 	"sort"
-	"strconv"
-	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
@@ -157,17 +155,7 @@ func requirementIDs(target model.TargetState) []string {
 		result = append(result, verificationCase.RequirementID)
 	}
 	sort.Slice(result, func(i, j int) bool {
-		return requirementOrder(result[i]) < requirementOrder(result[j])
+		return semantic.RequirementIDLess(result[i], result[j])
 	})
 	return result
-}
-
-func requirementOrder(value string) int {
-	parts := strings.Split(value, "-")
-	if len(parts) != 2 {
-		return 1 << 30
-	}
-	prefix := map[string]int{"FR": 0, "NFR": 1, "AC": 2}[parts[0]]
-	number, _ := strconv.Atoi(parts[1])
-	return prefix*1_000_000 + number
 }
