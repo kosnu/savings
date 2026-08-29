@@ -74,7 +74,7 @@ checkerの防御対象に含めない。これらの契約外事象を仮定し�
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: canonical `docs/harness/rule-map.json` のpath契約と読取、closure、path / surface routing。
-- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、親processの全`GIT_*`を除去したGit実行境界、正本worktreeのindex path、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、verification command前後のstaged tree identity、atomic output。
+- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、親processの全`GIT_*`を除去したGit実行境界、正本worktreeのindex path、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、verification command前後のstaged tree identity、mode `0600`のatomic outputとその再検証。
 - `internal/handoff` / `internal/receipt`: source / displayのcontent hashとpermission modeを固定するDesign completion capture と、全Build entrypointで同じidentityを再検証するBuild Entry。
 - `internal/runner` / `internal/evidence`: 親processの全`GIT_*`を除去したprofile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state、actual Build diff、staged Ship candidate の照合。
@@ -96,7 +96,8 @@ process実行はpure semantic packageへ入れない。
 Requirements section contractは
 `docs/ai-driven-development/contracts/requirements-sections.json`が所有し、current
 artifact、retained Goal、Git `HEAD` baselineのすべてが同じID順序とnormalized exact
-heading aliasを使う。managed Requirementsは最低1件のRequirementを持つ。Requirements
+heading aliasを使う。Requirement IDはprefixを`FR`、`NFR`、`AC`の順に比較してから、
+桁数と数字列による任意精度の番号昇順で比較する。managed Requirementsは最低1件のRequirementを持つ。Requirements
 Input GateはIssue本文内に実在する各declared evidence spanについてrule-map全nodeを再評価し、
 同じ`match.field/value`条件を満たすdirect node集合と宣言集合の完全一致を要求する。
 
@@ -128,6 +129,10 @@ Requirements / Designのcanonical sourceとdisplayはcontent hashだけでなく
 receiptへ固定し、`receipt.Load`を使う全Build entrypointで再検証する。receipt自身は
 atomic writerのcanonical mode `0600`を要求する。どちらもmode-only変更をread-only上流
 artifactのdriftとして、coverage対象から除外する前に拒否する。
+
+canonical `build-verification.json`と`build-rule-coverage.json`もatomic writerのmode `0600`を
+要求する。Build evidenceの全load経路とBuild coverageのShip load経路でmodeを再検証し、
+Build完了後のmode-only変更をShip候補から除外する前に拒否する。
 
 Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime identityへ
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと

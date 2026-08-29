@@ -12,7 +12,7 @@ import (
 
 var artifactModePattern = regexp.MustCompile(`^0[0-7]{3}$`)
 
-const canonicalReceiptMode = "0600"
+const canonicalReceiptMode = repository.CanonicalOutputModeString
 
 func ValidateReceiptMode(snapshot *repository.Snapshot, path, artifact string) error {
 	currentMode, err := artifactMode(snapshot, path, artifact)

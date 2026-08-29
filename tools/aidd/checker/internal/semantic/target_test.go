@@ -27,6 +27,30 @@ func validTarget() model.TargetState {
 	}
 }
 
+func TestCanonicalIDOrderingUsesPrefixTupleAndArbitraryPrecisionNumbers(t *testing.T) {
+	if err := requireCanonicalIDs(
+		[]string{"NFR-1", "FR-1000001"},
+		RequirementIDLess,
+		"AIDD_REQUIREMENT_ORDER", "requirements", "fixture",
+	); err == nil || !strings.Contains(err.Error(), "AIDD_REQUIREMENT_ORDER") {
+		t.Fatalf("expected prefix-first Requirement ordering rejection, got %v", err)
+	}
+	if err := requireCanonicalIDs(
+		[]string{"FR-1000001", "NFR-1"},
+		RequirementIDLess,
+		"AIDD_REQUIREMENT_ORDER", "requirements", "fixture",
+	); err != nil {
+		t.Fatalf("prefix-first Requirement ordering rejected: %v", err)
+	}
+	if err := requireCanonicalIDs(
+		[]string{"PB-999999999999999999999999", "PB-1000000000000000000000000"},
+		numberedIDLess("PB-"),
+		"AIDD_BEHAVIOR_ORDER", "product_behaviors", "fixture",
+	); err != nil {
+		t.Fatalf("arbitrary-precision numeric ordering rejected: %v", err)
+	}
+}
+
 func validGoalSource(kind string) map[string]any {
 	display := map[string]any{
 		"path":  "goal.md",

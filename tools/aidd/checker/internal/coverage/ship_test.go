@@ -7,9 +7,40 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
 )
+
+func TestLoadRecordRejectsNonCanonicalOutputMode(t *testing.T) {
+	repoRoot, _ := coverageFixtureRepository(t)
+	const workspace = "fixture"
+	const receiptSHA = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+	record := Record{SchemaVersion: model.CurrentSchemaVersion, Kind: "build_rule_coverage", Workspace: workspace, ReceiptSHA256: receiptSHA}
+	content, err := canonical.Pretty(record)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path, err := Path(workspace)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeShipFixture(t, repoRoot, path, string(content))
+	if err := os.Chmod(filepath.Join(repoRoot, filepath.FromSlash(path)), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	_, err = loadRecord(snapshot, &receipt.Loaded{SHA256: receiptSHA, Value: model.Receipt{Workspace: workspace}}, canonical.HashBytes(content))
+	if err == nil || !strings.Contains(err.Error(), "AIDD_OUTPUT_MODE_DRIFT") {
+		t.Fatalf("expected Build coverage mode rejection, got %v", err)
+	}
+}
 
 func TestValidateStagedCandidateAcceptsVerifiedWorktreeAndCanonicalOutput(t *testing.T) {
 	repoRoot, baseline := coverageFixtureRepository(t)

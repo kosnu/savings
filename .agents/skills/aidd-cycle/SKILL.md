@@ -111,6 +111,8 @@ For each phase in the workflow:
    changes, undeclared surfaces, a surface or path rule absent from the receipt,
    or a governed path with no routing surface. Representation locator metadata
    is not used to infer source-code syntax or test-runner policy.
+   Keep canonical Build verification and coverage outputs at mode `0600`
+   through Ship validation.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path

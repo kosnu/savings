@@ -307,7 +307,7 @@ func validateRequirementsBaselineContinuity(parsed *semantic.ParsedSource, gate 
 		}
 	}
 	sort.Slice(expectedRetired, func(i, j int) bool {
-		return requirementSortKey(expectedRetired[i]) < requirementSortKey(expectedRetired[j])
+		return semantic.RequirementIDLess(expectedRetired[i], expectedRetired[j])
 	})
 	actualRetired := make([]string, len(gate.Retired))
 	for index, item := range gate.Retired {
@@ -398,19 +398,6 @@ func extractRequirementsBaseline(content []byte, sectionContract *requirementsco
 		sectionsByID[section.ID] = section
 	}
 	return requirements, sectionsByID, nil
-}
-
-func requirementSortKey(value string) int {
-	parts := strings.Split(value, "-")
-	if len(parts) != 2 {
-		return 1 << 30
-	}
-	weights := map[string]int{"FR": 0, "NFR": 1, "AC": 2}
-	var number int
-	if _, err := fmt.Sscanf(parts[1], "%d", &number); err != nil {
-		return 1 << 30
-	}
-	return weights[parts[0]]*1_000_000 + number
 }
 
 func normalizeNewlines(value string) string {

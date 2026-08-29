@@ -165,6 +165,15 @@ func TestWriteAtomicCreatesConfinedFile(t *testing.T) {
 	if string(content) != "complete\n" {
 		t.Fatalf("output = %q", content)
 	}
+	if err := snapshot.AssertCanonicalOutputMode("nested/output.txt", "fixture"); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(filepath.Join(root, "nested", "output.txt"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := snapshot.AssertCanonicalOutputMode("nested/output.txt", "fixture"); diagnosticCode(err) != "AIDD_OUTPUT_MODE_DRIFT" {
+		t.Fatalf("AssertCanonicalOutputMode() error code = %q, want AIDD_OUTPUT_MODE_DRIFT: %v", diagnosticCode(err), err)
+	}
 }
 
 func TestReadHeadBlobAcceptsExecutableRegularFile(t *testing.T) {

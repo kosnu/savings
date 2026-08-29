@@ -1,6 +1,10 @@
 package evidence
 
 import (
+	"context"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -8,10 +12,39 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/runner"
 )
 
 const evidenceHash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+func TestLoadAndValidateRejectsNonCanonicalOutputMode(t *testing.T) {
+	root := t.TempDir()
+	command := exec.Command("git", "-C", root, "init", "--quiet")
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("git init failed: %v\n%s", err, output)
+	}
+	path, err := Path("fixture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	absolute := filepath.Join(root, filepath.FromSlash(path))
+	if err := os.MkdirAll(filepath.Dir(absolute), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(absolute, []byte("{}\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := repository.Open(context.Background(), root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	_, _, err = LoadAndValidate(snapshot, &receipt.Loaded{Value: model.Receipt{Workspace: "fixture"}})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_OUTPUT_MODE_DRIFT") {
+		t.Fatalf("expected Build evidence mode rejection, got %v", err)
+	}
+}
 
 func evidenceFixture() (*model.BuildEvidence, *receipt.Loaded) {
 	exitCode := 0
