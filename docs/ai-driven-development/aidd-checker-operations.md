@@ -190,8 +190,9 @@ rules、target state、ownership scopes、task-owned baseline inventory、非ign
 pathのtype・permission mode・contentまたはsymlink target identity、Git `HEAD`、profile catalog
 と selected profile hash を同じ snapshot から固定する。Git `HEAD`はsnapshot開始時に固定し、
 Git `HEAD` baseline blobはそのcommitから読み、receipt書込み直前のdriftを拒否する。
-Build Entryはreceiptが固定したGit `HEAD`との完全一致を検証する。Build Goal 作成前と
-Build完了直前に同じ receipt hash で Build Entry を実行する。
+Build Entry、`capture-verification`、`validate-build`はreceipt読込時にGit `HEAD`を
+Build baselineへ固定し、verification開始前と各canonical outputの書込み直前にも完全一致を
+再検証する。Build Goal 作成前とBuild完了直前に同じ receipt hash で Build Entry を実行する。
 
 ## Build Verification and Coverage
 

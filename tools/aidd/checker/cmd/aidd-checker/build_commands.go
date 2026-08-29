@@ -31,7 +31,7 @@ func captureVerification(ctx context.Context, arguments []string) error {
 		return err
 	}
 	defer snapshot.Close()
-	loaded, err := receipt.Load(snapshot, *workspace, *expectedReceipt)
+	loaded, err := receipt.Load(ctx, snapshot, *workspace, *expectedReceipt)
 	if err != nil {
 		return err
 	}
@@ -47,14 +47,11 @@ func captureVerification(ctx context.Context, arguments []string) error {
 	if err != nil {
 		return err
 	}
-	if err := snapshot.AssertUnchanged(); err != nil {
-		return err
-	}
 	path, err := evidencePath(*workspace)
 	if err != nil {
 		return err
 	}
-	if err := snapshot.WriteAtomic(path, serialized); err != nil {
+	if err := writeBuildArtifact(ctx, snapshot, loaded, path, serialized); err != nil {
 		return err
 	}
 	fmt.Printf("Build verification: captured: %s\n", filepath.Join(snapshot.Root, filepath.FromSlash(path)))
@@ -77,7 +74,7 @@ func validateBuild(ctx context.Context, arguments []string) error {
 		return err
 	}
 	defer snapshot.Close()
-	loaded, err := receipt.Load(snapshot, *workspace, *expectedReceipt)
+	loaded, err := receipt.Load(ctx, snapshot, *workspace, *expectedReceipt)
 	if err != nil {
 		return err
 	}
@@ -89,14 +86,11 @@ func validateBuild(ctx context.Context, arguments []string) error {
 	if err != nil {
 		return err
 	}
-	if err := snapshot.AssertUnchanged(); err != nil {
-		return err
-	}
 	path, err := coverage.Path(*workspace)
 	if err != nil {
 		return err
 	}
-	if err := snapshot.WriteAtomic(path, serialized); err != nil {
+	if err := writeBuildArtifact(ctx, snapshot, loaded, path, serialized); err != nil {
 		return err
 	}
 	fmt.Printf("Build coverage: verified: %s changed_paths=%d\n", filepath.Join(snapshot.Root, filepath.FromSlash(path)), len(record.ChangedPaths))
@@ -105,4 +99,14 @@ func validateBuild(ctx context.Context, arguments []string) error {
 
 func evidencePath(workspace string) (string, error) {
 	return repository.WorkspacePath(workspace, ".aidd/build-verification.json")
+}
+
+func writeBuildArtifact(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt.Loaded, path string, content []byte) error {
+	if err := snapshot.AssertUnchanged(); err != nil {
+		return err
+	}
+	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+		return err
+	}
+	return snapshot.WriteAtomic(path, content)
 }

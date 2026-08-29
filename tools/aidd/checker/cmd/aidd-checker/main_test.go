@@ -15,6 +15,8 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
 func TestValidateSourceCLIReadsLegacyV3WithoutWriting(t *testing.T) {
@@ -340,6 +342,27 @@ func TestCaptureVerificationCLIRejectsResidualProcessBeforeLateMutation(t *testi
 	latePath := filepath.Join(root, "ignored", "late.txt")
 	if _, err := os.Stat(latePath); !os.IsNotExist(err) {
 		t.Fatalf("residual verification process mutated the repository after rejection: %v", err)
+	}
+}
+
+func TestWriteBuildArtifactRejectsHeadDriftBeforeOutput(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	baseline := strings.TrimSpace(runMainGit(t, root, "rev-parse", "HEAD"))
+	snapshot, err := repository.Open(context.Background(), root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	runMainGit(t, root, "commit", "--allow-empty", "-qm", "concurrent HEAD drift")
+	loaded := &receipt.Loaded{Value: model.Receipt{BuildBaseline: model.BuildBaseline{Head: baseline}}}
+	output := "docs/ai-driven-development/workspaces/fixture/.aidd/build-rule-coverage.json"
+	err = writeBuildArtifact(context.Background(), snapshot, loaded, output, []byte("{}\n"))
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_HEAD_DRIFT") {
+		t.Fatalf("expected pre-output HEAD drift rejection, got %v", err)
+	}
+	if _, statErr := os.Stat(filepath.Join(root, filepath.FromSlash(output))); !os.IsNotExist(statErr) {
+		t.Fatalf("HEAD drift wrote build output: %v", statErr)
 	}
 }
 

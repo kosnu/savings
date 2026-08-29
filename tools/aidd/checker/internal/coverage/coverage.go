@@ -59,6 +59,9 @@ func generatedArtifactPaths(workspace string) (string, string, string, error) {
 }
 
 func ValidateAndBuild(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt.Loaded) (*Record, error) {
+	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+		return nil, err
+	}
 	_, evidenceBytes, err := evidence.LoadAndValidate(snapshot, loaded)
 	if err != nil {
 		return nil, err

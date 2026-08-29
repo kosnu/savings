@@ -1,6 +1,7 @@
 package receipt
 
 import (
+	"context"
 	"regexp"
 	"sort"
 	"strconv"
@@ -31,9 +32,12 @@ func Path(workspace string) (string, error) {
 	return repository.WorkspacePath(workspace, ".aidd/design-completion.json")
 }
 
-func Load(snapshot *repository.Snapshot, workspace, expectedSHA256 string) (*Loaded, error) {
+func Load(ctx context.Context, snapshot *repository.Snapshot, workspace, expectedSHA256 string) (*Loaded, error) {
 	if !digestPattern.MatchString(expectedSHA256) {
 		return nil, diagnostic.New("AIDD_RECEIPT_EXPECTED_HASH", "expected_receipt_sha256", "design_completion", "expected receipt hash must be a lowercase SHA-256 digest", nil, expectedSHA256)
+	}
+	if _, err := snapshot.Head(ctx); err != nil {
+		return nil, err
 	}
 	path, err := Path(workspace)
 	if err != nil {
@@ -56,6 +60,9 @@ func Load(snapshot *repository.Snapshot, workspace, expectedSHA256 string) (*Loa
 	}
 	if !commitPattern.MatchString(value.BuildBaseline.Head) {
 		return nil, diagnostic.New("AIDD_BUILD_BASELINE", "build_baseline.head", "design_completion", "receipt Build baseline must be a full lowercase Git commit ID", "40 lowercase hexadecimal characters", value.BuildBaseline.Head)
+	}
+	if err := AssertBuildHead(ctx, snapshot, value.BuildBaseline.Head); err != nil {
+		return nil, err
 	}
 	if err := requireHashValue("target_state", value.TargetState.SHA256, value.TargetState.Value); err != nil {
 		return nil, err
@@ -99,6 +106,20 @@ func Load(snapshot *repository.Snapshot, workspace, expectedSHA256 string) (*Loa
 		return nil, diagnostic.New("AIDD_PROFILE_SELECTION", "verification_profiles.selected", "design_completion", "receipt selected profiles do not match target verification cases", selected, value.VerificationProfiles.Selected)
 	}
 	return &Loaded{Value: value, Bytes: content, SHA256: actualSHA256, Catalog: resolvedCatalog}, nil
+}
+
+func AssertBuildHead(ctx context.Context, snapshot *repository.Snapshot, expected string) error {
+	if !commitPattern.MatchString(expected) {
+		return diagnostic.New("AIDD_BUILD_BASELINE", "build_baseline.head", "design_completion", "receipt Build baseline must be a full lowercase Git commit ID", "40 lowercase hexadecimal characters", expected)
+	}
+	actual, err := snapshot.Head(ctx)
+	if err != nil {
+		return err
+	}
+	if actual != expected {
+		return diagnostic.New("AIDD_BUILD_HEAD_DRIFT", "build_baseline.head", "design_completion", "Git HEAD must match the Build baseline fixed by Design completion", expected, actual)
+	}
+	return nil
 }
 
 func equalJSON(left, right any) bool {
