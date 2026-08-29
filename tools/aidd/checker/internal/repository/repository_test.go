@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -167,6 +168,31 @@ func TestSnapshotRejectsGitHeadDriftAfterBaselineRead(t *testing.T) {
 	runRepositoryGit(t, root, "-c", "user.name=AIDD Test", "-c", "user.email=aidd@example.com", "commit", "--allow-empty", "-qm", "concurrent head advance")
 	if err := snapshot.AssertGitHeadUnchanged(context.Background()); diagnosticCode(err) != "AIDD_GIT_HEAD_DRIFT" {
 		t.Fatalf("AssertGitHeadUnchanged() error code = %q, want AIDD_GIT_HEAD_DRIFT: %v", diagnosticCode(err), err)
+	}
+}
+
+func TestWithStableGitIndexBlocksConcurrentGitWriter(t *testing.T) {
+	root := newGitRepository(t)
+	writeRepositoryFile(t, root, "tracked.txt", []byte("baseline\n"), 0o644)
+	commitRepositoryFixture(t, root)
+	snapshot := openSnapshot(t, root)
+	if err := snapshot.PinGitIndex(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	writeRepositoryFile(t, root, "concurrent.txt", []byte("new\n"), 0o644)
+	err := snapshot.WithStableGitIndex(context.Background(), func() error {
+		command := exec.Command("git", "-C", root, "add", "concurrent.txt")
+		output, commandErr := command.CombinedOutput()
+		if commandErr == nil || !strings.Contains(string(output), "index.lock") {
+			t.Fatalf("concurrent git add was not blocked by index lock: err=%v output=%s", commandErr, output)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if output := runRepositoryGit(t, root, "diff", "--cached", "--name-only"); output != "" {
+		t.Fatalf("concurrent path reached the real index: %q", output)
 	}
 }
 

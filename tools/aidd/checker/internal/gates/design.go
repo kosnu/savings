@@ -175,25 +175,26 @@ func validateDesignRuleCoverage(snapshot *repository.Snapshot, design, requireme
 	if !equalStrings(declaredSurfaces, expectedSurfaces) {
 		return diagnostic.New("AIDD_DESIGN_SURFACES", "validation.rule_coverage.implementation_surfaces", design.Envelope.Kind, "implementation surfaces must exactly match baseline and target paths", expectedSurfaces, declaredSurfaces)
 	}
-	selectedDirect := map[string]struct{}{}
+	automaticDirect := map[string]struct{}{}
 	input := requirements.Requirements.InputGate
 	for _, direct := range input.DirectRules {
-		selectedDirect[direct.ID] = struct{}{}
+		automaticDirect[direct.ID] = struct{}{}
 	}
 	for _, dependency := range input.DependsOn {
-		selectedDirect[dependency.ID] = struct{}{}
+		automaticDirect[dependency.ID] = struct{}{}
 	}
 	for _, surfaceID := range declaredSurfaces {
 		for _, surface := range loadedRules.Map.ReviewRouting.Surfaces {
 			if surface.ID == surfaceID {
 				for _, ruleID := range surface.RequiredRules {
-					selectedDirect[ruleID] = struct{}{}
+					automaticDirect[ruleID] = struct{}{}
 				}
 			}
 		}
 	}
-	for _, additional := range design.Design.RuleCoverage.AdditionalRules {
-		selectedDirect[additional.ID] = struct{}{}
+	selectedDirect, err := validateAdditionalRules(design.Design.RuleCoverage.AdditionalRules, automaticDirect, loadedRules, design.Envelope.Kind)
+	if err != nil {
+		return err
 	}
 	selectedClosure, err := rules.ExpandClosure(loadedRules, selectedDirect)
 	if err != nil {
@@ -211,6 +212,43 @@ func validateDesignRuleCoverage(snapshot *repository.Snapshot, design, requireme
 		}
 	}
 	return nil
+}
+
+func validateAdditionalRules(additional []model.AdditionalRule, automaticDirect map[string]struct{}, loadedRules *rules.Loaded, artifact string) (map[string]struct{}, error) {
+	automaticClosure, err := rules.ExpandClosure(loadedRules, automaticDirect)
+	if err != nil {
+		return nil, err
+	}
+	additionalSet := make(map[string]struct{}, len(additional))
+	additionalIDs := make([]string, len(additional))
+	for index, entry := range additional {
+		path := fmt.Sprintf("validation.rule_coverage.additional_rules[%d].id", index)
+		if _, exists := loadedRules.ByID[entry.ID]; !exists {
+			return nil, diagnostic.New("AIDD_ADDITIONAL_RULE_UNKNOWN", path, artifact, "additional rule must exist in the canonical rule map", loadedRules.Order, entry.ID)
+		}
+		if _, automatic := automaticClosure[entry.ID]; automatic {
+			return nil, diagnostic.New("AIDD_ADDITIONAL_RULE_AUTOMATIC", path, artifact, "additional rule must not repeat a rule selected automatically by Requirements or implementation surfaces", rules.Sorted(automaticClosure), entry.ID)
+		}
+		additionalSet[entry.ID] = struct{}{}
+		additionalIDs[index] = entry.ID
+	}
+	expectedOrder := make([]string, 0, len(additionalSet))
+	for _, ruleID := range loadedRules.Order {
+		if _, exists := additionalSet[ruleID]; exists {
+			expectedOrder = append(expectedOrder, ruleID)
+		}
+	}
+	if !equalStrings(additionalIDs, expectedOrder) {
+		return nil, diagnostic.New("AIDD_ADDITIONAL_RULE_ORDER", "validation.rule_coverage.additional_rules", artifact, "additional rules must use canonical rule-map order", expectedOrder, additionalIDs)
+	}
+	selected := make(map[string]struct{}, len(automaticDirect)+len(additionalSet))
+	for ruleID := range automaticDirect {
+		selected[ruleID] = struct{}{}
+	}
+	for ruleID := range additionalSet {
+		selected[ruleID] = struct{}{}
+	}
+	return selected, nil
 }
 
 func validateDesignCoverage(ctx context.Context, snapshot *repository.Snapshot, parsed *semantic.ParsedSource, gate model.DesignCoverageGate, workspace, artifact string) error {

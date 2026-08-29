@@ -31,10 +31,11 @@ type observedEntry struct {
 }
 
 type Snapshot struct {
-	Root     string
-	root     *os.Root
-	observed map[string]observedEntry
-	gitHead  string
+	Root           string
+	root           *os.Root
+	observed       map[string]observedEntry
+	gitHead        string
+	gitIndexSHA256 string
 }
 
 type WorktreeIdentity struct {

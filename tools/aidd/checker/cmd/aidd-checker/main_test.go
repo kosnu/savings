@@ -402,6 +402,9 @@ func TestWriteBuildArtifactRejectsHeadDriftBeforeOutput(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer snapshot.Close()
+	if err := snapshot.PinGitIndex(context.Background()); err != nil {
+		t.Fatal(err)
+	}
 	runMainGit(t, root, "commit", "--allow-empty", "-qm", "concurrent HEAD drift")
 	loaded := &receipt.Loaded{Value: model.Receipt{BuildBaseline: model.BuildBaseline{Head: baseline}}}
 	output := "docs/ai-driven-development/workspaces/fixture/.aidd/build-rule-coverage.json"
@@ -411,6 +414,31 @@ func TestWriteBuildArtifactRejectsHeadDriftBeforeOutput(t *testing.T) {
 	}
 	if _, statErr := os.Stat(filepath.Join(root, filepath.FromSlash(output))); !os.IsNotExist(statErr) {
 		t.Fatalf("HEAD drift wrote build output: %v", statErr)
+	}
+}
+
+func TestWriteBuildArtifactRejectsIndexDriftBeforeOutput(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	baseline := strings.TrimSpace(runMainGit(t, root, "rev-parse", "HEAD"))
+	snapshot, err := repository.Open(context.Background(), root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	if err := snapshot.PinGitIndex(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	writeMainFile(t, root, "concurrent.txt", []byte("staged after coverage\n"))
+	runMainGit(t, root, "add", "concurrent.txt")
+	loaded := &receipt.Loaded{Value: model.Receipt{BuildBaseline: model.BuildBaseline{Head: baseline}}}
+	output := "docs/ai-driven-development/workspaces/fixture/.aidd/build-rule-coverage.json"
+	err = writeBuildArtifact(context.Background(), snapshot, loaded, output, []byte("{}\n"))
+	if err == nil || !strings.Contains(err.Error(), "AIDD_GIT_STATE_INDEX_DRIFT") {
+		t.Fatalf("expected pre-output index drift rejection, got %v", err)
+	}
+	if _, statErr := os.Stat(filepath.Join(root, filepath.FromSlash(output))); !os.IsNotExist(statErr) {
+		t.Fatalf("index drift wrote build output: %v", statErr)
 	}
 }
 
