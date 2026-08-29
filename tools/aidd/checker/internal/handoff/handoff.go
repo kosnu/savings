@@ -192,10 +192,17 @@ type CheckInput struct {
 	ExpectedSHA256 string
 }
 
-func Check(snapshot *repository.Snapshot, input CheckInput) (*receipt.Loaded, error) {
+func Check(ctx context.Context, snapshot *repository.Snapshot, input CheckInput) (*receipt.Loaded, error) {
+	head, err := snapshot.Head(ctx)
+	if err != nil {
+		return nil, err
+	}
 	loaded, err := receipt.Load(snapshot, input.Workspace, input.ExpectedSHA256)
 	if err != nil {
 		return nil, err
+	}
+	if head != loaded.Value.BuildBaseline.Head {
+		return nil, diagnostic.New("AIDD_BUILD_HEAD_DRIFT", "build_baseline.head", "design_completion", "Build entry must use the Git HEAD fixed by Design completion", loaded.Value.BuildBaseline.Head, head)
 	}
 	issue := loaded.Value.Issue
 	expectedIssue := model.IssueReceipt{
@@ -275,6 +282,9 @@ func Check(snapshot *repository.Snapshot, input CheckInput) (*receipt.Loaded, er
 		return nil, diagnostic.New("AIDD_RECEIPT_CANONICAL", "", "design_completion", "Design completion receipt must use canonical JSON serialization", string(canonicalReceipt), string(loaded.Bytes))
 	}
 	if err := snapshot.AssertUnchanged(); err != nil {
+		return nil, err
+	}
+	if err := snapshot.AssertGitHeadUnchanged(ctx); err != nil {
 		return nil, err
 	}
 	return loaded, nil
