@@ -188,7 +188,8 @@ profileとtest-case profileは別IDとし、suite実行を単一caseの証拠と
 
 receipt は Issue、Goal、Requirements / Design source と display、rule map と selected
 rules、target state、ownership scopes、task-owned baseline inventory、非ignore untracked
-pathのtype・permission mode・contentまたはsymlink target identity、Git `HEAD`、profile catalog
+pathのtype・permission mode・contentまたはsymlink target identity、Requirements / Design
+source / displayのcontent hashとpermission mode、Git `HEAD`、profile catalog
 と selected profile hash を同じ snapshot から固定する。Git `HEAD`はsnapshot開始時に固定し、
 Git `HEAD` baseline blobはそのcommitから読み、receipt書込み直前のdriftを拒否する。
 全Git subprocessは親processの`GIT_INDEX_FILE`、`GIT_DIR`、`GIT_WORK_TREE`、config injectionを
@@ -217,11 +218,13 @@ Build baselineへ固定し、verification開始前と各canonical outputの書�
 manual observationはprocedureと同じ8文字以上の実質性契約に加えて単一行を要求する。
 この契約はcapture時と保存済みevidenceの再検証時に同じGo実装から適用する。
 
-runner は catalog の fixed argv だけを直接実行し、artifact の command や locator
+runner は親processの全`GIT_*`を除去してからcatalogの fixed argv だけを直接実行し、artifact の command や locator
 metadata から実行方法を組み立てない。test-case adapter は実行 path / name が selector
 と完全一致し、passed identity がちょうど1件の場合だけ成功する。各 result は profile
 ID / hash、typed selector、executed identities、exit code、stdout / stderr byte length、
 `AIDD-output-v1` framing hash、同一 final-state hash を保持する。
+`git-diff-check`は`git diff HEAD --check --`の固定argvだけを受理し、receiptが固定した
+`HEAD`からfinal worktreeまでのstaged / unstaged tracked contentを検査する。
 
 case の欠落、余剰、重複、順序ずれ、profile drift、旧 command evidence、失敗 status、
 不一致 runtime identity、canonical JSONと一致しない保存evidence bytesを拒否する。
@@ -240,6 +243,8 @@ coverage はShip前までGit `HEAD`がreceipt baselineと完全一致するこ�
 残る場合は、検証状態とShip候補が一致しないため拒否する。Design時点から不変の
 untracked pathは除外し、新規・変更・削除・tracked化だけをownership scope、surface、
 path rule、dependency closureへ再照合する。
+Requirements / Designのsource / displayはcoverage除外前にreceipt固定content hashと
+permission modeを再検証し、executable bitだけの変更も上流artifact driftとして拒否する。
 
 ## Compatibility and Go-only Ownership
 

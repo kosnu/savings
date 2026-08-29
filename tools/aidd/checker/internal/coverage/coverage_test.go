@@ -19,7 +19,7 @@ func TestValidatePinnedInputsRejectsNonCanonicalArtifactPath(t *testing.T) {
 	loaded := &receipt.Loaded{Value: model.Receipt{
 		Workspace: "1671-checker",
 		Artifacts: model.ReceiptArtifacts{
-			Requirements: model.ArtifactPair{Source: model.PathHash{Path: "outside.json"}},
+			Requirements: model.ArtifactPair{Source: model.ArtifactIdentity{Path: "outside.json"}},
 		},
 	}}
 	err := validatePinnedInputs(&repository.Snapshot{}, loaded, &rules.Loaded{})

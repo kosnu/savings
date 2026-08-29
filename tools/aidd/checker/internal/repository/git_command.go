@@ -12,11 +12,12 @@ import (
 func newGitCommand(ctx context.Context, root string, overrides []string, arguments ...string) *exec.Cmd {
 	commandArguments := append([]string{"-C", root}, arguments...)
 	command := exec.CommandContext(ctx, "git", commandArguments...)
-	command.Env = canonicalGitEnvironment(os.Environ(), overrides)
+	command.Env = CanonicalGitEnvironment(os.Environ(), overrides)
 	return command
 }
 
-func canonicalGitEnvironment(source, overrides []string) []string {
+// CanonicalGitEnvironmentは親processのGit固有設定を除去し、checker所有のoverrideだけを加える。
+func CanonicalGitEnvironment(source, overrides []string) []string {
 	result := make([]string, 0, len(source)+len(overrides))
 	for _, entry := range source {
 		key, _, found := strings.Cut(entry, "=")

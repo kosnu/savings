@@ -15,7 +15,7 @@ import (
 )
 
 func TestCanonicalGitEnvironmentRejectsInheritedRepositorySelection(t *testing.T) {
-	environment := canonicalGitEnvironment(
+	environment := CanonicalGitEnvironment(
 		[]string{
 			"PATH=/bin",
 			"GIT_INDEX_FILE=/tmp/alternate-index",

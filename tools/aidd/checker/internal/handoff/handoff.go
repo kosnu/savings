@@ -93,6 +93,22 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 	if !bytes.Equal(designDisplay, []byte(expectedDesignDisplay)) {
 		return "", "", diagnostic.New("AIDD_DISPLAY_DRIFT", designDisplayPath, "design_completion", "Design display does not match its canonical source", canonical.HashBytes([]byte(expectedDesignDisplay)), canonical.HashBytes(designDisplay))
 	}
+	requirementsSourceIdentity, err := receipt.CaptureArtifactIdentity(snapshot, requirementsPath, requirementsBytes)
+	if err != nil {
+		return "", "", err
+	}
+	requirementsDisplayIdentity, err := receipt.CaptureArtifactIdentity(snapshot, requirementsDisplayPath, requirementsDisplay)
+	if err != nil {
+		return "", "", err
+	}
+	designSourceIdentity, err := receipt.CaptureArtifactIdentity(snapshot, designPath, designBytes)
+	if err != nil {
+		return "", "", err
+	}
+	designDisplayIdentity, err := receipt.CaptureArtifactIdentity(snapshot, designDisplayPath, designDisplay)
+	if err != nil {
+		return "", "", err
+	}
 	if !equalJSON(design.Design.TargetState, goal.Design.TargetState) || !equalJSON(design.Design.RuleCoverage, goal.Design.RuleCoverage) {
 		return "", "", diagnostic.New("AIDD_DESIGN_GOAL_DRIFT", "validation", "design_completion", "Design artifact target state and rule coverage must match the retained Goal", goal.Design, design.Design)
 	}
@@ -155,12 +171,12 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 		BuildBaseline:        model.BuildBaseline{Head: head},
 		Artifacts: model.ReceiptArtifacts{
 			Requirements: model.ArtifactPair{
-				Source:  model.PathHash{Path: requirementsPath, SHA256: canonical.HashBytes(requirementsBytes)},
-				Display: model.PathHash{Path: requirementsDisplayPath, SHA256: canonical.HashBytes(requirementsDisplay)},
+				Source:  requirementsSourceIdentity,
+				Display: requirementsDisplayIdentity,
 			},
 			Design: model.ArtifactPair{
-				Source:  model.PathHash{Path: designPath, SHA256: canonical.HashBytes(designBytes)},
-				Display: model.PathHash{Path: designDisplayPath, SHA256: canonical.HashBytes(designDisplay)},
+				Source:  designSourceIdentity,
+				Display: designDisplayIdentity,
 			},
 		},
 	}
@@ -214,25 +230,6 @@ func Check(ctx context.Context, snapshot *repository.Snapshot, input CheckInput)
 	}
 	if currentHash := canonical.HashBytes(ruleMapBytes); currentHash != loaded.Value.RuleMap.SHA256 {
 		return nil, diagnostic.New("AIDD_RULE_MAP_DRIFT", RuleMapPath, "design_completion", "rule map changed after Design completion", loaded.Value.RuleMap.SHA256, currentHash)
-	}
-	artifactPairs := []struct {
-		kind string
-		pair model.ArtifactPair
-	}{{kind: "requirements", pair: loaded.Value.Artifacts.Requirements}, {kind: "design", pair: loaded.Value.Artifacts.Design}}
-	for _, artifact := range artifactPairs {
-		for _, part := range []struct {
-			name   string
-			record model.PathHash
-		}{{name: "source", record: artifact.pair.Source}, {name: "display", record: artifact.pair.Display}} {
-			record := part.record
-			content, readErr := snapshot.Read(record.Path)
-			if readErr != nil {
-				return nil, readErr
-			}
-			if currentHash := canonical.HashBytes(content); currentHash != record.SHA256 {
-				return nil, diagnostic.New("AIDD_ARTIFACT_DRIFT", record.Path, "design_completion", artifact.kind+" "+part.name+" changed after Design completion", record.SHA256, currentHash)
-			}
-		}
 	}
 	for _, record := range loaded.Value.SelectedRules {
 		content, readErr := snapshot.Read(record.Path)

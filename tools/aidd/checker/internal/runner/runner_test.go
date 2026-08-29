@@ -144,16 +144,46 @@ func TestVitestArgumentsEscapeAndAnchorExactName(t *testing.T) {
 }
 
 func TestFixedEnvironmentOverridesNondeterministicValues(t *testing.T) {
-	environment := fixedEnvironment([]string{"PATH=/bin", "LC_ALL=ja_JP.UTF-8", "FORCE_COLOR=1", "PYTHONDONTWRITEBYTECODE=0"})
+	environment := fixedEnvironment([]string{"PATH=/bin", "LC_ALL=ja_JP.UTF-8", "FORCE_COLOR=1", "PYTHONDONTWRITEBYTECODE=0", "GIT_DIR=/tmp/alternate", "GIT_CONFIG_COUNT=1"})
 	for _, required := range []string{"LC_ALL=C", "FORCE_COLOR=0", "PYTHONDONTWRITEBYTECODE=1"} {
 		if !slices.Contains(environment, required) {
 			t.Fatalf("environment does not contain %q: %#v", required, environment)
 		}
 	}
-	for _, forbidden := range []string{"LC_ALL=ja_JP.UTF-8", "FORCE_COLOR=1", "PYTHONDONTWRITEBYTECODE=0"} {
+	for _, forbidden := range []string{"LC_ALL=ja_JP.UTF-8", "FORCE_COLOR=1", "PYTHONDONTWRITEBYTECODE=0", "GIT_DIR=/tmp/alternate", "GIT_CONFIG_COUNT=1"} {
 		if slices.Contains(environment, forbidden) {
 			t.Fatalf("environment still contains %q: %#v", forbidden, environment)
 		}
+	}
+}
+
+func TestGitDiffProfileUsesCanonicalRepositoryUnderPoisonedEnvironment(t *testing.T) {
+	snapshot := newRunnerSnapshot(t)
+	ownedPath := filepath.Join(snapshot.Root, "owned.txt")
+	if err := os.WriteFile(ownedPath, []byte("trailing whitespace \n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runRunnerGit(t, snapshot.Root, "add", "owned.txt")
+
+	alternateRoot := t.TempDir()
+	command := exec.Command("git", "init", "--quiet", alternateRoot)
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("git init alternate repository: %v: %s", err, output)
+	}
+	runRunnerGit(t, alternateRoot, "config", "user.name", "AIDD Test")
+	runRunnerGit(t, alternateRoot, "config", "user.email", "aidd@example.com")
+	runRunnerGit(t, alternateRoot, "commit", "--allow-empty", "-qm", "alternate clean repository")
+	t.Setenv("GIT_DIR", filepath.Join(alternateRoot, ".git"))
+	t.Setenv("GIT_WORK_TREE", alternateRoot)
+
+	profile := model.VerificationProfile{
+		ID: "git-diff-check", Contract: "suite", Runner: "command_suite", SelectorKind: "suite",
+		Argv: []string{"git", "diff", "HEAD", "--check", "--"},
+	}
+	verificationCase := model.VerificationCase{ID: "VC-1", Type: "automated", Selector: &model.Selector{Kind: "suite"}}
+	_, err := executeAutomated(context.Background(), snapshot, profile, "profile-hash", verificationCase, "final-state")
+	if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_EXIT") {
+		t.Fatalf("expected canonical staged whitespace rejection, got %v", err)
 	}
 }
 

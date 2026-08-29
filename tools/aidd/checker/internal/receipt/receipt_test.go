@@ -21,12 +21,22 @@ func TestReceiptCanonicalGolden(t *testing.T) {
 		BaselineInventory: model.HashValue[[]string]{SHA256: "inventory-hash", Value: []string{}},
 		UntrackedBaseline: model.HashValue[[]model.UntrackedEntry]{SHA256: "untracked-hash", Value: []model.UntrackedEntry{}},
 		BuildBaseline:     model.BuildBaseline{Head: "0123456789012345678901234567890123456789"},
+		Artifacts: model.ReceiptArtifacts{
+			Requirements: model.ArtifactPair{
+				Source:  model.ArtifactIdentity{Path: "requirements.json", SHA256: "requirements-source-hash", Mode: "0644"},
+				Display: model.ArtifactIdentity{Path: "requirements.md", SHA256: "requirements-display-hash", Mode: "0644"},
+			},
+			Design: model.ArtifactPair{
+				Source:  model.ArtifactIdentity{Path: "design-doc.json", SHA256: "design-source-hash", Mode: "0644"},
+				Display: model.ArtifactIdentity{Path: "design-doc.md", SHA256: "design-display-hash", Mode: "0644"},
+			},
+		},
 	}
 	digest, err := canonical.Hash(value)
 	if err != nil {
 		t.Fatal(err)
 	}
-	const expected = "f191b1e25a9359520bc88000b0ec188daf6827088bc41419c7cd48a829bb5cf3"
+	const expected = "05acd74a5f2bbc5ae92f4f9e5172fa4ad8fe8e1a5755f7ddbfac79ce974d9cdc"
 	if digest != expected {
 		t.Fatalf("receipt canonical golden = %s, want %s", digest, expected)
 	}

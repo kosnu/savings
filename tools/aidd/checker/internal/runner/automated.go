@@ -131,6 +131,7 @@ func selectorPath(profile model.VerificationProfile, selector model.Selector) (s
 }
 
 func fixedEnvironment(source []string) []string {
+	source = repository.CanonicalGitEnvironment(source, nil)
 	fixed := map[string]string{
 		"CLICOLOR":                "0",
 		"FORCE_COLOR":             "0",

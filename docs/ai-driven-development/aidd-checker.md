@@ -37,8 +37,8 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: canonical `docs/harness/rule-map.json` のpath契約と読取、closure、path / surface routing。
 - `internal/repository`: Go `os.Root`で閉じたcanonical Git root、親processの全`GIT_*`を除去したGit実行境界、snapshot作成時に正本worktreeから固定して各Git commandへ明示するindex path、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、snapshotへ固定したraw Git index identity、index visibility flagや`core.fileMode`設定に依存しないworktree差分、atomic output。
-- `internal/handoff` / `internal/receipt`: Design completion capture と Build Entry。
-- `internal/runner` / `internal/evidence`: profile-fixed execution と structured evidence。
+- `internal/handoff` / `internal/receipt`: source / displayのcontent hashとpermission modeを固定するDesign completion capture と、全Build entrypointで同じidentityを再検証するBuild Entry。
+- `internal/runner` / `internal/evidence`: 親processの全`GIT_*`を除去したprofile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
 - `internal/phasecontract`: phase ownership contract と agent representation の照合。
 - `cmd/aidd-checker`: CLI adapter。domain ruleを持たない。
@@ -77,6 +77,8 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 拒否する。
 
 - catalogまたは選択profileのdrift
+- `git-diff-check`が固定済み`HEAD`からfinal worktreeまでを対象にしないargv
+- 親processの`GIT_*`でverification profileのrepositoryまたはindexを差し替える実行
 - profile contractと異なるselector kind
 - caseの欠落、余剰、重複、順序ずれ
 - selectorと一致しないruntime test path / full name、または単一`passed`以外のreport
@@ -84,6 +86,10 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - direct runner終了後に残ったverification process。専用process groupを終了して残留がないことを確認してからcase後stateを検査する
 - case後に変化したtask-owned final state
 - case後に変化したignore対象を含むrepository pathのtype・permission mode・size・mtime・ctime・device・inode、Git `HEAD`のcommit・symbolic reference、またはraw Git index bytes全体
+
+Requirements / Designのcanonical sourceとdisplayはcontent hashだけでなくpermission modeも
+receiptへ固定し、`receipt.Load`を使う全Build entrypointで再検証する。mode-only変更も
+read-only上流artifactのdriftとして、coverage対象から除外する前に拒否する。
 
 Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime identityへ
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと
