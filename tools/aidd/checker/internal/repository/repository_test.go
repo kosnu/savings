@@ -164,7 +164,7 @@ func TestSnapshotRejectsGitHeadDriftAfterBaselineRead(t *testing.T) {
 	if _, _, err := snapshot.ReadHeadBlob(context.Background(), "requirements.json"); err != nil {
 		t.Fatal(err)
 	}
-	runRepositoryGit(t, root, "commit", "--allow-empty", "-qm", "concurrent head advance")
+	runRepositoryGit(t, root, "-c", "user.name=AIDD Test", "-c", "user.email=aidd@example.com", "commit", "--allow-empty", "-qm", "concurrent head advance")
 	if err := snapshot.AssertGitHeadUnchanged(context.Background()); diagnosticCode(err) != "AIDD_GIT_HEAD_DRIFT" {
 		t.Fatalf("AssertGitHeadUnchanged() error code = %q, want AIDD_GIT_HEAD_DRIFT: %v", diagnosticCode(err), err)
 	}
