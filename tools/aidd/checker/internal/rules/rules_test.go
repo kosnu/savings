@@ -76,6 +76,21 @@ func TestLoadRejectsIncompleteRuleMapContracts(t *testing.T) {
 	}
 }
 
+func TestLoadRejectsNonCanonicalPath(t *testing.T) {
+	repoRoot := t.TempDir()
+	if output, err := exec.Command("git", "init", "--quiet", repoRoot).CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v: %s", err, output)
+	}
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	if _, err := Load(snapshot, "docs/harness/alternate-rule-map.json"); err == nil || !strings.Contains(err.Error(), "AIDD_RULE_MAP_PATH") {
+		t.Fatalf("expected canonical rule-map path rejection, got %v", err)
+	}
+}
+
 func TestRepositoryRuleMapLoads(t *testing.T) {
 	workingDirectory, err := filepath.Abs(".")
 	if err != nil {
@@ -86,7 +101,7 @@ func TestRepositoryRuleMapLoads(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	loaded, err := Load(snapshot, "docs/harness/rule-map.json")
+	loaded, err := Load(snapshot, DefaultPath)
 	if err != nil {
 		t.Fatal(err)
 	}

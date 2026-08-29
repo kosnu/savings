@@ -16,7 +16,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
 )
 
-const RuleMapPath = "docs/harness/rule-map.json"
+const RuleMapPath = rules.DefaultPath
 
 type CaptureInput struct {
 	IssueID        string

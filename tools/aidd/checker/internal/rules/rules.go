@@ -12,6 +12,8 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
+const DefaultPath = "docs/harness/rule-map.json"
+
 type RuleMap struct {
 	Version         int           `json:"version,omitempty"`
 	Description     string        `json:"description,omitempty"`
@@ -57,6 +59,9 @@ type Loaded struct {
 }
 
 func Load(snapshot *repository.Snapshot, ruleMapPath string) (*Loaded, error) {
+	if ruleMapPath != DefaultPath {
+		return nil, diagnostic.New("AIDD_RULE_MAP_PATH", "rule_map.path", "rule_map", "rule map must use the canonical repository path", DefaultPath, ruleMapPath)
+	}
 	content, err := snapshot.Read(ruleMapPath)
 	if err != nil {
 		return nil, err

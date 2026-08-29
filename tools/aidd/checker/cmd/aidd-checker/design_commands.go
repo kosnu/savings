@@ -25,7 +25,7 @@ func validateDesign(ctx context.Context, arguments []string) error {
 	documentPath := flags.String("document", "", "Design source")
 	kind := flags.String("kind", "", "design or design_goal")
 	goalPath := flags.String("goal-document", "", "retained Design Goal")
-	ruleMapPath := flags.String("rule-map", handoff.RuleMapPath, "rule map")
+	ruleMapPath := flags.String("rule-map", handoff.RuleMapPath, "canonical rule map")
 	profilePath := flags.String("profile-catalog", catalog.DefaultPath, "verification profile catalog")
 	if err := parseFlags(flags, arguments); err != nil {
 		return err
