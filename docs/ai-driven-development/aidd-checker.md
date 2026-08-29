@@ -88,8 +88,9 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - case後に変化したignore対象を含むrepository pathのtype・permission mode・size・mtime・ctime・device・inode、Git `HEAD`のcommit・symbolic reference、またはraw Git index bytes全体
 
 Requirements / Designのcanonical sourceとdisplayはcontent hashだけでなくpermission modeも
-receiptへ固定し、`receipt.Load`を使う全Build entrypointで再検証する。mode-only変更も
-read-only上流artifactのdriftとして、coverage対象から除外する前に拒否する。
+receiptへ固定し、`receipt.Load`を使う全Build entrypointで再検証する。receipt自身は
+atomic writerのcanonical mode `0600`を要求する。どちらもmode-only変更をread-only上流
+artifactのdriftとして、coverage対象から除外する前に拒否する。
 
 Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime identityへ
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと

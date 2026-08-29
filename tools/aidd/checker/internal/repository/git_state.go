@@ -85,9 +85,9 @@ func (snapshot *Snapshot) AssertGitIndexUnchanged(ctx context.Context) error {
 	return snapshot.PinGitIndex(ctx)
 }
 
-// WithStableGitIndexはGit writerを標準index lockで排他し、固定済みindexの再照合から
+// WithStableGitStateはGit writerを標準index lockで排他し、固定済みHEADとindexの再照合から
 // action完了後の再照合までを同じcritical sectionで実行する。
-func (snapshot *Snapshot) WithStableGitIndex(ctx context.Context, action func() error) (resultErr error) {
+func (snapshot *Snapshot) WithStableGitState(ctx context.Context, action func() error) (resultErr error) {
 	indexPath, err := snapshot.gitIndexPath(ctx)
 	if err != nil {
 		return err
@@ -114,10 +114,19 @@ func (snapshot *Snapshot) WithStableGitIndex(ctx context.Context, action func() 
 	if err := snapshot.AssertGitIndexUnchanged(ctx); err != nil {
 		return err
 	}
+	if snapshot.gitHead == "" {
+		return diagnostic.New("AIDD_GIT_HEAD_UNPINNED", "HEAD", "repository", "Git HEAD identity must be fixed before a canonical Build output is written", "pinned Git HEAD identity", nil)
+	}
+	if err := snapshot.AssertGitHeadUnchanged(ctx); err != nil {
+		return err
+	}
 	if err := action(); err != nil {
 		return err
 	}
-	return snapshot.AssertGitIndexUnchanged(ctx)
+	if err := snapshot.AssertGitIndexUnchanged(ctx); err != nil {
+		return err
+	}
+	return snapshot.AssertGitHeadUnchanged(ctx)
 }
 
 // GitIndexWorktreeDiffは実indexを変更せず、worktree差分を隠すindex flagを除いた

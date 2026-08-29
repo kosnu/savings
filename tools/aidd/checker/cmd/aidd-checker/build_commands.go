@@ -108,7 +108,7 @@ func writeBuildArtifact(ctx context.Context, snapshot *repository.Snapshot, load
 	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
 		return err
 	}
-	return snapshot.WithStableGitIndex(ctx, func() error {
+	return snapshot.WithStableGitState(ctx, func() error {
 		return snapshot.WriteAtomic(path, content)
 	})
 }

@@ -54,6 +54,9 @@ func Load(ctx context.Context, snapshot *repository.Snapshot, workspace, expecte
 	if actualSHA256 != expectedSHA256 {
 		return nil, diagnostic.New("AIDD_RECEIPT_HASH", path, "design_completion", "receipt bytes do not match the Design completion evidence", expectedSHA256, actualSHA256)
 	}
+	if err := ValidateReceiptMode(snapshot, path, "design_completion"); err != nil {
+		return nil, err
+	}
 	var value model.Receipt
 	if err := canonical.Decode(content, "design_completion", &value); err != nil {
 		return nil, err

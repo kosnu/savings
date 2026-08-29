@@ -197,7 +197,7 @@ func TestSnapshotRejectsGitHeadDriftAfterBaselineRead(t *testing.T) {
 	}
 }
 
-func TestWithStableGitIndexBlocksConcurrentGitWriter(t *testing.T) {
+func TestWithStableGitStateBlocksConcurrentGitWriter(t *testing.T) {
 	root := newGitRepository(t)
 	writeRepositoryFile(t, root, "tracked.txt", []byte("baseline\n"), 0o644)
 	commitRepositoryFixture(t, root)
@@ -206,7 +206,10 @@ func TestWithStableGitIndexBlocksConcurrentGitWriter(t *testing.T) {
 		t.Fatal(err)
 	}
 	writeRepositoryFile(t, root, "concurrent.txt", []byte("new\n"), 0o644)
-	err := snapshot.WithStableGitIndex(context.Background(), func() error {
+	if _, err := snapshot.Head(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	err := snapshot.WithStableGitState(context.Background(), func() error {
 		command := exec.Command("git", "-C", root, "add", "concurrent.txt")
 		output, commandErr := command.CombinedOutput()
 		if commandErr == nil || !strings.Contains(string(output), "index.lock") {
@@ -219,6 +222,28 @@ func TestWithStableGitIndexBlocksConcurrentGitWriter(t *testing.T) {
 	}
 	if output := runRepositoryGit(t, root, "diff", "--cached", "--name-only"); output != "" {
 		t.Fatalf("concurrent path reached the real index: %q", output)
+	}
+}
+
+func TestWithStableGitStateRejectsHeadDriftDuringAction(t *testing.T) {
+	root := newGitRepository(t)
+	writeRepositoryFile(t, root, "tracked.txt", []byte("baseline\n"), 0o644)
+	commitRepositoryFixture(t, root)
+	snapshot := openSnapshot(t, root)
+	if _, err := snapshot.Head(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if err := snapshot.PinGitIndex(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	tree := strings.TrimSpace(runRepositoryGit(t, root, "write-tree"))
+	nextHead := strings.TrimSpace(runRepositoryGit(t, root, "-c", "user.name=AIDD Test", "-c", "user.email=aidd@example.com", "commit-tree", tree, "-p", "HEAD", "-m", "concurrent head"))
+	err := snapshot.WithStableGitState(context.Background(), func() error {
+		runRepositoryGit(t, root, "update-ref", "HEAD", nextHead)
+		return nil
+	})
+	if diagnosticCode(err) != "AIDD_GIT_HEAD_DRIFT" {
+		t.Fatalf("WithStableGitState() error code = %q, want AIDD_GIT_HEAD_DRIFT: %v", diagnosticCode(err), err)
 	}
 }
 
