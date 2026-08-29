@@ -135,7 +135,7 @@ func buildEntry(ctx context.Context, arguments []string) error {
 		return err
 	}
 	defer snapshot.Close()
-	loaded, err := handoff.Check(snapshot, handoff.CheckInput{IssueID: *issue, IssueURL: *issueURL, IssueUpdatedAt: *issueUpdatedAt, IssueBody: issueBody, Workspace: *workspace, ExpectedSHA256: *expectedReceipt})
+	loaded, err := handoff.Check(ctx, snapshot, handoff.CheckInput{IssueID: *issue, IssueURL: *issueURL, IssueUpdatedAt: *issueUpdatedAt, IssueBody: issueBody, Workspace: *workspace, ExpectedSHA256: *expectedReceipt})
 	if err != nil {
 		return err
 	}
