@@ -178,7 +178,7 @@ func TestGitDiffProfileUsesCanonicalRepositoryUnderPoisonedEnvironment(t *testin
 
 	profile := model.VerificationProfile{
 		ID: "git-diff-check", Contract: "suite", Runner: "command_suite", SelectorKind: "suite",
-		Argv: []string{"git", "diff", "HEAD", "--check", "--"},
+		Argv: []string{"git", "diff", "--no-ext-diff", "HEAD", "--check", "--"},
 	}
 	verificationCase := model.VerificationCase{ID: "VC-1", Type: "automated", Selector: &model.Selector{Kind: "suite"}}
 	_, err := executeAutomated(context.Background(), snapshot, profile, "profile-hash", verificationCase, "final-state")
@@ -294,7 +294,7 @@ func TestExecuteRejectsOwnedFileMutation(t *testing.T) {
 	}
 }
 
-func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
+func TestExecuteRejectsStagedTreeMutation(t *testing.T) {
 	tests := []struct {
 		name      string
 		arguments func(t *testing.T, repoRoot string) []string
@@ -327,19 +327,6 @@ func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
 				return []string{"git", "add", "--", "outside.txt"}
 			},
 		},
-		{
-			name: "index flags",
-			arguments: func(t *testing.T, repoRoot string) []string {
-				return []string{"git", "update-index", "--assume-unchanged", "owned.txt"}
-			},
-		},
-		{
-			name: "head reference",
-			arguments: func(t *testing.T, repoRoot string) []string {
-				runRunnerGit(t, repoRoot, "branch", "same-head")
-				return []string{"git", "symbolic-ref", "HEAD", "refs/heads/same-head"}
-			},
-		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -349,6 +336,7 @@ func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
 				t.Fatal(err)
 			}
 			runRunnerGit(t, snapshot.Root, "add", "--", "owned.txt")
+			runRunnerGit(t, snapshot.Root, "commit", "-qm", "tracked Build fixture")
 			profile := model.VerificationProfile{
 				ID: "mutating-suite", Contract: "suite", Runner: "command_suite", SelectorKind: "suite",
 				Argv: test.arguments(t, snapshot.Root),
@@ -372,7 +360,7 @@ func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
 			pinRunnerReceipt(t, snapshot, loaded)
 			_, err := Execute(context.Background(), snapshot, loaded, Options{})
 			if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_MUTATION") {
-				t.Fatalf("expected Git index mutation rejection, got %v", err)
+				t.Fatalf("expected staged tree mutation rejection, got %v", err)
 			}
 		})
 	}

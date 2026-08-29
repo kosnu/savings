@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"regexp"
 	"sort"
-	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
@@ -35,10 +34,9 @@ type Manifest struct {
 }
 
 type RepositoryGitState struct {
-	Version       int    `json:"version"`
-	HeadCommit    string `json:"head_commit"`
-	HeadReference string `json:"head_reference"`
-	IndexSHA256   string `json:"index_sha256"`
+	Version          int    `json:"version"`
+	HeadCommit       string `json:"head_commit"`
+	StagedTreeSHA256 string `json:"staged_tree_sha256"`
 }
 
 func UntrackedInventory(ctx context.Context, snapshot *repository.Snapshot, excluded map[string]struct{}) ([]model.UntrackedEntry, error) {
@@ -106,27 +104,15 @@ func ValidateUntrackedBaseline(entries []model.UntrackedEntry) error {
 }
 
 func RepositoryGitStateHash(ctx context.Context, snapshot *repository.Snapshot) (string, error) {
-	headBytes, err := snapshot.Git(ctx, "rev-parse", "--verify", "HEAD")
+	headCommit, err := snapshot.Head(ctx)
 	if err != nil {
 		return "", err
 	}
-	headCommit := strings.TrimSpace(string(headBytes))
-	if len(headCommit) != 40 {
-		return "", diagnostic.New("AIDD_GIT_STATE_HEAD", "HEAD", "repository", "verification Git state requires a full commit ID", "40 hexadecimal characters", headCommit)
-	}
-	headReferenceBytes, err := snapshot.Git(ctx, "rev-parse", "--symbolic-full-name", "HEAD")
+	stagedTreeSHA256, err := snapshot.StagedTreeIdentity(ctx)
 	if err != nil {
 		return "", err
 	}
-	headReference := strings.TrimSpace(string(headReferenceBytes))
-	if headReference == "" {
-		return "", diagnostic.New("AIDD_GIT_STATE_HEAD", "HEAD", "repository", "verification Git state requires a symbolic HEAD identity or detached HEAD marker", "refs/... or HEAD", headReference)
-	}
-	indexSHA256, err := snapshot.GitIndexIdentity(ctx)
-	if err != nil {
-		return "", err
-	}
-	return canonical.Hash(RepositoryGitState{Version: 2, HeadCommit: headCommit, HeadReference: headReference, IndexSHA256: indexSHA256})
+	return canonical.Hash(RepositoryGitState{Version: 3, HeadCommit: headCommit, StagedTreeSHA256: stagedTreeSHA256})
 }
 
 func untrackedPaths(ctx context.Context, snapshot *repository.Snapshot, excluded map[string]struct{}) ([]string, error) {

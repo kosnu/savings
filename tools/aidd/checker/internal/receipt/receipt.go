@@ -36,12 +36,6 @@ func Load(ctx context.Context, snapshot *repository.Snapshot, workspace, expecte
 	if !digestPattern.MatchString(expectedSHA256) {
 		return nil, diagnostic.New("AIDD_RECEIPT_EXPECTED_HASH", "expected_receipt_sha256", "design_completion", "expected receipt hash must be a lowercase SHA-256 digest", nil, expectedSHA256)
 	}
-	if _, err := snapshot.Head(ctx); err != nil {
-		return nil, err
-	}
-	if err := snapshot.PinGitIndex(ctx); err != nil {
-		return nil, err
-	}
 	path, err := Path(workspace)
 	if err != nil {
 		return nil, err
@@ -66,9 +60,6 @@ func Load(ctx context.Context, snapshot *repository.Snapshot, workspace, expecte
 	}
 	if !commitPattern.MatchString(value.BuildBaseline.Head) {
 		return nil, diagnostic.New("AIDD_BUILD_BASELINE", "build_baseline.head", "design_completion", "receipt Build baseline must be a full lowercase Git commit ID", "40 lowercase hexadecimal characters", value.BuildBaseline.Head)
-	}
-	if err := AssertBuildHead(ctx, snapshot, value.BuildBaseline.Head); err != nil {
-		return nil, err
 	}
 	if err := requireHashValue("target_state", value.TargetState.SHA256, value.TargetState.Value); err != nil {
 		return nil, err
@@ -129,6 +120,13 @@ func AssertBuildHead(ctx context.Context, snapshot *repository.Snapshot, expecte
 		return diagnostic.New("AIDD_BUILD_HEAD_DRIFT", "build_baseline.head", "design_completion", "Git HEAD must match the Build baseline fixed by Design completion", expected, actual)
 	}
 	return nil
+}
+
+func AssertBuildGitState(ctx context.Context, snapshot *repository.Snapshot, expectedHead string) error {
+	if err := AssertBuildHead(ctx, snapshot, expectedHead); err != nil {
+		return err
+	}
+	return snapshot.AssertNoStagedChanges(ctx, expectedHead)
 }
 
 func equalJSON(left, right any) bool {

@@ -19,7 +19,7 @@ type Options struct {
 }
 
 func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt.Loaded, options Options) (*model.BuildEvidence, error) {
-	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+	if err := receipt.AssertBuildGitState(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
 		return nil, err
 	}
 	target := &loaded.Value.TargetState.Value
@@ -89,7 +89,7 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 			return nil, err
 		}
 		if currentGitState != initialGitState {
-			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified repository HEAD or Git index state", initialGitState, currentGitState)
+			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified repository HEAD or staged tree", initialGitState, currentGitState)
 		}
 		currentFinalState, err := state.FinalHash(snapshot, target)
 		if err != nil {
@@ -109,7 +109,7 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 			return nil, diagnostic.New("AIDD_MANUAL_OBSERVATION_EXTRA", id, "build_verification", "manual observation names an unknown or automated case", nil, id)
 		}
 	}
-	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+	if err := receipt.AssertBuildGitState(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
 		return nil, err
 	}
 	return evidence, nil

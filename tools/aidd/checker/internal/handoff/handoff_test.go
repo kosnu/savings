@@ -427,7 +427,7 @@ func initializeFixtureRepository(t *testing.T) string {
 
 	profiles := model.ProfileCatalog{SchemaVersion: 1, Profiles: []model.VerificationProfile{{
 		ID: "git-diff-check", Contract: "suite", Runner: "command_suite", SelectorKind: "suite",
-		SelectorRoot: "", WorkingDirectory: "", Argv: []string{"git", "diff", "HEAD", "--check", "--"},
+		SelectorRoot: "", WorkingDirectory: "", Argv: []string{"git", "diff", "--no-ext-diff", "HEAD", "--check", "--"},
 	}}}
 	writeJSON(t, filepath.Join(repoRoot, filepath.FromSlash(catalog.DefaultPath)), profiles)
 	requirementsSectionHeadings := map[string]string{

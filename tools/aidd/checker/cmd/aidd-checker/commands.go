@@ -56,6 +56,8 @@ func run(ctx context.Context, arguments []string) error {
 		return captureVerification(ctx, arguments[1:])
 	case "validate-build":
 		return validateBuild(ctx, arguments[1:])
+	case "validate-ship":
+		return validateShip(ctx, arguments[1:])
 	case "validate-phase-contract":
 		return validatePhaseContract(ctx, arguments[1:])
 	default:
@@ -64,7 +66,7 @@ func run(ctx context.Context, arguments []string) error {
 }
 
 func commands() []string {
-	return []string{"workspace", "render", "validate-source", "validate-requirements", "validate-design", "check-all", "capture-design", "build-entry", "capture-verification", "validate-build", "validate-phase-contract", "version"}
+	return []string{"workspace", "render", "validate-source", "validate-requirements", "validate-design", "check-all", "capture-design", "build-entry", "capture-verification", "validate-build", "validate-ship", "validate-phase-contract", "version"}
 }
 
 func validatePhaseContract(ctx context.Context, arguments []string) error {

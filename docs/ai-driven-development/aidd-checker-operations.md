@@ -15,13 +15,13 @@ topics:
   - verification
   - schema-v4
 when_to_read:
-  - Requirements、Design、BuildのAIDD gateを実行するとき
+  - Requirements、Design、Build、ShipのAIDD gateを実行するとき
   - AIDD checkerのCLI引数と実行順序を確認するとき
 ---
 
 # AIDD Checker Operations
 
-Requirements、Design、Build の現行 gate は Go 製 `aidd-checker` を使う。新規
+Requirements、Design、Build、Ship の現行 gate は Go 製 `aidd-checker` を使う。新規
 managed source、receipt、Build evidence は schema v4 である。schema v2 / v3 は
 履歴の読取互換入力であり、render、Goal 完了、receipt 作成、Build 入力へ昇格しない。
 
@@ -193,15 +193,15 @@ source / displayのcontent hashとpermission mode、Git `HEAD`、profile catalog
 と selected profile hash を同じ snapshot から固定する。Git `HEAD`はsnapshot開始時に固定し、
 Git `HEAD` baseline blobはそのcommitから読み、receipt書込み直前のdriftを拒否する。
 全Git subprocessは親processの`GIT_INDEX_FILE`、`GIT_DIR`、`GIT_WORK_TREE`、config injectionを
-含む全`GIT_*`を除去する。snapshot開始時にcanonical rootからworktree index pathを固定し、
-通常Git検証にはそのpathを明示し、一時index処理だけchecker所有の一時pathへ置き換える。
-Build Entry、`capture-verification`、`validate-build`はreceipt読込時にGit `HEAD`を
-Build baselineへ固定し、verification開始前と各canonical outputの書込み直前にも完全一致を
-再検証する。receipt自身はcanonical output mode `0600`も要求する。同時にreceipt読込時の
-raw Git index identityを固定し、Build Entry完了時と各canonical outputの書込み直前に
-再照合する。出力時は標準`index.lock`でGit writerを排他し、固定済み`HEAD`とraw indexの
-再照合・atomic write・両identityの完了後再照合を同じcritical sectionで行う。Build Goal
-作成前とBuild完了直前に同じreceipt hashでBuild Entryを実行する。
+含む全`GIT_*`を除去し、system / global Git configも無効化する。snapshot開始時にcanonical
+rootからworktree index pathを固定し、通常Git検証にはそのpathを明示する。
+Build Entry、`capture-verification`、`validate-build`はGit `HEAD`がreceiptのBuild baselineと
+一致し、baseline対staged treeに差分がないことを検証する。Build / Verifyはstageせず、
+checkerが起動したverification commandの前後ではindexのstat cacheやvisibility flagではなく、
+stage entryのmode・blob ID・pathが表すstaged treeの不変を検証する。canonical outputの
+書込み直前にも同じBuild Git stateを再検証してatomic writeする。外部writerとの並行実行を
+仮定した`index.lock`やcritical sectionは持たない。receipt自身はcanonical output mode
+`0600`を要求する。Build Goal作成前とBuild完了直前に同じreceipt hashでBuild Entryを実行する。
 
 ## Build Verification and Coverage
 
@@ -224,8 +224,8 @@ metadata から実行方法を組み立てない。test-case adapter は実行 p
 と完全一致し、passed identity がちょうど1件の場合だけ成功する。各 result は profile
 ID / hash、typed selector、executed identities、exit code、stdout / stderr byte length、
 `AIDD-output-v1` framing hash、同一 final-state hash を保持する。
-`git-diff-check`は`git diff HEAD --check --`の固定argvだけを受理し、receiptが固定した
-`HEAD`からfinal worktreeまでのstaged / unstaged tracked contentを検査する。
+`git-diff-check`は`git diff --no-ext-diff HEAD --check --`の固定argvだけを受理し、receiptが固定した
+`HEAD`からfinal worktreeまでのtracked contentを検査する。
 
 case の欠落、余剰、重複、順序ずれ、profile drift、旧 command evidence、失敗 status、
 不一致 runtime identity、canonical JSONと一致しない保存evidence bytesを拒否する。
@@ -235,18 +235,34 @@ path、worktree 上の Git 投影 mode・content と target-state hash を固定
 regular file、symlinkのtype・permission mode・size・mtime・ctime・device・inodeを
 各automated case前後で比較する。automated caseは専用process groupで実行し、direct
 runner終了後に残留processがあれば終了させてcaseを失敗にした後、stateを比較する。
-Git `HEAD`のcommit・symbolic referenceとraw index
-bytes全体も比較し、ignored cache、作成後削除した一時file、ownership外のindex-only
-変更やindex flagだけの変更を成功証拠から除外する。
-coverage はShip前までGit `HEAD`がreceipt baselineと完全一致することを要求し、baseline
-対indexと、`assume-unchanged` / `skip-worktree`を除いた一時index対worktreeの差分を
-`core.fileMode=true`で取得して和集合する。staged pathにindex対worktree差分が
-残る場合は、検証状態とShip候補が一致しないため拒否する。Design時点から不変の
-untracked pathは除外し、新規・変更・削除・tracked化だけをownership scope、surface、
-path rule、dependency closureへ再照合する。
+Git `HEAD`のcommit・symbolic referenceとstaged treeも比較し、ignored cache、作成後削除した
+一時file、ownership外のstage変更を成功証拠から除外する。
+coverage はShip前までGit `HEAD`がreceipt baselineと完全一致し、staged treeに差分がないことを
+要求する。実差分は`core.fileMode=true`かつ`--no-ext-diff`でbaselineからworktreeへ直接取得する。
+Design時点から不変のuntracked pathは除外し、新規・変更・削除・tracked化だけをownership
+scope、surface、path rule、dependency closureへ再照合する。Build完了時は`validate-build`が
+canonical coverage bytesのSHA-256を出力し、completion evidenceへ記録する。
 Requirements / Designのsource / displayはcoverage除外前にreceipt固定content hashと
 permission modeを再検証し、receipt自身もcanonical mode `0600`を再検証する。executable
 bitだけの変更も上流artifact driftとして拒否する。
+
+## Ship Candidate Validation
+
+ShipはBuild completion evidenceに記録したreceipt SHA-256とcoverage SHA-256を使う。
+検証済みworktreeのcontentとGit modeだけをstageした後、commit前に次を実行する。
+
+```sh
+/tmp/aidd-checker validate-ship \
+  --repo-root <repo-root> --workspace <workspace> \
+  --expected-receipt-sha256 <design-completion-sha256> \
+  --expected-coverage-sha256 <build-coverage-sha256>
+```
+
+gateはcoverage bytesとcompletion evidenceのhash一致、receipt固定入力、verification evidence、
+target / final stateを再検証する。そのうえで、stage後のindexとworktreeにcontent / mode差分が
+ないこと、全Build coverage pathが同じstatusでstageされていること、coverage外のstage pathが
+canonical AIDD output以外にないこと、新規・変更済みnon-ignore pathがunstagedで残っていないことを
+要求する。失敗時はcommitせずBuild / Verifyへ戻る。
 
 ## Compatibility and Go-only Ownership
 
