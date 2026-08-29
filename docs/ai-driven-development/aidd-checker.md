@@ -31,6 +31,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 ## Boundaries
 
 - `internal/model` と `internal/semantic`: typed domain model と pure semantic rules。
+- `internal/pathcontract`: filesystemへ触れないrepository-relative pathとworkspace名の字句契約。
 - `internal/canonical`: duplicate keyを拒否するstrict JSON、canonical serialization、hash。
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
@@ -42,9 +43,10 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/phasecontract`: phase ownership contract と agent representation の照合。
 - `cmd/aidd-checker`: CLI adapter。domain ruleを持たない。
 
-checker は repository内のfile、directory、ownership tree、selector、runner working
-directoryを`internal/repository`だけから解決し、path traversal、symlink、非regular
-fileをfail closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味判定ごとに
+checker はpathとworkspace名の字句検証を`internal/pathcontract`へ集約し、repository内の
+file、directory、ownership tree、selector、runner working directoryの実在性とsymlinkを
+`internal/repository`だけから解決する。path traversal、symlink、非regular fileをfail
+closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味判定ごとに
 再読込しない。出力直前とverification case実行後にcached inputの内容、型、権限driftを
 検査し、CLIが宣言したcanonical outputだけをatomic writeする。Git、filesystem、
 process実行はpure semantic packageへ入れない。
@@ -77,7 +79,8 @@ Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime 
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと
 test-case profileは区別し、suite成功を単一test-case成功へ読み替えない。evidenceは
 profile ID / hash、selector、executed identities、exit / stream境界、framed output
-hash、final-state hashを保持する。
+hash、final-state hashを保持し、保存bytesがtyped valueのcanonical JSONと完全一致する
+場合だけcoverage identityへ使用する。
 
 manual verificationはDesign procedureとBuild observationへ同じ実質性契約を適用する。
 空白、記号、symbol、control / combining markを除いたUnicode文字を8文字以上要求し、
@@ -101,21 +104,23 @@ result内のprocedure / observationは、empty、`null`、空配列を含めて�
 checkerだけを同じcorpusで計測する。OS制約でpeak RSSを取得できない場合は未計測と
 明記し、推定値で補わない。
 
-### 2026-08-28 Compatibility Corpus Baseline
+### 2026-08-29 Full Corpus Acceptance
 
-同じGit `HEAD`上のhistorical v2 source 2件を対象に1回ずつ計測した初期値は次の
-とおり。Pythonはlegacy render / display check、Goはv2 / v3 read-only compatibility
-scanであり、これは移行時の起動cost比較であってsemantic parityの証明ではない。
+移行直前commit `66e03bc0c9ad68899af8e7d594a79e5acfbc846d`を新しいGit repositoryへ展開し、
+同じhistorical v2 source 2件だけを持つcanonical artifact corpusに対して旧Pythonと
+現在Goのrepository-wide `check-all`を各5回実行した。表はwall timeとmaximum resident
+set sizeの中央値である。
 
 | Path | Wall time | Peak RSS | Direct subprocess starts |
 | --- | ---: | ---: | ---: |
-| Python `render_aidd_artifact.py --check-all` | 0.30 s | 30,294,016 bytes | 5 |
-| Go `aidd-checker check-all` | 0.01 s | 7,045,120 bytes | 1 |
+| Python `render_aidd_artifact.py --check-all` | 0.19 s | 24,444,928 bytes | 11 |
+| Go `aidd-checker check-all` | 0.07 s | 8,617,984 bytes | 8 |
 
-wall timeとpeak RSSはmacOS `/usr/bin/time -lp`で取得した。subprocess数は実行pathの
-`run_git` / `exec.CommandContext`呼出しから算出した。DTraceによるruntime exec countは
-hostのSystem Integrity Protectionにより取得できなかった。この値は旧実装削除後の
-回帰比較用baselineとして保持する。
+wall timeとpeak RSSはmacOS `/usr/bin/time -lp`で取得した。subprocess数は`PATH`先頭の
+計測用`git` wrapperから`/usr/bin/git`へ全argvをそのまま転送し、実際の起動件数を記録した。
+Go binaryのbuild時間は含めない。これは両実装が所有するpublic full-corpus checkの性能
+受入であり、semantic parityの証明には使わない。削除したPython意味契約との同等性は
+Go回帰testが所有する。この値は旧実装削除後の性能回帰baselineとして保持する。
 
 ### 2026-08-28 Repository Mutation Manifest Baseline
 

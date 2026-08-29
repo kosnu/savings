@@ -8,6 +8,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
@@ -118,7 +119,7 @@ func Load(snapshot *repository.Snapshot, ruleMapPath string) (*Loaded, error) {
 		if _, exists := byID[rule.ID]; exists {
 			return nil, diagnostic.New("AIDD_RULE_DUPLICATE", "rules", "rule_map", "rule IDs must be unique", "unique ID", rule.ID)
 		}
-		if _, err := repository.ValidateRelativePath(rule.File); err != nil {
+		if _, err := pathcontract.ValidateRelativePath(rule.File); err != nil {
 			return nil, diagnostic.New("AIDD_RULE_FILE", "rules."+rule.ID+".file", "rule_map", "rule file path is invalid", "canonical repository-relative path", rule.File)
 		}
 		for patternIndex, pattern := range rule.AppliesTo.Paths {

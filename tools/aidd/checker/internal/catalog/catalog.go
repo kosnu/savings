@@ -10,6 +10,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 )
 
@@ -78,12 +79,12 @@ func Load(snapshot *repository.Snapshot, path string) (*Resolved, error) {
 			return nil, diagnostic.New("AIDD_PROFILE_ARGV", location+".argv", "verification_profile_catalog", "profile argv must be non-empty", nil, profile.Argv)
 		}
 		if profile.WorkingDirectory != "" {
-			if _, err := repository.ValidateRelativePath(profile.WorkingDirectory); err != nil {
+			if _, err := pathcontract.ValidateRelativePath(profile.WorkingDirectory); err != nil {
 				return nil, diagnostic.New("AIDD_PROFILE_WORKDIR", location+".working_directory", "verification_profile_catalog", "profile working directory is invalid", "canonical repository-relative path or empty", profile.WorkingDirectory)
 			}
 		}
 		if profile.SelectorRoot != "" {
-			if _, err := repository.ValidateRelativePath(profile.SelectorRoot); err != nil {
+			if _, err := pathcontract.ValidateRelativePath(profile.SelectorRoot); err != nil {
 				return nil, diagnostic.New("AIDD_PROFILE_SELECTOR_ROOT", location+".selector_root", "verification_profile_catalog", "profile selector root is invalid", "canonical repository-relative path or empty", profile.SelectorRoot)
 			}
 		}

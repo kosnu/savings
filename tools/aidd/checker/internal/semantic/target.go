@@ -13,7 +13,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/manualcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
-	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/unicode/norm"
 )
@@ -76,7 +76,7 @@ func ParseSource(content []byte, expectedKind, artifact string) (*ParsedSource, 
 	if expectedKind != "" && source.Kind != expectedKind {
 		return nil, diagnostic.New("AIDD_SOURCE_KIND", "kind", artifact, "source kind does not match the requested kind", expectedKind, source.Kind)
 	}
-	if err := repository.ValidateWorkspaceName(source.Workspace); err != nil {
+	if err := pathcontract.ValidateWorkspaceName(source.Workspace); err != nil {
 		return nil, err
 	}
 	parsed := &ParsedSource{Envelope: source}
@@ -425,7 +425,7 @@ func validateVerificationContract(verificationCase model.VerificationCase, path,
 				return diagnostic.New("AIDD_SUITE_SELECTOR", path+".selector", artifact, "suite selector must not name a test path or test name", model.Selector{Kind: "suite"}, verificationCase.Selector)
 			}
 		case "test_case":
-			if _, err := repository.ValidateRelativePath(verificationCase.Selector.Path); err != nil {
+			if _, err := pathcontract.ValidateRelativePath(verificationCase.Selector.Path); err != nil {
 				return diagnostic.New("AIDD_TEST_SELECTOR_PATH", path+".selector.path", artifact, "test-case selector path is invalid", "canonical repository-relative path", verificationCase.Selector.Path)
 			}
 			if substantive(verificationCase.Selector.Name) == "" {
@@ -455,7 +455,7 @@ func validateScopes(scopes []model.OwnershipScope, artifact string) error {
 	paths := make([]string, 0, len(scopes))
 	for index, scope := range scopes {
 		path := "validation.target_state.ownership_scopes[" + strconv.Itoa(index) + "]"
-		if _, err := repository.ValidateRelativePath(scope.Path); err != nil {
+		if _, err := pathcontract.ValidateRelativePath(scope.Path); err != nil {
 			return diagnostic.New("AIDD_SCOPE_PATH", path+".path", artifact, "ownership scope path is invalid", "canonical repository-relative path", scope.Path)
 		}
 		if scope.Kind != "file" && scope.Kind != "tree" {
@@ -498,7 +498,7 @@ func validateRepresentations(target *model.TargetState, requirementSet map[strin
 		if !supportedKinds[representation.Kind] {
 			return diagnostic.New("AIDD_REPRESENTATION_KIND", path+".kind", artifact, "representation kind is unsupported", nil, representation.Kind)
 		}
-		if _, err := repository.ValidateRelativePath(representation.Path); err != nil {
+		if _, err := pathcontract.ValidateRelativePath(representation.Path); err != nil {
 			return diagnostic.New("AIDD_REPRESENTATION_PATH", path+".path", artifact, "representation path is invalid", "canonical repository-relative path", representation.Path)
 		}
 		owned := false
