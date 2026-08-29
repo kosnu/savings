@@ -138,7 +138,7 @@ func TestReceiptFixesProfileCatalogAndBuildEntry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = receipt.Load(driftSnapshot, testWorkspace, receiptHash)
+	_, err = receipt.Load(context.Background(), driftSnapshot, testWorkspace, receiptHash)
 	if err == nil || !strings.Contains(err.Error(), "AIDD_PROFILE_DRIFT") {
 		t.Fatalf("expected profile drift rejection, got %v", err)
 	}
@@ -263,7 +263,7 @@ func TestReceiptWithoutUntrackedBaselineFailsClosed(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer checkSnapshot.Close()
-	_, err = receipt.Load(checkSnapshot, testWorkspace, canonical.HashBytes(modified))
+	_, err = receipt.Load(context.Background(), checkSnapshot, testWorkspace, canonical.HashBytes(modified))
 	if err == nil || !strings.Contains(err.Error(), "AIDD_RECEIPT_UNTRACKED_BASELINE") {
 		t.Fatalf("receipt without untracked baseline was accepted: %v", err)
 	}

@@ -19,6 +19,9 @@ type Options struct {
 }
 
 func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt.Loaded, options Options) (*model.BuildEvidence, error) {
+	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+		return nil, err
+	}
 	target := &loaded.Value.TargetState.Value
 	initialFinalState, err := state.FinalHash(snapshot, target)
 	if err != nil {
@@ -105,6 +108,9 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 		if _, ok := usedManual[id]; !ok {
 			return nil, diagnostic.New("AIDD_MANUAL_OBSERVATION_EXTRA", id, "build_verification", "manual observation names an unknown or automated case", nil, id)
 		}
+	}
+	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+		return nil, err
 	}
 	return evidence, nil
 }

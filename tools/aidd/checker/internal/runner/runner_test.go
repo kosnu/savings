@@ -214,6 +214,7 @@ func TestExecuteRejectsNonSubstantiveManualObservation(t *testing.T) {
 		SHA256:  "receipt-hash",
 		Catalog: &catalog.Resolved{},
 	}
+	pinRunnerReceipt(t, snapshot, loaded)
 	_, err := Execute(context.Background(), snapshot, loaded, Options{ManualObservations: map[string]string{"VC-1": "x"}})
 	if err == nil || !strings.Contains(err.Error(), "AIDD_MANUAL_OBSERVATION") {
 		t.Fatalf("expected manual observation rejection, got %v", err)
@@ -256,6 +257,7 @@ func TestExecuteRejectsOwnedFileMutation(t *testing.T) {
 			ProfileHash: map[string]string{profile.ID: "profile-hash"},
 		},
 	}
+	pinRunnerReceipt(t, snapshot, loaded)
 	_, err := Execute(context.Background(), snapshot, loaded, Options{})
 	if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_MUTATION") {
 		t.Fatalf("expected mutation rejection, got %v", err)
@@ -337,6 +339,7 @@ func TestExecuteRejectsOwnedGitIndexMutation(t *testing.T) {
 					ProfileHash: map[string]string{profile.ID: "profile-hash"},
 				},
 			}
+			pinRunnerReceipt(t, snapshot, loaded)
 			_, err := Execute(context.Background(), snapshot, loaded, Options{})
 			if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_MUTATION") {
 				t.Fatalf("expected Git index mutation rejection, got %v", err)
@@ -404,6 +407,7 @@ func TestExecuteRejectsIgnoredRepositoryMutations(t *testing.T) {
 					Profiles: map[string]model.VerificationProfile{profile.ID: profile}, ProfileHash: map[string]string{profile.ID: "profile-hash"},
 				},
 			}
+			pinRunnerReceipt(t, snapshot, loaded)
 			_, err := Execute(context.Background(), snapshot, loaded, Options{})
 			if test.wantMutation {
 				if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_MUTATION") {
@@ -416,6 +420,24 @@ func TestExecuteRejectsIgnoredRepositoryMutations(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestExecuteRejectsReceiptHeadMismatchBeforeVerification(t *testing.T) {
+	snapshot := newRunnerSnapshot(t)
+	loaded := &receipt.Loaded{Value: model.Receipt{BuildBaseline: model.BuildBaseline{Head: strings.Repeat("0", 40)}}}
+	_, err := Execute(context.Background(), snapshot, loaded, Options{})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_HEAD_DRIFT") {
+		t.Fatalf("expected receipt HEAD mismatch rejection, got %v", err)
+	}
+}
+
+func pinRunnerReceipt(t *testing.T, snapshot *repository.Snapshot, loaded *receipt.Loaded) {
+	t.Helper()
+	head, err := snapshot.Head(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	loaded.Value.BuildBaseline.Head = head
 }
 
 func newRunnerSnapshot(t *testing.T) *repository.Snapshot {
