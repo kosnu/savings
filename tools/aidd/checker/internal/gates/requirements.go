@@ -54,6 +54,7 @@ func ValidateRequirements(ctx context.Context, snapshot *repository.Snapshot, in
 		return nil, err
 	}
 	directIDs := map[string]struct{}{}
+	directSelections := []directRuleSelection{}
 	for index, selection := range gate.DirectRules {
 		path := fmt.Sprintf("validation.input_gate.direct_rules[%d]", index)
 		rule, exists := loadedRules.ByID[selection.ID]
@@ -80,6 +81,18 @@ func ValidateRequirements(ctx context.Context, snapshot *repository.Snapshot, in
 		if err := validateExplicitSurface(rule, selection, normalizedEvidence, path, expectedKind); err != nil {
 			return nil, err
 		}
+		directSelections = append(directSelections, directRuleSelection{Evidence: normalizedEvidence, Match: selection.Match})
+	}
+	expectedDirectIDs := directRuleIDsMatchingSelections(loadedRules, directSelections)
+	if !sameStringSet(expectedDirectIDs, directIDs) {
+		return nil, diagnostic.New(
+			"AIDD_DIRECT_RULE_COMPLETENESS",
+			"validation.input_gate.direct_rules",
+			expectedKind,
+			"direct rules must include every rule-map node matched by the declared Issue evidence",
+			rules.Sorted(expectedDirectIDs),
+			rules.Sorted(directIDs),
+		)
 	}
 	closure, err := rules.ExpandClosure(loadedRules, directIDs)
 	if err != nil {
