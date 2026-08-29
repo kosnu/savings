@@ -301,6 +301,39 @@ func TestChangedPathsClassifiesNewUntrackedPath(t *testing.T) {
 	}
 }
 
+func TestChangedPathsIgnoresParentSelectedAlternateIndex(t *testing.T) {
+	repoRoot, baselineHead := coverageFixtureRepository(t)
+	path := "outside/staged.txt"
+	if err := os.MkdirAll(filepath.Join(repoRoot, "outside"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(repoRoot, filepath.FromSlash(path)), []byte("staged\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runCoverageGit(t, repoRoot, "add", path)
+
+	alternateIndex := filepath.Join(t.TempDir(), "index")
+	command := exec.Command("git", "-C", repoRoot, "read-tree", "HEAD")
+	command.Env = append(os.Environ(), "GIT_INDEX_FILE="+alternateIndex)
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("create alternate index: %v\n%s", err, output)
+	}
+	t.Setenv("GIT_INDEX_FILE", alternateIndex)
+
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	changes, err := changedPaths(context.Background(), snapshot, baselineHead, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(changes) != 1 || changes[0] != (change{Path: path, Status: "A"}) {
+		t.Fatalf("canonical staged change was hidden: %#v", changes)
+	}
+}
+
 func coverageFixtureRepository(t *testing.T) (string, string) {
 	t.Helper()
 	repoRoot := t.TempDir()
