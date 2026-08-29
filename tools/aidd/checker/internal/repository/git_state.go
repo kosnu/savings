@@ -42,18 +42,24 @@ func (snapshot *Snapshot) GitIndexIdentity(ctx context.Context) (string, error) 
 }
 
 func (snapshot *Snapshot) gitIndexPath(ctx context.Context) (string, error) {
-	pathBytes, err := snapshot.Git(ctx, "rev-parse", "--git-path", "index")
-	if err != nil {
+	if err := ctx.Err(); err != nil {
 		return "", err
 	}
-	path := strings.TrimSuffix(string(pathBytes), "\n")
+	if snapshot.canonicalGitIndexPath == "" {
+		return "", diagnostic.New("AIDD_GIT_STATE_INDEX_PATH", "index", "repository", "canonical Git index path was not fixed when the repository snapshot opened", "fixed Git worktree index path", nil)
+	}
+	return snapshot.canonicalGitIndexPath, nil
+}
+
+func normalizeGitIndexPath(root string, pathBytes []byte) (string, error) {
+	path := strings.TrimSuffix(strings.TrimSuffix(string(pathBytes), "\n"), "\r")
 	if path == "" || strings.ContainsRune(path, '\x00') {
 		return "", diagnostic.New("AIDD_GIT_STATE_INDEX_PATH", "index", "repository", "verification Git index path is invalid", "non-empty path without NUL", path)
 	}
 	if !filepath.IsAbs(path) {
-		path = filepath.Join(snapshot.Root, path)
+		path = filepath.Join(root, path)
 	}
-	return path, nil
+	return filepath.Clean(path), nil
 }
 
 // PinGitIndexはsnapshotが最初に観測したraw index bytesのidentityを固定する。
@@ -140,9 +146,7 @@ func (snapshot *Snapshot) GitIndexWorktreeDiff(ctx context.Context) ([]byte, err
 }
 
 func (snapshot *Snapshot) gitWithIndex(ctx context.Context, indexPath string, input []byte, arguments ...string) ([]byte, error) {
-	commandArguments := append([]string{"-C", snapshot.Root}, arguments...)
-	command := exec.CommandContext(ctx, "git", commandArguments...)
-	command.Env = append(os.Environ(), "GIT_INDEX_FILE="+indexPath)
+	command := newGitCommand(ctx, snapshot.Root, []string{"GIT_INDEX_FILE=" + indexPath}, arguments...)
 	if input != nil {
 		command.Stdin = bytes.NewReader(input)
 	}

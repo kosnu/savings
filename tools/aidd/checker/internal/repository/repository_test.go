@@ -14,6 +14,32 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 )
 
+func TestCanonicalGitEnvironmentRejectsInheritedRepositorySelection(t *testing.T) {
+	environment := canonicalGitEnvironment(
+		[]string{
+			"PATH=/bin",
+			"GIT_INDEX_FILE=/tmp/alternate-index",
+			"git_dir=/tmp/alternate-repository",
+			"GIT_CONFIG_COUNT=1",
+			"GITHUB_ACTIONS=true",
+		},
+		[]string{"GIT_INDEX_FILE=/canonical/index"},
+	)
+	want := map[string]bool{
+		"PATH=/bin":                       true,
+		"GITHUB_ACTIONS=true":             true,
+		"GIT_INDEX_FILE=/canonical/index": true,
+	}
+	if len(environment) != len(want) {
+		t.Fatalf("canonical Git environment = %#v", environment)
+	}
+	for _, entry := range environment {
+		if !want[entry] {
+			t.Fatalf("canonical Git environment retained unexpected entry %q: %#v", entry, environment)
+		}
+	}
+}
+
 func TestSnapshotRejectsSymlinksInEveryAccessPath(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink fixture requires platform-specific privileges on Windows")
@@ -193,6 +219,38 @@ func TestWithStableGitIndexBlocksConcurrentGitWriter(t *testing.T) {
 	}
 	if output := runRepositoryGit(t, root, "diff", "--cached", "--name-only"); output != "" {
 		t.Fatalf("concurrent path reached the real index: %q", output)
+	}
+}
+
+func TestSnapshotUsesCanonicalIndexWhenParentProvidesAlternateIndex(t *testing.T) {
+	root := newGitRepository(t)
+	writeRepositoryFile(t, root, "tracked.txt", []byte("baseline\n"), 0o644)
+	commitRepositoryFixture(t, root)
+	writeRepositoryFile(t, root, "scope-out.txt", []byte("staged in real index\n"), 0o644)
+	runRepositoryGit(t, root, "add", "scope-out.txt")
+
+	alternateIndex := filepath.Join(t.TempDir(), "index")
+	command := exec.Command("git", "-C", root, "read-tree", "HEAD")
+	command.Env = append(os.Environ(), "GIT_INDEX_FILE="+alternateIndex)
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("create alternate index: %v\n%s", err, output)
+	}
+	t.Setenv("GIT_INDEX_FILE", alternateIndex)
+
+	snapshot := openSnapshot(t, root)
+	actualPath, err := snapshot.gitIndexPath(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if actualPath == alternateIndex {
+		t.Fatalf("snapshot accepted parent-selected alternate index %q", actualPath)
+	}
+	output, err := snapshot.Git(context.Background(), "diff", "--cached", "--name-only")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.TrimSpace(string(output)) != "scope-out.txt" {
+		t.Fatalf("canonical staged change was hidden: %q", output)
 	}
 }
 

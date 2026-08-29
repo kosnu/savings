@@ -36,7 +36,7 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 - `internal/catalog`: repo-owned verification profile catalog と profile hash。
 - `internal/requirementscontract`: Requirements section ID、順序、exact heading aliasの共有正本。
 - `internal/rules`: canonical `docs/harness/rule-map.json` のpath契約と読取、closure、path / surface routing。
-- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、snapshotへ固定したraw Git index identity、index visibility flagや`core.fileMode`設定に依存しないworktree差分、atomic output。
+- `internal/repository`: Go `os.Root`で閉じたcanonical Git root、親processの全`GIT_*`を除去したGit実行境界、snapshot作成時に正本worktreeから固定して各Git commandへ明示するindex path、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、snapshotへ固定したraw Git index identity、index visibility flagや`core.fileMode`設定に依存しないworktree差分、atomic output。
 - `internal/handoff` / `internal/receipt`: Design completion capture と Build Entry。
 - `internal/runner` / `internal/evidence`: profile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
@@ -51,7 +51,10 @@ closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味
 repository外の一時sourceはGoal kindだけに許可する。出力直前とverification case実行後に
 cached inputの内容、型、権限driftを検査する。Design completionは固定したGit `HEAD`から
 baseline blobを読み、receipt出力直前にもHEAD driftを検査してから、CLIが宣言した
-canonical outputだけをatomic writeする。Git、filesystem、process実行はpure semantic packageへ入れない。
+canonical outputだけをatomic writeする。checkerが起動した親processの`GIT_INDEX_FILE`、
+`GIT_DIR`、`GIT_WORK_TREE`、config injectionを含む全`GIT_*`はGit subprocessへ継承せず、
+canonical rootから解決したworktree indexだけを通常Git検証へ明示する。Git、filesystem、
+process実行はpure semantic packageへ入れない。
 
 Requirements section contractは
 `docs/ai-driven-development/contracts/requirements-sections.json`が所有し、current

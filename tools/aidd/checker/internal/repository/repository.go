@@ -31,11 +31,12 @@ type observedEntry struct {
 }
 
 type Snapshot struct {
-	Root           string
-	root           *os.Root
-	observed       map[string]observedEntry
-	gitHead        string
-	gitIndexSHA256 string
+	Root                  string
+	root                  *os.Root
+	observed              map[string]observedEntry
+	gitHead               string
+	canonicalGitIndexPath string
+	gitIndexSHA256        string
 }
 
 type WorktreeIdentity struct {
@@ -56,7 +57,7 @@ func Open(ctx context.Context, root string) (*Snapshot, error) {
 	if err != nil {
 		return nil, diagnostic.New("AIDD_REPO_ROOT", "", "repository", "repository root cannot be resolved", nil, err.Error())
 	}
-	command := exec.CommandContext(ctx, "git", "-C", canonical, "rev-parse", "--show-toplevel")
+	command := newGitCommand(ctx, canonical, nil, "rev-parse", "--show-toplevel")
 	output, err := command.Output()
 	if err != nil {
 		return nil, diagnostic.New("AIDD_REPO_GIT", "", "repository", "repository root must be a Git worktree", nil, err.Error())
@@ -66,11 +67,20 @@ func Open(ctx context.Context, root string) (*Snapshot, error) {
 	if err != nil || resolvedGitRoot != canonical {
 		return nil, diagnostic.New("AIDD_REPO_ROOT", "", "repository", "--repo-root must be the canonical Git worktree root", canonical, gitRoot)
 	}
+	indexCommand := newGitCommand(ctx, canonical, nil, "rev-parse", "--git-path", "index")
+	indexOutput, err := indexCommand.Output()
+	if err != nil {
+		return nil, diagnostic.New("AIDD_GIT_STATE_INDEX_PATH", "index", "repository", "canonical Git index path cannot be resolved", "Git worktree index", err.Error())
+	}
+	indexPath, err := normalizeGitIndexPath(canonical, indexOutput)
+	if err != nil {
+		return nil, err
+	}
 	confined, err := os.OpenRoot(canonical)
 	if err != nil {
 		return nil, diagnostic.New("AIDD_REPO_OPEN", "", "repository", "repository root cannot be opened", canonical, err.Error())
 	}
-	return &Snapshot{Root: canonical, root: confined, observed: map[string]observedEntry{}}, nil
+	return &Snapshot{Root: canonical, root: confined, observed: map[string]observedEntry{}, canonicalGitIndexPath: indexPath}, nil
 }
 
 func (snapshot *Snapshot) Close() error {
@@ -453,8 +463,7 @@ func (snapshot *Snapshot) inspectEntry(path string, allowMissing, allowFinalSyml
 }
 
 func (snapshot *Snapshot) Git(ctx context.Context, arguments ...string) ([]byte, error) {
-	commandArguments := append([]string{"-C", snapshot.Root}, arguments...)
-	command := exec.CommandContext(ctx, "git", commandArguments...)
+	command := newGitCommand(ctx, snapshot.Root, []string{"GIT_INDEX_FILE=" + snapshot.canonicalGitIndexPath}, arguments...)
 	output, err := command.Output()
 	if err != nil {
 		actual := err.Error()
@@ -555,7 +564,7 @@ func (snapshot *Snapshot) readHeadBlob(ctx context.Context, path string, maximum
 }
 
 func (snapshot *Snapshot) Ignored(ctx context.Context, paths []string) ([]string, error) {
-	arguments := []string{"-C", snapshot.Root, "check-ignore", "--stdin", "-z"}
+	arguments := []string{"check-ignore", "--stdin", "-z"}
 	input := make([][]byte, 0, len(paths))
 	for _, path := range paths {
 		normalized, err := pathcontract.ValidateRelativePath(path)
@@ -567,7 +576,7 @@ func (snapshot *Snapshot) Ignored(ctx context.Context, paths []string) ([]string
 	if len(paths) == 0 {
 		return nil, nil
 	}
-	command := exec.CommandContext(ctx, "git", arguments...)
+	command := newGitCommand(ctx, snapshot.Root, []string{"GIT_INDEX_FILE=" + snapshot.canonicalGitIndexPath}, arguments...)
 	command.Stdin = bytes.NewReader(append(bytes.Join(input, []byte{0}), 0))
 	output, err := command.Output()
 	if err != nil {

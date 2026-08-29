@@ -191,6 +191,9 @@ rules、target state、ownership scopes、task-owned baseline inventory、非ign
 pathのtype・permission mode・contentまたはsymlink target identity、Git `HEAD`、profile catalog
 と selected profile hash を同じ snapshot から固定する。Git `HEAD`はsnapshot開始時に固定し、
 Git `HEAD` baseline blobはそのcommitから読み、receipt書込み直前のdriftを拒否する。
+全Git subprocessは親processの`GIT_INDEX_FILE`、`GIT_DIR`、`GIT_WORK_TREE`、config injectionを
+含む全`GIT_*`を除去する。snapshot開始時にcanonical rootからworktree index pathを固定し、
+通常Git検証にはそのpathを明示し、一時index処理だけchecker所有の一時pathへ置き換える。
 Build Entry、`capture-verification`、`validate-build`はreceipt読込時にGit `HEAD`を
 Build baselineへ固定し、verification開始前と各canonical outputの書込み直前にも完全一致を
 再検証する。同時にreceipt読込時のraw Git index identityを固定し、Build Entry完了時と
