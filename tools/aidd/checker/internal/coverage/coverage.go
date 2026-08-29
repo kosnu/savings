@@ -228,15 +228,7 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	if currentHead != baseline {
 		return nil, diagnostic.New("AIDD_BUILD_HEAD_DRIFT", "build_baseline.head", "build_rule_coverage", "Build must not commit or switch HEAD before Ship", baseline, currentHead)
 	}
-	trackedOutput, err := snapshot.Git(ctx, "diff", "--name-status", "-z", "--find-renames", baseline, "--")
-	if err != nil {
-		return nil, err
-	}
-	trackedChanges, err := parseNameStatus(trackedOutput)
-	if err != nil {
-		return nil, err
-	}
-	stagedOutput, err := snapshot.Git(ctx, "diff", "--cached", "--name-status", "-z", "--find-renames", baseline, "--")
+	stagedOutput, err := snapshot.Git(ctx, "-c", "core.fileMode=true", "diff", "--cached", "--name-status", "-z", "--find-renames", "--ignore-submodules=none", baseline, "--")
 	if err != nil {
 		return nil, err
 	}
@@ -244,7 +236,7 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	if err != nil {
 		return nil, err
 	}
-	indexWorktreeOutput, err := snapshot.Git(ctx, "diff", "--name-status", "-z", "--find-renames", "--")
+	indexWorktreeOutput, err := snapshot.GitIndexWorktreeDiff(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +255,7 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 		return nil, err
 	}
 	trackedByPath := map[string]change{}
-	for _, group := range [][]change{trackedChanges, stagedChanges} {
+	for _, group := range [][]change{stagedChanges, indexWorktreeChanges} {
 		for _, item := range group {
 			if previous, exists := trackedByPath[item.Path]; exists && previous.Status != item.Status {
 				return nil, diagnostic.New("AIDD_BUILD_GIT_STATE_CONFLICT", item.Path, "build_rule_coverage", "worktree and index classify the Build path differently", previous.Status, item.Status)

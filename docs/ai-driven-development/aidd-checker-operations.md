@@ -229,7 +229,8 @@ Git `HEAD`のcommit・symbolic referenceとraw index
 bytes全体も比較し、ignored cache、作成後削除した一時file、ownership外のindex-only
 変更やindex flagだけの変更を成功証拠から除外する。
 coverage はShip前までGit `HEAD`がreceipt baselineと完全一致することを要求し、baseline
-対worktreeとbaseline対indexの差分を和集合する。staged pathにindex対worktree差分が
+対indexと、`assume-unchanged` / `skip-worktree`を除いた一時index対worktreeの差分を
+`core.fileMode=true`で取得して和集合する。staged pathにindex対worktree差分が
 残る場合は、検証状態とShip候補が一致しないため拒否する。Design時点から不変の
 untracked pathは除外し、新規・変更・削除・tracked化だけをownership scope、surface、
 path rule、dependency closureへ再照合する。

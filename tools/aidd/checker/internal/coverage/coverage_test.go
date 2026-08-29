@@ -124,6 +124,74 @@ func TestChangedPathsRejectsIndexOnlyModeChange(t *testing.T) {
 	}
 }
 
+func TestChangedPathsDetectsTrackedModificationHiddenByIndexVisibilityFlag(t *testing.T) {
+	tests := []struct {
+		name string
+		flag string
+	}{
+		{name: "assume unchanged", flag: "--assume-unchanged"},
+		{name: "skip worktree", flag: "--skip-worktree"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			repoRoot, baselineHead := coverageFixtureRepository(t)
+			runCoverageGit(t, repoRoot, "update-index", test.flag, "tracked.txt")
+			if err := os.WriteFile(filepath.Join(repoRoot, "tracked.txt"), []byte("hidden change\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			if output := runCoverageGitOutput(t, repoRoot, "diff", "--name-status", "--"); output != "" {
+				t.Fatalf("fixture change was not hidden by %s: %q", test.flag, output)
+			}
+			snapshot, err := repository.Open(context.Background(), repoRoot)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer snapshot.Close()
+			indexBefore, err := snapshot.GitIndexIdentity(context.Background())
+			if err != nil {
+				t.Fatal(err)
+			}
+			changes, err := changedPaths(context.Background(), snapshot, baselineHead, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			indexAfter, err := snapshot.GitIndexIdentity(context.Background())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if indexAfter != indexBefore {
+				t.Fatal("visibility flagを除く比較が実indexを変更した")
+			}
+			if len(changes) != 1 || changes[0] != (change{Path: "tracked.txt", Status: "M"}) {
+				t.Fatalf("hidden tracked change classification = %#v", changes)
+			}
+		})
+	}
+}
+
+func TestChangedPathsDetectsModeChangeWhenCoreFileModeIsDisabled(t *testing.T) {
+	repoRoot, baselineHead := coverageFixtureRepository(t)
+	runCoverageGit(t, repoRoot, "config", "core.fileMode", "false")
+	if err := os.Chmod(filepath.Join(repoRoot, "tracked.txt"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if output := runCoverageGitOutput(t, repoRoot, "diff", "--name-status", "--"); output != "" {
+		t.Fatalf("fixture mode change was not hidden by core.fileMode=false: %q", output)
+	}
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	changes, err := changedPaths(context.Background(), snapshot, baselineHead, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(changes) != 1 || changes[0] != (change{Path: "tracked.txt", Status: "M"}) {
+		t.Fatalf("hidden mode change classification = %#v", changes)
+	}
+}
+
 func TestChangedPathsRejectsTrackedPathLeftUntrackedInWorktree(t *testing.T) {
 	repoRoot, baselineHead := coverageFixtureRepository(t)
 	runCoverageGit(t, repoRoot, "rm", "--cached", "tracked.txt")
