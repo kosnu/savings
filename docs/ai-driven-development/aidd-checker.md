@@ -56,7 +56,9 @@ canonical outputだけをatomic writeする。Git、filesystem、process実行�
 Requirements section contractは
 `docs/ai-driven-development/contracts/requirements-sections.json`が所有し、current
 artifact、retained Goal、Git `HEAD` baselineのすべてが同じID順序とnormalized exact
-heading aliasを使う。managed Requirementsは最低1件のRequirementを持つ。
+heading aliasを使う。managed Requirementsは最低1件のRequirementを持つ。Requirements
+Input GateはIssue本文内に実在する各declared evidence spanについてrule-map全nodeを再評価し、
+同じ`match.field/value`条件を満たすdirect node集合と宣言集合の完全一致を要求する。
 
 ## Verification Profile Trust Boundary
 

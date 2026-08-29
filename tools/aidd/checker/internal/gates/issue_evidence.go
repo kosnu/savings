@@ -159,14 +159,7 @@ func validateIssueSnapshot(issue IssueSnapshot, artifact string) error {
 }
 
 func validateExplicitSurface(rule rules.Rule, selection model.DirectRule, normalizedEvidence, path, artifact string) error {
-	implementationRule := false
-	for _, pattern := range rule.AppliesTo.Paths {
-		if strings.HasPrefix(pattern, "apps/") {
-			implementationRule = true
-			break
-		}
-	}
-	if !implementationRule || strings.HasPrefix(rule.ID, "domain.") {
+	if !isNonDomainImplementationRule(rule) {
 		return nil
 	}
 	normalizedSurface := normalizeIssueEvidence(selection.ExplicitSurface)
@@ -191,6 +184,50 @@ func validateExplicitSurface(rule rules.Rule, selection model.DirectRule, normal
 		return diagnostic.New("AIDD_RULE_EXPLICIT_SURFACE_EVIDENCE", path+".explicit_surface", artifact, "explicit_surface must be present in Issue evidence", selection.ExplicitSurface, selection.IssueEvidence)
 	}
 	return nil
+}
+
+type directRuleSelection struct {
+	Evidence string
+	Match    model.RuleMatch
+}
+
+func directRuleIDsMatchingSelections(loaded *rules.Loaded, selections []directRuleSelection) map[string]struct{} {
+	result := map[string]struct{}{}
+	for _, id := range loaded.Order {
+		rule := loaded.ByID[id]
+		for _, selection := range selections {
+			if ruleMatches(rule, selection.Match) && directRuleMatchesEvidence(rule, selection.Evidence) {
+				result[id] = struct{}{}
+				break
+			}
+		}
+	}
+	return result
+}
+
+func directRuleMatchesEvidence(rule rules.Rule, normalizedEvidence string) bool {
+	if !isNonDomainImplementationRule(rule) {
+		return true
+	}
+	for _, topic := range rule.AppliesTo.Topics {
+		normalizedTopic := normalizeIssueEvidence(topic)
+		if _, generic := genericImplementationTopics[normalizedTopic]; !generic && strings.Contains(normalizedEvidence, normalizedTopic) {
+			return true
+		}
+	}
+	return false
+}
+
+func isNonDomainImplementationRule(rule rules.Rule) bool {
+	if strings.HasPrefix(rule.ID, "domain.") {
+		return false
+	}
+	for _, pattern := range rule.AppliesTo.Paths {
+		if strings.HasPrefix(pattern, "apps/") {
+			return true
+		}
+	}
+	return false
 }
 
 func validateTransition(item model.RequirementTransition, issueBody, artifact string) error {

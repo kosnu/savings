@@ -331,6 +331,74 @@ func TestRequirementsAcceptsNormalizedRuleEvidenceRelationship(t *testing.T) {
 	}
 }
 
+func TestRequirementsRejectsIncompleteDirectRulesForDeclaredEvidence(t *testing.T) {
+	repoRoot := requirementsFixtureRepository(t)
+	appendFixtureRule(t, repoRoot, map[string]any{
+		"id": "policy.secondary-checker", "file": "docs/rules/secondary-checker.md",
+		"applies_to": map[string]any{"paths": []string{}, "domains": []string{}, "activities": []string{}, "topics": []string{"checker"}},
+		"depends_on": []string{}, "overrides": []string{}, "priority": 90,
+	})
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	issue := IssueSnapshot{
+		ID: "owner/repo#1671", Title: "Checker profile boundary",
+		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
+		Body: fixtureIssueBody(),
+	}
+	document, goal := requirementsFixtureSources(t, issue, "new")
+	_, err = ValidateRequirements(context.Background(), snapshot, RequirementsInput{
+		Issue: issue, Workspace: "1671-checker", Kind: "requirements", Document: document,
+		Goal: goal, RuleMapPath: "docs/harness/rule-map.json",
+	})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_DIRECT_RULE_COMPLETENESS") {
+		t.Fatalf("expected incomplete direct-rule rejection, got %v", err)
+	}
+	for _, source := range []*[]byte{&document, &goal} {
+		*source = mutateRequirementsSource(t, *source, func(validation map[string]any) {
+			gate := validation["input_gate"].(map[string]any)
+			gate["direct_rules"] = append(gate["direct_rules"].([]any), map[string]any{
+				"id": "policy.secondary-checker", "issue_evidence": "repo-owned checker profile",
+				"match": map[string]any{"field": "topics", "value": "checker"}, "reason": "secondary checker boundary",
+			})
+		})
+	}
+	if _, err := ValidateRequirements(context.Background(), snapshot, RequirementsInput{
+		Issue: issue, Workspace: "1671-checker", Kind: "requirements", Document: document,
+		Goal: goal, RuleMapPath: "docs/harness/rule-map.json",
+	}); err != nil {
+		t.Fatalf("complete direct-rule set was rejected: %v", err)
+	}
+}
+
+func TestRequirementsDoesNotSelectRulesOutsideDeclaredEvidence(t *testing.T) {
+	repoRoot := requirementsFixtureRepository(t)
+	appendFixtureRule(t, repoRoot, map[string]any{
+		"id": "policy.verification", "file": "docs/rules/verification.md",
+		"applies_to": map[string]any{"paths": []string{}, "domains": []string{}, "activities": []string{}, "topics": []string{"verification"}},
+		"depends_on": []string{}, "overrides": []string{}, "priority": 90,
+	})
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	issue := IssueSnapshot{
+		ID: "owner/repo#1671", Title: "Checker profile boundary",
+		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
+		Body: fixtureIssueBody(),
+	}
+	document, goal := requirementsFixtureSources(t, issue, "new")
+	if _, err := ValidateRequirements(context.Background(), snapshot, RequirementsInput{
+		Issue: issue, Workspace: "1671-checker", Kind: "requirements", Document: document,
+		Goal: goal, RuleMapPath: "docs/harness/rule-map.json",
+	}); err != nil {
+		t.Fatalf("rule outside declared evidence was selected: %v", err)
+	}
+}
+
 func TestRequirementsRejectsImplementationRuleWithoutIssueEvidencedExplicitSurface(t *testing.T) {
 	repoRoot := requirementsFixtureRepository(t)
 	ruleMapPath := filepath.Join(repoRoot, "docs", "harness", "rule-map.json")
@@ -527,6 +595,21 @@ func requirementsFixtureRepository(t *testing.T) string {
 	runFixtureGit(t, repoRoot, "add", ".")
 	runFixtureGit(t, repoRoot, "commit", "-qm", "fixture")
 	return repoRoot
+}
+
+func appendFixtureRule(t *testing.T, repoRoot string, rule map[string]any) {
+	t.Helper()
+	ruleMapPath := filepath.Join(repoRoot, "docs", "harness", "rule-map.json")
+	var ruleMap map[string]any
+	content, err := os.ReadFile(ruleMapPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(content, &ruleMap); err != nil {
+		t.Fatal(err)
+	}
+	ruleMap["rules"] = append(ruleMap["rules"].([]any), rule)
+	writeFixtureJSON(t, ruleMapPath, ruleMap)
 }
 
 func requirementsFixtureSources(t *testing.T, issue IssueSnapshot, status string) ([]byte, []byte) {

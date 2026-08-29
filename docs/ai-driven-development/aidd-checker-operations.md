@@ -103,7 +103,8 @@ Issue body と Goal JSON は repository 外の一時 regular file に保存す�
 
 gate は Issue snapshot identity、正規化後もmatch値を含むdirect rule evidence、完全な dependency
 closure、Requirement inventory / transition、Git `HEAD` baseline、Goal と artifact
-の gate identity を検証する。section ID、順序、heading aliasの正本は
+の gate identity を検証する。各declared evidence spanはIssue本文内の存在確認後にrule-map全nodeへ
+照合し、同じ`match.field/value`へmatchするdirect nodeを一部だけ宣言した入力を拒否する。section ID、順序、heading aliasの正本は
 `docs/ai-driven-development/contracts/requirements-sections.json`であり、artifact、
 retained Goal、Git `HEAD` baselineのすべてへ同じ規則を適用する。Requirementが0件の
 managed sourceは完成状態として受理しない。changed / newのIssue evidenceは正規化後も
