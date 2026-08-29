@@ -276,6 +276,11 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	for _, item := range currentUntracked {
 		currentByPath[item.Path] = item
 	}
+	for path := range currentByPath {
+		if tracked, exists := trackedByPath[path]; exists {
+			return nil, diagnostic.New("AIDD_BUILD_INDEX_WORKTREE_DRIFT", path, "build_rule_coverage", "a Build path cannot be both a tracked diff and an untracked worktree entry", "matching tracked index and worktree state", map[string]string{"tracked_status": tracked.Status, "worktree_status": "untracked"})
+		}
+	}
 	byPath := make(map[string]change, len(trackedByPath)+len(baselineByPath)+len(currentByPath))
 	for path, item := range trackedByPath {
 		byPath[path] = item

@@ -65,6 +65,72 @@ func TestValidateDesignDoesNotRequireIssueTitle(t *testing.T) {
 	}
 }
 
+func TestArtifactGatesRejectExternalCanonicalSourceSubstitutes(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	workspace := "1671-checker"
+	requirementsPath := "docs/ai-driven-development/workspaces/" + workspace + "/requirements.json"
+	writeMainFile(t, root, requirementsPath, []byte("{}\n"))
+	issueBodyPath := filepath.Join(t.TempDir(), "issue-body.txt")
+	externalRequirementsPath := filepath.Join(t.TempDir(), "requirements.json")
+	externalDesignPath := filepath.Join(t.TempDir(), "design-doc.json")
+	for path, content := range map[string][]byte{
+		issueBodyPath:            []byte("checker contract\n"),
+		externalRequirementsPath: []byte("{}\n"),
+		externalDesignPath:       []byte("{}\n"),
+	} {
+		if err := os.WriteFile(path, content, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	tests := []struct {
+		name     string
+		args     []string
+		wantPath string
+	}{
+		{
+			name: "Requirements artifact document",
+			args: []string{
+				"validate-requirements", "--repo-root", root, "--workspace", workspace,
+				"--issue", "owner/repo#1671", "--issue-title", "AIDD Checker",
+				"--issue-url", "https://github.com/owner/repo/issues/1671", "--issue-updated-at", "2026-08-29T00:00:00Z",
+				"--issue-body", issueBodyPath, "--document", externalRequirementsPath, "--kind", "requirements",
+			},
+			wantPath: "--document",
+		},
+		{
+			name: "Design Goal Requirements",
+			args: []string{
+				"validate-design", "--repo-root", root, "--workspace", workspace,
+				"--issue", "owner/repo#1671", "--issue-url", "https://github.com/owner/repo/issues/1671",
+				"--issue-updated-at", "2026-08-29T00:00:00Z", "--issue-body", issueBodyPath,
+				"--requirements", externalRequirementsPath, "--document", externalDesignPath, "--kind", "design_goal",
+			},
+			wantPath: "--requirements",
+		},
+		{
+			name: "Design artifact document",
+			args: []string{
+				"validate-design", "--repo-root", root, "--workspace", workspace,
+				"--issue", "owner/repo#1671", "--issue-url", "https://github.com/owner/repo/issues/1671",
+				"--issue-updated-at", "2026-08-29T00:00:00Z", "--issue-body", issueBodyPath,
+				"--requirements", requirementsPath, "--document", externalDesignPath, "--kind", "design",
+			},
+			wantPath: "--document",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := run(context.Background(), test.args)
+			item, ok := err.(*diagnostic.Diagnostic)
+			if !ok || item.Code != "AIDD_CLI_ARTIFACT_PATH" || item.Path != test.wantPath {
+				t.Fatalf("expected AIDD_CLI_ARTIFACT_PATH for %s, got %#v", test.wantPath, err)
+			}
+		})
+	}
+}
+
 func TestCheckAllRejectsSymlinkWorkspace(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink fixture requires platform-specific privileges on Windows")

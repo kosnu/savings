@@ -3,7 +3,6 @@ package handoff
 import (
 	"bytes"
 	"context"
-	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
@@ -30,6 +29,10 @@ type CaptureInput struct {
 }
 
 func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureInput) (string, string, error) {
+	head, err := snapshot.Head(ctx)
+	if err != nil {
+		return "", "", err
+	}
 	requirementsPath, err := repository.WorkspacePath(input.Workspace, "requirements.json")
 	if err != nil {
 		return "", "", err
@@ -131,14 +134,6 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 	if err != nil {
 		return "", "", err
 	}
-	headBytes, err := snapshot.Git(ctx, "rev-parse", "--verify", "HEAD")
-	if err != nil {
-		return "", "", err
-	}
-	head := strings.TrimSpace(string(headBytes))
-	if len(head) != 40 {
-		return "", "", diagnostic.New("AIDD_BUILD_BASELINE", "build_baseline.head", "design_completion", "Build baseline must be a full Git commit ID", "40 hexadecimal characters", head)
-	}
 	receiptValue := model.Receipt{
 		SchemaVersion: model.ReceiptSchemaVersion,
 		Kind:          "design_completion",
@@ -177,6 +172,9 @@ func Capture(ctx context.Context, snapshot *repository.Snapshot, input CaptureIn
 		return "", "", err
 	}
 	if err := state.AssertUntrackedPaths(ctx, snapshot, untrackedBaseline, map[string]struct{}{receiptPath: {}}); err != nil {
+		return "", "", err
+	}
+	if err := snapshot.AssertGitHeadUnchanged(ctx); err != nil {
 		return "", "", err
 	}
 	if err := snapshot.WriteAtomic(receiptPath, serialized); err != nil {

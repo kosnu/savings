@@ -93,7 +93,8 @@ Issue body と Goal JSON は repository 外の一時 regular file に保存す�
   --issue <owner/repo#number> --issue-title <cycle-start-title> \
   --issue-url <canonical-url> --issue-updated-at <updatedAt> \
   --issue-body <issue-body-file> \
-  --document <requirements-json> --kind requirements \
+  --document docs/ai-driven-development/workspaces/<workspace>/requirements.json \
+  --kind requirements \
   --goal-document <requirements-goal-json>
 ```
 
@@ -108,6 +109,8 @@ Issue本文と一致し、Requirementまたはsectionの所有content内だけ�
 retired evidenceは対象Requirement IDだけと肯定的な廃止意思を同じIssue文内に要求し、
 別Requirement IDの併記や廃止を否定する文を拒否する。完了直前に Issue snapshot を
 再取得して再検証する。
+`requirements_goal`だけがrepository外の一時sourceを受け取り、`requirements`は
+`--document`がcanonical workspace pathを指す場合に限ってrepository snapshotから読む。
 
 ## Design and Verification Profiles
 
@@ -117,7 +120,7 @@ retired evidenceは対象Requirement IDだけと肯定的な廃止意思を同�
   --issue <owner/repo#number> \
   --issue-url <canonical-url> --issue-updated-at <updatedAt> \
   --issue-body <issue-body-file> \
-  --requirements <canonical-requirements-json> \
+  --requirements docs/ai-driven-development/workspaces/<workspace>/requirements.json \
   --document <design-goal-json> --kind design_goal
 
 /tmp/aidd-checker render \
@@ -131,8 +134,9 @@ retired evidenceは対象Requirement IDだけと肯定的な廃止意思を同�
   --issue <owner/repo#number> \
   --issue-url <canonical-url> --issue-updated-at <updatedAt> \
   --issue-body <issue-body-file> \
-  --requirements <canonical-requirements-json> \
-  --document <design-json> --kind design \
+  --requirements docs/ai-driven-development/workspaces/<workspace>/requirements.json \
+  --document docs/ai-driven-development/workspaces/<workspace>/design-doc.json \
+  --kind design \
   --goal-document <design-goal-json>
 ```
 
@@ -144,6 +148,8 @@ schema v4 `validation.target_state` は完成状態の唯一の正本である�
 manual case は concrete `procedure` だけを持つ。procedureは空白、記号、symbol、
 control / combining markを除いたUnicode文字を8文字以上持つ場合だけ実質的とみなす。
 cycle-start Issue titleは渡さず、検証済みcanonical Requirementsからだけ導出する。
+Requirementsは常にcanonical workspace pathからsnapshot経由で読み、`design_goal`だけが
+repository外の一時Design sourceを受け取る。`design`はcanonical workspace source以外を拒否する。
 
 repo-owned catalog は
 `docs/ai-driven-development/contracts/verification-profiles.json` であり、各 profile が fixed argv、
@@ -179,8 +185,9 @@ profileとtest-case profileは別IDとし、suite実行を単一caseの証拠と
 receipt は Issue、Goal、Requirements / Design source と display、rule map と selected
 rules、target state、ownership scopes、task-owned baseline inventory、非ignore untracked
 pathのtype・permission mode・contentまたはsymlink target identity、Git `HEAD`、profile catalog
-と selected profile hash を同じ snapshot から固定する。Build Goal 作成前と Build
-完了直前に同じ receipt hash で Build Entry を実行する。
+と selected profile hash を同じ snapshot から固定する。Git `HEAD`はsnapshot開始時に固定し、
+Git `HEAD` baseline blobはそのcommitから読み、receipt書込み直前のdriftを拒否する。
+Build Goal 作成前と Build完了直前に同じ receipt hash で Build Entry を実行する。
 
 ## Build Verification and Coverage
 
