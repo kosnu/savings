@@ -36,7 +36,6 @@ type Snapshot struct {
 	observed              map[string]observedEntry
 	gitHead               string
 	canonicalGitIndexPath string
-	gitIndexSHA256        string
 }
 
 type WorktreeIdentity struct {
@@ -81,6 +80,17 @@ func Open(ctx context.Context, root string) (*Snapshot, error) {
 		return nil, diagnostic.New("AIDD_REPO_OPEN", "", "repository", "repository root cannot be opened", canonical, err.Error())
 	}
 	return &Snapshot{Root: canonical, root: confined, observed: map[string]observedEntry{}, canonicalGitIndexPath: indexPath}, nil
+}
+
+func normalizeGitIndexPath(root string, pathBytes []byte) (string, error) {
+	path := strings.TrimSuffix(strings.TrimSuffix(string(pathBytes), "\n"), "\r")
+	if path == "" || strings.ContainsRune(path, '\x00') {
+		return "", diagnostic.New("AIDD_GIT_STATE_INDEX_PATH", "index", "repository", "canonical Git index path is invalid", "non-empty path without NUL", path)
+	}
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(root, path)
+	}
+	return filepath.Clean(path), nil
 }
 
 func (snapshot *Snapshot) Close() error {

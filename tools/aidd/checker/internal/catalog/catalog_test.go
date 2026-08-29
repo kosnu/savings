@@ -37,7 +37,7 @@ func TestRepositoryCatalogLoadsWithDistinctSuiteAndTestCaseProfiles(t *testing.T
 	if loaded.ProfileHash[suite.ID] == loaded.ProfileHash[testCase.ID] {
 		t.Fatal("suite and test-case profiles must have distinct identities")
 	}
-	if strings.Join(gitDiff.Argv, "\x00") != strings.Join([]string{"git", "diff", "HEAD", "--check", "--"}, "\x00") {
+	if strings.Join(gitDiff.Argv, "\x00") != strings.Join([]string{"git", "diff", "--no-ext-diff", "HEAD", "--check", "--"}, "\x00") {
 		t.Fatalf("git-diff-check does not inspect HEAD through the final worktree: %#v", gitDiff.Argv)
 	}
 }

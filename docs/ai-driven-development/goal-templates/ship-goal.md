@@ -22,7 +22,7 @@ when_to_read:
 
 - 目的: Build / Verify済み成果を要求されたdelivery状態にする。
 - Cycle identity: Issue、workspace、branch、Requirements・DesignのhashとDesign completion receipt。cycle-start titleはRequirements所有値を参照し、Ship入力として再指定しない。
-- Build evidence: 現在diffに対応するverification結果。
+- Build evidence: 現在diffに対応するverification結果、Design completion receiptのSHA-256、canonical Build coverageのSHA-256。
 - Delivery target: commit、remote branch、base branch、PR、review threads。
 - Scope: 含めるdiff、除外するdiff、許可されたGitHub操作。
 - Rule selection: git workflow、PR、review、CIに関するpolicy。
@@ -31,6 +31,7 @@ when_to_read:
 ## Done / Verification
 
 - dependency-closedな対象diffだけがcommitされている。
+- 検証済みworktreeのcontentとGit modeだけをstageし、commit前の`validate-ship`がrecord済みreceipt / coverage SHA-256、verification evidence、final state、全coverage pathとstaged candidateの一致を確認している。
 - 要求されたpushとopen PR作成または更新が完了している。
 - PR本文がIssue、変更内容、verification、残riskを正確に説明する。
 - 許可されたreview replyと、fully addressed threadのResolveが完了している。

@@ -24,7 +24,7 @@ owns phase work and evidence for that Goal; the parent retains its lifecycle.
   contract
 - `docs/harness/rule-map.json`
 - `docs/ai-driven-development/aidd-checker-operations.md` when entering
-  Requirements, Design, or Build
+  Requirements, Design, Build, or Ship
 - `.codex/config.toml` and the selected phase agent file before delegation
 
 The workflow is canonical. Do not add phase rules here or infer a phase from an
@@ -93,19 +93,19 @@ For each phase in the workflow:
    argv and the structured runner adapter belong only to the profile catalog
    and are hash-fixed by the Design receipt. Manual cases own substantive
    concrete procedures. Derive machine review
-  surfaces and path rules from the union of target paths and the current owned
-  baseline, including paths that disappear in the target, and freeze that
-  baseline inventory plus the repository-wide non-ignored untracked identity in
-  the Design receipt. In Build,
-  reconstruct exactly that target state in the ownership scopes, validate the
-  final owned-path inventory before execution, run each automated case in a
-  dedicated process group, terminate and reject any residual process before
-  post-case state checks, reject per-case mutation of any ignored or
-  non-ignored repository path, Git HEAD object ID/reference, or raw
-  repository-wide index bytes,
-  and bind every result to the unchanged final-state hash. Run the Build rule
-  coverage validator against both the final owned tree and the actual Git diff
-  relative to the frozen untracked baseline. Stop on missing or extra owned
+   surfaces and path rules from the union of target paths and the current owned
+   baseline, including paths that disappear in the target, and freeze that
+   baseline inventory plus the repository-wide non-ignored untracked identity in
+   the Design receipt. In Build,
+   reconstruct exactly that target state in the ownership scopes, validate the
+   final owned-path inventory before execution, run each automated case in a
+   dedicated process group, terminate and reject any residual process before
+   post-case state checks, reject per-case mutation of any ignored or
+   non-ignored repository path, Git HEAD object ID/reference, or the staged
+   tree represented by stage-entry mode, blob ID, and path,
+   and bind every result to the unchanged final-state hash. Run the Build rule
+   coverage validator against both the final owned tree and the actual Git diff
+   relative to the frozen untracked baseline. Stop on missing or extra owned
    representations, failed or missing verification evidence, out-of-scope
    changes, undeclared surfaces, a surface or path rule absent from the receipt,
    or a governed path with no routing surface. Representation locator metadata
@@ -115,8 +115,13 @@ For each phase in the workflow:
    succeed, capture the canonical Design completion receipt and record its path
    and SHA-256 in the phase completion evidence.
 5. For Build, immediately before completion, run the Build rule coverage
-   validator, then rerun the Build Entry gate with the receipt path and SHA-256
-   recorded by Design and require it to print that same SHA-256. For every
+   validator and record the canonical coverage SHA-256 it prints, then rerun the
+   Build Entry gate with the receipt path and SHA-256 recorded by Design and
+   require it to print that same receipt SHA-256. For Ship, stage only the
+   verified worktree content and Git mode, then run `validate-ship` with the
+   recorded receipt and coverage SHA-256 values before commit. If the gate
+   reports worktree drift, an absent or extra staged path, or evidence drift,
+   do not commit; return to Build / Verify. For every
    phase, only after its phase-specific checks and the
    objective, Done conditions, and Verification are satisfied, the parent calls
    `update_goal(status: complete)` and confirms the terminal state with

@@ -20,7 +20,7 @@ when_to_read:
 # AIDD Checker Architecture
 
 `aidd-checker` は schema v4 の Requirements、Design、Design completion、Build
-verification、Build coverage を単一 Go binary / 単一親processで検証する。新規 cycle
+verification、Build coverage、Ship candidate を単一 Go binary / 単一親processで検証する。新規 cycle
 の write / promotion path はこの checker だけである。schema v2 / v3 は read-only
 compatibility input とし、新規 Goal、receipt、Build evidenceへ昇格しない。
 
@@ -77,7 +77,7 @@ checkerの防御対象に含めない。これらの契約外事象を仮定し�
 - `internal/repository`: Go `os.Root`で閉じたcanonical Git root、親processの全`GIT_*`を除去したGit実行境界、正本worktreeのindex path、single-read snapshot、snapshotへ固定したGit `HEAD`とHEAD blob identity、通常inputの全path segment symlink拒否、untracked symlink targetの非追跡identity、型・権限・内容drift、ignore非依存repository mutation manifest、verification command前後のstaged tree identity、atomic output。
 - `internal/handoff` / `internal/receipt`: source / displayのcontent hashとpermission modeを固定するDesign completion capture と、全Build entrypointで同じidentityを再検証するBuild Entry。
 - `internal/runner` / `internal/evidence`: 親processの全`GIT_*`を除去したprofile-fixed execution と structured evidence。
-- `internal/state` / `internal/coverage`: owned final state と actual diff の照合。
+- `internal/state` / `internal/coverage`: owned final state、actual Build diff、staged Ship candidate の照合。
 - `internal/phasecontract`: phase ownership contract と agent representation の照合。
 - `cmd/aidd-checker`: CLI adapter。domain ruleを持たない。
 

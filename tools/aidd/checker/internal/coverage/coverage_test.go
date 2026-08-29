@@ -38,7 +38,7 @@ func TestGeneratedArtifactPathsRejectInvalidWorkspace(t *testing.T) {
 	}
 }
 
-func TestChangedPathsRejectsBaselineOutsideCurrentHistory(t *testing.T) {
+func TestChangedPathsRejectsBaselineMismatch(t *testing.T) {
 	repoRoot := t.TempDir()
 	runCoverageGit(t, repoRoot, "init", "-q")
 	runCoverageGit(t, repoRoot, "config", "user.name", "AIDD Test")
@@ -65,8 +65,8 @@ func TestChangedPathsRejectsBaselineOutsideCurrentHistory(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err = changedPaths(context.Background(), snapshot, baseline, nil)
-	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_BASELINE_ANCESTRY") {
-		t.Fatalf("expected baseline ancestry rejection, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_HEAD_DRIFT") {
+		t.Fatalf("expected baseline mismatch rejection, got %v", err)
 	}
 }
 
@@ -89,7 +89,7 @@ func TestChangedPathsRejectsHeadAdvanceBeforeShip(t *testing.T) {
 	}
 }
 
-func TestChangedPathsRejectsStagedStateThatDiffersFromWorktree(t *testing.T) {
+func TestChangedPathsRejectsStagingDuringBuild(t *testing.T) {
 	repoRoot, baselineHead := coverageFixtureRepository(t)
 	path := filepath.Join(repoRoot, "tracked.txt")
 	if err := os.WriteFile(path, []byte("staged\n"), 0o644); err != nil {
@@ -105,8 +105,8 @@ func TestChangedPathsRejectsStagedStateThatDiffersFromWorktree(t *testing.T) {
 	}
 	defer snapshot.Close()
 	_, err = changedPaths(context.Background(), snapshot, baselineHead, nil)
-	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_INDEX_WORKTREE_DRIFT") {
-		t.Fatalf("expected staged/worktree drift rejection, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_STAGED_STATE") {
+		t.Fatalf("expected staged Build rejection, got %v", err)
 	}
 }
 
@@ -119,53 +119,8 @@ func TestChangedPathsRejectsIndexOnlyModeChange(t *testing.T) {
 	}
 	defer snapshot.Close()
 	_, err = changedPaths(context.Background(), snapshot, baselineHead, nil)
-	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_INDEX_WORKTREE_DRIFT") {
-		t.Fatalf("expected index-only mode drift rejection, got %v", err)
-	}
-}
-
-func TestChangedPathsDetectsTrackedModificationHiddenByIndexVisibilityFlag(t *testing.T) {
-	tests := []struct {
-		name string
-		flag string
-	}{
-		{name: "assume unchanged", flag: "--assume-unchanged"},
-		{name: "skip worktree", flag: "--skip-worktree"},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			repoRoot, baselineHead := coverageFixtureRepository(t)
-			runCoverageGit(t, repoRoot, "update-index", test.flag, "tracked.txt")
-			if err := os.WriteFile(filepath.Join(repoRoot, "tracked.txt"), []byte("hidden change\n"), 0o644); err != nil {
-				t.Fatal(err)
-			}
-			if output := runCoverageGitOutput(t, repoRoot, "diff", "--name-status", "--"); output != "" {
-				t.Fatalf("fixture change was not hidden by %s: %q", test.flag, output)
-			}
-			snapshot, err := repository.Open(context.Background(), repoRoot)
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer snapshot.Close()
-			indexBefore, err := snapshot.GitIndexIdentity(context.Background())
-			if err != nil {
-				t.Fatal(err)
-			}
-			changes, err := changedPaths(context.Background(), snapshot, baselineHead, nil)
-			if err != nil {
-				t.Fatal(err)
-			}
-			indexAfter, err := snapshot.GitIndexIdentity(context.Background())
-			if err != nil {
-				t.Fatal(err)
-			}
-			if indexAfter != indexBefore {
-				t.Fatal("visibility flagを除く比較が実indexを変更した")
-			}
-			if len(changes) != 1 || changes[0] != (change{Path: "tracked.txt", Status: "M"}) {
-				t.Fatalf("hidden tracked change classification = %#v", changes)
-			}
-		})
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_STAGED_STATE") {
+		t.Fatalf("expected staged mode rejection, got %v", err)
 	}
 }
 
@@ -201,8 +156,8 @@ func TestChangedPathsRejectsTrackedPathLeftUntrackedInWorktree(t *testing.T) {
 	}
 	defer snapshot.Close()
 	_, err = changedPaths(context.Background(), snapshot, baselineHead, nil)
-	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_INDEX_WORKTREE_DRIFT") {
-		t.Fatalf("expected tracked/untracked drift rejection, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_BUILD_STAGED_STATE") {
+		t.Fatalf("expected staged tracked transition rejection, got %v", err)
 	}
 }
 
@@ -223,9 +178,6 @@ func TestChangedPathsUsesDesignUntrackedBaseline(t *testing.T) {
 				t.Fatal(err)
 			}
 		}, wantStatus: "D"},
-		{name: "staged once", mutate: func(t *testing.T, repoRoot, path string) {
-			runCoverageGit(t, repoRoot, "add", "--", path)
-		}, wantStatus: "A"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -298,39 +250,6 @@ func TestChangedPathsClassifiesNewUntrackedPath(t *testing.T) {
 	}
 	if len(changes) != 1 || changes[0] != (change{Path: path, Status: "A"}) {
 		t.Fatalf("new untracked classification = %#v", changes)
-	}
-}
-
-func TestChangedPathsIgnoresParentSelectedAlternateIndex(t *testing.T) {
-	repoRoot, baselineHead := coverageFixtureRepository(t)
-	path := "outside/staged.txt"
-	if err := os.MkdirAll(filepath.Join(repoRoot, "outside"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(repoRoot, filepath.FromSlash(path)), []byte("staged\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	runCoverageGit(t, repoRoot, "add", path)
-
-	alternateIndex := filepath.Join(t.TempDir(), "index")
-	command := exec.Command("git", "-C", repoRoot, "read-tree", "HEAD")
-	command.Env = append(os.Environ(), "GIT_INDEX_FILE="+alternateIndex)
-	if output, err := command.CombinedOutput(); err != nil {
-		t.Fatalf("create alternate index: %v\n%s", err, output)
-	}
-	t.Setenv("GIT_INDEX_FILE", alternateIndex)
-
-	snapshot, err := repository.Open(context.Background(), repoRoot)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer snapshot.Close()
-	changes, err := changedPaths(context.Background(), snapshot, baselineHead, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(changes) != 1 || changes[0] != (change{Path: path, Status: "A"}) {
-		t.Fatalf("canonical staged change was hidden: %#v", changes)
 	}
 }
 

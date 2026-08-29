@@ -93,7 +93,36 @@ func validateBuild(ctx context.Context, arguments []string) error {
 	if err := writeBuildArtifact(ctx, snapshot, loaded, path, serialized); err != nil {
 		return err
 	}
-	fmt.Printf("Build coverage: verified: %s changed_paths=%d\n", filepath.Join(snapshot.Root, filepath.FromSlash(path)), len(record.ChangedPaths))
+	fmt.Printf("Build coverage: verified: %s sha256=%s changed_paths=%d\n", filepath.Join(snapshot.Root, filepath.FromSlash(path)), canonical.HashBytes(serialized), len(record.ChangedPaths))
+	return nil
+}
+
+func validateShip(ctx context.Context, arguments []string) error {
+	flags := newFlagSet("validate-ship")
+	repoRoot := flags.String("repo-root", "", "repository root")
+	workspace := flags.String("workspace", "", "workspace")
+	expectedReceipt := flags.String("expected-receipt-sha256", "", "Design completion hash")
+	expectedCoverage := flags.String("expected-coverage-sha256", "", "Build coverage hash")
+	if err := parseFlags(flags, arguments); err != nil {
+		return err
+	}
+	if *repoRoot == "" || *workspace == "" || *expectedReceipt == "" || *expectedCoverage == "" {
+		return diagnostic.New("AIDD_CLI_ARGUMENT", "validate-ship", "cli", "validate-ship requires repository, workspace, receipt hash, and Build coverage hash arguments", nil, arguments)
+	}
+	snapshot, err := repository.Open(ctx, *repoRoot)
+	if err != nil {
+		return err
+	}
+	defer snapshot.Close()
+	loaded, err := receipt.Load(ctx, snapshot, *workspace, *expectedReceipt)
+	if err != nil {
+		return err
+	}
+	record, err := coverage.ValidateShip(ctx, snapshot, loaded, *expectedCoverage)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Ship candidate: verified: coverage_sha256=%s changed_paths=%d\n", *expectedCoverage, len(record.ChangedPaths))
 	return nil
 }
 
@@ -105,10 +134,8 @@ func writeBuildArtifact(ctx context.Context, snapshot *repository.Snapshot, load
 	if err := snapshot.AssertUnchanged(); err != nil {
 		return err
 	}
-	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+	if err := receipt.AssertBuildGitState(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
 		return err
 	}
-	return snapshot.WithStableGitState(ctx, func() error {
-		return snapshot.WriteAtomic(path, content)
-	})
+	return snapshot.WriteAtomic(path, content)
 }

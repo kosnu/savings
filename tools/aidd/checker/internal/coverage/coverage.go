@@ -59,7 +59,7 @@ func generatedArtifactPaths(workspace string) (string, string, string, error) {
 }
 
 func ValidateAndBuild(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt.Loaded) (*Record, error) {
-	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+	if err := receipt.AssertBuildGitState(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
 		return nil, err
 	}
 	_, evidenceBytes, err := evidence.LoadAndValidate(snapshot, loaded)
@@ -182,51 +182,27 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	if len(baseline) != 40 {
 		return nil, diagnostic.New("AIDD_BUILD_BASELINE", "build_baseline.head", "build_rule_coverage", "receipt Build baseline is invalid", "full commit ID", baseline)
 	}
-	if _, err := snapshot.Git(ctx, "merge-base", "--is-ancestor", baseline, "HEAD"); err != nil {
-		return nil, diagnostic.New("AIDD_BUILD_BASELINE_ANCESTRY", "build_baseline.head", "build_rule_coverage", "receipt Build baseline must be an ancestor of current HEAD", baseline, err.Error())
+	if err := receipt.AssertBuildGitState(ctx, snapshot, baseline); err != nil {
+		return nil, err
 	}
-	headBytes, err := snapshot.Git(ctx, "rev-parse", "--verify", "HEAD")
+	trackedOutput, err := snapshot.Git(ctx,
+		"-c", "core.fileMode=true",
+		"diff", "--no-ext-diff", "--name-status", "-z", "--no-renames", "--ignore-submodules=none", baseline, "--",
+	)
 	if err != nil {
 		return nil, err
 	}
-	currentHead := strings.TrimSpace(string(headBytes))
-	if currentHead != baseline {
-		return nil, diagnostic.New("AIDD_BUILD_HEAD_DRIFT", "build_baseline.head", "build_rule_coverage", "Build must not commit or switch HEAD before Ship", baseline, currentHead)
-	}
-	stagedOutput, err := snapshot.Git(ctx, "-c", "core.fileMode=true", "diff", "--cached", "--name-status", "-z", "--find-renames", "--ignore-submodules=none", baseline, "--")
+	trackedChanges, err := parseNameStatus(trackedOutput)
 	if err != nil {
 		return nil, err
-	}
-	stagedChanges, err := parseNameStatus(stagedOutput)
-	if err != nil {
-		return nil, err
-	}
-	indexWorktreeOutput, err := snapshot.GitIndexWorktreeDiff(ctx)
-	if err != nil {
-		return nil, err
-	}
-	indexWorktreeChanges, err := parseNameStatus(indexWorktreeOutput)
-	if err != nil {
-		return nil, err
-	}
-	stagedPaths := changePaths(stagedChanges)
-	for path := range changePaths(indexWorktreeChanges) {
-		if _, staged := stagedPaths[path]; staged {
-			return nil, diagnostic.New("AIDD_BUILD_INDEX_WORKTREE_DRIFT", path, "build_rule_coverage", "a staged Build path must match the validated worktree state", "identical index and worktree content/mode", path)
-		}
 	}
 	currentUntracked, err := state.UntrackedInventory(ctx, snapshot, nil)
 	if err != nil {
 		return nil, err
 	}
 	trackedByPath := map[string]change{}
-	for _, group := range [][]change{stagedChanges, indexWorktreeChanges} {
-		for _, item := range group {
-			if previous, exists := trackedByPath[item.Path]; exists && previous.Status != item.Status {
-				return nil, diagnostic.New("AIDD_BUILD_GIT_STATE_CONFLICT", item.Path, "build_rule_coverage", "worktree and index classify the Build path differently", previous.Status, item.Status)
-			}
-			trackedByPath[item.Path] = item
-		}
+	for _, item := range trackedChanges {
+		trackedByPath[item.Path] = item
 	}
 	baselineByPath := make(map[string]model.UntrackedEntry, len(untrackedBaseline))
 	for _, item := range untrackedBaseline {
@@ -272,14 +248,6 @@ func changedPaths(ctx context.Context, snapshot *repository.Snapshot, baseline s
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].Path < result[j].Path })
 	return result, nil
-}
-
-func changePaths(changes []change) map[string]struct{} {
-	result := make(map[string]struct{}, len(changes))
-	for _, item := range changes {
-		result[item.Path] = struct{}{}
-	}
-	return result
 }
 
 func parseNameStatus(output []byte) ([]change, error) {

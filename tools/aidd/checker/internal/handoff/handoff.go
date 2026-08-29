@@ -274,10 +274,7 @@ func Check(ctx context.Context, snapshot *repository.Snapshot, input CheckInput)
 	if err := snapshot.AssertUnchanged(); err != nil {
 		return nil, err
 	}
-	if err := receipt.AssertBuildHead(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
-		return nil, err
-	}
-	if err := snapshot.AssertGitIndexUnchanged(ctx); err != nil {
+	if err := receipt.AssertBuildGitState(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
 		return nil, err
 	}
 	return loaded, nil

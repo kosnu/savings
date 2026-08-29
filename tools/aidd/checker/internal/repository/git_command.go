@@ -18,7 +18,7 @@ func newGitCommand(ctx context.Context, root string, overrides []string, argumen
 
 // CanonicalGitEnvironmentは親processのGit固有設定を除去し、checker所有のoverrideだけを加える。
 func CanonicalGitEnvironment(source, overrides []string) []string {
-	result := make([]string, 0, len(source)+len(overrides))
+	result := make([]string, 0, len(source)+len(overrides)+2)
 	for _, entry := range source {
 		key, _, found := strings.Cut(entry, "=")
 		if found && len(key) >= 4 && strings.EqualFold(key[:4], "GIT_") {
@@ -26,5 +26,6 @@ func CanonicalGitEnvironment(source, overrides []string) []string {
 		}
 		result = append(result, entry)
 	}
+	result = append(result, "GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL="+os.DevNull)
 	return append(result, overrides...)
 }

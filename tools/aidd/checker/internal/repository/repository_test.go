@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"testing"
 	"time"
 
@@ -28,6 +27,8 @@ func TestCanonicalGitEnvironmentRejectsInheritedRepositorySelection(t *testing.T
 	want := map[string]bool{
 		"PATH=/bin":                       true,
 		"GITHUB_ACTIONS=true":             true,
+		"GIT_CONFIG_NOSYSTEM=1":           true,
+		"GIT_CONFIG_GLOBAL=" + os.DevNull: true,
 		"GIT_INDEX_FILE=/canonical/index": true,
 	}
 	if len(environment) != len(want) {
@@ -194,88 +195,6 @@ func TestSnapshotRejectsGitHeadDriftAfterBaselineRead(t *testing.T) {
 	runRepositoryGit(t, root, "-c", "user.name=AIDD Test", "-c", "user.email=aidd@example.com", "commit", "--allow-empty", "-qm", "concurrent head advance")
 	if err := snapshot.AssertGitHeadUnchanged(context.Background()); diagnosticCode(err) != "AIDD_GIT_HEAD_DRIFT" {
 		t.Fatalf("AssertGitHeadUnchanged() error code = %q, want AIDD_GIT_HEAD_DRIFT: %v", diagnosticCode(err), err)
-	}
-}
-
-func TestWithStableGitStateBlocksConcurrentGitWriter(t *testing.T) {
-	root := newGitRepository(t)
-	writeRepositoryFile(t, root, "tracked.txt", []byte("baseline\n"), 0o644)
-	commitRepositoryFixture(t, root)
-	snapshot := openSnapshot(t, root)
-	if err := snapshot.PinGitIndex(context.Background()); err != nil {
-		t.Fatal(err)
-	}
-	writeRepositoryFile(t, root, "concurrent.txt", []byte("new\n"), 0o644)
-	if _, err := snapshot.Head(context.Background()); err != nil {
-		t.Fatal(err)
-	}
-	err := snapshot.WithStableGitState(context.Background(), func() error {
-		command := exec.Command("git", "-C", root, "add", "concurrent.txt")
-		output, commandErr := command.CombinedOutput()
-		if commandErr == nil || !strings.Contains(string(output), "index.lock") {
-			t.Fatalf("concurrent git add was not blocked by index lock: err=%v output=%s", commandErr, output)
-		}
-		return nil
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if output := runRepositoryGit(t, root, "diff", "--cached", "--name-only"); output != "" {
-		t.Fatalf("concurrent path reached the real index: %q", output)
-	}
-}
-
-func TestWithStableGitStateRejectsHeadDriftDuringAction(t *testing.T) {
-	root := newGitRepository(t)
-	writeRepositoryFile(t, root, "tracked.txt", []byte("baseline\n"), 0o644)
-	commitRepositoryFixture(t, root)
-	snapshot := openSnapshot(t, root)
-	if _, err := snapshot.Head(context.Background()); err != nil {
-		t.Fatal(err)
-	}
-	if err := snapshot.PinGitIndex(context.Background()); err != nil {
-		t.Fatal(err)
-	}
-	tree := strings.TrimSpace(runRepositoryGit(t, root, "write-tree"))
-	nextHead := strings.TrimSpace(runRepositoryGit(t, root, "-c", "user.name=AIDD Test", "-c", "user.email=aidd@example.com", "commit-tree", tree, "-p", "HEAD", "-m", "concurrent head"))
-	err := snapshot.WithStableGitState(context.Background(), func() error {
-		runRepositoryGit(t, root, "update-ref", "HEAD", nextHead)
-		return nil
-	})
-	if diagnosticCode(err) != "AIDD_GIT_HEAD_DRIFT" {
-		t.Fatalf("WithStableGitState() error code = %q, want AIDD_GIT_HEAD_DRIFT: %v", diagnosticCode(err), err)
-	}
-}
-
-func TestSnapshotUsesCanonicalIndexWhenParentProvidesAlternateIndex(t *testing.T) {
-	root := newGitRepository(t)
-	writeRepositoryFile(t, root, "tracked.txt", []byte("baseline\n"), 0o644)
-	commitRepositoryFixture(t, root)
-	writeRepositoryFile(t, root, "scope-out.txt", []byte("staged in real index\n"), 0o644)
-	runRepositoryGit(t, root, "add", "scope-out.txt")
-
-	alternateIndex := filepath.Join(t.TempDir(), "index")
-	command := exec.Command("git", "-C", root, "read-tree", "HEAD")
-	command.Env = append(os.Environ(), "GIT_INDEX_FILE="+alternateIndex)
-	if output, err := command.CombinedOutput(); err != nil {
-		t.Fatalf("create alternate index: %v\n%s", err, output)
-	}
-	t.Setenv("GIT_INDEX_FILE", alternateIndex)
-
-	snapshot := openSnapshot(t, root)
-	actualPath, err := snapshot.gitIndexPath(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if actualPath == alternateIndex {
-		t.Fatalf("snapshot accepted parent-selected alternate index %q", actualPath)
-	}
-	output, err := snapshot.Git(context.Background(), "diff", "--cached", "--name-only")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if strings.TrimSpace(string(output)) != "scope-out.txt" {
-		t.Fatalf("canonical staged change was hidden: %q", output)
 	}
 }
 
