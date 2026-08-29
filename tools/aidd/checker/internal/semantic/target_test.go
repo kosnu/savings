@@ -715,7 +715,7 @@ func TestParseSourceRejectsLegacyCommandInV4(t *testing.T) {
 
 func TestParseSourceKeepsV2AndV3ReadOnly(t *testing.T) {
 	for _, schemaVersion := range []int{2, 3} {
-		content := []byte(`{"schema_version":` + strconv.Itoa(schemaVersion) + `,"kind":"design","workspace":"legacy","display":{},"validation":{}}`)
+		content := []byte(`{"schema_version":` + strconv.Itoa(schemaVersion) + `,"kind":"design","workspace":"legacy","display":{"path":"design-doc.md","preamble":"# Design"},"validation":{}}`)
 		parsed, err := ParseSource(content, "design", "legacy")
 		if err != nil {
 			t.Fatal(err)
@@ -723,6 +723,46 @@ func TestParseSourceKeepsV2AndV3ReadOnly(t *testing.T) {
 		if !parsed.ReadOnlyLegacy {
 			t.Fatalf("schema v%d must be read-only compatibility input", schemaVersion)
 		}
+		if parsed.ArtifactDisplay == nil {
+			t.Fatalf("schema v%d must retain its validated display envelope", schemaVersion)
+		}
+	}
+}
+
+func TestParseSourceRejectsIncompleteLegacyEnvelope(t *testing.T) {
+	tests := []struct {
+		name     string
+		content  string
+		wantCode string
+	}{
+		{
+			name:     "missing display",
+			content:  `{"schema_version":2,"kind":"requirements","workspace":"legacy","validation":{}}`,
+			wantCode: "AIDD_LEGACY_ENVELOPE",
+		},
+		{
+			name:     "missing validation",
+			content:  `{"schema_version":2,"kind":"requirements","workspace":"legacy","display":{"path":"requirements.md","preamble":"# Requirements"}}`,
+			wantCode: "AIDD_LEGACY_ENVELOPE",
+		},
+		{
+			name:     "null validation",
+			content:  `{"schema_version":3,"kind":"design","workspace":"legacy","display":{"path":"design-doc.md","preamble":"# Design"},"validation":null}`,
+			wantCode: "AIDD_LEGACY_ENVELOPE",
+		},
+		{
+			name:     "unsupported kind",
+			content:  `{"schema_version":3,"kind":"design_goal","workspace":"legacy","display":{},"validation":{}}`,
+			wantCode: "AIDD_SOURCE_KIND",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := ParseSource([]byte(test.content), "", "legacy")
+			if err == nil || !strings.Contains(err.Error(), test.wantCode) {
+				t.Fatalf("expected %s, got %v", test.wantCode, err)
+			}
+		})
 	}
 }
 

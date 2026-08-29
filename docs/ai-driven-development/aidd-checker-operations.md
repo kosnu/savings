@@ -235,8 +235,9 @@ path、worktree 上の Git 投影 mode・content と target-state hash を固定
 regular file、symlinkのtype・permission mode・size・mtime・ctime・device・inodeを
 各automated case前後で比較する。automated caseは専用process groupで実行し、direct
 runner終了後に残留processがあれば終了させてcaseを失敗にした後、stateを比較する。
-Git `HEAD`のcommit・symbolic referenceとstaged treeも比較し、ignored cache、作成後削除した
-一時file、ownership外のstage変更を成功証拠から除外する。
+Git `HEAD`のcommitとstaged treeも比較し、ignored cache、作成後削除した一時file、ownership外の
+stage変更を成功証拠から除外する。current branchはShipだけが変更できるphase contractであり、
+checkerの成果物identityには含めない。
 coverage はShip前までGit `HEAD`がreceipt baselineと完全一致し、staged treeに差分がないことを
 要求する。実差分は`core.fileMode=true`かつ`--no-ext-diff`でbaselineからworktreeへ直接取得する。
 Design時点から不変のuntracked pathは除外し、新規・変更・削除・tracked化だけをownership
