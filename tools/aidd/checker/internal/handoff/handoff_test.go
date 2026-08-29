@@ -13,6 +13,7 @@ import (
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/gates"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/render"
@@ -28,6 +29,43 @@ func handoffIssueBody() []byte {
 		lines = append(lines, fmt.Sprintf("section-evidence-%02d", index+1))
 	}
 	return []byte(strings.Join(lines, "\n"))
+}
+
+func TestValidateDesignAcceptsCanonicalFixture(t *testing.T) {
+	repoRoot := initializeFixtureRepository(t)
+	workspaceRoot := filepath.Join(repoRoot, "docs", "ai-driven-development", "workspaces", testWorkspace)
+	requirements, err := os.ReadFile(filepath.Join(workspaceRoot, "requirements.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	design, err := os.ReadFile(filepath.Join(workspaceRoot, "design-doc.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	goal, err := os.ReadFile(filepath.Join(repoRoot, "design-goal.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+
+	result, err := gates.ValidateDesign(context.Background(), snapshot, gates.DesignInput{
+		Issue: gates.IssueSnapshot{
+			ID: "owner/repo#1671", URL: "https://github.com/owner/repo/issues/1671",
+			UpdatedAt: "2026-08-28T00:00:00Z", Body: handoffIssueBody(),
+		},
+		Workspace: testWorkspace, Kind: "design", Requirements: requirements,
+		Document: design, Goal: goal, RuleMapPath: RuleMapPath, ProfilePath: catalog.DefaultPath,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Requirements == nil || result.Document == nil || result.Goal == nil {
+		t.Fatalf("Design gate did not return all validated sources: %#v", result)
+	}
 }
 
 func TestReceiptFixesProfileCatalogAndBuildEntry(t *testing.T) {

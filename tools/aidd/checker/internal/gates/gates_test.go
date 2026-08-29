@@ -67,7 +67,7 @@ func TestTransitionEvidenceHasExactlyOneContentOwner(t *testing.T) {
 		t.Run(ownerKind, func(t *testing.T) {
 			evidenceA := "根拠A"
 			evidenceB := "根拠B"
-			items := []transition{
+			items := []model.RequirementTransition{
 				{ID: "owner-a", Status: "new", IssueEvidence: &evidenceA},
 				{ID: "owner-b", Status: "new", IssueEvidence: &evidenceB},
 			}
@@ -77,7 +77,7 @@ func TestTransitionEvidenceHasExactlyOneContentOwner(t *testing.T) {
 				t.Fatalf("valid ownership rejected: %v", err)
 			}
 
-			duplicate := append([]transition(nil), items...)
+			duplicate := append([]model.RequirementTransition(nil), items...)
 			duplicate[1].IssueEvidence = &evidenceA
 			if err := validateOwnedTransitions(duplicate, issueBody, contents, "requirements", ownerKind); err == nil || !strings.Contains(err.Error(), "EVIDENCE_DUPLICATE") {
 				t.Fatalf("expected duplicate evidence rejection, got %v", err)
@@ -112,7 +112,7 @@ func TestRetirementEvidenceMustNameAndAffirmRetirement(t *testing.T) {
 		{name: "negated english", evidence: "FR-1 must not be removed", wantCode: "AIDD_RETIRED_EVIDENCE_NEGATED"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			err := validateRetirementEvidence(retirement{ID: "FR-1", IssueEvidence: test.evidence}, test.evidence, "retired[0]", "requirements")
+			err := validateRetirementEvidence(model.RequirementRetirement{ID: "FR-1", IssueEvidence: test.evidence}, test.evidence, "retired[0]", "requirements")
 			if test.wantCode == "" && err != nil {
 				t.Fatalf("valid retirement evidence rejected: %v", err)
 			}
@@ -124,7 +124,7 @@ func TestRetirementEvidenceMustNameAndAffirmRetirement(t *testing.T) {
 }
 
 func TestRequirementsSectionHashIncludesOwnedRequirementText(t *testing.T) {
-	section := sourceSection{ID: "functional", Heading: "機能要件", Blocks: []sourceBlock{{ID: "requirements", Type: "requirements"}}}
+	section := model.Section{ID: "functional", Heading: "機能要件", Blocks: []model.Block{{ID: "requirements", Type: "requirements"}}}
 	before := map[string]model.Requirement{"FR-1": {ID: "FR-1", SectionID: "functional", Text: "変更前"}}
 	after := map[string]model.Requirement{"FR-1": {ID: "FR-1", SectionID: "functional", Text: "変更後"}}
 	beforeHash, err := requirementsSectionHash(section, before)
