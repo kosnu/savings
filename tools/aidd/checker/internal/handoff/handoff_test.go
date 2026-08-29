@@ -237,6 +237,42 @@ func TestBuildEntryRejectsArtifactModeDrift(t *testing.T) {
 	}
 }
 
+func TestBuildEntryRejectsReceiptModeDrift(t *testing.T) {
+	repoRoot := initializeFixtureRepository(t)
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	designGoal, err := os.ReadFile(filepath.Join(repoRoot, "design-goal.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	receiptPath, receiptHash, err := Capture(context.Background(), snapshot, CaptureInput{
+		IssueID: "owner/repo#1671", IssueURL: "https://github.com/owner/repo/issues/1671",
+		IssueUpdatedAt: "2026-08-28T00:00:00Z", IssueBody: handoffIssueBody(),
+		DesignGoal: designGoal, Workspace: testWorkspace, ProfilePath: catalog.DefaultPath,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := snapshot.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(filepath.Join(repoRoot, filepath.FromSlash(receiptPath)), 0o700); err != nil {
+		t.Fatal(err)
+	}
+
+	driftSnapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer driftSnapshot.Close()
+	_, err = receipt.Load(context.Background(), driftSnapshot, testWorkspace, receiptHash)
+	if err == nil || !strings.Contains(err.Error(), "AIDD_RECEIPT_MODE_DRIFT") {
+		t.Fatalf("expected receipt mode drift rejection, got %v", err)
+	}
+}
+
 func TestBuildEntryRejectsGitHeadDrift(t *testing.T) {
 	repoRoot := initializeFixtureRepository(t)
 	snapshot, err := repository.Open(context.Background(), repoRoot)

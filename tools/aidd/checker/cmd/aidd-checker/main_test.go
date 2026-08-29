@@ -518,6 +518,9 @@ func assertCaptureVerificationFailure(t *testing.T, arguments []string, diagnost
 	}
 	receiptPath := "docs/ai-driven-development/workspaces/fixture/.aidd/design-completion.json"
 	writeMainFile(t, root, receiptPath, receiptBytes)
+	if err := os.Chmod(filepath.Join(root, filepath.FromSlash(receiptPath)), 0o600); err != nil {
+		t.Fatal(err)
+	}
 
 	err = run(context.Background(), []string{
 		"capture-verification", "--repo-root", root, "--workspace", "fixture",

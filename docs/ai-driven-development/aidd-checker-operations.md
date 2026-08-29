@@ -197,9 +197,10 @@ Git `HEAD` baseline blobはそのcommitから読み、receipt書込み直前のd
 通常Git検証にはそのpathを明示し、一時index処理だけchecker所有の一時pathへ置き換える。
 Build Entry、`capture-verification`、`validate-build`はreceipt読込時にGit `HEAD`を
 Build baselineへ固定し、verification開始前と各canonical outputの書込み直前にも完全一致を
-再検証する。同時にreceipt読込時のraw Git index identityを固定し、Build Entry完了時と
-各canonical outputの書込み直前に再照合する。出力時は標準`index.lock`でGit writerを
-排他し、再照合・atomic write・完了後再照合を同じcritical sectionで行う。Build Goal
+再検証する。receipt自身はcanonical output mode `0600`も要求する。同時にreceipt読込時の
+raw Git index identityを固定し、Build Entry完了時と各canonical outputの書込み直前に
+再照合する。出力時は標準`index.lock`でGit writerを排他し、固定済み`HEAD`とraw indexの
+再照合・atomic write・両identityの完了後再照合を同じcritical sectionで行う。Build Goal
 作成前とBuild完了直前に同じreceipt hashでBuild Entryを実行する。
 
 ## Build Verification and Coverage
@@ -244,7 +245,8 @@ coverage はShip前までGit `HEAD`がreceipt baselineと完全一致するこ�
 untracked pathは除外し、新規・変更・削除・tracked化だけをownership scope、surface、
 path rule、dependency closureへ再照合する。
 Requirements / Designのsource / displayはcoverage除外前にreceipt固定content hashと
-permission modeを再検証し、executable bitだけの変更も上流artifact driftとして拒否する。
+permission modeを再検証し、receipt自身もcanonical mode `0600`を再検証する。executable
+bitだけの変更も上流artifact driftとして拒否する。
 
 ## Compatibility and Go-only Ownership
 

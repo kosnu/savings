@@ -12,6 +12,19 @@ import (
 
 var artifactModePattern = regexp.MustCompile(`^0[0-7]{3}$`)
 
+const canonicalReceiptMode = "0600"
+
+func ValidateReceiptMode(snapshot *repository.Snapshot, path, artifact string) error {
+	currentMode, err := artifactMode(snapshot, path, artifact)
+	if err != nil {
+		return err
+	}
+	if currentMode != canonicalReceiptMode {
+		return diagnostic.New("AIDD_RECEIPT_MODE_DRIFT", path, artifact, "Design completion receipt must keep the canonical output mode", canonicalReceiptMode, currentMode)
+	}
+	return nil
+}
+
 func CaptureArtifactIdentity(snapshot *repository.Snapshot, path string, content []byte) (model.ArtifactIdentity, error) {
 	mode, err := artifactMode(snapshot, path, "design_completion")
 	if err != nil {
