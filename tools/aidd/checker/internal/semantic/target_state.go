@@ -265,13 +265,17 @@ func withinScope(path string, scope model.OwnershipScope) bool {
 
 func substantive(value string) string {
 	var builder strings.Builder
-	for _, character := range cases.Fold().String(norm.NFKC.String(strings.TrimSpace(value))) {
-		if unicode.IsPunct(character) || unicode.IsSymbol(character) || unicode.IsSpace(character) || unicode.IsControl(character) || unicode.IsMark(character) {
+	for _, character := range normalizedText(strings.TrimSpace(value)) {
+		if unicode.IsPunct(character) || unicode.IsSymbol(character) || unicode.IsSpace(character) || unicode.Is(unicode.Categories["C"], character) || unicode.IsMark(character) {
 			continue
 		}
 		builder.WriteRune(character)
 	}
 	return builder.String()
+}
+
+func normalizedText(value string) string {
+	return cases.Fold().String(norm.NFKC.String(value))
 }
 
 func requireCanonicalIDs(ids []string, key func(string) int, code, path, artifact string) error {

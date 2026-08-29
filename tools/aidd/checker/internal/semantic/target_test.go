@@ -410,6 +410,34 @@ func TestParseSourceRejectsNonCanonicalWorkspaceAndMultilineRequirement(t *testi
 	}
 }
 
+func TestParseSourceRejectsRequirementWithoutSubstantiveSummary(t *testing.T) {
+	for _, kind := range []string{"requirements_goal", "requirements"} {
+		for _, text := range []string{
+			"FR-1",
+			"FR-1 TODO",
+			"FR-1 pending 未定",
+			"FR-1 TODOです",
+			"FR-1 未定です",
+			"FR-1 TBD対応待ち",
+			"FR-1 T\u200bODO",
+			"ＦＲ－１ （未定）",
+		} {
+			t.Run(kind+"/"+text, func(t *testing.T) {
+				source := validGoalSource("requirements_goal")
+				if kind == "requirements" {
+					source["kind"] = "requirements"
+					source["display"] = map[string]any{"path": "requirements.md", "preamble": "# Requirements"}
+					source["validation"].(map[string]any)["requirements"].([]any)[0].(map[string]any)["section_id"] = "functional"
+				}
+				source["validation"].(map[string]any)["requirements"].([]any)[0].(map[string]any)["text"] = text
+				if err := parseGoalFixture(t, source); err == nil || !strings.Contains(err.Error(), "AIDD_REQUIREMENT_TEXT") {
+					t.Fatalf("expected placeholder Requirement rejection, got %v", err)
+				}
+			})
+		}
+	}
+}
+
 func TestParseSourceRejectsCrossStatusBaselineFields(t *testing.T) {
 	tests := []struct {
 		name  string

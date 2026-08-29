@@ -13,8 +13,10 @@ import (
 )
 
 var (
-	requirementIDPattern  = regexp.MustCompile(`^(?:FR|NFR|AC)-[1-9][0-9]*$`)
-	goalContractIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
+	requirementIDPattern              = regexp.MustCompile(`^(?:FR|NFR|AC)-[1-9][0-9]*$`)
+	goalContractIDPattern             = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
+	requirementPlaceholderPattern     = regexp.MustCompile(`(?:pending|tbd|todo|未定)`)
+	requirementPlaceholderOnlyPattern = regexp.MustCompile(`^(?:(?:pending|tbd|todo|未定)(?:(?:です|である|対応待ち|待ち))*)+$`)
 )
 
 const minimumGoalTextRunes = 8
@@ -253,8 +255,8 @@ func validateRequirements(validation *model.RequirementsValidation, kind, worksp
 		if !requirementIDPattern.MatchString(requirement.ID) {
 			return diagnostic.New("AIDD_REQUIREMENT_ID", path+".id", artifact, "Requirement ID is invalid", "FR/NFR/AC-number", requirement.ID)
 		}
-		if substantive(requirement.Text) == "" || strings.ContainsAny(requirement.Text, "\r\n") {
-			return diagnostic.New("AIDD_REQUIREMENT_TEXT", path+".text", artifact, "Requirement text must be a substantive single line", "substantive single-line string", requirement.Text)
+		if err := validateRequirementText(requirement.ID, requirement.Text, path+".text", artifact); err != nil {
+			return err
 		}
 		if kind == "requirements" && requirement.SectionID == "" {
 			return diagnostic.New("AIDD_REQUIREMENT_SECTION", path+".section_id", artifact, "Requirements artifact must own a section ID", nil, requirement.SectionID)
@@ -285,6 +287,18 @@ func validateRequirements(validation *model.RequirementsValidation, kind, worksp
 	}
 	if !equalStrings(gateSectionIDs, sectionIDs) {
 		return diagnostic.New("AIDD_COMPLETENESS_SECTIONS", "validation.completeness_gate.sections", artifact, "completeness gate must inventory every section in canonical order", sectionIDs, gateSectionIDs)
+	}
+	return nil
+}
+
+func validateRequirementText(id, value, path, artifact string) error {
+	if strings.ContainsAny(value, "\r\n") {
+		return diagnostic.New("AIDD_REQUIREMENT_TEXT", path, artifact, "Requirement text must contain a substantive non-placeholder summary on one line", "single-line summary with at least 2 substantive characters after the Requirement ID and placeholder terms", value)
+	}
+	normalized := substantive(strings.ReplaceAll(normalizedText(value), normalizedText(id), ""))
+	withoutPlaceholders := requirementPlaceholderPattern.ReplaceAllString(normalized, "")
+	if requirementPlaceholderOnlyPattern.MatchString(normalized) || len([]rune(substantive(withoutPlaceholders))) < 2 {
+		return diagnostic.New("AIDD_REQUIREMENT_TEXT", path, artifact, "Requirement text must contain a substantive non-placeholder summary on one line", "single-line summary with at least 2 substantive characters after the Requirement ID and placeholder terms", value)
 	}
 	return nil
 }
