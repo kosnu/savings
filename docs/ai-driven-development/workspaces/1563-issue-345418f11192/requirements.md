@@ -38,7 +38,7 @@ when_to_read:
 ## Requirements Completeness Gate
 
 ```json
-{"baseline":{"body_sha256":null,"source":"none"},"issue_body_sha256":"720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b","requirements":[{"id":"FR-1","issue_evidence":"`public.users.language` を言語設定の永続的な保存先として追加する","status":"new"},{"id":"FR-2","issue_evidence":"ログイン時の言語設定取得","status":"new"},{"id":"FR-3","issue_evidence":"言語変更時の保存","status":"new"},{"id":"FR-4","issue_evidence":"既存localStorage値との優先順位","status":"new"},{"id":"FR-5","issue_evidence":"未設定・取得失敗・保存失敗時の挙動","status":"new"},{"id":"NFR-1","issue_evidence":"対応言語は既存の日本語と英語を維持する","status":"new"},{"id":"NFR-2","issue_evidence":"既存の `name` のみというルールは `language` の追加範囲で変更し、他のプロフィール列は更新可能にしない","status":"new"},{"id":"AC-1","issue_evidence":"アカウント値と端末値が異なる場合も、初回のユーザー向け表示がアカウント言語で行われる","status":"new"},{"id":"AC-2","issue_evidence":"既存の日本語・英語表示が壊れていない","status":"new"}],"retired":[],"sections":[{"id":"background","issue_evidence":"現在の言語設定はブラウザの `localStorage` にだけ保存される","status":"new"},{"id":"users","issue_evidence":"同じユーザーが別端末や別ブラウザでログインしても","status":"new"},{"id":"stories","issue_evidence":"認証済みユーザーの言語設定がアカウントに保存され","status":"new"},{"id":"scope","issue_evidence":"未認証ユーザーのアカウント設定","status":"new"},{"id":"functional","issue_evidence":"言語変更時の保存","status":"new"},{"id":"non-functional","issue_evidence":"言語取得に失敗してもアプリを利用不能にしない","status":"new"},{"id":"acceptance","issue_evidence":"別端末で同じ言語設定が反映される","status":"new"},{"id":"qa","issue_evidence":"アカウント設定と端末設定のどちらを優先するか","status":"new"},{"id":"technical","issue_evidence":"必要なDB migration、型・API境界、RLS・更新条件、回帰テストを同期して変更する","status":"new"}],"workspace":"1563-issue-345418f11192"}
+{"baseline":{"body_sha256":"de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec","source":"git_head"},"issue_body_sha256":"720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b","requirements":[{"id":"FR-1","issue_evidence":null,"status":"unchanged"},{"id":"FR-2","issue_evidence":null,"status":"unchanged"},{"id":"FR-3","issue_evidence":null,"status":"unchanged"},{"id":"FR-4","issue_evidence":null,"status":"unchanged"},{"id":"FR-5","issue_evidence":null,"status":"unchanged"},{"id":"NFR-1","issue_evidence":null,"status":"unchanged"},{"id":"NFR-2","issue_evidence":null,"status":"unchanged"},{"id":"AC-1","issue_evidence":null,"status":"unchanged"},{"id":"AC-2","issue_evidence":null,"status":"unchanged"}],"retired":[],"sections":[{"id":"background","issue_evidence":null,"status":"unchanged"},{"id":"users","issue_evidence":null,"status":"unchanged"},{"id":"stories","issue_evidence":null,"status":"unchanged"},{"id":"scope","issue_evidence":null,"status":"unchanged"},{"id":"functional","issue_evidence":"言語変更時の保存","status":"changed"},{"id":"non-functional","issue_evidence":"言語取得に失敗してもアプリを利用不能にしない","status":"changed"},{"id":"acceptance","issue_evidence":"別端末で同じ言語設定が反映される","status":"changed"},{"id":"qa","issue_evidence":null,"status":"unchanged"},{"id":"technical","issue_evidence":null,"status":"unchanged"}],"workspace":"1563-issue-345418f11192"}
 ```
 
 ## 背景
@@ -59,7 +59,7 @@ when_to_read:
 
 ## 機能要件
 
-取得、優先順位、言語変更時の保存、fallbackを一貫したアカウント設定フローとして扱う。
+認証成立後の取得、アカウント値の優先、言語変更時の保存、取得・保存失敗時のfallbackを一貫したアカウント設定フローとして扱う。
 
 - FR-1: \`public\.users\.language\` を言語設定の永続的な保存先として追加する。認証済みアカウントの値を端末側の値より優先する。
 - FR-2: ログイン時の言語設定取得を行い、取得成功またはfallback決定まで認証済みユーザー向け画面の言語を確定表示しない。
@@ -69,14 +69,14 @@ when_to_read:
 
 ## 非機能要件
 
-言語取得に失敗してもアプリを利用不能にしない。既存言語と属性更新の最小権限を維持する。
+言語取得に失敗してもアプリを利用不能にしない。fallback決定後の利用継続、日本語・英語の既存表示、`name` と `language` 以外の属性を更新できない最小権限を維持する。
 
 - NFR-1: 対応言語は既存の日本語と英語を維持する。対応言語追加や翻訳方針変更を行わない。
 - NFR-2: 既存の \`name\` のみというルールは \`language\` の追加範囲で変更し、他のプロフィール列は更新可能にしない。本人行の列単位権限、RLS、型、API境界を同期する。
 
 ## 受け入れ条件
 
-別端末で同じ言語設定が反映されることを、初回表示と各失敗経路を含めて確認する。
+別端末で同じ言語設定が反映されること、アカウント言語による初回表示、未設定・取得失敗・保存失敗時の挙動、既存の日本語・英語表示の回帰を検証する。
 
 - AC-1: 別端末で保存済み言語が反映され、アカウント値と端末値が異なる場合も、初回のユーザー向け表示がアカウント言語で行われる。
 - AC-2: 未設定・取得失敗・保存失敗の回帰検証があり、既存の日本語・英語表示が壊れていない。

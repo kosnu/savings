@@ -20,7 +20,7 @@ when_to_read:
 # Design Doc: Issue #1563
 
 - Requirements: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`
-- Requirements SHA-256: `de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec`
+- Requirements SHA-256: `d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf`
 - Workspace: `1563-issue-345418f11192`
 
 ## Architecture
@@ -78,5 +78,5 @@ AC\-2 verification: 設定画面の日本語・英語切替と保存失敗表示
 ## Design Coverage Gate
 
 ```json
-{"baseline":{"body_sha256":null,"source":"none"},"baseline_sections":[],"coverage":[{"design_block_id":"fr-1-design","id":"FR-1","verification_block_id":"fr-1-verification"},{"design_block_id":"fr-2-design","id":"FR-2","verification_block_id":"fr-2-verification"},{"design_block_id":"fr-3-design","id":"FR-3","verification_block_id":"fr-3-verification"},{"design_block_id":"fr-4-design","id":"FR-4","verification_block_id":"fr-4-verification"},{"design_block_id":"fr-5-design","id":"FR-5","verification_block_id":"fr-5-verification"},{"design_block_id":"nfr-1-design","id":"NFR-1","verification_block_id":"nfr-1-verification"},{"design_block_id":"nfr-2-design","id":"NFR-2","verification_block_id":"nfr-2-verification"},{"design_block_id":"ac-1-design","id":"AC-1","verification_block_id":"ac-1-verification"},{"design_block_id":"ac-2-design","id":"AC-2","verification_block_id":"ac-2-verification"}],"requirement_ids":["FR-1","FR-2","FR-3","FR-4","FR-5","NFR-1","NFR-2","AC-1","AC-2"],"requirements_sha256":"de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec","workspace":"1563-issue-345418f11192"}
+{"baseline":{"body_sha256":"2a6c4c024b48e06d34891ce2e2e670a2ea409a0977df12475bd00fd35150078d","source":"git_head"},"baseline_sections":[{"content_sha256":"fd3b4733830cecd1926480b321ac9e82b78faae954ac08ba6444b4071e00de81","heading":"Architecture","section_id":"architecture","status":"preserved"}],"coverage":[{"design_block_id":"fr-1-design","id":"FR-1","verification_block_id":"fr-1-verification"},{"design_block_id":"fr-2-design","id":"FR-2","verification_block_id":"fr-2-verification"},{"design_block_id":"fr-3-design","id":"FR-3","verification_block_id":"fr-3-verification"},{"design_block_id":"fr-4-design","id":"FR-4","verification_block_id":"fr-4-verification"},{"design_block_id":"fr-5-design","id":"FR-5","verification_block_id":"fr-5-verification"},{"design_block_id":"nfr-1-design","id":"NFR-1","verification_block_id":"nfr-1-verification"},{"design_block_id":"nfr-2-design","id":"NFR-2","verification_block_id":"nfr-2-verification"},{"design_block_id":"ac-1-design","id":"AC-1","verification_block_id":"ac-1-verification"},{"design_block_id":"ac-2-design","id":"AC-2","verification_block_id":"ac-2-verification"}],"requirement_ids":["FR-1","FR-2","FR-3","FR-4","FR-5","NFR-1","NFR-2","AC-1","AC-2"],"requirements_sha256":"d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf","workspace":"1563-issue-345418f11192"}
 ```

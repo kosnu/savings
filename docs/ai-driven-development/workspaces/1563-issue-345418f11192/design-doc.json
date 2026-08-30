@@ -4,7 +4,7 @@
   "workspace": "1563-issue-345418f11192",
   "display": {
     "path": "design-doc.md",
-    "preamble": "---\ntitle: \"Design Doc: Issue #1563\"\ndoc_type: design-doc\nstatus: proposed\narea: repository\napplies_to:\n  - apps/web\n  - apps/api\n  - docs/harness/contracts/user-account-attributes.json\ntopics:\n  - account-preference\n  - language\n  - synchronization\n  - design\nwhen_to_read:\n  - Issue #1563の実装・検証方針を確認するとき\n  - アカウント言語と端末fallbackの責務境界を確認するとき\n---\n\n# Design Doc: Issue #1563\n\n- Requirements: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec`\n- Workspace: `1563-issue-345418f11192`"
+    "preamble": "---\ntitle: \"Design Doc: Issue #1563\"\ndoc_type: design-doc\nstatus: proposed\narea: repository\napplies_to:\n  - apps/web\n  - apps/api\n  - docs/harness/contracts/user-account-attributes.json\ntopics:\n  - account-preference\n  - language\n  - synchronization\n  - design\nwhen_to_read:\n  - Issue #1563の実装・検証方針を確認するとき\n  - アカウント言語と端末fallbackの責務境界を確認するとき\n---\n\n# Design Doc: Issue #1563\n\n- Requirements: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf`\n- Workspace: `1563-issue-345418f11192`"
   },
   "validation": {
     "mode": "managed",
@@ -851,7 +851,7 @@
       ]
     },
     "coverage_gate": {
-      "requirements_sha256": "de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec",
+      "requirements_sha256": "d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf",
       "workspace": "1563-issue-345418f11192",
       "requirement_ids": [
         "FR-1",
@@ -865,8 +865,8 @@
         "AC-2"
       ],
       "baseline": {
-        "source": "none",
-        "body_sha256": null
+        "source": "git_head",
+        "body_sha256": "2a6c4c024b48e06d34891ce2e2e670a2ea409a0977df12475bd00fd35150078d"
       },
       "coverage": [
         {
@@ -915,7 +915,14 @@
           "verification_block_id": "ac-2-verification"
         }
       ],
-      "baseline_sections": []
+      "baseline_sections": [
+        {
+          "section_id": "architecture",
+          "heading": "Architecture",
+          "content_sha256": "fd3b4733830cecd1926480b321ac9e82b78faae954ac08ba6444b4071e00de81",
+          "status": "preserved"
+        }
+      ]
     }
   }
 }
