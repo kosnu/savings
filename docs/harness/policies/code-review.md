@@ -75,9 +75,13 @@ Web/APIの表に該当しない差分は、`docs/harness/rule-map.json` の有�
 
 AIDD Buildでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。通常のコードレビュー対象は引き続き実差分です。AIDD Buildの完了判定に限り、Designが明示したtask-owned範囲の最終状態も照合します。この照合はレビュー範囲やBuildの書込権限をtask-owned範囲外へ広げません。
 
-Designはschema v3の`target_state`に、最終的に観測可能な効果を表す実質的で同一Requirement/type内に一意なdescriptionを持つproduct behavior、verification case、正規化したownership scope、最終representationを構造化して所有します。rule coverageはtarget representation pathとDesign時点のownership scope内baseline pathの和集合から導出します。Design completion receiptはtarget state、ownership scope、baseline inventory、surface、最終selected rule文書、Build開始前のGit `HEAD`を固定します。Build EntryとBuild完了時の再検証はreceiptのbaseline inventoryを使い、変更後のworktreeからbaselineを再計算しません。
-
-Build完了時は、task-owned範囲の全必須representation pathが存在し、正本未登録のpathが残らず、全verification caseにcase type別の構造化成功証拠があることを先に確認します。locator metadataからsource構文やtest runner規則を推論しません。automated commandの実行fileはrepo allowlistのcase-sensitiveな正規名（`pnpm`、`python3`、`node`、`git`、`jq`）との完全一致に限定します。repo-owned verification runnerは実行前inventoryと各case後のtask-owned regular fileのpath・Git実行mode・contentを含むstate manifest不変を検証して結果を同じfinal-state hashへ固定し、coverage validatorはそのgenerator・state・command・stream境界を含む結果identityを検証します。generator labelとhashはGit・review・CI信頼境界内のcanonical evidenceであり、contributorに対する暗号学的attestationとは扱いません。baselineにだけ存在するrepresentation pathは、削除要求を追加せず、target stateとの差として最終成果から除外されていなければ失敗します。ownership scope外の既存ファイルは不純物として扱いませんが、Build差分を作ることも許可しません。VCS metadataはpathの任意segment、Git ignore対象はownership scopeにできず、Build差分を機械観測できないpathを正本へ登録しません。
+Design、Build / Verify、Shipの成果物・Git・verification・coverage契約は
+`ai-driven.workflow`と`ai-driven.checker`を正本として適用し、この文書へ詳細を複製しません。
+特にGit関連findingは`ai-driven.checker`のOperating Contract and Threat Boundaryを先に適用し、
+専用worktree・単一session・単一agent・phase別command ownershipの正常経路で契約違反なしに
+問題が発生するかを示せる場合だけ指摘します。契約外の並行writer、直接`.git`改変、
+Ship所有commandのBuild中実行だけを前提に、lock、critical section、raw index identity、
+symbolic HEAD identityなどの防御を要求しません。
 
 そのうえでreceiptのGit基準点から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、DesignとBuildは同じresolverを使います。実差分にDesign未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあればCoverage成功としてはいけません。Coverage recordは全非workflow差分path、最終inventory、verification証拠identity、pathごとの一致ruleを保持し、`Checked rules`の自己申告だけでこの判定を代替できません。
 

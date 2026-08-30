@@ -19,20 +19,29 @@ owns phase work and evidence for that Goal; the parent retains its lifecycle.
 - `docs/ai-driven-development/workflow.md`
 - `docs/ai-driven-development/issue-guidelines.md`
 - `.agents/skills/goal-setting/SKILL.md`
-- `.agents/skills/aidd-cycle/references/phase-execution-contract.toml` as the
+- `docs/ai-driven-development/contracts/phase-execution-contract.toml` as the
   canonical `aidd-phase-execution-v1` ownership, executor, and capability
   contract
 - `docs/harness/rule-map.json`
-- `references/artifact-validation.md` when entering Requirements, Design, or Build
+- `docs/ai-driven-development/aidd-checker-operations.md` when entering
+  Requirements, Design, Build, or Ship
 - `.codex/config.toml` and the selected phase agent file before delegation
 
 The workflow is canonical. Do not add phase rules here or infer a phase from an
 artifact's mere existence.
 
-Before setting or delegating a phase Goal, run:
+At the start of every AIDD cycle invocation, run the following from the
+canonical repository root before any checker command. Require
+`go env GOVERSION` to report Go 1.27.x. Stop if Go is absent, the version does
+not match, the build or rename fails, or the resulting binary does not report
+its version. Never fall back to a pre-existing `/tmp/aidd-checker`.
 
 ```bash
-python3 .agents/skills/aidd-cycle/scripts/validate_phase_execution_contract.py
+go env GOVERSION
+go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker
+mv /tmp/aidd-checker.next /tmp/aidd-checker
+/tmp/aidd-checker version
+/tmp/aidd-checker validate-phase-contract --repo-root .
 ```
 
 Stop without delegation when this contract validation fails.
@@ -69,38 +78,53 @@ For each phase in the workflow:
    evidence.
 2. The parent applies the `goal-setting` construction procedure to set exactly
    the current phase Goal. Before `create_goal`, that procedure runs the phase
-   entry checks from `references/artifact-validation.md`: Requirements and
+   entry checks from `docs/ai-driven-development/aidd-checker-operations.md`:
+   Requirements and
    Design validate their temporary Goal input; Build revalidates both canonical
    upstream artifacts and generated displays against the current Issue snapshot
    and the Design completion receipt.
 3. Execute only that Goal under its Context Packet and selected rule-map
    subgraph, using the phase executor assigned below. In Design, record the
-   complete schema-v3 target state: final product behaviors with substantive
+   complete schema-v4 target state: final product behaviors with substantive
    descriptions of their final observable effects, verification
    cases, normalized ownership scopes, and all final machine-addressable
-   representations. Automated verification cases own direct argv commands
-   whose executable exactly matches a case-sensitive canonical repository
-   allowlist name (`pnpm`, `python3`, `node`, `git`, or `jq`). Manual cases own
-   substantive concrete procedures. Derive machine review
+   representations. Automated verification cases own a repo-owned
+   `verification_profile_id` and typed `suite` or `test_case` selector; fixed
+   argv and the structured runner adapter belong only to the profile catalog
+   and are hash-fixed by the Design receipt. Manual cases own substantive
+   concrete procedures. Derive machine review
    surfaces and path rules from the union of target paths and the current owned
    baseline, including paths that disappear in the target, and freeze that
-   baseline inventory in the Design receipt. In Build,
+   baseline inventory plus the repository-wide non-ignored untracked identity in
+   the Design receipt. In Build,
    reconstruct exactly that target state in the ownership scopes, validate the
-   final owned-path inventory before execution, reject per-case mutation of an
-   owned file's content or Git mode, and bind every result to the unchanged
-   final-state hash. Run the Build rule coverage validator against both
-   the final owned tree and actual Git diff. Stop on missing or extra owned
+   final owned-path inventory before execution, run each automated case in a
+   dedicated process group, terminate and reject any residual process before
+   post-case state checks, reject per-case mutation of any ignored or
+   non-ignored repository path, Git HEAD object ID, or the staged tree
+   represented by stage-entry mode, blob ID, and path. Keep the current branch
+   unchanged through phase command ownership without making it checker evidence
+   identity, and bind every result to the unchanged final-state hash. Run the
+   Build rule coverage validator against both the final owned tree and the actual Git diff
+   relative to the frozen untracked baseline. Stop on missing or extra owned
    representations, failed or missing verification evidence, out-of-scope
    changes, undeclared surfaces, a surface or path rule absent from the receipt,
    or a governed path with no routing surface. Representation locator metadata
    is not used to infer source-code syntax or test-runner policy.
+   Keep canonical Build verification and coverage outputs at mode `0600`
+   through Ship validation.
 4. For Requirements and Design, retain the validated temporary Goal JSON and
    run the artifact gates before completing the phase. After the Design gates
    succeed, capture the canonical Design completion receipt and record its path
    and SHA-256 in the phase completion evidence.
 5. For Build, immediately before completion, run the Build rule coverage
-   validator, then rerun the Build Entry gate with the receipt path and SHA-256
-   recorded by Design and require it to print that same SHA-256. For every
+   validator and record the canonical coverage SHA-256 it prints, then rerun the
+   Build Entry gate with the receipt path and SHA-256 recorded by Design and
+   require it to print that same receipt SHA-256. For Ship, stage only the
+   verified worktree content and Git mode, then run `validate-ship` with the
+   recorded receipt and coverage SHA-256 values before commit. If the gate
+   reports worktree drift, an absent or extra staged path, or evidence drift,
+   do not commit; return to Build / Verify. For every
    phase, only after its phase-specific checks and the
    objective, Done conditions, and Verification are satisfied, the parent calls
    `update_goal(status: complete)` and confirms the terminal state with
@@ -176,12 +200,12 @@ silently run the delegated phase in the parent.
 - Every regenerated artifact covers its complete upstream input. A delta marks
   changed records but never narrows Goal scope.
 - Semantic identity lives in typed IDs, statuses, owners, roles, hashes, and
-  references. New cycles use schema v3. Schema v2 is readable only for
-  historical display and Git-baseline continuity; it cannot be promoted to a
-  new Design completion, receipt, or Build input. Current validators also
+  references. New cycles use schema v4. Schema v2 / v3 is readable only as
+  historical compatibility input; it cannot be rendered or promoted to a new
+  Goal, Design completion, receipt, or Build input. Current validators also
   enforce canonical headings, substantive text, and unambiguous evidence
   mapping as artifact format gates; follow those gates from
-  `references/artifact-validation.md`.
+  `docs/ai-driven-development/aidd-checker-operations.md`.
 - Design's `validation.target_state` is the only completed-state source of truth.
   It owns final product behaviors, verification cases, normalized ownership
   scopes, and machine-addressable representations. Product behavior records
@@ -193,9 +217,9 @@ silently run the delegated phase in the parent.
   only in canonical `requirements.json`. Selected rules constrain Requirements
   and Design; they never define product behavior directly or substitute for a
   missing Requirement. Build consumes the Design completion receipt as its
-  upstream identity, reuses its frozen baseline inventory for rule coverage,
-  and materializes the target state rather than layering a delta onto the
-  baseline.
+  upstream identity, reuses its frozen task-owned and untracked baselines for
+  rule coverage, and materializes the target state rather than layering a delta
+  onto the baseline.
 
 ## Stop
 
