@@ -1,7 +1,7 @@
 interface:
   display_name: "Learn"
-  short_description: "Investigate causes and select preventive learning"
-  default_prompt: "Use $learn to investigate each finding's cause, compare preventive countermeasures, and route the selected learning to its canonical owner."
+  short_description: "Check reachability and select preventive learning"
+  default_prompt: "Use $learn to exclude findings unreachable through supported normal paths, investigate applicable causes, compare preventive countermeasures, and route selected learning to its canonical owner."
 
 policy:
   allow_implicit_invocation: true
