@@ -55,6 +55,7 @@ rule-mapの選択は、priorityの高いノードや主要な変更面だけへ�
 
 - Requirementsは、Issue本文に空白正規化・Unicode case fold後も存在するevidenceだけを使い、そのevidence内に同じ正規化後のpath、domain、activity、topicのmatch値が存在するdirect nodeだけを選びます。non-domain implementation ruleの`explicit_surface`もdistinctive topicとして同じevidence内に必要です。後工程の技術的変更面をIssueへ追記したり、Issueの別箇所にある語をevidenceへ結び付けたりしません。
 - Designは、task-owned範囲のbaseline pathと`target_state.representations`のpathを和集合し、`rule-map.json`の`review_routing.surfaces`から`rule_coverage.implementation_surfaces`を一意に導出します。完成状態から消えるpathのsurfaceとpath固有ruleもDesign時点で選択し、surfaceから自動選択されないruleは`additional_rules`へ記録します。
+- Designは、最終selected rule文書をread-only入力として扱い、そのpathを`ownership_scopes`またはrepresentationへ含めることを拒否します。機能タスクがルール自体の変更へ依存する場合はDesignを完了せず、Learnまたは独立したルール更新を先に完了してから新しいcycleを開始します。
 - Design completion receiptは、最終selected rule文書、target state、ownership scope、Design時点のtask-owned baseline path inventory、非ignore untracked pathのtype・permission mode・contentまたはsymlink target identity、rule coverageをそれぞれcanonical hash付きで保持し、Build開始前のGit `HEAD`もsnapshot開始時から固定します。Git `HEAD` baseline blobはその固定commitから読み、receipt書込み直前のHEAD driftを拒否します。canonical receipt output自身はuntracked baselineから除外します。Build EntryとBuild完了時の再検証はこの凍結済みbaselineだけを使い、変更後のworktreeから再構築しません。
 - Build / Verifyは、receiptのGit基準点から得た実際の変更pathを`review_routing`で自動分類し、各pathに一致するrule nodeの`applies_to.paths`もdirect ruleとして和集合します。実差分に未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、またはsurface未定義のgoverned pathがあれば失敗し、成功時だけpathごとの選択根拠を持つcanonical Build Coverage recordを生成します。
 
@@ -93,7 +94,7 @@ ID、owner、role、reference、hash、inventoryが成果物の主要な機械�
 - Rule coverage: baselineでscope内に存在するpathと最終representation pathの和集合から`implementation_surfaces`を導出する。surfaceから自動選択できないpath固有ruleは`additional_rules`へ記録し、Design Goalとartifactが同じ`target_state`とrule coverageを所有する。
 - 所有: canonical `design-doc.json`、生成`design-doc.md`、同じbyte snapshotから完全再検証したretained Design Goal・両成果物・Issue snapshot・canonical rule map・最終selected rule文書・verification profile catalogと選択profile・implementation surfaces・Build基準Git `HEAD`・非ignore untracked baselineを固定するcanonical Design completion receipt。
 - 完了: 全Requirement IDがdesign evidenceとverification evidenceを所有し、全baseline sectionが分類され、完成状態のRequirement binding、verification coverage、ownership、representation locator、rule coverageが検証され、receiptへtarget state、task-owned baseline inventory、非ignore untracked baselineが固定されている。
-- 停止: Requirements再検証失敗、要求ごとの実装または検証方針を決められない、ユーザー操作または状態遷移を所有するRequirement IDがない、実装予定面をmachine review surfaceへ分類できない、baseline transitionが不完全、Design gateを満たせない。
+- 停止: Requirements再検証失敗、要求ごとの実装または検証方針を決められない、ユーザー操作または状態遷移を所有するRequirement IDがない、実装予定面をmachine review surfaceへ分類できない、selected rule文書がownership scopeまたはrepresentationと重複する、baseline transitionが不完全、Design gateを満たせない。
 
 ### Build / Verify
 

@@ -1,0 +1,978 @@
+{
+  "schema_version": 4,
+  "kind": "design_completion",
+  "workspace": "1563-issue-345418f11192",
+  "issue": {
+    "id": "kosnu/savings#1563",
+    "title": "言語設定をアカウントに保存して端末間で同期する",
+    "url": "https://github.com/kosnu/savings/issues/1563",
+    "updated_at": "2026-08-21T18:21:05Z",
+    "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
+  },
+  "design_goal_sha256": "eccb14d5343cea850e6f0a989410355ba55a9f92ad831d24746dad4cf5acf13f",
+  "rule_map": {
+    "path": "docs/harness/rule-map.json",
+    "sha256": "62121faffa0c3c7c4858b5dfdafa06f734f261a5a178f86c260d0342c1ef1751"
+  },
+  "selected_rules": [
+    {
+      "id": "adr.harness-engineering",
+      "path": "docs/adr/0001-adopt-harness-engineering.md",
+      "sha256": "d15c0267e918b56b1446cc9d1fb693f78e24fa3b208f675aee062e6e0ecf23dc"
+    },
+    {
+      "id": "adr.agent-rule-graph",
+      "path": "docs/adr/0002-adopt-agent-rule-graph.md",
+      "sha256": "4a4038b14bbc3edfc9d424c2661ae982c1f13b7c2d32998a2384fd0e3d798024"
+    },
+    {
+      "id": "documentation.policy",
+      "path": "docs/harness/policies/documentation-policy.md",
+      "sha256": "7f9a1cd444f841d7c1b4e8a60d87e819e197bf6ad9d2fbea83b0057dc2a3d756"
+    },
+    {
+      "id": "architecture.overview",
+      "path": "docs/architecture.md",
+      "sha256": "391d0835d597351ee440a77938937e5b06b4b5a844fac925716fd1064031f302"
+    },
+    {
+      "id": "infrastructure.overview",
+      "path": "docs/infrastructure.md",
+      "sha256": "abac8167db5a2e0c81f7a00fa22f9db79e999661723e791837b81e6a8d07c7dc"
+    },
+    {
+      "id": "ai-driven.overview",
+      "path": "docs/ai-driven-development/overview.md",
+      "sha256": "36491c548d74a5fbbca2139a8b8120652644125d93412dd26800346e96a15862"
+    },
+    {
+      "id": "ai-driven.workflow",
+      "path": "docs/ai-driven-development/workflow.md",
+      "sha256": "4d51265b8ed5a8a5b5197b5c8bde79935b6b331c9179a17e9cb0d4846867d76b"
+    },
+    {
+      "id": "policy.learning-extraction",
+      "path": "docs/harness/policies/learning-extraction.md",
+      "sha256": "8da25c27ae5a3ef2a78b33c71b7b942ebb759e5dbbd51965027add41baf931f9"
+    },
+    {
+      "id": "policy.git-workflow",
+      "path": "docs/harness/policies/git-workflow.md",
+      "sha256": "318d70215d70fa98d7da5ef94f5b5841aa658ea17dbf01fc749f85568cf76ee1"
+    },
+    {
+      "id": "policy.review-feedback-classification",
+      "path": "docs/harness/policies/review-feedback-classification.md",
+      "sha256": "2d9ec4d9d06b65bf8c1cb8cc5099724fbb91f289f43dac1fe2c652aac237e346"
+    },
+    {
+      "id": "policy.code-review",
+      "path": "docs/harness/policies/code-review.md",
+      "sha256": "94bcaff3d5e88fb95ad126540607aeba667b1dd095f7ceef550975e4b5bf41ad"
+    },
+    {
+      "id": "policy.transaction-boundaries",
+      "path": "docs/harness/policies/transaction-boundaries.md",
+      "sha256": "92bd7a1206cdd6fa225895aa5e63c83b052c23d86d09ebe40d4e3929142f9c14"
+    },
+    {
+      "id": "policy.temporal-data",
+      "path": "docs/harness/policies/temporal-data.md",
+      "sha256": "997f68293dd2f0089eb19b15b7d13ec71a22fc90c89b302b1e9fc908e1942380"
+    },
+    {
+      "id": "domain.amount",
+      "path": "docs/harness/domain/amount.md",
+      "sha256": "81a972f0fab93f1b939edd253a9521af2481ebb277fc72468740084131b6e48d"
+    },
+    {
+      "id": "domain.date",
+      "path": "docs/harness/domain/date.md",
+      "sha256": "5fcd83f8ab4225ab0c0aa6ec072755158174701435bf5d59e6e86a84e0f17fd3"
+    },
+    {
+      "id": "domain.payment",
+      "path": "docs/harness/domain/payment.md",
+      "sha256": "e646e03142eaf1068a75aecbf341ffa925be9067a9397a7b01ad023c30df879f"
+    },
+    {
+      "id": "domain.category",
+      "path": "docs/harness/domain/category.md",
+      "sha256": "72041b6c8ff43cee9e50763335ab26a24580501250233529e6d4f8e48d4061c1"
+    },
+    {
+      "id": "domain.monthly-budget",
+      "path": "docs/harness/domain/monthly-budget.md",
+      "sha256": "9bb51acb779c81feee607517cfd6c54501a5bbee29d9f5d6119d8142a85d8ace"
+    },
+    {
+      "id": "domain.book",
+      "path": "docs/harness/domain/book.md",
+      "sha256": "9f148def6802a6e0a6252d6133ca14ff8673291910c37faf8915d9216ffe54fc"
+    },
+    {
+      "id": "domain.user",
+      "path": "docs/harness/domain/user.md",
+      "sha256": "84dc9bda2cd6015a4b3e995c0631558eecfcf1b807e7744bafec6c23cf44a533"
+    },
+    {
+      "id": "web.component-structure",
+      "path": "apps/web/docs/policies/component-structure.md",
+      "sha256": "991d65221347a19394a73ba5d03df7000a25f183db33465439fcfa30bf0e2347"
+    },
+    {
+      "id": "web.design-system-brand",
+      "path": "DESIGN.md",
+      "sha256": "66bfde89c44eb3137092be741356377cc5f6fcd1e175328ae29f5fe3526ebb0d"
+    },
+    {
+      "id": "web.design-rules",
+      "path": "apps/web/docs/policies/design-rules.md",
+      "sha256": "363d860a7d6b4f43b3f39b2b00f355912c2ed20be5b5447e28810767c2a748eb"
+    },
+    {
+      "id": "web.domain-layer-rules",
+      "path": "apps/web/docs/policies/domain-layer-rules.md",
+      "sha256": "d92147118b567a835a12ac7c17b5f6629640334fe30f5965229552324f5dbc94"
+    },
+    {
+      "id": "web.domain-ui-rules",
+      "path": "apps/web/docs/policies/domain-ui-rules.md",
+      "sha256": "2789e068a8b82c89b1177de985be6a6649ec35eb94c0e79c6981d8343cbf977a"
+    },
+    {
+      "id": "web.feature-directory",
+      "path": "apps/web/docs/policies/feature-directory.md",
+      "sha256": "cc30370b9a7fc44b363b7b04cdfb28f871a5913dcfcab19b94e5f12b026b4859"
+    },
+    {
+      "id": "web.query-cache",
+      "path": "apps/web/docs/policies/query-cache.md",
+      "sha256": "e872560560054846526da5a90302bc200322a29a4ed022c3b2c9f804f34470b8"
+    },
+    {
+      "id": "web.suspense-boundaries",
+      "path": "apps/web/docs/policies/suspense-boundaries.md",
+      "sha256": "87fb0a3c11f4fc4e3a7805367bb9909263ac754a857da8dd8ecd505c97d26f87"
+    },
+    {
+      "id": "web.test-policy",
+      "path": "apps/web/docs/policies/test-policy.md",
+      "sha256": "7b6ae37a11dcb71bc5741c5910cc8374c58ac404aa022cd0a93479fdfedac3f2"
+    },
+    {
+      "id": "web.storybook-browser-tests",
+      "path": "apps/web/docs/policies/storybook-browser-tests.md",
+      "sha256": "afdb5edf7d356e46fcb65daf97a9dc0a92ed6faf20f0327abd1985a857a7ea9f"
+    }
+  ],
+  "verification_profiles": {
+    "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+    "sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
+    "selected": [
+      {
+        "id": "web-typecheck",
+        "sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201"
+      },
+      {
+        "id": "web-vitest-unit-integration",
+        "sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c"
+      }
+    ]
+  },
+  "rule_coverage": {
+    "sha256": "67f84aedff196109c6df0bd2704bbc81229f8e8a3ba399c67c6bd5a7f2b13bb5",
+    "value": {
+      "implementation_surfaces": [
+        "web-project",
+        "web-source",
+        "api-project"
+      ],
+      "additional_rules": [
+        {
+          "id": "adr.agent-rule-graph",
+          "reason": "mutable属性contractのpathを機械review surfaceへ分類するため"
+        },
+        {
+          "id": "ai-driven.workflow",
+          "reason": "AIDD workspace外のapps実装pathへ工程境界を適用するため"
+        },
+        {
+          "id": "policy.learning-extraction",
+          "reason": "apps変更から得た再利用可能な検証findingを既存分類へ接続するため"
+        },
+        {
+          "id": "policy.git-workflow",
+          "reason": "appsとmigrationのtask-owned変更へrepository git境界を適用するため"
+        },
+        {
+          "id": "policy.review-feedback-classification",
+          "reason": "apps変更のreview findingをscope別に分類するため"
+        },
+        {
+          "id": "web.domain-layer-rules",
+          "reason": "preferences配下の言語同期責務をfeature境界へ配置するため"
+        },
+        {
+          "id": "web.domain-ui-rules",
+          "reason": "LanguageSelectの表示とアカウント更新責務をUI境界へ接続するため"
+        },
+        {
+          "id": "web.storybook-browser-tests",
+          "reason": "既存Storybook由来component testの境界を保つため"
+        }
+      ]
+    }
+  },
+  "target_state": {
+    "sha256": "6308d7cc0a00152b9c683be0938acd57441a2b5916c5dceb76e710d1bf27311b",
+    "value": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "認証ユーザーの言語正本がpublic.users.languageへ保存される",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "アカウント言語適用またはfallback決定まで認証画面の確定を待機する",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "user_operation",
+          "description": "設定画面の言語選択が本人アカウントへ保存され表示言語になる",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "アカウント値を端末値より優先し未設定時だけfallbackを採用する",
+          "requirement_id": "FR-4"
+        },
+        {
+          "id": "PB-5",
+          "type": "state_transition",
+          "description": "取得失敗では利用継続し保存失敗では直前言語とエラー表示へ戻る",
+          "requirement_id": "FR-5"
+        },
+        {
+          "id": "PB-6",
+          "type": "state_transition",
+          "description": "取得値と選択値が既存の英語または日本語へ正規化される",
+          "requirement_id": "NFR-1"
+        },
+        {
+          "id": "PB-7",
+          "type": "state_transition",
+          "description": "認証クライアントは本人行のnameとlanguage以外を更新できない",
+          "requirement_id": "NFR-2"
+        },
+        {
+          "id": "PB-8",
+          "type": "state_transition",
+          "description": "別端末の初回ユーザー画面が保存済みアカウント言語で描画される",
+          "requirement_id": "AC-1"
+        },
+        {
+          "id": "PB-9",
+          "type": "state_transition",
+          "description": "既存の英語表示と日本語表示が同期機能追加後も維持される",
+          "requirement_id": "AC-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "アカウント言語の取得元をpublic.users.languageに限定する"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+            "name": "アカウント言語の解決まで認証済み状態へ遷移しない"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/app/Router.test.tsx",
+            "name": "言語解決中は認証ローディング画面を表示する"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+            "name": "選択した言語をアカウントへ保存する"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "アカウント言語の保存対象が1件であることを確認する"
+          }
+        },
+        {
+          "id": "VC-7",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "アカウント言語を端末言語より優先する"
+          }
+        },
+        {
+          "id": "VC-8",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "未設定では端末言語へfallbackし自動保存しない"
+          }
+        },
+        {
+          "id": "VC-9",
+          "type": "automated",
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "取得失敗では端末言語へfallbackする"
+          }
+        },
+        {
+          "id": "VC-10",
+          "type": "automated",
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+            "name": "保存失敗では表示言語を戻してエラーを表示する"
+          }
+        },
+        {
+          "id": "VC-11",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/index.test.ts",
+            "name": "対応言語を日本語と英語に正規化する"
+          }
+        },
+        {
+          "id": "VC-12",
+          "type": "automated",
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "本人行のlanguageだけを更新する"
+          }
+        },
+        {
+          "id": "VC-13",
+          "type": "automated",
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+            "name": "端末言語と異なるアカウント言語を初回表示前に適用する"
+          }
+        },
+        {
+          "id": "VC-14",
+          "type": "automated",
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+            "name": "日本語と英語の表示を切り替えられる"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Router.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Router.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/accountLanguage.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/index.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/index.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/resources.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/types/database.types.ts",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/contracts/user-account-attributes.json",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "configuration",
+          "path": "docs/harness/contracts/user-account-attributes.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-2",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-3",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語の取得元をpublic.users.languageに限定する"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "configuration",
+          "path": "apps/web/src/types/database.types.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-6",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語の解決まで認証済み状態へ遷移しない"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "apps/web/src/app/Router.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-8",
+          "kind": "test",
+          "path": "apps/web/src/app/Router.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "言語解決中は認証ローディング画面を表示する"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-10",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "選択した言語をアカウントへ保存する"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語の保存対象が1件であることを確認する"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/accountLanguage.ts",
+          "locator": {
+            "kind": "export",
+            "name": "resolveAccountLanguage"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-13",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語を端末言語より優先する"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "未設定では端末言語へfallbackし自動保存しない"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/accountLanguage.ts",
+          "locator": {
+            "kind": "export",
+            "name": "loadAccountLanguage"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-16",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "取得失敗では端末言語へfallbackする"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-9"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "保存失敗では表示言語を戻してエラーを表示する"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-10"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/index.ts",
+          "locator": {
+            "kind": "export",
+            "name": "toAppLanguage"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-19",
+          "kind": "test",
+          "path": "apps/web/src/i18n/index.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "対応言語を日本語と英語に正規化する"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-11"
+          ]
+        },
+        {
+          "id": "REP-20",
+          "kind": "configuration",
+          "path": "apps/web/src/types/database.types.ts",
+          "locator": {
+            "kind": "export",
+            "name": "Database"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-21",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "本人行のlanguageだけを更新する"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-12"
+          ]
+        },
+        {
+          "id": "REP-22",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "端末言語と異なるアカウント言語を初回表示前に適用する"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-23",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/resources.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-24",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "日本語と英語の表示を切り替えられる"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-14"
+          ]
+        }
+      ]
+    }
+  },
+  "ownership_scopes": {
+    "sha256": "eff2858c0a1733a98bbb254277c30814e5a9a3ff1b7126ef8a751e88572970f8",
+    "value": [
+      {
+        "path": "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/app/Router.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/app/Router.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/i18n/accountLanguage.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/i18n/index.test.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/i18n/index.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/i18n/resources.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/types/database.types.ts",
+        "kind": "file"
+      },
+      {
+        "path": "docs/harness/contracts/user-account-attributes.json",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_inventory": {
+    "sha256": "651445ea7487c0093321ff373c1616b2635064bd5ed9ea56948f3912c659a3df",
+    "value": [
+      "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+      "apps/web/src/app/Router.test.tsx",
+      "apps/web/src/app/Router.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+      "apps/web/src/i18n/accountLanguage.integration.test.ts",
+      "apps/web/src/i18n/accountLanguage.ts",
+      "apps/web/src/i18n/index.test.ts",
+      "apps/web/src/i18n/index.ts",
+      "apps/web/src/i18n/resources.ts",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+      "apps/web/src/types/database.types.ts",
+      "docs/harness/contracts/user-account-attributes.json"
+    ]
+  },
+  "untracked_baseline": {
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "value": []
+  },
+  "build_baseline": {
+    "head": "cd619e84a0ffe0b6b60ab841d7ad670241a540ff"
+  },
+  "artifacts": {
+    "requirements": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
+        "sha256": "d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf",
+        "mode": "0644"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
+        "sha256": "d0299e58c30148267873969d93991903ac51cbdd12258120c72c9a8e4fd0db96",
+        "mode": "0600"
+      }
+    },
+    "design": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
+        "sha256": "579c1e6364cf174408eb17ca44e5cee3d487c12831fa5cfd7633199ebee23cd6",
+        "mode": "0644"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
+        "sha256": "aa2462f51594f17ecca468f6a36da689bef7477a741f3bf09c24fa8fe0bc8e21",
+        "mode": "0600"
+      }
+    }
+  }
+}

@@ -60,13 +60,17 @@ func run(ctx context.Context, arguments []string) error {
 		return validateShip(ctx, arguments[1:])
 	case "validate-phase-contract":
 		return validatePhaseContract(ctx, arguments[1:])
+	case "prepare-phase-assignment":
+		return preparePhaseAssignment(ctx, arguments[1:])
+	case "validate-phase-assignment":
+		return validatePhaseAssignment(ctx, arguments[1:])
 	default:
 		return diagnostic.New("AIDD_CLI_COMMAND", arguments[0], "cli", "subcommand is unsupported", commands(), arguments[0])
 	}
 }
 
 func commands() []string {
-	return []string{"workspace", "render", "validate-source", "validate-requirements", "validate-design", "check-all", "capture-design", "build-entry", "capture-verification", "validate-build", "validate-ship", "validate-phase-contract", "version"}
+	return []string{"workspace", "render", "validate-source", "validate-requirements", "validate-design", "check-all", "capture-design", "build-entry", "capture-verification", "validate-build", "validate-ship", "validate-phase-contract", "prepare-phase-assignment", "validate-phase-assignment", "version"}
 }
 
 func validatePhaseContract(ctx context.Context, arguments []string) error {
@@ -82,6 +86,44 @@ func validatePhaseContract(ctx context.Context, arguments []string) error {
 		return err
 	}
 	fmt.Printf("AIDD phase contract: verified: %s\n", phasecontract.ID)
+	return nil
+}
+
+func preparePhaseAssignment(ctx context.Context, arguments []string) error {
+	flags := newFlagSet("prepare-phase-assignment")
+	repoRoot := flags.String("repo-root", "", "repository root")
+	source := flags.String("source", "", "draft assignment JSON")
+	output := flags.String("output", "", "canonical assignment JSON")
+	if err := parseFlags(flags, arguments); err != nil {
+		return err
+	}
+	if *repoRoot == "" || *source == "" || *output == "" {
+		return diagnostic.New("AIDD_CLI_ARGUMENT", "prepare-phase-assignment", "cli", "prepare-phase-assignment requires --repo-root, --source, and --output", "non-empty required flags", map[string]string{"repo_root": *repoRoot, "source": *source, "output": *output})
+	}
+	digest, err := phasecontract.PrepareAssignment(ctx, *repoRoot, *source, *output)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("AIDD phase assignment: prepared: %s\n", digest)
+	return nil
+}
+
+func validatePhaseAssignment(ctx context.Context, arguments []string) error {
+	flags := newFlagSet("validate-phase-assignment")
+	repoRoot := flags.String("repo-root", "", "repository root")
+	document := flags.String("document", "", "canonical assignment JSON")
+	expectedSHA256 := flags.String("expected-sha256", "", "parent-validated assignment SHA-256")
+	if err := parseFlags(flags, arguments); err != nil {
+		return err
+	}
+	if *repoRoot == "" || *document == "" || *expectedSHA256 == "" {
+		return diagnostic.New("AIDD_CLI_ARGUMENT", "validate-phase-assignment", "cli", "validate-phase-assignment requires --repo-root, --document, and --expected-sha256", "non-empty required flags", map[string]string{"repo_root": *repoRoot, "document": *document, "expected_sha256": *expectedSHA256})
+	}
+	digest, err := phasecontract.ValidateAssignment(ctx, *repoRoot, *document, *expectedSHA256)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("AIDD phase assignment: verified: %s\n", digest)
 	return nil
 }
 

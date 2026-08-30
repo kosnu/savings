@@ -30,6 +30,11 @@ front matter を付ける対象は、`docs/` と `apps/*/docs/` 配下の恒常�
 
 README、`AGENTS.md`、ローカルメモ、作業途中の一時ファイル、`.agents/skills/**` のskill定義は対象外です。
 
+`docs/**` 配下のJSONやTOMLなど、Markdown正本から参照される機械可読contractもfront matterの対象外です。
+機械可読contractはformat自身に`schema_version`と`kind`を持ち、その責務、更新条件、参照関係を
+所有するMarkdown正本で定義します。機械可読contractをrule-mapの`rules[].file`へ直接登録して、
+ルール本文の代わりにしてはいけません。
+
 skill定義は正本ドキュメントではありません。workflow、policy、ADR、domain docs などの正本を作業時に適用させるための agent instruction として扱います。正本ドキュメント本文からskill定義を参照しません。`rule-map.json` で `.agents/skills/**` を扱う場合は、`rules[].file` ではなく `applies_to.paths` の作業対象 trigger に限定します。
 
 ## 標準項目

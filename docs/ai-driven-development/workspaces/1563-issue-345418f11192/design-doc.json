@@ -1,0 +1,928 @@
+{
+  "schema_version": 4,
+  "kind": "design",
+  "workspace": "1563-issue-345418f11192",
+  "display": {
+    "path": "design-doc.md",
+    "preamble": "---\ntitle: \"Design Doc: Issue #1563\"\ndoc_type: design-doc\nstatus: proposed\narea: repository\napplies_to:\n  - apps/web\n  - apps/api\n  - docs/harness/contracts/user-account-attributes.json\ntopics:\n  - account-preference\n  - language\n  - synchronization\n  - design\nwhen_to_read:\n  - Issue #1563の実装・検証方針を確認するとき\n  - アカウント言語と端末fallbackの責務境界を確認するとき\n---\n\n# Design Doc: Issue #1563\n\n- Requirements: `docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json`\n- Requirements SHA-256: `d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf`\n- Workspace: `1563-issue-345418f11192`"
+  },
+  "validation": {
+    "mode": "managed",
+    "sections": [
+      {
+        "id": "architecture",
+        "heading": "Architecture",
+        "blocks": [
+          {
+            "id": "architecture-body",
+            "type": "markdown",
+            "markdown": "アカウント言語の永続化、取得、初回表示gate、保存、fallbackを、DB属性contract・Supabase境界・i18n境界・設定UIへ分離して接続する。"
+          },
+          {
+            "id": "fr-1-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-1",
+            "text": "public.users.languageと属性contractをアカウント言語の正本として同期し、型境界から参照する。",
+            "product_behavior_ids": [
+              "PB-1"
+            ]
+          },
+          {
+            "id": "fr-1-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-1",
+            "text": "取得queryと生成型がlanguage列を扱うことをintegration testとtypecheckで確認する。"
+          },
+          {
+            "id": "fr-2-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-2",
+            "text": "session検証後にアカウント言語を解決し、解決完了まではauthenticated状態とユーザー向けRouterを確定しない。",
+            "product_behavior_ids": [
+              "PB-2"
+            ]
+          },
+          {
+            "id": "fr-2-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-2",
+            "text": "遅延した言語取得中にsessionとRouterがloading表示を維持することをcomponent testで確認する。"
+          },
+          {
+            "id": "fr-3-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-3",
+            "text": "LanguageSelectの操作を本人行language更新へ接続し、更新対象1件の成功後に選択言語を確定する。",
+            "product_behavior_ids": [
+              "PB-3"
+            ]
+          },
+          {
+            "id": "fr-3-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-3",
+            "text": "設定UIの選択、更新payload、本人条件、更新件数をunit/integration testで確認する。"
+          },
+          {
+            "id": "fr-4-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-4",
+            "text": "アカウント値を最優先し、未設定または取得失敗時だけlocalStorage、次に既定値を採用し、自動保存しない。",
+            "product_behavior_ids": [
+              "PB-4"
+            ]
+          },
+          {
+            "id": "fr-4-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-4",
+            "text": "アカウント値優先と未設定fallbackの両経路、および推測値を保存しないことをintegration testで確認する。"
+          },
+          {
+            "id": "fr-5-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-5",
+            "text": "取得失敗はfallbackで利用継続し、保存失敗は直前言語へ戻して翻訳済みエラーを表示する。",
+            "product_behavior_ids": [
+              "PB-5"
+            ]
+          },
+          {
+            "id": "fr-5-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-5",
+            "text": "取得失敗時の継続と保存失敗時のrollback・エラー表示を独立したtestで確認する。"
+          },
+          {
+            "id": "nfr-1-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-1",
+            "text": "DB値と端末値はいずれも既存AppLanguageのen/jaへ正規化し、対応言語集合を増やさない。",
+            "product_behavior_ids": [
+              "PB-6"
+            ]
+          },
+          {
+            "id": "nfr-1-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-1",
+            "text": "日本語tagと英語・未知値の既存正規化結果をunit testで固定する。"
+          },
+          {
+            "id": "nfr-2-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-2",
+            "text": "migration、attribute contract、DB型、更新queryをnameとlanguageのallowlistへ揃え、本人行RLSを維持する。",
+            "product_behavior_ids": [
+              "PB-7"
+            ]
+          },
+          {
+            "id": "nfr-2-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-2",
+            "text": "languageだけの更新payloadとauth_user_id条件をintegration testで検査し、他列更新を含めない。"
+          },
+          {
+            "id": "ac-1-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "AC-1",
+            "text": "端末言語と異なるアカウント言語もsession初期化中に適用し、Router初回描画へ渡す。",
+            "product_behavior_ids": [
+              "PB-8"
+            ]
+          },
+          {
+            "id": "ac-1-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "AC-1",
+            "text": "localStorageと異なる取得値が初回ユーザー画面より前に適用されることをprovider testで確認する。"
+          },
+          {
+            "id": "ac-2-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "AC-2",
+            "text": "既存の日本語・英語resourceと設定画面を保ち、成功・失敗状態の文言だけを追加する。",
+            "product_behavior_ids": [
+              "PB-9"
+            ]
+          },
+          {
+            "id": "ac-2-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "AC-2",
+            "text": "設定画面の日本語・英語切替と保存失敗表示を既存component testへ統合して回帰確認する。"
+          }
+        ]
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "認証ユーザーの言語正本がpublic.users.languageへ保存される",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "アカウント言語適用またはfallback決定まで認証画面の確定を待機する",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "user_operation",
+          "description": "設定画面の言語選択が本人アカウントへ保存され表示言語になる",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "アカウント値を端末値より優先し未設定時だけfallbackを採用する",
+          "requirement_id": "FR-4"
+        },
+        {
+          "id": "PB-5",
+          "type": "state_transition",
+          "description": "取得失敗では利用継続し保存失敗では直前言語とエラー表示へ戻る",
+          "requirement_id": "FR-5"
+        },
+        {
+          "id": "PB-6",
+          "type": "state_transition",
+          "description": "取得値と選択値が既存の英語または日本語へ正規化される",
+          "requirement_id": "NFR-1"
+        },
+        {
+          "id": "PB-7",
+          "type": "state_transition",
+          "description": "認証クライアントは本人行のnameとlanguage以外を更新できない",
+          "requirement_id": "NFR-2"
+        },
+        {
+          "id": "PB-8",
+          "type": "state_transition",
+          "description": "別端末の初回ユーザー画面が保存済みアカウント言語で描画される",
+          "requirement_id": "AC-1"
+        },
+        {
+          "id": "PB-9",
+          "type": "state_transition",
+          "description": "既存の英語表示と日本語表示が同期機能追加後も維持される",
+          "requirement_id": "AC-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "アカウント言語の取得元をpublic.users.languageに限定する"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+            "name": "アカウント言語の解決まで認証済み状態へ遷移しない"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/app/Router.test.tsx",
+            "name": "言語解決中は認証ローディング画面を表示する"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+            "name": "選択した言語をアカウントへ保存する"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "アカウント言語の保存対象が1件であることを確認する"
+          }
+        },
+        {
+          "id": "VC-7",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "アカウント言語を端末言語より優先する"
+          }
+        },
+        {
+          "id": "VC-8",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "未設定では端末言語へfallbackし自動保存しない"
+          }
+        },
+        {
+          "id": "VC-9",
+          "type": "automated",
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "取得失敗では端末言語へfallbackする"
+          }
+        },
+        {
+          "id": "VC-10",
+          "type": "automated",
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+            "name": "保存失敗では表示言語を戻してエラーを表示する"
+          }
+        },
+        {
+          "id": "VC-11",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/index.test.ts",
+            "name": "対応言語を日本語と英語に正規化する"
+          }
+        },
+        {
+          "id": "VC-12",
+          "type": "automated",
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+            "name": "本人行のlanguageだけを更新する"
+          }
+        },
+        {
+          "id": "VC-13",
+          "type": "automated",
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+            "name": "端末言語と異なるアカウント言語を初回表示前に適用する"
+          }
+        },
+        {
+          "id": "VC-14",
+          "type": "automated",
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+            "name": "日本語と英語の表示を切り替えられる"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Router.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Router.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/accountLanguage.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/index.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/index.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/resources.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/types/database.types.ts",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/contracts/user-account-attributes.json",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "configuration",
+          "path": "docs/harness/contracts/user-account-attributes.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-2",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-3",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語の取得元をpublic.users.languageに限定する"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "configuration",
+          "path": "apps/web/src/types/database.types.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-6",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語の解決まで認証済み状態へ遷移しない"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "apps/web/src/app/Router.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-8",
+          "kind": "test",
+          "path": "apps/web/src/app/Router.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "言語解決中は認証ローディング画面を表示する"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-10",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "選択した言語をアカウントへ保存する"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語の保存対象が1件であることを確認する"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/accountLanguage.ts",
+          "locator": {
+            "kind": "export",
+            "name": "resolveAccountLanguage"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-13",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "アカウント言語を端末言語より優先する"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "未設定では端末言語へfallbackし自動保存しない"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/accountLanguage.ts",
+          "locator": {
+            "kind": "export",
+            "name": "loadAccountLanguage"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-16",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "取得失敗では端末言語へfallbackする"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-9"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "保存失敗では表示言語を戻してエラーを表示する"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-10"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/index.ts",
+          "locator": {
+            "kind": "export",
+            "name": "toAppLanguage"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-19",
+          "kind": "test",
+          "path": "apps/web/src/i18n/index.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "対応言語を日本語と英語に正規化する"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-11"
+          ]
+        },
+        {
+          "id": "REP-20",
+          "kind": "configuration",
+          "path": "apps/web/src/types/database.types.ts",
+          "locator": {
+            "kind": "export",
+            "name": "Database"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-21",
+          "kind": "test",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "本人行のlanguageだけを更新する"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-12"
+          ]
+        },
+        {
+          "id": "REP-22",
+          "kind": "test",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "端末言語と異なるアカウント言語を初回表示前に適用する"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-23",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/resources.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-24",
+          "kind": "test",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "日本語と英語の表示を切り替えられる"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-14"
+          ]
+        }
+      ]
+    },
+    "rule_coverage": {
+      "implementation_surfaces": [
+        "web-project",
+        "web-source",
+        "api-project"
+      ],
+      "additional_rules": [
+        {
+          "id": "adr.agent-rule-graph",
+          "reason": "mutable属性contractのpathを機械review surfaceへ分類するため"
+        },
+        {
+          "id": "ai-driven.workflow",
+          "reason": "AIDD workspace外のapps実装pathへ工程境界を適用するため"
+        },
+        {
+          "id": "policy.learning-extraction",
+          "reason": "apps変更から得た再利用可能な検証findingを既存分類へ接続するため"
+        },
+        {
+          "id": "policy.git-workflow",
+          "reason": "appsとmigrationのtask-owned変更へrepository git境界を適用するため"
+        },
+        {
+          "id": "policy.review-feedback-classification",
+          "reason": "apps変更のreview findingをscope別に分類するため"
+        },
+        {
+          "id": "web.domain-layer-rules",
+          "reason": "preferences配下の言語同期責務をfeature境界へ配置するため"
+        },
+        {
+          "id": "web.domain-ui-rules",
+          "reason": "LanguageSelectの表示とアカウント更新責務をUI境界へ接続するため"
+        },
+        {
+          "id": "web.storybook-browser-tests",
+          "reason": "既存Storybook由来component testの境界を保つため"
+        }
+      ]
+    },
+    "coverage_gate": {
+      "requirements_sha256": "d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf",
+      "workspace": "1563-issue-345418f11192",
+      "requirement_ids": [
+        "FR-1",
+        "FR-2",
+        "FR-3",
+        "FR-4",
+        "FR-5",
+        "NFR-1",
+        "NFR-2",
+        "AC-1",
+        "AC-2"
+      ],
+      "baseline": {
+        "source": "git_head",
+        "body_sha256": "2a6c4c024b48e06d34891ce2e2e670a2ea409a0977df12475bd00fd35150078d"
+      },
+      "coverage": [
+        {
+          "id": "FR-1",
+          "design_block_id": "fr-1-design",
+          "verification_block_id": "fr-1-verification"
+        },
+        {
+          "id": "FR-2",
+          "design_block_id": "fr-2-design",
+          "verification_block_id": "fr-2-verification"
+        },
+        {
+          "id": "FR-3",
+          "design_block_id": "fr-3-design",
+          "verification_block_id": "fr-3-verification"
+        },
+        {
+          "id": "FR-4",
+          "design_block_id": "fr-4-design",
+          "verification_block_id": "fr-4-verification"
+        },
+        {
+          "id": "FR-5",
+          "design_block_id": "fr-5-design",
+          "verification_block_id": "fr-5-verification"
+        },
+        {
+          "id": "NFR-1",
+          "design_block_id": "nfr-1-design",
+          "verification_block_id": "nfr-1-verification"
+        },
+        {
+          "id": "NFR-2",
+          "design_block_id": "nfr-2-design",
+          "verification_block_id": "nfr-2-verification"
+        },
+        {
+          "id": "AC-1",
+          "design_block_id": "ac-1-design",
+          "verification_block_id": "ac-1-verification"
+        },
+        {
+          "id": "AC-2",
+          "design_block_id": "ac-2-design",
+          "verification_block_id": "ac-2-verification"
+        }
+      ],
+      "baseline_sections": [
+        {
+          "section_id": "architecture",
+          "heading": "Architecture",
+          "content_sha256": "fd3b4733830cecd1926480b321ac9e82b78faae954ac08ba6444b4071e00de81",
+          "status": "preserved"
+        }
+      ]
+    }
+  }
+}

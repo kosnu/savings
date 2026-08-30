@@ -56,7 +56,41 @@ func TestVitestRuntimeIdentityMustExactlyMatch(t *testing.T) {
 	}
 }
 
-func TestVitestRuntimeIdentityRejectsNonPassedOrExtraAssertions(t *testing.T) {
+func TestVitestRuntimeIdentityAcceptsDiscoveredNonSelectedSkippedAssertion(t *testing.T) {
+	snapshot := newRunnerSnapshot(t)
+	testPath := filepath.Join(snapshot.Root, "apps", "web", "src", "feature.test.ts")
+	if err := os.MkdirAll(filepath.Dir(testPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(testPath, []byte("test source\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	profile := model.VerificationProfile{ID: "web-vitest", Contract: "test_case", Runner: "vitest_json", SelectorKind: "test_case", SelectorRoot: "apps/web", WorkingDirectory: "apps/web", Argv: []string{"pnpm"}}
+	verificationCase := model.VerificationCase{ID: "VC-1", Type: "automated", VerificationProfileID: profile.ID, Selector: &model.Selector{Kind: "test_case", Path: "apps/web/src/feature.test.ts", Name: "target behavior"}}
+	report := map[string]any{
+		"testResults": []any{map[string]any{"name": testPath, "assertionResults": []any{
+			map[string]any{"fullName": "target behavior", "status": "passed"},
+			map[string]any{"fullName": "other behavior", "status": "skipped"},
+		}}},
+	}
+	content, err := json.Marshal(report)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reportPath := filepath.Join(t.TempDir(), "vitest.json")
+	if err := os.WriteFile(reportPath, content, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	identities, err := parseRuntimeIdentities(snapshot, profile, verificationCase, nil, nil, reportPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(identities) != 1 || identities[0].Path != verificationCase.Selector.Path || identities[0].Name != verificationCase.Selector.Name {
+		t.Fatalf("unexpected identities: %#v", identities)
+	}
+}
+
+func TestVitestRuntimeIdentityRejectsInvalidExecutionEvidence(t *testing.T) {
 	snapshot := newRunnerSnapshot(t)
 	testPath := filepath.Join(snapshot.Root, "apps", "web", "src", "feature.test.ts")
 	if err := os.MkdirAll(filepath.Dir(testPath), 0o755); err != nil {
@@ -71,9 +105,21 @@ func TestVitestRuntimeIdentityRejectsNonPassedOrExtraAssertions(t *testing.T) {
 		"selected test skipped": {
 			map[string]any{"fullName": "target behavior", "status": "skipped"},
 		},
-		"extra skipped assertion": {
+		"non-selected test passed": {
 			map[string]any{"fullName": "target behavior", "status": "passed"},
-			map[string]any{"fullName": "other behavior", "status": "skipped"},
+			map[string]any{"fullName": "other behavior", "status": "passed"},
+		},
+		"non-selected test failed": {
+			map[string]any{"fullName": "target behavior", "status": "passed"},
+			map[string]any{"fullName": "other behavior", "status": "failed"},
+		},
+		"unknown status": {
+			map[string]any{"fullName": "target behavior", "status": "passed"},
+			map[string]any{"fullName": "other behavior", "status": "pending"},
+		},
+		"duplicate selected assertion": {
+			map[string]any{"fullName": "target behavior", "status": "passed"},
+			map[string]any{"fullName": "target behavior", "status": "passed"},
 		},
 	}
 	for name, assertions := range tests {
@@ -90,8 +136,8 @@ func TestVitestRuntimeIdentityRejectsNonPassedOrExtraAssertions(t *testing.T) {
 				t.Fatal(err)
 			}
 			_, err = parseRuntimeIdentities(snapshot, profile, verificationCase, nil, nil, reportPath)
-			if err == nil || !strings.Contains(err.Error(), "AIDD_VITEST_STATUS") {
-				t.Fatalf("expected Vitest status diagnostic, got %v", err)
+			if err == nil || (!strings.Contains(err.Error(), "AIDD_VITEST_STATUS") && !strings.Contains(err.Error(), "AIDD_RUNTIME_IDENTITY")) {
+				t.Fatalf("expected Vitest evidence diagnostic, got %v", err)
 			}
 		})
 	}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 4,
+  "kind": "build_rule_coverage",
+  "workspace": "1563-issue-345418f11192",
+  "receipt_sha256": "dc457133c820aab1759916d6d86233316704c39d8a9471a12968865cbcec4884",
+  "target_state_sha256": "6308d7cc0a00152b9c683be0938acd57441a2b5916c5dceb76e710d1bf27311b",
+  "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0",
+  "verification_evidence": {
+    "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/.aidd/build-verification.json",
+    "sha256": "b43cf6362ed1c9a378f31b89e1bbbece9c3b5743acf6b4bf15f4b00b91e1aac3"
+  },
+  "baseline_inventory": [
+    "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+    "apps/web/src/app/Router.test.tsx",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+    "apps/web/src/i18n/accountLanguage.integration.test.ts",
+    "apps/web/src/i18n/accountLanguage.ts",
+    "apps/web/src/i18n/index.test.ts",
+    "apps/web/src/i18n/index.ts",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/web/src/types/database.types.ts",
+    "docs/harness/contracts/user-account-attributes.json"
+  ],
+  "final_inventory": [
+    "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
+    "apps/web/src/app/Router.test.tsx",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+    "apps/web/src/i18n/accountLanguage.integration.test.ts",
+    "apps/web/src/i18n/accountLanguage.ts",
+    "apps/web/src/i18n/index.test.ts",
+    "apps/web/src/i18n/index.ts",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/web/src/types/database.types.ts",
+    "docs/harness/contracts/user-account-attributes.json"
+  ],
+  "changed_paths": []
+}

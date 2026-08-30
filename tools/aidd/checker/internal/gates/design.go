@@ -3,6 +3,7 @@ package gates
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
@@ -208,6 +209,35 @@ func validateDesignRuleCoverage(snapshot *repository.Snapshot, design, requireme
 		for _, ruleID := range required {
 			if _, ok := selectedClosure[ruleID]; !ok {
 				return diagnostic.New("AIDD_DESIGN_PATH_RULE", path, design.Envelope.Kind, "Design rule coverage omits a path-required rule", rules.Sorted(selectedClosure), ruleID)
+			}
+		}
+	}
+	if err := validateSelectedRuleOwnership(&design.Design.TargetState, selectedClosure, loadedRules, design.Envelope.Kind); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateSelectedRuleOwnership(target *model.TargetState, selected map[string]struct{}, loadedRules *rules.Loaded, artifact string) error {
+	for _, ruleID := range loadedRules.Order {
+		if _, exists := selected[ruleID]; !exists {
+			continue
+		}
+		rule := loadedRules.ByID[ruleID]
+		for _, scope := range target.OwnershipScopes {
+			insideScope := rule.File == scope.Path
+			if scope.Kind == "tree" {
+				insideScope = insideScope || strings.HasPrefix(rule.File, scope.Path+"/")
+			}
+			if insideScope {
+				return diagnostic.New(
+					"AIDD_SELECTED_RULE_OWNERSHIP",
+					rule.File,
+					artifact,
+					"selected rule documents are read-only Design inputs and cannot be Build ownership targets",
+					"selected rule path outside ownership scopes",
+					map[string]any{"rule_id": ruleID, "scope": scope},
+				)
 			}
 		}
 	}
