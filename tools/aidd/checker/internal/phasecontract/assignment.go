@@ -18,7 +18,7 @@ import (
 
 const (
 	AssignmentKind          = "phase_assignment"
-	AssignmentSchemaVersion = 1
+	AssignmentSchemaVersion = 2
 )
 
 type PhaseAssignment struct {
@@ -31,12 +31,17 @@ type PhaseAssignment struct {
 	Executor              string             `json:"executor"`
 	Configuration         string             `json:"configuration"`
 	CycleIdentity         string             `json:"cycle_identity"`
-	GoalIdentity          string             `json:"goal_identity"`
-	ContextPacketIdentity string             `json:"context_packet_identity"`
+	GoalDocument          AssignmentDocument `json:"goal_document"`
+	ContextPacketDocument AssignmentDocument `json:"context_packet_document"`
 	Inputs                []AssignmentInput  `json:"inputs"`
 	Boundary              AssignmentBoundary `json:"boundary"`
 	Verification          []string           `json:"verification"`
 	StopConditions        []string           `json:"stop_conditions"`
+}
+
+type AssignmentDocument struct {
+	Path   string `json:"path"`
+	SHA256 string `json:"sha256"`
 }
 
 type AssignmentInput struct {
@@ -148,14 +153,17 @@ func validateAssignmentValue(ctx context.Context, value *PhaseAssignment, snapsh
 		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_EXECUTOR", "executor", AssignmentKind, "phase assignment executor does not match the canonical phase contract", map[string]string{"executor": expected.Executor, "configuration": expected.Configuration}, map[string]string{"executor": value.Executor, "configuration": value.Configuration})
 	}
 	for path, text := range map[string]string{
-		"branch": value.Branch, "cycle_identity": value.CycleIdentity, "goal_identity": value.GoalIdentity, "context_packet_identity": value.ContextPacketIdentity,
+		"branch": value.Branch, "cycle_identity": value.CycleIdentity,
 	} {
 		if strings.TrimSpace(text) == "" {
 			return diagnostic.New("AIDD_PHASE_ASSIGNMENT_REQUIRED", path, AssignmentKind, "phase assignment field must be non-empty", "non-empty string", text)
 		}
 	}
-	if !validSHA256(value.GoalIdentity) || !validSHA256(value.ContextPacketIdentity) {
-		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_IDENTITY", "goal_identity/context_packet_identity", AssignmentKind, "Goal and Context Packet identities must be SHA-256 values", "64 lowercase hexadecimal characters", map[string]string{"goal_identity": value.GoalIdentity, "context_packet_identity": value.ContextPacketIdentity})
+	if err := validateAssignmentDocument(snapshot.Root, "goal_document", value.GoalDocument); err != nil {
+		return err
+	}
+	if err := validateAssignmentDocument(snapshot.Root, "context_packet_document", value.ContextPacketDocument); err != nil {
+		return err
 	}
 	if len(value.Inputs) == 0 {
 		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_INPUT", "inputs", AssignmentKind, "phase assignment must identify at least one input artifact", "non-empty inputs", value.Inputs)
@@ -194,6 +202,35 @@ func validateAssignmentValue(ctx context.Context, value *PhaseAssignment, snapsh
 	}
 	if err := validateNonEmptyUnique(value.StopConditions, "stop_conditions"); err != nil {
 		return err
+	}
+	return nil
+}
+
+func validateAssignmentDocument(repoRoot, field string, document AssignmentDocument) error {
+	if !filepath.IsAbs(document.Path) || filepath.Clean(document.Path) != document.Path {
+		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_DOCUMENT", field+".path", AssignmentKind, "assigned document path must be canonical and absolute", "canonical absolute path outside the repository", document.Path)
+	}
+	resolved, err := filepath.EvalSymlinks(document.Path)
+	if err != nil {
+		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_DOCUMENT", field+".path", AssignmentKind, "assigned document path cannot be resolved", "existing regular non-symlink file outside the repository", err.Error())
+	}
+	relative, err := filepath.Rel(repoRoot, resolved)
+	if err != nil || relative == "." || (relative != ".." && !strings.HasPrefix(relative, ".."+string(filepath.Separator))) {
+		actual := document.Path
+		if err != nil {
+			actual = err.Error()
+		}
+		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_DOCUMENT", field+".path", AssignmentKind, "assigned document must be stored outside the repository", "canonical absolute path outside the repository", actual)
+	}
+	if !validSHA256(document.SHA256) {
+		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_DOCUMENT", field+".sha256", AssignmentKind, "assigned document identity must be a SHA-256 value", "64 lowercase hexadecimal characters", document.SHA256)
+	}
+	content, err := repository.ReadExternal(document.Path)
+	if err != nil {
+		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_DOCUMENT", field+".path", AssignmentKind, "assigned document cannot be read as a stable external file", "readable regular non-symlink file", err.Error())
+	}
+	if digest := canonical.HashBytes(content); digest != document.SHA256 {
+		return diagnostic.New("AIDD_PHASE_ASSIGNMENT_DOCUMENT_DRIFT", field+".sha256", AssignmentKind, "assigned document bytes do not match the parent-provided identity", document.SHA256, digest)
 	}
 	return nil
 }

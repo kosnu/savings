@@ -78,7 +78,9 @@ checkerの防御対象に含めない。これらの契約外事象を仮定し�
 - `internal/handoff` / `internal/receipt`: source / displayのcontent hashとpermission modeを固定するDesign completion capture と、全Build entrypointで同じidentityを再検証するBuild Entry。
 - `internal/runner` / `internal/evidence`: 親processの全`GIT_*`を除去したprofile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state、actual Build diff、staged Ship candidate の照合。
-- `internal/phasecontract`: phase ownership contract と agent representation の照合。
+- `internal/phasecontract`: phase ownership contract と agent representation の照合、schema-v2
+  assignmentから参照するrepository-external `goal_document` / `context_packet_document`の
+  absolute path、regular non-symlink type、SHA-256 identityの検証。
 - `cmd/aidd-checker`: CLI adapter。domain ruleを持たない。
 
 checker はpathとworkspace名の字句検証を`internal/pathcontract`へ集約し、repository内の
@@ -86,7 +88,10 @@ file、directory、ownership tree、selector、runner working directoryの実在
 `internal/repository`だけから解決する。path traversal、`.git`・`.hg`・`.svn` metadata segment、symlink、非regular fileをfail
 closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味判定ごとに
 再読込しない。artifact gateはcanonical workspace sourceだけをsnapshotから読み、
-repository外の一時sourceはGoal kindだけに許可する。verification case実行後にcached inputの
+repository外の一時sourceはGoal kindと、parentがphase完了まで所有するschema-v2 assignment、
+`goal_document`、`context_packet_document`だけに許可する。phase assignmentのrepo内inputは
+snapshotから、2つの参照documentはstable external fileとして読み、parentとphase consumerが
+同じassignment SHA-256と参照document SHA-256をそれぞれ再検証する。verification case実行後にcached inputの
 内容、型、権限driftを検査する。Design completionは固定したGit `HEAD`からbaseline blobを読み、
 CLIが宣言したcanonical outputだけをatomic writeする。checkerが起動した親processの`GIT_INDEX_FILE`、
 `GIT_DIR`、`GIT_WORK_TREE`、config injectionを含む全`GIT_*`はGit subprocessへ継承せず、
