@@ -1,7 +1,7 @@
 interface:
   display_name: "Learn"
-  short_description: "Route learnings to context, rules, or policies"
-  default_prompt: "Use $learn to route each finding to task context, a rule or policy change, or rule or policy sharpening."
+  short_description: "Apply the canonical learning-extraction policy"
+  default_prompt: "Use $learn to process the eligible findings according to the repository's canonical learning-extraction policy."
 
 policy:
   allow_implicit_invocation: true
