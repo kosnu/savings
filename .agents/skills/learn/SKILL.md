@@ -1,16 +1,18 @@
 ---
 name: learn
-description: Investigate the causes behind review comments, verification failures, operational findings, changed constraints, or policy updates; compare preventive countermeasures; and route the selected learning to task context or canonical rules and policies. Use in AI Driven Development or harness-task contexts when the user asks to learn from feedback, prevent recurrence, prepare task context, update rules, or says 学習, 原因調査, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
+description: Determine whether findings are reachable through supported normal paths, exclude those that are not, investigate the causes of applicable review comments, verification failures, operational findings, changed constraints, or policy updates, compare preventive countermeasures, and route selected learning to task context or canonical rules and policies. Use in AI Driven Development or harness-task contexts when the user asks to learn from feedback, prevent recurrence, exclude inapplicable findings, prepare task context, update rules, or says 学習, 原因調査, 除外, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
 ---
 
 # Learn
 
 ## Purpose
 
-Treat every supplied finding as an improvement signal, not as a ready-made
-learning or countermeasure. First establish the recurrence to prevent,
-investigate the cause, and select the countermeasure that best prevents the
-same causal failure. Then route the result to one primary destination:
+Treat every supplied finding as a candidate improvement signal, not as a
+ready-made learning or countermeasure. First determine whether it is reachable
+through a supported normal path. Exclude findings that are not. For applicable
+findings, establish the recurrence to prevent, investigate the cause, and
+select the countermeasure that best prevents the same causal failure. Then
+route the result to one primary destination:
 
 - Task context addition or change: task-specific intent, scope, constraints, success criteria, or oversight context. In AIDD, return a concrete target Issue body change; in a harness task, use it as task input.
 - Rule / policy addition or change: new durable guidance, or a change to an existing rule's meaning, applicability, or ownership.
@@ -29,6 +31,30 @@ to that Issue. In a harness task, the same task context becomes the skill input.
 
 `harness-task` may also extract and apply learning directly. This skill is the dedicated learning handoff and rule-classification workflow, not the exclusive owner of learning extraction.
 
+## Finding Input Gate
+
+Build the finding candidate set only from these sources:
+
+- PR review comments explicitly supplied to or selected for the current Learn
+  invocation.
+- Findings in a review result produced during the current session. This source
+  means findings produced by the session's own review, not PR review comments
+  repeated or discussed during the session.
+- Specific findings the user explicitly instructs Learn to add.
+
+Do not automatically promote other session content into finding candidates.
+Conversation, investigation notes, verification output, command or tool
+failures, implementation observations, assistant suggestions, and rejected
+alternatives may be diagnostic evidence, but they are not candidate findings
+unless they appear in the current session's review result or the user
+explicitly adds them.
+
+Cause investigation may reveal a deeper cause or a broader countermeasure.
+Keep it attached to the eligible source finding; do not create a separate
+finding unless it independently passes this input gate. Record one input source
+for every eligible finding. If a proposed finding has no eligible source, omit
+it rather than processing it through reachability or classification.
+
 ## Evidence
 
 Use these sources to establish intended behavior and constraints:
@@ -40,8 +66,9 @@ Use these sources to establish intended behavior and constraints:
 - Changed rules or policies.
 - Explicit oversight constraints from the user.
 
-Treat every finding supplied to this skill as an improvement signal, including
-findings already covered by an existing rule.
+Evaluate every finding that passes the input gate, including findings already
+covered by an existing rule. Evaluation does not mean that every eligible
+finding must become learning.
 
 To diagnose why the finding occurred, inspect the smallest useful set of
 current implementation, configuration, workflow, ownership, verification, and
@@ -96,9 +123,50 @@ Also read:
 
 Use GitHub PR or Issue data only when needed to read the referenced feedback or task context.
 
+## Supported-Path Applicability Gate
+
+Apply this gate before cause investigation or classification.
+
+A supported normal path is a path for the artifact or task state being
+evaluated, allowed by its task context and the canonical rules and contracts
+applicable to that state, with declared owners acting within their
+responsibilities and required execution-environment assumptions satisfied.
+Inputs or failures that an applicable contract explicitly requires an owner to
+handle remain part of the supported path even when they originate externally.
+
+For each finding:
+
+1. Identify the supported normal path and the contracts, ownership boundaries,
+   and environment assumptions that define it.
+2. Determine whether that path can reach the reported failure. Use current
+   implementation, configuration, reproduction, or verification evidence to
+   test reachability; lack of reproduction alone is not evidence of
+   unreachability.
+3. Exclude the finding only when the evidence shows all of these:
+   - the failure requires violating a mandatory contract or ownership boundary,
+     using an unsupported or obsolete path, or breaking a required environment
+     assumption;
+   - no supported normal path can reach the same causal failure; and
+   - no applicable contract assigns defensive handling of that off-contract
+     condition to an owner.
+
+Exclusion is not a fourth learning destination. Use it only when the existing
+task context and canonical contracts completely decide reachability and no
+change to the supported normal path, its rules, mechanisms, ownership, or
+environment is needed.
+
+Occurrence rate is not an exclusion criterion. A rare, intermittent, or
+timing-dependent finding remains applicable when a supported normal path can
+reach it. When reachability or the applicable contract is ambiguous, do not
+exclude the finding; stop with the missing evidence or decision.
+
+Record an excluded finding with its supported normal path, the canonical
+contract evidence, and why the failure is unreachable. Do not create a new
+case-specific rule to justify the exclusion.
+
 ## Cause Investigation And Countermeasure Selection
 
-For each finding, complete these decisions before classification:
+For each applicable finding, complete these decisions before classification:
 
 1. Separate the observed failure, the stated reason, and any proposed
    countermeasure. Define the recurrence or broken invariant to prevent.
@@ -126,7 +194,8 @@ cause and countermeasure from the plausible alternatives.
 
 ## Classification
 
-Classify each supplied finding by one primary destination:
+Classify each applicable finding that passed the input gate by one primary
+destination:
 
 - Task context addition or change: task intent, scope, constraints, success criteria, or oversight context needs revision. For AIDD, identify the target Issue and the exact body change.
 - Rule / policy addition or change: durable guidance must be introduced, or an existing rule's meaning, applicability, or ownership must change.
@@ -142,11 +211,14 @@ or decision boundary is deficient. Choose addition or change when meaning,
 applicability, or ownership must change, and sharpening when the intent remains
 correct but its expression leaves a causal ambiguity.
 
-When a rule is already correct and the failure came from missing enforcement,
-an unclear contract, misplaced ownership, or the execution environment, keep
-the rule unchanged and route the selected countermeasure to the owning task
-context. A new rule is appropriate only when a durable decision boundary is
-missing and a rule can affect the causal decision point.
+When a rule is already correct and the supported normal path can still fail
+because of missing required enforcement, an unclear contract, misplaced
+ownership, or the execution environment, keep the rule unchanged and route the
+selected countermeasure to the owning task context. If the failure requires
+violating that correct rule and defensive enforcement is not part of the
+applicable contract, exclude it at the applicability gate. A new rule is
+appropriate only when a durable decision boundary is missing and a rule can
+affect the causal decision point.
 
 Preserve the user's finding and stated reason before adding interpretation. If
 an interpretation would introduce visible information, an operation, a
@@ -155,8 +227,8 @@ instead of inferring it.
 
 ## Output
 
-Return a concise handoff organized by finding, not a flat list grouped by
-destination:
+Return a concise result organized by finding. Put applicable findings under
+`学び` and excluded findings under `除外`:
 
 ```md
 # Learn結果
@@ -165,6 +237,9 @@ destination:
 
 ### <finding>
 
+- 入力元: PRレビューコメント | このセッションのレビュー結果 | ユーザー明示追加
+- 通常経路:
+- 到達可能性の根拠:
 - 明示された理由:
 - 防ぐ再発:
 - 原因:
@@ -175,16 +250,28 @@ destination:
 - 反映先:
 - 変更:
 - 参照関係:
+
+## 除外
+
+### <finding>
+
+- 入力元: PRレビューコメント | このセッションのレビュー結果 | ユーザー明示追加
+- 通常経路:
+- 到達不能の根拠:
+- 除外理由:
 ```
 
 For an AIDD task-context finding, write `反映先: Issue #<number>本文` and make
 the proposed body change concrete enough to apply without inventing new scope.
 
-Do not omit the recurrence, cause, causal evidence, compared countermeasures,
-selected countermeasure, classification, target, or change. Omit only optional
-fields that are genuinely absent. Account for every supplied finding under
-`学び`, preserve the relationship between each finding and its destination, and
-do not repeat the same learning under multiple headings.
+For applicable findings, do not omit the input source, normal path,
+reachability evidence, recurrence, cause, causal evidence, compared
+countermeasures, selected countermeasure, classification, target, or change.
+For excluded findings, do not omit the input source, normal path, canonical
+unreachability evidence, or exclusion reason. Omit an empty `学び` or `除外`
+section and optional fields that are genuinely absent. Account for every
+eligible finding exactly once and preserve the relationship between each
+finding and its result.
 
 When an explicitly authorized update was completed, return a concise outcome
 report with the changed canonical files or owning surfaces, extracted learning,
@@ -195,6 +282,8 @@ verification, and any remaining task-context handoff.
 Stop before producing a handoff or updating a rule when:
 
 - The feedback or finding is ambiguous.
+- No finding passes the finding input gate.
+- The supported normal path, applicable contract, or reachability cannot be established from the available evidence.
 - The task whose context should change is missing and cannot be inferred.
 - An AIDD task-context change has no identifiable target Issue.
 - The primary destination cannot be selected from the three classifications.
