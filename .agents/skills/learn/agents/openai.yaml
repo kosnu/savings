@@ -1,7 +1,7 @@
 interface:
   display_name: "Learn"
-  short_description: "Check reachability and select preventive learning"
-  default_prompt: "Use $learn to exclude findings unreachable through supported normal paths, investigate applicable causes, compare preventive countermeasures, and route selected learning to its canonical owner."
+  short_description: "Apply the canonical learning-extraction policy"
+  default_prompt: "Use $learn to process the eligible findings according to the repository's canonical learning-extraction policy."
 
 policy:
   allow_implicit_invocation: true

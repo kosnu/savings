@@ -1,298 +1,45 @@
 ---
 name: learn
-description: Determine whether findings are reachable through supported normal paths, exclude those that are not, investigate the causes of applicable review comments, verification failures, operational findings, changed constraints, or policy updates, compare preventive countermeasures, and route selected learning to task context or canonical rules and policies. Use in AI Driven Development or harness-task contexts when the user asks to learn from feedback, prevent recurrence, exclude inapplicable findings, prepare task context, update rules, or says 学習, 原因調査, 除外, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
+description: Apply the repository's canonical learning-extraction policy to eligible review findings or findings explicitly added by the user. Use when the user asks to learn from feedback, prevent recurrence, exclude inapplicable findings, prepare task context, update rules, or says 学習, 原因調査, 除外, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
 ---
 
 # Learn
 
 ## Purpose
 
-Treat every supplied finding as a candidate improvement signal, not as a
-ready-made learning or countermeasure. First determine whether it is reachable
-through a supported normal path. Exclude findings that are not. For applicable
-findings, establish the recurrence to prevent, investigate the cause, and
-select the countermeasure that best prevents the same causal failure. Then
-route the result to one primary destination:
+Provide the dedicated entrypoint for extracting and routing learning in AI
+Driven Development and harness-task contexts.
 
-- Task context addition or change: task-specific intent, scope, constraints, success criteria, or oversight context. In AIDD, return a concrete target Issue body change; in a harness task, use it as task input.
-- Rule / policy addition or change: new durable guidance, or a change to an existing rule's meaning, applicability, or ownership.
-- Existing rule / policy sharpening: clarify normal behavior, responsibility, terminology, or a decision boundary without changing the rule's meaning or applicability.
+`docs/harness/policies/learning-extraction.md` is the sole canonical source for
+finding eligibility, execution order, supported-path applicability, cause and
+countermeasure analysis, classification, output, update behavior, and Stop
+conditions. Do not restate, supplement, or override that workflow in this
+skill.
 
-The selected countermeasure may target implementation, a contract, ownership,
-a workflow, or the execution environment rather than this skill or another
-rule. Route such work to task context with the owning surface and required
-outcome; do not convert it into a rule merely because Learn produces the
-handoff.
+`harness-task` may also extract learning directly. This skill is the dedicated
+learning handoff, not the exclusive owner of learning extraction.
 
-Use this skill in both AI Driven Development and harness-task contexts. In an
-AI Driven Development cycle, the Issue body is the Task Context source of
-truth. A Learn result is only a proposed Issue body change until it is applied
-to that Issue. In a harness task, the same task context becomes the skill input.
+## Required Context
 
-`harness-task` may also extract and apply learning directly. This skill is the dedicated learning handoff and rule-classification workflow, not the exclusive owner of learning extraction.
+Before processing findings:
 
-## Finding Input Gate
+1. Read `docs/harness/policies/learning-extraction.md` completely.
+2. Read `docs/harness/rule-map.json` and the active documents selected for the
+   current findings, task context, and intended reflection targets.
+3. For review feedback, read
+   `docs/harness/policies/review-feedback-classification.md`.
+4. For an AI Driven Development context, read
+   `docs/ai-driven-development/workflow.md`.
 
-Build the finding candidate set only from these sources:
+Use GitHub PR or Issue data only when needed to obtain referenced feedback or
+the task-context source of truth.
 
-- PR review comments explicitly supplied to or selected for the current Learn
-  invocation.
-- Findings in a review result produced during the current session. This source
-  means findings produced by the session's own review, not PR review comments
-  repeated or discussed during the session.
-- Specific findings the user explicitly instructs Learn to add.
+## Authorization Boundary
 
-Do not automatically promote other session content into finding candidates.
-Conversation, investigation notes, verification output, command or tool
-failures, implementation observations, assistant suggestions, and rejected
-alternatives may be diagnostic evidence, but they are not candidate findings
-unless they appear in the current session's review result or the user
-explicitly adds them.
+Invoking this skill authorizes learning extraction only. It does not authorize
+setting a Goal, implementing product behavior, or writing to a reflection
+target beyond the user's explicit request.
 
-Cause investigation may reveal a deeper cause or a broader countermeasure.
-Keep it attached to the eligible source finding; do not create a separate
-finding unless it independently passes this input gate. Record one input source
-for every eligible finding. If a proposed finding has no eligible source, omit
-it rather than processing it through reachability or classification.
-
-## Evidence
-
-Use these sources to establish intended behavior and constraints:
-
-- Original Issue or task context.
-- Review comments or other explicit feedback.
-- Verification findings.
-- Operational findings.
-- Changed rules or policies.
-- Explicit oversight constraints from the user.
-
-Evaluate every finding that passes the input gate, including findings already
-covered by an existing rule. Evaluation does not mean that every eligible
-finding must become learning.
-
-To diagnose why the finding occurred, inspect the smallest useful set of
-current implementation, configuration, workflow, ownership, verification, and
-execution-environment evidence. Implementation and diff evidence may establish
-the causal chain, but they do not define intended behavior or become task
-context or a canonical rule by themselves.
-
-## Boundaries
-
-Do not set a Goal or implement product behavior.
-
-Do not use these as source of truth for intended behavior, task context, or
-rules:
-
-- Previous implementation code.
-- Previous UI behavior.
-- Current diff shape.
-- Previous implementation-specific design choices.
-- Assumptions derived only from how the previous implementation happened to work.
-
-Treat a countermeasure proposed in feedback as a candidate, not as an approved
-learning. Do not add a local rule or prohibition until the causal evidence and
-alternative countermeasures have been compared.
-
-Do not update Requirements / PRD or Design Doc. In AIDD, return task-context
-additions or changes as concrete edits to the identified Issue body. They do
-not become Requirements input until applied to the Issue. In a harness task,
-return them as the next task input.
-
-When the user explicitly asks to apply an AIDD task-context change and the
-target Issue is unambiguous, update that Issue body and refetch it for
-confirmation. Do not apply it to an artifact, policy, or implicit conversation
-context instead.
-
-When the user explicitly asks to apply a rule or policy addition, change, or
-sharpening and the target is unambiguous, update that canonical document.
-Otherwise, return a handoff that identifies the proposed rule target and
-content. A classification-only result is not an applied rule change.
-
-## Required Repository Context
-
-Always read the smallest useful set:
-
-- `docs/harness/policies/learning-extraction.md`
-- `docs/harness/rule-map.json`
-- Any rule, policy, domain, ADR, or app-specific docs selected from `docs/harness/rule-map.json`
-
-Also read:
-
-- `docs/harness/policies/review-feedback-classification.md` for review feedback.
-- `docs/ai-driven-development/workflow.md` when the learning belongs to an AI Driven Development cycle.
-
-Use GitHub PR or Issue data only when needed to read the referenced feedback or task context.
-
-## Supported-Path Applicability Gate
-
-Apply this gate before cause investigation or classification.
-
-A supported normal path is a path for the artifact or task state being
-evaluated, allowed by its task context and the canonical rules and contracts
-applicable to that state, with declared owners acting within their
-responsibilities and required execution-environment assumptions satisfied.
-Inputs or failures that an applicable contract explicitly requires an owner to
-handle remain part of the supported path even when they originate externally.
-
-For each finding:
-
-1. Identify the supported normal path and the contracts, ownership boundaries,
-   and environment assumptions that define it.
-2. Determine whether that path can reach the reported failure. Use current
-   implementation, configuration, reproduction, or verification evidence to
-   test reachability; lack of reproduction alone is not evidence of
-   unreachability.
-3. Exclude the finding only when the evidence shows all of these:
-   - the failure requires violating a mandatory contract or ownership boundary,
-     using an unsupported or obsolete path, or breaking a required environment
-     assumption;
-   - no supported normal path can reach the same causal failure; and
-   - no applicable contract assigns defensive handling of that off-contract
-     condition to an owner.
-
-Exclusion is not a fourth learning destination. Use it only when the existing
-task context and canonical contracts completely decide reachability and no
-change to the supported normal path, its rules, mechanisms, ownership, or
-environment is needed.
-
-Occurrence rate is not an exclusion criterion. A rare, intermittent, or
-timing-dependent finding remains applicable when a supported normal path can
-reach it. When reachability or the applicable contract is ambiguous, do not
-exclude the finding; stop with the missing evidence or decision.
-
-Record an excluded finding with its supported normal path, the canonical
-contract evidence, and why the failure is unreachable. Do not create a new
-case-specific rule to justify the exclusion.
-
-## Cause Investigation And Countermeasure Selection
-
-For each applicable finding, complete these decisions before classification:
-
-1. Separate the observed failure, the stated reason, and any proposed
-   countermeasure. Define the recurrence or broken invariant to prevent.
-2. Trace the causal chain through the relevant current implementation, existing
-   rules and contracts, ownership boundaries, workflow, and execution
-   environment. Distinguish a root or control failure from the place where the
-   symptom was observed.
-3. Compare the applicable countermeasure types without preferring a rule by
-   default:
-   - add a new rule or policy;
-   - change or sharpen an existing rule or policy;
-   - change the mechanism, contract, validation, or owning responsibility;
-   - fix the execution environment, tooling, or runtime configuration.
-4. Select the smallest practical countermeasure at the causal layer that gives
-   the strongest recurrence prevention. Consider the range of recurrence it
-   covers, whether it prevents or merely reminds, whether it sits with the
-   correct owner, its enforceability, side effects, and implementation cost.
-5. Identify the canonical owner and concrete reflection target. When the target
-   is code, a contract, a workflow, or environment configuration, produce a
-   scoped task-context handoff rather than a synthetic rule change.
-
-Do not require evidence from every layer when it cannot affect the finding.
-Document why the inspected evidence is sufficient to distinguish the selected
-cause and countermeasure from the plausible alternatives.
-
-## Classification
-
-Classify each applicable finding that passed the input gate by one primary
-destination:
-
-- Task context addition or change: task intent, scope, constraints, success criteria, or oversight context needs revision. For AIDD, identify the target Issue and the exact body change.
-- Rule / policy addition or change: durable guidance must be introduced, or an existing rule's meaning, applicability, or ownership must change.
-- Existing rule / policy sharpening: an existing rule remains correct but its normal behavior, responsibility, terminology, or decision boundary needs to be more precise.
-
-If task context depends on a new or changed rule, make the primary
-classification explicit and state the reference dependency instead of
-duplicating the same content.
-
-When an existing rule already covers the finding, change it only if the cause
-investigation shows that its meaning, applicability, ownership, normal pattern,
-or decision boundary is deficient. Choose addition or change when meaning,
-applicability, or ownership must change, and sharpening when the intent remains
-correct but its expression leaves a causal ambiguity.
-
-When a rule is already correct and the supported normal path can still fail
-because of missing required enforcement, an unclear contract, misplaced
-ownership, or the execution environment, keep the rule unchanged and route the
-selected countermeasure to the owning task context. If the failure requires
-violating that correct rule and defensive enforcement is not part of the
-applicable contract, exclude it at the applicability gate. A new rule is
-appropriate only when a durable decision boundary is missing and a rule can
-affect the causal decision point.
-
-Preserve the user's finding and stated reason before adding interpretation. If
-an interpretation would introduce visible information, an operation, a
-constraint, or a success criterion that the feedback did not state, stop
-instead of inferring it.
-
-## Output
-
-Return a concise result organized by finding. Put applicable findings under
-`学び` and excluded findings under `除外`:
-
-```md
-# Learn結果
-
-## 学び
-
-### <finding>
-
-- 入力元: PRレビューコメント | このセッションのレビュー結果 | ユーザー明示追加
-- 通常経路:
-- 到達可能性の根拠:
-- 明示された理由:
-- 防ぐ再発:
-- 原因:
-- 原因の根拠:
-- 比較した対策:
-- 選定対策:
-- 振り分け: タスクコンテキストの追加・変更 | ルール・ポリシーの追加・変更 | 既存ルール・ポリシーのsharp化
-- 反映先:
-- 変更:
-- 参照関係:
-
-## 除外
-
-### <finding>
-
-- 入力元: PRレビューコメント | このセッションのレビュー結果 | ユーザー明示追加
-- 通常経路:
-- 到達不能の根拠:
-- 除外理由:
-```
-
-For an AIDD task-context finding, write `反映先: Issue #<number>本文` and make
-the proposed body change concrete enough to apply without inventing new scope.
-
-For applicable findings, do not omit the input source, normal path,
-reachability evidence, recurrence, cause, causal evidence, compared
-countermeasures, selected countermeasure, classification, target, or change.
-For excluded findings, do not omit the input source, normal path, canonical
-unreachability evidence, or exclusion reason. Omit an empty `学び` or `除外`
-section and optional fields that are genuinely absent. Account for every
-eligible finding exactly once and preserve the relationship between each
-finding and its result.
-
-When an explicitly authorized update was completed, return a concise outcome
-report with the changed canonical files or owning surfaces, extracted learning,
-verification, and any remaining task-context handoff.
-
-## Stop
-
-Stop before producing a handoff or updating a rule when:
-
-- The feedback or finding is ambiguous.
-- No finding passes the finding input gate.
-- The supported normal path, applicable contract, or reachability cannot be established from the available evidence.
-- The task whose context should change is missing and cannot be inferred.
-- An AIDD task-context change has no identifiable target Issue.
-- The primary destination cannot be selected from the three classifications.
-- A rule or policy addition, change, or sharpening is required but the canonical target is ambiguous.
-- The causal chain or recurrence to prevent cannot be established from the available evidence.
-- Plausible countermeasures remain materially tied and choosing one would change scope, behavior, risk, or ownership without user input.
-- The selected countermeasure has no identifiable canonical owner or reflection target.
-- The intended behavior cannot be explained without treating previous implementation code, previous UI behavior, current diff shape, or previous implementation-specific design choices as authoritative.
-- The result violates or may violate the selected rule-map subgraph.
-- Memory update is needed but the user did not explicitly request it.
-
-When a Stop condition applies, return only the concrete blocker and the smallest missing input. Do not return a completed Learning Handoff with an unresolved Stop condition embedded in it.
+After loading the required context, execute the canonical learning-extraction
+policy exactly as written, including its gates, ordering, output contract, and
+Stop conditions.
