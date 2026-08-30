@@ -32,6 +32,8 @@ var (
 	goalTools                 = []string{"get_goal", "create_goal", "update_goal"}
 	delegatedResponsibilities = []string{"phase_outputs", "verification_evidence"}
 	forbiddenResponsibilities = []string{"goal_lifecycle", "goal_setting", "phase_transition", "learn", "delegation"}
+	assignmentDocumentFields  = []string{"goal_document", "context_packet_document"}
+	assignmentDocumentKeys    = []string{"path", "sha256"}
 	commonForbidden           = []string{"get_goal", "create_goal", "update_goal", "goal-setting"}
 	bootstrapCommands         = []string{
 		"go env GOVERSION",
@@ -64,11 +66,19 @@ type contract struct {
 }
 
 type assignmentContract struct {
-	Owner          string   `toml:"owner"`
-	Consumer       string   `toml:"consumer"`
-	SchemaVersion  int      `toml:"schema_version"`
-	Kind           string   `toml:"kind"`
+	Owner               string                     `toml:"owner"`
+	Consumer            string                     `toml:"consumer"`
+	SchemaVersion       int                        `toml:"schema_version"`
+	Kind                string                     `toml:"kind"`
+	RequiredFields      []string                   `toml:"required_fields"`
+	ReferencedDocuments referencedDocumentContract `toml:"referenced_documents"`
+}
+
+type referencedDocumentContract struct {
+	Fields         []string `toml:"fields"`
 	RequiredFields []string `toml:"required_fields"`
+	PathScope      string   `toml:"path_scope"`
+	FileType       string   `toml:"file_type"`
 }
 
 type goalLifecycle struct {
@@ -132,7 +142,11 @@ func Validate(ctx context.Context, repoRoot string) error {
 		return err
 	}
 
-	if _, err := snapshot.Read(operationsPath); err != nil {
+	operations, err := readText(snapshot, operationsPath)
+	if err != nil {
+		return err
+	}
+	if err := requireAssignmentDocumentReferences(operations, "checker operations"); err != nil {
 		return err
 	}
 	parentSkill, err := readText(snapshot, parentSkillPath)
@@ -146,6 +160,9 @@ func Validate(ctx context.Context, repoRoot string) error {
 		return err
 	}
 	if err := requireAssignmentCommands(parentSkill, "parent skill", true); err != nil {
+		return err
+	}
+	if err := requireAssignmentDocumentReferences(parentSkill, "parent skill"); err != nil {
 		return err
 	}
 	if err := requireBootstrapCommands(parentSkill, "parent skill"); err != nil {
@@ -237,6 +254,9 @@ func Validate(ctx context.Context, repoRoot string) error {
 		if err := requireAssignmentCommands(configured.DeveloperInstructions, "agent "+item.Executor, false); err != nil {
 			return err
 		}
+		if err := requireAssignmentDocumentReferences(configured.DeveloperInstructions, "agent "+item.Executor); err != nil {
+			return err
+		}
 		for _, identifier := range value.AgentInstructionForbiddenIdentifiers[item.Executor] {
 			if containsIdentifier(configured.DeveloperInstructions, identifier) {
 				return failure(item.Configuration, "agent instructions contain forbidden identifier "+identifier, nil, identifier)
@@ -288,9 +308,21 @@ func validateContract(value *contract) error {
 	if !equalStrings(value.Delegation.Phases, delegatedPhases) || !equalStrings(value.Delegation.AllowedResponsibilities, delegatedResponsibilities) || !equalStrings(value.Delegation.ForbiddenResponsibilities, forbiddenResponsibilities) {
 		return failure(contractRelativePath, "delegation contract is invalid", map[string][]string{"phases": delegatedPhases, "allowed": delegatedResponsibilities, "forbidden": forbiddenResponsibilities}, value.Delegation)
 	}
-	expectedAssignmentFields := []string{"schema_version", "kind", "contract_id", "repository_root", "branch", "phase", "executor", "configuration", "cycle_identity", "goal_identity", "context_packet_identity", "inputs", "boundary", "verification", "stop_conditions"}
+	expectedAssignmentFields := []string{"schema_version", "kind", "contract_id", "repository_root", "branch", "phase", "executor", "configuration", "cycle_identity", "goal_document", "context_packet_document", "inputs", "boundary", "verification", "stop_conditions"}
 	if value.Assignment.Owner != "parent" || value.Assignment.Consumer != "phase_agent" || value.Assignment.SchemaVersion != AssignmentSchemaVersion || value.Assignment.Kind != AssignmentKind || !slices.Equal(value.Assignment.RequiredFields, expectedAssignmentFields) {
 		return failure(contractRelativePath, "phase assignment contract is invalid", map[string]any{"owner": "parent", "consumer": "phase_agent", "schema_version": AssignmentSchemaVersion, "kind": AssignmentKind, "required_fields": expectedAssignmentFields}, value.Assignment)
+	}
+	expectedReferencedDocuments := referencedDocumentContract{
+		Fields:         assignmentDocumentFields,
+		RequiredFields: assignmentDocumentKeys,
+		PathScope:      "repository_external",
+		FileType:       "regular_non_symlink",
+	}
+	if !slices.Equal(value.Assignment.ReferencedDocuments.Fields, expectedReferencedDocuments.Fields) ||
+		!slices.Equal(value.Assignment.ReferencedDocuments.RequiredFields, expectedReferencedDocuments.RequiredFields) ||
+		value.Assignment.ReferencedDocuments.PathScope != expectedReferencedDocuments.PathScope ||
+		value.Assignment.ReferencedDocuments.FileType != expectedReferencedDocuments.FileType {
+		return failure(contractRelativePath, "phase assignment referenced document contract is invalid", expectedReferencedDocuments, value.Assignment.ReferencedDocuments)
 	}
 	if !slices.Equal(value.Phases, canonicalPhases) {
 		return failure(contractRelativePath, "phase assignments must match the fixed executor and configuration map", canonicalPhases, value.Phases)
@@ -383,6 +415,16 @@ func requireAssignmentCommands(text, label string, requirePrepare bool) error {
 	for _, command := range commands {
 		if !strings.Contains(normalized, command) {
 			return failure(label, "representation must use the canonical phase assignment command", commands, command)
+		}
+	}
+	return nil
+}
+
+func requireAssignmentDocumentReferences(text, label string) error {
+	normalized := normalizeSpace(text)
+	for _, field := range assignmentDocumentFields {
+		if !strings.Contains(normalized, field) {
+			return failure(label, "representation must name every externally referenced assignment document", assignmentDocumentFields, field)
 		}
 	}
 	return nil

@@ -61,12 +61,19 @@ phase ownership contractも同じbinaryで検証する。
 このgateはcanonical contract、phase assignment、Goal ownership、agent registration、
 agent instructionsを照合する。AIDD cycleとGoal settingは委譲またはGoal作成前に実行する。
 
-委譲するphaseのschema-v1 `phase_assignment`はparentが所有する。parentはrepository外の
-draftを`prepare-phase-assignment`でcanonical化し、そのSHA-256を委譲前に検証する。
-委譲messageはcanonical assignmentのpathとSHA-256だけを渡し、phase agentは最初の
-phase actionより前に同じ`validate-phase-assignment`でbytesとtyped identityを再検証する。
-自由文はphase、cycle、Goal、Context Packet、input、read/write boundary、Verification、
-Stop条件の正本にしない。
+委譲するphaseのschema-v2 `phase_assignment`はparentが所有する。parentはactive Goalの
+exact JSONとContext Packetを、それぞれrepository外のregular non-symlink fileへ固定し、
+canonical absolute pathとSHA-256を`goal_document`と`context_packet_document`へ記録する。
+parentは両documentをphase完了までbyte-identicalかつreadableに保つ。repository外のdraftを
+`prepare-phase-assignment`でcanonical化し、参照documentのbytesを含む全契約を検査したうえで、
+assignmentのSHA-256を委譲前に再検証する。
+
+委譲messageはcanonical assignmentのpathとSHA-256だけを渡す。phase agentは最初のphase
+actionより前に同じ`validate-phase-assignment`でassignmentと参照documentを再検証し、その後に
+validated assignment bytesからだけ両pathを取得して読み、各read resultのSHA-256がtyped値と
+一致することを独立に確認する。自由文はphase、cycle、Goal、Context Packet、input、read/write
+boundary、Verification、Stop条件の正本にしない。assignmentまたは参照documentが欠落、変更、
+読取不能、不整合なら、Goal stateを変更せず停止する。
 
 ```sh
 /tmp/aidd-checker prepare-phase-assignment \
@@ -76,6 +83,10 @@ Stop条件の正本にしない。
   --repo-root <repo-root> --document <assignment-path> \
   --expected-sha256 <assignment-sha256>
 ```
+
+checkerの契約testは、parentによるdraft生成とcanonical化、parent再検証、phase consumer再検証、
+validated assignmentからの`goal_document` / `context_packet_document`読取とhash一致までを1本の
+consumer flowとして通す。schemaや単体validatorだけの検査を委譲可能性の根拠にしない。
 
 ## Workspace
 
