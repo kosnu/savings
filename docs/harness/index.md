@@ -33,6 +33,7 @@ when_to_read:
 - [rule-map.json](./rule-map.json): 作業対象に応じて読むべき Markdown へ案内する初期索引。
 - [policies/](./policies/): Git、code review、review feedback、transaction boundary、temporal data、documentation policy など、agent が守るリポジトリ横断の運用ルール。
 - [domain/](./domain/): 金額、支払い、カテゴリ、月予算など、agent が仕様判断や実装判断で参照するドメインルール。
+- [contracts/](./contracts/): ドメインルールから分離して機能タスクが更新できる、属性一覧などの機械可読contract。
 
 ## 使い方
 
@@ -103,6 +104,7 @@ provenance は、ルールがどの作業成果物や検証に効いているか
 - agent が作業時に守る policy、rule、domain constraint。
 - agent が読むべき文書を選択する索引、ルールマップ、探索プロトコルそのもの。
 - Markdown のルールを lint、CI、tests、scripts へ昇格する判断基準。
+- 恒久ルールが参照し、機能タスクで同期更新する機械可読なドメインcontract。
 
 次に該当する文書は `docs/harness/` に置きません。
 

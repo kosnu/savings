@@ -49,6 +49,7 @@ when_to_read:
 - 全representationがownership scope内にあり、Story/testはmachine-addressable locatorを持つ。
 - Requirements再検証、完全なretained Design Goal、Design coverage、canonical path、render同期、profile selector contractが同じbyte snapshotに対して成功し、そのsnapshotから選択済みrule文書、verification profile catalog、非ignore untracked pathのtype・mode・contentまたはsymlink target identityを含むDesign completion receiptを生成してSHA-256を完了証拠へ記録する。
 - Design Goalとartifactのrule coverageが一致し、全implementation surfaceに必要なrule IDと依存closureがDesign completion receiptへ固定されている。
+- 最終selected rule文書のpathがownership scopeまたはrepresentationと重複せず、Buildで変更されないread-only入力として固定できる。
 
 ## Stop
 
@@ -56,5 +57,6 @@ when_to_read:
 - 要求ごとの実装・検証方針を一意に決められない。
 - ユーザー操作または状態遷移を所有するRequirement IDがない。
 - baseline pathまたは最終representationをmachine review surfaceへ分類できない、または必要なadditional ruleを一意に決められない。
+- selected rule文書をownership scopeまたはrepresentationとして変更する必要がある。
 - 上流Requirementsの変更なしでは整合するDesignを作れない。
 - in-scope修正後もDesign gateを満たせない。
