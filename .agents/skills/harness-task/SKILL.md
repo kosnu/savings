@@ -77,7 +77,7 @@ Implement the smallest practical diff that satisfies the scoped task.
 
 Keep representations synchronized. Treat one-sided updates as likely bugs even when tests pass.
 
-During review and verification, extract reusable learning from review comments, findings, or changed constraints. Route each reusable finding to a task-context addition or change, a rule or policy addition or change, or sharpening an existing rule or policy. Apply an explicitly requested, in-scope rule or policy change directly; otherwise return the task-context or rule handoff without claiming it was applied. This capability does not require invoking `learn`, although `learn` may be used when a dedicated learning handoff is requested.
+During review and verification, apply `docs/harness/policies/learning-extraction.md` when extracting reusable learning. That policy is canonical for finding eligibility, classification, output, and Stop conditions; do not define or infer a separate finding input gate here. Apply an explicitly requested, in-scope rule or policy change directly; otherwise return the task-context or rule handoff without claiming it was applied. This capability does not require invoking `learn`, although `learn` may be used when a dedicated learning handoff is requested.
 
 Use subagents sparingly:
 
