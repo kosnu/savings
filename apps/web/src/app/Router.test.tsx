@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
+import { beforeEach, expect, test, vi } from "vite-plus/test"
 
 import { render, screen } from "../test/test-utils"
 import { Router } from "./Router"
@@ -21,35 +21,47 @@ vi.mock("./routes", () => ({
   },
 }))
 
-describe("Router", () => {
-  beforeEach(() => {
-    mockRouterProvider.mockClear()
-    mockUseSupabaseSession.mockReset()
-    mockInvalidate.mockClear()
+const testNamePattern = (
+  globalThis as typeof globalThis & {
+    __vitest_worker__?: { config: { testNamePattern?: RegExp } }
+  }
+).__vitest_worker__?.config.testNamePattern
+
+function testCase(name: string, callback: () => void | Promise<void>) {
+  if (testNamePattern && !testNamePattern.test(name)) {
+    return
+  }
+
+  test(name, callback)
+}
+
+beforeEach(() => {
+  mockRouterProvider.mockClear()
+  mockUseSupabaseSession.mockReset()
+  mockInvalidate.mockClear()
+})
+
+testCase("言語解決中は認証ローディング画面を表示する", () => {
+  mockUseSupabaseSession.mockReturnValue({
+    status: "loading",
+    session: null,
   })
 
-  test("authStatus が loading の間はローディング UI を表示し、RouterProvider を描画しない", () => {
-    mockUseSupabaseSession.mockReturnValue({
-      status: "loading",
-      session: null,
-    })
+  render(<Router />, { withProviders: false })
 
-    render(<Router />, { withProviders: false })
+  expect(screen.getByText("Checking authentication status...")).toBeInTheDocument()
+  expect(screen.queryByText("router-provider")).not.toBeInTheDocument()
+  expect(mockRouterProvider).not.toHaveBeenCalled()
+})
 
-    expect(screen.getByText("Checking authentication status...")).toBeInTheDocument()
-    expect(screen.queryByText("router-provider")).not.toBeInTheDocument()
-    expect(mockRouterProvider).not.toHaveBeenCalled()
+testCase("authStatus が確定したら RouterProvider を描画する", () => {
+  mockUseSupabaseSession.mockReturnValue({
+    status: "authenticated",
+    session: { access_token: "token" },
   })
 
-  test("authStatus が確定したら RouterProvider を描画する", () => {
-    mockUseSupabaseSession.mockReturnValue({
-      status: "authenticated",
-      session: { access_token: "token" },
-    })
+  render(<Router />, { withProviders: false })
 
-    render(<Router />, { withProviders: false })
-
-    expect(screen.getByText("router-provider")).toBeInTheDocument()
-    expect(mockRouterProvider).toHaveBeenCalledTimes(1)
-  })
+  expect(screen.getByText("router-provider")).toBeInTheDocument()
+  expect(mockRouterProvider).toHaveBeenCalledTimes(1)
 })

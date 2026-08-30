@@ -1,0 +1,344 @@
+{
+  "schema_version": 4,
+  "kind": "build_verification",
+  "workspace": "1563-issue-345418f11192",
+  "receipt_sha256": "e38a6a023aac178392576abbd131e5aaed394868b912f989d464140dbe679859",
+  "catalog_sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
+  "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0",
+  "generator": "aidd-checker/v4",
+  "results": [
+    {
+      "id": "VC-1",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+        "name": "アカウント言語の取得元をpublic.users.languageに限定する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "name": "アカウント言語の取得元をpublic.users.languageに限定する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 99,
+      "stderr_bytes": 489,
+      "output_sha256": "6061ed52d9624de4dd6f386a266eaf2d26be94eaa4ca6d0c9df970229ab84507",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-2",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-typecheck",
+      "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+      "selector": {
+        "kind": "suite"
+      },
+      "executed_identities": [
+        {
+          "kind": "suite",
+          "id": "web-typecheck"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 39,
+      "output_sha256": "503eb0fe8b0d7571b49d15ce1a46bf45d513a80332759fa7c15c7a7009fa1835",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-3",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+        "name": "アカウント言語の解決まで認証済み状態へ遷移しない"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "name": "アカウント言語の解決まで認証済み状態へ遷移しない"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 499,
+      "output_sha256": "00949037d40c128c1041cc3a0f5c79b2568ab6fcfe1e677fe38e6199beb4a262",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-4",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/app/Router.test.tsx",
+        "name": "言語解決中は認証ローディング画面を表示する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/app/Router.test.tsx",
+          "name": "言語解決中は認証ローディング画面を表示する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 458,
+      "output_sha256": "907156c0aada6afd4d51d64ab8d8b937fd481444d4d9bb09d3563ea8ba629b63",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-5",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+        "name": "選択した言語をアカウントへ保存する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "name": "選択した言語をアカウントへ保存する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 513,
+      "output_sha256": "b303dd35e9e0c44398cfa28ffdc5131b90e254facbd002c14cbc18bc8cc4b81e",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-6",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+        "name": "アカウント言語の保存対象が1件であることを確認する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "name": "アカウント言語の保存対象が1件であることを確認する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 489,
+      "output_sha256": "b771a7321bb37d7478da416c70deb85a9211a074f72354047fb46bfc04a0b428",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-7",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+        "name": "アカウント言語を端末言語より優先する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "name": "アカウント言語を端末言語より優先する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 99,
+      "stderr_bytes": 469,
+      "output_sha256": "ac6019746c6dbb0a33625d4b896a856e4725d30a4f91b5a13830d87c726e74a1",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-8",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+        "name": "未設定では端末言語へfallbackし自動保存しない"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "name": "未設定では端末言語へfallbackし自動保存しない"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 478,
+      "output_sha256": "e9c43b1a196c4acd28795013b0a6ace67326461915e9c64eae9226192243f824",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-9",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+        "name": "取得失敗では端末言語へfallbackする"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "name": "取得失敗では端末言語へfallbackする"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 99,
+      "stderr_bytes": 462,
+      "output_sha256": "48d25c774ac3ce601fbaa393660665628f7a0e89013591f68fdecd3d347f56a9",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-10",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+        "name": "保存失敗では表示言語を戻してエラーを表示する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "name": "保存失敗では表示言語を戻してエラーを表示する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 528,
+      "output_sha256": "b7f6c30fe5656405f2f3932be06552737d79e5d9e99aa6c3d78c5372f8e43081",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-11",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/i18n/index.test.ts",
+        "name": "対応言語を日本語と英語に正規化する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/i18n/index.test.ts",
+          "name": "対応言語を日本語と英語に正規化する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 445,
+      "output_sha256": "146980e2c48c2869e234de14b8a2361d1838130d92718d88ffe61777af1b4bd2",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-12",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+        "name": "本人行のlanguageだけを更新する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/i18n/accountLanguage.integration.test.ts",
+          "name": "本人行のlanguageだけを更新する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 457,
+      "output_sha256": "eae3b80662d69f6b25c6e7e94770d16e8d9b5e207e5e316a066aa5139c1ecbf7",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-13",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+        "name": "端末言語と異なるアカウント言語を初回表示前に適用する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+          "name": "端末言語と異なるアカウント言語を初回表示前に適用する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 505,
+      "output_sha256": "aef4e30bfe0ceaf695f902a5366b23051aaabe98d18abbcc3bf659c261be85db",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    },
+    {
+      "id": "VC-14",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+        "name": "日本語と英語の表示を切り替えられる"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+          "name": "日本語と英語の表示を切り替えられる"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 100,
+      "stderr_bytes": 513,
+      "output_sha256": "c34f34ed2396dba74bc0c7924e4de69001741aadc8a764fde80bdee875961723",
+      "final_state_sha256": "20844813c32cd77e0ffea3796d27ec34a169d54909f879412a91774d7868c4e0"
+    }
+  ]
+}

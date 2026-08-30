@@ -17,6 +17,21 @@
         "overflow": "truncate"
       },
       "security_use": "forbidden"
+    },
+    {
+      "id": "language",
+      "classification": "account_preference",
+      "source_of_truth": "public.users.language",
+      "client_writable": true,
+      "validation": {
+        "type": "enum",
+        "values": ["en", "ja"],
+        "nullable": true
+      },
+      "initialization": {
+        "backfill": "none"
+      },
+      "security_use": "forbidden"
     }
   ]
 }
