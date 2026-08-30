@@ -201,6 +201,24 @@
       "priority": 84
     },
     {
+      "id": "ai-driven.checker",
+      "file": "docs/ai-driven-development/aidd-checker.md",
+      "applies_to": {
+        "paths": [
+          "tools/aidd/**",
+          "docs/ai-driven-development/contracts/**",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md"
+        ],
+        "domains": ["repository", "ai-driven-development", "harness"],
+        "activities": ["change_aidd_checker", "validate_artifact", "verify_build"],
+        "topics": ["validation", "verification-profile", "trust-boundary", "schema-v4"]
+      },
+      "depends_on": ["ai-driven.workflow", "adr.harness-engineering", "documentation.policy"],
+      "overrides": [],
+      "priority": 89
+    },
+    {
       "id": "policy.learning-extraction",
       "file": "docs/harness/policies/learning-extraction.md",
       "applies_to": {

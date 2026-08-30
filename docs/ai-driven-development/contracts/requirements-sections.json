@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "sections": [
+    {
+      "id": "background",
+      "headings": ["背景", "背景と課題", "background", "background / current state"]
+    },
+    {
+      "id": "users",
+      "headings": ["対象ユーザー", "対象ユーザーと利用シーン", "target users", "target users and use cases"]
+    },
+    {
+      "id": "stories",
+      "headings": ["ユーザーストーリー", "user stories"]
+    },
+    {
+      "id": "scope",
+      "headings": ["スコープ", "scope"]
+    },
+    {
+      "id": "functional",
+      "headings": ["機能要件", "functional requirements"]
+    },
+    {
+      "id": "non-functional",
+      "headings": [
+        "非機能要件",
+        "非機能要件と制約",
+        "non-functional requirements",
+        "non functional requirements",
+        "non-functional requirements / constraints",
+        "non-functional requirements and constraints"
+      ]
+    },
+    {
+      "id": "acceptance",
+      "headings": ["受け入れ条件", "acceptance criteria"]
+    },
+    {
+      "id": "qa",
+      "headings": ["q&a", "q＆a", "q&aログ", "q&a log", "qa log"]
+    },
+    {
+      "id": "technical",
+      "headings": ["技術的考慮事項", "technical considerations"]
+    }
+  ]
+}
