@@ -154,6 +154,9 @@ control / combining markを除いたUnicode文字を8文字以上持つ場合だ
 cycle-start Issue titleは渡さず、検証済みcanonical Requirementsからだけ導出する。
 Requirementsは常にcanonical workspace pathからsnapshot経由で読み、`design_goal`だけが
 repository外の一時Design sourceを受け取る。`design`はcanonical workspace source以外を拒否する。
+Design gateは最終selected rule文書をread-only入力として固定する前に、そのpathと
+`ownership_scopes`の一致またはtree包含を検査する。重複するDesignはBuildで両立不能になるため、
+receiptを生成せず、ルール更新を先行する独立作業へ戻す。
 
 repo-owned catalog は
 `docs/ai-driven-development/contracts/verification-profiles.json` であり、各 profile が fixed argv、

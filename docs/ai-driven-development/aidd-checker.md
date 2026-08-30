@@ -103,6 +103,10 @@ Input GateはIssue本文内に実在する各declared evidence spanについてr
 
 Design rule coverageはRequirementsとimplementation surfaceから得た自動rule closureを
 `additional_rules`へ再掲することを拒否し、手動追加ruleをcanonical rule-map順に固定する。
+最終selected rule文書はBuildまでhash固定されるread-only入力であるため、Design gateは
+そのpathが`ownership_scopes`に一致するかtree scope内へ含まれる場合を拒否する。
+representationはownership scope内を必須とするため、この検査によってselected ruleを
+Build成果物として変更する自己矛盾をDesign completion前に停止する。
 
 ## Verification Profile Trust Boundary
 

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "kind": "user_account_attributes",
+  "attributes": [
+    {
+      "id": "name",
+      "classification": "profile",
+      "source_of_truth": "public.users.name",
+      "client_writable": true,
+      "validation": {
+        "type": "string",
+        "max_length": 64,
+        "overflow": "reject"
+      },
+      "initialization": {
+        "max_length": 64,
+        "overflow": "truncate"
+      },
+      "security_use": "forbidden"
+    }
+  ]
+}
