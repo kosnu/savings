@@ -78,7 +78,9 @@ checkerの防御対象に含めない。これらの契約外事象を仮定し�
 - `internal/handoff` / `internal/receipt`: source / displayのcontent hashとpermission modeを固定するDesign completion capture と、全Build entrypointで同じidentityを再検証するBuild Entry。
 - `internal/runner` / `internal/evidence`: 親processの全`GIT_*`を除去したprofile-fixed execution と structured evidence。
 - `internal/state` / `internal/coverage`: owned final state、actual Build diff、staged Ship candidate の照合。
-- `internal/phasecontract`: phase ownership contract と agent representation の照合。
+- `internal/phasecontract`: phase ownership contract と agent representation の照合、schema-v2
+  assignmentから参照するrepository-external `goal_document` / `context_packet_document`の
+  absolute path、regular non-symlink type、SHA-256 identityの検証。
 - `cmd/aidd-checker`: CLI adapter。domain ruleを持たない。
 
 checker はpathとworkspace名の字句検証を`internal/pathcontract`へ集約し、repository内の
@@ -86,7 +88,10 @@ file、directory、ownership tree、selector、runner working directoryの実在
 `internal/repository`だけから解決する。path traversal、`.git`・`.hg`・`.svn` metadata segment、symlink、非regular fileをfail
 closedで拒否する。inputはsnapshot cacheから読み、同じpathを意味判定ごとに
 再読込しない。artifact gateはcanonical workspace sourceだけをsnapshotから読み、
-repository外の一時sourceはGoal kindだけに許可する。verification case実行後にcached inputの
+repository外の一時sourceはGoal kindと、parentがphase完了まで所有するschema-v2 assignment、
+`goal_document`、`context_packet_document`だけに許可する。phase assignmentのrepo内inputは
+snapshotから、2つの参照documentはstable external fileとして読み、parentとphase consumerが
+同じassignment SHA-256と参照document SHA-256をそれぞれ再検証する。verification case実行後にcached inputの
 内容、型、権限driftを検査する。Design completionは固定したGit `HEAD`からbaseline blobを読み、
 CLIが宣言したcanonical outputだけをatomic writeする。checkerが起動した親processの`GIT_INDEX_FILE`、
 `GIT_DIR`、`GIT_WORK_TREE`、config injectionを含む全`GIT_*`はGit subprocessへ継承せず、
@@ -103,6 +108,10 @@ Input GateはIssue本文内に実在する各declared evidence spanについてr
 
 Design rule coverageはRequirementsとimplementation surfaceから得た自動rule closureを
 `additional_rules`へ再掲することを拒否し、手動追加ruleをcanonical rule-map順に固定する。
+最終selected rule文書はBuildまでhash固定されるread-only入力であるため、Design gateは
+そのpathが`ownership_scopes`に一致するかtree scope内へ含まれる場合を拒否する。
+representationはownership scope内を必須とするため、この検査によってselected ruleを
+Build成果物として変更する自己矛盾をDesign completion前に停止する。
 
 ## Verification Profile Trust Boundary
 
@@ -119,7 +128,7 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - 親processの`GIT_*`でverification profileのrepositoryまたはindexを差し替える実行
 - profile contractと異なるselector kind
 - caseの欠落、余剰、重複、順序ずれ
-- selectorと一致しないruntime test path / full name、または単一`passed`以外のreport
+- selectorと一致するruntime test path / full nameが単一`passed`でないreport、またはselector外のassertionが`skipped`以外のreport
 - 旧command allowlist形式のsourceまたはevidence
 - direct runner終了後に残ったverification process。専用process groupを終了して残留がないことを確認してからcase後stateを検査する
 - case後に変化したtask-owned final state
@@ -136,7 +145,9 @@ Build完了後のmode-only変更をShip候補から除外する前に拒否す�
 
 Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime identityへ
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと
-test-case profileは区別し、suite成功を単一test-case成功へ読み替えない。evidenceは
+test-case profileは区別し、suite成功を単一test-case成功へ読み替えない。Vitestで
+selector外の`skipped`は発見済み・非実行としてidentityから除外し、それ以外のselector外
+statusは実行境界違反として拒否する。evidenceは
 profile ID / hash、selector、executed identities、exit / stream境界、framed output
 hash、final-state hashを保持し、保存bytesがtyped valueのcanonical JSONと完全一致する
 場合だけcoverage identityへ使用する。

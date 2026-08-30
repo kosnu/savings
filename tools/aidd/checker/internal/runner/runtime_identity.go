@@ -57,10 +57,16 @@ func parseRuntimeIdentities(snapshot *repository.Snapshot, profile model.Verific
 			}
 			for _, assertion := range file.AssertionResults {
 				identity := model.RuntimeIdentity{Kind: "test_case", Path: repositoryPath, Name: assertion.FullName}
-				if assertion.Status != "passed" {
-					return nil, diagnostic.New("AIDD_VITEST_STATUS", verificationCase.ID, "build_verification", "every structured Vitest assertion must report passed", "passed", map[string]any{"identity": identity, "status": assertion.Status})
+				if identity == expected {
+					if assertion.Status != "passed" {
+						return nil, diagnostic.New("AIDD_VITEST_STATUS", verificationCase.ID, "build_verification", "the selected Vitest assertion must report passed", "passed", map[string]any{"identity": identity, "status": assertion.Status})
+					}
+					identities = append(identities, identity)
+					continue
 				}
-				identities = append(identities, identity)
+				if assertion.Status != "skipped" {
+					return nil, diagnostic.New("AIDD_RUNTIME_IDENTITY", verificationCase.ID, "build_verification", "a non-selected Vitest assertion was executed or reported an unknown status", "skipped", map[string]any{"identity": identity, "status": assertion.Status})
+				}
 			}
 		}
 	case "python_unittest":

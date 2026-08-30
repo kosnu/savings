@@ -181,6 +181,52 @@ func TestAdditionalRulesPreserveManualProvenanceAndCanonicalOrder(t *testing.T) 
 	}
 }
 
+func TestSelectedRuleDocumentCannotBeBuildOwned(t *testing.T) {
+	loaded := &rules.Loaded{
+		ByID: map[string]rules.Rule{
+			"domain.user": {ID: "domain.user", File: "docs/harness/domain/user.md"},
+		},
+		Order: []string{"domain.user"},
+	}
+	selected := map[string]struct{}{"domain.user": {}}
+
+	for _, test := range []struct {
+		name     string
+		scopes   []model.OwnershipScope
+		wantCode string
+	}{
+		{
+			name:     "exact file scope",
+			scopes:   []model.OwnershipScope{{Path: "docs/harness/domain/user.md", Kind: "file"}},
+			wantCode: "AIDD_SELECTED_RULE_OWNERSHIP",
+		},
+		{
+			name:     "containing tree scope",
+			scopes:   []model.OwnershipScope{{Path: "docs/harness/domain", Kind: "tree"}},
+			wantCode: "AIDD_SELECTED_RULE_OWNERSHIP",
+		},
+		{
+			name:   "separate mutable contract",
+			scopes: []model.OwnershipScope{{Path: "docs/harness/contracts/user-account-attributes.json", Kind: "file"}},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := validateSelectedRuleOwnership(
+				&model.TargetState{OwnershipScopes: test.scopes},
+				selected,
+				loaded,
+				"design",
+			)
+			if test.wantCode == "" && err != nil {
+				t.Fatalf("separate Build ownership rejected: %v", err)
+			}
+			if test.wantCode != "" && (err == nil || !strings.Contains(err.Error(), test.wantCode)) {
+				t.Fatalf("expected %s, got %v", test.wantCode, err)
+			}
+		})
+	}
+}
+
 func TestRequirementsAcceptsCompleteNewInventory(t *testing.T) {
 	repoRoot := requirementsFixtureRepository(t)
 	snapshot, err := repository.Open(context.Background(), repoRoot)

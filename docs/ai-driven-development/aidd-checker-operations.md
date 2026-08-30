@@ -61,6 +61,33 @@ phase ownership contractも同じbinaryで検証する。
 このgateはcanonical contract、phase assignment、Goal ownership、agent registration、
 agent instructionsを照合する。AIDD cycleとGoal settingは委譲またはGoal作成前に実行する。
 
+委譲するphaseのschema-v2 `phase_assignment`はparentが所有する。parentはactive Goalの
+exact JSONとContext Packetを、それぞれrepository外のregular non-symlink fileへ固定し、
+canonical absolute pathとSHA-256を`goal_document`と`context_packet_document`へ記録する。
+parentは両documentをphase完了までbyte-identicalかつreadableに保つ。repository外のdraftを
+`prepare-phase-assignment`でcanonical化し、参照documentのbytesを含む全契約を検査したうえで、
+assignmentのSHA-256を委譲前に再検証する。
+
+委譲messageはcanonical assignmentのpathとSHA-256だけを渡す。phase agentは最初のphase
+actionより前に同じ`validate-phase-assignment`でassignmentと参照documentを再検証し、その後に
+validated assignment bytesからだけ両pathを取得して読み、各read resultのSHA-256がtyped値と
+一致することを独立に確認する。自由文はphase、cycle、Goal、Context Packet、input、read/write
+boundary、Verification、Stop条件の正本にしない。assignmentまたは参照documentが欠落、変更、
+読取不能、不整合なら、Goal stateを変更せず停止する。
+
+```sh
+/tmp/aidd-checker prepare-phase-assignment \
+  --repo-root <repo-root> --source <draft-path> --output <assignment-path>
+
+/tmp/aidd-checker validate-phase-assignment \
+  --repo-root <repo-root> --document <assignment-path> \
+  --expected-sha256 <assignment-sha256>
+```
+
+checkerの契約testは、parentによるdraft生成とcanonical化、parent再検証、phase consumer再検証、
+validated assignmentからの`goal_document` / `context_packet_document`読取とhash一致までを1本の
+consumer flowとして通す。schemaや単体validatorだけの検査を委譲可能性の根拠にしない。
+
 ## Workspace
 
 ```sh
@@ -154,6 +181,9 @@ control / combining markを除いたUnicode文字を8文字以上持つ場合だ
 cycle-start Issue titleは渡さず、検証済みcanonical Requirementsからだけ導出する。
 Requirementsは常にcanonical workspace pathからsnapshot経由で読み、`design_goal`だけが
 repository外の一時Design sourceを受け取る。`design`はcanonical workspace source以外を拒否する。
+Design gateは最終selected rule文書をread-only入力として固定する前に、そのpathと
+`ownership_scopes`の一致またはtree包含を検査する。重複するDesignはBuildで両立不能になるため、
+receiptを生成せず、ルール更新を先行する独立作業へ戻す。
 
 repo-owned catalog は
 `docs/ai-driven-development/contracts/verification-profiles.json` であり、各 profile が fixed argv、
@@ -162,9 +192,10 @@ working directory、runner adapter、allowed selector kind を所有する。Des
 profile、selector contract 不一致は失敗し、profile 変更が必要なら Design へ戻る。
 
 Vitest adapter は正規表現metacharacterをescapeした完全一致name filterとJSON reporter
-の test path / full name / status を使い、report全体がselectorと一致する単一の
-`passed` assertionだけを持つ場合に受理する。余分なassertion、skip、失敗、未知statusは
-拒否する。Go製Python unittest adapterは標準runnerが報告した完全なtest identityを
+の test path / full name / status を使う。selectorと一致するassertionは重複なく単一の
+`passed`だけを受理する。selectorと一致しないassertionは、filterで発見されたが実行
+されなかったことを示す`skipped`だけを無視し、`passed`、失敗、未知statusは拒否する。
+Go製Python unittest adapterは標準runnerが報告した完全なtest identityを
 typed path / nameへ変換して完全一致で検証する。Python adapterはexact targetの単一
 `ok`、`Ran 1 test`、最終`OK`だけを受理し、余分な出力、skip、FAIL、ERROR、複数結果を
 拒否する。substring、test名だけ、実行commandの自己申告は証拠にしない。suite

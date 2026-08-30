@@ -392,7 +392,7 @@
       "id": "domain.user",
       "file": "docs/harness/domain/user.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**"],
+        "paths": ["apps/web/**", "apps/api/**", "docs/harness/contracts/user-account-attributes.json"],
         "domains": ["domain", "user", "auth"],
         "activities": ["change_user_behavior", "change_auth_assumption", "review_user_domain", "review_api_auth"],
         "topics": ["user", "auth"]
