@@ -78,6 +78,13 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 - PR作成用の一時ファイルを作った場合は、完了前に削除する。
 - PR作成後は、title、body、base branch、head branch、issue linkを確認する。
 
+## Gitメタデータと配信状態
+
+- 最初のGit書き込みより前に `git rev-parse --git-common-dir` でGit common directoryを解決し、実行環境の書き込み境界にそのdirectoryが含まれることを確認する。worktree directoryだけを書き込み可能にしても、branch、index、remote-tracking refなどのGitメタデータ更新には不十分である。
+- Git common directoryが書き込み境界に含まれない場合は、remoteを変更する前に停止し、同じ許可境界へ追加する。push後にローカル追跡情報だけが更新できない状態を作ってはいけない。
+- 配信状態は、local `HEAD`、remote ref SHA、upstream設定、local remote-tracking refを別々に確認する。いずれか一つを他の状態の代用にしない。
+- pushの出力または `git ls-remote` でremote refへの反映を確認した後は、ローカル追跡情報の修復を理由に同じpushを再実行しない。remote mutationは一度で止め、必要なローカルGitメタデータだけを修復してから全状態をread-backする。
+
 ## PRレビュー対応
 
 - レビューコメントへ対応する前に、`docs/harness/policies/review-feedback-classification.md` に沿ってタスク種別を判定し、コメントを分類する。

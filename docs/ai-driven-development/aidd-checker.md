@@ -123,7 +123,7 @@ Design completion receiptはcatalog全体と選択profileをhash固定する。B
 - 親processの`GIT_*`でverification profileのrepositoryまたはindexを差し替える実行
 - profile contractと異なるselector kind
 - caseの欠落、余剰、重複、順序ずれ
-- selectorと一致しないruntime test path / full name、または単一`passed`以外のreport
+- selectorと一致するruntime test path / full nameが単一`passed`でないreport、またはselector外のassertionが`skipped`以外のreport
 - 旧command allowlist形式のsourceまたはevidence
 - direct runner終了後に残ったverification process。専用process groupを終了して残留がないことを確認してからcase後stateを検査する
 - case後に変化したtask-owned final state
@@ -140,7 +140,9 @@ Build完了後のmode-only変更をShip候補から除外する前に拒否す�
 
 Vitest JSONとPython unittestの標準runner結果はGo adapterがtyped runtime identityへ
 変換する。checker所有のPython sourceやadapter scriptは置かない。suite profileと
-test-case profileは区別し、suite成功を単一test-case成功へ読み替えない。evidenceは
+test-case profileは区別し、suite成功を単一test-case成功へ読み替えない。Vitestで
+selector外の`skipped`は発見済み・非実行としてidentityから除外し、それ以外のselector外
+statusは実行境界違反として拒否する。evidenceは
 profile ID / hash、selector、executed identities、exit / stream境界、framed output
 hash、final-state hashを保持し、保存bytesがtyped valueのcanonical JSONと完全一致する
 場合だけcoverage identityへ使用する。

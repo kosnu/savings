@@ -61,6 +61,22 @@ phase ownership contractも同じbinaryで検証する。
 このgateはcanonical contract、phase assignment、Goal ownership、agent registration、
 agent instructionsを照合する。AIDD cycleとGoal settingは委譲またはGoal作成前に実行する。
 
+委譲するphaseのschema-v1 `phase_assignment`はparentが所有する。parentはrepository外の
+draftを`prepare-phase-assignment`でcanonical化し、そのSHA-256を委譲前に検証する。
+委譲messageはcanonical assignmentのpathとSHA-256だけを渡し、phase agentは最初の
+phase actionより前に同じ`validate-phase-assignment`でbytesとtyped identityを再検証する。
+自由文はphase、cycle、Goal、Context Packet、input、read/write boundary、Verification、
+Stop条件の正本にしない。
+
+```sh
+/tmp/aidd-checker prepare-phase-assignment \
+  --repo-root <repo-root> --source <draft-path> --output <assignment-path>
+
+/tmp/aidd-checker validate-phase-assignment \
+  --repo-root <repo-root> --document <assignment-path> \
+  --expected-sha256 <assignment-sha256>
+```
+
 ## Workspace
 
 ```sh
@@ -165,9 +181,10 @@ working directory、runner adapter、allowed selector kind を所有する。Des
 profile、selector contract 不一致は失敗し、profile 変更が必要なら Design へ戻る。
 
 Vitest adapter は正規表現metacharacterをescapeした完全一致name filterとJSON reporter
-の test path / full name / status を使い、report全体がselectorと一致する単一の
-`passed` assertionだけを持つ場合に受理する。余分なassertion、skip、失敗、未知statusは
-拒否する。Go製Python unittest adapterは標準runnerが報告した完全なtest identityを
+の test path / full name / status を使う。selectorと一致するassertionは重複なく単一の
+`passed`だけを受理する。selectorと一致しないassertionは、filterで発見されたが実行
+されなかったことを示す`skipped`だけを無視し、`passed`、失敗、未知statusは拒否する。
+Go製Python unittest adapterは標準runnerが報告した完全なtest identityを
 typed path / nameへ変換して完全一致で検証する。Python adapterはexact targetの単一
 `ok`、`Ran 1 test`、最終`OK`だけを受理し、余分な出力、skip、FAIL、ERROR、複数結果を
 拒否する。substring、test名だけ、実行commandの自己申告は証拠にしない。suite
