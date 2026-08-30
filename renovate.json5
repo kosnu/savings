@@ -29,6 +29,10 @@
       groupName: "vite-plus monorepo",
     },
     {
+      matchPackageNames: ["pnpm"],
+      groupName: "pnpm",
+    },
+    {
       matchDatasources: ["github-digest"],
       matchManagers: ["github-actions"],
       minimumReleaseAge: null,
