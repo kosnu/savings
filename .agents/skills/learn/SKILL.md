@@ -1,6 +1,6 @@
 ---
 name: learn
-description: Apply the repository's canonical learning-extraction policy to eligible review findings or findings explicitly added by the user. Use when the user asks to learn from feedback, prevent recurrence, exclude inapplicable findings, prepare task context, update rules, or says 学習, 原因調査, 除外, タスクコンテキスト, or レビューを次に反映. This skill does not set a Codex Goal or implement product behavior.
+description: Apply the repository's canonical learning-extraction policy to eligible findings. Use when the user explicitly invokes $learn or asks to extract learning from feedback, investigate the cause of a learning finding, exclude a finding from learning, prepare task context from learning, or update rules from learning. Do not use for ordinary cause investigation, exclusion, debugging, or implementation work. This skill does not set a Codex Goal or implement product behavior.
 ---
 
 # Learn
