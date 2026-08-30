@@ -2,6 +2,8 @@ import type { Session } from "@supabase/supabase-js"
 import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
 import { toInitialDisplayName } from "../../domain/displayName"
+import { i18next } from "../../i18n"
+import { loadAccountLanguage, resolveAccountLanguage } from "../../i18n/accountLanguage"
 import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
@@ -59,7 +61,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     const isCurrentSessionHandler = (sessionGeneration: number) =>
       isActive && sessionGenerationRef.current === sessionGeneration
 
-    const verifyAuthenticatedSession = async (session: Session) => {
+    const verifyAuthenticatedSession = async (session: Session): Promise<string> => {
       const { error: getUserError } = await supabase.auth.getUser()
       if (getUserError) {
         throw getUserError
@@ -72,6 +74,15 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
           email: session.user.email,
         }),
       )
+
+      const deviceLanguage = i18next.resolvedLanguage
+      try {
+        const accountLanguage = await loadAccountLanguage(session.user.id)
+        return resolveAccountLanguage(accountLanguage, deviceLanguage)
+      } catch (error) {
+        captureSupabaseSessionError(error)
+        return resolveAccountLanguage(undefined, deviceLanguage)
+      }
     }
 
     const signOutCurrentSession = async (): Promise<boolean> => {
@@ -126,7 +137,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
 
       try {
-        await verifyAuthenticatedSession(session)
+        const resolvedLanguage = await verifyAuthenticatedSession(session)
+        if (!isCurrentSessionHandler(sessionGeneration)) return
+
+        await i18next.changeLanguage(resolvedLanguage)
         if (!isCurrentSessionHandler(sessionGeneration)) return
 
         setSessionState(toAuthenticatedSessionState(session))
