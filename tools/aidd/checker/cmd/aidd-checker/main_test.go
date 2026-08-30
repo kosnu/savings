@@ -362,7 +362,7 @@ func TestCheckAllIgnoresHistoricalMarkdownOnlyWorkspace(t *testing.T) {
 }
 
 func TestEveryPublicSubcommandHasStableDispatch(t *testing.T) {
-	want := []string{"workspace", "render", "validate-source", "validate-requirements", "validate-design", "check-all", "capture-design", "build-entry", "capture-verification", "validate-build", "validate-ship", "validate-phase-contract", "version"}
+	want := []string{"workspace", "render", "validate-source", "validate-requirements", "validate-design", "check-all", "capture-design", "build-entry", "capture-verification", "validate-build", "validate-ship", "validate-phase-contract", "prepare-phase-assignment", "validate-phase-assignment", "version"}
 	if !slices.Equal(commands(), want) {
 		t.Fatalf("commands() = %#v, want %#v", commands(), want)
 	}
