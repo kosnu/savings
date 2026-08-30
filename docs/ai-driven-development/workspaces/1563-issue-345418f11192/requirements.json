@@ -34,101 +34,101 @@
       "issue_body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b",
       "workspace": "1563-issue-345418f11192",
       "baseline": {
-        "source": "none",
-        "body_sha256": null
+        "source": "git_head",
+        "body_sha256": "de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec"
       },
       "requirements": [
         {
           "id": "FR-1",
-          "status": "new",
-          "issue_evidence": "`public.users.language` を言語設定の永続的な保存先として追加する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-2",
-          "status": "new",
-          "issue_evidence": "ログイン時の言語設定取得"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-3",
-          "status": "new",
-          "issue_evidence": "言語変更時の保存"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-4",
-          "status": "new",
-          "issue_evidence": "既存localStorage値との優先順位"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-5",
-          "status": "new",
-          "issue_evidence": "未設定・取得失敗・保存失敗時の挙動"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-1",
-          "status": "new",
-          "issue_evidence": "対応言語は既存の日本語と英語を維持する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-2",
-          "status": "new",
-          "issue_evidence": "既存の `name` のみというルールは `language` の追加範囲で変更し、他のプロフィール列は更新可能にしない"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-1",
-          "status": "new",
-          "issue_evidence": "アカウント値と端末値が異なる場合も、初回のユーザー向け表示がアカウント言語で行われる"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-2",
-          "status": "new",
-          "issue_evidence": "既存の日本語・英語表示が壊れていない"
+          "status": "unchanged",
+          "issue_evidence": null
         }
       ],
       "sections": [
         {
           "id": "background",
-          "status": "new",
-          "issue_evidence": "現在の言語設定はブラウザの `localStorage` にだけ保存される"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "users",
-          "status": "new",
-          "issue_evidence": "同じユーザーが別端末や別ブラウザでログインしても"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "stories",
-          "status": "new",
-          "issue_evidence": "認証済みユーザーの言語設定がアカウントに保存され"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "scope",
-          "status": "new",
-          "issue_evidence": "未認証ユーザーのアカウント設定"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "functional",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "言語変更時の保存"
         },
         {
           "id": "non-functional",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "言語取得に失敗してもアプリを利用不能にしない"
         },
         {
           "id": "acceptance",
-          "status": "new",
+          "status": "changed",
           "issue_evidence": "別端末で同じ言語設定が反映される"
         },
         {
           "id": "qa",
-          "status": "new",
-          "issue_evidence": "アカウント設定と端末設定のどちらを優先するか"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "technical",
-          "status": "new",
-          "issue_evidence": "必要なDB migration、型・API境界、RLS・更新条件、回帰テストを同期して変更する"
+          "status": "unchanged",
+          "issue_evidence": null
         }
       ],
       "retired": []
@@ -232,7 +232,7 @@
           {
             "id": "functional-body",
             "type": "markdown",
-            "markdown": "取得、優先順位、言語変更時の保存、fallbackを一貫したアカウント設定フローとして扱う。"
+            "markdown": "認証成立後の取得、アカウント値の優先、言語変更時の保存、取得・保存失敗時のfallbackを一貫したアカウント設定フローとして扱う。"
           },
           {
             "id": "functional-requirements",
@@ -247,7 +247,7 @@
           {
             "id": "non-functional-body",
             "type": "markdown",
-            "markdown": "言語取得に失敗してもアプリを利用不能にしない。既存言語と属性更新の最小権限を維持する。"
+            "markdown": "言語取得に失敗してもアプリを利用不能にしない。fallback決定後の利用継続、日本語・英語の既存表示、`name` と `language` 以外の属性を更新できない最小権限を維持する。"
           },
           {
             "id": "non-functional-requirements",
@@ -262,7 +262,7 @@
           {
             "id": "acceptance-body",
             "type": "markdown",
-            "markdown": "別端末で同じ言語設定が反映されることを、初回表示と各失敗経路を含めて確認する。"
+            "markdown": "別端末で同じ言語設定が反映されること、アカウント言語による初回表示、未設定・取得失敗・保存失敗時の挙動、既存の日本語・英語表示の回帰を検証する。"
           },
           {
             "id": "acceptance-requirements",

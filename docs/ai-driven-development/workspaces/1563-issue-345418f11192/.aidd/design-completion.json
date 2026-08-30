@@ -9,7 +9,7 @@
     "updated_at": "2026-08-21T18:21:05Z",
     "body_sha256": "720c639fc3de0a40f81fab11be57db3cf20a6420b2896dc99edf7f582787513b"
   },
-  "design_goal_sha256": "1ba84b35064e8d8200122bc38fde77f43c21971e1b1d97cc386f244a9369d86f",
+  "design_goal_sha256": "eccb14d5343cea850e6f0a989410355ba55a9f92ad831d24746dad4cf5acf13f",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "62121faffa0c3c7c4858b5dfdafa06f734f261a5a178f86c260d0342c1ef1751"
@@ -53,12 +53,12 @@
     {
       "id": "policy.learning-extraction",
       "path": "docs/harness/policies/learning-extraction.md",
-      "sha256": "b6dafd8fc109912f55389ba558104da1ba455cfae8e34a6ff6f9fe0d0e65fe03"
+      "sha256": "8da25c27ae5a3ef2a78b33c71b7b942ebb759e5dbbd51965027add41baf931f9"
     },
     {
       "id": "policy.git-workflow",
       "path": "docs/harness/policies/git-workflow.md",
-      "sha256": "bcf5517bba3934942f7464d286ec45c93e8fda32a9aeba6c4ea301ac75dfc92e"
+      "sha256": "318d70215d70fa98d7da5ef94f5b5841aa658ea17dbf01fc749f85568cf76ee1"
     },
     {
       "id": "policy.review-feedback-classification",
@@ -924,12 +924,15 @@
     ]
   },
   "baseline_inventory": {
-    "sha256": "31bc8aea5e17e30d4798c05196475a9cbc775ecdc0cfdb34cb6173648a2833cb",
+    "sha256": "651445ea7487c0093321ff373c1616b2635064bd5ed9ea56948f3912c659a3df",
     "value": [
+      "apps/api/supabase/migrations/20260830000000_add_user_language.sql",
       "apps/web/src/app/Router.test.tsx",
       "apps/web/src/app/Router.tsx",
       "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
       "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+      "apps/web/src/i18n/accountLanguage.integration.test.ts",
+      "apps/web/src/i18n/accountLanguage.ts",
       "apps/web/src/i18n/index.test.ts",
       "apps/web/src/i18n/index.ts",
       "apps/web/src/i18n/resources.ts",
@@ -940,59 +943,34 @@
     ]
   },
   "untracked_baseline": {
-    "sha256": "2a0311d2104550171fc126c41f48a4553ef9c3017e92cb4f2c5178e95c4f3947",
-    "value": [
-      {
-        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
-        "type": "regular",
-        "mode": "0644",
-        "sha256": "2a6c4c024b48e06d34891ce2e2e670a2ea409a0977df12475bd00fd35150078d"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
-        "type": "regular",
-        "mode": "0600",
-        "sha256": "ffa8a8307f56b17a13ea671a517aef8a24cbbf1bea793cb5253791a0af981334"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
-        "type": "regular",
-        "mode": "0644",
-        "sha256": "de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
-        "type": "regular",
-        "mode": "0600",
-        "sha256": "9ac0884fb17ad42d1de69fe5dfc6f442a68ad8312151c6337595711932ea46a5"
-      }
-    ]
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "value": []
   },
   "build_baseline": {
-    "head": "c3068ee95c99a963a7fcc814d313e17f32e9fe49"
+    "head": "cd619e84a0ffe0b6b60ab841d7ad670241a540ff"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.json",
-        "sha256": "de529d6ae9a563c9c5d8f64084f87362dd16fa4757919f767ccff7cde571f6ec",
+        "sha256": "d2241848fd39b6f9317a454640aaee01b82933ecb740a497ce9cff4f81eeadbf",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/requirements.md",
-        "sha256": "9ac0884fb17ad42d1de69fe5dfc6f442a68ad8312151c6337595711932ea46a5",
+        "sha256": "d0299e58c30148267873969d93991903ac51cbdd12258120c72c9a8e4fd0db96",
         "mode": "0600"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.json",
-        "sha256": "2a6c4c024b48e06d34891ce2e2e670a2ea409a0977df12475bd00fd35150078d",
+        "sha256": "579c1e6364cf174408eb17ca44e5cee3d487c12831fa5cfd7633199ebee23cd6",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1563-issue-345418f11192/design-doc.md",
-        "sha256": "ffa8a8307f56b17a13ea671a517aef8a24cbbf1bea793cb5253791a0af981334",
+        "sha256": "aa2462f51594f17ecca468f6a36da689bef7477a741f3bf09c24fa8fe0bc8e21",
         "mode": "0600"
       }
     }
