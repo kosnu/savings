@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 
 import type { Payment } from "../../../types/payment"
 import { useDateRange } from "../../../utils/useDateRange"
@@ -7,9 +7,6 @@ import { fetchPayments } from "./fetchPayments"
 
 interface UseGetPaymentsReturn {
   data: Payment[]
-  loading: boolean
-  promise: Promise<Payment[]>
-  error: Error | null
 }
 
 interface UsePaymentsOptions {
@@ -22,17 +19,13 @@ export function usePayments(
   { cacheScope = "default", categoryId }: UsePaymentsOptions = {},
 ): UseGetPaymentsReturn {
   const { date, dateRange } = useDateRange()
-  const query = useQuery({
+  const query = useSuspenseQuery({
     queryKey: paymentQueryKeys.list(bookId, cacheScope, date?.toISOString() ?? "all", categoryId),
     queryFn: async () => fetchPayments(bookId, dateRange, { categoryId }),
-    enabled: date !== null,
     staleTime: 3000, // 3秒
   })
 
   return {
-    data: query.data ?? [],
-    loading: query.isLoading,
-    promise: query.promise,
-    error: query.error,
+    data: query.data,
   }
 }

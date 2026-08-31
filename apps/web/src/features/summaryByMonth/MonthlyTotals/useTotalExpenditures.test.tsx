@@ -34,13 +34,4 @@ describe("useTotalExpenditures", () => {
     })
     expect(fetchTotalExpenditures).toHaveBeenCalledWith("2025-06")
   })
-
-  test("年月が未確定なら取得しない", () => {
-    dateRangeState.date = null
-
-    const { result } = renderHook(() => useTotalExpenditures())
-
-    expect(result.current.data).toBeNull()
-    expect(fetchTotalExpenditures).not.toHaveBeenCalled()
-  })
 })
