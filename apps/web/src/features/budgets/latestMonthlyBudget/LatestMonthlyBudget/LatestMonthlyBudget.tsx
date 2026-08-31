@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
+import { formatTargetMonthKey, toTargetMonth } from "../../../../domain/date"
 import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget/CreateMonthlyBudgetModal"
 import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
@@ -13,6 +14,7 @@ import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthl
 
 export function LatestMonthlyBudget() {
   const { t } = useTranslation()
+  const targetMonth = formatTargetMonthKey(toTargetMonth(new Date()))
 
   return (
     <Flex direction="column" gap="3">
@@ -25,17 +27,18 @@ export function LatestMonthlyBudget() {
             {t("budgets.loadError")}
           </Text>
         }
+        resetKeys={[targetMonth]}
       >
         <Suspense fallback={<LatestMonthlyBudgetLoading />}>
-          <LatestMonthlyBudgetContent />
+          <LatestMonthlyBudgetContent targetMonth={targetMonth} />
         </Suspense>
       </ErrorBoundary>
     </Flex>
   )
 }
 
-function LatestMonthlyBudgetContent() {
-  const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(new Date())
+function LatestMonthlyBudgetContent({ targetMonth }: { targetMonth: string }) {
+  const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(targetMonth)
   const { t } = useTranslation()
 
   if (monthlyBudgetState.status !== "amount") {

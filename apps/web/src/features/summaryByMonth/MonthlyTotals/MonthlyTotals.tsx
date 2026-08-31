@@ -3,16 +3,18 @@ import { memo, Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
+import { formatTargetMonthKey, toMonthStartDate, toTargetMonth } from "../../../domain/date"
 import { toCurrency } from "../../../utils/toCurrency"
 import { useDateRange } from "../../../utils/useDateRange"
-import { MonthlyBudgetUsage } from "../../budgets"
-import { useTotalExpenditures } from "./useTotalExpenditures"
+import { MonthlyBudgetUsage, usePrefetchEffectiveMonthlyBudget } from "../../budgets"
+import { usePrefetchTotalExpenditures, useTotalExpenditures } from "./useTotalExpenditures"
 
 import styles from "./MonthlyTotals.module.css"
 
 function MonthlyTotals() {
   const { t } = useTranslation()
   const { date } = useDateRange()
+  const targetDate = date ? toMonthStartDate(date) : null
 
   return (
     <Flex
@@ -22,47 +24,96 @@ function MonthlyTotals() {
       aria-label={t("payments.total.label")}
       width="100%"
     >
-      <Flex align="baseline" justify="between" width="100%">
-        <Text color="gray" mr="1" size="2">
-          {t("payments.total.heading")}
-        </Text>
-        <ErrorBoundary fallback={<Text color="red">{t("common.failed")}</Text>}>
-          <Suspense fallback={<TotalMoneyText loading />}>
-            {date ? <MoneyText /> : <TotalMoneyText loading />}
-          </Suspense>
-        </ErrorBoundary>
-      </Flex>
-      <Flex justify="end" align="center" width="100%">
-        {date ? (
-          <ErrorBoundary fallback={null} resetKeys={[date.toISOString()]}>
-            <Suspense
-              fallback={
-                <MonthlyBudgetUsage
-                  targetDate={date}
-                  totalExpenditures={null}
-                  totalExpendituresError={null}
-                  totalExpendituresLoading
-                />
-              }
-            >
-              <ResolvedMonthlyBudgetUsage targetDate={date} />
-            </Suspense>
-          </ErrorBoundary>
-        ) : null}
-      </Flex>
+      {targetDate ? (
+        <MonthlyTotalsContent
+          targetDate={targetDate}
+          targetMonth={formatTargetMonthKey(toTargetMonth(targetDate))}
+        />
+      ) : (
+        <MonthlyTotalsLoading />
+      )}
     </Flex>
   )
 }
 
-const MoneyText = memo(function MoneyText() {
-  const { data } = useTotalExpenditures()
+function MonthlyTotalsContent({
+  targetDate,
+  targetMonth,
+}: {
+  targetDate: Date
+  targetMonth: string
+}) {
+  const { t } = useTranslation()
+
+  usePrefetchTotalExpenditures(targetMonth)
+  usePrefetchEffectiveMonthlyBudget(targetMonth)
+
+  return (
+    <>
+      <Flex align="baseline" justify="between" width="100%">
+        <Text color="gray" mr="1" size="2">
+          {t("payments.total.heading")}
+        </Text>
+        <ErrorBoundary
+          fallback={<Text color="red">{t("common.failed")}</Text>}
+          resetKeys={[targetMonth]}
+        >
+          <Suspense fallback={<TotalMoneyText loading />}>
+            <MoneyText targetMonth={targetMonth} />
+          </Suspense>
+        </ErrorBoundary>
+      </Flex>
+      <Flex justify="end" align="center" width="100%">
+        <ErrorBoundary fallback={null} resetKeys={[targetMonth]}>
+          <Suspense
+            fallback={
+              <MonthlyBudgetUsage
+                targetDate={targetDate}
+                totalExpenditures={null}
+                totalExpendituresError={null}
+                totalExpendituresLoading
+              />
+            }
+          >
+            <ResolvedMonthlyBudgetUsage targetDate={targetDate} targetMonth={targetMonth} />
+          </Suspense>
+        </ErrorBoundary>
+      </Flex>
+    </>
+  )
+}
+
+function MonthlyTotalsLoading() {
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <Flex align="baseline" justify="between" width="100%">
+        <Text color="gray" mr="1" size="2">
+          {t("payments.total.heading")}
+        </Text>
+        <TotalMoneyText loading />
+      </Flex>
+      <Flex justify="end" align="center" width="100%" />
+    </>
+  )
+}
+
+const MoneyText = memo(function MoneyText({ targetMonth }: { targetMonth: string }) {
+  const { data } = useTotalExpenditures(targetMonth)
   const text = getMoneyText(data, false)
 
   return <TotalMoneyText text={text} />
 })
 
-function ResolvedMonthlyBudgetUsage({ targetDate }: { targetDate: Date }) {
-  const { data } = useTotalExpenditures()
+function ResolvedMonthlyBudgetUsage({
+  targetDate,
+  targetMonth,
+}: {
+  targetDate: Date
+  targetMonth: string
+}) {
+  const { data } = useTotalExpenditures(targetMonth)
 
   return (
     <MonthlyBudgetUsage
