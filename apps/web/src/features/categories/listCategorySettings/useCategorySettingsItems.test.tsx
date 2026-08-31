@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import { renderHook } from "../../../test/test-utils"
+import { renderHook, waitFor } from "../../../test/test-utils"
 import type { CategorySettingsItem } from "./types"
 import { useCategorySettingsItems } from "./useCategorySettingsItems"
 
@@ -36,16 +36,9 @@ describe("useCategorySettingsItems", () => {
 
     const { result } = renderHook(() => useCategorySettingsItems())
 
-    await expect(result.current.promise).resolves.toEqual(items)
+    await waitFor(() => {
+      expect(result.current.data).toEqual(items)
+    })
     expect(mockFetchCategorySettingsItems).toHaveBeenCalledTimes(1)
-  })
-
-  it("取得に失敗した場合は promise を reject する", async () => {
-    const error = new Error("failed")
-    mockFetchCategorySettingsItems.mockRejectedValue(error)
-
-    const { result } = renderHook(() => useCategorySettingsItems())
-
-    await expect(result.current.promise).rejects.toBe(error)
   })
 })

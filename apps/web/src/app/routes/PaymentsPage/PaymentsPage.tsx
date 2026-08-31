@@ -1,5 +1,6 @@
 import { Box, Container, Flex } from "@radix-ui/themes"
-import { useState } from "react"
+import { Suspense, useState } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 
 import { useSelectedBook } from "../../../features/books"
 import { CreatePaymentModal, PaymentCategoryFilter, PaymentList } from "../../../features/payments"
@@ -11,11 +12,31 @@ export function PaymentsPage() {
   useInitializePaymentsMonthSearch()
   const [paymentsPageCacheScope] = useState(() => `payments-page-${crypto.randomUUID()}`)
   const { session } = useSupabaseSession()
-  const { book, isPending, isError } = useSelectedBook(session?.user.id)
 
-  if (isPending || isError || !book) {
+  if (!session) {
     return null
   }
+
+  return (
+    <ErrorBoundary fallback={null} resetKeys={[session.user.id]}>
+      <Suspense fallback={null}>
+        <PaymentsPageContent
+          authUserId={session.user.id}
+          paymentsPageCacheScope={paymentsPageCacheScope}
+        />
+      </Suspense>
+    </ErrorBoundary>
+  )
+}
+
+function PaymentsPageContent({
+  authUserId,
+  paymentsPageCacheScope,
+}: {
+  authUserId: string
+  paymentsPageCacheScope: string
+}) {
+  const { book } = useSelectedBook(authUserId)
 
   return (
     <Container size="2">

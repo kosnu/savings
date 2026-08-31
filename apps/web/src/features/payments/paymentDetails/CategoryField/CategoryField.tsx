@@ -3,7 +3,6 @@ import {
   type KeyboardEvent,
   type ReactNode,
   Suspense,
-  use,
   useCallback,
   useEffect,
   useId,
@@ -14,7 +13,6 @@ import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
-import type { Category } from "../../../../types/category"
 import type { PaymentId } from "../../../../types/payment"
 import {
   CategoryOption,
@@ -22,6 +20,7 @@ import {
   ErrorCategoryOption,
   LoadingCategoryOption,
   useCategories,
+  usePrefetchCategories,
 } from "../../../categories"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
@@ -51,7 +50,7 @@ export function CategoryField({
   const { t } = useTranslation()
   const { openSnackbar } = useSnackbar()
   const { updatePayment, isPending } = useUpdatePayment(bookId)
-  const { promise: categoriesPromise } = useCategories()
+  usePrefetchCategories()
   const currentCategoryValue = toCategoryValue(categoryId)
   const [editing, setEditing] = useState(false)
   const editingRef = useRef(false)
@@ -163,7 +162,7 @@ export function CategoryField({
           >
             <ErrorBoundary fallback={<ErrorCategoryOption />}>
               <Suspense fallback={<LoadingCategoryOption />}>
-                <CategoryOptions categoriesPromise={categoriesPromise} />
+                <CategoryOptions />
               </Suspense>
             </ErrorBoundary>
           </CategorySelect>
@@ -173,12 +172,8 @@ export function CategoryField({
   )
 }
 
-interface CategoryOptionsProps {
-  categoriesPromise: Promise<Category[]>
-}
-
-function CategoryOptions({ categoriesPromise }: CategoryOptionsProps) {
-  const categories = use(categoriesPromise)
+function CategoryOptions() {
+  const { data: categories } = useCategories()
 
   return (
     <>

@@ -1,5 +1,6 @@
 import { Flex, Skeleton, Text } from "@radix-ui/themes"
-import { memo } from "react"
+import { memo, Suspense } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import { toCurrency } from "../../../../utils/toCurrency"
@@ -23,13 +24,7 @@ export function MonthlyBudgetUsage({
   totalExpendituresError,
   totalExpendituresLoading,
 }: MonthlyBudgetUsageProps) {
-  const {
-    data: monthlyBudgetState,
-    error: monthlyBudgetError,
-    loading: monthlyBudgetLoading,
-  } = useEffectiveMonthlyBudget(targetDate)
-
-  if (totalExpendituresLoading || monthlyBudgetLoading) {
+  if (totalExpendituresLoading) {
     return <MonthlyBudgetUsageText loading />
   }
 
@@ -37,9 +32,26 @@ export function MonthlyBudgetUsage({
     return null
   }
 
-  if (monthlyBudgetError) {
-    return <MonthlyBudgetUsageText error />
-  }
+  return (
+    <ErrorBoundary
+      fallback={<MonthlyBudgetUsageText error />}
+      resetKeys={[targetDate.toISOString()]}
+    >
+      <Suspense fallback={<MonthlyBudgetUsageText loading />}>
+        <MonthlyBudgetUsageResolved targetDate={targetDate} totalExpenditures={totalExpenditures} />
+      </Suspense>
+    </ErrorBoundary>
+  )
+}
+
+function MonthlyBudgetUsageResolved({
+  targetDate,
+  totalExpenditures,
+}: {
+  targetDate: Date
+  totalExpenditures: number
+}) {
+  const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(targetDate)
 
   const budgetAmount =
     monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null

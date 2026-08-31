@@ -1,5 +1,5 @@
 import { Badge, Flex, Heading, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense, use } from "react"
+import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -35,8 +35,7 @@ export function CurrentBookInformation() {
 }
 
 function CurrentBookInformationContent({ authUserId }: { authUserId: string }) {
-  const { promise } = useSelectedBook(authUserId)
-  const book = use(promise)
+  const { book } = useSelectedBook(authUserId)
 
   return <CurrentBookDetails book={book} />
 }

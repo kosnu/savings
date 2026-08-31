@@ -1,7 +1,7 @@
 import { Flex, Heading, Skeleton, Text } from "@radix-ui/themes"
 import type { Session } from "@supabase/supabase-js"
 import { useQueryClient } from "@tanstack/react-query"
-import { Suspense, use, useEffect, useRef, useState } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -73,8 +73,7 @@ function AccountInformationContent({
   authUserId: string
   session: Session
 }) {
-  const { promise } = useProfile(authUserId)
-  const profile = use(promise)
+  const { data: profile } = useProfile(authUserId)
   const loginMethod = getLoginMethod(session)
   const { updateDisplayName, isPending } = useUpdateDisplayName(authUserId)
 

@@ -249,7 +249,7 @@ describe("PaymentsPage", () => {
         true,
       )
     })
-    await user.click(screen.getByRole("button", { name: /create payment/i }))
+    await user.click(await screen.findByRole("button", { name: /create payment/i }))
     const createDialog = await screen.findByRole("dialog", { name: /create payment/i })
     await user.type(within(createDialog).getByLabelText(/amount/i), "1080")
     await user.click(within(createDialog).getByRole("button", { name: /^create$/i }))

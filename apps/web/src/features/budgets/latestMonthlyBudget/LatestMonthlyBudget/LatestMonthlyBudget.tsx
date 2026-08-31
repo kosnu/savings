@@ -1,6 +1,6 @@
 import { Pencil1Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
 import { Button, Flex, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense, use } from "react"
+import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -8,11 +8,10 @@ import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget/CreateMonthlyBudgetModal"
 import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
 import { RemoveMonthlyBudgetModal } from "../../removeMonthlyBudget/RemoveMonthlyBudgetModal"
-import type { MonthlyBudget, MonthlyBudgetState } from "../../types"
+import type { MonthlyBudget } from "../../types"
 import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthlyBudgetModal"
 
 export function LatestMonthlyBudget() {
-  const { promise } = useEffectiveMonthlyBudget(new Date())
   const { t } = useTranslation()
 
   return (
@@ -28,15 +27,15 @@ export function LatestMonthlyBudget() {
         }
       >
         <Suspense fallback={<LatestMonthlyBudgetLoading />}>
-          <LatestMonthlyBudgetContent promise={promise} />
+          <LatestMonthlyBudgetContent />
         </Suspense>
       </ErrorBoundary>
     </Flex>
   )
 }
 
-function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudgetState> }) {
-  const monthlyBudgetState = use(promise)
+function LatestMonthlyBudgetContent() {
+  const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(new Date())
   const { t } = useTranslation()
 
   if (monthlyBudgetState.status !== "amount") {

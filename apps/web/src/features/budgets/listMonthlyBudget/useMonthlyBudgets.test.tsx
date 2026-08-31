@@ -41,8 +41,6 @@ describe("useMonthlyBudgets", () => {
       expect(result.current.data).toEqual(budgets)
     })
     expect(mockFetchMonthlyBudgets).toHaveBeenCalledWith(10)
-    expect(result.current.loading).toBe(false)
-    expect(result.current.error).toBeNull()
   })
 
   it("取得件数が変わると別 query として取得し直す", async () => {
@@ -70,18 +68,5 @@ describe("useMonthlyBudgets", () => {
     })
     expect(mockFetchMonthlyBudgets).toHaveBeenNthCalledWith(1, 10)
     expect(mockFetchMonthlyBudgets).toHaveBeenNthCalledWith(2, 3)
-  })
-
-  it("取得に失敗した場合は error を返す", async () => {
-    const error = new Error("failed")
-    mockFetchMonthlyBudgets.mockRejectedValue(error)
-
-    const { result } = renderHook(() => useMonthlyBudgets(10))
-
-    await waitFor(() => {
-      expect(result.current.error).toBe(error)
-    })
-    expect(result.current.data).toEqual([])
-    expect(result.current.loading).toBe(false)
   })
 })

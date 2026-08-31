@@ -20,23 +20,5 @@ describe("useEffectiveMonthlyBudget", () => {
       expect(result.current.data.monthlyBudget?.id).toBe(2)
     })
     expect(result.current.data.status).toBe("amount")
-    expect(result.current.loading).toBe(false)
-    expect(result.current.error).toBeNull()
-  })
-
-  it("null 指定時は fetch せず data に unset を返す", async () => {
-    server.resetHandlers(
-      ...createMonthlyBudgetHandlers({
-        get: {
-          error: true,
-        },
-      }),
-    )
-
-    const { result } = renderHook(() => useEffectiveMonthlyBudget(null))
-
-    expect(result.current.data).toEqual({ status: "unset", monthlyBudget: null })
-    expect(result.current.loading).toBe(false)
-    expect(result.current.error).toBeNull()
   })
 })

@@ -1,5 +1,5 @@
 import { Flex, Skeleton, Text } from "@radix-ui/themes"
-import { memo, Suspense, use } from "react"
+import { memo, Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -12,7 +12,6 @@ import styles from "./MonthlyTotals.module.css"
 
 function MonthlyTotals() {
   const { t } = useTranslation()
-  const totalExpenditures = useTotalExpenditures()
   const { date } = useDateRange()
 
   return (
@@ -29,33 +28,51 @@ function MonthlyTotals() {
         </Text>
         <ErrorBoundary fallback={<Text color="red">{t("common.failed")}</Text>}>
           <Suspense fallback={<TotalMoneyText loading />}>
-            <MoneyText getValue={totalExpenditures.promise} />
+            {date ? <MoneyText /> : <TotalMoneyText loading />}
           </Suspense>
         </ErrorBoundary>
       </Flex>
       <Flex justify="end" align="center" width="100%">
-        <MonthlyBudgetUsage
-          targetDate={date}
-          totalExpenditures={totalExpenditures.data}
-          totalExpendituresError={totalExpenditures.error}
-          totalExpendituresLoading={totalExpenditures.loading}
-        />
+        {date ? (
+          <ErrorBoundary fallback={null} resetKeys={[date.toISOString()]}>
+            <Suspense
+              fallback={
+                <MonthlyBudgetUsage
+                  targetDate={date}
+                  totalExpenditures={null}
+                  totalExpendituresError={null}
+                  totalExpendituresLoading
+                />
+              }
+            >
+              <ResolvedMonthlyBudgetUsage targetDate={date} />
+            </Suspense>
+          </ErrorBoundary>
+        ) : null}
       </Flex>
     </Flex>
   )
 }
 
-interface MoneyTextProps {
-  getValue?: Promise<number | null>
-  loading?: boolean
-}
+const MoneyText = memo(function MoneyText() {
+  const { data } = useTotalExpenditures()
+  const text = getMoneyText(data, false)
 
-const MoneyText = memo(function MoneyText({ getValue, loading = false }: MoneyTextProps) {
-  const data = getValue ? use(getValue) : null
-  const text = getMoneyText(data, loading)
-
-  return <TotalMoneyText loading={loading} text={text} />
+  return <TotalMoneyText text={text} />
 })
+
+function ResolvedMonthlyBudgetUsage({ targetDate }: { targetDate: Date }) {
+  const { data } = useTotalExpenditures()
+
+  return (
+    <MonthlyBudgetUsage
+      targetDate={targetDate}
+      totalExpenditures={data}
+      totalExpendituresError={null}
+      totalExpendituresLoading={false}
+    />
+  )
+}
 
 interface TotalMoneyTextProps {
   loading?: boolean

@@ -1,10 +1,11 @@
 import { Button, Flex, Text } from "@radix-ui/themes"
 import { useNavigate } from "@tanstack/react-router"
-import { memo, Suspense, use, useCallback, useState } from "react"
+import { memo, Suspense, useCallback, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import type { Payment, PaymentId } from "../../../../types/payment"
+import { useDateRange } from "../../../../utils/useDateRange"
 import { DeletePaymentModal } from "../../deletePayment/DeletePaymentModal"
 import { PaymentDetailsOverlay } from "../../paymentDetails/PaymentDetailsOverlay"
 import { usePaymentDetailsState } from "../../paymentDetails/usePaymentDetailsState"
@@ -22,7 +23,7 @@ export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: Pay
   const { t } = useTranslation()
   const categoryId = useCategoryId()
   const navigate = useNavigate({ from: "/payments" })
-  const { promise: promisePayments } = usePayments(bookId, { cacheScope, categoryId })
+  const { date } = useDateRange()
   const {
     hasPaymentDetailsRoute,
     selectedPaymentId,
@@ -55,16 +56,25 @@ export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: Pay
   return (
     <>
       <Flex aria-label={t("payments.list.label")} direction="column" gap="2" tabIndex={-1}>
-        <ErrorBoundary fallback={<PaymentListError />} resetKeys={[promisePayments]}>
-          <Suspense fallback={<SkeltonItems />}>
-            <Items
-              getPayments={promisePayments}
-              onOpenPayment={openPaymentDetails}
-              filtered={categoryId !== undefined}
-              onClearCategory={handleClearCategory}
-            />
-          </Suspense>
-        </ErrorBoundary>
+        {date ? (
+          <ErrorBoundary
+            fallback={<PaymentListError />}
+            resetKeys={[bookId, cacheScope, date.toISOString(), categoryId]}
+          >
+            <Suspense fallback={<SkeltonItems />}>
+              <Items
+                bookId={bookId}
+                cacheScope={cacheScope}
+                categoryId={categoryId}
+                onOpenPayment={openPaymentDetails}
+                filtered={categoryId !== undefined}
+                onClearCategory={handleClearCategory}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        ) : (
+          <SkeltonItems />
+        )}
       </Flex>
       <PaymentDetailsOverlay
         bookId={bookId}
@@ -85,19 +95,23 @@ export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: Pay
 })
 
 interface ItemsProps {
-  getPayments: Promise<Payment[]>
+  bookId: number
+  cacheScope?: string
+  categoryId?: number | null
   onOpenPayment: (paymentId: PaymentId, trigger: HTMLButtonElement) => void
   filtered: boolean
   onClearCategory: () => void
 }
 
 const Items = memo(function Body({
-  getPayments,
+  bookId,
+  cacheScope,
+  categoryId,
   onOpenPayment,
   filtered,
   onClearCategory,
 }: ItemsProps) {
-  const data = use(getPayments)
+  const { data } = usePayments(bookId, { cacheScope, categoryId })
 
   if (data.length === 0) {
     return <EmptyItems filtered={filtered} onClearCategory={onClearCategory} />
