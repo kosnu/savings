@@ -3,6 +3,7 @@ import { memo, Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
+import { formatTargetMonthKey, toTargetMonth } from "../../../../domain/date"
 import { toCurrency } from "../../../../utils/toCurrency"
 import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
 import {
@@ -32,26 +33,28 @@ export function MonthlyBudgetUsage({
     return null
   }
 
+  const targetMonth = formatTargetMonthKey(toTargetMonth(targetDate))
+
   return (
-    <ErrorBoundary
-      fallback={<MonthlyBudgetUsageText error />}
-      resetKeys={[targetDate.toISOString()]}
-    >
+    <ErrorBoundary fallback={<MonthlyBudgetUsageText error />} resetKeys={[targetMonth]}>
       <Suspense fallback={<MonthlyBudgetUsageText loading />}>
-        <MonthlyBudgetUsageResolved targetDate={targetDate} totalExpenditures={totalExpenditures} />
+        <MonthlyBudgetUsageResolved
+          targetMonth={targetMonth}
+          totalExpenditures={totalExpenditures}
+        />
       </Suspense>
     </ErrorBoundary>
   )
 }
 
 function MonthlyBudgetUsageResolved({
-  targetDate,
+  targetMonth,
   totalExpenditures,
 }: {
-  targetDate: Date
+  targetMonth: string
   totalExpenditures: number
 }) {
-  const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(targetDate)
+  const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(targetMonth)
 
   const budgetAmount =
     monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null

@@ -1,7 +1,5 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query"
 
-import { formatTargetMonthKey, toTargetMonth } from "../../../domain/date"
-import { useDateRange } from "../../../utils/useDateRange"
 import { summaryQueryKeys } from "../queryKeys"
 import { fetchTotalExpenditures } from "./fetchTotalExpenditures"
 
@@ -9,15 +7,20 @@ interface UseTotalExpendituresReturn {
   data: number | null
 }
 
-export function useTotalExpenditures(): UseTotalExpendituresReturn {
-  const { date } = useDateRange()
-  const month = date ? formatTargetMonthKey(toTargetMonth(date)) : ""
-
-  const query = useSuspenseQuery({
-    queryKey: summaryQueryKeys.totalExpenditures(month),
-    queryFn: async () => fetchTotalExpenditures(month),
+function totalExpendituresQueryOptions(targetMonth: string) {
+  return queryOptions({
+    queryKey: summaryQueryKeys.totalExpenditures(targetMonth),
+    queryFn: async () => fetchTotalExpenditures(targetMonth),
     staleTime: 3000, // 3秒
   })
+}
+
+export function usePrefetchTotalExpenditures(targetMonth: string): void {
+  useQuery(totalExpendituresQueryOptions(targetMonth))
+}
+
+export function useTotalExpenditures(targetMonth: string): UseTotalExpendituresReturn {
+  const query = useSuspenseQuery(totalExpendituresQueryOptions(targetMonth))
 
   return {
     data: query.data,

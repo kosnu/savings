@@ -10,13 +10,13 @@ interface UseGetPaymentsReturn {
 }
 
 interface UsePaymentsOptions {
-  cacheScope?: string
+  cacheScope: string
   categoryId?: number | null
 }
 
 export function usePayments(
   bookId: number,
-  { cacheScope = "default", categoryId }: UsePaymentsOptions = {},
+  { cacheScope, categoryId }: UsePaymentsOptions,
 ): UseGetPaymentsReturn {
   const { date, dateRange } = useDateRange()
   const query = useSuspenseQuery({

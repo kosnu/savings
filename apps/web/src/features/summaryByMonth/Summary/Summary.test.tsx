@@ -1,4 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
+import { HttpResponse, http } from "msw"
 import { describe, expect, test, vi } from "vite-plus/test"
 
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
@@ -61,5 +62,39 @@ describe("Summary", () => {
       expect(screen.queryByText("Failed")).not.toBeInTheDocument()
     })
     expect(await screen.findByText("Food")).toBeInTheDocument()
+  })
+
+  test("支出合計の取得失敗後も月を変更すると正常表示へ復帰する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      http.post("*/rest/v1/rpc/get_monthly_total_amount", async ({ request }) => {
+        const body = (await request.json()) as { p_month?: string }
+
+        if (body.p_month === "2025-06") {
+          return HttpResponse.json(
+            { message: "Failed to fetch monthly total amount." },
+            { status: 500 },
+          )
+        }
+
+        return HttpResponse.json(10000)
+      }),
+      ...createCategoryHandlers(),
+      ...createMonthlyBudgetHandlers({
+        get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+      }),
+    )
+    const { user } = renderStory()
+
+    expect(await screen.findByText("Failed")).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "June 2025" }))
+    await user.click(screen.getByRole("combobox", { name: "Month" }))
+    await user.click(await screen.findByRole("option", { name: "May" }))
+
+    await waitFor(() => {
+      expect(screen.queryByText("Failed")).not.toBeInTheDocument()
+    })
+    expect(await screen.findByText("¥10,000")).toBeInTheDocument()
   })
 })

@@ -6,6 +6,7 @@ import { fetchPayments } from "./fetchPayments"
 import { usePayments } from "./usePayments"
 
 const dateRange: [Date, Date] = [new Date(2025, 5, 1), new Date(2025, 5, 30)]
+const defaultCacheScope = "default"
 
 vi.mock("../../../utils/useDateRange", () => ({
   useDateRange: () => ({
@@ -40,7 +41,9 @@ describe("usePayments", () => {
     const payment = buildPayment(1)
     vi.mocked(fetchPayments).mockResolvedValue([payment])
 
-    const { result } = renderHook(() => usePayments(1, { categoryId: 10 }))
+    const { result } = renderHook(() =>
+      usePayments(1, { cacheScope: defaultCacheScope, categoryId: 10 }),
+    )
 
     await waitFor(() => {
       expect(result.current.data).toEqual([payment])
@@ -57,7 +60,8 @@ describe("usePayments", () => {
       .mockResolvedValueOnce([secondPayment])
 
     const { result, rerender } = renderHook(
-      ({ categoryId }: { categoryId: number }) => usePayments(1, { categoryId }),
+      ({ categoryId }: { categoryId: number }) =>
+        usePayments(1, { cacheScope: defaultCacheScope, categoryId }),
       {
         initialProps: { categoryId: 10 },
       },
@@ -129,7 +133,7 @@ describe("usePayments", () => {
     const payment = buildPayment(1)
     vi.mocked(fetchPayments).mockResolvedValue([payment])
 
-    const { result } = renderHook(() => usePayments(1))
+    const { result } = renderHook(() => usePayments(1, { cacheScope: defaultCacheScope }))
 
     await waitFor(() => {
       expect(result.current.data).toEqual([payment])
@@ -140,9 +144,12 @@ describe("usePayments", () => {
   test("Book IDが変わると別queryとして取得し直す", async () => {
     vi.mocked(fetchPayments).mockResolvedValue([])
 
-    const { rerender } = renderHook(({ bookId }: { bookId: number }) => usePayments(bookId), {
-      initialProps: { bookId: 1 },
-    })
+    const { rerender } = renderHook(
+      ({ bookId }: { bookId: number }) => usePayments(bookId, { cacheScope: defaultCacheScope }),
+      {
+        initialProps: { bookId: 1 },
+      },
+    )
 
     await waitFor(() => {
       expect(fetchPayments).toHaveBeenCalledTimes(1)

@@ -19,11 +19,14 @@ interface PaymentListProps {
   cacheScope?: string
 }
 
+const defaultPaymentListCacheScope = "default"
+
 export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: PaymentListProps) {
   const { t } = useTranslation()
   const categoryId = useCategoryId()
   const navigate = useNavigate({ from: "/payments" })
   const { date } = useDateRange()
+  const normalizedCacheScope = cacheScope ?? defaultPaymentListCacheScope
   const {
     hasPaymentDetailsRoute,
     selectedPaymentId,
@@ -59,12 +62,12 @@ export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: Pay
         {date ? (
           <ErrorBoundary
             fallback={<PaymentListError />}
-            resetKeys={[bookId, cacheScope, date.toISOString(), categoryId]}
+            resetKeys={[bookId, normalizedCacheScope, date.toISOString(), categoryId]}
           >
             <Suspense fallback={<SkeltonItems />}>
               <Items
                 bookId={bookId}
-                cacheScope={cacheScope}
+                cacheScope={normalizedCacheScope}
                 categoryId={categoryId}
                 onOpenPayment={openPaymentDetails}
                 filtered={categoryId !== undefined}
@@ -96,7 +99,7 @@ export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: Pay
 
 interface ItemsProps {
   bookId: number
-  cacheScope?: string
+  cacheScope: string
   categoryId?: number | null
   onOpenPayment: (paymentId: PaymentId, trigger: HTMLButtonElement) => void
   filtered: boolean
