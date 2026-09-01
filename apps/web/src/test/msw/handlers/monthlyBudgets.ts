@@ -28,11 +28,13 @@ interface CreateMonthlyBudgetOptions extends BaseOptions {
 }
 
 interface UpdateMonthlyBudgetOptions extends BaseOptions {
+  allowedMonthlyBudgetId?: number
   response?: MonthlyBudgetRow
   errorResponse?: unknown
 }
 
 interface RemoveMonthlyBudgetOptions extends BaseOptions {
+  allowedMonthlyBudgetId?: number
   errorResponse?: unknown
 }
 
@@ -124,6 +126,14 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
 
     const body = await request.json()
     const parsedBody = updateMonthlyBudgetBodySchema.parse(body)
+
+    if (
+      update.allowedMonthlyBudgetId !== undefined &&
+      parsedBody.p_monthly_budget_id !== update.allowedMonthlyBudgetId
+    ) {
+      return HttpResponse.json({ message: "Monthly budget was not updated." }, { status: 500 })
+    }
+
     const updatedRow = update.response ?? buildUpdatedMonthlyBudgetRow(parsedBody, listRows)
 
     if (!updatedRow) {
@@ -144,7 +154,14 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     }
 
     const body = await request.json()
-    removeMonthlyBudgetBodySchema.parse(body)
+    const parsedBody = removeMonthlyBudgetBodySchema.parse(body)
+
+    if (
+      remove.allowedMonthlyBudgetId !== undefined &&
+      parsedBody.p_monthly_budget_id !== remove.allowedMonthlyBudgetId
+    ) {
+      return HttpResponse.json({ message: "Failed to remove monthly budget." }, { status: 500 })
+    }
 
     return HttpResponse.json(null)
   })

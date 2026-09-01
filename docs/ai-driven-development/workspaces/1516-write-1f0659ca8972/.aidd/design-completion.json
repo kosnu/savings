@@ -9,7 +9,7 @@
     "updated_at": "2026-09-01T01:20:09Z",
     "body_sha256": "e74ac5389fc23e1200d436857264a540037b7d283278b8eda3b949eb06b4ea3e"
   },
-  "design_goal_sha256": "af036755e68a27e95c316666854fba23f3f2a45b84e810ba1bc745ae650f9e35",
+  "design_goal_sha256": "0b60d56d6b79894ea7734b985630bbd23eb199dc74c3122e98ebe2b2ffdb2035",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "62121faffa0c3c7c4858b5dfdafa06f734f261a5a178f86c260d0342c1ef1751"
@@ -63,7 +63,7 @@
     {
       "id": "policy.transaction-boundaries",
       "path": "docs/harness/policies/transaction-boundaries.md",
-      "sha256": "a8bbcacea1a182d9f156b19b097a4ad8989560f3e1f8811d4ae87edc3756d1b6"
+      "sha256": "3a660c16817097b2173d09ff582ccd781e4920c65ac5c6cdebad093861e56de2"
     },
     {
       "id": "policy.temporal-data",
@@ -148,7 +148,7 @@
     {
       "id": "web.msw-handlers",
       "path": "apps/web/docs/policies/msw-handlers.md",
-      "sha256": "445775414e077c53f9b57fd85d26652ee8aaa8e5e9765f97821544732224b17e"
+      "sha256": "3c9a0b2da13f414c596d6ec16aa7918d4c2a25d538e0cb0291fdfdcdc9eced01"
     },
     {
       "id": "web.test-policy",
@@ -232,7 +232,7 @@
     }
   },
   "target_state": {
-    "sha256": "26ec85d6d2468e36dbe79ac3ae7fe144898b36ee7f4e6f6189821a6bbc287ac7",
+    "sha256": "b7126df616e9b2fb942c111f793f9d08d0256805e5fb3b2ae28067ac8e7321ab",
     "value": {
       "product_behaviors": [
         {
@@ -244,7 +244,7 @@
         {
           "id": "PB-2",
           "type": "state_transition",
-          "description": "RPCが認証Bookの現在有効amount行と入力record IDの一致後だけwriteする",
+          "description": "authenticatedの月予算mutationは明示RPCだけに限定され認証Bookの不変条件を迂回できない",
           "requirement_id": "FR-2"
         },
         {
@@ -304,7 +304,7 @@
         {
           "id": "PB-12",
           "type": "state_transition",
-          "description": "未来、stale、none、非所有recordのcurrent writeがRPC境界で拒否される",
+          "description": "未来、stale、none、非所有recordのcurrent writeが直接table経路とRPC経路の両方で拒否される",
           "requirement_id": "AC-2"
         },
         {
@@ -316,7 +316,7 @@
         {
           "id": "PB-14",
           "type": "user_operation",
-          "description": "既存の月予算表示、成功後再取得、失敗表示が境界変更後も動作する",
+          "description": "既存UI挙動を維持しMSWがupdateとremoveの対象ID不一致を成功扱いしない",
           "requirement_id": "AC-4"
         }
       ],
@@ -342,7 +342,7 @@
           "product_behavior_ids": [
             "PB-2"
           ],
-          "procedure": "ローカルDBで別Bookまたは現在有効行と異なるIDをRPCへ渡し拒否を確認する"
+          "procedure": "Supabase DB testでauthenticatedのtable DML拒否と許可RPCだけの成功を確認する"
         },
         {
           "id": "VC-3",
@@ -449,7 +449,7 @@
           "product_behavior_ids": [
             "PB-12"
           ],
-          "procedure": "ローカルDBで全許可外record IDのRPC例外と行状態不変を確認する"
+          "procedure": "Supabase DB testでdirect table routeと全許可外record IDの拒否を確認する"
         },
         {
           "id": "VC-14",
@@ -511,11 +511,47 @@
           "selector": {
             "kind": "suite"
           }
+        },
+        {
+          "id": "VC-20",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "更新対象IDが許可対象と異なる場合は失敗する"
+          }
+        },
+        {
+          "id": "VC-21",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "削除対象IDが許可対象と異なる場合は失敗する"
+          }
         }
       ],
       "ownership_scopes": [
         {
           "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
           "kind": "file"
         },
         {
@@ -918,9 +954,14 @@
           "locator": {
             "kind": "file"
           },
-          "requirement_id": "AC-1",
-          "product_behavior_ids": [],
-          "verification_case_ids": []
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-20",
+            "VC-21"
+          ]
         },
         {
           "id": "REP-25",
@@ -970,17 +1011,90 @@
             "VC-16",
             "VC-17",
             "VC-18",
-            "VC-19"
+            "VC-19",
+            "VC-20",
+            "VC-21"
+          ]
+        },
+        {
+          "id": "REP-28",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-29",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "locator": {
+            "kind": "test_case",
+            "name": "authenticated mutation route closure"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-30",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "locator": {
+            "kind": "export",
+            "name": "authenticated monthly_budgets DML closure"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-31",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "locator": {
+            "kind": "test_case",
+            "name": "invalid current write rejection"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": [
+            "VC-13"
           ]
         }
       ]
     }
   },
   "ownership_scopes": {
-    "sha256": "02d7566e296acce4ae6bcae8abd6fdd1bf1827061791e8f9ab212b23107e8328",
+    "sha256": "9cf2532aee381581c0f1c578f98443e6487043a5d140a53dcdbc3e1a5098885d",
     "value": [
       {
         "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+        "kind": "file"
+      },
+      {
+        "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+        "kind": "file"
+      },
+      {
+        "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
         "kind": "file"
       },
       {
@@ -1050,8 +1164,9 @@
     ]
   },
   "baseline_inventory": {
-    "sha256": "9a6a1bdb7f3dfb71d0b3ab7c8cc9870fd10b3cd183756c449bd997bd18455447",
+    "sha256": "45f080db82ca9cab663729150d9c078c7761cedbcde48576594b7c7779743a20",
     "value": [
+      "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
       "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
       "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
       "apps/web/src/features/budgets/removeMonthlyBudget/RemoveMonthlyBudgetModal/RemoveMonthlyBudgetModal.tsx",
@@ -1071,59 +1186,34 @@
     ]
   },
   "untracked_baseline": {
-    "sha256": "195b9bda2b9d8191a801e3dde0b8d62c00faca3afea625bf77ee6d715280853b",
-    "value": [
-      {
-        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.json",
-        "type": "regular",
-        "mode": "0644",
-        "sha256": "1b09ea26c822be36c9cda5f2dd961c32ce6af8c8888ad738a3f6265836badada"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.md",
-        "type": "regular",
-        "mode": "0600",
-        "sha256": "94c76354012214a8b54ce38c710222325a65adc185a3ddce6898466110758ea6"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json",
-        "type": "regular",
-        "mode": "0644",
-        "sha256": "b37c546132efc69783771d92cdc11ab9871fc47b733ca5c86974303736c5d182"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.md",
-        "type": "regular",
-        "mode": "0600",
-        "sha256": "e07cafd6e6957f395e245da9a0f67e060cf3a40fe48e0a6689880a0efb4260d6"
-      }
-    ]
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "value": []
   },
   "build_baseline": {
-    "head": "6e09ab1fd02662577a99cfa73cef535ffef83f66"
+    "head": "bbd7ae1712ae793b1ff42c3d964bd2ac9f855bc3"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json",
-        "sha256": "b37c546132efc69783771d92cdc11ab9871fc47b733ca5c86974303736c5d182",
+        "sha256": "2416e8773b759aec10f5f636b298e7989b1639e05d56cb22de0334b3bd7da451",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.md",
-        "sha256": "e07cafd6e6957f395e245da9a0f67e060cf3a40fe48e0a6689880a0efb4260d6",
+        "sha256": "6d1fee102d1f03fcf984eeacc3e2a595d5ca37bc7526ca9d6b4139530933fead",
         "mode": "0600"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.json",
-        "sha256": "1b09ea26c822be36c9cda5f2dd961c32ce6af8c8888ad738a3f6265836badada",
+        "sha256": "8bbfd97a0d8c2ad497979be4e37abe00b1bb6661a81353a60d5a10090b2da2f4",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.md",
-        "sha256": "94c76354012214a8b54ce38c710222325a65adc185a3ddce6898466110758ea6",
+        "sha256": "cf46a893cdd69daa39f01649ad66453d1b036a08595c200d2a7cff190fe7305c",
         "mode": "0600"
       }
     }

@@ -33,11 +33,11 @@ async function renderLatestMonthlyBudget(story: ReactElement) {
   })
 }
 
-describe("LatestMonthlyBudget", () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
+describe("LatestMonthlyBudget", () => {
   test("最新の月予算だけを表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
@@ -277,4 +277,42 @@ describe("LatestMonthlyBudget", () => {
       "Could not load monthly budgets.",
     )
   })
+})
+
+test("更新対象IDが許可対象と異なる場合は失敗する", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {})
+  server.resetHandlers(
+    ...createMonthlyBudgetHandlers({
+      get: { response: monthlyBudgets[3] },
+      update: { allowedMonthlyBudgetId: monthlyBudgets[2].id },
+    }),
+  )
+
+  const { user } = await renderLatestMonthlyBudget(<Default />)
+
+  await user.click(await screen.findByRole("button", { name: "Edit budget" }))
+  const dialog = await screen.findByRole("dialog", { name: "Edit monthly budget" })
+  await user.click(within(dialog).getByRole("button", { name: "Save" }))
+
+  expect(await within(dialog).findByText("Failed to update monthly budget.")).toBeInTheDocument()
+  expect(screen.getByRole("dialog", { name: "Edit monthly budget" })).toBeInTheDocument()
+})
+
+test("削除対象IDが許可対象と異なる場合は失敗する", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {})
+  server.resetHandlers(
+    ...createMonthlyBudgetHandlers({
+      get: { response: monthlyBudgets[3] },
+      remove: { allowedMonthlyBudgetId: monthlyBudgets[2].id },
+    }),
+  )
+
+  const { user } = await renderLatestMonthlyBudget(<Default />)
+
+  await user.click(await screen.findByRole("button", { name: "Remove budget" }))
+  const dialog = await screen.findByRole("dialog", { name: "Remove this month's budget?" })
+  await user.click(within(dialog).getByRole("button", { name: "Remove" }))
+
+  expect(await within(dialog).findByText("Failed to remove monthly budget.")).toBeInTheDocument()
+  expect(screen.getByRole("dialog", { name: "Remove this month's budget?" })).toBeInTheDocument()
 })

@@ -10,15 +10,15 @@ declare
   authenticated_default_book_id bigint;
   current_month_start date;
   current_month_end date;
-  effective_budget monthly_budgets%rowtype;
+  effective_budget public.monthly_budgets%rowtype;
 begin
-  authenticated_default_book_id := get_authenticated_default_book_id();
+  authenticated_default_book_id := public.get_authenticated_default_book_id();
   current_month_start := date_trunc('month', current_date)::date;
   current_month_end := (current_month_start + interval '1 month - 1 day')::date;
 
   select *
   into effective_budget
-  from monthly_budgets
+  from public.monthly_budgets
   where book_id = authenticated_default_book_id
     and effective_from <= current_month_end
   order by effective_from desc
@@ -33,17 +33,17 @@ begin
   end if;
 
   if effective_budget.effective_from = current_month_start then
-    update monthly_budgets
+    update public.monthly_budgets
     set amount = p_amount
     where id = effective_budget.id;
 
     return;
   end if;
 
-  insert into monthly_budgets (book_id, effective_from, status, amount)
+  insert into public.monthly_budgets (book_id, effective_from, status, amount)
   values (authenticated_default_book_id, current_month_start, 'amount', p_amount);
 end;
-$$ language plpgsql security invoker set search_path = public;
+$$ language plpgsql security definer set search_path = '';
 
 revoke all on function public.update_current_monthly_budget(bigint, integer) from public;
 revoke all on function public.update_current_monthly_budget(bigint, integer) from anon;
@@ -58,15 +58,15 @@ declare
   authenticated_default_book_id bigint;
   current_month_start date;
   current_month_end date;
-  effective_budget monthly_budgets%rowtype;
+  effective_budget public.monthly_budgets%rowtype;
 begin
-  authenticated_default_book_id := get_authenticated_default_book_id();
+  authenticated_default_book_id := public.get_authenticated_default_book_id();
   current_month_start := date_trunc('month', current_date)::date;
   current_month_end := (current_month_start + interval '1 month - 1 day')::date;
 
   select *
   into effective_budget
-  from monthly_budgets
+  from public.monthly_budgets
   where book_id = authenticated_default_book_id
     and effective_from <= current_month_end
   order by effective_from desc
@@ -81,7 +81,7 @@ begin
   end if;
 
   if effective_budget.effective_from = current_month_start then
-    update monthly_budgets
+    update public.monthly_budgets
     set status = 'none',
         amount = null
     where id = effective_budget.id;
@@ -89,10 +89,10 @@ begin
     return;
   end if;
 
-  insert into monthly_budgets (book_id, effective_from, status, amount)
+  insert into public.monthly_budgets (book_id, effective_from, status, amount)
   values (authenticated_default_book_id, current_month_start, 'none', null);
 end;
-$$ language plpgsql security invoker set search_path = public;
+$$ language plpgsql security definer set search_path = '';
 
 revoke all on function public.remove_current_monthly_budget(bigint) from public;
 revoke all on function public.remove_current_monthly_budget(bigint) from anon;
