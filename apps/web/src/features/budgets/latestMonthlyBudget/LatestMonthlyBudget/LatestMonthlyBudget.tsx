@@ -1,19 +1,20 @@
 import { Pencil1Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
 import { Button, Flex, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense, use } from "react"
+import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
+import { formatTargetMonthKey, toTargetMonth } from "../../../../domain/date"
 import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget/CreateMonthlyBudgetModal"
 import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
 import { RemoveMonthlyBudgetModal } from "../../removeMonthlyBudget/RemoveMonthlyBudgetModal"
-import type { MonthlyBudget, MonthlyBudgetState } from "../../types"
+import type { MonthlyBudget } from "../../types"
 import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthlyBudgetModal"
 
 export function LatestMonthlyBudget() {
-  const { promise } = useEffectiveMonthlyBudget(new Date())
   const { t } = useTranslation()
+  const targetMonth = formatTargetMonthKey(toTargetMonth(new Date()))
 
   return (
     <Flex direction="column" gap="3">
@@ -26,17 +27,18 @@ export function LatestMonthlyBudget() {
             {t("budgets.loadError")}
           </Text>
         }
+        resetKeys={[targetMonth]}
       >
         <Suspense fallback={<LatestMonthlyBudgetLoading />}>
-          <LatestMonthlyBudgetContent promise={promise} />
+          <LatestMonthlyBudgetContent targetMonth={targetMonth} />
         </Suspense>
       </ErrorBoundary>
     </Flex>
   )
 }
 
-function LatestMonthlyBudgetContent({ promise }: { promise: Promise<MonthlyBudgetState> }) {
-  const monthlyBudgetState = use(promise)
+function LatestMonthlyBudgetContent({ targetMonth }: { targetMonth: string }) {
+  const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(targetMonth)
   const { t } = useTranslation()
 
   if (monthlyBudgetState.status !== "amount") {

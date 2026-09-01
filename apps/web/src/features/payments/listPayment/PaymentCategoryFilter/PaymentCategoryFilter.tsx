@@ -1,10 +1,15 @@
 import { Select } from "@radix-ui/themes"
 import { useLocation, useNavigate } from "@tanstack/react-router"
-import { memo, Suspense, use, useCallback } from "react"
+import { memo, Suspense, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
-import { CategoryOption, ErrorCategoryOption, useCategories } from "../../../categories"
+import {
+  CategoryOption,
+  ErrorCategoryOption,
+  useCategories,
+  usePrefetchCategories,
+} from "../../../categories"
 import { toPaymentCategoryId, toPaymentCategorySearch } from "../paymentCategorySearch"
 import { PAYMENT_SEARCH_CATEGORY_NONE_VALUE } from "../paymentsSearchSchema"
 
@@ -18,7 +23,7 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
     select: (location) => location.search.category,
   })
   const navigate = useNavigate({ from: "/payments" })
-  const { promise: categoriesPromise } = useCategories()
+  usePrefetchCategories()
   const categoryId = toPaymentCategoryId(categorySearch)
   const value = toPaymentCategoryFilterValue(categorySearch)
   const selectedCategoryValue = typeof categoryId === "number" ? String(categoryId) : undefined
@@ -56,10 +61,7 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
           <Suspense
             fallback={<LoadingSelectedCategoryOption selectedValue={selectedCategoryValue} />}
           >
-            <PaymentCategoryOptions
-              categoriesPromise={categoriesPromise}
-              selectedValue={selectedCategoryValue}
-            />
+            <PaymentCategoryOptions selectedValue={selectedCategoryValue} />
           </Suspense>
         </ErrorBoundary>
       </Select.Content>
@@ -68,15 +70,13 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
 })
 
 interface PaymentCategoryOptionsProps {
-  categoriesPromise: ReturnType<typeof useCategories>["promise"]
   selectedValue?: string
 }
 
 const PaymentCategoryOptions = memo(function PaymentCategoryOptions({
-  categoriesPromise,
   selectedValue,
 }: PaymentCategoryOptionsProps) {
-  const categories = use(categoriesPromise)
+  const { data: categories } = useCategories()
   const hasSelectedCategory =
     selectedValue === undefined ||
     categories.some((category) => String(category.id) === selectedValue)

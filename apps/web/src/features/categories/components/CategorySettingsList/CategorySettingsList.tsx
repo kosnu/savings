@@ -1,5 +1,5 @@
 import { Badge, Box, Flex, Separator, Skeleton, Text } from "@radix-ui/themes"
-import { Fragment, Suspense, use } from "react"
+import { Fragment, Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -14,7 +14,6 @@ import { UpdateCategoryNameModal } from "../../updateCategoryName/UpdateCategory
 import styles from "./CategorySettingsList.module.css"
 
 export function CategorySettingsList() {
-  const { promise } = useCategorySettingsItems()
   const { t } = useTranslation()
 
   return (
@@ -27,19 +26,15 @@ export function CategorySettingsList() {
         }
       >
         <Suspense fallback={<CategorySettingsLoadingRows />}>
-          <CategorySettingsListContent promise={promise} />
+          <CategorySettingsListContent />
         </Suspense>
       </ErrorBoundary>
     </Flex>
   )
 }
 
-interface CategorySettingsListContentProps {
-  promise: Promise<CategorySettingsItem[]>
-}
-
-function CategorySettingsListContent({ promise }: CategorySettingsListContentProps) {
-  const items = use(promise)
+function CategorySettingsListContent() {
+  const { data: items } = useCategorySettingsItems()
   const currentPinnedCount = countPinnedItems(items)
   const { t } = useTranslation()
 

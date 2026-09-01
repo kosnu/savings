@@ -1,10 +1,12 @@
 import { Box, Button, Flex, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense, use, useState } from "react"
+import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
+import { formatTargetMonthKey, toTargetMonth } from "../../../domain/date"
 import { i18next } from "../../../i18n"
 import { toCurrency } from "../../../utils/toCurrency"
+import { useDateRange } from "../../../utils/useDateRange"
 import { BudgetProgress } from "../../budgets"
 import type { CategoryTotals as CategoryTotalsData } from "./fetchCategoryTotals"
 import { useCategoryTotals } from "./useCategoryTotals"
@@ -18,7 +20,8 @@ interface CategoryTotalsProps {
 }
 
 export function CategoryTotals({ cacheScope }: CategoryTotalsProps) {
-  const { promise, targetMonthKey } = useCategoryTotals({ cacheScope })
+  const { date } = useDateRange()
+  const targetMonthKey = date ? formatTargetMonthKey(toTargetMonth(date)) : ""
   const { t } = useTranslation()
 
   return (
@@ -27,17 +30,21 @@ export function CategoryTotals({ cacheScope }: CategoryTotalsProps) {
       resetKeys={[cacheScope ?? "default", targetMonthKey]}
     >
       <Suspense fallback={<CategoryTotalsLoading />}>
-        <CategoryTotalsResolved
-          key={`${cacheScope ?? "default"}:${targetMonthKey}`}
-          promise={promise}
-        />
+        {date ? (
+          <CategoryTotalsResolved
+            key={`${cacheScope ?? "default"}:${targetMonthKey}`}
+            cacheScope={cacheScope}
+          />
+        ) : (
+          <CategoryTotalsLoading />
+        )}
       </Suspense>
     </ErrorBoundary>
   )
 }
 
-function CategoryTotalsResolved({ promise }: { promise: Promise<CategoryTotalsData> }) {
-  const categoryTotals = use(promise)
+function CategoryTotalsResolved({ cacheScope }: CategoryTotalsProps) {
+  const { data: categoryTotals } = useCategoryTotals({ cacheScope })
 
   if (categoryTotals.length === 0) {
     return null
