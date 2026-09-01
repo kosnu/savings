@@ -1,0 +1,374 @@
+{
+  "schema_version": 4,
+  "kind": "requirements",
+  "workspace": "1516-write-1f0659ca8972",
+  "display": {
+    "path": "requirements.md",
+    "preamble": "Issue #1516の最新本文全体を、月予算writeの責務境界と状態遷移を一意に定める検証可能なRequirementsへ変換する。"
+  },
+  "validation": {
+    "mode": "managed",
+    "cycle_start_issue_title": "月予算writeの責務分離を再設計する",
+    "input_gate": {
+      "task_context": {
+        "source": "issue_body",
+        "issue": "kosnu/savings#1516",
+        "url": "https://github.com/kosnu/savings/issues/1516",
+        "updated_at": "2026-09-01T01:20:09Z",
+        "body_sha256": "e74ac5389fc23e1200d436857264a540037b7d283278b8eda3b949eb06b4ea3e"
+      },
+      "direct_rules": [
+        {
+          "id": "policy.transaction-boundaries",
+          "issue_evidence": "月予算の更新RPC",
+          "match": {
+            "field": "topics",
+            "value": "rpc"
+          },
+          "reason": "authenticated userが直接呼び出す更新境界の責務を定義するため",
+          "explicit_surface": "rpc"
+        },
+        {
+          "id": "domain.monthly-budget",
+          "issue_evidence": "`monthly-budget`",
+          "match": {
+            "field": "topics",
+            "value": "monthly-budget"
+          },
+          "reason": "月予算の更新・無効化状態遷移を定義するため"
+        }
+      ],
+      "depends_on": [
+        {
+          "id": "architecture.overview",
+          "via": "policy.transaction-boundaries"
+        },
+        {
+          "id": "domain.amount",
+          "via": "domain.monthly-budget"
+        },
+        {
+          "id": "domain.date",
+          "via": "domain.monthly-budget"
+        },
+        {
+          "id": "policy.temporal-data",
+          "via": "domain.monthly-budget"
+        }
+      ]
+    },
+    "completeness_gate": {
+      "issue_body_sha256": "e74ac5389fc23e1200d436857264a540037b7d283278b8eda3b949eb06b4ea3e",
+      "workspace": "1516-write-1f0659ca8972",
+      "baseline": {
+        "source": "none",
+        "body_sha256": null
+      },
+      "requirements": [
+        {
+          "id": "FR-1",
+          "status": "new",
+          "issue_evidence": "クライアントは対象レコードIDと操作内容を渡す"
+        },
+        {
+          "id": "FR-2",
+          "status": "new",
+          "issue_evidence": "RPC は authenticated user が直接呼び出せる境界として扱う"
+        },
+        {
+          "id": "FR-3",
+          "status": "new",
+          "issue_evidence": "当月開始の金額ありレコードなら、そのレコードの金額を更新する"
+        },
+        {
+          "id": "FR-4",
+          "status": "new",
+          "issue_evidence": "過去行を変更せず、当月開始の金額ありレコードを追加する"
+        },
+        {
+          "id": "FR-5",
+          "status": "new",
+          "issue_evidence": "未来月開始のレコード、現在有効でないレコード、金額ありでないレコードは更新しない"
+        },
+        {
+          "id": "FR-6",
+          "status": "new",
+          "issue_evidence": "当月開始の金額ありレコードなら、そのレコードを予算なし状態にする"
+        },
+        {
+          "id": "FR-7",
+          "status": "new",
+          "issue_evidence": "過去行を変更せず、当月開始の予算なしレコードを追加する"
+        },
+        {
+          "id": "FR-8",
+          "status": "new",
+          "issue_evidence": "未来月開始のレコード、現在有効でないレコード、金額ありでないレコードは削除/無効化しない"
+        },
+        {
+          "id": "NFR-1",
+          "status": "new",
+          "issue_evidence": "過去月の表示結果を変更してはいけない"
+        },
+        {
+          "id": "NFR-2",
+          "status": "new",
+          "issue_evidence": "既存の月予算状態モデル amount / none / unset は変えない"
+        },
+        {
+          "id": "AC-1",
+          "status": "new",
+          "issue_evidence": "クライアントが `target_month` や `current_month` を渡さずに更新・削除/無効化できる"
+        },
+        {
+          "id": "AC-2",
+          "status": "new",
+          "issue_evidence": "未来月開始レコードや現在有効でないレコードへの current write が拒否される"
+        },
+        {
+          "id": "AC-3",
+          "status": "new",
+          "issue_evidence": "責務分離が `monthly-budget` domain rule と関連 policy にルール化されている"
+        },
+        {
+          "id": "AC-4",
+          "status": "new",
+          "issue_evidence": "既存の関連挙動が壊れていない"
+        }
+      ],
+      "sections": [
+        {
+          "id": "background",
+          "status": "new",
+          "issue_evidence": "UI文脈と write permission の責務が混ざる"
+        },
+        {
+          "id": "users",
+          "status": "new",
+          "issue_evidence": "表示中の月予算に対する操作意図を送る"
+        },
+        {
+          "id": "stories",
+          "status": "new",
+          "issue_evidence": "対象レコードとアプリケーション境界の現在月から処理が決まる"
+        },
+        {
+          "id": "scope",
+          "status": "new",
+          "issue_evidence": "月予算の削除/無効化RPC"
+        },
+        {
+          "id": "functional",
+          "status": "new",
+          "issue_evidence": "当月開始の金額ありレコードなら"
+        },
+        {
+          "id": "non-functional",
+          "status": "new",
+          "issue_evidence": "タイムゾーンによる「現在月」の定義問題は別論点として扱う"
+        },
+        {
+          "id": "acceptance",
+          "status": "new",
+          "issue_evidence": "RPC が過去月の履歴を書き換えない"
+        },
+        {
+          "id": "qa",
+          "status": "new",
+          "issue_evidence": "クライアント入力、アプリケーション境界、DB/RPC の責務を識別したい"
+        },
+        {
+          "id": "technical",
+          "status": "new",
+          "issue_evidence": "クライアント由来の `current_month` を write permission の根拠にしない"
+        }
+      ],
+      "retired": []
+    },
+    "requirements": [
+      {
+        "id": "FR-1",
+        "section_id": "functional",
+        "text": "クライアントは対象レコードIDと操作内容を渡す一方、`target_month`または`current_month`を月予算writeの入力にしない。"
+      },
+      {
+        "id": "FR-2",
+        "section_id": "functional",
+        "text": "RPC は authenticated user が直接呼び出せる境界として扱うため、対象レコードの所有・有効状態と許可対象の現在月を境界内で判定する。"
+      },
+      {
+        "id": "FR-3",
+        "section_id": "functional",
+        "text": "更新時、当月開始の金額ありレコードなら、そのレコードの金額を更新する。"
+      },
+      {
+        "id": "FR-4",
+        "section_id": "functional",
+        "text": "更新時、過去月開始の金額ありレコードが当月にも有効なら、過去行を変更せず、当月開始の金額ありレコードを追加する。"
+      },
+      {
+        "id": "FR-5",
+        "section_id": "functional",
+        "text": "未来月開始のレコード、現在有効でないレコード、金額ありでないレコードは更新しない。"
+      },
+      {
+        "id": "FR-6",
+        "section_id": "functional",
+        "text": "削除または無効化時、当月開始の金額ありレコードなら、そのレコードを予算なし状態にする。"
+      },
+      {
+        "id": "FR-7",
+        "section_id": "functional",
+        "text": "削除または無効化時、過去月開始の金額ありレコードが当月にも有効なら、過去行を変更せず、当月開始の予算なしレコードを追加する。"
+      },
+      {
+        "id": "FR-8",
+        "section_id": "functional",
+        "text": "未来月開始のレコード、現在有効でないレコード、金額ありでないレコードは削除/無効化しない。"
+      },
+      {
+        "id": "NFR-1",
+        "section_id": "non-functional",
+        "text": "過去月の表示結果を変更してはいけないため、履歴行を遡及更新しない。"
+      },
+      {
+        "id": "NFR-2",
+        "section_id": "non-functional",
+        "text": "既存の月予算状態モデル amount / none / unset は変えない。タイムゾーンによる現在月の定義変更とBackend API層追加も対象外とする。"
+      },
+      {
+        "id": "AC-1",
+        "section_id": "acceptance",
+        "text": "クライアントが `target_month` や `current_month` を渡さずに更新・削除/無効化できる。"
+      },
+      {
+        "id": "AC-2",
+        "section_id": "acceptance",
+        "text": "RPCで未来月開始レコードや現在有効でないレコードへの current write が拒否される。"
+      },
+      {
+        "id": "AC-3",
+        "section_id": "acceptance",
+        "text": "責務分離が `monthly-budget` domain rule と関連 policy にルール化されている。"
+      },
+      {
+        "id": "AC-4",
+        "section_id": "acceptance",
+        "text": "関連テストで既存の関連挙動が壊れていないことと必要な検証結果を確認できる。"
+      }
+    ],
+    "sections": [
+      {
+        "id": "background",
+        "heading": "背景",
+        "blocks": [
+          {
+            "id": "background-body",
+            "type": "markdown",
+            "markdown": "authenticated userがSupabase RPCを直接呼び出せるため、クライアント指定月を許可根拠にするとUI文脈と write permission の責務が混ざる。"
+          }
+        ]
+      },
+      {
+        "id": "users",
+        "heading": "対象ユーザーと利用シーン",
+        "blocks": [
+          {
+            "id": "users-body",
+            "type": "markdown",
+            "markdown": "認証済み利用者は表示中の月予算に対する操作意図を送ることで、安全に更新または無効化する。"
+          }
+        ]
+      },
+      {
+        "id": "stories",
+        "heading": "ユーザーストーリー",
+        "blocks": [
+          {
+            "id": "stories-body",
+            "type": "markdown",
+            "markdown": "利用者として、対象月を許可入力として指定せず、対象レコードとアプリケーション境界の現在月から処理が決まることで、履歴を壊さず当月の予算を変更したい。"
+          }
+        ]
+      },
+      {
+        "id": "scope",
+        "heading": "スコープ",
+        "blocks": [
+          {
+            "id": "scope-body",
+            "type": "markdown",
+            "markdown": "対象は月予算の更新RPC、月予算の削除/無効化RPC、Web側呼び出し、責務分離ルールと関連テスト。対象外はカテゴリ予算、月予算外の時系列設計、timezone設計、Backend API層、UI表示変更。"
+          }
+        ]
+      },
+      {
+        "id": "functional",
+        "heading": "機能要件",
+        "blocks": [
+          {
+            "id": "functional-body",
+            "type": "markdown",
+            "markdown": "当月開始の金額ありレコードなら直接変更し、過去月開始で当月有効なら履歴を保った当月開始レコードを生成し、不正な対象は拒否する。"
+          },
+          {
+            "id": "functional-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "non-functional",
+        "heading": "非機能要件",
+        "blocks": [
+          {
+            "id": "non-functional-body",
+            "type": "markdown",
+            "markdown": "履歴と既存状態モデルを維持し、タイムゾーンによる「現在月」の定義問題は別論点として扱う。"
+          },
+          {
+            "id": "non-functional-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "acceptance",
+        "heading": "受け入れ条件",
+        "blocks": [
+          {
+            "id": "acceptance-body",
+            "type": "markdown",
+            "markdown": "クライアント月入力なしのwrite、許可外対象の拒否、RPC が過去月の履歴を書き換えないこと、ルール同期と回帰検証を確認する。"
+          },
+          {
+            "id": "acceptance-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "qa",
+        "heading": "Q&A",
+        "blocks": [
+          {
+            "id": "qa-body",
+            "type": "markdown",
+            "markdown": "- Q: 月予算writeで何を分離するか。\n  - A: クライアント入力、アプリケーション境界、DB/RPC の責務を識別したいというIssue意図に従い、操作意図と認可判定を分離する。"
+          }
+        ]
+      },
+      {
+        "id": "technical",
+        "heading": "技術的考慮事項",
+        "blocks": [
+          {
+            "id": "technical-body",
+            "type": "markdown",
+            "markdown": "クライアント由来の `current_month` を write permission の根拠にしない。RPCの直接呼び出しを含む境界で状態と期間を検証する。"
+          }
+        ]
+      }
+    ]
+  }
+}

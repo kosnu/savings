@@ -57,6 +57,7 @@ export function UpdateMonthlyBudgetForm({
       try {
         setSubmitErrorMessage(undefined)
         await updateMonthlyBudget({
+          monthlyBudgetId: monthlyBudget.id,
           amount: parsedValue.amount,
         })
         onSuccess?.()

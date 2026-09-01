@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
+import { beforeEach, expect, it, vi } from "vite-plus/test"
 
 import { updateMonthlyBudget } from "./updateMonthlyBudget"
 
@@ -8,31 +8,32 @@ vi.mock("../../../lib/supabase", () => ({
   getSupabaseClient: () => ({ rpc: mockRpc }),
 }))
 
-describe("updateMonthlyBudget", () => {
-  beforeEach(() => {
-    mockRpc.mockClear()
+beforeEach(() => {
+  mockRpc.mockClear()
+})
+
+it("対象月予算IDとamountを更新RPCに渡す", async () => {
+  mockRpc.mockResolvedValue({ error: null })
+
+  await updateMonthlyBudget({
+    monthlyBudgetId: 42,
+    amount: 300000,
   })
 
-  it("当月月予算更新RPCにamountを渡す", async () => {
-    mockRpc.mockResolvedValue({ error: null })
+  expect(mockRpc).toHaveBeenCalledWith("update_current_monthly_budget", {
+    p_monthly_budget_id: 42,
+    p_amount: 300000,
+  })
+})
 
-    await updateMonthlyBudget({
+it("Supabaseがエラーを返した場合にthrowする", async () => {
+  const supabaseError = { message: "更新に失敗しました", code: "42501" }
+  mockRpc.mockResolvedValue({ error: supabaseError })
+
+  await expect(
+    updateMonthlyBudget({
+      monthlyBudgetId: 42,
       amount: 300000,
-    })
-
-    expect(mockRpc).toHaveBeenCalledWith("update_current_monthly_budget", {
-      p_amount: 300000,
-    })
-  })
-
-  it("Supabaseがエラーを返した場合にthrowする", async () => {
-    const supabaseError = { message: "更新に失敗しました", code: "42501" }
-    mockRpc.mockResolvedValue({ error: supabaseError })
-
-    await expect(
-      updateMonthlyBudget({
-        amount: 300000,
-      }),
-    ).rejects.toEqual(supabaseError)
-  })
+    }),
+  ).rejects.toEqual(supabaseError)
 })

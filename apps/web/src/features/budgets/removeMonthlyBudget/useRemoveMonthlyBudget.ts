@@ -5,7 +5,7 @@ import { invalidateMonthlyBudgetQueries } from "../queryKeys"
 import { removeMonthlyBudget as removeMonthlyBudgetRecord } from "./removeMonthlyBudget"
 
 interface UseRemoveMonthlyBudgetReturn {
-  removeMonthlyBudget: () => Promise<void>
+  removeMonthlyBudget: (monthlyBudgetId: number) => Promise<void>
   isPending: boolean
 }
 
@@ -19,9 +19,12 @@ export function useRemoveMonthlyBudget(): UseRemoveMonthlyBudgetReturn {
     },
   })
 
-  const removeMonthlyBudget = useCallback(async () => {
-    return mutateAsync()
-  }, [mutateAsync])
+  const removeMonthlyBudget = useCallback(
+    async (monthlyBudgetId: number) => {
+      return mutateAsync(monthlyBudgetId)
+    },
+    [mutateAsync],
+  )
 
   return { removeMonthlyBudget, isPending }
 }
