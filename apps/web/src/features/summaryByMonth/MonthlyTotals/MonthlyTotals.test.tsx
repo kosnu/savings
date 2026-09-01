@@ -1,4 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
+import { delay, HttpResponse, http } from "msw"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
@@ -124,6 +125,31 @@ describe("MonthlyTotals", () => {
 
     expect(await screen.findByText("¥10,000")).toBeInTheDocument()
     expect(await screen.findByText("Failed")).toBeInTheDocument()
+  })
+
+  test("支出合計の取得を待たずに月予算の取得を開始する", async () => {
+    let totalExpendituresStarted = false
+    let monthlyBudgetStarted = false
+
+    server.resetHandlers(
+      http.post("*/rest/v1/rpc/get_monthly_total_amount", async () => {
+        totalExpendituresStarted = true
+        await delay("infinite")
+
+        return HttpResponse.json(10000)
+      }),
+      http.post("*/rest/v1/rpc/get_effective_monthly_budget", () => {
+        monthlyBudgetStarted = true
+
+        return HttpResponse.json(null)
+      }),
+    )
+    renderStory()
+
+    await waitFor(() => {
+      expect(totalExpendituresStarted).toBe(true)
+      expect(monthlyBudgetStarted).toBe(true)
+    })
   })
 
   test("月次合計は現在のbookに属する支払いのみで計算する", async () => {

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 
 import { formatTargetMonthKey, toTargetMonth } from "../../../domain/date"
 import { useDateRange } from "../../../utils/useDateRange"
@@ -6,7 +6,7 @@ import { summaryQueryKeys } from "../queryKeys"
 import { type CategoryTotals, fetchCategoryTotals } from "./fetchCategoryTotals"
 
 interface UseCategoryTotalsReturn {
-  promise: Promise<CategoryTotals>
+  data: CategoryTotals
   targetMonthKey: string
 }
 
@@ -19,14 +19,13 @@ function useCategoryTotals({
 }: UseCategoryTotalsOptions = {}): UseCategoryTotalsReturn {
   const { date, dateRange } = useDateRange()
   const month = date ? formatTargetMonthKey(toTargetMonth(date)) : ""
-  const query = useQuery({
+  const query = useSuspenseQuery({
     queryKey: summaryQueryKeys.categoryTotals(cacheScope, month),
     queryFn: async () => fetchCategoryTotals(dateRange),
-    enabled: !!month,
     staleTime: 3000,
   })
 
-  return { promise: query.promise, targetMonthKey: month }
+  return { data: query.data, targetMonthKey: month }
 }
 
 export { useCategoryTotals }

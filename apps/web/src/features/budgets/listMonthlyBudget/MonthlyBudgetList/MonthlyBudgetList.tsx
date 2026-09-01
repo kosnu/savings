@@ -1,5 +1,5 @@
 import { Flex, Skeleton, Table, Text } from "@radix-ui/themes"
-import { Suspense, use } from "react"
+import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,6 @@ import { useMonthlyBudgets } from "../useMonthlyBudgets"
 const monthlyBudgetListLimit = 10
 
 export function MonthlyBudgetList() {
-  const { promise } = useMonthlyBudgets(monthlyBudgetListLimit)
   const { t } = useTranslation()
 
   return (
@@ -28,7 +27,7 @@ export function MonthlyBudgetList() {
         <Table.Body>
           <ErrorBoundary fallback={<StatusRow color="red" text={t("budgets.loadError")} />}>
             <Suspense fallback={<LoadingRows />}>
-              <MonthlyBudgetRows promise={promise} />
+              <MonthlyBudgetRows />
             </Suspense>
           </ErrorBoundary>
         </Table.Body>
@@ -37,8 +36,8 @@ export function MonthlyBudgetList() {
   )
 }
 
-function MonthlyBudgetRows({ promise }: { promise: Promise<MonthlyBudget[]> }) {
-  const monthlyBudgets = use(promise)
+function MonthlyBudgetRows() {
+  const { data: monthlyBudgets } = useMonthlyBudgets(monthlyBudgetListLimit)
   const { t } = useTranslation()
 
   if (monthlyBudgets.length === 0) {

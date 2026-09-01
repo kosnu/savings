@@ -1,15 +1,15 @@
-import { memo, Suspense, use, useId } from "react"
+import { memo, Suspense, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
-import type { Category } from "../../../../types/category"
 import {
   CategoryOption,
   CategorySelect,
   ErrorCategoryOption,
   LoadingCategoryOption,
   useCategories,
+  usePrefetchCategories,
 } from "../../../categories"
 
 interface CategoryFieldProps {
@@ -27,7 +27,7 @@ export const CategoryField = memo(function CategoryField({
 }: CategoryFieldProps) {
   const id = useId()
   const { t } = useTranslation()
-  const { promise: promiseCategories } = useCategories()
+  usePrefetchCategories()
 
   return (
     <BaseField width="300px">
@@ -35,7 +35,7 @@ export const CategoryField = memo(function CategoryField({
       <CategorySelect id={id} value={value} onChange={onChange}>
         <ErrorBoundary fallback={<ErrorCategoryOption />}>
           <Suspense fallback={<LoadingCategoryOption />}>
-            <CategoryOptions categoriesPromise={promiseCategories} />
+            <CategoryOptions />
           </Suspense>
         </ErrorBoundary>
       </CategorySelect>
@@ -44,12 +44,8 @@ export const CategoryField = memo(function CategoryField({
   )
 })
 
-interface CategoryOptionsProps {
-  categoriesPromise: Promise<Category[]>
-}
-
-const CategoryOptions = memo(function CategoryOptions({ categoriesPromise }: CategoryOptionsProps) {
-  const categories = use(categoriesPromise)
+const CategoryOptions = memo(function CategoryOptions() {
+  const { data: categories } = useCategories()
 
   return (
     <>

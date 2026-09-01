@@ -1,40 +1,31 @@
-import { useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query"
 
-import { formatTargetMonthKey, toTargetMonth } from "../../../domain/date"
+import { parseDateOnlyStringToLocalDate } from "../../../domain/date"
 import { monthlyBudgetQueryKeys } from "../queryKeys"
 import type { MonthlyBudgetState } from "../types"
 import { fetchEffectiveMonthlyBudget } from "./fetchEffectiveMonthlyBudget"
 
 interface UseEffectiveMonthlyBudgetReturn {
   data: MonthlyBudgetState
-  loading: boolean
-  error: Error | null
-  promise: Promise<MonthlyBudgetState>
 }
 
-const unsetMonthlyBudgetState: MonthlyBudgetState = { status: "unset", monthlyBudget: null }
-
-export function useEffectiveMonthlyBudget(
-  targetDate: Date | null,
-): UseEffectiveMonthlyBudgetReturn {
-  const targetMonth = targetDate ? formatTargetMonthKey(toTargetMonth(targetDate)) : "none"
-  const query = useQuery({
+function effectiveMonthlyBudgetQueryOptions(targetMonth: string) {
+  return queryOptions({
     queryKey: monthlyBudgetQueryKeys.effective(targetMonth),
-    queryFn: async () => {
-      if (!targetDate) {
-        return Promise.resolve(unsetMonthlyBudgetState)
-      }
-
-      return fetchEffectiveMonthlyBudget(targetDate)
-    },
-    enabled: targetDate !== null,
+    queryFn: async () =>
+      fetchEffectiveMonthlyBudget(parseDateOnlyStringToLocalDate(`${targetMonth}-01`)),
     staleTime: 3000, // 3秒
   })
+}
+
+export function usePrefetchEffectiveMonthlyBudget(targetMonth: string): void {
+  useQuery(effectiveMonthlyBudgetQueryOptions(targetMonth))
+}
+
+export function useEffectiveMonthlyBudget(targetMonth: string): UseEffectiveMonthlyBudgetReturn {
+  const query = useSuspenseQuery(effectiveMonthlyBudgetQueryOptions(targetMonth))
 
   return {
-    data: query.data ?? unsetMonthlyBudgetState,
-    loading: query.isLoading,
-    error: query.error,
-    promise: query.promise,
+    data: query.data,
   }
 }

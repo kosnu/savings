@@ -47,7 +47,9 @@ describe("useCategoryTotals", () => {
 
     const { result } = renderHook(() => useCategoryTotals({ cacheScope: "payments-page-1" }))
 
-    await expect(result.current.promise).resolves.toEqual(totals)
+    await waitFor(() => {
+      expect(result.current.data).toEqual(totals)
+    })
     expect(fetchCategoryTotals).toHaveBeenCalledWith(dateRangeState.dateRange)
   })
 
@@ -62,11 +64,13 @@ describe("useCategoryTotals", () => {
       },
     )
 
-    await expect(result.current.promise).resolves.toEqual(totals)
+    await waitFor(() => {
+      expect(result.current.data).toEqual(totals)
+    })
 
     rerender({ cacheScope: "payments-page-1" })
 
-    await expect(result.current.promise).resolves.toEqual(totals)
+    expect(result.current.data).toEqual(totals)
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(1)
   })
 
@@ -82,14 +86,18 @@ describe("useCategoryTotals", () => {
       },
     )
 
-    await expect(result.current.promise).resolves.toEqual([buildCategoryTotal(1000)])
+    await waitFor(() => {
+      expect(result.current.data).toEqual([buildCategoryTotal(1000)])
+    })
 
     rerender({ cacheScope: "payments-page-2" })
 
     await waitFor(() => {
       expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
     })
-    await expect(result.current.promise).resolves.toEqual([buildCategoryTotal(2000)])
+    await waitFor(() => {
+      expect(result.current.data).toEqual([buildCategoryTotal(2000)])
+    })
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
   })
 
@@ -102,7 +110,9 @@ describe("useCategoryTotals", () => {
       useCategoryTotals({ cacheScope: "payments-page-1" }),
     )
 
-    await expect(result.current.promise).resolves.toEqual([buildCategoryTotal(1000)])
+    await waitFor(() => {
+      expect(result.current.data).toEqual([buildCategoryTotal(1000)])
+    })
 
     dateRangeState.date = new Date(2025, 6, 1)
     dateRangeState.dateRange = [new Date(2025, 6, 1), new Date(2025, 6, 31)]
@@ -111,17 +121,9 @@ describe("useCategoryTotals", () => {
     await waitFor(() => {
       expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
     })
-    await expect(result.current.promise).resolves.toEqual([buildCategoryTotal(2000)])
+    await waitFor(() => {
+      expect(result.current.data).toEqual([buildCategoryTotal(2000)])
+    })
     expect(fetchCategoryTotals).toHaveBeenCalledTimes(2)
-  })
-
-  test("年月が未確定なら取得しない", async () => {
-    dateRangeState.date = null
-    dateRangeState.dateRange = [null, null]
-
-    const { result } = renderHook(() => useCategoryTotals({ cacheScope: "payments-page-1" }))
-
-    expect(result.current.targetMonthKey).toBe("")
-    expect(fetchCategoryTotals).not.toHaveBeenCalled()
   })
 })
