@@ -63,8 +63,8 @@ export const OpenDetails: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
+    await canvas.findByText("Jun 3, 2025")
     const paymentList = await canvas.findByLabelText("payment-list")
-    await within(paymentList).findByText("Jun 3, 2025", undefined, { timeout: 3000 })
     expect(await within(paymentList).findByText("Daily Necessities")).toBeInTheDocument()
 
     const detailDialog = await body.findByRole("dialog", {
