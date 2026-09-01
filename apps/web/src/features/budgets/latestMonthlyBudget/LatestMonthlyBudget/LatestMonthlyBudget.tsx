@@ -84,6 +84,7 @@ function LatestMonthlyBudgetRow({ monthlyBudget }: { monthlyBudget: MonthlyBudge
           }
         />
         <RemoveMonthlyBudgetModal
+          monthlyBudgetId={monthlyBudget.id}
           trigger={
             <Button color="red" variant="soft">
               <TrashIcon /> {t("budgets.remove")}

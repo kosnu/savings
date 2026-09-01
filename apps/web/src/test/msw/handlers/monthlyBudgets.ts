@@ -50,7 +50,12 @@ const createMonthlyBudgetBodySchema = z.object({
 })
 
 const updateMonthlyBudgetBodySchema = z.object({
+  p_monthly_budget_id: z.number(),
   p_amount: z.number(),
+})
+
+const removeMonthlyBudgetBodySchema = z.object({
+  p_monthly_budget_id: z.number(),
 })
 
 type UpdateMonthlyBudgetBody = z.infer<typeof updateMonthlyBudgetBodySchema>
@@ -128,7 +133,7 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     return HttpResponse.json(null)
   })
 
-  const removeMonthlyBudgetHandler = http.post(REMOVE_RPC_URL, async () => {
+  const removeMonthlyBudgetHandler = http.post(REMOVE_RPC_URL, async ({ request }) => {
     await delay(remove.durationOrMode)
 
     if (remove.error) {
@@ -137,6 +142,9 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
         { status: 500 },
       )
     }
+
+    const body = await request.json()
+    removeMonthlyBudgetBodySchema.parse(body)
 
     return HttpResponse.json(null)
   })
