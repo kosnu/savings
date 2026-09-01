@@ -4,7 +4,7 @@
   "workspace": "1516-write-1f0659ca8972",
   "display": {
     "path": "design-doc.md",
-    "preamble": "---\ntitle: \"Design Doc: Issue #1516\"\ndoc_type: design-doc\nstatus: proposed\narea: repository\napplies_to:\n  - apps/web\n  - apps/api\ntopics:\n  - monthly-budget\n  - rpc\n  - temporal-data\n  - design\nwhen_to_read:\n  - Issue #1516の実装・検証方針を確認するとき\n  - 月予算record-ID write境界を確認するとき\n---\n\n# Design Doc: Issue #1516\n\n- Requirements: `docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json`\n- Requirements SHA-256: `b37c546132efc69783771d92cdc11ab9871fc47b733ca5c86974303736c5d182`\n- Workspace: `1516-write-1f0659ca8972`"
+    "preamble": "---\ntitle: \"Design Doc: Issue #1516\"\ndoc_type: design-doc\nstatus: proposed\narea: repository\napplies_to:\n  - apps/web\n  - apps/api\ntopics:\n  - monthly-budget\n  - rpc\n  - temporal-data\n  - design\nwhen_to_read:\n  - Issue #1516の実装・検証方針を確認するとき\n  - 月予算record-ID write境界を確認するとき\n---\n\n# Design Doc: Issue #1516\n\n- Requirements: `docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json`\n- Requirements SHA-256: `2416e8773b759aec10f5f636b298e7989b1639e05d56cb22de0334b3bd7da451`\n- Workspace: `1516-write-1f0659ca8972`"
   },
   "validation": {
     "mode": "managed",
@@ -16,7 +16,7 @@
           {
             "id": "architecture-body",
             "type": "markdown",
-            "markdown": "Webは表示済み月予算record IDと操作内容だけをRPCへ渡す。RPCは認証default Book、DB current_date由来の当月、現在有効なamount行とのID一致を同一transaction内で検証し、当月行は更新、過去有効行は当月行追加、不正対象は拒否する。"
+            "markdown": "Webは表示済み月予算record IDと操作内容だけをRPCへ渡す。月予算tableのauthenticated mutation privilegeを閉じ、明示的なcreate/update/remove RPCだけをsecurity definer境界として残す。各RPCは認証default Bookと信頼時刻に基づく不変条件を強制する。MSW update/remove handlerは許可対象IDをoptionで受け取り、不一致requestをfail-closedで失敗させる。"
           },
           {
             "id": "fr-1-design",
@@ -40,7 +40,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "FR-2",
-            "text": "RPCは認証default BookとDB current_dateから現在有効なamount行をlockし、入力IDとの一致後だけwriteする。",
+            "text": "authenticatedのtable insert/update/delete privilegeを閉じ、security definer RPCが認証default BookとDB current_dateから現在有効なamount行をlockし、入力IDとの一致後だけwriteする。",
             "product_behavior_ids": [
               "PB-2"
             ]
@@ -50,7 +50,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "FR-2",
-            "text": "別Bookまたは現在有効行と異なるIDが拒否されることをDB手順で確認する。"
+            "text": "authenticated direct table mutationが拒否され、別Bookまたは現在有効行と異なるIDのRPCも拒否されることをDB testで確認する。"
           },
           {
             "id": "fr-3-design",
@@ -210,7 +210,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-2",
-            "text": "RPCは現在有効amount行とのID一致を必須にして未来、stale、none、非所有IDのcurrent writeを拒否する。",
+            "text": "table DMLをauthenticatedから剥奪し、RPCは現在有効amount行とのID一致を必須にして未来、stale、none、非所有IDのcurrent writeを拒否する。",
             "product_behavior_ids": [
               "PB-12"
             ]
@@ -220,7 +220,7 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-2",
-            "text": "全拒否caseで例外と不変な行状態をDB手順で確認する。"
+            "text": "direct table routeと全RPC拒否caseで失敗および不変な行状態をDB testで確認する。"
           },
           {
             "id": "ac-3-design",
@@ -244,7 +244,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-4",
-            "text": "既存UI表示、query invalidation、エラー処理を維持し、RPC payloadとMSW contractだけをrecord-ID入力へ同期する。",
+            "text": "既存UI表示、query invalidation、エラー処理を維持し、MSW update/remove handlerは許可対象IDをoptionで明示して不一致requestをfail-closedにする。",
             "product_behavior_ids": [
               "PB-14"
             ]
@@ -254,7 +254,14 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-4",
-            "text": "Web unit/integration suite、typecheck、lint、format-check、diff-checkを実行する。"
+            "text": "update/removeのID不一致integration testとWeb unit/integration suite、typecheck、lint、format-check、diff-checkを実行する。"
+          },
+          {
+            "id": "baseline-architecture-evidence",
+            "type": "evidence",
+            "role": "baseline",
+            "owner_id": "architecture",
+            "text": "authenticated mutation route列挙とMSW fail-closed検証を加えた完成状態へ置換する。"
           }
         ]
       }
@@ -270,7 +277,7 @@
         {
           "id": "PB-2",
           "type": "state_transition",
-          "description": "RPCが認証Bookの現在有効amount行と入力record IDの一致後だけwriteする",
+          "description": "authenticatedの月予算mutationは明示RPCだけに限定され認証Bookの不変条件を迂回できない",
           "requirement_id": "FR-2"
         },
         {
@@ -330,7 +337,7 @@
         {
           "id": "PB-12",
           "type": "state_transition",
-          "description": "未来、stale、none、非所有recordのcurrent writeがRPC境界で拒否される",
+          "description": "未来、stale、none、非所有recordのcurrent writeが直接table経路とRPC経路の両方で拒否される",
           "requirement_id": "AC-2"
         },
         {
@@ -342,7 +349,7 @@
         {
           "id": "PB-14",
           "type": "user_operation",
-          "description": "既存の月予算表示、成功後再取得、失敗表示が境界変更後も動作する",
+          "description": "既存UI挙動を維持しMSWがupdateとremoveの対象ID不一致を成功扱いしない",
           "requirement_id": "AC-4"
         }
       ],
@@ -368,7 +375,7 @@
           "product_behavior_ids": [
             "PB-2"
           ],
-          "procedure": "ローカルDBで別Bookまたは現在有効行と異なるIDをRPCへ渡し拒否を確認する"
+          "procedure": "Supabase DB testでauthenticatedのtable DML拒否と許可RPCだけの成功を確認する"
         },
         {
           "id": "VC-3",
@@ -475,7 +482,7 @@
           "product_behavior_ids": [
             "PB-12"
           ],
-          "procedure": "ローカルDBで全許可外record IDのRPC例外と行状態不変を確認する"
+          "procedure": "Supabase DB testでdirect table routeと全許可外record IDの拒否を確認する"
         },
         {
           "id": "VC-14",
@@ -537,11 +544,47 @@
           "selector": {
             "kind": "suite"
           }
+        },
+        {
+          "id": "VC-20",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "更新対象IDが許可対象と異なる場合は失敗する"
+          }
+        },
+        {
+          "id": "VC-21",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "削除対象IDが許可対象と異なる場合は失敗する"
+          }
         }
       ],
       "ownership_scopes": [
         {
           "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
           "kind": "file"
         },
         {
@@ -944,9 +987,14 @@
           "locator": {
             "kind": "file"
           },
-          "requirement_id": "AC-1",
-          "product_behavior_ids": [],
-          "verification_case_ids": []
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-20",
+            "VC-21"
+          ]
         },
         {
           "id": "REP-25",
@@ -996,7 +1044,72 @@
             "VC-16",
             "VC-17",
             "VC-18",
-            "VC-19"
+            "VC-19",
+            "VC-20",
+            "VC-21"
+          ]
+        },
+        {
+          "id": "REP-28",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-29",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "locator": {
+            "kind": "test_case",
+            "name": "authenticated mutation route closure"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-30",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "locator": {
+            "kind": "export",
+            "name": "authenticated monthly_budgets DML closure"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-31",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "locator": {
+            "kind": "test_case",
+            "name": "invalid current write rejection"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": [
+            "VC-13"
           ]
         }
       ]
@@ -1039,7 +1152,7 @@
       ]
     },
     "coverage_gate": {
-      "requirements_sha256": "b37c546132efc69783771d92cdc11ab9871fc47b733ca5c86974303736c5d182",
+      "requirements_sha256": "2416e8773b759aec10f5f636b298e7989b1639e05d56cb22de0334b3bd7da451",
       "workspace": "1516-write-1f0659ca8972",
       "requirement_ids": [
         "FR-1",
@@ -1058,8 +1171,8 @@
         "AC-4"
       ],
       "baseline": {
-        "source": "none",
-        "body_sha256": null
+        "source": "git_head",
+        "body_sha256": "1b09ea26c822be36c9cda5f2dd961c32ce6af8c8888ad738a3f6265836badada"
       },
       "coverage": [
         {
@@ -1133,7 +1246,15 @@
           "verification_block_id": "ac-4-verification"
         }
       ],
-      "baseline_sections": []
+      "baseline_sections": [
+        {
+          "section_id": "architecture",
+          "heading": "Architecture",
+          "content_sha256": "26a9a33059b55817d3297f0a0b87a35bbe37c7517e838d895a3ce65f057592c7",
+          "status": "replaced",
+          "design_block_id": "baseline-architecture-evidence"
+        }
+      ]
     }
   }
 }

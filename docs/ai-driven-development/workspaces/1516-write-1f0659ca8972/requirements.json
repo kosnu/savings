@@ -61,126 +61,126 @@
       "issue_body_sha256": "e74ac5389fc23e1200d436857264a540037b7d283278b8eda3b949eb06b4ea3e",
       "workspace": "1516-write-1f0659ca8972",
       "baseline": {
-        "source": "none",
-        "body_sha256": null
+        "source": "git_head",
+        "body_sha256": "b37c546132efc69783771d92cdc11ab9871fc47b733ca5c86974303736c5d182"
       },
       "requirements": [
         {
           "id": "FR-1",
-          "status": "new",
-          "issue_evidence": "クライアントは対象レコードIDと操作内容を渡す"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-2",
-          "status": "new",
-          "issue_evidence": "RPC は authenticated user が直接呼び出せる境界として扱う"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-3",
-          "status": "new",
-          "issue_evidence": "当月開始の金額ありレコードなら、そのレコードの金額を更新する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-4",
-          "status": "new",
-          "issue_evidence": "過去行を変更せず、当月開始の金額ありレコードを追加する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-5",
-          "status": "new",
-          "issue_evidence": "未来月開始のレコード、現在有効でないレコード、金額ありでないレコードは更新しない"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-6",
-          "status": "new",
-          "issue_evidence": "当月開始の金額ありレコードなら、そのレコードを予算なし状態にする"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-7",
-          "status": "new",
-          "issue_evidence": "過去行を変更せず、当月開始の予算なしレコードを追加する"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "FR-8",
-          "status": "new",
-          "issue_evidence": "未来月開始のレコード、現在有効でないレコード、金額ありでないレコードは削除/無効化しない"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-1",
-          "status": "new",
-          "issue_evidence": "過去月の表示結果を変更してはいけない"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-2",
-          "status": "new",
-          "issue_evidence": "既存の月予算状態モデル amount / none / unset は変えない"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-1",
-          "status": "new",
-          "issue_evidence": "クライアントが `target_month` や `current_month` を渡さずに更新・削除/無効化できる"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-2",
-          "status": "new",
-          "issue_evidence": "未来月開始レコードや現在有効でないレコードへの current write が拒否される"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-3",
-          "status": "new",
-          "issue_evidence": "責務分離が `monthly-budget` domain rule と関連 policy にルール化されている"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-4",
-          "status": "new",
-          "issue_evidence": "既存の関連挙動が壊れていない"
+          "status": "unchanged",
+          "issue_evidence": null
         }
       ],
       "sections": [
         {
           "id": "background",
-          "status": "new",
-          "issue_evidence": "UI文脈と write permission の責務が混ざる"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "users",
-          "status": "new",
-          "issue_evidence": "表示中の月予算に対する操作意図を送る"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "stories",
-          "status": "new",
-          "issue_evidence": "対象レコードとアプリケーション境界の現在月から処理が決まる"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "scope",
-          "status": "new",
-          "issue_evidence": "月予算の削除/無効化RPC"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "functional",
-          "status": "new",
-          "issue_evidence": "当月開始の金額ありレコードなら"
+          "status": "changed",
+          "issue_evidence": "クライアントは対象レコードIDと操作内容を渡す"
         },
         {
           "id": "non-functional",
-          "status": "new",
-          "issue_evidence": "タイムゾーンによる「現在月」の定義問題は別論点として扱う"
+          "status": "changed",
+          "issue_evidence": "既存の月予算状態モデル amount / none / unset は変えない"
         },
         {
           "id": "acceptance",
-          "status": "new",
-          "issue_evidence": "RPC が過去月の履歴を書き換えない"
+          "status": "changed",
+          "issue_evidence": "未来月開始レコードや現在有効でないレコードへの current write が拒否される"
         },
         {
           "id": "qa",
-          "status": "new",
-          "issue_evidence": "クライアント入力、アプリケーション境界、DB/RPC の責務を識別したい"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "technical",
-          "status": "new",
-          "issue_evidence": "クライアント由来の `current_month` を write permission の根拠にしない"
+          "status": "unchanged",
+          "issue_evidence": null
         }
       ],
       "retired": []
@@ -309,7 +309,7 @@
           {
             "id": "functional-body",
             "type": "markdown",
-            "markdown": "当月開始の金額ありレコードなら直接変更し、過去月開始で当月有効なら履歴を保った当月開始レコードを生成し、不正な対象は拒否する。"
+            "markdown": "クライアントは対象レコードIDと操作内容を渡す。当月開始なら直接変更し、過去月開始で当月有効なら履歴を保つ当月開始レコードを生成し、許可外対象は拒否する。"
           },
           {
             "id": "functional-requirements",
@@ -324,7 +324,7 @@
           {
             "id": "non-functional-body",
             "type": "markdown",
-            "markdown": "履歴と既存状態モデルを維持し、タイムゾーンによる「現在月」の定義問題は別論点として扱う。"
+            "markdown": "既存の月予算状態モデル amount / none / unset は変えない。過去月の表示結果を維持し、タイムゾーンによる現在月定義は別論点として扱う。"
           },
           {
             "id": "non-functional-requirements",
@@ -339,7 +339,7 @@
           {
             "id": "acceptance-body",
             "type": "markdown",
-            "markdown": "クライアント月入力なしのwrite、許可外対象の拒否、RPC が過去月の履歴を書き換えないこと、ルール同期と回帰検証を確認する。"
+            "markdown": "未来月開始レコードや現在有効でないレコードへの current write が拒否されること、クライアント月入力なしのwrite、過去月履歴の維持、ルール同期と回帰検証を確認する。"
           },
           {
             "id": "acceptance-requirements",
