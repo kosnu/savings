@@ -288,10 +288,10 @@
       "id": "policy.transaction-boundaries",
       "file": "docs/harness/policies/transaction-boundaries.md",
       "applies_to": {
-        "paths": ["apps/api/**", "apps/web/**", "docs/harness/policies/transaction-boundaries.md"],
-        "domains": ["api", "web", "database"],
-        "activities": ["change_mutation", "change_rpc", "change_transaction_boundary", "review_data_consistency", "review_api_schema", "review_api_rpc", "review_api_auth"],
-        "topics": ["transaction", "rpc", "database", "consistency"]
+        "paths": ["apps/api/**", "apps/web/**", ".github/workflows/**", "docs/harness/policies/transaction-boundaries.md"],
+        "domains": ["api", "web", "database", "infrastructure"],
+        "activities": ["change_mutation", "change_rpc", "change_api_contract", "plan_api_deployment", "change_transaction_boundary", "review_data_consistency", "review_api_schema", "review_api_rpc", "review_api_auth"],
+        "topics": ["transaction", "rpc", "api-contract", "database", "consistency", "deployment", "compatibility"]
       },
       "depends_on": ["architecture.overview"],
       "overrides": [],
