@@ -14,8 +14,8 @@
         "source": "issue_body",
         "issue": "kosnu/savings#1516",
         "url": "https://github.com/kosnu/savings/issues/1516",
-        "updated_at": "2026-09-01T01:20:09Z",
-        "body_sha256": "e74ac5389fc23e1200d436857264a540037b7d283278b8eda3b949eb06b4ea3e"
+        "updated_at": "2026-09-02T00:28:26Z",
+        "body_sha256": "9ccf2fbc02641caeb55a2d4332f777241059f6e96f6c9a97a5a37491d9cf3bc8"
       },
       "direct_rules": [
         {
@@ -58,11 +58,11 @@
       ]
     },
     "completeness_gate": {
-      "issue_body_sha256": "e74ac5389fc23e1200d436857264a540037b7d283278b8eda3b949eb06b4ea3e",
+      "issue_body_sha256": "9ccf2fbc02641caeb55a2d4332f777241059f6e96f6c9a97a5a37491d9cf3bc8",
       "workspace": "1516-write-1f0659ca8972",
       "baseline": {
         "source": "git_head",
-        "body_sha256": "b37c546132efc69783771d92cdc11ab9871fc47b733ca5c86974303736c5d182"
+        "body_sha256": "2416e8773b759aec10f5f636b298e7989b1639e05d56cb22de0334b3bd7da451"
       },
       "requirements": [
         {
@@ -116,6 +116,11 @@
           "issue_evidence": null
         },
         {
+          "id": "NFR-3",
+          "status": "new",
+          "issue_evidence": "RPC契約の切り替え中、またはWeb配備失敗中に、月予算の更新・削除が一時停止することを許容する"
+        },
+        {
           "id": "AC-1",
           "status": "unchanged",
           "issue_evidence": null
@@ -165,7 +170,7 @@
         {
           "id": "non-functional",
           "status": "changed",
-          "issue_evidence": "既存の月予算状態モデル amount / none / unset は変えない"
+          "issue_evidence": "RPC契約の切り替え中、またはWeb配備失敗中に、月予算の更新・削除が一時停止することを許容する"
         },
         {
           "id": "acceptance",
@@ -235,6 +240,11 @@
         "id": "NFR-2",
         "section_id": "non-functional",
         "text": "既存の月予算状態モデル amount / none / unset は変えない。タイムゾーンによる現在月の定義変更とBackend API層追加も対象外とする。"
+      },
+      {
+        "id": "NFR-3",
+        "section_id": "non-functional",
+        "text": "productionはAPIをWebより先に配備する。RPC契約の切り替え中、またはWeb配備失敗中に、月予算の更新・削除が一時停止することを許容する。旧RPC署名の互換期間は設けず、Web配備の完了または再実行で復旧する。"
       },
       {
         "id": "AC-1",
@@ -309,7 +319,7 @@
           {
             "id": "functional-body",
             "type": "markdown",
-            "markdown": "クライアントは対象レコードIDと操作内容を渡す。当月開始なら直接変更し、過去月開始で当月有効なら履歴を保つ当月開始レコードを生成し、許可外対象は拒否する。"
+            "markdown": "クライアントは対象レコードIDと操作内容を渡す一方、対象月や認可判定用の現在月は渡さない。当月開始なら直接変更し、過去月開始で当月有効なら履歴を保つ当月開始レコードを生成し、許可外対象は拒否する。"
           },
           {
             "id": "functional-requirements",
@@ -324,7 +334,7 @@
           {
             "id": "non-functional-body",
             "type": "markdown",
-            "markdown": "既存の月予算状態モデル amount / none / unset は変えない。過去月の表示結果を維持し、タイムゾーンによる現在月定義は別論点として扱う。"
+            "markdown": "既存の月予算状態モデル amount / none / unset と過去月の表示結果を維持する。タイムゾーンによる現在月定義は別論点とする。RPC契約の切り替え中、またはWeb配備失敗中に、月予算の更新・削除が一時停止することを許容する。"
           },
           {
             "id": "non-functional-requirements",
@@ -339,7 +349,7 @@
           {
             "id": "acceptance-body",
             "type": "markdown",
-            "markdown": "未来月開始レコードや現在有効でないレコードへの current write が拒否されること、クライアント月入力なしのwrite、過去月履歴の維持、ルール同期と回帰検証を確認する。"
+            "markdown": "RPCで未来月開始レコードや現在有効でないレコードへの current write が拒否されること、クライアント月入力なしのwrite、過去月履歴の維持、ルール同期と回帰検証を確認する。"
           },
           {
             "id": "acceptance-requirements",
