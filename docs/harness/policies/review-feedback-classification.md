@@ -41,7 +41,8 @@ AI Driven Developmentサイクルでは、Ship完了後の成果物フィード�
 - Build / Verify工程内の整合性問題は、Build / Verifyが完了するまで工程内で修正し、要件未達を残さない。
 - AI Driven Developmentサイクルでは、Build / Verifyが正常に完了した場合の次工程をShipとする。
 - AI Driven DevelopmentサイクルのShip完了後の成果物フィードバックは、ユーザーがLearn skillを手動実行して、Requirementsの材料となるタスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化に整理する。
-- AI Driven Developmentサイクルが上流成果物の不足・誤り・矛盾でStopした場合も、ユーザーがLearn skillを手動実行して同じ3つの振り分け先へ整理し、新しいサイクルをRequirementsから始める。正常系のBuild / VerifyとShipの間にはLearnを挟まない。
+- AI Driven Developmentサイクルが上流成果物の不足・誤り・矛盾でStopした場合も、ユーザーがLearn skillを手動実行して同じ3つの振り分け先へ整理する。正常系のBuild / VerifyとShipの間にはLearnを挟まない。
+- AI Driven DevelopmentのLearn結果で正本ルール・ポリシー・workflow文書の変更が必要な場合は、ユーザーが明示的に反映を指示した独立更新として完了し、その更新へ依存するタスクは完了後に新しいサイクルをRequirementsから開始する。実装、契約、検証機構、所有責務、workflowの実行機構、実行環境の変更が必要な場合は対象Issueへ反映し、新しいサイクルをRequirementsから開始する。Learnから後者の対象面を直接修正しない。
 - 通常タスクのレビューコメントは、指摘の妥当性、現在のスコープとの関係、修正の必要性を確認する。必要な修正は現在のタスクまたはPR内で実施して検証し、修正不要と判断したコメントには理由を示す。
 - 通常タスクでも、レビュー対応から得た学びをharness-taskまたはLearn skillで3つの振り分け先へ整理できる。学びの抽出は、現在のタスクで必要な修正を置き換えない。
 - Ship のコメントは、差分の事実、検証結果、返信内容、resolve可否が確認できる範囲で対応する。
