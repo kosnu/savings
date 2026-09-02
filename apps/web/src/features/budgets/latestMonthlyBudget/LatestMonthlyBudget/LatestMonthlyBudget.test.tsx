@@ -143,6 +143,7 @@ describe("LatestMonthlyBudget", () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: monthlyBudgets[3] },
+        update: { allowedMonthlyBudgetId: monthlyBudgets[3].id },
       }),
     )
 
@@ -161,6 +162,7 @@ describe("LatestMonthlyBudget", () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: { ...monthlyBudgets[3], amount: 82000 } },
+        update: { allowedMonthlyBudgetId: monthlyBudgets[3].id },
       }),
     )
     await user.click(within(dialog).getByRole("button", { name: "Save" }))
@@ -177,7 +179,7 @@ describe("LatestMonthlyBudget", () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: monthlyBudgets[3] },
-        update: { error: true },
+        update: { allowedMonthlyBudgetId: monthlyBudgets[3].id, error: true },
       }),
     )
 
@@ -200,6 +202,7 @@ describe("LatestMonthlyBudget", () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: monthlyBudgets[3] },
+        remove: { allowedMonthlyBudgetId: monthlyBudgets[3].id },
       }),
     )
 
@@ -217,6 +220,7 @@ describe("LatestMonthlyBudget", () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: { status: "none", monthly_budget: null } },
+        remove: { allowedMonthlyBudgetId: monthlyBudgets[3].id },
       }),
     )
     await user.click(within(dialog).getByRole("button", { name: "Remove" }))
@@ -235,7 +239,7 @@ describe("LatestMonthlyBudget", () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: monthlyBudgets[3] },
-        remove: { error: true },
+        remove: { allowedMonthlyBudgetId: monthlyBudgets[3].id, error: true },
       }),
     )
 
@@ -298,12 +302,52 @@ test("更新対象IDが許可対象と異なる場合は失敗する", async () 
   expect(screen.getByRole("dialog", { name: "Edit monthly budget" })).toBeInTheDocument()
 })
 
+test("更新の許可対象IDを省略した場合は失敗する", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {})
+  server.resetHandlers(
+    ...createMonthlyBudgetHandlers({
+      get: { response: monthlyBudgets[3] },
+      // @ts-expect-error 許可対象IDの省略を実行時に検証する。
+      update: {},
+    }),
+  )
+
+  const { user } = await renderLatestMonthlyBudget(<Default />)
+
+  await user.click(await screen.findByRole("button", { name: "Edit budget" }))
+  const dialog = await screen.findByRole("dialog", { name: "Edit monthly budget" })
+  await user.click(within(dialog).getByRole("button", { name: "Save" }))
+
+  expect(await within(dialog).findByText("Failed to update monthly budget.")).toBeInTheDocument()
+  expect(screen.getByRole("dialog", { name: "Edit monthly budget" })).toBeInTheDocument()
+})
+
 test("削除対象IDが許可対象と異なる場合は失敗する", async () => {
   vi.spyOn(console, "error").mockImplementation(() => {})
   server.resetHandlers(
     ...createMonthlyBudgetHandlers({
       get: { response: monthlyBudgets[3] },
       remove: { allowedMonthlyBudgetId: monthlyBudgets[2].id },
+    }),
+  )
+
+  const { user } = await renderLatestMonthlyBudget(<Default />)
+
+  await user.click(await screen.findByRole("button", { name: "Remove budget" }))
+  const dialog = await screen.findByRole("dialog", { name: "Remove this month's budget?" })
+  await user.click(within(dialog).getByRole("button", { name: "Remove" }))
+
+  expect(await within(dialog).findByText("Failed to remove monthly budget.")).toBeInTheDocument()
+  expect(screen.getByRole("dialog", { name: "Remove this month's budget?" })).toBeInTheDocument()
+})
+
+test("削除の許可対象IDを省略した場合は失敗する", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {})
+  server.resetHandlers(
+    ...createMonthlyBudgetHandlers({
+      get: { response: monthlyBudgets[3] },
+      // @ts-expect-error 許可対象IDの省略を実行時に検証する。
+      remove: {},
     }),
   )
 

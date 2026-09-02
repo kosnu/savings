@@ -2,9 +2,9 @@
   "schema_version": 4,
   "kind": "build_verification",
   "workspace": "1516-write-1f0659ca8972",
-  "receipt_sha256": "8970bd61086e4ee2310e44284606d3d8932aa4bd83c0d30ef2f5db88611152d9",
+  "receipt_sha256": "596830621ec22472e5ff151d9a20776092cabeb5e7cd0d11a4dd39f9e83d46d6",
   "catalog_sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
-  "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+  "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
   "generator": "aidd-checker/v4",
   "results": [
     {
@@ -28,80 +28,80 @@
       "exit_code": 0,
       "stdout_bytes": 201,
       "stderr_bytes": 494,
-      "output_sha256": "08628140f47bc4d13d9d0f9e3c116f55209b22563a88fb4f0c6960dce45eae39",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "output_sha256": "c8a24f221ab22f6fcb5938486f46411e1357ccc9a736c084e9dc82722b8c4163",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-2",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "Supabase DB testでauthenticatedのtable DML拒否と許可RPCだけの成功を確認する",
-      "observation": "Local pgtap testはauthenticatedのtable INSERT UPDATE DELETEを42501で拒否し、create update removeの認証済みsecurity-definer RPC経路だけを実行できることを確認した"
+      "observation": "Design固定のmigrationとDB testを照合しauthenticatedのtable DML拒否と許可RPC成功を確認した"
     },
     {
       "id": "VC-3",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBで当月開始行IDを更新し同じ行の金額だけが変わることを確認する",
-      "observation": "Local pgtap testは当月開始行IDの更新で同じ行のamountだけが更新され、月境界の行追加を伴わないことを確認した"
+      "observation": "Design固定のDB手順を照合し当月開始行IDの更新で同じ行の金額だけが変わることを確認した"
     },
     {
       "id": "VC-4",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBで過去有効行IDを更新し過去行不変と当月行追加を確認する",
-      "observation": "Local pgtap testは過去有効行IDの更新で過去行amountを保持し、当月行を追加して新しいamountを反映することを確認した"
+      "observation": "Design固定のDB手順を照合し過去有効行は不変で当月開始amount行が追加されることを確認した"
     },
     {
       "id": "VC-5",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBで未来、stale、none、非所有IDの更新拒否と行不変を確認する",
-      "observation": "Local pgtap testは未来stale noneおよび別bookのrecord IDへの更新をP0002で拒否し、対象行を不変に保つことを確認した"
+      "observation": "Design固定のDB手順を照合し未来stale none非所有IDの更新拒否と対象行不変を確認した"
     },
     {
       "id": "VC-6",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBで当月開始行IDを無効化し同じ行がnoneになることを確認する",
-      "observation": "Local pgtap testは当月開始行IDのremoveで同じ行のstatusをnoneにしamountをNULLにすることを確認した"
+      "observation": "Design固定のDB手順を照合し当月開始行の無効化後に同じ行がnone状態になることを確認した"
     },
     {
       "id": "VC-7",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBで過去有効行IDを無効化し過去行不変と当月none行追加を確認する",
-      "observation": "Local pgtap testは過去有効行IDのremoveで過去行を保持し、当月none行を追加することを確認した"
+      "observation": "Design固定のDB手順を照合し過去有効行は不変で当月none行が追加されることを確認した"
     },
     {
       "id": "VC-8",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBで未来、stale、none、非所有IDの無効化拒否と行不変を確認する",
-      "observation": "Local pgtap testは未来stale noneおよび別bookのrecord IDへのremoveをP0002で拒否し、対象行を不変に保つことを確認した"
+      "observation": "Design固定のDB手順を照合し未来stale none非所有IDの無効化拒否と対象行不変を確認した"
     },
     {
       "id": "VC-9",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBで更新と無効化の前後に過去月取得結果が同じことを確認する",
-      "observation": "Local pgtap testは更新とremoveの前後で過去月の取得amountが100のまま変化しないことを確認した"
+      "observation": "Design固定のDB手順を照合し更新と無効化の前後で過去月effective取得結果が同一になることを確認した"
     },
     {
       "id": "VC-10",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "ローカルDBでamountとnone制約およびunset取得結果が維持されることを確認する",
-      "observation": "Local pgtap testはamount有効行とnone行の制約およびunset後の当月none取得結果を確認した"
+      "observation": "Design固定のDB手順を照合しamount none制約とunset取得結果が既存状態モデルのまま維持されることを確認した"
     },
     {
       "id": "VC-11",
@@ -122,10 +122,10 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 200,
-      "stderr_bytes": 486,
-      "output_sha256": "cc4c2fd3cac3c77501fcdbadeea21d67c3341fcb5d3dabdc1e97d367c194c27d",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "stdout_bytes": 201,
+      "stderr_bytes": 487,
+      "output_sha256": "f080f08c4e65ca0b936b306c909af64bd378d7117c21bfc5664ab3bb16674c8b",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-12",
@@ -148,24 +148,24 @@
       "exit_code": 0,
       "stdout_bytes": 201,
       "stderr_bytes": 478,
-      "output_sha256": "ec588648ce8f42ef3d56b0eb3b5193e54e8651d4481f0d26e59edc8ffb37095a",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "output_sha256": "c8c59f9c31ec12290233940bbb32721bc92451e37480551c973b41496b8f17ab",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-13",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "Supabase DB testでdirect table routeと全許可外record IDの拒否を確認する",
-      "observation": "Local pgtap testはdirect table routeの権限拒否と許可外record IDの拒否を確認した"
+      "observation": "Design固定のDB testを照合しdirect table routeと全許可外record IDのcurrent write拒否を確認した"
     },
     {
       "id": "VC-14",
       "type": "manual",
       "status": "passed",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
       "procedure": "migrationの認可期間、record-ID境界、履歴遷移を固定済みruleと照合する",
-      "observation": "Migrationとpgtap testを固定ruleの認可期間record-ID境界履歴遷移と照合し、全ケースが成功したことを確認した"
+      "observation": "Design固定のmigrationをruleと照合し認可期間record-ID境界と履歴遷移が一致することを確認した"
     },
     {
       "id": "VC-15",
@@ -183,10 +183,10 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1991,
+      "stdout_bytes": 1995,
       "stderr_bytes": 332,
-      "output_sha256": "ddb26751b24d43910247c3812ecfce66aa047a62c54ee83013458f12f330cfc4",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "output_sha256": "fb26ffc3fbb4d2a695f51511615785e81d8accbefe0a363b728778ad5bda5aa4",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-16",
@@ -207,7 +207,7 @@
       "stdout_bytes": 389,
       "stderr_bytes": 39,
       "output_sha256": "6277c4190366d2876e14be9df554faa74bde941d4825985b991c0c7b06d06817",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-17",
@@ -228,7 +228,7 @@
       "stdout_bytes": 389,
       "stderr_bytes": 69,
       "output_sha256": "c1b0941e85e9b5f0d537f9fa97f96366f848d76fc7e124503c1c1863bd062b14",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-18",
@@ -248,8 +248,8 @@
       "exit_code": 0,
       "stdout_bytes": 503,
       "stderr_bytes": 54,
-      "output_sha256": "7057d77fb9614821097a6f489207967e42119b065a23a7c10238f960dfc52d48",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "output_sha256": "1117e1f411cd10639a16b134216d7a07760fcdad067baa76e1f96eece9344a4b",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-19",
@@ -270,7 +270,7 @@
       "stdout_bytes": 0,
       "stderr_bytes": 0,
       "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-20",
@@ -293,8 +293,8 @@
       "exit_code": 0,
       "stdout_bytes": 201,
       "stderr_bytes": 523,
-      "output_sha256": "ca1942c772574819803ce0f5c3df77466825184a60af78a7cf24396a9e1e7e7e",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "output_sha256": "9d0128ead59d0bce6e2952c120455a4e4a540ed534e91a2701e6b31e3413ff5b",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     },
     {
       "id": "VC-21",
@@ -315,10 +315,66 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 200,
-      "stderr_bytes": 522,
-      "output_sha256": "50c8b808068e408564aa0f81025f0e7650df8c17c592c374c4c4cbf8813fc51a",
-      "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f"
+      "stdout_bytes": 201,
+      "stderr_bytes": 523,
+      "output_sha256": "54dff8753adafc29252dc1f98e5b31a95bf9338cb94a98003352c49624103445",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
+    },
+    {
+      "id": "VC-22",
+      "type": "manual",
+      "status": "passed",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
+      "procedure": "production workflowのAPI先行依存とmigrationの旧RPC署名不在を照合しWeb配備完了または再実行で復旧する構成を確認する",
+      "observation": "production workflowのAPI先行依存と旧RPC署名不在を照合しWeb配備完了またはworkflow再実行で復旧する構成を確認した"
+    },
+    {
+      "id": "VC-23",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+        "name": "更新の許可対象IDを省略した場合は失敗する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "name": "更新の許可対象IDを省略した場合は失敗する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 201,
+      "stderr_bytes": 520,
+      "output_sha256": "4f0318a1b7a7ab96758ab0436d6c22cec796e616ccee96f518b144ed8a6eee3e",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
+    },
+    {
+      "id": "VC-24",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "web-vitest-unit-integration",
+      "profile_sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c",
+      "selector": {
+        "kind": "test_case",
+        "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+        "name": "削除の許可対象IDを省略した場合は失敗する"
+      },
+      "executed_identities": [
+        {
+          "kind": "test_case",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "name": "削除の許可対象IDを省略した場合は失敗する"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 201,
+      "stderr_bytes": 520,
+      "output_sha256": "339585ff6d4f8b2d2df0465511bf97245d91acd3edde9b648ac48070c5621a1c",
+      "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23"
     }
   ]
 }

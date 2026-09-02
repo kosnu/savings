@@ -6,13 +6,13 @@
     "id": "kosnu/savings#1516",
     "title": "月予算writeの責務分離を再設計する",
     "url": "https://github.com/kosnu/savings/issues/1516",
-    "updated_at": "2026-09-01T01:20:09Z",
-    "body_sha256": "e74ac5389fc23e1200d436857264a540037b7d283278b8eda3b949eb06b4ea3e"
+    "updated_at": "2026-09-02T00:28:26Z",
+    "body_sha256": "9ccf2fbc02641caeb55a2d4332f777241059f6e96f6c9a97a5a37491d9cf3bc8"
   },
-  "design_goal_sha256": "0b60d56d6b79894ea7734b985630bbd23eb199dc74c3122e98ebe2b2ffdb2035",
+  "design_goal_sha256": "af49c6a512e37e4d06d7fb3bee9154425dbe7e29d7608cc258a210f97bc66b74",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
-    "sha256": "62121faffa0c3c7c4858b5dfdafa06f734f261a5a178f86c260d0342c1ef1751"
+    "sha256": "1f3542e1e6eda9d1048a654cdbe4e2a11b2fa18c08e02f4921cae0d75ff41c27"
   },
   "selected_rules": [
     {
@@ -63,7 +63,7 @@
     {
       "id": "policy.transaction-boundaries",
       "path": "docs/harness/policies/transaction-boundaries.md",
-      "sha256": "3a660c16817097b2173d09ff582ccd781e4920c65ac5c6cdebad093861e56de2"
+      "sha256": "7be9864204435d28907b5b168ad0be4fb951f330060d86cb0105901a162661bd"
     },
     {
       "id": "policy.temporal-data",
@@ -148,7 +148,7 @@
     {
       "id": "web.msw-handlers",
       "path": "apps/web/docs/policies/msw-handlers.md",
-      "sha256": "3c9a0b2da13f414c596d6ec16aa7918d4c2a25d538e0cb0291fdfdcdc9eced01"
+      "sha256": "d01eb513d2348e02a52bfe686f185ea11f498b7bd5e57a1cf16a454f223faac1"
     },
     {
       "id": "web.test-policy",
@@ -232,7 +232,7 @@
     }
   },
   "target_state": {
-    "sha256": "b7126df616e9b2fb942c111f793f9d08d0256805e5fb3b2ae28067ac8e7321ab",
+    "sha256": "0a896ee7a1e2359d3f0b35fc75e9caa509a564b9a42615769cbdc0582dbb99fb",
     "value": {
       "product_behaviors": [
         {
@@ -316,8 +316,14 @@
         {
           "id": "PB-14",
           "type": "user_operation",
-          "description": "既存UI挙動を維持しMSWがupdateとremoveの対象ID不一致を成功扱いしない",
+          "description": "既存UI挙動を維持しMSWがupdateとremoveの許可対象ID省略または対象ID不一致を成功扱いしない",
           "requirement_id": "AC-4"
+        },
+        {
+          "id": "PB-15",
+          "type": "user_operation",
+          "description": "API先行配備からWeb配備完了までは月予算の更新・削除が一時停止し、旧RPC互換を残さずWeb配備完了または再実行で復旧する",
+          "requirement_id": "NFR-3"
         }
       ],
       "verification_cases": [
@@ -539,9 +545,50 @@
             "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
             "name": "削除対象IDが許可対象と異なる場合は失敗する"
           }
+        },
+        {
+          "id": "VC-22",
+          "type": "manual",
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "procedure": "production workflowのAPI先行依存とmigrationの旧RPC署名不在を照合しWeb配備完了または再実行で復旧する構成を確認する"
+        },
+        {
+          "id": "VC-23",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "更新の許可対象IDを省略した場合は失敗する"
+          }
+        },
+        {
+          "id": "VC-24",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "削除の許可対象IDを省略した場合は失敗する"
+          }
         }
       ],
       "ownership_scopes": [
+        {
+          "path": ".github/workflows/deploy_production.yaml",
+          "kind": "file"
+        },
         {
           "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
           "kind": "file"
@@ -960,7 +1007,9 @@
           ],
           "verification_case_ids": [
             "VC-20",
-            "VC-21"
+            "VC-21",
+            "VC-23",
+            "VC-24"
           ]
         },
         {
@@ -1013,7 +1062,9 @@
             "VC-18",
             "VC-19",
             "VC-20",
-            "VC-21"
+            "VC-21",
+            "VC-23",
+            "VC-24"
           ]
         },
         {
@@ -1078,13 +1129,79 @@
           "verification_case_ids": [
             "VC-13"
           ]
+        },
+        {
+          "id": "REP-32",
+          "kind": "configuration",
+          "path": ".github/workflows/deploy_production.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "verification_case_ids": [
+            "VC-22"
+          ]
+        },
+        {
+          "id": "REP-33",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "verification_case_ids": [
+            "VC-22"
+          ]
+        },
+        {
+          "id": "REP-34",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "更新の許可対象IDを省略した場合は失敗する"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-23"
+          ]
+        },
+        {
+          "id": "REP-35",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "削除の許可対象IDを省略した場合は失敗する"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-24"
+          ]
         }
       ]
     }
   },
   "ownership_scopes": {
-    "sha256": "9cf2532aee381581c0f1c578f98443e6487043a5d140a53dcdbc3e1a5098885d",
+    "sha256": "6711e2710bef8ca2605cd473235a950db11e323dae36da8b07f0f9349e85b653",
     "value": [
+      {
+        "path": ".github/workflows/deploy_production.yaml",
+        "kind": "file"
+      },
       {
         "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
         "kind": "file"
@@ -1164,9 +1281,12 @@
     ]
   },
   "baseline_inventory": {
-    "sha256": "45f080db82ca9cab663729150d9c078c7761cedbcde48576594b7c7779743a20",
+    "sha256": "44e772bb82a3298d715d08924e7d09b32f8ac9cd88e78bf7e76b5abbd0f42e00",
     "value": [
+      ".github/workflows/deploy_production.yaml",
       "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+      "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+      "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
       "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
       "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
       "apps/web/src/features/budgets/removeMonthlyBudget/RemoveMonthlyBudgetModal/RemoveMonthlyBudgetModal.tsx",
@@ -1190,30 +1310,30 @@
     "value": []
   },
   "build_baseline": {
-    "head": "bbd7ae1712ae793b1ff42c3d964bd2ac9f855bc3"
+    "head": "fe051ddf70fc4e7f1ac7e0fd498e5ff248db510e"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json",
-        "sha256": "2416e8773b759aec10f5f636b298e7989b1639e05d56cb22de0334b3bd7da451",
+        "sha256": "12b1c0ec902ac923ea820fc3575afddc6b33e062efe1e82366442317412d0829",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.md",
-        "sha256": "6d1fee102d1f03fcf984eeacc3e2a595d5ca37bc7526ca9d6b4139530933fead",
+        "sha256": "4c689904df7f591fcebb3972bbcb0a1458214cd2819025f588371db561414c71",
         "mode": "0600"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.json",
-        "sha256": "8bbfd97a0d8c2ad497979be4e37abe00b1bb6661a81353a60d5a10090b2da2f4",
+        "sha256": "d24e9ed59da3efce794b9ae5f7ea26c0286d42198d61c2309ad5409e28602943",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.md",
-        "sha256": "cf46a893cdd69daa39f01649ad66453d1b036a08595c200d2a7cff190fe7305c",
+        "sha256": "be431d91d867898efa453e51bbd8fa14a59a03ec35cc02d90792f5188c7364e2",
         "mode": "0600"
       }
     }

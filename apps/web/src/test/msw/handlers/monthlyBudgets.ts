@@ -28,13 +28,13 @@ interface CreateMonthlyBudgetOptions extends BaseOptions {
 }
 
 interface UpdateMonthlyBudgetOptions extends BaseOptions {
-  allowedMonthlyBudgetId?: number
+  allowedMonthlyBudgetId: number
   response?: MonthlyBudgetRow
   errorResponse?: unknown
 }
 
 interface RemoveMonthlyBudgetOptions extends BaseOptions {
-  allowedMonthlyBudgetId?: number
+  allowedMonthlyBudgetId: number
   errorResponse?: unknown
 }
 
@@ -70,8 +70,8 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
   const get = options.get ?? {}
   const list = options.list ?? {}
   const create = options.create ?? {}
-  const update = options.update ?? {}
-  const remove = options.remove ?? {}
+  const update = options.update
+  const remove = options.remove
   const listRows = list.response ?? monthlyBudgets
 
   const monthlyBudgetsHandler = http.get(REST_URL, async () => {
@@ -115,9 +115,9 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
   })
 
   const updateMonthlyBudgetHandler = http.post(UPDATE_RPC_URL, async ({ request }) => {
-    await delay(update.durationOrMode)
+    await delay(update?.durationOrMode)
 
-    if (update.error) {
+    if (update?.error) {
       return HttpResponse.json(
         update.errorResponse ?? { message: "Failed to update monthly budget." },
         { status: 500 },
@@ -127,10 +127,7 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     const body = await request.json()
     const parsedBody = updateMonthlyBudgetBodySchema.parse(body)
 
-    if (
-      update.allowedMonthlyBudgetId !== undefined &&
-      parsedBody.p_monthly_budget_id !== update.allowedMonthlyBudgetId
-    ) {
+    if (!update || parsedBody.p_monthly_budget_id !== update.allowedMonthlyBudgetId) {
       return HttpResponse.json({ message: "Monthly budget was not updated." }, { status: 500 })
     }
 
@@ -144,9 +141,9 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
   })
 
   const removeMonthlyBudgetHandler = http.post(REMOVE_RPC_URL, async ({ request }) => {
-    await delay(remove.durationOrMode)
+    await delay(remove?.durationOrMode)
 
-    if (remove.error) {
+    if (remove?.error) {
       return HttpResponse.json(
         remove.errorResponse ?? { message: "Failed to remove monthly budget." },
         { status: 500 },
@@ -156,10 +153,7 @@ export function createMonthlyBudgetHandlers(options: CreateMonthlyBudgetHandlers
     const body = await request.json()
     const parsedBody = removeMonthlyBudgetBodySchema.parse(body)
 
-    if (
-      remove.allowedMonthlyBudgetId !== undefined &&
-      parsedBody.p_monthly_budget_id !== remove.allowedMonthlyBudgetId
-    ) {
+    if (!remove || parsedBody.p_monthly_budget_id !== remove.allowedMonthlyBudgetId) {
       return HttpResponse.json({ message: "Failed to remove monthly budget." }, { status: 500 })
     }
 

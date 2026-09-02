@@ -2,15 +2,18 @@
   "schema_version": 4,
   "kind": "build_rule_coverage",
   "workspace": "1516-write-1f0659ca8972",
-  "receipt_sha256": "8970bd61086e4ee2310e44284606d3d8932aa4bd83c0d30ef2f5db88611152d9",
-  "target_state_sha256": "b7126df616e9b2fb942c111f793f9d08d0256805e5fb3b2ae28067ac8e7321ab",
-  "final_state_sha256": "92138f346dc99c69a30b5efd64828c68ae0ad5c4eb6773f7654332af897cae2f",
+  "receipt_sha256": "596830621ec22472e5ff151d9a20776092cabeb5e7cd0d11a4dd39f9e83d46d6",
+  "target_state_sha256": "0a896ee7a1e2359d3f0b35fc75e9caa509a564b9a42615769cbdc0582dbb99fb",
+  "final_state_sha256": "301da66b514d68dfc6efccfe27dc553a3136f9890a703f47dc13a7e9ec6bbc23",
   "verification_evidence": {
     "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/.aidd/build-verification.json",
-    "sha256": "ba60e988dfdf79f3e6e90435414a9050471a819031111d2da421b00ff66615ed"
+    "sha256": "0393246727bc1e363c26a3c2e0d9d18f521f999e5ab2c33422977c3553e50c02"
   },
   "baseline_inventory": [
+    ".github/workflows/deploy_production.yaml",
     "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+    "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+    "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
     "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
     "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
     "apps/web/src/features/budgets/removeMonthlyBudget/RemoveMonthlyBudgetModal/RemoveMonthlyBudgetModal.tsx",
@@ -29,6 +32,7 @@
     "apps/web/src/types/database.types.ts"
   ],
   "final_inventory": [
+    ".github/workflows/deploy_production.yaml",
     "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
     "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
     "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
@@ -50,87 +54,6 @@
     "apps/web/src/types/database.types.ts"
   ],
   "changed_paths": [
-    {
-      "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
-      "status": "M",
-      "surfaces": [
-        "api-project"
-      ],
-      "rules": [
-        "documentation.policy",
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.overview",
-        "ai-driven.workflow",
-        "policy.learning-extraction",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user"
-      ]
-    },
-    {
-      "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
-      "status": "A",
-      "surfaces": [
-        "api-project"
-      ],
-      "rules": [
-        "documentation.policy",
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.overview",
-        "ai-driven.workflow",
-        "policy.learning-extraction",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user"
-      ]
-    },
-    {
-      "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
-      "status": "A",
-      "surfaces": [
-        "api-project"
-      ],
-      "rules": [
-        "documentation.policy",
-        "architecture.overview",
-        "infrastructure.overview",
-        "ai-driven.overview",
-        "ai-driven.workflow",
-        "policy.learning-extraction",
-        "policy.git-workflow",
-        "policy.review-feedback-classification",
-        "policy.code-review",
-        "policy.transaction-boundaries",
-        "policy.temporal-data",
-        "domain.amount",
-        "domain.date",
-        "domain.payment",
-        "domain.category",
-        "domain.monthly-budget",
-        "domain.book",
-        "domain.user"
-      ]
-    },
     {
       "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
       "status": "M",

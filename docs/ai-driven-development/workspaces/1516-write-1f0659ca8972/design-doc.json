@@ -4,7 +4,7 @@
   "workspace": "1516-write-1f0659ca8972",
   "display": {
     "path": "design-doc.md",
-    "preamble": "---\ntitle: \"Design Doc: Issue #1516\"\ndoc_type: design-doc\nstatus: proposed\narea: repository\napplies_to:\n  - apps/web\n  - apps/api\ntopics:\n  - monthly-budget\n  - rpc\n  - temporal-data\n  - design\nwhen_to_read:\n  - Issue #1516の実装・検証方針を確認するとき\n  - 月予算record-ID write境界を確認するとき\n---\n\n# Design Doc: Issue #1516\n\n- Requirements: `docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json`\n- Requirements SHA-256: `2416e8773b759aec10f5f636b298e7989b1639e05d56cb22de0334b3bd7da451`\n- Workspace: `1516-write-1f0659ca8972`"
+    "preamble": "---\ntitle: \"Design Doc: Issue #1516\"\ndoc_type: design-doc\nstatus: proposed\narea: repository\napplies_to:\n  - apps/web\n  - apps/api\ntopics:\n  - monthly-budget\n  - rpc\n  - temporal-data\n  - design\nwhen_to_read:\n  - Issue #1516の実装・検証方針を確認するとき\n  - 月予算record-ID write境界を確認するとき\n---\n\n# Design Doc: Issue #1516\n\n- Requirements: `docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json`\n- Requirements SHA-256: `12b1c0ec902ac923ea820fc3575afddc6b33e062efe1e82366442317412d0829`\n- Workspace: `1516-write-1f0659ca8972`"
   },
   "validation": {
     "mode": "managed",
@@ -16,7 +16,7 @@
           {
             "id": "architecture-body",
             "type": "markdown",
-            "markdown": "Webは表示済み月予算record IDと操作内容だけをRPCへ渡す。月予算tableのauthenticated mutation privilegeを閉じ、明示的なcreate/update/remove RPCだけをsecurity definer境界として残す。各RPCは認証default Bookと信頼時刻に基づく不変条件を強制する。MSW update/remove handlerは許可対象IDをoptionで受け取り、不一致requestをfail-closedで失敗させる。"
+            "markdown": "Webは表示済み月予算record IDと操作内容だけをRPCへ渡す。月予算tableのauthenticated mutation privilegeを閉じ、明示的なcreate/update/remove RPCだけをsecurity definer境界として残す。各RPCは認証default Bookと信頼時刻に基づく不変条件を強制する。MSW update/remove handlerは許可対象IDを必須とし、省略または不一致requestをfail-closedで失敗させる。productionはAPI先行で配備し、旧RPC互換期間を設けず、Web配備完了または再実行まで更新・削除の一時停止を許容する。"
           },
           {
             "id": "fr-1-design",
@@ -189,6 +189,23 @@
             "text": "既存状態制約とeffective取得responseが維持されることをDB手順とWeb suiteで確認する。"
           },
           {
+            "id": "nfr-3-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-3",
+            "text": "production deployは既存のAPI先行依存を維持する。旧update/remove RPC署名は互換期間を設けず撤去し、切り替え中またはWeb配備失敗中は月予算の更新・削除停止を許容し、Web配備完了または同workflow再実行で復旧する。",
+            "product_behavior_ids": [
+              "PB-15"
+            ]
+          },
+          {
+            "id": "nfr-3-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-3",
+            "text": "production workflowのAPI先行依存、migrationの旧RPC署名撤去と新署名定義、Web配備完了または再実行による復旧条件を照合する。"
+          },
+          {
             "id": "ac-1-design",
             "type": "evidence",
             "role": "design",
@@ -244,7 +261,7 @@
             "type": "evidence",
             "role": "design",
             "owner_id": "AC-4",
-            "text": "既存UI表示、query invalidation、エラー処理を維持し、MSW update/remove handlerは許可対象IDをoptionで明示して不一致requestをfail-closedにする。",
+            "text": "既存UI表示、query invalidation、エラー処理を維持し、MSW update/remove handlerは許可対象IDを必須として、省略またはrequest ID不一致をfail-closedにする。",
             "product_behavior_ids": [
               "PB-14"
             ]
@@ -254,14 +271,14 @@
             "type": "evidence",
             "role": "verification",
             "owner_id": "AC-4",
-            "text": "update/removeのID不一致integration testとWeb unit/integration suite、typecheck、lint、format-check、diff-checkを実行する。"
+            "text": "update/removeの許可対象ID省略とID不一致integration test、およびWeb unit/integration suite、typecheck、lint、format-check、diff-checkを実行する。"
           },
           {
             "id": "baseline-architecture-evidence",
             "type": "evidence",
             "role": "baseline",
             "owner_id": "architecture",
-            "text": "authenticated mutation route列挙とMSW fail-closed検証を加えた完成状態へ置換する。"
+            "text": "authenticated mutation route列挙、配備成立条件、MSW許可対象IDの必須化とfail-closed検証を加えた完成状態へ置換する。"
           }
         ]
       }
@@ -349,8 +366,14 @@
         {
           "id": "PB-14",
           "type": "user_operation",
-          "description": "既存UI挙動を維持しMSWがupdateとremoveの対象ID不一致を成功扱いしない",
+          "description": "既存UI挙動を維持しMSWがupdateとremoveの許可対象ID省略または対象ID不一致を成功扱いしない",
           "requirement_id": "AC-4"
+        },
+        {
+          "id": "PB-15",
+          "type": "user_operation",
+          "description": "API先行配備からWeb配備完了までは月予算の更新・削除が一時停止し、旧RPC互換を残さずWeb配備完了または再実行で復旧する",
+          "requirement_id": "NFR-3"
         }
       ],
       "verification_cases": [
@@ -572,9 +595,50 @@
             "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
             "name": "削除対象IDが許可対象と異なる場合は失敗する"
           }
+        },
+        {
+          "id": "VC-22",
+          "type": "manual",
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "procedure": "production workflowのAPI先行依存とmigrationの旧RPC署名不在を照合しWeb配備完了または再実行で復旧する構成を確認する"
+        },
+        {
+          "id": "VC-23",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "更新の許可対象IDを省略した場合は失敗する"
+          }
+        },
+        {
+          "id": "VC-24",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "削除の許可対象IDを省略した場合は失敗する"
+          }
         }
       ],
       "ownership_scopes": [
+        {
+          "path": ".github/workflows/deploy_production.yaml",
+          "kind": "file"
+        },
         {
           "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
           "kind": "file"
@@ -993,7 +1057,9 @@
           ],
           "verification_case_ids": [
             "VC-20",
-            "VC-21"
+            "VC-21",
+            "VC-23",
+            "VC-24"
           ]
         },
         {
@@ -1046,7 +1112,9 @@
             "VC-18",
             "VC-19",
             "VC-20",
-            "VC-21"
+            "VC-21",
+            "VC-23",
+            "VC-24"
           ]
         },
         {
@@ -1111,6 +1179,68 @@
           "verification_case_ids": [
             "VC-13"
           ]
+        },
+        {
+          "id": "REP-32",
+          "kind": "configuration",
+          "path": ".github/workflows/deploy_production.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "verification_case_ids": [
+            "VC-22"
+          ]
+        },
+        {
+          "id": "REP-33",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "verification_case_ids": [
+            "VC-22"
+          ]
+        },
+        {
+          "id": "REP-34",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "更新の許可対象IDを省略した場合は失敗する"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-23"
+          ]
+        },
+        {
+          "id": "REP-35",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "削除の許可対象IDを省略した場合は失敗する"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-24"
+          ]
         }
       ]
     },
@@ -1152,7 +1282,7 @@
       ]
     },
     "coverage_gate": {
-      "requirements_sha256": "2416e8773b759aec10f5f636b298e7989b1639e05d56cb22de0334b3bd7da451",
+      "requirements_sha256": "12b1c0ec902ac923ea820fc3575afddc6b33e062efe1e82366442317412d0829",
       "workspace": "1516-write-1f0659ca8972",
       "requirement_ids": [
         "FR-1",
@@ -1165,6 +1295,7 @@
         "FR-8",
         "NFR-1",
         "NFR-2",
+        "NFR-3",
         "AC-1",
         "AC-2",
         "AC-3",
@@ -1172,7 +1303,7 @@
       ],
       "baseline": {
         "source": "git_head",
-        "body_sha256": "1b09ea26c822be36c9cda5f2dd961c32ce6af8c8888ad738a3f6265836badada"
+        "body_sha256": "8bbfd97a0d8c2ad497979be4e37abe00b1bb6661a81353a60d5a10090b2da2f4"
       },
       "coverage": [
         {
@@ -1226,6 +1357,11 @@
           "verification_block_id": "nfr-2-verification"
         },
         {
+          "id": "NFR-3",
+          "design_block_id": "nfr-3-design",
+          "verification_block_id": "nfr-3-verification"
+        },
+        {
           "id": "AC-1",
           "design_block_id": "ac-1-design",
           "verification_block_id": "ac-1-verification"
@@ -1250,7 +1386,7 @@
         {
           "section_id": "architecture",
           "heading": "Architecture",
-          "content_sha256": "26a9a33059b55817d3297f0a0b87a35bbe37c7517e838d895a3ce65f057592c7",
+          "content_sha256": "9b5a649d38fea9ce0db116058847ac63e0f5c55125e341eb3acdd309f4e5b07f",
           "status": "replaced",
           "design_block_id": "baseline-architecture-evidence"
         }
