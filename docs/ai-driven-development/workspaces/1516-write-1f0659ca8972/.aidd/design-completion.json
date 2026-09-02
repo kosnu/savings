@@ -1,0 +1,1341 @@
+{
+  "schema_version": 4,
+  "kind": "design_completion",
+  "workspace": "1516-write-1f0659ca8972",
+  "issue": {
+    "id": "kosnu/savings#1516",
+    "title": "月予算writeの責務分離を再設計する",
+    "url": "https://github.com/kosnu/savings/issues/1516",
+    "updated_at": "2026-09-02T00:28:26Z",
+    "body_sha256": "9ccf2fbc02641caeb55a2d4332f777241059f6e96f6c9a97a5a37491d9cf3bc8"
+  },
+  "design_goal_sha256": "af49c6a512e37e4d06d7fb3bee9154425dbe7e29d7608cc258a210f97bc66b74",
+  "rule_map": {
+    "path": "docs/harness/rule-map.json",
+    "sha256": "1f3542e1e6eda9d1048a654cdbe4e2a11b2fa18c08e02f4921cae0d75ff41c27"
+  },
+  "selected_rules": [
+    {
+      "id": "documentation.policy",
+      "path": "docs/harness/policies/documentation-policy.md",
+      "sha256": "7f9a1cd444f841d7c1b4e8a60d87e819e197bf6ad9d2fbea83b0057dc2a3d756"
+    },
+    {
+      "id": "architecture.overview",
+      "path": "docs/architecture.md",
+      "sha256": "391d0835d597351ee440a77938937e5b06b4b5a844fac925716fd1064031f302"
+    },
+    {
+      "id": "infrastructure.overview",
+      "path": "docs/infrastructure.md",
+      "sha256": "abac8167db5a2e0c81f7a00fa22f9db79e999661723e791837b81e6a8d07c7dc"
+    },
+    {
+      "id": "ai-driven.overview",
+      "path": "docs/ai-driven-development/overview.md",
+      "sha256": "36491c548d74a5fbbca2139a8b8120652644125d93412dd26800346e96a15862"
+    },
+    {
+      "id": "ai-driven.workflow",
+      "path": "docs/ai-driven-development/workflow.md",
+      "sha256": "4d51265b8ed5a8a5b5197b5c8bde79935b6b331c9179a17e9cb0d4846867d76b"
+    },
+    {
+      "id": "policy.learning-extraction",
+      "path": "docs/harness/policies/learning-extraction.md",
+      "sha256": "8da25c27ae5a3ef2a78b33c71b7b942ebb759e5dbbd51965027add41baf931f9"
+    },
+    {
+      "id": "policy.git-workflow",
+      "path": "docs/harness/policies/git-workflow.md",
+      "sha256": "318d70215d70fa98d7da5ef94f5b5841aa658ea17dbf01fc749f85568cf76ee1"
+    },
+    {
+      "id": "policy.review-feedback-classification",
+      "path": "docs/harness/policies/review-feedback-classification.md",
+      "sha256": "2d9ec4d9d06b65bf8c1cb8cc5099724fbb91f289f43dac1fe2c652aac237e346"
+    },
+    {
+      "id": "policy.code-review",
+      "path": "docs/harness/policies/code-review.md",
+      "sha256": "94bcaff3d5e88fb95ad126540607aeba667b1dd095f7ceef550975e4b5bf41ad"
+    },
+    {
+      "id": "policy.transaction-boundaries",
+      "path": "docs/harness/policies/transaction-boundaries.md",
+      "sha256": "7be9864204435d28907b5b168ad0be4fb951f330060d86cb0105901a162661bd"
+    },
+    {
+      "id": "policy.temporal-data",
+      "path": "docs/harness/policies/temporal-data.md",
+      "sha256": "422171be55d32d6462dde14b9db311d7cc0c3433611b6ddd9516409ac6f55046"
+    },
+    {
+      "id": "domain.amount",
+      "path": "docs/harness/domain/amount.md",
+      "sha256": "81a972f0fab93f1b939edd253a9521af2481ebb277fc72468740084131b6e48d"
+    },
+    {
+      "id": "domain.date",
+      "path": "docs/harness/domain/date.md",
+      "sha256": "5fcd83f8ab4225ab0c0aa6ec072755158174701435bf5d59e6e86a84e0f17fd3"
+    },
+    {
+      "id": "domain.payment",
+      "path": "docs/harness/domain/payment.md",
+      "sha256": "e646e03142eaf1068a75aecbf341ffa925be9067a9397a7b01ad023c30df879f"
+    },
+    {
+      "id": "domain.category",
+      "path": "docs/harness/domain/category.md",
+      "sha256": "72041b6c8ff43cee9e50763335ab26a24580501250233529e6d4f8e48d4061c1"
+    },
+    {
+      "id": "domain.monthly-budget",
+      "path": "docs/harness/domain/monthly-budget.md",
+      "sha256": "f19c81cf31689c201d65e7a93db9cd2a026eda1636ce6df4c86d378ddc888b21"
+    },
+    {
+      "id": "domain.book",
+      "path": "docs/harness/domain/book.md",
+      "sha256": "9f148def6802a6e0a6252d6133ca14ff8673291910c37faf8915d9216ffe54fc"
+    },
+    {
+      "id": "domain.user",
+      "path": "docs/harness/domain/user.md",
+      "sha256": "84dc9bda2cd6015a4b3e995c0631558eecfcf1b807e7744bafec6c23cf44a533"
+    },
+    {
+      "id": "web.component-structure",
+      "path": "apps/web/docs/policies/component-structure.md",
+      "sha256": "991d65221347a19394a73ba5d03df7000a25f183db33465439fcfa30bf0e2347"
+    },
+    {
+      "id": "web.design-system-brand",
+      "path": "DESIGN.md",
+      "sha256": "66bfde89c44eb3137092be741356377cc5f6fcd1e175328ae29f5fe3526ebb0d"
+    },
+    {
+      "id": "web.design-rules",
+      "path": "apps/web/docs/policies/design-rules.md",
+      "sha256": "363d860a7d6b4f43b3f39b2b00f355912c2ed20be5b5447e28810767c2a748eb"
+    },
+    {
+      "id": "web.domain-layer-rules",
+      "path": "apps/web/docs/policies/domain-layer-rules.md",
+      "sha256": "d92147118b567a835a12ac7c17b5f6629640334fe30f5965229552324f5dbc94"
+    },
+    {
+      "id": "web.domain-ui-rules",
+      "path": "apps/web/docs/policies/domain-ui-rules.md",
+      "sha256": "2789e068a8b82c89b1177de985be6a6649ec35eb94c0e79c6981d8343cbf977a"
+    },
+    {
+      "id": "web.feature-directory",
+      "path": "apps/web/docs/policies/feature-directory.md",
+      "sha256": "cc30370b9a7fc44b363b7b04cdfb28f871a5913dcfcab19b94e5f12b026b4859"
+    },
+    {
+      "id": "web.query-cache",
+      "path": "apps/web/docs/policies/query-cache.md",
+      "sha256": "6a815f12f719a5e438279e0cb62c353cb65787bb8467fd40c8cce7d43174da8b"
+    },
+    {
+      "id": "web.suspense-boundaries",
+      "path": "apps/web/docs/policies/suspense-boundaries.md",
+      "sha256": "e18d3c9a3de52d95b5bf72c8d98a689017e620dcf039a3953161002ddb124ec6"
+    },
+    {
+      "id": "web.msw-handlers",
+      "path": "apps/web/docs/policies/msw-handlers.md",
+      "sha256": "d01eb513d2348e02a52bfe686f185ea11f498b7bd5e57a1cf16a454f223faac1"
+    },
+    {
+      "id": "web.test-policy",
+      "path": "apps/web/docs/policies/test-policy.md",
+      "sha256": "45ed87d11da48469561b60ef2bcca5fa1fcf1bb8e2125d07d4cda2e3f379101f"
+    },
+    {
+      "id": "web.storybook-browser-tests",
+      "path": "apps/web/docs/policies/storybook-browser-tests.md",
+      "sha256": "afdb5edf7d356e46fcb65daf97a9dc0a92ed6faf20f0327abd1985a857a7ea9f"
+    }
+  ],
+  "verification_profiles": {
+    "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+    "sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
+    "selected": [
+      {
+        "id": "git-diff-check",
+        "sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273"
+      },
+      {
+        "id": "web-format-check",
+        "sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8"
+      },
+      {
+        "id": "web-lint",
+        "sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200"
+      },
+      {
+        "id": "web-typecheck",
+        "sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201"
+      },
+      {
+        "id": "web-unit-integration-suite",
+        "sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159"
+      },
+      {
+        "id": "web-vitest-unit-integration",
+        "sha256": "f2ec0bdc78f6a3a295f612bce5e4405a52e17a1092eeb071d77ae100f1de7d8c"
+      }
+    ]
+  },
+  "rule_coverage": {
+    "sha256": "80e71f2966152b967f3df07197be49e28dbb28c395d6fe892fd1c3cb4568026a",
+    "value": {
+      "implementation_surfaces": [
+        "web-project",
+        "web-source",
+        "api-project"
+      ],
+      "additional_rules": [
+        {
+          "id": "ai-driven.workflow",
+          "reason": "apps実装pathへAIDD工程境界を適用するため"
+        },
+        {
+          "id": "policy.git-workflow",
+          "reason": "appsとmigrationのtask-owned差分へgit境界を適用するため"
+        },
+        {
+          "id": "policy.review-feedback-classification",
+          "reason": "apps変更のreview findingをscope別に分類するため"
+        },
+        {
+          "id": "web.domain-layer-rules",
+          "reason": "budgets feature内のrecord-ID入力責務を配置するため"
+        },
+        {
+          "id": "web.domain-ui-rules",
+          "reason": "月予算操作UIとdomain stateの境界を維持するため"
+        },
+        {
+          "id": "web.msw-handlers",
+          "reason": "monthly budget RPC mock payloadを実装contractへ同期するため"
+        },
+        {
+          "id": "web.storybook-browser-tests",
+          "reason": "apps/web pathに適用されるStorybook回帰境界を保持するため"
+        }
+      ]
+    }
+  },
+  "target_state": {
+    "sha256": "0a896ee7a1e2359d3f0b35fc75e9caa509a564b9a42615769cbdc0582dbb99fb",
+    "value": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "user_operation",
+          "description": "月予算writeのクライアント入力がrecord IDと操作内容だけになる",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "authenticatedの月予算mutationは明示RPCだけに限定され認証Bookの不変条件を迂回できない",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "当月開始の現在有効amount行は同じrecordの金額へ更新される",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "過去開始の現在有効amount行は保持され当月開始amount行が追加される",
+          "requirement_id": "FR-4"
+        },
+        {
+          "id": "PB-5",
+          "type": "state_transition",
+          "description": "未来開始または現在有効amount行でないrecordへの更新が拒否される",
+          "requirement_id": "FR-5"
+        },
+        {
+          "id": "PB-6",
+          "type": "state_transition",
+          "description": "当月開始の現在有効amount行は同じrecordのnone状態へ無効化される",
+          "requirement_id": "FR-6"
+        },
+        {
+          "id": "PB-7",
+          "type": "state_transition",
+          "description": "過去開始の現在有効amount行は保持され当月開始none行が追加される",
+          "requirement_id": "FR-7"
+        },
+        {
+          "id": "PB-8",
+          "type": "state_transition",
+          "description": "未来開始または現在有効amount行でないrecordへの無効化が拒否される",
+          "requirement_id": "FR-8"
+        },
+        {
+          "id": "PB-9",
+          "type": "state_transition",
+          "description": "当月write後も過去月のeffective月予算結果が変化しない",
+          "requirement_id": "NFR-1"
+        },
+        {
+          "id": "PB-10",
+          "type": "state_transition",
+          "description": "月予算のamount、none、unset状態モデルがwrite境界変更後も維持される",
+          "requirement_id": "NFR-2"
+        },
+        {
+          "id": "PB-11",
+          "type": "user_operation",
+          "description": "更新と無効化がtarget_monthまたはcurrent_monthなしのrecord-ID RPCで完了する",
+          "requirement_id": "AC-1"
+        },
+        {
+          "id": "PB-12",
+          "type": "state_transition",
+          "description": "未来、stale、none、非所有recordのcurrent writeが直接table経路とRPC経路の両方で拒否される",
+          "requirement_id": "AC-2"
+        },
+        {
+          "id": "PB-13",
+          "type": "state_transition",
+          "description": "月予算write実装がrecord-ID認可、信頼時刻、履歴保持ruleへ一致する",
+          "requirement_id": "AC-3"
+        },
+        {
+          "id": "PB-14",
+          "type": "user_operation",
+          "description": "既存UI挙動を維持しMSWがupdateとremoveの許可対象ID省略または対象ID不一致を成功扱いしない",
+          "requirement_id": "AC-4"
+        },
+        {
+          "id": "PB-15",
+          "type": "user_operation",
+          "description": "API先行配備からWeb配備完了までは月予算の更新・削除が一時停止し、旧RPC互換を残さずWeb配備完了または再実行で復旧する",
+          "requirement_id": "NFR-3"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.test.ts",
+            "name": "月予算IDと金額をRPC引数に変換する"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "Supabase DB testでauthenticatedのtable DML拒否と許可RPCだけの成功を確認する"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "ローカルDBで当月開始行IDを更新し同じ行の金額だけが変わることを確認する"
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "procedure": "ローカルDBで過去有効行IDを更新し過去行不変と当月行追加を確認する"
+        },
+        {
+          "id": "VC-5",
+          "type": "manual",
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "procedure": "ローカルDBで未来、stale、none、非所有IDの更新拒否と行不変を確認する"
+        },
+        {
+          "id": "VC-6",
+          "type": "manual",
+          "requirement_id": "FR-6",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "procedure": "ローカルDBで当月開始行IDを無効化し同じ行がnoneになることを確認する"
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "FR-7",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "procedure": "ローカルDBで過去有効行IDを無効化し過去行不変と当月none行追加を確認する"
+        },
+        {
+          "id": "VC-8",
+          "type": "manual",
+          "requirement_id": "FR-8",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "procedure": "ローカルDBで未来、stale、none、非所有IDの無効化拒否と行不変を確認する"
+        },
+        {
+          "id": "VC-9",
+          "type": "manual",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "procedure": "ローカルDBで更新と無効化の前後に過去月取得結果が同じことを確認する"
+        },
+        {
+          "id": "VC-10",
+          "type": "manual",
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-10"
+          ],
+          "procedure": "ローカルDBでamountとnone制約およびunset取得結果が維持されることを確認する"
+        },
+        {
+          "id": "VC-11",
+          "type": "automated",
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.test.ts",
+            "name": "対象月予算IDとamountを更新RPCに渡す"
+          }
+        },
+        {
+          "id": "VC-12",
+          "type": "automated",
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.test.ts",
+            "name": "対象月予算IDを削除RPCに渡す"
+          }
+        },
+        {
+          "id": "VC-13",
+          "type": "manual",
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "procedure": "Supabase DB testでdirect table routeと全許可外record IDの拒否を確認する"
+        },
+        {
+          "id": "VC-14",
+          "type": "manual",
+          "requirement_id": "AC-3",
+          "product_behavior_ids": [
+            "PB-13"
+          ],
+          "procedure": "migrationの認可期間、record-ID境界、履歴遷移を固定済みruleと照合する"
+        },
+        {
+          "id": "VC-15",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-16",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-17",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-18",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-19",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-20",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "更新対象IDが許可対象と異なる場合は失敗する"
+          }
+        },
+        {
+          "id": "VC-21",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "削除対象IDが許可対象と異なる場合は失敗する"
+          }
+        },
+        {
+          "id": "VC-22",
+          "type": "manual",
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "procedure": "production workflowのAPI先行依存とmigrationの旧RPC署名不在を照合しWeb配備完了または再実行で復旧する構成を確認する"
+        },
+        {
+          "id": "VC-23",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "更新の許可対象IDを省略した場合は失敗する"
+          }
+        },
+        {
+          "id": "VC-24",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "web-vitest-unit-integration",
+          "selector": {
+            "kind": "test_case",
+            "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+            "name": "削除の許可対象IDを省略した場合は失敗する"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/workflows/deploy_production.yaml",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/RemoveMonthlyBudgetModal/RemoveMonthlyBudgetModal.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/useUpdateMonthlyBudget.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/test/msw/handlers/monthlyBudgets.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/types/database.types.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.ts",
+          "locator": {
+            "kind": "export",
+            "name": "toMonthlyBudgetUpdateArgs"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-2",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "月予算IDと金額をRPC引数に変換する"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-5",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "update_current_monthly_budget"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "update_current_monthly_budget current-row transition"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "update_current_monthly_budget history transition"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "update_current_monthly_budget rejection"
+          },
+          "requirement_id": "FR-5",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "remove_current_monthly_budget current-row transition"
+          },
+          "requirement_id": "FR-6",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "remove_current_monthly_budget history transition"
+          },
+          "requirement_id": "FR-7",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "remove_current_monthly_budget rejection"
+          },
+          "requirement_id": "FR-8",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "history preservation contract"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "verification_case_ids": [
+            "VC-9"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "state model compatibility contract"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-10"
+          ],
+          "verification_case_ids": [
+            "VC-10"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.ts",
+          "locator": {
+            "kind": "export",
+            "name": "updateMonthlyBudget"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-15",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "対象月予算IDとamountを更新RPCに渡す"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-11"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.ts",
+          "locator": {
+            "kind": "export",
+            "name": "removeMonthlyBudget"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-17",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.test.ts",
+          "locator": {
+            "kind": "test_case",
+            "name": "対象月予算IDを削除RPCに渡す"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-12"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-19",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-20",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/removeMonthlyBudget/RemoveMonthlyBudgetModal/RemoveMonthlyBudgetModal.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-22",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/updateMonthlyBudget/useUpdateMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-23",
+          "kind": "configuration",
+          "path": "apps/web/src/types/database.types.ts",
+          "locator": {
+            "kind": "export",
+            "name": "Database"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-24",
+          "kind": "test",
+          "path": "apps/web/src/test/msw/handlers/monthlyBudgets.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-20",
+            "VC-21",
+            "VC-23",
+            "VC-24"
+          ]
+        },
+        {
+          "id": "REP-25",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "invalid target rejection contract"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-26",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "export",
+            "name": "selected rule alignment contract"
+          },
+          "requirement_id": "AC-3",
+          "product_behavior_ids": [
+            "PB-13"
+          ],
+          "verification_case_ids": [
+            "VC-14"
+          ]
+        },
+        {
+          "id": "REP-27",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-15",
+            "VC-16",
+            "VC-17",
+            "VC-18",
+            "VC-19",
+            "VC-20",
+            "VC-21",
+            "VC-23",
+            "VC-24"
+          ]
+        },
+        {
+          "id": "REP-28",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-29",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "locator": {
+            "kind": "test_case",
+            "name": "authenticated mutation route closure"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-30",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+          "locator": {
+            "kind": "export",
+            "name": "authenticated monthly_budgets DML closure"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-31",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "locator": {
+            "kind": "test_case",
+            "name": "invalid current write rejection"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-32",
+          "kind": "configuration",
+          "path": ".github/workflows/deploy_production.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "verification_case_ids": [
+            "VC-22"
+          ]
+        },
+        {
+          "id": "REP-33",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-15"
+          ],
+          "verification_case_ids": [
+            "VC-22"
+          ]
+        },
+        {
+          "id": "REP-34",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "更新の許可対象IDを省略した場合は失敗する"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-23"
+          ]
+        },
+        {
+          "id": "REP-35",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+          "locator": {
+            "kind": "test_case",
+            "name": "削除の許可対象IDを省略した場合は失敗する"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": [
+            "VC-24"
+          ]
+        }
+      ]
+    }
+  },
+  "ownership_scopes": {
+    "sha256": "6711e2710bef8ca2605cd473235a950db11e323dae36da8b07f0f9349e85b653",
+    "value": [
+      {
+        "path": ".github/workflows/deploy_production.yaml",
+        "kind": "file"
+      },
+      {
+        "path": "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+        "kind": "file"
+      },
+      {
+        "path": "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+        "kind": "file"
+      },
+      {
+        "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/removeMonthlyBudget/RemoveMonthlyBudgetModal/RemoveMonthlyBudgetModal.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.test.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.test.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.test.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/features/budgets/updateMonthlyBudget/useUpdateMonthlyBudget.test.tsx",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/test/msw/handlers/monthlyBudgets.ts",
+        "kind": "file"
+      },
+      {
+        "path": "apps/web/src/types/database.types.ts",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_inventory": {
+    "sha256": "44e772bb82a3298d715d08924e7d09b32f8ac9cd88e78bf7e76b5abbd0f42e00",
+    "value": [
+      ".github/workflows/deploy_production.yaml",
+      "apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql",
+      "apps/api/supabase/migrations/20260902000000_close_monthly_budget_authenticated_mutation_paths.sql",
+      "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+      "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+      "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
+      "apps/web/src/features/budgets/removeMonthlyBudget/RemoveMonthlyBudgetModal/RemoveMonthlyBudgetModal.tsx",
+      "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.test.ts",
+      "apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.ts",
+      "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.test.tsx",
+      "apps/web/src/features/budgets/removeMonthlyBudget/useRemoveMonthlyBudget.ts",
+      "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.test.tsx",
+      "apps/web/src/features/budgets/updateMonthlyBudget/UpdateMonthlyBudgetForm/UpdateMonthlyBudgetForm.tsx",
+      "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.test.ts",
+      "apps/web/src/features/budgets/updateMonthlyBudget/monthlyBudgetUpdateMappers.ts",
+      "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.test.ts",
+      "apps/web/src/features/budgets/updateMonthlyBudget/updateMonthlyBudget.ts",
+      "apps/web/src/features/budgets/updateMonthlyBudget/useUpdateMonthlyBudget.test.tsx",
+      "apps/web/src/test/msw/handlers/monthlyBudgets.ts",
+      "apps/web/src/types/database.types.ts"
+    ]
+  },
+  "untracked_baseline": {
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "value": []
+  },
+  "build_baseline": {
+    "head": "fe051ddf70fc4e7f1ac7e0fd498e5ff248db510e"
+  },
+  "artifacts": {
+    "requirements": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.json",
+        "sha256": "12b1c0ec902ac923ea820fc3575afddc6b33e062efe1e82366442317412d0829",
+        "mode": "0644"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/requirements.md",
+        "sha256": "4c689904df7f591fcebb3972bbcb0a1458214cd2819025f588371db561414c71",
+        "mode": "0600"
+      }
+    },
+    "design": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.json",
+        "sha256": "d24e9ed59da3efce794b9ae5f7ea26c0286d42198d61c2309ad5409e28602943",
+        "mode": "0644"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1516-write-1f0659ca8972/design-doc.md",
+        "sha256": "be431d91d867898efa453e51bbd8fa14a59a03ec35cc02d90792f5188c7364e2",
+        "mode": "0600"
+      }
+    }
+  }
+}

@@ -382,9 +382,12 @@ export type Database = {
         Returns: Json
       }
       get_monthly_total_amount: { Args: { p_month: string }; Returns: number }
-      remove_current_monthly_budget: { Args: never; Returns: undefined }
+      remove_current_monthly_budget: {
+        Args: { p_monthly_budget_id: number }
+        Returns: undefined
+      }
       update_current_monthly_budget: {
-        Args: { p_amount: number }
+        Args: { p_amount: number; p_monthly_budget_id: number }
         Returns: undefined
       }
       update_category_with_pin: {

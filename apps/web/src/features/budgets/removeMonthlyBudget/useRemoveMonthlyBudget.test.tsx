@@ -23,19 +23,21 @@ describe("useRemoveMonthlyBudget", () => {
       .spyOn(queryClient, "invalidateQueries")
       .mockResolvedValue(undefined)
     mockRemoveMonthlyBudget.mockResolvedValue(undefined)
+    const monthlyBudgetId = 42
 
     const { result } = renderHook(() => useRemoveMonthlyBudget(), {
       queryClient,
     })
 
     await act(async () => {
-      const promise = result.current.removeMonthlyBudget()
+      const promise = result.current.removeMonthlyBudget(monthlyBudgetId)
 
       expect(promise).toBeInstanceOf(Promise)
       await promise
     })
 
     expect(mockRemoveMonthlyBudget).toHaveBeenCalledTimes(1)
+    expect(mockRemoveMonthlyBudget.mock.calls[0]?.[0]).toBe(monthlyBudgetId)
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: monthlyBudgetQueryKeys.listAll })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: monthlyBudgetQueryKeys.effectiveAll,
@@ -56,7 +58,7 @@ describe("useRemoveMonthlyBudget", () => {
     })
 
     await act(async () => {
-      await expect(result.current.removeMonthlyBudget()).rejects.toEqual(error)
+      await expect(result.current.removeMonthlyBudget(42)).rejects.toEqual(error)
     })
 
     expect(invalidateQueries).not.toHaveBeenCalled()
