@@ -132,4 +132,4 @@ RequirementsとDesignの一時Goal JSONは、次のentryを表の順序とtext�
 
 ## Learn
 
-Learnは工程Goalではありません。Ship完了後、または上流成果物の不足・矛盾でGoalが`blocked`になった後に、ユーザーが明示的に実行します。findingは、Issue本文の変更案、rule/policyの追加・変更、または既存rule/policyのsharp化へ分類します。Issue変更案は実際にIssueへ適用されるまで次サイクルのTask Contextではありません。
+Learnは工程Goalではありません。Ship完了後、または上流成果物の不足・矛盾でGoalが`blocked`になった後に、ユーザーが明示的に実行します。findingは、Issue本文の変更案、rule/policyの追加・変更、または既存rule/policyのsharp化へ分類します。Issue変更案は実際にIssueへ適用されるまで次サイクルのTask Contextではありません。正本rule/policy/workflow文書の変更は、ユーザーが明示的に反映を指示した独立更新として完了し、その更新へ依存するタスクは完了後に新しいサイクルを開始します。実装、契約、検証機構、所有責務、workflowの実行機構、実行環境の変更はIssue本文への変更案として整理し、ユーザーの明示指示でIssueへ適用した後、新しいAIDDサイクルをRequirementsから開始して実現します。Learnから後者の対象面を直接修正しません。

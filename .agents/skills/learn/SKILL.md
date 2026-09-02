@@ -38,7 +38,9 @@ the task-context source of truth.
 
 Invoking this skill authorizes learning extraction only. It does not authorize
 setting a Goal, implementing product behavior, or writing to a reflection
-target beyond the user's explicit request.
+target beyond the user's explicit request. Within that explicitly requested
+scope, apply only the reflection target and follow-on path determined by the
+canonical learning-extraction policy.
 
 After loading the required context, execute the canonical learning-extraction
 policy exactly as written, including its gates, ordering, output contract, and
