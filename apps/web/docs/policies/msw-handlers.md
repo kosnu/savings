@@ -50,7 +50,7 @@ handler 内で request の filter、order、limit などを汎用的に解釈し
 
 これにより、mock 側に本番と同じ選択ロジックが重複することを避けます。
 
-mutation の成否が request の対象ID、件数、または状態に依存するAPI境界では、schema validationが成功したことだけを根拠に正常応答を返しません。handler factoryは、テストが意図する許可対象または結果を明示的なoptionとして受け取り、requestの意味がその条件と一致しない場合は実APIのresponse shapeに沿ってfail-closedで失敗を返します。
+mutation の成否が request の対象ID、件数、または状態に依存するAPI境界では、schema validationが成功したことだけを根拠に正常応答を返しません。handler factoryは、テストが意図する許可対象または結果を明示的なoptionとして受け取り、その指定がある場合だけ正常応答を生成します。成功判定に必要なoptionの未指定を無制限な許可として扱わず、未指定またはrequestの意味が条件と一致しない場合は、実APIのresponse shapeに沿ってfail-closedで失敗を返します。
 
 この条件判定はAPI境界の成功・失敗を再現する責務に限定し、DBの選択、並び替え、現在状態、認可規則をmockへ再実装しません。無関係なfixtureに対象種別のrowが存在することや、最初に見つかったrowを、request対象が一致した根拠にしてはいけません。
 
@@ -59,6 +59,7 @@ mutation の成否が request の対象ID、件数、または状態に依存す
 - select対象は、必要なcolumnやrelationをそれぞれ検証します。
 - filter、order、limit、response cardinalityなど、API境界の振る舞いを決める条件を個別に検証します。
 - mutationの成功対象を識別するID、件数、状態は、handler factoryへ渡した許可対象または結果と対応付けて検証します。
+- mutationの正常応答に必要な許可対象または結果は、handler factoryの成功経路を構成する型で必須にします。未指定と不一致がともに失敗することを回帰テストで固定します。
 - 空白、改行、column順など、APIの意味を変えないserializationの差には依存しません。
 - 完全なserialization自体が外部契約である場合だけ、文字列全体の一致を要求します。
 
