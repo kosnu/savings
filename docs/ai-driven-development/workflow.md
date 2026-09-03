@@ -30,6 +30,8 @@ when_to_read:
 
 新しいサイクルは必ずIntent / Requirementsから始めます。後続工程へ進めるのは、直前のGoalが完了し、その工程の成果物と検証証拠が揃った場合だけです。ファイルの存在、テストの成功、Goal案の作成だけでは工程完了になりません。
 
+新しいサイクルは、Ship対象branchの`HEAD`がdelivery先base branchとのmerge-baseに一致し、cycle開始前のbranch-only commitがない状態で開始します。未deliveryの先行変更がある場合は、その変更を独立更新としてdelivery完了してから、対象Issue専用branchで新しいサイクルを開始します。delivery先base branchまたはmerge-baseを一意に特定できない場合は、Requirements Goalを作成せず停止します。
+
 ## サイクルとGoalの状態
 
 同時に扱うGoalは1件です。開始前に現在のGoalを確認します。

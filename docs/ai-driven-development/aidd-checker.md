@@ -28,6 +28,11 @@ checker実装はAIDDワークフロー所有のrepo-local CLIとして`tools/aid
 各skillとphase agentはcheckerを所有せず、
 [AIDD Checker Operations](./aidd-checker-operations.md)に従って呼び出す。
 
+AIDD制御面のpath集合は`docs/harness/rule-map.json`の`ai-driven.checker` nodeが所有する。
+Codex `Stop` Hookはrule-map自身の変更をbootstrap対象として無条件に検知し、それ以外の
+制御面pathをこのnodeの`applies_to.paths`から導出する。Hook実装に別の手書きpath集合を
+正本として持たない。
+
 ## Operating Contract and Threat Boundary
 
 AIDDの1実行は専用Git worktreeを1つだけ使用し、そのworktreeを1つのCodex sessionと
