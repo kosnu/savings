@@ -26,15 +26,15 @@ func TestRepositoryContractIsValid(t *testing.T) {
 	}
 }
 
-func TestAIDDOwnershipContainsNoPythonSources(t *testing.T) {
+func TestAIDDControlPlaneContainsNoPythonSources(t *testing.T) {
 	root := repositoryRoot(t)
-	for _, relativeRoot := range []string{"tools/aidd", ".agents/skills/aidd-cycle", ".agents/skills/goal-setting"} {
+	for _, relativeRoot := range []string{"tools/aidd", ".agents/skills/aidd-cycle", ".agents/skills/goal-setting", ".codex"} {
 		err := filepath.WalkDir(filepath.Join(root, filepath.FromSlash(relativeRoot)), func(path string, entry fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 			if !entry.IsDir() && strings.EqualFold(filepath.Ext(path), ".py") {
-				t.Errorf("AIDD ownership must not contain Python source: %s", path)
+				t.Errorf("AIDD control plane must not contain Python source: %s", path)
 			}
 			return nil
 		})
