@@ -85,6 +85,37 @@ func TestControlPlanePathClassificationIncludesAIDDAgentConfiguration(t *testing
 	}
 }
 
+func TestControlPlanePathsFollowRuleMap(t *testing.T) {
+	root := newHookRepository(t)
+	cacheDir := filepath.Join(t.TempDir(), "cache")
+	validationCalls := 0
+	options := Options{
+		CacheDir: cacheDir,
+		ValidationRunner: func(context.Context, string) error {
+			validationCalls++
+			return nil
+		},
+	}
+
+	writeHookFile(t, root, "README.md", "ordinary change\n")
+	if output, err := HandleStop(context.Background(), HookInput{HookEventName: HookEventStop, Cwd: root}, options); err != nil || output != (HookOutput{}) {
+		t.Fatalf("ordinary path handling failed: output=%+v err=%v", output, err)
+	}
+	if validationCalls != 0 {
+		t.Fatalf("ordinary path triggered validation before rule-map update: %d calls", validationCalls)
+	}
+
+	const addedPath = "custom/aidd-control.txt"
+	writeHookRuleMap(t, root, addedPath)
+	writeHookFile(t, root, addedPath, "control-plane change\n")
+	if output, err := HandleStop(context.Background(), HookInput{HookEventName: HookEventStop, Cwd: root}, options); err != nil || output != (HookOutput{}) {
+		t.Fatalf("rule-map-added path handling failed: output=%+v err=%v", output, err)
+	}
+	if validationCalls != 1 {
+		t.Fatalf("rule-map-added path did not trigger exactly once: %d calls", validationCalls)
+	}
+}
+
 func TestStopSkipsCachedFingerprintAndPreventsReentry(t *testing.T) {
 	root := newHookRepository(t)
 	writeHookFile(t, root, ".codex/hooks.json", "{\"hooks\":{\"Stop\":[]}}\n")
@@ -463,9 +494,20 @@ func newHookRepository(t *testing.T) string {
 	runGitForHookTest(t, root, "config", "user.name", "AIDD Hooks")
 	writeHookFile(t, root, "README.md", "baseline\n")
 	writeHookFile(t, root, ".codex/hooks.json", "{\"hooks\":{}}\n")
+	writeHookRuleMap(t, root)
 	runGitForHookTest(t, root, "add", ".")
 	runGitForHookTest(t, root, "commit", "-qm", "baseline")
 	return root
+}
+
+func writeHookRuleMap(t *testing.T, root string, extraPaths ...string) {
+	t.Helper()
+	paths, err := json.Marshal(append([]string{".codex/**", "tools/aidd/**", "docs/harness/rule-map.json"}, extraPaths...))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := `{"version":2,"review_routing":{"governed_paths":["apps/**"],"surfaces":[{"id":"apps","paths":["apps/**"],"required_rules":["ai-driven.checker"]}]},"rules":[{"id":"ai-driven.checker","file":"docs/checker.md","applies_to":{"paths":` + string(paths) + `,"domains":[],"activities":[],"topics":[]},"depends_on":[],"overrides":[],"priority":1}]}` + "\n"
+	writeHookFile(t, root, "docs/harness/rule-map.json", content)
 }
 
 func writeHookFile(t *testing.T, root, relative, content string) {
