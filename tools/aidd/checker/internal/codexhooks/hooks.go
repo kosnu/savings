@@ -29,6 +29,7 @@ const (
 // HookInput is the stable subset of Codex lifecycle input used by this hook.
 type HookInput struct {
 	HookEventName  string `json:"hook_event_name"`
+	SessionID      string `json:"session_id,omitempty"`
 	Source         string `json:"source,omitempty"`
 	StopHookActive bool   `json:"stop_hook_active,omitempty"`
 	Cwd            string `json:"cwd,omitempty"`
@@ -56,6 +57,27 @@ type Options struct {
 	CacheDir         string
 	ValidationRunner func(context.Context, string) error
 	DiffPaths        func(context.Context, string) ([]string, error)
+	IdentityProvider func(context.Context, string, HookInput) (CacheIdentity, error)
+}
+
+// CacheIdentity is the complete execution identity a successful validation is
+// bound to. Every field is required: an incomplete identity must never reuse a
+// successful cache entry.
+type CacheIdentity struct {
+	SessionID               string
+	CanonicalWorktree       string
+	GitHEAD                 string
+	GoToolchain             string
+	NonIgnoredWorktreeState string
+}
+
+// Complete reports whether all cache identity components were obtained.
+func (identity CacheIdentity) Complete() bool {
+	return strings.TrimSpace(identity.SessionID) != "" &&
+		strings.TrimSpace(identity.CanonicalWorktree) != "" &&
+		strings.TrimSpace(identity.GitHEAD) != "" &&
+		strings.TrimSpace(identity.GoToolchain) != "" &&
+		strings.TrimSpace(identity.NonIgnoredWorktreeState) != ""
 }
 
 type cacheEntry struct {
@@ -156,9 +178,14 @@ func HandleStop(ctx context.Context, input HookInput, options ...Options) (HookO
 	if err != nil {
 		return RetryDecision(false, false, "control-plane state capture failed: "+err.Error()), nil
 	}
-	fingerprint := ControlPlaneFingerprint(paths, state)
+	identityProvider := option.IdentityProvider
+	if identityProvider == nil {
+		identityProvider = CacheIdentityForInput
+	}
+	identity, identityErr := identityProvider(ctx, root, input)
+	fingerprint := ControlPlaneFingerprint(paths, cacheFingerprintState(state, identity))
 	cacheDir := option.CacheDir
-	if cached, cacheErr := hasSuccessfulCache(cacheDir, fingerprint); cacheErr == nil && cached {
+	if identityErr == nil && CanReuseSuccessfulCache(cacheDir, fingerprint, identity) {
 		return HookOutput{}, nil
 	}
 
@@ -169,7 +196,9 @@ func HandleStop(ctx context.Context, input HookInput, options ...Options) (HookO
 	if err := validationRunner(ctx, root); err != nil {
 		return RetryDecision(false, false, err.Error()), nil
 	}
-	_ = writeSuccessfulCache(cacheDir, fingerprint)
+	if identityErr == nil && identity.Complete() {
+		_ = writeSuccessfulCache(cacheDir, fingerprint)
+	}
 	return HookOutput{}, nil
 }
 
@@ -216,10 +245,10 @@ func CompactContext() string {
 }
 
 // ControlPlaneFingerprint returns a stable digest for a control-plane change.
-// HandleStop always supplies the current Git/file state as the optional second
-// argument, so re-editing one path produces a new cache key without reading
-// Goal or phase state. The path-only form remains useful for path identity
-// tests and callers that do not have a repository snapshot.
+// HandleStop supplies both the current Git/file state and the complete cache
+// identity, so a successful result cannot cross sessions, worktrees, commits,
+// toolchains, or non-ignored worktree states. The path-only form remains useful
+// for path identity tests and callers that do not have a repository snapshot.
 func ControlPlaneFingerprint(paths []string, state ...[]byte) string {
 	unique := make(map[string]struct{}, len(paths))
 	for _, path := range paths {
@@ -246,6 +275,150 @@ func ControlPlaneFingerprint(paths []string, state ...[]byte) string {
 	return hex.EncodeToString(digest.Sum(nil))
 }
 
+func cacheFingerprintState(controlState []byte, identity CacheIdentity) []byte {
+	var state bytes.Buffer
+	appendStateField(&state, "control-plane", controlState)
+	appendStateField(&state, "session", []byte(identity.SessionID))
+	appendStateField(&state, "canonical-worktree", []byte(identity.CanonicalWorktree))
+	appendStateField(&state, "git-head", []byte(identity.GitHEAD))
+	appendStateField(&state, "go-toolchain", []byte(identity.GoToolchain))
+	appendStateField(&state, "non-ignored-worktree-state", []byte(identity.NonIgnoredWorktreeState))
+	return state.Bytes()
+}
+
+// CanReuseSuccessfulCache is the single cache reuse gate. Missing identity
+// components deliberately return false even when a matching cache file exists.
+func CanReuseSuccessfulCache(configured, fingerprint string, identities ...CacheIdentity) bool {
+	if len(identities) != 1 || !identities[0].Complete() {
+		return false
+	}
+	cached, err := hasSuccessfulCache(configured, fingerprint)
+	return err == nil && cached
+}
+
+// CacheIdentityForInput captures all identity components needed to reuse a
+// successful Stop validation. It reads no Goal, phase, transcript, or AIDD
+// artifact state. An unavailable component is returned as an error so callers
+// can continue validation without reusing or writing a cache entry.
+func CacheIdentityForInput(ctx context.Context, root string, input HookInput) (CacheIdentity, error) {
+	identity := CacheIdentity{SessionID: strings.TrimSpace(input.SessionID)}
+	if identity.SessionID == "" {
+		return identity, errors.New("Codex session identity is unavailable")
+	}
+	canonical, err := canonicalWorktree(root)
+	if err != nil {
+		return identity, fmt.Errorf("canonical worktree identity unavailable: %w", err)
+	}
+	identity.CanonicalWorktree = filepath.ToSlash(canonical)
+	identity.GitHEAD, err = gitHeadIdentity(ctx, canonical)
+	if err != nil {
+		return identity, fmt.Errorf("Git HEAD identity unavailable: %w", err)
+	}
+	identity.GoToolchain, err = goToolchainIdentity(ctx)
+	if err != nil {
+		return identity, fmt.Errorf("Go toolchain identity unavailable: %w", err)
+	}
+	state, err := nonIgnoredWorktreeState(ctx, canonical)
+	if err != nil {
+		return identity, fmt.Errorf("non-ignored worktree identity unavailable: %w", err)
+	}
+	digest := sha256.Sum256(state)
+	identity.NonIgnoredWorktreeState = hex.EncodeToString(digest[:])
+	return identity, nil
+}
+
+func canonicalWorktree(root string) (string, error) {
+	if strings.TrimSpace(root) == "" {
+		return "", errors.New("repository root is empty")
+	}
+	absolute, err := filepath.Abs(root)
+	if err != nil {
+		return "", err
+	}
+	canonical, err := filepath.EvalSymlinks(absolute)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Clean(canonical), nil
+}
+
+func gitHeadIdentity(ctx context.Context, root string) (string, error) {
+	output, err := gitOutput(ctx, root, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	head := strings.TrimSpace(string(output))
+	if head == "" {
+		return "", errors.New("Git returned an empty HEAD")
+	}
+	return head, nil
+}
+
+func goToolchainIdentity(ctx context.Context) (string, error) {
+	command := exec.CommandContext(ctx, "go", "env", "GOVERSION")
+	command.Env = canonicalGitEnvironment(os.Environ())
+	output, err := command.Output()
+	if err != nil {
+		return "", err
+	}
+	version := strings.TrimSpace(string(output))
+	if version == "" {
+		return "", errors.New("go env GOVERSION returned an empty value")
+	}
+	return version, nil
+}
+
+func nonIgnoredWorktreeState(ctx context.Context, root string) ([]byte, error) {
+	trackedDiff, err := gitOutput(ctx, root, "diff", "--no-ext-diff", "--binary", "--full-index", "--no-color", "HEAD", "--")
+	if err != nil {
+		return nil, fmt.Errorf("git worktree diff: %w", err)
+	}
+	untracked, err := gitPathList(ctx, root, "ls-files", "--others", "--exclude-standard", "-z", "--")
+	if err != nil {
+		return nil, fmt.Errorf("git untracked paths: %w", err)
+	}
+	sort.Strings(untracked)
+	var state bytes.Buffer
+	appendStateField(&state, "version", []byte("AIDD-codex-hooks-worktree-state-v1"))
+	appendStateField(&state, "tracked-diff", trackedDiff)
+	for _, path := range untracked {
+		path = filepath.ToSlash(strings.TrimPrefix(strings.TrimSpace(path), "./"))
+		if path == "" {
+			continue
+		}
+		appendStateField(&state, "path", []byte(path))
+		fullPath := filepath.Join(root, filepath.FromSlash(path))
+		info, err := os.Lstat(fullPath)
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, fmt.Errorf("untracked path %s disappeared", path)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("lstat %s: %w", path, err)
+		}
+		appendStateField(&state, "mode", []byte(info.Mode().String()))
+		switch info.Mode() & os.ModeType {
+		case 0:
+			content, err := os.ReadFile(fullPath)
+			if err != nil {
+				return nil, fmt.Errorf("read %s: %w", path, err)
+			}
+			digest := sha256.Sum256(content)
+			appendStateField(&state, "kind", []byte("regular"))
+			appendStateField(&state, "content-sha256", []byte(hex.EncodeToString(digest[:])))
+		case os.ModeSymlink:
+			target, err := os.Readlink(fullPath)
+			if err != nil {
+				return nil, fmt.Errorf("readlink %s: %w", path, err)
+			}
+			appendStateField(&state, "kind", []byte("symlink"))
+			appendStateField(&state, "target", []byte(target))
+		default:
+			appendStateField(&state, "kind", []byte(info.Mode().Type().String()))
+		}
+	}
+	return state.Bytes(), nil
+}
+
 // IsControlPlanePath reports whether a repository-relative path is covered by
 // the checker rule's AIDD control-plane surfaces. Workspace artifacts are
 // intentionally excluded because they are phase evidence, not hook inputs.
@@ -267,6 +440,7 @@ func IsControlPlanePath(path string) bool {
 		}
 	}
 	for _, exact := range []string{
+		"docs/harness/rule-map.json",
 		".codex/config.toml",
 		"docs/ai-driven-development/aidd-checker.md",
 		"docs/ai-driven-development/aidd-checker-operations.md",

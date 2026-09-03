@@ -74,6 +74,7 @@ func TestControlPlanePathClassificationIncludesAIDDAgentConfiguration(t *testing
 		".agents/skills/aidd-cycle/SKILL.md":              true,
 		".agents/skills/goal-setting/SKILL.md":            true,
 		"tools/aidd/checker/internal/codexhooks/hooks.go": true,
+		"docs/harness/rule-map.json":                      true,
 		"docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/.aidd/build-verification.json": false,
 		"README.md": false,
 	}
@@ -90,12 +91,15 @@ func TestStopSkipsCachedFingerprintAndPreventsReentry(t *testing.T) {
 	validationCalls := 0
 	options := Options{
 		CacheDir: filepath.Join(t.TempDir(), "cache"),
+		IdentityProvider: func(_ context.Context, root string, input HookInput) (CacheIdentity, error) {
+			return testCacheIdentity(root, input.SessionID), nil
+		},
 		ValidationRunner: func(context.Context, string) error {
 			validationCalls++
 			return nil
 		},
 	}
-	input := HookInput{HookEventName: HookEventStop, Cwd: root}
+	input := HookInput{HookEventName: HookEventStop, Cwd: root, SessionID: "session-1"}
 	if output, err := HandleStop(context.Background(), input, options); err != nil || output != (HookOutput{}) {
 		t.Fatalf("first validation failed: output=%+v err=%v", output, err)
 	}
@@ -117,12 +121,15 @@ func TestStopRevalidatesChangedBytesForSamePath(t *testing.T) {
 	validationCalls := 0
 	options := Options{
 		CacheDir: cacheDir,
+		IdentityProvider: func(_ context.Context, root string, input HookInput) (CacheIdentity, error) {
+			return testCacheIdentity(root, input.SessionID), nil
+		},
 		ValidationRunner: func(context.Context, string) error {
 			validationCalls++
 			return nil
 		},
 	}
-	input := HookInput{HookEventName: HookEventStop, Cwd: root}
+	input := HookInput{HookEventName: HookEventStop, Cwd: root, SessionID: "session-1"}
 
 	writeHookFile(t, root, ".codex/hooks.json", "{\"hooks\":{\"Stop\":[]}}\n")
 	if output, err := HandleStop(context.Background(), input, options); err != nil || output != (HookOutput{}) {
@@ -359,6 +366,95 @@ func TestControlPlaneFingerprintIsStable(t *testing.T) {
 	}
 }
 
+func TestStopCacheIdentityRequiresExactExecutionState(t *testing.T) {
+	root := newHookRepository(t)
+	cacheDir := filepath.Join(t.TempDir(), "cache")
+	identity := testCacheIdentity(root, "session-1")
+	validationCalls := 0
+	options := Options{
+		CacheDir: cacheDir,
+		IdentityProvider: func(context.Context, string, HookInput) (CacheIdentity, error) {
+			return identity, nil
+		},
+		DiffPaths: func(context.Context, string) ([]string, error) {
+			return []string{".codex/hooks.json"}, nil
+		},
+		ValidationRunner: func(context.Context, string) error {
+			validationCalls++
+			return nil
+		},
+	}
+	input := HookInput{HookEventName: HookEventStop, Cwd: root, SessionID: "session-1"}
+	if output, err := HandleStop(context.Background(), input, options); err != nil || output != (HookOutput{}) {
+		t.Fatalf("first validation failed: output=%+v err=%v", output, err)
+	}
+	if output, err := HandleStop(context.Background(), input, options); err != nil || output != (HookOutput{}) {
+		t.Fatalf("exact identity did not reuse cache: output=%+v err=%v", output, err)
+	}
+	if validationCalls != 1 {
+		t.Fatalf("exact identity should reuse successful cache, got %d validation calls", validationCalls)
+	}
+
+	identity.NonIgnoredWorktreeState = ""
+	if output, err := HandleStop(context.Background(), input, options); err != nil || output != (HookOutput{}) {
+		t.Fatalf("missing identity should still allow validation: output=%+v err=%v", output, err)
+	}
+	if validationCalls != 2 {
+		t.Fatalf("missing identity reused successful cache, got %d validation calls", validationCalls)
+	}
+}
+
+func TestStopRevalidatesWhenCacheIdentityChanges(t *testing.T) {
+	components := []struct {
+		name   string
+		change func(*CacheIdentity)
+	}{
+		{name: "session", change: func(identity *CacheIdentity) { identity.SessionID = "session-2" }},
+		{name: "canonical worktree", change: func(identity *CacheIdentity) { identity.CanonicalWorktree = "/another/worktree" }},
+		{name: "Git HEAD", change: func(identity *CacheIdentity) { identity.GitHEAD = "another-head" }},
+		{name: "Go toolchain", change: func(identity *CacheIdentity) { identity.GoToolchain = "go1.28.0" }},
+		{name: "non-ignored worktree state", change: func(identity *CacheIdentity) { identity.NonIgnoredWorktreeState = "another-state" }},
+	}
+	for _, component := range components {
+		t.Run(component.name, func(t *testing.T) {
+			root := newHookRepository(t)
+			cacheDir := filepath.Join(t.TempDir(), "cache")
+			identity := testCacheIdentity(root, "session-1")
+			validationCalls := 0
+			options := Options{
+				CacheDir: cacheDir,
+				IdentityProvider: func(context.Context, string, HookInput) (CacheIdentity, error) {
+					return identity, nil
+				},
+				DiffPaths: func(context.Context, string) ([]string, error) {
+					return []string{".codex/hooks.json"}, nil
+				},
+				ValidationRunner: func(context.Context, string) error {
+					validationCalls++
+					return nil
+				},
+			}
+			input := HookInput{HookEventName: HookEventStop, Cwd: root, SessionID: "session-1"}
+			if _, err := HandleStop(context.Background(), input, options); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := HandleStop(context.Background(), input, options); err != nil {
+				t.Fatal(err)
+			}
+			if validationCalls != 1 {
+				t.Fatalf("unchanged identity did not reuse cache, got %d validation calls", validationCalls)
+			}
+			component.change(&identity)
+			if _, err := HandleStop(context.Background(), input, options); err != nil {
+				t.Fatal(err)
+			}
+			if validationCalls != 2 {
+				t.Fatalf("changed %s reused successful cache, got %d validation calls", component.name, validationCalls)
+			}
+		})
+	}
+}
+
 func newHookRepository(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
@@ -408,5 +504,15 @@ func repositoryRoot(t *testing.T) string {
 			t.Fatal("repository root not found")
 		}
 		root = parent
+	}
+}
+
+func testCacheIdentity(root, sessionID string) CacheIdentity {
+	return CacheIdentity{
+		SessionID:               sessionID,
+		CanonicalWorktree:       root,
+		GitHEAD:                 "head-1",
+		GoToolchain:             "go-test-1",
+		NonIgnoredWorktreeState: "state-1",
 	}
 }

@@ -6,13 +6,13 @@
     "id": "kosnu/savings#1697",
     "title": "Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ",
     "url": "https://github.com/kosnu/savings/issues/1697",
-    "updated_at": "2026-09-02T14:04:15Z",
-    "body_sha256": "5bc41c99f76398383f77b7f33b45099d7eff4b561068bda02a085ab9552ba5a3"
+    "updated_at": "2026-09-03T12:51:50Z",
+    "body_sha256": "1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb"
   },
-  "design_goal_sha256": "cffd20f5ed3efc39cef9faeda514310c7f05a7e9773d830a1b0599b01dfc0c09",
+  "design_goal_sha256": "7021b6f44577112eb0ba9a21411472c7cecb16f0a6dffcc7974194c228820e38",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
-    "sha256": "25947ab5bfd4f12e695a4fe06a6a48cef3eca20035bd6d5a6f23858bec696632"
+    "sha256": "ac69a0086270fc09da76556009cc3db1b94f52c0132d540271209923c14490d5"
   },
   "selected_rules": [
     {
@@ -33,12 +33,12 @@
     {
       "id": "ai-driven.workflow",
       "path": "docs/ai-driven-development/workflow.md",
-      "sha256": "2c7947f2fbfe4ea61396f392ee2d1e6c8d920aa68d9bc3c19ea9ea693680c525"
+      "sha256": "077c87b0075f7a4032488bb0a4f339609b4c1d4f3d58543478c1d8aebac3dd3a"
     },
     {
       "id": "ai-driven.checker",
       "path": "docs/ai-driven-development/aidd-checker.md",
-      "sha256": "52ceb0030852d59cc1498e0689cf0fe6ad152404240cf2bcd7779bea853265e4"
+      "sha256": "ab2d32d22a756804a9169821bf4427df38ccdd5c2d1ad97b76acc95c284fa229"
     }
   ],
   "verification_profiles": {
@@ -59,7 +59,7 @@
     }
   },
   "target_state": {
-    "sha256": "f130a3d2ea647cddab5c2beb87cb0615107a55592d9300e8db48edf36425c8c1",
+    "sha256": "e4b392f8cbbaa04a896c3780c9280d80c870ec62fb93efa1f194020d2f62cb03",
     "value": {
       "product_behaviors": [
         {
@@ -127,6 +127,18 @@
           "type": "state_transition",
           "description": "Hookの全発火分岐と再入とcompact contextがGo回帰testで固定される",
           "requirement_id": "AC-4"
+        },
+        {
+          "id": "PB-12",
+          "type": "state_transition",
+          "description": "成功cacheはsessionとcanonical worktreeとGit HEADとGo toolchainと非ignore worktree状態が全て一致する場合だけ再利用される",
+          "requirement_id": "NFR-5"
+        },
+        {
+          "id": "PB-13",
+          "type": "state_transition",
+          "description": "同一制御面差分でもcache identityの任意要素が変わるか取得不能なら整合性検証が再実行される",
+          "requirement_id": "AC-5"
         }
       ],
       "verification_cases": [
@@ -241,6 +253,30 @@
           "requirement_id": "AC-4",
           "product_behavior_ids": [
             "PB-11"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-12",
+          "type": "automated",
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-13",
+          "type": "automated",
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [
+            "PB-13"
           ],
           "verification_profile_id": "aidd-checker-tests",
           "selector": {
@@ -427,7 +463,7 @@
           "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
           "locator": {
             "kind": "export",
-            "name": "ControlPlaneFingerprint"
+            "name": "CacheIdentity"
           },
           "requirement_id": "AC-1",
           "product_behavior_ids": [
@@ -496,6 +532,62 @@
           "verification_case_ids": [
             "VC-11"
           ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "ControlPlaneFingerprint"
+          },
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-18",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopCacheIdentityRequiresExactExecutionState"
+          },
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-12"
+          ]
+        },
+        {
+          "id": "REP-19",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "CanReuseSuccessfulCache"
+          },
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [
+            "PB-13"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-20",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopRevalidatesWhenCacheIdentityChanges"
+          },
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-13"
+          ]
         }
       ]
     }
@@ -518,63 +610,43 @@
     ]
   },
   "baseline_inventory": {
+    "sha256": "e07ca07be0c74ddd626a699eac79631be5f32ef426aefc5987a65633f78dce9e",
+    "value": [
+      ".codex/hooks.json",
+      "tools/aidd/checker/cmd/aidd-hooks/main.go",
+      "tools/aidd/checker/internal/codexhooks/hooks.go",
+      "tools/aidd/checker/internal/codexhooks/hooks_test.go"
+    ]
+  },
+  "untracked_baseline": {
     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "value": []
   },
-  "untracked_baseline": {
-    "sha256": "43808ae99ca89e32830a7d91978f92643286c9cffd87e1c9d0b9bab361654f58",
-    "value": [
-      {
-        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.json",
-        "type": "regular",
-        "mode": "0644",
-        "sha256": "795ff348b5b52a8e0ec80b4f234765ee1c9d2dc1d1f719dc87436294ea5d6450"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.md",
-        "type": "regular",
-        "mode": "0600",
-        "sha256": "142edaa67ccf6550fa4d5335abee90dae2adc15bffc963cc5d850b88d719ad08"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json",
-        "type": "regular",
-        "mode": "0644",
-        "sha256": "8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4"
-      },
-      {
-        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.md",
-        "type": "regular",
-        "mode": "0600",
-        "sha256": "201fc449637a4f8ad11115ffa373afd4818cb9861b6bd0eaa35d4821bd6cc017"
-      }
-    ]
-  },
   "build_baseline": {
-    "head": "950b6163da4385abcd3bc231dd3e997c1ba4cf7d"
+    "head": "dd894a8ad262cd175a777536f5a80819d0d37643"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json",
-        "sha256": "8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4",
+        "sha256": "dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.md",
-        "sha256": "201fc449637a4f8ad11115ffa373afd4818cb9861b6bd0eaa35d4821bd6cc017",
+        "sha256": "95e6b706b8a27af55b09b1f1d703863a79a29a7ddd68c5a010583f70f7748c72",
         "mode": "0600"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.json",
-        "sha256": "795ff348b5b52a8e0ec80b4f234765ee1c9d2dc1d1f719dc87436294ea5d6450",
+        "sha256": "d509a9695ade2a7f7c610f2dcdfb3d58a6ffd74ad66529244a9454389c1b47fc",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.md",
-        "sha256": "142edaa67ccf6550fa4d5335abee90dae2adc15bffc963cc5d850b88d719ad08",
+        "sha256": "201493a4111fd3df6f70f0dce9815950ce4275b209e8483b631712f98f084f73",
         "mode": "0600"
       }
     }

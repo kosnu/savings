@@ -4,7 +4,7 @@
   "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
   "display": {
     "path": "design-doc.md",
-    "preamble": "---\ntitle: \"Design: Issue #1697 Codex Hooks AIDD safety net\"\ndoc_type: design\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - tools/aidd\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - design-doc\nwhen_to_read:\n  - Issue #1697のCodex Hooks実装と検証を行うとき\n  - AIDD制御面のStopとcompact SessionStartの完成状態を確認するとき\n---\n\n# Design: Issue #1697 Codex Hooks AIDD safety net\n\n- Requirements: `docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json`\n- Requirements SHA-256: `8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
+    "preamble": "---\ntitle: \"Design: Issue #1697 Codex Hooks AIDD safety net\"\ndoc_type: design\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - tools/aidd\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - design-doc\nwhen_to_read:\n  - Issue #1697のCodex Hooks実装と検証を行うとき\n  - AIDD制御面のStopとcompact SessionStartの完成状態を確認するとき\n---\n\n# Design: Issue #1697 Codex Hooks AIDD safety net\n\n- Requirements: `docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json`\n- Requirements SHA-256: `dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
   },
   "validation": {
     "mode": "managed",
@@ -13,6 +13,13 @@
         "id": "architecture",
         "heading": "Architecture",
         "blocks": [
+          {
+            "id": "architecture-baseline",
+            "type": "evidence",
+            "role": "baseline",
+            "owner_id": "architecture",
+            "text": "既存Architectureをcache identity要件を含む全Requirementsの完成状態へ更新する。"
+          },
           {
             "id": "architecture-body",
             "type": "markdown",
@@ -204,6 +211,40 @@
             "role": "verification",
             "owner_id": "AC-4",
             "text": "aidd-checker-tests profileで既存checker回帰を含む全Go testを成功させる。"
+          },
+          {
+            "id": "nfr-5-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-5",
+            "text": "成功cache keyをCodex session、canonical worktree、Git HEAD、Go toolchain、非ignore worktree状態の完全なidentityとして構成し、取得不能なfieldがあればcacheを再利用しない。",
+            "product_behavior_ids": [
+              "PB-12"
+            ]
+          },
+          {
+            "id": "nfr-5-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-5",
+            "text": "各identity fieldの変更と取得不能時に成功cacheを再利用しないことをGo testで確認する。"
+          },
+          {
+            "id": "ac-5-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "AC-5",
+            "text": "制御面差分が同じでもsession、worktree、HEAD、toolchain、非ignore worktree状態のいずれかが変化すれば検証を再実行し、全identityが一致する場合だけskipする。",
+            "product_behavior_ids": [
+              "PB-13"
+            ]
+          },
+          {
+            "id": "ac-5-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "AC-5",
+            "text": "identity各要素を一つずつ変更するtable-driven Go testと完全一致時のskip testで再検証境界を固定する。"
           }
         ]
       }
@@ -275,6 +316,18 @@
           "type": "state_transition",
           "description": "Hookの全発火分岐と再入とcompact contextがGo回帰testで固定される",
           "requirement_id": "AC-4"
+        },
+        {
+          "id": "PB-12",
+          "type": "state_transition",
+          "description": "成功cacheはsessionとcanonical worktreeとGit HEADとGo toolchainと非ignore worktree状態が全て一致する場合だけ再利用される",
+          "requirement_id": "NFR-5"
+        },
+        {
+          "id": "PB-13",
+          "type": "state_transition",
+          "description": "同一制御面差分でもcache identityの任意要素が変わるか取得不能なら整合性検証が再実行される",
+          "requirement_id": "AC-5"
         }
       ],
       "verification_cases": [
@@ -389,6 +442,30 @@
           "requirement_id": "AC-4",
           "product_behavior_ids": [
             "PB-11"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-12",
+          "type": "automated",
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-13",
+          "type": "automated",
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [
+            "PB-13"
           ],
           "verification_profile_id": "aidd-checker-tests",
           "selector": {
@@ -575,7 +652,7 @@
           "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
           "locator": {
             "kind": "export",
-            "name": "ControlPlaneFingerprint"
+            "name": "CacheIdentity"
           },
           "requirement_id": "AC-1",
           "product_behavior_ids": [
@@ -644,6 +721,62 @@
           "verification_case_ids": [
             "VC-11"
           ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "ControlPlaneFingerprint"
+          },
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-18",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopCacheIdentityRequiresExactExecutionState"
+          },
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-12"
+          ]
+        },
+        {
+          "id": "REP-19",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "CanReuseSuccessfulCache"
+          },
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [
+            "PB-13"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-20",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopRevalidatesWhenCacheIdentityChanges"
+          },
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-13"
+          ]
         }
       ]
     },
@@ -652,7 +785,7 @@
       "additional_rules": []
     },
     "coverage_gate": {
-      "requirements_sha256": "8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4",
+      "requirements_sha256": "dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f",
       "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
       "requirement_ids": [
         "FR-1",
@@ -662,14 +795,16 @@
         "NFR-2",
         "NFR-3",
         "NFR-4",
+        "NFR-5",
         "AC-1",
         "AC-2",
         "AC-3",
-        "AC-4"
+        "AC-4",
+        "AC-5"
       ],
       "baseline": {
-        "source": "none",
-        "body_sha256": null
+        "source": "git_head",
+        "body_sha256": "795ff348b5b52a8e0ec80b4f234765ee1c9d2dc1d1f719dc87436294ea5d6450"
       },
       "coverage": [
         {
@@ -708,6 +843,11 @@
           "verification_block_id": "nfr-4-verification"
         },
         {
+          "id": "NFR-5",
+          "design_block_id": "nfr-5-design",
+          "verification_block_id": "nfr-5-verification"
+        },
+        {
           "id": "AC-1",
           "design_block_id": "ac-1-design",
           "verification_block_id": "ac-1-verification"
@@ -726,9 +866,22 @@
           "id": "AC-4",
           "design_block_id": "ac-4-design",
           "verification_block_id": "ac-4-verification"
+        },
+        {
+          "id": "AC-5",
+          "design_block_id": "ac-5-design",
+          "verification_block_id": "ac-5-verification"
         }
       ],
-      "baseline_sections": []
+      "baseline_sections": [
+        {
+          "section_id": "architecture",
+          "heading": "Architecture",
+          "content_sha256": "7026801a1daa37f9465a33118b4415a9cd0e7d1c0bf4944e40ce5dc8918ce05f",
+          "status": "replaced",
+          "design_block_id": "architecture-baseline"
+        }
+      ]
     }
   }
 }

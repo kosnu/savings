@@ -22,8 +22,8 @@ when_to_read:
 
 - Issue: `kosnu/savings#1697`
 - Issue URL: `https://github.com/kosnu/savings/issues/1697`
-- Issue updatedAt: `2026-09-02T14:04:15Z`
-- Issue本文SHA-256: `5bc41c99f76398383f77b7f33b45099d7eff4b561068bda02a085ab9552ba5a3`
+- Issue updatedAt: `2026-09-03T12:51:50Z`
+- Issue本文SHA-256: `1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb`
 - Workspace: `1697-codex-hooks-aidd-40d66f9e5598`
 
 ## Cycle Identity
@@ -33,13 +33,13 @@ when_to_read:
 ## Requirements Input Gate
 
 ```json
-{"depends_on":[{"id":"ai-driven.workflow","via":"ai-driven.checker"},{"id":"adr.harness-engineering","via":"ai-driven.checker"},{"id":"documentation.policy","via":"ai-driven.checker"},{"id":"ai-driven.overview","via":"ai-driven.workflow"}],"direct_rules":[{"id":"ai-driven.checker","issue_evidence":"`validation`","match":{"field":"topics","value":"validation"},"reason":"AIDD制御面の検証安全網とCodex Hooksを変更するため"}],"task_context":{"body_sha256":"5bc41c99f76398383f77b7f33b45099d7eff4b561068bda02a085ab9552ba5a3","issue":"kosnu/savings#1697","source":"issue_body","updated_at":"2026-09-02T14:04:15Z","url":"https://github.com/kosnu/savings/issues/1697"}}
+{"depends_on":[{"id":"ai-driven.workflow","via":"ai-driven.checker"},{"id":"adr.harness-engineering","via":"ai-driven.checker"},{"id":"documentation.policy","via":"ai-driven.checker"},{"id":"ai-driven.overview","via":"ai-driven.workflow"}],"direct_rules":[{"id":"ai-driven.checker","issue_evidence":"`validation`","match":{"field":"topics","value":"validation"},"reason":"AIDD制御面の検証安全網とCodex Hooksを変更するため"}],"task_context":{"body_sha256":"1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb","issue":"kosnu/savings#1697","source":"issue_body","updated_at":"2026-09-03T12:51:50Z","url":"https://github.com/kosnu/savings/issues/1697"}}
 ```
 
 ## Requirements Completeness Gate
 
 ```json
-{"baseline":{"body_sha256":null,"source":"none"},"issue_body_sha256":"5bc41c99f76398383f77b7f33b45099d7eff4b561068bda02a085ab9552ba5a3","requirements":[{"id":"FR-1","issue_evidence":"AIDD制御面に関連する差分がある場合だけ、`Stop`時に必要な整合性検証が評価される","status":"new"},{"id":"FR-2","issue_evidence":"`stop_hook_active`を考慮し、修正不能時に無限継続しない","status":"new"},{"id":"FR-3","issue_evidence":"コンパクション直後に、現在Goal、親agentのGoal所有、上流成果物のread-only、Build / VerifyからShipへの遷移、Learn非自動実行が再注入される","status":"new"},{"id":"NFR-1","issue_evidence":"Hookは既存gateを補助する安全網とし、第二の状態管理を作らない","status":"new"},{"id":"NFR-2","issue_evidence":"Issue本文や成果物全文を注入しない","status":"new"},{"id":"NFR-3","issue_evidence":"Hooksが無効または利用不能な環境でも、既存AIDD workflowを実行できる","status":"new"},{"id":"NFR-4","issue_evidence":"新規外部依存を追加しない","status":"new"},{"id":"AC-1","issue_evidence":"検証失敗時は理由を示して作業継続を要求し、成功済みの同一差分では不要な再実行をしない","status":"new"},{"id":"AC-2","issue_evidence":"Hookが既存workflowまたは`aidd-checker`の判定を上書きしない","status":"new"},{"id":"AC-3","issue_evidence":"Hooks無効時の既存AIDD workflowが維持される","status":"new"},{"id":"AC-4","issue_evidence":"発火対象・対象外、成功・失敗、再入防止、コンテキスト内容の回帰テストが成功する","status":"new"}],"retired":[],"sections":[{"id":"background","issue_evidence":"自動的に検知する安全網はない","status":"new"},{"id":"users","issue_evidence":"現在のAIDD作業","status":"new"},{"id":"stories","issue_evidence":"必要な整合性検証を行わずにターンを終了できる","status":"new"},{"id":"scope","issue_evidence":"リポジトリで信頼されたCodex Hooks設定","status":"new"},{"id":"functional","issue_evidence":"AIDD制御面に関連する差分がある場合だけ","status":"new"},{"id":"non-functional","issue_evidence":"第二の状態管理を作らない","status":"new"},{"id":"acceptance","issue_evidence":"コンテキスト内容の回帰テストが成功する","status":"new"},{"id":"qa","issue_evidence":"Hookから信頼できる入力だけでは対象差分または再入状態を判定できない","status":"new"},{"id":"technical","issue_evidence":"transcriptの解析による現在phaseの推測","status":"new"}],"workspace":"1697-codex-hooks-aidd-40d66f9e5598"}
+{"baseline":{"body_sha256":"8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4","source":"git_head"},"issue_body_sha256":"1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb","requirements":[{"id":"FR-1","issue_evidence":null,"status":"unchanged"},{"id":"FR-2","issue_evidence":null,"status":"unchanged"},{"id":"FR-3","issue_evidence":null,"status":"unchanged"},{"id":"NFR-1","issue_evidence":null,"status":"unchanged"},{"id":"NFR-2","issue_evidence":null,"status":"unchanged"},{"id":"NFR-3","issue_evidence":null,"status":"unchanged"},{"id":"NFR-4","issue_evidence":null,"status":"unchanged"},{"id":"NFR-5","issue_evidence":"検証成功cacheは、Codex session、canonical worktree、Git `HEAD`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用し、必要なidentityを取得できない場合は再利用しない。","status":"new"},{"id":"AC-1","issue_evidence":null,"status":"unchanged"},{"id":"AC-2","issue_evidence":null,"status":"unchanged"},{"id":"AC-3","issue_evidence":null,"status":"unchanged"},{"id":"AC-4","issue_evidence":null,"status":"unchanged"},{"id":"AC-5","issue_evidence":"同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する","status":"new"}],"retired":[],"sections":[{"id":"background","issue_evidence":null,"status":"unchanged"},{"id":"users","issue_evidence":null,"status":"unchanged"},{"id":"stories","issue_evidence":null,"status":"unchanged"},{"id":"scope","issue_evidence":null,"status":"unchanged"},{"id":"functional","issue_evidence":null,"status":"unchanged"},{"id":"non-functional","issue_evidence":"検証成功cacheは、Codex session、canonical worktree、Git `HEAD`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用","status":"changed"},{"id":"acceptance","issue_evidence":"同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証","status":"changed"},{"id":"qa","issue_evidence":null,"status":"unchanged"},{"id":"technical","issue_evidence":null,"status":"unchanged"}],"workspace":"1697-codex-hooks-aidd-40d66f9e5598"}
 ```
 
 ## 背景
@@ -68,21 +68,23 @@ AIDD制御面に関連する差分がある場合だけStop時の検証を判断
 
 ## 非機能要件
 
-既存workflowとaidd-checkerを正本に保ち、第二の状態管理を作らない。Hooksの利用不能時にも既存経路を維持する。
+既存workflowとaidd-checkerを正本に保ち、第二の状態管理を作らない。検証成功cacheは、Codex session、canonical worktree、Git `HEAD`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用し、必要なidentityを取得できない場合は再利用しない。Hooksの利用不能時にも既存経路を維持する。
 
 - NFR-1: Hookは既存gateを補助する安全網とし、第二の状態管理を作らない。
 - NFR-2: SessionStartの追加コンテキストは工程不変条件だけに限定し、Issue本文や成果物全文を注入しない。
 - NFR-3: Hooksが無効または利用不能な環境でも、既存AIDD workflowを実行できる。
 - NFR-4: 新規外部依存を追加しない。
+- NFR-5: 検証成功cacheは、Codex session、canonical worktree、Git \`HEAD\`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用し、必要なidentityを取得できない場合は再利用しない。
 
 ## 受け入れ条件
 
-対象差分の選別、検証成功・失敗、同一差分の再実行抑止、再入防止、compact時のコンテキスト内容の回帰テストが成功する。
+対象差分の選別、検証成功・失敗、再入防止、compact時のコンテキスト内容を回帰テストする。同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する。
 
 - AC-1: 検証失敗時は理由を示して作業継続を要求し、成功済みの同一差分では不要な再実行をしない。
 - AC-2: Hookが既存workflowまたは\`aidd\-checker\`の判定を上書きしない。
 - AC-3: Hooks無効時の既存AIDD workflowが維持される。
 - AC-4: 発火対象・対象外、成功・失敗、再入防止、コンテキスト内容の回帰テストが成功する。
+- AC-5: 同じAIDD制御面差分でも、session、worktree、\`HEAD\`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する。
 
 ## Q\&A
 
