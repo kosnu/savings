@@ -2,14 +2,19 @@
   "schema_version": 4,
   "kind": "build_rule_coverage",
   "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
-  "receipt_sha256": "7e110d027486da6ffa202896aab35a0baa52b5a1295bfa9ef57d92f663e81e96",
-  "target_state_sha256": "f130a3d2ea647cddab5c2beb87cb0615107a55592d9300e8db48edf36425c8c1",
-  "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00",
+  "receipt_sha256": "44bffd7ad6dc72abe0d1154d756b0a3d00712d4a9d7aa72d60b57b37a0210dc9",
+  "target_state_sha256": "e4b392f8cbbaa04a896c3780c9280d80c870ec62fb93efa1f194020d2f62cb03",
+  "final_state_sha256": "9e06c38cf5cd58e9442752d86975e25c4d3a12546b9cb64e2ad22248973de240",
   "verification_evidence": {
     "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/.aidd/build-verification.json",
-    "sha256": "c58a2a478d0ba309f8a3c09ea5044ff62348fa0c00fb36cae6f43d3d4f291e83"
+    "sha256": "a90ff66ea77ba809ec9f6f476748eaaf667216f3deebf9ae3a800b33e1914e72"
   },
-  "baseline_inventory": [],
+  "baseline_inventory": [
+    ".codex/hooks.json",
+    "tools/aidd/checker/cmd/aidd-hooks/main.go",
+    "tools/aidd/checker/internal/codexhooks/hooks.go",
+    "tools/aidd/checker/internal/codexhooks/hooks_test.go"
+  ],
   "final_inventory": [
     ".codex/hooks.json",
     "tools/aidd/checker/cmd/aidd-hooks/main.go",
@@ -18,32 +23,8 @@
   ],
   "changed_paths": [
     {
-      "path": ".codex/hooks.json",
-      "status": "A",
-      "surfaces": [],
-      "rules": [
-        "adr.harness-engineering",
-        "documentation.policy",
-        "ai-driven.overview",
-        "ai-driven.workflow",
-        "ai-driven.checker"
-      ]
-    },
-    {
-      "path": "tools/aidd/checker/cmd/aidd-hooks/main.go",
-      "status": "A",
-      "surfaces": [],
-      "rules": [
-        "adr.harness-engineering",
-        "documentation.policy",
-        "ai-driven.overview",
-        "ai-driven.workflow",
-        "ai-driven.checker"
-      ]
-    },
-    {
       "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
-      "status": "A",
+      "status": "M",
       "surfaces": [],
       "rules": [
         "adr.harness-engineering",
@@ -55,7 +36,7 @@
     },
     {
       "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
-      "status": "A",
+      "status": "M",
       "surfaces": [],
       "rules": [
         "adr.harness-engineering",
