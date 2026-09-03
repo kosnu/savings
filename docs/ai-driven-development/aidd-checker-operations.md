@@ -305,9 +305,12 @@ canonical AIDD output以外にないこと、新規・変更済みnon-ignore pat
   受理するが、v4 へ変換・render・receipt 化しない。
 - historical schema v2 / v3互換性はGoのfixture / corpus testだけで固定する。旧Python
   validator、renderer、adapter、testは保持しない。
-- phase contract validationとprofile adapterを含むAIDD checker所有実装はGoだけに置く。
-- Python unittest profileは外部のPython testを実行できるが、repo-owned adapter自体は
-  Go実装であり、AIDD checkerのbuild、test、gateにPython sourceを必要としない。
+- checker、validator、phase contract、profile adapter、Codex Hooks、workflow補助処理を含む
+  リポジトリ所有のAIDD制御面の実行ロジックと、その回帰testはGoだけに置く。Python / shell製の
+  制御scriptをfallbackまたは互換実装として保持しない。
+- JSON、TOML、Markdownなどの宣言設定は実装言語制約の対象外とする。Python unittest profileは
+  外部のPython testを実行できるが、repo-owned adapterとAIDD制御ロジック自体はGo実装とし、
+  Python testを実行できることをPython製制御scriptの根拠にしない。
 
 repository 全体は次で検査する。
 

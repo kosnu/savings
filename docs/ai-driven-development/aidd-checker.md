@@ -166,8 +166,13 @@ result内のprocedure / observationは、empty、`null`、空配列を含めて�
   `schema_version`、`kind`、`workspace`、`display`、`validation`の完全な共通envelopeを要求する。
   `display`はkindに対応するpathと非空preamble、`validation`はJSON objectでなければならない。
   Goのenvelope検査とhistorical corpus回帰だけに利用できる。
-- AIDD checker、phase contract validator、profile adapter、その回帰testはGoだけで
-  実装する。旧Python validatorをfallbackまたは互換実装として保持しない。
+- リポジトリ所有のAIDD制御面の実行ロジックはGoだけで実装する。対象にはAIDD checker、
+  validator、phase contract、profile adapter、Codex Hooks、workflow補助処理と、それらの
+  回帰testを含む。旧Python validatorやPython / shell製の制御scriptをfallbackまたは互換実装として
+  保持しない。
+- JSON、TOML、Markdownなどの宣言設定と、verification profileが実行する外部検証対象は
+  AIDD制御面の実装言語制約に含めない。Python testをGo adapterから実行できることを、
+  AIDD制御ロジック自体をPythonで実装する根拠にしない。
 
 ## Performance Acceptance
 

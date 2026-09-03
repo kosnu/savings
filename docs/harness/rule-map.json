@@ -205,14 +205,18 @@
       "file": "docs/ai-driven-development/aidd-checker.md",
       "applies_to": {
         "paths": [
+          ".agents/skills/aidd-cycle/**",
+          ".agents/skills/goal-setting/**",
+          ".codex/hooks.json",
+          ".codex/hooks/**",
           "tools/aidd/**",
           "docs/ai-driven-development/contracts/**",
           "docs/ai-driven-development/aidd-checker.md",
           "docs/ai-driven-development/aidd-checker-operations.md"
         ],
         "domains": ["repository", "ai-driven-development", "harness"],
-        "activities": ["change_aidd_checker", "validate_artifact", "verify_build"],
-        "topics": ["validation", "verification-profile", "trust-boundary", "schema-v4"]
+        "activities": ["change_aidd_checker", "change_aidd_control_plane", "change_codex_hooks", "validate_artifact", "verify_build"],
+        "topics": ["aidd-control-plane", "codex-hooks", "validation", "verification-profile", "trust-boundary", "schema-v4"]
       },
       "depends_on": ["ai-driven.workflow", "adr.harness-engineering", "documentation.policy"],
       "overrides": [],
