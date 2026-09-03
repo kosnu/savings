@@ -207,12 +207,17 @@
         "paths": [
           ".agents/skills/aidd-cycle/**",
           ".agents/skills/goal-setting/**",
+          ".codex/agents/**",
+          ".codex/config.toml",
           ".codex/hooks.json",
           ".codex/hooks/**",
           "tools/aidd/**",
           "docs/ai-driven-development/contracts/**",
           "docs/ai-driven-development/aidd-checker.md",
-          "docs/ai-driven-development/aidd-checker-operations.md"
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/ai-driven-development/overview.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/harness/rule-map.json"
         ],
         "domains": ["repository", "ai-driven-development", "harness"],
         "activities": ["change_aidd_checker", "change_aidd_control_plane", "change_codex_hooks", "validate_artifact", "verify_build"],

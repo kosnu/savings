@@ -51,6 +51,9 @@ exit で返す。
 
 rule mapは`docs/harness/rule-map.json`だけを正本として受理する。`--rule-map`を明示する
 場合もこのpath以外は拒否し、RequirementsまたはDesignの入力へ代替rule mapを使用しない。
+Codex `Stop` Hookはこのrule map自身の変更をbootstrap対象として常に検知し、その他の
+AIDD制御面pathは`ai-driven.checker` nodeの`applies_to.paths`から取得する。運用上の
+発火対象をHook固有の手書き一覧で追加・削除しない。
 
 phase ownership contractも同じbinaryで検証する。
 
