@@ -1,0 +1,734 @@
+{
+  "schema_version": 4,
+  "kind": "design",
+  "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
+  "display": {
+    "path": "design-doc.md",
+    "preamble": "---\ntitle: \"Design: Issue #1697 Codex Hooks AIDD safety net\"\ndoc_type: design\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - tools/aidd\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - design-doc\nwhen_to_read:\n  - Issue #1697のCodex Hooks実装と検証を行うとき\n  - AIDD制御面のStopとcompact SessionStartの完成状態を確認するとき\n---\n\n# Design: Issue #1697 Codex Hooks AIDD safety net\n\n- Requirements: `docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json`\n- Requirements SHA-256: `8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
+  },
+  "validation": {
+    "mode": "managed",
+    "sections": [
+      {
+        "id": "architecture",
+        "heading": "Architecture",
+        "blocks": [
+          {
+            "id": "architecture-body",
+            "type": "markdown",
+            "markdown": "repo-local hooks.jsonから既存checker Go module内のhook runnerを起動する。runnerはCodexのJSON stdinとGit差分だけを読み、Stopでは対象差分fingerprintに対する既存gate実行結果を派生cacheし、SessionStart compactでは固定された工程不変条件だけを返す。"
+          },
+          {
+            "id": "fr-1-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-1",
+            "text": "Git HEADとの差分と非ignore untracked pathからAIDD制御面だけを選別し、該当時だけ既存checker test・phase contract・全成果物・diff整合性を検証する。",
+            "product_behavior_ids": [
+              "PB-1"
+            ]
+          },
+          {
+            "id": "fr-1-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-1",
+            "text": "対象差分と対象外差分でvalidation runnerの呼出有無が分かれることをGo testで確認する。"
+          },
+          {
+            "id": "fr-2-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-2",
+            "text": "成功済みfingerprintは再生成可能cacheでskipし、失敗時はstop_hook_activeがfalseの一度だけ継続要求を返す。",
+            "product_behavior_ids": [
+              "PB-2"
+            ]
+          },
+          {
+            "id": "fr-2-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-2",
+            "text": "同一fingerprintの成功skipとstop_hook_active=true時の非blockをGo testで確認する。"
+          },
+          {
+            "id": "fr-3-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-3",
+            "text": "SessionStart source=compactだけに、現在Goal・親Goal所有・上流read-only・BuildからShip・Learn非自動の固定contextを返す。",
+            "product_behavior_ids": [
+              "PB-3"
+            ]
+          },
+          {
+            "id": "fr-3-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-3",
+            "text": "compactとそれ以外のsource、および追加context全文をGo testで確認する。"
+          },
+          {
+            "id": "nfr-1-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-1",
+            "text": "Hookは既存checker commandを固定argvで実行する補助層とし、cacheにはphaseやGoal状態を保存しない。",
+            "product_behavior_ids": [
+              "PB-4"
+            ]
+          },
+          {
+            "id": "nfr-1-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-1",
+            "text": "cache schemaとvalidation command一覧に第二の工程状態がないことをコードレビューで確認する。"
+          },
+          {
+            "id": "nfr-2-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-2",
+            "text": "compact contextは5つの工程不変条件を定数として所有し、Issue本文・成果物・transcriptを読まない。",
+            "product_behavior_ids": [
+              "PB-5"
+            ]
+          },
+          {
+            "id": "nfr-2-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-2",
+            "text": "追加contextが必要な5条件だけを含みIssueまたは成果物内容を含まないことをGo testで固定する。"
+          },
+          {
+            "id": "nfr-3-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-3",
+            "text": "Hooks設定はrepo-localの任意補助設定として追加し、既存AIDD入口とgateからHookへの依存を追加しない。",
+            "product_behavior_ids": [
+              "PB-6"
+            ]
+          },
+          {
+            "id": "nfr-3-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-3",
+            "text": "hooks.jsonを無効または不在としても既存checker bootstrapとphase contractが成立する設計を確認する。"
+          },
+          {
+            "id": "nfr-4-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "NFR-4",
+            "text": "hook runnerは既存checker Go moduleと標準ライブラリだけを使い、新しいmodule依存を追加しない。",
+            "product_behavior_ids": [
+              "PB-7"
+            ]
+          },
+          {
+            "id": "nfr-4-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "NFR-4",
+            "text": "go.modとgo.sumが不変であることを差分レビューで確認する。"
+          },
+          {
+            "id": "ac-1-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "AC-1",
+            "text": "Stop出力を対象外、成功、成功cache、失敗継続の決定結果へ正規化し、失敗理由にvalidation名を含める。",
+            "product_behavior_ids": [
+              "PB-8"
+            ]
+          },
+          {
+            "id": "ac-1-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "AC-1",
+            "text": "各決定結果とvalidation呼出回数をtable-driven Go testで確認する。"
+          },
+          {
+            "id": "ac-2-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "AC-2",
+            "text": "Hook出力はCodexの継続または追加contextだけを指示し、checker成果物や判定値を生成・変更しない。",
+            "product_behavior_ids": [
+              "PB-9"
+            ]
+          },
+          {
+            "id": "ac-2-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "AC-2",
+            "text": "Hookの書込先がrepository外cacheだけでcanonical gate出力を所有しないことをコードレビューで確認する。"
+          },
+          {
+            "id": "ac-3-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "AC-3",
+            "text": "既存AIDD commandとphase agentはhooks.jsonを参照せず、無効化時も同一の入口検証を実行する。",
+            "product_behavior_ids": [
+              "PB-10"
+            ]
+          },
+          {
+            "id": "ac-3-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "AC-3",
+            "text": "Hook無効時の既存workflow非依存性を設定と呼出graphのレビューで確認する。"
+          },
+          {
+            "id": "ac-4-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "AC-4",
+            "text": "Go testは発火対象・対象外、成功・失敗、cache skip、再入防止、compact contextと設定shapeを網羅する。",
+            "product_behavior_ids": [
+              "PB-11"
+            ]
+          },
+          {
+            "id": "ac-4-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "AC-4",
+            "text": "aidd-checker-tests profileで既存checker回帰を含む全Go testを成功させる。"
+          }
+        ]
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "AIDD制御面の差分がある停止時だけ必要な整合性検証が実行される",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "同一差分の成功検証は再実行されず再入済み失敗は追加継続されない",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "compact直後のmodel requestへ5つのAIDD工程不変条件が追加される",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "Hookは既存checker gateを補助しGoalまたはphase状態を所有しない",
+          "requirement_id": "NFR-1"
+        },
+        {
+          "id": "PB-5",
+          "type": "state_transition",
+          "description": "compact contextは工程不変条件だけを含みIssue本文と成果物を含まない",
+          "requirement_id": "NFR-2"
+        },
+        {
+          "id": "PB-6",
+          "type": "state_transition",
+          "description": "repo-local Hooksが無効または未信頼でも既存AIDD workflowは独立して動作する",
+          "requirement_id": "NFR-3"
+        },
+        {
+          "id": "PB-7",
+          "type": "state_transition",
+          "description": "Hook runnerと回帰testは既存Go module内で新規外部依存なく動作する",
+          "requirement_id": "NFR-4"
+        },
+        {
+          "id": "PB-8",
+          "type": "state_transition",
+          "description": "Stop判定が対象外と成功とcache skipと理由付き失敗継続へ分類される",
+          "requirement_id": "AC-1"
+        },
+        {
+          "id": "PB-9",
+          "type": "state_transition",
+          "description": "Hook出力は既存workflowまたはcheckerの判定と成果物を上書きしない",
+          "requirement_id": "AC-2"
+        },
+        {
+          "id": "PB-10",
+          "type": "state_transition",
+          "description": "Hooksを無効化した実行でも既存AIDD入口とphase gateが維持される",
+          "requirement_id": "AC-3"
+        },
+        {
+          "id": "PB-11",
+          "type": "state_transition",
+          "description": "Hookの全発火分岐と再入とcompact contextがGo回帰testで固定される",
+          "requirement_id": "AC-4"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "procedure": "Hookのcacheと実行commandにGoalまたはphaseの正本がないことを確認する"
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "manual",
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "procedure": "Hooks無効時も既存AIDD入口がhooks設定を参照しないことを確認する"
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "NFR-4",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "procedure": "go.modとgo.sumに新規依存差分がないことを確認する"
+        },
+        {
+          "id": "VC-8",
+          "type": "automated",
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-9",
+          "type": "manual",
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "procedure": "Hookがcanonical checker出力を書き換えないことを確認する"
+        },
+        {
+          "id": "VC-10",
+          "type": "manual",
+          "requirement_id": "AC-3",
+          "product_behavior_ids": [
+            "PB-10"
+          ],
+          "procedure": "Hook無効化が既存workflowの実行条件を変えないことを確認する"
+        },
+        {
+          "id": "VC-11",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".codex/hooks.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-hooks",
+          "kind": "tree"
+        },
+        {
+          "path": "tools/aidd/checker/internal/codexhooks",
+          "kind": "tree"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "configuration",
+          "path": ".codex/hooks.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/cmd/aidd-hooks/main.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-4",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "HandleStop"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopEvaluatesOnlyRelevantControlPlaneDiff"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "RetryDecision"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-6",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopSkipsCachedFingerprintAndPreventsReentry"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "HandleSessionStart"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-8",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestSessionStartCompactInjectsAIDDInvariants"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "RunValidations"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "CompactContext"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-11",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestCompactContextContainsOnlyAIDDInvariants"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "ControlPlaneFingerprint"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-13",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopReturnsTargetedValidationDecisions"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "HookOutput"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "verification_case_ids": [
+            "VC-9"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestHooksDisabledLeavesWorkflowIndependent"
+          },
+          "requirement_id": "AC-3",
+          "product_behavior_ids": [
+            "PB-10"
+          ],
+          "verification_case_ids": [
+            "VC-10"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestHookRegressionMatrix"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": [
+            "VC-11"
+          ]
+        }
+      ]
+    },
+    "rule_coverage": {
+      "implementation_surfaces": [],
+      "additional_rules": []
+    },
+    "coverage_gate": {
+      "requirements_sha256": "8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4",
+      "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
+      "requirement_ids": [
+        "FR-1",
+        "FR-2",
+        "FR-3",
+        "NFR-1",
+        "NFR-2",
+        "NFR-3",
+        "NFR-4",
+        "AC-1",
+        "AC-2",
+        "AC-3",
+        "AC-4"
+      ],
+      "baseline": {
+        "source": "none",
+        "body_sha256": null
+      },
+      "coverage": [
+        {
+          "id": "FR-1",
+          "design_block_id": "fr-1-design",
+          "verification_block_id": "fr-1-verification"
+        },
+        {
+          "id": "FR-2",
+          "design_block_id": "fr-2-design",
+          "verification_block_id": "fr-2-verification"
+        },
+        {
+          "id": "FR-3",
+          "design_block_id": "fr-3-design",
+          "verification_block_id": "fr-3-verification"
+        },
+        {
+          "id": "NFR-1",
+          "design_block_id": "nfr-1-design",
+          "verification_block_id": "nfr-1-verification"
+        },
+        {
+          "id": "NFR-2",
+          "design_block_id": "nfr-2-design",
+          "verification_block_id": "nfr-2-verification"
+        },
+        {
+          "id": "NFR-3",
+          "design_block_id": "nfr-3-design",
+          "verification_block_id": "nfr-3-verification"
+        },
+        {
+          "id": "NFR-4",
+          "design_block_id": "nfr-4-design",
+          "verification_block_id": "nfr-4-verification"
+        },
+        {
+          "id": "AC-1",
+          "design_block_id": "ac-1-design",
+          "verification_block_id": "ac-1-verification"
+        },
+        {
+          "id": "AC-2",
+          "design_block_id": "ac-2-design",
+          "verification_block_id": "ac-2-verification"
+        },
+        {
+          "id": "AC-3",
+          "design_block_id": "ac-3-design",
+          "verification_block_id": "ac-3-verification"
+        },
+        {
+          "id": "AC-4",
+          "design_block_id": "ac-4-design",
+          "verification_block_id": "ac-4-verification"
+        }
+      ],
+      "baseline_sections": []
+    }
+  }
+}

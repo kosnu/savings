@@ -1,0 +1,177 @@
+{
+  "schema_version": 4,
+  "kind": "build_verification",
+  "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
+  "receipt_sha256": "7e110d027486da6ffa202896aab35a0baa52b5a1295bfa9ef57d92f663e81e96",
+  "catalog_sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
+  "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00",
+  "generator": "aidd-checker/v4",
+  "results": [
+    {
+      "id": "VC-1",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "aidd-checker-tests",
+      "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+      "selector": {
+        "kind": "suite"
+      },
+      "executed_identities": [
+        {
+          "kind": "suite",
+          "id": "aidd-checker-tests"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1774,
+      "stderr_bytes": 0,
+      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00"
+    },
+    {
+      "id": "VC-2",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "aidd-checker-tests",
+      "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+      "selector": {
+        "kind": "suite"
+      },
+      "executed_identities": [
+        {
+          "kind": "suite",
+          "id": "aidd-checker-tests"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1774,
+      "stderr_bytes": 0,
+      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00"
+    },
+    {
+      "id": "VC-3",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "aidd-checker-tests",
+      "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+      "selector": {
+        "kind": "suite"
+      },
+      "executed_identities": [
+        {
+          "kind": "suite",
+          "id": "aidd-checker-tests"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1774,
+      "stderr_bytes": 0,
+      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00"
+    },
+    {
+      "id": "VC-4",
+      "type": "manual",
+      "status": "passed",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00",
+      "procedure": "Hookのcacheと実行commandにGoalまたはphaseの正本がないことを確認する",
+      "observation": "cacheは現行制御面の差分bytesと状態をfingerprint化しGoalやphaseを保存せず既存gateだけを実行することを確認した"
+    },
+    {
+      "id": "VC-5",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "aidd-checker-tests",
+      "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+      "selector": {
+        "kind": "suite"
+      },
+      "executed_identities": [
+        {
+          "kind": "suite",
+          "id": "aidd-checker-tests"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1774,
+      "stderr_bytes": 0,
+      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00"
+    },
+    {
+      "id": "VC-6",
+      "type": "manual",
+      "status": "passed",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00",
+      "procedure": "Hooks無効時も既存AIDD入口がhooks設定を参照しないことを確認する",
+      "observation": "hooks無効または未信頼でも既存AIDD入口はhooks設定を参照せずroot解決commandのみで独立動作しagent設定は制御面差分として検証対象になることを確認した"
+    },
+    {
+      "id": "VC-7",
+      "type": "manual",
+      "status": "passed",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00",
+      "procedure": "go.modとgo.sumに新規依存差分がないことを確認する",
+      "observation": "go.modとgo.sumをHEAD差分で確認し新規依存追加がなくGo標準module内で動作することを確認した"
+    },
+    {
+      "id": "VC-8",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "aidd-checker-tests",
+      "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+      "selector": {
+        "kind": "suite"
+      },
+      "executed_identities": [
+        {
+          "kind": "suite",
+          "id": "aidd-checker-tests"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1774,
+      "stderr_bytes": 0,
+      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00"
+    },
+    {
+      "id": "VC-9",
+      "type": "manual",
+      "status": "passed",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00",
+      "procedure": "Hookがcanonical checker出力を書き換えないことを確認する",
+      "observation": "Hookのrepository内書込先はなく外部cache以外のcanonical checker成果物を変更しないことを確認した"
+    },
+    {
+      "id": "VC-10",
+      "type": "manual",
+      "status": "passed",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00",
+      "procedure": "Hook無効化が既存workflowの実行条件を変えないことを確認する",
+      "observation": "hooks設定を無効化しても既存workflowとphase gateの実行条件を変えない呼出関係であることを確認した"
+    },
+    {
+      "id": "VC-11",
+      "type": "automated",
+      "status": "passed",
+      "verification_profile_id": "aidd-checker-tests",
+      "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+      "selector": {
+        "kind": "suite"
+      },
+      "executed_identities": [
+        {
+          "kind": "suite",
+          "id": "aidd-checker-tests"
+        }
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1774,
+      "stderr_bytes": 0,
+      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "final_state_sha256": "2f0e4cbcd34dad672bde4035611fc87922899701c235d8b1a610a73c02a0ff00"
+    }
+  ]
+}
