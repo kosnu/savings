@@ -18,12 +18,12 @@
             "type": "evidence",
             "role": "baseline",
             "owner_id": "architecture",
-            "text": "既存Architectureをcache identity要件を含む全Requirementsの完成状態へ更新する。"
+            "text": "既存Architectureをrule-map連動要件を含む全Requirementsの完成状態へ更新する。"
           },
           {
             "id": "architecture-body",
             "type": "markdown",
-            "markdown": "repo-local hooks.jsonから既存checker Go module内のhook runnerを起動する。runnerはCodexのJSON stdinとGit差分だけを読み、Stopでは対象差分fingerprintに対する既存gate実行結果を派生cacheし、SessionStart compactでは固定された工程不変条件だけを返す。"
+            "markdown": "repo-local hooks.jsonから既存checker Go module内のhook runnerを起動する。runnerはCodexのJSON stdinとGit差分だけを読み、Stopではcanonical rule-mapのai-driven.checker nodeから制御面pathを解決して既存gateを実行し、SessionStart compactでは固定された工程不変条件だけを返す。"
           },
           {
             "id": "fr-1-design",
@@ -245,6 +245,23 @@
             "role": "verification",
             "owner_id": "AC-5",
             "text": "identity各要素を一つずつ変更するtable-driven Go testと完全一致時のskip testで再検証境界を固定する。"
+          },
+          {
+            "id": "fr-4-design",
+            "type": "evidence",
+            "role": "design",
+            "owner_id": "FR-4",
+            "text": "canonical rule-map自身をbootstrap対象に保ち、それ以外のAIDD制御面pathをai-driven.checker nodeのapplies_to.pathsと既存path matcherから解決する。",
+            "product_behavior_ids": [
+              "PB-14"
+            ]
+          },
+          {
+            "id": "fr-4-verification",
+            "type": "evidence",
+            "role": "verification",
+            "owner_id": "FR-4",
+            "text": "rule-map fixtureへ新しい制御面pathを追加するとHook側の個別一覧変更なしで検証対象になることをGo testで確認する。"
           }
         ]
       }
@@ -328,6 +345,12 @@
           "type": "state_transition",
           "description": "同一制御面差分でもcache identityの任意要素が変わるか取得不能なら整合性検証が再実行される",
           "requirement_id": "AC-5"
+        },
+        {
+          "id": "PB-14",
+          "type": "state_transition",
+          "description": "canonical rule-mapへ追加されたAIDD制御面pathがHook固有一覧の同期なしでStop検証対象になる",
+          "requirement_id": "FR-4"
         }
       ],
       "verification_cases": [
@@ -466,6 +489,18 @@
           "requirement_id": "AC-5",
           "product_behavior_ids": [
             "PB-13"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-14",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-14"
           ],
           "verification_profile_id": "aidd-checker-tests",
           "selector": {
@@ -777,6 +812,34 @@
           "verification_case_ids": [
             "VC-13"
           ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "ControlPlaneRuleMatcher"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-22",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestControlPlanePathsFollowRuleMap"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-14"
+          ]
         }
       ]
     },
@@ -785,12 +848,13 @@
       "additional_rules": []
     },
     "coverage_gate": {
-      "requirements_sha256": "dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f",
+      "requirements_sha256": "5edd744330e901572b2b32df3be420ff4bf96e4fc73d18a3d6f81aa48f041ffe",
       "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
       "requirement_ids": [
         "FR-1",
         "FR-2",
         "FR-3",
+        "FR-4",
         "NFR-1",
         "NFR-2",
         "NFR-3",
@@ -804,7 +868,7 @@
       ],
       "baseline": {
         "source": "git_head",
-        "body_sha256": "795ff348b5b52a8e0ec80b4f234765ee1c9d2dc1d1f719dc87436294ea5d6450"
+        "body_sha256": "d509a9695ade2a7f7c610f2dcdfb3d58a6ffd74ad66529244a9454389c1b47fc"
       },
       "coverage": [
         {
@@ -821,6 +885,11 @@
           "id": "FR-3",
           "design_block_id": "fr-3-design",
           "verification_block_id": "fr-3-verification"
+        },
+        {
+          "id": "FR-4",
+          "design_block_id": "fr-4-design",
+          "verification_block_id": "fr-4-verification"
         },
         {
           "id": "NFR-1",
@@ -877,7 +946,7 @@
         {
           "section_id": "architecture",
           "heading": "Architecture",
-          "content_sha256": "7026801a1daa37f9465a33118b4415a9cd0e7d1c0bf4944e40ce5dc8918ce05f",
+          "content_sha256": "57ab5c4efbfc585d974e28116811b3d70ae7d042b28d40c7e59a73f69fc2fed1",
           "status": "replaced",
           "design_block_id": "architecture-baseline"
         }

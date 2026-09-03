@@ -4,7 +4,7 @@
   "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
   "display": {
     "path": "requirements.md",
-    "preamble": "---\ntitle: \"Requirements: Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ\"\ndoc_type: requirements\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - .agents\n  - tools/aidd\n  - docs/ai-driven-development\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - requirements\nwhen_to_read:\n  - Issue #1697の設計、実装、検証を行うとき\n  - AIDD制御面のStop hookとcompact SessionStart hookの要求境界を確認するとき\n---\n\n# Requirements: Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ\n\n- Issue: `kosnu/savings#1697`\n- Issue URL: `https://github.com/kosnu/savings/issues/1697`\n- Issue updatedAt: `2026-09-03T12:51:50Z`\n- Issue本文SHA-256: `1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
+    "preamble": "---\ntitle: \"Requirements: Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ\"\ndoc_type: requirements\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - .agents\n  - tools/aidd\n  - docs/ai-driven-development\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - requirements\nwhen_to_read:\n  - Issue #1697の設計、実装、検証を行うとき\n  - AIDD制御面のStop hookとcompact SessionStart hookの要求境界を確認するとき\n---\n\n# Requirements: Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ\n\n- Issue: `kosnu/savings#1697`\n- Issue URL: `https://github.com/kosnu/savings/issues/1697`\n- Issue updatedAt: `2026-09-03T17:14:37Z`\n- Issue本文SHA-256: `03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
   },
   "validation": {
     "mode": "managed",
@@ -14,8 +14,8 @@
         "source": "issue_body",
         "issue": "kosnu/savings#1697",
         "url": "https://github.com/kosnu/savings/issues/1697",
-        "updated_at": "2026-09-03T12:51:50Z",
-        "body_sha256": "1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb"
+        "updated_at": "2026-09-03T17:14:37Z",
+        "body_sha256": "03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404"
       },
       "direct_rules": [
         {
@@ -48,11 +48,11 @@
       ]
     },
     "completeness_gate": {
-      "issue_body_sha256": "1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb",
+      "issue_body_sha256": "03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404",
       "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
       "baseline": {
         "source": "git_head",
-        "body_sha256": "8e955c193afc1ddd5d2ff43425d5105128d330180634aa79af50dabaa848c5b4"
+        "body_sha256": "dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f"
       },
       "requirements": [
         {
@@ -69,6 +69,11 @@
           "id": "FR-3",
           "status": "unchanged",
           "issue_evidence": null
+        },
+        {
+          "id": "FR-4",
+          "status": "new",
+          "issue_evidence": "また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
         },
         {
           "id": "NFR-1",
@@ -92,8 +97,8 @@
         },
         {
           "id": "NFR-5",
-          "status": "new",
-          "issue_evidence": "検証成功cacheは、Codex session、canonical worktree、Git `HEAD`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用し、必要なidentityを取得できない場合は再利用しない。"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "AC-1",
@@ -117,8 +122,8 @@
         },
         {
           "id": "AC-5",
-          "status": "new",
-          "issue_evidence": "同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する"
+          "status": "unchanged",
+          "issue_evidence": null
         }
       ],
       "sections": [
@@ -144,18 +149,18 @@
         },
         {
           "id": "functional",
+          "status": "changed",
+          "issue_evidence": "また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
+        },
+        {
+          "id": "non-functional",
           "status": "unchanged",
           "issue_evidence": null
         },
         {
-          "id": "non-functional",
-          "status": "changed",
-          "issue_evidence": "検証成功cacheは、Codex session、canonical worktree、Git `HEAD`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用"
-        },
-        {
           "id": "acceptance",
           "status": "changed",
-          "issue_evidence": "同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証"
+          "issue_evidence": "- [ ] rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる"
         },
         {
           "id": "qa",
@@ -185,6 +190,11 @@
         "id": "FR-3",
         "section_id": "functional",
         "text": "コンパクション直後に、現在Goal、親agentのGoal所有、上流成果物のread-only、Build / VerifyからShipへの遷移、Learn非自動実行が再注入される。"
+      },
+      {
+        "id": "FR-4",
+        "section_id": "functional",
+        "text": "また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
       },
       {
         "id": "NFR-1",
@@ -289,7 +299,7 @@
           {
             "id": "functional-body",
             "type": "markdown",
-            "markdown": "AIDD制御面に関連する差分がある場合だけStop時の検証を判断し、compact直後だけ工程不変条件を再注入する。"
+            "markdown": "AIDD制御面に関連する差分がある場合だけStop時の検証を判断し、compact直後だけ工程不変条件を再注入する。また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
           },
           {
             "id": "functional-requirements",
@@ -319,7 +329,7 @@
           {
             "id": "acceptance-body",
             "type": "markdown",
-            "markdown": "対象差分の選別、検証成功・失敗、再入防止、compact時のコンテキスト内容を回帰テストする。同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する。"
+            "markdown": "対象差分の選別、検証成功・失敗、再入防止、compact時のコンテキスト内容を回帰テストする。同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する。\n\n- [ ] rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる"
           },
           {
             "id": "acceptance-requirements",

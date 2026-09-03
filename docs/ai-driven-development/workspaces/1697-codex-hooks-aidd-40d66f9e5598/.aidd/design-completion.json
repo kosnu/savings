@@ -6,10 +6,10 @@
     "id": "kosnu/savings#1697",
     "title": "Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ",
     "url": "https://github.com/kosnu/savings/issues/1697",
-    "updated_at": "2026-09-03T12:51:50Z",
-    "body_sha256": "1149909d321eeb4112f664bf40f4c2d48503dbd7e5475fbdd2c49e2d3bf9f2cb"
+    "updated_at": "2026-09-03T17:14:37Z",
+    "body_sha256": "03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404"
   },
-  "design_goal_sha256": "7021b6f44577112eb0ba9a21411472c7cecb16f0a6dffcc7974194c228820e38",
+  "design_goal_sha256": "21cf5c2c1d55e45dbf7c94307a8060e0352db294e59bd5bf11f4c4cc336c6bf4",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "ac69a0086270fc09da76556009cc3db1b94f52c0132d540271209923c14490d5"
@@ -59,7 +59,7 @@
     }
   },
   "target_state": {
-    "sha256": "e4b392f8cbbaa04a896c3780c9280d80c870ec62fb93efa1f194020d2f62cb03",
+    "sha256": "4efe2924847a881fdd34b744ec41d1de37e6eac9c04ab7a8e28f6f3c89c0c6f8",
     "value": {
       "product_behaviors": [
         {
@@ -139,6 +139,12 @@
           "type": "state_transition",
           "description": "同一制御面差分でもcache identityの任意要素が変わるか取得不能なら整合性検証が再実行される",
           "requirement_id": "AC-5"
+        },
+        {
+          "id": "PB-14",
+          "type": "state_transition",
+          "description": "canonical rule-mapへ追加されたAIDD制御面pathがHook固有一覧の同期なしでStop検証対象になる",
+          "requirement_id": "FR-4"
         }
       ],
       "verification_cases": [
@@ -277,6 +283,18 @@
           "requirement_id": "AC-5",
           "product_behavior_ids": [
             "PB-13"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-14",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-14"
           ],
           "verification_profile_id": "aidd-checker-tests",
           "selector": {
@@ -588,6 +606,34 @@
           "verification_case_ids": [
             "VC-13"
           ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "ControlPlaneRuleMatcher"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-22",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestControlPlanePathsFollowRuleMap"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-14"
+          ]
         }
       ]
     }
@@ -623,30 +669,30 @@
     "value": []
   },
   "build_baseline": {
-    "head": "dd894a8ad262cd175a777536f5a80819d0d37643"
+    "head": "86f10994f3542b52c200d92f207c8fdc4ffe3cea"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json",
-        "sha256": "dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f",
+        "sha256": "5edd744330e901572b2b32df3be420ff4bf96e4fc73d18a3d6f81aa48f041ffe",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.md",
-        "sha256": "95e6b706b8a27af55b09b1f1d703863a79a29a7ddd68c5a010583f70f7748c72",
+        "sha256": "97f4fbf7171c301b321e83c6e28220dbf09ffd8266573d35047147e7a7a4fa65",
         "mode": "0600"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.json",
-        "sha256": "d509a9695ade2a7f7c610f2dcdfb3d58a6ffd74ad66529244a9454389c1b47fc",
+        "sha256": "14801984599f426f485c4f68dbafdb5938a7a63a30a533d9b54f931ba9a53f38",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.md",
-        "sha256": "201493a4111fd3df6f70f0dce9815950ce4275b209e8483b631712f98f084f73",
+        "sha256": "1d42ee2da17e8b5415b21792ba87e14fc0a15862b6a415d8b3671f0068de790f",
         "mode": "0600"
       }
     }

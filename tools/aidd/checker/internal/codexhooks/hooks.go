@@ -14,6 +14,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
 )
 
 const (
@@ -164,17 +167,31 @@ func HandleStop(ctx context.Context, input HookInput, options ...Options) (HookO
 	}
 	diffPaths := option.DiffPaths
 	if diffPaths == nil {
-		diffPaths = ControlPlaneDiff
+		paths, err := ControlPlaneDiff(ctx, root)
+		if err != nil {
+			return RetryDecision(false, false, "control-plane diff detection failed: "+err.Error()), nil
+		}
+		if len(paths) == 0 {
+			return HookOutput{}, nil
+		}
+		return handleStopForPaths(ctx, root, input, option, paths)
 	}
 	paths, err := diffPaths(ctx, root)
 	if err != nil {
 		return RetryDecision(false, false, "control-plane diff detection failed: "+err.Error()), nil
 	}
-	paths = controlPlanePaths(paths)
-	if len(paths) == 0 {
+	return handleStopForPaths(ctx, root, input, option, paths)
+}
+
+func handleStopForPaths(ctx context.Context, root string, input HookInput, option Options, paths []string) (HookOutput, error) {
+	filteredPaths, err := filterControlPlanePaths(ctx, root, paths)
+	if err != nil {
+		return RetryDecision(false, false, "control-plane rule matching failed: "+err.Error()), nil
+	}
+	if len(filteredPaths) == 0 {
 		return HookOutput{}, nil
 	}
-	state, err := controlPlaneState(ctx, root, paths)
+	state, err := controlPlaneState(ctx, root, filteredPaths)
 	if err != nil {
 		return RetryDecision(false, false, "control-plane state capture failed: "+err.Error()), nil
 	}
@@ -183,7 +200,7 @@ func HandleStop(ctx context.Context, input HookInput, options ...Options) (HookO
 		identityProvider = CacheIdentityForInput
 	}
 	identity, identityErr := identityProvider(ctx, root, input)
-	fingerprint := ControlPlaneFingerprint(paths, cacheFingerprintState(state, identity))
+	fingerprint := ControlPlaneFingerprint(filteredPaths, cacheFingerprintState(state, identity))
 	cacheDir := option.CacheDir
 	if identityErr == nil && CanReuseSuccessfulCache(cacheDir, fingerprint, identity) {
 		return HookOutput{}, nil
@@ -419,46 +436,36 @@ func nonIgnoredWorktreeState(ctx context.Context, root string) ([]byte, error) {
 	return state.Bytes(), nil
 }
 
-// IsControlPlanePath reports whether a repository-relative path is covered by
-// the checker rule's AIDD control-plane surfaces. Workspace artifacts are
-// intentionally excluded because they are phase evidence, not hook inputs.
-func IsControlPlanePath(path string) bool {
-	path = filepath.ToSlash(strings.TrimPrefix(strings.TrimSpace(path), "./"))
-	if path == ".codex/hooks.json" {
-		return true
-	}
-	for _, prefix := range []string{
-		".codex/agents/",
-		".codex/hooks/",
-		".agents/skills/aidd-cycle/",
-		".agents/skills/goal-setting/",
-		"tools/aidd/",
-		"docs/ai-driven-development/contracts/",
-	} {
-		if strings.HasPrefix(path, prefix) {
-			return true
-		}
-	}
-	for _, exact := range []string{
-		"docs/harness/rule-map.json",
-		".codex/config.toml",
-		"docs/ai-driven-development/aidd-checker.md",
-		"docs/ai-driven-development/aidd-checker-operations.md",
-		"docs/ai-driven-development/workflow.md",
-		"docs/ai-driven-development/overview.md",
-	} {
-		if path == exact {
-			return true
-		}
-	}
-	return false
+// ControlPlaneRuleMatcherはcanonical rule-mapからAIDD制御面pathを解決する。
+// rule-map自身は常にbootstrap対象とし、壊れた場合や削除された場合もStop検証を発火させる。
+type ControlPlaneRuleMatcher struct {
+	loaded *rules.Loaded
 }
 
-func controlPlanePaths(paths []string) []string {
+// NewControlPlaneRuleMatcherはchecker既存のrepository snapshotとpath matcherで
+// canonical rule-mapを読み込む。
+func NewControlPlaneRuleMatcher(ctx context.Context, root string) (*ControlPlaneRuleMatcher, error) {
+	snapshot, err := repository.Open(ctx, root)
+	if err != nil {
+		return nil, err
+	}
+	defer snapshot.Close()
+	loaded, err := rules.Load(snapshot, rules.DefaultPath)
+	if err != nil {
+		return nil, err
+	}
+	return &ControlPlaneRuleMatcher{loaded: loaded}, nil
+}
+
+func normalizeControlPlanePath(path string) string {
+	return filepath.ToSlash(strings.TrimPrefix(strings.TrimSpace(path), "./"))
+}
+
+func normalizedControlPlanePaths(paths []string) []string {
 	unique := make(map[string]struct{}, len(paths))
 	for _, path := range paths {
-		normalized := filepath.ToSlash(strings.TrimPrefix(strings.TrimSpace(path), "./"))
-		if normalized != "" && IsControlPlanePath(normalized) {
+		normalized := normalizeControlPlanePath(path)
+		if normalized != "" {
 			unique[normalized] = struct{}{}
 		}
 	}
@@ -468,6 +475,94 @@ func controlPlanePaths(paths []string) []string {
 	}
 	sort.Strings(result)
 	return result
+}
+
+func (matcher *ControlPlaneRuleMatcher) match(path string) (bool, error) {
+	path = normalizeControlPlanePath(path)
+	if path == "" {
+		return false, nil
+	}
+	if path == rules.DefaultPath {
+		return true, nil
+	}
+	if matcher == nil || matcher.loaded == nil {
+		return false, errors.New("control-plane rule matcher is unavailable")
+	}
+	_, selected, err := rules.ResolvePath(matcher.loaded, path)
+	if err != nil {
+		return false, err
+	}
+	for _, id := range selected {
+		if id == "ai-driven.checker" {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// Matchはcanonical ai-driven.checker ruleがpathを選択するか返す。
+// エラーは非該当として扱うため、fail-closedが必要な呼び出し側はFilterを使う。
+func (matcher *ControlPlaneRuleMatcher) Match(path string) bool {
+	matched, err := matcher.match(path)
+	return err == nil && matched
+}
+
+// Filterはpathから制御面だけをソートして返す。rule-map読込またはpath解決の失敗を返し、
+// Stop検証が黙って省略されないようにする。
+func (matcher *ControlPlaneRuleMatcher) Filter(paths []string) ([]string, error) {
+	result := []string{}
+	for _, path := range normalizedControlPlanePaths(paths) {
+		matched, err := matcher.match(path)
+		if err != nil {
+			return nil, err
+		}
+		if matched {
+			result = append(result, path)
+		}
+	}
+	return result, nil
+}
+
+// IsControlPlanePathはrepository-relative pathがcanonical rule-mapの対象か返す。
+// repositoryから実行する呼び出し側向けの互換関数であり、本番filteringはroot-aware matcherを使う。
+func IsControlPlanePath(path string) bool {
+	if normalizeControlPlanePath(path) == rules.DefaultPath {
+		return true
+	}
+	root, err := os.Getwd()
+	if err != nil {
+		return false
+	}
+	root, err = gitRepositoryRoot(context.Background(), root)
+	if err != nil {
+		return false
+	}
+	matcher, err := NewControlPlaneRuleMatcher(context.Background(), root)
+	return err == nil && matcher.Match(path)
+}
+
+func filterControlPlanePaths(ctx context.Context, root string, paths []string) ([]string, error) {
+	normalized := normalizedControlPlanePaths(paths)
+	for _, path := range normalized {
+		if path == rules.DefaultPath {
+			// 編集されたrule-mapがparse不能でもbootstrap pathは保持し、既存gateを発火させる。
+			bootstrap := []string{path}
+			matcher, err := NewControlPlaneRuleMatcher(ctx, root)
+			if err != nil {
+				return bootstrap, nil
+			}
+			filtered, filterErr := matcher.Filter(normalized)
+			if filterErr != nil {
+				return bootstrap, nil
+			}
+			return filtered, nil
+		}
+	}
+	matcher, err := NewControlPlaneRuleMatcher(ctx, root)
+	if err != nil {
+		return nil, err
+	}
+	return matcher.Filter(normalized)
 }
 
 // ControlPlaneDiff obtains tracked and non-ignored untracked paths from the
@@ -484,7 +579,7 @@ func ControlPlaneDiff(ctx context.Context, root string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("git untracked paths: %w", err)
 	}
-	return controlPlanePaths(append(tracked, untracked...)), nil
+	return filterControlPlanePaths(ctx, root, append(tracked, untracked...))
 }
 
 func gitRepositoryRoot(ctx context.Context, path string) (string, error) {
@@ -508,7 +603,7 @@ func gitRepositoryRoot(ctx context.Context, path string) (string, error) {
 }
 
 func controlPlaneState(ctx context.Context, root string, paths []string) ([]byte, error) {
-	paths = controlPlanePaths(paths)
+	paths = normalizedControlPlanePaths(paths)
 	if len(paths) == 0 {
 		return []byte("AIDD-codex-hooks-state-v2\x00"), nil
 	}
