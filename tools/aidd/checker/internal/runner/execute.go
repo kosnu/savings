@@ -10,6 +10,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/receipt"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/verificationcontract"
 )
 
 const Generator = "aidd-checker/v4"
@@ -19,10 +20,14 @@ type Options struct {
 }
 
 func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt.Loaded, options Options) (*model.BuildEvidence, error) {
-	if err := receipt.AssertBuildGitState(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+	return ExecuteContract(ctx, snapshot, verificationcontract.Input{SchemaVersion: 4, Generator: Generator, Workspace: loaded.Value.Workspace, CheckpointSHA256: loaded.SHA256, BaselineHead: loaded.Value.BuildBaseline.Head, Target: loaded.Value.TargetState.Value, Catalog: loaded.Catalog}, options)
+}
+
+func ExecuteContract(ctx context.Context, snapshot *repository.Snapshot, input verificationcontract.Input, options Options) (*model.BuildEvidence, error) {
+	if err := receipt.AssertBuildGitState(ctx, snapshot, input.BaselineHead); err != nil {
 		return nil, err
 	}
-	target := &loaded.Value.TargetState.Value
+	target := &input.Target
 	initialFinalState, err := state.FinalHash(snapshot, target)
 	if err != nil {
 		return nil, err
@@ -44,13 +49,13 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 		break
 	}
 	evidence := &model.BuildEvidence{
-		SchemaVersion:    model.EvidenceSchemaVersion,
+		SchemaVersion:    input.SchemaVersion,
 		Kind:             "build_verification",
-		Workspace:        loaded.Value.Workspace,
-		ReceiptSHA256:    loaded.SHA256,
-		CatalogSHA256:    loaded.Catalog.SHA256,
+		Workspace:        input.Workspace,
+		ReceiptSHA256:    input.CheckpointSHA256,
+		CatalogSHA256:    input.Catalog.SHA256,
 		FinalStateSHA256: initialFinalState,
-		Generator:        Generator,
+		Generator:        input.Generator,
 	}
 	usedManual := map[string]struct{}{}
 	for _, verificationCase := range target.VerificationCases {
@@ -67,8 +72,8 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 			})
 			continue
 		}
-		profile := loaded.Catalog.Profiles[verificationCase.VerificationProfileID]
-		profileHash := loaded.Catalog.ProfileHash[profile.ID]
+		profile := input.Catalog.Profiles[verificationCase.VerificationProfileID]
+		profileHash := input.Catalog.ProfileHash[profile.ID]
 		result, err := executeAutomated(ctx, snapshot, profile, profileHash, verificationCase, initialFinalState)
 		if err != nil {
 			return nil, err
@@ -109,7 +114,7 @@ func Execute(ctx context.Context, snapshot *repository.Snapshot, loaded *receipt
 			return nil, diagnostic.New("AIDD_MANUAL_OBSERVATION_EXTRA", id, "build_verification", "manual observation names an unknown or automated case", nil, id)
 		}
 	}
-	if err := receipt.AssertBuildGitState(ctx, snapshot, loaded.Value.BuildBaseline.Head); err != nil {
+	if err := receipt.AssertBuildGitState(ctx, snapshot, input.BaselineHead); err != nil {
 		return nil, err
 	}
 	return evidence, nil
