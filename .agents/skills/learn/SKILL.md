@@ -1,47 +1,27 @@
 ---
 name: learn
-description: Apply the repository's canonical learning-extraction policy to eligible findings. Use when the user explicitly invokes $learn or asks to extract learning from feedback, investigate the cause of a learning finding, exclude a finding from learning, prepare task context from learning, or update rules from learning. Do not use for ordinary cause investigation, exclusion, debugging, or implementation work. This skill does not set a Codex Goal or implement product behavior.
+description: Investigate eligible feedback and improve reusable repository guardrails through the independent AIDD Learn entrypoint. Use for explicit learning extraction or authorized guardrail updates. Learn does not require an Issue and never implements product behavior.
 ---
 
-# Learn
+# Learn adapter
 
-## Purpose
+Read `docs/harness/policies/learning-extraction.md`,
+`review-feedback-classification.md`, `docs/ai-driven-development/workflow.md`,
+`aidd-checker-operations.md` and applicable rule-map documents.
 
-Provide the dedicated entrypoint for extracting and routing learning in AI
-Driven Development and harness-task contexts.
+An extraction request authorizes analysis only. Apply guardrail changes only within
+explicitly authorized scope. Do not create an Issue for Learn.
 
-`docs/harness/policies/learning-extraction.md` is the sole canonical source for
-finding eligibility, execution order, supported-path applicability, cause and
-countermeasure analysis, classification, output, update behavior, and Stop
-conditions. Do not restate, supplement, or override that workflow in this
-skill.
+For an authorized update, create an independent Learn Task from feedback, authorization
+and finite guardrail ownership. Use an independent Goal if requested; never reuse or
+complete an unfinished Development Goal merely to start Learn.
 
-`harness-task` may also extract learning directly. This skill is the dedicated
-learning handoff, not the exclusive owner of learning extraction.
+Investigate causes before selecting a countermeasure. Update the owning policy, domain
+doc, rule-map, checker, verification or adapter instead of adding redundant instructions.
+The Learn contract permits guardrail implementation and its tests, but rejects product
+paths. Use the task-start checker binary and pinned old policy/profile, then obtain
+independent review and explicit finalization authority for the exact evidence. Candidate
+checker success alone is insufficient. Do not invent reviewer identity or authorization.
 
-## Required Context
-
-Before processing findings:
-
-1. Read `docs/harness/policies/learning-extraction.md` completely.
-2. Read `docs/harness/rule-map.json` and the active documents selected for the
-   current findings, task context, and intended reflection targets.
-3. For review feedback, read
-   `docs/harness/policies/review-feedback-classification.md`.
-4. For an AI Driven Development context, read
-   `docs/ai-driven-development/workflow.md`.
-
-Use GitHub PR or Issue data only when needed to obtain referenced feedback or
-the task-context source of truth.
-
-## Authorization Boundary
-
-Invoking this skill authorizes learning extraction only. It does not authorize
-setting a Goal, implementing product behavior, or writing to a reflection
-target beyond the user's explicit request. Within that explicitly requested
-scope, apply only the reflection target and follow-on path determined by the
-canonical learning-extraction policy.
-
-After loading the required context, execute the canonical learning-extraction
-policy exactly as written, including its gates, ordering, output contract, and
-Stop conditions.
+Finish at guardrail verification and finalization. If product implementation is needed,
+report the existing Development Issue and required outcome as a handoff; do not start it.

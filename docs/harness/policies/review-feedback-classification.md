@@ -22,56 +22,22 @@ when_to_read:
 
 # Review Feedback Classification
 
-PRレビューコメントに対応するときは、最初にタスク種別を判定してからコメントを分類します。
+指摘は妥当性、現在のintent/decisionとの関係、再利用可能性を確認してから対応します。
+local defectであることと再利用可能な原因を持つことは別軸です。
 
-- AI Driven Developmentサイクル: Requirements / PRDとDesign Docを入力に、Build / Verify、Shipまでの工程を進めるタスク
-- 通常タスク: 現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にせず、現在のIssueや依頼を直接実行する軽微修正、ドキュメント変更、レビュー修正など
+| 分類 | 対応 |
+| --- | --- |
+| local defect | 同じdecision内で修正・再検証する。完了済みtaskなら既存Issueから新Developmentを開始する |
+| requirement gap | 人間の意図・受け入れ条件を確認し、必要な変更を既存Issueへ明示反映する |
+| design issue | 同じ意図と権限内でdecisionを改訂し、証拠を失効して再検証する |
+| reusable guardrail candidate | 原因調査後に独立Learnへ渡す。今回のproduct修正だけで閉じない |
+| delivery defect | PR説明、検証記載、許可された返信等のShip範囲で対応する |
 
-AI Driven Developmentサイクルでは、Ship完了後の成果物フィードバックを前回実装への局所修正として扱うと、Requirementsの材料となるタスクコンテキストにすべき仕様判断や設計判断を小修正として吸収してしまい、PRDやDesign Docとの接続が崩れます。この制約を通常タスクへ適用しません。
+再利用できる知見がなければ、単純なtypoやdefectを無理にguardrail化しません。
+Learnは `learning-extraction.md` の入力ゲート・原因調査に従います。
+resolved review threadのコメントを自動的に新findingへ戻しません。
+Learnでguardrailを確定してもproductの修正完了とは扱わず、新Developmentへhandoffします。
 
-## 分類
-
-- Build / Verify工程内の整合性問題: Build / Verify実行中に見つかったテスト失敗、型、lint、実装整合性、変更漏れ、呼び出し側調整、検証で見つかった未整合
-- Ship: PR本文、検証結果の記載、レビュー返信、thread resolve、残リスクの説明など提出物の不備に関わるコメント
-- 学びの抽出: Learnへ渡されたレビューコメント、検証結果、運用知見、変更された制約を、タスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理するもの
-- 通常タスク内の修正候補: 現在のIssueや依頼の範囲で、実装、テスト、ドキュメント、設定などの修正要否を判断できるコメント
-
-## 対応ルール
-
-- Build / Verify工程内の整合性問題は、Build / Verifyが完了するまで工程内で修正し、要件未達を残さない。
-- AI Driven Developmentサイクルでは、Build / Verifyが正常に完了した場合の次工程をShipとする。
-- AI Driven DevelopmentサイクルのShip完了後の成果物フィードバックは、ユーザーがLearn skillを手動実行して、Requirementsの材料となるタスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化に整理する。
-- AI Driven Developmentサイクルが上流成果物の不足・誤り・矛盾でStopした場合も、ユーザーがLearn skillを手動実行して同じ3つの振り分け先へ整理する。正常系のBuild / VerifyとShipの間にはLearnを挟まない。
-- AI Driven DevelopmentのLearn結果で正本ルール・ポリシー・workflow文書の変更が必要な場合は、ユーザーが明示的に反映を指示した独立更新として完了し、その更新へ依存するタスクは完了後に新しいサイクルをRequirementsから開始する。実装、契約、検証機構、所有責務、workflowの実行機構、実行環境の変更が必要な場合は対象Issueへ反映し、新しいサイクルをRequirementsから開始する。Learnから後者の対象面を直接修正しない。
-- 通常タスクのレビューコメントは、指摘の妥当性、現在のスコープとの関係、修正の必要性を確認する。必要な修正は現在のタスクまたはPR内で実施して検証し、修正不要と判断したコメントには理由を示す。
-- 通常タスクでも、レビュー対応から得た学びをharness-taskまたはLearn skillで3つの振り分け先へ整理できる。学びの抽出は、現在のタスクで必要な修正を置き換えない。
-- Ship のコメントは、差分の事実、検証結果、返信内容、resolve可否が確認できる範囲で対応する。
-- AI Driven Developmentサイクルで複数分類にまたがるコメントは、Build / Verify工程内では整合性問題を先に修正またはStopし、Ship工程ではShipのコメントを扱い、Ship完了後の成果物フィードバックはLearn skillで扱う。
-- 通常タスクで分類が曖昧な場合は、修正要否を判断するために不足している情報を明示する。意図、スコープ、成功条件を変えずに判断できる場合はStopしない。
-- 学びを整理するときは、前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断を、タスクコンテキストやルール・ポリシーの根拠にしない。
-- 学びの各findingは1つの主な振り分け先へ関係付け、タスクコンテキストとルールへ同じ内容を重複して記載しない。
-
-## 返信ルール
-
-対応済みコメントへ返信するときは、次を簡潔に書きます。
-
-- どの分類として扱ったか
-- 何を変更したか、またはなぜ変更しなかったか
-- 対応 commit がある場合は commit ID
-- 検証した内容
-
-PRコメント内の commit ID はバッククォートで囲みません。
-
-## Stop条件
-
-AI Driven Developmentサイクルで次に該当する場合は、Build / Verify工程内の整合性問題として修正しません。
-
-- Ship完了後の成果物フィードバックである
-- 前回実装への局所修正として扱う必要がある
-- PRDの受け入れ条件を変える必要がある
-- Design Docの採用方針を変える必要がある
-- DB / API / 認証 / 権限モデルの変更が新たに必要になる
-- policyや恒久ドキュメントへ整理すべき横断ルールが含まれる
-- review threadをresolveすると未解決の仕様判断を隠すおそれがある
-
-通常タスクでは、レビューコメントへの対応により意図、受け入れ条件、変更スコープ、リスク、検証方針を現在のタスクから大きく変える必要がある場合にStopします。Build / Verify完了後であることや、前回実装への局所修正であることだけをStop理由にしません。
+意図、許可範囲、成功条件、riskを変更する判断が必要なら、その根拠と不足する判断を示します。
+既存decision内の整合性修正は自律的に実施し、検証証拠を更新します。
+対応済みの根拠と明示的な返信許可がある場合だけ返信し、未完了事項があるthreadをresolveしません。

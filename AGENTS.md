@@ -6,6 +6,14 @@ Guidance for all AI agents working in this repository.
 
 - **Chat and comments**: Use Japanese when communicating with the user, and in inline code comments.
 
+## Default AIDD entrypoint
+
+- Issueを指定した開発の実行依頼は、`docs/ai-driven-development/workflow.md` のDevelopment契約へ入る。
+- 質問、説明、調査、設計案の提示だけではDevelopmentやGoalを開始しない。
+- Codexでは1つのDevelopment Goalで継続する。GoalなしでもCore Task contractを使う。
+- guardrail更新は明示許可された独立Learnとして扱い、product実装へ自動連続しない。
+- 旧phase Goal、固定executor、旧phase CLIは新規実行に使用しない。
+
 ## Project Overview
 
 Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/api/`).

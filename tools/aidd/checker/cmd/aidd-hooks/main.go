@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kosnu/savings/tools/aidd/checker/internal/codexhooks"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/adapters/codex/hooks"
 )
 
 func main() {

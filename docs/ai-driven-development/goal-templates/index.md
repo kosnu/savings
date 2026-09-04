@@ -1,27 +1,27 @@
 ---
-title: AI Driven Development Goal Templates
-doc_type: template
+title: Codex Goal Templates
+doc_type: guide
 status: accepted
 area: repository
 applies_to:
-  - docs
-  - apps/web
-  - apps/api
+  - docs/ai-driven-development
+  - tools/aidd
+  - apps
 topics:
   - ai-driven-development
-  - codex-goal
-  - templates
 when_to_read:
-  - AIDD工程のGoalを構築するとき
+  - AIDDの実行契約と責務を確認するとき
 ---
 
-# AI Driven Development Goal Templates
+# Goal templates
 
-各ファイルはGoalへ含める情報のチェックリストです。工程順、成果物境界、完了・停止条件は[workflow.md](../workflow.md)を正本とし、テンプレート本文をそのままGoalへ貼り付けません。
+Codex adapterは1つのDevelopment Goal、または独立したLearn Goalを作成する。
 
-- [Intent / Requirements](./intent-requirements-goal.md)
-- [Design / Plan](./design-plan-goal.md)
-- [Build / Verify](./build-verify-goal.md)
-- [Ship](./ship-goal.md)
+- Objective: 今回の作業の達成結果。
+- Constraints: 許可範囲、guardrail、product/Learn境界。
+- Done: 成果・検証・依頼されたdelivery状態。
+- Verification: 必要な検証とTask contractへの参照。
 
-レビューや検証のfindingを次回へ反映する場合は、GoalテンプレートではなくユーザーがLearnを実行します。
+Task identityを参照し、decision、hash一覧、inventory、進捗を本文へ重複させない。
+Requirements / Design / Build / Shipのphase Goalは新規作成しない。
+Goal機能がなくてもTask contractは必須である。

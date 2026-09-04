@@ -14,6 +14,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/runner"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/verificationcontract"
 )
 
 var digestPattern = regexp.MustCompile(`^[0-9a-f]{64}$`)
@@ -240,10 +241,29 @@ func decodeRuntimeIdentity(raw json.RawMessage, path string) (model.RuntimeIdent
 }
 
 func validateValue(value *model.BuildEvidence, loadedReceipt *receipt.Loaded, currentFinalState string) error {
-	if value.SchemaVersion != model.EvidenceSchemaVersion || value.Kind != "build_verification" || value.Workspace != loadedReceipt.Value.Workspace || value.ReceiptSHA256 != loadedReceipt.SHA256 || value.CatalogSHA256 != loadedReceipt.Catalog.SHA256 || value.FinalStateSHA256 != currentFinalState || value.Generator != runner.Generator {
-		return diagnostic.New("AIDD_EVIDENCE_IDENTITY", "", "build_verification", "Build evidence identity does not match the current receipt, catalog, and final state", map[string]any{"schema_version": model.EvidenceSchemaVersion, "workspace": loadedReceipt.Value.Workspace, "receipt_sha256": loadedReceipt.SHA256, "catalog_sha256": loadedReceipt.Catalog.SHA256, "final_state_sha256": currentFinalState, "generator": runner.Generator}, value)
+	return validateContractValue(value, verificationcontract.Input{SchemaVersion: 4, Generator: runner.Generator, Workspace: loadedReceipt.Value.Workspace, CheckpointSHA256: loadedReceipt.SHA256, Target: loadedReceipt.Value.TargetState.Value, Catalog: loadedReceipt.Catalog}, currentFinalState)
+}
+
+// ValidateContractはcheckpointに結び付いた実行を既存の厳密なdecoderで検査する。
+func ValidateContract(content []byte, input verificationcontract.Input, finalState string) (*model.BuildEvidence, error) {
+	value, err := decodeValue(content)
+	if err != nil {
+		return nil, err
 	}
-	cases := loadedReceipt.Value.TargetState.Value.VerificationCases
+	if _, err = canonicalEvidenceBytes(value, content); err != nil {
+		return nil, err
+	}
+	if err = validateContractValue(value, input, finalState); err != nil {
+		return nil, err
+	}
+	return value, nil
+}
+
+func validateContractValue(value *model.BuildEvidence, input verificationcontract.Input, currentFinalState string) error {
+	if value.SchemaVersion != input.SchemaVersion || value.Kind != "build_verification" || value.Workspace != input.Workspace || value.ReceiptSHA256 != input.CheckpointSHA256 || value.CatalogSHA256 != input.Catalog.SHA256 || value.FinalStateSHA256 != currentFinalState || value.Generator != input.Generator {
+		return diagnostic.New("AIDD_EVIDENCE_IDENTITY", "", "build_verification", "Build evidence identity does not match the current receipt, catalog, and final state", map[string]any{"schema_version": input.SchemaVersion, "workspace": input.Workspace, "receipt_sha256": input.CheckpointSHA256, "catalog_sha256": input.Catalog.SHA256, "final_state_sha256": currentFinalState, "generator": input.Generator}, value)
+	}
+	cases := input.Target.VerificationCases
 	if len(value.Results) != len(cases) {
 		return diagnostic.New("AIDD_EVIDENCE_INVENTORY", "results", "build_verification", "Build evidence must contain exactly one result per verification case", len(cases), len(value.Results))
 	}
@@ -260,7 +280,7 @@ func validateValue(value *model.BuildEvidence, loadedReceipt *receipt.Loaded, cu
 			}
 			continue
 		}
-		profileHash := loadedReceipt.Catalog.ProfileHash[verificationCase.VerificationProfileID]
+		profileHash := input.Catalog.ProfileHash[verificationCase.VerificationProfileID]
 		if hasManualFields(result) || result.VerificationProfileID != verificationCase.VerificationProfileID || result.ProfileSHA256 != profileHash || !equalJSON(result.Selector, verificationCase.Selector) || result.ExitCode == nil || *result.ExitCode != 0 || result.StdoutBytes == nil || *result.StdoutBytes < 0 || result.StderrBytes == nil || *result.StderrBytes < 0 || !digestPattern.MatchString(result.OutputSHA256) {
 			return diagnostic.New("AIDD_EVIDENCE_AUTOMATED", fmt.Sprintf("results[%d]", index), "build_verification", "automated verification evidence does not match the profile-fixed target case", verificationCase, result)
 		}
