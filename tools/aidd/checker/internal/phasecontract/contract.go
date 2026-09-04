@@ -24,7 +24,6 @@ const (
 	validatorCommand          = "/tmp/aidd-checker validate-phase-contract --repo-root ."
 	assignmentPrepareCommand  = "/tmp/aidd-checker prepare-phase-assignment"
 	assignmentValidateCommand = "/tmp/aidd-checker validate-phase-assignment"
-	toolchainRequirement      = "Go 1.27.x"
 )
 
 var (
@@ -36,7 +35,6 @@ var (
 	assignmentDocumentKeys    = []string{"path", "sha256"}
 	commonForbidden           = []string{"get_goal", "create_goal", "update_goal", "goal-setting"}
 	bootstrapCommands         = []string{
-		"go env GOVERSION",
 		"go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker",
 		"mv /tmp/aidd-checker.next /tmp/aidd-checker",
 		"/tmp/aidd-checker version",
@@ -432,9 +430,6 @@ func requireAssignmentDocumentReferences(text, label string) error {
 
 func requireBootstrapCommands(text, label string) error {
 	normalized := normalizeSpace(text)
-	if !strings.Contains(normalized, toolchainRequirement) {
-		return failure(label, "representation must require the supported Go toolchain", toolchainRequirement, nil)
-	}
 	for _, command := range bootstrapCommands {
 		if !strings.Contains(normalized, command) {
 			return failure(label, "representation must build the current checker source before validation", bootstrapCommands, command)
