@@ -4,7 +4,7 @@
   "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
   "display": {
     "path": "design-doc.md",
-    "preamble": "---\ntitle: \"Design: Issue #1697 Codex Hooks AIDD safety net\"\ndoc_type: design\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - tools/aidd\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - design-doc\nwhen_to_read:\n  - Issue #1697のCodex Hooks実装と検証を行うとき\n  - AIDD制御面のStopとcompact SessionStartの完成状態を確認するとき\n---\n\n# Design: Issue #1697 Codex Hooks AIDD safety net\n\n- Requirements: `docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json`\n- Requirements SHA-256: `dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
+    "preamble": "---\ntitle: \"Design: Issue #1697 Codex Hooks AIDD safety net\"\ndoc_type: design\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - tools/aidd\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - design-doc\nwhen_to_read:\n  - Issue #1697のCodex Hooks実装と検証を行うとき\n  - AIDD制御面のStopとcompact SessionStartの完成状態を確認するとき\n---\n\n# Design: Issue #1697 Codex Hooks AIDD safety net\n\n- Requirements: `docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json`\n- Requirements SHA-256: `6290f9d4fd9a243faaa779c006884a37bf020c09568e07c0d94ffc3e0f65620f`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
   },
   "validation": {
     "mode": "managed",
@@ -848,7 +848,7 @@
       "additional_rules": []
     },
     "coverage_gate": {
-      "requirements_sha256": "5edd744330e901572b2b32df3be420ff4bf96e4fc73d18a3d6f81aa48f041ffe",
+      "requirements_sha256": "6290f9d4fd9a243faaa779c006884a37bf020c09568e07c0d94ffc3e0f65620f",
       "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
       "requirement_ids": [
         "FR-1",
@@ -868,7 +868,7 @@
       ],
       "baseline": {
         "source": "git_head",
-        "body_sha256": "d509a9695ade2a7f7c610f2dcdfb3d58a6ffd74ad66529244a9454389c1b47fc"
+        "body_sha256": "14801984599f426f485c4f68dbafdb5938a7a63a30a533d9b54f931ba9a53f38"
       },
       "coverage": [
         {
@@ -946,9 +946,8 @@
         {
           "section_id": "architecture",
           "heading": "Architecture",
-          "content_sha256": "57ab5c4efbfc585d974e28116811b3d70ae7d042b28d40c7e59a73f69fc2fed1",
-          "status": "replaced",
-          "design_block_id": "architecture-baseline"
+          "content_sha256": "5e5df155772cc791d44cfed79c124f584e9796bb9194831b2ea47afc1b222953",
+          "status": "preserved"
         }
       ]
     }

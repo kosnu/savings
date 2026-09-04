@@ -52,7 +52,7 @@
       "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
       "baseline": {
         "source": "git_head",
-        "body_sha256": "dd9c058045687f42d2bb330de22951388d563938ebb3babff74df9e74f99f62f"
+        "body_sha256": "5edd744330e901572b2b32df3be420ff4bf96e4fc73d18a3d6f81aa48f041ffe"
       },
       "requirements": [
         {
@@ -72,8 +72,8 @@
         },
         {
           "id": "FR-4",
-          "status": "new",
-          "issue_evidence": "また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "NFR-1",
@@ -149,8 +149,8 @@
         },
         {
           "id": "functional",
-          "status": "changed",
-          "issue_evidence": "また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "non-functional",
@@ -159,8 +159,8 @@
         },
         {
           "id": "acceptance",
-          "status": "changed",
-          "issue_evidence": "- [ ] rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる"
+          "status": "unchanged",
+          "issue_evidence": null
         },
         {
           "id": "qa",
