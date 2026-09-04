@@ -282,6 +282,15 @@ func validateRequirementsBaselineContinuity(parsed *semantic.ParsedSource, gate 
 	if err != nil {
 		return err
 	}
+	sectionBaselineRequirements := baselineRequirements
+	sectionCurrentRequirements := currentRequirements
+	if parsed.Envelope.Kind == "requirements_goal" {
+		// requirements_goalは意図的にRequirement IDと本文だけを持つため、section
+		// transitionではsection構造だけを比較する。Requirement本文のcontinuityは
+		// 上のRequirement transitionで独立して検証する。
+		sectionBaselineRequirements = map[string]model.Requirement{}
+		sectionCurrentRequirements = map[string]model.Requirement{}
+	}
 	for _, item := range gate.Requirements {
 		previous, existed := baselineRequirements[item.ID]
 		if item.Status == "new" && existed {
@@ -326,11 +335,11 @@ func validateRequirementsBaselineContinuity(parsed *semantic.ParsedSource, gate 
 			return diagnostic.New("AIDD_SECTION_TRANSITION_BASELINE", item.ID, artifact, "changed or unchanged section must exist in Git HEAD", "existing baseline", item.Status)
 		}
 		if existed {
-			previousHash, hashErr := requirementsSectionHash(previous, baselineRequirements)
+			previousHash, hashErr := requirementsSectionHash(previous, sectionBaselineRequirements)
 			if hashErr != nil {
 				return hashErr
 			}
-			currentHash, hashErr := requirementsSectionHash(currentSections[item.ID], currentRequirements)
+			currentHash, hashErr := requirementsSectionHash(currentSections[item.ID], sectionCurrentRequirements)
 			if hashErr != nil {
 				return hashErr
 			}

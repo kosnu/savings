@@ -1,0 +1,700 @@
+{
+  "schema_version": 4,
+  "kind": "design_completion",
+  "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
+  "issue": {
+    "id": "kosnu/savings#1697",
+    "title": "Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ",
+    "url": "https://github.com/kosnu/savings/issues/1697",
+    "updated_at": "2026-09-03T17:14:37Z",
+    "body_sha256": "03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404"
+  },
+  "design_goal_sha256": "4ac0a1c9697992a77791c21c45b1091a3cd1055d402ffec634ddd9bcd33b798c",
+  "rule_map": {
+    "path": "docs/harness/rule-map.json",
+    "sha256": "ac69a0086270fc09da76556009cc3db1b94f52c0132d540271209923c14490d5"
+  },
+  "selected_rules": [
+    {
+      "id": "adr.harness-engineering",
+      "path": "docs/adr/0001-adopt-harness-engineering.md",
+      "sha256": "d15c0267e918b56b1446cc9d1fb693f78e24fa3b208f675aee062e6e0ecf23dc"
+    },
+    {
+      "id": "documentation.policy",
+      "path": "docs/harness/policies/documentation-policy.md",
+      "sha256": "7f9a1cd444f841d7c1b4e8a60d87e819e197bf6ad9d2fbea83b0057dc2a3d756"
+    },
+    {
+      "id": "ai-driven.overview",
+      "path": "docs/ai-driven-development/overview.md",
+      "sha256": "36491c548d74a5fbbca2139a8b8120652644125d93412dd26800346e96a15862"
+    },
+    {
+      "id": "ai-driven.workflow",
+      "path": "docs/ai-driven-development/workflow.md",
+      "sha256": "077c87b0075f7a4032488bb0a4f339609b4c1d4f3d58543478c1d8aebac3dd3a"
+    },
+    {
+      "id": "ai-driven.checker",
+      "path": "docs/ai-driven-development/aidd-checker.md",
+      "sha256": "ab2d32d22a756804a9169821bf4427df38ccdd5c2d1ad97b76acc95c284fa229"
+    }
+  ],
+  "verification_profiles": {
+    "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+    "sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
+    "selected": [
+      {
+        "id": "aidd-checker-tests",
+        "sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916"
+      }
+    ]
+  },
+  "rule_coverage": {
+    "sha256": "86688ab03c1cb4eeae24c471138b23c8a1da1d6da17066fb2bac2565aa6228fa",
+    "value": {
+      "implementation_surfaces": [],
+      "additional_rules": []
+    }
+  },
+  "target_state": {
+    "sha256": "4efe2924847a881fdd34b744ec41d1de37e6eac9c04ab7a8e28f6f3c89c0c6f8",
+    "value": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "AIDD制御面の差分がある停止時だけ必要な整合性検証が実行される",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "同一差分の成功検証は再実行されず再入済み失敗は追加継続されない",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "compact直後のmodel requestへ5つのAIDD工程不変条件が追加される",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "Hookは既存checker gateを補助しGoalまたはphase状態を所有しない",
+          "requirement_id": "NFR-1"
+        },
+        {
+          "id": "PB-5",
+          "type": "state_transition",
+          "description": "compact contextは工程不変条件だけを含みIssue本文と成果物を含まない",
+          "requirement_id": "NFR-2"
+        },
+        {
+          "id": "PB-6",
+          "type": "state_transition",
+          "description": "repo-local Hooksが無効または未信頼でも既存AIDD workflowは独立して動作する",
+          "requirement_id": "NFR-3"
+        },
+        {
+          "id": "PB-7",
+          "type": "state_transition",
+          "description": "Hook runnerと回帰testは既存Go module内で新規外部依存なく動作する",
+          "requirement_id": "NFR-4"
+        },
+        {
+          "id": "PB-8",
+          "type": "state_transition",
+          "description": "Stop判定が対象外と成功とcache skipと理由付き失敗継続へ分類される",
+          "requirement_id": "AC-1"
+        },
+        {
+          "id": "PB-9",
+          "type": "state_transition",
+          "description": "Hook出力は既存workflowまたはcheckerの判定と成果物を上書きしない",
+          "requirement_id": "AC-2"
+        },
+        {
+          "id": "PB-10",
+          "type": "state_transition",
+          "description": "Hooksを無効化した実行でも既存AIDD入口とphase gateが維持される",
+          "requirement_id": "AC-3"
+        },
+        {
+          "id": "PB-11",
+          "type": "state_transition",
+          "description": "Hookの全発火分岐と再入とcompact contextがGo回帰testで固定される",
+          "requirement_id": "AC-4"
+        },
+        {
+          "id": "PB-12",
+          "type": "state_transition",
+          "description": "成功cacheはsessionとcanonical worktreeとGit HEADとGo toolchainと非ignore worktree状態が全て一致する場合だけ再利用される",
+          "requirement_id": "NFR-5"
+        },
+        {
+          "id": "PB-13",
+          "type": "state_transition",
+          "description": "同一制御面差分でもcache identityの任意要素が変わるか取得不能なら整合性検証が再実行される",
+          "requirement_id": "AC-5"
+        },
+        {
+          "id": "PB-14",
+          "type": "state_transition",
+          "description": "canonical rule-mapへ追加されたAIDD制御面pathがHook固有一覧の同期なしでStop検証対象になる",
+          "requirement_id": "FR-4"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "procedure": "Hookのcacheと実行commandにGoalまたはphaseの正本がないことを確認する"
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "manual",
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "procedure": "Hooks無効時も既存AIDD入口がhooks設定を参照しないことを確認する"
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "NFR-4",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "procedure": "go.modとgo.sumに新規依存差分がないことを確認する"
+        },
+        {
+          "id": "VC-8",
+          "type": "automated",
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-9",
+          "type": "manual",
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "procedure": "Hookがcanonical checker出力を書き換えないことを確認する"
+        },
+        {
+          "id": "VC-10",
+          "type": "manual",
+          "requirement_id": "AC-3",
+          "product_behavior_ids": [
+            "PB-10"
+          ],
+          "procedure": "Hook無効化が既存workflowの実行条件を変えないことを確認する"
+        },
+        {
+          "id": "VC-11",
+          "type": "automated",
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-12",
+          "type": "automated",
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-13",
+          "type": "automated",
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [
+            "PB-13"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-14",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".codex/hooks.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-hooks",
+          "kind": "tree"
+        },
+        {
+          "path": "tools/aidd/checker/internal/codexhooks",
+          "kind": "tree"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "configuration",
+          "path": ".codex/hooks.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-3",
+          "product_behavior_ids": [
+            "PB-6"
+          ],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/cmd/aidd-hooks/main.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-4",
+          "product_behavior_ids": [
+            "PB-7"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "HandleStop"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopEvaluatesOnlyRelevantControlPlaneDiff"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "RetryDecision"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-6",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopSkipsCachedFingerprintAndPreventsReentry"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "HandleSessionStart"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-8",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestSessionStartCompactInjectsAIDDInvariants"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "RunValidations"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "CompactContext"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-5"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-11",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestCompactContextContainsOnlyAIDDInvariants"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "CacheIdentity"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [
+            "PB-8"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-13",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopReturnsTargetedValidationDecisions"
+          },
+          "requirement_id": "AC-1",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "HookOutput"
+          },
+          "requirement_id": "AC-2",
+          "product_behavior_ids": [
+            "PB-9"
+          ],
+          "verification_case_ids": [
+            "VC-9"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestHooksDisabledLeavesWorkflowIndependent"
+          },
+          "requirement_id": "AC-3",
+          "product_behavior_ids": [
+            "PB-10"
+          ],
+          "verification_case_ids": [
+            "VC-10"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestHookRegressionMatrix"
+          },
+          "requirement_id": "AC-4",
+          "product_behavior_ids": [
+            "PB-11"
+          ],
+          "verification_case_ids": [
+            "VC-11"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "ControlPlaneFingerprint"
+          },
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [
+            "PB-12"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-18",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopCacheIdentityRequiresExactExecutionState"
+          },
+          "requirement_id": "NFR-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-12"
+          ]
+        },
+        {
+          "id": "REP-19",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "CanReuseSuccessfulCache"
+          },
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [
+            "PB-13"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-20",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestStopRevalidatesWhenCacheIdentityChanges"
+          },
+          "requirement_id": "AC-5",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-13"
+          ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+          "locator": {
+            "kind": "export",
+            "name": "ControlPlaneRuleMatcher"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-14"
+          ],
+          "verification_case_ids": []
+        },
+        {
+          "id": "REP-22",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+          "locator": {
+            "kind": "test_case",
+            "name": "TestControlPlanePathsFollowRuleMap"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-14"
+          ]
+        }
+      ]
+    }
+  },
+  "ownership_scopes": {
+    "sha256": "2297453094a1d7b7385ac2d92d131c231dbc39da8a00f32f4871db272d74b076",
+    "value": [
+      {
+        "path": ".codex/hooks.json",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/cmd/aidd-hooks",
+        "kind": "tree"
+      },
+      {
+        "path": "tools/aidd/checker/internal/codexhooks",
+        "kind": "tree"
+      }
+    ]
+  },
+  "baseline_inventory": {
+    "sha256": "e07ca07be0c74ddd626a699eac79631be5f32ef426aefc5987a65633f78dce9e",
+    "value": [
+      ".codex/hooks.json",
+      "tools/aidd/checker/cmd/aidd-hooks/main.go",
+      "tools/aidd/checker/internal/codexhooks/hooks.go",
+      "tools/aidd/checker/internal/codexhooks/hooks_test.go"
+    ]
+  },
+  "untracked_baseline": {
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "value": []
+  },
+  "build_baseline": {
+    "head": "63beee4fbcf3b62b53dfceb12d5ba3a3b146e045"
+  },
+  "artifacts": {
+    "requirements": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json",
+        "sha256": "6290f9d4fd9a243faaa779c006884a37bf020c09568e07c0d94ffc3e0f65620f",
+        "mode": "0644"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.md",
+        "sha256": "a5ac456e72b4c3b1ff445869c5429f53b9594cd17e76d8e037e267206cd007b8",
+        "mode": "0600"
+      }
+    },
+    "design": {
+      "source": {
+        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.json",
+        "sha256": "380802798df5a8d4bf86a4a249323dae47f11cc2496af72a7ef6a58234ae0284",
+        "mode": "0644"
+      },
+      "display": {
+        "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.md",
+        "sha256": "a663b992e11d6ecc525bfaea9c2a72e5aae5e278feb2656d2f40827504193fb6",
+        "mode": "0600"
+      }
+    }
+  }
+}

@@ -27,15 +27,14 @@ managed source、receipt、Build evidence は schema v4 である。schema v2 / 
 
 ## Toolchain, Build, and Trust Boundary
 
-Go 1.27.x はAIDD実行の必須toolchainである。repository rootでversionを確認し、Goが
-見つからない場合または`go env GOVERSION`が`go1.27`系列でない場合は停止する。
-AIDD cycleまたは単独phase Goalの入口では、既存の`/tmp/aidd-checker`を信頼せず、
-現在checkoutのsourceから一時pathへbuildしてatomic renameする。build、rename、version
+AIDD cycleまたは単独phase Goalの入口では、repositoryの`go.mod`を満たすtoolchainで、
+既存の`/tmp/aidd-checker`を信頼せず、現在checkoutのsourceから一時pathへbuildして
+atomic renameする。特定のGo minor系列を追加の停止条件にはしない。build、rename、version
 確認のいずれかが失敗した場合は、残っている旧binaryを使わず停止する。以後のgateと
-verificationは、その入口でbuildした同じbinaryを使う。
+verificationは、その入口でbuildした同じbinaryを使う。標準の開発・CI環境は
+`mise.toml`、`go.mod`、CI設定で同期する。
 
 ```sh
-go env GOVERSION
 go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker
 mv /tmp/aidd-checker.next /tmp/aidd-checker
 /tmp/aidd-checker version
@@ -51,6 +50,9 @@ exit で返す。
 
 rule mapは`docs/harness/rule-map.json`だけを正本として受理する。`--rule-map`を明示する
 場合もこのpath以外は拒否し、RequirementsまたはDesignの入力へ代替rule mapを使用しない。
+Codex `Stop` Hookはこのrule map自身の変更をbootstrap対象として常に検知し、その他の
+AIDD制御面pathは`ai-driven.checker` nodeの`applies_to.paths`から取得する。運用上の
+発火対象をHook固有の手書き一覧で追加・削除しない。
 
 phase ownership contractも同じbinaryで検証する。
 
@@ -305,9 +307,12 @@ canonical AIDD output以外にないこと、新規・変更済みnon-ignore pat
   受理するが、v4 へ変換・render・receipt 化しない。
 - historical schema v2 / v3互換性はGoのfixture / corpus testだけで固定する。旧Python
   validator、renderer、adapter、testは保持しない。
-- phase contract validationとprofile adapterを含むAIDD checker所有実装はGoだけに置く。
-- Python unittest profileは外部のPython testを実行できるが、repo-owned adapter自体は
-  Go実装であり、AIDD checkerのbuild、test、gateにPython sourceを必要としない。
+- checker、validator、phase contract、profile adapter、Codex Hooks、workflow補助処理を含む
+  リポジトリ所有のAIDD制御面の実行ロジックと、その回帰testはGoだけに置く。Python / shell製の
+  制御scriptをfallbackまたは互換実装として保持しない。
+- JSON、TOML、Markdownなどの宣言設定は実装言語制約の対象外とする。Python unittest profileは
+  外部のPython testを実行できるが、repo-owned adapterとAIDD制御ロジック自体はGo実装とし、
+  Python testを実行できることをPython製制御scriptの根拠にしない。
 
 repository 全体は次で検査する。
 

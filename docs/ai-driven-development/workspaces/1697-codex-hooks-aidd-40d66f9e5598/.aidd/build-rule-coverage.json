@@ -1,0 +1,25 @@
+{
+  "schema_version": 4,
+  "kind": "build_rule_coverage",
+  "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
+  "receipt_sha256": "e93c80a5fcc3583cf8cdb1799022218343575fdc2245798f00f5cc07b27a8152",
+  "target_state_sha256": "4efe2924847a881fdd34b744ec41d1de37e6eac9c04ab7a8e28f6f3c89c0c6f8",
+  "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c",
+  "verification_evidence": {
+    "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/.aidd/build-verification.json",
+    "sha256": "7f215b6bd259fbcd0f122d79fc64ccea0607aacc5c71948ce277e4d57b8149ee"
+  },
+  "baseline_inventory": [
+    ".codex/hooks.json",
+    "tools/aidd/checker/cmd/aidd-hooks/main.go",
+    "tools/aidd/checker/internal/codexhooks/hooks.go",
+    "tools/aidd/checker/internal/codexhooks/hooks_test.go"
+  ],
+  "final_inventory": [
+    ".codex/hooks.json",
+    "tools/aidd/checker/cmd/aidd-hooks/main.go",
+    "tools/aidd/checker/internal/codexhooks/hooks.go",
+    "tools/aidd/checker/internal/codexhooks/hooks_test.go"
+  ],
+  "changed_paths": []
+}

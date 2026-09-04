@@ -108,8 +108,8 @@ ID、owner、role、reference、hash、inventoryが成果物の主要な機械�
 
 - 入力: Build / Verify完了済みdiff、検証結果、Design completion receiptのSHA-256、Build coverageのSHA-256、Issue、branch、必要なPRまたはreview context。
 - 所有: commit、push、PR、説明、許可されたreview replyとthread状態確認。
-- 完了: 検証済みworktreeのcontentとGit modeだけをstageし、commit前の`validate-ship`がreceipt・coverage・verification・final stateとstaged candidateの一致を確認している。要求されたdelivery操作が完了し、直前にGit、CI、PR、thread状態を再確認している。commitまたはlocal testだけをShip完了としない。
-- 停止: delivery先や公開権限が曖昧、Build証拠が現在diffと一致しない、公開前に実装変更が必要、必須CIまたはreview状態が未確定。
+- 完了: 検証済みworktreeのcontentとGit modeだけをstageし、commit前の`validate-ship`がreceipt・coverage・verification・final stateとstaged candidateの一致を確認している。delivery diffにcurrent cycleのbaseline以前のcommitが含まれる場合は、各変更が前回AIDDの検証証拠または独立更新の検証結果で被覆されていることを確認し、current cycleのcoverageと混同せず検証境界を報告する。要求されたdelivery操作が完了し、直前にGit、CI、PR、thread状態を再確認している。commitまたはlocal testだけをShip完了としない。
+- 停止: delivery先や公開権限が曖昧、Build証拠が現在diffと一致しない、delivery diff内のbaseline以前の変更に対応する検証証拠がない、公開前に実装変更が必要、必須CIまたはreview状態が未確定。
 
 ## Goal contract ID
 

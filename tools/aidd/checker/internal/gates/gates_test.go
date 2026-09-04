@@ -63,6 +63,46 @@ func TestRequirementsRejectsTransitionWithoutBaseline(t *testing.T) {
 	}
 }
 
+func TestRequirementsGoalAcceptsUnchangedSectionsWithCommittedBaseline(t *testing.T) {
+	repoRoot := requirementsFixtureRepository(t)
+	issue := IssueSnapshot{
+		ID: "owner/repo#1671", Title: "Checker profile boundary",
+		URL: "https://github.com/owner/repo/issues/1671", UpdatedAt: "2026-08-28T00:00:00Z",
+		Body: fixtureIssueBody(),
+	}
+	document, goal := requirementsFixtureSources(t, issue, "new")
+	writeFixtureFile(t, filepath.Join(repoRoot, "docs", "ai-driven-development", "workspaces", "1671-checker", "requirements.json"), document)
+	runFixtureGit(t, repoRoot, "add", ".")
+	runFixtureGit(t, repoRoot, "commit", "-qm", "requirements baseline")
+
+	goal = mutateRequirementsSource(t, goal, func(validation map[string]any) {
+		completeness := validation["completeness_gate"].(map[string]any)
+		completeness["baseline"] = map[string]any{"source": "git_head", "body_sha256": canonical.HashBytes(document)}
+		for _, item := range completeness["requirements"].([]any) {
+			transition := item.(map[string]any)
+			transition["status"] = "unchanged"
+			transition["issue_evidence"] = nil
+		}
+		for _, item := range completeness["sections"].([]any) {
+			transition := item.(map[string]any)
+			transition["status"] = "unchanged"
+			transition["issue_evidence"] = nil
+		}
+	})
+
+	snapshot, err := repository.Open(context.Background(), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer snapshot.Close()
+	if _, err := ValidateRequirements(context.Background(), snapshot, RequirementsInput{
+		Issue: issue, Workspace: "1671-checker", Kind: "requirements_goal", Document: goal,
+		RuleMapPath: "docs/harness/rule-map.json",
+	}); err != nil {
+		t.Fatalf("unchanged Requirements Goal sections rejected with committed baseline: %v", err)
+	}
+}
+
 func TestTransitionEvidenceHasExactlyOneContentOwner(t *testing.T) {
 	for _, ownerKind := range []string{"Requirement", "section"} {
 		t.Run(ownerKind, func(t *testing.T) {

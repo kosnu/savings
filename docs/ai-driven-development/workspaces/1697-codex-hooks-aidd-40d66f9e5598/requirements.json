@@ -1,0 +1,364 @@
+{
+  "schema_version": 4,
+  "kind": "requirements",
+  "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
+  "display": {
+    "path": "requirements.md",
+    "preamble": "---\ntitle: \"Requirements: Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ\"\ndoc_type: requirements\nstatus: proposed\narea: repository\napplies_to:\n  - .codex\n  - .agents\n  - tools/aidd\n  - docs/ai-driven-development\ntopics:\n  - ai-driven-development\n  - codex-hooks\n  - validation\n  - requirements\nwhen_to_read:\n  - Issue #1697の設計、実装、検証を行うとき\n  - AIDD制御面のStop hookとcompact SessionStart hookの要求境界を確認するとき\n---\n\n# Requirements: Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ\n\n- Issue: `kosnu/savings#1697`\n- Issue URL: `https://github.com/kosnu/savings/issues/1697`\n- Issue updatedAt: `2026-09-03T17:14:37Z`\n- Issue本文SHA-256: `03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404`\n- Workspace: `1697-codex-hooks-aidd-40d66f9e5598`"
+  },
+  "validation": {
+    "mode": "managed",
+    "cycle_start_issue_title": "Codex HooksでAIDDの検証漏れとコンパクション後の工程逸脱を防ぐ",
+    "input_gate": {
+      "task_context": {
+        "source": "issue_body",
+        "issue": "kosnu/savings#1697",
+        "url": "https://github.com/kosnu/savings/issues/1697",
+        "updated_at": "2026-09-03T17:14:37Z",
+        "body_sha256": "03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404"
+      },
+      "direct_rules": [
+        {
+          "id": "ai-driven.checker",
+          "issue_evidence": "`validation`",
+          "match": {
+            "field": "topics",
+            "value": "validation"
+          },
+          "reason": "AIDD制御面の検証安全網とCodex Hooksを変更するため"
+        }
+      ],
+      "depends_on": [
+        {
+          "id": "ai-driven.workflow",
+          "via": "ai-driven.checker"
+        },
+        {
+          "id": "adr.harness-engineering",
+          "via": "ai-driven.checker"
+        },
+        {
+          "id": "documentation.policy",
+          "via": "ai-driven.checker"
+        },
+        {
+          "id": "ai-driven.overview",
+          "via": "ai-driven.workflow"
+        }
+      ]
+    },
+    "completeness_gate": {
+      "issue_body_sha256": "03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404",
+      "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
+      "baseline": {
+        "source": "git_head",
+        "body_sha256": "5edd744330e901572b2b32df3be420ff4bf96e4fc73d18a3d6f81aa48f041ffe"
+      },
+      "requirements": [
+        {
+          "id": "FR-1",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "FR-2",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "FR-3",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "FR-4",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-1",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-2",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-3",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-4",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "NFR-5",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-1",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-2",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-3",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-4",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "AC-5",
+          "status": "unchanged",
+          "issue_evidence": null
+        }
+      ],
+      "sections": [
+        {
+          "id": "background",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "users",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "stories",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "scope",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "functional",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "non-functional",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "acceptance",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "qa",
+          "status": "unchanged",
+          "issue_evidence": null
+        },
+        {
+          "id": "technical",
+          "status": "unchanged",
+          "issue_evidence": null
+        }
+      ],
+      "retired": []
+    },
+    "requirements": [
+      {
+        "id": "FR-1",
+        "section_id": "functional",
+        "text": "AIDD制御面に関連する差分がある場合だけ、`Stop`時に必要な整合性検証が評価される安全網を提供する。"
+      },
+      {
+        "id": "FR-2",
+        "section_id": "functional",
+        "text": "`stop_hook_active`を考慮し、修正不能時に無限継続しない再入制御を行う。"
+      },
+      {
+        "id": "FR-3",
+        "section_id": "functional",
+        "text": "コンパクション直後に、現在Goal、親agentのGoal所有、上流成果物のread-only、Build / VerifyからShipへの遷移、Learn非自動実行が再注入される。"
+      },
+      {
+        "id": "FR-4",
+        "section_id": "functional",
+        "text": "また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
+      },
+      {
+        "id": "NFR-1",
+        "section_id": "non-functional",
+        "text": "Hookは既存gateを補助する安全網とし、第二の状態管理を作らない。"
+      },
+      {
+        "id": "NFR-2",
+        "section_id": "non-functional",
+        "text": "SessionStartの追加コンテキストは工程不変条件だけに限定し、Issue本文や成果物全文を注入しない。"
+      },
+      {
+        "id": "NFR-3",
+        "section_id": "non-functional",
+        "text": "Hooksが無効または利用不能な環境でも、既存AIDD workflowを実行できる。"
+      },
+      {
+        "id": "NFR-4",
+        "section_id": "non-functional",
+        "text": "新規外部依存を追加しない。"
+      },
+      {
+        "id": "NFR-5",
+        "section_id": "non-functional",
+        "text": "検証成功cacheは、Codex session、canonical worktree、Git `HEAD`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用し、必要なidentityを取得できない場合は再利用しない。"
+      },
+      {
+        "id": "AC-1",
+        "section_id": "acceptance",
+        "text": "検証失敗時は理由を示して作業継続を要求し、成功済みの同一差分では不要な再実行をしない。"
+      },
+      {
+        "id": "AC-2",
+        "section_id": "acceptance",
+        "text": "Hookが既存workflowまたは`aidd-checker`の判定を上書きしない。"
+      },
+      {
+        "id": "AC-3",
+        "section_id": "acceptance",
+        "text": "Hooks無効時の既存AIDD workflowが維持される。"
+      },
+      {
+        "id": "AC-4",
+        "section_id": "acceptance",
+        "text": "発火対象・対象外、成功・失敗、再入防止、コンテキスト内容の回帰テストが成功する。"
+      },
+      {
+        "id": "AC-5",
+        "section_id": "acceptance",
+        "text": "同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する。"
+      }
+    ],
+    "sections": [
+      {
+        "id": "background",
+        "heading": "背景",
+        "blocks": [
+          {
+            "id": "background-body",
+            "type": "markdown",
+            "markdown": "AIDDの工程契約はworkflow、skill、aidd-checkerで明示されている一方、制御面変更後の検証漏れやコンパクション後の工程逸脱を自動的に検知する安全網はない。"
+          }
+        ]
+      },
+      {
+        "id": "users",
+        "heading": "対象ユーザーと利用シーン",
+        "blocks": [
+          {
+            "id": "users-body",
+            "type": "markdown",
+            "markdown": "現在のAIDD作業を実行するagentと、その工程境界および検証完了を確認する開発者を対象とする。"
+          }
+        ]
+      },
+      {
+        "id": "stories",
+        "heading": "ユーザーストーリー",
+        "blocks": [
+          {
+            "id": "stories-body",
+            "type": "markdown",
+            "markdown": "AIDD実行者として、必要な整合性検証を行わずにターンを終了できる状態を防ぎ、コンパクション後も同じ工程契約に従いたい。"
+          }
+        ]
+      },
+      {
+        "id": "scope",
+        "heading": "スコープ",
+        "blocks": [
+          {
+            "id": "scope-body",
+            "type": "markdown",
+            "markdown": "対象はリポジトリで信頼されたCodex Hooks設定、Stop時の検証安全網、compact直後の工程不変条件再注入、関連するworkflow・skill・設定・テストの同期。対象外はPreToolUseによるphase別強制、Hook専用状態、aidd-checker置換、Learn自動実行、アプリケーション機能変更。"
+          }
+        ]
+      },
+      {
+        "id": "functional",
+        "heading": "機能要件",
+        "blocks": [
+          {
+            "id": "functional-body",
+            "type": "markdown",
+            "markdown": "AIDD制御面に関連する差分がある場合だけStop時の検証を判断し、compact直後だけ工程不変条件を再注入する。また、rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる。"
+          },
+          {
+            "id": "functional-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "non-functional",
+        "heading": "非機能要件",
+        "blocks": [
+          {
+            "id": "non-functional-body",
+            "type": "markdown",
+            "markdown": "既存workflowとaidd-checkerを正本に保ち、第二の状態管理を作らない。検証成功cacheは、Codex session、canonical worktree、Git `HEAD`、Go toolchain、Gitで無視されないworktree変更状態が同一の場合だけ再利用し、必要なidentityを取得できない場合は再利用しない。Hooksの利用不能時にも既存経路を維持する。"
+          },
+          {
+            "id": "non-functional-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "acceptance",
+        "heading": "受け入れ条件",
+        "blocks": [
+          {
+            "id": "acceptance-body",
+            "type": "markdown",
+            "markdown": "対象差分の選別、検証成功・失敗、再入防止、compact時のコンテキスト内容を回帰テストする。同じAIDD制御面差分でも、session、worktree、`HEAD`、Go toolchain、またはGitで無視されないworktree変更状態が変われば再検証され、同一状態だけ成功cacheを再利用する。\n\n- [ ] rule-mapへ追加されたAIDD制御面のpathが、Hook側の個別同期なしで検証対象になる"
+          },
+          {
+            "id": "acceptance-requirements",
+            "type": "requirements"
+          }
+        ]
+      },
+      {
+        "id": "qa",
+        "heading": "Q&A",
+        "blocks": [
+          {
+            "id": "qa-body",
+            "type": "markdown",
+            "markdown": "- Q: Hook入力だけで安全な判定ができない場合はどうするか。\n  - A: Hookから信頼できる入力だけでは対象差分または再入状態を判定できない場合は停止し、新たな状態正本を推測で追加しない。"
+          }
+        ]
+      },
+      {
+        "id": "technical",
+        "heading": "技術的考慮事項",
+        "blocks": [
+          {
+            "id": "technical-body",
+            "type": "markdown",
+            "markdown": "transcriptの解析による現在phaseの推測は行わず、既存AIDD制御面に従うGo実装と宣言設定の境界を維持する。"
+          }
+        ]
+      }
+    ]
+  }
+}

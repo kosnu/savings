@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "repo_root=\"$(git rev-parse --show-toplevel)\" && exec go run -C \"$repo_root/tools/aidd/checker\" ./cmd/aidd-hooks"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "repo_root=\"$(git rev-parse --show-toplevel)\" && exec go run -C \"$repo_root/tools/aidd/checker\" ./cmd/aidd-hooks"
+          }
+        ]
+      }
+    ]
+  }
+}
