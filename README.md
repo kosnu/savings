@@ -39,7 +39,7 @@ mise install
 pnpm install
 ```
 
-`mise.toml` は、AIDD ツールで必要な Go 1.27 系と、既存の `package.json` および CI と同じ Node.js / pnpm バージョンを指定します。バージョン更新時は、Go は AIDD Checker の `go.mod` および CI、Node.js / pnpm は `package.json` および CI と指定を揃えてください。Supabase CLI、Wrangler、Vite などのプロジェクト固有ツールは、引き続き `package.json` と `pnpm-lock.yaml` で管理します。
+`mise.toml` は、AIDD Checker の `go.mod` および CI と同期した標準Go環境と、既存の `package.json` および CI と同じ Node.js / pnpm バージョンを指定します。AIDD Checkerは`go.mod`を満たすtoolchainで実行し、追加のGo minor系列制限は設けません。バージョン更新時は、Go は AIDD Checker の `go.mod` および CI、Node.js / pnpm は `package.json` および CI と指定を揃えてください。Supabase CLI、Wrangler、Vite などのプロジェクト固有ツールは、引き続き `package.json` と `pnpm-lock.yaml` で管理します。
 
 このリポジトリは `pnpm workspace` を使用します。依存関係のインストールはリポジトリルートで実行します。
 

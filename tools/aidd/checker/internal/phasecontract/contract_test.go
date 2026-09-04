@@ -120,7 +120,7 @@ func TestGoalSettingRequiresContractValidator(t *testing.T) {
 
 func TestCycleRequiresCurrentSourceBootstrap(t *testing.T) {
 	root := fixtureRoot(t)
-	replaceFixture(t, root, parentSkillPath, bootstrapCommands[1], "use-existing-aidd-checker")
+	replaceFixture(t, root, parentSkillPath, bootstrapCommands[0], "use-existing-aidd-checker")
 	requireContractError(t, Validate(context.Background(), root), "must build the current checker source")
 }
 

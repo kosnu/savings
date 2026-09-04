@@ -27,15 +27,14 @@ managed source、receipt、Build evidence は schema v4 である。schema v2 / 
 
 ## Toolchain, Build, and Trust Boundary
 
-Go 1.27.x はAIDD実行の必須toolchainである。repository rootでversionを確認し、Goが
-見つからない場合または`go env GOVERSION`が`go1.27`系列でない場合は停止する。
-AIDD cycleまたは単独phase Goalの入口では、既存の`/tmp/aidd-checker`を信頼せず、
-現在checkoutのsourceから一時pathへbuildしてatomic renameする。build、rename、version
+AIDD cycleまたは単独phase Goalの入口では、repositoryの`go.mod`を満たすtoolchainで、
+既存の`/tmp/aidd-checker`を信頼せず、現在checkoutのsourceから一時pathへbuildして
+atomic renameする。特定のGo minor系列を追加の停止条件にはしない。build、rename、version
 確認のいずれかが失敗した場合は、残っている旧binaryを使わず停止する。以後のgateと
-verificationは、その入口でbuildした同じbinaryを使う。
+verificationは、その入口でbuildした同じbinaryを使う。標準の開発・CI環境は
+`mise.toml`、`go.mod`、CI設定で同期する。
 
 ```sh
-go env GOVERSION
 go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker
 mv /tmp/aidd-checker.next /tmp/aidd-checker
 /tmp/aidd-checker version

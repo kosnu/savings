@@ -31,13 +31,12 @@ The workflow is canonical. Do not add phase rules here or infer a phase from an
 artifact's mere existence.
 
 At the start of every AIDD cycle invocation, run the following from the
-canonical repository root before any checker command. Require
-`go env GOVERSION` to report Go 1.27.x. Stop if Go is absent, the version does
-not match, the build or rename fails, or the resulting binary does not report
-its version. Never fall back to a pre-existing `/tmp/aidd-checker`.
+canonical repository root before any checker command. Use a toolchain that
+satisfies the repository `go.mod`; do not add a separate Go minor-version
+gate. Stop if the build or rename fails, or the resulting binary does not
+report its version. Never fall back to a pre-existing `/tmp/aidd-checker`.
 
 ```bash
-go env GOVERSION
 go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker
 mv /tmp/aidd-checker.next /tmp/aidd-checker
 /tmp/aidd-checker version

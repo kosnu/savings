@@ -29,13 +29,12 @@ checklists only.
 Before selecting or creating a Goal, ensure the current invocation has built
 the checker from the current checkout. When the parent AIDD cycle has not
 already completed this bootstrap in the same invocation, run the following
-from the canonical repository root. Require `go env GOVERSION` to report Go
-1.27.x. Stop if Go is absent, the version does not match, the build or rename
-fails, or the resulting binary does not report its version. Never fall back to
-a pre-existing `/tmp/aidd-checker`.
+from the canonical repository root. Use a toolchain that satisfies the
+repository `go.mod`; do not add a separate Go minor-version gate. Stop if the
+build or rename fails, or the resulting binary does not report its version.
+Never fall back to a pre-existing `/tmp/aidd-checker`.
 
 ```bash
-go env GOVERSION
 go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker
 mv /tmp/aidd-checker.next /tmp/aidd-checker
 /tmp/aidd-checker version
