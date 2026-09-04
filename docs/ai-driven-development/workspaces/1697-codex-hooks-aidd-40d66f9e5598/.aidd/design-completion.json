@@ -9,7 +9,7 @@
     "updated_at": "2026-09-03T17:14:37Z",
     "body_sha256": "03dc041a63302f4f034fe34b1db5bb0b667e8e395a389553104e57e52cf51404"
   },
-  "design_goal_sha256": "21cf5c2c1d55e45dbf7c94307a8060e0352db294e59bd5bf11f4c4cc336c6bf4",
+  "design_goal_sha256": "4ac0a1c9697992a77791c21c45b1091a3cd1055d402ffec634ddd9bcd33b798c",
   "rule_map": {
     "path": "docs/harness/rule-map.json",
     "sha256": "ac69a0086270fc09da76556009cc3db1b94f52c0132d540271209923c14490d5"
@@ -669,30 +669,30 @@
     "value": []
   },
   "build_baseline": {
-    "head": "86f10994f3542b52c200d92f207c8fdc4ffe3cea"
+    "head": "63beee4fbcf3b62b53dfceb12d5ba3a3b146e045"
   },
   "artifacts": {
     "requirements": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.json",
-        "sha256": "5edd744330e901572b2b32df3be420ff4bf96e4fc73d18a3d6f81aa48f041ffe",
+        "sha256": "6290f9d4fd9a243faaa779c006884a37bf020c09568e07c0d94ffc3e0f65620f",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/requirements.md",
-        "sha256": "97f4fbf7171c301b321e83c6e28220dbf09ffd8266573d35047147e7a7a4fa65",
+        "sha256": "a5ac456e72b4c3b1ff445869c5429f53b9594cd17e76d8e037e267206cd007b8",
         "mode": "0600"
       }
     },
     "design": {
       "source": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.json",
-        "sha256": "14801984599f426f485c4f68dbafdb5938a7a63a30a533d9b54f931ba9a53f38",
+        "sha256": "380802798df5a8d4bf86a4a249323dae47f11cc2496af72a7ef6a58234ae0284",
         "mode": "0644"
       },
       "display": {
         "path": "docs/ai-driven-development/workspaces/1697-codex-hooks-aidd-40d66f9e5598/design-doc.md",
-        "sha256": "1d42ee2da17e8b5415b21792ba87e14fc0a15862b6a415d8b3671f0068de790f",
+        "sha256": "a663b992e11d6ecc525bfaea9c2a72e5aae5e278feb2656d2f40827504193fb6",
         "mode": "0600"
       }
     }

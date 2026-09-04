@@ -2,7 +2,7 @@
   "schema_version": 4,
   "kind": "build_verification",
   "workspace": "1697-codex-hooks-aidd-40d66f9e5598",
-  "receipt_sha256": "5e56fef64da3d50a260a822dfb92bcb754ce19cab5cedffe92d9e66e7c4608a7",
+  "receipt_sha256": "e93c80a5fcc3583cf8cdb1799022218343575fdc2245798f00f5cc07b27a8152",
   "catalog_sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
   "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c",
   "generator": "aidd-checker/v4",
@@ -23,9 +23,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "04a2b856cfc00417621aacd4f42aec26b3ca54cdac22c547c17cbb65b082af83",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -44,9 +44,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "f00540b4de56077772673fcc5b4ab08bb85434e1218ec0800d5b577cd7dc2fa8",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -65,9 +65,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "9bcd252292b0cc34c8882d71fcdd8f927dc70f25b4a9dc01ce89850409ea0b83",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -76,7 +76,7 @@
       "status": "passed",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c",
       "procedure": "Hookのcacheと実行commandにGoalまたはphaseの正本がないことを確認する",
-      "observation": "cacheは五要素の実行identityと差分を保持しGoalまたはphase状態を保存せず既存gateだけを実行することを確認した"
+      "observation": "hooks.goのcacheEntryとRunValidationsを確認しGoalまたはphaseの正本を保持しない"
     },
     {
       "id": "VC-5",
@@ -94,9 +94,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "072b83e4f9dc64c591f749610d7fc93e2694e7570afae537e2d7db34a37b14d8",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -105,7 +105,7 @@
       "status": "passed",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c",
       "procedure": "Hooks無効時も既存AIDD入口がhooks設定を参照しないことを確認する",
-      "observation": "hooks設定を無効または未信頼にしても既存AIDD入口とphase gateはhooksを参照せず独立動作することを確認した"
+      "observation": ".codex/hooks.jsonを除外しても既存checker入口は独立して動作する"
     },
     {
       "id": "VC-7",
@@ -113,7 +113,7 @@
       "status": "passed",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c",
       "procedure": "go.modとgo.sumに新規依存差分がないことを確認する",
-      "observation": "go.modとgo.sumの差分を確認し新規外部依存がなく既存Go module内だけで動作することを確認した"
+      "observation": "go.modとgo.sumに新規依存差分がないことを確認した"
     },
     {
       "id": "VC-8",
@@ -131,9 +131,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "91cd74efa46d771f6b9c3ff29a128d3afe28dfb9f3f6eb32b16ea8ef54945440",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -142,7 +142,7 @@
       "status": "passed",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c",
       "procedure": "Hookがcanonical checker出力を書き換えないことを確認する",
-      "observation": "Hookは外部cacheだけを書き込みcanonical checker出力や既存判定を変更しないことを確認した"
+      "observation": "hooks.goとhooks.jsonにcanonical checker出力の書込処理がない"
     },
     {
       "id": "VC-10",
@@ -150,7 +150,7 @@
       "status": "passed",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c",
       "procedure": "Hook無効化が既存workflowの実行条件を変えないことを確認する",
-      "observation": "hooks設定を無効化しても既存workflowとphase gateの実行条件が変化しないことを確認した"
+      "observation": "Handleのhooks無効経路は既存workflowの実行条件を変更しない"
     },
     {
       "id": "VC-11",
@@ -168,9 +168,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "7617fc0dde481640cdeee2115b22f894052e076dd59190bd9e006ccbee46c201",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -189,9 +189,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "a9d806476b0eaced58da76995340f636a12998db9aa4a2015dab0596347ea1ba",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -210,9 +210,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "c2144a0666a6059f8c7ba80a9fd55c41f891b0def6171517de73d84f81630ed0",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     },
     {
@@ -231,9 +231,9 @@
         }
       ],
       "exit_code": 0,
-      "stdout_bytes": 1774,
+      "stdout_bytes": 1746,
       "stderr_bytes": 0,
-      "output_sha256": "41bb4200726a348e89cb0792c6e387ed05783948cc83a7b78e37ba57145ab22f",
+      "output_sha256": "6ea4dfcb68905437119ca150acb0132b0e414eeae8aea17f2359172a1158f138",
       "final_state_sha256": "965e53ddde59bd9723fd434151fde06c36d568500d8dfef6d36778969c1fe52c"
     }
   ]
