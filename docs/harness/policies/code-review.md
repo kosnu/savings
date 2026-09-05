@@ -67,23 +67,29 @@ APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure.
 
 期間・履歴・月次状態に該当するDB変更では、通常のschema、RPC、Authの確認に加えて `policy.temporal-data` を必ず確認します。RLSやAuthに該当する差分では、認証・ownershipの境界とtransactionの責務を分けて確認します。
 
-Web/APIの表に該当しない差分は、`docs/harness/rule-map.json` の有効な `applies_to.paths`、`domains`、`activities`、`topics` に一致するノードをすべて選び、同じ和集合ルールを適用します。`apps/api/**` の差分で変更面を分類できない場合は、汎用マッチングだけで完了扱いにせず、未定義のAPIレビュー面として報告します。
+Web/APIの表に該当しない差分も、`docs/harness/rule-map.json` のpath/surface直接一致と`depends_on` closureを必須集合にします。`domains`、`activities`、`topics`、front matterは追加の意味的な適用判断に必要な文書を探すmetadataであり、hard routingの必須集合を減らす条件にはしません。`apps/api/**` の差分で変更面を分類できない場合は、汎用マッチングだけで完了扱いにせず、未定義のAPIレビュー面として報告します。
 
 採択済みADRを含む差分では`documentation.policy`を必ず適用し、PRのbase branchに対応するorigin remote-tracking branchを`--base-ref`に指定して`docs/harness/scripts/validate_accepted_adrs.py`を実行します。validatorが拒否した既存履歴の変更や文書の削除・移動は、末尾の日付付きClarificationまたは新しいADRへ置き換わるまで解決済みとしてはいけません。
 
-## AIDD Buildの機械ルーティング
+## AIDDの機械ルーティング
 
-AIDD Buildでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。通常のコードレビュー対象は引き続き実差分です。AIDD Buildの完了判定に限り、Designが明示したtask-owned範囲の最終状態も照合します。この照合はレビュー範囲やBuildの書込権限をtask-owned範囲外へ広げません。
+AIDDでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。通常のコードレビュー対象は引き続き実差分です。AIDDの完了判定では、Decisionが明示したtask-owned範囲の最終状態も照合します。この照合はレビュー範囲や書込権限をtask-owned範囲外へ広げません。
 
-Design、Build / Verify、Shipの成果物・Git・verification・coverage契約は
+Task、Decision、checkpoint、verification、Shipの契約は
 `ai-driven.workflow`と`ai-driven.checker`を正本として適用し、この文書へ詳細を複製しません。
-特にGit関連findingは`ai-driven.checker`のOperating Contract and Threat Boundaryを先に適用し、
-専用worktree・単一session・単一agent・phase別command ownershipの正常経路で契約違反なしに
+特にGit関連findingは`ai-driven.checker`の「運用前提と限界」を先に適用し、
+専用worktree・単一writer・検証とShipの境界の正常経路で契約違反なしに
 問題が発生するかを示せる場合だけ指摘します。契約外の並行writer、直接`.git`改変、
-Ship所有commandのBuild中実行だけを前提に、lock、critical section、raw index identity、
+Ship境界外でのstage/commit実行だけを前提に、lock、critical section、raw index identity、
 symbolic HEAD identityなどの防御を要求しません。
 
-そのうえでreceiptのGit基準点から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、DesignとBuildは同じresolverを使います。実差分にDesign未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあればCoverage成功としてはいけません。Coverage recordは全非workflow差分path、最終inventory、verification証拠identity、pathごとの一致ruleを保持し、`Checked rules`の自己申告だけでこの判定を代替できません。
+そのうえでTaskのGit基準点から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、checkpointと実差分検査は同じresolverを使います。実差分にcheckpointにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあれば成功としてはいけません。checkpointは必要rule closureを保持し、evidenceはchecker生成物以外の全差分path、最終inventory、verification証拠identityを保持します。pathごとの一致ruleは固定したrule-mapから再計算します。`Checked rules`の自己申告だけでこの判定を代替できません。
+
+`aidd-harness` surfaceはAIDD Core、harness、agent入口・設定、AIDD専用CIとその採択ADRを対象とします。
+一般の`docs/**`や`.github/**`全体をこのsurfaceへ分類しません。Markdownには既存の
+`documentation.policy`のpath一致、Issue templateにはissue規則、通常CIにはtransaction規則を適用します。
+`governed_paths`はsurface未分類を拒否する範囲であり、全ruleの適用範囲ではありません。
+surface外のpathでも直接一致ruleと依存closureを省略せず、guardrailの書込禁止範囲とも混同しません。
 
 ## レビュー結果
 

@@ -66,6 +66,11 @@ func Load(snapshot *repository.Snapshot, ruleMapPath string) (*Loaded, error) {
 	if err != nil {
 		return nil, err
 	}
+	return Parse(content, ruleMapPath)
+}
+
+// Parse resolves the rule map pinned by a task.
+func Parse(content []byte, ruleMapPath string) (*Loaded, error) {
 	var ruleMap RuleMap
 	if err := canonical.Decode(content, "rule_map", &ruleMap); err != nil {
 		return nil, err
@@ -351,4 +356,17 @@ func Sorted(values map[string]struct{}) []string {
 	}
 	sort.Strings(result)
 	return result
+}
+
+// MatchesPath uses the same validated glob semantics as routing.
+func MatchesPath(patterns []string, path string) bool { return matchesAny(patterns, path) }
+
+// ValidatePatternsはrouting以外のpolicyにも同じglob契約を適用する。
+func ValidatePatterns(patterns []string, owner string) error {
+	for i, p := range patterns {
+		if err := validatePattern(p, owner, i); err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -4,81 +4,25 @@ doc_type: guide
 status: accepted
 area: repository
 applies_to:
-  - docs
-  - apps/web
-  - apps/api
+  - docs/ai-driven-development
+  - tools/aidd
+  - apps
 topics:
   - ai-driven-development
-  - feature-request
-  - issue
-  - requirements
-  - codex-goal
 when_to_read:
-  - Feature RequestテンプレートでIssueを書くとき
-  - Issue、Requirements / PRD、Design Docの役割分担を確認するとき
-  - Issueに実装詳細を書きすぎるか迷うとき
+  - AIDDの実行契約と責務を確認するとき
 ---
 
-# AI Driven Development Issue Guidelines
+# Issueの責務
 
-Issue本文は、AIDD Requirements / PRDのTask Context正本です。
+Issueは人間がagentへ委任するintent、problem、desired outcomeの正本である。
+背景、期待する結果、scope、制約、成功条件、任せる範囲を必要な精度で記載する。
+実装ファイル、関数名、詳細手順、rule-mapと同じ語句の記載を必須にしない。
 
-Issueに書くべきものは、AIがRequirements / PRDを作れるだけの「意図と境界」です。Design Doc相当の実装方針や、具体的な作業手順まで書きすぎると、人間が作業分解し、AIが代行する形に戻りやすくなります。
+agentはrepositoryとguardrailを探索してTask contractとDecisionへ具体化する。
+Issueが技術的な設計詳細を持たないことだけを停止理由にしない。
+意図や受け入れ条件が複数に解釈でき、選択で成果が変わる場合は不足点を確認する。
 
-## 役割分担
-
-- Issue: Task Context正本として、なぜやるか、何が成功か、どこまで任せるか
-- Requirements / PRD: AIがIssueと既存文脈から、要求と受け入れ条件に展開する
-- Design Doc: AIがRequirements / PRDから、実装方針、影響範囲、検証方針に展開する
-- Build / Verify: AIがDesign Docに沿って実装し、検証する
-- Ship: AIがBuild / Verify済みの成果をPR、検証結果、残リスク、レビュー返信として提出できる形に整える
-- Learn skill: AIがレビューコメント、検証結果、運用知見を、対象Issue本文の変更案またはルール・ポリシー変更へ整理する
-
-## Issueに書くもの
-
-Issueには、目的、制約、成功条件、AIの自律範囲、Stop条件を書きます。
-
-AIDDのrule選択を機械検証するため、対象domainや明示的なsurfaceを表すrule-mapの`applies_to`値を少なくとも1つ、対応するIssue本文の根拠内に同じ文字列で含めます。翻訳や類義語で補完せず、必要な値が本文にない場合はIssueを更新してからRequirementsを開始します。専用の分類欄は追加せず、目的や境界を説明する本文へ必要なdomain語を含めます。
-
-- 背景
-- 解決したい課題
-- 期待する状態
-- スコープ内 / 外
-- 守るべき制約
-- 成功条件
-- AIに任せてよい範囲
-- Stop条件
-
-## Issueに書きすぎないもの
-
-次の内容は、必要な制約でない限りIssueには書きすぎません。
-
-- 具体的な関数名やファイル名の指定
-- 詳細な実装手順
-- テストコードの書き方
-- 特定hookやcomponentの修正指示
-- 人間が先回りして決めた責務分離や抽象化
-- Design Docで比較すべき実装案の結論
-
-既知の制約として必要な場合は、「実装指示」ではなく「守るべき境界」として書きます。
-
-## Stop条件として書くもの
-
-AIが自律的に進めてよい前提でも、次の条件では止まって監督者へエスカレーションします。
-
-- 要件の意図が複数解釈できる
-- 成功条件が不明
-- 既存仕様と矛盾する
-- スコープ外の変更が必要
-- 新規依存が必要
-- DB / API / 認証 / 権限モデルの変更が必要
-- 破壊的なgit操作が必要
-- 検証失敗の原因が今回の変更と無関係
-
-## Issueテンプレート
-
-GitHubで使うFeature Requestテンプレートは、[.github/ISSUE_TEMPLATE/feature_request.md](../../.github/ISSUE_TEMPLATE/feature_request.md) に置きます。
-
-Feature Requestは新機能や改善の提案だけを保管する別工程ではなく、Requirements / PRDへ意図と境界を渡すIssueとして扱います。
-
-このドキュメントでは、テンプレートの意図と運用方針だけを説明します。
+技術選択、検証profile、representationはDecisionが所有する。新しいproduct intentは
+既存Issueへ明示反映し、別Developmentから実装する。Learn用Issueは作らない。
+Feature Request / Bug / Taskのテンプレート種別は意図を表すために選び、AIDD利用の選択肢にはしない。

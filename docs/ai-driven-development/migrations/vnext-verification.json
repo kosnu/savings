@@ -1,0 +1,1421 @@
+{
+  "schema_version": 1,
+  "kind": "aidd_migration_verification",
+  "status": "local_verified",
+  "recorded_at": "2026-09-05T04:13:14.877603+00:00",
+  "baseline_head": "354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
+  "source_manifest_sha256": "4a03ba7965a4e8d8a4a5c6e6671b8c21e9a2f74861f01dcb9113ec8a08e8a86b",
+  "manifest_encoding": "UTF-8 JSON, sorted keys, no whitespace; normalized Git modes",
+  "excluded_paths": [
+    "docs/ai-driven-development/migrations/vnext-bootstrap.json",
+    "docs/ai-driven-development/migrations/vnext-verification.json"
+  ],
+  "source_manifest": [
+    {
+      "path": ".agents/skills/aidd-cycle/SKILL.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "8679b7ddc77edf10b1e1bb420366de7681708071fa942cb9b5161419a4623df6"
+    },
+    {
+      "path": ".agents/skills/aidd-cycle/agents/openai.yaml",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "a4dcd2f5ddcae7e65be15f698b670dc7e564e5e2aa06d96b2102ecffde64ff0d"
+    },
+    {
+      "path": ".agents/skills/goal-setting/SKILL.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "9e9b3b584b37a1e1d393860c9dccb20cc723a595036ebed861a215ac69da8719"
+    },
+    {
+      "path": ".agents/skills/goal-setting/agents/openai.yaml",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "ed69542cebdb6e59861b8ab4fff45281636d9b6066106ee3263d8aaee0f17bcc"
+    },
+    {
+      "path": ".agents/skills/harness-task/SKILL.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "117f082e1f9c532ed44f87a70996d8adf454a9a9e62fce7b5c08214a991f1594"
+    },
+    {
+      "path": ".agents/skills/learn/SKILL.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "f47c3f6cea47bbe95a51c4b87e1c34f514682d24261a7e1197cc262f76c3ee80"
+    },
+    {
+      "path": ".agents/skills/learn/agents/openai.yaml",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "402724eb82fb05653445ca1299b104dee4ac3fe5ebf77d582922c75621fa2ad9"
+    },
+    {
+      "path": ".codex/agents/aidd-build.toml",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": ".codex/agents/aidd-requirements-design.toml",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": ".codex/config.toml",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "9df1224bdddde7bc5f346253fe03c4075c4c6d582a9f14b008d2e81ef1110e95"
+    },
+    {
+      "path": ".github/workflows/aidd_checker_ci.yaml",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "ace9d18d70f83553c4be2583a04fc84cc812c7524cee88d69e9766afceb3c111"
+    },
+    {
+      "path": "AGENTS.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "53d3dc3fc6767ce5f6420225409cb737c509ba9a5b5e2e718c477b0c2f4a86f6"
+    },
+    {
+      "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "bc4b6c8b7c2a6f81aa8f7ff3dd8a209af482be0789d47222fa10e91f4e7fe3e9"
+    },
+    {
+      "path": "docs/ai-driven-development/aidd-checker-operations.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "0269f0bf856afb505b2c09d4fd65dbf4125331186f2f9e9b41a955e025f8a0d5"
+    },
+    {
+      "path": "docs/ai-driven-development/aidd-checker.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "b39b25ad570f2ea97abcecb204bf874c52d9d2c128f1b77664c156516815a0e5"
+    },
+    {
+      "path": "docs/ai-driven-development/codex-adapter.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "1eb312a32947cbe5fdbde4b9807f19d57e45fc76b091b35fd089064e9982568b"
+    },
+    {
+      "path": "docs/ai-driven-development/contracts/phase-execution-contract.toml",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "docs/ai-driven-development/contracts/protocol.json",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "4350c3241d21438803bd599d9b0fd2007e419b1ef23ac933ee48c5e2198fea60"
+    },
+    {
+      "path": "docs/ai-driven-development/goal-templates/build-verify-goal.md",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "docs/ai-driven-development/goal-templates/design-plan-goal.md",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "docs/ai-driven-development/goal-templates/index.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "9ce7977aaedaffbec9289c4489f299f63c6ea0a01eee86d730d3100c00631f16"
+    },
+    {
+      "path": "docs/ai-driven-development/goal-templates/intent-requirements-goal.md",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "docs/ai-driven-development/goal-templates/ship-goal.md",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "docs/ai-driven-development/issue-guidelines.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "f30372b046d6474199d6e2ec6e754318260262c80ff071025f2ff4968b7050ab"
+    },
+    {
+      "path": "docs/ai-driven-development/migrations/vnext.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "61acd7a2f392fa1c8650074f2d0cccd2299985c30a51174a40d8a0b5da9ea209"
+    },
+    {
+      "path": "docs/ai-driven-development/overview.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "7ed86fa4aa290264cb43b7c4a074ecfb6cc21e924cc797f6079407d6c79931a0"
+    },
+    {
+      "path": "docs/ai-driven-development/workflow.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "342c2f5722cb93ff99311c281992705e79c3a6ee3fc6f8a5060cb55cd2a01eec"
+    },
+    {
+      "path": "docs/harness/policies/code-review.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "269b949ce7aa8c17f7fa06a9abb702e81d977ae1dff45efaa5f31d2cac2f5462"
+    },
+    {
+      "path": "docs/harness/policies/git-workflow.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "ad80ee96ce1eb7e70d2de19ba922121bf6bffdfdf18959dd3cf9b23f479627dc"
+    },
+    {
+      "path": "docs/harness/policies/learning-extraction.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "991902d563dff4ced00b4957c7deb42cdf349fa1a82389491b1fdda64f2a4758"
+    },
+    {
+      "path": "docs/harness/policies/review-feedback-classification.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "884336f81b837bd74d9c8f33ff2c691f5df08c891f014f94487c24b7f51b8e00"
+    },
+    {
+      "path": "docs/harness/rule-map.json",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "600487f6203432ab2338439919dccd9f4960acb9fbd287fce9063bbc5b2b9ed3"
+    },
+    {
+      "path": "tools/aidd/checker/cmd/aidd-checker/commands.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "cf831d3776ab191eb0095f4e964c1af4af3d62c527cc11aa8b4d4578bdc15e49"
+    },
+    {
+      "path": "tools/aidd/checker/cmd/aidd-checker/historical_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "16b88817112687bf7ca8c7754a03806737b9075df8654be7999cb8f4fe07c8a4"
+    },
+    {
+      "path": "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "45cfcb754c435b2d832326b0d1021318eae48b0f15d6ee8c91081b2f67f10145"
+    },
+    {
+      "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "aec2a8da7bf8e21edc4b3e6fcc92e74f85f20c3c0b73ed2e69dc5878d67b631f"
+    },
+    {
+      "path": "tools/aidd/checker/cmd/aidd-hooks/main.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "9d0b8a73f2823fd549039aaf7597bbf4c1c289af37b544ae0aa3837301a77066"
+    },
+    {
+      "path": "tools/aidd/checker/go.mod",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "31b951f3dcb225b5f96c76aa72ac272f9c0d481460ee66ca1f3f243e32542e6c"
+    },
+    {
+      "path": "tools/aidd/checker/go.sum",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "d34bf044651e1bfbc15648e9fbf711c31907ccf8fd5db67c30406c94301156f4"
+    },
+    {
+      "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "359806e7beb72df9ca83059b7287aea6ec19d56c20a163e19207b02229f5764c"
+    },
+    {
+      "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "1187e6335ef3fa1a3a523e4f16557c211f93499b97075e8a007c92a4ce9c919a"
+    },
+    {
+      "path": "tools/aidd/checker/internal/catalog/catalog.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "f88f5fd685fd97cdfc03f6cd704153febff50b4a2347f790d5f63c212f719d95"
+    },
+    {
+      "path": "tools/aidd/checker/internal/codexhooks/hooks.go",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "tools/aidd/checker/internal/codexhooks/hooks_test.go",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "tools/aidd/checker/internal/evidence/evidence.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "2c543db4ce1197e52f74fd9995ac9334aa9b8a1ed13d461cc2c48d6d1121b792"
+    },
+    {
+      "path": "tools/aidd/checker/internal/phasecontract/assignment.go",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "tools/aidd/checker/internal/phasecontract/assignment_test.go",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "tools/aidd/checker/internal/phasecontract/contract.go",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "tools/aidd/checker/internal/phasecontract/contract_test.go",
+      "type": "deleted",
+      "mode": "",
+      "sha256": ""
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/bootstrap.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "d8e0920f939d07f0fff3e2e253fe1a29b5a849c81f5ef671f8240ad77aa4a7e0"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/bootstrap_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "bdc399b214107f8c6255e03a17010aba18d489817619a6c0a965843fe47ce09f"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "2e74934c4806107df463282b53326473f21453757e312d040e82b7c00a34cd36"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/cli_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "6b7cca486df9d1295d3d55bf6569e20f1320d4f86817512c6e44342f1f409747"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/configuration.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "ccc321f1dce303271eae0c10e3c30077dca2d140360527da6834d32a40dfd4aa"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/continuation_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "988b312a2e64ba49a8166cecff17609b5f1ced0660b5c12d7f798c400812ab2d"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/decision.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "2cc309c36701cb0721981164b0d96489e0c9c74dfcf93a23cbbb5d047334a3fa"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/delivery.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "243214f103a6066ecb46708d13c7132ad05900dc43f2383f8cf106a13bef196a"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "175abfbc41f39980f28ba378874513310df65f7d40149abb4ffa7bc59197c136"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/delivery_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "9611bcc4ee5f1492fef5aceed734bd9d24051b677455437ac9d85a06f47ae56e"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/files.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "ea5337f850e6f4f526b9bd785c4d49185f063d830b08577b9aeb75b538a5e360"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/history.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "9921a2886595a6768017a99b4172be6dbe266abadb965b55929c068b68630bba"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "aeeb3926838b388c34abc450ab60580186d52754cb9da360c337a405ebd8875b"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "7cfb66a392ab717d2f6a2d7785378a36c0bc393bc7c4f30eda02a596d51d5675"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/mixed.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "55bdb2f1b3b86f82b83be6b27f8daad96207c3c8c72c6ed3ab25ef70a11d5118"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/mixed_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "058b49cf40cad4229877ab9a1b669222eb2ebb2fb1a30ebc5e446a69382b20ee"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/model.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "85ec44028ce5e4c30f90248ae0e7566db10cedc8b65b846ee8f6e1d6b15bbfb5"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "f770173cc1e4ed57a8f4049d23f4867fff1e7277bf8c6ded34605e8a16e9c989"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/storybook.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "87e0afaf28579e8e614056664816fbe2d42ed3c0ef32322665f35a28661ff02d"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/storybook_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "dc743fb26a53e1bf7690d60d06c4abe2de24a5594c0fc27bbc94809950403318"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/task.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "292a4e5b5309e0db7d184446e87d382682f35557241ad088071891dabe9a2d49"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/verification.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "bdef5a6c8cef2703221583c9946ca2f53c145d15ab99ebff68c9311bbb55b36a"
+    },
+    {
+      "path": "tools/aidd/checker/internal/repository/repository.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "7be30198f12ee70c8adeac5d79d555b2a0fe0b25fedf2804027eee1e456d57a1"
+    },
+    {
+      "path": "tools/aidd/checker/internal/repository/repository_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "06845a77f576c8009e3c6c86a696390f5295a7e293c1f0586beb298326105cd1"
+    },
+    {
+      "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "bb53b1c13b6a3b34f1cf0bb30028701b7b57489de8a7245b5738c9d1556f19cb"
+    },
+    {
+      "path": "tools/aidd/checker/internal/rules/rules.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "06c883374ee2d0c879f91bfbcf28d41bbb5dfe4f52839532b369d3d8168abb8e"
+    },
+    {
+      "path": "tools/aidd/checker/internal/runner/execute.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "3fddf424a1f2a55d55e84a3bc004f64d006dc668c0784f5676b5447ec2ef0332"
+    },
+    {
+      "path": "tools/aidd/checker/internal/semantic/target_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "46b76f4c806f4c226fb5e959c22ca27411433815252db8a1dc9488dd8f9edc1e"
+    },
+    {
+      "path": "tools/aidd/checker/internal/semantic/testdata/legacy-goal-contracts.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "76811158d6768f36511e579b75e27dfa46b7d47fd115dbc5b43865e81c5b1fc4"
+    },
+    {
+      "path": "tools/aidd/checker/internal/verificationcontract/input.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "d6fdd8e57427bc5b5a9547a4b245f22017d67a19e75d2348572252c2c51d242f"
+    }
+  ],
+  "checker_sha256": "bd443268edf508882540d0308438b614d3b6e86e17d0b13258b030ef46418dac",
+  "go_cache": "/tmp/aidd-vnext-go-cache",
+  "checks": [
+    {
+      "command": "GOCACHE=/tmp/aidd-vnext-go-cache go -C tools/aidd/checker test -count=1 ./...",
+      "result": "passed"
+    },
+    {
+      "command": "GOCACHE=/tmp/aidd-vnext-go-cache go -C tools/aidd/checker vet ./...",
+      "result": "passed"
+    },
+    {
+      "command": "go -C tools/aidd/checker mod verify",
+      "result": "passed"
+    },
+    {
+      "command": "gofmt -l tools/aidd/checker (empty)",
+      "result": "passed"
+    },
+    {
+      "command": "go -C tools/aidd/checker build -o /tmp/aidd-pr1706-comments-candidate ./cmd/aidd-checker",
+      "result": "passed"
+    },
+    {
+      "command": "/tmp/aidd-pr1706-comments-candidate check-all --repo-root .",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "/tmp/aidd-pr1706-comments-candidate bootstrap-check --repo-root . --base 354876bebd81bc53ab2c8ed0657d0f9d24740dcc --target-base 354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
+      "result": "passed: 79-path independent review manifest matches checker inventory"
+    }
+  ],
+  "learn_repository_smoke": {
+    "temporary_repository": "/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/aidd-vnext-smoke-bfhdxgkh/repository",
+    "task_sha256": "6fd745af343259f75d5fc4a8977107eb1990f7677d73e4c90d0b82247cea1b44",
+    "checkpoint_sha256": "0ace9551edad7437c15dc6128ebf4c654dd06b0cd78b9860f86c679fee72f3d0",
+    "evidence_sha256": "7d68882fb02b1cee7d615aabf04811b6f873a4af81036df7d8d8525de8b3dbaa",
+    "checks": [
+      "task-start",
+      "checkpoint",
+      "verify",
+      "reject-finish-without-review",
+      "learn-review",
+      "finish",
+      "ship-check",
+      "ci-check"
+    ],
+    "status": "passed",
+    "review": "synthetic test only"
+  },
+  "codex_entry_evaluation": {
+    "cli_version": "0.153.3",
+    "model": "gpt-6-astra",
+    "temporary_repository": "/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/aidd-codex-entry-r95nyzbm",
+    "scope": "actual natural-language entry to task/checkpoint; no product implementation or long-duration Goal evaluation",
+    "cases": {
+      "execute": {
+        "result": "passed",
+        "task_artifacts": [
+          ".aidd/tasks/issue-900001-entrypoint-message-update/checkpoints/000001.json",
+          ".aidd/tasks/issue-900001-entrypoint-message-update/task.json"
+        ],
+        "product_unchanged": true,
+        "tracked_and_index_unchanged": true,
+        "status": "?? .aidd/tasks/issue-900001-entrypoint-message-update/checkpoints/000001.json\n?? .aidd/tasks/issue-900001-entrypoint-message-update/task.json\n",
+        "transcript_sha256": "a39a3f8f58fb5e4913efa85f8dbe0b031e1a6f4e7057d05d91cd58723327c323",
+        "goal": "tool unavailable; not created"
+      },
+      "question": {
+        "result": "passed",
+        "task_artifacts": [],
+        "product_unchanged": true,
+        "tracked_and_index_unchanged": true,
+        "status": "",
+        "transcript_sha256": "8aae51f5400630dbaa403f6bc6c437b0c76b1e7d608615543d2971b93c876d41",
+        "goal": "not started"
+      }
+    }
+  },
+  "independent_review": {
+    "reviewer": "/root/independent_review",
+    "manifest_sha256": "4a03ba7965a4e8d8a4a5c6e6671b8c21e9a2f74861f01dcb9113ec8a08e8a86b",
+    "source_manifest_sha256": "875d5e7040720df046f7a4db2281e3b40685a0395684a1468046a9b6dc88e5be",
+    "observations": "optional pathの先行検証、local／PR配信権限の分離、現在target baseに基づくtrusted checker選択、lockfileのpeer割当保持と正常更新の両立を確認した。17 filesのmain worktreeと一時Learnのcontent／mode、Task・checkpoint・evidenceのhashと参照、開始時binaryが一致した。checkpointは同じTaskから2件の追記chainを形成し、baselineの変更はない。開始時binaryによるread-only checkを独立実行して成功し、VC-1／VC-2のpassed状態を確認した。migration文書とPR全体79 pathsのcontent／mode／削除・path集合も独立再計算して一致した。未解決findingなし。全Go suiteをreviewer自身では再実行せず、生成証拠と開始時checkerの検査を確認した。独立agent reviewであり人間・GitHub上の承認ではない。remote CIやレビュー返信／resolveは実施していない。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, policy.transaction-boundaries, architecture.overview, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。"
+  },
+  "migration_goal": {
+    "single_original_goal": true,
+    "initial_completion_was_premature": true,
+    "current_get_goal_result": null,
+    "reopen_tool_available": false,
+    "replacement_goal_created": false,
+    "continuity": "same authorized migration contract retained in repository"
+  },
+  "not_run": [
+    "remote GitHub Actions for current uncommitted review fixes",
+    "branch protection validation",
+    "human approval",
+    "other-vendor operational evaluation",
+    "live GitHub Issue retrieval in Codex routing evaluation",
+    "long-duration Codex Goal operation",
+    "Web/API checks (no app changes)"
+  ],
+  "delivery": "PR #1706 remains at b9924bdb0080259fc21608c7dc97c4263c250827; current review fixes are local and uncommitted",
+  "previous_verification": {
+    "recorded_at": "2026-09-04T20:31:23.010580+00:00",
+    "source_manifest_sha256": "ea6ccbf82390a8c75dbfd9ceb8fd367cc2ad1c5c3a41adb93568cc52cceedab1",
+    "checks": [
+      {
+        "command": "go test -C tools/aidd/checker ./...",
+        "result": "passed"
+      },
+      {
+        "command": "go vet -C tools/aidd/checker ./...",
+        "result": "passed"
+      },
+      {
+        "command": "go mod verify -C tools/aidd/checker",
+        "result": "all modules verified"
+      },
+      {
+        "command": "gofmt -l tools/aidd/checker",
+        "result": "empty"
+      },
+      {
+        "command": "go build -C tools/aidd/checker -o /tmp/aidd-vnext-candidate ./cmd/aidd-checker",
+        "result": "passed"
+      },
+      {
+        "command": "/tmp/aidd-vnext-candidate check-all --repo-root .",
+        "result": "passed: artifacts=8 read_only_legacy=2"
+      },
+      {
+        "command": "python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main",
+        "result": "passed: checked=2"
+      },
+      {
+        "command": "skill quick_validate: aidd-cycle, goal-setting, learn, harness-task",
+        "result": "passed"
+      },
+      {
+        "command": "Codex TOML / Hooks JSON / workflow and skill YAML parse",
+        "result": "passed"
+      },
+      {
+        "command": "git diff --check",
+        "result": "passed"
+      },
+      {
+        "command": "git diff --name-only -- apps/web apps/api",
+        "result": "empty: no product change"
+      },
+      {
+        "command": "/tmp/aidd-vnext-candidate bootstrap-check --repo-root . --base 354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
+        "result": "passed: independent review manifest matched"
+      }
+    ],
+    "note": "Earlier migration verification; superseded for changed source by PR 1706 follow-up checks."
+  },
+  "pr1706_follow_up": {
+    "source_head": "de69aaa394c9be17ade122aa21efa365762d53a4",
+    "source_manifest": {
+      "source_head": "de69aaa394c9be17ade122aa21efa365762d53a4",
+      "files": [
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "mode": "100644",
+          "sha256": "4e5d0c8662493a82d835be0112d9a2caedabc8f29a12e2047a0e964dd2a645bf"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "mode": "100644",
+          "sha256": "edf6131e8b6e4a491f9c3861f3f8b31ecd071b986d992d6429c015fb22abcbc9"
+        },
+        {
+          "path": "docs/harness/policies/code-review.md",
+          "mode": "100644",
+          "sha256": "269b949ce7aa8c17f7fa06a9abb702e81d977ae1dff45efaa5f31d2cac2f5462"
+        },
+        {
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "mode": "100644",
+          "sha256": "884336f81b837bd74d9c8f33ff2c691f5df08c891f014f94487c24b7f51b8e00"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "mode": "100644",
+          "sha256": "600487f6203432ab2338439919dccd9f4960acb9fbd287fce9063bbc5b2b9ed3"
+        },
+        {
+          "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+          "mode": "100644",
+          "sha256": "bb53b1c13b6a3b34f1cf0bb30028701b7b57489de8a7245b5738c9d1556f19cb"
+        },
+        {
+          "path": "tools/aidd/checker/internal/semantic/target_test.go",
+          "mode": "100644",
+          "sha256": "46b76f4c806f4c226fb5e959c22ca27411433815252db8a1dc9488dd8f9edc1e"
+        },
+        {
+          "path": "tools/aidd/checker/internal/semantic/testdata/legacy-goal-contracts.md",
+          "mode": "100644",
+          "sha256": "76811158d6768f36511e579b75e27dfa46b7d47fd115dbc5b43865e81c5b1fc4"
+        }
+      ],
+      "sha256": "d8fac324166fd8e5ee3595df32786f25b624a02f2f661dacc21c311201b2848d"
+    },
+    "learn": {
+      "repository": "/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/aidd-pr1706-final-learn-tpu84i7z/repository",
+      "baseline_source_preserved": true,
+      "superseded_failed_task_repository": "/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/aidd-pr1706-learn-v1odqzv8/repository",
+      "task_id": "pr1706-feedback-routing-complete",
+      "task_sha256": "8695e33e18e83a260722a7daacae189c16852c8ac3acfdf688078e7ef3651f24",
+      "checkpoint_sha256": "bbf1a25ef0a40c7b33372011ddc77f435f3bd307b2ac1214596e1639b8abe7da",
+      "evidence_sha256": "ce5a4301544ec1bd71c0864790e43b5033a5c089adb8a180be90427549fddabe",
+      "review_sha256": "17323da6ec31f51a187aeb4428250f771feb5c0d3499dce0e1460bf6daa3b5fa",
+      "baseline_checker_sha256": "6af43a9e50bbc4864a95ab9257b5a014760f60a34910af287a618b4cddf1e5e4",
+      "completed_commands": [
+        "task-start",
+        "checkpoint",
+        "verify",
+        "learn-review",
+        "check",
+        "finish"
+      ],
+      "main_worktree_content_and_mode_match": true,
+      "verification": "ewogICJzY2hlbWFfdmVyc2lvbiI6IDUsCiAgImtpbmQiOiAiYnVpbGRfdmVyaWZpY2F0aW9uIiwKICAid29ya3NwYWNlIjogInByMTcwNi1mZWVkYmFjay1yb3V0aW5nLWNvbXBsZXRlIiwKICAicmVjZWlwdF9zaGEyNTYiOiAiYmJmMWEyNWVmMGE0MGM3YjMzMzcyMDExZGRjNzdmNDM1ZjNiZDMwN2IyYWMxMjE0NTk2ZTE2MzliOGFiZTdkYSIsCiAgImNhdGFsb2dfc2hhMjU2IjogImEzYmMxNzk1NWFiZmJhOGQwMzAwN2RhN2MwZjZhYmQ5NWVkNzg4NjczYTlkOWI0ZTA1ZTMxNGZhN2Q1NmRhM2EiLAogICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiNjQ4N2I0M2U1OWExYTllZWRiMWU5ODY5YzgxMWM3ZDM4YmExYWQxOTIxZWUyOGM5NGJlOTZlYjY5ZDhlNzY5ZSIsCiAgImdlbmVyYXRvciI6ICJhaWRkLWNoZWNrZXIvdjUiLAogICJyZXN1bHRzIjogWwogICAgewogICAgICAiaWQiOiAiVkMtMSIsCiAgICAgICJ0eXBlIjogImF1dG9tYXRlZCIsCiAgICAgICJzdGF0dXMiOiAicGFzc2VkIiwKICAgICAgInZlcmlmaWNhdGlvbl9wcm9maWxlX2lkIjogImFpZGQtY2hlY2tlci10ZXN0cyIsCiAgICAgICJwcm9maWxlX3NoYTI1NiI6ICIxMGY4OTI2NWQ1ZDE3ODA3Y2M0ZjU3ODMyNmM1MTUxOTZlMmNiZDU4NTY4MmE5M2Y5OTFmNmU5ZWIzZDMxOTE2IiwKICAgICAgInNlbGVjdG9yIjogewogICAgICAgICJraW5kIjogInN1aXRlIgogICAgICB9LAogICAgICAiZXhlY3V0ZWRfaWRlbnRpdGllcyI6IFsKICAgICAgICB7CiAgICAgICAgICAia2luZCI6ICJzdWl0ZSIsCiAgICAgICAgICAiaWQiOiAiYWlkZC1jaGVja2VyLXRlc3RzIgogICAgICAgIH0KICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJzdGRvdXRfYnl0ZXMiOiAxODMzLAogICAgICAic3RkZXJyX2J5dGVzIjogMCwKICAgICAgIm91dHB1dF9zaGEyNTYiOiAiNDFjMjVlODlkZWZiMGJkY2UzMmQ3OWRiOTdlODYyZmM5ZTFjMjk5OWE0NWVlZmI4Njk1Y2I3MzRjZDg0YTM0YyIsCiAgICAgICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiNjQ4N2I0M2U1OWExYTllZWRiMWU5ODY5YzgxMWM3ZDM4YmExYWQxOTIxZWUyOGM5NGJlOTZlYjY5ZDhlNzY5ZSIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJWQy0yIiwKICAgICAgInR5cGUiOiAiYXV0b21hdGVkIiwKICAgICAgInN0YXR1cyI6ICJwYXNzZWQiLAogICAgICAidmVyaWZpY2F0aW9uX3Byb2ZpbGVfaWQiOiAiZ2l0LWRpZmYtY2hlY2siLAogICAgICAicHJvZmlsZV9zaGEyNTYiOiAiZTQyYjdlNjJlMDQ4YmY1NDdjNGIzODY5NzhlOTAxZWYyZGI4M2MyOWZhZjMxZjdjYWY2ZjYyMjUxNTRhZDI3MyIsCiAgICAgICJzZWxlY3RvciI6IHsKICAgICAgICAia2luZCI6ICJzdWl0ZSIKICAgICAgfSwKICAgICAgImV4ZWN1dGVkX2lkZW50aXRpZXMiOiBbCiAgICAgICAgewogICAgICAgICAgImtpbmQiOiAic3VpdGUiLAogICAgICAgICAgImlkIjogImdpdC1kaWZmLWNoZWNrIgogICAgICAgIH0KICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJzdGRvdXRfYnl0ZXMiOiAwLAogICAgICAic3RkZXJyX2J5dGVzIjogMCwKICAgICAgIm91dHB1dF9zaGEyNTYiOiAiMDc4NTUxMjZkZGY4M2U3YTc5NDc5MzNmY2EzMmEwZDViNzdjOGU2ZWUxZjBmMmRiMzU3YjYzMDkxNmEzYjYzNyIsCiAgICAgICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiNjQ4N2I0M2U1OWExYTllZWRiMWU5ODY5YzgxMWM3ZDM4YmExYWQxOTIxZWUyOGM5NGJlOTZlYjY5ZDhlNzY5ZSIKICAgIH0KICBdCn0K",
+      "baseline_head": "cd580866d87cad62828a1e855f549752896237d7",
+      "baseline_tree": "d01bd9dde355f4153125dbeb0be62c26db47fad1",
+      "source_tree": "d01bd9dde355f4153125dbeb0be62c26db47fad1"
+    },
+    "findings_resolved": [
+      "feedback cause axis before local repair",
+      "bounded AIDD surface plus narrower workflow direct match",
+      "legacy Goal contract table moved to frozen historical fixture"
+    ],
+    "product_changes": false,
+    "delivery": "local edits only; no commit/push or GitHub comment",
+    "bootstrap_record_correction": {
+      "cause": "git diff rename presentation omitted old hook deletion paths",
+      "resolution": "--no-renames enumeration independently compared with checker bootstrapManifest",
+      "paths": [
+        "tools/aidd/checker/internal/codexhooks/hooks.go",
+        "tools/aidd/checker/internal/codexhooks/hooks_test.go"
+      ],
+      "rejected_incomplete_record": true,
+      "checker_changed": false
+    }
+  },
+  "verification_history": [
+    {
+      "recorded_at": "2026-09-05T03:25:07.279518+00:00",
+      "source_manifest_sha256": "f15e10d667d295fcf7d7192724e23c20850bf46ffac09dd597b0a8021f993c08",
+      "checker_sha256": "05b3bfa34a2f28e7cfab7ab4d868cf8f4a2f325112358d45795f5d9f9e056873",
+      "checks": [
+        {
+          "command": "GOCACHE=/tmp/aidd-vnext-go-cache go -C tools/aidd/checker test -count=1 ./...",
+          "result": "passed"
+        },
+        {
+          "command": "go -C tools/aidd/checker vet ./...",
+          "result": "passed"
+        },
+        {
+          "command": "go -C tools/aidd/checker mod verify",
+          "result": "passed"
+        },
+        {
+          "command": "gofmt -l tools/aidd/checker (empty)",
+          "result": "passed"
+        },
+        {
+          "command": "go -C tools/aidd/checker build -o /tmp/aidd-pr1706-candidate ./cmd/aidd-checker",
+          "result": "passed"
+        },
+        {
+          "command": "/tmp/aidd-pr1706-candidate check-all --repo-root .",
+          "result": "passed"
+        },
+        {
+          "command": "python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "/tmp/aidd-pr1706-candidate bootstrap-check --repo-root . --base 354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
+          "result": "passed: 76-path independent review manifest matches checker inventory"
+        }
+      ],
+      "independent_review": {
+        "reviewer": "/root/independent_review",
+        "manifest_sha256": "f15e10d667d295fcf7d7192724e23c20850bf46ffac09dd597b0a8021f993c08",
+        "source_manifest_sha256": "d8fac324166fd8e5ee3595df32786f25b624a02f2f661dacc21c311201b2848d",
+        "observations": "PR 1706追加修正の独立read-only最終review。対応前の原因評価を必須化しlocal defectでも制御不全を評価する境界、AIDD surface限定と一般pathのdirect match/depends_on closure保持、legacy契約12行と移行前commitの一致を確認。現行v5へ旧phase制約を戻していない。今回8filesのmain worktreeと一時Learnのcontent/mode一致、Task/checkpoint/evidence hash参照と開始時binary hash一致、VC-1/VC-2 passedを確認した。開始時binaryのread-only checkを独立実行して成功。PR全体76pathsのcontent/mode/削除/path集合とmanifestを再計算して一致。以前の移行reviewを引き継ぎ、今回追加の確認範囲に未解決findingなし。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。全Go suiteはreviewer自身では再実行せず生成証拠とcheckを確認。remote CI/GitHub承認は対象外。独立agent reviewであり人間の承認ではない。 前回74pathsの照合はGit rename表示が旧codexhooksの2削除pathを省略していたため訂正。--no-renamesで独立再計算し、旧2filesの削除、新adapters/codex/hooksの2filesの存在、76全pathのcontent/mode/削除/path集合とchecker実manifestの完全一致を確認。今回8filesとLearn証拠の評価は変わらず未解決findingなし。"
+      },
+      "delivery": "PR #1706 exists at de69aaa394c9be17ade122aa21efa365762d53a4; follow-up edits are local and uncommitted"
+    }
+  ],
+  "last_committed_ci": {
+    "head": "b9924bdb0080259fc21608c7dc97c4263c250827",
+    "verify": "SUCCESS",
+    "verify_url": "https://github.com/kosnu/savings/actions/runs/33942445356/job/101242349858",
+    "zizmor": "SUCCESS",
+    "scope": "Previously committed follow-up, not current uncommitted review fixes"
+  },
+  "pr1706_review_comments": {
+    "source_head": "b9924bdb0080259fc21608c7dc97c4263c250827",
+    "source_manifest": {
+      "source_head": "b9924bdb0080259fc21608c7dc97c4263c250827",
+      "files": [
+        {
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "mode": "100644",
+          "sha256": "ace9d18d70f83553c4be2583a04fc84cc812c7524cee88d69e9766afceb3c111"
+        },
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "mode": "100644",
+          "sha256": "bc4b6c8b7c2a6f81aa8f7ff3dd8a209af482be0789d47222fa10e91f4e7fe3e9"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "mode": "100644",
+          "sha256": "0269f0bf856afb505b2c09d4fd65dbf4125331186f2f9e9b41a955e025f8a0d5"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "mode": "100644",
+          "sha256": "342c2f5722cb93ff99311c281992705e79c3a6ee3fc6f8a5060cb55cd2a01eec"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+          "mode": "100644",
+          "sha256": "aec2a8da7bf8e21edc4b3e6fcc92e74f85f20c3c0b73ed2e69dc5878d67b631f"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/bootstrap.go",
+          "mode": "100644",
+          "sha256": "d8e0920f939d07f0fff3e2e253fe1a29b5a849c81f5ef671f8240ad77aa4a7e0"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/bootstrap_test.go",
+          "mode": "100644",
+          "sha256": "bdc399b214107f8c6255e03a17010aba18d489817619a6c0a965843fe47ce09f"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "mode": "100644",
+          "sha256": "2e74934c4806107df463282b53326473f21453757e312d040e82b7c00a34cd36"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/cli_test.go",
+          "mode": "100644",
+          "sha256": "6b7cca486df9d1295d3d55bf6569e20f1320d4f86817512c6e44342f1f409747"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/delivery.go",
+          "mode": "100644",
+          "sha256": "243214f103a6066ecb46708d13c7132ad05900dc43f2383f8cf106a13bef196a"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+          "mode": "100644",
+          "sha256": "175abfbc41f39980f28ba378874513310df65f7d40149abb4ffa7bc59197c136"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+          "mode": "100644",
+          "sha256": "aeeb3926838b388c34abc450ab60580186d52754cb9da360c337a405ebd8875b"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+          "mode": "100644",
+          "sha256": "7cfb66a392ab717d2f6a2d7785378a36c0bc393bc7c4f30eda02a596d51d5675"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+          "mode": "100644",
+          "sha256": "f770173cc1e4ed57a8f4049d23f4867fff1e7277bf8c6ded34605e8a16e9c989"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "mode": "100644",
+          "sha256": "bdef5a6c8cef2703221583c9946ca2f53c145d15ab99ebff68c9311bbb55b36a"
+        },
+        {
+          "path": "tools/aidd/checker/internal/repository/repository.go",
+          "mode": "100644",
+          "sha256": "7be30198f12ee70c8adeac5d79d555b2a0fe0b25fedf2804027eee1e456d57a1"
+        },
+        {
+          "path": "tools/aidd/checker/internal/repository/repository_test.go",
+          "mode": "100644",
+          "sha256": "06845a77f576c8009e3c6c86a696390f5295a7e293c1f0586beb298326105cd1"
+        }
+      ],
+      "sha256": "875d5e7040720df046f7a4db2281e3b40685a0395684a1468046a9b6dc88e5be"
+    },
+    "reviews": [
+      {
+        "thread_id": "PRRT_kwDOM0p88s6fb9Zf",
+        "comment_url": "https://github.com/kosnu/savings/pull/1706#discussion_r3937745022",
+        "input_state": "submitted and unresolved",
+        "assessment": "valid reusable guardrail failure",
+        "resolution": "Validate canonical path before optional missing check; retain missing and final symlink behavior"
+      },
+      {
+        "thread_id": "PRRT_kwDOM0p88s6fb_1D",
+        "comment_url": "https://github.com/kosnu/savings/pull/1706#discussion_r3937760449",
+        "input_state": "submitted and unresolved",
+        "assessment": "valid reusable guardrail failure",
+        "resolution": "Require delivery=pr for Ship and PR CI; preserve local Finish"
+      },
+      {
+        "thread_id": "PRRT_kwDOM0p88s6ff83d",
+        "comment_url": "https://github.com/kosnu/savings/pull/1706#discussion_r3939346904",
+        "input_state": "submitted and unresolved",
+        "assessment": "valid reusable guardrail failure",
+        "resolution": "Select checker and bootstrap eligibility from current target base; retain merge-base diff boundary"
+      },
+      {
+        "thread_id": "PRRT_kwDOM0p88s6ff83e",
+        "comment_url": "https://github.com/kosnu/savings/pull/1706#discussion_r3939346905",
+        "input_state": "submitted and unresolved",
+        "assessment": "valid reusable guardrail failure",
+        "resolution": "Preserve peer variant root/edge/snapshot assignments; allow uniquely evidenced opposite-root peer updates"
+      }
+    ],
+    "learn": {
+      "repository": "/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/aidd-pr1706-comments-gw5wdfez/repository",
+      "task_id": "pr1706-review-guards",
+      "task_sha256": "bc90cc1341dd23496b2ec451b95ad5acef3b388f6a4a30a4bb1cc7850d654576",
+      "task_spec": {
+        "action": "execute",
+        "schema_version": 5,
+        "kind": "learn",
+        "id": "pr1706-review-guards",
+        "intent": {
+          "kind": "feedback",
+          "reference": "PR:1706/unresolved-review-comments",
+          "body": "PR #1706の未解決レビュー4件について妥当性・原因・対応要否を評価し、必要なguardrail修正を行う。optional pathの検証、local配信範囲、現在のbaseによるbootstrap判定、lockfile peer variant参照を検査する。言語変更だけのインラインコメント日本語化は不要。",
+          "body_sha256": "42f3e76b1d7c9b0fe6e947b441d86311a731b56e67e5a66cda8543fbae0ec8b0"
+        },
+        "objective": "妥当なPR指摘に基づくCore境界とCIの制御不全を修正する",
+        "constraints": [
+          "product変更なし",
+          "開始時checkerとpolicy/profileを保持",
+          "既存正常系と拒否保証を維持",
+          "コードコメントの翻訳だけの変更なし"
+        ],
+        "done": [
+          "各指摘の対応要否が明確",
+          "妥当な不備が回帰testとともに修正済み",
+          "独立reviewとLearn確定が成功"
+        ],
+        "verification": [
+          "aidd-checker-tests",
+          "git-diff-check",
+          "independent review"
+        ],
+        "delivery": "local",
+        "authorization": "ユーザーがPRレビューの対応要否を検討して進めるよう依頼した。妥当なguardrail不備と必要検証の修正・ローカル確定。",
+        "authorized_scopes": [
+          {
+            "path": ".github/workflows/aidd_checker_ci.yaml",
+            "kind": "file"
+          },
+          {
+            "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+            "kind": "file"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "kind": "file"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "kind": "file"
+          },
+          {
+            "path": "tools/aidd/checker/cmd/aidd-checker",
+            "kind": "tree"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol",
+            "kind": "tree"
+          },
+          {
+            "path": "tools/aidd/checker/internal/repository",
+            "kind": "tree"
+          }
+        ]
+      },
+      "checkpoint_sha256": "ac7d8771cf195daaa008ab8851bac5d2aa634b396ff72dfc2adc065dde8b6f73",
+      "previous_checkpoint_sha256": "788e3adfc4d584b531b64edc5e0a8e09f046b25adc882f1eb56fd4764634c377",
+      "decision": {
+        "schema_version": 5,
+        "kind": "decision",
+        "task_sha256": "bc90cc1341dd23496b2ec451b95ad5acef3b388f6a4a30a4bb1cc7850d654576",
+        "reason": "初回verifyでtree ownership全体と17file representationの不一致を検出。Taskの許可scope内でDecision ownershipを実際の17fileへ限定する。baseline/Taskは保持し、正常peer更新とvariant割当保護を両立して再検証する。",
+        "requirements": [
+          {
+            "id": "FR-1",
+            "text": "PR #1706の未解決レビュー4件について妥当性・原因・対応要否を評価し、必要なguardrail修正を行う。optional pathの検証、local配信範囲、現在のbaseによるbootstrap判定、lockfile peer variant参照を検査する。言語変更だけのインラインコメント日本語化は不要。",
+            "origin": "intent",
+            "evidence": "PR #1706の未解決レビュー4件について妥当性・原因・対応要否を評価し、必要なguardrail修正を行う。optional pathの検証、local配信範囲、現在のbaseによるbootstrap判定、lockfile peer variant参照を検査する。言語変更だけのインラインコメント日本語化は不要。"
+          }
+        ],
+        "target_state": {
+          "product_behaviors": [
+            {
+              "id": "PB-1",
+              "type": "state_transition",
+              "description": "正常経路の不正入力と契約外配信・bootstrap・peer resolutionを拒否する",
+              "requirement_id": "FR-1"
+            }
+          ],
+          "verification_cases": [
+            {
+              "id": "VC-1",
+              "type": "automated",
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_profile_id": "aidd-checker-tests",
+              "selector": {
+                "kind": "suite"
+              }
+            },
+            {
+              "id": "VC-2",
+              "type": "automated",
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_profile_id": "git-diff-check",
+              "selector": {
+                "kind": "suite"
+              }
+            }
+          ],
+          "ownership_scopes": [
+            {
+              "path": ".github/workflows/aidd_checker_ci.yaml",
+              "kind": "file"
+            },
+            {
+              "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+              "kind": "file"
+            },
+            {
+              "path": "docs/ai-driven-development/aidd-checker-operations.md",
+              "kind": "file"
+            },
+            {
+              "path": "docs/ai-driven-development/workflow.md",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/bootstrap.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/bootstrap_test.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/cli_test.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/delivery.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/protocol/verification.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/repository/repository.go",
+              "kind": "file"
+            },
+            {
+              "path": "tools/aidd/checker/internal/repository/repository_test.go",
+              "kind": "file"
+            }
+          ],
+          "representations": [
+            {
+              "id": "REP-1",
+              "kind": "implementation",
+              "path": ".github/workflows/aidd_checker_ci.yaml",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-2",
+              "kind": "implementation",
+              "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-3",
+              "kind": "implementation",
+              "path": "docs/ai-driven-development/aidd-checker-operations.md",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-4",
+              "kind": "implementation",
+              "path": "docs/ai-driven-development/workflow.md",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-5",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-6",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/bootstrap.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-7",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/bootstrap_test.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-8",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-9",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/cli_test.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-10",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/delivery.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-11",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-12",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-13",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-14",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-15",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/protocol/verification.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-16",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/repository/repository.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            },
+            {
+              "id": "REP-17",
+              "kind": "implementation",
+              "path": "tools/aidd/checker/internal/repository/repository_test.go",
+              "locator": {
+                "kind": "file"
+              },
+              "requirement_id": "FR-1",
+              "product_behavior_ids": [
+                "PB-1"
+              ],
+              "verification_case_ids": [
+                "VC-1",
+                "VC-2"
+              ]
+            }
+          ]
+        },
+        "additional_rules": []
+      },
+      "evidence_sha256": "4b1cb68737a98ed4c557840da98d1fcd25082686822f78e2bb0984c1910ef3ea",
+      "baseline_checker_sha256": "5325c31f179eba11572945c548c0498f24019a64a2a3ed3731694dad9755b9cf",
+      "baseline_head": "21b971cc89966ef1e17535cf5b4d226ed2eae65f",
+      "baseline_tree": "b32df585f2605291229360ce280b9a614cea44d4",
+      "source_tree": "b32df585f2605291229360ce280b9a614cea44d4",
+      "verification": "ewogICJzY2hlbWFfdmVyc2lvbiI6IDUsCiAgImtpbmQiOiAiYnVpbGRfdmVyaWZpY2F0aW9uIiwKICAid29ya3NwYWNlIjogInByMTcwNi1yZXZpZXctZ3VhcmRzIiwKICAicmVjZWlwdF9zaGEyNTYiOiAiYWM3ZDg3NzFjZjE5NWRhYWEwMDhhYjg4NTFiYWM1ZDJhYTYzNGIzOTZmZjcyZGZjMmFkYzA2NWRkZThiNmY3MyIsCiAgImNhdGFsb2dfc2hhMjU2IjogImEzYmMxNzk1NWFiZmJhOGQwMzAwN2RhN2MwZjZhYmQ5NWVkNzg4NjczYTlkOWI0ZTA1ZTMxNGZhN2Q1NmRhM2EiLAogICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiN2NjOTdiN2YxYTc4MmU5YTM3NGUzZGU2MzQ3NDU5ZjViNmJmZDMyY2MzMmE2NTE4ZjhiZjJjMWJhNDVhM2ZmMyIsCiAgImdlbmVyYXRvciI6ICJhaWRkLWNoZWNrZXIvdjUiLAogICJyZXN1bHRzIjogWwogICAgewogICAgICAiaWQiOiAiVkMtMSIsCiAgICAgICJ0eXBlIjogImF1dG9tYXRlZCIsCiAgICAgICJzdGF0dXMiOiAicGFzc2VkIiwKICAgICAgInZlcmlmaWNhdGlvbl9wcm9maWxlX2lkIjogImFpZGQtY2hlY2tlci10ZXN0cyIsCiAgICAgICJwcm9maWxlX3NoYTI1NiI6ICIxMGY4OTI2NWQ1ZDE3ODA3Y2M0ZjU3ODMyNmM1MTUxOTZlMmNiZDU4NTY4MmE5M2Y5OTFmNmU5ZWIzZDMxOTE2IiwKICAgICAgInNlbGVjdG9yIjogewogICAgICAgICJraW5kIjogInN1aXRlIgogICAgICB9LAogICAgICAiZXhlY3V0ZWRfaWRlbnRpdGllcyI6IFsKICAgICAgICB7CiAgICAgICAgICAia2luZCI6ICJzdWl0ZSIsCiAgICAgICAgICAiaWQiOiAiYWlkZC1jaGVja2VyLXRlc3RzIgogICAgICAgIH0KICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJzdGRvdXRfYnl0ZXMiOiAxODMzLAogICAgICAic3RkZXJyX2J5dGVzIjogMCwKICAgICAgIm91dHB1dF9zaGEyNTYiOiAiN2NkYmZhMjJmNzA2MTU4NDVmNmEwYjc3YzQzNWY0MGRlZGFmOTQ0NTE5YThlNDA4ZjY0NjVjODAzNGQwNjRkNiIsCiAgICAgICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiN2NjOTdiN2YxYTc4MmU5YTM3NGUzZGU2MzQ3NDU5ZjViNmJmZDMyY2MzMmE2NTE4ZjhiZjJjMWJhNDVhM2ZmMyIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJWQy0yIiwKICAgICAgInR5cGUiOiAiYXV0b21hdGVkIiwKICAgICAgInN0YXR1cyI6ICJwYXNzZWQiLAogICAgICAidmVyaWZpY2F0aW9uX3Byb2ZpbGVfaWQiOiAiZ2l0LWRpZmYtY2hlY2siLAogICAgICAicHJvZmlsZV9zaGEyNTYiOiAiZTQyYjdlNjJlMDQ4YmY1NDdjNGIzODY5NzhlOTAxZWYyZGI4M2MyOWZhZjMxZjdjYWY2ZjYyMjUxNTRhZDI3MyIsCiAgICAgICJzZWxlY3RvciI6IHsKICAgICAgICAia2luZCI6ICJzdWl0ZSIKICAgICAgfSwKICAgICAgImV4ZWN1dGVkX2lkZW50aXRpZXMiOiBbCiAgICAgICAgewogICAgICAgICAgImtpbmQiOiAic3VpdGUiLAogICAgICAgICAgImlkIjogImdpdC1kaWZmLWNoZWNrIgogICAgICAgIH0KICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJzdGRvdXRfYnl0ZXMiOiAwLAogICAgICAic3RkZXJyX2J5dGVzIjogMCwKICAgICAgIm91dHB1dF9zaGEyNTYiOiAiMDc4NTUxMjZkZGY4M2U3YTc5NDc5MzNmY2EzMmEwZDViNzdjOGU2ZWUxZjBmMmRiMzU3YjYzMDkxNmEzYjYzNyIsCiAgICAgICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiN2NjOTdiN2YxYTc4MmU5YTM3NGUzZGU2MzQ3NDU5ZjViNmJmZDMyY2MzMmE2NTE4ZjhiZjJjMWJhNDVhM2ZmMyIKICAgIH0KICBdCn0K",
+      "completed_commands": [
+        "task-start",
+        "checkpoint",
+        "verify",
+        "learn-review",
+        "check",
+        "finish"
+      ],
+      "main_worktree_content_and_mode_match": true,
+      "failed_attempt": "Initial tree ownership versus 17 representations rejected by AIDD_FINAL_INVENTORY. Narrowed Decision to 17 exact file scopes in appended checkpoint; unchanged Task and baseline.",
+      "review_sha256": "d84b2b756dcde5cf084bada26f7648f8d42235d99fcb548600f72d6c84163c5b",
+      "review": {
+        "schema_version": 5,
+        "kind": "learn_review",
+        "task_sha256": "bc90cc1341dd23496b2ec451b95ad5acef3b388f6a4a30a4bb1cc7850d654576",
+        "checkpoint_sha256": "ac7d8771cf195daaa008ab8851bac5d2aa634b396ff72dfc2adc065dde8b6f73",
+        "evidence_sha256": "4b1cb68737a98ed4c557840da98d1fcd25082686822f78e2bb0984c1910ef3ea",
+        "reviewer": "/root/independent_review",
+        "authorization": "ユーザーのPRレビュー対応を検討して進める指示、およびAIDD基盤更新の明示許可の範囲で、独立レビューが確認したこのevidenceに対するローカルLearn確定を行う。GitHub返信・resolve・公開の許可ではない。",
+        "observations": "optional pathの先行検証、local／PR配信権限の分離、現在target baseに基づくtrusted checker選択、lockfileのpeer割当保持と正常更新の両立を確認した。17 filesのmain worktreeと一時Learnのcontent／mode、Task・checkpoint・evidenceのhashと参照、開始時binaryが一致した。checkpointは同じTaskから2件の追記chainを形成し、baselineの変更はない。開始時binaryによるread-only checkを独立実行して成功し、VC-1／VC-2のpassed状態を確認した。migration文書とPR全体79 pathsのcontent／mode／削除・path集合も独立再計算して一致した。未解決findingなし。全Go suiteをreviewer自身では再実行せず、生成証拠と開始時checkerの検査を確認した。独立agent reviewであり人間・GitHub上の承認ではない。remote CIやレビュー返信／resolveは実施していない。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, policy.transaction-boundaries, architecture.overview, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。"
+      }
+    },
+    "product_changes": false,
+    "delivery": "local only; no commit/push or GitHub reply/resolve",
+    "independent_review_correction": "Initial exact peer key comparison blocked legitimate peer-qualified product updates. Revised comparison and added Development/Learn normal-path and rejection regressions."
+  }
+}

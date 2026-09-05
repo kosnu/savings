@@ -4,132 +4,112 @@ doc_type: guide
 status: accepted
 area: repository
 applies_to:
-  - docs
-  - apps/web
-  - apps/api
+  - docs/ai-driven-development
+  - tools/aidd
+  - apps
 topics:
   - ai-driven-development
-  - codex-goal
-  - workflow
-  - prd
-  - design-doc
-  - pull-request
 when_to_read:
-  - AI駆動開発の工程と成果物境界を判断するとき
-  - Codex Goalの遷移、完了条件、停止条件を確認するとき
+  - AIDDの実行契約と責務を確認するとき
 ---
 
-# AI Driven Development Workflow
+# AIDD Development / Learn contract
 
-このリポジトリのAIDDは、次の4工程を順に実行します。
+## 入口と権限
 
-1. Intent / Requirements
-2. Design / Plan
-3. Build / Verify
-4. Ship
+GitHub Issueを指定した実行依頼はDevelopmentへ入る。Issue番号の参照だけ、read-onlyな質問、
+説明、調査、設計案の依頼では開始しない。Issueがないproduct実行依頼は既存Issueの特定を求める。
+Task開始前に専用worktreeとbranchを用意し、cleanな基準点を固定する。無関係な変更は移さない。
 
-新しいサイクルは必ずIntent / Requirementsから始めます。後続工程へ進めるのは、直前のGoalが完了し、その工程の成果物と検証証拠が揃った場合だけです。ファイルの存在、テストの成功、Goal案の作成だけでは工程完了になりません。
+Issueは人間のintentの正本。Task contractはagentのobjective、constraints、Done、verification、
+deliveryを持つ。Decisionは要求の解釈、採用判断、観測可能なbehavior、ownership、representation、
+verification caseを持つ。repositoryが実際の結果、証拠がその検証記録である。
+Issueに実装ファイルやrule-mapの語句を記載する必要はない。
+Taskのdelivery=localはローカル完了までとし、ship-check/ci-checkのPR配信境界ではdelivery=prを要求する。
+後からstage/commitした事実を配信範囲の拡大許可として扱わない。
 
-## サイクルとGoalの状態
+要求の根拠をintent、guardrail、derivedに分ける。intent根拠はsnapshot本文に実在する必要がある。
+既存コードは実装文脈であり人間の意図を追加しない。意図、受け入れ条件、権限の変更は明示的に
+既存Issueへ反映してから別taskを開始する。技術的な設計選択は委任範囲内でagentが決める。
 
-同時に扱うGoalは1件です。開始前に現在のGoalを確認します。
+## Development
 
-- 同じサイクルの未完了Goalがあれば、そのGoalを続行する。
-- 別タスクの未完了Goalがあれば、置き換えず停止する。
-- pausedはユーザーまたはシステムが所有する状態とし、agentは再開操作を推測しない。
-- objective、Done、Verificationを満たしたときだけ`complete`にする。
-- 進展可能な間はactiveを維持する。同じ阻害条件が3回以上連続し、安全な代替経路もない場合だけ`blocked`にする。
-- 終端更新後は状態を再取得して確認してから次工程へ進む。
+1. Issue本文と出典を取得し、task-startでTaskとGit baselineを固定する。
+2. repositoryとrule-mapを探索し、要求・設計・検証方針を同じDecision draftで反復する。
+3. checkpointで実装が参照する判断を固定する。常時の人間承認gateにはしない。
+4. ownership内で実装し、実差分と最終inventoryを照合して検証・reviewする。
+5. 依頼されたdelivery範囲でShipする。local検証、PR提出、merge、deployを混同しない。
 
-## Task Contextとworkspace
+新しい設計判断が必要なら2へ戻る。checkpointはrevision、parent hash、Task hashを持ち、
+確定済みrecordを上書きしない。Taskとbaselineは再取得しない。scopeやruleが変わる場合は
+次の実装より先に新checkpointを作る。最新revision以外の証拠は使えない。
+改訂時は検証証拠を全失効し、変更前の成功結果を部分的にも流用しない。
+要求の変更・削除理由はDecisionのreasonに記録し、reviewでintentとの整合を確認する。
 
-RequirementsのTask Context正本は、サイクル開始時に取得した最新Issue本文だけです。会話、レビューコメント、現在のdiff、前回成果物、変更直後のルールはRequirementsを追加しません。前回成果物は欠落検出用baselineとしてのみ利用します。
+Taskのbaseline以前の差分を隠すcommit/rebase/resetは実行中に行わない。
+検証batch内では開始時のHEADとstaged treeを不変とし、stageはShip境界で行う。
+Task baselineは固定するが、検証・Ship済みcommitの後も同じTask/Goalで継続できる。
+HEADは元baselineの子孫でなければならず、実差分はcommitをまたいで元baselineから照合する。
+初期vNextは1 PR全体を1 taskの検証境界とする。基準点はPR merge-baseと一致させる。
+review後は同じTaskで必要なcheckpoint改訂・全差分の再検証を行う。Task baselineを取り直さない。
+既存branchや変更を自動破棄しない。
 
-Issueごとにworkspaceは1件です。既存が1件ならその名前をtask identityとして再利用し、複数なら停止します。0件ならworkspace validatorがサイクル開始時の最新Issue titleをNFKC正規化・casefoldし、ASCII英数字列を最大48文字のkebabへ変換した表示部分（空なら`issue`）と、正規化titleのSHA-256先頭12桁から`<Issue番号>-<表示部分>-<title hash>`を一意に導出します。呼び出し側は別名を考案せずvalidatorの出力を使います。
+## Rule / ownership / guardrail
 
-cycle-start Issue titleはRequirementsだけが`validation.cycle_start_issue_title`として所有します。Requirements Goalとartifactは取得したtitleとの完全一致を検証します。Designは検証済みcanonical RequirementsのpathとSHA-256をcycle identityとして参照し、titleを再入力・再記述しません。Design completion receiptはRequirements bytesからtitleを導出して固定し、BuildとShipはそのreceiptと上流hashをidentityにします。後工程がtitle引数を受け取る経路は持ちません。
+baseline内のowned pathsと最終representationから必要ruleを導出し、実差分でも照合する。
+削除対象pathもroutingする。surface必須rule、path一致rule、depends_on closureをすべて適用する。
+priorityは適用除外に使わない。topics/domains/activities/front matterは探索用である。
+最終inventoryに不足または未登録pathがあれば失敗する。ownershipは書込権限を拡張しない。
 
-## Rule coverage
+Development中のguardrailはread-only。protocol policy、rule-map、profile catalog、rule文書、
+checker・adapter等の保護対象を開始時に固定する。新しいpathも開始時policyで分類する。
+実装を成立させるためにruleを緩和したり、改訂で保護を解除してはいけない。
+guardrail変更が必要ならDevelopmentを中断し、独立したLearnへ渡す。
 
-rule-mapの選択は、priorityの高いノードや主要な変更面だけへ狭めず、各工程が所有する根拠から該当するdirect nodeをすべて和集合し、その`depends_on` closureを加えた最小の完全なsubgraphにします。全ドキュメントを読むことを完全性の代わりにしてはいけません。
+混在JSON設定は開始時policyのproduct_fields（JSON Pointer）だけをDevelopmentで変更でき、
+guard_fieldsはそのsubtree内でも優先保護する。Learnは逆にproduct fieldを保持する。
+ファイルの追加・削除・mode変更、未宣言fieldはproduct変更へ読み替えない。
+packageの検証script・tool依存を保護し、build/dev scriptとproduct依存を区別する。
+Vite設定は独立したvitest.configから参照されていないproduct build設定として扱う。
+pnpm lockfile v9はimporterと解決済みpackage/snapshotの推移依存を照合する。Developmentは
+検証toolの解決実体・lockfile共通設定を保持し、Learnはproductの解決実体を保持する。
+packageのpeer宣言があり、相手側rootとpeer構成を含む解決versionが一致する参照だけを相手側で検査する。両方が共有する推移依存の実体変更は
+一方だけの変更として通さない。保護対象root・依存edge・snapshotのidentityはpeer構成を含めて保持し、
+同じpackage/versionのvariantを親やimporter間で入れ替えても同一扱いしない。
+同じimporter/section/nameの反対側root更新に一意に対応するpeer構成の変更だけを許可する。
+この対応は保護対象のpackage自身のversionや通常共有依存を変更する許可ではない。対応が分岐・削除されるpeer参照の改名や、
+異なる依存内容へのsnapshot衝突は失敗させる。未知の形式・参照欠落は失敗させる。
+local/file依存の実体検査は未対応で、保護対象closureに含む場合は拒否する。
+新しいtoolの分類はpolicy判断であり、依存名から意味を推測して保護を解除しない。
 
-- Requirementsは、Issue本文に空白正規化・Unicode case fold後も存在するevidenceだけを使い、そのevidence内に同じ正規化後のpath、domain、activity、topicのmatch値が存在するdirect nodeだけを選びます。non-domain implementation ruleの`explicit_surface`もdistinctive topicとして同じevidence内に必要です。後工程の技術的変更面をIssueへ追記したり、Issueの別箇所にある語をevidenceへ結び付けたりしません。
-- Designは、task-owned範囲のbaseline pathと`target_state.representations`のpathを和集合し、`rule-map.json`の`review_routing.surfaces`から`rule_coverage.implementation_surfaces`を一意に導出します。完成状態から消えるpathのsurfaceとpath固有ruleもDesign時点で選択し、surfaceから自動選択されないruleは`additional_rules`へ記録します。
-- Designは、最終selected rule文書をread-only入力として扱い、そのpathを`ownership_scopes`またはrepresentationへ含めることを拒否します。機能タスクがルール自体の変更へ依存する場合はDesignを完了せず、Learnまたは独立したルール更新を先に完了してから新しいcycleを開始します。
-- Design completion receiptは、最終selected rule文書、target state、ownership scope、Design時点のtask-owned baseline path inventory、非ignore untracked pathのtype・permission mode・contentまたはsymlink target identity、rule coverageをそれぞれcanonical hash付きで保持し、Build開始前のGit `HEAD`もsnapshot開始時から固定します。Git `HEAD` baseline blobはその固定commitから読み、receipt書込み直前のHEAD driftを拒否します。canonical receipt output自身はuntracked baselineから除外します。Build EntryとBuild完了時の再検証はこの凍結済みbaselineだけを使い、変更後のworktreeから再構築しません。
-- Build / Verifyは、receiptのGit基準点から得た実際の変更pathを`review_routing`で自動分類し、各pathに一致するrule nodeの`applies_to.paths`もdirect ruleとして和集合します。実差分に未宣言surface、receiptにないsurface必須rule・path一致rule・依存node、またはsurface未定義のgoverned pathがあれば失敗し、成功時だけpathごとの選択根拠を持つcanonical Build Coverage recordを生成します。
+## Review / Learn
 
-DesignはRequirementsのIssue-evidence-bound rule selectionを変更せず、自工程が所有する構造化coverageとして必要なruleを追加できます。Build / Verifyで実差分がDesign coverageを超えた場合は後工程で黙って補完せず、Design coverage不足としてStopします。
+feedbackは対応前に妥当性と原因を評価し、症状・修正対象と、原因・再利用性を別軸で扱う。
+local defectという分類で原因評価を終えない。policy不足、routing・読込・適用の不全、
+機械検出可能な違反の検出漏れ、guidance不足をrepository evidenceで区別する。
+purely localと確認できたdefectは同じDevelopment / Decision内で修正・再検証する。
+再利用可能なguardrail failureならproduct修正だけで閉じず独立Learnへ渡し、
+guardrail更新・検証・確定でLearnを終了する。必要なproduct実装は既存Issueから新Developmentへ渡す。
+原因未確定は不足根拠を明示する。単純なtypoを無理に恒久ruleにしない。
+requirement gap・design issue・delivery defectも同じ原因軸を評価する。
+詳細な判断境界は[review feedback policy](../harness/policies/review-feedback-classification.md)を適用する。
 
-## 成果物モデル
+LearnはIssue不要の独立task。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
+分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと有限scopeを固定し、
+guardrail文書、routing、checker、adapter、検証機構を変更・検証できる。
+product pathの変更は禁止する。開始時checker binaryと旧profileで検証し、変更後checkerの成功だけを
+確定根拠にしない。独立reviewの確認者・具体的な観察・確定許可を最新証拠に結び付けて記録する。
+reviewをテスト成功から生成してはいけない。Learn終了後にproduct実装を自動開始しない。
 
-`requirements.json`と`design-doc.json`が機械判定の正本です。新規サイクルはschema v4とAIDDワークフロー所有のrepo-local Go CLI `tools/aidd/checker`を使います。schema v2 / v3はread-only履歴入力だけに対応し、新しいGoal完了、render、receipt、Buildへ利用しません。`requirements.md`と`design-doc.md`はJSONから決定的に生成する表示であり、通常validatorは解析しません。
+## 再開・委譲
 
-構造上の意味は次で表します。
+repositoryのTask、最新checkpoint、証拠を共通入力とする。会話履歴やGoal本文は正本ではない。
+専用worktreeは単一writerが所有する。read-only調査は並列化できる。並行実装は別worktreeを使い、
+統合後の最終状態を所有agentが再検証する。subagentは明示されたscopeを超えず、Goalの管理は親が行う。
 
-- requirement、section、block、contractの安定ID。Requirements sectionのID、順序、heading aliasは`docs/ai-driven-development/contracts/requirements-sections.json`を正本とし、Requirementを最低1件要求する
-- transitionのstatus
-- evidenceの`role`と`owner_id`
-- Requirementsが所有するcycle-start Issue titleと、artifact、Issue、baselineのSHA-256
-- gate内の参照関係と完全なinventory
-- Designが所有する完成状態`target_state`とDesign completion receipt
+## 旧protocol
 
-ID、owner、role、reference、hash、inventoryが成果物の主要な機械構造です。現行validatorはこれに加えて、canonical heading、非placeholderの実質的な説明、Issueに実在して対象recordへ一意に対応するevidenceをartifact format gateとして検証します。これらの表示・証拠条件だけで工程完了とは判断せず、Goalのobjective、Done、Verificationも満たす必要があります。
-
-## 工程契約
-
-### Intent / Requirements
-
-- 入力: 最新Issue snapshot、canonical rule map、同じ正規化Issue evidence内にmatch値があるdirect nodeと依存closure、Git `HEAD`の同一workspace Requirements baseline。Goal sourceだけがrepository外の一時入力であり、artifact sourceはcanonical workspace pathからsnapshot経由で読む。
-- Cycle identity: 取得したcycle-start Issue titleを型付きfieldとして唯一所有し、Goalとartifactの両方で同じ値を検証する。
-- 所有: canonical `requirements.json`と生成`requirements.md`。
-- 完了: Issue全体を表す全Requirement IDと必須sectionが定義され、baselineの全recordが`unchanged`、`changed`、`new`、`retired`のいずれかで説明され、provenance、Issue-evidence-bound rule selection、continuity、render同期が成功している。
-- 停止: Issueまたはworkspaceが曖昧、Issue snapshotが工程中に変化、Issue evidenceからrule dependencyが解けない、完全な要求scopeを決められない、gateを満たせない。
-
-### Design / Plan
-
-- 入力: 検証済みcanonical Requirements全体とそのpath・SHA-256、選択ルール、実装文脈、Git `HEAD`の同一workspace Design baseline。RequirementsとDesign artifactはcanonical workspace pathからsnapshot経由で読み、Goal sourceだけをrepository外の一時入力として許可する。Requirementsはread-onlyで、cycle titleはRequirementsからのみ導出する。
-- Target state: `validation.target_state`がこのサイクル後に存在する完成状態の唯一の機械正本である。最終product behaviorは`PB-*`の安定ID、type、最終的に観測可能な効果を表す実質的で同一Requirement/type内に一意なdescriptionを持ち、`change`や削除操作を置かない。最終verification caseは`VC-*`、最終representationは`REP-*`の安定IDを持つ。全Requirementとproduct behaviorをverification caseへ、全behaviorとverification caseをrepresentationへ同一Requirement ownerのまま追跡する。automated caseはrepo-owned `verification_profile_id`と`suite`または`test_case`のtyped selectorを持ち、直接commandを持たない。fixed argv、working directory、runner adapter、allowed selector kindはprofile catalogが所有し、Design completionでhash固定する。manual caseは空白、記号、symbol、control / combining markを除いたUnicode文字を8文字以上持つ具体的なprocedureを持つ。representationはtask-owned scope内の正規化repo相対pathとlocator metadataを持つ。validatorはowned pathの存在とinventoryを検証し、locator metadataからsource構文やtest runner規則を推論しない。
-- Ownership: `ownership_scopes`はtaskが完成状態へ照合する有限の`file`または`tree`境界であり、書込権限を拡張しない。repo、対象app全体、重複scope、scope外representationをvalidatorが拒否する。
-- Rule coverage: baselineでscope内に存在するpathと最終representation pathの和集合から`implementation_surfaces`を導出する。surfaceから自動選択できないpath固有ruleは`additional_rules`へ記録し、Design Goalとartifactが同じ`target_state`とrule coverageを所有する。
-- 所有: canonical `design-doc.json`、生成`design-doc.md`、同じbyte snapshotから完全再検証したretained Design Goal・両成果物・Issue snapshot・canonical rule map・最終selected rule文書・verification profile catalogと選択profile・implementation surfaces・Build基準Git `HEAD`・非ignore untracked baselineを固定するcanonical Design completion receipt。
-- 完了: 全Requirement IDがdesign evidenceとverification evidenceを所有し、全baseline sectionが分類され、完成状態のRequirement binding、verification coverage、ownership、representation locator、rule coverageが検証され、receiptへtarget state、task-owned baseline inventory、非ignore untracked baselineが固定されている。
-- 停止: Requirements再検証失敗、要求ごとの実装または検証方針を決められない、ユーザー操作または状態遷移を所有するRequirement IDがない、実装予定面をmachine review surfaceへ分類できない、selected rule文書がownership scopeまたはrepresentationと重複する、baseline transitionが不完全、Design gateを満たせない。
-
-### Build / Verify
-
-- 入力: 直前のDesign Goal完了証拠に記録されたDesign completion receiptとそのSHA-256。Build entry gateは記録SHA-256に一致するreceipt bytesを読み、その後はそのbytesをreceipt identityとして扱う。現在のIssue snapshot、canonical Requirements / Design、両生成Markdown、canonical rule map、選択済みrule文書、Git `HEAD` Requirements / Design baselineを1回だけ読み込んだ同一byte snapshotから再検証し、そのsnapshotの全pathとhashがreceiptに完全一致し、最終drift checkで再読込した各入力も同じ場合だけ成功する。cycle titleはRequirements bytesとreceiptからのみ得て、Build入力として受け取らない。pathの継続占有ではなく検証済みsnapshot bytesがidentityであり、上流成果物とreceiptはread-only。
-- 所有: target stateを実体化した実装と、全`VC-*`の成功証拠を持つcanonical `.aidd/build-verification.json`、最終状態・実差分・rule closureを持つ`.aidd/build-rule-coverage.json`。
-- Validator side effects: 作業ツリーの状態または差分を完了判定に使うvalidatorは、工程契約で宣言されたcanonical output以外のfileをrepository内へ作成・変更しない。runtime cache、bytecode、暗黙の一時fileは生成を実行境界で抑止し、ignoreまたは差分filterで副作用を隠して成功扱いにしない。Git subprocessとverification profile subprocessは親processの全`GIT_*`を継承せず、checkerのGit subprocessはsystem / global Git configを無効化し、canonical rootからsnapshot開始時に固定したworktree indexを通常検証へ明示する。verification runnerはautomated caseを専用process groupで実行し、direct runner終了後の残留processを終了・拒否してから、`.git` metadataを除くrepository全pathをignore非依存manifestへ記録し、directory、regular file、symlinkのtype・permission mode・size・mtime・ctime・device・inodeを各automated case前後で比較する。Git `HEAD`のcommitと、stage entryのmode・blob ID・pathが表すstaged treeも別manifestで比較する。current branchの不変はShipだけがbranch変更commandを所有するphase contractとして扱い、checkerの成果物identityには含めない。Build / Verifyは`HEAD`、current branch、staged treeを変更せず、各公開entrypointは通常のruntime設定でcleanな一時repositoryから実行し、実行前後の状態差分が宣言済みoutputだけであることを回帰testで固定する。
-- 完了: target stateの全representation pathが存在し、task-owned範囲に未登録pathが残らない。repo-owned Build verification runnerはreceipt固定profileのargvだけを実行し、`git-diff-check`は固定済み`HEAD`からfinal worktreeまでを検査し、structured adapterがselectorと実行path / full nameの完全一致を証明する。manual observationはprocedureと同じ8文字以上の実質性契約と単一行制約をcapture・evidence再検証の両方で満たす。実行前にfinal owned-path inventory、repository mutation manifest、Git stateを固定し、各automated caseのprocess groupに残留がなく、task-owned final state、ignore対象を含むrepository state、Git `HEAD`とstaged treeがともに不変の場合だけ、profile ID / hash、selector、runtime identity、exit / stream境界、output hashを同じfinal-state hashへ固定する。保存evidence bytesはtyped valueのcanonical JSONと一致し、canonical Build verification / coverage outputはmode `0600`を維持しなければならない。Ship前まで`HEAD`はreceipt baselineと一致し、staged treeに差分がない。Build coverageは`core.fileMode=true`かつ`--no-ext-diff`でbaseline対worktreeの実差分を直接取得し、Design時点から不変の非ignore untracked pathを除外して、新規・変更・削除またはtracked化だけを分類する。Requirements / Designのsource / displayはreceipt固定content hashとpermission modeをcoverage除外前に再検証し、receipt自身はcanonical mode `0600`を要求する。実差分がownership scope内でreceiptのrule coverageを満たし、Build entry gate再実行で上流成果物、profile catalog、receipt固定baselineが不変である。Build completion evidenceはcanonical coverage bytesのSHA-256を保持する。coverage validatorはartifact由来commandを実行せず、locator metadataからsource構文やtest runner規則を推論しない。generator labelとhashはGit・review・CI信頼境界内のcanonical evidence identityであり、編集権限を持つcontributorに対する暗号学的attestationとは扱わない。
-- 停止: schema v4 receiptを検証できない、profile catalogがDesign completion後に変化した、target stateにない挙動が必要、必須representationまたはverification証拠がない、task-owned範囲に不純物が残る、実差分がownership scopeを越える、receiptに必要ruleがない、外部権限なしでは検証不能。
-
-### Ship
-
-- 入力: Build / Verify完了済みdiff、検証結果、Design completion receiptのSHA-256、Build coverageのSHA-256、Issue、branch、必要なPRまたはreview context。
-- 所有: commit、push、PR、説明、許可されたreview replyとthread状態確認。
-- 完了: 検証済みworktreeのcontentとGit modeだけをstageし、commit前の`validate-ship`がreceipt・coverage・verification・final stateとstaged candidateの一致を確認している。delivery diffにcurrent cycleのbaseline以前のcommitが含まれる場合は、各変更が前回AIDDの検証証拠または独立更新の検証結果で被覆されていることを確認し、current cycleのcoverageと混同せず検証境界を報告する。要求されたdelivery操作が完了し、直前にGit、CI、PR、thread状態を再確認している。commitまたはlocal testだけをShip完了としない。
-- 停止: delivery先や公開権限が曖昧、Build証拠が現在diffと一致しない、delivery diff内のbaseline以前の変更に対応する検証証拠がない、公開前に実装変更が必要、必須CIまたはreview状態が未確定。
-
-## Goal contract ID
-
-RequirementsとDesignの一時Goal JSONは、次のentryを表の順序とtextで持ちます。task固有entryは必須entryの後に追加します。
-
-| Goal | Field | ID | Canonical text |
-| --- | --- | --- | --- |
-| Requirements | constraints | `task-context` | 最新Issue本文だけをTask Context正本として扱う。 |
-| Requirements | constraints | `phase-boundary` | Requirements Goal内では実装しない。 |
-| Requirements | stop | `validation-failure` | workspaceまたはRequirements Gateの検証が失敗した場合は停止する。 |
-| Requirements | stop | `scope-ambiguity` | Issue本文から要求scopeを一意に決められない場合は停止する。 |
-| Requirements | done | `complete-scope` | 最新Issue全体を覆うRequirementsと全要求IDを定義する。 |
-| Requirements | done | `validated-artifact` | Requirements Gateと生成成果物の同期検証を成功させる。 |
-| Design | constraints | `canonical-input` | 検証済みのcanonical requirements.jsonをread-only入力として扱う。 |
-| Design | constraints | `phase-boundary` | Design Goal内では実装しない。 |
-| Design | stop | `validation-failure` | Requirements再検証またはDesign Coverage Gateが失敗した場合は停止する。 |
-| Design | stop | `scope-ambiguity` | 要求ごとの設計・検証scopeを一意に決められない場合は停止する。 |
-| Design | done | `complete-scope` | 全Requirements IDとtask-owned範囲の完成状態を定義する。 |
-| Design | done | `validated-artifact` | Design Coverage Gateと生成成果物の同期検証後にcompletion receiptを固定する。 |
-
-## Learn
-
-Learnは工程Goalではありません。Ship完了後、または上流成果物の不足・矛盾でGoalが`blocked`になった後に、ユーザーが明示的に実行します。findingは、Issue本文の変更案、rule/policyの追加・変更、または既存rule/policyのsharp化へ分類します。Issue変更案は実際にIssueへ適用されるまで次サイクルのTask Contextではありません。正本rule/policy/workflow文書の変更は、ユーザーが明示的に反映を指示した独立更新として完了し、その更新へ依存するタスクは完了後に新しいサイクルを開始します。実装、契約、検証機構、所有責務、workflowの実行機構、実行環境の変更はIssue本文への変更案として整理し、ユーザーの明示指示でIssueへ適用した後、新しいAIDDサイクルをRequirementsから開始して実現します。Learnから後者の対象面を直接修正しません。
+新規実行はschema v5のみ。v2/v3/v4のRequirements/Designと既存receiptは履歴であり、
+v5 checkpoint/evidenceへ昇格しない。公開CLIに旧phase実行経路はない。
+過去artifactの読取・表示同期検査と、保存する保証の回帰testは維持する。
+移行中taskを新旧混在のまま再開しない。旧taskを保存して新しいv5 taskとして再開する。

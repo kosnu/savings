@@ -1,258 +1,50 @@
 ---
 name: aidd-cycle
-description: Run one complete repository AI Driven Development cycle in a single invocation by setting, executing, and completing one phase Goal at a time according to the repository workflow. Use when the user asks to run or start an AIDD cycle or wants the full cycle completed end to end. Resume only when the same cycle is identifiable; otherwise start a new cycle from the workflow-defined entry phase.
+description: Execute an Issue-specified development request using the repository default AIDD vNext protocol and one Development Goal. Apply when the user asks to implement or fix a GitHub Issue, even without naming AIDD. Do not start for questions, explanations, investigations, or design proposals alone.
 ---
 
-# AIDD Cycle
+# AIDD Development adapter
 
-Run the repository AIDD workflow end to end. This skill owns cycle identity,
-phase transitions, Goal orchestration, and completion confirmation. The parent
-orchestrator exclusively owns every phase Goal lifecycle operation:
-`get_goal`, `create_goal`, and `update_goal`. Delegated phase executors never
-invoke Goal tools or change Goal state; they create their phase outputs and
-return validation evidence to the parent.
-`goal-setting` owns construction of one phase Goal. The executor assigned below
-owns phase work and evidence for that Goal; the parent retains its lifecycle.
+Read `docs/ai-driven-development/workflow.md`, `aidd-checker.md`,
+`aidd-checker-operations.md`, `codex-adapter.md` and the applicable rule-map subgraph.
+The repository owns the contract; this skill adapts it to Codex.
 
-## Read First
+Fetch the specified Issue and distinguish execution from read-only discussion.
+Keep the Issue as human intent, derive the Task objective/constraints/Done/verification,
+and preserve the user's authorized delivery scope. Do not require implementation
+paths or routing keywords in the Issue. Missing product intent needs clarification;
+ordinary technical choices inside the delegated scope do not.
 
-- `docs/ai-driven-development/workflow.md`
-- `docs/ai-driven-development/issue-guidelines.md`
-- `.agents/skills/goal-setting/SKILL.md`
-- `docs/ai-driven-development/contracts/phase-execution-contract.toml` as the
-  canonical `aidd-phase-execution-v1` ownership, executor, and capability
-  contract
-- `docs/harness/rule-map.json`
-- `docs/ai-driven-development/aidd-checker-operations.md` when entering
-  Requirements, Design, Build, or Ship
-- `.codex/config.toml` and the selected phase agent file before delegation
+Use one Development Goal for the entire task. Apply `goal-setting` once and keep the
+same Goal through Explore/Decide, checkpoint, Build/Verify/Review and authorized Ship.
+Use actual Goal tools to check availability. If unavailable, retain the Task contract
+and continue without claiming a Goal exists. Do not replace another unfinished Goal.
 
-The workflow is canonical. Do not add phase rules here or infer a phase from an
-artifact's mere existence.
+Prepare the dedicated clean worktree and branch before task-start. Build the checker
+from the accepted checkout into a task-specific external binary path. Keep that exact
+binary throughout the task, especially Learn. Never replace it to make a gate pass.
+Run task-start, checkpoint, verify, check, and finish as documented in operations.
+For PR delivery, stage the verified result and run ship-check before committing.
+Retain task/checkpoint/evidence identities in repository records and execution context.
+Do not copy complete hashes, inventories or decisions into Goal prose.
+After committing, continue review corrections in the same Task and Goal. Preserve
+the original baseline, append a checkpoint when decisions change, and reverify all changes.
 
-At the start of every AIDD cycle invocation, run the following from the
-canonical repository root before any checker command. Use a toolchain that
-satisfies the repository `go.mod`; do not add a separate Go minor-version
-gate. Stop if the build or rename fails, or the resulting binary does not
-report its version. Never fall back to a pre-existing `/tmp/aidd-checker`.
+Explore and decide iteratively. Before implementing a changed decision, append a new
+checkpoint against the latest parent identity. Never recapture the baseline or rewrite
+an old checkpoint. Re-run verification after every revision or relevant state change.
+Review all applicable rules and actual behavior; formal coverage does not prove semantics.
 
-```bash
-go build -C tools/aidd/checker -o /tmp/aidd-checker.next ./cmd/aidd-checker
-mv /tmp/aidd-checker.next /tmp/aidd-checker
-/tmp/aidd-checker version
-/tmp/aidd-checker validate-phase-contract --repo-root .
-```
+Do not modify Development guardrails. If a guardrail needs changing, preserve the
+unfinished task and hand off to an explicitly authorized independent Learn. Do not
+mark an unfinished Development Goal complete to make room for Learn.
 
-Stop without delegation when this contract validation fails.
+Use the currently selected model. Delegate only a bounded independent task when useful
+and authorized, with explicit ownership, Task/checkpoint identity, verification and
+read/write boundaries. A worktree has one writer; use separate worktrees for concurrent
+implementation and verify the integrated result. Parent owns Goal state. A subagent's
+claim of completion is not evidence.
 
-## Establish the Cycle
-
-1. Call `get_goal` before `create_goal`.
-2. If an unfinished Goal belongs to another task, preserve it and stop.
-3. If an unfinished Goal belongs to this cycle, continue that Goal. A paused
-   Goal is user- or system-owned state; report it and wait for resume instead of
-   inventing a resume action.
-4. Otherwise fetch the latest Issue title, body, canonical URL, and `updatedAt`.
-   The exact body is the cycle's only Task Context; the title is workspace
-   identity input and is recorded once in the Requirements typed source.
-5. Resolve one workspace for the Issue with the workspace validator. Reuse its
-   sole existing result, or use the validator's deterministic Issue-title-derived
-   result when none exists; stop when more than one exists.
-6. Record the Issue identity, exact cycle-start title, body SHA-256, and
-   workspace in the Requirements Goal. Design identifies that cycle through
-   the validated canonical Requirements path and SHA-256. Build and Ship use
-   the Design completion receipt and its upstream hashes. Never retype or
-   accept another cycle title after Requirements.
-
-Conversation, review comments, current diffs, prior artifacts, and newly
-changed rules may explain execution or trigger a Stop, but cannot extend the
-Requirements Task Context. Prior canonical artifacts are continuity baselines,
-not additional requirements.
-
-## Run the State Machine
-
-For each phase in the workflow:
-
-1. Reconfirm the current Goal state and the preceding phase's completion
-   evidence.
-2. The parent applies the `goal-setting` construction procedure to set exactly
-   the current phase Goal. Before `create_goal`, that procedure runs the phase
-   entry checks from `docs/ai-driven-development/aidd-checker-operations.md`:
-   Requirements and
-   Design validate their temporary Goal input; Build revalidates both canonical
-   upstream artifacts and generated displays against the current Issue snapshot
-   and the Design completion receipt.
-3. Execute only that Goal under its Context Packet and selected rule-map
-   subgraph, using the phase executor assigned below. In Design, record the
-   complete schema-v4 target state: final product behaviors with substantive
-   descriptions of their final observable effects, verification
-   cases, normalized ownership scopes, and all final machine-addressable
-   representations. Automated verification cases own a repo-owned
-   `verification_profile_id` and typed `suite` or `test_case` selector; fixed
-   argv and the structured runner adapter belong only to the profile catalog
-   and are hash-fixed by the Design receipt. Manual cases own substantive
-   concrete procedures. Derive machine review
-   surfaces and path rules from the union of target paths and the current owned
-   baseline, including paths that disappear in the target, and freeze that
-   baseline inventory plus the repository-wide non-ignored untracked identity in
-   the Design receipt. In Build,
-   reconstruct exactly that target state in the ownership scopes, validate the
-   final owned-path inventory before execution, run each automated case in a
-   dedicated process group, terminate and reject any residual process before
-   post-case state checks, reject per-case mutation of any ignored or
-   non-ignored repository path, Git HEAD object ID, or the staged tree
-   represented by stage-entry mode, blob ID, and path. Keep the current branch
-   unchanged through phase command ownership without making it checker evidence
-   identity, and bind every result to the unchanged final-state hash. Run the
-   Build rule coverage validator against both the final owned tree and the actual Git diff
-   relative to the frozen untracked baseline. Stop on missing or extra owned
-   representations, failed or missing verification evidence, out-of-scope
-   changes, undeclared surfaces, a surface or path rule absent from the receipt,
-   or a governed path with no routing surface. Representation locator metadata
-   is not used to infer source-code syntax or test-runner policy.
-   Keep canonical Build verification and coverage outputs at mode `0600`
-   through Ship validation.
-4. For Requirements and Design, retain the validated temporary Goal JSON and
-   run the artifact gates before completing the phase. After the Design gates
-   succeed, capture the canonical Design completion receipt and record its path
-   and SHA-256 in the phase completion evidence.
-5. For Build, immediately before completion, run the Build rule coverage
-   validator and record the canonical coverage SHA-256 it prints, then rerun the
-   Build Entry gate with the receipt path and SHA-256 recorded by Design and
-   require it to print that same receipt SHA-256. For Ship, stage only the
-   verified worktree content and Git mode, then run `validate-ship` with the
-   recorded receipt and coverage SHA-256 values before commit. If the gate
-   reports worktree drift, an absent or extra staged path, or evidence drift,
-   do not commit; return to Build / Verify. For every
-   phase, only after its phase-specific checks and the
-   objective, Done conditions, and Verification are satisfied, the parent calls
-   `update_goal(status: complete)` and confirms the terminal state with
-   `get_goal` before advancing.
-6. While useful progress remains possible, keep the Goal active. Call
-   `update_goal(status: blocked)` only after the same blocking condition has
-   recurred for at least three consecutive Goal turns and no in-scope path can
-   make progress; confirm the terminal state and end the cycle invocation.
-
-Never have two phase Goals active at once. Never advance because files exist,
-tests happened to pass, or a phase draft was produced.
-
-## Phase Execution Assignment
-
-The parent agent remains the cycle orchestrator and keeps its currently
-selected model and reasoning effort. Assign each phase exactly as follows:
-
-| Phase | Executor | Configuration |
-| --- | --- | --- |
-| Requirements | `aidd-requirements-design` | `.codex/agents/aidd-requirements-design.toml` |
-| Design | `aidd-requirements-design` | `.codex/agents/aidd-requirements-design.toml` |
-| Build | `aidd-build` | `.codex/agents/aidd-build.toml` |
-| Ship | parent agent | current selection |
-
-For Requirements, Design, and Build:
-
-1. The parent owns the active phase Goal and sets or identifies it before
-   delegation. The phase agent receives the Goal identity and Context Packet;
-   it does not inspect or mutate Goal state itself.
-2. Call `spawn_agent` exactly once with `agent_type` set to the table's exact
-   Executor value, `fork_turns` set to `"none"`, and a separate
-   lowercase-underscore `task_name` such as `aidd_requirements`, `aidd_design`,
-   or `aidd_build`. A custom `agent_type` cannot use the default full-history
-   fork; the self-contained `message` below replaces inherited conversation
-   context. `agent_type` selects the registered project-scoped agent; never use
-   `task_name` as the executor selector. The selected configuration file,
-   registered by `.codex/config.toml`, is the source of truth for its model,
-   reasoning effort, and phase instructions; do not override those settings at
-   the call site. Sandbox and approval settings follow the parent turn's active
-   runtime policy.
-3. Materialize the exact active Goal JSON and Context Packet as separate
-   repository-external regular non-symlink files owned by the parent. Keep both
-   files readable and byte-identical until the delegated phase finishes. Encode
-   their canonical absolute paths and SHA-256 values as `goal_document` and
-   `context_packet_document`, together with the repository root, current branch,
-   phase, required workflow and validation references, upstream artifact or
-   receipt identity, read/write boundary, Verification, and Stop conditions, in
-   a schema-v2 `phase_assignment` draft owned by the parent, then run
-   `/tmp/aidd-checker prepare-phase-assignment --repo-root <repo-root> --source <draft-path> --output <assignment-path>`
-   and revalidate the generated bytes with
-   `/tmp/aidd-checker validate-phase-assignment --repo-root <repo-root> --document <assignment-path> --expected-sha256 <sha256>`.
-   Pass only the assignment path and SHA-256 in the delegation message; do not
-   repeat identity or capability fields in free-form prose. Reuse the same
-   validated assignment and referenced document bytes for same-phase
-   continuation unless the parent prepares and validates a replacement with the
-   same cycle identity and `goal_document` identity.
-4. The phase agent validates the parent-prepared assignment with the same
-   `validate-phase-assignment` command before any phase action, reads only the
-   `goal_document` and `context_packet_document` paths from those validated
-   assignment bytes, independently checks both read results against their typed
-   SHA-256 values, and executes only that verified Goal, Context Packet, and
-   typed boundaries. It must not invoke
-   `get_goal`, `create_goal`, or `update_goal`, invoke `goal-setting`, create
-   another Goal, start another phase, run Learn, or delegate further. If the
-   referenced Goal or Context Packet document is missing, unreadable, or
-   inconsistent, it returns a stop report without changing Goal state.
-5. Wait for the phase agent before doing more phase work. Reuse that agent for
-   same-phase continuation when possible, and never run two phase executors at
-   once.
-6. After the phase agent finishes, it returns artifact and verification
-   evidence without a Goal update. The parent calls `get_goal`, independently
-   confirms the required phase evidence, and owns any `update_goal` call.
-   Advance only when the Goal is terminal `complete`; otherwise continue or stop
-   under the existing Goal rules.
-
-If the registered phase agent or its configured model and reasoning effort is
-unavailable, preserve the active Goal and stop. Do not inherit, substitute, or
-silently run the delegated phase in the parent.
-
-## Artifact Boundary
-
-- `requirements.json` and `design-doc.json` are machine sources of truth.
-- `requirements.md` and `design-doc.md` are deterministic display outputs.
-- Requirements owns only the Requirements pair; Design owns only the Design
-  pair; later phases treat both pairs as read-only.
-- Requirements alone owns `cycle_start_issue_title`. Its Goal and artifact must
-  exactly match the fetched title. Design derives cycle identity from the
-  validated Requirements bytes, and the receipt carries that owned value into
-  Build and Ship; no later phase accepts a title argument.
-- Every regenerated artifact covers its complete upstream input. A delta marks
-  changed records but never narrows Goal scope.
-- Semantic identity lives in typed IDs, statuses, owners, roles, hashes, and
-  references. New cycles use schema v4. Schema v2 / v3 is readable only as
-  historical compatibility input; it cannot be rendered or promoted to a new
-  Goal, Design completion, receipt, or Build input. Current validators also
-  enforce canonical headings, substantive text, and unambiguous evidence
-  mapping as artifact format gates; follow those gates from
-  `docs/ai-driven-development/aidd-checker-operations.md`.
-- Design's `validation.target_state` is the only completed-state source of truth.
-  It owns final product behaviors, verification cases, normalized ownership
-  scopes, and machine-addressable representations. Product behavior records
-  have one canonical `requirement_id`, a substantive description that uniquely
-  identifies the final observable effect within that Requirement and type, and
-  no add/change/remove operation;
-  verification cases use the same Requirement owner, and representations may
-  reference only that owner's behavior and cases. Requirement content remains
-  only in canonical `requirements.json`. Selected rules constrain Requirements
-  and Design; they never define product behavior directly or substitute for a
-  missing Requirement. Build consumes the Design completion receipt as its
-  upstream identity, reuses its frozen task-owned and untracked baselines for
-  rule coverage, and materializes the target state rather than layering a delta
-  onto the baseline.
-
-## Stop
-
-Stop the current phase when cycle identity is ambiguous, the Issue snapshot
-changes during Requirements, an upstream artifact or selected rule graph is
-invalid, a phase contract cannot be satisfied without changing an upstream
-decision, required authority is missing, or a validation gate fails after
-in-scope correction attempts. Apply the Goal terminal rule above; do not start
-another phase or Learn while the Goal remains unfinished.
-
-The full-cycle request requires `create_goal`, `get_goal`, and `update_goal`.
-When one is unavailable, report the missing capability and do not claim that
-the cycle ran. A text-only phase draft is allowed only when explicitly
-requested.
-
-## Finish
-
-After Ship is confirmed complete, end the invocation. Report the completed
-phase sequence, artifact and verification evidence, delivery state, and any
-residual risk. Learn is a separate user-invoked action.
+Complete only after Done, verification, review and the requested delivery are fulfilled.
+Do not split into phase Goals, require a fixed executor, invoke legacy phase commands,
+or automatically continue from completed Development into Learn.

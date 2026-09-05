@@ -252,12 +252,12 @@ func HandleSessionStart(input HookInput) HookOutput {
 // transcript content and does not become a second Goal or phase state store.
 func CompactContext() string {
 	return strings.Join([]string{
-		"AIDD工程不変条件:",
-		"- 現在Goalを継続する。",
-		"- Goalの所有は親agentが担う。",
-		"- 上流成果物はread-onlyとして扱う。",
-		"- Build / Verifyの次はShipへ進む。",
-		"- Learnは自動実行しない。",
+		"AIDD vNext不変条件:",
+		"- 現在Goalを継続し、taskと最新checkpointを再取得する。",
+		"- Goalの所有は親agentが担い、CoreはGoalなしでも検査する。",
+		"- 確定済みdecisionは上書きせず、新revisionで証拠を失効する。",
+		"- 検証済み状態とstaged content/modeが一致する場合だけShipする。",
+		"- Developmentのguardrailはread-only。Learnは独立して終了する。",
 	}, "\n")
 }
 
@@ -480,6 +480,10 @@ func normalizedControlPlanePaths(paths []string) []string {
 func (matcher *ControlPlaneRuleMatcher) match(path string) (bool, error) {
 	path = normalizeControlPlanePath(path)
 	if path == "" {
+		return false, nil
+	}
+	// 旧workspaceは履歴corpusであり、新規実行の制御面ではない。
+	if strings.HasPrefix(path, "docs/ai-driven-development/workspaces/") {
 		return false, nil
 	}
 	if path == rules.DefaultPath {
@@ -716,7 +720,6 @@ func RunValidations(ctx context.Context, root string) error {
 	}{
 		{name: "aidd-checker tests", dir: checkerDirectory, argv: []string{"go", "test", "./..."}},
 		{name: "aidd-checker artifact gate", dir: checkerDirectory, argv: []string{"go", "run", "./cmd/aidd-checker", "check-all", "--repo-root", root}},
-		{name: "aidd phase contract", dir: checkerDirectory, argv: []string{"go", "run", "./cmd/aidd-checker", "validate-phase-contract", "--repo-root", root}},
 		{name: "Git diff check", dir: root, argv: []string{"git", "-C", root, "diff", "--no-ext-diff", "HEAD", "--check", "--"}},
 	}
 	for _, specification := range commands {

@@ -22,56 +22,36 @@ when_to_read:
 
 # Review Feedback Classification
 
-PRレビューコメントに対応するときは、最初にタスク種別を判定してからコメントを分類します。
+指摘への対応を選ぶ前に、妥当性と原因を評価します。次の2軸を分けて記録し、
+local defectと分類した時点で原因評価を打ち切ってはいけません。
 
-- AI Driven Developmentサイクル: Requirements / PRDとDesign Docを入力に、Build / Verify、Shipまでの工程を進めるタスク
-- 通常タスク: 現在のタスクに関する既存のRequirements / PRDやDesign Docを入力にせず、現在のIssueや依頼を直接実行する軽微修正、ドキュメント変更、レビュー修正など
+- 症状・修正対象: local defect、requirement gap、design issue、delivery defectなど。
+- 原因・再利用性: 今回だけの局所的な誤りか、再利用可能なguardrail failureか。
 
-AI Driven Developmentサイクルでは、Ship完了後の成果物フィードバックを前回実装への局所修正として扱うと、Requirementsの材料となるタスクコンテキストにすべき仕様判断や設計判断を小修正として吸収してしまい、PRDやDesign Docとの接続が崩れます。この制約を通常タスクへ適用しません。
+原因評価では、関係するpolicyの不足、rule-mapの選択・routing・依存closure、
+agentによる読込・適用、checkerで機械検出可能な違反の検出漏れ、agent guidanceの不足を、
+区別に必要なrepository evidenceで確認します。既存policyがあることや、修正が小さいことだけで
+制御不全を否定しません。根拠が不足する場合は原因未確定として残し、今回の修正だけで閉じません。
 
-## 分類
+| 原因評価の結果 | 対応 |
+| --- | --- |
+| purely local defect（再利用可能な制御不全なしと確認） | 同じDevelopment / Decision内で修正・再検証する。完了済みtaskなら既存Issueから新Developmentを開始する |
+| reusable / guardrail failure（症状がlocal defectの場合を含む） | 今回のproduct修正だけで閉じず、独立Learnへ渡す。guardrailの更新・検証・確定でLearnを終了し、必要なら既存Issueから新Developmentへ渡す |
+| 原因未確定 | 不足する根拠・判断を明示し、原因と再利用性を評価してから対応を確定する |
 
-- Build / Verify工程内の整合性問題: Build / Verify実行中に見つかったテスト失敗、型、lint、実装整合性、変更漏れ、呼び出し側調整、検証で見つかった未整合
-- Ship: PR本文、検証結果の記載、レビュー返信、thread resolve、残リスクの説明など提出物の不備に関わるコメント
-- 学びの抽出: Learnへ渡されたレビューコメント、検証結果、運用知見、変更された制約を、タスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理するもの
-- 通常タスク内の修正候補: 現在のIssueや依頼の範囲で、実装、テスト、ドキュメント、設定などの修正要否を判断できるコメント
+requirement gapは人間の意図・受け入れ条件を確認し、必要な変更を既存Issueへ明示反映します。
+再利用可能な制御不全がない場合、design issueは同じ意図と権限内でdecisionを改訂して再検証し、
+delivery defectは許可されたShip範囲で対応します。症状の分類にかかわらず制御不全がある場合は
+独立Learnへの分岐を優先し、guardrail変更に依存するDevelopmentを中断します。
 
-## 対応ルール
+例えばcomponent配置違反では、移動による局所修正とは別に、policyの不足、routingによる未適用、
+検出可能な違反のchecker検出漏れ、guidanceの不足を評価します。制御不全が確認された場合は
+component移動だけを完了根拠にしません。一方、再利用できる知見がない単純なtypoは無理にguardrail化しません。
 
-- Build / Verify工程内の整合性問題は、Build / Verifyが完了するまで工程内で修正し、要件未達を残さない。
-- AI Driven Developmentサイクルでは、Build / Verifyが正常に完了した場合の次工程をShipとする。
-- AI Driven DevelopmentサイクルのShip完了後の成果物フィードバックは、ユーザーがLearn skillを手動実行して、Requirementsの材料となるタスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化に整理する。
-- AI Driven Developmentサイクルが上流成果物の不足・誤り・矛盾でStopした場合も、ユーザーがLearn skillを手動実行して同じ3つの振り分け先へ整理する。正常系のBuild / VerifyとShipの間にはLearnを挟まない。
-- AI Driven DevelopmentのLearn結果で正本ルール・ポリシー・workflow文書の変更が必要な場合は、ユーザーが明示的に反映を指示した独立更新として完了し、その更新へ依存するタスクは完了後に新しいサイクルをRequirementsから開始する。実装、契約、検証機構、所有責務、workflowの実行機構、実行環境の変更が必要な場合は対象Issueへ反映し、新しいサイクルをRequirementsから開始する。Learnから後者の対象面を直接修正しない。
-- 通常タスクのレビューコメントは、指摘の妥当性、現在のスコープとの関係、修正の必要性を確認する。必要な修正は現在のタスクまたはPR内で実施して検証し、修正不要と判断したコメントには理由を示す。
-- 通常タスクでも、レビュー対応から得た学びをharness-taskまたはLearn skillで3つの振り分け先へ整理できる。学びの抽出は、現在のタスクで必要な修正を置き換えない。
-- Ship のコメントは、差分の事実、検証結果、返信内容、resolve可否が確認できる範囲で対応する。
-- AI Driven Developmentサイクルで複数分類にまたがるコメントは、Build / Verify工程内では整合性問題を先に修正またはStopし、Ship工程ではShipのコメントを扱い、Ship完了後の成果物フィードバックはLearn skillで扱う。
-- 通常タスクで分類が曖昧な場合は、修正要否を判断するために不足している情報を明示する。意図、スコープ、成功条件を変えずに判断できる場合はStopしない。
-- 学びを整理するときは、前回実装コード、前回UI挙動、現在diff形状、前回実装由来の設計判断を、タスクコンテキストやルール・ポリシーの根拠にしない。
-- 学びの各findingは1つの主な振り分け先へ関係付け、タスクコンテキストとルールへ同じ内容を重複して記載しない。
+Learnは `learning-extraction.md` の入力ゲート・原因調査に従います。
+resolved review threadのコメントを自動的に新findingへ戻しません。
+Learnでguardrailを確定してもproductの修正完了とは扱わず、product実装を連続して開始しません。
 
-## 返信ルール
-
-対応済みコメントへ返信するときは、次を簡潔に書きます。
-
-- どの分類として扱ったか
-- 何を変更したか、またはなぜ変更しなかったか
-- 対応 commit がある場合は commit ID
-- 検証した内容
-
-PRコメント内の commit ID はバッククォートで囲みません。
-
-## Stop条件
-
-AI Driven Developmentサイクルで次に該当する場合は、Build / Verify工程内の整合性問題として修正しません。
-
-- Ship完了後の成果物フィードバックである
-- 前回実装への局所修正として扱う必要がある
-- PRDの受け入れ条件を変える必要がある
-- Design Docの採用方針を変える必要がある
-- DB / API / 認証 / 権限モデルの変更が新たに必要になる
-- policyや恒久ドキュメントへ整理すべき横断ルールが含まれる
-- review threadをresolveすると未解決の仕様判断を隠すおそれがある
-
-通常タスクでは、レビューコメントへの対応により意図、受け入れ条件、変更スコープ、リスク、検証方針を現在のタスクから大きく変える必要がある場合にStopします。Build / Verify完了後であることや、前回実装への局所修正であることだけをStop理由にしません。
+意図、許可範囲、成功条件、riskを変更する判断が必要なら、その根拠と不足する判断を示します。
+原因評価でpurely localと確認した既存decision内の整合性修正は自律的に実施し、検証証拠を更新します。
+対応済みの根拠と明示的な返信許可がある場合だけ返信し、未完了事項があるthreadをresolveしません。

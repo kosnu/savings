@@ -26,7 +26,7 @@ func TestValidateSourceCLIReadsLegacyV3WithoutWriting(t *testing.T) {
 	if err := os.WriteFile(path, content, 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := run(context.Background(), []string{"validate-source", "--source", path, "--kind", "design"}); err != nil {
+	if err := runHistorical(context.Background(), []string{"validate-source", "--source", path, "--kind", "design"}); err != nil {
 		t.Fatal(err)
 	}
 	current, err := os.ReadFile(path)
@@ -39,7 +39,7 @@ func TestValidateSourceCLIReadsLegacyV3WithoutWriting(t *testing.T) {
 }
 
 func TestCLIFlagErrorsUseStructuredDiagnostic(t *testing.T) {
-	err := run(context.Background(), []string{"validate-source", "--repo-root", "/tmp"})
+	err := runHistorical(context.Background(), []string{"validate-source", "--repo-root", "/tmp"})
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_CLI_FLAGS" || item.Path != "validate-source" || item.Artifact != "cli" {
 		t.Fatalf("expected structured CLI flag diagnostic, got %#v", err)
@@ -47,7 +47,7 @@ func TestCLIFlagErrorsUseStructuredDiagnostic(t *testing.T) {
 }
 
 func TestValidateDesignRejectsCallerSuppliedIssueTitle(t *testing.T) {
-	err := run(context.Background(), []string{"validate-design", "--issue-title", "stale title"})
+	err := runHistorical(context.Background(), []string{"validate-design", "--issue-title", "stale title"})
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_CLI_FLAGS" {
 		t.Fatalf("expected caller-supplied Design title rejection, got %#v", err)
@@ -55,7 +55,7 @@ func TestValidateDesignRejectsCallerSuppliedIssueTitle(t *testing.T) {
 }
 
 func TestValidateDesignDoesNotRequireIssueTitle(t *testing.T) {
-	err := run(context.Background(), []string{
+	err := runHistorical(context.Background(), []string{
 		"validate-design", "--repo-root", "missing", "--workspace", "1671-checker",
 		"--issue", "owner/repo#1671", "--issue-url", "https://github.com/owner/repo/issues/1671",
 		"--issue-updated-at", "2026-08-28T00:00:00Z", "--issue-body", "missing",
@@ -124,7 +124,7 @@ func TestArtifactGatesRejectExternalCanonicalSourceSubstitutes(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := run(context.Background(), test.args)
+			err := runHistorical(context.Background(), test.args)
 			item, ok := err.(*diagnostic.Diagnostic)
 			if !ok || item.Code != "AIDD_CLI_ARTIFACT_PATH" || item.Path != test.wantPath {
 				t.Fatalf("expected AIDD_CLI_ARTIFACT_PATH for %s, got %#v", test.wantPath, err)
@@ -147,7 +147,7 @@ func TestCheckAllRejectsSymlinkWorkspace(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	err := runHistorical(context.Background(), []string{"check-all", "--repo-root", root})
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_PATH_SYMLINK" {
 		t.Fatalf("expected AIDD_PATH_SYMLINK, got %#v", err)
@@ -164,7 +164,7 @@ func TestCheckAllRejectsTrackedManagedSourceDeletion(t *testing.T) {
 	if err := os.Remove(sourcePath); err != nil {
 		t.Fatal(err)
 	}
-	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	err := runHistorical(context.Background(), []string{"check-all", "--repo-root", root})
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_SOURCE_MISSING" {
 		t.Fatalf("expected AIDD_SOURCE_MISSING, got %#v", err)
@@ -176,7 +176,7 @@ func TestCheckAllRejectsTruncatedLegacyEnvelope(t *testing.T) {
 	initializeMainRepository(t, root)
 	writeMainFile(t, root, "docs/ai-driven-development/workspaces/1671-checker/requirements.json", []byte(`{"schema_version":2,"kind":"requirements","workspace":"legacy"}`))
 
-	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	err := runHistorical(context.Background(), []string{"check-all", "--repo-root", root})
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_LEGACY_ENVELOPE" {
 		t.Fatalf("expected AIDD_LEGACY_ENVELOPE, got %#v", err)
@@ -204,7 +204,7 @@ func TestCheckAllRejectsGitHeadSymlinkHiddenByCurrentRegularFile(t *testing.T) {
 	}
 	writeMainFile(t, root, relative, []byte("{}\n"))
 
-	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	err := runHistorical(context.Background(), []string{"check-all", "--repo-root", root})
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_GIT_HEAD_TYPE" {
 		t.Fatalf("expected AIDD_GIT_HEAD_TYPE, got %#v", err)
@@ -217,7 +217,7 @@ func TestCheckAllRejectsGoalAtCanonicalArtifactSourcePath(t *testing.T) {
 	writeMainFile(t, root, "docs/ai-driven-development/workspaces/1671-checker/requirements.json", []byte(`{"schema_version":4,"kind":"requirements_goal","workspace":"1671-checker","display":{},"validation":{}}`))
 	runMainGit(t, root, "add", ".")
 	runMainGit(t, root, "commit", "-qm", "goal at artifact path")
-	err := run(context.Background(), []string{"check-all", "--repo-root", root})
+	err := runHistorical(context.Background(), []string{"check-all", "--repo-root", root})
 	item, ok := err.(*diagnostic.Diagnostic)
 	if !ok || item.Code != "AIDD_SOURCE_KIND" {
 		t.Fatalf("expected AIDD_SOURCE_KIND, got %#v", err)
@@ -263,7 +263,7 @@ func TestCheckAllRejectsManagedArtifactAtNonCanonicalSourcePath(t *testing.T) {
 			initializeMainRepository(t, root)
 			writeMainFile(t, root, path, content)
 
-			err := run(context.Background(), []string{"check-all", "--repo-root", root})
+			err := runHistorical(context.Background(), []string{"check-all", "--repo-root", root})
 			item, ok := err.(*diagnostic.Diagnostic)
 			if !ok || item.Code != "AIDD_SOURCE_PATH" {
 				t.Fatalf("expected AIDD_SOURCE_PATH, got %#v", err)
@@ -341,7 +341,7 @@ func TestCheckAllRejectsSelfContainedSemanticContractBypasses(t *testing.T) {
 				t.Fatal(err)
 			}
 			writeMainFile(t, root, "docs/ai-driven-development/workspaces/1671-checker/"+test.file, content)
-			err = run(context.Background(), []string{"check-all", "--repo-root", root})
+			err = runHistorical(context.Background(), []string{"check-all", "--repo-root", root})
 			item, ok := err.(*diagnostic.Diagnostic)
 			if !ok || item.Code != test.wantCode {
 				t.Fatalf("expected %s, got %#v", test.wantCode, err)
@@ -356,33 +356,21 @@ func TestCheckAllIgnoresHistoricalMarkdownOnlyWorkspace(t *testing.T) {
 	writeMainFile(t, root, "docs/ai-driven-development/workspaces/1492-legacy/requirements.md", []byte("# Historical Requirements\n"))
 	runMainGit(t, root, "add", ".")
 	runMainGit(t, root, "commit", "-qm", "historical workspace")
-	if err := run(context.Background(), []string{"check-all", "--repo-root", root}); err != nil {
+	if err := runHistorical(context.Background(), []string{"check-all", "--repo-root", root}); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestEveryPublicSubcommandHasStableDispatch(t *testing.T) {
-	want := []string{"workspace", "render", "validate-source", "validate-requirements", "validate-design", "check-all", "capture-design", "build-entry", "capture-verification", "validate-build", "validate-ship", "validate-phase-contract", "prepare-phase-assignment", "validate-phase-assignment", "version"}
+	want := []string{"task-start", "checkpoint", "verify", "check", "ship-check", "finish", "learn-review", "ci-check", "bootstrap-check", "validate-source", "check-config", "check-all", "version"}
 	if !slices.Equal(commands(), want) {
-		t.Fatalf("commands() = %#v, want %#v", commands(), want)
+		t.Fatal(commands())
 	}
-	for _, command := range want {
-		t.Run(command, func(t *testing.T) {
-			err := run(context.Background(), []string{command})
-			if command == "version" {
-				if err != nil {
-					t.Fatal(err)
-				}
-				return
-			}
-			item, ok := err.(*diagnostic.Diagnostic)
-			if !ok {
-				t.Fatalf("expected structured argument diagnostic, got %#v", err)
-			}
-			if item.Code == "AIDD_CLI_COMMAND" {
-				t.Fatalf("public command was not dispatched: %#v", item)
-			}
-		})
+	for _, name := range []string{"capture-design", "build-entry", "validate-requirements", "validate-phase-contract", "prepare-phase-assignment"} {
+		err := run(context.Background(), []string{name})
+		if err == nil {
+			t.Fatalf("legacy command admitted: %s", name)
+		}
 	}
 }
 
@@ -528,7 +516,7 @@ func assertCaptureVerificationFailure(t *testing.T, arguments []string, diagnost
 		t.Fatal(err)
 	}
 
-	err = run(context.Background(), []string{
+	err = runHistorical(context.Background(), []string{
 		"capture-verification", "--repo-root", root, "--workspace", "fixture",
 		"--expected-receipt-sha256", canonical.HashBytes(receiptBytes),
 	})
