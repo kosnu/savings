@@ -1,0 +1,236 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "1199316d7f7640934cb110a9b40e162605e1fa58d1a0adcb1840c0e220e9795e",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "1199316d7f7640934cb110a9b40e162605e1fa58d1a0adcb1840c0e220e9795e",
+    "reason": "ローカル確定済みLearnを変更せず、明示Ship依頼に従いPR用新Taskで再検証する。入力元はこのセッション内レビュー。標準tsc -bの正常実行でignoreキャッシュのmtime/ctime更新が再現し、外部writerなしでmutation guardと必須検証が衝突した。原因は検証対象をGit外の全filesystem副作用まで広げた契約であり生成物の個別欠陥ではない。個別例外リストは維持コスト、生成先移動は利用側への負担、単なる内容比較は同一内容再書込以外の新規生成を拒否するため採用しない。Git ls-files --cached --others --exclude-standard -zを各snapshotで用い、管理済みfileはignore設定に関係なく含め、Git管理外のignore fileは除外する。root/親directory metadataを使わず新規生成の誤拒否を防ぐ。既存fileのidentity比較とHEAD/index/所有成果物のhash検査は維持。Gitの標準ignore設定と信頼された作業環境を前提に、snapshot間に生成して削除した未追跡fileの検出は保証しない。この保証範囲を文書化する。既存rule routingで全対象を選べるためrule-map変更不要。Learn自動遷移の改善は対象外。 先行TaskはCLIの旧拒否契約テストを変更できるscopeに含んでいなかった。旧Task/差分を元worktreeに保存し、CLI回帰テストまで含む新しいclean baseline Taskで同一改善を検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "標準検証のignore生成物更新を許可し、Git管理対象と未ignore新規ファイルの不正変更検知を維持する。",
+        "origin": "intent",
+        "evidence": "Git管理対象と未ignore新規ファイルを検査し、正常なignore生成物は原則除外する"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "ignore生成物更新で検証を止めず、Git対象の予期しない変更は拒否する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Go mod verify、gofmt、vet、candidate build/check-all、accepted ADR validatorを実行。ignore生成物、tracked ignore指定、未ignore新規/削除、symlink、HEAD/index保護と文書を独立レビューする。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/repository/mutation.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/repository/repository_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/runner/execute.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/runner/runner_test.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "test",
+          "path": "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/repository/mutation.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/repository/repository_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/runner/execute.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/runner/runner_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

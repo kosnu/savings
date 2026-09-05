@@ -374,11 +374,11 @@ func TestEveryPublicSubcommandHasStableDispatch(t *testing.T) {
 	}
 }
 
-func TestCaptureVerificationCLIRejectsIgnoredMutationWithoutWritingEvidence(t *testing.T) {
+func TestCaptureVerificationCLIRejectsNonIgnoredMutationWithoutWritingEvidence(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("fixture uses the repository shell available on Unix runners")
 	}
-	assertCaptureVerificationFailure(t, []string{"sh", "-c", "printf mutation > ignored/new.txt"}, "AIDD_VERIFICATION_MUTATION")
+	assertCaptureVerificationFailure(t, []string{"sh", "-c", "printf mutation > unexpected.txt"}, "AIDD_VERIFICATION_MUTATION")
 }
 
 func TestCaptureVerificationCLIRejectsResidualProcessBeforeLateMutation(t *testing.T) {

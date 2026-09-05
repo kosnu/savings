@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "1199316d7f7640934cb110a9b40e162605e1fa58d1a0adcb1840c0e220e9795e",
+  "checkpoint_sha256": "3c883cda799b18422b147f156ac0576e6bed756e2a4f34c344e6076905028f8a",
+  "evidence_sha256": "4fb04ce1493067bc2286f35254a5e25f5cc4cdb2c831907f7a838a87769f8bfd",
+  "reviewer": "Codex independent read-only reviewer /root/learn_ignore_review",
+  "authorization": "Based on the explicit user request to proceed through Ship, I authorize independent Learn finalization of this exact task, checkpoint, evidence and seven reviewed files with delivery=pr. Merge, deployment, Issue 1517 product changes and automatic Learn routing changes are outside this authorization.",
+  "observations": "7ファイルの実差分とcheckpoint所有範囲を独立に読み、Git ls-files --cached --others --exclude-standardによる管理済みfileと非ignore未追跡fileの選択、ignore生成物およびroot/親directory metadata除外、既存file identity・HEAD/staged tree・owned FinalHash保護の維持を確認した。snapshot間だけ存在する未追跡fileを保証しない境界は文書化され、runner正常系/拒否系およびCLI evidence未生成回帰と一致する。修正必須findingなし。上記evidence raw SHA256、Task/checkpoint SHA256、7ファイル全ての現行content hash/mode、changed_pathsと実差分/所有範囲の一致を照合した。evidence内のVC-1/VC-2 passed exit 0、VC-3具体的観測、およびTask開始時checker identity一致を確認した。全Go tests等の実行は親担当であり独立reviewで重複実行していない。Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification。Unresolved: なし。 Final PR-task audit: all seven files match the previously reviewed final bytes and latest evidence content hashes/modes. Current Git diff and ownership match evidence changed_paths. Evidence raw hash, task/checkpoint identities and original checker identity match. VC-1/VC-2 passed with exit 0; VC-3 cites prior verification of the same unchanged diff. No new findings. This decision follows independent semantic review, not test output alone."
+}

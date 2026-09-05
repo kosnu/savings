@@ -246,7 +246,7 @@ func TestMutationManifestDetectsSameSizeRewriteWithRestoredMtime(t *testing.T) {
 		t.Fatal(err)
 	}
 	snapshot := openSnapshot(t, root)
-	before, err := snapshot.MutationManifest()
+	before, err := snapshot.MutationManifest(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -256,7 +256,7 @@ func TestMutationManifestDetectsSameSizeRewriteWithRestoredMtime(t *testing.T) {
 	if err := os.Chtimes(path, fixedTime, fixedTime); err != nil {
 		t.Fatal(err)
 	}
-	after, err := snapshot.MutationManifest()
+	after, err := snapshot.MutationManifest(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,7 +265,7 @@ func TestMutationManifestDetectsSameSizeRewriteWithRestoredMtime(t *testing.T) {
 	}
 }
 
-func TestMutationManifestDetectsTransientDirectoryMutation(t *testing.T) {
+func TestMutationManifestIgnoresTransientDirectoryMetadata(t *testing.T) {
 	if runtime.GOOS != "darwin" && runtime.GOOS != "linux" {
 		t.Skip("change-time identity is supported on Darwin and Linux")
 	}
@@ -274,7 +274,7 @@ func TestMutationManifestDetectsTransientDirectoryMutation(t *testing.T) {
 		t.Fatal(err)
 	}
 	snapshot := openSnapshot(t, root)
-	before, err := snapshot.MutationManifest()
+	before, err := snapshot.MutationManifest(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,12 +285,12 @@ func TestMutationManifestDetectsTransientDirectoryMutation(t *testing.T) {
 	if err := os.Remove(temporary); err != nil {
 		t.Fatal(err)
 	}
-	after, err := snapshot.MutationManifest()
+	after, err := snapshot.MutationManifest(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if difference := CompareMutationManifests(before, after); difference == nil || difference.Path != "ignored" {
-		t.Fatalf("transient directory mutation was not identified: %#v", difference)
+	if difference := CompareMutationManifests(before, after); difference != nil {
+		t.Fatalf("transient directory metadata was included: %#v", difference)
 	}
 }
 
@@ -307,7 +307,7 @@ func TestMutationManifestRecordsSymlinkWithoutFollowingIt(t *testing.T) {
 		t.Fatal(err)
 	}
 	snapshot := openSnapshot(t, root)
-	manifest, err := snapshot.MutationManifest()
+	manifest, err := snapshot.MutationManifest(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -335,7 +335,7 @@ func BenchmarkMutationManifest(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for index := 0; index < b.N; index++ {
-		manifest, manifestErr := snapshot.MutationManifest()
+		manifest, manifestErr := snapshot.MutationManifest(context.Background())
 		if manifestErr != nil {
 			b.Fatal(manifestErr)
 		}
