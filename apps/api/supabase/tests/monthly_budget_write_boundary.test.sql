@@ -45,7 +45,7 @@ cross join lateral (
   limit 1
 ) as other_books
 cross join lateral (
-  select date_trunc('month', current_date)::date as current_month_start
+  select date_trunc('month', statement_timestamp() at time zone 'Asia/Tokyo')::date as current_month_start
 ) as dates
 cross join lateral (
   select
@@ -99,7 +99,7 @@ set local role authenticated;
 select throws_ok(
   $$
     insert into public.monthly_budgets (book_id, effective_from, status, amount)
-    values (1, date_trunc('month', current_date)::date, 'amount', 999)
+    values (1, date_trunc('month', statement_timestamp() at time zone 'Asia/Tokyo')::date, 'amount', 999)
   $$,
   '42501',
   'permission denied for table monthly_budgets',

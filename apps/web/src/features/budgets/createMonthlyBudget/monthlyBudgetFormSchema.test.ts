@@ -11,6 +11,7 @@ describe("monthlyBudgetFormSchema", () => {
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllEnvs()
   })
 
   const data = {
@@ -61,6 +62,7 @@ describe("monthlyBudgetFormSubmitSchema", () => {
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllEnvs()
   })
 
   const data = {
@@ -91,19 +93,25 @@ describe("monthlyBudgetFormSubmitSchema", () => {
     expect(error.amount).toEqual(["Amount cannot be empty"])
   })
 
-  test("submit時は現在月より前の月を受け付けない", () => {
+  test.each(
+    ["UTC", "Asia/Tokyo", "America/Los_Angeles"].flatMap((timezone) =>
+      [
+        "2026-09-30T14:59:59.999Z",
+        "2026-09-30T15:00:00.000Z",
+        "2026-12-31T14:59:59.999Z",
+        "2026-12-31T15:00:00.000Z",
+      ].map((now) => ({ timezone, now })),
+    ),
+  )("submit時は端末の$timezone/$nowで作成可能月を決めない", ({ timezone, now }) => {
+    vi.stubEnv("TZ", timezone)
+    vi.setSystemTime(new Date(now))
+
     const result = monthlyBudgetFormSubmitSchema.safeParse({
       ...data,
       targetMonth: new Date(2026, 8, 1),
     })
 
-    expect(result.success).toBe(false)
-    if (result.success) {
-      throw new Error("Expected monthly budget submit values to be invalid")
-    }
-
-    expect(z.flattenError(result.error).fieldErrors.targetMonth).toEqual([
-      "Month cannot be before the current month.",
-    ])
+    expect(result.success).toBe(true)
+    expect(result.data?.targetMonth).toEqual(new Date(2026, 8, 1))
   })
 })
