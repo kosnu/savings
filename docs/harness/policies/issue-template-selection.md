@@ -53,7 +53,7 @@ GitHub Issueのテンプレートは、依頼の詳しさではなく、Issueが
 
 新しい価値または既存価値の変更を定義する場合に選ぶ。
 
-Feature RequestはRequirements / PRDの入力として扱う。実行を許可する範囲は、Issue本文の「AIへの自律範囲」で明示する。
+Feature RequestはAIDDのintent入力として扱う。Issue本文の「委任範囲・完了地点」に個別の権限制限と到達点を記載し、通常の実行手順はworkflowへ委ねる。
 
 Feature Requestの内容と後続成果物の責務は、[AI Driven Development Issue Guidelines](../../ai-driven-development/issue-guidelines.md)に従う。
 
