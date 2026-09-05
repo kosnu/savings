@@ -67,7 +67,7 @@
       "path": ".github/workflows/aidd_checker_ci.yaml",
       "type": "regular",
       "mode": "100644",
-      "sha256": "aba34d0bdbcd58ab2a809e6b2040aab68b4dd316f96fddd518e67b61e2f8ed47"
+      "sha256": "ace9d18d70f83553c4be2583a04fc84cc812c7524cee88d69e9766afceb3c111"
     },
     {
       "path": "AGENTS.md",
@@ -79,13 +79,13 @@
       "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "4e5d0c8662493a82d835be0112d9a2caedabc8f29a12e2047a0e964dd2a645bf"
+      "sha256": "bc4b6c8b7c2a6f81aa8f7ff3dd8a209af482be0789d47222fa10e91f4e7fe3e9"
     },
     {
       "path": "docs/ai-driven-development/aidd-checker-operations.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "c3481c7e38f78d508c8c66cca238f396a85d9a3e1a7f366b44b55e7b9229f8d6"
+      "sha256": "0269f0bf856afb505b2c09d4fd65dbf4125331186f2f9e9b41a955e025f8a0d5"
     },
     {
       "path": "docs/ai-driven-development/aidd-checker.md",
@@ -151,7 +151,7 @@
       "path": "docs/ai-driven-development/migrations/vnext.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "0562ad933354289129ceee0aa2feb6ab52873a6b0163e55a765c8263d3565dee"
+      "sha256": "61acd7a2f392fa1c8650074f2d0cccd2299985c30a51174a40d8a0b5da9ea209"
     },
     {
       "path": "docs/ai-driven-development/overview.md",
@@ -163,7 +163,7 @@
       "path": "docs/ai-driven-development/workflow.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "edf6131e8b6e4a491f9c3861f3f8b31ecd071b986d992d6429c015fb22abcbc9"
+      "sha256": "342c2f5722cb93ff99311c281992705e79c3a6ee3fc6f8a5060cb55cd2a01eec"
     },
     {
       "path": "docs/harness/policies/code-review.md",
@@ -217,7 +217,7 @@
       "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "b7733fd3893a07c7476291f0e95fb9097241649499a4e34a2b69ebd1604005d6"
+      "sha256": "aec2a8da7bf8e21edc4b3e6fcc92e74f85f20c3c0b73ed2e69dc5878d67b631f"
     },
     {
       "path": "tools/aidd/checker/cmd/aidd-hooks/main.go",
@@ -301,19 +301,25 @@
       "path": "tools/aidd/checker/internal/protocol/bootstrap.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "7acb795cda50f529cd69c3216f58383cb010c710d4b4d61b7b476d08bb86e37f"
+      "sha256": "d8e0920f939d07f0fff3e2e253fe1a29b5a849c81f5ef671f8240ad77aa4a7e0"
     },
     {
       "path": "tools/aidd/checker/internal/protocol/bootstrap_test.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "2af08d483c16eb7513d3fce6d91defd382a1e88872c20932b30cc7fa976854ac"
+      "sha256": "bdc399b214107f8c6255e03a17010aba18d489817619a6c0a965843fe47ce09f"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "2e74934c4806107df463282b53326473f21453757e312d040e82b7c00a34cd36"
     },
     {
       "path": "tools/aidd/checker/internal/protocol/cli_test.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "891e23b6653be0c29679d9eeeeef0d5c236028042d4a5cebda38ca306be8b20b"
+      "sha256": "6b7cca486df9d1295d3d55bf6569e20f1320d4f86817512c6e44342f1f409747"
     },
     {
       "path": "tools/aidd/checker/internal/protocol/configuration.go",
@@ -337,7 +343,13 @@
       "path": "tools/aidd/checker/internal/protocol/delivery.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "b15f0c381513ef96d30f444e179e72d5af98866f6542cadc7e6cd3480eef920e"
+      "sha256": "243214f103a6066ecb46708d13c7132ad05900dc43f2383f8cf106a13bef196a"
+    },
+    {
+      "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "175abfbc41f39980f28ba378874513310df65f7d40149abb4ffa7bc59197c136"
     },
     {
       "path": "tools/aidd/checker/internal/protocol/delivery_test.go",
@@ -361,13 +373,13 @@
       "path": "tools/aidd/checker/internal/protocol/lockfile.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "da92b83d309e8e98d740323cc4a590432f7916e58fd7c6357c830bdb7ccfd6e5"
+      "sha256": "aeeb3926838b388c34abc450ab60580186d52754cb9da360c337a405ebd8875b"
     },
     {
       "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "df7b896b8412a9dd7703710b03c2bd14497db2b9b0cbe81baa611d0f2fe81276"
+      "sha256": "7cfb66a392ab717d2f6a2d7785378a36c0bc393bc7c4f30eda02a596d51d5675"
     },
     {
       "path": "tools/aidd/checker/internal/protocol/mixed.go",
@@ -391,7 +403,7 @@
       "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "653df64bd3afa367873e66a638b61ce534d372d720f1247f02684444cc83c984"
+      "sha256": "f770173cc1e4ed57a8f4049d23f4867fff1e7277bf8c6ded34605e8a16e9c989"
     },
     {
       "path": "tools/aidd/checker/internal/protocol/storybook.go",
@@ -415,13 +427,19 @@
       "path": "tools/aidd/checker/internal/protocol/verification.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "5550028711698b38a78af2cdaa78f680094212619c04e6a32be8065837d15b7c"
+      "sha256": "bdef5a6c8cef2703221583c9946ca2f53c145d15ab99ebff68c9311bbb55b36a"
     },
     {
       "path": "tools/aidd/checker/internal/repository/repository.go",
       "type": "regular",
       "mode": "100644",
-      "sha256": "191d49b3ff13e915ee27f140f9e4b3be9f746c696b0c7742cc101fd4b5952565"
+      "sha256": "7be30198f12ee70c8adeac5d79d555b2a0fe0b25fedf2804027eee1e456d57a1"
+    },
+    {
+      "path": "tools/aidd/checker/internal/repository/repository_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "06845a77f576c8009e3c6c86a696390f5295a7e293c1f0586beb298326105cd1"
     },
     {
       "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
@@ -460,7 +478,7 @@
       "sha256": "d6fdd8e57427bc5b5a9547a4b245f22017d67a19e75d2348572252c2c51d242f"
     }
   ],
-  "manifest_sha256": "f15e10d667d295fcf7d7192724e23c20850bf46ffac09dd597b0a8021f993c08",
+  "manifest_sha256": "4a03ba7965a4e8d8a4a5c6e6671b8c21e9a2f74861f01dcb9113ec8a08e8a86b",
   "reviewer": "/root/independent_review",
-  "observations": "PR 1706追加修正の独立read-only最終review。対応前の原因評価を必須化しlocal defectでも制御不全を評価する境界、AIDD surface限定と一般pathのdirect match/depends_on closure保持、legacy契約12行と移行前commitの一致を確認。現行v5へ旧phase制約を戻していない。今回8filesのmain worktreeと一時Learnのcontent/mode一致、Task/checkpoint/evidence hash参照と開始時binary hash一致、VC-1/VC-2 passedを確認した。開始時binaryのread-only checkを独立実行して成功。PR全体76pathsのcontent/mode/削除/path集合とmanifestを再計算して一致。以前の移行reviewを引き継ぎ、今回追加の確認範囲に未解決findingなし。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。全Go suiteはreviewer自身では再実行せず生成証拠とcheckを確認。remote CI/GitHub承認は対象外。独立agent reviewであり人間の承認ではない。 前回74pathsの照合はGit rename表示が旧codexhooksの2削除pathを省略していたため訂正。--no-renamesで独立再計算し、旧2filesの削除、新adapters/codex/hooksの2filesの存在、76全pathのcontent/mode/削除/path集合とchecker実manifestの完全一致を確認。今回8filesとLearn証拠の評価は変わらず未解決findingなし。"
+  "observations": "optional pathの先行検証、local／PR配信権限の分離、現在target baseに基づくtrusted checker選択、lockfileのpeer割当保持と正常更新の両立を確認した。17 filesのmain worktreeと一時Learnのcontent／mode、Task・checkpoint・evidenceのhashと参照、開始時binaryが一致した。checkpointは同じTaskから2件の追記chainを形成し、baselineの変更はない。開始時binaryによるread-only checkを独立実行して成功し、VC-1／VC-2のpassed状態を確認した。migration文書とPR全体79 pathsのcontent／mode／削除・path集合も独立再計算して一致した。未解決findingなし。全Go suiteをreviewer自身では再実行せず、生成証拠と開始時checkerの検査を確認した。独立agent reviewであり人間・GitHub上の承認ではない。remote CIやレビュー返信／resolveは実施していない。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, policy.transaction-boundaries, architecture.overview, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。"
 }

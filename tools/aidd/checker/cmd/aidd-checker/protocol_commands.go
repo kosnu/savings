@@ -16,6 +16,7 @@ func protocolCommand(ctx context.Context, command string, args []string) error {
 	flags := newFlagSet(command)
 	root := flags.String("repo-root", "", "canonical repository")
 	base := flags.String("base", "", "PR merge-base commit")
+	targetBase := flags.String("target-base", "", "current PR target base commit (bootstrap)")
 	id := flags.String("task", "", "task ID")
 	taskHash := flags.String("task-sha256", "", "task identity")
 	checkpoint := flags.String("checkpoint-sha256", "", "latest checkpoint (parent for checkpoint)")
@@ -60,7 +61,7 @@ func protocolCommand(ctx context.Context, command string, args []string) error {
 	var digest string
 	switch command {
 	case "bootstrap-check":
-		err = protocol.CheckBootstrap(ctx, snapshot, *base)
+		err = protocol.CheckBootstrap(ctx, snapshot, *base, *targetBase)
 	case "ci-check":
 		err = protocol.CheckDelivery(ctx, snapshot, *base, *id)
 	case "task-start":

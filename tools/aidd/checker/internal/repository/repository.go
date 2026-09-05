@@ -374,13 +374,17 @@ func (snapshot *Snapshot) ObserveWorktreeIdentity(path string) (WorktreeIdentity
 	return WorktreeIdentity{Path: normalized, Type: "regular", Mode: mode, SHA256: digest}, nil
 }
 
-// ObserveOptionalWorktreeIdentityは削除済みpathと、追跡しないsymlink identityを区別する。
+// ObserveOptionalWorktreeIdentity returns exists=false for missing paths and observes existing entries without following the final symlink.
 func (snapshot *Snapshot) ObserveOptionalWorktreeIdentity(path string) (WorktreeIdentity, bool, error) {
-	_, exists, err := snapshot.inspectEntry(path, true, true)
+	normalized, err := pathcontract.ValidateRelativePath(path)
+	if err != nil {
+		return WorktreeIdentity{}, false, err
+	}
+	_, exists, err := snapshot.inspectEntry(normalized, true, true)
 	if err != nil || !exists {
 		return WorktreeIdentity{}, exists, err
 	}
-	value, err := snapshot.ObserveWorktreeIdentity(path)
+	value, err := snapshot.ObserveWorktreeIdentity(normalized)
 	return value, true, err
 }
 

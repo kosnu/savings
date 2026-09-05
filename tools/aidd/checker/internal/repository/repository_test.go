@@ -402,3 +402,30 @@ func diagnosticCode(err error) string {
 	}
 	return ""
 }
+
+func TestOptionalWorktreeIdentityValidatesPathsBeforeMissingCheck(t *testing.T) {
+	root := newGitRepository(t)
+	writeRepositoryFile(t, root, "present.txt", []byte("value"), 0644)
+	snapshot := openSnapshot(t, root)
+	for _, path := range []string{"", ".", "../missing", "a/../missing", "missing//child", "/missing", ".git/config"} {
+		_, expected := snapshot.ObserveWorktreeIdentity(path)
+		_, exists, err := snapshot.ObserveOptionalWorktreeIdentity(path)
+		if expected == nil || err == nil || exists || diagnosticCode(expected) != diagnosticCode(err) {
+			t.Errorf("%q: exists=%v expected=%v actual=%v", path, exists, expected, err)
+		}
+	}
+	if _, exists, err := snapshot.ObserveOptionalWorktreeIdentity("missing/child.txt"); err != nil || exists {
+		t.Fatalf("missing path: exists=%v err=%v", exists, err)
+	}
+	value, exists, err := snapshot.ObserveOptionalWorktreeIdentity("present.txt")
+	if err != nil || !exists || value.Type != "regular" {
+		t.Fatalf("existing path: %+v %v %v", value, exists, err)
+	}
+	if err := os.Symlink("absent-target", filepath.Join(root, "link")); err != nil {
+		t.Fatal(err)
+	}
+	value, exists, err = snapshot.ObserveOptionalWorktreeIdentity("link")
+	if err != nil || !exists || value.Type != "symlink" {
+		t.Fatalf("dangling symlink: %+v %v %v", value, exists, err)
+	}
+}

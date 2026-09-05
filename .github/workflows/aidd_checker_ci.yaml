@@ -54,13 +54,13 @@ jobs:
         run: |
           set -euo pipefail
           baseline=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
-          if git cat-file -e "$baseline:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
+          if git cat-file -e "$PR_BASE_SHA:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
             trusted_dir=$(mktemp -d)
-            git archive "$baseline" tools/aidd/checker | tar -x -C "$trusted_dir"
+            git archive "$PR_BASE_SHA" tools/aidd/checker | tar -x -C "$trusted_dir"
             go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-checker" ./cmd/aidd-checker
             git checkout --detach "$PR_HEAD_SHA"
             "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
           else
             git checkout --detach "$PR_HEAD_SHA"
-            /tmp/aidd-checker bootstrap-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
+            /tmp/aidd-checker bootstrap-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline" --target-base "$PR_BASE_SHA"
           fi

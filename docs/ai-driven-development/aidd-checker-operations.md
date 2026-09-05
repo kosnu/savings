@@ -54,7 +54,8 @@ sourceはrepository外のregular non-symlink JSON。出典本文を取得した�
 }
 ```
 
-`delivery`はlocalまたはpr。Coreの成功はmerge/deploy権限を与えない。
+`delivery`はlocalまたはpr。localはfinishまでで、ship-checkとci-checkはpr以外を拒否する。
+Coreの成功はmerge/deploy権限を与えない。
 Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
 を追加する。pathは有限のfile/tree。product pathは許可scopeへ含めても変更できない。
@@ -156,7 +157,7 @@ Learnの完了には最新reviewが必要。product実装が必要なら既存Is
 内容やmodeの不一致、未stage出力、未検証変更があればcommitしない。Learnは最新reviewも検査する。
 公開操作とread-backは実行adapterが行う。Core gate成功だけではpush/PR完了ではない。
 
-commit後のCIはbase側のcheckerをbuildし、clean candidateで次を実行する。
+commit後のCIは現在のPR target base側のcheckerをbuildし、clean candidateで次を実行する。
 
 ```sh
 /tmp/base-aidd-checker ci-check --repo-root . --base <PR-merge-base>
@@ -164,9 +165,11 @@ commit後のCIはbase側のcheckerをbuildし、clean candidateで次を実行�
 
 変更されたTaskは1件に特定する。初期版は1 PR=1 taskとし、Task baselineとPR merge-baseの一致、
 開始時policy/profileとGit baseline、最終content/Git mode、rule/ownership/verificationを検査する。
-初回vNext導入PRだけはbaseにv5がないため、candidateの回帰検証と独立reviewでbootstrapする。
-`bootstrap-check --repo-root . --base <merge-base>`はvnext-bootstrap.jsonの独立reviewと
-対象差分のcontent/Git mode/pathを照合する。記録欠落・差分変更・baseに既存v5がある場合は拒否する。
+初回vNext導入PRだけは現在のtarget baseとmerge-baseの両方にv5がないため、candidateの回帰検証と独立reviewでbootstrapする。
+古い分岐PRでも現在のtarget baseにv5があれば通常経路を使う。merge-baseにTask基準のv5がない場合は
+bootstrapへfallbackせず失敗し、最新baseへ追従して適切なTask/evidenceを準備する。
+`bootstrap-check --repo-root . --base <merge-base> --target-base <current-base>`はvnext-bootstrap.jsonの独立reviewと
+対象差分のcontent/Git mode/pathを照合する。記録欠落・差分変更・現在のtarget baseまたはmerge-baseに既存v5がある場合は拒否する。
 manifestから除外するのはbootstrapとverificationの記録JSONだけで、実装・設定・正本文書は含める。
 reviewerの真正性はLearnと同じ運用境界で扱う。
 この初回を既存v5基準による検証済みとは報告しない。v5導入後はtask欠落を成功扱いにしない。

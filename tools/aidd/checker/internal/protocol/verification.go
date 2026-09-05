@@ -179,6 +179,9 @@ func validateReview(l *Loaded, evidenceHash string, r Review) error {
 }
 
 func Ship(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenceHash string) error {
+	if l.Task.Spec.Delivery != "pr" {
+		return fail("DELIVERY_SCOPE", l.Task.Spec.ID, "Shipにはdelivery=prのTaskが必要です")
+	}
 	if _, err := ValidateEvidence(ctx, snapshot, l, evidenceHash); err != nil {
 		return err
 	}

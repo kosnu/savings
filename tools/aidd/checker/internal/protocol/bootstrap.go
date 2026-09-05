@@ -48,16 +48,22 @@ func bootstrapManifest(ctx context.Context, s *repository.Snapshot, base string)
 
 // 初回移行にも対象差分に結合した独立review記録を要求する。
 // 記録は署名ではなく、reviewerの真正性はLearnと同じ運用境界で扱う。
-func CheckBootstrap(ctx context.Context, s *repository.Snapshot, base string) error {
-	if len(base) != 40 {
-		return fail("BOOTSTRAP", base, "完全な基準commit IDが必要です")
+func CheckBootstrap(ctx context.Context, s *repository.Snapshot, base, targetBase string) error {
+	if len(base) != 40 || len(targetBase) != 40 {
+		return fail("BOOTSTRAP", base, "merge-baseと現在のtarget baseの完全commit IDが必要です")
 	}
 	if _, err := s.Git(ctx, "merge-base", "--is-ancestor", base, "HEAD"); err != nil {
 		return err
 	}
-	if _, err := s.Git(ctx, "cat-file", "-e", base+":"+PolicyPath); err == nil {
-		return fail("BOOTSTRAP", base, "既存v5の検査をbootstrapへ迂回できません")
+	if _, err := s.Git(ctx, "merge-base", "--is-ancestor", base, targetBase); err != nil {
+		return err
 	}
+	for _, ref := range []string{base, targetBase} {
+		if _, err := s.Git(ctx, "cat-file", "-e", ref+":"+PolicyPath); err == nil {
+			return fail("BOOTSTRAP", ref, "現在のbaseまたはmerge-baseに既存v5があり、bootstrapへ迂回できません")
+		}
+	}
+
 	content, err := s.Read(BootstrapPath)
 	if err != nil {
 		return err
