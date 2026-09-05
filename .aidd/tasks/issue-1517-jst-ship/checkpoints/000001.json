@@ -1,0 +1,300 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "9367ff28dc41620444a94614c57193728640d30497898002ed39acb04ff76989",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "9367ff28dc41620444a94614c57193728640d30497898002ed39acb04ff76989",
+    "reason": "ユーザーのShip依頼に従い、ローカル検証済み6ファイルを同一内容でPR用Taskへ引き継ぐ。先行LearnのPRブランチcommit 7a0a3df3をbaseとする。旧Task issue-1517-jst-a2ba と checkpoint 8db29a46dd226dd2f291b20f01a4a99396e07f88c85b57ca571fb524fa34f91d を保持し、確定済みLearn commit 9a7d902c を基準に同一製品判断と実装を再検証する。旧Taskのcheckerを置換しない。ユーザーがAsia/Tokyoを選択。既存の三RPC構造を維持して同じdate_trunc(month, statement_timestamp() AT TIME ZONE Asia/Tokyo)::dateを用いる。DB全体timezone変更は他domainへ影響するため採用せず、UTCはユーザー指定に反する。DB statement開始時点で月を固定し実行中の月跨ぎで処理を分裂させない。date-onlyはtimestamp without time zoneへ明示castして月初化する。表示月はブラウザローカルのread用途で維持し、IDが認可月で有効ならJST当月に反映、違えば既存RPCエラー。作成月のブラウザ時計validationを外し既存DBエラーマッピングで制約を通知。新規state/helper/公開RPCなし、署名と権限を維持するため配備互換期間や停止は不要。既存status/RPC transactionによる履歴維持を維持し、終端日・event新設・別tableは#1516再設計になるため採用しない。意味はTask/DecisionとAPI READMEで記録し既存guardrailは変更不要。境界テストはrollback内だけpg_get_functiondefのstatement_timestamp呼出しを固定時刻へ差し替え、月換算と認可・履歴ロジックは本番定義のまま評価し本番に時計入力を追加しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "三つのwrite RPCはDB statement開始時刻をAsia/Tokyoへ変換した月初日で認可し反映月を決める。",
+        "origin": "derived",
+        "evidence": "Issueの現在月統一とユーザーの「日本時間で」指定。statement_timestampは月を跨いだtransactionでも操作statement毎の開始時刻に揃え、操作中は固定する。"
+      },
+      {
+        "id": "FR-2",
+        "text": "作成は日本時間の現在月以降、更新・無効化は現在有効amountのIDのみ。履歴と状態を維持し月境界・年境界・拒否を検証する。",
+        "origin": "intent",
+        "evidence": "過去月の履歴・表示結果と、既存の `amount` / `none` / `unset` 状態モデルを維持する。"
+      },
+      {
+        "id": "FR-3",
+        "text": "ブラウザの表示月と日本時間の認可月のずれを許容し、作成時のブラウザ時計による拒否を廃止してDBに委ねる。date-only変換・read対象月を維持し関係を文書化する。",
+        "origin": "intent",
+        "evidence": "表示月と認可上の現在月のずれを許容する場合は、許容する状況と操作への影響を明文化する。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "三つのwrite RPCはDB statement開始時刻をAsia/Tokyoへ変換した月初日で認可し反映月を決める。",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "作成は日本時間の現在月以降、更新・無効化は現在有効amountのIDのみ。履歴と状態を維持し月境界・年境界・拒否を検証する。",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "ブラウザの表示月と日本時間の認可月のずれを許容し、作成時のブラウザ時計による拒否を廃止してDBに委ねる。date-only変換・read対象月を維持し関係を文書化する。",
+          "requirement_id": "FR-3"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "独立ローカルDBでmigrationを適用。pgTAP timezoneテストで通常月・年替わり直前直後とUTC/JST/米国timezone、RPC定義とstatement時刻の変換を確認。"
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "同じDBで既存write boundaryテストとtimezoneテストを実行。現在行更新・無効化、過去履歴保持、未来・none・stale・非所有ID拒否と直接table権限拒否を確認。"
+        },
+        {
+          "id": "VC-8",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "READMEと実差分を選択rule closure全体に照合し、ブラウザ表示月・date-only・認可月の分離、既存エラー表示、RPC引数非変更をレビュー。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/api/README.md",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/migrations/20260905134821_monthly_budget_japan_current_month.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/tests/monthly_budget_timezone.test.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/createMonthlyBudget/monthlyBudgetFormSchema.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/features/budgets/createMonthlyBudget/monthlyBudgetFormSchema.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/api/README.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "migration",
+          "path": "apps/api/supabase/migrations/20260905134821_monthly_budget_japan_current_month.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_timezone.test.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "apps/api/supabase/tests/monthly_budget_write_boundary.test.sql",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "test",
+          "path": "apps/web/src/features/budgets/createMonthlyBudget/monthlyBudgetFormSchema.test.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-5",
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "apps/web/src/features/budgets/createMonthlyBudget/monthlyBudgetFormSchema.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-5",
+            "VC-8"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.domain-layer-rules",
+    "web.domain-ui-rules",
+    "web.feature-directory",
+    "web.query-cache",
+    "web.storybook-browser-tests",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ]
+}
