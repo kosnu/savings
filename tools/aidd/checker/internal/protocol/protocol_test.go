@@ -64,7 +64,7 @@ func rejected(t *testing.T, err error, fragment string) {
 	}
 }
 
-func setup(t *testing.T, kind string) *fixture {
+func setup(t *testing.T, kind string, delivery ...string) *fixture {
 	t.Helper()
 	f := &fixture{t: t, root: t.TempDir()}
 	f.git("init", "-q")
@@ -78,7 +78,10 @@ func setup(t *testing.T, kind string) *fixture {
 	f.git("add", ".")
 	f.git("commit", "-qm", "baseline")
 	body := "Make the requested result observable"
-	f.spec = Spec{Action: "execute", SchemaVersion: Version, Kind: kind, ID: "test-task", Intent: Intent{Kind: "issue", Reference: "https://github.com/example/repository/issues/1", Body: body, BodySHA256: canonical.HashBytes([]byte(body))}, Objective: body, Constraints: []string{"preserve invariants"}, Done: []string{"observable result"}, Verification: []string{"fixed profile"}, Delivery: "local"}
+	f.spec = Spec{Action: "execute", SchemaVersion: Version, Kind: kind, ID: "test-task", Intent: Intent{Kind: "issue", Reference: "https://github.com/example/repository/issues/1", Body: body, BodySHA256: canonical.HashBytes([]byte(body))}, Objective: body, Constraints: []string{"preserve invariants"}, Done: []string{"observable result"}, Verification: []string{"fixed profile"}, Delivery: "pr"}
+	if len(delivery) > 0 {
+		f.spec.Delivery = delivery[0]
+	}
 	path := "src/a.txt"
 	if kind == "learn" {
 		f.spec.Intent.Kind = "feedback"

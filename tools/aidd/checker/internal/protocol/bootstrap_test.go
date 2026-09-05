@@ -18,7 +18,7 @@ func TestBootstrapRequiresIndependentReviewOfExactDiff(t *testing.T) {
 	base := f.git("rev-parse", "HEAD")
 	f.put("guard/rule.md", "migration result\n")
 	check := func() error {
-		return f.snapshot(func(s *repository.Snapshot) error { return CheckBootstrap(context.Background(), s, base) })
+		return f.snapshot(func(s *repository.Snapshot) error { return CheckBootstrap(context.Background(), s, base, base) })
 	}
 	rejected(t, check(), "")
 	var manifest []File
@@ -41,5 +41,30 @@ func TestBootstrapRequiresIndependentReviewOfExactDiff(t *testing.T) {
 func TestBootstrapCannotBypassExistingProtocol(t *testing.T) {
 	f := setup(t, "development")
 	base := f.git("rev-parse", "HEAD")
-	rejected(t, f.snapshot(func(s *repository.Snapshot) error { return CheckBootstrap(context.Background(), s, base) }), "BOOTSTRAP")
+	rejected(t, f.snapshot(func(s *repository.Snapshot) error { return CheckBootstrap(context.Background(), s, base, base) }), "BOOTSTRAP")
+}
+
+func TestBootstrapRejectsCurrentBaseWithV5EvenWhenMergeBasePredatesV5(t *testing.T) {
+	f := setup(t, "development")
+	must(t, os.RemoveAll(filepath.Join(f.root, TaskRoot)))
+	must(t, os.Remove(filepath.Join(f.root, PolicyPath)))
+	f.git("add", ".")
+	f.git("commit", "-qm", "pre-v5 ancestor")
+	ancestor := f.git("rev-parse", "HEAD")
+	f.git("checkout", "-qb", "current-base")
+	f.put(PolicyPath, `{"schema_version":1}`)
+	f.git("add", ".")
+	f.git("commit", "-qm", "base adopts v5")
+	currentBase := f.git("rev-parse", "HEAD")
+	f.git("checkout", "-qb", "old-candidate", ancestor)
+	f.put("guard/rule.md", "old branch change\n")
+	f.git("add", ".")
+	f.git("commit", "-qm", "candidate change")
+	if f.git("merge-base", currentBase, "HEAD") != ancestor {
+		t.Fatal("fixture needs old merge-base")
+	}
+	rejected(t, f.snapshot(func(s *repository.Snapshot) error {
+		return CheckBootstrap(context.Background(), s, ancestor, currentBase)
+	}), "BOOTSTRAP")
+	rejected(t, f.snapshot(func(s *repository.Snapshot) error { return CheckBootstrap(context.Background(), s, ancestor, "") }), "BOOTSTRAP")
 }

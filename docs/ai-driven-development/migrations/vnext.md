@@ -190,3 +190,28 @@ PR全体は依然としてbaseにv5がないbootstrapである。今回の独立
 必要8filesを明示したTaskへ切り替えた。未検証変更を新baselineへ取り込んでいない。Goalは追加していない。
 一時Learnの証拠とmain worktreeの8filesのcontent/mode一致を別添検証記録へ保存し、
 PR全体のbootstrap review manifestも更新する。commit/push/remote CIはこの追加修正では実行していない。
+
+## PR #1706 review comments (2026-09-05)
+
+未解決のレビュー4件は、いずれも機械的なguardrail検査の不足として対応する。
+コードコメントの言語変更だけを目的とする修正は含めない。
+
+| 指摘 | 判断・修正 | 回帰検証 |
+| --- | --- | --- |
+| optional pathのmissing判定が入力検証より先 | canonical pathを先に検証し、既存identity APIと同じ診断にする | 空・traversal・metadata path拒否、missing・通常file・dangling symlinkの正常系 |
+| local TaskをPR配信に使用できる | ShipとPRのci-checkでdelivery=prを要求 | Development/Learnのlocal finish成功、stage/commit後もlocal配信拒否 |
+| 古いmerge-baseからbootstrapへ迂回できる | trusted checkerとbootstrap可否は現在target base、差分照合はmerge-baseで判断 | 実workflow shellを分岐fixtureで実行し、現在baseのchecker選択とbootstrapのtarget-base引数を確認 |
+| lockfileがpeer variantの割当を失う | root・edge・snapshotの完全identityを保持。反対側root更新に一意に対応するpeer構成変更だけを許可 | root/親間のvariant入替、曖昧対応、異内容衝突、通常共有依存変更を拒否。Development/Learnのqualified・nested peer更新は成功 |
+
+独立レビューで、単純な完全key固定が正常なproduct peer更新まで拒否する副作用を検出し、
+上表の一意な対応による比較へ修正した。成功証拠のためにproduct/Learn境界を緩めていない。
+
+今回のLearnは変更前source HEAD `b9924bdb0080259fc21608c7dc97c4263c250827`の一時repositoryで開始し、
+開始時checkerと旧policy/profileを固定する。最初のDecisionではtree ownershipに対して
+17filesだけをrepresentationへ列挙した不一致を検出したため、同じTask/baselineを保持し、
+Decisionのownershipを実際の17filesへ限定するcheckpointを追記した。
+未検証変更をbaselineへ取り込まず、検証・独立レビュー・ローカル確定のidentityを別添記録に保存する。
+移行記録3filesはPR全体のbootstrap manifest/独立レビューで管理する。Goalは追加していない。
+
+先のfollow-upはその後b9924bdbとしてcommit/pushされ、GitHub Actionsのverifyとzizmorが成功した。
+このreview対応差分はローカル変更であり、commit/push・remote CI・GitHubコメント返信/resolveは未実施。

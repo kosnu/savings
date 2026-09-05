@@ -7,7 +7,6 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"go.yaml.in/yaml/v3"
 	"io"
-	"slices"
 	"strings"
 )
 
@@ -55,11 +54,81 @@ func (l *Loaded) toolNames() map[string]bool {
 type lockProjection struct {
 	Roots     map[string]any
 	Packages  map[string]any
-	Snapshots map[string][]string
+	Snapshots map[string]string
 }
 
-func projectLock(root map[string]any, tools, productRoots map[string]bool, wantTools bool) (lockProjection, error) {
-	result := lockProjection{map[string]any{}, map[string]any{}, map[string][]string{}}
+// Only a consistent update at the same opposite-root declaration can rename a peer context.
+func peerRootUpdates(before, after map[string]any, tools map[string]bool, wantTools bool) map[string]string {
+	updates := map[string]string{}
+	for importer, raw := range object(before["importers"]) {
+		for section, rawDeps := range object(raw) {
+			for name, ref := range object(rawDeps) {
+				if tools[name] == wantTools {
+					continue
+				}
+				oldVersion, ok := object(ref)["version"].(string)
+				if !ok {
+					continue
+				}
+				newRef := object(object(object(object(after["importers"])[importer])[section])[name])
+				newVersion, ok := newRef["version"].(string)
+				oldKey, newKey := dependencyKey(name, oldVersion), ""
+				if ok {
+					newKey = dependencyKey(name, newVersion)
+				}
+				if previous, seen := updates[oldKey]; seen && previous != newKey {
+					newKey = ""
+				}
+				updates[oldKey] = newKey
+			}
+		}
+	}
+	return updates
+}
+
+// Rewrite only complete parenthesized peer identities, never the package's own version.
+func peerContextKey(key string, updates map[string]string) (string, error) {
+	base := versionBase(key)
+	result := base
+	for rest := key[len(base):]; rest != ""; {
+		if rest[0] != '(' {
+			return "", fail("LOCKFILE", key, "peer contextが不正です")
+		}
+		depth, end := 0, -1
+		for i, c := range rest {
+			if c == '(' {
+				depth++
+			} else if c == ')' {
+				depth--
+				if depth == 0 {
+					end = i
+					break
+				}
+			}
+		}
+		if end <= 1 {
+			return "", fail("LOCKFILE", key, "peer contextが不正です")
+		}
+		peer := rest[1:end]
+		if next, exists := updates[peer]; exists {
+			if next != "" {
+				peer = next
+			}
+		} else {
+			var err error
+			peer, err = peerContextKey(peer, updates)
+			if err != nil {
+				return "", err
+			}
+		}
+		result += "(" + peer + ")"
+		rest = rest[end+1:]
+	}
+	return result, nil
+}
+
+func projectLock(root map[string]any, tools, productRoots map[string]bool, wantTools bool, updates map[string]string) (lockProjection, error) {
+	result := lockProjection{map[string]any{}, map[string]any{}, map[string]string{}}
 	snapshots, packages := object(root["snapshots"]), object(root["packages"])
 	rootVersions := map[string]map[string]bool{}
 	for _, raw := range object(root["importers"]) {
@@ -121,18 +190,26 @@ func projectLock(root map[string]any, tools, productRoots map[string]bool, wantT
 				if peer && opposite && rootVersions[name][key] && !strings.HasPrefix(version, "link:") && !strings.HasPrefix(version, "file:") {
 					continue
 				}
-				resolved[name] = versionBase(version)
+				translated, err := peerContextKey(key, updates)
+				if err != nil {
+					return err
+				}
+				resolved[name] = translated
 				if err := visit(key); err != nil {
 					return err
 				}
 			}
 			normalized[field] = resolved
 		}
-		digest := hash(normalized)
-		if !slices.Contains(result.Snapshots[base], digest) {
-			result.Snapshots[base] = append(result.Snapshots[base], digest)
-			slices.Sort(result.Snapshots[base])
+		translated, err := peerContextKey(key, updates)
+		if err != nil {
+			return err
 		}
+		digest := hash(normalized)
+		if existing, ok := result.Snapshots[translated]; ok && existing != digest {
+			return fail("LOCKFILE_BOUNDARY", key, "peer更新後のsnapshotが異なる依存内容へ衝突しています")
+		}
+		result.Snapshots[translated] = digest
 		return nil
 	}
 	for importer, raw := range object(root["importers"]) {
@@ -161,7 +238,11 @@ func projectLock(root map[string]any, tools, productRoots map[string]bool, wantT
 				for k, v := range ref {
 					rootRef[k] = v
 				}
-				rootRef["version"] = versionBase(version)
+				translated, err := peerContextKey(dependencyKey(name, version), updates)
+				if err != nil {
+					return result, err
+				}
+				rootRef["version"] = translated
 				result.Roots[importer+"/"+section+"/"+name] = rootRef
 				if err := visit(dependencyKey(name, version)); err != nil {
 					return result, err
@@ -214,11 +295,11 @@ func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []
 	tools := l.toolNames()
 	productRoots := lockProductNames(a, tools)
 	wantTools := l.Task.Spec.Kind == "development"
-	ap, err := projectLock(a, tools, productRoots, wantTools)
+	ap, err := projectLock(a, tools, productRoots, wantTools, peerRootUpdates(a, b, tools, wantTools))
 	if err != nil {
 		return err
 	}
-	bp, err := projectLock(b, tools, productRoots, wantTools)
+	bp, err := projectLock(b, tools, productRoots, wantTools, nil)
 	if err != nil {
 		return err
 	}

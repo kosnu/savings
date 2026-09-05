@@ -46,9 +46,9 @@ func TestPublicCLIEndToEnd(t *testing.T) {
 	f.put("src/a.txt", "verified result\n")
 	f.evidenceHash = call("verify", "--task", f.spec.ID, "--task-sha256", f.taskHash, "--checkpoint-sha256", f.cp)
 	common := []string{"--task", f.spec.ID, "--task-sha256", f.taskHash, "--checkpoint-sha256", f.cp, "--evidence-sha256", f.evidenceHash}
-	call(append([]string{"finish"}, common...)...)
 	f.git("add", ".")
 	call(append([]string{"ship-check"}, common...)...)
+	call(append([]string{"finish"}, common...)...)
 	base := f.git("rev-parse", "HEAD")
 	f.git("commit", "-qm", "CLI delivery")
 	call("ci-check", "--base", base)

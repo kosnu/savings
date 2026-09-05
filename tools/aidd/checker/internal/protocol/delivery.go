@@ -46,6 +46,9 @@ func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id 
 	if err != nil {
 		return err
 	}
+	if task.Spec.Delivery != "pr" {
+		return fail("DELIVERY_SCOPE", id, "PR検証にはdelivery=prのTaskが必要です")
+	}
 	if task.BaselineHead != base {
 		return fail("DELIVERY_BASE", id, "task baselineがPR全体の基準点と一致しません。全delivery差分を検証するtaskが必要です")
 	}

@@ -67,3 +67,13 @@ purely localの場合だけ同じDevelopment / Decisionで閉じ、再利用可�
 AIDD surfaceはcontrol planeとharnessの具体的pathに限定する。一般文書・GitHub設定は
 個別pathのruleと依存closureで扱い、surface範囲外であることをrule適用免除にしない。
 これはguardrail immutabilityの対象を縮小する判断ではない。
+
+## Clarification: Delivery authority and dependency identity (2026-09-05)
+
+Taskのdelivery=localはPR配信の許可ではない。localのfinishは維持し、Shipとcommit後のPR検査はdelivery=prを要求する。
+bootstrap可否とtrusted checkerの取得元は現在のtarget baseで判断し、変更対象の差分基準はmerge-baseとして分離する。
+現在のbaseにv5があれば、古い分岐からcandidate自身のbootstrapへ迂回しない。
+lockfileの保護対象root・依存edge・snapshotはpeer-qualified identityを保持し、variantの集合が同じでも
+親・importerからの参照先が異なる状態を同一とみなさない。
+同じ反対側root宣言の更新から一意に導けるpeer構成の変更は許可し、正常なproduct/tool更新の経路を維持する。
+この対応で保護対象package自身のversion・通常共有依存・resolutionの変更を許可しない。

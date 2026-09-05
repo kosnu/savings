@@ -25,6 +25,8 @@ Issueは人間のintentの正本。Task contractはagentのobjective、constrain
 deliveryを持つ。Decisionは要求の解釈、採用判断、観測可能なbehavior、ownership、representation、
 verification caseを持つ。repositoryが実際の結果、証拠がその検証記録である。
 Issueに実装ファイルやrule-mapの語句を記載する必要はない。
+Taskのdelivery=localはローカル完了までとし、ship-check/ci-checkのPR配信境界ではdelivery=prを要求する。
+後からstage/commitした事実を配信範囲の拡大許可として扱わない。
 
 要求の根拠をintent、guardrail、derivedに分ける。intent根拠はsnapshot本文に実在する必要がある。
 既存コードは実装文脈であり人間の意図を追加しない。意図、受け入れ条件、権限の変更は明示的に
@@ -72,7 +74,11 @@ Vite設定は独立したvitest.configから参照されていないproduct buil
 pnpm lockfile v9はimporterと解決済みpackage/snapshotの推移依存を照合する。Developmentは
 検証toolの解決実体・lockfile共通設定を保持し、Learnはproductの解決実体を保持する。
 packageのpeer宣言があり、相手側rootとpeer構成を含む解決versionが一致する参照だけを相手側で検査する。両方が共有する推移依存の実体変更は
-一方だけの変更として通さない。未知の形式・参照欠落は失敗させる。
+一方だけの変更として通さない。保護対象root・依存edge・snapshotのidentityはpeer構成を含めて保持し、
+同じpackage/versionのvariantを親やimporter間で入れ替えても同一扱いしない。
+同じimporter/section/nameの反対側root更新に一意に対応するpeer構成の変更だけを許可する。
+この対応は保護対象のpackage自身のversionや通常共有依存を変更する許可ではない。対応が分岐・削除されるpeer参照の改名や、
+異なる依存内容へのsnapshot衝突は失敗させる。未知の形式・参照欠落は失敗させる。
 local/file依存の実体検査は未対応で、保護対象closureに含む場合は拒否する。
 新しいtoolの分類はpolicy判断であり、依存名から意味を推測して保護を解除しない。
 
