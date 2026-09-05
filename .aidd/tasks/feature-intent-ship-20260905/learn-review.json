@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "22200bfbd60ca3396745ed5044a9675a03b8550771317f37b86313f3e9116e09",
+  "checkpoint_sha256": "b847eae2d70f1a8e7520cb69e8cf89363d27998aa795c08e6d47e8d17aae4594",
+  "evidence_sha256": "1dc8859f044c02c7487094178268567919f760033f730e09388741dd20a0fab4",
+  "reviewer": "/root/review_template",
+  "authorization": "ユーザーのrepo ship依頼に基づくPR配信。独立確認者 /root/review_template が新Taskの最新証拠に結び付けた確定を明示許可。",
+  "observations": "対象4ファイルが前回確定バックアップとbyte単位で一致。新Taskはdelivery=pr、対象4ファイルのcommit/push/PRまで許可しmerge/deployを除外。Task/checkpoint/evidenceの参照と4ファイルSHAが一致。VC-1/VC-2 passed。前回14規則に基づき確認したintent/成功条件/委任と確認境界/旧Issue制限/vNext整合を維持。未解決findingなし。remote反映とCIは配信工程で別途確認。"
+}
