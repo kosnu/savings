@@ -2,9 +2,9 @@
   "schema_version": 1,
   "kind": "aidd_migration_verification",
   "status": "local_verified",
-  "recorded_at": "2026-09-04T20:31:23.010580+00:00",
+  "recorded_at": "2026-09-05T03:25:07.279518+00:00",
   "baseline_head": "354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
-  "source_manifest_sha256": "ea6ccbf82390a8c75dbfd9ceb8fd367cc2ad1c5c3a41adb93568cc52cceedab1",
+  "source_manifest_sha256": "f15e10d667d295fcf7d7192724e23c20850bf46ffac09dd597b0a8021f993c08",
   "manifest_encoding": "UTF-8 JSON, sorted keys, no whitespace; normalized Git modes",
   "excluded_paths": [
     "docs/ai-driven-development/migrations/vnext-bootstrap.json",
@@ -87,7 +87,7 @@
       "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "98a48a3769b328a44897ea737bf62ba589d9f50d8e090e44b44b777a10fea5d2"
+      "sha256": "4e5d0c8662493a82d835be0112d9a2caedabc8f29a12e2047a0e964dd2a645bf"
     },
     {
       "path": "docs/ai-driven-development/aidd-checker-operations.md",
@@ -159,7 +159,7 @@
       "path": "docs/ai-driven-development/migrations/vnext.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "39e7bb0f42e52b6d53e85bca1c914d142edf3bb8f13fade12a7a19388872750d"
+      "sha256": "0562ad933354289129ceee0aa2feb6ab52873a6b0163e55a765c8263d3565dee"
     },
     {
       "path": "docs/ai-driven-development/overview.md",
@@ -171,13 +171,13 @@
       "path": "docs/ai-driven-development/workflow.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "01d4a012083344a185433ad67ad4d9cdc6520b2fdd18fdd30fdb170929fc038e"
+      "sha256": "edf6131e8b6e4a491f9c3861f3f8b31ecd071b986d992d6429c015fb22abcbc9"
     },
     {
       "path": "docs/harness/policies/code-review.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "41e3639046d6a4ef9e35ad7b685dc88f895c4a421214c195898ce016488cf045"
+      "sha256": "269b949ce7aa8c17f7fa06a9abb702e81d977ae1dff45efaa5f31d2cac2f5462"
     },
     {
       "path": "docs/harness/policies/git-workflow.md",
@@ -195,13 +195,13 @@
       "path": "docs/harness/policies/review-feedback-classification.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "69b4986338a6c306d4e4cb97be3fa5d3d75b86e3b317ef3e3e44d5e909bb7b5d"
+      "sha256": "884336f81b837bd74d9c8f33ff2c691f5df08c891f014f94487c24b7f51b8e00"
     },
     {
       "path": "docs/harness/rule-map.json",
       "type": "regular",
       "mode": "100644",
-      "sha256": "771ff018c67fb7c222ffc24a37b4a7458ecb9ba1ca3a8929030e244a33ab3173"
+      "sha256": "600487f6203432ab2338439919dccd9f4960acb9fbd287fce9063bbc5b2b9ed3"
     },
     {
       "path": "tools/aidd/checker/cmd/aidd-checker/commands.go",
@@ -432,6 +432,12 @@
       "sha256": "191d49b3ff13e915ee27f140f9e4b3be9f746c696b0c7742cc101fd4b5952565"
     },
     {
+      "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "bb53b1c13b6a3b34f1cf0bb30028701b7b57489de8a7245b5738c9d1556f19cb"
+    },
+    {
       "path": "tools/aidd/checker/internal/rules/rules.go",
       "type": "regular",
       "mode": "100644",
@@ -444,49 +450,53 @@
       "sha256": "3fddf424a1f2a55d55e84a3bc004f64d006dc668c0784f5676b5447ec2ef0332"
     },
     {
+      "path": "tools/aidd/checker/internal/semantic/target_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "46b76f4c806f4c226fb5e959c22ca27411433815252db8a1dc9488dd8f9edc1e"
+    },
+    {
+      "path": "tools/aidd/checker/internal/semantic/testdata/legacy-goal-contracts.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "76811158d6768f36511e579b75e27dfa46b7d47fd115dbc5b43865e81c5b1fc4"
+    },
+    {
       "path": "tools/aidd/checker/internal/verificationcontract/input.go",
       "type": "regular",
       "mode": "100644",
       "sha256": "d6fdd8e57427bc5b5a9547a4b245f22017d67a19e75d2348572252c2c51d242f"
     }
   ],
-  "checker_sha256": "1a64866c74388a78893686ac85f0821b7b9d1ff71235b68a36127da0dcb580f3",
+  "checker_sha256": "05b3bfa34a2f28e7cfab7ab4d868cf8f4a2f325112358d45795f5d9f9e056873",
   "go_cache": "/tmp/aidd-vnext-go-cache",
   "checks": [
     {
-      "command": "go test -C tools/aidd/checker ./...",
+      "command": "GOCACHE=/tmp/aidd-vnext-go-cache go -C tools/aidd/checker test -count=1 ./...",
       "result": "passed"
     },
     {
-      "command": "go vet -C tools/aidd/checker ./...",
+      "command": "go -C tools/aidd/checker vet ./...",
       "result": "passed"
     },
     {
-      "command": "go mod verify -C tools/aidd/checker",
-      "result": "all modules verified"
-    },
-    {
-      "command": "gofmt -l tools/aidd/checker",
-      "result": "empty"
-    },
-    {
-      "command": "go build -C tools/aidd/checker -o /tmp/aidd-vnext-candidate ./cmd/aidd-checker",
+      "command": "go -C tools/aidd/checker mod verify",
       "result": "passed"
     },
     {
-      "command": "/tmp/aidd-vnext-candidate check-all --repo-root .",
-      "result": "passed: artifacts=8 read_only_legacy=2"
+      "command": "gofmt -l tools/aidd/checker (empty)",
+      "result": "passed"
+    },
+    {
+      "command": "go -C tools/aidd/checker build -o /tmp/aidd-pr1706-candidate ./cmd/aidd-checker",
+      "result": "passed"
+    },
+    {
+      "command": "/tmp/aidd-pr1706-candidate check-all --repo-root .",
+      "result": "passed"
     },
     {
       "command": "python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main",
-      "result": "passed: checked=2"
-    },
-    {
-      "command": "skill quick_validate: aidd-cycle, goal-setting, learn, harness-task",
-      "result": "passed"
-    },
-    {
-      "command": "Codex TOML / Hooks JSON / workflow and skill YAML parse",
       "result": "passed"
     },
     {
@@ -494,12 +504,8 @@
       "result": "passed"
     },
     {
-      "command": "git diff --name-only -- apps/web apps/api",
-      "result": "empty: no product change"
-    },
-    {
-      "command": "/tmp/aidd-vnext-candidate bootstrap-check --repo-root . --base 354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
-      "result": "passed: independent review manifest matched"
+      "command": "/tmp/aidd-pr1706-candidate bootstrap-check --repo-root . --base 354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
+      "result": "passed: 76-path independent review manifest matches checker inventory"
     }
   ],
   "learn_repository_smoke": {
@@ -551,8 +557,9 @@
   },
   "independent_review": {
     "reviewer": "/root/independent_review",
-    "manifest_sha256": "ea6ccbf82390a8c75dbfd9ceb8fd367cc2ad1c5c3a41adb93568cc52cceedab1",
-    "observations": "独立agentによるread-only最終review。混在JSONのproduct/guard field分離、lockfileの通常共有依存保持・完全解決先が一致するpeerのみ委任・local/file拒否、baselineを保持した同Taskのcommit後継続、Storybookのtag変更/除去/削除のsuite必須、bootstrap CIのreview対象差分照合、migration文書の完了判定訂正と未実施範囲を確認した。送付した指摘はすべて解消し、確認範囲に未解決findingなし。73 pathsのcontent/mode/削除・変更集合・manifest hashを独立に再計算して一致を確認。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, policy.transaction-boundaries, architecture.overview, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。reviewer自身はGo tests/smoke/実Codex評価を再実行していない。remote CI、GitHub取得、長時間Goal、別vendor運用は対象外。人間/GitHub上の承認ではない。"
+    "manifest_sha256": "f15e10d667d295fcf7d7192724e23c20850bf46ffac09dd597b0a8021f993c08",
+    "source_manifest_sha256": "d8fac324166fd8e5ee3595df32786f25b624a02f2f661dacc21c311201b2848d",
+    "observations": "PR 1706追加修正の独立read-only最終review。対応前の原因評価を必須化しlocal defectでも制御不全を評価する境界、AIDD surface限定と一般pathのdirect match/depends_on closure保持、legacy契約12行と移行前commitの一致を確認。現行v5へ旧phase制約を戻していない。今回8filesのmain worktreeと一時Learnのcontent/mode一致、Task/checkpoint/evidence hash参照と開始時binary hash一致、VC-1/VC-2 passedを確認した。開始時binaryのread-only checkを独立実行して成功。PR全体76pathsのcontent/mode/削除/path集合とmanifestを再計算して一致。以前の移行reviewを引き継ぎ、今回追加の確認範囲に未解決findingなし。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。全Go suiteはreviewer自身では再実行せず生成証拠とcheckを確認。remote CI/GitHub承認は対象外。独立agent reviewであり人間の承認ではない。 前回74pathsの照合はGit rename表示が旧codexhooksの2削除pathを省略していたため訂正。--no-renamesで独立再計算し、旧2filesの削除、新adapters/codex/hooksの2filesの存在、76全pathのcontent/mode/削除/path集合とchecker実manifestの完全一致を確認。今回8filesとLearn証拠の評価は変わらず未解決findingなし。"
   },
   "migration_goal": {
     "single_original_goal": true,
@@ -571,5 +578,150 @@
     "long-duration Codex Goal operation",
     "Web/API checks (no app changes)"
   ],
-  "delivery": "local working tree; no commit, push, or PR"
+  "delivery": "PR #1706 exists at de69aaa394c9be17ade122aa21efa365762d53a4; follow-up edits are local and uncommitted",
+  "previous_verification": {
+    "recorded_at": "2026-09-04T20:31:23.010580+00:00",
+    "source_manifest_sha256": "ea6ccbf82390a8c75dbfd9ceb8fd367cc2ad1c5c3a41adb93568cc52cceedab1",
+    "checks": [
+      {
+        "command": "go test -C tools/aidd/checker ./...",
+        "result": "passed"
+      },
+      {
+        "command": "go vet -C tools/aidd/checker ./...",
+        "result": "passed"
+      },
+      {
+        "command": "go mod verify -C tools/aidd/checker",
+        "result": "all modules verified"
+      },
+      {
+        "command": "gofmt -l tools/aidd/checker",
+        "result": "empty"
+      },
+      {
+        "command": "go build -C tools/aidd/checker -o /tmp/aidd-vnext-candidate ./cmd/aidd-checker",
+        "result": "passed"
+      },
+      {
+        "command": "/tmp/aidd-vnext-candidate check-all --repo-root .",
+        "result": "passed: artifacts=8 read_only_legacy=2"
+      },
+      {
+        "command": "python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main",
+        "result": "passed: checked=2"
+      },
+      {
+        "command": "skill quick_validate: aidd-cycle, goal-setting, learn, harness-task",
+        "result": "passed"
+      },
+      {
+        "command": "Codex TOML / Hooks JSON / workflow and skill YAML parse",
+        "result": "passed"
+      },
+      {
+        "command": "git diff --check",
+        "result": "passed"
+      },
+      {
+        "command": "git diff --name-only -- apps/web apps/api",
+        "result": "empty: no product change"
+      },
+      {
+        "command": "/tmp/aidd-vnext-candidate bootstrap-check --repo-root . --base 354876bebd81bc53ab2c8ed0657d0f9d24740dcc",
+        "result": "passed: independent review manifest matched"
+      }
+    ],
+    "note": "Earlier migration verification; superseded for changed source by PR 1706 follow-up checks."
+  },
+  "pr1706_follow_up": {
+    "source_head": "de69aaa394c9be17ade122aa21efa365762d53a4",
+    "source_manifest": {
+      "source_head": "de69aaa394c9be17ade122aa21efa365762d53a4",
+      "files": [
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "mode": "100644",
+          "sha256": "4e5d0c8662493a82d835be0112d9a2caedabc8f29a12e2047a0e964dd2a645bf"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "mode": "100644",
+          "sha256": "edf6131e8b6e4a491f9c3861f3f8b31ecd071b986d992d6429c015fb22abcbc9"
+        },
+        {
+          "path": "docs/harness/policies/code-review.md",
+          "mode": "100644",
+          "sha256": "269b949ce7aa8c17f7fa06a9abb702e81d977ae1dff45efaa5f31d2cac2f5462"
+        },
+        {
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "mode": "100644",
+          "sha256": "884336f81b837bd74d9c8f33ff2c691f5df08c891f014f94487c24b7f51b8e00"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "mode": "100644",
+          "sha256": "600487f6203432ab2338439919dccd9f4960acb9fbd287fce9063bbc5b2b9ed3"
+        },
+        {
+          "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+          "mode": "100644",
+          "sha256": "bb53b1c13b6a3b34f1cf0bb30028701b7b57489de8a7245b5738c9d1556f19cb"
+        },
+        {
+          "path": "tools/aidd/checker/internal/semantic/target_test.go",
+          "mode": "100644",
+          "sha256": "46b76f4c806f4c226fb5e959c22ca27411433815252db8a1dc9488dd8f9edc1e"
+        },
+        {
+          "path": "tools/aidd/checker/internal/semantic/testdata/legacy-goal-contracts.md",
+          "mode": "100644",
+          "sha256": "76811158d6768f36511e579b75e27dfa46b7d47fd115dbc5b43865e81c5b1fc4"
+        }
+      ],
+      "sha256": "d8fac324166fd8e5ee3595df32786f25b624a02f2f661dacc21c311201b2848d"
+    },
+    "learn": {
+      "repository": "/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/aidd-pr1706-final-learn-tpu84i7z/repository",
+      "baseline_source_preserved": true,
+      "superseded_failed_task_repository": "/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/aidd-pr1706-learn-v1odqzv8/repository",
+      "task_id": "pr1706-feedback-routing-complete",
+      "task_sha256": "8695e33e18e83a260722a7daacae189c16852c8ac3acfdf688078e7ef3651f24",
+      "checkpoint_sha256": "bbf1a25ef0a40c7b33372011ddc77f435f3bd307b2ac1214596e1639b8abe7da",
+      "evidence_sha256": "ce5a4301544ec1bd71c0864790e43b5033a5c089adb8a180be90427549fddabe",
+      "review_sha256": "17323da6ec31f51a187aeb4428250f771feb5c0d3499dce0e1460bf6daa3b5fa",
+      "baseline_checker_sha256": "6af43a9e50bbc4864a95ab9257b5a014760f60a34910af287a618b4cddf1e5e4",
+      "completed_commands": [
+        "task-start",
+        "checkpoint",
+        "verify",
+        "learn-review",
+        "check",
+        "finish"
+      ],
+      "main_worktree_content_and_mode_match": true,
+      "verification": "ewogICJzY2hlbWFfdmVyc2lvbiI6IDUsCiAgImtpbmQiOiAiYnVpbGRfdmVyaWZpY2F0aW9uIiwKICAid29ya3NwYWNlIjogInByMTcwNi1mZWVkYmFjay1yb3V0aW5nLWNvbXBsZXRlIiwKICAicmVjZWlwdF9zaGEyNTYiOiAiYmJmMWEyNWVmMGE0MGM3YjMzMzcyMDExZGRjNzdmNDM1ZjNiZDMwN2IyYWMxMjE0NTk2ZTE2MzliOGFiZTdkYSIsCiAgImNhdGFsb2dfc2hhMjU2IjogImEzYmMxNzk1NWFiZmJhOGQwMzAwN2RhN2MwZjZhYmQ5NWVkNzg4NjczYTlkOWI0ZTA1ZTMxNGZhN2Q1NmRhM2EiLAogICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiNjQ4N2I0M2U1OWExYTllZWRiMWU5ODY5YzgxMWM3ZDM4YmExYWQxOTIxZWUyOGM5NGJlOTZlYjY5ZDhlNzY5ZSIsCiAgImdlbmVyYXRvciI6ICJhaWRkLWNoZWNrZXIvdjUiLAogICJyZXN1bHRzIjogWwogICAgewogICAgICAiaWQiOiAiVkMtMSIsCiAgICAgICJ0eXBlIjogImF1dG9tYXRlZCIsCiAgICAgICJzdGF0dXMiOiAicGFzc2VkIiwKICAgICAgInZlcmlmaWNhdGlvbl9wcm9maWxlX2lkIjogImFpZGQtY2hlY2tlci10ZXN0cyIsCiAgICAgICJwcm9maWxlX3NoYTI1NiI6ICIxMGY4OTI2NWQ1ZDE3ODA3Y2M0ZjU3ODMyNmM1MTUxOTZlMmNiZDU4NTY4MmE5M2Y5OTFmNmU5ZWIzZDMxOTE2IiwKICAgICAgInNlbGVjdG9yIjogewogICAgICAgICJraW5kIjogInN1aXRlIgogICAgICB9LAogICAgICAiZXhlY3V0ZWRfaWRlbnRpdGllcyI6IFsKICAgICAgICB7CiAgICAgICAgICAia2luZCI6ICJzdWl0ZSIsCiAgICAgICAgICAiaWQiOiAiYWlkZC1jaGVja2VyLXRlc3RzIgogICAgICAgIH0KICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJzdGRvdXRfYnl0ZXMiOiAxODMzLAogICAgICAic3RkZXJyX2J5dGVzIjogMCwKICAgICAgIm91dHB1dF9zaGEyNTYiOiAiNDFjMjVlODlkZWZiMGJkY2UzMmQ3OWRiOTdlODYyZmM5ZTFjMjk5OWE0NWVlZmI4Njk1Y2I3MzRjZDg0YTM0YyIsCiAgICAgICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiNjQ4N2I0M2U1OWExYTllZWRiMWU5ODY5YzgxMWM3ZDM4YmExYWQxOTIxZWUyOGM5NGJlOTZlYjY5ZDhlNzY5ZSIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJWQy0yIiwKICAgICAgInR5cGUiOiAiYXV0b21hdGVkIiwKICAgICAgInN0YXR1cyI6ICJwYXNzZWQiLAogICAgICAidmVyaWZpY2F0aW9uX3Byb2ZpbGVfaWQiOiAiZ2l0LWRpZmYtY2hlY2siLAogICAgICAicHJvZmlsZV9zaGEyNTYiOiAiZTQyYjdlNjJlMDQ4YmY1NDdjNGIzODY5NzhlOTAxZWYyZGI4M2MyOWZhZjMxZjdjYWY2ZjYyMjUxNTRhZDI3MyIsCiAgICAgICJzZWxlY3RvciI6IHsKICAgICAgICAia2luZCI6ICJzdWl0ZSIKICAgICAgfSwKICAgICAgImV4ZWN1dGVkX2lkZW50aXRpZXMiOiBbCiAgICAgICAgewogICAgICAgICAgImtpbmQiOiAic3VpdGUiLAogICAgICAgICAgImlkIjogImdpdC1kaWZmLWNoZWNrIgogICAgICAgIH0KICAgICAgXSwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJzdGRvdXRfYnl0ZXMiOiAwLAogICAgICAic3RkZXJyX2J5dGVzIjogMCwKICAgICAgIm91dHB1dF9zaGEyNTYiOiAiMDc4NTUxMjZkZGY4M2U3YTc5NDc5MzNmY2EzMmEwZDViNzdjOGU2ZWUxZjBmMmRiMzU3YjYzMDkxNmEzYjYzNyIsCiAgICAgICJmaW5hbF9zdGF0ZV9zaGEyNTYiOiAiNjQ4N2I0M2U1OWExYTllZWRiMWU5ODY5YzgxMWM3ZDM4YmExYWQxOTIxZWUyOGM5NGJlOTZlYjY5ZDhlNzY5ZSIKICAgIH0KICBdCn0K",
+      "baseline_head": "cd580866d87cad62828a1e855f549752896237d7",
+      "baseline_tree": "d01bd9dde355f4153125dbeb0be62c26db47fad1",
+      "source_tree": "d01bd9dde355f4153125dbeb0be62c26db47fad1"
+    },
+    "findings_resolved": [
+      "feedback cause axis before local repair",
+      "bounded AIDD surface plus narrower workflow direct match",
+      "legacy Goal contract table moved to frozen historical fixture"
+    ],
+    "product_changes": false,
+    "delivery": "local edits only; no commit/push or GitHub comment",
+    "bootstrap_record_correction": {
+      "cause": "git diff rename presentation omitted old hook deletion paths",
+      "resolution": "--no-renames enumeration independently compared with checker bootstrapManifest",
+      "paths": [
+        "tools/aidd/checker/internal/codexhooks/hooks.go",
+        "tools/aidd/checker/internal/codexhooks/hooks_test.go"
+      ],
+      "rejected_incomplete_record": true,
+      "checker_changed": false
+    }
+  }
 }

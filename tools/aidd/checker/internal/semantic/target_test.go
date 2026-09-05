@@ -205,15 +205,13 @@ func TestParseSourceAcceptsTypedGoalDisplayContracts(t *testing.T) {
 	}
 }
 
-func TestGoalContractsMatchCanonicalWorkflowTable(t *testing.T) {
-	repositoryRoot, err := filepath.Abs(filepath.Join("..", "..", "..", "..", ".."))
+func TestHistoricalGoalContractsMatchFrozenTable(t *testing.T) {
+	// 現行v5 workflowへ旧phase表を要求せず、移行前の固定fixtureと照合する。
+	content, err := os.ReadFile(filepath.Join("testdata", "legacy-goal-contracts.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	content, err := os.ReadFile(filepath.Join(repositoryRoot, "docs", "ai-driven-development", "workflow.md"))
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	workflow := string(content)
 	for kind, phase := range map[string]string{"requirements_goal": "Requirements", "design_goal": "Design"} {
 		previous := -1
@@ -222,10 +220,10 @@ func TestGoalContractsMatchCanonicalWorkflowTable(t *testing.T) {
 				row := "| " + phase + " | " + field + " | `" + entry.ID + "` | " + entry.Text + " |"
 				index := strings.Index(workflow, row)
 				if index < 0 {
-					t.Fatalf("canonical Goal contract row is missing: %s", row)
+					t.Fatalf("historical Goal contract row is missing: %s", row)
 				}
 				if index <= previous {
-					t.Fatalf("canonical Goal contract row is out of order: %s", row)
+					t.Fatalf("historical Goal contract row is out of order: %s", row)
 				}
 				previous = index
 			}

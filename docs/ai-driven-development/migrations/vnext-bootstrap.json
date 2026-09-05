@@ -79,7 +79,7 @@
       "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "98a48a3769b328a44897ea737bf62ba589d9f50d8e090e44b44b777a10fea5d2"
+      "sha256": "4e5d0c8662493a82d835be0112d9a2caedabc8f29a12e2047a0e964dd2a645bf"
     },
     {
       "path": "docs/ai-driven-development/aidd-checker-operations.md",
@@ -151,7 +151,7 @@
       "path": "docs/ai-driven-development/migrations/vnext.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "39e7bb0f42e52b6d53e85bca1c914d142edf3bb8f13fade12a7a19388872750d"
+      "sha256": "0562ad933354289129ceee0aa2feb6ab52873a6b0163e55a765c8263d3565dee"
     },
     {
       "path": "docs/ai-driven-development/overview.md",
@@ -163,13 +163,13 @@
       "path": "docs/ai-driven-development/workflow.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "01d4a012083344a185433ad67ad4d9cdc6520b2fdd18fdd30fdb170929fc038e"
+      "sha256": "edf6131e8b6e4a491f9c3861f3f8b31ecd071b986d992d6429c015fb22abcbc9"
     },
     {
       "path": "docs/harness/policies/code-review.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "41e3639046d6a4ef9e35ad7b685dc88f895c4a421214c195898ce016488cf045"
+      "sha256": "269b949ce7aa8c17f7fa06a9abb702e81d977ae1dff45efaa5f31d2cac2f5462"
     },
     {
       "path": "docs/harness/policies/git-workflow.md",
@@ -187,13 +187,13 @@
       "path": "docs/harness/policies/review-feedback-classification.md",
       "type": "regular",
       "mode": "100644",
-      "sha256": "69b4986338a6c306d4e4cb97be3fa5d3d75b86e3b317ef3e3e44d5e909bb7b5d"
+      "sha256": "884336f81b837bd74d9c8f33ff2c691f5df08c891f014f94487c24b7f51b8e00"
     },
     {
       "path": "docs/harness/rule-map.json",
       "type": "regular",
       "mode": "100644",
-      "sha256": "771ff018c67fb7c222ffc24a37b4a7458ecb9ba1ca3a8929030e244a33ab3173"
+      "sha256": "600487f6203432ab2338439919dccd9f4960acb9fbd287fce9063bbc5b2b9ed3"
     },
     {
       "path": "tools/aidd/checker/cmd/aidd-checker/commands.go",
@@ -424,6 +424,12 @@
       "sha256": "191d49b3ff13e915ee27f140f9e4b3be9f746c696b0c7742cc101fd4b5952565"
     },
     {
+      "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "bb53b1c13b6a3b34f1cf0bb30028701b7b57489de8a7245b5738c9d1556f19cb"
+    },
+    {
       "path": "tools/aidd/checker/internal/rules/rules.go",
       "type": "regular",
       "mode": "100644",
@@ -436,13 +442,25 @@
       "sha256": "3fddf424a1f2a55d55e84a3bc004f64d006dc668c0784f5676b5447ec2ef0332"
     },
     {
+      "path": "tools/aidd/checker/internal/semantic/target_test.go",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "46b76f4c806f4c226fb5e959c22ca27411433815252db8a1dc9488dd8f9edc1e"
+    },
+    {
+      "path": "tools/aidd/checker/internal/semantic/testdata/legacy-goal-contracts.md",
+      "type": "regular",
+      "mode": "100644",
+      "sha256": "76811158d6768f36511e579b75e27dfa46b7d47fd115dbc5b43865e81c5b1fc4"
+    },
+    {
       "path": "tools/aidd/checker/internal/verificationcontract/input.go",
       "type": "regular",
       "mode": "100644",
       "sha256": "d6fdd8e57427bc5b5a9547a4b245f22017d67a19e75d2348572252c2c51d242f"
     }
   ],
-  "manifest_sha256": "ea6ccbf82390a8c75dbfd9ceb8fd367cc2ad1c5c3a41adb93568cc52cceedab1",
+  "manifest_sha256": "f15e10d667d295fcf7d7192724e23c20850bf46ffac09dd597b0a8021f993c08",
   "reviewer": "/root/independent_review",
-  "observations": "独立agentによるread-only最終review。混在JSONのproduct/guard field分離、lockfileの通常共有依存保持・完全解決先が一致するpeerのみ委任・local/file拒否、baselineを保持した同Taskのcommit後継続、Storybookのtag変更/除去/削除のsuite必須、bootstrap CIのreview対象差分照合、migration文書の完了判定訂正と未実施範囲を確認した。送付した指摘はすべて解消し、確認範囲に未解決findingなし。73 pathsのcontent/mode/削除・変更集合・manifest hashを独立に再計算して一致を確認。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, policy.transaction-boundaries, architecture.overview, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。reviewer自身はGo tests/smoke/実Codex評価を再実行していない。remote CI、GitHub取得、長時間Goal、別vendor運用は対象外。人間/GitHub上の承認ではない。"
+  "observations": "PR 1706追加修正の独立read-only最終review。対応前の原因評価を必須化しlocal defectでも制御不全を評価する境界、AIDD surface限定と一般pathのdirect match/depends_on closure保持、legacy契約12行と移行前commitの一致を確認。現行v5へ旧phase制約を戻していない。今回8filesのmain worktreeと一時Learnのcontent/mode一致、Task/checkpoint/evidence hash参照と開始時binary hash一致、VC-1/VC-2 passedを確認した。開始時binaryのread-only checkを独立実行して成功。PR全体76pathsのcontent/mode/削除/path集合とmanifestを再計算して一致。以前の移行reviewを引き継ぎ、今回追加の確認範囲に未解決findingなし。Checked rules: ai-driven.overview, ai-driven.workflow, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.learn, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol。全Go suiteはreviewer自身では再実行せず生成証拠とcheckを確認。remote CI/GitHub承認は対象外。独立agent reviewであり人間の承認ではない。 前回74pathsの照合はGit rename表示が旧codexhooksの2削除pathを省略していたため訂正。--no-renamesで独立再計算し、旧2filesの削除、新adapters/codex/hooksの2filesの存在、76全pathのcontent/mode/削除/path集合とchecker実manifestの完全一致を確認。今回8filesとLearn証拠の評価は変わらず未解決findingなし。"
 }

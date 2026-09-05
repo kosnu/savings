@@ -59,3 +59,11 @@ productと検証機構の境界を検査する。独立したVite build設定は
 Task baselineの固定は検証対象差分の固定を意味し、task期間全体のHEAD等号を意味しない。
 元baselineの子孫commitから同じTask/Goalで判断改訂・再検証・再Shipを行える。
 初回bootstrapでも対象差分のmanifestに結合した独立review記録をCIで要求する。
+
+## Clarification: Feedback causes and bounded routing (2026-09-05)
+
+review feedbackの症状と再利用可能な原因は別軸であり、local defectでも対応前にguardrail failureを評価する。
+purely localの場合だけ同じDevelopment / Decisionで閉じ、再利用可能な制御不全は独立Learnへ渡す。
+AIDD surfaceはcontrol planeとharnessの具体的pathに限定する。一般文書・GitHub設定は
+個別pathのruleと依存closureで扱い、surface範囲外であることをrule適用免除にしない。
+これはguardrail immutabilityの対象を縮小する判断ではない。

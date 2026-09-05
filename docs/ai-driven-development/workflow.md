@@ -78,10 +78,15 @@ local/file依存の実体検査は未対応で、保護対象closureに含む場
 
 ## Review / Learn
 
-feedbackは妥当性、intent/decisionとの関係、再利用可能性を判定してから対応する。
-local defectは同じdecision内で修正・再検証する。requirement gapは既存Issueの明確化へ戻す。
-design issueは同じ意図の範囲でdecisionを改訂する。再利用可能な制御不全はLearnへ渡す。
-local defectにも再利用可能な原因があり得る。単純なtypoを無理に恒久ruleにしない。
+feedbackは対応前に妥当性と原因を評価し、症状・修正対象と、原因・再利用性を別軸で扱う。
+local defectという分類で原因評価を終えない。policy不足、routing・読込・適用の不全、
+機械検出可能な違反の検出漏れ、guidance不足をrepository evidenceで区別する。
+purely localと確認できたdefectは同じDevelopment / Decision内で修正・再検証する。
+再利用可能なguardrail failureならproduct修正だけで閉じず独立Learnへ渡し、
+guardrail更新・検証・確定でLearnを終了する。必要なproduct実装は既存Issueから新Developmentへ渡す。
+原因未確定は不足根拠を明示する。単純なtypoを無理に恒久ruleにしない。
+requirement gap・design issue・delivery defectも同じ原因軸を評価する。
+詳細な判断境界は[review feedback policy](../harness/policies/review-feedback-classification.md)を適用する。
 
 LearnはIssue不要の独立task。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
 分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと有限scopeを固定し、
