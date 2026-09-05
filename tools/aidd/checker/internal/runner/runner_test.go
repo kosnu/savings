@@ -412,7 +412,7 @@ func TestExecuteRejectsStagedTreeMutation(t *testing.T) {
 	}
 }
 
-func TestExecuteRejectsIgnoredRepositoryMutations(t *testing.T) {
+func TestExecuteChecksGitVisibleRepositoryMutations(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("fixture uses the repository shell available on Unix runners")
 	}
@@ -421,17 +421,23 @@ func TestExecuteRejectsIgnoredRepositoryMutations(t *testing.T) {
 		command      string
 		wantMutation bool
 	}{
-		{name: "new ignored file", command: "printf new > ignored/new.txt", wantMutation: true},
-		{name: "same size rewrite with restored mtime", command: "printf 'after!\\n' > ignored/existing.txt && touch -r reference.txt ignored/existing.txt", wantMutation: true},
-		{name: "delete ignored file", command: "rm ignored/existing.txt", wantMutation: true},
-		{name: "create then delete ignored file", command: "printf transient > ignored/transient.txt && rm ignored/transient.txt", wantMutation: true},
+		{name: "new ignored file", command: "printf new > ignored/new.txt", wantMutation: false},
+		{name: "same size rewrite with restored mtime", command: "printf 'after!\\n' > ignored/existing.txt && touch -r reference.txt ignored/existing.txt", wantMutation: false},
+		{name: "delete ignored file", command: "rm ignored/existing.txt", wantMutation: false},
+		{name: "create then delete ignored file", command: "printf transient > ignored/transient.txt && rm ignored/transient.txt", wantMutation: false},
+		{name: "new root cache", command: "printf cache > build.tsbuildinfo", wantMutation: false},
+		{name: "new ignored directory", command: "mkdir -p ignored/nested && printf cache > ignored/nested/file", wantMutation: false},
+		{name: "new non-ignored file", command: "printf new > unexpected.txt", wantMutation: true},
+		{name: "delete tracked file", command: "rm reference.txt", wantMutation: true},
+		{name: "rewrite tracked file matching ignore", command: "printf changed > tracked.tsbuildinfo", wantMutation: true},
 		{name: "unchanged repository", command: "git diff --check", wantMutation: false},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			snapshot := newRunnerSnapshot(t)
 			for path, content := range map[string]string{
-				".gitignore":           "ignored/\n",
+				".gitignore":           "ignored/\n*.tsbuildinfo\n",
+				"tracked.tsbuildinfo":  "tracked\n",
 				"owned.txt":            "complete\n",
 				"reference.txt":        "reference\n",
 				"ignored/existing.txt": "before\n",
@@ -451,6 +457,7 @@ func TestExecuteRejectsIgnoredRepositoryMutations(t *testing.T) {
 				}
 			}
 			runRunnerGit(t, snapshot.Root, "add", ".gitignore", "owned.txt", "reference.txt")
+			runRunnerGit(t, snapshot.Root, "add", "-f", "tracked.tsbuildinfo")
 			runRunnerGit(t, snapshot.Root, "commit", "-qm", "runner fixture")
 
 			profile := model.VerificationProfile{
@@ -475,12 +482,12 @@ func TestExecuteRejectsIgnoredRepositoryMutations(t *testing.T) {
 			_, err := Execute(context.Background(), snapshot, loaded, Options{})
 			if test.wantMutation {
 				if err == nil || !strings.Contains(err.Error(), "AIDD_VERIFICATION_MUTATION") {
-					t.Fatalf("expected ignored mutation rejection, got %v", err)
+					t.Fatalf("expected Git-visible mutation rejection, got %v", err)
 				}
 				return
 			}
 			if err != nil {
-				t.Fatalf("unchanged verification rejected: %v", err)
+				t.Fatalf("allowed verification rejected: %v", err)
 			}
 		})
 	}

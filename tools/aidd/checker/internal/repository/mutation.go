@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/diagnostic"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
@@ -32,67 +34,38 @@ type MutationDifference struct {
 	Actual   *MutationEntry
 }
 
-func (snapshot *Snapshot) MutationManifest() (*MutationManifest, error) {
+// MutationManifestはGit管理対象と未ignoreの新規fileだけを比較する。
+// 親directoryの時刻は、正常なignore生成物の書込みでも変わるため含めない。
+func (snapshot *Snapshot) MutationManifest(ctx context.Context) (*MutationManifest, error) {
+	output, err := snapshot.Git(ctx, "ls-files", "--cached", "--others", "--exclude-standard", "-z")
+	if err != nil {
+		return nil, err
+	}
+	paths := strings.Split(string(output), "\x00")
+	sort.Strings(paths)
 	manifest := &MutationManifest{Version: 1}
-	rootInfo, err := snapshot.root.Lstat(".")
-	if err != nil {
-		return nil, diagnostic.New("AIDD_MUTATION_STAT", ".", "repository", "repository root cannot be inspected for verification mutations", nil, err.Error())
-	}
-	rootEntry, err := mutationEntry(".", rootInfo)
-	if err != nil {
-		return nil, err
-	}
-	manifest.Entries = append(manifest.Entries, rootEntry)
-
-	var visit func(string) error
-	visit = func(directory string) error {
-		rootPath := directory
-		if rootPath == "" {
-			rootPath = "."
+	previous := ""
+	for _, path := range paths {
+		if path == "" || path == previous {
+			continue
 		}
-		handle, openErr := snapshot.root.Open(filepath.FromSlash(rootPath))
-		if openErr != nil {
-			return diagnostic.New("AIDD_MUTATION_READDIR", rootPath, "repository", "repository directory cannot be opened for verification mutation tracking", nil, openErr.Error())
+		previous = path
+		if _, err := pathcontract.ValidateRelativePath(path); err != nil {
+			return nil, err
 		}
-		entries, readErr := handle.ReadDir(-1)
-		closeErr := handle.Close()
-		if readErr != nil {
-			return diagnostic.New("AIDD_MUTATION_READDIR", rootPath, "repository", "repository directory cannot be read for verification mutation tracking", nil, readErr.Error())
+		info, err := snapshot.root.Lstat(filepath.FromSlash(path))
+		// 削除された管理済みpathはls-filesに残る。前後のinventory差として検出する。
+		if os.IsNotExist(err) {
+			continue
 		}
-		if closeErr != nil {
-			return diagnostic.New("AIDD_MUTATION_READDIR", rootPath, "repository", "repository directory cannot be closed after verification mutation tracking", nil, closeErr.Error())
+		if err != nil {
+			return nil, diagnostic.New("AIDD_MUTATION_STAT", path, "repository", "verification target cannot be inspected", nil, err.Error())
 		}
-		sort.Slice(entries, func(left, right int) bool { return entries[left].Name() < entries[right].Name() })
-		for _, entry := range entries {
-			if entry.Name() == ".git" {
-				continue
-			}
-			path := entry.Name()
-			if directory != "" {
-				path = directory + "/" + entry.Name()
-			}
-			if _, pathErr := pathcontract.ValidateRelativePath(path); pathErr != nil {
-				return pathErr
-			}
-			info, statErr := entry.Info()
-			if statErr != nil {
-				return diagnostic.New("AIDD_MUTATION_STAT", path, "repository", "repository entry changed while the verification mutation manifest was captured", "stable entry", statErr.Error())
-			}
-			item, identityErr := mutationEntry(path, info)
-			if identityErr != nil {
-				return identityErr
-			}
-			manifest.Entries = append(manifest.Entries, item)
-			if info.IsDir() {
-				if visitErr := visit(path); visitErr != nil {
-					return visitErr
-				}
-			}
+		item, err := mutationEntry(path, info)
+		if err != nil {
+			return nil, err
 		}
-		return nil
-	}
-	if err := visit(""); err != nil {
-		return nil, err
+		manifest.Entries = append(manifest.Entries, item)
 	}
 	return manifest, nil
 }

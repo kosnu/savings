@@ -35,8 +35,15 @@ checkpointはTask hashと親checkpoint hashを持つ追記型revision。baseline
 最新checkpoint以外の証拠、対象content/mode/inventoryが異なる証拠を拒否する。
 検証時はtask外を含むrepository stateに証拠を結び付ける。
 
-runnerは専用process groupを使い、残留processを終了・拒否した後にignoredを含む
-repository mutation manifest、HEAD、staged treeを比較する。GIT_*の注入を除去する。
+runnerは専用process groupを使い、残留processを終了・拒否した後にGit管理対象と
+未ignoreの新規fileのmutation manifest、HEAD、staged treeを比較する。GIT_*の注入を除去する。
+Git管理対象はignore指定があっても検査し、未追跡fileの選択にはGitの標準ignore設定を使う。
+ignore対象の未追跡生成物・cacheは原則除外し、生成物ごとの例外リストは設けない。
+rootと親directoryの更新時刻を比較しないため、正常な生成物の作成・削除でも拒否しない。
+既存の対象fileのcontent/mode/identity、HEADとindexの検査は維持する。
+対象fileの追加・削除は検証前後のinventoryで検出する。snapshot間に作成して削除された
+未追跡fileや空directoryの一時変更は保証範囲に含めない。
+明示された所有成果物のhash検査は別に維持し、ignoreを成果物検証の免除には使わない。
 canonical JSON、snapshot bytes、path traversal/symlink拒否、出力mode検査を継承する。
 
 Shipは検証済みworktree全体とindexのcontent/Git modeが一致し、未stage出力がないことを要求する。
