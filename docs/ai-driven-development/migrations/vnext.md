@@ -161,3 +161,32 @@ v5 Task/checkpoint/evidenceの代替入力ではない。schema_version=1、kind
 新しいYAML解析にはsecurity-fixが継続される安定版go.yaml.in/yaml/v3 v3.0.4を固定使用する。
 v4は確認時点でRCのため採用していない。[提供元の互換性方針](https://github.com/yaml/go-yaml)。
 lockfile parserはv9のみ対応し、未知形式・参照欠落を成功扱いにしない。
+
+## PR #1706 follow-up (2026-09-05)
+
+ユーザーの追加指摘2件を原因調査し、症状と制御不全の分類、およびhard routingの過剰適用を修正した。
+
+- feedbackは対応前に妥当性・原因を評価する。local defectという症状だけで原因評価を終えず、
+  policy、routing・読込・適用、検出機構、guidanceを調べる。purely localは同Developmentで修正し、
+  再利用可能な制御不全は独立Learnへ渡す。design issue等でもLearnを優先し、依存Developmentを中断する。
+- `docs/**` / `.github/**`の一括surfaceはこの移行で追加されたもので、移行前のgoverned surfaceはWeb/APIのみだった。
+  guardrailの変更面を取りこぼさない意図の一括分類だったが、immutabilityの保護範囲とrule適用範囲を混同していた。
+  AIDD/harness、採択ADR、agent入口・設定、AIDD専用CIへ限定した。`.github/skills/code-review/**`、
+  `.github/agents/**`、`CLAUDE.md`は実際のagent guidance入口として残す。
+- 既存`ai-driven.workflow.applies_to.paths`の`docs/**/*.md`も一般文書への過剰一致を生むため除去した。
+  一般Markdownのdocumentation規則、Issue templateのissue規則、通常CIのtransaction規則は
+  direct matchとdepends_on closureで維持する。priority・探索metadataによる除外は導入していない。
+  guardrail_pathsを縮小したものではない。
+- 実rule-mapを使う正負のrouting回帰テスト、surface未分類拒否、低priority依存の保持、
+  metadata非強制を追加した。resolverの実装は変更せず、適用契約とその検証を修正した。
+- 必須全Go suiteで、旧Goal表を現行workflowへ要求する移行漏れを発見した。移行前commitの12行を
+  semantic testdataへそのまま保存し、旧契約との照合をこの固定fixtureへ移した。既存の欠落・改変・順序拒否は維持する。
+  cached成功だけではこの漏れを見つけられなかったため、最終全Go suiteは`go -C tools/aidd/checker test -count=1 ./...`で再実行した。
+
+PR全体は依然としてbaseにv5がないbootstrapである。今回の独立Learnは同じsource HEAD
+`de69aaa394c9be17ade122aa21efa365762d53a4`の一時repositoryで開始し、同じsourceからbuildした
+開始時checkerと旧policy/profileを保持して検証する。
+最初の有限scopeでは上記legacy test修正を含められなかったため、失敗Taskを保存し、同じsource HEADから
+必要8filesを明示したTaskへ切り替えた。未検証変更を新baselineへ取り込んでいない。Goalは追加していない。
+一時Learnの証拠とmain worktreeの8filesのcontent/mode一致を別添検証記録へ保存し、
+PR全体のbootstrap review manifestも更新する。commit/push/remote CIはこの追加修正では実行していない。

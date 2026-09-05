@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "description": "AI agentが作業対象に応じて読むべきリポジトリ内ドキュメントを選ぶための初期ルールマップ。Markdown本文を置き換えず、docs配下の正本へ案内する補助索引として扱う。",
+  "description": "Markdown正本の意味を保持し、path/surfaceの直接一致とdepends_on closureを必須ruleとして機械適用する。topics/domains/activitiesは探索用、priorityは適用除外に使わない。",
   "resolution_order": [
     "specific_applies_to",
     "depends_on",
@@ -13,11 +13,18 @@
       "apps/web/**",
       "apps/api/**",
       "tools/aidd/**",
-      "docs/**",
+      "docs/ai-driven-development/**",
+      "docs/harness/**",
+      "docs/adr/0001-adopt-harness-engineering.md",
+      "docs/adr/0002-adopt-agent-rule-graph.md",
+      "docs/adr/0003-adopt-aidd-invariant-protocol.md",
       ".agents/**",
       ".codex/**",
-      ".github/**",
-      "AGENTS.md"
+      ".github/skills/code-review/**",
+      ".github/agents/**",
+      ".github/workflows/aidd_*",
+      "AGENTS.md",
+      "CLAUDE.md"
     ],
     "surfaces": [
       {
@@ -80,11 +87,18 @@
         "id": "aidd-harness",
         "paths": [
           "tools/aidd/**",
-          "docs/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/**",
+          "docs/adr/0001-adopt-harness-engineering.md",
+          "docs/adr/0002-adopt-agent-rule-graph.md",
+          "docs/adr/0003-adopt-aidd-invariant-protocol.md",
           ".agents/**",
           ".codex/**",
-          ".github/**",
-          "AGENTS.md"
+          ".github/skills/code-review/**",
+          ".github/agents/**",
+          ".github/workflows/aidd_*",
+          "AGENTS.md",
+          "CLAUDE.md"
         ],
         "required_rules": [
           "ai-driven.workflow",
@@ -196,7 +210,7 @@
       "id": "ai-driven.workflow",
       "file": "docs/ai-driven-development/workflow.md",
       "applies_to": {
-        "paths": ["docs/ai-driven-development/**", "docs/**/*.md", "apps/**"],
+        "paths": ["docs/ai-driven-development/**", "apps/**"],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["choose_goal_phase", "write_prd", "write_design_doc", "build_verify", "ship", "learn"],
         "topics": ["workflow", "prd", "design-doc", "pull-request", "verification"]
