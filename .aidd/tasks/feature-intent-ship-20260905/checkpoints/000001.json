@@ -1,0 +1,155 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "22200bfbd60ca3396745ed5044a9675a03b8550771317f37b86313f3e9116e09",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "22200bfbd60ca3396745ed5044a9675a03b8550771317f37b86313f3e9116e09",
+    "reason": "セッション内レビュー4件を学びとして採用。通常のFeature Request起票から旧工程と一律Stopが本文へ残るため到達可能。原因はIssue入力と実行契約の責務重複およびvNext移行追従漏れ。モデル専用プロンプト追加やcheckerの意味推測より、入力テンプレートと所有規則の修正を選ぶ。成功条件は具体例で記入を誘導し、権限やintentの変更は引き続き確認する。 ローカル確定後の明示的repo ship依頼で配信範囲をprへ変更。旧Taskを/tmp/feature-intent-ship-backup-20260905へ保存し、同じGit基準点から同一変更を新Taskで検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Feature Requestを現行AIDDの意図入力として整え、委任内で自律継続できる境界を明確化する",
+        "origin": "intent",
+        "evidence": "最大限の発揮ができるテンプレや仕組みにして"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Issueから観測可能な成果と委任境界を読み取り、現行AIDDへ進める",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "check-allを実行し、技術詳細未定、委任済みDB/API変更、成果が変わる曖昧さ、権限超過、旧Issueの制限、delivery省略/PR指定の各ケースを正本文書と照合する"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/issue-template-selection.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/harness/policies/issue-template-selection.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}
