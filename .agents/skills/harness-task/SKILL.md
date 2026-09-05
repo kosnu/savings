@@ -11,6 +11,12 @@ Execute a clearly scoped repository task directly, without creating a Codex Goal
 
 Use this skill to keep smaller implementation, docs, test, UI text, review-response, DB/API, or verification-failure work inside the repository harness. Do not depend on `task-plan`, `task-execute`, or user-level skills. Apply their working style locally: ground the task, classify size/risk, keep representations synchronized, stop on material scope changes, review the diff, and verify affected behavior.
 
+## Routing boundary
+
+Product implementation uses the default AIDD Development contract; identify the existing Issue when it is not supplied.
+Guardrail implementation uses independent Learn with explicit authorization.
+Do not use this skill to bypass either contract. Read-only work remains read-only.
+
 ## Entry Gate
 
 Before editing, confirm the request has enough information to execute:
@@ -77,7 +83,7 @@ Implement the smallest practical diff that satisfies the scoped task.
 
 Keep representations synchronized. Treat one-sided updates as likely bugs even when tests pass.
 
-During review and verification, apply `docs/harness/policies/learning-extraction.md` when extracting reusable learning. That policy is canonical for finding eligibility, classification, output, and Stop conditions; do not define or infer a separate finding input gate here. Apply an explicitly requested, in-scope rule or policy change directly; otherwise return the task-context or rule handoff without claiming it was applied. This capability does not require invoking `learn`, although `learn` may be used when a dedicated learning handoff is requested.
+During review and verification, apply `docs/harness/policies/learning-extraction.md` when extracting reusable learning. That policy is canonical for finding eligibility, classification, output, and Stop conditions; do not define or infer a separate finding input gate here. Authorized guardrail implementation follows the independent Learn contract, including its verification and finalization boundary. Otherwise return the analysis or handoff without claiming it was applied. Do not mix product implementation into Learn.
 
 Use subagents sparingly:
 

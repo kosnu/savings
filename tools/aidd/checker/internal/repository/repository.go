@@ -374,6 +374,20 @@ func (snapshot *Snapshot) ObserveWorktreeIdentity(path string) (WorktreeIdentity
 	return WorktreeIdentity{Path: normalized, Type: "regular", Mode: mode, SHA256: digest}, nil
 }
 
+// ObserveOptionalWorktreeIdentity returns exists=false for missing paths and observes existing entries without following the final symlink.
+func (snapshot *Snapshot) ObserveOptionalWorktreeIdentity(path string) (WorktreeIdentity, bool, error) {
+	normalized, err := pathcontract.ValidateRelativePath(path)
+	if err != nil {
+		return WorktreeIdentity{}, false, err
+	}
+	_, exists, err := snapshot.inspectEntry(normalized, true, true)
+	if err != nil || !exists {
+		return WorktreeIdentity{}, exists, err
+	}
+	value, err := snapshot.ObserveWorktreeIdentity(normalized)
+	return value, true, err
+}
+
 func (snapshot *Snapshot) hashRegularFile(path string) (string, error) {
 	file, err := snapshot.root.Open(filepath.FromSlash(path))
 	if err != nil {

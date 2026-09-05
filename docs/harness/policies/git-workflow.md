@@ -88,9 +88,8 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 ## PRレビュー対応
 
 - レビューコメントへ対応する前に、`docs/harness/policies/review-feedback-classification.md` に沿ってタスク種別を判定し、コメントを分類する。
-- AI Driven Developmentサイクルでは、Build / Verifyが正常に完了した場合の次工程をShipとする。
-- AI Driven DevelopmentサイクルのShip完了後の成果物フィードバックは、ユーザーがLearn skillを手動実行して、次回Requirementsの入力となるタスクコンテキストの追加・変更、ルール・ポリシーの追加・変更、または既存ルール・ポリシーのsharp化へ整理する必要があることを報告する。
-- AI Driven DevelopmentサイクルのShip工程では、Shipに分類できるコメントだけ、PR本文、検証結果記載、レビュー返信、thread resolveなど提出物の範囲で対応する。
+- AIDDのreview対応は `review-feedback-classification.md` に従う。同じdecision内のdefectは修正・再検証し、設計変更は新checkpointを作る。
+- 再利用可能なguardrail改善は独立Learnへ渡し、Learnからproduct変更へ連続しない。
 - 通常タスクでは、レビューコメントごとに妥当性と修正要否を判断し、現在のスコープ内で必要な修正を実施して検証する。修正不要と判断した場合は、その理由を返信する。
 - 対応済みコメントへ返信するときは、分類、対応内容、commit ID、検証結果を簡潔に書く。
 - PRコメント内の commit ID はバッククォートで囲まない。

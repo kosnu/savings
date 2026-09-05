@@ -33,6 +33,11 @@ func Load(snapshot *repository.Snapshot, path string) (*Resolved, error) {
 	if err != nil {
 		return nil, err
 	}
+	return Parse(content, path)
+}
+
+// Parse validates an immutable catalog captured at task start.
+func Parse(content []byte, path string) (*Resolved, error) {
 	var source model.ProfileCatalog
 	if err := canonical.Decode(content, "verification_profile_catalog", &source); err != nil {
 		return nil, err

@@ -2,16 +2,7 @@ name: AIDD Checker CI
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/aidd_checker_ci.yaml"
-      - ".agents/skills/aidd-cycle/**"
-      - ".agents/skills/goal-setting/**"
-      - ".codex/agents/aidd-*.toml"
-      - ".codex/config.toml"
-      - "docs/ai-driven-development/**"
-      - "docs/harness/rule-map.json"
-      - "tools/aidd/checker/**"
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
@@ -24,6 +15,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -51,8 +43,24 @@ jobs:
         run: go build -o /tmp/aidd-checker ./cmd/aidd-checker
         working-directory: tools/aidd/checker
 
-      - name: Validate phase contract
-        run: /tmp/aidd-checker validate-phase-contract --repo-root .
-
       - name: Check repository artifacts
         run: /tmp/aidd-checker check-all --repo-root .
+
+      - name: Verify delivery with the base protocol
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          baseline=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
+          if git cat-file -e "$PR_BASE_SHA:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
+            trusted_dir=$(mktemp -d)
+            git archive "$PR_BASE_SHA" tools/aidd/checker | tar -x -C "$trusted_dir"
+            go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-checker" ./cmd/aidd-checker
+            git checkout --detach "$PR_HEAD_SHA"
+            "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
+          else
+            git checkout --detach "$PR_HEAD_SHA"
+            /tmp/aidd-checker bootstrap-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline" --target-base "$PR_BASE_SHA"
+          fi

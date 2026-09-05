@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "description": "AI agentが作業対象に応じて読むべきリポジトリ内ドキュメントを選ぶための初期ルールマップ。Markdown本文を置き換えず、docs配下の正本へ案内する補助索引として扱う。",
+  "description": "Markdown正本の意味を保持し、path/surfaceの直接一致とdepends_on closureを必須ruleとして機械適用する。topics/domains/activitiesは探索用、priorityは適用除外に使わない。",
   "resolution_order": [
     "specific_applies_to",
     "depends_on",
@@ -9,11 +9,29 @@
     "stop_and_clarify"
   ],
   "review_routing": {
-    "governed_paths": ["apps/web/**", "apps/api/**"],
+    "governed_paths": [
+      "apps/web/**",
+      "apps/api/**",
+      "tools/aidd/**",
+      "docs/ai-driven-development/**",
+      "docs/harness/**",
+      "docs/adr/0001-adopt-harness-engineering.md",
+      "docs/adr/0002-adopt-agent-rule-graph.md",
+      "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+      ".agents/**",
+      ".codex/**",
+      ".github/skills/code-review/**",
+      ".github/agents/**",
+      ".github/workflows/aidd_*",
+      "AGENTS.md",
+      "CLAUDE.md"
+    ],
     "surfaces": [
       {
         "id": "web-project",
-        "paths": ["apps/web/**"],
+        "paths": [
+          "apps/web/**"
+        ],
         "required_rules": [
           "policy.code-review",
           "infrastructure.overview",
@@ -22,7 +40,9 @@
       },
       {
         "id": "web-source",
-        "paths": ["apps/web/src/**"],
+        "paths": [
+          "apps/web/src/**"
+        ],
         "required_rules": [
           "web.component-structure",
           "web.design-system-brand",
@@ -46,7 +66,9 @@
       },
       {
         "id": "api-project",
-        "paths": ["apps/api/**"],
+        "paths": [
+          "apps/api/**"
+        ],
         "required_rules": [
           "policy.code-review",
           "infrastructure.overview",
@@ -59,6 +81,29 @@
           "domain.monthly-budget",
           "domain.book",
           "domain.user"
+        ]
+      },
+      {
+        "id": "aidd-harness",
+        "paths": [
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/**",
+          "docs/adr/0001-adopt-harness-engineering.md",
+          "docs/adr/0002-adopt-agent-rule-graph.md",
+          "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          ".agents/**",
+          ".codex/**",
+          ".github/skills/code-review/**",
+          ".github/agents/**",
+          ".github/workflows/aidd_*",
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "required_rules": [
+          "ai-driven.workflow",
+          "ai-driven.checker",
+          "documentation.policy"
         ]
       }
     ]
@@ -165,7 +210,7 @@
       "id": "ai-driven.workflow",
       "file": "docs/ai-driven-development/workflow.md",
       "applies_to": {
-        "paths": ["docs/ai-driven-development/**", "docs/**/*.md", "apps/**"],
+        "paths": ["docs/ai-driven-development/**", "apps/**"],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["choose_goal_phase", "write_prd", "write_design_doc", "build_verify", "ship", "learn"],
         "topics": ["workflow", "prd", "design-doc", "pull-request", "verification"]
@@ -191,12 +236,29 @@
       "id": "ai-driven.goal-templates",
       "file": "docs/ai-driven-development/goal-templates/index.md",
       "applies_to": {
-        "paths": ["docs/ai-driven-development/goal-templates/**", ".agents/skills/goal-setting/**", ".agents/skills/aidd-cycle/**"],
-        "domains": ["repository", "ai-driven-development"],
-        "activities": ["create_goal", "write_goal_template", "execute_goal_phase"],
-        "topics": ["codex-goal", "goal-template", "requirements", "design", "verification", "ship"]
+        "paths": [
+          "docs/ai-driven-development/goal-templates/**",
+          ".agents/skills/goal-setting/**",
+          ".agents/skills/aidd-cycle/**"
+        ],
+        "domains": [
+          "repository",
+          "ai-driven-development"
+        ],
+        "activities": [
+          "create_goal",
+          "write_goal_template",
+          "execute_goal_phase"
+        ],
+        "topics": [
+          "codex-goal",
+          "task-contract",
+          "goal-template"
+        ]
       },
-      "depends_on": ["ai-driven.workflow"],
+      "depends_on": [
+        "ai-driven.workflow"
+      ],
       "overrides": [],
       "priority": 84
     },
@@ -217,13 +279,39 @@
           "docs/ai-driven-development/aidd-checker-operations.md",
           "docs/ai-driven-development/overview.md",
           "docs/ai-driven-development/workflow.md",
-          "docs/harness/rule-map.json"
+          "docs/harness/rule-map.json",
+          ".agents/skills/learn/**",
+          ".agents/skills/harness-task/**",
+          ".github/workflows/aidd_checker_ci.yaml",
+          "AGENTS.md",
+          "docs/ai-driven-development/codex-adapter.md"
         ],
-        "domains": ["repository", "ai-driven-development", "harness"],
-        "activities": ["change_aidd_checker", "change_aidd_control_plane", "change_codex_hooks", "validate_artifact", "verify_build"],
-        "topics": ["aidd-control-plane", "codex-hooks", "validation", "verification-profile", "trust-boundary", "schema-v4"]
+        "domains": [
+          "repository",
+          "ai-driven-development",
+          "harness"
+        ],
+        "activities": [
+          "change_aidd_checker",
+          "change_aidd_control_plane",
+          "change_codex_hooks",
+          "validate_artifact",
+          "verify_build"
+        ],
+        "topics": [
+          "aidd-core",
+          "invariants",
+          "validation",
+          "verification-profile",
+          "trust-boundary",
+          "schema-v5"
+        ]
       },
-      "depends_on": ["ai-driven.workflow", "adr.harness-engineering", "documentation.policy"],
+      "depends_on": [
+        "ai-driven.workflow",
+        "adr.harness-engineering",
+        "documentation.policy"
+      ],
       "overrides": [],
       "priority": 89
     },
@@ -574,6 +662,27 @@
       "depends_on": ["web.test-policy"],
       "overrides": [],
       "priority": 83
+    },
+    {
+      "id": "adr.aidd-invariant-protocol",
+      "file": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+      "applies_to": {
+        "paths": [
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          ".agents/skills/**",
+          ".codex/**"
+        ],
+        "topics": [
+          "aidd-core",
+          "schema-v5"
+        ]
+      },
+      "depends_on": [
+        "adr.agent-rule-graph"
+      ],
+      "overrides": [],
+      "priority": 100
     }
   ]
 }

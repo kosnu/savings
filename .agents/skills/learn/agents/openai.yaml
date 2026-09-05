@@ -1,7 +1,7 @@
 interface:
   display_name: "Learn"
-  short_description: "Apply the canonical learning-extraction policy"
-  default_prompt: "Use $learn to process the eligible findings according to the repository's canonical learning-extraction policy."
+  short_description: "Improve reusable guardrails without product changes"
+  default_prompt: "Use $learn to analyze the specified feedback."
 
 policy:
   allow_implicit_invocation: true

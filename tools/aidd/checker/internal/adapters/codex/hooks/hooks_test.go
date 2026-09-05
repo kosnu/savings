@@ -214,8 +214,8 @@ func TestSessionStartCompactInjectsAIDDInvariants(t *testing.T) {
 	for _, invariant := range []string{
 		"現在Goal",
 		"親agent",
-		"上流成果物",
-		"Build / Verify",
+		"checkpoint",
+		"decision",
 		"Ship",
 		"Learn",
 	} {
@@ -234,7 +234,7 @@ func TestSessionStartCompactUsesExactOfficialJSONShape(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := `{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"AIDD工程不変条件:\n- 現在Goalを継続する。\n- Goalの所有は親agentが担う。\n- 上流成果物はread-onlyとして扱う。\n- Build / Verifyの次はShipへ進む。\n- Learnは自動実行しない。"}}`
+	want := `{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"AIDD vNext不変条件:\n- 現在Goalを継続し、taskと最新checkpointを再取得する。\n- Goalの所有は親agentが担い、CoreはGoalなしでも検査する。\n- 確定済みdecisionは上書きせず、新revisionで証拠を失効する。\n- 検証済み状態とstaged content/modeが一致する場合だけShipする。\n- Developmentのguardrailはread-only。Learnは独立して終了する。"}}`
 	if string(serialized) != want {
 		t.Fatalf("SessionStart JSON = %s, want %s", serialized, want)
 	}
