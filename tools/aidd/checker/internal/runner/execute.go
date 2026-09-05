@@ -38,7 +38,7 @@ func ExecuteContract(ctx context.Context, snapshot *repository.Snapshot, input v
 		if verificationCase.Type != "automated" {
 			continue
 		}
-		initialRepositoryManifest, err = snapshot.MutationManifest()
+		initialRepositoryManifest, err = snapshot.MutationManifest(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -79,12 +79,12 @@ func ExecuteContract(ctx context.Context, snapshot *repository.Snapshot, input v
 			return nil, err
 		}
 		evidence.Results = append(evidence.Results, *result)
-		currentRepositoryManifest, err := snapshot.MutationManifest()
+		currentRepositoryManifest, err := snapshot.MutationManifest(ctx)
 		if err != nil {
 			return nil, err
 		}
 		if difference := repository.CompareMutationManifests(initialRepositoryManifest, currentRepositoryManifest); difference != nil {
-			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", difference.Path, "build_verification", "verification case modified repository state, including ignored paths", difference.Expected, difference.Actual)
+			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", difference.Path, "build_verification", "verification case modified repository state, in Git-tracked or non-ignored paths", difference.Expected, difference.Actual)
 		}
 		if err := snapshot.AssertUnchanged(); err != nil {
 			return nil, diagnostic.New("AIDD_VERIFICATION_MUTATION", verificationCase.ID, "build_verification", "verification case modified a repository input", "unchanged snapshot", err.Error())

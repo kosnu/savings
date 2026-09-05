@@ -113,6 +113,9 @@ WebではAGENTS.mdの対象検証を満たす。Storybook browser-test対象を�
 manual caseには`--manual-observation 'VC-2=具体的に観測した結果'`を追加する。
 観測なしの成功を記載しない。失敗は範囲内で修正後に新しいbatchで再実行する。
 runnerはprofile固定argv、process group、runtime identity、repository mutationを検査する。
+mutationの対象はGit管理対象と未ignoreの新規file。ignoreされた未追跡cacheの生成・更新・削除は許可する。
+`.tsbuildinfo`等の正常な生成物を理由に検証を中断せず、個別の除外指定も追加しない。
+Git管理済みfileはignore指定があっても保護し、検証中のHEAD/index変更も引き続き拒否する。
 成功出力のevidence hashを保持する。正本は`evidence/<checkpoint-hash>.json`。
 
 ```sh
