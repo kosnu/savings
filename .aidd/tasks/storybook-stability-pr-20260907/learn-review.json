@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "914efd5946778d00f3211eb2c966b8fce54f11eb33fe3c0229d819d9fd100b8e",
+  "checkpoint_sha256": "d2e0bada1ec2bdd05cecfc1320718033df230e4c6f1438551739f898f0959313",
+  "evidence_sha256": "30946282259300622f49b7c01ae96c41910d55cf125ab9efa57882cc192ac776",
+  "reviewer": "/root/storybook_review",
+  "authorization": "独立レビュー担当として、PR用Task storybook-stability-pr-20260907 のLearn確定を許可します。",
+  "observations": "Coverage: checkpoint.rules全21 rulesとai-driven.checker。Unresolvedなし、Findingsなし。Task/checkpoint/evidenceの実hashが指定値と一致。setup実hashは承認済み実装と一致し、変更対象は同ファイルのみ。開始時checker hashもevidenceと一致。新worktreeの自動検証6件すべてexit0で同一final stateに結び付く。未指定遅延のみ0、明示遅延と既存assertionを維持し、通常Storybookとunit/integrationに漏れないとの既存レビュー結論を維持。PR作成とCI成功は別途確認が必要。"
+}
