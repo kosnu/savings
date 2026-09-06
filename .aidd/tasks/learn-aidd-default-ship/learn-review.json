@@ -2,9 +2,9 @@
   "schema_version": 5,
   "kind": "learn_review",
   "task_sha256": "1a19529057c737610fd9e6e0a6ee9451597f478f1ef515dd8dd0263df1c80d0e",
-  "checkpoint_sha256": "4b4d4171e5abb9fba960e39337922a06ca36911cb9fa8fb24a36fe89ca76920d",
-  "evidence_sha256": "1143bf878faa0bb2f3e620ab0316c87319fb603625238c892e5cfc320dab371e",
+  "checkpoint_sha256": "f7eb52d82e0f66b1e962f77bb9b332e9c269a5445c480cc17ac4cadc74a6013f",
+  "evidence_sha256": "43dca685f2d1a3b03cf27f13500d3370615b6b62483d4db8930b8f69d15f7448",
   "reviewer": "/root/review_ship_default",
-  "authorization": "独立review担当は、ユーザーが許可した4ファイルのguardrail更新を、このcheckpoint/evidenceに対して確定してよいと判断した。",
-  "observations": "未解決findingなし。workflow、operations例、Goal Done、adapterが既定prとcommit/push/PR/read-backへ同期。明示制限を既存constraints/Doneに保持し新設定なし。local Core境界、ship-check、merge/deploy権限、Learn/product境界を維持。4ファイルのbytesとevidence SHA一致を独立確認。Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification。"
+  "authorization": "ユーザーがLearnの2点の反映を明示許可し、独立review合格後にrepo commitを明示依頼した。ローカルcommitのみ。PushとPR更新は許可されていない。",
+  "observations": "独立review合格、未解決findingなし。pr限定のShip手順と明示制限localのDone/verification/review/finish完了が整合。TaskとGoalはPR作成または更新に同期。既定pr、新設定なし、CoreとLearn/product境界を維持。対象4ファイルのbytesと最新evidence SHA一致を独立review担当が確認。"
 }

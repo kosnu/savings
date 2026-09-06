@@ -27,8 +27,9 @@ Prepare the dedicated clean worktree and branch before task-start. Build the che
 from the accepted checkout into a task-specific external binary path. Keep that exact
 binary throughout the task, especially Learn. Never replace it to make a gate pass.
 Run task-start, checkpoint, verify, check, and finish as documented in operations.
-Stage the verified result and run ship-check before committing, then push, create/update
-the PR and read back delivery state. Respect an explicit user restriction on these actions.
+For delivery=pr, stage the verified result and run ship-check before committing, then
+push, create/update the PR and read back delivery state. For delivery=local under an
+explicit user restriction, run finish without ship-check or PR delivery operations.
 Retain task/checkpoint/evidence identities in repository records and execution context.
 Do not copy complete hashes, inventories or decisions into Goal prose.
 After committing, continue review corrections in the same Task and Goal. Preserve
@@ -49,7 +50,9 @@ read/write boundaries. A worktree has one writer; use separate worktrees for con
 implementation and verify the integrated result. Parent owns Goal state. A subagent's
 claim of completion is not evidence.
 
-Complete only after Done, verification, review and Ship delivery are fulfilled.
-Successful local verification or Core gates alone do not complete Development.
+Complete only after Done, verification, review and the authorized delivery are fulfilled.
+By default this requires PR Ship and delivery read-back; local verification or Core gates
+alone are insufficient. When an explicit user restriction sets delivery=local, satisfying
+Done, verification, review and finish completes Development within that restriction.
 Do not split into phase Goals, require a fixed executor, invoke legacy phase commands,
 or automatically continue from completed Development into Learn.
