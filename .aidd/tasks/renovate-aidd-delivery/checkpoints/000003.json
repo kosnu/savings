@@ -1,0 +1,144 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
+  "revision": 3,
+  "parent_sha256": "411bea45b8dc3ef99502664ababa6cae7e6da3a5b825d239f90b93c8409aeef8",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
+    "reason": "未解決レビュー指摘をLearnで分析し、ユーザーが「反映して コミットはしないで」と承認。Gitの自己申告emailでは出所を認証できないため、GitHub APIが検証した有効なGitHub署名・bot authorと対象SHAの一致を全commitで要求する。API失敗・不明状態は通常の配信検査へ戻す。変更はローカルに保持しcommit/pushしない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "RenovateのPRにAIDD配信証跡を要求せず、checker検証と通常PRの配信検証を維持する",
+        "origin": "intent",
+        "evidence": "mainのaidd verify が落ちてるっぽい。軒並みRenovateのPRのCIが落ちてる。修正して"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Renovate作成PRの全対象commitについて、GitHub APIによる有効なGitHub署名とRenovate authorを対象SHAに結合して確認できる場合だけ配信証跡検査を対象外にする。確認不能なら通常検査へ戻す。",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ]
+}

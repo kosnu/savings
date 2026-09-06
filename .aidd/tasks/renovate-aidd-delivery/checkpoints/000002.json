@@ -1,0 +1,144 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
+  "revision": 2,
+  "parent_sha256": "3c44d98ff4ddb835bd9bb64bb123a92424f6b6de09470b5a1aed491befe6b08c",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
+    "reason": "PR reviewで、Renovate作成branchへの人による追加commitも配信検査対象外になる通常経路の欠陥を確認。作成者に加えてtarget baseにない全commitのauthor/committerを確認し、非bot追加commit・人のcherry-pickは通常検査へ戻す。Task baseline/ownershipは維持する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "RenovateのPRにAIDD配信証跡を要求せず、checker検証と通常PRの配信検証を維持する",
+        "origin": "intent",
+        "evidence": "mainのaidd verify が落ちてるっぽい。軒並みRenovateのPRのCIが落ちてる。修正して"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "PR作成者とbase未包含の全commitのauthor/committerがRenovate更新に一致するときだけ配信証跡検査を対象外にし、人による追加commitは通常検査へ戻す。",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ]
+}

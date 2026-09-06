@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
+  "checkpoint_sha256": "03f7c87c8e1dc359e911e85da50f8ffa5eb81c165746d7cede06ce6a38eef150",
+  "evidence_sha256": "db871abb4c95fae945da879807b56df3fc2e5fde49039014f6ec66fccc9ff9b7",
+  "reviewer": "/root/delivery_review",
+  "authorization": "独立review担当が最終差分のローカル確定を確認済み。ユーザーが続けてrepo shipとreply-review-commentsを明示依頼したため、検証済み差分のcommit/push/PR更新/対応済みレビュー返信・解決を許可する。",
+  "observations": "Git自己申告メールを除外し、全SHAをGitHub APIのRenovate author/有効なGitHub署名/signer web-flowと結合。GitHub公式bot署名契約と整合する。API失敗/GraphQL errors/欠落/不正JSON/署名不明は通常検査へ戻る。tokenはread-onlyかつstep限定。18ケースがローカルメールとAPI結果を分離して確認する。Task/checkpoint/evidence hashと現3ファイルcontent一致、必須16ルール確認、指摘なし。"
+}
