@@ -1,0 +1,100 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "5395fcba9e99b38321d054e4ff2d1e6e416850f0ea9acd364267e02689c8966a",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "5395fcba9e99b38321d054e4ff2d1e6e416850f0ea9acd364267e02689c8966a",
+    "reason": "今回のfindingは、Git/GitHub操作時に既存の正本ポリシーを参照する入口がAGENTS.mdで明示されておらず、Codexの操作文脈へルールが安定して到達しないという再利用可能なguardrail failureである。既存のGit Workflow本文を複製するより、AGENTS.mdを薄い入口としてrule-mapの選択と正本文書の読込を要求する対策を採用する。対象はAGENTS.mdだけに限定し、commit/PR生成設定やDraft/Ready判断は変更しない。",
+    "requirements": [
+      {
+        "id": "GW-1",
+        "text": "Git/GitHub操作を始める前に、rule-mapで該当ルールを選択し、既存のGit Workflow正本を読んで対象・安全条件・検証・配信境界を適用する入口をAGENTS.mdに持たせる",
+        "origin": "intent",
+        "evidence": "既存のGit Workflowを正本として"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "user_operation",
+          "description": "GitまたはGitHubの書込み操作前に正本ポリシーを参照する",
+          "requirement_id": "GW-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "対象と安全条件が曖昧なGit操作を開始しない",
+          "requirement_id": "GW-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "GW-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "GW-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "procedure": "AGENTS.mdのGit/GitHub操作ゲートがrule-mapのpolicy.git-workflowを選択し、docs/harness/policies/git-workflow.mdの対象・安全条件・検証・配信境界へ到達させること、正本を複製せず曖昧な対象や安全条件では停止することを本文とrule-mapで照合する"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "GW-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.git-workflow"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow"
+  ]
+}
