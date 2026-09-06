@@ -48,11 +48,16 @@ jobs:
 
       - name: Verify delivery with the base protocol
         env:
+          PR_AUTHOR_LOGIN: ${{ github.event.pull_request.user.login }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         shell: bash
         run: |
           set -euo pipefail
+          if [[ "$PR_AUTHOR_LOGIN" == "renovate[bot]" ]]; then
+            echo "Renovate PR: AIDD delivery evidence is not applicable."
+            exit 0
+          fi
           baseline=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
           if git cat-file -e "$PR_BASE_SHA:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
             trusted_dir=$(mktemp -d)
