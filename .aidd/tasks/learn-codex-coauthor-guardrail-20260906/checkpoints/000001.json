@@ -1,0 +1,123 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "9449459542ec9d64d7edddc13752cd037b85a88a9723244e63f02634e3927153",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "9449459542ec9d64d7edddc13752cd037b85a88a9723244e63f02634e3927153",
+    "reason": "Codexが作成した直近commitにCo-authorがないという観測は、既存Git Workflowのco-author条件が任意表現に留まり、Codex commit時の正常パターンと責務が入口から明確でないため通常経路で再発可能なguardrail failureである。既存commitを変更するのではなく、Git Workflow正本へCodex作成変更の必須trailerとユーザーのみの変更への非付与境界を追加し、AGENTS.mdから同じ正本へ到達できる入口を明示する。",
+    "requirements": [
+      {
+        "id": "CA-1",
+        "text": "Codexが変更を作成してcommitする場合にCo-Authored-By: Codex <codex@openai.com>を付け、ユーザーのみが変更を作成したcommitには自動付与しないガードレールを正本と入口へ反映する",
+        "origin": "intent",
+        "evidence": "Co-authorが付くようにガードレールを改善してほしい"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Codex作成変更のcommit messageに指定Co-Authored-By trailerを必ず含める",
+          "requirement_id": "CA-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "ユーザーのみが作成した変更のcommitへCodex trailerを自動付与しない",
+          "requirement_id": "CA-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "CA-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "CA-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "procedure": "AGENTS.mdとdocs/harness/policies/git-workflow.mdを照合し、Codexが変更を作成したcommitにはCo-Authored-By: Codex <codex@openai.com>を必須化し、ユーザーのみが変更を作成したcommitには自動付与しない境界が両文書で一貫していること、既存commitとpush操作を要求していないことを確認する"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/git-workflow.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "CA-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "documentation",
+          "path": "docs/harness/policies/git-workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "CA-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.git-workflow"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "5395fcba9e99b38321d054e4ff2d1e6e416850f0ea9acd364267e02689c8966a",
+  "checkpoint_sha256": "dab78f4e2bab14c6677fa4f9b1c2d1ba8859b058c5c427e75b184c23d4a4f743",
+  "evidence_sha256": "b1f031c0f8b05b7623515233f24acc11108be7620964d0d9cf73dbf820bb4d0f",
+  "reviewer": "independent-read-only-review-thread:01a07603-ac37-78e3-8ac3-08c529d61b31",
+  "authorization": "ユーザーのAGENTS.md変更依頼に基づくローカルguardrail更新の確定。GitHubへの返信・resolve・push・PR作成・merge・deployは許可しない。",
+  "observations": "確認範囲はAGENTS.mdの未コミット差分、docs/harness/rule-map.json、docs/harness/policies/git-workflow.md、既存AGENTS.mdの入口方針。差分はAGENTS.mdの6行追加だけで、rule-mapによる該当rule選択、policy.git-workflowの正本文書読込、曖昧な対象・scope・権限・検証・配信範囲で停止する境界を入口として明示している。Git Workflow本文の詳細、Draft/Ready判断、commit/PR本文生成設定は追加していない。開始時checkerによるverifyとcheckは成功し、未解決findingなし。"
+}

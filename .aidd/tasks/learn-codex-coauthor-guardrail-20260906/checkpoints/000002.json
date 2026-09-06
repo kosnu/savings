@@ -1,0 +1,142 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "9449459542ec9d64d7edddc13752cd037b85a88a9723244e63f02634e3927153",
+  "revision": 2,
+  "parent_sha256": "c84715627ef09e0f663a6680397749793fbfdc26b301ff05d4fc7698017c14b3",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "9449459542ec9d64d7edddc13752cd037b85a88a9723244e63f02634e3927153",
+    "reason": "ユーザーがAGENTS.mdとGit Workflow正本のCo-author具体ルール重複を指摘した。採択済みのHarness EngineeringとAgent Rule GraphはAGENTS.mdを薄い入口、docs/harnessを詳細な正本と定めている。したがって、Codex作成commitのtrailer要件はdocs/harness/policies/git-workflow.mdだけに保持し、AGENTS.mdは正本文書を読む入口に戻す。",
+    "requirements": [
+      {
+        "id": "CA-1",
+        "text": "Codexが変更を作成してcommitする場合にCo-Authored-By: Codex <codex@openai.com>を付け、ユーザーのみが変更を作成したcommitには自動付与しないガードレールをGit Workflow正本へ保持する",
+        "origin": "intent",
+        "evidence": "Co-authorが付くようにガードレールを改善してほしい"
+      },
+      {
+        "id": "CA-2",
+        "text": "AGENTS.mdはGit Workflowの具体ルールを複製せず、docs/harness/policies/git-workflow.mdを読む入口だけを提供する",
+        "origin": "guardrail",
+        "evidence": "adr.harness-engineering"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Git Workflow正本がCodex作成変更のcommit messageに指定Co-Authored-By trailerを必須化する",
+          "requirement_id": "CA-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "Git Workflow正本がユーザーのみが作成した変更のcommitへCodex trailerを自動付与しない境界を定める",
+          "requirement_id": "CA-1"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "AGENTS.mdがGit Workflow正本への参照だけを提供し、具体的なCo-author要件を重複定義しない",
+          "requirement_id": "CA-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "CA-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "CA-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "procedure": "docs/harness/policies/git-workflow.mdを確認し、Codexが変更を作成したcommitにはCo-Authored-By: Codex <codex@openai.com>を必須化し、ユーザーのみが変更を作成したcommitには自動付与しない境界を正本が定めていること、既存commitとpush操作を要求していないことを確認する"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "CA-2",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "AGENTS.mdを確認し、Git Workflowの具体的なCo-Authored-By要件を複製せず、docs/harness/policies/git-workflow.mdを読む入口だけを提供していることを確認する"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/git-workflow.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "CA-2",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "documentation",
+          "path": "docs/harness/policies/git-workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "CA-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.git-workflow"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "9449459542ec9d64d7edddc13752cd037b85a88a9723244e63f02634e3927153",
+  "checkpoint_sha256": "49d5b71a484ebc2256382b6a5aa9cc0fe01afc77f7a1b23e1ec343728f3746d7",
+  "evidence_sha256": "1009a94388e83cca4c1658e9234a05598edad5dada09bf14efc38d8d3ff46d9c",
+  "reviewer": "multi-agent:01a0763b-80b2-77e0-a0da-8f21bb3d0d94",
+  "authorization": "ユーザーの修正依頼に基づくローカルLearnの確定。既存commitの変更、force-push、push、PR操作は許可しない。",
+  "observations": "最終revision 3のAGENTS.mdとdocs/harness/policies/git-workflow.mdを独立read-onlyで確認した。Co-Authored-By: Codex <codex@openai.com>の具体ルール、ユーザー単独commitへの非自動付与境界、commit message規則はGit Workflow正本だけに残り、AGENTS.mdはrule-map・正本文書・関連レビュー文書へのroutingだけを保持している。変更は対象文書とLearn task artifactsに限定され、既存HEAD 14c974892380952e8c562b08f17351fe6310d14d、origin/codex/agents-git-workflow、remote refは変更されていない。findingsなし。レビュー担当は編集・stage・commit・push・検証コマンドを実行していない。"
+}

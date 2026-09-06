@@ -35,10 +35,15 @@ Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/a
 - When a task may touch documented design decisions, policies, or operational guidance, inspect Markdown front matter in the docs directories and read the relevant docs for the current session.
 - When a task may require multiple related policies, domain rules, ADRs, or design decisions, use `docs/harness/rule-map.json` to choose the relevant document subgraph.
 - Use front matter fields such as `area`, `applies_to`, `topics`, `when_to_read`, and `status` to choose which docs apply. Do not rely on `deprecated` docs unless the task explicitly concerns deprecated behavior.
-- Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
 - No unrelated code changes
 - When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
 - If you intentionally diverge from an existing pattern, explain why before applying the change.
+
+### Git/GitHub操作
+
+- ブランチ作成・切替、stage、commit、push、PR作成・更新、レビューコメント対応、破壊的操作を始める前に、`docs/harness/rule-map.json` を作業のpath・domain・activity・topicに適用して該当ruleを選択し、少なくとも `policy.git-workflow` の正本文書 `docs/harness/policies/git-workflow.md` を読む。
+- 正本文書で定義された対象ブランチ、含める差分と含めない差分、安全条件、必要な検証、配信状態、確認条件を適用する。対象・scope・権限・検証・配信範囲が曖昧な場合は、書込みや配信へ進まず確認する。
+- `AGENTS.md` は参照入口とし、Git Workflowの詳細を重複記載しない。レビューコメント対応では、rule-mapで選択される `policy.review-feedback-classification` などの関連文書も併せて適用する。
 
 ## Code Review Rules
 

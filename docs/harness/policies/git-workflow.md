@@ -62,7 +62,7 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 - commit前に、`AGENTS.md` で定義された必要な検証を実行する。検証が失敗したままcommitしない。
 - stage後は `git diff --staged --name-status` でstage範囲を確認する。
 - 複数の関心が混じる場合は、feature、bugfix、refactorなどの関心単位にcommitを分ける。
-- co-authorを付ける必要がある場合は、実際の共同作業者だけをcommit messageに含める。
+- Codexが変更を作成してcommitする場合は、実際の共同作業者としてcommit messageのtrailerに`Co-Authored-By: Codex <codex@openai.com>`を必ず1つ付ける。ユーザーだけが変更を作成したcommitには、このtrailerを自動で付けない。
 - `git commit` では、subject、body、trailerを個別の `-m` で渡し、1つのshell文字列に改行エスケープを埋め込まない。
 
 ## Pull Request
