@@ -27,8 +27,11 @@ verification caseを持つ。repositoryが実際の結果、証拠がその検�
 Issueに実装ファイルやrule-mapの語句を記載する必要はない。
 Taskのdelivery=localはローカル完了までとし、ship-check/ci-checkのPR配信境界ではdelivery=prを要求する。
 後からstage/commitした事実を配信範囲の拡大許可として扱わない。
-開始時にIssueと明示された実行依頼からdeliveryを固定する。完了地点の指定がない場合はlocalとする。
-Issueの明示的な制限と実行依頼が矛盾する場合は、権限を推測せず確認する。
+Developmentの実行依頼は、必要な検証・review、commit、push、PR作成または更新と配信状態の確認までを含む。
+開始時のdeliveryはprとし、完了地点の指定がないことを理由にlocalへ縮小したり、追加のShip許可を求めたりしない。
+ユーザーが明示的にShipを制限した場合だけ、その制限を既存のconstraintsとDoneへ反映する。
+PR配信を禁止されたTaskにはlocalを使う。agentが生成したlocal指定はユーザーの制限の根拠にならない。
+Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明示指示で解消できなければ確認する。
 
 要求の根拠をintent、guardrail、derivedに分ける。intent根拠はsnapshot本文に実在する必要がある。
 既存コードは実装文脈であり人間の意図を追加しない。意図、受け入れ条件、権限の変更は明示的に
@@ -59,7 +62,9 @@ DB/API変更や新規依存の必要性だけを停止理由にしない。既�
 2. repositoryとrule-mapを探索し、要求・設計・検証方針を同じDecision draftで反復する。
 3. checkpointで実装が参照する判断を固定する。常時の人間承認gateにはしない。
 4. ownership内で実装し、実差分と最終inventoryを照合して検証・reviewする。
-5. 依頼されたdelivery範囲でShipする。local検証、PR提出、merge、deployを混同しない。
+5. 検証済みの変更をcommit・pushし、PR作成または更新と配信状態の確認までShipする。
+   ユーザーの明示制限がある場合だけその範囲に従う。検証完了やCore gate成功だけではDevelopmentを完了しない。
+   merge・deployはShipに含めず、個別の実行依頼に従う。
 
 新しい設計判断が必要なら2へ戻る。checkpointはrevision、parent hash、Task hashを持ち、
 確定済みrecordを上書きしない。Taskとbaselineは再取得しない。scopeやruleが変わる場合は
