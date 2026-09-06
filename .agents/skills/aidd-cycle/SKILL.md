@@ -11,7 +11,10 @@ The repository owns the contract; this skill adapts it to Codex.
 
 Fetch the specified Issue and distinguish execution from read-only discussion.
 Keep the Issue as human intent, derive the Task objective/constraints/Done/verification,
-and preserve the user's authorized delivery scope. Do not require implementation
+and default delivery to pr through commit, push, PR creation/update and delivery read-back.
+Only an explicit user restriction narrows that scope; record it in existing constraints
+and Done. Do not infer a restriction from agent-generated local settings or ask for
+additional Ship authorization. Do not require implementation
 paths or routing keywords in the Issue. Missing product intent needs clarification;
 ordinary technical choices inside the delegated scope do not.
 
@@ -24,7 +27,8 @@ Prepare the dedicated clean worktree and branch before task-start. Build the che
 from the accepted checkout into a task-specific external binary path. Keep that exact
 binary throughout the task, especially Learn. Never replace it to make a gate pass.
 Run task-start, checkpoint, verify, check, and finish as documented in operations.
-For PR delivery, stage the verified result and run ship-check before committing.
+Stage the verified result and run ship-check before committing, then push, create/update
+the PR and read back delivery state. Respect an explicit user restriction on these actions.
 Retain task/checkpoint/evidence identities in repository records and execution context.
 Do not copy complete hashes, inventories or decisions into Goal prose.
 After committing, continue review corrections in the same Task and Goal. Preserve
@@ -45,6 +49,7 @@ read/write boundaries. A worktree has one writer; use separate worktrees for con
 implementation and verify the integrated result. Parent owns Goal state. A subagent's
 claim of completion is not evidence.
 
-Complete only after Done, verification, review and the requested delivery are fulfilled.
+Complete only after Done, verification, review and Ship delivery are fulfilled.
+Successful local verification or Core gates alone do not complete Development.
 Do not split into phase Goals, require a fixed executor, invoke legacy phase commands,
 or automatically continue from completed Development into Learn.
