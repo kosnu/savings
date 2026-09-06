@@ -2,9 +2,9 @@
   "schema_version": 5,
   "kind": "learn_review",
   "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
-  "checkpoint_sha256": "411bea45b8dc3ef99502664ababa6cae7e6da3a5b825d239f90b93c8409aeef8",
-  "evidence_sha256": "2d023a42d7b19a45f6277a841728b8701ad3613d03b5b9a7fb3209e6e83b5b91",
+  "checkpoint_sha256": "03f7c87c8e1dc359e911e85da50f8ffa5eb81c165746d7cede06ce6a38eef150",
+  "evidence_sha256": "db871abb4c95fae945da879807b56df3fc2e5fde49039014f6ec66fccc9ff9b7",
   "reviewer": "/root/delivery_review",
-  "authorization": "ユーザーのCI修正依頼とrepo shipの委任範囲で、PR #1714のP1是正を独立review担当が確定可と確認。",
-  "observations": "target base..headの全commitのauthor/committer組を確認するため人の追加commit・その後のbot更新・人のcherry-pickを通常検査へ戻す。複数bot commitは対象外を維持。PR作成者が人ならbot commitだけでも通常検査。実workflow shell9ケース、通常のtrusted checker経路、Go検証/check-allの維持を観察。最終Task/checkpoint/evidence hashと対象3ファイルcontent hashの一致を確認した。指摘なし。"
+  "authorization": "独立review担当が最終差分のローカル確定を確認済み。ユーザーが続けてrepo shipとreply-review-commentsを明示依頼したため、検証済み差分のcommit/push/PR更新/対応済みレビュー返信・解決を許可する。",
+  "observations": "Git自己申告メールを除外し、全SHAをGitHub APIのRenovate author/有効なGitHub署名/signer web-flowと結合。GitHub公式bot署名契約と整合する。API失敗/GraphQL errors/欠落/不正JSON/署名不明は通常検査へ戻る。tokenはread-onlyかつstep限定。18ケースがローカルメールとAPI結果を分離して確認する。Task/checkpoint/evidence hashと現3ファイルcontent一致、必須16ルール確認、指摘なし。"
 }

@@ -1,6 +1,7 @@
 package protocol
 
 import (
+	"encoding/json"
 	"go.yaml.in/yaml/v3"
 	"os"
 	"os/exec"
@@ -48,6 +49,15 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 		{"renovate-human-followup", "renovate[bot]", "contributor", true, false, []string{"renovate", "human"}},
 		{"renovate-human-then-bot", "renovate[bot]", "renovate[bot]", true, false, []string{"renovate", "human", "renovate"}},
 		{"renovate-human-cherry-pick", "renovate[bot]", "contributor", true, false, []string{"cherry-pick"}},
+		{"spoofed-emails-unsigned", "renovate[bot]", "contributor", true, false, []string{"spoofed"}},
+		{"personal-signature", "renovate[bot]", "contributor", true, false, []string{"personal-signature"}},
+		{"invalid-signature", "renovate[bot]", "contributor", true, false, []string{"invalid-signature"}},
+		{"wrong-signer", "renovate[bot]", "contributor", true, false, []string{"wrong-signer"}},
+		{"api-failure", "renovate[bot]", "contributor", true, false, []string{"api-failure"}},
+		{"missing-commit", "renovate[bot]", "contributor", true, false, []string{"missing-commit"}},
+		{"wrong-sha", "renovate[bot]", "contributor", true, false, []string{"wrong-sha"}},
+		{"graphql-error", "renovate[bot]", "contributor", true, false, []string{"graphql-error"}},
+		{"older-unsigned-commit", "renovate[bot]", "contributor", true, false, []string{"spoofed", "renovate"}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			f := setup(t, "development")
@@ -66,22 +76,63 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 			f.git("commit", "-qm", "target evolves")
 			target := f.git("rev-parse", "HEAD")
 			f.git("checkout", "-qb", "candidate", ancestor)
+			apiFixtures := t.TempDir()
 			for i, kind := range tc.commitKinds {
 				f.put("guard/rule.md", strings.Repeat("candidate\n", i+1))
 				f.git("add", ".")
 				switch kind {
-				case "renovate":
-					f.git("-c", "user.email=noreply@github.com", "commit", "--author=renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>", "-qm", "Renovate update")
+				case "human":
+					f.git("commit", "-qm", "human change")
 				case "cherry-pick":
 					f.git("commit", "--author=renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>", "-qm", "human cherry-pick")
 				default:
-					f.git("commit", "-qm", "human change")
+					f.git("-c", "user.email=noreply@github.com", "-c", "commit.gpgsign=false", "commit", "--author=renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>", "-qm", "claimed Renovate update")
 				}
+				sha := f.git("rev-parse", "HEAD")
+				// Gitの自己申告情報と、GitHubが返す署名検証結果を独立して設定する。
+				signature := map[string]any{"isValid": true, "state": "VALID", "wasSignedByGitHub": true, "signer": map[string]string{"login": "web-flow"}}
+				commit := map[string]any{"oid": sha, "author": map[string]any{"user": map[string]string{"login": "renovate[bot]"}}, "signature": signature}
+				response := map[string]any{"data": map[string]any{"repository": map[string]any{"object": commit}}}
+				switch kind {
+				case "human":
+					commit["author"] = map[string]any{"user": map[string]string{"login": "contributor"}}
+				case "cherry-pick", "spoofed":
+					commit["signature"] = nil
+				case "personal-signature":
+					signature["wasSignedByGitHub"] = false
+					signature["signer"] = map[string]string{"login": "contributor"}
+				case "invalid-signature":
+					signature["isValid"] = false
+					signature["state"] = "INVALID"
+				case "wrong-signer":
+					signature["signer"] = map[string]string{"login": "contributor"}
+				case "api-failure":
+					continue
+				case "missing-commit":
+					response["data"] = nil
+				case "wrong-sha":
+					commit["oid"] = strings.Repeat("0", 40)
+				case "graphql-error":
+					response["errors"] = []any{map[string]string{"message": "incomplete response"}}
+				}
+				data, err := json.Marshal(response)
+				must(t, err)
+				must(t, os.WriteFile(filepath.Join(apiFixtures, sha+".json"), data, 0600))
 			}
 			head := f.git("rev-parse", "HEAD")
 			bin := t.TempDir()
 			trace := filepath.Join(bin, "trace")
-			// 実workflowの分岐とarchiveを実行し、buildとchecker呼出しだけを置き換える。
+			// 実workflowの分岐・JSON検証・archiveを実行し、API通信・build・checker呼出しだけを置き換える。
+			fakeGH := `#!/bin/sh
+set -eu
+oid=
+for arg in "$@"; do
+ case "$arg" in oid=*) oid=${arg#oid=};; esac
+done
+test -n "$oid"
+cat "$GH_FIXTURES/$oid.json"
+`
+			must(t, os.WriteFile(filepath.Join(bin, "gh"), []byte(fakeGH), 0755))
 			fakeGo := `#!/bin/sh
 set -eu
 dir= output=
@@ -105,7 +156,7 @@ chmod +x "$output"
 			must(t, os.WriteFile(candidate, []byte("#!/bin/sh\n[ \"$1\" = bootstrap-check ] || exit 92\nprintf '%s\\n' \"$@\" > \"$TRACE\"\n"), 0755))
 			cmd := exec.Command("bash", "-c", strings.ReplaceAll(script, "/tmp/aidd-checker", candidate))
 			cmd.Dir = f.root
-			cmd.Env = append(os.Environ(), "PATH="+bin+":"+os.Getenv("PATH"), "TRACE="+trace, "PR_AUTHOR_LOGIN="+tc.author, "GITHUB_ACTOR="+tc.actor, "PR_BASE_SHA="+target, "PR_HEAD_SHA="+head, "GITHUB_WORKSPACE="+f.root)
+			cmd.Env = append(os.Environ(), "PATH="+bin+":"+os.Getenv("PATH"), "TRACE="+trace, "GH_FIXTURES="+apiFixtures, "GITHUB_REPOSITORY=owner/repo", "PR_AUTHOR_LOGIN="+tc.author, "GITHUB_ACTOR="+tc.actor, "PR_BASE_SHA="+target, "PR_HEAD_SHA="+head, "GITHUB_WORKSPACE="+f.root)
 			if output, err := cmd.CombinedOutput(); err != nil {
 				t.Fatalf("workflow failed: %v\n%s", err, output)
 			}

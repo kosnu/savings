@@ -162,8 +162,13 @@ Learnの完了には最新reviewが必要。product実装が必要なら既存Is
 
 Renovateだけが生成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。
 GitHub eventのPR作成者loginが`renovate[bot]`と一致し、現在のtarget baseに含まれない全commitが
-author `29139614+renovate[bot]@users.noreply.github.com`、committer `noreply@github.com`の組である場合だけ適用する。
-実行者やbranch名で判定せず、人の追加commitやcherry-pickを含む場合は通常の配信検査へ戻す。
+GitHub APIで対象SHAと一致するRenovate author、および有効なGitHub署名（signerは`web-flow`）を
+持つと確認できる場合だけ適用する。Gitのauthor/committerメールや署名の有効性だけを出所の証明にしない。
+[GitHubのbot署名契約](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#signature-verification-for-bots)
+は、認証されたbotの要求でauthor・committer・署名を任意指定していないことを前提とする。
+実行者やbranch名で判定せず、人の追加commit、未署名、署名不正、API失敗・欠落などで確認できなければ
+通常の配信検査へ戻す。commit一覧はGitから取得し、全件のSHAに対して照合する。
+CIのAPI照会にはread-onlyのGitHub tokenと`gh`を使う。workflow回帰testは`bash`・`git`・`jq`を使い、API通信はfixtureへ置き換える。
 checkerのGo検証と既存artifactのcheck-allは引き続き実行する。
 それ以外のPRでは、commit後のCIは現在のPR target base側のcheckerをbuildし、clean candidateで次を実行する。
 
