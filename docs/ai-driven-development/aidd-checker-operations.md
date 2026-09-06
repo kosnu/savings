@@ -48,13 +48,15 @@ sourceはrepository外のregular non-symlink JSON。出典本文を取得した�
   },
   "objective": "今回の実行で達成する結果",
   "constraints": ["守るべき境界"],
-  "done": ["観測可能な完了条件"],
+  "done": ["観測可能な完了条件", "検証・review・commit・push・PR提出と配信状態の確認"],
   "verification": ["必要な検証と確認対象"],
-  "delivery": "local"
+  "delivery": "pr"
 }
 ```
 
 `delivery`はlocalまたはpr。localはfinishまでで、ship-checkとci-checkはpr以外を拒否する。
+Developmentはprを使い、ユーザーが明示的にPR配信を禁止した場合だけlocalにする。
+制限は既存のconstraintsとDoneへ記録し、追加の設定は設けない。
 Coreの成功はmerge/deploy権限を与えない。
 Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
