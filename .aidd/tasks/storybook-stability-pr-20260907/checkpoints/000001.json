@@ -1,0 +1,167 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "914efd5946778d00f3211eb2c966b8fce54f11eb33fe3c0229d819d9fd100b8e",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "914efd5946778d00f3211eb2c966b8fce54f11eb33fe3c0229d819d9fd100b8e",
+    "reason": "本セッションの設定レビューfinding: 通常のCIで未指定MSW delayが100〜400msにランダム化され、book取得後の支払い取得とSuspense描画が既定の表示待機期限を超えうる。提示CIではOpenDetailsの最初のfindByTextが失敗し、ローカル初回は11件成功。注意書き・retry・timeout延長より、検証基盤の未指定遅延を0に固定して変動源を除去する。明示遅延は維持しカタログへ影響させない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Storybook browser testsの既定モック遅延を固定し、明示遅延と既存検証を維持して安定させる",
+        "origin": "intent",
+        "evidence": "安定させてほしい"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "ブラウザテストで未指定MSW遅延のみ0へ正規化し、明示遅延は元のMSWへ渡す",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-storybook-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "元の検証済みsetupとのbyte一致、5回反復成功と明示遅延委譲の既存観測を照合し、このworktreeでも全suiteを新たに実行する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/.storybook-test/vitest.setup.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "configuration",
+          "path": "apps/web/.storybook-test/vitest.setup.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.storybook-browser-tests",
+    "web.test-policy"
+  ]
+}
