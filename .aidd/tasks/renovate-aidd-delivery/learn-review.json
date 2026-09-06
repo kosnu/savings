@@ -2,9 +2,9 @@
   "schema_version": 5,
   "kind": "learn_review",
   "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
-  "checkpoint_sha256": "3c44d98ff4ddb835bd9bb64bb123a92424f6b6de09470b5a1aed491befe6b08c",
-  "evidence_sha256": "3177bb3fd6fb8f8e837745eb1e8e31a8bc56c0449eaa1f9a4c13ce65352f29db",
+  "checkpoint_sha256": "411bea45b8dc3ef99502664ababa6cae7e6da3a5b825d239f90b93c8409aeef8",
+  "evidence_sha256": "2d023a42d7b19a45f6277a841728b8701ad3613d03b5b9a7fb3209e6e83b5b91",
   "reviewer": "/root/delivery_review",
-  "authorization": "ユーザーのRenovate PR共通AIDD CI失敗の修正依頼の委任範囲として独立review担当が3ファイルを確定可と確認した。",
-  "observations": "GitHub eventのPR作者login完全一致のみ配信証跡を対象外とし、実行者・branchに依存しない。Go検証/check-allと通常PRのbase trusted checker/bootstrapを維持する。実workflow shellの5ケースで通常2経路・人間によるRenovate再実行・逆の再実行・類似名を確認。productや依存versionの変更なし。Task/checkpoint/evidence identityと3ファイルcontent hashの一致を確認。指摘なし。"
+  "authorization": "ユーザーのCI修正依頼とrepo shipの委任範囲で、PR #1714のP1是正を独立review担当が確定可と確認。",
+  "observations": "target base..headの全commitのauthor/committer組を確認するため人の追加commit・その後のbot更新・人のcherry-pickを通常検査へ戻す。複数bot commitは対象外を維持。PR作成者が人ならbot commitだけでも通常検査。実workflow shell9ケース、通常のtrusted checker経路、Go検証/check-allの維持を観察。最終Task/checkpoint/evidence hashと対象3ファイルcontent hashの一致を確認した。指摘なし。"
 }
