@@ -48,7 +48,7 @@ sourceはrepository外のregular non-symlink JSON。出典本文を取得した�
   },
   "objective": "今回の実行で達成する結果",
   "constraints": ["守るべき境界"],
-  "done": ["観測可能な完了条件", "検証・review・commit・push・PR提出と配信状態の確認"],
+  "done": ["観測可能な完了条件", "検証・review・commit・push・PR作成または更新と配信状態の確認"],
   "verification": ["必要な検証と確認対象"],
   "delivery": "pr"
 }
