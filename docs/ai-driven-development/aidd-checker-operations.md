@@ -160,8 +160,10 @@ Learnの完了には最新reviewが必要。product実装が必要なら既存Is
 内容やmodeの不一致、未stage出力、未検証変更があればcommitしない。Learnは最新reviewも検査する。
 公開操作とread-backは実行adapterが行う。Core gate成功だけではpush/PR完了ではない。
 
-Renovateが作成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。
-GitHub eventのPR作成者loginが`renovate[bot]`と一致する場合だけ適用し、実行者やbranch名で判定しない。
+Renovateだけが生成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。
+GitHub eventのPR作成者loginが`renovate[bot]`と一致し、現在のtarget baseに含まれない全commitが
+author `29139614+renovate[bot]@users.noreply.github.com`、committer `noreply@github.com`の組である場合だけ適用する。
+実行者やbranch名で判定せず、人の追加commitやcherry-pickを含む場合は通常の配信検査へ戻す。
 checkerのGo検証と既存artifactのcheck-allは引き続き実行する。
 それ以外のPRでは、commit後のCIは現在のPR target base側のcheckerをbuildし、clean candidateで次を実行する。
 

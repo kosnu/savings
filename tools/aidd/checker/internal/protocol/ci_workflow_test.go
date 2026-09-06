@@ -37,12 +37,17 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 	for _, tc := range []struct {
 		name, author, actor string
 		hasV5, skipDelivery bool
+		commitKinds         []string
 	}{
-		{"bootstrap", "contributor", "contributor", false, false},
-		{"current-v5-base", "contributor", "contributor", true, false},
-		{"renovate-rerun-by-human", "renovate[bot]", "contributor", true, true},
-		{"human-rerun-by-renovate", "contributor", "renovate[bot]", true, false},
-		{"similar-author-name", "renovateb", "contributor", true, false},
+		{"bootstrap", "contributor", "contributor", false, false, []string{"human"}},
+		{"current-v5-base", "contributor", "contributor", true, false, []string{"human"}},
+		{"renovate-rerun-by-human", "renovate[bot]", "contributor", true, true, []string{"renovate"}},
+		{"human-rerun-by-renovate", "contributor", "renovate[bot]", true, false, []string{"renovate"}},
+		{"similar-author-name", "renovateb", "contributor", true, false, []string{"renovate"}},
+		{"renovate-multiple-commits", "renovate[bot]", "contributor", true, true, []string{"renovate", "renovate"}},
+		{"renovate-human-followup", "renovate[bot]", "contributor", true, false, []string{"renovate", "human"}},
+		{"renovate-human-then-bot", "renovate[bot]", "renovate[bot]", true, false, []string{"renovate", "human", "renovate"}},
+		{"renovate-human-cherry-pick", "renovate[bot]", "contributor", true, false, []string{"cherry-pick"}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			f := setup(t, "development")
@@ -61,9 +66,18 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 			f.git("commit", "-qm", "target evolves")
 			target := f.git("rev-parse", "HEAD")
 			f.git("checkout", "-qb", "candidate", ancestor)
-			f.put("guard/rule.md", "candidate\n")
-			f.git("add", ".")
-			f.git("commit", "-qm", "candidate change")
+			for i, kind := range tc.commitKinds {
+				f.put("guard/rule.md", strings.Repeat("candidate\n", i+1))
+				f.git("add", ".")
+				switch kind {
+				case "renovate":
+					f.git("-c", "user.email=noreply@github.com", "commit", "--author=renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>", "-qm", "Renovate update")
+				case "cherry-pick":
+					f.git("commit", "--author=renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>", "-qm", "human cherry-pick")
+				default:
+					f.git("commit", "-qm", "human change")
+				}
+			}
 			head := f.git("rev-parse", "HEAD")
 			bin := t.TempDir()
 			trace := filepath.Join(bin, "trace")
