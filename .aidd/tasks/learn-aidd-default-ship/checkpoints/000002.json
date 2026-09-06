@@ -1,0 +1,155 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "1a19529057c737610fd9e6e0a6ee9451597f478f1ef515dd8dd0263df1c80d0e",
+  "revision": 2,
+  "parent_sha256": "4b4d4171e5abb9fba960e39337922a06ca36911cb9fa8fb24a36fe89ca76920d",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "1a19529057c737610fd9e6e0a6ee9451597f478f1ef515dd8dd0263df1c80d0e",
+    "reason": "PR #1717の未解決4コメントに対するLearnの2点を反映する明示許可に基づく改訂。既定prと明示制限という当初intentは維持し、adapterのShip手順と完了条件の無条件化を修正する。Task/GoalのPR提出表現を正本のPR作成または更新へ同期する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "AIDD Developmentの既定の完了地点をコミット・push・PR提出までに統一する",
+        "origin": "intent",
+        "evidence": "aidd development で絶対にshipするようにしてほしい。localだかなんだかが指定されてコミットせずに止まるのをなくす。こちらが明示的にshipするなと言った場合のみそうして。そのための追加設定はいらない。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Development実行依頼から既定でPR提出まで継続し、明示制限だけを既存constraintsに保持する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "元baselineからの4ファイル全差分を確認する。未指定時はprでcommit/push/PR作成または更新/read-backまで完了する。明示的なPR配信禁止でlocalのときはShip gateを実行せず、Done・verification・review・finishで完了できる。新設定なし、LearnとCore gate不変を確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/goal-templates/index.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/goal-templates/index.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

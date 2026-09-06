@@ -19,7 +19,8 @@ Codex adapterは1つのDevelopment Goal、または独立したLearn Goalを作�
 
 - Objective: 今回の作業の達成結果。
 - Constraints: 許可範囲、guardrail、product/Learn境界。
-- Done: 成果・検証・依頼されたdelivery状態。
+- Done: Developmentでは成果・検証・review・commit・push・PR作成または更新と配信状態の確認。
+  ユーザーの明示制限がある場合だけ完了地点を狭める。Learnでは独立した検証・review・確定。
 - Verification: 必要な検証とTask contractへの参照。
 
 Task identityを参照し、decision、hash一覧、inventory、進捗を本文へ重複させない。
