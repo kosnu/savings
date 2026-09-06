@@ -48,11 +48,49 @@ jobs:
 
       - name: Verify delivery with the base protocol
         env:
+          GH_TOKEN: ${{ github.token }}
+          PR_AUTHOR_LOGIN: ${{ github.event.pull_request.user.login }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         shell: bash
         run: |
           set -euo pipefail
+          if [[ "$PR_AUTHOR_LOGIN" == "renovate[bot]" ]]; then
+            commits=$(git rev-list "$PR_BASE_SHA..$PR_HEAD_SHA")
+            verified_renovate=true
+            if [[ -z "$commits" ]]; then
+              verified_renovate=false
+            fi
+            for commit_sha in $commits; do
+              if ! commit_info=$(gh api graphql \
+                -f owner="${GITHUB_REPOSITORY%/*}" -f name="${GITHUB_REPOSITORY#*/}" -f oid="$commit_sha" \
+                -f query='query($owner:String!,$name:String!,$oid:GitObjectID!) {
+                  repository(owner:$owner,name:$name) {
+                    object(oid:$oid) { ... on Commit {
+                      oid author { user { login } }
+                      signature { isValid state wasSignedByGitHub signer { login } }
+                    } }
+                  }
+                }'); then
+                verified_renovate=false
+                break
+              fi
+              if ! jq -e --arg oid "$commit_sha" '
+                ((.errors // []) | length) == 0 and
+                (.data.repository.object |
+                  .oid == $oid and .author.user.login == "renovate[bot]" and
+                  .signature.isValid == true and .signature.state == "VALID" and
+                  .signature.wasSignedByGitHub == true and .signature.signer.login == "web-flow")
+              ' <<< "$commit_info" > /dev/null; then
+                verified_renovate=false
+                break
+              fi
+            done
+            if [[ "$verified_renovate" == true ]]; then
+              echo "Verified Renovate-only PR: AIDD delivery evidence is not applicable."
+              exit 0
+            fi
+          fi
           baseline=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
           if git cat-file -e "$PR_BASE_SHA:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
             trusted_dir=$(mktemp -d)
