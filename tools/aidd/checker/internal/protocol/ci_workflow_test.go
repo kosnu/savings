@@ -17,6 +17,7 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 			Steps []struct {
 				Name string
 				Run  string
+				Env  map[string]string
 			}
 		}
 	}
@@ -25,13 +26,25 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 	for _, step := range workflow.Jobs["verify"].Steps {
 		if step.Name == "Verify delivery with the base protocol" {
 			script = step.Run
+			if step.Env["PR_AUTHOR_LOGIN"] != "${{ github.event.pull_request.user.login }}" {
+				t.Fatal("delivery must use the PR author from the GitHub event")
+			}
 		}
 	}
 	if script == "" {
 		t.Fatal("delivery step not found")
 	}
-	for _, hasV5 := range []bool{false, true} {
-		t.Run(map[bool]string{false: "bootstrap", true: "current-v5-base"}[hasV5], func(t *testing.T) {
+	for _, tc := range []struct {
+		name, author, actor string
+		hasV5, skipDelivery bool
+	}{
+		{"bootstrap", "contributor", "contributor", false, false},
+		{"current-v5-base", "contributor", "contributor", true, false},
+		{"renovate-rerun-by-human", "renovate[bot]", "contributor", true, true},
+		{"human-rerun-by-renovate", "contributor", "renovate[bot]", true, false},
+		{"similar-author-name", "renovateb", "contributor", true, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
 			f := setup(t, "development")
 			must(t, os.RemoveAll(filepath.Join(f.root, TaskRoot)))
 			must(t, os.Remove(filepath.Join(f.root, PolicyPath)))
@@ -40,7 +53,7 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 			f.git("commit", "-qm", "old baseline")
 			ancestor := f.git("rev-parse", "HEAD")
 			f.git("checkout", "-qb", "target-base")
-			if hasV5 {
+			if tc.hasV5 {
 				f.put(PolicyPath, `{"schema_version":1}`)
 			}
 			f.put("tools/aidd/checker/source-marker", "current target base\n")
@@ -54,7 +67,7 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 			head := f.git("rev-parse", "HEAD")
 			bin := t.TempDir()
 			trace := filepath.Join(bin, "trace")
-			// Run the actual workflow selection/archive commands; stub only compilation and final checker execution.
+			// 実workflowの分岐とarchiveを実行し、buildとchecker呼出しだけを置き換える。
 			fakeGo := `#!/bin/sh
 set -eu
 dir= output=
@@ -78,14 +91,20 @@ chmod +x "$output"
 			must(t, os.WriteFile(candidate, []byte("#!/bin/sh\n[ \"$1\" = bootstrap-check ] || exit 92\nprintf '%s\\n' \"$@\" > \"$TRACE\"\n"), 0755))
 			cmd := exec.Command("bash", "-c", strings.ReplaceAll(script, "/tmp/aidd-checker", candidate))
 			cmd.Dir = f.root
-			cmd.Env = append(os.Environ(), "PATH="+bin+":"+os.Getenv("PATH"), "TRACE="+trace, "PR_BASE_SHA="+target, "PR_HEAD_SHA="+head, "GITHUB_WORKSPACE="+f.root)
+			cmd.Env = append(os.Environ(), "PATH="+bin+":"+os.Getenv("PATH"), "TRACE="+trace, "PR_AUTHOR_LOGIN="+tc.author, "GITHUB_ACTOR="+tc.actor, "PR_BASE_SHA="+target, "PR_HEAD_SHA="+head, "GITHUB_WORKSPACE="+f.root)
 			if output, err := cmd.CombinedOutput(); err != nil {
 				t.Fatalf("workflow failed: %v\n%s", err, output)
 			}
 			output, err := os.ReadFile(trace)
+			if tc.skipDelivery {
+				if !os.IsNotExist(err) {
+					t.Fatalf("Renovate PR invoked delivery verification: %s, error: %v", output, err)
+				}
+				return
+			}
 			must(t, err)
 			actual := string(output)
-			if hasV5 {
+			if tc.hasV5 {
 				if !strings.HasPrefix(actual, "current target base\nci-check\n") || !strings.Contains(actual, "--base\n"+ancestor+"\n") {
 					t.Fatalf("wrong trusted source or baseline: %s", actual)
 				}

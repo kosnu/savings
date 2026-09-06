@@ -160,7 +160,10 @@ Learnの完了には最新reviewが必要。product実装が必要なら既存Is
 内容やmodeの不一致、未stage出力、未検証変更があればcommitしない。Learnは最新reviewも検査する。
 公開操作とread-backは実行adapterが行う。Core gate成功だけではpush/PR完了ではない。
 
-commit後のCIは現在のPR target base側のcheckerをbuildし、clean candidateで次を実行する。
+Renovateが作成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。
+GitHub eventのPR作成者loginが`renovate[bot]`と一致する場合だけ適用し、実行者やbranch名で判定しない。
+checkerのGo検証と既存artifactのcheck-allは引き続き実行する。
+それ以外のPRでは、commit後のCIは現在のPR target base側のcheckerをbuildし、clean candidateで次を実行する。
 
 ```sh
 /tmp/base-aidd-checker ci-check --repo-root . --base <PR-merge-base>

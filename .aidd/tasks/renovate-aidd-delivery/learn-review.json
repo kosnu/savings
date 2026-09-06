@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "71ab4d5c9fb8ccfb6d87df0bfca23b08668380d044a9f4d5adfcbe30896b16db",
+  "checkpoint_sha256": "3c44d98ff4ddb835bd9bb64bb123a92424f6b6de09470b5a1aed491befe6b08c",
+  "evidence_sha256": "3177bb3fd6fb8f8e837745eb1e8e31a8bc56c0449eaa1f9a4c13ce65352f29db",
+  "reviewer": "/root/delivery_review",
+  "authorization": "ユーザーのRenovate PR共通AIDD CI失敗の修正依頼の委任範囲として独立review担当が3ファイルを確定可と確認した。",
+  "observations": "GitHub eventのPR作者login完全一致のみ配信証跡を対象外とし、実行者・branchに依存しない。Go検証/check-allと通常PRのbase trusted checker/bootstrapを維持する。実workflow shellの5ケースで通常2経路・人間によるRenovate再実行・逆の再実行・類似名を確認。productや依存versionの変更なし。Task/checkpoint/evidence identityと3ファイルcontent hashの一致を確認。指摘なし。"
+}
