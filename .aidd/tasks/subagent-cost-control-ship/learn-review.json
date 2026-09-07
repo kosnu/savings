@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "c472f4cf29d62c881f160b119917e2bac7c395a8b12e4498dba01fec91ee51a1",
+  "checkpoint_sha256": "bc34feaf49344a35408f246f0e5a85f2531f67012bdbe9d2e834b680edd2301c",
+  "evidence_sha256": "356d79f40547e3311b9fa617907bc6b30ba5009c22c0238b7a571f3991a0d8d4",
+  "reviewer": "/root/policy_review",
+  "authorization": "ユーザーによるrepo ship open prおよび「やれ、このセッションでは二度と聞くな」の実行指示。独立レビュー担当は同一8ファイル差分をレビュー可と判断。",
+  "observations": "独立レビューで修正必須findingなし。AGENTSは軽微・定型作業をメインへ置き、複雑な独立問題・重大リスクには費用対効果で委譲を許可。明示依頼限定なし。harness-taskは規模別自動委譲のみ削除しレビュー項目と検証義務を維持。関連スキルとadapter/workflowの基準は同期。有限scope・単一writer・統合後検証、全適用rule確認、Learn独立レビュー・旧checker/profile・明示確定権限を維持。"
+}

@@ -44,8 +44,9 @@ Do not modify Development guardrails. If a guardrail needs changing, preserve th
 unfinished task and hand off to an explicitly authorized independent Learn. Do not
 mark an unfinished Development Goal complete to make room for Learn.
 
-Use the currently selected model. Delegate only a bounded independent task when useful
-and authorized, with explicit ownership, Task/checkpoint identity, verification and
+Use the currently selected model and perform work in the main agent by default.
+Delegate only when the cost-benefit conditions in AGENTS.md are met,
+with explicit ownership, Task/checkpoint identity, verification and
 read/write boundaries. A worktree has one writer; use separate worktrees for concurrent
 implementation and verify the integrated result. Parent owns Goal state. A subagent's
 claim of completion is not evidence.

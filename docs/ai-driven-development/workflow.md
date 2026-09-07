@@ -130,7 +130,8 @@ reviewをテスト成功から生成してはいけない。Learn終了後にpro
 ## 再開・委譲
 
 repositoryのTask、最新checkpoint、証拠を共通入力とする。会話履歴やGoal本文は正本ではない。
-専用worktreeは単一writerが所有する。read-only調査は並列化できる。並行実装は別worktreeを使い、
+専用worktreeは単一writerが所有する。subagent利用はAGENTS.mdの費用対効果条件に従う。
+委譲する場合、並行実装は別worktreeを使い、
 統合後の最終状態を所有agentが再検証する。subagentは明示されたscopeを超えず、Goalの管理は親が行う。
 
 ## 旧protocol
