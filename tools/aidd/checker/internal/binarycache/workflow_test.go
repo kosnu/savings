@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -198,18 +199,21 @@ func TestDocumentedEntryNormalizesBootstrap(t *testing.T) {
 	if line == "" {
 		t.Fatal("missing documented entry")
 	}
-	bin := t.TempDir()
-	fake := `#!/bin/sh
-[ "$GOENV" = off ] && [ "$GOWORK" = off ] && [ -z "$GOFLAGS" ] && [ "$GOTOOLCHAIN" = local ] || exit 91
-printf /verified/checker
-`
-	if err := os.WriteFile(filepath.Join(bin, "go"), []byte(fake), 0o700); err != nil {
-		t.Fatal(err)
-	}
+	// 実Goで正本文書の起動境界を検査する。fixtureはhost実行の確認だけを行う。
+	root := t.TempDir()
+	put(t, root, "tools/aidd/checker/go.mod", "module bootstrapfixture\n\ngo 1.20\n")
+	put(t, root, "tools/aidd/checker/cmd/aidd-prepare/main.go", `package main
+import ("fmt"; "runtime")
+func main() { fmt.Printf("%s/%s", runtime.GOOS, runtime.GOARCH) }
+`)
 	c := exec.Command("sh", "-ec", line+"\nprintf '%s' \"$checker_binary\"")
-	c.Env = append(os.Environ(), "PATH="+bin+":"+os.Getenv("PATH"), "GOFLAGS=-overlay=untrusted", "GOWORK=/untrusted", "GOENV=/untrusted", "GOTOOLCHAIN=untrusted")
+	c.Dir = root
+	c.Env = append(os.Environ(), "GOFLAGS=-overlay=untrusted", "GOWORK=/untrusted", "GOENV=/untrusted", "GOTOOLCHAIN=untrusted", "GOOS=windows", "GOARCH=386", "GOEXPERIMENT=invalid-bootstrap-experiment", "CGO_ENABLED=1")
+	for _, name := range []string{"GOAMD64", "GOARM", "GOARM64", "GO386", "GOMIPS", "GOMIPS64", "GOPPC64", "GORISCV64", "GOWASM"} {
+		c.Env = append(c.Env, name+"=invalid-bootstrap-setting")
+	}
 	b, err = c.CombinedOutput()
-	if err != nil || string(b) != "/verified/checker" {
+	if err != nil || string(b) != runtime.GOOS+"/"+runtime.GOARCH {
 		t.Fatalf("entry: %s %v", b, err)
 	}
 }

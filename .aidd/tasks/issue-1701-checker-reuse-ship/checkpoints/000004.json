@@ -1,0 +1,316 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "b9e4aa01080c03914d9e131503c049e61ef5ad561d06a3622e856f7b5fb1a06e",
+  "revision": 4,
+  "parent_sha256": "1453fd05917a2f5dbfe489617777a7d7449b818f9ac7511f6d487cc0d29f912a",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "b9e4aa01080c03914d9e131503c049e61ef5ad561d06a3622e856f7b5fb1a06e",
+    "reason": "PR #1720 discussion_r3951210322 の起動境界の正規化漏れに対応する。aidd-prepare内部より前に実行されるgo runへGOOS/GOARCH/GOEXPERIMENT/CGO_ENABLEDとarchitecture設定のhost既定を適用する。既存契約の意味は維持し、文書の正規起動commandと実Goを使うfixture回帰で防ぐ。内部だけの修正や注意喚起は起動前の失敗を防げないため採用しない。解決済み5件は新規入力から除外する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "同一ソース・契約・実行環境ではcheckerを再利用し変更時のみbuildする。",
+        "origin": "intent",
+        "evidence": "checkerの初回準備時と、ビルド元・連動する契約の変更時にビルドし、それ以外のTaskでは対応するbinaryを再利用する。"
+      },
+      {
+        "id": "FR-2",
+        "text": "破損・置換を実行前に拒否し固定した契約選択とTask binaryを維持する。",
+        "origin": "intent",
+        "evidence": "保存済みbinaryのhash不一致は検出して停止し、そのbinaryや任意の手元binaryを実行しない。"
+      },
+      {
+        "id": "FR-3",
+        "text": "LearnとCIの信頼境界、既存checker契約検査と文書・実行経路の整合を維持する。",
+        "origin": "intent",
+        "evidence": "Learnは開始時checkerと旧契約で検証する。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "同一ソース・契約・実行環境ではcheckerを再利用し変更時のみbuildする。",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "破損・置換を実行前に拒否し固定した契約選択とTask binaryを維持する。",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "LearnとCIの信頼境界、既存checker契約検査と文書・実行経路の整合を維持する。",
+          "requirement_id": "FR-3"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "Go mod verify、gofmt、vet、check-all、ADR validatorと文書起動commandの実Go回帰により、異なるGOOS/GOARCH、無効GOEXPERIMENTとarchitecture設定でもhost executableを起動できることを確認する。開始時checker保持と既存CI境界も維持する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-prepare",
+          "kind": "tree"
+        },
+        {
+          "path": "tools/aidd/checker/internal/binarycache",
+          "kind": "tree"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "documentation",
+          "path": ".agents/skills/learn/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "configuration",
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/cmd/aidd-prepare/main.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/binarycache/cache.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/binarycache/cache_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/binarycache/workflow_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ]
+}
