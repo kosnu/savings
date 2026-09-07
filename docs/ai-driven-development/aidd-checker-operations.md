@@ -17,17 +17,35 @@ when_to_read:
 
 ## 開始時のbinary
 
-専用clean worktreeで、採用済みsourceからtask専用のrepository外binaryをbuildする。
-以後は同じbinaryを使う。特にLearnでは変更後のcheckerへ置換しない。
-`/tmp/aidd-task-checker`は説明用pathであり、実運用ではtaskごとに一意なpathを使う。
+専用clean worktreeで次を実行し、返された絶対pathをTask期間中保持する。
+準備commandが入力hashを計算し、対応するbinaryがないときだけchecker本体をbuildする。
+同じ入力の次Taskでは保存済みmanifestとbinary hashを照合して再利用する。
+agentによる毎回の版選択や承認は不要。以下の`/tmp/aidd-task-checker`表記は取得したpathで読み替える。
 
 ```sh
-go build -C tools/aidd/checker -o /tmp/aidd-task-checker ./cmd/aidd-checker
-/tmp/aidd-task-checker version
+checker_binary=$(env GOENV=off GOWORK=off GOFLAGS= GOTOOLCHAIN=local go run -C tools/aidd/checker ./cmd/aidd-prepare)
+"$checker_binary" version
 ```
 
-Go cacheの通常pathに書込できない環境では、repository外の一時GOCACHEを明示する。
-既存binaryを無条件に再利用しない。CoreはGoalやHookを呼び出さない。
+小さなGo準備commandの起動はGo標準のbuild cacheを使用する。checker本体の再利用判定と保存は
+準備commandが担い、通常のTaskごとにchecker本体をbuildしない。新しい外部依存は不要。
+保存先はOSのuser cache directory配下の`aidd-checker/binaries/<input-hash>/`。
+ソース・連動契約の具体的集合と選定理由は[architecture](aidd-checker.md#task間のbinary再利用)を参照する。
+Go toolchain version、host OS/architectureとarchitecture設定を入力に含め、CGOを無効にする。
+GOFLAGS・GOWORK・GOENV・GOEXPERIMENT等の呼出環境からのchecker build差し替えは使わない。
+Go cache/module cacheに書込できない環境ではrepository外のGOCACHE/GOMODCACHEを明示する。
+
+同時準備は入力hashごとのmkdir lockで直列化し、一時directoryで完成させてatomic renameで公開する。
+既存entryのmanifest欠落・不整合、binary欠落・hash不一致・symlinkは停止条件で、再buildへfallbackしない。
+強制終了でlockが残ると30秒で停止しpathを報告する。実行中の準備がないことを確認してから残存lockを除去する。
+破損entryは原因を調査し、利用中Taskがないことを確認して退避した後に再準備する。任意binaryへ切り替えない。
+
+Learnも開始前に取得したbinaryと旧policy/profileを保持する。変更後candidateの確認は別の変数・pathで
+prepareし、その成功だけでLearnを確定しない。Taskの途中で開始時変数へ再代入しない。
+CIは現在のtarget baseを別directoryへ展開し、そのbase側の準備commandを使う。
+CIのcandidate検証用buildは従来通り別binaryへ行い、base検証の代替にしない。
+準備command未導入のbaseに対しては従来のbase source buildを維持し、candidateの準備commandを代用しない。
+CoreはGoalやHookを呼び出さない。
 
 ## Task contract
 
