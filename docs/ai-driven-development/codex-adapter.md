@@ -27,7 +27,8 @@ Learnは独立したGoalを利用できる。未完了Development GoalをLearn�
 Goalのactive/blocked/pausedの扱いはhostのtool契約に従う。Coreの中断を偽の完了へ変換しない。
 
 model/reasoningは現在の選択を基本とし、特定modelへの委譲をCoreの前提にしない。
-独立した調査・reviewが有用な場合だけsubagentへ有限scopeとtask/checkpoint/hashを渡す。
+調査・実装・reviewは原則メインagentで行い、subagent利用はAGENTS.mdの費用対効果条件に従う。
+委譲する場合は、有限scopeとtask/checkpoint/hashを渡す。
 共有worktreeのwriterは1つ。並行実装は別worktreeを使い、統合後に再検証する。
 
 Hooksはcompact後のinvariant再提示と、制御面変更の早期検査を担う。

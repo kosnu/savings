@@ -65,7 +65,7 @@ Classify size by synchronized representation concerns, not raw file count:
 - Medium: two or three concerns, or one behavior change where synchronization can drift.
 - Large: four or more concerns, cross-system contract changes, high-risk domains, migrations, or irreversible data changes.
 
-Use size/risk only to choose grounding depth, subagent budget, review depth, and verification. Do not reject a task only because it is Large.
+Use size/risk only to choose grounding depth, review depth, and verification. Do not reject a task only because it is Large.
 
 Name the representations that must stay synchronized, such as:
 
@@ -85,11 +85,8 @@ Keep representations synchronized. Treat one-sided updates as likely bugs even w
 
 During review and verification, apply `docs/harness/policies/learning-extraction.md` when extracting reusable learning. That policy is canonical for finding eligibility, classification, output, and Stop conditions; do not define or infer a separate finding input gate here. Authorized guardrail implementation follows the independent Learn contract, including its verification and finalization boundary. Otherwise return the analysis or handoff without claiming it was applied. Do not mix product implementation into Learn.
 
-Use subagents sparingly:
-
-- Small: main agent implements and reviews by default.
-- Medium: use at most one explorer or reviewer when it answers an independent risk.
-- Large: use multiple subagents only when each has a clear, disjoint ownership boundary and main-agent integration remains controlled.
+The main agent implements and reviews by default at every size. Delegate only when
+the cost-benefit conditions in AGENTS.md are met; size alone is not a reason to delegate.
 
 For Medium or Large work, track an execution checklist with files/modules, representations, acceptance criteria, verification, and Stop conditions.
 
@@ -107,7 +104,7 @@ Minor local choices inside the approved scope do not require approval. Proceed a
 
 ## Review And Verification
 
-Review every implemented diff before final verification. For Small work, a main-agent checklist review is enough unless risk justifies an independent reviewer.
+Review every implemented diff in the main agent before final verification. An independent reviewer must follow the subagent cost-benefit conditions in AGENTS.md.
 
 Check for:
 
