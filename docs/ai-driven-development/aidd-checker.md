@@ -98,4 +98,6 @@ Taskが固定するexecutable hashとpolicy/profile bytesは変更しない。Le
 CIのbase検証では、候補コードが書けるcacheを信頼済み実行物の取得元にしない。
 baseソースを別directoryへ展開してcheckerを直接buildし、Go build/module cacheもその新規directoryへ分離する。
 ソースの取得元だけでなく、実行物の取得経路もbase側の責務である。hash照合はこの隔離の代替にならない。
-通常Task間のbinary再利用と、候補コード実行後のCI base検証は信頼する入力が異なる。
+base検証はcandidate検証と別jobで実行し、候補コードを実行する前提を持たない。
+Goはbase checkoutのgo.modから選び、候補側のGo版やGITHUB_PATH/GITHUB_ENVの変更を引き継がない。
+初回bootstrapのみcandidate jobで実行する。通常Task間のbinary再利用とは信頼する入力が異なる。
