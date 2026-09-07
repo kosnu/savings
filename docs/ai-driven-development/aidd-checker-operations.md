@@ -23,9 +23,12 @@ when_to_read:
 agentによる毎回の版選択や承認は不要。以下の`/tmp/aidd-task-checker`表記は取得したpathで読み替える。
 
 ```sh
-checker_binary=$(env GOENV=off GOWORK=off GOFLAGS= GOTOOLCHAIN=local go run -C tools/aidd/checker ./cmd/aidd-prepare)
+checker_binary=$(env GOENV=off GOWORK=off GOFLAGS= GOTOOLCHAIN=local GOOS= GOARCH= GOEXPERIMENT= CGO_ENABLED=0 GOAMD64= GOARM= GOARM64= GO386= GOMIPS= GOMIPS64= GOPPC64= GORISCV64= GOWASM= go run -C tools/aidd/checker ./cmd/aidd-prepare)
 "$checker_binary" version
 ```
+
+起動するgo runにもhost既定のOS・architecture・実験設定を適用し、CGOを無効にする。
+architecture別設定も既定へ戻すため、cross compile用の呼出環境を準備commandへ引き継がない。
 
 小さなGo準備commandの起動はGo標準のbuild cacheを使用する。checker本体の再利用判定と保存は
 準備commandが担い、通常のTaskごとにchecker本体をbuildしない。新しい外部依存は不要。
