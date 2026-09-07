@@ -104,7 +104,7 @@ Minor local choices inside the approved scope do not require approval. Proceed a
 
 ## Review And Verification
 
-Review every implemented diff in the main agent before final verification. An independent reviewer must follow the subagent cost-benefit conditions in AGENTS.md.
+Review every implemented diff in the main agent before final verification. When delegating an independent review to a subagent, apply the cost-benefit conditions in AGENTS.md.
 
 Check for:
 
