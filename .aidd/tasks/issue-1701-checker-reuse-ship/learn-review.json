@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "b9e4aa01080c03914d9e131503c049e61ef5ad561d06a3622e856f7b5fb1a06e",
+  "checkpoint_sha256": "7daf61997126c599bc78c51f15983ab1ee2850375c2b6d4588a390e01c390367",
+  "evidence_sha256": "2b3b9190bb412bf12778c330b0a670184ab255f74e099e9942e2b401688c10c4",
+  "reviewer": "/root/reuse_review",
+  "authorization": "ユーザーの最新の明示依頼「shipして」とTaskのdelivery=prに基づき、独立レビュー担当としてこのevidenceのLearn確定とPR配信のための後続Ship検査への進行を許可する。merge/deployは含まない。",
+  "observations": "PR配信用の新Taskと同一baselineを確認した。新worktreeの実装10filesは前回独立レビュー済みの最終結果とbytes完全一致し、追加実装差分はない。新Taskは最新の明示Ship依頼をauthorization・constraints・Doneへ保持し、delivery=prを明示している。開始時checkerによる新verifyの成功logと新evidenceの実ファイルSHA256およびTask/checkpoint参照を照合した。前回の独立レビュー観察を同一実装に適用し、追加findingおよび未解決矛盾はない。PR配信のためのLearn確定を許可するが、ship-check、commit/push、PR read-backの完了を証明するものではない。前回観察: Issue #1701の最終10変更pathを読み取り専用でレビューした。checker tree・contracts・rule-map参照正本と正規化Go実行環境のidentity、manifestとbinary hash照合、既存破損entryで停止する分岐、同時prepareのmkdir lockとatomic renameを確認した。Task開始時binaryと旧policy/profileを維持し、Coreのexecutable hash検査を変更していない。CIは現在のtarget baseのprepareを使用し、未導入baseの従来buildとcandidate/bootstrap用binaryを分離している。初回に指摘したbootstrap旧pathの未生成とgo run入口の環境未固定は修正済み。実Go build回数1回・Task/app変更後の再利用・実binaryの未対応schema拒否、CI scriptのbase取得、文書入口の環境正規化の回帰testを確認した。開始時checkerの最終verify成功logとevidenceのSHA256を照合した。追加findingと未解決矛盾はない。Checked rules: architecture.overview, documentation.policy, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol, ai-driven.overview, ai-driven.workflow, ai-driven.issue-guidelines, ai-driven.goal-templates, ai-driven.checker, ai-driven.learn, policy.issue-template-selection, policy.learning-extraction, policy.git-workflow, policy.review-feedback-classification, policy.code-review, policy.transaction-boundaries."
+}

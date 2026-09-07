@@ -23,9 +23,10 @@ same Goal through Explore/Decide, checkpoint, Build/Verify/Review and authorized
 Use actual Goal tools to check availability. If unavailable, retain the Task contract
 and continue without claiming a Goal exists. Do not replace another unfinished Goal.
 
-Prepare the dedicated clean worktree and branch before task-start. Build the checker
-from the accepted checkout into a task-specific external binary path. Keep that exact
-binary throughout the task, especially Learn. Never replace it to make a gate pass.
+Prepare the dedicated clean worktree and branch before task-start. Run the documented aidd-prepare command from the accepted checkout. It automatically
+selects or builds the input-matched cached checker and verifies its hash. Keep the returned
+absolute binary path throughout the task, especially Learn; do not re-prepare mid-task
+or replace it to make a gate pass.
 Run task-start, checkpoint, verify, check, and finish as documented in operations.
 For delivery=pr, stage the verified result and run ship-check before committing, then
 push, create/update the PR and read back delivery state. For delivery=local under an
