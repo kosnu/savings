@@ -233,3 +233,101 @@ func TestManifestRecordsBuildInputs(t *testing.T) {
 		t.Fatal("missing provenance")
 	}
 }
+
+// base jobへ候補の実行stepやGo版選択を混入させない。
+func TestCIIsolatesBaseJobAndToolchain(t *testing.T) {
+	data, err := os.ReadFile("../../../../../.github/workflows/aidd_checker_ci.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	type step struct {
+		Name, Uses, Run, If string
+		With                map[string]string
+	}
+	var workflow struct {
+		Jobs map[string]struct {
+			RunsOn    string `yaml:"runs-on"`
+			Needs, If string
+			Steps     []step
+		}
+	}
+	if err := yaml.Unmarshal(data, &workflow); err != nil {
+		t.Fatal(err)
+	}
+	base, candidate := workflow.Jobs["verify"], workflow.Jobs["candidate"]
+	if base.RunsOn != "ubuntu-latest" || candidate.RunsOn != "ubuntu-latest" {
+		t.Fatal("verification requires separate hosted runners")
+	}
+	if base.Needs != "candidate" || base.If != "always()" {
+		t.Fatal("required verify job must observe candidate failures")
+	}
+	if len(base.Steps) != 6 {
+		t.Fatal("base job must contain only candidate status, checkout, detection, setup, fetch and trusted delivery")
+	}
+	if base.Steps[0].Run != `test "$CANDIDATE_RESULT" = success` || base.Steps[4].Run != `git fetch --no-tags origin "$PR_HEAD_SHA"` {
+		t.Fatal("candidate success and fork head fetch must be retained")
+	}
+	checkout, detect, setup, delivery := base.Steps[1], base.Steps[2], base.Steps[3], base.Steps[5]
+	if !strings.HasPrefix(checkout.Uses, "actions/checkout@") || checkout.With["ref"] != "${{ github.event.pull_request.base.sha }}" || checkout.With["persist-credentials"] != "false" {
+		t.Fatal("base checkout is not pinned to the target base")
+	}
+	if !strings.HasPrefix(setup.Uses, "actions/setup-go@") || setup.With["go-version-file"] != "tools/aidd/checker/go.mod" || setup.With["cache"] != "false" {
+		t.Fatal("base toolchain must use base go.mod without shared cache")
+	}
+	if setup.If != "steps.base-protocol.outputs.present == 'true'" || delivery.If != setup.If {
+		t.Fatal("base execution requires an existing base protocol")
+	}
+	if delivery.Name != "Verify delivery with the base protocol" {
+		t.Fatal("missing trusted delivery")
+	}
+	tested, built, bootstrapped := false, false, false
+	for _, s := range candidate.Steps {
+		tested = tested || s.Run == "go test ./..."
+		built = built || strings.HasPrefix(s.Run, "go build -o /tmp/aidd-checker ")
+		if s.Name == "Verify initial bootstrap" {
+			bootstrapped = s.If == "steps.base-protocol.outputs.present == 'false'" && s.Run == delivery.Run
+		}
+	}
+	if !tested || !built || !bootstrapped {
+		t.Fatal("candidate validation and initial bootstrap must remain in the candidate job")
+	}
+	// baseに新しいGo、候補に古いGoを置き、実際のcheckoutと検出を再現する。
+	root := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		c := exec.Command("git", args...)
+		c.Dir = root
+		b, e := c.CombinedOutput()
+		if e != nil {
+			t.Fatalf("git: %s %v", b, e)
+		}
+		return strings.TrimSpace(string(b))
+	}
+	git("init", "-q")
+	git("config", "user.email", "test@example.com")
+	git("config", "user.name", "Test")
+	put(t, root, "tools/aidd/checker/go.mod", "module fixture\n\ngo 1.27.0\n")
+	put(t, root, "docs/ai-driven-development/contracts/protocol.json", "{}")
+	git("add", ".")
+	git("commit", "-qm", "base")
+	sha := git("rev-parse", "HEAD")
+	put(t, root, "tools/aidd/checker/go.mod", "module fixture\n\ngo 1.20\n")
+	git("add", ".")
+	git("commit", "-qm", "candidate")
+	git("checkout", "--detach", sha)
+	output := filepath.Join(t.TempDir(), "output")
+	c := exec.Command("bash", "-eu", "-c", detect.Run)
+	c.Dir = root
+	c.Env = append(os.Environ(), "PR_BASE_SHA="+sha, "GITHUB_OUTPUT="+output)
+	if b, e := c.CombinedOutput(); e != nil {
+		t.Fatalf("detect: %s %v", b, e)
+	}
+	b, err := os.ReadFile(output)
+	if err != nil || string(b) != "present=true\n" {
+		t.Fatalf("base detection: %s %v", b, err)
+	}
+	b, err = os.ReadFile(filepath.Join(root, setup.With["go-version-file"]))
+	if err != nil || !strings.Contains(string(b), "go 1.27.0") {
+		t.Fatalf("selected candidate Go instead of base Go: %s %v", b, err)
+	}
+}
