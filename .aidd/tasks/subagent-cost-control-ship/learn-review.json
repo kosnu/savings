@@ -2,9 +2,9 @@
   "schema_version": 5,
   "kind": "learn_review",
   "task_sha256": "c472f4cf29d62c881f160b119917e2bac7c395a8b12e4498dba01fec91ee51a1",
-  "checkpoint_sha256": "bc34feaf49344a35408f246f0e5a85f2531f67012bdbe9d2e834b680edd2301c",
-  "evidence_sha256": "356d79f40547e3311b9fa617907bc6b30ba5009c22c0238b7a571f3991a0d8d4",
+  "checkpoint_sha256": "a6230a7b4bf700691439099a01f992a7018f956d0de9afeb79860886dae70639",
+  "evidence_sha256": "7c3caa47cefcb4287f31ceebcda624ad56db59803ebfeb6149b820c133d277d1",
   "reviewer": "/root/policy_review",
-  "authorization": "ユーザーによるrepo ship open prおよび「やれ、このセッションでは二度と聞くな」の実行指示。独立レビュー担当は同一8ファイル差分をレビュー可と判断。",
-  "observations": "独立レビューで修正必須findingなし。AGENTSは軽微・定型作業をメインへ置き、複雑な独立問題・重大リスクには費用対効果で委譲を許可。明示依頼限定なし。harness-taskは規模別自動委譲のみ削除しレビュー項目と検証義務を維持。関連スキルとadapter/workflowの基準は同期。有限scope・単一writer・統合後検証、全適用rule確認、Learn独立レビュー・旧checker/profile・明示確定権限を維持。"
+  "authorization": "ユーザー: 学びを反映してコミットしてreply-review-comments / 次からという除外指定は今回に適用しない / はよしろや。セッション内の実行許可に基づく確定。",
+  "observations": "初回8ファイルの独立レビューでfindingなし。最新追加差分について同じ独立review担当/root/policy_reviewが確認可と判断。aidd-cycleは委譲条件と明示要件を分離しownership・Task/checkpoint・検証・読書込境界・単一writer・統合後検証を維持。harness-taskは費用対効果条件をsubagentへの委譲に限定し人間レビューを制限しない。メインの全差分レビュー義務も維持。追加findingなし。"
 }
