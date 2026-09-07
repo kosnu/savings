@@ -93,4 +93,9 @@ rule-mapと正本文書は適用判断との対応を固定するために含め
 入力hashごとにmanifestとbinary hashを保存し、取得前に照合する。hashは同一性であり、
 意味的互換性や真正性を証明しない。既存schema・必須項目検査はCoreが引き続き担当する。
 Taskが固定するexecutable hashとpolicy/profile bytesは変更しない。Learn候補の準備は別pathとなり、
-開始時checkerの代替にはしない。CIは現在のtarget baseの準備実装と入力だけを使用する。
+開始時checkerの代替にはしない。
+
+CIのbase検証では、候補コードが書けるcacheを信頼済み実行物の取得元にしない。
+baseソースを別directoryへ展開してcheckerを直接buildし、Go build/module cacheもその新規directoryへ分離する。
+ソースの取得元だけでなく、実行物の取得経路もbase側の責務である。hash照合はこの隔離の代替にならない。
+通常Task間のbinary再利用と、候補コード実行後のCI base検証は信頼する入力が異なる。

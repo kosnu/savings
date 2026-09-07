@@ -82,7 +82,7 @@ func TestRealCheckerReuseAndSchemaRejection(t *testing.T) {
 	}
 }
 
-func TestCIUsesPrepareFromBaseOnly(t *testing.T) {
+func TestCIBuildsBaseWithoutCandidateCaches(t *testing.T) {
 	data, err := os.ReadFile("../../../../../.github/workflows/aidd_checker_ci.yaml")
 	if err != nil {
 		t.Fatal(err)
@@ -128,22 +128,50 @@ func TestCIUsesPrepareFromBaseOnly(t *testing.T) {
 	head := git("rev-parse", "HEAD")
 	bin := t.TempDir()
 	trace := filepath.Join(bin, "trace")
-	checker := filepath.Join(bin, "trusted-checker")
-	body := "#!/bin/sh\n[ \"$1\" = ci-check ] || exit 91\nprintf '%s\\n' \"$@\" >> " + quote(trace) + "\n"
-	if err := os.WriteFile(checker, []byte(body), 0o700); err != nil {
+	poison := filepath.Join(bin, "candidate-cache")
+	if err := os.MkdirAll(poison, 0o700); err != nil {
 		t.Fatal(err)
 	}
+	cached := filepath.Join(poison, "aidd-checker")
+	if err := os.WriteFile(cached, []byte("#!/bin/sh\nprintf 'candidate cache executed' > "+quote(trace)+"\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	// 旧prepare経路なら候補側cacheの実行物を返す。直接buildでは独立cacheと出力先を検査する。
 	fakeGo := `#!/bin/sh
 set -eu
+if [ "$1" = run ]; then
+ printf '%s\n' "$POISONED_CHECKER"
+ exit 0
+fi
+[ "$1" = build ]
 [ "$GOENV" = off ] && [ "$GOWORK" = off ] && [ -z "$GOFLAGS" ] && [ "$GOTOOLCHAIN" = local ]
-[ "$1" = run ] && [ "$2" = -C ] && [ "$4" = ./cmd/aidd-prepare ]
-cat "$3/source-marker" > ` + quote(trace) + "\necho " + quote(checker) + "\n"
+dir= output=
+while [ "$#" -gt 0 ]; do
+ case "$1" in
+ -C) dir="$2"; shift 2;;
+ -o) output="$2"; shift 2;;
+ *) shift;;
+ esac
+done
+trusted=${dir%/tools/aidd/checker}
+[ "$GOCACHE" = "$trusted/go-build-cache" ]
+[ "$GOMODCACHE" = "$trusted/go-module-cache" ]
+[ ! -e "$GOCACHE" ] && [ ! -e "$GOMODCACHE" ]
+[ "$output" = "$trusted/aidd-checker" ]
+cat "$dir/source-marker" > "$TRACE"
+cat > "$output" <<'CHECKER'
+#!/bin/sh
+[ "$1" = ci-check ] || exit 91
+printf '%s\n' "$@" >> "$TRACE"
+CHECKER
+chmod +x "$output"
+`
 	if err := os.WriteFile(filepath.Join(bin, "go"), []byte(fakeGo), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	c := exec.Command("bash", "-c", script)
 	c.Dir = root
-	c.Env = append(os.Environ(), "PATH="+bin+":"+os.Getenv("PATH"), "PR_AUTHOR_LOGIN=human", "PR_BASE_SHA="+base, "PR_HEAD_SHA="+head, "GITHUB_WORKSPACE="+root, "GOFLAGS=-overlay=untrusted", "GOWORK=/untrusted")
+	c.Env = append(os.Environ(), "PATH="+bin+":"+os.Getenv("PATH"), "PR_AUTHOR_LOGIN=human", "PR_BASE_SHA="+base, "PR_HEAD_SHA="+head, "GITHUB_WORKSPACE="+root, "GOFLAGS=-overlay=untrusted", "GOWORK=/untrusted", "TRACE="+trace, "POISONED_CHECKER="+cached, "XDG_CACHE_HOME="+poison, "GOCACHE="+poison, "GOMODCACHE="+poison)
 	if out, err := c.CombinedOutput(); err != nil {
 		t.Fatalf("CI: %s %v", out, err)
 	}
