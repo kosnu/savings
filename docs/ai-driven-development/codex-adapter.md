@@ -34,5 +34,6 @@ Hooksはcompact後のinvariant再提示と、制御面変更の早期検査を�
 Hookの成功や不発火をCoreの完了証拠へ変換しない。Goal/Hookなしでも同じCore検査が成立する。
 
 CoreのSHA-256出力を次commandのexpected identityとして使用する。
-Learnでは開始時にbuildしたbinaryを保持し、candidate binaryへ切り替えない。
+Learnでは開始前にprepareで取得したbinaryを保持し、candidate binaryへ切り替えない。
+取得手順は [AIDD checker operations](aidd-checker-operations.md#開始時のbinary) に従う。
 Issueの内容変更を検知したらintentを黙って更新せず、権限・目的を確認して新taskとする。
