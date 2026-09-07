@@ -42,9 +42,10 @@ Go cache/module cacheに書込できない環境ではrepository外のGOCACHE/GO
 
 Learnも開始前に取得したbinaryと旧policy/profileを保持する。変更後candidateの確認は別の変数・pathで
 prepareし、その成功だけでLearnを確定しない。Taskの途中で開始時変数へ再代入しない。
-CIは現在のtarget baseを別directoryへ展開し、そのbase側の準備commandを使う。
-CIのcandidate検証用buildは従来通り別binaryへ行い、base検証の代替にしない。
-準備command未導入のbaseに対しては従来のbase source buildを維持し、candidateの準備commandを代用しない。
+CIは現在のtarget baseのcheckerソースを新規directoryへ展開し、直接buildする。
+base側ではbinary cacheを利用せず、GOCACHE/GOMODCACHEも新規directory配下に固定する。
+GOENV/GOWORK/GOFLAGS/GOTOOLCHAINを固定し、候補側のcacheやbuild設定を取得元にしない。
+candidate検証用buildは別binaryへ行い、base検証の代替にしない。
 CoreはGoalやHookを呼び出さない。
 
 ## Task contract
