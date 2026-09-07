@@ -203,12 +203,16 @@ func TestDocumentedEntryNormalizesBootstrap(t *testing.T) {
 	root := t.TempDir()
 	put(t, root, "tools/aidd/checker/go.mod", "module bootstrapfixture\n\ngo 1.20\n")
 	put(t, root, "tools/aidd/checker/cmd/aidd-prepare/main.go", `package main
-import ("fmt"; "runtime")
-func main() { fmt.Printf("%s/%s", runtime.GOOS, runtime.GOARCH) }
+import ("fmt"; "bootstrapfixture/internal/host")
+func main() { fmt.Print(host.Platform()) }
+`)
+	put(t, root, "tools/aidd/checker/internal/host/host.go", `package host
+import "runtime"
+func Platform() string { return runtime.GOOS + "/" + runtime.GOARCH }
 `)
 	c := exec.Command("sh", "-ec", line+"\nprintf '%s' \"$checker_binary\"")
 	c.Dir = root
-	c.Env = append(os.Environ(), "GOFLAGS=-overlay=untrusted", "GOWORK=/untrusted", "GOENV=/untrusted", "GOTOOLCHAIN=untrusted", "GOOS=windows", "GOARCH=386", "GOEXPERIMENT=invalid-bootstrap-experiment", "CGO_ENABLED=1")
+	c.Env = append(os.Environ(), "GOFLAGS=-overlay=untrusted", "GOWORK=/untrusted", "GOENV=/untrusted", "GOTOOLCHAIN=untrusted", "GO111MODULE=off", "GOOS=windows", "GOARCH=386", "GOEXPERIMENT=invalid-bootstrap-experiment", "CGO_ENABLED=1")
 	for _, name := range []string{"GOAMD64", "GOARM", "GOARM64", "GO386", "GOMIPS", "GOMIPS64", "GOPPC64", "GORISCV64", "GOWASM"} {
 		c.Env = append(c.Env, name+"=invalid-bootstrap-setting")
 	}

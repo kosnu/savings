@@ -23,7 +23,7 @@ when_to_read:
 agentによる毎回の版選択や承認は不要。以下の`/tmp/aidd-task-checker`表記は取得したpathで読み替える。
 
 ```sh
-checker_binary=$(env GOENV=off GOWORK=off GOFLAGS= GOTOOLCHAIN=local GOOS= GOARCH= GOEXPERIMENT= CGO_ENABLED=0 GOAMD64= GOARM= GOARM64= GO386= GOMIPS= GOMIPS64= GOPPC64= GORISCV64= GOWASM= go run -C tools/aidd/checker ./cmd/aidd-prepare)
+checker_binary=$(env GOENV=off GOWORK=off GOFLAGS= GOTOOLCHAIN=local GO111MODULE= GOOS= GOARCH= GOEXPERIMENT= CGO_ENABLED=0 GOAMD64= GOARM= GOARM64= GO386= GOMIPS= GOMIPS64= GOPPC64= GORISCV64= GOWASM= go run -C tools/aidd/checker ./cmd/aidd-prepare)
 "$checker_binary" version
 ```
 
