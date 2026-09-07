@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "0b9a3f2ace5232a0c45745ea0597799c6be03572a88a6f969aaf8ac7c2251e8b",
+  "checkpoint_sha256": "93c73ad1eab49749b7368123e9048f895745601251f5a665a08b16e091e09252",
+  "evidence_sha256": "4d9be9db10649ae766b60dc28c0aa08bcce5a3a9785674ce17ccdcb79e03af57",
+  "reviewer": "Codex /root（このセッションの実行担当。サブエージェント・別担当者は使用していない）",
+  "authorization": "ユーザーはGO111MODULE正規化とcodex-adapter同期について「反映してコミットして reply-review-comments して」、続いて「Astraで必要なら反映しろって言ったんやからやれや」と明示し、CIの許可範囲不整合を説明した後「直しとけ」と修復を依頼した。この明示許可の範囲でTask証跡を修復しcommit/pushする。別のreviewerが許可したとは記録しない。",
+  "observations": "実装・検証と分けたread-onlyのレビュー工程を現担当で実施した。別agentによる独立確認を受けたという記録ではない。旧Taskのbaseline_head/baseline/policy/rule_map/catalog/checker_sha256を新Taskと比較し全項目一致、PR 369f429fの全実装bytes/modeも一致した。新たに実装を変更せず、追加許可codex-adapter.mdを有限scope/REP-11へ明示した。cacheの入力集合・破損停止・atomic公開、candidate非実行のbase jobとbase go.mod選択、Go111MODULE=offを含む実Go起動回帰、adapterのprepare参照をソースと正本文書で再確認した。テスト成功だけからreview結果を生成していない。Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.transaction-boundaries。Unresolved: 実装findingなし。旧Taskの記録はGit履歴へ保持し、新Task全差分証跡で置換する。最終Ship/CI確認はこの記録後に実施する。"
+}

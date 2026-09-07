@@ -5,18 +5,19 @@
     "action": "execute",
     "schema_version": 5,
     "kind": "learn",
-    "id": "issue-1701-checker-reuse-ship",
+    "id": "issue-1701-checker-reuse-revalidated",
     "intent": {
       "kind": "feedback",
-      "reference": "https://github.com/kosnu/savings/issues/1701",
-      "body": "## 背景・解決したい課題\n\ncheckerを毎回ビルドする運用は意図していない。旧方式ではフェーズごと、現行v5ではTask開始ごとにビルドしており、同じcheckerを使うTaskでもビルド時間とagentによる実行・結果確認の負担が繰り返される。\n\ncheckerに変更がない通常のTaskでは、ビルド済みの固定版を再利用したい。目的はビルドの反復をなくすことであり、独立した複数版の互換性管理や、agentの判断・承認工程を増やすことではない。\n\n## 期待する状態\n\ncheckerの初回準備時と、ビルド元・連動する契約の変更時にビルドし、それ以外のTaskでは対応するbinaryを再利用する。\n\n再利用対象の選択と同一性確認は実行環境側で自動処理する。Astraなどのagentが毎回版を選択したり、再利用の承認を求めたりする必要がない。\n\n## スコープ\n\n### 対象\n\n- checkerのソース、依存定義、checkerと連動する契約を入力とする再利用判定\n- 再利用判定のhashに対応するビルド済みbinaryの保存と取得\n- 保存時のbinary hashとの照合による破損・置換の検出\n- 初回または対応するbinaryがない場合のビルドと、その後の再利用\n- 既存checkerによるschema・必須項目などの契約検証の維持\n- Task開始経路と、必要なskill・workflow・CI・関連文書の整合、および回帰検証\n\n### 対象外\n\n- checkerと契約を独立して版管理する互換性表や配布基盤\n- 複数の過去版の組み合わせに対する互換性保証\n- 新しい承認工程、フェーズ別gate、agentによる毎回の版選択\n- 再利用と無関係なchecker検証ロジックの変更、旧phase CLIの復活\n- アプリケーション機能、DB、APIの変更、新しい外部依存の導入\n\n## 制約\n\n- 再利用判定のhashにはcheckerのソース・依存定義と、checkerと連動する契約を含める。対象契約とその選定理由は設計で明確にする。\n- Task ID、Issue本文、実行時引数など、通常のTask入力は再利用判定のhashに含めない。アプリケーションコードの変更だけでも再ビルドを要求しない。\n- binaryを実行できる環境の違いも再利用条件に含め、異なるOS・アーキテクチャ等の実行不能なbinaryを流用しない。\n- hashは同一性の確認に使い、意味的な互換性や出所の真正性を証明するものとして扱わない。schema・必須項目・未対応契約の判断は既存checkerの検証を使う。\n- 保存済みbinaryのhash不一致は検出して停止し、そのbinaryや任意の手元binaryを実行しない。対応binaryの未作成と破損・置換は区別する。\n- 呼出側による任意の契約・pathへの差し替えで、検証境界を変更できない。\n- Task開始時に選択したbinaryとpolicy・rule-map・profileの固定、checkpoint・evidenceの整合保証を維持する。Task途中の変更で実行中のbinaryを自動的に切り替えない。\n- Learnは開始時checkerと旧契約で検証する。変更後の候補binaryは別に扱い、その自己検証だけで変更を確定しない。CIのbase側checkerを使う信頼境界も維持する。\n\n## 成功条件\n\n- [ ] 同じビルド元・連動契約・実行環境で複数Taskを開始しても、初回以降はビルドが実行されない\n- [ ] Task ID、Issue本文、通常の引数、アプリケーションコードだけを変更してもcheckerを再ビルドしない\n- [ ] checkerのソース・依存定義・連動契約が変わった場合は、その組み合わせに対応するbinaryを準備し、以後は再利用する\n- [ ] 使用したbinaryとビルド元の対応をhashで確認でき、保存済みbinaryの破損・置換時には実行前に停止する\n- [ ] 既存checkerが拒否する未対応schemaや不正な契約は、binaryを再利用しても引き続き拒否される\n- [ ] Task途中では開始時binaryを保持し、Learnの候補検証とCIのbase側検証の境界が維持される\n- [ ] 再利用・変更時の準備・不整合の検出が自動化され、agentの毎回の版選択や追加承認が不要になる\n- [ ] 上記の回帰検証があり、通常利用と更新時の説明が実行経路・関連文書で一致する\n\n## 委任範囲・完了地点\n\n意図・スコープ・制約を守る範囲で、調査、技術的な設計判断、実装、必要な検証とレビューを任せる。進め方は [AIDD workflow](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/workflow.md) に従い、checker・契約・検証機構の変更はguardrailを所有する独立Learnの境界で扱う。\n\n- 完了地点: ローカルでの実装・検証・レビュー完了\n- 個別の権限制限・事前確認事項: 再利用対象の正本や更新責任を明確にできない場合、通常のTask開始ごとのビルドを廃止できない場合、既存の信頼境界を維持できない場合は確認する。新規依存・DB変更・API仕様変更・破壊的git操作は事前確認が必要。\n\n## 参考情報・未決事項（任意）\n\n- #1671: Go版checker導入の経緯。\n- [checker運用](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/aidd-checker-operations.md)、[信頼境界](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/aidd-checker.md)。\n- 保存場所、ビルド入力と連動契約の具体的な集合、同時利用時の保存方法は設計で決める。Task間の再利用を実現するために必要な最小構成とする。\n",
-      "body_sha256": "11a19a2f27cf7524e9fc148a6afa419354430f1eaccc7c2d5532111fcd42ae3c"
+      "reference": "https://github.com/kosnu/savings/pull/1720",
+      "body": "## 背景・解決したい課題\n\ncheckerを毎回ビルドする運用は意図していない。旧方式ではフェーズごと、現行v5ではTask開始ごとにビルドしており、同じcheckerを使うTaskでもビルド時間とagentによる実行・結果確認の負担が繰り返される。\n\ncheckerに変更がない通常のTaskでは、ビルド済みの固定版を再利用したい。目的はビルドの反復をなくすことであり、独立した複数版の互換性管理や、agentの判断・承認工程を増やすことではない。\n\n## 期待する状態\n\ncheckerの初回準備時と、ビルド元・連動する契約の変更時にビルドし、それ以外のTaskでは対応するbinaryを再利用する。\n\n再利用対象の選択と同一性確認は実行環境側で自動処理する。Astraなどのagentが毎回版を選択したり、再利用の承認を求めたりする必要がない。\n\n## スコープ\n\n### 対象\n\n- checkerのソース、依存定義、checkerと連動する契約を入力とする再利用判定\n- 再利用判定のhashに対応するビルド済みbinaryの保存と取得\n- 保存時のbinary hashとの照合による破損・置換の検出\n- 初回または対応するbinaryがない場合のビルドと、その後の再利用\n- 既存checkerによるschema・必須項目などの契約検証の維持\n- Task開始経路と、必要なskill・workflow・CI・関連文書の整合、および回帰検証\n\n### 対象外\n\n- checkerと契約を独立して版管理する互換性表や配布基盤\n- 複数の過去版の組み合わせに対する互換性保証\n- 新しい承認工程、フェーズ別gate、agentによる毎回の版選択\n- 再利用と無関係なchecker検証ロジックの変更、旧phase CLIの復活\n- アプリケーション機能、DB、APIの変更、新しい外部依存の導入\n\n## 制約\n\n- 再利用判定のhashにはcheckerのソース・依存定義と、checkerと連動する契約を含める。対象契約とその選定理由は設計で明確にする。\n- Task ID、Issue本文、実行時引数など、通常のTask入力は再利用判定のhashに含めない。アプリケーションコードの変更だけでも再ビルドを要求しない。\n- binaryを実行できる環境の違いも再利用条件に含め、異なるOS・アーキテクチャ等の実行不能なbinaryを流用しない。\n- hashは同一性の確認に使い、意味的な互換性や出所の真正性を証明するものとして扱わない。schema・必須項目・未対応契約の判断は既存checkerの検証を使う。\n- 保存済みbinaryのhash不一致は検出して停止し、そのbinaryや任意の手元binaryを実行しない。対応binaryの未作成と破損・置換は区別する。\n- 呼出側による任意の契約・pathへの差し替えで、検証境界を変更できない。\n- Task開始時に選択したbinaryとpolicy・rule-map・profileの固定、checkpoint・evidenceの整合保証を維持する。Task途中の変更で実行中のbinaryを自動的に切り替えない。\n- Learnは開始時checkerと旧契約で検証する。変更後の候補binaryは別に扱い、その自己検証だけで変更を確定しない。CIのbase側checkerを使う信頼境界も維持する。\n\n## 成功条件\n\n- [ ] 同じビルド元・連動契約・実行環境で複数Taskを開始しても、初回以降はビルドが実行されない\n- [ ] Task ID、Issue本文、通常の引数、アプリケーションコードだけを変更してもcheckerを再ビルドしない\n- [ ] checkerのソース・依存定義・連動契約が変わった場合は、その組み合わせに対応するbinaryを準備し、以後は再利用する\n- [ ] 使用したbinaryとビルド元の対応をhashで確認でき、保存済みbinaryの破損・置換時には実行前に停止する\n- [ ] 既存checkerが拒否する未対応schemaや不正な契約は、binaryを再利用しても引き続き拒否される\n- [ ] Task途中では開始時binaryを保持し、Learnの候補検証とCIのbase側検証の境界が維持される\n- [ ] 再利用・変更時の準備・不整合の検出が自動化され、agentの毎回の版選択や追加承認が不要になる\n- [ ] 上記の回帰検証があり、通常利用と更新時の説明が実行経路・関連文書で一致する\n\n## 委任範囲・完了地点\n\n意図・スコープ・制約を守る範囲で、調査、技術的な設計判断、実装、必要な検証とレビューを任せる。進め方は [AIDD workflow](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/workflow.md) に従い、checker・契約・検証機構の変更はguardrailを所有する独立Learnの境界で扱う。\n\n- 完了地点: ローカルでの実装・検証・レビュー完了\n- 個別の権限制限・事前確認事項: 再利用対象の正本や更新責任を明確にできない場合、通常のTask開始ごとのビルドを廃止できない場合、既存の信頼境界を維持できない場合は確認する。新規依存・DB変更・API仕様変更・破壊的git操作は事前確認が必要。\n\n## 参考情報・未決事項（任意）\n\n- #1671: Go版checker導入の経緯。\n- [checker運用](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/aidd-checker-operations.md)、[信頼境界](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/aidd-checker.md)。\n- 保存場所、ビルド入力と連動契約の具体的な集合、同時利用時の保存方法は設計で決める。Task間の再利用を実現するために必要な最小構成とする。\n\n\n追加の明示許可: GO111MODULE起動前正規化、module importを使う実Go回帰、codex-adapter.mdのprepare手順への同期。旧Taskでは許可scope不足でCIが失敗したため、元のPR基準点と全差分を保って全体を再検証する。",
+      "body_sha256": "28a1adab93d2915b1d1e80bd2291c99a425d1c2623b0157d3bbabf1b92f031f6"
     },
-    "objective": "AIDD checkerを変更時だけビルドしTask間で再利用する",
+    "objective": "Issue #1701のchecker再利用とレビュー修正全体を、追加許可を含むTaskで再検証してPRのCIを修復する",
     "constraints": [
       "Issue #1701の対象・対象外・制約を維持する。新規外部依存とproduct変更は禁止。",
       "開始時checkerと旧policy/profileで検証し、Learn候補とCI baseを分離する。",
-      "ユーザーの最新の明示依頼「shipして」に従いcommit・push・Draft PR作成と配信確認まで行う。merge/deployは含まない。"
+      "ユーザーの最新の明示依頼「shipして」に従いcommit・push・Draft PR作成と配信確認まで行う。merge/deployは含まない。",
+      "サブエージェントは使用しない。元Taskのbaseline commit 786beec871e9506b4322245aab5848fab10275ef、開始時checker、policy/profile bytes、PR全体の実装差分を維持し、未検証差分をbaselineへ隠さない。旧Taskとレビュー記録の真正性は書き換えずGit履歴へ保持する。"
     ],
     "done": [
       "同一入力でbinaryを再利用し変更時のみ準備し破損時に停止する。",
@@ -28,7 +29,7 @@
       "Go mod verify、gofmt、vet、全Go tests、check-all、ADR validation、git diff --check、独立レビュー"
     ],
     "delivery": "pr",
-    "authorization": "ユーザーの「Issue#1701 の対応をして」とIssue本文の独立Learn境界でのchecker・契約・検証機構の実装・検証・レビュー委任。 最新のユーザー明示依頼「shipして」によりPR配信まで許可された。",
+    "authorization": "ユーザーの「Issue#1701 の対応をして」とIssue本文の独立Learn境界でのchecker・契約・検証機構の実装・検証・レビュー委任。 最新のユーザー明示依頼「shipして」によりPR配信まで許可された。 ユーザーの「Astraな現環境でも必要ってことよな？それなら反映してコミットして reply-review-comments して」「Astraで必要なら反映しろって言ったんやからやれや」によりGO111MODULE正規化とcodex-adapter.md同期を明示許可。続く「直しとけ」により、その追加許可を含むTask証跡とCI失敗の修復を許可。",
     "authorized_scopes": [
       {
         "path": ".agents/skills/aidd-cycle/SKILL.md",
@@ -48,6 +49,10 @@
       },
       {
         "path": "docs/ai-driven-development/aidd-checker.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/codex-adapter.md",
         "kind": "file"
       },
       {

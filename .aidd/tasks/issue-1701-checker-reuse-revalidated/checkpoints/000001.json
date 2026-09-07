@@ -1,14 +1,14 @@
 {
   "schema_version": 5,
   "kind": "checkpoint",
-  "task_sha256": "b9e4aa01080c03914d9e131503c049e61ef5ad561d06a3622e856f7b5fb1a06e",
-  "revision": 4,
-  "parent_sha256": "1453fd05917a2f5dbfe489617777a7d7449b818f9ac7511f6d487cc0d29f912a",
+  "task_sha256": "0b9a3f2ace5232a0c45745ea0597799c6be03572a88a6f969aaf8ac7c2251e8b",
+  "revision": 1,
+  "parent_sha256": "",
   "decision": {
     "schema_version": 5,
     "kind": "decision",
-    "task_sha256": "b9e4aa01080c03914d9e131503c049e61ef5ad561d06a3622e856f7b5fb1a06e",
-    "reason": "PR #1720 discussion_r3951210322 の起動境界の正規化漏れに対応する。aidd-prepare内部より前に実行されるgo runへGOOS/GOARCH/GOEXPERIMENT/CGO_ENABLEDとarchitecture設定のhost既定を適用する。既存契約の意味は維持し、文書の正規起動commandと実Goを使うfixture回帰で防ぐ。内部だけの修正や注意喚起は起動前の失敗を防げないため採用しない。解決済み5件は新規入力から除外する。",
+    "task_sha256": "0b9a3f2ace5232a0c45745ea0597799c6be03572a88a6f969aaf8ac7c2251e8b",
+    "reason": "追加許可されたcodex-adapter.mdが旧Taskのimmutable scopeに含まれずCI失敗したため、ユーザーの修復指示に従い元baselineと全実装差分を保った新Taskで再検証する。旧Task hash/checkpoint/reviewを書換えずGit履歴に残す。PR全体のbinary再利用・破損検出・base job隔離・base Go選択・起動前Go環境正規化を維持する。GO111MODULEを起動前に既定化しmodule内importを実Go fixtureで検証する。codex-adapter.mdをprepare取得・固定へ同期しoperations参照を追加する。product/アプリとbase側checkerの検査仕様は変更しない。",
     "requirements": [
       {
         "id": "FR-1",
@@ -94,7 +94,7 @@
           "product_behavior_ids": [
             "PB-3"
           ],
-          "procedure": "Go mod verify、gofmt、vet、check-all、ADR validatorと文書起動commandの実Go回帰により、異なるGOOS/GOARCH、無効GOEXPERIMENTとarchitecture設定でもhost executableを起動できることを確認する。開始時checker保持と既存CI境界も維持する。"
+          "procedure": "Go mod verify/gofmt/vet/check-all/ADR validator、module内importを使うGO111MODULE=offからの実Go起動回帰、文書同期、base job/Go/cache隔離、元baseline/checker/policy/profileの維持とPR全体の同一差分を確認する。サブエージェントは使わず実装と分けて最終差分を再読する。"
         }
       ],
       "ownership_scopes": [
@@ -116,6 +116,10 @@
         },
         {
           "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
           "kind": "file"
         },
         {
@@ -285,6 +289,22 @@
             "PB-3"
           ],
           "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3",
             "VC-4"
           ]
         }
