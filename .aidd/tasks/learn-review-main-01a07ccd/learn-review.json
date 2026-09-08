@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "857ae39799be57f6560c8eff333fe8695b24e529a4640f680dd48f5413a8da9f",
+  "checkpoint_sha256": "1b220bdf57932062f205cc03902915f346257e9315a5a4608ad63eb488d7f701",
+  "evidence_sha256": "8ea96a48c94d2f06135d0bb1a64a0198680cc2d205761f963ab37c4fbcde0c31",
+  "reviewer": "/root (担当agent自身。独立reviewではない)",
+  "authorization": "Learnの独立レビュー必須で無駄にサブエージェントを呼んでトークン消費を爆増させてるからやめろって意味じゃ\n仕組みを早く修正しろ\nユーザーの追加依頼: $repo ship\nユーザーの追加依頼: mainをマージしてコンフリクトを解消して",
+  "observations": "ユーザーが独立review要件の撤廃を明示したため、開始時checkerとの互換記録として自己reviewを保存。finish/Ship/CIの必須記録読込のみ除去し、ValidateEvidence、scope、checker identity、delivery境界は維持。文書とskillを同期し、ADRは日付付き追記のみ。Checked rules: ai-driven.workflow, ai-driven.checker, ai-driven.overview, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol, documentation.policy, policy.learning-extraction, policy.code-review, policy.review-feedback-classification, policy.git-workflow. Unresolved: なし。checker全テストと差分検査、ADR検証成功。 mainの費用対効果条件を維持し、Learnで独立reviewを必須にする競合行だけを採用しないことを確認。"
+}

@@ -24,6 +24,7 @@ latest diff and evidence yourself and finalize within the user's authorized scop
 Independent review is not required. Call another agent only when the user explicitly
 requests it. Candidate checker success alone is insufficient. Do not invent review
 observations or authorization.
+Apply the cost-benefit conditions in AGENTS.md; routine checks stay in the main agent.
 
 Finish at guardrail verification and finalization. If product implementation is needed,
 report the existing Development Issue and required outcome as a handoff; do not start it.
