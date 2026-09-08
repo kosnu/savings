@@ -85,15 +85,6 @@ func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id 
 	if _, err = ValidateEvidence(ctx, snapshot, l, evidenceHash); err != nil {
 		return err
 	}
-	if task.Spec.Kind == "learn" {
-		r, _, err := readMode[Review](snapshot, taskPath(id, "learn-review.json"), true)
-		if err != nil {
-			return err
-		}
-		if err = validateReview(l, evidenceHash, r); err != nil {
-			return err
-		}
-	}
 	return snapshot.AssertUnchanged()
 }
 

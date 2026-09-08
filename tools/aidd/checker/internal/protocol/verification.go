@@ -91,6 +91,16 @@ func (l *Loaded) validateGenerated(snapshot *repository.Snapshot, files []File) 
 				return err
 			}
 			if l.Task.Spec.Kind == "learn" && r.SchemaVersion == Version && r.Kind == "learn_review" && r.TaskSHA256 == l.TaskHash && checkpoints[r.CheckpointSHA256] {
+				// 任意記録は参照先の証拠と照合する。過去checkpointの記録は履歴として保持できる。
+				_, evidenceHash, err := readMode[Evidence](snapshot, evidencePath(l.Task.Spec.ID, r.CheckpointSHA256), l.Delivered)
+				if err != nil {
+					return err
+				}
+				reviewContext := *l
+				reviewContext.CheckpointHash = r.CheckpointSHA256
+				if err := validateReview(&reviewContext, evidenceHash, r); err != nil {
+					return err
+				}
 				continue
 			}
 		}
@@ -156,7 +166,7 @@ func ValidateEvidence(ctx context.Context, snapshot *repository.Snapshot, l *Loa
 	return &e, snapshot.AssertUnchanged()
 }
 
-// RecordLearnReviewは依頼により独立して確認されたreviewを固定する。
+// RecordLearnReviewは任意で実施したreviewを固定する。
 // 自動テストの成功からreview内容や変更許可を推測しない。
 func RecordLearnReview(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenceHash string, r Review) (string, error) {
 	if l.Task.Spec.Kind != "learn" {
@@ -173,7 +183,7 @@ func RecordLearnReview(ctx context.Context, snapshot *repository.Snapshot, l *Lo
 
 func validateReview(l *Loaded, evidenceHash string, r Review) error {
 	if r.SchemaVersion != Version || r.Kind != "learn_review" || r.TaskSHA256 != l.TaskHash || r.CheckpointSHA256 != l.CheckpointHash || r.EvidenceSHA256 != evidenceHash || strings.TrimSpace(r.Reviewer) == "" || strings.TrimSpace(r.Authorization) == "" || strings.TrimSpace(r.Observations) == "" {
-		return fail("LEARN_REVIEW", l.Task.Spec.ID, "現在の変更・証拠に対する独立reviewと確定許可が必要です")
+		return fail("LEARN_REVIEW", l.Task.Spec.ID, "review記録には現在の変更・証拠、確認者、許可、観察が必要です")
 	}
 	return nil
 }
@@ -184,15 +194,6 @@ func Ship(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenc
 	}
 	if _, err := ValidateEvidence(ctx, snapshot, l, evidenceHash); err != nil {
 		return err
-	}
-	if l.Task.Spec.Kind == "learn" {
-		review, _, err := read[Review](snapshot, taskPath(l.Task.Spec.ID, "learn-review.json"))
-		if err != nil {
-			return err
-		}
-		if err = validateReview(l, evidenceHash, review); err != nil {
-			return err
-		}
 	}
 	output, err := snapshot.Git(ctx, "-c", "core.fileMode=true", "diff", "--no-ext-diff", "--name-status", "-z", "--no-renames", "--")
 	if err != nil {
@@ -212,22 +213,13 @@ func Ship(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenc
 	return snapshot.AssertUnchanged()
 }
 
-// Finishはlocal完了にもLearnの独立reviewを要求する。
+// Finishはlocal完了でも最新の検証証拠を要求する。
 func Finish(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenceHash string) error {
 	if l.Task.Spec.Delivery == "pr" {
 		return Ship(ctx, snapshot, l, evidenceHash)
 	}
 	if _, err := ValidateEvidence(ctx, snapshot, l, evidenceHash); err != nil {
 		return err
-	}
-	if l.Task.Spec.Kind == "learn" {
-		review, _, err := read[Review](snapshot, taskPath(l.Task.Spec.ID, "learn-review.json"))
-		if err != nil {
-			return err
-		}
-		if err = validateReview(l, evidenceHash, review); err != nil {
-			return err
-		}
 	}
 	return snapshot.AssertUnchanged()
 }

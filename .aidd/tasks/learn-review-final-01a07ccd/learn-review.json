@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "bc27f184cf4cd46710989543264800a60824f577b638ecc2d269967d0adae1f3",
+  "checkpoint_sha256": "4bd9a4043aa62c2615e90d77d0b058ebb629daad27cd4cad25867fdf3d57c63c",
+  "evidence_sha256": "588006feb08cf6247fc28e2f29ae1e540bc278a7e187beca00c75a9a877d6e64",
+  "reviewer": "/root (担当agent自身。独立reviewではない)",
+  "authorization": "Learnの独立レビュー必須で無駄にサブエージェントを呼んでトークン消費を爆増させてるからやめろって意味じゃ\n仕組みを早く修正しろ\nユーザーの追加依頼: $repo ship\nユーザーの追加依頼: mainをマージしてコンフリクトを解消して\n任意review修正の反映、およびコミット後の返信更新をユーザーが明示依頼。",
+  "observations": "ユーザーが独立review要件の撤廃を明示したため、開始時checkerとの互換記録として自己reviewを保存。finish/Ship/CIの必須記録読込のみ除去し、ValidateEvidence、scope、checker identity、delivery境界は維持。文書とskillを同期し、ADRは日付付き追記のみ。Checked rules: ai-driven.workflow, ai-driven.checker, ai-driven.overview, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol, documentation.policy, policy.learning-extraction, policy.code-review, policy.review-feedback-classification, policy.git-workflow. Unresolved: なし。checker全テストと差分検査、ADR検証成功。 mainの費用対効果条件を維持し、Learnで独立reviewを必須にする競合行だけを採用しないことを確認。 最新mainのaidd-prepare手順を維持。更新されたchecker全テストも成功。 任意recordの必須項目と参照証拠を検査し、過去checkpoint履歴は再reviewなしで許可する。文書の旧記述と確認者の表現を同期。全checkerテストと差分検査成功。"
+}

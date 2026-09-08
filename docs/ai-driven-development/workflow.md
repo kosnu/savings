@@ -126,7 +126,8 @@ LearnはIssue不要の独立task。入力・原因調査は[learning policy](../
 分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと有限scopeを固定し、
 guardrail文書、routing、checker、adapter、検証機構を変更・検証できる。
 product pathの変更は禁止する。開始時checker binaryと旧profileで検証し、変更後checkerの成功だけを
-確定根拠にしない。独立reviewの確認者・具体的な観察・確定許可を最新証拠に結び付けて記録する。
+確定根拠にしない。担当agent自身が最新差分と証拠をreviewし、依頼された許可範囲で確定する。
+独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行う。
 reviewをテスト成功から生成してはいけない。Learn終了後にproduct実装を自動開始しない。
 
 ## 再開・委譲
