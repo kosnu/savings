@@ -9,51 +9,55 @@ permissions:
 
 jobs:
   verify:
+    needs: candidate
+    if: always()
     runs-on: ubuntu-latest
     steps:
+      - name: Require candidate success
+        env:
+          CANDIDATE_RESULT: ${{ needs.candidate.result }}
+        run: test "$CANDIDATE_RESULT" = success
+
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
           fetch-depth: 0
 
+      - name: Detect base protocol
+        id: base-protocol
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          if git cat-file -e "$PR_BASE_SHA:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Go
+        if: steps.base-protocol.outputs.present == 'true'
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: tools/aidd/checker/go.mod
-          cache-dependency-path: tools/aidd/checker/go.sum
+          cache: false
 
-      - name: Verify Go modules
-        run: go mod verify
-        working-directory: tools/aidd/checker
-
-      - name: Check formatting
-        run: test -z "$(gofmt -l .)"
-        working-directory: tools/aidd/checker
-
-      - name: Vet
-        run: go vet ./...
-        working-directory: tools/aidd/checker
-
-      - name: Test
-        run: go test ./...
-        working-directory: tools/aidd/checker
-
-      - name: Build current source
-        run: go build -o /tmp/aidd-checker ./cmd/aidd-checker
-        working-directory: tools/aidd/checker
-
-      - name: Check repository artifacts
-        run: /tmp/aidd-checker check-all --repo-root .
+      - name: Fetch candidate commit
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git fetch --no-tags origin "$PR_HEAD_SHA"
 
       - name: Verify delivery with the base protocol
-        env:
+        if: steps.base-protocol.outputs.present == 'true'
+        env: &delivery-env
           GH_TOKEN: ${{ github.token }}
           PR_AUTHOR_LOGIN: ${{ github.event.pull_request.user.login }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         shell: bash
-        run: |
+        run: &delivery-script |
           set -euo pipefail
           if [[ "$PR_AUTHOR_LOGIN" == "renovate[bot]" ]]; then
             commits=$(git rev-list "$PR_BASE_SHA..$PR_HEAD_SHA")
@@ -95,10 +99,68 @@ jobs:
           if git cat-file -e "$PR_BASE_SHA:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
             trusted_dir=$(mktemp -d)
             git archive "$PR_BASE_SHA" tools/aidd/checker | tar -x -C "$trusted_dir"
-            go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-checker" ./cmd/aidd-checker
+            env GOENV=off GOWORK=off GOFLAGS= GOTOOLCHAIN=local \
+              GOCACHE="$trusted_dir/go-build-cache" GOMODCACHE="$trusted_dir/go-module-cache" \
+              go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-checker" ./cmd/aidd-checker
             git checkout --detach "$PR_HEAD_SHA"
             "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
           else
             git checkout --detach "$PR_HEAD_SHA"
             /tmp/aidd-checker bootstrap-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline" --target-base "$PR_BASE_SHA"
           fi
+
+  candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Detect base protocol
+        id: base-protocol
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          if git cat-file -e "$PR_BASE_SHA:docs/ai-driven-development/contracts/protocol.json" 2>/dev/null; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/aidd/checker/go.mod
+          cache-dependency-path: tools/aidd/checker/go.sum
+
+      - name: Verify Go modules
+        run: go mod verify
+        working-directory: tools/aidd/checker
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+        working-directory: tools/aidd/checker
+
+      - name: Vet
+        run: go vet ./...
+        working-directory: tools/aidd/checker
+
+      - name: Test
+        run: go test ./...
+        working-directory: tools/aidd/checker
+
+      - name: Build current source
+        run: go build -o /tmp/aidd-checker ./cmd/aidd-checker
+        working-directory: tools/aidd/checker
+
+      - name: Check repository artifacts
+        run: /tmp/aidd-checker check-all --repo-root .
+
+      - name: Verify initial bootstrap
+        if: steps.base-protocol.outputs.present == 'false'
+        env: *delivery-env
+        shell: bash
+        run: *delivery-script
