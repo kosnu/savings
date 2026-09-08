@@ -1,14 +1,14 @@
 {
   "schema_version": 5,
   "kind": "checkpoint",
-  "task_sha256": "857ae39799be57f6560c8eff333fe8695b24e529a4640f680dd48f5413a8da9f",
+  "task_sha256": "9394626b1ffa21a7d01fee7c50632ee397d5cfac1c57a7839f21a3aa97f71854",
   "revision": 1,
   "parent_sha256": "",
   "decision": {
     "schema_version": 5,
     "kind": "decision",
-    "task_sha256": "857ae39799be57f6560c8eff333fe8695b24e529a4640f680dd48f5413a8da9f",
-    "reason": "独立レビュー必須が不要な委譲を生むため、完了gateから外し担当agent自身のレビューへ変更する。既存の任意記録CLIとbootstrapは維持する。 ユーザーの追加Ship依頼により同じ変更をPR配信する。 mainマージで基準点が変わるため最新mainから同じ変更の証拠を生成し、旧記録はrepository外に保存する。",
+    "task_sha256": "9394626b1ffa21a7d01fee7c50632ee397d5cfac1c57a7839f21a3aa97f71854",
+    "reason": "独立レビュー必須が不要な委譲を生むため、完了gateから外し担当agent自身のレビューへ変更する。既存の任意記録CLIとbootstrapは維持する。 ユーザーの追加Ship依頼により同じ変更をPR配信する。 mainマージで基準点が変わるため最新mainから同じ変更の証拠を生成し、旧記録はrepository外に保存する。 更新されたmainのchecker準備手順も維持する。",
     "requirements": [
       {
         "id": "FR-1",
