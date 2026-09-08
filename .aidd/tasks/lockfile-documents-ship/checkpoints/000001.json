@@ -1,0 +1,151 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "d30db0905b22bc0eca187d9f39ee373bb1ed1f3309049d39a879374d1ae80f0e",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "d30db0905b22bc0eca187d9f39ee373bb1ed1f3309049d39a879374d1ae80f0e",
+    "reason": "CI run 34226686753 はdecodeLockの単一document制約で失敗。2文書を別グラフとして読み、toolchain文書をtool境界へ分類する。CLI再現やworkflow変更は原因層ではなく不要。 fixtureは実物から58行に縮小。追加のShip依頼によりdelivery=prの記録で同じ最終差分を再検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "正規2文書lockfileを構造的に検査する",
+        "origin": "intent",
+        "evidence": "2文書を構造的に扱えるようにし、既存の単一文書対応と不正形式の拒否は維持してください。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "単一/2文書を受理し不正構造・参照と保護対象変更を拒否",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/lockfile_documents_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/testdata/pnpm-v12-lock.yaml",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/lockfile_documents_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/testdata/pnpm-v12-lock.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy"
+  ]
+}
