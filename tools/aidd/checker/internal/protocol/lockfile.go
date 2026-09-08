@@ -22,20 +22,67 @@ func dependencyKey(name, version string) string {
 	return name + "@" + version
 }
 
-func decodeLock(data []byte) (map[string]any, error) {
-	var root map[string]any
+type lockfile struct {
+	Workspace map[string]any
+	Toolchain map[string]any
+}
+
+func decodeLock(data []byte) (lockfile, error) {
+	var result lockfile
 	dec := yaml.NewDecoder(bytes.NewReader(data))
-	if err := dec.Decode(&root); err != nil {
-		return nil, err
+	var docs []map[string]any
+	for {
+		var root map[string]any
+		if err := dec.Decode(&root); err == io.EOF {
+			break
+		} else if err != nil {
+			return result, err
+		}
+		if len(docs) == 2 || root == nil {
+			return result, fail("LOCKFILE", lockPath, "1または2個のYAML mapping documentが必要です")
+		}
+		if fmt.Sprint(root["lockfileVersion"]) != "9.0" || object(root["importers"]) == nil || object(root["packages"]) == nil || object(root["snapshots"]) == nil {
+			return result, fail("LOCKFILE", lockPath, "pnpm lockfile v9のimporters/packages/snapshotsが必要です")
+		}
+		docs = append(docs, root)
 	}
-	var extra any
-	if err := dec.Decode(&extra); err != io.EOF {
-		return nil, fail("LOCKFILE", lockPath, "単一YAML documentが必要です")
+	if len(docs) == 0 {
+		return result, fail("LOCKFILE", lockPath, "lockfile documentが必要です")
 	}
-	if fmt.Sprint(root["lockfileVersion"]) != "9.0" || object(root["importers"]) == nil || object(root["packages"]) == nil || object(root["snapshots"]) == nil {
-		return nil, fail("LOCKFILE", lockPath, "pnpm lockfile v9のimporters/packages/snapshotsが必要です")
+	for i, doc := range docs {
+		toolchain := len(docs) == 2 && i == 0
+		sections := 0
+		for importer, raw := range object(doc["importers"]) {
+			if object(raw) == nil {
+				return result, fail("LOCKFILE", importer, "importer objectが必要です")
+			}
+			for section, deps := range object(raw) {
+				if !lockDependencySection(section, toolchain) || object(deps) == nil {
+					return result, fail("LOCKFILE", section, "文書の役割に対応する依存objectが必要です")
+				}
+				sections++
+			}
+		}
+		if toolchain && sections == 0 {
+			return result, fail("LOCKFILE", lockPath, "先頭documentにはpackage manager/config依存が必要です")
+		}
 	}
-	return root, nil
+	result.Workspace = docs[len(docs)-1]
+	if len(docs) == 2 {
+		result.Toolchain = docs[0]
+		// 文書を混ぜず、package manager/config依存も自身のclosureで検査する。
+		if _, err := projectLockDocument(result.Toolchain, nil, nil, true, nil, true); err != nil {
+			return result, err
+		}
+	}
+	return result, nil
+}
+
+func lockDependencySection(section string, toolchain bool) bool {
+	if toolchain {
+		return section == "configDependencies" || section == "packageManagerDependencies"
+	}
+	return section == "dependencies" || section == "devDependencies" || section == "optionalDependencies"
 }
 
 func (l *Loaded) toolNames() map[string]bool {
@@ -128,6 +175,10 @@ func peerContextKey(key string, updates map[string]string) (string, error) {
 }
 
 func projectLock(root map[string]any, tools, productRoots map[string]bool, wantTools bool, updates map[string]string) (lockProjection, error) {
+	return projectLockDocument(root, tools, productRoots, wantTools, updates, false)
+}
+
+func projectLockDocument(root map[string]any, tools, productRoots map[string]bool, wantTools bool, updates map[string]string, toolchain bool) (lockProjection, error) {
 	result := lockProjection{map[string]any{}, map[string]any{}, map[string]string{}}
 	snapshots, packages := object(root["snapshots"]), object(root["packages"])
 	rootVersions := map[string]map[string]bool{}
@@ -218,7 +269,7 @@ func projectLock(root map[string]any, tools, productRoots map[string]bool, wantT
 			return result, fail("LOCKFILE", importer, "importer objectが必要です")
 		}
 		for section, rawDeps := range value {
-			if section != "dependencies" && section != "devDependencies" && section != "optionalDependencies" {
+			if !lockDependencySection(section, toolchain) {
 				return result, fail("LOCKFILE", section, "未対応importer fieldです")
 			}
 			deps := object(rawDeps)
@@ -226,7 +277,7 @@ func projectLock(root map[string]any, tools, productRoots map[string]bool, wantT
 				return result, fail("LOCKFILE", section, "依存objectが必要です")
 			}
 			for name, rawRef := range deps {
-				if tools[name] != wantTools {
+				if !toolchain && tools[name] != wantTools {
 					continue
 				}
 				ref := object(rawRef)
@@ -284,14 +335,15 @@ func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []
 	if err != nil {
 		return err
 	}
-	a, err := decodeLock(old)
+	beforeLock, err := decodeLock(old)
 	if err != nil {
 		return err
 	}
-	b, err := decodeLock(next)
+	afterLock, err := decodeLock(next)
 	if err != nil {
 		return err
 	}
+	a, b := beforeLock.Workspace, afterLock.Workspace
 	tools := l.toolNames()
 	productRoots := lockProductNames(a, tools)
 	wantTools := l.Task.Spec.Kind == "development"
@@ -307,6 +359,9 @@ func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []
 		return fail("LOCKFILE_BOUNDARY", lockPath, "他方の依存宣言・resolution・推移依存を変更しています")
 	}
 	if wantTools {
+		if hash(beforeLock.Toolchain) != hash(afterLock.Toolchain) {
+			return fail("LOCKFILE_BOUNDARY", lockPath, "package manager/config依存はguardrailです")
+		}
 		for _, root := range []map[string]any{a, b} {
 			delete(root, "importers")
 			delete(root, "packages")
