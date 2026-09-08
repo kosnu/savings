@@ -77,3 +77,10 @@ lockfileの保護対象root・依存edge・snapshotはpeer-qualified identityを
 親・importerからの参照先が異なる状態を同一とみなさない。
 同じ反対側root宣言の更新から一意に導けるpeer構成の変更は許可し、正常なproduct/tool更新の経路を維持する。
 この対応で保護対象package自身のversion・通常共有依存・resolutionの変更を許可しない。
+
+## Clarification: Learn review ownership (2026-09-08)
+
+Learnの独立review必須条件は、不要なsubagent呼び出しとトークン消費を招くため撤廃する。
+担当agent自身が最新差分と検証証拠をreviewし、ユーザーの明示依頼がある場合だけ別agentへ委譲する。
+開始時checker、旧policy/profile、明示された変更許可、scopeと証拠同一性の検査は維持する。
+finish/Ship/CIではLearnのreview記録を要求しない。初回bootstrapのreview契約は変更しない。

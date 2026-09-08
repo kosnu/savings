@@ -338,20 +338,12 @@ func TestLearnRejectsProductChanges(t *testing.T) {
 	rejected(t, f.verify(), "LEARN_SCOPE")
 }
 
-func TestLearnNeedsBaselineCheckerAndIndependentReview(t *testing.T) {
+func TestLearnNeedsBaselineCheckerWithoutIndependentReview(t *testing.T) {
 	f := setup(t, "learn")
+	base := f.git("rev-parse", "HEAD")
 	must(t, f.checkpoint())
 	f.put("guard/rule.md", "Clarified accepted invariant\n")
 	must(t, f.verify())
-	rejected(t, f.snapshot(func(s *repository.Snapshot) error {
-		l, err := Load(context.Background(), s, f.spec.ID, f.taskHash, f.cp)
-		if err != nil {
-			return err
-		}
-		return Finish(context.Background(), s, l, f.evidenceHash)
-	}), "")
-	f.git("add", ".")
-	rejected(t, f.check(true), "")
 	must(t, f.snapshot(func(s *repository.Snapshot) error {
 		l, err := Load(context.Background(), s, f.spec.ID, f.taskHash, f.cp)
 		if err != nil {
@@ -360,12 +352,16 @@ func TestLearnNeedsBaselineCheckerAndIndependentReview(t *testing.T) {
 		candidate := *l
 		candidate.Task.CheckerSHA256 = strings.Repeat("0", 64)
 		rejected(t, candidate.checkAuthority(), "CHECKER_IDENTITY")
-		r := Review{Version, "learn_review", f.taskHash, f.cp, f.evidenceHash, "independent reviewer", "User approved this guardrail update", "Existing invariant remains enforced and the changed rule is justified"}
-		_, err = RecordLearnReview(context.Background(), s, l, f.evidenceHash, r)
-		return err
+		return nil
 	}))
 	f.git("add", ".")
 	must(t, f.check(true))
+	f.git("commit", "-qm", "verified Learn without review record")
+	must(t, f.snapshot(func(s *repository.Snapshot) error {
+		return CheckDelivery(context.Background(), s, base, f.spec.ID)
+	}))
+	f.put("guard/rule.md", "Unverified change\n")
+	rejected(t, f.check(false), "STALE_EVIDENCE")
 }
 
 func TestNewExecutionRejectsLegacyAndMissingIntent(t *testing.T) {

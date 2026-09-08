@@ -56,8 +56,9 @@ Gitは0600などのローカル権限を保存しないため、CIではblob con
 Learnも開始時binaryを使う。candidate checkerへの置換をhashで拒否し、旧profileと旧policyを
 Taskのbytesから解決する。product pathsと許可scopeは旧policyで検査する。
 混在package設定とlockfileはworkflowのfield/依存closure境界に従い、tool更新の同期を許可する。
-新checkerのtest成功だけではLearnを確定せず、独立reviewと明示許可を最新evidenceへ固定する。
-reviewの意味・確認者・権限は人間または独立review担当が責任を持つ。JSONやhashは署名ではない。
+新checkerのtest成功だけではLearnを確定せず、担当agent自身が最新差分とevidenceをreviewする。
+Learnのfinish/Ship/CIは独立review記録を要求しない。別agentはユーザーの明示依頼時だけ呼ぶ。
+reviewの意味と許可範囲は担当agentが確認する。JSONやhashは署名ではない。
 
 ## 運用前提と限界
 
