@@ -81,3 +81,23 @@ agentは解釈、戦略、設計、reviewを担い、checkerは決定論的な�
 - gates / handoff / receipt / render: historical v4保証の読取・回帰用。新規実行の公開入口はない。
 
 AIDD制御ロジックはGoで実装する。新しい言語の互換実装を追加しない。
+
+## Task間のbinary再利用
+
+`cmd/aidd-prepare`と`internal/binarycache`はCoreの外で開始時binaryを準備する。
+再利用入力はchecker tree（ソース・依存定義・testsを含む全regular file）、contracts tree、
+rule-mapとそこから参照する正本文書、および正規化したGo host環境である。
+入力集合の所有者はbinarycacheであり、呼出側に契約pathやbuild flagsの上書きは公開しない。
+checker treeは実際のbuild元、contractsはschema・検証profile・旧artifactの読取契約、
+rule-mapと正本文書は適用判断との対応を固定するために含める。Task・Issue・引数・アプリコードは含めない。
+入力hashごとにmanifestとbinary hashを保存し、取得前に照合する。hashは同一性であり、
+意味的互換性や真正性を証明しない。既存schema・必須項目検査はCoreが引き続き担当する。
+Taskが固定するexecutable hashとpolicy/profile bytesは変更しない。Learn候補の準備は別pathとなり、
+開始時checkerの代替にはしない。
+
+CIのbase検証では、候補コードが書けるcacheを信頼済み実行物の取得元にしない。
+baseソースを別directoryへ展開してcheckerを直接buildし、Go build/module cacheもその新規directoryへ分離する。
+ソースの取得元だけでなく、実行物の取得経路もbase側の責務である。hash照合はこの隔離の代替にならない。
+base検証はcandidate検証と別jobで実行し、候補コードを実行する前提を持たない。
+Goはbase checkoutのgo.modから選び、候補側のGo版やGITHUB_PATH/GITHUB_ENVの変更を引き継がない。
+初回bootstrapのみcandidate jobで実行する。通常Task間のbinary再利用とは信頼する入力が異なる。
