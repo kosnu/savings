@@ -89,12 +89,12 @@ func TestLockfileTracksProductAndToolClosure(t *testing.T) {
 }
 
 func TestLockfileRejectsBrokenClosureAndDuplicateKeys(t *testing.T) {
-	root, err := decodeLock(sampleLockBytes())
+	root, err := decodeWorkspaceLock(sampleLockBytes())
 	must(t, err)
 	delete(object(root["snapshots"]), "helper@1")
 	_, err = projectLock(root, map[string]bool{"vitest": true}, map[string]bool{"react": true}, true, nil)
 	rejected(t, err, "LOCKFILE")
-	_, err = decodeLock([]byte(sampleLock + "settings: {}\n"))
+	_, err = decodeWorkspaceLock([]byte(sampleLock + "settings: {}\n"))
 	rejected(t, err, "")
 }
 func sampleLockBytes() []byte { return []byte(sampleLock) }
@@ -108,7 +108,7 @@ func TestRepositoryLockfileCanBeProjected(t *testing.T) {
 	p, err := parsePolicy(policy)
 	must(t, err)
 	l := Loaded{Policy: p}
-	root, err := decodeLock(data)
+	root, err := decodeWorkspaceLock(data)
 	must(t, err)
 	for _, guard := range []bool{true, false} {
 		_, err = projectLock(root, l.toolNames(), lockProductNames(root, l.toolNames()), guard, nil)
@@ -119,7 +119,7 @@ func TestRepositoryLockfileCanBeProjected(t *testing.T) {
 func TestLockfileDelegatesOnlyRootCoveredPeers(t *testing.T) {
 	for _, peer := range []bool{false, true} {
 		for _, covered := range []bool{false, true} {
-			root, err := decodeLock(sampleLockBytes())
+			root, err := decodeWorkspaceLock(sampleLockBytes())
 			must(t, err)
 			deps := object(object(object(root["importers"])["."])["dependencies"])
 			version := "2"
@@ -148,7 +148,7 @@ func TestLockfileDelegatesOnlyRootCoveredPeers(t *testing.T) {
 }
 
 func TestLockfileAllowsOppositeRootPeerVersionUpdate(t *testing.T) {
-	root, err := decodeLock(sampleLockBytes())
+	root, err := decodeWorkspaceLock(sampleLockBytes())
 	must(t, err)
 	object(object(root["packages"])["vitest@1"])["peerDependencies"] = map[string]any{"react": "*"}
 	object(object(root["snapshots"])["vitest@1"])["dependencies"] = map[string]any{"react": "1"}
@@ -170,7 +170,7 @@ func TestLockfileAllowsOppositeRootPeerVersionUpdate(t *testing.T) {
 func TestLockfileRejectsLocalDependencies(t *testing.T) {
 	for _, version := range []string{"link:../helper", "file:../helper", "file:../@scope/helper"} {
 		for _, guard := range []bool{true, false} {
-			root, err := decodeLock(sampleLockBytes())
+			root, err := decodeWorkspaceLock(sampleLockBytes())
 			must(t, err)
 			object(object(root["snapshots"])["vitest@1"])["dependencies"] = map[string]any{"helper": version}
 			object(object(root["snapshots"])["react@1"])["dependencies"] = map[string]any{"helper": version}
@@ -181,7 +181,7 @@ func TestLockfileRejectsLocalDependencies(t *testing.T) {
 }
 
 func TestLockfileDoesNotDelegateDifferentPeerSnapshot(t *testing.T) {
-	root, err := decodeLock(sampleLockBytes())
+	root, err := decodeWorkspaceLock(sampleLockBytes())
 	must(t, err)
 	object(object(object(root["importers"])["."])["dependencies"])["helper"] = map[string]any{"specifier": "1", "version": "1(peer@2)"}
 	object(object(root["packages"])["vitest@1"])["peerDependencies"] = map[string]any{"helper": "*"}
@@ -203,7 +203,7 @@ func TestLockfilePreservesPeerVariantEdgesAndRootAssignments(t *testing.T) {
 	for _, wantTools := range []bool{true, false} {
 		for _, swap := range []string{"edges", "roots"} {
 			t.Run(fmt.Sprintf("tools=%v/%s", wantTools, swap), func(t *testing.T) {
-				root, err := decodeLock(sampleLockBytes())
+				root, err := decodeWorkspaceLock(sampleLockBytes())
 				must(t, err)
 				packages, snapshots := object(root["packages"]), object(root["snapshots"])
 				packages["foo@1"] = map[string]any{"resolution": "same-package", "peerDependencies": map[string]any{"peer": "*"}}
@@ -325,9 +325,9 @@ func TestLockfileAllowsQualifiedOppositePeerUpdatesButProtectsSharedDependencies
 func TestLockfileRejectsAmbiguousPeerRootUpdates(t *testing.T) {
 	for _, change := range []string{"unchanged", "different", "deleted"} {
 		t.Run(change, func(t *testing.T) {
-			before, err := decodeLock([]byte(qualifiedLock("vitest", "react", "1", false)))
+			before, err := decodeWorkspaceLock([]byte(qualifiedLock("vitest", "react", "1", false)))
 			must(t, err)
-			after, err := decodeLock([]byte(qualifiedLock("vitest", "react", "2", false)))
+			after, err := decodeWorkspaceLock([]byte(qualifiedLock("vitest", "react", "2", false)))
 			must(t, err)
 			object(before["importers"])["other"] = map[string]any{"dependencies": map[string]any{"react": map[string]any{"version": "1"}}}
 			if change != "deleted" {
@@ -351,11 +351,16 @@ func TestLockfileRejectsAmbiguousPeerRootUpdates(t *testing.T) {
 }
 
 func TestLockfileRejectsPeerRenameContentCollision(t *testing.T) {
-	root, err := decodeLock([]byte(qualifiedLock("vitest", "react", "1", false)))
+	root, err := decodeWorkspaceLock([]byte(qualifiedLock("vitest", "react", "1", false)))
 	must(t, err)
 	object(object(object(root["importers"])["."])["dependencies"])["alias"] = map[string]any{"version": "bridge@1(react@2)"}
 	object(root["snapshots"])["bridge@1(react@2)"] = map[string]any{"optional": true}
 	tools := map[string]bool{"vitest": true, "alias": true}
 	_, err = projectLock(root, tools, lockProductNames(root, tools), true, map[string]string{"react@1": "react@2"})
 	rejected(t, err, "LOCKFILE_BOUNDARY")
+}
+
+func decodeWorkspaceLock(data []byte) (map[string]any, error) {
+	lock, err := decodeLock(data)
+	return lock.Workspace, err
 }
