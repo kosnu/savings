@@ -89,12 +89,12 @@ func TestLockfileTracksProductAndToolClosure(t *testing.T) {
 }
 
 func TestLockfileRejectsBrokenClosureAndDuplicateKeys(t *testing.T) {
-	root, err := decodeLock(sampleLockBytes())
+	root, _, err := decodeLock(sampleLockBytes())
 	must(t, err)
 	delete(object(root["snapshots"]), "helper@1")
 	_, err = projectLock(root, map[string]bool{"vitest": true}, map[string]bool{"react": true}, true, nil)
 	rejected(t, err, "LOCKFILE")
-	_, err = decodeLock([]byte(sampleLock + "settings: {}\n"))
+	_, _, err = decodeLock([]byte(sampleLock + "settings: {}\n"))
 	rejected(t, err, "")
 }
 func sampleLockBytes() []byte { return []byte(sampleLock) }
@@ -108,7 +108,7 @@ func TestRepositoryLockfileCanBeProjected(t *testing.T) {
 	p, err := parsePolicy(policy)
 	must(t, err)
 	l := Loaded{Policy: p}
-	root, err := decodeLock(data)
+	root, _, err := decodeLock(data)
 	must(t, err)
 	for _, guard := range []bool{true, false} {
 		_, err = projectLock(root, l.toolNames(), lockProductNames(root, l.toolNames()), guard, nil)
@@ -119,7 +119,7 @@ func TestRepositoryLockfileCanBeProjected(t *testing.T) {
 func TestLockfileDelegatesOnlyRootCoveredPeers(t *testing.T) {
 	for _, peer := range []bool{false, true} {
 		for _, covered := range []bool{false, true} {
-			root, err := decodeLock(sampleLockBytes())
+			root, _, err := decodeLock(sampleLockBytes())
 			must(t, err)
 			deps := object(object(object(root["importers"])["."])["dependencies"])
 			version := "2"
@@ -148,7 +148,7 @@ func TestLockfileDelegatesOnlyRootCoveredPeers(t *testing.T) {
 }
 
 func TestLockfileAllowsOppositeRootPeerVersionUpdate(t *testing.T) {
-	root, err := decodeLock(sampleLockBytes())
+	root, _, err := decodeLock(sampleLockBytes())
 	must(t, err)
 	object(object(root["packages"])["vitest@1"])["peerDependencies"] = map[string]any{"react": "*"}
 	object(object(root["snapshots"])["vitest@1"])["dependencies"] = map[string]any{"react": "1"}
@@ -170,7 +170,7 @@ func TestLockfileAllowsOppositeRootPeerVersionUpdate(t *testing.T) {
 func TestLockfileRejectsLocalDependencies(t *testing.T) {
 	for _, version := range []string{"link:../helper", "file:../helper", "file:../@scope/helper"} {
 		for _, guard := range []bool{true, false} {
-			root, err := decodeLock(sampleLockBytes())
+			root, _, err := decodeLock(sampleLockBytes())
 			must(t, err)
 			object(object(root["snapshots"])["vitest@1"])["dependencies"] = map[string]any{"helper": version}
 			object(object(root["snapshots"])["react@1"])["dependencies"] = map[string]any{"helper": version}
@@ -181,7 +181,7 @@ func TestLockfileRejectsLocalDependencies(t *testing.T) {
 }
 
 func TestLockfileDoesNotDelegateDifferentPeerSnapshot(t *testing.T) {
-	root, err := decodeLock(sampleLockBytes())
+	root, _, err := decodeLock(sampleLockBytes())
 	must(t, err)
 	object(object(object(root["importers"])["."])["dependencies"])["helper"] = map[string]any{"specifier": "1", "version": "1(peer@2)"}
 	object(object(root["packages"])["vitest@1"])["peerDependencies"] = map[string]any{"helper": "*"}
@@ -203,7 +203,7 @@ func TestLockfilePreservesPeerVariantEdgesAndRootAssignments(t *testing.T) {
 	for _, wantTools := range []bool{true, false} {
 		for _, swap := range []string{"edges", "roots"} {
 			t.Run(fmt.Sprintf("tools=%v/%s", wantTools, swap), func(t *testing.T) {
-				root, err := decodeLock(sampleLockBytes())
+				root, _, err := decodeLock(sampleLockBytes())
 				must(t, err)
 				packages, snapshots := object(root["packages"]), object(root["snapshots"])
 				packages["foo@1"] = map[string]any{"resolution": "same-package", "peerDependencies": map[string]any{"peer": "*"}}
@@ -325,9 +325,9 @@ func TestLockfileAllowsQualifiedOppositePeerUpdatesButProtectsSharedDependencies
 func TestLockfileRejectsAmbiguousPeerRootUpdates(t *testing.T) {
 	for _, change := range []string{"unchanged", "different", "deleted"} {
 		t.Run(change, func(t *testing.T) {
-			before, err := decodeLock([]byte(qualifiedLock("vitest", "react", "1", false)))
+			before, _, err := decodeLock([]byte(qualifiedLock("vitest", "react", "1", false)))
 			must(t, err)
-			after, err := decodeLock([]byte(qualifiedLock("vitest", "react", "2", false)))
+			after, _, err := decodeLock([]byte(qualifiedLock("vitest", "react", "2", false)))
 			must(t, err)
 			object(before["importers"])["other"] = map[string]any{"dependencies": map[string]any{"react": map[string]any{"version": "1"}}}
 			if change != "deleted" {
@@ -351,11 +351,123 @@ func TestLockfileRejectsAmbiguousPeerRootUpdates(t *testing.T) {
 }
 
 func TestLockfileRejectsPeerRenameContentCollision(t *testing.T) {
-	root, err := decodeLock([]byte(qualifiedLock("vitest", "react", "1", false)))
+	root, _, err := decodeLock([]byte(qualifiedLock("vitest", "react", "1", false)))
 	must(t, err)
 	object(object(object(root["importers"])["."])["dependencies"])["alias"] = map[string]any{"version": "bridge@1(react@2)"}
 	object(root["snapshots"])["bridge@1(react@2)"] = map[string]any{"optional": true}
 	tools := map[string]bool{"vitest": true, "alias": true}
 	_, err = projectLock(root, tools, lockProductNames(root, tools), true, map[string]string{"react@1": "react@2"})
 	rejected(t, err, "LOCKFILE_BOUNDARY")
+}
+
+const sampleEnvironmentLock = `lockfileVersion: '9.0'
+importers:
+  .:
+    configDependencies: {}
+    packageManagerDependencies:
+      pnpm: {specifier: '12', version: '12'}
+packages:
+  pnpm@12: {resolution: {integrity: pnpm-old}}
+  binary@12: {resolution: {integrity: binary-old}}
+snapshots:
+  pnpm@12:
+    optionalDependencies: {binary: '12'}
+  binary@12: {}
+`
+
+func TestLockfileDocuments(t *testing.T) {
+	for _, tc := range []struct {
+		name, data string
+		valid      bool
+	}{
+		{"single", sampleLock, true},
+		{"environment-project", sampleEnvironmentLock + "---\n" + sampleLock, true},
+		{"empty", "", false},
+		{"environment-only", sampleEnvironmentLock, false},
+		{"reversed", sampleLock + "---\n" + sampleEnvironmentLock, false},
+		{"two-projects", sampleLock + "---\n" + sampleLock, false},
+		{"third-document", sampleEnvironmentLock + "---\n" + sampleLock + "---\n" + sampleLock, false},
+		{"trailing-empty", sampleLock + "---\n", false},
+		{"invalid-second", sampleEnvironmentLock + "---\n[", false},
+		{"invalid-version", strings.Replace(sampleEnvironmentLock, "'9.0'", "'10.0'", 1) + "---\n" + sampleLock, false},
+		{"unknown-field", sampleEnvironmentLock + "unknown: true\n---\n" + sampleLock, false},
+		{"duplicate-environment-key", sampleEnvironmentLock + "snapshots: {}\n---\n" + sampleLock, false},
+		{"duplicate-project-key", sampleEnvironmentLock + "---\n" + sampleLock + "settings: {}\n", false},
+		{"unknown-importer-section", strings.Replace(sampleEnvironmentLock, "configDependencies", "dependencies", 1) + "---\n" + sampleLock, false},
+		{"non-root-importer", strings.Replace(sampleEnvironmentLock, "  .:", "  apps/web:", 1) + "---\n" + sampleLock, false},
+		{"missing-snapshot", strings.Replace(sampleEnvironmentLock, "  binary@12: {}\n", "", 1) + "---\n" + sampleLock, false},
+		{"missing-package", strings.Replace(sampleEnvironmentLock, "  binary@12: {resolution: {integrity: binary-old}}\n", "", 1) + "---\n" + sampleLock, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			project, environment, err := decodeLock([]byte(tc.data))
+			if !tc.valid {
+				rejected(t, err, "")
+				return
+			}
+			must(t, err)
+			expected, _, err := decodeLock(sampleLockBytes())
+			must(t, err)
+			if hash(project) != hash(expected) {
+				t.Fatal("project document changed")
+			}
+			if (environment != nil) != (tc.name == "environment-project") {
+				t.Fatal("environment document not preserved")
+			}
+		})
+	}
+}
+
+func TestEnvironmentLockProtection(t *testing.T) {
+	for _, kind := range []string{"development", "learn"} {
+		for _, change := range []string{"unchanged", "add", "remove", "resolution", "root", "broken", "product", "tool"} {
+			t.Run(kind+"/"+change, func(t *testing.T) {
+				f := setupMixed(t, kind)
+				must(t, os.RemoveAll(filepath.Join(f.root, TaskRoot)))
+				baseline := sampleEnvironmentLock + "---\n" + sampleLock
+				if change == "add" {
+					baseline = sampleLock
+				}
+				f.put(lockPath, baseline)
+				f.git("add", ".")
+				f.git("commit", "-qm", "environment baseline")
+				if kind == "learn" {
+					f.spec.AuthorizedScopes = append(f.spec.AuthorizedScopes, model.OwnershipScope{Path: lockPath, Kind: "file"})
+				}
+				must(t, f.snapshot(func(s *repository.Snapshot) (err error) {
+					f.taskHash, err = Start(context.Background(), s, f.spec)
+					return
+				}))
+				f.decision.TaskSHA256 = f.taskHash
+				f.decision.Target.OwnershipScopes = append(f.decision.Target.OwnershipScopes, model.OwnershipScope{Path: lockPath, Kind: "file"})
+				rep := f.decision.Target.Representations[0]
+				rep.ID = "REP-2"
+				rep.Path = lockPath
+				f.decision.Target.Representations = append(f.decision.Target.Representations, rep)
+				must(t, f.checkpoint())
+				next := sampleEnvironmentLock + "---\n" + sampleLock
+				switch change {
+				case "remove":
+					next = sampleLock
+				case "resolution":
+					next = strings.Replace(next, "binary-old", "binary-new", 1)
+				case "root":
+					next = strings.Replace(next, "specifier: '12'", "specifier: '^12'", 1)
+				case "broken":
+					next = strings.Replace(next, "  binary@12: {}\n", "", 1)
+				case "product":
+					next = strings.Replace(next, "react-old", "react-new", 1)
+				case "tool":
+					next = strings.Replace(next, "vitest-old", "vitest-new", 1)
+				}
+				f.put(lockPath, next)
+				err := f.verify()
+				allowed := change == "unchanged" || kind == "development" && change == "product" || kind == "learn" && change != "broken" && change != "product"
+				if allowed {
+					must(t, err)
+				} else {
+					rejected(t, err, "")
+				}
+			})
+		}
+	}
 }

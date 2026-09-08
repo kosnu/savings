@@ -22,20 +22,81 @@ func dependencyKey(name, version string) string {
 	return name + "@" + version
 }
 
-func decodeLock(data []byte) (map[string]any, error) {
-	var root map[string]any
+// 環境用文書はprojectの依存graphと混ぜず、独立したguardrailとして保持する。
+func decodeLock(data []byte) (project, environment map[string]any, err error) {
 	dec := yaml.NewDecoder(bytes.NewReader(data))
-	if err := dec.Decode(&root); err != nil {
-		return nil, err
+	var docs []map[string]any
+	for {
+		var doc map[string]any
+		if err := dec.Decode(&doc); err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, nil, err
+		}
+		if len(docs) == 2 || fmt.Sprint(doc["lockfileVersion"]) != "9.0" || object(doc["importers"]) == nil || object(doc["packages"]) == nil || object(doc["snapshots"]) == nil {
+			return nil, nil, fail("LOCKFILE", lockPath, "pnpm lockfile v9のproject文書、または環境+projectの2文書が必要です")
+		}
+		docs = append(docs, doc)
 	}
-	var extra any
-	if err := dec.Decode(&extra); err != io.EOF {
-		return nil, fail("LOCKFILE", lockPath, "単一YAML documentが必要です")
+	if len(docs) == 0 {
+		return nil, nil, fail("LOCKFILE", lockPath, "project文書が必要です")
 	}
-	if fmt.Sprint(root["lockfileVersion"]) != "9.0" || object(root["importers"]) == nil || object(root["packages"]) == nil || object(root["snapshots"]) == nil {
-		return nil, fail("LOCKFILE", lockPath, "pnpm lockfile v9のimporters/packages/snapshotsが必要です")
+	project = docs[len(docs)-1]
+	for _, raw := range object(project["importers"]) {
+		if object(raw) == nil {
+			return nil, nil, fail("LOCKFILE", lockPath, "importer objectが必要です")
+		}
+		for section := range object(raw) {
+			if section != "dependencies" && section != "devDependencies" && section != "optionalDependencies" {
+				return nil, nil, fail("LOCKFILE", section, "未対応project importer fieldです")
+			}
+		}
 	}
-	return root, nil
+	if len(docs) == 2 {
+		environment = docs[0]
+		if err := validateEnvironmentLock(environment); err != nil {
+			return nil, nil, err
+		}
+	}
+	return project, environment, nil
+}
+
+func validateEnvironmentLock(environment map[string]any) error {
+	for field := range environment {
+		if field != "lockfileVersion" && field != "importers" && field != "packages" && field != "snapshots" {
+			return fail("LOCKFILE", field, "未対応environment fieldです")
+		}
+	}
+	importers := object(environment["importers"])
+	importer := object(importers["."])
+	if len(importers) != 1 || importer == nil || len(importer) == 0 {
+		return fail("LOCKFILE", lockPath, "環境文書にはroot importerが必要です")
+	}
+	// 既存のclosure検証へ渡すための写像。元文書は変更せず全体比較に使う。
+	normalized := map[string]any{}
+	tools := map[string]bool{}
+	for section, raw := range importer {
+		target := ""
+		switch section {
+		case "configDependencies":
+			target = "dependencies"
+		case "packageManagerDependencies":
+			target = "devDependencies"
+		default:
+			return fail("LOCKFILE", section, "未対応environment importer fieldです")
+		}
+		deps := object(raw)
+		if deps == nil {
+			return fail("LOCKFILE", section, "依存objectが必要です")
+		}
+		normalized[target] = deps
+		for name := range deps {
+			tools[name] = true
+		}
+	}
+	root := map[string]any{"importers": map[string]any{".": normalized}, "packages": environment["packages"], "snapshots": environment["snapshots"]}
+	_, err := projectLock(root, tools, nil, true, nil)
+	return err
 }
 
 func (l *Loaded) toolNames() map[string]bool {
@@ -284,11 +345,11 @@ func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []
 	if err != nil {
 		return err
 	}
-	a, err := decodeLock(old)
+	a, aEnvironment, err := decodeLock(old)
 	if err != nil {
 		return err
 	}
-	b, err := decodeLock(next)
+	b, bEnvironment, err := decodeLock(next)
 	if err != nil {
 		return err
 	}
@@ -307,6 +368,9 @@ func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []
 		return fail("LOCKFILE_BOUNDARY", lockPath, "他方の依存宣言・resolution・推移依存を変更しています")
 	}
 	if wantTools {
+		if hash(aEnvironment) != hash(bEnvironment) {
+			return fail("GUARDRAIL_DRIFT", lockPath, "lockfileの環境依存はguardrailです")
+		}
 		for _, root := range []map[string]any{a, b} {
 			delete(root, "importers")
 			delete(root, "packages")

@@ -108,6 +108,10 @@ packageのpeer宣言があり、相手側rootとpeer構成を含む解決version
 この対応は保護対象のpackage自身のversionや通常共有依存を変更する許可ではない。対応が分岐・削除されるpeer参照の改名や、
 異なる依存内容へのsnapshot衝突は失敗させる。未知の形式・参照欠落は失敗させる。
 local/file依存の実体検査は未対応で、保護対象closureに含む場合は拒否する。
+pnpmの環境用文書とproject文書を持つ2文書lockfileも受け付ける。環境用文書はroot importerの
+configDependencies/packageManagerDependenciesとその推移依存を検査し、project graphとは分離する。
+Developmentは環境用文書全体を保持し、Learnは明示されたlockfile ownership内で更新できる。
+文書の順序・構造が不正、未知の環境field、3文書以上、依存参照の欠落は拒否する。
 新しいtoolの分類はpolicy判断であり、依存名から意味を推測して保護を解除しない。
 
 ## Review / Learn
