@@ -156,10 +156,15 @@ Git管理済みfileはignore指定があっても保護し、検証中のHEAD/in
 
 ## Learn確定
 
-変更開始時のbinaryでverifyを完了する。独立review担当が具体的な維持保証と契約変更を確認し、
-明示的な確定許可とともにrepository外のreview JSONへ記録する。
-必須fieldはschema_version=5、kind=learn_review、task_sha256、checkpoint_sha256、
-evidence_sha256、reviewer、authorization、observations。
+変更開始時のbinaryでverifyを完了する。担当agent自身が最新差分と検証証拠をreviewし、
+Taskに固定した許可範囲で確定する。独立reviewや別agentの呼び出しは、ユーザーが明示的に依頼した場合だけ行う。
+
+local完了前にも`finish --repo-root . --task <id> --task-sha256 <task-hash> --checkpoint-sha256 <checkpoint-hash> --evidence-sha256 <evidence-hash>`を実行する。
+finishは最新の検証証拠を要求し、delivery=prではstaged検査も行う。Learnのfinish/Ship/CIにreview記録は不要。
+
+`learn-review`は任意のreview記録用として維持する。使用時の必須fieldはschema_version=5、
+kind=learn_review、task_sha256、checkpoint_sha256、evidence_sha256、reviewer、authorization、observations。
+記録はテスト出力から生成せず、実際の確認者・許可・観察を記載する。
 
 ```sh
 /tmp/aidd-task-checker learn-review --repo-root . --task <id> \
@@ -168,11 +173,7 @@ evidence_sha256、reviewer、authorization、observations。
   --source-sha256 <review-file-hash>
 ```
 
-local完了前にも`finish --repo-root . --task <id> --task-sha256 <task-hash> --checkpoint-sha256 <checkpoint-hash> --evidence-sha256 <evidence-hash>`を実行する。
-finishはLearnの最新reviewを必須とし、delivery=prではstaged検査も行う。
-
-reviewをテスト出力から作らない。記録は署名ではなく、確認者と許可の正当性は実行契約が所有する。
-Learnの完了には最新reviewが必要。product実装が必要なら既存Issueへhandoffして終了する。
+product実装が必要なら既存Issueへhandoffして終了する。
 
 ## Ship / CI
 
@@ -184,7 +185,10 @@ Learnの完了には最新reviewが必要。product実装が必要なら既存Is
   --evidence-sha256 <evidence-hash>
 ```
 
-内容やmodeの不一致、未stage出力、未検証変更があればcommitしない。Learnは最新reviewも検査する。
+内容やmodeの不一致、未stage出力、未検証変更があればcommitしない。Learnのreview記録は任意だが、
+存在する場合は必須項目と参照先の検証証拠との対応を検査する。過去checkpointの記録は履歴として
+保持でき、最新reviewの追加は要求しない。同じcheckpointの再検証で参照先の証拠が置き換わった
+記録は削除できる。再記録する場合は古い任意記録を削除し、実際に再reviewした内容だけを記録する。
 公開操作とread-backは実行adapterが行う。Core gate成功だけではpush/PR完了ではない。
 
 Renovateだけが生成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。

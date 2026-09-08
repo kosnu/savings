@@ -115,8 +115,9 @@ rule-map、checker、検証profile、adapter、実行機構と必要な回帰tes
 これはproduct implementationの許可ではありません。
 
 変更前にfeedback、authorization、有限ownershipをLearn Taskへ固定します。
-開始時のchecker binaryと旧policy/profileを維持して検証し、独立reviewの根拠と明示的な
-確定許可を最新checkpoint/evidenceへ結び付けます。変更後checkerの成功だけでは完了にしません。
+開始時のchecker binaryと旧policy/profileを維持して検証し、担当agent自身が最新差分と
+checkpoint/evidenceをreviewして、依頼された許可範囲で確定します。変更後checkerの成功だけでは完了にしません。
+独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行います。
 Coreの具体的な改訂・失効・検証境界は `docs/ai-driven-development/workflow.md` を適用します。
 
 Development中にguardrail変更が必要なら依存する作業を中断し、独立Learnへ渡します。

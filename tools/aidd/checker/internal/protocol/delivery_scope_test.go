@@ -22,17 +22,6 @@ func TestLocalTaskCanFinishButCannotShipOrPassPRDelivery(t *testing.T) {
 					return Finish(context.Background(), s, l, f.evidenceHash)
 				})
 			}
-			if kind == "learn" {
-				rejected(t, finish(), "")
-				must(t, f.snapshot(func(s *repository.Snapshot) error {
-					l, err := Load(context.Background(), s, f.spec.ID, f.taskHash, f.cp)
-					if err != nil {
-						return err
-					}
-					_, err = RecordLearnReview(context.Background(), s, l, f.evidenceHash, Review{Version, "learn_review", f.taskHash, f.cp, f.evidenceHash, "independent fixture reviewer", "authorized fixture guardrail update", "The local guardrail result preserves the invariant and excludes product changes"})
-					return err
-				}))
-			}
 			must(t, finish())
 			rejected(t, f.check(true), "DELIVERY_SCOPE")
 			f.git("add", ".")
