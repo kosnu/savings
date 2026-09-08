@@ -91,6 +91,16 @@ func (l *Loaded) validateGenerated(snapshot *repository.Snapshot, files []File) 
 				return err
 			}
 			if l.Task.Spec.Kind == "learn" && r.SchemaVersion == Version && r.Kind == "learn_review" && r.TaskSHA256 == l.TaskHash && checkpoints[r.CheckpointSHA256] {
+				// 任意記録は参照先の証拠と照合する。過去checkpointの記録は履歴として保持できる。
+				_, evidenceHash, err := readMode[Evidence](snapshot, evidencePath(l.Task.Spec.ID, r.CheckpointSHA256), l.Delivered)
+				if err != nil {
+					return err
+				}
+				reviewContext := *l
+				reviewContext.CheckpointHash = r.CheckpointSHA256
+				if err := validateReview(&reviewContext, evidenceHash, r); err != nil {
+					return err
+				}
 				continue
 			}
 		}

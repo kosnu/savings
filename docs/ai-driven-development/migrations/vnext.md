@@ -215,3 +215,12 @@ Decisionのownershipを実際の17filesへ限定するcheckpointを追記した�
 
 先のfollow-upはその後b9924bdbとしてcommit/pushされ、GitHub Actionsのverifyとzizmorが成功した。
 このreview対応差分はローカル変更であり、commit/push・remote CI・GitHubコメント返信/resolveは未実施。
+
+## Learn review契約の更新（2026-09-08）
+
+上記の移行時点のreview必須要件は、Learnの独立review必須撤廃によって置き換わった。
+現在のfinish/Ship/CIはreview記録なしで完了できる。任意の記録が存在する場合は、必須項目と
+参照先の証拠を照合し、過去checkpointの記録は履歴として保持できる。最新reviewは要求しない。
+`TestLearnNeedsBaselineCheckerAndIndependentReview`は
+`TestLearnNeedsBaselineCheckerWithoutIndependentReview`へ置き換えた。
+現在の操作契約は[operations](../aidd-checker-operations.md#learn確定)を参照する。

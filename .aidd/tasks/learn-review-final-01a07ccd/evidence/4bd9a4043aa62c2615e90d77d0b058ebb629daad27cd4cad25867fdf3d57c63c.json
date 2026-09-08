@@ -1,9 +1,9 @@
 {
   "schema_version": 5,
   "kind": "verification_evidence",
-  "task_sha256": "9394626b1ffa21a7d01fee7c50632ee397d5cfac1c57a7839f21a3aa97f71854",
-  "checkpoint_sha256": "212bee2a1f75e5bacd959d356005c9d5e56cf058523f25537bac6e5d1c1d5f7f",
-  "repository_sha256": "2331d605da4d747cd3d9850feb49dfaa8e2bc3382474a6b41f492c37f1ec4b25",
+  "task_sha256": "bc27f184cf4cd46710989543264800a60824f577b638ecc2d269967d0adae1f3",
+  "checkpoint_sha256": "4bd9a4043aa62c2615e90d77d0b058ebb629daad27cd4cad25867fdf3d57c63c",
+  "repository_sha256": "e8777e9c9cab5b427fa88546b69bdc1f6bf7221b24979969550310f68613cfde",
   "files": [
     {
       "path": ".agents/skills/aidd-cycle/SKILL.md",
@@ -57,7 +57,7 @@
       "path": ".agents/skills/learn/SKILL.md",
       "type": "regular",
       "mode": "0644",
-      "sha256": "576fc850065812de93f14da32b5f512e6c1e24d75ea9c137daa146c881a620f7"
+      "sha256": "07b334cdfbc5d65cee1a5aa44f125353139713b97546b6531cf3866cf7893c7d"
     },
     {
       "path": ".agents/skills/learn/agents/openai.yaml",
@@ -4239,7 +4239,7 @@
       "path": "docs/ai-driven-development/aidd-checker-operations.md",
       "type": "regular",
       "mode": "0644",
-      "sha256": "359cf315330332634ee8fcb5b586811ff4e116af15e36505803720ce105f7a31"
+      "sha256": "5574a479831f05d61612a758033b410f0224eb6ea87bfb7da5ccacb28a4d31ed"
     },
     {
       "path": "docs/ai-driven-development/aidd-checker.md",
@@ -4299,7 +4299,7 @@
       "path": "docs/ai-driven-development/migrations/vnext.md",
       "type": "regular",
       "mode": "0644",
-      "sha256": "61acd7a2f392fa1c8650074f2d0cccd2299985c30a51174a40d8a0b5da9ea209"
+      "sha256": "d801c1c55665d17119d5c758da6b3ce04ed33e42489ffb9ef25b26cca7154331"
     },
     {
       "path": "docs/ai-driven-development/overview.md",
@@ -5190,6 +5190,12 @@
       "sha256": "85ec44028ce5e4c30f90248ae0e7566db10cedc8b65b846ee8f6e1d6b15bbfb5"
     },
     {
+      "path": "tools/aidd/checker/internal/protocol/optional_review_test.go",
+      "type": "regular",
+      "mode": "0644",
+      "sha256": "309fde5cd7f48c790b3c2fdbafd980897a1ada723aa580f5b7b6470e91a43095"
+    },
+    {
       "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
       "type": "regular",
       "mode": "0644",
@@ -5217,7 +5223,7 @@
       "path": "tools/aidd/checker/internal/protocol/verification.go",
       "type": "regular",
       "mode": "0644",
-      "sha256": "11aede32c40e037f949fd084ee3e94b12a30416e15327e8beb5b6e1f8d278682"
+      "sha256": "e35c1cb5699d18a8c77569bcd8aeb4b49908b2614170f49204f42c98a9bf62c5"
     },
     {
       "path": "tools/aidd/checker/internal/receipt/artifacts.go",
@@ -5477,13 +5483,15 @@
     "docs/adr/0003-adopt-aidd-invariant-protocol.md",
     "docs/ai-driven-development/aidd-checker-operations.md",
     "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/migrations/vnext.md",
     "docs/ai-driven-development/workflow.md",
     "docs/harness/policies/learning-extraction.md",
     "tools/aidd/checker/internal/protocol/delivery.go",
     "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+    "tools/aidd/checker/internal/protocol/optional_review_test.go",
     "tools/aidd/checker/internal/protocol/protocol_test.go",
     "tools/aidd/checker/internal/protocol/verification.go"
   ],
-  "verification": "ewogICJzY2hlbWFfdmVyc2lvbiI6IDUsCiAgImtpbmQiOiAiYnVpbGRfdmVyaWZpY2F0aW9uIiwKICAid29ya3NwYWNlIjogImxlYXJuLXJldmlldy1tYWluMi0wMWEwN2NjZCIsCiAgInJlY2VpcHRfc2hhMjU2IjogIjIxMmJlZTJhMWY3NWU1YmFjZDk1OWQzNTYwMDVjOWQ1ZTU2Y2YwNTg1MjNmMjU1MzdiYWM2ZTVkMWMxZDVmN2YiLAogICJjYXRhbG9nX3NoYTI1NiI6ICJhM2JjMTc5NTVhYmZiYThkMDMwMDdkYTdjMGY2YWJkOTVlZDc4ODY3M2E5ZDliNGUwNWUzMTRmYTdkNTZkYTNhIiwKICAiZmluYWxfc3RhdGVfc2hhMjU2IjogImViZmNiOTlmNzEwMzQ2ZGNkNjJjMzhiNTk5MDQxMDVkODJiMWUwOTJhZTE5YjY0N2NlYTU3M2NhODdmNTBlYWEiLAogICJnZW5lcmF0b3IiOiAiYWlkZC1jaGVja2VyL3Y1IiwKICAicmVzdWx0cyI6IFsKICAgIHsKICAgICAgImlkIjogIlZDLTEiLAogICAgICAidHlwZSI6ICJhdXRvbWF0ZWQiLAogICAgICAic3RhdHVzIjogInBhc3NlZCIsCiAgICAgICJ2ZXJpZmljYXRpb25fcHJvZmlsZV9pZCI6ICJhaWRkLWNoZWNrZXItdGVzdHMiLAogICAgICAicHJvZmlsZV9zaGEyNTYiOiAiMTBmODkyNjVkNWQxNzgwN2NjNGY1NzgzMjZjNTE1MTk2ZTJjYmQ1ODU2ODJhOTNmOTkxZjZlOWViM2QzMTkxNiIsCiAgICAgICJzZWxlY3RvciI6IHsKICAgICAgICAia2luZCI6ICJzdWl0ZSIKICAgICAgfSwKICAgICAgImV4ZWN1dGVkX2lkZW50aXRpZXMiOiBbCiAgICAgICAgewogICAgICAgICAgImtpbmQiOiAic3VpdGUiLAogICAgICAgICAgImlkIjogImFpZGQtY2hlY2tlci10ZXN0cyIKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAic3Rkb3V0X2J5dGVzIjogMTk5MiwKICAgICAgInN0ZGVycl9ieXRlcyI6IDAsCiAgICAgICJvdXRwdXRfc2hhMjU2IjogIjNhMGU2ZTM4YTcxNzcxYzJiZGYyMDA5YzY0NDdmMDMyY2Q3NjU4NTFlNmE0NzE1ZWIyM2ZkZjcxNjNmYmI2NDMiLAogICAgICAiZmluYWxfc3RhdGVfc2hhMjU2IjogImViZmNiOTlmNzEwMzQ2ZGNkNjJjMzhiNTk5MDQxMDVkODJiMWUwOTJhZTE5YjY0N2NlYTU3M2NhODdmNTBlYWEiCiAgICB9LAogICAgewogICAgICAiaWQiOiAiVkMtMiIsCiAgICAgICJ0eXBlIjogImF1dG9tYXRlZCIsCiAgICAgICJzdGF0dXMiOiAicGFzc2VkIiwKICAgICAgInZlcmlmaWNhdGlvbl9wcm9maWxlX2lkIjogImdpdC1kaWZmLWNoZWNrIiwKICAgICAgInByb2ZpbGVfc2hhMjU2IjogImU0MmI3ZTYyZTA0OGJmNTQ3YzRiMzg2OTc4ZTkwMWVmMmRiODNjMjlmYWYzMWY3Y2FmNmY2MjI1MTU0YWQyNzMiLAogICAgICAic2VsZWN0b3IiOiB7CiAgICAgICAgImtpbmQiOiAic3VpdGUiCiAgICAgIH0sCiAgICAgICJleGVjdXRlZF9pZGVudGl0aWVzIjogWwogICAgICAgIHsKICAgICAgICAgICJraW5kIjogInN1aXRlIiwKICAgICAgICAgICJpZCI6ICJnaXQtZGlmZi1jaGVjayIKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAic3Rkb3V0X2J5dGVzIjogMCwKICAgICAgInN0ZGVycl9ieXRlcyI6IDAsCiAgICAgICJvdXRwdXRfc2hhMjU2IjogIjA3ODU1MTI2ZGRmODNlN2E3OTQ3OTMzZmNhMzJhMGQ1Yjc3YzhlNmVlMWYwZjJkYjM1N2I2MzA5MTZhM2I2MzciLAogICAgICAiZmluYWxfc3RhdGVfc2hhMjU2IjogImViZmNiOTlmNzEwMzQ2ZGNkNjJjMzhiNTk5MDQxMDVkODJiMWUwOTJhZTE5YjY0N2NlYTU3M2NhODdmNTBlYWEiCiAgICB9CiAgXQp9Cg==",
+  "verification": "ewogICJzY2hlbWFfdmVyc2lvbiI6IDUsCiAgImtpbmQiOiAiYnVpbGRfdmVyaWZpY2F0aW9uIiwKICAid29ya3NwYWNlIjogImxlYXJuLXJldmlldy1maW5hbC0wMWEwN2NjZCIsCiAgInJlY2VpcHRfc2hhMjU2IjogIjRiZDlhNDA0M2FhNjJjMjYxNWU5MGQ3N2QwYjA1OGViYjYyOWRhYWQyN2NkNGNhZDI1ODY3ZmRmM2Q1N2M2M2MiLAogICJjYXRhbG9nX3NoYTI1NiI6ICJhM2JjMTc5NTVhYmZiYThkMDMwMDdkYTdjMGY2YWJkOTVlZDc4ODY3M2E5ZDliNGUwNWUzMTRmYTdkNTZkYTNhIiwKICAiZmluYWxfc3RhdGVfc2hhMjU2IjogIjAzMzliYWQ5YTcwMTM5OTUyYzc3ZDY1ZDE3MDM2Y2YxZmIwMTMzOTliYTViZDNhZDBkY2NkMjVkMjg3YTMyZDYiLAogICJnZW5lcmF0b3IiOiAiYWlkZC1jaGVja2VyL3Y1IiwKICAicmVzdWx0cyI6IFsKICAgIHsKICAgICAgImlkIjogIlZDLTEiLAogICAgICAidHlwZSI6ICJhdXRvbWF0ZWQiLAogICAgICAic3RhdHVzIjogInBhc3NlZCIsCiAgICAgICJ2ZXJpZmljYXRpb25fcHJvZmlsZV9pZCI6ICJhaWRkLWNoZWNrZXItdGVzdHMiLAogICAgICAicHJvZmlsZV9zaGEyNTYiOiAiMTBmODkyNjVkNWQxNzgwN2NjNGY1NzgzMjZjNTE1MTk2ZTJjYmQ1ODU2ODJhOTNmOTkxZjZlOWViM2QzMTkxNiIsCiAgICAgICJzZWxlY3RvciI6IHsKICAgICAgICAia2luZCI6ICJzdWl0ZSIKICAgICAgfSwKICAgICAgImV4ZWN1dGVkX2lkZW50aXRpZXMiOiBbCiAgICAgICAgewogICAgICAgICAgImtpbmQiOiAic3VpdGUiLAogICAgICAgICAgImlkIjogImFpZGQtY2hlY2tlci10ZXN0cyIKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAic3Rkb3V0X2J5dGVzIjogMTk5MiwKICAgICAgInN0ZGVycl9ieXRlcyI6IDAsCiAgICAgICJvdXRwdXRfc2hhMjU2IjogIjA5YmMwZmNjMWQzZmVlOTYzNTgyMjM3NTE5YjFjMTBkYTI0NzdhYzVkZjcxZmU3MGJhMWQwOTk0YWEzYTE5YjciLAogICAgICAiZmluYWxfc3RhdGVfc2hhMjU2IjogIjAzMzliYWQ5YTcwMTM5OTUyYzc3ZDY1ZDE3MDM2Y2YxZmIwMTMzOTliYTViZDNhZDBkY2NkMjVkMjg3YTMyZDYiCiAgICB9LAogICAgewogICAgICAiaWQiOiAiVkMtMiIsCiAgICAgICJ0eXBlIjogImF1dG9tYXRlZCIsCiAgICAgICJzdGF0dXMiOiAicGFzc2VkIiwKICAgICAgInZlcmlmaWNhdGlvbl9wcm9maWxlX2lkIjogImdpdC1kaWZmLWNoZWNrIiwKICAgICAgInByb2ZpbGVfc2hhMjU2IjogImU0MmI3ZTYyZTA0OGJmNTQ3YzRiMzg2OTc4ZTkwMWVmMmRiODNjMjlmYWYzMWY3Y2FmNmY2MjI1MTU0YWQyNzMiLAogICAgICAic2VsZWN0b3IiOiB7CiAgICAgICAgImtpbmQiOiAic3VpdGUiCiAgICAgIH0sCiAgICAgICJleGVjdXRlZF9pZGVudGl0aWVzIjogWwogICAgICAgIHsKICAgICAgICAgICJraW5kIjogInN1aXRlIiwKICAgICAgICAgICJpZCI6ICJnaXQtZGlmZi1jaGVjayIKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAic3Rkb3V0X2J5dGVzIjogMCwKICAgICAgInN0ZGVycl9ieXRlcyI6IDAsCiAgICAgICJvdXRwdXRfc2hhMjU2IjogIjA3ODU1MTI2ZGRmODNlN2E3OTQ3OTMzZmNhMzJhMGQ1Yjc3YzhlNmVlMWYwZjJkYjM1N2I2MzA5MTZhM2I2MzciLAogICAgICAiZmluYWxfc3RhdGVfc2hhMjU2IjogIjAzMzliYWQ5YTcwMTM5OTUyYzc3ZDY1ZDE3MDM2Y2YxZmIwMTMzOTliYTViZDNhZDBkY2NkMjVkMjg3YTMyZDYiCiAgICB9CiAgXQp9Cg==",
   "checker_sha256": "ea01e446e94336ad1f520c1e9aea4d41344c5aaef7de840cf1d45ca84b74cc09"
 }
