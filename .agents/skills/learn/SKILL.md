@@ -22,6 +22,9 @@ The Learn contract permits guardrail implementation and its tests, but rejects p
 paths. Use the task-start checker binary and pinned old policy/profile, then obtain
 independent review and explicit finalization authority for the exact evidence. Candidate
 checker success alone is insufficient. Do not invent reviewer identity or authorization.
+An independent review requirement is not by itself a reason to spawn a subagent.
+Apply the cost-benefit conditions in AGENTS.md; routine checks stay in the main agent.
+When independent review is required but delegation is not justified, prepare the diff for human review.
 
 Finish at guardrail verification and finalization. If product implementation is needed,
 report the existing Development Issue and required outcome as a handoff; do not start it.

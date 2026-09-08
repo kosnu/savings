@@ -1,6 +1,6 @@
 ---
 name: context-scout
-description: Low-cost repository context scout for bounded discovery, document selection, pattern summaries, and verification-failure summaries before a main Goal executor makes decisions.
+description: Bounded repository discovery for a complex independent investigation whose value justifies delegation under AGENTS.md. Do not use for routine searches or small local checks.
 argument-hint: "[scope or question]"
 ---
 
@@ -10,7 +10,7 @@ argument-hint: "[scope or question]"
 
 Find and summarize the smallest useful repository context for a main executor.
 
-Use this skill with the project-scoped custom agent `.codex/agents/context-scout.toml` when a Goal needs bounded read-heavy work before scope, design, edit, or verification decisions. That agent pins a lower-cost model and read-only sandbox for repository discovery.
+Use this skill with `.codex/agents/context-scout.toml` only when the cost-benefit conditions in AGENTS.md are met. State the independent question and why delegation is worth the added context and integration cost. A Goal needing repository discovery or a cheaper model being available is not sufficient.
 
 Do not make product decisions, final design decisions, file edits, GitHub writes, git writes, or Stop-condition judgments.
 
