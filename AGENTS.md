@@ -58,6 +58,12 @@ Use these rules to apply the repository conventions efficiently without weakenin
 - When passing extra arguments to pnpm workspace scripts, pass them directly after the script name by default, for example `pnpm --filter web storybook --no-open`.
 - Use `--` only after confirming the target script or underlying CLI requires it.
 
+### Subagent Usage
+
+- 原則としてメインエージェントが調査・実装・レビューを行う。軽微な修正、定型的な確認、テストやGit検証の実行・結果確認、局所的な再利用確認はメインで完結させる。
+- サブエージェントは、複雑で独立した作業の分担や重大なリスクの独立検証など、追加のトークン・引継ぎ・統合コストに見合う具体的な効果がある場合に限定する。ファイル数、レビュー観点の数、並列化できること、低コストモデルであることだけを起動理由にしない。
+- 委譲前に、担当させる独立した問題と、メインで処理するより追加コストに見合う理由を短く示す。条件を満たす利用にユーザーの明示依頼は必須ではない。必要最小限の数と有限の担当範囲に限定し、同じ調査・レビューの重複委譲や、修正のたびの定型的な再レビュー委譲をしない。
+
 ### Goal And Success Criteria
 
 - Start from the requested outcome, constraints, and success criteria; then choose the smallest useful path that preserves correctness, repository conventions, and user intent.
