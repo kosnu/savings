@@ -1,20 +1,20 @@
 {
   "schema_version": 5,
   "kind": "checkpoint",
-  "task_sha256": "bad3c9dcdcbcfbaa37e40e02911c58363178d3016d9d59d3bda3d47550cb2f74",
+  "task_sha256": "c472f4cf29d62c881f160b119917e2bac7c395a8b12e4498dba01fec91ee51a1",
   "revision": 1,
   "parent_sha256": "",
   "decision": {
     "schema_version": 5,
     "kind": "decision",
-    "task_sha256": "bad3c9dcdcbcfbaa37e40e02911c58363178d3016d9d59d3bda3d47550cb2f74",
-    "reason": "独立レビュー必須が不要な委譲を生むため、完了gateから外し担当agent自身のレビューへ変更する。既存の任意記録CLIとbootstrapは維持する。 ユーザーの追加Ship依頼により同じ変更をPR配信する。",
+    "task_sha256": "c472f4cf29d62c881f160b119917e2bac7c395a8b12e4498dba01fec91ee51a1",
+    "reason": "ユーザーの補足に従い、明示依頼の一律条件を撤回し費用対効果条件へ統一する。.claude/CLAUDE.mdはユーザー指示で対象から除外。context-scoutの暗黙選択設定は維持し、説明で起動条件を限定する。",
     "requirements": [
       {
         "id": "FR-1",
-        "text": "Learnの独立レビュー必須を撤廃する",
+        "text": "サブエージェントの自動利用を促す指示を除去する",
         "origin": "intent",
-        "evidence": "Learnの独立レビュー必須で無駄にサブエージェントを呼んでトークン消費を爆増させてるからやめろって意味じゃ\n仕組みを早く修正しろ"
+        "evidence": "不用意に呼ぶようにしているのを無くせ"
       }
     ],
     "target_state": {
@@ -22,7 +22,7 @@
         {
           "id": "PB-1",
           "type": "state_transition",
-          "description": "Learnは独立レビュー記録なしでfinish/Ship/CIを通過でき、検証とscope制約を維持する",
+          "description": "軽微な実装と定型確認はメインで完結し、複雑な独立作業と重大リスクの検証は追加コストに見合う場合に委譲する",
           "requirement_id": "FR-1"
         }
       ],
@@ -34,39 +34,44 @@
           "product_behavior_ids": [
             "PB-1"
           ],
-          "verification_profile_id": "aidd-checker-tests",
+          "verification_profile_id": "git-diff-check",
           "selector": {
             "kind": "suite"
           }
         },
         {
           "id": "VC-2",
-          "type": "automated",
+          "type": "manual",
           "requirement_id": "FR-1",
           "product_behavior_ids": [
             "PB-1"
           ],
-          "verification_profile_id": "git-diff-check",
-          "selector": {
-            "kind": "suite"
-          }
+          "procedure": "差分を確認し、明示依頼の一律制限がなく、軽微な作業の委譲を抑制し、複雑な独立作業は費用対効果で判断する指示が同期していることを確認する"
         }
       ],
       "ownership_scopes": [
+        {
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/context-scout/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/harness-task/SKILL.md",
+          "kind": "file"
+        },
         {
           "path": ".agents/skills/learn/SKILL.md",
           "kind": "file"
         },
         {
-          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "path": "AGENTS.md",
           "kind": "file"
         },
         {
-          "path": "docs/ai-driven-development/aidd-checker-operations.md",
-          "kind": "file"
-        },
-        {
-          "path": "docs/ai-driven-development/aidd-checker.md",
+          "path": "docs/ai-driven-development/codex-adapter.md",
           "kind": "file"
         },
         {
@@ -74,31 +79,15 @@
           "kind": "file"
         },
         {
-          "path": "docs/harness/policies/learning-extraction.md",
-          "kind": "file"
-        },
-        {
-          "path": "tools/aidd/checker/internal/protocol/delivery.go",
-          "kind": "file"
-        },
-        {
-          "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
-          "kind": "file"
-        },
-        {
-          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
-          "kind": "file"
-        },
-        {
-          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "path": "docs/harness/policies/code-review.md",
           "kind": "file"
         }
       ],
       "representations": [
         {
           "id": "REP-1",
-          "kind": "documentation",
-          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "implementation",
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
           "locator": {
             "kind": "file"
           },
@@ -113,8 +102,8 @@
         },
         {
           "id": "REP-2",
-          "kind": "documentation",
-          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "kind": "implementation",
+          "path": ".agents/skills/context-scout/SKILL.md",
           "locator": {
             "kind": "file"
           },
@@ -129,8 +118,8 @@
         },
         {
           "id": "REP-3",
-          "kind": "documentation",
-          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "implementation",
+          "path": ".agents/skills/harness-task/SKILL.md",
           "locator": {
             "kind": "file"
           },
@@ -145,8 +134,8 @@
         },
         {
           "id": "REP-4",
-          "kind": "documentation",
-          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "implementation",
+          "path": ".agents/skills/learn/SKILL.md",
           "locator": {
             "kind": "file"
           },
@@ -161,8 +150,8 @@
         },
         {
           "id": "REP-5",
-          "kind": "documentation",
-          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "implementation",
+          "path": "AGENTS.md",
           "locator": {
             "kind": "file"
           },
@@ -177,8 +166,8 @@
         },
         {
           "id": "REP-6",
-          "kind": "documentation",
-          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
           "locator": {
             "kind": "file"
           },
@@ -194,7 +183,7 @@
         {
           "id": "REP-7",
           "kind": "implementation",
-          "path": "tools/aidd/checker/internal/protocol/delivery.go",
+          "path": "docs/ai-driven-development/workflow.md",
           "locator": {
             "kind": "file"
           },
@@ -210,39 +199,7 @@
         {
           "id": "REP-8",
           "kind": "implementation",
-          "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
-          "locator": {
-            "kind": "file"
-          },
-          "requirement_id": "FR-1",
-          "product_behavior_ids": [
-            "PB-1"
-          ],
-          "verification_case_ids": [
-            "VC-1",
-            "VC-2"
-          ]
-        },
-        {
-          "id": "REP-9",
-          "kind": "implementation",
-          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
-          "locator": {
-            "kind": "file"
-          },
-          "requirement_id": "FR-1",
-          "product_behavior_ids": [
-            "PB-1"
-          ],
-          "verification_case_ids": [
-            "VC-1",
-            "VC-2"
-          ]
-        },
-        {
-          "id": "REP-10",
-          "kind": "implementation",
-          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "path": "docs/harness/policies/code-review.md",
           "locator": {
             "kind": "file"
           },
@@ -264,6 +221,7 @@
     "adr.aidd-invariant-protocol",
     "adr.harness-engineering",
     "ai-driven.checker",
+    "ai-driven.goal-templates",
     "ai-driven.issue-guidelines",
     "ai-driven.learn",
     "ai-driven.overview",
