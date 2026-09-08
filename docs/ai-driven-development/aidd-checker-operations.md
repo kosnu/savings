@@ -185,7 +185,10 @@ product実装が必要なら既存Issueへhandoffして終了する。
   --evidence-sha256 <evidence-hash>
 ```
 
-内容やmodeの不一致、未stage出力、未検証変更があればcommitしない。Learnは最新reviewも検査する。
+内容やmodeの不一致、未stage出力、未検証変更があればcommitしない。Learnのreview記録は任意だが、
+存在する場合は必須項目と参照先の検証証拠との対応を検査する。過去checkpointの記録は履歴として
+保持でき、最新reviewの追加は要求しない。同じcheckpointの再検証で参照先の証拠が置き換わった
+記録は削除できる。再記録する場合は古い任意記録を削除し、実際に再reviewした内容だけを記録する。
 公開操作とread-backは実行adapterが行う。Core gate成功だけではpush/PR完了ではない。
 
 Renovateだけが生成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。

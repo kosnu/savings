@@ -5,14 +5,14 @@
     "action": "execute",
     "schema_version": 5,
     "kind": "learn",
-    "id": "learn-review-main2-01a07ccd",
+    "id": "learn-review-final-01a07ccd",
     "intent": {
       "kind": "feedback",
       "reference": "user:current-session",
       "body": "Learnの独立レビュー必須で無駄にサブエージェントを呼んでトークン消費を爆増させてるからやめろって意味じゃ\n仕組みを早く修正しろ",
       "body_sha256": "d3eb2f6858b14e7ec639a5b341dbd0af0d66100279f233053043ff2f083f77ad"
     },
-    "objective": "Learnの独立レビュー必須を撤廃する",
+    "objective": "Learnの独立レビュー必須を撤廃する。任意記録の検証と関連文書の整合を修復する",
     "constraints": [
       "対象はLearnのレビュー必須条件のみ",
       "サブエージェントは呼び出さない"
@@ -25,7 +25,7 @@
       "checker全テスト、差分検査、ADR検証"
     ],
     "delivery": "pr",
-    "authorization": "Learnの独立レビュー必須で無駄にサブエージェントを呼んでトークン消費を爆増させてるからやめろって意味じゃ\n仕組みを早く修正しろ\nユーザーの追加依頼: $repo ship\nユーザーの追加依頼: mainをマージしてコンフリクトを解消して",
+    "authorization": "Learnの独立レビュー必須で無駄にサブエージェントを呼んでトークン消費を爆増させてるからやめろって意味じゃ\n仕組みを早く修正しろ\nユーザーの追加依頼: $repo ship\nユーザーの追加依頼: mainをマージしてコンフリクトを解消して\n任意review修正の反映、およびコミット後の返信更新をユーザーが明示依頼。",
     "authorized_scopes": [
       {
         "path": ".agents/skills/learn/SKILL.md",
@@ -44,6 +44,10 @@
         "kind": "file"
       },
       {
+        "path": "docs/ai-driven-development/migrations/vnext.md",
+        "kind": "file"
+      },
+      {
         "path": "docs/ai-driven-development/workflow.md",
         "kind": "file"
       },
@@ -57,6 +61,10 @@
       },
       {
         "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/optional_review_test.go",
         "kind": "file"
       },
       {

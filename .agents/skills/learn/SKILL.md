@@ -24,8 +24,8 @@ checker. Retain that exact path and the pinned old policy/profile; do not re-pre
 from changed source during Learn. Prepare candidate binaries separately, then review the
 latest diff and evidence yourself and finalize within the user's authorized scope.
 Independent review is not required. Call another agent only when the user explicitly
-requests it. Candidate checker success alone is insufficient. Do not invent review
-observations or authorization.
+requests it. Candidate checker success alone is insufficient. Record the actual reviewer,
+observations and authorization; do not invent them.
 Apply the cost-benefit conditions in AGENTS.md; routine checks stay in the main agent.
 
 Finish at guardrail verification and finalization. If product implementation is needed,
