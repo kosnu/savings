@@ -19,9 +19,11 @@ complete an unfinished Development Goal merely to start Learn.
 Investigate causes before selecting a countermeasure. Update the owning policy, domain
 doc, rule-map, checker, verification or adapter instead of adding redundant instructions.
 The Learn contract permits guardrail implementation and its tests, but rejects product
-paths. Use the task-start checker binary and pinned old policy/profile, then obtain
-independent review and explicit finalization authority for the exact evidence. Candidate
-checker success alone is insufficient. Do not invent reviewer identity or authorization.
+paths. Use the task-start checker binary and pinned old policy/profile, then review the
+latest diff and evidence yourself and finalize within the user's authorized scope.
+Independent review is not required. Call another agent only when the user explicitly
+requests it. Candidate checker success alone is insufficient. Do not invent review
+observations or authorization.
 
 Finish at guardrail verification and finalization. If product implementation is needed,
 report the existing Development Issue and required outcome as a handoff; do not start it.
