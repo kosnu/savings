@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "9c94e86e4838bb2a301f1261b9eebeacb86c8118d194f8e3dc8f102ba8fe8e49",
+  "checkpoint_sha256": "fbea8fff3467aec9e27ecda3709069a4501581308f20e46b5266978538b1c142",
+  "evidence_sha256": "b1770b85d974c7617a9608547bffeca25b0885d622b9efd9412f239386501e8c",
+  "reviewer": "Codex main agent",
+  "authorization": "ユーザーの「先ほどの学びを反映して」により未解決コメント2件の契約値表記を明確化する。",
+  "observations": "元baselineからの4文書全差分、checkpoint revision 3と最新evidenceを担当agentが再レビュー。機械検査の意味判断限界と元Task対応入力の欠落を分離した。既存Start/Spec/CheckDelivery/Ship/継続処理と指定7testの観測から、同Taskの継続と改変拒否は裏付けられるが、別PR間の元Task対応は検証できないと確認。対策比較をやり直し、文書整合の部分改善とIssue全体の再発防止完了を区別した。localからprの未対応は保持するが新CLI必須との推測を採用しない。Task/hash/baseline/binary/許可scopeを維持。新たな機構は元Task対応情報の所有者・信頼源・取得元が未確定であり、今回の反映では実装しない。\n## Coverage\n- Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: Issue #1724全体の別PR間Task置換の機械的防止は未実装。今回許可された対策比較・検証条件の修正内に未解決の文書矛盾はない。\nPRのCloses参照を外し、未実装範囲を完了扱いにしない。アプリ検証は文書変更のみのため対象外。\n追加レビュー: operationsの「prへ」とworkflowの「prの別Task」はいずれも契約値を指すことを前後のdelivery=localとCLIの説明から確認。両方をdelivery=prと明記した。PRへの大文字化は契約値の意味を変えるため採用しない。今回の実差分はこの2箇所と再検証記録のみ。既存のDecisionとTask/baselineを維持し、元baselineからの4文書にも意味の変更がないことを確認。既存7test・check-all・diff-check・開始時checker verify再成功。"
+}
