@@ -199,6 +199,14 @@ verify、stage、ship-check、commit、配信read-backを行う。基準点不�
 新Taskで再検査せず、元TaskとPRの境界を確認する。`delivery=local`をprへ変更するCLIは現行v5にない。
 追加許可を受けた場合もtask.jsonを編集せず、workflowに従って元記録を保持し契約変更を扱う。
 
+配信の受入確認では、文書整合と実際の検出範囲を分ける。同Taskの継続は
+`TestSameTaskContinuesAfterCommitAndReviewRevision`、元baseline以前の差分を隠せないことは
+`TestDeliveryCannotHideEarlierCommits`、localのfinishとShip拒否は
+`TestLocalTaskCanFinishButCannotShipOrPassPRDelivery`で確認できる。
+現在のci-checkは対象PR内のTaskとbaseを照合し、別PRの元Taskとの対応は入力として受け取らない。
+別PRへの成果物の移し替えを防止できたと判断するには、その対応を取得・照合する責務と根拠が必要であり、
+これらの既存testや文書検査の成功だけでは証明できない。許可の意味判断と、対応情報の不足を区別する。
+
 Renovateだけが生成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。
 GitHub eventのPR作成者loginが`renovate[bot]`と一致し、現在のtarget baseに含まれない全commitが
 GitHub APIで対象SHAと一致するRenovate author、および有効なGitHub署名（signerは`web-flow`）を

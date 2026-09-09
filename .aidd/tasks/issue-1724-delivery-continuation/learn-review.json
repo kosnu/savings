@@ -2,9 +2,9 @@
   "schema_version": 5,
   "kind": "learn_review",
   "task_sha256": "9c94e86e4838bb2a301f1261b9eebeacb86c8118d194f8e3dc8f102ba8fe8e49",
-  "checkpoint_sha256": "ec919b9c8a69e9216b2d6d8edd9022ce764e0b567f9daaf0eab70f3a58576532",
-  "evidence_sha256": "04a49c71a835e84f7c76f57ca6b6a5ceed02992f2a0800522f004333a7723bbf",
+  "checkpoint_sha256": "fbea8fff3467aec9e27ecda3709069a4501581308f20e46b5266978538b1c142",
+  "evidence_sha256": "5a828ba89bb227be0002ee4aff5beceeb0ca2258e6531cb302dd5ad84f0615ce",
   "reviewer": "Codex main agent",
-  "authorization": "ユーザーのIssue #1724対応依頼に基づく配信guardrail文書の更新",
-  "observations": "4文書の全差分とStart/Ship/CheckDeliveryの責務を確認。追加Shipによる権限拡大と新規作業を区別し、完了表示・会話切替をTask置換の理由にしない。localからprは未対応として元記録を保存する。checker自体は変更せず構造検査と許可の意味判断を分離する。原因はPR1723のTask authorizationにagentの別PR判断が含まれた記録と、正本文書の新Task案内の曖昧さで裏付けた。既存のルールグラフから各文書へ到達でき、rule追加は不要。\n## Coverage\n- Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n追加findingなし。文書のみの変更のためアプリ検証は対象外。check-all、diff-check、開始時checker verifyの成功を確認。人間の許可の真正性を機械的に証明する変更ではない。"
+  "authorization": "ユーザーのLearn抽出結果への「反映して」。既存TaskのDecision・検証と配信文書の評価を修正する。",
+  "observations": "元baselineからの4文書全差分、checkpoint revision 3と最新evidenceを担当agentが再レビュー。機械検査の意味判断限界と元Task対応入力の欠落を分離した。既存Start/Spec/CheckDelivery/Ship/継続処理と指定7testの観測から、同Taskの継続と改変拒否は裏付けられるが、別PR間の元Task対応は検証できないと確認。対策比較をやり直し、文書整合の部分改善とIssue全体の再発防止完了を区別した。localからprの未対応は保持するが新CLI必須との推測を採用しない。Task/hash/baseline/binary/許可scopeを維持。新たな機構は元Task対応情報の所有者・信頼源・取得元が未確定であり、今回の反映では実装しない。\n## Coverage\n- Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: Issue #1724全体の別PR間Task置換の機械的防止は未実装。今回許可された対策比較・検証条件の修正内に未解決の文書矛盾はない。\nPRのCloses参照を外し、未実装範囲を完了扱いにしない。アプリ検証は文書変更のみのため対象外。"
 }
