@@ -23,16 +23,16 @@ Task開始前に専用worktreeとbranchを用意し、cleanな基準点を固定
 開始時checkerは[operations](aidd-checker-operations.md)の準備commandで自動取得する。
 同じソース・連動契約・実行環境なら検査済みbinaryを再利用し、Task期間中は返されたpathを保持する。
 
-Issueは人間のintentの正本。Task contractはagentのobjective、constraints、Done、verification、
-deliveryを持つ。Decisionは要求の解釈、採用判断、観測可能なbehavior、ownership、representation、
+Issueは人間のintentの正本。Task contractはagentのobjective、constraints、Done、verificationを持つ。
+Decisionは要求の解釈、採用判断、観測可能なbehavior、ownership、representation、
 verification caseを持つ。repositoryが実際の結果、証拠がその検証記録である。
 Issueに実装ファイルやrule-mapの語句を記載する必要はない。
-Taskのdelivery=localはローカル完了までとし、ship-check/ci-checkのPR配信境界ではdelivery=prを要求する。
+Taskにlocal/prの配信区分は設けない。操作範囲はユーザーの明示指示とconstraints・Doneで判断する。
 後からstage/commitした事実を配信範囲の拡大許可として扱わない。
 Developmentの実行依頼は、必要な検証・review、commit、push、PR作成または更新と配信状態の確認までを含む。
-開始時のdeliveryはprとし、完了地点の指定がないことを理由にlocalへ縮小したり、追加のShip許可を求めたりしない。
+完了地点の指定がないことを理由に検証までへ縮小したり、追加のShip許可を求めたりしない。
 ユーザーが明示的にShipを制限した場合だけ、その制限を既存のconstraintsとDoneへ反映する。
-PR配信を禁止されたTaskにはlocalを使う。agentが生成したlocal指定はユーザーの制限の根拠にならない。
+agentが生成した配信区分はユーザーの制限の根拠にならない。
 Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明示指示で解消できなければ確認する。
 
 要求の根拠をintent、guardrail、derivedに分ける。intent根拠はsnapshot本文に実在する必要がある。
@@ -86,7 +86,7 @@ review後は同じTaskで必要なcheckpoint改訂・全差分の再検証を行
 ### 追加配信とTaskの継続
 
 この境界はDevelopmentとLearnの両方に適用する。既存成果への追加Ship依頼では、まず既存Task、
-baseline、delivery、対象PRとbaseを確認する。`delivery=pr`で同じPRへ配信する場合は、検証・commitや
+baseline、ユーザーの操作許可、対象PRとbaseを確認する。同じPRへ配信する場合は、検証・commitや
 Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と元baselineからの全差分検証を行う。
 この継続経路では追加の契約変更や新しい配信許可を要求しない。
 追加の「ship」依頼は既存成果の配信許可であり、Task、基準点、PRの分割・変更まで許可したとは扱わない。
@@ -96,9 +96,10 @@ Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と元ba
 技術的に前提修正PRが必要でも、その必要性をユーザーの許可文へ加えず、変更前後のTask・PR・baseと
 持ち出す成果物、既存Taskの扱いを具体化して境界変更を確認する。明示許可を得てもCoreの検査は免除しない。
 
-`delivery=local`への正当な追加配信依頼は、配信権限の変更として扱う。現行v5には既存Taskのdeliveryを
-変更する操作がないため、Taskを書き換えたり`delivery=pr`の別Taskを作ったりせず、元記録を保持して未対応の契約変更を
-報告する。必要な対応は独立Learnへ渡す。許可の追加だけで技術的な未対応を解消したことにしない。
+後から明示されたShip依頼は同じTaskで扱い、配信区分の変更やTaskの再作成を要求しない。
+旧Taskのdelivery fieldは履歴として保持し、現行checkerは配信可否の判定に使わない。
+開始時checkerの固定と検証証拠の検査は維持する。旧binary自体の挙動は変更されないため、
+既存Taskの実行互換性と制約は[operations](aidd-checker-operations.md#ship--ci)に従う。
 別の新規作業や、明示的に承認された配信境界の再設計は、既存Taskを保持したうえでcleanな基準点から
 開始する。既存PR全体を新Taskで覆い直すことや、既存検査の失敗を消すことはこの経路に含めない。
 この運用境界の明記だけで、別PR間のTask置換を機械的に検出できるとは扱わない。

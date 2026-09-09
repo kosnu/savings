@@ -40,8 +40,8 @@ func validateSpec(spec Spec) error {
 	if spec.Intent.Body == "" || canonical.HashBytes([]byte(spec.Intent.Body)) != spec.Intent.BodySHA256 || spec.Intent.Reference == "" {
 		return fail("INTENT", spec.ID, "intent本文と出典・hashが必要です")
 	}
-	if spec.Delivery != "local" && spec.Delivery != "pr" {
-		return fail("DELIVERY", spec.ID, "deliveryはlocalまたはprを指定します")
+	if spec.LegacyDelivery != "" && spec.LegacyDelivery != "local" && spec.LegacyDelivery != "pr" {
+		return fail("DELIVERY", spec.ID, "旧delivery記録はlocalまたはprだけを読み取れます")
 	}
 	if spec.Kind == "development" {
 		if spec.Intent.Kind != "issue" || !issuePattern.MatchString(spec.Intent.Reference) || spec.Authorization != "" || len(spec.AuthorizedScopes) > 0 {
@@ -81,6 +81,8 @@ func Start(ctx context.Context, snapshot *repository.Snapshot, spec Spec) (strin
 	if err := validateSpec(spec); err != nil {
 		return "", err
 	}
+	// 新規Taskでは廃止fieldを保存しない。既存Taskの読取時はそのまま保持する。
+	spec.LegacyDelivery = ""
 	if err := CheckConfiguration(ctx, snapshot); err != nil {
 		return "", err
 	}

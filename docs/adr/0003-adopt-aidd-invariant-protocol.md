@@ -84,3 +84,12 @@ Learnの独立review必須条件は、不要なsubagent呼び出しとトーク�
 担当agent自身が最新差分と検証証拠をreviewし、ユーザーの明示依頼がある場合だけ別agentへ委譲する。
 開始時checker、旧policy/profile、明示された変更許可、scopeと証拠同一性の検査は維持する。
 finish/Ship/CIではLearnのreview記録を要求しない。初回bootstrapのreview契約は変更しない。
+
+## Clarification: Remove Task delivery classification (2026-09-10)
+
+2026-09-05のDelivery authority補足のうち、Taskのlocal/pr区分とそれを要求するShip・CI条件を撤去する。
+配信範囲はユーザーの明示指示とconstraints・Doneで判断し、後続のShip許可を同じTaskで扱う。
+新規Taskはdeliveryを保存せず、既存記録はhashを保つ読取互換fieldとして残す。
+finishは最新証拠、Shipは追加でindex、CIはGit転送とbaselineを検査する。
+開始時checkerの固定、明示許可、finite scope、policy/profile、証拠同一性などの安全条件は維持する。
+旧binaryの固定を解除する移行は本変更に含めない。

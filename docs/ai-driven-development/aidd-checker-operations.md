@@ -74,14 +74,14 @@ sourceはrepository外のregular non-symlink JSON。出典本文を取得した�
   "objective": "今回の実行で達成する結果",
   "constraints": ["守るべき境界"],
   "done": ["観測可能な完了条件", "検証・review・commit・push・PR作成または更新と配信状態の確認"],
-  "verification": ["必要な検証と確認対象"],
-  "delivery": "pr"
+  "verification": ["必要な検証と確認対象"]
 }
 ```
 
-`delivery`はlocalまたはpr。localはfinishまでで、ship-checkとci-checkはpr以外を拒否する。
-Developmentはprを使い、ユーザーが明示的にPR配信を禁止した場合だけlocalにする。
-制限は既存のconstraintsとDoneへ記録し、追加の設定は設けない。
+Taskに配信区分は設けない。Developmentは通常commit・push・PR作成または更新まで実行する。
+ユーザーの明示的な制限はconstraintsとDoneへ記録する。後続の明示許可は同じTaskの継続で扱う。
+新規task-startは旧sourceのdelivery fieldも保存しない。旧Task内のlocal/prはcanonical bytesと
+hashを維持して読み取る互換fieldであり、finish・Ship・CIの分岐には使わない。
 Coreの成功はmerge/deploy権限を与えない。
 Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
@@ -163,7 +163,7 @@ Git管理済みfileはignore指定があっても保護し、検証中のHEAD/in
 Taskに固定した許可範囲で確定する。独立reviewや別agentの呼び出しは、ユーザーが明示的に依頼した場合だけ行う。
 
 local完了前にも`finish --repo-root . --task <id> --task-sha256 <task-hash> --checkpoint-sha256 <checkpoint-hash> --evidence-sha256 <evidence-hash>`を実行する。
-finishは最新の検証証拠を要求し、delivery=prではstaged検査も行う。Learnのfinish/Ship/CIにreview記録は不要。
+finishは最新の検証証拠を要求する。commit前のstaged検査はship-checkで行う。Learnのfinish/Ship/CIにreview記録は不要。
 
 `learn-review`は任意のreview記録用として維持する。使用時の必須fieldはschema_version=5、
 kind=learn_review、task_sha256、checkpoint_sha256、evidence_sha256、reviewer、authorization、observations。
@@ -196,13 +196,19 @@ product実装が必要なら既存Issueへhandoffして終了する。
 
 追加配信時は既存Taskのtask/checkpoint identityと開始時binaryを引き継ぎ、同じbaselineから
 verify、stage、ship-check、commit、配信read-backを行う。基準点不一致などで失敗した場合は
-新Taskで再検査せず、元TaskとPRの境界を確認する。`delivery=local`を`delivery=pr`へ変更するCLIは現行v5にない。
-追加許可を受けた場合もtask.jsonを編集せず、workflowに従って元記録を保持し契約変更を扱う。
+新Taskで再検査せず、元TaskとPRの境界を確認する。追加許可のためにtask.jsonを書き換える必要はない。
+
+既存Taskの記録互換性と実行binaryの互換性は別である。区分撤去前に開始したTaskは旧binaryを
+保持するため、そのbinaryのship-checkは旧delivery条件で拒否し得る。本変更はchecker identityの
+移行機能を追加しない。candidate binaryへの差し替えやTaskの再作成では迂回せず、旧記録と検査結果を
+保持する。更新済みtrusted baseのCIは旧Taskを読み取り、配信区分以外の同じ検査を行える。
+逆に旧baseのCIはdeliveryを持たない新Taskを受け付けないため、base checkerの更新前は新形式を配信できない。
 
 配信の受入確認では、文書整合と実際の検出範囲を分ける。同Taskの継続は
 `TestSameTaskContinuesAfterCommitAndReviewRevision`、元baseline以前の差分を隠せないことは
-`TestDeliveryCannotHideEarlierCommits`、localのfinishとShip拒否は
-`TestLocalTaskCanFinishButCannotShipOrPassPRDelivery`で確認できる。
+`TestDeliveryCannotHideEarlierCommits`、新規・旧local/pr Taskのfinish・Ship・CIと記録不変性は
+`TestTaskDeliveryDoesNotGateCompletionOrShip`、新規Taskのfield省略は
+`TestNewTaskDropsLegacyDeliveryInput`で確認できる。
 現在のci-checkは対象PR内のTaskとbaseを照合し、別PRの元Taskとの対応は入力として受け取らない。
 別PRへの成果物の移し替えを防止できたと判断するには、その対応を取得・照合する責務と根拠が必要であり、
 これらの既存testや文書検査の成功だけでは証明できない。許可の意味判断と、対応情報の不足を区別する。

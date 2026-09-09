@@ -41,7 +41,7 @@ Feature Requestには、背景・課題、期待する状態、対象／対象�
 agentは記載された結果を具体的な検証caseへ展開し、実装手順や全テストケースの事前記入を要求しない。
 
 実行依頼を受けたagentは、Issueの意図とrepositoryのguardrailをTask contractとDecisionへ具体化する。
-通常の自律判断、確認条件、deliveryの既定値は[workflow](workflow.md)を正本とし、
+通常の自律判断、確認条件、配信範囲の既定動作は[workflow](workflow.md)を正本とし、
 Issueへ工程別の許可チェックや一律のStop一覧を複製しない。
 空欄や未決事項はそれだけで停止理由にせず、成果や権限を変える不足かをworkflowの境界で判断する。
 起票時点では実行を開始しない。既存Issueの明示された制限を記入漏れとみなして解除しない。

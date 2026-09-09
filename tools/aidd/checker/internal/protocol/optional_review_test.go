@@ -31,9 +31,9 @@ func TestOptionalReviewRejectsInvalidContentAtCompletion(t *testing.T) {
 		"observations":  func(r *Review) { r.Observations = "" },
 	} {
 		t.Run(name, func(t *testing.T) {
-			for _, delivery := range []string{"local", "pr"} {
+			for _, delivery := range []string{"", "local", "pr"} {
 				t.Run(delivery, func(t *testing.T) {
-					f := setup(t, "learn", delivery)
+					f := setupLegacyTask(t, "learn", delivery)
 					base := f.git("rev-parse", "HEAD")
 					must(t, f.checkpoint())
 					must(t, f.verify())
@@ -50,13 +50,11 @@ func TestOptionalReviewRejectsInvalidContentAtCompletion(t *testing.T) {
 						}
 						return Finish(context.Background(), s, l, f.evidenceHash)
 					}), "LEARN_REVIEW")
-					if delivery == "pr" {
-						rejected(t, f.check(true), "LEARN_REVIEW")
-						f.git("commit", "-qm", "invalid optional review fixture")
-						rejected(t, f.snapshot(func(s *repository.Snapshot) error {
-							return CheckDelivery(context.Background(), s, base, f.spec.ID)
-						}), "LEARN_REVIEW")
-					}
+					rejected(t, f.check(true), "LEARN_REVIEW")
+					f.git("commit", "-qm", "invalid optional review fixture")
+					rejected(t, f.snapshot(func(s *repository.Snapshot) error {
+						return CheckDelivery(context.Background(), s, base, f.spec.ID)
+					}), "LEARN_REVIEW")
 				})
 			}
 		})
