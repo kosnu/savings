@@ -189,9 +189,6 @@ func validateReview(l *Loaded, evidenceHash string, r Review) error {
 }
 
 func Ship(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenceHash string) error {
-	if l.Task.Spec.Delivery != "pr" {
-		return fail("DELIVERY_SCOPE", l.Task.Spec.ID, "Shipにはdelivery=prのTaskが必要です")
-	}
 	if _, err := ValidateEvidence(ctx, snapshot, l, evidenceHash); err != nil {
 		return err
 	}
@@ -213,11 +210,8 @@ func Ship(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenc
 	return snapshot.AssertUnchanged()
 }
 
-// Finishはlocal完了でも最新の検証証拠を要求する。
+// Finishは最新の検証証拠を要求する。commit前のindex検査はShipが担う。
 func Finish(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, evidenceHash string) error {
-	if l.Task.Spec.Delivery == "pr" {
-		return Ship(ctx, snapshot, l, evidenceHash)
-	}
 	if _, err := ValidateEvidence(ctx, snapshot, l, evidenceHash); err != nil {
 		return err
 	}

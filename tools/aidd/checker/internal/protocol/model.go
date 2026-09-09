@@ -27,7 +27,8 @@ type Spec struct {
 	Constraints   []string `json:"constraints"`
 	Done          []string `json:"done"`
 	Verification  []string `json:"verification"`
-	Delivery      string   `json:"delivery"`
+	// 旧v5記録のcanonical bytesとhashを保持する読取互換field。配信権限には使わない。
+	LegacyDelivery string `json:"delivery,omitempty"`
 	// Learnの変更許可は明示された依頼と有限scopeに固定する。
 	Authorization    string                 `json:"authorization,omitempty"`
 	AuthorizedScopes []model.OwnershipScope `json:"authorized_scopes,omitempty"`

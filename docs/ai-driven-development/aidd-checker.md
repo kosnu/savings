@@ -51,6 +51,11 @@ CIはclean candidateのGit転送を検証し、baseのcheckerでTask baselineを
 Gitは0600などのローカル権限を保存しないため、CIではblob contentとGit modeを比較する。
 ローカル検査の0600要件は緩和しない。
 
+Taskの配信区分は持たない。旧v5のdelivery fieldはcanonical bytes/hashの読取互換性だけに残し、
+新規Taskでは省略する。finishは証拠整合、Shipは追加でindex整合、CIはGit転送後の整合を検査する。
+操作許可の判断は実行agentが担い、Coreの成功を公開操作の許可には使わない。
+旧binaryの固定条件は維持し、互換性の限界は[operations](aidd-checker-operations.md#ship--ci)に従う。
+
 ## Learnの信頼境界
 
 Learnも開始時binaryを使う。candidate checkerへの置換をhashで拒否し、旧profileと旧policyを
