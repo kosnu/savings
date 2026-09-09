@@ -88,6 +88,7 @@ review後は同じTaskで必要なcheckpoint改訂・全差分の再検証を行
 この境界はDevelopmentとLearnの両方に適用する。既存成果への追加Ship依頼では、まず既存Task、
 baseline、delivery、対象PRとbaseを確認する。`delivery=pr`で同じPRへ配信する場合は、検証・commitや
 Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と元baselineからの全差分検証を行う。
+この継続経路では追加の契約変更や新しい配信許可を要求しない。
 追加の「ship」依頼は既存成果の配信許可であり、Task、基準点、PRの分割・変更まで許可したとは扱わない。
 
 配信検査が失敗した場合は元Taskと失敗根拠を保持し、同じ境界内で修正する。Taskの再作成や別PRへの
@@ -100,6 +101,8 @@ Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と元ba
 報告する。必要な対応は独立Learnへ渡す。許可の追加だけで技術的な未対応を解消したことにしない。
 別の新規作業や、明示的に承認された配信境界の再設計は、既存Taskを保持したうえでcleanな基準点から
 開始する。既存PR全体を新Taskで覆い直すことや、既存検査の失敗を消すことはこの経路に含めない。
+この運用境界の明記だけで、別PR間のTask置換を機械的に検出できるとは扱わない。
+現在の検査範囲と受入確認は[operations](aidd-checker-operations.md#ship--ci)に従う。
 
 ## Rule / ownership / guardrail
 

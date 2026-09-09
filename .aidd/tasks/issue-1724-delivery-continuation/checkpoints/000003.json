@@ -1,0 +1,175 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "9c94e86e4838bb2a301f1261b9eebeacb86c8118d194f8e3dc8f102ba8fe8e49",
+  "revision": 3,
+  "parent_sha256": "ec919b9c8a69e9216b2d6d8edd9022ce764e0b567f9daaf0eab70f3a58576532",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "9c94e86e4838bb2a301f1261b9eebeacb86c8118d194f8e3dc8f102ba8fe8e49",
+    "reason": "ユーザーの「反映して」により、先のLearn抽出2件（機械検査の限界の過大解釈、文書整合を再発防止の証拠とした完了判断）を既存TaskのDecision・検証へ反映する。Taskとbaseline、開始時binaryと有限ownershipは維持する。旧判断の「機構変更は最小対策ではない」だけで棄却した比較を撤回する。調査対象はStart(task.go)、CheckDelivery(delivery.go)、executionHead(history.go)、Ship(verification.go)、継続・配信・baselineの既存tests。既存Taskの改変は期待hash、元baselineの祖先関係、Git inventory、PR merge-base照合で検出できる。同PRの別Task追加は通常のci-checkが変更Taskを1件に限定する。別PRで新Taskを作り、元Taskをその差分に含めない場合、Specには元Task/元PRの関連を必須化するfieldがなく、CIは呼び出されたPRのbaseしか受け取らないため、今回の入力だけでは同じ作業の再配信か独立した新規作業かを識別できない。これは許可の意味判断とは別の観測入力の不足である。候補比較: (A) 文書だけの追記は既存の矛盾を解消するが自動阻止にはならない。(B) 同PRのID/基準点検査強化だけでは別PRに入力を渡さない経路を防げない。(C) 元Taskと配信先の対応を配信境界で保持・照合する機構は有力だが、記録の所有者・信頼源・別branchでの取得・正当な新規作業との区別が設計上未確定。新台帳や特定CLIを根拠なく採用しない。今回の反映は既存Taskの対策比較と受入確認を修正し、4文書内の機械検査範囲と未対応経路を区別し、PRを文書整合の部分改善として報告する。Issue #1724全体の再発防止完了とは扱わずCloses参照を外す。localからprへの新CLI実装はIssueから必須とは断定せず、現行の継続可能経路と未対応経路を別々に示す。後続で機構変更を採用するには今回未確定の責務と必要入力を設計する必要があり、この反映で新Taskや書込scopeの拡張を行わない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "既存Taskと基準点の固定を守る検査範囲と、別PRへの移し替えの未検出範囲を区別して再発防止を評価する",
+        "origin": "intent",
+        "evidence": "1 PR＝1 Taskと基準点固定を守り、配信のためのTask再作成で制約を回避しない。"
+      },
+      {
+        "id": "FR-2",
+        "text": "正当な追加配信について現行で継続できる経路と未対応の経路を明示する",
+        "origin": "intent",
+        "evidence": "正当な追加配信依頼を扱う経路を明確にする。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "同Taskの改変・基準点不一致を検出する既存Coreと、別PR間の対応入力不足を区別して配信判断する",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "prの同Task継続は検証後配信し、localからprは記録を保持して未対応として扱う",
+          "requirement_id": "FR-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Start、CheckDelivery、executionHead、ShipとSpecを読み、同Task hash・baseline・PR merge-baseの検査と、別PR間に元Taskの対応入力がないことを区別する。元の別PR移し替えを文書変更だけで自動阻止したとは記録しない。既存の基準点・未検証差分拒否testを実行し、実際の判定を確認する。"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "TestSameTaskContinuesAfterCommitAndReviewRevisionとTestLocalTaskCanFinishButCannotShipOrPassPRDeliveryを実行し、prで同Taskの継続が成功することとlocalがfinish可能だがShip/CIで拒否されることを確認する。4文書がこれに一致し、local変更を実装済みとせず、新CLI必須と断定していないことを確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}
