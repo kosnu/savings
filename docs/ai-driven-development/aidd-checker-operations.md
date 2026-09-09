@@ -94,6 +94,9 @@ Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 出力されたtask SHA-256を保持する。正本は`.aidd/tasks/<id>/task.json`。
 Taskは開始時HEAD、全non-ignored baseline、policy/rule-map/profileのbytes、checker hashを固定する。
 既存Taskを上書きせず、baselineを取り直さない。Taskの開始前に実装を持ち込まない。
+既存成果の追加配信では、このcommandを再実行する前に
+[workflowの継続境界](workflow.md#追加配信とtaskの継続)を確認する。
+別IDとcleanなworktreeでtask-startが成功しても、既存Taskの置換が許可されたことにはならない。
 
 ## Decision / checkpoint
 
@@ -190,6 +193,19 @@ product実装が必要なら既存Issueへhandoffして終了する。
 保持でき、最新reviewの追加は要求しない。同じcheckpointの再検証で参照先の証拠が置き換わった
 記録は削除できる。再記録する場合は古い任意記録を削除し、実際に再reviewした内容だけを記録する。
 公開操作とread-backは実行adapterが行う。Core gate成功だけではpush/PR完了ではない。
+
+追加配信時は既存Taskのtask/checkpoint identityと開始時binaryを引き継ぎ、同じbaselineから
+verify、stage、ship-check、commit、配信read-backを行う。基準点不一致などで失敗した場合は
+新Taskで再検査せず、元TaskとPRの境界を確認する。`delivery=local`を`delivery=pr`へ変更するCLIは現行v5にない。
+追加許可を受けた場合もtask.jsonを編集せず、workflowに従って元記録を保持し契約変更を扱う。
+
+配信の受入確認では、文書整合と実際の検出範囲を分ける。同Taskの継続は
+`TestSameTaskContinuesAfterCommitAndReviewRevision`、元baseline以前の差分を隠せないことは
+`TestDeliveryCannotHideEarlierCommits`、localのfinishとShip拒否は
+`TestLocalTaskCanFinishButCannotShipOrPassPRDelivery`で確認できる。
+現在のci-checkは対象PR内のTaskとbaseを照合し、別PRの元Taskとの対応は入力として受け取らない。
+別PRへの成果物の移し替えを防止できたと判断するには、その対応を取得・照合する責務と根拠が必要であり、
+これらの既存testや文書検査の成功だけでは証明できない。許可の意味判断と、対応情報の不足を区別する。
 
 Renovateだけが生成したPRはAIDDのTaskを生成しないため、CIの配信証跡検査の対象外とする。
 GitHub eventのPR作成者loginが`renovate[bot]`と一致し、現在のtarget baseに含まれない全commitが

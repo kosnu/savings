@@ -1,0 +1,155 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "9c94e86e4838bb2a301f1261b9eebeacb86c8118d194f8e3dc8f102ba8fe8e49",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "9c94e86e4838bb2a301f1261b9eebeacb86c8118d194f8e3dc8f102ba8fe8e49",
+    "reason": "入力元はユーザーが対応を依頼したIssue #1724の運用finding。通常の追加Ship依頼で発生し、既存のbaseline固定規則の適用不全としてLearn対象とする。PR #1723のTask learn-pnpm12-lockfile-ship（head 1165457c62002d8dcdb6ed67b0c1f3d4234279a9）のauthorizationはship依頼にagentの独立PR判断を加えている。現行workflowはbaseline固定を要求する一方、意図・権限変更で別task、review policyは完了済みtaskなら新Developmentと記載し、追加配信との境界が曖昧。Startはcleanと同名Taskの非存在を、CheckDeliveryは指定PR内のTaskとmerge-baseを検査するが、別branchへ移した成果物と人間の許可の意味は判定できない。対策を比較: 新たな横断Task台帳やdelivery変更CLIは契約・互換性の拡張を要し、このfindingに対する最小対策ではない。既存CI緩和は不変条件に反する。主分類は既存ルールのsharp化とし、配信判断を所有するworkflowを正本に、operations・Codex adapter・review policyの継続経路を同期する。元Taskを保持し、未対応delivery変更は停止し具体的な契約変更を確認する。新Taskを作れば成功するという代替経路は示さない。機械検査が人間の許可を証明できない限界は維持する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Taskと基準点の固定を維持して正当な追加配信を扱う",
+        "origin": "intent",
+        "evidence": "1 PR＝1 Taskと基準点固定を守り、配信のためのTask再作成で制約を回避しない。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "追加Ship依頼を既存Taskの継続として処理し、契約変更が必要なら元記録と失敗を保持して停止する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "delivery=prの追加Shipと同PR review修正が同Taskで継続すること、localからprへの未対応変更とbaseline不一致で元記録を保持して停止すること、別配信境界の明示許可と技術的前提を区別することを4文書とStart/Ship/CheckDelivery実装で照合する。原因・対策比較・所有責務を確認し、開始時checker check-allの成功とPR配信のread-backを確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

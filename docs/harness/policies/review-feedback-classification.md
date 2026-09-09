@@ -35,7 +35,7 @@ agentによる読込・適用、checkerで機械検出可能な違反の検出�
 
 | 原因評価の結果 | 対応 |
 | --- | --- |
-| purely local defect（再利用可能な制御不全なしと確認） | 同じDevelopment / Decision内で修正・再検証する。完了済みtaskなら既存Issueから新Developmentを開始する |
+| purely local defect（再利用可能な制御不全なしと確認） | 同じPRの修正は完了表示にかかわらず同じTaskで修正・再検証する。別の新規作業は既存Issueと新しい作業境界を確認して開始する |
 | reusable / guardrail failure（症状がlocal defectの場合を含む） | 今回のproduct修正だけで閉じず、独立Learnへ渡す。guardrailの更新・検証・確定でLearnを終了し、必要なら既存Issueから新Developmentへ渡す |
 | 原因未確定 | 不足する根拠・判断を明示し、原因と再利用性を評価してから対応を確定する |
 
@@ -43,6 +43,8 @@ requirement gapは人間の意図・受け入れ条件を確認し、必要な�
 再利用可能な制御不全がない場合、design issueは同じ意図と権限内でdecisionを改訂して再検証し、
 delivery defectは許可されたShip範囲で対応します。症状の分類にかかわらず制御不全がある場合は
 独立Learnへの分岐を優先し、guardrail変更に依存するDevelopmentを中断します。
+独立Learnの必要性は、既存成果を別Task・別PRへ配信する許可ではありません。
+追加配信と新規作業の判定は[workflowの継続境界](../../ai-driven-development/workflow.md#追加配信とtaskの継続)に従います。
 
 例えばcomponent配置違反では、移動による局所修正とは別に、policyの不足、routingによる未適用、
 検出可能な違反のchecker検出漏れ、guidanceの不足を評価します。制御不全が確認された場合は
