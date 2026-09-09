@@ -44,7 +44,7 @@ Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明
 
 委任された意図・受け入れ条件・制約・権限内では、repositoryの根拠とguardrailを使って
 技術選択、設計の具体化、必要な検証と修正を進める。技術詳細の未記載、複数の実装案、
-DB/API変更や新規依存の必要性だけを停止理由にしない。既存仕様の変更が依頼の目的である場合は、
+技術構成の変更や新規依存の必要性だけを停止理由にしない。既存仕様の変更が依頼の目的である場合は、
 その変更自体を矛盾と扱わず、維持すべき仕様・互換性・guardrailとの整合を確認する。
 重要な採用判断と根拠はDecisionへ記録し、通常の技術判断ごとに承認を求めない。
 
@@ -116,21 +116,8 @@ checker・adapter等の保護対象を開始時に固定する。新しいpath�
 実装を成立させるためにruleを緩和したり、改訂で保護を解除してはいけない。
 guardrail変更が必要ならDevelopmentを中断し、独立したLearnへ渡す。
 
-混在JSON設定は開始時policyのproduct_fields（JSON Pointer）だけをDevelopmentで変更でき、
-guard_fieldsはそのsubtree内でも優先保護する。Learnは逆にproduct fieldを保持する。
-ファイルの追加・削除・mode変更、未宣言fieldはproduct変更へ読み替えない。
-packageの検証script・tool依存を保護し、build/dev scriptとproduct依存を区別する。
-Vite設定は独立したvitest.configから参照されていないproduct build設定として扱う。
-pnpm lockfile v9はimporterと解決済みpackage/snapshotの推移依存を照合する。Developmentは
-検証toolの解決実体・lockfile共通設定を保持し、Learnはproductの解決実体を保持する。
-packageのpeer宣言があり、相手側rootとpeer構成を含む解決versionが一致する参照だけを相手側で検査する。両方が共有する推移依存の実体変更は
-一方だけの変更として通さない。保護対象root・依存edge・snapshotのidentityはpeer構成を含めて保持し、
-同じpackage/versionのvariantを親やimporter間で入れ替えても同一扱いしない。
-同じimporter/section/nameの反対側root更新に一意に対応するpeer構成の変更だけを許可する。
-この対応は保護対象のpackage自身のversionや通常共有依存を変更する許可ではない。対応が分岐・削除されるpeer参照の改名や、
-異なる依存内容へのsnapshot衝突は失敗させる。未知の形式・参照欠落は失敗させる。
-local/file依存の実体検査は未対応で、保護対象closureに含む場合は拒否する。
-新しいtoolの分類はpolicy判断であり、依存名から意味を推測して保護を解除しない。
+同じ設定や依存関係にproductとguardrailが混在する場合も、各Taskで保護する対象を保持する。
+形式ごとの変更許可と検査境界は[checkerの設定・依存関係の保護](aidd-checker.md#設定依存関係の保護)に従う。
 
 ## Review / Learn
 
