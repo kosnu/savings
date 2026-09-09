@@ -1,0 +1,153 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "e8cfd267705de312f6faac42b4e9044273246506fb1d7a50db07fa39d8387908",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "e8cfd267705de312f6faac42b4e9044273246506fb1d7a50db07fa39d8387908",
+    "reason": "ユーザー指定の文書責務混在を対象とする。通常の文書更新経路でdocumentation.policyの責務分離が適用されず、workflowにcheckerの設定形式・依存closure検査が集約されている。既存のaidd-checker.mdは検査境界の正本だがworkflowを逆参照している。新規policyやchecker変更より、既存checker文書への段落移動と参照更新が意味・保護範囲を維持する最小の対策。分類は既存ルールのsharp化。AIDD自身の契約・schema境界はworkflowの責務として保持する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "技術固有詳細を適切な正本へ分離し、既存ルール・到達性・共通契約を維持して重複矛盾を残さない",
+        "origin": "intent",
+        "evidence": "- workflow.md 全体を確認し、特定の技術・領域・機能に依存する記述が分離されている。\n- 維持すべきルールは適切な正本文書に保持され、必要な参照から辿れる。\n- workflow.md には共通の実行契約、責務、判断境界が残り、移動先との重複や矛盾がない。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "workflowは共通契約と参照を持ち、checker文書に既存設定検査ルールが意味を変えず保持される",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "workflow全文を読み技術固有の設定検査詳細が残っていないことを確認する"
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "元baselineの移動段落と移動先を逐語比較しリンク到達性を確認する"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "共通契約の差分と移動先の逆参照更新をレビューし重複矛盾を確認する"
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}
