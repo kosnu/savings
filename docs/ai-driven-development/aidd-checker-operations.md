@@ -196,7 +196,7 @@ product実装が必要なら既存Issueへhandoffして終了する。
 
 追加配信時は既存Taskのtask/checkpoint identityと開始時binaryを引き継ぎ、同じbaselineから
 verify、stage、ship-check、commit、配信read-backを行う。基準点不一致などで失敗した場合は
-新Taskで再検査せず、元TaskとPRの境界を確認する。`delivery=local`をprへ変更するCLIは現行v5にない。
+新Taskで再検査せず、元TaskとPRの境界を確認する。`delivery=local`を`delivery=pr`へ変更するCLIは現行v5にない。
 追加許可を受けた場合もtask.jsonを編集せず、workflowに従って元記録を保持し契約変更を扱う。
 
 配信の受入確認では、文書整合と実際の検出範囲を分ける。同Taskの継続は
