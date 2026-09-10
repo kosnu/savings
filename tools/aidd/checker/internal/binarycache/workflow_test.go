@@ -95,7 +95,7 @@ func TestCIBuildsBaseWithoutCandidateCaches(t *testing.T) {
 		t.Fatal(err)
 	}
 	script := ""
-	for _, step := range workflow.Jobs["verify"].Steps {
+	for _, step := range workflow.Jobs["base"].Steps {
 		if step.Name == "Verify delivery with the base protocol" {
 			script = step.Run
 		}
@@ -254,23 +254,24 @@ func TestCIIsolatesBaseJobAndToolchain(t *testing.T) {
 	}
 	var workflow struct {
 		Jobs map[string]struct {
-			RunsOn    string `yaml:"runs-on"`
-			Needs, If string
-			Steps     []step
+			RunsOn string `yaml:"runs-on"`
+			Needs  any
+			If     string
+			Steps  []step
 		}
 	}
 	if err := yaml.Unmarshal(data, &workflow); err != nil {
 		t.Fatal(err)
 	}
-	base, candidate := workflow.Jobs["verify"], workflow.Jobs["candidate"]
+	base, candidate := workflow.Jobs["base"], workflow.Jobs["candidate"]
 	if base.RunsOn != "ubuntu-latest" || candidate.RunsOn != "ubuntu-latest" {
 		t.Fatal("verification requires separate hosted runners")
 	}
 	if base.Needs != "candidate" || base.If != "always()" {
 		t.Fatal("required verify job must observe candidate failures")
 	}
-	if len(base.Steps) != 6 {
-		t.Fatal("base job must contain only candidate status, checkout, detection, setup, fetch and trusted delivery")
+	if len(base.Steps) != 7 {
+		t.Fatal("base job must contain candidate status, checkout, detection, setup, fetch, trusted delivery and migration preflight")
 	}
 	if base.Steps[0].Run != `test "$CANDIDATE_RESULT" = success` || base.Steps[4].Run != `git fetch --no-tags origin "$PR_HEAD_SHA"` {
 		t.Fatal("candidate success and fork head fetch must be retained")
