@@ -203,6 +203,9 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 		t.Fatal(e)
 	}
 	final, base, approved, candidate := w.Jobs["verify"], w.Jobs["base"], w.Jobs["migration"], w.Jobs["candidate"]
+	if !strings.Contains(fmt.Sprint(final.Needs), "integration") || final.Steps[0].Env["INTEGRATION_RESULT"] != "${{ needs.integration.result }}" {
+		t.Fatal("final gate must depend on merge result validation")
+	}
 	if final.If != "always()" || approved.Environment.Name != Environment || !strings.Contains(approved.Environment.URL, "pull_request.head.sha") {
 		t.Fatal("final gate or commit review URL missing")
 	}
@@ -239,14 +242,98 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 		{"bootstrap", "success", "success", "skipped", "false", "skipped", true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			c := exec.Command("bash", "-c", final.Steps[0].Run)
-			c.Env = append(os.Environ(), "BASE_RESULT="+tc.b, "CANDIDATE_RESULT="+tc.c, "DELIVERY_RESULT="+tc.d, "BASE_PROTOCOL="+tc.p, "MIGRATION_RESULT="+tc.m)
-			err := c.Run()
-			if (err == nil) != tc.pass {
-				t.Fatalf("pass=%v: %v", tc.pass, err)
+			for _, integration := range []string{"success", "failure", "cancelled", "skipped", ""} {
+				c := exec.Command("bash", "-c", final.Steps[0].Run)
+				c.Env = append(os.Environ(), "BASE_RESULT="+tc.b, "CANDIDATE_RESULT="+tc.c, "DELIVERY_RESULT="+tc.d, "BASE_PROTOCOL="+tc.p, "MIGRATION_RESULT="+tc.m, "INTEGRATION_RESULT="+integration)
+				err := c.Run()
+				if (err == nil) != (tc.pass && integration == "success") {
+					t.Fatalf("integration=%q pass=%v: %v", integration, tc.pass, err)
+				}
 			}
 		})
 	}
+}
+
+func TestWorkflowRejectsMergeOnlyBuildFailure(t *testing.T) {
+	data, err := os.ReadFile("../../../../../.github/workflows/aidd_checker_ci.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var workflow struct {
+		Jobs map[string]struct {
+			If    string
+			Steps []struct {
+				Uses, Run, If string
+				With          map[string]string
+				Directory     string `yaml:"working-directory"`
+			}
+		}
+	}
+	if err := yaml.Unmarshal(data, &workflow); err != nil {
+		t.Fatal(err)
+	}
+	job := workflow.Jobs["integration"]
+	if len(job.Steps) != 3 || job.If != "" || !strings.HasPrefix(job.Steps[0].Uses, "actions/checkout@") || job.Steps[0].With["ref"] != "" || job.Steps[0].If != "" {
+		t.Fatal("integration must always checkout the PR merge result")
+	}
+	setup, test := job.Steps[1], job.Steps[2]
+	if !strings.HasPrefix(setup.Uses, "actions/setup-go@") || setup.With["go-version-file"] != "tools/aidd/checker/go.mod" || test.Run != "go test ./..." || test.Directory != "tools/aidd/checker" || test.If != "" {
+		t.Fatal("merge result must run the checker test suite with its Go version")
+	}
+	root := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		c := exec.Command("git", args...)
+		c.Dir = root
+		out, err := c.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %s: %v", args, out, err)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	dir := filepath.Join(root, test.Directory)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	put := func(name, content string) {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	check := func(pass bool) {
+		t.Helper()
+		c := exec.Command("bash", "-c", test.Run)
+		c.Dir = dir
+		c.Env = append(os.Environ(), "GOWORK=off", "GOFLAGS=")
+		out, err := c.CombinedOutput()
+		if (err == nil) != pass {
+			t.Fatalf("pass=%v: %s: %v", pass, out, err)
+		}
+		if !pass && !strings.Contains(string(out), "not enough arguments") {
+			t.Fatalf("unexpected failure: %s", out)
+		}
+	}
+	git("init", "-q")
+	git("config", "user.email", "test@example.com")
+	git("config", "user.name", "test")
+	put("go.mod", "module example.com/mergefixture\n\ngo 1.24\n")
+	put("value.go", "package fixture\nfunc Value() int { return 1 }\n")
+	git("add", ".")
+	git("commit", "-qm", "baseline")
+	ancestor := git("rev-parse", "HEAD")
+	git("checkout", "-qb", "candidate")
+	put("value.go", "package fixture\nfunc Value(n int) int { return n }\n")
+	git("commit", "-qam", "candidate signature")
+	check(true)
+	git("checkout", "-qb", "target", ancestor)
+	put("consumer.go", "package fixture\nfunc Current() int { return Value() }\n")
+	git("add", ".")
+	git("commit", "-qm", "base caller")
+	check(true)
+	// Gitの競合なしでも統合したコードは壊れるため、head単独の成功では代替できない。
+	git("merge", "--no-edit", "candidate")
+	check(false)
 }
 
 func TestRequestParsing(t *testing.T) {
