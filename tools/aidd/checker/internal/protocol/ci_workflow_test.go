@@ -24,7 +24,7 @@ func TestCISelectsTrustFromCurrentTargetBase(t *testing.T) {
 	}
 	must(t, yaml.Unmarshal(data, &workflow))
 	var script string
-	for _, step := range workflow.Jobs["verify"].Steps {
+	for _, step := range workflow.Jobs["base"].Steps {
 		if step.Name == "Verify delivery with the base protocol" {
 			script = step.Run
 			if step.Env["PR_AUTHOR_LOGIN"] != "${{ github.event.pull_request.user.login }}" {
