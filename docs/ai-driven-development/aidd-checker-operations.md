@@ -240,6 +240,66 @@ manifestから除外するのはbootstrapとverificationの記録JSONだけで�
 reviewerの真正性はLearnと同じ運用境界で扱う。
 この初回を既存v5基準による検証済みとは報告しない。v5導入後はtask欠落を成功扱いにしない。
 
+
+## 非互換なchecker契約の移行
+
+通常のPRはbase checkerの`ci-check`を通す。base checkerの契約と非互換な変更だけは、
+以下の明示的な移行経路を使える。単なる検証失敗やcandidate成功だけでは切り替えない。
+
+1. 元のTask・baseline・開始時checkerを保持し、非互換になる契約と理由を特定する。
+2. PR本文に下記の専用JSON blockを1件記載する。現在のbase/head SHA、元のTask IDと移行理由を記録する。
+   Taskの固定ownershipを拡張するための新規fileやTask再作成は不要。本文の編集は新しいCI runを起動する。
+3. candidateのGo全テスト・check-all・candidate版ci-checkを通す。
+4. baseのci-checkが失敗した場合だけ、baseからbuildした`aidd-migration`が差分と承認設定を検査する。
+5. GitHub Actionsの`migration` jobが承認待ちになる。指定reviewerがbase検証の失敗理由、
+   移行理由、candidateの結果、Environmentのリンク先の全差分を確認して承認する。
+6. 承認後もbase側の検査を再実行し、実runの承認者・Environment・現在のPR base/headを確認する。
+   required check名`verify`は通常検証成功またはこの移行成功だけを受け入れる。
+
+PR本文の申請形式は次のとおり。`reason`は、廃止・変更する契約、base checkerが受け入れない理由、
+新しい契約で維持・置換する保証を具体的に記す。本文の申請は承認そのものではない。
+
+````markdown
+```aidd-contract-migration
+{
+  "schema_version": 1,
+  "kind": "aidd_contract_migration",
+  "target_base_sha": "現在のPR baseの完全40桁commit SHA",
+  "head_sha": "現在のPR headの完全40桁commit SHA",
+  "task_id": "元のtask-id",
+  "reason": "非互換となる契約と新しい保証の説明"
+}
+```
+````
+
+移行差分は`tools/aidd/`、`docs/ai-driven-development/`、`docs/harness/`、`docs/adr/`、
+AIDDの4つのskill（aidd-cycle、learn、harness-task、goal-setting）、`aidd_checker_ci.yaml`と
+指定した1件のTask記録に限定する。checkerまたはcontract変更を必須とし、
+product、混在package設定、他のCI、別Taskの変更、symlink/submoduleは拒否する。
+baseに保存済みのTask開始記録を置換してはいけない。未対応の変更面が必要な場合は、
+通常経路で移行検査を先行拡張してから使う。候補のTask schemaの意味検査は候補checkerが担い、
+旧checkerの受入条件から離れる判断は人が全差分を確認して担う。
+
+Environment `aidd-contract-migration`には名前を指定した人のrequired reviewerを設定する。
+個人repositoryでは所有者自身を指定でき、self review禁止は必須にしない。管理者のbypassは無効にする。
+secretは登録しない。Environment不在、required reviewer不在、API取得失敗、実承認の欠落は失敗とする。
+承認APIはread-onlyで照会し、agentが人に代わって承認しない。
+[GitHub Environmentの保護](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)と
+[runの承認履歴API](https://docs.github.com/en/rest/actions/workflow-runs#get-the-review-history-for-a-workflow-run)を使う。
+team reviewerはこの実装では未対応で、個人reviewerを少なくとも1人指定する。
+
+追加commitは新しいrunになり再検証・再承認を必要とする。古いrunは同じPRのconcurrencyでcancelし、
+現在のheadとの一致検査でも拒否する。baseが変わった場合も申請と全検証を更新する。
+申請後の本文変更も新runを起動し、実行eventの本文と現在本文の不一致を承認後にも拒否する。
+同一commit/runの再実行はGitHubに保存された同じ承認を参照できるが、base/head/本文の不一致は許容しない。
+同じSHAに対する通常の再実行と、新しい内容への承認流用を区別する。
+
+この仕組みの初回導入PRは通常のbase checker検証で配信する。移行用commandがまだbaseにない状態では
+移行へfallbackしない。導入後、既存の非互換PRは元Taskとbaselineを保持して使う。検査は現在のbaseソースを取得し、
+差分はPR merge-baseからheadを照合する。移行経路を使うためだけにbaseをbranchへmergeする必要はない。
+競合修正が必要なら元Task内で修正・全差分再検証し、baseline不一致などの失敗を隠さない。
+この移行はCIの契約更新に限る。開始時checkerのローカル検証を成功と偽ったり、元Taskを作り直したりする許可ではない。
+
 ## Repository verification
 
 具体的な必須commandは次のとおり。

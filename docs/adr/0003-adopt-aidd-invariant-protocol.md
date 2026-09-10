@@ -93,3 +93,11 @@ finish/Ship/CIではLearnのreview記録を要求しない。初回bootstrapのr
 finishは最新証拠、Shipは追加でindex、CIはGit転送とbaselineを検査する。
 開始時checkerの固定、明示許可、finite scope、policy/profile、証拠同一性などの安全条件は維持する。
 旧binaryの固定を解除する移行は本変更に含めない。
+
+## Clarification: Incompatible checker contract migration (2026-09-11)
+
+通常PRのbase checkerによる検証を維持し、checker契約自身の非互換変更には明示的な移行経路を設ける。
+候補のテスト・ci-check、base所有の限定差分検査、対象runとcommitに結合したGitHub Environmentの
+人による承認をすべて要求する。candidate成功だけを旧契約の置換権限とはしない。
+元Task、baseline、開始時checkerの記録は保持し、product変更をこの経路へ混在させない。
+これは通常Learnの独立review再導入ではなく、CIが使用する契約を変更する場合の承認境界である。
