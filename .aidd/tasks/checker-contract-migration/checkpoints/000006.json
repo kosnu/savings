@@ -1,0 +1,297 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "fc8dd5509399d2a0d934e868a51eb1699d564b8534c56a87544ee42e305aa7e7",
+  "revision": 6,
+  "parent_sha256": "91de0d252d177563d171c203b4f5569001eed00a6834849a388a3e689e5ac02e",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "fc8dd5509399d2a0d934e868a51eb1699d564b8534c56a87544ee42e305aa7e7",
+    "reason": "未解決review discussion_r3981584699およびユーザーの反映・コミット前レビュー依頼に基づき継続。integration jobに従来merge-refで行ったmod verify・gofmt・vet・test・build・check-allを全て適用する。回帰testは各commandと実行directory、条件付きskip・continue-on-errorによる迂回、最終gateへの接続を確認する。コミット前に全差分・通常/移行/失敗経路をメインagentがreviewし、問題があれば修正・再検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "古いcheckerとの非互換変更を安全に移行できるCI経路を実装する",
+        "origin": "intent",
+        "evidence": "checkerの契約変更でも今後使える移行経路を作る。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "通常PRはbase checkerで検証し、PR本文で明示されたAIDD契約移行だけはbase所有scope検査・候補検証・対象runとcommitに結び付いた人のGitHub承認が揃う場合に成功する。PRの統合結果もmod verify・gofmt・vet・test・build・check-allの全てを通過しなければ最終成功にしない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "通常検証の信頼境界、移行差分制限、承認のSHA結合、workflow分岐、文書整合をreviewし、GitHub Environment設定をread-backする。承認・mergeは代行しない。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-migration",
+          "kind": "tree"
+        },
+        {
+          "path": "tools/aidd/checker/internal/binarycache/workflow_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration",
+          "kind": "tree"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/cmd/aidd-migration/main.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/binarycache/workflow_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/migration/migration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ]
+}
