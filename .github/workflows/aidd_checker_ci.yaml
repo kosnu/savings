@@ -2,16 +2,27 @@ name: AIDD Checker CI
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
+  actions: read
+  deployments: read
+  pull-requests: read
+
+concurrency:
+  group: aidd-checker-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
-  verify:
+  base:
     needs: candidate
     if: always()
     runs-on: ubuntu-latest
+    outputs:
+      delivery: ${{ steps.delivery.outputs.ci_check || steps.delivery.outcome }}
+      protocol: ${{ steps.base-protocol.outputs.present }}
+      migration: ${{ steps.migration.outcome }}
     steps:
       - name: Require candidate success
         env:
@@ -50,6 +61,7 @@ jobs:
         run: git fetch --no-tags origin "$PR_HEAD_SHA"
 
       - name: Verify delivery with the base protocol
+        id: delivery
         if: steps.base-protocol.outputs.present == 'true'
         env: &delivery-env
           GH_TOKEN: ${{ github.token }}
@@ -103,11 +115,130 @@ jobs:
               GOCACHE="$trusted_dir/go-build-cache" GOMODCACHE="$trusted_dir/go-module-cache" \
               go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-checker" ./cmd/aidd-checker
             git checkout --detach "$PR_HEAD_SHA"
-            "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
+            if ! "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"; then
+              echo "ci_check=failure" >> "$GITHUB_OUTPUT"
+            fi
           else
             git checkout --detach "$PR_HEAD_SHA"
             /tmp/aidd-checker bootstrap-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline" --target-base "$PR_BASE_SHA"
           fi
+
+      - name: Check migration eligibility with base source
+        id: migration
+        if: steps.delivery.outputs.ci_check == 'failure'
+        env: &migration-env
+          GH_TOKEN: ${{ github.token }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: &migration-script |
+          set -euo pipefail
+          trusted_dir=$(mktemp -d)
+          git archive "$PR_BASE_SHA" tools/aidd/checker | tar -x -C "$trusted_dir"
+          env GOENV=off GOWORK=off GOFLAGS= GOTOOLCHAIN=local \
+            GOCACHE="$trusted_dir/go-build-cache" GOMODCACHE="$trusted_dir/go-module-cache" \
+            go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-migration" ./cmd/aidd-migration
+          "$trusted_dir/aidd-migration" ${MIGRATION_APPROVED:+--approved}
+
+  migration:
+    needs: [base, candidate]
+    if: >-
+      always() && needs.base.result == 'success' && needs.candidate.result == 'success' &&
+      needs.base.outputs.delivery == 'failure' && needs.base.outputs.migration == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: aidd-contract-migration
+      url: https://github.com/${{ github.repository }}/compare/${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout base repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Setup base Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/aidd/checker/go.mod
+          cache: false
+      - name: Fetch candidate commit
+        env: *migration-env
+        run: git fetch --no-tags origin "$PR_HEAD_SHA"
+      - name: Verify approved migration with base source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MIGRATION_APPROVED: 'true'
+        shell: bash
+        run: *migration-script
+
+  verify:
+    needs: [base, candidate, migration, integration]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require normal delivery or approved migration
+        env:
+          BASE_RESULT: ${{ needs.base.result }}
+          CANDIDATE_RESULT: ${{ needs.candidate.result }}
+          DELIVERY_RESULT: ${{ needs.base.outputs.delivery }}
+          BASE_PROTOCOL: ${{ needs.base.outputs.protocol }}
+          MIGRATION_RESULT: ${{ needs.migration.result }}
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$BASE_RESULT" = success
+          test "$CANDIDATE_RESULT" = success
+          test "$INTEGRATION_RESULT" = success
+          if [[ "$DELIVERY_RESULT" == success || "$BASE_PROTOCOL" == false ]]; then
+            exit 0
+          fi
+          test "$DELIVERY_RESULT" = failure
+          test "$MIGRATION_RESULT" = success
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout merge result
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/aidd/checker/go.mod
+          cache-dependency-path: tools/aidd/checker/go.sum
+
+      - name: Verify Go modules
+        run: go mod verify
+        working-directory: tools/aidd/checker
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+        working-directory: tools/aidd/checker
+
+      - name: Vet
+        run: go vet ./...
+        working-directory: tools/aidd/checker
+
+      - name: Test merge result
+        run: go test ./...
+        working-directory: tools/aidd/checker
+
+      - name: Build current source
+        run: go build -o /tmp/aidd-checker ./cmd/aidd-checker
+        working-directory: tools/aidd/checker
+
+      - name: Check repository artifacts
+        run: /tmp/aidd-checker check-all --repo-root .
 
   candidate:
     runs-on: ubuntu-latest
@@ -115,6 +246,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
           fetch-depth: 0
 
@@ -164,3 +296,16 @@ jobs:
         env: *delivery-env
         shell: bash
         run: *delivery-script
+
+      - name: Verify candidate delivery for contract migration
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$PR_BODY" == *'```aidd-contract-migration'* ]]; then
+            baseline=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
+            /tmp/aidd-checker ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
+          fi

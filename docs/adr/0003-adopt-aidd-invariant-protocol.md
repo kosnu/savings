@@ -84,3 +84,12 @@ Learnの独立review必須条件は、不要なsubagent呼び出しとトーク�
 担当agent自身が最新差分と検証証拠をreviewし、ユーザーの明示依頼がある場合だけ別agentへ委譲する。
 開始時checker、旧policy/profile、明示された変更許可、scopeと証拠同一性の検査は維持する。
 finish/Ship/CIではLearnのreview記録を要求しない。初回bootstrapのreview契約は変更しない。
+
+
+## Clarification: Incompatible checker contract migration (2026-09-11)
+
+通常PRのbase checkerによる検証を維持し、checker契約自身の非互換変更には明示的な移行経路を設ける。
+候補のテスト・ci-check、base所有の限定差分検査、対象runとcommitに結合したGitHub Environmentの
+人による承認をすべて要求する。candidate成功だけを旧契約の置換権限とはしない。
+元Task、baseline、開始時checkerの記録は保持し、product変更をこの経路へ混在させない。
+これは通常Learnの独立review再導入ではなく、CIが使用する契約を変更する場合の承認境界である。
