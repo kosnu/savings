@@ -259,18 +259,20 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 	}
 }
 
-func TestWorkflowRejectsMergeOnlyBuildFailure(t *testing.T) {
+func TestWorkflowValidatesMergeResultAndRejectsBuildFailure(t *testing.T) {
 	data, err := os.ReadFile("../../../../../.github/workflows/aidd_checker_ci.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
 	var workflow struct {
 		Jobs map[string]struct {
-			If    string
-			Steps []struct {
-				Uses, Run, If string
-				With          map[string]string
-				Directory     string `yaml:"working-directory"`
+			If              string
+			ContinueOnError bool `yaml:"continue-on-error"`
+			Steps           []struct {
+				Uses, Run, If   string
+				With            map[string]string
+				Directory       string `yaml:"working-directory"`
+				ContinueOnError bool   `yaml:"continue-on-error"`
 			}
 		}
 	}
@@ -278,12 +280,30 @@ func TestWorkflowRejectsMergeOnlyBuildFailure(t *testing.T) {
 		t.Fatal(err)
 	}
 	job := workflow.Jobs["integration"]
-	if len(job.Steps) != 3 || job.If != "" || !strings.HasPrefix(job.Steps[0].Uses, "actions/checkout@") || job.Steps[0].With["ref"] != "" || job.Steps[0].If != "" {
+	if len(job.Steps) != 8 || job.If != "" || job.ContinueOnError || !strings.HasPrefix(job.Steps[0].Uses, "actions/checkout@") || job.Steps[0].With["ref"] != "" || job.Steps[0].With["fetch-depth"] != "0" {
 		t.Fatal("integration must always checkout the PR merge result")
 	}
-	setup, test := job.Steps[1], job.Steps[2]
-	if !strings.HasPrefix(setup.Uses, "actions/setup-go@") || setup.With["go-version-file"] != "tools/aidd/checker/go.mod" || test.Run != "go test ./..." || test.Directory != "tools/aidd/checker" || test.If != "" {
-		t.Fatal("merge result must run the checker test suite with its Go version")
+	for _, step := range job.Steps {
+		if step.If != "" || step.ContinueOnError {
+			t.Fatal("integration steps must not skip checks or ignore failures")
+		}
+	}
+	setup, test := job.Steps[1], job.Steps[5]
+	if !strings.HasPrefix(setup.Uses, "actions/setup-go@") || setup.With["go-version-file"] != "tools/aidd/checker/go.mod" {
+		t.Fatal("merge result must use its own Go version")
+	}
+	for i, want := range []struct{ run, dir string }{
+		{"go mod verify", "tools/aidd/checker"},
+		{`test -z "$(gofmt -l .)"`, "tools/aidd/checker"},
+		{"go vet ./...", "tools/aidd/checker"},
+		{"go test ./...", "tools/aidd/checker"},
+		{"go build -o /tmp/aidd-checker ./cmd/aidd-checker", "tools/aidd/checker"},
+		{"/tmp/aidd-checker check-all --repo-root .", ""},
+	} {
+		step := job.Steps[i+2]
+		if step.Run != want.run || step.Directory != want.dir {
+			t.Fatalf("integration check %d must run %q in %q", i, want.run, want.dir)
+		}
 	}
 	root := t.TempDir()
 	git := func(args ...string) string {
