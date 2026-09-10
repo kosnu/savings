@@ -177,7 +177,7 @@ jobs:
         run: *migration-script
 
   verify:
-    needs: [base, candidate, migration]
+    needs: [base, candidate, migration, integration]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -188,16 +188,36 @@ jobs:
           DELIVERY_RESULT: ${{ needs.base.outputs.delivery }}
           BASE_PROTOCOL: ${{ needs.base.outputs.protocol }}
           MIGRATION_RESULT: ${{ needs.migration.result }}
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
         shell: bash
         run: |
           set -euo pipefail
           test "$BASE_RESULT" = success
           test "$CANDIDATE_RESULT" = success
+          test "$INTEGRATION_RESULT" = success
           if [[ "$DELIVERY_RESULT" == success || "$BASE_PROTOCOL" == false ]]; then
             exit 0
           fi
           test "$DELIVERY_RESULT" = failure
           test "$MIGRATION_RESULT" = success
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout merge result
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/aidd/checker/go.mod
+          cache-dependency-path: tools/aidd/checker/go.sum
+
+      - name: Test merge result
+        run: go test ./...
+        working-directory: tools/aidd/checker
 
   candidate:
     runs-on: ubuntu-latest
