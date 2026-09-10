@@ -25,7 +25,8 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 		{"other-task", ".aidd/tasks/other/task.json", true},
 		{"unrelated-workflow", ".github/workflows/deploy.yaml", true},
 		{"docs-only", "docs/harness/policies/a.md", true},
-		{"missing-manifest", "tools/aidd/checker/main.go", true},
+		{"advanced-base", "tools/aidd/checker/main.go", false},
+		{"stale-head", "tools/aidd/checker/main.go", true},
 		{"stale-base", "tools/aidd/checker/main.go", true},
 		{"symlink", "tools/aidd/checker/main.go", true},
 		{"missing-task", "tools/aidd/checker/main.go", true},
@@ -69,10 +70,6 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 			if tc.name == "stale-base" {
 				target = strings.Repeat("a", 40)
 			}
-			manifest := fmt.Sprintf(`{"schema_version":1,"kind":"aidd_contract_migration","target_base_sha":%q,"task_id":"change","reason":"remove old contract"}`, target)
-			if tc.name != "missing-manifest" {
-				put(ManifestPath, manifest)
-			}
 			if tc.name != "missing-task" {
 				put(".aidd/tasks/change/task.json", "new task")
 			}
@@ -91,7 +88,20 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 			head := git("rev-parse", "HEAD")
 			// 作業treeのcandidateを書き換えてもGitで固定された差分だけを読む。
 			put("not-in-commit", "untrusted")
-			_, e := CheckScope(context.Background(), root, base, head)
+			if tc.name == "advanced-base" {
+				git("checkout", "-qb", "target", base)
+				put("tools/aidd/new-base.go", "base-only addition")
+				put(".aidd/tasks/base-update/task.json", "separate base task")
+				git("add", ".")
+				git("commit", "-qm", "base evolves")
+				base = git("rev-parse", "HEAD")
+				target = base
+			}
+			requestedHead := head
+			if tc.name == "stale-head" {
+				requestedHead = base
+			}
+			e := CheckScope(context.Background(), root, base, head, Request{SchemaVersion: 1, Kind: "aidd_contract_migration", TargetBase: target, HeadSHA: requestedHead, TaskID: "change", Reason: "remove old contract"})
 			if (e != nil) != tc.reject {
 				t.Fatalf("reject=%v: %v", tc.reject, e)
 			}
@@ -101,13 +111,15 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 
 func TestApprovalBindsHumanReviewToCurrentPRAndRun(t *testing.T) {
 	base, head := strings.Repeat("a", 40), strings.Repeat("b", 40)
-	for _, name := range []string{"approved", "preflight", "missing-review", "bot-review", "unlisted-reviewer", "wrong-environment", "rejected", "new-head", "new-base", "wrong-run-head", "wrong-event", "unprotected", "admin-bypass", "missing-bypass-setting", "missing-env", "api-error", "closed-pr"} {
+	for _, name := range []string{"approved", "preflight", "missing-review", "bot-review", "unlisted-reviewer", "wrong-environment", "rejected", "new-head", "new-base", "edited-body", "wrong-run-head", "wrong-event", "unprotected", "admin-bypass", "missing-bypass-setting", "missing-env", "api-error", "closed-pr"} {
 		t.Run(name, func(t *testing.T) {
-			pull := map[string]any{"state": "open", "base": map[string]any{"sha": base}, "head": map[string]any{"sha": head}}
+			pull := map[string]any{"state": "open", "body": "event body", "base": map[string]any{"sha": base}, "head": map[string]any{"sha": head}}
 			env := map[string]any{"id": 7, "name": Environment, "can_admins_bypass": false, "protection_rules": []any{map[string]any{"type": "required_reviewers", "reviewers": []any{map[string]any{"type": "User", "reviewer": map[string]any{"id": 8, "type": "User"}}}}}}
 			run := map[string]any{"event": "pull_request", "head_sha": head}
 			review := map[string]any{"state": "approved", "user": map[string]any{"id": 8, "type": "User"}, "environments": []any{map[string]any{"id": 7, "name": Environment}}}
 			switch name {
+			case "edited-body":
+				pull["body"] = "edited after approval"
 			case "new-head":
 				pull["head"] = map[string]string{"sha": base}
 			case "new-base":
@@ -161,7 +173,7 @@ func TestApprovalBindsHumanReviewToCurrentPRAndRun(t *testing.T) {
 				}
 				return json.Unmarshal(b, dst)
 			}
-			err := CheckApproval(api, "owner/repo", "12", "34", base, head, name != "preflight")
+			err := CheckApproval(api, "owner/repo", "12", "34", base, head, "event body", name != "preflight")
 			pass := name == "approved" || name == "preflight"
 			if (err == nil) != pass {
 				t.Fatalf("pass=%v: %v", pass, err)
@@ -204,7 +216,7 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 		t.Fatal("candidate tests must run on exact head")
 	}
 	last := candidate.Steps[len(candidate.Steps)-1]
-	if !strings.Contains(last.Run, "/tmp/aidd-checker ci-check") || !strings.Contains(last.Run, ManifestPath) {
+	if !strings.Contains(last.Run, "/tmp/aidd-checker ci-check") || !strings.Contains(last.Run, "aidd-contract-migration") {
 		t.Fatal("candidate migration delivery missing")
 	}
 	preflight := base.Steps[len(base.Steps)-1]
@@ -232,6 +244,33 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 			err := c.Run()
 			if (err == nil) != tc.pass {
 				t.Fatalf("pass=%v: %v", tc.pass, err)
+			}
+		})
+	}
+}
+
+func TestRequestParsing(t *testing.T) {
+	raw := `{"schema_version":1,"kind":"aidd_contract_migration","target_base_sha":"base","head_sha":"head","task_id":"change","reason":"remove obsolete field"}`
+	block := RequestFence + raw + "\n```\n"
+	for _, tc := range []struct {
+		name, body string
+		pass       bool
+	}{
+		{"valid", "説明\n" + block, true},
+		{"windows", strings.ReplaceAll(block, "\n", "\r\n"), true},
+		{"missing", "ordinary PR", false},
+		{"duplicate", block + block, false},
+		{"unclosed", RequestFence + raw, false},
+		{"trailing-json", RequestFence + raw + "{}\n```", false},
+		{"duplicate-key", RequestFence + strings.Replace(raw, `"head_sha":"head"`, `"head_sha":"head","head_sha":"other"`, 1) + "\n```", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, e := ParseRequest(tc.body)
+			if (e == nil) != tc.pass {
+				t.Fatalf("pass=%v: %v", tc.pass, e)
+			}
+			if tc.pass && r.TaskID != "change" {
+				t.Fatal("lost task identity")
 			}
 		})
 	}

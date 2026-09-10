@@ -11,28 +11,46 @@ import (
 	"strings"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 )
 
-const ManifestPath = "docs/ai-driven-development/contracts/migration.json"
+const RequestFence = "```aidd-contract-migration\n"
 const Environment = "aidd-contract-migration"
 
 var shaPattern = regexp.MustCompile(`^[0-9a-f]{40}$`)
-var taskPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,79}$`)
 
-type Manifest struct {
+type Request struct {
 	SchemaVersion int    `json:"schema_version"`
 	Kind          string `json:"kind"`
 	TargetBase    string `json:"target_base_sha"`
+	HeadSHA       string `json:"head_sha"`
 	TaskID        string `json:"task_id"`
 	Reason        string `json:"reason"`
 }
 
+// ParseRequestはPR本文の専用blockを1件だけ受け入れる。承認は別途GitHubで検証する。
+func ParseRequest(body string) (Request, error) {
+	var request Request
+	normalized := strings.ReplaceAll(body, "\r\n", "\n")
+	if strings.Count(normalized, RequestFence) != 1 {
+		return request, fmt.Errorf("exactly one aidd-contract-migration block required in PR body")
+	}
+	_, rest, _ := strings.Cut(normalized, RequestFence)
+	raw, _, closed := strings.Cut(rest, "\n```")
+	if !closed {
+		return request, fmt.Errorf("unclosed migration request")
+	}
+	if err := canonical.Decode([]byte(raw), "PR migration request", &request); err != nil {
+		return request, err
+	}
+	return request, nil
+}
+
 // CheckScopeはcandidateを実行せずGitのblobとmodeだけを検査する。
 // Task形式の意味検査はcandidate CI、移行の採否は保護されたEnvironmentが担う。
-func CheckScope(ctx context.Context, root, base, head string) (Manifest, error) {
-	var m Manifest
+func CheckScope(ctx context.Context, root, base, head string, m Request) error {
 	if !shaPattern.MatchString(base) || !shaPattern.MatchString(head) {
-		return m, fmt.Errorf("full base/head SHA required")
+		return fmt.Errorf("full base/head SHA required")
 	}
 	git := func(args ...string) ([]byte, error) {
 		cmd := exec.CommandContext(ctx, "git", append([]string{"-C", root}, args...)...)
@@ -48,62 +66,54 @@ func CheckScope(ctx context.Context, root, base, head string) (Manifest, error) 
 		}
 		return b, nil
 	}
-	raw, err := git("show", head+":"+ManifestPath)
-	if err != nil {
-		return m, err
-	}
-	if err = canonical.Decode(raw, ManifestPath, &m); err != nil {
-		return m, err
-	}
-	if m.SchemaVersion != 1 || m.Kind != "aidd_contract_migration" || m.TargetBase != base || !taskPattern.MatchString(m.TaskID) || strings.TrimSpace(m.Reason) == "" {
-		return m, fmt.Errorf("invalid or stale migration manifest")
+	if m.SchemaVersion != 1 || m.Kind != "aidd_contract_migration" || m.TargetBase != base || m.HeadSHA != head || pathcontract.ValidateWorkspaceName(m.TaskID) != nil || strings.TrimSpace(m.Reason) == "" {
+		return fmt.Errorf("invalid or stale migration request")
 	}
 	baseline, err := git("merge-base", base, head)
 	if err != nil {
-		return m, err
+		return err
 	}
 	paths, err := git("diff", "--no-renames", "--name-only", "-z", strings.TrimSpace(string(baseline)), head, "--")
 	if err != nil {
-		return m, err
+		return err
 	}
-	marker, implementation, task := false, false, false
+	implementation, task := false, false
 	for _, p := range strings.Split(strings.TrimSuffix(string(paths), "\x00"), "\x00") {
 		isTask := strings.HasPrefix(p, ".aidd/tasks/"+m.TaskID+"/")
 		allowed := isTask || allowedPath(p)
 		if !allowed {
-			return m, fmt.Errorf("migration cannot change %s", p)
+			return fmt.Errorf("migration cannot change %s", p)
 		}
 		// 削除と実行modeは許可するがsymlink・submoduleへの型変更は拒否する。
 		for _, ref := range []string{strings.TrimSpace(string(baseline)), head} {
 			entry, e := git("ls-tree", ref, "--", p)
 			if e != nil {
-				return m, e
+				return e
 			}
 			if len(entry) > 0 && !strings.HasPrefix(string(entry), "100644 blob ") && !strings.HasPrefix(string(entry), "100755 blob ") {
-				return m, fmt.Errorf("migration requires regular blobs: %s", p)
+				return fmt.Errorf("migration requires regular blobs: %s", p)
 			}
 		}
-		marker = marker || p == ManifestPath
-		implementation = implementation || strings.HasPrefix(p, "tools/aidd/checker/") || (strings.HasPrefix(p, "docs/ai-driven-development/contracts/") && p != ManifestPath)
+		implementation = implementation || strings.HasPrefix(p, "tools/aidd/checker/") || strings.HasPrefix(p, "docs/ai-driven-development/contracts/")
 		task = task || isTask
 	}
-	if !marker || !implementation || !task {
-		return m, fmt.Errorf("migration requires a changed manifest, checker/contract and exactly one task")
+	if !implementation || !task {
+		return fmt.Errorf("migration requires a changed checker/contract and exactly one task")
 	}
 	// mainに保存済みのTask開始記録を移行で置き換えない。
 	taskPath := ".aidd/tasks/" + m.TaskID + "/task.json"
 	old, e := git("ls-tree", strings.TrimSpace(string(baseline)), "--", taskPath)
 	if e != nil {
-		return m, e
+		return e
 	}
 	current, e := git("ls-tree", head, "--", taskPath)
 	if e != nil {
-		return m, e
+		return e
 	}
 	if len(current) == 0 || (len(old) > 0 && string(old) != string(current)) {
-		return m, fmt.Errorf("task identity must be present and preserved")
+		return fmt.Errorf("task identity must be present and preserved")
 	}
-	return m, nil
+	return nil
 }
 
 func allowedPath(p string) bool {
@@ -130,20 +140,21 @@ func GitHubAPI(ctx context.Context) API {
 }
 
 // CheckApprovalは現在のPR identityと実runに残った人による承認を照合する。
-func CheckApproval(api API, repo, pr, run, base, head string, approved bool) error {
+func CheckApproval(api API, repo, pr, run, base, head, body string, approved bool) error {
 	if !regexp.MustCompile(`^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$`).MatchString(repo) || !regexp.MustCompile(`^[1-9][0-9]*$`).MatchString(pr) || !regexp.MustCompile(`^[1-9][0-9]*$`).MatchString(run) || !shaPattern.MatchString(base) || !shaPattern.MatchString(head) {
 		return fmt.Errorf("invalid CI identity")
 	}
 	prefix := "repos/" + repo
 	var pull struct {
 		State      string
+		Body       string
 		Head, Base struct{ SHA string }
 	}
 	if err := api(prefix+"/pulls/"+pr, &pull); err != nil {
 		return err
 	}
-	if pull.State != "open" || pull.Head.SHA != head || pull.Base.SHA != base {
-		return fmt.Errorf("PR base/head changed; new validation and approval required")
+	if pull.State != "open" || pull.Head.SHA != head || pull.Base.SHA != base || pull.Body != body {
+		return fmt.Errorf("PR base/head/body changed; new validation and approval required")
 	}
 	var env struct {
 		ID              int64
