@@ -125,3 +125,19 @@ baseソースを別directoryへ展開してcheckerを直接buildし、Go build/m
 base検証はcandidate検証と別jobで実行し、候補コードを実行する前提を持たない。
 Goはbase checkoutのgo.modから選び、候補側のGo版やGITHUB_PATH/GITHUB_ENVの変更を引き継がない。
 初回bootstrapのみcandidate jobで実行する。通常Task間のbinary再利用とは信頼する入力が異なる。
+
+
+## 非互換契約のCI移行境界
+
+通常のbase checker検証に加え、明示された契約移行では`internal/migration`と
+`cmd/aidd-migration`をbaseからbuildして使う。Task schema自体の変更に対応するため、
+この境界はTaskの旧schemaを再解釈せず、Gitの対象差分・regular blob・既存Task identityと
+PR本文の固定形式の移行申請を照合する。候補schemaの整合性は候補のci-checkで検査する。
+旧契約を置換する意味的な判断は、対象runのGitHub Environmentに記録された人の承認が担う。
+
+candidateのコードを実行するjobと、baseの差分・承認検査jobは分離する。
+base sourceとGo cacheの隔離は通常検証と同じである。candidateが書けるartifactや自己申告のJSONを
+承認の証拠にしない。現在のPR base/headと本文、runのhead、Environmentと人のreviewerをGitHubから照合する。
+取得できなければ成功にしない。workflow自体の変更のreviewとGitHub管理権限を信頼境界に含む。
+repository管理者によるworkflow・保護設定の意図的な変更まで防ぐ仕組みではない。
+操作・差分範囲・初回導入は[operations](aidd-checker-operations.md#非互換なchecker契約の移行)を正本とする。

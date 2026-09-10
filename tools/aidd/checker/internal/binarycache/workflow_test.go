@@ -95,7 +95,7 @@ func TestCIBuildsBaseWithoutCandidateCaches(t *testing.T) {
 		t.Fatal(err)
 	}
 	script := ""
-	for _, step := range workflow.Jobs["verify"].Steps {
+	for _, step := range workflow.Jobs["base"].Steps {
 		if step.Name == "Verify delivery with the base protocol" {
 			script = step.Run
 		}
@@ -140,6 +140,7 @@ func TestCIBuildsBaseWithoutCandidateCaches(t *testing.T) {
 	// 旧prepare経路なら候補側cacheの実行物を返す。直接buildでは独立cacheと出力先を検査する。
 	fakeGo := `#!/bin/sh
 set -eu
+[ "${FAIL_AT:-}" != build ] || exit 42
 if [ "$1" = run ]; then
  printf '%s\n' "$POISONED_CHECKER"
  exit 0
@@ -164,6 +165,7 @@ cat > "$output" <<'CHECKER'
 #!/bin/sh
 [ "$1" = ci-check ] || exit 91
 printf '%s\n' "$@" >> "$TRACE"
+[ "${FAIL_AT:-}" != ci-check ] || exit 43
 CHECKER
 chmod +x "$output"
 `
@@ -182,6 +184,41 @@ chmod +x "$output"
 	}
 	if !strings.HasPrefix(string(out), "trusted baseci-check\n") || !strings.Contains(string(out), "--base\n"+base+"\n") {
 		t.Fatalf("wrong trusted source: %s", out)
+	}
+	// 準備の失敗はstep自体を失敗させ、ci-checkの失敗だけを移行用outputにする。
+	realGit, err := exec.LookPath("git")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fakeGit := "#!/bin/sh\n[ \"$1\" != \"${FAIL_AT:-}\" ] || exit 44\nexec " + quote(realGit) + " \"$@\"\n"
+	if err := os.WriteFile(filepath.Join(bin, "git"), []byte(fakeGit), 0700); err != nil {
+		t.Fatal(err)
+	}
+	for _, failAt := range []string{"merge-base", "archive", "build", "checkout", "ci-check"} {
+		t.Run(failAt, func(t *testing.T) {
+			output := filepath.Join(t.TempDir(), "output")
+			if err := os.WriteFile(output, nil, 0600); err != nil {
+				t.Fatal(err)
+			}
+			run := exec.Command("bash", "-c", script)
+			run.Dir = root
+			run.Env = append(c.Env, "FAIL_AT="+failAt, "GITHUB_OUTPUT="+output)
+			out, err := run.CombinedOutput()
+			if (err == nil) != (failAt == "ci-check") {
+				t.Fatalf("failure at %s: %s %v", failAt, out, err)
+			}
+			result, err := os.ReadFile(output)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := ""
+			if failAt == "ci-check" {
+				want = "ci_check=failure\n"
+			}
+			if string(result) != want {
+				t.Fatalf("unexpected migration eligibility: %q", result)
+			}
+		})
 	}
 }
 
@@ -254,23 +291,24 @@ func TestCIIsolatesBaseJobAndToolchain(t *testing.T) {
 	}
 	var workflow struct {
 		Jobs map[string]struct {
-			RunsOn    string `yaml:"runs-on"`
-			Needs, If string
-			Steps     []step
+			RunsOn string `yaml:"runs-on"`
+			Needs  any
+			If     string
+			Steps  []step
 		}
 	}
 	if err := yaml.Unmarshal(data, &workflow); err != nil {
 		t.Fatal(err)
 	}
-	base, candidate := workflow.Jobs["verify"], workflow.Jobs["candidate"]
+	base, candidate := workflow.Jobs["base"], workflow.Jobs["candidate"]
 	if base.RunsOn != "ubuntu-latest" || candidate.RunsOn != "ubuntu-latest" {
 		t.Fatal("verification requires separate hosted runners")
 	}
 	if base.Needs != "candidate" || base.If != "always()" {
 		t.Fatal("required verify job must observe candidate failures")
 	}
-	if len(base.Steps) != 6 {
-		t.Fatal("base job must contain only candidate status, checkout, detection, setup, fetch and trusted delivery")
+	if len(base.Steps) != 7 {
+		t.Fatal("base job must contain candidate status, checkout, detection, setup, fetch, trusted delivery and migration preflight")
 	}
 	if base.Steps[0].Run != `test "$CANDIDATE_RESULT" = success` || base.Steps[4].Run != `git fetch --no-tags origin "$PR_HEAD_SHA"` {
 		t.Fatal("candidate success and fork head fetch must be retained")
