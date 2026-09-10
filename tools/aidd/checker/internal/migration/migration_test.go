@@ -188,13 +188,15 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 		t.Fatal(e)
 	}
 	type step struct {
-		Name, Run, If string
-		Env, With     map[string]string
+		Name, Run, If   string
+		Env, With       map[string]string
+		ContinueOnError bool `yaml:"continue-on-error"`
 	}
 	var w struct {
 		Jobs map[string]struct {
 			Needs       any
 			If          string
+			Outputs     map[string]string
 			Environment struct{ Name, URL string }
 			Steps       []step
 		}
@@ -224,7 +226,10 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 	}
 	preflight := base.Steps[len(base.Steps)-1]
 	verify := approved.Steps[len(approved.Steps)-1]
-	if preflight.If != "steps.delivery.outcome == 'failure'" || preflight.Run != verify.Run || verify.Env["MIGRATION_APPROVED"] != "true" || !strings.Contains(verify.Run, `git archive "$PR_BASE_SHA" tools/aidd/checker`) || !strings.Contains(verify.Run, "${MIGRATION_APPROVED:+--approved}") {
+	if base.Steps[5].ContinueOnError || base.Outputs["delivery"] != "${{ steps.delivery.outputs.ci_check || steps.delivery.outcome }}" {
+		t.Fatal("preparation errors must fail the job; only ci-check failure may override delivery")
+	}
+	if preflight.If != "steps.delivery.outputs.ci_check == 'failure'" || preflight.Run != verify.Run || verify.Env["MIGRATION_APPROVED"] != "true" || !strings.Contains(verify.Run, `git archive "$PR_BASE_SHA" tools/aidd/checker`) || !strings.Contains(verify.Run, "${MIGRATION_APPROVED:+--approved}") {
 		t.Fatal("migration must be validated before and after approval with base source")
 	}
 	for _, tc := range []struct {

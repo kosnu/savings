@@ -20,7 +20,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     outputs:
-      delivery: ${{ steps.delivery.outcome }}
+      delivery: ${{ steps.delivery.outputs.ci_check || steps.delivery.outcome }}
       protocol: ${{ steps.base-protocol.outputs.present }}
       migration: ${{ steps.migration.outcome }}
     steps:
@@ -62,7 +62,6 @@ jobs:
 
       - name: Verify delivery with the base protocol
         id: delivery
-        continue-on-error: true
         if: steps.base-protocol.outputs.present == 'true'
         env: &delivery-env
           GH_TOKEN: ${{ github.token }}
@@ -116,7 +115,9 @@ jobs:
               GOCACHE="$trusted_dir/go-build-cache" GOMODCACHE="$trusted_dir/go-module-cache" \
               go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-checker" ./cmd/aidd-checker
             git checkout --detach "$PR_HEAD_SHA"
-            "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
+            if ! "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"; then
+              echo "ci_check=failure" >> "$GITHUB_OUTPUT"
+            fi
           else
             git checkout --detach "$PR_HEAD_SHA"
             /tmp/aidd-checker bootstrap-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline" --target-base "$PR_BASE_SHA"
@@ -124,7 +125,7 @@ jobs:
 
       - name: Check migration eligibility with base source
         id: migration
-        if: steps.delivery.outcome == 'failure'
+        if: steps.delivery.outputs.ci_check == 'failure'
         env: &migration-env
           GH_TOKEN: ${{ github.token }}
           PR_BODY: ${{ github.event.pull_request.body }}
