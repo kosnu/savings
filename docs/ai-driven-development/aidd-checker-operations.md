@@ -256,6 +256,12 @@ reviewerの真正性はLearnと同じ運用境界で扱う。
 6. 承認後もbase側の検査を再実行し、実runの承認者・Environment・現在のPR base/headを確認する。
    required check名`verify`は通常検証成功またはこの移行成功だけを受け入れる。
 
+candidateのGo全テスト・check-allと統合結果の検証は現在のPR headで実行する。PR headがtarget baseを
+取り込んだmerge commitの場合、元Taskのevidenceをtarget base側の既存変更と混ぜないため、candidate版
+ci-checkだけはmerge commitのfirst-parent treeへ指定Taskのdirectoryだけをheadから重ねて適用する。
+そこからPR本文で指定したTaskの`baseline_head`を読み取り、`--task`とともにcandidate checkerへ渡す。
+base側の差分・scope検査と承認は、従来どおりPRのmerge-baseからheadまでの全差分へ適用する。
+
 PR本文の申請形式は次のとおり。`reason`は、廃止・変更する契約、base checkerが受け入れない理由、
 新しい契約で維持・置換する保証を具体的に記す。本文の申請は承認そのものではない。
 
