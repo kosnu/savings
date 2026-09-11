@@ -139,14 +139,18 @@ func Start(ctx context.Context, snapshot *repository.Snapshot, spec Spec) (strin
 }
 
 type Loaded struct {
-	Delivered      bool
-	Task           Task
-	TaskHash       string
-	Checkpoint     Checkpoint
-	CheckpointHash string
-	Policy         Policy
-	Rules          *rules.Loaded
-	Catalog        *catalog.Resolved
+	CheckerMigration    *CheckerMigration
+	MigrationScopes     []model.OwnershipScope
+	Integration         *Integration
+	IntegrationBaseline []File
+	Delivered           bool
+	Task                Task
+	TaskHash            string
+	Checkpoint          Checkpoint
+	CheckpointHash      string
+	Policy              Policy
+	Rules               *rules.Loaded
+	Catalog             *catalog.Resolved
 }
 
 func loadTask(snapshot *repository.Snapshot, id, expected string) (*Loaded, error) {
@@ -219,7 +223,7 @@ func (l *Loaded) guarded(path string) bool {
 }
 
 func (l *Loaded) checkGuards(ctx context.Context, snapshot *repository.Snapshot, files []File) error {
-	for _, path := range changed(transportFiles(l.Task.Baseline, l.Delivered), transportFiles(withoutGenerated(files, l.Task.Spec.ID), l.Delivered)) {
+	for _, path := range l.changedPaths(files) {
 		if path == lockPath && len(l.Policy.MixedJSON) > 0 {
 			if err := l.checkLock(ctx, snapshot, files); err != nil {
 				return err
@@ -236,7 +240,7 @@ func (l *Loaded) checkGuards(ctx context.Context, snapshot *repository.Snapshot,
 			if l.guarded(path) {
 				return fail("GUARDRAIL_DRIFT", path, "Developmentはguardrailを変更できません")
 			}
-		} else if !l.guarded(path) || rules.MatchesPath(l.Policy.ProductPaths, path) || !owned(path, l.Task.Spec.AuthorizedScopes) {
+		} else if !l.guarded(path) || rules.MatchesPath(l.Policy.ProductPaths, path) || !owned(path, l.authorizedScopes()) {
 			return fail("LEARN_SCOPE", path, "Learnは明示的に許可されたguardrailだけを変更できます")
 		}
 	}
@@ -248,7 +252,7 @@ func (l *Loaded) checkAuthority() error {
 	if err != nil {
 		return err
 	}
-	if actual != l.Task.CheckerSHA256 {
+	if actual != l.executionChecker() {
 		return fail("CHECKER_IDENTITY", l.Task.Spec.ID, "task開始時のchecker binaryを使ってください。新checkerだけの成功は証拠になりません")
 	}
 	return nil

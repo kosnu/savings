@@ -12,7 +12,16 @@ import (
 
 // CheckDeliveryはcommit後のGit転送を検証する。CIはPR baseのcheckerを使用する。
 // 初期版では1 PRを1 taskの検証境界とし、baseline以前の未被覆差分を拒否する。
-func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id string) error {
+func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id string, targetBase ...string) error {
+	return checkDelivery(ctx, snapshot, base, id, false, targetBase...)
+}
+
+// CheckMigrationDeliveryは移行申請の候補検証専用。base側の差分検査と人の承認を別途必要とする。
+func CheckMigrationDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id, targetBase string) error {
+	return checkDelivery(ctx, snapshot, base, id, true, targetBase)
+}
+
+func checkDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id string, migration bool, targetBase ...string) error {
 	if len(base) != 40 {
 		return fail("DELIVERY_BASE", base, "PR merge-baseの完全commit IDが必要です")
 	}
@@ -46,14 +55,11 @@ func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id 
 	if err != nil {
 		return err
 	}
-	if task.BaselineHead != base {
-		return fail("DELIVERY_BASE", id, "task baselineがPR全体の基準点と一致しません。全delivery差分を検証するtaskが必要です")
-	}
 	l, err := loadTaskMode(snapshot, id, taskHash, true)
 	if err != nil {
 		return err
 	}
-	baseline, err := gitInventory(ctx, snapshot, base)
+	baseline, err := gitInventory(ctx, snapshot, task.BaselineHead)
 	if err != nil {
 		return err
 	}
@@ -61,7 +67,7 @@ func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id 
 		return fail("BASELINE", id, "task baselineがGitに保存された基準状態と一致しません")
 	}
 	for path, content := range map[string][]byte{PolicyPath: task.Policy, "docs/harness/rule-map.json": task.RuleMap, "docs/ai-driven-development/contracts/verification-profiles.json": task.Catalog} {
-		blob, err := snapshot.Git(ctx, "show", base+":"+path)
+		blob, err := snapshot.Git(ctx, "show", task.BaselineHead+":"+path)
 		if err != nil {
 			return err
 		}
@@ -74,6 +80,17 @@ func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id 
 	}
 	if l.CheckpointHash == "" {
 		return fail("CHECKPOINT", id, "checkpointがありません")
+	}
+	if l.CheckerMigration != nil && !migration {
+		return fail("MIGRATION_REQUIRED", id, "checker移行を含むTaskは明示的なCI契約移行と人の承認が必要です")
+	}
+	if l.changeBaseHead() != base {
+		return fail("DELIVERY_BASE", id, "変更基準がPR全体の基準点と一致しません")
+	}
+	if l.Integration != nil {
+		if len(targetBase) != 1 || targetBase[0] != l.Integration.BaseHead {
+			return fail("INTEGRATION_BASE", id, "統合baseがCIの現在のtarget baseと一致しません")
+		}
 	}
 	_, evidenceHash, err := readMode[Evidence](snapshot, evidencePath(id, l.CheckpointHash), true)
 	if err != nil {
