@@ -221,7 +221,7 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 		t.Fatal("candidate tests must run on exact head")
 	}
 	last := candidate.Steps[len(candidate.Steps)-1]
-	if !strings.Contains(last.Run, "/tmp/aidd-checker ci-check") || !strings.Contains(last.Run, "aidd-contract-migration") {
+	if !strings.Contains(last.Run, "/tmp/aidd-checker ci-check") || !strings.Contains(last.Run, "aidd-contract-migration") || !strings.Contains(last.Run, "git clone --quiet --no-local") || !strings.Contains(last.Run, `--task "$task_id"`) {
 		t.Fatal("candidate migration delivery missing")
 	}
 	preflight := base.Steps[len(base.Steps)-1]
@@ -256,6 +256,108 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestCandidateMigrationDeliveryUsesPreMergeCandidateTree(t *testing.T) {
+	data, err := os.ReadFile("../../../../../.github/workflows/aidd_checker_ci.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var workflow struct {
+		Jobs map[string]struct {
+			Steps []struct{ Run string }
+		}
+	}
+	if err := yaml.Unmarshal(data, &workflow); err != nil {
+		t.Fatal(err)
+	}
+	script := workflow.Jobs["candidate"].Steps[len(workflow.Jobs["candidate"].Steps)-1].Run
+	root := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		cmd := exec.Command("git", args...)
+		cmd.Dir = root
+		cmd.Env = append(os.Environ(), "GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_NOSYSTEM=1")
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %s: %v", args, output, err)
+		}
+		return strings.TrimSpace(string(output))
+	}
+	put := func(path, content string) {
+		t.Helper()
+		path = filepath.Join(root, path)
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	git("init", "-q")
+	git("config", "user.name", "Test")
+	git("config", "user.email", "test@example.invalid")
+	put(".aidd/tasks/change/task.json", `{"baseline_head":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}`)
+	git("add", ".")
+	git("commit", "-qm", "old baseline")
+	old := git("rev-parse", "HEAD")
+	git("checkout", "-qb", "candidate", old)
+	put("candidate.txt", "candidate")
+	git("add", ".")
+	git("commit", "-qm", "candidate change")
+	candidate := git("rev-parse", "HEAD")
+	git("checkout", "-qb", "target", old)
+	put("target.txt", "target")
+	git("add", ".")
+	git("commit", "-qm", "target change")
+	target := git("rev-parse", "HEAD")
+	git("checkout", "candidate")
+	git("merge", "--no-edit", "target")
+	put(".aidd/tasks/change/task.json", `{"baseline_head":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","note":"post-merge task"}`)
+	put("post-merge.txt", "post merge")
+	git("add", ".")
+	git("commit", "-qm", "migration control fix")
+	head := git("rev-parse", "HEAD")
+
+	bin := t.TempDir()
+	fake := filepath.Join(bin, "aidd-checker")
+	fakeScript := `#!/bin/sh
+set -eu
+[ "$1" = ci-check ]
+repo=
+base=
+task=
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --repo-root) repo=$2; shift 2;;
+    --base) base=$2; shift 2;;
+    --task) task=$2; shift 2;;
+    *) shift;;
+  esac
+done
+test ! -e "$repo/target.txt"
+test ! -e "$repo/post-merge.txt"
+test "$(jq -r .note "$repo/.aidd/tasks/change/task.json")" = "post-merge task"
+test "$base" = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+test "$task" = change
+printf 'repo=%s\nbase=%s\ntask=%s\n' "$repo" "$base" "$task" > "$TRACE"
+`
+	if err := os.WriteFile(fake, []byte(fakeScript), 0755); err != nil {
+		t.Fatal(err)
+	}
+	trace := filepath.Join(bin, "trace")
+	body := RequestFence + `{"schema_version":1,"kind":"aidd_contract_migration","task_id":"change"}` + "\n```\n"
+	cmd := exec.Command("bash", "-c", strings.ReplaceAll(script, "/tmp/aidd-checker", fake))
+	cmd.Dir = root
+	cmd.Env = append(os.Environ(), "PR_BODY="+body, "PR_BASE_SHA="+target, "PR_HEAD_SHA="+head, "GITHUB_WORKSPACE="+root, "COMPATIBILITY_REF="+candidate, "TRACE="+trace)
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("workflow failed: %v\n%s", err, output)
+	}
+	if output, err := os.ReadFile(trace); err != nil {
+		t.Fatal(err)
+	} else if !strings.Contains(string(output), "base=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") || !strings.Contains(string(output), "task=change") {
+		t.Fatalf("candidate did not use the original task contract: %s", output)
 	}
 }
 

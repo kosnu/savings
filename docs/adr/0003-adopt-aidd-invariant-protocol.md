@@ -85,6 +85,15 @@ Learnの独立review必須条件は、不要なsubagent呼び出しとトーク�
 開始時checker、旧policy/profile、明示された変更許可、scopeと証拠同一性の検査は維持する。
 finish/Ship/CIではLearnのreview記録を要求しない。初回bootstrapのreview契約は変更しない。
 
+
+## Clarification: Incompatible checker contract migration (2026-09-11)
+
+通常PRのbase checkerによる検証を維持し、checker契約自身の非互換変更には明示的な移行経路を設ける。
+候補のテスト・ci-check、base所有の限定差分検査、対象runとcommitに結合したGitHub Environmentの
+人による承認をすべて要求する。candidate成功だけを旧契約の置換権限とはしない。
+元Task、baseline、開始時checkerの記録は保持し、product変更をこの経路へ混在させない。
+これは通常Learnの独立review再導入ではなく、CIが使用する契約を変更する場合の承認境界である。
+
 ## Clarification: Remove Task delivery classification (2026-09-10)
 
 2026-09-05のDelivery authority補足のうち、Taskのlocal/pr区分とそれを要求するShip・CI条件を撤去する。
@@ -94,10 +103,11 @@ finishは最新証拠、Shipは追加でindex、CIはGit転送とbaselineを検�
 開始時checkerの固定、明示許可、finite scope、policy/profile、証拠同一性などの安全条件は維持する。
 旧binaryの固定を解除する移行は本変更に含めない。
 
-## Clarification: Incompatible checker contract migration (2026-09-11)
+## Clarification: Migration candidate baseline isolation (2026-09-11)
 
-通常PRのbase checkerによる検証を維持し、checker契約自身の非互換変更には明示的な移行経路を設ける。
-候補のテスト・ci-check、base所有の限定差分検査、対象runとcommitに結合したGitHub Environmentの
-人による承認をすべて要求する。candidate成功だけを旧契約の置換権限とはしない。
-元Task、baseline、開始時checkerの記録は保持し、product変更をこの経路へ混在させない。
-これは通常Learnの独立review再導入ではなく、CIが使用する契約を変更する場合の承認境界である。
+candidateのGo全テスト・check-allと統合結果の検証は現在のPR headで実行する。PR headがtarget baseを
+取り込んだmerge commitの場合、元Taskのevidenceをtarget base側の既存変更と混ぜないため、candidate版
+ci-checkだけはmerge commitのfirst-parent treeへ指定Taskのdirectoryだけをheadから重ねて適用する。
+そこからPR本文で指定したTaskの`baseline_head`を読み取り、`--task`とともにcandidate checkerへ渡す。
+base側の差分・scope検査と人の承認は、PRのmerge-baseからheadまでの全差分へ適用し、通常PRの`ci-check`は
+従来どおりPR merge-baseを使う。

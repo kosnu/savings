@@ -306,6 +306,45 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$PR_BODY" == *'```aidd-contract-migration'* ]]; then
-            baseline=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
-            /tmp/aidd-checker ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
+            normalized_body=${PR_BODY//$'\r'/}
+            migration_json=$(awk '
+              $0 == "```aidd-contract-migration" { inside=1; next }
+              inside && $0 == "```" { exit }
+              inside { print }
+            ' <<< "$normalized_body")
+            task_id=$(jq -er '.task_id | strings' <<< "$migration_json")
+            if [[ ! "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+              echo "invalid migration task ID" >&2
+              exit 1
+            fi
+
+            # merge済みbranchでは、元Taskの証拠をtarget baseの既存変更と混ぜずに確認する。
+            # 候補binaryのbuild・testと統合結果の検証は、引き続き現在のheadで実行する。
+            compatibility_ref="$PR_HEAD_SHA"
+            compatibility_merge=
+            while read -r merge_commit parent1 parent2 _; do
+              if [[ -n "${parent2:-}" ]] && (git merge-base --is-ancestor "$PR_BASE_SHA" "$parent2" || git merge-base --is-ancestor "$parent2" "$PR_BASE_SHA"); then
+                compatibility_ref="$parent1"
+                compatibility_merge="$merge_commit"
+                break
+              fi
+            done < <(git rev-list --first-parent --parents "$PR_HEAD_SHA")
+            compatibility_dir=$(mktemp -d)
+            trap 'rm -rf "$compatibility_dir"' EXIT
+            git clone --quiet --no-local "$GITHUB_WORKSPACE" "$compatibility_dir"
+            git -C "$compatibility_dir" checkout --quiet --detach "$compatibility_ref"
+            task_path=".aidd/tasks/$task_id/task.json"
+            if [[ -n "$compatibility_merge" ]]; then
+              git -C "$compatibility_dir" checkout --quiet "$PR_HEAD_SHA" -- ".aidd/tasks/$task_id"
+              git -C "$compatibility_dir" add -A -- ".aidd/tasks/$task_id"
+              if ! git -C "$compatibility_dir" diff --cached --quiet; then
+                git -C "$compatibility_dir" -c user.name='AIDD candidate' -c user.email='aidd-candidate@example.invalid' commit --quiet -m 'candidate task overlay'
+              fi
+            fi
+            baseline=$(git -C "$compatibility_dir" show "HEAD:$task_path" | jq -er '.baseline_head | strings')
+            if [[ ! "$baseline" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "invalid task baseline" >&2
+              exit 1
+            fi
+            /tmp/aidd-checker ci-check --repo-root "$compatibility_dir" --base "$baseline" --task "$task_id"
           fi
