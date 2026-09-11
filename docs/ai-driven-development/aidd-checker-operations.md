@@ -129,6 +129,63 @@ additional_rulesは自動routingで得られない探索上の必要rule ID。�
 checkpointは`checkpoints/000001.json`から追記され、Taskと全履歴を再検証する。
 reasonへ変更・削除した判断と根拠を記録する。旧checkpointやbaselineを上書きしない。
 
+## main取り込みの記録
+
+統合を扱える開始時checkerのTaskでは、mainを取り込んだ後、Decision sourceへ次のfieldを追加して
+通常の`checkpoint`を実行する。`base_head`は取得したtarget baseの完全SHA、`head`はそれを含む統合後commitの完全SHA。
+
+```json
+"integration": {
+  "base_head": "取得したtarget baseの40桁SHA",
+  "head": "統合後commitの40桁SHA"
+}
+```
+
+Task開始点がbaseのancestor、baseが統合headのancestor、統合headが現在HEADのancestorであることを要求する。
+再統合時は前回base/headを含む次のbase/headを指定し、最新checkpointを親として改訂する。
+統合後も同じ記録を保持して再開できる。recordの除去や後退は許可しない。
+旧証拠は流用せず、通常の`verify`で全caseを再実行し、`check`・`finish`・`ship-check`を通す。
+Git checkoutで自Taskの出力が0644になった場合は、ローカル操作前にregular JSONの0600要件を復元する。
+
+CIでは実際のPR merge-baseと現在のtarget baseをそれぞれ渡す。
+
+```sh
+/tmp/base-aidd-checker ci-check --repo-root . --base <PR-merge-base> --target-base <current-target-base>
+```
+
+統合記録があるTaskでは両方が記録のbaseと一致する必要がある。target baseが進んだ場合は失敗し、
+再取り込み・checkpoint改訂・全再検証を要求する。別Taskを含むmain由来変更はbaseのGit treeで照合し、
+独自の変更は元Taskの許可範囲で検査する。未許可の競合解消を権限拡張として受け入れない。
+
+### 旧Taskのchecker移行
+
+開始時checkerが統合記録を扱えないLearnは、明示許可に基づくchecker移行を新checkpointへ追記する。
+Taskの開始記録、元baseline、旧policy/profile、旧checkpointと旧証跡を保持し、新Taskで置換しない。
+移行先binaryを独立にbuildしてSHA-256を取得し、外部Decision sourceへ次を追加する。
+
+- `checker_migration.from_checker_sha256`: 現在の実行checkerのhash（初回はTaskの開始時hash）。
+- `to_checker_sha256`: 以後の実行に固定する移行先binaryのhash。
+- `from_checkpoint_sha256` / `from_evidence_sha256`: 最新checkpointとその既存証跡のhash。
+- `authorization`: 移行と必要な追加修正について実際に得た明示許可。
+- `authorized_scopes`: 追加修正を許可された有限のguardrail file/treeをpath順に列挙。追加がなければ空配列。
+
+移行先binaryで通常の`checkpoint`を実行する。初回の移行記録は現在checkpointを参照する場合だけ受け付け、
+実行binaryのhashを移行先と照合する。以後のcheckpointは同じ移行記録を保持する。再移行はその時点の
+checkpoint・証跡・実行checkerから追記し、記録の除去は拒否する。Taskの固定scopeを上書きせず、追加の許可は
+移行記録の履歴へ残す。product変更は追加scopeに指定しても拒否する。
+
+必要なら同じDecisionに`integration`を指定し、全差分のownership・要求・verificationを具体化する。
+旧証跡は移行元の履歴参照であり、現在状態の成功根拠にしない。移行先binaryで全caseを再verifyし、
+そのbinaryのhashと新checkpointへ結合した証跡でcheck・finish・ship-checkを行う。
+独立Learnで検証したguardrail変更を元PRへ反映する場合も、元Taskの移行checkpointで全PR差分を再検証する。
+独立Learnの記録はその作業branchに保持し、元Taskを別Taskで覆い直さない。
+
+この移行を含むTaskは通常のci-checkでは`MIGRATION_REQUIRED`で拒否する。
+PRの契約移行申請を記載し、candidate jobだけが`ci-check --contract-migration`を実行する。
+このflagはbase側の限定差分検査・現在のbase/head/本文との一致・GitHub Environmentの人による承認の代替ではない。
+移行先の候補checker成功だけで配信を受け入れず、必ず下記の非互換契約移行経路を通す。
+
+
 ## Verification
 
 formatter等の意図的な変更を先に完了し、最終状態を固定してから実行する。
@@ -199,9 +256,8 @@ verify、stage、ship-check、commit、配信read-backを行う。基準点不�
 新Taskで再検査せず、元TaskとPRの境界を確認する。追加許可のためにtask.jsonを書き換える必要はない。
 
 既存Taskの記録互換性と実行binaryの互換性は別である。区分撤去前に開始したTaskは旧binaryを
-保持するため、そのbinaryのship-checkは旧delivery条件で拒否し得る。本変更はchecker identityの
-移行機能を追加しない。candidate binaryへの差し替えやTaskの再作成では迂回せず、旧記録と検査結果を
-保持する。更新済みtrusted baseのCIは旧Taskを読み取り、配信区分以外の同じ検査を行える。
+保持するため、そのbinaryのship-checkは旧delivery条件で拒否し得る。checker identityの移行は上記の明示的な移行checkpointで扱う。記録なしのcandidate binaryへの
+差し替えやTaskの再作成では迂回せず、旧記録と検査結果を保持する。更新済みtrusted baseのCIは旧Taskを読み取り、配信区分以外の同じ検査を行える。
 逆に旧baseのCIはdeliveryを持たない新Taskを受け付けないため、base checkerの更新前は新形式を配信できない。
 
 配信の受入確認では、文書整合と実際の検出範囲を分ける。同Taskの継続は
@@ -229,7 +285,7 @@ checkerのGo検証と既存artifactのcheck-allは引き続き実行する。
 /tmp/base-aidd-checker ci-check --repo-root . --base <PR-merge-base>
 ```
 
-変更されたTaskは1件に特定する。初期版は1 PR=1 taskとし、Task baselineとPR merge-baseの一致、
+変更されたTaskは1件に特定する。初期版は1 PR=1 taskとし、Taskの変更判定基準とPR merge-baseの一致（統合時は現在のtarget baseとも一致）、
 開始時policy/profileとGit baseline、最終content/Git mode、rule/ownership/verificationを検査する。
 初回vNext導入PRだけは現在のtarget baseとmerge-baseの両方にv5がないため、candidateの回帰検証と独立reviewでbootstrapする。
 古い分岐PRでも現在のtarget baseにv5があれば通常経路を使う。merge-baseにTask基準のv5がない場合は
@@ -256,11 +312,11 @@ reviewerの真正性はLearnと同じ運用境界で扱う。
 6. 承認後もbase側の検査を再実行し、実runの承認者・Environment・現在のPR base/headを確認する。
    required check名`verify`は通常検証成功またはこの移行成功だけを受け入れる。
 
-candidateのGo全テスト・check-allと統合結果の検証は現在のPR headで実行する。PR headがtarget baseを
-取り込んだmerge commitの場合、元Taskのevidenceをtarget base側の既存変更と混ぜないため、candidate版
-ci-checkだけはmerge commitのfirst-parent treeへ指定Taskのdirectoryだけをheadから重ねて適用する。
-そこからPR本文で指定したTaskの`baseline_head`を読み取り、`--task`とともにcandidate checkerへ渡す。
-base側の差分・scope検査と承認は、従来どおりPRのmerge-baseからheadまでの全差分へ適用する。
+candidateのGo全テスト・check-allとcandidate版ci-checkは現在のPR headで実行する。
+candidate版ci-checkにもPR merge-baseと現在のtarget base、および申請のTask IDを渡す。
+main取り込みがある場合は上記の統合記録と最終状態の最新証拠を要求する。
+統合結果はintegration jobでも検証する。Task記録だけを過去のtreeへ重ねて検査しない。
+base側の差分・scope検査と承認は、PRのmerge-baseからheadまでの全差分へ適用する。
 
 PR本文の申請形式は次のとおり。`reason`は、廃止・変更する契約、base checkerが受け入れない理由、
 新しい契約で維持・置換する保証を具体的に記す。本文の申請は承認そのものではない。
@@ -304,7 +360,7 @@ team reviewerはこの実装では未対応で、個人reviewerを少なくと�
 移行へfallbackしない。導入後、既存の非互換PRは元Taskとbaselineを保持して使う。検査は現在のbaseソースを取得し、
 差分はPR merge-baseからheadを照合する。移行経路を使うためだけにbaseをbranchへmergeする必要はない。
 競合修正が必要なら元Task内で修正・全差分再検証し、baseline不一致などの失敗を隠さない。
-この移行はCIの契約更新に限る。開始時checkerのローカル検証を成功と偽ったり、元Taskを作り直したりする許可ではない。
+CIの移行承認とローカルのchecker移行記録は別の責務である。ローカルでは上記の明示許可・移行記録・新証跡を要求し、開始時checkerの検証を成功と偽ったり、元Taskを作り直したりしない。
 
 ## Repository verification
 

@@ -83,7 +83,7 @@ Task、Decision、checkpoint、verification、Shipの契約は
 Ship境界外でのstage/commit実行だけを前提に、lock、critical section、raw index identity、
 symbolic HEAD identityなどの防御を要求しません。
 
-そのうえでTaskのGit基準点から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、checkpointと実差分検査は同じresolverを使います。実差分にcheckpointにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあれば成功としてはいけません。checkpointは必要rule closureを保持し、evidenceはchecker生成物以外の全差分path、最終inventory、verification証拠identityを保持します。pathごとの一致ruleは固定したrule-mapから再計算します。`Checked rules`の自己申告だけでこの判定を代替できません。
+そのうえでTaskの変更判定基準（統合記録があれば検証された統合base、なければ開始時Git基準点）から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、checkpointと実差分検査は同じresolverを使います。実差分にcheckpointにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあれば成功としてはいけません。checkpointは必要rule closureを保持し、evidenceはchecker生成物以外の全差分path、最終inventory、verification証拠identityを保持します。pathごとの一致ruleは固定したrule-mapから再計算します。`Checked rules`の自己申告だけでこの判定を代替できません。
 
 `aidd-harness` surfaceはAIDD Core、harness、agent入口・設定、AIDD専用CIとその採択ADRを対象とします。
 一般の`docs/**`や`.github/**`全体をこのsurfaceへ分類しません。Markdownには既存の

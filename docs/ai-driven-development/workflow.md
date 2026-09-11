@@ -78,16 +78,37 @@ Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明
 Taskのbaseline以前の差分を隠すcommit/rebase/resetは実行中に行わない。
 検証batch内では開始時のHEADとstaged treeを不変とし、stageはShip境界で行う。
 Task baselineは固定するが、検証・Ship済みcommitの後も同じTask/Goalで継続できる。
-HEADは元baselineの子孫でなければならず、実差分はcommitをまたいで元baselineから照合する。
-初期vNextは1 PR全体を1 taskの検証境界とする。基準点はPR merge-baseと一致させる。
+HEADは元baselineの子孫でなければならない。統合記録がなければ実差分はcommitをまたいで元baselineから照合する。
+1 PR全体を1 taskの検証境界とする。mainを取り込む場合は下記の統合記録を使い、Task開始点と変更判定基準を分ける。
 review後は同じTaskで必要なcheckpoint改訂・全差分の再検証を行う。Task baselineを取り直さない。
 既存branchや変更を自動破棄しない。
+
+### main取り込み後の検証
+
+Taskの開始点・意図・許可範囲・policy/profile・開始時checkerは保持する。
+main取り込み後は、Decisionの`integration`へ取り込んだbaseと統合commitを明示して新checkpointを作る。
+これはTaskの再作成や権限拡張ではない。Gitの包含関係とCIの現在のtarget baseへの一致を要求する。
+履歴から都合のよいmergeを探索して基準点を選ばない。
+
+変更権限・ownership・rule coverage・必須検証は、統合baseと最終状態の差分へ適用する。
+main由来の内容と一致するfileはTaskの変更として扱わず、同じpathでも独自の変更・削除・mode変更は検査する。
+混在設定のfieldとlockfileの依存境界も同じ統合baseから判定し、開始時policyの分類を維持する。
+競合解消結果と統合後の追加変更は最終状態の一部として検査し、過去treeへ巻き戻さない。
+
+checkpoint改訂で旧証拠を全失効させ、統合後の全inventoryに結合した証拠を再生成する。
+Task外のmain由来fileも証拠に含め、検証後の変更を検出する。要求・所有成果物の最終状態とreviewにより、
+main取り込みで必要な成果を失っていないことを確認する。Gitの差分だけで意味的な達成を証明しない。
+
+baseが進んだら再取り込み・新checkpoint・全再検証を行う。統合base/headの後退や記録の除去は拒否する。
+旧checkerが統合記録に対応しないLearnは、明示許可を得たchecker移行をcheckpointへ追記し、移行先で全再検証する。
+元Taskを作り直さず、開始記録と旧証跡を保持する。追加修正の許可範囲も移行記録に固定する。
+checker実行権限の移行とmain取り込みは別契約であり、[operations](aidd-checker-operations.md#旧taskのchecker移行)に従う。
 
 ### 追加配信とTaskの継続
 
 この境界はDevelopmentとLearnの両方に適用する。既存成果への追加Ship依頼では、まず既存Task、
 baseline、ユーザーの操作許可、対象PRとbaseを確認する。同じPRへ配信する場合は、検証・commitや
-Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と元baselineからの全差分検証を行う。
+Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と全差分検証を行う。統合記録がある場合は上記の変更判定基準を使い、元baselineは保持する。
 この継続経路では追加の契約変更や新しい配信許可を要求しない。
 追加の「ship」依頼は既存成果の配信許可であり、Task、基準点、PRの分割・変更まで許可したとは扱わない。
 
@@ -135,7 +156,7 @@ requirement gap・design issue・delivery defectも同じ原因軸を評価す�
 LearnはIssue不要の独立task。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
 分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと有限scopeを固定し、
 guardrail文書、routing、checker、adapter、検証機構を変更・検証できる。
-product pathの変更は禁止する。開始時checker binaryと旧profileで検証し、変更後checkerの成功だけを
+product pathの変更は禁止する。通常は開始時checker binaryと旧profileで検証する。明示的なchecker移行は移行先binaryを固定し、旧policy/profileを維持する。変更後checkerの成功だけを
 確定根拠にしない。担当agent自身が最新差分と証拠をreviewし、依頼された許可範囲で確定する。
 独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行う。
 reviewをテスト成功から生成してはいけない。

@@ -319,15 +319,15 @@ func lockProductNames(root map[string]any, tools map[string]bool) map[string]boo
 }
 
 func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []File) error {
-	before, ok := fileMap(l.Task.Baseline)[lockPath]
+	before, ok := fileMap(l.changeBaseline())[lockPath]
 	after, exists := fileMap(files)[lockPath]
-	if !ok || !exists || before.Type != "regular" || after.Type != "regular" || transportFiles([]File{before}, l.Delivered)[0].Mode != transportFiles([]File{after}, l.Delivered)[0].Mode {
+	if !ok || !exists || before.Type != "regular" || after.Type != "regular" || transportFiles([]File{before}, l.gitComparison())[0].Mode != transportFiles([]File{after}, l.gitComparison())[0].Mode {
 		return fail("LOCKFILE", lockPath, "既存lockfileのtype/modeを保持してください")
 	}
-	if l.Task.Spec.Kind == "learn" && !owned(lockPath, l.Task.Spec.AuthorizedScopes) {
+	if l.Task.Spec.Kind == "learn" && !owned(lockPath, l.authorizedScopes()) {
 		return fail("LEARN_SCOPE", lockPath, "lockfileの明示ownershipが必要です")
 	}
-	old, err := s.Git(ctx, "show", l.Task.BaselineHead+":"+lockPath)
+	old, err := s.Git(ctx, "show", l.changeBaseHead()+":"+lockPath)
 	if err != nil {
 		return err
 	}

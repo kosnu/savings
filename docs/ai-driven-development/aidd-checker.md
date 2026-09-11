@@ -56,9 +56,29 @@ Taskの配信区分は持たない。旧v5のdelivery fieldはcanonical bytes/ha
 操作許可の判断は実行agentが担い、Coreの成功を公開操作の許可には使わない。
 旧binaryの固定条件は維持し、互換性の限界は[operations](aidd-checker-operations.md#ship--ci)に従う。
 
+## 統合記録と変更判定基準
+
+Decisionの省略可能な`integration`は`base_head`と`head`の完全commit IDを持つ。
+Task開始点→統合base→統合head→現在HEADのancestor関係をGitで照合する。
+checkpoint履歴を読み直す際にも全統合記録を検査し、base/headの後退と記録の除去を拒否する。
+変更判定用inventoryは指定baseのGit treeから取得する。Taskの保存済みbaselineやpolicy/profileは書き換えない。
+
+権限と変更pathの比較はGit modeで行う。証拠は従来どおりTask外を含む全inventoryに結合し、
+ローカルのcontent/mode変更も検査する。CLIのcheckpoint/verify/check/finish/ship-checkとCIで同じ基準を使う。
+統合recordはcheckpoint hashを通じて証拠と結合し、旧証拠の部分的な流用はしない。
+CIは呼出側の信頼された`--target-base`と統合baseの完全一致、および`--base`との一致を要求する。
+ローカルのGit包含関係だけでは、そのcommitがmainであることを認証できない。baseの取得責務はagent、
+CIではGitHub eventから値を渡すworkflowが担い、candidate記録をtrusted baseの取得元にしない。
+
+旧v5記録はfield省略時のcanonical bytes/hashを保持する。統合記録を持つcheckpointは対応checkerを必要とする。
+統合fieldでcheckerの固定を解除しない。旧Taskの実行checker移行は、別の`checker_migration`を追記する。
+移行元checkpoint・既存証跡・checkerと移行先checker、明示許可、追加の有限scopeを記録し、過去記録は保持する。
+ローカルでは実行binaryを移行先hashに固定し、CIでは通常経路を拒否して人の承認を必要とする移行経路へ送る。
+hashは承認者の認証ではなく、ローカルの許可判断はagent、CIの受入承認はbase側migration jobが担う。
+
 ## Learnの信頼境界
 
-Learnも開始時binaryを使う。candidate checkerへの置換をhashで拒否し、旧profileと旧policyを
+Learnは開始時binary、または明示的な移行checkpointが固定するbinaryを使う。記録なしのcandidate置換をhashで拒否し、旧profileと旧policyを
 Taskのbytesから解決する。product pathsと許可scopeは旧policyで検査する。
 混在package設定とlockfileは[設定・依存関係の保護](#設定依存関係の保護)に従い、tool更新の同期を許可する。
 新checkerのtest成功だけではLearnを確定せず、担当agent自身が最新差分とevidenceをreviewする。
@@ -91,7 +111,8 @@ checkerが自己申告された意味を証明したり、暗号署名なしで�
 agentは解釈、戦略、設計、reviewを担い、checkerは決定論的な整合を検査する。
 
 初期版はclean start、1 PR=1 task、全失効、逐次verificationを採用する。
-1 Task内の複数commit・PR review後の再開は対応し、元baselineを維持して全差分を再検証する。
+1 Task内の複数commit・PR review後の再開・main取り込みに対応し、元baselineを維持して全体を再検証する。
+統合後の変更判定基準はcheckpointの`integration.base_head`であり、開始点と分離する。
 共有worktreeへの並行writer、部分証拠再利用、複数taskのPR合成は未対応。
 これは既存保証の維持を優先した境界であり、黙って成功扱いへ緩和しない。
 
