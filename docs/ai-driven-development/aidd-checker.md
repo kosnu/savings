@@ -172,7 +172,8 @@ repository管理者によるworkflow・保護設定の意図的な変更まで�
 `conditional_verification`は対象path・観測する事実・必要suiteを、`runner_argv_prefixes`は
 repositoryで採用する起動方法を宣言する。使用するtest-case runnerにはprefix宣言を必須とする。
 `profile_invocations`はsuiteのprofile IDごとにrunner・working directory・argvの完全一致契約を宣言する。
-現行policyはgit-diff-checkの起動契約を保持し、他commandへの置換や対象を狭める引数追加を拒否する。
+現行policyはgit-diff-checkの起動契約を保持し、その宣言に反するcatalogの他commandへの置換や
+対象を狭める引数追加を拒否する。
 このfieldを持たない既存policyの読取は維持する。通常の必須suiteは既存の`protocol.json`の
 `required_verification`が所有する。全変更のgit-diff-checkもその宣言によって必須となり、
 Coreやcatalogでprofile名を特別扱いしない。profileのargv自体は引き続き開始時bytesに固定する。
@@ -181,7 +182,8 @@ Coreやcatalogでprofile名を特別扱いしない。profileのargv自体は引
 Task・checkpoint・evidenceの保存形式は変更せず、開始時inventoryに含まれるpolicyのhashと
 開始時Git treeのbytesを照合して読み取る。統合baseやcandidateのpolicyで開始時policyを置き換えない。
 旧Taskにこのfileがない場合だけ、`repositorypolicy/legacy.json`に隔離した旧方針で読み取る。
-旧方針はhistorical artifactにも使い、新規Taskの設定欠落のfallbackにはしない。
+historical artifactは旧形式の契約と旧方針で読取検証し、現行TaskのDecisionは開始時policyで検証する。
+新規Taskの設定欠落に旧方針をfallbackとして使わない。
 旧Taskのbytes/hash・checker固定条件は変更しない。新規policyは開始時snapshotと同じ保護境界に属する。
 
 Coreは宣言に基づく必須検証・ownership・証拠の整合を検査する。技術アダプタはpathやprofileを
@@ -199,5 +201,7 @@ package manager・Python launcherの選択はrepository policyが所有する。
 `-m unittest -v`を検査し、verbose結果採取を維持する。結果・selector用引数の差し替えは拒否する。
 
 方針変更はpolicyとそのテストへ、技術形式への対応はアダプタとそのテストへ閉じる。
+policyの改訂権限は[workflowのLearn契約](workflow.md#review--learn)に従い、改訂後の方針は後続Taskへ適用する。
+Coreは各Taskに固定した方針の適用・保護を担い、repository方針自体の改訂可否は決めない。
 これは任意式・外部commandを実行する汎用ルールエンジンではない。
 変更時は不変条件と許容・拒否条件を明示し、既存の誤検知を含む判定方式の再現自体を目的にしない。
