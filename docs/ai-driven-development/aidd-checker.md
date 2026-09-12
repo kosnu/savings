@@ -91,7 +91,9 @@ reviewの意味と許可範囲は担当agentが確認する。JSONやhashは署�
 guard_fieldsはそのsubtree内でも優先保護する。Learnは逆にproduct fieldを保持する。
 ファイルの追加・削除・mode変更、未宣言fieldはproduct変更へ読み替えない。
 packageの検証script・tool依存を保護し、build/dev scriptとproduct依存を区別する。
-Vite設定は独立したvitest.configから参照されていないproduct build設定として扱う。
+アプリのVite設定は独立したvitest.configから参照されていないproduct build設定として扱う。
+ルートの`vite.config.ts`は共有のstaged・format・lint設定、`.vite-hooks/**`はGit hookの
+実行入口としてguardrailに分類する。`apps/web/vite.config.*`のproduct build設定とは区別する。
 pnpm lockfile v9はimporterと解決済みpackage/snapshotの推移依存を照合する。Developmentは
 検証toolの解決実体・lockfile共通設定を保持し、Learnはproductの解決実体を保持する。
 packageのpeer宣言があり、相手側rootとpeer構成を含む解決versionが一致する参照だけを相手側で検査する。両方が共有する推移依存の実体変更は
