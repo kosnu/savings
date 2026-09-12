@@ -175,7 +175,7 @@ func TestLegacyTaskStillVerifiesWithoutRepositoryPolicyFile(t *testing.T) {
 }
 
 func TestInvocationPolicyIsEnforcedThroughConfiguration(t *testing.T) {
-	for _, variant := range []string{"suite-command", "suite-arguments", "suite-directory", "missing-vitest", "missing-python", "python-launcher", "python-selector", "python-quiet"} {
+	for _, variant := range []string{"suite-command", "suite-arguments", "suite-directory", "missing-vitest", "missing-python", "python-launcher", "python-selector", "python-quiet", "vitest-missing-script", "vitest-option", "vitest-script", "vitest-launcher"} {
 		t.Run(variant, func(t *testing.T) {
 			f := setup(t, "learn")
 			var profiles model.ProfileCatalog
@@ -194,6 +194,18 @@ func TestInvocationPolicyIsEnforcedThroughConfiguration(t *testing.T) {
 			case "missing-vitest":
 				delete(p.RunnerArgvPrefixes, "vitest_json")
 				profiles.Profiles = append(profiles.Profiles, model.VerificationProfile{ID: "zz-vitest", Contract: "test_case", Runner: "vitest_json", SelectorKind: "test_case", Argv: []string{"npx", "vitest"}})
+			case "vitest-missing-script", "vitest-option", "vitest-script", "vitest-launcher":
+				argv := []string{"pnpm", "run"}
+				switch variant {
+				case "vitest-option":
+					argv = append(argv, "--silent")
+				case "vitest-script":
+					argv = append(argv, "test:unit")
+				case "vitest-launcher":
+					argv = []string{"vitest"}
+					p.RunnerArgvPrefixes["vitest_json"] = []string{"vitest"}
+				}
+				profiles.Profiles = append(profiles.Profiles, model.VerificationProfile{ID: "zz-vitest", Contract: "test_case", Runner: "vitest_json", SelectorKind: "test_case", Argv: argv})
 			case "missing-python":
 				delete(p.RunnerArgvPrefixes, "python_unittest")
 				profiles.Profiles = append(profiles.Profiles, python)
@@ -215,7 +227,7 @@ func TestInvocationPolicyIsEnforcedThroughConfiguration(t *testing.T) {
 			must(t, err)
 			f.put(repositorypolicy.Path, string(data))
 			err = f.snapshot(func(s *repository.Snapshot) error { return CheckConfiguration(context.Background(), s) })
-			if variant == "python-launcher" {
+			if variant == "python-launcher" || variant == "vitest-script" || variant == "vitest-launcher" {
 				must(t, err)
 			} else if err == nil {
 				t.Fatal("invalid invocation accepted")
