@@ -66,6 +66,7 @@ Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明
 3. checkpointで実装が参照する判断を固定する。常時の人間承認gateにはしない。
 4. ownership内で実装し、実差分と最終inventoryを照合して検証・reviewする。
 5. 検証済みの変更をcommit・pushし、PR作成または更新と配信状態の確認までShipする。
+   CIは[Git WorkflowのCI確認方針](../harness/policies/git-workflow.md#ship時のci確認)に従い、現在の状態を報告して完了を待たない。
    ユーザーの明示制限がある場合だけその範囲に従う。検証完了やCore gate成功だけではDevelopmentを完了しない。
    merge・deployはShipに含めず、個別の実行依頼に従う。
 
