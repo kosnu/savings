@@ -7,6 +7,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/evidence"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repositorypolicy"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/runner"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/state"
@@ -18,7 +19,8 @@ func (l *Loaded) executionInput() verificationcontract.Input {
 }
 
 func (l *Loaded) validateResult(ctx context.Context, snapshot *repository.Snapshot) ([]File, []string, error) {
-	if err := CheckConfiguration(ctx, snapshot); err != nil {
+	_, hasRepositoryPolicy := fileMap(l.Task.Baseline)[repositorypolicy.Path]
+	if err := checkConfiguration(ctx, snapshot, !hasRepositoryPolicy); err != nil {
 		return nil, nil, err
 	}
 	if _, err := state.ValidateFinal(snapshot, &l.Checkpoint.Decision.Target); err != nil {
@@ -34,7 +36,7 @@ func (l *Loaded) validateResult(ctx context.Context, snapshot *repository.Snapsh
 	if err = l.validateGenerated(snapshot, files); err != nil {
 		return nil, nil, err
 	}
-	if err = l.requireStorybook(ctx, snapshot, files); err != nil {
+	if err = l.requireConditionalVerification(ctx, snapshot, files); err != nil {
 		return nil, nil, err
 	}
 	result := transportFiles(withoutGenerated(files, l.Task.Spec.ID), l.Delivered)
