@@ -1,0 +1,138 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "af8c0e7e31fa5609a379bcd2fdb11ec41a2a0ffe02b2e025a31c836bdacbfc00",
+  "revision": 3,
+  "parent_sha256": "489386372efcfabe265d214bc3d6588a6a178338d2588c845c16c98bbd7b5bfa",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "af8c0e7e31fa5609a379bcd2fdb11ec41a2a0ffe02b2e025a31c836bdacbfc00",
+    "reason": "ユーザーが「vpが今後リポジトリ全体のゲートになるならそのままでいい」と採用し、「その判断をのこせ」と明示したため、同じTaskとPRで判断根拠・責務・適用範囲を運用文書へ固定する。実行挙動は変えず、root設定に正本参照を加えて再判断を防ぐ。過去のTask/checkpointとbaselineは維持する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Git hookでGoのfmtとvetを実行しローカル検証漏れを防いでShipする",
+        "origin": "intent",
+        "evidence": "fmtとvetで仕切り直して"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "commit前にGo整形・vetを順に実行し、不正な変更は停止、未ステージ変更は保持する。AIDD canonical JSONのbytesはformatterで変更しない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "一時Git repositoryで実設定とhookを使用し、整形成功、部分ステージ、空白path、削除のみ、Goなし、vetエラー、構文エラー、未ステージ修正でエラーが隠れないことを検査する。設定format/lint、shell構文、Go fmt/vet、check-allを実行して最終差分reviewを行う。canonical AIDD JSONのbytesが実際のgit commit前後で変わらないことを検査する。 リポジトリ全体の共通ゲートという採用判断、FE専用ではない設定の責務、非Go変更でもvetを実行する方針とroot設定からの正本参照が同期していることを確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".vite-hooks/pre-commit",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "vite.config.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".vite-hooks/pre-commit",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "vite.config.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review",
+      "policy.git-workflow"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}
