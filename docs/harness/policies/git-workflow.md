@@ -78,6 +78,14 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 - PR作成用の一時ファイルを作った場合は、完了前に削除する。
 - PR作成後は、title、body、base branch、head branch、issue linkを確認する。
 
+## Ship時のCI確認
+
+- ShipではCIの完了を待たない。commit・push・PR作成または更新と配信状態の確認後、対象headのCI状態を一度取得して報告する。
+- CIが未開始・待機中・実行中でも、完了待ちのpollingやwatchを行わずShipを終了する。
+- CIの成功・失敗・未完了を区別し、取得できない場合は未確認と報告する。未完了・未確認を成功扱いしない。
+- 必須のローカル検証、レビュー、配信状態の確認は従来どおり行う。
+- ユーザーがCI結果の待機を明示的に依頼した場合だけ、その依頼範囲で待機する。
+
 ## Gitメタデータと配信状態
 
 - 最初のGit書き込みより前に `git rev-parse --git-common-dir` でGit common directoryを解決し、実行環境の書き込み境界にそのdirectoryが含まれることを確認する。worktree directoryだけを書き込み可能にしても、branch、index、remote-tracking refなどのGitメタデータ更新には不十分である。
