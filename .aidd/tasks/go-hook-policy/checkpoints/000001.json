@@ -1,0 +1,118 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "11824c52ab28a83911748daf54e9e3b8c73f77eb61a8499aebfa5e46cfd05416",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "11824c52ab28a83911748daf54e9e3b8c73f77eb61a8499aebfa5e46cfd05416",
+    "reason": "明示承認された前提修正。元Taskはcheckpoint前に未登録pathのため停止した状態で保存する。原因はguardrail_pathsにルート検証設定とGit hookが存在しないことであり、実行経路を別の場所へ迂回せず所有分類を補う。root vite.config.tsはstaged/fmt/lintだけを持ち、apps/web/vite.config.*のproduct分類は維持する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Git hook追加に必要な対象分類の前提修正を行う",
+        "origin": "intent",
+        "evidence": "対象分類の前提修正も含めて進めてよいですか？"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "root vite.config.tsと.vite-hooks配下をguardrailとして扱い、アプリのVite設定をproductとして維持する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "実policyの追加分類と既存product分類を照合する。開始時checker check-config/check-all、Go mod verify/gofmt/vet/test、ADR validatorを実行し、文書と差分をreviewする。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/contracts/protocol.json",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/contracts/protocol.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review",
+      "policy.git-workflow"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}
