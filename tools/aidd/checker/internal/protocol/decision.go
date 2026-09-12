@@ -51,17 +51,17 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 		if s.Path == ".aidd" || strings.HasPrefix(s.Path, ".aidd/") {
 			return nil, fail("SCOPE", s.Path, "checker成果物を実装scopeにできません")
 		}
-		if l.Task.Spec.Kind == "learn" && !scopeCovered(s, l.Task.Spec.AuthorizedScopes) {
+		if l.Task.Spec.Kind == "learn" && !scopeCovered(s, l.authorizedScopes()) {
 			return nil, fail("LEARN_SCOPE", s.Path, "明示許可を超えるownershipです")
 		}
-		for _, f := range l.Task.Baseline {
+		for _, f := range l.changeBaseline() {
 			if owned(f.Path, []model.OwnershipScope{s}) && l.guarded(f.Path) && l.mixed(f.Path) == nil && f.Path != lockPath && l.Task.Spec.Kind == "development" {
 				return nil, fail("GUARDRAIL_SCOPE", f.Path, "guardrailをDevelopment scopeへ含められません")
 			}
 		}
 	}
 	paths := map[string]bool{}
-	for _, f := range l.Task.Baseline {
+	for _, f := range l.changeBaseline() {
 		if owned(f.Path, d.Target.OwnershipScopes) {
 			paths[f.Path] = true
 		}
@@ -166,6 +166,12 @@ func loadCheckpoints(snapshot *repository.Snapshot, l *Loaded) error {
 		if cp.SchemaVersion != Version || cp.Kind != "checkpoint" || cp.TaskSHA256 != l.TaskHash || cp.Revision != i+1 || cp.ParentSHA256 != parent {
 			return fail("REVISION", path, "checkpoint chainが一致しません")
 		}
+		if err := l.selectCheckerMigration(snapshot, cp.Decision.CheckerMigration, parent); err != nil {
+			return err
+		}
+		if err := l.selectIntegration(context.Background(), snapshot, cp.Decision.Integration); err != nil {
+			return err
+		}
 		required, err := l.validateDecision(cp.Decision)
 		if err != nil {
 			return err
@@ -185,9 +191,6 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 	if err != nil {
 		return "", err
 	}
-	if err = l.checkAuthority(); err != nil {
-		return "", err
-	}
 	if _, err = l.executionHead(ctx, snapshot, true); err != nil {
 		return "", err
 	}
@@ -196,6 +199,15 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 	}
 	if parentHash != l.CheckpointHash {
 		return "", fail("REVISION", id, "最新checkpointを親として指定してください")
+	}
+	if err = l.selectCheckerMigration(snapshot, d.CheckerMigration, parentHash); err != nil {
+		return "", err
+	}
+	if err = l.checkAuthority(); err != nil {
+		return "", err
+	}
+	if err = l.selectIntegration(ctx, snapshot, d.Integration); err != nil {
+		return "", err
 	}
 	files, err := inventory(ctx, snapshot)
 	if err != nil {

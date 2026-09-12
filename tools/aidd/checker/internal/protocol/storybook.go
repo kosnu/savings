@@ -7,16 +7,16 @@ import (
 	"strings"
 )
 
-// tagの除去・ファイル削除も、開始時と現在の両方から検査する。
+// tagの除去・ファイル削除も、変更判定基準と現在の両方から検査する。
 // 動的tag生成・依存componentへの波及はrule reviewが補う。
 func (l *Loaded) requireStorybook(ctx context.Context, s *repository.Snapshot, files []File) error {
-	for _, path := range changed(transportFiles(l.Task.Baseline, l.Delivered), transportFiles(withoutGenerated(files, l.Task.Spec.ID), l.Delivered)) {
+	for _, path := range l.changedPaths(files) {
 		if !strings.HasPrefix(path, "apps/web/src/") || !(strings.HasSuffix(path, ".stories.tsx") || strings.HasSuffix(path, ".stories.ts")) {
 			continue
 		}
 		tagged := false
-		if _, ok := fileMap(l.Task.Baseline)[path]; ok {
-			data, err := s.Git(ctx, "show", l.Task.BaselineHead+":"+path)
+		if _, ok := fileMap(l.changeBaseline())[path]; ok {
+			data, err := s.Git(ctx, "show", l.changeBaseHead()+":"+path)
 			if err != nil {
 				return err
 			}

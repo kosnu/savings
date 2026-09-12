@@ -16,17 +16,21 @@ func protocolCommand(ctx context.Context, command string, args []string) error {
 	flags := newFlagSet(command)
 	root := flags.String("repo-root", "", "canonical repository")
 	base := flags.String("base", "", "PR merge-base commit")
-	targetBase := flags.String("target-base", "", "current PR target base commit (bootstrap)")
+	targetBase := flags.String("target-base", "", "current PR target base commit (CI / bootstrap)")
 	id := flags.String("task", "", "task ID")
 	taskHash := flags.String("task-sha256", "", "task identity")
 	checkpoint := flags.String("checkpoint-sha256", "", "latest checkpoint (parent for checkpoint)")
 	evidenceHash := flags.String("evidence-sha256", "", "verification identity")
 	source := flags.String("source", "", "external input JSON")
 	sourceHash := flags.String("source-sha256", "", "external review identity")
+	migration := flags.Bool("contract-migration", false, "candidate validation for explicitly approved contract migration")
 	var manual repeatedFlag
 	flags.Var(&manual, "manual-observation", "VC-ID=observation")
 	if err := parseFlags(flags, args); err != nil {
 		return err
+	}
+	if *migration && command != "ci-check" {
+		return fmt.Errorf("--contract-migration is only valid with ci-check")
 	}
 	if *root == "" {
 		return fmt.Errorf("--repo-root is required")
@@ -63,7 +67,11 @@ func protocolCommand(ctx context.Context, command string, args []string) error {
 	case "bootstrap-check":
 		err = protocol.CheckBootstrap(ctx, snapshot, *base, *targetBase)
 	case "ci-check":
-		err = protocol.CheckDelivery(ctx, snapshot, *base, *id)
+		if *migration {
+			err = protocol.CheckMigrationDelivery(ctx, snapshot, *base, *id, *targetBase)
+		} else {
+			err = protocol.CheckDelivery(ctx, snapshot, *base, *id, *targetBase)
+		}
 	case "task-start":
 		var spec protocol.Spec
 		if err = canonical.Decode(content, "task_spec", &spec); err == nil {

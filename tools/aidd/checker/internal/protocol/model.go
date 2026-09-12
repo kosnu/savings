@@ -27,7 +27,8 @@ type Spec struct {
 	Constraints   []string `json:"constraints"`
 	Done          []string `json:"done"`
 	Verification  []string `json:"verification"`
-	Delivery      string   `json:"delivery"`
+	// 旧v5記録のcanonical bytesとhashを保持する読取互換field。配信権限には使わない。
+	LegacyDelivery string `json:"delivery,omitempty"`
 	// Learnの変更許可は明示された依頼と有限scopeに固定する。
 	Authorization    string                 `json:"authorization,omitempty"`
 	AuthorizedScopes []model.OwnershipScope `json:"authorized_scopes,omitempty"`
@@ -79,14 +80,30 @@ type Requirement struct {
 	Evidence string `json:"evidence"`
 }
 
+type Integration struct {
+	BaseHead string `json:"base_head"`
+	Head     string `json:"head"`
+}
+
+type CheckerMigration struct {
+	FromCheckerSHA256    string                 `json:"from_checker_sha256"`
+	ToCheckerSHA256      string                 `json:"to_checker_sha256"`
+	FromCheckpointSHA256 string                 `json:"from_checkpoint_sha256"`
+	FromEvidenceSHA256   string                 `json:"from_evidence_sha256"`
+	Authorization        string                 `json:"authorization"`
+	AuthorizedScopes     []model.OwnershipScope `json:"authorized_scopes"`
+}
+
 type Decision struct {
-	SchemaVersion   int               `json:"schema_version"`
-	Kind            string            `json:"kind"`
-	TaskSHA256      string            `json:"task_sha256"`
-	Reason          string            `json:"reason"`
-	Requirements    []Requirement     `json:"requirements"`
-	Target          model.TargetState `json:"target_state"`
-	AdditionalRules []string          `json:"additional_rules"`
+	SchemaVersion    int               `json:"schema_version"`
+	Kind             string            `json:"kind"`
+	TaskSHA256       string            `json:"task_sha256"`
+	Reason           string            `json:"reason"`
+	Requirements     []Requirement     `json:"requirements"`
+	Target           model.TargetState `json:"target_state"`
+	AdditionalRules  []string          `json:"additional_rules"`
+	Integration      *Integration      `json:"integration,omitempty"`
+	CheckerMigration *CheckerMigration `json:"checker_migration,omitempty"`
 }
 
 type Checkpoint struct {

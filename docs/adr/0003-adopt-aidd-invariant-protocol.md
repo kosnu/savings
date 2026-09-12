@@ -93,3 +93,39 @@ finish/Ship/CIではLearnのreview記録を要求しない。初回bootstrapのr
 人による承認をすべて要求する。candidate成功だけを旧契約の置換権限とはしない。
 元Task、baseline、開始時checkerの記録は保持し、product変更をこの経路へ混在させない。
 これは通常Learnの独立review再導入ではなく、CIが使用する契約を変更する場合の承認境界である。
+
+## Clarification: Remove Task delivery classification (2026-09-10)
+
+2026-09-05のDelivery authority補足のうち、Taskのlocal/pr区分とそれを要求するShip・CI条件を撤去する。
+配信範囲はユーザーの明示指示とconstraints・Doneで判断し、後続のShip許可を同じTaskで扱う。
+新規Taskはdeliveryを保存せず、既存記録はhashを保つ読取互換fieldとして残す。
+finishは最新証拠、Shipは追加でindex、CIはGit転送とbaselineを検査する。
+開始時checkerの固定、明示許可、finite scope、policy/profile、証拠同一性などの安全条件は維持する。
+旧binaryの固定を解除する移行は本変更に含めない。
+
+## Clarification: Migration candidate baseline isolation (2026-09-11)
+
+candidateのGo全テスト・check-allと統合結果の検証は現在のPR headで実行する。PR headがtarget baseを
+取り込んだmerge commitの場合、元Taskのevidenceをtarget base側の既存変更と混ぜないため、candidate版
+ci-checkだけはmerge commitのfirst-parent treeへ指定Taskのdirectoryだけをheadから重ねて適用する。
+そこからPR本文で指定したTaskの`baseline_head`を読み取り、`--task`とともにcandidate checkerへ渡す。
+base側の差分・scope検査と人の承認は、PRのmerge-baseからheadまでの全差分へ適用し、通常PRの`ci-check`は
+従来どおりPR merge-baseを使う。
+
+
+## Clarification: Explicit integration context and final evidence (2026-09-12)
+
+Task開始点を履歴・権限の記録として保持し、main取り込み後の変更判定基準をcheckpointの統合記録で分離する。
+Gitの包含関係とCIの現在のtarget baseへの一致を検査し、変更権限・ownership・rule・必須検証を統合baseとの
+差分へ適用する。証拠は統合後の全inventoryに結合し、旧証拠は全失効させる。権限範囲は拡張しない。
+2026-09-11のMigration candidate baseline isolationにある過去treeへの投影を置き換え、candidate ci-checkも
+最終headを検査する。開始時checkerの固定は維持し、旧Taskの実行binary移行を暗黙に許可しない。
+
+
+## Clarification: Explicit Learn checker succession (2026-09-12)
+
+旧checkerで進められないLearnは、元Taskを保持したまま明示的なchecker移行をcheckpointへ追記できる。
+移行元のcheckpoint・証跡・checkerと移行先checker、実際の許可、追加の有限guardrail scopeを記録する。
+Taskの開始記録・旧policy/profileは保持し、新しい全体証跡は移行先binaryに結合する。
+通常CIはこのTaskを受け入れず、候補の移行検証・base側差分検査・人の承認をすべて要求する。
+記録なしのbinary差し替え、旧証跡の成功流用、Taskの再作成は認めない。
