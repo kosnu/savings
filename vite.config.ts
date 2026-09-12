@@ -1,13 +1,32 @@
+import { execFileSync } from "node:child_process"
+import { existsSync } from "node:fs"
+
 import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   staged: {
-    "*": "vp check --fix",
+    "*": {
+      title: "Format and check staged files",
+      task: (files) => {
+        const existingFiles = files.filter((file) => existsSync(file))
+        const goFiles = existingFiles.filter((file) => file.endsWith(".go"))
+        if (goFiles.length > 0) {
+          execFileSync("gofmt", ["-w", ...goFiles], { stdio: "inherit" })
+        }
+        execFileSync("go", ["-C", "tools/aidd/checker", "vet", "./..."], {
+          stdio: "inherit",
+        })
+        if (existingFiles.length > 0) {
+          execFileSync("vp", ["check", "--fix", ...existingFiles], { stdio: "inherit" })
+        }
+      },
+    },
   },
   fmt: {
     semi: false,
     trailingComma: "all",
     ignorePatterns: [
+      ".aidd/**",
       ".vscode/**",
       "coverage/**",
       "apps/web/coverage/**",
