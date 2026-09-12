@@ -127,6 +127,26 @@ Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と全�
 この運用境界の明記だけで、別PR間のTask置換を機械的に検出できるとは扱わない。
 現在の検査範囲と受入確認は[operations](aidd-checker-operations.md#ship--ci)に従う。
 
+### 同じTask内での変更対象の改訂
+
+目的・対象機能・禁止事項・配信先が委任の境界であり、agentが列挙した初期ファイル一覧は作業計画である。
+ユーザーが明示したファイル単位の制限は別に保持する。レビューで必要になった検証profileやテスト等は、
+同じ目的に必要で明示制限に反しなければ、ファイル一覧にないことだけを理由に確認・Task分割を求めない。
+目的・影響範囲・配信先が広がる場合や明示制限に反する場合は、変更前にユーザーへ確認する。
+
+Developmentは既存のDecision ownership改訂を使う。Learnは初期`authorized_scopes`を保持し、
+追加範囲・理由・委任境界のレビュー・確認者を`scope_revision`として新checkpointへ追記する。
+新規Taskで明示されたファイル制限は`user_scope_limits`へ記録する。旧Taskの許可文に制限がある場合も、
+最初の範囲改訂でその制限を構造化する。省略を「制限なし」と推測せず、元の許可文と制約を確認する。
+記録済み制限は後続改訂で除去・拡張できない。明示制限自体の変更はこの作業計画改訂では扱わない。
+
+元Task・baseline・過去checkpointと証跡を保持し、追加後のownership、representation、適用rule、必須suiteを
+再計算する。改訂で旧証拠を全失効させ、変更判定基準からの全差分と最終状態を再検証する。
+checkerは有限範囲、明示制限、禁止領域、履歴、rule・検証証拠の整合を検査する。
+同じ目的内かという意味判断と許可文・確認者の真正性は担当agentの根拠付きレビューが担う。
+checker移行の許可を作業範囲の改訂から推論しない。互換性とCLIの具体例は
+[operations](aidd-checker-operations.md#learnの変更対象の改訂)を参照する。
+
 ## Rule / ownership / guardrail
 
 baseline内のowned pathsと最終representationから必要ruleを導出し、実差分でも照合する。
@@ -155,7 +175,7 @@ requirement gap・design issue・delivery defectも同じ原因軸を評価す�
 詳細な判断境界は[review feedback policy](../harness/policies/review-feedback-classification.md)を適用する。
 
 LearnはIssue不要の独立task。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
-分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと有限scopeを固定し、
+分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと初期の有限作業範囲を記録し、
 guardrail文書、routing、checker、adapter、検証機構を変更・検証できる。
 product pathの変更は禁止する。通常は開始時checker binaryと旧profileで検証する。明示的なchecker移行は移行先binaryを固定し、旧policy/profileを維持する。変更後checkerの成功だけを
 確定根拠にしない。担当agent自身が最新差分と証拠をreviewし、依頼された許可範囲で確定する。

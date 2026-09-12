@@ -114,7 +114,9 @@ LearnはIssueを入口としない独立作業です。Learn用Issueは作成し
 rule-map、checker、検証profile、adapter、実行機構と必要な回帰testをLearn内で更新できます。
 これはproduct implementationの許可ではありません。
 
-変更前にfeedback、authorization、有限ownershipをLearn Taskへ固定します。
+変更前にfeedback、authorization、初期の有限作業範囲をLearn Taskへ記録します。
+ユーザーの明示制限とagentの変更予定一覧を区別し、委任内の追加は
+[同じTask内での変更対象の改訂](../../ai-driven-development/workflow.md#同じtask内での変更対象の改訂)に従います。
 開始時のchecker binaryと旧policy/profileを維持して検証し、担当agent自身が最新差分と
 checkpoint/evidenceをreviewして、依頼された許可範囲で確定します。変更後checkerの成功だけでは完了にしません。
 独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行います。
