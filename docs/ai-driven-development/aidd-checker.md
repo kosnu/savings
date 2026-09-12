@@ -119,7 +119,9 @@ agentは解釈、戦略、設計、reviewを担い、checkerは決定論的な�
 ## 実装責務
 
 - protocol: v5 task / decision / checkpoint / verification / delivery。
-- semantic / state / rules: targetとownership、rule graph、最終状態。
+- semantic / state / rules: targetとownershipの構造、宣言されたscope制約、rule graph、最終状態。
+- repositorypolicy: repository固有のscope制約、条件付き必須検証、runner起動方針。
+- adapters/storybook、adapters/pnpm、adapters/testrunner: source・依存関係・テスト結果から技術的事実を抽出する。
 - repository: Git、filesystem、snapshot、atomic output、mutation manifest。
 - verificationcontract / runner / evidence: agent非依存の実行入力と証拠。
 - adapters/codex: Codex lifecycle支援。正本状態・公開許可を所有しない。
@@ -162,3 +164,44 @@ base sourceとGo cacheの隔離は通常検証と同じである。candidateが�
 取得できなければ成功にしない。workflow自体の変更のreviewとGitHub管理権限を信頼境界に含む。
 repository管理者によるworkflow・保護設定の意図的な変更まで防ぐ仕組みではない。
 操作・差分範囲・初回導入は[operations](aidd-checker-operations.md#非互換なchecker契約の移行)を正本とする。
+
+## Repository policyと技術アダプタの境界
+
+`contracts/repository-policy.json`はschema_version 1、kind `aidd_repository_policy`の機械可読contract。
+この節を方針の所有文書とし、`forbidden_tree_scopes`は広すぎるtree ownershipを、
+`conditional_verification`は対象path・観測する事実・必要suiteを、`runner_argv_prefixes`は
+repositoryで採用する起動方法を宣言する。使用するtest-case runnerにはprefix宣言を必須とする。
+`profile_invocations`はsuiteのprofile IDごとにrunner・working directory・argvの完全一致契約を宣言する。
+現行policyはgit-diff-checkの起動契約を保持し、その宣言に反するcatalogの他commandへの置換や
+対象を狭める引数追加を拒否する。
+このfieldを持たない既存policyの読取は維持する。通常の必須suiteは既存の`protocol.json`の
+`required_verification`が所有する。全変更のgit-diff-checkもその宣言によって必須となり、
+Coreやcatalogでprofile名を特別扱いしない。profileのargv自体は引き続き開始時bytesに固定する。
+
+新規実行とcandidate設定検査ではrepository policyの存在、形式、参照suite、guardrail分類を検査する。
+Task・checkpoint・evidenceの保存形式は変更せず、開始時inventoryに含まれるpolicyのhashと
+開始時Git treeのbytesを照合して読み取る。統合baseやcandidateのpolicyで開始時policyを置き換えない。
+旧Taskにこのfileがない場合だけ、`repositorypolicy/legacy.json`に隔離した旧方針で読み取る。
+historical artifactは旧形式の契約と旧方針で読取検証し、現行TaskのDecisionは開始時policyで検証する。
+新規Taskの設定欠落に旧方針をfallbackとして使わない。
+旧Taskのbytes/hash・checker固定条件は変更しない。新規policyは開始時snapshotと同じ保護境界に属する。
+
+Coreは宣言に基づく必須検証・ownership・証拠の整合を検査する。技術アダプタはpathやprofileを
+選ばず、渡された入力から事実を返す。現時点のStorybook detectorは`storybook_tag_text`であり、
+source内の指定文字列を保守的に観測する。tag削除とfile削除も変更前後のsourceから拾う。
+既存同様コメント中の文字列も対象になり、動的tagやcomponent依存関係の意味は証明しない。
+この変更では判定方式を狭めず、検出漏れを生じさせずに所有者を分離する。
+
+pnpmアダプタは依存分類を入力として、保護対象closure・toolchain・設定の変化を返す。
+Developmentでtool側を保持し、Learnでproduct側を保持する許可判断はCoreが担う。
+peer構成の正規化は同じ反対側root更新から一意に導ける場合に限定し、共有依存や参照欠落を
+成功に変換しない。技術形式の未対応・不正はエラーにする。
+Vitest/Pythonアダプタは指定テストの実行identity・成功と結果採取の入力契約を確認する。
+package manager・Python launcherの選択はrepository policyが所有する。Python adapterは起動引数末尾の
+`-m unittest -v`を検査し、verbose結果採取を維持する。結果・selector用引数の差し替えは拒否する。
+
+方針変更はpolicyとそのテストへ、技術形式への対応はアダプタとそのテストへ閉じる。
+policyの改訂権限は[workflowのLearn契約](workflow.md#review--learn)に従い、改訂後の方針は後続Taskへ適用する。
+Coreは各Taskに固定した方針の適用・保護を担い、repository方針自体の改訂可否は決めない。
+これは任意式・外部commandを実行する汎用ルールエンジンではない。
+変更時は不変条件と許容・拒否条件を明示し、既存の誤検知を含む判定方式の再現自体を目的にしない。

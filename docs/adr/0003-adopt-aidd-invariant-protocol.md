@@ -129,3 +129,14 @@ Gitの包含関係とCIの現在のtarget baseへの一致を検査し、変更�
 Taskの開始記録・旧policy/profileは保持し、新しい全体証跡は移行先binaryに結合する。
 通常CIはこのTaskを受け入れず、候補の移行検証・base側差分検査・人の承認をすべて要求する。
 記録なしのbinary差し替え、旧証跡の成功流用、Taskの再作成は認めない。
+
+
+## Clarification: Repository policy and technology adapters (2026-09-12)
+
+CoreはTask・checkpoint・証拠・変更範囲の整合を所有し、repository固有の必須検証、
+禁止tree scope、runner起動方針は開始時に固定するrepository policyが所有する。
+Storybook source、pnpm依存構造、Vitest/Python結果の技術的な解釈はアダプタへ分離し、
+検証の必須化や変更許可はpolicyとCoreが担う。既存の不変条件を保持し、判定方式自体を固定しない。
+Taskの保存形式を変えず、repository policyは開始時Git treeとbaseline inventoryのhashに結合する。
+policy導入前の記録は隔離した旧方針で読み取り、新規実行の設定欠落は拒否する。
+これは汎用ルールエンジンの導入や、既存Taskのchecker固定・許可境界を緩和する決定ではない。

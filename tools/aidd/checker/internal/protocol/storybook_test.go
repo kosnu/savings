@@ -53,7 +53,7 @@ func TestStorybookCoverageSeesRemovedAndNewTags(t *testing.T) {
 				if variant == "covered" {
 					l.Checkpoint.Decision.Target.VerificationCases = append(l.Checkpoint.Decision.Target.VerificationCases, model.VerificationCase{Type: "automated", VerificationProfileID: "web-storybook-suite", Selector: &model.Selector{Kind: "suite"}})
 				}
-				return l.requireStorybook(context.Background(), s, files)
+				return l.requireConditionalVerification(context.Background(), s, files)
 			})
 			if variant == "untagged" || variant == "covered" {
 				must(t, err)

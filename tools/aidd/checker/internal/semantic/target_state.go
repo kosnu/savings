@@ -12,6 +12,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/manualcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repositorypolicy"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/unicode/norm"
 )
@@ -22,7 +23,7 @@ var (
 	representationPattern = regexp.MustCompile(`^REP-[1-9][0-9]*$`)
 )
 
-func ValidateTargetState(target *model.TargetState, requirementIDs []string, artifact string) error {
+func ValidateTargetState(target *model.TargetState, requirementIDs []string, artifact string, scopePolicy ...[]string) error {
 	requirementSet := stringSet(requirementIDs)
 	behaviorRequirements := map[string]string{}
 	behaviorIDs := make([]string, 0, len(target.ProductBehaviors))
@@ -92,7 +93,7 @@ func ValidateTargetState(target *model.TargetState, requirementIDs []string, art
 		return diagnostic.New("AIDD_CASE_BEHAVIOR_COVERAGE", "validation.target_state.verification_cases", artifact, "verification cases must cover every product behavior", behaviorIDs, sortedSet(coveredBehaviors))
 	}
 
-	if err := validateScopes(target.OwnershipScopes, artifact); err != nil {
+	if err := validateScopes(target.OwnershipScopes, artifact, scopePolicy...); err != nil {
 		return err
 	}
 	if err := validateRepresentations(target, requirementSet, behaviorRequirements, caseRequirements, artifact); err != nil {
@@ -135,11 +136,18 @@ func validateVerificationContract(verificationCase model.VerificationCase, path,
 	return nil
 }
 
-func validateScopes(scopes []model.OwnershipScope, artifact string) error {
+func validateScopes(scopes []model.OwnershipScope, artifact string, scopePolicy ...[]string) error {
 	if len(scopes) == 0 {
 		return diagnostic.New("AIDD_SCOPE_EMPTY", "validation.target_state.ownership_scopes", artifact, "ownership scopes must be non-empty", nil, scopes)
 	}
-	forbiddenRoots := map[string]bool{"apps": true, "apps/web": true, "apps/api": true, "docs": true, ".agents": true, ".codex": true}
+	roots := repositorypolicy.Legacy().ForbiddenTreeScopes
+	if len(scopePolicy) > 0 {
+		roots = scopePolicy[0]
+	}
+	forbiddenRoots := map[string]bool{}
+	for _, p := range roots {
+		forbiddenRoots[p] = true
+	}
 	paths := make([]string, 0, len(scopes))
 	for index, scope := range scopes {
 		path := "validation.target_state.ownership_scopes[" + strconv.Itoa(index) + "]"

@@ -6,9 +6,9 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/adapters/testrunner"
 	"os"
 	"os/exec"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -48,9 +48,9 @@ func executeAutomated(ctx context.Context, snapshot *repository.Snapshot, profil
 		if err != nil {
 			return nil, err
 		}
-		arguments = vitestArguments(arguments, resultFile, selectorPath, verificationCase.Selector.Name)
+		arguments = testrunner.VitestArguments(arguments, resultFile, selectorPath, verificationCase.Selector.Name)
 	} else if profile.Runner == "python_unittest" {
-		target, err := pythonUnittestTarget(*verificationCase.Selector)
+		target, err := testrunner.PythonTarget(*verificationCase.Selector)
 		if err != nil {
 			return nil, err
 		}
@@ -95,10 +95,6 @@ func executeAutomated(ctx context.Context, snapshot *repository.Snapshot, profil
 		ExitCode: &exitCode, StdoutBytes: &stdoutBytes, StderrBytes: &stderrBytes,
 		OutputSHA256: digest, FinalStateSHA256: finalState,
 	}, nil
-}
-
-func vitestArguments(base []string, resultFile, selectorPath, testName string) []string {
-	return append(base, "--reporter=json", "--outputFile="+resultFile, selectorPath, "--testNamePattern=^"+regexp.QuoteMeta(testName)+"$")
 }
 
 func requireRegularSelectorFile(snapshot *repository.Snapshot, selector string) error {
