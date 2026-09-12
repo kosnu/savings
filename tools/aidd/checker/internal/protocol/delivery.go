@@ -84,6 +84,9 @@ func checkDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id 
 	if l.CheckerMigration != nil && !migration {
 		return fail("MIGRATION_REQUIRED", id, "checker移行を含むTaskは明示的なCI契約移行と人の承認が必要です")
 	}
+	// 契約移行だけなら実行checkerの移行記録は不要。flagで証跡要件は緩和しない。
+	// 下のValidateEvidenceが、記録なしなら開始時checker、記録ありなら移行先checkerと
+	// 最新checkpoint・最終状態に証跡が結合していることを共通に検査する。
 	if l.changeBaseHead() != base {
 		return fail("DELIVERY_BASE", id, "変更基準がPR全体の基準点と一致しません")
 	}
