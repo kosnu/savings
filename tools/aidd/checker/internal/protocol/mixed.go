@@ -105,12 +105,12 @@ func (l *Loaded) checkMixed(ctx context.Context, s *repository.Snapshot, rule Mi
 	if err := validateMixed(rule); err != nil {
 		return err
 	}
-	before, ok := fileMap(l.Task.Baseline)[rule.Path]
+	before, ok := fileMap(l.changeBaseline())[rule.Path]
 	after, exists := fileMap(files)[rule.Path]
-	if !ok || !exists || before.Type != "regular" || after.Type != "regular" || transportFiles([]File{before}, l.Delivered)[0].Mode != transportFiles([]File{after}, l.Delivered)[0].Mode {
+	if !ok || !exists || before.Type != "regular" || after.Type != "regular" || transportFiles([]File{before}, l.gitComparison())[0].Mode != transportFiles([]File{after}, l.gitComparison())[0].Mode {
 		return fail("MIXED_IDENTITY", rule.Path, "混在設定の削除・追加・type/mode変更は許可しません")
 	}
-	original, err := s.Git(ctx, "show", l.Task.BaselineHead+":"+rule.Path)
+	original, err := s.Git(ctx, "show", l.changeBaseHead()+":"+rule.Path)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (l *Loaded) checkMixed(ctx context.Context, s *repository.Snapshot, rule Mi
 	if l.Task.Spec.Kind == "development" && guardBefore != guardAfter {
 		return fail("GUARDRAIL_DRIFT", rule.Path, "Developmentは設定のguardrail fieldを変更できません")
 	}
-	if l.Task.Spec.Kind == "learn" && (productBefore != productAfter || !owned(rule.Path, l.Task.Spec.AuthorizedScopes)) {
+	if l.Task.Spec.Kind == "learn" && (productBefore != productAfter || !owned(rule.Path, l.authorizedScopes())) {
 		return fail("LEARN_SCOPE", rule.Path, "Learnは設定のproduct fieldを変更できません")
 	}
 	return nil

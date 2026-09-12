@@ -1,0 +1,559 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "a94a1c7a1658a01d56992bf0a1128c294908d05ea4eefb3afbdaaa04f67baa8a",
+  "revision": 3,
+  "parent_sha256": "51d8de63b4b88c8740d6a8bbadbee69036af772189c1f33ef961e095d866c001",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "a94a1c7a1658a01d56992bf0a1128c294908d05ea4eefb3afbdaaa04f67baa8a",
+    "reason": "未解決レビューから独立Learnで確定した証跡要件を、同じPRの元Taskへ反映する。CI契約移行のみでは開始時checkerの現在証跡、実行checker移行では移行記録と移行先checkerの新証跡を要求することを文書と回帰テストで固定する。ユーザーのship依頼に基づき今回の全体を再検証して追加配信する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "delivery区分を撤去し整合性と既存記録の互換性を検証する",
+        "origin": "intent",
+        "evidence": "AIDDのdelivery=local / delivery=prという配信区分と、それを根拠にコミット・PR作成を妨げる制約を撤去する。"
+      },
+      {
+        "id": "FR-2",
+        "text": "旧Taskの開始記録を保持した明示的なchecker移行とmain統合記録で、配信する最終状態全体を再検証し、base側の契約移行検査と人の承認を経て同じPRを受け入れ可能にする。",
+        "origin": "derived",
+        "evidence": "最新の追加依頼「通せるようにもしろよ」。配信区分撤去の既存Taskを同じPRで継続するための必要な契約移行。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "新規Taskが配信区分を要求せず、旧記録の配信値もShipとCIとfinishを分岐させない。他の安全条件は維持する。",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "明示された旧checker・checkpoint・証跡と新binaryを結合し、統合baseから最終状態の権限と全体証跡を検査する。移行Taskは通常CIでは拒否し、移行専用の候補検証とbase検査・人の承認を要求する。",
+          "requirement_id": "FR-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/code-review.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/delivery.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/integration.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/integration_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/mixed.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/optional_review_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/storybook.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "configuration",
+          "path": ".github/workflows/aidd_checker_ci.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "documentation",
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "documentation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "documentation",
+          "path": "docs/harness/policies/code-review.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/delivery.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/integration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/integration_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/mixed.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-19",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/optional_review_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-20",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/storybook.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-22",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-23",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [],
+    "integration": {
+      "base_head": "0725f4299a254e397fb78a644a8511a9f290fa32",
+      "head": "44611b8fa469c98c84cc59d51f9ccd1471ad363e"
+    },
+    "checker_migration": {
+      "from_checker_sha256": "1bf7c0aedcf4ee54444b3ea365812390a77566d0f48809da0ef522a22c986948",
+      "to_checker_sha256": "e531f744f2b192a1e42a1fb6b95205a12897bdc118d188ce1a0058741eec0026",
+      "from_checkpoint_sha256": "51d8de63b4b88c8740d6a8bbadbee69036af772189c1f33ef961e095d866c001",
+      "from_evidence_sha256": "a0ebf5571a920c800017d6e47b5dd2162cbbf94e4345ebce6ea695a3d5075c20",
+      "authorization": "ユーザーのLearn結果への「反映して」と続く「repo ship / reply-review-comments」に基づき、確定済みguardrail差分を元Taskで再検証して同じPRへ配信するためのchecker再移行。追加のownership拡張はない。",
+      "authorized_scopes": []
+    }
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ]
+}

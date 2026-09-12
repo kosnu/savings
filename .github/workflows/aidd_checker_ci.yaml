@@ -115,7 +115,7 @@ jobs:
               GOCACHE="$trusted_dir/go-build-cache" GOMODCACHE="$trusted_dir/go-module-cache" \
               go build -C "$trusted_dir/tools/aidd/checker" -o "$trusted_dir/aidd-checker" ./cmd/aidd-checker
             git checkout --detach "$PR_HEAD_SHA"
-            if ! "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"; then
+            if ! "$trusted_dir/aidd-checker" ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline" --target-base "$PR_BASE_SHA"; then
               echo "ci_check=failure" >> "$GITHUB_OUTPUT"
             fi
           else
@@ -306,6 +306,20 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$PR_BODY" == *'```aidd-contract-migration'* ]]; then
+            normalized_body=${PR_BODY//$'\r'/}
+            migration_json=$(awk '
+              $0 == "```aidd-contract-migration" { inside=1; next }
+              inside && $0 == "```" { exit }
+              inside { print }
+            ' <<< "$normalized_body")
+            task_id=$(jq -er '.task_id | strings' <<< "$migration_json")
+            if [[ ! "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+              echo "invalid migration task ID" >&2
+              exit 1
+            fi
+
+            # 配信するhead全体を検査し、統合記録をCIのtarget baseへ照合する。
+            test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
             baseline=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
-            /tmp/aidd-checker ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline"
+            /tmp/aidd-checker ci-check --repo-root "$GITHUB_WORKSPACE" --base "$baseline" --target-base "$PR_BASE_SHA" --task "$task_id" --contract-migration
           fi

@@ -221,7 +221,7 @@ func TestWorkflowGatesAndIsolation(t *testing.T) {
 		t.Fatal("candidate tests must run on exact head")
 	}
 	last := candidate.Steps[len(candidate.Steps)-1]
-	if !strings.Contains(last.Run, "/tmp/aidd-checker ci-check") || !strings.Contains(last.Run, "aidd-contract-migration") {
+	if !strings.Contains(last.Run, "/tmp/aidd-checker ci-check") || !strings.Contains(last.Run, "aidd-contract-migration") || !strings.Contains(last.Run, `--target-base "$PR_BASE_SHA"`) || !strings.Contains(last.Run, `--task "$task_id"`) {
 		t.Fatal("candidate migration delivery missing")
 	}
 	preflight := base.Steps[len(base.Steps)-1]
