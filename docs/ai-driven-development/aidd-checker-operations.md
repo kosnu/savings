@@ -318,6 +318,21 @@ main取り込みがある場合は上記の統合記録と最終状態の最新�
 統合結果はintegration jobでも検証する。Task記録だけを過去のtreeへ重ねて検査しない。
 base側の差分・scope検査と承認は、PRのmerge-baseからheadまでの全差分へ適用する。
 
+CI契約の移行とTaskの実行checkerの移行は区別する。`--contract-migration`は候補検証の経路を
+選択するだけで、Taskのchecker identityや証跡の要件を免除しない。
+
+| Taskの検証方法 | 必要な記録と証跡 | 候補検証の判定 |
+| --- | --- | --- |
+| 開始時checkerで検証を継続し、CI契約だけを移行する | `checker_migration`は不要。開始時checker・最新checkpoint・最終状態に結合した証跡 | 受入可能 |
+| Taskの実行checkerも移行する | `checker_migration`と、移行先checker・最新checkpoint・最終状態に結合した新証跡 | 受入可能 |
+| 移行記録なしで別checkerの証跡を使う | 開始時checkerと証跡のidentityが不一致 | 拒否 |
+| 移行記録ありで移行前のcheckerまたはcheckpointの証跡を使う | 移行先checkerまたは最新checkpointと証跡のidentityが不一致 | 拒否 |
+
+候補checkerは`ValidateEvidence`でこの照合と最終inventoryの一致を強制する。
+base側の差分検査はTaskの意味検査を代行せず、人の承認も欠落した証跡の代わりにはしない。
+契約移行だけのTaskへ実行checker移行を強制しない。開始時checkerが現在状態を検証できない場合は、
+旧証跡を流用せず「旧Taskのchecker移行」に従って記録を追記し全再検証する。
+
 PR本文の申請形式は次のとおり。`reason`は、廃止・変更する契約、base checkerが受け入れない理由、
 新しい契約で維持・置換する保証を具体的に記す。本文の申請は承認そのものではない。
 

@@ -291,6 +291,36 @@ func TestIntegrationRemovalOfImportedBrowserTagRequiresSuite(t *testing.T) {
 	rejected(t, f.verify(), "VERIFICATION_COVERAGE")
 }
 
+func TestContractMigrationWithoutCheckerSuccessionRequiresOriginalEvidence(t *testing.T) {
+	f := setup(t, "learn")
+	base := f.git("rev-parse", "HEAD")
+	must(t, f.checkpoint())
+	f.put("guard/rule.md", "contract change verified by the original checker\n")
+	must(t, f.verify())
+	f.git("add", ".")
+	f.git("commit", "-qm", "verified contract change")
+	check := func() error {
+		return f.snapshot(func(s *repository.Snapshot) error {
+			return CheckMigrationDelivery(context.Background(), s, base, f.spec.ID, base)
+		})
+	}
+	// CI契約だけの移行は、開始時checkerの現在証跡で受け入れる。
+	must(t, check())
+	must(t, f.snapshot(func(s *repository.Snapshot) error {
+		e, _, err := read[Evidence](s, evidencePath(f.spec.ID, f.cp))
+		if err != nil {
+			return err
+		}
+		// 移行申請があっても、移行記録なしのchecker変更は受け入れない。
+		e.CheckerSHA256 = strings.Repeat("a", 64)
+		_, err = write(s, evidencePath(f.spec.ID, f.cp), e, false)
+		return err
+	}))
+	f.git("add", ".")
+	f.git("commit", "-qm", "different checker without succession")
+	rejected(t, check(), "EVIDENCE_IDENTITY")
+}
+
 func TestCandidateMigrationWorkflowChecksLatestTreeWithRealChecker(t *testing.T) {
 	f, base := integratedFixture(t, "learn")
 	must(t, f.checkpoint())
@@ -404,6 +434,28 @@ func TestOldTaskMigratesCheckerWithoutReplacingItsHistory(t *testing.T) {
 	f.git("commit", "-qm", "verified checker migration")
 	args := []string{"ci-check", "--base", base, "--target-base", base, "--task", f.spec.ID}
 	call(false, "MIGRATION_REQUIRED", args...)
+	call(true, "", append(args, "--contract-migration")...)
+	newEvidencePath := filepath.Join(f.root, evidencePath(f.spec.ID, f.cp))
+	newEvidence, err := os.ReadFile(newEvidencePath)
+	must(t, err)
+	for _, variant := range []string{"old-checker", "old-checkpoint"} {
+		var e Evidence
+		must(t, canonical.Decode(newEvidence, "evidence", &e))
+		if variant == "old-checker" {
+			e.CheckerSHA256 = oldChecker
+		} else {
+			e.CheckpointSHA256 = oldCP
+		}
+		data, err := canonical.Pretty(e)
+		must(t, err)
+		must(t, os.WriteFile(newEvidencePath, data, 0600))
+		f.git("add", ".")
+		f.git("commit", "-qm", "invalid migration evidence: "+variant)
+		call(false, "EVIDENCE_IDENTITY", append(args, "--contract-migration")...)
+	}
+	must(t, os.WriteFile(newEvidencePath, newEvidence, 0600))
+	f.git("add", ".")
+	f.git("commit", "-qm", "restore verified migration evidence")
 	call(true, "", append(args, "--contract-migration")...)
 	f.decision.CheckerMigration = nil
 	checkpoint(false, "MIGRATION_HISTORY")
