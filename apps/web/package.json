@@ -35,7 +35,7 @@
     "@tanstack/react-router": "1.170.32",
     "@tanstack/react-router-devtools": "1.167.1",
     "date-fns": "4.4.0",
-    "i18next": "26.4.1",
+    "i18next": "26.4.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-error-boundary": "6.1.4",
