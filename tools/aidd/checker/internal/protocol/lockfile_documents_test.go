@@ -3,6 +3,7 @@ package protocol
 import (
 	"bytes"
 	"context"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/adapters/pnpm"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,7 +45,7 @@ func TestPNPM12ActualLockfile(t *testing.T) {
 	// CI run 34226686753 / eccbc7049557d4e2d40a622b6f44c118ad81f11c の実物から必要な依存だけを抜粋。
 	data, err := os.ReadFile("testdata/pnpm-v12-lock.yaml")
 	must(t, err)
-	lock, err := decodeLock(data)
+	lock, err := pnpm.Decode(data)
 	must(t, err)
 	if lock.Toolchain == nil {
 		t.Fatal("toolchain document missing")
@@ -56,12 +57,12 @@ func TestPNPM12ActualLockfile(t *testing.T) {
 	l := Loaded{Policy: p}
 	tools := l.toolNames()
 	for _, guard := range []bool{false, true} {
-		original, err := projectLock(lock.Workspace, tools, lockProductNames(lock.Workspace, tools), guard, nil)
+		original, err := pnpm.Project(lock.Workspace, tools, pnpm.ProductNames(lock.Workspace, tools), guard, nil)
 		must(t, err)
 		// YAML再出力でコメント・字下げ・key順序を変えても同じ意味で扱う。
-		rewritten, err := decodeLock(encodeLockDocuments(t, lock.Toolchain, lock.Workspace))
+		rewritten, err := pnpm.Decode(encodeLockDocuments(t, lock.Toolchain, lock.Workspace))
 		must(t, err)
-		projected, err := projectLock(rewritten.Workspace, tools, lockProductNames(rewritten.Workspace, tools), guard, nil)
+		projected, err := pnpm.Project(rewritten.Workspace, tools, pnpm.ProductNames(rewritten.Workspace, tools), guard, nil)
 		must(t, err)
 		if hash(original) != hash(projected) || hash(lock.Toolchain) != hash(rewritten.Toolchain) {
 			t.Fatal("format changed dependency meaning")
@@ -92,7 +93,7 @@ func TestLockfileDocumentStructure(t *testing.T) {
 		"null-importer":    strings.Replace(toolchainLock, "configDependencies: {}", "configDependencies: null", 1) + "---\n" + sampleLock,
 		"unknown-section":  strings.Replace(toolchainLock, "configDependencies", "unknownDependencies", 1) + "---\n" + sampleLock,
 	} {
-		t.Run(name, func(t *testing.T) { _, err := decodeLock([]byte(data)); rejected(t, err, "") })
+		t.Run(name, func(t *testing.T) { _, err := pnpm.Decode([]byte(data)); rejected(t, err, "") })
 	}
 }
 
@@ -100,7 +101,7 @@ func TestTwoDocumentReferencesStayWithinDocument(t *testing.T) {
 	for _, document := range []string{"toolchain", "workspace"} {
 		for _, missing := range []string{"snapshot", "package", "peer-variant"} {
 			t.Run(document+"/"+missing, func(t *testing.T) {
-				lock, err := decodeLock([]byte(toolchainLock + "---\n" + sampleLock))
+				lock, err := pnpm.Decode([]byte(toolchainLock + "---\n" + sampleLock))
 				must(t, err)
 				target, other, key := lock.Toolchain, lock.Workspace, "platform@1"
 				if document == "workspace" {
@@ -118,9 +119,9 @@ func TestTwoDocumentReferencesStayWithinDocument(t *testing.T) {
 					object(target["snapshots"])[key+"(peer@1)"] = object(target["snapshots"])[key]
 					delete(object(target["snapshots"]), key)
 				}
-				parsed, err := decodeLock(encodeLockDocuments(t, lock.Toolchain, lock.Workspace))
+				parsed, err := pnpm.Decode(encodeLockDocuments(t, lock.Toolchain, lock.Workspace))
 				if err == nil {
-					_, err = projectLock(parsed.Workspace, map[string]bool{"vitest": true}, map[string]bool{"react": true}, true, nil)
+					_, err = pnpm.Project(parsed.Workspace, map[string]bool{"vitest": true}, map[string]bool{"react": true}, true, nil)
 				}
 				rejected(t, err, "LOCKFILE")
 			})
@@ -166,7 +167,7 @@ func TestTwoDocumentLockfileBoundaries(t *testing.T) {
 				allowed := false
 				switch change {
 				case "format":
-					lock, err := decodeLock([]byte(before))
+					lock, err := pnpm.Decode([]byte(before))
 					must(t, err)
 					next = string(encodeLockDocuments(t, lock.Toolchain, lock.Workspace))
 					allowed = true

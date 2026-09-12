@@ -11,6 +11,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repositorypolicy"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
 )
 
@@ -139,6 +140,7 @@ func Start(ctx context.Context, snapshot *repository.Snapshot, spec Spec) (strin
 }
 
 type Loaded struct {
+	RepositoryPolicy    repositorypolicy.Policy
 	CheckerMigration    *CheckerMigration
 	MigrationScopes     []model.OwnershipScope
 	Integration         *Integration
@@ -186,7 +188,16 @@ func loadTaskMode(snapshot *repository.Snapshot, id, expected string, delivered 
 	if err != nil {
 		return nil, err
 	}
-	return &Loaded{Delivered: delivered, Task: task, TaskHash: h, Policy: p, Rules: r, Catalog: c}, nil
+	rp, err := taskRepositoryPolicy(snapshot, task)
+	if err != nil {
+		return nil, err
+	}
+	if _, exists := fileMap(task.Baseline)[repositorypolicy.Path]; exists {
+		if err := rp.ValidateProfiles(c.Profiles); err != nil {
+			return nil, err
+		}
+	}
+	return &Loaded{RepositoryPolicy: rp, Delivered: delivered, Task: task, TaskHash: h, Policy: p, Rules: r, Catalog: c}, nil
 }
 
 func owned(path string, scopes []model.OwnershipScope) bool {
@@ -211,7 +222,7 @@ func (l *Loaded) guarded(path string) bool {
 	if path == lockPath && len(l.Policy.MixedJSON) > 0 {
 		return true
 	}
-	if path == PolicyPath || path == rules.DefaultPath || path == catalog.DefaultPath || path == "AGENTS.md" || rules.MatchesPath(l.Policy.GuardrailPaths, path) {
+	if path == repositorypolicy.Path || path == PolicyPath || path == rules.DefaultPath || path == catalog.DefaultPath || path == "AGENTS.md" || rules.MatchesPath(l.Policy.GuardrailPaths, path) {
 		return true
 	}
 	for _, r := range l.Rules.Map.Rules {

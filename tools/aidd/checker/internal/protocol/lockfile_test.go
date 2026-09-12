@@ -3,6 +3,7 @@ package protocol
 import (
 	"context"
 	"fmt"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/adapters/pnpm"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
 	"os"
@@ -92,7 +93,7 @@ func TestLockfileRejectsBrokenClosureAndDuplicateKeys(t *testing.T) {
 	root, err := decodeWorkspaceLock(sampleLockBytes())
 	must(t, err)
 	delete(object(root["snapshots"]), "helper@1")
-	_, err = projectLock(root, map[string]bool{"vitest": true}, map[string]bool{"react": true}, true, nil)
+	_, err = pnpm.Project(root, map[string]bool{"vitest": true}, map[string]bool{"react": true}, true, nil)
 	rejected(t, err, "LOCKFILE")
 	_, err = decodeWorkspaceLock([]byte(sampleLock + "settings: {}\n"))
 	rejected(t, err, "")
@@ -111,7 +112,7 @@ func TestRepositoryLockfileCanBeProjected(t *testing.T) {
 	root, err := decodeWorkspaceLock(data)
 	must(t, err)
 	for _, guard := range []bool{true, false} {
-		_, err = projectLock(root, l.toolNames(), lockProductNames(root, l.toolNames()), guard, nil)
+		_, err = pnpm.Project(root, l.toolNames(), pnpm.ProductNames(root, l.toolNames()), guard, nil)
 		must(t, err)
 	}
 }
@@ -133,12 +134,12 @@ func TestLockfileDelegatesOnlyRootCoveredPeers(t *testing.T) {
 				object(object(root["packages"])["vitest@1"])["peerDependencies"] = map[string]any{"helper": "*"}
 			}
 			tools := map[string]bool{"vitest": true}
-			products := lockProductNames(root, tools)
-			before, err := projectLock(root, tools, products, true, nil)
+			products := pnpm.ProductNames(root, tools)
+			before, err := pnpm.Project(root, tools, products, true, nil)
 			must(t, err)
 			beforeHash := hash(before)
 			object(object(root["packages"])["helper@1"])["resolution"] = "changed"
-			after, err := projectLock(root, tools, products, true, nil)
+			after, err := pnpm.Project(root, tools, products, true, nil)
 			must(t, err)
 			if (beforeHash == hash(after)) != (peer && covered) {
 				t.Fatalf("peer=%v covered=%v: shared dependency boundary mismatch", peer, covered)
@@ -153,14 +154,14 @@ func TestLockfileAllowsOppositeRootPeerVersionUpdate(t *testing.T) {
 	object(object(root["packages"])["vitest@1"])["peerDependencies"] = map[string]any{"react": "*"}
 	object(object(root["snapshots"])["vitest@1"])["dependencies"] = map[string]any{"react": "1"}
 	tools := map[string]bool{"vitest": true}
-	products := lockProductNames(root, tools)
-	before, err := projectLock(root, tools, products, true, nil)
+	products := pnpm.ProductNames(root, tools)
+	before, err := pnpm.Project(root, tools, products, true, nil)
 	must(t, err)
 	object(object(object(object(root["importers"])["."])["dependencies"])["react"])["version"] = "2"
 	object(root["packages"])["react@2"] = map[string]any{"resolution": "new-react"}
 	object(root["snapshots"])["react@2"] = map[string]any{}
 	object(object(root["snapshots"])["vitest@1"])["dependencies"] = map[string]any{"react": "2"}
-	after, err := projectLock(root, tools, products, true, nil)
+	after, err := pnpm.Project(root, tools, products, true, nil)
 	must(t, err)
 	if hash(before) != hash(after) {
 		t.Fatal("product root peer update blocked tool closure")
@@ -174,7 +175,7 @@ func TestLockfileRejectsLocalDependencies(t *testing.T) {
 			must(t, err)
 			object(object(root["snapshots"])["vitest@1"])["dependencies"] = map[string]any{"helper": version}
 			object(object(root["snapshots"])["react@1"])["dependencies"] = map[string]any{"helper": version}
-			_, err = projectLock(root, map[string]bool{"vitest": true}, map[string]bool{"react": true}, guard, nil)
+			_, err = pnpm.Project(root, map[string]bool{"vitest": true}, map[string]bool{"react": true}, guard, nil)
 			rejected(t, err, "LOCKFILE")
 		}
 	}
@@ -187,12 +188,12 @@ func TestLockfileDoesNotDelegateDifferentPeerSnapshot(t *testing.T) {
 	object(object(root["packages"])["vitest@1"])["peerDependencies"] = map[string]any{"helper": "*"}
 	object(root["snapshots"])["helper@1(peer@2)"] = map[string]any{}
 	tools := map[string]bool{"vitest": true}
-	products := lockProductNames(root, tools)
-	before, err := projectLock(root, tools, products, true, nil)
+	products := pnpm.ProductNames(root, tools)
+	before, err := pnpm.Project(root, tools, products, true, nil)
 	must(t, err)
 	beforeHash := hash(before)
 	object(object(root["packages"])["helper@1"])["resolution"] = "different peer snapshot changed"
-	after, err := projectLock(root, tools, products, true, nil)
+	after, err := pnpm.Project(root, tools, products, true, nil)
 	must(t, err)
 	if beforeHash == hash(after) {
 		t.Fatal("uncovered peer variant was delegated")
@@ -232,8 +233,8 @@ func TestLockfilePreservesPeerVariantEdgesAndRootAssignments(t *testing.T) {
 						"parent-b": map[string]any{"specifier": "npm:foo@1", "version": "foo@1(peer@2)"},
 					}
 				}
-				products := lockProductNames(root, tools)
-				before, err := projectLock(root, tools, products, wantTools, nil)
+				products := pnpm.ProductNames(root, tools)
+				before, err := pnpm.Project(root, tools, products, wantTools, nil)
 				must(t, err)
 				digest := hash(before)
 				if swap == "edges" {
@@ -244,7 +245,7 @@ func TestLockfilePreservesPeerVariantEdgesAndRootAssignments(t *testing.T) {
 					object(refs["parent-a"])["version"] = "foo@1(peer@2)"
 					object(refs["parent-b"])["version"] = "foo@1(peer@1)"
 				}
-				after, err := projectLock(root, tools, products, wantTools, nil)
+				after, err := pnpm.Project(root, tools, products, wantTools, nil)
 				must(t, err)
 				if digest == hash(after) {
 					t.Fatal("peer variant reassignment did not change protected projection")
@@ -338,10 +339,10 @@ func TestLockfileRejectsAmbiguousPeerRootUpdates(t *testing.T) {
 				object(after["importers"])["other"] = map[string]any{"dependencies": map[string]any{"react": map[string]any{"version": version}}}
 			}
 			tools := map[string]bool{"vitest": true}
-			updates := peerRootUpdates(before, after, tools, true)
-			ap, err := projectLock(before, tools, lockProductNames(before, tools), true, updates)
+			updates := pnpm.PeerRootUpdates(before, after, tools, true)
+			ap, err := pnpm.Project(before, tools, pnpm.ProductNames(before, tools), true, updates)
 			must(t, err)
-			bp, err := projectLock(after, tools, lockProductNames(before, tools), true, nil)
+			bp, err := pnpm.Project(after, tools, pnpm.ProductNames(before, tools), true, nil)
 			must(t, err)
 			if hash(ap) == hash(bp) {
 				t.Fatal("ambiguous counterpart update allowed a protected peer rename")
@@ -356,11 +357,13 @@ func TestLockfileRejectsPeerRenameContentCollision(t *testing.T) {
 	object(object(object(root["importers"])["."])["dependencies"])["alias"] = map[string]any{"version": "bridge@1(react@2)"}
 	object(root["snapshots"])["bridge@1(react@2)"] = map[string]any{"optional": true}
 	tools := map[string]bool{"vitest": true, "alias": true}
-	_, err = projectLock(root, tools, lockProductNames(root, tools), true, map[string]string{"react@1": "react@2"})
+	_, err = pnpm.Project(root, tools, pnpm.ProductNames(root, tools), true, map[string]string{"react@1": "react@2"})
 	rejected(t, err, "LOCKFILE_BOUNDARY")
 }
 
 func decodeWorkspaceLock(data []byte) (map[string]any, error) {
-	lock, err := decodeLock(data)
+	lock, err := pnpm.Decode(data)
 	return lock.Workspace, err
 }
+
+func object(v any) map[string]any { m, _ := v.(map[string]any); return m }

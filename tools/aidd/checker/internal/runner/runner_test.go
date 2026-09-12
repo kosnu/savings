@@ -3,6 +3,7 @@ package runner
 import (
 	"context"
 	"encoding/json"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/adapters/testrunner"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -174,7 +175,7 @@ func TestPythonUnittestTranscriptRejectsIncompleteOrExtraResults(t *testing.T) {
 	}
 	for name, transcript := range tests {
 		t.Run(name, func(t *testing.T) {
-			if err := requirePythonUnittestResult("VC-1", expected, []byte(transcript)); err == nil {
+			if err := testrunner.RequirePythonResult("VC-1", expected, []byte(transcript)); err == nil {
 				t.Fatal("expected transcript rejection")
 			}
 		})
@@ -182,7 +183,7 @@ func TestPythonUnittestTranscriptRejectsIncompleteOrExtraResults(t *testing.T) {
 }
 
 func TestVitestArgumentsEscapeAndAnchorExactName(t *testing.T) {
-	arguments := vitestArguments([]string{"pnpm", "run", "test"}, "/tmp/result.json", "src/feature.test.ts", `supports [draft] (v2)?`)
+	arguments := testrunner.VitestArguments([]string{"pnpm", "run", "test"}, "/tmp/result.json", "src/feature.test.ts", `supports [draft] (v2)?`)
 	want := `--testNamePattern=^supports \[draft\] \(v2\)\?$`
 	if arguments[len(arguments)-1] != want {
 		t.Fatalf("test name pattern = %q, want %q", arguments[len(arguments)-1], want)
@@ -238,7 +239,7 @@ func TestPythonUnittestSelectorRequiresImportableExactIdentity(t *testing.T) {
 		{Kind: "test_case", Path: "tools/example/test-contract.py", Name: "ContractTest.test_validates_contract"},
 		{Kind: "test_case", Path: "tools/example/test_contract.py", Name: "test_validates_contract"},
 	} {
-		if _, err := pythonUnittestTarget(selector); err == nil {
+		if _, err := testrunner.PythonTarget(selector); err == nil {
 			t.Fatalf("expected invalid selector: %#v", selector)
 		}
 	}

@@ -41,7 +41,7 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 	if len(ids) == 0 {
 		return nil, fail("REQUIREMENT", l.Task.Spec.ID, "要求は1件以上必要です")
 	}
-	if err := semantic.ValidateTargetState(&d.Target, ids, "decision"); err != nil {
+	if err := semantic.ValidateTargetState(&d.Target, ids, "decision", l.RepositoryPolicy.ForbiddenTreeScopes); err != nil {
 		return nil, err
 	}
 	if _, err := semantic.ValidateProfiles(&d.Target, l.Catalog, "decision"); err != nil {

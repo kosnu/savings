@@ -11,6 +11,7 @@ import (
 	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repositorypolicy"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/runner"
 )
 
@@ -72,9 +73,11 @@ func setup(t *testing.T, kind string) *fixture {
 	f.git("config", "user.email", "aidd@example.invalid")
 	f.put("src/a.txt", "before\n")
 	f.put("guard/rule.md", "Existing accepted invariant\n")
+	rp, _ := canonical.Pretty(repositorypolicy.Legacy())
+	f.put(repositorypolicy.Path, string(rp))
 	f.put(PolicyPath, `{"schema_version":1,"kind":"aidd_protocol","guardrail_paths":["guard/**","docs/**"],"product_paths":["src/**"],"required_verification":[{"paths":["**"],"profiles":["git-diff-check"]}]}`)
 	f.put("docs/harness/rule-map.json", `{"version":2,"review_routing":{"governed_paths":["src/**","guard/**"],"surfaces":[{"id":"all","paths":["src/**","guard/**"],"required_rules":["invariant"]}]},"rules":[{"id":"invariant","file":"guard/rule.md","applies_to":{"paths":["src/**","guard/**"]},"depends_on":["dependency"],"overrides":[],"priority":1},{"id":"dependency","file":"guard/rule.md","applies_to":{},"depends_on":[],"overrides":[],"priority":0}]}`)
-	f.put("docs/ai-driven-development/contracts/verification-profiles.json", `{"schema_version":1,"profiles":[{"id":"git-diff-check","contract":"suite","runner":"command_suite","selector_kind":"suite","selector_root":"","working_directory":"","argv":["git","diff","--no-ext-diff","HEAD","--check","--"]}]}`)
+	f.put("docs/ai-driven-development/contracts/verification-profiles.json", `{"schema_version":1,"profiles":[{"id":"git-diff-check","contract":"suite","runner":"command_suite","selector_kind":"suite","selector_root":"","working_directory":"","argv":["git","diff","--no-ext-diff","HEAD","--check","--"]},{"id":"web-storybook-suite","contract":"suite","runner":"command_suite","selector_kind":"suite","selector_root":"","working_directory":"","argv":["git","diff","--check"]}]}`)
 	f.git("add", ".")
 	f.git("commit", "-qm", "baseline")
 	body := "Make the requested result observable"
@@ -152,7 +155,7 @@ func TestRejectsEvidenceForUnknownCheckpoint(t *testing.T) {
 }
 
 func TestConfigurationRejectsBrokenReferences(t *testing.T) {
-	for _, variant := range []string{"profile", "rule-document", "pattern", "mandatory-suite"} {
+	for _, variant := range []string{"profile", "rule-document", "pattern"} {
 		t.Run(variant, func(t *testing.T) {
 			f := setup(t, "learn")
 			switch variant {
@@ -160,13 +163,10 @@ func TestConfigurationRejectsBrokenReferences(t *testing.T) {
 				f.put("docs/ai-driven-development/contracts/verification-profiles.json", `{"schema_version":1,"profiles":[]}`)
 			case "rule-document":
 				must(t, os.Remove(filepath.Join(f.root, "guard/rule.md")))
-			case "pattern", "mandatory-suite":
+			case "pattern":
 				content, err := os.ReadFile(filepath.Join(f.root, PolicyPath))
 				must(t, err)
 				old, next := `"guard/**"`, `"guard/a**"`
-				if variant == "mandatory-suite" {
-					old, next = `"**"`, `"src/**"`
-				}
 				f.put(PolicyPath, strings.Replace(string(content), old, next, 1))
 			}
 			rejected(t, f.snapshot(func(s *repository.Snapshot) error { return CheckConfiguration(context.Background(), s) }), "")

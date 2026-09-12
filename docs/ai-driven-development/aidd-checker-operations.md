@@ -113,7 +113,7 @@ target_stateは既存のtyped構造を継承する。
   Learnではguardrailの観測可能な効果を表し、product実装の許可を意味しない。
 - verification_cases: VC-ID、type、requirement_id、product_behavior_ids。
   automatedはverification_profile_idとselector、manualはprocedureだけを持つ。
-- ownership_scopes: 正規化されたpathとfile/tree。重複、app全体scope、checker出力scopeを拒否。
+- ownership_scopes: 正規化されたpathとfile/tree。重複、開始時repository policyで禁止されたtree scope、checker出力scopeを拒否。
 - representations: REP-ID、kind、path、locator、requirement_id、product_behavior_ids、verification_case_ids。
   locatorはfile/export/test_caseのmetadataであり、source構文の推論には使わない。
 
@@ -190,7 +190,7 @@ PRの契約移行申請を記載し、candidate jobだけが`ci-check --contract
 
 formatter等の意図的な変更を先に完了し、最終状態を固定してから実行する。
 WebではAGENTS.mdの対象検証を満たす。Storybook browser-test対象を変更した場合は
-該当profileをDecisionへ含める。変更前または現在のStoryにbrowser-testがある場合はCoreも要求する。API専用verificationが未定義であることを成功証拠へ置き換えない。
+該当profileをDecisionへ含める。開始時repository policyが指定するStoryの文字列を変更前または現在のsourceで観測した場合も、宣言されたsuiteを要求する。API専用verificationが未定義であることを成功証拠へ置き換えない。
 
 ```sh
 /tmp/aidd-task-checker verify --repo-root . --task <id> \
@@ -394,3 +394,12 @@ git diff --check
 
 check-configは現行policyのglob、必須suite profile、rule-map、正本文書参照を検査する。
 check-allは同じ設定検査と過去Requirements/Designの読取・表示同期を検査する。新規phase実行や旧receipt昇格は行わない。
+
+## Repository policyの変更
+
+scope禁止条件・条件付き必須検証・runner起動方法は`contracts/repository-policy.json`、
+通常の必須検証routingは`contracts/protocol.json`で更新する。どちらもguardrailであり、
+既存Taskの制約を変更するためにcandidateの値へ切り替えてはいけない。
+開始時policyの読取互換性、技術アダプタの責務と既知の判定限界は
+[architecture](aidd-checker.md#repository-policyと技術アダプタの境界)を参照する。
+policy導入前のTaskは開始時の固定方針を維持し、導入後の新規実行にはpolicy fileが必要となる。
