@@ -6,11 +6,15 @@ area: repository
 applies_to:
   - tools/aidd
   - docs/ai-driven-development
+  - vite.config.ts
+  - .vite-hooks
 topics:
   - schema-v5
   - verification
+  - commit-hooks
 when_to_read:
   - Task、checkpoint、検証、ShipのCLIを実行するとき
+  - リポジトリ共通の検証ゲートやvp stagedの設定を変更するとき
 ---
 
 # AIDD vNext operations
@@ -376,6 +380,24 @@ team reviewerはこの実装では未対応で、個人reviewerを少なくと�
 CIの移行承認とローカルのchecker移行記録は別の責務である。ローカルでは上記の明示許可・移行記録・新証跡を要求し、開始時checkerの検証を成功と偽ったり、元Taskを作り直したりしない。
 
 ## Repository verification
+
+### リポジトリ共通ゲートの採用判断（2026-09-12）
+
+`vp`をリポジトリ全体のローカル検証ゲートとして採用し、commit前の整形・静的検査は
+`vp staged`を共通入口にする。編集者や使用したAIに依存する検証漏れを防ぎ、
+Push後のAIレビューでの指摘やCI失敗を減らすための判断である。
+
+ルートの`vite.config.ts`はこの共通ゲートの設定を所有し、FE専用には扱わない。
+`apps/web/vite.config.*`が所有するアプリの開発・ビルド設定とは責務を分ける。
+`vp staged`は対象選択、処理の実行、stageと未ステージ変更の保護を担い、
+Goの整形・静的解析そのものは`gofmt`と`go vet`が担う。
+今後のcommit前検証も共通入口へ集約し、言語固有の検査は各ツールへ委譲する。
+
+Go以外の変更でもchecker全体のvetを実行する現行方針を維持する。
+FEや文書だけの変更であること、または設定ファイル名が`vite.config.ts`であることを理由に、
+Go検証を外したり別の入口へ分離したりしない。CIはローカルの実行漏れを検出するため維持する。
+
+### 実行手順
 
 Gitのcommit前には`.vite-hooks/pre-commit`が`vp staged`を実行する。
 ステージされた既存Goファイルを`gofmt -w`で整形し、`tools/aidd/checker`全体の

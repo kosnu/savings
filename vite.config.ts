@@ -4,6 +4,7 @@ import { existsSync } from "node:fs"
 import { defineConfig } from "vite-plus"
 
 export default defineConfig({
+  // リポジトリ共通ゲートの採用判断: docs/ai-driven-development/aidd-checker-operations.md の Repository verification
   staged: {
     "*": {
       title: "Format and check staged files",
