@@ -1,4 +1,4 @@
 [tools]
 go = "1.27"
 node = "26.8.1"
-"npm:pnpm" = "12.3.2"
+"npm:pnpm" = "12.3.4"
