@@ -207,3 +207,16 @@ policyの改訂権限は[workflowのLearn契約](workflow.md#review--learn)に�
 Coreは各Taskに固定した方針の適用・保護を担い、repository方針自体の改訂可否は決めない。
 これは任意式・外部commandを実行する汎用ルールエンジンではない。
 変更時は不変条件と許容・拒否条件を明示し、既存の誤検知を含む判定方式の再現自体を目的にしない。
+
+## 作業範囲とユーザー制限の分離
+
+Learnの`authorized_scopes`は初期の有限作業範囲であり、委任の意味をファイル一覧だけで決めない。
+`Spec.user_scope_limits`はユーザーが明示したfile/tree上限、`Decision.scope_revision`は同じ委任内での
+有限範囲追加と根拠付きレビューを所有する。省略可能なfieldのため、未使用の既存v5記録はbytes/hashを保持する。
+履歴から追加範囲と制限を再構成し、Taskと各改訂の明示制限をすべて満たすownershipと実差分だけを受け入れる。
+checker移行で追加したscopeも明示制限を超えるownership・実変更を許可しない。
+
+改訂は旧証拠を失効させ、開始時のrule-map・policy/profileで新しい範囲の必要検証を計算する。
+意味的な委任内判定はagent、有限scope・禁止領域・履歴・検証証拠の整合はCoreが所有する。
+運用と互換性は[変更対象の改訂](aidd-checker-operations.md#learnの変更対象の改訂)、
+確認が必要になる境界は[workflow](workflow.md#同じtask内での変更対象の改訂)を参照する。

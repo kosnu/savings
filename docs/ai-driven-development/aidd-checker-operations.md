@@ -89,7 +89,8 @@ hashを維持して読み取る互換fieldであり、finish・Ship・CIの分�
 Coreの成功はmerge/deploy権限を与えない。
 Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
-を追加する。pathは有限のfile/tree。product pathは許可scopeへ含めても変更できない。
+を追加する。pathは初期計画の有限file/tree。ユーザーが明示したファイル上限は任意の
+`user_scope_limits`へ別に記録する。product pathは許可scopeへ含めても変更できない。
 
 ```sh
 /tmp/aidd-task-checker task-start --repo-root . --source /tmp/task-spec.json
@@ -132,6 +133,39 @@ additional_rulesは自動routingで得られない探索上の必要rule ID。�
 改訂時は同じcommandへ`--checkpoint-sha256 <最新checkpoint-hash>`を追加する。
 checkpointは`checkpoints/000001.json`から追記され、Taskと全履歴を再検証する。
 reasonへ変更・削除した判断と根拠を記録する。旧checkpointやbaselineを上書きしない。
+
+## Learnの変更対象の改訂
+
+初期`authorized_scopes`を超える作業が委任内で必要になった場合、元の許可文と制約を確認し、
+実装前に既存Decisionへ次のイベントを追加して通常の`checkpoint`を実行する。
+`target_state`にも追加scope・成果物・検証を反映し、最新checkpoint hashを親として指定する。
+
+```json
+"scope_revision": {
+  "added_scopes": [{"path": "tools/aidd/checker/internal/protocol/example_test.go", "kind": "file"}],
+  "reason": "レビューで同じ目的の回帰テストが必要と判明した",
+  "boundary_review": "元の許可文・制約を確認した結果と、目的・影響範囲・配信先を広げない根拠を記録する",
+  "reviewer": "実際に判断した担当者"
+}
+```
+
+`added_scopes`は新たな有限file/treeをpath順で指定する。初回checkpoint、重複追加、checker出力、
+禁止tree、productの追加は拒否する。過去のイベントは履歴から再構成するため、次のcheckpointへ
+同じ`scope_revision`を再掲しない。さらに追加する場合だけ新しいイベントを記載する。
+
+旧Taskの許可文にファイル単位の上限がある場合は、イベントの`user_scope_limits`へ
+`[{"path":"許可されたpath","kind":"fileまたはtree"}]`の形で記録する。
+Task開始時または過去イベントの制限はすべて適用され、後続イベントの省略や広い範囲の自己申告では解除できない。
+元の明示制限を見落とさないことは`boundary_review`で確認する。意味や出典の真正性をcheckerが証明するわけではない。
+
+Taskのbytes・baseline・開始時checker・policy/profileは変更しない。改訂後は旧証拠を使わず、
+全caseを`verify`し、`check`・`finish`・配信時の`ship-check`を実行する。
+改訂機能は開始時catalogを拡張しないため、新profileの利用可否も固定したcatalogに従う。
+
+新fieldを使わない旧Taskはcanonical bytes/hashを変えず読み取る。旧binaryは新fieldを受け付けないため、
+実行binaryの更新が必要な既存Taskでは下記の明示的なchecker移行と全再検証を使い、Taskを作り直さない。
+通常のbase CIで非互換になる場合は非互換契約のCI移行経路も必要であり、candidate成功だけでは受け入れない。
+本機能の導入Task自体は旧fieldだけで開始時checkerによる検証を完了できる。
 
 ## main取り込みの記録
 
