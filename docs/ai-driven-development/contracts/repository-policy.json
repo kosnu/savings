@@ -33,5 +33,19 @@
       "unittest",
       "-v"
     ]
+  },
+  "profile_invocations": {
+    "git-diff-check": {
+      "runner": "command_suite",
+      "working_directory": "",
+      "argv": [
+        "git",
+        "diff",
+        "--no-ext-diff",
+        "HEAD",
+        "--check",
+        "--"
+      ]
+    }
   }
 }

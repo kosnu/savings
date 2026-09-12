@@ -9,6 +9,7 @@ import (
 func TestPolicyOwnsRunnerChoiceAndRejectsMissingSuites(t *testing.T) {
 	p := Legacy()
 	p.ConditionalVerification = []ConditionalVerification{}
+	p.ProfileInvocations = nil
 	profiles := map[string]model.VerificationProfile{"test": {Runner: "vitest_json", Argv: []string{"npx", "vitest"}}}
 	if p.ValidateProfiles(profiles) == nil {
 		t.Fatal("repository invocation policy bypassed")
@@ -48,5 +49,31 @@ func TestPolicyRejectsMalformedAndUnknownDeclarations(t *testing.T) {
 				t.Fatal("invalid policy accepted")
 			}
 		})
+	}
+}
+
+func TestProfileInvocationContractOwnsSuiteChoice(t *testing.T) {
+	p := Legacy()
+	p.ConditionalVerification = nil
+	p.ProfileInvocations = map[string]ProfileInvocation{"custom-suite": {Runner: "command_suite", WorkingDirectory: "checks", Argv: []string{"check", "all"}}}
+	profiles := map[string]model.VerificationProfile{"custom-suite": {Contract: "suite", Runner: "command_suite", WorkingDirectory: "checks", Argv: []string{"check", "all"}}}
+	if err := p.ValidateProfiles(profiles); err != nil {
+		t.Fatal(err)
+	}
+	delete(profiles, "custom-suite")
+	if p.ValidateProfiles(profiles) == nil {
+		t.Fatal("missing contracted profile accepted")
+	}
+}
+
+func TestPolicyStillReadsExistingFormat(t *testing.T) {
+	p := Legacy()
+	p.ProfileInvocations = nil
+	data, err := canonical.Pretty(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = Parse(data); err != nil {
+		t.Fatal(err)
 	}
 }

@@ -22,12 +22,19 @@ type ConditionalVerification struct {
 	Value    string   `json:"value"`
 	Profiles []string `json:"profiles"`
 }
+type ProfileInvocation struct {
+	Runner           string   `json:"runner"`
+	WorkingDirectory string   `json:"working_directory"`
+	Argv             []string `json:"argv"`
+}
+
 type Policy struct {
-	SchemaVersion           int                       `json:"schema_version"`
-	Kind                    string                    `json:"kind"`
-	ForbiddenTreeScopes     []string                  `json:"forbidden_tree_scopes"`
-	ConditionalVerification []ConditionalVerification `json:"conditional_verification"`
-	RunnerArgvPrefixes      map[string][]string       `json:"runner_argv_prefixes"`
+	ProfileInvocations      map[string]ProfileInvocation `json:"profile_invocations,omitempty"`
+	SchemaVersion           int                          `json:"schema_version"`
+	Kind                    string                       `json:"kind"`
+	ForbiddenTreeScopes     []string                     `json:"forbidden_tree_scopes"`
+	ConditionalVerification []ConditionalVerification    `json:"conditional_verification"`
+	RunnerArgvPrefixes      map[string][]string          `json:"runner_argv_prefixes"`
 }
 
 // Legacyはpolicy導入以前のTaskと歴史artifactだけに使う固定互換契約。
@@ -74,6 +81,21 @@ func Parse(data []byte) (Policy, error) {
 			}
 		}
 	}
+	for id, invocation := range p.ProfileInvocations {
+		if id == "" || invocation.Runner != "command_suite" || len(invocation.Argv) == 0 {
+			return p, fmt.Errorf("invalid profile invocation: %s", id)
+		}
+		if invocation.WorkingDirectory != "" {
+			if _, err := pathcontract.ValidateRelativePath(invocation.WorkingDirectory); err != nil {
+				return p, err
+			}
+		}
+		for _, arg := range invocation.Argv {
+			if arg == "" {
+				return p, fmt.Errorf("empty profile argument: %s", id)
+			}
+		}
+	}
 	return p, nil
 }
 func (p Policy) ValidateProfiles(profiles map[string]model.VerificationProfile) error {
@@ -85,8 +107,21 @@ func (p Policy) ValidateProfiles(profiles map[string]model.VerificationProfile) 
 			}
 		}
 	}
+	for id, invocation := range p.ProfileInvocations {
+		profile, ok := profiles[id]
+		if !ok || profile.Contract != "suite" || profile.Runner != invocation.Runner || profile.WorkingDirectory != invocation.WorkingDirectory || !slices.Equal(profile.Argv, invocation.Argv) {
+			return fmt.Errorf("profile %s invocation violates repository policy", id)
+		}
+	}
 	for _, profile := range profiles {
-		if prefix, ok := p.RunnerArgvPrefixes[profile.Runner]; ok && (len(profile.Argv) < len(prefix) || !slices.Equal(profile.Argv[:len(prefix)], prefix)) {
+		if profile.Runner == "command_suite" {
+			continue
+		}
+		prefix, ok := p.RunnerArgvPrefixes[profile.Runner]
+		if !ok || len(prefix) == 0 {
+			return fmt.Errorf("runner %s requires repository invocation policy", profile.Runner)
+		}
+		if len(profile.Argv) < len(prefix) || !slices.Equal(profile.Argv[:len(prefix)], prefix) {
 			return fmt.Errorf("runner %s argv violates repository policy", profile.Runner)
 		}
 	}

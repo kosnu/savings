@@ -100,7 +100,7 @@ func ParseIdentities(snapshot *repository.Snapshot, profile model.VerificationPr
 
 // ValidateArgvは結果採取に必要な技術契約を守る。package managerの選択はpolicyの責務。
 func ValidateArgv(profile model.VerificationProfile, location string) error {
-	if profile.Runner == "python_unittest" && !slices.Equal(profile.Argv, []string{"python3", "-m", "unittest", "-v"}) {
+	if profile.Runner == "python_unittest" && (len(profile.Argv) < 4 || !slices.Equal(profile.Argv[len(profile.Argv)-3:], []string{"-m", "unittest", "-v"})) {
 		return diagnostic.New("AIDD_PROFILE_ARGV", location, "verification_profile_catalog", "Python unittest requires its verbose adapter invocation", nil, profile.Argv)
 	}
 	if profile.Runner == "vitest_json" {

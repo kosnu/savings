@@ -170,7 +170,10 @@ repository管理者によるworkflow・保護設定の意図的な変更まで�
 `contracts/repository-policy.json`はschema_version 1、kind `aidd_repository_policy`の機械可読contract。
 この節を方針の所有文書とし、`forbidden_tree_scopes`は広すぎるtree ownershipを、
 `conditional_verification`は対象path・観測する事実・必要suiteを、`runner_argv_prefixes`は
-repositoryで採用する起動方法を宣言する。通常の必須suiteは既存の`protocol.json`の
+repositoryで採用する起動方法を宣言する。使用するtest-case runnerにはprefix宣言を必須とする。
+`profile_invocations`はsuiteのprofile IDごとにrunner・working directory・argvの完全一致契約を宣言する。
+現行policyはgit-diff-checkの起動契約を保持し、他commandへの置換や対象を狭める引数追加を拒否する。
+このfieldを持たない既存policyの読取は維持する。通常の必須suiteは既存の`protocol.json`の
 `required_verification`が所有する。全変更のgit-diff-checkもその宣言によって必須となり、
 Coreやcatalogでprofile名を特別扱いしない。profileのargv自体は引き続き開始時bytesに固定する。
 
@@ -192,7 +195,8 @@ Developmentでtool側を保持し、Learnでproduct側を保持する許可判�
 peer構成の正規化は同じ反対側root更新から一意に導ける場合に限定し、共有依存や参照欠落を
 成功に変換しない。技術形式の未対応・不正はエラーにする。
 Vitest/Pythonアダプタは指定テストの実行identity・成功と結果採取の入力契約を確認する。
-package managerの選択はrepository policyが所有し、結果・selector用引数の差し替えは拒否する。
+package manager・Python launcherの選択はrepository policyが所有する。Python adapterは起動引数末尾の
+`-m unittest -v`を検査し、verbose結果採取を維持する。結果・selector用引数の差し替えは拒否する。
 
 方針変更はpolicyとそのテストへ、技術形式への対応はアダプタとそのテストへ閉じる。
 これは任意式・外部commandを実行する汎用ルールエンジンではない。
