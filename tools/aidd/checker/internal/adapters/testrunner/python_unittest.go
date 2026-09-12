@@ -1,4 +1,4 @@
-package runner
+package testrunner
 
 import (
 	"regexp"
@@ -15,7 +15,7 @@ var (
 	pythonSeparator       = regexp.MustCompile(`^-{10,}$`)
 )
 
-func pythonUnittestTarget(selector model.Selector) (string, error) {
+func PythonTarget(selector model.Selector) (string, error) {
 	if !strings.HasSuffix(selector.Path, ".py") {
 		return "", diagnostic.New("AIDD_UNITTEST_SELECTOR", selector.Path, "build_verification", "Python unittest selector path must end in .py", "repository-relative Python test file", selector.Path)
 	}
@@ -32,7 +32,7 @@ func pythonUnittestTarget(selector model.Selector) (string, error) {
 	return strings.Join(moduleParts, ".") + "." + selector.Name, nil
 }
 
-func requirePythonUnittestResult(caseID, expectedTarget string, stderr []byte) error {
+func RequirePythonResult(caseID, expectedTarget string, stderr []byte) error {
 	type outcome struct {
 		Method string
 		Target string

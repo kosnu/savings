@@ -2,16 +2,20 @@ package protocol
 
 import (
 	"context"
-	"slices"
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/catalog"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/repository"
+	"github.com/kosnu/savings/tools/aidd/checker/internal/repositorypolicy"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
 )
 
 // CheckConfigurationはcandidate側の文書・policy・profileの参照整合を検査する。
 // Learnでも開始時checkerの実装で実行し、candidate自身の成功だけに依存しない。
 func CheckConfiguration(ctx context.Context, snapshot *repository.Snapshot) error {
+	return checkConfiguration(ctx, snapshot, false)
+}
+
+func checkConfiguration(ctx context.Context, snapshot *repository.Snapshot, legacyTask bool) error {
 	content, err := snapshot.Read(PolicyPath)
 	if err != nil {
 		return err
@@ -48,13 +52,9 @@ func CheckConfiguration(ctx context.Context, snapshot *repository.Snapshot) erro
 		}
 		mixedPaths[rule.Path] = true
 	}
-	allDiffCheck := false
 	for _, route := range p.RequiredVerification {
 		if err = rules.ValidatePatterns(route.Paths, PolicyPath); err != nil {
 			return err
-		}
-		if slices.Contains(route.Paths, "**") && slices.Contains(route.Profiles, "git-diff-check") {
-			allDiffCheck = true
 		}
 		for _, id := range route.Profiles {
 			profile, ok := c.Profiles[id]
@@ -63,8 +63,29 @@ func CheckConfiguration(ctx context.Context, snapshot *repository.Snapshot) erro
 			}
 		}
 	}
-	if !allDiffCheck {
-		return fail("POLICY_PROFILE", PolicyPath, "全変更のgit-diff-checkを必須にしてください")
+	if exists, err := snapshot.Exists(repositorypolicy.Path); err != nil {
+		return err
+	} else if !exists {
+		if legacyTask {
+			return snapshot.AssertUnchanged()
+		}
+		return fail("POLICY", repositorypolicy.Path, "repository policyが必要です")
+	} else {
+		if !rules.MatchesPath(p.GuardrailPaths, repositorypolicy.Path) || rules.MatchesPath(p.ProductPaths, repositorypolicy.Path) {
+			return fail("POLICY", repositorypolicy.Path, "repository policyはguardrailでなければなりません")
+		}
+		data, err := snapshot.Read(repositorypolicy.Path)
+		if err != nil {
+			return err
+		}
+		rp, err := repositorypolicy.Parse(data)
+		if err != nil {
+			return err
+		}
+		if err := rp.ValidateProfiles(c.Profiles); err != nil {
+			return err
+		}
 	}
+
 	return snapshot.AssertUnchanged()
 }

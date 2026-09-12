@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "kind": "aidd_repository_policy",
+  "forbidden_tree_scopes": [
+    "apps",
+    "apps/web",
+    "apps/api",
+    "docs",
+    ".agents",
+    ".codex"
+  ],
+  "conditional_verification": [
+    {
+      "paths": [
+        "apps/web/src/**/*.stories.ts",
+        "apps/web/src/**/*.stories.tsx"
+      ],
+      "detector": "storybook_tag_text",
+      "value": "browser-test",
+      "profiles": [
+        "web-storybook-suite"
+      ]
+    }
+  ],
+  "runner_argv_prefixes": {
+    "vitest_json": [
+      "pnpm",
+      "run"
+    ],
+    "python_unittest": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v"
+    ]
+  }
+}

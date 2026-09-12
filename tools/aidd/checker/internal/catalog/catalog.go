@@ -1,8 +1,8 @@
 package catalog
 
 import (
+	"github.com/kosnu/savings/tools/aidd/checker/internal/adapters/testrunner"
 	"regexp"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -128,25 +128,7 @@ func Parse(content []byte, path string) (*Resolved, error) {
 }
 
 func validateRunnerArgv(profile model.VerificationProfile, location string) error {
-	if profile.ID == "git-diff-check" {
-		expected := []string{"git", "diff", "--no-ext-diff", "HEAD", "--check", "--"}
-		if profile.Runner != "command_suite" || profile.WorkingDirectory != "" || !slices.Equal(profile.Argv, expected) {
-			return diagnostic.New("AIDD_PROFILE_ARGV", location, "verification_profile_catalog", "Git diff check must inspect the receipt-pinned HEAD through the final worktree", map[string]any{"runner": "command_suite", "working_directory": "", "argv": expected}, profile)
-		}
-	}
-	switch profile.Runner {
-	case "python_unittest":
-		expected := []string{"python3", "-m", "unittest", "-v"}
-		if !slices.Equal(profile.Argv, expected) {
-			return diagnostic.New("AIDD_PROFILE_ARGV", location+".argv", "verification_profile_catalog", "Python unittest runner argv must match the fixed adapter shape", expected, profile.Argv)
-		}
-	case "vitest_json":
-		valid := len(profile.Argv) == 3 && profile.Argv[0] == "pnpm" && profile.Argv[1] == "run" && !strings.HasPrefix(profile.Argv[2], "-")
-		if !valid {
-			return diagnostic.New("AIDD_PROFILE_ARGV", location+".argv", "verification_profile_catalog", "Vitest runner argv must be exactly pnpm run <repo-owned-script>", []string{"pnpm", "run", "<repo-owned-script>"}, profile.Argv)
-		}
-	}
-	return nil
+	return testrunner.ValidateArgv(profile, location)
 }
 
 func Resolve(catalog *Resolved, cases []model.VerificationCase) ([]model.SelectedProfile, error) {

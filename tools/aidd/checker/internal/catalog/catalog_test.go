@@ -46,8 +46,6 @@ func TestRunnerSpecificArgvShapesAreFailClosed(t *testing.T) {
 	tests := []model.VerificationProfile{
 		{Runner: "python_unittest", Argv: []string{"python3", "-m", "unittest", "-v", "arbitrary.target"}},
 		{Runner: "vitest_json", Argv: []string{"pnpm", "run", "test", "--reporter=default"}},
-		{Runner: "vitest_json", Argv: []string{"npx", "vitest"}},
-		{ID: "git-diff-check", Contract: "suite", Runner: "command_suite", SelectorKind: "suite", Argv: []string{"git", "diff", "--check"}},
 	}
 	for _, profile := range tests {
 		if err := validateRunnerArgv(profile, "profiles[0]"); err == nil {
@@ -66,5 +64,13 @@ func TestResolveRejectsSelectorOutsideProfileRoot(t *testing.T) {
 	_, err := Resolve(resolved, cases)
 	if err == nil || !strings.Contains(err.Error(), "AIDD_SELECTOR_ROOT") {
 		t.Fatalf("expected selector-root diagnostic, got %v", err)
+	}
+}
+
+func TestCatalogDoesNotOwnRepositoryInvocationPolicy(t *testing.T) {
+	for _, p := range []model.VerificationProfile{{Runner: "vitest_json", Argv: []string{"npx", "vitest"}}, {ID: "git-diff-check", Runner: "command_suite", Argv: []string{"git", "diff", "--check"}}} {
+		if err := validateRunnerArgv(p, "profile"); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
