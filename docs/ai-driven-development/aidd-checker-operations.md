@@ -6,11 +6,15 @@ area: repository
 applies_to:
   - tools/aidd
   - docs/ai-driven-development
+  - vite.config.ts
+  - .vite-hooks
 topics:
   - schema-v5
   - verification
+  - commit-hooks
 when_to_read:
   - Task、checkpoint、検証、ShipのCLIを実行するとき
+  - リポジトリ共通の検証ゲートやvp stagedの設定を変更するとき
 ---
 
 # AIDD vNext operations
@@ -185,7 +189,6 @@ PRの契約移行申請を記載し、candidate jobだけが`ci-check --contract
 このflagはbase側の限定差分検査・現在のbase/head/本文との一致・GitHub Environmentの人による承認の代替ではない。
 移行先の候補checker成功だけで配信を受け入れず、必ず下記の非互換契約移行経路を通す。
 
-
 ## Verification
 
 formatter等の意図的な変更を先に完了し、最終状態を固定してから実行する。
@@ -296,7 +299,6 @@ manifestから除外するのはbootstrapとverificationの記録JSONだけで�
 reviewerの真正性はLearnと同じ運用境界で扱う。
 この初回を既存v5基準による検証済みとは報告しない。v5導入後はtask欠落を成功扱いにしない。
 
-
 ## 非互換なchecker契約の移行
 
 通常のPRはbase checkerの`ci-check`を通す。base checkerの契約と非互換な変更だけは、
@@ -321,12 +323,12 @@ base側の差分・scope検査と承認は、PRのmerge-baseからheadまでの�
 CI契約の移行とTaskの実行checkerの移行は区別する。`--contract-migration`は候補検証の経路を
 選択するだけで、Taskのchecker identityや証跡の要件を免除しない。
 
-| Taskの検証方法 | 必要な記録と証跡 | 候補検証の判定 |
-| --- | --- | --- |
-| 開始時checkerで検証を継続し、CI契約だけを移行する | `checker_migration`は不要。開始時checker・最新checkpoint・最終状態に結合した証跡 | 受入可能 |
-| Taskの実行checkerも移行する | `checker_migration`と、移行先checker・最新checkpoint・最終状態に結合した新証跡 | 受入可能 |
-| 移行記録なしで別checkerの証跡を使う | 開始時checkerと証跡のidentityが不一致 | 拒否 |
-| 移行記録ありで移行前のcheckerまたはcheckpointの証跡を使う | 移行先checkerまたは最新checkpointと証跡のidentityが不一致 | 拒否 |
+| Taskの検証方法                                            | 必要な記録と証跡                                                                 | 候補検証の判定 |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------- |
+| 開始時checkerで検証を継続し、CI契約だけを移行する         | `checker_migration`は不要。開始時checker・最新checkpoint・最終状態に結合した証跡 | 受入可能       |
+| Taskの実行checkerも移行する                               | `checker_migration`と、移行先checker・最新checkpoint・最終状態に結合した新証跡   | 受入可能       |
+| 移行記録なしで別checkerの証跡を使う                       | 開始時checkerと証跡のidentityが不一致                                            | 拒否           |
+| 移行記録ありで移行前のcheckerまたはcheckpointの証跡を使う | 移行先checkerまたは最新checkpointと証跡のidentityが不一致                        | 拒否           |
 
 候補checkerは`ValidateEvidence`でこの照合と最終inventoryの一致を強制する。
 base側の差分検査はTaskの意味検査を代行せず、人の承認も欠落した証跡の代わりにはしない。
@@ -378,6 +380,33 @@ team reviewerはこの実装では未対応で、個人reviewerを少なくと�
 CIの移行承認とローカルのchecker移行記録は別の責務である。ローカルでは上記の明示許可・移行記録・新証跡を要求し、開始時checkerの検証を成功と偽ったり、元Taskを作り直したりしない。
 
 ## Repository verification
+
+### リポジトリ共通ゲートの採用判断（2026-09-12）
+
+`vp`をリポジトリ全体のローカル検証ゲートとして採用し、commit前の整形・静的検査は
+`vp staged`を共通入口にする。編集者や使用したAIに依存する検証漏れを防ぎ、
+Push後のAIレビューでの指摘やCI失敗を減らすための判断である。
+
+ルートの`vite.config.ts`はこの共通ゲートの設定を所有し、FE専用には扱わない。
+`apps/web/vite.config.*`が所有するアプリの開発・ビルド設定とは責務を分ける。
+`vp staged`は対象選択、処理の実行、stageと未ステージ変更の保護を担い、
+Goの整形・静的解析そのものは`gofmt`と`go vet`が担う。
+今後のcommit前検証も共通入口へ集約し、言語固有の検査は各ツールへ委譲する。
+
+Go以外の変更でもchecker全体のvetを実行する現行方針を維持する。
+FEや文書だけの変更であること、または設定ファイル名が`vite.config.ts`であることを理由に、
+Go検証を外したり別の入口へ分離したりしない。CIはローカルの実行漏れを検出するため維持する。
+
+### 実行手順
+
+Gitのcommit前には`.vite-hooks/pre-commit`が`vp staged`を実行する。
+ステージされた既存Goファイルを`gofmt -w`で整形し、`tools/aidd/checker`全体の
+`go vet ./...`、既存の`vp check --fix`を順に実行する。Go以外の変更や削除のみのcommitでもvetを実行する。
+未ステージ変更は検査中に隠して復元し、失敗時はcommitを止めてindexとworktreeを実行前へ戻す。
+`.aidd/**`はcheckerがcanonical JSONを所有するため、汎用formatterの対象から除外してbytesを保持する。
+フックを使う環境ではGoとVite+を利用可能にし、`vp hooks enable`でdispatcherを有効にする。
+フックの整形は下記の検証より前に完了させる。AIDDの証拠取得後にフックが内容を変更した場合は、
+変更後の状態を再検証する。CIの整形・vet検査は引き続き維持する。
 
 具体的な必須commandは次のとおり。
 
