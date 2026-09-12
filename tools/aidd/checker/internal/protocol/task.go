@@ -51,7 +51,7 @@ func validateSpec(spec Spec) error {
 	} else if spec.Intent.Kind != "feedback" || strings.TrimSpace(spec.Authorization) == "" || len(spec.AuthorizedScopes) == 0 {
 		return fail("LEARN_AUTHORITY", spec.ID, "Learnにはfeedbackと明示的な変更許可・有限scopeが必要です")
 	}
-	for _, scope := range spec.AuthorizedScopes {
+	for _, scope := range append(append([]model.OwnershipScope{}, spec.AuthorizedScopes...), spec.UserScopeLimits...) {
 		if _, err := pathcontract.ValidateRelativePath(scope.Path); err != nil {
 			return err
 		}
@@ -143,6 +143,8 @@ type Loaded struct {
 	RepositoryPolicy    repositorypolicy.Policy
 	CheckerMigration    *CheckerMigration
 	MigrationScopes     []model.OwnershipScope
+	RevisionScopes      []model.OwnershipScope
+	RevisionLimits      [][]model.OwnershipScope
 	Integration         *Integration
 	IntegrationBaseline []File
 	Delivered           bool
@@ -235,6 +237,9 @@ func (l *Loaded) guarded(path string) bool {
 
 func (l *Loaded) checkGuards(ctx context.Context, snapshot *repository.Snapshot, files []File) error {
 	for _, path := range l.changedPaths(files) {
+		if !l.withinUserLimits(model.OwnershipScope{Path: path, Kind: "file"}) {
+			return fail("USER_SCOPE_LIMIT", path, "ユーザーの明示制限を超える変更です")
+		}
 		if path == lockPath && len(l.Policy.MixedJSON) > 0 {
 			if err := l.checkLock(ctx, snapshot, files); err != nil {
 				return err
