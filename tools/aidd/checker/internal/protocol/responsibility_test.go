@@ -173,3 +173,53 @@ func TestLegacyTaskStillVerifiesWithoutRepositoryPolicyFile(t *testing.T) {
 	must(t, f.check(false))
 	rejected(t, f.snapshot(func(s *repository.Snapshot) error { return CheckConfiguration(context.Background(), s) }), "POLICY")
 }
+
+func TestInvocationPolicyIsEnforcedThroughConfiguration(t *testing.T) {
+	for _, variant := range []string{"suite-command", "suite-arguments", "suite-directory", "missing-vitest", "missing-python", "python-launcher", "python-selector", "python-quiet"} {
+		t.Run(variant, func(t *testing.T) {
+			f := setup(t, "learn")
+			var profiles model.ProfileCatalog
+			data, err := os.ReadFile(filepath.Join(f.root, catalog.DefaultPath))
+			must(t, err)
+			must(t, canonical.Decode(data, "profiles", &profiles))
+			p := repositorypolicy.Legacy()
+			python := model.VerificationProfile{ID: "zz-python", Contract: "test_case", Runner: "python_unittest", SelectorKind: "test_case", Argv: []string{"python3", "-m", "unittest", "-v"}}
+			switch variant {
+			case "suite-command":
+				profiles.Profiles[0].Argv = []string{"true"}
+			case "suite-arguments":
+				profiles.Profiles[0].Argv = append(profiles.Profiles[0].Argv, "src/a.txt")
+			case "suite-directory":
+				profiles.Profiles[0].WorkingDirectory = "src"
+			case "missing-vitest":
+				delete(p.RunnerArgvPrefixes, "vitest_json")
+				profiles.Profiles = append(profiles.Profiles, model.VerificationProfile{ID: "zz-vitest", Contract: "test_case", Runner: "vitest_json", SelectorKind: "test_case", Argv: []string{"npx", "vitest"}})
+			case "missing-python":
+				delete(p.RunnerArgvPrefixes, "python_unittest")
+				profiles.Profiles = append(profiles.Profiles, python)
+			default:
+				python.Argv = []string{"uv", "run", "python", "-m", "unittest", "-v"}
+				p.RunnerArgvPrefixes["python_unittest"] = []string{"uv", "run", "python"}
+				if variant == "python-selector" {
+					python.Argv = append(python.Argv, "arbitrary.target")
+				}
+				if variant == "python-quiet" {
+					python.Argv[len(python.Argv)-1] = "-q"
+				}
+				profiles.Profiles = append(profiles.Profiles, python)
+			}
+			data, err = canonical.Pretty(profiles)
+			must(t, err)
+			f.put(catalog.DefaultPath, string(data))
+			data, err = canonical.Pretty(p)
+			must(t, err)
+			f.put(repositorypolicy.Path, string(data))
+			err = f.snapshot(func(s *repository.Snapshot) error { return CheckConfiguration(context.Background(), s) })
+			if variant == "python-launcher" {
+				must(t, err)
+			} else if err == nil {
+				t.Fatal("invalid invocation accepted")
+			}
+		})
+	}
+}
