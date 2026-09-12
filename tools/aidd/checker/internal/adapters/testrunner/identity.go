@@ -104,6 +104,10 @@ func ValidateArgv(profile model.VerificationProfile, location string) error {
 		return diagnostic.New("AIDD_PROFILE_ARGV", location, "verification_profile_catalog", "Python unittest requires its verbose adapter invocation", nil, profile.Argv)
 	}
 	if profile.Runner == "vitest_json" {
+		if len(profile.Argv) >= 2 && profile.Argv[0] == "pnpm" && profile.Argv[1] == "run" &&
+			(len(profile.Argv) < 3 || profile.Argv[2] == "" || strings.HasPrefix(profile.Argv[2], "-")) {
+			return diagnostic.New("AIDD_PROFILE_ARGV", location, "verification_profile_catalog", "pnpm run requires a script before adapter-owned arguments", "pnpm run <script>", profile.Argv)
+		}
 		for _, arg := range profile.Argv {
 			for _, flag := range []string{"--reporter", "--outputFile", "--testNamePattern", "-t"} {
 				if arg == flag || strings.HasPrefix(arg, flag+"=") {
