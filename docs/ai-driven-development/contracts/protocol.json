@@ -13,6 +13,8 @@
     ".agents/skills/**",
     ".codex/**",
     ".github/**",
+    ".vite-hooks/**",
+    "vite.config.ts",
     "package.json",
     "pnpm-workspace.yaml",
     "apps/web/package.json",
