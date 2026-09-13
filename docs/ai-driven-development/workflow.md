@@ -86,7 +86,7 @@ review後は同じTaskで必要なcheckpoint改訂・全差分の再検証を行
 
 ### main取り込み後の検証
 
-Taskの開始点・意図・許可範囲・policy/profile・開始時checkerは保持する。
+Taskの開始点・意図・ユーザーの明示制限・policy/profile・開始時checkerは保持する。
 main取り込み後は、Decisionの`integration`へ取り込んだbaseと統合commitを明示して新checkpointを作る。
 これはTaskの再作成や権限拡張ではない。Gitの包含関係とCIの現在のtarget baseへの一致を要求する。
 履歴から都合のよいmergeを探索して基準点を選ばない。
@@ -127,37 +127,33 @@ Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と全�
 この運用境界の明記だけで、別PR間のTask置換を機械的に検出できるとは扱わない。
 現在の検査範囲と受入確認は[operations](aidd-checker-operations.md#ship--ci)に従う。
 
-### 同じTask内での変更対象の改訂
-
-目的・対象機能・禁止事項・配信先が委任の境界であり、agentが列挙した初期ファイル一覧は作業計画である。
-ユーザーが明示したファイル単位の制限は別に保持する。レビューで必要になった検証profileやテスト等は、
-同じ目的に必要で明示制限に反しなければ、ファイル一覧にないことだけを理由に確認・Task分割を求めない。
-目的・影響範囲・配信先が広がる場合や明示制限に反する場合は、変更前にユーザーへ確認する。
-
-Developmentは既存のDecision ownership改訂を使う。Learnは初期`authorized_scopes`を保持し、
-追加範囲・理由・委任境界のレビュー・確認者を`scope_revision`として新checkpointへ追記する。
-新規Taskで明示されたファイル制限は`user_scope_limits`へ記録する。旧Taskの許可文に制限がある場合も、
-最初の範囲改訂でその制限を構造化する。省略を「制限なし」と推測せず、元の許可文と制約を確認する。
-記録済み制限は後続改訂で除去・拡張できない。明示制限自体の変更はこの作業計画改訂では扱わない。
-
-元Task・baseline・過去checkpointと証跡を保持し、追加後のownership、representation、適用rule、必須suiteを
-再計算する。改訂で旧証拠を全失効させ、変更判定基準からの全差分と最終状態を再検証する。
-checkerは有限範囲、明示制限、禁止領域、履歴、rule・検証証拠の整合を検査する。
-同じ目的内かという意味判断と許可文・確認者の真正性は担当agentの根拠付きレビューが担う。
-checker移行の許可を作業範囲の改訂から推論しない。互換性とCLIの具体例は
-[operations](aidd-checker-operations.md#learnの変更対象の改訂)を参照する。
-
 ## Rule / ownership / guardrail
 
-baseline内のowned pathsと最終representationから必要ruleを導出し、実差分でも照合する。
-削除対象pathもroutingする。surface必須rule、path一致rule、depends_on closureをすべて適用する。
-priorityは適用除外に使わない。topics/domains/activities/front matterは探索用である。
-最終inventoryに不足または未登録pathがあれば失敗する。ownershipは書込権限を拡張しない。
+目的・対象機能・禁止事項・配信先が委任の境界であり、agentが列挙した初期ファイル一覧は作業計画である。
+ユーザーが明示したファイル単位の制限は別に保持する。同じ目的に必要で明示制限に反しないテストや
+検証profile等は、初期一覧にないことだけを理由に確認・Task分割を求めず、同じTaskで作業範囲へ含める。
+目的・影響範囲・配信先が広がる場合や明示制限に反する場合は、変更前にユーザーへ確認する。
+
+現在の作業範囲と成果物は最新Decisionのownershipとrepresentationに記載する。
+DevelopmentはDecisionのownershipを更新する。Learnの作業範囲は初期`authorized_scopes`と
+checkpointに記録した`scope_revision.added_scopes`から構成し、追加理由・委任境界のレビュー・確認者を残す。
+ユーザーの明示的なファイル制限は`user_scope_limits`へ記録し、作業範囲の追加によって解除しない。
+旧Taskでも元の許可文と制約を確認し、明示制限があれば最初の範囲改訂で構造化する。
+
+ownershipは正規化した有限file/treeで宣言する。baseline内のowned pathsと最終representation、
+実差分の各pathに一致するsurface必須rule、path固有rule、depends_on closureをすべて適用する。
+priorityは適用除外に使わず、topics/domains/activities/front matterは追加探索に使う。
+最終inventoryに不足または未登録pathがあれば拒否する。作業計画への登録は書込権限を拡張しない。
+
+Decisionの変更は実装前にcheckpointへ記録し、旧証拠を全失効させる。元Task・baseline・開始時checker・
+policy/profileを保持し、更新後の範囲でruleと必須検証を選択して全差分と最終状態を再検証する。
+委任内かという意味判断は担当agentの根拠付きレビュー、範囲・明示制限・禁止領域・履歴・証拠の整合は
+checkerが担う。操作手順と互換性は[operations](aidd-checker-operations.md#learnの変更対象の改訂)を参照する。
 
 Development中のguardrailはread-only。protocol policy、rule-map、profile catalog、rule文書、
-checker・adapter等の保護対象を開始時に固定する。新しいpathも開始時policyで分類する。
-実装を成立させるためにruleを緩和したり、改訂で保護を解除してはいけない。
+checker・adapter等を開始時に保護し、新しいpathも開始時policyで分類する。
 guardrail変更が必要ならDevelopmentを中断し、独立したLearnへ渡す。
+Learnではproduct変更を禁止する。実装を成立させるためにこれらの保護を解除してはいけない。
 
 同じ設定や依存関係にproductとguardrailが混在する場合も、各Taskで保護する対象を保持する。
 形式ごとの変更許可と検査境界は[checkerの設定・依存関係の保護](aidd-checker.md#設定依存関係の保護)に従う。

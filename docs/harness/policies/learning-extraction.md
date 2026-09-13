@@ -116,7 +116,7 @@ rule-map、checker、検証profile、adapter、実行機構と必要な回帰tes
 
 変更前にfeedback、authorization、初期の有限作業範囲をLearn Taskへ記録します。
 ユーザーの明示制限とagentの変更予定一覧を区別し、委任内の追加は
-[同じTask内での変更対象の改訂](../../ai-driven-development/workflow.md#同じtask内での変更対象の改訂)に従います。
+[作業範囲とguardrailの契約](../../ai-driven-development/workflow.md#rule--ownership--guardrail)に従います。
 開始時のchecker binaryと旧policy/profileを維持して検証し、担当agent自身が最新差分と
 checkpoint/evidenceをreviewして、依頼された許可範囲で確定します。変更後checkerの成功だけでは完了にしません。
 独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行います。
