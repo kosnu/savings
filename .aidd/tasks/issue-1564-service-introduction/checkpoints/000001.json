@@ -1,0 +1,334 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "b19db74f5d5f9a2461d0e99ebaa2450b9de2d83ef115e1d23d33463ccf553845",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "b19db74f5d5f9a2461d0e99ebaa2450b9de2d83ef115e1d23d33463ccf553845",
+    "reason": "トップは閲覧と利用開始の画面。DESIGN.mdの「使ってよいお金を安心して使える」を、予算の残りを買い物や予定の目安にする価値へ具体化する。既存MonthlyTotals/MonthlyBudgetUsage、支払い記録・カテゴリ集計の実装が根拠。RadixのContainer(size2)、上端配置、gap4、h1 size6、h2 size4 medium、本文size3と補助gray、単一の主CTAを使う。宣伝カード/ヒーロー/新規画像/新規依存は追加しない。具体例は実ユーザーデータと区別した静的な月の予算・支出・残額サマリーで、主目的は残量の理解、比較元は補助。数値は整数、既存toCurrencyと公開BudgetProgressを再利用し残額は緑。日付や実際のアカウント状態を偽装しない。非同期機能は持ち込まない。認証画面は既存のGoogleボタン・コールバックエラーを保持し、紹介から続く短い開始案内とsemantic h1を追加。既存エラー面のinline token styleは本Issueの機能と無関係な構造変更を避け維持する。新しい言語選択や初期言語変更はせず既存英日resourceに追加する。主要導線と英日・サンプル意味の回帰テスト、Page Storyを活用する。外観と文言により利用意欲を支える設計とするが、実ユーザーによる意欲向上の測定結果は捏造しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "初回訪問者にサービスの価値と利用体験を伝える",
+        "origin": "intent",
+        "evidence": "使い始めたあとの体験を思い描き、「使ってみたい」と思える"
+      },
+      {
+        "id": "FR-2",
+        "text": "既存導線を保ち利用開始から認証へ進める",
+        "origin": "intent",
+        "evidence": "トップ画面から認証への既存導線を維持する"
+      },
+      {
+        "id": "FR-3",
+        "text": "実装済み機能に基づき説明し誇張しない",
+        "origin": "intent",
+        "evidence": "実装済みの機能と実際に提供できる体験に基づいて伝える"
+      },
+      {
+        "id": "NFR-1",
+        "text": "Web必須検証とレビュー、既存の英語・日本語表示を満たしcommit・push・PR配信を確認する",
+        "origin": "guardrail",
+        "evidence": "ai-driven.workflow"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "トップで家計簿の用途、残り予算の利用例、予算設定・記録・振り返りの体験を表示する",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "user_operation",
+          "description": "主リンクを操作して/authへ進み、既存Googleログインとエラー案内を利用できる",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "利用例は架空の月の予算100000円・支出68000円・残額32000円と明示し、既存機能に裏付けた説明を英日で表示する",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "英日表示・導線・認証エラーを含む回帰検証と必須検証を通過し、レビューして配信する",
+          "requirement_id": "NFR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "web-storybook-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "英語と日本語、狭幅と広幅、ライト/ダークでトップ・認証をブラウザ確認。利用例の金額関係・予算残額の意味を確認し、既存月次サマリー・支払い記録・カテゴリ内訳の実装と文言を照合。CTAの認証遷移と認証エラー案内を確認。最終差分の全rule coverageと配信状態をレビューする。利用意欲の実ユーザー評価は未実施と明記する。"
+        },
+        {
+          "id": "VC-8",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "トップの主リンクをクリックして/authへ遷移しGoogle認証操作が表示されること、認証エラーの案内が残ることを確認する。"
+        },
+        {
+          "id": "VC-9",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "英日の文言を既存月次予算・支払い記録・カテゴリ集計と照合。利用例と実値を区別し100000-68000=32000と既存金額表示・進捗部品の使用を確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/TopPage/TopPage.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/TopPage/TopPage.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/TopPage/TopPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/resources.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "test",
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "test",
+          "path": "apps/web/src/app/routes/TopPage/TopPage.stories.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "apps/web/src/app/routes/TopPage/TopPage.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/TopPage/TopPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/resources.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-9"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "ai-driven.workflow",
+      "domain.monthly-budget"
+    ]
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.domain-ui-rules",
+    "web.feature-directory",
+    "web.query-cache",
+    "web.storybook-browser-tests",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ]
+}

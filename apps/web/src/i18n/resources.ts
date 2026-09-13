@@ -22,6 +22,24 @@ export const resources = {
       "auth.loading": "Checking authentication status...",
       "auth.title": "Sign in to My Savings",
       "auth.goToAuth": "Go to Auth",
+      "auth.startDescription":
+        "Start with today's spending. As you record payments, see how your month is taking shape.",
+      "introduction.title": "Know what is left to spend this month.",
+      "introduction.description":
+        "{{appName}} is a budgeting app that brings your budget and daily spending together. Check what is left before planning a purchase or a meal out.",
+      "introduction.start": "Get started with {{appName}}",
+      "introduction.example.title": "Your remaining budget, at a glance.",
+      "introduction.example.caption": "An example month with sample amounts",
+      "introduction.example.budget": "Monthly budget",
+      "introduction.example.description":
+        "Set a monthly budget and compare it with your recorded spending. Use what is left as a guide when making plans for the rest of the month.",
+      "introduction.everyday.title": "From everyday payments to a clearer picture.",
+      "introduction.everyday.record":
+        "After a purchase, record the amount and what it was for. Keep the details so you can look back later.",
+      "introduction.everyday.review":
+        "See spending by category, such as groceries or eating out, and decide where you want to use your budget.",
+      "introduction.firstStep":
+        "Start by recording a payment, then set a budget that works for you.",
       "auth.continueWithGoogle": "Continue with Google",
       "auth.callbackErrorTitle": "Sign-in failed",
       "auth.callbackErrorDescription":
@@ -231,6 +249,23 @@ export const resources = {
       "auth.loading": "認証状態を確認しています...",
       "auth.title": "My Savings にログイン",
       "auth.goToAuth": "ログインへ進む",
+      "auth.startDescription":
+        "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
+      "introduction.title": "今月、あとどのくらい使える？",
+      "introduction.description":
+        "{{appName}}は、予算と日々の支出を見比べられる家計簿です。買い物や外食を考えるときに、残りの予算を確かめられます。",
+      "introduction.start": "{{appName}}をはじめる",
+      "introduction.example.title": "残りの予算を、ひと目で。",
+      "introduction.example.caption": "ある月の利用例（金額はサンプルです）",
+      "introduction.example.budget": "月の予算",
+      "introduction.example.description":
+        "月の予算を決めて、記録した支出と見比べる。残りの予算が、月末までの予定を考える目安になります。",
+      "introduction.everyday.title": "日々の支払いから、お金の使い方が見えてくる。",
+      "introduction.everyday.record":
+        "買い物のあとに、金額と使い道を記録。あとから「何に使ったか」を振り返れます。",
+      "introduction.everyday.review":
+        "食費や外食など、カテゴリごとの支出も確認。自分が大切にしたいことに、予算をどう使うか考えられます。",
+      "introduction.firstStep": "まずは支払いを1件記録するところから。予算は、自分に合う金額で。",
       "auth.continueWithGoogle": "Googleで続ける",
       "auth.callbackErrorTitle": "ログインに失敗しました",
       "auth.callbackErrorDescription":
