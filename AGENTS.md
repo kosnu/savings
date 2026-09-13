@@ -1,136 +1,79 @@
 # AGENTS.md
 
-Guidance for all AI agents working in this repository.
+Personal savings management app: `apps/web/` is React + TypeScript + Vite;
+`apps/api/` is Supabase DB migrations and Auth config.
 
-## Language
+## Working agreements
 
-- **Chat and comments**: Use Japanese when communicating with the user, and in inline code comments.
+- Use Japanese for user communication and inline code comments. Be concise, outcome-first, and evidence-based.
+- Answer sentences ending with `?` or `？` before acting. Questions, explanations, investigations, and design proposals alone authorize no implementation or Goal creation.
+- For explanations, answer directly without unsolicited plans or remediation proposals.
+- For non-trivial changes, state the outcome, scope, constraints, completion criteria, and verification before editing. Use the existing request and approved decisions; do not recreate an approval step for routine choices.
+- Continue authorized work through implementation, required verification, review, and in-scope fixes. Ask only when missing intent, a material risk, an unresolved rule conflict, or a change to scope or permissions requires the user's decision. Complete independent authorized work while awaiting that decision.
+- Preserve unrelated worktree changes. Keep the smallest practical diff and necessary synchronized representations; stop once the requested outcome and required verification are satisfied.
+- Follow the existing pattern in the same layer. Explain a necessary departure before applying it.
+- For multi-step work, give a short update before tools and concise updates about findings or decisions. Finish with changes, locations, verification, and any blocker or unverified result.
 
-## Default AIDD entrypoint
+## Task entrypoints
 
-- Issueを指定した開発の実行依頼は、`docs/ai-driven-development/workflow.md` のDevelopment契約へ入る。
-- 質問、説明、調査、設計案の提示だけではDevelopmentやGoalを開始しない。
-- Codexでは1つのDevelopment Goalで継続する。GoalなしでもCore Task contractを使う。
-- guardrail更新は明示許可された独立Learnとして扱い、product実装へ自動連続しない。
-- 旧phase Goal、固定executor、旧phase CLIは新規実行に使用しない。
+- Issue-specified development execution: apply the [Development contract](docs/ai-driven-development/workflow.md) directly in Claude or Codex. Product work without an Issue needs an existing Issue identified.
+- Guardrail updates: explicitly authorized independent Learn under the same workflow. Learn ends at guardrail verification and finalization; it does not continue into product implementation.
+- Codex Goal integration: use [goal-setting](.agents/skills/goal-setting/SKILL.md) as the Goal-tool entrypoint for authorized Development or an explicit Goal request, under the [Codex adapter](docs/ai-driven-development/codex-adapter.md). Execution follows the common protocol. Claude and hosts without Goal tools use the same Core Task contract without Codex Goals.
+- Authorized maintenance outside Development/Learn follows these working agreements and applicable policies directly. Task size or Goal availability does not exempt product or guardrail changes from their contract.
+- Existing-task review fixes or additional Ship: use the workflow's continuation boundary and preserve Task/baseline. Do not start legacy phase Goals, fixed executors, or legacy phase CLI paths.
+- Git/GitHub operations: [Git Workflow](docs/harness/policies/git-workflow.md). Establish target, diff, authority, and safety before writes; clarify unresolved ambiguity. Commit messages use an English type and Japanese text. Do not wrap commit IDs in backticks in PR comments.
 
-## Project Overview
+## Context and document routing
 
-Personal savings management app. Monorepo with two apps (`apps/web/` and `apps/api/`).
+Start with the named files and the smallest repository evidence that can answer the task.
+Read further when a required fact or decision remains unsupported; avoid searches solely for more examples or wording.
 
-## Architecture
-
-- **Web** (`apps/web/`): React + TypeScript + Vite. Design decisions: `apps/web/docs/adr/`
-- **API** (`apps/api/`): Supabase (DB migrations, Auth config)
-
-## Key Conventions
-
-- Repository-wide docs: `docs/`
-- App-specific docs: `apps/*/docs/`
-- Documentation policy: `docs/harness/policies/documentation-policy.md`
-- Do not rewrite accepted ADR history. For ADR changes, append a dated Clarification or add a replacement ADR, then run `python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/<base-branch>`.
-- Harness engineering ADR: `docs/adr/0001-adopt-harness-engineering.md`
-- Agent rule graph ADR: `docs/adr/0002-adopt-agent-rule-graph.md`
-- Agent rule map: `docs/harness/rule-map.json`
-- When a task may touch documented design decisions, policies, or operational guidance, inspect Markdown front matter in the docs directories and read the relevant docs for the current session.
-- When a task may require multiple related policies, domain rules, ADRs, or design decisions, use `docs/harness/rule-map.json` to choose the relevant document subgraph.
-- Use front matter fields such as `area`, `applies_to`, `topics`, `when_to_read`, and `status` to choose which docs apply. Do not rely on `deprecated` docs unless the task explicitly concerns deprecated behavior.
-- Commit messages in Japanese, type in English (feat/fix/chore/refactor/test/docs)
-- No unrelated code changes
-- When changing an existing workflow, command path, or configuration surface, follow the established pattern in the same layer unless there is a clear reason to change it.
-- If you intentionally diverge from an existing pattern, explain why before applying the change.
+- Use [rule-map.json](docs/harness/rule-map.json) for documented behavior, design, policies, and related rules. Apply matching path/surface rules and their `depends_on` closure; use front matter (`area`, `applies_to`, `topics`, `when_to_read`, `status`) for additional targeted discovery.
+- Read the selected documents when their decision or operation is needed. Do not scan all docs or load every linked reference for each edit. Required routing and review coverage still apply. Use deprecated docs only for deprecated behavior or history.
+- Documentation or agent-definition changes: [Documentation Policy](docs/harness/policies/documentation-policy.md). Repository docs live in `docs/`, app docs in `apps/*/docs/`, Web decisions in `apps/web/docs/adr/`.
+- Harness structure or rule graph decisions: [harness ADR](docs/adr/0001-adopt-harness-engineering.md) and [rule graph ADR](docs/adr/0002-adopt-agent-rule-graph.md).
+- Accepted ADR changes: preserve historical text; append a dated Clarification or add a replacement ADR. Run `python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/<base-branch>`.
+- State evidence gaps. Use a named low-risk assumption only when it does not change intent, acceptance criteria, or permissions.
 
 ## Code Review Rules
 
-- If the review target involves design decisions or policies, read
-  `docs/harness/rule-map.json` and select the applicable active documents.
-- For every code review, read `docs/harness/policies/code-review.md` and apply
-  all review-required rule IDs for every changed surface. Do not reduce the
-  review scope by priority or stop after finding one issue.
-- Confirm that the diff does not conflict with the rules in the selected documents.
+- Read [Code Review Policy](docs/harness/policies/code-review.md) for every review. Apply every changed surface's required rules, path matches, and dependencies from the rule map. Do not exclude rules by priority or stop at the first finding.
+- Check actual behavior and the final diff against the selected sources; report coverage and unresolved conflicts in the policy's format.
 
-## Agent Operating Guidance
-
-Use these rules to apply the repository conventions efficiently without weakening the mandatory rules below.
-
-### Command Rules
+## Command Rules
 
 - When passing extra arguments to pnpm workspace scripts, pass them directly after the script name by default, for example `pnpm --filter web storybook --no-open`.
 - Use `--` only after confirming the target script or underlying CLI requires it.
 
-### Subagent Usage
+## Subagent Usage
 
 - 原則としてメインエージェントが調査・実装・レビューを行う。軽微な修正、定型的な確認、テストやGit検証の実行・結果確認、局所的な再利用確認はメインで完結させる。
 - サブエージェントは、複雑で独立した作業の分担や重大なリスクの独立検証など、追加のトークン・引継ぎ・統合コストに見合う具体的な効果がある場合に限定する。ファイル数、レビュー観点の数、並列化できること、低コストモデルであることだけを起動理由にしない。
 - 委譲前に、担当させる独立した問題と、メインで処理するより追加コストに見合う理由を短く示す。条件を満たす利用にユーザーの明示依頼は必須ではない。必要最小限の数と有限の担当範囲に限定し、同じ調査・レビューの重複委譲や、修正のたびの定型的な再レビュー委譲をしない。
 
-### Goal And Success Criteria
-
-- Start from the requested outcome, constraints, and success criteria; then choose the smallest useful path that preserves correctness, repository conventions, and user intent.
-- Treat `must`, `always`, `never`, and `only` as true invariants. For judgment calls, use decision rules and repo evidence instead of process-heavy instructions.
-- Stop when the core request is handled with sufficient evidence and required verification; do not pursue adjacent refactors or polish unless needed for correctness.
-
-### Communication
-
-- Communicate in Japanese. Be direct, concise, and evidence-based; give enough context for evaluation, then stop.
-- Answer any sentence ending with `?` or `？` before taking action. For explanation requests, answer directly without expanding into unsolicited plans or remediation options.
-- For multi-step or tool-heavy work, send a short progress update before the first tool call and occasional concise updates focused on what is being checked or changed.
-- Ask a narrow clarification question only when missing information would materially change the implementation, create meaningful risk, or conflict with instructions.
-
-### Evidence And Retrieval
-
-- Prefer repository evidence over external search: inspect relevant docs, code, workflows, migrations, tests, and issue or PR context before architectural or behavioral claims.
-- Use Key Conventions front matter rules when design decisions, policies, or operational guidance may apply.
-- Start with the smallest search or file read that can answer the request. Search again only for unsupported required facts, owners, dates, APIs, files, or behavior.
-- Do not keep searching to improve wording, collect nonessential examples, or support claims that can safely be generalized.
-- If evidence is missing, state the gap and either ask for the smallest missing input or proceed with a named low-risk assumption.
-
-### Implementation Discipline
-
-- Keep changes scoped to the request and necessary dependency closure. Preserve user or unrelated worktree changes; do not rewrite, revert, reformat, or stage unrelated files.
-- Follow established patterns in the same layer. If unsuitable, explain before diverging.
-- Before adding, moving, or extracting Web components, apply the mandatory component structure policy below.
-
-### Validation And Final Response
-
-- Use the Verification section as the source of truth. Run affected-app commands for application changes unless the current diff exactly matches the most recent verified diff.
-- For documentation-only changes, do not run app verification commands.
-- In the final response, summarize what changed, where, and which verification ran or why it was skipped. For blockers, include what was checked and the smallest useful next step.
-
 ## Mandatory Web Component Structure Rules
-
-The rules in this section are mandatory and must always be followed.
 
 - Before adding, moving, or extracting Web components, read and follow `apps/web/docs/policies/component-structure.md`.
 - If a requested change or review comment conflicts with that policy, stop and clarify before editing.
 
-## Mandatory Communication Rules
-
-The rules in this section are mandatory and must always be followed.
-
-- Any sentence ending with `?` or `？` MUST be treated as a question. You MUST answer it before taking any action.
-- Do not jump to conclusions.
-- Do not solve issues by taking the shortest path alone.
-
 ## Verification
 
-Run verification commands from the repository root
+Run the affected app's verification commands from the repository root
 when the change includes application code,
 or any changes to build/type configuration or DB migrations
 that can affect runtime behavior, build output, or type safety.
 
-Documentation-only changes or other changes
-that do not affect runtime behavior, build output, or type safety
-do not require verification.
+Documentation-only and non-runtime skill changes do not require app verification.
+Run any document, skill, or Core checks required by their applicable contract.
 
 - Define verification as the concrete commands for each app, not a `verify` wrapper task.
-- When application code changes, run the verification commands for the affected app from the repository root.
 - If the current diff is exactly identical to the diff for the most recent run of the same verification commands, you may skip rerunning them.
 - Run the listed independent verification commands in parallel when practical.
 - Do not start multiple instances of the same verification command at the same time.
 - When running verification commands in parallel, if one command fails before the others finish,
   wait for all already-started verification commands to finish before making fixes or rerunning checks.
 - After fixing a failure, start any required reruns as a new verification batch only after the previous batch has fully completed.
+- Fix failures caused by the requested change and rerun required checks within the authorized scope. Report unrelated failures and their impact; do not broaden the task to repair them.
 
 - **Web** (`apps/web/`)
   Before starting the verification batch for application code changes, run:
@@ -143,5 +86,6 @@ do not require verification.
   `pnpm run web:test:unit-integration`
 
   Run `pnpm run web:test:storybook` only when the change affects `browser-test` tagged stories, `apps/web/.storybook-test/`, or Storybook browser-test configuration.
+
 - **API** (`apps/api`)
   No dedicated verification commands are currently defined. If verification commands are added later, define the concrete commands here.

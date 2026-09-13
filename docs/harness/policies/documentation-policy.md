@@ -64,7 +64,7 @@ when_to_read:
 
 ## 参照ルール
 
-作業開始時に関連しそうな恒常ドキュメントがある場合は、`docs/` と `apps/*/docs/` 配下を確認し、front matter の `area`, `applies_to`, `topics`, `when_to_read`, `status` を見て読む文書を選びます。
+作業対象と判断に必要な文書を、`docs/harness/rule-map.json` と該当領域の front matter（`area`, `applies_to`, `topics`, `when_to_read`, `status`）から選びます。毎回すべてのdocsを走査したり、参照先を一括で読んだりせず、対象・判断・実行段階に応じて必要な本文を読みます。path/surface直接一致、`depends_on`、レビュー必須の参照は省略しません。
 
 `status: deprecated` の文書は、廃止済みの挙動や移行経緯を調べる場合を除き、現在の実装方針の根拠にしません。
 
@@ -75,6 +75,17 @@ front matter は探索用メタデータであり、強制ルールではあり�
 恒常ドキュメントは、同じタイミングで参照される内容ではなく、同じ責務や判断対象に属する内容でまとめます。
 
 複数の責務にまたがる内容は、1つの文書にまとめず、責務ごとに文書を分けて相互リンクします。
+
+## Agent向け定義
+
+`AGENTS.md` は共通の制約と作業別の入口、skillは特定の依頼を扱うためのadapter、正本文書は継続的な判断と契約を所有します。正本の手順を各入口へ複製せず、参照先と読む条件を示します。
+
+- skillのdescriptionは主要な用途と発火条件を先頭に短く書きます。非発火条件は隣接skillとの誤選択を防ぐものに絞り、本文の手順や能力一覧を詰め込みません。
+- 本文には成果、非自明な制約、判断に必要な情報を残します。複数modeの詳細は該当時に参照し、短い自己完結したskillに不要なrouterや別文書を増やしません。
+- 手順の固定は権限、順序依存、検証証拠などの不変条件に限ります。委任内の技術判断や範囲内の修正・再検証を、追加承認や初回実装後の停止へ置き換えません。
+- 定義の更新では、発火する依頼と隣接する非発火の依頼を照合し、参照先、権限、必須検証、完了条件を維持できているか確認します。文字数削減だけを品質や速度改善の証拠にしません。
+
+参考: [Astra向けskillsとpromptsの見直し](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)、[Build skills](https://learn.chatgpt.com/docs/build-skills)、[AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)（2026-09-13確認）。複数modelが使う共通定義では、model固有の期待を根拠にrepositoryの不変条件を外しません。
 
 ## ADRの変更
 

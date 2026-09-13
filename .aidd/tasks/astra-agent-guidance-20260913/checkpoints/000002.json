@@ -1,0 +1,274 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "50d3dffa1de01404a846851677c5271e4344fca9f8272324f4951894062b0bdc",
+  "revision": 2,
+  "parent_sha256": "f8e336f191d599e290150c2d32dc81d77002266f3e7197c51969a9d68d6d6a2d",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "50d3dffa1de01404a846851677c5271e4344fca9f8272324f4951894062b0bdc",
+    "reason": "公式記事を基準とする本セッションの定義レビューで、harness-taskの広いdescriptionとAIDD/Learn routingの競合、AGENTS.mdの重複、Learn分析への実行文書一括読込を確認した。原因は入口への正本手順の複製と発火条件の過剰な列挙。定義を短くし正本へ条件付き参照する対策を採用する。モデル固定、無条件の文書削減、必須検証撤去は権限・再現性を変えるため採用しない。公式根拠は指定記事(2026-09-11)、learn.chatgpt.com/docs/build-skills、agent-configuration/agents-md、agents.md、更新済みローカルskill-creator。 最終方針: 自動承認レビューでスキル一括再構成が権限・Stop条件の緩和リスクとして拒否されたため、その案は未適用。スキル変更はdescription、参照用途・実在path、PurposeとUI metadataの同期に限定し、既存の承認・Stop条件・実行手順は保持する。context-scoutの既存argument-hintはquick_validateが拒否する非対応front matterであり削除する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Astra向け公式ガイドと参照文書に基づきスキルとAGENTS.mdの定義を改善する",
+        "origin": "intent",
+        "evidence": "上記のドキュメントや参照ドキュメントを確認しつつ改善して"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "必要なスキルと文書が明確な条件で選ばれ、許可範囲の検証・修正まで継続し、既存の必須契約と権限境界を保持する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "公式ガイド・現行正本・最終差分を照合する。Issue実行、質問、Learn分析、明示更新、docs typo、Goal設定、局所探索と委譲の各入力で発火・参照・権限・完了条件を確認する。全変更skillのquick_validate、ローカルリンクとopenai.yamlの整合、開始時checker check-configを確認する。性能改善は実測なしに主張しない。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/context-scout/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/context-scout/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/harness-task/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/harness-task/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".github/skills/code-review/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/documentation-policy.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": ".agents/skills/context-scout/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": ".agents/skills/context-scout/agents/openai.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": ".agents/skills/harness-task/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": ".agents/skills/harness-task/agents/openai.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": ".agents/skills/learn/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": ".github/skills/code-review/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "docs/harness/policies/documentation-policy.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.goal-templates",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}
