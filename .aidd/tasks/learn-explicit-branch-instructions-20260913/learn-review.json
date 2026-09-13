@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "175460468cc43a65bab067c9e3c2f195808eac9b0fbf7ff95374f9036b3d8e0c",
+  "checkpoint_sha256": "f268691691bf6978b4aba4fa3bf213d665b2de45830b7dd52308fb6270eeb181",
+  "evidence_sha256": "5533ee4b6d869d327856b5773fede4cf10c1ae6a8f05c25cc5bf50b6b1d03ccd",
+  "reviewer": "Codex main agent",
+  "authorization": "ブランチはこちらの指示がない限りわけるな",
+  "observations": "## Coverage\n- Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n最新2文書の実差分を確認。ユーザーの指示を分割の条件とし、独立Taskから分割許可を導かない。現行ブランチを維持し、開始時のclean基準点、単一writer、差分保護、product/guardrailの保護契約を維持する。指摘なし。アプリ変更なしのためWeb検証は対象外。"
+}
