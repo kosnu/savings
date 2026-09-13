@@ -15,7 +15,9 @@ describe("TopPage", () => {
   test("利用開始のリンクからGoogle認証の画面へ進める", async () => {
     const { user } = render(<Default />)
 
-    await user.click(await screen.findByRole("link", { name: "Get started with My Savings" }))
+    await user.click(
+      (await screen.findAllByRole("link", { name: "Get started with My Savings" }))[0],
+    )
 
     expect(
       await screen.findByRole("heading", { level: 1, name: "Sign in to My Savings" }),
@@ -53,7 +55,9 @@ describe("TopPage", () => {
         "aria-valuetext",
         expect.stringContaining(remaining),
       )
-      expect(screen.getByRole("link", { name: start })).toHaveAttribute("href", "/auth")
+      for (const link of screen.getAllByRole("link", { name: start })) {
+        expect(link).toHaveAttribute("href", "/auth")
+      }
     },
   )
 })
