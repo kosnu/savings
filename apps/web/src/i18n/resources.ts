@@ -24,7 +24,25 @@ export const resources = {
       "auth.goToAuth": "Go to Auth",
       "auth.startDescription":
         "Start with today's spending. As you record payments, see how your month is taking shape.",
-      "introduction.title": "Know what is left to spend this month.",
+      "auth.login": "Log in",
+      "introduction.eyebrow": "A little clarity for everyday spending",
+      "introduction.titleAccent": "Plan what’s next.",
+      "introduction.startNote": "Continue with your Google account",
+      "introduction.example.preview": "Spending overview",
+      "introduction.example.available": "Left in your monthly budget",
+      "introduction.example.categories": "Spending by category",
+      "introduction.example.food": "Food",
+      "introduction.example.shopping": "Shopping",
+      "introduction.example.other": "Other",
+      "introduction.example.takeaway": "See where your money went, and what you can plan for next.",
+      "introduction.everyday.eyebrow": "HOW IT FITS YOUR DAY",
+      "introduction.everyday.description":
+        "A budget, a payment, a moment to reflect. Start where it works for you.",
+      "introduction.everyday.budgetTitle": "Give your month a plan",
+      "introduction.everyday.recordTitle": "Keep the little details",
+      "introduction.everyday.reviewTitle": "Make space for what matters",
+      "introduction.closingTitle": "Your next payment is a place to start.",
+      "introduction.title": "Know what’s left.",
       "introduction.description":
         "{{appName}} is a budgeting app that brings your budget and daily spending together. Check what is left before planning a purchase or a meal out.",
       "introduction.start": "Get started with {{appName}}",
@@ -33,7 +51,7 @@ export const resources = {
       "introduction.example.budget": "Monthly budget",
       "introduction.example.description":
         "Set a monthly budget and compare it with your recorded spending. Use what is left as a guide when making plans for the rest of the month.",
-      "introduction.everyday.title": "From everyday payments to a clearer picture.",
+      "introduction.everyday.title": "Small habits. A clearer picture.",
       "introduction.everyday.record":
         "After a purchase, record the amount and what it was for. Keep the details so you can look back later.",
       "introduction.everyday.review":
@@ -251,7 +269,25 @@ export const resources = {
       "auth.goToAuth": "ログインへ進む",
       "auth.startDescription":
         "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
-      "introduction.title": "今月、あとどのくらい使える？",
+      "auth.login": "ログイン",
+      "introduction.eyebrow": "予算と支出で見通す、毎日の家計簿",
+      "introduction.titleAccent": "見えてくる。",
+      "introduction.startNote": "Googleアカウントで利用を始められます",
+      "introduction.example.preview": "家計簿のイメージ",
+      "introduction.example.available": "月の予算から、あと使える金額",
+      "introduction.example.categories": "カテゴリごとの支出",
+      "introduction.example.food": "食費",
+      "introduction.example.shopping": "買い物",
+      "introduction.example.other": "その他",
+      "introduction.example.takeaway": "使ったお金を確かめて、これからの予定を考える。",
+      "introduction.everyday.eyebrow": "日々の暮らしのなかで",
+      "introduction.everyday.description":
+        "予算を決める、支払いを残す、ときどき見返す。自分のペースで続けられる家計管理を。",
+      "introduction.everyday.budgetTitle": "今月の目安をつくる",
+      "introduction.everyday.recordTitle": "日々の支払いを残す",
+      "introduction.everyday.reviewTitle": "使い道を振り返る",
+      "introduction.closingTitle": "まずは、今日の支払いから。",
+      "introduction.title": "使えるお金が、",
       "introduction.description":
         "{{appName}}は、予算と日々の支出を見比べられる家計簿です。買い物や外食を考えるときに、残りの予算を確かめられます。",
       "introduction.start": "{{appName}}をはじめる",
@@ -260,7 +296,7 @@ export const resources = {
       "introduction.example.budget": "月の予算",
       "introduction.example.description":
         "月の予算を決めて、記録した支出と見比べる。残りの予算が、月末までの予定を考える目安になります。",
-      "introduction.everyday.title": "日々の支払いから、お金の使い方が見えてくる。",
+      "introduction.everyday.title": "いつもの記録が、次の楽しみにつながる。",
       "introduction.everyday.record":
         "買い物のあとに、金額と使い道を記録。あとから「何に使ったか」を振り返れます。",
       "introduction.everyday.review":
