@@ -24,7 +24,9 @@ CodexでGoal機能を使う場合は[Codex adapter](codex-adapter.md)を追加�
 
 GitHub Issueを指定した実行依頼はDevelopmentへ入る。Issue番号の参照だけ、read-onlyな質問、
 説明、調査、設計案の依頼では開始しない。Issueがないproduct実行依頼は既存Issueの特定を求める。
-Task開始前に専用worktreeとbranchを用意し、cleanな基準点を固定する。無関係な変更は移さない。
+Task開始前に単一writerのworktreeでcleanな基準点を固定する。無関係な変更は移さない。
+ブランチの作成・切り替え・分割は[Git Workflow](../harness/policies/git-workflow.md#ブランチ)に従う。
+Development / Learnを独立Taskとして扱うことは、ブランチを分ける許可を意味しない。
 開始時checkerは[operations](aidd-checker-operations.md)の準備commandで自動取得する。
 同じソース・連動契約・実行環境なら検査済みbinaryを再利用し、Task期間中は返されたpathを保持する。
 
