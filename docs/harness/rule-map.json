@@ -623,9 +623,25 @@
         "topics": ["design-system", "ui", "typography", "layout", "responsive", "tables"]
       },
       "depends_on": [],
-      "related": ["web.design-system-brand"],
+      "related": ["web.design-system-brand", "web.landing-page-rules"],
       "overrides": [],
       "priority": 88
+    },
+    {
+      "id": "web.landing-page-rules",
+      "file": "apps/web/docs/policies/landing-page-rules.md",
+      "applies_to": {
+        "paths": [
+          "apps/web/src/app/routes/TopPage/**",
+          "apps/web/docs/policies/landing-page-rules.md"
+        ],
+        "domains": ["web", "ui"],
+        "activities": ["design_landing_page", "review_landing_page"],
+        "topics": ["landing-page", "service-introduction", "visual-design"]
+      },
+      "depends_on": ["web.design-system-brand", "web.design-rules"],
+      "overrides": ["web.design-rules"],
+      "priority": 89
     },
     {
       "id": "web.domain-layer-rules",
