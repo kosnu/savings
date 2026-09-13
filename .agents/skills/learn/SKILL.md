@@ -1,13 +1,16 @@
 ---
 name: learn
-description: Investigate eligible feedback and improve reusable repository guardrails through the independent AIDD Learn entrypoint. Use for explicit learning extraction or authorized guardrail updates. Learn does not require an Issue and never implements product behavior.
+description: Analyze eligible feedback and apply explicitly authorized repository guardrail improvements. Learn does not implement product behavior.
 ---
 
 # Learn adapter
 
-Read `docs/harness/policies/learning-extraction.md`,
-`review-feedback-classification.md`, `docs/ai-driven-development/workflow.md`,
-`aidd-checker-operations.md` and applicable rule-map documents.
+For feedback analysis, read [Learning Extraction](../../../docs/harness/policies/learning-extraction.md).
+For review feedback, apply [Review Feedback Classification](../../../docs/harness/policies/review-feedback-classification.md).
+For authorized updates, apply [workflow](../../../docs/ai-driven-development/workflow.md)
+and use [operations](../../../docs/ai-driven-development/aidd-checker-operations.md)
+when preparing the checker or running task commands. Read applicable rule-map documents
+and their required dependencies; these routes do not reduce mandatory review coverage.
 
 An extraction request authorizes analysis only. Apply guardrail changes only within
 explicitly authorized scope. Do not create an Issue for Learn.

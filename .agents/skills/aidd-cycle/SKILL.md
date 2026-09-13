@@ -1,13 +1,17 @@
 ---
 name: aidd-cycle
-description: Execute an Issue-specified development request using the repository default AIDD vNext protocol and one Development Goal. Apply when the user asks to implement or fix a GitHub Issue, even without naming AIDD. Do not start for questions, explanations, investigations, or design proposals alone.
+description: Implement or fix a specified GitHub Issue through AIDD Development and PR delivery. Questions and design proposals alone do not start execution.
 ---
 
 # AIDD Development adapter
 
-Read `docs/ai-driven-development/workflow.md`, `aidd-checker.md`,
-`aidd-checker-operations.md`, `codex-adapter.md` and the applicable rule-map subgraph.
 The repository owns the contract; this skill adapts it to Codex.
+Apply [workflow](../../../docs/ai-driven-development/workflow.md) and
+[Codex adapter](../../../docs/ai-driven-development/codex-adapter.md) for task authority
+and lifecycle. Use [checker architecture](../../../docs/ai-driven-development/aidd-checker.md)
+for integrity boundaries and [operations](../../../docs/ai-driven-development/aidd-checker-operations.md)
+when preparing the checker or running task commands. Read the applicable rule-map
+subgraph and all required dependencies; conditional references do not reduce coverage.
 
 Fetch the specified Issue and distinguish execution from read-only discussion.
 Keep the Issue as human intent, derive the Task objective/constraints/Done/verification,

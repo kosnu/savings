@@ -1,6 +1,6 @@
 ---
 name: harness-task
-description: "Execute clearly scoped repository tasks without creating a Codex Goal while preserving the repository harness: targeted grounding, rule-map document selection, size/risk checks, synchronized representations, Stop conditions, local review, and affected verification. Use when the user invokes $harness-task or asks to make a scoped implementation, docs, test, UI text, review-response, DB/API, or verification-failure change that does not need the full AI Driven Development Goal flow."
+description: Handle scoped repository maintenance outside product development and guardrail updates. Route product work to AIDD and guardrail changes to Learn.
 ---
 
 # Harness Task
@@ -9,7 +9,11 @@ description: "Execute clearly scoped repository tasks without creating a Codex G
 
 Execute a clearly scoped repository task directly, without creating a Codex Goal.
 
-Use this skill to keep smaller implementation, docs, test, UI text, review-response, DB/API, or verification-failure work inside the repository harness. Do not depend on `task-plan`, `task-execute`, or user-level skills. Apply their working style locally: ground the task, classify size/risk, keep representations synchronized, stop on material scope changes, review the diff, and verify affected behavior.
+Use this entrypoint for scoped maintenance outside product development and guardrail
+updates, such as a non-guardrail documentation correction. Classify requests under the
+routing boundary below before editing. Do not depend on `task-plan`, `task-execute`,
+or user-level skills. Preserve the grounding, synchronization, review, verification,
+and Stop conditions below.
 
 ## Routing boundary
 
