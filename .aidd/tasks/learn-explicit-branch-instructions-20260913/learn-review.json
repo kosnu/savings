@@ -2,9 +2,9 @@
   "schema_version": 5,
   "kind": "learn_review",
   "task_sha256": "175460468cc43a65bab067c9e3c2f195808eac9b0fbf7ff95374f9036b3d8e0c",
-  "checkpoint_sha256": "f268691691bf6978b4aba4fa3bf213d665b2de45830b7dd52308fb6270eeb181",
-  "evidence_sha256": "5533ee4b6d869d327856b5773fede4cf10c1ae6a8f05c25cc5bf50b6b1d03ccd",
+  "checkpoint_sha256": "b7aa3629c14064fb36f9ea5649cdaf1a2f43d646bd33cc9cf1cb4206955c35fe",
+  "evidence_sha256": "b02b0bcc9e7f6a070f92ec0d4e29b1cc50f23df95c2890e64a508ded67e160e4",
   "reviewer": "Codex main agent",
-  "authorization": "ブランチはこちらの指示がない限りわけるな",
-  "observations": "## Coverage\n- Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n最新2文書の実差分を確認。ユーザーの指示を分割の条件とし、独立Taskから分割許可を導かない。現行ブランチを維持し、開始時のclean基準点、単一writer、差分保護、product/guardrailの保護契約を維持する。指摘なし。アプリ変更なしのためWeb検証は対象外。"
+  "authorization": "ユーザーの明示指示に基づき、独立Learn強制と1 PR・1 Task制約を撤廃し、同じTask・ブランチで根本的に改善する。先のcommit指示を保持する。",
+  "observations": "実装・文書・Hook・CI移行経路の最終差分をレビューした。同一Taskの実装とルール変更、現在の索引によるcheckpoint、複数Taskの担当差分と証拠の合成、旧Task移行を回帰テストで確認した。未所有・明示範囲外の変更、古い証拠、開始前の未検証差分、不正な他Task記録は拒否する。先行commit専用のルール採用例外は削除した。Go全テスト、vet、mod verify、gofmt、文書整形、ADR検査、Core verifyが成功。\n\n## Coverage\n- Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, adr.task-scope, ai-driven.checker, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし。リモートCIと配信は未実施。"
 }

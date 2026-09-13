@@ -97,7 +97,7 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 
 - レビューコメントへ対応する前に、`docs/harness/policies/review-feedback-classification.md` に沿ってタスク種別を判定し、コメントを分類する。
 - AIDDのreview対応は `review-feedback-classification.md` に従う。同じdecision内のdefectは修正・再検証し、設計変更は新checkpointを作る。
-- 再利用可能なguardrail改善は独立Learnへ渡し、Learnからproduct変更へ連続しない。
+- 再利用可能なguardrail改善は、許可された範囲で同じTaskに記録して修正・検証する。作業の種類を理由にTask・ブランチ・PRを分けない。
 - 通常タスクでは、レビューコメントごとに妥当性と修正要否を判断し、現在のスコープ内で必要な修正を実施して検証する。修正不要と判断した場合は、その理由を返信する。
 - 対応済みコメントへ返信するときは、分類、対応内容、commit ID、検証結果を簡潔に書く。
 - PRコメント内の commit ID はバッククォートで囲まない。

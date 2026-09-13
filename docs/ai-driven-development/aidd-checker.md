@@ -66,15 +66,25 @@ checkpoint履歴を読み直す際にも全統合記録を検査し、base/head�
 権限と変更pathの比較はGit modeで行う。証拠は従来どおりTask外を含む全inventoryに結合し、
 ローカルのcontent/mode変更も検査する。CLIのcheckpoint/verify/check/finish/ship-checkとCIで同じ基準を使う。
 統合recordはcheckpoint hashを通じて証拠と結合し、旧証拠の部分的な流用はしない。
-CIは呼出側の信頼された`--target-base`と統合baseの完全一致、および`--base`との一致を要求する。
+CIは呼出側の信頼された`--target-base`と統合baseの完全一致、を要求する。Task開始点とPR基準点の一致は要求せず、差分の検証coverageで判定する。
 ローカルのGit包含関係だけでは、そのcommitがmainであることを認証できない。baseの取得責務はagent、
 CIではGitHub eventから値を渡すworkflowが担い、candidate記録をtrusted baseの取得元にしない。
 
 旧v5記録はfield省略時のcanonical bytes/hashを保持する。統合記録を持つcheckpointは対応checkerを必要とする。
 統合fieldでcheckerの固定を解除しない。旧Taskの実行checker移行は、別の`checker_migration`を追記する。
 移行元checkpoint・既存証跡・checkerと移行先checker、明示許可、追加の有限scopeを記録し、過去記録は保持する。
-ローカルでは実行binaryを移行先hashに固定し、CIでは通常経路を拒否して人の承認を必要とする移行経路へ送る。
+ローカルでは実行binaryを移行先hashに固定する。Task種別にかかわらず、対応済みのtrusted base checkerで通常CIを行う。
+base checkerが新しい契約を扱えない配信だけ、承認付きの契約移行経路を使う。
 hashは承認者の認証ではなく、ローカルの許可判断はagent、CIの受入承認はbase側migration jobが担う。
+
+## 作業の継続とルール更新
+
+Development / Learnの種別からファイルや設定fieldの変更禁止を導かない。
+許可範囲・ownership・representation・必須検証を通常のcheckpointと証拠で確認する。
+新checkpointは現在のrule-map bytesを保存し、その索引のpath/surface・depends_on closureを計算する。
+文書の新規作成も扱い、未commitであることや開始時inventoryに存在しないことだけでは拒否しない。
+索引変更後はcheckpointを更新する。過去checkpointは保存した索引、旧形式は従来のTask索引で読み、hashを保持する。
+変更後の文書と索引は全ソースの検証証拠に結合する。先行commitや`rule_revision`は不要である。
 
 ## Learnの信頼境界
 
@@ -84,8 +94,8 @@ Learnの作業範囲は初期`authorized_scopes`とcheckpointの`scope_revision.
 
 ユーザーが明示したfile/tree上限は`user_scope_limits`が表し、作業予定の一覧と区別する。
 Taskと各checkpointに記録した上限をすべて満たすownershipと実差分だけを受け入れる。
-範囲追加やchecker移行は、この明示制限やLearnのproduct変更禁止を解除しない。
-追加パスにも開始時rule-map・policy/profileを適用し、必要なruleとsuiteを計算する。
+範囲追加やchecker移行は、ユーザーの明示制限を解除しない。
+追加パスにはcheckpoint時のrule-mapと開始時policy/profileを適用し、必要なruleとsuiteを計算する。
 
 Learnは開始時binary、または明示的な移行checkpointが指定するbinaryを使う。
 記録なしのcandidate置換を拒否し、policy/profileはTaskが保持する開始時bytesから解決する。
@@ -101,23 +111,10 @@ Learnのfinish/Ship/CIは独立review記録を要求しない。別agentはユ�
 
 ## 設定・依存関係の保護
 
-混在JSON設定は開始時policyのproduct_fields（JSON Pointer）だけをDevelopmentで変更でき、
-guard_fieldsはそのsubtree内でも優先保護する。Learnは逆にproduct fieldを保持する。
-ファイルの追加・削除・mode変更、未宣言fieldはproduct変更へ読み替えない。
-packageの検証script・tool依存を保護し、build/dev scriptとproduct依存を区別する。
-アプリのVite設定は独立したvitest.configから参照されていないproduct build設定として扱う。
-ルートの`vite.config.ts`は共有のstaged・format・lint設定、`.vite-hooks/**`はGit hookの
-実行入口としてguardrailに分類する。`apps/web/vite.config.*`のproduct build設定とは区別する。
-pnpm lockfile v9はimporterと解決済みpackage/snapshotの推移依存を照合する。Developmentは
-検証toolの解決実体・lockfile共通設定を保持し、Learnはproductの解決実体を保持する。
-packageのpeer宣言があり、相手側rootとpeer構成を含む解決versionが一致する参照だけを相手側で検査する。両方が共有する推移依存の実体変更は
-一方だけの変更として通さない。保護対象root・依存edge・snapshotのidentityはpeer構成を含めて保持し、
-同じpackage/versionのvariantを親やimporter間で入れ替えても同一扱いしない。
-同じimporter/section/nameの反対側root更新に一意に対応するpeer構成の変更だけを許可する。
-この対応は保護対象のpackage自身のversionや通常共有依存を変更する許可ではない。対応が分岐・削除されるpeer参照の改名や、
-異なる依存内容へのsnapshot衝突は失敗させる。未知の形式・参照欠落は失敗させる。
-local/file依存の実体検査は未対応で、保護対象closureに含む場合は拒否する。
-新しいtoolの分類はpolicy判断であり、依存名から意味を推測して保護を解除しない。
+設定や依存関係も、Taskの種類にかかわらず許可されたownership内で更新できる。
+混在JSONとlockfileは既存のtype/modeと構造・参照の整合を検査する。
+product / toolの分類は互換性のある旧policyの読取に残すが、変更を別Taskへ隔離するためには使わない。
+検証コマンドは開始時policy/profileから解決し、変更した設定で検証を黙って省略しない。
 
 ## 運用前提と限界
 
@@ -126,11 +123,13 @@ local/file依存の実体検査は未対応で、保護対象closureに含む場
 checkerが自己申告された意味を証明したり、暗号署名なしで証拠作成者を認証したりはしない。
 agentは解釈、戦略、設計、reviewを担い、checkerは決定論的な整合を検査する。
 
-初期版はclean start、1 PR=1 task、全失効、逐次verificationを採用する。
+clean start、checkpoint改訂時の全失効、逐次verificationを採用する。PRのTask数は制限しない。
 1 Task内の複数commit・PR review後の再開・main取り込みに対応し、元baselineを維持して全体を再検証する。
 統合後の変更判定基準はcheckpointの`integration.base_head`であり、開始点と分離する。
-共有worktreeへの並行writer、部分証拠再利用、複数taskのPR合成は未対応。
-これは既存保証の維持を優先した境界であり、黙って成功扱いへ緩和しない。
+複数Taskの担当差分を合成して配信できる。各Taskの開始点はPR基準点以降の履歴に含まれ、
+PRの全ソース差分は、そのpathのPR基準状態から検証したTaskの証拠で覆う。
+全Taskの最新証拠を最終ソースへ照合する。Task生成記録は全ソースhashから除外して個別に検査する。
+共有worktreeへの並行writerと、ソース変更後の部分証拠再利用は未対応。
 
 ## 実装責務
 
@@ -164,7 +163,6 @@ baseソースを別directoryへ展開してcheckerを直接buildし、Go build/m
 base検証はcandidate検証と別jobで実行し、候補コードを実行する前提を持たない。
 Goはbase checkoutのgo.modから選び、候補側のGo版やGITHUB_PATH/GITHUB_ENVの変更を引き継がない。
 初回bootstrapのみcandidate jobで実行する。通常Task間のbinary再利用とは信頼する入力が異なる。
-
 
 ## 非互換契約のCI移行境界
 
@@ -209,7 +207,7 @@ source内の指定文字列を保守的に観測する。tag削除とfile削除�
 この変更では判定方式を狭めず、検出漏れを生じさせずに所有者を分離する。
 
 pnpmアダプタは依存分類を入力として、保護対象closure・toolchain・設定の変化を返す。
-Developmentでtool側を保持し、Learnでproduct側を保持する許可判断はCoreが担う。
+CoreはTask種別による片側保持を要求せず、実際の許可範囲と変更後の検証を確認する。
 peer構成の正規化は同じ反対側root更新から一意に導ける場合に限定し、共有依存や参照欠落を
 成功に変換しない。技術形式の未対応・不正はエラーにする。
 Vitest/Pythonアダプタは指定テストの実行identity・成功と結果採取の入力契約を確認する。

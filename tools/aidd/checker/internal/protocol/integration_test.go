@@ -99,9 +99,13 @@ func TestIntegrationRejectsChangesToImportedFiles(t *testing.T) {
 			case "other-task":
 				f.put(".aidd/tasks/other/task.json", "changed record\n")
 			}
-			rejected(t, f.check(false), "LEARN_SCOPE")
-			// 再verifyを呼ぶだけで無許可の差分を追認しない。
-			rejected(t, f.verify(), "LEARN_SCOPE")
+			code := "LEARN_SCOPE"
+			if change == "other-task" {
+				code = "OUTPUT_MODE"
+			}
+			rejected(t, f.check(false), code)
+			// 不正なTask記録や範囲外の差分は、再検証だけでは追認しない。
+			rejected(t, f.verify(), code)
 		})
 	}
 }
@@ -250,12 +254,13 @@ func TestIntegrationMixedFieldsCompareAgainstImportedContent(t *testing.T) {
 			}
 			must(t, f.verify())
 			f.put("package.json", string(original))
-			rejected(t, f.verify(), "")
+			rejected(t, f.check(false), "STALE_EVIDENCE")
+			must(t, f.verify())
 		})
 	}
 }
 
-func TestIntegrationLockfileKeepsImportedToolClosure(t *testing.T) {
+func TestIntegrationAllowsOwnedToolClosureUpdates(t *testing.T) {
 	f := setupMixed(t, "development")
 	imported := strings.ReplaceAll(sampleLock, "helper-old", "imported-tool-resolution")
 	f.put(lockPath, imported)
@@ -270,8 +275,8 @@ func TestIntegrationLockfileKeepsImportedToolClosure(t *testing.T) {
 	must(t, f.checkpoint())
 	f.put(lockPath, strings.ReplaceAll(imported, "react-old", "task-product-resolution"))
 	must(t, f.verify())
-	f.put(lockPath, strings.ReplaceAll(imported, "imported-tool-resolution", "unapproved-tool-resolution"))
-	rejected(t, f.verify(), "LOCKFILE_BOUNDARY")
+	f.put(lockPath, strings.ReplaceAll(imported, "imported-tool-resolution", "updated-tool-resolution"))
+	must(t, f.verify())
 }
 
 func TestIntegrationRemovalOfImportedBrowserTagRequiresSuite(t *testing.T) {
@@ -394,7 +399,7 @@ func TestOldTaskMigratesCheckerWithoutReplacingItsHistory(t *testing.T) {
 	}
 	checkpoint(false, "CHECKER_IDENTITY")
 	f.decision.CheckerMigration = &CheckerMigration{FromCheckerSHA256: oldChecker, ToCheckerSHA256: canonical.HashBytes(newBytes), FromCheckpointSHA256: oldCP, FromEvidenceSHA256: oldEvidence, Authorization: "User explicitly authorized this checker migration and guardrail correction", AuthorizedScopes: []model.OwnershipScope{{Path: "guard/main.md", Kind: "file"}}}
-	for _, variant := range []string{"authorization", "checkpoint", "evidence", "checker", "product"} {
+	for _, variant := range []string{"authorization", "checkpoint", "evidence", "checker", "task-output"} {
 		good := *f.decision.CheckerMigration
 		switch variant {
 		case "authorization":
@@ -405,8 +410,8 @@ func TestOldTaskMigratesCheckerWithoutReplacingItsHistory(t *testing.T) {
 			f.decision.CheckerMigration.FromEvidenceSHA256 = strings.Repeat("a", 64)
 		case "checker":
 			f.decision.CheckerMigration.FromCheckerSHA256 = strings.Repeat("a", 64)
-		case "product":
-			f.decision.CheckerMigration.AuthorizedScopes = []model.OwnershipScope{{Path: "src/a.txt", Kind: "file"}}
+		case "task-output":
+			f.decision.CheckerMigration.AuthorizedScopes = []model.OwnershipScope{{Path: TaskRoot, Kind: "tree"}}
 		}
 		checkpoint(false, "MIGRATION")
 		f.decision.CheckerMigration = &good
@@ -433,7 +438,7 @@ func TestOldTaskMigratesCheckerWithoutReplacingItsHistory(t *testing.T) {
 	call(true, "", "ship-check", "--task", f.spec.ID, "--task-sha256", f.taskHash, "--checkpoint-sha256", f.cp, "--evidence-sha256", f.evidenceHash)
 	f.git("commit", "-qm", "verified checker migration")
 	args := []string{"ci-check", "--base", base, "--target-base", base, "--task", f.spec.ID}
-	call(false, "MIGRATION_REQUIRED", args...)
+	call(true, "", args...)
 	call(true, "", append(args, "--contract-migration")...)
 	newEvidencePath := filepath.Join(f.root, evidencePath(f.spec.ID, f.cp))
 	newEvidence, err := os.ReadFile(newEvidencePath)

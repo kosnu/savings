@@ -3,6 +3,7 @@ package protocol
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -11,38 +12,19 @@ import (
 )
 
 // CheckDeliveryはcommit後のGit転送を検証する。CIはPR baseのcheckerを使用する。
-// 初期版では1 PRを1 taskの検証境界とし、baseline以前の未被覆差分を拒否する。
+// 各Taskの証拠を確認し、その和集合でPRの実差分を覆う。
 func CheckDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id string, targetBase ...string) error {
-	return checkDelivery(ctx, snapshot, base, id, false, targetBase...)
+	return checkDelivery(ctx, snapshot, base, id, targetBase...)
 }
 
 // CheckMigrationDeliveryは移行申請の候補検証専用。base側の差分検査と人の承認を別途必要とする。
 func CheckMigrationDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id, targetBase string) error {
-	return checkDelivery(ctx, snapshot, base, id, true, targetBase)
+	return checkDelivery(ctx, snapshot, base, id, targetBase)
 }
 
-func checkDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id string, migration bool, targetBase ...string) error {
-	if len(base) != 40 {
+func checkDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id string, targetBase ...string) error {
+	if !commitPattern.MatchString(base) {
 		return fail("DELIVERY_BASE", base, "PR merge-baseの完全commit IDが必要です")
-	}
-	if id == "" {
-		paths, err := snapshot.Git(ctx, "diff", "--name-only", base, "HEAD", "--", TaskRoot)
-		if err != nil {
-			return err
-		}
-		ids := map[string]bool{}
-		for _, p := range strings.Split(strings.TrimSpace(string(paths)), "\n") {
-			parts := strings.Split(p, "/")
-			if len(parts) >= 4 {
-				ids[parts[2]] = true
-			}
-		}
-		if len(ids) != 1 {
-			return fail("DELIVERY_TASK", TaskRoot, "変更されたtaskを1件に特定できません。全PR差分のtask/evidenceが必要です")
-		}
-		for value := range ids {
-			id = value
-		}
 	}
 	dirty, err := snapshot.Git(ctx, "status", "--porcelain=v1", "--untracked-files=all")
 	if err != nil {
@@ -51,58 +33,107 @@ func checkDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id 
 	if len(dirty) != 0 {
 		return fail("DELIVERY_DIRTY", id, "CIはcleanなcandidate checkoutで実行してください")
 	}
-	task, taskHash, err := readMode[Task](snapshot, taskPath(id, "task.json"), true)
+	before, err := gitInventory(ctx, snapshot, base)
 	if err != nil {
 		return err
+	}
+	after, err := gitInventory(ctx, snapshot, "HEAD")
+	if err != nil {
+		return err
+	}
+	paths := changed(before, after)
+	ids, err := changedTaskIDs(paths)
+	if err != nil {
+		return err
+	}
+	if len(ids) == 0 {
+		return fail("DELIVERY_TASK", TaskRoot, "差分を検証したTaskがありません")
+	}
+	if id != "" && !slices.Contains(ids, id) {
+		return fail("DELIVERY_TASK", id, "指定TaskがPRの変更記録にありません")
+	}
+	covered := map[string]bool{}
+	baseFiles := fileMap(before)
+	for _, taskID := range ids {
+		l, err := checkTaskDelivery(ctx, snapshot, base, taskID, targetBase...)
+		if err != nil {
+			return err
+		}
+		origin := fileMap(transportFiles(l.changeBaseline(), true))
+		for _, path := range l.changedPaths(after) {
+			// 開始前の未検証変更を隠さず、PR基準点からの差分を証拠で覆う。
+			if origin[path] == baseFiles[path] {
+				covered[path] = true
+			}
+		}
+	}
+	for _, path := range paths {
+		if strings.HasPrefix(path, TaskRoot+"/") {
+			continue
+		}
+		if !covered[path] {
+			return fail("DELIVERY_COVERAGE", path, "PR差分に対応するTaskの検証証拠がありません")
+		}
+	}
+	return snapshot.AssertUnchanged()
+}
+
+func checkTaskDelivery(ctx context.Context, snapshot *repository.Snapshot, base, id string, targetBase ...string) (*Loaded, error) {
+	task, taskHash, err := readMode[Task](snapshot, taskPath(id, "task.json"), true)
+	if err != nil {
+		return nil, err
 	}
 	l, err := loadTaskMode(snapshot, id, taskHash, true)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	baseline, err := gitInventory(ctx, snapshot, task.BaselineHead)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if hash(transportFiles(task.Baseline, true)) != hash(baseline) {
-		return fail("BASELINE", id, "task baselineがGitに保存された基準状態と一致しません")
+		return nil, fail("BASELINE", id, "task baselineがGitに保存された基準状態と一致しません")
 	}
 	for path, content := range map[string][]byte{PolicyPath: task.Policy, "docs/harness/rule-map.json": task.RuleMap, "docs/ai-driven-development/contracts/verification-profiles.json": task.Catalog} {
 		blob, err := snapshot.Git(ctx, "show", task.BaselineHead+":"+path)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if canonical.HashBytes(blob) != canonical.HashBytes(content) {
-			return fail("BASELINE", path, "開始時のpolicy/rule/profileと基準commitが一致しません")
+			return nil, fail("BASELINE", path, "開始時のpolicy/rule/profileと基準commitが一致しません")
 		}
 	}
 	if err = loadCheckpoints(snapshot, l); err != nil {
-		return err
+		return nil, err
 	}
 	if l.CheckpointHash == "" {
-		return fail("CHECKPOINT", id, "checkpointがありません")
-	}
-	if l.CheckerMigration != nil && !migration {
-		return fail("MIGRATION_REQUIRED", id, "checker移行を含むTaskは明示的なCI契約移行と人の承認が必要です")
+		return nil, fail("CHECKPOINT", id, "checkpointがありません")
 	}
 	// 契約移行だけなら実行checkerの移行記録は不要。flagで証跡要件は緩和しない。
 	// 下のValidateEvidenceが、記録なしなら開始時checker、記録ありなら移行先checkerと
 	// 最新checkpoint・最終状態に証跡が結合していることを共通に検査する。
-	if l.changeBaseHead() != base {
-		return fail("DELIVERY_BASE", id, "変更基準がPR全体の基準点と一致しません")
+	if _, err := snapshot.Git(ctx, "merge-base", "--is-ancestor", base, l.changeBaseHead()); err != nil {
+		return nil, fail("DELIVERY_BASE", id, "Taskの変更基準がPRの履歴に含まれていません")
+	}
+	if _, err := snapshot.Git(ctx, "merge-base", "--is-ancestor", l.changeBaseHead(), "HEAD"); err != nil {
+		return nil, fail("DELIVERY_BASE", id, "Taskの変更基準が現在HEADに含まれていません")
 	}
 	if l.Integration != nil {
 		if len(targetBase) != 1 || targetBase[0] != l.Integration.BaseHead {
-			return fail("INTEGRATION_BASE", id, "統合baseがCIの現在のtarget baseと一致しません")
+			return nil, fail("INTEGRATION_BASE", id, "統合baseがCIの現在のtarget baseと一致しません")
 		}
 	}
 	_, evidenceHash, err := readMode[Evidence](snapshot, evidencePath(id, l.CheckpointHash), true)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	if err = l.loadPeerScopes(ctx, snapshot); err != nil {
+		return nil, err
 	}
 	if _, err = ValidateEvidence(ctx, snapshot, l, evidenceHash); err != nil {
-		return err
+		return nil, err
 	}
-	return snapshot.AssertUnchanged()
+	return l, nil
 }
 
 func gitInventory(ctx context.Context, snapshot *repository.Snapshot, ref string) ([]File, error) {

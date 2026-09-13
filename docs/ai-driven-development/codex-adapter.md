@@ -35,7 +35,7 @@ Goalの終了や新しい会話はTask・baselineを作り直す理由になら�
 配信先を変えるagentの判断をユーザーのauthorizationへ書き足さず、既存Taskで続行できない場合は
 失敗根拠と必要な境界変更を示す。checkerの成功だけを境界変更の許可根拠にしない。
 
-Learnではユーザーが求めた場合だけ独立したGoalを利用する。未完了Development GoalをLearnへ流用しない。
+同じTask内のルール保守では現在のGoalを継続する。単独Learn依頼のGoalはユーザーが求めた場合だけ作成する。
 Goalのactive/blocked/pausedの扱いはhostのtool契約に従う。Coreの中断を偽の完了へ変換しない。
 token budgetは明示された場合だけ設定する。Goal設定だけの依頼はTask実行を許可しない。
 Goalを作成・確認した後も、作業の継続と完了は元のTask契約とユーザーの許可範囲に従う。

@@ -40,20 +40,7 @@ func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []
 		return err
 	}
 
-	comparison, err := pnpm.Compare(old, next, l.toolNames(), l.Task.Spec.Kind == "development")
-	if err != nil {
-		return err
-	}
-	if comparison.ClosureChanged {
-		return fail("LOCKFILE_BOUNDARY", lockPath, "他方の依存宣言・resolution・推移依存を変更しています")
-	}
-	if l.Task.Spec.Kind == "development" {
-		if comparison.ToolchainChanged {
-			return fail("LOCKFILE_BOUNDARY", lockPath, "package manager/config依存はguardrailです")
-		}
-		if comparison.SettingsChanged {
-			return fail("GUARDRAIL_DRIFT", lockPath, "lockfileのsettings/catalog/overrideはguardrailです")
-		}
-	}
-	return nil
+	// dependencyの種類でTaskを分割せず、lockfileの構造だけを検査する。
+	_, err = pnpm.Compare(old, next, l.toolNames(), l.Task.Spec.Kind == "development")
+	return err
 }

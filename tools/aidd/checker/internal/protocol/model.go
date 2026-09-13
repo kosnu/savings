@@ -126,6 +126,7 @@ type Checkpoint struct {
 	ParentSHA256  string   `json:"parent_sha256"`
 	Decision      Decision `json:"decision"`
 	Rules         []string `json:"rules"`
+	RuleMap       []byte   `json:"rule_map,omitempty"`
 }
 
 type Evidence struct {

@@ -34,45 +34,45 @@ when_to_read:
 
 ## 設計と実装の対応
 
-| 採用設計 | 実装・責務 |
-| --- | --- |
-| Issueはauthoritative intent | Task Specの出典本文・hashと実行action。既存Issueの取得・実行依頼の判別はadapter |
-| Taskは作業契約 | `protocol/model.go`, `task.go`。objective/constraints/Done/verification、固定baselineと開始時policy/profile/checker |
-| 要求と設計の反復 | `decision.go`。要求の根拠、behavior/verification/representation、ownershipを同じDecisionで管理 |
-| checkpointと改訂 | Task hash・親hash・revisionを追記。旧revision、rule不足、guardrail driftを拒否。baseline再取得なし |
-| 検証証拠 | `verification.go`。最新checkpoint、全repository inventory/content/mode、固定profile、実行結果へ結合 |
-| agent非依存Core | `internal/protocol`と`verificationcontract`。Goal/Hook/modelへの依存なし |
-| 単一Development Goal | Codex adapter文書・aidd-cycle・goal-setting。工程Goalを廃止し、Goal不在でも同じTaskで継続 |
-| 独立Learn | 旧policyで許可scopeとproduct除外を検査。開始時binaryを必須化し、最新証拠への独立reviewをfinish/Shipで要求 |
-| rule-map | ownership・representation・実差分からpath/surface/depends_onを和集合。探索metadataやpriorityで必須ruleを除外しない |
-| Ship / CI | 検証済みworktreeとindexのcontent/mode照合。commit後はbase checkerがGit baselineとcandidate evidenceを検査 |
-| 設定の整合 | `check-config`でpolicy glob・必須suite・rule-map・正本文書参照を検査。`check-all`と通常検証も適用 |
-| 採択判断 | 新規ADR 0003。ADR 0001/0002の履歴を保持し、旧phase結合部分の置換関係を明示 |
+| 採用設計                    | 実装・責務                                                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Issueはauthoritative intent | Task Specの出典本文・hashと実行action。既存Issueの取得・実行依頼の判別はadapter                                     |
+| Taskは作業契約              | `protocol/model.go`, `task.go`。objective/constraints/Done/verification、固定baselineと開始時policy/profile/checker |
+| 要求と設計の反復            | `decision.go`。要求の根拠、behavior/verification/representation、ownershipを同じDecisionで管理                      |
+| checkpointと改訂            | Task hash・親hash・revisionを追記。旧revision、rule不足、guardrail driftを拒否。baseline再取得なし                  |
+| 検証証拠                    | `verification.go`。最新checkpoint、全repository inventory/content/mode、固定profile、実行結果へ結合                 |
+| agent非依存Core             | `internal/protocol`と`verificationcontract`。Goal/Hook/modelへの依存なし                                            |
+| 単一Development Goal        | Codex adapter文書・aidd-cycle・goal-setting。工程Goalを廃止し、Goal不在でも同じTaskで継続                           |
+| 独立Learn                   | 旧policyで許可scopeとproduct除外を検査。開始時binaryを必須化し、最新証拠への独立reviewをfinish/Shipで要求           |
+| rule-map                    | ownership・representation・実差分からpath/surface/depends_onを和集合。探索metadataやpriorityで必須ruleを除外しない  |
+| Ship / CI                   | 検証済みworktreeとindexのcontent/mode照合。commit後はbase checkerがGit baselineとcandidate evidenceを検査           |
+| 設定の整合                  | `check-config`でpolicy glob・必須suite・rule-map・正本文書参照を検査。`check-all`と通常検証も適用                   |
+| 採択判断                    | 新規ADR 0003。ADR 0001/0002の履歴を保持し、旧phase結合部分の置換関係を明示                                          |
 
 ## 維持した保証と回帰検証
 
 `tools/aidd/checker/internal/protocol/`の一時Git repository testと既存testを実行した。
 
-| 保証 | 主な回帰test |
-| --- | --- |
-| ownership外の変更を拒否 | `TestRejectsChangesOutsideOwnership` |
-| surface/pathのrule closure不足を拒否 | `TestRuleClosureCannotBeOmitted`、既存rules/coverage/gates tests |
-| guardrailの変更をDevelopmentへ取り込めない | `TestGuardrailDriftCannotBeAbsorbedByRevision`, `TestGuardrailCannotBeOwnedByDevelopment` |
-| decision改訂で旧証拠を失効 | `TestDecisionRevisionInvalidatesEvidenceAndPreservesBaseline` |
-| baselineの取り直し・先行commitで差分を隠せない | `TestBaselineCannotBeRetaken`, `TestDeliveryCannotHideEarlierCommits` |
-| 検証対象のcontent/mode driftを拒否 | `TestEvidenceRejectsContentAndModeDrift` |
-| artifact整合性 | `TestTaskArtifactDrift`, `TestRejectsEvidenceForUnknownCheckpoint`、既存canonical/repository tests |
-| staged content/mode不一致・余分なpathを拒否 | `TestShipRejectsStagedMismatchAndExtraPath`, `TestCommittedDeliveryUsesGitContentAndMode` |
-| Learnのproduct混入を拒否 | `TestLearnRejectsProductChanges` |
-| Learnが更新後checkerだけで自己正当化できない | `TestLearnNeedsBaselineCheckerAndIndependentReview`。開始時binary必須、reviewなしlocal完了も拒否 |
-| 必須検証をmanual宣言で代替できない | `TestRequiredVerificationCannotBeManualOnly` |
-| 設定不整合を拒否 | `TestConfigurationRejectsBrokenReferences` |
-| Goal/Hookなし・旧phase非依存の正常系 | `TestDevelopmentWithoutGoalOrHook`, `TestPublicCLIEndToEnd` |
-| 質問・説明・調査では開始しない | `TestReadOnlyRequestCannotStart`と実Codexの実行依頼/質問評価 |
-| 正常なpackage/lock更新と継続 | `TestLockfileTracksProductAndToolClosure`, `TestLockfileDelegatesOnlyRootCoveredPeers`, `TestSameTaskContinuesAfterCommitAndReviewRevision` |
-| Storybookの検証coverage | `TestStorybookCoverageSeesRemovedAndNewTags`。suite有無とtag削除・追加を検査 |
-| bootstrap独立reviewと差分結合 | `bootstrap_test.go`の記録欠落・content/mode drift・既存v5迂回の拒否 |
-| runtime/argv/output/process/ignored mutation | 既存runner/evidence/repository/CLIの回帰testを共有入力経由で維持 |
+| 保証                                           | 主な回帰test                                                                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| ownership外の変更を拒否                        | `TestRejectsChangesOutsideOwnership`                                                                                                        |
+| surface/pathのrule closure不足を拒否           | `TestRuleClosureCannotBeOmitted`、既存rules/coverage/gates tests                                                                            |
+| guardrailの変更をDevelopmentへ取り込めない     | `TestGuardrailDriftCannotBeAbsorbedByRevision`, `TestGuardrailCannotBeOwnedByDevelopment`                                                   |
+| decision改訂で旧証拠を失効                     | `TestDecisionRevisionInvalidatesEvidenceAndPreservesBaseline`                                                                               |
+| baselineの取り直し・先行commitで差分を隠せない | `TestBaselineCannotBeRetaken`, `TestDeliveryCannotHideEarlierCommits`                                                                       |
+| 検証対象のcontent/mode driftを拒否             | `TestEvidenceRejectsContentAndModeDrift`                                                                                                    |
+| artifact整合性                                 | `TestTaskArtifactDrift`, `TestRejectsEvidenceForUnknownCheckpoint`、既存canonical/repository tests                                          |
+| staged content/mode不一致・余分なpathを拒否    | `TestShipRejectsStagedMismatchAndExtraPath`, `TestCommittedDeliveryUsesGitContentAndMode`                                                   |
+| Learnのproduct混入を拒否                       | `TestLearnRejectsProductChanges`                                                                                                            |
+| Learnが更新後checkerだけで自己正当化できない   | `TestLearnNeedsBaselineCheckerAndIndependentReview`。開始時binary必須、reviewなしlocal完了も拒否                                            |
+| 必須検証をmanual宣言で代替できない             | `TestRequiredVerificationCannotBeManualOnly`                                                                                                |
+| 設定不整合を拒否                               | `TestConfigurationRejectsBrokenReferences`                                                                                                  |
+| Goal/Hookなし・旧phase非依存の正常系           | `TestDevelopmentWithoutGoalOrHook`, `TestPublicCLIEndToEnd`                                                                                 |
+| 質問・説明・調査では開始しない                 | `TestReadOnlyRequestCannotStart`と実Codexの実行依頼/質問評価                                                                                |
+| 正常なpackage/lock更新と継続                   | `TestLockfileTracksProductAndToolClosure`, `TestLockfileDelegatesOnlyRootCoveredPeers`, `TestSameTaskContinuesAfterCommitAndReviewRevision` |
+| Storybookの検証coverage                        | `TestStorybookCoverageSeesRemovedAndNewTags`。suite有無とtag削除・追加を検査                                                                |
+| bootstrap独立reviewと差分結合                  | `bootstrap_test.go`の記録欠落・content/mode drift・既存v5迂回の拒否                                                                         |
+| runtime/argv/output/process/ignored mutation   | 既存runner/evidence/repository/CLIの回帰testを共有入力経由で維持                                                                            |
 
 現行repository全体を一時repositoryへ複製したLearn smokeも実行した。
 公開CLIでtask-start → checkpoint → verify → reviewなしfinish拒否 → learn-review → finish →
@@ -83,22 +83,22 @@ ship-check → commit → ci-checkが通過した。review入力は明示した�
 
 すべてローカルで実行。Go cacheは書込可能な`GOCACHE=/tmp/aidd-vnext-go-cache`を指定した。
 
-| command / 検査 | 結果 |
-| --- | --- |
-| `go test -C tools/aidd/checker ./...` | 全package成功。新Core、公開CLI、Codex Hooks、旧保証の回帰testを含む |
-| `go vet -C tools/aidd/checker ./...` | 成功 |
-| `go mod verify -C tools/aidd/checker` | all modules verified |
-| `gofmt -l tools/aidd/checker` | 出力なし |
-| `go build -C tools/aidd/checker -o /tmp/aidd-vnext-candidate ./cmd/aidd-checker` | 成功 |
-| `/tmp/aidd-vnext-candidate check-all --repo-root .` | 設定整合成功、artifacts=8、read_only_legacy=2 |
-| `python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main` | 成功、既存採択済みADR 2件の履歴を保持 |
-| skill-creatorの`quick_validate.py` | aidd-cycle / goal-setting / learn / harness-taskの4件成功 |
-| Codex TOML / Hooks JSON / workflow・skill YAML parse | 成功 |
-| 実Codexの自然言語入口 | 実行依頼と質問の2ケース成功。Goal不在を明示し、product実装前で停止 |
-| `bootstrap-check --repo-root . --base <migration-base>` | 独立review対象manifestとの一致を検査 |
-| 現行repository設定でのLearn smoke | 公開CLIとGit転送検査が成功 |
-| `git diff --check` | 成功 |
-| `git diff --name-only -- apps/web apps/api` | 出力なし。Web/API product変更なし |
+| command / 検査                                                                                   | 結果                                                                |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| `go test -C tools/aidd/checker ./...`                                                            | 全package成功。新Core、公開CLI、Codex Hooks、旧保証の回帰testを含む |
+| `go vet -C tools/aidd/checker ./...`                                                             | 成功                                                                |
+| `go mod verify -C tools/aidd/checker`                                                            | all modules verified                                                |
+| `gofmt -l tools/aidd/checker`                                                                    | 出力なし                                                            |
+| `go build -C tools/aidd/checker -o /tmp/aidd-vnext-candidate ./cmd/aidd-checker`                 | 成功                                                                |
+| `/tmp/aidd-vnext-candidate check-all --repo-root .`                                              | 設定整合成功、artifacts=8、read_only_legacy=2                       |
+| `python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main` | 成功、既存採択済みADR 2件の履歴を保持                               |
+| skill-creatorの`quick_validate.py`                                                               | aidd-cycle / goal-setting / learn / harness-taskの4件成功           |
+| Codex TOML / Hooks JSON / workflow・skill YAML parse                                             | 成功                                                                |
+| 実Codexの自然言語入口                                                                            | 実行依頼と質問の2ケース成功。Goal不在を明示し、product実装前で停止  |
+| `bootstrap-check --repo-root . --base <migration-base>`                                          | 独立review対象manifestとの一致を検査                                |
+| 現行repository設定でのLearn smoke                                                                | 公開CLIとGit転送検査が成功                                          |
+| `git diff --check`                                                                               | 成功                                                                |
+| `git diff --name-only -- apps/web apps/api`                                                      | 出力なし。Web/API product変更なし                                   |
 
 ## 最終review
 
@@ -149,14 +149,14 @@ v5 Task/checkpoint/evidenceの代替入力ではない。schema_version=1、kind
 
 ## 追加監査と是正
 
-| 初回の不足 | 是正と検証 |
-| --- | --- |
+| 初回の不足                 | 是正と検証                                                                                                                    |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | 混在設定のファイル全体保護 | package JSON Pointerでproductとguardrailを分離。独立Vite build設定はproduct分類。mixed正常系・tool変更拒否・Learn product拒否 |
-| lockfileとの同期不足 | pnpm v9のroot/解決package/snapshot closureを検査。product/tool更新の正常系と他方の変更・推移依存変更を拒否 |
-| commit後の同Task継続不可 | baselineと検証時HEADを分離。二度のShipとdecision改訂、commit済みownership逸脱の拒否 |
-| 初回bootstrapのreview不在 | bootstrap-checkで独立review記録の欠落・対象差分content/mode drift・既存v5迂回を拒否 |
-| Storybook必須検証漏れ | 変更前後のtagを検査し、tag除去・file削除・追加もsuite必須 |
-| 実Codex入口未検証 | 公式CLIで実行依頼→Task/checkpoint作成、質問→未開始・無変更を実ファイルと実行ログで確認 |
+| lockfileとの同期不足       | pnpm v9のroot/解決package/snapshot closureを検査。product/tool更新の正常系と他方の変更・推移依存変更を拒否                    |
+| commit後の同Task継続不可   | baselineと検証時HEADを分離。二度のShipとdecision改訂、commit済みownership逸脱の拒否                                           |
+| 初回bootstrapのreview不在  | bootstrap-checkで独立review記録の欠落・対象差分content/mode drift・既存v5迂回を拒否                                           |
+| Storybook必須検証漏れ      | 変更前後のtagを検査し、tag除去・file削除・追加もsuite必須                                                                     |
+| 実Codex入口未検証          | 公式CLIで実行依頼→Task/checkpoint作成、質問→未開始・無変更を実ファイルと実行ログで確認                                        |
 
 新しいYAML解析にはsecurity-fixが継続される安定版go.yaml.in/yaml/v3 v3.0.4を固定使用する。
 v4は確認時点でRCのため採用していない。[提供元の互換性方針](https://github.com/yaml/go-yaml)。
@@ -196,12 +196,12 @@ PR全体のbootstrap review manifestも更新する。commit/push/remote CIは�
 未解決のレビュー4件は、いずれも機械的なguardrail検査の不足として対応する。
 コードコメントの言語変更だけを目的とする修正は含めない。
 
-| 指摘 | 判断・修正 | 回帰検証 |
-| --- | --- | --- |
-| optional pathのmissing判定が入力検証より先 | canonical pathを先に検証し、既存identity APIと同じ診断にする | 空・traversal・metadata path拒否、missing・通常file・dangling symlinkの正常系 |
-| local TaskをPR配信に使用できる | ShipとPRのci-checkでdelivery=prを要求 | Development/Learnのlocal finish成功、stage/commit後もlocal配信拒否 |
-| 古いmerge-baseからbootstrapへ迂回できる | trusted checkerとbootstrap可否は現在target base、差分照合はmerge-baseで判断 | 実workflow shellを分岐fixtureで実行し、現在baseのchecker選択とbootstrapのtarget-base引数を確認 |
-| lockfileがpeer variantの割当を失う | root・edge・snapshotの完全identityを保持。反対側root更新に一意に対応するpeer構成変更だけを許可 | root/親間のvariant入替、曖昧対応、異内容衝突、通常共有依存変更を拒否。Development/Learnのqualified・nested peer更新は成功 |
+| 指摘                                       | 判断・修正                                                                                     | 回帰検証                                                                                                                  |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| optional pathのmissing判定が入力検証より先 | canonical pathを先に検証し、既存identity APIと同じ診断にする                                   | 空・traversal・metadata path拒否、missing・通常file・dangling symlinkの正常系                                             |
+| local TaskをPR配信に使用できる             | ShipとPRのci-checkでdelivery=prを要求                                                          | Development/Learnのlocal finish成功、stage/commit後もlocal配信拒否                                                        |
+| 古いmerge-baseからbootstrapへ迂回できる    | trusted checkerとbootstrap可否は現在target base、差分照合はmerge-baseで判断                    | 実workflow shellを分岐fixtureで実行し、現在baseのchecker選択とbootstrapのtarget-base引数を確認                            |
+| lockfileがpeer variantの割当を失う         | root・edge・snapshotの完全identityを保持。反対側root更新に一意に対応するpeer構成変更だけを許可 | root/親間のvariant入替、曖昧対応、異内容衝突、通常共有依存変更を拒否。Development/Learnのqualified・nested peer更新は成功 |
 
 独立レビューで、単純な完全key固定が正常なproduct peer更新まで拒否する副作用を検出し、
 上表の一意な対応による比較へ修正した。成功証拠のためにproduct/Learn境界を緩めていない。
@@ -224,3 +224,10 @@ Decisionのownershipを実際の17filesへ限定するcheckpointを追記した�
 `TestLearnNeedsBaselineCheckerAndIndependentReview`は
 `TestLearnNeedsBaselineCheckerWithoutIndependentReview`へ置き換えた。
 現在の操作契約は[operations](../aidd-checker-operations.md#learn確定)を参照する。
+
+## 現行のTask境界 (2026-09-14)
+
+本文中の独立Learn強制、Developmentのguardrail変更禁止、1 PR・1 Task、
+Task baselineとPR merge-baseの一致は移行時点の記録であり、現行の制約ではない。
+[ADR-0004](../../adr/0004-separate-task-scope-from-work-kind.md)と[workflow](../workflow.md)に従い、
+同じTaskで許可された実装と保守を続行し、複数Taskの担当差分と証拠を合わせてPRを検証する。
