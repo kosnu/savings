@@ -3,7 +3,7 @@
   "kind": "learn_review",
   "task_sha256": "50d3dffa1de01404a846851677c5271e4344fca9f8272324f4951894062b0bdc",
   "checkpoint_sha256": "b44f3d2dc03bb79067ca9819a9f75d10092c25bc5de30a9bc51b8c97a4dd146f",
-  "evidence_sha256": "99881adb24821797cd1dbce20e512e62cfb72fa21d34b542444112efe7e088e2",
+  "evidence_sha256": "5c9492099a8cc7bcf6f1097224284336f40b6ed2e5182064d297a0517a011e49",
   "reviewer": "Codex main agent /root",
   "authorization": "改善はしたい\nけど、「`goal-setting` にAIDDの実行手順を移すと、名前を変えた `aidd-cycle` になります」だと言っているが、実行手順を移したいわけじゃない。goal-settingをあくまでゴール機能を使うための入口でしかなく、実行手順やフロー、プロトコル自体は正本にある認識です。",
   "observations": "## Coverage\n- Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, ai-driven.checker, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\nTask基準点からの最終差分と新checkpointの全inventoryをreview。AGENTS.mdがClaude/Codex共通の実行契約へ直接案内し、Goal機能の入口だけをCodex向けskillへ分離している。実行フローと既存の権限・検証・継続条件はworkflow/operationsに保持され、Goal設定は実行許可を追加しない。不要な2 skillsを削除し現行の文書・索引・UI metadataを同期。旧pathを持つ過去成果物とmigration許可path/分類テストは互換のため保持し、operationsにその区別を明示した。Skill形式、35リンク、共通CLAUDE symlink、app Verification節の不変、checker check-config/check-all、verify/checkを確認。新たな指摘なし。アプリコード変更がないためapp検証対象外。Claude/Codex別セッションを起動する実行評価はしていない。"
