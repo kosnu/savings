@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: リポジトリのルールと正本文書に基づいて、実装済みの差分をレビューするときに使用する
+description: GitHub Copilotで実装済みの差分をリポジトリの正本ルールに照らしてレビューする。
 ---
 
 # Code Review

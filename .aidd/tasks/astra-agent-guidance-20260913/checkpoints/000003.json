@@ -1,0 +1,387 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "50d3dffa1de01404a846851677c5271e4344fca9f8272324f4951894062b0bdc",
+  "revision": 3,
+  "parent_sha256": "a366d7281704cd6b89f8804dc69a80ddd79a99323938c5c4864311fe80c595f5",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "50d3dffa1de01404a846851677c5271e4344fca9f8272324f4951894062b0bdc",
+    "reason": "ユーザーの追加指示: 改善はしたい。goal-settingをあくまでゴール機能を使うための入口でしかなく、実行手順やフロー、プロトコル自体は正本にある認識です。 前の会話でClaude/Codex両立、CodexのみGoal機能利用、aidd-cycle/harness-taskの必要性が論点として明示された。正本のAIDD契約をAGENTS.mdから直接適用し、重複した2 skillを削除する。goal-settingはGoal tool呼出し入口のみとし、Goalとの対応契約はcodex-adapter.md、実行フローはworkflow.mdに保持する。既存の権限・完了・verification・Task継続境界を削除しない。現行文書とrule-mapを同期するが過去の移行記録と旧pathの互換検査は保持する。元Task/基準点/開始時checkerを維持し、再検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Astra向け公式ガイドと参照文書に基づきスキルとAGENTS.mdの定義を改善する",
+        "origin": "intent",
+        "evidence": "上記のドキュメントや参照ドキュメントを確認しつつ改善して"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Claude/CodexはAGENTS.mdから共通AIDD正本を適用し、CodexのGoal機能利用だけをgoal-settingへ接続する。aidd-cycle/harness-taskの入口を廃止し、プロトコルの権限・検証・継続条件は正本に維持する。",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "旧skill削除と現行参照の整合、全remaining skill形式、AGENTS/CLAUDE入口、Goal tool利用あり/なし、分析/実行/Learn/再開/Goalだけ設定の文面を確認する。開始時checkerのcheck-config/check-allと手動評価で記録・routing整合を確認し、意味的な保証と実行評価未実施を区別する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/aidd-cycle/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/aidd-cycle/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/context-scout/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/context-scout/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/goal-setting/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/harness-task/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/harness-task/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".github/skills/code-review/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/documentation-policy.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".agents/skills/context-scout/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": ".agents/skills/context-scout/agents/openai.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": ".agents/skills/goal-setting/agents/openai.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": ".agents/skills/learn/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": ".github/skills/code-review/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "docs/harness/policies/documentation-policy.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "implementation",
+          "path": "docs/harness/rule-map.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [],
+    "scope_revision": {
+      "added_scopes": [
+        {
+          "path": ".agents/skills/aidd-cycle/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/goal-setting/agents/openai.yaml",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        }
+      ],
+      "reason": "ユーザーが明確にした共通プロトコルとCodex Goal入口の責務分離を、既存の定義と正本参照へ一貫して反映するため",
+      "boundary_review": "元の定義改善依頼と今回の明示的な責務分離の指示に必要なskill metadata、正本入口、参照索引の同期。product、実行binary、protocol/profile schema、モデル設定、配信先は変えず、明示されたファイル上限はない。既存成果と同じTaskで扱う。",
+      "reviewer": "Codex main agent /root"
+    }
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

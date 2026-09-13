@@ -17,6 +17,12 @@ when_to_read:
 
 Coreの契約をCodexで実行する。Issue指定の開発依頼に自動適用し、質問・説明・調査では適用しない。
 
+## Goal機能との接続
+
+実行手順・フロー・プロトコルは[workflow](workflow.md)と[operations](aidd-checker-operations.md)が所有する。
+GoalはそのTaskの目的と完了条件をCodex上で追跡するための機能であり、実行許可や正本状態を所有しない。
+Goal操作の入口はこの対応関係を実際のtoolへ接続し、プロトコルを再定義しない。
+
 Developmentではtask objective/constraints/Done/verificationから1つのGoalを設定する。
 最初にGoal toolの可用性と現在Goalを確認し、別taskの未完了Goalを置換しない。
 Goalなしの場合も同じCore contractで継続し、Goal設定済みとは報告しない。
@@ -29,8 +35,12 @@ Goalの終了や新しい会話はTask・baselineを作り直す理由になら�
 配信先を変えるagentの判断をユーザーのauthorizationへ書き足さず、既存Taskで続行できない場合は
 失敗根拠と必要な境界変更を示す。checkerの成功だけを境界変更の許可根拠にしない。
 
-Learnは独立したGoalを利用できる。未完了Development GoalをLearnへ流用しない。
+Learnではユーザーが求めた場合だけ独立したGoalを利用する。未完了Development GoalをLearnへ流用しない。
 Goalのactive/blocked/pausedの扱いはhostのtool契約に従う。Coreの中断を偽の完了へ変換しない。
+token budgetは明示された場合だけ設定する。Goal設定だけの依頼はTask実行を許可しない。
+Goalを作成・確認した後も、作業の継続と完了は元のTask契約とユーザーの許可範囲に従う。
+
+## その他のCodex接続
 
 model/reasoningは現在の選択を基本とし、特定modelへの委譲をCoreの前提にしない。
 調査・実装・reviewは原則メインagentで行い、subagent利用はAGENTS.mdの費用対効果条件に従う。

@@ -1,7 +1,6 @@
 ---
 name: context-scout
-description: Bounded repository discovery for a complex independent investigation whose value justifies delegation under AGENTS.md. Do not use for routine searches or small local checks.
-argument-hint: "[scope or question]"
+description: Investigate a bounded repository question for a delegated task. Use for valuable independent discovery, not routine local searches.
 ---
 
 # Context Scout
@@ -18,7 +17,7 @@ Do not make product decisions, final design decisions, file edits, GitHub writes
 
 The caller should provide:
 
-- The target Goal phase or task.
+- The target task and current question.
 - Known issue, PR, branch, or artifact paths.
 - The suspected app or docs area.
 - The exact question to answer.
@@ -42,15 +41,19 @@ Use this shape:
 
 ```md
 ## Findings
+
 - <finding> - <file path or command evidence>
 
 ## Selected refs
+
 - <id or path>: <short reason>
 
 ## Risks / gaps
+
 - <risk or missing input>
 
 ## Suggested packet items
+
 - Scope: <short scope material>
 - Constraints: <short constraint material>
 - Stop checks: <short stop material>

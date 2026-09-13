@@ -1,7 +1,7 @@
 interface:
   display_name: "Goal Setting"
-  short_description: "Set one Development or independent Learn Goal"
-  default_prompt: "Use $goal-setting to set one Goal for this authorized task."
+  short_description: "Connect an authorized task to Codex Goal tools"
+  default_prompt: "Use $goal-setting to connect this authorized task to Codex Goal tools under the canonical adapter contract."
 
 policy:
   allow_implicit_invocation: true
