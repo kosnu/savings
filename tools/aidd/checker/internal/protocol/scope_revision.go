@@ -42,13 +42,7 @@ func (l *Loaded) selectScopeRevision(next *ScopeRevision, parent string) error {
 					return fail("SCOPE_REVISION", scope.Path, "重複したscopeです")
 				}
 			}
-			if scope.Kind == "tree" {
-				for _, forbidden := range l.RepositoryPolicy.ForbiddenTreeScopes {
-					if scope.Path == forbidden {
-						return fail("SCOPE_REVISION", scope.Path, "禁止されたtree scopeです")
-					}
-				}
-			}
+
 			previous = scope.Path
 		}
 	}
@@ -57,6 +51,13 @@ func (l *Loaded) selectScopeRevision(next *ScopeRevision, parent string) error {
 		l.RevisionLimits = append(l.RevisionLimits, next.UserScopeLimits)
 	}
 	for _, scope := range next.AddedScopes {
+		if scope.Kind == "tree" {
+			for _, forbidden := range l.RepositoryPolicy.ForbiddenTreeScopes {
+				if scope.Path == forbidden {
+					return fail("SCOPE_REVISION", scope.Path, "禁止されたtree scopeです")
+				}
+			}
+		}
 		if !l.withinUserLimits(scope) {
 			return fail("USER_SCOPE_LIMIT", scope.Path, "ユーザーの明示制限を超える追加です")
 		}
