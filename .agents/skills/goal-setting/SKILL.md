@@ -1,12 +1,14 @@
 ---
 name: goal-setting
-description: Set one Codex Goal for an authorized AIDD Development or independent Learn task. Use when asked to set a Goal or as the Codex Development adapter. Do not create phase Goals or start implementation from a question.
+description: Set one Codex Goal when requested or required by authorized AIDD Development. Goal preparation alone does not authorize task execution.
 ---
 
 # Goal setting
 
-Read `docs/ai-driven-development/codex-adapter.md`, `workflow.md` and
-`goal-templates/index.md`. User instructions define authorization and scope.
+Read [Codex adapter](../../../docs/ai-driven-development/codex-adapter.md) for Goal lifecycle,
+[workflow](../../../docs/ai-driven-development/workflow.md) for authority and continuation,
+and [Goal templates](../../../docs/ai-driven-development/goal-templates/index.md) for objective content.
+User instructions define authorization and scope.
 
 Check the actual Goal tool and current Goal before creating one. Continue an existing
 Goal for the same task; never replace an unrelated unfinished Goal. A paused Goal is
