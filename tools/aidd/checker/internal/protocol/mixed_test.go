@@ -38,7 +38,7 @@ func setupMixed(t *testing.T, kind string) *fixture {
 	return f
 }
 
-func TestMixedConfigSeparatesProductAndGuardrail(t *testing.T) {
+func TestTaskCanMaintainProductAndToolConfiguration(t *testing.T) {
 	for _, kind := range []string{"development", "learn"} {
 		for _, field := range []string{"product", "guardrail", "tool", "move-tool", "delete"} {
 			t.Run(kind+"/"+field, func(t *testing.T) {
@@ -66,7 +66,7 @@ func TestMixedConfigSeparatesProductAndGuardrail(t *testing.T) {
 					f.put("package.json", string(b))
 				}
 				err := f.verify()
-				if kind == "development" && field == "product" || kind == "learn" && (field == "guardrail" || field == "tool" || field == "move-tool") {
+				if field != "delete" {
 					must(t, err)
 				} else {
 					rejected(t, err, "")

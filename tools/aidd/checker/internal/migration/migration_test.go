@@ -22,7 +22,7 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 		{"contract", "docs/ai-driven-development/contracts/protocol.json", false},
 		{"product", "apps/web/src/app.tsx", true},
 		{"mixed-settings", "package.json", true},
-		{"other-task", ".aidd/tasks/other/task.json", true},
+		{"other-task", ".aidd/tasks/other/task.json", false},
 		{"unrelated-workflow", ".github/workflows/deploy.yaml", true},
 		{"docs-only", "docs/harness/policies/a.md", true},
 		{"advanced-base", "tools/aidd/checker/main.go", false},
@@ -74,6 +74,9 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 				put(".aidd/tasks/change/task.json", "new task")
 			}
 			put(tc.path, "candidate")
+			if tc.name == "other-task" {
+				put("tools/aidd/checker/main.go", "candidate checker")
+			}
 			if tc.name == "symlink" {
 				os.Remove(filepath.Join(root, tc.path))
 				if e := os.Symlink("../../base.txt", filepath.Join(root, tc.path)); e != nil {

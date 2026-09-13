@@ -57,11 +57,6 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 		if l.Task.Spec.Kind == "learn" && !scopeCovered(s, l.authorizedScopes()) {
 			return nil, fail("LEARN_SCOPE", s.Path, "明示許可を超えるownershipです")
 		}
-		for _, f := range l.changeBaseline() {
-			if owned(f.Path, []model.OwnershipScope{s}) && l.guarded(f.Path) && l.mixed(f.Path) == nil && f.Path != lockPath && l.Task.Spec.Kind == "development" {
-				return nil, fail("GUARDRAIL_SCOPE", f.Path, "guardrailをDevelopment scopeへ含められません")
-			}
-		}
 	}
 	paths := map[string]bool{}
 	for _, f := range l.changeBaseline() {
@@ -70,12 +65,6 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 		}
 	}
 	for _, r := range d.Target.Representations {
-		if l.Task.Spec.Kind == "development" && l.guarded(r.Path) && l.mixed(r.Path) == nil && r.Path != lockPath {
-			return nil, fail("GUARDRAIL_SCOPE", r.Path, "guardrailをDevelopment成果物にできません")
-		}
-		if l.Task.Spec.Kind == "learn" && (!l.guarded(r.Path) || rules.MatchesPath(l.Policy.ProductPaths, r.Path)) {
-			return nil, fail("LEARN_SCOPE", r.Path, "Learnにproduct成果物を含められません")
-		}
 		paths[r.Path] = true
 	}
 	direct := map[string]struct{}{}
@@ -101,11 +90,6 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 		return nil, err
 	}
 	selected := rules.Sorted(closure)
-	for _, id := range selected {
-		if _, ok := fileMap(l.Task.Baseline)[l.Rules.ByID[id].File]; !ok {
-			return nil, fail("RULE_SOURCE", id, "rule文書がtask baselineにありません")
-		}
-	}
 	if err = l.requireProfiles(d.Target, paths); err != nil {
 		return nil, err
 	}
@@ -175,6 +159,13 @@ func loadCheckpoints(snapshot *repository.Snapshot, l *Loaded) error {
 		if err := l.selectIntegration(context.Background(), snapshot, cp.Decision.Integration); err != nil {
 			return err
 		}
+		if len(cp.RuleMap) > 0 {
+			active, err := rules.Parse(cp.RuleMap, rules.DefaultPath)
+			if err != nil {
+				return err
+			}
+			l.Rules = active
+		}
 		if err := l.selectScopeRevision(cp.Decision.ScopeRevision, parent); err != nil {
 			return err
 		}
@@ -215,6 +206,24 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 	if err = l.selectIntegration(ctx, snapshot, d.Integration); err != nil {
 		return "", err
 	}
+	// 更新後の索引をcheckpointへ保存し、履歴のrule closureは各時点の索引で読む。
+	ruleMap, err := snapshot.Read(rules.DefaultPath)
+	if err != nil {
+		return "", err
+	}
+	l.Rules, err = rules.Load(snapshot, rules.DefaultPath)
+	if err != nil {
+		return "", err
+	}
+	for _, rule := range l.Rules.Map.Rules {
+		if _, err := snapshot.Read(rule.File); err != nil {
+			return "", err
+		}
+	}
+	l.Checkpoint.Decision = d
+	if err = l.loadPeerScopes(ctx, snapshot); err != nil {
+		return "", err
+	}
 	files, err := inventory(ctx, snapshot)
 	if err != nil {
 		return "", err
@@ -235,7 +244,7 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 	if err != nil {
 		return "", err
 	}
-	cp := Checkpoint{Version, "checkpoint", taskHash, l.Checkpoint.Revision + 1, parentHash, d, required}
+	cp := Checkpoint{Version, "checkpoint", taskHash, l.Checkpoint.Revision + 1, parentHash, d, required, ruleMap}
 	// baselineはTaskからのみ引き継ぎ、改訂時のworktreeで再構成しない。
 	return write(snapshot, checkpointPath(id, cp.Revision), cp, true)
 }
@@ -256,6 +265,18 @@ func Load(ctx context.Context, snapshot *repository.Snapshot, id, taskHash, chec
 	}
 	if _, err = l.executionHead(ctx, snapshot, false); err != nil {
 		return nil, err
+	}
+	if err = l.loadPeerScopes(ctx, snapshot); err != nil {
+		return nil, err
+	}
+	if len(l.Checkpoint.RuleMap) > 0 {
+		current, err := snapshot.Read(rules.DefaultPath)
+		if err != nil {
+			return nil, err
+		}
+		if hash(current) != hash(l.Checkpoint.RuleMap) {
+			return nil, fail("RULE_COVERAGE", rules.DefaultPath, "変更後の索引でcheckpointを更新してください")
+		}
 	}
 	files, err := inventory(ctx, snapshot)
 	if err != nil {

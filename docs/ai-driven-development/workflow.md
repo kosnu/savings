@@ -26,7 +26,7 @@ GitHub Issueを指定した実行依頼はDevelopmentへ入る。Issue番号の�
 説明、調査、設計案の依頼では開始しない。Issueがないproduct実行依頼は既存Issueの特定を求める。
 Task開始前に単一writerのworktreeでcleanな基準点を固定する。無関係な変更は移さない。
 ブランチの作成・切り替え・分割は[Git Workflow](../harness/policies/git-workflow.md#ブランチ)に従う。
-Development / Learnを独立Taskとして扱うことは、ブランチを分ける許可を意味しない。
+Development / Learnは作業の入口・内容の区別であり、Task・ブランチ・PRを分ける条件ではない。
 開始時checkerは[operations](aidd-checker-operations.md)の準備commandで自動取得する。
 同じソース・連動契約・実行環境なら検査済みbinaryを再利用し、Task期間中は返されたpathを保持する。
 
@@ -44,7 +44,7 @@ Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明
 
 要求の根拠をintent、guardrail、derivedに分ける。intent根拠はsnapshot本文に実在する必要がある。
 既存コードは実装文脈であり人間の意図を追加しない。意図、受け入れ条件、権限の変更は明示的に
-既存Issueへ反映し、新しい作業の境界を確定してから別taskを開始する。既存成果の追加配信は
+既存Issueへ反映し、許可された変更を現在のTaskのDecisionへ記録する。既存成果の追加配信は
 下記の継続境界に従い、この規定をTask再作成の根拠にしない。技術的な設計選択は委任範囲内でagentが決める。
 
 ## 自律判断と確認の境界
@@ -59,7 +59,7 @@ Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明
 
 - 意図・受け入れ条件の解釈によってユーザーに届く成果が変わり、根拠から選べない。
 - スコープ、制約、権限、完了地点の変更、または個別に事前確認が指定された操作が必要。
-- guardrailとの矛盾が解消できない。guardrail更新は独立Learnへ渡す。
+- ユーザーの指示と適用ルールの矛盾が、既存の許可根拠から解消できない。ルール変更の明示指示があれば、その指示を適用する。
 
 確認待ちでも、回答に依存しない許可済みの調査・検証は進めてよい。回答がないことを許可と扱わない。
 必須検証が失敗した場合は原因を調べ、今回の範囲で修正できるものは修正して再検証する。
@@ -87,7 +87,8 @@ Taskのbaseline以前の差分を隠すcommit/rebase/resetは実行中に行わ�
 検証batch内では開始時のHEADとstaged treeを不変とし、stageはShip境界で行う。
 Task baselineは固定するが、検証・Ship済みcommitの後も同じTask/Goalで継続できる。
 HEADは元baselineの子孫でなければならない。統合記録がなければ実差分はcommitをまたいで元baselineから照合する。
-1 PR全体を1 taskの検証境界とする。mainを取り込む場合は下記の統合記録を使い、Task開始点と変更判定基準を分ける。
+PR内のTask数は制限しない。各Taskの担当差分と検証証拠を合わせてPR全体を確認する。
+mainを取り込む場合は下記の統合記録を使い、Task開始点と変更判定基準を分ける。
 review後は同じTaskで必要なcheckpoint改訂・全差分の再検証を行う。Task baselineを取り直さない。
 既存branchや変更を自動破棄しない。
 
@@ -100,7 +101,7 @@ main取り込み後は、Decisionの`integration`へ取り込んだbaseと統合
 
 変更権限・ownership・rule coverage・必須検証は、統合baseと最終状態の差分へ適用する。
 main由来の内容と一致するfileはTaskの変更として扱わず、同じpathでも独自の変更・削除・mode変更は検査する。
-混在設定のfieldとlockfileの依存境界も同じ統合baseから判定し、開始時policyの分類を維持する。
+設定・依存関係の変更も同じ基準から照合し、Task種別を理由に変更を拒否しない。
 競合解消結果と統合後の追加変更は最終状態の一部として検査し、過去treeへ巻き戻さない。
 
 checkpoint改訂で旧証拠を全失効させ、統合後の全inventoryに結合した証拠を再生成する。
@@ -108,7 +109,7 @@ Task外のmain由来fileも証拠に含め、検証後の変更を検出する�
 main取り込みで必要な成果を失っていないことを確認する。Gitの差分だけで意味的な達成を証明しない。
 
 baseが進んだら再取り込み・新checkpoint・全再検証を行う。統合base/headの後退や記録の除去は拒否する。
-旧checkerが統合記録に対応しないLearnは、明示許可を得たchecker移行をcheckpointへ追記し、移行先で全再検証する。
+旧checkerが必要な継続機能に対応しないTaskは、許可されたchecker移行をcheckpointへ追記し、移行先で全再検証する。
 元Taskを作り直さず、開始記録と旧証跡を保持する。追加修正の許可範囲も移行記録に固定する。
 checker実行権限の移行とmain取り込みは別契約であり、[operations](aidd-checker-operations.md#旧taskのchecker移行)に従う。
 
@@ -157,13 +158,18 @@ policy/profileを保持し、更新後の範囲でruleと必須検証を選択�
 委任内かという意味判断は担当agentの根拠付きレビュー、範囲・明示制限・禁止領域・履歴・証拠の整合は
 checkerが担う。操作手順と互換性は[operations](aidd-checker-operations.md#learnの変更対象の改訂)を参照する。
 
-Development中のguardrailはread-only。protocol policy、rule-map、profile catalog、rule文書、
-checker・adapter等を開始時に保護し、新しいpathも開始時policyで分類する。
-guardrail変更が必要ならDevelopmentを中断し、独立したLearnへ渡す。
-Learnではproduct変更を禁止する。実装を成立させるためにこれらの保護を解除してはいけない。
+許可されたルール・checker・設定・依存関係の保守は、アプリ実装と同じTaskで行える。
+変更理由、許可根拠、対象と検証を通常のDecisionへ記録し、ownership内で修正・再検証する。
+ルール保守を別Learnへ渡すための中断や、先行commit・専用の採用記録は要求しない。
+変更後のルールを読み、rule-mapを変えた場合は新checkpointでその索引と必須closureを保存する。
+過去checkpointはその時点の索引で解釈し、Task開始記録と過去の証拠は保持する。
+機械policy/profileは開始時の実行契約を維持し、checkerの実行互換性が必要な場合は既存の移行経路を使う。
 
-同じ設定や依存関係にproductとguardrailが混在する場合も、各Taskで保護する対象を保持する。
-形式ごとの変更許可と検査境界は[checkerの設定・依存関係の保護](aidd-checker.md#設定依存関係の保護)に従う。
+複数Taskが同じブランチにある場合は、各Taskのownershipで差分を分担する。別Taskの生成記録を
+アプリの成果物として所有させない。CIは変更された全Taskの最新証拠を検査し、PR基準点からの全差分に
+対応する検証を要求する。Taskを選ぶCLI引数で他Taskの差分や未検証成果を隠さない。
+検証証拠は全ソースの最終状態へ結合するが、Taskの生成記録は各Taskの履歴として別途検査し、
+相手のcheckpointや証拠を書いただけで検証結果を相互失効させない。
 
 ## Review / Learn
 
@@ -171,23 +177,23 @@ feedbackは対応前に妥当性と原因を評価し、症状・修正対象と
 local defectという分類で原因評価を終えない。policy不足、routing・読込・適用の不全、
 機械検出可能な違反の検出漏れ、guidance不足をrepository evidenceで区別する。
 purely localと確認できたdefectは同じDevelopment / Decision内で修正・再検証する。
-再利用可能なguardrail failureならproduct修正だけで閉じず独立Learnへ渡し、
-guardrail更新・検証・確定でLearnを終了する。必要なproduct実装は既存Issueから新Developmentへ渡す。
+再利用可能なguardrail failureなら、許可された改善を同じTaskのDecisionへ記録して修正・検証する。
+原因評価と検証の区別を維持し、作業の種類が変わったことだけでTaskを作り直さない。
 原因未確定は不足根拠を明示する。単純なtypoを無理に恒久ruleにしない。
 requirement gap・design issue・delivery defectも同じ原因軸を評価する。
 詳細な判断境界は[review feedback policy](../harness/policies/review-feedback-classification.md)を適用する。
 
-LearnはIssue不要の独立task。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
+Learnはfeedbackを扱う作業。単独の新規依頼はIssue不要のTaskとして開始できる。既存作業中は現在のTaskで扱う。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
 分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと初期の有限作業範囲を記録し、
 guardrail文書、routing、checker、adapter、検証機構を変更・検証できる。
-product pathの変更は禁止する。通常は開始時checker binaryと旧profileで検証する。明示的なchecker移行は移行先binaryを固定し、旧policy/profileを維持する。変更後checkerの成功だけを
+Task種別によるproduct pathの一律禁止は設けず、実際の許可範囲を守る。通常は開始時checker binaryと旧profileで検証する。明示的なchecker移行は移行先binaryを固定し、旧policy/profileを維持する。変更後checkerの成功だけを
 確定根拠にしない。担当agent自身が最新差分と証拠をreviewし、依頼された許可範囲で確定する。
 独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行う。
 reviewをテスト成功から生成してはいけない。
 base checkerとの非互換な契約変更をCIへ配信するときだけ、
 [契約移行経路](aidd-checker-operations.md#非互換なchecker契約の移行)で差分検査・候補検証・
 対象commitへの人の承認を必要とする。通常Learnのreview要件や元Taskの継続境界は変更しない。
-Learn終了後にproduct実装を自動開始しない。
+分析やルール保守の依頼だけをproduct実装の許可へ広げない。既に許可された実装は同じTaskで継続する。
 
 ## 再開・委譲
 
