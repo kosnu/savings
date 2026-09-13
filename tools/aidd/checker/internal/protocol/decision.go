@@ -215,11 +215,17 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 	if err = l.selectIntegration(ctx, snapshot, d.Integration); err != nil {
 		return "", err
 	}
-	if err = l.selectScopeRevision(d.ScopeRevision, parentHash); err != nil {
-		return "", err
-	}
 	files, err := inventory(ctx, snapshot)
 	if err != nil {
+		return "", err
+	}
+	if d.ScopeRevision != nil {
+		// 追加許可を適用する前に既存範囲で検査し、編集後の事後承認を防ぐ。
+		if err = l.checkGuards(ctx, snapshot, files); err != nil {
+			return "", err
+		}
+	}
+	if err = l.selectScopeRevision(d.ScopeRevision, parentHash); err != nil {
 		return "", err
 	}
 	if err = l.checkGuards(ctx, snapshot, files); err != nil {

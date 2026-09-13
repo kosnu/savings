@@ -139,6 +139,13 @@ reasonへ変更・削除した判断と根拠を記録する。旧checkpointやb
 初期`authorized_scopes`を超える作業が委任内で必要になった場合、元の許可文と制約を確認し、
 実装前に既存Decisionへ次のイベントを追加して通常の`checkpoint`を実行する。
 `target_state`にも追加scope・成果物・検証を反映し、最新checkpoint hashを親として指定する。
+追加範囲を許可する前に、既存の許可範囲で変更判定基準からの実差分を検査する。
+最終状態ではownership内の全ファイルとrepresentationのpathを完全一致させ、
+宣言した成果物のpathに必要なsuiteを要求する。新規ファイルを成果物へ宣言せず完了する経路は
+最終inventory検査が拒否するため、未検証で完了できる正常経路には含めない。
+検証ケースとの対応はtarget_state全体で保証し、実装とは別のテスト成果物が検証ケースを担える。
+個々の実装representationの検証参照が空であることだけを検証漏れとは扱わず、
+全ケースの参照・必須suiteの選択・実行証拠で判定する。
 
 ```json
 "scope_revision": {
