@@ -217,3 +217,59 @@ func TestUserTreeLimitIsNotOwnership(t *testing.T) {
 		})
 	}
 }
+
+func TestScopeRevisionRejectsEditsBeforeCheckpoint(t *testing.T) {
+	for _, variant := range []string{"new", "modified", "deleted", "committed"} {
+		t.Run(variant, func(t *testing.T) {
+			f := setup(t, "learn")
+			if variant == "modified" || variant == "deleted" {
+				must(t, os.RemoveAll(filepath.Join(f.root, TaskRoot)))
+				f.put("guard/test.md", "original\n")
+				f.git("add", ".")
+				f.git("commit", "-qm", "baseline")
+				must(t, f.snapshot(func(s *repository.Snapshot) (err error) {
+					f.taskHash, err = Start(context.Background(), s, f.spec)
+					return
+				}))
+				f.decision.TaskSHA256 = f.taskHash
+			}
+			must(t, f.checkpoint())
+			if variant == "deleted" {
+				must(t, os.Remove(filepath.Join(f.root, "guard/test.md")))
+			} else {
+				f.put("guard/test.md", "edited before authorization\n")
+			}
+			if variant == "committed" {
+				f.git("add", "guard/test.md")
+				f.git("commit", "-qm", "premature edit")
+			}
+			addScopeDecision(f, "guard/test.md")
+			rejected(t, f.checkpoint(), "LEARN_SCOPE")
+			if _, err := os.Stat(filepath.Join(f.root, checkpointPath(f.spec.ID, 2))); !os.IsNotExist(err) {
+				t.Fatalf("rejected checkpoint persisted: %v", err)
+			}
+		})
+	}
+}
+
+func TestScopeRevisionCannotFinishWithUndeclaredNewFile(t *testing.T) {
+	f := setup(t, "learn")
+	must(t, f.checkpoint())
+	addScopeDecision(f, "guard/test.md")
+	f.decision.Target.Representations = f.decision.Target.Representations[:1]
+	must(t, f.checkpoint())
+	f.put("guard/test.md", "new file\n")
+	rejected(t, f.verify(), "AIDD_FINAL_INVENTORY")
+}
+
+func TestScopeRevisionAllowsSeparateVerificationRepresentation(t *testing.T) {
+	f := setup(t, "learn")
+	must(t, f.checkpoint())
+	addScopeDecision(f, "guard/test.md")
+	// 検証ケースは既存成果物が参照し、新規実装への重複参照は要求しない。
+	f.decision.Target.Representations[1].VerificationCaseIDs = []string{}
+	must(t, f.checkpoint())
+	f.put("guard/test.md", "new file\n")
+	must(t, f.verify())
+	must(t, f.check(false))
+}
