@@ -1,7 +1,0 @@
-interface:
-  display_name: "AIDD Cycle"
-  short_description: "Run Issue development with one Goal and invariant checks"
-  default_prompt: "Use $aidd-cycle to implement the specified Issue with AIDD vNext."
-
-policy:
-  allow_implicit_invocation: true

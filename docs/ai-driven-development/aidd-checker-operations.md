@@ -393,7 +393,7 @@ PR本文の申請形式は次のとおり。`reason`は、廃止・変更する�
 ````
 
 移行差分は`tools/aidd/`、`docs/ai-driven-development/`、`docs/harness/`、`docs/adr/`、
-AIDDの4つのskill（aidd-cycle、learn、harness-task、goal-setting）、`aidd_checker_ci.yaml`と
+AIDDのskill path（現行のlearn・goal-settingと、移行互換として許可する旧aidd-cycle・harness-taskのパス）、`aidd_checker_ci.yaml`と
 指定した1件のTask記録に限定する。checkerまたはcontract変更を必須とし、
 product、混在package設定、他のCI、別Taskの変更、symlink/submoduleは拒否する。
 baseに保存済みのTask開始記録を置換してはいけない。未対応の変更面が必要な場合は、

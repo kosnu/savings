@@ -1,7 +1,0 @@
-interface:
-  display_name: "Harness Task"
-  short_description: "Handle scoped maintenance with repository checks"
-  default_prompt: "Use $harness-task for this scoped maintenance, routing product or guardrail changes to their required contract."
-
-policy:
-  allow_implicit_invocation: true

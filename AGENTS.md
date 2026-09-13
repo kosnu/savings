@@ -16,8 +16,10 @@ Personal savings management app: `apps/web/` is React + TypeScript + Vite;
 
 ## Task entrypoints
 
-- Issue-specified development execution: [Development contract](docs/ai-driven-development/workflow.md). Product work without an Issue needs an existing Issue identified. Codex uses one Development Goal; unavailable Goal tools do not remove the Core Task contract.
+- Issue-specified development execution: apply the [Development contract](docs/ai-driven-development/workflow.md) directly in Claude or Codex. Product work without an Issue needs an existing Issue identified.
 - Guardrail updates: explicitly authorized independent Learn under the same workflow. Learn ends at guardrail verification and finalization; it does not continue into product implementation.
+- Codex Goal integration: use [goal-setting](.agents/skills/goal-setting/SKILL.md) as the Goal-tool entrypoint for authorized Development or an explicit Goal request, under the [Codex adapter](docs/ai-driven-development/codex-adapter.md). Execution follows the common protocol. Claude and hosts without Goal tools use the same Core Task contract without Codex Goals.
+- Authorized maintenance outside Development/Learn follows these working agreements and applicable policies directly. Task size or Goal availability does not exempt product or guardrail changes from their contract.
 - Existing-task review fixes or additional Ship: use the workflow's continuation boundary and preserve Task/baseline. Do not start legacy phase Goals, fixed executors, or legacy phase CLI paths.
 - Git/GitHub operations: [Git Workflow](docs/harness/policies/git-workflow.md). Establish target, diff, authority, and safety before writes; clarify unresolved ambiguity. Commit messages use an English type and Japanese text. Do not wrap commit IDs in backticks in PR comments.
 

@@ -17,6 +17,11 @@ when_to_read:
 
 ## 入口と権限
 
+ClaudeとCodexは共通のTask / Decision / Checkpoint / Evidence契約を直接実行する。
+入口はAGENTS.md、実行フローと権限の正本はこの文書、CLI操作は[operations](aidd-checker-operations.md)に置く。
+プロトコルの適用は、実行用skillの存在や発火、Goal機能に依存しない。
+CodexでGoal機能を使う場合は[Codex adapter](codex-adapter.md)を追加適用する。
+
 GitHub Issueを指定した実行依頼はDevelopmentへ入る。Issue番号の参照だけ、read-onlyな質問、
 説明、調査、設計案の依頼では開始しない。Issueがないproduct実行依頼は既存Issueの特定を求める。
 Task開始前に専用worktreeとbranchを用意し、cleanな基準点を固定する。無関係な変更は移さない。
