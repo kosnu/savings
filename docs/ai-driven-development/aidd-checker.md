@@ -78,12 +78,26 @@ hashは承認者の認証ではなく、ローカルの許可判断はagent、CI
 
 ## Learnの信頼境界
 
-Learnは開始時binary、または明示的な移行checkpointが固定するbinaryを使う。記録なしのcandidate置換をhashで拒否し、旧profileと旧policyを
-Taskのbytesから解決する。product pathsと許可scopeは旧policyで検査する。
+Learnの作業範囲は初期`authorized_scopes`とcheckpointの`scope_revision.added_scopes`から構成する。
+`authorized_scopes`は初期の有限作業範囲、`scope_revision`は同じ委任内で必要になった範囲の追加と
+根拠付きレビューを記録する。現在のownershipと成果物は最新Decisionの`target_state`が表す。
+
+ユーザーが明示したfile/tree上限は`user_scope_limits`が表し、作業予定の一覧と区別する。
+Taskと各checkpointに記録した上限をすべて満たすownershipと実差分だけを受け入れる。
+範囲追加やchecker移行は、この明示制限やLearnのproduct変更禁止を解除しない。
+追加パスにも開始時rule-map・policy/profileを適用し、必要なruleとsuiteを計算する。
+
+Learnは開始時binary、または明示的な移行checkpointが指定するbinaryを使う。
+記録なしのcandidate置換を拒否し、policy/profileはTaskが保持する開始時bytesから解決する。
+作業範囲の改訂後は旧証拠を失効させ、変更判定基準からの全差分と最終inventoryを再検証する。
 混在package設定とlockfileは[設定・依存関係の保護](#設定依存関係の保護)に従い、tool更新の同期を許可する。
+
+委任内かという意味判断と許可文・確認者の真正性は担当agentが確認し、有限範囲・明示制限・
+禁止領域・履歴・検証証拠の整合はCoreが検査する。JSONやhashは署名ではない。
 新checkerのtest成功だけではLearnを確定せず、担当agent自身が最新差分とevidenceをreviewする。
 Learnのfinish/Ship/CIは独立review記録を要求しない。別agentはユーザーの明示依頼時だけ呼ぶ。
-reviewの意味と許可範囲は担当agentが確認する。JSONやhashは署名ではない。
+確認が必要になる境界は[workflow](workflow.md#rule--ownership--guardrail)、
+操作手順と旧Taskの互換性は[operations](aidd-checker-operations.md#learnの変更対象の改訂)を参照する。
 
 ## 設定・依存関係の保護
 

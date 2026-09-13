@@ -89,7 +89,8 @@ hashを維持して読み取る互換fieldであり、finish・Ship・CIの分�
 Coreの成功はmerge/deploy権限を与えない。
 Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
-を追加する。pathは有限のfile/tree。product pathは許可scopeへ含めても変更できない。
+を追加する。pathは初期計画の有限file/tree。ユーザーが明示したファイル上限は任意の
+`user_scope_limits`へ別に記録する。product pathは許可scopeへ含めても変更できない。
 
 ```sh
 /tmp/aidd-task-checker task-start --repo-root . --source /tmp/task-spec.json
@@ -133,6 +134,46 @@ additional_rulesは自動routingで得られない探索上の必要rule ID。�
 checkpointは`checkpoints/000001.json`から追記され、Taskと全履歴を再検証する。
 reasonへ変更・削除した判断と根拠を記録する。旧checkpointやbaselineを上書きしない。
 
+## Learnの変更対象の改訂
+
+初期`authorized_scopes`を超える作業が委任内で必要になった場合、元の許可文と制約を確認し、
+実装前に既存Decisionへ次のイベントを追加して通常の`checkpoint`を実行する。
+`target_state`にも追加scope・成果物・検証を反映し、最新checkpoint hashを親として指定する。
+追加範囲を許可する前に、既存の許可範囲で変更判定基準からの実差分を検査する。
+最終状態ではownership内の全ファイルとrepresentationのpathを完全一致させ、
+宣言した成果物のpathに必要なsuiteを要求する。新規ファイルを成果物へ宣言せず完了する経路は
+最終inventory検査が拒否するため、未検証で完了できる正常経路には含めない。
+検証ケースとの対応はtarget_state全体で保証し、実装とは別のテスト成果物が検証ケースを担える。
+個々の実装representationの検証参照が空であることだけを検証漏れとは扱わず、
+全ケースの参照・必須suiteの選択・実行証拠で判定する。
+
+```json
+"scope_revision": {
+  "added_scopes": [{"path": "tools/aidd/checker/internal/protocol/example_test.go", "kind": "file"}],
+  "reason": "レビューで同じ目的の回帰テストが必要と判明した",
+  "boundary_review": "元の許可文・制約を確認した結果と、目的・影響範囲・配信先を広げない根拠を記録する",
+  "reviewer": "実際に判断した担当者"
+}
+```
+
+`added_scopes`は新たな有限file/treeをpath順で指定する。初回checkpoint、重複追加、checker出力、
+禁止tree、productの追加は拒否する。過去のイベントは履歴から再構成するため、次のcheckpointへ
+同じ`scope_revision`を再掲しない。さらに追加する場合だけ新しいイベントを記載する。
+
+旧Taskの許可文にファイル単位の上限がある場合は、イベントの`user_scope_limits`へ
+`[{"path":"許可されたpath","kind":"fileまたはtree"}]`の形で記録する。
+Task開始時または過去イベントの制限はすべて適用され、後続イベントの省略や広い範囲の自己申告では解除できない。
+元の明示制限を見落とさないことは`boundary_review`で確認する。意味や出典の真正性をcheckerが証明するわけではない。
+
+Taskのbytes・baseline・開始時checker・policy/profileは変更しない。改訂後は旧証拠を使わず、
+全caseを`verify`し、`check`・`finish`・配信時の`ship-check`を実行する。
+改訂機能は開始時catalogを拡張しないため、新profileの利用可否も固定したcatalogに従う。
+
+新fieldを使わない旧Taskはcanonical bytes/hashを変えず読み取る。旧binaryは新fieldを受け付けないため、
+実行binaryの更新が必要な既存Taskでは下記の明示的なchecker移行と全再検証を使い、Taskを作り直さない。
+通常のbase CIで非互換になる場合は非互換契約のCI移行経路も必要であり、candidate成功だけでは受け入れない。
+本機能の導入Task自体は旧fieldだけで開始時checkerによる検証を完了できる。
+
 ## main取り込みの記録
 
 統合を扱える開始時checkerのTaskでは、mainを取り込んだ後、Decision sourceへ次のfieldを追加して
@@ -175,7 +216,7 @@ Taskの開始記録、元baseline、旧policy/profile、旧checkpointと旧証�
 
 移行先binaryで通常の`checkpoint`を実行する。初回の移行記録は現在checkpointを参照する場合だけ受け付け、
 実行binaryのhashを移行先と照合する。以後のcheckpointは同じ移行記録を保持する。再移行はその時点の
-checkpoint・証跡・実行checkerから追記し、記録の除去は拒否する。Taskの固定scopeを上書きせず、追加の許可は
+checkpoint・証跡・実行checkerから追記し、記録の除去は拒否する。Taskの初期作業範囲の記録を上書きせず、追加の許可は
 移行記録の履歴へ残す。product変更は追加scopeに指定しても拒否する。
 
 必要なら同じDecisionに`integration`を指定し、全差分のownership・要求・verificationを具体化する。
@@ -220,7 +261,7 @@ Git管理済みfileはignore指定があっても保護し、検証中のHEAD/in
 ## Learn確定
 
 変更開始時のbinaryでverifyを完了する。担当agent自身が最新差分と検証証拠をreviewし、
-Taskに固定した許可範囲で確定する。独立reviewや別agentの呼び出しは、ユーザーが明示的に依頼した場合だけ行う。
+ユーザーの明示制限と、最新checkpointで検証した作業範囲に従って確定する。独立reviewや別agentの呼び出しは、ユーザーが明示的に依頼した場合だけ行う。
 
 local完了前にも`finish --repo-root . --task <id> --task-sha256 <task-hash> --checkpoint-sha256 <checkpoint-hash> --evidence-sha256 <evidence-hash>`を実行する。
 finishは最新の検証証拠を要求する。commit前のstaged検査はship-checkで行う。Learnのfinish/Ship/CIにreview記録は不要。
@@ -306,7 +347,7 @@ reviewerの真正性はLearnと同じ運用境界で扱う。
 
 1. 元のTask・baseline・開始時checkerを保持し、非互換になる契約と理由を特定する。
 2. PR本文に下記の専用JSON blockを1件記載する。現在のbase/head SHA、元のTask IDと移行理由を記録する。
-   Taskの固定ownershipを拡張するための新規fileやTask再作成は不要。本文の編集は新しいCI runを起動する。
+   移行申請のためにownershipへ新規fileを追加したりTaskを再作成したりする必要はない。本文の編集は新しいCI runを起動する。
 3. candidateのGo全テスト・check-all・candidate版ci-checkを通す。
 4. baseのci-checkが失敗した場合だけ、baseからbuildした`aidd-migration`が差分と承認設定を検査する。
 5. GitHub Actionsの`migration` jobが承認待ちになる。指定reviewerがbase検証の失敗理由、

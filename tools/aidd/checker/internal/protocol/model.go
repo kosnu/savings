@@ -29,9 +29,10 @@ type Spec struct {
 	Verification  []string `json:"verification"`
 	// 旧v5記録のcanonical bytesとhashを保持する読取互換field。配信権限には使わない。
 	LegacyDelivery string `json:"delivery,omitempty"`
-	// Learnの変更許可は明示された依頼と有限scopeに固定する。
+	// 初期の有限作業範囲と、ユーザーが明示した変更上限を分ける。
 	Authorization    string                 `json:"authorization,omitempty"`
 	AuthorizedScopes []model.OwnershipScope `json:"authorized_scopes,omitempty"`
+	UserScopeLimits  []model.OwnershipScope `json:"user_scope_limits,omitempty"`
 }
 
 type Policy struct {
@@ -94,6 +95,16 @@ type CheckerMigration struct {
 	AuthorizedScopes     []model.OwnershipScope `json:"authorized_scopes"`
 }
 
+// ScopeRevisionは有限作業範囲の追加と委任境界のレビューをcheckpointへ記録する。
+type ScopeRevision struct {
+	AddedScopes    []model.OwnershipScope `json:"added_scopes"`
+	Reason         string                 `json:"reason"`
+	BoundaryReview string                 `json:"boundary_review"`
+	Reviewer       string                 `json:"reviewer"`
+	// 旧Task等の許可文にある明示制限を構造化する。後続改訂でも解除できない。
+	UserScopeLimits []model.OwnershipScope `json:"user_scope_limits,omitempty"`
+}
+
 type Decision struct {
 	SchemaVersion    int               `json:"schema_version"`
 	Kind             string            `json:"kind"`
@@ -104,6 +115,7 @@ type Decision struct {
 	AdditionalRules  []string          `json:"additional_rules"`
 	Integration      *Integration      `json:"integration,omitempty"`
 	CheckerMigration *CheckerMigration `json:"checker_migration,omitempty"`
+	ScopeRevision    *ScopeRevision    `json:"scope_revision,omitempty"`
 }
 
 type Checkpoint struct {

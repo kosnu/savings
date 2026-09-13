@@ -48,6 +48,9 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 		return nil, err
 	}
 	for _, s := range d.Target.OwnershipScopes {
+		if !l.withinUserLimits(s) {
+			return nil, fail("USER_SCOPE_LIMIT", s.Path, "ユーザーの明示制限を超えるownershipです")
+		}
 		if s.Path == ".aidd" || strings.HasPrefix(s.Path, ".aidd/") {
 			return nil, fail("SCOPE", s.Path, "checker成果物を実装scopeにできません")
 		}
@@ -172,6 +175,9 @@ func loadCheckpoints(snapshot *repository.Snapshot, l *Loaded) error {
 		if err := l.selectIntegration(context.Background(), snapshot, cp.Decision.Integration); err != nil {
 			return err
 		}
+		if err := l.selectScopeRevision(cp.Decision.ScopeRevision, parent); err != nil {
+			return err
+		}
 		required, err := l.validateDecision(cp.Decision)
 		if err != nil {
 			return err
@@ -211,6 +217,15 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 	}
 	files, err := inventory(ctx, snapshot)
 	if err != nil {
+		return "", err
+	}
+	if d.ScopeRevision != nil {
+		// 追加許可を適用する前に既存範囲で検査し、編集後の事後承認を防ぐ。
+		if err = l.checkGuards(ctx, snapshot, files); err != nil {
+			return "", err
+		}
+	}
+	if err = l.selectScopeRevision(d.ScopeRevision, parentHash); err != nil {
 		return "", err
 	}
 	if err = l.checkGuards(ctx, snapshot, files); err != nil {
