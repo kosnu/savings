@@ -175,3 +175,45 @@ func TestScopeRevisionRequiresNewPathRulesAndSuites(t *testing.T) {
 		return nil
 	}))
 }
+
+func TestUserTreeLimitIsNotOwnership(t *testing.T) {
+	for _, source := range []string{"task", "legacy-review"} {
+		t.Run(source, func(t *testing.T) {
+			f := setup(t, "learn")
+			// docs全体の担当は禁止でも、docs内だけという上限は有効。
+			must(t, os.RemoveAll(filepath.Join(f.root, TaskRoot)))
+			f.put("docs/initial.md", "initial\n")
+			f.git("add", ".")
+			f.git("commit", "-qm", "docs baseline")
+			f.spec.AuthorizedScopes = []model.OwnershipScope{{Path: "docs/initial.md", Kind: "file"}}
+			limit := []model.OwnershipScope{{Path: "docs", Kind: "tree"}}
+			if source == "task" {
+				f.spec.UserScopeLimits = limit
+			}
+			must(t, f.snapshot(func(s *repository.Snapshot) (err error) {
+				f.taskHash, err = Start(context.Background(), s, f.spec)
+				return
+			}))
+			f.decision.TaskSHA256 = f.taskHash
+			f.decision.Target.OwnershipScopes[0].Path = "docs/initial.md"
+			f.decision.Target.Representations[0].Path = "docs/initial.md"
+			must(t, f.checkpoint())
+			addScopeDecision(f, "docs/test.md")
+			if source == "legacy-review" {
+				f.decision.ScopeRevision.UserScopeLimits = limit
+			}
+			must(t, f.checkpoint())
+			f.put("docs/test.md", "within user limit\n")
+			must(t, f.verify())
+			must(t, f.check(false))
+			parent := f.cp
+			// 上限の構造化は、広すぎる作業範囲の許可にはならない。
+			f.decision.ScopeRevision = &ScopeRevision{AddedScopes: limit, Reason: "broad ownership", BoundaryReview: "docs restriction", Reviewer: "agent"}
+			rejected(t, f.checkpoint(), "禁止されたtree scope")
+			f.cp = parent
+			f.decision.ScopeRevision = nil
+			f.put("guard/outside.md", "outside user limit\n")
+			rejected(t, f.verify(), "USER_SCOPE_LIMIT")
+		})
+	}
+}
