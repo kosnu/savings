@@ -115,5 +115,5 @@ func (l *Loaded) executionChecker() string {
 }
 
 func (l *Loaded) authorizedScopes() []model.OwnershipScope {
-	return append(append([]model.OwnershipScope{}, l.Task.Spec.AuthorizedScopes...), l.MigrationScopes...)
+	return append(append(append([]model.OwnershipScope{}, l.Task.Spec.AuthorizedScopes...), l.MigrationScopes...), l.RevisionScopes...)
 }
