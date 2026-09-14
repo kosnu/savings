@@ -33,18 +33,18 @@ agentによる読込・適用、checkerで機械検出可能な違反の検出�
 区別に必要なrepository evidenceで確認します。既存policyがあることや、修正が小さいことだけで
 制御不全を否定しません。根拠が不足する場合は原因未確定として残し、今回の修正だけで閉じません。
 
-| 原因評価の結果 | 対応 |
-| --- | --- |
-| purely local defect（再利用可能な制御不全なしと確認） | 同じPRの修正は完了表示にかかわらず同じTaskで修正・再検証する。別の新規作業は既存Issueと新しい作業境界を確認して開始する |
-| reusable / guardrail failure（症状がlocal defectの場合を含む） | 今回のproduct修正だけで閉じず、独立Learnへ渡す。guardrailの更新・検証・確定でLearnを終了し、必要なら既存Issueから新Developmentへ渡す |
-| 原因未確定 | 不足する根拠・判断を明示し、原因と再利用性を評価してから対応を確定する |
+| 原因評価の結果                                                 | 対応                                                                                                                    |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| purely local defect（再利用可能な制御不全なしと確認）          | 同じPRの修正は完了表示にかかわらず同じTaskで修正・再検証する。別の新規作業は既存Issueと新しい作業境界を確認して開始する |
+| reusable / guardrail failure（症状がlocal defectの場合を含む） | 許可されたguardrail改善を同じTaskのDecisionへ記録し、product修正とそれぞれ必要な検証を行う                              |
+| 原因未確定                                                     | 不足する根拠・判断を明示し、原因と再利用性を評価してから対応を確定する                                                  |
 
 requirement gapは人間の意図・受け入れ条件を確認し、必要な変更を既存Issueへ明示反映します。
 再利用可能な制御不全がない場合、design issueは同じ意図と権限内でdecisionを改訂して再検証し、
 delivery defectは許可されたShip範囲で対応します。症状の分類にかかわらず制御不全がある場合は
-独立Learnへの分岐を優先し、guardrail変更に依存するDevelopmentを中断します。
-独立Learnの必要性は、既存成果を別Task・別PRへ配信する許可ではありません。
+許可された改善を現在のTaskで扱います。原因の分類だけをTask分割やDevelopment中断の理由にしません。
 追加配信と新規作業の判定は[workflowの継続境界](../../ai-driven-development/workflow.md#追加配信とtaskの継続)に従います。
+取り込んだルールの採用は[guardrailの契約](../../ai-driven-development/workflow.md#rule--ownership--guardrail)に従い、既存Taskを保持して新checkpointで再検証します。
 
 例えばcomponent配置違反では、移動による局所修正とは別に、policyの不足、routingによる未適用、
 検出可能な違反のchecker検出漏れ、guidanceの不足を評価します。制御不全が確認された場合は
@@ -52,7 +52,7 @@ component移動だけを完了根拠にしません。一方、再利用でき�
 
 Learnは `learning-extraction.md` の入力ゲート・原因調査に従います。
 resolved review threadのコメントを自動的に新findingへ戻しません。
-Learnでguardrailを確定してもproductの修正完了とは扱わず、product実装を連続して開始しません。
+guardrailの検証成功をproductの修正完了とは扱いません。既に許可されたproduct実装は同じTaskで継続します。
 
 意図、許可範囲、成功条件、riskを変更する判断が必要なら、その根拠と不足する判断を示します。
 原因評価でpurely localと確認した既存decision内の整合性修正は自律的に実施し、検証証拠を更新します。
