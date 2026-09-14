@@ -18,6 +18,7 @@
       "docs/adr/0001-adopt-harness-engineering.md",
       "docs/adr/0002-adopt-agent-rule-graph.md",
       "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+      "docs/adr/0004-separate-task-scope-from-work-kind.md",
       ".agents/**",
       ".codex/**",
       ".github/skills/code-review/**",
@@ -79,6 +80,7 @@
           "docs/adr/0001-adopt-harness-engineering.md",
           "docs/adr/0002-adopt-agent-rule-graph.md",
           "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "docs/adr/0004-separate-task-scope-from-work-kind.md",
           ".agents/**",
           ".codex/**",
           ".github/skills/code-review/**",
@@ -92,6 +94,24 @@
     ]
   },
   "rules": [
+    {
+      "id": "adr.task-scope",
+      "file": "docs/adr/0004-separate-task-scope-from-work-kind.md",
+      "applies_to": {
+        "paths": [
+          "AGENTS.md",
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/**",
+          "docs/adr/0004-separate-task-scope-from-work-kind.md",
+          ".agents/skills/**"
+        ],
+        "topics": ["task-scope", "verification"]
+      },
+      "depends_on": ["adr.aidd-invariant-protocol"],
+      "overrides": ["adr.aidd-invariant-protocol"],
+      "priority": 100
+    },
     {
       "id": "adr.harness-engineering",
       "file": "docs/adr/0001-adopt-harness-engineering.md",

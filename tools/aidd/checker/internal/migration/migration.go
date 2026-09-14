@@ -80,7 +80,9 @@ func CheckScope(ctx context.Context, root, base, head string, m Request) error {
 	implementation, task := false, false
 	for _, p := range strings.Split(strings.TrimSuffix(string(paths), "\x00"), "\x00") {
 		isTask := strings.HasPrefix(p, ".aidd/tasks/"+m.TaskID+"/")
-		allowed := isTask || allowedPath(p)
+		parts := strings.Split(p, "/")
+		isTaskRecord := len(parts) >= 4 && parts[0] == ".aidd" && parts[1] == "tasks" && pathcontract.ValidateWorkspaceName(parts[2]) == nil
+		allowed := isTaskRecord || allowedPath(p)
 		if !allowed {
 			return fmt.Errorf("migration cannot change %s", p)
 		}
@@ -98,7 +100,7 @@ func CheckScope(ctx context.Context, root, base, head string, m Request) error {
 		task = task || isTask
 	}
 	if !implementation || !task {
-		return fmt.Errorf("migration requires a changed checker/contract and exactly one task")
+		return fmt.Errorf("migration requires a changed checker/contract and its task record")
 	}
 	// mainに保存済みのTask開始記録を移行で置き換えない。
 	taskPath := ".aidd/tasks/" + m.TaskID + "/task.json"
@@ -122,7 +124,8 @@ func allowedPath(p string) bool {
 			return true
 		}
 	}
-	return p == ".github/workflows/aidd_checker_ci.yaml"
+	// ルール入口も契約更新と同期する。配下の任意pathへ許可を広げない。
+	return p == "AGENTS.md" || p == ".github/workflows/aidd_checker_ci.yaml"
 }
 
 // APIはGitHubから取得したJSONだけを入力とする。candidate成果物を承認情報に使わない。

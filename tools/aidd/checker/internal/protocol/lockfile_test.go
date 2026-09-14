@@ -31,7 +31,7 @@ snapshots:
   helper@1: {}
 `
 
-func TestLockfileTracksProductAndToolClosure(t *testing.T) {
+func TestTaskCanUpdateProductAndToolDependencies(t *testing.T) {
 	for _, kind := range []string{"development", "learn"} {
 		for _, change := range []string{"product", "product-version", "tool", "tool-version", "transitive", "settings"} {
 			t.Run(kind+"/"+change, func(t *testing.T) {
@@ -53,6 +53,9 @@ func TestLockfileTracksProductAndToolClosure(t *testing.T) {
 				rep.ID = "REP-2"
 				rep.Path = lockPath
 				f.decision.Target.Representations = append(f.decision.Target.Representations, rep)
+				if kind == "learn" && (change == "product" || change == "product-version") {
+					f.decision.ProductAuthorization = productAuthorization("package.json", lockPath)
+				}
 				must(t, f.checkpoint())
 				next := sampleLock
 				switch change {
@@ -79,11 +82,7 @@ func TestLockfileTracksProductAndToolClosure(t *testing.T) {
 				}
 				f.put(lockPath, next)
 				err := f.verify()
-				if kind == "development" && strings.HasPrefix(change, "product") || kind == "learn" && !strings.HasPrefix(change, "product") {
-					must(t, err)
-				} else {
-					rejected(t, err, "")
-				}
+				must(t, err)
 			})
 		}
 	}
@@ -282,7 +281,7 @@ snapshots:
 `, protected, opposite, version, sharedDependency)
 }
 
-func TestLockfileAllowsQualifiedOppositePeerUpdatesButProtectsSharedDependencies(t *testing.T) {
+func TestTaskCanUpdateSharedPeerDependencies(t *testing.T) {
 	for _, kind := range []string{"development", "learn"} {
 		for _, shared := range []bool{false, true} {
 			t.Run(fmt.Sprintf("%s/shared=%v", kind, shared), func(t *testing.T) {
@@ -307,17 +306,16 @@ func TestLockfileAllowsQualifiedOppositePeerUpdatesButProtectsSharedDependencies
 				rep := f.decision.Target.Representations[0]
 				rep.ID, rep.Path = "REP-2", lockPath
 				f.decision.Target.Representations = append(f.decision.Target.Representations, rep)
+				if kind == "learn" && shared {
+					f.decision.ProductAuthorization = productAuthorization(lockPath)
+				}
 				must(t, f.checkpoint())
 				packageData, err := os.ReadFile(filepath.Join(f.root, "package.json"))
 				must(t, err)
 				f.put("package.json", strings.ReplaceAll(string(packageData), `"`+opposite+`":"1"`, `"`+opposite+`":"2"`))
 				f.put(lockPath, qualifiedLock(protected, opposite, "2", shared))
 				err = f.verify()
-				if shared {
-					rejected(t, err, "LOCKFILE_BOUNDARY")
-				} else {
-					must(t, err)
-				}
+				must(t, err)
 			})
 		}
 	}
