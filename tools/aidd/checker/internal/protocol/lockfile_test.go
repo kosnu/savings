@@ -53,6 +53,9 @@ func TestTaskCanUpdateProductAndToolDependencies(t *testing.T) {
 				rep.ID = "REP-2"
 				rep.Path = lockPath
 				f.decision.Target.Representations = append(f.decision.Target.Representations, rep)
+				if kind == "learn" && (change == "product" || change == "product-version") {
+					f.decision.ProductAuthorization = productAuthorization("package.json", lockPath)
+				}
 				must(t, f.checkpoint())
 				next := sampleLock
 				switch change {
@@ -303,6 +306,9 @@ func TestTaskCanUpdateSharedPeerDependencies(t *testing.T) {
 				rep := f.decision.Target.Representations[0]
 				rep.ID, rep.Path = "REP-2", lockPath
 				f.decision.Target.Representations = append(f.decision.Target.Representations, rep)
+				if kind == "learn" && shared {
+					f.decision.ProductAuthorization = productAuthorization(lockPath)
+				}
 				must(t, f.checkpoint())
 				packageData, err := os.ReadFile(filepath.Join(f.root, "package.json"))
 				must(t, err)

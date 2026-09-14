@@ -143,6 +143,12 @@ Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と全�
 目的・影響範囲・配信先が広がる場合や明示制限に反する場合は、変更前にユーザーへ確認する。
 
 現在の作業範囲と成果物は最新Decisionのownershipとrepresentationに記載する。
+作業範囲の記録だけでは実装の権限は増えない。product実装はTask種別にかかわらず、Issueと
+実行依頼に結び付ける。開始時のIssue実行依頼が既にある場合はその記録を使い、再承認しない。
+feedbackから開始したTaskで実装が許可された場合は、同じTaskのDecisionに
+`product_authorization`としてIssue本文・出典・hash、実行許可と対象の有限scopeを記録する。
+元のTaskやfeedbackは保持し、その記録を後続Decisionへ引き継ぐ。許可の真正性とIssueとの
+意味的な対応はagentが確認し、checkerは記録の必須項目・hash・対象差分との対応を検査する。
 DevelopmentはDecisionのownershipを更新する。Learnの作業範囲は初期`authorized_scopes`と
 checkpointに記録した`scope_revision.added_scopes`から構成し、追加理由・委任境界のレビュー・確認者を残す。
 ユーザーの明示的なファイル制限は`user_scope_limits`へ記録し、作業範囲の追加によって解除しない。

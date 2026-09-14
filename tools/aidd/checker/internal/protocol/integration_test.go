@@ -254,8 +254,14 @@ func TestIntegrationMixedFieldsCompareAgainstImportedContent(t *testing.T) {
 			}
 			must(t, f.verify())
 			f.put("package.json", string(original))
-			rejected(t, f.check(false), "STALE_EVIDENCE")
-			must(t, f.verify())
+			if kind == "learn" {
+				// main由来のproduct更新は取り込めるが、その取消しには実装許可が必要。
+				rejected(t, f.check(false), "PRODUCT_AUTHORITY")
+				rejected(t, f.verify(), "PRODUCT_AUTHORITY")
+			} else {
+				rejected(t, f.check(false), "STALE_EVIDENCE")
+				must(t, f.verify())
+			}
 		})
 	}
 }

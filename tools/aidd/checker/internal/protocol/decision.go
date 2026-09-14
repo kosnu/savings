@@ -16,6 +16,9 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 	if d.SchemaVersion != Version || d.Kind != "decision" || d.TaskSHA256 != l.TaskHash || strings.TrimSpace(d.Reason) == "" {
 		return nil, fail("DECISION", l.Task.Spec.ID, "decisionの版・task参照・判断理由が必要です")
 	}
+	if err := l.validateProductAuthorization(d); err != nil {
+		return nil, err
+	}
 	ids := []string{}
 	seen := map[string]bool{}
 	for _, r := range d.Requirements {

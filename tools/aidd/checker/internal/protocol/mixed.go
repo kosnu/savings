@@ -121,13 +121,16 @@ func (l *Loaded) checkMixed(ctx context.Context, s *repository.Snapshot, rule Mi
 	if err != nil {
 		return err
 	}
-	_, _, err = projectJSON(original, rule)
+	_, oldProduct, err := projectJSON(original, rule)
 	if err != nil {
 		return err
 	}
-	_, _, err = projectJSON(current, rule)
+	_, newProduct, err := projectJSON(current, rule)
 	if err != nil {
 		return err
+	}
+	if oldProduct != newProduct {
+		return l.checkProductAuthorization(rule.Path)
 	}
 	return nil
 }

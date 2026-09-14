@@ -162,6 +162,9 @@ func TestTasksCanMaintainBothLockfileDocuments(t *testing.T) {
 				rep := f.decision.Target.Representations[0]
 				rep.ID, rep.Path = "REP-2", lockPath
 				f.decision.Target.Representations = append(f.decision.Target.Representations, rep)
+				if kind == "learn" && (change == "product" || change == "shared-peer") {
+					f.decision.ProductAuthorization = productAuthorization(lockPath)
+				}
 				must(t, f.checkpoint())
 				next := before
 				switch change {

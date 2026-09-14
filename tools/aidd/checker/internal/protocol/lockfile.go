@@ -40,7 +40,16 @@ func (l *Loaded) checkLock(ctx context.Context, s *repository.Snapshot, files []
 		return err
 	}
 
-	// dependencyの種類でTaskを分割せず、lockfileの構造だけを検査する。
-	_, err = pnpm.Compare(old, next, l.toolNames(), l.Task.Spec.Kind == "development")
-	return err
+	// product依存の変更は実装許可に結び付け、tool更新ではTaskを分割しない。
+	change, err := pnpm.Compare(old, next, l.toolNames(), false)
+	if err != nil {
+		return err
+	}
+	if _, err := pnpm.Compare(old, next, l.toolNames(), true); err != nil {
+		return err
+	}
+	if change.ClosureChanged {
+		return l.checkProductAuthorization(lockPath)
+	}
+	return nil
 }
