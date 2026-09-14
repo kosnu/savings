@@ -1,0 +1,115 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "8c9a9383c432922994d686822019f8b521bcaa592968b771dee6e41ccec006bd",
+  "revision": 3,
+  "parent_sha256": "6ecb1fe1c0f1c6197c8983f7c4fa8ae0eb81ee1c761d5f8005aaa114d45b35be",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "8c9a9383c432922994d686822019f8b521bcaa592968b771dee6e41ccec006bd",
+    "reason": "PR #1755 discussion_r4006424043 の指摘とユーザーの「反映して」(2026-09-15)に基づき、既存ownership内のlearning-extraction.mdで3つの反映先の選択を改善採用時だけに限定する。",
+    "requirements": [
+      {
+        "id": "REQ-1",
+        "text": "仮定的なAgent適用漏れから過剰な制約追加へ進まないLearn判断基準にする",
+        "origin": "intent",
+        "evidence": "Agentがルールを破る可能性だけで制約追加を必須にせず、到達可能性と対策の必要性を分け、既存責務・具体的原因・正当な作業への負担で判断する。ユーザーはこのルールの改善適用とブランチ作成、メインチャット名変更を依頼した。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "仮定的なAgent適用漏れから過剰な制約追加へ進まないLearn判断基準にする",
+          "requirement_id": "REQ-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "仮定的なAgent違反のみなら追加制約を採用しないこと、具体的なrouting欠陥は未発生でも調査すること、許可済み作業の記録遅れを無許可と混同しないこと、変更不要を到達不能と偽らず記録できることを文書間で照合する。 整理先・出力構造・Stop条件が、変更不要に反映先選択を要求しないことを照合する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [],
+    "integration": {
+      "base_head": "a31dfd25acb1b690658307bdab2f80fe095c6903",
+      "head": "04a683a9186f03ff9692c46986de610e2bbd3677"
+    }
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}
