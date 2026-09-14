@@ -1,0 +1,1102 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "175460468cc43a65bab067c9e3c2f195808eac9b0fbf7ff95374f9036b3d8e0c",
+  "revision": 4,
+  "parent_sha256": "0e2eb3de0286139140c118a6fe25da8d5b5e21fbb08635b7af26b7ab56c2ddce",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "175460468cc43a65bab067c9e3c2f195808eac9b0fbf7ff95374f9036b3d8e0c",
+    "reason": "独立Learn強制と1 PR・1 Task制約を撤廃する。アプリとルールを同じTaskで修正し、複数Taskの担当差分と検証結果を合成する。採用commit専用の例外を削除し、通常checkpointで現在のrule-mapを保持する。Hook・入口・契約移行にも残る分離指示を除去する。初期の文書のみ・commitしないというagentの作業予定は後続の明示指示で更新されており、ユーザーの現行制限ではない。",
+    "requirements": [
+      {
+        "id": "REQ-1",
+        "text": "ユーザーの明示指示がない限りブランチを分けない",
+        "origin": "intent",
+        "evidence": "ブランチはこちらの指示がない限りわけるな"
+      },
+      {
+        "id": "REQ-2",
+        "text": "実装とルール保守を同じTaskで続行でき、PRのTask数を制限せず担当差分と検証証拠で配信を検査する",
+        "origin": "derived",
+        "evidence": "ユーザーが「別のLearn taskでやれも１つのPRにつき１つのTaskも全部撤廃しろ」「根本的な改善をしろよ」と明示した。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "保守変更やTaskの区分ではブランチを自動分割せず、ユーザーの明示指示に従う",
+          "requirement_id": "REQ-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "作業種別による変更隔離を廃止し、現在の索引を通常checkpointへ保存する。同一Taskで実装とルールを検証でき、複数Taskの証拠の和集合でPR全差分を検査する。",
+          "requirement_id": "REQ-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "ブランチ分割が明示指示だけに従い、Task種別を理由にTask・Goal・PRを分割しないことを入口とHookを含めて確認する。"
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "同一Taskでの実装とルール保守、未commitの索引更新、複数TaskのCI、旧checker移行、範囲外変更と未検証差分の拒否を実装と回帰テストで確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0004-separate-task-scope-from-work-kind.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/goal-templates/index.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/migrations/vnext.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/overview.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/git-workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration/migration.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol",
+          "kind": "tree"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": ".agents/skills/learn/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "docs/adr/0004-separate-task-scope-from-work-kind.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/goal-templates/index.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/migrations/vnext.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/overview.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "implementation",
+          "path": "docs/harness/policies/git-workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "implementation",
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "implementation",
+          "path": "docs/harness/rule-map.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-19",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/migration/migration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-20",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/bootstrap.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-22",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/bootstrap_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-23",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-24",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/cli_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-25",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/configuration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-26",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/continuation_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-27",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-28",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/delivery.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-29",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-30",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/delivery_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-31",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/files.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-32",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/history.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-33",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/integration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-34",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/integration_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-35",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-36",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/lockfile_documents_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-37",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-38",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/mixed.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-39",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/mixed_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-40",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-41",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/optional_review_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-42",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-43",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/repository_policy.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-44",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/responsibility_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-45",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/scope_revision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-46",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/scope_revision_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-47",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/storybook.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-48",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/storybook_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-49",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-50",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/protocol/task_continuation_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-51",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/task_set.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-52",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/testdata/pnpm-v12-lock.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-53",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review"
+    ],
+    "checker_migration": {
+      "from_checker_sha256": "12e2d3f4741cad0569c3c08d3a939e71f8892f9e329a3a6777f252f1e65ee9bb",
+      "to_checker_sha256": "99313fa17092f6114cf29ff0ed48f2c5cf2660631f00a01445317b6f15982467",
+      "from_checkpoint_sha256": "0e2eb3de0286139140c118a6fe25da8d5b5e21fbb08635b7af26b7ab56c2ddce",
+      "from_evidence_sha256": "bd0084ffe9ca9db95507c181038eb380f302cf94566afc9b9c13581cea721cce",
+      "authorization": "ユーザーが「別のLearn taskでやれも１つのPRにつき１つのTaskも全部撤廃しろ」「根本的な改善をしろよ」と明示。文書・checker・Hook・CI検査と回帰テストを同じTaskで更新する。旧Taskの継続機能を変更するため実行checkerを対応binaryへ移行する。先のブランチ作成とcommitの指示を保持する。",
+      "authorized_scopes": [
+        {
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0004-separate-task-scope-from-work-kind.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/goal-templates/index.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/migrations/vnext.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/adapters/codex/hooks/hooks_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration/migration.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "kind": "file"
+        }
+      ]
+    }
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.task-scope",
+    "ai-driven.checker",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map": "ewogICJ2ZXJzaW9uIjogMiwKICAiZGVzY3JpcHRpb24iOiAiTWFya2Rvd27mraPmnKzjga7mhI/lkbPjgpLkv53mjIHjgZfjgIFwYXRoL3N1cmZhY2Xjga7nm7TmjqXkuIDoh7TjgahkZXBlbmRzX29uIGNsb3N1cmXjgpLlv4XpoIhydWxl44Go44GX44Gm5qmf5qKw6YGp55So44GZ44KL44CCdG9waWNzL2RvbWFpbnMvYWN0aXZpdGllc+OBr+aOoue0oueUqOOAgXByaW9yaXR544Gv6YGp55So6Zmk5aSW44Gr5L2/44KP44Gq44GE44CCIiwKICAicmVzb2x1dGlvbl9vcmRlciI6IFsKICAgICJzcGVjaWZpY19hcHBsaWVzX3RvIiwKICAgICJkZXBlbmRzX29uIiwKICAgICJvdmVycmlkZXMiLAogICAgInByaW9yaXR5IiwKICAgICJzdG9wX2FuZF9jbGFyaWZ5IgogIF0sCiAgInJldmlld19yb3V0aW5nIjogewogICAgImdvdmVybmVkX3BhdGhzIjogWwogICAgICAiYXBwcy93ZWIvKioiLAogICAgICAiYXBwcy9hcGkvKioiLAogICAgICAidG9vbHMvYWlkZC8qKiIsCiAgICAgICJkb2NzL2FpLWRyaXZlbi1kZXZlbG9wbWVudC8qKiIsCiAgICAgICJkb2NzL2hhcm5lc3MvKioiLAogICAgICAiZG9jcy9hZHIvMDAwMS1hZG9wdC1oYXJuZXNzLWVuZ2luZWVyaW5nLm1kIiwKICAgICAgImRvY3MvYWRyLzAwMDItYWRvcHQtYWdlbnQtcnVsZS1ncmFwaC5tZCIsCiAgICAgICJkb2NzL2Fkci8wMDAzLWFkb3B0LWFpZGQtaW52YXJpYW50LXByb3RvY29sLm1kIiwKICAgICAgImRvY3MvYWRyLzAwMDQtc2VwYXJhdGUtdGFzay1zY29wZS1mcm9tLXdvcmsta2luZC5tZCIsCiAgICAgICIuYWdlbnRzLyoqIiwKICAgICAgIi5jb2RleC8qKiIsCiAgICAgICIuZ2l0aHViL3NraWxscy9jb2RlLXJldmlldy8qKiIsCiAgICAgICIuZ2l0aHViL2FnZW50cy8qKiIsCiAgICAgICIuZ2l0aHViL3dvcmtmbG93cy9haWRkXyoiLAogICAgICAiQUdFTlRTLm1kIiwKICAgICAgIkNMQVVERS5tZCIKICAgIF0sCiAgICAic3VyZmFjZXMiOiBbCiAgICAgIHsKICAgICAgICAiaWQiOiAid2ViLXByb2plY3QiLAogICAgICAgICJwYXRocyI6IFsiYXBwcy93ZWIvKioiXSwKICAgICAgICAicmVxdWlyZWRfcnVsZXMiOiBbInBvbGljeS5jb2RlLXJldmlldyIsICJpbmZyYXN0cnVjdHVyZS5vdmVydmlldyIsICJ3ZWIudGVzdC1wb2xpY3kiXQogICAgICB9LAogICAgICB7CiAgICAgICAgImlkIjogIndlYi1zb3VyY2UiLAogICAgICAgICJwYXRocyI6IFsiYXBwcy93ZWIvc3JjLyoqIl0sCiAgICAgICAgInJlcXVpcmVkX3J1bGVzIjogWwogICAgICAgICAgIndlYi5jb21wb25lbnQtc3RydWN0dXJlIiwKICAgICAgICAgICJ3ZWIuZGVzaWduLXN5c3RlbS1icmFuZCIsCiAgICAgICAgICAid2ViLmRlc2lnbi1ydWxlcyIsCiAgICAgICAgICAid2ViLmZlYXR1cmUtZGlyZWN0b3J5IiwKICAgICAgICAgICJ3ZWIucXVlcnktY2FjaGUiLAogICAgICAgICAgIndlYi5zdXNwZW5zZS1ib3VuZGFyaWVzIgogICAgICAgIF0KICAgICAgfSwKICAgICAgewogICAgICAgICJpZCI6ICJ3ZWItc3Rvcnlib29rIiwKICAgICAgICAicGF0aHMiOiBbCiAgICAgICAgICAiYXBwcy93ZWIvc3JjLyoqLyouc3Rvcmllcy50c3giLAogICAgICAgICAgImFwcHMvd2ViLy5zdG9yeWJvb2svKioiLAogICAgICAgICAgImFwcHMvd2ViLy5zdG9yeWJvb2stdGVzdC8qKiIKICAgICAgICBdLAogICAgICAgICJyZXF1aXJlZF9ydWxlcyI6IFsid2ViLmNvbXBvbmVudC1zdHJ1Y3R1cmUiLCAid2ViLnN0b3J5Ym9vay1icm93c2VyLXRlc3RzIl0KICAgICAgfSwKICAgICAgewogICAgICAgICJpZCI6ICJhcGktcHJvamVjdCIsCiAgICAgICAgInBhdGhzIjogWyJhcHBzL2FwaS8qKiJdLAogICAgICAgICJyZXF1aXJlZF9ydWxlcyI6IFsKICAgICAgICAgICJwb2xpY3kuY29kZS1yZXZpZXciLAogICAgICAgICAgImluZnJhc3RydWN0dXJlLm92ZXJ2aWV3IiwKICAgICAgICAgICJwb2xpY3kudHJhbnNhY3Rpb24tYm91bmRhcmllcyIsCiAgICAgICAgICAicG9saWN5LnRlbXBvcmFsLWRhdGEiLAogICAgICAgICAgImRvbWFpbi5hbW91bnQiLAogICAgICAgICAgImRvbWFpbi5kYXRlIiwKICAgICAgICAgICJkb21haW4ucGF5bWVudCIsCiAgICAgICAgICAiZG9tYWluLmNhdGVnb3J5IiwKICAgICAgICAgICJkb21haW4ubW9udGhseS1idWRnZXQiLAogICAgICAgICAgImRvbWFpbi5ib29rIiwKICAgICAgICAgICJkb21haW4udXNlciIKICAgICAgICBdCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaWQiOiAiYWlkZC1oYXJuZXNzIiwKICAgICAgICAicGF0aHMiOiBbCiAgICAgICAgICAidG9vbHMvYWlkZC8qKiIsCiAgICAgICAgICAiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvKioiLAogICAgICAgICAgImRvY3MvaGFybmVzcy8qKiIsCiAgICAgICAgICAiZG9jcy9hZHIvMDAwMS1hZG9wdC1oYXJuZXNzLWVuZ2luZWVyaW5nLm1kIiwKICAgICAgICAgICJkb2NzL2Fkci8wMDAyLWFkb3B0LWFnZW50LXJ1bGUtZ3JhcGgubWQiLAogICAgICAgICAgImRvY3MvYWRyLzAwMDMtYWRvcHQtYWlkZC1pbnZhcmlhbnQtcHJvdG9jb2wubWQiLAogICAgICAgICAgImRvY3MvYWRyLzAwMDQtc2VwYXJhdGUtdGFzay1zY29wZS1mcm9tLXdvcmsta2luZC5tZCIsCiAgICAgICAgICAiLmFnZW50cy8qKiIsCiAgICAgICAgICAiLmNvZGV4LyoqIiwKICAgICAgICAgICIuZ2l0aHViL3NraWxscy9jb2RlLXJldmlldy8qKiIsCiAgICAgICAgICAiLmdpdGh1Yi9hZ2VudHMvKioiLAogICAgICAgICAgIi5naXRodWIvd29ya2Zsb3dzL2FpZGRfKiIsCiAgICAgICAgICAiQUdFTlRTLm1kIiwKICAgICAgICAgICJDTEFVREUubWQiCiAgICAgICAgXSwKICAgICAgICAicmVxdWlyZWRfcnVsZXMiOiBbImFpLWRyaXZlbi53b3JrZmxvdyIsICJhaS1kcml2ZW4uY2hlY2tlciIsICJkb2N1bWVudGF0aW9uLnBvbGljeSJdCiAgICAgIH0KICAgIF0KICB9LAogICJydWxlcyI6IFsKICAgIHsKICAgICAgImlkIjogImFkci50YXNrLXNjb3BlIiwKICAgICAgImZpbGUiOiAiZG9jcy9hZHIvMDAwNC1zZXBhcmF0ZS10YXNrLXNjb3BlLWZyb20td29yay1raW5kLm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWwogICAgICAgICAgIkFHRU5UUy5tZCIsCiAgICAgICAgICAidG9vbHMvYWlkZC8qKiIsCiAgICAgICAgICAiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvKioiLAogICAgICAgICAgImRvY3MvaGFybmVzcy8qKiIsCiAgICAgICAgICAiZG9jcy9hZHIvMDAwNC1zZXBhcmF0ZS10YXNrLXNjb3BlLWZyb20td29yay1raW5kLm1kIiwKICAgICAgICAgICIuYWdlbnRzL3NraWxscy8qKiIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbCiAgICAgICAgICAidGFzay1zY29wZSIsCiAgICAgICAgICAidmVyaWZpY2F0aW9uIgogICAgICAgIF0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbCiAgICAgICAgImFkci5haWRkLWludmFyaWFudC1wcm90b2NvbCIKICAgICAgXSwKICAgICAgIm92ZXJyaWRlcyI6IFsKICAgICAgICAiYWRyLmFpZGQtaW52YXJpYW50LXByb3RvY29sIgogICAgICBdLAogICAgICAicHJpb3JpdHkiOiAxMDAKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJhZHIuaGFybmVzcy1lbmdpbmVlcmluZyIsCiAgICAgICJmaWxlIjogImRvY3MvYWRyLzAwMDEtYWRvcHQtaGFybmVzcy1lbmdpbmVlcmluZy5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiQUdFTlRTLm1kIiwgIkNMQVVERS5tZCIsICJkb2NzL2hhcm5lc3MvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsicmVwb3NpdG9yeSIsICJoYXJuZXNzIl0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbImRlc2lnbl9hZ2VudF9oYXJuZXNzIiwgInVwZGF0ZV9hZ2VudF9lbnRyeXBvaW50IiwgImRlc2lnbl9kb2N1bWVudF9zeXN0ZW0iXSwKICAgICAgICAidG9waWNzIjogWyJoYXJuZXNzLWVuZ2luZWVyaW5nIiwgImFnZW50aWMtY29kaW5nIiwgImd1YXJkcmFpbHMiXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsiZG9jdW1lbnRhdGlvbi5wb2xpY3kiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiAxMDAKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJhZHIuYWdlbnQtcnVsZS1ncmFwaCIsCiAgICAgICJmaWxlIjogImRvY3MvYWRyLzAwMDItYWRvcHQtYWdlbnQtcnVsZS1ncmFwaC5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsKICAgICAgICAgICJBR0VOVFMubWQiLAogICAgICAgICAgIkNMQVVERS5tZCIsCiAgICAgICAgICAiZG9jcy9oYXJuZXNzLyoqIiwKICAgICAgICAgICJkb2NzLyoqLyoubWQiLAogICAgICAgICAgImFwcHMvKi9kb2NzLyoqLyoubWQiCiAgICAgICAgXSwKICAgICAgICAiZG9tYWlucyI6IFsicmVwb3NpdG9yeSIsICJoYXJuZXNzIiwgImRvY3VtZW50YXRpb24iXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsKICAgICAgICAgICJzZWxlY3RfYWdlbnRfY29udGV4dCIsCiAgICAgICAgICAidXBkYXRlX3J1bGVfbWFwIiwKICAgICAgICAgICJ1cGRhdGVfYWdlbnRfZW50cnlwb2ludCIsCiAgICAgICAgICAiY2xhc3NpZnlfZG9jcyIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbCiAgICAgICAgICAicnVsZS1ncmFwaCIsCiAgICAgICAgICAiZnJvbnQtbWF0dGVyIiwKICAgICAgICAgICJhZ2VudC1ndWlkYW5jZSIsCiAgICAgICAgICAiZGV0ZXJtaW5pc3RpYy1kb2N1bWVudC1yZXRyaWV2YWwiCiAgICAgICAgXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsiYWRyLmhhcm5lc3MtZW5naW5lZXJpbmciLCAiZG9jdW1lbnRhdGlvbi5wb2xpY3kiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiAxMDAKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJkb2N1bWVudGF0aW9uLnBvbGljeSIsCiAgICAgICJmaWxlIjogImRvY3MvaGFybmVzcy9wb2xpY2llcy9kb2N1bWVudGF0aW9uLXBvbGljeS5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiZG9jcy8qKi8qLm1kIiwgImRvY3MvaGFybmVzcy9zY3JpcHRzLyoqIiwgImFwcHMvKi9kb2NzLyoqLyoubWQiLCAiQUdFTlRTLm1kIl0sCiAgICAgICAgImRvbWFpbnMiOiBbInJlcG9zaXRvcnkiLCAiZG9jdW1lbnRhdGlvbiJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJhZGRfZG9jIiwgInVwZGF0ZV9kb2MiLCAiY2xhc3NpZnlfZG9jcyIsICJ1cGRhdGVfZnJvbnRfbWF0dGVyIl0sCiAgICAgICAgInRvcGljcyI6IFsiZG9jdW1lbnRhdGlvbiIsICJmcm9udC1tYXR0ZXIiLCAiYWdlbnQtZ3VpZGFuY2UiXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFtdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDk1CiAgICB9LAogICAgewogICAgICAiaWQiOiAicG9saWN5Lmlzc3VlLXRlbXBsYXRlLXNlbGVjdGlvbiIsCiAgICAgICJmaWxlIjogImRvY3MvaGFybmVzcy9wb2xpY2llcy9pc3N1ZS10ZW1wbGF0ZS1zZWxlY3Rpb24ubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbCiAgICAgICAgICAiLmdpdGh1Yi9JU1NVRV9URU1QTEFURS8qKiIsCiAgICAgICAgICAiLmFnZW50cy9za2lsbHMvKioiLAogICAgICAgICAgImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50LyoqIiwKICAgICAgICAgICJkb2NzL2hhcm5lc3MvcG9saWNpZXMvaXNzdWUtdGVtcGxhdGUtc2VsZWN0aW9uLm1kIgogICAgICAgIF0sCiAgICAgICAgImRvbWFpbnMiOiBbInJlcG9zaXRvcnkiLCAiZ2l0aHViIiwgImFpLWRyaXZlbi1kZXZlbG9wbWVudCJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJjcmVhdGVfaXNzdWUiLCAic2VsZWN0X2lzc3VlX3RlbXBsYXRlIiwgInVwZGF0ZV9pc3N1ZV90ZW1wbGF0ZSJdLAogICAgICAgICJ0b3BpY3MiOiBbCiAgICAgICAgICAiaXNzdWUiLAogICAgICAgICAgImlzc3VlLXRlbXBsYXRlIiwKICAgICAgICAgICJmZWF0dXJlLXJlcXVlc3QiLAogICAgICAgICAgImFpLWRyaXZlbi1kZXZlbG9wbWVudCIsCiAgICAgICAgICAicmVxdWlyZW1lbnRzIgogICAgICAgIF0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbImRvY3VtZW50YXRpb24ucG9saWN5Il0sCiAgICAgICJyZWxhdGVkIjogWyJhaS1kcml2ZW4uaXNzdWUtZ3VpZGVsaW5lcyJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDk1CiAgICB9LAogICAgewogICAgICAiaWQiOiAiYXJjaGl0ZWN0dXJlLm92ZXJ2aWV3IiwKICAgICAgImZpbGUiOiAiZG9jcy9hcmNoaXRlY3R1cmUubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbIi4iLCAiYXBwcy8qKiIsICJkb2NzL2FyY2hpdGVjdHVyZS5tZCJdLAogICAgICAgICJkb21haW5zIjogWyJyZXBvc2l0b3J5IiwgImFyY2hpdGVjdHVyZSJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImluc3BlY3RfcmVwb3NpdG9yeV9zdHJ1Y3R1cmUiLAogICAgICAgICAgInBsYW5fY3Jvc3NfYXBwX2NoYW5nZSIsCiAgICAgICAgICAiY2hhbmdlX2FyY2hpdGVjdHVyZSIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbImFyY2hpdGVjdHVyZSIsICJtb25vcmVwbyIsICJwcm9qZWN0LXN0cnVjdHVyZSJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogW10sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogODUKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJpbmZyYXN0cnVjdHVyZS5vdmVydmlldyIsCiAgICAgICJmaWxlIjogImRvY3MvaW5mcmFzdHJ1Y3R1cmUubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViLyoqIiwgImFwcHMvYXBpLyoqIiwgImRvY3MvaW5mcmFzdHJ1Y3R1cmUubWQiXSwKICAgICAgICAiZG9tYWlucyI6IFsiaW5mcmFzdHJ1Y3R1cmUiLCAid2ViIiwgImFwaSJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImNoYW5nZV9ob3N0aW5nIiwKICAgICAgICAgICJjaGFuZ2VfYXV0aCIsCiAgICAgICAgICAiY2hhbmdlX2RhdGFiYXNlIiwKICAgICAgICAgICJpbnNwZWN0X2luZnJhc3RydWN0dXJlIiwKICAgICAgICAgICJyZXZpZXdfaW5mcmFzdHJ1Y3R1cmUiLAogICAgICAgICAgInJldmlld19hcGlfc2NoZW1hIiwKICAgICAgICAgICJyZXZpZXdfYXBpX3JwYyIsCiAgICAgICAgICAicmV2aWV3X2FwaV9hdXRoIiwKICAgICAgICAgICJyZXZpZXdfYXBpX3RlbXBvcmFsIgogICAgICAgIF0sCiAgICAgICAgInRvcGljcyI6IFsiY2xvdWRmbGFyZSIsICJzdXBhYmFzZSIsICJob3N0aW5nIiwgImRhdGFiYXNlIl0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbImFyY2hpdGVjdHVyZS5vdmVydmlldyJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDgwCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYWktZHJpdmVuLm92ZXJ2aWV3IiwKICAgICAgImZpbGUiOiAiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvb3ZlcnZpZXcubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50LyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbInJlcG9zaXRvcnkiLCAiYWktZHJpdmVuLWRldmVsb3BtZW50Il0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbImRlZmluZV9nb2FsIiwgInBsYW5fYWlfZHJpdmVuX3dvcmsiLCAiZXhwbGFpbl9haV9kcml2ZW5fcHJvY2VzcyJdLAogICAgICAgICJ0b3BpY3MiOiBbImFpLWRyaXZlbi1kZXZlbG9wbWVudCIsICJjb2RleC1nb2FsIiwgInByZCIsICJkZXNpZ24tZG9jIl0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA5MAogICAgfSwKICAgIHsKICAgICAgImlkIjogImFpLWRyaXZlbi53b3JrZmxvdyIsCiAgICAgICJmaWxlIjogImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50L3dvcmtmbG93Lm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyJkb2NzL2FpLWRyaXZlbi1kZXZlbG9wbWVudC8qKiIsICJhcHBzLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbInJlcG9zaXRvcnkiLCAiYWktZHJpdmVuLWRldmVsb3BtZW50Il0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbCiAgICAgICAgICAiY2hvb3NlX2dvYWxfcGhhc2UiLAogICAgICAgICAgIndyaXRlX3ByZCIsCiAgICAgICAgICAid3JpdGVfZGVzaWduX2RvYyIsCiAgICAgICAgICAiYnVpbGRfdmVyaWZ5IiwKICAgICAgICAgICJzaGlwIiwKICAgICAgICAgICJsZWFybiIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbIndvcmtmbG93IiwgInByZCIsICJkZXNpZ24tZG9jIiwgInB1bGwtcmVxdWVzdCIsICJ2ZXJpZmljYXRpb24iXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsiYWktZHJpdmVuLm92ZXJ2aWV3Il0sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogODgKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJhaS1kcml2ZW4uaXNzdWUtZ3VpZGVsaW5lcyIsCiAgICAgICJmaWxlIjogImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50L2lzc3VlLWd1aWRlbGluZXMubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbIi5naXRodWIvSVNTVUVfVEVNUExBVEUvKioiLCAiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsicmVwb3NpdG9yeSIsICJhaS1kcml2ZW4tZGV2ZWxvcG1lbnQiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsiY3JlYXRlX2lzc3VlIiwgIndyaXRlX3ByZF9pc3N1ZSIsICJyZWZpbmVfcmVxdWlyZW1lbnRzIl0sCiAgICAgICAgInRvcGljcyI6IFsiaXNzdWUiLCAiZmVhdHVyZS1yZXF1ZXN0IiwgInByZCIsICJyZXF1aXJlbWVudHMiLCAiYWktZHJpdmVuLWRldmVsb3BtZW50Il0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbImFpLWRyaXZlbi53b3JrZmxvdyJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDg2CiAgICB9LAogICAgewogICAgICAiaWQiOiAiYWktZHJpdmVuLmdvYWwtdGVtcGxhdGVzIiwKICAgICAgImZpbGUiOiAiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvZ29hbC10ZW1wbGF0ZXMvaW5kZXgubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50L2dvYWwtdGVtcGxhdGVzLyoqIiwgIi5hZ2VudHMvc2tpbGxzL2dvYWwtc2V0dGluZy8qKiJdLAogICAgICAgICJkb21haW5zIjogWyJyZXBvc2l0b3J5IiwgImFpLWRyaXZlbi1kZXZlbG9wbWVudCJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJjcmVhdGVfZ29hbCIsICJ3cml0ZV9nb2FsX3RlbXBsYXRlIiwgImV4ZWN1dGVfZ29hbF9waGFzZSJdLAogICAgICAgICJ0b3BpY3MiOiBbImNvZGV4LWdvYWwiLCAidGFzay1jb250cmFjdCIsICJnb2FsLXRlbXBsYXRlIl0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbImFpLWRyaXZlbi53b3JrZmxvdyJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDg0CiAgICB9LAogICAgewogICAgICAiaWQiOiAiYWktZHJpdmVuLmNoZWNrZXIiLAogICAgICAiZmlsZSI6ICJkb2NzL2FpLWRyaXZlbi1kZXZlbG9wbWVudC9haWRkLWNoZWNrZXIubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbCiAgICAgICAgICAiLmFnZW50cy9za2lsbHMvZ29hbC1zZXR0aW5nLyoqIiwKICAgICAgICAgICIuY29kZXgvYWdlbnRzLyoqIiwKICAgICAgICAgICIuY29kZXgvY29uZmlnLnRvbWwiLAogICAgICAgICAgIi5jb2RleC9ob29rcy5qc29uIiwKICAgICAgICAgICIuY29kZXgvaG9va3MvKioiLAogICAgICAgICAgInRvb2xzL2FpZGQvKioiLAogICAgICAgICAgImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50L2NvbnRyYWN0cy8qKiIsCiAgICAgICAgICAiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvYWlkZC1jaGVja2VyLm1kIiwKICAgICAgICAgICJkb2NzL2FpLWRyaXZlbi1kZXZlbG9wbWVudC9haWRkLWNoZWNrZXItb3BlcmF0aW9ucy5tZCIsCiAgICAgICAgICAiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvb3ZlcnZpZXcubWQiLAogICAgICAgICAgImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50L3dvcmtmbG93Lm1kIiwKICAgICAgICAgICJkb2NzL2hhcm5lc3MvcnVsZS1tYXAuanNvbiIsCiAgICAgICAgICAiLmFnZW50cy9za2lsbHMvbGVhcm4vKioiLAogICAgICAgICAgIi5naXRodWIvd29ya2Zsb3dzL2FpZGRfY2hlY2tlcl9jaS55YW1sIiwKICAgICAgICAgICJBR0VOVFMubWQiLAogICAgICAgICAgImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50L2NvZGV4LWFkYXB0ZXIubWQiCiAgICAgICAgXSwKICAgICAgICAiZG9tYWlucyI6IFsicmVwb3NpdG9yeSIsICJhaS1kcml2ZW4tZGV2ZWxvcG1lbnQiLCAiaGFybmVzcyJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImNoYW5nZV9haWRkX2NoZWNrZXIiLAogICAgICAgICAgImNoYW5nZV9haWRkX2NvbnRyb2xfcGxhbmUiLAogICAgICAgICAgImNoYW5nZV9jb2RleF9ob29rcyIsCiAgICAgICAgICAidmFsaWRhdGVfYXJ0aWZhY3QiLAogICAgICAgICAgInZlcmlmeV9idWlsZCIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbCiAgICAgICAgICAiYWlkZC1jb3JlIiwKICAgICAgICAgICJpbnZhcmlhbnRzIiwKICAgICAgICAgICJ2YWxpZGF0aW9uIiwKICAgICAgICAgICJ2ZXJpZmljYXRpb24tcHJvZmlsZSIsCiAgICAgICAgICAidHJ1c3QtYm91bmRhcnkiLAogICAgICAgICAgInNjaGVtYS12NSIKICAgICAgICBdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogWyJhaS1kcml2ZW4ud29ya2Zsb3ciLCAiYWRyLmhhcm5lc3MtZW5naW5lZXJpbmciLCAiZG9jdW1lbnRhdGlvbi5wb2xpY3kiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4OQogICAgfSwKICAgIHsKICAgICAgImlkIjogInBvbGljeS5sZWFybmluZy1leHRyYWN0aW9uIiwKICAgICAgImZpbGUiOiAiZG9jcy9oYXJuZXNzL3BvbGljaWVzL2xlYXJuaW5nLWV4dHJhY3Rpb24ubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImRvY3MvaGFybmVzcy9wb2xpY2llcy9sZWFybmluZy1leHRyYWN0aW9uLm1kIiwgIi5hZ2VudHMvc2tpbGxzL2xlYXJuLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbInJlcG9zaXRvcnkiLCAiaGFybmVzcyIsICJhaS1kcml2ZW4tZGV2ZWxvcG1lbnQiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsiZXh0cmFjdF9sZWFybmluZyIsICJwcmVwYXJlX3Rhc2tfY29udGV4dCIsICJ1cGRhdGVfbGVhcm5pbmdfcnVsZSJdLAogICAgICAgICJ0b3BpY3MiOiBbImxlYXJuaW5nIiwgInJldmlldyIsICJ2ZXJpZmljYXRpb24iLCAib3BlcmF0aW9ucyIsICJ0YXNrLWNvbnRleHQiLCAicG9saWN5Il0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbImRvY3VtZW50YXRpb24ucG9saWN5Il0sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogOTQKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJhaS1kcml2ZW4ubGVhcm4iLAogICAgICAiZmlsZSI6ICJkb2NzL2FpLWRyaXZlbi1kZXZlbG9wbWVudC93b3JrZmxvdy5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiZG9jcy9haS1kcml2ZW4tZGV2ZWxvcG1lbnQvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsicmVwb3NpdG9yeSIsICJhaS1kcml2ZW4tZGV2ZWxvcG1lbnQiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsiZXh0cmFjdF9sZWFybmluZyIsICJwcmVwYXJlX3Rhc2tfY29udGV4dCIsICJ1cGRhdGVfbGVhcm5pbmdfcnVsZSJdLAogICAgICAgICJ0b3BpY3MiOiBbImxlYXJuIiwgInJldmlldyIsICJyZXF1aXJlbWVudHMiLCAicG9saWN5Il0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbCiAgICAgICAgImFpLWRyaXZlbi53b3JrZmxvdyIsCiAgICAgICAgInBvbGljeS5sZWFybmluZy1leHRyYWN0aW9uIiwKICAgICAgICAicG9saWN5LnJldmlldy1mZWVkYmFjay1jbGFzc2lmaWNhdGlvbiIKICAgICAgXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4NQogICAgfSwKICAgIHsKICAgICAgImlkIjogInBvbGljeS5naXQtd29ya2Zsb3ciLAogICAgICAiZmlsZSI6ICJkb2NzL2hhcm5lc3MvcG9saWNpZXMvZ2l0LXdvcmtmbG93Lm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyIuZ2l0LyoqIiwgIi5naXRodWIvKioiLCAiZG9jcy8qKiIsICJhcHBzLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbInJlcG9zaXRvcnkiLCAiZ2l0IiwgImdpdGh1YiJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImNyZWF0ZV9icmFuY2giLAogICAgICAgICAgInN0YWdlX2NoYW5nZXMiLAogICAgICAgICAgImNvbW1pdF9jaGFuZ2VzIiwKICAgICAgICAgICJwdXNoX2JyYW5jaCIsCiAgICAgICAgICAiY3JlYXRlX3ByIiwKICAgICAgICAgICJ1cGRhdGVfcHIiCiAgICAgICAgXSwKICAgICAgICAidG9waWNzIjogWyJnaXQiLCAiYnJhbmNoIiwgImNvbW1pdCIsICJwdWxsLXJlcXVlc3QiLCAicmV2aWV3Il0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA5NgogICAgfSwKICAgIHsKICAgICAgImlkIjogInBvbGljeS5yZXZpZXctZmVlZGJhY2stY2xhc3NpZmljYXRpb24iLAogICAgICAiZmlsZSI6ICJkb2NzL2hhcm5lc3MvcG9saWNpZXMvcmV2aWV3LWZlZWRiYWNrLWNsYXNzaWZpY2F0aW9uLm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyIuZ2l0aHViLyoqIiwgImRvY3MvKioiLCAiYXBwcy8qKiJdLAogICAgICAgICJkb21haW5zIjogWyJyZXBvc2l0b3J5IiwgInJldmlldyIsICJnaXRodWIiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsKICAgICAgICAgICJhZGRyZXNzX3Jldmlld19jb21tZW50IiwKICAgICAgICAgICJjbGFzc2lmeV9yZXZpZXdfZmVlZGJhY2siLAogICAgICAgICAgInJlcGx5X3Jldmlld19jb21tZW50IiwKICAgICAgICAgICJyZXNvbHZlX3Jldmlld190aHJlYWQiCiAgICAgICAgXSwKICAgICAgICAidG9waWNzIjogWyJyZXZpZXciLCAicHVsbC1yZXF1ZXN0IiwgInJlcXVpcmVtZW50cyIsICJkZXNpZ24iLCAidmVyaWZpY2F0aW9uIl0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbInBvbGljeS5naXQtd29ya2Zsb3ciLCAicG9saWN5LmxlYXJuaW5nLWV4dHJhY3Rpb24iXSwKICAgICAgInJlbGF0ZWQiOiBbImFpLWRyaXZlbi53b3JrZmxvdyJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDk0CiAgICB9LAogICAgewogICAgICAiaWQiOiAicG9saWN5LmNvZGUtcmV2aWV3IiwKICAgICAgImZpbGUiOiAiZG9jcy9oYXJuZXNzL3BvbGljaWVzL2NvZGUtcmV2aWV3Lm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyJBR0VOVFMubWQiLCAiLmdpdGh1Yi9za2lsbHMvY29kZS1yZXZpZXcvKioiLCAiZG9jcy9oYXJuZXNzLyoqIiwgImFwcHMvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsicmVwb3NpdG9yeSIsICJyZXZpZXciLCAiZ2l0aHViIl0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbInJldmlld19kaWZmIiwgInNlbGVjdF9yZXZpZXdfcnVsZXMiLCAicmVwb3J0X3Jldmlld19jb3ZlcmFnZSJdLAogICAgICAgICJ0b3BpY3MiOiBbInJldmlldyIsICJydWxlLWdyYXBoIiwgInB1bGwtcmVxdWVzdCIsICJ2ZXJpZmljYXRpb24iXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsiZG9jdW1lbnRhdGlvbi5wb2xpY3kiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA5NwogICAgfSwKICAgIHsKICAgICAgImlkIjogInBvbGljeS50cmFuc2FjdGlvbi1ib3VuZGFyaWVzIiwKICAgICAgImZpbGUiOiAiZG9jcy9oYXJuZXNzL3BvbGljaWVzL3RyYW5zYWN0aW9uLWJvdW5kYXJpZXMubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbCiAgICAgICAgICAiYXBwcy9hcGkvKioiLAogICAgICAgICAgImFwcHMvd2ViLyoqIiwKICAgICAgICAgICIuZ2l0aHViL3dvcmtmbG93cy8qKiIsCiAgICAgICAgICAiZG9jcy9oYXJuZXNzL3BvbGljaWVzL3RyYW5zYWN0aW9uLWJvdW5kYXJpZXMubWQiCiAgICAgICAgXSwKICAgICAgICAiZG9tYWlucyI6IFsiYXBpIiwgIndlYiIsICJkYXRhYmFzZSIsICJpbmZyYXN0cnVjdHVyZSJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImNoYW5nZV9tdXRhdGlvbiIsCiAgICAgICAgICAiY2hhbmdlX3JwYyIsCiAgICAgICAgICAiY2hhbmdlX2FwaV9jb250cmFjdCIsCiAgICAgICAgICAicGxhbl9hcGlfZGVwbG95bWVudCIsCiAgICAgICAgICAiY2hhbmdlX3RyYW5zYWN0aW9uX2JvdW5kYXJ5IiwKICAgICAgICAgICJyZXZpZXdfZGF0YV9jb25zaXN0ZW5jeSIsCiAgICAgICAgICAicmV2aWV3X2FwaV9zY2hlbWEiLAogICAgICAgICAgInJldmlld19hcGlfcnBjIiwKICAgICAgICAgICJyZXZpZXdfYXBpX2F1dGgiCiAgICAgICAgXSwKICAgICAgICAidG9waWNzIjogWwogICAgICAgICAgInRyYW5zYWN0aW9uIiwKICAgICAgICAgICJycGMiLAogICAgICAgICAgImFwaS1jb250cmFjdCIsCiAgICAgICAgICAiZGF0YWJhc2UiLAogICAgICAgICAgImNvbnNpc3RlbmN5IiwKICAgICAgICAgICJkZXBsb3ltZW50IiwKICAgICAgICAgICJjb21wYXRpYmlsaXR5IgogICAgICAgIF0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbImFyY2hpdGVjdHVyZS5vdmVydmlldyJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDg4CiAgICB9LAogICAgewogICAgICAiaWQiOiAicG9saWN5LnRlbXBvcmFsLWRhdGEiLAogICAgICAiZmlsZSI6ICJkb2NzL2hhcm5lc3MvcG9saWNpZXMvdGVtcG9yYWwtZGF0YS5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsKICAgICAgICAgICJhcHBzL2FwaS8qKiIsCiAgICAgICAgICAiYXBwcy93ZWIvKioiLAogICAgICAgICAgImRvY3MvaGFybmVzcy9kb21haW4vKioiLAogICAgICAgICAgImRvY3MvaGFybmVzcy9wb2xpY2llcy90ZW1wb3JhbC1kYXRhLm1kIgogICAgICAgIF0sCiAgICAgICAgImRvbWFpbnMiOiBbImRvbWFpbiIsICJkYXRhYmFzZSIsICJ3ZWIiLCAiYXBpIl0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbCiAgICAgICAgICAiY2hhbmdlX3RlbXBvcmFsX3J1bGUiLAogICAgICAgICAgImNoYW5nZV9tb250aF9zY29wZSIsCiAgICAgICAgICAiY2hhbmdlX2VmZmVjdGl2ZV9kYXRlIiwKICAgICAgICAgICJyZXZpZXdfdGltZV9kZXBlbmRlbnRfYmVoYXZpb3IiLAogICAgICAgICAgInJldmlld19hcGlfdGVtcG9yYWwiCiAgICAgICAgXSwKICAgICAgICAidG9waWNzIjogWyJ0ZW1wb3JhbC1kYXRhIiwgImRhdGUiLCAibW9udGgiLCAiaGlzdG9yeSIsICJ0aW1lem9uZSJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogWyJkb21haW4uZGF0ZSJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDg3CiAgICB9LAogICAgewogICAgICAiaWQiOiAiZG9tYWluLmFtb3VudCIsCiAgICAgICJmaWxlIjogImRvY3MvaGFybmVzcy9kb21haW4vYW1vdW50Lm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyJhcHBzL3dlYi8qKiIsICJhcHBzL2FwaS8qKiJdLAogICAgICAgICJkb21haW5zIjogWyJkb21haW4iLCAiYW1vdW50Il0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbImNoYW5nZV9hbW91bnRfbG9naWMiLCAiY2hhbmdlX21vbmV5X2Rpc3BsYXkiLCAicmV2aWV3X2Ftb3VudF9iZWhhdmlvciJdLAogICAgICAgICJ0b3BpY3MiOiBbImFtb3VudCIsICJtb25leSJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogW10sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogNzgKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJkb21haW4uZGF0ZSIsCiAgICAgICJmaWxlIjogImRvY3MvaGFybmVzcy9kb21haW4vZGF0ZS5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiYXBwcy93ZWIvKioiLCAiYXBwcy9hcGkvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsiZG9tYWluIiwgImRhdGUiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsKICAgICAgICAgICJjaGFuZ2VfZGF0ZV9sb2dpYyIsCiAgICAgICAgICAiY2hhbmdlX21vbnRoX3Njb3BlIiwKICAgICAgICAgICJyZXZpZXdfZGF0ZV9iZWhhdmlvciIsCiAgICAgICAgICAicmV2aWV3X2FwaV90ZW1wb3JhbCIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbImRhdGUiLCAibW9udGgiLCAidGltZXpvbmUiXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFtdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDc4CiAgICB9LAogICAgewogICAgICAiaWQiOiAiZG9tYWluLnBheW1lbnQiLAogICAgICAiZmlsZSI6ICJkb2NzL2hhcm5lc3MvZG9tYWluL3BheW1lbnQubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViLyoqIiwgImFwcHMvYXBpLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbImRvbWFpbiIsICJwYXltZW50Il0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbImNoYW5nZV9wYXltZW50X2JlaGF2aW9yIiwgImNoYW5nZV9wYXltZW50X3VpIiwgInJldmlld19wYXltZW50X2RvbWFpbiJdLAogICAgICAgICJ0b3BpY3MiOiBbInBheW1lbnQiLCAidHJhbnNhY3Rpb24iLCAiY2F0ZWdvcnkiXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsiZG9tYWluLmFtb3VudCIsICJkb21haW4uZGF0ZSIsICJkb21haW4uY2F0ZWdvcnkiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4MgogICAgfSwKICAgIHsKICAgICAgImlkIjogImRvbWFpbi5jYXRlZ29yeSIsCiAgICAgICJmaWxlIjogImRvY3MvaGFybmVzcy9kb21haW4vY2F0ZWdvcnkubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViLyoqIiwgImFwcHMvYXBpLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbImRvbWFpbiIsICJjYXRlZ29yeSJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJjaGFuZ2VfY2F0ZWdvcnlfYmVoYXZpb3IiLCAiY2hhbmdlX2NhdGVnb3J5X3VpIiwgInJldmlld19jYXRlZ29yeV9kb21haW4iXSwKICAgICAgICAidG9waWNzIjogWyJjYXRlZ29yeSIsICJwYXltZW50Il0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4MAogICAgfSwKICAgIHsKICAgICAgImlkIjogImRvbWFpbi5tb250aGx5LWJ1ZGdldCIsCiAgICAgICJmaWxlIjogImRvY3MvaGFybmVzcy9kb21haW4vbW9udGhseS1idWRnZXQubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViLyoqIiwgImFwcHMvYXBpLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbImRvbWFpbiIsICJidWRnZXQiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsiY2hhbmdlX21vbnRobHlfYnVkZ2V0IiwgImNoYW5nZV9idWRnZXRfdWkiLCAicmV2aWV3X2J1ZGdldF9kb21haW4iXSwKICAgICAgICAidG9waWNzIjogWyJtb250aGx5LWJ1ZGdldCIsICJidWRnZXQiLCAibW9udGgiXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsiZG9tYWluLmFtb3VudCIsICJkb21haW4uZGF0ZSIsICJwb2xpY3kudGVtcG9yYWwtZGF0YSJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDgyCiAgICB9LAogICAgewogICAgICAiaWQiOiAiZG9tYWluLmJvb2siLAogICAgICAiZmlsZSI6ICJkb2NzL2hhcm5lc3MvZG9tYWluL2Jvb2subWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViLyoqIiwgImFwcHMvYXBpLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbImRvbWFpbiIsICJib29rIl0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbImNoYW5nZV9ib29rX2JlaGF2aW9yIiwgInJldmlld19ib29rX2RvbWFpbiJdLAogICAgICAgICJ0b3BpY3MiOiBbImJvb2siLCAidXNlciJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogWyJkb21haW4udXNlciJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDc2CiAgICB9LAogICAgewogICAgICAiaWQiOiAiZG9tYWluLnVzZXIiLAogICAgICAiZmlsZSI6ICJkb2NzL2hhcm5lc3MvZG9tYWluL3VzZXIubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbCiAgICAgICAgICAiYXBwcy93ZWIvKioiLAogICAgICAgICAgImFwcHMvYXBpLyoqIiwKICAgICAgICAgICJkb2NzL2hhcm5lc3MvY29udHJhY3RzL3VzZXItYWNjb3VudC1hdHRyaWJ1dGVzLmpzb24iCiAgICAgICAgXSwKICAgICAgICAiZG9tYWlucyI6IFsiZG9tYWluIiwgInVzZXIiLCAiYXV0aCJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImNoYW5nZV91c2VyX2JlaGF2aW9yIiwKICAgICAgICAgICJjaGFuZ2VfYXV0aF9hc3N1bXB0aW9uIiwKICAgICAgICAgICJyZXZpZXdfdXNlcl9kb21haW4iLAogICAgICAgICAgInJldmlld19hcGlfYXV0aCIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbInVzZXIiLCAiYXV0aCJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogW10sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogNzYKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3ZWIuY29tcG9uZW50LXN0cnVjdHVyZSIsCiAgICAgICJmaWxlIjogImFwcHMvd2ViL2RvY3MvcG9saWNpZXMvY29tcG9uZW50LXN0cnVjdHVyZS5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiYXBwcy93ZWIvc3JjL2NvbXBvbmVudHMvKioiLCAiYXBwcy93ZWIvc3JjL2ZlYXR1cmVzLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbIndlYiIsICJ1aSJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImFkZF9jb21wb25lbnQiLAogICAgICAgICAgIm1vdmVfY29tcG9uZW50IiwKICAgICAgICAgICJleHRyYWN0X2NvbXBvbmVudCIsCiAgICAgICAgICAic3BsaXRfY29tcG9uZW50X3Jlc3BvbnNpYmlsaXR5IiwKICAgICAgICAgICJhZGRfY29tcG9uZW50X3N0b3J5IgogICAgICAgIF0sCiAgICAgICAgInRvcGljcyI6IFsKICAgICAgICAgICJjb21wb25lbnQtc3RydWN0dXJlIiwKICAgICAgICAgICJjb21wb25lbnQtYm91bmRhcnkiLAogICAgICAgICAgImZyb250ZW5kLWFyY2hpdGVjdHVyZSIsCiAgICAgICAgICAicHJvamVjdC1zdHJ1Y3R1cmUiLAogICAgICAgICAgInN0b3J5Ym9vayIKICAgICAgICBdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogW10sCiAgICAgICJyZWxhdGVkIjogWyJ3ZWIudGVzdC1wb2xpY3kiLCAid2ViLnN0b3J5Ym9vay1icm93c2VyLXRlc3RzIl0sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogOTAKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3ZWIuZGVzaWduLXN5c3RlbS1icmFuZCIsCiAgICAgICJmaWxlIjogIkRFU0lHTi5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiREVTSUdOLm1kIiwgImFwcHMvd2ViL3NyYy8qKiIsICJhcHBzL3dlYi9kb2NzLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbIndlYiIsICJ1aSJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWwogICAgICAgICAgImNoYW5nZV91aSIsCiAgICAgICAgICAiZGVzaWduX3NjcmVlbiIsCiAgICAgICAgICAiY2hhbmdlX2Zvcm0iLAogICAgICAgICAgImNoYW5nZV9kaWFsb2ciLAogICAgICAgICAgImNoYW5nZV9yZXNwb25zaXZlX2xheW91dCIKICAgICAgICBdLAogICAgICAgICJ0b3BpY3MiOiBbImRlc2lnbi1zeXN0ZW0iLCAiYnJhbmQiLCAidmlzdWFsLWlkZW50aXR5IiwgInByb2R1Y3QtdG9uZSIsICJ1aSJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogW10sCiAgICAgICJyZWxhdGVkIjogWyJ3ZWIuZGVzaWduLXJ1bGVzIiwgIndlYi5kb21haW4tdWktcnVsZXMiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4OQogICAgfSwKICAgIHsKICAgICAgImlkIjogIndlYi5kZXNpZ24tcnVsZXMiLAogICAgICAiZmlsZSI6ICJhcHBzL3dlYi9kb2NzL3BvbGljaWVzL2Rlc2lnbi1ydWxlcy5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiYXBwcy93ZWIvc3JjLyoqIiwgImFwcHMvd2ViL2RvY3MvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsid2ViIiwgInVpIl0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbCiAgICAgICAgICAiY2hhbmdlX3VpIiwKICAgICAgICAgICJkZXNpZ25fc2NyZWVuIiwKICAgICAgICAgICJjaGFuZ2VfZm9ybSIsCiAgICAgICAgICAiY2hhbmdlX2RpYWxvZyIsCiAgICAgICAgICAiY2hhbmdlX3Jlc3BvbnNpdmVfbGF5b3V0IgogICAgICAgIF0sCiAgICAgICAgInRvcGljcyI6IFsiZGVzaWduLXN5c3RlbSIsICJ1aSIsICJ0eXBvZ3JhcGh5IiwgImxheW91dCIsICJyZXNwb25zaXZlIiwgInRhYmxlcyJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogW10sCiAgICAgICJyZWxhdGVkIjogWyJ3ZWIuZGVzaWduLXN5c3RlbS1icmFuZCJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDg4CiAgICB9LAogICAgewogICAgICAiaWQiOiAid2ViLmRvbWFpbi1sYXllci1ydWxlcyIsCiAgICAgICJmaWxlIjogImFwcHMvd2ViL2RvY3MvcG9saWNpZXMvZG9tYWluLWxheWVyLXJ1bGVzLm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyJhcHBzL3dlYi9zcmMvZG9tYWluLyoqIiwgImFwcHMvd2ViL3NyYy9mZWF0dXJlcy8qKiIsICJhcHBzL3dlYi9zcmMvdXRpbHMvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsid2ViIiwgImRvbWFpbiJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJhZGRfZG9tYWluX3J1bGUiLCAibW92ZV92YWx1ZV9ydWxlIiwgInJldmlld19mcm9udGVuZF9kb21haW5fYm91bmRhcnkiXSwKICAgICAgICAidG9waWNzIjogWyJkb21haW4tbGF5ZXIiLCAiZnJvbnRlbmQtYXJjaGl0ZWN0dXJlIiwgInByb2plY3Qtc3RydWN0dXJlIl0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbXSwKICAgICAgInJlbGF0ZWQiOiBbIndlYi5kb21haW4tdWktcnVsZXMiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4NgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndlYi5kb21haW4tdWktcnVsZXMiLAogICAgICAiZmlsZSI6ICJhcHBzL3dlYi9kb2NzL3BvbGljaWVzL2RvbWFpbi11aS1ydWxlcy5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiYXBwcy93ZWIvc3JjL2ZlYXR1cmVzLyoqIiwgImFwcHMvd2ViL3NyYy9hcHAvcm91dGVzLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbIndlYiIsICJ1aSIsICJkb21haW4iXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsKICAgICAgICAgICJjaGFuZ2VfZG9tYWluX3VpIiwKICAgICAgICAgICJjaGFuZ2VfcGF5bWVudF91aSIsCiAgICAgICAgICAiY2hhbmdlX2NhdGVnb3J5X3VpIiwKICAgICAgICAgICJjaGFuZ2VfYnVkZ2V0X3VpIgogICAgICAgIF0sCiAgICAgICAgInRvcGljcyI6IFsiZG9tYWluLXVpIiwgInBheW1lbnRzIiwgImNhdGVnb3JpZXMiLCAiYnVkZ2V0cyIsICJkYXRlIiwgImFtb3VudCIsICJkaWZmZXJlbmNlIl0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbIndlYi5kZXNpZ24tc3lzdGVtLWJyYW5kIiwgIndlYi5kZXNpZ24tcnVsZXMiLCAiZG9tYWluLmFtb3VudCIsICJkb21haW4uZGF0ZSJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDg3CiAgICB9LAogICAgewogICAgICAiaWQiOiAid2ViLmZlYXR1cmUtZGlyZWN0b3J5IiwKICAgICAgImZpbGUiOiAiYXBwcy93ZWIvZG9jcy9wb2xpY2llcy9mZWF0dXJlLWRpcmVjdG9yeS5tZCIsCiAgICAgICJhcHBsaWVzX3RvIjogewogICAgICAgICJwYXRocyI6IFsiYXBwcy93ZWIvc3JjL2ZlYXR1cmVzLyoqIl0sCiAgICAgICAgImRvbWFpbnMiOiBbIndlYiJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJhZGRfZmVhdHVyZV9kaXJlY3RvcnkiLCAibW92ZV9mZWF0dXJlX2NvZGUiLCAiY2hhbmdlX2ZlYXR1cmVfYm91bmRhcnkiXSwKICAgICAgICAidG9waWNzIjogWyJmZWF0dXJlLWRpcmVjdG9yeSIsICJwcm9qZWN0LXN0cnVjdHVyZSIsICJmcm9udGVuZC1hcmNoaXRlY3R1cmUiXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsid2ViLmNvbXBvbmVudC1zdHJ1Y3R1cmUiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4NgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndlYi5xdWVyeS1jYWNoZSIsCiAgICAgICJmaWxlIjogImFwcHMvd2ViL2RvY3MvcG9saWNpZXMvcXVlcnktY2FjaGUubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViL3NyYy8qKiJdLAogICAgICAgICJkb21haW5zIjogWyJ3ZWIiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsiY2hhbmdlX3F1ZXJ5IiwgImNoYW5nZV9tdXRhdGlvbiIsICJjaGFuZ2VfY2FjaGVfaW52YWxpZGF0aW9uIl0sCiAgICAgICAgInRvcGljcyI6IFsicmVhY3QtcXVlcnkiLCAiY2FjaGUiLCAiZnJvbnRlbmQtYXJjaGl0ZWN0dXJlIl0KICAgICAgfSwKICAgICAgImRlcGVuZHNfb24iOiBbXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4NgogICAgfSwKICAgIHsKICAgICAgImlkIjogIndlYi5zdXNwZW5zZS1ib3VuZGFyaWVzIiwKICAgICAgImZpbGUiOiAiYXBwcy93ZWIvZG9jcy9wb2xpY2llcy9zdXNwZW5zZS1ib3VuZGFyaWVzLm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyJhcHBzL3dlYi9zcmMvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsid2ViIl0sCiAgICAgICAgImFjdGl2aXRpZXMiOiBbImNoYW5nZV9zdXNwZW5zZSIsICJjaGFuZ2VfZXJyb3JfYm91bmRhcnkiLCAiY2hhbmdlX2FzeW5jX2xvYWRpbmciXSwKICAgICAgICAidG9waWNzIjogWyJzdXNwZW5zZSIsICJyZWFjdC1xdWVyeSIsICJlcnJvci1ib3VuZGFyeSJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogWyJ3ZWIucXVlcnktY2FjaGUiLCAid2ViLnRlc3QtcG9saWN5Il0sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogODUKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3ZWIubXN3LWhhbmRsZXJzIiwKICAgICAgImZpbGUiOiAiYXBwcy93ZWIvZG9jcy9wb2xpY2llcy9tc3ctaGFuZGxlcnMubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViL3NyYy90ZXN0L21zdy9oYW5kbGVycy8qKiJdLAogICAgICAgICJkb21haW5zIjogWyJ3ZWIiLCAidGVzdCJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJhZGRfbXN3X2hhbmRsZXIiLCAiY2hhbmdlX21zd19oYW5kbGVyIiwgInRlc3RfYXBpX2ludGVyYWN0aW9uIl0sCiAgICAgICAgInRvcGljcyI6IFsibXN3IiwgInRlc3QiLCAibW9jayJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogWyJ3ZWIudGVzdC1wb2xpY3kiLCAid2ViLnN1c3BlbnNlLWJvdW5kYXJpZXMiXSwKICAgICAgIm92ZXJyaWRlcyI6IFtdLAogICAgICAicHJpb3JpdHkiOiA4NAogICAgfSwKICAgIHsKICAgICAgImlkIjogIndlYi50ZXN0LXBvbGljeSIsCiAgICAgICJmaWxlIjogImFwcHMvd2ViL2RvY3MvcG9saWNpZXMvdGVzdC1wb2xpY3kubWQiLAogICAgICAiYXBwbGllc190byI6IHsKICAgICAgICAicGF0aHMiOiBbImFwcHMvd2ViL3NyYy8qKiJdLAogICAgICAgICJkb21haW5zIjogWyJ3ZWIiLCAidGVzdCJdLAogICAgICAgICJhY3Rpdml0aWVzIjogWyJhZGRfdGVzdCIsICJjaGFuZ2VfdGVzdCIsICJyZXZpZXdfdGVzdF9nYXAiLCAicmV1c2Vfc3RvcnlfaW5fdGVzdCJdLAogICAgICAgICJ0b3BpY3MiOiBbInRlc3QiLCAicmVncmVzc2lvbiIsICJzdG9yeWJvb2siXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFtdLAogICAgICAicmVsYXRlZCI6IFsid2ViLmNvbXBvbmVudC1zdHJ1Y3R1cmUiLCAid2ViLnN0b3J5Ym9vay1icm93c2VyLXRlc3RzIl0sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogODQKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ3ZWIuc3Rvcnlib29rLWJyb3dzZXItdGVzdHMiLAogICAgICAiZmlsZSI6ICJhcHBzL3dlYi9kb2NzL3BvbGljaWVzL3N0b3J5Ym9vay1icm93c2VyLXRlc3RzLm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWyJhcHBzL3dlYi8qKiIsICJhcHBzL3dlYi8uc3Rvcnlib29rLXRlc3QvKioiXSwKICAgICAgICAiZG9tYWlucyI6IFsid2ViIiwgInRlc3QiXSwKICAgICAgICAiYWN0aXZpdGllcyI6IFsKICAgICAgICAgICJhZGRfY29tcG9uZW50X3N0b3J5IiwKICAgICAgICAgICJjaGFuZ2Vfc3Rvcnlib29rX2Jyb3dzZXJfdGVzdCIsCiAgICAgICAgICAiYWRkX3BhZ2Vfc3RvcnkiLAogICAgICAgICAgImNoYW5nZV9icm93c2VyX3Rlc3RfY29uZmlnIgogICAgICAgIF0sCiAgICAgICAgInRvcGljcyI6IFsic3Rvcnlib29rIiwgImJyb3dzZXItdGVzdCIsICJ2aXRlc3QiXQogICAgICB9LAogICAgICAiZGVwZW5kc19vbiI6IFsid2ViLnRlc3QtcG9saWN5Il0sCiAgICAgICJvdmVycmlkZXMiOiBbXSwKICAgICAgInByaW9yaXR5IjogODMKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJhZHIuYWlkZC1pbnZhcmlhbnQtcHJvdG9jb2wiLAogICAgICAiZmlsZSI6ICJkb2NzL2Fkci8wMDAzLWFkb3B0LWFpZGQtaW52YXJpYW50LXByb3RvY29sLm1kIiwKICAgICAgImFwcGxpZXNfdG8iOiB7CiAgICAgICAgInBhdGhzIjogWwogICAgICAgICAgInRvb2xzL2FpZGQvKioiLAogICAgICAgICAgImRvY3MvYWktZHJpdmVuLWRldmVsb3BtZW50LyoqIiwKICAgICAgICAgICIuYWdlbnRzL3NraWxscy8qKiIsCiAgICAgICAgICAiLmNvZGV4LyoqIgogICAgICAgIF0sCiAgICAgICAgInRvcGljcyI6IFsiYWlkZC1jb3JlIiwgInNjaGVtYS12NSJdCiAgICAgIH0sCiAgICAgICJkZXBlbmRzX29uIjogWyJhZHIuYWdlbnQtcnVsZS1ncmFwaCJdLAogICAgICAib3ZlcnJpZGVzIjogW10sCiAgICAgICJwcmlvcml0eSI6IDEwMAogICAgfQogIF0KfQo="
+}

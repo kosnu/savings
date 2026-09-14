@@ -1,0 +1,765 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "175460468cc43a65bab067c9e3c2f195808eac9b0fbf7ff95374f9036b3d8e0c",
+  "revision": 2,
+  "parent_sha256": "f268691691bf6978b4aba4fa3bf213d665b2de45830b7dd52308fb6270eeb181",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "175460468cc43a65bab067c9e3c2f195808eac9b0fbf7ff95374f9036b3d8e0c",
+    "reason": "開始時ルール固定による AIDD_VNEXT_GUARDRAIL_DRIFT の実例に基づく追加修正。取り込んだルール文書・rule-mapのcommitと対象を新checkpointで採用し、既存Taskの開始記録を保持して新ルールで全再検証する。旧Development checkerの明示移行も対応する。機械policy/profileの変更は従来の契約で扱う。",
+    "requirements": [
+      {
+        "id": "REQ-1",
+        "text": "ユーザーの明示指示がない限りブランチを分けない",
+        "origin": "intent",
+        "evidence": "ブランチはこちらの指示がない限りわけるな"
+      },
+      {
+        "id": "REQ-2",
+        "text": "取り込んだルール変更を既存Development Taskへ採用して全再検証・続行できる",
+        "origin": "derived",
+        "evidence": "ユーザーが後続で design-rules.md の GUARDRAIL_DRIFT 停止事例を提示し、変更後ルールを既存Taskへ適用する後者を明示許可した。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "保守変更やTaskの区分ではブランチを自動分割せず、ユーザーの明示指示に従う",
+          "requirement_id": "REQ-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "ルールの明示採用で新checkpointを生成し、旧証拠を失効させ、Taskを再作成せず新ルールで続行する",
+          "requirement_id": "REQ-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "明示指示なしなら現在ブランチを維持、明示指示ありなら指定範囲で作成・切替すること、およびTask分離が分割許可にならないことを2文書と実差分で確認する。ルール採用・旧Task移行の成功と、未記録のドリフト・未許可の範囲・旧証拠の拒否を実装と回帰テストでレビューする。"
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "採用したルールのcommit・対象・権限・履歴と、新ルールのclosure、全再検証、旧Development checker移行を実差分とテストで確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/git-workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol",
+          "kind": "tree"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/harness/policies/git-workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/bootstrap.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/bootstrap_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/ci_workflow_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/cli_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/configuration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/continuation_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/delivery.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/delivery_scope_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/delivery_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/files.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/history.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/integration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-19",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/integration_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-20",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/lockfile.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/lockfile_documents_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-22",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/lockfile_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-23",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/mixed.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-24",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/mixed_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-25",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-26",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/optional_review_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-27",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-28",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/repository_policy.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-29",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/responsibility_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-30",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/scope_revision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-31",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/scope_revision_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-32",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/storybook.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-33",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/storybook_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-34",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-35",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/testdata/pnpm-v12-lock.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-36",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-37",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/rule_revision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-38",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/rule_revision_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review"
+    ],
+    "scope_revision": {
+      "added_scopes": [
+        {
+          "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol",
+          "kind": "tree"
+        }
+      ],
+      "reason": "ユーザーが追加依頼した、取り込んだルールを既存Development Taskへ適用して続行するためのchecker・契約・回帰検証を実装する。",
+      "boundary_review": "ブランチ分離の撤廃を運用上成立させる後続修正として、ユーザーが「後者が必要」「あっていればそのまま進めて」と明示許可。元Taskと開始記録を保持して、guardrail内の有限範囲を追加する。アプリ実装や他Taskの実移行は行わない。",
+      "reviewer": "Codex main agent"
+    }
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

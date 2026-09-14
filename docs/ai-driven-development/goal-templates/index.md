@@ -15,12 +15,12 @@ when_to_read:
 
 # Goal templates
 
-Codex adapterは1つのDevelopment Goal、または独立したLearn Goalを作成する。
+Codex adapterはTaskの目的をGoalで追跡する。同じTask内の実装とルール保守でGoalを分けない。
 
 - Objective: 今回の作業の達成結果。
 - Constraints: 許可範囲、guardrail、product/Learn境界。
 - Done: Developmentでは成果・検証・review・commit・push・PR作成または更新と配信状態の確認。
-  ユーザーの明示制限がある場合だけ完了地点を狭める。Learnでは独立した検証・review・確定。
+  ユーザーの明示制限がある場合だけ完了地点を狭める。ルール保守も同じTask内で必要な検証・review・確定を行う。
 - Verification: 必要な検証とTask contractへの参照。
 
 Task identityを参照し、decision、hash一覧、inventory、進捗を本文へ重複させない。

@@ -105,17 +105,25 @@ type ScopeRevision struct {
 	UserScopeLimits []model.OwnershipScope `json:"user_scope_limits,omitempty"`
 }
 
+// ProductAuthorizationはTask種別と独立した実装依頼の根拠を保持する。
+type ProductAuthorization struct {
+	Intent        Intent                 `json:"intent"`
+	Authorization string                 `json:"authorization"`
+	Scopes        []model.OwnershipScope `json:"scopes"`
+}
+
 type Decision struct {
-	SchemaVersion    int               `json:"schema_version"`
-	Kind             string            `json:"kind"`
-	TaskSHA256       string            `json:"task_sha256"`
-	Reason           string            `json:"reason"`
-	Requirements     []Requirement     `json:"requirements"`
-	Target           model.TargetState `json:"target_state"`
-	AdditionalRules  []string          `json:"additional_rules"`
-	Integration      *Integration      `json:"integration,omitempty"`
-	CheckerMigration *CheckerMigration `json:"checker_migration,omitempty"`
-	ScopeRevision    *ScopeRevision    `json:"scope_revision,omitempty"`
+	SchemaVersion        int                   `json:"schema_version"`
+	Kind                 string                `json:"kind"`
+	TaskSHA256           string                `json:"task_sha256"`
+	Reason               string                `json:"reason"`
+	Requirements         []Requirement         `json:"requirements"`
+	Target               model.TargetState     `json:"target_state"`
+	AdditionalRules      []string              `json:"additional_rules"`
+	Integration          *Integration          `json:"integration,omitempty"`
+	CheckerMigration     *CheckerMigration     `json:"checker_migration,omitempty"`
+	ScopeRevision        *ScopeRevision        `json:"scope_revision,omitempty"`
+	ProductAuthorization *ProductAuthorization `json:"product_authorization,omitempty"`
 }
 
 type Checkpoint struct {
@@ -126,6 +134,7 @@ type Checkpoint struct {
 	ParentSHA256  string   `json:"parent_sha256"`
 	Decision      Decision `json:"decision"`
 	Rules         []string `json:"rules"`
+	RuleMap       []byte   `json:"rule_map,omitempty"`
 }
 
 type Evidence struct {

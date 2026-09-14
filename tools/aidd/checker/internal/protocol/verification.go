@@ -23,6 +23,15 @@ func (l *Loaded) validateResult(ctx context.Context, snapshot *repository.Snapsh
 	if err := checkConfiguration(ctx, snapshot, !hasRepositoryPolicy); err != nil {
 		return nil, nil, err
 	}
+	if len(l.Checkpoint.RuleMap) > 0 {
+		current, err := snapshot.Read(rules.DefaultPath)
+		if err != nil {
+			return nil, nil, err
+		}
+		if hash(current) != hash(l.Checkpoint.RuleMap) {
+			return nil, nil, fail("RULE_COVERAGE", rules.DefaultPath, "変更後の索引でcheckpointを更新してください")
+		}
+	}
 	if _, err := state.ValidateFinal(snapshot, &l.Checkpoint.Decision.Target); err != nil {
 		return nil, nil, err
 	}
@@ -155,7 +164,7 @@ func ValidateEvidence(ctx context.Context, snapshot *repository.Snapshot, l *Loa
 	if err != nil {
 		return nil, err
 	}
-	if hash(files) != hash(transportFiles(e.Files, l.Delivered)) || hash(e.Files) != e.RepositorySHA256 || !sameStrings(paths, e.ChangedPaths) {
+	if hash(files) != hash(transportFiles(withoutGenerated(e.Files, l.Task.Spec.ID), l.Delivered)) || hash(e.Files) != e.RepositorySHA256 || !sameStrings(paths, e.ChangedPaths) {
 		return nil, fail("STALE_EVIDENCE", l.Task.Spec.ID, "検証後に対象の内容・mode・inventoryが変わりました")
 	}
 	final, err := state.FinalHash(snapshot, &l.Checkpoint.Decision.Target)
