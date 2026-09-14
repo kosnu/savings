@@ -129,7 +129,7 @@ func TestTwoDocumentReferencesStayWithinDocument(t *testing.T) {
 	}
 }
 
-func TestTwoDocumentLockfileBoundaries(t *testing.T) {
+func TestTasksCanMaintainBothLockfileDocuments(t *testing.T) {
 	for _, kind := range []string{"development", "learn"} {
 		for _, change := range []string{"format", "add-toolchain", "remove-toolchain", "toolchain", "toolchain-transitive", "config", "product", "tool", "shared-peer", "peer-update"} {
 			t.Run(kind+"/"+change, func(t *testing.T) {
@@ -162,36 +162,30 @@ func TestTwoDocumentLockfileBoundaries(t *testing.T) {
 				rep := f.decision.Target.Representations[0]
 				rep.ID, rep.Path = "REP-2", lockPath
 				f.decision.Target.Representations = append(f.decision.Target.Representations, rep)
+				if kind == "learn" && (change == "product" || change == "shared-peer") {
+					f.decision.ProductAuthorization = productAuthorization(lockPath)
+				}
 				must(t, f.checkpoint())
 				next := before
-				allowed := false
 				switch change {
 				case "format":
 					lock, err := pnpm.Decode([]byte(before))
 					must(t, err)
 					next = string(encodeLockDocuments(t, lock.Toolchain, lock.Workspace))
-					allowed = true
 				case "add-toolchain":
 					next = toolchainLock + "---\n" + workspace
-					allowed = kind == "learn"
 				case "remove-toolchain":
 					next = workspace
-					allowed = kind == "learn"
 				case "toolchain":
 					next = strings.Replace(next, "pnpm-old", "pnpm-new", 1)
-					allowed = kind == "learn"
 				case "toolchain-transitive":
 					next = strings.Replace(next, "platform-old", "platform-new", 1)
-					allowed = kind == "learn"
 				case "config":
 					next = strings.Replace(next, "configDependencies: {}", "configDependencies: {config: {specifier: 'npm:pnpm@12.2.1', version: 'pnpm@12.2.1'}}", 1)
-					allowed = kind == "learn"
 				case "product":
 					next = strings.Replace(next, "react-old", "react-new", 1)
-					allowed = kind == "development"
 				case "tool":
 					next = strings.Replace(next, "vitest-old", "vitest-new", 1)
-					allowed = kind == "learn"
 				case "shared-peer", "peer-update":
 					protected, opposite := "vitest", "react"
 					if kind == "learn" {
@@ -201,15 +195,10 @@ func TestTwoDocumentLockfileBoundaries(t *testing.T) {
 					packageData, err := os.ReadFile(filepath.Join(f.root, "package.json"))
 					must(t, err)
 					f.put("package.json", strings.ReplaceAll(string(packageData), `"`+opposite+`":"1"`, `"`+opposite+`":"2"`))
-					allowed = change == "peer-update"
 				}
 				f.put(lockPath, next)
 				err := f.verify()
-				if allowed {
-					must(t, err)
-				} else {
-					rejected(t, err, "LOCKFILE_BOUNDARY")
-				}
+				must(t, err)
 			})
 		}
 	}

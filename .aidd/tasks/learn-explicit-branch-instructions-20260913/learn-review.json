@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "175460468cc43a65bab067c9e3c2f195808eac9b0fbf7ff95374f9036b3d8e0c",
+  "checkpoint_sha256": "de8e8cbc4101f98385af5d26d8c96a26463c52c2054a30f8c3949c91c3d8d100",
+  "evidence_sha256": "3588ee7ee2672e6601347e26ac8ca4876ec424ea11060056ccccefb971ca8931",
+  "reviewer": "Codex main agent",
+  "authorization": "PR #1752の未解決レビュー discussion_r4004541104 のLearn分析に対して、ユーザーが「反映して」と明示。同じTaskのprotocol実装・回帰テスト・契約文書に反映する。",
+  "observations": "Issue確認がDevelopment開始時に限定されていた原因に対し、Task種別と独立したproduct_authorizationをDecisionへ追加した。初期scopeまたはscope_revisionだけの実装追加、欠落・改変されたIssue/許可記録、許可対象外pathを拒否する実装を確認した。既存DevelopmentのIssueは再承認せず再利用し、Learn開始Taskも同じTaskで許可済み実装とルール保守を検証できる。混在JSONとlockfileのproduct変更も許可へ結び付け、toolだけの変更とmain由来変更は許可の追加を要求しない。許可文の真正性と意味判断はagentの責務として文書化した。\n\n## Coverage\n- Checked rules: adr.task-scope, adr.aidd-invariant-protocol, adr.agent-rule-graph, policy.git-workflow, ai-driven.workflow, ai-driven.overview, ai-driven.checker, adr.harness-engineering, documentation.policy, policy.code-review, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: 今回の変更についてなし。PRの旧base checkerによるCI受入失敗は今回の修正対象外であり、今回のローカル検証成功とは区別する。 固定checkerと更新後checkerのCore verify、Go全テスト、go vet、gofmt・文書整形・accepted ADR検査が成功。"
+}

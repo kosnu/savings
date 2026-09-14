@@ -257,7 +257,7 @@ func CompactContext() string {
 		"- Goalの所有は親agentが担い、CoreはGoalなしでも検査する。",
 		"- 確定済みdecisionは上書きせず、新revisionで証拠を失効する。",
 		"- 検証済み状態とstaged content/modeが一致する場合だけShipする。",
-		"- Developmentのguardrailはread-only。Learnは独立して終了する。",
+		"- 許可された実装とルール保守は同じTaskで継続し、PRは各Taskの担当差分と証拠で検証する。",
 	}, "\n")
 }
 

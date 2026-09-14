@@ -44,5 +44,5 @@ func TestDeliveryCannotHideEarlierCommits(t *testing.T) {
 	f.git("commit", "-qm", "deliver")
 	rejected(t, f.snapshot(func(s *repository.Snapshot) error {
 		return CheckDelivery(context.Background(), s, f.git("rev-parse", "HEAD"), f.spec.ID)
-	}), "DELIVERY_BASE")
+	}), "DELIVERY_TASK")
 }
