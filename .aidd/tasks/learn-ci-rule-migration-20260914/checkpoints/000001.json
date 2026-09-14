@@ -1,0 +1,137 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "56bdf744c30f08743db478f2a8a94afd44ae232fdec5b4fb2fd39b085b7daf34",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "56bdf744c30f08743db478f2a8a94afd44ae232fdec5b4fb2fd39b085b7daf34",
+    "reason": "旧baseから通常CIで受理できる小さな互換変更として、移行対象にroot AGENTS.mdを追加する。旧Task schemaの変更や候補自身への受入判断の移譲は行わない。",
+    "requirements": [
+      {
+        "id": "REQ-1",
+        "text": "ルール入口AGENTS.mdの移行を許可し、product・未知の入口・symlinkは拒否する",
+        "origin": "intent",
+        "evidence": "PR #1752のCIは旧checkerがrule_mapを拒否し、移行検査もmigration cannot change AGENTS.mdで失敗した。ユーザーは別ブランチでその問題を修正しShipするよう指示した。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "ルール入口AGENTS.mdの移行を許可し、product・未知の入口・symlinkは拒否する",
+          "requirement_id": "REQ-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration/migration.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/migration/migration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/migration/migration_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "REQ-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ]
+}

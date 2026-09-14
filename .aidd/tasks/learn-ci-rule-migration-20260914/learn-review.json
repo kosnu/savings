@@ -1,0 +1,10 @@
+{
+  "schema_version": 5,
+  "kind": "learn_review",
+  "task_sha256": "56bdf744c30f08743db478f2a8a94afd44ae232fdec5b4fb2fd39b085b7daf34",
+  "checkpoint_sha256": "b743942a97277daf3b91caa84e8cad28e13229e3baa5785436e5cf6090fa8c16",
+  "evidence_sha256": "f8576009994b38adae582e5c208c4152f03d3b915737e1adae6c62291f926aa6",
+  "reviewer": "Codex main agent",
+  "authorization": "ユーザーが別ブランチでCI受入問題を修正しShipするよう明示した。",
+  "observations": "root AGENTS.mdだけを完全一致で移行許可へ追加した。checker/contractとTaskの変更必須、Git blob/mode、product・別Task・未知path拒否、人の承認の検査は維持。PR #1752の実差分で旧版の拒否と修正版の受入を比較確認し、Go全テスト、vet、gofmt、文書整形、旧checkerのCore検証成功を確認した。\n\n## Coverage\n- Checked rules: ai-driven.checker, ai-driven.workflow, ai-driven.overview, ai-driven.issue-guidelines, adr.aidd-invariant-protocol, adr.agent-rule-graph, adr.harness-engineering, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection\n- Unresolved: なし。この修正のmain取り込み後、元PRの申請更新と移行承認が必要。"
+}
