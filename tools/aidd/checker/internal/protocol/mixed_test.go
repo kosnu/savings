@@ -43,6 +43,9 @@ func TestTaskCanMaintainProductAndToolConfiguration(t *testing.T) {
 		for _, field := range []string{"product", "guardrail", "tool", "move-tool", "delete"} {
 			t.Run(kind+"/"+field, func(t *testing.T) {
 				f := setupMixed(t, kind)
+				if kind == "learn" && field == "product" {
+					f.decision.ProductAuthorization = productAuthorization("package.json")
+				}
 				must(t, f.checkpoint())
 				body := `{"name":"test","scripts":{"test":"run-trusted","build":"build-product"},"dependencies":{"react":"1"},"devDependencies":{"vitest":"1"}}`
 				var obj map[string]any

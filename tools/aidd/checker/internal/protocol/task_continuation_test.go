@@ -204,6 +204,7 @@ func TestTaskKindDoesNotOverrideExplicitScope(t *testing.T) {
 	must(t, f.checkpoint())
 	includePaths(f, "src/a.txt")
 	f.decision.ScopeRevision = &ScopeRevision{AddedScopes: []model.OwnershipScope{{Path: "src/a.txt", Kind: "file"}}, Reason: "User also authorized the related implementation", BoundaryReview: "The explicit request includes the source change", Reviewer: "test reviewer"}
+	f.decision.ProductAuthorization = productAuthorization("src/a.txt")
 	must(t, f.checkpoint())
 	f.put("src/a.txt", "authorized implementation\n")
 	must(t, f.verify())

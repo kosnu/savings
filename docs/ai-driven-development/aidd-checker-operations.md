@@ -105,6 +105,32 @@ Taskは開始時HEAD、全non-ignored baseline、policy/rule-map/profileのbytes
 
 ## Decision / checkpoint
 
+product実装の開始時IssueがないTaskでは、実装が許可された時点で同じDecisionへ
+`product_authorization`を追加する。これは作業範囲の追記とは別の根拠であり、Taskの再作成は不要である。
+
+```json
+{
+  "product_authorization": {
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/owner/repository/issues/123",
+      "body": "取得したIssue本文",
+      "body_sha256": "本文のUTF-8 bytesのSHA-256"
+    },
+    "authorization": "ユーザーの実装依頼と、その依頼が対象Issueを実行する根拠",
+    "scopes": [{ "path": "apps/web/src/features/example", "kind": "tree" }]
+  }
+}
+```
+
+実際のIssue本文と依頼を確認し、対象scopeをpath順で記録する。既存のownership・必要な
+scope_revision・verificationも同じDecisionに含め、実装前にcheckpointを作る。
+開始時のIssue実行依頼で許可済みの場合は追加記録も再承認も不要である。
+追加した記録は後続Decisionに保持する。scope外の実装追加には対応する実行許可が必要であり、
+`user_scope_limits`は解除できない。product fieldや依存closureだけの変更にも同じ検査を適用する。
+checkerは出典URL・本文hash・許可記録・対象pathを検査し、GitHub上の本文の真正性や
+許可文の意味を自動認証しない。これらは担当agentが元の依頼と照合する。
+
 Decision sourceはschema_version 5、kind decision、task_sha256、reason、requirements、
 target_state、additional_rulesを持つ。
 

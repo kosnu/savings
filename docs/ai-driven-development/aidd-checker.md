@@ -81,6 +81,11 @@ hashは承認者の認証ではなく、ローカルの許可判断はagent、CI
 
 Development / Learnの種別からファイルや設定fieldの変更禁止を導かない。
 許可範囲・ownership・representation・必須検証を通常のcheckpointと証拠で確認する。
+product pathの実差分には、開始時のIssue実行依頼、または最新Decisionの`product_authorization`を要求する。
+後者はIssue本文・出典・hash、実行許可、path順の有限file/tree scopeを持ち、差分のpathを覆う。
+初期`authorized_scopes`や`scope_revision`だけではこの検査を代替できない。
+記録済みのIssue実行依頼は再利用し、Task種別による禁止や別Taskへの移行は要求しない。
+Issue本文の取得・許可文の真正性・依頼との意味的な対応はagentの責務であり、hash検査で証明したとは扱わない。
 新checkpointは現在のrule-map bytesを保存し、その索引のpath/surface・depends_on closureを計算する。
 文書の新規作成も扱い、未commitであることや開始時inventoryに存在しないことだけでは拒否しない。
 索引変更後はcheckpointを更新する。過去checkpointは保存した索引、旧形式は従来のTask索引で読み、hashを保持する。
@@ -113,7 +118,9 @@ Learnのfinish/Ship/CIは独立review記録を要求しない。別agentはユ�
 
 設定や依存関係も、Taskの種類にかかわらず許可されたownership内で更新できる。
 混在JSONとlockfileは既存のtype/modeと構造・参照の整合を検査する。
-product / toolの分類は互換性のある旧policyの読取に残すが、変更を別Taskへ隔離するためには使わない。
+product / toolの分類は実装許可の照合に使い、変更を別Taskへ隔離するためには使わない。
+混在JSONはproduct fieldの投影差分、lockfileはproduct依存closureの差分がある場合に実装許可を要求する。
+toolだけの変更はその許可を要求せず、両側の依存参照と構造を引き続き検査する。
 検証コマンドは開始時policy/profileから解決し、変更した設定で検証を黙って省略しない。
 
 ## 運用前提と限界

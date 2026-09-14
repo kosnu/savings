@@ -223,12 +223,20 @@ func (l *Loaded) mixed(path string) *MixedJSONRule {
 
 // Task種別で変更面を隔離せず、実際の許可範囲を検査する。
 func (l *Loaded) checkGuards(ctx context.Context, snapshot *repository.Snapshot, files []File) error {
+	if err := l.validateProductAuthorization(l.Checkpoint.Decision); err != nil {
+		return err
+	}
 	for _, path := range l.changedPaths(files) {
 		if !l.withinUserLimits(model.OwnershipScope{Path: path, Kind: "file"}) {
 			return fail("USER_SCOPE_LIMIT", path, "ユーザーの明示制限を超える変更です")
 		}
 		if l.Task.Spec.Kind == "learn" && !owned(path, l.authorizedScopes()) {
 			return fail("LEARN_SCOPE", path, "記録された変更許可の範囲外です")
+		}
+		if rules.MatchesPath(l.Policy.ProductPaths, path) {
+			if err := l.checkProductAuthorization(path); err != nil {
+				return err
+			}
 		}
 		if path == lockPath && len(l.Policy.MixedJSON) > 0 {
 			if err := l.checkLock(ctx, snapshot, files); err != nil {
