@@ -392,13 +392,16 @@ PR本文の申請形式は次のとおり。`reason`は、廃止・変更する�
 ```
 ````
 
-移行差分は`tools/aidd/`、`docs/ai-driven-development/`、`docs/harness/`、`docs/adr/`、
+移行差分はrootの`AGENTS.md`、`tools/aidd/`、`docs/ai-driven-development/`、`docs/harness/`、`docs/adr/`、
 AIDDのskill path（現行のlearn・goal-settingと、移行互換として許可する旧aidd-cycle・harness-taskのパス）、`aidd_checker_ci.yaml`と
 指定した1件のTask記録に限定する。checkerまたはcontract変更を必須とし、
 product、混在package設定、他のCI、別Taskの変更、symlink/submoduleは拒否する。
+`AGENTS.md`は契約変更に伴う入口の同期として扱い、単独の変更では移行を成立させない。
+未知のpathをprefixで許可せず、候補による許可リストの自己拡張も使わない。
 baseに保存済みのTask開始記録を置換してはいけない。未対応の変更面が必要な場合は、
 通常経路で移行検査を先行拡張してから使う。候補のTask schemaの意味検査は候補checkerが担い、
 旧checkerの受入条件から離れる判断は人が全差分を確認して担う。
+先行拡張をmainへ取り込んだ後、契約変更PRは現在のbase/headで申請を更新して再検証する。
 
 Environment `aidd-contract-migration`には名前を指定した人のrequired reviewerを設定する。
 個人repositoryでは所有者自身を指定でき、self review禁止は必須にしない。管理者のbypassは無効にする。

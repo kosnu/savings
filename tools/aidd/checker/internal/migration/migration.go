@@ -122,7 +122,8 @@ func allowedPath(p string) bool {
 			return true
 		}
 	}
-	return p == ".github/workflows/aidd_checker_ci.yaml"
+	// ルール入口も契約更新と同期する。配下の任意pathへ許可を広げない。
+	return p == "AGENTS.md" || p == ".github/workflows/aidd_checker_ci.yaml"
 }
 
 // APIはGitHubから取得したJSONだけを入力とする。candidate成果物を承認情報に使わない。
