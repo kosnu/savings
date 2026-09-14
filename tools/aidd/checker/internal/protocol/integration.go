@@ -64,10 +64,17 @@ func (l *Loaded) gitComparison() bool {
 }
 
 func (l *Loaded) changedPaths(files []File) []string {
-	return changed(
+	paths := changed(
 		transportFiles(withoutGenerated(l.changeBaseline(), l.Task.Spec.ID), l.gitComparison()),
 		transportFiles(withoutGenerated(files, l.Task.Spec.ID), l.gitComparison()),
 	)
+	result := []string{}
+	for _, path := range paths {
+		if owned(path, l.Checkpoint.Decision.Target.OwnershipScopes) || !owned(path, l.PeerScopes) {
+			result = append(result, path)
+		}
+	}
+	return result
 }
 
 // checker移行は既存Taskに追記する判断であり、開始記録の置換ではない。
@@ -82,23 +89,40 @@ func (l *Loaded) selectCheckerMigration(s *repository.Snapshot, next *CheckerMig
 	if l.CheckerMigration != nil && hash(next) == hash(l.CheckerMigration) {
 		return nil
 	}
-	if l.Task.Spec.Kind != "learn" || parent == "" || next.FromCheckpointSHA256 != parent || next.FromCheckerSHA256 != l.executionChecker() || !digestPattern.MatchString(next.ToCheckerSHA256) || next.ToCheckerSHA256 == next.FromCheckerSHA256 || strings.TrimSpace(next.Authorization) == "" {
-		return fail("MIGRATION_AUTHORITY", l.Task.Spec.ID, "Learnの現在checkpoint・移行元/移行先checker・明示許可が必要です")
+	if parent == "" || next.FromCheckpointSHA256 != parent || next.FromCheckerSHA256 != l.executionChecker() || !digestPattern.MatchString(next.ToCheckerSHA256) || next.ToCheckerSHA256 == next.FromCheckerSHA256 || strings.TrimSpace(next.Authorization) == "" {
+		return fail("MIGRATION_AUTHORITY", l.Task.Spec.ID, "現在checkpoint・移行元/移行先checker・明示許可が必要です")
 	}
-	old, digest, err := readMode[Evidence](s, evidencePath(l.Task.Spec.ID, parent), l.Delivered)
+	if l.Task.Spec.Kind == "development" && len(next.AuthorizedScopes) != 0 {
+		return fail("MIGRATION_SCOPE", l.Task.Spec.ID, "Developmentのchecker移行は変更権限を追加しません")
+	}
+	exists, err := s.Exists(evidencePath(l.Task.Spec.ID, parent))
 	if err != nil {
 		return err
 	}
-	if next.FromEvidenceSHA256 != digest || old.TaskSHA256 != l.TaskHash || old.CheckpointSHA256 != parent || old.CheckerSHA256 != next.FromCheckerSHA256 {
-		return fail("MIGRATION_EVIDENCE", l.Task.Spec.ID, "移行元の証拠identityが一致しません")
+	if !exists {
+		// ルール変更で初回検証を阻まれたDevelopmentにも移行を許可する。
+		if l.Task.Spec.Kind != "development" || next.FromEvidenceSHA256 != "" {
+			return fail("MIGRATION_EVIDENCE", l.Task.Spec.ID, "移行元の証拠がありません")
+		}
+	} else {
+		old, digest, err := readMode[Evidence](s, evidencePath(l.Task.Spec.ID, parent), l.Delivered)
+		if err != nil {
+			return err
+		}
+		if next.FromEvidenceSHA256 != digest || old.TaskSHA256 != l.TaskHash || old.CheckpointSHA256 != parent || old.CheckerSHA256 != next.FromCheckerSHA256 {
+			return fail("MIGRATION_EVIDENCE", l.Task.Spec.ID, "移行元の証拠identityが一致しません")
+		}
 	}
 	previous := ""
 	for _, scope := range next.AuthorizedScopes {
 		if _, err := pathcontract.ValidateRelativePath(scope.Path); err != nil {
 			return err
 		}
-		if (scope.Kind != "file" && scope.Kind != "tree") || scope.Path <= previous || scope.Path == TaskRoot || strings.HasPrefix(scope.Path, TaskRoot+"/") || !l.guarded(scope.Path) {
-			return fail("MIGRATION_SCOPE", scope.Path, "移行には有限で整列したguardrail scopeを明示してください")
+		if (scope.Kind != "file" && scope.Kind != "tree") || scope.Path <= previous || scope.Path == TaskRoot || strings.HasPrefix(scope.Path, TaskRoot+"/") {
+			return fail("MIGRATION_SCOPE", scope.Path, "移行には有限で整列したscopeを明示してください")
+		}
+		if !l.withinUserLimits(scope) {
+			return fail("USER_SCOPE_LIMIT", scope.Path, "移行がユーザーの明示制限を超えています")
 		}
 		previous = scope.Path
 	}

@@ -90,7 +90,7 @@ Coreの成功はmerge/deploy権限を与えない。
 Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
 を追加する。pathは初期計画の有限file/tree。ユーザーが明示したファイル上限は任意の
-`user_scope_limits`へ別に記録する。product pathは許可scopeへ含めても変更できない。
+`user_scope_limits`へ別に記録する。Task種別にかかわらず実際の許可範囲を検査する。
 
 ```sh
 /tmp/aidd-task-checker task-start --repo-root . --source /tmp/task-spec.json
@@ -104,6 +104,32 @@ Taskは開始時HEAD、全non-ignored baseline、policy/rule-map/profileのbytes
 別IDとcleanなworktreeでtask-startが成功しても、既存Taskの置換が許可されたことにはならない。
 
 ## Decision / checkpoint
+
+product実装の開始時IssueがないTaskでは、実装が許可された時点で同じDecisionへ
+`product_authorization`を追加する。これは作業範囲の追記とは別の根拠であり、Taskの再作成は不要である。
+
+```json
+{
+  "product_authorization": {
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/owner/repository/issues/123",
+      "body": "取得したIssue本文",
+      "body_sha256": "本文のUTF-8 bytesのSHA-256"
+    },
+    "authorization": "ユーザーの実装依頼と、その依頼が対象Issueを実行する根拠",
+    "scopes": [{ "path": "apps/web/src/features/example", "kind": "tree" }]
+  }
+}
+```
+
+実際のIssue本文と依頼を確認し、対象scopeをpath順で記録する。既存のownership・必要な
+scope_revision・verificationも同じDecisionに含め、実装前にcheckpointを作る。
+開始時のIssue実行依頼で許可済みの場合は追加記録も再承認も不要である。
+追加した記録は後続Decisionに保持する。scope外の実装追加には対応する実行許可が必要であり、
+`user_scope_limits`は解除できない。product fieldや依存closureだけの変更にも同じ検査を適用する。
+checkerは出典URL・本文hash・許可記録・対象pathを検査し、GitHub上の本文の真正性や
+許可文の意味を自動認証しない。これらは担当agentが元の依頼と照合する。
 
 Decision sourceはschema_version 5、kind decision、task_sha256、reason、requirements、
 target_state、additional_rulesを持つ。
@@ -157,7 +183,7 @@ reasonへ変更・削除した判断と根拠を記録する。旧checkpointやb
 ```
 
 `added_scopes`は新たな有限file/treeをpath順で指定する。初回checkpoint、重複追加、checker出力、
-禁止tree、productの追加は拒否する。過去のイベントは履歴から再構成するため、次のcheckpointへ
+禁止treeの追加は拒否する。過去のイベントは履歴から再構成するため、次のcheckpointへ
 同じ`scope_revision`を再掲しない。さらに追加する場合だけ新しいイベントを記載する。
 
 旧Taskの許可文にファイル単位の上限がある場合は、イベントの`user_scope_limits`へ
@@ -204,7 +230,7 @@ CIでは実際のPR merge-baseと現在のtarget baseをそれぞれ渡す。
 
 ### 旧Taskのchecker移行
 
-開始時checkerが統合記録を扱えないLearnは、明示許可に基づくchecker移行を新checkpointへ追記する。
+開始時checkerが必要な継続機能を扱えないTaskは、許可されたchecker移行を新checkpointへ追記する。
 Taskの開始記録、元baseline、旧policy/profile、旧checkpointと旧証跡を保持し、新Taskで置換しない。
 移行先binaryを独立にbuildしてSHA-256を取得し、外部Decision sourceへ次を追加する。
 
@@ -212,23 +238,43 @@ Taskの開始記録、元baseline、旧policy/profile、旧checkpointと旧証�
 - `to_checker_sha256`: 以後の実行に固定する移行先binaryのhash。
 - `from_checkpoint_sha256` / `from_evidence_sha256`: 最新checkpointとその既存証跡のhash。
 - `authorization`: 移行と必要な追加修正について実際に得た明示許可。
-- `authorized_scopes`: 追加修正を許可された有限のguardrail file/treeをpath順に列挙。追加がなければ空配列。
+- `authorized_scopes`: 追加修正を許可された有限のfile/treeをpath順に列挙。追加がなければ空配列。
+
+Developmentでは`authorized_scopes`を空配列にする。ルール保守と必要なchecker更新の許可根拠を記録し、
+通常のDecisionでルールの変更・検証も扱う。初回検証を阻まれ、親checkpointの証拠が存在しない場合は
+`from_evidence_sha256`を空文字列にする。証拠が存在する場合はそのhashを必ず指定し、省略しない。
+移行はproductやguardrailの変更権限を追加せず、Taskの元の権限とユーザーの明示制限を維持する。
 
 移行先binaryで通常の`checkpoint`を実行する。初回の移行記録は現在checkpointを参照する場合だけ受け付け、
 実行binaryのhashを移行先と照合する。以後のcheckpointは同じ移行記録を保持する。再移行はその時点の
 checkpoint・証跡・実行checkerから追記し、記録の除去は拒否する。Taskの初期作業範囲の記録を上書きせず、追加の許可は
-移行記録の履歴へ残す。product変更は追加scopeに指定しても拒否する。
+移行記録の履歴へ残す。ユーザーの明示制限を超える変更は拒否する。
 
 必要なら同じDecisionに`integration`を指定し、全差分のownership・要求・verificationを具体化する。
 旧証跡は移行元の履歴参照であり、現在状態の成功根拠にしない。移行先binaryで全caseを再verifyし、
 そのbinaryのhashと新checkpointへ結合した証跡でcheck・finish・ship-checkを行う。
-独立Learnで検証したguardrail変更を元PRへ反映する場合も、元Taskの移行checkpointで全PR差分を再検証する。
-独立Learnの記録はその作業branchに保持し、元Taskを別Taskで覆い直さない。
+既存の複数Taskを同じPRへ反映する場合は記録を保持し、各Taskの担当範囲を最終ソースで再検証する。
+ルール保守を理由に新しいTaskを要求しない。
 
-この移行を含むTaskは通常のci-checkでは`MIGRATION_REQUIRED`で拒否する。
-PRの契約移行申請を記載し、candidate jobだけが`ci-check --contract-migration`を実行する。
-このflagはbase側の限定差分検査・現在のbase/head/本文との一致・GitHub Environmentの人による承認の代替ではない。
-移行先の候補checker成功だけで配信を受け入れず、必ず下記の非互換契約移行経路を通す。
+対応済みのtrusted base checkerは、Task種別にかかわらず通常の`ci-check`で移行後の証拠を検査する。
+base checkerが新契約を扱えない場合だけ、下記の非互換契約移行経路を使う。
+`ci-check --contract-migration`も全Taskの履歴・差分・証拠を検査し、base側の限定差分検査と
+GitHub Environmentによる人の承認を省略しない。実行checkerの移行とCI受入契約の変更は区別する。
+
+## ルール変更の採用
+
+ルール保守は既存Taskの通常の変更として扱う。
+
+1. 許可された変更理由・対象と検証をDecisionのownership・representation・caseへ記録する。
+2. 同じTask・ブランチでアプリ実装とルールを修正する。先行commitや専用の採用fieldは不要。
+3. 変更後のルールを読み、rule-mapを変えた場合は新checkpointで更新後の索引とclosureを保存する。
+4. `verify`・`check`・`finish`で担当範囲と最終ソースを検証し、配信時は`ship-check`を実行する。
+
+開始時checkerがこの継続方式に未対応なら、上記のchecker移行を記録して対応binaryへ移行する。
+Task開始記録と旧checkpoint・証拠を保持し、Task再作成で古い差分を隠さない。
+`TestDevelopmentEditsProductAndRulesWithoutSeparateTaskOrCommit`、
+`TestCheckpointUsesUpdatedRuleMapWithoutImportCommit`、`TestSameBranchTasksShareDeliveryAndKeepTheirRecords`、
+`TestOldDevelopmentCheckerMigratesAndContinues`で継続・索引更新・複数TaskのCI・旧Task移行を確認する。
 
 ## Verification
 
@@ -277,7 +323,7 @@ kind=learn_review、task_sha256、checkpoint_sha256、evidence_sha256、reviewer
   --source-sha256 <review-file-hash>
 ```
 
-product実装が必要なら既存Issueへhandoffして終了する。
+既に許可されたproduct実装は同じTaskで継続する。追加の実装が許可されていなければ、その必要性と既存Issueを示す。
 
 ## Ship / CI
 
@@ -329,8 +375,10 @@ checkerのGo検証と既存artifactのcheck-allは引き続き実行する。
 /tmp/base-aidd-checker ci-check --repo-root . --base <PR-merge-base>
 ```
 
-変更されたTaskは1件に特定する。初期版は1 PR=1 taskとし、Taskの変更判定基準とPR merge-baseの一致（統合時は現在のtarget baseとも一致）、
-開始時policy/profileとGit baseline、最終content/Git mode、rule/ownership/verificationを検査する。
+変更された全Taskを検査する。Task数を制限せず、各Taskの開始時policy/profileとGit baseline、
+最終content/Git mode、rule/ownership/verificationを確認し、その和集合でPR差分を覆う。
+各Taskの変更基準はPRの履歴上にあり、統合時は現在のtarget baseと一致する必要がある。
+`--task`の指定でも他の変更Taskの検査を省略しない。ソースが変わったら各Taskを最終状態で再検証する。
 初回vNext導入PRだけは現在のtarget baseとmerge-baseの両方にv5がないため、candidateの回帰検証と独立reviewでbootstrapする。
 古い分岐PRでも現在のtarget baseにv5があれば通常経路を使う。merge-baseにTask基準のv5がない場合は
 bootstrapへfallbackせず失敗し、最新baseへ追従して適切なTask/evidenceを準備する。
@@ -394,8 +442,9 @@ PR本文の申請形式は次のとおり。`reason`は、廃止・変更する�
 
 移行差分はrootの`AGENTS.md`、`tools/aidd/`、`docs/ai-driven-development/`、`docs/harness/`、`docs/adr/`、
 AIDDのskill path（現行のlearn・goal-settingと、移行互換として許可する旧aidd-cycle・harness-taskのパス）、`aidd_checker_ci.yaml`と
-指定した1件のTask記録に限定する。checkerまたはcontract変更を必須とし、
-product、混在package設定、他のCI、別Taskの変更、symlink/submoduleは拒否する。
+Task記録に限定する。checkerまたはcontract変更を必須とし、
+product、混在package設定、他のCI、symlink/submoduleは拒否する。
+複数Taskの記録は許可し、候補CIで各Taskの履歴と証拠を検査する。
 `AGENTS.md`は契約変更に伴う入口の同期として扱い、単独の変更では移行を成立させない。
 未知のpathをprefixで許可せず、候補による許可リストの自己拡張も使わない。
 baseに保存済みのTask開始記録を置換してはいけない。未対応の変更面が必要な場合は、

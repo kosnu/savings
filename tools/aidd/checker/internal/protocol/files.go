@@ -153,7 +153,7 @@ func changed(before, after []File) []string {
 func withoutGenerated(files []File, id string) []File {
 	result := []File{}
 	for _, f := range files {
-		if !strings.HasPrefix(f.Path, taskPath(id, "")) {
+		if !strings.HasPrefix(f.Path, TaskRoot+"/") {
 			result = append(result, f)
 		}
 	}
