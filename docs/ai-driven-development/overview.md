@@ -24,8 +24,9 @@ Codexは1つのDevelopment Goalで探索から依頼されたdeliveryまで継�
 
 DevelopmentはExplore / Decide → checkpoint → Build / Verify / Review → Shipを基本形とし、
 設計判断を同じ意図・制約の下で改訂できます。改訂は新revisionとして記録し証拠を全失効します。
-Learnはfeedbackから独立して開始し、guardrailの変更・検証・確定で終了します。
-Learn用Issueを作らず、product実装が必要なら既存Issueから別Developmentを開始します。
+Learnはfeedbackの分析と改善です。既存作業中のルール保守は同じTaskで行い、単独の新規依頼ではTaskを開始できます。
+Learn用Issueは作りません。product実装の意図は既存Issueで確認し、許可済みの作業を同じTaskで継続します。
+既存Taskへのルール採用・続行と、新しいintentによる新規開始はworkflowの境界に従います。
 
 契約の正本は[workflow](workflow.md)、checker境界は[aidd-checker](aidd-checker.md)、
 実行方法は[operations](aidd-checker-operations.md)、Codex固有動作は[codex-adapter](codex-adapter.md)です。

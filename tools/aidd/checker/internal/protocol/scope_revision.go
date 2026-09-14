@@ -5,7 +5,6 @@ import (
 
 	"github.com/kosnu/savings/tools/aidd/checker/internal/model"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
-	"github.com/kosnu/savings/tools/aidd/checker/internal/rules"
 )
 
 func (l *Loaded) withinUserLimits(scope model.OwnershipScope) bool {
@@ -63,9 +62,6 @@ func (l *Loaded) selectScopeRevision(next *ScopeRevision, parent string) error {
 		}
 		if scopeCovered(scope, l.authorizedScopes()) {
 			return fail("SCOPE_REVISION", scope.Path, "登録済みのscopeは再追加できません")
-		}
-		if !l.guarded(scope.Path) || rules.MatchesPath(l.Policy.ProductPaths, scope.Path) {
-			return fail("LEARN_SCOPE", scope.Path, "追加対象はguardrailに限定します")
 		}
 	}
 	l.RevisionScopes = append(l.RevisionScopes, next.AddedScopes...)

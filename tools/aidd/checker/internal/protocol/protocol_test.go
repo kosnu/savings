@@ -217,18 +217,21 @@ func TestRuleClosureCannotBeOmitted(t *testing.T) {
 	rejected(t, f.verify(), "RULE_COVERAGE")
 }
 
-func TestGuardrailDriftCannotBeAbsorbedByRevision(t *testing.T) {
+func TestUnownedRuleChangeStillRequiresOwnership(t *testing.T) {
 	f := setup(t, "development")
 	must(t, f.checkpoint())
-	f.put("guard/rule.md", "weakened invariant\n")
-	rejected(t, f.checkpoint(), "GUARDRAIL_DRIFT")
+	f.put("guard/rule.md", "updated invariant\n")
+	must(t, f.checkpoint())
+	rejected(t, f.verify(), "OWNERSHIP")
 }
 
-func TestGuardrailCannotBeOwnedByDevelopment(t *testing.T) {
+func TestDevelopmentCanOwnRules(t *testing.T) {
 	f := setup(t, "development")
 	f.decision.Target.OwnershipScopes[0].Path = "guard/rule.md"
 	f.decision.Target.Representations[0].Path = "guard/rule.md"
-	rejected(t, f.checkpoint(), "GUARDRAIL_SCOPE")
+	must(t, f.checkpoint())
+	f.put("guard/rule.md", "updated invariant\n")
+	must(t, f.verify())
 }
 
 func TestDecisionRevisionInvalidatesEvidenceAndPreservesBaseline(t *testing.T) {
