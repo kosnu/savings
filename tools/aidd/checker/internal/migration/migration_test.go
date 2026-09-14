@@ -20,6 +20,11 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 	}{
 		{"checker", "tools/aidd/checker/main.go", false},
 		{"contract", "docs/ai-driven-development/contracts/protocol.json", false},
+		{"rule-entrypoint", "AGENTS.md", false},
+		{"entrypoint-only", "AGENTS.md", true},
+		{"entrypoint-symlink", "AGENTS.md", true},
+		{"nested-entrypoint", "apps/web/AGENTS.md", true},
+		{"entrypoint-suffix", "AGENTS.md.backup", true},
 		{"product", "apps/web/src/app.tsx", true},
 		{"mixed-settings", "package.json", true},
 		{"other-task", ".aidd/tasks/other/task.json", false},
@@ -59,6 +64,7 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 			git("config", "user.name", "Test")
 			git("config", "user.email", "test@example.invalid")
 			put("base.txt", "unchanged")
+			put("AGENTS.md", "existing rule entrypoint")
 			put("apps/web/src/app.tsx", "existing product")
 			if tc.name == "rewritten-task" {
 				put(".aidd/tasks/change/task.json", "original")
@@ -77,7 +83,10 @@ func TestScopeUsesGitAndRejectsUnrelatedChanges(t *testing.T) {
 			if tc.name == "other-task" {
 				put("tools/aidd/checker/main.go", "candidate checker")
 			}
-			if tc.name == "symlink" {
+			if strings.Contains(tc.name, "entrypoint") && tc.name != "entrypoint-only" {
+				put("tools/aidd/checker/main.go", "updated contract")
+			}
+			if tc.name == "symlink" || tc.name == "entrypoint-symlink" {
 				os.Remove(filepath.Join(root, tc.path))
 				if e := os.Symlink("../../base.txt", filepath.Join(root, tc.path)); e != nil {
 					t.Fatal(e)
