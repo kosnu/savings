@@ -32,7 +32,7 @@
     "@tanstack/react-form-devtools": "0.2.34",
     "@tanstack/react-query": "5.102.8",
     "@tanstack/react-query-devtools": "5.102.8",
-    "@tanstack/react-router": "1.170.32",
+    "@tanstack/react-router": "1.170.33",
     "@tanstack/react-router-devtools": "1.167.1",
     "date-fns": "4.4.0",
     "i18next": "26.4.2",
