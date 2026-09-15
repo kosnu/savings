@@ -1,0 +1,170 @@
+{
+  "schema_version": 5,
+  "kind": "checkpoint",
+  "task_sha256": "e2663565fa155484f6e9223062d0ae46d6569322a735f53749284cd60e421a05",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 5,
+    "kind": "decision",
+    "task_sha256": "e2663565fa155484f6e9223062d0ae46d6569322a735f53749284cd60e421a05",
+    "reason": "ユーザーが追加した1件のfinding。Issueに利用意欲のIntentはあったが、設計が業務画面の密度と説明表示へ縮退し、画像確認も可読性中心だった。既存例外の適用判断不足は通常経路の失敗。主分類はルール・ポリシーの追加・変更。Issue文言だけの追記や画像の必須化では再発を防げないため、LPに限定した目的別設計と評価を新設する。共通ブランド・状態・アクセシビリティは維持し、密度・上端配置・見出しサイズ・section間余白についてLPの目的に応じた差分を明示可能にする。新規ルールはTopPageと自身をpath routingし、別のLPは既存design-rulesから目的で参照する。日常画面や認証フォームへ一律適用しない。DESIGN.mdとproductは変更しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "LP用の設計・評価基準を新設し既存規則から参照できる",
+        "origin": "intent",
+        "evidence": "LP用ルールを新設"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "LPの設計時にIntent、視覚表現、導線と目的に沿う実画面評価を適用でき、通常画面では既存基準を維持する",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "新規policyと既存参照の整合・変更範囲を検証して確定する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "LP・日常操作・混在画面の適用境界、Intentと設計/実画面評価の対応、既存制約の保持と参照リンクを最終差分で確認する"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "repository必須command、candidate check-all、採択ADR検査を実行し、rule-mapと文書整合を担当agentがレビューする"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/docs/policies/design-rules.md",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/docs/policies/landing-page-rules.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/web/docs/policies/design-rules.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "apps/web/docs/policies/landing-page-rules.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/harness/rule-map.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "ai-driven.learn"
+    ]
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.harness-engineering",
+    "ai-driven.checker",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.storybook-browser-tests",
+    "web.test-policy"
+  ]
+}
