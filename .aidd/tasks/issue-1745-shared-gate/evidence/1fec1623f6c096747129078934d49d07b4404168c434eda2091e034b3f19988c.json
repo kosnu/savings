@@ -1,0 +1,197 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "c7b34251daa538f3ef55cb8a9a7f368bd0d2990d1a7f3497dc733b3145aa18b9",
+  "checkpoint_sha256": "1fec1623f6c096747129078934d49d07b4404168c434eda2091e034b3f19988c",
+  "repository_sha256": "1b456864d8091755e652e207ee25108321e292c26aed93d8ffde65ed8ed5fa6a",
+  "git_repository_sha256": "3c6245c14bbccf99e90d8201d2abfbe67cc8da9c01b8a3709518ac715de59471",
+  "changed_paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/contracts/protocol.json",
+    "docs/ai-driven-development/contracts/verification-profiles.json",
+    "tools/aidd/checker/internal/protocol/shared_gate_test.go",
+    "tools/aidd/tests/test_shared_gate.py"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1745-shared-gate",
+    "receipt_sha256": "1fec1623f6c096747129078934d49d07b4404168c434eda2091e034b3f19988c",
+    "catalog_sha256": "a3bc17955abfba8d03007da7c0f6abd95ed788673a9d9b4e05e314fa7d56da3a",
+    "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2492,
+        "stderr_bytes": 0,
+        "output_sha256": "2340d108880a5c9724236798711962ce8bc147915338b717627921eac978ac73",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-python-unittest",
+        "profile_sha256": "7c170dbe43cbb2e56451fb5af8804dbb52372f8e8eb731a705ee5238876cd5b0",
+        "selector": {
+          "kind": "test_case",
+          "path": "tools/aidd/tests/test_shared_gate.py",
+          "name": "SharedGateTests.test_format_and_preserve_unstaged"
+        },
+        "executed_identities": [
+          {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_format_and_preserve_unstaged"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 224,
+        "output_sha256": "a1ac51f8f1d11ab7a31c1b9b9e430fd5959ee2697443b61ed9bb80124aa776be",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-python-unittest",
+        "profile_sha256": "7c170dbe43cbb2e56451fb5af8804dbb52372f8e8eb731a705ee5238876cd5b0",
+        "selector": {
+          "kind": "test_case",
+          "path": "tools/aidd/tests/test_shared_gate.py",
+          "name": "SharedGateTests.test_vet_failure_blocks_commit"
+        },
+        "executed_identities": [
+          {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_vet_failure_blocks_commit"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 218,
+        "output_sha256": "196296fb225b0f7002441b84a041aed12547cd7da623b30af570c9fdff77ecf0",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-python-unittest",
+        "profile_sha256": "7c170dbe43cbb2e56451fb5af8804dbb52372f8e8eb731a705ee5238876cd5b0",
+        "selector": {
+          "kind": "test_case",
+          "path": "tools/aidd/tests/test_shared_gate.py",
+          "name": "SharedGateTests.test_non_go_runs_vet"
+        },
+        "executed_identities": [
+          {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_non_go_runs_vet"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 198,
+        "output_sha256": "ca0f5170f09f2fb6a961ac5b92e802e23f896c93cdcf0b8183495010cec86677",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da"
+      },
+      {
+        "id": "VC-6",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-python-unittest",
+        "profile_sha256": "7c170dbe43cbb2e56451fb5af8804dbb52372f8e8eb731a705ee5238876cd5b0",
+        "selector": {
+          "kind": "test_case",
+          "path": "tools/aidd/tests/test_shared_gate.py",
+          "name": "SharedGateTests.test_deletion_runs_vet"
+        },
+        "executed_identities": [
+          {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_deletion_runs_vet"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 202,
+        "output_sha256": "86fcd6bbab819335f716b13481ce3f66628911752c9cbee7213329247377e247",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da"
+      },
+      {
+        "id": "VC-7",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-python-unittest",
+        "profile_sha256": "7c170dbe43cbb2e56451fb5af8804dbb52372f8e8eb731a705ee5238876cd5b0",
+        "selector": {
+          "kind": "test_case",
+          "path": "tools/aidd/tests/test_shared_gate.py",
+          "name": "SharedGateTests.test_check_and_canonical_json"
+        },
+        "executed_identities": [
+          {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_check_and_canonical_json"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 216,
+        "output_sha256": "12cffd59b3c72527dd0fbd22ece9b3b21119f2d233f64924c12090a3d1f53354",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da"
+      },
+      {
+        "id": "VC-8",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "904310f02da46c52641a47241b21e524f3eb3f9009d2823abc4d4af7b55729da",
+        "procedure": "Go mod verify/gofmt/vet、candidate check-all、ADR validator、最終diffの全適用rule reviewを確認する。配信はTaskのDoneとして検証後に確認する。",
+        "observation": "Go mod verify成功、gofmt差分なし、go vet成功、candidate check-all成功(artifacts=8/read_only_legacy=2)、ADR検証成功(5件)、git diff --check成功。全適用ruleと最終5ファイルをレビューし未解決findingなし。実vp/Go/Gitによる5テストとrouting省略拒否を確認。配信read-backは検証後のDoneとして実施する。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}

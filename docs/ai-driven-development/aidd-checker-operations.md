@@ -556,6 +556,28 @@ Gitのcommit前には`.vite-hooks/pre-commit`が`vp staged`を実行する。
 フックの整形は下記の検証より前に完了させる。AIDDの証拠取得後にフックが内容を変更した場合は、
 変更後の状態を再検証する。CIの整形・vet検査は引き続き維持する。
 
+必須検証のroutingは、検査対象だけでなく動作や検証方法を変える実行入力も対象にする。
+共有ゲートの回帰suiteは`shared-gate-tests`。`protocol.json`はルート`vite.config.ts`、
+`.vite-hooks/**`、回帰テスト自身に加え、`protocol.json`、`verification-profiles.json`、
+ルート`package.json`、`pnpm-workspace.yaml`、`pnpm-lock.yaml`の変更にもこのsuiteを要求する。
+`git-diff-check`やWeb suiteだけのDecisionでは条件を満たさない。
+protocol/profileの変更には、routingと起動コマンドの契約を検査する`aidd-checker-tests`も要求する。
+これにより、suite名を残した起動先変更や必須対象の欠落も回帰テストで検出する。
+依存定義はファイル単位で保守的に選択し、変更fieldごとの対象判定は行わない。
+`verification-profiles.json`が次の起動方法を所有する。
+
+```sh
+python3 -B -m unittest -v tools.aidd.tests.test_shared_gate
+```
+
+依存をインストール済みのrepositoryでPython 3、Git、Go、Nodeと`node_modules/.bin/vp`を使う。
+suiteは設定とフックを一時Git repositoryへコピーし、実際のcommitから`vp staged`を実行する。
+Go整形、vet失敗によるcommit停止、非Go・削除のみのvet、成功・失敗時の未ステージ差分保護、
+`vp check`の整形と`.aidd` JSONのbytes保持を確認する。元repositoryのindexやHEADは変更しない。
+Goのfixtureは一時repositoryの`tools/aidd/checker`に置き、Go/vpの実行をmockへ置き換えない。
+開始時profileを固定したLearnでは既存`aidd-python-unittest`で同じテストの各methodを実行し、
+新suiteのroutingと省略拒否はchecker回帰テストで確認する。
+
 具体的な必須commandは次のとおり。
 
 ```sh
