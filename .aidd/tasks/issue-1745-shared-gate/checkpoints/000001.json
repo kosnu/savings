@@ -1,0 +1,279 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "c7b34251daa538f3ef55cb8a9a7f368bd0d2990d1a7f3497dc733b3145aa18b9",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "c7b34251daa538f3ef55cb8a9a7f368bd0d2990d1a7f3497dc733b3145aa18b9",
+    "reason": "共有ゲート動作suiteを新設しprotocolからroot vite.config.tsと.vite-hooks/**、テスト自身へ接続する。通常の設定変更でgit-diff-checkだけが要求される検出漏れが原因。Web suiteへの追加や注意書きだけではGo/Git動作を検証できないため、一時Git repositoryで実vpと実Goを実行する。元resolvedコメントの再抽出ではなくユーザー指定Issueの未対応findingを入力とする。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "共有ゲートの必須検証と動作回帰を追加する",
+        "origin": "intent",
+        "evidence": "共有ゲートの動作に対応する必須検証が選択される。"
+      },
+      {
+        "id": "FR-2",
+        "text": "整形・vet・変更保護・既存checkとcanonical JSON保持を検証する",
+        "origin": "intent",
+        "evidence": "実際の設定とフックを使い、Go整形、vet失敗時のcommit停止、非Go変更・削除のみでもvetが動くこと、未ステージ変更の保護を回帰検証する。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "設定とフック変更でsuite省略Decisionを拒否する",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "実フックが要求されたGo検証・変更保護・check・JSON保持を行う",
+          "requirement_id": "FR-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-python-unittest",
+          "selector": {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_format_and_preserve_unstaged"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-python-unittest",
+          "selector": {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_vet_failure_blocks_commit"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-python-unittest",
+          "selector": {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_non_go_runs_vet"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-python-unittest",
+          "selector": {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_deletion_runs_vet"
+          }
+        },
+        {
+          "id": "VC-7",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-python-unittest",
+          "selector": {
+            "kind": "test_case",
+            "path": "tools/aidd/tests/test_shared_gate.py",
+            "name": "SharedGateTests.test_check_and_canonical_json"
+          }
+        },
+        {
+          "id": "VC-8",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Go mod verify/gofmt/vet、candidate check-all、ADR validator、最終diffの全適用rule reviewと配信を確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/contracts/protocol.json",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/shared_gate_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/tests/test_shared_gate.py",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/contracts/protocol.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/shared_gate_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "tools/aidd/tests/test_shared_gate.py",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.task-scope",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}

@@ -29,6 +29,15 @@
       "argv": ["git", "diff", "--no-ext-diff", "HEAD", "--check", "--"]
     },
     {
+      "id": "shared-gate-tests",
+      "contract": "suite",
+      "runner": "command_suite",
+      "selector_kind": "suite",
+      "selector_root": "",
+      "working_directory": "",
+      "argv": ["python3", "-B", "-m", "unittest", "-v", "tools.aidd.tests.test_shared_gate"]
+    },
+    {
       "id": "web-format-check",
       "contract": "suite",
       "runner": "command_suite",
