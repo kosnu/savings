@@ -36,11 +36,24 @@
       "profiles": ["git-diff-check"]
     },
     {
-      "paths": ["tools/aidd/**"],
+      "paths": [
+        "tools/aidd/**",
+        "docs/ai-driven-development/contracts/protocol.json",
+        "docs/ai-driven-development/contracts/verification-profiles.json"
+      ],
       "profiles": ["aidd-checker-tests"]
     },
     {
-      "paths": ["vite.config.ts", ".vite-hooks/**", "tools/aidd/tests/test_shared_gate.py"],
+      "paths": [
+        "vite.config.ts",
+        ".vite-hooks/**",
+        "tools/aidd/tests/test_shared_gate.py",
+        "docs/ai-driven-development/contracts/protocol.json",
+        "docs/ai-driven-development/contracts/verification-profiles.json",
+        "package.json",
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml"
+      ],
       "profiles": ["shared-gate-tests"]
     },
     {

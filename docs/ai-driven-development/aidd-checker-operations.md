@@ -556,8 +556,14 @@ Gitのcommit前には`.vite-hooks/pre-commit`が`vp staged`を実行する。
 フックの整形は下記の検証より前に完了させる。AIDDの証拠取得後にフックが内容を変更した場合は、
 変更後の状態を再検証する。CIの整形・vet検査は引き続き維持する。
 
+必須検証のroutingは、検査対象だけでなく動作や検証方法を変える実行入力も対象にする。
 共有ゲートの回帰suiteは`shared-gate-tests`。`protocol.json`はルート`vite.config.ts`、
-`.vite-hooks/**`、回帰テスト自身の変更にこのsuiteを要求し、`git-diff-check`だけのDecisionを拒否する。
+`.vite-hooks/**`、回帰テスト自身に加え、`protocol.json`、`verification-profiles.json`、
+ルート`package.json`、`pnpm-workspace.yaml`、`pnpm-lock.yaml`の変更にもこのsuiteを要求する。
+`git-diff-check`やWeb suiteだけのDecisionでは条件を満たさない。
+protocol/profileの変更には、routingと起動コマンドの契約を検査する`aidd-checker-tests`も要求する。
+これにより、suite名を残した起動先変更や必須対象の欠落も回帰テストで検出する。
+依存定義はファイル単位で保守的に選択し、変更fieldごとの対象判定は行わない。
 `verification-profiles.json`が次の起動方法を所有する。
 
 ```sh
