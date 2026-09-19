@@ -442,3 +442,80 @@ func TestCompactRejectsNullAndDuplicateUpdates(t *testing.T) {
 		rejected(t, canonical.Decode([]byte(source), "update", &update), "")
 	}
 }
+
+func TestDecisionUpdateConsumesScopeEventAndPreservesHistory(t *testing.T) {
+	for _, version := range []int{Version, CompactVersion} {
+		for _, limitSource := range []string{"task", "event"} {
+			t.Run(fmt.Sprintf("v%d/%s", version, limitSource), func(t *testing.T) {
+				f := setupVersion(t, "learn", version)
+				limits := []model.OwnershipScope{{Path: "guard/rule.md", Kind: "file"}, {Path: "guard/test.md", Kind: "file"}}
+				if limitSource == "task" {
+					must(t, os.RemoveAll(filepath.Join(f.root, TaskRoot)))
+					f.spec.UserScopeLimits = limits
+					must(t, f.snapshot(func(s *repository.Snapshot) (err error) {
+						f.taskHash, err = Start(context.Background(), s, f.spec)
+						return
+					}))
+					f.decision.TaskSHA256 = f.taskHash
+				}
+				must(t, f.checkpoint())
+				addScopeDecision(f, "guard/test.md")
+				event := f.decision.ScopeRevision
+				if limitSource == "event" {
+					event.UserScopeLimits = limits
+				}
+				apply := func(revision int, update DecisionUpdate) error {
+					return f.snapshot(func(s *repository.Snapshot) error {
+						next, err := UpdateDecision(context.Background(), s, f.spec.ID, revision, update)
+						if err == nil {
+							f.cp = next
+						}
+						return err
+					})
+				}
+				must(t, apply(1, DecisionUpdate{
+					Reason: "検証用scopeを追加する", ScopeRevision: event,
+					Scopes:          Changes[model.OwnershipScope]{Upsert: event.AddedScopes},
+					Representations: Changes[model.Representation]{Upsert: f.decision.Target.Representations[1:]},
+				}))
+				history := map[string][]byte{}
+				for _, path := range []string{taskPath(f.spec.ID, "task.json"), checkpointPath(f.spec.ID, 1), checkpointPath(f.spec.ID, 2)} {
+					b, err := os.ReadFile(filepath.Join(f.root, path))
+					must(t, err)
+					history[path] = b
+				}
+				f.put("guard/test.md", "Regression verification\n")
+				must(t, f.verify())
+				must(t, apply(2, DecisionUpdate{Reason: "判断理由だけを更新する"}))
+				rejected(t, f.check(false), "")
+				must(t, f.snapshot(func(s *repository.Snapshot) error {
+					l, _, err := Resolve(context.Background(), s, f.spec.ID, 3)
+					if err != nil {
+						return err
+					}
+					if l.Checkpoint.Decision.ScopeRevision != nil || !scopeCovered(event.AddedScopes[0], l.authorizedScopes()) {
+						t.Fatal("イベントが再掲されたか追加済み権限が失われた")
+					}
+					if l.withinUserLimits(model.OwnershipScope{Path: "guard/third.md", Kind: "file"}) {
+						t.Fatal("過去のユーザー制限が失われた")
+					}
+					return nil
+				}))
+				must(t, f.verify())
+				must(t, f.check(false))
+				rejected(t, apply(3, DecisionUpdate{Reason: "同じscopeを再追加", ScopeRevision: event}), "SCOPE_REVISION")
+				outside := *event
+				outside.AddedScopes = []model.OwnershipScope{{Path: "guard/third.md", Kind: "file"}}
+				outside.UserScopeLimits = []model.OwnershipScope{{Path: "guard", Kind: "tree"}}
+				rejected(t, apply(3, DecisionUpdate{Reason: "制限を緩和して追加", ScopeRevision: &outside}), "USER_SCOPE_LIMIT")
+				for path, before := range history {
+					after, err := os.ReadFile(filepath.Join(f.root, path))
+					must(t, err)
+					if !bytes.Equal(before, after) {
+						t.Fatalf("履歴が変更された: %s", path)
+					}
+				}
+			})
+		}
+	}
+}

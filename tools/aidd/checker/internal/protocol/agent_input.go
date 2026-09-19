@@ -154,9 +154,8 @@ func UpdateDecision(ctx context.Context, s *repository.Snapshot, id string, revi
 	if u.CheckerMigration != nil {
 		d.CheckerMigration = u.CheckerMigration
 	}
-	if u.ScopeRevision != nil {
-		d.ScopeRevision = u.ScopeRevision
-	}
+	// 範囲追加は一回限りのイベント。適用済みの権限・制限は履歴から復元する。
+	d.ScopeRevision = u.ScopeRevision
 	if u.ProductAuthorization != nil {
 		d.ProductAuthorization = u.ProductAuthorization
 	}
