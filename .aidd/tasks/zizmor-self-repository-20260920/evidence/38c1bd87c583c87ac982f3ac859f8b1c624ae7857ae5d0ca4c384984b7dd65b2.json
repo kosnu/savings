@@ -1,0 +1,53 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "a1f772c6cdf6dce16e33dc6ea37d17daf3a586642500a4c1ae459f067edcb65d",
+  "checkpoint_sha256": "38c1bd87c583c87ac982f3ac859f8b1c624ae7857ae5d0ca4c384984b7dd65b2",
+  "repository_sha256": "a07585800f877565ed48baaff76da323f9b2c6f30b01f2efdad60f26f1616e77",
+  "git_repository_sha256": "c7378cd4053c2bf0c77107a436eb727c7620870d6f3bb3d184bcbeb56d16ca33",
+  "changed_paths": [
+    ".github/workflows/cache_main.yaml",
+    ".github/workflows/frontend_ci.yaml"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "zizmor-self-repository-20260920",
+    "receipt_sha256": "38c1bd87c583c87ac982f3ac859f8b1c624ae7857ae5d0ca4c384984b7dd65b2",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "e5ce0ab73e65331cc6d792226c32ee226d8e79f771cedbac7f00d92fc0dfc173",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "e5ce0ab73e65331cc6d792226c32ee226d8e79f771cedbac7f00d92fc0dfc173"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "e5ce0ab73e65331cc6d792226c32ee226d8e79f771cedbac7f00d92fc0dfc173",
+        "procedure": "zizmor 1.30.1でrepositoryを監査しfindingがないことを確認する。2つのworkflowが同じsetup-playwright Actionを参照し続け、他のstepを変更していないことをdiffで確認する。",
+        "observation": "zizmor 1.30.1 --offline . は exit 0 で No findings to report (21 suppressed)。差分は2つのworkflowのsetup-playwright参照だけで、Action定義および前後のstepは不変。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
