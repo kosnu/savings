@@ -5,7 +5,17 @@ import {
   Pencil1Icon,
   TargetIcon,
 } from "@radix-ui/react-icons"
-import { Box, Button, Container, Flex, Grid, Heading, Separator, Text } from "@radix-ui/themes"
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Grid,
+  Heading,
+  Link as ThemeLink,
+  Separator,
+  Text,
+} from "@radix-ui/themes"
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
@@ -259,11 +269,16 @@ export function TopPage() {
             </Button>
           </section>
         </Flex>
-        <Box pb="5">
-          <Text as="p" size="1" color="gray">
-            {t("app.name")}
-          </Text>
-        </Box>
+        <Flex asChild align="center" justify="between" gap="3" wrap="wrap" pb="5">
+          <footer>
+            <Text as="p" size="1" color="gray">
+              {t("app.name")}
+            </Text>
+            <ThemeLink asChild size="2">
+              <Link to="/privacy">{t("privacy.title")}</Link>
+            </ThemeLink>
+          </footer>
+        </Flex>
       </Container>
     </main>
   )
