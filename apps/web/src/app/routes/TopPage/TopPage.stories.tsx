@@ -1,6 +1,7 @@
 import { Theme } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
+import { I18nextProvider } from "react-i18next"
 import { expect, within } from "storybook/test"
 
 import { i18next } from "../../../i18n"
@@ -39,19 +40,16 @@ export const Default: Story = {
   },
 }
 
+const japaneseI18n = i18next.cloneInstance({ lng: "ja" })
+
 export const Japanese: Story = {
-  beforeEach: async () => {
-    const previousLanguage = i18next.language
-    await i18next.changeLanguage("ja")
-    return async () => {
-      await i18next.changeLanguage(previousLanguage)
-    }
-  },
   decorators: [
     (Story) => (
-      <Theme appearance="light">
-        <Story />
-      </Theme>
+      <I18nextProvider i18n={japaneseI18n}>
+        <Theme appearance="light">
+          <Story />
+        </Theme>
+      </I18nextProvider>
     ),
   ],
   play: async ({ canvasElement }) => {
