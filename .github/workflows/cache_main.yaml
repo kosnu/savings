@@ -33,6 +33,6 @@ jobs:
         run: pnpm ci
 
       - name: Set up Playwright browsers
-        uses: ./.github/actions/setup-playwright
+        uses: $/.github/actions/setup-playwright
         with:
           project-directory: apps/web
