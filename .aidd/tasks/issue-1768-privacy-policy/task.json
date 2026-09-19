@@ -1,0 +1,43 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1768-privacy-policy",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1768",
+      "body": "## 概要\n\nサービスで実際に扱う情報と利用中の外部サービスを確認し、必要最小限のプライバシーポリシーを作成する。\n\n## 完了の定義 (Definition of Done)\n\n- 実際の情報の取得・利用・管理方法に沿った内容になっている。\n- 利用者がサービスから閲覧できる。\n- 未確認の取扱いや連絡先を推測で記載していない。\n\n## 制約・禁止事項\n\n記載内容は確認できた事実に基づき、必要以上に範囲を広げない。",
+      "body_sha256": "04e2db5b6c95fd0a18fc645fff246d8695996f7bec81fa7a581e896acef0e990"
+    },
+    "objective": "実態に即した必要最小限のプライバシーポリシーと未ログイン・ログイン後の閲覧導線を提供する",
+    "constraints": [
+      "未確認の取扱いや連絡先を推測で記載しない",
+      "記載内容は確認できた事実に基づき、必要以上に範囲を広げない",
+      "公開する運営者名・問い合わせ先はユーザーへの確認回答に基づく",
+      "ブランチ作成はユーザーの明示承認後に行う"
+    ],
+    "done": [
+      "実際の情報の取得・利用・管理方法に沿った必要最小限の本文がある",
+      "利用者がサービスから閲覧できる",
+      "Webの必須検証とレビューを完了する",
+      "検証済みの変更をcommit・pushし、PR作成と配信状態を確認する"
+    ],
+    "verification": [
+      "pnpm run web:format 後に web:lint・web:format-check・web:typecheck・web:test:unit-integration",
+      "対象Page storyのbrowser-testが必要な場合はpnpm run web:test:storybook",
+      "公開ルートと閲覧導線の確認、本文と実装・確認済み運用の照合",
+      "AIDD verify・finish・ship-checkと最終差分レビュー"
+    ]
+  },
+  "baseline_head": "c72b2533a1dfd7e4e28977a1351f0b7207ce16bf",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

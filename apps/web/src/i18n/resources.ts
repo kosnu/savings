@@ -2,6 +2,35 @@ export const resources = {
   en: {
     translation: {
       "app.name": "My Savings",
+      "privacy.title": "Privacy policy",
+      "privacy.back": "Back to {{appName}}",
+      "privacy.introduction":
+        "This policy explains how {{appName}} handles information when you use the service.",
+      "privacy.information.title": "Information and purposes of use",
+      "privacy.information.account":
+        "We use Google account identifiers and profile information, such as your name, email address and profile image, to sign you in and manage your account. We also store your display name and language preference.",
+      "privacy.information.records":
+        "We store your payment dates, amounts and notes, categories, budgets and related settings to provide spending records and budget management.",
+      "privacy.information.logs":
+        "Information such as IP addresses, URLs, browser and device information, errors, and interaction and network logs is processed by the services below to deliver the app, authenticate users and investigate problems.",
+      "privacy.services.title": "External services",
+      "privacy.services.google": ": Google sign-in.",
+      "privacy.services.supabase":
+        ": Authentication and storage of account information and the data you register.",
+      "privacy.services.cloudflare": ": Website hosting and delivery.",
+      "privacy.services.sentry":
+        ": Collection of errors and related technical information for troubleshooting. Each link leads to the provider’s privacy policy.",
+      "privacy.storage.title": "Storage and access",
+      "privacy.storage.access":
+        "Account information and the data you register are stored in Supabase. Authentication and access controls restrict access to this data.",
+      "privacy.storage.browser":
+        "We use your browser’s local storage to keep your sign-in session, language and theme preferences. Clearing browser storage does not delete the account or records stored by the service.",
+      "privacy.contact.title": "Contact the operator",
+      "privacy.contact.description":
+        "For questions about personal information or requests for access, correction or deletion, please use the contact email below.",
+      "privacy.contact.pending": "The contact email address is being prepared.",
+      "privacy.contact.operator":
+        "The operator’s name and address will be provided without delay upon request from the user concerned.",
       "navigation.payments": "Payments",
       "navigation.settings": "Settings",
       "navigation.book": "Book",
@@ -247,6 +276,33 @@ export const resources = {
   ja: {
     translation: {
       "app.name": "My Savings",
+      "privacy.title": "プライバシーポリシー",
+      "privacy.back": "{{appName}}に戻る",
+      "privacy.introduction": "{{appName}}の利用に伴う情報の取扱いについて説明します。",
+      "privacy.information.title": "取得する情報と利用目的",
+      "privacy.information.account":
+        "ログインとアカウント管理のため、Googleアカウントの識別情報と、名前・メールアドレス・プロフィール画像などのプロフィール情報を利用します。また、表示名と言語設定を保存します。",
+      "privacy.information.records":
+        "支出の記録と予算管理のため、登録した支払いの日付・金額・メモ、カテゴリ、予算および関連する設定を保存します。",
+      "privacy.information.logs":
+        "サービスの配信、認証、不具合の調査のため、IPアドレス、URL、ブラウザ・端末情報、エラー内容、操作・通信の記録などが、以下の外部サービスで処理されます。",
+      "privacy.services.title": "利用する外部サービス",
+      "privacy.services.google": "：Googleアカウントによるログインに利用します。",
+      "privacy.services.supabase": "：認証、アカウント情報および登録したデータの保存に利用します。",
+      "privacy.services.cloudflare": "：Webサイトのホスティングと配信に利用します。",
+      "privacy.services.sentry":
+        "：不具合の調査のため、エラーと関連する技術情報の収集に利用します。各リンクから提供元のプライバシーポリシーを確認できます。",
+      "privacy.storage.title": "情報の保存とアクセス管理",
+      "privacy.storage.access":
+        "アカウント情報と登録したデータはSupabaseに保存し、認証とアクセス制御によりアクセスできる情報を制限します。",
+      "privacy.storage.browser":
+        "ログイン状態と言語・テーマ設定の保持に、ブラウザのローカルストレージを利用します。ブラウザの保存情報を消去しても、サービスに保存されたアカウントや記録は削除されません。",
+      "privacy.contact.title": "運営者へのお問い合わせ",
+      "privacy.contact.description":
+        "個人情報の取扱いに関するお問い合わせや、開示・訂正・削除等のご相談は、以下のメールアドレスへご連絡ください。",
+      "privacy.contact.pending": "問い合わせ先メールアドレスは準備中です。",
+      "privacy.contact.operator":
+        "運営者の氏名・住所は、利用者本人からの求めに応じて遅滞なく回答します。",
       "navigation.payments": "支払い",
       "navigation.settings": "設定",
       "navigation.book": "ブック",
