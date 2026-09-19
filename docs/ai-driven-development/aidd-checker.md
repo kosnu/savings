@@ -15,7 +15,7 @@ when_to_read:
 
 # AIDD invariant / integrity checker
 
-Coreは`tools/aidd/checker/internal/protocol`。schema v5のTask、Decision、checkpoint、evidenceを
+Coreは`tools/aidd/checker/internal/protocol`。schema v5/v6のTask、Decision、checkpoint、evidenceを
 検査し、phase順序、Goal lifecycle、model、executor、agentのStop判断を制御しない。
 Codex Hookは`internal/adapters/codex/hooks`に置き、Coreから参照しない。
 
@@ -26,10 +26,11 @@ Codex Hookは`internal/adapters/codex/hooks`に置き、Coreから参照しな�
 closure、profile-fixed argv、test selectorの実行identity、stream/output hashを検証する。
 manual観察の形式検査を意味的正しさの証明とは扱わない。
 
-Task開始時の全non-ignored file inventory、Git HEAD、policy、rule-map、profile bytes、
-checker executable hashを固定する。開始にはcleanな専用worktreeを要求する。
+Task開始時の全non-ignored状態、Git HEAD、policy、rule-map、profile bytes、checker executable hashを固定する。
+新規v6ではGitから復元する情報を重複保存せず、必要なローカル権限例外だけを保持する。開始にはcleanな専用worktreeを要求する。
 Taskとcheckpointはmode 0600のcanonical JSONとしてatomic writeし、既存recordを上書きしない。
-raw policy/profile bytesはbase64で保持し、serializationによるhash変化を防ぐ。
+v5のraw policy/profile bytesはbase64のまま読取互換性を維持する。v6は開始commitから元bytesを復元する。
+保存schema、snapshot、状態digestの契約は[compact protocol](compact-protocol.md)に従う。
 
 checkpointはTask hashと親checkpoint hashを持つ追記型revision。baselineを持ち直さない。
 最新checkpoint以外の証拠、対象content/mode/inventoryが異なる証拠を拒否する。
@@ -86,7 +87,8 @@ product pathの実差分には、開始時のIssue実行依頼、または最新
 初期`authorized_scopes`や`scope_revision`だけではこの検査を代替できない。
 記録済みのIssue実行依頼は再利用し、Task種別による禁止や別Taskへの移行は要求しない。
 Issue本文の取得・許可文の真正性・依頼との意味的な対応はagentの責務であり、hash検査で証明したとは扱わない。
-新checkpointは現在のrule-map bytesを保存し、その索引のpath/surface・depends_on closureを計算する。
+新checkpointは現在のrule-mapへ結合し、その索引のpath/surface・depends_on closureを計算する。
+v6は開始commit参照またはTask内で共有するsnapshot参照を保持し、v5は従来どおりbytesを保存する。
 文書の新規作成も扱い、未commitであることや開始時inventoryに存在しないことだけでは拒否しない。
 索引変更後はcheckpointを更新する。過去checkpointは保存した索引、旧形式は従来のTask索引で読み、hashを保持する。
 変更後の文書と索引は全ソースの検証証拠に結合する。先行commitや`rule_revision`は不要である。
@@ -140,7 +142,7 @@ PRの全ソース差分は、そのpathのPR基準状態から検証したTask�
 
 ## 実装責務
 
-- protocol: v5 task / decision / checkpoint / verification / delivery。
+- protocol: v5/v6 task / decision / checkpoint / verification / delivery。
 - semantic / state / rules: targetとownershipの構造、宣言されたscope制約、rule graph、最終状態。
 - repositorypolicy: repository固有のscope制約、条件付き必須検証、runner起動方針。
 - adapters/storybook、adapters/pnpm、adapters/testrunner: source・依存関係・テスト結果から技術的事実を抽出する。
@@ -200,7 +202,7 @@ repositoryで採用する起動方法を宣言する。使用するtest-case run
 Coreやcatalogでprofile名を特別扱いしない。profileのargv自体は引き続き開始時bytesに固定する。
 
 新規実行とcandidate設定検査ではrepository policyの存在、形式、参照suite、guardrail分類を検査する。
-Task・checkpoint・evidenceの保存形式は変更せず、開始時inventoryに含まれるpolicyのhashと
+開始時inventory（v6はGitから復元）に含まれるpolicyのhashと
 開始時Git treeのbytesを照合して読み取る。統合baseやcandidateのpolicyで開始時policyを置き換えない。
 旧Taskにこのfileがない場合だけ、`repositorypolicy/legacy.json`に隔離した旧方針で読み取る。
 historical artifactは旧形式の契約と旧方針で読取検証し、現行TaskのDecisionは開始時policyで検証する。

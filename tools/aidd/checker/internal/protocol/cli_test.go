@@ -1,6 +1,7 @@
 package protocol
 
 import (
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -20,7 +21,7 @@ func TestPublicCLIEndToEnd(t *testing.T) {
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("build: %v %s", err, out)
 	}
-	call := func(args ...string) string {
+	invoke := func(args ...string) string {
 		t.Helper()
 		args = append(args, "--repo-root", f.root)
 		cmd := exec.Command(binary, args...)
@@ -29,7 +30,11 @@ func TestPublicCLIEndToEnd(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%v: %v %s", args, err, out)
 		}
-		fields := strings.Fields(string(out))
+		return string(out)
+	}
+	call := func(args ...string) string {
+		out := invoke(args...)
+		fields := strings.Fields(out)
 		return fields[len(fields)-1]
 	}
 	source := func(name string, value any) string {
@@ -40,12 +45,26 @@ func TestPublicCLIEndToEnd(t *testing.T) {
 		must(t, os.WriteFile(path, b, 0600))
 		return path
 	}
+	f.spec.SchemaVersion = CompactVersion
+	f.decision.SchemaVersion = 0
+	f.decision.Kind = ""
+	f.spec.Intent.BodySHA256 = ""
 	f.taskHash = call("task-start", "--source", source("task.json", f.spec))
-	f.decision.TaskSHA256 = f.taskHash
-	f.cp = call("checkpoint", "--task", f.spec.ID, "--task-sha256", f.taskHash, "--source", source("decision.json", f.decision))
+	f.decision.TaskSHA256 = ""
+	f.cp = call("checkpoint", "--task", f.spec.ID, "--latest", "--expect-revision", "0", "--source", source("decision.json", f.decision))
+	var page Page
+	must(t, json.Unmarshal([]byte(invoke("task-status", "--task", f.spec.ID, "--limit", "200")), &page))
+	if page.Revision != 1 || page.Next == nil {
+		t.Fatal("missing revision or continuation")
+	}
+	f.cp = call("decision-update", "--task", f.spec.ID, "--expect-revision", "1", "--source", source("update.json", DecisionUpdate{Reason: "Clarified rationale"}))
+	cmd := exec.Command(binary, "verify", "--repo-root", f.root, "--task", f.spec.ID, "--latest", "--expect-revision", "1")
+	if out, err := cmd.CombinedOutput(); err == nil || !strings.Contains(string(out), "STALE_CHECKPOINT") {
+		t.Fatalf("stale revision accepted: %v %s", err, out)
+	}
 	f.put("src/a.txt", "verified result\n")
-	f.evidenceHash = call("verify", "--task", f.spec.ID, "--task-sha256", f.taskHash, "--checkpoint-sha256", f.cp)
-	common := []string{"--task", f.spec.ID, "--task-sha256", f.taskHash, "--checkpoint-sha256", f.cp, "--evidence-sha256", f.evidenceHash}
+	f.evidenceHash = call("verify", "--task", f.spec.ID, "--latest", "--expect-revision", "2")
+	common := []string{"--task", f.spec.ID, "--latest", "--expect-revision", "2"}
 	f.git("add", ".")
 	call(append([]string{"ship-check"}, common...)...)
 	call(append([]string{"finish"}, common...)...)

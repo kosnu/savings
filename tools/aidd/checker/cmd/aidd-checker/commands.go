@@ -45,14 +45,14 @@ func run(ctx context.Context, arguments []string) error {
 		return checkConfig(ctx, arguments[1:])
 	case "validate-source":
 		return validateSource(arguments[1:])
-	case "task-start", "checkpoint", "verify", "check", "ship-check", "finish", "learn-review", "ci-check", "bootstrap-check":
+	case "task-status", "decision-update", "task-start", "checkpoint", "verify", "check", "ship-check", "finish", "learn-review", "ci-check", "bootstrap-check":
 		return protocolCommand(ctx, arguments[0], arguments[1:])
 	default:
 		return diagnostic.New("AIDD_PROTOCOL_RETIRED", arguments[0], "cli", "Legacy phase execution is retired; use v5 task/checkpoint contracts", commands(), arguments[0])
 	}
 }
 func commands() []string {
-	return []string{"task-start", "checkpoint", "verify", "check", "ship-check", "finish", "learn-review", "ci-check", "bootstrap-check", "validate-source", "check-config", "check-all", "version"}
+	return []string{"task-status", "decision-update", "task-start", "checkpoint", "verify", "check", "ship-check", "finish", "learn-review", "ci-check", "bootstrap-check", "validate-source", "check-config", "check-all", "version"}
 }
 
 func newFlagSet(name string) *flag.FlagSet {

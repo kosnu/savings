@@ -87,6 +87,7 @@ func checkTaskDelivery(ctx context.Context, snapshot *repository.Snapshot, base,
 	if err != nil {
 		return nil, err
 	}
+	task = l.Task
 	baseline, err := gitInventory(ctx, snapshot, task.BaselineHead)
 	if err != nil {
 		return nil, err

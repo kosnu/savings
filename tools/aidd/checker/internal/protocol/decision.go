@@ -13,7 +13,7 @@ import (
 )
 
 func (l *Loaded) validateDecision(d Decision) ([]string, error) {
-	if d.SchemaVersion != Version || d.Kind != "decision" || d.TaskSHA256 != l.TaskHash || strings.TrimSpace(d.Reason) == "" {
+	if d.SchemaVersion != l.Task.SchemaVersion || d.Kind != "decision" || d.TaskSHA256 != l.TaskHash || strings.TrimSpace(d.Reason) == "" {
 		return nil, fail("DECISION", l.Task.Spec.ID, "decisionの版・task参照・判断理由が必要です")
 	}
 	if err := l.validateProductAuthorization(d); err != nil {
@@ -153,7 +153,7 @@ func loadCheckpoints(snapshot *repository.Snapshot, l *Loaded) error {
 		if err != nil {
 			return err
 		}
-		if cp.SchemaVersion != Version || cp.Kind != "checkpoint" || cp.TaskSHA256 != l.TaskHash || cp.Revision != i+1 || cp.ParentSHA256 != parent {
+		if cp.SchemaVersion != l.Task.SchemaVersion || cp.Kind != "checkpoint" || cp.TaskSHA256 != l.TaskHash || cp.Revision != i+1 || cp.ParentSHA256 != parent {
 			return fail("REVISION", path, "checkpoint chainが一致しません")
 		}
 		if err := l.selectCheckerMigration(snapshot, cp.Decision.CheckerMigration, parent); err != nil {
@@ -161,6 +161,17 @@ func loadCheckpoints(snapshot *repository.Snapshot, l *Loaded) error {
 		}
 		if err := l.selectIntegration(context.Background(), snapshot, cp.Decision.Integration); err != nil {
 			return err
+		}
+		if cp.SchemaVersion == CompactVersion {
+			if len(cp.RuleMap) != 0 {
+				return fail("RULE_COVERAGE", path, "v6はrule-map参照だけを保持します")
+			}
+			cp.RuleMap, err = readRuleMap(snapshot, l, cp.RuleMapReference)
+			if err != nil {
+				return err
+			}
+		} else if cp.RuleMapReference != nil {
+			return fail("RULE_COVERAGE", path, "v5にはv6参照を使えません")
 		}
 		if len(cp.RuleMap) > 0 {
 			active, err := rules.Parse(cp.RuleMap, rules.DefaultPath)
@@ -247,7 +258,14 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 	if err != nil {
 		return "", err
 	}
-	cp := Checkpoint{Version, "checkpoint", taskHash, l.Checkpoint.Revision + 1, parentHash, d, required, ruleMap}
+	cp := Checkpoint{SchemaVersion: l.Task.SchemaVersion, Kind: "checkpoint", TaskSHA256: taskHash, Revision: l.Checkpoint.Revision + 1, ParentSHA256: parentHash, Decision: d, Rules: required, RuleMap: ruleMap}
+	if cp.SchemaVersion == CompactVersion {
+		cp.RuleMapReference, err = saveRuleMap(snapshot, l, ruleMap)
+		if err != nil {
+			return "", err
+		}
+		cp.RuleMap = nil
+	}
 	// baselineはTaskからのみ引き継ぎ、改訂時のworktreeで再構成しない。
 	return write(snapshot, checkpointPath(id, cp.Revision), cp, true)
 }
