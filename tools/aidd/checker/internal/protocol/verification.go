@@ -77,11 +77,17 @@ func (l *Loaded) validateGenerated(snapshot *repository.Snapshot, files []File) 
 	checkpoints := map[string]bool{}
 	for i := 1; i <= l.Checkpoint.Revision; i++ {
 		allowed[checkpointPath(l.Task.Spec.ID, i)] = true
-		_, digest, err := readMode[Checkpoint](snapshot, checkpointPath(l.Task.Spec.ID, i), l.Delivered)
+		cp, digest, err := readMode[Checkpoint](snapshot, checkpointPath(l.Task.Spec.ID, i), l.Delivered)
 		if err != nil {
 			return err
 		}
 		checkpoints[digest] = true
+		if cp.RuleMapReference != nil && cp.RuleMapReference.Snapshot {
+			if _, err := readRuleMap(snapshot, l, cp.RuleMapReference); err != nil {
+				return err
+			}
+			allowed[ruleSnapshotPath(l.Task.Spec.ID, cp.RuleMapReference.SHA256)] = true
+		}
 	}
 	for _, f := range files {
 		if !strings.HasPrefix(f.Path, prefix) || allowed[f.Path] {
@@ -92,7 +98,7 @@ func (l *Loaded) validateGenerated(snapshot *repository.Snapshot, files []File) 
 			if err != nil {
 				return err
 			}
-			if e.SchemaVersion == Version && e.Kind == "verification_evidence" && e.TaskSHA256 == l.TaskHash && checkpoints[e.CheckpointSHA256] && f.Path == evidencePath(l.Task.Spec.ID, e.CheckpointSHA256) {
+			if e.SchemaVersion == l.Task.SchemaVersion && e.Kind == "verification_evidence" && e.TaskSHA256 == l.TaskHash && checkpoints[e.CheckpointSHA256] && f.Path == evidencePath(l.Task.Spec.ID, e.CheckpointSHA256) {
 				continue
 			}
 		}
@@ -148,7 +154,11 @@ func Verify(ctx context.Context, snapshot *repository.Snapshot, l *Loaded, optio
 	if hash(files) != hash(after) {
 		return "", fail("VERIFICATION_MUTATION", l.Task.Spec.ID, "検証対象が実行中に変わりました")
 	}
-	e := Evidence{Version, "verification_evidence", l.TaskHash, l.CheckpointHash, hash(files), files, paths, content, l.executionChecker()}
+	e := Evidence{SchemaVersion: l.Task.SchemaVersion, Kind: "verification_evidence", TaskSHA256: l.TaskHash, CheckpointSHA256: l.CheckpointHash, RepositorySHA256: hash(files), Files: files, ChangedPaths: paths, Verification: content, CheckerSHA256: l.executionChecker()}
+	if e.SchemaVersion == CompactVersion {
+		e.GitRepositorySHA256 = hash(transportFiles(files, true))
+		e.Files = nil
+	}
 	return write(snapshot, evidencePath(l.Task.Spec.ID, l.CheckpointHash), e, false)
 }
 
@@ -157,14 +167,25 @@ func ValidateEvidence(ctx context.Context, snapshot *repository.Snapshot, l *Loa
 	if err != nil {
 		return nil, err
 	}
-	if !digestPattern.MatchString(expected) || h != expected || e.SchemaVersion != Version || e.Kind != "verification_evidence" || e.TaskSHA256 != l.TaskHash || e.CheckpointSHA256 != l.CheckpointHash || e.CheckerSHA256 != l.executionChecker() {
+	if !digestPattern.MatchString(expected) || h != expected || e.SchemaVersion != l.Task.SchemaVersion || e.Kind != "verification_evidence" || e.TaskSHA256 != l.TaskHash || e.CheckpointSHA256 != l.CheckpointHash || e.CheckerSHA256 != l.executionChecker() {
 		return nil, fail("EVIDENCE_IDENTITY", l.Task.Spec.ID, "検証証拠が現在task/checkpointと一致しません")
 	}
 	files, paths, err := l.validateResult(ctx, snapshot)
 	if err != nil {
 		return nil, err
 	}
-	if hash(files) != hash(transportFiles(withoutGenerated(e.Files, l.Task.Spec.ID), l.Delivered)) || hash(e.Files) != e.RepositorySHA256 || !sameStrings(paths, e.ChangedPaths) {
+	valid := hash(files) == hash(transportFiles(withoutGenerated(e.Files, l.Task.Spec.ID), l.Delivered)) && hash(e.Files) == e.RepositorySHA256
+	if e.SchemaVersion == CompactVersion {
+		valid = digestPattern.MatchString(e.RepositorySHA256) && digestPattern.MatchString(e.GitRepositorySHA256)
+		if l.Delivered {
+			valid = valid && hash(files) == e.GitRepositorySHA256
+		} else {
+			valid = valid && hash(files) == e.RepositorySHA256 && hash(transportFiles(files, true)) == e.GitRepositorySHA256
+		}
+	} else if e.GitRepositorySHA256 != "" {
+		valid = false
+	}
+	if !valid || !sameStrings(paths, e.ChangedPaths) {
 		return nil, fail("STALE_EVIDENCE", l.Task.Spec.ID, "検証後に対象の内容・mode・inventoryが変わりました")
 	}
 	final, err := state.FinalHash(snapshot, &l.Checkpoint.Decision.Target)

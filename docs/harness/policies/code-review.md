@@ -39,16 +39,16 @@ when_to_read:
 
 ## Webのレビュー必須ルーティング
 
-| 変更面 | 変更の兆候 | レビューで必ず確認するrule ID |
-| --- | --- | --- |
-| コンポーネント | `apps/web/src/components/**` または `apps/web/src/features/**` のコンポーネント追加、移動、抽出、責務分離 | `web.component-structure` |
-| Feature配置 | `apps/web/src/features/**` の新規配置、移動、feature境界変更 | `web.feature-directory` |
-| UI | WebのJSX/TSX、style、layout、form、dialog、responsive、variant、size、colorの変更 | `web.design-system-brand`, `web.design-rules` |
-| ドメインUI | featureまたはrouteで金額、日付、月、分類、状態、基準値を表示・入力・更新 | `web.domain-ui-rules` と該当する `domain.*` |
-| Query / mutation / cache | `useQuery`、`useMutation`、query key、invalidation、refetch、`QueryClient`、API更新後の反映の変更 | `web.query-cache` |
-| 非同期状態 | loading、error、retry、Error Boundary、非同期取得境界の変更 | `web.suspense-boundaries` |
-| Story | `*.stories.tsx` の追加・変更、またはStory作成条件に該当するコンポーネント追加 | `web.component-structure`, `web.storybook-browser-tests` |
-| 回帰テスト | ユーザーに残る表示、入力、保存、取得、状態遷移の追加・変更 | `web.test-policy` |
+| 変更面                   | 変更の兆候                                                                                                | レビューで必ず確認するrule ID                            |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| コンポーネント           | `apps/web/src/components/**` または `apps/web/src/features/**` のコンポーネント追加、移動、抽出、責務分離 | `web.component-structure`                                |
+| Feature配置              | `apps/web/src/features/**` の新規配置、移動、feature境界変更                                              | `web.feature-directory`                                  |
+| UI                       | WebのJSX/TSX、style、layout、form、dialog、responsive、variant、size、colorの変更                         | `web.design-system-brand`, `web.design-rules`            |
+| ドメインUI               | featureまたはrouteで金額、日付、月、分類、状態、基準値を表示・入力・更新                                  | `web.domain-ui-rules` と該当する `domain.*`              |
+| Query / mutation / cache | `useQuery`、`useMutation`、query key、invalidation、refetch、`QueryClient`、API更新後の反映の変更         | `web.query-cache`                                        |
+| 非同期状態               | loading、error、retry、Error Boundary、非同期取得境界の変更                                               | `web.suspense-boundaries`                                |
+| Story                    | `*.stories.tsx` の追加・変更、またはStory作成条件に該当するコンポーネント追加                             | `web.component-structure`, `web.storybook-browser-tests` |
+| 回帰テスト               | ユーザーに残る表示、入力、保存、取得、状態遷移の追加・変更                                                | `web.test-policy`                                        |
 
 ドメイン値が金額または日付に該当する場合は、`domain.amount` または `domain.date` と、それらを依存関係から追加する選択ノードを確認します。Storyはbrowser testの実行対象であることを意味しません。`web.storybook-browser-tests` を読み、収集範囲、tag、provider、MSWの要否を判定します。
 
@@ -56,14 +56,14 @@ when_to_read:
 
 APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure.md`、実行境界を扱う `docs/harness/policies/transaction-boundaries.md`、期間と履歴を扱う `docs/harness/policies/temporal-data.md`、および対象domainの文書です。`apps/api/README.md` は操作手順とディレクトリ構成の案内として使い、ルール本文の代わりにはしません。
 
-| 変更面 | 変更の兆候 | rule-map activity | レビューで必ず確認するrule ID |
-| --- | --- | --- | --- |
-| DB schema / migration | `apps/api/supabase/migrations/**` のtable、column、constraint、index、triggerの追加・変更 | `review_api_schema` | `infrastructure.overview`, `policy.transaction-boundaries`、該当する `domain.*` |
-| RPC / database function | `CREATE FUNCTION`、RPC、DB function、複数更新をまとめる処理の追加・変更 | `review_api_rpc` | `infrastructure.overview`, `policy.transaction-boundaries`、該当する `domain.*` |
-| RLS / Auth / ownership | RLS policy、Auth設定、認証済みユーザー確認、`user_id`やownership境界の追加・変更 | `review_api_auth` | `infrastructure.overview`, `policy.transaction-boundaries`, `domain.user` |
-| 期間・履歴・月次状態 | `current_date`、`now()`、有効期間、履歴、月次状態、削除・無効化の扱いの追加・変更 | `review_api_temporal` | `infrastructure.overview`, `policy.temporal-data`, `domain.date`、該当する `domain.*` |
-| API domain | 金額、日付、支払い、カテゴリ、予算、Book、ユーザーのschema・RPC・seedの追加・変更 | 対象domainの `review_*` | 該当する `domain.amount`、`domain.date`、`domain.payment`、`domain.category`、`domain.monthly-budget`、`domain.book`、`domain.user` |
-| API config / seed | `apps/api/supabase/config.toml` または `apps/api/supabase/seed/**` の追加・変更 | `review_infrastructure` | `infrastructure.overview` と該当する `domain.*` |
+| 変更面                  | 変更の兆候                                                                                | rule-map activity       | レビューで必ず確認するrule ID                                                                                                       |
+| ----------------------- | ----------------------------------------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| DB schema / migration   | `apps/api/supabase/migrations/**` のtable、column、constraint、index、triggerの追加・変更 | `review_api_schema`     | `infrastructure.overview`, `policy.transaction-boundaries`、該当する `domain.*`                                                     |
+| RPC / database function | `CREATE FUNCTION`、RPC、DB function、複数更新をまとめる処理の追加・変更                   | `review_api_rpc`        | `infrastructure.overview`, `policy.transaction-boundaries`、該当する `domain.*`                                                     |
+| RLS / Auth / ownership  | RLS policy、Auth設定、認証済みユーザー確認、`user_id`やownership境界の追加・変更          | `review_api_auth`       | `infrastructure.overview`, `policy.transaction-boundaries`, `domain.user`                                                           |
+| 期間・履歴・月次状態    | `current_date`、`now()`、有効期間、履歴、月次状態、削除・無効化の扱いの追加・変更         | `review_api_temporal`   | `infrastructure.overview`, `policy.temporal-data`, `domain.date`、該当する `domain.*`                                               |
+| API domain              | 金額、日付、支払い、カテゴリ、予算、Book、ユーザーのschema・RPC・seedの追加・変更         | 対象domainの `review_*` | 該当する `domain.amount`、`domain.date`、`domain.payment`、`domain.category`、`domain.monthly-budget`、`domain.book`、`domain.user` |
+| API config / seed       | `apps/api/supabase/config.toml` または `apps/api/supabase/seed/**` の追加・変更           | `review_infrastructure` | `infrastructure.overview` と該当する `domain.*`                                                                                     |
 
 期間・履歴・月次状態に該当するDB変更では、通常のschema、RPC、Authの確認に加えて `policy.temporal-data` を必ず確認します。RLSやAuthに該当する差分では、認証・ownershipの境界とtransactionの責務を分けて確認します。
 
@@ -83,7 +83,7 @@ Task、Decision、checkpoint、verification、Shipの契約は
 Ship境界外でのstage/commit実行だけを前提に、lock、critical section、raw index identity、
 symbolic HEAD identityなどの防御を要求しません。
 
-そのうえでTaskの変更判定基準（統合記録があれば検証された統合base、なければ開始時Git基準点）から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、checkpointと実差分検査は同じresolverを使います。実差分にcheckpointにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあれば成功としてはいけません。checkpointは必要rule closureを保持し、evidenceはchecker生成物以外の全差分path、最終inventory、verification証拠identityを保持します。pathごとの一致ruleは固定したrule-mapから再計算します。`Checked rules`の自己申告だけでこの判定を代替できません。
+そのうえでTaskの変更判定基準（統合記録があれば検証された統合base、なければ開始時Git基準点）から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、checkpointと実差分検査は同じresolverを使います。実差分にcheckpointにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあれば成功としてはいけません。checkpointは必要rule closureを保持し、evidenceはchecker生成物以外の全差分path、最終inventoryへの結合、verification証拠identityを保持します。v5はinventory配列、v6はローカル状態とGit転送状態のdigestを使い、どちらも全体を再走査して照合します。pathごとの一致ruleは固定したrule-mapから再計算します。`Checked rules`の自己申告だけでこの判定を代替できません。
 
 `aidd-harness` surfaceはAIDD Core、harness、agent入口・設定、AIDD専用CIとその採択ADRを対象とします。
 一般の`docs/**`や`.github/**`全体をこのsurfaceへ分類しません。Markdownには既存の

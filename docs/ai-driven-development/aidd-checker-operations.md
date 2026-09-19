@@ -9,7 +9,7 @@ applies_to:
   - vite.config.ts
   - .vite-hooks
 topics:
-  - schema-v5
+  - schema-v6
   - verification
   - commit-hooks
 when_to_read:
@@ -58,6 +58,60 @@ GOENV/GOWORK/GOFLAGS/GOTOOLCHAINを固定し、候補側のcacheやbuild設定�
 candidate検証用buildは別binaryへ行い、base検証の代替にしない。
 CoreはGoalやHookを呼び出さない。
 
+## 短い通常操作v6
+
+新規記録はv6、既存v5 Taskは同じ形式・開始時checkerで継続する。
+保存と復元の仕様は[compact protocol](compact-protocol.md)に従う。
+明示Task IDと期待revisionでidentityを解決し、生成JSONの全文読込やhashの転記を通常手順にしない。
+
+```sh
+/tmp/aidd-task-checker task-start --repo-root . --source /tmp/task-spec.json
+/tmp/aidd-task-checker task-status --repo-root . --task <id>
+/tmp/aidd-task-checker checkpoint --repo-root . --task <id> --latest --expect-revision 0 --source /tmp/decision.json
+/tmp/aidd-task-checker verify --repo-root . --task <id> --latest --expect-revision 1
+/tmp/aidd-task-checker finish --repo-root . --task <id> --latest --expect-revision 1
+```
+
+task-specは下記契約を使う。schema_versionを省略すると6、intentのbody_sha256は省略時に本文から計算する。
+初回Decisionではschema_version/kind/task_sha256を省略できる。要求・設計・許可は省略によって生成されない。
+manual caseは従来どおり実際の観察を`--manual-observation 'VC-ID=観察結果'`で指定する。
+
+再開時はtask-statusを読み、必要なfieldだけを`--field decision`等で取得する。
+`next_offset`がある場合は`--offset <next_offset>`で続ける。既定2000文字、`--limit`の最大は4000文字。
+証拠整合成功はreview・配信完了を意味しない。表示されたrevisionが変わったら読み直す。
+
+判断の改訂はreasonと変更項目だけを外部JSONへ記録して実行する。
+
+```json
+{
+  "reason": "観測結果に基づき表示の説明を明確化する",
+  "product_behaviors": {
+    "upsert": [
+      {
+        "id": "PB-1",
+        "type": "state_transition",
+        "description": "変更後に観測できる結果",
+        "requirement_id": "FR-1"
+      }
+    ]
+  }
+}
+```
+
+```sh
+/tmp/aidd-task-checker decision-update --repo-root . --task <id> --expect-revision 1 --source /tmp/update.json
+/tmp/aidd-task-checker verify --repo-root . --task <id> --latest --expect-revision 2
+```
+
+caseやownershipなどの変更も対応するcollectionのupsert/removeへ記載する。
+旧証跡は全失効し、改訂後の全体を検証する。stage後のship-checkも
+`--latest --expect-revision <最新revision>`を使用できる。公開操作とread-backの責務は変えない。
+失敗出力の続きを必要とする場合は`--diagnostic-offset`を指定する。これは同commandの再実行であり、
+状態や検証結果が変わる場合は前回出力と連結しない。
+
+以降のhash明示commandは低水準の操作・既存Task互換経路として維持する。
+新checkerの利用だけで旧Taskの実行checkerを差し替えてはいけない。
+
 ## Task contract
 
 sourceはrepository外のregular non-symlink JSON。出典本文を取得した後にSHA-256を計算する。
@@ -65,7 +119,7 @@ sourceはrepository外のregular non-symlink JSON。出典本文を取得した�
 
 ```json
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "kind": "development",
   "action": "execute",
   "id": "issue-123-cycle-1",
@@ -96,8 +150,9 @@ Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
 /tmp/aidd-task-checker task-start --repo-root . --source /tmp/task-spec.json
 ```
 
-出力されたtask SHA-256を保持する。正本は`.aidd/tasks/<id>/task.json`。
+.aiddの正本identityは明示Taskから解決する。正本は`.aidd/tasks/<id>/task.json`。
 Taskは開始時HEAD、全non-ignored baseline、policy/rule-map/profileのbytes、checker hashを固定する。
+v6ではGitから復元可能な情報を埋め込まず、必要なローカル権限例外を保持する。
 既存Taskを上書きせず、baselineを取り直さない。Taskの開始前に実装を持ち込まない。
 既存成果の追加配信では、このcommandを再実行する前に
 [workflowの継続境界](workflow.md#追加配信とtaskの継続)を確認する。
@@ -131,7 +186,7 @@ scope_revision・verificationも同じDecisionに含め、実装前にcheckpoint
 checkerは出典URL・本文hash・許可記録・対象pathを検査し、GitHub上の本文の真正性や
 許可文の意味を自動認証しない。これらは担当agentが元の依頼と照合する。
 
-Decision sourceはschema_version 5、kind decision、task_sha256、reason、requirements、
+Decision sourceはTaskと同じschema_version（新規6、既存5）、kind decision、task_sha256、reason、requirements、
 target_state、additional_rulesを持つ。
 
 requirementsは`id`、`text`、`origin`、`evidence`を持つ。originはintent/guardrail/derived。
@@ -293,7 +348,7 @@ runnerはprofile固定argv、process group、runtime identity、repository mutat
 mutationの対象はGit管理対象と未ignoreの新規file。ignoreされた未追跡cacheの生成・更新・削除は許可する。
 `.tsbuildinfo`等の正常な生成物を理由に検証を中断せず、個別の除外指定も追加しない。
 Git管理済みfileはignore指定があっても保護し、検証中のHEAD/index変更も引き続き拒否する。
-成功出力のevidence hashを保持する。正本は`evidence/<checkpoint-hash>.json`。
+通常操作は最新identityを解決する。hash明示経路では成功出力を使用する。正本は`evidence/<checkpoint-hash>.json`。
 
 ```sh
 /tmp/aidd-task-checker check --repo-root . --task <id> \
