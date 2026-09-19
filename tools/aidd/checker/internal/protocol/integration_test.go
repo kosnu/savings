@@ -16,8 +16,12 @@ import (
 
 // main由来のproduct/guardrail/別Task記録を実際のGit mergeで取り込む。
 func integratedFixture(t *testing.T, kind string) (*fixture, string) {
+	return integratedFixtureVersion(t, kind, Version)
+}
+
+func integratedFixtureVersion(t *testing.T, kind string, version int) (*fixture, string) {
 	t.Helper()
-	f := setup(t, kind)
+	f := setupVersion(t, kind, version)
 	baseline := f.git("rev-parse", "HEAD")
 	must(t, f.checkpoint())
 	f.put(f.decision.Target.Representations[0].Path, "task result\n")

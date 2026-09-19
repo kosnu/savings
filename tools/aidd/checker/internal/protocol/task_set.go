@@ -38,7 +38,10 @@ func (l *Loaded) loadPeerScopes(ctx context.Context, s *repository.Snapshot) err
 	if err != nil {
 		return err
 	}
-	ids, err := changedTaskIDs(changed(transportFiles(l.changeBaseline(), l.gitComparison()), transportFiles(files, l.gitComparison())))
+	// v6はGitから生成履歴を復元するため、そのpath選択にはGit modeを使う。
+	// 個々のTask出力のローカル権限は読取時に別途検査する。
+	comparison := l.gitComparison() || l.Task.SchemaVersion == CompactVersion
+	ids, err := changedTaskIDs(changed(transportFiles(l.changeBaseline(), comparison), transportFiles(files, comparison)))
 	if err != nil {
 		return err
 	}

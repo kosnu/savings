@@ -63,15 +63,16 @@ type File struct {
 }
 
 type Task struct {
-	SchemaVersion int    `json:"schema_version"`
-	Kind          string `json:"kind"`
-	Spec          Spec   `json:"spec"`
-	BaselineHead  string `json:"baseline_head"`
-	Baseline      []File `json:"baseline"`
-	Policy        []byte `json:"policy"`
-	RuleMap       []byte `json:"rule_map"`
-	Catalog       []byte `json:"catalog"`
-	CheckerSHA256 string `json:"checker_sha256"`
+	SchemaVersion int            `json:"schema_version"`
+	Kind          string         `json:"kind"`
+	Spec          Spec           `json:"spec"`
+	BaselineHead  string         `json:"baseline_head"`
+	Baseline      []File         `json:"baseline"`
+	Policy        []byte         `json:"policy"`
+	RuleMap       []byte         `json:"rule_map"`
+	Catalog       []byte         `json:"catalog"`
+	CheckerSHA256 string         `json:"checker_sha256"`
+	BaselineModes []BaselineMode `json:"baseline_modes,omitempty"`
 }
 
 type Requirement struct {
@@ -127,26 +128,28 @@ type Decision struct {
 }
 
 type Checkpoint struct {
-	SchemaVersion int      `json:"schema_version"`
-	Kind          string   `json:"kind"`
-	TaskSHA256    string   `json:"task_sha256"`
-	Revision      int      `json:"revision"`
-	ParentSHA256  string   `json:"parent_sha256"`
-	Decision      Decision `json:"decision"`
-	Rules         []string `json:"rules"`
-	RuleMap       []byte   `json:"rule_map,omitempty"`
+	SchemaVersion    int               `json:"schema_version"`
+	Kind             string            `json:"kind"`
+	TaskSHA256       string            `json:"task_sha256"`
+	Revision         int               `json:"revision"`
+	ParentSHA256     string            `json:"parent_sha256"`
+	Decision         Decision          `json:"decision"`
+	Rules            []string          `json:"rules"`
+	RuleMap          []byte            `json:"rule_map,omitempty"`
+	RuleMapReference *RuleMapReference `json:"rule_map_ref,omitempty"`
 }
 
 type Evidence struct {
-	SchemaVersion    int      `json:"schema_version"`
-	Kind             string   `json:"kind"`
-	TaskSHA256       string   `json:"task_sha256"`
-	CheckpointSHA256 string   `json:"checkpoint_sha256"`
-	RepositorySHA256 string   `json:"repository_sha256"`
-	Files            []File   `json:"files"`
-	ChangedPaths     []string `json:"changed_paths"`
-	Verification     []byte   `json:"verification"`
-	CheckerSHA256    string   `json:"checker_sha256"`
+	SchemaVersion       int      `json:"schema_version"`
+	Kind                string   `json:"kind"`
+	TaskSHA256          string   `json:"task_sha256"`
+	CheckpointSHA256    string   `json:"checkpoint_sha256"`
+	RepositorySHA256    string   `json:"repository_sha256"`
+	Files               []File   `json:"files"`
+	ChangedPaths        []string `json:"changed_paths"`
+	Verification        []byte   `json:"verification"`
+	CheckerSHA256       string   `json:"checker_sha256"`
+	GitRepositorySHA256 string   `json:"git_repository_sha256,omitempty"`
 }
 
 type Review struct {
