@@ -22,8 +22,8 @@ func validateSpec(spec Spec) error {
 	if spec.Action != "execute" {
 		return fail("ENTRYPOINT", spec.ID, "質問・説明・調査ではtaskを開始しません。実行依頼が必要です")
 	}
-	if spec.SchemaVersion != Version || (spec.Kind != "development" && spec.Kind != "learn") {
-		return fail("PROTOCOL", "schema_version", "新規実行はv5 development/learnだけを受け付けます")
+	if !supportedVersion(spec.SchemaVersion) || (spec.Kind != "development" && spec.Kind != "learn") {
+		return fail("PROTOCOL", "schema_version", "schema v5/v6 development/learnが必要です")
 	}
 	if err := pathcontract.ValidateWorkspaceName(spec.ID); err != nil {
 		return err
@@ -132,7 +132,17 @@ func Start(ctx context.Context, snapshot *repository.Snapshot, spec Spec) (strin
 	if err != nil {
 		return "", err
 	}
-	task := Task{Version, "task", spec, head, files, policy, ruleMap, profiles, gate}
+	task := Task{SchemaVersion: spec.SchemaVersion, Kind: "task", Spec: spec, BaselineHead: head, Baseline: files, Policy: policy, RuleMap: ruleMap, Catalog: profiles, CheckerSHA256: gate}
+	if spec.SchemaVersion == CompactVersion {
+		task.BaselineModes = baselineModes(files)
+		baseline, err := gitInventory(ctx, snapshot, head)
+		if err != nil {
+			return "", err
+		}
+		if hash(transportFiles(files, true)) != hash(baseline) {
+			return "", fail("BASELINE", spec.ID, "開始状態とGit treeが一致しません")
+		}
+	}
 	if err = snapshot.AssertGitHeadUnchanged(ctx); err != nil {
 		return "", err
 	}
@@ -173,10 +183,16 @@ func loadTaskMode(snapshot *repository.Snapshot, id, expected string, delivered 
 	if err != nil {
 		return nil, err
 	}
-	if h != expected || task.SchemaVersion != Version || task.Kind != "task" || task.Spec.ID != id {
+	if h != expected || !supportedVersion(task.SchemaVersion) || task.Spec.SchemaVersion != task.SchemaVersion || task.Kind != "task" || task.Spec.ID != id {
 		return nil, fail("IDENTITY", id, "task identityが一致しません")
 	}
+	if task.SchemaVersion == Version && len(task.BaselineModes) != 0 {
+		return nil, fail("BASELINE", id, "v5にはv6権限例外を指定できません")
+	}
 	if err = validateSpec(task.Spec); err != nil {
+		return nil, err
+	}
+	if err := hydrateTask(context.Background(), snapshot, &task); err != nil {
 		return nil, err
 	}
 	p, err := parsePolicy(task.Policy)

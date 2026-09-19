@@ -203,14 +203,14 @@ base checkerとの非互換な契約変更をCIへ配信するときだけ、
 
 ## 再開・委譲
 
-repositoryのTask、最新checkpoint、証拠を共通入力とする。会話履歴やGoal本文は正本ではない。
+repositoryのTask、最新checkpoint、証拠を共通入力とする。通常はtask-statusの要約と必要fieldを取得し、巨大な生成JSONの全文読込を要求しない。会話履歴やGoal本文は正本ではない。
 専用worktreeは単一writerが所有する。subagent利用はAGENTS.mdの費用対効果条件に従う。
 委譲する場合、並行実装は別worktreeを使い、
 統合後の最終状態を所有agentが再検証する。subagentは明示されたscopeを超えず、Goalの管理は親が行う。
 
 ## 旧protocol
 
-新規実行はschema v5のみ。v2/v3/v4のRequirements/Designと既存receiptは履歴であり、
-v5 checkpoint/evidenceへ昇格しない。公開CLIに旧phase実行経路はない。
+新規実行はschema v6。保存と復元は[compact protocol](compact-protocol.md)、短い入出力は[operations](aidd-checker-operations.md#短い通常操作v6)に従う。既存v5 Taskは同じTask・形式で継続し、bytes/hashを保持する。v2/v3/v4のRequirements/Designと既存receiptは履歴であり、
+v5/v6 checkpoint/evidenceへ昇格しない。公開CLIに旧phase実行経路はない。
 過去artifactの読取・表示同期検査と、保存する保証の回帰testは維持する。
-移行中taskを新旧混在のまま再開しない。旧taskを保存して新しいv5 taskとして再開する。
+v2/v3/v4からの再開は旧taskを保存して新しいv6 Taskとして扱う。v5 Taskを軽量化のために作り直してはいけない。

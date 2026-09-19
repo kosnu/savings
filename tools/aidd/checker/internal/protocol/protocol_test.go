@@ -65,7 +65,9 @@ func rejected(t *testing.T, err error, fragment string) {
 	}
 }
 
-func setup(t *testing.T, kind string) *fixture {
+func setup(t *testing.T, kind string) *fixture { return setupVersion(t, kind, Version) }
+
+func setupVersion(t *testing.T, kind string, version int) *fixture {
 	t.Helper()
 	f := &fixture{t: t, root: t.TempDir()}
 	f.git("init", "-q")
@@ -81,7 +83,7 @@ func setup(t *testing.T, kind string) *fixture {
 	f.git("add", ".")
 	f.git("commit", "-qm", "baseline")
 	body := "Make the requested result observable"
-	f.spec = Spec{Action: "execute", SchemaVersion: Version, Kind: kind, ID: "test-task", Intent: Intent{Kind: "issue", Reference: "https://github.com/example/repository/issues/1", Body: body, BodySHA256: canonical.HashBytes([]byte(body))}, Objective: body, Constraints: []string{"preserve invariants"}, Done: []string{"observable result"}, Verification: []string{"fixed profile"}}
+	f.spec = Spec{Action: "execute", SchemaVersion: version, Kind: kind, ID: "test-task", Intent: Intent{Kind: "issue", Reference: "https://github.com/example/repository/issues/1", Body: body, BodySHA256: canonical.HashBytes([]byte(body))}, Objective: body, Constraints: []string{"preserve invariants"}, Done: []string{"observable result"}, Verification: []string{"fixed profile"}}
 	path := "src/a.txt"
 	if kind == "learn" {
 		f.spec.Intent.Kind = "feedback"
@@ -94,7 +96,7 @@ func setup(t *testing.T, kind string) *fixture {
 		f.taskHash, err = Start(context.Background(), s, f.spec)
 		return
 	}))
-	f.decision = Decision{SchemaVersion: Version, Kind: "decision", TaskSHA256: f.taskHash, Reason: "Repository evidence supports this scoped decision", Requirements: []Requirement{{ID: "FR-1", Text: body, Origin: "intent", Evidence: body}}, Target: model.TargetState{ProductBehaviors: []model.ProductBehavior{{ID: "PB-1", Type: "state_transition", Description: "The requested result is observable", RequirementID: "FR-1"}}, VerificationCases: []model.VerificationCase{{ID: "VC-1", Type: "automated", RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationProfileID: "git-diff-check", Selector: &model.Selector{Kind: "suite"}}}, OwnershipScopes: []model.OwnershipScope{{Path: path, Kind: "file"}}, Representations: []model.Representation{{ID: "REP-1", Kind: "implementation", Path: path, Locator: model.Locator{Kind: "file"}, RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationCaseIDs: []string{"VC-1"}}}}, AdditionalRules: []string{}}
+	f.decision = Decision{SchemaVersion: version, Kind: "decision", TaskSHA256: f.taskHash, Reason: "Repository evidence supports this scoped decision", Requirements: []Requirement{{ID: "FR-1", Text: body, Origin: "intent", Evidence: body}}, Target: model.TargetState{ProductBehaviors: []model.ProductBehavior{{ID: "PB-1", Type: "state_transition", Description: "The requested result is observable", RequirementID: "FR-1"}}, VerificationCases: []model.VerificationCase{{ID: "VC-1", Type: "automated", RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationProfileID: "git-diff-check", Selector: &model.Selector{Kind: "suite"}}}, OwnershipScopes: []model.OwnershipScope{{Path: path, Kind: "file"}}, Representations: []model.Representation{{ID: "REP-1", Kind: "implementation", Path: path, Locator: model.Locator{Kind: "file"}, RequirementID: "FR-1", ProductBehaviorIDs: []string{"PB-1"}, VerificationCaseIDs: []string{"VC-1"}}}}, AdditionalRules: []string{}}
 	return f
 }
 

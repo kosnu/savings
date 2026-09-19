@@ -154,7 +154,11 @@ func TestCheckpointUsesUpdatedRuleMapWithoutImportCommit(t *testing.T) {
 }
 
 func TestSameBranchTasksShareDeliveryAndKeepTheirRecords(t *testing.T) {
-	f := setup(t, "development")
+	testSharedDelivery(t, Version)
+}
+
+func testSharedDelivery(t *testing.T, version int) {
+	f := setupVersion(t, "development", version)
 	base := f.git("rev-parse", "HEAD")
 	must(t, f.checkpoint())
 	f.put("src/a.txt", "product\n")
