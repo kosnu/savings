@@ -1,0 +1,63 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "learn",
+    "id": "issue-1745-shared-gate",
+    "intent": {
+      "kind": "feedback",
+      "reference": "https://github.com/kosnu/savings/issues/1745",
+      "body": "## 課題\n\nルートの `vite.config.ts` と `.vite-hooks/**` の変更に、共有検証ゲートの動作検証がAIDDの必須検証として結び付いていない。\n\n#1742でguardrailへの登録、#1743でGoの整形・vet実行は実装済みだが、フックが存在することと、その動作を回帰検証することは別である。`vp` をリポジトリ共通のローカル検証ゲートとする判断は維持する。\n\n## 現在の状態\n\n2026-09-13、main e807a241b68fe47e340bfd95d4b983ee4f9d9a74 を確認。上記パス単独の変更に対する `protocol.json.required_verification` の要求は `git-diff-check` のみで、`verification-profiles.json` に共有設定・Gitフックの動作を検証するsuiteはない。本Issueは未対応。\n\n#1747は同じLearn Task内で必要な変更対象を追加できるようにした変更であり、本Issueの検証追加そのものは含まない。\n\n## 期待する結果・完了条件\n\n- [ ] ルート `vite.config.ts` と `.vite-hooks/**` を変更すると、共有ゲートの動作に対応する必須検証が選択される。\n- [ ] 必要なsuiteを省略したDecisionは拒否され、`git-diff-check` だけでは検証条件を満たさないことを確認する。\n- [ ] 実際の設定とフックを使い、Go整形、vet失敗時のcommit停止、非Go変更・削除のみでもvetが動くこと、未ステージ変更の保護を回帰検証する。\n- [ ] 既存の `vp check` と `.aidd` のcanonical JSON保持を維持する。\n- [ ] 検証profile、必須検証のrouting、必要な運用文書を整合させ、追加したsuiteの実行結果と最終差分のレビューを残す。\n\n## 範囲・制約\n\n共有設定・Gitフックの検証profile、routing、必要な回帰テストと文書を対象にする。既存Web suiteへのパス追加だけをGoフックの動作検証の代わりにしない。Go検証をFE専用として扱わず、共通入口から外さない。product実装や無関係なchecker変更は含めない。\n\n実行は現行workflowの独立Learnとして扱う。Task・baseline・開始時checker・policy/profileを保持し、委任内で必要になった変更対象は同じTaskのcheckpointで改訂する。旧証拠を失効させ、更新後の全差分と最終状態を再検証する。checker移行が必要な場合は既存の明示的な移行契約に従う。\n\n#1742・#1743のTaskや証跡を作り直さない。着手時点のmainを確認し、今回の明示された目的に対応する独立Learnとして開始する。本Issueの精査・本文更新は実装開始を意味しない。\n\n## 参照\n\n- [元レビュー指摘](https://github.com/kosnu/savings/pull/1742#discussion_r3996189268)：別Issueへの移管によりresolvedになったもので、修正済みを意味しない。\n- 関連PR: #1742、#1743、#1747\n- [workflow](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/workflow.md)、[protocol](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/contracts/protocol.json)、[verification profiles](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/contracts/verification-profiles.json)\n",
+      "body_sha256": "9358566b9a99265d2fe7bbe1d75c44b31ae334e9660ff7360a1c31c07b875da6"
+    },
+    "objective": "共有設定・Gitフックの動作検証をAIDD必須検証へ接続する",
+    "constraints": [
+      "product実装・無関係なchecker変更を含めない",
+      "vpの共通入口と既存check・canonical JSON保持を維持する",
+      "開始時Task・baseline・checker・policy/profileを保持する"
+    ],
+    "done": [
+      "共有設定とフック変更に動作suiteが必須となり省略Decisionが拒否される",
+      "実設定・フックで整形、vet失敗、非Go・削除、未ステージ保護、canonical JSONを回帰検証する",
+      "最終差分reviewと検証・commit・push・Draft PR・配信状態確認を完了する"
+    ],
+    "verification": [
+      "Go全テスト・vet・整形・mod verify",
+      "実vp/Go/GitでPython回帰テスト",
+      "checker check-all・ADR検証・git diff --check"
+    ],
+    "authorization": "ユーザーの「Issue#1745 を対応して」とブランチ作成・実装・検証・Draft PR作成への「はい」。Issue指定の独立Learnを実行する。",
+    "authorized_scopes": [
+      {
+        "path": "docs/ai-driven-development/aidd-checker-operations.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/contracts/protocol.json",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/shared_gate_test.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/tests/test_shared_gate.py",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_head": "ab5e18995d10c9e6753f6327e18b5ab02ae2cba8",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
