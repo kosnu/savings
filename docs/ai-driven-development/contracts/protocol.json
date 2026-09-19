@@ -32,20 +32,29 @@
   ],
   "required_verification": [
     {
-      "paths": [
-        "**"
-      ],
-      "profiles": [
-        "git-diff-check"
-      ]
+      "paths": ["**"],
+      "profiles": ["git-diff-check"]
     },
     {
       "paths": [
-        "tools/aidd/**"
+        "tools/aidd/**",
+        "docs/ai-driven-development/contracts/protocol.json",
+        "docs/ai-driven-development/contracts/verification-profiles.json"
       ],
-      "profiles": [
-        "aidd-checker-tests"
-      ]
+      "profiles": ["aidd-checker-tests"]
+    },
+    {
+      "paths": [
+        "vite.config.ts",
+        ".vite-hooks/**",
+        "tools/aidd/tests/test_shared_gate.py",
+        "docs/ai-driven-development/contracts/protocol.json",
+        "docs/ai-driven-development/contracts/verification-profiles.json",
+        "package.json",
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml"
+      ],
+      "profiles": ["shared-gate-tests"]
     },
     {
       "paths": [
@@ -58,22 +67,11 @@
         "apps/web/index.html",
         "pnpm-lock.yaml"
       ],
-      "profiles": [
-        "web-format-check",
-        "web-lint",
-        "web-typecheck",
-        "web-unit-integration-suite"
-      ]
+      "profiles": ["web-format-check", "web-lint", "web-typecheck", "web-unit-integration-suite"]
     },
     {
-      "paths": [
-        "apps/web/.storybook-test/**",
-        "apps/web/vitest*.ts",
-        "apps/web/vitest*.js"
-      ],
-      "profiles": [
-        "web-storybook-suite"
-      ]
+      "paths": ["apps/web/.storybook-test/**", "apps/web/vitest*.ts", "apps/web/vitest*.js"],
+      "profiles": ["web-storybook-suite"]
     }
   ],
   "mixed_json": [
