@@ -76,8 +76,10 @@ runnerの証跡契約は引き続きv5であり、外側の保存形式だけv6�
   requirements、product_behaviors、verification_cases、representationsはID、ownership_scopesはpathがkey。
   空key、同じkeyへの重複操作、未知keyのremoveを拒否する。更新後に全Decisionを再検査する。
   並び順はcheckerが正規化する。要求とbehavior等の意味的な参照関係を自動推測しない。
-- additional_rulesは指定時に置換する。integration/checker_migration/scope_revision/product_authorizationは
+- additional_rulesは指定時に置換する。integration/checker_migration/product_authorizationは
   指定時に更新し、省略時は引き継ぐ。保護された履歴の削除や権限拡張は既存検査で拒否する。
+- scope_revisionは一回限りの範囲追加イベントであり、省略時は新Decisionに含めない。
+  適用済みの権限とユーザーの制限は履歴から復元し、同じscopeの再追加は引き続き拒否する。
 - `--latest`は明示Task IDと期待revisionを必須とする。任意の「最近のTask」へ切り替えない。
   hashを併記した場合は完全一致を要求する。古いrevisionは、読み直して判断するまで更新できない。
 - `task-status`は読取専用で、summaryまたは指定fieldを返す。summaryのevidence_validは
