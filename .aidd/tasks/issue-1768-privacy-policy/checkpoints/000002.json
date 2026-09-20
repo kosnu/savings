@@ -1,0 +1,390 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "675ca0f9ee6d7cf5d6afe4dc267c3c42b302a2a63c6f76fa83496a3d7390c02a",
+  "revision": 2,
+  "parent_sha256": "b38eb7efdc667378eb9a9e6b5d49d24feef128aa734d849bda0e9fa8ea9f8de7",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "675ca0f9ee6d7cf5d6afe4dc267c3c42b302a2a63c6f76fa83496a3d7390c02a",
+    "reason": "静的な公開ページ /privacy を追加し、TopPage・AuthPage・SettingsPage に既存のLinkで導線を追加する。Radix Container/Heading/Text/Flexで閲覧用1列ページにし、文言は既存i18n/resourcesへ日英で置く。データ取得や新規state/helperは不要。Google/Supabase認証とDB、Cloudflare配信、Sentryエラー収集、localStorageの言語・テーマをコードから確認した。Sentry公式のData CollectedおよびSupabase Google Auth、個人情報保護委員会の通則編も参照。運営者・連絡先は回答待ちで公開文面の完成とShipは保留する。保管期間・削除期限など未確認の運用を作らない。 ユーザー回答により、問い合わせ先メールは別途用意し一か所で差し替え可能にする。PrivacyPage内のcontactEmail定数を唯一の差し替え箇所とし、空文字の間は準備中と表示してmailtoリンクを作らない。運営者の氏名・住所は利用者本人の求めに応じ遅滞なく回答する旨を明記する。この確認内容をIssue #1768の「確認済みの運用」へ追記した。初回実装はメールの後日設定を許容する。この判断は新たなデータ取扱いの推測を追加しない。 ユーザー指示でmainを取り込み、PR #1772由来のブラウザ言語採用と日本語フォールバックでPR #1770の未解決指摘を解消できるか検証する。既存Taskのownershipを維持し、統合後に全caseを再検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "実態に沿った必要最小限のプライバシーポリシーを作成する",
+        "origin": "intent",
+        "evidence": "サービスで実際に扱う情報と利用中の外部サービスを確認し、必要最小限のプライバシーポリシーを作成する。"
+      },
+      {
+        "id": "FR-2",
+        "text": "サービスからポリシーを閲覧できる",
+        "origin": "intent",
+        "evidence": "利用者がサービスから閲覧できる。"
+      },
+      {
+        "id": "FR-3",
+        "text": "運営者名・連絡先・取扱いを推測しない",
+        "origin": "intent",
+        "evidence": "未確認の取扱いや連絡先を推測で記載していない。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "user_operation",
+          "description": "公開ルート /privacy で取得情報・利用目的・外部サービス・ブラウザ保存と運営者への問い合わせ方法を日本語/英語で読める。問い合わせ先メールはPrivacyPageのcontactEmail定数一か所で差し替え、空の間は準備中と表示する。運営者の氏名・住所は利用者本人から求められた際に遅滞なく回答する。",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "user_operation",
+          "description": "未ログインの紹介画面・認証画面とログイン後の設定画面から公開ルート /privacy に遷移できる。",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "user_operation",
+          "description": "本文の情報の取扱いと連絡先が実装・公式文書・ユーザーの確認回答に一致している。保存期間や削除期限、販売・提供の有無など未確認の運用は断定しない。",
+          "requirement_id": "FR-3"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-storybook-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "日本語・英語の本文を認証・schema・RLS・Sentry・ブラウザ保存および公式文書と照合する。ユーザー確認済みの運営者情報開示方針とメール後日差し替えを反映し、未設定時に架空のmailtoリンクを表示しないことを確認する。"
+        },
+        {
+          "id": "VC-8",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "日英・明暗・モバイル/デスクトップの実画面でポリシーとリンクの可読性・横はみ出しを確認する。紹介画面では追加リンクが既存の価値提示と利用開始導線を妨げないことを確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/src/app/routes.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/PrivacyPage/index.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/SettingsPage/SettingsPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/TopPage/TopPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/resources.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "story",
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.stories.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/PrivacyPage/index.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/SettingsPage/SettingsPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/TopPage/TopPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/resources.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-8"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [],
+    "integration": {
+      "base_head": "2c1058d971b214ccff31d00967eddf617ef9068f",
+      "head": "a87e813c9271ccdfb1eda94ed9fc6404a0ace30f"
+    }
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.domain-ui-rules",
+    "web.feature-directory",
+    "web.landing-page-rules",
+    "web.query-cache",
+    "web.storybook-browser-tests",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}
