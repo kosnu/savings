@@ -1,0 +1,50 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "learn",
+    "id": "issue-1748-learn-root-cause",
+    "intent": {
+      "kind": "feedback",
+      "reference": "https://github.com/kosnu/savings/issues/1748",
+      "body": "## 課題\n\nLearnが原因となる前提を残したまま例外・補足・拡張手続きを追加し、それを根治と判断してしまう。原因の前提そのものを変える案を評価し、現在の仕様を所有する本文・契約・実装へ直接反映できるようにする。\n\n#1746／PR #1747の検討中、初期ファイル一覧を権限上限とする前提に対して範囲追加手続きを設ける説明へ、ユーザーから「前提そのものを変えるべき」と指摘があった。これは対策選定時の判断を示す事例であり、#1747の最終実装が当時の状態のままと断定するものではない。\n\n## 現在の状態\n\n2026-09-13、main e807a241b68fe47e340bfd95d4b983ee4f9d9a74 を確認。#1747はマージ済みで、現行workflowは初期ファイル一覧を作業計画とし、目的・対象機能・禁止事項・配信先を委任の境界としている。したがって #1746 の具体的な変更対象改訂の実装を、本Issueの未対応項目へ戻さない。\n\n現行Learnには原因層の調査と対策比較がある。一方、原因の前提を変更する案と温存する案の評価、現行正本の直接更新、根治とする完了判断について、本件への改善と確認の根拠は未確認。一般的なルールの存在や #1747 の完了だけで本Issueを対応済みとはしない。\n\n## 期待する結果・完了条件\n\n- [ ] 対策選定・完了判断のどこで原因となる前提を見落としたか、既存規則との関係と根拠を示す。\n- [ ] 原因となる前提を直接変更する案と、前提を残して例外・手続きを追加する案を比較し、原因に合う最小の実用的な対策を選べる。追加機構を設けること自体を改善とは扱わない。\n- [ ] 現在の仕様を所有する本文・契約・実装を直接更新し、無効になった前提や重複説明を現行ルールとして残さない。原因の所有層が実装・契約なら文章の言い換えだけで終えない。\n- [ ] 過去の前提と後続の補足を順に読み合わせなくても、現在の正本から適用すべき仕様を理解できることをレビューする。\n- [ ] 前提を温存した対策と直接変更した対策を具体例で比較し、何が解消され何が残るかを説明できる。自動判定器の導入や完全な再発防止の証明を完了条件にはしない。\n- [ ] 意思決定・検証の履歴を保持する記録と、現在の仕様を表す正本の責務を区別する。\n\n## 範囲・制約\n\n対象はLearnの対策選定・正本更新・完了判断。#1746の具体的なchecker修正は含めない。#1704は原因に応じた対策の振り分けを扱い、共通する規則は重複させない。\n\n例外や追加機構を一律に禁止せず、原因、責務、副作用、コストから必要性を判断する。「履歴構造を許すのはADRだけ」という制限は設けない。Git履歴、採択済みADR、Task・checkpoint・検証証拠など必要な履歴を削除・上書きしない。現行仕様の直接更新と、固定記録の保存・追記改訂を混同しない。\n\n実行する場合は現行workflowの独立Learnに従い、既存のTask／Decision／Checkpoint／Evidence契約を維持する。本Issueは課題の記録であり、今回の精査・本文更新ではLearnの実装を開始しない。\n\n参照: [learning policy](https://github.com/kosnu/savings/blob/main/docs/harness/policies/learning-extraction.md)、[workflow](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/workflow.md)、[documentation policy](https://github.com/kosnu/savings/blob/main/docs/harness/policies/documentation-policy.md)。\n",
+      "body_sha256": "f1199a0b64dd5d7546390141d557209b8ad635ddde8f32ea22d4066b7c149abe"
+    },
+    "objective": "Learnが原因となる前提を評価して所有する正本を直接更新し、解消範囲の根拠で完了判断できるようにする。",
+    "constraints": [
+      "#1746のchecker修正、#1704の振り分け改善は対象外",
+      "Task・checkpoint・証拠・採択済みADR・Git履歴を上書き削除しない",
+      "追加機構を一律禁止せず、意味判断の自動判定器を導入しない"
+    ],
+    "done": [
+      "原因と既存規則の不足を示し、前提変更案と温存案を具体例で比較する",
+      "現在の正本から現行仕様を読め、履歴保存と区別できる",
+      "担当agentが差分と証拠をレビューし、検証・commit・push・PR作成と配信状態確認を終える"
+    ],
+    "verification": [
+      "git diff --check、開始時checkerのcheck-all・verify・finish・ship-check",
+      "具体例による意味レビュー、現在の正本と履歴の責務確認、共通commit gate"
+    ],
+    "authorization": "ユーザーの「Issue#1748 の対応して ブランチ作成は許可」に基づき、Issueが指定する独立Learnとして対策選定・正本更新・完了判断を改善し、検証・commit・push・PR作成まで実行する。",
+    "authorized_scopes": [
+      {
+        "path": "docs/harness/policies/documentation-policy.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/harness/policies/learning-extraction.md",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_head": "186933c893cdabcfdfb2308855b8cd02bddf0c98",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

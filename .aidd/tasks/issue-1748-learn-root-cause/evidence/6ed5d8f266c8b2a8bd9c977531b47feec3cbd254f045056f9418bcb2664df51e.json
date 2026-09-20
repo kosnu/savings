@@ -1,0 +1,69 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "1005bb599125861ccdcb5c26a8deda5fae51938c775bcf29f3c2e557b1d3d96e",
+  "checkpoint_sha256": "6ed5d8f266c8b2a8bd9c977531b47feec3cbd254f045056f9418bcb2664df51e",
+  "repository_sha256": "85ae2da2bd056ac536aa6b4e56b34548e954128b8dd8c5c3e5bb91c98abbbaa4",
+  "git_repository_sha256": "d3a088aa4e4e8f598dab700b93a2d9036f1988627bb9940f06bd470a3792b25b",
+  "changed_paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1748-learn-root-cause",
+    "receipt_sha256": "6ed5d8f266c8b2a8bd9c977531b47feec3cbd254f045056f9418bcb2664df51e",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "d72bab87a6adb58b5d26ceeaeff0eae88809f0644373e8d7e18722e0d7c17aa8",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "d72bab87a6adb58b5d26ceeaeff0eae88809f0644373e8d7e18722e0d7c17aa8",
+        "procedure": "初期一覧を権限上限とする例で追加許可手続き案と計画・明示制限の分離案を比較し、維持が妥当な明示制限の例も確認する。#1746の最終実装の欠陥とは扱わず、現行Learnの比較・完了判断の不足と選定理由を照合する。",
+        "observation": "初期ファイル一覧を権限上限とする例では、一覧外ごとの追加許可手続きは当該作業を通しても計画と権限の混同を残す。計画とユーザーの明示制限を分離する案はその原因を除き、改訂記録は追跡責務として残せる。対してユーザーが2ファイル限定と明示した例では境界維持と拡張前の確認が必要で、制限撤去は不適切。現行の原因調査2-5は前提・所有層・解消範囲・残存負担・維持理由を比較できる。#1746のcheckpoint 000003と現行workflowから同Issueの本文統合は既対応と確認し、checkerを変更していない。今回の根拠は判断基準の不足であり、過去agentの未読や認知原因は断定していない。"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "d72bab87a6adb58b5d26ceeaeff0eae88809f0644373e8d7e18722e0d7c17aa8",
+        "procedure": "正本文書とGit・採択済みADR・Task・checkpoint・証拠を区別し、現行本文の直接更新と履歴保存が両立することを確認する。実装・契約が原因なら文言だけで閉じないことも確認する。",
+        "observation": "Documentation Policyの現行仕様と履歴では、旧権限上限の本文を残して末尾で緩和する案は読み合わせが必要で拒否し、所有本文を直接更新する案は現行仕様を直接読める。Git履歴・採択ADR・Task・checkpoint・証拠は保持し、追記改訂または置換参照へ接続する。Learn手順5は契約・実装が原因なら文言だけで完了しないと規定する。差分は正本2文書と新Task記録だけで、既存履歴の変更はない。"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "d72bab87a6adb58b5d26ceeaeff0eae88809f0644373e8d7e18722e0d7c17aa8",
+        "procedure": "Learnの入口から現行policyを読み、原因前提の比較、所有層への反映、残存原因の説明まで到達できることをレビューする。更新前の本文や末尾補足に依存しないこと、#1704の分類規則を複製しないことを確認する。",
+        "observation": "メインagentがlearn skillから現行Learning Extractionへの経路と最終差分をレビューした。従来の原因層調査・手段比較には前提自体の評価がなく、差分・証拠reviewだけでは根治判断を制約しなかった。既存手順2-5を更新し、選定時の例を所有層に当てはめて解消範囲を説明する完了判断へ接続した。旧本文や後付け例外の読み合わせは不要。#1704の振り分けと入力ゲートは変更せず、追加機構の全面禁止・自動意味判定・完全再発防止の要求を入れていない。対象はこの判断基準の不足の解消であり将来の全実行の遵守は未証明。Coverage: Checked rules=ai-driven.workflow, ai-driven.checker, documentation.policy, policy.learning-extraction, policy.review-feedback-classification, policy.code-review, policy.git-workflow, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.task-scope; Unresolved=なし。"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "d72bab87a6adb58b5d26ceeaeff0eae88809f0644373e8d7e18722e0d7c17aa8"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
