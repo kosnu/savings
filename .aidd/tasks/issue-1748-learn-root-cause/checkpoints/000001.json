@@ -1,0 +1,153 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "1005bb599125861ccdcb5c26a8deda5fae51938c775bcf29f3c2e557b1d3d96e",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "1005bb599125861ccdcb5c26a8deda5fae51938c775bcf29f3c2e557b1d3d96e",
+    "reason": "入力はユーザーが実行指定したIssue #1748のfinding。通常Learnの対策選定と完了判断で前提温存を根治と誤認する経路を対象とする。現行learning-extractionの原因調査2は層を調べ、3-4は手段とコストを比較するが、原因となる前提を比較軸にせず、実行文脈の完了確認も差分・証拠reviewまでで解消した原因の判定を明示しない。documentation-policyはADR履歴を保護するが、現行仕様の直接更新との区別が不足する。#1746 checkpoint 000003は本文統合済みを示すため個別不具合として再実装しない。当時の認知原因や未読は断定しない。既存の比較手順そのものを更新し、文書責務はdocumentation-policyへ集約、Learnから参照する。無変更では前提比較の欠落が残り、末尾注意や新規checkerは判断を重複・形式化するため採用しない。ルールの追加・変更に分類し、現在の正本2文書だけを更新する。独立LearnとしてGoalは作成せず既存Core契約でShipまで進める。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "原因調査で前提と所有層を特定し、前提変更と温存の解消範囲・残る原因を比較する。 具体例と現行正本の読み直しで解消範囲と残存原因を確認して完了判断する。",
+        "origin": "intent",
+        "evidence": "原因となる前提を直接変更する案と、前提を残して例外・手続きを追加する案を比較し、原因に合う最小の実用的な対策を選べる。"
+      },
+      {
+        "id": "FR-2",
+        "text": "現行正本を直接更新し、固定履歴は保持する。",
+        "origin": "intent",
+        "evidence": "意思決定・検証の履歴を保持する記録と、現在の仕様を表す正本の責務を区別する。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "原因調査で前提と所有層を特定し、前提変更と温存の解消範囲・残る原因を比較する。",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "現行正本を直接更新し、固定履歴は保持する。",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "具体例と現行正本の読み直しで解消範囲と残存原因を確認して完了判断する。",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "初期一覧を権限上限とする例で追加許可手続き案と計画・明示制限の分離案を比較し、維持が妥当な明示制限の例も確認する。#1746の最終実装の欠陥とは扱わず、現行Learnの比較・完了判断の不足と選定理由を照合する。"
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "正本文書とGit・採択済みADR・Task・checkpoint・証拠を区別し、現行本文の直接更新と履歴保存が両立することを確認する。実装・契約が原因なら文言だけで閉じないことも確認する。"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "Learnの入口から現行policyを読み、原因前提の比較、所有層への反映、残存原因の説明まで到達できることをレビューする。更新前の本文や末尾補足に依存しないこと、#1704の分類規則を複製しないことを確認する。"
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/harness/policies/documentation-policy.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": "docs/harness/policies/documentation-policy.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "documentation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3",
+            "VC-4"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.task-scope",
+    "ai-driven.checker",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}
