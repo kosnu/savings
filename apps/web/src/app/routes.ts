@@ -16,6 +16,7 @@ import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
 import { ErrorPage } from "./routes/ErrorPage"
 import { PaymentsPage } from "./routes/PaymentsPage"
+import { PrivacyPage } from "./routes/PrivacyPage"
 import { SettingsOverview } from "./routes/SettingsOverview"
 import { SettingsPage } from "./routes/SettingsPage"
 import { TopPage } from "./routes/TopPage"
@@ -50,6 +51,12 @@ const authRoute = createRoute({
   path: "/auth",
   component: AuthPage,
   beforeLoad: redirectIfAuthenticated,
+})
+
+const privacyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/privacy",
+  component: PrivacyPage,
 })
 
 const authenticatedRoute = createRoute({
@@ -115,6 +122,7 @@ const settingsAppearanceRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
+  privacyRoute,
   authenticatedRoute.addChildren([
     paymentsRoute.addChildren([paymentDetailsRoute]),
     aggregatesRoute,

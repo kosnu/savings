@@ -1,4 +1,5 @@
-import { Button, Container, Flex, Heading, Text } from "@radix-ui/themes"
+import { Button, Container, Flex, Heading, Link as ThemeLink, Text } from "@radix-ui/themes"
+import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { useAuthCallbackError } from "../../../utils/auth/useAuthCallbackError"
@@ -41,6 +42,9 @@ export function AuthPage() {
             <Button onClick={signInWithSupabase} variant="outline">
               {t("auth.continueWithGoogle")}
             </Button>
+            <ThemeLink asChild size="2">
+              <Link to="/privacy">{t("privacy.title")}</Link>
+            </ThemeLink>
           </Flex>
         </Flex>
       </Container>
