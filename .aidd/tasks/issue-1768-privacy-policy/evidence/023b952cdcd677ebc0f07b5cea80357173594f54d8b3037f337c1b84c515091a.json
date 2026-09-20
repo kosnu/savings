@@ -1,0 +1,173 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "675ca0f9ee6d7cf5d6afe4dc267c3c42b302a2a63c6f76fa83496a3d7390c02a",
+  "checkpoint_sha256": "023b952cdcd677ebc0f07b5cea80357173594f54d8b3037f337c1b84c515091a",
+  "repository_sha256": "ce1a6edb11a192b09d54c97c322d0420c7bc10f8b86d722e58d524b012df0f5f",
+  "git_repository_sha256": "0d3bfb4759256b07e24a2e9c2f0639249e16a3d938e22edbf629ebd731ecd56b",
+  "changed_paths": [
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+    "apps/web/src/app/routes/PrivacyPage/PrivacyPage.stories.tsx",
+    "apps/web/src/app/routes/PrivacyPage/PrivacyPage.test.tsx",
+    "apps/web/src/app/routes/PrivacyPage/PrivacyPage.tsx",
+    "apps/web/src/app/routes/PrivacyPage/index.ts",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.tsx",
+    "apps/web/src/app/routes/TopPage/TopPage.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1768-privacy-policy",
+    "receipt_sha256": "023b952cdcd677ebc0f07b5cea80357173594f54d8b3037f337c1b84c515091a",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-format-check",
+        "profile_sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-format-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 114,
+        "stderr_bytes": 54,
+        "output_sha256": "28e2603f7bc019d363d73c9369f4d862c79e0ef99aac133fd0fdd573c89b5491",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-lint",
+        "profile_sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-lint"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 69,
+        "output_sha256": "3c5b083e19dbc5b30946a1f931bd4027b66ddcd9f3b77f707fcd1d8447e86b52",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-storybook-suite",
+        "profile_sha256": "4261158eaa16f296e862fcd6cc29b874478db52cb7ddb709ca4fa8dacdd02d69",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-storybook-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 268,
+        "stderr_bytes": 3899,
+        "output_sha256": "7dd728ebc5ca345beb22de710818838552ae1f16393015ec4706c5cef8921dbc",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-typecheck",
+        "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-typecheck"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 39,
+        "output_sha256": "503eb0fe8b0d7571b49d15ce1a46bf45d513a80332759fa7c15c7a7009fa1835",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e"
+      },
+      {
+        "id": "VC-6",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-unit-integration-suite",
+        "profile_sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-unit-integration-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 1677,
+        "stderr_bytes": 332,
+        "output_sha256": "80d94974bae19974ad26a025e6d60ebc8c56120af23b2ae728024a945bf00c20",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e"
+      },
+      {
+        "id": "VC-7",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e",
+        "procedure": "日本語・英語の本文を認証・schema・RLS・Sentry・ブラウザ保存および公式文書と照合する。ユーザー確認済みの運営者情報開示方針とメール後日差し替えを反映し、未設定時に架空のmailtoリンクを表示しないことを確認する。",
+        "observation": "統合後もポリシー本文とデータ取扱いの実装は同一。外部サービス・保存方法・本人への運営者情報回答の確認済み運用と一致し、未設定メールは準備中表示で架空リンクなし。main由来の変更は言語初期化でありデータの送信先・取得情報に変更なし。"
+      },
+      {
+        "id": "VC-8",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "37c343937ddd60d0db9b622cc95c20851613b799db1794eb4cf6d6eaa360f85e",
+        "procedure": "日英・明暗・モバイル/デスクトップの実画面でポリシーとリンクの可読性・横はみ出しを確認する。紹介画面では追加リンクが既存の価値提示と利用開始導線を妨げないことを確認する。",
+        "observation": "統合後に実アプリのprivacyとTopPageを日英・明暗・375px/1280pxで再確認し全8画面に横溢れなし。新規ブラウザコンテキストの未ログインprivacyでja-JPは日本語、en-USは英語、fr-FRは日本語、ja-JPかつ保存enは英語になることも確認した。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
