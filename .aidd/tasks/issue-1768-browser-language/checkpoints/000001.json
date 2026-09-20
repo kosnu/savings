@@ -1,0 +1,175 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "7de257a054b4c60311a50355fecb3394c070e782d251f956ceeb82886206ff48",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "7de257a054b4c60311a50355fecb3394c070e782d251f956ceeb82886206ff48",
+    "reason": "ユーザーがブラウザ言語と日本語既定を採用し、mainから独立ブランチで実行を指示したため新規Taskとする。既存PRの成果物は持ち出さない。getInitialLanguage内で保存値を先頭、navigator.languagesを優先順で評価し、対応するen/jaがなければjaとする。navigator.languagesが空ならnavigator.languageを使う。無効な保存値は無視し、Storage例外時もブラウザ言語を評価する。アカウント言語の正規化・保存契約とログイン後の優先順位は変更しない。新規ヘルパーや依存を追加せず、実モジュール初期化を通るテストで入口を検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "保存設定を優先し、ブラウザ対応言語、日本語の順で初期言語を選択する",
+        "origin": "intent",
+        "evidence": "保存済みの言語設定を優先し、未設定ならブラウザの優先言語から対応する日本語・英語を選ぶ。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "保存済み対応言語が最優先。ない場合はブラウザ優先言語リストの最初のen/ja、非対応またはブラウザがない場合はja。Storage失敗もブラウザへfallbackし、アカウント言語はログイン後引き続き優先される。",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/src/i18n/index.initialization.test.ts",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/index.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "test",
+          "path": "apps/web/src/i18n/index.initialization.test.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/index.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.feature-directory",
+    "web.query-cache",
+    "web.storybook-browser-tests",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}

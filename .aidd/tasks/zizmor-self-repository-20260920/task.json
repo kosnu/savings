@@ -1,0 +1,51 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "learn",
+    "id": "zizmor-self-repository-20260920",
+    "intent": {
+      "kind": "feedback",
+      "reference": "user:pr-1718-ci-failure",
+      "body": "CI失敗を修正して",
+      "body_sha256": "634a048729115b5d65e4ba5d88bb44b5a10c9a4c029c0763d6d7c8d4fafdbb09"
+    },
+    "objective": "zizmor 1.30.1 が検出する同一リポジトリのAction参照を修正する",
+    "constraints": [
+      "変更は2つのGitHub Actions workflowのAction参照に限定する",
+      "元のRenovate PR #1718 の依存更新はこのPRへ含めない",
+      "ユーザーの指示に従い修正を別PRとして配信する"
+    ],
+    "done": [
+      "対象の2箇所をGitHub推奨のself-repository参照へ更新する",
+      "zizmor検査とAIDD検証を完了する",
+      "変更をcommit・pushし、別PRを作成して配信状態を確認する"
+    ],
+    "verification": [
+      "zizmor 1.30.1 による全workflow検査",
+      "git diff --check",
+      "workflow差分とAction定義の目視review"
+    ],
+    "authorization": "ユーザーの『CI失敗を修正して』と『修正を別PRへ移すのは許可します』および最終指示『どちらも許可します』。",
+    "authorized_scopes": [
+      {
+        "path": ".github/workflows/cache_main.yaml",
+        "kind": "file"
+      },
+      {
+        "path": ".github/workflows/frontend_ci.yaml",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_head": "c72b2533a1dfd7e4e28977a1351f0b7207ce16bf",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

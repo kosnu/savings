@@ -1,0 +1,43 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1768-browser-language",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1768",
+      "body": "## 概要\n\nサービスで実際に扱う情報と利用中の外部サービスを確認し、必要最小限のプライバシーポリシーを作成する。\n\n## 完了の定義 (Definition of Done)\n\n- 実際の情報の取得・利用・管理方法に沿った内容になっている。\n- 利用者がサービスから閲覧できる。\n- 未確認の取扱いや連絡先を推測で記載していない。\n\n## 制約・禁止事項\n\n記載内容は確認できた事実に基づき、必要以上に範囲を広げない。\n\n## 確認済みの運用\n\n- 問い合わせ先を公開し、利用者本人から求められた際に運営者の氏名・住所を遅滞なく回答する。\n- 問い合わせ先メールアドレスは別途用意するため、後から一か所で差し替えられる形にする。未設定時に架空の連絡先を表示しない。\n\n## 言語の初期選択（別ブランチで対応）\n\n- 保存済みの言語設定を優先し、未設定ならブラウザの優先言語から対応する日本語・英語を選ぶ。\n- 対応する言語がない場合の既定値は日本語とする。\n- ログイン後はアカウントに保存した言語を優先する。\n- この変更はmain起点の `issue-1768/browser-language` で扱い、プライバシーポリシー本文のPRとは分ける。\n\n",
+      "body_sha256": "1abb2c03b5fda322f735008fc9bd237f284ee391cea183c8f2a64d509a72ff26"
+    },
+    "objective": "保存済み言語、ブラウザ優先言語、日本語の順で初期言語を決定し、アカウント設定の優先を維持する",
+    "constraints": [
+      "ユーザーの明示指示によりmain起点の言語選択専用ブランチで扱う",
+      "PR #1770の成果物・Taskは移さない",
+      "既存のアカウント言語保存・取得境界を変更しない"
+    ],
+    "done": [
+      "保存済み言語を優先し、未設定はブラウザの対応言語、該当なしは日本語になる",
+      "初期化・保存設定・ログイン後の優先を検証する",
+      "レビュー・commit・push・別PR作成と配信状態確認を完了する"
+    ],
+    "verification": [
+      "pnpm run web:format",
+      "pnpm run web:lint",
+      "pnpm run web:format-check",
+      "pnpm run web:typecheck",
+      "pnpm run web:test:unit-integration",
+      "AIDD verify/finish/ship-check"
+    ]
+  },
+  "baseline_head": "4d4bdc406aa5f5905d95fcacb76802d4e3599c3a",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
