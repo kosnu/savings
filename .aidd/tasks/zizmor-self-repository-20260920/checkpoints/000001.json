@@ -1,0 +1,110 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "a1f772c6cdf6dce16e33dc6ea37d17daf3a586642500a4c1ae459f067edcb65d",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "a1f772c6cdf6dce16e33dc6ea37d17daf3a586642500a4c1ae459f067edcb65d",
+    "reason": "PR #1718 の zizmor 1.30.1 は2つのworkflowに残る workspace-relative Action参照を検出した。Action参照をGitHub推奨のself-repository構文へ変更すれば同じ参照先を保持しつつ検査を通せる。監査設定の緩和やchecker契約の変更は不要。ユーザーは別PRでの修正を許可した。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "CI失敗を修正する",
+        "origin": "intent",
+        "evidence": "CI失敗を修正して"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "同一リポジトリのPlaywright Actionをrunning commitから参照し、zizmorのself-repository検査でfindingを生じない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "zizmor 1.30.1でrepositoryを監査しfindingがないことを確認する。2つのworkflowが同じsetup-playwright Actionを参照し続け、他のstepを変更していないことをdiffで確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/workflows/cache_main.yaml",
+          "kind": "file"
+        },
+        {
+          "path": ".github/workflows/frontend_ci.yaml",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/workflows/cache_main.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": ".github/workflows/frontend_ci.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "architecture.overview",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}
