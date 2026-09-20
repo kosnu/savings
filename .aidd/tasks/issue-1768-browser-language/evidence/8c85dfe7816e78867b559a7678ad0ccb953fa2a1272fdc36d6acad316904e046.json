@@ -1,0 +1,130 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "7de257a054b4c60311a50355fecb3394c070e782d251f956ceeb82886206ff48",
+  "checkpoint_sha256": "8c85dfe7816e78867b559a7678ad0ccb953fa2a1272fdc36d6acad316904e046",
+  "repository_sha256": "c23a3973266da73a9eb7057c229f004daea9eb1929c85281ce4cf35aa75388ad",
+  "git_repository_sha256": "856f749a80c73babf517fac5deaad59fb150d34638b03e7f21722dfa8d20ffe7",
+  "changed_paths": [
+    "apps/web/src/features/budgets/utils/monthlyBudgetUsage.test.ts",
+    "apps/web/src/i18n/index.initialization.test.ts",
+    "apps/web/src/i18n/index.ts"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1768-browser-language",
+    "receipt_sha256": "8c85dfe7816e78867b559a7678ad0ccb953fa2a1272fdc36d6acad316904e046",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "3ad87861076648d8fe21e79828e87d017e9b2274e1cf0751e733eb0fa55b7063",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "3ad87861076648d8fe21e79828e87d017e9b2274e1cf0751e733eb0fa55b7063"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-format-check",
+        "profile_sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-format-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 114,
+        "stderr_bytes": 54,
+        "output_sha256": "aee3864ca8225bca3f69328894a7e565bb42a9c1bb59a8229cdc388d4b8d74e7",
+        "final_state_sha256": "3ad87861076648d8fe21e79828e87d017e9b2274e1cf0751e733eb0fa55b7063"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-lint",
+        "profile_sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-lint"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 69,
+        "output_sha256": "3c5b083e19dbc5b30946a1f931bd4027b66ddcd9f3b77f707fcd1d8447e86b52",
+        "final_state_sha256": "3ad87861076648d8fe21e79828e87d017e9b2274e1cf0751e733eb0fa55b7063"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-typecheck",
+        "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-typecheck"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 39,
+        "output_sha256": "503eb0fe8b0d7571b49d15ce1a46bf45d513a80332759fa7c15c7a7009fa1835",
+        "final_state_sha256": "3ad87861076648d8fe21e79828e87d017e9b2274e1cf0751e733eb0fa55b7063"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-unit-integration-suite",
+        "profile_sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-unit-integration-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 1667,
+        "stderr_bytes": 331,
+        "output_sha256": "070287b8145958f25da96e5cc72abb9f910d24a2c7dea524b4a3b9424c379fb0",
+        "final_state_sha256": "3ad87861076648d8fe21e79828e87d017e9b2274e1cf0751e733eb0fa55b7063"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
