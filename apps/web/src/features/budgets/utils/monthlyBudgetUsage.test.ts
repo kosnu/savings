@@ -1,8 +1,13 @@
-import { describe, expect, test } from "vite-plus/test"
+import { beforeEach, describe, expect, test } from "vite-plus/test"
 
+import { i18next } from "../../../i18n"
 import { getMonthlyBudgetUsageDisplay } from "./monthlyBudgetUsage"
 
 describe("getMonthlyBudgetUsageDisplay", () => {
+  beforeEach(async () => {
+    await i18next.changeLanguage("en")
+  })
+
   test("支出が月予算以下なら残額を表示する", () => {
     expect(getMonthlyBudgetUsageDisplay(10000, 30000)).toEqual({
       text: "¥20,000 left",

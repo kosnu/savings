@@ -13,7 +13,7 @@ export const appLanguageLabelKeys = {
 } satisfies Record<AppLanguage, string>
 
 const LANGUAGE_STORAGE_KEY = "appLanguage"
-const DEFAULT_LANGUAGE: AppLanguage = "en"
+const DEFAULT_LANGUAGE: AppLanguage = "ja"
 
 export function toAppLanguage(language: string | undefined): AppLanguage {
   if (language === "ja" || language?.startsWith("ja-")) return "ja"
@@ -25,11 +25,23 @@ function getInitialLanguage(): AppLanguage {
     return DEFAULT_LANGUAGE
   }
 
+  let savedLanguage: string | null = null
   try {
-    return toAppLanguage(window.localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? DEFAULT_LANGUAGE)
+    savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
   } catch {
-    return DEFAULT_LANGUAGE
+    // 保存設定を読めない場合も、ブラウザの優先言語を利用する。
   }
+
+  const browserLanguages = window.navigator.languages.length
+    ? window.navigator.languages
+    : [window.navigator.language]
+
+  for (const language of [savedLanguage, ...browserLanguages]) {
+    const primaryLanguage = language?.toLowerCase().split("-")[0]
+    if (primaryLanguage === "ja" || primaryLanguage === "en") return primaryLanguage
+  }
+
+  return DEFAULT_LANGUAGE
 }
 
 void i18next.use(initReactI18next).init({
