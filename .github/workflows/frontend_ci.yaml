@@ -122,7 +122,7 @@ jobs:
         run: pnpm ci
 
       - name: Setup Playwright (with cache)
-        uses: ./.github/actions/setup-playwright
+        uses: $/.github/actions/setup-playwright
         with:
           project-directory: apps/web
 
