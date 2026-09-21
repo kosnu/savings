@@ -1,0 +1,220 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "5b6358d4b4f8f8d2664002516e30bab7e343e97e3fe61b299a47d89f35b9ab70",
+  "revision": 2,
+  "parent_sha256": "29bb4d88c7657a8b5489600ce84d84bb311a157687905b694c908447c4d0a743",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "5b6358d4b4f8f8d2664002516e30bab7e343e97e3fe61b299a47d89f35b9ab70",
+    "reason": "PR #1784の未解決レビューthreadで、git-diff-checkが文書要件の意味的達成を検証した証拠として記録されている点を指摘された。ユーザーは追加の外部設定確認や意味検証を不要と判断し、AIDD記録だけを実態へ合わせる対応を承認した。VC-1からVC-4は、ユーザーが明示した変更済み外部設定と最終diffレビューの事実を記録するmanual caseへ改訂する。git-diff-checkは差分形式だけを確認する独立caseへ分離し、文書、checker、ルール、外部設定は変更しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Google OAuthの本番Web originを https://burneto.com として記録する",
+        "origin": "derived",
+        "evidence": "ユーザーが本番ドメインを burneto.com へ変更し、Google OAuth設定も完了したと確認したため"
+      },
+      {
+        "id": "FR-2",
+        "text": "Cloudflare Pagesの本番custom domainを burneto.com として記録する",
+        "origin": "derived",
+        "evidence": "ユーザーが burneto.com のcustom domain追加、DNS、SSL確認を完了したと確認したため"
+      },
+      {
+        "id": "FR-3",
+        "text": "Supabase AuthのSite URLとredirect allow listを burneto.com の現行設定として記録する",
+        "origin": "derived",
+        "evidence": "ユーザーがSupabase AuthとGitHub Environmentのドメイン設定を手動変更済みと確認したため"
+      },
+      {
+        "id": "NFR-1",
+        "text": "Supabase Project ID、Google callback URL、認証provider、既存利用者データを変更しない",
+        "origin": "intent",
+        "evidence": "- 既存利用者のデータを維持する"
+      },
+      {
+        "id": "NFR-2",
+        "text": "文書差分にwhitespace errorがない",
+        "origin": "derived",
+        "evidence": "Task verificationでgit diff --checkを実行するため"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "インフラ文書がGoogle OAuthの本番Web originを https://burneto.com と示す",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "インフラ文書がCloudflare Pagesの本番custom domainを burneto.com と示す",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "インフラ文書がSupabase AuthのSite URLとredirect allow listを burneto.com と示す",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "インフラ文書がSupabase Project ID、Google callback URL、認証provider、利用者データの維持を示す",
+          "requirement_id": "NFR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "ユーザーがGoogle OAuth設定をburneto.comへ変更済みと明示した事実と、最終diffのGoogle OAuth本番Web origin記述が一致することを確認する"
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "ユーザーがCloudflare custom domain、DNS、SSLをburneto.comで設定済みと明示した事実と、最終diffのCloudflare Pages記述が一致することを確認する"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "ユーザーがSupabase AuthとGitHub Environmentをburneto.comへ変更済みと明示した事実と、最終diffのSite URLおよびredirect allow list記述が一致することを確認する"
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "procedure": "最終diffでSupabase Project ID、Google callback URL、認証provider、利用者データに関する設定を変更していないことを確認する"
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/infrastructure.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": "docs/infrastructure.md",
+          "locator": {
+            "kind": "export",
+            "name": "Google OAuth"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "documentation",
+          "path": "docs/infrastructure.md",
+          "locator": {
+            "kind": "export",
+            "name": "Cloudflare Pages"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "documentation",
+          "path": "docs/infrastructure.md",
+          "locator": {
+            "kind": "export",
+            "name": "Supabase"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "documentation",
+          "path": "docs/infrastructure.md",
+          "locator": {
+            "kind": "export",
+            "name": "Preserved boundaries"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "documentation",
+          "path": "docs/infrastructure.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.harness-engineering",
+    "architecture.overview",
+    "documentation.policy",
+    "infrastructure.overview",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}

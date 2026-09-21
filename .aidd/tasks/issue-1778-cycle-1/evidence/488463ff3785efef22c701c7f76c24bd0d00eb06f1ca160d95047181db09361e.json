@@ -1,0 +1,76 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "5b6358d4b4f8f8d2664002516e30bab7e343e97e3fe61b299a47d89f35b9ab70",
+  "checkpoint_sha256": "488463ff3785efef22c701c7f76c24bd0d00eb06f1ca160d95047181db09361e",
+  "repository_sha256": "36bac5b11ed25d2d45dd1b14b98366046f1576f5fd65acca2951ccf4773095f1",
+  "git_repository_sha256": "1f1a5833c647e8d96dae83efafee8f0aac9de1e484bdcdd301f47e70e5728e3f",
+  "changed_paths": [
+    "docs/infrastructure.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1778-cycle-1",
+    "receipt_sha256": "488463ff3785efef22c701c7f76c24bd0d00eb06f1ca160d95047181db09361e",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "7fab17f71567b898cb9c150b9841e4bef0b21c85f46c8e11facae141cb035727",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "7fab17f71567b898cb9c150b9841e4bef0b21c85f46c8e11facae141cb035727",
+        "procedure": "ユーザーがGoogle OAuth設定をburneto.comへ変更済みと明示した事実と、最終diffのGoogle OAuth本番Web origin記述が一致することを確認する",
+        "observation": "ユーザーがGoogle OAuth設定をburneto.comへ変更済みと明示し、docs/infrastructure.mdの本番Web originがhttps://burneto.comを示す最終diffと一致した"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "7fab17f71567b898cb9c150b9841e4bef0b21c85f46c8e11facae141cb035727",
+        "procedure": "ユーザーがCloudflare custom domain、DNS、SSLをburneto.comで設定済みと明示した事実と、最終diffのCloudflare Pages記述が一致することを確認する",
+        "observation": "ユーザーがCloudflare custom domain、DNS、SSLをburneto.comで設定済みと明示し、docs/infrastructure.mdの本番custom domain記述と一致した"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "7fab17f71567b898cb9c150b9841e4bef0b21c85f46c8e11facae141cb035727",
+        "procedure": "ユーザーがSupabase AuthとGitHub Environmentをburneto.comへ変更済みと明示した事実と、最終diffのSite URLおよびredirect allow list記述が一致することを確認する",
+        "observation": "ユーザーがSupabase AuthとGitHub Environmentをburneto.comへ変更済みと明示し、docs/infrastructure.mdのSite URLとredirect allow list記述と一致した"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "7fab17f71567b898cb9c150b9841e4bef0b21c85f46c8e11facae141cb035727",
+        "procedure": "最終diffでSupabase Project ID、Google callback URL、認証provider、利用者データに関する設定を変更していないことを確認する",
+        "observation": "最終diffはdocs/infrastructure.mdとAIDD Task記録に限定され、Supabase Project ID、Google callback URL、認証provider、利用者データに関する設定を変更していない"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "7fab17f71567b898cb9c150b9841e4bef0b21c85f46c8e11facae141cb035727"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}

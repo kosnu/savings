@@ -60,7 +60,7 @@ when_to_read:
 - OAuth 同意画面のロゴには、[#1774](https://github.com/kosnu/savings/issues/1774) で作成した正方形の
   [ブランドアイコン](../apps/web/public/brand/icon-master.png)を使用する。
 - Web application の OAuth client は Supabase 用として管理し、次の URI を登録する。
-  - Authorized JavaScript origins: `http://localhost:5173`、`https://savings.kosnu.dev`
+  - Authorized JavaScript origins: `http://localhost:5173`、`https://burneto.com`
   - Authorized redirect URIs: `http://localhost:54321/auth/v1/callback`、
     `https://izuzqvgvgquqqimwuygw.supabase.co/auth/v1/callback`
 - OAuth client ID と client secret は Supabase および GitHub Environment のsecretで管理し、
@@ -69,10 +69,10 @@ when_to_read:
 ### Cloudflare Pages
 
 - 既存の Pages project を継続利用し、project名は `burneto` とする。
-- project名はCloudflare DashboardとWrangler CLIの識別子であり、改名では既存のhostname、
+- project名はCloudflare DashboardとWrangler CLIの識別子であり、改名自体は既存のhostname、
   deployment、custom domainを変更しない。
-- 本番custom domainは `savings.kosnu.dev` のまま維持する。Pagesが生成した既存の
-  `savings-dyo.pages.dev` hostnameも改名によって変わらない。
+- 本番custom domainには別途追加した `burneto.com` を使用する。Pagesが生成した既存の
+  `savings-dyo.pages.dev` hostnameは維持する。
 - GitHub Actionsのデプロイ先は
   [deploy_production.yaml](../.github/workflows/deploy_production.yaml) の
   `--project-name=burneto` と一致させる。
@@ -84,8 +84,8 @@ when_to_read:
   Free planではcustom domainを追加せず、Google OAuth中に表示されるSupabase URLは
   認証基盤のURLとして維持する。
 - Google providerは有効のまま維持し、Google Auth PlatformのSupabase用OAuth clientを使用する。
-- Site URLは `https://savings.kosnu.dev/`、redirect allow listは
-  `https://savings.kosnu.dev/auth` と `https://savings.kosnu.dev/payments` とする。
+- Site URLは `https://burneto.com/`、redirect allow listは
+  `https://burneto.com/auth` とする。
 
 ### Authentication redirect
 
