@@ -1,0 +1,44 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1787-cycle-1",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1787",
+      "body": "## 背景・解決したい課題\n\nネイティブアプリを作成するまでの暫定運用として、Androidのホーム画面からBurnetoをアプリ風に起動したい。\n\n現在はWeb App Manifestの表示モードが通常のブラウザ表示になっており、インストール可能なWebアプリとして扱われない。\n\n## 期待する状態\n\nAndroidのChromeからBurnetoをホーム画面へインストールでき、ホーム画面のアイコンから独立したアプリ表示で起動できる。\n\n## スコープ\n\n### 対象\n\n- Android Chromeからのホーム画面へのインストール\n- ホーム画面から起動した際のstandalone表示\n\n### 対象外\n\n- Service Worker\n- オフライン対応\n- キャッシュ制御\n- プッシュ通知\n- ネイティブアプリの実装\n\n## 制約\n\n- ネットワーク接続を前提とする\n- 既存のWebアプリの機能とデータ通信は変更しない\n- 暫定利用に必要な最小限の変更に限定する\n\n## 成功条件\n\n- [ ] Android ChromeでBurnetoをホーム画面へインストールできる\n- [ ] ホーム画面のアイコンから起動すると、ブラウザのアドレスバーを表示しないstandalone表示になる\n- [ ] Service Workerやオフライン機能が追加されていない\n- [ ] 通常のブラウザアクセスでは既存機能を引き続き利用できる\n\n## 委任範囲・完了地点\n\n意図・スコープ・制約を守る範囲で、調査、技術的な設計判断、実装、必要な検証とレビューを任せます。\n進め方と確認が必要な境界は [AIDD workflow](https://github.com/kosnu/savings/blob/main/docs/ai-driven-development/workflow.md) に従います。\n\n- 完了地点: 実装・検証・レビュー、commit、push、PR提出と配信状態の確認\n- 個別の権限制限・事前確認事項: 追加なし\n\n## 参考情報・未決事項（任意）\n\n関連Issue: #1774\n",
+      "body_sha256": "e111a9399a75466dcb742cf483f5b8e85a673ee6e917c3b6586090e24354b2ef"
+    },
+    "objective": "Android ChromeでBurnetoをホーム画面へインストールし、独立したstandalone表示で起動できるようにする",
+    "constraints": [
+      "Service Worker、オフライン対応、キャッシュ制御、プッシュ通知を追加しない",
+      "既存のWeb機能、データ通信、通常のブラウザアクセス時の挙動を変更しない",
+      "Web App Manifestの暫定利用に必要な最小差分に限定する"
+    ],
+    "done": [
+      "Web App ManifestがAndroid Chromeのstandalone表示を要求する",
+      "既存のmanifest名、起動URL、scope、アイコン設定を維持する",
+      "Service Workerやオフライン機能を追加していない",
+      "Web必須検証、production build、差分reviewを完了する",
+      "変更をcommit、pushし、PR作成と配信状態の確認を完了する"
+    ],
+    "verification": [
+      "pnpm run web:format",
+      "pnpm run web:lint、pnpm run web:format-check、pnpm run web:typecheck、pnpm run web:test:unit-integrationを同一batchで実行する",
+      "pnpm run web:build",
+      "生成されたWeb App Manifestのdisplay、既存項目、アイコン参照を確認する",
+      "git diff --check、AIDD checker verify、finish、ship-check"
+    ]
+  },
+  "baseline_head": "808be66a4930bcf42056f386cba294faf9aa2169",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

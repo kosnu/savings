@@ -1,0 +1,160 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "e7335458f2463e2668703ebe720a25208adf24ccccfe1fe5976b7bf0ad4502dd",
+  "checkpoint_sha256": "5e6bb05272d059c9904e76a14a079ea652cdc192b5834c280a33ef4e271dc052",
+  "repository_sha256": "00896bc6ba7582a4fcac1b92da01776455f0970bd55814e97436c0391f32c60c",
+  "git_repository_sha256": "1dee3549b0b8461a4b3125910178e229b8af1aac2085eab02ce11471a9ecd6f3",
+  "changed_paths": [
+    "apps/web/public/site.webmanifest"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1787-cycle-1",
+    "receipt_sha256": "5e6bb05272d059c9904e76a14a079ea652cdc192b5834c280a33ef4e271dc052",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-lint",
+        "profile_sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-lint"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 69,
+        "output_sha256": "3c5b083e19dbc5b30946a1f931bd4027b66ddcd9f3b77f707fcd1d8447e86b52",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-format-check",
+        "profile_sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-format-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 114,
+        "stderr_bytes": 54,
+        "output_sha256": "7e710d13e07e2e07fcede9c4ff564db29e460841d89ff75d4be27c1c3147fde7",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-typecheck",
+        "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-typecheck"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 39,
+        "output_sha256": "503eb0fe8b0d7571b49d15ce1a46bf45d513a80332759fa7c15c7a7009fa1835",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-unit-integration-suite",
+        "profile_sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-unit-integration-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 1677,
+        "stderr_bytes": 331,
+        "output_sha256": "1ed8c9060cee2b92dec7ed809042e3b9551ef862271b3ad11212760a2aec7857",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877"
+      },
+      {
+        "id": "VC-5",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877",
+        "procedure": "production buildを実行し、生成されたsite.webmanifestのdisplayがstandaloneで、name、start_url、scope、192px・512pxアイコンを満たすことを確認する",
+        "observation": "pnpm run web:buildが成功し、apps/web/dist/site.webmanifestはdisplay=standalone、name/short_name=Burneto、id/start_url/scope=/、192px・512px・maskable 512pxアイコンを維持した"
+      },
+      {
+        "id": "VC-6",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877",
+        "procedure": "baselineからの実差分を確認し、Service Worker、オフライン処理、キャッシュ制御、プッシュ通知の追加がないことを確認する",
+        "observation": "baselineからのproduct差分はapps/web/public/site.webmanifestのdisplay 1行のみで、Service Worker、オフライン処理、キャッシュ制御、プッシュ通知の追加はない。build出力にもsw.js/service-worker.jsはない"
+      },
+      {
+        "id": "VC-7",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877",
+        "procedure": "baselineと最終manifestを比較し、display以外の既存項目が変わっていないことを確認する",
+        "observation": "baselineと最終manifestの差分はdisplayのbrowserからstandaloneへの変更だけで、name、short_name、id、start_url、scope、background_color、iconsは不変"
+      },
+      {
+        "id": "VC-8",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877",
+        "procedure": "通常のブラウザアクセスではdisplay指定が適用されず、既存Web機能の実装差分がないことを確認する",
+        "observation": "通常ブラウザ表示を担うapps/web/src以下に差分はなく、manifestのdisplay指定はインストール後の表示モードだけをstandaloneへ変更する"
+      },
+      {
+        "id": "VC-9",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "81463e12a468da5f5104d7c2bdf7955e95c5411efc2bf50e23185e0279fe7877"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
