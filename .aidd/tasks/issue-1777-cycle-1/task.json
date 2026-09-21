@@ -1,0 +1,43 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1777-cycle-1",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1777",
+      "body": "## 関連Issue\n\nMilestone: 家計簿アプリをBurnetoへリブランドする\n\n## 概要\n\n現在有効な公開文書とリポジトリ内の説明をBurnetoへ合わせる。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] プライバシーポリシーのプロダクト名がBurnetoへ変更されている\n- [ ] READMEと現在有効な設計文書が更新されている\n- [ ] package metadataが更新されている\n- [ ] リポジトリ名 `kosnu/savings` を維持した状態で説明に矛盾がない\n\n## 制約・禁止事項\n\n- 過去のIssue、AIDD成果物、履歴として残すべきURLは書き換えない\n- リポジトリ名 `kosnu/savings` は変更しない\n\n## 補足\n\nなし\n",
+      "body_sha256": "b576e97429ded445fc56b6223aaa4e6b33b1f3202a66495ce65a476c1fa5c0fe"
+    },
+    "objective": "現在有効な公開文書、設計文書、package metadataをBurnetoへ統一し、プライバシーポリシー表示とリポジトリ名維持を確認する",
+    "constraints": [
+      "過去のIssue、AIDD成果物、履歴として残すべきURLは変更しない",
+      "リポジトリ名 kosnu/savings と運用上のworkspace package識別子は維持する",
+      "現在有効な説明に限定して最小差分で更新する"
+    ],
+    "done": [
+      "プライバシーポリシーにBurnetoが表示されることを確認できる",
+      "READMEと現在有効なブランド設計文書のプロダクト名がBurnetoへ更新されている",
+      "旧プロダクト名を含むpackage metadataがBurnetoへ更新されている",
+      "kosnu/savings のリポジトリ識別子と履歴資料が保持されている",
+      "契約検査、差分レビュー、commit、push、PR作成と配信状態確認が完了している"
+    ],
+    "verification": [
+      "対象外の履歴資料とリポジトリURLを除外した旧プロダクト名検索",
+      "プライバシーポリシーの既存テストを含むWeb必須検証",
+      "文書front matterとpackage JSONの妥当性確認",
+      "AIDD checkerによるTask検証とShip検査"
+    ]
+  },
+  "baseline_head": "a00f5c71fe16ab69b5a6c8d25814e83ff910d5b3",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

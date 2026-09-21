@@ -1,5 +1,5 @@
 {
-  "name": "savings-workspace",
+  "name": "burneto-workspace",
   "private": true,
   "scripts": {
     "api:stop": "pnpm --filter api stop",

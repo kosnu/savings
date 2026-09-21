@@ -1,6 +1,6 @@
-# Savings - フロントエンド
+# Burneto - フロントエンド
 
-このディレクトリは Savings アプリケーションのウェブフロントエンドです。
+このディレクトリは Burneto アプリケーションのウェブフロントエンドです。
 React + TypeScript + Vite を使ったシングルページアプリケーションで、認証・データベースには Supabase（Auth / PostgreSQL）を利用し、ホスティングは Cloudflare Pages を使用します。
 
 以下は現状のコードベースに基づく簡潔な README です。ローカルでの開発、テスト、ビルド、デプロイ手順をまとめています。
