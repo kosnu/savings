@@ -30,7 +30,7 @@ describe("Sidebar", () => {
     render(<Default />)
 
     const sidebar = await screen.findByRole("complementary")
-    expect(await screen.findByText("My Savings")).toBeInTheDocument()
+    expect(await screen.findByText("Burneto")).toBeInTheDocument()
     expect(await screen.findByText("Sidebar Content")).toBeInTheDocument()
     expect(sidebar).toHaveAttribute("data-open", "true")
   })
@@ -39,7 +39,7 @@ describe("Sidebar", () => {
     render(<Closed />)
 
     const sidebar = await screen.findByRole("complementary")
-    expect(await screen.findByText("My Savings")).toBeInTheDocument()
+    expect(await screen.findByText("Burneto")).toBeInTheDocument()
     expect(await screen.findByText("Sidebar Content")).toBeInTheDocument()
     expect(sidebar).toHaveAttribute("data-open", "false")
   })

@@ -1,0 +1,40 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1775-burneto",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1775",
+      "body": "## 関連Issue\n\nMilestone: 家計簿アプリをBurnetoへリブランドする\n\nブランド素材とfavicon / app iconの整備: #1774\n\n## 概要\n\n#1774で作成したブランド素材を使い、アプリ画面内で利用者に表示されるプロダクト名とブランド表示をBurnetoへ変更する。ヘッダーやログイン画面でのロゴの表示方法の決定と、その実装を対象とする。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] `My Savings` / `Savings` の利用者向け表記が `Burneto` に変更されている\n- [ ] ブラウザタイトルがBurnetoに変更されている\n- [ ] ヘッダーやログイン画面など、アプリ画面内のロゴ表示箇所と表示方法が決まっている\n- [ ] 決定した表示方法に従い、#1774のブランド素材が画面内に反映され、既存の貯金箱ロゴが置き換わっている\n- [ ] 日本語・英語の関連文言が更新されている\n- [ ] 変更に対応するテストとStorybookの期待値が更新されている\n\n## 制約・禁止事項\n\n- 決定済みのブランドカラーと言語方針を維持する\n\n## 補足\n\nロゴ・アイコン素材の作成と、ブラウザタブ・ホーム画面向けfavicon / app iconの組み込みは #1774 の担当とする。本Issueではその素材を再利用し、画面内のブランド表示と文言を完成させる。\n",
+      "body_sha256": "891f7739e1725d5103f21dc4e5ae6d3d37eeb990c979ea657d06b6e2102b540f"
+    },
+    "objective": "Issue #1775: アプリ内名称、ブラウザタイトル、画面内ロゴをBurnetoへ変更する",
+    "constraints": [
+      "決定済みのブランドカラーと言語方針を維持する",
+      "#1774のブランド素材を再利用し、favicon/app iconの再制作は行わない"
+    ],
+    "done": [
+      "日英の利用者向け名称とブラウザタイトルがBurnetoになっている",
+      "ヘッダー・紹介画面・ログイン画面へ既存ブランド素材を反映し貯金箱ロゴを置換する",
+      "関連テストとStorybookの期待値を更新する",
+      "必須検証・review・commit・push・PR作成と配信状態確認を完了する"
+    ],
+    "verification": [
+      "web:formatの後にweb:lint、web:format-check、web:typecheck、web:test:unit-integration、web:test:storybook",
+      "画面内ロゴの表示とブラウザタイトルを確認",
+      "Core verify/finish/ship-checkと差分review"
+    ]
+  },
+  "baseline_head": "93b9b0cbe0301c9150427e61451902d4535dc06c",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

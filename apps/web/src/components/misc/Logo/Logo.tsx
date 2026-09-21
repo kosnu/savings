@@ -1,8 +1,9 @@
 interface LogoProps {
   width?: string | number | undefined
   height?: string | number | undefined
+  alt?: string | undefined
 }
 
-export function Logo({ width = 22, height = 22 }: LogoProps) {
-  return <img src="/icon.svg" alt="Logo" width={width} height={height} />
+export function Logo({ width = 32, height = 32, alt = "Burneto" }: LogoProps) {
+  return <img src="/icon-192.png" alt={alt} width={width} height={height} />
 }

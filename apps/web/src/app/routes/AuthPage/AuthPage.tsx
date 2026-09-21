@@ -2,6 +2,7 @@ import { Button, Container, Flex, Heading, Link as ThemeLink, Text } from "@radi
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { Logo } from "../../../components/misc/Logo"
 import { useAuthCallbackError } from "../../../utils/auth/useAuthCallbackError"
 import { useSupabaseSignIn } from "../../../utils/auth/useSupabaseSignIn"
 
@@ -14,6 +15,7 @@ export function AuthPage() {
     <main>
       <Container p="4" size="2">
         <Flex direction="column" gap="4">
+          <Logo width={48} height={48} alt="" />
           <Heading as="h1" size="6">
             {t("auth.title")}
           </Heading>
