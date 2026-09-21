@@ -19,6 +19,7 @@ import {
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { Logo } from "../../../components/misc/Logo"
 import { BudgetProgress } from "../../../features/budgets"
 import { toCurrency } from "../../../utils/toCurrency"
 
@@ -37,7 +38,7 @@ export function TopPage() {
         <Flex asChild align="center" justify="between" gap="4" py="5">
           <header>
             <Flex align="center" gap="2">
-              <img src="/icon.svg" alt="" width="32" height="32" />
+              <Logo width={32} height={32} alt="" />
               <Text size="4" weight="bold">
                 {t("app.name")}
               </Text>

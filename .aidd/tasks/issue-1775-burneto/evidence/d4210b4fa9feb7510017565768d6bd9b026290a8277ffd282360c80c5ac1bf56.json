@@ -1,0 +1,168 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "f4abb5b3fba2601ab3cbb33fbb73916a022365369f245bc24423ddaa661a6ad9",
+  "checkpoint_sha256": "d4210b4fa9feb7510017565768d6bd9b026290a8277ffd282360c80c5ac1bf56",
+  "repository_sha256": "bd93086847b46594a6d1fce98b9d7d13c6f9ddc52f0a89e5513074c701dd6b62",
+  "git_repository_sha256": "6cc7d526a0d7b69526651a631da74b185a17f2feaf01cedaba3c73257aee3dfd",
+  "changed_paths": [
+    "apps/web/index.html",
+    "apps/web/src/app/Header/Header.test.tsx",
+    "apps/web/src/app/Header/Header.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+    "apps/web/src/app/routes/AuthPage/AuthPage.test.tsx",
+    "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+    "apps/web/src/app/routes/PrivacyPage/PrivacyPage.stories.tsx",
+    "apps/web/src/app/routes/TopPage/TopPage.test.tsx",
+    "apps/web/src/app/routes/TopPage/TopPage.tsx",
+    "apps/web/src/components/misc/Logo/Logo.stories.tsx",
+    "apps/web/src/components/misc/Logo/Logo.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1775-burneto",
+    "receipt_sha256": "d4210b4fa9feb7510017565768d6bd9b026290a8277ffd282360c80c5ac1bf56",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-format-check",
+        "profile_sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-format-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 114,
+        "stderr_bytes": 54,
+        "output_sha256": "ba4dba649669edeb8bb91a7c2ed4e885eacf0881149bb7367f045f7000256d11",
+        "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-lint",
+        "profile_sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-lint"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 69,
+        "output_sha256": "3c5b083e19dbc5b30946a1f931bd4027b66ddcd9f3b77f707fcd1d8447e86b52",
+        "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-typecheck",
+        "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-typecheck"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 39,
+        "output_sha256": "503eb0fe8b0d7571b49d15ce1a46bf45d513a80332759fa7c15c7a7009fa1835",
+        "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-unit-integration-suite",
+        "profile_sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-unit-integration-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 1677,
+        "stderr_bytes": 331,
+        "output_sha256": "691a341a0e6f9d49081c4dcfdfa7dafcd0a42f95712f2bc16b9a3c2e3398bcd4",
+        "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47"
+      },
+      {
+        "id": "VC-6",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-storybook-suite",
+        "profile_sha256": "4261158eaa16f296e862fcd6cc29b874478db52cb7ddb709ca4fa8dacdd02d69",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-storybook-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 268,
+        "stderr_bytes": 3889,
+        "output_sha256": "ddd3a80982055976855f2b6c61a6d56687b6f556c6e00de0bb631938a3482362",
+        "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47"
+      },
+      {
+        "id": "VC-7",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "b002fad99520ccbe3d99911ab62d2f92debdb5c00dc5e0477bdad9522dda6d47",
+        "procedure": "実ブラウザで日英、明暗、モバイル/デスクトップの紹介画面、ログイン、Header Storyを観察。Burneto名称・title・ロゴ読込と縦横比・導線・はみ出しなしを確認する。",
+        "observation": "実ブラウザの紹介画面とログインを日英・light/dark・375/1280pxの16状態で確認。全てtitle=Burneto、旧名称なし、画像読込成功、横はみ出しなし。紹介画面は用途説明→予算利用例→利用開始の読み順と主導線を維持。Header Storyは日英・明暗で32pxロゴの読込とBurneto/支払いのリンク名、/paymentsを確認。ログインは48px画像と見出しを確認。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}

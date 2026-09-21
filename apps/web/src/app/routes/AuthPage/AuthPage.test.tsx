@@ -31,7 +31,7 @@ describe("AuthPage", () => {
     const { user } = render(<Default />)
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "My Savings にログイン" }),
+      await screen.findByRole("heading", { level: 1, name: "Burneto にログイン" }),
     ).toBeInTheDocument()
     expect(
       screen.getByText(
