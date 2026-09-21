@@ -1,0 +1,136 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "27de1cbce3199071bd3b3a972262366a0133b239facfb51e5f75849688fb3e9c",
+  "checkpoint_sha256": "52cd86eb39084003838fe939ea2f2598f64726d77b4290f5df7bf4f3fff2cad1",
+  "repository_sha256": "cec54d738b4100f003cbc8dba1c182e866b631e0626632e262991721723eac12",
+  "git_repository_sha256": "befec7f0d3dbda6f8ded9014acd3ddb7359d925cc25e70b3f362e1875d39edd8",
+  "changed_paths": [
+    "apps/web/public/icon.svg"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1775-remove-old-logo",
+    "receipt_sha256": "52cd86eb39084003838fe939ea2f2598f64726d77b4290f5df7bf4f3fff2cad1",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "e0fa9c3b2ff7824f2a7d7a0bc9af8dc1b41ee4a6420661dc4d27e47e1ae79ae9",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "e0fa9c3b2ff7824f2a7d7a0bc9af8dc1b41ee4a6420661dc4d27e47e1ae79ae9"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-format-check",
+        "profile_sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-format-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 114,
+        "stderr_bytes": 54,
+        "output_sha256": "e25672760deb6153ea8c9ce54aee0c0ff03391050ea05c0f9c358b99c448433e",
+        "final_state_sha256": "e0fa9c3b2ff7824f2a7d7a0bc9af8dc1b41ee4a6420661dc4d27e47e1ae79ae9"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-lint",
+        "profile_sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-lint"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 69,
+        "output_sha256": "3c5b083e19dbc5b30946a1f931bd4027b66ddcd9f3b77f707fcd1d8447e86b52",
+        "final_state_sha256": "e0fa9c3b2ff7824f2a7d7a0bc9af8dc1b41ee4a6420661dc4d27e47e1ae79ae9"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-typecheck",
+        "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-typecheck"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 39,
+        "output_sha256": "503eb0fe8b0d7571b49d15ce1a46bf45d513a80332759fa7c15c7a7009fa1835",
+        "final_state_sha256": "e0fa9c3b2ff7824f2a7d7a0bc9af8dc1b41ee4a6420661dc4d27e47e1ae79ae9"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-unit-integration-suite",
+        "profile_sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-unit-integration-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 1677,
+        "stderr_bytes": 332,
+        "output_sha256": "fe006b97de0e12fe78285cde92fa5cca4c7a667ca94fb332467a1472613a24ae",
+        "final_state_sha256": "e0fa9c3b2ff7824f2a7d7a0bc9af8dc1b41ee4a6420661dc4d27e47e1ae79ae9"
+      },
+      {
+        "id": "VC-6",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "e0fa9c3b2ff7824f2a7d7a0bc9af8dc1b41ee4a6420661dc4d27e47e1ae79ae9",
+        "procedure": "旧icon.svgの削除と現行ソースの参照なし、他の画像素材が現行Burneto用であることを確認する。",
+        "observation": "Git管理された全画像資産と旧SVGの図形・色・参照を確認。貯金箱素材はicon.svgのみで現行ソースの参照なし。削除後もHTML/manifest/Logoの全参照先が存在。現行Burneto素材とLogo/Storyは維持し、過去Task記録は変更していない。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}

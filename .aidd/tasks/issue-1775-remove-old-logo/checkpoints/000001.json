@@ -1,0 +1,160 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "27de1cbce3199071bd3b3a972262366a0133b239facfb51e5f75849688fb3e9c",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "27de1cbce3199071bd3b3a972262366a0133b239facfb51e5f75849688fb3e9c",
+    "reason": "ユーザーが旧ロゴと関連不要ファイルの削除を別ブランチで明示依頼。最新mainにはBurnetoへの置換がmerged済み。画像資産と参照を調査した結果、旧icon.svgのみ未使用の貯金箱素材。LogoとStoryは現行表示に利用中、残りの画像は#1774のBurneto素材なので維持する。 最終成果物の参照確認対象として現行site.webmanifestを記録するが内容は変更しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "置換済み旧ロゴを削除し、現行Burneto表示と素材を維持する",
+        "origin": "derived",
+        "evidence": "Issue #1775の貯金箱ロゴ置換と、ユーザーの明示的な追加削除依頼に基づく。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "旧貯金箱素材は配信対象から除去され、現行Burnetoの参照は全て有効なままになる",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "旧icon.svgの削除と現行ソースの参照なし、他の画像素材が現行Burneto用であることを確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/public/icon.svg",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/site.webmanifest",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/web/public/site.webmanifest",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.storybook-browser-tests",
+    "web.test-policy"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}
