@@ -1,6 +1,6 @@
 ---
 version: alpha
-name: Savings
+name: Burneto
 description: 予算達成を支援する家計簿サービスのブランドと視覚方針。
 colors:
   primary: "#9b86ea"
@@ -50,11 +50,11 @@ spacing:
   xl: 32px
 ---
 
-# Savings Design System
+# Burneto Design System
 
 ## Overview
 
-Savings は、支出を責める家計簿ではない。予算達成を支援しながら、使って
+Burneto は、支出を責める家計簿ではない。予算達成を支援しながら、使って
 よいお金を安心して使えるようにする家計簿サービスである。
 
 主な利用者は、日々の支払い直後や月途中の確認で、短時間に判断したい個人
@@ -74,10 +74,10 @@ Web UI のルールは `apps/web/docs/policies/design-rules.md`、ドメイン�
 
 ## Colors
 
-Savings は Radix Themes を実装上の UI 基盤として使う。手書きの色指定より
+Burneto は Radix Themes を実装上の UI 基盤として使う。手書きの色指定より
 も、Radix のプロパティ、意味色、既存 CSS 変数を優先する。
 
-Violet は Savings のブランドカラーであり、主要アクセント色である。お金を
+Violet は Burneto のブランドカラーであり、主要アクセント色である。お金を
 使う体験に、高級感、高貴さ、スマートさを添えるために使う。支出を軽く見せ
 るためではなく、予算内で使えるお金を前向きに、少し上質に感じられるように
 するための色である。
