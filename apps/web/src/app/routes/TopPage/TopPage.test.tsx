@@ -15,12 +15,10 @@ describe("TopPage", () => {
   test("利用開始のリンクからGoogle認証の画面へ進める", async () => {
     const { user } = render(<Default />)
 
-    await user.click(
-      (await screen.findAllByRole("link", { name: "Get started with My Savings" }))[0],
-    )
+    await user.click((await screen.findAllByRole("link", { name: "Get started with Burneto" }))[0])
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Sign in to My Savings" }),
+      await screen.findByRole("heading", { level: 1, name: "Sign in to Burneto" }),
     ).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Continue with Google" })).toBeInTheDocument()
   })
@@ -28,17 +26,17 @@ describe("TopPage", () => {
   test.each([
     {
       language: "en",
-      purpose: /My Savings is a budgeting app/,
+      purpose: /Burneto is a budgeting app/,
       sample: "An example month with sample amounts",
       remaining: "¥32,000 left",
-      start: "Get started with My Savings",
+      start: "Get started with Burneto",
     },
     {
       language: "ja",
-      purpose: /My Savingsは、予算と日々の支出を見比べられる家計簿です/,
+      purpose: /Burnetoは、予算と日々の支出を見比べられる家計簿です/,
       sample: "ある月の利用例（金額はサンプルです）",
       remaining: "残り ¥32,000",
-      start: "My Savingsをはじめる",
+      start: "Burnetoをはじめる",
     },
   ])(
     "$languageで用途と実データではない予算の利用例を伝える",

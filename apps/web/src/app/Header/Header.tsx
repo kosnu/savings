@@ -22,9 +22,15 @@ export function Header({ onMenuClick }: HeaderProps) {
       <IconButton aria-label={t("header.menu")} size="3" variant="ghost" onClick={onMenuClick}>
         <HamburgerMenuIcon {...iconSize} />
       </IconButton>
-      <IconButton asChild aria-label={t("header.logo")} size="3" radius="full" variant="ghost">
+      <IconButton
+        asChild
+        aria-label={t("header.logo", { appName: t("app.name") })}
+        size="3"
+        radius="full"
+        variant="ghost"
+      >
         <Link to="/payments">
-          <Logo width={32} height={32} />
+          <Logo width={32} height={32} alt="" />
         </Link>
       </IconButton>
       <Box style={{ flexGrow: 1 }} />

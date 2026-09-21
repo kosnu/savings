@@ -1,0 +1,501 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "f4abb5b3fba2601ab3cbb33fbb73916a022365369f245bc24423ddaa661a6ad9",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "f4abb5b3fba2601ab3cbb33fbb73916a022365369f245bc24423ddaa661a6ad9",
+    "reason": "#1774の小サイズ用透過icon-192.pngを既存Logoで再利用する。Header/TopPageは32px、AuthPageは48px。Logoは装飾画像としてaltを空にし、単独StoryではBurneto、Headerリンクは日英のブランド名と支払い遷移先で意味を示す。Sidebarは既存の文字ブランドを維持。名称とtitle、関連テストだけ変更しカラー・言語方針・認証/ドメイン挙動は変更しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "ブランドカラーと言語方針を維持し、日英名称・ブラウザタイトル・画面内ロゴをBurnetoへ変更して関連テストとStorybookを更新する",
+        "origin": "intent",
+        "evidence": "## 関連Issue\n\nMilestone: 家計簿アプリをBurnetoへリブランドする\n\nブランド素材とfavicon / app iconの整備: #1774\n\n## 概要\n\n#1774で作成したブランド素材を使い、アプリ画面内で利用者に表示されるプロダクト名とブランド表示をBurnetoへ変更する。ヘッダーやログイン画面でのロゴの表示方法の決定と、その実装を対象とする。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] `My Savings` / `Savings` の利用者向け表記が `Burneto` に変更されている\n- [ ] ブラウザタイトルがBurnetoに変更されている\n- [ ] ヘッダーやログイン画面など、アプリ画面内のロゴ表示箇所と表示方法が決まっている\n- [ ] 決定した表示方法に従い、#1774のブランド素材が画面内に反映され、既存の貯金箱ロゴが置き換わっている\n- [ ] 日本語・英語の関連文言が更新されている\n- [ ] 変更に対応するテストとStorybookの期待値が更新されている\n\n## 制約・禁止事項\n\n- 決定済みのブランドカラーと言語方針を維持する\n\n## 補足\n\nロゴ・アイコン素材の作成と、ブラウザタブ・ホーム画面向けfavicon / app iconの組み込みは #1774 の担当とする。本Issueではその素材を再利用し、画面内のブランド表示と文言を完成させる。\n"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "利用者向け表記とブラウザタイトルをBurnetoへ変更する",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "既存ブランド素材を画面内で再利用して貯金箱ロゴを置き換える",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "日英の関連文言とテスト・Storybookを更新する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_profile_id": "web-storybook-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "procedure": "実ブラウザで日英、明暗、モバイル/デスクトップの紹介画面、ログイン、Header Storyを観察。Burneto名称・title・ロゴ読込と縦横比・導線・はみ出しなしを確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/index.html",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Header/Header.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Header/Header.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/TopPage/TopPage.test.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/app/routes/TopPage/TopPage.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/components/misc/Logo/Logo.stories.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/components/misc/Logo/Logo.tsx",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/resources.ts",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/web/index.html",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "test",
+          "path": "apps/web/src/app/Header/Header.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "apps/web/src/app/Header/Header.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "test",
+          "path": "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "test",
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/AuthPage/AuthPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "test",
+          "path": "apps/web/src/app/routes/PrivacyPage/PrivacyPage.stories.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "test",
+          "path": "apps/web/src/app/routes/TopPage/TopPage.test.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "apps/web/src/app/routes/TopPage/TopPage.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "test",
+          "path": "apps/web/src/components/misc/Logo/Logo.stories.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "apps/web/src/components/misc/Logo/Logo.tsx",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/resources.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6",
+            "VC-7"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.domain-ui-rules",
+    "web.feature-directory",
+    "web.landing-page-rules",
+    "web.query-cache",
+    "web.storybook-browser-tests",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}

@@ -23,10 +23,7 @@ export const Default: Story = {
       "Privacy policy",
     )
     await expect(canvas.getByRole("heading", { name: "Contact the operator" })).toBeVisible()
-    await expect(canvas.getByRole("link", { name: "Back to My Savings" })).toHaveAttribute(
-      "href",
-      "/",
-    )
+    await expect(canvas.getByRole("link", { name: "Back to Burneto" })).toHaveAttribute("href", "/")
   },
 }
 
@@ -46,9 +43,6 @@ export const Japanese: Story = {
       "プライバシーポリシー",
     )
     await expect(canvas.getByRole("heading", { name: "運営者へのお問い合わせ" })).toBeVisible()
-    await expect(canvas.getByRole("link", { name: "My Savingsに戻る" })).toHaveAttribute(
-      "href",
-      "/",
-    )
+    await expect(canvas.getByRole("link", { name: "Burnetoに戻る" })).toHaveAttribute("href", "/")
   },
 }
