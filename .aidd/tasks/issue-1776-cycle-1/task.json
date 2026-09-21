@@ -1,0 +1,43 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1776-cycle-1",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1776",
+      "body": "## 関連Issue\n\nMilestone: 家計簿アプリをBurnetoへリブランドする\n\n## 概要\n\n利用者から見える外部サービス上の名称、ロゴ、URLをBurnetoへ合わせる。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] Google OAuth同意画面の名称とロゴがBurnetoへ変更されている\n- [ ] Cloudflare Pagesの表示名またはプロジェクト名の扱いが決まり、必要な変更が反映されている\n- [ ] Supabaseなど、利用者から見えるサービス名やURLが確認されている\n- [ ] 認証後のリダイレクトが正常に動作する\n\n## 制約・禁止事項\n\n- 既存のGoogleログイン機能と利用者ごとのデータ分離を変更しない\n\n## 補足\n\nIssue 1で作成したブランド素材を使用する。\n",
+      "body_sha256": "8d32402b29eb0e59b4bf35b0c1b19fa055bff05743753a415a429b556d3560f6"
+    },
+    "objective": "外部サービスの利用者向けブランド表示とURLをBurnetoに統一できるよう、必要なリポジトリ設定と安全な変更手順を整備する",
+    "constraints": [
+      "既存のGoogleログイン機能を変更しない",
+      "利用者ごとのデータ分離を変更しない",
+      "外部サービスの秘密情報をリポジトリへ保存しない",
+      "本番デプロイはIssue #1778の範囲として実行しない"
+    ],
+    "done": [
+      "Cloudflare Pagesのプロジェクト名の扱いが決まり、デプロイ設定へ反映されている",
+      "Google OAuth、Cloudflare Pages、Supabaseの変更・確認手順が、既存のブランド素材とURL設定に整合している",
+      "認証後リダイレクトの確認方法が明確になっている",
+      "必要な検証とレビューを完了し、commit、push、PR作成と配信状態の確認まで完了している"
+    ],
+    "verification": [
+      "変更ファイルに適用されるrule-mapと正本文書を確認する",
+      "GitHub Actionsのデプロイ先指定と外部サービス手順の整合を確認する",
+      "文書・設定向けの必須検証とAIDD checkerを実行する",
+      "最終差分をレビューし、PRとCI状態を確認する"
+    ]
+  },
+  "baseline_head": "a00f5c71fe16ab69b5a6c8d25814e83ff910d5b3",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

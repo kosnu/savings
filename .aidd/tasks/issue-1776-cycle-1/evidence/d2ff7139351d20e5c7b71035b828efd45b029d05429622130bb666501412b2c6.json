@@ -1,0 +1,93 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "a993db39cff224322b9a2294f4dab9dbe507a18bc8704548d41ed66868b98c6f",
+  "checkpoint_sha256": "d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6",
+  "repository_sha256": "49243633f0fb6765c9ad2c1ce0ea168c8e1ace020bfd7530da10400416f3fa87",
+  "git_repository_sha256": "1f110d60b4d19efc0153e62e2b3c15126b2dcbb8a71ca20cf14d7dd9a17f8255",
+  "changed_paths": [
+    ".github/workflows/deploy_production.yaml",
+    "docs/infrastructure.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1776-cycle-1",
+    "receipt_sha256": "d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e",
+        "procedure": "Google Auth PlatformのBurneto projectでBrandingのApp nameがBurneto、Current App logoが設定済み、Supabase OAuth clientが存在することを確認する",
+        "observation": "Google Auth PlatformのBurneto projectでApp name Burnetoと#1774の紫色ブランドロゴ、Supabase用OAuth clientの存在を確認した"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e",
+        "procedure": "Cloudflare Pagesのproject名がburnetoで、カスタムドメインsavings.kosnu.devがActiveのまま、名称変更画面がhostnameとdeploymentへ影響しないと明示することを確認する",
+        "observation": "Cloudflare Pages project名burneto、改名がhostnameとdeploymentへ影響しない旨、custom domain savings.kosnu.devのActive状態を確認した"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e",
+        "procedure": "Supabase表示名がBurnetoで、Project ID、Google client ID、callback URL、site URL、redirect URLが変更前の接続先と一致することを確認する",
+        "observation": "Supabase表示名Burneto、Project ID維持、Google provider有効、新OAuth client ID一致、callback・site・redirect URL維持を確認した"
+      },
+      {
+        "id": "VC-5",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e",
+        "procedure": "既存認証sessionでhttps://savings.kosnu.dev/authを開き、https://savings.kosnu.dev/paymentsへ遷移することを確認する",
+        "observation": "認証済みsessionでhttps://savings.kosnu.dev/authを開き、https://savings.kosnu.dev/paymentsへ遷移した"
+      },
+      {
+        "id": "VC-6",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e",
+        "procedure": "このTaskでDeploy Production workflowを実行していないことを確認する",
+        "observation": "Deploy Production workflowを実行していないことを確認した"
+      },
+      {
+        "id": "VC-7",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "735620cddee3984e352f297dfab6b5f7539b92d96d7a5e0d19e91941a101078e",
+        "procedure": "repository差分がCloudflare Pagesのproject-nameだけで、Googleログイン方式、Supabase Project ID、DB/RLSに変更がないことを確認する",
+        "observation": "差分がCloudflare project名の同期とinfrastructure文書だけで、Googleログイン方式、Supabase Project ID、DB、RLSに変更がないことを確認した"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
