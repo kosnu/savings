@@ -1,0 +1,41 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1774-icons",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1774",
+      "body": "## 関連Issue\n\nMilestone: 家計簿アプリをBurnetoへリブランドする\n\n## 概要\n\nBurnetoのロゴとアプリアイコンを作成し、アプリ内で利用できるブランド素材を整備する。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] Burnetoのロゴが作成されている\n- [ ] faviconとアプリアイコンが作成されている\n- [ ] ヘッダーやログイン画面での表示方法が決まっている\n- [ ] 作成した素材がアプリで利用できる形式になっている\n\n## 制約・禁止事項\n\n- 決定済みのブランドカラーを使用する\n- ブランドカラーと言語方針は変更しない\n\n## 補足\n\nなし\n",
+      "body_sha256": "56654007f5435b07eb504463e7bf356c7abca525f45a090a84a5cb9692b8e55a"
+    },
+    "objective": "ユーザー提供logo.pngを基に小サイズでも認識できるfaviconとapp icon一式を生成し、既存Webのheadとmanifestへ組み込む。",
+    "constraints": [
+      "依頼されたfavicon/app iconと原本ロゴの素材配置に限定する。ヘッダーやログイン画面のレイアウト変更は含めない。",
+      "紫の炎と紙幣の特徴を保持し、ブランドカラーと言語方針を変更しない。",
+      "サービスワーカーやオフライン機能を追加しない。"
+    ],
+    "done": [
+      "提供ロゴと簡略化したアイコン原本が再利用可能な形式で保存されている。",
+      "ICO、16/32px PNG、180px Apple touch、192/512px app icon、512px maskable iconを生成し、HTML/manifestが正しく参照する。",
+      "小サイズ、明暗背景、maskableの安全領域、実際の配信とビルド、Web必須検証を確認する。",
+      "差分レビュー、commit、push、PR作成と配信状態の確認を完了する。"
+    ],
+    "verification": [
+      "pnpm run web:format後、web:lint、web:format-check、web:typecheck、web:test:unit-integrationを実行する。",
+      "Web build、画像寸法・透過・ICO格納サイズ、HTTP配信、head/manifestリンク、16/32px表示とmaskable cropを確認する。",
+      "git diff --check、Core verify/finish/ship-checkと差分レビューを実施する。"
+    ]
+  },
+  "baseline_head": "772bf4ce5f5aa6025bf26ad41c26127b3e0ac68c",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
