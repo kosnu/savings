@@ -1,0 +1,367 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "56de8c46bc9ae884ce70e2f54ff181b41d2ffef67d913824a1abb5dcfb96e65f",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "56de8c46bc9ae884ce70e2f54ff181b41d2ffef67d913824a1abb5dcfb96e65f",
+    "reason": "Issue #1777の現行説明だけをBurnetoへ統一する。履歴資料とkosnu/savingsの識別子、workspace filter用package名は保持し、既にBurneto化済みのプライバシーポリシー表示は回帰検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "プライバシーポリシーのプロダクト名がBurnetoである",
+        "origin": "intent",
+        "evidence": "プライバシーポリシーのプロダクト名がBurnetoへ変更されている"
+      },
+      {
+        "id": "FR-2",
+        "text": "READMEと現在有効なブランド設計文書をBurnetoへ統一する",
+        "origin": "intent",
+        "evidence": "READMEと現在有効な設計文書が更新されている"
+      },
+      {
+        "id": "FR-3",
+        "text": "旧プロダクト名を含むpackage metadataをBurnetoへ更新する",
+        "origin": "intent",
+        "evidence": "package metadataが更新されている"
+      },
+      {
+        "id": "FR-4",
+        "text": "kosnu/savingsのリポジトリ識別子と履歴資料を変更しない",
+        "origin": "intent",
+        "evidence": "リポジトリ名 `kosnu/savings` を維持した状態で説明に矛盾がない"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "プライバシーポリシーが共通アプリ名Burnetoを表示する",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "現行READMEとブランド設計文書がBurnetoを説明する",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "private workspaceの運用識別子を保ったまま説明用package metadataがBurnetoを示す",
+          "requirement_id": "FR-3"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "kosnu/savingsのURLと過去の固定記録が従来どおり参照できる",
+          "requirement_id": "FR-4"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "履歴資料を除外して旧プロダクト名を検索し、現行READMEとDESIGN.mdに旧名称が残っていないことを確認する"
+        },
+        {
+          "id": "VC-7",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "package.json群をJSONとして読み取り、Burnetoの説明用metadataと維持すべきweb/apiのworkspace識別子を確認する"
+        },
+        {
+          "id": "VC-8",
+          "type": "manual",
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "procedure": "最終差分が過去のIssue、AIDD成果物、履歴URLを変更せず、kosnu/savings参照を維持していることを確認する"
+        },
+        {
+          "id": "VC-9",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "shared-gate-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "DESIGN.md",
+          "kind": "file"
+        },
+        {
+          "path": "README.md",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/README.md",
+          "kind": "file"
+        },
+        {
+          "path": "apps/api/package.json",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/README.md",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/package.json",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/src/i18n/resources.ts",
+          "kind": "file"
+        },
+        {
+          "path": "package.json",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "documentation",
+          "path": "DESIGN.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2",
+            "VC-3",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "documentation",
+          "path": "README.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-4",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-5",
+            "VC-8"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "documentation",
+          "path": "apps/api/README.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "configuration",
+          "path": "apps/api/package.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "documentation",
+          "path": "apps/web/README.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2",
+            "VC-3",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "configuration",
+          "path": "apps/web/package.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-4",
+            "VC-7"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "apps/web/src/i18n/resources.ts",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "configuration",
+          "path": "package.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-7",
+            "VC-9"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "documentation.policy",
+      "web.design-system-brand",
+      "web.test-policy"
+    ]
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.feature-directory",
+    "web.query-cache",
+    "web.storybook-browser-tests",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}
