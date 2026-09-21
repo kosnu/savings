@@ -1,0 +1,42 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1778-cycle-1",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1778",
+      "body": "## 関連Issue\n\nMilestone: 家計簿アプリをBurnetoへリブランドする\n\n## 概要\n\n各リブランド変更を検証し、本番環境へ反映する。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] Webの必須検証が完了している\n- [ ] Burnetoへの変更が本番環境へデプロイされている\n- [ ] 本番環境でログイン、主要画面、favicon、プライバシーポリシーを確認できる\n- [ ] PCとスマートフォンでBurnetoの表示を確認できる\n\n## 制約・禁止事項\n\n- Issue 1からIssue 4までの必要な変更が揃ってから本番反映する\n- 既存利用者のデータを維持する\n\n## 補足\n\nなし\n",
+      "body_sha256": "be2ea71adfd4492e378f2492c7ceab8d7c426a3d7eaae2e0facdca5bae627e87"
+    },
+    "objective": "本番ドメイン burneto.com への変更済み外部設定をリポジトリの現行インフラ文書へ反映し、Issue #1778 の本番反映準備を整える",
+    "constraints": [
+      "変更対象は docs/infrastructure.md とTask記録に限定する",
+      "Cloudflare、Supabase Auth、GitHub Environment、Google OAuthの外部設定は変更しない",
+      "Supabase Project ID、認証provider、既存利用者データを変更しない",
+      "CIで実行されるWeb必須検証をローカルでは重複実行しない"
+    ],
+    "done": [
+      "docs/infrastructure.md の本番Web origin、custom domain、Supabase Site URLとredirect allow listが burneto.com を示す",
+      "旧本番ドメインを現行構成として残さない",
+      "文書差分の検証とreviewを完了する",
+      "変更をcommit、pushし、PR作成と配信状態の確認を完了する"
+    ],
+    "verification": [
+      "旧ドメイン savings.kosnu.dev の現行記述が対象文書に残っていないことを確認する",
+      "git diff --check",
+      "AIDD checker verify、finish、ship-check"
+    ]
+  },
+  "baseline_head": "159f6a990995108595ca6610f92dd94d4ebeb4f4",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
