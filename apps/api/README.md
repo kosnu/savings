@@ -1,4 +1,4 @@
-# Savings API
+# Burneto API
 
 Supabase の設定・DB マイグレーション管理を行うディレクトリです。
 

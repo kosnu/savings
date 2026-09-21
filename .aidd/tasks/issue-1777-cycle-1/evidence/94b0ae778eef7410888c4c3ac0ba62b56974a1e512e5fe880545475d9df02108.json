@@ -1,0 +1,179 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "56de8c46bc9ae884ce70e2f54ff181b41d2ffef67d913824a1abb5dcfb96e65f",
+  "checkpoint_sha256": "94b0ae778eef7410888c4c3ac0ba62b56974a1e512e5fe880545475d9df02108",
+  "repository_sha256": "69e4a0ae25a55a23853b05cc66b205c6b1cb26ab816a7a257960320bc924b6f7",
+  "git_repository_sha256": "3ff034994b6cb6519b020ce971a9f5ca04f3485bc5362dd4abe3ae91db3e8840",
+  "changed_paths": [
+    "DESIGN.md",
+    "README.md",
+    "apps/api/README.md",
+    "apps/api/package.json",
+    "apps/web/README.md",
+    "apps/web/package.json",
+    "package.json"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1777-cycle-1",
+    "receipt_sha256": "94b0ae778eef7410888c4c3ac0ba62b56974a1e512e5fe880545475d9df02108",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-unit-integration-suite",
+        "profile_sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-unit-integration-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 1678,
+        "stderr_bytes": 500,
+        "output_sha256": "c70cf56f8d9169a582549c61b6dad71fef85aab89438949342ade36de2891365",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-format-check",
+        "profile_sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-format-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 114,
+        "stderr_bytes": 222,
+        "output_sha256": "67548983faca7a103dea0b0613cf7bb68335dccb3e7cf446c95b5c0ecf3939e0",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-lint",
+        "profile_sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-lint"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 237,
+        "output_sha256": "53ecb89ac914f25a790f14a1e72c0a030a2011df095f9c5133c1726820b5cd2b",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-typecheck",
+        "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-typecheck"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 207,
+        "output_sha256": "b4f4bd6a7c9bf7649cc914c8f7aacb71adb54cf0fd0fd6eda54c62c3bc8d92ee",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3"
+      },
+      {
+        "id": "VC-6",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3",
+        "procedure": "履歴資料を除外して旧プロダクト名を検索し、現行READMEとDESIGN.mdに旧名称が残っていないことを確認する",
+        "observation": "履歴資料、リポジトリ識別子、Cloudflare project名を除外した現行READMEとDESIGN.mdに旧プロダクト名Savingsが残っていないことを確認した"
+      },
+      {
+        "id": "VC-7",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3",
+        "procedure": "package.json群をJSONとして読み取り、Burnetoの説明用metadataと維持すべきweb/apiのworkspace識別子を確認する",
+        "observation": "3つのpackage.jsonをJSONとして読み取り、burneto-workspace、Burneto Web、Burneto APIを確認し、workspace識別子webとapiが維持されていることを確認した"
+      },
+      {
+        "id": "VC-8",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3",
+        "procedure": "最終差分が過去のIssue、AIDD成果物、履歴URLを変更せず、kosnu/savings参照を維持していることを確認する",
+        "observation": "最終差分が7ファイルに限定され、過去Issue、AIDD成果物、履歴URL、Cloudflare設定を変更せず、READMEにkosnu/savingsを維持する説明があることを確認した"
+      },
+      {
+        "id": "VC-9",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "shared-gate-tests",
+        "profile_sha256": "e3d5731ff565f58b0b46ce35ebd18730b367800f5873750de8a766da828b895d",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "shared-gate-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 839,
+        "output_sha256": "9ef817e12a75236569701a64e85d08ead783c22225bed73dee97d13e4ee994a8",
+        "final_state_sha256": "4e790eed24b95fbbb0f56abee746ccf79733177b3065ac2226885c69347a2be3"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
