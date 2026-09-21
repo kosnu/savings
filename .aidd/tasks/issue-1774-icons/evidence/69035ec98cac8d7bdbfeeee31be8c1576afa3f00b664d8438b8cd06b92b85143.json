@@ -1,0 +1,146 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "f5223d8072f38ceab60f7acbae0afe3f8353b57005810f930337c861cdd79af3",
+  "checkpoint_sha256": "69035ec98cac8d7bdbfeeee31be8c1576afa3f00b664d8438b8cd06b92b85143",
+  "repository_sha256": "e558448140d104e00a3dd215f0b74803021772403ac7bfa5cea47d23260ee1ff",
+  "git_repository_sha256": "c3dd97b6696d0833b2e0c6d0252387c28827382cef9b03e0bf072ca815714825",
+  "changed_paths": [
+    "apps/web/index.html",
+    "apps/web/public/apple-touch-icon.png",
+    "apps/web/public/brand/icon-master.png",
+    "apps/web/public/brand/logo.png",
+    "apps/web/public/favicon-16x16.png",
+    "apps/web/public/favicon-32x32.png",
+    "apps/web/public/favicon.ico",
+    "apps/web/public/icon-192.png",
+    "apps/web/public/icon-512.png",
+    "apps/web/public/icon-maskable-512.png",
+    "apps/web/public/site.webmanifest"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1774-icons",
+    "receipt_sha256": "69035ec98cac8d7bdbfeeee31be8c1576afa3f00b664d8438b8cd06b92b85143",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "0f57cd37f2c0fd222edd7384192a464eb2c64f876519c8182d745465d9952397",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "0f57cd37f2c0fd222edd7384192a464eb2c64f876519c8182d745465d9952397"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-format-check",
+        "profile_sha256": "d5e19a614593250f1a59496712887fbdcee8d3b23f6f000d9a6b5f007ec121a8",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-format-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 114,
+        "stderr_bytes": 54,
+        "output_sha256": "14615d9229c28371eac91d2f77f030db7e37bd3367e5fc79b8ffd9689d8582fd",
+        "final_state_sha256": "0f57cd37f2c0fd222edd7384192a464eb2c64f876519c8182d745465d9952397"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-lint",
+        "profile_sha256": "fac12932994d5b0b44da03f90a5713632c565d14ff752b237e1387a5cdd06200",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-lint"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 69,
+        "output_sha256": "3c5b083e19dbc5b30946a1f931bd4027b66ddcd9f3b77f707fcd1d8447e86b52",
+        "final_state_sha256": "0f57cd37f2c0fd222edd7384192a464eb2c64f876519c8182d745465d9952397"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-typecheck",
+        "profile_sha256": "474a4cb89dc535b469d47c9b8b9b2c83c4c9de823dcf9173ac85895763392201",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-typecheck"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 39,
+        "output_sha256": "503eb0fe8b0d7571b49d15ce1a46bf45d513a80332759fa7c15c7a7009fa1835",
+        "final_state_sha256": "0f57cd37f2c0fd222edd7384192a464eb2c64f876519c8182d745465d9952397"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "web-unit-integration-suite",
+        "profile_sha256": "efbe7d0ff8349ffcb383690b17d752924bb7192a0f23cd46534b27f4de1c9159",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "web-unit-integration-suite"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 1677,
+        "stderr_bytes": 332,
+        "output_sha256": "0ab7d59e70c4f7b933b572a21fed260da46a0b4a9c351b9933c75a0754c614fe",
+        "final_state_sha256": "0f57cd37f2c0fd222edd7384192a464eb2c64f876519c8182d745465d9952397"
+      },
+      {
+        "id": "VC-6",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "0f57cd37f2c0fd222edd7384192a464eb2c64f876519c8182d745465d9952397",
+        "procedure": "元ロゴと生成画像を比較し16/32pxの明暗背景表示を確認。PNG寸法・透過・ICOの16/32/48px・maskable中央80%円内へのマーク収容を検査。pnpm run web:buildとローカルHTTPでhead/manifest/画像の配信を確認。",
+        "observation": "提供ロゴと簡略版を比較し、16/32pxを白と暗灰背景で表示して炎と白い紙幣を確認。ImageMagick identifyでICO16/32/48、PNG16/32、Apple180、any192/512、maskable512を確認。Apple/maskableはRGB不透明、その他PNGはalphaあり。maskable中央半径204.8px円外の背景との差分maxima=0。pnpm run web:build成功、preview 127.0.0.1:4177でhead/manifest全8参照が200かつdist bytes一致。display=browserで既存動作維持。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
