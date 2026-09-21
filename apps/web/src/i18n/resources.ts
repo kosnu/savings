@@ -1,7 +1,7 @@
 export const resources = {
   en: {
     translation: {
-      "app.name": "My Savings",
+      "app.name": "Burneto",
       "privacy.title": "Privacy policy",
       "privacy.back": "Back to {{appName}}",
       "privacy.introduction":
@@ -39,7 +39,7 @@ export const resources = {
       "navigation.paymentsAria": "Navigate to Payments page",
       "navigation.settingsAria": "Navigate to Settings page",
       "header.menu": "Menu button",
-      "header.logo": "Logo button",
+      "header.logo": "{{appName}} — Payments",
       "header.themeToggle": "Theme toggle",
       "language.label": "Language",
       "language.en": "English",
@@ -49,7 +49,7 @@ export const resources = {
       "theme.light": "Light",
       "theme.dark": "Dark",
       "auth.loading": "Checking authentication status...",
-      "auth.title": "Sign in to My Savings",
+      "auth.title": "Sign in to Burneto",
       "auth.goToAuth": "Go to Auth",
       "auth.startDescription":
         "Start with today's spending. As you record payments, see how your month is taking shape.",
@@ -275,7 +275,7 @@ export const resources = {
   },
   ja: {
     translation: {
-      "app.name": "My Savings",
+      "app.name": "Burneto",
       "privacy.title": "プライバシーポリシー",
       "privacy.back": "{{appName}}に戻る",
       "privacy.introduction": "{{appName}}の利用に伴う情報の取扱いについて説明します。",
@@ -311,7 +311,7 @@ export const resources = {
       "navigation.paymentsAria": "支払いページへ移動",
       "navigation.settingsAria": "設定ページへ移動",
       "header.menu": "メニュー",
-      "header.logo": "ロゴ",
+      "header.logo": "{{appName}} — 支払い",
       "header.themeToggle": "テーマ切り替え",
       "language.label": "言語",
       "language.en": "英語",
@@ -321,7 +321,7 @@ export const resources = {
       "theme.light": "ライト",
       "theme.dark": "ダーク",
       "auth.loading": "認証状態を確認しています...",
-      "auth.title": "My Savings にログイン",
+      "auth.title": "Burneto にログイン",
       "auth.goToAuth": "ログインへ進む",
       "auth.startDescription":
         "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
