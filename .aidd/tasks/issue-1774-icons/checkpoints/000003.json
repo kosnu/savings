@@ -1,0 +1,399 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "f5223d8072f38ceab60f7acbae0afe3f8353b57005810f930337c861cdd79af3",
+  "revision": 3,
+  "parent_sha256": "69035ec98cac8d7bdbfeeee31be8c1576afa3f00b664d8438b8cd06b92b85143",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "f5223d8072f38ceab60f7acbae0afe3f8353b57005810f930337c861cdd79af3",
+    "reason": "ユーザーが元画像の取り違えを訂正し、codex-clipboard-186f416c-0e24-41d9-905b-ad3b7aba5006.pngを正しい入力として提供した（SHA-256 cfe1b408e6fdd71e8cef428f701d40a93a77ab89343568fe8dd4b8dea8e6effb）。同じTask/baseline/PR #1779でbrand/logo.pngと簡略版master、それに由来する全favicon/app iconを差し替える。新画像の冷たいラベンダー紫、炎と斜めの紙幣を維持し、離れた火の粉と細部を整理する。既存HTML/manifestの形式・サイズ・余白方針は維持し、全差分を再検証する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "訂正後の提供ロゴから視認性の高いfavicon/app iconを作成し、既存Webで利用可能にする。",
+        "origin": "intent",
+        "evidence": "faviconとアプリアイコンが作成されている"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "ブラウザタブとホーム画面で紫の炎と紙幣のBurnetoアイコンが表示され、用途別画像をheadとmanifestから解決できる。",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-format-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-lint",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-typecheck",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "web-unit-integration-suite",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-6",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "元ロゴと生成画像を比較し16/32pxの明暗背景表示を確認。PNG寸法・透過・ICOの16/32/48px・maskable中央80%円内へのマーク収容を検査。pnpm run web:buildとローカルHTTPでhead/manifest/画像の配信を確認。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/web/index.html",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/apple-touch-icon.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/brand/icon-master.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/brand/logo.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/favicon-16x16.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/favicon-32x32.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/favicon.ico",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/icon-192.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/icon-512.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/icon-maskable-512.png",
+          "kind": "file"
+        },
+        {
+          "path": "apps/web/public/site.webmanifest",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/web/index.html",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "apps/web/public/apple-touch-icon.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "apps/web/public/brand/icon-master.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "apps/web/public/brand/logo.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "apps/web/public/favicon-16x16.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "apps/web/public/favicon-32x32.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "apps/web/public/favicon.ico",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "apps/web/public/icon-192.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "apps/web/public/icon-512.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "apps/web/public/icon-maskable-512.png",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "apps/web/public/site.webmanifest",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "web.design-system-brand"
+    ]
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.design-system-brand",
+    "web.storybook-browser-tests",
+    "web.test-policy"
+  ],
+  "rule_map_ref": {
+    "sha256": "7760c32c3de5b14d1dc5db2684a8042484304fd97bbbf71d5d9c535915f67c7b"
+  }
+}
