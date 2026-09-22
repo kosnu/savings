@@ -57,6 +57,13 @@ Taskの配信区分は持たない。旧v5のdelivery fieldはcanonical bytes/ha
 操作許可の判断は実行agentが担い、Coreの成功を公開操作の許可には使わない。
 旧binaryの固定条件は維持し、互換性の限界は[operations](aidd-checker-operations.md#ship--ci)に従う。
 
+## AIDD変更のCoverage
+
+[変更Coverage](change-coverage.md)がモデルと判定の正本を所有する。Coreは開始時Git treeへ固定した
+`contracts/change-coverage.json`から必須軸を復元し、Decisionの概念・representation・パターン・case参照を検査する。
+候補のモデルによる必須項目の削減は認めない。モデルのない旧Taskは従来条件で継続する。
+意味判断はAgentが担い、列挙された軸と参照の整合をCoreが担う。検証は既存Evidenceへ結合する。
+
 ## 統合記録と変更判定基準
 
 Decisionの省略可能な`integration`は`base_head`と`head`の完全commit IDを持つ。

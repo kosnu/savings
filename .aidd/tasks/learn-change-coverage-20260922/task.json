@@ -1,0 +1,110 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "learn",
+    "id": "learn-change-coverage-20260922",
+    "intent": {
+      "kind": "feedback",
+      "reference": "conversation:01a0c89e-ddae-7ee0-855c-bbb0861a0d28",
+      "body": "Coverageモデルを作成して組み込んで",
+      "body_sha256": "b8a585e8ac681c8cfd012c670f1ffa2672b0e775daab04f57923e89f2f5a8f74"
+    },
+    "objective": "5件の実例に基づくAIDD変更CoverageモデルをDecisionと検証へ組み込む",
+    "constraints": [
+      "既存Taskの履歴と開始時checker/policyを維持する",
+      "productコードを変更しない"
+    ],
+    "done": [
+      "モデルと正本文書・routing・Checkerを同期",
+      "開始時Checkerの検証と候補Checkerの回帰検証・レビューを完了"
+    ],
+    "verification": [
+      "go test ./...",
+      "shared-gate-tests",
+      "git-diff-check",
+      "候補check-allとモデルの5軸を手動確認"
+    ],
+    "authorization": "Coverageモデルを作成して組み込んで",
+    "authorized_scopes": [
+      {
+        "path": "docs/ai-driven-development/aidd-checker-operations.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/aidd-checker.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/change-coverage.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/compact-protocol.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/contracts/change-coverage.json",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/contracts/protocol.json",
+        "kind": "file"
+      },
+      {
+        "path": "docs/ai-driven-development/workflow.md",
+        "kind": "file"
+      },
+      {
+        "path": "docs/harness/rule-map.json",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/agent_input.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/change_coverage.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/change_coverage_test.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/configuration.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/decision.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/model.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/task.go",
+        "kind": "file"
+      },
+      {
+        "path": "tools/aidd/checker/internal/protocol/verification.go",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_head": "bf8d5da164b6025d486631b13ad6438648ed679a",
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

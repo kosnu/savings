@@ -215,6 +215,22 @@ additional_rulesは自動routingで得られない探索上の必要rule ID。�
 checkpointは`checkpoints/000001.json`から追記され、Taskと全履歴を再検証する。
 reasonへ変更・削除した判断と根拠を記録する。旧checkpointやbaselineを上書きしない。
 
+## AIDD変更Coverageの操作
+
+AIDDの仕組みと実行入力を変更するときは[変更Coverage](change-coverage.md)を適用する。
+初回Decisionに`change_coverage`を記載し、概念ごとのrepresentationと5軸の判断を固定する。
+次の表示はTask開始時モデルと最新判断を返す。通常のpage/offset契約を使う。
+
+```sh
+/tmp/aidd-task-checker task-status --repo-root . --task <id> --field change_coverage_model
+/tmp/aidd-task-checker task-status --repo-root . --task <id> --field change_coverage
+```
+
+改訂は`decision-update`の`change_coverage: {"upsert": [...], "remove": [...]}`へ概念ID単位で指定する。
+省略時は保持する。判定変更後は旧Evidenceが失効し、通常のverifyで全caseを実行する。
+新Taskではモデルfileが必要。開始時モデルのない旧Taskはmanual caseとreasonで評価を残し、
+新fieldや候補binaryを使うためにTaskを作り直さない。
+
 ## Learnの変更対象の改訂
 
 初期`authorized_scopes`を超える作業が委任内で必要になった場合、元の許可文と制約を確認し、

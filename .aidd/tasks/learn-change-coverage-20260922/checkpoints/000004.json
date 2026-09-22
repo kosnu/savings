@@ -1,0 +1,479 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "593c2ed8536af000cd69e654a5cfc7dda7fa00f37498832d141392152cc27a36",
+  "revision": 4,
+  "parent_sha256": "28d30047ab296f215cc6191f1f8dd1c26c5ebde31cd23eb335aa4e0349159b5c",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "593c2ed8536af000cd69e654a5cfc7dda7fa00f37498832d141392152cc27a36",
+    "reason": "採用する改善は、実例5件に共通する検討漏れをモデルとDecisionの接続で検出すること。入力元はユーザーの「Coverageモデルを作成して組み込んで」。既存の注意書きだけでは列挙欠落が残り、全概念の固定catalogは未観測の項目を増やすため採用せず、概念はagentが選び必須5軸と参照をCoreが検査する。導入Taskは開始時モデルがないためmanual case VC-4で試行する。sequence: affected。差分更新の省略・upsert・remove、次のcheckpointと証跡失効をagent_input/compact説明/回帰テストへ接続。indirect-inputs: affected。change-coverage.json自身とprotocolのsuite routing、rule-mapを同期し、候補モデルを形式検査して開始時モデルをGitとhashで固定。execution-paths: affected。Development/Learnとv5/v6の継続・Ship/CIを回帰検証。旧Taskはモデルなしを維持し、main統合でもTaskのBaselineHeadからモデルを復元する。Codex/ClaudeとGoal入口は同じworkflowを参照するためcodex-adapterとskillsはunaffected、別モデルやGoal生成を追加しない。semantic-roles: affected。representationの変更有無と実行パターンの挙動影響を区別し、変更しない関連pathをownershipへ強制しない。preserved-guarantees: affected。既存のIssue/実行許可・有限scope・旧checker・profile・Evidence検査は維持。新規Taskのモデル欠落は拒否し、旧Taskへの遡及と無記録checker置換を避ける。全ケースはVC-1/2/3と手動VC-4で検証する。新しいrule-mapのclosureをこのcheckpointへ固定する。 最終レビューで削除経路を補完する。削除予定fileは所有範囲と変更基準点の存在で照合し、最終representationには残さず、未削除なら既存の最終inventory検査で拒否する。削除と維持の両経路をVC-1で回帰検証する。 ユーザーのShip依頼とcodex/aidd-change-coverage作成の明示許可に基づき、同じTaskを配信する。vp check --fixの整形後の索引bytesを固定し、全証跡を更新する。仕様・作業範囲は維持する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "AIDD変更時の5軸Coverageをcheckpointと検証に組み込む",
+        "origin": "intent",
+        "evidence": "Coverageモデルを作成して組み込んで"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "対象変更のCoverage欠落・無効参照を拒否し、対象外のアプリ変更と旧Taskを維持する",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "shared-gate-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "5件を5軸に照合し、意味判断・旧Task互換・開始時モデル固定・差分更新・Evidence接続とルールclosureをレビューする"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/change-coverage.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/compact-protocol.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/contracts/change-coverage.json",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/contracts/protocol.json",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/agent_input.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/change_coverage.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/change_coverage_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/configuration.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/change-coverage.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/compact-protocol.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/contracts/change-coverage.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/contracts/protocol.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "docs/harness/rule-map.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/agent_input.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/change_coverage.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/change_coverage_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/configuration.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/protocol_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/verification.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "ef0788ea65a3941c85f36e45fd53a152ab410ee3e87d88058caf336f61a76f3b",
+    "snapshot": true
+  }
+}

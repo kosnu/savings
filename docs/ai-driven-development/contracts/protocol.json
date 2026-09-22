@@ -38,6 +38,7 @@
     {
       "paths": [
         "tools/aidd/**",
+        "docs/ai-driven-development/contracts/change-coverage.json",
         "docs/ai-driven-development/contracts/protocol.json",
         "docs/ai-driven-development/contracts/verification-profiles.json"
       ],

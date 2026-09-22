@@ -12,10 +12,13 @@ import (
 // CheckConfigurationはcandidate側の文書・policy・profileの参照整合を検査する。
 // Learnでも開始時checkerの実装で実行し、candidate自身の成功だけに依存しない。
 func CheckConfiguration(ctx context.Context, snapshot *repository.Snapshot) error {
-	return checkConfiguration(ctx, snapshot, false)
+	return checkConfiguration(ctx, snapshot, false, false)
 }
 
-func checkConfiguration(ctx context.Context, snapshot *repository.Snapshot, legacyTask bool) error {
+func checkConfiguration(ctx context.Context, snapshot *repository.Snapshot, legacyTask, legacyCoverage bool) error {
+	if err := checkChangeCoverageConfiguration(snapshot, !legacyCoverage); err != nil {
+		return err
+	}
 	content, err := snapshot.Read(PolicyPath)
 	if err != nil {
 		return err

@@ -70,6 +70,9 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 	for _, r := range d.Target.Representations {
 		paths[r.Path] = true
 	}
+	if err := l.validateChangeCoverage(d, paths, false); err != nil {
+		return nil, err
+	}
 	direct := map[string]struct{}{}
 	for p := range paths {
 		_, required, err := rules.ResolvePath(l.Rules, p)

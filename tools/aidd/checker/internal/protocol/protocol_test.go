@@ -77,6 +77,7 @@ func setupVersion(t *testing.T, kind string, version int) *fixture {
 	f.put("guard/rule.md", "Existing accepted invariant\n")
 	rp, _ := canonical.Pretty(repositorypolicy.Legacy())
 	f.put(repositorypolicy.Path, string(rp))
+	f.put(ChangeCoveragePath, `{"schema_version":1,"kind":"aidd_change_coverage","paths":["coverage/**"],"axes":[{"id":"sequence","question":"次の操作は成立するか"}]}`)
 	f.put(PolicyPath, `{"schema_version":1,"kind":"aidd_protocol","guardrail_paths":["guard/**","docs/**"],"product_paths":["src/**"],"required_verification":[{"paths":["**"],"profiles":["git-diff-check"]}]}`)
 	f.put("docs/harness/rule-map.json", `{"version":2,"review_routing":{"governed_paths":["src/**","guard/**"],"surfaces":[{"id":"all","paths":["src/**","guard/**"],"required_rules":["invariant"]}]},"rules":[{"id":"invariant","file":"guard/rule.md","applies_to":{"paths":["src/**","guard/**"]},"depends_on":["dependency"],"overrides":[],"priority":1},{"id":"dependency","file":"guard/rule.md","applies_to":{},"depends_on":[],"overrides":[],"priority":0}]}`)
 	f.put("docs/ai-driven-development/contracts/verification-profiles.json", `{"schema_version":1,"profiles":[{"id":"git-diff-check","contract":"suite","runner":"command_suite","selector_kind":"suite","selector_root":"","working_directory":"","argv":["git","diff","--no-ext-diff","HEAD","--check","--"]},{"id":"web-storybook-suite","contract":"suite","runner":"command_suite","selector_kind":"suite","selector_root":"","working_directory":"","argv":["git","diff","--check"]}]}`)
