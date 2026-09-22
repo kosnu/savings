@@ -1,0 +1,119 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "593c2ed8536af000cd69e654a5cfc7dda7fa00f37498832d141392152cc27a36",
+  "checkpoint_sha256": "647b0fa29ae4d8f6e2f5dec04dd2cf3a76887fe8390daab90c57e5a536c142ad",
+  "repository_sha256": "8dc51098cf2ce439b80119c45f1c849a88b7270dc1599930ff0aa1a29285f84a",
+  "git_repository_sha256": "f39b78c40a90e3c55147d4893296830a6e7397400b090a6ca71892ce6104c912",
+  "changed_paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/change-coverage.md",
+    "docs/ai-driven-development/compact-protocol.md",
+    "docs/ai-driven-development/contracts/change-coverage.json",
+    "docs/ai-driven-development/contracts/protocol.json",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/internal/protocol/agent_input.go",
+    "tools/aidd/checker/internal/protocol/change_coverage.go",
+    "tools/aidd/checker/internal/protocol/change_coverage_test.go",
+    "tools/aidd/checker/internal/protocol/configuration.go",
+    "tools/aidd/checker/internal/protocol/decision.go",
+    "tools/aidd/checker/internal/protocol/model.go",
+    "tools/aidd/checker/internal/protocol/protocol_test.go",
+    "tools/aidd/checker/internal/protocol/task.go",
+    "tools/aidd/checker/internal/protocol/verification.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "learn-change-coverage-20260922",
+    "receipt_sha256": "647b0fa29ae4d8f6e2f5dec04dd2cf3a76887fe8390daab90c57e5a536c142ad",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2541,
+        "stderr_bytes": 0,
+        "output_sha256": "aca04e87b1f62945e9d799ad0776d00e453bad2e5abc67a97cdef39cb4459ef0",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "shared-gate-tests",
+        "profile_sha256": "e3d5731ff565f58b0b46ce35ebd18730b367800f5873750de8a766da828b895d",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "shared-gate-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 671,
+        "output_sha256": "84515534206fd72d138f6c60ba44ee75c1b5ca9371534b11f0486887a045fcb6",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519",
+        "procedure": "5件を5軸に照合し、意味判断・旧Task互換・開始時モデル固定・差分更新・Evidence接続とルールclosureをレビューする",
+        "observation": "Codexが最終差分と所有成果物をレビュー。Coverage実装・開始時モデル固定・削除ownership・v5/v6互換は維持。Learn継続の5軸はreasonとVC-5に対応する。Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, adr.task-scope, ai-driven.change-coverage, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification。Unresolved: なし。モデル上の保証範囲は従来通りで意味判断の自動証明はしない。"
+      },
+      {
+        "id": "VC-5",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519",
+        "procedure": "更新したpolicy/operations/workflowを、機械的な参照欠落、純粋な意味判断、両者の混在、正常入力の誤拒否、根拠不足、既存検査で十分な場合、分析のみ、旧Task継続へ当てはめる。機械化可否と採否、正本からDecision/case/Evidence/後続適用への接続、全5軸と必須rule closureを確認する。 追加で、取得可能な根拠の調査継続、一部findingのみ不明な場合の独立続行、入力なしのLearn終了、権限超過と意図競合の確認、短い変更不要記録と複雑な責務変更記録の追跡性を対照例で確認する。",
+        "observation": "Codexが更新後policy/operations/workflowへ対照例を適用してレビュー。不存在case参照は機械化可能、case内容の十分性は意味判断、混在は部分的、入力未取得は根拠不足として分類できる。既存検査で十分なら変更不要、正常例の誤拒否は対策再評価になる。取得可能な設定が不明な場合は自律調査、2件中1件だけ根拠不足ならその判断を保留し他方を続行、全件入力なしならLearn終了として独立作業は維持される。成果を変える意図競合や権限超過は依存変更前の確認を維持。短い変更不要記録でも入力元・通常経路・機械化可否・既存検査の根拠参照から追跡でき、複合原因や責務変更には比較と残る影響を具体化する規定がある。未確定を除外・変更不要・成功に変換しない。分析のみのTask作成禁止、更新時の要求/behavior/case/representation/Evidence接続と旧証拠失効、旧v5/v6・開始時checker/profile固定を保持。skillは既存のpolicy参照で同じ定義へ到達する。これらは文書の意味reviewであり、Astraの実運用効果を測定した結果ではない。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}

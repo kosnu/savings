@@ -1,0 +1,104 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "593c2ed8536af000cd69e654a5cfc7dda7fa00f37498832d141392152cc27a36",
+  "checkpoint_sha256": "ee6ed9ab03bee016c3324cbb86d205157dc4a5eb78d87f0d1796e7953f6d9cad",
+  "repository_sha256": "c60f99695a110078067199b68905b161909f9ab690976f97f4d2a1fff63d46d4",
+  "git_repository_sha256": "b7eb79d67aaf2c97ed8ed0ce04e23f6d7bc471572a31a2c047f815b0a3cfe20a",
+  "changed_paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "learn-change-coverage-20260922",
+    "receipt_sha256": "ee6ed9ab03bee016c3324cbb86d205157dc4a5eb78d87f0d1796e7953f6d9cad",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2541,
+        "stderr_bytes": 0,
+        "output_sha256": "aca04e87b1f62945e9d799ad0776d00e453bad2e5abc67a97cdef39cb4459ef0",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "shared-gate-tests",
+        "profile_sha256": "e3d5731ff565f58b0b46ce35ebd18730b367800f5873750de8a766da828b895d",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "shared-gate-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 671,
+        "output_sha256": "ab70968a988607d3bb38ef920b2c0cf72c9edccee34a32e5c21c75d3749318c0",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519",
+        "procedure": "5件を5軸に照合し、意味判断・旧Task互換・開始時モデル固定・差分更新・Evidence接続とルールclosureをレビューする",
+        "observation": "Codexが統合後の最終差分と所有成果物をレビュー。main 08aac82fのwrangler更新は統合base由来で独自変更なし。Coverage実装・開始時モデル固定・削除ownership・v5/v6互換は維持。Learn継続の5軸はreasonとVC-5に対応。Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, adr.task-scope, ai-driven.change-coverage, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification。Unresolved: なし。"
+      },
+      {
+        "id": "VC-5",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "352751c7bf1a62861cc8050d069073a23cba50d3a6f22db56d1d9d967cd12519",
+        "procedure": "更新したpolicy/operations/workflowを、機械的な参照欠落、純粋な意味判断、両者の混在、正常入力の誤拒否、根拠不足、既存検査で十分な場合、分析のみ、旧Task継続へ当てはめる。機械化可否と採否、正本からDecision/case/Evidence/後続適用への接続、全5軸と必須rule closureを確認する。 追加で、取得可能な根拠の調査継続、一部findingのみ不明な場合の独立続行、入力なしのLearn終了、権限超過と意図競合の確認、短い変更不要記録と複雑な責務変更記録の追跡性を対照例で確認する。",
+        "observation": "Codexが統合後3文書を対照例で再レビュー。不存在case参照は機械化可能、検証内容の十分性は意味判断、混在は部分的、入力未取得は根拠不足。既存検査で十分なら変更不要、正常例の誤拒否は対策再評価。取得可能な情報は自律調査、一部findingが不明なら依存部分だけ保留し独立作業を継続する。意図競合・権限超過は依存変更前に確認。入力なしならLearnだけ終了。軽微なfindingは結論・理由・根拠参照で追跡でき、複雑な原因や責務変更は比較・残る影響を具体化する。未確定を成功や除外にしない。分析のみは書込を許可せず、更新は既存Decisionとcase/Evidenceへ接続する。旧Taskと開始時checker/profileを保持。モデルの実運用効果を測定した結果とは扱わない。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
