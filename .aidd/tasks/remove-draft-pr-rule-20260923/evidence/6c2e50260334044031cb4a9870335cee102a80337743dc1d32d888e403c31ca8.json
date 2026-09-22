@@ -1,0 +1,52 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "f9ecfe64ca0817f320bde9ac59f1e8cdaf3d56d73a8e2447414b609dcf3d948a",
+  "checkpoint_sha256": "6c2e50260334044031cb4a9870335cee102a80337743dc1d32d888e403c31ca8",
+  "repository_sha256": "67129fc4879ba0483f70889a2661a94e226d957d1fb41470e2a542893c179f65",
+  "git_repository_sha256": "d276dc7cb98aaf3e275e0411ae80e7f41f2be39bb9347d74defa73fe392ecb1a",
+  "changed_paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "remove-draft-pr-rule-20260923",
+    "receipt_sha256": "6c2e50260334044031cb4a9870335cee102a80337743dc1d32d888e403c31ca8",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "e0943ee476c480bc1a37bff9d9a630d4eef63e0e9b8c318dd7a2e3a6c61ae249",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "e0943ee476c480bc1a37bff9d9a630d4eef63e0e9b8c318dd7a2e3a6c61ae249"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "e0943ee476c480bc1a37bff9d9a630d4eef63e0e9b8c318dd7a2e3a6c61ae249",
+        "procedure": "Git WorkflowのPull Request節とrepository内のPR状態に関する表現を確認し、Draft既定とReady明示限定の規定がなく、PR以外のdraft概念や他のPR安全条件が変更されていないことを確認する",
+        "observation": "Pull Request節とrepository内を確認し、Draft既定・Ready明示限定の規定は削除済み。変更は当該1文だけで、PR以外のdraft概念とscope・push・template・read-backの安全条件は保持されている。"
+      }
+    ]
+  },
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc"
+}
