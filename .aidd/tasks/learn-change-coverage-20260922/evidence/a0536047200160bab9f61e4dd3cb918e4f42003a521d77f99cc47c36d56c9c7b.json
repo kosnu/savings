@@ -1,0 +1,110 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "593c2ed8536af000cd69e654a5cfc7dda7fa00f37498832d141392152cc27a36",
+  "checkpoint_sha256": "a0536047200160bab9f61e4dd3cb918e4f42003a521d77f99cc47c36d56c9c7b",
+  "repository_sha256": "7a2af49c2617b7531606478804ab18a080c72f680a78e8f054cb47123cf527ea",
+  "git_repository_sha256": "63ca4c4f37013f34b9ae9c48132a09979242ab8fb24bd58e3cb52930fd4565f0",
+  "changed_paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/change-coverage.md",
+    "docs/ai-driven-development/compact-protocol.md",
+    "docs/ai-driven-development/contracts/change-coverage.json",
+    "docs/ai-driven-development/contracts/protocol.json",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/internal/protocol/agent_input.go",
+    "tools/aidd/checker/internal/protocol/change_coverage.go",
+    "tools/aidd/checker/internal/protocol/change_coverage_test.go",
+    "tools/aidd/checker/internal/protocol/configuration.go",
+    "tools/aidd/checker/internal/protocol/decision.go",
+    "tools/aidd/checker/internal/protocol/model.go",
+    "tools/aidd/checker/internal/protocol/protocol_test.go",
+    "tools/aidd/checker/internal/protocol/task.go",
+    "tools/aidd/checker/internal/protocol/verification.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "learn-change-coverage-20260922",
+    "receipt_sha256": "a0536047200160bab9f61e4dd3cb918e4f42003a521d77f99cc47c36d56c9c7b",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "d540877982ae6070e4db7554474cf71d26c9fbc3e01b33f5caad97f2b06bf72e",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2541,
+        "stderr_bytes": 0,
+        "output_sha256": "aca04e87b1f62945e9d799ad0776d00e453bad2e5abc67a97cdef39cb4459ef0",
+        "final_state_sha256": "d540877982ae6070e4db7554474cf71d26c9fbc3e01b33f5caad97f2b06bf72e"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "d540877982ae6070e4db7554474cf71d26c9fbc3e01b33f5caad97f2b06bf72e"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "shared-gate-tests",
+        "profile_sha256": "e3d5731ff565f58b0b46ce35ebd18730b367800f5873750de8a766da828b895d",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "shared-gate-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 671,
+        "output_sha256": "bff8259c4ed08bb9870e8d2bc57890dbbe93b99ec065b2399fc6f5cac3b6acfb",
+        "final_state_sha256": "d540877982ae6070e4db7554474cf71d26c9fbc3e01b33f5caad97f2b06bf72e"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "d540877982ae6070e4db7554474cf71d26c9fbc3e01b33f5caad97f2b06bf72e",
+        "procedure": "5件を5軸に照合し、意味判断・旧Task互換・開始時モデル固定・差分更新・Evidence接続とルールclosureをレビューする",
+        "observation": "前回レビュー済みの17ソース変更と5軸の判定を照合。vp整形による意味変更なし。モデル・rule-map・workflow・Checkerの接続、削除経路、v5/v6とDevelopment/Learn継続、開始時モデル固定を確認。Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, adr.task-scope, ai-driven.change-coverage, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification. Unresolved: なし。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}

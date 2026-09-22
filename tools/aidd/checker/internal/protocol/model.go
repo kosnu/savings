@@ -114,6 +114,7 @@ type ProductAuthorization struct {
 }
 
 type Decision struct {
+	ChangeCoverage       []ChangeCoverage      `json:"change_coverage,omitempty"`
 	SchemaVersion        int                   `json:"schema_version"`
 	Kind                 string                `json:"kind"`
 	TaskSHA256           string                `json:"task_sha256"`

@@ -73,7 +73,7 @@ runnerの証跡契約は引き続きv5であり、外側の保存形式だけv6�
 - `checkpoint --latest --expect-revision N`は明示Taskのidentityを解決し、入力にない
   schema/kind/task hashを補う。要求や参照先の意味はagentが記述する。
 - `decision-update`はreasonと必要なcollectionのupsert/removeだけを受け取る。
-  requirements、product_behaviors、verification_cases、representationsはID、ownership_scopesはpathがkey。
+  requirements、product_behaviors、verification_cases、representations、change_coverageはID、ownership_scopesはpathがkey。
   空key、同じkeyへの重複操作、未知keyのremoveを拒否する。更新後に全Decisionを再検査する。
   並び順はcheckerが正規化する。要求とbehavior等の意味的な参照関係を自動推測しない。
 - additional_rulesは指定時に置換する。integration/checker_migration/product_authorizationは
@@ -87,7 +87,10 @@ runnerの証跡契約は引き続きv5であり、外側の保存形式だけv6�
 
 statusは既定2000文字、最大4000文字のpage。`next_offset`があれば情報が残っている。
 同じTask/revisionで続きを取得し、revisionが変わっていたら読取をやり直す。
-fieldはsummary/task/decision/requirements/product_behaviors/verification_cases/ownership_scopes/representations。
+fieldはsummary/task/decision/requirements/product_behaviors/verification_cases/ownership_scopes/representations、
+およびchange_coverage/change_coverage_model。後者はTask開始時Git treeから復元した検討モデルを返す。
+change_coverageは継続する判断として省略時に保持し、改訂時は既存と同じ全証跡失効を適用する。
+モデルのない旧Taskの互換性は[変更Coverage](change-coverage.md)に従う。
 出力のcontentはJSONテキストの一部分であり、全pageを連結すれば元の表示JSONになる。
 
 失敗出力も既定2000文字、最大4000文字で、元のdiagnostic codeと総文字数・継続位置を保持する。
