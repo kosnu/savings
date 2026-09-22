@@ -58,6 +58,7 @@ type Changes[T any] struct {
 	Remove []string `json:"remove,omitempty"`
 }
 type DecisionUpdate struct {
+	ChangeCoverage       Changes[ChangeCoverage]         `json:"change_coverage,omitzero"`
 	Reason               string                          `json:"reason"`
 	Requirements         Changes[Requirement]            `json:"requirements,omitzero"`
 	Behaviors            Changes[model.ProductBehavior]  `json:"product_behaviors,omitzero"`
@@ -125,6 +126,10 @@ func UpdateDecision(ctx context.Context, s *repository.Snapshot, id string, revi
 	}
 	d := l.Checkpoint.Decision
 	d.Reason = u.Reason
+	d.ChangeCoverage, err = applyChanges(d.ChangeCoverage, u.ChangeCoverage, func(v ChangeCoverage) string { return v.ID }, func(a, b string) bool { return a < b })
+	if err != nil {
+		return "", err
+	}
 	d.Requirements, err = applyChanges(d.Requirements, u.Requirements, func(v Requirement) string { return v.ID }, semantic.RequirementIDLess)
 	if err != nil {
 		return "", err
@@ -213,6 +218,10 @@ func Inspect(ctx context.Context, s *repository.Snapshot, id, field string, offs
 		}{l.Task.Spec.Objective, l.Task.Spec.Constraints, l.Task.Spec.Done, state, detail, l.Checkpoint.Decision.Target.VerificationCases}
 	case "task":
 		value = l.Task.Spec
+	case "change_coverage":
+		value = l.Checkpoint.Decision.ChangeCoverage
+	case "change_coverage_model":
+		value = l.ChangeCoverageModel
 	case "decision":
 		value = l.Checkpoint.Decision
 	case "requirements":

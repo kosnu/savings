@@ -1,0 +1,110 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "593c2ed8536af000cd69e654a5cfc7dda7fa00f37498832d141392152cc27a36",
+  "checkpoint_sha256": "28d30047ab296f215cc6191f1f8dd1c26c5ebde31cd23eb335aa4e0349159b5c",
+  "repository_sha256": "e97c2ca0494a622dec9b4339a58a663bdff5e52d34468d4bc7ee32d258c6d2f1",
+  "git_repository_sha256": "b084ddd433ed95259e81ac5293f82d20e77a1c18ad155fc2d660a59b8700cf08",
+  "changed_paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/change-coverage.md",
+    "docs/ai-driven-development/compact-protocol.md",
+    "docs/ai-driven-development/contracts/change-coverage.json",
+    "docs/ai-driven-development/contracts/protocol.json",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/internal/protocol/agent_input.go",
+    "tools/aidd/checker/internal/protocol/change_coverage.go",
+    "tools/aidd/checker/internal/protocol/change_coverage_test.go",
+    "tools/aidd/checker/internal/protocol/configuration.go",
+    "tools/aidd/checker/internal/protocol/decision.go",
+    "tools/aidd/checker/internal/protocol/model.go",
+    "tools/aidd/checker/internal/protocol/protocol_test.go",
+    "tools/aidd/checker/internal/protocol/task.go",
+    "tools/aidd/checker/internal/protocol/verification.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "learn-change-coverage-20260922",
+    "receipt_sha256": "28d30047ab296f215cc6191f1f8dd1c26c5ebde31cd23eb335aa4e0349159b5c",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "ba1f0758d9dfe34d0c81295971db50d30b0693a512beb6bbe879ff1de27f501f",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2537,
+        "stderr_bytes": 0,
+        "output_sha256": "e05588091d6a6c6e8705e2645f65fdb0111c2feab89c0617d4263c5dccb98a2b",
+        "final_state_sha256": "ba1f0758d9dfe34d0c81295971db50d30b0693a512beb6bbe879ff1de27f501f"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "ba1f0758d9dfe34d0c81295971db50d30b0693a512beb6bbe879ff1de27f501f"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "shared-gate-tests",
+        "profile_sha256": "e3d5731ff565f58b0b46ce35ebd18730b367800f5873750de8a766da828b895d",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "shared-gate-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 671,
+        "output_sha256": "79eba2c951829c66d6fafc574a4a6aff162092d9ab9cfb2de03fb4e80dcc1e26",
+        "final_state_sha256": "ba1f0758d9dfe34d0c81295971db50d30b0693a512beb6bbe879ff1de27f501f"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "ba1f0758d9dfe34d0c81295971db50d30b0693a512beb6bbe879ff1de27f501f",
+        "procedure": "5件を5軸に照合し、意味判断・旧Task互換・開始時モデル固定・差分更新・Evidence接続とルールclosureをレビューする",
+        "observation": "5件由来の5軸を今回の変更へ適用。sequenceは差分更新保持と旧証跡失効、indirect-inputsはモデルとsuite/rule routing、execution-pathsはv5/v6・Development/Learn・Ship/CIと旧Task、semantic-rolesは変更有無と挙動影響の分離、preserved-guaranteesは既存権限と削除時の最終inventoryを確認。変更しないCodex/Claude入口はworkflow参照で到達する。モデル固定はTask開始Git参照で統合後も維持。Checked rules: ai-driven.change-coverage, ai-driven.workflow, ai-driven.checker, ai-driven.overview, ai-driven.issue-guidelines, ai-driven.learn, adr.task-scope, adr.aidd-invariant-protocol, adr.agent-rule-graph, adr.harness-engineering, documentation.policy, policy.code-review, policy.learning-extraction, policy.review-feedback-classification, policy.git-workflow, policy.issue-template-selection. Unresolved: なし。概念・理由・scenarioの意味的妥当性は機械証明しない。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}

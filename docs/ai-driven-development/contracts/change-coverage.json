@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "aidd_change_coverage",
+  "paths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "tools/aidd/**",
+    "docs/ai-driven-development/**",
+    "docs/harness/**",
+    "docs/adr/0001-adopt-harness-engineering.md",
+    "docs/adr/0002-adopt-agent-rule-graph.md",
+    "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+    "docs/adr/0005-compact-aidd-records.md",
+    "docs/adr/0004-separate-task-scope-from-work-kind.md",
+    ".agents/skills/learn/**",
+    ".agents/skills/goal-setting/**",
+    ".codex/**",
+    ".github/workflows/aidd_*",
+    "vite.config.ts",
+    ".vite-hooks/**",
+    "package.json",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml"
+  ],
+  "axes": [
+    {
+      "id": "sequence",
+      "question": "変更する操作の直後、次の更新・再実行・再開でも状態と履歴を維持できるか"
+    },
+    {
+      "id": "indirect-inputs",
+      "question": "本体以外の設定・依存・profile・routingの変更でも必要な検証が選ばれるか"
+    },
+    {
+      "id": "execution-paths",
+      "question": "Development/Learn、review修正・追加Ship、旧Task/checker、main統合・CIのどの経路へ影響するか"
+    },
+    {
+      "id": "semantic-roles",
+      "question": "同じデータ形式でも、状態とイベント、担当範囲と許可上限など役割の違いを維持できるか"
+    },
+    {
+      "id": "preserved-guarantees",
+      "question": "制限や責務を撤廃・移動した後、必要な保証を何が担い、許可すべき操作と拒否すべき操作を区別するか"
+    }
+  ]
+}
