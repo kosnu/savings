@@ -193,6 +193,10 @@ requirement gap・design issue・delivery defectも同じ原因軸を評価す�
 詳細な判断境界は[review feedback policy](../harness/policies/review-feedback-classification.md)を適用する。
 
 Learnはfeedbackを扱う作業。単独の新規依頼はIssue不要のTaskとして開始できる。既存作業中は現在のTaskで扱う。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
+通常経路から到達可能なfindingは[決定論的検出可否](../harness/policies/learning-extraction.md#決定論的検出可否)を評価する。
+許可された改善は、判断根拠と採否をDecisionへ記録し、採用した対策を要求・behavior・検証case・成果物へ接続する。
+意味判断の妥当性はagentがreviewし、case参照・実行・Evidenceの整合はCoreが検査する。
+記録方法は[Learnの判断と検証の接続](aidd-checker-operations.md#learnの判断と検証の接続)を使う。
 分析だけの依頼は書込許可ではない。変更が許可された場合はauthorizationと初期の有限作業範囲を記録し、
 guardrail文書、routing、checker、adapter、検証機構を変更・検証できる。
 Task種別によるproduct pathの一律禁止は設けず、実際の許可範囲を守る。通常は開始時checker binaryと旧profileで検証する。明示的なchecker移行は移行先binaryを固定し、旧policy/profileを維持する。変更後checkerの成功だけを

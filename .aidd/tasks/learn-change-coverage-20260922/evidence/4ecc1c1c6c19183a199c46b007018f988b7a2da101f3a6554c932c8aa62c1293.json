@@ -1,0 +1,119 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "593c2ed8536af000cd69e654a5cfc7dda7fa00f37498832d141392152cc27a36",
+  "checkpoint_sha256": "4ecc1c1c6c19183a199c46b007018f988b7a2da101f3a6554c932c8aa62c1293",
+  "repository_sha256": "e708243359d8373f3ae3416e78a6bce2516afc4d57a8cc7e4da2c00d5980cee9",
+  "git_repository_sha256": "309f4406239e7cd2c9a0c398a5d4f4a9b8bfa6d5d5b0e543a4373ad018a41146",
+  "changed_paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/change-coverage.md",
+    "docs/ai-driven-development/compact-protocol.md",
+    "docs/ai-driven-development/contracts/change-coverage.json",
+    "docs/ai-driven-development/contracts/protocol.json",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/internal/protocol/agent_input.go",
+    "tools/aidd/checker/internal/protocol/change_coverage.go",
+    "tools/aidd/checker/internal/protocol/change_coverage_test.go",
+    "tools/aidd/checker/internal/protocol/configuration.go",
+    "tools/aidd/checker/internal/protocol/decision.go",
+    "tools/aidd/checker/internal/protocol/model.go",
+    "tools/aidd/checker/internal/protocol/protocol_test.go",
+    "tools/aidd/checker/internal/protocol/task.go",
+    "tools/aidd/checker/internal/protocol/verification.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "learn-change-coverage-20260922",
+    "receipt_sha256": "4ecc1c1c6c19183a199c46b007018f988b7a2da101f3a6554c932c8aa62c1293",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "d809936ec900b46a49b93f78eff8d116926542abb3e76c6e98c0b6e9baf1747c",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2539,
+        "stderr_bytes": 0,
+        "output_sha256": "d24b0288baba12a02e5e0711ba9c68805f8d9bd369ec4459b4af229cc69c80a4",
+        "final_state_sha256": "d809936ec900b46a49b93f78eff8d116926542abb3e76c6e98c0b6e9baf1747c"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "d809936ec900b46a49b93f78eff8d116926542abb3e76c6e98c0b6e9baf1747c"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "shared-gate-tests",
+        "profile_sha256": "e3d5731ff565f58b0b46ce35ebd18730b367800f5873750de8a766da828b895d",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "shared-gate-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 671,
+        "output_sha256": "6982e31d71a26673256e7dc9aef11bd8304529dff56d701de20f0f9386928af3",
+        "final_state_sha256": "d809936ec900b46a49b93f78eff8d116926542abb3e76c6e98c0b6e9baf1747c"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "d809936ec900b46a49b93f78eff8d116926542abb3e76c6e98c0b6e9baf1747c",
+        "procedure": "5件を5軸に照合し、意味判断・旧Task互換・開始時モデル固定・差分更新・Evidence接続とルールclosureをレビューする",
+        "observation": "担当Codexが変更差分と所有成果物を再確認。既存Coverage実装は今回変更せず、5軸のdecision/checker/case参照、削除時ownership、開始時Gitモデル固定、v5/v6互換を維持する。追加Learn変更のsequence/execution-paths/semantic-roles/preserved-guaranteesをVC-5で確認し、indirect-inputsは既存profile/rule-map/skill入口維持を確認。Checked rules: adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.harness-engineering, adr.task-scope, ai-driven.change-coverage, ai-driven.checker, ai-driven.issue-guidelines, ai-driven.learn, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification。Unresolved: なし。意味判断の網羅性はCoreの保証外。"
+      },
+      {
+        "id": "VC-5",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "d809936ec900b46a49b93f78eff8d116926542abb3e76c6e98c0b6e9baf1747c",
+        "procedure": "更新したpolicy/operations/workflowを、機械的な参照欠落、純粋な意味判断、両者の混在、正常入力の誤拒否、根拠不足、既存検査で十分な場合、分析のみ、旧Task継続へ当てはめる。機械化可否と採否、正本からDecision/case/Evidence/後続適用への接続、全5軸と必須rule closureを確認する。",
+        "observation": "担当Codexが更新後3文書と現行Core契約を対照例でレビューした。不存在case IDは固定入力から検出可能で既存checkerと回帰suiteが担当。case内容が要求を満たすかは意味判断のためagent担当。混在findingでは部分的に可能とし両者を分離できる。正当な入力を拒否する対策は正常例の受入確認で再評価される。外部入力や契約が不明なら根拠不足で依存判断を保留し、不可や変更不要に変換しない。既存検査で十分なら理由付き変更不要とし不要な成果物を要求しない。分析のみはTask作成しない。更新許可ありではreason→requirement→behavior→case→representationを記録し、機械的な参照検査・実行証拠と意味reviewを分ける。今回の記録でも異なるrequirementのbehaviorをrepresentationへ結び付ける誤りを開始時checkerが拒否し、正しい参照へ修正したcheckpoint 5が受理された。新profileを現在Taskへ差し替えず、旧v5/v6と開始時checker固定を維持。Learn skillは既存policyリンク、Developmentはworkflowから同じ正本へ到達し、Codex/Claudeで契約を重複しない。ローカルリンク26件の参照先存在を確認。機械化可否の評価自体は意味判断であり、新たな自動判定器を実装したとは扱わない。"
+      }
+    ]
+  },
+  "checker_sha256": "097334db55adb5d04397d94e2d3ab8fa66847b9c5e69119012728baadb187d77"
+}
