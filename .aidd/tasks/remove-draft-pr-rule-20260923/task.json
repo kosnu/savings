@@ -1,0 +1,44 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "learn",
+    "id": "remove-draft-pr-rule-20260923",
+    "intent": {
+      "kind": "feedback",
+      "reference": "user-request:2026-09-23:remove-draft-pr-rule",
+      "body": "PRをDraft状態で作成するようにしているルールを消してほしい",
+      "body_sha256": "3399dea9bcad92766a0ca7539d4fee8d2f847f0d91fc2aa1b43021e5d3c5c3a8"
+    },
+    "objective": "PRをDraft状態で作成することを基本とするGit Workflow規定を削除する",
+    "constraints": [
+      "PR以外のdraft概念は変更しない",
+      "Git/GitHubへの配信操作は行わない"
+    ],
+    "done": [
+      "Draft PRを基本とする規定が正本文書から削除されている",
+      "対象差分と残存表現を検証している"
+    ],
+    "verification": [
+      "git-diff-check",
+      "Draft PR必須・既定表現の残存検索と差分レビュー"
+    ],
+    "authorization": "PRをDraft状態で作成するようにしているルールを消してほしい",
+    "authorized_scopes": [
+      {
+        "path": "docs/harness/policies/git-workflow.md",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_head": "82781649103a36f92b98bb2eb7bdbf18542a97bb",
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "f9ecfe64ca0817f320bde9ac59f1e8cdaf3d56d73a8e2447414b609dcf3d948a",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "pr-state-default",
+        "concept": "PR作成時のDraft既定とReady明示限定をGit Workflowから撤廃する",
+        "representations": [
+          {
+            "path": "docs/harness/policies/git-workflow.md",
+            "status": "affected",
+            "reason": "PR状態の既定を所有する規定を削除する"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "PR作成、更新、追加Shipで同じGit Workflowを再読込する",
+            "status": "affected",
+            "reason": "各操作でDraft既定とReady明示限定を適用しなくなる",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "rule-map、verification profile、依存設定からGit Workflowを選択する",
+            "status": "unaffected",
+            "reason": "文書のroutingと検証入力は変更せず、既存のpolicy選択を維持する"
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "Development、Learn、review修正、追加Ship、旧Task継続、main統合後の各PR作成経路で現行policyを適用する",
+            "status": "affected",
+            "reason": "経路を問わずDraft状態を既定とする制約がなくなる",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "PRのDraft状態とReady for Review状態を作成時の選択肢として扱う",
+            "status": "affected",
+            "reason": "Draftを既定、Readyを明示限定とする役割付けを撤廃する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "PR状態の既定を撤廃した後もscope、push、template、read-backの安全条件を適用する",
+            "status": "affected",
+            "reason": "状態既定だけを削除し、他のPull Request規定が保持されることを差分で確認する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "f9ecfe64ca0817f320bde9ac59f1e8cdaf3d56d73a8e2447414b609dcf3d948a",
+    "reason": "入力findingは、ユーザーが明示した『PRをDraft状態で作成するようにしているルールを消してほしい』。原因はGit Workflow正本がDraftを既定とし、Ready for Reviewを明示時だけに制限していること。現状維持は依頼に反し、例外追加は不要な分岐を残すため不採用とし、所有元の1規定を直接削除する。規定の残存は検索で決定論的に検出できるが、将来の各PR状態は依頼と文脈に基づく意味判断なので新しい機械検査は追加しない。担当agentがPR以外のdraft概念を除外し、残るPull Request規定と差分をレビューする。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "PRをDraft状態で作成することを基本とする規定を削除する",
+        "origin": "intent",
+        "evidence": "PRをDraft状態で作成するようにしているルールを消してほしい"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Git WorkflowがPR作成時のDraft状態を既定として要求せず、Ready for Reviewをユーザー明示時だけに制限しない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Git WorkflowのPull Request節とrepository内のPR状態に関する表現を確認し、Draft既定とReady明示限定の規定がなく、PR以外のdraft概念や他のPR安全条件が変更されていないことを確認する"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/harness/policies/git-workflow.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/harness/policies/git-workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "ef0788ea65a3941c85f36e45fd53a152ab410ee3e87d88058caf336f61a76f3b"
+  }
+}

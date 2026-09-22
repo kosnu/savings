@@ -71,7 +71,6 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 - PRに含める差分と含めない差分を明確にする。
 - issueを完全に満たす場合だけclose参照を使う。関連するだけの場合はcloseしない。
 - PR本文には未検証の主張を書かない。
-- PRはDraftを基本にする。Ready for Reviewはユーザーが明示した場合だけ使う。
 - PR作成前に `git log main..HEAD --oneline` と `git diff main..HEAD --stat` でbranch全体のscopeを確認する。
 - PR作成前に現在のブランチをpushする。
 - `.github/PULL_REQUEST_TEMPLATE.md` がある場合は、テンプレート通りにPR本文を作成する。
