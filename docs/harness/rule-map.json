@@ -95,6 +95,38 @@
   },
   "rules": [
     {
+      "id": "ai-driven.change-coverage",
+      "file": "docs/ai-driven-development/change-coverage.md",
+      "applies_to": {
+        "paths": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/**",
+          "docs/adr/0001-adopt-harness-engineering.md",
+          "docs/adr/0002-adopt-agent-rule-graph.md",
+          "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+          "docs/adr/0005-compact-aidd-records.md",
+          "docs/adr/0004-separate-task-scope-from-work-kind.md",
+          ".agents/skills/learn/**",
+          ".agents/skills/goal-setting/**",
+          ".codex/**",
+          ".github/workflows/aidd_*",
+          "vite.config.ts",
+          ".vite-hooks/**",
+          "package.json",
+          "pnpm-workspace.yaml",
+          "pnpm-lock.yaml"
+        ],
+        "topics": ["change-coverage", "ai-driven-development"],
+        "activities": ["change_aidd_control_plane", "review_diff"]
+      },
+      "depends_on": ["ai-driven.workflow", "documentation.policy"],
+      "overrides": [],
+      "priority": 89
+    },
+    {
       "id": "adr.task-scope",
       "file": "docs/adr/0004-separate-task-scope-from-work-kind.md",
       "applies_to": {

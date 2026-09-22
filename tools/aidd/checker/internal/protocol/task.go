@@ -150,6 +150,7 @@ func Start(ctx context.Context, snapshot *repository.Snapshot, spec Spec) (strin
 }
 
 type Loaded struct {
+	ChangeCoverageModel *ChangeCoverageModel
 	RepositoryPolicy    repositorypolicy.Policy
 	CheckerMigration    *CheckerMigration
 	MigrationScopes     []model.OwnershipScope
@@ -216,7 +217,11 @@ func loadTaskMode(snapshot *repository.Snapshot, id, expected string, delivered 
 			return nil, err
 		}
 	}
-	return &Loaded{RepositoryPolicy: rp, Delivered: delivered, Task: task, TaskHash: h, Policy: p, Rules: r, Catalog: c}, nil
+	cm, err := taskChangeCoverage(snapshot, task)
+	if err != nil {
+		return nil, err
+	}
+	return &Loaded{ChangeCoverageModel: cm, RepositoryPolicy: rp, Delivered: delivered, Task: task, TaskHash: h, Policy: p, Rules: r, Catalog: c}, nil
 }
 
 func owned(path string, scopes []model.OwnershipScope) bool {

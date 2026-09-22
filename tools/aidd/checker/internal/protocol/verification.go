@@ -20,7 +20,7 @@ func (l *Loaded) executionInput() verificationcontract.Input {
 
 func (l *Loaded) validateResult(ctx context.Context, snapshot *repository.Snapshot) ([]File, []string, error) {
 	_, hasRepositoryPolicy := fileMap(l.Task.Baseline)[repositorypolicy.Path]
-	if err := checkConfiguration(ctx, snapshot, !hasRepositoryPolicy); err != nil {
+	if err := checkConfiguration(ctx, snapshot, !hasRepositoryPolicy, l.ChangeCoverageModel == nil); err != nil {
 		return nil, nil, err
 	}
 	if len(l.Checkpoint.RuleMap) > 0 {
@@ -50,6 +50,13 @@ func (l *Loaded) validateResult(ctx context.Context, snapshot *repository.Snapsh
 	}
 	result := transportFiles(withoutGenerated(files, l.Task.Spec.ID), l.Delivered)
 	paths := l.changedPaths(files)
+	coveragePaths := map[string]bool{}
+	for _, path := range paths {
+		coveragePaths[path] = true
+	}
+	if err := l.validateChangeCoverage(l.Checkpoint.Decision, coveragePaths, true); err != nil {
+		return nil, nil, err
+	}
 	selected := map[string]bool{}
 	for _, id := range l.Checkpoint.Rules {
 		selected[id] = true

@@ -70,7 +70,8 @@ Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明
 
 1. Issue本文と出典を取得し、task-startでTaskとGit baselineを固定する。
 2. repositoryとrule-mapを探索し、要求・設計・検証方針を同じDecision draftで反復する。
-3. checkpointで実装が参照する判断を固定する。常時の人間承認gateにはしない。
+3. AIDDの仕組みや実行入力の変更では[変更Coverage](change-coverage.md)で概念・representation・全検討軸を評価する。
+   checkpointで実装が参照する判断を固定する。常時の人間承認gateにはしない。
 4. ownership内で実装し、実差分と最終inventoryを照合して検証・reviewする。
 5. 検証済みの変更をcommit・pushし、PR作成または更新と配信状態の確認までShipする。
    CIは[Git WorkflowのCI確認方針](../harness/policies/git-workflow.md#ship時のci確認)に従い、現在の状態を報告して完了を待たない。
@@ -166,6 +167,8 @@ checkerが担う。操作手順と互換性は[operations](aidd-checker-operatio
 
 許可されたルール・checker・設定・依存関係の保守は、アプリ実装と同じTaskで行える。
 変更理由、許可根拠、対象と検証を通常のDecisionへ記録し、ownership内で修正・再検証する。
+AIDD変更の概念・検討対象・実行パターンは[変更Coverage](change-coverage.md)に従って記録し、
+Development / Learnの両方でcheckpoint前と最終差分のレビュー時に照合する。
 ルール保守を別Learnへ渡すための中断や、先行commit・専用の採用記録は要求しない。
 変更後のルールを読み、rule-mapを変えた場合は新checkpointでその索引と必須closureを保存する。
 過去checkpointはその時点の索引で解釈し、Task開始記録と過去の証拠は保持する。
