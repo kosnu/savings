@@ -231,6 +231,37 @@ AIDDの仕組みと実行入力を変更するときは[変更Coverage](change-c
 新Taskではモデルfileが必要。開始時モデルのない旧Taskはmanual caseとreasonで評価を残し、
 新fieldや候補binaryを使うためにTaskを作り直さない。
 
+## Learnの判断と検証の接続
+
+[Learning Extraction](../harness/policies/learning-extraction.md#決定論的検出可否)の評価を、
+許可された更新では既存Decisionへ次のように接続する。分析だけの場合は分析結果へ記載し、
+記録のためにTask・checkpointを作成しない。
+
+| 判断・成果                                                                              | 既存の記録先                                              |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| findingと入力元、検出可否と根拠、対策比較・採否、機械化しない理由、残る意味判断と担当者 | `reason`。複数findingは入力元との対応が分かる形で記載する |
+| 防ぐ違反と維持する正常挙動                                                              | `requirements`と`target_state.product_behaviors`          |
+| 採用した対策の実装・正本・routing・テスト                                               | `target_state.ownership_scopes`と`representations`        |
+| 違反の検出、正常入力の受入、必要検証の選択・実行経路                                    | `target_state.verification_cases`と成果物からのcase参照   |
+| 検証の実行結果、残る意味判断のreview観察                                                | 最新checkpointに対する`verify`のEvidence                  |
+
+各behavior・case・representationは対応するrequirementへ結び付ける。変更不要のfindingには
+不要な成果物やcaseを作らず、`reason`に根拠を残す。現行v5/v6では機械化可否の専用fieldはなく、
+上記の既存Decisionを使う。Coreは検出可否や文章の妥当性、全findingの列挙を自動判定しない。
+記述量は[出力構造](../harness/policies/learning-extraction.md#出力構造)に従い、各欄へ同じ分析を転載しない。
+未確定部分は`reason`に不足点と保留範囲を残し、採用済み成果物や成功した検証として記録しない。
+独立して確定した許可済み部分は、同じTaskで変更・検証を続ける。
+
+検出機構を変更する場合はautomated caseへ回帰検証を接続する。既存profileから実行できる
+suiteまたはtest selectorを選び、必要な通常経路で実行されることも確認する。新profileを追加しても
+開始時catalogは置き換えず、候補検証と後続Taskでの適用条件を分けて記録する。
+文書上の判断基準や残る意味判断はmanual caseのprocedureへ具体例と観点を記載し、
+実際のreview結果を`--manual-observation 'VC-ID=観察結果'`で渡す。
+
+既存Taskでは変更前に`decision-update`または`checkpoint`で新revisionを作り、全caseを再検証する。
+判断やcaseを改訂した後に旧Evidenceを再利用しない。開始時checker・policy/profileは維持し、
+後続Taskへの適用を現在のTaskの固定契約の置換と混同しない。
+
 ## Learnの変更対象の改訂
 
 初期`authorized_scopes`を超える作業が委任内で必要になった場合、元の許可文と制約を確認し、
