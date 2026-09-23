@@ -1,0 +1,20 @@
+name: Assign PR author
+
+on: # zizmor: ignore[dangerous-triggers] PRのコードを取得・実行せず、作成者のアサインだけを行う
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  assign-author:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign PR author
+        if: github.event.pull_request.user.type != 'Bot'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/assignees" -f "assignees[]=${PR_AUTHOR}" --silent
