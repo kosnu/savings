@@ -1,0 +1,747 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "efda1d6fdaf5c9a60bd84a78042a643868fc33e986fbbdb35f369ebe13a62d4c",
+  "revision": 6,
+  "parent_sha256": "e0ef0debfc74ba135914d34472c09bf8da82cfa3e9dfada75d6cba66d2844572",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "intent-source",
+        "concept": "Intentの出典・補足と実行許可をIssue表現から分離する",
+        "representations": [
+          {
+            "path": "AGENTS.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/overview.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/issue-guidelines.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/harness/policies/learning-extraction.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/harness/policies/review-feedback-classification.md",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+            "status": "unaffected",
+            "reason": "採択済み履歴を保持する。共通整形による既存履歴の変更を避け、新ADRで判断の置換を記録する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/model.go",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/task.go",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/decision.go",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/agent_input.go",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/product_authorization.go",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/intent.go",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/intent_test.go",
+            "status": "affected",
+            "reason": "Issue依存の契約または実装と回帰検証を同期する"
+          },
+          {
+            "path": ".github/workflows/aidd_checker_ci.yaml",
+            "status": "unaffected",
+            "reason": "自身のTask記録は既存形式でbase checkerに検査可能。新fieldを使う後続Taskは対応baseまたは既存移行境界を使う"
+          },
+          {
+            "path": "docs/ai-driven-development/compact-protocol.md",
+            "status": "affected",
+            "reason": "出典参照と一回限りイベントの保存・表示契約を同期する"
+          },
+          {
+            "path": "docs/adr/0006-separate-intent-from-issue.md",
+            "status": "affected",
+            "reason": "Intentの表現と更新・権限の採用判断を新ADRへ記録する"
+          },
+          {
+            "path": "docs/harness/policies/documentation-policy.md",
+            "status": "affected",
+            "reason": "文書の置換後の適用経路を確認し、索引と正常/欠落のrouting検証を同期する"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "affected",
+            "reason": "文書の置換後の適用経路を確認し、索引と正常/欠落のrouting検証を同期する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+            "status": "affected",
+            "reason": "文書の置換後の適用経路を確認し、索引と正常/欠落のrouting検証を同期する"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "開始→意図補足checkpoint→通常decision-update→verify→stage/Ship→CIで意図出典を復元し古い証拠を拒否する",
+            "status": "affected",
+            "reason": "入力・履歴・出典と許可の対応を検証する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-3",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "ADR置換時にrule-mapの選択・依存・置換edgeを同期し、新旧の正本が対象pathから解決されることを確認する",
+            "status": "affected",
+            "reason": "入力・履歴・出典と許可の対応を検証する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-3",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "Issue/messageのDevelopment、feedback/Issue/messageのLearn、review追加Ship、v5/v6旧Taskの対応checkerでの継続、main統合とCIで同じ出典解決を使う",
+            "status": "affected",
+            "reason": "入力・履歴・出典と許可の対応を検証する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-3",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "人間のIntent出典、agentの解釈であるrequirements、実行許可、有限scopeを分離し、補足だけでLearnのproduct権限を増やさない",
+            "status": "affected",
+            "reason": "入力・履歴・出典と許可の対応を検証する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-3",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "Task・baseline・過去checkpointを保持し出典と本文hash/参照revisionを検査する。権限不足・不正出典・将来revision・旧証拠の拒否を維持する。文書の移動・分割・置換後も適用経路と優先関係を保持し、無関係な説明文書を必須登録にしない",
+            "status": "affected",
+            "reason": "入力・履歴・出典と許可の対応を検証する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-3",
+              "VC-4"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "efda1d6fdaf5c9a60bd84a78042a643868fc33e986fbbdb35f369ebe13a62d4c",
+    "reason": "Learn: PR #1802 discussion_r4081376926は未解決で通常の文書置換経路から到達。本文リンクで十分と判断し、checkpoint 5のCoverageからrule-mapを漏らした。ユーザーが再発防止案に「反映して」と明示許可。ADR固有修正のみでは他文書に効かず、全登録/意味推定の機械化は過大。既存documentation policyをsharp化し、移動・分割・置換の適用経路の確認を既存Coverage/reviewへ接続。routingの選択/edgeは機械検証、置換の意味/適用範囲はagentが担当。元Task/baseline/checkerを保持し、有限の3ファイルを追加。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Issueの有無によらず、出典を保ったIntent更新と許可済みの同Task継続を整合させる",
+        "origin": "intent",
+        "evidence": "Intentとその表現方法を区別し、Issueの有無によらず人間の意図を扱えるAIDD契約にする。"
+      },
+      {
+        "id": "FR-2",
+        "text": "判断の移動・分割・置換後の参照・必須選択・優先関係を確認し、文書全般に適用できる再発防止とする",
+        "origin": "guardrail",
+        "evidence": "documentation.policy"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Issueなし実行と同Taskの意図補足を出典付きで扱い、権限不足と履歴/証拠の不整合を拒否する",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "文書置換の前後で適用経路を検証し対象pathの新判断選択と旧判断との関係を保持する。登録不要な説明文書は除外する",
+          "requirement_id": "FR-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Issue/message開始、Learnでの追加Intentとproduct権限、旧Taskの履歴と移行境界、継続対新規作業の意味判断を文書と実装で照合する。全適用ruleと5軸を最終差分でレビューし採択ADR validatorを実行する。"
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "Codexが置換・分割・登録不要な説明文書の対照例でdocumentation policyをレビューする。実rule-mapの代表pathとdepends_on/overridesのテスト、欠落が失敗すること、無関係pathへ広がらないことを確認。新しいTaskは既存documentation.policy routingで適用され、AIDDは既存Coverageへ記録する。"
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0006-separate-intent-from-issue.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/compact-protocol.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/overview.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/documentation-policy.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/agent_input.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/intent.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/intent_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/product_authorization.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/overview.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "docs/harness/policies/review-feedback-classification.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "docs/adr/0006-separate-intent-from-issue.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/model.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/task.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/decision.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-14",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/agent_input.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-15",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/product_authorization.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-16",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/intent.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-17",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/protocol/intent_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-18",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/compact-protocol.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-19",
+          "kind": "implementation",
+          "path": "docs/harness/policies/documentation-policy.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-4",
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-20",
+          "kind": "implementation",
+          "path": "docs/harness/rule-map.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-4",
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-21",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-4",
+            "VC-5"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [],
+    "integration": {
+      "base_head": "b64631398d3ff623acbc75ed5b2f8b2e9afca107",
+      "head": "b64631398d3ff623acbc75ed5b2f8b2e9afca107"
+    }
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "ef0788ea65a3941c85f36e45fd53a152ab410ee3e87d88058caf336f61a76f3b"
+  }
+}

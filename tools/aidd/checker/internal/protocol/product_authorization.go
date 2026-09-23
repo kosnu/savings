@@ -3,22 +3,16 @@ package protocol
 import (
 	"strings"
 
-	"github.com/kosnu/savings/tools/aidd/checker/internal/canonical"
 	"github.com/kosnu/savings/tools/aidd/checker/internal/pathcontract"
 )
-
-func validIssueIntent(intent Intent) bool {
-	return intent.Kind == "issue" && issuePattern.MatchString(intent.Reference) &&
-		strings.TrimSpace(intent.Body) != "" && canonical.HashBytes([]byte(intent.Body)) == intent.BodySHA256
-}
 
 func (l *Loaded) validateProductAuthorization(d Decision) error {
 	a := d.ProductAuthorization
 	if a == nil {
 		return nil
 	}
-	if !validIssueIntent(a.Intent) || strings.TrimSpace(a.Authorization) == "" || len(a.Scopes) == 0 {
-		return fail("PRODUCT_AUTHORITY", l.Task.Spec.ID, "product実装にはIssue本文・出典・hash、実行許可と有限scopeが必要です")
+	if !validExecutionIntent(a.Intent) || strings.TrimSpace(a.Authorization) == "" || len(a.Scopes) == 0 {
+		return fail("PRODUCT_AUTHORITY", l.Task.Spec.ID, "product実装にはIssueまたはユーザー発言の本文・出典・hash、実行許可と有限scopeが必要です")
 	}
 	previous := ""
 	for _, s := range a.Scopes {
@@ -44,13 +38,13 @@ func (l *Loaded) validateProductAuthorization(d Decision) error {
 }
 
 func (l *Loaded) checkProductAuthorization(path string) error {
-	// 開始時に確認済みのIssue実行依頼は再承認を要求しない。
-	if validIssueIntent(l.Task.Spec.Intent) {
+	// Developmentの開始時実行依頼は再承認を要求しない。Learnの出典だけでは許可しない。
+	if l.Task.Spec.Kind == "development" && validExecutionIntent(l.Task.Spec.Intent) {
 		return nil
 	}
 	a := l.Checkpoint.Decision.ProductAuthorization
 	if a != nil && owned(path, a.Scopes) {
 		return nil
 	}
-	return fail("PRODUCT_AUTHORITY", path, "scopeの追加だけではproduct実装を許可できません。同じTaskのDecisionへIssueと実行許可を記録してください")
+	return fail("PRODUCT_AUTHORITY", path, "scopeやIntentの追加だけではproduct実装を許可できません。同じTaskのDecisionへ出典と実行許可を記録してください")
 }

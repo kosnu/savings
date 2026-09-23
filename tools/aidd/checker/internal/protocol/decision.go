@@ -25,9 +25,13 @@ func (l *Loaded) validateDecision(d Decision) ([]string, error) {
 		if r.ID == "" || seen[r.ID] || strings.TrimSpace(r.Text) == "" || strings.TrimSpace(r.Evidence) == "" {
 			return nil, fail("REQUIREMENT", r.ID, "一意の要求ID・本文・根拠が必要です")
 		}
+		if r.IntentRevision < 0 || (r.Origin != "intent" && r.IntentRevision != 0) {
+			return nil, fail("PROVENANCE", r.ID, "intent_revisionはintent根拠にのみ指定できる非負のcheckpoint番号です")
+		}
 		switch r.Origin {
 		case "intent":
-			if !strings.Contains(l.Task.Spec.Intent.Body, r.Evidence) {
+			source, ok := l.intentSources()[r.IntentRevision]
+			if !ok || !strings.Contains(source.Body, r.Evidence) {
 				return nil, fail("PROVENANCE", r.ID, "intent根拠がsnapshot本文にありません")
 			}
 		case "guardrail":
@@ -186,6 +190,9 @@ func loadCheckpoints(snapshot *repository.Snapshot, l *Loaded) error {
 		if err := l.selectScopeRevision(cp.Decision.ScopeRevision, parent); err != nil {
 			return err
 		}
+		if err := l.selectIntentRevision(cp.Decision.IntentRevision, cp.Revision); err != nil {
+			return err
+		}
 		required, err := l.validateDecision(cp.Decision)
 		if err != nil {
 			return err
@@ -238,6 +245,9 @@ func CheckpointDecision(ctx context.Context, snapshot *repository.Snapshot, id, 
 		}
 	}
 	l.Checkpoint.Decision = d
+	if err = l.selectIntentRevision(d.IntentRevision, l.Checkpoint.Revision+1); err != nil {
+		return "", err
+	}
 	if err = l.loadPeerScopes(ctx, snapshot); err != nil {
 		return "", err
 	}

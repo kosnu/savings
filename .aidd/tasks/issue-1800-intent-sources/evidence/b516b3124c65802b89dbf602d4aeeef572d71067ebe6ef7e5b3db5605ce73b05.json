@@ -1,0 +1,149 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "efda1d6fdaf5c9a60bd84a78042a643868fc33e986fbbdb35f369ebe13a62d4c",
+  "checkpoint_sha256": "b516b3124c65802b89dbf602d4aeeef572d71067ebe6ef7e5b3db5605ce73b05",
+  "repository_sha256": "9e7965ed2c4f6b3735be8530bfb7dcbbc107981807b551b6babf50e8c378f35b",
+  "git_repository_sha256": "22cf535429b2fc044617925799b53fb0358d761d86603fb23cbc3ffc12efe982",
+  "changed_paths": [
+    ".github/workflows/aidd_checker_ci.yaml",
+    "AGENTS.md",
+    "docs/adr/0006-separate-intent-from-issue.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/codex-adapter.md",
+    "docs/ai-driven-development/compact-protocol.md",
+    "docs/ai-driven-development/contracts/change-coverage.json",
+    "docs/ai-driven-development/contracts/verification-profiles.json",
+    "docs/ai-driven-development/issue-guidelines.md",
+    "docs/ai-driven-development/overview.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/documentation-policy.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/policies/review-feedback-classification.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/internal/binarycache/workflow_test.go",
+    "tools/aidd/checker/internal/migration/migration_test.go",
+    "tools/aidd/checker/internal/protocol/agent_input.go",
+    "tools/aidd/checker/internal/protocol/decision.go",
+    "tools/aidd/checker/internal/protocol/go_test_cache_test.go",
+    "tools/aidd/checker/internal/protocol/intent.go",
+    "tools/aidd/checker/internal/protocol/intent_test.go",
+    "tools/aidd/checker/internal/protocol/model.go",
+    "tools/aidd/checker/internal/protocol/product_authorization.go",
+    "tools/aidd/checker/internal/protocol/task.go",
+    "tools/aidd/checker/internal/rules/repository_routing_test.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1800-intent-sources",
+    "receipt_sha256": "b516b3124c65802b89dbf602d4aeeef572d71067ebe6ef7e5b3db5605ce73b05",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "4f637d4ef36f4aa4c24b0b4099029ecc37e1f48f7db5c2576aef19587114d952",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2492,
+        "stderr_bytes": 0,
+        "output_sha256": "00436c7bc9774d9a01b5f5a6a6774c484b1df41c6b6a0a57a473c6786fa7c7b6",
+        "final_state_sha256": "4f637d4ef36f4aa4c24b0b4099029ecc37e1f48f7db5c2576aef19587114d952"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "4f637d4ef36f4aa4c24b0b4099029ecc37e1f48f7db5c2576aef19587114d952"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "4f637d4ef36f4aa4c24b0b4099029ecc37e1f48f7db5c2576aef19587114d952",
+        "procedure": "Issue/message開始、Learnでの追加Intentとproduct権限、旧Taskの履歴と移行境界、継続対新規作業の意味判断を文書と実装で照合する。全適用ruleと5軸を最終差分でレビューし採択ADR validatorを実行する。",
+        "observation": "Codexが最終差分をレビュー。Coverageモデルの同期、profileとcandidate/integration CIの-count=1、既存workflowテスト期待値、operationsの固定profile継続方法を照合。Intent出典/実行許可/履歴とbase checker固定は維持。Checked rules: ai-driven.workflow, ai-driven.overview, ai-driven.checker, ai-driven.change-coverage, ai-driven.issue-guidelines, policy.code-review, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, documentation.policy, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.task-scope, adr.intent-sources。Unresolved: なし。"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "4f637d4ef36f4aa4c24b0b4099029ecc37e1f48f7db5c2576aef19587114d952",
+        "procedure": "Codexが置換・分割・登録不要な説明文書の対照例でdocumentation policyをレビューする。実rule-mapの代表pathとdepends_on/overridesのテスト、欠落が失敗すること、無関係pathへ広がらないことを確認。新しいTaskは既存documentation.policy routingで適用され、AIDDは既存Coverageへ記録する。",
+        "observation": "ユーザーが採用したLearn対策を実装。実profileでmodule外ファイルのみを正常→正常→不一致→正常と変更する回帰testを追加。旧profileでは不一致でも(cached)の成功を返しテスト失敗、-count=1適用後に正常/不一致/復旧を正しく判定し成功。既存Coverage同期テストも成功。手動cache削除や文言追加だけに依存せず後続TaskのprofileとCIを同期。旧Taskは開始時profileを保持してGOFLAGS=-count=1で再検証する。"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2492,
+        "stderr_bytes": 0,
+        "output_sha256": "7102d31e7bfd43da803aa820cfe82143abe893aaae26a161a24bf4f08556ac51",
+        "final_state_sha256": "4f637d4ef36f4aa4c24b0b4099029ecc37e1f48f7db5c2576aef19587114d952"
+      },
+      {
+        "id": "VC-6",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "shared-gate-tests",
+        "profile_sha256": "e3d5731ff565f58b0b46ce35ebd18730b367800f5873750de8a766da828b895d",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "shared-gate-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 671,
+        "output_sha256": "989b28100f3ac140dfdf3660ddf219d5319d516d61786d8ff82773f039fae825",
+        "final_state_sha256": "4f637d4ef36f4aa4c24b0b4099029ecc37e1f48f7db5c2576aef19587114d952"
+      }
+    ]
+  },
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc"
+}

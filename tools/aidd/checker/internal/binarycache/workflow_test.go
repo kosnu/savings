@@ -328,7 +328,7 @@ func TestCIIsolatesBaseJobAndToolchain(t *testing.T) {
 	}
 	tested, built, bootstrapped := false, false, false
 	for _, s := range candidate.Steps {
-		tested = tested || s.Run == "go test ./..."
+		tested = tested || s.Run == "go test -count=1 ./..."
 		built = built || strings.HasPrefix(s.Run, "go build -o /tmp/aidd-checker ")
 		if s.Name == "Verify initial bootstrap" {
 			bootstrapped = s.If == "steps.base-protocol.outputs.present == 'false'" && s.Run == delivery.Run

@@ -308,7 +308,7 @@ func TestWorkflowValidatesMergeResultAndRejectsBuildFailure(t *testing.T) {
 		{"go mod verify", "tools/aidd/checker"},
 		{`test -z "$(gofmt -l .)"`, "tools/aidd/checker"},
 		{"go vet ./...", "tools/aidd/checker"},
-		{"go test ./...", "tools/aidd/checker"},
+		{"go test -count=1 ./...", "tools/aidd/checker"},
 		{"go build -o /tmp/aidd-checker ./cmd/aidd-checker", "tools/aidd/checker"},
 		{"/tmp/aidd-checker check-all --repo-root .", ""},
 	} {

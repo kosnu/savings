@@ -1,0 +1,40 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1800-intent-sources",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1800",
+      "body": "## 関連Issue\n\n関連: #1746\n事例: PR #1796\n\n## 概要\n\n人間のIntentは、Issueの有無にかかわらず存在する。IssueはIntentを表現・保存する方法の一つである。\n\n現行AIDDには、IssueなしのLearn Taskを認める規定がある一方、product実装や意図・受け入れ条件の変更をIssue前提で扱う規定がある。このため、Issueなしで始めたTaskに人間が意図の不足や解釈違いを後から明示したとき、どう扱うかが一貫していない。\n\nPR #1796では、「Bot作成PRでもワークフローが失敗しない」という受け入れ条件が後から明示され、この矛盾が表面化した。\n\nIntentとその表現方法を区別し、Issueの有無によらず人間の意図を扱えるAIDD契約にする。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] Issueの有無によらず、人間のIntentとその補足・訂正を、出典を保って扱える。\n- [ ] DevelopmentからLearnまで、同じTaskでの継続、別作業との境界、実装許可の判断が一貫している。\n- [ ] 正本文書と実行の仕組みに矛盾がなく、Issueあり・なしの代表的なケースで確認できる。\n\n## 制約・禁止事項\n\n- Issueがないことだけを理由に、人間のIntentが存在しないと扱わない。\n- 既存コードやagentの推測を、人間のIntentや実装許可の代わりにしない。\n- 元のTaskや検証履歴を作り直して、意図の変更経緯を消さない。\n- PR #1796のBot対応そのものは、このIssueの実装範囲に含めない。\n",
+      "body_sha256": "803dc0b892341941504a0c45e5a908b1f7bc1ccc4038ab79351bea3d7d5fafd8"
+    },
+    "objective": "Intentと表現方法を分離し、Issueなしの実行と後からの補足・訂正を出典付きで同じTaskに記録できるAIDD契約にする",
+    "constraints": [
+      "元のTask・baseline・過去記録を保持する",
+      "PR #1796のBot対応は対象外",
+      "実行許可を意図の存在やagentの解釈から生成しない"
+    ],
+    "done": [
+      "Issueあり・なしの開始、追記、権限と証拠の整合を回帰検証する",
+      "正本文書・checker・adapterを整合させる",
+      "検証・レビュー・commit・push・PR作成と配信確認を完了する"
+    ],
+    "verification": [
+      "aidd-checker-tests",
+      "git-diff-check",
+      "文書とコードのレビュー"
+    ]
+  },
+  "baseline_head": "cf800d7d8e342cf8de64da047d1602e7b9650817",
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
