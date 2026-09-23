@@ -679,13 +679,17 @@ Goのfixtureは一時repositoryの`tools/aidd/checker`に置き、Go/vpの実行
 開始時profileを固定したLearnでは既存`aidd-python-unittest`で同じテストの各methodを実行し、
 新suiteのroutingと省略拒否はchecker回帰テストで確認する。
 
+checkerのテストはGoモジュール外のrepository設定も読み取るため、`aidd-checker-tests`とCIでは
+`go test -count=1 ./...`で成功結果のキャッシュを再利用せず実行する。コンパイルキャッシュは維持する。
+開始時profileが旧コマンドに固定された既存Taskでは、profileを書き換えず`GOFLAGS=-count=1`を指定して検証する。
+
 具体的な必須commandは次のとおり。
 
 ```sh
 go -C tools/aidd/checker mod verify
 gofmt -l tools/aidd/checker
 go -C tools/aidd/checker vet ./...
-go -C tools/aidd/checker test ./...
+go -C tools/aidd/checker test -count=1 ./...
 go build -C tools/aidd/checker -o /tmp/aidd-candidate-checker ./cmd/aidd-checker
 /tmp/aidd-candidate-checker check-all --repo-root .
 python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main

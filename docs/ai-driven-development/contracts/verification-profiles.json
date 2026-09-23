@@ -8,7 +8,7 @@
       "selector_kind": "suite",
       "selector_root": "",
       "working_directory": "tools/aidd/checker",
-      "argv": ["go", "test", "./..."]
+      "argv": ["go", "test", "-count=1", "./..."]
     },
     {
       "id": "aidd-python-unittest",
