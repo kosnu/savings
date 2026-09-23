@@ -1,0 +1,298 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "53162d66ace8a22e30c74f0fa95805ecf7e6100e2c4f2d79b500c88901e867f2",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "learn-delegation",
+        "concept": "Learnの委譲判断をAGENTS.mdの費用対効果条件に統一する",
+        "representations": [
+          {
+            "path": ".agents/skills/learn/SKILL.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/harness/policies/learning-extraction.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": ".agents/skills/context-scout/SKILL.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "AGENTS.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/harness/policies/code-review.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "単独Learn開始、checkpoint、verify、finish、review後継続・追加Shipで元Taskと証拠を保持し、委譲判断だけを共通ルールに合わせる",
+            "status": "unaffected",
+            "reason": "Task履歴・証拠・配信の順序は変更しない"
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "AGENTS.mdからLearn skillと正本文書を参照し、既存rule-mapとprofileを使う。routingや検証起動入力は変更しない",
+            "status": "unaffected",
+            "reason": "参照経路と機械設定を維持し、本文の競合だけを解消する"
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "独立Learn、Development内Learn、review修正、追加Shipでは同じ費用対効果条件で別agentの要否を判断する。旧Task/checkerとCIの証拠契約はそのまま",
+            "status": "affected",
+            "reason": "Learn実行時の委譲可否に対する明示依頼の一律制限を撤回する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "ユーザーの実行許可と別agentへの委譲選択を分け、独立reviewの任意性と担当agent自身のreview義務を区別する",
+            "status": "affected",
+            "reason": "明示依頼を委譲の必須条件と誤解する状態を解消する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "費用対効果のある独立作業は委譲可、定型確認と軽微修正はメイン、単一writer・有限scope・許可範囲は維持し、独立reviewは強制しない",
+            "status": "affected",
+            "reason": "許可と拒否の両側、従来の安全条件を維持する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "53162d66ace8a22e30c74f0fa95805ecf7e6100e2c4f2d79b500c88901e867f2",
+    "reason": "Issue #1801の実行依頼に基づく。明示依頼のみという一律条件がLearn skillと4つの現行正本文書に重複し、AGENTS.mdの費用対効果条件と矛盾する。共通ルールを維持し、重複した制限を解消する。Coreのreview証拠、許可範囲、単一writer、Task履歴は変更しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Learnにおける別agentの委譲判断を共通の費用対効果基準に揃え、定型作業と独立reviewの既存境界を維持する",
+        "origin": "intent",
+        "evidence": "Learn の作業でも委譲可否を一貫して判断できる状態にする。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "複雑で独立したLearn作業は費用対効果が見合えば、ユーザーの明示依頼がなくても必要最小限の委譲を選べる",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "定型的な確認・軽微な修正はメインagentが担当し、独立reviewを完了条件にしない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "procedure": "AGENTS.mdとLearn skill、workflow、aidd-checker、operations、learning-extraction、Codex adapter、code-reviewを比較する。複雑で独立し費用対効果があるが明示依頼のないLearn作業では委譲を選べること、定型確認・軽微な修正はメインで扱うこと、独立reviewは必須でないこと、有限scope・単一writer・ユーザー許可範囲が維持されることを実差分と現行本文で確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".agents/skills/learn/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "1e5b0322379a4d5f107f2dfd1fb0e38f68c177b920b91cc59bf45bb2e352fe83"
+  }
+}

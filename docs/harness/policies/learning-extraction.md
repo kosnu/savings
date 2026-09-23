@@ -153,7 +153,7 @@ rule-map、checker、検証profile、adapter、実行機構と必要な回帰tes
 [作業範囲とguardrailの契約](../../ai-driven-development/workflow.md#rule--ownership--guardrail)に従います。
 開始時のchecker binaryと旧policy/profileを維持して検証し、担当agent自身が最新差分と
 checkpoint/evidenceをreviewして、依頼された許可範囲で確定します。変更後checkerの成功だけでは完了にしません。
-独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行います。
+独立reviewは必須にせず、別agentへの委譲はAGENTS.mdの費用対効果条件に従います。
 Coreの具体的な改訂・失効・検証境界は `docs/ai-driven-development/workflow.md` を適用します。
 
 Development中のguardrail変更も、許可範囲で同じTaskのDecisionへ記録し、修正・検証して続行します。

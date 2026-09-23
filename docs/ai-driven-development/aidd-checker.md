@@ -130,7 +130,7 @@ Learnは開始時binary、または明示的な移行checkpointが指定するbi
 委任内かという意味判断と許可文・確認者の真正性は担当agentが確認し、有限範囲・明示制限・
 禁止領域・履歴・検証証拠の整合はCoreが検査する。JSONやhashは署名ではない。
 新checkerのtest成功だけではLearnを確定せず、担当agent自身が最新差分とevidenceをreviewする。
-Learnのfinish/Ship/CIは独立review記録を要求しない。別agentはユーザーの明示依頼時だけ呼ぶ。
+Learnのfinish/Ship/CIは独立review記録を要求しない。別agentへの委譲はAGENTS.mdの費用対効果条件に従う。
 確認が必要になる境界は[workflow](workflow.md#rule--ownership--guardrail)、
 操作手順と旧Taskの互換性は[operations](aidd-checker-operations.md#learnの変更対象の改訂)を参照する。
 
