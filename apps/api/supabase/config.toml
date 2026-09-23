@@ -19,7 +19,7 @@ enabled = false
 [edge_runtime]
 enabled = false
 
-[local_smtp]
+[inbucket]
 enabled = false
 
 [realtime]
