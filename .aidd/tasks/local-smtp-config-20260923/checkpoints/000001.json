@@ -1,0 +1,102 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "c681b32d21de49247292f2bb456f511bc5b460673ab1b5348d3df5e0bd9d66b6",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "c681b32d21de49247292f2bb456f511bc5b460673ab1b5348d3df5e0bd9d66b6",
+    "reason": "Issue #1468 の未使用ローカルサービス無効化を維持する。Supabase CLI 2.117.0 が [inbucket] を非推奨と警告し、[local_smtp] を案内するため、enabled = false のままセクション名のみを変更する。PR #1795 の初回配信で Task 証拠を欠いたため、元コミットを打ち消した clean な Git 状態からこの Task を開始した。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "不要な Supabase local サービスを無効に保つ",
+        "origin": "intent",
+        "evidence": "未使用と判断できる Supabase local サービスだけ enabled = false にする"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "ローカル SMTP サービスが無効のまま、CLI が新セクション名を警告なく読み取る",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Supabase CLI 2.117.0 の status --workdir apps/api を実行し、config.toml を読み取れて inbucket の非推奨警告が出ないこと、local_smtp.enabled = false であることを確認する"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "apps/api/supabase/config.toml",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "apps/api/supabase/config.toml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries"
+  ],
+  "rule_map_ref": {
+    "sha256": "ef0788ea65a3941c85f36e45fd53a152ab410ee3e87d88058caf336f61a76f3b"
+  }
+}
