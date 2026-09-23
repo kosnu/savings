@@ -20,7 +20,8 @@
     ".vite-hooks/**",
     "package.json",
     "pnpm-workspace.yaml",
-    "pnpm-lock.yaml"
+    "pnpm-lock.yaml",
+    "docs/adr/0006-separate-intent-from-issue.md"
   ],
   "axes": [
     {
