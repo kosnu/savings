@@ -1,0 +1,52 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "c681b32d21de49247292f2bb456f511bc5b460673ab1b5348d3df5e0bd9d66b6",
+  "checkpoint_sha256": "1aaec21f6d1bd9a30c47e737b39d3ec546d164d9d63f9fdb9f0e7a9dff04d287",
+  "repository_sha256": "b8617d3253ba6a5d4378b92e41afadb63b45e4c14105d2ae268377778d8766f0",
+  "git_repository_sha256": "8cdf49ec10b5ddadf9b707df48ac8e8a73cf60aa6bd101069ba47631a3723ed8",
+  "changed_paths": [
+    "apps/api/supabase/config.toml"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "local-smtp-config-20260923",
+    "receipt_sha256": "1aaec21f6d1bd9a30c47e737b39d3ec546d164d9d63f9fdb9f0e7a9dff04d287",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "4fa938599f5925540d3978b8a48a18136c06c016707563d415a28e1500c78185",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "4fa938599f5925540d3978b8a48a18136c06c016707563d415a28e1500c78185"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "4fa938599f5925540d3978b8a48a18136c06c016707563d415a28e1500c78185",
+        "procedure": "Supabase CLI 2.117.0 の status --workdir apps/api を実行し、config.toml を読み取れて inbucket の非推奨警告が出ないこと、local_smtp.enabled = false であることを確認する",
+        "observation": "Supabase CLI 2.117.0 の status --workdir apps/api が exit 0、deprecated 警告なし。TOML 読み取りで local_smtp.enabled=false と旧 inbucket セクション不在を確認。"
+      }
+    ]
+  },
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc"
+}

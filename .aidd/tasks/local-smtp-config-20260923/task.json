@@ -1,0 +1,40 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "local-smtp-config-20260923",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1468",
+      "body": "## 概要\n\nSupabase local 起動時の負荷を下げるため、apps/api/supabase/config.toml で未使用サービスだけを最小差分で無効化する。\n\n## ToDo\n\n- [ ] 現在の apps/api/supabase/config.toml を確認する\n- [ ] 未使用と判断できる Supabase local サービスだけ enabled = false にする\n- [ ] analytics / storage / edge_runtime / inbucket / realtime の影響範囲を確認する\n\n## 完了の定義 (Definition of Done)\n\n- Supabase local で不要なサービスが起動しない\n- アプリで必要な Supabase 機能が無効化されていない\n- 変更理由と影響が PR で説明できる\n\n## 補足\n\nColima へ切り替えても Supabase local の実コンテナ群のメモリ使用は大きく変わらないため、軽量化は supabase/config.toml のサービス無効化で行う。\nanalytics は supabase_vector_api 回避に効く可能性があるため優先して確認する。",
+      "body_sha256": "376171e1ae42300fff1ea5880a9481abaa5f157e470c12636b53b8fd93aad643"
+    },
+    "objective": "Supabase local の不要なメールサービスを無効に保ち、非推奨 inbucket 設定の警告を解消する",
+    "constraints": [
+      "apps/api/supabase/config.toml の SMTP セクション名だけを変更する",
+      "enabled = false を維持する",
+      "PR #1795 で配信し、merge・deploy は行わない"
+    ],
+    "done": [
+      "local_smtp.enabled = false の設定を Supabase CLI 2.117.0 が警告なく読み取る",
+      "必要な検証と差分reviewを完了する",
+      "PR #1795 の CI と配信状態を確認する"
+    ],
+    "verification": [
+      "Supabase CLI 2.117.0 status --workdir apps/api の警告と設定読み取りを確認する",
+      "git diff --check",
+      "AIDD checker verify と ci-check"
+    ]
+  },
+  "baseline_head": "f9b7069c4e71ae59430db3c68b6cfd6d41f8780e",
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
