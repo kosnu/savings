@@ -38,18 +38,18 @@ func validateSpec(spec Spec) error {
 			}
 		}
 	}
-	if spec.Intent.Body == "" || canonical.HashBytes([]byte(spec.Intent.Body)) != spec.Intent.BodySHA256 || spec.Intent.Reference == "" {
+	if !validIntent(spec.Intent) {
 		return fail("INTENT", spec.ID, "intent本文と出典・hashが必要です")
 	}
 	if spec.LegacyDelivery != "" && spec.LegacyDelivery != "local" && spec.LegacyDelivery != "pr" {
 		return fail("DELIVERY", spec.ID, "旧delivery記録はlocalまたはprだけを読み取れます")
 	}
 	if spec.Kind == "development" {
-		if spec.Intent.Kind != "issue" || !issuePattern.MatchString(spec.Intent.Reference) || spec.Authorization != "" || len(spec.AuthorizedScopes) > 0 {
-			return fail("INTENT", spec.ID, "DevelopmentはGitHub Issueを入口としLearn許可を持ちません")
+		if !validExecutionIntent(spec.Intent) || len(spec.AuthorizedScopes) > 0 || (spec.Intent.Kind == "message" && strings.TrimSpace(spec.Authorization) == "") {
+			return fail("INTENT", spec.ID, "DevelopmentはIssueまたはユーザー発言の出典を必要とし、messageには実行許可の記録が必要です")
 		}
-	} else if spec.Intent.Kind != "feedback" || strings.TrimSpace(spec.Authorization) == "" || len(spec.AuthorizedScopes) == 0 {
-		return fail("LEARN_AUTHORITY", spec.ID, "Learnにはfeedbackと明示的な変更許可・有限scopeが必要です")
+	} else if strings.TrimSpace(spec.Authorization) == "" || len(spec.AuthorizedScopes) == 0 {
+		return fail("LEARN_AUTHORITY", spec.ID, "LearnにはIntentの出典と明示的な変更許可・有限scopeが必要です")
 	}
 	for _, scope := range append(append([]model.OwnershipScope{}, spec.AuthorizedScopes...), spec.UserScopeLimits...) {
 		if _, err := pathcontract.ValidateRelativePath(scope.Path); err != nil {
@@ -150,6 +150,7 @@ func Start(ctx context.Context, snapshot *repository.Snapshot, spec Spec) (strin
 }
 
 type Loaded struct {
+	IntentSources       map[int]Intent
 	ChangeCoverageModel *ChangeCoverageModel
 	RepositoryPolicy    repositorypolicy.Policy
 	CheckerMigration    *CheckerMigration
