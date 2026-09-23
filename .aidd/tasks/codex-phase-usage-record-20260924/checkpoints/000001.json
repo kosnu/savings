@@ -1,0 +1,205 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "codex-phase-usage",
+        "concept": "Codex Goal利用時の工程別使用量の採取とPR本文への記録",
+        "representations": [
+          {
+            "path": ".github/PULL_REQUEST_TEMPLATE.md",
+            "status": "affected",
+            "reason": "計測手順と表示場所を定義する"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "affected",
+            "reason": "計測手順と表示場所を定義する"
+          },
+          {
+            "path": ".agents/skills/goal-setting/SKILL.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更せず、adapterで計測報告を所有する"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更せず、adapterで計測報告を所有する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更せず、adapterで計測報告を所有する"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更せず、adapterで計測報告を所有する"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "Goal開始時と準備、探索・判断、実装、検証・レビュー、Shipの境界で同一Goalの累積値を採取し、PR作成後に本文を確定する。レビュー後の再開は同じTaskの行を追記して合計を更新する",
+            "status": "affected",
+            "reason": "工程境界と継続時の記録更新を新たに定義する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "Goal toolの可用性と計測開始時点が異なる場合でも取得不可を明示し、Coreのpolicy/profileやrule-mapは変更しない",
+            "status": "affected",
+            "reason": "Goalの有無が記録値に影響するが検証証拠の選択は変えない",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "Codex Developmentの新Taskと既存Taskのreview修正・追加Shipで記録し、単独Learn、Claude、旧checker、main統合、CIではCore契約や配信gateを変更しない",
+            "status": "affected",
+            "reason": "Codex Goal利用時の報告経路だけ追加し、Coreの全経路は保持する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "Goalの累積使用量の差分を報告値とし、PR本文の工程別記録はTask・Decision・Evidenceの検証証拠へ読み替えない",
+            "status": "affected",
+            "reason": "計測値とCoreの正本記録の責務を分離する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "Goal値未取得時は推定しない。工程別記録の有無でCore verifyやShipを迂回せず、PR本文read-backで記録を確認する",
+            "status": "affected",
+            "reason": "取得不可の透明性と既存の完了gateを維持する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+    "reason": "Goalの累積timeUsedSeconds/tokensUsedを工程境界で採取し、差分をPR本文へ記録する。Goalが使えない環境や計測開始前は取得不可を明示する。報告値をCore Evidenceへ混ぜない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "各工程にかかった時間とトークン消費量を記録する",
+        "origin": "intent",
+        "evidence": "それぞれの工程にかかった時間やトークン消費量を記録をするようにしてほしい"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Codex DevelopmentのPR本文にTaskごとの工程別時間・トークン消費と計測範囲が明示される",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "adapterとPR templateを読み、5工程の境界、累積値の差分、取得不可、再開時の追記、Core非依存を確認する。今回のPR本文に工程別の表を載せread-backで確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "1e5b0322379a4d5f107f2dfd1fb0e38f68c177b920b91cc59bf45bb2e352fe83"
+  }
+}

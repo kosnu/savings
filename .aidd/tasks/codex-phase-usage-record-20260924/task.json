@@ -1,0 +1,41 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "codex-phase-usage-record-20260924",
+    "intent": {
+      "kind": "message",
+      "reference": "user:current-thread/phase-usage-request",
+      "body": "それぞれの工程にかかった時間やトークン消費量を記録をするようにしてほしい",
+      "body_sha256": "ff0407ca34695dfd2667796a9e2f9ec80a1b2a20ac2fb6910ec1096085ad4550"
+    },
+    "objective": "Codexの開発作業で各工程の経過時間とトークン消費量を検証可能な形で記録する",
+    "constraints": [
+      "CoreはGoalなしでも成立する",
+      "Goal値の取得不可を推定値で埋めない",
+      "既存のTask・Decision・Evidence契約を維持する"
+    ],
+    "done": [
+      "各工程の時間とトークンの測定境界、記録先、取得不可時の表現が明確である",
+      "PR本文で工程ごとの記録を確認できる",
+      "必要な検証とレビューを完了し、commit・push・PR作成と配信状態を確認する"
+    ],
+    "verification": [
+      "AIDD checkerのverify・finish・ship-check",
+      "git diff --check",
+      "工程別記録のmanual caseとPR本文のread-back"
+    ],
+    "authorization": "ユーザーが工程ごとの時間・トークン記録を依頼し、今回のブランチ作成を許可した"
+  },
+  "baseline_head": "a8ff34db9f8a8b6582a4d0f7743f65194461a32f",
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

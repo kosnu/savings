@@ -1,0 +1,53 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+  "checkpoint_sha256": "b5f6ee5011a429fc364e3338b653f6e20136d295bf8af8f66a3ed0493b244679",
+  "repository_sha256": "2757bc0d130faa0cfccd7a1cc6a6654cf8d6a047ebeea544f4ed26b9c0403f50",
+  "git_repository_sha256": "0ad10b339e2272335ff8e3965b9d19046df8b61ffbe8923c01eee0450bcbec52",
+  "changed_paths": [
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    "docs/ai-driven-development/codex-adapter.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "codex-phase-usage-record-20260924",
+    "receipt_sha256": "b5f6ee5011a429fc364e3338b653f6e20136d295bf8af8f66a3ed0493b244679",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "33466914e523d35e6ef4ce56a1a6a1d1f0360625f63a465cd96633aa8e194696",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "33466914e523d35e6ef4ce56a1a6a1d1f0360625f63a465cd96633aa8e194696"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "33466914e523d35e6ef4ce56a1a6a1d1f0360625f63a465cd96633aa8e194696",
+        "procedure": "adapterとPR templateを読み、5工程の境界、累積値の差分、取得不可、再開時の追記、Core非依存を確認する。今回のPR本文に工程別の表を載せread-backで確認する。",
+        "observation": "Codex adapterとPR templateの差分で5工程、同一Goalの累積差分、取得不可、継続時の区間追記、Core非依存を確認。PR本文の掲載とread-backはShip時に別途確認する。"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}
