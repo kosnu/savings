@@ -1,0 +1,76 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "3af911aee3ae1b58b151747e084aa165928640782209728931cf971186c1c784",
+  "checkpoint_sha256": "f00fa69265d590caa22c7b1c4164e876dcc6939190d74b65f778aca82140958f",
+  "repository_sha256": "6b1f9193c70227877a47b4ab49e4166419a04cbafd64bff39afdfb427b81c293",
+  "git_repository_sha256": "edf633388be78e6641221fb05f1dda5d1b3d047953e33454c12200bed2af5958",
+  "changed_paths": [
+    ".github/workflows/assign_pr_author.yaml"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1798-assign-pr-author",
+    "receipt_sha256": "f00fa69265d590caa22c7b1c4164e876dcc6939190d74b65f778aca82140958f",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "8a70f40fbb745b1f678f4d2e8be8a4cea18b69f72e406f01d406a14ab59bbb30",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "8a70f40fbb745b1f678f4d2e8be8a4cea18b69f72e406f01d406a14ab59bbb30"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "8a70f40fbb745b1f678f4d2e8be8a4cea18b69f72e406f01d406a14ab59bbb30",
+        "procedure": "workflow定義でPR opened時にUser型の作成者loginをAssignee追加APIへ渡し、pull-requests:write権限を設定していることを確認する",
+        "observation": "openedイベントのUser型作成者loginをAssignee追加APIへ渡し、pull-requests:write権限を設定している"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "8a70f40fbb745b1f678f4d2e8be8a4cea18b69f72e406f01d406a14ab59bbb30",
+        "procedure": "workflow定義でBot型作成者に対してアサインstepを実行せず、他の失敗stepがなくjobが正常終了することを確認する",
+        "observation": "Bot型作成者では唯一のアサインstepがスキップされ、jobは失敗しない構成"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "8a70f40fbb745b1f678f4d2e8be8a4cea18b69f72e406f01d406a14ab59bbb30",
+        "procedure": "Bot型loginの実例をGitHub APIで確認し、Bot時の条件がアサインAPIを呼ばないことを確認する",
+        "observation": "GitHub APIでrenovate[bot]はBot、kosnuはUserと確認し、Bot型の条件でAPI呼び出しを除外した"
+      },
+      {
+        "id": "VC-5",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "8a70f40fbb745b1f678f4d2e8be8a4cea18b69f72e406f01d406a14ab59bbb30",
+        "procedure": "pull_request_target jobがPRコードをcheckout・実行せず、GitHub token権限をpull-requests:writeに限定していることを確認する",
+        "observation": "pull_request_target jobはcheckoutやPRコード実行を行わず、pull-requests:writeだけを許可する"
+      }
+    ]
+  },
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc"
+}
