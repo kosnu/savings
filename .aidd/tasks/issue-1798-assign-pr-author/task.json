@@ -1,0 +1,40 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1798-assign-pr-author",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1798",
+      "body": "## 概要\n\nPR作成時に、作成者をそのPRのAssigneeに設定するGitHub Actionsワークフローを追加する。\n\n## 完了の定義 (Definition of Done)\n\n- [ ] 人が作成したPRでは、作成者がAssigneeに設定される\n- [ ] Botが作成したPRでは、ワークフローが失敗せず正常終了する\n\n## 制約・禁止事項\n\n- Bot作成のPRに対するアサイン処理を、ワークフロー失敗の原因にしない",
+      "body_sha256": "dee98f783c57b6f2c324830ebfe82a7504811ba798ede17aee66be0808329a21"
+    },
+    "objective": "PR作成時に人の作成者をAssigneeへ追加し、Bot作成PRではワークフローを正常終了させる",
+    "constraints": [
+      "Bot作成PRでアサイン処理による失敗を起こさない",
+      "PR由来のコードを高権限のワークフローで実行しない",
+      "Issue #1798の範囲に変更を限定する"
+    ],
+    "done": [
+      "人が作成したPRで作成者をAssigneeへ追加できる",
+      "Bot作成PRではアサインを試みずワークフローが失敗しない",
+      "必要な検証とレビューを完了し、commit・push・PR作成と配信状態を確認する"
+    ],
+    "verification": [
+      "GitHub Actionsワークフロー構文の静的検証",
+      "人・Botのイベント条件とAPI呼び出しを確認する",
+      "AIDD Core verify/check/ship-checkを実行する"
+    ]
+  },
+  "baseline_head": "cf800d7d8e342cf8de64da047d1602e7b9650817",
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
