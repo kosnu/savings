@@ -1,0 +1,204 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "3af911aee3ae1b58b151747e084aa165928640782209728931cf971186c1c784",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "3af911aee3ae1b58b151747e084aa165928640782209728931cf971186c1c784",
+    "reason": "Issue #1798のPR作成者自動アサインを、Botの正常終了と高権限イベントの安全な扱いを満たす単一workflowで実装する",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "人が作成したPRでは作成者をAssigneeへ設定する",
+        "origin": "intent",
+        "evidence": "- [ ] 人が作成したPRでは、作成者がAssigneeに設定される"
+      },
+      {
+        "id": "FR-2",
+        "text": "Botが作成したPRではワークフローが失敗せず正常終了する",
+        "origin": "intent",
+        "evidence": "- [ ] Botが作成したPRでは、ワークフローが失敗せず正常終了する"
+      },
+      {
+        "id": "NFR-1",
+        "text": "Bot作成PRに対するアサイン処理を失敗原因にしない",
+        "origin": "intent",
+        "evidence": "- Bot作成のPRに対するアサイン処理を、ワークフロー失敗の原因にしない"
+      },
+      {
+        "id": "NFR-2",
+        "text": "書込権限を持つworkflowでPR由来のコードを実行しない",
+        "origin": "derived",
+        "evidence": "pull_request_targetはbase側の権限で動くため、PRのcheckoutやスクリプト実行を避ける"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "人がPRを作成すると、そのPRに作成者がAssigneeとして追加される",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "BotがPRを作成すると、アサインAPIを呼ばずワークフローが正常終了する",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "workflowはPRのコードを実行せず必要最小限の権限でアサインする",
+          "requirement_id": "NFR-2"
+        },
+        {
+          "id": "PB-4",
+          "type": "state_transition",
+          "description": "Bot作成PRではアサインAPIを呼ばない",
+          "requirement_id": "NFR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "workflow定義でPR opened時にUser型の作成者loginをAssignee追加APIへ渡し、pull-requests:write権限を設定していることを確認する"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "workflow定義でBot型作成者に対してアサインstepを実行せず、他の失敗stepがなくjobが正常終了することを確認する"
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "procedure": "Bot型loginの実例をGitHub APIで確認し、Bot時の条件がアサインAPIを呼ばないことを確認する"
+        },
+        {
+          "id": "VC-5",
+          "type": "manual",
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "pull_request_target jobがPRコードをcheckout・実行せず、GitHub token権限をpull-requests:writeに限定していることを確認する"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/workflows/assign_pr_author.yaml",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "configuration",
+          "path": ".github/workflows/assign_pr_author.yaml",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "configuration",
+          "path": ".github/workflows/assign_pr_author.yaml",
+          "locator": {
+            "kind": "export",
+            "name": "bot-skip"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "configuration",
+          "path": ".github/workflows/assign_pr_author.yaml",
+          "locator": {
+            "kind": "export",
+            "name": "permissions"
+          },
+          "requirement_id": "NFR-2",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "configuration",
+          "path": ".github/workflows/assign_pr_author.yaml",
+          "locator": {
+            "kind": "export",
+            "name": "bot-assignment-guard"
+          },
+          "requirement_id": "NFR-1",
+          "product_behavior_ids": [
+            "PB-4"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        }
+      ]
+    },
+    "additional_rules": [
+      "policy.code-review"
+    ]
+  },
+  "rules": [
+    "architecture.overview",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ],
+  "rule_map_ref": {
+    "sha256": "ef0788ea65a3941c85f36e45fd53a152ab410ee3e87d88058caf336f61a76f3b"
+  }
+}
