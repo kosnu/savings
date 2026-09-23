@@ -1,0 +1,23 @@
+name: Assign PR author
+
+on:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] フォークのコードを取得せず、PR作成者だけをAPIへ渡す
+    types: [opened]
+
+permissions: {}
+
+jobs:
+  assign-author:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Assign PR author
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/assignees" \
+            -f "assignees[]=$PR_AUTHOR" --jq '.assignees[].login' \
+            | grep -Fxi -- "$PR_AUTHOR"

@@ -1,0 +1,49 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "learn",
+    "id": "pr-author-assignment-aidd-20260923",
+    "intent": {
+      "kind": "feedback",
+      "reference": "user:pr-author-assignment-aidd-20260923",
+      "body": "PR作成時に作成者をAssignするGithubワークフローを作成して\nAIDDプロトコルに則って作成して\nIssueなしでもいけるやろ",
+      "body_sha256": "441afa414e2ece13228dcff7c04f464ce21d44492f2b85e17ffd027442340891"
+    },
+    "objective": "PR作成時に作成者を担当者へ設定するGitHub Actions workflowをAIDD記録と検証を伴って作成する",
+    "constraints": [
+      "Issueを新規作成せず、ユーザーが指摘したIssueなしのLearn経路を適用する",
+      "対象はPR担当者設定workflowとそのAIDD記録に限定する",
+      "PR由来のコードを実行せず、GITHUB_TOKENの権限を必要最小限にする",
+      "既存の未追跡YAMLを保全し、基準点を固定してから再作成する",
+      "ブランチ作成、commit、push、PR作成は明示依頼がないため行わない"
+    ],
+    "done": [
+      "PR opened時に作成者を担当者へ追加するworkflowを作成する",
+      "AIDD Task・Decision・Evidenceを記録して検査する",
+      "YAML構造、zizmor、最終差分を確認する"
+    ],
+    "verification": [
+      "YAML構造と起動条件・権限の検査",
+      "zizmorでのworkflowセキュリティ検査",
+      "AIDD Core検査と最終差分レビュー"
+    ],
+    "authorization": "ユーザーのワークフロー作成依頼とAIDDプロトコル適用指示。Issueなしの経路を明示的に指摘した。",
+    "authorized_scopes": [
+      {
+        "path": ".github/workflows/assign_pr_author.yaml",
+        "kind": "file"
+      }
+    ]
+  },
+  "baseline_head": "792d91f42cc55eea3742496496265b60da67b3d3",
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}

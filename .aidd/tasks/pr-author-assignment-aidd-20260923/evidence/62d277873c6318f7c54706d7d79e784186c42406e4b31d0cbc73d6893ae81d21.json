@@ -1,0 +1,52 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "fc7322d42040daca93b2ec735d2141f3ebd26eddb7db4a52ceb4175c29dea7c8",
+  "checkpoint_sha256": "62d277873c6318f7c54706d7d79e784186c42406e4b31d0cbc73d6893ae81d21",
+  "repository_sha256": "8b63fbb414113516b6a2e08ce8750bafd385defff1c646d77367c2b2cd661909",
+  "git_repository_sha256": "22dd9f322a764564a6fffcff824f60f5763f2fbd8eeb8bb909047c06b4e7c391",
+  "changed_paths": [
+    ".github/workflows/assign_pr_author.yaml"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "pr-author-assignment-aidd-20260923",
+    "receipt_sha256": "62d277873c6318f7c54706d7d79e784186c42406e4b31d0cbc73d6893ae81d21",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "6161f8c3fcdad5fc58d72de5c08f5806fa59c0352e4f8eec3c825be91ccfbc57",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "6161f8c3fcdad5fc58d72de5c08f5806fa59c0352e4f8eec3c825be91ccfbc57"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "6161f8c3fcdad5fc58d72de5c08f5806fa59c0352e4f8eec3c825be91ccfbc57",
+        "procedure": "YAMLを構文解析し、openedのみの起動、pull-requests: writeのみの権限、PR作成者loginの安全な受渡し、既存担当者を維持するAPI呼出し、PRコードを取得しないことを確認する。zizmorで当該workflowを監査し、実差分を適用ルールと照合する。",
+        "observation": "YAML構造を解析しopenedのみで起動、job権限はpull-requests: writeのみ、PR番号と作成者loginは環境変数で渡すことを確認。PRコードのcheckoutや外部Actionはない。gh apiのassignees追加は既存担当者を維持し、応答中のlogin照合で未割当を失敗にする。zizmor 1.30.1はdangerous-triggersの局所抑制1件を除きfindingなし。GitHub本番での実行は未確認。"
+      }
+    ]
+  },
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc"
+}
