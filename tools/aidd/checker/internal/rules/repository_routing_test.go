@@ -126,3 +126,44 @@ func TestHardRoutingKeepsLowPriorityDependenciesAndIgnoresDiscoveryMetadata(t *t
 		}
 	}
 }
+
+func TestRepositoryIntentDecisionRouting(t *testing.T) {
+	loaded := currentRepositoryRules(t)
+	const replacement = "adr.intent-sources"
+	const previous = "adr.aidd-invariant-protocol"
+	for _, path := range []string{
+		"tools/aidd/checker/internal/protocol/task.go",
+		"docs/ai-driven-development/workflow.md",
+		"docs/harness/policies/documentation-policy.md",
+		"docs/adr/0006-separate-intent-from-issue.md",
+		".agents/skills/learn/SKILL.md", ".codex/hooks.json", "AGENTS.md",
+	} {
+		t.Run(path, func(t *testing.T) {
+			surfaces, selected, err := ResolvePath(loaded, path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !slices.Contains(surfaces, "aidd-harness") {
+				t.Errorf("AIDDの判断を所有する変更面が未分類: %v", surfaces)
+			}
+			for _, id := range []string{replacement, previous} {
+				if !slices.Contains(selected, id) {
+					t.Errorf("新判断と置換元の参照が欠落: %s in %v", id, selected)
+				}
+			}
+		})
+	}
+	rule, ok := loaded.ByID[replacement]
+	if !ok || rule.File != "docs/adr/0006-separate-intent-from-issue.md" || !slices.Contains(rule.DependsOn, previous) || !slices.Contains(rule.Overrides, previous) {
+		t.Errorf("置換先の正本・前提参照・競合解決の関係が欠落: %+v", rule)
+	}
+	for _, path := range []string{"docs/guides/example.md", "docs/adr/0099-product-decision.md", "apps/web/src/features/example.tsx"} {
+		_, selected, err := ResolvePath(loaded, path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if slices.Contains(selected, replacement) {
+			t.Errorf("無関係な変更へIntentの採用判断を適用: %s", path)
+		}
+	}
+}

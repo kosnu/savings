@@ -29,7 +29,9 @@ v6はGitから復元できるbytesの重複保存と、agentによる判断全�
 | Checkpoint | 完全なDecision、revision/parent/Task hash、rule closure、rule-map参照                           | そのrevisionのrule-map bytes              |
 | Evidence   | Task/checkpoint/checker identity、ローカル状態digest、Git状態digest、変更path、構造化runner結果 | 現在の全ソースinventoryと変更基準との差分 |
 
-specのintent本文は外部Issueが後から変わっても再現できるよう保持する。
+specのIntent本文はIssueの更新や会話の後続発言があっても開始時の出典を再現できるよう保持する。
+補足・訂正はcheckpointの`intent_revision`へ出典と理由を追記し、要求は出典checkpoint番号を参照する。
+出典の取得・許可と意味判断はworkflow、具体的な操作はoperationsが所有する。
 開始時のGit commitは完全SHAで固定し、branch名から再解決しない。必要なobjectがない場合は
 失敗する。agent/CIが該当履歴を取得し、再検査する。現在の設定へのfallbackはない。
 
@@ -80,6 +82,8 @@ runnerの証跡契約は引き続きv5であり、外側の保存形式だけv6�
   指定時に更新し、省略時は引き継ぐ。保護された履歴の削除や権限拡張は既存検査で拒否する。
 - scope_revisionは一回限りの範囲追加イベントであり、省略時は新Decisionに含めない。
   適用済みの権限とユーザーの制限は履歴から復元し、同じscopeの再追加は引き続き拒否する。
+- intent_revisionも一回限りの出典追加イベントであり、省略時は新Decisionに含めない。
+  過去の出典はcheckpoint履歴から復元し、要求内の出典参照は保持する。初期出典の番号は0とする。
 - `--latest`は明示Task IDと期待revisionを必須とする。任意の「最近のTask」へ切り替えない。
   hashを併記した場合は完全一致を要求する。古いrevisionは、読み直して判断するまで更新できない。
 - `task-status`は読取専用で、summaryまたは指定fieldを返す。summaryのevidence_validは
@@ -88,7 +92,8 @@ runnerの証跡契約は引き続きv5であり、外側の保存形式だけv6�
 statusは既定2000文字、最大4000文字のpage。`next_offset`があれば情報が残っている。
 同じTask/revisionで続きを取得し、revisionが変わっていたら読取をやり直す。
 fieldはsummary/task/decision/requirements/product_behaviors/verification_cases/ownership_scopes/representations、
-およびchange_coverage/change_coverage_model。後者はTask開始時Git treeから復元した検討モデルを返す。
+およびintent_sources/change_coverage/change_coverage_model。intent_sourcesは番号に対応する初期・追記出典を返し、
+change_coverage_modelはTask開始時Git treeから復元した検討モデルを返す。
 change_coverageは継続する判断として省略時に保持し、改訂時は既存と同じ全証跡失効を適用する。
 モデルのない旧Taskの互換性は[変更Coverage](change-coverage.md)に従う。
 出力のcontentはJSONテキストの一部分であり、全pageを連結すれば元の表示JSONになる。

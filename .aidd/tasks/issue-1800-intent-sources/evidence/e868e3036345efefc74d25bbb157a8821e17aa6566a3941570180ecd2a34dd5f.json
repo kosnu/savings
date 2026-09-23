@@ -1,0 +1,122 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "efda1d6fdaf5c9a60bd84a78042a643868fc33e986fbbdb35f369ebe13a62d4c",
+  "checkpoint_sha256": "e868e3036345efefc74d25bbb157a8821e17aa6566a3941570180ecd2a34dd5f",
+  "repository_sha256": "5e443e45ef38e3f158d22ccd817e6a8396ff33c8219f5adcc89d35a55b8be53e",
+  "git_repository_sha256": "ef9ae42c85ac6a92182339bdd38c5bfdf47dcf4f526e11dd62adcd0b372a883d",
+  "changed_paths": [
+    "AGENTS.md",
+    "docs/adr/0006-separate-intent-from-issue.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/codex-adapter.md",
+    "docs/ai-driven-development/compact-protocol.md",
+    "docs/ai-driven-development/issue-guidelines.md",
+    "docs/ai-driven-development/overview.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/documentation-policy.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/policies/review-feedback-classification.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/internal/protocol/agent_input.go",
+    "tools/aidd/checker/internal/protocol/decision.go",
+    "tools/aidd/checker/internal/protocol/intent.go",
+    "tools/aidd/checker/internal/protocol/intent_test.go",
+    "tools/aidd/checker/internal/protocol/model.go",
+    "tools/aidd/checker/internal/protocol/product_authorization.go",
+    "tools/aidd/checker/internal/protocol/task.go",
+    "tools/aidd/checker/internal/rules/repository_routing_test.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1800-intent-sources",
+    "receipt_sha256": "e868e3036345efefc74d25bbb157a8821e17aa6566a3941570180ecd2a34dd5f",
+    "catalog_sha256": "fbe5a3ec7713ba7da951426da66f00475738683c8f2909d3680d2c4ae076db55",
+    "final_state_sha256": "0c5e0c1f47b510b3e3cacf82bff6f80bfd250bab11c988807d2b2a181b48938e",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2539,
+        "stderr_bytes": 0,
+        "output_sha256": "651e26750e9932f8bf69fe7e2baea65c22ae9eca581125dba075e088208c789a",
+        "final_state_sha256": "0c5e0c1f47b510b3e3cacf82bff6f80bfd250bab11c988807d2b2a181b48938e"
+      },
+      {
+        "id": "VC-2",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "0c5e0c1f47b510b3e3cacf82bff6f80bfd250bab11c988807d2b2a181b48938e"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "0c5e0c1f47b510b3e3cacf82bff6f80bfd250bab11c988807d2b2a181b48938e",
+        "procedure": "Issue/message開始、Learnでの追加Intentとproduct権限、旧Taskの履歴と移行境界、継続対新規作業の意味判断を文書と実装で照合する。全適用ruleと5軸を最終差分でレビューし採択ADR validatorを実行する。",
+        "observation": "CodexがPRの最終差分をレビュー。Issue/message開始、補足出典と実行許可の分離、旧v5/v6互換と履歴保持を維持。Checked rules: ai-driven.workflow, ai-driven.overview, ai-driven.checker, ai-driven.change-coverage, ai-driven.issue-guidelines, policy.code-review, policy.learning-extraction, policy.review-feedback-classification, policy.issue-template-selection, documentation.policy, adr.harness-engineering, adr.agent-rule-graph, adr.aidd-invariant-protocol, adr.task-scope, adr.intent-sources。Unresolved: なし。ADR validator成功。"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "0c5e0c1f47b510b3e3cacf82bff6f80bfd250bab11c988807d2b2a181b48938e",
+        "procedure": "Codexが置換・分割・登録不要な説明文書の対照例でdocumentation policyをレビューする。実rule-mapの代表pathとdepends_on/overridesのテスト、欠落が失敗すること、無関係pathへ広がらないことを確認。新しいTaskは既存documentation.policy routingで適用され、AIDDは既存Coverageへ記録する。",
+        "observation": "CodexがLearnで選定しユーザーが反映を許可した対策をレビュー。置換では新旧正本の選択と優先関係、分割では各判断への到達、単なる説明追加では登録不要と判定できる。documentation.policyの既存path routingで将来の文書変更に適用しAIDDのCoverageとverification caseへ接続。修正前のroutingテストは新ADR選択/置換関係の欠落で失敗し修正後rules全テスト成功。対象外pathへの適用拡大なし。意味判断はagentが所有し未登録判断の自動発見とは扱わない。本文の追加だけで今回の欠落を直したとはせずrule-mapを同期済み。"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "10f89265d5d17807cc4f578326c515196e2cbd585682a93f991f6e9eb3d31916",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2541,
+        "stderr_bytes": 0,
+        "output_sha256": "aca04e87b1f62945e9d799ad0776d00e453bad2e5abc67a97cdef39cb4459ef0",
+        "final_state_sha256": "0c5e0c1f47b510b3e3cacf82bff6f80bfd250bab11c988807d2b2a181b48938e"
+      }
+    ]
+  },
+  "checker_sha256": "d279f901fb241c5aaa11a2e150bc5c4a0b2ba64f2ab2eee38bb0c8627b20ecdc"
+}

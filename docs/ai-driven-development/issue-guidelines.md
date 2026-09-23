@@ -15,7 +15,9 @@ when_to_read:
 
 # Issueの責務
 
-Issueは人間がagentへ委任するintent、problem、desired outcomeの正本である。
+Issueは人間がagentへ委任するIntent、problem、desired outcomeを表現・保存する方法の一つである。
+Issueを使う作業ではその本文を正本とする。Issueなしの出典と補足・訂正は[workflow](workflow.md)に従い、
+Issue作成をAIDD実行の前提にしない。
 背景、期待する結果、scope、制約、成功条件、任せる範囲を必要な精度で記載する。
 実装ファイル、関数名、詳細手順、rule-mapと同じ語句の記載を必須にしない。
 
@@ -23,8 +25,9 @@ agentはrepositoryとguardrailを探索してTask contractとDecisionへ具体�
 Issueが技術的な設計詳細を持たないことだけを停止理由にしない。
 意図や受け入れ条件が複数に解釈でき、選択で成果が変わる場合は不足点を確認する。
 
-技術選択、検証profile、representationはDecisionが所有する。新しいproduct intentは
-既存Issueへ明示反映し、別Developmentから実装する。Learn用Issueは作らない。
+技術選択、検証profile、representationはDecisionが所有する。Issueを使う作業でproduct intentを補足・訂正するときは
+許可された内容を既存Issueへ反映し、取得した出典と許可を同じTaskの新checkpointへ接続する。
+同じ成果への修正は同じTaskで継続し、独立した新規作業の境界はworkflowで判断する。Learn用Issueは作らない。
 Feature Request / Bug / Taskのテンプレート種別は意図を表すために選び、AIDD利用の選択肢にはしない。
 
 ## 記入と具体化の境界

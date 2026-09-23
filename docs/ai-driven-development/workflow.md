@@ -22,18 +22,20 @@ ClaudeとCodexは共通のTask / Decision / Checkpoint / Evidence契約を直接
 プロトコルの適用は、実行用skillの存在や発火、Goal機能に依存しない。
 CodexでGoal機能を使う場合は[Codex adapter](codex-adapter.md)を追加適用する。
 
-GitHub Issueを指定した実行依頼はDevelopmentへ入る。Issue番号の参照だけ、read-onlyな質問、
-説明、調査、設計案の依頼では開始しない。Issueがないproduct実行依頼は既存Issueの特定を求める。
+人間のIntentに基づく開発の実行依頼は、Issueの有無によらずDevelopmentへ入る。Issue番号の参照だけ、
+read-onlyな質問、説明、調査、設計案の依頼では開始しない。Issueなしの場合はユーザーの明示発言を出典として保持する。
 Task開始前に単一writerのworktreeでcleanな基準点を固定する。無関係な変更は移さない。
 ブランチの作成・切り替え・分割は[Git Workflow](../harness/policies/git-workflow.md#ブランチ)に従う。
 Development / Learnは作業の入口・内容の区別であり、Task・ブランチ・PRを分ける条件ではない。
 開始時checkerは[operations](aidd-checker-operations.md)の準備commandで自動取得する。
 同じソース・連動契約・実行環境なら検査済みbinaryを再利用し、Task期間中は返されたpathを保持する。
 
-Issueは人間のintentの正本。Task contractはagentのobjective、constraints、Done、verificationを持つ。
+人間のIntentは達成したい結果と制約であり、Issueはその表現・保存方法の一つである。
+Issue本文またはユーザーの明示発言を出典本文・参照・hashとして記録する。Task contractはagentのobjective、constraints、Done、verificationを持つ。
 Decisionは要求の解釈、採用判断、観測可能なbehavior、ownership、representation、
 verification caseを持つ。repositoryが実際の結果、証拠がその検証記録である。
 Issueに実装ファイルやrule-mapの語句を記載する必要はない。
+この出典契約の採用判断は[ADR-0006](../adr/0006-separate-intent-from-issue.md)に記録する。
 Taskにlocal/prの配信区分は設けない。操作範囲はユーザーの明示指示とconstraints・Doneで判断する。
 後からstage/commitした事実を配信範囲の拡大許可として扱わない。
 Developmentの実行依頼は、必要な検証・review、commit、push、PR作成または更新と配信状態の確認までを含む。
@@ -42,10 +44,18 @@ Developmentの実行依頼は、必要な検証・review、commit、push、PR作
 agentが生成した配信区分はユーザーの制限の根拠にならない。
 Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明示指示で解消できなければ確認する。
 
-要求の根拠をintent、guardrail、derivedに分ける。intent根拠はsnapshot本文に実在する必要がある。
-既存コードは実装文脈であり人間の意図を追加しない。意図、受け入れ条件、権限の変更は明示的に
-既存Issueへ反映し、許可された変更を現在のTaskのDecisionへ記録する。既存成果の追加配信は
-下記の継続境界に従い、この規定をTask再作成の根拠にしない。技術的な設計選択は委任範囲内でagentが決める。
+要求の根拠をintent、guardrail、derivedに分ける。intent根拠は参照する出典snapshotの本文に実在する必要がある。
+既存コードは実装文脈であり人間の意図を追加しない。Task開始時のIntentは固定し、人間による補足・訂正は
+同じTaskの新checkpointへ出典付きの`intent_revision`として追記する。要求は出典checkpointを参照する。
+Issueを正本として使う作業では、許可された変更をIssue本文にも同期し、取得した本文または補足発言の出典を保持する。
+Issueなしでは補足発言そのものを保持し、Issue作成を継続条件にしない。
+
+意図の不足・解釈違いを直す同じ成果への修正は、元Task・baselineを保持してDecisionを改訂する。
+同じ意図内の設計変更にはIntentの追記を要求しない。独立した別成果への新規依頼は目的と作業境界を確認して開始する。
+Issueの有無、出典変更、Development/Learnの呼称だけをTask分割の理由にしない。
+Intentの補足は実装許可を自動的に増やさない。既存の実行依頼で委任済みの修正は継続し、目的・権限を広げる場合は
+人間の明示許可を別に記録する。質問やLearnの分析だけを実行依頼へ読み替えない。
+技術的な設計選択は委任範囲内でagentが決める。出典の真正性と意味的な対応はagentが確認し、Coreは記録の整合を検査する。
 
 ## 自律判断と確認の境界
 
@@ -68,7 +78,7 @@ Issueの明示的な制限と実行依頼が矛盾する場合は、最新の明
 
 ## Development
 
-1. Issue本文と出典を取得し、task-startでTaskとGit baselineを固定する。
+1. Issue本文またはユーザー発言と出典・実行許可を確認し、task-startでTaskとGit baselineを固定する。
 2. repositoryとrule-mapを探索し、要求・設計・検証方針を同じDecision draftで反復する。
 3. AIDDの仕組みや実行入力の変更では[変更Coverage](change-coverage.md)で概念・representation・全検討軸を評価する。
    checkpointで実装が参照する判断を固定する。常時の人間承認gateにはしない。
@@ -144,12 +154,13 @@ Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と全�
 目的・影響範囲・配信先が広がる場合や明示制限に反する場合は、変更前にユーザーへ確認する。
 
 現在の作業範囲と成果物は最新Decisionのownershipとrepresentationに記載する。
-作業範囲の記録だけでは実装の権限は増えない。product実装はTask種別にかかわらず、Issueと
-実行依頼に結び付ける。開始時のIssue実行依頼が既にある場合はその記録を使い、再承認しない。
-feedbackから開始したTaskで実装が許可された場合は、同じTaskのDecisionに
-`product_authorization`としてIssue本文・出典・hash、実行許可と対象の有限scopeを記録する。
-元のTaskやfeedbackは保持し、その記録を後続Decisionへ引き継ぐ。許可の真正性とIssueとの
-意味的な対応はagentが確認し、checkerは記録の必須項目・hash・対象差分との対応を検査する。
+作業範囲の記録だけでは実装の権限は増えない。product実装はTask種別にかかわらず、Intentの出典と
+実行依頼に結び付ける。Development開始時の実行依頼が既にある場合はその記録を使い、再承認しない。
+Learnから開始したTaskでproduct実装が許可された場合は、同じTaskのDecisionに
+`product_authorization`としてIssueまたはユーザー発言の本文・出典・hash、実行許可と対象の有限scopeを記録する。
+元のTaskやfeedbackは保持し、その記録を後続Decisionへ引き継ぐ。Learnの開始出典がIssueやユーザー発言でも、
+それだけでproduct実装を許可しない。許可の真正性とIntentとの意味的な対応はagentが確認し、
+checkerは記録の必須項目・hash・対象差分との対応を検査する。
 DevelopmentはDecisionのownershipを更新する。Learnの作業範囲は初期`authorized_scopes`と
 checkpointに記録した`scope_revision.added_scopes`から構成し、追加理由・委任境界のレビュー・確認者を残す。
 ユーザーの明示的なファイル制限は`user_scope_limits`へ記録し、作業範囲の追加によって解除しない。

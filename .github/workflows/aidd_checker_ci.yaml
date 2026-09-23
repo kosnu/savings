@@ -173,7 +173,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          MIGRATION_APPROVED: 'true'
+          MIGRATION_APPROVED: "true"
         shell: bash
         run: *migration-script
 
@@ -230,7 +230,7 @@ jobs:
         working-directory: tools/aidd/checker
 
       - name: Test merge result
-        run: go test ./...
+        run: go test -count=1 ./...
         working-directory: tools/aidd/checker
 
       - name: Build current source
@@ -281,7 +281,7 @@ jobs:
         working-directory: tools/aidd/checker
 
       - name: Test
-        run: go test ./...
+        run: go test -count=1 ./...
         working-directory: tools/aidd/checker
 
       - name: Build current source

@@ -15,7 +15,7 @@ when_to_read:
 
 # Codex adapter
 
-Coreの契約をCodexで実行する。Issue指定の開発依頼に自動適用し、質問・説明・調査では適用しない。
+Coreの契約をCodexで実行する。Issueまたはユーザーの明示発言を出典とする開発実行依頼に自動適用し、質問・説明・調査では適用しない。
 
 ## Goal機能との接続
 
@@ -53,5 +53,6 @@ Hookの成功や不発火をCoreの完了証拠へ変換しない。Goal/Hookな
 Coreのidentityは明示Task IDと期待revisionから解決する。通常はtask-statusと--latest / decision-updateを使い、詳細はoperationsに従う。既存のhash明示指定も保持する。
 Learnでは開始前にprepareで取得したbinaryを保持し、candidate binaryへ切り替えない。
 取得手順は [AIDD checker operations](aidd-checker-operations.md#開始時のbinary) に従う。
-Issueの内容変更を検知したらintentを黙って更新せず、権限・目的と新しい作業の境界を確認する。
+Issueの内容変更やユーザーの補足発言を受けたら、開始時Intentを上書きせず出典付きでcheckpointへ追記する。
+要求との対応、実行許可、同じ成果への修正か独立した新規作業かをworkflowに従って確認する。
 追加配信では既存Taskの継続境界を優先し、内容変更だけを新taskの根拠にしない。
