@@ -25,7 +25,8 @@
       ".github/agents/**",
       ".github/workflows/aidd_*",
       "AGENTS.md",
-      "CLAUDE.md"
+      "CLAUDE.md",
+      "docs/adr/0006-separate-intent-from-issue.md"
     ],
     "surfaces": [
       {
@@ -87,7 +88,8 @@
           ".github/agents/**",
           ".github/workflows/aidd_*",
           "AGENTS.md",
-          "CLAUDE.md"
+          "CLAUDE.md",
+          "docs/adr/0006-separate-intent-from-issue.md"
         ],
         "required_rules": ["ai-driven.workflow", "ai-driven.checker", "documentation.policy"]
       }
@@ -117,7 +119,8 @@
           ".vite-hooks/**",
           "package.json",
           "pnpm-workspace.yaml",
-          "pnpm-lock.yaml"
+          "pnpm-lock.yaml",
+          "docs/adr/0006-separate-intent-from-issue.md"
         ],
         "topics": ["change-coverage", "ai-driven-development"],
         "activities": ["change_aidd_control_plane", "review_diff"]
@@ -125,6 +128,25 @@
       "depends_on": ["ai-driven.workflow", "documentation.policy"],
       "overrides": [],
       "priority": 89
+    },
+    {
+      "id": "adr.intent-sources",
+      "file": "docs/adr/0006-separate-intent-from-issue.md",
+      "applies_to": {
+        "paths": [
+          "AGENTS.md",
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/**",
+          "docs/adr/0006-separate-intent-from-issue.md",
+          ".agents/skills/**",
+          ".codex/**"
+        ],
+        "topics": ["intent", "task-scope"]
+      },
+      "depends_on": ["adr.aidd-invariant-protocol"],
+      "overrides": ["adr.aidd-invariant-protocol"],
+      "priority": 100
     },
     {
       "id": "adr.task-scope",
