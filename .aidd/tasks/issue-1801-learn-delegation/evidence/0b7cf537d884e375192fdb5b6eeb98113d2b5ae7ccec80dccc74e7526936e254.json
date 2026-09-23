@@ -1,0 +1,56 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "53162d66ace8a22e30c74f0fa95805ecf7e6100e2c4f2d79b500c88901e867f2",
+  "checkpoint_sha256": "0b7cf537d884e375192fdb5b6eeb98113d2b5ae7ccec80dccc74e7526936e254",
+  "repository_sha256": "552d7b59606f5dd40ccd34a5e1fe672e70724b4f7d018918a85f6ab3edbd0bf0",
+  "git_repository_sha256": "7700afb5722a7f6c4f29212912d0c1faec05097f2fd63334ee3758c8e38993c0",
+  "changed_paths": [
+    ".agents/skills/learn/SKILL.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1801-learn-delegation",
+    "receipt_sha256": "0b7cf537d884e375192fdb5b6eeb98113d2b5ae7ccec80dccc74e7526936e254",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "4ccb2e3ba413ce5e528f088be782e841960aa1f8f9102a7ffd4dfcf765e7ed6a",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "4ccb2e3ba413ce5e528f088be782e841960aa1f8f9102a7ffd4dfcf765e7ed6a"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "4ccb2e3ba413ce5e528f088be782e841960aa1f8f9102a7ffd4dfcf765e7ed6a",
+        "procedure": "AGENTS.mdとLearn skill、workflow、aidd-checker、operations、learning-extraction、Codex adapter、code-reviewを比較する。複雑で独立し費用対効果があるが明示依頼のないLearn作業では委譲を選べること、定型確認・軽微な修正はメインで扱うこと、独立reviewは必須でないこと、有限scope・単一writer・ユーザー許可範囲が維持されることを実差分と現行本文で確認する。",
+        "observation": "AGENTS.mdとLearn skill、workflow、aidd-checker、operations、learning-extraction、Codex adapter、code-reviewの現行記述を照合。費用対効果が見合う複雑な独立作業は明示依頼なしでも委譲可、定型確認・軽微修正はメイン、独立reviewは必須でない。有限scope・単一writer・ユーザー許可範囲は維持。5ファイルの最終差分に旧一律制限なし。"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}

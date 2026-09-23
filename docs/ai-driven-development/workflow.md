@@ -212,7 +212,7 @@ Learnはfeedbackを扱う作業。単独の新規依頼はIssue不要のTaskと�
 guardrail文書、routing、checker、adapter、検証機構を変更・検証できる。
 Task種別によるproduct pathの一律禁止は設けず、実際の許可範囲を守る。通常は開始時checker binaryと旧profileで検証する。明示的なchecker移行は移行先binaryを固定し、旧policy/profileを維持する。変更後checkerの成功だけを
 確定根拠にしない。担当agent自身が最新差分と証拠をreviewし、依頼された許可範囲で確定する。
-独立reviewや別agentの呼び出しは必須にせず、ユーザーが明示的に依頼した場合だけ行う。
+独立reviewは必須にしない。別agentへの委譲はAGENTS.mdの費用対効果条件に従う。
 reviewをテスト成功から生成してはいけない。
 base checkerとの非互換な契約変更をCIへ配信するときだけ、
 [契約移行経路](aidd-checker-operations.md#非互換なchecker契約の移行)で差分検査・候補検証・
