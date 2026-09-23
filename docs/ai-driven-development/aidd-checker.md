@@ -89,16 +89,27 @@ hashは承認者の認証ではなく、ローカルの許可判断はagent、CI
 
 Development / Learnの種別からファイルや設定fieldの変更禁止を導かない。
 許可範囲・ownership・representation・必須検証を通常のcheckpointと証拠で確認する。
-product pathの実差分には、開始時のIssue実行依頼、または最新Decisionの`product_authorization`を要求する。
-後者はIssue本文・出典・hash、実行許可、path順の有限file/tree scopeを持ち、差分のpathを覆う。
+product pathの実差分には、Development開始時の実行依頼、または最新Decisionの`product_authorization`を要求する。
+出典はIssueまたはユーザー発言であり、後者の許可記録は本文・出典・hash、実行許可、path順の有限file/tree scopeを持ち、差分のpathを覆う。
 初期`authorized_scopes`や`scope_revision`だけではこの検査を代替できない。
-記録済みのIssue実行依頼は再利用し、Task種別による禁止や別Taskへの移行は要求しない。
-Issue本文の取得・許可文の真正性・依頼との意味的な対応はagentの責務であり、hash検査で証明したとは扱わない。
+記録済みのDevelopment実行依頼は再利用し、Task種別による禁止や別Taskへの移行は要求しない。
+出典本文の取得・許可文の真正性・依頼との意味的な対応はagentの責務であり、hash検査で証明したとは扱わない。
 新checkpointは現在のrule-mapへ結合し、その索引のpath/surface・depends_on closureを計算する。
 v6は開始commit参照またはTask内で共有するsnapshot参照を保持し、v5は従来どおりbytesを保存する。
 文書の新規作成も扱い、未commitであることや開始時inventoryに存在しないことだけでは拒否しない。
 索引変更後はcheckpointを更新する。過去checkpointは保存した索引、旧形式は従来のTask索引で読み、hashを保持する。
 変更後の文書と索引は全ソースの検証証拠に結合する。先行commitや`rule_revision`は不要である。
+
+## Intentの出典と追記
+
+IntentはIssue表現から独立し、`issue`、`message`、既存Learn互換の`feedback`を出典種別として読む。
+Developmentのmessage開始には実行許可の記録を要求する。Learnの開始出典や意図の追記だけではproduct実装を許可しない。
+`Decision.intent_revision`は出典snapshotと補足・訂正理由を持つ一回限りのイベント。要求の`intent_revision`は
+出典を持つcheckpoint番号を参照し、省略/0はTask開始時を指す。履歴順に出典を復元し、未知・将来の参照や本文にない根拠を拒否する。
+開始Taskと過去のcheckpointを改変せず、通常のcheckpoint/Evidence結合で旧証拠を失効させる。
+`decision-update`は既存の要求参照を保持し、出典イベント自体を再適用しない。
+新field省略時は既存v5/v6記録のcanonical bytesを保持する。新fieldを使う実行には対応checkerが必要であり、
+旧Taskのchecker固定やtrusted baseの移行境界は[operations](aidd-checker-operations.md)に従う。
 
 ## Learnの信頼境界
 

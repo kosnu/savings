@@ -80,6 +80,14 @@ type Requirement struct {
 	Text     string `json:"text"`
 	Origin   string `json:"origin"`
 	Evidence string `json:"evidence"`
+	// 0はTask開始時、正数は出典を追記したcheckpoint revision。
+	IntentRevision int `json:"intent_revision,omitempty"`
+}
+
+// IntentRevisionは人間の意図の補足・訂正を出典付きで追記する。実装許可は所有しない。
+type IntentRevision struct {
+	Intent Intent `json:"intent"`
+	Reason string `json:"reason"`
 }
 
 type Integration struct {
@@ -114,6 +122,7 @@ type ProductAuthorization struct {
 }
 
 type Decision struct {
+	IntentRevision       *IntentRevision       `json:"intent_revision,omitempty"`
 	ChangeCoverage       []ChangeCoverage      `json:"change_coverage,omitempty"`
 	SchemaVersion        int                   `json:"schema_version"`
 	Kind                 string                `json:"kind"`

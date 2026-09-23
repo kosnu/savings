@@ -58,6 +58,7 @@ type Changes[T any] struct {
 	Remove []string `json:"remove,omitempty"`
 }
 type DecisionUpdate struct {
+	IntentRevision       *IntentRevision                 `json:"intent_revision,omitempty"`
 	ChangeCoverage       Changes[ChangeCoverage]         `json:"change_coverage,omitzero"`
 	Reason               string                          `json:"reason"`
 	Requirements         Changes[Requirement]            `json:"requirements,omitzero"`
@@ -161,6 +162,8 @@ func UpdateDecision(ctx context.Context, s *repository.Snapshot, id string, revi
 	}
 	// 範囲追加は一回限りのイベント。適用済みの権限・制限は履歴から復元する。
 	d.ScopeRevision = u.ScopeRevision
+	// Intentの追記も一回限りのイベント。既存出典はcheckpoint履歴から復元する。
+	d.IntentRevision = u.IntentRevision
 	if u.ProductAuthorization != nil {
 		d.ProductAuthorization = u.ProductAuthorization
 	}
@@ -188,6 +191,8 @@ func Inspect(ctx context.Context, s *repository.Snapshot, id, field string, offs
 	}
 	var value any
 	switch field {
+	case "intent_sources":
+		value = l.intentSources()
 	case "summary":
 		state := "checkpoint_required"
 		detail := "判断をcheckpointへ固定してください"

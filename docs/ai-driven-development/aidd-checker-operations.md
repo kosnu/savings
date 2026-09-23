@@ -141,7 +141,10 @@ Taskに配信区分は設けない。Developmentは通常commit・push・PR作�
 新規task-startは旧sourceのdelivery fieldも保存しない。旧Task内のlocal/prはcanonical bytesと
 hashを維持して読み取る互換fieldであり、finish・Ship・CIの分岐には使わない。
 Coreの成功はmerge/deploy権限を与えない。
-Learnは`kind: learn`、`intent.kind: feedback`とし、Issue URLは不要。
+IssueなしのDevelopmentでは`intent.kind: message`とし、`reference`へ元の発言を特定できる参照（例: `user:<conversation>/<message>`）、
+`body`へユーザー発言の本文、`authorization`へ実行を依頼された根拠を記録する。`action: execute`だけで発言の意味を認証したとは扱わない。
+Issue指定の既存Developmentは従来の記録を保持して読む。
+Learnは`kind: learn`とし、出典は`issue`、`message`または既存の`feedback`を使える。Issue URLは必須ではない。
 明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
 を追加する。pathは初期計画の有限file/tree。ユーザーが明示したファイル上限は任意の
 `user_scope_limits`へ別に記録する。Task種別にかかわらず実際の許可範囲を検査する。
@@ -160,7 +163,7 @@ v6ではGitから復元可能な情報を埋め込まず、必要なローカル
 
 ## Decision / checkpoint
 
-product実装の開始時IssueがないTaskでは、実装が許可された時点で同じDecisionへ
+Learnから開始したTaskでは、product実装が許可された時点で同じDecisionへ
 `product_authorization`を追加する。これは作業範囲の追記とは別の根拠であり、Taskの再作成は不要である。
 
 ```json
@@ -178,12 +181,14 @@ product実装の開始時IssueがないTaskでは、実装が許可された時�
 }
 ```
 
-実際のIssue本文と依頼を確認し、対象scopeをpath順で記録する。既存のownership・必要な
+実際の出典本文と依頼を確認し、対象scopeをpath順で記録する。
+Issueなしでは上記`intent`を`kind: message`とユーザー発言の参照・本文・hashへ置き換える。
+feedbackの存在だけでproduct実装を許可せず、人間の実行依頼を出典に使う。既存のownership・必要な
 scope_revision・verificationも同じDecisionに含め、実装前にcheckpointを作る。
-開始時のIssue実行依頼で許可済みの場合は追加記録も再承認も不要である。
+Development開始時の実行依頼で許可済みの場合は追加記録も再承認も不要である。
 追加した記録は後続Decisionに保持する。scope外の実装追加には対応する実行許可が必要であり、
 `user_scope_limits`は解除できない。product fieldや依存closureだけの変更にも同じ検査を適用する。
-checkerは出典URL・本文hash・許可記録・対象pathを検査し、GitHub上の本文の真正性や
+checkerは出典参照・本文hash・許可記録・対象pathを検査し、Issueや発言の真正性や
 許可文の意味を自動認証しない。これらは担当agentが元の依頼と照合する。
 
 Decision sourceはTaskと同じschema_version（新規6、既存5）、kind decision、task_sha256、reason、requirements、
@@ -230,6 +235,55 @@ AIDDの仕組みと実行入力を変更するときは[変更Coverage](change-c
 省略時は保持する。判定変更後は旧Evidenceが失効し、通常のverifyで全caseを実行する。
 新Taskではモデルfileが必要。開始時モデルのない旧Taskはmanual caseとreasonで評価を残し、
 新fieldや候補binaryを使うためにTaskを作り直さない。
+
+## Intentの補足・訂正
+
+Task開始時のIntentを上書きせず、新checkpointへ`intent_revision`を追記する。以下はrevision 1のTaskへの
+要求追加例。採用した要求に対応するbehavior・case・representationも同じ更新で結び付ける。
+
+```json
+{
+  "reason": "ユーザーが同じ成果の受け入れ条件を補足したため要求を改訂する",
+  "intent_revision": {
+    "intent": {
+      "kind": "message",
+      "reference": "user:conversation/message-2",
+      "body": "Bot作成PRでも失敗しないようにする",
+      "body_sha256": "bdd87fe0686a8bcd6428ab2d75103b2ffc7963822ca781b28ea67b72bbdbdb8e"
+    },
+    "reason": "Bot作成PRの成功条件が不足していた"
+  },
+  "requirements": {
+    "upsert": [
+      {
+        "id": "FR-2",
+        "text": "Bot作成PRでも失敗しないようにする",
+        "origin": "intent",
+        "evidence": "Bot作成PRでも失敗しないようにする",
+        "intent_revision": 2
+      }
+    ]
+  }
+}
+```
+
+```sh
+/tmp/aidd-task-checker decision-update --repo-root . --task <id> --expect-revision 1 --source /tmp/update.json
+/tmp/aidd-task-checker task-status --repo-root . --task <id> --field intent_sources
+```
+
+要求の`intent_revision`は出典を記録したcheckpoint番号を指す。省略または0はTask開始時の出典を使う。
+出典の本文に`evidence`が実在することを検査する。guardrail/derived根拠にこの参照を混在させない。
+Issue更新も同じ形式で取得したIssue本文・参照・hashを追記できる。複数の発言は出典ごとにcheckpointへ記録する。
+訂正では対象要求をupsert/removeして現在の意味を更新し、過去の出典・要求・checkpointは保持する。
+`decision-update`では省略した出典イベントを再適用しない。低水準の`checkpoint`へ前回Decisionを渡す場合は、
+新しい補足がなければトップレベルの`intent_revision`を除去し、要求内の出典参照は保持する。
+
+Intentの追加自体は実装許可ではない。元の依頼の委任範囲と明示制限を確認し、必要な追加許可は別に記録する。
+意味的な矛盾や独立した新規作業かどうかはagentが判断する。形式検査だけで人間の意図を確定しない。
+改訂後の全caseをverifyし、旧Evidenceを流用しない。新fieldを使うには対応checkerが必要であり、旧Taskは
+開始記録を保持した[checker移行](#旧taskのchecker移行)、base未対応の配信は[契約移行](#非互換なchecker契約の移行)を使う。
+新fieldを使わない実装Taskの配信は既存base checkerで検査でき、この機能追加だけで移行経路を要求しない。
 
 ## Learnの判断と検証の接続
 
@@ -425,7 +479,7 @@ kind=learn_review、task_sha256、checkpoint_sha256、evidence_sha256、reviewer
   --source-sha256 <review-file-hash>
 ```
 
-既に許可されたproduct実装は同じTaskで継続する。追加の実装が許可されていなければ、その必要性と既存Issueを示す。
+既に許可されたproduct実装は同じTaskで継続する。追加の実装が許可されていなければ、その必要性とIntentの出典を示す。
 
 ## Ship / CI
 
