@@ -143,12 +143,14 @@ findingに影響しない層まで一律に調査する必要はありません�
 
 ## 実行文脈
 
-Learnはfeedbackの分析と改善であり、別Taskを必須にしません。単独依頼でもLearn用Issueは作成しません。
+Learnは元のIntentから始まるTask内で、対象となるfeedbackがある場合に行う分析と改善です。
+対象となる指摘がなければLearnは行いません。Learn用Issueや独立したLearn Taskは作成しません。
 分析・分類の依頼だけでは反映を許可しません。明示的な更新依頼の範囲では、正本文書だけでなく
 rule-map、checker、検証profile、adapter、実行機構と必要な回帰testをLearn内で更新できます。
 これはproduct implementationの許可ではありません。
 
-変更前にfeedback、authorization、有限の作業範囲を現在のTaskへ記録します。既存Taskがない単独依頼はLearn Taskを開始できます。
+変更前にfeedback、authorization、有限の作業範囲を元のTaskへ記録します。
+元のTaskが特定できないfeedbackだけの依頼からLearnを開始しません。
 ユーザーの明示制限とagentの変更予定一覧を区別し、委任内の追加は
 [作業範囲とguardrailの契約](../../ai-driven-development/workflow.md#rule--ownership--guardrail)に従います。
 開始時のchecker binaryと旧policy/profileを維持して検証し、担当agent自身が最新差分と
@@ -159,7 +161,7 @@ Coreの具体的な改訂・失効・検証境界は `docs/ai-driven-development
 Development中のguardrail変更も、許可範囲で同じTaskのDecisionへ記録し、修正・検証して続行します。
 作業種別の変化だけを理由に中断、独立Taskへの引渡し、ブランチ分割を要求しません。
 product intentの補足・訂正が必要な場合は、人間の明示発言または更新されたIssueを出典として記録し、実際の許可範囲を確認します。
-分析結果の「反映」は指定済みの反映先だけを許可し、product実装や次cycle開始の許可へ拡張しません。
+分析結果の「反映」は指定済みの反映先だけを許可し、product実装や、学びを反映した後の新しいIntentから始まる次の開発サイクルの実行許可へ拡張しません。
 
 タスク固有のIntentは出典に結び付いたタスクコンテキストへ、再利用可能な判断・制御はguardrailへ置き、重複記載しません。
 適格性確認、通常経路の適用判定、原因調査、対策比較、根拠の境界は引き続き適用します。

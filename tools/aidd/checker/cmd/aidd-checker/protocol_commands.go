@@ -138,6 +138,9 @@ func protocolCommand(ctx context.Context, command string, args []string) (result
 			if spec.SchemaVersion != protocol.CompactVersion {
 				return diagnostic.New("AIDD_VNEXT_PROTOCOL", "schema_version", "task_spec", "new task-start requires schema v6", protocol.CompactVersion, spec.SchemaVersion)
 			}
+			if spec.Kind == "learn" {
+				return diagnostic.New("AIDD_VNEXT_TASK_KIND", "kind", "task_spec", "Learnは既存Task内で行い、独立したLearn Taskは開始しません", "development", spec.Kind)
+			}
 			if spec.Intent.BodySHA256 == "" {
 				spec.Intent.BodySHA256 = canonical.HashBytes([]byte(spec.Intent.Body))
 			}

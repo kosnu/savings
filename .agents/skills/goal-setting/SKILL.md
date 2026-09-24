@@ -23,5 +23,5 @@ Use the host's actual Goal tools:
 If Goal tools are unavailable, report that and return to the authorized task under
 the same Core contract without claiming a Goal exists. This skill does not add
 execution permission: Goal setup alone is not a request to perform the task, and
-guardrail maintenance in the same Task keeps its Goal; a standalone Learn request
-uses a Goal only when requested.
+guardrail maintenance in the same Task keeps its Goal. Learn does not start a
+standalone Task or Goal.

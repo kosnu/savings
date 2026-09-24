@@ -17,7 +17,7 @@ Personal savings management app: `apps/web/` is React + TypeScript + Vite;
 ## Task entrypoints
 
 - Development execution: apply the [Development contract](docs/ai-driven-development/workflow.md) directly in Claude or Codex. Intent may be expressed in an Issue or explicit user messages; preserve its source and execution authority.
-- Guardrail updates: record the authorized change in the current Task under the same workflow. Development / Learn describe the work, not mandatory Task or branch boundaries. A standalone feedback request may start a Learn Task; continue existing authorized work in its current Task.
+- Guardrail updates: record the authorized change in the current Task under the same workflow. Development / Learn describe work within the Intent-led Task. Run Learn only for eligible feedback in that Task; do not start a standalone Learn Task.
 - Codex Goal integration: use [goal-setting](.agents/skills/goal-setting/SKILL.md) as the Goal-tool entrypoint for authorized Development or an explicit Goal request, under the [Codex adapter](docs/ai-driven-development/codex-adapter.md). Execution follows the common protocol. Claude and hosts without Goal tools use the same Core Task contract without Codex Goals.
 - Authorized maintenance outside Development/Learn follows these working agreements and applicable policies directly. Task size or Goal availability does not exempt product or guardrail changes from their contract.
 - Existing-task review fixes or additional Ship: use the workflow's continuation boundary and preserve Task/baseline. Do not start legacy phase Goals, fixed executors, or legacy phase CLI paths.

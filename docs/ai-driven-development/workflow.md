@@ -29,7 +29,7 @@ CodexでGoal機能を使う場合は[Codex adapter](codex-adapter.md)を追加�
 Issue番号の参照だけでは開始しない。Issueなしの場合はユーザーの明示発言を出典として保持する。
 Task開始前に単一writerのworktreeでcleanな基準点を固定する。無関係な変更は移さない。
 ブランチの作成・切り替え・分割は[Git Workflow](../harness/policies/git-workflow.md#ブランチ)に従う。
-Development / Learnは作業の入口・内容の区別であり、Task・ブランチ・PRを分ける条件ではない。
+Development / Learnは同じTask内の作業内容の区別であり、それだけでブランチ・PRを分けない。
 開始時checkerは[operations](aidd-checker-operations.md)の準備commandで自動取得する。
 同じソース・連動契約・実行環境なら検査済みbinaryを再利用し、Task期間中は返されたpathを保持する。
 
@@ -56,9 +56,21 @@ Issueなしでは補足発言そのものを保持し、Issue作成を継続条�
 意図の不足・解釈違いを直す同じ成果への修正は、元Task・baselineを保持してDecisionを改訂する。
 同じ意図内の設計変更にはIntentの追記を要求しない。独立した別成果への新規依頼は目的と作業境界を確認して開始する。
 Issueの有無、出典変更、Development/Learnの呼称だけをTask分割の理由にしない。
+同じ成果への補足・修正は元のIntentに属する。サイクル終了後の新しいIntentは次のTaskを開始する。
 Intentの補足は実装許可を自動的に増やさない。既存の実行依頼で委任済みの修正は継続し、目的・権限を広げる場合は
 人間の明示許可を別に記録する。質問やLearnの分析だけを実行依頼へ読み替えない。
 技術的な設計選択は委任範囲内でagentが決める。出典の真正性と意味的な対応はagentが確認し、Coreは記録の整合を検査する。
+
+## 概念とサイクルの境界
+
+用語の意味と相互関係は[AIDDプロトコル用語集](glossary.md)を正本とする。
+一つのTaskが一つのIntentから始まる一つのサイクルに対応する。
+対象となる指摘があれば同じTaskでLearnと採用した学びの反映を行い、
+指摘がなければLearnを行わずにサイクルを終える。
+同じ成果への修正・review対応・追加Ship・Decisionの改訂は元のTaskで続ける。
+サイクル終了後の新しいIntentは次のTaskとサイクルを開始する。
+工程ごとにTaskやGoalを作らず、Task IDの書式からサイクル境界を推定しない。
+保存形式・検査範囲は[compact protocol](compact-protocol.md)と[checker](aidd-checker.md)、Goal操作は[Codex adapter](codex-adapter.md)に従う。
 
 ## 自律判断と確認の境界
 
@@ -81,7 +93,7 @@ Intentの補足は実装許可を自動的に増やさない。既存の実行�
 
 ## Development
 
-1. Issue本文またはユーザー発言と出典・実行許可を確認し、task-startでTaskとGit baselineを固定する。
+1. Issue本文またはユーザー発言によるIntentと実行許可を確認し、task-startでTaskとGit baselineを固定する。
 2. repositoryとrule-mapを探索し、要求・設計・検証方針を同じDecision draftで反復する。
 3. AIDDの仕組みや実行入力の変更では[変更Coverage](change-coverage.md)で概念・representation・全検討軸を評価する。
    checkpointで実装が参照する判断を固定する。常時の人間承認gateにはしない。
@@ -159,11 +171,10 @@ Goalの完了後でも同じTaskを継続し、必要なcheckpoint改訂と全�
 現在の作業範囲と成果物は最新Decisionのownershipとrepresentationに記載する。
 作業範囲の記録だけでは実装の権限は増えない。product実装はTask種別にかかわらず、Intentの出典と
 実行依頼に結び付ける。Development開始時の実行依頼が既にある場合はその記録を使い、再承認しない。
-Learnから開始したTaskでproduct実装が許可された場合は、同じTaskのDecisionに
-`product_authorization`としてIssueまたはユーザー発言の本文・出典・hash、実行許可と対象の有限scopeを記録する。
-元のTaskやfeedbackは保持し、その記録を後続Decisionへ引き継ぐ。Learnの開始出典がIssueやユーザー発言でも、
-それだけでproduct実装を許可しない。許可の真正性とIntentとの意味的な対応はagentが確認し、
-checkerは記録の必須項目・hash・対象差分との対応を検査する。
+既存の`kind: learn` Task記録にproduct実装の許可を追加する場合は、旧記録を保持したまま
+`product_authorization`にIssueまたはユーザー発言の本文・出典・hash、実行許可と有限scopeを記録する。
+この互換経路を独立したLearn Taskの新規開始条件として使わない。
+許可の真正性とIntentとの意味的な対応はagentが確認し、checkerは記録の必須項目・hash・対象差分との対応を検査する。
 DevelopmentはDecisionのownershipを更新する。Learnの作業範囲は初期`authorized_scopes`と
 checkpointに記録した`scope_revision.added_scopes`から構成し、追加理由・委任境界のレビュー・確認者を残す。
 ユーザーの明示的なファイル制限は`user_scope_limits`へ記録し、作業範囲の追加によって解除しない。
@@ -206,7 +217,9 @@ purely localと確認できたdefectは同じDevelopment / Decision内で修正�
 requirement gap・design issue・delivery defectも同じ原因軸を評価する。
 詳細な判断境界は[review feedback policy](../harness/policies/review-feedback-classification.md)を適用する。
 
-Learnはfeedbackを扱う作業。単独の新規依頼はIssue不要のTaskとして開始できる。既存作業中は現在のTaskで扱う。入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
+Learnは対象となるfeedbackがある場合に元のIntentから始まったTask内で行う。
+feedbackの分析だけを新しいTaskとして開始せず、対象となる指摘がなければLearnは行わない。
+入力・原因調査は[learning policy](../harness/policies/learning-extraction.md)に従う。
 通常経路から到達可能なfindingは[決定論的検出可否](../harness/policies/learning-extraction.md#決定論的検出可否)を評価する。
 許可された改善は、判断根拠と採否をDecisionへ記録し、採用した対策を要求・behavior・検証case・成果物へ接続する。
 意味判断の妥当性はagentがreviewし、case参照・実行・Evidenceの整合はCoreが検査する。
