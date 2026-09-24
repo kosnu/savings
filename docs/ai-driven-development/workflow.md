@@ -22,8 +22,11 @@ ClaudeとCodexは共通のTask / Decision / Checkpoint / Evidence契約を直接
 プロトコルの適用は、実行用skillの存在や発火、Goal機能に依存しない。
 CodexでGoal機能を使う場合は[Codex adapter](codex-adapter.md)を追加適用する。
 
-人間のIntentに基づく開発の実行依頼は、Issueの有無によらずDevelopmentへ入る。Issue番号の参照だけ、
-read-onlyな質問、説明、調査、設計案の依頼では開始しない。Issueなしの場合はユーザーの明示発言を出典として保持する。
+依頼の意図は句読点ではなく意味で判断する。質問、説明、read-only調査、設計案だけではDevelopment・新しいTask・Goalを開始せず、
+実装や未依頼の副作用操作を許可したとも扱わない。回答に必要なread-only作業と、明示的に依頼されたread-only調査は実施できる。
+質問と実行依頼が併存する場合は質問への回答をユーザーへ返してから、明示された範囲だけ実行する。既存Task中は質問に先に答え、
+その質問で元の許可を拡張・取消しせず、既に許可された範囲でのみ継続する。明確な実行依頼には不要な確認を挟まない。
+Issue番号の参照だけでは開始しない。Issueなしの場合はユーザーの明示発言を出典として保持する。
 Task開始前に単一writerのworktreeでcleanな基準点を固定する。無関係な変更は移さない。
 ブランチの作成・切り替え・分割は[Git Workflow](../harness/policies/git-workflow.md#ブランチ)に従う。
 Development / Learnは作業の入口・内容の区別であり、Task・ブランチ・PRを分ける条件ではない。
