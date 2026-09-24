@@ -1,0 +1,81 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "53162d66ace8a22e30c74f0fa95805ecf7e6100e2c4f2d79b500c88901e867f2",
+  "checkpoint_sha256": "015a770348e2c8fe88ec1c5f54cddfcd581d4141671714ec4526ed223f5899b6",
+  "repository_sha256": "d3eb8fd1f0415e5a6e39f54311b20b4469f32c05ec34f2c0e01e09d85e577493",
+  "git_repository_sha256": "785f1e74ceb08bc869f4e14ea1fcce7ddd468373c650aa71e4c0131484fb7e92",
+  "changed_paths": [
+    ".agents/skills/learn/SKILL.md",
+    "docs/adr/0007-align-learn-agent-delegation.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/contracts/change-coverage.json",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/internal/rules/repository_routing_test.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1801-learn-delegation",
+    "receipt_sha256": "015a770348e2c8fe88ec1c5f54cddfcd581d4141671714ec4526ed223f5899b6",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "e6c758a7a5007636c205d276cee824c0b0fb6b051a323cc7a3de2e0d8e5aee40",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "e6c758a7a5007636c205d276cee824c0b0fb6b051a323cc7a3de2e0d8e5aee40"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "e6c758a7a5007636c205d276cee824c0b0fb6b051a323cc7a3de2e0d8e5aee40",
+        "procedure": "AGENTS.md、Learn skill、workflow、aidd-checker、operations、learning-extraction、Codex adapter、code-review、ADR 0003、ADR 0007、rule-mapを照合する。旧ADR本文を保持し、新ADRがLearn委譲条件だけを置き換えること、対象pathで新旧判断が選択され無関係pathで新ADRが選択されないことを確認する。複雑で独立し費用対効果が見合うLearn作業は明示依頼なしで委譲可能、定型作業はメイン、独立reviewは必須でなく、許可範囲・有限scope・単一writerを維持する。採択ADR保全validatorを実行する。 候補change-coverage modelの新ADR対象も確認する。 Code Review Policyのpathでも新旧ADRの選択と置換関係を確認する。",
+        "observation": "Code Review Policy本文は現行の費用対効果条件で整合し変更不要。rule-mapで同pathに旧ADR closureと新ADRがともに選択され、新ADRのoverridesが旧Learn委譲条件を置換することを確認した。旧ADR本文は保持、対象外pathは新ADR非選択。採択ADR保全validatorはpassed（checked=6）。"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "9222edae267a61c59228c40ad614d5f09a51cb8c3c118ac28145d63d1fdf691b",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2492,
+        "stderr_bytes": 0,
+        "output_sha256": "94328547a7cdd9824c22ce72801220d1b2df7e62f0587890ce0c19dd68aefd9e",
+        "final_state_sha256": "e6c758a7a5007636c205d276cee824c0b0fb6b051a323cc7a3de2e0d8e5aee40"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}
