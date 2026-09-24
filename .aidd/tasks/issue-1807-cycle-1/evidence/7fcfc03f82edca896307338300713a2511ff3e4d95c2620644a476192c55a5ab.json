@@ -1,0 +1,102 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "d53783545021941bda3fbde47a822a35ea605c430e37b90718127626cfa85970",
+  "checkpoint_sha256": "7fcfc03f82edca896307338300713a2511ff3e4d95c2620644a476192c55a5ab",
+  "repository_sha256": "7c167c2ea3c13000c12a5aca8311c139b186c9c4715ebe0e7a69c68c2b70866b",
+  "git_repository_sha256": "af0ccad39c2f5a2e21747bf71693b2f0e167caad431354f976420901805bbdf5",
+  "changed_paths": [
+    ".agents/skills/goal-setting/SKILL.md",
+    ".agents/skills/learn/SKILL.md",
+    "AGENTS.md",
+    "docs/adr/0008-define-aidd-cycle-boundary.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/codex-adapter.md",
+    "docs/ai-driven-development/contracts/change-coverage.json",
+    "docs/ai-driven-development/glossary.md",
+    "docs/ai-driven-development/overview.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+    "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1807-cycle-1",
+    "receipt_sha256": "7fcfc03f82edca896307338300713a2511ff3e4d95c2620644a476192c55a5ab",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "c588328fc004e01587aa3d8880e195a4bc964e46b6c0f7be715dea26714262f6",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "c588328fc004e01587aa3d8880e195a4bc964e46b6c0f7be715dea26714262f6",
+        "procedure": "最終diffと適用正本を読み、Intent/Issue/Task/Goal/Decision/Checkpoint/Evidence/Development/Learn/baseline/ownership/Core/adapter/checkerの責務・境界・参照先を照合する",
+        "observation": "今回の差分はADR-0008単独変更でも現行change coverageが選択されるようrule-mapと契約を同期。既存の用語定義・参照先は変更しない。"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "c588328fc004e01587aa3d8880e195a4bc964e46b6c0f7be715dea26714262f6",
+        "procedure": "指摘あり・なしの例でTask=サイクルとLearn条件、次IntentのTask開始を照合する",
+        "observation": "指摘あり・なしのTask/サイクル定義は既存PRの記述を維持し、今回のrouting変更はその条件を変えない。"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "c588328fc004e01587aa3d8880e195a4bc964e46b6c0f7be715dea26714262f6"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "c588328fc004e01587aa3d8880e195a4bc964e46b6c0f7be715dea26714262f6",
+        "procedure": "現行入口とADR置換関係を照合し、独立Learn Taskの開始指示がなく旧記録だけが履歴として残ることを確認する",
+        "observation": "現行入口の独立Learn Task禁止と旧記録読取は今回変更せず、ADR-0008の選択経路のみ同期した。"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "9222edae267a61c59228c40ad614d5f09a51cb8c3c118ac28145d63d1fdf691b",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2492,
+        "stderr_bytes": 0,
+        "output_sha256": "86405d5cdefeeb5fc6666bc79acefca8de64e820f5ef8561b99e05ee287c9e4a",
+        "final_state_sha256": "c588328fc004e01587aa3d8880e195a4bc964e46b6c0f7be715dea26714262f6"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}
