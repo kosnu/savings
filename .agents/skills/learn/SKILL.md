@@ -17,8 +17,9 @@ explicitly authorized scope. Do not create an Issue for Learn.
 
 For an authorized update, record feedback, authorization and finite ownership in the
 current Task. Do not split Tasks or Goals because work changes between product and
-guardrail maintenance. A standalone new feedback request may start a Learn Task;
-create its Goal only when requested.
+guardrail maintenance. Learn requires eligible feedback in the existing Intent-led
+Task. Do not start a standalone Learn Task or Goal. If there is no eligible finding,
+do not run Learn.
 
 Investigate causes before selecting a countermeasure. Update the owning policy, domain
 doc, rule-map, checker, verification or adapter instead of adding redundant instructions.

@@ -20,6 +20,7 @@
       "docs/adr/0003-adopt-aidd-invariant-protocol.md",
       "docs/adr/0004-separate-task-scope-from-work-kind.md",
       "docs/adr/0007-align-learn-agent-delegation.md",
+      "docs/adr/0008-define-aidd-cycle-boundary.md",
       ".agents/**",
       ".codex/**",
       ".github/skills/code-review/**",
@@ -84,6 +85,7 @@
           "docs/adr/0003-adopt-aidd-invariant-protocol.md",
           "docs/adr/0004-separate-task-scope-from-work-kind.md",
           "docs/adr/0007-align-learn-agent-delegation.md",
+          "docs/adr/0008-define-aidd-cycle-boundary.md",
           ".agents/**",
           ".codex/**",
           ".github/skills/code-review/**",
@@ -114,6 +116,7 @@
           "docs/adr/0005-compact-aidd-records.md",
           "docs/adr/0004-separate-task-scope-from-work-kind.md",
           "docs/adr/0007-align-learn-agent-delegation.md",
+          "docs/adr/0008-define-aidd-cycle-boundary.md",
           ".agents/skills/learn/**",
           ".agents/skills/goal-setting/**",
           ".codex/**",
@@ -131,6 +134,26 @@
       "depends_on": ["ai-driven.workflow", "documentation.policy"],
       "overrides": [],
       "priority": 89
+    },
+    {
+      "id": "adr.cycle-boundary",
+      "file": "docs/adr/0008-define-aidd-cycle-boundary.md",
+      "applies_to": {
+        "paths": [
+          "AGENTS.md",
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/policies/learning-extraction.md",
+          "docs/harness/rule-map.json",
+          "docs/adr/0008-define-aidd-cycle-boundary.md",
+          ".agents/skills/**",
+          ".codex/**"
+        ],
+        "topics": ["task-scope", "learning", "ai-driven-development"]
+      },
+      "depends_on": ["adr.aidd-invariant-protocol", "adr.task-scope", "adr.intent-sources"],
+      "overrides": ["adr.aidd-invariant-protocol", "adr.task-scope", "adr.intent-sources"],
+      "priority": 101
     },
     {
       "id": "adr.learn-delegation",
@@ -323,6 +346,24 @@
       "priority": 90
     },
     {
+      "id": "ai-driven.glossary",
+      "file": "docs/ai-driven-development/glossary.md",
+      "applies_to": {
+        "paths": [
+          "docs/ai-driven-development/**",
+          "tools/aidd/**",
+          "AGENTS.md",
+          ".agents/skills/**"
+        ],
+        "domains": ["repository", "ai-driven-development"],
+        "activities": ["build_verify", "ship", "learn"],
+        "topics": ["terminology", "ai-driven-development"]
+      },
+      "depends_on": [],
+      "overrides": [],
+      "priority": 89
+    },
+    {
       "id": "ai-driven.workflow",
       "file": "docs/ai-driven-development/workflow.md",
       "applies_to": {
@@ -338,7 +379,7 @@
         ],
         "topics": ["workflow", "prd", "design-doc", "pull-request", "verification"]
       },
-      "depends_on": ["ai-driven.overview"],
+      "depends_on": ["ai-driven.overview", "ai-driven.glossary"],
       "overrides": [],
       "priority": 88
     },

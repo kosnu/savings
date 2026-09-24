@@ -1,0 +1,101 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "d53783545021941bda3fbde47a822a35ea605c430e37b90718127626cfa85970",
+  "checkpoint_sha256": "25de4d4218357228f2639b29fabae3e625b21d1f1d850b39220b287288e560b6",
+  "repository_sha256": "82aa7cd577a537054292ea1dcb0f4b3c51138cb3fce11a74be3713e796d5e3d7",
+  "git_repository_sha256": "dcf602b5eb8eb4e69662359c79a8034e47a87b50708f1d6e4c161f08bf330fe4",
+  "changed_paths": [
+    ".agents/skills/goal-setting/SKILL.md",
+    ".agents/skills/learn/SKILL.md",
+    "AGENTS.md",
+    "docs/adr/0008-define-aidd-cycle-boundary.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/ai-driven-development/codex-adapter.md",
+    "docs/ai-driven-development/glossary.md",
+    "docs/ai-driven-development/overview.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/rule-map.json",
+    "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+    "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1807-cycle-1",
+    "receipt_sha256": "25de4d4218357228f2639b29fabae3e625b21d1f1d850b39220b287288e560b6",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "479a7a246a3027443fb60d234cd21d1a287dc3d01b36ec2421e320698570fdb2",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "479a7a246a3027443fb60d234cd21d1a287dc3d01b36ec2421e320698570fdb2",
+        "procedure": "最終diffと適用正本を読み、Intent/Issue/Task/Goal/Decision/Checkpoint/Evidence/Development/Learn/baseline/ownership/Core/adapter/checkerの責務・境界・参照先を照合する",
+        "observation": "用語集にIntent、Issue、Task、Cycle、Goal、各工程、記録とCoreの概念を個別定義し、workflowとoverviewとadapterが同じ正本へ参照することを最終差分で確認した"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "479a7a246a3027443fb60d234cd21d1a287dc3d01b36ec2421e320698570fdb2",
+        "procedure": "指摘あり・なしの例でTask=サイクルとLearn条件、次IntentのTask開始を照合する",
+        "observation": "指摘なしはLearnを行わず終了、指摘ありは同一TaskでLearnと再試行、サイクル終了後の新Intentは次Taskとなる例を用語集とworkflowとadapterで照合した"
+      },
+      {
+        "id": "VC-3",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "479a7a246a3027443fb60d234cd21d1a287dc3d01b36ec2421e320698570fdb2"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "479a7a246a3027443fb60d234cd21d1a287dc3d01b36ec2421e320698570fdb2",
+        "procedure": "現行入口とADR置換関係を照合し、独立Learn Taskの開始指示がなく旧記録だけが履歴として残ることを確認する",
+        "observation": "AGENTS、Learn skill、operationsに独立Learn Taskの新規開始指示がなく、旧kind learn記録のみ読取互換として残り、ADR-0008が旧ADRの競合判断を置換することを確認した"
+      },
+      {
+        "id": "VC-5",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "aidd-checker-tests",
+        "profile_sha256": "9222edae267a61c59228c40ad614d5f09a51cb8c3c118ac28145d63d1fdf691b",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "aidd-checker-tests"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 2492,
+        "stderr_bytes": 0,
+        "output_sha256": "82b0bcafdf2af4cfdc1fd195a57dcc166277f3ce4bed8c5de48e655a8a88dcfc",
+        "final_state_sha256": "479a7a246a3027443fb60d234cd21d1a287dc3d01b36ec2421e320698570fdb2"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}
