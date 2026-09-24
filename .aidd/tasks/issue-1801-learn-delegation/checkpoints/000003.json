@@ -1,0 +1,429 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "53162d66ace8a22e30c74f0fa95805ecf7e6100e2c4f2d79b500c88901e867f2",
+  "revision": 3,
+  "parent_sha256": "1a57d411418c1024a0387aa8a7b4fa85ce5241e7ba957ba522eab52eb8cf26f7",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "learn-delegation",
+        "concept": "Learnの委譲判断をAGENTS.mdの費用対効果条件に統一する",
+        "representations": [
+          {
+            "path": ".agents/skills/context-scout/SKILL.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": ".agents/skills/learn/SKILL.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "AGENTS.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+            "status": "unaffected",
+            "reason": "採択済みADRの過去判断は編集しない"
+          },
+          {
+            "path": "docs/adr/0007-align-learn-agent-delegation.md",
+            "status": "affected",
+            "reason": "旧Learn委譲条件を置き換える新判断を記録する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/harness/policies/code-review.md",
+            "status": "unaffected",
+            "reason": "関連する入口・正本・routingを照合し、既存の条件と責務を維持する"
+          },
+          {
+            "path": "docs/harness/policies/documentation-policy.md",
+            "status": "unaffected",
+            "reason": "採択ADRの履歴保持と新ADRによる置換の既存契約を適用する"
+          },
+          {
+            "path": "docs/harness/policies/learning-extraction.md",
+            "status": "affected",
+            "reason": "明示依頼だけに限る現行記述を共通の費用対効果基準へ整合する"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "affected",
+            "reason": "新旧判断の参照と競合解決を対象pathへ接続する"
+          },
+          {
+            "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+            "status": "affected",
+            "reason": "Learn関連pathの新判断と旧判断の選択、無関係pathの非選択を検証する"
+          },
+          {
+            "path": "docs/ai-driven-development/contracts/change-coverage.json",
+            "status": "affected",
+            "reason": "新ADRを将来のAIDD変更影響判定対象へ登録する"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "単独Learn開始、checkpoint、verify、finish、review後継続・追加Shipで元Taskと証拠を保持し、委譲判断だけを共通ルールに合わせる",
+            "status": "unaffected",
+            "reason": "Task履歴・証拠・配信の順序は変更しない"
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "Learn skill、workflow、policy、新ADRからrule-mapの新旧判断へ到達し、AIDD checkerとCIの実差分routingで同じclosureを選ぶ。旧ADR本文は変更しない 候補change-coverage modelも新ADRを対象に含める。",
+            "status": "affected",
+            "reason": "新ADRの選択と置換関係をrule-mapへ追加する",
+            "verification_case_ids": [
+              "VC-2",
+              "VC-3"
+            ]
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "独立Learn、Development内Learn、review修正、追加Shipで新ADRの委譲判断を選択する。旧Task/checkerとCIの証拠契約は維持する",
+            "status": "affected",
+            "reason": "どの入口でも旧条件より新判断が優先される経路を追加する",
+            "verification_case_ids": [
+              "VC-2",
+              "VC-3"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "ADRは当時の判断を保持し、新ADRがLearn委譲条件のみを置き換える。現行の行動条件はAGENTS.mdとworkflow等が所有し、独立reviewの任意性を保つ",
+            "status": "affected",
+            "reason": "履歴、適用経路、現行指示の役割を分ける",
+            "verification_case_ids": [
+              "VC-2",
+              "VC-3"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "費用対効果のある独立作業は委譲可、定型確認と軽微修正はメイン、単一writer・有限scope・許可範囲は維持し、独立reviewは強制しない",
+            "status": "affected",
+            "reason": "許可と拒否の両側、従来の安全条件を維持する",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "53162d66ace8a22e30c74f0fa95805ecf7e6100e2c4f2d79b500c88901e867f2",
+    "reason": "新ADRをAIDD control planeとして追加するため、将来のTask用change-coverage modelにも同じpathを登録する。既存Taskは開始時の固定modelを保持する。rule-mapの新経路を反映した新revisionを作り、旧証跡を失効させる。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Learnにおける別agentの委譲判断を共通の費用対効果基準に揃え、定型作業と独立reviewの既存境界を維持する",
+        "origin": "intent",
+        "evidence": "Learn の作業でも委譲可否を一貫して判断できる状態にする。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "複雑で独立したLearn作業は費用対効果が見合えば、ユーザーの明示依頼がなくても必要最小限の委譲を選べる",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "定型的な確認・軽微な修正はメインagentが担当し、独立reviewを完了条件にしない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "procedure": "AGENTS.md、Learn skill、workflow、aidd-checker、operations、learning-extraction、Codex adapter、code-review、ADR 0003、ADR 0007、rule-mapを照合する。旧ADR本文を保持し、新ADRがLearn委譲条件だけを置き換えること、対象pathで新旧判断が選択され無関係pathで新ADRが選択されないことを確認する。複雑で独立し費用対効果が見合うLearn作業は明示依頼なしで委譲可能、定型作業はメイン、独立reviewは必須でなく、許可範囲・有限scope・単一writerを維持する。採択ADR保全validatorを実行する。 候補change-coverage modelの新ADR対象も確認する。"
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0007-align-learn-agent-delegation.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/contracts/change-coverage.json",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".agents/skills/learn/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "documentation",
+          "path": "docs/adr/0007-align-learn-agent-delegation.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "configuration",
+          "path": "docs/harness/rule-map.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "test",
+          "path": "tools/aidd/checker/internal/rules/repository_routing_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "configuration",
+          "path": "docs/ai-driven-development/contracts/change-coverage.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.learn-delegation",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "8bc6749d57f19657b5322b7680b66de5afc904a2d646a9efe175bbf180049315",
+    "snapshot": true
+  }
+}

@@ -27,7 +27,7 @@ func TestRepositoryControlPlaneRouting(t *testing.T) {
 	for _, path := range []string{
 		"tools/aidd/checker/internal/protocol/new.go", "docs/ai-driven-development/contracts/new.json",
 		"docs/harness/rule-map.json", "docs/harness/policies/new.md",
-		"docs/adr/0001-adopt-harness-engineering.md", "docs/adr/0002-adopt-agent-rule-graph.md", "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+		"docs/adr/0001-adopt-harness-engineering.md", "docs/adr/0002-adopt-agent-rule-graph.md", "docs/adr/0003-adopt-aidd-invariant-protocol.md", "docs/adr/0007-align-learn-agent-delegation.md",
 		".agents/skills/learn/SKILL.md", ".codex/hooks.json", ".codex/environments/environment.toml",
 		".github/skills/code-review/SKILL.md", ".github/agents/fe-engineer.agent.md",
 		".github/workflows/aidd_checker_ci.yaml", ".github/workflows/aidd_future.yaml", "AGENTS.md", "CLAUDE.md",
@@ -164,6 +164,44 @@ func TestRepositoryIntentDecisionRouting(t *testing.T) {
 		}
 		if slices.Contains(selected, replacement) {
 			t.Errorf("無関係な変更へIntentの採用判断を適用: %s", path)
+		}
+	}
+}
+
+func TestRepositoryLearnDelegationDecisionRouting(t *testing.T) {
+	loaded := currentRepositoryRules(t)
+	const replacement = "adr.learn-delegation"
+	const previous = "adr.aidd-invariant-protocol"
+	for _, path := range []string{
+		"AGENTS.md", ".agents/skills/learn/SKILL.md", "docs/ai-driven-development/workflow.md",
+		"docs/harness/policies/learning-extraction.md", "docs/adr/0007-align-learn-agent-delegation.md",
+	} {
+		t.Run(path, func(t *testing.T) {
+			surfaces, selected, err := ResolvePath(loaded, path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !slices.Contains(surfaces, "aidd-harness") {
+				t.Errorf("Learnの判断を所有する変更面が未分類: %v", surfaces)
+			}
+			for _, id := range []string{replacement, previous} {
+				if !slices.Contains(selected, id) {
+					t.Errorf("新判断と置換元の参照が欠落: %s in %v", id, selected)
+				}
+			}
+		})
+	}
+	rule, ok := loaded.ByID[replacement]
+	if !ok || rule.File != "docs/adr/0007-align-learn-agent-delegation.md" || !slices.Contains(rule.DependsOn, previous) || !slices.Contains(rule.Overrides, previous) {
+		t.Errorf("置換先の記録・前提参照・競合解決の関係が欠落: %+v", rule)
+	}
+	for _, path := range []string{"docs/guides/example.md", "docs/harness/policies/documentation-policy.md", "apps/web/src/features/example.tsx"} {
+		_, selected, err := ResolvePath(loaded, path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if slices.Contains(selected, replacement) {
+			t.Errorf("無関係な変更へLearn委譲の採用判断を適用: %s", path)
 		}
 	}
 }
