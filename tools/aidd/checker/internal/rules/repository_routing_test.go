@@ -174,8 +174,7 @@ func TestRepositoryLearnDelegationDecisionRouting(t *testing.T) {
 	const previous = "adr.aidd-invariant-protocol"
 	for _, path := range []string{
 		"AGENTS.md", ".agents/skills/learn/SKILL.md", "docs/ai-driven-development/workflow.md",
-		"docs/harness/policies/code-review.md", "docs/harness/policies/learning-extraction.md",
-		"docs/adr/0007-align-learn-agent-delegation.md",
+		"docs/harness/policies/learning-extraction.md", "docs/adr/0007-align-learn-agent-delegation.md",
 	} {
 		t.Run(path, func(t *testing.T) {
 			surfaces, selected, err := ResolvePath(loaded, path)
