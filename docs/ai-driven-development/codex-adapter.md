@@ -57,7 +57,7 @@ JSON Linesで追記する。新規行は次のv2スキーマに従い、列挙�
 | `schema_version`, `kind` | 整数`2`、文字列`task_usage_interval` |
 | `interval_id`, `task_id` | 空でない文字列。前者はログ全体で一意、後者はCore Task ID |
 | `repository` | 空でない`owner/repository`形式の文字列 |
-| `phase` | `preparation`、`explore_decide`、`build`、`verify_review`、`ship`、`unclassified`のいずれか。工程を特定できない取得不可区間だけ`unclassified`を使う |
+| `phase` | `preparation`、`explore_decide`、`build`、`verify_review`、`ship`、`unclassified`のいずれか。工程を特定できない区間だけ`unclassified`を使う |
 | `started_at` | UTCのRFC 3339文字列。開始時刻を取得できない場合だけ`null` |
 | `ended_at`, `recorded_at` | UTCのRFC 3339文字列。前者は区間の終了時刻、後者は行を追記した時刻 |
 | `time_seconds`, `tokens` | 両方とも0以上の整数、または両方とも`null`。Goalの累積値の差分を記録する |
@@ -65,7 +65,8 @@ JSON Linesで追記する。新規行は次のv2スキーマに従い、列挙�
 | `unavailable_reason` | `source`が`codex_goal`なら`null`、`unavailable`なら空でない理由の文字列 |
 
 `source`が`unavailable`の行では`time_seconds`と`tokens`をともに`null`にし、
-`codex_goal`の行ではともに整数にする。既存の`schema_version: 1`の行は上書き・移行せず、
+`codex_goal`の行ではともに整数にする。Goalの合計値は取得できても工程境界を採取できない区間は、
+実測の差分を`unclassified`として保存し、他の工程へ推定配分しない。既存の`schema_version: 1`の行は上書き・移行せず、
 `kind`のない履歴として読み取る。週次集計ではv1の既存キーを対応する同名の項目として扱い、
 v1にだけある`wall_elapsed_seconds`はGoal使用量へ加えない。形式不明・型不一致の行を推定で補完したり
 黙って合算したりせず、取得不可として報告する。同じTaskの再開も既存行を上書きせず新しい区間として
