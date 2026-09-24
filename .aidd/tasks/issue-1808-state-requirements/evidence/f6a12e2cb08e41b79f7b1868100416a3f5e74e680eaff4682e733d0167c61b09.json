@@ -1,0 +1,71 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "229917c380f0b3459740e46fac3e153d49d4bb6d961a245cc391a7ba5add4e26",
+  "checkpoint_sha256": "f6a12e2cb08e41b79f7b1868100416a3f5e74e680eaff4682e733d0167c61b09",
+  "repository_sha256": "3482b3f8204c124d3bbfcf3a0d38ee7a4f51c3b9018e873fde8a394907fd31ac",
+  "git_repository_sha256": "2fa53fda8e0bc8b98845247a1ff9c66f22a4159b35046732f3a96453bc4bf1c4",
+  "changed_paths": [
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/task.md",
+    "docs/ai-driven-development/issue-guidelines.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1808-state-requirements",
+    "receipt_sha256": "f6a12e2cb08e41b79f7b1868100416a3f5e74e680eaff4682e733d0167c61b09",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "2f9f78cb1e508f670891548b3918cdd8fbd6437635453d8d8766b48e0fd1aa54",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "2f9f78cb1e508f670891548b3918cdd8fbd6437635453d8d8766b48e0fd1aa54",
+        "procedure": "Feature Requestの期待する状態・成功条件、Bug Reportの期待される挙動、Taskの完了の定義と共通ガイドを照合する。各欄から実装後または操作後に確認できる期待結果を判定でき、作業実施だけでは条件を満たしたことにならないと確認する。",
+        "observation": "Feature Requestの期待する状態と成功条件、Bug Reportの期待される挙動、Taskの完了の定義、共通ガイドを読み、実装・操作後に観測できる結果や状態として達成を判定できる。"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "2f9f78cb1e508f670891548b3918cdd8fbd6437635453d8d8766b48e0fd1aa54",
+        "procedure": "Bug Reportの再現手順は操作の列挙として維持する。期待される挙動には期待結果を、実際の挙動には実際に観測した結果・状態を記し、どちらも再現操作や実装作業と混同されないことを確認する。他テンプレートにも目的が手順記述である項目があれば同じ境界を確認する。",
+        "observation": "Bug Reportの再現手順は操作の列挙として残り、期待される挙動は期待する結果、実際の挙動は発生時に観測した結果・状態を記す指示になっている。"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "2f9f78cb1e508f670891548b3918cdd8fbd6437635453d8d8766b48e0fd1aa54",
+        "procedure": "既存のIssue template selection policy、AIDD workflowの実行・検証境界と差分を照合し、選択基準・権限・検証契約の変更や詳細手順の一律必須化がないことを確認する。",
+        "observation": "差分はIssueテンプレートと共通記述ガイドの説明に限られ、Issue種別選択、AIDDの実行・検証契約、手順詳細の必須化に変更はない。"
+      },
+      {
+        "id": "VC-4",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "2f9f78cb1e508f670891548b3918cdd8fbd6437635453d8d8766b48e0fd1aa54"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}
