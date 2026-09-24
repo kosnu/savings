@@ -140,6 +140,7 @@
           "AGENTS.md",
           "tools/aidd/**",
           "docs/ai-driven-development/**",
+          "docs/harness/policies/code-review.md",
           "docs/harness/policies/learning-extraction.md",
           "docs/harness/rule-map.json",
           "docs/adr/0007-align-learn-agent-delegation.md",
