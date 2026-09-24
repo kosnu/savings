@@ -49,8 +49,26 @@ Shipの配信状態とCI状態を確認した直後の取得時点を残す。�
 同じ工程の区間を合算する。Taskの再開や追加Shipでは既存の数値を上書きせず、新しい区間を加える。
 
 各区間をCodex homeの`metrics/task-usage.jsonl`（通常は`~/.codex/metrics/task-usage.jsonl`）へ
-JSON Linesで追記する。1行に一意の区間ID、Task ID、repository、工程、計測開始・終了のUTC時刻、使用時間（秒）、
-トークン消費量、取得元、取得不可の理由を保持する。同じTaskの再開も既存行を上書きせず新しい区間として
+JSON Linesで追記する。新規行は次のv2スキーマに従い、列挙値や欠測値を別表現へ置き換えない。
+全キーを必須とし、記載のないキーは加えない。
+
+| キー | 型・値 |
+| --- | --- |
+| `schema_version`, `kind` | 整数`2`、文字列`task_usage_interval` |
+| `interval_id`, `task_id` | 空でない文字列。前者はログ全体で一意、後者はCore Task ID |
+| `repository` | 空でない`owner/repository`形式の文字列 |
+| `phase` | `preparation`、`explore_decide`、`build`、`verify_review`、`ship`、`unclassified`のいずれか。工程を特定できない取得不可区間だけ`unclassified`を使う |
+| `started_at` | UTCのRFC 3339文字列。開始時刻を取得できない場合だけ`null` |
+| `ended_at`, `recorded_at` | UTCのRFC 3339文字列。前者は区間の終了時刻、後者は行を追記した時刻 |
+| `time_seconds`, `tokens` | 両方とも0以上の整数、または両方とも`null`。Goalの累積値の差分を記録する |
+| `source` | 数値を取得した行は`codex_goal`、取得不可の行は`unavailable` |
+| `unavailable_reason` | `source`が`codex_goal`なら`null`、`unavailable`なら空でない理由の文字列 |
+
+`source`が`unavailable`の行では`time_seconds`と`tokens`をともに`null`にし、
+`codex_goal`の行ではともに整数にする。既存の`schema_version: 1`の行は上書き・移行せず、
+`kind`のない履歴として読み取る。週次集計ではv1の既存キーを対応する同名の項目として扱い、
+v1にだけある`wall_elapsed_seconds`はGoal使用量へ加えない。形式不明・型不一致の行を推定で補完したり
+黙って合算したりせず、取得不可として報告する。同じTaskの再開も既存行を上書きせず新しい区間として
 追記し、週次集計で区間を重複計上しない。完了メッセージには工程ごとの数値と合計、取得不可の区間を返す。
 Goal開始前の準備、Goal toolが利用できない区間、累積値が取得できない区間は推定やゼロ埋めをせず
 取得不可として理由を記録する。この値はCodex Goalが返す使用量であり、実時間や課金額への換算はしない。
