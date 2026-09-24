@@ -1,0 +1,206 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+  "revision": 6,
+  "parent_sha256": "899dcdf49eab4d608501bc86b4623186811af619ae974f734529197d0f759839",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "codex-phase-usage",
+        "concept": "Codex Goalの工程別使用量を互換性のある版付きJSONLとして記録する",
+        "representations": [
+          {
+            "path": ".github/PULL_REQUEST_TEMPLATE.md",
+            "status": "affected",
+            "reason": "PRテンプレートに追加した計測案内を除去し、元の内容へ戻す"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "affected",
+            "reason": "v2の固定スキーマとv1履歴の読取境界を定義する"
+          },
+          {
+            "path": ".agents/skills/goal-setting/SKILL.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "サイクル開始時の最初のGoal累積値を基準として、同じGoalの後続境界との差分だけを工程へ記録する。次サイクルや新Goalは新しい基準から始め、既存行は上書きしない。境界取得失敗後は復旧値を新しい基準へ設定する",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "Goal値が取得不可の場合はnullと理由を記録し、失敗前の成功値と復旧値の差分をどの工程にも算入しない",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "Codex Developmentと同Taskのreview修正・追加Shipでv2を追記する。旧v1行は履歴として残し、Claude・Core・CIの契約は変えない",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "Task継続と計測サイクルを区別し、同じGoal内の基準と区間差分だけを扱う。v2行はschema_version/kindで識別し、欠測と測定値を区別する",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "既存v1を移行せず保持し、v2では固定キー・型・列挙値・欠測表現を守り、PRへの計測値掲載やCore代替を要求しない",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+    "reason": "未解決レビュー https://github.com/kosnu/savings/pull/1804#discussion_r4090471032 とユーザーの「ならそれで返して解決して」を受け、計測基準の説明だけを明確化する。現行契約は同じGoal内の差分を要求するため異なるGoal間の減算は正常経路ではないが、次サイクルやGoal再作成時の最初の取得値を基準にする記述が不足している。症状は再開時の差分計算の曖昧さ、原因はCodex adapterの基準切替説明不足。対応は最初の成功取得値を新基準にする明記であり、既存v2の区間差分・一意interval_idで記録できるのでGoal系列IDやcycle IDの追加は今回の計測範囲に不要。文書の判断は手動reviewで確認し、累積値が同一系列かの機械判定は識別子がない現契約では不可だが、その機構追加の負担は今回の限定した曖昧さの解消を超える。Core/PRテンプレート/ローカルJSONLの既存行は変更しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "工程ごとの時間とトークン消費を固定スキーマのローカル専用JSONLに保存し、完了メッセージでも返す",
+        "origin": "intent",
+        "evidence": "ではそこに記録しつつ、メッセージとしても返してほしい",
+        "intent_revision": 2
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Codex Developmentの工程別使用量をTask ID付きの版付き固定スキーマでローカルJSONLへ保存し、完了メッセージに記載する。新サイクルまたは新Goalでは最初の取得値を基準として同じGoal内だけで差分を算出する。既存v1行は上書きせず保持する。PR本文・テンプレートには計測値を要求しない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Codex adapterとPRテンプレートの最終差分を読み、5工程・同じGoal内の累積差分・新サイクル/新Goalの初回値を基準とすること・取得不可・再開時の追記・Core非依存を確認する。境界取得失敗→復旧の例で混合差分を計上せず復旧値を新基準とすることを確認する。ローカルJSONLを読み戻し、v2の測定行・取得不可行・工程未分類の実測行と、不正なキー/型/kind/null組合せを照合し、既存v1行の読取境界と工程の意味を確認する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "1e5b0322379a4d5f107f2dfd1fb0e38f68c177b920b91cc59bf45bb2e352fe83"
+  }
+}

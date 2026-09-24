@@ -1,0 +1,52 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+  "checkpoint_sha256": "085d941906c881e5cf34fd70c4b4658b9dc3606009ec2f7e97b1cc442634a357",
+  "repository_sha256": "ef8f85676bae145c4b3bff99904ae5dcb9c416492b1bd9c4ec045d294480ef32",
+  "git_repository_sha256": "5aa5d6eaeee984d5c255fbf08f99af4438fe9a976c1bbaa9df5a5a71d3e94647",
+  "changed_paths": [
+    "docs/ai-driven-development/codex-adapter.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "codex-phase-usage-record-20260924",
+    "receipt_sha256": "085d941906c881e5cf34fd70c4b4658b9dc3606009ec2f7e97b1cc442634a357",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "853ece68f3e7abb12edf5a583b40e00798ea39ab09966d5d431a35753dbfec11",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "853ece68f3e7abb12edf5a583b40e00798ea39ab09966d5d431a35753dbfec11"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "853ece68f3e7abb12edf5a583b40e00798ea39ab09966d5d431a35753dbfec11",
+        "procedure": "Codex adapterとPRテンプレートの最終差分を読み、5工程・同じGoal内の累積差分・新サイクル/新Goalの初回値を基準とすること・取得不可・再開時の追記・Core非依存を確認する。境界取得失敗→復旧の例で混合差分を計上せず復旧値を新基準とすることを確認する。ローカルJSONLを読み戻し、v2の測定行・取得不可行・工程未分類の実測行と、不正なキー/型/kind/null組合せを照合し、既存v1行の読取境界と工程の意味を確認する。",
+        "observation": "Codex adapter最終差分とPRテンプレートを確認し、5工程、同じGoal内の累積差分、新サイクルと新Goalの初回取得値を新基準とすること、取得不可、再開追記、Core非依存、PR非掲載を確認した。Goal Aの100→150は50、次サイクルのGoal Bの0→20は20で、前Goal150との差分を取らない。同じGoal継続でも次サイクル初回170を基準に190との差分20だけを計上する。境界取得失敗100→失敗→復旧160→200では混合差分60を計上せず次の40だけを計上する。既存v1の6行とv2の2行をJSONとして読み戻し、v2の必須13キー・型・kind・null組合せと工程未分類の実測行を確認した。工程割当ての意味は担当agentが確認した。"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}
