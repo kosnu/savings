@@ -1,0 +1,44 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1808-state-requirements",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1808",
+      "body": "## 関連Issue\n\n#1686\n\n## 概要\n\nIssueを作成するとき、期待する状態・期待される挙動・成功条件・完了の定義など、状態や結果を記述する欄に、実装手順やアクションが書かれることがある。その記述だけでは、期待した状態に到達したかを判断できない。\n\nIssueの種別や欄の名称を問わず、状態や結果を書く項目から達成後の状態を判定できるよう、Issueテンプレートと起票ルールの記述を見直す。\n\n## 完了の定義 (Definition of Done)\n\n- Issue本文の期待状態・期待挙動・成功条件・完了の定義から、達成後にどのような状態になるかを判定できる\n- 状態や結果を記述する欄では、実装手順やアクションを実施したこと自体ではなく、観測可能な状態や結果が条件として記載されている\n- 再現手順などアクションを記述する項目は、状態や結果を記述する項目と役割が区別されている\n\n## 制約・禁止事項\n\n- Issueの種別や欄の名称を問わず、状態や結果を記述する項目を対象とする\n- 再現手順など、アクションの記述を目的とする項目まで状態表現に置き換えない\n- Issue全般に実装手順や検証手順の詳細記入を求めない\n- Issue種別の選択基準やAIDD実行時の検証契約は対象としない\n\n## 補足\n\n- #1686 はTaskテンプレートを見直したIssue。本件ではTaskに限らず、すべてのIssueで状態や結果を記述する項目を対象とする。\n",
+      "body_sha256": "2e5353228a7966664042c6e3f6a7490a7b57b9ccd5fb5da826fa93f4eb985110"
+    },
+    "objective": "全Issue種別の状態・結果要件を、実装手順やアクションでなく観測可能な状態として記述できるようにする。",
+    "constraints": [
+      "期待状態・期待挙動・成功条件・完了の定義など、Issue種別を問わず状態や結果を記述する項目を対象にする。",
+      "再現手順などアクション記述を目的とする項目の責務を維持する。",
+      "実装手順や詳細な検証手順の記入を必須化しない。",
+      "Issue種別の選択基準およびAIDD実行時の検証契約を変更しない。"
+    ],
+    "done": [
+      "Feature Request、Bug Report、Taskおよび共通のIssue記述ガイドで、状態・結果を記述する項目から達成後の観測可能な状態を判定できる。",
+      "状態・結果の項目と、Bug Reportの再現手順などアクション記述の項目との役割が明確である。",
+      "Issue種別選択とAIDD実行・検証契約が維持され、手順や検証ケースの詳細記入が一律に要求されない。",
+      "変更を検証・レビューし、commit・push・Issue #1808を参照するPR作成と配信状態の読み戻しを完了する。"
+    ],
+    "verification": [
+      "Feature Request、Bug Report、Taskの各状態記述欄と共通Issue記述ガイドを読み、期待・達成状態を結果で判定できることを確認する。",
+      "Bug Reportの再現手順など、アクションを記述する項目の役割が維持されていることを確認する。",
+      "Issue template selectionとAIDDの自律判断・検証契約に変更がないことを確認する。",
+      "git diff --checkと必要な文書・AIDD検証を実行し、最終差分をレビューする。",
+      "Ship時にPR head、remote ref、PR/Issue link、対象headのCI状態を確認する。"
+    ]
+  },
+  "baseline_head": "af0027adc1f7ab87428c91ebe3b780e21e5ff0d3",
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
