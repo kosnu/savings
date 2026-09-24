@@ -24,12 +24,12 @@ Codexは1つのDevelopment Goalで探索から依頼されたdeliveryまで継�
 
 DevelopmentはExplore / Decide → checkpoint → Build / Verify / Review → Shipを基本形とし、
 設計判断を同じ意図・制約の下で改訂できます。改訂は新revisionとして記録し証拠を全失効します。
-Learnはfeedbackの分析と改善です。既存作業中のルール保守は同じTaskで行い、単独の新規依頼ではTaskを開始できます。
-Learn用Issueは作りません。product実装の意図と許可は出典となるIssueまたはユーザー発言で確認し、許可済みの作業を同じTaskで継続します。
-1サイクルはIntentからDevelopment、Ship、Learnで得た学びの反映までです。その後にIntentから始まる開発は次のサイクルです。
-サイクルとTask・Goal・工程の境界を含む用語の定義は[workflow](workflow.md#概念とサイクルの境界)を参照します。
+Learnは対象となるfeedbackがある場合に同じTask内で行う分析と改善です。指摘がなければLearnは行いません。
+Learn用Issueや独立したLearn Taskは作りません。product実装の意図と許可は出典となるIssueまたはユーザー発言で確認します。
+1 Taskが1サイクルに対応します。IntentからDevelopment、Shipへ進み、指摘があればLearnで得た学びを反映します。
+サイクル終了後の新Intentは次のTask・サイクルです。用語の定義は[AIDDプロトコル用語集](glossary.md)を参照します。
 人間のIntentとIssueなどの表現方法は区別します。意図の補足・訂正は同じTaskのcheckpointへ出典付きで追記し、
-元の記録を保持します。既存Taskの続行と独立した新規作業の境界はworkflowに従います。
+元の記録を保持します。同じ成果への補足・修正と、次のIntentによる新Taskの境界はworkflowに従います。
 
 契約の正本は[workflow](workflow.md)、checker境界は[aidd-checker](aidd-checker.md)、
 実行方法は[operations](aidd-checker-operations.md)、Codex固有動作は[codex-adapter](codex-adapter.md)です。

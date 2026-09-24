@@ -1,0 +1,542 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "d53783545021941bda3fbde47a822a35ea605c430e37b90718127626cfa85970",
+  "revision": 2,
+  "parent_sha256": "9be1605e82013b4985cd45e2f963a71a79ce1048444e38c4e4a74fc7eced3d7c",
+  "decision": {
+    "intent_revision": {
+      "intent": {
+        "kind": "issue",
+        "reference": "https://github.com/kosnu/savings/issues/1807",
+        "body": "## 関連Issue\n- #1806: ADRを意思決定履歴とし現行ルールの参照先を正本に統一する（定義の正本配置との整合を確認する）\n\n## 概要\nAIDDプロトコル全体の用語・概念・工程の定義と相互関係を明確にし、プロトコルを理解・適用するときに矛盾や解釈の迷いが生じない状態を目指す。Task、Goal、1サイクルを表す概念、工程などは対象の例であり、対象をそれらに限定しない。ここで1サイクルはIntentからDevelopment・Shipへ進み、対象となる指摘がある場合だけ同じTask内でLearnと学びの反映を行う。Taskは1サイクルの実行記録であり、指摘がなければLearnは行わない。サイクル後の新しいIntentから次のTask・サイクルを開始し、独立したLearn Taskは作らない。\n\n## 完了の定義 (Definition of Done)\n- AIDDプロトコルの理解・適用に必要な用語・概念の範囲と定義の参照先が明確で、必要な定義に抜けがない。\n- 各用語・概念の意味・責務・適用範囲・他概念との関係が明確で、同じ用語の意味の揺れや概念間の混同を生じない。\n- Intent、Issue、Task、1サイクルを表す概念、Goal、Decision、Checkpoint、Evidence、Development／Learn、baseline、ownershipなど、実行契約を構成する概念の関係と境界が明確である。\n- Task・1サイクル・Goal・工程の関係、およびAIDD Core・adapter・checkerの責務が明確で、適用時に相反する解釈が生じない。\n- 現行の正本、関連文書、実行・検証機構の定義が一貫しており、現行の指示と履歴上の定義が区別されている。\n- 影響範囲に必要なAIDD検証の結果が成功状態になっている。\n\n## 制約・禁止事項\n- 対象はAIDDプロトコルの用語・概念・工程・適用境界と、それを記述・実行・検証するために必要な資料や機構に限る。アプリ機能・データ仕様の変更は含めない。\n- 全面改稿か必要箇所への追記かなど、定義を明確にする実現方法はこのIssueで事前に固定しない。\n- 採択済みADRの既存本文は上書きせず、必要な変更はClarificationの追記または置換ADRで表す。\n- #1806の範囲を、このIssueの起票によって拡張しない。\n\n## 補足\n- 主な現行資料: `docs/ai-driven-development/workflow.md`、`codex-adapter.md`、`goal-templates/index.md`、`change-coverage.md`\n- 関連する判断記録: ADR-0003、ADR-0004、ADR-0006\n",
+        "body_sha256": "23efa747446d0f364a66aa4d22e8821c786bf5f8a071412517c5505cd46c5f2e"
+      },
+      "reason": "ユーザー訂正をIssue #1807へ同期した"
+    },
+    "change_coverage": [
+      {
+        "id": "cycle-and-terms",
+        "concept": "AIDDの用語正本と、Intentから始まる1 Task=1サイクル、指摘がある場合だけ行うLearn、独立Learn Taskの新規開始禁止",
+        "representations": [
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "docs/ai-driven-development/overview.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "docs/harness/policies/learning-extraction.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker.md",
+            "status": "unaffected",
+            "reason": "Coreの検査責務と非担当範囲は既存説明を維持する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "docs/ai-driven-development/goal-templates/index.md",
+            "status": "unaffected",
+            "reason": "GoalのTask追跡とphase非分割は既存説明を維持する"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/model.go",
+            "status": "unaffected",
+            "reason": "サイクルは説明上の境界であり新しい機械fieldを追加しない"
+          },
+          {
+            "path": "AGENTS.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": ".agents/skills/learn/SKILL.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": ".agents/skills/goal-setting/SKILL.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "docs/ai-driven-development/glossary.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "docs/adr/0008-define-aidd-cycle-boundary.md",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          },
+          {
+            "path": "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+            "status": "affected",
+            "reason": "用語正本・現在の実行境界・新規Task開始入口の整合を取る"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "IntentからTaskを開始しShipする。指摘がなければLearnなしで閉じ、指摘があれば同TaskでLearnと再試行を行う。完了後の新Intentは次Task・サイクル。",
+            "status": "affected",
+            "reason": "1 Task内のfeedback有無と次Intentへの移行を明確化する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "AIDD文書・入口変更からglossaryを必須選択し、新規task-startのlearn入力を拒否する。Task ID例は保持する。",
+            "status": "affected",
+            "reason": "rule-mapの用語正本routingとtask-start入力を変更する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-5"
+            ]
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "Issue/message起点Development、同Taskのreview/Learn/追加Ship、旧learn Taskの読取、main統合とCIを照合する。独立Learnの新規開始だけ不可。",
+            "status": "affected",
+            "reason": "Development、review継続、追加Ship、旧Learn記録の読取と新規開始拒否を区別する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "Intent/Issue、Task/Cycle/Goal、Development/Learnと工程、Decision/Checkpoint/Evidence、Core/checker/adapterを独立定義し相互リンクする。",
+            "status": "affected",
+            "reason": "Task/Cycle/Goalおよび各工程を分けた正本定義へ移す",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "開始時baseline・checker、権限、checkpoint改訂、旧learn記録のhash・読取、Shipのstaged同一性を維持する。",
+            "status": "affected",
+            "reason": "旧記録の読取、固定baselineと検証証拠を維持しながら新規Learn開始だけ拒否する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-4"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "d53783545021941bda3fbde47a822a35ea605c430e37b90718127626cfa85970",
+    "reason": "4件のLearn判断を反映する。用語正本を分離し、1 Task=1サイクルと指摘時のみのLearnを明確化する。独立Learn Taskの新規開始を禁止し旧記録は保持する。Task ID例の変更は採用しない。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "AIDDの概念・工程・1サイクルとTask/Goal/Coreの関係を一貫して定義する",
+        "origin": "intent",
+        "evidence": "AIDDプロトコル全体の用語・概念・工程の定義と相互関係を明確にし、プロトコルを理解・適用するときに矛盾や解釈の迷いが生じない状態を目指す。"
+      },
+      {
+        "id": "FR-2",
+        "text": "1 Task=1サイクルはIntentから開始し、対象指摘がある場合だけ同Task内でLearnを行い、次のIntentは次Taskを開始する",
+        "origin": "intent",
+        "evidence": "Taskは1サイクルの実行記録であり、指摘がなければLearnは行わない。",
+        "intent_revision": 2
+      },
+      {
+        "id": "FR-3",
+        "text": "独立したLearn Taskを新規作成できず、既存記録は履歴として読める",
+        "origin": "intent",
+        "evidence": "独立したLearn Taskは作らない。",
+        "intent_revision": 2
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "現行正本と関連文書で各概念の意味・責務・境界を一義的に読み取れる",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "Intentから始まるTaskとサイクルが1対1となり、指摘時だけ同じTaskでLearnし、次のIntentで次Taskへ移る",
+          "requirement_id": "FR-2"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "新規task-startはlearn種別を拒否し、既存learn記録は読み取れる",
+          "requirement_id": "FR-3"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "最終diffと適用正本を読み、Intent/Issue/Task/Goal/Decision/Checkpoint/Evidence/Development/Learn/baseline/ownership/Core/adapter/checkerの責務・境界・参照先を照合する"
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "指摘あり・なしの例でTask=サイクルとLearn条件、次IntentのTask開始を照合する"
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "現行入口とADR置換関係を照合し、独立Learn Taskの開始指示がなく旧記録だけが履歴として残ることを確認する"
+        },
+        {
+          "id": "VC-5",
+          "type": "automated",
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_profile_id": "aidd-checker-tests",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": ".agents/skills/learn/SKILL.md",
+          "kind": "file"
+        },
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/adr/0008-define-aidd-cycle-boundary.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/glossary.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/overview.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/rule-map.json",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+          "kind": "file"
+        },
+        {
+          "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/overview.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-5",
+          "kind": "implementation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-6",
+          "kind": "implementation",
+          "path": ".agents/skills/learn/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-7",
+          "kind": "implementation",
+          "path": ".agents/skills/goal-setting/SKILL.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-8",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/glossary.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-9",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/aidd-checker-operations.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-10",
+          "kind": "implementation",
+          "path": "docs/harness/rule-map.json",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-11",
+          "kind": "implementation",
+          "path": "docs/adr/0008-define-aidd-cycle-boundary.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1"
+          ]
+        },
+        {
+          "id": "REP-12",
+          "kind": "implementation",
+          "path": "tools/aidd/checker/cmd/aidd-checker/protocol_commands.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        },
+        {
+          "id": "REP-13",
+          "kind": "test",
+          "path": "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-3",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-5"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.learn-delegation",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "8bc6749d57f19657b5322b7680b66de5afc904a2d646a9efe175bbf180049315"
+  }
+}
