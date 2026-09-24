@@ -20,9 +20,6 @@
 
 <!-- レビュー時に特に見てほしい点や、その他補足事項があれば記載してください -->
 
-<!-- Codex Goalを使用したDevelopmentでは、docs/ai-driven-development/codex-adapter.mdに従い、
-「工程別の時間・トークン」の表と計測範囲をここに記載してください。取得不可の区間は理由を明記してください。 -->
-
 ## Review instructions
 
 - `docs/harness/rule-map.json` も参照し、関連ルールとの整合性を見てください。

@@ -1,0 +1,215 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+  "revision": 2,
+  "parent_sha256": "b5f6ee5011a429fc364e3338b653f6e20136d295bf8af8f66a3ed0493b244679",
+  "decision": {
+    "intent_revision": {
+      "intent": {
+        "kind": "message",
+        "reference": "user:current-thread/local-log-and-message",
+        "body": "ではそこに記録しつつ、メッセージとしても返してほしい",
+        "body_sha256": "3b434015b999e224e99649bca9cad883b734b54c3708e9ed1c48bb3eb2ec1de1"
+      },
+      "reason": "PRへの無断掲載を指摘し、週次振り返りとタスク後改善に使う記録先・報告方法を補足した"
+    },
+    "change_coverage": [
+      {
+        "id": "codex-phase-usage",
+        "concept": "Codex Goal利用時の工程別使用量をローカル専用ログと完了メッセージに記録する",
+        "representations": [
+          {
+            "path": ".github/PULL_REQUEST_TEMPLATE.md",
+            "status": "affected",
+            "reason": "PRテンプレートに追加した計測案内を除去し、元の内容へ戻す"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "affected",
+            "reason": "記録先をローカルJSONLと完了メッセージへ訂正する"
+          },
+          {
+            "path": ".agents/skills/goal-setting/SKILL.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "unaffected",
+            "reason": "Core契約とGoal操作入口を変更しない"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "Goalの工程境界で取得した値をTaskのローカルJSONLへ追記し、完了メッセージで返す。再開時は既存区間を上書きせず新しい区間を追記する",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "Goal利用可否と開始時点で取得範囲が変わるが、取得不可を明記し、Coreのpolicy/profileとrule-mapは変更しない",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "Codex Developmentの新Taskと同Taskのreview修正・追加Shipでローカル記録を行い、単独Learn、Claude、旧Task/checker、main統合・CIのCore契約は変更しない",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "Goal使用量の報告をローカルログと完了メッセージへ置き、Task/Decision/EvidenceおよびPR本文の責務と分離する",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "取得不可を推定で埋めず、ローカルログがCore verify/Shipを代替しない。PRテンプレートと本文へ計測値を要求しない",
+            "status": "affected",
+            "reason": "計測記録先の訂正に伴う実行経路と責務を明確にする",
+            "verification_case_ids": [
+              "VC-2"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "2cae957dd805a3e31ffb932bd9384befe57c134a8e354123e6c10ca271fdabb1",
+    "reason": "入力元: ユーザーの「PRテンプレートには載せるな」「週の振り返り」「タスク後の改善」「ではそこに記録しつつ、メッセージとしても返してほしい」「計測記録先の学びを反映して」。前回PRの例から記録先をPRへ固定したのが原因。PR掲載の継続は意図に反し、専用ログ+完了メッセージを採用する。形式的なPR本文有無は機械検査できるが、指定先の意味判断はagentが担う。Coreの検出器追加は負担に見合わない。VC-2/CIの別問題は今回の反映対象外。Task開始記録と既存checkpointは保持し、最新証拠を再生成する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "工程ごとの時間とトークン消費をローカル専用ログに保存し、完了メッセージでも返す",
+        "origin": "intent",
+        "evidence": "ではそこに記録しつつ、メッセージとしても返してほしい",
+        "intent_revision": 2
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Codex Developmentの工程別使用量をTask ID付きでローカルJSONLへ保存し、完了メッセージに記載する。PR本文・テンプレートには計測値を要求しない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Codex adapterとPRテンプレートの最終差分を読み、5工程・累積差分・取得不可・再開時の追記・Core非依存を確認する。ローカルJSONLにTask IDと工程別の数値または取得不可理由が保存され、JSONとして読み取れることを観察する。"
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "1e5b0322379a4d5f107f2dfd1fb0e38f68c177b920b91cc59bf45bb2e352fe83"
+  }
+}
