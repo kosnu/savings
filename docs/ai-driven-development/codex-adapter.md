@@ -28,8 +28,9 @@ Developmentではtask objective/constraints/Done/verificationから1つのGoal�
 Goalなしの場合も同じCore contractで継続し、Goal設定済みとは報告しない。
 詳細hash、decision、progress、evidenceはrepositoryに保持し、Goal本文へ複製しない。
 Goalをphaseごとに分割しない。Done未達や検証失敗を残してcompleteにしない。
-IntentからLearnで得た学びの反映までの[開発サイクル](workflow.md#概念とサイクルの境界)はGoalの識別単位ではない。
-次のIntentから始まるサイクルでも、Task・Goalの新設や継続は目的と実行許可の境界で判断する。
+一つのTaskが一つの[開発サイクル](glossary.md#サイクル)に対応する。
+指摘がある場合のLearnや再試行は同じTask・Goalで続ける。
+サイクル終了後の新しいIntentは次のTaskを開始し、そのTaskのGoalを別に追跡する。
 
 既存成果へのShip依頼やreview修正では、task-startより先に既存Taskと対象PRを特定し、
 [workflowの追加配信境界](workflow.md#追加配信とtaskの継続)を適用する。
@@ -37,7 +38,7 @@ Goalの終了や新しい会話はTask・baselineを作り直す理由になら�
 配信先を変えるagentの判断をユーザーのauthorizationへ書き足さず、既存Taskで続行できない場合は
 失敗根拠と必要な境界変更を示す。checkerの成功だけを境界変更の許可根拠にしない。
 
-同じTask内のルール保守では現在のGoalを継続する。単独Learn依頼のGoalはユーザーが求めた場合だけ作成する。
+同じTask内のルール保守では現在のGoalを継続する。独立したLearn TaskのGoalは作成しない。
 Goalのactive/blocked/pausedの扱いはhostのtool契約に従う。Coreの中断を偽の完了へ変換しない。
 token budgetは明示された場合だけ設定する。Goal設定だけの依頼はTask実行を許可しない。
 Goalを作成・確認した後も、作業の継続と完了は元のTask契約とユーザーの許可範囲に従う。

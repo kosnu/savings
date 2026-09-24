@@ -46,6 +46,20 @@ func TestCLIFlagErrorsUseStructuredDiagnostic(t *testing.T) {
 	}
 }
 
+func TestTaskStartRejectsStandaloneLearn(t *testing.T) {
+	root := t.TempDir()
+	initializeMainRepository(t, root)
+	source := filepath.Join(t.TempDir(), "learn-task.json")
+	if err := os.WriteFile(source, []byte(`{"schema_version":6,"kind":"learn"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	err := run(context.Background(), []string{"task-start", "--repo-root", root, "--source", source})
+	item, ok := err.(*diagnostic.Diagnostic)
+	if !ok || item.Code != "AIDD_VNEXT_TASK_KIND" {
+		t.Fatalf("expected standalone Learn rejection, got %#v", err)
+	}
+}
+
 func TestValidateDesignRejectsCallerSuppliedIssueTitle(t *testing.T) {
 	err := runHistorical(context.Background(), []string{"validate-design", "--issue-title", "stale title"})
 	item, ok := err.(*diagnostic.Diagnostic)

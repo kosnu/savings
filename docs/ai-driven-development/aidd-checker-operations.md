@@ -144,9 +144,12 @@ Coreの成功はmerge/deploy権限を与えない。
 IssueなしのDevelopmentでは`intent.kind: message`とし、`reference`へ元の発言を特定できる参照（例: `user:<conversation>/<message>`）、
 `body`へユーザー発言の本文、`authorization`へ実行を依頼された根拠を記録する。`action: execute`だけで発言の意味を認証したとは扱わない。
 Issue指定の既存Developmentは従来の記録を保持して読む。
-Learnは`kind: learn`とし、出典は`issue`、`message`または既存の`feedback`を使える。Issue URLは必須ではない。
-明示的な変更依頼の`authorization`と、`authorized_scopes: [{"path":"対象","kind":"file"}]`
-を追加する。pathは初期計画の有限file/tree。ユーザーが明示したファイル上限は任意の
+新規TaskはIntentから始まる`kind: development`とする。
+既存の`kind: learn` Taskは履歴として読み取り、元のTask・baseline・hashを保持する。
+その出典には`issue`、`message`または`feedback`があり得るが、この互換性は新規開始を許可しない。
+旧Learn Taskの開始記録には、当時の明示的な変更依頼の`authorization`と
+`authorized_scopes: [{"path":"対象","kind":"file"}]`がある。
+pathは初期計画の有限file/tree。ユーザーが明示したファイル上限は任意の
 `user_scope_limits`へ別に記録する。Task種別にかかわらず実際の許可範囲を検査する。
 
 ```sh
@@ -163,7 +166,7 @@ v6ではGitから復元可能な情報を埋め込まず、必要なローカル
 
 ## Decision / checkpoint
 
-Learnから開始したTaskでは、product実装が許可された時点で同じDecisionへ
+既存の`kind: learn` Taskでは、product実装が許可された時点で同じDecisionへ
 `product_authorization`を追加する。これは作業範囲の追記とは別の根拠であり、Taskの再作成は不要である。
 
 ```json
