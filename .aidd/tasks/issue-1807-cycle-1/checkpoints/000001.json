@@ -1,0 +1,275 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "d53783545021941bda3fbde47a822a35ea605c430e37b90718127626cfa85970",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "cycle-and-terms",
+        "concept": "IntentからLearnまでの開発サイクルとTask・Goal・工程・記録の用語境界を定義する",
+        "representations": [
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "affected",
+            "reason": "概念定義またはその入口・Learn境界の説明を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/overview.md",
+            "status": "affected",
+            "reason": "概念定義またはその入口・Learn境界の説明を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "affected",
+            "reason": "概念定義またはその入口・Learn境界の説明を同期する"
+          },
+          {
+            "path": "docs/harness/policies/learning-extraction.md",
+            "status": "affected",
+            "reason": "概念定義またはその入口・Learn境界の説明を同期する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker.md",
+            "status": "unaffected",
+            "reason": "Coreの検査責務と非担当範囲は既存説明を維持する"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "unaffected",
+            "reason": "CLIのrecord形式やIDは変更せずサイクルを機械IDにしない"
+          },
+          {
+            "path": "docs/ai-driven-development/goal-templates/index.md",
+            "status": "unaffected",
+            "reason": "GoalのTask追跡とphase非分割は既存説明を維持する"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "unaffected",
+            "reason": "定義の所有先と必須到達経路は既存workflow nodeで足りる"
+          },
+          {
+            "path": "tools/aidd/checker/internal/protocol/model.go",
+            "status": "unaffected",
+            "reason": "サイクルは説明上の境界であり新しい機械fieldを追加しない"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "IntentからDevelopment、Ship、Learnの学び反映までを第1サイクルとし、その後の新Intentを第2サイクルとする。Decision再改訂・追加Shipは同じサイクルを自動的に増やさない",
+            "status": "affected",
+            "reason": "記述上の境界を明確化する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "Issue、Goal、Task ID、rule-map等の入力や識別子からサイクル番号を自動推論しない。現行workflow参照のままで足りる",
+            "status": "unaffected",
+            "reason": "既存の操作・入力・保証を保持する"
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "Issue/message起点のDevelopment、同TaskのLearn、独立Learn、review修正・追加Ship、旧Task、main統合・CIの説明に同じ境界を適用する",
+            "status": "unaffected",
+            "reason": "既存の操作・入力・保証を保持する"
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "IntentとIssue、サイクルとTask/Goal、Development/Learnとその工程、Decision/Checkpoint/Evidence、Core/adapter/checkerを区別する",
+            "status": "affected",
+            "reason": "記述上の境界を明確化する",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "Task・baseline・Goal継続、権限、checkpoint改訂と証拠失効、Shipの同一性を維持し、サイクル定義から新たな操作許可を導かない",
+            "status": "unaffected",
+            "reason": "既存の操作・入力・保証を保持する"
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "d53783545021941bda3fbde47a822a35ea605c430e37b90718127626cfa85970",
+    "reason": "Issue #1807とユーザー補足に従い、用語定義を正本に置き、関連する入口とLearnの文言を同期する。サイクルは操作IDや権限を変更しない説明概念として定義する",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "AIDDの概念・工程・1サイクルとTask/Goal/Coreの関係を一貫して定義する",
+        "origin": "intent",
+        "evidence": "AIDDプロトコル全体の用語・概念・工程の定義と相互関係を明確にし、プロトコルを理解・適用するときに矛盾や解釈の迷いが生じない状態を目指す。"
+      },
+      {
+        "id": "FR-2",
+        "text": "1サイクルはIntentからLearnまで、Learn反映後の新Intentから次サイクルが始まる",
+        "origin": "intent",
+        "evidence": "ここで1サイクルとはIntentからLearnまでの開発サイクルを指し、Learnで得た学びを反映した後にIntentから始まるものを次のサイクルとする。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "現行正本と関連文書で各概念の意味・責務・境界を一義的に読み取れる",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "Learn反映後の新Intentを次サイクルと判別でき、Task/Goal継続条件を誤解しない",
+          "requirement_id": "FR-2"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "最終diffと適用正本を読み、Intent/Issue/Task/Goal/Decision/Checkpoint/Evidence/Development/Learn/baseline/ownership/Core/adapter/checkerの責務・境界・参照先を照合する"
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "Intent→Development→Ship→Learn反映→新Intentの具体例を追い、サイクル番号とTask/Goalの分割・継続判断を確認する"
+        },
+        {
+          "id": "VC-3",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/overview.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/harness/policies/learning-extraction.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-2",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-2"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/overview.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/codex-adapter.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/harness/policies/learning-extraction.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.learn-delegation",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "8bc6749d57f19657b5322b7680b66de5afc904a2d646a9efe175bbf180049315"
+  }
+}

@@ -26,6 +26,8 @@ DevelopmentはExplore / Decide → checkpoint → Build / Verify / Review → Sh
 設計判断を同じ意図・制約の下で改訂できます。改訂は新revisionとして記録し証拠を全失効します。
 Learnはfeedbackの分析と改善です。既存作業中のルール保守は同じTaskで行い、単独の新規依頼ではTaskを開始できます。
 Learn用Issueは作りません。product実装の意図と許可は出典となるIssueまたはユーザー発言で確認し、許可済みの作業を同じTaskで継続します。
+1サイクルはIntentからDevelopment、Ship、Learnで得た学びの反映までです。その後にIntentから始まる開発は次のサイクルです。
+サイクルとTask・Goal・工程の境界を含む用語の定義は[workflow](workflow.md#概念とサイクルの境界)を参照します。
 人間のIntentとIssueなどの表現方法は区別します。意図の補足・訂正は同じTaskのcheckpointへ出典付きで追記し、
 元の記録を保持します。既存Taskの続行と独立した新規作業の境界はworkflowに従います。
 
