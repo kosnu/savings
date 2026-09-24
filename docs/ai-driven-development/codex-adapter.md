@@ -28,6 +28,8 @@ Developmentではtask objective/constraints/Done/verificationから1つのGoal�
 Goalなしの場合も同じCore contractで継続し、Goal設定済みとは報告しない。
 詳細hash、decision、progress、evidenceはrepositoryに保持し、Goal本文へ複製しない。
 Goalをphaseごとに分割しない。Done未達や検証失敗を残してcompleteにしない。
+IntentからLearnで得た学びの反映までの[開発サイクル](workflow.md#概念とサイクルの境界)はGoalの識別単位ではない。
+次のIntentから始まるサイクルでも、Task・Goalの新設や継続は目的と実行許可の境界で判断する。
 
 既存成果へのShip依頼やreview修正では、task-startより先に既存Taskと対象PRを特定し、
 [workflowの追加配信境界](workflow.md#追加配信とtaskの継続)を適用する。

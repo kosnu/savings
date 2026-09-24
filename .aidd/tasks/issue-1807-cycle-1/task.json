@@ -1,0 +1,41 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1807-cycle-1",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1807",
+      "body": "## 関連Issue\n- #1806: ADRを意思決定履歴とし現行ルールの参照先を正本に統一する（定義の正本配置との整合を確認する）\n\n## 概要\nAIDDプロトコル全体の用語・概念・工程の定義と相互関係を明確にし、プロトコルを理解・適用するときに矛盾や解釈の迷いが生じない状態を目指す。Task、Goal、1サイクルを表す概念、工程などは対象の例であり、対象をそれらに限定しない。ここで1サイクルとはIntentからLearnまでの開発サイクルを指し、Learnで得た学びを反映した後にIntentから始まるものを次のサイクルとする。\n\n## 完了の定義 (Definition of Done)\n- AIDDプロトコルの理解・適用に必要な用語・概念の範囲と定義の参照先が明確で、必要な定義に抜けがない。\n- 各用語・概念の意味・責務・適用範囲・他概念との関係が明確で、同じ用語の意味の揺れや概念間の混同を生じない。\n- Intent、Issue、Task、1サイクルを表す概念、Goal、Decision、Checkpoint、Evidence、Development／Learn、baseline、ownershipなど、実行契約を構成する概念の関係と境界が明確である。\n- Task・1サイクル・Goal・工程の関係、およびAIDD Core・adapter・checkerの責務が明確で、適用時に相反する解釈が生じない。\n- 現行の正本、関連文書、実行・検証機構の定義が一貫しており、現行の指示と履歴上の定義が区別されている。\n- 影響範囲に必要なAIDD検証の結果が成功状態になっている。\n\n## 制約・禁止事項\n- 対象はAIDDプロトコルの用語・概念・工程・適用境界と、それを記述・実行・検証するために必要な資料や機構に限る。アプリ機能・データ仕様の変更は含めない。\n- 全面改稿か必要箇所への追記かなど、定義を明確にする実現方法はこのIssueで事前に固定しない。\n- 採択済みADRの既存本文は上書きせず、必要な変更はClarificationの追記または置換ADRで表す。\n- #1806の範囲を、このIssueの起票によって拡張しない。\n\n## 補足\n- 主な現行資料: `docs/ai-driven-development/workflow.md`、`codex-adapter.md`、`goal-templates/index.md`、`change-coverage.md`\n- 関連する判断記録: ADR-0003、ADR-0004、ADR-0006\n",
+      "body_sha256": "d99c3670ead347ff1ebc2ec616ff5b3e74fc9aa7ee7df00e8c10927ab1cb6141"
+    },
+    "objective": "AIDDの用語・概念・工程・1サイクルの境界と関係が正本から明確に判別でき、関連文書と実行・検証機構に矛盾がない状態にする",
+    "constraints": [
+      "AIDDプロトコルの定義と関連資料・機構に限定する",
+      "アプリ機能・データ仕様は変更しない",
+      "採択済みADRの既存本文は上書きしない",
+      "Issue #1806の範囲を拡張しない"
+    ],
+    "done": [
+      "IntentからLearnまでを1サイクルとし学び反映後の新Intentを次サイクルとする定義が明確である",
+      "Task・Goal・Decision・Checkpoint・Evidence・工程・Core/adapter/checkerの責務と関係が矛盾なく定義されている",
+      "必要なAIDD検証とreviewが成功し、commit・push・PRと配信状態を確認できる"
+    ],
+    "verification": [
+      "AIDD Core verify と文書意味レビュー",
+      "適用される文書検証および git diff --check",
+      "PR headとCI状態の確認"
+    ]
+  },
+  "baseline_head": "af0027adc1f7ab87428c91ebe3b780e21e5ff0d3",
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
