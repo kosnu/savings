@@ -1,0 +1,279 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "0bbd0a2d991f092897595a6103201b1cc36476ea27d9ac95ffd7f7b4c92a3fc4",
+  "revision": 1,
+  "parent_sha256": "",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "answer-first-authorization-boundary",
+        "concept": "質問への回答順序と、明示的な作業依頼による実行許可を分ける",
+        "representations": [
+          {
+            "path": "AGENTS.md",
+            "status": "affected",
+            "reason": "全依頼に適用する質問・作業の判定と回答順序を共通入口で示す。"
+          },
+          {
+            "path": "docs/adr/0006-separate-intent-from-issue.md",
+            "status": "unaffected",
+            "reason": "Intentと実行許可を分ける採択済み判断は既にあり、履歴の変更や新ADRを要しない。"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker-operations.md",
+            "status": "unaffected",
+            "reason": "CLIとtask/checkpointの運用契約は変えない。"
+          },
+          {
+            "path": "docs/ai-driven-development/aidd-checker.md",
+            "status": "unaffected",
+            "reason": "Coreは会話の意味判定や回答順序を制御しない。意味判断はagentに残す。"
+          },
+          {
+            "path": "docs/ai-driven-development/change-coverage.md",
+            "status": "unaffected",
+            "reason": "Coverageモデルとその適用方法は変えない。"
+          },
+          {
+            "path": "docs/ai-driven-development/codex-adapter.md",
+            "status": "unaffected",
+            "reason": "Goal lifecycleは変えず、質問のみでGoalを開始しない境界をworkflowへ反映する。"
+          },
+          {
+            "path": "docs/ai-driven-development/issue-guidelines.md",
+            "status": "unaffected",
+            "reason": "Issueの責務と実行時の自律判断は引き続きworkflowが所有する。"
+          },
+          {
+            "path": "docs/ai-driven-development/overview.md",
+            "status": "unaffected",
+            "reason": "質問だけではDevelopmentを開始しない既存の要約と矛盾しない。"
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "affected",
+            "reason": "質問だけのDevelopment開始境界、混合依頼の回答順序、既存Task継続を定義する。"
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "unaffected",
+            "reason": "変更は既存のAGENTS.mdとworkflow.mdのpath/surfaceから選択され、rule routingは変わらない。"
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "単独質問は回答して終了し、混合依頼は回答をユーザーへ返してから明示操作を行う。既存Task中の質問後は元のscopeで続ける。",
+            "status": "affected",
+            "reason": "回答と実行の順序を新たに明示するため。",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-5"
+            ]
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "hook、checker、profile、Task schema、rule-mapの変更を伴わず、AGENTS.mdとAIDD workflowを直接更新する。",
+            "status": "unaffected",
+            "reason": "追加の設定や間接入力から検証選択を変える経路はない。"
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "共通AGENTS入口とAIDD Developmentを対象にし、単独質問、混合依頼、明確な依頼、既存Taskの継続を扱う。Learn記録形式、旧Task/checker、main統合、CIの実行契約は変更しない。",
+            "status": "affected",
+            "reason": "質問応答と明示依頼の入口判断、既存Taskの継続境界を確認する。",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-3",
+              "VC-4",
+              "VC-5"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "質問・回答に必要な読み取り専用調査・明示的な変更操作・既存Taskの許可を別のものとして扱い、句読点を許可の代理にしない。",
+            "status": "affected",
+            "reason": "会話意図、読み取り、実行許可の意味を明確にする。",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-3",
+              "VC-4",
+              "VC-5"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "明示的な作業依頼は不要な追加確認なしで続け、既存Taskの許可とscopeは質問だけでは拡張・取消ししない。",
+            "status": "affected",
+            "reason": "未依頼操作を防ぎながら既存の実行許可境界を維持する。",
+            "verification_case_ids": [
+              "VC-3",
+              "VC-5"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "0bbd0a2d991f092897595a6103201b1cc36476ea27d9ac95ffd7f7b4c92a3fc4",
+    "reason": "Issue #1809の実行依頼。AGENTS.mdは疑問符付きの質問を先に答える表現に留まり、AIDD workflowは質問だけではDevelopmentを開始しない境界を定めるが、回答順序と新しい実行許可の境界を一体で伝えていない。AGENTS.mdに全体の回答順序を、workflow.mdにAIDDの開始境界と既存Task継続を記す。依頼意図は句読点だけで判定しない。明確な依頼の自律実行は維持する。会話意図の意味判定はagent責務のためcheckerへ機械判定を追加せず、Issue例とguardrail例をmanual caseとして確認する。",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "質問には先に回答し、質問だけを作業許可として扱わない。明示依頼が併存する場合は回答後に依頼範囲だけ実行し、意図は句読点だけで判定せず、明確な依頼には不要な追加確認を求めない。",
+        "origin": "intent",
+        "evidence": "### 背景・解決したい課題\n\n質問したとき、回答より先に依頼していない作業が始まることを防ぎたい。質問だけでは、作業の許可を意味しない。\n\n### 期待する状態\n\n質問にはまず回答し、明示的な作業依頼がない限り実行に移らない。質問と作業依頼の両方がある場合は、質問に答えてから依頼された作業を行う。\n\n### スコープ\n\n**対象:** agentが質問と作業依頼を区別し、回答と作業の順序を守る仕組み。\n\n**対象外:** 明確な作業依頼に対して不要な追加確認を求めること。\n\n### 制約\n\n- 句読点だけでなく、依頼の意図を基に判断する。\n- 具体的な実現方法は実装時に決める。\n\n### 成功条件\n\n- 「これ直せる？」だけなら、可否を答えて修正を始めない。\n- 「これ直して」なら、不要な確認を挟まず修正する。\n- 「なぜ？直して」なら、質問に答えてから修正する。\n\n### 委任範囲・完了地点\n\n上記の意図と制約に沿った実装・検証・レビューを任せる。完了地点はローカルでの実装・検証・レビュー完了とする。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "user_operation",
+          "description": "質問には先に答え、質問だけでは新しい作業を始めない。質問と明示依頼が併存する場合は回答後にその依頼だけを実行し、既存Taskは元の許可範囲を保つ。",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "単独メッセージ「これ直せる？」では可否を回答する。必要な読み取り専用調査は許すが、明示依頼のない修正や副作用操作を始めない。"
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "「なぜ？直して」では回答に必要な読み取り専用調査を行い、ユーザーへ質問の回答を返してから、明示された修正を始める。"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "「これ直して」のような明確な依頼は、句読点の有無にかかわらず、不要な追加確認なしで依頼範囲内の作業へ進む。"
+        },
+        {
+          "id": "VC-4",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "句読点のない「これ直せる」でも可否を回答し、能力についての質問だけを理由に修正を始めない。"
+        },
+        {
+          "id": "VC-5",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "既存Task中の質問には先に回答し、その質問だけで以前の許可を広げたり取り消したりせず、最新指示と元のscopeに従って継続する。"
+        },
+        {
+          "id": "VC-6",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": "AGENTS.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/workflow.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": "AGENTS.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/workflow.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4",
+            "VC-5",
+            "VC-6"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.learn-delegation",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "8bc6749d57f19657b5322b7680b66de5afc904a2d646a9efe175bbf180049315"
+  }
+}

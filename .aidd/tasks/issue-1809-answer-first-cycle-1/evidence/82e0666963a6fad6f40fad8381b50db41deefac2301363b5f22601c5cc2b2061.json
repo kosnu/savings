@@ -1,0 +1,85 @@
+{
+  "schema_version": 6,
+  "kind": "verification_evidence",
+  "task_sha256": "0bbd0a2d991f092897595a6103201b1cc36476ea27d9ac95ffd7f7b4c92a3fc4",
+  "checkpoint_sha256": "82e0666963a6fad6f40fad8381b50db41deefac2301363b5f22601c5cc2b2061",
+  "repository_sha256": "cccc14c2186ab945f8379632a50643665698e0ccad9e9b852d5894839a75be7a",
+  "git_repository_sha256": "1a8c8802f3bfb09e9ebf05955ddb88d850a4f449d20d524852b9c0db4eb3ddca",
+  "changed_paths": [
+    "AGENTS.md",
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "verification": {
+    "schema_version": 5,
+    "kind": "build_verification",
+    "workspace": "issue-1809-answer-first-cycle-1",
+    "receipt_sha256": "82e0666963a6fad6f40fad8381b50db41deefac2301363b5f22601c5cc2b2061",
+    "catalog_sha256": "5117422ce1aa7f84a50855de4ec77ad44775a804ca0a5cf3504d2bd1a3de484f",
+    "final_state_sha256": "76ebd83abe9defc089ce1771db7e921c67e6128ec97a9905d974b0c4b06a7606",
+    "generator": "aidd-checker/v5",
+    "results": [
+      {
+        "id": "VC-1",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "76ebd83abe9defc089ce1771db7e921c67e6128ec97a9905d974b0c4b06a7606",
+        "procedure": "単独メッセージ「これ直せる？」では可否を回答する。必要な読み取り専用調査は許すが、明示依頼のない修正や副作用操作を始めない。",
+        "observation": "単独質問は意味で判定し、明示されていない実装や副作用操作を始めず、回答に必要な読み取り専用作業だけ許可している。"
+      },
+      {
+        "id": "VC-2",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "76ebd83abe9defc089ce1771db7e921c67e6128ec97a9905d974b0c4b06a7606",
+        "procedure": "「なぜ？直して」では回答に必要な読み取り専用調査を行い、ユーザーへ質問の回答を返してから、明示された修正を始める。",
+        "observation": "AGENTS.mdとworkflow.mdの両方が、質問への回答をユーザーへ返してから明示された作業を始めると定めている。"
+      },
+      {
+        "id": "VC-3",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "76ebd83abe9defc089ce1771db7e921c67e6128ec97a9905d974b0c4b06a7606",
+        "procedure": "「これ直して」のような明確な依頼は、句読点の有無にかかわらず、不要な追加確認なしで依頼範囲内の作業へ進む。",
+        "observation": "明確な依頼は不要な確認なしで実行することを明記している。"
+      },
+      {
+        "id": "VC-4",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "76ebd83abe9defc089ce1771db7e921c67e6128ec97a9905d974b0c4b06a7606",
+        "procedure": "句読点のない「これ直せる」でも可否を回答し、能力についての質問だけを理由に修正を始めない。",
+        "observation": "疑問符などの句読点ではなく依頼の意味で判断すると明記している。"
+      },
+      {
+        "id": "VC-5",
+        "type": "manual",
+        "status": "passed",
+        "final_state_sha256": "76ebd83abe9defc089ce1771db7e921c67e6128ec97a9905d974b0c4b06a7606",
+        "procedure": "既存Task中の質問には先に回答し、その質問だけで以前の許可を広げたり取り消したりせず、最新指示と元のscopeに従って継続する。",
+        "observation": "既存Task中は質問に先に答え、その質問で許可を拡張・取消しせず元の範囲で継続すると明記している。"
+      },
+      {
+        "id": "VC-6",
+        "type": "automated",
+        "status": "passed",
+        "verification_profile_id": "git-diff-check",
+        "profile_sha256": "e42b7e62e048bf547c4b386978e901ef2db83c29faf31f7caf6f6225154ad273",
+        "selector": {
+          "kind": "suite"
+        },
+        "executed_identities": [
+          {
+            "kind": "suite",
+            "id": "git-diff-check"
+          }
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "output_sha256": "07855126ddf83e7a7947933fca32a0d5b77c8e6ee1f0f2db357b630916a3b637",
+        "final_state_sha256": "76ebd83abe9defc089ce1771db7e921c67e6128ec97a9905d974b0c4b06a7606"
+      }
+    ]
+  },
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d"
+}
