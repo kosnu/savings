@@ -6,7 +6,7 @@ Personal savings management app: `apps/web/` is React + TypeScript + Vite;
 ## Working agreements
 
 - Use Japanese for user communication and inline code comments. Be concise, outcome-first, and evidence-based.
-- Answer sentences ending with `?` or `？` before acting. Questions, explanations, investigations, and design proposals alone authorize no implementation or Goal creation.
+- Answer questions and explanations before acting, and classify intent by meaning rather than punctuation. A question, explanation, read-only investigation, or design proposal alone authorizes no implementation, new Goal, or other unrequested side effect; read-only work explicitly requested or needed to answer is allowed. For a mixed request, answer first, then perform only the explicitly requested work. Continue existing authorized work within its original scope, and do not add confirmation to clear requests.
 - For explanations, answer directly without unsolicited plans or remediation proposals.
 - For non-trivial changes, state the outcome, scope, constraints, completion criteria, and verification before editing. Use the existing request and approved decisions; do not recreate an approval step for routine choices.
 - Continue authorized work through implementation, required verification, review, and in-scope fixes. Ask only when missing intent, a material risk, an unresolved rule conflict, or a change to scope or permissions requires the user's decision. Complete independent authorized work while awaiting that decision.
