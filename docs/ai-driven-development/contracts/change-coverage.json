@@ -12,6 +12,7 @@
     "docs/adr/0003-adopt-aidd-invariant-protocol.md",
     "docs/adr/0005-compact-aidd-records.md",
     "docs/adr/0004-separate-task-scope-from-work-kind.md",
+    "docs/adr/0007-align-learn-agent-delegation.md",
     ".agents/skills/learn/**",
     ".agents/skills/goal-setting/**",
     ".codex/**",

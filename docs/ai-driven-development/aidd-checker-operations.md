@@ -463,7 +463,7 @@ Git管理済みfileはignore指定があっても保護し、検証中のHEAD/in
 ## Learn確定
 
 変更開始時のbinaryでverifyを完了する。担当agent自身が最新差分と検証証拠をreviewし、
-ユーザーの明示制限と、最新checkpointで検証した作業範囲に従って確定する。独立reviewや別agentの呼び出しは、ユーザーが明示的に依頼した場合だけ行う。
+ユーザーの明示制限と、最新checkpointで検証した作業範囲に従って確定する。独立reviewは必須にしない。別agentへの委譲はAGENTS.mdの費用対効果条件に従う。
 
 local完了前にも`finish --repo-root . --task <id> --task-sha256 <task-hash> --checkpoint-sha256 <checkpoint-hash> --evidence-sha256 <evidence-hash>`を実行する。
 finishは最新の検証証拠を要求する。commit前のstaged検査はship-checkで行う。Learnのfinish/Ship/CIにreview記録は不要。
