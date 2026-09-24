@@ -19,6 +19,7 @@
       "docs/adr/0002-adopt-agent-rule-graph.md",
       "docs/adr/0003-adopt-aidd-invariant-protocol.md",
       "docs/adr/0004-separate-task-scope-from-work-kind.md",
+      "docs/adr/0007-align-learn-agent-delegation.md",
       ".agents/**",
       ".codex/**",
       ".github/skills/code-review/**",
@@ -82,6 +83,7 @@
           "docs/adr/0002-adopt-agent-rule-graph.md",
           "docs/adr/0003-adopt-aidd-invariant-protocol.md",
           "docs/adr/0004-separate-task-scope-from-work-kind.md",
+          "docs/adr/0007-align-learn-agent-delegation.md",
           ".agents/**",
           ".codex/**",
           ".github/skills/code-review/**",
@@ -111,6 +113,7 @@
           "docs/adr/0003-adopt-aidd-invariant-protocol.md",
           "docs/adr/0005-compact-aidd-records.md",
           "docs/adr/0004-separate-task-scope-from-work-kind.md",
+          "docs/adr/0007-align-learn-agent-delegation.md",
           ".agents/skills/learn/**",
           ".agents/skills/goal-setting/**",
           ".codex/**",
@@ -128,6 +131,26 @@
       "depends_on": ["ai-driven.workflow", "documentation.policy"],
       "overrides": [],
       "priority": 89
+    },
+    {
+      "id": "adr.learn-delegation",
+      "file": "docs/adr/0007-align-learn-agent-delegation.md",
+      "applies_to": {
+        "paths": [
+          "AGENTS.md",
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          "docs/harness/policies/learning-extraction.md",
+          "docs/harness/rule-map.json",
+          "docs/adr/0007-align-learn-agent-delegation.md",
+          ".agents/skills/**",
+          ".codex/**"
+        ],
+        "topics": ["learning", "delegation"]
+      },
+      "depends_on": ["adr.aidd-invariant-protocol"],
+      "overrides": ["adr.aidd-invariant-protocol"],
+      "priority": 100
     },
     {
       "id": "adr.intent-sources",
