@@ -47,6 +47,8 @@ Developmentでは、同じGoalの`tokensUsed`と`timeUsedSeconds`の累積値を
 工程は準備、探索・判断、実装、検証・レビュー、Shipとし、最初の取得時点、各工程の終了時点、
 Shipの配信状態とCI状態を確認した直後の取得時点を残す。工程を行き来した場合は区間を分けて記録し、
 同じ工程の区間を合算する。Taskの再開や追加Shipでは既存の数値を上書きせず、新しい区間を加える。
+境界でGoalの累積値を取得できなかった場合は、次に取得できるまでの区間を取得不可とし、
+失敗前の値と復旧後の値の差分を工程や`unclassified`へ計上しない。復旧後の値を次区間の基準にする。
 
 各区間をCodex homeの`metrics/task-usage.jsonl`（通常は`~/.codex/metrics/task-usage.jsonl`）へ
 JSON Linesで追記する。新規行は次のv2スキーマに従い、列挙値や欠測値を別表現へ置き換えない。
