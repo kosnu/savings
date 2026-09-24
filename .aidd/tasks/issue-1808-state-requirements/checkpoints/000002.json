@@ -1,0 +1,297 @@
+{
+  "schema_version": 6,
+  "kind": "checkpoint",
+  "task_sha256": "229917c380f0b3459740e46fac3e153d49d4bb6d961a245cc391a7ba5add4e26",
+  "revision": 2,
+  "parent_sha256": "808e48cb82b7c038100fb5805c3c0ee8810ec90209eef56c2ab35d38a9d01a95",
+  "decision": {
+    "change_coverage": [
+      {
+        "id": "issue-state-and-action-roles",
+        "concept": "Issue authoring fields distinguish observable state/result requirements from procedural actions across Issue types",
+        "representations": [
+          {
+            "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+            "status": "affected",
+            "reason": "Expected behavior is a state/result field while reproduction steps are intentionally procedural; both roles need explicit guidance."
+          },
+          {
+            "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+            "status": "affected",
+            "reason": "Expected state and success criteria must consistently express the requested outcome."
+          },
+          {
+            "path": ".github/ISSUE_TEMPLATE/task.md",
+            "status": "affected",
+            "reason": "Definition of Done must describe the resulting condition, not actions performed."
+          },
+          {
+            "path": "docs/ai-driven-development/issue-guidelines.md",
+            "status": "affected",
+            "reason": "The shared rule applies across issue types and their differently named state/result fields."
+          },
+          {
+            "path": "docs/ai-driven-development/workflow.md",
+            "status": "unaffected",
+            "reason": "AIDD task start, authorization, execution, verification, review and Ship sequence remain unchanged."
+          },
+          {
+            "path": "docs/harness/policies/issue-template-selection.md",
+            "status": "unaffected",
+            "reason": "Template selection by Issue role remains unchanged; this change clarifies wording within the selected template."
+          },
+          {
+            "path": "docs/harness/rule-map.json",
+            "status": "unaffected",
+            "reason": "Existing path rules already route Issue templates and issue-guidelines to their respective rules; no new owner or resolution path is needed."
+          },
+          {
+            "path": "docs/ai-driven-development/contracts/verification-profiles.json",
+            "status": "unaffected",
+            "reason": "No AIDD verification profile, command or runtime contract changes."
+          }
+        ],
+        "patterns": [
+          {
+            "axis": "sequence",
+            "scenario": "An author reads a template, writes a state/result field, submits the Issue, then the Issue may enter Development.",
+            "status": "unaffected",
+            "reason": "The authoring wording changes, but Issue submission and the later AIDD lifecycle order do not change."
+          },
+          {
+            "axis": "indirect-inputs",
+            "scenario": "Feature Request, Bug Report and Task templates feed different named fields into Issue bodies; the shared guideline is also used for manually written Issue content.",
+            "status": "affected",
+            "reason": "Template comments and the shared authoring rule are the inputs being clarified; the existing rule-map route will be checked and retained.",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-4"
+            ]
+          },
+          {
+            "axis": "execution-paths",
+            "scenario": "A Feature Request, Bug Report or Task Issue is later used as Development intent; review, verification and Ship still follow the existing workflow.",
+            "status": "unaffected",
+            "reason": "Only the source wording for state/result requirements changes. AIDD intent authority, task contract and downstream paths stay the same.",
+            "verification_case_ids": [
+              "VC-3"
+            ]
+          },
+          {
+            "axis": "semantic-roles",
+            "scenario": "The same Issue body contains state/result criteria and, for a bug, a reproduction procedure made of actions.",
+            "status": "affected",
+            "reason": "The requested change is precisely to make those meanings explicit without eliminating procedural content.",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2"
+            ]
+          },
+          {
+            "axis": "preserved-guarantees",
+            "scenario": "Issue templates continue to accept intentionally procedural reproduction steps, while state/result fields remain outcome-based and do not prescribe execution steps.",
+            "status": "affected",
+            "reason": "The boundary must protect both the desired outcome and the existing procedural field; review all three templates and shared guidance.",
+            "verification_case_ids": [
+              "VC-1",
+              "VC-2",
+              "VC-3"
+            ]
+          }
+        ]
+      }
+    ],
+    "schema_version": 6,
+    "kind": "decision",
+    "task_sha256": "229917c380f0b3459740e46fac3e153d49d4bb6d961a245cc391a7ba5add4e26",
+    "reason": "Review of all Bug Report state/result fields found that actual behavior also needs to state an observed result, separate from reproduction actions.",
+    "requirements": [
+      {
+        "id": "FR-1",
+        "text": "Issue種別や欄の名称を問わず、状態や結果を記述する項目から達成後に観測可能な状態を判定でき、アクション記述を目的とする項目と役割が区別されている",
+        "origin": "intent",
+        "evidence": "Issueの種別や欄の名称を問わず、状態や結果を書く項目から達成後の状態を判定できるよう、Issueテンプレートと起票ルールの記述を見直す。"
+      }
+    ],
+    "target_state": {
+      "product_behaviors": [
+        {
+          "id": "PB-1",
+          "type": "state_transition",
+          "description": "Feature Request、Bug Report、TaskとIssue共通ガイドの状態・結果欄が観測可能な期待結果を表し、読み手が条件の達成を判定できる",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-2",
+          "type": "state_transition",
+          "description": "再現手順などアクションを記述する欄はその役割を保ち、状態・結果欄と混同されない",
+          "requirement_id": "FR-1"
+        },
+        {
+          "id": "PB-3",
+          "type": "state_transition",
+          "description": "Issue種別選択とAIDDの実行・検証契約は従来の責務を保ち、作業や検証の詳細手順は一律に要求されない",
+          "requirement_id": "FR-1"
+        }
+      ],
+      "verification_cases": [
+        {
+          "id": "VC-1",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "procedure": "Feature Requestの期待する状態・成功条件、Bug Reportの期待される挙動、Taskの完了の定義と共通ガイドを照合する。各欄から実装後または操作後に確認できる期待結果を判定でき、作業実施だけでは条件を満たしたことにならないと確認する。"
+        },
+        {
+          "id": "VC-2",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-2"
+          ],
+          "procedure": "Bug Reportの再現手順は操作の列挙として維持する。期待される挙動には期待結果を、実際の挙動には実際に観測した結果・状態を記し、どちらも再現操作や実装作業と混同されないことを確認する。他テンプレートにも目的が手順記述である項目があれば同じ境界を確認する。"
+        },
+        {
+          "id": "VC-3",
+          "type": "manual",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-3"
+          ],
+          "procedure": "既存のIssue template selection policy、AIDD workflowの実行・検証境界と差分を照合し、選択基準・権限・検証契約の変更や詳細手順の一律必須化がないことを確認する。"
+        },
+        {
+          "id": "VC-4",
+          "type": "automated",
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_profile_id": "git-diff-check",
+          "selector": {
+            "kind": "suite"
+          }
+        }
+      ],
+      "ownership_scopes": [
+        {
+          "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+          "kind": "file"
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+          "kind": "file"
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/task.md",
+          "kind": "file"
+        },
+        {
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "kind": "file"
+        }
+      ],
+      "representations": [
+        {
+          "id": "REP-1",
+          "kind": "implementation",
+          "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-2",
+          "kind": "implementation",
+          "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-3",
+          "kind": "implementation",
+          "path": ".github/ISSUE_TEMPLATE/task.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-3",
+            "VC-4"
+          ]
+        },
+        {
+          "id": "REP-4",
+          "kind": "implementation",
+          "path": "docs/ai-driven-development/issue-guidelines.md",
+          "locator": {
+            "kind": "file"
+          },
+          "requirement_id": "FR-1",
+          "product_behavior_ids": [
+            "PB-1",
+            "PB-2",
+            "PB-3"
+          ],
+          "verification_case_ids": [
+            "VC-1",
+            "VC-2",
+            "VC-3",
+            "VC-4"
+          ]
+        }
+      ]
+    },
+    "additional_rules": []
+  },
+  "rules": [
+    "adr.agent-rule-graph",
+    "adr.aidd-invariant-protocol",
+    "adr.harness-engineering",
+    "adr.intent-sources",
+    "adr.learn-delegation",
+    "adr.task-scope",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.issue-guidelines",
+    "ai-driven.learn",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "rule_map_ref": {
+    "sha256": "8bc6749d57f19657b5322b7680b66de5afc904a2d646a9efe175bbf180049315"
+  }
+}
