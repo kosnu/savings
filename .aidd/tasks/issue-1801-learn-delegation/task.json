@@ -1,0 +1,40 @@
+{
+  "schema_version": 6,
+  "kind": "task",
+  "spec": {
+    "action": "execute",
+    "schema_version": 6,
+    "kind": "development",
+    "id": "issue-1801-learn-delegation",
+    "intent": {
+      "kind": "issue",
+      "reference": "https://github.com/kosnu/savings/issues/1801",
+      "body": "## 概要\n\n`AGENTS.md` は、費用対効果の条件を満たす場合、ユーザーの明示依頼がなくてもサブエージェントへ委譲できると定めている。一方、Learn スキルはユーザーの明示依頼がある場合に限ると定めている。Learn の作業でも委譲可否を一貫して判断できる状態にする。\n\n## 完了の定義 (Definition of Done)\n\n- Learn の作業で、費用対効果の条件を満たす複雑で独立した問題は、ユーザーの明示依頼がなくても必要最小限の委譲を選べる。\n- 定型的な確認、テスト結果の確認、軽微な修正はメインエージェントが担当し、独立レビューは必須になっていない。\n- `AGENTS.md`、Learn スキル、Codex adapter を併読しても、同じ依頼に対する委譲可否の判断が食い違わない。\n\n## 制約・禁止事項\n\n- 既存のユーザー許可範囲、有限の担当範囲、単一 writer の条件を維持する。\n- 対象はエージェント運用ルールの整合に限る。\n\n## 補足\n\n- `AGENTS.md` の「Subagent Usage」と `.agents/skills/learn/SKILL.md` の委譲条件が矛盾している。\n",
+      "body_sha256": "d57c98e609f993d00f1dadad5337da133fefc10e5aa3b868df5d827b8b1b1ab6"
+    },
+    "objective": "Learnのサブエージェント委譲条件を共通の費用対効果基準と整合させる",
+    "constraints": [
+      "ユーザーの許可範囲、有限scope、単一writerを維持する",
+      "独立レビューを必須化しない",
+      "エージェント運用ルールの整合のみを対象にする"
+    ],
+    "done": [
+      "Learn関連の現行指示で委譲判断が矛盾せず、定型作業はメインで完結する",
+      "必要な検証とレビュー、commit、push、PR作成と配信確認を完了する",
+      "工程ごとの経過時間とトークン使用量を記録して報告する"
+    ],
+    "verification": [
+      "git-diff-check",
+      "委譲可能・委譲不要・独立レビュー不要の各ケースを文書間で照合する",
+      "AIDD Coreの検査と最終差分レビュー"
+    ]
+  },
+  "baseline_head": "a8ff34db9f8a8b6582a4d0f7743f65194461a32f",
+  "checker_sha256": "c04259a1b5a4effd6e5da541e96280e29e99c95c22c7d1e218238927eb8ada2d",
+  "baseline_modes": [
+    {
+      "path": "CLAUDE.md",
+      "mode": "0755"
+    }
+  ]
+}
