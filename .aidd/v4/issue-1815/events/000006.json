@@ -1,0 +1,56 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-09-25T07:10:04.52441Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "6516ac3e1e92c059aafd5a46617ede92f2a2a4088c4367a9bf1eec70fb89ce21",
+  "revision": 3,
+  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "data": {
+    "summary": "最終実差分をCode Review Policyに従い確認。Checked rulesはrules配列。Unresolved: なし。Go実行/共有gate/ADR履歴はevent000005で成功、gofmt出力なし、変更Markdownのlocal linkとworkflow YAML parse、3 skill validator成功。アプリcode/runtime configは無変更につきWeb/API実行は非該当。Coreは信頼された単一writer/host権限境界を前提とし、semantic判断とユーザー発言真正性は自動認証しない。修正したfinding: Intent改訂の欠落、部分承認未決案消失、stale status、過剰なWeb検証適用。",
+    "criteria": [
+      {
+        "criterion": "IntentからShip・Audit・手動承認後の改善を検証できる",
+        "evidence": "Go TestCycleAndApproval等で実Git commit/push（temp bare remote）、PR応答fixture、Audit、個別承認、範囲内改善と再Shipを通過。実際の本TaskはShip後にAudit予定であり、fixture承認をユーザー承認とは扱わない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "意味評価と決定論的検証を分離し不十分な証拠を拒否する",
+        "evidence": "TestFreshnessAndModes/TestDecisionAndFailedVerification/TestVerificationSourceMutation/TestRulesClosureAndFailureが古い内容・mode・判断、失敗や改変検証、未分類ruleを拒否。semantic reviewの基準・根拠と実行exitを分離。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "再開でき旧AIDDの現行経路が残らない",
+        "evidence": "CLI Load/statusでIntent・baseline・全decision/event chainを再取得できる。旧Go packages/contracts/prepare/hooks/migration CLIは削除しv4入口へ同期。過去ADR/Task/workspacesを実行入力にしていない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "調査の比較と採否を示す",
+        "evidence": "research-v4.mdでOpenAI/Anthropic/IBM/GitHub/Cursor/Googleとpreprintを比較し、適用条件・限界・model差・採否を記録。graders/Evalsサービスへの依存なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "97af7f48bc4bb55ba25747662e25c579440e2875d2bb0705b9ba4fc0ed0fea53"
+}

@@ -1,0 +1,88 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-09-25T07:09:08.557993Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "5d92e18caeabe45e8c29d6e6fdd7557e40ad19c45e6ceb689670b7186ef9bdaa",
+  "revision": 3,
+  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "data": {
+    "summary": "v4実装に合わせた判断改訂。ADR0009を現行必須として旧ADR3-8は履歴参照に限定。workflow・入口・Audit policy・CIを同期し旧契約/CLI/hookを廃止。Coreの境界テストと共有Git gate、ADR履歴、実差分reviewで検証する。検証対象はGo・文書・CI・skillでアプリcode/configは変更しない。 Intentは新出典によるdecision.intent_revisionで改訂、Audit後は@intent承認を要求する。一部承認の未決案を次Auditへ保持し明示却下を別記録とする。CIの署名検証済みRenovate自動依存更新はTask委任の対象外とし、他のCore/graph検査は継続する。",
+    "paths": [
+      "tools/aidd/",
+      "docs/ai-driven-development/",
+      "docs/harness/",
+      "docs/adr/0009-rebuild-aidd-v4.md",
+      "AGENTS.md",
+      ".claude/CLAUDE.md",
+      ".agents/skills/learn/",
+      ".agents/skills/audit/",
+      ".agents/skills/guardrail-improvement/",
+      ".agents/skills/goal-setting/",
+      ".codex/hooks.json",
+      ".github/workflows/aidd_checker_ci.yaml",
+      ".gitignore"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "c4cdfb2f7fd0af52f62a9abe37ff5f9cf1a54e58bcce9a24b0b1d35ce22fb3de"
+}
