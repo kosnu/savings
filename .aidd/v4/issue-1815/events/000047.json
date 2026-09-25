@@ -1,0 +1,26 @@
+{
+  "sequence": 47,
+  "kind": "audit",
+  "time": "2026-09-25T13:59:55.194497Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "612ef14380b6fe089096536eba23726a125713a51801f92463817f4c4a99f1e3",
+  "revision": 10,
+  "fingerprint": "8c1dac3f5c8c17327c5236ce346a83ca4ce0699db95dd49bcaf8a4a570aa5c10",
+  "data": {
+    "summary": "P12/P13の承認済み改善を実装し、Intent復帰後のcycle-0001/revision10で検証・レビュー・Shipした結果Audit。追加改善提案なし。",
+    "findings": [
+      "P12対応済み: 指定の一巡とガードレール改善後のIntent復帰をworkflow/Core操作/Audit policy/skillに同期。return-intent42で保存Intentと改善済み規則を再確認し、decision43から次サイクルを実行した。",
+      "P13対応済み: startとreturn-intentでTask内cycle IDを発行。判断改訂・再検証ではIDを維持し、再開時に復元。前cycle証拠の流用・ID不整合・承認なし境界移行を拒否。導入前v4履歴は変更せず、今回からissue-1815/cycle-0001を記録。",
+      "verify44のGo全テスト/vet/共有gate5件/ADR/diff/TOMLが成功。review45で承認範囲・工程・実装・失敗時挙動を照合し、ship46でcommit2320157b/remote/PR head/base名を確認。",
+      "P10は別Issue対応で決着済み。解決済みPR threadを未解決として復活させない。",
+      "未解決事項と完了状態: 実装・ローカル検証・Shipは完了。最新headのCIは配信後に一度確認して報告し、未完了を成功扱いしない。この結果Auditは手動承認待ち。"
+    ],
+    "session_improvements": [
+      "前の説明と定義の差を確認し、P12/P13を提示・承認後に反映した。工程を口頭の解釈だけで断定せず、同じTaskで復帰境界を実行・記録できる形にした。",
+      "サイクルIDはrevisionと分離し、旧履歴を推定で更新しなかった。定型的な確認はメインで実施。観測した範囲で追加の恒常ルール変更は不要。"
+    ],
+    "proposals": []
+  },
+  "hash": "6b047b114196825355769089a3b6f27bfcf2e044323766b63333ee3674533973",
+  "cycle_id": "issue-1815/cycle-0001"
+}
