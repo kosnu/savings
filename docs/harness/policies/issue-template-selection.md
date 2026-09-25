@@ -53,7 +53,7 @@ GitHub Issueのテンプレートは、依頼の詳しさではなく、Issueが
 
 新しい価値または既存価値の変更を定義する場合に選ぶ。
 
-Feature RequestはAIDDのintent入力として扱う。Issue本文の「委任範囲・完了地点」に個別の権限制限と到達点を記載し、通常の実行手順はworkflowへ委ねる。
+Feature RequestはAIDDのintent入力として扱う。Issue本文の「委任範囲・完了地点」は、個別の制限がなければ必要な検証・レビュー後のPR作成または更新と配信確認までを委任する。ローカル完了などの明示制限はそのまま優先し、通常の実行手順とAudit後の手動承認はworkflowへ委ねる。
 
 Feature Requestの内容と後続成果物の責務は、[AI Driven Development Issue Guidelines](../../ai-driven-development/issue-guidelines.md)に従う。
 
@@ -67,9 +67,9 @@ Feature Requestの内容と後続成果物の責務は、[AI Driven Development 
 
 ## 判定例
 
-| 依頼 | 選択 | 理由 |
-| --- | --- | --- |
-| 既存の支払い登録が保存できなくなった | Bug Report | 既存の期待動作が壊れている |
-| Issueで確定した支払い候補取得処理を実装する | Task | 確定済み成果の下位作業 |
-| よくある支払いを表示し、選択内容をフォームへ入力できる機能を作成する | Feature Request | 新しい価値を定義するIssue |
-| よくある支払いを表示する案を要望として残す | Feature Request | 新しい価値を定義するIssue |
+| 依頼                                                                 | 選択            | 理由                       |
+| -------------------------------------------------------------------- | --------------- | -------------------------- |
+| 既存の支払い登録が保存できなくなった                                 | Bug Report      | 既存の期待動作が壊れている |
+| Issueで確定した支払い候補取得処理を実装する                          | Task            | 確定済み成果の下位作業     |
+| よくある支払いを表示し、選択内容をフォームへ入力できる機能を作成する | Feature Request | 新しい価値を定義するIssue  |
+| よくある支払いを表示する案を要望として残す                           | Feature Request | 新しい価値を定義するIssue  |
