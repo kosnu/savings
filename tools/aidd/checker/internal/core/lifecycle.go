@@ -164,6 +164,9 @@ func (s *Store) Verify() error {
 	if e := s.workAllowed(); e != nil {
 		return e
 	}
+	if d := s.latest("decision"); d == nil || d.CycleID != s.cycleID() {
+		return fmt.Errorf("current cycle decision required")
+	}
 	_, fp, d, e := s.constraints()
 	if e != nil {
 		return e
@@ -200,7 +203,7 @@ func (s *Store) Verify() error {
 }
 func (s *Store) verified(fp string) error {
 	v := s.latest("verify")
-	if v == nil || v.Revision != s.revision() || v.Fingerprint != fp {
+	if v == nil || v.CycleID != s.cycleID() || v.Revision != s.revision() || v.Fingerprint != fp {
 		return fmt.Errorf("verification missing or stale")
 	}
 	data := eventData[Verification](v)
@@ -270,6 +273,10 @@ func (s *Store) ShipCheck() error {
 		approval, decision := s.latest("approve"), s.latest("decision")
 		if decision == nil || decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision {
 			return fmt.Errorf("new decision required after improvement approval")
+		}
+		boundary := s.latest("return-intent")
+		if boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence {
+			return fmt.Errorf("return to Intent and new cycle decision required before Ship")
 		}
 	}
 	if e = s.verified(fp); e != nil {
@@ -390,7 +397,7 @@ func (s *Store) Audit(a Audit) error {
 	if e != nil {
 		return e
 	}
-	if fp != ship.Fingerprint || s.revision() != ship.Revision {
+	if ship.CycleID != s.cycleID() || fp != ship.Fingerprint || s.revision() != ship.Revision {
 		return fmt.Errorf("source or decision changed after Ship")
 	}
 	if prior != nil {
@@ -512,6 +519,12 @@ func (s *Store) Status() map[string]any {
 			}
 		}
 	}
+	if boundary := s.latest("return-intent"); boundary != nil && (audit == nil || boundary.Sequence > audit.Sequence) {
+		state = "development"
+		if ship != nil && ship.Sequence > boundary.Sequence {
+			state = "shipped"
+		}
+	}
 	_, fp, err := s.current()
 	current := err == nil && s.verified(fp) == nil
 	if ship != nil && (ship.Fingerprint != fp || ship.Revision != s.revision()) {
@@ -527,7 +540,7 @@ func (s *Store) Status() map[string]any {
 		e := s.Events[len(s.Events)-1]
 		latest = map[string]any{"sequence": e.Sequence, "kind": e.Kind, "hash": e.Hash, "fingerprint": e.Fingerprint}
 	}
-	return map[string]any{"task": s.Task.ID, "objective": s.CurrentIntent().Objective, "baseline": s.Task.Baseline, "revision": s.revision(), "state": state, "evidence_current": current, "events": len(s.Events), "latest": latest}
+	return map[string]any{"task": s.Task.ID, "cycle_id": s.cycleID(), "objective": s.CurrentIntent().Objective, "baseline": s.Task.Baseline, "revision": s.revision(), "state": state, "evidence_current": current, "events": len(s.Events), "latest": latest}
 }
 
 func (s *Store) recordsDeliveryCheck() error {

@@ -35,6 +35,9 @@ func CheckAll(root string) (int, error) {
 	return count, nil
 }
 func (s *Store) Check() error {
+	if e := s.checkCycleIDs(); e != nil {
+		return e
+	}
 	if len(s.Events) == 0 || s.Events[0].Kind != "start" {
 		return fmt.Errorf("start event missing")
 	}
@@ -44,7 +47,8 @@ func (s *Store) Check() error {
 	if _, e := git(s.Root, "cat-file", "-e", s.Task.Baseline+"^{commit}"); e != nil {
 		return e
 	}
-	var decision, verify, review, ship, audit, approval *Event
+	var decision, verify, review, ship, audit, approval, boundary *Event
+	intent := s.Task.Intent
 	for i := range s.Events {
 		e := &s.Events[i]
 		switch e.Kind {
@@ -57,13 +61,27 @@ func (s *Store) Check() error {
 				return fmt.Errorf("unapproved post-Audit decision")
 			}
 			decision = e
+			if in := eventData[Decision](e).IntentRevision; in != nil {
+				intent = *in
+			}
+		case "return-intent":
+			r := eventData[IntentReturn](e)
+			if audit == nil || approval == nil || approval.Sequence < audit.Sequence ||
+				len(eventData[Approval](approval).ProposalIDs) == 0 || decision == nil ||
+				decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision ||
+				(boundary != nil && boundary.Sequence > approval.Sequence) ||
+				r.ApprovalHash != approval.Hash || r.IntentHash != digest(intent) ||
+				r.PreviousCycle != s.Events[i-1].CycleID || required(r.Summary) != nil {
+				return fmt.Errorf("invalid return to Intent")
+			}
+			boundary = e
 		case "verify":
-			if decision == nil {
+			if decision == nil || decision.CycleID != e.CycleID {
 				return fmt.Errorf("verification without decision")
 			}
 			verify = e
 		case "review":
-			if verify == nil || verify.Revision != e.Revision || verify.Fingerprint != e.Fingerprint {
+			if verify == nil || verify.CycleID != e.CycleID || verify.Revision != e.Revision || verify.Fingerprint != e.Fingerprint {
 				return fmt.Errorf("review without current verification")
 			}
 			v := eventData[Verification](verify)
@@ -82,7 +100,10 @@ func (s *Store) Check() error {
 				decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision || decision.Revision != e.Revision) {
 				return fmt.Errorf("Ship without new approved improvement decision")
 			}
-			if review == nil || review.Revision != e.Revision || review.Fingerprint != e.Fingerprint {
+			if audit != nil && e.CycleID != "" && (boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence) {
+				return fmt.Errorf("Ship without return to Intent and new cycle decision")
+			}
+			if review == nil || review.CycleID != e.CycleID || review.Revision != e.Revision || review.Fingerprint != e.Fingerprint {
 				return fmt.Errorf("Ship without current review")
 			}
 			for _, c := range eventData[Review](review).Criteria {
@@ -92,7 +113,7 @@ func (s *Store) Check() error {
 			}
 			ship = e
 		case "audit", "audit-update":
-			if ship == nil || ship.Fingerprint != e.Fingerprint || ship.Revision != e.Revision || (e.Kind == "audit" && audit != nil && audit.Sequence > ship.Sequence) || (e.Kind == "audit-update" && (audit == nil || audit.Sequence < ship.Sequence || e.Revision != ship.Revision)) {
+			if ship == nil || ship.CycleID != e.CycleID || ship.Fingerprint != e.Fingerprint || ship.Revision != e.Revision || (e.Kind == "audit" && audit != nil && audit.Sequence > ship.Sequence) || (e.Kind == "audit-update" && (audit == nil || audit.Sequence < ship.Sequence || e.Revision != ship.Revision)) {
 				return fmt.Errorf("Audit without matching Ship or valid update")
 			}
 			audit = e

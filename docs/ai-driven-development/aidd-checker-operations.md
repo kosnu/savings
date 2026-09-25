@@ -120,7 +120,20 @@ source/textはその提案を承認した実際のユーザー発言。agentが�
 提案のないAuditも明示承認が必要で、proposal_idsを空配列にしてapproveする。この承認は改善実行を許可しない。
 「Auditを承認します」は提示した改善案への承認であり、別の実行承認を要求しない。
 同じShip内容・revisionに追加指摘があればauditを再実行する。audit-updateとして追記され、未決提案は保持し、旧承認は失効する。
-承認後にdecisionを追記し、`improve-check`で承認対象との一致を確認しながら改善・verify・review・Shipする。
+承認後に改善のdecisionを追記し、`improve-check`で承認対象との一致を確認しながら改善する。
+改善後、現在のIntentと改善済みガードレールを読み直して次の境界を記録する。
+
+```sh
+/tmp/aidd-v4 --root . return-intent --task example --input /tmp/return-intent.json
+```
+
+入力は`{"summary":"Intentと改善済みガードレールを再確認した具体的な結果"}`。
+Coreが新しいcycle IDを発行し、現在Intentのhashと承認への参照を保存する。
+再開時はstatusの`cycle_id`と境界eventを読み、同じ操作を繰り返してIDを増やさない。
+その後、次サイクルのdecisionを記録し、必要な設計・実装、verify・review・Ship・Auditへ進む。
+改善後の復帰を省略したShipと、前cycleのdecision・検証の流用は拒否される。
+cycle ID導入前のv4履歴は変更せず、明示的な復帰から採番する。
+改善案なしのAuditへの承認は終了を意味し、`return-intent`や実装の権限を付与しない。
 
 ## 検証とエラー
 

@@ -217,6 +217,10 @@ func TestCycleAndApproval(t *testing.T) {
 }
 func fakeShipAgain(t *testing.T, s *Store) {
 	t.Helper()
+	if e := s.ReturnIntent("Intentと改善済みガードレールを再確認"); e != nil {
+		t.Fatal(e)
+	}
+	decide(t, s)
 	review(t, s)
 	stage(t, s)
 	command(t, s.Root, "commit", "-m", "improve")
