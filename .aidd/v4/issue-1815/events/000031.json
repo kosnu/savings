@@ -1,0 +1,57 @@
+{
+  "sequence": 31,
+  "kind": "audit-update",
+  "time": "2026-09-25T09:45:21.763355Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "8af5581aba4f2745121d3b4dafd6075f7746974c092a434ffb867231fc61403d",
+  "revision": 7,
+  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "data": {
+    "summary": "ユーザー依頼でAudit再実行。head734a868fの最新レビュー8件（解決6/未解決2）とCIログを取得。新規2指摘を再現・確認し、CI環境不備1件を追加。改善の実装は未実施。",
+    "findings": [
+      "FE CI全5ジョブ成功、zizmor成功、AIDD integration成功。candidateは共有gateのsetUpでvp未検出により5テスト失敗、verifyはその結果を受けて失敗。",
+      "既存の対応済み・不採用6件は解決済みを維持。未解決2件を新規提案に分類。",
+      "最新decision26/revision7、verify27全exit0、review28、ship29、audit30を確認。ローカル検証成功とCI環境の成功は同一視しない。"
+    ],
+    "session_improvements": [
+      "ローカルにあるnode_modules/vpをCIでも利用できる前提で共有gateを組み込んだが、candidate jobにNode/pnpm依存installがない。検証入口と必要環境の同期漏れ。",
+      "承認→改善→結果Auditの正経路はテストしたが、承認後にdecisionを省略して同一commitを再Shipする負の境界が不足。",
+      "規則の選択と依存closureは確認したが、置換metadataの保持を検証していなかった。旧ADRは実際に旧規則として適用した証拠はなく、その可能性と出力欠落を区別する。"
+    ],
+    "proposals": [
+      {
+        "id": "P9",
+        "finding": "承認だけで提案を解決済みと扱い、未実装でも次Auditから消える",
+        "evidence": "discussion_r4103220244。一時コピーTestReauditUnimplementedApprovalで新decision・source変更なしの再Ship→提案消失→completeを再現。",
+        "change": "承認後の新decisionとそのrevisionの検証・review・Shipを要求し、結果Auditまで提案を保持する。省略経路を拒否する負の回帰テストと正常改善サイクルを確認。",
+        "paths": [
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/audit_approval_test.go",
+          "docs/ai-driven-development/aidd-checker.md"
+        ]
+      },
+      {
+        "id": "P10",
+        "finding": "resolverがoverridesを破棄して旧/新規則の優先関係を出力しない",
+        "evidence": "discussion_r4103220252。rulesコマンドで旧ADR0003を指定し両rule出力・overrides欠落を確認。Rule structにfieldなし。",
+        "change": "overridesを読み取り選択結果へ保持する。新旧ruleが同時に選ばれた場合も置換関係が呼び出し側に届くことを実rule-mapとfixtureで検証する。歴史文書や必須依存を無条件に削らない。",
+        "paths": [
+          "tools/aidd/checker/internal/core/rules.go",
+          "tools/aidd/checker/internal/core/core_test.go",
+          "docs/ai-driven-development/aidd-checker.md"
+        ]
+      },
+      {
+        "id": "P11",
+        "finding": "AIDD candidate CIが共有gateに必要なvpを用意していない",
+        "evidence": "run36119492929 candidate log: AssertionError unexpectedly None : vp。workflowはGoのみsetupしtest_shared_gateを実行。",
+        "change": "candidateの共有gate前にrepository指定Node/pnpmと依存を準備し、実vpによる5テストを実行可能にする。検査のskip・mock化では回避しない。clean環境で共有gate成功とcandidate後段への到達を確認。",
+        "paths": [
+          ".github/workflows/aidd_checker_ci.yaml"
+        ]
+      }
+    ]
+  },
+  "hash": "ee2c82339cd89a7c127ef2218b794a864cb1ad8e8e9ee7ca8aaddce25b66f4ec"
+}

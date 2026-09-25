@@ -1,11 +1,76 @@
 package core
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestImprovementRequiresNewVerifiedDecision(t *testing.T) {
+	s := fixture(t)
+	decide(t, s)
+	fakeShip(t, s)
+	oldShip := eventData[Ship](s.latest("ship"))
+	if e := s.Audit(Audit{Summary: "finding", Proposals: []Proposal{{"p", "finding", "evidence", "fix", []string{"code.txt"}}}}); e != nil {
+		t.Fatal(e)
+	}
+	hash := s.latest("audit").Hash
+	if e := s.Approve(Approval{hash, "user:2", "approve p", []string{"p"}}); e != nil {
+		t.Fatal(e)
+	}
+	stage(t, s)
+	if e := s.RecordShip(oldShip); e == nil || !strings.Contains(e.Error(), "new decision") {
+		t.Fatalf("approval-only re-Ship: %v", e)
+	}
+	if s.resolvedProposals(hash)["p"] {
+		t.Fatal("approval alone resolved proposal")
+	}
+	// 同一revisionで検証とreviewだけを取り直しても、新decisionの代わりにはならない。
+	review(t, s)
+	stage(t, s)
+	if e := s.ShipCheck(); e == nil || !strings.Contains(e.Error(), "new decision") {
+		t.Fatalf("same revision re-Ship: %v", e)
+	}
+	// 記録の再読込でも同じ不正な遷移を拒否する。
+	copyStore := *s
+	copyStore.Events = append([]Event(nil), s.Events...)
+	if e := copyStore.append("ship", oldShip, s.latest("review").Fingerprint); e != nil {
+		t.Fatal(e)
+	}
+	loaded, e := Load(s.Root, s.Task.ID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e := loaded.Check(); e == nil || !strings.Contains(e.Error(), "new approved improvement decision") {
+		t.Fatalf("replayed invalid Ship: %v", e)
+	}
+	// このfixtureだけの不正記録を除き、正常経路を確認する。
+	if e := os.Remove(filepath.Join(s.dir(), "events", fmt.Sprintf("%06d.json", len(copyStore.Events)))); e != nil {
+		t.Fatal(e)
+	}
+	decide(t, s)
+	stage(t, s)
+	if s.ShipCheck() == nil {
+		t.Fatal("new decision reused old evidence")
+	}
+	put(t, s.Root, "code.txt", "improved\n")
+	fakeShipAgain(t, s)
+	if e := s.Audit(Audit{Summary: "improvement verified"}); e != nil {
+		t.Fatal(e)
+	}
+	if len(eventData[Audit](s.latest("audit")).Proposals) != 0 || s.Status()["state"] != "approval-pending" {
+		t.Fatal(s.Status())
+	}
+	loaded, e = Load(s.Root, s.Task.ID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e := loaded.Check(); e != nil {
+		t.Fatal(e)
+	}
+}
 
 func TestAuditCompletionRequiresManualApproval(t *testing.T) {
 	s := fixture(t)
