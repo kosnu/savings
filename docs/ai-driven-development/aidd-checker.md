@@ -57,6 +57,8 @@ AuditはShipされた内容に結び付き、指摘とセッション改善を�
 承認は最新Audit hash、提案ID、ユーザー発言の出典と本文に結び付ける。
 承認前の変更や対象外の変更を拒否する。元の開発権限の転用は許可しない。
 承認後は新decision、変更、検証、review、必要なShip、結果のAuditを同じTaskで記録する。
+承認だけでは提案を解決済みにしない。承認後の新decisionがないShip、および旧revisionの検証・reviewを使ったShipを拒否する。
+承認された提案は、その新revisionの検証・review・Shipを終えて結果Auditを記録するまで保持する。
 一部だけ承認した場合、残る案は次Auditへ保持する。明示的な却下はdismissとして記録し、
 承認待ちを消すためにagentが却下を捏造しない。Intent自体の改訂は承認対象`@intent`と
 新しい出典を持つdecisionの`intent_revision`で扱い、開始Intentを上書きしない。

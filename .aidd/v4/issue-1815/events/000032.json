@@ -1,0 +1,18 @@
+{
+  "sequence": 32,
+  "kind": "dismiss",
+  "time": "2026-09-25T13:07:03.295772Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "ee2c82339cd89a7c127ef2218b794a864cb1ad8e8e9ee7ca8aaddce25b66f4ec",
+  "revision": 7,
+  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "data": {
+    "audit_hash": "ee2c82339cd89a7c127ef2218b794a864cb1ad8e8e9ee7ca8aaddce25b66f4ec",
+    "source": "user:current-thread/2026-09-25",
+    "text": "ADRはあくまで意思決定ログでありルールではないことは別Issueで対応するのですが？ — P10は別Issue対応として今回の改善対象から除外。",
+    "proposal_ids": [
+      "P10"
+    ]
+  },
+  "hash": "850394fcb7e8a19388601a59efbc27817d92413969cbcfbf790bd94665329cf3"
+}

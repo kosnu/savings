@@ -266,6 +266,12 @@ func (s *Store) ShipCheck() error {
 	if e = s.workAllowed(); e != nil {
 		return e
 	}
+	if s.latest("audit") != nil {
+		approval, decision := s.latest("approve"), s.latest("decision")
+		if decision == nil || decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision {
+			return fmt.Errorf("new decision required after improvement approval")
+		}
+	}
 	if e = s.verified(fp); e != nil {
 		return e
 	}
@@ -605,10 +611,13 @@ func (s *Store) dismissedProposals(hash string) map[string]bool {
 }
 func (s *Store) resolvedProposals(hash string) map[string]bool {
 	out := s.dismissedProposals(hash)
+	decision, ship := s.latest("decision"), s.latest("ship")
 	for _, e := range s.Events {
 		if e.Kind == "approve" {
 			a := eventData[Approval](&e)
-			if a.AuditHash == hash {
+			if a.AuditHash == hash && decision != nil && ship != nil &&
+				decision.Sequence > e.Sequence && ship.Sequence > decision.Sequence &&
+				decision.Revision > e.Revision && ship.Revision == decision.Revision {
 				for _, id := range a.ProposalIDs {
 					out[id] = true
 				}

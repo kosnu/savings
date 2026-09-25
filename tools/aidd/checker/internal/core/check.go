@@ -77,6 +77,11 @@ func (s *Store) Check() error {
 			}
 			review = e
 		case "ship":
+			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence ||
+				len(eventData[Approval](approval).ProposalIDs) == 0 || decision == nil ||
+				decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision || decision.Revision != e.Revision) {
+				return fmt.Errorf("Ship without new approved improvement decision")
+			}
 			if review == nil || review.Revision != e.Revision || review.Fingerprint != e.Fingerprint {
 				return fmt.Errorf("Ship without current review")
 			}
