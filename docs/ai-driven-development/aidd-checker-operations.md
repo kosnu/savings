@@ -83,8 +83,8 @@ criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown
 ```
 
 合格後にcommit、push、PR作成/更新とread-backを行う。
-`ship --input /tmp/ship.json`へ`commit`、`remote`、`branch`、`pr`、`evidence`を渡す。
-Coreは実commit・remote・PR headを確認する。evidenceにはtracking/upstream、base、CIの一度の取得結果などを記す。
+`ship --input /tmp/ship.json`へ`commit`、`remote`、`branch`、`base`、`pr`、`evidence`を渡す。
+baseは期待するマージ先ブランチ名（例: main）を指定する。Coreは実commit・remote・PR head・base名を確認する。baseのSHAは取得条件に含めず、同名ブランチの更新は拒否しない。evidenceにはtracking/upstream、base、CIの一度の取得結果などを記す。
 
 ShipとAuditの追記記録はsource fingerprintから独立する。配信後の記録を追加commitで保存する場合は
 記録のみの差分であることを確認し、最新HEAD/remote/PRを`delivery-check --task example --input /tmp/ship.json`で再確認する。
@@ -117,6 +117,9 @@ sourceの変更があれば記録保存扱いにせず、同じTaskで必要な�
 source/textはその提案を承認した実際のユーザー発言。agentが生成した同意を使わない。
 一部だけ承認した場合、未承認案は次のAuditに引き継ぐ。却下はユーザーが明示した場合だけ
 `dismiss --input`へ同じ形式で記録し、改善済みとは区別する。
+提案のないAuditも明示承認が必要で、proposal_idsを空配列にしてapproveする。この承認は改善実行を許可しない。
+「Auditを承認します」は提示した改善案への承認であり、別の実行承認を要求しない。
+同じShip内容・revisionに追加指摘があればauditを再実行する。audit-updateとして追記され、未決提案は保持し、旧承認は失効する。
 承認後にdecisionを追記し、`improve-check`で承認対象との一致を確認しながら改善・verify・review・Shipする。
 
 ## 検証とエラー

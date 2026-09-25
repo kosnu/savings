@@ -1,0 +1,72 @@
+{
+  "sequence": 15,
+  "kind": "audit-update",
+  "time": "2026-09-25T08:27:55.875334Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "c4538f71a3c902541cf7b6b9d48e178fb2fa8b21f4b05fe930129e13a6d2cd65",
+  "revision": 4,
+  "fingerprint": "9253f66e3483c320779336c56b62497b239fa66b9964142296a1598aa8078962",
+  "data": {
+    "summary": "会話で整理したAuditを追記。ユーザーは「Auditを承認します」と明示し、その後3点の改善実行を再確認した。過去Auditは保持。",
+    "findings": [
+      "モデル変更は対応済み。個別テストidentity・検証器hash・CIのShip/Audit必須化は不採用。"
+    ],
+    "session_improvements": [
+      "方向性と承認を混同し、明示的Audit承認後にも不要な承認を要求した。Audit承認は提示された改善の実行権限とし追加の承認段階を作らない。"
+    ],
+    "proposals": [
+      {
+        "id": "P2",
+        "finding": "空のAuditが自動completeになる",
+        "evidence": "lifecycle.go Statusとevent14",
+        "change": "提案ゼロを含めAuditに手動承認を要求。承認済み提案だけ改善可能にし、空承認は実装権限にしない。境界テストを追加。",
+        "paths": [
+          "tools/aidd/checker/internal/core/model.go",
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/core_test.go",
+          "tools/aidd/checker/internal/core/audit_approval_test.go",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/harness/policies/learning-extraction.md"
+        ]
+      },
+      {
+        "id": "P3",
+        "finding": "ShipがPR base名を照合しない",
+        "evidence": "lifecycle.go delivery",
+        "change": "期待base名を必須入力として照合。SHA照合は導入しない。名前不一致・未指定・base更新のテスト。",
+        "paths": [
+          "tools/aidd/checker/internal/core/model.go",
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/core_test.go",
+          "tools/aidd/checker/internal/core/audit_approval_test.go",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/harness/policies/learning-extraction.md"
+        ]
+      },
+      {
+        "id": "P4",
+        "finding": "同じShipのAuditへ追加指摘を記録できない",
+        "evidence": "Audit already recorded for this Ship",
+        "change": "同じ内容・revisionのShipへAudit更新を追記できるようにし旧承認は新Auditへ流用しない。履歴保持と拒否条件をテスト。",
+        "paths": [
+          "tools/aidd/checker/internal/core/model.go",
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/core_test.go",
+          "tools/aidd/checker/internal/core/audit_approval_test.go",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/harness/policies/learning-extraction.md"
+        ]
+      }
+    ]
+  },
+  "hash": "d001603c5035ea73cf06a4bb6136e73a03a2f2c154b7dcb2bb1607df369101ee"
+}

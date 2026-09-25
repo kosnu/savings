@@ -1,0 +1,56 @@
+{
+  "sequence": 19,
+  "kind": "review",
+  "time": "2026-09-25T08:30:36.373206Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "c2c451b8fa5393dafe89f7d208908a144da83af9cd41c05ef123fcd5621e9d4e",
+  "revision": 5,
+  "fingerprint": "f3d7ada7f4ac26f033c80ec14241269e9a24fb8953b491d02b98467b3a8da991",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: rules配列の既存適用規則。今回差分はGo Coreの承認/追記/base名照合と対応する正本文書。rule-mapの既存pathとdepends_onで到達し索引変更は不要。\n- Unresolved: 今回3点の範囲ではなし。PRの新指摘（Task開始前の差分coverage）は未対応として次Auditへ記録。\nTestAuditCompletionRequiresManualApprovalで空提案の承認待ち・明示承認後complete・実装権限なし・Audit追記の保存と旧承認拒否・再load・未Ship revision拒否を確認。TestShipBaseNameOnlyでbase名不一致/未指定を拒否、base SHA変化を許容。旧Shipイベントはそのまま保存し、新規Ship/記録配信にはbase入力必須。event18の全command成功。過去証拠は書換えなし。",
+    "criteria": [
+      {
+        "criterion": "IntentからShip・Audit・手動承認後の改善を検証できる",
+        "evidence": "event15で既存ShipへのAudit更新、event16でユーザーの実承認、event17で判断改訂、event18で全検証成功。新テストで手動承認なしcomplete・古い承認・空承認での実装を拒否し、更新Auditの再loadを確認。再Shipはこのレビュー後に実行する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "意味評価と決定論的検証を分離し不十分な証拠を拒否する",
+        "evidence": "TestFreshnessAndModes/TestDecisionAndFailedVerification/TestVerificationSourceMutation/TestRulesClosureAndFailureが古い内容・mode・判断、失敗や改変検証、未分類ruleを拒否。semantic reviewの基準・根拠と実行exitを分離。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "再開でき旧AIDDの現行経路が残らない",
+        "evidence": "CLI Load/statusでIntent・baseline・全decision/event chainを再取得できる。旧Go packages/contracts/prepare/hooks/migration CLIは削除しv4入口へ同期。過去ADR/Task/workspacesを実行入力にしていない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "調査の比較と採否を示す",
+        "evidence": "research-v4.mdでOpenAI/Anthropic/IBM/GitHub/Cursor/Googleとpreprintを比較し、適用条件・限界・model差・採否を記録。graders/Evalsサービスへの依存なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "5019b8578303b863a2223bb49a22a1b745c2b3cf8d9e758c8b6307750ccec28e"
+}
