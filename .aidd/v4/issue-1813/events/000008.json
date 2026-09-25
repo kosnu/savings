@@ -1,0 +1,23 @@
+{
+  "sequence": 8,
+  "kind": "audit",
+  "time": "2026-09-25T18:41:21.105115Z",
+  "task_hash": "aa33734841a82f0a9230ba5347b9872c29985df9ee9034efab2056162c9470d6",
+  "previous": "947447b5975338864ae2aad79875ad7df78f33b060e4929ccec289a25e82ac1e",
+  "revision": 1,
+  "fingerprint": "3ed6c3d2ccabd96f6872d1098107c512ce12c68b5120b1b9a6b96a788545343c",
+  "data": {
+    "summary": "Issue #1813の3文書を変更し、PR #1819でShipした。制限なし・明示ローカル制限・Audit承認境界の5条件をsemantic reviewでpassと判断した。改善提案はなし。",
+    "findings": [
+      "未解決のレビュー指摘なし。PR作成時点のCIはassign-author成功、candidateとintegrationは実行中で結果未確定。",
+      "commit hookがissue-template-selection.mdの既存表を整形し、事前の検証fingerprintが失効した。整形後の内容でverifyとreviewを取り直し、Ship前にCoreの一致検査を通した。"
+    ],
+    "session_improvements": [
+      "commit hook後の差分確認と再検証は既存のAIDD/Core・Git Workflowの条件で対処できた。追加の恒常的ガードレール変更を示す根拠はない。",
+      "Issueの委任文とユーザーの実行依頼をTask開始時に保存し、Audit後の承認をShip権限と分けて扱えた。"
+    ],
+    "proposals": []
+  },
+  "hash": "ad4826179858cbd9f07dffd5fe9e4bf3b1afedadd9ec8969a0234ee95439a42b",
+  "cycle_id": "issue-1813/cycle-0001"
+}
