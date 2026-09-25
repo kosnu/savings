@@ -1,0 +1,19 @@
+{
+  "sequence": 55,
+  "kind": "ship",
+  "time": "2026-09-25T14:19:40.503601Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "a1b7098144abd9cd933c2482ebd7754638782a32db10235d145cb9c427798d67",
+  "revision": 12,
+  "fingerprint": "b8b7b5cb02ec697f5e9f013e7bbe6ece4609bb728c9fc0494fba4e994888f1a7",
+  "data": {
+    "commit": "9291028c707c0587309fd3ac934dd4c013e9c4bd",
+    "remote": "origin",
+    "branch": "issue-1815/aidd-v4",
+    "pr": "https://github.com/kosnu/savings/pull/1816",
+    "evidence": "cycle-0002/revision12のverify53/review54成功。hook後ship-check成功、明示refspecでpush。",
+    "base": "main"
+  },
+  "hash": "ce6871ef476002b8eafd0cdad8acc62922ccd69ad76e2e0f89ca3418632a499b",
+  "cycle_id": "issue-1815/cycle-0002"
+}
