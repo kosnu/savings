@@ -1,0 +1,36 @@
+{
+  "sequence": 24,
+  "kind": "audit-update",
+  "time": "2026-09-25T16:26:43.652983Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "f8d566d6d7c819b8149c5e804440dd3763789623b161270f2b04010bd2d8a946",
+  "revision": 5,
+  "fingerprint": "3ca3f0c0560f223e9952df278281dc5b786765f8fb66f8b4ccfe4fb3a0742939",
+  "data": {
+    "summary": "PR #1817 の追加レビューを受け、cycle-0002のShip後Auditを更新する。新しい未解決thread PRRT_kwDOM0p88s6mEtdq の指摘を隔離fixtureで再現した。現head 3b7b1b53のCIは全3件成功だが、この反例は未修正。",
+    "findings": [
+      "前回のP2 thread PRRT_kwDOM0p88s6mD3MUは返信済み・isResolved=true。以前の指摘を未解決として再計上しない。",
+      "新thread PRRT_kwDOM0p88s6mEtdqはisResolved=false。docs/decisions/example.mdのfront matterにdoc_type: \"\\u0061dr\"を置いた隔離fixtureで、ADR validatorのfront_matter_valuesはadrを返し、同文書をrule-mapのrules[].fileに指定したCore rules CLIはexit 0で選択結果へ含めた。Coreの手書き引用値処理がescapeを復号せず生文字列と比較するのが直接原因。",
+      "現headのAIDD Checker CI candidate・integration・verifyはすべてSUCCESS。既存検証はescaped scalar反例を含まず、追加レビューで検出された。",
+      "P1のADR自動整形除外案はユーザーによりdismiss済み。今回の指摘と関連せず、再提案しない。"
+    ],
+    "session_improvements": [
+      "前回のP2修正ではunquoted、通常のquoted、BOM/CRLF、policy、本文中の記述を検証したが、validatorが受理するquoted escapeとの解釈一致を確認していなかった。局所parserを追加するときは参照先parserの受理ケースを反例表として照合する必要がある。",
+      "PRレビューの集約状態COMMENTEDではなくthreadごとのisResolvedと最新コメントを確認し、新指摘のみを対象とした。"
+    ],
+    "proposals": [
+      {
+        "id": "P3",
+        "finding": "CoreのisADRDocumentは引用したdoc_typeのescapeを復号せず、validatorがADRと判定する有効なscalarを必須ruleとして許す。",
+        "evidence": "PR #1817 review thread PRRT_kwDOM0p88s6mEtdq（isResolved=false）、rules.go:54。隔離fixtureのdoc_type: \"\\u0061dr\"でvalidatorはadr、Core rules CLIはexit 0かつrule選択を確認。",
+        "change": "Coreのdoc_type引用値解釈をADR validatorが受理するscalarと揃え、同じescaped scalarと通常のpolicyを含む回帰テストで拒否・許可の境界を確認する。",
+        "paths": [
+          "tools/aidd/checker/internal/core/rules.go",
+          "tools/aidd/checker/internal/core/core_test.go"
+        ]
+      }
+    ]
+  },
+  "hash": "e2d02c088a6dabbd42770f63f6b3ce6166cb8f6843b8aafe63d1a863ad1a3c33",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0002"
+}
