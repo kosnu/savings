@@ -85,6 +85,7 @@ Learnの独立review必須条件は、不要なsubagent呼び出しとトーク�
 開始時checker、旧policy/profile、明示された変更許可、scopeと証拠同一性の検査は維持する。
 finish/Ship/CIではLearnのreview記録を要求しない。初回bootstrapのreview契約は変更しない。
 
+
 ## Clarification: Incompatible checker contract migration (2026-09-11)
 
 通常PRのbase checkerによる検証を維持し、checker契約自身の非互換変更には明示的な移行経路を設ける。
@@ -111,6 +112,7 @@ ci-checkだけはmerge commitのfirst-parent treeへ指定Taskのdirectoryだけ
 base側の差分・scope検査と人の承認は、PRのmerge-baseからheadまでの全差分へ適用し、通常PRの`ci-check`は
 従来どおりPR merge-baseを使う。
 
+
 ## Clarification: Explicit integration context and final evidence (2026-09-12)
 
 Task開始点を履歴・権限の記録として保持し、main取り込み後の変更判定基準をcheckpointの統合記録で分離する。
@@ -119,6 +121,7 @@ Gitの包含関係とCIの現在のtarget baseへの一致を検査し、変更�
 2026-09-11のMigration candidate baseline isolationにある過去treeへの投影を置き換え、candidate ci-checkも
 最終headを検査する。開始時checkerの固定は維持し、旧Taskの実行binary移行を暗黙に許可しない。
 
+
 ## Clarification: Explicit Learn checker succession (2026-09-12)
 
 旧checkerで進められないLearnは、元Taskを保持したまま明示的なchecker移行をcheckpointへ追記できる。
@@ -126,6 +129,7 @@ Gitの包含関係とCIの現在のtarget baseへの一致を検査し、変更�
 Taskの開始記録・旧policy/profileは保持し、新しい全体証跡は移行先binaryに結合する。
 通常CIはこのTaskを受け入れず、候補の移行検証・base側差分検査・人の承認をすべて要求する。
 記録なしのbinary差し替え、旧証跡の成功流用、Taskの再作成は認めない。
+
 
 ## Clarification: Repository policy and technology adapters (2026-09-12)
 
