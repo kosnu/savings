@@ -37,6 +37,9 @@ Gitのtrackedとnon-ignored untrackedを対象に内容hashとmodeを取得す�
 他Taskの記録やファイルは無視しない。担当path外のbaseline差分、古いrevisionやsnapshotに結び付いた証拠を拒否する。
 
 検証commandはargv配列で指定し、shell展開を暗黙にしない。実行終了状態と出力を保存する。
+macOS/Linuxでは検証を専用process groupで実行し、親終了後の出力待ちは1秒までとする。
+残存processは終了させ、待機超過・残存・後始末の失敗をverify証拠へ失敗として保存する。
+通常の検証実行時間は制限しない。process groupから意図的に離脱するdaemonの管理は対象外。未対応OSでは実行前に拒否する。
 実行前後にsourceが変わった場合は成功にしない。formatter等は検証batchの前に実行する。
 Go/Core、Webなどの必要commandを変更pathから確認する。意味的な適用条件はAGENTSと関連policyを読み判断する。
 

@@ -1,0 +1,87 @@
+{
+  "sequence": 22,
+  "kind": "audit-update",
+  "time": "2026-09-25T09:31:03.27291Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "4e85561530c7594bb3008fd91d19d506866aff86bb0a58e5414a059b1de4b270",
+  "revision": 5,
+  "fingerprint": "f3d7ada7f4ac26f033c80ec14241269e9a24fb8953b491d02b98467b3a8da991",
+  "data": {
+    "summary": "最新PRレビュー全6件と会話で確定した採否を反映。P5の追加Go検査とupstream機械照合は不採用。残存プロセス、共有Storybook設定、運用方針の正本化を採用。ユーザー「なら承認する 次へ進め」により実行承認済み。",
+    "findings": [
+      "P5はローカル早期発見とCI最終検証の役割分担を採用し追加Go検査は不採用。",
+      "upstream/tracking refの追加Go検査は不採用。対象を明示するGit操作を使う。"
+    ],
+    "session_improvements": [
+      "運用上CIを確認することとGitHub機能でマージを制限することを同一視しない。合意のない必須チェック設定を要求しない。"
+    ],
+    "proposals": [
+      {
+        "id": "P6",
+        "finding": "Verifyが残存子プロセスの出力待ちで停止し続ける",
+        "evidence": "PR1816 discussion_r4102772967 / CombinedOutputと既定WaitDelay",
+        "change": "親終了後の出力待ちを制限し専用process groupをcleanup、残存を失敗として保存する。正常終了・非zero・出力継承/redirectした残存子のテスト。",
+        "paths": [
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/verification.go",
+          "tools/aidd/checker/internal/core/process_unix.go",
+          "tools/aidd/checker/internal/core/process_other.go",
+          "tools/aidd/checker/internal/core/process_unix_test.go",
+          "tools/aidd/checker/internal/core/verification_test.go",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/harness/policies/git-workflow.md",
+          "apps/web/docs/policies/storybook-browser-tests.md"
+        ]
+      },
+      {
+        "id": "P7",
+        "finding": "共有Storybook設定変更をbrowser suite対象から落とす",
+        "evidence": ".storybook-test/preview.tsxとvitest.setup.tsが共有設定をimport",
+        "change": "共有preview・vitest.setup・Vitest設定の変更をbrowser suiteに含める。無関係なカタログ設定は追加しない。選択回帰テスト。",
+        "paths": [
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/verification.go",
+          "tools/aidd/checker/internal/core/process_unix.go",
+          "tools/aidd/checker/internal/core/process_other.go",
+          "tools/aidd/checker/internal/core/process_unix_test.go",
+          "tools/aidd/checker/internal/core/verification_test.go",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/harness/policies/git-workflow.md",
+          "apps/web/docs/policies/storybook-browser-tests.md"
+        ]
+      },
+      {
+        "id": "P8",
+        "finding": "ローカル/CIと運用/GitHub機能を混同した",
+        "evidence": "今回の会話のユーザー訂正と最終確認",
+        "change": "ローカル早期発見・CI最終検証、運用と機能強制の区別、Git対象の明示を正本に反映。GitHub設定変更や追加のupstream強制は行わない。",
+        "paths": [
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/verification.go",
+          "tools/aidd/checker/internal/core/process_unix.go",
+          "tools/aidd/checker/internal/core/process_other.go",
+          "tools/aidd/checker/internal/core/process_unix_test.go",
+          "tools/aidd/checker/internal/core/verification_test.go",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/harness/policies/git-workflow.md",
+          "apps/web/docs/policies/storybook-browser-tests.md"
+        ]
+      },
+      {
+        "id": "P5",
+        "finding": "Task開始前のPR変更をpaths宣言だけで所有扱いにでき、必要な検証とruleを省略できる可能性がある。",
+        "evidence": "PR1816の新規SUBMITTED・未解決レビューコメント「PR差分から必須検証を算出する」。CheckChangesはTask baseline以降で検証集合を算出し、PR差分の所有はd.Pathsだけを見る。",
+        "change": "Task baselineより前のPR差分を根拠なく所有済みにする経路を拒否する。先行commitを持つfixtureでWeb必須検証・rule不足を検出し、通常のbaselineからの作業は通る回帰テストを追加。採用方式は承認範囲内で既存ownershipと整合させる。",
+        "paths": [
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/core_test.go",
+          "docs/ai-driven-development/aidd-checker.md"
+        ]
+      }
+    ]
+  },
+  "hash": "596d9f050f66865233ea8df394da336b795250bfc5d8175a19d7316d2edc4b20"
+}

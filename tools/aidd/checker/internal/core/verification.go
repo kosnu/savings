@@ -18,10 +18,10 @@ func (s *Store) mandatoryCommands(paths []string) [][]string {
 		if appRuntime || p == "package.json" || p == "pnpm-lock.yaml" || p == "vite.config.ts" || strings.HasPrefix(p, "tsconfig") {
 			web = true
 		}
-		if strings.HasPrefix(p, "apps/web/.storybook-test/") {
+		if strings.HasPrefix(p, "apps/web/.storybook-test/") || p == "apps/web/.storybook/preview.tsx" || p == "apps/web/.storybook/vitest.setup.ts" || p == "apps/web/vitest.config.ts" {
 			story = true
 		}
-		if strings.HasPrefix(p, "apps/web/") && (strings.Contains(p, ".stories.") || strings.Contains(p, "storybook")) {
+		if appRuntime && (strings.Contains(p, ".stories.") || strings.Contains(p, "storybook")) {
 			now, _ := os.ReadFile(filepath.Join(s.Root, p))
 			before, _ := git(s.Root, "show", s.Task.Baseline+":"+p)
 			if strings.Contains(string(now), "browser-test") || strings.Contains(string(before), "browser-test") {

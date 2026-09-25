@@ -173,13 +173,14 @@ func (s *Store) Verify() error {
 	for _, argv := range d.Commands {
 		c := exec.Command(argv[0], argv[1:]...)
 		c.Dir = s.Root
-		output, err := c.CombinedOutput()
+		output, err := runVerification(c)
 		exit := 0
 		if err != nil {
 			exit = -1
 			if ex, ok := err.(*exec.ExitError); ok {
 				exit = ex.ExitCode()
 			}
+			output = append(output, []byte("\nverification error: "+err.Error()+"\n")...)
 			failed = true
 		}
 		v.Results = append(v.Results, Result{argv, exit, string(output)})
