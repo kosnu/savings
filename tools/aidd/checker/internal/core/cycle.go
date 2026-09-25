@@ -59,5 +59,8 @@ func (s *Store) ReturnIntent(summary string) error {
 	if e != nil {
 		return e
 	}
+	if e := s.improvementChanged(); e != nil {
+		return e
+	}
 	return s.append("return-intent", IntentReturn{summary, s.cycleID(), a.Hash, digest(s.CurrentIntent())}, fp)
 }

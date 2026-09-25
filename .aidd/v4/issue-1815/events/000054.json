@@ -1,0 +1,70 @@
+{
+  "sequence": 54,
+  "kind": "review",
+  "time": "2026-09-25T14:18:02.563988Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "d16437b1c397b15bc22c2d5f5fba4056f5c47eff4ec89ab656db758fae6530c0",
+  "revision": 12,
+  "fingerprint": "b8b7b5cb02ec697f5e9f013e7bbe6ece4609bb728c9fc0494fba4e994888f1a7",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: rules配列。Go Core/検証選択/正本文書の承認済みP14/P15に限定。既存rule-map経路と依存closureを維持し、索引変更不要。\n- Unresolved: 承認範囲内なし。\n実差分の要件はReturnIntentとShipCheckに限定し、変更前のdecisionと途中scope検査を妨げない。比較元を最新Shipではなく承認に対応するAudit対象Shipへ固定し、再Shipによる比較元移動と復帰後の取消を回帰確認。@intentだけなら出典以外の内容差分を検査。差分存在は最低条件であり各提案の意味的充足はreviewで確認する。workspace設定を既存Web4commandに含め、各command欠落を拒否、無関係文書は除外するテスト成功。verify53のGo全テスト/vet/共有gate5件/ADR/diff/TOML全成功。アプリ・workspace設定そのものは変更せずWeb実行は非該当。",
+    "criteria": [
+      {
+        "criterion": "IntentからShip・Audit・手動承認後の改善を検証できる",
+        "evidence": "承認49→改善判断50→Intent復帰51/cycle-0002→判断52/revision12→verify53。無変更改善・復帰後取消を拒否し、実差分あり改善・再Ship・Intentのみ内容変更を許容する回帰テスト成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "意味評価と決定論的検証を分離し不十分な証拠を拒否する",
+        "evidence": "実差分とIntent内容差分はGoで最低条件として検査し、改善としての意味はreviewで評価。pnpm-workspace単独変更のWeb4command選択と各省略拒否を確認。既存の証拠鮮度・承認・cycle境界テストを含め全成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "再開でき旧AIDDの現行経路が残らない",
+        "evidence": "TestExistingV4HistoryStartsCycleWithoutRewritingで導入前のeventをbyte単位で保持し、境界後のIDをLoad/Checkで復元。新規と既存Taskの再開を確認。旧.aidd/tasksは実行入力に復帰せず、cycle導入前v4履歴だけを保持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "調査の比較と採否を示す",
+        "evidence": "research-v4.mdでOpenAI/Anthropic/IBM/GitHub/Cursor/Googleとpreprintを比較し、適用条件・限界・model差・採否を記録。graders/Evalsサービスへの依存なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "a1b7098144abd9cd933c2482ebd7754638782a32db10235d145cb9c427798d67",
+  "cycle_id": "issue-1815/cycle-0002"
+}

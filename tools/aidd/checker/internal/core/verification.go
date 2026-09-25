@@ -15,7 +15,7 @@ func (s *Store) mandatoryCommands(paths []string) [][]string {
 			goCode = true
 		}
 		appRuntime := strings.HasPrefix(p, "apps/web/") && !strings.HasPrefix(p, "apps/web/docs/") && !strings.HasSuffix(p, ".md")
-		if appRuntime || p == "package.json" || p == "pnpm-lock.yaml" || p == "vite.config.ts" || strings.HasPrefix(p, "tsconfig") {
+		if appRuntime || p == "package.json" || p == "pnpm-lock.yaml" || p == "pnpm-workspace.yaml" || p == "vite.config.ts" || strings.HasPrefix(p, "tsconfig") {
 			web = true
 		}
 		if strings.HasPrefix(p, "apps/web/.storybook-test/") || p == "apps/web/.storybook/preview.tsx" || p == "apps/web/.storybook/vitest.setup.ts" || p == "apps/web/vitest.config.ts" {

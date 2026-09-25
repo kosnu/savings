@@ -72,6 +72,9 @@ AuditはShipされた内容に結び付き、指摘とセッション改善を�
 Intentと改善済みガードレールに基づく新decision、必要な実装、検証、review、Ship、Auditを同じTaskで記録する。
 承認だけでは提案を解決済みにしない。承認後の新decisionがないShip、および旧revisionの検証・reviewを使ったShipを拒否する。
 承認された提案は、Intent復帰後の新revisionの検証・review・Shipを終えて結果Auditを記録するまで保持する。
+Intent復帰とShipでは、承認の基準となったAudit対象のcommitから、承認pathに実差分があることを要求する。
+再Shipしても比較元は変えない。`@intent`だけの改善では、出典だけの変更を除くIntent本文・目的・制約・完了条件の改訂を要求する。
+作業開始前のdecisionや途中のscope検査では実差分を要求しない。差分の存在は改善内容の妥当性を保証せず、意味評価で各提案への対応を確認する。
 一部だけ承認した場合、残る案は次Auditへ保持する。明示的な却下はdismissとして記録し、
 承認待ちを消すためにagentが却下を捏造しない。Intent自体の改訂は承認対象`@intent`と
 新しい出典を持つdecisionの`intent_revision`で扱い、開始Intentを上書きしない。
