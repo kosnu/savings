@@ -1,0 +1,34 @@
+{
+  "sequence": 8,
+  "kind": "audit",
+  "time": "2026-09-25T07:13:28.829727Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "d47ec12fb8e8e7f3aa32299188e302aaa506a8863d7b63ffe46d2f56cacf7c4b",
+  "revision": 3,
+  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "data": {
+    "summary": "Issue1815の実装・検証・レビュー・Shipを完了。PR1816作成時のreviewThreadsは0件。セッションの失敗と修正過程をAuditし、再利用可能な未反映候補P1を提示する。P1の改善は未承認・未実施。",
+    "findings": [
+      "実装レビューで見つけたIntent訂正の欠落、部分承認の未決案消失、stale status、過剰なWeb検証適用は同じ開発権限内で修正し回帰テスト済み。未解決defectとして再計上しない。",
+      "旧ADR8件と過去Taskは保持。Go boundary testsとTask証拠検査で現行実行経路の置換を確認。"
+    ],
+    "session_improvements": [
+      "context-scout roleはgpt-5.4-mini固定で起動し、ChatGPT accountではunsupported modelのHTTP400となった。再試行せずメインで調査を継続し、後の独立Go実装のみworkerへ分担した。固定モデルとhost対応の不一致は次回も再現し得る。",
+      "初回v4 bootstrapでは起動用Coreの編集がTask作成に先行した。開始前clean状態は会話に記録され、実際の先行差分はstart initial snapshot/initial_changesに保存した。通常のclean startと同一扱いにはしなかった。初回構築特有で恒久例外の追加は提案しない。",
+      "ローカルpnpm shimがSyntaxErrorになった。既存node_modules/.bin/vpでformatとpre-commit gate成功、pnpmの修復はリポジトリAIDDの反映対象外。",
+      "Git worktree indexの書込制限は対象を限定した承認付き操作で解消。検証後の内容/modeはcommit後も一致を確認。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "context-scoutのmodel固定が現在のhostで利用できず、委譲を開始できなかった。",
+        "evidence": "このセッションのlegacy_paths agent起動失敗: HTTP400 gpt-5.4-mini unsupported for ChatGPT account。.codex/agents/context-scout.tomlのmodel = \"gpt-5.4-mini\"。",
+        "change": " .codex/agents/context-scout.tomlからmodel固定を外してhostの選択モデルを継承し、descriptionとdeveloper_instructionsのlow-costという保証をread-onlyへ修正する。read-only sandboxとlow reasoningは保持。TOML解析と限定したread-only調査の起動で確認する。継承先によって推論費は増える可能性があるため、AGENTSの委譲費用対効果条件は維持する。",
+        "paths": [
+          ".codex/agents/context-scout.toml"
+        ]
+      }
+    ]
+  },
+  "hash": "a189eba348f28a3f474dcc19668b9910e3d1cd28a584a18b45b5af9bc42bc8a6"
+}
