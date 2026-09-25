@@ -1,0 +1,16 @@
+{
+  "sequence": 42,
+  "kind": "return-intent",
+  "time": "2026-09-25T13:56:38.497253Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "00f54294861c4845f211a8a2845ac3306f6cb6b392883c0956b54429198cb463",
+  "revision": 9,
+  "fingerprint": "8c1dac3f5c8c17327c5236ce346a83ca4ce0699db95dd49bcaf8a4a570aa5c10",
+  "data": {
+    "summary": "P12/P13のガードレール改善後、Issue1815の保存Intent・完了条件・制約と更新したworkflow/Core/Audit policyを再確認。Task/baseline/Intentは維持。次サイクルでは改善済みのIntent復帰境界とcycle IDを使い、Goの新旧記録・再開・不正遷移テスト、共有gate、実差分レビューを行って同PRへShipしAuditする。承認対象を拡張しない。",
+    "approval_hash": "eea928b877205438eb4af1b58d2ae3fd9be5abd739f4f442e0ab4138543bf25f",
+    "intent_hash": "4da6edcf48387a542b72b559030a7e206fc0c2145abaa630562a3ebf99367357"
+  },
+  "hash": "b582a55f675e45d8fda0c2a7f224019dbe592eef7a20273887e403e2a68a66f5",
+  "cycle_id": "issue-1815/cycle-0001"
+}

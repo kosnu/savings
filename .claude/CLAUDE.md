@@ -1,13 +1,7 @@
-# CLAUDE.md
+# Claude Code
 
-Claude Code (claude.ai/code) specific guidance. For general project conventions, see `AGENTS.md`.
-
-## Workflow
-
-Use `/task` command for implementation. Claude auto-detects scale (Small / Medium / Large).
-
-| Scale  | Criteria                       | Behavior                                                        |
-| ------ | ------------------------------ | --------------------------------------------------------------- |
-| Small  | 1-3 files, simple fix          | Implement directly                                              |
-| Medium | 4-10 files, single app         | Use subagents, plan approval required                           |
-| Large  | 10+ files, FE+BE cross-cutting | Worktree parallel impl, design + API contract approval required |
+Use root `AGENTS.md` and `docs/ai-driven-development/workflow.md` for AIDD v4.
+Read `docs/ai-driven-development/aidd-checker-operations.md` when running Core commands.
+Core does not require Codex Goals. Retrieve the explicit Task and latest decision when resuming.
+Choose design, tools, and delegation from the Intent and repository constraints.
+After Ship, Audit findings and session improvements; obtain manual user approval for concrete proposals before applying guardrail or Intent improvements.

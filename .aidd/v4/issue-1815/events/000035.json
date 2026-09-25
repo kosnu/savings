@@ -1,0 +1,81 @@
+{
+  "sequence": 35,
+  "kind": "verify",
+  "time": "2026-09-25T13:09:04.42915Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "4c7641252d501d1a7a2cae26e071af28dbbbe61d1adc2393dc424a971443f742",
+  "revision": 8,
+  "fingerprint": "387cc3086852a1e0eb7bd99a93b09b07ba207384f88a045e1790ba5a20f002fa",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t19.838s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 6.533s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=078dd9b3774c46df744123f4c7f8691d0eaae84d checked=8\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-c",
+          "import pathlib,tomllib; d=tomllib.loads(pathlib.Path('.codex/agents/context-scout.toml').read_text()); assert d['model']=='gpt-6-luna'; assert d['model_reasoning_effort']=='low'; assert d['sandbox_mode']=='read-only'; print('context-scout TOML: passed')"
+        ],
+        "exit": 0,
+        "output": "context-scout TOML: passed\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "030096eaaae73cd40850f64829379247302cfd716ea8321aa61599f497cc13dd"
+}

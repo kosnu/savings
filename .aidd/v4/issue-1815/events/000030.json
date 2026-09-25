@@ -1,0 +1,23 @@
+{
+  "sequence": 30,
+  "kind": "audit",
+  "time": "2026-09-25T09:36:47.489239Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "c8a443ae4279bd7699bb7caf9365f77a27214e83577e2e4d42e64806e4ade16b",
+  "revision": 7,
+  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "data": {
+    "summary": "承認済みP6/P7/P8を実装・検証・review・Ship済み。P5はユーザー合意による不採用をdismissで保存。全6レビューthreadは取得済みで、既存解決2件に加え今回修正2件・不採用2件へ返信して解決した。追加提案なし。結果Auditは手動承認待ち。",
+    "findings": [
+      "残存子の出力待ちを制限し専用process groupをcleanup、失敗をverify証拠に保存。正常終了・失敗・残存の回帰テスト成功。",
+      "共有preview/setup/Vitest設定をbrowser suite対象にし、文書の誤判定も除外。Go回帰テスト成功。",
+      "ローカルとCIの役割、運用とGitHub機能強制の区別、対象を明示するGitコマンドを正本に反映。追加Go gateとGitHub設定変更は行わない。"
+    ],
+    "session_improvements": [
+      "承認後に余分な確認を追加せず実装からShipまで継続した。最新reviewを実取得して採否と対応結果を確認した。",
+      "検証選択に説明文書が混入する誤判定を今回の変更で検出し、非runtime文書除外と回帰テストを追加した。解決済みとして保持する。"
+    ],
+    "proposals": []
+  },
+  "hash": "8af5581aba4f2745121d3b4dafd6075f7746974c092a434ffb867231fc61403d"
+}

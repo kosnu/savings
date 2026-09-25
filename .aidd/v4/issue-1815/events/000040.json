@@ -1,0 +1,19 @@
+{
+  "sequence": 40,
+  "kind": "approve",
+  "time": "2026-09-25T13:51:20.619155Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "8fc2ed373c0b08412183c9566fb63d8ccf27c35d6b2b2c5855bafcf041f79de2",
+  "revision": 8,
+  "fingerprint": "387cc3086852a1e0eb7bd99a93b09b07ba207384f88a045e1790ba5a20f002fa",
+  "data": {
+    "audit_hash": "8fc2ed373c0b08412183c9566fb63d8ccf27c35d6b2b2c5855bafcf041f79de2",
+    "source": "user:current-thread/2026-09-25/cycle-approval",
+    "text": "Auditとして承認\n進めろ",
+    "proposal_ids": [
+      "P12",
+      "P13"
+    ]
+  },
+  "hash": "eea928b877205438eb4af1b58d2ae3fd9be5abd739f4f442e0ab4138543bf25f"
+}

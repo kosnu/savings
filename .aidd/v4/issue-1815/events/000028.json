@@ -1,0 +1,69 @@
+{
+  "sequence": 28,
+  "kind": "review",
+  "time": "2026-09-25T09:34:55.000712Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "ba119b1bffb99a7c07b35c3d5b2a1e6215941f7517c3f94a5effe8c886548815",
+  "revision": 7,
+  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: rules配列。今回の変更はGo実行境界・Storybook検証選択・正本文書。Webのdomain/UI/DB規則はpathから選択されるが製品動作・構造の変更なし。既存rule-mapから全正本へ到達し索引更新不要。\n- Unresolved: 今回の承認範囲内はなし。\nGo全テスト・vet・共有gate・ADR検証・diff check・TOML検査がevent27で成功。残存childのpipe継承とredirect、通常終了/起動失敗/nonzero、失敗証拠とreview拒否を確認。共有preview/setup/Vitest configでbrowser suiteを要求しカタログ専用と文書には追加要求しない。WaitDelayは親終了後のみ、専用group外へ離脱するdaemonは対象外。macOSで実行検証、Linuxの同じ実装はCIで検証される。製品コード/Storybook設定自体は変更せずWeb実行は非該当。Git対象明示、運用と機能強制の区別を正本へ反映しGitHub設定は変更なし。",
+    "criteria": [
+      {
+        "criterion": "IntentからShip・Audit・手動承認後の改善を検証できる",
+        "evidence": "既存サイクル回帰テスト成功。実TaskではAudit追記22、P5却下23、ユーザー承認24、新判断25/26、verify27を保持。再Shipは本レビュー後。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "意味評価と決定論的検証を分離し不十分な証拠を拒否する",
+        "evidence": "TestFreshnessAndModes/TestDecisionAndFailedVerification/TestVerificationSourceMutation/TestRulesClosureAndFailureが古い内容・mode・判断、失敗や改変検証、未分類ruleを拒否。semantic reviewの基準・根拠と実行exitを分離。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "再開でき旧AIDDの現行経路が残らない",
+        "evidence": "CLI Load/statusでIntent・baseline・全decision/event chainを再取得できる。旧Go packages/contracts/prepare/hooks/migration CLIは削除しv4入口へ同期。過去ADR/Task/workspacesを実行入力にしていない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "調査の比較と採否を示す",
+        "evidence": "research-v4.mdでOpenAI/Anthropic/IBM/GitHub/Cursor/Googleとpreprintを比較し、適用条件・限界・model差・採否を記録。graders/Evalsサービスへの依存なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "7ce761f8e3f5ad8ee8b36dd194b0bee00fe3820f463d9da8375c9f2b6d3d904b"
+}

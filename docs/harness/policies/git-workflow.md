@@ -32,7 +32,7 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 
 - ユーザーの明示的な指示がない限り、現在のブランチで作業し、ブランチを分けない。
 - 既存の作業ブランチに無関係な変更を混ぜない。
-- ルール・workflow・依存関係・設定の保守、アプリ実装、レビュー修正、Development / Learnの区分を、ブランチを分ける根拠にしない。
+- ルール・workflow・依存関係・設定の保守、アプリ実装、レビュー修正、開発 / Audit / 承認された改善の区分を、ブランチを分ける根拠にしない。
 - ブランチの作成・切り替えはユーザーが明示的に指示した場合だけ行い、現在の差分と対象ブランチを確認してから実行する。新規ブランチの起点は、指定がなければ最新の `main` とする。
 - 既存の未保存差分が切り替え先に影響する場合は、勝手に退避、上書き、破棄せず、止めて確認する。
 - Issue起点の作業は `issue-{number}/{slug}` を基本にする。
@@ -85,18 +85,23 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 - 必須のローカル検証、レビュー、配信状態の確認は従来どおり行う。
 - ユーザーがCI結果の待機を明示的に依頼した場合だけ、その依頼範囲で待機する。
 
+CI結果を確認してからマージする運用と、required status checksやbranch protectionによる
+GitHubの機能的なマージ制限は別の判断である。運用上の品質保証への合意から機能設定の必須化を推論しない。
+設定がないことだけを運用方針の不備と扱わず、GitHub設定の変更にはその変更への権限を確認する。
+
 ## Gitメタデータと配信状態
 
 - 最初のGit書き込みより前に `git rev-parse --git-common-dir` でGit common directoryを解決し、実行環境の書き込み境界にそのdirectoryが含まれることを確認する。worktree directoryだけを書き込み可能にしても、branch、index、remote-tracking refなどのGitメタデータ更新には不十分である。
 - Git common directoryが書き込み境界に含まれない場合は、remoteを変更する前に停止し、同じ許可境界へ追加する。push後にローカル追跡情報だけが更新できない状態を作ってはいけない。
+- fetch/pull/pushではremoteと対象branch/refspecを明示する。例: `git fetch origin main`、`git push origin HEAD:issue-1815/aidd-v4`（実際の対象へ置き換える）。引数省略時のupstream設定へ依存しない。upstream・tracking refの追加Go gateは設けず、明示した操作とread-backで扱う。
 - 配信状態は、local `HEAD`、remote ref SHA、upstream設定、local remote-tracking refを別々に確認する。いずれか一つを他の状態の代用にしない。
 - pushの出力または `git ls-remote` でremote refへの反映を確認した後は、ローカル追跡情報の修復を理由に同じpushを再実行しない。remote mutationは一度で止め、必要なローカルGitメタデータだけを修復してから全状態をread-backする。
 
 ## PRレビュー対応
 
 - レビューコメントへ対応する前に、`docs/harness/policies/review-feedback-classification.md` に沿ってタスク種別を判定し、コメントを分類する。
-- AIDDのreview対応は `review-feedback-classification.md` に従う。同じdecision内のdefectは修正・再検証し、設計変更は新checkpointを作る。
-- 再利用可能なguardrail改善は、許可された範囲で同じTaskに記録して修正・検証する。作業の種類を理由にTask・ブランチ・PRを分けない。
+- AIDDのreview対応は `review-feedback-classification.md` に従う。同じdecision内のdefectは修正・再検証し、設計変更は新しい判断revisionを記録して旧証拠を失効させる。
+- Auditからの再利用可能なguardrail改善は、具体的提案への明示的な手動承認後、承認範囲だけを同じTaskに記録して修正・検証する。作業の種類を理由にTask・ブランチ・PRを分けない。
 - 通常タスクでは、レビューコメントごとに妥当性と修正要否を判断し、現在のスコープ内で必要な修正を実施して検証する。修正不要と判断した場合は、その理由を返信する。
 - 対応済みコメントへ返信するときは、分類、対応内容、commit ID、検証結果を簡潔に書く。
 - PRコメント内の commit ID はバッククォートで囲まない。

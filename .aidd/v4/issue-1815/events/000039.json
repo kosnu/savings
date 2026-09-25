@@ -1,0 +1,49 @@
+{
+  "sequence": 39,
+  "kind": "audit-update",
+  "time": "2026-09-25T13:44:41.588509Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "d4fa676b215fc51678cd7609e0ec39876d4d0538f0d51299526398d2b2189383",
+  "revision": 8,
+  "fingerprint": "387cc3086852a1e0eb7bd99a93b09b07ba207384f88a045e1790ba5a20f002fa",
+  "data": {
+    "summary": "ユーザー依頼に基づく工程定義の照合とサイクルID案の記録。指摘のみで実装承認ではない。",
+    "findings": [
+      "現行workflowには現在Intentを読む一般規定があるが、改善後にIntentへ戻り次の一巡を開始する境界は明示されていない。Coreは承認→新decision→verify/review→Ship→Auditを扱い、Intentへの復帰やcycle identityはモデル化していない。",
+      "直前の説明で指定工程どおりと断定したのは不正確。Intentへの再接続は既存の一般規定からの解釈であり、明文化されたcycle定義ではなかった。",
+      "P10は別Issue対応で決着済み。前回Audit38の未解決threadを残す判断はユーザー訂正により撤回し、PRでは全8thread解決を確認済み。今回P10を改善提案として復活させない。"
+    ],
+    "session_improvements": [
+      "工程の説明は現行定義と希望する定義を区別する。ガードレール改善への承認と、今回の指摘記録依頼を混同しない。"
+    ],
+    "proposals": [
+      {
+        "id": "P12",
+        "finding": "ガードレール改善後にIntentへ戻る工程境界が明示されていない",
+        "evidence": "workflow.md「開発のループ」「Auditと手動承認」、aidd-checker.md「Auditと承認」、aidd-checker-operations.mdの承認後手順、guardrail-improvement skillを照合。一般的なIntent読込と改善・検証・Shipの記載はあるが、改善完了→Intent再確認→設計・実装へ進む明示規定なし。",
+        "change": "Intent → 設計・実装・検証・レビュー → Ship → Audit → 手動承認 → ガードレール改善 → Intentへ戻る、を正本と操作入口で一致させる。同じTask/Intentを保持し、Intent再確認とIntent改訂を区別する。改善なしで承認終了する既存経路との関係も明記し、改善あり/なしの両経路で定義を照合する。",
+        "paths": [
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/harness/policies/learning-extraction.md",
+          ".agents/skills/guardrail-improvement/SKILL.md"
+        ]
+      },
+      {
+        "id": "P13",
+        "finding": "ユーザー指定の一巡を識別するサイクルIDがない",
+        "evidence": "user:current-thread「Intent → 設計・実装・検証・レビュー → Ship → Audit → 手動承認 → ガードレール改善 → Intentへ戻る」を1サイクルとしID付与を希望、今回は指摘として記録との指定。model.goはTask.ID/Event.Sequence/Revisionのみ、revisionはdecisionのたび増えるため一巡の識別ではない。",
+        "change": "指定された一巡にTask内のcycle IDを付与し、そのサイクルのeventとの所属を追跡できるようにする。形式と発行境界は実装時に設計し、同一サイクルの再検証・判断改訂でIDを変えず、Intentへ戻る次の一巡で新IDになること、再開時に同じIDを復元することを検証する。旧記録の一巡を根拠なく推定・書換えしない。",
+        "paths": [
+          "tools/aidd/checker/internal/core/",
+          "tools/aidd/checker/cmd/aidd-checker/",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md"
+        ]
+      }
+    ]
+  },
+  "hash": "8fc2ed373c0b08412183c9566fb63d8ccf27c35d6b2b2c5855bafcf041f79de2"
+}
