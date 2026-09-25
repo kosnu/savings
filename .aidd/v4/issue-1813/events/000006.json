@@ -1,0 +1,55 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-09-25T18:39:22.752126Z",
+  "task_hash": "aa33734841a82f0a9230ba5347b9872c29985df9ee9034efab2056162c9470d6",
+  "previous": "df4fbadd7776b35a248ef2c02bff9a1f90a98efc8076d5007f3b61f60553f594",
+  "revision": 1,
+  "fingerprint": "3ed6c3d2ccabd96f6872d1098107c512ce12c68b5120b1b9a6b96a788545343c",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし。文書差分をIssue #1813の5条件および制限あり・なしの反例で確認。アプリコードは変更していないためWeb検証対象外。",
+    "criteria": [
+      {
+        "criterion": "新規Feature Requestの委任範囲・完了地点で通常のPR提出と個別制限を読み取れる",
+        "evidence": ".github/ISSUE_TEMPLATE/feature_request.md:47-55。完了地点はPR作成または更新・配信確認、個別制限欄は維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "制限のない実行依頼は追加Ship指示なしにPR提出・配信確認へ進める",
+        "evidence": "docs/ai-driven-development/workflow.md:25-29 と docs/harness/policies/issue-template-selection.md:56。制限なしのFeature Request実行依頼をShipまで委任と明記。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "明示されたローカル完了などの制限はIntentと実行権限に保持される",
+        "evidence": "docs/ai-driven-development/workflow.md:28 が開始時のIntentと実行権限への保持と範囲超過禁止を規定。テンプレート:53-55 で制限記入欄と案内を維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Ship後のAuditは提案の有無によらず手動承認待ちとなり、承認後の扱いはAIDD v4と一致する",
+        "evidence": "テンプレート:52 がAudit手動承認待ちを示し、workflow.md:31-38,82-99 は提案の有無によらない承認と承認後の次サイクルを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "テンプレート、関連案内、実行時の扱いが一致し、両ケースを証拠で確認できる",
+        "evidence": "3文書の差分を照合。制限なしはテンプレート:52、selection:56、workflow:28 のShip範囲が一致。ローカル完了はテンプレート:53-55、selection:56、workflow:28 の優先規則が一致。git diff --check 成功。Core実装・他テンプレート・索引は既存経路で到達できるため変更なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "b8bbfb8985713d25e06eaedbd8255c1c7e747a3ed98d4d1f71f9dba52e44cb4d",
+  "cycle_id": "issue-1813/cycle-0001"
+}
