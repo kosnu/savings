@@ -97,6 +97,9 @@ func ResolveRules(root string, paths []string) ([]Rule, error) {
 		if r.ID == "" || !validPath(r.File) || !strings.HasSuffix(r.File, ".md") {
 			return nil, fmt.Errorf("invalid rule")
 		}
+		if strings.Contains("/"+r.File, "/adr/") {
+			return nil, fmt.Errorf("ADR history cannot be a required rule: %s", r.ID)
+		}
 		if _, ok := byID[r.ID]; ok {
 			return nil, fmt.Errorf("duplicate rule %s", r.ID)
 		}

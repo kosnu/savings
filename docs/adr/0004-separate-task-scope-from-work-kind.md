@@ -44,3 +44,7 @@ ADR-0003のDevelopment / Learn間の変更隔離と1 PR・1 Taskの決定を置�
 既存Task・checkpoint・証拠の履歴は保持し、対応checkerへの移行後に継続できる。
 複数Taskの検証結果は最終ソースへ結合するため、ソース変更後は関係するTaskを再検証する。
 Taskの追加自体や、ルール保守のための別Task作成は必須ではない。
+
+## Clarification: 現行正本の参照先 (2026-09-26)
+
+本ADRは当時のTask境界の判断を保持する。[ADR 0009](0009-rebuild-aidd-v4.md)による置換後のTask・サイクル・権限の現行条件は[AIDD v4](../ai-driven-development/workflow.md)と[用語集](../ai-driven-development/glossary.md)が所有する。

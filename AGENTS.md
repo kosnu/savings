@@ -27,10 +27,10 @@ Personal savings management app: `apps/web/` is React + TypeScript + Vite;
 Start with the named files and the smallest repository evidence that can answer the task.
 Read further when a required fact or decision remains unsupported; avoid searches solely for more examples or wording.
 
-- Use [rule-map.json](docs/harness/rule-map.json) for documented behavior, design, policies, and related rules. Apply matching path/surface rules and their `depends_on` closure; use front matter (`area`, `applies_to`, `topics`, `when_to_read`, `status`) for additional targeted discovery.
+- Use [rule-map.json](docs/harness/rule-map.json) to select current specifications and rules. Apply matching path/surface rules and their `depends_on` closure; use front matter (`area`, `applies_to`, `topics`, `when_to_read`, `status`) for additional targeted discovery. ADRs record decision history and are read when its reasons or changes are needed, not as current rules.
 - Read the selected documents when their decision or operation is needed. Do not scan all docs or load every linked reference for each edit. Required routing and review coverage still apply. Use deprecated docs only for deprecated behavior or history.
 - Documentation or agent-definition changes: [Documentation Policy](docs/harness/policies/documentation-policy.md). Repository docs live in `docs/`, app docs in `apps/*/docs/`, Web decisions in `apps/web/docs/adr/`.
-- Harness structure or rule graph decisions: [harness ADR](docs/adr/0001-adopt-harness-engineering.md) and [rule graph ADR](docs/adr/0002-adopt-agent-rule-graph.md).
+- Harness structure and rule graph: apply the [Documentation Policy](docs/harness/policies/documentation-policy.md). The [harness ADR](docs/adr/0001-adopt-harness-engineering.md) and [rule graph ADR](docs/adr/0002-adopt-agent-rule-graph.md) preserve the reasons for those decisions.
 - Accepted ADR changes: preserve historical text; append a dated Clarification or add a replacement ADR. Run `python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/<base-branch>`.
 - State evidence gaps. Use a named low-risk assumption only when it does not change intent, acceptance criteria, or permissions.
 

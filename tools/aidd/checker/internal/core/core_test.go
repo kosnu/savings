@@ -253,6 +253,26 @@ func TestRulesClosureAndFailure(t *testing.T) {
 		t.Fatal("malformed glob accepted")
 	}
 }
+func TestADRHistorySelectsCanonicalPolicyOnly(t *testing.T) {
+	root := t.TempDir()
+	put(t, root, "docs/harness/policies/documentation-policy.md", "current")
+	put(t, root, "docs/adr/0001-example.md", "history")
+	rm := `{"version":2,"rules":[{"id":"documentation.policy","file":"docs/harness/policies/documentation-policy.md","applies_to":{"paths":["docs/**/*.md"]}}],"review_routing":{"governed_paths":["docs/adr/**"],"surfaces":[{"id":"adr-history","paths":["docs/adr/**"],"required_rules":["documentation.policy"]}]}}`
+	put(t, root, "docs/harness/rule-map.json", rm)
+	r, e := ResolveRules(root, []string{"docs/adr/0001-example.md"})
+	if e != nil || len(r) != 1 || r[0].ID != "documentation.policy" {
+		t.Fatalf("ADR history routing: %v %v", r, e)
+	}
+	put(t, root, "docs/harness/rule-map.json", strings.Replace(rm, `"file":"docs/harness/policies/documentation-policy.md"`, `"file":"docs/adr/0001-example.md"`, 1))
+	if _, e := ResolveRules(root, []string{"docs/adr/0001-example.md"}); e == nil {
+		t.Fatal("ADR history accepted as required rule")
+	}
+	put(t, root, "apps/web/docs/adr/0001-example.md", "history")
+	put(t, root, "docs/harness/rule-map.json", strings.Replace(rm, `"file":"docs/harness/policies/documentation-policy.md"`, `"file":"apps/web/docs/adr/0001-example.md"`, 1))
+	if _, e := ResolveRules(root, []string{"docs/adr/0001-example.md"}); e == nil {
+		t.Fatal("app ADR history accepted as required rule")
+	}
+}
 func TestStrictJSON(t *testing.T) {
 	var x Start
 	for _, v := range []string{`{"unknown":1}`, `{} trailing`, `{} {}`} {

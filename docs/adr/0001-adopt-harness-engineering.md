@@ -54,3 +54,7 @@ AI agent に有用な作業を任せるには、作業指示だけでなく、�
 - 個別機能の PRD、Design Doc、作業ログは `docs/ai-driven-development/` に残す。
 - アプリ固有の component、UI、test、React Query などの実装方針は `apps/*/docs/` に残す。
 - `docs/harness/rule-map.json` は、`docs/harness/` 以外の文書も参照してよい。
+
+## Clarification: 現行正本の参照先 (2026-09-26)
+
+本ADRは採用時の判断を保持する。現在の文書配置、agent入口、ハーネスと正本の責務は[Documentation Policy](../harness/policies/documentation-policy.md)が所有する。AIDDの実行契約は[AIDD v4](../ai-driven-development/workflow.md)を参照する。

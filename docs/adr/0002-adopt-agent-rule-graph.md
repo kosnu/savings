@@ -79,3 +79,7 @@ policy / domain docs は、見落としや誤検知が起きた場合、本文�
 AIDD Buildのreview surfaceは広い変更面を分類するための索引であり、各rule nodeの`applies_to.paths`を置き換えない。Buildは実差分のgoverned pathごとに、一致surfaceの必須ruleと、pathが一致するrule nodeを和集合し、その依存closureを検証する。
 
 Designで予定pathが判明している場合、surfaceから選ばれないpath固有ruleは`additional_rules`へ固定する。Buildで必要ruleがreceiptにない場合は黙って追加せずDesign coverage不足として失敗し、Coverage recordにはpathごとの直接一致ruleを残す。
+
+## Clarification: 現行正本の参照先 (2026-09-26)
+
+本ADRのDecisionと既存Clarificationは当時の判断として保持する。現行rule graphの選択・依存・競合とADRの参照方法は[Documentation Policy](../harness/policies/documentation-policy.md)が所有し、実際の選択条件は[rule-map](../harness/rule-map.json)に記録する。ADR自体は必須rule nodeとして登録しない。
