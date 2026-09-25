@@ -1,0 +1,33 @@
+{
+  "sequence": 11,
+  "kind": "audit",
+  "time": "2026-09-25T15:36:56.059689Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "573828a9992d919af32ae8f1066fd14955a8aec6d73a6dab5ab3dd8bf99e6911",
+  "revision": 3,
+  "fingerprint": "6f6bb1334860607bfb3f19a1d20e88329ccfecd9b26244a84e9eeeefd7dae22f",
+  "data": {
+    "summary": "Issue #1806はPR #1817へShip済み。ADRの現行正本化と選択経路の検証を完了した。CI初回状態はPENDING。",
+    "findings": [
+      "commit 54d37c5f のpre-commit hookで vite.config.ts の vp check --fix がADR 0003の既存Clarification間の空行を削除した。履歴保護validatorの再実行で差分を発見し、元本文を復元して再検証後、commit 12472bc7で補正した。現行PRのADR既存本文は保持されている。",
+      "originへの初回pushは自動承認審査で拒否された。ユーザーの明示承認「おk」を受けて同じ対象branchをpushし、PR #1817を作成した。権限の拡張やmergeは行っていない。"
+    ],
+    "session_improvements": [
+      "formatterがstage済みファイルを書き換える場合は、commit後の最終差分とADR履歴保護を再確認する必要がある。今回は補正commitと再検証を要した。",
+      "配信先とpayloadを具体化して承認を得た後、remote、tracking、upstream、PR headを読み戻した。CIは初回取得でPENDINGと記録した。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "vite.config.ts の staged hook が採択済みADRの既存履歴を vp check --fix で再整形し、履歴保護validatorを実行した後でも本文を変えた。",
+        "evidence": "commit 54d37c5f のADR 0003差分に既存空行の削除が4箇所あり、origin/mainとの差分validatorを再実行して補正。最終commit 12472bc7では既存本文のbytesを保持し末尾Clarificationのみ追加。",
+        "change": "vite.config.ts の staged処理で採択済みADRを自動整形対象から外し、変更対象の履歴保護を保つ。連続空行を含む既存ADRへの追記をstageしてhook後も元本文が同一であることを検証する。",
+        "paths": [
+          "vite.config.ts"
+        ]
+      }
+    ]
+  },
+  "hash": "ff32e69ecf043c685143cf3e4183e3dba44f652db633c290b2d12d7770123f4b",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}
