@@ -155,10 +155,10 @@ func fakeShip(t *testing.T, s *Store) {
 	command(t, s.Root, "push", "origin", "HEAD:main")
 	head := command(t, s.Root, "rev-parse", "HEAD")
 	bin := t.TempDir()
-	put(t, bin, "gh", "#!/bin/sh\nprintf '%s\\n' '{\"headRefOid\":\""+head+"\",\"headRefName\":\"main\",\"state\":\"OPEN\"}'\n")
+	put(t, bin, "gh", "#!/bin/sh\nprintf '%s\\n' '{\"headRefOid\":\""+head+"\",\"headRefName\":\"main\",\"baseRefName\":\"target\",\"state\":\"OPEN\"}'\n")
 	os.Chmod(filepath.Join(bin, "gh"), 0755)
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
-	if e := s.RecordShip(Ship{Commit: head, Remote: "origin", Branch: "main", PR: "https://example.test/pr/1", Evidence: "remote verified"}); e != nil {
+	if e := s.RecordShip(Ship{Commit: head, Remote: "origin", Branch: "main", PR: "https://example.test/pr/1", Evidence: "remote verified", Base: "target"}); e != nil {
 		t.Fatal(e)
 	}
 }
@@ -208,7 +208,7 @@ func TestCycleAndApproval(t *testing.T) {
 	if e := s.Audit(Audit{Summary: "improvement verified; no proposals"}); e != nil {
 		t.Fatal(e)
 	}
-	if s.Status()["state"] != "complete" {
+	if s.Status()["state"] != "approval-pending" {
 		t.Fatal(s.Status())
 	}
 	if s.Verify() == nil {
@@ -223,10 +223,10 @@ func fakeShipAgain(t *testing.T, s *Store) {
 	command(t, s.Root, "push", "origin", "HEAD:main")
 	head := command(t, s.Root, "rev-parse", "HEAD")
 	bin := t.TempDir()
-	put(t, bin, "gh", "#!/bin/sh\nprintf '%s\\n' '{\"headRefOid\":\""+head+"\",\"headRefName\":\"main\",\"state\":\"OPEN\"}'\n")
+	put(t, bin, "gh", "#!/bin/sh\nprintf '%s\\n' '{\"headRefOid\":\""+head+"\",\"headRefName\":\"main\",\"baseRefName\":\"target\",\"state\":\"OPEN\"}'\n")
 	os.Chmod(filepath.Join(bin, "gh"), 0755)
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
-	if e := s.RecordShip(Ship{head, "origin", "main", "https://example.test/pr/1", "verified"}); e != nil {
+	if e := s.RecordShip(Ship{head, "origin", "main", "https://example.test/pr/1", "verified", "target"}); e != nil {
 		t.Fatal(e)
 	}
 }
@@ -290,11 +290,11 @@ func TestCandidateEvidenceAndRecordDelivery(t *testing.T) {
 	command(t, s.Root, "push", "origin", "HEAD:main")
 	head := command(t, s.Root, "rev-parse", "HEAD")
 	bin := t.TempDir()
-	put(t, bin, "gh", "#!/bin/sh\nprintf '%s\\n' '{\"headRefOid\":\""+head+"\",\"headRefName\":\"main\",\"state\":\"OPEN\"}'\n")
+	put(t, bin, "gh", "#!/bin/sh\nprintf '%s\\n' '{\"headRefOid\":\""+head+"\",\"headRefName\":\"main\",\"baseRefName\":\"target\",\"state\":\"OPEN\"}'\n")
 	os.Chmod(filepath.Join(bin, "gh"), 0755)
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 	before := len(s.Events)
-	if e := s.DeliveryCheck(Ship{head, "origin", "main", "https://example.test/pr/1", "records delivered"}); e != nil {
+	if e := s.DeliveryCheck(Ship{head, "origin", "main", "https://example.test/pr/1", "records delivered", "target"}); e != nil {
 		t.Fatal(e)
 	}
 	if len(s.Events) != before {
@@ -307,7 +307,7 @@ func TestCandidateEvidenceAndRecordDelivery(t *testing.T) {
 	if CheckChanges(s.Root, base) == nil {
 		t.Fatal("candidate stale accepted")
 	}
-	if s.DeliveryCheck(Ship{head, "origin", "main", "https://example.test/pr/1", "bad"}) == nil {
+	if s.DeliveryCheck(Ship{head, "origin", "main", "https://example.test/pr/1", "bad", "target"}) == nil {
 		t.Fatal("source change hidden as records")
 	}
 }
@@ -411,7 +411,7 @@ func TestPartialApprovalCarryAndDismissal(t *testing.T) {
 	if e := s.Dismiss(Approval{s.latest("audit").Hash, "user:3", "decline p2", []string{"p2"}}); e != nil {
 		t.Fatal(e)
 	}
-	if s.Status()["state"] != "complete" {
+	if s.Status()["state"] != "approval-pending" {
 		t.Fatal(s.Status())
 	}
 	put(t, s.Root, "code.txt", "unauthorized")

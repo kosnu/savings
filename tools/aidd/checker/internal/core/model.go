@@ -70,6 +70,7 @@ type Ship struct {
 	Branch   string `json:"branch"`
 	PR       string `json:"pr"`
 	Evidence string `json:"evidence"`
+	Base     string `json:"base,omitempty"`
 }
 type Proposal struct {
 	ID       string   `json:"id"`
@@ -155,7 +156,7 @@ func (s *Store) revision() int {
 }
 func (s *Store) latest(kind string) *Event {
 	for i := len(s.Events) - 1; i >= 0; i-- {
-		if s.Events[i].Kind == kind {
+		if s.Events[i].Kind == kind || (kind == "audit" && s.Events[i].Kind == "audit-update") {
 			return &s.Events[i]
 		}
 	}

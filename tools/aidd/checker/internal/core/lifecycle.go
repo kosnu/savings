@@ -65,6 +65,9 @@ func (s *Store) workAllowed() error {
 		if ap == nil || ap.Sequence < a.Sequence {
 			return fmt.Errorf("Audit completed; separate manual approval required before improvements")
 		}
+		if len(eventData[Approval](ap).ProposalIDs) == 0 {
+			return fmt.Errorf("Audit approval without proposals does not authorize changes")
+		}
 		if e := s.approvalValid(); e != nil {
 			return e
 		}
@@ -305,7 +308,7 @@ func (s *Store) delivery(ship Ship, newShip bool) (string, error) {
 	if gate != nil {
 		return "", gate
 	}
-	if e := required(ship.Commit, ship.Remote, ship.Branch, ship.PR, ship.Evidence); e != nil {
+	if e := required(ship.Commit, ship.Remote, ship.Branch, ship.PR, ship.Evidence, ship.Base); e != nil {
 		return "", e
 	}
 	head, e := git(s.Root, "rev-parse", "HEAD")
@@ -334,7 +337,7 @@ func (s *Store) delivery(ship Ship, newShip bool) (string, error) {
 	if len(fields) != 2 || fields[0] != ship.Commit {
 		return "", fmt.Errorf("remote branch does not match ship commit")
 	}
-	c := exec.Command("gh", "pr", "view", ship.PR, "--json", "headRefOid,headRefName,state")
+	c := exec.Command("gh", "pr", "view", ship.PR, "--json", "headRefOid,headRefName,baseRefName,state")
 	c.Dir = s.Root
 	b, e := c.Output()
 	if e != nil {
@@ -343,13 +346,14 @@ func (s *Store) delivery(ship Ship, newShip bool) (string, error) {
 	var pr struct {
 		HeadRefOid  string
 		HeadRefName string
+		BaseRefName string
 		State       string
 	}
 	if e = json.Unmarshal(b, &pr); e != nil {
 		return "", e
 	}
-	if pr.HeadRefOid != ship.Commit || pr.HeadRefName != ship.Branch || pr.State != "OPEN" {
-		return "", fmt.Errorf("PR head or state mismatch")
+	if pr.HeadRefOid != ship.Commit || pr.HeadRefName != ship.Branch || pr.State != "OPEN" || pr.BaseRefName != ship.Base {
+		return "", fmt.Errorf("PR head, base branch or state mismatch")
 	}
 	return fp, nil
 }
@@ -368,18 +372,25 @@ func (s *Store) Audit(a Audit) error {
 		return fmt.Errorf("Ship required before Audit")
 	}
 	prior := s.latest("audit")
+	kind := "audit"
 	if prior != nil && prior.Sequence > ship.Sequence {
-		return fmt.Errorf("Audit already recorded for this Ship")
+		if s.revision() != ship.Revision {
+			return fmt.Errorf("new decision requires Ship before Audit update")
+		}
+		kind = "audit-update"
 	}
 	_, fp, e := s.current()
 	if e != nil {
 		return e
 	}
-	if fp != ship.Fingerprint {
-		return fmt.Errorf("source changed after Ship")
+	if fp != ship.Fingerprint || s.revision() != ship.Revision {
+		return fmt.Errorf("source or decision changed after Ship")
 	}
 	if prior != nil {
 		resolved := s.resolvedProposals(prior.Hash)
+		if kind == "audit-update" {
+			resolved = s.dismissedProposals(prior.Hash)
+		}
 		present := map[string]bool{}
 		for _, p := range a.Proposals {
 			present[p.ID] = true
@@ -405,18 +416,21 @@ func (s *Store) Audit(a Audit) error {
 			}
 		}
 	}
-	return s.append("audit", a, fp)
+	return s.append(kind, a, fp)
 }
 func (s *Store) Approve(a Approval) error {
 	audit := s.latest("audit")
 	if audit == nil || a.AuditHash != audit.Hash {
 		return fmt.Errorf("approval must bind latest Audit hash")
 	}
-	if required(a.Source, a.Text) != nil || a.Text == s.Task.Authority || len(a.ProposalIDs) == 0 {
+	if required(a.Source, a.Text) != nil || a.Text == s.Task.Authority {
 		return fmt.Errorf("separate explicit manual approval is required")
 	}
 	if prior := s.latest("approve"); prior != nil && prior.Sequence > audit.Sequence {
 		return fmt.Errorf("approval already recorded")
+	}
+	if len(a.ProposalIDs) == 0 && !s.allProposalsDismissed(audit) {
+		return fmt.Errorf("select improvement proposals or explicitly dismiss them before completion")
 	}
 	data := eventData[Audit](audit)
 	ids := map[string]bool{}
@@ -483,13 +497,12 @@ func (s *Store) Status() map[string]any {
 		state = "shipped"
 	}
 	if audit != nil {
-		if s.allProposalsDismissed(audit) {
-			state = "complete"
-		} else {
-			state = "approval-pending"
-		}
+		state = "approval-pending"
 		if approval != nil && approval.Sequence > audit.Sequence {
 			state = "improvement-authorized"
+			if len(eventData[Approval](approval).ProposalIDs) == 0 && s.allProposalsDismissed(audit) {
+				state = "complete"
+			}
 		}
 	}
 	_, fp, err := s.current()

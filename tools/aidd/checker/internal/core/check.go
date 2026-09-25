@@ -53,7 +53,7 @@ func (s *Store) Check() error {
 				return fmt.Errorf("duplicate start")
 			}
 		case "decision":
-			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence) {
+			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence || len(eventData[Approval](approval).ProposalIDs) == 0) {
 				return fmt.Errorf("unapproved post-Audit decision")
 			}
 			decision = e
@@ -86,9 +86,9 @@ func (s *Store) Check() error {
 				}
 			}
 			ship = e
-		case "audit":
-			if ship == nil || ship.Fingerprint != e.Fingerprint || (audit != nil && audit.Sequence > ship.Sequence) {
-				return fmt.Errorf("Audit without a new Ship")
+		case "audit", "audit-update":
+			if ship == nil || ship.Fingerprint != e.Fingerprint || ship.Revision != e.Revision || (e.Kind == "audit" && audit != nil && audit.Sequence > ship.Sequence) || (e.Kind == "audit-update" && (audit == nil || audit.Sequence < ship.Sequence || e.Revision != ship.Revision)) {
+				return fmt.Errorf("Audit without matching Ship or valid update")
 			}
 			audit = e
 		case "dismiss":
