@@ -1,0 +1,45 @@
+{
+  "sequence": 12,
+  "kind": "audit-update",
+  "time": "2026-09-25T15:45:49.843762Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "ff32e69ecf043c685143cf3e4183e3dba44f652db633c290b2d12d7770123f4b",
+  "revision": 3,
+  "fingerprint": "6f6bb1334860607bfb3f19a1d20e88329ccfecd9b26244a84e9eeeefd7dae22f",
+  "data": {
+    "summary": "PR #1817のShip結果を再Audit。既存のP1に加え、未解決レビューthread PRRT_kwDOM0p88s6mD3MU の指摘を再現し、追加提案P2を記録する。現head b615e3c9に対する指摘は未修正。",
+    "findings": [
+      "commit 54d37c5f のpre-commit hookで vite.config.ts の vp check --fix がADR 0003の既存Clarification間の空行を削除した。履歴保護validatorの再実行で差分を発見し、元本文を復元して再検証後、commit 12472bc7で補正した。現行PRのADR既存本文は保持されている。",
+      "originへの初回pushは自動承認審査で拒否された。ユーザーの明示承認「おk」を受けて同じ対象branchをpushし、PR #1817を作成した。権限の拡張やmergeは行っていない。",
+      "PR #1817の未解決review thread PRRT_kwDOM0p88s6mD3MU は妥当。rules.goは /adr/ を含むpathだけを拒否するため、docs/decisions/example.md に doc_type: adr を置いてrule-mapのrules[].fileへ指定すると必須ruleとして選ばれる。/tmpの隔離fixtureでrules CLIのexit 0と選択結果を再現した。これはIssue #1806の現行ADR非選択条件に対する局所defectで、未修正。"
+    ],
+    "session_improvements": [
+      "formatterがstage済みファイルを書き換える場合は、commit後の最終差分とADR履歴保護を再確認する必要がある。今回は補正commitと再検証を要した。",
+      "配信先とpayloadを具体化して承認を得た後、remote、tracking、upstream、PR headを読み戻した。CIは初回取得でPENDINGと記録した。",
+      "レビューの集約状態COMMENTEDだけでなくreviewThreads.isResolvedを取得して未解決1件を確認し、隔離fixtureで具体的な反例を実行した。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "vite.config.ts の staged hook が採択済みADRの既存履歴を vp check --fix で再整形し、履歴保護validatorを実行した後でも本文を変えた。",
+        "evidence": "commit 54d37c5f のADR 0003差分に既存空行の削除が4箇所あり、origin/mainとの差分validatorを再実行して補正。最終commit 12472bc7では既存本文のbytesを保持し末尾Clarificationのみ追加。",
+        "change": "vite.config.ts の staged処理で採択済みADRを自動整形対象から外し、変更対象の履歴保護を保つ。連続空行を含む既存ADRへの追記をstageしてhook後も元本文が同一であることを検証する。",
+        "paths": [
+          "vite.config.ts"
+        ]
+      },
+      {
+        "id": "P2",
+        "finding": "ADRを置くpathではなくfront matterのdoc_typeで判定する必要がある。現行Coreのpath判定はdocs/decisions/example.mdのADRを必須ruleとして選んでしまう。",
+        "evidence": "PR #1817 review thread PRRT_kwDOM0p88s6mD3MU（isResolved=false）、tools/aidd/checker/internal/core/rules.go:99。隔離fixtureでdoc_type: adrを持つdocs/decisions/example.mdがrules CLIの結果に含まれることを確認。",
+        "change": "Coreのrule file検査をdoc_type: adrの判定へ揃え、配置が/adr/以外のADRでもrule node登録を拒否する。通常のMarkdown正本と各種ADR配置の反例テストを追加する。",
+        "paths": [
+          "tools/aidd/checker/internal/core/rules.go",
+          "tools/aidd/checker/internal/core/core_test.go"
+        ]
+      }
+    ]
+  },
+  "hash": "abffa2d3fb0a8f51bdb5a7bf5524291486cd6192dca6c1d1154fb7f9270780eb",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}
