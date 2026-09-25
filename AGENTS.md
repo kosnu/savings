@@ -16,11 +16,10 @@ Personal savings management app: `apps/web/` is React + TypeScript + Vite;
 
 ## Task entrypoints
 
-- Development execution: apply the [Development contract](docs/ai-driven-development/workflow.md) directly in Claude or Codex. Intent may be expressed in an Issue or explicit user messages; preserve its source and execution authority.
-- Guardrail updates: record the authorized change in the current Task under the same workflow. Development / Learn describe work within the Intent-led Task. Run Learn only for eligible feedback in that Task; do not start a standalone Learn Task.
-- Codex Goal integration: use [goal-setting](.agents/skills/goal-setting/SKILL.md) as the Goal-tool entrypoint for authorized Development or an explicit Goal request, under the [Codex adapter](docs/ai-driven-development/codex-adapter.md). Execution follows the common protocol. Claude and hosts without Goal tools use the same Core Task contract without Codex Goals.
-- Authorized maintenance outside Development/Learn follows these working agreements and applicable policies directly. Task size or Goal availability does not exempt product or guardrail changes from their contract.
-- Existing-task review fixes or additional Ship: use the workflow's continuation boundary and preserve Task/baseline. Do not start legacy phase Goals, fixed executors, or legacy phase CLI paths.
+- Development execution: apply [AIDD v4](docs/ai-driven-development/workflow.md) directly in Claude or Codex. Preserve the Intent source, execution authority, task baseline, and decision revisions. Select implementation steps from the outcome and applicable guardrails.
+- After Ship, conduct Audit of findings and the session's development process. Present concrete proposals and obtain explicit manual user approval before guardrail or Intent improvements. Development or Ship authority does not authorize these improvements. Keep approved improvements in the same Task.
+- Use the [Go Core](docs/ai-driven-development/aidd-checker-operations.md) for deterministic evidence and boundary checks. Core works without Goals. Codex Goal use follows host tool conditions and the [Codex adapter](docs/ai-driven-development/codex-adapter.md); the parent agent owns any Goal.
+- For resumption and review fixes, retrieve the existing Task and latest checkpoint. Preserve established decisions and invalidate evidence through a new revision when decisions change. Ship only content and modes matching verified staged state.
 - Git/GitHub operations: [Git Workflow](docs/harness/policies/git-workflow.md). Establish target, diff, authority, and safety before writes; clarify unresolved ambiguity. Commit messages use an English type and Japanese text. Do not wrap commit IDs in backticks in PR comments.
 
 ## Context and document routing

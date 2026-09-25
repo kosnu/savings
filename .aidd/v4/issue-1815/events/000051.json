@@ -1,0 +1,17 @@
+{
+  "sequence": 51,
+  "kind": "return-intent",
+  "time": "2026-09-25T14:16:24.654504Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "780aaa3a412f2220f13c774859b5b61c49862632df355728c4ce345b30b03791",
+  "revision": 11,
+  "fingerprint": "b8b7b5cb02ec697f5e9f013e7bbe6ece4609bb728c9fc0494fba4e994888f1a7",
+  "data": {
+    "summary": "P14/P15反映後、既存Intentの目的・完了条件とCore正本の新しい実差分要件を再確認。Task/Intent/承認範囲を維持し、無変更・差分取消・Intentのみ改善とworkspace設定の検証選択を次サイクルで検証・レビューしてShip/Auditする。",
+    "previous_cycle": "issue-1815/cycle-0001",
+    "approval_hash": "d9464b50d874c6bd10e444ae43329b84024839abacf1297dd6830bb1d6a8a30d",
+    "intent_hash": "4da6edcf48387a542b72b559030a7e206fc0c2145abaa630562a3ebf99367357"
+  },
+  "hash": "f8cb7a7b44c85eee47b6ee932916fc10f76cbe24da625f40360182f0de1d78b1",
+  "cycle_id": "issue-1815/cycle-0002"
+}

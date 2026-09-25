@@ -1,28 +1,28 @@
 ---
-title: Codex Goal Templates
-doc_type: guide
+title: Goal記述の補助
+doc_type: overview
 status: accepted
 area: repository
 applies_to:
-  - docs/ai-driven-development
   - tools/aidd
-  - apps
+  - docs/ai-driven-development
 topics:
   - ai-driven-development
+  - aidd-v4
 when_to_read:
-  - AIDDの実行契約と責務を確認するとき
+  - Goal記述の補助を判断または変更するとき
 ---
 
-# Goal templates
+# Goal記述の補助
 
-Codex adapterはTaskの目的をGoalで追跡する。同じTask内の実装とルール保守でGoalを分けない。
+Goalを使うhostだけが参照する。[Codex adapter](../codex-adapter.md)とhostのtool条件に従う。
 
-- Objective: 今回の作業の達成結果。
-- Constraints: 許可範囲、guardrail、product/Learn境界。
-- Done: Developmentでは成果・検証・review・commit・push・PR作成または更新と配信状態の確認。
-  ユーザーの明示制限がある場合だけ完了地点を狭める。ルール保守も同じTask内で必要な検証・review・確定を行う。
-- Verification: 必要な検証とTask contractへの参照。
+```text
+目的: <Intentで求める観測可能な成果>
+出典: <Issueまたはユーザー発言の参照>
+記録: <現在のTask ID>
+完了: <成果・検証・レビュー・Ship・Audit、承認された改善の結果>
+制約: <委任範囲とAudit後の手動承認>
+```
 
-Task identityを参照し、decision、hash一覧、inventory、進捗を本文へ重複させない。
-Requirements / Design / Build / Shipのphase Goalは新規作成しない。
-Goal機能がなくてもTask contractは必須である。
+これは記述例であり、固定フェーズや必須見出しではない。実行許可を追加するものでもない。

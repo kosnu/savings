@@ -1,0 +1,36 @@
+{
+  "sequence": 21,
+  "kind": "audit",
+  "time": "2026-09-25T08:31:47.129419Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "8438f884ecb3a2a02a0ee83bb951085b55adda2a564b03c25bcbdbdc4cf627c5",
+  "revision": 5,
+  "fingerprint": "f3d7ada7f4ac26f033c80ec14241269e9a24fb8953b491d02b98467b3a8da991",
+  "data": {
+    "summary": "承認済みP2/P3/P4を実装・検証・Ship済み。結果Auditを記録する。新たに取得したPRの開始前差分coverage指摘は未対応として分離し、今回の承認を流用しない。",
+    "findings": [
+      "Auditは提案ゼロでも手動承認待ちとなり、空承認は改善権限を与えない。",
+      "Shipのbase名不一致と未指定を拒否。同名baseのSHA更新を許容。",
+      "Audit追記は履歴を保持し旧承認を失効。未Ship revisionの追記を拒否。",
+      "PRのCIでShip/Auditを要求する指摘はユーザー合意により不採用。base照合の指摘は実装対応済み。レビューへの返信・resolveは未実施。"
+    ],
+    "session_improvements": [
+      "方向性の指定と明示承認を混同して不要な確認を重ねた点を正本文書へ反映。Audit承認後に別の実行承認を要求しない。",
+      "旧Coreに追記機能がないため、承認された新版を一時領域で構築し、source無変更の状態で追記・承認を保存してから同じ実装を反映した。過去eventの編集は行っていない。"
+    ],
+    "proposals": [
+      {
+        "id": "P5",
+        "finding": "Task開始前のPR変更をpaths宣言だけで所有扱いにでき、必要な検証とruleを省略できる可能性がある。",
+        "evidence": "PR1816の新規SUBMITTED・未解決レビューコメント「PR差分から必須検証を算出する」。CheckChangesはTask baseline以降で検証集合を算出し、PR差分の所有はd.Pathsだけを見る。",
+        "change": "Task baselineより前のPR差分を根拠なく所有済みにする経路を拒否する。先行commitを持つfixtureでWeb必須検証・rule不足を検出し、通常のbaselineからの作業は通る回帰テストを追加。採用方式は承認範囲内で既存ownershipと整合させる。",
+        "paths": [
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/core_test.go",
+          "docs/ai-driven-development/aidd-checker.md"
+        ]
+      }
+    ]
+  },
+  "hash": "4e85561530c7594bb3008fd91d19d506866aff86bb0a58e5414a059b1de4b270"
+}

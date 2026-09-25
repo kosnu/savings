@@ -70,7 +70,7 @@ Design / Planでは、保護対象の状態を変更できるRPC、API、table p
 - アプリケーション層の明示的な更新順序と失敗処理
 - 補償処理または再試行
 
-DB constraint、trigger、RPC、API追加などが既存の制約やスコープを超える場合は、Build / Verifyで勝手に追加せずStop条件として扱います。
+DB constraint、trigger、RPC、API追加などが既存の制約やスコープを超える場合は、実装中に勝手に追加せずStop条件として扱います。
 
 ## API契約変更と配備互換性
 

@@ -1,0 +1,103 @@
+{
+  "sequence": 17,
+  "kind": "decision",
+  "time": "2026-09-25T08:27:56.601982Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "4d64dd149d9027989c62b0393e0bd8f4c7465f894e4eb816e0ae029734ca6a75",
+  "revision": 5,
+  "fingerprint": "9253f66e3483c320779336c56b62497b239fa66b9964142296a1598aa8078962",
+  "data": {
+    "summary": "承認済み3点: Audit手動承認、baseブランチ名のみ照合、Audit追記。SHA照合なし。不採用3検査は追加しない。旧CoreのAudit追記不可を解消するため、承認された新版を/tmpでbuildし、source無変更状態のままaudit-updateとapproveを記録した。以後リポジトリに同じ実装を反映し再build・検証する。過去イベントは変更しない。",
+    "paths": [
+      "tools/aidd/",
+      "docs/ai-driven-development/",
+      "docs/harness/",
+      "docs/adr/0009-rebuild-aidd-v4.md",
+      "AGENTS.md",
+      ".claude/CLAUDE.md",
+      ".agents/skills/learn/",
+      ".agents/skills/audit/",
+      ".agents/skills/guardrail-improvement/",
+      ".agents/skills/goal-setting/",
+      ".codex/hooks.json",
+      ".github/workflows/aidd_checker_ci.yaml",
+      ".gitignore",
+      ".codex/agents/context-scout.toml",
+      "tools/aidd/checker/internal/core/model.go",
+      "tools/aidd/checker/internal/core/lifecycle.go",
+      "tools/aidd/checker/internal/core/check.go",
+      "tools/aidd/checker/internal/core/core_test.go",
+      "tools/aidd/checker/internal/core/audit_approval_test.go",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "docs/harness/policies/learning-extraction.md"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "python3",
+        "-c",
+        "import pathlib,tomllib; d=tomllib.loads(pathlib.Path('.codex/agents/context-scout.toml').read_text()); assert d['model']=='gpt-6-luna'; assert d['model_reasoning_effort']=='low'; assert d['sandbox_mode']=='read-only'; print('context-scout TOML: passed')"
+      ]
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "684779d1d8bdaf457fa5f54d420eb6fe7a7dade971fb70a050ca747eba931b5c"
+}

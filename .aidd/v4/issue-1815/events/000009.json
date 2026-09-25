@@ -1,0 +1,18 @@
+{
+  "sequence": 9,
+  "kind": "approve",
+  "time": "2026-09-25T07:27:21.819152Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "a189eba348f28a3f474dcc19668b9910e3d1cd28a584a18b45b5af9bc42bc8a6",
+  "revision": 3,
+  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "data": {
+    "audit_hash": "a189eba348f28a3f474dcc19668b9910e3d1cd28a584a18b45b5af9bc42bc8a6",
+    "source": "user:current-thread/gpt6lunaにして承認",
+    "text": "gpt6lunaにして承認。P1の方式をユーザーが訂正し承認: model固定を外す代わりにgpt-6-lunaへ変更する。対象.codex/agents/context-scout.toml。",
+    "proposal_ids": [
+      "P1"
+    ]
+  },
+  "hash": "79c894c7a960775273addd6ad084fa813dd68957547ff61156f579367dd1dbde"
+}

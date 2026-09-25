@@ -1,0 +1,51 @@
+{
+  "sequence": 48,
+  "kind": "audit-update",
+  "time": "2026-09-25T14:10:54.960826Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "6b047b114196825355769089a3b6f27bfcf2e044323766b63333ee3674533973",
+  "revision": 10,
+  "fingerprint": "8c1dac3f5c8c17327c5236ce346a83ca4ce0699db95dd49bcaf8a4a570aa5c10",
+  "data": {
+    "summary": "ユーザー依頼の再Audit。head f47a7a92のCI9件成功とPR thread10件（解決8/未解決2）を取得。未解決2件を現行sourceの一時コピーで再現しP14/P15へ整理。修正未実施。",
+    "findings": [
+      "CI: AIDD candidate/integration/verify、FE lint-format/typecheck/unit両shard/storybook、zizmorの全9件がSUCCESS。P11のclean CI環境不足は解消確認。",
+      "PRレビューコメントをthread単位で全件取得（hasNextPage=false）。新規discussion_r4105308090とdiscussion_r4105308096を確認。過去8件は解決済みを維持し、P10の別Issue対応判断を復活させない。",
+      "Task記録42 Intent復帰→43 decision/revision10→44 verify全exit0→45 review→46 Ship→47 Auditは同一cycle-0001/fingerprintで整合。最新binaryによるcheck-all --base origin/main成功。",
+      "未解決事項と完了状態: P14/P15は未対応で、再Auditへの手動承認待ち。CI成功はこれらの仕様・検証選択の不足を否定しない。"
+    ],
+    "session_improvements": [
+      "P9で承認後の新判断・証拠を要求しP12/P13でcycle境界を追加したが、対象成果を変更しない正常操作の経路をテストしていなかった。工程の通過と成果の変化を別々に確かめる必要がある。",
+      "必須検証の判定はpackage.json/pnpm-lock.yaml/vite/tsconfigを列挙していたが、実際のworkspace/catalog設定ファイルを取りこぼした。AGENTSの既存要件に対する実装の検出漏れ。新たな検証工程を増やす問題とは区別する。",
+      "一時コピーで再現確認し、作業sourceを変更せずAudit記録だけを追加する。新しい実装承認を捏造しない。"
+    ],
+    "proposals": [
+      {
+        "id": "P14",
+        "finding": "実差分がない改善でも提案を完了扱いにできる",
+        "evidence": "https://github.com/kosnu/savings/pull/1816#discussion_r4105308090 。一時コピーTestReauditNoChangeImprovementでsource fingerprint不変のまま新decision→return-intent→verify/review→記録のみcommit/Ship→Audit提案消失→明示承認でcomplete、Check成功を再現。lifecycle.go ImproveCheckはscopeだけを検査し空差分を許容。",
+        "change": "改善を終えてIntentへ戻る境界・配信判定で承認対象の実変更を確認し、記録だけの更新で改善完了にしない。@intentのみの改善はIntentの実改訂を別に扱う。差分の存在だけで内容の妥当性を保証せず意味評価は維持。無変更経路の拒否、正常なファイル改善とIntent改善を回帰検証する。",
+        "paths": [
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/cycle.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/cycle_test.go",
+          "tools/aidd/checker/internal/core/audit_approval_test.go",
+          "docs/ai-driven-development/aidd-checker.md"
+        ]
+      },
+      {
+        "id": "P15",
+        "finding": "pnpm-workspace.yaml変更時に必要なWeb検証が選ばれない",
+        "evidence": "https://github.com/kosnu/savings/pull/1816#discussion_r4105308096 。一時コピーTestReauditWorkspaceCommandsでmandatoryCommandsがgit diff --checkだけを返し、そのcommandのみのdecisionをrequireCommandsが受理することを再現。現物にはapps/*、vite/vitest catalog、overrides等がある。",
+        "change": "pnpm-workspace.yamlをWeb検証が必要なroot設定に含め、既存のlint・format-check・typecheck・unit/integration要求と一致させる。workspace単独変更での4command選択と省略拒否、無関係な文書変更に不要なWeb検証を課さない境界を確認する。以前不採用としたTask開始前PR差分への追加Go gateとは別の既存検証選択漏れとして扱う。",
+        "paths": [
+          "tools/aidd/checker/internal/core/verification.go",
+          "tools/aidd/checker/internal/core/verification_test.go"
+        ]
+      }
+    ]
+  },
+  "hash": "722f1c20e156ed3d5e7864d7dec7a3e3c514bd756f097ce12863ac2f16e32513",
+  "cycle_id": "issue-1815/cycle-0001"
+}

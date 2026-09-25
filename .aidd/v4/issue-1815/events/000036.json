@@ -1,0 +1,69 @@
+{
+  "sequence": 36,
+  "kind": "review",
+  "time": "2026-09-25T13:09:39.530717Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "030096eaaae73cd40850f64829379247302cfd716ea8321aa61599f497cc13dd",
+  "revision": 8,
+  "fingerprint": "387cc3086852a1e0eb7bd99a93b09b07ba207384f88a045e1790ba5a20f002fa",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: rules配列。今回の差分はGo Core承認境界・CI依存準備・Core正本。既存のpath/surface/depends_on経路を維持。\n- Unresolved: P10はADRの扱いを別Issueで対応するユーザー判断により今回対象外。P9/P11の実装上の未解決なし。\nShipCheckと履歴再検査で承認後の新decisionを要求し、既存revision検証/reviewの再利用を拒否。resolvedProposalsも承認だけでは解決扱いしない。省略経路・再読込・正常改善後のAudit承認待ちを回帰確認。全Goテスト/vet/実vp共有gate5件/ADR/diff/TOMLはevent35で成功。CIのNode/pnpm/dependency手順を既存FE workflowと照合しYAML parse成功。新しいclean Linux CI結果はpush後の実行待ちでありローカル成功を代用しない。Node yaml moduleは未導入のためRuby YAMLで構文検証。製品コード変更なし、追加Web検証非該当。",
+    "criteria": [
+      {
+        "criterion": "IntentからShip・Audit・手動承認後の改善を検証できる",
+        "evidence": "event31再Audit、32別Issue対象除外、33ユーザー承認、34新revision8、35検証成功。TestImprovementRequiresNewVerifiedDecisionで承認だけの同commit再Ship・判断なし再検証・旧証拠流用を拒否し、新判断/検証/Ship/結果Auditの正常経路を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "意味評価と決定論的検証を分離し不十分な証拠を拒否する",
+        "evidence": "TestFreshnessAndModes/TestDecisionAndFailedVerification/TestVerificationSourceMutation/TestRulesClosureAndFailureが古い内容・mode・判断、失敗や改変検証、未分類ruleを拒否。semantic reviewの基準・根拠と実行exitを分離。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "再開でき旧AIDDの現行経路が残らない",
+        "evidence": "CLI Load/statusでIntent・baseline・全decision/event chainを再取得できる。旧Go packages/contracts/prepare/hooks/migration CLIは削除しv4入口へ同期。過去ADR/Task/workspacesを実行入力にしていない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "調査の比較と採否を示す",
+        "evidence": "research-v4.mdでOpenAI/Anthropic/IBM/GitHub/Cursor/Googleとpreprintを比較し、適用条件・限界・model差・採否を記録。graders/Evalsサービスへの依存なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "7593fef7b1ae00568174612c7416317ccc138bb238ccda23d3483d4a050e342e"
+}
