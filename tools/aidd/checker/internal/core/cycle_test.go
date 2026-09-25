@@ -19,6 +19,72 @@ func approveCycleImprovement(t *testing.T, s *Store) {
 	}
 }
 
+func TestImprovementRequiresActualChange(t *testing.T) {
+	s := fixture(t)
+	decide(t, s)
+	fakeShip(t, s)
+	approveCycleImprovement(t, s)
+	decide(t, s)
+	if e := s.ImproveCheck(); e != nil {
+		t.Fatal("pre-edit scope check should remain usable", e)
+	}
+	if e := s.ReturnIntent("no change"); e == nil || !strings.Contains(e.Error(), "actual change") {
+		t.Fatalf("unchanged improvement accepted: %v", e)
+	}
+	put(t, s.Root, "code.txt", "improved\n")
+	fakeShipAgain(t, s)
+	stage(t, s)
+	// 再Shipでも比較元を承認時から動かさず、実改善を失わない。
+	if e := s.RecordShip(eventData[Ship](s.latest("ship"))); e != nil {
+		t.Fatal(e)
+	}
+	// 復帰時には変更があっても、Ship前に戻してしまったら拒否する。
+	put(t, s.Root, "code.txt", "before\n")
+	review(t, s)
+	stage(t, s)
+	if e := s.ShipCheck(); e == nil || !strings.Contains(e.Error(), "actual change") {
+		t.Fatalf("reverted improvement accepted: %v", e)
+	}
+}
+
+func TestIntentOnlyImprovementRequiresContentChange(t *testing.T) {
+	s := fixture(t)
+	decide(t, s)
+	fakeShip(t, s)
+	if e := s.Audit(Audit{Summary: "clarify Intent", Proposals: []Proposal{{"p", "finding", "evidence", "clarify", []string{"@intent"}}}}); e != nil {
+		t.Fatal(e)
+	}
+	if e := s.Approve(Approval{s.latest("audit").Hash, "user:2", "approve Intent change", []string{"p"}}); e != nil {
+		t.Fatal(e)
+	}
+	d, _ := s.decision()
+	intent := s.CurrentIntent()
+	intent.Source = "user:3"
+	d.IntentRevision = &intent
+	if e := s.Decide(d); e != nil {
+		t.Fatal(e)
+	}
+	if s.ReturnIntent("only source changed") == nil {
+		t.Fatal("source-only Intent change accepted")
+	}
+	intent.Source, intent.Objective = "user:4", "clarified outcome"
+	if e := s.Decide(d); e != nil {
+		t.Fatal(e)
+	}
+	if e := s.ReturnIntent("Intent content changed"); e != nil {
+		t.Fatal(e)
+	}
+	d.IntentRevision = nil
+	if e := s.Decide(d); e != nil {
+		t.Fatal(e)
+	}
+	review(t, s)
+	stage(t, s)
+	if e := s.ShipCheck(); e != nil {
+		t.Fatal("Intent-only improvement rejected", e)
+	}
+}
+
 func TestCycleIdentityAndIntentBoundary(t *testing.T) {
 	s := fixture(t)
 	if s.cycleID() != "example/cycle-0001" {
@@ -145,6 +211,7 @@ func TestExistingV4HistoryStartsCycleWithoutRewriting(t *testing.T) {
 	}
 	approveCycleImprovement(t, s)
 	decide(t, s)
+	put(t, s.Root, "code.txt", "legacy task improvement\n")
 	fakeShipAgain(t, s)
 	if s.cycleID() != "example/cycle-0001" || eventData[IntentReturn](s.latest("return-intent")).PreviousCycle != "" {
 		t.Fatal("historical cycle count invented")

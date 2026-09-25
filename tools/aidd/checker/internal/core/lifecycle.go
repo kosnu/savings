@@ -278,6 +278,9 @@ func (s *Store) ShipCheck() error {
 		if boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence {
 			return fmt.Errorf("return to Intent and new cycle decision required before Ship")
 		}
+		if e := s.improvementChanged(); e != nil {
+			return e
+		}
 	}
 	if e = s.verified(fp); e != nil {
 		return e
@@ -491,7 +494,7 @@ func (s *Store) ImproveCheck() error {
 			paths = append(paths, p.Paths...)
 		}
 	}
-	ship := eventData[Ship](s.latest("ship"))
+	ship := eventData[Ship](s.auditedShip())
 	base, e := s.snapshot(ship.Commit)
 	if e != nil {
 		return e
@@ -501,6 +504,75 @@ func (s *Store) ImproveCheck() error {
 		return e
 	}
 	return s.scope(paths, base, now)
+}
+
+// 再Shipしても、承認の基準となったAudit対象のcommitを比較元に保つ。
+func (s *Store) auditedShip() *Event {
+	audit := s.latest("audit")
+	if audit == nil {
+		return nil
+	}
+	for i := audit.Sequence - 2; i >= 0; i-- {
+		if s.Events[i].Kind == "ship" {
+			return &s.Events[i]
+		}
+	}
+	return nil
+}
+
+func (s *Store) improvementChanged() error {
+	if e := s.approvalValid(); e != nil {
+		return e
+	}
+	audit := s.latest("audit")
+	approval := eventData[Approval](s.latest("approve"))
+	wantsFiles, wantsIntent := false, false
+	paths := []string{}
+	for _, p := range eventData[Audit](audit).Proposals {
+		for _, id := range approval.ProposalIDs {
+			if p.ID != id {
+				continue
+			}
+			for _, path := range p.Paths {
+				if path == "@intent" {
+					wantsIntent = true
+				} else {
+					wantsFiles = true
+					paths = append(paths, path)
+				}
+			}
+		}
+	}
+	if wantsFiles {
+		ship := s.auditedShip()
+		if ship == nil {
+			return fmt.Errorf("audited Ship required")
+		}
+		base, e := s.snapshot(eventData[Ship](ship).Commit)
+		if e != nil {
+			return e
+		}
+		now, _, e := s.current()
+		if e != nil {
+			return e
+		}
+		for _, path := range changed(base, now) {
+			if covered(path, paths) {
+				return nil
+			}
+		}
+		return fmt.Errorf("approved file improvement requires an actual change")
+	}
+	if wantsIntent {
+		prior := *s
+		prior.Events = s.Events[:audit.Sequence]
+		before, after := prior.CurrentIntent(), s.CurrentIntent()
+		before.Source, after.Source = "", ""
+		if digest(before) != digest(after) {
+			return nil
+		}
+	}
+	return fmt.Errorf("approved Intent improvement requires a content change")
 }
 func (s *Store) Status() map[string]any {
 	state := "development"
