@@ -101,6 +101,7 @@ type Event struct {
 	Fingerprint string          `json:"fingerprint"`
 	Data        json.RawMessage `json:"data"`
 	Hash        string          `json:"hash"`
+	CycleID     string          `json:"cycle_id,omitempty"`
 }
 type Store struct {
 	Root   string
@@ -199,6 +200,10 @@ func (s *Store) append(kind string, data any, fingerprint string) error {
 		rev++
 	}
 	ev := Event{Sequence: len(s.Events) + 1, Kind: kind, Time: time.Now().UTC().Format(time.RFC3339Nano), TaskHash: digest(s.Task), Previous: prev, Revision: rev, Fingerprint: fingerprint, Data: b}
+	ev.CycleID = s.cycleID()
+	if kind == "start" || kind == "return-intent" {
+		ev.CycleID = s.nextCycleID()
+	}
 	ev.Hash = digest(ev)
 	if e := writeNew(filepath.Join(s.dir(), "events", fmt.Sprintf("%06d.json", ev.Sequence)), ev); e != nil {
 		return e
@@ -249,6 +254,9 @@ func Load(root, id string) (*Store, error) {
 		ev.Hash = saved
 		s.Events = append(s.Events, ev)
 		prev = saved
+	}
+	if e := s.checkCycleIDs(); e != nil {
+		return nil, e
 	}
 	return s, nil
 }

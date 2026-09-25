@@ -22,13 +22,25 @@ CoreはGoで実装するローカルCLI。Goalや特定モデル、外部Evals�
 
 `.aidd/v4/<task-id>/task.json`は開始Intent、実行権限、baseline、開始時snapshotを保持する。
 `events/000001.json`以降は追記専用。Task hash、前event hash、連番、decision revision、
-対象snapshotのfingerprintを結び付ける。確定した判断の変更は新decisionで行い、旧証拠は失効する。
+対象snapshotのfingerprintとcycle IDを結び付ける。確定した判断の変更は新decisionで行い、旧証拠は失効する。
 旧`.aidd/tasks`のschemaや旧CLIを読み替える互換経路はない。
 
 開始時に既存差分があれば、明示的なacknowledgementと実際の初期差分を保存する。
 これは他者の変更を自分の成果にする権限ではない。baselineからの全差分を後続scope検査に含める。
 通常は専用のclean worktreeで開始する。v4自身の初回構築では、起動に必要だったCore差分を
 初期差分として記録し、clean開始だったと偽らない。
+
+## サイクル記録
+
+新Taskのstart eventに`<task-id>/cycle-0001`を付け、以降のeventは同じIDに所属する。
+`return-intent`は承認後の改善判断と対象範囲を確認し、再確認の要約・現在Intentのhash・承認hash・直前cycle IDを保存する。
+このeventで前の一巡を閉じ、次の一巡のIDを発行する。同一サイクル内のdecisionやverifyの繰り返しでは発行しない。
+復帰後は新cycleのdecisionが必要で、前cycleの検証・review・Shipを次cycleの証拠として流用できない。
+Goが確認するのは記録の一致であり、Intentやガードレールを実際に理解したかは意味評価で確認する。
+
+ID導入前のv4 eventは追記専用の履歴として保持し、過去のサイクルを推定して書き換えない。
+そのTaskは明示的な`return-intent`からcycle-0001を開始する。この番号は記録開始後の連番であり、過去の一巡の回数を表さない。
+ID導入後の欠落・飛び番・境界外の切替を拒否する。旧`.aidd/tasks`を実行入力へ戻す互換処理ではない。
 
 ## 検証
 
@@ -56,9 +68,10 @@ AuditはShipされた内容に結び付き、指摘とセッション改善を�
 同じShip内容・revisionへの追加Auditはaudit-updateイベントで保存し、新しいAudit hashへの承認を要求する。
 承認は最新Audit hash、提案ID、ユーザー発言の出典と本文に結び付ける。
 承認前の変更や対象外の変更を拒否する。元の開発権限の転用は許可しない。
-承認後は新decision、変更、検証、review、必要なShip、結果のAuditを同じTaskで記録する。
+承認後は改善の新decisionと変更を同じサイクルで記録する。改善後に`return-intent`で次サイクルへ移り、
+Intentと改善済みガードレールに基づく新decision、必要な実装、検証、review、Ship、Auditを同じTaskで記録する。
 承認だけでは提案を解決済みにしない。承認後の新decisionがないShip、および旧revisionの検証・reviewを使ったShipを拒否する。
-承認された提案は、その新revisionの検証・review・Shipを終えて結果Auditを記録するまで保持する。
+承認された提案は、Intent復帰後の新revisionの検証・review・Shipを終えて結果Auditを記録するまで保持する。
 一部だけ承認した場合、残る案は次Auditへ保持する。明示的な却下はdismissとして記録し、
 承認待ちを消すためにagentが却下を捏造しない。Intent自体の改訂は承認対象`@intent`と
 新しい出典を持つdecisionの`intent_revision`で扱い、開始Intentを上書きしない。

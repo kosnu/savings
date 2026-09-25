@@ -1,0 +1,70 @@
+{
+  "sequence": 45,
+  "kind": "review",
+  "time": "2026-09-25T13:58:01.773711Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "ba8b7e00e603e7a43ad1b84b8ad07a413f37e228a3ce832268f295b2f808917b",
+  "revision": 10,
+  "fingerprint": "8c1dac3f5c8c17327c5236ce346a83ca4ce0699db95dd49bcaf8a4a570aa5c10",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: rules配列。承認済みP12/P13のGo Core/CLI/正本/skillを照合。既存rule-mapの直接一致とdepends_on経路で新仕様へ到達し、索引の変更不要。Web/API製品仕様・構造の変更なし。\n- Unresolved: 承認範囲内の未解決なし。\nworkflowの指定一巡、改善の承認、Intent再確認、次cycleの新decisionをCore/操作/skillへ同期。IDはstart/return-intentだけで発行し、revisionと別管理。return-intentは承認・改善判断・範囲を検査し、Intent hashとapproval hashを結び付ける。前cycle証拠は無効、ID欠落・飛び番・境界外切替を拒否。旧v4イベントはomitemptyで旧hashを維持し、過去回数を推定せず明示境界から採番。旧AIDDのschema/CLIへの互換経路はなし。全Goテスト/vet/実vp共有gate5件/ADR/diff/TOMLはevent44成功。初回/反復/再開/省略拒否/変更前履歴保持/改善なし終了をテスト。意味的なIntent読込の真偽はGoで認証せずsummaryとreviewで扱う。実Taskでreturn-intent42からcycle-0001、decision43/revision10で検証。",
+    "criteria": [
+      {
+        "criterion": "IntentからShip・Audit・手動承認後の改善を検証できる",
+        "evidence": "TestCycleIdentityAndIntentBoundary/TestCyclesRepeatAndFinishWithoutImprovementで指定の一巡とID境界、同じcycle内の判断改訂/再検証、承認なし・復帰省略・旧証拠流用の拒否、複数回の一巡と改善なしの手動承認終了を確認。実Taskはapprove40→改善decision41→return-intent42→次cycle decision43→verify44。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "意味評価と決定論的検証を分離し不十分な証拠を拒否する",
+        "evidence": "Intent再確認summary・完了条件の意味評価と、ID/approval/Intent hash/revision/fingerprint/実行exitのGo照合を分離。前cycleのverificationは新cycleで成功扱いにしない。既存P9境界を含むGo全テスト成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "再開でき旧AIDDの現行経路が残らない",
+        "evidence": "TestExistingV4HistoryStartsCycleWithoutRewritingで導入前のeventをbyte単位で保持し、境界後のIDをLoad/Checkで復元。新規と既存Taskの再開を確認。旧.aidd/tasksは実行入力に復帰せず、cycle導入前v4履歴だけを保持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "調査の比較と採否を示す",
+        "evidence": "research-v4.mdでOpenAI/Anthropic/IBM/GitHub/Cursor/Googleとpreprintを比較し、適用条件・限界・model差・採否を記録。graders/Evalsサービスへの依存なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "e5a709f2eb162e490a00296f8d1def058fc3a2378ca440eb2cd2bed5c8cfb394",
+  "cycle_id": "issue-1815/cycle-0001"
+}

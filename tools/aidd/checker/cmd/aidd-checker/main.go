@@ -17,7 +17,7 @@ func run() error {
 	}
 	args := flags.Args()
 	if len(args) == 0 {
-		return fmt.Errorf("command required: start decision verify review ship-check ship audit approve improve-check status check rules")
+		return fmt.Errorf("command required: start decision verify review ship-check ship audit approve improve-check return-intent status check rules")
 	}
 	f := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	id := f.String("task", "", "v4 task id")
@@ -111,6 +111,13 @@ func run() error {
 		}
 	case "improve-check":
 		e = s.ImproveCheck()
+	case "return-intent":
+		var v struct {
+			Summary string `json:"summary"`
+		}
+		if e = core.ReadInput(*input, &v); e == nil {
+			e = s.ReturnIntent(v.Summary)
+		}
 	case "check":
 		e = s.Check()
 	case "status":
