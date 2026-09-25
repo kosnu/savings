@@ -1,0 +1,14 @@
+{
+  "sequence": 1,
+  "kind": "start",
+  "time": "2026-09-25T15:18:31.01887Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "",
+  "revision": 0,
+  "fingerprint": "8182a1288d4373d5b3a56a02adcad07f863d208cf648ee0164a364868a60424d",
+  "data": {
+    "initial_changes": []
+  },
+  "hash": "af6a7472821ed978250fd06482d0999e2ca77c877e8a1a21c4950642c4e3137c",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}

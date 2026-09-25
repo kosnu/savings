@@ -70,6 +70,7 @@ APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure.
 Web/APIの表に該当しない差分も、`docs/harness/rule-map.json` のpath/surface直接一致と`depends_on` closureを必須集合にします。`domains`、`activities`、`topics`、front matterは追加の意味的な適用判断に必要な文書を探すmetadataであり、hard routingの必須集合を減らす条件にはしません。`apps/api/**` の差分で変更面を分類できない場合は、汎用マッチングだけで完了扱いにせず、未定義のAPIレビュー面として報告します。
 
 採択済みADRを含む差分では`documentation.policy`を必ず適用し、PRのbase branchに対応するorigin remote-tracking branchを`--base-ref`に指定して`docs/harness/scripts/validate_accepted_adrs.py`を実行します。validatorが拒否した既存履歴の変更や文書の削除・移動は、末尾の日付付きClarificationまたは新しいADRへ置き換わるまで解決済みとしてはいけません。
+ADRの変更・参照では、当時の判断を現行ルールとして強制せず、現在有効な条件が責務ある正本に反映され、対象pathから選択されるか確認します。新しい判断や置換がある場合は、ADR間の履歴上の関係と正本への反映を別々に確認します。
 
 ## AIDD v4のレビュー
 

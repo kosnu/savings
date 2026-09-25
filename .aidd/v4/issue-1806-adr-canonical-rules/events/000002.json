@@ -1,0 +1,86 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-25T15:19:30.34969Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "af6a7472821ed978250fd06482d0999e2ca77c877e8a1a21c4950642c4e3137c",
+  "revision": 1,
+  "fingerprint": "8182a1288d4373d5b3a56a02adcad07f863d208cf648ee0164a364868a60424d",
+  "data": {
+    "summary": "ADRは歴史資料とし、現行の文書配置・rule graph選択規則をDocumentation Policyへ統合する。rule-mapのADRノードと依存を除去し、CoreでADRを必須ruleとして登録できないようにする。変更・レビュー時の正本同期と履歴参照を明示する。Issueの権限・委譲条件とAIDD v4の実行契約は変えない。",
+    "paths": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/harness/rule-map.json",
+      "docs/harness/policies/documentation-policy.md",
+      "docs/harness/policies/code-review.md",
+      "docs/ai-driven-development/change-coverage.md",
+      "tools/aidd/checker/internal/core/rules.go",
+      "tools/aidd/checker/internal/core/core_test.go"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "/tmp/savings-1806-aidd",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "44245840903912055e2424444a983080f320e060ff559941214e134e20fbea5c",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}
