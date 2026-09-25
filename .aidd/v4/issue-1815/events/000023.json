@@ -1,0 +1,18 @@
+{
+  "sequence": 23,
+  "kind": "dismiss",
+  "time": "2026-09-25T09:31:03.53038Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "596d9f050f66865233ea8df394da336b795250bfc5d8175a19d7316d2edc4b20",
+  "revision": 5,
+  "fingerprint": "f3d7ada7f4ac26f033c80ec14241269e9a24fb8953b491d02b98467b3a8da991",
+  "data": {
+    "audit_hash": "596d9f050f66865233ea8df394da336b795250bfc5d8175a19d7316d2edc4b20",
+    "source": "user:current-thread/なら承認する-次へ進め",
+    "text": "1つ目はローカル早期発見・GitHub CI最終検証の方向性で進める。追加のGo検査は不採用。その最終方針と正本化に「なら承認する 次へ進め」。",
+    "proposal_ids": [
+      "P5"
+    ]
+  },
+  "hash": "e7d9eb8101082a51f9f5ec26e99cb5a2c79ae81452594789088f31053d5d0f18"
+}

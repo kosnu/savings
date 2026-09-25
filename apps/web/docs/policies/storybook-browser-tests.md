@@ -26,6 +26,12 @@ Storybook のブラウザテストは opt-in で運用します。
 
 Web の通常検証では Storybook browser test を常時実行しません。`browser-test` 対象の story、`apps/web/.storybook-test/`、または Storybook browser-test 設定を変更した場合に実行します。
 
+共有設定の `apps/web/.storybook/preview.tsx` と `apps/web/.storybook/vitest.setup.ts` は
+`.storybook-test`から読み込まれるため、追加・変更・削除時にbrowser suiteを実行する。
+Storybook projectを定義する `apps/web/vitest.config.ts` も対象とする。
+これらのファイルに `browser-test` という文字列があるかどうかで実行を省略しない。
+カタログ専用の `.storybook/main.ts` などは、それだけで実行対象を広げない。
+
 ブラウザ実行はコストが高いため、Storybook 上の全 story を網羅するのではなく、ページ単位または統合境界をまたぐ story に絞ります。
 
 ## 対象にする story

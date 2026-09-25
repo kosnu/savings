@@ -1,0 +1,123 @@
+{
+  "sequence": 26,
+  "kind": "decision",
+  "time": "2026-09-25T09:33:29.913906Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "73231a1dd573bc528b9b20eba949c57956b8a448221f915576151e13a8526bd3",
+  "revision": 7,
+  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "data": {
+    "summary": "承認済みP6/P7/P8を実装。WaitDelayと専用process groupで親終了後の残存を失敗記録。共有Storybook設定の既知import先を対象化。ローカル早期発見/CI最終検証と運用/機能強制を正本で区別。P5追加検査とupstream機械照合は不採用。",
+    "paths": [
+      "tools/aidd/",
+      "docs/ai-driven-development/",
+      "docs/harness/",
+      "docs/adr/0009-rebuild-aidd-v4.md",
+      "AGENTS.md",
+      ".claude/CLAUDE.md",
+      ".agents/skills/learn/",
+      ".agents/skills/audit/",
+      ".agents/skills/guardrail-improvement/",
+      ".agents/skills/goal-setting/",
+      ".codex/hooks.json",
+      ".github/workflows/aidd_checker_ci.yaml",
+      ".gitignore",
+      ".codex/agents/context-scout.toml",
+      "tools/aidd/checker/internal/core/model.go",
+      "tools/aidd/checker/internal/core/lifecycle.go",
+      "tools/aidd/checker/internal/core/check.go",
+      "tools/aidd/checker/internal/core/core_test.go",
+      "tools/aidd/checker/internal/core/audit_approval_test.go",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "docs/harness/policies/learning-extraction.md",
+      "tools/aidd/checker/internal/core/verification.go",
+      "tools/aidd/checker/internal/core/process_unix.go",
+      "tools/aidd/checker/internal/core/process_other.go",
+      "tools/aidd/checker/internal/core/process_unix_test.go",
+      "tools/aidd/checker/internal/core/verification_test.go",
+      "docs/harness/policies/git-workflow.md",
+      "apps/web/docs/policies/storybook-browser-tests.md"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "python3",
+        "-c",
+        "import pathlib,tomllib; d=tomllib.loads(pathlib.Path('.codex/agents/context-scout.toml').read_text()); assert d['model']=='gpt-6-luna'; assert d['model_reasoning_effort']=='low'; assert d['sandbox_mode']=='read-only'; print('context-scout TOML: passed')"
+      ]
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "a03929131324901796cfa8ef0fe451fd15c148e0a41d2255304a7988df7561c1"
+}
