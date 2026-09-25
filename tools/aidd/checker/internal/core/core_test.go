@@ -272,6 +272,27 @@ func TestADRHistorySelectsCanonicalPolicyOnly(t *testing.T) {
 	if _, e := ResolveRules(root, []string{"docs/adr/0001-example.md"}); e == nil {
 		t.Fatal("app ADR history accepted as required rule")
 	}
+	other := "docs/decisions/example.md"
+	put(t, root, "docs/harness/rule-map.json", strings.Replace(rm, `"file":"docs/harness/policies/documentation-policy.md"`, `"file":"`+other+`"`, 1))
+	for _, tc := range []struct {
+		name     string
+		content  string
+		rejected bool
+	}{
+		{"unquoted ADR", "---\ndoc_type: adr\n---\n# Decision\n", true},
+		{"quoted ADR", "---\ndoc_type: 'adr' # history\n---\n# Decision\n", true},
+		{"BOM and CRLF ADR", "\ufeff---\r\ndoc_type: \"adr\"\r\n---\r\n# Decision\r\n", true},
+		{"current policy", "---\ndoc_type: policy\n---\n# Policy\n", false},
+		{"body mention", "# Policy\n\ndoc_type: adr\n", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			put(t, root, other, tc.content)
+			_, e := ResolveRules(root, []string{other})
+			if (e != nil) != tc.rejected {
+				t.Fatalf("ADR type rejection = %v, want %v: %v", e != nil, tc.rejected, e)
+			}
+		})
+	}
 }
 func TestStrictJSON(t *testing.T) {
 	var x Start

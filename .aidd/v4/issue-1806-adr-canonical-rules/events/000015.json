@@ -1,0 +1,89 @@
+{
+  "sequence": 15,
+  "kind": "decision",
+  "time": "2026-09-25T16:08:10.379769Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "fe64eef85f570984a8634039501a3970d453d52384401d23837ae1c5200737f7",
+  "revision": 4,
+  "fingerprint": "6f6bb1334860607bfb3f19a1d20e88329ccfecd9b26244a84e9eeeefd7dae22f",
+  "data": {
+    "summary": "最新AuditのP2だけを承認された範囲で改善する。Coreのrules[].file判定をfront matterのdoc_type: adrにも適用し、/adr/以外のADRが必須ruleになる欠陥を修正する。P1のformatter除外案は却下済み。変更はrules.goとcore_test.goに限定し、既存Issueの成果・権限条件を維持する。",
+    "paths": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/harness/rule-map.json",
+      "docs/harness/policies/documentation-policy.md",
+      "docs/harness/policies/code-review.md",
+      "docs/ai-driven-development/change-coverage.md",
+      "tools/aidd/checker/internal/core/rules.go",
+      "tools/aidd/checker/internal/core/core_test.go",
+      "docs/ai-driven-development/overview.md",
+      "docs/adr/0001-adopt-harness-engineering.md",
+      "docs/adr/0002-adopt-agent-rule-graph.md",
+      "docs/adr/0003-adopt-aidd-invariant-protocol.md",
+      "docs/adr/0004-separate-task-scope-from-work-kind.md",
+      "docs/adr/0005-compact-aidd-records.md"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "/tmp/savings-1806-aidd",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "fe734434540fce5ffe559679923abdf5d0ab1bfe93f20a5c7e9d5ff62680e114",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}

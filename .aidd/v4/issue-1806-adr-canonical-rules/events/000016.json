@@ -1,0 +1,83 @@
+{
+  "sequence": 16,
+  "kind": "verify",
+  "time": "2026-09-25T16:10:28.659643Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "fe734434540fce5ffe559679923abdf5d0ab1bfe93f20a5c7e9d5ff62680e114",
+  "revision": 4,
+  "fingerprint": "3ca3f0c0560f223e9952df278281dc5b786765f8fb66f8b4ccfe4fb3a0742939",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t31.444s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 6.302s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=889b04b85c263bf20adad83303e53c946ea1906b checked=9\n"
+      },
+      {
+        "argv": [
+          "/tmp/savings-1806-aidd",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":2}\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "ff6159dc078b29920b958f68c291abadc7a38e7107c6e85f7745be46d6f462fb",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}

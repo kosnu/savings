@@ -1,0 +1,19 @@
+{
+  "sequence": 14,
+  "kind": "approve",
+  "time": "2026-09-25T16:07:12.874399Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "a3f3d0311a1d13d855994fde3f6d0ca2b9f6f8c2329777b4ce70cf1f94b5301d",
+  "revision": 3,
+  "fingerprint": "6f6bb1334860607bfb3f19a1d20e88329ccfecd9b26244a84e9eeeefd7dae22f",
+  "data": {
+    "audit_hash": "abffa2d3fb0a8f51bdb5a7bf5524291486cd6192dca6c1d1154fb7f9270780eb",
+    "source": "このCodex会話のユーザー発言（Audit承認）",
+    "text": "Auditを承認し、進めて",
+    "proposal_ids": [
+      "P2"
+    ]
+  },
+  "hash": "fe64eef85f570984a8634039501a3970d453d52384401d23837ae1c5200737f7",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}
