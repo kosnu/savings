@@ -31,6 +31,39 @@ type RuleMap struct {
 	} `json:"review_routing"`
 }
 
+func isADRDocument(data []byte) bool {
+	lines := strings.Split(strings.TrimPrefix(string(data), "\ufeff"), "\n")
+	if strings.TrimSuffix(lines[0], "\r") != "---" {
+		return false
+	}
+	for _, line := range lines[1:] {
+		line = strings.TrimSuffix(line, "\r")
+		if line == "---" {
+			break
+		}
+		key, raw, ok := strings.Cut(line, ":")
+		if !ok || strings.TrimRight(key, " \t") != "doc_type" {
+			continue
+		}
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		if raw[0] == '\'' || raw[0] == '"' {
+			value, rest, found := strings.Cut(raw[1:], string(raw[0]))
+			if found && value == "adr" && (strings.TrimSpace(rest) == "" || strings.HasPrefix(strings.TrimSpace(rest), "#")) {
+				return true
+			}
+			continue
+		}
+		fields := strings.Fields(raw)
+		if fields[0] == "adr" && (len(fields) == 1 || strings.HasPrefix(fields[1], "#")) {
+			return true
+		}
+	}
+	return false
+}
+
 func glob(pattern, value string) (bool, error) {
 	for _, segment := range strings.Split(pattern, "/") {
 		if strings.Contains(segment, "**") && segment != "**" {
@@ -97,14 +130,18 @@ func ResolveRules(root string, paths []string) ([]Rule, error) {
 		if r.ID == "" || !validPath(r.File) || !strings.HasSuffix(r.File, ".md") {
 			return nil, fmt.Errorf("invalid rule")
 		}
+		data, e := os.ReadFile(filepath.Join(root, r.File))
+		if e != nil {
+			return nil, e
+		}
+		if strings.Contains("/"+r.File, "/adr/") || isADRDocument(data) {
+			return nil, fmt.Errorf("ADR history cannot be a required rule: %s", r.ID)
+		}
 		if _, ok := byID[r.ID]; ok {
 			return nil, fmt.Errorf("duplicate rule %s", r.ID)
 		}
 		byID[r.ID] = r
 		if _, e = matches(r.Applies.Paths, ""); e != nil {
-			return nil, e
-		}
-		if _, e = os.Stat(filepath.Join(root, r.File)); e != nil {
 			return nil, e
 		}
 	}

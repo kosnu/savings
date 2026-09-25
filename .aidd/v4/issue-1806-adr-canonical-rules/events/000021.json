@@ -1,0 +1,55 @@
+{
+  "sequence": 21,
+  "kind": "review",
+  "time": "2026-09-25T16:12:58.608437Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "4083012f8c305b8ff91a329cb3255e6a52f797bfc93a83cd389f9529fcda07cb",
+  "revision": 5,
+  "fingerprint": "3ca3f0c0560f223e9952df278281dc5b786765f8fb66f8b4ccfe4fb3a0742939",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\ncycle-0002: 同じIntentに対し承認P2の最終差分と担当差分全体を再確認。/adr/外のdoc_type: adrを拒否し、通常のpolicyと本文中の文字列は拒否しない。P1の整形除外案は却下され、変更していない。",
+    "criteria": [
+      {
+        "criterion": "有効な必須仕様・ルールが正本にありADRだけに残らない",
+        "evidence": "ADR 0001/0002の現行構造・rule graph条件をdocumentation-policy.mdへ反映。ADR 0003-0008はADR 0009に置換済みでoverview.mdが現行Workflow/Core/用語集へ案内。ADR 0009の現行契約はworkflow.md、aidd-checker.md、codex-adapter.mdに存在する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "通常の変更・レビューで正本が選択され、ADR履歴は強制ルールとして選ばれない",
+        "evidence": "rules.goがrule fileのfront matterを読み、doc_type: adrを配置に関係なく拒否する。既存/adr/ path拒否も維持。core_test.goは/adr/内、docs/decisions/内の非引用・引用・BOM/CRLF ADR、通常policy、本文中の文字列を検証。隔離fixtureで以前選ばれたdocs/decisions/example.mdが新Coreで拒否された。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "意思決定履歴と現行仕様の所在を辿れる",
+        "evidence": "ADR 0001-0005の既存本文を保持した末尾Clarificationから現行正本へリンク。ADR 0006-0009の既存リンクとoverview.mdの旧ADR一覧、Documentation PolicyからADR 0001/0002へのリンクを確認。ADR validatorは9件を検査して成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "今後のADR判断と正本更新が同期する",
+        "evidence": "documentation-policy.mdとcode-review.mdの将来運用は既存Shipで確認済み。承認P2の変更はrules.go/core_test.goのみ。P1のformatter除外はユーザーの指摘によりdismissとして記録し、実装していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "文書と実際の選択結果が一致する",
+        "evidence": "revision 5のverifyでgo test、go vet、shared gate 5件、accepted ADR validator 9件、check-all 2 Task、git diff --checkがすべてexit 0。代表pathのrules CLIも実行し、/adr/外のADR反例が拒否された。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "43f9fc7872fffe2a85934dd529b0392a2d61091d083bffc9c7f51554079acc55",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0002"
+}

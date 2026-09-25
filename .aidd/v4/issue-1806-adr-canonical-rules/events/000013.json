@@ -1,0 +1,19 @@
+{
+  "sequence": 13,
+  "kind": "dismiss",
+  "time": "2026-09-25T16:07:09.3986Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "abffa2d3fb0a8f51bdb5a7bf5524291486cd6192dca6c1d1154fb7f9270780eb",
+  "revision": 3,
+  "fingerprint": "6f6bb1334860607bfb3f19a1d20e88329ccfecd9b26244a84e9eeeefd7dae22f",
+  "data": {
+    "audit_hash": "abffa2d3fb0a8f51bdb5a7bf5524291486cd6192dca6c1d1154fb7f9270780eb",
+    "source": "このCodex会話のユーザー発言（P1への訂正）",
+    "text": "P1 フォーマットは別にええやろ。逆に実行していないのがおかしい。",
+    "proposal_ids": [
+      "P1"
+    ]
+  },
+  "hash": "a3f3d0311a1d13d855994fde3f6d0ca2b9f6f8c2329777b4ce70cf1f94b5301d",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}

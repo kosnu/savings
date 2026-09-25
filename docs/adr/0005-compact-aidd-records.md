@@ -43,3 +43,7 @@ rule-mapは開始時参照またはTask内で一度保存する内容hash付きs
 必要なGit履歴とsnapshotの取得を前提とし、参照を解決できなければ失敗する。Git復元の処理負担は増える。
 JSONの行数削減だけをtoken・速度改善の証拠にせず、保存量・入力・出力・往復数を別々に計測する。
 仕様と測定方法は[compact protocol](../ai-driven-development/compact-protocol.md)が所有する。
+
+## Clarification: 現行正本の参照先 (2026-09-26)
+
+本ADRとリンク先compact protocolは旧AIDDの判断履歴である。[ADR 0009](0009-rebuild-aidd-v4.md)が旧記録方式を置き換えた。現在のTask記録と証拠の契約は[Core](../ai-driven-development/aidd-checker.md)と[Core操作](../ai-driven-development/aidd-checker-operations.md)が所有する。

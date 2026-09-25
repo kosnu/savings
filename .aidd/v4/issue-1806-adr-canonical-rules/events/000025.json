@@ -1,0 +1,19 @@
+{
+  "sequence": 25,
+  "kind": "dismiss",
+  "time": "2026-09-25T18:15:14.560094Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "e2d02c088a6dabbd42770f63f6b3ce6166cb8f6843b8aafe63d1a863ad1a3c33",
+  "revision": 5,
+  "fingerprint": "3ca3f0c0560f223e9952df278281dc5b786765f8fb66f8b4ccfe4fb3a0742939",
+  "data": {
+    "audit_hash": "e2d02c088a6dabbd42770f63f6b3ce6166cb8f6843b8aafe63d1a863ad1a3c33",
+    "source": "このCodex会話のユーザー発言（P3を発生可能性で対応しない判断）",
+    "text": "ふつうに発生可能性を理由に対応しない旨を返して解決にしろや",
+    "proposal_ids": [
+      "P3"
+    ]
+  },
+  "hash": "26f21edaa11d2a6f51dc18e106cb5168b8957cc8b70ee696c2ae040277c3c831",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0002"
+}

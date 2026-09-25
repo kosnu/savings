@@ -1,0 +1,17 @@
+{
+  "sequence": 18,
+  "kind": "return-intent",
+  "time": "2026-09-25T16:11:47.815761Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "bee1100eea7465fe48d48c30ab8cf410dddebba29820e1dad752f6c058bc57f5",
+  "revision": 4,
+  "fingerprint": "3ca3f0c0560f223e9952df278281dc5b786765f8fb66f8b4ccfe4fb3a0742939",
+  "data": {
+    "summary": "Issue #1806のIntentはADRを履歴として扱い正本を必須選択すること。承認P2で/adr/外のdoc_type: adrもCoreが必須rule登録を拒否し、反例テストとGo検証が通った。P1のformatter除外案は却下済みで変更なし。現行ガードレールとIntentを再確認し、同じTaskで次cycleの全体検証へ進む。",
+    "previous_cycle": "issue-1806-adr-canonical-rules/cycle-0001",
+    "approval_hash": "fe64eef85f570984a8634039501a3970d453d52384401d23837ae1c5200737f7",
+    "intent_hash": "c4dc30840c258a3f7a615178e31184159ba329db8108e74ce69fd2dbf51fa7e7"
+  },
+  "hash": "53e6e15146d817896032074abfb1eff71590490b570dc3097d0c3db8dedb14f5",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0002"
+}

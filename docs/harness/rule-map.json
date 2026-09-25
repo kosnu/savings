@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "description": "Markdown正本の意味を保持し、path/surfaceの直接一致とdepends_on closureを必須ruleとして機械適用する。topics/domains/activitiesは探索用、priorityは適用除外に使わない。",
+  "description": "現行Markdown正本をpath/surfaceの直接一致とdepends_on closureで必須選択する。ADRは履歴参照でありrule nodeにしない。topics/domains/activitiesは探索用、priorityは適用除外に使わない。",
   "resolution_order": [
     "specific_applies_to",
     "depends_on",
@@ -15,12 +15,7 @@
       "tools/aidd/**",
       "docs/ai-driven-development/**",
       "docs/harness/**",
-      "docs/adr/0001-adopt-harness-engineering.md",
-      "docs/adr/0002-adopt-agent-rule-graph.md",
-      "docs/adr/0003-adopt-aidd-invariant-protocol.md",
-      "docs/adr/0004-separate-task-scope-from-work-kind.md",
-      "docs/adr/0007-align-learn-agent-delegation.md",
-      "docs/adr/0008-define-aidd-cycle-boundary.md",
+      "docs/adr/**",
       ".agents/**",
       ".codex/**",
       ".github/skills/code-review/**",
@@ -28,8 +23,6 @@
       ".github/workflows/aidd_*",
       "AGENTS.md",
       "CLAUDE.md",
-      "docs/adr/0006-separate-intent-from-issue.md",
-      "docs/adr/0009-rebuild-aidd-v4.md",
       ".claude/CLAUDE.md"
     ],
     "surfaces": [
@@ -77,17 +70,16 @@
         ]
       },
       {
+        "id": "adr-history",
+        "paths": ["docs/adr/**"],
+        "required_rules": ["documentation.policy"]
+      },
+      {
         "id": "aidd-harness",
         "paths": [
           "tools/aidd/**",
           "docs/ai-driven-development/**",
           "docs/harness/**",
-          "docs/adr/0001-adopt-harness-engineering.md",
-          "docs/adr/0002-adopt-agent-rule-graph.md",
-          "docs/adr/0003-adopt-aidd-invariant-protocol.md",
-          "docs/adr/0004-separate-task-scope-from-work-kind.md",
-          "docs/adr/0007-align-learn-agent-delegation.md",
-          "docs/adr/0008-define-aidd-cycle-boundary.md",
           ".agents/**",
           ".codex/**",
           ".github/skills/code-review/**",
@@ -95,8 +87,6 @@
           ".github/workflows/aidd_*",
           "AGENTS.md",
           "CLAUDE.md",
-          "docs/adr/0006-separate-intent-from-issue.md",
-          "docs/adr/0009-rebuild-aidd-v4.md",
           ".claude/CLAUDE.md"
         ],
         "required_rules": ["ai-driven.workflow", "ai-driven.checker", "documentation.policy"]
@@ -141,92 +131,6 @@
       "depends_on": ["ai-driven.workflow", "documentation.policy"],
       "overrides": [],
       "priority": 89
-    },
-    {
-      "id": "adr.cycle-boundary",
-      "file": "docs/adr/0008-define-aidd-cycle-boundary.md",
-      "applies_to": {
-        "paths": ["docs/adr/0008-define-aidd-cycle-boundary.md"],
-        "topics": ["aidd-history"]
-      },
-      "depends_on": ["adr.aidd-invariant-protocol", "adr.task-scope", "adr.intent-sources"],
-      "overrides": ["adr.aidd-invariant-protocol", "adr.task-scope", "adr.intent-sources"],
-      "priority": 101
-    },
-    {
-      "id": "adr.learn-delegation",
-      "file": "docs/adr/0007-align-learn-agent-delegation.md",
-      "applies_to": {
-        "paths": ["docs/adr/0007-align-learn-agent-delegation.md"],
-        "topics": ["aidd-history"]
-      },
-      "depends_on": ["adr.aidd-invariant-protocol"],
-      "overrides": ["adr.aidd-invariant-protocol"],
-      "priority": 100
-    },
-    {
-      "id": "adr.intent-sources",
-      "file": "docs/adr/0006-separate-intent-from-issue.md",
-      "applies_to": {
-        "paths": ["docs/adr/0006-separate-intent-from-issue.md"],
-        "topics": ["aidd-history"]
-      },
-      "depends_on": ["adr.aidd-invariant-protocol"],
-      "overrides": ["adr.aidd-invariant-protocol"],
-      "priority": 100
-    },
-    {
-      "id": "adr.task-scope",
-      "file": "docs/adr/0004-separate-task-scope-from-work-kind.md",
-      "applies_to": {
-        "paths": ["docs/adr/0004-separate-task-scope-from-work-kind.md"],
-        "topics": ["aidd-history"]
-      },
-      "depends_on": ["adr.aidd-invariant-protocol"],
-      "overrides": ["adr.aidd-invariant-protocol"],
-      "priority": 100
-    },
-    {
-      "id": "adr.harness-engineering",
-      "file": "docs/adr/0001-adopt-harness-engineering.md",
-      "applies_to": {
-        "paths": ["AGENTS.md", "CLAUDE.md", "docs/harness/**"],
-        "domains": ["repository", "harness"],
-        "activities": ["design_agent_harness", "update_agent_entrypoint", "design_document_system"],
-        "topics": ["harness-engineering", "agentic-coding", "guardrails"]
-      },
-      "depends_on": ["documentation.policy"],
-      "overrides": [],
-      "priority": 100
-    },
-    {
-      "id": "adr.agent-rule-graph",
-      "file": "docs/adr/0002-adopt-agent-rule-graph.md",
-      "applies_to": {
-        "paths": [
-          "AGENTS.md",
-          "CLAUDE.md",
-          "docs/harness/**",
-          "docs/**/*.md",
-          "apps/*/docs/**/*.md"
-        ],
-        "domains": ["repository", "harness", "documentation"],
-        "activities": [
-          "select_agent_context",
-          "update_rule_map",
-          "update_agent_entrypoint",
-          "classify_docs"
-        ],
-        "topics": [
-          "rule-graph",
-          "front-matter",
-          "agent-guidance",
-          "deterministic-document-retrieval"
-        ]
-      },
-      "depends_on": ["adr.harness-engineering", "documentation.policy"],
-      "overrides": [],
-      "priority": 100
     },
     {
       "id": "documentation.policy",
@@ -353,7 +257,7 @@
         ],
         "topics": ["workflow", "prd", "design-doc", "pull-request", "verification"]
       },
-      "depends_on": ["ai-driven.overview", "ai-driven.glossary", "adr.aidd-v4"],
+      "depends_on": ["ai-driven.overview", "ai-driven.glossary"],
       "overrides": [],
       "priority": 88
     },
@@ -422,7 +326,7 @@
           "schema-v5"
         ]
       },
-      "depends_on": ["ai-driven.workflow", "adr.harness-engineering", "documentation.policy"],
+      "depends_on": ["ai-driven.workflow", "documentation.policy"],
       "overrides": [],
       "priority": 89
     },
@@ -874,43 +778,6 @@
       "depends_on": ["web.test-policy"],
       "overrides": [],
       "priority": 83
-    },
-    {
-      "id": "adr.aidd-invariant-protocol",
-      "file": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
-      "applies_to": {
-        "paths": ["docs/adr/0003-adopt-aidd-invariant-protocol.md"],
-        "topics": ["aidd-history"]
-      },
-      "depends_on": ["adr.agent-rule-graph"],
-      "overrides": [],
-      "priority": 100
-    },
-    {
-      "id": "adr.aidd-v4",
-      "file": "docs/adr/0009-rebuild-aidd-v4.md",
-      "applies_to": {
-        "paths": [
-          "tools/aidd/**",
-          "docs/ai-driven-development/**",
-          ".agents/skills/**",
-          ".codex/hooks.json",
-          ".claude/CLAUDE.md",
-          ".github/workflows/aidd_*",
-          "AGENTS.md",
-          "CLAUDE.md",
-          "docs/adr/0009-rebuild-aidd-v4.md"
-        ]
-      },
-      "depends_on": ["adr.agent-rule-graph"],
-      "overrides": [
-        "adr.aidd-invariant-protocol",
-        "adr.task-scope",
-        "adr.intent-sources",
-        "adr.learn-delegation",
-        "adr.cycle-boundary"
-      ],
-      "priority": 101
     }
   ]
 }

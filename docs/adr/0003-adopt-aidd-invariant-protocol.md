@@ -140,3 +140,7 @@ Storybook source、pnpm依存構造、Vitest/Python結果の技術的な解釈�
 Taskの保存形式を変えず、repository policyは開始時Git treeとbaseline inventoryのhashに結合する。
 policy導入前の記録は隔離した旧方針で読み取り、新規実行の設定欠落は拒否する。
 これは汎用ルールエンジンの導入や、既存Taskのchecker固定・許可境界を緩和する決定ではない。
+
+## Clarification: 現行正本の参照先 (2026-09-26)
+
+本ADRと既存Clarificationは旧AIDDの判断履歴である。[ADR 0009](0009-rebuild-aidd-v4.md)がAIDD固有契約を置き換えた。現在の実行条件は[AIDD v4](../ai-driven-development/workflow.md)、Coreの検査契約は[Core](../ai-driven-development/aidd-checker.md)、文書とrule graphの現行仕様は[Documentation Policy](../harness/policies/documentation-policy.md)を参照する。

@@ -1,0 +1,19 @@
+{
+  "sequence": 10,
+  "kind": "ship",
+  "time": "2026-09-25T15:36:01.826521Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "8be3be0b779032bbd52eb9281941b5652030af5762fcff58567241c59796d832",
+  "revision": 3,
+  "fingerprint": "6f6bb1334860607bfb3f19a1d20e88329ccfecd9b26244a84e9eeeefd7dae22f",
+  "data": {
+    "commit": "12472bc74d0a8717dd9ed5969d1add1c1b00752c",
+    "remote": "origin",
+    "branch": "issue-1806/adr-canonical-rules",
+    "pr": "https://github.com/kosnu/savings/pull/1817",
+    "evidence": "git ls-remote origin refs/heads/issue-1806/adr-canonical-rules、local HEAD、origin tracking ref、upstream、PR headRefOidは同じ12472bc74d0a8717dd9ed5969d1add1c1b00752c。PR #1817はOPEN、base main、Closes #1806。対象headのCI初回取得はPENDING。",
+    "base": "main"
+  },
+  "hash": "573828a9992d919af32ae8f1066fd14955a8aec6d73a6dab5ab3dd8bf99e6911",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0001"
+}

@@ -1,0 +1,19 @@
+{
+  "sequence": 22,
+  "kind": "ship",
+  "time": "2026-09-25T16:15:26.342596Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "43f9fc7872fffe2a85934dd529b0392a2d61091d083bffc9c7f51554079acc55",
+  "revision": 5,
+  "fingerprint": "3ca3f0c0560f223e9952df278281dc5b786765f8fb66f8b4ccfe4fb3a0742939",
+  "data": {
+    "commit": "42ae1429ac8a11098f6726a6356a81fe20178801",
+    "remote": "origin",
+    "branch": "issue-1806/adr-canonical-rules",
+    "pr": "https://github.com/kosnu/savings/pull/1817",
+    "evidence": "P2修正をcommit 42ae1429ac8a11098f6726a6356a81fe20178801で既存PR #1817へ反映。local HEAD、remote ref、PR headRefOidが一致し、base main、OPEN。Go test・vet、共有ゲート、ADR validator、Core check-all、git diff --check成功。P2 review threadへ返信し解決済み。現head CI初回取得はQUEUED。",
+    "base": "main"
+  },
+  "hash": "304eb1167dddc0030cd6db8ae18eee93f6918fd13978e098b237fada16804232",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0002"
+}
