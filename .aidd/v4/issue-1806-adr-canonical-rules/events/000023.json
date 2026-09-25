@@ -1,0 +1,24 @@
+{
+  "sequence": 23,
+  "kind": "audit",
+  "time": "2026-09-25T16:15:54.36592Z",
+  "task_hash": "4bc313a1aeadc9ce3a381849ea3261f70737b2fd5740634f66e52f8f571415b5",
+  "previous": "304eb1167dddc0030cd6db8ae18eee93f6918fd13978e098b237fada16804232",
+  "revision": 5,
+  "fingerprint": "3ca3f0c0560f223e9952df278281dc5b786765f8fb66f8b4ccfe4fb3a0742939",
+  "data": {
+    "summary": "承認済みP2を同一Taskのcycle-0002で反映し、PR #1817へShipした。新たな再利用可能な改善提案はない。P1はユーザーの訂正により却下済みで、フォーマット除外は実施していない。",
+    "findings": [
+      "P2: /adr/以外のdoc_type: adrを必須ruleに指定できる欠陥をrules.goで修正し、通常のpolicy文書も含む回帰テストを追加。隔離fixtureで反例の拒否を確認し、Go test・vet、共有ゲート、ADR validator、Core check-allが成功した。PR #1817のP2 threadに返信しisResolved=trueを確認した。",
+      "P1: ADRの自動整形を除外する案はユーザーの訂正を受けてdismiss済み。今回の修正では採択済みADRを変更せず、formatter hook後のcommit差分も確認した。"
+    ],
+    "session_improvements": [
+      "レビュー指摘を隔離fixtureで再現し、文書配置とfront matterの判定差を特定してから有限の修正対象に絞った。",
+      "承認の対象をP2に限定して記録し、次cycleで再検証・review・Shipを実施した。formatter hook後の差分とremote PR headを読み戻した。",
+      "今回の指摘はCoreの局所欠陥として回帰テストまで反映済みであり、追加の正本文書や横断ガードレールに変更を要する証拠はない。"
+    ],
+    "proposals": []
+  },
+  "hash": "f8d566d6d7c819b8149c5e804440dd3763789623b161270f2b04010bd2d8a946",
+  "cycle_id": "issue-1806-adr-canonical-rules/cycle-0002"
+}
