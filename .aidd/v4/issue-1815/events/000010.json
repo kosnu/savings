@@ -1,0 +1,94 @@
+{
+  "sequence": 10,
+  "kind": "decision",
+  "time": "2026-09-25T07:27:22.208667Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "79c894c7a960775273addd6ad084fa813dd68957547ff61156f579367dd1dbde",
+  "revision": 4,
+  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "data": {
+    "summary": "Audit P1に対するユーザーの訂正付き承認「gpt6lunaにして承認」を反映。継承方式は採用せず、.codex/agents/context-scout.tomlのmodelだけをgpt-6-lunaへ変更。low reasoning/read-only/他instructionsは保持。TOML解析・差分レビューとモデル起動を確認する。過去decision/開始Intentは上書きしない。",
+    "paths": [
+      "tools/aidd/",
+      "docs/ai-driven-development/",
+      "docs/harness/",
+      "docs/adr/0009-rebuild-aidd-v4.md",
+      "AGENTS.md",
+      ".claude/CLAUDE.md",
+      ".agents/skills/learn/",
+      ".agents/skills/audit/",
+      ".agents/skills/guardrail-improvement/",
+      ".agents/skills/goal-setting/",
+      ".codex/hooks.json",
+      ".github/workflows/aidd_checker_ci.yaml",
+      ".gitignore",
+      ".codex/agents/context-scout.toml"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "python3",
+        "-c",
+        "import pathlib,tomllib; d=tomllib.loads(pathlib.Path('.codex/agents/context-scout.toml').read_text()); assert d['model']=='gpt-6-luna'; assert d['model_reasoning_effort']=='low'; assert d['sandbox_mode']=='read-only'; print('context-scout TOML: passed')"
+      ]
+    ],
+    "rules": [
+      "adr.agent-rule-graph",
+      "adr.aidd-v4",
+      "adr.harness-engineering",
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "c6e899a852d4ddd1aa538575f661335b611fbc3e601b8f08c6cd8b181311052b"
+}
