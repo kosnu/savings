@@ -25,8 +25,6 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
-!tools/aidd/checker/internal/coverage/
-!tools/aidd/checker/internal/coverage/**
 *.lcov
 
 # nyc test coverage

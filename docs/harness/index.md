@@ -75,7 +75,7 @@ Goal、Design Doc、PR本文、作業ログなどで Rule Selection または Ha
 
 ## Provenance
 
-provenance は、ルールがどの作業成果物や検証に効いているかを追跡するための記録です。まずは `rule-map.json` の schema へ新しい構造を追加せず、Goal、Requirements / PRD、Design Doc、PR本文、review response などの作業成果物で必要最小限を記録します。
+provenance は、ルールがどの作業成果物や検証に効いているかを追跡するための記録です。まずは `rule-map.json` の schema へ新しい構造を追加せず、Intent、decision、検証記録、PR本文、review response などの作業成果物で必要最小限を記録します。
 
 記録する最小単位は次です。
 
@@ -90,7 +90,7 @@ provenance は、ルールがどの作業成果物や検証に効いているか
 
 `docs/harness/` は、既存の `docs/` を置き換えません。
 
-- `docs/ai-driven-development/`: Goal、PRD、Design、Build / Verify、Ship、Learn skill などのAI駆動開発フロー。
+- `docs/ai-driven-development/`: Intentから開発・Ship・Audit・手動承認後の改善までのAIDD v4。
 - `docs/harness/policies/`: リポジトリ横断の運用ガードレール。
 - `docs/harness/domain/`: ドメイン判断のガードレール。
 - `apps/*/docs/`: アプリ固有のADR、設計判断、実装方針。

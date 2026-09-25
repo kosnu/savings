@@ -71,25 +71,20 @@ Web/APIの表に該当しない差分も、`docs/harness/rule-map.json` のpath/
 
 採択済みADRを含む差分では`documentation.policy`を必ず適用し、PRのbase branchに対応するorigin remote-tracking branchを`--base-ref`に指定して`docs/harness/scripts/validate_accepted_adrs.py`を実行します。validatorが拒否した既存履歴の変更や文書の削除・移動は、末尾の日付付きClarificationまたは新しいADRへ置き換わるまで解決済みとしてはいけません。
 
-## AIDDの機械ルーティング
+## AIDD v4のレビュー
 
-AIDDでは、上表の人による詳細判定に加え、`docs/harness/rule-map.json`の`review_routing`を機械判定の正本として使います。通常のコードレビュー対象は引き続き実差分です。AIDDの完了判定では、Decisionが明示したtask-owned範囲の最終状態も照合します。この照合はレビュー範囲や書込権限をtask-owned範囲外へ広げません。
+実差分とTaskの担当範囲を基に、rule-mapのpath一致・surface必須rule・depends_on closureを確認する。
+一般docsやGitHub設定を一律にaidd-harnessへ分類せず、それぞれの直接一致規則も省略しない。
+Go Coreの選択結果に、意味的な変更面から必要な規則を追加する。
 
-Task、Decision、checkpoint、verification、Shipの契約は
-`ai-driven.workflow`と`ai-driven.checker`を正本として適用し、この文書へ詳細を複製しません。
-特にGit関連findingは`ai-driven.checker`の「運用前提と限界」を先に適用し、
-専用worktree・単一writer・検証とShipの境界の正常経路で契約違反なしに
-問題が発生するかを示せる場合だけ指摘します。契約外の並行writer、直接`.git`改変、
-Ship境界外でのstage/commit実行だけを前提に、lock、critical section、raw index identity、
-symbolic HEAD identityなどの防御を要求しません。
+[Workflow](../../ai-driven-development/workflow.md)と[Core](../../ai-driven-development/aidd-checker.md)を適用する。
+Intentの完了条件、規則の意味、実際の動作、失敗時の挙動を証拠と照合する。
+Coreの合格は意味評価の代替ではなく、reviewの宣言は実行証拠の代替ではない。
+Taskを跨ぐ差分混入、古い検証、stageとの内容・mode不一致、未承認の改善を成功扱いしない。
 
-そのうえでTaskの変更判定基準（統合記録があれば検証された統合base、なければ開始時Git基準点）から実差分を取得し、全governed pathに一致するsurfaceと、governedかどうかに関係なく各pathに`applies_to.paths`が一致するrule nodeを自動的に和集合します。path globの`**`は0個以上のsegmentへ一致し、malformedなcharacter classやsegment途中の`**`はrule-map読込時に拒否し、checkpointと実差分検査は同じresolverを使います。実差分にcheckpointにないsurface必須rule・path一致rule・依存node、surfaceへ分類できないgoverned pathが1件でもあれば成功としてはいけません。checkpointは必要rule closureを保持し、evidenceはchecker生成物以外の全差分path、最終inventoryへの結合、verification証拠identityを保持します。v5はinventory配列、v6はローカル状態とGit転送状態のdigestを使い、どちらも全体を再走査して照合します。pathごとの一致ruleは固定したrule-mapから再計算します。`Checked rules`の自己申告だけでこの判定を代替できません。
-
-`aidd-harness` surfaceはAIDD Core、harness、agent入口・設定、AIDD専用CIとその採択ADRを対象とします。
-一般の`docs/**`や`.github/**`全体をこのsurfaceへ分類しません。Markdownには既存の
-`documentation.policy`のpath一致、Issue templateにはissue規則、通常CIにはtransaction規則を適用します。
-`governed_paths`はsurface未分類を拒否する範囲であり、全ruleの適用範囲ではありません。
-surface外のpathでも直接一致ruleと依存closureを省略せず、guardrailの書込禁止範囲とも混同しません。
+Coreは専用worktreeと単一writerを前提とする。並行writerや直接の記録・Gitメタデータ改ざんを
+前提に不要な防御を要求せず、正常な操作経路で再現する契約違反を示す。
+checkerの変更では境界テスト、実際の呼出経路、entrypoint、CIの同期を確認する。
 
 ## レビュー結果
 

@@ -1,0 +1,81 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-25T06:59:56.23722Z",
+  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
+  "previous": "6137609b7a7b50fff2c8211c402bea52647f1e39164b3ba1a861bc2461a8170e",
+  "revision": 1,
+  "fingerprint": "0851a9d1283695521530a11cf270897c84b31400c84c30e96c6eb1c2085941ce",
+  "data": {
+    "summary": "Issue1815の白紙再構築。開始時はclean HEAD 078dd9b。新Coreのstartを利用するbootstrapのため先行したGo置換差分を初期snapshotとinitial_changesで保存し隠さない。旧契約を移植せず、Intent・追記判断・実行証拠・意味評価・Ship・Auditと個別承認を構成する。調査採否はresearch-v4.md、置換はADR0009。旧記録は歴史として保持する。",
+    "paths": [
+      "tools/aidd/",
+      "docs/ai-driven-development/",
+      "docs/harness/",
+      "docs/adr/0009-rebuild-aidd-v4.md",
+      "AGENTS.md",
+      ".claude/CLAUDE.md",
+      ".agents/skills/learn/",
+      ".agents/skills/audit/",
+      ".agents/skills/guardrail-improvement/",
+      ".agents/skills/goal-setting/",
+      ".codex/hooks.json",
+      ".github/workflows/aidd_checker_ci.yaml",
+      ".gitignore"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "adr.cycle-boundary",
+      "adr.learn-delegation",
+      "adr.intent-sources",
+      "adr.task-scope",
+      "adr.harness-engineering",
+      "adr.agent-rule-graph",
+      "documentation.policy",
+      "policy.issue-template-selection",
+      "ai-driven.overview",
+      "ai-driven.glossary",
+      "ai-driven.workflow",
+      "ai-driven.issue-guidelines",
+      "ai-driven.goal-templates",
+      "ai-driven.checker",
+      "policy.learning-extraction",
+      "ai-driven.learn",
+      "policy.git-workflow",
+      "policy.review-feedback-classification",
+      "policy.code-review",
+      "adr.aidd-invariant-protocol"
+    ]
+  },
+  "hash": "3613ae341df1105e5d9ab6fe250875347c6d9fb65eac573df971aac5e3014f7e"
+}

@@ -28,7 +28,9 @@
       ".github/workflows/aidd_*",
       "AGENTS.md",
       "CLAUDE.md",
-      "docs/adr/0006-separate-intent-from-issue.md"
+      "docs/adr/0006-separate-intent-from-issue.md",
+      "docs/adr/0009-rebuild-aidd-v4.md",
+      ".claude/CLAUDE.md"
     ],
     "surfaces": [
       {
@@ -93,7 +95,9 @@
           ".github/workflows/aidd_*",
           "AGENTS.md",
           "CLAUDE.md",
-          "docs/adr/0006-separate-intent-from-issue.md"
+          "docs/adr/0006-separate-intent-from-issue.md",
+          "docs/adr/0009-rebuild-aidd-v4.md",
+          ".claude/CLAUDE.md"
         ],
         "required_rules": ["ai-driven.workflow", "ai-driven.checker", "documentation.policy"]
       }
@@ -117,7 +121,6 @@
           "docs/adr/0004-separate-task-scope-from-work-kind.md",
           "docs/adr/0007-align-learn-agent-delegation.md",
           "docs/adr/0008-define-aidd-cycle-boundary.md",
-          ".agents/skills/learn/**",
           ".agents/skills/goal-setting/**",
           ".codex/**",
           ".github/workflows/aidd_*",
@@ -126,7 +129,11 @@
           "package.json",
           "pnpm-workspace.yaml",
           "pnpm-lock.yaml",
-          "docs/adr/0006-separate-intent-from-issue.md"
+          "docs/adr/0006-separate-intent-from-issue.md",
+          "docs/adr/0009-rebuild-aidd-v4.md",
+          ".claude/CLAUDE.md",
+          ".agents/skills/audit/**",
+          ".agents/skills/guardrail-improvement/**"
         ],
         "topics": ["change-coverage", "ai-driven-development"],
         "activities": ["change_aidd_control_plane", "review_diff"]
@@ -139,17 +146,8 @@
       "id": "adr.cycle-boundary",
       "file": "docs/adr/0008-define-aidd-cycle-boundary.md",
       "applies_to": {
-        "paths": [
-          "AGENTS.md",
-          "tools/aidd/**",
-          "docs/ai-driven-development/**",
-          "docs/harness/policies/learning-extraction.md",
-          "docs/harness/rule-map.json",
-          "docs/adr/0008-define-aidd-cycle-boundary.md",
-          ".agents/skills/**",
-          ".codex/**"
-        ],
-        "topics": ["task-scope", "learning", "ai-driven-development"]
+        "paths": ["docs/adr/0008-define-aidd-cycle-boundary.md"],
+        "topics": ["aidd-history"]
       },
       "depends_on": ["adr.aidd-invariant-protocol", "adr.task-scope", "adr.intent-sources"],
       "overrides": ["adr.aidd-invariant-protocol", "adr.task-scope", "adr.intent-sources"],
@@ -159,17 +157,8 @@
       "id": "adr.learn-delegation",
       "file": "docs/adr/0007-align-learn-agent-delegation.md",
       "applies_to": {
-        "paths": [
-          "AGENTS.md",
-          "tools/aidd/**",
-          "docs/ai-driven-development/**",
-          "docs/harness/policies/learning-extraction.md",
-          "docs/harness/rule-map.json",
-          "docs/adr/0007-align-learn-agent-delegation.md",
-          ".agents/skills/**",
-          ".codex/**"
-        ],
-        "topics": ["learning", "delegation"]
+        "paths": ["docs/adr/0007-align-learn-agent-delegation.md"],
+        "topics": ["aidd-history"]
       },
       "depends_on": ["adr.aidd-invariant-protocol"],
       "overrides": ["adr.aidd-invariant-protocol"],
@@ -179,16 +168,8 @@
       "id": "adr.intent-sources",
       "file": "docs/adr/0006-separate-intent-from-issue.md",
       "applies_to": {
-        "paths": [
-          "AGENTS.md",
-          "tools/aidd/**",
-          "docs/ai-driven-development/**",
-          "docs/harness/**",
-          "docs/adr/0006-separate-intent-from-issue.md",
-          ".agents/skills/**",
-          ".codex/**"
-        ],
-        "topics": ["intent", "task-scope"]
+        "paths": ["docs/adr/0006-separate-intent-from-issue.md"],
+        "topics": ["aidd-history"]
       },
       "depends_on": ["adr.aidd-invariant-protocol"],
       "overrides": ["adr.aidd-invariant-protocol"],
@@ -198,15 +179,8 @@
       "id": "adr.task-scope",
       "file": "docs/adr/0004-separate-task-scope-from-work-kind.md",
       "applies_to": {
-        "paths": [
-          "AGENTS.md",
-          "tools/aidd/**",
-          "docs/ai-driven-development/**",
-          "docs/harness/**",
-          "docs/adr/0004-separate-task-scope-from-work-kind.md",
-          ".agents/skills/**"
-        ],
-        "topics": ["task-scope", "verification"]
+        "paths": ["docs/adr/0004-separate-task-scope-from-work-kind.md"],
+        "topics": ["aidd-history"]
       },
       "depends_on": ["adr.aidd-invariant-protocol"],
       "overrides": ["adr.aidd-invariant-protocol"],
@@ -379,7 +353,7 @@
         ],
         "topics": ["workflow", "prd", "design-doc", "pull-request", "verification"]
       },
-      "depends_on": ["ai-driven.overview", "ai-driven.glossary"],
+      "depends_on": ["ai-driven.overview", "ai-driven.glossary", "adr.aidd-v4"],
       "overrides": [],
       "priority": 88
     },
@@ -466,13 +440,17 @@
       "priority": 94
     },
     {
-      "id": "ai-driven.learn",
+      "id": "ai-driven.audit",
       "file": "docs/ai-driven-development/workflow.md",
       "applies_to": {
-        "paths": ["docs/ai-driven-development/**"],
+        "paths": [
+          ".agents/skills/audit/**",
+          ".agents/skills/guardrail-improvement/**",
+          "docs/harness/policies/learning-extraction.md"
+        ],
         "domains": ["repository", "ai-driven-development"],
-        "activities": ["extract_learning", "prepare_task_context", "update_learning_rule"],
-        "topics": ["learn", "review", "requirements", "policy"]
+        "activities": ["audit_session", "apply_approved_improvements"],
+        "topics": ["audit", "manual-approval", "review", "policy"]
       },
       "depends_on": [
         "ai-driven.workflow",
@@ -901,17 +879,38 @@
       "id": "adr.aidd-invariant-protocol",
       "file": "docs/adr/0003-adopt-aidd-invariant-protocol.md",
       "applies_to": {
-        "paths": [
-          "tools/aidd/**",
-          "docs/ai-driven-development/**",
-          ".agents/skills/**",
-          ".codex/**"
-        ],
-        "topics": ["aidd-core", "schema-v5"]
+        "paths": ["docs/adr/0003-adopt-aidd-invariant-protocol.md"],
+        "topics": ["aidd-history"]
       },
       "depends_on": ["adr.agent-rule-graph"],
       "overrides": [],
       "priority": 100
+    },
+    {
+      "id": "adr.aidd-v4",
+      "file": "docs/adr/0009-rebuild-aidd-v4.md",
+      "applies_to": {
+        "paths": [
+          "tools/aidd/**",
+          "docs/ai-driven-development/**",
+          ".agents/skills/**",
+          ".codex/hooks.json",
+          ".claude/CLAUDE.md",
+          ".github/workflows/aidd_*",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/adr/0009-rebuild-aidd-v4.md"
+        ]
+      },
+      "depends_on": ["adr.agent-rule-graph"],
+      "overrides": [
+        "adr.aidd-invariant-protocol",
+        "adr.task-scope",
+        "adr.intent-sources",
+        "adr.learn-delegation",
+        "adr.cycle-boundary"
+      ],
+      "priority": 101
     }
   ]
 }

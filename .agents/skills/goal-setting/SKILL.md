@@ -1,27 +1,16 @@
 ---
 name: goal-setting
-description: Use Codex Goal tools for authorized Development or an explicit Goal request. Goal setup alone does not authorize task execution.
+description: Use Codex Goal tools when host conditions and the user request authorize a Goal.
 ---
 
 # Goal setting
 
-This skill is the entrypoint for Codex Goal tools. Apply the
-[Codex adapter](../../../docs/ai-driven-development/codex-adapter.md#goal機能との接続)
-for Task/Goal correspondence, authority, and lifecycle. Execution flow and protocol
-remain in the canonical documents linked there.
-
-Use the host's actual Goal tools:
-
-- Check tool availability and the current Goal with `get_goal` before creating one.
-  Reuse the same task's Goal; preserve unrelated unfinished Goals and user-owned pauses.
-- Use `create_goal` with the authorized task's objective and a reference to its records.
-  Use [Goal templates](../../../docs/ai-driven-development/goal-templates/index.md) for
-  the compact content; set a token budget only when explicitly requested.
-- Use `update_goal` only when the canonical completion criteria and host state rules
-  permit that transition. A Goal state does not replace Task verification evidence.
-
-If Goal tools are unavailable, report that and return to the authorized task under
-the same Core contract without claiming a Goal exists. This skill does not add
-execution permission: Goal setup alone is not a request to perform the task, and
-guardrail maintenance in the same Task keeps its Goal. Learn does not start a
-standalone Task or Goal.
+Apply the [Codex adapter](../../../docs/ai-driven-development/codex-adapter.md).
+Inspect the current Goal and the host's actual tool contract. Create a Goal only when that
+contract permits it; if explicit user instruction is required, development authority alone
+is insufficient. Goal setup alone does not authorize execution.
+The parent agent owns the same Task's Goal. Preserve unrelated Goals and user-owned pauses.
+Use the Intent objective and Task reference; set budgets only when explicitly requested.
+Goal state never replaces Core evidence. Do not mark the cycle complete before Audit or
+while proposed improvements await manual approval. Continue authorized Task work without
+a Goal when no Goal is authorized or available.

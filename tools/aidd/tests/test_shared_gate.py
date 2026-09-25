@@ -135,12 +135,12 @@ class SharedGateTests(unittest.TestCase):
 
     def test_check_and_canonical_json(self):
         canonical = '{\n  "a": [\n    1,\n    2\n  ]\n}\n'
-        self.write(".aidd/tasks/fixture/task.json", canonical)
+        self.write(".aidd/v4/fixture/task.json", canonical)
         self.write("example.json", canonical)
         self.run_command("git", "add", ".aidd", "example.json")
         self.commit()
-        self.assertEqual(self.git_bytes("show", "HEAD:.aidd/tasks/fixture/task.json"), canonical.encode())
-        self.assertEqual((self.root / ".aidd/tasks/fixture/task.json").read_bytes(), canonical.encode())
+        self.assertEqual(self.git_bytes("show", "HEAD:.aidd/v4/fixture/task.json"), canonical.encode())
+        self.assertEqual((self.root / ".aidd/v4/fixture/task.json").read_bytes(), canonical.encode())
         self.assertNotEqual(self.git_bytes("show", "HEAD:example.json"), canonical.encode())
         self.assertEqual(self.git_bytes("status", "--porcelain"), b"")
 
