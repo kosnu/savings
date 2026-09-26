@@ -1,0 +1,25 @@
+{
+  "sequence": 39,
+  "kind": "audit-update",
+  "time": "2026-09-26T11:01:07.5501Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "744d2e0750a31c93b0b18b2b4eb02adb4a7f10c0782979bfa2e6472cb57199a2",
+  "revision": 7,
+  "fingerprint": "58f960d950df0f6bdf3c1956583c43b1b712ad2705c3e99948d2bd7170f3333f",
+  "data": {
+    "summary": "PR #1822の同じShipに対するAuditを再実行した。前Auditで未確認だった最新head 9e007a6b のCIは、candidate・integration・verify・zizmorがすべて成功した。candidateのGo計測テストとvet、integrationのGo計測テストが実際に実行され成功したことをjob stepで確認した。P5の指摘内容はコードとCIの検証面では対応済みだが、レビューthreadは返信がなくisResolved=falseである。新しいコード改善提案はない。",
+    "findings": [
+      "P5（https://github.com/kosnu/savings/pull/1822#discussion_r4110965270）は、旧Python計測テストがCI対象外だったという指摘。最新PR head 9e007a6b6b4d33c05bbc18b5f7f0860c51a4f480ではGoで作り直した計測テストをCIへ追加し、AIDD Checker CI run 36237298162のcandidate step『Test session metrics』『Vet session metrics』とintegration step『Test merged session metrics』がsuccess。threadはisResolved=false、返信はまだない。コード・CI結果とレビュー会話の状態を分ける。",
+      "P6はChecker Core外のtools/aidd/session-metrics/にGo CLIとテストを置く対応でShip済み。候補だったCore module内への配置は採用していない。旧Python記録の閲覧互換、Go版の計測、取得不可の扱いは前Auditで確認済みで、今回のheadで変更されていない。",
+      "PR #1822の他の4 review threadはisResolved=true。P4のサイクル切替後の未終了工程を取り消す機能は今回の範囲外として未実装のままであり、解決済みthreadを修正済みコードとして再分類しない。",
+      "最新headのGitHub CIはcandidate、integration、verify、zizmorがsuccess。CI成功はP5のテスト収集・実行の証拠として使えるが、Review threadの返信・解決を自動的に意味しない。"
+    ],
+    "session_improvements": [
+      "前AuditではCIを未完了と記録し、成功へ丸めなかった。今回の再Auditでは同じheadの完了結果と実job stepを確認し、P5の実行証拠を更新した。",
+      "レビュー指摘への技術的対応、CIでの確認、threadの会話上の解決は別の状態として追跡する。今回のAuditはコード変更やPR返信を行わない。"
+    ],
+    "proposals": []
+  },
+  "hash": "091c329bacd7779930a0815c1f3e149356764a25c779471c9131db7e7445524b",
+  "cycle_id": "issue-1821/cycle-0003"
+}
