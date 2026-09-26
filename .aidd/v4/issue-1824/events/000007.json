@@ -1,0 +1,22 @@
+{
+  "sequence": 7,
+  "kind": "audit",
+  "time": "2026-09-26T11:55:51.414042Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "ab3eb32070d7e3506910b2a2dbb1dcf690fd2a94a41af504e491e0ab1ec7054c",
+  "revision": 1,
+  "fingerprint": "09c052f833532a0cccd16a12e97490f10dc5c0b5e8cd5c0d44be93be14720f6b",
+  "data": {
+    "summary": "PR #1826としてPostCompact案内Hookを配信。Hook commandと通常Git/worktreeでの登録は確認したが、このmanaged worktreeのCLI hooks/listは空で、デスクトップの信頼・実発火は未確認。原因が特定できていないため、追加の恒久ガードレール変更は提案しない。",
+    "findings": [
+      "未解決: Codex CLI 0.149の隔離環境で、この~/.codex/worktrees配下のcheckoutのhooks/listは空。通常repoと別の連結worktreeではproject PostCompactを列挙した。PRに制限を明記しIssueは自動closeしない。",
+      "対応済み: 最初のsemantic review後に実行環境の登録確認が不足していると判明し、通常repo/worktreeの登録試験を追加したうえでreviewを追記した。"
+    ],
+    "session_improvements": [
+      "Hook変更では、command単体の動作確認に加えて、対象Codex環境のhooks/listとtrust状態をsemantic review前に確認する。対象環境を読めない場合は、その制限を先にreviewとPRへ明記する。"
+    ],
+    "proposals": []
+  },
+  "hash": "65d37c1219f29a777dfacb6b92d48ff8d51777335063f71be6f6a94d7b74fdc6",
+  "cycle_id": "issue-1824/cycle-0001"
+}

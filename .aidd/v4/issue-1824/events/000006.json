@@ -1,0 +1,19 @@
+{
+  "sequence": 6,
+  "kind": "ship",
+  "time": "2026-09-26T11:55:02.506463Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "6d383099fb7b91dc4b8141bc64c698ea8b78792427cd8b3fe6f58f69b2fdc01b",
+  "revision": 1,
+  "fingerprint": "09c052f833532a0cccd16a12e97490f10dc5c0b5e8cd5c0d44be93be14720f6b",
+  "data": {
+    "commit": "7429e08d95ce745ab6aa15f68d11b6288f1db34e",
+    "remote": "origin",
+    "branch": "issue-1824/aidd-v4-hooks",
+    "pr": "https://github.com/kosnu/savings/pull/1826",
+    "evidence": "local HEAD、origin remote ref、remote-tracking ref、PR headが 7429e08d95ce745ab6aa15f68d11b6288f1db34e で一致。upstreamはorigin/issue-1824/aidd-v4-hooks。PRはOPEN、base main、reviewThreads 0、reviewDecision REVIEW_REQUIRED。CIは一度取得しPENDING（candidate IN_PROGRESS、integration SUCCESS、assign-author SUCCESS）。Codex CLI 0.149で通常repo/連結worktreeのproject Hook列挙成功、現在checkoutのhooks/listは空で現行デスクトップ実発火は未確認。",
+    "base": "main"
+  },
+  "hash": "ab3eb32070d7e3506910b2a2dbb1dcf690fd2a94a41af504e491e0ab1ec7054c",
+  "cycle_id": "issue-1824/cycle-0001"
+}
