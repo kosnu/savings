@@ -74,6 +74,30 @@ rulesはrule ID配列。選択結果に意味的関連ruleを追加し、各本�
 criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown`。
 根拠不足をpassにせず、修正・再検証または必要な人間判断につなげる。
 
+## セッション計測
+
+CodexのAIDD作業で実際に行う工程を、開始・終了時に記録する。工程名は作業内容に合わせて指定し、
+固定フェーズ名へ置き換えない。Task IDを渡すと、現行サイクルIDを`.aidd/v4/<task-id>/events/`から取得する。
+セッションIDには`CODEX_SESSION_ID`を使い、ない環境では`--session`で明示する。
+
+```sh
+python3 -B tools/aidd/session_metrics.py start --task issue-123 --stage 設計
+python3 -B tools/aidd/session_metrics.py finish --task issue-123
+python3 -B tools/aidd/session_metrics.py report --task issue-123
+python3 -B tools/aidd/session_metrics.py report --since 2026-09-21
+```
+
+記録は既定でこのrepositoryのGit common directory内の`aidd-metrics/usage.jsonl`に置く。
+worktree間で共有され、commitやPRの差分には入らない。別の保存先が必要なら`--store`を指定する。
+Codex transcriptからセッションの累積トークン使用量を読み、
+開始・終了時の観測値の差を保存する。transcriptの形式は安定した公開契約ではないため、見つからない、
+新しい観測値がない、または形式が変わった場合はトークン数を取得不可にする。時間は開始・終了間の経過時間を単調時計で測る。
+ユーザー入力待ちを作業時間に含めない場合は、待機前に`finish`し、再開時に新しい記録を開始する。
+`report`はTask・サイクル別の合計とセッション別の内訳を返し、値が欠ける合計は不明にする。
+`finish`の計測結果と必要な`report`結果を、作業したCodexセッションのメッセージとして返す。
+サイクルを切り替える前に進行中の工程を終了し、別サイクルへ時間やトークンを付け替えない。
+この記録は個人の振り返り用であり、AIDD Coreの証拠やPR本文・テンプレートには含めない。
+
 ## Ship
 
 必要なstageをGit Workflowに沿って行い、証拠を含むTask記録もstageする。
