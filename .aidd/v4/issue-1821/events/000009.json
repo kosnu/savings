@@ -1,0 +1,24 @@
+{
+  "sequence": 9,
+  "kind": "audit",
+  "time": "2026-09-26T08:52:46.574117Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "09e7acc1285b577f2482af1fbdfa20e7426d16232a917a81ade7fd56f0d4b9d3",
+  "revision": 2,
+  "fingerprint": "74cb3a16d3d8444dada79eca17616b50807cbbd4652bf83a67fdc754f448a6a7",
+  "data": {
+    "summary": "Issue #1821の計測CLI、集計、取得不能時の扱いをローカル検証・意味レビュー後にPR #1822へShipした。PR headは配信commitと一致し、初回CI取得時のAIDD Checker CIは実行中。未解決review threadは0。現時点で承認を求めるガードレール改善案はない。",
+    "findings": [
+      "Issue固有の完了条件は実セッションの計測・集計と6件のunit testで確認した。",
+      "Codex transcript形式は安定契約ではない。取得不能時に不明を返す制限を文書とテストに記録済み。",
+      "PR #1822の初回CI取得ではcandidateとintegrationがIN_PROGRESSであり、成功とは扱わない。"
+    ],
+    "session_improvements": [
+      "実装前の工程は計測開始点がないため遡及して数値を作らなかった。今後のAIDD作業では工程開始時から記録する手順をworkflowへ追加済み。",
+      "公開remoteへのpushは自動承認レビューに2度拒否された。ユーザーの明示的なShip指示後に同じpushを再実行して解消した。外部の承認境界に対する新たなrepository規則は提案しない。"
+    ],
+    "proposals": []
+  },
+  "hash": "5297a95e48e30ce222e6ad2a85ce0510bc598846b1f65bbad2effafa69dcc898",
+  "cycle_id": "issue-1821/cycle-0001"
+}
