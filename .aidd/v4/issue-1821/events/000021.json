@@ -1,0 +1,19 @@
+{
+  "sequence": 21,
+  "kind": "dismiss",
+  "time": "2026-09-26T09:32:55.582263Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "0dea7b056fb144861ebdc2c9de56ec79acc40dcf581e26b28be61238055fae76",
+  "revision": 4,
+  "fingerprint": "967040843d364072765a12cd2952a585e8f3ee75716fb4bf2b46480a89503859",
+  "data": {
+    "audit_hash": "0dea7b056fb144861ebdc2c9de56ec79acc40dcf581e26b28be61238055fae76",
+    "source": "Codex voice thread 01a0dcca-ad70-7e92-943e-75c8fc435ca4, turns 01a0dd0c-53e6-7b21-847c-c8e40d7f9656, 01a0dd0d-1fd5-7773-8a30-9969298ea6b5, 01a0dd0e-107e-7062-95b6-1238d69f87e0",
+    "text": "そもそもそんなイレギュラー発生するんだったら自動的になんかどうにかするじゃなくて、手動で何か変えたほうがいいやろ\nそんなフロー上のイレギュラーやろ、それだって\nそんなん考えたら全部破綻するや\nオーディト再実行して",
+    "proposal_ids": [
+      "P4"
+    ]
+  },
+  "hash": "685687dcab38bf6d21964869a7c4ca31d1dc2d0e981ce042ce5428a13068230d",
+  "cycle_id": "issue-1821/cycle-0002"
+}
