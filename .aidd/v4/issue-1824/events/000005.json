@@ -1,0 +1,50 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-09-26T11:52:02.031559Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "119372f5f76ff24157d8cbc558b72603b8c50450a15a69729ec4a25eb1cb6e31",
+  "revision": 1,
+  "fingerprint": "09c052f833532a0cccd16a12e97490f10dc5c0b5e8cd5c0d44be93be14720f6b",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.code-review\n- Unresolved: 現行デスクトップでのtrustと実発火は未確認。CLI 0.149の隔離環境では通常のGit repoとworktreeでproject PostCompactを列挙できたが、このcheckoutのhooks/listは空。Hook commandの契約は検証済み。",
+    "criteria": [
+      {
+        "criterion": "Hookの目的とAIDD v4の正本との役割分担が明確",
+        "evidence": "codex-adapter.mdにPostCompactは案内のみと明記。スクリプトは入力を読み追加コンテキストを返すだけで、Task ID推論・状態保存・検証・継続制御がない。rule-mapの既存経路で必要な正本を選択し、索引変更は不要。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "対象イベントで発火し対象外では発火しない",
+        "evidence": "hooks.jsonはPostCompactだけを宣言。設定のcommandをサブディレクトリから実行する回帰テストでauto/manualの出力、Stop/未知triggerの無出力を確認。CLI 0.149の隔離した通常repoと連結worktreeでproject PostCompactを列挙した。現在の~/.codex/worktrees配下のcheckoutのCLI列挙は空で、現行デスクトップでのtrustと実発火は未確認として残す。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "成功・失敗・再入時の挙動を検証できる",
+        "evidence": "4件の回帰テスト成功。正しい入力は追加コンテキスト、壊れたJSON/非objectは非0終了でコンテキストなし。同一入力の再実行は同一出力でdecision/continueを含まない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Hookが無効でもAIDD v4の通常経路を維持",
+        "evidence": "workflowとCoreはHookを呼び出さない。adapterの再開手順はHookとは独立し、Hook未信頼・無効・失敗時も明示Task IDからstatusを読む。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "6d383099fb7b91dc4b8141bc64c698ea8b78792427cd8b3fe6f58f69b2fdc01b",
+  "cycle_id": "issue-1824/cycle-0001"
+}

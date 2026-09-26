@@ -1,0 +1,52 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-26T11:42:59.96239Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "dfc875c0166afc57c87024e5fa412eb971a1464d2ab234cc8410e3252e69b6a4",
+  "revision": 1,
+  "fingerprint": "09c052f833532a0cccd16a12e97490f10dc5c0b5e8cd5c0d44be93be14720f6b",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          ".codex/hooks",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit": 0,
+        "output": "test_config_runs_from_repository_subdirectory (test_post_compact.PostCompactHookTest.test_config_runs_from_repository_subdirectory) ... ok\ntest_invalid_input_fails_without_context (test_post_compact.PostCompactHookTest.test_invalid_input_fails_without_context) ... ok\ntest_manual_compaction_has_the_same_reentry_safe_output (test_post_compact.PostCompactHookTest.test_manual_compaction_has_the_same_reentry_safe_output) ... ok\ntest_other_events_and_unknown_triggers_do_nothing (test_post_compact.PostCompactHookTest.test_other_events_and_unknown_triggers_do_nothing) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.226s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "json.tool",
+          ".codex/hooks.json"
+        ],
+        "exit": 0,
+        "output": "{\n    \"hooks\": {\n        \"PostCompact\": [\n            {\n                \"hooks\": [\n                    {\n                        \"type\": \"command\",\n                        \"command\": \"python3 \\\"$(git rev-parse --show-toplevel)/.codex/hooks/post_compact.py\\\"\"\n                    }\n                ]\n            }\n        ]\n    }\n}\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "940c0c280bc46f92d80119cfdca7566481eeb7035a0d6f14502861a365721c97",
+  "cycle_id": "issue-1824/cycle-0001"
+}

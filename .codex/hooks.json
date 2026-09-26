@@ -1,3 +1,14 @@
 {
-  "hooks": {}
+  "hooks": {
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/post_compact.py\""
+          }
+        ]
+      }
+    ]
+  }
 }
