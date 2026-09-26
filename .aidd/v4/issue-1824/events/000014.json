@@ -1,0 +1,50 @@
+{
+  "sequence": 14,
+  "kind": "review",
+  "time": "2026-09-26T12:40:55.592298Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "a3855f2953782dfca223bd3a0a6b65c31d23914b52bbfeee061dd13cef79fd09",
+  "revision": 3,
+  "fingerprint": "02beb5a32a24006861646883d01a3c8c3c9dfda183c34ebd8a60ea0a57a549d4",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.code-review\n- Unresolved: 現行managed worktreeではCLI hooks/listが空で、デスクトップの信頼・compact実発火は未確認。通常Git repoでは新SessionStart Hookを列挙。PRの追加P2は過去Auditの成果修正と再利用可能な検出改善の混合を指摘し妥当。過去eventは追記専用のため上書きせず、今回のAuditで区別して扱う。\n実差分は承認対象4ファイルのみ。PostCompact固有出力の不正をSessionStart(source=compact)の有効なadditionalContextへ変更し、旧Task推論・状態管理は復活していない。Codex CLI 0.149の隔離した通常repoで出力解析とモデル受信を確認し、他sourceと再入・不正入力も確認した。rule-mapの既存選択経路は十分で索引変更不要。",
+    "criteria": [
+      {
+        "criterion": "Hookの目的とAIDD v4の正本との役割分担が明確",
+        "evidence": "codex-adapter.mdはSessionStart(source=compact)を案内のみに限定し、Core status・checkpoint・Intentが正本であると明記。スクリプトはTask IDを推論・保存せず追加コンテキストだけ返す。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "対象イベントで発火し対象外では発火しない",
+        "evidence": "hooks.jsonはSessionStart matcher ^compact$のみ。単体テストでcompactのみ出力、startup/resume/clear/不明sourceとPostCompactは無出力。Codex CLI 0.149の隔離通常repoのhooks/listでSessionStart matcherを列挙。ただし現行managed worktreeの列挙は空でデスクトップ実発火は未確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "成功・失敗・再入時の挙動を検証できる",
+        "evidence": "Core verifyで5件成功。Codex CLI実ホスト解析を通す任意テストを有効化し、実際のSessionStart出力のadditionalContextに加えた検証トークンがモデル応答に到達した。compactへのroutingは設定matcherと入力テストで確認。壊れた入力は非0・無出力、同一入力再実行は同一出力。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Hookが無効でもAIDD v4の通常経路を維持",
+        "evidence": "workflow/CoreはHookに依存せず、adapterはHook未信頼・無効・失敗時も明示Task IDからstatusと最新checkpointを読む。旧Stop/SessionStartのTask推論・状態管理経路は差分にない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "62b9ca87f428663e751873bc8bad5b5de5fd4de6304067bc7b23a053ffecf125",
+  "cycle_id": "issue-1824/cycle-0002"
+}

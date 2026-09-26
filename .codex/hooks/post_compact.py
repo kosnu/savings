@@ -13,22 +13,22 @@ def main() -> int:
     try:
         event = json.load(sys.stdin)
     except (json.JSONDecodeError, UnicodeDecodeError):
-        print("PostCompact Hookの入力JSONを読めません", file=sys.stderr)
+        print("SessionStart Hookの入力JSONを読めません", file=sys.stderr)
         return 1
 
     if not isinstance(event, dict):
-        print("PostCompact Hookの入力はJSON objectが必要です", file=sys.stderr)
+        print("SessionStart Hookの入力はJSON objectが必要です", file=sys.stderr)
         return 1
 
-    if event.get("hook_event_name") != "PostCompact":
+    if event.get("hook_event_name") != "SessionStart":
         return 0
-    if event.get("trigger") not in {"auto", "manual"}:
+    if event.get("source") != "compact":
         return 0
 
     json.dump(
         {
             "hookSpecificOutput": {
-                "hookEventName": "PostCompact",
+                "hookEventName": "SessionStart",
                 "additionalContext": CONTEXT,
             }
         },

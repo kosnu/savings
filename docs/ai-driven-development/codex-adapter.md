@@ -32,11 +32,11 @@ Audit未実施・改善承認待ちをサイクル完了としてGoalへ反映�
 
 明示したTask IDからCoreのstatusを取得し、開始Intent、最新decision/checkpoint、検証・review・
 Ship・Audit・承認記録を必要な範囲で読む。前の会話の要約だけを証拠として扱わない。
-旧版のStop/SessionStart hookやGoal本文からのTask推論を実行経路にしない。
+旧版のStop/SessionStart hookによるTask推論・状態管理と、Goal本文からのTask推論を実行経路にしない。
 
 ## コンパクション後の案内
 
-リポジトリの`PostCompact` Hookは、コンパクション後に明示されたTask IDからCoreの`status`と
-最新checkpointを読み直すよう短い案内を返す。Task IDの推論、状態の保存、検証の実行、
+リポジトリの`SessionStart` Hookは`source=compact`のときだけ、コンパクション後に明示されたTask IDからCoreの`status`と
+最新checkpointを読み直す短い案内を`additionalContext`として返す。自動・手動のコンパクションを同じ条件で扱う。Task IDの推論、状態の保存、検証の実行、
 作業継続の強制は行わない。Hookの出力はIntent、判断、証拠の正本ではない。
 Hookが未信頼、無効、または失敗しても、上記の再開手順を通常どおり実行する。

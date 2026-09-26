@@ -1,0 +1,17 @@
+{
+  "sequence": 11,
+  "kind": "return-intent",
+  "time": "2026-09-26T12:38:21.532332Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "2b960475017b4da3196f6fe74127b6f4cc37eb2f4534d04ce64e0cfd3fb5db1e",
+  "revision": 2,
+  "fingerprint": "02beb5a32a24006861646883d01a3c8c3c9dfda183c34ebd8a60ea0a57a549d4",
+  "data": {
+    "summary": "Issue #1824のIntentを再確認: リポジトリのCodex HookでAIDD v4再開を補助し、正本化や旧Task推論をせず、対象イベント・失敗・再入を検証する。承認済みP1を4ファイル内で反映し、SessionStart(source=compact)のadditionalContextへ変更した。Codex CLI 0.149の実ホスト解析でSessionStart出力がモデルへ届くことを検証し、improve-checkで承認範囲を確認した。現行adapterの再開契約とHook無効時の通常経路を読み直した。managed worktreeのhooks/listが空でデスクトップ実発火未確認の制限は次サイクルに引き継ぐ。",
+    "previous_cycle": "issue-1824/cycle-0001",
+    "approval_hash": "aba035afbd46ac6ba9cdbdd6755ba2771eecb5c1be1f23662622efecf56234b3",
+    "intent_hash": "4b37323deab59adddbc7377b7cca8fadbdd31d81cea14c2fe9e1bbf0c16a18cf"
+  },
+  "hash": "274705a57bd70de9c6654a55e1b66cda26d207b32aee10569504eec1e09deefd",
+  "cycle_id": "issue-1824/cycle-0002"
+}
