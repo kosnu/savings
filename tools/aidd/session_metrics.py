@@ -38,6 +38,16 @@ def timestamp() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def boot_id() -> str | None:
+    path = Path("/proc/sys/kernel/random/boot_id")
+    if path.is_file():
+        return path.read_text().strip()
+    if sys.platform == "darwin":
+        result = subprocess.run(["sysctl", "-n", "kern.boottime"], capture_output=True, text=True)
+        return result.stdout.strip() if result.returncode == 0 else None
+    return None
+
+
 def current_cycle(root: Path, task_id: str) -> str:
     if not TASK_ID.fullmatch(task_id):
         raise ValueError("Task ID が不正です")
@@ -69,7 +79,7 @@ def usage_sample(session: str, explicit: str | None) -> dict | None:
     latest: dict[str, dict] = {}
     transcript_session: str | None = None
     with path.open() as transcript:
-        for line in transcript:
+        for position, line in enumerate(transcript, 1):
             try:
                 item = json.loads(line)
             except json.JSONDecodeError:
@@ -93,12 +103,10 @@ def usage_sample(session: str, explicit: str | None) -> dict | None:
                 continue
             sample = {
                 "source": source,
-                "ordinal": item.get("ordinal"),
+                "position": position,
                 "counts": {key: counts[key] for key in USAGE_FIELDS},
             }
-            previous = latest.get(source)
-            if previous is None or (sample["ordinal"] or -1) > (previous["ordinal"] or -1):
-                latest[source] = sample
+            latest[source] = sample
     if transcript_session != session:
         return None
     return latest.get("token_usage_record") or latest.get("token_count")
@@ -109,7 +117,7 @@ def usage_delta(start: dict | None, end: dict | None) -> tuple[dict | None, str]
         return None, "トークン使用量の観測値がありません"
     if start["source"] != end["source"]:
         return None, "観測値の形式が途中で変わりました"
-    if not isinstance(start["ordinal"], int) or not isinstance(end["ordinal"], int) or end["ordinal"] <= start["ordinal"]:
+    if not isinstance(start.get("position"), int) or not isinstance(end.get("position"), int) or end["position"] <= start["position"]:
         return None, "終了時点の新しい観測値がありません"
     delta = {key: end["counts"][key] - start["counts"][key] for key in USAGE_FIELDS}
     if any(value < 0 for value in delta.values()):
@@ -117,9 +125,37 @@ def usage_delta(start: dict | None, end: dict | None) -> tuple[dict | None, str]
     return delta, "観測済みの使用量"
 
 
-def read_events(handle) -> list[dict]:
+def read_events(handle, recover_tail: bool = False) -> list[dict]:
     handle.seek(0)
-    return [json.loads(line) for line in handle if line.strip()]
+    events = []
+    while True:
+        position = handle.tell()
+        line = handle.readline()
+        if not line:
+            break
+        if not line.strip():
+            if recover_tail and not line.endswith("\n"):
+                handle.seek(position)
+                handle.truncate()
+                handle.flush()
+                os.fsync(handle.fileno())
+            continue
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError:
+            if line.endswith("\n"):
+                raise
+            if recover_tail:
+                handle.seek(position)
+                handle.truncate()
+                handle.flush()
+                os.fsync(handle.fileno())
+            break
+        if recover_tail and not line.endswith("\n"):
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+    return events
 
 
 def append_event(handle, event: dict) -> None:
@@ -136,6 +172,7 @@ def open_starts(events: list[dict]) -> list[dict]:
 
 def start(args) -> None:
     cycle = current_cycle(Path(args.root), args.task)
+    clock_ns = time.monotonic_ns()
     event = {
         "kind": "start",
         "id": str(uuid4()),
@@ -144,12 +181,14 @@ def start(args) -> None:
         "cycle": cycle,
         "stage": args.stage,
         "started_at": timestamp(),
-        "clock_ns": time.monotonic_ns(),
+        "clock_ns": clock_ns,
+        "wall_ns": time.time_ns(),
+        "boot_id": boot_id(),
         "usage": usage_sample(args.session, args.transcript),
     }
     with Path(args.store).open("a+", encoding="utf-8") as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
-        if any(item["session"] == args.session for item in open_starts(read_events(handle))):
+        if any(item["session"] == args.session for item in open_starts(read_events(handle, recover_tail=True))):
             raise ValueError("このセッションには終了していない工程があります")
         append_event(handle, event)
     print(f"計測開始: {args.session} / {args.task} / {cycle} / {args.stage}")
@@ -159,19 +198,29 @@ def finish(args) -> None:
     cycle = current_cycle(Path(args.root), args.task)
     with Path(args.store).open("a+", encoding="utf-8") as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
-        starts = [item for item in open_starts(read_events(handle)) if item["session"] == args.session and item["task"] == args.task]
+        starts = [item for item in open_starts(read_events(handle, recover_tail=True)) if item["session"] == args.session and item["task"] == args.task]
         if len(starts) != 1:
             raise ValueError("終了対象の工程が一意に見つかりません")
         started = starts[0]
         if started["cycle"] != cycle:
             raise ValueError("サイクルが切り替わっています。元のサイクルに属する工程として確認してください")
         duration_ns = time.monotonic_ns() - started["clock_ns"]
+        wall_ns = time.time_ns()
+        current_boot = boot_id()
+        wall_elapsed_ns = wall_ns - started["wall_ns"] if isinstance(started.get("wall_ns"), int) else None
+        clock_continuous = (
+            duration_ns >= 0
+            and wall_elapsed_ns is not None
+            and wall_elapsed_ns >= 0
+            and abs(duration_ns - wall_elapsed_ns) <= 1_000_000_000
+            and (started.get("boot_id") == current_boot or started.get("boot_id") is None and current_boot is None)
+        )
         observed, note = usage_delta(started["usage"], usage_sample(args.session, args.transcript))
         event = {
             "kind": "finish",
             "start_id": started["id"],
             "ended_at": timestamp(),
-            "duration_seconds": round(duration_ns / 1_000_000_000, 3) if duration_ns >= 0 else None,
+            "duration_seconds": round(duration_ns / 1_000_000_000, 3) if clock_continuous else None,
             "tokens": observed,
             "token_note": note,
         }
