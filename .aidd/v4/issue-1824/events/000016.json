@@ -1,0 +1,26 @@
+{
+  "sequence": 16,
+  "kind": "audit",
+  "time": "2026-09-26T12:44:06.074901Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "804d6af5609d9a1e6b19a75e0f2202db9edd88e20f33663ff86a749c5d98aa54",
+  "revision": 3,
+  "fingerprint": "02beb5a32a24006861646883d01a3c8c3c9dfda183c34ebd8a60ea0a57a549d4",
+  "data": {
+    "summary": "承認済みP1を同じTaskで反映してPR #1826へ配信。PostCompact固有出力の欠陥はSessionStart(source=compact)への変更とCodex実ホスト解析の回帰テストで修正した。最新PRのP2は、前回Auditが委任済み成果の修正と再利用可能な検出改善を同じ提案にまとめた分類誤りとして妥当。既存Audit policyに区分が明記されているため、追加の恒久ガードレール変更は提案しない。managed worktreeのHook登録とデスクトップでのcompact実発火は未確認として残す。",
+    "findings": [
+      "解決済み・成果: PR thread PRRT_kwDOM0p88s6mQdevのP1。PostCompactの無効なadditionalContextを廃止し、SessionStart(source=compact)の有効な出力へ変更。Codex CLI 0.149のホスト解析で追加コンテキストがモデルに届くことを確認し、threadへ返信してresolveした。",
+      "対応済み・分類: PR thread PRRT_kwDOM0p88s6mQnXwのP2。前回audit-update 000008は、成果修正と再利用可能な検出改善をP1に混在させた。記録は追記専用として保持し、今回のAuditでは成果修正、検出改善、環境未確認を別々に評価する。原因は既存Audit policyの適用漏れであり、規則不足ではない。",
+      "未解決・環境: 現在のmanaged worktreeではCodex CLIのhooks/listが空。隔離した通常Git repoではSessionStart matcherを列挙し、startupを使う同じ出力解析経路でモデル受信を確認したが、デスクトップでのcompact実発火は未確認。原因が特定できないためHook登録の恒久変更を提案しない。",
+      "計測上の手戻り: 改善工程の計測finish前にreturn-intentでcycle-0002へ移り、session-metrics finishがサイクル不一致で拒否された。作業成果とCore証拠には影響しないが、cycle-0001改善時間の計測は未完了。"
+    ],
+    "session_improvements": [
+      "Audit入力では既存のreview-feedback-classificationとAudit policyを適用し、委任済み成果の局所defectと再利用可能な検出改善を別々に記録する。過去eventは書き換えず、追加Auditで分類誤りと解決状態を明示する。",
+      "Hookの検証は設定・スクリプト単体・実ホスト出力解析・対象環境での登録と発火を分ける。startup経路で出力解析が通ってもcompact実発火やmanaged worktreeでの登録を検証済みとしない。",
+      "session-metricsのfinishはreturn-intentによるサイクル切替より先に行う。今回の拒否を成功値へ丸めない。"
+    ],
+    "proposals": []
+  },
+  "hash": "bd33c3d8b9fad367c7926c7c527f59fa1801ce371e15973c9a5120b52740fc87",
+  "cycle_id": "issue-1824/cycle-0002"
+}

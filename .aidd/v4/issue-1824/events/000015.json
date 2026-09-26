@@ -1,0 +1,19 @@
+{
+  "sequence": 15,
+  "kind": "ship",
+  "time": "2026-09-26T12:43:25.271728Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "62b9ca87f428663e751873bc8bad5b5de5fd4de6304067bc7b23a053ffecf125",
+  "revision": 3,
+  "fingerprint": "02beb5a32a24006861646883d01a3c8c3c9dfda183c34ebd8a60ea0a57a549d4",
+  "data": {
+    "commit": "2a2c2ea2599238bf5998a444daa968aca84c40fe",
+    "remote": "origin",
+    "branch": "issue-1824/aidd-v4-hooks",
+    "pr": "https://github.com/kosnu/savings/pull/1826",
+    "evidence": "AIDD v4 cycle-0002の承認済みP1。Core verifyでHookテスト5件（Codex CLI 0.149実ホスト解析を含む）、JSON検査、diff --checkが成功し、semantic reviewとship-checkが通過。local HEAD、origin remote ref、remote-tracking ref、PR headが2a2c2ea2599238bf5998a444daa968aca84c40feで一致し、upstreamはorigin/issue-1824/aidd-v4-hooks。PRはOPEN、base main。P1レビューthreadは対応内容を返信してresolve済み。P2は過去Auditの分類に関する指摘として未解決で、後続Auditで扱う。新headのCIは一度取得しPENDING（candidate、integrationがIN_PROGRESS）。現行managed worktreeのHook登録とデスクトップ実発火は未確認。",
+    "base": "main"
+  },
+  "hash": "804d6af5609d9a1e6b19a75e0f2202db9edd88e20f33663ff86a749c5d98aa54",
+  "cycle_id": "issue-1824/cycle-0002"
+}
