@@ -1,0 +1,33 @@
+{
+  "sequence": 24,
+  "kind": "audit-update",
+  "time": "2026-09-26T09:46:41.889767Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "aa0adb7b8308cc5be8870a9025187fdb9bf4d1fcee76a075ac85daf75dbd8a11",
+  "revision": 4,
+  "fingerprint": "967040843d364072765a12cd2952a585e8f3ee75716fb4bf2b46480a89503859",
+  "data": {
+    "summary": "PR #1822の同じShipに届いた新規レビュー指摘をAuditへ追記する。承認済み修正P1-P3の3threadと、範囲外判断が承認されたP4のthreadは返信公開と解決を確認した。一方、新しい計測テストがCIで実行されない指摘は妥当であり、改善案P5として手動承認待ちとする。これまでのShip・Audit・承認履歴は保持する。",
+    "findings": [
+      "新規未解決thread PRRT_kwDOM0p88s6mPnbc（https://github.com/kosnu/savings/pull/1822#discussion_r4110965270、tools/aidd/tests/test_session_metrics.py:14）の指摘は妥当。新規モジュール tools.aidd.tests.test_session_metrics はローカルで13件成功するが、.github/workflows/aidd_checker_ci.yaml のcandidate jobは test_shared_gate だけを明示実行し、このモジュールを収集しない。",
+      "最新head bab4891e のcandidate/integration/verifyは成功しているが、計測テスト13件のCI実行を示す証拠にはならない。Issueの計測処理に対する回帰検出の欠落であり、change-coverageの同期面判断でもCIを省いた前decision/reviewを再検討する必要がある。",
+      "以前の4threadは各threadに実際の対応またはP4の範囲外判断を公開返信し、isResolved=trueを読み戻した。P4の取消機能は未実装であり、修正済みとは扱わない。GitHubは現時点でmergeable=MERGEABLE、mergeStateStatus=CLEANだが、新規threadは未解決のため品質判断としては未完了。"
+    ],
+    "session_improvements": [
+      "ローカルの13件成功とCore verifyの成功をCIでの同モジュール実行と混同した。CI定義の実コマンドと新規テストの収集経路をレビュー時に照合し、結果の検証範囲を分けて記録する。"
+    ],
+    "proposals": [
+      {
+        "id": "P5",
+        "finding": "新規の計測テストモジュールがAIDD Checker CIのcandidate jobで実行されず、PRのCI成功が計測処理の回帰を検出しない。",
+        "evidence": "https://github.com/kosnu/savings/pull/1822#discussion_r4110965270 と .github/workflows/aidd_checker_ci.yaml のcandidate job。現行stepは tools.aidd.tests.test_shared_gate だけを実行する。",
+        "change": "candidate jobで tools.aidd.tests.test_session_metrics も実行し、PR上の実CIログに13件の成功が現れることを確認する。",
+        "paths": [
+          ".github/workflows/aidd_checker_ci.yaml"
+        ]
+      }
+    ]
+  },
+  "hash": "af80ba24d9419fc834e19e7009f14fc8272160f93866d1226e82194f6d14dbe0",
+  "cycle_id": "issue-1821/cycle-0002"
+}

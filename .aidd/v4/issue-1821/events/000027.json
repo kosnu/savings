@@ -1,0 +1,42 @@
+{
+  "sequence": 27,
+  "kind": "audit-update",
+  "time": "2026-09-26T10:11:36.22652Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "977deff1cfa45aabad57cdcb0f8ab3cb16fa7f67c6caa594bbbf13f94dadefa3",
+  "revision": 4,
+  "fingerprint": "967040843d364072765a12cd2952a585e8f3ee75716fb4bf2b46480a89503859",
+  "data": {
+    "summary": "PR #1822の計測実装と言語・CIの関係を再分析する。前Auditで『いや無理』からCI追加案Aの拒否と現状維持案Bの採用を確定した判断は、ユーザーが『そんな言ってない』と明確に否定したため撤回する。過去eventは追記専用のまま保持し、その採否推論を今後の実行権限に使わない。ユーザーの最新発言『ならPythonで書くな』は現行Python計測CLIとPythonテストをそのまま採用しない制約として扱う。Go等への置換方法とPR更新は未選択・未承認である。",
+    "findings": [
+      "Issue #1821はセッション・Task・サイクル・実工程ごとの時間とトークン記録、集計、メッセージ返却、取得不能の明示を求める。現行PRはtools/aidd/session_metrics.pyとtools/aidd/tests/test_session_metrics.pyを追加し、ローカルのPython単体テスト13件は成功したが、ユーザーはこのPython実装を採用しないと明示した。",
+      "P5（https://github.com/kosnu/savings/pull/1822#discussion_r4110965270）の事実部分は、現行CIがPython計測テストを実行しないこと。AIDD Checker CIはGo module内で candidate/integration の両方に go test ./... を実行し、Pythonではtest_shared_gateだけを明示実行する。計測テストのCI欠落は最初のPythonテスト追加時から存在し、記録のみの後続commitが発生原因ではない。",
+      "AIDD v4のchange-coverageは正本・実装・CLI・CI等の必要な同期面を判断する規則であり、全新規テストをCIへ登録する固定条件ではない。ただしCI成功を新規計測テスト成功と説明することはできない。実装をPython以外に変えるなら、同じIssueの受入条件・データ保存/集計・既存記録との互換性を再検証する必要がある。",
+      "候補1は既存Go module tools/aidd/checker内に別の計測CLIとGoテストを置く方法。これなら現行candidate/integrationのgo test ./...にテストが収集され、CI workflowの新規stepは不要。ただしPython2ファイルの除去、Goでのtranscript/JSONL/排他/時計処理、文書・コマンド更新、既存記録との互換確認が必要で、Coreの責務との分離設計も検討する。",
+      "候補2は別の既存言語・実行経路を選ぶ方法。たとえばTypeScript/Nodeでは計測CLIとテストに加えて実行・CI配線の検討が必要。手作業だけでの計測はIssueの継続的な工程別記録・集計の完了条件を安定して満たす根拠がない。ユーザーは候補1/2を選択しておらず、現行Python維持も選択していない。",
+      "前Audit event 000025のP5 dismissと000026の現状維持判断は『いや無理』の意味を過剰に確定した記録であり、ユーザーの訂正により実行判断の根拠としない。P5 threadは未解決。今回はコード、CI、PRを変更しない。"
+    ],
+    "session_improvements": [
+      "曖昧な拒否表現から対案の採用まで推論しない。事実、制約、agent推奨候補、ユーザーが選んだ方式を別々に記録する。",
+      "実装言語を変更しても計測テスト自体は不要にならない。DoDに直結するトークン差分、サイクル分離、時計境界、ログ復旧を新しい実装で検証する必要がある。"
+    ],
+    "proposals": [
+      {
+        "id": "P6",
+        "finding": "現行PRのPython計測CLIとPythonテストはユーザーの『Pythonで書くな』という最新制約に合わない。P5のCI検証範囲も、採用する実装言語で再評価が必要。",
+        "evidence": "Codex voice thread 01a0dcca-ad70-7e92-943e-75c8fc435ca4 の『ならPythonで書くな』と『そんな言ってない』、PR #1822のPython2ファイル、tools/aidd/checker/go.mod、AIDD Checker CIのgo test ./...。",
+        "change": "候補として、IssueのIntentに非Python制約を反映し、既存Go module内の別計測CLIとGoテストへ置換する。既存JSONL記録とセッション・Task・サイクル・工程別の集計を維持し、GoテストとPR CIでDoDを確認する。これは未選択の提案であり、Auditの分析だけでは実装しない。",
+        "paths": [
+          "@intent",
+          "tools/aidd/session_metrics.py",
+          "tools/aidd/tests/test_session_metrics.py",
+          "tools/aidd/checker/",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker-operations.md"
+        ]
+      }
+    ]
+  },
+  "hash": "bd71e471e266d4e287761c26050b48488a6ac50497d774c25307e45b071966ea",
+  "cycle_id": "issue-1821/cycle-0002"
+}

@@ -78,13 +78,14 @@ criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown
 
 CodexのAIDD作業で実際に行う工程を、開始・終了時に記録する。工程名は作業内容に合わせて指定し、
 固定フェーズ名へ置き換えない。Task IDを渡すと、現行サイクルIDを`.aidd/v4/<task-id>/events/`から取得する。
+計測CLIはChecker Coreと別のGo moduleに置き、独立して実行する。
 セッションIDには`CODEX_SESSION_ID`を使い、ない環境では`--session`で明示する。
 
 ```sh
-python3 -B tools/aidd/session_metrics.py start --task issue-123 --stage 設計
-python3 -B tools/aidd/session_metrics.py finish --task issue-123
-python3 -B tools/aidd/session_metrics.py report --task issue-123
-python3 -B tools/aidd/session_metrics.py report --since 2026-09-21
+go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 設計
+go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
+go -C tools/aidd/session-metrics run . report --root "$PWD" --task issue-123
+go -C tools/aidd/session-metrics run . report --root "$PWD" --since 2026-09-21
 ```
 
 記録は既定でこのrepositoryのGit common directory内の`aidd-metrics/usage.jsonl`に置く。
@@ -97,6 +98,7 @@ Codex transcriptからセッションの累積トークン使用量を読み、
 `finish`の計測結果と必要な`report`結果を、作業したCodexセッションのメッセージとして返す。
 サイクルを切り替える前に進行中の工程を終了し、別サイクルへ時間やトークンを付け替えない。
 この記録は個人の振り返り用であり、AIDD Coreの証拠やPR本文・テンプレートには含めない。
+計測ツールのGoテストはPR CIでCoreと別に実行する。
 
 ## Ship
 
