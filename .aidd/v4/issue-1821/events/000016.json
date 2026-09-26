@@ -1,0 +1,37 @@
+{
+  "sequence": 16,
+  "kind": "verify",
+  "time": "2026-09-26T09:20:52.70204Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "ca24a2e6f3e2fccdcf6bbe14a687c76b00e9b7723514340614868b823debf734",
+  "revision": 4,
+  "fingerprint": "967040843d364072765a12cd2952a585e8f3ee75716fb4bf2b46480a89503859",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_session_metrics"
+        ],
+        "exit": 0,
+        "output": "test_changed_clock_origin_makes_positive_duration_unknown (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_changed_clock_origin_makes_positive_duration_unknown) ... ok\ntest_continuous_clock_retains_duration (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_continuous_clock_retains_duration) ... ok\ntest_corrupt_complete_store_line_remains_an_error (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_corrupt_complete_store_line_remains_an_error) ... ok\ntest_cycle_switch_does_not_reassign_an_open_stage (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_cycle_switch_does_not_reassign_an_open_stage) ... ok\ntest_missing_or_stale_usage_is_unknown (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_missing_or_stale_usage_is_unknown) ... ok\ntest_only_one_open_stage_per_session (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_only_one_open_stage_per_session) ... ok\ntest_partial_store_tail_preserves_records_and_allows_new_events (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_partial_store_tail_preserves_records_and_allows_new_events) ... ok\ntest_reboot_or_clock_change_makes_duration_unknown (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_reboot_or_clock_change_makes_duration_unknown) ... ok\ntest_records_sessions_tasks_cycles_and_actual_stages (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_records_sessions_tasks_cycles_and_actual_stages) ... ok\ntest_report_defaults_to_all_sessions_even_with_session_environment (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_report_defaults_to_all_sessions_even_with_session_environment) ... ok\ntest_usage_reads_only_matching_session_and_skips_partial_lines (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_usage_reads_only_matching_session_and_skips_partial_lines) ... ok\ntest_usage_without_ordinal_uses_latest_transcript_line (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_usage_without_ordinal_uses_latest_transcript_line) ... ok\ntest_valid_store_tail_without_newline_keeps_events_separate (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_valid_store_tail_without_newline_keeps_events_separate) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.108s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "f11b8d1173b9aea5f48ec76b2f973d363abde181e6af3bbe0ee798ec8b6521d1",
+  "cycle_id": "issue-1821/cycle-0002"
+}

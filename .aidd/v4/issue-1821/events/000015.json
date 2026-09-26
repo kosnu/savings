@@ -1,0 +1,48 @@
+{
+  "sequence": 15,
+  "kind": "decision",
+  "time": "2026-09-26T09:20:39.876483Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "5e142c2c1837d767a1c18593b80407710050b53f6bfaf240b353c77762b02f6e",
+  "revision": 4,
+  "fingerprint": "967040843d364072765a12cd2952a585e8f3ee75716fb4bf2b46480a89503859",
+  "data": {
+    "summary": "次サイクルのIntentと承認済みP1-P3を確認した。2ファイルの改善実装は既に完了しており、追加設計・追加実装は不要。通常・ordinal欠損・時計継続性喪失・共有ログ末尾破損の動作を単体テストで検証し、Issueの全完了条件と適用規則を意味レビューした後、同じPR #1822へ再Shipする。元のTaskとbaseline、PR本文に計測値を載せない制約を維持する。",
+    "paths": [
+      "tools/aidd/session_metrics.py",
+      "tools/aidd/tests/test_session_metrics.py",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_session_metrics"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "ca24a2e6f3e2fccdcf6bbe14a687c76b00e9b7723514340614868b823debf734",
+  "cycle_id": "issue-1821/cycle-0002"
+}

@@ -1,0 +1,54 @@
+{
+  "sequence": 17,
+  "kind": "review",
+  "time": "2026-09-26T09:22:31.373808Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "f11b8d1173b9aea5f48ec76b2f973d363abde181e6af3bbe0ee798ec8b6521d1",
+  "revision": 4,
+  "fingerprint": "967040843d364072765a12cd2952a585e8f3ee75716fb4bf2b46480a89503859",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: ローカル差分ではなし。PR上の3 threadは未解決のままで、返信・解決の権限は別途必要。\n承認済みP1-P3と実差分2ファイルを照合した。ordinal欠損のtoken_count、異なる時計継続期間、書きかけ最終行を13件のunit testで確認。途中の破損を隠さず、取得不能な時間・トークンは不明にする。元のセッション・Task・サイクル・工程別記録と集計は維持。",
+    "criteria": [
+      {
+        "criterion": "各記録でセッション、Task ID、サイクルID、実際に行った工程、実行時間、トークン消費量を確認できる",
+        "evidence": "test_records_sessions_tasks_cycles_and_actual_stages、test_continuous_clock_retains_duration、test_usage_without_ordinal_uses_latest_transcript_lineが成功。実際のcycle-0002で再検証工程を計測し、38.021秒・観測値248455トークンとID対応を読み戻した。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "同じTask・サイクルに属する記録をまとめて確認でき、別セッションを区別できる",
+        "evidence": "test_records_sessions_tasks_cycles_and_actual_stagesが2セッションを同じtask-a/cycle-0001 groupに集約し、sessionsに両IDを残す。report経路の変更後も13件のテストが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "同じセッション内の複数Task・サイクル・工程の記録が混ざらない",
+        "evidence": "test_records_sessions_tasks_cycles_and_actual_stagesとtest_cycle_switch_does_not_reassign_an_open_stageが成功。新しいclock・usage・tail処理は各start/finishの対応関係を変えない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "計測結果を作業したセッションのメッセージとして返せる",
+        "evidence": "finishの出力経路を維持し、新サイクルの再検証工程の結果（38.021秒・観測値248455トークン）をこのセッションのcommentaryで返した。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "取得できない数値は推測で埋めず、取得できなかったことが分かる",
+        "evidence": "test_missing_or_stale_usage_is_unknown、test_reboot_or_clock_change_makes_duration_unknown、test_changed_clock_origin_makes_positive_duration_unknownが成功。末尾の未完了行は正常な先行記録を維持し、中間破損はエラー。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "2523be27979b02b07d7973a4fe4a1c6fd4c11bb8102795b015446a1d37f6db6a",
+  "cycle_id": "issue-1821/cycle-0002"
+}

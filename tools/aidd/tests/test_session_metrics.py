@@ -33,9 +33,9 @@ class SessionMetricsTest(unittest.TestCase):
         )
 
     @staticmethod
-    def sample(ordinal, tokens):
+    def sample(position, tokens):
         return {
-            "source": "token_usage_record", "ordinal": ordinal,
+            "source": "token_usage_record", "position": position,
             "counts": {"input_tokens": tokens - 2, "output_tokens": 2, "total_tokens": tokens},
         }
 
@@ -107,6 +107,82 @@ class SessionMetricsTest(unittest.TestCase):
         self.assertEqual(30, observed["counts"]["total_tokens"])
         self.assertEqual("token_usage_record", observed["source"])
         self.assertIsNone(session_metrics.usage_sample("session-two", str(transcript)))
+
+    def test_usage_without_ordinal_uses_latest_transcript_line(self):
+        transcript = self.root / "rollout-session-one.jsonl"
+        counts = lambda total: {"input_tokens": total - 2, "output_tokens": 2, "total_tokens": total}
+        transcript.write_text("\n".join(json.dumps(item) for item in (
+            {"type": "session_meta", "payload": {"id": "session-one"}},
+            {"type": "event_msg", "payload": {"type": "token_count", "info": {"total_token_usage": counts(12)}}},
+        )) + "\n")
+        start = session_metrics.usage_sample("session-one", str(transcript))
+        with transcript.open("a") as output:
+            output.write(json.dumps({"type": "event_msg", "payload": {
+                "type": "token_count", "info": {"total_token_usage": counts(23)},
+            }}) + "\n")
+        end = session_metrics.usage_sample("session-one", str(transcript))
+        self.assertEqual(3, end["position"])
+        self.assertEqual(11, session_metrics.usage_delta(start, end)[0]["total_tokens"])
+
+    def test_reboot_or_clock_change_makes_duration_unknown(self):
+        with mock.patch.object(session_metrics, "usage_sample", return_value=None), mock.patch.object(
+            session_metrics, "boot_id", side_effect=["boot-a", "boot-b"]
+        ), mock.patch.object(session_metrics.time, "monotonic_ns", side_effect=[100_000_000_000, 200_000_000_000]), mock.patch.object(
+            session_metrics.time, "time_ns", side_effect=[1_000_000_000_000, 1_100_000_000_000]
+        ):
+            self.capture(session_metrics.start, self.args("session-one", "task-a", "実装"))
+            self.capture(session_metrics.finish, self.args("session-one", "task-a"))
+        result = json.loads(self.capture(session_metrics.report, self.args(None, None)))
+        self.assertIsNone(result["records"][0]["duration_seconds"])
+
+    def test_changed_clock_origin_makes_positive_duration_unknown(self):
+        with mock.patch.object(session_metrics, "usage_sample", return_value=None), mock.patch.object(
+            session_metrics, "boot_id", return_value=None
+        ), mock.patch.object(session_metrics.time, "monotonic_ns", side_effect=[100_000_000_000, 200_000_000_000]), mock.patch.object(
+            session_metrics.time, "time_ns", side_effect=[1_000_000_000_000, 1_200_000_000_000]
+        ):
+            self.capture(session_metrics.start, self.args("session-one", "task-a", "実装"))
+            self.capture(session_metrics.finish, self.args("session-one", "task-a"))
+        result = json.loads(self.capture(session_metrics.report, self.args(None, None)))
+        self.assertIsNone(result["records"][0]["duration_seconds"])
+
+    def test_continuous_clock_retains_duration(self):
+        with mock.patch.object(session_metrics, "usage_sample", return_value=None), mock.patch.object(
+            session_metrics, "boot_id", return_value="boot-a"
+        ), mock.patch.object(session_metrics.time, "monotonic_ns", side_effect=[100_000_000_000, 103_000_000_000]), mock.patch.object(
+            session_metrics.time, "time_ns", side_effect=[1_000_000_000_000, 1_003_000_000_000]
+        ):
+            self.capture(session_metrics.start, self.args("session-one", "task-a", "実装"))
+            self.capture(session_metrics.finish, self.args("session-one", "task-a"))
+        result = json.loads(self.capture(session_metrics.report, self.args(None, None)))
+        self.assertEqual(3.0, result["records"][0]["duration_seconds"])
+
+    def test_partial_store_tail_preserves_records_and_allows_new_events(self):
+        with mock.patch.object(session_metrics, "usage_sample", return_value=None):
+            self.capture(session_metrics.start, self.args("session-one", "task-a", "設計"))
+            self.capture(session_metrics.finish, self.args("session-one", "task-a"))
+            with self.store.open("a") as output:
+                output.write('{"kind":"start"')
+            self.assertEqual(1, len(json.loads(self.capture(session_metrics.report, self.args(None, None)))["records"]))
+            self.capture(session_metrics.start, self.args("session-one", "task-a", "検証"))
+            self.capture(session_metrics.finish, self.args("session-one", "task-a"))
+        result = json.loads(self.capture(session_metrics.report, self.args(None, None)))
+        self.assertEqual(2, len(result["records"]))
+        self.assertEqual(4, len(self.store.read_text().splitlines()))
+
+    def test_valid_store_tail_without_newline_keeps_events_separate(self):
+        with mock.patch.object(session_metrics, "usage_sample", return_value=None):
+            self.capture(session_metrics.start, self.args("session-one", "task-a", "設計"))
+            self.store.write_text(self.store.read_text().rstrip("\n"))
+            self.capture(session_metrics.finish, self.args("session-one", "task-a"))
+        result = json.loads(self.capture(session_metrics.report, self.args(None, None)))
+        self.assertEqual(1, len(result["records"]))
+        self.assertEqual(2, len(self.store.read_text().splitlines()))
+
+    def test_corrupt_complete_store_line_remains_an_error(self):
+        self.store.write_text('{"kind":"start"}\nnot-json\n')
+        with self.assertRaises(json.JSONDecodeError):
+            self.capture(session_metrics.report, self.args(None, None))
 
     def test_report_defaults_to_all_sessions_even_with_session_environment(self):
         for session in ("session-one", "session-two"):
