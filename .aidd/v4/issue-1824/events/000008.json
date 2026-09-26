@@ -1,0 +1,37 @@
+{
+  "sequence": 8,
+  "kind": "audit-update",
+  "time": "2026-09-26T12:21:31.243607Z",
+  "task_hash": "73dae6361594964c85e601c8ab977cd44752731c8066d81befd3a0a21a34101f",
+  "previous": "65d37c1219f29a777dfacb6b92d48ff8d51777335063f71be6f6a94d7b74fdc6",
+  "revision": 1,
+  "fingerprint": "09c052f833532a0cccd16a12e97490f10dc5c0b5e8cd5c0d44be93be14720f6b",
+  "data": {
+    "summary": "PR #1826の最新レビューで未解決のP1を確認。PostCompact HookはこのイベントでサポートされないhookSpecificOutput.additionalContextを出力しており、コンパクション後のモデル向け案内が成立しない。前回Auditの登録・実発火未確認も維持する。CI成功はホスト出力解析を検証していないため、この欠陥を否定しない。",
+    "findings": [
+      "未解決・成果の欠陥: PR #1826の未解決thread PRRT_kwDOM0p88s6mQdevが指摘するPostCompact出力形式の不一致を確認。.codex/hooks/post_compact.pyはhookSpecificOutput.additionalContextを返すが、公式Hooks仕様ではPostCompactは共通出力のみをサポートする。現行の案内はモデルへ届かない。",
+      "未解決・環境: Codex CLI 0.149の隔離環境では、この~/.codex/worktrees配下のcheckoutのhooks/listは空。通常repoと別の連結worktreeではproject Hookを列挙した。現行デスクトップのtrust・実発火は未確認であり、Issueは未完了。",
+      "対応済み・過去のレビュー: 最初のsemantic review後に実行環境の登録確認不足が判明し、通常repo/worktreeの登録試験を追加してreviewを追記した。今回の出力形式の欠陥はその試験では検出されなかった。"
+    ],
+    "session_improvements": [
+      "Hook変更では、command単体の動作確認に加えて、対象Codex環境のhooks/listとtrust状態をsemantic review前に確認する。対象環境を読めない場合は、その制限をreviewとPRへ明記する。",
+      "今回のテストはHookスクリプトを直接起動してJSONを確認しただけで、イベント別のホスト出力スキーマを通していなかった。設計・レビュー時に公式のイベント別出力仕様を確認し、ホストの出力解析を通す検証を設ける。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "PostCompactの追加コンテキスト出力はサポート外で、AIDD v4再開案内がモデルへ届かない。根本原因はイベント別出力契約の読込・検出漏れ。",
+        "evidence": "PR #1826未解決thread PRRT_kwDOM0p88s6mQdev、.codex/hooks/post_compact.py:28-33、.codex/hooks/test_post_compact.py、公式Hooks仕様のPostCompact/SessionStart出力契約。CI candidate/integration/verifyは成功したがホストパーサは通していない。",
+        "change": "成果の修正として、コンパクション直後にモデルへ案内を届けるため、SessionStartのsource=compactと有効なadditionalContextを採用する判断revisionへ更新し、Hook設定・スクリプト・Codex adapterを最小限修正する。旧Task推論や継続制御は復活させない。再利用可能な検出改善として、イベント別のCodex出力解析を通す回帰検証を追加し、auto/manual相当のcompaction、対象外イベント、再入、managed worktreeの登録・実発火を確認する。実機のtrustを確認できなければその制限を明記する。",
+        "paths": [
+          ".codex/hooks.json",
+          ".codex/hooks/post_compact.py",
+          ".codex/hooks/test_post_compact.py",
+          "docs/ai-driven-development/codex-adapter.md"
+        ]
+      }
+    ]
+  },
+  "hash": "b1c1d6dae9a20a1f91f02dd58d086c4a39c4a187ec5a505d0d792314731194f8",
+  "cycle_id": "issue-1824/cycle-0001"
+}
