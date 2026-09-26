@@ -1,0 +1,19 @@
+{
+  "sequence": 37,
+  "kind": "ship",
+  "time": "2026-09-26T10:55:00.545606Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "16a8f240293445c0c37c969762dd84a7ab3783249bbeb9fae299948116a32264",
+  "revision": 7,
+  "fingerprint": "58f960d950df0f6bdf3c1956583c43b1b712ad2705c3e99948d2bd7170f3333f",
+  "data": {
+    "commit": "b1e67477e4aa0654e6794f009c682399138e650a",
+    "remote": "origin",
+    "branch": "issue-1821/aidd-session-metrics",
+    "pr": "https://github.com/kosnu/savings/pull/1822",
+    "evidence": "local HEAD、originのremote ref、local remote-tracking refはb1e67477e4aa0654e6794f009c682399138e650aで一致。upstreamはorigin/issue-1821/aidd-session-metrics。PR #1822はOPEN、base main、head issue-1821/aidd-session-metricsでhead SHAが一致。CIを一度取得した時点ではAIDD Checker CI candidateがIN_PROGRESS、integrationがQUEUED、zizmorがIN_PROGRESS。ローカルではGo計測テスト・vet・gofmt・Core check-all・Linux cross buildを確認した。",
+    "base": "main"
+  },
+  "hash": "13316c3a1ba050df445b48e4872cebf0d9581bd0048d393b394506be92f4f6f0",
+  "cycle_id": "issue-1821/cycle-0003"
+}
