@@ -1,0 +1,25 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-25T18:37:25.150959Z",
+  "task_hash": "aa33734841a82f0a9230ba5347b9872c29985df9ee9034efab2056162c9470d6",
+  "previous": "11f7f1eb426ff07ec288d0de976cd7e87c4eaa9b2ce6a332e801d26e097a5306",
+  "revision": 1,
+  "fingerprint": "e1cf2073ec7fd6ffbfc964fdd3657a7084ba8cc257a3372bc5cd008a267eabaa",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "52a03ef4c832c92f769749886d077c3b4bf05c3330c27695199bdaafcefc642a",
+  "cycle_id": "issue-1813/cycle-0001"
+}

@@ -1,0 +1,40 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-25T18:36:53.481549Z",
+  "task_hash": "aa33734841a82f0a9230ba5347b9872c29985df9ee9034efab2056162c9470d6",
+  "previous": "5eb9f48477ca9e37145e8b969fee8daad1b02661ed57522d048d947085c8ce87",
+  "revision": 1,
+  "fingerprint": "ff0b28e6a2591058556605c6035bd2015b1517de5f0d95f4c9d3e292e69bbac3",
+  "data": {
+    "summary": "Feature Requestテンプレートの既定完了地点をPR提出・配信確認とし、テンプレート選択案内とAIDD Intent権限解釈を同期する。明示されたローカル制限を優先し、Auditの承認境界とmerge/deploy権限は拡張しない。Core実装・CLI・CI・他テンプレートには変更不要。検証は差分の整合とCoreの記録整合、意味レビューで両ケースを確認する。",
+    "paths": [
+      ".github/ISSUE_TEMPLATE/feature_request.md",
+      "docs/harness/policies/issue-template-selection.md",
+      "docs/ai-driven-development/workflow.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "11f7f1eb426ff07ec288d0de976cd7e87c4eaa9b2ce6a332e801d26e097a5306",
+  "cycle_id": "issue-1813/cycle-0001"
+}
