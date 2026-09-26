@@ -1,0 +1,54 @@
+{
+  "sequence": 7,
+  "kind": "review",
+  "time": "2026-09-26T08:46:17.50756Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "0dd54f3f52bf84c4700fa54e2fdff8c4ab1ac0d934d6cec509d9f34373c2b008",
+  "revision": 2,
+  "fingerprint": "74cb3a16d3d8444dada79eca17616b50807cbbd4652bf83a67fdc754f448a6a7",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし。実差分、CLIの開始・終了・集計経路、取得不能時の扱いを確認。既存AIDD cycle IDを読み取るだけでCore event schema、rule-map、hook、CIは変更不要。計測データはGit common directoryに保存され、PR差分に含まれない。transcript形式は非安定のため取得不能を許容し、推測値は生成しない。",
+    "criteria": [
+      {
+        "criterion": "各記録でセッション、Task ID、サイクルID、実際に行った工程、実行時間、トークン消費量を確認できる",
+        "evidence": "実セッションでstart/finish/reportを実行し、session 01a0dcc3-a171-72c0-8b85-37d17c10ceab、issue-1821/cycle-0001、動作確認、11.242秒、観測値186355トークンを読み戻した。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "同じTask・サイクルに属する記録をまとめて確認でき、別セッションを区別できる",
+        "evidence": "test_records_sessions_tasks_cycles_and_actual_stagesで異なる2セッションのtask-a/cycle-0001が1 groupに集約され、sessionsに両IDが残ることを確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "同じセッション内の複数Task・サイクル・工程の記録が混ざらない",
+        "evidence": "test_records_sessions_tasks_cycles_and_actual_stagesで同一セッションのtask-a/cycle-0001、task-a/cycle-0002、task-b/cycle-0001を別記録として確認。test_cycle_switch_does_not_reassign_an_open_stageで未終了の工程を別サイクルへ付け替えないことも確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "計測結果を作業したセッションのメッセージとして返せる",
+        "evidence": "finishの計測結果をこのCodexセッションのcommentaryで返した。workflow/operationsにも返答手順を記載。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "取得できない数値は推測で埋めず、取得できなかったことが分かる",
+        "evidence": "test_missing_or_stale_usage_is_unknownと実装レビューでNone/取得不可を確認。group合計も未知として返す。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "11f531d552557c3a63abc67133d90d2fe85cc7b59cabd74250f20164f09b24b8",
+  "cycle_id": "issue-1821/cycle-0001"
+}

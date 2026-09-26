@@ -1,0 +1,17 @@
+{
+  "sequence": 33,
+  "kind": "return-intent",
+  "time": "2026-09-26T10:48:51.579107Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "4070b398bc574ef36455a4b76fedca3ebaafd1e1cf72ec86bdb692859a9535d8",
+  "revision": 6,
+  "fingerprint": "b0070e79afcfedee52712dabd369834e4ce3fdd0e84c699dd45d655b90063905",
+  "data": {
+    "summary": "Issue #1821のIntentを再確認した。セッション・Task・サイクル・実工程ごとの時間とトークン記録、集計、取得不可の明示、作業セッションへの結果返却、PR本文へ計測値を載せない制約を維持する。承認済みP5/P6に沿い、計測CLIとテストをChecker Core外の独立Go moduleへ置換し、既存JSONLの閲覧互換性を確認した。CIはGo計測テストをCoreと別コマンドで実行する。操作手順と実装を読み直し、次サイクルで全完了条件・規則・CI経路を再検証する。",
+    "previous_cycle": "issue-1821/cycle-0002",
+    "approval_hash": "fc408abd04cdae552c105fdeb945bbec4fc5b29e3a0b4b227b0a6e202e8e4eb3",
+    "intent_hash": "a965b72eaacaa864a9e8d51e08cf829d56ab1e7d9a0f07cb7aaeb0a7ab3ddcd0"
+  },
+  "hash": "46601040c67ffe5d2e56ecb70938f1d839ec4f8239bb563aeafeb4aa76e3b73c",
+  "cycle_id": "issue-1821/cycle-0003"
+}

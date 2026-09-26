@@ -1,0 +1,61 @@
+{
+  "sequence": 36,
+  "kind": "review",
+  "time": "2026-09-26T10:52:48.749057Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "6aaca8b81824d236b0e027e9a4b17f6d24850bca9d3348a14a5131f11bfe5fd1",
+  "revision": 7,
+  "fingerprint": "58f960d950df0f6bdf3c1956583c43b1b712ad2705c3e99948d2bd7170f3333f",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.transaction-boundaries\n- Unresolved: 差分内の不整合はなし。PR上のP5 threadは未解決で、実際のGitHub CI結果は再Ship後にのみ確認できる。\n承認済みP5/P6と実差分を照合した。計測CLIはChecker Coreとは別のGo moduleで、旧PythonのJSONL記録をreportで読み、Go版のstart/finish/reportを実動作で確認した。取得不能な値を推測せず、サイクル切替後の未終了工程についてはP4の範囲外判断を維持した。新しいGoテストはCIのcandidate/integrationに独立したstepとして登録され、Coreのテストはそのまま残る。旧Python CLI・テストへの現行参照は残っていない。rule-mapはtools/aiddとCI・文書の既存経路で必要規則を選択できるため変更不要。transaction-boundariesはCI pathで機械選択されるが、API・DBの操作境界変更はない。",
+    "criteria": [
+      {
+        "criterion": "各記録でセッション、Task ID、サイクルID、実際に行った工程、実行時間、トークン消費量を確認できる",
+        "evidence": "Goテスト TestRecordsKeepSessionTaskCycleAndStage と実CLIのstart/finish/reportで確認。Go版で記録したGo計測動作確認はissue-1821/cycle-0002に8.919秒・観測値253329トークンと保存された。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "同じTask・サイクルに属する記録をまとめて確認でき、別セッションを区別できる",
+        "evidence": "TestRecordsKeepSessionTaskCycleAndStageで二つのsessionをtask-a/cycle-0001 groupへ集計し、sessionsに個別IDを保持した。TestPythonJSONLRecordsRemainReadableで旧記録も集計できた。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "同じセッション内の複数Task・サイクル・工程の記録が混ざらない",
+        "evidence": "TestRecordsKeepSessionTaskCycleAndStage、TestCycleSwitchDoesNotReassignOpenStage、TestOnlyOneOpenStagePerSession、TestReportDoesNotFilterBySessionEnvironmentが成功した。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "計測結果を作業したセッションのメッセージとして返せる",
+        "evidence": "Go版finishの出力をこのCodexセッションのcommentaryとして返した。出力にセッション・Task・サイクル・工程・時間・トークンを含む。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "取得できない数値は推測で埋めず、取得できなかったことが分かる",
+        "evidence": "TestMissingOrStaleTokensRemainUnknown、TestNullTokenCountIsUnavailable、TestClockBoundaryMakesDurationUnknown、TestPartialTailRecoveryAndCompleteCorruptionが成功した。旧Python開始・Go終了の実記録では時計基準の違いによる時間をnull・取得不可として保存し、トークンだけ観測値を保持した。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認済みP5/P6: Go製計測ツールをCoreから独立させ、計測GoテストをCI対象にする",
+        "evidence": "tools/aidd/session-metrics/go.modで独立module、.github/workflows/aidd_checker_ci.yamlのcandidate/integrationに計測テストの別step。ローカルgo test/go vet/gofmtとLinux cross buildは成功。実GitHub CIは再Ship後に確認する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "16a8f240293445c0c37c969762dd84a7ab3783249bbeb9fae299948116a32264",
+  "cycle_id": "issue-1821/cycle-0003"
+}

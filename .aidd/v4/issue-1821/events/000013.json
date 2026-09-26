@@ -1,0 +1,48 @@
+{
+  "sequence": 13,
+  "kind": "decision",
+  "time": "2026-09-26T09:17:21.493151Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "07a780f1f2123a1a786d2ec7587eddb261cbdec7b8694e29a159410107adb1c0",
+  "revision": 3,
+  "fingerprint": "74cb3a16d3d8444dada79eca17616b50807cbbd4652bf83a67fdc754f448a6a7",
+  "data": {
+    "summary": "承認済みAudit P1-P3だけを反映する。P1はtranscriptの読取順で最新の累積トークン記録を判定する。P2は開始・終了時の時計継続性を確認し、確認不能なら時間を不明にする。P3は共有JSONLの未完了末尾だけを安全に扱い、途中の破損はエラーにする。対象は計測CLIと直接の回帰テスト2ファイルに限定する。",
+    "paths": [
+      "tools/aidd/session_metrics.py",
+      "tools/aidd/tests/test_session_metrics.py",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_session_metrics"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "f43628b8978054d436b2571bb8fe3a905f99a84f024ebaf9574b2011c3a032d1",
+  "cycle_id": "issue-1821/cycle-0001"
+}

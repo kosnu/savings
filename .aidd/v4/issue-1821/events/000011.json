@@ -1,0 +1,55 @@
+{
+  "sequence": 11,
+  "kind": "audit-update",
+  "time": "2026-09-26T09:06:55.443049Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "bb445eeedaef321669a8001ba916ede348d048a2d088d0f54d5d411fd9f75b5a",
+  "revision": 2,
+  "fingerprint": "74cb3a16d3d8444dada79eca17616b50807cbbd4652bf83a67fdc754f448a6a7",
+  "data": {
+    "summary": "PR #1822の同じShipに届いた未解決レビュー3件を照合した。既存のP1（ordinal欠損）は保持し、再起動をまたぐ経過時間と共有JSONL末尾の未完了行に関するP2/P3を追加する。いずれも計測値の信頼性または記録の可用性に影響する。今回はAuditの分析・提案記録までとし、実装・thread解決・再Shipは行わない。",
+    "findings": [
+      "P1（https://github.com/kosnu/savings/pull/1822#discussion_r4110759321、未解決）: ordinalのないtoken_countでは最新値を選べず、使用量が増えても差分が取得不可となる。既存Audit更新で再現・提案済み。",
+      "P2（https://github.com/kosnu/savings/pull/1822#discussion_r4110772376、未解決）: startとfinishが異なるホスト起動期間に属しても、clock_nsの正の差分を有効と判断する。異なる起動期間を模した100秒→200秒で100秒と記録され、start記録には連続性を検証する情報がない。実環境で再起動を観測したわけではない。",
+      "P3（https://github.com/kosnu/savings/pull/1822#discussion_r4110772380、未解決）: 共有ストアに正常行と未完了の最終行を置くとread_eventsがJSONDecodeErrorとなる。start/finish/reportが共通のread_eventsを使うため、以前の正常な記録も操作から参照できなくなる。"
+    ],
+    "session_improvements": [
+      "初回の意味レビューと6件のunit testは正常な連続実行を中心に確認し、再起動や記録追記の中断を扱っていなかった。追加レビューで観測した反例を各提案の回帰確認に結び付ける。",
+      "レビュー指摘が最初のAudit後に順次届いたため、旧AuditとP1を保持し、同じShip・revisionへのaudit-updateとして追記する。"
+    ],
+    "proposals": [
+      {
+        "id": "P2",
+        "finding": "永続化したmonotonic_nsだけではホストまたは実行環境の連続性を判断できない。再起動後の差分が正なら誤った実行時間を確定値として保存する。",
+        "evidence": "https://github.com/kosnu/savings/pull/1822#discussion_r4110772376 と、異なる起動期間を模したclock_ns 100秒→200秒で100.0秒を保存するローカル再現。",
+        "change": "開始・終了が同一の時計継続期間に属することを確認できる情報を記録し、確認できない境界では時間を不明として扱う。正の差分になる再起動例と通常の連続実行をテストする。",
+        "paths": [
+          "tools/aidd/session_metrics.py",
+          "tools/aidd/tests/test_session_metrics.py"
+        ]
+      },
+      {
+        "id": "P3",
+        "finding": "共有JSONLを全行一括でJSON解析するため、追記中断で末尾に不完全な1行が残ると、正常な先行記録を含む全操作が失敗する。",
+        "evidence": "https://github.com/kosnu/savings/pull/1822#discussion_r4110772380 と、正常行に未完了の最終行を続けたread_eventsがJSONDecodeErrorになるローカル再現。",
+        "change": "末尾の未完了行だけを正常な記録と区別して扱い、次の追記前に排他ロック下で安全に復旧できるようにする。途中の破損行は隠さずエラーにする。未完了末尾がある状態でのreport/start/finishと、正常記録の保持をテストする。",
+        "paths": [
+          "tools/aidd/session_metrics.py",
+          "tools/aidd/tests/test_session_metrics.py"
+        ]
+      },
+      {
+        "id": "P1",
+        "finding": "ordinalのないCodex token_count記録が複数あると、最新の累積使用量を選べず、利用可能なトークン差分を取得不可とする。",
+        "evidence": "https://github.com/kosnu/savings/pull/1822#discussion_r4110759321 と、ordinalなしの2件のtoken_countを用いたローカル再現（start/endとも最初の値になり差分取得不可）。",
+        "change": "transcriptの読取順で最新使用量を選択・比較できるようにし、ordinalのない記録と既存形式の回帰テストで確認する。",
+        "paths": [
+          "tools/aidd/session_metrics.py",
+          "tools/aidd/tests/test_session_metrics.py"
+        ]
+      }
+    ]
+  },
+  "hash": "e7a5f8ecbc5b5cc1eff015cd158f50d44888961e56c70e1032862ce9446c7ccf",
+  "cycle_id": "issue-1821/cycle-0001"
+}

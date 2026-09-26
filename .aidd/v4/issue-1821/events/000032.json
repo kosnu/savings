@@ -1,0 +1,59 @@
+{
+  "sequence": 32,
+  "kind": "decision",
+  "time": "2026-09-26T10:48:45.889046Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "a67fe36fcfdda366af7b883df2a6e6adff3e0f2a29090081f8f061c9c2629088",
+  "revision": 6,
+  "fingerprint": "b0070e79afcfedee52712dabd369834e4ce3fdd0e84c699dd45d655b90063905",
+  "data": {
+    "summary": "承認済みAudit P5/P6を同じTaskのcycle-0002で実施する。Python製の計測CLIとテストを、Checker Coreとは別ディレクトリの独立したGo moduleへ移す。既存JSONL形式・CLIのstart/finish/report・Issue #1821の識別と集計を維持する。計測GoテストをPR CIのcandidateとintegrationで実行し、Coreのテストとは別コマンドにする。旧Python実装を削除し、運用手順を更新する。未解決P4の復旧機能はこの改善に含めない。",
+    "paths": [
+      "tools/aidd/session_metrics.py",
+      "tools/aidd/tests/test_session_metrics.py",
+      "tools/aidd/session-metrics/",
+      ".github/workflows/aidd_checker_ci.yaml",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "vet",
+        "./..."
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "4070b398bc574ef36455a4b76fedca3ebaafd1e1cf72ec86bdb692859a9535d8",
+  "cycle_id": "issue-1821/cycle-0002"
+}

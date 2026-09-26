@@ -1,0 +1,37 @@
+{
+  "sequence": 6,
+  "kind": "verify",
+  "time": "2026-09-26T08:46:06.72606Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "30f76fe914e0c5e87a770b1f4737d83f730ef19110d19beba5220003c5c88cd4",
+  "revision": 2,
+  "fingerprint": "74cb3a16d3d8444dada79eca17616b50807cbbd4652bf83a67fdc754f448a6a7",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_session_metrics"
+        ],
+        "exit": 0,
+        "output": "test_cycle_switch_does_not_reassign_an_open_stage (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_cycle_switch_does_not_reassign_an_open_stage) ... ok\ntest_missing_or_stale_usage_is_unknown (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_missing_or_stale_usage_is_unknown) ... ok\ntest_only_one_open_stage_per_session (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_only_one_open_stage_per_session) ... ok\ntest_records_sessions_tasks_cycles_and_actual_stages (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_records_sessions_tasks_cycles_and_actual_stages) ... ok\ntest_report_defaults_to_all_sessions_even_with_session_environment (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_report_defaults_to_all_sessions_even_with_session_environment) ... ok\ntest_usage_reads_only_matching_session_and_skips_partial_lines (tools.aidd.tests.test_session_metrics.SessionMetricsTest.test_usage_reads_only_matching_session_and_skips_partial_lines) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.016s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "0dd54f3f52bf84c4700fa54e2fdff8c4ab1ac0d934d6cec509d9f34373c2b008",
+  "cycle_id": "issue-1821/cycle-0001"
+}

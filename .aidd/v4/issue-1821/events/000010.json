@@ -1,0 +1,32 @@
+{
+  "sequence": 10,
+  "kind": "audit-update",
+  "time": "2026-09-26T08:58:41.486119Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "5297a95e48e30ce222e6ad2a85ce0510bc598846b1f65bbad2effafa69dcc898",
+  "revision": 2,
+  "fingerprint": "74cb3a16d3d8444dada79eca17616b50807cbbd4652bf83a67fdc754f448a6a7",
+  "data": {
+    "summary": "PR #1822への追加レビュー指摘を同じShipのAuditへ追記する。ordinalを持たないtoken_count記録では累積使用量が増えても現在の計測CLIが最初の値を選び、取得不可を返す。実環境の現行transcriptにはordinalがあるが、再現用JSONLで指摘を確認した。修正は手動承認待ち。",
+    "findings": [
+      "未解決thread PRRT_kwDOM0p88s6mPISJ（tools/aidd/session_metrics.py:100、P1）は妥当。ordinalなしのtoken_count 2件を与えるとstart/endで同じ古い値を採用し、usage_deltaが取得不可を返した。"
+    ],
+    "session_improvements": [
+      "Auditを記録した後にレビュー指摘が届いたため、旧Auditを上書きせずaudit-updateとして保持する。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "ordinalのないCodex token_count記録が複数あると、最新の累積使用量を選べず、利用可能なトークン差分を取得不可とする。",
+        "evidence": "https://github.com/kosnu/savings/pull/1822#discussion_r4110759321 と、ordinalなしの2件のtoken_countを用いたローカル再現（start/endとも最初の値になり差分取得不可）。",
+        "change": "transcriptの読取順で最新使用量を選択・比較できるようにし、ordinalのない記録と既存形式の回帰テストで確認する。",
+        "paths": [
+          "tools/aidd/session_metrics.py",
+          "tools/aidd/tests/test_session_metrics.py"
+        ]
+      }
+    ]
+  },
+  "hash": "bb445eeedaef321669a8001ba916ede348d048a2d088d0f54d5d411fd9f75b5a",
+  "cycle_id": "issue-1821/cycle-0001"
+}

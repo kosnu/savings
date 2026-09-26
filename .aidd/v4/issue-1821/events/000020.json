@@ -1,0 +1,34 @@
+{
+  "sequence": 20,
+  "kind": "audit-update",
+  "time": "2026-09-26T09:29:16.583912Z",
+  "task_hash": "228bed56ce9caa559501d512ea00a5bd33ca9ee1504b9496d5be0a0732ee3c95",
+  "previous": "24639b906d26db7445669ab4e05a901eee9aa673131f828912c6aeab80342250",
+  "revision": 4,
+  "fingerprint": "967040843d364072765a12cd2952a585e8f3ee75716fb4bf2b46480a89503859",
+  "data": {
+    "summary": "PR #1822の再Ship後Auditへ、新しい未解決指摘を追記する。cycle-0001で開始した工程を未終了のままcycle-0002へ進むと、finishはサイクル不一致で拒否され、次のstartも未終了工程で拒否される。既存のP1-P3は実装済みのまま保持し、この新規P4は手動承認待ちとする。旧Auditの『新たな改善案なし』判断をこの更新で訂正する。",
+    "findings": [
+      "新規未解決thread PRRT_kwDOM0p88s6mPeuR（https://github.com/kosnu/savings/pull/1822#discussion_r4110910010、tools/aidd/session_metrics.py:206）の指摘は妥当。旧サイクルでstart後に現行サイクルを進めた再現では、finishが『サイクルが切り替わっています』、次のstartが『終了していない工程があります』でともに失敗した。",
+      "原因は、開始済み記録を閉じる唯一のfinishが現行サイクルとの一致を必須とする一方、startはセッション内の未終了記録を一律に拒否し、取消操作がないこと。実行時間を別サイクルへ付け替えない制約自体は維持する。",
+      "再Ship後に指摘が届いたため、前Auditの承認依頼は最新Auditへの承認として使用しない。既存3件のreview threadはGitHub上で未解決だが、そのコード修正は再Ship済みであり、今回の新規提案に再分類しない。"
+    ],
+    "session_improvements": [
+      "既存テストはサイクル切替時のfinish拒否だけを確認し、その後の計測再開が不能になる経路を確認していなかった。復旧後に次工程を開始できる反例を回帰テストに含める。"
+    ],
+    "proposals": [
+      {
+        "id": "P4",
+        "finding": "サイクル切替前に開始した工程が未終了のとき、現行CLIでは終了も取消もできず、同じセッションの以後の計測が停止する。",
+        "evidence": "https://github.com/kosnu/savings/pull/1822#discussion_r4110910010 と、task-a/cycle-0001でstart後にcycle-0002へ進めてfinish/startが両方ValueErrorとなるローカル再現。",
+        "change": "未終了工程を元サイクルに紐づけたまま明示的に取り消すCLI経路を追加し、取消理由を記録する。取消済み工程を時間・トークンの合計に算入せず、次のstartを許可する。通常のfinishとサイクル切替後の取消・再開をテストする。",
+        "paths": [
+          "tools/aidd/session_metrics.py",
+          "tools/aidd/tests/test_session_metrics.py"
+        ]
+      }
+    ]
+  },
+  "hash": "0dea7b056fb144861ebdc2c9de56ec79acc40dcf581e26b28be61238055fae76",
+  "cycle_id": "issue-1821/cycle-0002"
+}
