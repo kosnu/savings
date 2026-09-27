@@ -1,0 +1,19 @@
+{
+  "sequence": 23,
+  "kind": "ship",
+  "time": "2026-09-27T10:25:17.743336Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "b1daec26c70da16fc060adb7252d94329024538baa1d6bd53ee28b60b3a02143",
+  "revision": 5,
+  "fingerprint": "ea526249ee7495379288b676cbb4222dfbcfec4e3d46362bcdb370d530b8f721",
+  "data": {
+    "commit": "93b60fbd4519a25ad50cab50b82826238ba25a57",
+    "remote": "origin",
+    "branch": "issue-1825/reply-bot-review-threads",
+    "pr": "https://github.com/kosnu/savings/pull/1830",
+    "evidence": "local HEAD・origin branch ref・remote-tracking ref・PR #1830 head/base/stateが一致。upstreamはorigin/main。revision 5のverify・review、ship-check、check-all --base origin/mainに合格。CIはcandidate・integrationがIN_PROGRESS（2026-09-27のShip時点の一度の取得）。",
+    "base": "main"
+  },
+  "hash": "febb4a49b3f26fa07ec1cd2d316a6104bd102f6f62673e9506b61e78bceed886",
+  "cycle_id": "issue-1825/cycle-0002"
+}
