@@ -1,0 +1,44 @@
+{
+  "sequence": 12,
+  "kind": "review",
+  "time": "2026-09-27T19:10:36.152377Z",
+  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
+  "previous": "145109f0104d13c81c84c6e4325b588d46005c2c0c88d19c96c8d4e45bdebde2",
+  "revision": 3,
+  "fingerprint": "26632b5c612a58e82c42a780349eef01996f8b4b7b0f747fc2e2f9025e7e390c",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n承認された一文の削除のみ。ガードレール欠陥のみを修正・検証・Shipした正常ケースで完了を禁止しない。未対応指摘は対象外、未完了threadは解決禁止、Bot条件とGit Workflow準拠は維持。既存入口・索引の到達経路は不変、Core/CLI/CI/ADR/アプリへの変更なし。Git権限改善は今回および次の改善の対象外。",
+    "criteria": [
+      {
+        "criterion": "返信と解決の対象が実際に対応した指摘に限られる",
+        "evidence": "改善節の対象限定文を維持。削除差分は要求にない完了禁止1文のみ。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "対象threadへ既存Git Workflowに沿って返信する",
+        "evidence": "改善節のGit Workflowリンクと対象threadへの返信義務を維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Bot投稿者の対応完了threadを解決する",
+        "evidence": "対応完了Botは返信後に解決する条件を維持。ガードレールのみの欠陥も完了を阻害しなくなり、未完了解決禁止はそのまま。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "6022ca1993553932649e358b0babdff3cda2b3ab97c3df7a22e8e1c7d69b4861",
+  "cycle_id": "issue-1825-review-replies/cycle-0002"
+}

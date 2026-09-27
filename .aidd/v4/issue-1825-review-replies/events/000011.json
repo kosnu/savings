@@ -1,0 +1,35 @@
+{
+  "sequence": 11,
+  "kind": "verify",
+  "time": "2026-09-27T19:10:15.54252Z",
+  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
+  "previous": "d21dbc2d507fbbb5dcdc6681c917af1ef0a0b819dbf0dc9d1da1c8adca878d69",
+  "revision": 3,
+  "fingerprint": "26632b5c612a58e82c42a780349eef01996f8b4b7b0f747fc2e2f9025e7e390c",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-1825",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":7}\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "145109f0104d13c81c84c6e4325b588d46005c2c0c88d19c96c8d4e45bdebde2",
+  "cycle_id": "issue-1825-review-replies/cycle-0002"
+}
