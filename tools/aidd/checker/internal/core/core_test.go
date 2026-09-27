@@ -144,7 +144,7 @@ func TestScopeAndRecordIntegrity(t *testing.T) {
 		t.Fatal("edited event accepted")
 	}
 }
-func fakeShip(t *testing.T, s *Store) {
+func fakeDelivery(t *testing.T, s *Store) Ship {
 	t.Helper()
 	review(t, s)
 	stage(t, s)
@@ -158,8 +158,69 @@ func fakeShip(t *testing.T, s *Store) {
 	put(t, bin, "gh", "#!/bin/sh\nprintf '%s\\n' '{\"headRefOid\":\""+head+"\",\"headRefName\":\"main\",\"baseRefName\":\"target\",\"state\":\"OPEN\"}'\n")
 	os.Chmod(filepath.Join(bin, "gh"), 0755)
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
-	if e := s.RecordShip(Ship{Commit: head, Remote: "origin", Branch: "main", PR: "https://example.test/pr/1", Evidence: "remote verified", Base: "target"}); e != nil {
+	return Ship{Commit: head, Remote: "origin", Branch: "main", PR: "https://example.test/pr/1", Evidence: "remote verified", Base: "target"}
+}
+func fakeShip(t *testing.T, s *Store) {
+	t.Helper()
+	if e := s.RecordShip(fakeDelivery(t, s)); e != nil {
 		t.Fatal(e)
+	}
+}
+
+func TestShipAndAuditWithoutRecordOnlyCommit(t *testing.T) {
+	s := fixture(t)
+	put(t, s.Root, "code.txt", "after\n")
+	decide(t, s)
+	delivery := fakeDelivery(t, s)
+	before := len(s.Events)
+	if e := s.Ship(delivery); e != nil {
+		t.Fatal(e)
+	}
+	if len(s.Events) != before {
+		t.Fatal("Ship added a record")
+	}
+	if e := s.Audit(Audit{Summary: "no improvement", Delivery: &delivery}); e != nil {
+		t.Fatal(e)
+	}
+	wrong := delivery
+	wrong.Commit = "wrong"
+	if e := s.Audit(Audit{Summary: "invalid delivery", Delivery: &wrong}); e == nil {
+		t.Fatal("Audit accepted an unverified commit")
+	}
+	if len(s.Events) != before {
+		t.Fatal("Audit without improvement added a record")
+	}
+	if dirty := command(t, s.Root, "status", "--porcelain"); dirty != "" {
+		t.Fatalf("record-only changes remain after Ship and Audit: %s", dirty)
+	}
+	if e := s.Audit(Audit{Summary: "improvement proposed", Delivery: &delivery, Proposals: []Proposal{{ID: "p", Finding: "finding", Evidence: "observation", Change: "fix", Paths: []string{"code.txt"}}}}); e != nil {
+		t.Fatal(e)
+	}
+	if len(s.Events) != before+1 {
+		t.Fatal("proposal Audit record missing")
+	}
+	if e := s.Audit(Audit{Summary: "new finding on same delivery", Delivery: &delivery, Proposals: []Proposal{{ID: "q", Finding: "new finding", Evidence: "observation", Change: "fix", Paths: []string{"code.txt"}}}}); e != nil {
+		t.Fatal(e)
+	}
+	if s.latest("audit").Kind != "audit-update" || len(eventData[Audit](s.latest("audit")).Proposals) != 2 {
+		t.Fatal("Audit update did not retain pending proposal")
+	}
+	if e := s.Check(); e != nil {
+		t.Fatal(e)
+	}
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:2", Text: "approve p", ProposalIDs: []string{"p"}}); e != nil {
+		t.Fatal(e)
+	}
+	put(t, s.Root, "code.txt", "improved\n")
+	if e := s.ImproveCheck(); e != nil {
+		t.Fatal(e)
+	}
+	if e := s.Check(); e != nil {
+		t.Fatal(e)
+	}
+	delivery.Commit = "wrong"
+	if s.Ship(delivery) == nil {
+		t.Fatal("invalid delivery accepted")
 	}
 }
 func TestCycleAndApproval(t *testing.T) {
