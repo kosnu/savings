@@ -22,11 +22,11 @@ Codexは[共通workflow](workflow.md)を実行する。host固有のGoalや会�
 Goalの作成可否と状態更新は、そのhostが公開するtoolの条件に従う。
 作成に明示依頼が必要なhostでは、開発の実行依頼だけからGoalを作成しない。
 既存Goalが同じTaskのものであれば親agentが所有・継続する。subagentにGoalの作成・完了を委譲しない。
-GoalなしでもTaskの記録・検証・レビュー・Ship・Auditを実施する。
+GoalなしでもTaskの記録・検証・レビュー・Shipまで実施する。AuditはShip後の明示依頼を受けて実施する。
 
 Goalには成果、Intentの参照、Task ID、完了条件を短く記す。Taskの判断やログ全文を複製しない。
 予算を勝手に設定せず、ユーザーによるpauseやhostの制限を尊重する。
-Audit未実施・改善承認待ちをサイクル完了としてGoalへ反映しない。
+Shipを目的とするGoalの完了とサイクル完了を区別する。Audit未実施・改善承認待ちをサイクル完了としてGoalへ反映しない。
 
 ## 再開
 
