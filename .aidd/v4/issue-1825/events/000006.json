@@ -1,0 +1,23 @@
+{
+  "sequence": 6,
+  "kind": "audit",
+  "time": "2026-09-27T09:14:13.204182Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "1589158a5c6ab41351cd87dddae9e1e6d20c847344a518f93c8d38380d232842",
+  "revision": 1,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "PR #1831としてIssue #1825のGit Workflow追記をShipした。取得時点でreview threadは0件、CIはcandidateとintegrationが実行中。今回の差分はIssueの3条件に限定され、追加のガードレール改善提案はない。",
+    "findings": [
+      "PR #1831のShip時点でreview threadは0件。実際の指摘に対する返信・解決の運用結果はまだ観測されていないため、未解決指摘や成功事例として扱わない。",
+      "Core startのIntent textはIssue #1825本文の要約であり、Core操作文書が求める取得本文の全文ではなかった。source URLと3つの完了条件は保持され、Core検証・意味レビュー・配信は成功したが、入力記録の忠実度に限界がある。"
+    ],
+    "session_improvements": [
+      "Intent全文をstartへ保存する既存手順の適用漏れを確認した。手順自体は既に明記されており、この一事例から追加の恒常ルールや機械的検査は提案しない。",
+      "git addのindex.lockがsandboxで拒否されたが、対象を限定した追加権限で再試行して成功した。Git common directory確認と狭い再試行は既存方針の範囲であり、追加改善は不要。"
+    ],
+    "proposals": []
+  },
+  "hash": "e35b96d68c05a96f274d7830b39d12d9481bebff0186d03778f3e0dae2f39982",
+  "cycle_id": "issue-1825/cycle-0001"
+}
