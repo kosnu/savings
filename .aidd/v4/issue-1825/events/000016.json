@@ -1,0 +1,19 @@
+{
+  "sequence": 16,
+  "kind": "ship",
+  "time": "2026-09-27T09:51:00.86561Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "9c05d88e695d083d8e720104f96039922124525289b85923e22013219613e439",
+  "revision": 3,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "commit": "fe21f99f68b7d348a653f13eab1db0b941d76cc6",
+    "remote": "origin",
+    "branch": "issue-1825/review-comment-reply",
+    "pr": "https://github.com/kosnu/savings/pull/1831",
+    "evidence": "2026-09-27: local HEAD、origin remote ref、origin/issue-1825/review-comment-replyはいずれもfe21f99f68b7d348a653f13eab1db0b941d76cc6。upstream設定なし。remote mainは3affe2d49938631f436aa617a4c59f2571dabf4e。PR #1831はOPEN、head=issue-1825/review-comment-reply、base=main。CI一度取得: candidateとintegrationはQUEUED。Issue #1825本文を原文で現在Intentに保存し、開始eventは維持した。",
+    "base": "main"
+  },
+  "hash": "194d3fb274cb5bc407eb4dfb03a6f64aa9fb74e106b43702ae2e893ea4e869c1",
+  "cycle_id": "issue-1825/cycle-0002"
+}
