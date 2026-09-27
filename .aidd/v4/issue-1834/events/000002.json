@@ -1,0 +1,63 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-27T10:57:39.08171Z",
+  "task_hash": "b3c8c06f90a7d10c586ae47aa2c8229f8a8e3ac64733523d2b770f153507aa0a",
+  "previous": "c91dee7eeb160ef0365947d741ede43a5439cea8f3f646d83e3cde6c3909e7da",
+  "revision": 1,
+  "fingerprint": "e7d82bdccee080429e4d3fc5244e3b8fae5aeb9f29142fb230b369d577ee235a",
+  "data": {
+    "summary": "Shipは既存の配信照合を読み取り専用で実行し、eventを追加しない。Auditは明示された配信対象を照合し、改善提案がない場合は記録を追加しない。提案・承認の記録は改善差分と一緒に保存する。旧eventは読み取り互換として保持する。",
+    "paths": [
+      "tools/aidd/checker/",
+      "docs/ai-driven-development/",
+      "docs/harness/policies/learning-extraction.md",
+      ".agents/skills/audit/"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "8f3fd614d49da7fb5878a7028fc996a2c53871efaec73942d13e75b29d3fb962",
+  "cycle_id": "issue-1834/cycle-0001"
+}

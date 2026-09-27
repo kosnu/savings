@@ -1,0 +1,60 @@
+{
+  "sequence": 4,
+  "kind": "verify",
+  "time": "2026-09-27T11:04:53.262008Z",
+  "task_hash": "b3c8c06f90a7d10c586ae47aa2c8229f8a8e3ac64733523d2b770f153507aa0a",
+  "previous": "2791f30b9b6c248d9334098c02dd0a0994019a37b0bf96bf6b4dbc66fae53b9d",
+  "revision": 2,
+  "fingerprint": "6403311d4b9d363952f3a93820e5bc3d053296c6f76a43fbd0d678b1f1d6ddfd",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t32.211s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 5.973s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "8f52d6a0e683e39a4f001feb543939e825724a725706e1275183bf5f7ef3d029",
+  "cycle_id": "issue-1834/cycle-0001"
+}

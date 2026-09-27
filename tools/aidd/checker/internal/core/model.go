@@ -84,6 +84,7 @@ type Audit struct {
 	Findings            []string   `json:"findings"`
 	SessionImprovements []string   `json:"session_improvements"`
 	Proposals           []Proposal `json:"proposals"`
+	Delivery            *Ship      `json:"delivery,omitempty"`
 }
 type Approval struct {
 	AuditHash   string   `json:"audit_hash"`
