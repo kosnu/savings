@@ -1,0 +1,32 @@
+{
+  "sequence": 8,
+  "kind": "audit-update",
+  "time": "2026-09-27T09:32:17.082122Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "6b801ee73b4b65b88fa9731fe047986f7641db80041cfe0c5329e4bf943b13b5",
+  "revision": 1,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "PR #1831にAudit承認後、新しい未解決Botレビュー指摘が追加された。開始IntentのtextがIssue #1825本文の要約である点はCore操作契約に反するため、現在Intentへ取得全文を追記revisionで保存する案を追加する。既存のAuditと承認は保持し、今回の案への新しい手動承認を待つ。",
+    "findings": [
+      "PR #1831のthread PRRT_kwDOM0p88s6mZEZ0は未解決・非outdatedで、Bot chatgpt-codex-connectorが.aidd/v4/issue-1825/task.json:7のIntent要約を指摘した。Issue #1825の取得本文には見出しと制約の原文があり、現在のTask記録のtextはそれと一致しない。",
+      "AIDDのstart記録は追記専用で上書きできない。Coreのintent_revisionは新しい明示出典と全文を持つ現在Intentの訂正に使えるが、Audit後の変更には@intentを対象とする新たな手動承認が必要。"
+    ],
+    "session_improvements": [
+      "最初のAuditではこの差を限界として報告したが、Botレビューにより再開時のIntent復元リスクが具体的に示された。既存規則の適用漏れと、現Taskの原文補正を区別して扱う。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "現在IntentのtextがIssue #1825本文の要約であり、再開時に原文をTask記録だけから復元できない。",
+        "evidence": "PR #1831の未解決thread PRRT_kwDOM0p88s6mZEZ0、.aidd/v4/issue-1825/task.json:7、2026-09-27に再取得したIssue #1825本文、docs/ai-driven-development/aidd-checker-operations.mdのstart入力契約。",
+        "change": "開始eventは改変せず、Issue #1825本文の取得全文を新しい明示出典から現在Intentのintent_revisionへ保存する。Coreで全文の保存、必要な再検証・意味レビュー・追加Shipを確認し、指摘に返信する。Bot threadは対応完了条件を確認してから解決する。",
+        "paths": [
+          "@intent"
+        ]
+      }
+    ]
+  },
+  "hash": "85c715eb9976c9b060f695c401ae383d40e8128952a5d00ec30b27e6bf8271e2",
+  "cycle_id": "issue-1825/cycle-0001"
+}
