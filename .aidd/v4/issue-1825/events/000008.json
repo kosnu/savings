@@ -1,0 +1,22 @@
+{
+  "sequence": 8,
+  "kind": "audit",
+  "time": "2026-09-27T09:11:06.839973Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "1db1bf999bd9154248436052ddea0d2c4aef46e0b942007e5178b1a43a2531e1",
+  "revision": 2,
+  "fingerprint": "32dca5e4541a8afea159dd17d3fcda0171a2f359cc0ad0edcfaad196e1db22a5",
+  "data": {
+    "summary": "Issue #1825のpolicy変更をPR #1830としてShip。PRのreviewThreadsは取得時点で0件で、今回の実装に対応する既存threadへの返信・解決操作は発生していない。再利用可能な追加のガードレール改善案はない。",
+    "findings": [
+      "PR #1830のreviewThreadsは0件。Copilot reviewのCOMMENTED本文はquota limitによるレビュー不能の通知であり、指摘threadではない。Codex review summaryは実行中を示す。",
+      "Core verify初回はcheck-allを検証コマンドに入れた自己参照で失敗。decision revision 2で除外し、再verify、review、独立したcheck-all、ship-checkが成功。"
+    ],
+    "session_improvements": [
+      "Coreのcheck-allはTask verifyの完了を検査するため、verifyコマンド一覧に入れず、verify/review後に独立実行する。今回の判断revisionと失敗証拠に記録済みで、追加の恒久的変更は不要。"
+    ],
+    "proposals": []
+  },
+  "hash": "1215c9558b086426729b4afc362a03eaae018b4219d95cbb240ae13b0172ac73",
+  "cycle_id": "issue-1825/cycle-0001"
+}

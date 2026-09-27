@@ -1,0 +1,19 @@
+{
+  "sequence": 7,
+  "kind": "ship",
+  "time": "2026-09-27T09:10:32.038885Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "923aedac23be4af9f148c862971bf6f6c8dc38f0766ba8aa13c93d49586a9c7c",
+  "revision": 2,
+  "fingerprint": "32dca5e4541a8afea159dd17d3fcda0171a2f359cc0ad0edcfaad196e1db22a5",
+  "data": {
+    "commit": "bb22478bbaf0b6942132670283c39e7fb56b9cef",
+    "remote": "origin",
+    "branch": "issue-1825/reply-bot-review-threads",
+    "pr": "https://github.com/kosnu/savings/pull/1830",
+    "evidence": "2026-09-27: local HEAD、git ls-remote origin refs/heads/issue-1825/reply-bot-review-threads、origin/issue-1825/reply-bot-review-threads、PR headRefOidはいずれもbb22478bbaf0b6942132670283c39e7fb56b9cef。upstreamはorigin/main。PR #1830はOPEN、base main、head issue-1825/reply-bot-review-threads、本文にCloses #1825。CIを一度取得し、AIDD Checker CI candidate/integrationはIN_PROGRESS、assign-authorはSUCCESS。",
+    "base": "main"
+  },
+  "hash": "1db1bf999bd9154248436052ddea0d2c4aef46e0b942007e5178b1a43a2531e1",
+  "cycle_id": "issue-1825/cycle-0001"
+}
