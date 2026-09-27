@@ -127,6 +127,12 @@ func (s *Store) Check() error {
 			if audit == nil || a.AuditHash != audit.Hash || a.Text == s.Task.Authority || required(a.Text, a.Source) != nil {
 				return fmt.Errorf("invalid approval")
 			}
+			if approval != nil && approval.Sequence > audit.Sequence {
+				prior := eventData[Approval](approval)
+				if a.Recovery == nil || prior.Recovery != nil || len(prior.ProposalIDs) != 0 || len(eventData[Audit](audit).Proposals) != 0 {
+					return fmt.Errorf("duplicate approval without completed Audit recovery")
+				}
+			}
 			if a.Recovery != nil {
 				if required(a.Recovery.BaselineCommit, a.Recovery.ExistingSource, a.Recovery.ExistingText) != nil || len(a.Recovery.ExistingPaths) == 0 ||
 					(a.Recovery.Proposal == nil && len(a.ProposalIDs) != 0) ||

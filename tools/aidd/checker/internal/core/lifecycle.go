@@ -446,7 +446,10 @@ func (s *Store) Approve(a Approval) error {
 		return fmt.Errorf("separate explicit manual approval is required")
 	}
 	if prior := s.latest("approve"); prior != nil && prior.Sequence > audit.Sequence {
-		return fmt.Errorf("approval already recorded")
+		previous := eventData[Approval](prior)
+		if a.Recovery == nil || previous.Recovery != nil || len(previous.ProposalIDs) != 0 || len(eventData[Audit](audit).Proposals) != 0 {
+			return fmt.Errorf("approval already recorded")
+		}
 	}
 	if len(a.ProposalIDs) == 0 && !s.allProposalsDismissed(audit) {
 		return fmt.Errorf("select improvement proposals or explicitly dismiss them before completion")
@@ -665,9 +668,15 @@ func (s *Store) Status() map[string]any {
 	if audit != nil {
 		state = "approval-pending"
 		if approval != nil && approval.Sequence > audit.Sequence {
+			a := eventData[Approval](approval)
 			state = "improvement-authorized"
-			if len(eventData[Approval](approval).ProposalIDs) == 0 && eventData[Approval](approval).Recovery == nil && s.allProposalsDismissed(audit) {
+			if len(a.ProposalIDs) == 0 && a.Recovery == nil && s.allProposalsDismissed(audit) {
 				state = "complete"
+			} else if len(a.ProposalIDs) == 0 && a.Recovery != nil {
+				state = "development"
+				if ship != nil && ship.Sequence > approval.Sequence {
+					state = "shipped"
+				}
 			}
 		}
 	}
@@ -746,6 +755,17 @@ func (s *Store) intentImprovementApproved() bool {
 	}
 	a := eventData[Audit](s.latest("audit"))
 	approval := eventData[Approval](s.latest("approve"))
+	if approval.Recovery != nil && approval.Recovery.Proposal != nil {
+		for _, id := range approval.ProposalIDs {
+			if id == approval.Recovery.Proposal.ID {
+				for _, path := range approval.Recovery.Proposal.Paths {
+					if path == "@intent" {
+						return true
+					}
+				}
+			}
+		}
+	}
 	for _, p := range a.Proposals {
 		for _, id := range approval.ProposalIDs {
 			if id == p.ID {

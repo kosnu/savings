@@ -1,0 +1,48 @@
+{
+  "sequence": 22,
+  "kind": "review",
+  "time": "2026-09-27T10:23:25.327674Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "877bc3919884f5546fea85206d1106d17fea3d02fefaf495d414e19603d0f99d",
+  "revision": 5,
+  "fingerprint": "ea526249ee7495379288b676cbb4222dfbcfec4e3d46362bcdb370d530b8f721",
+  "data": {
+    "summary": "PR #1830の新規Bot指摘3件を局所recovery defectとして確認。完了済みAuditの別承認、recovery @intentのIntent改訂、defect-only再Shipの状態遷移を実コード・replay・境界テスト・正本文書で照合した。Coverage: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.transaction-boundaries。Unresolved: 新規Bot 3 threadへの返信と解決はShip後。",
+    "criteria": [
+      {
+        "criterion": "対応済み指摘への返信がGit Workflowに従う",
+        "evidence": "Git Workflowのthread単位返信契約を確認。既存2 threadは対応済み。新規3 threadは今回の修正・検証をShipした後にcommit ID、分類、対応、検証を返信する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Bot投稿者の完了済みthreadを解決する",
+        "evidence": "新規3 threadは修正対象で現時点では未解決。Ship後に各threadの内容と最新状態を確認し、完了済みのみ解決する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "未完了・対象外threadを解決しない",
+        "evidence": "新規3 threadはShip前で未完了のため未解決。対象外・競合コメントのあるthreadは解決しない契約を確認した。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "b1daec26c70da16fc060adb7252d94329024538baa1d6bd53ee28b60b3a02143",
+  "cycle_id": "issue-1825/cycle-0002"
+}

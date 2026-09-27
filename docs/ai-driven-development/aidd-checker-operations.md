@@ -145,7 +145,7 @@ source/textはその提案を承認した実際のユーザー発言。agentが�
 `dismiss --input`へ同じ形式で記録し、改善済みとは区別する。
 提案のないAuditも明示承認が必要で、proposal_idsを空配列にしてapproveする。この承認は改善実行を許可しない。
 「Auditを承認します」は提示した改善案への承認であり、別の実行承認を要求しない。
-Audit後にsourceが変わった局所修正は、既存Auditを改変せず`approve`入力の`recovery`で記録する。`baseline_commit`は承認時点のHEAD、`existing_source`と`existing_text`は既に承認された局所修正・取り込みの出典、`existing_paths`はAudit対象Shipからそのcommitまでの有限な変更対象を示す。提案なしなら`proposal_ids`は空で、同じcycleの新decision・verify・review・Shipを行う。後から提示して手動承認された再利用可能改善を併せる場合は、`recovery.proposal`へ提案のID、根拠、変更内容、有限pathを保存し、`proposal_ids`でそのIDを指定する。承認時点commit以降の差分は提案pathに限定し、改善後は通常どおり`return-intent`と次cycleの新decisionを要求する。既存Auditの提案をrecoveryで再承認する用途には使わない。
+Audit後にsourceが変わった局所修正は、既存Auditを改変せず`approve`入力の`recovery`で記録する。提案なしAuditを一度承認してcompleteになったTaskでも、以前の承認と別のrecovery承認を記録できる。通常の二重承認は拒否する。`baseline_commit`は承認時点のHEAD、`existing_source`と`existing_text`は既に承認された局所修正・取り込みの出典、`existing_paths`はAudit対象Shipからそのcommitまでの有限な変更対象を示す。提案なしなら`proposal_ids`は空で、同じcycleの新decision・verify・review・Shipを行い、再Ship後はshipped状態となる。後から提示して手動承認された再利用可能改善を併せる場合は、`recovery.proposal`へ提案のID、根拠、変更内容、有限pathを保存し、`proposal_ids`でそのIDを指定する。`@intent`を承認したrecovery proposalはIntent改訂の判定にも使用する。承認時点commit以降の差分は提案pathに限定し、改善後は通常どおり`return-intent`と次cycleの新decisionを要求する。既存Auditの提案をrecoveryで再承認する用途には使わない。
 同じShip内容・revisionに追加指摘があればauditを再実行する。audit-updateとして追記され、未決提案は保持し、旧承認は失効する。
 承認後に改善のdecisionを追記し、`improve-check`で承認対象との一致を確認しながら改善する。
 改善後、現在のIntentと改善済みガードレールを読み直して次の境界を記録する。
