@@ -1,0 +1,17 @@
+{
+  "sequence": 7,
+  "kind": "approve",
+  "time": "2026-09-27T09:29:10.32408Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "e35b96d68c05a96f274d7830b39d12d9481bebff0186d03778f3e0dae2f39982",
+  "revision": 1,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "audit_hash": "e35b96d68c05a96f274d7830b39d12d9481bebff0186d03778f3e0dae2f39982",
+    "source": "この会話の2026-09-27のユーザー発言（PR #1831のAudit結果説明への返信）",
+    "text": "承認します",
+    "proposal_ids": []
+  },
+  "hash": "6b801ee73b4b65b88fa9731fe047986f7641db80041cfe0c5329e4bf943b13b5",
+  "cycle_id": "issue-1825/cycle-0001"
+}
