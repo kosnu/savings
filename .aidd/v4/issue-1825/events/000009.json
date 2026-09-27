@@ -1,0 +1,34 @@
+{
+  "sequence": 9,
+  "kind": "audit-update",
+  "time": "2026-09-27T09:38:12.388616Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "85c715eb9976c9b060f695c401ae383d40e8128952a5d00ec30b27e6bf8271e2",
+  "revision": 1,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "PR #1831の最新CI失敗を追加観測した。candidateはpnpm設定のバージョン不一致で停止し、verifyはcandidate失敗に連動して失敗した。integrationは成功。未解決Bot threadのP1は継続し、追加の恒常ガードレール改善案は出さない。",
+    "findings": [
+      "PR #1831の未解決・非outdatedなBot thread PRRT_kwDOM0p88s6mZEZ0は現在Intentの要約記録を指摘しており、P1の対象と根拠は変わらない。",
+      "head 88e453d0bd8b84217dc8717ec5483be95ffb2637のAIDD Checker CIではcandidateが失敗し、verifyもcandidate失敗に連動して失敗した。integrationは成功。candidateログはpnpm/action-setupのversion 12.5.1と候補headのpackage.json packageManager pnpm@12.4.2の不一致を明示する。",
+      "Task開始時baseline fce03b7dのままbranchを作成し、PR base側でpnpm 12.5.1へ進んだ変更を候補headへ取り込まなかった。これは今回の配信状態の不整合であり、Issue #1825のGit Workflow本文の意味的欠陥とは別に扱う。"
+    ],
+    "session_improvements": [
+      "CIが完了する前にAuditへ進める現行運用自体は守られていたが、baseと候補headのpnpm設定差をShip前に確認しなかった。既存の最新main起点ルールと配信後CI確認を適用する判断漏れであり、一例から新しい恒常規則は追加しない。",
+      "初回AuditでIntent原文不足を限界として扱い、Botの具体的な再開リスク指摘後にP1へ変更した判断も継続して記録する。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "現在IntentのtextがIssue #1825本文の要約であり、再開時に原文をTask記録だけから復元できない。",
+        "evidence": "PR #1831の未解決thread PRRT_kwDOM0p88s6mZEZ0、.aidd/v4/issue-1825/task.json:7、2026-09-27に再取得したIssue #1825本文、docs/ai-driven-development/aidd-checker-operations.mdのstart入力契約。",
+        "change": "開始eventは改変せず、Issue #1825本文の取得全文を新しい明示出典から現在Intentのintent_revisionへ保存する。Coreで全文の保存、必要な再検証・意味レビュー・追加Shipを確認し、指摘に返信する。Bot threadは対応完了条件を確認してから解決する。",
+        "paths": [
+          "@intent"
+        ]
+      }
+    ]
+  },
+  "hash": "009c2c847d8f8f8c77730585440590760cd1b003a7aa85d8d8ca1ff3c9665354",
+  "cycle_id": "issue-1825/cycle-0001"
+}
