@@ -1,0 +1,46 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-09-27T11:06:31.602291Z",
+  "task_hash": "b3c8c06f90a7d10c586ae47aa2c8229f8a8e3ac64733523d2b770f153507aa0a",
+  "previous": "a857fa3946b85ead6233206f7beb0035564de1634b9f31a5a0e6c7bb2396ebc2",
+  "revision": 2,
+  "fingerprint": "4c305d6ea021ebe39ce0a71a1a6a678e318fa906224c8afb3228c5cc5e4fa690",
+  "data": {
+    "summary": "Issue #1834の成果をCore・CLI・正本文書・Audit入口で照合。go test、vet、共有gateテスト、git diff --checkは成功。旧eventは読み取り互換。未解決の規則矛盾なし。",
+    "criteria": [
+      {
+        "criterion": "Ship・Auditの記録保存だけを理由とする追加コミット・pushが発生しない",
+        "evidence": "Ship CLIは読み取り専用照合。TestShipAndAuditWithoutRecordOnlyCommitでイベント数とgit statusが不変。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Shipは専用の記録ファイルなしで完了できる",
+        "evidence": "Shipメソッドはremote/PR/commitを照合しeventを追加しない。同テストで成功と失敗を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "改善を実施しないAuditは結果報告で終了し、改善を実施する場合は必要な記録が変更と一緒に残る",
+        "evidence": "提案なしAuditはeventなし。提案ありAudit・承認はevent化されImproveCheckで対象を検証。旧eventテストも通過。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "ai-driven.audit",
+      "policy.code-review"
+    ]
+  },
+  "hash": "42180bfa31b06872582ee741467b2a956789ce411806bfabaf5f688e5b679f2e",
+  "cycle_id": "issue-1834/cycle-0001"
+}

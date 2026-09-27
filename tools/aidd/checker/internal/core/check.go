@@ -113,8 +113,20 @@ func (s *Store) Check() error {
 			}
 			ship = e
 		case "audit", "audit-update":
-			if ship == nil || ship.CycleID != e.CycleID || ship.Fingerprint != e.Fingerprint || ship.Revision != e.Revision || (e.Kind == "audit" && audit != nil && audit.Sequence > ship.Sequence) || (e.Kind == "audit-update" && (audit == nil || audit.Sequence < ship.Sequence || e.Revision != ship.Revision)) {
-				return fmt.Errorf("Audit without matching Ship or valid update")
+			data := eventData[Audit](e)
+			if data.Delivery != nil {
+				if review == nil || review.CycleID != e.CycleID || review.Fingerprint != e.Fingerprint || review.Revision != e.Revision || required(data.Delivery.Commit, data.Delivery.PR, data.Delivery.Branch, data.Delivery.Base) != nil {
+					return fmt.Errorf("Audit without matching reviewed delivery")
+				}
+				snap, err := s.snapshot(data.Delivery.Commit)
+				if err != nil || digest(snap) != e.Fingerprint {
+					return fmt.Errorf("Audit delivery commit does not match reviewed source")
+				}
+			} else if ship == nil || ship.CycleID != e.CycleID || ship.Fingerprint != e.Fingerprint || ship.Revision != e.Revision {
+				return fmt.Errorf("Audit without matching Ship")
+			}
+			if (e.Kind == "audit" && audit != nil && audit.Revision == e.Revision && audit.CycleID == e.CycleID && (ship == nil || ship.Sequence < audit.Sequence)) || (e.Kind == "audit-update" && (audit == nil || audit.CycleID != e.CycleID || audit.Revision != e.Revision)) {
+				return fmt.Errorf("invalid Audit update")
 			}
 			audit = e
 		case "dismiss":

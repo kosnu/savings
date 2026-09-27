@@ -69,6 +69,8 @@ func run() error {
 	if e != nil {
 		return e
 	}
+	var checkedDelivery *core.Ship
+	auditCompleted := false
 	switch args[0] {
 	case "decision":
 		var v core.Decision
@@ -87,7 +89,10 @@ func run() error {
 	case "ship":
 		var v core.Ship
 		if e = core.ReadInput(*input, &v); e == nil {
-			e = s.RecordShip(v)
+			e = s.Ship(v)
+			if e == nil {
+				checkedDelivery = &v
+			}
 		}
 	case "delivery-check":
 		var v core.Ship
@@ -97,7 +102,9 @@ func run() error {
 	case "audit":
 		var v core.Audit
 		if e = core.ReadInput(*input, &v); e == nil {
+			before := len(s.Events)
 			e = s.Audit(v)
+			auditCompleted = e == nil && len(s.Events) == before && v.Delivery != nil
 		}
 	case "approve":
 		var v core.Approval
@@ -127,7 +134,15 @@ func run() error {
 	if e != nil {
 		return e
 	}
-	return json.NewEncoder(os.Stdout).Encode(s.Status())
+	status := s.Status()
+	if checkedDelivery != nil {
+		status["state"] = "shipped"
+		status["delivery"] = checkedDelivery
+	}
+	if auditCompleted {
+		status["state"] = "audit-complete"
+	}
+	return json.NewEncoder(os.Stdout).Encode(status)
 }
 func main() {
 	if e := run(); e != nil {
