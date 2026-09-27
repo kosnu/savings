@@ -1,0 +1,111 @@
+{
+  "sequence": 14,
+  "kind": "decision",
+  "time": "2026-09-27T10:02:41.938989Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "3d92825c19e46a96b063ed76f4736d1510bedfcda0fde19a4840adb1acad8f12",
+  "revision": 4,
+  "fingerprint": "7889919bbfd65345e15a41d29075e11a95b0bd9175675e4c6baf24695885609c",
+  "data": {
+    "summary": "承認済みCore改善後にIssue #1825の成果を同じTaskで完了させる。main取込みとレビュー修正を含む最終treeに対してAIDD/Core、文書、Webの必須検証・意味レビューを取り直し、PR #1830へShipする。",
+    "paths": [
+      ".github/workflows/aidd_checker_ci.yaml",
+      ".github/workflows/cache_main.yaml",
+      ".github/workflows/deploy_production.yaml",
+      ".github/workflows/frontend_ci.yaml",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/workflow.md",
+      "docs/harness/policies/learning-extraction.md",
+      "mise.toml",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "tools/aidd/checker/internal/core/audit_approval_test.go",
+      "tools/aidd/checker/internal/core/check.go",
+      "tools/aidd/checker/internal/core/core_test.go",
+      "tools/aidd/checker/internal/core/cycle_test.go",
+      "tools/aidd/checker/internal/core/lifecycle.go",
+      "tools/aidd/checker/internal/core/model.go",
+      "tools/aidd/checker/internal/core/recovery_test.go"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "d64a39f87ada9d88e801cf91e54c63ed24fbd58c48fa06548646d1207766e08e",
+  "cycle_id": "issue-1825/cycle-0002"
+}

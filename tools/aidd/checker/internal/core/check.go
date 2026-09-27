@@ -57,7 +57,7 @@ func (s *Store) Check() error {
 				return fmt.Errorf("duplicate start")
 			}
 		case "decision":
-			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence || len(eventData[Approval](approval).ProposalIDs) == 0) {
+			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence || (len(eventData[Approval](approval).ProposalIDs) == 0 && eventData[Approval](approval).Recovery == nil)) {
 				return fmt.Errorf("unapproved post-Audit decision")
 			}
 			decision = e
@@ -96,11 +96,11 @@ func (s *Store) Check() error {
 			review = e
 		case "ship":
 			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence ||
-				len(eventData[Approval](approval).ProposalIDs) == 0 || decision == nil ||
+				(len(eventData[Approval](approval).ProposalIDs) == 0 && eventData[Approval](approval).Recovery == nil) || decision == nil ||
 				decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision || decision.Revision != e.Revision) {
 				return fmt.Errorf("Ship without new approved improvement decision")
 			}
-			if audit != nil && e.CycleID != "" && (boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence) {
+			if audit != nil && e.CycleID != "" && len(eventData[Approval](approval).ProposalIDs) > 0 && (boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence) {
 				return fmt.Errorf("Ship without return to Intent and new cycle decision")
 			}
 			if review == nil || review.CycleID != e.CycleID || review.Revision != e.Revision || review.Fingerprint != e.Fingerprint {
@@ -126,6 +126,13 @@ func (s *Store) Check() error {
 			a := eventData[Approval](e)
 			if audit == nil || a.AuditHash != audit.Hash || a.Text == s.Task.Authority || required(a.Text, a.Source) != nil {
 				return fmt.Errorf("invalid approval")
+			}
+			if a.Recovery != nil {
+				if required(a.Recovery.BaselineCommit, a.Recovery.ExistingSource, a.Recovery.ExistingText) != nil || len(a.Recovery.ExistingPaths) == 0 ||
+					(a.Recovery.Proposal == nil && len(a.ProposalIDs) != 0) ||
+					(a.Recovery.Proposal != nil && (len(a.ProposalIDs) != 1 || a.ProposalIDs[0] != a.Recovery.Proposal.ID)) {
+					return fmt.Errorf("invalid recovery approval")
+				}
 			}
 			approval = e
 		default:

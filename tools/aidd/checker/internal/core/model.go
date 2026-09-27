@@ -86,10 +86,20 @@ type Audit struct {
 	Proposals           []Proposal `json:"proposals"`
 }
 type Approval struct {
-	AuditHash   string   `json:"audit_hash"`
-	Source      string   `json:"source"`
-	Text        string   `json:"text"`
-	ProposalIDs []string `json:"proposal_ids"`
+	AuditHash   string    `json:"audit_hash"`
+	Source      string    `json:"source"`
+	Text        string    `json:"text"`
+	ProposalIDs []string  `json:"proposal_ids"`
+	Recovery    *Recovery `json:"recovery,omitempty"`
+}
+
+// RecoveryはShip後に届いた指摘と、変更済みsourceからの再開権限を記録する。
+type Recovery struct {
+	BaselineCommit string    `json:"baseline_commit"`
+	ExistingSource string    `json:"existing_source"`
+	ExistingText   string    `json:"existing_text"`
+	ExistingPaths  []string  `json:"existing_paths"`
+	Proposal       *Proposal `json:"proposal,omitempty"`
 }
 type Event struct {
 	Sequence    int             `json:"sequence"`

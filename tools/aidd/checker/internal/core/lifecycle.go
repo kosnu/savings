@@ -65,7 +65,7 @@ func (s *Store) workAllowed() error {
 		if ap == nil || ap.Sequence < a.Sequence {
 			return fmt.Errorf("Audit completed; separate manual approval required before improvements")
 		}
-		if len(eventData[Approval](ap).ProposalIDs) == 0 {
+		if len(eventData[Approval](ap).ProposalIDs) == 0 && eventData[Approval](ap).Recovery == nil {
 			return fmt.Errorf("Audit approval without proposals does not authorize changes")
 		}
 		if e := s.approvalValid(); e != nil {
@@ -274,12 +274,14 @@ func (s *Store) ShipCheck() error {
 		if decision == nil || decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision {
 			return fmt.Errorf("new decision required after improvement approval")
 		}
-		boundary := s.latest("return-intent")
-		if boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence {
-			return fmt.Errorf("return to Intent and new cycle decision required before Ship")
-		}
-		if e := s.improvementChanged(); e != nil {
-			return e
+		if len(eventData[Approval](approval).ProposalIDs) > 0 {
+			boundary := s.latest("return-intent")
+			if boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence {
+				return fmt.Errorf("return to Intent and new cycle decision required before Ship")
+			}
+			if e := s.improvementChanged(); e != nil {
+				return e
+			}
 		}
 	}
 	if e = s.verified(fp); e != nil {
@@ -450,13 +452,16 @@ func (s *Store) Approve(a Approval) error {
 		return fmt.Errorf("select improvement proposals or explicitly dismiss them before completion")
 	}
 	data := eventData[Audit](audit)
+	if a.Recovery != nil && len(data.Proposals) != 0 {
+		return fmt.Errorf("recovery cannot replace pending Audit proposals")
+	}
 	ids := map[string]bool{}
 	for _, p := range data.Proposals {
 		ids[p.ID] = true
 	}
 	seen := map[string]bool{}
 	for _, id := range a.ProposalIDs {
-		if !ids[id] || seen[id] || s.dismissedProposals(audit.Hash)[id] {
+		if (!ids[id] && (a.Recovery == nil || a.Recovery.Proposal == nil || a.Recovery.Proposal.ID != id)) || seen[id] || s.dismissedProposals(audit.Hash)[id] {
 			return fmt.Errorf("invalid approved proposal")
 		}
 		seen[id] = true
@@ -465,10 +470,69 @@ func (s *Store) Approve(a Approval) error {
 	if e != nil {
 		return e
 	}
-	if fp != audit.Fingerprint {
+	if a.Recovery != nil {
+		if e := s.validateRecovery(a, fp); e != nil {
+			return e
+		}
+	} else if fp != audit.Fingerprint {
 		return fmt.Errorf("changes before approval are forbidden")
 	}
 	return s.append("approve", a, fp)
+}
+func (s *Store) validateRecovery(a Approval, fp string) error {
+	r := a.Recovery
+	if r == nil || required(r.BaselineCommit, r.ExistingSource, r.ExistingText) != nil ||
+		r.ExistingText == s.Task.Authority || len(r.ExistingPaths) == 0 {
+		return fmt.Errorf("recovery requires separate authority and finite existing scope")
+	}
+	for _, p := range r.ExistingPaths {
+		if !validPath(p) {
+			return fmt.Errorf("invalid recovery path")
+		}
+	}
+	if r.Proposal == nil && len(a.ProposalIDs) != 0 || r.Proposal != nil && (len(a.ProposalIDs) != 1 || a.ProposalIDs[0] != r.Proposal.ID ||
+		required(r.Proposal.ID, r.Proposal.Finding, r.Proposal.Evidence, r.Proposal.Change) != nil || len(r.Proposal.Paths) == 0) {
+		return fmt.Errorf("recovery proposal and approval mismatch")
+	}
+	approved := []string{}
+	if r.Proposal != nil {
+		for _, p := range r.Proposal.Paths {
+			if !validPath(p) {
+				return fmt.Errorf("invalid recovery proposal path")
+			}
+			approved = append(approved, p)
+		}
+	}
+	head, e := git(s.Root, "rev-parse", "HEAD")
+	if e != nil {
+		return e
+	}
+	if strings.TrimSpace(string(head)) != r.BaselineCommit {
+		return fmt.Errorf("recovery baseline must be current HEAD")
+	}
+	base, e := s.snapshot(r.BaselineCommit)
+	if e != nil {
+		return e
+	}
+	now, e := s.snapshot("work")
+	if e != nil {
+		return e
+	}
+	if digest(now) != fp || s.scope(approved, base, now) != nil {
+		return fmt.Errorf("changes after recovery baseline exceed approved proposal")
+	}
+	ship := s.auditedShip()
+	if ship == nil {
+		return fmt.Errorf("audited Ship required")
+	}
+	shipped, e := s.snapshot(eventData[Ship](ship).Commit)
+	if e != nil {
+		return e
+	}
+	if e = s.scope(r.ExistingPaths, shipped, base); e != nil {
+		return fmt.Errorf("preexisting recovery changes exceed prior authority: %w", e)
+	}
+	return nil
 }
 func (s *Store) approvalValid() error {
 	a := s.latest("audit")
@@ -492,6 +556,12 @@ func (s *Store) ImproveCheck() error {
 	for _, p := range a.Proposals {
 		if ids[p.ID] {
 			paths = append(paths, p.Paths...)
+		}
+	}
+	if ap.Recovery != nil {
+		paths = append(paths, ap.Recovery.ExistingPaths...)
+		if ap.Recovery.Proposal != nil {
+			paths = append(paths, ap.Recovery.Proposal.Paths...)
 		}
 	}
 	ship := eventData[Ship](s.auditedShip())
@@ -543,6 +613,16 @@ func (s *Store) improvementChanged() error {
 			}
 		}
 	}
+	if approval.Recovery != nil && approval.Recovery.Proposal != nil {
+		for _, path := range approval.Recovery.Proposal.Paths {
+			if path == "@intent" {
+				wantsIntent = true
+			} else {
+				wantsFiles = true
+				paths = append(paths, path)
+			}
+		}
+	}
 	if wantsFiles {
 		ship := s.auditedShip()
 		if ship == nil {
@@ -586,7 +666,7 @@ func (s *Store) Status() map[string]any {
 		state = "approval-pending"
 		if approval != nil && approval.Sequence > audit.Sequence {
 			state = "improvement-authorized"
-			if len(eventData[Approval](approval).ProposalIDs) == 0 && s.allProposalsDismissed(audit) {
+			if len(eventData[Approval](approval).ProposalIDs) == 0 && eventData[Approval](approval).Recovery == nil && s.allProposalsDismissed(audit) {
 				state = "complete"
 			}
 		}

@@ -17,7 +17,7 @@ func TestImprovementRequiresNewVerifiedDecision(t *testing.T) {
 		t.Fatal(e)
 	}
 	hash := s.latest("audit").Hash
-	if e := s.Approve(Approval{hash, "user:2", "approve p", []string{"p"}}); e != nil {
+	if e := s.Approve(Approval{AuditHash: hash, Source: "user:2", Text: "approve p", ProposalIDs: []string{"p"}}); e != nil {
 		t.Fatal(e)
 	}
 	stage(t, s)
@@ -98,13 +98,13 @@ func TestAuditCompletionRequiresManualApproval(t *testing.T) {
 	if s.latest("audit").Kind != "audit-update" || s.Status()["state"] != "approval-pending" {
 		t.Fatal(s.Status())
 	}
-	if s.Approve(Approval{old, "user:3", "approve", []string{"p"}}) == nil {
+	if s.Approve(Approval{AuditHash: old, Source: "user:3", Text: "approve", ProposalIDs: []string{"p"}}) == nil {
 		t.Fatal("stale approval accepted")
 	}
-	if s.Approve(Approval{s.latest("audit").Hash, "user:3", "approve", nil}) == nil {
+	if s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:3", Text: "approve", ProposalIDs: nil}) == nil {
 		t.Fatal("pending proposal silently completed")
 	}
-	if e := s.Approve(Approval{s.latest("audit").Hash, "user:3", "approve p", []string{"p"}}); e != nil {
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:3", Text: "approve p", ProposalIDs: []string{"p"}}); e != nil {
 		t.Fatal(e)
 	}
 	if e := s.Audit(Audit{Summary: "more context"}); e != nil {
@@ -126,7 +126,7 @@ func TestAuditCompletionRequiresManualApproval(t *testing.T) {
 	if e := reloaded.Check(); e != nil {
 		t.Fatal(e)
 	}
-	if e := s.Approve(Approval{s.latest("audit").Hash, "user:4", "approve p", []string{"p"}}); e != nil {
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:4", Text: "approve p", ProposalIDs: []string{"p"}}); e != nil {
 		t.Fatal(e)
 	}
 	decide(t, s)
