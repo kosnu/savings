@@ -1,0 +1,36 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-27T09:03:21.254064Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "521512512dbf7559ecda3517e9b86434855d93549a4b5f50a750cdf17eff7a73",
+  "revision": 1,
+  "fingerprint": "41f343491eb2e5e5fcbb791d26ec9ed9fbe5723424d42ffa4ecb273e0f6e5caa",
+  "data": {
+    "summary": "Issue #1825の既存ポリシーへの追加。ガードレール改善で実際に対応したPRレビュー指摘に限って既存の返信ルールを適用し、投稿者がBotでthread全体の完了条件を満たす場合は返信後に解決する。返信に改善種別の明記は要求しない。正本はGit Workflowであり、rule-mapの経路は既に存在するため索引・skill・実装は変更しない。文書のみの変更を差分確認と意味レビューで検証する。",
+    "paths": [
+      "docs/harness/policies/git-workflow.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "ff987fd1db970a89fda61cedb5ae923093bf433e63db42358c4f967cb8393aef",
+  "cycle_id": "issue-1825/cycle-0001"
+}

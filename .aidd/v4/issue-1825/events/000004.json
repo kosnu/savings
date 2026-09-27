@@ -1,0 +1,43 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-27T09:04:31.551187Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "f146c244b06f2071e876ba56f77744793d00cb5b7714ed2b6c0f4a992980b6d0",
+  "revision": 1,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\nIssue #1825の3条件を実差分と照合。Git WorkflowのPRレビュー対応節にだけ2行を追加し、既存の返信書式・thread単位の状態確認・resolve条件を再利用した。rule-mapの既存path/surface経路からgit-workflowへ到達でき、索引、skill、アプリ実装への同期は不要。文書のみの変更なのでアプリ検証は対象外。git diff --checkとCore check-allが成功した。",
+    "criteria": [
+      {
+        "criterion": "実際に対応した指摘だけが返信と解決の対象になる",
+        "evidence": "docs/harness/policies/git-workflow.md:105 は実際に対応した指摘のPRレビューコメントに限定し、未対応の指摘を明示的に除外する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "対象threadへ既存のGit Workflowに沿って返信する",
+        "evidence": "docs/harness/policies/git-workflow.md:105 は本節の返信ルールを参照する。同節:108-114 が分類・対応内容・検証結果・commit IDの条件、thread IDへの返信を規定する。改善種別の返信明記は要求していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Botユーザーの対応完了済みthreadは解決まで行う",
+        "evidence": "docs/harness/policies/git-workflow.md:106 は対象コメントの投稿者がBotで指摘への対応と既存の解決条件が満たされた場合に返信に続けてresolveすると規定する。同節:110-113 は完全に完了したthreadと実装状態等の確認を要求し、未完了threadの誤解決を防ぐ。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "a71043f2cd80fb9c6d9fd408d27e5f5131ffc9b1ca251749d6518d72f95a78f0",
+  "cycle_id": "issue-1825/cycle-0001"
+}
