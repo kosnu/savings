@@ -109,22 +109,29 @@ Codex transcriptからセッションの累積トークン使用量を読み、
 ```
 
 合格後にcommit、push、PR作成/更新とread-backを行う。
-`ship --input /tmp/ship.json`へ`commit`、`remote`、`branch`、`base`、`pr`、`evidence`を渡す。
+`ship --input /tmp/ship.json`へ`commit`、`remote`、`branch`、`base`、`pr`、`evidence`を渡す。`ship`は配信先を照合して結果を返すだけで、eventを追加しない。
 baseは期待するマージ先ブランチ名（例: main）を指定する。Coreは実commit・remote・PR head・base名を確認する。baseのSHAは取得条件に含めず、同名ブランチの更新は拒否しない。evidenceにはtracking/upstream、base、CIの一度の取得結果などを記す。
 
-ShipとAuditの追記記録はsource fingerprintから独立する。配信後の記録を追加commitで保存する場合は
-記録のみの差分であることを確認し、最新HEAD/remote/PRを`delivery-check --task example --input /tmp/ship.json`で再確認する。
-この操作は新eventを追加せず、配信後の記録が次の配信記録を要求する循環を避ける。
-sourceの変更があれば記録保存扱いにせず、同じTaskで必要な新revision・再検証・review・Shipを行う。
+配信先、commit、PRはShip結果として報告する。後から再開するときはTaskとPRを確認し、未確認の配信を成功と推測しない。
+旧TaskのShip eventは読み取りを維持する。`delivery-check`は既存の記録だけの配信確認に限る。
+sourceの変更があれば同じTaskで必要な新revision・再検証・review・Shipを行う。
 
 ## Auditと承認後の改善
 
-AuditはShip後のユーザーの明示依頼を受けて実行する。`status`で同じTaskのShip証拠を再取得し、その時点のレビュー指摘を確認する。
-`audit --input`は次の構造。実際に改善不要と判断した場合だけproposalsを空配列にする。
+AuditはShip後のユーザーの明示依頼を受けて実行する。TaskとPRを照合し、その時点のレビュー指摘を確認する。
+`audit --input`は次の構造。新しいTaskでは`delivery`に対象配信を指定する。Coreはreview済みcommitとPRを照合する。旧TaskのShip eventは引き続き参照できる。
 
 ```json
 {
   "summary": "成果と振り返りの結論",
+  "delivery": {
+    "commit": "Audit対象のcommit SHA",
+    "remote": "origin",
+    "branch": "配信ブランチ名",
+    "base": "main",
+    "pr": "PR URL",
+    "evidence": "配信確認結果"
+  },
   "findings": ["指摘と対応状態"],
   "session_improvements": ["進め方について観測したこと"],
   "proposals": [
@@ -139,12 +146,12 @@ AuditはShip後のユーザーの明示依頼を受けて実行する。`status`
 }
 ```
 
-ここで提案をユーザーに提示する。手動承認を受けるまで改善へ進まない。
+改善提案がなければ結果を報告し、Audit eventを追加せずに終了する。提案があればTaskへ記録してユーザーに提示し、手動承認を受けるまで改善へ進まない。記録は承認された改善の変更と一緒にcommitする。
 `approve --input`は`audit_hash`、`source`、`text`、`proposal_ids`を持つ。
 source/textはその提案を承認した実際のユーザー発言。agentが生成した同意を使わない。
 一部だけ承認した場合、未承認案は次のAuditに引き継ぐ。却下はユーザーが明示した場合だけ
 `dismiss --input`へ同じ形式で記録し、改善済みとは区別する。
-提案のないAuditも明示承認が必要で、proposal_idsを空配列にしてapproveする。この承認は改善実行を許可しない。
+旧Taskで記録済みの提案なしAuditは、従来どおり空のproposal_idsによる承認を受け付ける。
 「Auditを承認します」は提示した改善案への承認であり、別の実行承認を要求しない。
 同じShip内容・revisionに追加指摘があればauditを再実行する。audit-updateとして追記され、未決提案は保持し、旧承認は失効する。
 承認後に改善のdecisionを追記し、`improve-check`で承認対象との一致を確認しながら改善する。
@@ -160,7 +167,7 @@ Coreが新しいcycle IDを発行し、現在Intentのhashと承認への参照�
 その後、次サイクルのdecisionを記録し、必要な設計・実装、verify・review・Shipまで進む。次のAuditは手動開始後に記録する。
 改善後の復帰を省略したShipと、前cycleのdecision・検証の流用は拒否される。
 cycle ID導入前のv4履歴は変更せず、明示的な復帰から採番する。
-改善案なしのAuditへの承認は終了を意味し、`return-intent`や実装の権限を付与しない。
+旧Taskの改善案なしAuditへの承認は終了を意味し、`return-intent`や実装の権限を付与しない。
 
 ## 検証とエラー
 

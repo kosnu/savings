@@ -58,21 +58,21 @@ Go/Core、Webなどの必要commandを変更pathから確認する。意味的�
 意味評価にはIntentの各完了条件、具体的根拠、pass/fail/unknown、適用rule集合を記録する。
 Goは記録とidentityを検査するが、根拠の内容が正しいことを認証しない。
 Ship前には検証・reviewが最新であることと、indexのcontent/modeが検証したworktreeと一致することを確認する。
-実際のcommit、remote ref、PR headと期待するbaseブランチ名も確認する。baseのSHAは固定・照合しない。CI待機やmerge/deployは行わない。
+実際のcommit、remote ref、PR headと期待するbaseブランチ名も確認する。baseのSHAは固定・照合しない。Ship照合は読み取り専用で、結果だけを返す。CI待機やmerge/deployは行わない。
 
 ## Auditと承認
 
-Ship後、sourceとdecisionが変わらなければ、手動でAuditを開始するまでTaskはshipped状態を保持する。Coreの状態はAudit開始の権限を付与しない。
-AuditはShipされた内容に結び付き、指摘とセッション改善を記録する。
-提案ごとに根拠・具体案・対象pathを保存する。提案がなくても承認待ちとなる。空の提案一覧または全提案の明示却下だけではcompleteにしない。
-提案のないAuditの明示承認でcompleteとなるが、実装権限は付与しない。
+Ship後の状態はTask記録だけからは確定しない。再開時にはPRとcommitを確認する。Coreの状態はAudit開始の権限を付与しない。
+Auditは指定された配信対象のreview済みcommitとPRを照合する。改善提案がない場合は結果を報告し、eventを追加しない。
+改善提案ごとに根拠・具体案・対象pathを保存し、承認と改善の変更を同じcommitに含める。空の提案一覧または全提案の明示却下だけでは改善権限を付与しない。
+旧Taskに残る提案なしAuditと承認eventは読み取りを維持する。
 同じShip内容・revisionへの追加Auditはaudit-updateイベントで保存し、新しいAudit hashへの承認を要求する。
 承認は最新Audit hash、提案ID、ユーザー発言の出典と本文に結び付ける。
 承認前の変更や対象外の変更を拒否する。元の開発権限の転用は許可しない。
 承認後は改善の新decisionと変更を同じサイクルで記録する。改善後に`return-intent`で次サイクルへ移り、
 Intentと改善済みガードレールに基づく新decision、必要な実装、検証、review、Shipを同じTaskで記録する。次のAuditは手動開始後に記録する。
 承認だけでは提案を解決済みにしない。承認後の新decisionがないShip、および旧revisionの検証・reviewを使ったShipを拒否する。
-承認された提案は、Intent復帰後の新revisionの検証・review・Shipを終えて結果Auditを記録するまで保持する。
+承認された提案は、Intent復帰後の新revisionの検証・review・Shipと、その後の手動Auditで結果を確認するまで保持する。
 Intent復帰とShipでは、承認の基準となったAudit対象のcommitから、承認pathに実差分があることを要求する。
 再Shipしても比較元は変えない。`@intent`だけの改善では、出典だけの変更を除くIntent本文・目的・制約・完了条件の改訂を要求する。
 作業開始前のdecisionや途中のscope検査では実差分を要求しない。差分の存在は改善内容の妥当性を保証せず、意味評価で各提案への対応を確認する。

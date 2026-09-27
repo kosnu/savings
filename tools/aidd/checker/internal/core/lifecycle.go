@@ -374,6 +374,8 @@ func (s *Store) delivery(ship Ship, newShip bool) (string, error) {
 	}
 	return fp, nil
 }
+
+// RecordShipは既存v4 Taskの記録を検証するテストと互換経路用。新しいCLIはShipを使う。
 func (s *Store) RecordShip(ship Ship) error {
 	fp, e := s.delivery(ship, true)
 	if e != nil {
@@ -381,32 +383,45 @@ func (s *Store) RecordShip(ship Ship) error {
 	}
 	return s.append("ship", ship, fp)
 }
+
+// Shipは配信結果を照合する。配信後の記録eventは作らない。
+func (s *Store) Ship(ship Ship) error          { _, e := s.delivery(ship, true); return e }
 func (s *Store) DeliveryCheck(ship Ship) error { _, e := s.delivery(ship, false); return e }
 
 func (s *Store) Audit(a Audit) error {
 	ship := s.latest("ship")
-	if ship == nil {
-		return fmt.Errorf("Ship required before Audit")
+	if a.Delivery == nil && ship == nil {
+		return fmt.Errorf("Audit requires a delivery reference")
 	}
 	prior := s.latest("audit")
 	kind := "audit"
-	if prior != nil && prior.Sequence > ship.Sequence {
-		if s.revision() != ship.Revision {
-			return fmt.Errorf("new decision requires Ship before Audit update")
-		}
+	if prior != nil && prior.Revision == s.revision() && prior.CycleID == s.cycleID() && (ship == nil || ship.Sequence < prior.Sequence) {
 		kind = "audit-update"
 	}
 	_, fp, e := s.current()
 	if e != nil {
 		return e
 	}
-	if ship.CycleID != s.cycleID() || fp != ship.Fingerprint || s.revision() != ship.Revision {
+	if a.Delivery != nil {
+		if prior == nil || eventData[Audit](prior).Delivery == nil || eventData[Audit](prior).Delivery.Commit != a.Delivery.Commit {
+			if e = s.ShipCheck(); e != nil {
+				return e
+			}
+		}
+		if e = s.auditDelivery(*a.Delivery, fp); e != nil {
+			return e
+		}
+	} else if ship.CycleID != s.cycleID() || fp != ship.Fingerprint || s.revision() != ship.Revision {
 		return fmt.Errorf("source or decision changed after Ship")
 	}
 	if prior != nil {
 		resolved := s.resolvedProposals(prior.Hash)
 		if kind == "audit-update" {
 			resolved = s.dismissedProposals(prior.Hash)
+		} else if a.Delivery != nil {
+			for _, id := range eventData[Approval](s.latest("approve")).ProposalIDs {
+				resolved[id] = true
+			}
 		}
 		present := map[string]bool{}
 		for _, p := range a.Proposals {
@@ -417,6 +432,9 @@ func (s *Store) Audit(a Audit) error {
 				a.Proposals = append(a.Proposals, p)
 			}
 		}
+	}
+	if len(a.Proposals) == 0 && a.Delivery != nil {
+		return required(a.Summary)
 	}
 	if e = required(a.Summary); e != nil {
 		return e
@@ -434,6 +452,52 @@ func (s *Store) Audit(a Audit) error {
 		}
 	}
 	return s.append(kind, a, fp)
+}
+
+func (s *Store) auditDelivery(ship Ship, fp string) error {
+	if e := required(ship.Commit, ship.PR, ship.Branch, ship.Base); e != nil {
+		return e
+	}
+	r := s.latest("review")
+	if r == nil || r.CycleID != s.cycleID() || r.Revision != s.revision() || r.Fingerprint != fp {
+		return fmt.Errorf("Audit requires current reviewed source")
+	}
+	if e := s.verified(fp); e != nil {
+		return e
+	}
+	for _, c := range eventData[Review](r).Criteria {
+		if c.Verdict != "pass" {
+			return fmt.Errorf("Audit requires passing semantic review")
+		}
+	}
+	head, e := git(s.Root, "rev-parse", "HEAD")
+	if e != nil {
+		return e
+	}
+	if strings.TrimSpace(string(head)) != ship.Commit {
+		return fmt.Errorf("Audit commit is not HEAD")
+	}
+	snap, e := s.snapshot(ship.Commit)
+	if e != nil {
+		return e
+	}
+	if digest(snap) != fp {
+		return fmt.Errorf("Audit commit differs from reviewed source")
+	}
+	c := exec.Command("gh", "pr", "view", ship.PR, "--json", "headRefOid,headRefName,baseRefName")
+	c.Dir = s.Root
+	b, e := c.Output()
+	if e != nil {
+		return fmt.Errorf("cannot verify Audit PR: %w", e)
+	}
+	var pr struct{ HeadRefOid, HeadRefName, BaseRefName string }
+	if e = json.Unmarshal(b, &pr); e != nil {
+		return e
+	}
+	if pr.HeadRefOid != ship.Commit || pr.HeadRefName != ship.Branch || pr.BaseRefName != ship.Base {
+		return fmt.Errorf("Audit PR does not match reviewed delivery")
+	}
+	return nil
 }
 func (s *Store) Approve(a Approval) error {
 	audit := s.latest("audit")
@@ -494,8 +558,11 @@ func (s *Store) ImproveCheck() error {
 			paths = append(paths, p.Paths...)
 		}
 	}
-	ship := eventData[Ship](s.auditedShip())
-	base, e := s.snapshot(ship.Commit)
+	commit, e := s.auditedCommit()
+	if e != nil {
+		return e
+	}
+	base, e := s.snapshot(commit)
 	if e != nil {
 		return e
 	}
@@ -518,6 +585,19 @@ func (s *Store) auditedShip() *Event {
 		}
 	}
 	return nil
+}
+
+func (s *Store) auditedCommit() (string, error) {
+	audit := s.latest("audit")
+	if audit != nil {
+		if delivery := eventData[Audit](audit).Delivery; delivery != nil {
+			return delivery.Commit, nil
+		}
+	}
+	if ship := s.auditedShip(); ship != nil {
+		return eventData[Ship](ship).Commit, nil
+	}
+	return "", fmt.Errorf("audited delivery required")
 }
 
 func (s *Store) improvementChanged() error {
@@ -544,11 +624,11 @@ func (s *Store) improvementChanged() error {
 		}
 	}
 	if wantsFiles {
-		ship := s.auditedShip()
-		if ship == nil {
-			return fmt.Errorf("audited Ship required")
+		commit, e := s.auditedCommit()
+		if e != nil {
+			return e
 		}
-		base, e := s.snapshot(eventData[Ship](ship).Commit)
+		base, e := s.snapshot(commit)
 		if e != nil {
 			return e
 		}
