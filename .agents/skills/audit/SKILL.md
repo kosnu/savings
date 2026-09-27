@@ -5,6 +5,7 @@ description: Analyze post-Ship findings and session process improvements without
 
 # Audit
 
+Start only when the user explicitly requests Audit after Ship.
 Apply [AIDD v4](../../../docs/ai-driven-development/workflow.md) and
 [Audit policy](../../../docs/harness/policies/learning-extraction.md).
 Retrieve the existing Task, latest decision, verification, review, and Ship evidence.

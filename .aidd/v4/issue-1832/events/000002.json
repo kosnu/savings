@@ -1,0 +1,55 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-27T09:27:17.477216Z",
+  "task_hash": "3e7d6415641b6af4dd52ecb1db721a60254eb087154df4c762d4325287afbaea",
+  "previous": "ee2a6f02d5875c897d49d653f52c22f260a9a2ab166eab484cf57993397ee038",
+  "revision": 1,
+  "fingerprint": "8aa3611a77e9f1b94f5f69b4dee5c4cb8dade0902697949236333d5a7b3d9980",
+  "data": {
+    "summary": "通常の委任をShipで終え、Auditは後日の明示依頼で開始する。現行Coreはshipped状態を保持し後日のauditを受け付けるため実装変更せず、正本、入口、テンプレートの委任・完了文言を同期する。rule-mapは既存path/依存で対象正本に到達するため変更しない。",
+    "paths": [
+      "AGENTS.md",
+      "docs/ai-driven-development/workflow.md",
+      "docs/harness/policies/learning-extraction.md",
+      ".github/ISSUE_TEMPLATE/feature_request.md",
+      ".agents/skills/audit/SKILL.md",
+      ".agents/skills/guardrail-improvement/SKILL.md",
+      "docs/ai-driven-development/codex-adapter.md",
+      "docs/ai-driven-development/goal-templates/index.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/private/tmp/aidd-v4-1832",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "7f95a16c8ff63a30dc9ff6a21c9c15cad8c19d93a9b6d42a7d79d0d898c17c17",
+  "cycle_id": "issue-1832/cycle-0001"
+}

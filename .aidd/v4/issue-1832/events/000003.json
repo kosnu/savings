@@ -1,0 +1,35 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-27T09:28:28.507909Z",
+  "task_hash": "3e7d6415641b6af4dd52ecb1db721a60254eb087154df4c762d4325287afbaea",
+  "previous": "7f95a16c8ff63a30dc9ff6a21c9c15cad8c19d93a9b6d42a7d79d0d898c17c17",
+  "revision": 1,
+  "fingerprint": "df96e80c45b89364e2ad015e718d08dc3589172ec92a19ee1035d5d484599d07",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/private/tmp/aidd-v4-1832",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":5}\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "e0e6a519db0d8670f4ee6b33d5a30c019b5c8c729fd63d590d950d619c2d3bfc",
+  "cycle_id": "issue-1832/cycle-0001"
+}

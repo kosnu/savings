@@ -119,6 +119,7 @@ sourceの変更があれば記録保存扱いにせず、同じTaskで必要な�
 
 ## Auditと承認後の改善
 
+AuditはShip後のユーザーの明示依頼を受けて実行する。`status`で同じTaskのShip証拠を再取得し、その時点のレビュー指摘を確認する。
 `audit --input`は次の構造。実際に改善不要と判断した場合だけproposalsを空配列にする。
 
 ```json
@@ -156,7 +157,7 @@ source/textはその提案を承認した実際のユーザー発言。agentが�
 入力は`{"summary":"Intentと改善済みガードレールを再確認した具体的な結果"}`。
 Coreが新しいcycle IDを発行し、現在Intentのhashと承認への参照を保存する。
 再開時はstatusの`cycle_id`と境界eventを読み、同じ操作を繰り返してIDを増やさない。
-その後、次サイクルのdecisionを記録し、必要な設計・実装、verify・review・Ship・Auditへ進む。
+その後、次サイクルのdecisionを記録し、必要な設計・実装、verify・review・Shipまで進む。次のAuditは手動開始後に記録する。
 改善後の復帰を省略したShipと、前cycleのdecision・検証の流用は拒否される。
 cycle ID導入前のv4履歴は変更せず、明示的な復帰から採番する。
 改善案なしのAuditへの承認は終了を意味し、`return-intent`や実装の権限を付与しない。
