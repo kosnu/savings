@@ -1,0 +1,37 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-27T09:07:06.674986Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "761d852cad3bc4b18a6e45a4c2659e2cc62bd9f727a230e5794e351d04d2c993",
+  "revision": 1,
+  "fingerprint": "32dca5e4541a8afea159dd17d3fcda0171a2f359cc0ad0edcfaad196e1db22a5",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-v4",
+          "--root",
+          ".",
+          "check-all",
+          "--base",
+          "origin/main"
+        ],
+        "exit": 1,
+        "output": "aidd v4: task issue-1825: verification missing or stale\n\nverification error: exit status 1\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "967e866fc38b6e05a5f5f2315a1c72b4bba3daebe6eb519934313a351d76fe1d",
+  "cycle_id": "issue-1825/cycle-0001"
+}

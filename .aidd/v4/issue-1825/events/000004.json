@@ -1,0 +1,37 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-09-27T09:07:31.936248Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "967e866fc38b6e05a5f5f2315a1c72b4bba3daebe6eb519934313a351d76fe1d",
+  "revision": 2,
+  "fingerprint": "32dca5e4541a8afea159dd17d3fcda0171a2f359cc0ad0edcfaad196e1db22a5",
+  "data": {
+    "summary": "Audit policyの改善工程に、対応済みPR review threadへのShip後の返信とBot投稿の完了済みthread解決を追加する。Git Workflowが操作詳細を所有するため重複せず参照し、skillとrule-mapの既存経路を維持する。Web/API runtime変更はない。初回verifyのcheck-all自己参照を除き、check-allはreview後に独立実行する。",
+    "paths": [
+      "docs/harness/policies/learning-extraction.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "c913e461aab7f19be6c1e46d2e43ec63e3473e7c5a0aac862c8dc89e999bc74a",
+  "cycle_id": "issue-1825/cycle-0001"
+}
