@@ -1,0 +1,60 @@
+{
+  "sequence": 18,
+  "kind": "audit-update",
+  "time": "2026-09-27T09:58:33.796019Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "cbe771ed28c53d6fc3134f60483227d60678dffd4d6cd1ade701111078b73c10",
+  "revision": 3,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "PR #1831の最新CIと新しいBot review threadを再評価した。pnpm不一致はユーザーがmain取り込みを指定済みの未解決Ship修正であり、前回これを承認待ちの改善提案P2にしたのは誤分類。新しい恒常ガードレール改善は提案しない。Coreは未決P2をAudit更新へ継承するため、その記録は未決のまま残るが、P2への承認を解決条件として求めない。",
+    "findings": [
+      "PR #1831 head 2875142a2cada7ce96b4a19238d2cca8722f7feaのAIDD Checker CI run 36310827466でcandidateが失敗、integrationが成功、verifyはcandidate失敗に連動して失敗した。candidateログはworkflowのpnpm 12.5.1と候補package.jsonのpnpm@12.4.2の不一致を示す。",
+      "Bot review thread PRRT_kwDOM0p88s6mZWhyは未解決・非outdated。events/000017.jsonのP2が、ユーザー指定済みのmain取り込みによる配信不具合修正を未承認Audit提案にして停止させていると指摘しており、現行Audit方針の「Audit結果、未解決の成果への修正、再利用可能な改善提案を分ける」に照らして妥当。",
+      "先行Bot thread PRRT_kwDOM0p88s6mZEZ0はIssue本文の原文保存に対応して返信済み・解決済み。再度未解決として扱わない。",
+      "最新main 3affe2d49938631f436aa617a4c59f2571dabf4eの取り込みは、既存のIssue #1825対応を配信可能にするための未解決修正。ユーザーの方向指定はP1の改善承認ではないが、当該修正の実行依頼としては既に有効だった。"
+    ],
+    "session_improvements": [
+      "CI失敗の原因を特定していたのに、Intent修正を先にShip・Auditし、main取り込みをP2として別承認待ちにした判断が手戻りを生んだ。既存の成果修正と改善提案の区分を適用すれば避けられた。",
+      "AIDD Coreの現状態ではAudit更新時に未決P2が自動継承される。この記録上の制約と、P2が実質的に誤提案であることを区別して報告する。ユーザーの明示却下なしにdismissは記録しない。",
+      "新しい恒常規則を追加する根拠はない。必要なのはユーザー指定済みのmain取り込み、再検証、PR更新とCI結果の確認である。"
+    ],
+    "proposals": [
+      {
+        "id": "P2",
+        "finding": "PR branchのpnpm@12.4.2と最新mainのpnpm 12.5.1の差により、先行CI candidateが失敗した。",
+        "evidence": "PR #1831の先行CI candidateログ、remote main 3affe2d49938631f436aa617a4c59f2571dabf4e、git diff HEAD...origin/main、ユーザーのmain取り込み方針。",
+        "change": "配信不具合の修正としてremote main 3affe2d49938631f436aa617a4c59f2571dabf4eを同じTask・branchへ取り込み、競合を最小差分で解決する。現checkoutのCoreを再buildし、AIDDと該当Web検証・意味レビューを通してPRを更新する。恒常的な新規ガードレールは追加しない。",
+        "paths": [
+          ".agents/skills/audit/SKILL.md",
+          ".agents/skills/guardrail-improvement/SKILL.md",
+          ".aidd/v4/issue-1832/events/000001.json",
+          ".aidd/v4/issue-1832/events/000002.json",
+          ".aidd/v4/issue-1832/events/000003.json",
+          ".aidd/v4/issue-1832/events/000004.json",
+          ".aidd/v4/issue-1832/events/000005.json",
+          ".aidd/v4/issue-1832/events/000006.json",
+          ".aidd/v4/issue-1832/task.json",
+          ".github/ISSUE_TEMPLATE/feature_request.md",
+          ".github/workflows/aidd_checker_ci.yaml",
+          ".github/workflows/cache_main.yaml",
+          ".github/workflows/deploy_production.yaml",
+          ".github/workflows/frontend_ci.yaml",
+          "AGENTS.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/codex-adapter.md",
+          "docs/ai-driven-development/goal-templates/index.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/harness/policies/learning-extraction.md",
+          "mise.toml",
+          "package.json",
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml"
+        ]
+      }
+    ]
+  },
+  "hash": "f0dc277cf50e596e9de8a82b8751f8b073ee9cdfbc2a5c6ac6f054564a86e291",
+  "cycle_id": "issue-1825/cycle-0002"
+}
