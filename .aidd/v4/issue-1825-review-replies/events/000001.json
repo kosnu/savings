@@ -1,0 +1,14 @@
+{
+  "sequence": 1,
+  "kind": "start",
+  "time": "2026-09-27T18:26:06.395887Z",
+  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
+  "previous": "",
+  "revision": 0,
+  "fingerprint": "e98ad7a20ac9daf7f16b393bc6dc84644456cfd9759d9ab8d4d469531c9ad61f",
+  "data": {
+    "initial_changes": []
+  },
+  "hash": "f1d1736cedde1a9ec86cc4888ddcfb402b8e1b1a717063bb36cabe15ba9b2ec7",
+  "cycle_id": "issue-1825-review-replies/cycle-0001"
+}

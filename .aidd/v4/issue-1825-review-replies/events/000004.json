@@ -1,0 +1,44 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-27T18:26:48.101415Z",
+  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
+  "previous": "595889458321c2b0dc530236f63f3f4403dec5d1d3a51339854903089246e803",
+  "revision": 1,
+  "fingerprint": "43e401365107ba0809dce1350c1ea4f2157cb1995d3708a10ee3154d479e563e",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n指摘なし。正本の改善節のみ変更。改善skillは既に正本を参照し、入口pathのresolverでai-driven.auditからlearning-extraction、review-feedback-classification、git-workflowへの到達を確認。索引・入口・Core・CLI・CIは同期変更不要。未対応指摘、非PR指摘、対応未完了Bot、人間投稿者ではBot完了thread解決の条件を満たさない。実PRへの投稿・resolveはこの文書変更の検証対象ではなく実行していない。アプリ・ADR変更なし。",
+    "criteria": [
+      {
+        "criterion": "返信と解決の対象が実際に対応した指摘に限られる",
+        "evidence": "learning-extraction.md 改善節の追加段落の冒頭と末尾で実際に対応した指摘へ対象を限定。PRレビューコメントでない指摘は対象外。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "対象threadへ既存Git Workflowに沿って返信する",
+        "evidence": "追加段落から既存Git WorkflowのPRレビュー対応節へリンクし返信を要求。リンク先の存在と見出しを確認。既存の分類・対応内容・commit ID・検証結果、thread IDでの返信手順を再定義しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Bot投稿者の対応完了threadを解決する",
+        "evidence": "追加段落にBot投稿者かつ対応完了なら返信後に解決すると明記。未完了解決禁止とガードレール変更のみでは元指摘の完了としない条件により、改善済みでもproduct defectが残るケースを除外。人間投稿者へ解決を拡張しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "8c543c2c382dc26d43cbb2de55b8baa0707a774dda1b7ff9a98d0c761a8fee23",
+  "cycle_id": "issue-1825-review-replies/cycle-0001"
+}
