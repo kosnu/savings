@@ -1,0 +1,39 @@
+{
+  "sequence": 6,
+  "kind": "audit-update",
+  "time": "2026-09-27T19:09:39.412725Z",
+  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
+  "previous": "d5ae8ac010fc3b13b28594049775b21a2964d1356be11a43248e2b9e4e902082",
+  "revision": 1,
+  "fingerprint": "43e401365107ba0809dce1350c1ea4f2157cb1995d3708a10ee3154d479e563e",
+  "data": {
+    "summary": "ユーザーとの確認で改善案を更新。P1は条件追加ではなく要求にない一文の削除。Git権限の件はユーザーが別セッション対象と明示し、今回の承認にも次の改善にも含めない。意図断定の項目はユーザー指示により候補から除外。",
+    "findings": [
+      "P2 未解決: https://github.com/kosnu/savings/pull/1836#discussion_r4116455168 。learning-extraction.md:65がガードレール自体の欠陥を直した場合にも完了不可と読める。review-feedback-classification.md:36のproduct修正代替禁止を一般化したため、直後のBot thread解決条件と衝突する。"
+    ],
+    "session_improvements": [
+      "要求にない制約を追加したことが原因。正常ケースを妨げる一文を削除する。Git権限の件は別セッション対象であり、このTaskの未承認案として繰り越さない。ユーザー意図に関する指摘はユーザーの訂正により除外。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "product修正代替禁止を一般化した文言が、ガードレール自体の欠陥を直した正常ケースの完了を妨げる。",
+        "evidence": "PR #1836 discussion_r4116455168、learning-extraction.md:65、review-feedback-classification.md:36、Task events/000002.jsonと000004.json。",
+        "change": "learning-extraction.mdの「ガードレールの変更だけで元の指摘への対応完了とはみなさない。」の一文を削除する。代わりの条件を追加しない。実際に対応した指摘への返信・Botかつ対応完了時の解決・未完了解決禁止を維持し、正常ケースと未完了ケースを意味レビューする。git diff --check、Core check-all/verify/ship-checkを実行する。",
+        "paths": [
+          "docs/harness/policies/learning-extraction.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "bc456f6dbfa7f232d9b80e2bd2cf483b6e3ce936",
+      "remote": "origin",
+      "branch": "issue-1825/guardrail-review-replies",
+      "pr": "https://github.com/kosnu/savings/pull/1836",
+      "evidence": "GraphQL read-backでOPEN、head SHA、head/baseを確認。reviewThreads全件取得: 1件、isResolved=false、isOutdated=false、Bot、SUBMITTED。過去の同IssueのPRは参照していない。",
+      "base": "main"
+    }
+  },
+  "hash": "a5803563b44e7afb5c9346f5193abfc736fe72aa7f708641bec5b12be9b9664c",
+  "cycle_id": "issue-1825-review-replies/cycle-0001"
+}

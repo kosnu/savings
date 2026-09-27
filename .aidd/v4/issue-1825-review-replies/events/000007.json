@@ -1,0 +1,19 @@
+{
+  "sequence": 7,
+  "kind": "approve",
+  "time": "2026-09-27T19:09:57.354677Z",
+  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
+  "previous": "a5803563b44e7afb5c9346f5193abfc736fe72aa7f708641bec5b12be9b9664c",
+  "revision": 1,
+  "fingerprint": "43e401365107ba0809dce1350c1ea4f2157cb1995d3708a10ee3154d479e563e",
+  "data": {
+    "audit_hash": "a5803563b44e7afb5c9346f5193abfc736fe72aa7f708641bec5b12be9b9664c",
+    "source": "このチャットの更新済みリストへのユーザー承認",
+    "text": "承認します\n\nただし、Git書き込みでの権限エラーの反復は今回のIssueと関係がないため別セッションで実施するため、承認の対象には含みません。また、次のガードレール改善の対象でもないです。",
+    "proposal_ids": [
+      "P1"
+    ]
+  },
+  "hash": "53968d5fcc07a6ece43b5185fca36eff659185761da8ad0bb8d0b03177a66bcc",
+  "cycle_id": "issue-1825-review-replies/cycle-0001"
+}

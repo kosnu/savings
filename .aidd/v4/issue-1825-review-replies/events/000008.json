@@ -1,0 +1,43 @@
+{
+  "sequence": 8,
+  "kind": "decision",
+  "time": "2026-09-27T19:09:57.624731Z",
+  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
+  "previous": "53968d5fcc07a6ece43b5185fca36eff659185761da8ad0bb8d0b03177a66bcc",
+  "revision": 2,
+  "fingerprint": "43e401365107ba0809dce1350c1ea4f2157cb1995d3708a10ee3154d479e563e",
+  "data": {
+    "summary": "承認されたP1のみ実施。要求にない一文を削除し、代替条件は追加しない。Git権限の改善は今回と次の改善の対象外。正本1ファイルと必要なTask記録のみ。既存の返信・Bot完了解決・未完了解決禁止の条件を維持する。",
+    "paths": [
+      "docs/harness/policies/learning-extraction.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-1825",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "fb81e51fd61f55d98cf366ee169b729f1e2da29a49221bb83932b5ef6e886022",
+  "cycle_id": "issue-1825-review-replies/cycle-0001"
+}
