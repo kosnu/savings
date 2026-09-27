@@ -14,5 +14,6 @@ Record the approval and a new decision revision using [Core operations](../../..
 Change only approved targets and check the improvement scope. Re-read the current Intent and
 improved guardrails, then record `return-intent` to close this cycle and enter the next cycle
 within the same Task. Record a new decision for the next cycle, perform necessary design and
-implementation, verify and review the actual diff, Ship, and conduct Audit. The cycle boundary
+implementation, verify and review the actual diff, and Ship. Start the next Audit only on an
+explicit user request after Ship. The cycle boundary
 does not expand approval scope. Proposal changes require renewed approval.
