@@ -62,6 +62,7 @@ Ship前には検証・reviewが最新であることと、indexのcontent/mode�
 
 ## Auditと承認
 
+Ship後、sourceとdecisionが変わらなければ、手動でAuditを開始するまでTaskはshipped状態を保持する。Coreの状態はAudit開始の権限を付与しない。
 AuditはShipされた内容に結び付き、指摘とセッション改善を記録する。
 提案ごとに根拠・具体案・対象pathを保存する。提案がなくても承認待ちとなる。空の提案一覧または全提案の明示却下だけではcompleteにしない。
 提案のないAuditの明示承認でcompleteとなるが、実装権限は付与しない。
@@ -69,7 +70,7 @@ AuditはShipされた内容に結び付き、指摘とセッション改善を�
 承認は最新Audit hash、提案ID、ユーザー発言の出典と本文に結び付ける。
 承認前の変更や対象外の変更を拒否する。元の開発権限の転用は許可しない。
 承認後は改善の新decisionと変更を同じサイクルで記録する。改善後に`return-intent`で次サイクルへ移り、
-Intentと改善済みガードレールに基づく新decision、必要な実装、検証、review、Ship、Auditを同じTaskで記録する。
+Intentと改善済みガードレールに基づく新decision、必要な実装、検証、review、Shipを同じTaskで記録する。次のAuditは手動開始後に記録する。
 承認だけでは提案を解決済みにしない。承認後の新decisionがないShip、および旧revisionの検証・reviewを使ったShipを拒否する。
 承認された提案は、Intent復帰後の新revisionの検証・review・Shipを終えて結果Auditを記録するまで保持する。
 Intent復帰とShipでは、承認の基準となったAudit対象のcommitから、承認pathに実差分があることを要求する。

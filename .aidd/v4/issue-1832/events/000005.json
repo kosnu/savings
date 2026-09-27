@@ -1,0 +1,47 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-09-27T09:29:17.028472Z",
+  "task_hash": "3e7d6415641b6af4dd52ecb1db721a60254eb087154df4c762d4325287afbaea",
+  "previous": "b8281faccc54abb2a70742fbfd6af8de14b5b7ce1d572de0edfbb5afa29bb1af",
+  "revision": 1,
+  "fingerprint": "6a97ed5e463c1710c5f74eacaca3171bea50c89e23466dbbd6077442e797bc09",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし。実差分と参照経路、後日Auditの再開、手動承認境界を確認。Core verifyでgit diff --checkとcheck-allが成功。",
+    "criteria": [
+      {
+        "criterion": "通常の実行依頼でShip直後のAuditが自動開始されない",
+        "evidence": "AGENTS.mdのTask入口、workflow.mdのサイクル・Ship・Audit節、feature_request.mdの委任文言、audit/SKILL.mdでShip後の明示依頼を要求。guardrail-improvement/SKILL.mdの次サイクルもShipで停止。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Ship後のPRコメントとセッションの進め方を後の手動Auditで評価できる",
+        "evidence": "workflow.mdのShip報告とAudit再開、learning-extraction.mdの同一Task証拠・その時点の指摘取得、aidd-checker-operations.mdのstatus再取得、aidd-checker.mdのshipped状態を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Audit結果と改善案の手動承認境界が明確になる",
+        "evidence": "AGENTS.mdとworkflow.mdでAudit開始と改善承認を分離。learning-extraction.mdの既存承認節を維持し、codex-adapter.mdとgoal-templates/index.mdでShip目的Goalとサイクル完了を区別。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "acc0a9584efb3f9e02e3f236c57efa93597a812572fd0e6673bb6bb94301c754",
+  "cycle_id": "issue-1832/cycle-0001"
+}
