@@ -1,0 +1,24 @@
+{
+  "sequence": 9,
+  "kind": "audit-update",
+  "time": "2026-09-27T09:15:23.072364Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "1215c9558b086426729b4afc362a03eaae018b4219d95cbb240ae13b0172ac73",
+  "revision": 2,
+  "fingerprint": "32dca5e4541a8afea159dd17d3fcda0171a2f359cc0ad0edcfaad196e1db22a5",
+  "data": {
+    "summary": "PR #1830のShip後の新情報を反映してAuditを更新。前回のreviewThreads 0件という時点情報を保持しつつ、現在はBot投稿の未解決thread 1件とCI失敗を確認した。対応済み指摘への返信条件の局所defectは未修正であり、成果の完了とは判定しない。再利用可能な新規ガードレール改善提案はない。",
+    "findings": [
+      "前回Audit時点のreviewThreadsは0件。2026-09-27T09:12:55ZにBot chatgpt-codex-connectorの未解決thread PRRT_kwDOM0p88s6mZBts が追加された。指摘は、docs/harness/policies/learning-extraction.md末尾の『完了していないthreadは返信・解決の対象に含めない』が、対応済み指摘への返信まで禁止する点。Issue #1825の返信要件と既存Git Workflowの解決条件を照合して妥当と判定。局所defectであり未修正・未返信・未解決。",
+      "最終head 5b9ebe485c3a7cfa1480db024d479fa09def823a のAIDD Checker CIはcandidateが失敗、integrationが成功、verifyがcandidate失敗により失敗。candidateログはpnpm/action-setupのversion 12.5.1とPRブランチpackage.jsonのpackageManager pnpm@12.4.2の衝突を示す。起点後にmainがpnpm 12.5.1へ進んだことによる配信検証の未達であり、今回の文書差分による失敗ではない。",
+      "前回AuditのCore verify初回はcheck-all自己参照で失敗し、decision revision 2で除外後のローカルverify/review/check-all/ship-checkは成功。この失敗記録は維持する。"
+    ],
+    "session_improvements": [
+      "前回の意味レビューは返信条件とthread解決条件を独立に評価できず、Botレビューで境界反例が見つかった。既存Code Review PolicyとIssueの完了条件で扱える局所的な適用漏れとして記録し、新しい恒久的規則は提案しない。",
+      "Coreのcheck-allはverify/review後に独立実行する。前回の判断revisionと失敗証拠に記録済みで、追加の恒久的変更は不要。"
+    ],
+    "proposals": []
+  },
+  "hash": "fb3f7d6e1c78d372ed9ca6675ef51b3fb049fe6495479e3e1ecace57eb29d7d6",
+  "cycle_id": "issue-1825/cycle-0001"
+}
