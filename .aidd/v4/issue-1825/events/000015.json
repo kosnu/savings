@@ -1,0 +1,43 @@
+{
+  "sequence": 15,
+  "kind": "review",
+  "time": "2026-09-27T09:49:35.784513Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "65c8df0c101a20a65a30aa0108dd1c8fbdc9cf30fcf0121425abe08d704a1884",
+  "revision": 3,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\nP1でIssue #1825本文の原文と新しい取得出典を現在Intentへ追記した。開始eventは変更していない。現在Intentの目的・制約・完了条件、既存Git WorkflowのPRレビュー対応節の2行を照合し、3条件を満たす。git diff --checkと原文一致の確認が成功した。文書とTask記録のみのためアプリ検証は対象外。",
+    "criteria": [
+      {
+        "criterion": "実際に対応した指摘だけが返信と解決の対象になる",
+        "evidence": "docs/harness/policies/git-workflow.md:105 は実際に対応した指摘のPRレビューコメントに限定し、未対応の指摘を明示的に除外する。 現在IntentはIssue #1825本文の原文を保存し、同じ対象制限を保持する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "対象threadへ既存のGit Workflowに沿って返信する",
+        "evidence": "docs/harness/policies/git-workflow.md:105 は本節の返信ルールを参照する。同節:108-114 が分類・対応内容・検証結果・commit IDの条件、thread IDへの返信を規定する。改善種別の返信明記は要求していない。 現在IntentはIssue #1825本文の原文を保存し、返信ルールへの参照を保持する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Botユーザーの対応完了済みthreadは解決まで行う",
+        "evidence": "docs/harness/policies/git-workflow.md:106 は対象コメントの投稿者がBotで指摘への対応と既存の解決条件が満たされた場合に返信に続けてresolveすると規定する。同節:110-113 は完全に完了したthreadと実装状態等の確認を要求し、未完了threadの誤解決を防ぐ。 現在IntentはIssue #1825本文の原文を保存し、Botと完了済みの条件を保持する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "9c05d88e695d083d8e720104f96039922124525289b85923e22013219613e439",
+  "cycle_id": "issue-1825/cycle-0002"
+}

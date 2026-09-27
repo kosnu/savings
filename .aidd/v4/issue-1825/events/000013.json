@@ -1,0 +1,36 @@
+{
+  "sequence": 13,
+  "kind": "decision",
+  "time": "2026-09-27T09:48:53.561998Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "6adabc6a2517767034daeb18f8feffa46a54881f456ff46a2fbe4623074ace50",
+  "revision": 3,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "新サイクルで修正済みIntentとGit Workflowの既存実装を照合する。P1はIssue本文の出典・原文保存のみであり、政策文書の新規変更は不要。対象threadへの返信・解決は検証と配信後に行う。",
+    "paths": [
+      "docs/harness/policies/git-workflow.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "e94e08e5598fdbba5d14c14f65f562d255a86065b9d09c5d93fd448f6578205c",
+  "cycle_id": "issue-1825/cycle-0002"
+}

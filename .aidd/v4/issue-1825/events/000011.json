@@ -1,0 +1,51 @@
+{
+  "sequence": 11,
+  "kind": "decision",
+  "time": "2026-09-27T09:47:53.54943Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "4bf6214e8b0c53ef0f81ee3b370bb7be354595c51aea6ed5b20babea212b4416",
+  "revision": 2,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "intent_revision": {
+      "source": "2026-09-27 GitHub Issue #1825 API read-back: https://github.com/kosnu/savings/issues/1825",
+      "text": "## 概要\n\nガードレール改善で対応した指摘がPRレビューコメントだった場合、そのreview threadに既存のGit Workflowに従って返信する。コメント投稿者がBotユーザーで、指摘への対応が完了している場合は、そのthreadの解決まで行う。\n\n## 完了の定義 (Definition of Done)\n\n- 返信と解決の対象は、実際に対応した指摘に限られている。\n- 対象のthreadに、既存のGit Workflowに沿った返信が行われている。\n- 投稿者がBotユーザーで、対応が完了したthreadは解決されている。\n\n## 制約・禁止事項\n\n- 対応が完了していないthreadは解決しない。\n- 返信内容と解決の判断は既存のGit Workflowに従う。",
+      "objective": "ガードレール改善で対応したPRレビュー指摘への返信とBot thread解決を既存のGit Workflowに組み込む",
+      "constraints": [
+        "実際に対応した指摘だけを対象にする",
+        "返信と解決は既存のGit Workflowに従う",
+        "未完了threadは解決しない"
+      ],
+      "acceptance": [
+        "実際に対応した指摘だけが返信と解決の対象になる",
+        "対象threadへ既存のGit Workflowに沿って返信する",
+        "Botユーザーの対応完了済みthreadは解決まで行う"
+      ]
+    },
+    "summary": "承認済みP1だけを適用する。Issue #1825の取得本文を現在Intentへ原文のまま記録し、開始記録は変更しない。意味・完了条件は維持する。pnpm不一致のmain統合はP1の承認対象外として別判断に残す。",
+    "paths": [
+      "docs/harness/policies/git-workflow.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "b7e223798081f2deaafd057c913e396894736173dc55a1d7920edfbca0ffecd7",
+  "cycle_id": "issue-1825/cycle-0001"
+}

@@ -1,0 +1,17 @@
+{
+  "sequence": 12,
+  "kind": "return-intent",
+  "time": "2026-09-27T09:48:20.33808Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "b7e223798081f2deaafd057c913e396894736173dc55a1d7920edfbca0ffecd7",
+  "revision": 2,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "summary": "Issue #1825の取得本文を現在Intentに原文のまま保存した。開始eventは維持し、目的・制約・完了条件と既存Git Workflowの返信・解決条件を読み直した。承認範囲はIntentの出典・本文の修正のみ。",
+    "previous_cycle": "issue-1825/cycle-0001",
+    "approval_hash": "4bf6214e8b0c53ef0f81ee3b370bb7be354595c51aea6ed5b20babea212b4416",
+    "intent_hash": "744e2e0c4511803e843de2100288b76a376a5bec815d9e3f6ea4e2dbb58669e6"
+  },
+  "hash": "6adabc6a2517767034daeb18f8feffa46a54881f456ff46a2fbe4623074ace50",
+  "cycle_id": "issue-1825/cycle-0002"
+}

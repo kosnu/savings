@@ -1,0 +1,19 @@
+{
+  "sequence": 10,
+  "kind": "approve",
+  "time": "2026-09-27T09:46:14.525712Z",
+  "task_hash": "637755ab502f7c789f1aca7b4a5ff4df649fed9140a96b095124064500d5f728",
+  "previous": "009c2c847d8f8f8c77730585440590760cd1b003a7aa85d8d8ca1ff3c9665354",
+  "revision": 1,
+  "fingerprint": "058f54a3a5110fc0b5184b4e8b2e0bf060a265e3831ce2ca4e4859bb4879fd8e",
+  "data": {
+    "audit_hash": "009c2c847d8f8f8c77730585440590760cd1b003a7aa85d8d8ca1ff3c9665354",
+    "source": "この会話の2026-09-27のユーザー発言（P1承認待ちの説明に対する返信）",
+    "text": "承認する",
+    "proposal_ids": [
+      "P1"
+    ]
+  },
+  "hash": "4bf6214e8b0c53ef0f81ee3b370bb7be354595c51aea6ed5b20babea212b4416",
+  "cycle_id": "issue-1825/cycle-0001"
+}
