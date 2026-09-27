@@ -60,6 +60,16 @@ Intentを変更する場合も承認された意味だけを反映し、元の�
 反映結果、検証結果、未達・未確認を示す。改善による成果は別事例や反例でも確認し、
 一回の成功だけで一般的な品質向上を宣言しない。
 
+ガードレール改善で対応した指摘がPR review commentの場合は、改善をShipした後、threadごとの
+全comment、投稿者、解決状態を取得し、実際に対応したcommentを修正差分・検証・commitへ
+結び付ける。確認できたcommentだけ、そのthreadに[Git Workflow](git-workflow.md)に沿って
+日本語で返信する。返信には分類、対応内容、commit SHA、検証結果を含める。
+
+返信の可否とthread全体をresolveする可否は別々に判断する。thread内に別の未解決指摘があっても、
+対応済みcommentには返信するが、threadはresolveしない。対応していないcommentには返信しない。
+対応した指摘がBot投稿であり、thread内に未対応の指摘、未解決のfollow-up、競合するcommentが
+残っていない場合だけthreadをresolveする。
+
 ## 記録の限界
 
 Goは提案identity、承認記録、変更範囲、検証結果を照合する。

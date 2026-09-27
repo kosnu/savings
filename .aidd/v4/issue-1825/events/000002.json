@@ -1,0 +1,37 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-27T18:23:00.848311Z",
+  "task_hash": "7749dfcfdcb4fa92c432d37331e129dff2d1fb31e617df2f6f53a3dbd038a41e",
+  "previous": "3520bdd229bfe0ff0cd9c097f745b1499f67583d3e25b52590d3f1502627c53d",
+  "revision": 1,
+  "fingerprint": "e98ad7a20ac9daf7f16b393bc6dc84644456cfd9759d9ab8d4d469531c9ad61f",
+  "data": {
+    "summary": "Issue本文をRequirementsとして扱い、Auditで実際に対応したPR review commentのthread単位返信とBot thread解決条件をlearning-extraction policyに定義する。返信するcommentの範囲とthread全体をresolveする条件を分離し、混在threadでは対応済みcommentへ返信したうえで未完了事項が残ればresolveしない。既存Git Workflowの日本語返信・commit・検証の記載と競合しないよう接続する。",
+    "paths": [
+      "docs/harness/policies/learning-extraction.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "8a2bb8684d63852ee9e3df720a2b2a05389209cc42d816df2c3bade1f246c7f4",
+  "cycle_id": "issue-1825/cycle-0001"
+}

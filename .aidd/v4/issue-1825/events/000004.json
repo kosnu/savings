@@ -1,0 +1,44 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-27T18:25:29.258656Z",
+  "task_hash": "7749dfcfdcb4fa92c432d37331e129dff2d1fb31e617df2f6f53a3dbd038a41e",
+  "previous": "e0a30b588b30ecbd6c186f8af00b0336486c9810495aaf9b61570f110e53635a",
+  "revision": 1,
+  "fingerprint": "531ce89fbba5ccba1468c52f2c32d948ac56537b75e983f92f664333aef24783",
+  "data": {
+    "summary": "Coverage: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification。Unresolved: なし。最終差分はlearning-extractionの運用文だけで、対応済みcommentの返信とBot thread解決を別条件として定義した。",
+    "criteria": [
+      {
+        "criterion": "返信と解決の対象は、実際に対応した指摘に限られている。",
+        "evidence": "docs/harness/policies/learning-extraction.md:63-71で、全comment・投稿者・状態を確認し、修正差分・検証・commitに結び付いたcommentのみ返信すると規定。未対応commentには返信せず、Bot投稿かつ未対応・follow-up・競合が残らない場合のみthreadをresolveする。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "対象のthreadに、既存のGit Workflowに沿った返信が行われている。",
+        "evidence": "同policy:65-66で既存Git Workflowへのリンク、日本語返信、分類・対応内容・commit SHA・検証結果を明示し、thread単位の既存手順へ接続している。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "投稿者がBotユーザーで、対応が完了したthreadは解決されている。",
+        "evidence": "同policy:68-71で返信判断とthread全体の解決判断を分離し、Bot投稿でthread内に未対応事項・follow-up・競合がない場合だけresolveすると定義している。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "80751699aca368940bd174c97a611201de29b016836c9a8d94e0337bb2c633af",
+  "cycle_id": "issue-1825/cycle-0001"
+}
