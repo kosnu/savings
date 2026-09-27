@@ -1,0 +1,24 @@
+{
+  "sequence": 18,
+  "kind": "audit",
+  "time": "2026-09-27T10:10:17.095052Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "4559a8b7c6b08f0de46c8678fad8fee8e17680acbfd297f8b942f9f174181a68",
+  "revision": 4,
+  "fingerprint": "7889919bbfd65345e15a41d29075e11a95b0bd9175675e4c6baf24695885609c",
+  "data": {
+    "summary": "Issue #1825の最終sourceをrevision 4で再検証・reviewし、PR #1830へShipした。Botの返信条件threadは解決済み。AIDD証拠threadには修正根拠を返信済みだが、PR headのcandidate CIが実行中のためthreadは未解決のまま保持する。現時点で新たな再利用可能改善提案はない。",
+    "findings": [
+      "最初のBot thread PRRT_kwDOM0p88s6mZBts はe43d4d6bc779e2d8c6175e4e41b6d24246b01a33で修正・返信され、isResolved=true。解決済み状態を保持する。",
+      "2件目のBot thread PRRT_kwDOM0p88s6mZL10 はrevision 4のverify・review・Shipとcheck-all --base origin/mainの成功を示して返信済み。source commit 6358e141da907e5cb4715b6a9aa133b3bd6de41a、Ship記録commit 8543a13919e9bb9fea21b887d5c2e283bd2ad701。CIは取得時点でcandidate queued、integration in progressで、isResolved=falseを保持する。",
+      "承認済みP1はRecovery付きapprove event 000010に提案・手動承認・既存変更の出典と有限pathを保存。新decision revision 3/4、検証9コマンド成功、意味review、Ship、delivery-checkを確認。既存Ship/Audit eventは改変していない。"
+    ],
+    "session_improvements": [
+      "初回Audit後に非同期review/CI指摘を受けた局所修正が止まった原因に対し、同一Taskの再開経路を承認範囲内で追加した。局所修正の権限と再利用可能改善の権限を分け、失効した証拠を再取得した。",
+      "今回のAuditはCIが未完了である事実をそのまま残し、threadの解決やCI成功を推定しない。CI完了後に同じShipの追加結果として再評価する。"
+    ],
+    "proposals": []
+  },
+  "hash": "eb072daadb4a44fea6b908180a8978c78de45742c72bc19db7abe6c64cd8fff8",
+  "cycle_id": "issue-1825/cycle-0002"
+}
