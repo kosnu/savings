@@ -1,0 +1,37 @@
+{
+  "sequence": 24,
+  "kind": "audit",
+  "time": "2026-09-27T10:38:16.953169Z",
+  "task_hash": "2fdc36827698b03538e4cc482f8f87baaf752f3ca779186cedb3d8072d3569ef",
+  "previous": "febb4a49b3f26fa07ec1cd2d316a6104bd102f6f62673e9506b61e78bceed886",
+  "revision": 5,
+  "fingerprint": "ea526249ee7495379288b676cbb4222dfbcfec4e3d46362bcdb370d530b8f721",
+  "data": {
+    "summary": "revision 5の修正をPR #1830へShipした。以前のBot thread 2件は解決済みで、今回対応した3件には修正commitと検証を返信済み。Ship後の新しいBot指摘2件を確認し、recovery承認範囲と混在提案の成立判定に未解決defectがあるため成果完了とは判定しない。",
+    "findings": [
+      "PRRT_kwDOM0p88s6mZeuw、PRRT_kwDOM0p88s6mZeuy、PRRT_kwDOM0p88s6mZeuz はcommit 93b60fbd4519a25ad50cab50b82826238ba25a57で個別に修正し、Go test・vetとCore check-allの成功を添えて各threadへ返信した。最新取得時点では未解決。",
+      "新規Bot thread PRRT_kwDOM0p88s6mZkbg (2026-09-27T10:29:07Z) はP1。ImproveCheckがRecovery.ExistingPathsを承認後のscopeへ混ぜるため、baseline_commit後に同pathを変更しても通る。validateRecoveryでは承認前差分と承認後差分を分けているが、継続チェックでは分けていない。現行のrevision 5修正もこの許容経路を使用したため、現在の合格を厳格な承認範囲の証拠とは扱わない。",
+      "新規Bot thread PRRT_kwDOM0p88s6mZkbi (2026-09-27T10:29:07Z) はP2。improvementChangedはファイルpathと@intentが混在する場合、ファイル変更を見つけるとIntent改訂の検査前に成功を返す。承認した変更種別の一部だけでreturn-intentとShipへ進める。",
+      "revision 5のローカル9検証とship-check、check-all、delivery-checkは成功。Ship時点のcandidate・integration CIはIN_PROGRESSであり、成功扱いしない。"
+    ],
+    "session_improvements": [
+      "前回の意味レビューと境界テストは承認前後の差分を別々に検査する経路、ファイルと@intentの混在を網羅せず、Botレビューまで欠陥を検出できなかった。原因は既存のレビュー契約の適用漏れと局所実装欠陥で、追加の一般規則は提案しない。",
+      "新しいP1は現行の承認範囲評価に直接影響する。次の修正では承認された対象を明示し、旧合格を流用せず新revisionの検証とレビューを取り直す。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "recoveryの承認前後のscope混同と混在proposalの一部成立を拒否できない",
+        "evidence": "PR #1830のBot thread PRRT_kwDOM0p88s6mZkbg、PRRT_kwDOM0p88s6mZkbi と lifecycle.go の ImproveCheck・improvementChanged の実装",
+        "change": "承認前のExistingPathsと承認後のProposal.Pathsを分離して照合し、ファイル変更とIntent改訂を要求する混在提案では両方の成立を確認する。各失敗境界と成功境界のテストを追加し、Coreの正本文書を同期する。",
+        "paths": [
+          "tools/aidd/checker/internal/core/",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md"
+        ]
+      }
+    ]
+  },
+  "hash": "71b54abbc081417381af4517caa608335633f1ea7ff6b583a8e8ac6de47e8423",
+  "cycle_id": "issue-1825/cycle-0002"
+}
