@@ -1,0 +1,65 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-28T15:59:49.924444Z",
+  "task_hash": "f7a7ccc600e9229fa4d4528af9c9fd941612a291d7f15e8ffc811646b0da95f8",
+  "previous": "d44950fe6329235ba57e45bf8a1322bb08ee2991459596512aaf29161b778546",
+  "revision": 1,
+  "fingerprint": "c395931ff754c1b753d491b0db9287569139935333bf8fb3e62d30d83bccf88e",
+  "data": {
+    "summary": "単一工程名（Intent、調査、設計、実装、検証、レビュー、Ship、Audit、改善）をstartで検証し混在した自由入力を拒否する。既存groupsとrecordsを維持してTask・cycle・工程別stage_groupsを追加。同一工程の反復と複数sessionを合算し欠測値をnullに伝播。過去の任意工程名は原文とlegacy_stage表示で保持し推測分割しない。CLI・回帰テスト・操作説明のみ変更。Core/host入口/CI/rule-mapは既存接続で対応でき変更不要。アプリ・ADR変更なし。",
+    "paths": [
+      "tools/aidd/session-metrics/main.go",
+      "tools/aidd/session-metrics/main_test.go",
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "env",
+        "GOCACHE=/tmp/savings-go-cache",
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "env",
+        "GOCACHE=/tmp/savings-go-cache",
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "vet",
+        "./..."
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-1827",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "13d0ece02f760e9b8bbad7575943bb242a70605e0b2441be3f75a6b126496886",
+  "cycle_id": "issue-1827/cycle-0001"
+}

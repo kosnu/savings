@@ -76,13 +76,19 @@ criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown
 
 ## セッション計測
 
-CodexのAIDD作業で実際に行う工程を、開始・終了時に記録する。工程名は作業内容に合わせて指定し、
-固定フェーズ名へ置き換えない。Task IDを渡すと、現行サイクルIDを`.aidd/v4/<task-id>/events/`から取得する。
+CodexのAIDD作業で実際に行う工程を、開始・終了時に記録する。`--stage`には
+`Intent`（確認・復帰）、`調査`、`設計`、`実装`、`検証`、`レビュー`、`Ship`、`Audit`、`改善`（承認されたガードレール改善）
+のいずれか一つを指定する。これは計測用の工程名であり、必須工程や実行順序を追加するものではない。
+「設計・実装」など複数工程をまとめた名前や任意名は拒否する。工程が変わるときは`finish`してから
+次の工程を`start`し、同じ工程に戻る場合も新しい記録を開始する。
+Task IDを渡すと、現行サイクルIDを`.aidd/v4/<task-id>/events/`から取得する。
 計測CLIはChecker Coreと別のGo moduleに置き、独立して実行する。
 セッションIDには`CODEX_SESSION_ID`を使い、ない環境では`--session`で明示する。
 
 ```sh
 go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 設計
+go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
+go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 実装
 go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
 go -C tools/aidd/session-metrics run . report --root "$PWD" --task issue-123
 go -C tools/aidd/session-metrics run . report --root "$PWD" --since 2026-09-21
@@ -94,7 +100,17 @@ Codex transcriptからセッションの累積トークン使用量を読み、
 開始・終了時の観測値の差を保存する。transcriptの形式は安定した公開契約ではないため、見つからない、
 新しい観測値がない、または形式が変わった場合はトークン数を取得不可にする。時間は開始・終了間の経過時間を単調時計で測る。
 ユーザー入力待ちを作業時間に含めない場合は、待機前に`finish`し、再開時に新しい記録を開始する。
-`report`はTask・サイクル別の合計とセッション別の内訳を返し、値が欠ける合計は不明にする。
+`report`はJSONで次の集計を返す。`--task`、`--cycle`、`--session`、`--since`の絞り込みは全ての集計に適用する。
+
+- `records`: セッション・Task・サイクル・工程を保持した終了済み記録。
+- `groups`: 既存のTask・サイクル別の合計。
+- `stage_groups`: Task・サイクル・工程別の合計。同じ工程の繰り返しや複数セッション分を合算する。
+
+各集計は`duration_seconds`（秒）、`total_tokens`、`records`（記録数）、`sessions`（セッション一覧）を持つ。
+時間またはトークン数が一件でも欠ける場合、その項目の合計は`null`（不明）とし、既知分だけの小計を合計として表示しない。
+欠測の影響は該当工程とそのTask・サイクルの合計に限られ、他工程の既知値は保持する。未終了の記録は集計しない。
+過去の任意名・複合名の記録は原文の`stage`を保持し、工程別集計に`legacy_stage: true`を付ける。
+過去の時間・トークンを推測で工程へ分配せず、Task・サイクル合計には引き続き含める。
 `finish`の計測結果と必要な`report`結果を、作業したCodexセッションのメッセージとして返す。
 サイクルを切り替える前に進行中の工程を終了し、別サイクルへ時間やトークンを付け替えない。
 この記録は個人の振り返り用であり、AIDD Coreの証拠やPR本文・テンプレートには含めない。

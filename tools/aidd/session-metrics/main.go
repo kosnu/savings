@@ -23,6 +23,8 @@ import (
 
 var taskIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,79}$`)
 
+var stages = []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善"}
+
 type counts struct {
 	Input  int64 `json:"input_tokens"`
 	Output int64 `json:"output_tokens"`
@@ -71,6 +73,8 @@ type reportRow struct {
 }
 
 type reportGroup struct {
+	Stage           string   `json:"stage,omitempty"`
+	LegacyStage     bool     `json:"legacy_stage,omitempty"`
 	Task            string   `json:"task"`
 	Cycle           string   `json:"cycle"`
 	Sessions        []string `json:"sessions"`
@@ -586,9 +590,21 @@ func report(opt options, out io.Writer) error {
 		}
 		rows = append(rows, reportRow{started.Session, started.Task, started.Cycle, started.Stage, started.StartedAt, item.EndedAt, item.DurationSeconds, item.Tokens, item.TokenNote})
 	}
+	return json.NewEncoder(out).Encode(struct {
+		Records     []reportRow   `json:"records"`
+		Groups      []reportGroup `json:"groups"`
+		StageGroups []reportGroup `json:"stage_groups"`
+	}{rows, summarize(rows, false), summarize(rows, true)})
+}
+
+func summarize(rows []reportRow, byStage bool) []reportGroup {
 	grouped := map[string][]reportRow{}
 	for _, row := range rows {
-		grouped[row.Task+"\x00"+row.Cycle] = append(grouped[row.Task+"\x00"+row.Cycle], row)
+		key := row.Task + "\x00" + row.Cycle
+		if byStage {
+			key += "\x00" + row.Stage
+		}
+		grouped[key] = append(grouped[key], row)
 	}
 	keys := make([]string, 0, len(grouped))
 	for key := range grouped {
@@ -599,6 +615,10 @@ func report(opt options, out io.Writer) error {
 	for _, key := range keys {
 		items := grouped[key]
 		group := reportGroup{Task: items[0].Task, Cycle: items[0].Cycle, Records: len(items)}
+		if byStage {
+			group.Stage = items[0].Stage
+			group.LegacyStage = !slices.Contains(stages, group.Stage)
+		}
 		sessions := map[string]bool{}
 		var seconds float64
 		var tokens int64
@@ -629,10 +649,7 @@ func report(opt options, out io.Writer) error {
 		}
 		groups = append(groups, group)
 	}
-	return json.NewEncoder(out).Encode(struct {
-		Records []reportRow   `json:"records"`
-		Groups  []reportGroup `json:"groups"`
-	}{rows, groups})
+	return groups
 }
 
 func run(args []string, out io.Writer, dep dependencies) error {
@@ -646,7 +663,7 @@ func run(args []string, out io.Writer, dep dependencies) error {
 	f.StringVar(&opt.Store, "store", "", "Git common directory内の記録が既定")
 	f.StringVar(&opt.Session, "session", "", "Codex session ID")
 	f.StringVar(&opt.Task, "task", "", "AIDD Task ID")
-	f.StringVar(&opt.Stage, "stage", "", "工程名")
+	f.StringVar(&opt.Stage, "stage", "", "単一工程名: "+strings.Join(stages, ", "))
 	f.StringVar(&opt.Cycle, "cycle", "", "reportのサイクル絞り込み")
 	f.StringVar(&opt.Since, "since", "", "reportの開始日絞り込み")
 	f.StringVar(&opt.Transcript, "transcript", "", "Codex transcriptのpath")
@@ -666,8 +683,8 @@ func run(args []string, out io.Writer, dep dependencies) error {
 		if opt.Session == "" || opt.Task == "" {
 			return errors.New("start/finishにはセッションIDとTask IDが必要です")
 		}
-		if opt.Command == "start" && opt.Stage == "" {
-			return errors.New("startには工程名が必要です")
+		if opt.Command == "start" && !slices.Contains(stages, opt.Stage) {
+			return fmt.Errorf("startには単一工程名が必要です（%s）。異なる工程はfinishしてから個別にstartしてください", strings.Join(stages, ", "))
 		}
 	}
 	if opt.Store == "" {
