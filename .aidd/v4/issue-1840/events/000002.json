@@ -1,0 +1,54 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-28T15:38:15.139408Z",
+  "task_hash": "1a8eaec5036ec72b793a48399a45dfd85302e805a884e8e1d605b6930fa933fa",
+  "previous": "3f86c73e15b4bc0f219ec2e761e3eaf95128227d574821c72bb6f1fe939783a0",
+  "revision": 1,
+  "fingerprint": "ba26d813793151e673ede83c5291a817c1a017eb1e57b1450ced5cac794d4722",
+  "data": {
+    "summary": "開発の実行依頼を必要なbranch・commit・push・PR作成/更新までの委任としてGit Workflowに定義し、AIDD workflowから参照する。Issue種別と入口による差をなくす。既存branch再利用、ローカル限定、説明/調査、差分保護、merge/deploy・Audit境界を維持。既存rule-mapは両pathからGit WorkflowとAIDD正本へ到達するため変更不要。CLI/Core/CIの権限判定の追加や履歴ADRの変更は不要。文書のみのためアプリ検証は対象外。",
+    "paths": [
+      "docs/harness/policies/git-workflow.md",
+      "docs/ai-driven-development/workflow.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-1840",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "ba611348b5e69ae3169453b9c41688e17b71b98edd918926536f535f9d7c0e3b",
+  "cycle_id": "issue-1840/cycle-0001"
+}

@@ -1,0 +1,50 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-28T15:38:49.992991Z",
+  "task_hash": "1a8eaec5036ec72b793a48399a45dfd85302e805a884e8e1d605b6930fa933fa",
+  "previous": "8baa7867cfb4db3c6890380f7a37ceedb47cd6fdcecc3fc592a472371f02df4a",
+  "revision": 1,
+  "fingerprint": "e5c99d1ba18815ba55f20cab68789717c77a58c607d9cd7b40b95799c25b286f",
+  "data": {
+    "summary": "指摘なし。実差分2文書とIssue全完了条件を照合。既存索引から両pathの正本・依存closureへ到達でき、索引変更不要。Core/CLI/CIの変更はなく、ADR/旧Taskは保持。文書のみのためアプリ検証不要。host権限制御による承認は別途残る。\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし",
+    "criteria": [
+      {
+        "criterion": "開発依頼から必要なブランチを個別承認なしで作成できる",
+        "evidence": "Git Workflowの開発の実行委任とブランチ節で委任を根拠に作成を許可。main/detached開始は作成、使える既存branchは再利用。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必要な検証・レビュー後にPRを個別承認なしで作成できる",
+        "evidence": "Git Workflowでcommit/push/PR/配信確認を委任に含め、AIDDのFeature Request限定を除去。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "入口による追加承認条件の差がない",
+        "evidence": "Task/Bug/Featureと直接会話の実行依頼、skill有無を同じ条件で扱う。issue-template-selectionのFeature説明も一般委任の部分集合として整合。AGENTS入口とrepo branch/prの追加確認不要ルールも整合。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "確認が必要な不明点と通常の委任を区別する",
+        "evidence": "ローカルのみ、commit禁止、PR禁止は優先。説明/調査は非実行。未保存差分・対象曖昧・破壊的操作は既存確認を保持。merge/deploy、Audit、host承認を拡張しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "2cf9bf515d5bb112f8657e561518d975a0aa16823280474627ab03bd1cf7a971",
+  "cycle_id": "issue-1840/cycle-0001"
+}
