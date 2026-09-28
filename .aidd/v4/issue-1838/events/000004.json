@@ -1,0 +1,55 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-28T13:32:48.48492Z",
+  "task_hash": "840e2bf46c1fb87e15d798b0166f18689b9ff85493acaba38942a47e38831ee2",
+  "previous": "4af885debf69bcbf34ae59b6795f6959bbb430bb4f8eb423058526656f598fa2",
+  "revision": 1,
+  "fingerprint": "e802f3fd656aed3e3927b9696a466b99a400ad10d204f13784626bd40167c786",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.code-review\n- Unresolved: なし\n指摘なし。通常・保護対象・読み取り・拒否のケースを文書とhost仕様で評価。実際の保護領域書き込みの成功は未検証であり、このreviewは文書方針の妥当性を対象とする。配信用branch作成の回答待ち。",
+    "criteria": [
+      {
+        "criterion": "保護領域へのGit書き込みは初回からrequire_escalatedを要求する",
+        "evidence": "codex-adapter.md のGit管理領域への書き込み節でgit-common-dirとgit-dirの事前照合、add/commit/fetch/branch操作/pushへの初回require_escalatedを指定。現在hostのworktree管理領域はread-onlyであり、common dirのみwrite許可でも通常書き込み可とは判定しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "rulesの許可とsandbox書き込み境界を区別する",
+        "evidence": "同節で既存rulesの許可をsandbox内書き込み許可と解釈しない旨を明記。公式Rulesのallowはsandbox外実行許可、Sandboxは技術境界と承認の区別を説明しており一致する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "通常実行の失敗を昇格の前提にしない",
+        "evidence": "同節で権限エラーを昇格要求の前提にしないと明記。保護対象が既知なら通常実行を挟まず要求する経路になる。host禁止・拒否時は迂回停止を明記。文書のケースレビューで確認し、保護領域への実書き込み試験は未実施。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "読み取りを一律昇格しない",
+        "evidence": "diff/log/show/rev-parseを明示的に対象外とし、非保護書き込みも通常経路とする。今回git diffとrev-parseは通常経路で成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "制約と既存ルール・到達経路を維持する",
+        "evidence": "変更はCodex adapterと本Task記録のみ。AGENTSの既存Codex adapterリンクと追加when_to_readが入口。rule-map必須集合11件と追加code-reviewを確認。Issue #1825のTask、rules設定、sandbox設定、Core/CLI/CI、アプリ実装、ADRは変更なし。Git Workflowの書き込み境界確認にCodex固有の実行選択を補い、権限を拡張しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "7876a7dba04587cc2d30ec3730488de6dec66257b05932bfed807e1f3398148b",
+  "cycle_id": "issue-1838/cycle-0001"
+}
