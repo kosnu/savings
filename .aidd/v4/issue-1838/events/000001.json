@@ -1,0 +1,14 @@
+{
+  "sequence": 1,
+  "kind": "start",
+  "time": "2026-09-28T13:31:25.974504Z",
+  "task_hash": "840e2bf46c1fb87e15d798b0166f18689b9ff85493acaba38942a47e38831ee2",
+  "previous": "",
+  "revision": 0,
+  "fingerprint": "6d3321b7cd0b826b3977d5477cfd6d9bc000818f026be82ae1ca34c131f07155",
+  "data": {
+    "initial_changes": []
+  },
+  "hash": "f42287501dc69eaf7a2a712f7d7f426cdc0ccc16728d4eeba83015f7ba55f312",
+  "cycle_id": "issue-1838/cycle-0001"
+}

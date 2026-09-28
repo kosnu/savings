@@ -1,0 +1,44 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-28T13:31:46.934404Z",
+  "task_hash": "840e2bf46c1fb87e15d798b0166f18689b9ff85493acaba38942a47e38831ee2",
+  "previous": "f42287501dc69eaf7a2a712f7d7f426cdc0ccc16728d4eeba83015f7ba55f312",
+  "revision": 1,
+  "fingerprint": "6d3321b7cd0b826b3977d5477cfd6d9bc000818f026be82ae1ca34c131f07155",
+  "data": {
+    "summary": "codex-adapterのGit実行方針と参照条件だけを更新する。Git common dirとworktree固有git dirの保護を実行前に確認し、保護対象への書き込みは最初からrequire_escalatedとする。rulesとsandboxを区別し、読み取り・非保護書き込み・拒否時の境界を維持する。AGENTSからCodex adapterへの既存参照とfront matterで到達できるためrule-map変更不要。Core、CLI、CI、アプリの動作は変更せず、アプリ検証不要。Issue #1825とは別Task。現在detached HEADのため配信用branch作成のみユーザー確認待ち。",
+    "paths": [
+      "docs/ai-driven-development/codex-adapter.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-1838",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "3992f54b29dfc5683186cc9b9c23f2f1e656c511dd9cf888747068437e673643",
+  "cycle_id": "issue-1838/cycle-0001"
+}
