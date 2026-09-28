@@ -1,0 +1,48 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-28T15:38:17.371568Z",
+  "task_hash": "1a8eaec5036ec72b793a48399a45dfd85302e805a884e8e1d605b6930fa933fa",
+  "previous": "ba611348b5e69ae3169453b9c41688e17b71b98edd918926536f535f9d7c0e3b",
+  "revision": 1,
+  "fingerprint": "e5c99d1ba18815ba55f20cab68789717c77a58c607d9cd7b40b95799c25b286f",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-1840",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":9}\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=1e533e7c872192b347f271c8190c51899d353afe checked=9\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "8baa7867cfb4db3c6890380f7a37ceedb47cd6fdcecc3fc592a472371f02df4a",
+  "cycle_id": "issue-1840/cycle-0001"
+}
