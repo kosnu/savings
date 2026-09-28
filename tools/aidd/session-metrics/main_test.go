@@ -84,14 +84,16 @@ func mustRun(t *testing.T, f *fixture, command string, flags ...string) string {
 }
 
 func reportResult(t *testing.T, f *fixture, flags ...string) struct {
-	Records []reportRow   `json:"records"`
-	Groups  []reportGroup `json:"groups"`
+	Records     []reportRow   `json:"records"`
+	Groups      []reportGroup `json:"groups"`
+	StageGroups []reportGroup `json:"stage_groups"`
 } {
 	t.Helper()
 	output := mustRun(t, f, "report", flags...)
 	var result struct {
-		Records []reportRow   `json:"records"`
-		Groups  []reportGroup `json:"groups"`
+		Records     []reportRow   `json:"records"`
+		Groups      []reportGroup `json:"groups"`
+		StageGroups []reportGroup `json:"stage_groups"`
 	}
 	if err := json.Unmarshal([]byte(output), &result); err != nil {
 		t.Fatal(err)
@@ -323,5 +325,121 @@ func TestSystemClockReturnsAReading(t *testing.T) {
 	reading, err := systemClock()
 	if err != nil || reading.MonoNS <= 0 || reading.WallNS <= 0 {
 		t.Fatalf("clock unavailable: %+v %v", reading, err)
+	}
+}
+
+func TestStartRequiresSingleStageBeforeWriting(t *testing.T) {
+	for _, stage := range []string{"", "設計・実装", "Build / Verify", "設計 実装", "作業", " 設計"} {
+		t.Run(stage, func(t *testing.T) {
+			f := newFixture(t)
+			if _, err := f.execute("start", "--session", "one", "--task", "task-a", "--stage", stage); err == nil || !strings.Contains(err.Error(), "単一工程名") {
+				t.Fatalf("invalid stage accepted: %q: %v", stage, err)
+			}
+			if _, err := os.Stat(f.store); !os.IsNotExist(err) {
+				t.Fatalf("rejected stage touched store: %v", err)
+			}
+		})
+	}
+	for _, stage := range []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善"} {
+		t.Run(stage, func(t *testing.T) {
+			f := newFixture(t)
+			f.reading(1, "boot-a")
+			f.reading(4, "boot-a")
+			mustRun(t, f, "start", "--session", "one", "--task", "task-a", "--stage", stage)
+			mustRun(t, f, "finish", "--session", "one", "--task", "task-a")
+			group := reportResult(t, f).StageGroups[0]
+			if group.Stage != stage || group.LegacyStage {
+				t.Fatalf("canonical stage lost: %+v", group)
+			}
+		})
+	}
+}
+
+func TestStageTotalsCombineRepeatedStagesAndSessions(t *testing.T) {
+	f := newFixture(t)
+	for index, item := range []struct{ session, stage string }{
+		{"one", "設計"}, {"one", "実装"}, {"two", "設計"}, {"one", "設計"},
+	} {
+		f.reading(int64(index*10+1), "boot-a")
+		f.reading(int64(index*10+4), "boot-a")
+		f.usage = []*sample{observed(1, 10), observed(2, 25)}
+		mustRun(t, f, "start", "--session", item.session, "--task", "task-a", "--stage", item.stage)
+		mustRun(t, f, "finish", "--session", item.session, "--task", "task-a")
+	}
+	result := reportResult(t, f)
+	if len(result.StageGroups) != 2 || len(result.Groups) != 1 || *result.Groups[0].TotalTokens != 60 || *result.Groups[0].DurationSeconds != 12 {
+		t.Fatalf("unexpected totals: %+v", result)
+	}
+	for _, group := range result.StageGroups {
+		want := 1
+		if group.Stage == "設計" {
+			want = 3
+			if strings.Join(group.Sessions, ",") != "one,two" {
+				t.Fatalf("sessions lost: %+v", group)
+			}
+		}
+		if group.Task != "task-a" || group.Cycle != "task-a/cycle-0001" || group.Records != want || *group.DurationSeconds != float64(want*3) || *group.TotalTokens != int64(want*15) {
+			t.Fatalf("unexpected stage total: %+v", group)
+		}
+	}
+	filtered := reportResult(t, f, "--session", "one", "--task", "task-a", "--cycle", "task-a/cycle-0001", "--since", "1970-01-01")
+	if len(filtered.StageGroups) != 2 || *filtered.Groups[0].TotalTokens != 45 {
+		t.Fatalf("filters not applied: %+v", filtered)
+	}
+	for _, group := range filtered.StageGroups {
+		if strings.Join(group.Sessions, ",") != "one" || group.Stage == "設計" && *group.TotalTokens != 30 {
+			t.Fatalf("stage filter not applied: %+v", group)
+		}
+	}
+	for _, flags := range [][]string{{"--task", "task-b"}, {"--cycle", "task-a/cycle-0002"}, {"--session", "three"}, {"--since", "2099-01-01"}} {
+		empty := reportResult(t, f, flags...)
+		if empty.Records == nil || empty.Groups == nil || empty.StageGroups == nil || len(empty.Records)+len(empty.Groups)+len(empty.StageGroups) != 0 {
+			t.Fatalf("empty report changed: %+v", empty)
+		}
+	}
+}
+
+func TestStageUnknownsDoNotContaminateOtherStages(t *testing.T) {
+	f := newFixture(t)
+	for index, stage := range []string{"実装", "実装", "検証"} {
+		f.reading(int64(index*10+1), "boot-a")
+		f.reading(int64(index*10+4), "boot-a")
+		f.usage = []*sample{observed(1, 10), observed(2, 25)}
+		if index == 1 {
+			f.usage = []*sample{nil, nil}
+			f.clocks[1].BootID = ptr("boot-b")
+		}
+		mustRun(t, f, "start", "--session", "one", "--task", "task-a", "--stage", stage)
+		mustRun(t, f, "finish", "--session", "one", "--task", "task-a")
+	}
+	result := reportResult(t, f)
+	if result.Groups[0].TotalTokens != nil || result.Groups[0].DurationSeconds != nil {
+		t.Fatalf("partial total presented as complete: %+v", result.Groups)
+	}
+	for _, group := range result.StageGroups {
+		if group.Stage == "実装" {
+			if group.TotalTokens != nil || group.DurationSeconds != nil || group.Records != 2 {
+				t.Fatalf("partial stage presented as complete: %+v", group)
+			}
+		} else if group.TotalTokens == nil || *group.TotalTokens != 15 || group.DurationSeconds == nil || *group.DurationSeconds != 3 {
+			t.Fatalf("known stage lost: %+v", group)
+		}
+	}
+}
+
+func TestLegacyCombinedStageCanFinishWithoutInventingBreakdown(t *testing.T) {
+	f := newFixture(t)
+	data := `{"kind":"start","id":"legacy","session":"one","task":"task-a","cycle":"task-a/cycle-0001","stage":"設計・実装","started_at":"1970-01-01T00:18:20Z","clock_ns":100000000000,"wall_ns":1100000000000,"boot_id":"boot-a","usage":null}` + "\n"
+	if err := os.WriteFile(f.store, []byte(data), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if len(reportResult(t, f).StageGroups) != 0 {
+		t.Fatal("unfinished stage was counted")
+	}
+	f.reading(103, "boot-a")
+	mustRun(t, f, "finish", "--session", "one", "--task", "task-a")
+	result := reportResult(t, f)
+	if len(result.StageGroups) != 1 || result.StageGroups[0].Stage != "設計・実装" || !result.StageGroups[0].LegacyStage || *result.StageGroups[0].DurationSeconds != 3 || result.StageGroups[0].TotalTokens != nil || *result.Groups[0].DurationSeconds != 3 || result.Records[0].Stage != "設計・実装" {
+		t.Fatalf("legacy record was reinterpreted: %+v", result)
 	}
 }
