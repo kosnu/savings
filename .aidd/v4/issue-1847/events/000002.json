@@ -1,0 +1,54 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-29T17:59:17.756593Z",
+  "task_hash": "d8986a29b950a2d3a5da666393df59f0be58571479155600ab002d02e9dd5a38",
+  "previous": "aac984ad26c566bbe55ec571f8cede55df2fc6a69a6ff125dd22cb4c31abcc66",
+  "revision": 1,
+  "fingerprint": "e5e92a832935bba1edd1867c7a3eb233cf1595d4aaba3a0b6311b5cff13b7fa5",
+  "data": {
+    "summary": "Issueの4件に限定。整形順序と工程計測開始・切替は既存規則の適用漏れとして既存操作例を補強し重複規則を作らない。欠測報告の範囲、文脈切り詰め時の不足範囲取得、変更しない承認の引継ぎと記録差分配信後の返信順序は既存正本へ不足条件を追記。新runner・新承認段階・過去記録改変・アプリ変更なし。既存入口とrule-mapで同じ責務の正本へ到達するので索引変更なし。検証は対象Markdownの整形後にformat-check、diff-check、Core check-allを実行し、4件の具体的な正例・反例をreviewへ保存。計測開始以前のIntent確認・調査・設計初期は欠測として報告する。",
+    "paths": [
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "docs/ai-driven-development/codex-adapter.md",
+      "docs/harness/policies/git-workflow.md"
+    ],
+    "commands": [
+      [
+        "vp",
+        "fmt",
+        "docs/ai-driven-development/aidd-checker-operations.md",
+        "docs/ai-driven-development/codex-adapter.md",
+        "docs/harness/policies/git-workflow.md",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-1847",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "3150f2bcfb6aa6efe84f84713b5bb247c1b3066c1fbcd70eab1b9877f02139db",
+  "cycle_id": "issue-1847/cycle-0001"
+}

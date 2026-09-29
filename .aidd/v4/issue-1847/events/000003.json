@@ -1,0 +1,47 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-29T18:00:16.742391Z",
+  "task_hash": "d8986a29b950a2d3a5da666393df59f0be58571479155600ab002d02e9dd5a38",
+  "previous": "3150f2bcfb6aa6efe84f84713b5bb247c1b3066c1fbcd70eab1b9877f02139db",
+  "revision": 1,
+  "fingerprint": "53f91256d1bfef87de18c2bb614dabc03af3b88679478bb81f5a5d5e3b0ae8d3",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "vp",
+          "fmt",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/ai-driven-development/codex-adapter.md",
+          "docs/harness/policies/git-workflow.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "VITE+ - The Unified Toolchain for the Web\n\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 263ms on 3 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-1847",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":11}\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "62077694c04b2498e5f4e671f9e9ceeae82933150edaacf1f086fe13f1cbb766",
+  "cycle_id": "issue-1847/cycle-0001"
+}
