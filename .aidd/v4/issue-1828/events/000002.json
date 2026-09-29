@@ -1,0 +1,46 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-29T14:53:28.964Z",
+  "task_hash": "5de02a04228212741ea0b975e1f1bb42ab4228c608b68d78ddc975b8ec59c0a5",
+  "previous": "2d1c24f96bcc0aa2fc642734d977553785c430d670c69c39f239e2616f903924",
+  "revision": 1,
+  "fingerprint": "a9fe9a1a67d6a01bfa615ef0eb93aeec9325d059d192bfd25ce3cbc47a83d2c1",
+  "data": {
+    "summary": "Workflowの既存意味評価をIntent・権限・成果の独立照合へ具体化し、Code Review Policyから同じ判断へ接続する。匿名化した有限の事例と適用結果をsemantic-review-cases.mdに置く。仕様から期待値を転記せず目的に必要な性質と実測を比較する。既存の責務・path routingを維持するためrule-map変更は不要。新規承認段階、Core gate、CLI、host入口、CI、アプリ、計測機能の変更は行わない。事例は規範の分割ではなく検証例なので新ruleを登録しない。Goal作成の依頼はない。",
+    "paths": [
+      "docs/ai-driven-development/workflow.md",
+      "docs/harness/policies/code-review.md",
+      "docs/ai-driven-development/semantic-review-cases.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-1828",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "13f6ec430e7276e51141dcfd90f5b0d0eb3de38a416a85b4f62b66336d58c9d5",
+  "cycle_id": "issue-1828/cycle-0001"
+}
