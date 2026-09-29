@@ -79,7 +79,9 @@ ADRの変更・参照では、当時の判断を現行ルールとして強制�
 Go Coreの選択結果に、意味的な変更面から必要な規則を追加する。
 
 [Workflow](../../ai-driven-development/workflow.md)と[Core](../../ai-driven-development/aidd-checker.md)を適用する。
-Intentの完了条件、規則の意味、実際の動作、失敗時の挙動を証拠と照合する。
+意味評価は[Workflowの評価の責務](../../ai-driven-development/workflow.md#評価の責務)に従い、元のIntent・有効な実行権限・最新依頼と実際の成果を照合する。
+agentが追加した仕様と検証条件の一致だけで合格にせず、目的から導く期待結果と実際の出力・副作用・差分の対応、追加判断の必要性と権限の根拠を確認する。
+Intentの各完了条件のreviewには、その照合結果とpass/fail/unknown、差がある場合の次の行動を根拠として残す。失敗時の挙動や未確認事項も含める。
 Coreの合格は意味評価の代替ではなく、reviewの宣言は実行証拠の代替ではない。
 Taskを跨ぐ差分混入、古い検証、stageとの内容・mode不一致、未承認の改善を成功扱いしない。
 

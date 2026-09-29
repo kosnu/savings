@@ -1,0 +1,55 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-29T14:56:28.756058Z",
+  "task_hash": "5de02a04228212741ea0b975e1f1bb42ab4228c608b68d78ddc975b8ec59c0a5",
+  "previous": "c93cbee66d634b891a17e7c60f035255160dd901901692ad8bf94739d72825ce",
+  "revision": 1,
+  "fingerprint": "ca59d1db3e5d6132a57eea18e5c4f98a2da12cb6402fceeba2aae82f6c4bd841",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n最終差分3文書を全適用規則と照合し、指摘なし。5事例の判断と根拠を確認。新たな承認段階・必須工程・自動権限gateやアプリ変更なし。適用事例の成功から実運用効果は推論しない。Taskには必要なIntent出典と実行権限だけを保存し、過去事例の会話・個人情報・生ログ・セッション識別子は含めない。",
+    "criteria": [
+      {
+        "criterion": "元の依頼とagentの追加判断を区別して必要性と権限を評価できる",
+        "evidence": "workflow.md 評価の責務の第1項は元のIntentとagentの追加判断を区別し、必要性と権限の根拠で評価する。semantic-review-cases.md 公開範囲の追加では正確な測定でも公開は不要な範囲拡張と判断。委任内の技術判断では成果と権限を変えない選択を継続と判断。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "目的から導く期待結果と実際の結果・副作用を照合できる",
+        "evidence": "workflow.md 第2項は目的から保つべき性質を導き出力・副作用・差分と照合する。候補テストが成功していても全期間の増分を欠くためfailとした。目的から期待値を導く根拠を事例に記載。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "匿名化事例で公開範囲の追加と集計の欠落20を検出する",
+        "evidence": "semantic-review-cases.md 公開範囲の追加をfailと判定。累積値はPythonでも190-100=90、区間和50+20+20=90、90-70=20を確認。仕様が70を期待していても欠落を検出。リセットや対象が不明な境界はunknownとし、欠落した特定区間を根拠なく断定しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "返信限定・承認済み改善・通常技術判断で適切な次の行動を選ぶ",
+        "evidence": "返信限定は現状に基づく返信のみを実行し編集不可。明示承認済みの同じ提案・対象は再承認なしで継続。最新の進捗質問を権限失効とせず、明示された編集停止は優先。整数演算と既存テストの選択は委任内として継続。passは行動選択であり未実行の実装結果の合格ではない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "既存正本と整合し事例判定・必要検証・最終差分レビューを完了する",
+        "evidence": "正本workflow.mdとcode-review.mdの既存レビューを更新し、事例をoverviewとしてリンク。新工程・承認段階・Core gateなし。rules --pathsで3変更pathの直接一致・surface・依存closureを選択し全12規則を読了して最終差分と照合。本文所有と適用範囲は不変なので索引変更不要。相対リンク確認成功。verifyのgit diff --checkとcheck-all成功。アプリ・Core・ADR変更なしのため各実装用テストは対象外。事例は公開可能な仮想入力のみ。実運用の再発率・独立再現性は未検証と明記。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "69c8de5d81dc01fa260d4643f77bb406b140673503c98549138d6d2ce36a837b",
+  "cycle_id": "issue-1828/cycle-0001"
+}
