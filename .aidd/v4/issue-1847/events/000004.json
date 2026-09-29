@@ -1,0 +1,60 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-29T18:00:54.648899Z",
+  "task_hash": "d8986a29b950a2d3a5da666393df59f0be58571479155600ab002d02e9dd5a38",
+  "previous": "62077694c04b2498e5f4e671f9e9ceeae82933150edaacf1f086fe13f1cbb766",
+  "revision": 1,
+  "fingerprint": "53f91256d1bfef87de18c2bb614dabc03af3b88679478bb81f5a5d5e3b0ae8d3",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n全完了条件を元のIssueと照合しpass。指摘なし。文書のみでアプリ検証対象外。返信順序の反例は文面の机上確認であり外部投稿テストではない。",
+    "criteria": [
+      {
+        "criterion": "整形後の内容に検証証拠が結び付く",
+        "evidence": "期待: formatterによる変更後の内容に証拠が結び付き検証中の変更を許さない。観測: 3対象Markdownへvp fmt --writeを実行後、event 000003のformat-check・diff-check・check-allがexit 0、stable=true。Coreの既存整形前提は変更せず操作例へ接続。反例: verify内で整形する、またはhookがsourceを変える場合は旧証拠を使えず再検証する既存契約を維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "工程計測の実際の範囲と欠測を区別する",
+        "evidence": "期待: 開始・終了が実際の工程に対応し欠測を全体の完全な合計に含めない。観測: 今回の開始失敗は成功扱いせず書込可能cacheで開始し、設計→実装→検証→レビューでfinish成功後に次のstart成功を確認した。開始以前のIntent確認・調査・設計初期は欠測と明示し過去値を補完していない。反例の文面照合: 未終了記録はreport対象外なので数値が返っても全体値にしない。工程を跨ぐ記録は単一工程の正確な値にしない。開始・切替は既存規則の適用漏れ、集計対象外区間の報告は正本の不足として区別。計測値・セッション識別子・生ログは公開Taskへ保存しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必要文脈を取得し切り詰めを見落とさない",
+        "evidence": "期待: 必須文書を省略せず不足だけ取得する。観測: 初回一括取得のtruncated表示を認識し、判断に必要なGit Workflow・rule-map選択情報を個別取得して確認。続く本文取得は各出力に切り詰め表示なし。反例の文面照合: exit 0でもtruncatedなら読了扱いしない、同じ一括取得の再実行はしない。絞込はDocumentation Policyの適用漏れ、欠落範囲の回収と未確認判断はadapterの不足。AGENTSから既存adapterへ到達する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "変更しない判断への承認を実装承認にしない",
+        "evidence": "期待: 承認の対象と結論を保存し否定を肯定へ変換しない。観測: PR1846の解決済みthreadでは変更不要判断の返信と記録pushの補足を確認した。本Issueはその判断を変更せず、Git Workflowへ承認の対象・結論の引継ぎを明示。ケース照合: 変更不要判断への同意なら対象コード変更なし、明示された修正提案への承認ならその修正範囲のみ。既存workflowの権限照合で扱える事項の具体化であり追加承認段階なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "記録差分の配信後に返信・解決し空コミットを要求しない",
+        "evidence": "期待: 完了の返信が配信事実に先行しない。観測: PR1846公開threadは変更不要返信の後に記録commit・pushの補足があり、記録だけの差分にも配信順序が必要と確認。新文面をケース照合: コード差分あり／Task記録のみの両方で検証→commit→push→PR反映確認→返信→解決。push失敗またはPR反映未確認なら完了返信・resolveを保留。全差分なしなら理由返信に空commit不要。返信権限の前提と未完了threadの解決禁止を維持。今回は既存PRへの返信・解決は実行していない。既存規則の記録のみの差分への順序不足を補う。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "各対策で適用漏れと不足を分け具体例を確認する",
+        "evidence": "上記5条件で既存正本、今回の観測または明示した机上の反例、変更箇所を照合。変更は正本3件22行のみでアプリ、Core、計測実装、新規承認段階、過去Taskに変更なし。rule-mapの3対象pathに対する選択で全12規則と依存を確認し本文読了。責務・入口・適用範囲は移動しないので索引変更不要。文書により将来の全agent実行を機械的に保証するものではない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "b54bc17d5634f894d77583dfe9310888fef32d155174316a0059d9a5f243666a",
+  "cycle_id": "issue-1847/cycle-0001"
+}

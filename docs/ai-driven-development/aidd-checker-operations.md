@@ -26,6 +26,9 @@ go -C tools/aidd/checker build -o /tmp/aidd-v4 ./cmd/aidd-checker
 ```
 
 Coreを変更したら現在sourceからbinaryを作り直す。古いbinaryの成功を新実装の証拠にしない。
+`verify`の前に、変更対象へ既存formatterを適用する。Markdownなら`vp fmt <変更path...> --write`、
+Goなら`gofmt -w <変更Goファイル...>`を使い、Webは`AGENTS.md`の整形手順に従う。
+整形は検証commandへ混ぜず、整形後の内容に対して検証する（[Coreの検証契約](aidd-checker.md#検証)）。
 Go cacheに書込できない環境では、repository外の書込可能な`GOCACHE`を指定する。
 Taskの再開では`status`と該当eventを読み、Intent、最新decision、未達条件、証拠、承認を確認する。
 
@@ -90,6 +93,9 @@ go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --st
 go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
 go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 実装
 go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
+go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 検証
+# 実際の検証をここで実行する
+go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
 go -C tools/aidd/session-metrics run . report --root "$PWD" --task issue-123
 go -C tools/aidd/session-metrics run . report --root "$PWD" --since 2026-09-21
 ```
@@ -112,6 +118,11 @@ Codex transcriptからセッションの累積トークン使用量を読み、
 過去の任意名・複合名の記録は原文の`stage`を保持し、工程別集計に`legacy_stage: true`を付ける。
 過去の時間・トークンを推測で工程へ分配せず、Task・サイクル合計には引き続き含める。
 `finish`の計測結果と必要な`report`結果を、作業したCodexセッションのメッセージとして返す。
+`start`の成功を確認してからその工程に入り、切り替え時は`finish`の成功を確認して次を開始する。
+開始忘れ・失敗、終了忘れ、工程の切り替え漏れがあれば、過去の時刻やトークンを推測して補わない。
+工程をまたいだ記録は単一工程の正確な値として扱わず、その範囲の不一致を報告する。
+`report`の集計は終了済み記録の範囲に限られる。未開始・未終了の区間と計測対象外を報告に併記し、
+記録上の合計が数値でも欠測を含む作業全体の合計と表示しない。取得できた時間と取得不可のトークンも区別する。
 サイクルを切り替える前に進行中の工程を終了し、別サイクルへ時間やトークンを付け替えない。
 この記録は個人の振り返り用であり、AIDD Coreの証拠やPR本文・テンプレートには含めない。
 計測ツールのGoテストはPR CIでCoreと別に実行する。
