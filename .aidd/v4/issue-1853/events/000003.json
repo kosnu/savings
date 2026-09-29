@@ -1,0 +1,35 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-29T18:26:59.516413Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "0e88c18b53061dd18885de9e389ba409e353782c685f8644c8089a1e159ca367",
+  "revision": 1,
+  "fingerprint": "2d7fa2d23ec7a7074a36444917b7fcab5c679a1b3cae81ae3e649dd24c5bce3c",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/private/tmp/savings-aidd-through-today/aidd",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":12}\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "2318823d988d72e0aa3e50a0a11ba440f4d258532182192fe0046766afd85efc",
+  "cycle_id": "issue-1853/cycle-0001"
+}

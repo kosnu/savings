@@ -1,0 +1,50 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-29T18:27:31.567029Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "2318823d988d72e0aa3e50a0a11ba440f4d258532182192fe0046766afd85efc",
+  "revision": 1,
+  "fingerprint": "2d7fa2d23ec7a7074a36444917b7fcab5c679a1b3cae81ae3e649dd24c5bce3c",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n2文書の最終差分をIssueの4完了条件と全適用規則へ照合。対策選択の根拠不足という原因へ6行の判断方法と5事例で対処し、固定の新工程・承認・実装基盤は増やさない。既存workflowの責務とsemantic-review-casesへのリンクを維持するため索引変更不要。Code Review Policyは既存workflow参照で新しい判断も対象になる。ADR/Core/アプリ/依存更新なし。事例の有限検証から将来の再発率を断定しない。Taskと差分は技術的要約のみで、私的な会話・生ログ・セッション識別子なし。",
+    "criteria": [
+      {
+        "criterion": "上流の一次情報・対象版・再現条件から独自対策の必要性を評価できる",
+        "evidence": "workflowの開発ループは外部依存が原因と考えられる場合に限定し、対策選択前に対象版・再現条件と一次情報、公開状況・適用可否を照合する。事例1は同じ操作が修正版で通る入力なのでテスト操作変更をfailとし、修正版採用候補から必要検証へ進める。公開済みの上流修正が実在することはjsdom v30.1.1リリースとIssue #4347でも照合したが、特定版の更新を今回実装したとは扱わない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "公開済み・未公開・適用不能・不明を区別し必要な作業を続けられる",
+        "evidence": "事例1の適用可能版は採用候補、事例2の未公開PRは通常更新で解決と報告できずfail、事例3の非互換版は暫定対策調査をpass、事例4の情報不足は適用可否unknownとした。公開時期・環境・一致情報を変えると行動も変わる。上流待ちの強制も、上流修正があるだけで独自対策を禁止する判断もない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "最小再現とプロジェクト全体の検証状態を区別できる",
+        "evidence": "workflow末文と事例1は最小再現の成功からプロジェクト検証済みを推論しない。最小再現成功・プロジェクト未検証の入力では次の行動は必要検証であり完了報告ではない。今回もアプリ・依存変更をせずアプリの修正済みを主張しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "ローカル修正には不要な外部調査を強制せず事例の判断で検証できる",
+        "evidence": "事例5は外部依存と無関係な自作計算式の誤りであり、外部調査を挟まずローカル修正と回帰検証をpassとした。新工程・承認・CLI・固定網羅調査を導入しない。文書のキーワード存在だけでなく、目的の操作保持、版の取得可能性・適合性と観測不足に基づく5件の判断を確認した。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "67f78947ecefa2c35761e69f4988eb5c7ccf4e7cde2979c11228d55883d60f5a",
+  "cycle_id": "issue-1853/cycle-0001"
+}
