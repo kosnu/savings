@@ -1,0 +1,46 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-29T15:51:43.158778Z",
+  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
+  "previous": "01a62e32bded0421b947fb07b234e74842db9aaffcc43b16ca8c95860c93a6fb",
+  "revision": 1,
+  "fingerprint": "6e69d5aa61c6f01c996679e66aae72fd5008d96e73d991ec3ca781f4d8e98388",
+  "data": {
+    "summary": "Codex adapterを実行状態の正本としAGENTSから実行前に参照する。既存toolの戻り値・追跡ID・終了状態を使う。functionsのcellとcommand sessionを区別し、無出力待機・終了0/非0・失敗後再実行を実ツールで確認し匿名化した結果をreviewへ残す。新runnerや永続実行状態は不要。rule-mapの既存AGENTS/docs経路と依存closureで十分であり索引変更不要。Core/CLI/CI/アプリ/意味レビュー/計測仕様は変更しない。",
+    "paths": [
+      "AGENTS.md",
+      "docs/ai-driven-development/codex-adapter.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-1829",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "d3eda779e03856a8983773f5312922fe0e9f39608c36d7c6c5d5bdceb733d394",
+  "cycle_id": "issue-1829/cycle-0001"
+}
