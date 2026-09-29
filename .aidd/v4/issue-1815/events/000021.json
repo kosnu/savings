@@ -2,10 +2,10 @@
   "sequence": 21,
   "kind": "audit",
   "time": "2026-09-25T08:31:47.129419Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "8438f884ecb3a2a02a0ee83bb951085b55adda2a564b03c25bcbdbdc4cf627c5",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "3f0096a6ccd0f249dead3eb2d120c5cadf2e6026fe69db54d0a03ccd87e6f305",
   "revision": 5,
-  "fingerprint": "f3d7ada7f4ac26f033c80ec14241269e9a24fb8953b491d02b98467b3a8da991",
+  "fingerprint": "5de0970b88f26ea660bdcc341c911b0a64c2fbcacc0abdc03f5298703556deff",
   "data": {
     "summary": "承認済みP2/P3/P4を実装・検証・Ship済み。結果Auditを記録する。新たに取得したPRの開始前差分coverage指摘は未対応として分離し、今回の承認を流用しない。",
     "findings": [
@@ -32,5 +32,5 @@
       }
     ]
   },
-  "hash": "4e85561530c7594bb3008fd91d19d506866aff86bb0a58e5414a059b1de4b270"
+  "hash": "29b514aa46f2ff507f89bb88fbb24f576cf91d09d192c150dd5822b1003d7efc"
 }

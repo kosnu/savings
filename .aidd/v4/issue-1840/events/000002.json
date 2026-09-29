@@ -2,10 +2,10 @@
   "sequence": 2,
   "kind": "decision",
   "time": "2026-09-28T15:38:15.139408Z",
-  "task_hash": "1a8eaec5036ec72b793a48399a45dfd85302e805a884e8e1d605b6930fa933fa",
-  "previous": "3f86c73e15b4bc0f219ec2e761e3eaf95128227d574821c72bb6f1fe939783a0",
+  "task_hash": "87b902d0014bc6681a0cc878afc920ab5e638fada97974193f7748817d67e00b",
+  "previous": "495bfe54edaf65acbfa7d9c7a3cbe38a1ae0168bb3c9bc2f4cc52403186b7803",
   "revision": 1,
-  "fingerprint": "ba26d813793151e673ede83c5291a817c1a017eb1e57b1450ced5cac794d4722",
+  "fingerprint": "f82526d184a9f6379652f974526136bb5cb12508fc19c4f5d386c89bb05e7885",
   "data": {
     "summary": "開発の実行依頼を必要なbranch・commit・push・PR作成/更新までの委任としてGit Workflowに定義し、AIDD workflowから参照する。Issue種別と入口による差をなくす。既存branch再利用、ローカル限定、説明/調査、差分保護、merge/deploy・Audit境界を維持。既存rule-mapは両pathからGit WorkflowとAIDD正本へ到達するため変更不要。CLI/Core/CIの権限判定の追加や履歴ADRの変更は不要。文書のみのためアプリ検証は対象外。",
     "paths": [
@@ -49,6 +49,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "ba611348b5e69ae3169453b9c41688e17b71b98edd918926536f535f9d7c0e3b",
+  "hash": "6c10635a19034cfda06d4259d05a8a15f24e5f22d15905968a904a7599fb2027",
   "cycle_id": "issue-1840/cycle-0001"
 }

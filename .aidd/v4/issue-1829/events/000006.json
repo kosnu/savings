@@ -2,10 +2,10 @@
   "sequence": 6,
   "kind": "review",
   "time": "2026-09-29T15:54:51.627255Z",
-  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
-  "previous": "5f2f961d69671612e492cb80b0acf12a1ea2ccddbb6721a531610d8aa0e3aa98",
+  "task_hash": "895ee7b76afa7b6cee6f302524f7b112db96d47dd7089bc77b80c0b336200dd9",
+  "previous": "679d774301fadef8a3acd6f01eee781c69a4e1afdfe85c629620a20dc5399e69",
   "revision": 1,
-  "fingerprint": "bf60ce6193365644bef3716b1021ff0ac5797fa7d6b84cbad3f81e7347869fc9",
+  "fingerprint": "8da7ded8ee8c7e328d2157fa9a8a88baec6b8addf429cbceb9387986b8c894b7",
   "data": {
     "summary": "Issue本文と明示依頼を基に、出力と状態の分離、二層の追跡、失敗後再実行、追跡不能の扱いを実観測・負例で照合。成果に必要なhost固有規約と参照入口だけを追加した。文書はモデルの将来の全実行を機械的に保証するものではないが、現toolで手順が実行可能であることを確認。\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\nFindings: なし。アプリ変更なしのためWeb検証不要。ADR変更なし。追加のAuditは実施しない。",
     "criteria": [
@@ -50,6 +50,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "cc5f9ec50ad092c1bf4c1a7728055a629c389181c2bb072a27a832ad91badd34",
+  "hash": "5765d87b3d7a5be4518cb92cc89747d95a56208a2c655b78cf728e8012e82824",
   "cycle_id": "issue-1829/cycle-0001"
 }

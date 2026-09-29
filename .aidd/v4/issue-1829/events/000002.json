@@ -2,10 +2,10 @@
   "sequence": 2,
   "kind": "decision",
   "time": "2026-09-29T15:51:43.158778Z",
-  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
-  "previous": "01a62e32bded0421b947fb07b234e74842db9aaffcc43b16ca8c95860c93a6fb",
+  "task_hash": "895ee7b76afa7b6cee6f302524f7b112db96d47dd7089bc77b80c0b336200dd9",
+  "previous": "279f6af448119e85d9f97af1dff76fd17f82465fc4d5c40f455a56fddd89c155",
   "revision": 1,
-  "fingerprint": "6e69d5aa61c6f01c996679e66aae72fd5008d96e73d991ec3ca781f4d8e98388",
+  "fingerprint": "29ac23d26ec80ce19bbb4c3e74993caf964dd20aa75513b6f36787c66573a7b3",
   "data": {
     "summary": "Codex adapterを実行状態の正本としAGENTSから実行前に参照する。既存toolの戻り値・追跡ID・終了状態を使う。functionsのcellとcommand sessionを区別し、無出力待機・終了0/非0・失敗後再実行を実ツールで確認し匿名化した結果をreviewへ残す。新runnerや永続実行状態は不要。rule-mapの既存AGENTS/docs経路と依存closureで十分であり索引変更不要。Core/CLI/CI/アプリ/意味レビュー/計測仕様は変更しない。",
     "paths": [
@@ -41,6 +41,6 @@
       "policy.code-review"
     ]
   },
-  "hash": "d3eda779e03856a8983773f5312922fe0e9f39608c36d7c6c5d5bdceb733d394",
+  "hash": "ab0560c918e09a57c549e41b0ad53652dcf09d4d852aa774c5ea40c9f65eef76",
   "cycle_id": "issue-1829/cycle-0001"
 }

@@ -4,7 +4,7 @@
   "created": "2026-09-25T06:58:19.10693Z",
   "intent": {
     "source": "https://github.com/kosnu/savings/issues/1815",
-    "text": "## 目的\n\nIntentを受け取ったエージェントが、リポジトリのガードレールを使って設計・実装・検証・レビュー・Shipを行い、その後のAuditと承認されたガードレール改善までを一連のサイクルとして遂行できる「AIDD v4」をゼロから構築する。\n\n人間は背景・目的・期待する成果・制約・完了条件・委任範囲をIntentとして伝える。AstraやFableがその意味を理解し、必要な情報を取得して判断・実行・修正できるプロトコルにする。人間が詳細手順を列挙し続ける運用や、形式を満たすこと自体が目的になる基盤を避けたい。\n\n## 委任範囲\n\n主要手法の調査から、v4の設計、リポジトリへの実装、検証・レビュー、Ship、Auditまでを委任する。Audit後のガードレール改善は、ユーザーの手動承認を得た範囲で行う。調査報告や設計案、初回実装、Shipだけでサイクル完了としない。\n\n以下に定めるサイクルと承認境界を守り、具体的な工程、成果物形式、状態管理、ツール構成、評価担当、エージェントの分担は制約と完了条件から判断してよい。通常の技術選択と範囲内の修正・再検証は自律的に進め、目的・範囲・権限を変える判断や、ユーザーにしか決められない不足を確認する。\n\n## Ship後のサイクルと承認境界\n\n旧工程のLearnが担っていた振り返りと改善を、v4では次の二つに分ける。\n\n- **Audit**：Ship後に指摘とセッション中の開発プロセスを振り返り、改善事項、その根拠、改善案、反映対象をまとめる。指摘の有無だけでなく、進め方の問題や改善機会も対象にする。この工程ではガードレールやIntentへの改善を適用しない。\n- **ガードレール改善**：Auditで示した改善案についてユーザーの手動承認を得た後、承認範囲内でガードレールやIntentなどを改善し、反映結果を検証する。\n\n現時点では、Auditからガードレール改善への移行に明示的な手動承認を必須とする。開発の委任やShipの承認を、この改善の承認として扱わない。ユーザーが判断できる具体的な改善案を提示し、承認前に改善へ着手しない。\n\nAuditの完了と改善の完了を区別し、改善案がある場合の承認待ちをサイクル完了として扱わない。改善事項がない場合は、その結果を明示し、改善作業を作るための変更は行わない。\n\n## 制約\n\n- 既存のAIDD基盤は白紙に戻す。旧版のフェーズ、契約、実装、データ形式、checker、adapterの継承を前提にせず、互換層や旧版へのフォールバックを設けない。v4は呼称であり、旧版との互換性を意味しない。\n- 白紙化の対象はAIDD基盤。設計・実装に適用するリポジトリのガードレールを活用する。\n- 決定論的な検証の実装にはGoを使う。既存のGo実装を引き継ぐ必要はない。\n- 意味的な判断と決定論的な検証を使い分ける。Intentへの適合性や設計の妥当性は判断基準と根拠で評価し、機械判定できる条件は実行結果で確認する。両者の結果を修正・継続・完了の判断につなげる。\n- 詳細手順、儀式的な成果物、複数エージェント構成を一律に要求しない。承認は本Issueで明示する境界と必要な権限確認に従い、目的達成に必要な仕組みを選ぶ。\n\n## 調査に求めること\n\nOpenAI・Anthropicなどの一次資料から、現在のエージェントファースト開発を横断調査する。ハーネス、ループ、コンテキスト、仕様駆動開発、評価・フィードバック、ツール設計・観測可能性、複数エージェントの協調を検討し、関連する新しい議論も探索する。\n\n記事の列挙で終えず、解決する問題、適用条件、限界、異なる見解、モデル更新による変化を比較して、v4での採否を判断する。公開・更新時点と廃止状況を確認し、特定モデルや実験環境での成功例をそのまま共通規約にしない。参考リンクは調査の出発点であり、調査範囲の上限でも採用指示でもない。\n\n## 完了条件\n\n- [ ] 代表的な開発作業で、IntentからShip、Audit、手動承認後のガードレール改善までのサイクルが成立し、目的達成とガードレール遵守を成果・検証証拠から確認できる。\n- [ ] Auditで、指摘とセッションの開発プロセス上の改善事項が根拠・改善案・対象とともに整理され、承認前にガードレールやIntentへ反映されない。\n- [ ] ガードレール改善では承認範囲だけが反映・検証され、Auditの結果、承認待ち、改善の実施結果を区別して確認できる。\n- [ ] 意味的評価とGoによる決定論的検証の責務・基準・証拠が明確で、形式上の合格やモデルの完了宣言だけでは成功扱いにならない。\n- [ ] 検証失敗・不足情報・判断の不一致に対して、修正して継続する場合と人間の判断が必要な場合を区別でき、未達・未確認を報告できる。\n- [ ] 中断後もIntent、制約、判断、未解決事項と証拠を復元して作業を再開できる。\n- [ ] 旧AIDD固有の契約・実装・参照が現行の実行経路に残らず、v4だけで運用できる。\n- [ ] 調査で得た原則、採用・不採用の理由、リポジトリ固有の判断を確認できる。\n\n## 参考資料\n\n\u003cdetails\u003e\n\u003csummary\u003e調査の出発点となる一次資料\u003c/summary\u003e\n\n- [OpenAI：Rethinking skills and prompts for GPT-6 Astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra) — 過剰な手順・文書読込の見直し、権限境界と完了条件の明示。\n- [Anthropic：Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5) — 依頼の背景・目的、行動範囲、実際のツール結果に基づく進捗・完了報告。\n- [Anthropic：Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) — 決定論的・モデル・人間による評価の使い分けと、固定手順より成果を評価する考え方。\n- [OpenAI：Harness engineering](https://openai.com/index/harness-engineering/) — Intent、実行環境、観測可能性、不変条件の強制とフィードバックループ。\n- [Anthropic：Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) — 長期実行と再開可能な状態管理の実験。\n- [Anthropic：Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) — 評価ループとモデルの能力向上に伴う構成の見直し。\n- [IBM：Loop engineering](https://www.ibm.com/think/topics/loop-engineering) — 目標・行動・観測・調整、停止条件と持続的な状態。\n- [Geoffrey Huntley：everything is a ralph loop](https://ghuntley.com/loop/) — 単一エージェントによる反復と失敗からの仕組みの改善。\n- [Anthropic：Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) — 情報の選択、圧縮、記録と再取得。\n- [GitHub：Agentic SDD](https://github.github.com/spec-kit/reference/agentic-sdd.html) — 仕様と実装の照合。\n- [Anthropic：Writing effective tools for AI agents](https://www.anthropic.com/engineering/writing-tools-for-agents) — ツールの使いやすさ、結果・エラーの情報設計。\n- [Cursor：Scaling long-running autonomous coding](https://cursor.com/blog/scaling-agents) — 複数エージェントの協調上の失敗と役割分担。\n- [Cursor：Agent swarms and the new model economics](https://cursor.com/blog/agent-swarm-model-economics) — コンテキストの分離と大規模協調に関する後続の分析。\n\n\u003c/details\u003e\n",
+    "text": "## 目的\n\nIntentを受け取ったエージェントが、リポジトリのガードレールを使って設計・実装・検証・レビュー・Shipを行い、その後のAuditと承認されたガードレール改善までを一連のサイクルとして遂行できる「AIDD v4」をゼロから構築する。\n\n人間は背景・目的・期待する成果・制約・完了条件・委任範囲をIntentとして伝える。AstraやFableがその意味を理解し、必要な情報を取得して判断・実行・修正できるプロトコルにする。人間が詳細手順を列挙し続ける運用や、形式を満たすこと自体が目的になる基盤を避けたい。\n\n## 委任範囲\n\n主要手法の調査から、v4の設計、リポジトリへの実装、検証・レビュー、Ship、Auditまでを委任する。Audit後のガードレール改善は、ユーザーの手動承認を得た範囲で行う。調査報告や設計案、初回実装、Shipだけでサイクル完了としない。\n\n以下に定めるサイクルと承認境界を守り、具体的な工程、成果物形式、状態管理、ツール構成、評価担当、エージェントの分担は制約と完了条件から判断してよい。通常の技術選択と範囲内の修正・再検証は自律的に進め、目的・範囲・権限を変える判断や、ユーザーにしか決められない不足を確認する。\n\n## Ship後のサイクルと承認境界\n\n旧工程のLearnが担っていた振り返りと改善を、v4では次の二つに分ける。\n\n- **Audit**：Ship後に指摘とセッション中の開発プロセスを振り返り、改善事項、その根拠、改善案、反映対象をまとめる。指摘の有無だけでなく、進め方の問題や改善機会も対象にする。この工程ではガードレールやIntentへの改善を適用しない。\n- **ガードレール改善**：Auditで示した改善案についてユーザーの手動承認を得た後、承認範囲内でガードレールやIntentなどを改善し、反映結果を検証する。\n\n現時点では、Auditからガードレール改善への移行に明示的な手動承認を必須とする。開発の委任やShipの承認を、この改善の承認として扱わない。ユーザーが判断できる具体的な改善案を提示し、承認前に改善へ着手しない。\n\nAuditの完了と改善の完了を区別し、改善案がある場合の承認待ちをサイクル完了として扱わない。改善事項がない場合は、その結果を明示し、改善作業を作るための変更は行わない。\n\n## 制約\n\n- 既存のAIDD基盤は白紙に戻す。旧版のフェーズ、契約、実装、データ形式、checker、adapterの継承を前提にせず、互換層や旧版へのフォールバックを設けない。v4は呼称であり、旧版との互換性を意味しない。\n- 白紙化の対象はAIDD基盤。設計・実装に適用するリポジトリのガードレールを活用する。\n- 決定論的な検証の実装にはGoを使う。既存のGo実装を引き継ぐ必要はない。\n- 意味的な判断と決定論的な検証を使い分ける。Intentへの適合性や設計の妥当性は判断基準と根拠で評価し、機械判定できる条件は実行結果で確認する。両者の結果を修正・継続・完了の判断につなげる。\n- 詳細手順、儀式的な成果物、複数エージェント構成を一律に要求しない。承認は本Issueで明示する境界と必要な権限確認に従い、目的達成に必要な仕組みを選ぶ。\n\n## 調査に求めること\n\nOpenAI・Anthropicなどの一次資料から、現在のエージェントファースト開発を横断調査する。ハーネス、ループ、コンテキスト、仕様駆動開発、評価・フィードバック、ツール設計・観測可能性、複数エージェントの協調を検討し、関連する新しい議論も探索する。\n\n記事の列挙で終えず、解決する問題、適用条件、限界、異なる見解、モデル更新による変化を比較して、v4での採否を判断する。公開・更新時点と廃止状況を確認し、特定モデルや実験環境での成功例をそのまま共通規約にしない。参考リンクは調査の出発点であり、調査範囲の上限でも採用指示でもない。\n\n## 完了条件\n\n- [ ] 代表的な開発作業で、IntentからShip、Audit、手動承認後のガードレール改善までのサイクルが成立し、目的達成とガードレール遵守を成果・検証証拠から確認できる。\n- [ ] Auditで、指摘とセッションの開発プロセス上の改善事項が根拠・改善案・対象とともに整理され、承認前にガードレールやIntentへ反映されない。\n- [ ] ガードレール改善では承認範囲だけが反映・検証され、Auditの結果、承認待ち、改善の実施結果を区別して確認できる。\n- [ ] 意味的評価とGoによる決定論的検証の責務・基準・証拠が明確で、形式上の合格やモデルの完了宣言だけでは成功扱いにならない。\n- [ ] 検証失敗・不足情報・判断の不一致に対して、修正して継続する場合と人間の判断が必要な場合を区別でき、未達・未確認を報告できる。\n- [ ] 中断後もIntent、制約、判断、未解決事項と証拠を復元して作業を再開できる。\n- [ ] 旧AIDD固有の契約・実装・参照が現行の実行経路に残らず、v4だけで運用できる。\n- [ ] 調査で得た原則、採用・不採用の理由、リポジトリ固有の判断を確認できる。\n\n## 参考資料\n\n<details>\n<summary>調査の出発点となる一次資料</summary>\n\n- [OpenAI：Rethinking skills and prompts for GPT-6 Astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra) — 過剰な手順・文書読込の見直し、権限境界と完了条件の明示。\n- [Anthropic：Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5) — 依頼の背景・目的、行動範囲、実際のツール結果に基づく進捗・完了報告。\n- [Anthropic：Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) — 決定論的・モデル・人間による評価の使い分けと、固定手順より成果を評価する考え方。\n- [OpenAI：Harness engineering](https://openai.com/index/harness-engineering/) — Intent、実行環境、観測可能性、不変条件の強制とフィードバックループ。\n- [Anthropic：Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) — 長期実行と再開可能な状態管理の実験。\n- [Anthropic：Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) — 評価ループとモデルの能力向上に伴う構成の見直し。\n- [IBM：Loop engineering](https://www.ibm.com/think/topics/loop-engineering) — 目標・行動・観測・調整、停止条件と持続的な状態。\n- [Geoffrey Huntley：everything is a ralph loop](https://ghuntley.com/loop/) — 単一エージェントによる反復と失敗からの仕組みの改善。\n- [Anthropic：Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) — 情報の選択、圧縮、記録と再取得。\n- [GitHub：Agentic SDD](https://github.github.com/spec-kit/reference/agentic-sdd.html) — 仕様と実装の照合。\n- [Anthropic：Writing effective tools for AI agents](https://www.anthropic.com/engineering/writing-tools-for-agents) — ツールの使いやすさ、結果・エラーの情報設計。\n- [Cursor：Scaling long-running autonomous coding](https://cursor.com/blog/scaling-agents) — 複数エージェントの協調上の失敗と役割分担。\n- [Cursor：Agent swarms and the new model economics](https://cursor.com/blog/agent-swarm-model-economics) — コンテキストの分離と大規模協調に関する後続の分析。\n\n</details>\n",
     "objective": "Intentを起点とするエージェントファーストなAIDD v4をゼロから構築する",
     "constraints": [
       "旧基盤を継承せずv4として再構築する",
@@ -20,7 +20,7 @@
     ]
   },
   "authority": "user: Issue#1815 を対応して。branch explicit approval: issue-1815/aidd-v4 を作成する。Audit後改善は未承認。",
-  "baseline": "078dd9b3774c46df744123f4c7f8691d0eaae84d",
+  "baseline": "48316a4b5c433be1c0a3b2ce1a363876d2c375cb",
   "initial_changes_acknowledged": true,
   "initial": {
     ".agents/skills/context-scout/SKILL.md": {
@@ -499,18 +499,6 @@
       "mode": "100644",
       "hash": "27de1cbce3199071bd3b3a972262366a0133b239facfb51e5f75849688fb3e9c"
     },
-    ".aidd/tasks/issue-1776-cycle-1/checkpoints/000001.json": {
-      "mode": "100644",
-      "hash": "d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6"
-    },
-    ".aidd/tasks/issue-1776-cycle-1/evidence/d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6.json": {
-      "mode": "100644",
-      "hash": "c3b8e66659cd5805448d9f54a402854f9f00e3126cee14d9cde689ce0e407ab1"
-    },
-    ".aidd/tasks/issue-1776-cycle-1/task.json": {
-      "mode": "100644",
-      "hash": "a993db39cff224322b9a2294f4dab9dbe507a18bc8704548d41ed66868b98c6f"
-    },
     ".aidd/tasks/issue-1777-cycle-1/checkpoints/000001.json": {
       "mode": "100644",
       "hash": "94b0ae778eef7410888c4c3ac0ba62b56974a1e512e5fe880545475d9df02108"
@@ -922,34 +910,6 @@
     ".aidd/tasks/learn-ignore-output-ship/task.json": {
       "mode": "100644",
       "hash": "1199316d7f7640934cb110a9b40e162605e1fa58d1a0adcb1840c0e220e9795e"
-    },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000001.json": {
-      "mode": "100644",
-      "hash": "384f97ffd6bfaccf29bd714997b899dbe10d7b7db968ad0ed3a5ff8507d45e99"
-    },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000002.json": {
-      "mode": "100644",
-      "hash": "8474f8e84bed3f2561004e4253dc62e57afb6b1863450a1561afda30b34a6ba2"
-    },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000003.json": {
-      "mode": "100644",
-      "hash": "3d69b0bd6d27ff06c23155bd45781dbe4f7879fc8a337183b999115bde1b4b66"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/384f97ffd6bfaccf29bd714997b899dbe10d7b7db968ad0ed3a5ff8507d45e99.json": {
-      "mode": "100644",
-      "hash": "8afd4b0178f8e426449f8522efe7482de414c164dba43189c5dd5a126dace71e"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/3d69b0bd6d27ff06c23155bd45781dbe4f7879fc8a337183b999115bde1b4b66.json": {
-      "mode": "100644",
-      "hash": "ef579331bb99cae9d5be3650931b947f9424f7f238a79966564341454d437c22"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/8474f8e84bed3f2561004e4253dc62e57afb6b1863450a1561afda30b34a6ba2.json": {
-      "mode": "100644",
-      "hash": "87ab53af941746017254b790abd3fe13e8f054e257a4097b4460ff32c3cc642a"
-    },
-    ".aidd/tasks/learn-landing-page-rules/task.json": {
-      "mode": "100644",
-      "hash": "e2663565fa155484f6e9223062d0ae46d6569322a735f53749284cd60e421a05"
     },
     ".aidd/tasks/learn-review-final-01a07ccd/checkpoints/000001.json": {
       "mode": "100644",

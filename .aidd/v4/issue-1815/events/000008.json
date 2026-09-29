@@ -2,10 +2,10 @@
   "sequence": 8,
   "kind": "audit",
   "time": "2026-09-25T07:13:28.829727Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "d47ec12fb8e8e7f3aa32299188e302aaa506a8863d7b63ffe46d2f56cacf7c4b",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "cfbf107b847f673b9e7e7c0d2cc338adefc4a47df6a84f7cf9af95f4f0c8c2e0",
   "revision": 3,
-  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "fingerprint": "9be1940f707e6e00da178fc216219c346cbc67f0540523abac6882f8c24218f9",
   "data": {
     "summary": "Issue1815の実装・検証・レビュー・Shipを完了。PR1816作成時のreviewThreadsは0件。セッションの失敗と修正過程をAuditし、再利用可能な未反映候補P1を提示する。P1の改善は未承認・未実施。",
     "findings": [
@@ -30,5 +30,5 @@
       }
     ]
   },
-  "hash": "a189eba348f28a3f474dcc19668b9910e3d1cd28a584a18b45b5af9bc42bc8a6"
+  "hash": "22910d1365aec069fa83de2348ad27ebaeab8546c7f35e5105867ce4f8b6d8e8"
 }

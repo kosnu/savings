@@ -2,18 +2,18 @@
   "sequence": 7,
   "kind": "ship",
   "time": "2026-09-25T18:40:58.293287Z",
-  "task_hash": "aa33734841a82f0a9230ba5347b9872c29985df9ee9034efab2056162c9470d6",
-  "previous": "b8bbfb8985713d25e06eaedbd8255c1c7e747a3ed98d4d1f71f9dba52e44cb4d",
+  "task_hash": "e1bd729979c697d5de1fb7da6d0340b8468efc370be0cc7992c1eaa702e71058",
+  "previous": "cc2aca4ba23ffe6699d3f631ef5ea4d724d5208daf3b41ef35a639dff31b937d",
   "revision": 1,
-  "fingerprint": "3ed6c3d2ccabd96f6872d1098107c512ce12c68b5120b1b9a6b96a788545343c",
+  "fingerprint": "3c4448089d07955fbc84d5928c46d9d0143959ade89b5bdde857898e59d11cca",
   "data": {
-    "commit": "8c18e8c271e737da0f3b90e0fa628124acec3f74",
+    "commit": "063a687bbcf02c6bce74fb1348c221e9dc0b1e24",
     "remote": "origin",
     "branch": "issue-1813/feature-request-pr-delivery",
     "pr": "https://github.com/kosnu/savings/pull/1819",
     "evidence": "2026-09-26: local HEAD、origin remote ref、origin/issue-1813/feature-request-pr-deliveryはいずれも8c18e8c271e737da0f3b90e0fa628124acec3f74。upstreamはorigin/main。PR #1819はOPEN、head=issue-1813/feature-request-pr-delivery、base=main、Closes #1813。CI一度取得: assign-author pass、candidate pending、integration pending。",
     "base": "main"
   },
-  "hash": "947447b5975338864ae2aad79875ad7df78f33b060e4929ccec289a25e82ac1e",
+  "hash": "0a69f0a6f0dd5a5329b8fb44cebf13474f6ffa6fa4603f98792349bc41a232c6",
   "cycle_id": "issue-1813/cycle-0001"
 }

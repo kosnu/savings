@@ -17,7 +17,7 @@
     ]
   },
   "authority": "user-message: Issue#1832 を対応して。作成してPRまで進める",
-  "baseline": "f8d6533ddad84af29dcaa9865d4c5f10a3766e9a",
+  "baseline": "4d42c62450b03daa79fe236efe4f054626ad74da",
   "initial_changes_acknowledged": false,
   "initial": {
     ".agents/skills/audit/SKILL.md": {
@@ -496,18 +496,6 @@
       "mode": "100644",
       "hash": "27de1cbce3199071bd3b3a972262366a0133b239facfb51e5f75849688fb3e9c"
     },
-    ".aidd/tasks/issue-1776-cycle-1/checkpoints/000001.json": {
-      "mode": "100644",
-      "hash": "d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6"
-    },
-    ".aidd/tasks/issue-1776-cycle-1/evidence/d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6.json": {
-      "mode": "100644",
-      "hash": "c3b8e66659cd5805448d9f54a402854f9f00e3126cee14d9cde689ce0e407ab1"
-    },
-    ".aidd/tasks/issue-1776-cycle-1/task.json": {
-      "mode": "100644",
-      "hash": "a993db39cff224322b9a2294f4dab9dbe507a18bc8704548d41ed66868b98c6f"
-    },
     ".aidd/tasks/issue-1777-cycle-1/checkpoints/000001.json": {
       "mode": "100644",
       "hash": "94b0ae778eef7410888c4c3ac0ba62b56974a1e512e5fe880545475d9df02108"
@@ -920,34 +908,6 @@
       "mode": "100644",
       "hash": "1199316d7f7640934cb110a9b40e162605e1fa58d1a0adcb1840c0e220e9795e"
     },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000001.json": {
-      "mode": "100644",
-      "hash": "384f97ffd6bfaccf29bd714997b899dbe10d7b7db968ad0ed3a5ff8507d45e99"
-    },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000002.json": {
-      "mode": "100644",
-      "hash": "8474f8e84bed3f2561004e4253dc62e57afb6b1863450a1561afda30b34a6ba2"
-    },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000003.json": {
-      "mode": "100644",
-      "hash": "3d69b0bd6d27ff06c23155bd45781dbe4f7879fc8a337183b999115bde1b4b66"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/384f97ffd6bfaccf29bd714997b899dbe10d7b7db968ad0ed3a5ff8507d45e99.json": {
-      "mode": "100644",
-      "hash": "8afd4b0178f8e426449f8522efe7482de414c164dba43189c5dd5a126dace71e"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/3d69b0bd6d27ff06c23155bd45781dbe4f7879fc8a337183b999115bde1b4b66.json": {
-      "mode": "100644",
-      "hash": "ef579331bb99cae9d5be3650931b947f9424f7f238a79966564341454d437c22"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/8474f8e84bed3f2561004e4253dc62e57afb6b1863450a1561afda30b34a6ba2.json": {
-      "mode": "100644",
-      "hash": "87ab53af941746017254b790abd3fe13e8f054e257a4097b4460ff32c3cc642a"
-    },
-    ".aidd/tasks/learn-landing-page-rules/task.json": {
-      "mode": "100644",
-      "hash": "e2663565fa155484f6e9223062d0ae46d6569322a735f53749284cd60e421a05"
-    },
     ".aidd/tasks/learn-review-final-01a07ccd/checkpoints/000001.json": {
       "mode": "100644",
       "hash": "4bd9a4043aa62c2615e90d77d0b058ebb629daad27cd4cad25867fdf3d57c63c"
@@ -1175,114 +1135,6 @@
     ".aidd/tasks/zizmor-self-repository-20260920/task.json": {
       "mode": "100644",
       "hash": "a1f772c6cdf6dce16e33dc6ea37d17daf3a586642500a4c1ae459f067edcb65d"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000001.json": {
-      "mode": "100644",
-      "hash": "66f438a3c9b0a82182c6b0434c44fd925b1932fbb3bf31910ef3bf7920b236d3"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000002.json": {
-      "mode": "100644",
-      "hash": "484fb9c8aef8b1e3bb29ddb58811865a0b0fcd5dd3d9b313eb59507de16fc289"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000003.json": {
-      "mode": "100644",
-      "hash": "6bf8778b3b28029f4319cabe939450d4a023a7a30624f4391ad5da0b82de9f45"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000004.json": {
-      "mode": "100644",
-      "hash": "d16502bd647ca2c1c74b1071eb92377e9190fe8428c51fde2930ba02fd222639"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000005.json": {
-      "mode": "100644",
-      "hash": "7c782f6da2acd527a8bf5cb15da93101b34231b33764f5bd010d6ebc8b8e1268"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000006.json": {
-      "mode": "100644",
-      "hash": "4bc219a159e731cc52626943f7bc7f53ac32a5b5e8913f8d826493659f6a4374"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000007.json": {
-      "mode": "100644",
-      "hash": "d39203402e5949ae56f13dd65baddfeaee3bac0949d50bece9450d3ffc3e8a4e"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000008.json": {
-      "mode": "100644",
-      "hash": "34bc7737300f081e53f8b564b8c99c9c0a5d10345a595e1efd48c181d5cae495"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000009.json": {
-      "mode": "100644",
-      "hash": "6281ed2bee39b385a0a82861f2a0ae7e5486fea0222a11b154610db1d50c75b9"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000010.json": {
-      "mode": "100644",
-      "hash": "9b45ba1b2b2956ba41b31db06aa158af9907f0489c8e9ea0f15d852b7518ec84"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000011.json": {
-      "mode": "100644",
-      "hash": "7c53f45a43d563a392cfbd5510ef0aedc8c360ca84467d70a7aba7b3ab782e95"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000012.json": {
-      "mode": "100644",
-      "hash": "93dded2fe0067378fbdf6f6a334a1be0d01638ed470c20a73e4e9f0c36871bcb"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000013.json": {
-      "mode": "100644",
-      "hash": "d6ad6910005f1105f9a81e7aeda7185cf0cef4c9fef955de427420f3d0f0b270"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000014.json": {
-      "mode": "100644",
-      "hash": "9a4a63bbdefa7ac6aba1f35f6f7093a090176533ec4f2827658ed56bd77fffec"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000015.json": {
-      "mode": "100644",
-      "hash": "a75d9f801a943ad1ef49693371dcd6d14260ceea2d7834921bc6854b0e408a12"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000016.json": {
-      "mode": "100644",
-      "hash": "b8611eb7a1655d5a452fd7cd7f8fc6117e3bbf5f4b30c972441555debea725e8"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000017.json": {
-      "mode": "100644",
-      "hash": "ca38d531f765fcb36eba5ef1c7d1a70eabac1b815778392a8b0841090ba619e2"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000018.json": {
-      "mode": "100644",
-      "hash": "c1b52e6e137a4a62b0eca615e7958b5c0f2ca4d95a1e02979965c752f049bdfd"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000019.json": {
-      "mode": "100644",
-      "hash": "faa2ce0590be2a7870102317ad689f1330bc77a1a74b46ad442c91de1c57a044"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000020.json": {
-      "mode": "100644",
-      "hash": "bac1a542536e2cc6cb695ab28477f4541955239fb62497be7d29467906576bed"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000021.json": {
-      "mode": "100644",
-      "hash": "5318bc816ed0f3cd973722c6402c1f563b125e0a8563ccbe3f6fc2e94fbc7ef9"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000022.json": {
-      "mode": "100644",
-      "hash": "11b575fbde8ba2a54986ba1c9bf25060ad7257b328b3cc4d725f45c0fadc5549"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000023.json": {
-      "mode": "100644",
-      "hash": "5978f117948d8a84724e1ca0fc5e0e767ef98b2718a05fd858bc6bfd35f0079f"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000024.json": {
-      "mode": "100644",
-      "hash": "419e0ba957976819dcdffaacd35d229dfc6f7ccee34d4f35c2f8382bd9d1295f"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000025.json": {
-      "mode": "100644",
-      "hash": "d2f2b3083e0df5b0f9f84b9a6de1fa4359f861861fa8a718b7b4b5bab58dfd33"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000026.json": {
-      "mode": "100644",
-      "hash": "b2f6c9abecf50861b3b1c5ffc4121455a51ec1297374ce759542577fe366ab53"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/task.json": {
-      "mode": "100644",
-      "hash": "414e195a5de5fbd9d97b344c0bc9942b9b89c9dac9f4f49bf481f8ed65965e75"
     },
     ".aidd/v4/issue-1813/events/000001.json": {
       "mode": "100644",
@@ -1547,166 +1399,6 @@
     ".aidd/v4/issue-1815/task.json": {
       "mode": "100644",
       "hash": "8e44bad76de64750ad6900e4384141538a30b5938ae6bea5717123ab3a499c75"
-    },
-    ".aidd/v4/issue-1821/events/000001.json": {
-      "mode": "100644",
-      "hash": "2881c7e79c8ac93d067de4eb6cf133c33bad31e29d26e983a07699ec9ff407fa"
-    },
-    ".aidd/v4/issue-1821/events/000002.json": {
-      "mode": "100644",
-      "hash": "5523102be4776aaaa45f39cf62423d231fef640d5af4f1a1a4132b14d9e47a7e"
-    },
-    ".aidd/v4/issue-1821/events/000003.json": {
-      "mode": "100644",
-      "hash": "b6e009a1ff8d84d6a75032a90f9c730d4a9b28e83d07427246ff55bad3e5bed5"
-    },
-    ".aidd/v4/issue-1821/events/000004.json": {
-      "mode": "100644",
-      "hash": "20afd5afbd499f7f90a0e5618798d069f04a55fe4c30dc363485a57e90879163"
-    },
-    ".aidd/v4/issue-1821/events/000005.json": {
-      "mode": "100644",
-      "hash": "71f75012c3f45c7bf975cad53bd0843f28d8a122a75a77e1f686d7ef45b90101"
-    },
-    ".aidd/v4/issue-1821/events/000006.json": {
-      "mode": "100644",
-      "hash": "4bb00c9e9098ea4e8a5c75c6608a66359f061a0392b5316db018827a43eb1d71"
-    },
-    ".aidd/v4/issue-1821/events/000007.json": {
-      "mode": "100644",
-      "hash": "b9a6e16f81a8ab52de94027920d9bab30976889582b445db06e37e5c970dbb34"
-    },
-    ".aidd/v4/issue-1821/events/000008.json": {
-      "mode": "100644",
-      "hash": "cb74c30326d2c0b953a52f4b81b48f4e2df55d32737bee4705a8916ed39c753d"
-    },
-    ".aidd/v4/issue-1821/events/000009.json": {
-      "mode": "100644",
-      "hash": "d7497f959190b030c23d04a3dca4c518fd732cb7334c39a2cd08059b14579c68"
-    },
-    ".aidd/v4/issue-1821/events/000010.json": {
-      "mode": "100644",
-      "hash": "991c09852aa535f6f26bdb9149f5f59c380f34fbbf48c385741ef8495be6d319"
-    },
-    ".aidd/v4/issue-1821/events/000011.json": {
-      "mode": "100644",
-      "hash": "253fb6e489c492de3bed5a7d8041a9a0ded398f424a8f0edea365f45d8b81c3e"
-    },
-    ".aidd/v4/issue-1821/events/000012.json": {
-      "mode": "100644",
-      "hash": "4a9092fce3ede885f30b368b159ae51c617d062eb633706fb52809cb2e63aa47"
-    },
-    ".aidd/v4/issue-1821/events/000013.json": {
-      "mode": "100644",
-      "hash": "5b331bfcd4c14edfa5e637413789686e9ff0787ad8e8b6b05c1bd3f28a673943"
-    },
-    ".aidd/v4/issue-1821/events/000014.json": {
-      "mode": "100644",
-      "hash": "ba19d98fe0747a2e09226cd5434523a2962bdc507de28a1ea486d7e2ac1d2aa9"
-    },
-    ".aidd/v4/issue-1821/events/000015.json": {
-      "mode": "100644",
-      "hash": "3091d8f1cd999336a6a9a3c3760b76f3d7ad754f5a329d6d3ec0685ecb9cdc41"
-    },
-    ".aidd/v4/issue-1821/events/000016.json": {
-      "mode": "100644",
-      "hash": "f334978848ababdb1a045ad1a9f926926bea9bf6fd9dd1eb0882f66fec1471ae"
-    },
-    ".aidd/v4/issue-1821/events/000017.json": {
-      "mode": "100644",
-      "hash": "d5646c2f6ce400cb769bc873929682618c0277d99e7952e739f5209758bfe805"
-    },
-    ".aidd/v4/issue-1821/events/000018.json": {
-      "mode": "100644",
-      "hash": "1abb3dcbe84e8e67230a29f7946fca30b3d76e69a8d3b503f4630b6fc42dcaf6"
-    },
-    ".aidd/v4/issue-1821/events/000019.json": {
-      "mode": "100644",
-      "hash": "f4643e109a5d611d725f96de31f1223b98287b7f423eb6656c86aa2d69b809c6"
-    },
-    ".aidd/v4/issue-1821/events/000020.json": {
-      "mode": "100644",
-      "hash": "00a92c6f0c31a931a3b1203c6ccfcaebc80778eb4ca93aa9b0a0ba2a07de3510"
-    },
-    ".aidd/v4/issue-1821/events/000021.json": {
-      "mode": "100644",
-      "hash": "90e02f7bdf34586f38b7ffefa6da27093073e29124a90a8447dc63507d32f4e9"
-    },
-    ".aidd/v4/issue-1821/events/000022.json": {
-      "mode": "100644",
-      "hash": "8206f209d7be0f6db2ade15cb4c25642de3f49ebf6b449ba66cb195957e92d6c"
-    },
-    ".aidd/v4/issue-1821/events/000023.json": {
-      "mode": "100644",
-      "hash": "99daf35d6f8af93821221120fc0c880c74c8a32ef28bbddfb31ba0f2711e0590"
-    },
-    ".aidd/v4/issue-1821/events/000024.json": {
-      "mode": "100644",
-      "hash": "cb8d13ddb5772f115371be9ecb3182b71423c278e3ce00090da206ca9f0c9d3b"
-    },
-    ".aidd/v4/issue-1821/events/000025.json": {
-      "mode": "100644",
-      "hash": "52b3189035308fa8b96364e66fb64eee372fd43f4cbfb070528ffc58d20f7368"
-    },
-    ".aidd/v4/issue-1821/events/000026.json": {
-      "mode": "100644",
-      "hash": "0a1107d291de2c59a0845d4499f3035593e2cfd3c9181219d091161bf7fa1ced"
-    },
-    ".aidd/v4/issue-1821/events/000027.json": {
-      "mode": "100644",
-      "hash": "1c384df3c27eb74788fee577ad349884003d5cd9dbb3243f83b02cf9dc5e93ee"
-    },
-    ".aidd/v4/issue-1821/events/000028.json": {
-      "mode": "100644",
-      "hash": "7b00e1a215f7153d576fc3378e2361ab1690372453a1020281e93a7fc9a4701b"
-    },
-    ".aidd/v4/issue-1821/events/000029.json": {
-      "mode": "100644",
-      "hash": "2c449fecb25ca46d06a08c5a429ccbfddcd6b56419c55f3eeb3acba92c36dc07"
-    },
-    ".aidd/v4/issue-1821/events/000030.json": {
-      "mode": "100644",
-      "hash": "a10fdfd387c045f3b0554f85c78ce306e69e0b65c92c0f6540e11f638f00c1a9"
-    },
-    ".aidd/v4/issue-1821/events/000031.json": {
-      "mode": "100644",
-      "hash": "48cbd0d08a88121fe7e892a8c2cfac6b7725140b95f0257281af708e84c1545e"
-    },
-    ".aidd/v4/issue-1821/events/000032.json": {
-      "mode": "100644",
-      "hash": "5c3758eb5b9c0630f2cbf66e77bac871f8f2f3ec8719380f85bfcd17c54e8361"
-    },
-    ".aidd/v4/issue-1821/events/000033.json": {
-      "mode": "100644",
-      "hash": "4c3b553e8861d5a941440a1bd3f2a013c11018c68ecf5df439b9814a221ae988"
-    },
-    ".aidd/v4/issue-1821/events/000034.json": {
-      "mode": "100644",
-      "hash": "1bf9952206d483e994ee153d5683d8c0cdd5a0ee0f377afc66b57b958d7e6045"
-    },
-    ".aidd/v4/issue-1821/events/000035.json": {
-      "mode": "100644",
-      "hash": "eec88dd649613d63c09088f312b0259978e8790edaf6007d7f4737e991f7b1ef"
-    },
-    ".aidd/v4/issue-1821/events/000036.json": {
-      "mode": "100644",
-      "hash": "3ef1ab086dff83359f0e16495bc80e862703031b4f611399aebad61ae2ed4f15"
-    },
-    ".aidd/v4/issue-1821/events/000037.json": {
-      "mode": "100644",
-      "hash": "5a7c23c499bfbee737404cc1c03b33655ea54bc598ded9ac675d2c62001acff3"
-    },
-    ".aidd/v4/issue-1821/events/000038.json": {
-      "mode": "100644",
-      "hash": "90a939042f334400460957181bd4011a114ae0e41a5344d6dbbc2f5308c8615f"
-    },
-    ".aidd/v4/issue-1821/events/000039.json": {
-      "mode": "100644",
-      "hash": "fa50afd59778c058d060b003ce9e939b4113061f4412ddeb5de2cc536d4b80ec"
-    },
-    ".aidd/v4/issue-1821/task.json": {
-      "mode": "100644",
-      "hash": "3304d02fbdad9606c72d06aaf089a52245a1e655875ac5deedf878a169fc011d"
     },
     ".claude/CLAUDE.md": {
       "mode": "100644",

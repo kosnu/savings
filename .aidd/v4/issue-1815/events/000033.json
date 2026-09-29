@@ -2,12 +2,12 @@
   "sequence": 33,
   "kind": "approve",
   "time": "2026-09-25T13:07:03.487469Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "850394fcb7e8a19388601a59efbc27817d92413969cbcfbf790bd94665329cf3",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "8906dc227269e76430a81578a562aaceb3a4a59eefd6694e4f9d7c921601563a",
   "revision": 7,
-  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "fingerprint": "b276301d0d8a26003fbc96903e0c95a9e33182e689b5454e4ab266cc77556f3a",
   "data": {
-    "audit_hash": "ee2c82339cd89a7c127ef2218b794a864cb1ad8e8e9ee7ca8aaddce25b66f4ec",
+    "audit_hash": "394bc9910547d1a83063adea573afaaffe87351a8e95f543e15985d7795d2b41",
     "source": "user:current-thread/2026-09-25",
     "text": "Auditを承認します",
     "proposal_ids": [
@@ -15,5 +15,5 @@
       "P11"
     ]
   },
-  "hash": "ebd8742c2525f967c21f2819dbbd47259875908224078381835c0417a2d2ef29"
+  "hash": "65e81636bedbb39fe5f49324499326862d9e1abd89aeda89c9f72e3409689ac2"
 }

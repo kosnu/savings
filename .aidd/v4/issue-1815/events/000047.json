@@ -2,10 +2,10 @@
   "sequence": 47,
   "kind": "audit",
   "time": "2026-09-25T13:59:55.194497Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "612ef14380b6fe089096536eba23726a125713a51801f92463817f4c4a99f1e3",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "b440c502bf531b63b5c59dc9f34f4eca748b22ebe35d0d188ae591889b628f1d",
   "revision": 10,
-  "fingerprint": "8c1dac3f5c8c17327c5236ce346a83ca4ce0699db95dd49bcaf8a4a570aa5c10",
+  "fingerprint": "94347284bb60104682d1640c076228b130163b8b61b06d691e026be20772824d",
   "data": {
     "summary": "P12/P13の承認済み改善を実装し、Intent復帰後のcycle-0001/revision10で検証・レビュー・Shipした結果Audit。追加改善提案なし。",
     "findings": [
@@ -21,6 +21,6 @@
     ],
     "proposals": []
   },
-  "hash": "6b047b114196825355769089a3b6f27bfcf2e044323766b63333ee3674533973",
+  "hash": "9238985b7f628f3e4599a297c154db4442c2aaef0e287b57d5dd6b8985cb37ae",
   "cycle_id": "issue-1815/cycle-0001"
 }

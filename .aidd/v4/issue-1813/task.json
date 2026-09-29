@@ -21,7 +21,7 @@
     ]
   },
   "authority": "このCodexタスクでのユーザー発言: 「Issue#1813を対応して\nブランチ作成を承認」。Issue #1813本文の委任範囲で設計・実装・検証・レビュー・Ship・結果Auditまで委任。",
-  "baseline": "9a2f8fd2d040e5abc2c0aa7fa4f4efa9a2b0eb51",
+  "baseline": "e7f5d912e0fec3e8833435af8748ea8e676c5c89",
   "initial_changes_acknowledged": false,
   "initial": {
     ".agents/skills/audit/SKILL.md": {
@@ -500,18 +500,6 @@
       "mode": "100644",
       "hash": "27de1cbce3199071bd3b3a972262366a0133b239facfb51e5f75849688fb3e9c"
     },
-    ".aidd/tasks/issue-1776-cycle-1/checkpoints/000001.json": {
-      "mode": "100644",
-      "hash": "d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6"
-    },
-    ".aidd/tasks/issue-1776-cycle-1/evidence/d2ff7139351d20e5c7b71035b828efd45b029d05429622130bb666501412b2c6.json": {
-      "mode": "100644",
-      "hash": "c3b8e66659cd5805448d9f54a402854f9f00e3126cee14d9cde689ce0e407ab1"
-    },
-    ".aidd/tasks/issue-1776-cycle-1/task.json": {
-      "mode": "100644",
-      "hash": "a993db39cff224322b9a2294f4dab9dbe507a18bc8704548d41ed66868b98c6f"
-    },
     ".aidd/tasks/issue-1777-cycle-1/checkpoints/000001.json": {
       "mode": "100644",
       "hash": "94b0ae778eef7410888c4c3ac0ba62b56974a1e512e5fe880545475d9df02108"
@@ -924,34 +912,6 @@
       "mode": "100644",
       "hash": "1199316d7f7640934cb110a9b40e162605e1fa58d1a0adcb1840c0e220e9795e"
     },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000001.json": {
-      "mode": "100644",
-      "hash": "384f97ffd6bfaccf29bd714997b899dbe10d7b7db968ad0ed3a5ff8507d45e99"
-    },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000002.json": {
-      "mode": "100644",
-      "hash": "8474f8e84bed3f2561004e4253dc62e57afb6b1863450a1561afda30b34a6ba2"
-    },
-    ".aidd/tasks/learn-landing-page-rules/checkpoints/000003.json": {
-      "mode": "100644",
-      "hash": "3d69b0bd6d27ff06c23155bd45781dbe4f7879fc8a337183b999115bde1b4b66"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/384f97ffd6bfaccf29bd714997b899dbe10d7b7db968ad0ed3a5ff8507d45e99.json": {
-      "mode": "100644",
-      "hash": "8afd4b0178f8e426449f8522efe7482de414c164dba43189c5dd5a126dace71e"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/3d69b0bd6d27ff06c23155bd45781dbe4f7879fc8a337183b999115bde1b4b66.json": {
-      "mode": "100644",
-      "hash": "ef579331bb99cae9d5be3650931b947f9424f7f238a79966564341454d437c22"
-    },
-    ".aidd/tasks/learn-landing-page-rules/evidence/8474f8e84bed3f2561004e4253dc62e57afb6b1863450a1561afda30b34a6ba2.json": {
-      "mode": "100644",
-      "hash": "87ab53af941746017254b790abd3fe13e8f054e257a4097b4460ff32c3cc642a"
-    },
-    ".aidd/tasks/learn-landing-page-rules/task.json": {
-      "mode": "100644",
-      "hash": "e2663565fa155484f6e9223062d0ae46d6569322a735f53749284cd60e421a05"
-    },
     ".aidd/tasks/learn-review-final-01a07ccd/checkpoints/000001.json": {
       "mode": "100644",
       "hash": "4bd9a4043aa62c2615e90d77d0b058ebb629daad27cd4cad25867fdf3d57c63c"
@@ -1179,114 +1139,6 @@
     ".aidd/tasks/zizmor-self-repository-20260920/task.json": {
       "mode": "100644",
       "hash": "a1f772c6cdf6dce16e33dc6ea37d17daf3a586642500a4c1ae459f067edcb65d"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000001.json": {
-      "mode": "100644",
-      "hash": "66f438a3c9b0a82182c6b0434c44fd925b1932fbb3bf31910ef3bf7920b236d3"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000002.json": {
-      "mode": "100644",
-      "hash": "484fb9c8aef8b1e3bb29ddb58811865a0b0fcd5dd3d9b313eb59507de16fc289"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000003.json": {
-      "mode": "100644",
-      "hash": "6bf8778b3b28029f4319cabe939450d4a023a7a30624f4391ad5da0b82de9f45"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000004.json": {
-      "mode": "100644",
-      "hash": "d16502bd647ca2c1c74b1071eb92377e9190fe8428c51fde2930ba02fd222639"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000005.json": {
-      "mode": "100644",
-      "hash": "7c782f6da2acd527a8bf5cb15da93101b34231b33764f5bd010d6ebc8b8e1268"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000006.json": {
-      "mode": "100644",
-      "hash": "4bc219a159e731cc52626943f7bc7f53ac32a5b5e8913f8d826493659f6a4374"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000007.json": {
-      "mode": "100644",
-      "hash": "d39203402e5949ae56f13dd65baddfeaee3bac0949d50bece9450d3ffc3e8a4e"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000008.json": {
-      "mode": "100644",
-      "hash": "34bc7737300f081e53f8b564b8c99c9c0a5d10345a595e1efd48c181d5cae495"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000009.json": {
-      "mode": "100644",
-      "hash": "6281ed2bee39b385a0a82861f2a0ae7e5486fea0222a11b154610db1d50c75b9"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000010.json": {
-      "mode": "100644",
-      "hash": "9b45ba1b2b2956ba41b31db06aa158af9907f0489c8e9ea0f15d852b7518ec84"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000011.json": {
-      "mode": "100644",
-      "hash": "7c53f45a43d563a392cfbd5510ef0aedc8c360ca84467d70a7aba7b3ab782e95"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000012.json": {
-      "mode": "100644",
-      "hash": "93dded2fe0067378fbdf6f6a334a1be0d01638ed470c20a73e4e9f0c36871bcb"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000013.json": {
-      "mode": "100644",
-      "hash": "d6ad6910005f1105f9a81e7aeda7185cf0cef4c9fef955de427420f3d0f0b270"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000014.json": {
-      "mode": "100644",
-      "hash": "9a4a63bbdefa7ac6aba1f35f6f7093a090176533ec4f2827658ed56bd77fffec"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000015.json": {
-      "mode": "100644",
-      "hash": "a75d9f801a943ad1ef49693371dcd6d14260ceea2d7834921bc6854b0e408a12"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000016.json": {
-      "mode": "100644",
-      "hash": "b8611eb7a1655d5a452fd7cd7f8fc6117e3bbf5f4b30c972441555debea725e8"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000017.json": {
-      "mode": "100644",
-      "hash": "ca38d531f765fcb36eba5ef1c7d1a70eabac1b815778392a8b0841090ba619e2"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000018.json": {
-      "mode": "100644",
-      "hash": "c1b52e6e137a4a62b0eca615e7958b5c0f2ca4d95a1e02979965c752f049bdfd"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000019.json": {
-      "mode": "100644",
-      "hash": "faa2ce0590be2a7870102317ad689f1330bc77a1a74b46ad442c91de1c57a044"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000020.json": {
-      "mode": "100644",
-      "hash": "bac1a542536e2cc6cb695ab28477f4541955239fb62497be7d29467906576bed"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000021.json": {
-      "mode": "100644",
-      "hash": "5318bc816ed0f3cd973722c6402c1f563b125e0a8563ccbe3f6fc2e94fbc7ef9"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000022.json": {
-      "mode": "100644",
-      "hash": "11b575fbde8ba2a54986ba1c9bf25060ad7257b328b3cc4d725f45c0fadc5549"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000023.json": {
-      "mode": "100644",
-      "hash": "5978f117948d8a84724e1ca0fc5e0e767ef98b2718a05fd858bc6bfd35f0079f"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000024.json": {
-      "mode": "100644",
-      "hash": "419e0ba957976819dcdffaacd35d229dfc6f7ccee34d4f35c2f8382bd9d1295f"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000025.json": {
-      "mode": "100644",
-      "hash": "d2f2b3083e0df5b0f9f84b9a6de1fa4359f861861fa8a718b7b4b5bab58dfd33"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/events/000026.json": {
-      "mode": "100644",
-      "hash": "b2f6c9abecf50861b3b1c5ffc4121455a51ec1297374ce759542577fe366ab53"
-    },
-    ".aidd/v4/issue-1806-adr-canonical-rules/task.json": {
-      "mode": "100644",
-      "hash": "414e195a5de5fbd9d97b344c0bc9942b9b89c9dac9f4f49bf481f8ed65965e75"
     },
     ".aidd/v4/issue-1815/events/000001.json": {
       "mode": "100644",

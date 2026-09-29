@@ -2,17 +2,17 @@
   "sequence": 9,
   "kind": "approve",
   "time": "2026-09-25T07:27:21.819152Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "a189eba348f28a3f474dcc19668b9910e3d1cd28a584a18b45b5af9bc42bc8a6",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "22910d1365aec069fa83de2348ad27ebaeab8546c7f35e5105867ce4f8b6d8e8",
   "revision": 3,
-  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "fingerprint": "9be1940f707e6e00da178fc216219c346cbc67f0540523abac6882f8c24218f9",
   "data": {
-    "audit_hash": "a189eba348f28a3f474dcc19668b9910e3d1cd28a584a18b45b5af9bc42bc8a6",
+    "audit_hash": "22910d1365aec069fa83de2348ad27ebaeab8546c7f35e5105867ce4f8b6d8e8",
     "source": "user:current-thread/gpt6lunaにして承認",
     "text": "gpt6lunaにして承認。P1の方式をユーザーが訂正し承認: model固定を外す代わりにgpt-6-lunaへ変更する。対象.codex/agents/context-scout.toml。",
     "proposal_ids": [
       "P1"
     ]
   },
-  "hash": "79c894c7a960775273addd6ad084fa813dd68957547ff61156f579367dd1dbde"
+  "hash": "44ff20367bd699419224c382ec77dd59585954391361f958647028f0c88487b9"
 }

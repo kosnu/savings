@@ -2,10 +2,10 @@
   "sequence": 8,
   "kind": "decision",
   "time": "2026-09-27T19:09:57.624731Z",
-  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
-  "previous": "53968d5fcc07a6ece43b5185fca36eff659185761da8ad0bb8d0b03177a66bcc",
+  "task_hash": "be4ab01ba334f790733fa4cc270dd032268e01be64822a5e3e2908adc9a2b6de",
+  "previous": "4cac8ce91ffcd3d5c12127fb5fa8acac770121fc89508ac807dd34008ad2f006",
   "revision": 2,
-  "fingerprint": "43e401365107ba0809dce1350c1ea4f2157cb1995d3708a10ee3154d479e563e",
+  "fingerprint": "18c9975e10f2872ea29f8a6f2f51ca7f36a7355ad53e0213dc3f72fc62036f40",
   "data": {
     "summary": "承認されたP1のみ実施。要求にない一文を削除し、代替条件は追加しない。Git権限の改善は今回と次の改善の対象外。正本1ファイルと必要なTask記録のみ。既存の返信・Bot完了解決・未完了解決禁止の条件を維持する。",
     "paths": [
@@ -38,6 +38,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "fb81e51fd61f55d98cf366ee169b729f1e2da29a49221bb83932b5ef6e886022",
+  "hash": "48ae2d271603232f374c909aa7d75016b3ff37c79c08c286140c51761424f07e",
   "cycle_id": "issue-1825-review-replies/cycle-0001"
 }

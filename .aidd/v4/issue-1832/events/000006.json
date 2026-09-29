@@ -2,18 +2,18 @@
   "sequence": 6,
   "kind": "ship",
   "time": "2026-09-27T09:31:40.340287Z",
-  "task_hash": "3e7d6415641b6af4dd52ecb1db721a60254eb087154df4c762d4325287afbaea",
-  "previous": "acc0a9584efb3f9e02e3f236c57efa93597a812572fd0e6673bb6bb94301c754",
+  "task_hash": "41ac5059d063e39abfa02c1416d22800526919b2a836427393b44c1b29b2b7fc",
+  "previous": "53d191720a5206a1b4756c89c715bb2e93c3781eec884785692b594c3a5a4151",
   "revision": 1,
-  "fingerprint": "6a97ed5e463c1710c5f74eacaca3171bea50c89e23466dbbd6077442e797bc09",
+  "fingerprint": "6090e8ed8b5de0f8ba0be5289a1c6abe641398b7f671a86db9b8ed89c3d26d15",
   "data": {
-    "commit": "d5c1e7a4d171341f8f31b7e6381d20b6e4171021",
+    "commit": "9b32578dd8ae530cc1a6dbeeb1e821693f96ea71",
     "remote": "origin",
     "branch": "issue-1832/manual-audit-start",
     "pr": "https://github.com/kosnu/savings/pull/1833",
     "evidence": "local HEAD、originのremote ref、local tracking ref、PR headはd5c1e7a4d171341f8f31b7e6381d20b6e4171021で一致。upstreamはorigin/issue-1832/manual-audit-start。PRはOPEN、baseはmain、Closes #1832を確認。CI一度取得: candidateとintegrationはIN_PROGRESS、assign-authorはSUCCESS。",
     "base": "main"
   },
-  "hash": "80265dddda0b80d3b2abc8bf9024fc71bb395f7fc1184aebeaa1ac063f907cfd",
+  "hash": "6c01cb95c955d839753819653a2ad0d51cde0385c04fc4df849babc55b8b806a",
   "cycle_id": "issue-1832/cycle-0001"
 }

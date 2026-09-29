@@ -2,12 +2,12 @@
   "sequence": 16,
   "kind": "approve",
   "time": "2026-09-25T08:27:56.11868Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "d001603c5035ea73cf06a4bb6136e73a03a2f2c154b7dcb2bb1607df369101ee",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "4a6267395fe611d7eba0b1347d59e122cff0a2fbd26014b30e59b3e40274c42b",
   "revision": 4,
-  "fingerprint": "9253f66e3483c320779336c56b62497b239fa66b9964142296a1598aa8078962",
+  "fingerprint": "eabb1eb54fd4df867ed4fd7f96be792bbfdc474d99305a279cb18897ce308766",
   "data": {
-    "audit_hash": "d001603c5035ea73cf06a4bb6136e73a03a2f2c154b7dcb2bb1607df369101ee",
+    "audit_hash": "4a6267395fe611d7eba0b1347d59e122cff0a2fbd26014b30e59b3e40274c42b",
     "source": "user:current-thread/Auditを承認します",
     "text": "Auditを承認します。その後の訂正: 「Auditを承認します」は明確な承認。提示した3点のガードレール改善を実行する。",
     "proposal_ids": [
@@ -16,5 +16,5 @@
       "P4"
     ]
   },
-  "hash": "4d64dd149d9027989c62b0393e0bd8f4c7465f894e4eb816e0ae029734ca6a75"
+  "hash": "9427c290bd939a6070b1650cc9ae45bb96697a6595f29c1fa222434c81763cf9"
 }

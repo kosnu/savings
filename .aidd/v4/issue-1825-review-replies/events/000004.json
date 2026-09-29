@@ -2,10 +2,10 @@
   "sequence": 4,
   "kind": "review",
   "time": "2026-09-27T18:26:48.101415Z",
-  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
-  "previous": "595889458321c2b0dc530236f63f3f4403dec5d1d3a51339854903089246e803",
+  "task_hash": "be4ab01ba334f790733fa4cc270dd032268e01be64822a5e3e2908adc9a2b6de",
+  "previous": "ddece266c17a14f635c9fe0484b59405973c1a20dfe93102cc4265cd4d63cb6f",
   "revision": 1,
-  "fingerprint": "43e401365107ba0809dce1350c1ea4f2157cb1995d3708a10ee3154d479e563e",
+  "fingerprint": "18c9975e10f2872ea29f8a6f2f51ca7f36a7355ad53e0213dc3f72fc62036f40",
   "data": {
     "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n指摘なし。正本の改善節のみ変更。改善skillは既に正本を参照し、入口pathのresolverでai-driven.auditからlearning-extraction、review-feedback-classification、git-workflowへの到達を確認。索引・入口・Core・CLI・CIは同期変更不要。未対応指摘、非PR指摘、対応未完了Bot、人間投稿者ではBot完了thread解決の条件を満たさない。実PRへの投稿・resolveはこの文書変更の検証対象ではなく実行していない。アプリ・ADR変更なし。",
     "criteria": [
@@ -39,6 +39,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "8c543c2c382dc26d43cbb2de55b8baa0707a774dda1b7ff9a98d0c761a8fee23",
+  "hash": "bdeccb0d9173396fccbf00f6cc76ccf744848ffeb5338e4645820d9ff01eec8e",
   "cycle_id": "issue-1825-review-replies/cycle-0001"
 }

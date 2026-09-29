@@ -2,10 +2,10 @@
   "sequence": 19,
   "kind": "review",
   "time": "2026-09-25T08:30:36.373206Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "c2c451b8fa5393dafe89f7d208908a144da83af9cd41c05ef123fcd5621e9d4e",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "95faaf45cf7387c5e7c3b3329cb74b4e237498428bae47bffd88cfcbf78b72d0",
   "revision": 5,
-  "fingerprint": "f3d7ada7f4ac26f033c80ec14241269e9a24fb8953b491d02b98467b3a8da991",
+  "fingerprint": "5de0970b88f26ea660bdcc341c911b0a64c2fbcacc0abdc03f5298703556deff",
   "data": {
     "summary": "## Coverage\n- Checked rules: rules配列の既存適用規則。今回差分はGo Coreの承認/追記/base名照合と対応する正本文書。rule-mapの既存pathとdepends_onで到達し索引変更は不要。\n- Unresolved: 今回3点の範囲ではなし。PRの新指摘（Task開始前の差分coverage）は未対応として次Auditへ記録。\nTestAuditCompletionRequiresManualApprovalで空提案の承認待ち・明示承認後complete・実装権限なし・Audit追記の保存と旧承認拒否・再load・未Ship revision拒否を確認。TestShipBaseNameOnlyでbase名不一致/未指定を拒否、base SHA変化を許容。旧Shipイベントはそのまま保存し、新規Ship/記録配信にはbase入力必須。event18の全command成功。過去証拠は書換えなし。",
     "criteria": [
@@ -52,5 +52,5 @@
       "policy.transaction-boundaries"
     ]
   },
-  "hash": "5019b8578303b863a2223bb49a22a1b745c2b3cf8d9e758c8b6307750ccec28e"
+  "hash": "7d34eef5f151e149cb1b45a5939cbd433501b2b53a99bd24bf7c4e55f6515f3b"
 }

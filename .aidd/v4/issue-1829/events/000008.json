@@ -2,18 +2,18 @@
   "sequence": 8,
   "kind": "dismiss",
   "time": "2026-09-29T16:36:08.827326Z",
-  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
-  "previous": "7209912082d3ba4669ebf68b5d1891414312e8c6895f960c7fb4d3153349c7d5",
+  "task_hash": "895ee7b76afa7b6cee6f302524f7b112db96d47dd7089bc77b80c0b336200dd9",
+  "previous": "6ffdb683ebaeb3e5c4b09fda43ce7c98631e818ad5cadb9af7135d90ffd77efa",
   "revision": 1,
-  "fingerprint": "bf60ce6193365644bef3716b1021ff0ac5797fa7d6b84cbad3f81e7347869fc9",
+  "fingerprint": "8da7ded8ee8c7e328d2157fa9a8a88baec6b8addf429cbceb9387986b8c894b7",
   "data": {
-    "audit_hash": "7209912082d3ba4669ebf68b5d1891414312e8c6895f960c7fb4d3153349c7d5",
+    "audit_hash": "6ffdb683ebaeb3e5c4b09fda43ce7c98631e818ad5cadb9af7135d90ffd77efa",
     "source": "このチャットのユーザーによるP1不採用の明示。P2対応方針: 不要な会話文言を削除し、それを含むコミットを置換してPRブランチの履歴を上書きする。ユーザーの「承認したのでその方針を実行しろという意味」に基づき、この末尾eventのみを例外的に訂正しhashを再計算する。削除対象は再掲しない。P3および前回のプロセス課題3点は今回の対応対象外。",
     "text": "変更しないことを承認するという意味",
     "proposal_ids": [
       "P1"
     ]
   },
-  "hash": "1f1c21efc9045d7121c680758e071d8602330a4938a7ab55d14d2456b96d59e4",
+  "hash": "8cfb31021ed048ce09e8c7d14c622e35560a2ad40142a8f01ec6676f89202139",
   "cycle_id": "issue-1829/cycle-0001"
 }

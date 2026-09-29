@@ -2,10 +2,10 @@
   "sequence": 7,
   "kind": "audit",
   "time": "2026-09-29T16:22:05.629841Z",
-  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
-  "previous": "cc5f9ec50ad092c1bf4c1a7728055a629c389181c2bb072a27a832ad91badd34",
+  "task_hash": "895ee7b76afa7b6cee6f302524f7b112db96d47dd7089bc77b80c0b336200dd9",
+  "previous": "5765d87b3d7a5be4518cb92cc89747d95a56208a2c655b78cf728e8012e82824",
   "revision": 1,
-  "fingerprint": "bf60ce6193365644bef3716b1021ff0ac5797fa7d6b84cbad3f81e7347869fc9",
+  "fingerprint": "8da7ded8ee8c7e328d2157fa9a8a88baec6b8addf429cbceb9387986b8c894b7",
   "data": {
     "summary": "PR #1846のhead 15bc5275ef902bb11dbc347913c7bdbef18b2a51をTaskの最新検証・reviewと照合。CI4件成功。未解決・現headのP2指摘1件は妥当。初回読込の循環条件を解消するP1を提示し手動承認待ち。\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: AGENTS.md:22の初回読み取り前提の矛盾。Copilotはquotaによりレビュー未実施。",
     "findings": [
@@ -30,7 +30,7 @@
       }
     ],
     "delivery": {
-      "commit": "15bc5275ef902bb11dbc347913c7bdbef18b2a51",
+      "commit": "562ea11513a1133f3bac55e5d19e5ed7e60210cf",
       "remote": "origin",
       "branch": "issue-1829/tool-execution-state",
       "pr": "https://github.com/kosnu/savings/pull/1846",
@@ -38,6 +38,6 @@
       "base": "main"
     }
   },
-  "hash": "7209912082d3ba4669ebf68b5d1891414312e8c6895f960c7fb4d3153349c7d5",
+  "hash": "6ffdb683ebaeb3e5c4b09fda43ce7c98631e818ad5cadb9af7135d90ffd77efa",
   "cycle_id": "issue-1829/cycle-0001"
 }

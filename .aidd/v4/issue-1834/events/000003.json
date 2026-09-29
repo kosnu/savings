@@ -2,8 +2,8 @@
   "sequence": 3,
   "kind": "decision",
   "time": "2026-09-27T11:03:24.672266Z",
-  "task_hash": "b3c8c06f90a7d10c586ae47aa2c8229f8a8e3ac64733523d2b770f153507aa0a",
-  "previous": "8f3fd614d49da7fb5878a7028fc996a2c53871efaec73942d13e75b29d3fb962",
+  "task_hash": "a18dde4a86855c47573507f993c149b64d91639e6a91090822338b8a2a4336a3",
+  "previous": "db3dee0fc58e336babb5739097deb68a82ded87365aaeb2b8a5743e0d9af375c",
   "revision": 2,
   "fingerprint": "c181563320d3a678e51b2f6cc9d4479e1afcd9e300fdbe67a26b3d7ae94d087e",
   "data": {
@@ -60,6 +60,6 @@
       "policy.code-review"
     ]
   },
-  "hash": "2791f30b9b6c248d9334098c02dd0a0994019a37b0bf96bf6b4dbc66fae53b9d",
+  "hash": "26282186b53755dd72fc6802b82a7d53674d7bd7d6a69b03ecb98a6a6ea00530",
   "cycle_id": "issue-1834/cycle-0001"
 }

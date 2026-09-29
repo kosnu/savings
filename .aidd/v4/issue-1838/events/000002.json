@@ -2,10 +2,10 @@
   "sequence": 2,
   "kind": "decision",
   "time": "2026-09-28T13:31:46.934404Z",
-  "task_hash": "840e2bf46c1fb87e15d798b0166f18689b9ff85493acaba38942a47e38831ee2",
-  "previous": "f42287501dc69eaf7a2a712f7d7f426cdc0ccc16728d4eeba83015f7ba55f312",
+  "task_hash": "5bd833d17433ab1236aa292db498f7a502434371d65ffc698ad8a4cf53bbf035",
+  "previous": "7c476770fa1fead4abacfa5af4026899e96317eee775021de74f4876ab8dc76b",
   "revision": 1,
-  "fingerprint": "6d3321b7cd0b826b3977d5477cfd6d9bc000818f026be82ae1ca34c131f07155",
+  "fingerprint": "e050d4c8fe53c3eed5d6e90d00df4e2aa2845f11979f563e8b7996307564f19e",
   "data": {
     "summary": "codex-adapterのGit実行方針と参照条件だけを更新する。Git common dirとworktree固有git dirの保護を実行前に確認し、保護対象への書き込みは最初からrequire_escalatedとする。rulesとsandboxを区別し、読み取り・非保護書き込み・拒否時の境界を維持する。AGENTSからCodex adapterへの既存参照とfront matterで到達できるためrule-map変更不要。Core、CLI、CI、アプリの動作は変更せず、アプリ検証不要。Issue #1825とは別Task。現在detached HEADのため配信用branch作成のみユーザー確認待ち。",
     "paths": [
@@ -39,6 +39,6 @@
       "policy.code-review"
     ]
   },
-  "hash": "3992f54b29dfc5683186cc9b9c23f2f1e656c511dd9cf888747068437e673643",
+  "hash": "e0abb23418f419e4542267c7cd2f07c50f0861914fff68f5156f3ca1aec3ec51",
   "cycle_id": "issue-1838/cycle-0001"
 }

@@ -2,10 +2,10 @@
   "sequence": 45,
   "kind": "review",
   "time": "2026-09-25T13:58:01.773711Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "ba8b7e00e603e7a43ad1b84b8ad07a413f37e228a3ce832268f295b2f808917b",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "19e5cdea273145b6458284cb6e755f9e6c47de40e7093ce02dde25e8007cd8f9",
   "revision": 10,
-  "fingerprint": "8c1dac3f5c8c17327c5236ce346a83ca4ce0699db95dd49bcaf8a4a570aa5c10",
+  "fingerprint": "94347284bb60104682d1640c076228b130163b8b61b06d691e026be20772824d",
   "data": {
     "summary": "## Coverage\n- Checked rules: rules配列。承認済みP12/P13のGo Core/CLI/正本/skillを照合。既存rule-mapの直接一致とdepends_on経路で新仕様へ到達し、索引の変更不要。Web/API製品仕様・構造の変更なし。\n- Unresolved: 承認範囲内の未解決なし。\nworkflowの指定一巡、改善の承認、Intent再確認、次cycleの新decisionをCore/操作/skillへ同期。IDはstart/return-intentだけで発行し、revisionと別管理。return-intentは承認・改善判断・範囲を検査し、Intent hashとapproval hashを結び付ける。前cycle証拠は無効、ID欠落・飛び番・境界外切替を拒否。旧v4イベントはomitemptyで旧hashを維持し、過去回数を推定せず明示境界から採番。旧AIDDのschema/CLIへの互換経路はなし。全Goテスト/vet/実vp共有gate5件/ADR/diff/TOMLはevent44成功。初回/反復/再開/省略拒否/変更前履歴保持/改善なし終了をテスト。意味的なIntent読込の真偽はGoで認証せずsummaryとreviewで扱う。実Taskでreturn-intent42からcycle-0001、decision43/revision10で検証。",
     "criteria": [
@@ -65,6 +65,6 @@
       "web.test-policy"
     ]
   },
-  "hash": "e5a709f2eb162e490a00296f8d1def058fc3a2378ca440eb2cd2bed5c8cfb394",
+  "hash": "4f12ce54987d78735a25983592647ec353821a8381afe00baee84c1dd9cc6bbb",
   "cycle_id": "issue-1815/cycle-0001"
 }

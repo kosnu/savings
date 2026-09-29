@@ -2,8 +2,8 @@
   "sequence": 12,
   "kind": "review",
   "time": "2026-09-27T19:10:36.152377Z",
-  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
-  "previous": "145109f0104d13c81c84c6e4325b588d46005c2c0c88d19c96c8d4e45bdebde2",
+  "task_hash": "be4ab01ba334f790733fa4cc270dd032268e01be64822a5e3e2908adc9a2b6de",
+  "previous": "b172027d9997c6032c56d84d3bdac19fe5a50a2c3d37bd013072352741ec2bac",
   "revision": 3,
   "fingerprint": "26632b5c612a58e82c42a780349eef01996f8b4b7b0f747fc2e2f9025e7e390c",
   "data": {
@@ -39,6 +39,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "6022ca1993553932649e358b0babdff3cda2b3ab97c3df7a22e8e1c7d69b4861",
+  "hash": "bc4b1691136f2664706fd37b825b8d4d7c461354eb82dbc55b4e2c2c126b919c",
   "cycle_id": "issue-1825-review-replies/cycle-0002"
 }

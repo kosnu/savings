@@ -2,8 +2,8 @@
   "sequence": 2,
   "kind": "decision",
   "time": "2026-09-25T06:59:56.23722Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "6137609b7a7b50fff2c8211c402bea52647f1e39164b3ba1a861bc2461a8170e",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "8b3f873fe56d597ae9f4a5359dc633602e7038653d23c9d7e3e4e7e0b17e225f",
   "revision": 1,
   "fingerprint": "0851a9d1283695521530a11cf270897c84b31400c84c30e96c6eb1c2085941ce",
   "data": {
@@ -77,5 +77,5 @@
       "adr.aidd-invariant-protocol"
     ]
   },
-  "hash": "3613ae341df1105e5d9ab6fe250875347c6d9fb65eac573df971aac5e3014f7e"
+  "hash": "19cd26fd25b35c0ebf1637d7fa25d20769bd10998b0c9d0e865818bf4be99e58"
 }

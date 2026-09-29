@@ -2,10 +2,10 @@
   "sequence": 15,
   "kind": "audit-update",
   "time": "2026-09-25T08:27:55.875334Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "c4538f71a3c902541cf7b6b9d48e178fb2fa8b21f4b05fe930129e13a6d2cd65",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "682644a4c19e837b4f39072a00886941190c58e04ec5a7b74ea310bc004aa27c",
   "revision": 4,
-  "fingerprint": "9253f66e3483c320779336c56b62497b239fa66b9964142296a1598aa8078962",
+  "fingerprint": "eabb1eb54fd4df867ed4fd7f96be792bbfdc474d99305a279cb18897ce308766",
   "data": {
     "summary": "会話で整理したAuditを追記。ユーザーは「Auditを承認します」と明示し、その後3点の改善実行を再確認した。過去Auditは保持。",
     "findings": [
@@ -68,5 +68,5 @@
       }
     ]
   },
-  "hash": "d001603c5035ea73cf06a4bb6136e73a03a2f2c154b7dcb2bb1607df369101ee"
+  "hash": "4a6267395fe611d7eba0b1347d59e122cff0a2fbd26014b30e59b3e40274c42b"
 }

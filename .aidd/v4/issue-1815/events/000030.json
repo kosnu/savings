@@ -2,10 +2,10 @@
   "sequence": 30,
   "kind": "audit",
   "time": "2026-09-25T09:36:47.489239Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "c8a443ae4279bd7699bb7caf9365f77a27214e83577e2e4d42e64806e4ade16b",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "345384a34bfa9b71cc4f39f9c07f06d310f65f3659e2ed0742ba7ac4dfd6658f",
   "revision": 7,
-  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "fingerprint": "b276301d0d8a26003fbc96903e0c95a9e33182e689b5454e4ab266cc77556f3a",
   "data": {
     "summary": "承認済みP6/P7/P8を実装・検証・review・Ship済み。P5はユーザー合意による不採用をdismissで保存。全6レビューthreadは取得済みで、既存解決2件に加え今回修正2件・不採用2件へ返信して解決した。追加提案なし。結果Auditは手動承認待ち。",
     "findings": [
@@ -19,5 +19,5 @@
     ],
     "proposals": []
   },
-  "hash": "8af5581aba4f2745121d3b4dafd6075f7746974c092a434ffb867231fc61403d"
+  "hash": "1d701aa63302ce7b2dcce7c289af7454e335e18982bb6b32b15317e60eafac5d"
 }

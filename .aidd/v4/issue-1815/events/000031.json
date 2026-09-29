@@ -2,10 +2,10 @@
   "sequence": 31,
   "kind": "audit-update",
   "time": "2026-09-25T09:45:21.763355Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "8af5581aba4f2745121d3b4dafd6075f7746974c092a434ffb867231fc61403d",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "1d701aa63302ce7b2dcce7c289af7454e335e18982bb6b32b15317e60eafac5d",
   "revision": 7,
-  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "fingerprint": "b276301d0d8a26003fbc96903e0c95a9e33182e689b5454e4ab266cc77556f3a",
   "data": {
     "summary": "ユーザー依頼でAudit再実行。head734a868fの最新レビュー8件（解決6/未解決2）とCIログを取得。新規2指摘を再現・確認し、CI環境不備1件を追加。改善の実装は未実施。",
     "findings": [
@@ -53,5 +53,5 @@
       }
     ]
   },
-  "hash": "ee2c82339cd89a7c127ef2218b794a864cb1ad8e8e9ee7ca8aaddce25b66f4ec"
+  "hash": "394bc9910547d1a83063adea573afaaffe87351a8e95f543e15985d7795d2b41"
 }

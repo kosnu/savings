@@ -2,10 +2,10 @@
   "sequence": 5,
   "kind": "review",
   "time": "2026-09-27T09:29:17.028472Z",
-  "task_hash": "3e7d6415641b6af4dd52ecb1db721a60254eb087154df4c762d4325287afbaea",
-  "previous": "b8281faccc54abb2a70742fbfd6af8de14b5b7ce1d572de0edfbb5afa29bb1af",
+  "task_hash": "41ac5059d063e39abfa02c1416d22800526919b2a836427393b44c1b29b2b7fc",
+  "previous": "13f70bf8c2e3273c602f063c8cd918c13de30d43375c6420a65ae6218a35635f",
   "revision": 1,
-  "fingerprint": "6a97ed5e463c1710c5f74eacaca3171bea50c89e23466dbbd6077442e797bc09",
+  "fingerprint": "6090e8ed8b5de0f8ba0be5289a1c6abe641398b7f671a86db9b8ed89c3d26d15",
   "data": {
     "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし。実差分と参照経路、後日Auditの再開、手動承認境界を確認。Core verifyでgit diff --checkとcheck-allが成功。",
     "criteria": [
@@ -42,6 +42,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "acc0a9584efb3f9e02e3f236c57efa93597a812572fd0e6673bb6bb94301c754",
+  "hash": "53d191720a5206a1b4756c89c715bb2e93c3781eec884785692b594c3a5a4151",
   "cycle_id": "issue-1832/cycle-0001"
 }

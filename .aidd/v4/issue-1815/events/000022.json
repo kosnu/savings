@@ -2,10 +2,10 @@
   "sequence": 22,
   "kind": "audit-update",
   "time": "2026-09-25T09:31:03.27291Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "4e85561530c7594bb3008fd91d19d506866aff86bb0a58e5414a059b1de4b270",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "29b514aa46f2ff507f89bb88fbb24f576cf91d09d192c150dd5822b1003d7efc",
   "revision": 5,
-  "fingerprint": "f3d7ada7f4ac26f033c80ec14241269e9a24fb8953b491d02b98467b3a8da991",
+  "fingerprint": "5de0970b88f26ea660bdcc341c911b0a64c2fbcacc0abdc03f5298703556deff",
   "data": {
     "summary": "最新PRレビュー全6件と会話で確定した採否を反映。P5の追加Go検査とupstream機械照合は不採用。残存プロセス、共有Storybook設定、運用方針の正本化を採用。ユーザー「なら承認する 次へ進め」により実行承認済み。",
     "findings": [
@@ -83,5 +83,5 @@
       }
     ]
   },
-  "hash": "596d9f050f66865233ea8df394da336b795250bfc5d8175a19d7316d2edc4b20"
+  "hash": "c79ec88347b28f6a21dc3eceac07c8901c8b1d6061c5bbd6b77013ccf5528213"
 }

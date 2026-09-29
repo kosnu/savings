@@ -2,10 +2,10 @@
   "sequence": 2,
   "kind": "decision",
   "time": "2026-09-27T09:27:17.477216Z",
-  "task_hash": "3e7d6415641b6af4dd52ecb1db721a60254eb087154df4c762d4325287afbaea",
-  "previous": "ee2a6f02d5875c897d49d653f52c22f260a9a2ab166eab484cf57993397ee038",
+  "task_hash": "41ac5059d063e39abfa02c1416d22800526919b2a836427393b44c1b29b2b7fc",
+  "previous": "c48cd2ec1cc6420ed599e0b2297d0687514f2e6d9e9f24307e4f4657e8551841",
   "revision": 1,
-  "fingerprint": "8aa3611a77e9f1b94f5f69b4dee5c4cb8dade0902697949236333d5a7b3d9980",
+  "fingerprint": "646f8d9bd6f76b706b0b3c1acdc9687c735b6cbc843112c882166fb0a407b1e5",
   "data": {
     "summary": "通常の委任をShipで終え、Auditは後日の明示依頼で開始する。現行Coreはshipped状態を保持し後日のauditを受け付けるため実装変更せず、正本、入口、テンプレートの委任・完了文言を同期する。rule-mapは既存path/依存で対象正本に到達するため変更しない。",
     "paths": [
@@ -50,6 +50,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "7f95a16c8ff63a30dc9ff6a21c9c15cad8c19d93a9b6d42a7d79d0d898c17c17",
+  "hash": "b3a758ee4f7aff90d9a14bad68250d2abbc8863f5778c74ba06d73f7ddde259e",
   "cycle_id": "issue-1832/cycle-0001"
 }

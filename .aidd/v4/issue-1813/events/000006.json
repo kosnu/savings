@@ -2,10 +2,10 @@
   "sequence": 6,
   "kind": "review",
   "time": "2026-09-25T18:39:22.752126Z",
-  "task_hash": "aa33734841a82f0a9230ba5347b9872c29985df9ee9034efab2056162c9470d6",
-  "previous": "df4fbadd7776b35a248ef2c02bff9a1f90a98efc8076d5007f3b61f60553f594",
+  "task_hash": "e1bd729979c697d5de1fb7da6d0340b8468efc370be0cc7992c1eaa702e71058",
+  "previous": "ddc239fd59563a7a26ad88211af72c09483fc423bb0d1769f699e9c5b2f81b0c",
   "revision": 1,
-  "fingerprint": "3ed6c3d2ccabd96f6872d1098107c512ce12c68b5120b1b9a6b96a788545343c",
+  "fingerprint": "3c4448089d07955fbc84d5928c46d9d0143959ade89b5bdde857898e59d11cca",
   "data": {
     "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし。文書差分をIssue #1813の5条件および制限あり・なしの反例で確認。アプリコードは変更していないためWeb検証対象外。",
     "criteria": [
@@ -50,6 +50,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "b8bbfb8985713d25e06eaedbd8255c1c7e747a3ed98d4d1f71f9dba52e44cb4d",
+  "hash": "cc2aca4ba23ffe6699d3f631ef5ea4d724d5208daf3b41ef35a639dff31b937d",
   "cycle_id": "issue-1813/cycle-0001"
 }

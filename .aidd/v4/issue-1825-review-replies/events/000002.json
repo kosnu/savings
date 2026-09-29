@@ -2,10 +2,10 @@
   "sequence": 2,
   "kind": "decision",
   "time": "2026-09-27T18:26:07.918996Z",
-  "task_hash": "025b66bab00ccbe9cb8318612fd1b74b2fcb409102f2e09771f7c193719b9068",
-  "previous": "f1d1736cedde1a9ec86cc4888ddcfb402b8e1b1a717063bb36cabe15ba9b2ec7",
+  "task_hash": "be4ab01ba334f790733fa4cc270dd032268e01be64822a5e3e2908adc9a2b6de",
+  "previous": "d696190e2086cf36ef11927373c187d404f18959e4719167259929ca7184c73e",
   "revision": 1,
-  "fingerprint": "e98ad7a20ac9daf7f16b393bc6dc84644456cfd9759d9ab8d4d469531c9ad61f",
+  "fingerprint": "5cc66f69850df5c62655ec2925566b89ec66274f1a8129081062bc218908c32c",
   "data": {
     "summary": "改善方針の正本learning-extraction.mdに対象限定・Git Workflow準拠の返信・完了Bot thread解決を追記する。ガードレール変更だけで元の指摘への対応完了とみなさない。実操作の詳細はGit Workflowへ委ねる。既存skillとworkflowが正本を参照し、ai-driven.auditの依存closureから返信関連規則へ到達するため入口・索引・Core・CLI・CI変更は不要。文書のみでアプリ検証は対象外。過去PRとそのTaskは参照せず今回のIssue本文と現行正本を根拠にする。",
     "paths": [
@@ -38,6 +38,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "c6d312647b013a0fcc25e8c3a0d0957b396e6e9276208ac6e903fddebe048684",
+  "hash": "1161ec7cfcb1b1f31dd2cf7c855bc72e4b3f7effdbb47337d1fa619452eec733",
   "cycle_id": "issue-1825-review-replies/cycle-0001"
 }

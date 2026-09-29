@@ -2,10 +2,10 @@
   "sequence": 34,
   "kind": "decision",
   "time": "2026-09-25T13:07:04.081749Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "ebd8742c2525f967c21f2819dbbd47259875908224078381835c0417a2d2ef29",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "65e81636bedbb39fe5f49324499326862d9e1abd89aeda89c9f72e3409689ac2",
   "revision": 8,
-  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "fingerprint": "b276301d0d8a26003fbc96903e0c95a9e33182e689b5454e4ab266cc77556f3a",
   "data": {
     "summary": "承認済みP9/P11: 承認後の新decisionと同revisionの検証・review・Shipを要求し提案を保持する。candidate CIでNode/pnpm/実依存を準備する。P10はユーザー指定の別Issue対応として除外。",
     "paths": [
@@ -119,5 +119,5 @@
       "web.test-policy"
     ]
   },
-  "hash": "4c7641252d501d1a7a2cae26e071af28dbbbe61d1adc2393dc424a971443f742"
+  "hash": "8c92a711dadeb43c4b5553316b43ac34eb5ec706a1262c81b7f8712b010ec44c"
 }

@@ -2,10 +2,10 @@
   "sequence": 17,
   "kind": "decision",
   "time": "2026-09-25T08:27:56.601982Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "4d64dd149d9027989c62b0393e0bd8f4c7465f894e4eb816e0ae029734ca6a75",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "9427c290bd939a6070b1650cc9ae45bb96697a6595f29c1fa222434c81763cf9",
   "revision": 5,
-  "fingerprint": "9253f66e3483c320779336c56b62497b239fa66b9964142296a1598aa8078962",
+  "fingerprint": "eabb1eb54fd4df867ed4fd7f96be792bbfdc474d99305a279cb18897ce308766",
   "data": {
     "summary": "承認済み3点: Audit手動承認、baseブランチ名のみ照合、Audit追記。SHA照合なし。不採用3検査は追加しない。旧CoreのAudit追記不可を解消するため、承認された新版を/tmpでbuildし、source無変更状態のままaudit-updateとapproveを記録した。以後リポジトリに同じ実装を反映し再build・検証する。過去イベントは変更しない。",
     "paths": [
@@ -99,5 +99,5 @@
       "policy.transaction-boundaries"
     ]
   },
-  "hash": "684779d1d8bdaf457fa5f54d420eb6fe7a7dade971fb70a050ca747eba931b5c"
+  "hash": "63a39291da66e46b08e0458dfa702cd36303a7f41336888ddf17b95c6de622f0"
 }

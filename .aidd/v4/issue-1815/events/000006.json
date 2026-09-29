@@ -2,10 +2,10 @@
   "sequence": 6,
   "kind": "review",
   "time": "2026-09-25T07:10:04.52441Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "6516ac3e1e92c059aafd5a46617ede92f2a2a4088c4367a9bf1eec70fb89ce21",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "9a3be14955f65bd6c440508132ab49c15fe19fbc14f465cb6f70e596687133ef",
   "revision": 3,
-  "fingerprint": "4b332b96949b74dd5ed622734e63a56c79901c177fc792e406fddaae2d6b1a48",
+  "fingerprint": "9be1940f707e6e00da178fc216219c346cbc67f0540523abac6882f8c24218f9",
   "data": {
     "summary": "最終実差分をCode Review Policyに従い確認。Checked rulesはrules配列。Unresolved: なし。Go実行/共有gate/ADR履歴はevent000005で成功、gofmt出力なし、変更Markdownのlocal linkとworkflow YAML parse、3 skill validator成功。アプリcode/runtime configは無変更につきWeb/API実行は非該当。Coreは信頼された単一writer/host権限境界を前提とし、semantic判断とユーザー発言真正性は自動認証しない。修正したfinding: Intent改訂の欠落、部分承認未決案消失、stale status、過剰なWeb検証適用。",
     "criteria": [
@@ -52,5 +52,5 @@
       "policy.transaction-boundaries"
     ]
   },
-  "hash": "97af7f48bc4bb55ba25747662e25c579440e2875d2bb0705b9ba4fc0ed0fea53"
+  "hash": "1e3c3a5a7d63de13fe6b969eedbd97b0441776f97661e977a6332e21643b859b"
 }

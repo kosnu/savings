@@ -2,10 +2,10 @@
   "sequence": 8,
   "kind": "audit",
   "time": "2026-09-25T18:41:21.105115Z",
-  "task_hash": "aa33734841a82f0a9230ba5347b9872c29985df9ee9034efab2056162c9470d6",
-  "previous": "947447b5975338864ae2aad79875ad7df78f33b060e4929ccec289a25e82ac1e",
+  "task_hash": "e1bd729979c697d5de1fb7da6d0340b8468efc370be0cc7992c1eaa702e71058",
+  "previous": "0a69f0a6f0dd5a5329b8fb44cebf13474f6ffa6fa4603f98792349bc41a232c6",
   "revision": 1,
-  "fingerprint": "3ed6c3d2ccabd96f6872d1098107c512ce12c68b5120b1b9a6b96a788545343c",
+  "fingerprint": "3c4448089d07955fbc84d5928c46d9d0143959ade89b5bdde857898e59d11cca",
   "data": {
     "summary": "Issue #1813の3文書を変更し、PR #1819でShipした。制限なし・明示ローカル制限・Audit承認境界の5条件をsemantic reviewでpassと判断した。改善提案はなし。",
     "findings": [
@@ -18,6 +18,6 @@
     ],
     "proposals": []
   },
-  "hash": "ad4826179858cbd9f07dffd5fe9e4bf3b1afedadd9ec8969a0234ee95439a42b",
+  "hash": "cbdc93755e961b05d768f7d45ccef1f92a99c43122eaba58de037a7200005dc4",
   "cycle_id": "issue-1813/cycle-0001"
 }

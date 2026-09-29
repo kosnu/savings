@@ -2,8 +2,8 @@
   "sequence": 4,
   "kind": "review",
   "time": "2026-09-28T16:02:53.252001Z",
-  "task_hash": "f7a7ccc600e9229fa4d4528af9c9fd941612a291d7f15e8ffc811646b0da95f8",
-  "previous": "7f97284bd897bb38f2857f793230628bf6f82053fe3c0894c53f24f7fe0b0faf",
+  "task_hash": "7a224940f6d91e3802a06dccb95f4c73901adbddb56b9fc11634f427891c1f51",
+  "previous": "26766a6c52ae88de0d7c56a5c9609e854e35c7f427166d2e0d843b5a0332870c",
   "revision": 1,
   "fingerprint": "dde144eb768c885b39444b7c4ec83bc737222bf9e62218d4fb66dc6f71edf9a5",
   "data": {
@@ -40,6 +40,6 @@
       "policy.code-review"
     ]
   },
-  "hash": "52a1a7572b72aaf89907ee77303cf13537d931e32df44425e1de48f64c48d07f",
+  "hash": "c386d17ed42ced5a4444ae62aeaa27fc3be4873d00a1c174160839f165bed9d6",
   "cycle_id": "issue-1827/cycle-0001"
 }

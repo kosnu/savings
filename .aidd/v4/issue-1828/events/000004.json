@@ -2,8 +2,8 @@
   "sequence": 4,
   "kind": "review",
   "time": "2026-09-29T14:56:28.756058Z",
-  "task_hash": "5de02a04228212741ea0b975e1f1bb42ab4228c608b68d78ddc975b8ec59c0a5",
-  "previous": "c93cbee66d634b891a17e7c60f035255160dd901901692ad8bf94739d72825ce",
+  "task_hash": "2e996856f96b479c08d1b98478613cd278527aef86881861511ceeddb9ce564c",
+  "previous": "e95ae263fa71ec16a91ededf3d32a8c2339bdcfc5fdf0466a3b3a6827f56f71e",
   "revision": 1,
   "fingerprint": "ca59d1db3e5d6132a57eea18e5c4f98a2da12cb6402fceeba2aae82f6c4bd841",
   "data": {
@@ -50,6 +50,6 @@
       "policy.review-feedback-classification"
     ]
   },
-  "hash": "69c8de5d81dc01fa260d4643f77bb406b140673503c98549138d6d2ce36a837b",
+  "hash": "a01de31376aaa3c5ebcae63f5a75b69db15431cb77b7b35cf5b09173e11f5dba",
   "cycle_id": "issue-1828/cycle-0001"
 }

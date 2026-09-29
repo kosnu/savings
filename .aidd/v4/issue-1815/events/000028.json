@@ -2,10 +2,10 @@
   "sequence": 28,
   "kind": "review",
   "time": "2026-09-25T09:34:55.000712Z",
-  "task_hash": "03868032f42554b90f89d2faee07dc283950941acd986d4e3c799d51b9611b59",
-  "previous": "ba119b1bffb99a7c07b35c3d5b2a1e6215941f7517c3f94a5effe8c886548815",
+  "task_hash": "35022d6bae29fa059460d1b0598c0ec020af96dae3af6010e08a2bef2d8f52d5",
+  "previous": "23b2b9a216b9696681c59f0b2463ec11ce1ac6793601d513946b4ac21ef27a12",
   "revision": 7,
-  "fingerprint": "73b2a0fef37f33bc14d082c24e8d9bb00ed9a8d7ec98c1b52cc8d26505bae925",
+  "fingerprint": "b276301d0d8a26003fbc96903e0c95a9e33182e689b5454e4ab266cc77556f3a",
   "data": {
     "summary": "## Coverage\n- Checked rules: rules配列。今回の変更はGo実行境界・Storybook検証選択・正本文書。Webのdomain/UI/DB規則はpathから選択されるが製品動作・構造の変更なし。既存rule-mapから全正本へ到達し索引更新不要。\n- Unresolved: 今回の承認範囲内はなし。\nGo全テスト・vet・共有gate・ADR検証・diff check・TOML検査がevent27で成功。残存childのpipe継承とredirect、通常終了/起動失敗/nonzero、失敗証拠とreview拒否を確認。共有preview/setup/Vitest configでbrowser suiteを要求しカタログ専用と文書には追加要求しない。WaitDelayは親終了後のみ、専用group外へ離脱するdaemonは対象外。macOSで実行検証、Linuxの同じ実装はCIで検証される。製品コード/Storybook設定自体は変更せずWeb実行は非該当。Git対象明示、運用と機能強制の区別を正本へ反映しGitHub設定は変更なし。",
     "criteria": [
@@ -65,5 +65,5 @@
       "web.test-policy"
     ]
   },
-  "hash": "7ce761f8e3f5ad8ee8b36dd194b0bee00fe3820f463d9da8375c9f2b6d3d904b"
+  "hash": "198027e59c51b1c1ec8d1985fc9436665d3cbd0a0029a6108f2737bf402b6d10"
 }
