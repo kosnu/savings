@@ -1,0 +1,44 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-09-29T18:07:31.789258Z",
+  "task_hash": "aa3ebb7582b1e3295d9036e4dbdf197827f36a40e095f5ec0b30bd8e94322dc0",
+  "previous": "64b2882b1a420ae21618373b4f28161f4f8b755604eb3caf716533612b3583ab",
+  "revision": 1,
+  "fingerprint": "7f08bbed9d72c2aa88f975847bf916cc5a587adeffef4f88b18863a84b0813cb",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\nIssue #1848の成果と実差分・呼出経路を照合。指摘なし。既存履歴保持と入力検証維持は必要な互換性・権限境界として確認。保存形式変更の回帰テストと既存11 Task読込に成功。Web/APIは変更なし。自由記述へのチャット転載防止はagentの意味判断であり、任意文字列の自動分類は実装していない。",
+    "criteria": [
+      {
+        "criterion": "新たに記録するeventsにチャットテキストが含まれない",
+        "evidence": "承認・却下とIntent改訂の保存前にtextを除去しtext_hashへ置換する呼出経路を確認。event_text_test.goが保存ファイル全件にtextフィールドと入力原文がないことを確認。summary/source/evidence/検証出力への原文転載は禁止し、自由記述の意味判断はagentが担うと明記。開始task.jsonと既存履歴はIssueの新規events範囲外として維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Intentの変更や承認対象・範囲を引き続き追跡できる",
+        "evidence": "新形式をLoad/Checkして出典・Audit hash・提案ID・構造化Intentが残り、却下されたpathの変更と旧acceptanceを拒否する。空本文・hash-only・hash指定を入力で拒否し、元の開発権限hashを再読込時も拒否。旧本文付き履歴の継続とreturn-intentの整合性、旧本文からhashへの形式変更のみを改善としないことを回帰テストで確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "関連する仕様・入力例・検証が変更後の保存方針と一致している",
+        "evidence": "Core正本・操作例・workflow・Intent記述を同期。CLIは既存のCore関数を呼び出し入力textを検証するためentrypoint/CIの変更不要。rule resolverのpath/surfaceと依存closureに不足なし。索引は既存経路で更新正本を選択するため変更不要。Go全テスト・vet・shared gate 5テスト・diff check成功、gofmtとdocs fmt成功。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "6c151ce643a2dc42a843fef36354368494af608e6cd10967d5b09b3bf372e3a1",
+  "cycle_id": "issue-1848/cycle-0001"
+}

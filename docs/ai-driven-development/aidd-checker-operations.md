@@ -52,6 +52,8 @@ Taskの再開では`status`と該当eventを読み、Intent、最新decision、�
 pathsはexact fileまたは末尾`/`の有限directory。globやrepository全体の指定で権限を広げない。
 commandsはrepository rootをcwdにするargv配列の配列。
 Intentを訂正する場合は`intent_revision`へ新しい出典を持つIntent全体を指定する。元のIntentは保持される。
+入力の`text`は実際の本文を渡すが、eventでは`text`を省略してCoreが生成した`text_hash`を保存する。
+`text_hash`だけの入力や入力時のhash指定は受け付けない。再開時は構造化Intentと出典を読み、原文が必要なら出典を参照する。
 Audit後のIntent訂正には、予約対象`@intent`を含む提案への手動承認が必要になる。
 `@intent`はTask内のIntent改訂だけを指し、外部Issue編集の権限や任意ファイルの変更権限を与えない。
 rulesはrule ID配列。選択結果に意味的関連ruleを追加し、各本文を読む。
@@ -165,6 +167,19 @@ AuditはShip後のユーザーの明示依頼を受けて実行する。TaskとP
 改善提案がなければ結果を報告し、Audit eventを追加せずに終了する。提案があればTaskへ記録してユーザーに提示し、手動承認を受けるまで改善へ進まない。記録は承認された改善の変更と一緒にcommitする。
 `approve --input`は`audit_hash`、`source`、`text`、`proposal_ids`を持つ。
 source/textはその提案を承認した実際のユーザー発言。agentが生成した同意を使わない。
+sourceは発言を識別する参照とし、本文を含めない。入力検証後、eventへは`text`の代わりに
+`text_hash`を保存する。入力ファイルをeventへコピーしたり、summaryやevidenceへチャット原文を転載したりしない。
+たとえば次の入力から、保存時には`text`だけが除去され、Coreが生成した本文hashが加わる。
+
+```json
+{
+  "audit_hash": "対象Auditのhash",
+  "source": "user-message:承認発言の識別子",
+  "text": "実際の承認発言本文",
+  "proposal_ids": ["P1"]
+}
+```
+
 一部だけ承認した場合、未承認案は次のAuditに引き継ぐ。却下はユーザーが明示した場合だけ
 `dismiss --input`へ同じ形式で記録し、改善済みとは区別する。
 旧Taskで記録済みの提案なしAuditは、従来どおり空のproposal_idsによる承認を受け付ける。

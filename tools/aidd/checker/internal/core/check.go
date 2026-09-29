@@ -62,6 +62,9 @@ func (s *Store) Check() error {
 			}
 			decision = e
 			if in := eventData[Decision](e).IntentRevision; in != nil {
+				if _, err := storedTextHash(in.Text, in.TextHash); err != nil {
+					return fmt.Errorf("invalid Intent revision: %w", err)
+				}
 				intent = *in
 			}
 		case "return-intent":
@@ -131,12 +134,12 @@ func (s *Store) Check() error {
 			audit = e
 		case "dismiss":
 			a := eventData[Approval](e)
-			if audit == nil || a.AuditHash != audit.Hash || a.Text == s.Task.Authority || required(a.Text, a.Source) != nil {
+			if audit == nil || a.AuditHash != audit.Hash || !a.validRecord(s.Task.Authority) {
 				return fmt.Errorf("invalid dismissal")
 			}
 		case "approve":
 			a := eventData[Approval](e)
-			if audit == nil || a.AuditHash != audit.Hash || a.Text == s.Task.Authority || required(a.Text, a.Source) != nil {
+			if audit == nil || a.AuditHash != audit.Hash || !a.validRecord(s.Task.Authority) {
 				return fmt.Errorf("invalid approval")
 			}
 			approval = e

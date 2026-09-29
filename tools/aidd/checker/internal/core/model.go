@@ -15,10 +15,11 @@ import (
 
 type Intent struct {
 	Source      string   `json:"source"`
-	Text        string   `json:"text"`
+	Text        string   `json:"text,omitempty"`
 	Objective   string   `json:"objective"`
 	Constraints []string `json:"constraints"`
 	Acceptance  []string `json:"acceptance"`
+	TextHash    string   `json:"text_hash,omitempty"`
 }
 type Start struct {
 	Intent                     Intent `json:"intent"`
@@ -89,8 +90,9 @@ type Audit struct {
 type Approval struct {
 	AuditHash   string   `json:"audit_hash"`
 	Source      string   `json:"source"`
-	Text        string   `json:"text"`
+	Text        string   `json:"text,omitempty"`
 	ProposalIDs []string `json:"proposal_ids"`
+	TextHash    string   `json:"text_hash,omitempty"`
 }
 type Event struct {
 	Sequence    int             `json:"sequence"`
@@ -111,6 +113,34 @@ type Store struct {
 }
 
 var taskID = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,79}$`)
+
+// 本文付きの旧記録と、本文を持たない新記録を同じ内容として照合する。
+func storedTextHash(text, hash string) (string, error) {
+	if text != "" {
+		if hash != "" || required(text) != nil {
+			return "", fmt.Errorf("invalid stored text")
+		}
+		return digest(text), nil
+	}
+	b, err := hex.DecodeString(hash)
+	if err != nil || len(b) != sha256.Size || hex.EncodeToString(b) != hash || hash == digest("") {
+		return "", fmt.Errorf("invalid stored text hash")
+	}
+	return hash, nil
+}
+
+func (in Intent) withoutText() Intent {
+	if in.Text != "" {
+		in.TextHash = digest(in.Text)
+		in.Text = ""
+	}
+	return in
+}
+
+func (a Approval) validRecord(authority string) bool {
+	hash, err := storedTextHash(a.Text, a.TextHash)
+	return err == nil && required(a.Source) == nil && hash != digest(authority)
+}
 
 func digest(v any) string {
 	b, _ := json.Marshal(v)
