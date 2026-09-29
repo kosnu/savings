@@ -1,0 +1,55 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-09-29T15:54:51.627255Z",
+  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
+  "previous": "5f2f961d69671612e492cb80b0acf12a1ea2ccddbb6721a531610d8aa0e3aa98",
+  "revision": 1,
+  "fingerprint": "bf60ce6193365644bef3716b1021ff0ac5797fa7d6b84cbad3f81e7347869fc9",
+  "data": {
+    "summary": "Issue本文と明示依頼を基に、出力と状態の分離、二層の追跡、失敗後再実行、追跡不能の扱いを実観測・負例で照合。成果に必要なhost固有規約と参照入口だけを追加した。文書はモデルの将来の全実行を機械的に保証するものではないが、現toolで手順が実行可能であることを確認。\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\nFindings: なし。アプリ変更なしのためWeb検証不要。ADR変更なし。追加のAuditは実施しない。",
+    "criteria": [
+      {
+        "criterion": "実行中・正常終了・失敗・未確認を区別する",
+        "evidence": "実行時tool契約と追加表を照合。実execで空output+session_id（実行中）、空output+exit_code 0（正常）、空output+exit_code 7（失敗）を観測。存在しないテスト用IDへのwrite_stdinはUnknown process idで例外となり対象処理の終了状態を取得できないため未確認と判定。成功やコマンド再起動へ進めなかった。この負例は追跡不能の模擬であり実処理喪失の実証とは区別する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "無出力の待機処理を重複起動せず終了まで追跡する",
+        "evidence": "python3 -c のtime.sleep(20)を1回だけ起動。functions.execは実行中セルを返し、functions.wait 1回でセル完了・空output・内側session_idを受領。write_stdin 1回で空outputとexit_code 0を取得。外側終了を内側終了と誤認せず、再起動0回で完了まで追跡した。識別子・生ログは記録しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "正常終了と失敗を扱い原因対処後の再実行を許す",
+        "evidence": "無出力sys.exit(0)はexit_code 0、意図的sys.exit(7)はexit_code 7。その原因である終了指定を0へ直して再実行しexit_code 0。実作業でもGo buildがcache書込不可でexit_code 1となり、GOCACHEを許可された一時directoryへ変更後に同じbuildがexit_code 0で完了。失敗を握り潰さず原因への対処後の再実行を許容する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "空出力で再起動や不要な短間隔確認をしない",
+        "evidence": "20秒の無出力処理は開始時のyield 10秒、セル待機1回、コマンド待機1回だけ。短間隔の繰り返し確認や無出力による再起動なし。待機時間を実行時tool仕様と応答性に合わせる規約で固定sleep値の恒久化はしない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "実行証拠と適用契約・レビューが整合する",
+        "evidence": "実差分はAGENTSの参照入口1行と既存Codex adapterの状態保持規約。新runner/永続実行状態/キャッシュ/承認を追加せず、アプリ・意味レビュー・計測・Core性能は変更なし。Task記録は既存Core契約の範囲。git diff --checkとCore check-all成功。AGENTSとadapterの代表pathからrule closure 12件を取得・本文確認。AGENTSが毎回のtool実行前の参照経路となり、索引の新node追加不要。生ログ・実セッション識別子は成果物に保存しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "cc5f9ec50ad092c1bf4c1a7728055a629c389181c2bb072a27a832ad91badd34",
+  "cycle_id": "issue-1829/cycle-0001"
+}

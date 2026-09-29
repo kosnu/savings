@@ -1,0 +1,35 @@
+{
+  "sequence": 5,
+  "kind": "verify",
+  "time": "2026-09-29T15:54:51.345971Z",
+  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
+  "previous": "21354bc88ef12ddfc77b4476d001cc6653346305ff328ee576287333b9811f98",
+  "revision": 1,
+  "fingerprint": "bf60ce6193365644bef3716b1021ff0ac5797fa7d6b84cbad3f81e7347869fc9",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-1829",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":12}\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "5f2f961d69671612e492cb80b0acf12a1ea2ccddbb6721a531610d8aa0e3aa98",
+  "cycle_id": "issue-1829/cycle-0001"
+}
