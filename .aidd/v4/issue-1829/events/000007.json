@@ -1,0 +1,43 @@
+{
+  "sequence": 7,
+  "kind": "audit",
+  "time": "2026-09-29T16:22:05.629841Z",
+  "task_hash": "052ad880ec53865ebe1c55ab4eeb582043d3cf6079a38a9c6ff1a0fa2b6a8206",
+  "previous": "cc5f9ec50ad092c1bf4c1a7728055a629c389181c2bb072a27a832ad91badd34",
+  "revision": 1,
+  "fingerprint": "bf60ce6193365644bef3716b1021ff0ac5797fa7d6b84cbad3f81e7347869fc9",
+  "data": {
+    "summary": "PR #1846のhead 15bc5275ef902bb11dbc347913c7bdbef18b2a51をTaskの最新検証・reviewと照合。CI4件成功。未解決・現headのP2指摘1件は妥当。初回読込の循環条件を解消するP1を提示し手動承認待ち。\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: AGENTS.md:22の初回読み取り前提の矛盾。Copilotはquotaによりレビュー未実施。",
+    "findings": [
+      "[P2・未解決] AGENTS.md:22のBefore executing tools ... read ...は初回の文書取得にもtoolを要するため、冷開始時に満たせない。https://github.com/kosnu/savings/pull/1846#discussion_r4135575473 。規則本文の欠陥でありCI成功では否定できない。"
+    ],
+    "session_improvements": [
+      "検出漏れ: AGENTSからadapterへのリンク到達性と読込後のtool追跡だけを確認し、adapter本文が未取得の開始状態を検証しなかった。P1の修正検証では未読/既読の両経路を照合する。",
+      "解決済みの手戻り: commit hookがMarkdown表を整形し、最初のcommit後ship-checkがverification missing or staleで失敗。既存Core操作文書はformatterを検証前に実行するよう指定済みであり、規則不足ではなく適用漏れ。整形後にverify/reviewを再取得し別commitで解消済み。新しい規則や検査段階は提案しない。",
+      "計測の適用漏れ: Task開始後の調査は設計の開始前に行われ、Ship中の再検証・レビューでも工程を切り替えなかった。既存の工程開始終了ルールに対する実行漏れ。前回の306.725秒は記録された区間の合計であり作業全体の所要時間ではなく、工程別集計にも混入がある。過去時刻やトークンを推測補完せず、計測機能の変更は提案しない。",
+      "初回の大量一括出力に切り詰めが起き、必要な規則の再取得が必要になった。既存の最小文脈取得と対象別読み取りを適用する問題であり、追加規則を設けない。",
+      "無出力の処理は起動1回で追跡完了し重複起動なし。失敗コードと未確認を成功扱いしなかった点は維持する。"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "初回に参照文書を取得するtoolまで事前読了の対象に含め、規則が自己参照になっている。",
+        "evidence": "AGENTS.md:22、PR discussion_r4135575473（isResolved=false、isOutdated=false）。開始時にadapter本文がコンテキストにない場合、読むための最初のread toolを条件上実行できない。",
+        "change": "AGENTS.mdの該当1行を、adapter未読なら最初の読み取り専用tool呼び出しで取得し、その呼び出しもhostが公開する実行状態を保持して完了まで追跡し、取得後の呼び出しではadapterに従う、と書き換える。未読/既読の開始状態を机上で照合し、読み取り→結果保持→以後の適用が循環しないことを確認する。既存の出力・終了状態保持を弱めず、新runner・永続状態・追加承認を導入しない。差分検査、Core検証・レビュー・Ship照合を実施する。",
+        "paths": [
+          "AGENTS.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "15bc5275ef902bb11dbc347913c7bdbef18b2a51",
+      "remote": "origin",
+      "branch": "issue-1829/tool-execution-state",
+      "pr": "https://github.com/kosnu/savings/pull/1846",
+      "evidence": "PR headと既存Ship結果が一致。candidate/integration/verify/assign-author全てSUCCESS。reviewThreads全件取得: 1件、未解決、outdated=false。",
+      "base": "main"
+    }
+  },
+  "hash": "7209912082d3ba4669ebf68b5d1891414312e8c6895f960c7fb4d3153349c7d5",
+  "cycle_id": "issue-1829/cycle-0001"
+}
