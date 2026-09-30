@@ -1,0 +1,37 @@
+{
+  "sequence": 8,
+  "kind": "audit",
+  "time": "2026-09-30T01:35:09.288187Z",
+  "task_hash": "b9598bbe67630c353085fc2b2e2a5be6753a22a6f0f976fd8a6aacaa88e71df2",
+  "previous": "65074e7f8158b2f7ca010f3232ecc7dff7db429c1af5c63adede5b08da72cc43",
+  "revision": 2,
+  "fingerprint": "23a6e2d1afd2daec33cbbaaadd30d392c214c1626f070ae9ce150a16c0945fee",
+  "data": {
+    "summary": "PR #1855のShip c62e0749に対する明示依頼Audit。未解決・有効・SUBMITTEDのP2指摘1件を実装パス別resolverで再現。原因はpolicy.retrospective.applies_to.pathsの契約/実装パス不足。正本の意味やCoreの拒否機能の欠如ではなく索引到達性の不備。CI全件SUCCESS。具体的改善案P1を提示して明示的な手動承認を待つ。作業過程全体の改善探索は行わない。Copilotのquota通知はコード指摘ではなく、同サービスのレビュー未実施として扱う。",
+    "findings": [
+      "P2 / https://github.com/kosnu/savings/pull/1855#discussion_r4139890060 / thread PRRT_kwDOM0p88s6nWcG4 / unresolved=falseではなくisResolved=false、isOutdated=false、comment SUBMITTED。Retrospective正本がCore・計測実装・Core契約の必須ruleに選ばれない。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "policy.retrospectiveの対象パスがスキル・一部正本文書に限定され、実際にRetrospectiveのAudit拒否と計測を所有する契約/実装から到達できない。将来それらを単独変更した際、開始条件・通常サイクル外という正本を必須レビューから漏らす。原因分類: 索引の到達性不足。",
+        "evidence": "PR review https://github.com/kosnu/savings/pull/1855#discussion_r4139890060 と docs/harness/rule-map.json:369-378。現在sourceからbuildしたCoreのrules --pathsでaidd-checker.md、aidd-checker-operations.md、core/lifecycle.go、core/model.go、session-metrics/main.goを個別入力するとpolicy.retrospective=false。retrospective/SKILL.mdはtrue。Documentation Policyの判断の移動・分割と適用経路、change-coverageの代表path到達性確認に照合。",
+        "change": "docs/harness/rule-map.jsonのpolicy.retrospective.applies_to.pathsへdocs/ai-driven-development/aidd-checker.md、aidd-checker-operations.md、tools/aidd/checker/**、tools/aidd/session-metrics/**を追加する。正本の責務や開始/承認条件は変更しない。確認: 各契約とCore/計測の代表実装・テストpathを一つずつresolverへ渡しpolicy.retrospectiveとdepends_on closureの選択を確認。既存Audit/Retrospective skill pathも確認し、check-allのrule graph・記録検査と必要な検証・review・Shipを同じTaskで行う。",
+        "paths": [
+          "docs/harness/rule-map.json"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "c62e0749e49a339b82f16ad2b6b674a1e19b314c",
+      "remote": "origin",
+      "branch": "issue-1852/separate-retrospective",
+      "pr": "https://github.com/kosnu/savings/pull/1855",
+      "evidence": "local HEAD、origin ref、PR head一致。PRはOPEN、base main。最新decision revision 2、verify event 6の全command exit 0、review event 7を取得。GitHub CI candidate/integration/verify/assign-author SUCCESS。",
+      "base": "main"
+    }
+  },
+  "hash": "17bdb7a8560c8c8c856bb1a6fc5ab7e139986192c4a7db1aa62d8d161ba9ad59",
+  "cycle_id": "issue-1852/cycle-0001"
+}

@@ -1,0 +1,83 @@
+{
+  "sequence": 12,
+  "kind": "decision",
+  "time": "2026-09-30T01:44:12.193987Z",
+  "task_hash": "b9598bbe67630c353085fc2b2e2a5be6753a22a6f0f976fd8a6aacaa88e71df2",
+  "previous": "7a4879234e3f39ee5ba6fbb718a3c75f8abc1739fefc6e0e9ce374e8b9546d43",
+  "revision": 4,
+  "fingerprint": "7bf53d33878abdb23bd21d5d40368439eeca35df7c9e1e9dbb8fa2d48b134e95",
+  "data": {
+    "summary": "Audit P1へのユーザー承認に従い、policy.retrospective.applies_to.pathsへCore契約2文書とchecker/、session-metrics/の4対象を追加する。担当scopeは開始baselineからの既存差分を保持するため従来の有限pathを維持するが、新しい改善差分はrule-map.jsonだけ。正本/CLI/アプリ/既存履歴は変更しない。実resolverによる9対象の正本/依存closureと既存Audit・Issue templateの対照、Go Coreの必須test/vet、rule graph/記録、diffで検証する。",
+    "paths": [
+      "AGENTS.md",
+      ".agents/skills/audit/SKILL.md",
+      ".agents/skills/retrospective/SKILL.md",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/glossary.md",
+      "docs/ai-driven-development/overview.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "docs/harness/policies/learning-extraction.md",
+      "docs/harness/policies/retrospective.md",
+      "docs/harness/rule-map.json",
+      "tools/aidd/checker/internal/core/model.go",
+      "tools/aidd/checker/internal/core/lifecycle.go",
+      "tools/aidd/checker/internal/core/core_test.go",
+      "tools/aidd/checker/internal/core/audit_approval_test.go",
+      "tools/aidd/session-metrics/main.go",
+      "tools/aidd/session-metrics/main_test.go"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-c",
+        "import json, subprocess, tempfile\nfrom pathlib import Path\npaths = [\"docs/ai-driven-development/aidd-checker.md\", \"docs/ai-driven-development/aidd-checker-operations.md\", \"tools/aidd/checker/internal/core/lifecycle.go\", \"tools/aidd/checker/internal/core/model.go\", \"tools/aidd/checker/internal/core/core_test.go\", \"tools/aidd/checker/internal/core/audit_approval_test.go\", \"tools/aidd/session-metrics/main.go\", \"tools/aidd/session-metrics/main_test.go\", \".agents/skills/retrospective/SKILL.md\"]\nwith tempfile.TemporaryDirectory() as tmp:\n    source = Path(tmp) / \"paths.json\"\n    for path in paths + [\".agents/skills/audit/SKILL.md\", \".github/ISSUE_TEMPLATE/task.md\"]:\n        source.write_text(json.dumps([path]))\n        result = subprocess.run([\"/tmp/aidd-1852\", \"--root\", \".\", \"rules\", \"--paths\", str(source)], check=True, capture_output=True, text=True)\n        ids = {rule[\"id\"] for rule in json.loads(result.stdout)}\n        if path in paths:\n            assert {\"policy.retrospective\", \"ai-driven.workflow\", \"policy.learning-extraction\", \"documentation.policy\"} \u003c= ids, (path, ids)\n        else:\n            assert \"policy.retrospective\" not in ids, (path, ids)\n        if path == \".agents/skills/audit/SKILL.md\":\n            assert \"ai-driven.audit\" in ids, (path, ids)\n        print(path + \": passed\")\n"
+      ],
+      [
+        "/tmp/aidd-1852",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.retrospective"
+    ]
+  },
+  "hash": "94252517ee83c925e54e8473213f6db8f5f47cae8092c9d0367d0d0d7dd5c4be",
+  "cycle_id": "issue-1852/cycle-0002"
+}

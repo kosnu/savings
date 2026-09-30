@@ -375,7 +375,11 @@
           "docs/harness/policies/retrospective.md",
           "docs/ai-driven-development/workflow.md",
           "docs/ai-driven-development/overview.md",
-          "docs/ai-driven-development/glossary.md"
+          "docs/ai-driven-development/glossary.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "tools/aidd/checker/**",
+          "tools/aidd/session-metrics/**"
         ],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["retrospective", "handoff_process_improvements"],

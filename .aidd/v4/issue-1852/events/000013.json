@@ -1,0 +1,68 @@
+{
+  "sequence": 13,
+  "kind": "verify",
+  "time": "2026-09-30T01:44:56.22995Z",
+  "task_hash": "b9598bbe67630c353085fc2b2e2a5be6753a22a6f0f976fd8a6aacaa88e71df2",
+  "previous": "94252517ee83c925e54e8473213f6db8f5f47cae8092c9d0367d0d0d7dd5c4be",
+  "revision": 4,
+  "fingerprint": "7bf53d33878abdb23bd21d5d40368439eeca35df7c9e1e9dbb8fa2d48b134e95",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t33.288s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-c",
+          "import json, subprocess, tempfile\nfrom pathlib import Path\npaths = [\"docs/ai-driven-development/aidd-checker.md\", \"docs/ai-driven-development/aidd-checker-operations.md\", \"tools/aidd/checker/internal/core/lifecycle.go\", \"tools/aidd/checker/internal/core/model.go\", \"tools/aidd/checker/internal/core/core_test.go\", \"tools/aidd/checker/internal/core/audit_approval_test.go\", \"tools/aidd/session-metrics/main.go\", \"tools/aidd/session-metrics/main_test.go\", \".agents/skills/retrospective/SKILL.md\"]\nwith tempfile.TemporaryDirectory() as tmp:\n    source = Path(tmp) / \"paths.json\"\n    for path in paths + [\".agents/skills/audit/SKILL.md\", \".github/ISSUE_TEMPLATE/task.md\"]:\n        source.write_text(json.dumps([path]))\n        result = subprocess.run([\"/tmp/aidd-1852\", \"--root\", \".\", \"rules\", \"--paths\", str(source)], check=True, capture_output=True, text=True)\n        ids = {rule[\"id\"] for rule in json.loads(result.stdout)}\n        if path in paths:\n            assert {\"policy.retrospective\", \"ai-driven.workflow\", \"policy.learning-extraction\", \"documentation.policy\"} \u003c= ids, (path, ids)\n        else:\n            assert \"policy.retrospective\" not in ids, (path, ids)\n        if path == \".agents/skills/audit/SKILL.md\":\n            assert \"ai-driven.audit\" in ids, (path, ids)\n        print(path + \": passed\")\n"
+        ],
+        "exit": 0,
+        "output": "docs/ai-driven-development/aidd-checker.md: passed\ndocs/ai-driven-development/aidd-checker-operations.md: passed\ntools/aidd/checker/internal/core/lifecycle.go: passed\ntools/aidd/checker/internal/core/model.go: passed\ntools/aidd/checker/internal/core/core_test.go: passed\ntools/aidd/checker/internal/core/audit_approval_test.go: passed\ntools/aidd/session-metrics/main.go: passed\ntools/aidd/session-metrics/main_test.go: passed\n.agents/skills/retrospective/SKILL.md: passed\n.agents/skills/audit/SKILL.md: passed\n.github/ISSUE_TEMPLATE/task.md: passed\n"
+      },
+      {
+        "argv": [
+          "/tmp/aidd-1852",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":12}\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "b913e91f38b7a16c3fb2b7481eec7bc8d8c3d45109cfc3785cc40d6ddd836150",
+  "cycle_id": "issue-1852/cycle-0002"
+}
