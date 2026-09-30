@@ -1,0 +1,116 @@
+{
+  "sequence": 6,
+  "kind": "verify",
+  "time": "2026-09-30T01:09:54.963785Z",
+  "task_hash": "b9598bbe67630c353085fc2b2e2a5be6753a22a6f0f976fd8a6aacaa88e71df2",
+  "previous": "da0e050b9b277aebca78af021f8b49b4860d0c3f2200f321e1fd12b39a24b6b8",
+  "revision": 2,
+  "fingerprint": "23a6e2d1afd2daec33cbbaaadd30d392c214c1626f070ae9ce150a16c0945fee",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t33.957s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/session-metrics\t0.558s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 5.688s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=b197428a7d8e4c72dc9f3a71b5485bbf6c7ed156 checked=9\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "/Users/kosnu/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+          ".agents/skills/retrospective"
+        ],
+        "exit": 0,
+        "output": "Skill is valid!\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "/Users/kosnu/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+          ".agents/skills/audit"
+        ],
+        "exit": 0,
+        "output": "Skill is valid!\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "7a2a1baa71f7d0a10a16e085f6d41236d548ca217b15da629e7d596dbf54c8ee",
+  "cycle_id": "issue-1852/cycle-0001"
+}

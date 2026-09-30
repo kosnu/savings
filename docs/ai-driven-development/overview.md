@@ -19,7 +19,8 @@ AIDD v4はIntentを受け、設計・実装・検証・レビュー・Shipを行
 
 - [Workflow](workflow.md): 成果、権限、サイクル、継続と停止。
 - [Core](aidd-checker.md)と[操作](aidd-checker-operations.md): Goによる証拠・状態の検査。
-- [Audit policy](../harness/policies/learning-extraction.md): 振り返りと手動承認の境界。
+- [Audit policy](../harness/policies/learning-extraction.md): Ship後の指摘分析と手動承認の境界。
+- [Retrospective](../harness/policies/retrospective.md): Merge / Close後の作業過程の振り返り。通常サイクル外の明示依頼で行う。
 - [調査と採否](research-v4.md)、[ADR 0009](../adr/0009-rebuild-aidd-v4.md): 選択の根拠。
 - [Intent](issue-guidelines.md)、[用語](glossary.md)、[Codex](codex-adapter.md): 入力とhost連携。
 

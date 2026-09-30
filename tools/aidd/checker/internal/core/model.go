@@ -80,8 +80,9 @@ type Proposal struct {
 	Paths    []string `json:"paths"`
 }
 type Audit struct {
-	Summary             string     `json:"summary"`
-	Findings            []string   `json:"findings"`
+	Summary  string   `json:"summary"`
+	Findings []string `json:"findings"`
+	// 旧Audit履歴の読み取り用。新しい入力では非空値を拒否する。
 	SessionImprovements []string   `json:"session_improvements"`
 	Proposals           []Proposal `json:"proposals"`
 	Delivery            *Ship      `json:"delivery,omitempty"`

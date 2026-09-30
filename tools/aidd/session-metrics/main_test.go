@@ -340,7 +340,7 @@ func TestStartRequiresSingleStageBeforeWriting(t *testing.T) {
 			}
 		})
 	}
-	for _, stage := range []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善"} {
+	for _, stage := range []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善", "Retrospective"} {
 		t.Run(stage, func(t *testing.T) {
 			f := newFixture(t)
 			f.reading(1, "boot-a")

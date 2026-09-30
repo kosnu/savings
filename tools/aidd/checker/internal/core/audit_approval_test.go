@@ -8,6 +8,57 @@ import (
 	"testing"
 )
 
+func TestAuditRejectsProcessImprovements(t *testing.T) {
+	s := fixture(t)
+	decide(t, s)
+	fakeShip(t, s)
+	before := len(s.Events)
+	if e := s.Audit(Audit{Summary: "process analysis", SessionImprovements: []string{"reduce rework"}}); e == nil || !strings.Contains(e.Error(), "Retrospective") {
+		t.Fatalf("process improvements accepted by Audit: %v", e)
+	}
+	if len(s.Events) != before {
+		t.Fatal("rejected input added an event")
+	}
+	if e := s.Audit(Audit{Summary: "review finding", Findings: []string{"ambiguous behavior"}, Proposals: []Proposal{{"p", "ambiguity", "review comment", "clarify", []string{"code.txt"}}}}); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func TestLegacyAuditProcessImprovementsRemainReadable(t *testing.T) {
+	s := fixture(t)
+	decide(t, s)
+	fakeShip(t, s)
+	// 旧契約で保存されたeventを再現し、履歴の読み取りと指摘分析の追記を確認する。
+	a := Audit{Summary: "legacy process audit", SessionImprovements: []string{"reduce rework"}, Proposals: []Proposal{{"p", "finding", "history", "clarify", []string{"code.txt"}}}}
+	if e := s.append("audit", a, s.latest("ship").Fingerprint); e != nil {
+		t.Fatal(e)
+	}
+	old := s.latest("audit").Hash
+	loaded, e := Load(s.Root, s.Task.ID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e := loaded.Check(); e != nil {
+		t.Fatal(e)
+	}
+	legacy := eventData[Audit](loaded.latest("audit"))
+	if len(legacy.SessionImprovements) != 1 || legacy.SessionImprovements[0] != "reduce rework" || loaded.latest("audit").Hash != old {
+		t.Fatal("legacy Audit changed")
+	}
+	if e := loaded.Audit(Audit{Summary: "review finding update", Findings: []string{"additional evidence"}}); e != nil {
+		t.Fatal(e)
+	}
+	if loaded.latest("audit").Kind != "audit-update" || len(eventData[Audit](loaded.latest("audit")).SessionImprovements) != 0 {
+		t.Fatal("new Audit reused legacy process observations")
+	}
+	if loaded.Events[len(loaded.Events)-2].Hash != old {
+		t.Fatal("update overwrote legacy Audit")
+	}
+	if e := loaded.Check(); e != nil {
+		t.Fatal(e)
+	}
+}
+
 func TestImprovementRequiresNewVerifiedDecision(t *testing.T) {
 	s := fixture(t)
 	decide(t, s)

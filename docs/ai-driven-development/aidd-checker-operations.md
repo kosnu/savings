@@ -80,12 +80,13 @@ criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown
 ## セッション計測
 
 CodexのAIDD作業で実際に行う工程を、開始・終了時に記録する。`--stage`には
-`Intent`（確認・復帰）、`調査`、`設計`、`実装`、`検証`、`レビュー`、`Ship`、`Audit`、`改善`（承認されたガードレール改善）
+`Intent`（確認・復帰）、`調査`、`設計`、`実装`、`検証`、`レビュー`、`Ship`、`Audit`、`改善`（承認されたガードレール改善）、`Retrospective`
 のいずれか一つを指定する。これは計測用の工程名であり、必須工程や実行順序を追加するものではない。
 「設計・実装」など複数工程をまとめた名前や任意名は拒否する。工程が変わるときは`finish`してから
 次の工程を`start`し、同じ工程に戻る場合も新しい記録を開始する。
 Task IDを渡すと、現行サイクルIDを`.aidd/v4/<task-id>/events/`から取得する。
 計測CLIはChecker Coreと別のGo moduleに置き、独立して実行する。
+Retrospectiveを計測する場合は振り返り対象のTaskを参照する。計測によって通常サイクルを再開したり、完了条件を追加したりしない。
 セッションIDには`CODEX_SESSION_ID`を使い、ない環境では`--session`で明示する。
 
 ```sh
@@ -150,7 +151,7 @@ AuditはShip後のユーザーの明示依頼を受けて実行する。TaskとP
 
 ```json
 {
-  "summary": "成果と振り返りの結論",
+  "summary": "指摘分析の結論",
   "delivery": {
     "commit": "Audit対象のcommit SHA",
     "remote": "origin",
@@ -160,18 +161,20 @@ AuditはShip後のユーザーの明示依頼を受けて実行する。TaskとP
     "evidence": "配信確認結果"
   },
   "findings": ["指摘と対応状態"],
-  "session_improvements": ["進め方について観測したこと"],
   "proposals": [
     {
       "id": "P1",
       "finding": "根拠に基づく問題・原因",
-      "evidence": "セッションや検証の具体的な参照",
+      "evidence": "指摘と関連する検証の具体的な参照",
       "change": "改善内容と確認方法",
       "paths": ["docs/harness/policies/example.md"]
     }
   ]
 }
 ```
+
+`session_improvements`は旧Audit記録の読取専用項目として保持する。新しいAuditへの非空入力は拒否する。
+作業過程の改善探索は[Retrospective](../harness/policies/retrospective.md)で行い、CoreのAudit・承認・Intent復帰へ記録しない。
 
 改善提案がなければ結果を報告し、Audit eventを追加せずに終了する。提案があればTaskへ記録してユーザーに提示し、手動承認を受けるまで改善へ進まない。記録は承認された改善の変更と一緒にcommitする。
 `approve --input`は`audit_hash`、`source`、`text`、`proposal_ids`を持つ。

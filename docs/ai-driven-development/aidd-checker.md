@@ -64,6 +64,8 @@ Ship前には検証・reviewが最新であることと、indexのcontent/mode�
 
 Ship後の状態はTask記録だけからは確定しない。再開時にはPRとcommitを確認する。Coreの状態はAudit開始の権限を付与しない。
 Auditは指定された配信対象のreview済みcommitとPRを照合する。改善提案がない場合は結果を報告し、eventを追加しない。
+新しいAuditは指摘分析を扱い、非空の`session_improvements`入力を拒否する。旧Audit記録の同項目は変更せず読み取りを維持する。
+Merge / Close後の[Retrospective](../harness/policies/retrospective.md)はCoreのサイクル・承認状態に追加しない。
 改善提案ごとに根拠・具体案・対象pathを保存し、承認と改善の変更を同じcommitに含める。空の提案一覧または全提案の明示却下だけでは改善権限を付与しない。
 旧Taskに残る提案なしAuditと承認eventは読み取りを維持する。
 同じShip内容・revisionへの追加Auditはaudit-updateイベントで保存し、新しいAudit hashへの承認を要求する。

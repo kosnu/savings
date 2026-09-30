@@ -1,0 +1,17 @@
+{
+  "sequence": 11,
+  "kind": "return-intent",
+  "time": "2026-09-30T01:44:11.930897Z",
+  "task_hash": "b9598bbe67630c353085fc2b2e2a5be6753a22a6f0f976fd8a6aacaa88e71df2",
+  "previous": "e3d590bb82373ff18523521dceb1eb88a8251865b78e054cbf5aac2012bef6f7",
+  "revision": 3,
+  "fingerprint": "7bf53d33878abdb23bd21d5d40368439eeca35df7c9e1e9dbb8fa2d48b134e95",
+  "data": {
+    "summary": "元IntentはAuditとRetrospectiveの責務分離、通常サイクル外のMerge/Close後分析、関連入口/正本の整合性を求める。承認P1の4path追加でCore契約/実装/計測からRetrospective正本と依存closureに到達することを9代表pathで確認。既存AuditスキルとIssue templateの非対象経路も保持。改善差分はrule-map.jsonのみで、元Intentの目的・制約・完了条件は改訂不要。同じTask/baseline、P1だけの承認を維持し、次サイクルで追加実装なしの検証・review・PR更新へ進む。",
+    "previous_cycle": "issue-1852/cycle-0001",
+    "approval_hash": "aea2de9c81e35b0fe6b39cb6b8a9733853a405daf777cffd6211fee87ec68537",
+    "intent_hash": "76f8a06b0bea86ebe15f6b6ce154cae4fd8a269e5001e538e6600764331bf7f9"
+  },
+  "hash": "7a4879234e3f39ee5ba6fbb718a3c75f8abc1739fefc6e0e9ce374e8b9546d43",
+  "cycle_id": "issue-1852/cycle-0002"
+}

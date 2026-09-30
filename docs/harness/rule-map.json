@@ -123,6 +123,7 @@
           "docs/adr/0009-rebuild-aidd-v4.md",
           ".claude/CLAUDE.md",
           ".agents/skills/audit/**",
+          ".agents/skills/retrospective/**",
           ".agents/skills/guardrail-improvement/**"
         ],
         "topics": ["change-coverage", "ai-driven-development"],
@@ -361,6 +362,30 @@
         "policy.learning-extraction",
         "policy.review-feedback-classification"
       ],
+      "overrides": [],
+      "priority": 85
+    },
+    {
+      "id": "policy.retrospective",
+      "file": "docs/harness/policies/retrospective.md",
+      "applies_to": {
+        "paths": [
+          "AGENTS.md",
+          ".agents/skills/retrospective/**",
+          "docs/harness/policies/retrospective.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/overview.md",
+          "docs/ai-driven-development/glossary.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "tools/aidd/checker/**",
+          "tools/aidd/session-metrics/**"
+        ],
+        "domains": ["repository", "ai-driven-development"],
+        "activities": ["retrospective", "handoff_process_improvements"],
+        "topics": ["retrospective", "process-improvement", "manual-approval"]
+      },
+      "depends_on": ["ai-driven.workflow", "policy.learning-extraction"],
       "overrides": [],
       "priority": 85
     },

@@ -1,0 +1,62 @@
+{
+  "sequence": 14,
+  "kind": "review",
+  "time": "2026-09-30T01:46:37.286304Z",
+  "task_hash": "b9598bbe67630c353085fc2b2e2a5be6753a22a6f0f976fd8a6aacaa88e71df2",
+  "previous": "b913e91f38b7a16c3fb2b7481eec7bc8d8c3d45109cfc3785cc40d6ddd836150",
+  "revision": 4,
+  "fingerprint": "7bf53d33878abdb23bd21d5d40368439eeca35df7c9e1e9dbb8fa2d48b134e95",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.retrospective\n- Unresolved: なし\n\n承認されたAudit提案P1の差分はpolicy.retrospectiveのapplies_to.pathsへの4項目追加だけで、Task記録は追記のみ。既存の正本、depends_on、Audit経路を変更していない。現在のIntentと前回reviewの6条件を再照合。Core文書2件、checker/計測実装6件、新skillの9対象からRetrospectiveとworkflow/Audit/Documentation依存が必須選択され、Audit skillとIssue templateの2対照ではRetrospectiveを選ばない。11ケースとGo test/vet、check-all 12Task、diff checkが最新fingerprintで成功。追加条件/状態/CLIは導入せず、元Issueの完了条件を維持。追加finding・未確認・未解決競合なし。",
+    "criteria": [
+      {
+        "criterion": "通常サイクルのAuditから、作業過程の改善探索が除かれている。",
+        "evidence": "元IssueはAuditから作業過程の改善探索を除くことを要求。AGENTS、Auditスキル、workflow、learning-extractionは指摘と原因の分析へ限定し、指摘なし時も作業過程の分析へ切替えない。CoreのTestAuditRejectsProcessImprovementsが非空入力の拒否・event不追加・通常指摘の受入れを確認。 P1の今回差分は索引の適用パス4件のみで、当該契約本文・実装は前回reviewから同一であることを差分で確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "AuditとRetrospectiveの責務が明確に分かれている。",
+        "evidence": "元IssueはAuditとRetrospectiveの責務分離を要求。workflowとglossary、overview、両skillを照合。AuditはShip後の指摘起点、RetrospectiveはMerge/Close後の進め方全体。指摘原因調査は許すが独立した改善探索はRetrospectiveへ限定。 P1の今回差分は索引の適用パス4件のみで、当該契約本文・実装は前回reviewから同一であることを差分で確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "RetrospectiveのMerge / Close後の開始条件、対象、成果物、終了条件が定義されている。",
+        "evidence": "新policyの開始と対象に明示依頼、指定PRのMerge/CloseまたはIssueのCloseのGitHub確認、関連Taskの特定と未完了関連作業の扱いを定義。成果物と終了に観測/証拠不足、原因未確定、提案/有限対象/検証方法、結果提示で終了、改善不要や保留時の扱いを定義。未終了対象・会話欠測でも成功と推測しない。 P1の今回差分は索引の適用パス4件のみで、当該契約本文・実装は前回reviewから同一であることを差分で確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Retrospectiveが通常サイクルの必須工程や完了条件に含まれていない。",
+        "evidence": "元Issueは通常サイクル外を要求。workflowのサイクル列はRetrospectiveを含まず、policyとAGENTSで独立工程と明示。Coreのサイクル状態/CLI/完了検査は追加していない。計測CLIだけに工程名を追加し、TestStartRequiresSingleStageBeforeWritingのRetrospectiveケースが集計でlegacy扱いにならないことを確認。 P1の今回差分は索引の適用パス4件のみで、当該契約本文・実装は前回reviewから同一であることを差分で確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Retrospectiveの改善提案を、承認・実施へどう引き継ぐかが明確になっている。",
+        "evidence": "policyの引継ぎで具体案・有限対象・検証方法への明示承認、承認と証拠を出典にした新Intent/Task、元Task/PRを参照元として保持する契約を定義。振り返り依頼と改善実行権限を分離し、元Audit承認を再利用しない。通常サイクル外で終了した作業の改善を新成果として扱うための必要な境界であり、自動Issue作成や旧Task再開を追加していない。 P1の今回差分は索引の適用パス4件のみで、当該契約本文・実装は前回reviewから同一であることを差分で確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "retrospectiveスキルが入口として用意され、関連する正本文書、Auditスキル、AGENTS.mdの説明と整合している。",
+        "evidence": "新skillとAudit skillの入口契約は変更していない。前回不足していたCore文書/実装と計測実装へのpolicy.retrospective直接選択を4path追加で修正。現在のresolver11ケースは9対象の正本/depends_on closure、2非対象での非選択とAudit既存経路維持を確認。関連本文・実装には今回変更がなく、6完了条件の整合を維持。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.retrospective"
+    ]
+  },
+  "hash": "14dd6534bbbe28924499cec7c3d0183c117eb63e27b65fc6f410a27edee5e571",
+  "cycle_id": "issue-1852/cycle-0002"
+}

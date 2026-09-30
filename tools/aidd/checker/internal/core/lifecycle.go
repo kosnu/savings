@@ -389,6 +389,9 @@ func (s *Store) Ship(ship Ship) error          { _, e := s.delivery(ship, true);
 func (s *Store) DeliveryCheck(ship Ship) error { _, e := s.delivery(ship, false); return e }
 
 func (s *Store) Audit(a Audit) error {
+	if len(a.SessionImprovements) != 0 {
+		return fmt.Errorf("session_improvements belongs to Retrospective after Merge / Close, not Audit")
+	}
 	ship := s.latest("ship")
 	if a.Delivery == nil && ship == nil {
 		return fmt.Errorf("Audit requires a delivery reference")
