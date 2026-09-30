@@ -23,7 +23,7 @@ import (
 
 var taskIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,79}$`)
 
-var stages = []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善"}
+var stages = []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善", "Retrospective"}
 
 type counts struct {
 	Input  int64 `json:"input_tokens"`

@@ -35,6 +35,9 @@ Issueでもユーザーの明示発言でもよい。出典の参照と本文、
 同じTask・baselineを維持し、Intentへ戻ることとIntent自体の改訂を区別する。
 改善案がないAuditは報告で終了する。全案が明示却下された場合も改善・次サイクルを開始しない。
 
+作業過程の改善探索は、Merge / Close後に明示依頼で行う[Retrospective](../harness/policies/retrospective.md)が担う。
+Retrospectiveはこのサイクルの外にあり、通常の実行委任・サイクル完了条件には含めない。
+
 サイクルIDはTask内で一巡を識別する。新Task開始で最初のIDを発行し、改善後のIntent復帰で次のIDを発行する。
 判断revisionの更新、再検証、同じShipへのAudit追記ではIDを変えない。
 改善の実装は承認を得たサイクルに属し、Intent復帰後の設計・実装・検証・レビュー・Ship・Auditは次サイクルに属する。
@@ -94,10 +97,11 @@ Ship結果と後からAuditを再開するためのTask参照・配信先・未�
 
 ## Auditと手動承認
 
-Ship後にユーザーがAuditを明示的に依頼したら、[Audit policy](../harness/policies/learning-extraction.md)に従い、その時点で確認できる指摘とShipまでのセッションの開発プロセスを振り返る。
+Ship後にユーザーがAuditを明示的に依頼したら、[Audit policy](../harness/policies/learning-extraction.md)に従い、その時点で確認できる指摘とその原因を分析する。
 根拠、原因、改善案、対象を整理して提示する。解決済み指摘を未解決として復活させないが、
 解決の過程で観測した再利用可能な問題は解決済みと明記して分析できる。
 Audit中にガードレール・Intent等へ改善を適用しない。
+作業過程全体から改善を探す分析はRetrospectiveへ分離し、指摘がないことを理由にAuditで代行しない。
 
 改善提案がないAuditは結果を報告して終了し、Task記録を追加しない。改善提案がある場合は結果を提示して手動承認を待つ。開発の委任やShip許可を改善の承認として使わない。
 ユーザーの明示承認を、具体的な提案と反映対象に結び付けて記録した後に着手する。

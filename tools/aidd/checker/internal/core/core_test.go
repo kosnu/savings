@@ -231,7 +231,7 @@ func TestCycleAndApproval(t *testing.T) {
 		t.Fatal("premature approval")
 	}
 	fakeShip(t, s)
-	a := Audit{Summary: "session audit", SessionImprovements: []string{"clarify code"}, Proposals: []Proposal{{ID: "p1", Finding: "ambiguity", Evidence: "session observation", Change: "clarify", Paths: []string{"code.txt"}}}}
+	a := Audit{Summary: "feedback audit", Findings: []string{"ambiguous behavior"}, Proposals: []Proposal{{ID: "p1", Finding: "ambiguity", Evidence: "review finding", Change: "clarify", Paths: []string{"code.txt"}}}}
 	if e := s.Audit(a); e != nil {
 		t.Fatal(e)
 	}
