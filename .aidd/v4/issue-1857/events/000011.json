@@ -1,0 +1,80 @@
+{
+  "sequence": 11,
+  "kind": "verify",
+  "time": "2026-09-30T16:14:22.015015Z",
+  "task_hash": "a630458242e3089967204c59f64321b6f72aa346f7a9a745d2fc88cb92e137dd",
+  "previous": "fba205e2c629d0d8d3a6d452ab389682187bfe986207c950f7a5cc9186943326",
+  "revision": 4,
+  "fingerprint": "46b3eeec1aeac07e7a9ef89acb0ee348dbbf90a67c9cca4908c86b4333345afd",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "build",
+          "-o",
+          "/tmp/aidd-v4-1857-p1",
+          "./cmd/aidd-checker"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t50.662s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "env",
+          "GOCACHE"
+        ],
+        "exit": 0,
+        "output": "/tmp/aidd-v4-1857-p1-cache\n"
+      },
+      {
+        "argv": [
+          "vp",
+          "fmt",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "VITE+ - The Unified Toolchain for the Web\n\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 250ms on 1 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "6fe09508d77ea2a0422b1773d35ea30cc47564e612465167441d2121dc7a3b4c",
+  "cycle_id": "issue-1857/cycle-0002"
+}

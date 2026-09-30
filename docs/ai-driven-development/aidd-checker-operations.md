@@ -29,7 +29,7 @@ Coreを変更したら現在sourceからbinaryを作り直す。古いbinaryの�
 `verify`の前に、変更対象へ既存formatterを適用する。Markdownなら`vp fmt <変更path...> --write`、
 Goなら`gofmt -w <変更Goファイル...>`を使い、Webは`AGENTS.md`の整形手順に従う。
 整形は検証commandへ混ぜず、整形後の内容に対して検証する（[Coreの検証契約](aidd-checker.md#検証)）。
-Go cacheに書込できない環境では、repository外の書込可能な`GOCACHE`を指定する。
+Go cacheに書込できない環境では、[検証argvと環境変数](#検証argvと環境変数)に従い、repository外の書込可能な`GOCACHE`を指定する。
 Taskの再開では`status`と該当eventを読み、Intent、最新decision、未達条件、証拠、承認を確認する。
 
 ## 入力
@@ -78,6 +78,29 @@ rulesはrule ID配列。選択結果に意味的関連ruleを追加し、各本�
 `review`は`summary`、`rules`、`criteria`を持つ。criteriaは各`criterion`、`evidence`、`verdict`。
 criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown`。
 根拠不足をpassにせず、修正・再検証または必要な人間判断につなげる。
+
+### 検証argvと環境変数
+
+`commands`はCoreが必須コマンドと照合し、そのまま実行するargvを記録する。
+上のdecision例のように、Goの検証は直接の`go test` / `go vet` argvを指定する。
+`env GOCACHE=… go …`へ置き換えると必須のGo argvと一致せず、必須コマンド不足として拒否される。
+argv内の環境変数代入や`$GOCACHE`をshellが展開することもない。
+
+実行環境の設定は`commands`へ埋め込まず、Coreのbuildと`verify`の呼出環境へ渡す。
+Coreが起動する子コマンドもその環境を継承する。上のdecisionを記録したTaskでは、
+repository外の書込可能なcacheを次のように指定する（`/tmp`が書込可能な環境の例）。
+既定のGo cacheへ書き込めない場合は、文書先頭のCore buildにも同じ設定を渡す。
+初回はこのbuildでbinaryを用意してから、`start`と`decision`を実行し、`verify`へ進む。
+
+```sh
+env GOCACHE=/tmp/aidd-v4-go-cache go -C tools/aidd/checker build -o /tmp/aidd-v4 ./cmd/aidd-checker
+env GOCACHE=/tmp/aidd-v4-go-cache /tmp/aidd-v4 --root . verify --task example
+```
+
+継承する値を実行証拠で確認する場合は、decisionの`commands`へ
+`["go", "env", "GOCACHE"]`を追加して同じ呼出例を実行する。
+verify eventの当該コマンド出力が`/tmp/aidd-v4-go-cache`と一致すること、
+直接の`go test` / `go vet`の終了コードがともに0であることを確認する。
 
 ## セッション計測
 

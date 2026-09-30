@@ -1,0 +1,17 @@
+{
+  "sequence": 9,
+  "kind": "return-intent",
+  "time": "2026-09-30T16:12:16.014511Z",
+  "task_hash": "a630458242e3089967204c59f64321b6f72aa346f7a9a745d2fc88cb92e137dd",
+  "previous": "de61c284a3a43f150b018f6bd63821da8eb5089095e75d480e78c8ea850fffc1",
+  "revision": 3,
+  "fingerprint": "46b3eeec1aeac07e7a9ef89acb0ee348dbbf90a67c9cca4908c86b4333345afd",
+  "data": {
+    "summary": "Issue #1857のIntent・制約・完了条件を再確認。承認P1に従い同じGOCACHEをCore buildとverify双方へ渡す操作例を追加し、初回start/decisionまでの順序も明記した。直接Go argv、Coreの必須照合条件、既存履歴とbaselineは維持。改善済み文書に従い、次cycleでは新規binary/cacheでbuildから必須argv照合・verify・環境継承までの観測を取り直し、現Intentの検証・レビュー・PR #1860へのShipを実施する。",
+    "previous_cycle": "issue-1857/cycle-0001",
+    "approval_hash": "15165914471156b273648f88a7fcf200a322f8e6e46bac0813bcae97b7957e86",
+    "intent_hash": "0df443db4eb3a0962999153411801656888e5015839409ba7369a5b1093c750e"
+  },
+  "hash": "1115e13cfdbf149439703311cf1c001b62209181a58263732c791d73ae450c20",
+  "cycle_id": "issue-1857/cycle-0002"
+}

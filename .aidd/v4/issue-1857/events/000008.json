@@ -1,0 +1,74 @@
+{
+  "sequence": 8,
+  "kind": "decision",
+  "time": "2026-09-30T16:11:42.765877Z",
+  "task_hash": "a630458242e3089967204c59f64321b6f72aa346f7a9a745d2fc88cb92e137dd",
+  "previous": "15165914471156b273648f88a7fcf200a322f8e6e46bac0813bcae97b7957e86",
+  "revision": 3,
+  "fingerprint": "33af040a43c59fdfdbfecb928844be880c34b19354f9fbd9e1ff380e91964737",
+  "data": {
+    "summary": "承認P1のみを実施。Core操作文書のGOCACHE例に同じ指定のCore buildをverify前へ追加し、書込不可の既定cacheに対してbuildとverify両方へ環境を渡すことを明記する。直接argv・Core実装・過去Taskを維持。新規binaryとcacheでbuildから一時Taskのdecision/verifyまで実行し、必須argv照合と子Goへの環境継承を検証。文書formatterは既存vp直接実行。",
+    "paths": [
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "build",
+        "-o",
+        "/tmp/aidd-v4-1857-p1",
+        "./cmd/aidd-checker"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "go",
+        "env",
+        "GOCACHE"
+      ],
+      [
+        "vp",
+        "fmt",
+        "docs/ai-driven-development/aidd-checker-operations.md",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "de61c284a3a43f150b018f6bd63821da8eb5089095e75d480e78c8ea850fffc1",
+  "cycle_id": "issue-1857/cycle-0001"
+}

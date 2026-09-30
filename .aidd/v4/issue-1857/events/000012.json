@@ -1,0 +1,46 @@
+{
+  "sequence": 12,
+  "kind": "review",
+  "time": "2026-09-30T16:14:59.546148Z",
+  "task_hash": "a630458242e3089967204c59f64321b6f72aa346f7a9a745d2fc88cb92e137dd",
+  "previous": "6fe09508d77ea2a0422b1773d35ea30cc47564e612465167441d2121dc7a3b4c",
+  "revision": 4,
+  "fingerprint": "46b3eeec1aeac07e7a9ef89acb0ee348dbbf90a67c9cca4908c86b4333345afd",
+  "data": {
+    "summary": "承認P1と元のIssue #1857のIntentを実際の差分・実行結果と照合。GOCACHE指定付きCore buildをverify前へ追加し、初回build/start/decision/verifyの順序を明示した。変更は承認済み操作文書と同Taskの追記記録に限定し、Core実装・必須条件・過去event・baseline・Intentは維持。## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.code-review\n- Unresolved: なし。P1の局所defectは修正済み、配信・返信はこのレビュー後に行う。",
+    "criteria": [
+      {
+        "criterion": "commandsのargvとverify呼出環境の責務が明確",
+        "evidence": "操作文書89-100行を確認。commandsは直接argvのまま、環境設定はCore buildとverifyの両方の呼出環境へ渡す。exec.Commandを使う既存Coreの継承動作と一致。承認P1だけを反映。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "GOCACHE呼出例と直接のgo test/go vet argvが整合",
+        "evidence": "文書の直接go test -count=1 ./... / go vet ./...は維持。env GOCACHE=/tmp/aidd-v4-go-cache go ... buildと同じ指定のverifyを並べ、binary初回作成からstart/decisionへ進む順序を追加。既存の文書先頭build例からcache制約時の対応例へ32行のリンクで到達可能。新規runnerやCore条件、索引、CIの変更は不要。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "文書例の必須コマンド照合とverify成功、子GoコマンドへのGOCACHE継承を確認",
+        "evidence": "P1の利用条件を再現: GOCACHE未指定のgo buildは既定cacheへの書込拒否でexit 1、binary/cacheが存在しないことを確認後、env GOCACHE=/tmp/aidd-v4-1857-p1-cache go -C tools/aidd/checker build -o /tmp/aidd-v4-1857-p1 ./cmd/aidd-checkerがexit 0。新規binaryで/tmp/aidd-1857-p1-exampleのstart/decision/verifyを実行。文書から抽出した直接Go argvは必須照合を通過し、env wrapper反例はrequired verification command absentでexit 1。verifyはstable=true、test/vet/diff/go env GOCACHE全てexit 0、cache出力は/tmp/aidd-v4-1857-p1-cache。子Goテストが同じos.Getenv値をassertして成功。現在Taskのcycle-0002 revision 4、verify event 000011はCore build、Go test/vet/go env、文書format check、diff check全てexit 0でstable=true。観測した失敗を成功として丸めず、環境指定による成功と区別した。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "3f79a40eac8128884aaf99a4927c0ffe8b9b2348d24f7e059df651c1847f9c7b",
+  "cycle_id": "issue-1857/cycle-0002"
+}

@@ -1,0 +1,67 @@
+{
+  "sequence": 4,
+  "kind": "verify",
+  "time": "2026-09-30T14:20:17.802945Z",
+  "task_hash": "a630458242e3089967204c59f64321b6f72aa346f7a9a745d2fc88cb92e137dd",
+  "previous": "d7c78e192c1d5469a9aa66e99aaed28a3b733e7b55074d29dff4f39b0fee3061",
+  "revision": 2,
+  "fingerprint": "33af040a43c59fdfdbfecb928844be880c34b19354f9fbd9e1ff380e91964737",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t50.834s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "env",
+          "GOCACHE"
+        ],
+        "exit": 0,
+        "output": "/tmp/aidd-v4-go-cache\n"
+      },
+      {
+        "argv": [
+          "vp",
+          "fmt",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "VITE+ - The Unified Toolchain for the Web\n\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 247ms on 1 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "82e20626117710ddcff1f2fb6dbc8d623ff131dd5b2c6c9f1a3947c09198a33c",
+  "cycle_id": "issue-1857/cycle-0001"
+}

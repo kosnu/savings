@@ -1,0 +1,67 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-09-30T14:18:13.702193Z",
+  "task_hash": "a630458242e3089967204c59f64321b6f72aa346f7a9a745d2fc88cb92e137dd",
+  "previous": "c1320b1baf0b1fd92e7d4fc511bf6f1d06ec871d1b4164ac19a99fdc2be32914",
+  "revision": 1,
+  "fingerprint": "1012a34ab277bbf816228afd237e36a8638ded790f1daa9dd1f10172fee337c8",
+  "data": {
+    "summary": "Core操作文書へ直接のGo argvとverify呼出環境の分離、GOCACHE指定・継承確認例を追加する。Core実装、過去Task、索引、CIは既存の意味・経路を維持するため変更不要。実CLIの一時fixtureで必須argv照合と子GoへのGOCACHE継承を確認し、実リポジトリでは文書のGo argvを実行する。",
+    "paths": [
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "go",
+        "env",
+        "GOCACHE"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "fmt",
+        "docs/ai-driven-development/aidd-checker-operations.md",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "b5013ceeb197acba983429306d9b4cb076e0628f862f1452b7eedd50dee3bc67",
+  "cycle_id": "issue-1857/cycle-0001"
+}
