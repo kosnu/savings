@@ -104,6 +104,80 @@ Shipを目的とするGoalの完了とサイクル完了を区別する。Audit�
 
 ## 再開
 
-明示したTask IDからCoreのstatusを取得し、開始Intent、最新decision/checkpoint、検証・review・
-Ship・Audit・承認記録を必要な範囲で読む。前の会話の要約だけを証拠として扱わない。
+明示したTask IDからCoreの`status`を取得し、開始Intentと実行権限、最新decision/checkpoint、
+未達条件、検証・review・Ship・Audit・承認記録を必要な範囲で読む。前の会話の要約だけを証拠として扱わない。
 旧版のStop/SessionStart hookやGoal本文からのTask推論を実行経路にしない。
+
+### 必要項目の取得例
+
+repository rootで、[Core操作](aidd-checker-operations.md)に従って現在sourceからbinaryを用意する。
+以下はTask `issue-1852`の読み取り例。別TaskではIDを置き換え、eventのファイル名・kindは
+実際の一覧で確認してから選ぶ。`task.json`の全文や`events/*.json`の本文を一括出力しない。
+
+```sh
+/tmp/aidd-v4 --root . status --task issue-1852
+
+# 開始Intentの出典・本文・目的・制約・完了条件、実行権限、baseline。
+# 全ファイルの開始時snapshotを持つinitialは出力しない。
+jq '{id, created, intent, authority, baseline, initial_changes_acknowledged}' \
+  .aidd/v4/issue-1852/task.json
+
+# 本文ではなく、実在するファイル名・kind・revision・cycleと取得可能な項目を確認する。
+jq -c '{file: input_filename, sequence, kind, cycle_id, revision,
+  data_keys: (.data | keys)}' .aidd/v4/issue-1852/events/*.json
+```
+
+`status`の`cycle_id`、`revision`、`latest`、`evidence_current`を起点に、一覧の連番と照合する。
+同じkindの最後のファイルだけを無条件に現在の証拠として採用しない。Intent改訂や
+`return-intent`があれば該当eventも読み、開始Intentからの訂正、cycleの境界、承認への参照を確認する。
+必須文書の選択・本文確認は通常どおり行い、取得例の出力を読了や意味評価の代わりにしない。
+
+このTaskの一覧では`000012.json`が最新decision（revision 4）、`000013.json`がverify、
+`000014.json`がreview。判断のscope・commands・rulesとreviewの条件別根拠は残し、
+verifyはcommandごとの終了状態と実行前後の安定性を先に読む。
+
+```sh
+jq '{sequence, kind, cycle_id, revision, hash, fingerprint, data}' \
+  .aidd/v4/issue-1852/events/000012.json \
+  .aidd/v4/issue-1852/events/000014.json
+
+# 通常取得ではcommandの生ログoutputだけを除き、終了情報は保持する。
+jq '{sequence, kind, cycle_id, revision, hash, fingerprint,
+  data: {stable: .data.stable,
+    results: [.data.results[] | del(.output)]}}' \
+  .aidd/v4/issue-1852/events/000013.json
+```
+
+終了コード0だけで現在の証拠とは扱わず、decision revision・cycle・fingerprintと
+`evidence_current`を照合する。不一致・失敗・欠落は未達または未確認として扱い、
+必要な詳細取得や再検証へつなげる。
+
+このTaskの承認は`000009.json`の`approve`。提案IDと`audit_hash`が指す
+`000008.json`のAudit、`000011.json`の`return-intent`も読み、承認対象・出典と次cycleへの引継ぎを確認する。
+承認eventがなければ、一覧で存在しないことを確認し、元の実行委任から改善承認を推論しない。
+
+```sh
+jq '{sequence, kind, cycle_id, revision, hash, fingerprint, data}' \
+  .aidd/v4/issue-1852/events/000008.json \
+  .aidd/v4/issue-1852/events/000009.json \
+  .aidd/v4/issue-1852/events/000011.json
+```
+
+改訂Intent・承認に本文がある旧eventは保持された本文を読み、`text_hash`のみのeventでは
+構造化項目と出典を確認し、原文が判断に必要なら出典から追加取得する。
+ShipはTask記録だけで確定しない。配信先はAuditの`delivery`や実在する旧Ship eventなどから特定し、
+該当PR・commitをread-backする。これらは現在のAudit開始や改善実施の権限を付与しない。
+
+追加取得も、必要なevent・項目・範囲へ絞る。たとえばverifyの結果配列で対象commandを確認した後、
+その`output`を読む。出力が上限に近い場合は保存された文字列を分割し、取得済み範囲と残りを追跡する。
+全文の再取得で切り詰めを繰り返さず、必要項目の欠落を未確認のまま合格へ変えない。
+
+```sh
+# このverifyのresults[0]はGo test。必要なログの先頭4000文字を取得する例。
+jq '.data.results[0].output | {total_chars: length, offset: 0, text: .[0:4000]}' \
+  .aidd/v4/issue-1852/events/000013.json
+
+# 開始時snapshotが判断に必要な場合だけ、対象pathの機械情報を追加取得する。
+jq '.initial["docs/ai-driven-development/workflow.md"]' \
+  .aidd/v4/issue-1852/task.json
+```
