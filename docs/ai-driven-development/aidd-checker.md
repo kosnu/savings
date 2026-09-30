@@ -25,6 +25,14 @@ CoreはGoで実装するローカルCLI。Goalや特定モデル、外部Evals�
 対象snapshotのfingerprintとcycle IDを結び付ける。確定した判断の変更は新decisionで行い、旧証拠は失効する。
 旧`.aidd/tasks`のschemaや旧CLIを読み替える互換経路はない。
 
+新しいeventにはチャット本文を保存しない。Intent改訂、承認、却下の入力`text`は検証後に除去し、
+JSON文字列として符号化した本文のSHA-256を`text_hash`へ保存する。出典`source`、構造化したIntentの
+目的・制約・完了条件、承認・却下のAudit hashと提案IDは保持する。`text_hash`はCoreが生成し、入力には指定しない。
+出典には発言を識別する参照を使い、summaryやevidence、検証command・出力などにもチャット原文を転載しない。
+要約には判断・結果だけを記す。自由記述やcommand出力に混入した原文の意味判定はagentが担う。
+本文付きの既存eventは書き換えず読み取りを維持する。旧本文と新hashは同じ内容として比較し、
+保存形式や出典だけの変更をIntent改善と判定しない。開始時の`task.json`の保存内容は変更しない。
+
 開始時に既存差分があれば、明示的なacknowledgementと実際の初期差分を保存する。
 これは他者の変更を自分の成果にする権限ではない。baselineからの全差分を後続scope検査に含める。
 通常は専用のclean worktreeで開始する。v4自身の初回構築では、起動に必要だったCore差分を
@@ -69,7 +77,8 @@ Merge / Close後の[Retrospective](../harness/policies/retrospective.md)はCore�
 改善提案ごとに根拠・具体案・対象pathを保存し、承認と改善の変更を同じcommitに含める。空の提案一覧または全提案の明示却下だけでは改善権限を付与しない。
 旧Taskに残る提案なしAuditと承認eventは読み取りを維持する。
 同じShip内容・revisionへの追加Auditはaudit-updateイベントで保存し、新しいAudit hashへの承認を要求する。
-承認は最新Audit hash、提案ID、ユーザー発言の出典と本文に結び付ける。
+承認は最新Audit hash、提案ID、ユーザー発言の出典と本文hashに結び付ける。
+入力時には実際の本文を確認し、空の本文や元の開発権限の転用を拒否する。再読込時も本文hashで同じ権限転用を拒否する。
 承認前の変更や対象外の変更を拒否する。元の開発権限の転用は許可しない。
 承認後は改善の新decisionと変更を同じサイクルで記録する。改善後に`return-intent`で次サイクルへ移り、
 Intentと改善済みガードレールに基づく新decision、必要な実装、検証、review、Shipを同じTaskで記録する。次のAuditは手動開始後に記録する。

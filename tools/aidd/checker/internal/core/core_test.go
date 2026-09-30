@@ -448,7 +448,7 @@ func TestApprovalBeforeChanges(t *testing.T) {
 		t.Fatal(e)
 	}
 	put(t, s.Root, "code.txt", "premature change\n")
-	if s.Approve(Approval{s.latest("audit").Hash, "user:2", "approve p", []string{"p"}}) == nil {
+	if s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:2", Text: "approve p", ProposalIDs: []string{"p"}}) == nil {
 		t.Fatal("changes before approval accepted")
 	}
 }
@@ -469,7 +469,7 @@ func TestIntentRevisionAndStaleStatus(t *testing.T) {
 	if s.Decide(d) == nil {
 		t.Fatal("intent revision before approval")
 	}
-	if e := s.Approve(Approval{s.latest("audit").Hash, "user-message:2", "approve intent", []string{"intent"}}); e != nil {
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user-message:2", Text: "approve intent", ProposalIDs: []string{"intent"}}); e != nil {
 		t.Fatal(e)
 	}
 	if e := s.Decide(d); e != nil {
@@ -501,7 +501,7 @@ func TestPartialApprovalCarryAndDismissal(t *testing.T) {
 	if e := s.Audit(Audit{Summary: "two proposals", Proposals: []Proposal{p1, p2}}); e != nil {
 		t.Fatal(e)
 	}
-	if e := s.Approve(Approval{s.latest("audit").Hash, "user:2", "approve only p1", []string{"p1"}}); e != nil {
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:2", Text: "approve only p1", ProposalIDs: []string{"p1"}}); e != nil {
 		t.Fatal(e)
 	}
 	put(t, s.Root, "code.txt", "improved\n")
@@ -514,7 +514,7 @@ func TestPartialApprovalCarryAndDismissal(t *testing.T) {
 	if len(a.Proposals) != 1 || a.Proposals[0].ID != "p2" || s.Status()["state"] != "approval-pending" {
 		t.Fatal("unapproved proposal lost", a, s.Status())
 	}
-	if e := s.Dismiss(Approval{s.latest("audit").Hash, "user:3", "decline p2", []string{"p2"}}); e != nil {
+	if e := s.Dismiss(Approval{AuditHash: s.latest("audit").Hash, Source: "user:3", Text: "decline p2", ProposalIDs: []string{"p2"}}); e != nil {
 		t.Fatal(e)
 	}
 	if s.Status()["state"] != "approval-pending" {
