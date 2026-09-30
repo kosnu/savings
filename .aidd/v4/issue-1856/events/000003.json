@@ -1,0 +1,54 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-09-30T13:36:39.175188Z",
+  "task_hash": "395c3b3f6a71839bf1cc7f063b34a525defeb1bec73eb08ff97b720fb9ff4c00",
+  "previous": "baa8e7ff55315f7cd7de6898c0bbfdfc71849af0aa863e6a370a894c1bb6764c",
+  "revision": 1,
+  "fingerprint": "57661c31bed13edac45a14073eac5fa6722d8aa9604292b3c15bda91f06656d9",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "/tmp/issue-1856-validate.py"
+        ],
+        "exit": 1,
+        "output": "Traceback (most recent call last):\n  File \"/tmp/issue-1856-validate.py\", line 21, in \u003cmodule\u003e\n    argv = shlex.split(line)\n  File \"/Users/kosnu/.local/share/mise/installs/python/3.13.15/lib/python3.13/shlex.py\", line 313, in split\n    return list(lex)\n  File \"/Users/kosnu/.local/share/mise/installs/python/3.13.15/lib/python3.13/shlex.py\", line 300, in __next__\n    token = self.get_token()\n  File \"/Users/kosnu/.local/share/mise/installs/python/3.13.15/lib/python3.13/shlex.py\", line 109, in get_token\n    raw = self.read_token()\n  File \"/Users/kosnu/.local/share/mise/installs/python/3.13.15/lib/python3.13/shlex.py\", line 191, in read_token\n    raise ValueError(\"No closing quotation\")\nValueError: No closing quotation\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "vp",
+          "fmt",
+          "docs/ai-driven-development/codex-adapter.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "VITE+ - The Unified Toolchain for the Web\n\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 211ms on 1 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "/tmp/aidd-issue-1856",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":14}\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "41d539ca45edc84a0f3c8d5eca3ef954909b7e1d06ec042d68e637c59c392b23",
+  "cycle_id": "issue-1856/cycle-0001"
+}

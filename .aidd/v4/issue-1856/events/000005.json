@@ -1,0 +1,50 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-09-30T13:38:13.194145Z",
+  "task_hash": "395c3b3f6a71839bf1cc7f063b34a525defeb1bec73eb08ff97b720fb9ff4c00",
+  "previous": "23a51656af3da95c447b3adac6d9b2e29fa18796b2b82e65ec1d2e04f5e4c3a5",
+  "revision": 1,
+  "fingerprint": "57661c31bed13edac45a14073eac5fa6722d8aa9604292b3c15bda91f06656d9",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.code-review\n- Unresolved: なし\n\n元Issueと明示実行依頼に照合し4完了条件をpass。文書追加74行と新Task追記に限定。Core/CLI/索引/過去Task/アプリは変更なし。既存path/surface/依存closureで正本へ到達でき、判断の所有/適用範囲不変のため索引同期不要。snapshot非表示を権限・Intent・証拠鮮度の省略へ読み替えていない。検証初回は一時検証コードの複数行quoted jq解析不備で失敗し、source変更なしでparserを修正後、同revisionの全4command成功。出力欠落・未確認・追加findingなし。",
+    "criteria": [
+      {
+        "criterion": "再開に必要な情報と絞り込み取得例をCodex adapterへ記載する",
+        "evidence": "元Issueは再開判断の必要情報と具体例を要求。再開節に開始Intent全文/出典・authority・baseline、statusのcycle/revision/latest/evidence_current、event一覧とlatest decision/review/verify、Audit/承認/return-intent、詳細追加取得を記載。必須本文の確認も維持し、書式やCLIを変更しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "issue-1852でIntent・最新判断・検証・レビュー・承認を出力欠落なく取得できる",
+        "evidence": "元Issue指定のissue-1852に対し文書から抽出した8取得例を実行し全exit 0。jq出力を元JSONの必要項目と完全比較し、Intent/権限・decision 12・verify 13・review 14・Audit 8・approve 9・return-intent 11の欠落なしを確認。最大10040 bytesで終端までJSON parse成功。approvalのaudit_hashとreturn-intentのapproval_hashも一致。status evidence_current=falseを保持し古い証拠を合格扱いしない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "実在するeventのファイル名とkindを確認して取得できる",
+        "evidence": "元Issueはevent名/kindを推測しない取得を要求。input_filename/sequence/kind/cycle_id/revision/data_keysの一覧を全14実eventと完全比較。一覧確認後の000012/13/14および000008/9/11を例示し、別Taskでの置換と存在しない承認を捏造しないことを記載。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "initial snapshotを通常出力から除き必要詳細へ追加取得で到達できる",
+        "evidence": "元Issueはinitialなど不要機械情報を通常出力から除き詳細へ到達することを要求。開始Taskの投影は6項目でinitialを含まず、verifyはoutputだけ除きstable/argv/exit等を保持。必要時のログ長/offset/4000文字範囲と特定pathのinitialを取得し元JSONと比較。参照Task15ファイルは取得前後hash同一かつHEADとの差分なし。Coreと既存履歴も変更なし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.code-review"
+    ]
+  },
+  "hash": "a93bd7f4b2d92ac1eebe202e05b0e804cac729dd89551be60b9a627dc1d1ab15",
+  "cycle_id": "issue-1856/cycle-0001"
+}
