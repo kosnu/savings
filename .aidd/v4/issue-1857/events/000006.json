@@ -1,0 +1,37 @@
+{
+  "sequence": 6,
+  "kind": "audit",
+  "time": "2026-09-30T15:48:38.821886Z",
+  "task_hash": "a630458242e3089967204c59f64321b6f72aa346f7a9a745d2fc88cb92e137dd",
+  "previous": "5a661fb57c38043e7a9e279132e7a59c547f8b540bc4dbf234f072edb0b42dea",
+  "revision": 2,
+  "fingerprint": "33af040a43c59fdfdbfecb928844be880c34b19354f9fbd9e1ff380e91964737",
+  "data": {
+    "summary": "Audit対象はPR #1860 / bf11f6be2532d0ca5ddb998c5117f769e440b60f / Task issue-1857 revision 2。未解決・現headのP2 1件は妥当。verifyの環境指定と子Goへの継承は成功しているが、先行するCore buildの環境指定例が欠けており、既定cacheが書込不可の利用条件では文書手順が開始できない。原因は操作例の前提と検証範囲の欠落、既存意味評価の適用漏れ。既存の読込・routingは記録で確認でき、Core不具合や新しい機械gateの必要性を示す証拠はない。提案P1は操作文書だけを対象とし手動承認待ち。文書変更、返信、thread解決、commit/pushは未実施。CIは現在headの4チェック全てSUCCESS。Copilotはquota不足でレビュー未実施。",
+    "findings": [
+      "F1: P2 / unresolved / not outdated / PRRT_kwDOM0p88s6nkraK / https://github.com/kosnu/savings/pull/1860#discussion_r4145725816。Core操作文書20行のbuildはGOCACHE未指定、94行のverifyだけ指定。既定cacheを書込できない環境でbuildが失敗し、初回のbinary作成とverify開始が阻まれる。review event 000005が未設定の初回build失敗を記録しているため妥当。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "操作例の環境設定がverify以降だけを扱い、先行するCore buildを覆っていない。decision event 000003のcommandsは既に用意されたCoreからのGo test/vet等で、review event 000005は初回build失敗を観測しながら、手動で環境を補ったverify成功を文書例全体の成功としてpassにした。既存workflowの目的・実際の出力を照合する意味評価の適用漏れと、操作文書の環境例不足。",
+        "evidence": "https://github.com/kosnu/savings/pull/1860#discussion_r4145725816 (SUBMITTED、isResolved=false、isOutdated=false、現head)。docs/ai-driven-development/aidd-checker-operations.md:19-25,82-100。.aidd/v4/issue-1857/events/000003.json,000004.json,000005.json。verify成功と初回build失敗の観測を区別した。",
+        "change": "Core操作文書のcache指定例にenv GOCACHE=/tmp/aidd-v4-go-cache go -C tools/aidd/checker build -o /tmp/aidd-v4 ./cmd/aidd-checkerをverifyの前へ追加し、cache制約時にはCore buildとverifyの両方へ同じ設定を渡すことを明記する。commandsの直接Go argv、Core実装・必須照合条件、過去Task記録は維持する。承認後、既定cacheが書込不可の環境で別の新規binary出力先と書込可能cacheを使い、文書に示したbuildからdecision/verifyまでを実行し、終了コード0、必須argv照合、go env GOCACHEと子Goテストへの継承を確認する。文書format checkとdiff check、Task verify/review/ship-checkを行う。",
+        "paths": [
+          "docs/ai-driven-development/aidd-checker-operations.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "bf11f6be2532d0ca5ddb998c5117f769e440b60f",
+      "remote": "origin",
+      "branch": "issue-1857/verification-argv-env",
+      "pr": "https://github.com/kosnu/savings/pull/1860",
+      "evidence": "2026-10-01 JST確認。local HEAD・origin tracking・remote ref・PR headは同じSHA。PRはOPEN、base main。candidate/integration/verify/assign-author全てSUCCESS。Task revision 2のverifyとreviewは同fingerprintでcurrent。",
+      "base": "main"
+    }
+  },
+  "hash": "4846909dff89f82a27b2641d5d8fe3646882ae3504b5bb6ec8f952104ce0a9e7",
+  "cycle_id": "issue-1857/cycle-0001"
+}

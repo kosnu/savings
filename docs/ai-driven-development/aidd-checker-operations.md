@@ -86,11 +86,14 @@ criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown
 `env GOCACHE=… go …`へ置き換えると必須のGo argvと一致せず、必須コマンド不足として拒否される。
 argv内の環境変数代入や`$GOCACHE`をshellが展開することもない。
 
-実行環境の設定は`commands`へ埋め込まず、`verify`の呼出環境へ渡す。
+実行環境の設定は`commands`へ埋め込まず、Coreのbuildと`verify`の呼出環境へ渡す。
 Coreが起動する子コマンドもその環境を継承する。上のdecisionを記録したTaskでは、
 repository外の書込可能なcacheを次のように指定する（`/tmp`が書込可能な環境の例）。
+既定のGo cacheへ書き込めない場合は、文書先頭のCore buildにも同じ設定を渡す。
+初回はこのbuildでbinaryを用意してから、`start`と`decision`を実行し、`verify`へ進む。
 
 ```sh
+env GOCACHE=/tmp/aidd-v4-go-cache go -C tools/aidd/checker build -o /tmp/aidd-v4 ./cmd/aidd-checker
 env GOCACHE=/tmp/aidd-v4-go-cache /tmp/aidd-v4 --root . verify --task example
 ```
 
