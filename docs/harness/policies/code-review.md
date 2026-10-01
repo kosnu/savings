@@ -8,6 +8,7 @@ applies_to:
   - apps/api
   - AGENTS.md
   - .github/skills/code-review
+  - .agents/skills
 topics:
   - review
   - rule-graph
@@ -71,6 +72,22 @@ Web/APIの表に該当しない差分も、`docs/harness/rule-map.json` のpath/
 
 採択済みADRを含む差分では`documentation.policy`を必ず適用し、PRのbase branchに対応するorigin remote-tracking branchを`--base-ref`に指定して`docs/harness/scripts/validate_accepted_adrs.py`を実行します。validatorが拒否した既存履歴の変更や文書の削除・移動は、末尾の日付付きClarificationまたは新しいADRへ置き換わるまで解決済みとしてはいけません。
 ADRの変更・参照では、当時の判断を現行ルールとして強制せず、現在有効な条件が責務ある正本に反映され、対象pathから選択されるか確認します。新しい判断や置換がある場合は、ADR間の履歴上の関係と正本への反映を別々に確認します。
+
+## Skillのレビュー
+
+skillの用途や実行modeを追加・変更した場合は、[Documentation Policy](documentation-policy.md#agent向け定義)に従い、
+ユーザーの依頼からdescriptionによる選択、本文の処理・権限・完了条件までを通して照合する。
+本文だけを読んで条件が揃っていることや、front matterの形式検証だけを成功の根拠にしない。
+
+変更したmodeを使う代表的な依頼と、隣接する非発火の依頼を用い、次を確認する。
+
+- 依頼と既存の承認対象から、descriptionで対象skillを選択でき、必要な本文の分岐へ到達する。
+- 本文で扱う新しいmodeがdescriptionから抜けておらず、descriptionが本文の権限を広げていない。
+- 分析・説明のみ、未承認の実行、承認範囲を越える依頼を、実行権限へ読み替えない。
+
+たとえば承認済みAuditコメント対応は、改善案がない場合も選択から返信・解決の分岐へ到達する必要がある。
+Audit依頼のみでは分析を行い、承認がない返信・解決は実行しない。照合に用いた依頼、選択先、
+本文で許可される処理と許可されない処理をレビューの根拠に残す。
 
 ## AIDD v4のレビュー
 

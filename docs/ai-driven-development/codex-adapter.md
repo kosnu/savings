@@ -74,8 +74,15 @@ Git操作の対象・権限・安全条件は[Git Workflow](../harness/policies/
 hostが示す書き込み境界・保護対象と照合する。worktree本体や親directoryが書き込み可能でも、
 `.git`やworktree固有の管理領域まで書き込み可能とは限らない。
 
+操作が起動するhookの書き込みも同じ権限判断に含める。`git config --get core.hooksPath`で
+現在のhook入口を確認し、未設定ならGit directoryの`hooks/`を確認する。実際に呼ばれるhookと
+その設定から、退避・整形・復元で触る作業ファイル、index、cache等の書き込み先を必要な範囲で特定し、
+hostの保護対象と照合する。Git管理領域が書き込み可能でも、hookが`.agents/`等の保護対象を
+書き換えたり削除・復元したりする操作には権限が必要になる。
+
 管理領域が保護されている場合、そこへ書き込む`git add`、`git commit`、`git fetch`、
 branch作成・切り替えなどは、初回から`exec_command`の`sandbox_permissions: "require_escalated"`で要求する。
+hookの書き込み先が保護されている場合も、そのhookを起動する必要なGit操作だけを初回から同じ方法で要求する。
 通常実行で権限エラーを起こすことを昇格要求の前提にしない。`git push`もlocalのtracking ref等を
 更新するため、remote操作だけとみなさず同じ判定を行う。
 

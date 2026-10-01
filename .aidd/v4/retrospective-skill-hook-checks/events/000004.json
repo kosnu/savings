@@ -1,0 +1,45 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-10-01T15:33:23.992198Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "5b43b6829666f378588c5a8056d4ee6d73df9fca4498f2871ed1cb29234c0f9e",
+  "revision": 1,
+  "fingerprint": "6d2851d624c5de5f7feb3223300af965459b0323d2205e6fe755a40233f30b06",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n指摘なし。承認済みRetrospective2件、最新origin/mainから新branchという制約を実差分・baseline・具体事例で照合。アプリ/基盤/旧Task/hook実装変更なし。",
+    "criteria": [
+      {
+        "criterion": "ユーザー依頼からdescription選択・本文処理までのskillレビューと非発火ケースを明示する",
+        "evidence": "code-review Skillレビュー節が依頼・既存承認→description選択→本文分岐の照合と根拠記録を要求。旧90764396のdescriptionは改善案適用のみで変更不要方針承認を選択できず、新項目で不適合が分かる。現行69ba6bffは承認済みコメント返信解決を選択できる。Audit依頼のみはauditで分析、未承認・説明・範囲外から書込権限を得ない。本文だけ/形式validatorだけの合格を排除。既存Documentation Policyの発火条件責務へ接続、恒常規則をskillに複製しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "hookの退避・整形・復元を含む書込対象を保護境界と照合し必要な操作のみ権限付きで行う",
+        "evidence": "codex-adapterがcore.hooksPath設定または未設定時のGit directory/hooksを確認し、hook設定由来の退避整形復元と作業ファイル/index/cacheを照合する。現在は.vite-hooks/_→h→.vite-hooks/pre-commit→vp staged/vite.config.ts。以前の.agents unlink失敗はGit管理領域のみ確認で見落とすが追加条項で初回から対象Git操作の昇格を選べる。現在変更対象はdocsと新Task記録のみでGOCACHEは/tmp、既知の保護対象へ書き込まないcommitは通常実行。読み取り一律昇格や包括的許可は既存の禁止条件を維持。hook自体は変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "文書整形・Core検証・全適用規則レビューを終えて新PRを作成し配信確認する",
+        "evidence": "Task baselineは066a2c8f=fetch後origin/main。新branch retrospective/skill-hook-checksを同refから作成し旧issue-1861記録に差分なし。最新verify exit0/stable、全ruleの現行本文と変更意味を照合。AGENTSで全reviewがcode-review必読、既存path/surfaceとclosureが正本を選択するためrule-map追加不要。実装source変更は承認済み2文書のみ。Shipの配信確認はreview後に実行する。実際にsandboxエラーを再現する破壊的試験・自動skill選択試験は行わず、観測済み事例と文書を照合。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "51ffbb7464174cdadf2ef7870438b1c4062daf8f6b59c516ab16832c60c4180c",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0001"
+}

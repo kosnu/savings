@@ -1,0 +1,46 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-10-01T15:32:28.115584Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "a8c9fd144a8f9ea5adc1a03d57202ddc34d39cbcc11b8a9b64cd505430477fe6",
+  "revision": 1,
+  "fingerprint": "6d2851d624c5de5f7feb3223300af965459b0323d2205e6fe755a40233f30b06",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "node_modules/.bin/vp",
+          "fmt",
+          "docs/harness/policies/code-review.md",
+          "docs/ai-driven-development/codex-adapter.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 216ms on 2 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "/tmp/aidd-v4",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":17}\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "5b43b6829666f378588c5a8056d4ee6d73df9fca4498f2871ed1cb29234c0f9e",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0001"
+}
