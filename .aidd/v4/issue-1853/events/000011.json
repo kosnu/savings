@@ -1,0 +1,50 @@
+{
+  "sequence": 11,
+  "kind": "review",
+  "time": "2026-10-01T17:05:57.498962Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "61fca19f1e73f712ce04db4dbf89e0e6e3981bb25140212e244a45aa7426f6ff",
+  "revision": 3,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\nP1の最終差分は表1行の判定分離とformatterの表幅調整のみ。既存workflow・索引・Core・入口・CI・アプリを変える必要はない。承認・Audit・decision・復帰・verifyは同じTaskへ追記し既存記録を保持。承認eventにはtext_hashだけが保存され公開会話原文なし。必要検証はすべて終了コード0。各事例は候補の評価と観測状態を区別し、実運用の再発率向上やアプリ修正を主張しない。追加findingsなし。",
+    "criteria": [
+      {
+        "criterion": "上流の一次情報・対象版・再現条件から独自対策の必要性を評価できる",
+        "evidence": "公開済み・互換性あり・同一再現成功という入力では、元の操作を保つ更新が可能なので操作を変更する候補はfail。更新採用候補から必要検証へ進む既存workflowと事例1を保持。P1は新しい調査義務を加えない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "公開済み・未公開・適用不能・不明を区別し必要な作業を続けられる",
+        "evidence": "候補の評価は事例順にfail、fail、pass（行動選択）、fail（候補の判断）、pass（行動選択）。事例4の観測は適用可否unknownのままであり、推測で成功扱いして終える候補だけがfail。隣接反例として同じ情報不足で不足を明示し切り分け調査を続ける候補はpass（行動選択）、適用可否unknownのまま。事例2未公開と事例3非互換も解決済みと扱わず作業継続。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "最小再現とプロジェクト全体の検証状態を区別できる",
+        "evidence": "workflowと事例1は最小再現成功から対象プロジェクト検証成功を推論しない。最小再現成功・全体未検証なら次の行動は必要な全体検証であり完了宣言不可。P1で範囲変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "ローカル修正には不要な外部調査を強制せず事例の判断で検証できる",
+        "evidence": "外部依存と無関係なローカル計算誤りでは通常のローカル修正・回帰検証がpass。事例5とworkflowの対象外規定を保持。上流待ち・固定チェックリスト・新規checkerは追加していない。有限事例評価と実運用の効果は区別。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "4af2a171aa8ff61e02edfed433b8f86373030c29f8ecbda6be8aeec44823a2a2",
+  "cycle_id": "issue-1853/cycle-0002"
+}

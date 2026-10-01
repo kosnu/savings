@@ -1,0 +1,17 @@
+{
+  "sequence": 8,
+  "kind": "return-intent",
+  "time": "2026-10-01T16:06:10.240554Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "2e85a1556d664c3fdf6e4be3cd6564c7357bc10de1332c48958b2190faa922f9",
+  "revision": 2,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "summary": "元のIntentは上流修正の公開状況・適用可否から最小対策を選び、不明を成功扱いしないこと。承認P1の対象表1行だけで候補failと適用可否unknownを分離した。workflow規則・Intent・権限は変更せず、情報不足でも必要な調査を続ける。新規ルール・checker不要。次cycleも承認範囲の検証・配信・対象コメント対応に限る。",
+    "previous_cycle": "issue-1853/cycle-0001",
+    "approval_hash": "0fad0a1ce0b2eeb84b86806b19db390a79777332aa43d0dd3fe80d54a3e5e41c",
+    "intent_hash": "b5cca81dfcb61d3c6cbf6dde276fb5fd16430383d3549bccfb30ea27cb4a7757"
+  },
+  "hash": "5cccfb86b33f91ef9e9a37c05f218116138553d621a6a86bf0bd1fd6d106a007",
+  "cycle_id": "issue-1853/cycle-0002"
+}

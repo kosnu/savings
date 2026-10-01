@@ -1,0 +1,45 @@
+{
+  "sequence": 10,
+  "kind": "verify",
+  "time": "2026-10-01T16:06:11.857779Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "a3cd9cb42d548dfcc3c5f2aed70ca29838a50dde46c5af49deb971d807e7cbfb",
+  "revision": 3,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "./node_modules/.bin/vp",
+          "fmt",
+          "docs/ai-driven-development/semantic-review-cases.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "mise WARN  tracking config: failed to ln -sf /private/tmp/savings-aidd-1853/mise.toml /Users/kosnu/.local/state/mise/tracked-configs/eb7649502eb7e677: Operation not permitted (os error 1)\nmise WARN  failed to write cache file: /Users/kosnu/Library/Caches/mise/yarn/4.0.0-rc.53/exec_env_600cb68002a1ad99-bfcff.msgpack.z Operation not permitted (os error 1)\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 184ms on 1 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "/private/tmp/savings-aidd-through-today/aidd-audit",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":12}\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "61fca19f1e73f712ce04db4dbf89e0e6e3981bb25140212e244a45aa7426f6ff",
+  "cycle_id": "issue-1853/cycle-0002"
+}

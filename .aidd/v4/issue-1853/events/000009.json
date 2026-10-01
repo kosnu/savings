@@ -1,0 +1,51 @@
+{
+  "sequence": 9,
+  "kind": "decision",
+  "time": "2026-10-01T16:06:10.454703Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "5cccfb86b33f91ef9e9a37c05f218116138553d621a6a86bf0bd1fd6d106a007",
+  "revision": 3,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "summary": "承認されたAudit P1のみを実装する。semantic-review-casesの情報不足ケースを候補fail、適用可否unknownと分ける。既存workflowとIntentを変えず、ルールやcheckerを追加しない。改善後の復帰を記録し、次cycleで5事例と隣接例を意味評価、文書/Core検証、レビュー、同じPRへの配信と承認済みBotコメント対応を実施する。",
+    "paths": [
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/semantic-review-cases.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "./node_modules/.bin/vp",
+        "fmt",
+        "docs/ai-driven-development/semantic-review-cases.md",
+        "--check"
+      ],
+      [
+        "/private/tmp/savings-aidd-through-today/aidd-audit",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "a3cd9cb42d548dfcc3c5f2aed70ca29838a50dde46c5af49deb971d807e7cbfb",
+  "cycle_id": "issue-1853/cycle-0002"
+}
