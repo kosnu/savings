@@ -1,0 +1,53 @@
+{
+  "sequence": 8,
+  "kind": "decision",
+  "time": "2026-10-01T15:48:01.518641Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "7530a0bf0d65d9d93d515d474629c3da6f9a2515c5a44a2476f9ca716179193b",
+  "revision": 2,
+  "fingerprint": "6d2851d624c5de5f7feb3223300af965459b0323d2205e6fe755a40233f30b06",
+  "data": {
+    "summary": "承認済みP1の両指摘に対応。hook実効pathをgit rev-parse --git-path hooksで解決する手順へ修正。意味的関連policy.retrospectiveをrulesへ追加し依存workflow/learning-extraction/documentationも維持。過去eventは保持、新revisionで記録訂正。改善後同TaskでIntent復帰し必要な検証reviewとShip後に承認済み2threadへ返信・完了確認して解決する。",
+    "paths": [
+      "docs/harness/policies/code-review.md",
+      "docs/ai-driven-development/codex-adapter.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "docs/harness/policies/code-review.md",
+        "docs/ai-driven-development/codex-adapter.md",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-v4",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.retrospective"
+    ]
+  },
+  "hash": "4f6def5b89aafe775ce420c53cf4549904b8202daa8223d665a7e56f43534c68",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0001"
+}

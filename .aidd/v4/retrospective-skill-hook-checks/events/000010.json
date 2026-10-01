@@ -1,0 +1,57 @@
+{
+  "sequence": 10,
+  "kind": "decision",
+  "time": "2026-10-01T15:48:44.42823Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "37d03e22e6e2e85edaf55a799de3b3e276afcd2592207967d6a4674586b493ee",
+  "revision": 3,
+  "fingerprint": "4bbf9fbcff6357d65f2c3758eaaf359be30a9cd6675b5f56157aa692abd66914",
+  "data": {
+    "summary": "承認済みP1の実装を確認し追加実装不要。新cycleでpolicy.retrospectiveを含む全規則と新Task引継ぎ証拠を照合する。通常checkout/linked worktree/hooksPath設定ありを一時fixtureで確認し、整形diff/Core検証review後に同PRへShip、承認済み2threadへ返信解決する。",
+    "paths": [
+      "docs/harness/policies/code-review.md",
+      "docs/ai-driven-development/codex-adapter.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "docs/harness/policies/code-review.md",
+        "docs/ai-driven-development/codex-adapter.md",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-v4",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "python3",
+        "/tmp/retro-hook-path-verify.py"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.retrospective"
+    ]
+  },
+  "hash": "c6a92867e25c4617b2cd1cf411337ca651740ba4adeb1dbc95cf3e7f60e5a623",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0002"
+}

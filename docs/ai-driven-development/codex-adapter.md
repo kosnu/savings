@@ -74,8 +74,9 @@ Git操作の対象・権限・安全条件は[Git Workflow](../harness/policies/
 hostが示す書き込み境界・保護対象と照合する。worktree本体や親directoryが書き込み可能でも、
 `.git`やworktree固有の管理領域まで書き込み可能とは限らない。
 
-操作が起動するhookの書き込みも同じ権限判断に含める。`git config --get core.hooksPath`で
-現在のhook入口を確認し、未設定ならGit directoryの`hooks/`を確認する。実際に呼ばれるhookと
+操作が起動するhookの書き込みも同じ権限判断に含める。`git rev-parse --git-path hooks`で
+`core.hooksPath`の設定やlinked worktreeの共通管理領域を考慮した実効hook directoryを取得する。
+Git directoryに`hooks/`を足して推測せず、必要なら`git config --get core.hooksPath`で設定を補足確認する。実際に呼ばれるhookと
 その設定から、退避・整形・復元で触る作業ファイル、index、cache等の書き込み先を必要な範囲で特定し、
 hostの保護対象と照合する。Git管理領域が書き込み可能でも、hookが`.agents/`等の保護対象を
 書き換えたり削除・復元したりする操作には権限が必要になる。
