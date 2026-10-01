@@ -1,0 +1,64 @@
+{
+  "sequence": 10,
+  "kind": "decision",
+  "time": "2026-10-01T12:49:07.842479Z",
+  "task_hash": "43fe6f52f3e371fb0a21ac041b851cb7cbac69a28c8268b15e8c682996a66f6c",
+  "previous": "dc42af8f0deacc727d12f55d245b86fda3d7a07fb9a9fc9c5cb61a6a89c6ad64",
+  "revision": 3,
+  "fingerprint": "b7b7853d4ce355de312d9c6d2ed341d5386fea43a23d32c76ceb47d351140fa8",
+  "data": {
+    "summary": "承認されたP1に従いguardrail-improvementのdescriptionへ承認済みAuditコメント返信・完了したBot thread解決を追加する。既存本文の承認境界を維持し、同じTaskとbaselineで改善後Intentへ復帰する。対象2threadは検証reviewとShip後に返信し完了確認して解決する。",
+    "paths": [
+      "docs/harness/policies/learning-extraction.md",
+      "docs/harness/policies/git-workflow.md",
+      "docs/harness/policies/review-feedback-classification.md",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      ".agents/skills/audit/SKILL.md",
+      ".agents/skills/guardrail-improvement/SKILL.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-v4",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "docs/harness/policies/learning-extraction.md",
+        "docs/harness/policies/git-workflow.md",
+        "docs/harness/policies/review-feedback-classification.md",
+        "docs/ai-driven-development/workflow.md",
+        "docs/ai-driven-development/aidd-checker-operations.md",
+        ".agents/skills/audit/SKILL.md",
+        ".agents/skills/guardrail-improvement/SKILL.md",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "fdfd04daf24dbccc43e2e15d62366759193c7f92e79a3e78537edd9a396161d2",
+  "cycle_id": "issue-1861/cycle-0001"
+}

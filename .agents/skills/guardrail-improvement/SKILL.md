@@ -1,6 +1,6 @@
 ---
 name: guardrail-improvement
-description: Apply manually approved Audit proposals within the existing AIDD Task.
+description: Execute manually approved Audit improvements or PR comment replies and completed Bot thread resolution within the existing AIDD Task.
 ---
 
 # Guardrail improvement
