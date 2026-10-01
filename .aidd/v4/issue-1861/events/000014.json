@@ -1,0 +1,52 @@
+{
+  "sequence": 14,
+  "kind": "review",
+  "time": "2026-10-01T12:50:23.819324Z",
+  "task_hash": "43fe6f52f3e371fb0a21ac041b851cb7cbac69a28c8268b15e8c682996a66f6c",
+  "previous": "95fafb6114713adb56deb9bee3cbfcf29ab7b86b259b07f019f84a78a013bb33",
+  "revision": 4,
+  "fingerprint": "f2a72b2915cd47e0c93d6caf8f23fb7af3282d0f7f1443f25d8d7651acde2772",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification\n- Unresolved: なし\nP1対象descriptionの1行以外にsource変更なし。既存skill descriptionへ承認済みAudit改善とコメント返信・完了Bot thread解決を列挙し、本文と一致。承認済み変更不要/改善案は対象、Audit依頼のみ/未承認/説明のみは実行対象外。新規helperや規則なし。",
+    "criteria": [
+      {
+        "criterion": "Audit結果に変更要否とコメントごとの返信解決方針を示す",
+        "evidence": "learning-extraction Audit節で対象PR・コメントURL・thread ID、理由根拠、返信内容、解決条件と残作業を要求。audit skillが同じ出力へ接続。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認後に追加指示なしで理由と根拠を返信する",
+        "evidence": "learning-extraction 手動承認・承認後のコメント対応、workflow、Git Workflow、両skillが方針承認を実行権限とする。Audit依頼のみ/変更要否のみは不許可。返信のみの明示制限も優先する。差分なしはCore記録・空commitなし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "完了したBot threadのみ解決する",
+        "evidence": "learning-extraction 承認後のコメント対応でBot投稿者、理由返信、必要作業完了、未解決論点・競合なしを要求。対象外/未完了は保持しread-back失敗は完了扱いしない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "正本とskillの権限完了条件が整合する",
+        "evidence": "元Intentは承認だけで返信解決まで進む成果を求める。旧descriptionは改善案適用のみで入口到達不足。新descriptionはmanually approvedを共通条件としてAudit improvements、PR comment replies、completed Bot thread resolutionを示す。本文のno-improvement分岐と同じ権限・完了条件で、Audit依頼/未承認/説明のみは実行を許可しない。代表依頼を両skillのdescriptionと本文へ照合し誤発火なし。quick_validate、format、diff、check-all終了コード0。実PR返信解決はこのShip後に承認済み2threadで確認する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "445b9a9c1f8223608e6825b5d01929fc08be92f44241f5f20b527db5e003d001",
+  "cycle_id": "issue-1861/cycle-0002"
+}

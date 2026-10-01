@@ -1,0 +1,53 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-10-01T03:31:06.4404Z",
+  "task_hash": "43fe6f52f3e371fb0a21ac041b851cb7cbac69a28c8268b15e8c682996a66f6c",
+  "previous": "37a41996fd7326c6150be4ad7f34648c0937d62bf3be3f9c9e53d25b881dfd85",
+  "revision": 1,
+  "fingerprint": "3a773eb21c4892ffd003be781bfe703cbde2c2241cbc97f3a50bd9530139593c",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-v4",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":16}\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vp",
+          "fmt",
+          "docs/harness/policies/learning-extraction.md",
+          "docs/harness/policies/git-workflow.md",
+          "docs/harness/policies/review-feedback-classification.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          ".agents/skills/audit/SKILL.md",
+          ".agents/skills/guardrail-improvement/SKILL.md",
+          "--check"
+        ],
+        "exit": 1,
+        "output": "file:///Users/kosnu/.local/share/mise/installs/npm-pnpm/12.5.1/node_modules/.mise/pnpm@12.5.1/node_modules/pnpm/pnpm:1\n# pnpm's native binary replaces this file during installation (see\n^\n\nSyntaxError: Invalid or unexpected token\n    at compileSourceTextModule (node:internal/modules/esm/utils:355:16)\n    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:93:18)\n    at #translate (node:internal/modules/esm/loader:441:20)\n    at afterLoad (node:internal/modules/esm/loader:509:29)\n    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:514:12)\n    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:567:36)\n    at afterResolve (node:internal/modules/esm/loader:614:52)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:620:12)\n    at node:internal/modules/esm/loader:639:32\n    at TracingChannel.tracePromise (node:diagnostics_channel:551:22)\n\nNode.js v26.10.0\n\nverification error: exit status 1\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "38d01e6491ceaeb3b27f738c6216a5ddc3b0f2d51a6b03c9c863ca5432846fd6",
+  "cycle_id": "issue-1861/cycle-0001"
+}

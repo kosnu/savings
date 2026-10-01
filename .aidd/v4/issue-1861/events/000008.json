@@ -1,0 +1,39 @@
+{
+  "sequence": 8,
+  "kind": "audit",
+  "time": "2026-10-01T12:47:25.662945Z",
+  "task_hash": "43fe6f52f3e371fb0a21ac041b851cb7cbac69a28c8268b15e8c682996a66f6c",
+  "previous": "c48db17f0732f5396a72c355d8c565f92ebdfbee7ad0f6f946745ca2fbf2546a",
+  "revision": 2,
+  "fingerprint": "b7b7853d4ce355de312d9c6d2ed341d5386fea43a23d32c76ceb47d351140fa8",
+  "data": {
+    "summary": "未解決Bot指摘2件は同一原因。コメント対応だけの承認でguardrail-improvementを選択するdescriptionが未同期で、入口の到達性に不足がある。既存Documentation Policyの適用漏れとしてdescriptionのみ修正を提案。新規policy・基盤追加は不要。承認後の対象2threadへの返信と完了条件確認後の解決を提案。",
+    "findings": [
+      "https://github.com/kosnu/savings/pull/1862#discussion_r4151583119 : PRRT_kwDOM0p88s6ny3FK / Bot / 未解決・現行。本文はコメント対応だけの承認を扱うがdescriptionは改善提案の適用のみ。指摘妥当。",
+      "https://github.com/kosnu/savings/pull/1862#discussion_r4151585556 : PRRT_kwDOM0p88s6ny3c0 / Bot / 未解決・現行。同じdescription同期不足を指摘。指摘妥当。同一提案で扱う。",
+      "承認後の対応方針: description修正・発火/非発火ケース照合・必要な整形Core検証reviewとShip後、上記2threadへ発火条件を追加した理由、対象commit、検証結果を返信する。返信read-backと必要作業完了・競合/未解決論点なしを確認したBot threadだけ解決する。それまでは両threadを未解決のまま保持し、対象外へは投稿しない。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "skill本文に追加したコメント対応モードをdescriptionへ反映しなかったため、変更不要のAudit方針承認から既存skillへ到達する主要発火条件が不足。既存規則の適用・レビュー検出漏れ。",
+        "evidence": "両Bot指摘と.agents/skills/guardrail-improvement/SKILL.md:3,8-14を照合。documentation-policy.mdのAgent向け定義はdescriptionへ主要用途・発火条件を短く書くことを要求。現行reviewでは本文分岐は照合したがdescription同期は未検出。実際に返信が省略された再発は未観測。",
+        "change": "guardrail-improvementのdescriptionを承認済みAudit改善案に加えてPRコメントへの返信・完了したBot thread解決も含む文言へ更新する。本文の承認条件・差分なし記録不要・改善あり検証Ship条件は維持する。承認済み変更不要方針、承認済み改善案が同skillへ到達し、Audit依頼のみは分析、未承認/説明依頼は書込しないことを照合。vp fmt --check、git diff --check、Core check-all/verify/review/ship-check、Ship read-backで確認。対象2threadへ修正理由・commit・検証を返信し、完了条件を満たすものだけ解決する。",
+        "paths": [
+          ".agents/skills/guardrail-improvement/SKILL.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "907643960946081399dc240122dc6d1ca7a8beba",
+      "remote": "origin",
+      "branch": "issue-1861/audit-comment-completion",
+      "pr": "https://github.com/kosnu/savings/pull/1862",
+      "evidence": "GitHub PR OPEN、headが最新review済みcommitと一致。Task revision 2のverifyは全command exit 0かつstable、reviewは同fingerprint。worktree clean。",
+      "base": "main"
+    }
+  },
+  "hash": "ffe511b7243848002f217565b0f94061ba11b13f5afc0187aee950bbcbb24113",
+  "cycle_id": "issue-1861/cycle-0001"
+}

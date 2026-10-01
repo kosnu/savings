@@ -1,0 +1,64 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-10-01T03:31:34.989165Z",
+  "task_hash": "43fe6f52f3e371fb0a21ac041b851cb7cbac69a28c8268b15e8c682996a66f6c",
+  "previous": "38d01e6491ceaeb3b27f738c6216a5ddc3b0f2d51a6b03c9c863ca5432846fd6",
+  "revision": 2,
+  "fingerprint": "3a773eb21c4892ffd003be781bfe703cbde2c2241cbc97f3a50bd9530139593c",
+  "data": {
+    "summary": "Audit結果にコメント単位の返信・Bot thread解決方針を含め、承認後は追加指示なしで実行する。変更不要時は既存Task参照と会話の承認を用い新記録・空コミットを要求しない。改善ありは既存検証Shipを維持。正本5文書とrepo内2skillを同期し、既存rule routingで到達可能なため索引・Core・外部汎用skillは変更しない。 検証環境のpnpm shim起動失敗により、同じ導入済みvpをnode_modules/.bin/vpから直接実行する。",
+    "paths": [
+      "docs/harness/policies/learning-extraction.md",
+      "docs/harness/policies/git-workflow.md",
+      "docs/harness/policies/review-feedback-classification.md",
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      ".agents/skills/audit/SKILL.md",
+      ".agents/skills/guardrail-improvement/SKILL.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-v4",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "docs/harness/policies/learning-extraction.md",
+        "docs/harness/policies/git-workflow.md",
+        "docs/harness/policies/review-feedback-classification.md",
+        "docs/ai-driven-development/workflow.md",
+        "docs/ai-driven-development/aidd-checker-operations.md",
+        ".agents/skills/audit/SKILL.md",
+        ".agents/skills/guardrail-improvement/SKILL.md",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "92a2228b919f75dc2e8372f28931edfde2134411c49d20c726204de2d9e60d5e",
+  "cycle_id": "issue-1861/cycle-0001"
+}

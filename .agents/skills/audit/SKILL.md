@@ -14,5 +14,12 @@ Development-process retrospection belongs to [Retrospective](../../../docs/harne
 after Merge / Close; do not search for process improvements during Audit.
 Present evidence, causes or uncertainty, concrete proposals, finite targets, and validation.
 Do not apply proposals during Audit. Development or Ship authority is not improvement approval.
-If no improvement is needed, report the reason and finish without a Task record.
-Otherwise report awaiting explicit manual approval; commit the Audit record with the approved improvement.
+Include the change/improvement decision and, for each target PR comment/thread, the reason,
+evidence, proposed reply, Bot resolution conditions, and remaining work, following Audit policy.
+If no improvement is needed, finish the analysis without a Task record; any proposed comment
+handling awaits manual approval and is not yet completed. Otherwise commit the Audit record
+with the approved improvement. An Audit request alone never authorizes replies or resolution.
+Approval of the presented handling authorizes those replies and completed Bot thread resolution
+without another execution request. Carry out only the approved targets and actions under Audit
+policy and Git Workflow, preserving explicit limits and unresolved work. No-change handling
+requires no new Task record, empty commit, or improvement cycle; report read-back results.
