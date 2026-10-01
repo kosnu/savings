@@ -1,0 +1,54 @@
+{
+  "sequence": 11,
+  "kind": "verify",
+  "time": "2026-10-01T15:48:46.960952Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "c6a92867e25c4617b2cd1cf411337ca651740ba4adeb1dbc95cf3e7f60e5a623",
+  "revision": 3,
+  "fingerprint": "4bbf9fbcff6357d65f2c3758eaaf359be30a9cd6675b5f56157aa692abd66914",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "node_modules/.bin/vp",
+          "fmt",
+          "docs/harness/policies/code-review.md",
+          "docs/ai-driven-development/codex-adapter.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 238ms on 2 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "/tmp/aidd-v4",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":17}\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/retro-hook-path-verify.py"
+        ],
+        "exit": 0,
+        "output": "PASS: normal checkout, linked worktree, configured hooksPath; old linked path missing\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "ff95f8e5fa820c46020b5b5180f8bba9edb5f43aa27ee227e0814e3e9b127d5e",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0002"
+}

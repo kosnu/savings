@@ -1,0 +1,19 @@
+{
+  "sequence": 7,
+  "kind": "approve",
+  "time": "2026-10-01T15:48:01.188902Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "92ebaeb0cc2a84acb886abc74998b16fb56a6a95ca9cdc64211a254078df0216",
+  "revision": 1,
+  "fingerprint": "6d2851d624c5de5f7feb3223300af965459b0323d2205e6fe755a40233f30b06",
+  "data": {
+    "audit_hash": "92ebaeb0cc2a84acb886abc74998b16fb56a6a95ca9cdc64211a254078df0216",
+    "source": "user-message:approval-both-PR1864-audit-findings",
+    "proposal_ids": [
+      "P1"
+    ],
+    "text_hash": "b33572b43e2f19b49f3605487240fe2477cba5365266e3912047721fccd0b64b"
+  },
+  "hash": "7530a0bf0d65d9d93d515d474629c3da6f9a2515c5a44a2476f9ca716179193b",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0001"
+}

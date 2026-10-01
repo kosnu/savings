@@ -1,0 +1,14 @@
+{
+  "sequence": 1,
+  "kind": "start",
+  "time": "2026-10-01T15:31:05.623374Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "",
+  "revision": 0,
+  "fingerprint": "a8bdb9cb9a0843c82f674b4d9014a0f108bf8cb6885c494eeac547cb6a076fbc",
+  "data": {
+    "initial_changes": []
+  },
+  "hash": "732c5ccd7da1413226defd8bcfb6f9ffcaceeb7974021704e5d418262be1e6b3",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0001"
+}

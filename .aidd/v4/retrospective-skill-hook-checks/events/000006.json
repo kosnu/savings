@@ -1,0 +1,39 @@
+{
+  "sequence": 6,
+  "kind": "audit-update",
+  "time": "2026-10-01T15:41:58.744215Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "ed0fb1dfb33cd98f460578abd4cbefd99c7a22cd10588407138c233738cc5940",
+  "revision": 1,
+  "fingerprint": "6d2851d624c5de5f7feb3223300af965459b0323d2205e6fe755a40233f30b06",
+  "data": {
+    "summary": "未解決Bot指摘2件とも妥当。Retrospectiveは参照済みだが新Taskのdecision/review rulesに記録漏れ。hook未設定linked worktreeでGit directory/hooksを使う探索は実hookを見落とす。一時fixtureで確認。adapterの探索手順修正と新decision/reviewでのcoverage訂正を同一改善として提案し、必要検証Ship後に対象2threadへ返信・完了確認して解決する。 一時fixtureの初回path文字列比較はmacOSの/tmp symlink表記差でfalseだったため、resolveで正規化した再確認を根拠にする。正規化後common hooks一致true、通常checkoutもgitdir/hooks一致true。",
+    "findings": [
+      "https://github.com/kosnu/savings/pull/1864#discussion_r4157352811 / PRRT_kwDOM0p88s6oBHH5 / Bot / 未解決・現行。policy.retrospectiveは新Taskへの引継ぎに意味上適用されるがdecision/review rulesから欠落。前のRetrospectiveでは本文を確認しており未読と断定しない。path resolver結果へ意味的関連規則を追加する既存規則の適用・証拠記録漏れ。",
+      "https://github.com/kosnu/savings/pull/1864#discussion_r4157352880 / PRRT_kwDOM0p88s6oBHIl / Bot / 未解決・現行。未設定hooksをGit directory/hooksで探す手順はlinked worktreeで誤り。一時repoでgitdir/hooksなし、--git-path hooksがcommon hooksに一致して存在することを確認。core.hooksPath設定ありでも同commandでcustom-hooksへ解決されることを確認。",
+      "承認後のコメント対応方針: 下記P1の文書修正とcoverage訂正・検証・review・Ship後、上記2threadへ理由・対象commit・検証結果を返信する。返信のread-back、PR反映、必要作業完了、未解決論点や競合なしを確認したBot threadだけ解決する。対象外には広げず、それまでは両thread未解決を保持。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "hookの実効pathをGitで解決せず通常checkoutのdirectory構造を一般化した局所仕様誤りと、新Taskの意味的関連ruleの証拠記録漏れ。",
+        "evidence": "両指摘、codex-adapter.md:77-81、Task events000002/000004、retrospective.mdの改善提案引継ぎ節。Git公式git-rev-parse --git-path仕様 https://git-scm.com/docs/git-rev-parse 。一時linked fixtureでgitdir/hooks存在false、effective hooks common一致true/存在true、設定ありcustom-hooksへ解決。 初回のlexical比較falseはパス表記差による確認不足だったため、正規化後の再確認結果を採用。",
+        "change": "codex-adapterのhook探索をgit rev-parse --git-path hooksで実効pathを解決する手順へ修正し、core.hooksPath設定とlinked worktreeを取りこぼさない。設定情報は必要時の補足確認とする。新decision/reviewに意味的関連policy.retrospectiveと依存closureを追加し、終了済みPR参照・元提案/承認・新Task/baseline・旧Task不変を実証する。旧eventは書換えない。formatter、diff check、Core verify/review/ship-checkと通常checkout・linked worktree・hooksPath設定ありのpath確認で検証し同PRへShip。承認対象2threadに返信し完了後のみ解決。索引や恒久ルール追加、hook実装変更は不要。",
+        "paths": [
+          "docs/ai-driven-development/codex-adapter.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "c8406ce5757a7e65c2b4f4461b0de55cf8cf1870",
+      "remote": "origin",
+      "branch": "retrospective/skill-hook-checks",
+      "pr": "https://github.com/kosnu/savings/pull/1864",
+      "evidence": "GitHub PR OPEN、headがreview済みcommit c8406ce5と一致。Task revision1 verifyは全command exit0/stable、reviewと同fingerprint。開始時worktree clean。",
+      "base": "main"
+    }
+  },
+  "hash": "92ebaeb0cc2a84acb886abc74998b16fb56a6a95ca9cdc64211a254078df0216",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0001"
+}

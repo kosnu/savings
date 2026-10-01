@@ -1,0 +1,51 @@
+{
+  "sequence": 12,
+  "kind": "review",
+  "time": "2026-10-01T15:49:46.011192Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "ff95f8e5fa820c46020b5b5180f8bba9edb5f43aa27ee227e0814e3e9b127d5e",
+  "revision": 3,
+  "fingerprint": "4bbf9fbcff6357d65f2c3758eaaf359be30a9cd6675b5f56157aa692abd66914",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification, policy.retrospective\n- Unresolved: なし\n前reviewから欠落していた意味的関連policy.retrospectiveを含めて再評価した。hook実効pathの誤りを修正し通常/linked/hooksPath指定fixtureが成功。旧eventを書換えず承認済みP1内で新decision/reviewに訂正を追記。",
+    "criteria": [
+      {
+        "criterion": "ユーザー依頼からdescription選択・本文処理までのskillレビューと非発火ケースを明示する",
+        "evidence": "code-review Skillレビュー節が依頼・既存承認→description選択→本文分岐の照合と根拠記録を要求。旧90764396のdescriptionは改善案適用のみで変更不要方針承認を選択できず、新項目で不適合が分かる。現行69ba6bffは承認済みコメント返信解決を選択できる。Audit依頼のみはauditで分析、未承認・説明・範囲外から書込権限を得ない。本文だけ/形式validatorだけの合格を排除。既存Documentation Policyの発火条件責務へ接続、恒常規則をskillに複製しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "hookの退避・整形・復元を含む書込対象を保護境界と照合し必要な操作のみ権限付きで行う",
+        "evidence": "codex-adapterはgit rev-parse --git-path hooksで実効directoryを取得しcore.hooksPath確認は補足とする。元Intentはhook見落としを防ぐ成果を求め、旧gitdir/hooks推測はlinkedで存在しないpathを見た。revision3 verifyの一時fixtureが通常checkout・linked共通hooks・hooksPath指定すべて成功し旧linked pathは存在しないことを確認。実hookの書込先/保護境界照合と狭い昇格要求条件は維持、hook実装変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "文書整形・Core検証・全適用規則レビューを終えて新PRを作成し配信確認する",
+        "evidence": "Task baselineは066a2c8f=fetch後origin/main。新branch retrospective/skill-hook-checksを同refから作成し旧issue-1861記録に差分なし。最新verify exit0/stable、全ruleの現行本文と変更意味を照合。AGENTSで全reviewがcode-review必読、既存path/surfaceとclosureが正本を選択するためrule-map追加不要。実装source変更は承認済み2文書のみ。Shipの配信確認はreview後に実行する。実際にsandboxエラーを再現する破壊的試験・自動skill選択試験は行わず、観測済み事例と文書を照合。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Retrospectiveの承認済み改善の引継ぎ規則を実際に照合し新しいreview coverageへ記録する",
+        "evidence": "policy.retrospective本文を再確認。元提案はMerge/Close後に提示した2件で、ユーザーの新PR作成依頼により有限対象が承認済み。Merge済みPR1862と旧Task issue-1861は参照元であり、このTask baseline066a2c8fから旧Taskへのgit diffは空。新Task/新branchはorigin/main由来で、旧Audit承認を転用していない。開始Intentに提案概要と新しい承認発言を保存。今回のP1はこの開いているTaskのShip後Auditに対する新承認で、同Taskとbaselineを維持することが正しい。rulesへpolicy.retrospectiveを追加し、その依存workflowとlearning-extractionも含む。過去events000002/000004は保存し新revisionで訂正。恒久ルールや索引追加は不要。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.retrospective"
+    ]
+  },
+  "hash": "91ccd74832521224f43b35dd7bccc4ec166dabcfb9efac156b2aa1cab54c1375",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0002"
+}

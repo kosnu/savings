@@ -1,0 +1,52 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-01T15:31:36.42529Z",
+  "task_hash": "092f7388d0bf7d763b35129c213b7863db0314c68cc0896641b0fa756d53e1c7",
+  "previous": "732c5ccd7da1413226defd8bcfb6f9ffcaceeb7974021704e5d418262be1e6b3",
+  "revision": 1,
+  "fingerprint": "a8bdb9cb9a0843c82f674b4d9014a0f108bf8cb6885c494eeac547cb6a076fbc",
+  "data": {
+    "summary": "承認されたRetrospective2件を正本2文書へ反映。Skill reviewは依頼→description選択→本文分岐と非発火依頼を照合。Codex権限判断は現在hook設定と退避・整形・復元の書込先を含め、保護対象があれば必要なGit操作のみ初回から昇格する。Skill/hook実装・ADR・新基盤は変更不要。AGENTSが全reviewでcode-reviewを必読にするため既存索引経路で十分、rule-map変更不要。最新origin/main SHA 066a2c8fから新規branch/Task、旧Taskを変更しない。",
+    "paths": [
+      "docs/harness/policies/code-review.md",
+      "docs/ai-driven-development/codex-adapter.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "docs/harness/policies/code-review.md",
+        "docs/ai-driven-development/codex-adapter.md",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-v4",
+        "--root",
+        ".",
+        "check-all"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "a8c9fd144a8f9ea5adc1a03d57202ddc34d39cbcc11b8a9b64cd505430477fe6",
+  "cycle_id": "retrospective-skill-hook-checks/cycle-0001"
+}
