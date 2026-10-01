@@ -201,7 +201,10 @@ AuditはShip後のユーザーの明示依頼を受けて実行する。TaskとP
 `session_improvements`は旧Audit記録の読取専用項目として保持する。新しいAuditへの非空入力は拒否する。
 作業過程の改善探索は[Retrospective](../harness/policies/retrospective.md)で行い、CoreのAudit・承認・Intent復帰へ記録しない。
 
-改善提案がなければ結果を報告し、Audit eventを追加せずに終了する。提案があればTaskへ記録してユーザーに提示し、手動承認を受けるまで改善へ進まない。記録は承認された改善の変更と一緒にcommitする。
+改善提案がなければ分析結果とコメント対応方針を報告し、Audit eventを追加せずに分析を終了する。
+返信・解決方針への手動承認後は[Audit policy](../harness/policies/learning-extraction.md#承認後のコメント対応)に従い追加指示なしで実行する。
+コメント対応だけの承認を記録するためにCoreのaudit/approve/decisionや空コミットを作らず、提示した方針と承認発言を根拠にする。
+改善提案があればTaskへ記録してユーザーに提示し、手動承認を受けるまで改善へ進まない。記録は承認された改善の変更と一緒にcommitする。
 `approve --input`は`audit_hash`、`source`、`text`、`proposal_ids`を持つ。
 source/textはその提案を承認した実際のユーザー発言。agentが生成した同意を使わない。
 sourceは発言を識別する参照とし、本文を含めない。入力検証後、eventへは`text`の代わりに
@@ -220,7 +223,8 @@ sourceは発言を識別する参照とし、本文を含めない。入力検�
 一部だけ承認した場合、未承認案は次のAuditに引き継ぐ。却下はユーザーが明示した場合だけ
 `dismiss --input`へ同じ形式で記録し、改善済みとは区別する。
 旧Taskで記録済みの提案なしAuditは、従来どおり空のproposal_idsによる承認を受け付ける。
-「Auditを承認します」は提示した改善案への承認であり、別の実行承認を要求しない。
+「Auditを承認します」は提示した改善案・コメント対応方針の対象と内容への承認であり、別の実行指示を要求しない。
+Coreのapproveは改善案を扱い、コメント返信・解決の権限判定とread-backはhostと担当agentが行う。
 同じShip内容・revisionに追加指摘があればauditを再実行する。audit-updateとして追記され、未決提案は保持し、旧承認は失効する。
 承認後に改善のdecisionを追記し、`improve-check`で承認対象との一致を確認しながら改善する。
 改善後、現在のIntentと改善済みガードレールを読み直して次の境界を記録する。

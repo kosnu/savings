@@ -1,0 +1,51 @@
+{
+  "sequence": 6,
+  "kind": "verify",
+  "time": "2026-10-01T03:32:16.194973Z",
+  "task_hash": "43fe6f52f3e371fb0a21ac041b851cb7cbac69a28c8268b15e8c682996a66f6c",
+  "previous": "c5a49bff38dff9e19449bbf112c985faba364276f2e49ad63be9ee8a497065b3",
+  "revision": 2,
+  "fingerprint": "b7b7853d4ce355de312d9c6d2ed341d5386fea43a23d32c76ceb47d351140fa8",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-v4",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":16}\n"
+      },
+      {
+        "argv": [
+          "node_modules/.bin/vp",
+          "fmt",
+          "docs/harness/policies/learning-extraction.md",
+          "docs/harness/policies/git-workflow.md",
+          "docs/harness/policies/review-feedback-classification.md",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          ".agents/skills/audit/SKILL.md",
+          ".agents/skills/guardrail-improvement/SKILL.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 281ms on 7 files using 8 threads.\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "c6ae353bdb6fa8fe563fb644c4abccd8f7a29f84e4a82ef277e213310f7aa4b8",
+  "cycle_id": "issue-1861/cycle-0001"
+}

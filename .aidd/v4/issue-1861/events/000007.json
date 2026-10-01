@@ -1,0 +1,52 @@
+{
+  "sequence": 7,
+  "kind": "review",
+  "time": "2026-10-01T03:32:50.688964Z",
+  "task_hash": "43fe6f52f3e371fb0a21ac041b851cb7cbac69a28c8268b15e8c682996a66f6c",
+  "previous": "c6ae353bdb6fa8fe563fb644c4abccd8f7a29f84e4a82ef277e213310f7aa4b8",
+  "revision": 2,
+  "fingerprint": "b7b7853d4ce355de312d9c6d2ed341d5386fea43a23d32c76ceb47d351140fa8",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification\n- Unresolved: なし\n指摘なし。Issueの目的から承認済み方針の実行継続と未承認副作用の防止を導き、変更不要/承認前/返信のみ/未完了/改善差分ありを実差分で照合。検証はrevision 2の最新verifyに一致。",
+    "criteria": [
+      {
+        "criterion": "Audit結果に変更要否とコメントごとの返信解決方針を示す",
+        "evidence": "learning-extraction Audit節で対象PR・コメントURL・thread ID、理由根拠、返信内容、解決条件と残作業を要求。audit skillが同じ出力へ接続。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認後に追加指示なしで理由と根拠を返信する",
+        "evidence": "learning-extraction 手動承認・承認後のコメント対応、workflow、Git Workflow、両skillが方針承認を実行権限とする。Audit依頼のみ/変更要否のみは不許可。返信のみの明示制限も優先する。差分なしはCore記録・空commitなし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "完了したBot threadのみ解決する",
+        "evidence": "learning-extraction 承認後のコメント対応でBot投稿者、理由返信、必要作業完了、未解決論点・競合なしを要求。対象外/未完了は保持しread-back失敗は完了扱いしない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "正本とskillの権限完了条件が整合する",
+        "evidence": "正本5文書とaudit/guardrail-improvement skillを照合。改善案のある分岐のみCore承認記録とIntent復帰を要求し、コメントだけの分岐は記録を作らない。改善差分ありは既存検証Ship後に返信。通常の人間thread解決権限は狭めない。既存resolverの14 rulesと依存closureは全読了。索引に変更なしで必須正本へ到達。アプリ/Core実装/外部汎用skill変更なし。文書上の分岐レビューであり実PR返信解決の動作試験は今回行っていない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "c48db17f0732f5396a72c355d8c565f92ebdfbee7ad0f6f946745ca2fbf2546a",
+  "cycle_id": "issue-1861/cycle-0001"
+}
