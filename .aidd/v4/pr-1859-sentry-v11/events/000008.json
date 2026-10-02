@@ -1,0 +1,66 @@
+{
+  "sequence": 8,
+  "kind": "review",
+  "time": "2026-10-02T17:42:46.331222Z",
+  "task_hash": "cd0eca0044bf75d04454edc1760cd2eba63156f0b12a8d073bbf5632be0b963f",
+  "previous": "8468897d2f200e91387e6b36239fd48ab0f02e8c6649c70e7b83014c3636a67b",
+  "revision": 3,
+  "fingerprint": "7557568246123c938dd98705577247fc7ed4b3dcc648c655a1ffd35a6b895f4f",
+  "data": {
+    "summary": "Coverage: Checked rules=ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.feature-directory, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy; Unresolved=なし。Sentry設定と実SDKテストだけを本Taskで実装。rebaseの取得差分は上流文脈として照合し、別Taskの記録・履歴・policy本文は編集していない。初期化のproduction/DSN guard、タグ/context/captureMessage経路を維持。UI/component/feature/query/domain/API/Story面の変更なし。新しい抽象化・状態・API・tracingは追加なし。scope記録の拡張は明示承認されたrebaseで取得した上流のexact pathに限る。開始Intent/baselineと失敗・再検証履歴を保持。",
+    "criteria": [
+      {
+        "criterion": "v11の移行ガイドと利用箇所を照合し影響を解消する",
+        "evidence": "11.0.0タグのMIGRATION.mdのv10-v11章と全直接利用箇所を照合。dataCollectionのv10保持例を採用。SDK初期化で個人情報と本文等の収集を増やさず、実イベントでIP未付与、auth description未送信、タグ/context/エラー送信を検証。captureMessageは全3箇所error用途なのでattachStacktrace既定を採用。page session既定も採用、release health集計の変更はPR説明へ明記。Removed API/React Router/OTEL/tracing/CDN/profilingは未使用、Node26.10/React19.3/TS7.0.2は最低要件を充足。ブラウザrequest.url自体の除去はテストが示す保証に含めない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必要なWeb検証とレビューが成功する",
+        "evidence": "現行revision3のverify event000007でsource安定、pnpm12.7.0のweb:lint、web:format-check、web:typecheck、web:test:unit-integration（138ファイル712テスト）、git diff --check、origin/main基準ADR履歴検証の終了コードが全0。既定値拡大という目的由来の期待と実SDKによる観測を照合。Storybook対象変更なし。指摘/未解決の規則競合なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "既存PR #1859への反映を確認する",
+        "evidence": "配信前の適合確認: 既存PR1859がOPEN、head=renovate/major-sentry-javascript-monorepo、base=main、更新後origin head3910d420に明示承認されたrebaseで整合済み。差分は同PRへの収集範囲保持とテスト、本Task証拠であり、公開先/権限を広げない。実配信のHEAD/remote/tracking/upstream/PR/CI read-backはこのreviewに続くShipで確認し、未配信を配信済みとは扱わない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "5669df560ad8ff372c475e228d4ce5bd88cefc2e8dfce96f1e885633ed3a08ac",
+  "cycle_id": "pr-1859-sentry-v11/cycle-0001"
+}
