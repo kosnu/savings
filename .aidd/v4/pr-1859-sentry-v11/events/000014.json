@@ -1,0 +1,66 @@
+{
+  "sequence": 14,
+  "kind": "review",
+  "time": "2026-10-02T18:06:48.252182Z",
+  "task_hash": "cd0eca0044bf75d04454edc1760cd2eba63156f0b12a8d073bbf5632be0b963f",
+  "previous": "ef42164eab9bace3741868450c66588a0a19a7f103347c78c626c861047ca3a5",
+  "revision": 5,
+  "fingerprint": "4995b06c53950832f1ba7ea7c168e9131030541a315637f7035ab56f6acaa69a",
+  "data": {
+    "summary": "Coverage: Checked rules=ai-driven.audit, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.feature-directory, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy; Unresolved=なし。origin/mainの取込で競合したmanifestとlockfileを解消。全main importerのSentry以外の依存指定とresolved versionが同一、Sentry11.0.0維持、SDK設定と回帰テストは元HEADと同一。lockfile再生成で不要packageを整理しfrozen install成功。上流workflowとroot manifestに独自編集なし。開始Intentとbaseline、同じTaskを保持しScope/権限拡張なし。",
+    "criteria": [
+      {
+        "criterion": "v11の移行ガイドと利用箇所を照合し影響を解消する",
+        "evidence": "前回実装したv10相当dataCollection設定と実SDK回帰テストが元HEADから変化していないことをdiffで確認。競合解消後もSentry11.0.0、mainの他依存指定・resolved versionを保持。frozen install成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必要なWeb検証とレビューが成功する",
+        "evidence": "revision5 verify event000013でsource stable=true、Web4項目、diff check、ADR検証は全exit0。712テスト成功。Storybook browser-test対象変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "既存PR #1859への反映を確認する",
+        "evidence": "PR1859と同一head/baseに対する競合解消。mergeでmain81bd3046を取込み、配信先は従来同様。配信前のreview適合確認であり最終push後にHEAD/remote/tracking/upstream/PRhead/baseと競合状態、CIをread-backする。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.audit",
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "ef25d5f8883b5480fc1bfd4d4281de5d3136b8ba8d4e22f47a0af022d457cbc9",
+  "cycle_id": "pr-1859-sentry-v11/cycle-0001"
+}
