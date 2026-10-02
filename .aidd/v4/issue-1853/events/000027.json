@@ -1,0 +1,50 @@
+{
+  "sequence": 27,
+  "kind": "review",
+  "time": "2026-10-02T15:19:06.879135Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "0d7fed54b3671636207e86f4f1e1defc50e0a0c78f43f19ca544b9ae627fb2e5",
+  "revision": 7,
+  "fingerprint": "48bee7e52905afb6ae81580b6813453862b180d3bfb00a190598d3250c8b95cb",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n承認P4と実差分を照合。変更はpublic_evidence.goと同test、承認/Audit/decision/境界/検証記録に限定。ネストIntentのキーは正確な公開名だけを許可し、旧本文とcase aliasを拒否。text_hashは既存のstoredTextHashで非空の正規SHA256を要求。欠落/null/不正hashの拒否、通常Decideの本文hash化とShip/CheckChanges成功、旧schema読取互換をテスト。正しいchainへ再hashしてstageしたText/text混入をShip/変更Task CIで拒否。既存共通validator経路を使用しCLI/CI/索引や文書の新規契約不要。既存の大小文字alias禁止・旧schema再公開禁止規定への局所実装修正。目的・実行権限・元Issue・baselineを維持。アプリ・自由記述全般・Git履歴書換えへ拡張しない。verifyの4command終了0・source stableを確認。",
+    "criteria": [
+      {
+        "criterion": "上流の一次情報・対象版・再現条件から独自対策の必要性を評価できる",
+        "evidence": "元のworkflowとsemantic-review-casesの判断を維持。P4は公開Intent本文の混入経路に限定し、正常なhash形式のIntent改訂・Ship・変更Task検査は成功、平文/別名は拒否する回帰テストを通過。Go test/vet、diff check、文書format checkは終了0。自由記述全般の秘匿化や過去commit消去を主張しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "公開済み・未公開・適用不能・不明を区別し必要な作業を続けられる",
+        "evidence": "元のworkflowとsemantic-review-casesの判断を維持。P4は公開Intent本文の混入経路に限定し、正常なhash形式のIntent改訂・Ship・変更Task検査は成功、平文/別名は拒否する回帰テストを通過。Go test/vet、diff check、文書format checkは終了0。自由記述全般の秘匿化や過去commit消去を主張しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "最小再現とプロジェクト全体の検証状態を区別できる",
+        "evidence": "元のworkflowとsemantic-review-casesの判断を維持。P4は公開Intent本文の混入経路に限定し、正常なhash形式のIntent改訂・Ship・変更Task検査は成功、平文/別名は拒否する回帰テストを通過。Go test/vet、diff check、文書format checkは終了0。自由記述全般の秘匿化や過去commit消去を主張しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "ローカル修正には不要な外部調査を強制せず事例の判断で検証できる",
+        "evidence": "元のworkflowとsemantic-review-casesの判断を維持。P4は公開Intent本文の混入経路に限定し、正常なhash形式のIntent改訂・Ship・変更Task検査は成功、平文/別名は拒否する回帰テストを通過。Go test/vet、diff check、文書format checkは終了0。自由記述全般の秘匿化や過去commit消去を主張しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "1ddb61189e35f2e90165c41a3a27ddf49689a5aec22e27086d8c396663c6858c",
+  "cycle_id": "issue-1853/cycle-0004"
+}

@@ -162,6 +162,25 @@ func validatePublicData(kind string, raw json.RawMessage, allowLegacy bool) erro
 				return fmt.Errorf("unapproved public decision field")
 			}
 		}
+		if rawIntent, exists := fields["intent_revision"]; exists && string(rawIntent) != "null" {
+			var intentFields map[string]json.RawMessage
+			if err := json.Unmarshal(rawIntent, &intentFields); err != nil {
+				return err
+			}
+			for key := range intentFields {
+				switch key {
+				case "source", "objective", "constraints", "acceptance", "text_hash":
+				default:
+					return fmt.Errorf("unapproved public Intent field")
+				}
+			}
+			if d.IntentRevision == nil {
+				return fmt.Errorf("public Intent required")
+			}
+			if _, err := storedTextHash("", d.IntentRevision.TextHash); err != nil {
+				return fmt.Errorf("invalid public Intent hash: %w", err)
+			}
+		}
 		if !validDigest(d.PlanHash) || len(d.CommandIDs) == 0 {
 			return fmt.Errorf("invalid public command plan")
 		}

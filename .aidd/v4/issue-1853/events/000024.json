@@ -1,0 +1,17 @@
+{
+  "sequence": 24,
+  "kind": "return-intent",
+  "time": "2026-10-02T15:17:41.7689Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "77ee9146453f05c20d84710949dbfe16762980830abeb34ffc9656368f05f0b9",
+  "revision": 6,
+  "fingerprint": "48bee7e52905afb6ae81580b6813453862b180d3bfb00a190598d3250c8b95cb",
+  "data": {
+    "summary": "承認P4の変更を確認。intent_revisionも正確な公開キーとtext_hash形式に限定し、本文と別名を拒否。元Intentと権限を維持し、次cycleで保存・Ship・変更Task CIの回帰検証、最終レビュー、同じPRへの配信と承認済みthread対応を完了する。",
+    "previous_cycle": "issue-1853/cycle-0003",
+    "approval_hash": "871bfa94e3f9132a98fcc68eaf4b540fde8068de364f8b29c60e80370242aea2",
+    "intent_hash": "b5cca81dfcb61d3c6cbf6dde276fb5fd16430383d3549bccfb30ea27cb4a7757"
+  },
+  "hash": "68aad403062fc3910083053725eae4c242690840556535397b85ecfb1c00cbcc",
+  "cycle_id": "issue-1853/cycle-0004"
+}

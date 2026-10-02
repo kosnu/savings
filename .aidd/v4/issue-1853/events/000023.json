@@ -1,0 +1,43 @@
+{
+  "sequence": 23,
+  "kind": "decision",
+  "time": "2026-10-02T15:16:20.968825Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "871bfa94e3f9132a98fcc68eaf4b540fde8068de364f8b29c60e80370242aea2",
+  "revision": 6,
+  "fingerprint": "9d38a731356012f22f35532d1b34954b05426b4c89b4b7ef39f24810e5a2d67d",
+  "data": {
+    "summary": "承認P4: 公開schema1のintent_revisionに正確なキー検査とtext_hash必須検査を適用し、本文・別名等の保存/Ship/CI拒否を回帰テストで確認する。",
+    "paths": [
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/semantic-review-cases.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "tools/aidd/checker/internal/core/"
+    ],
+    "evidence_version": 1,
+    "command_ids": [
+      "4f52a06f45cbf16520b8045533f643b165fc38a9b1e512e36c0ccb4d498be852",
+      "33bce51c845e2afdd6660bdb5ac35bcb00754864597f91681adc4eabc3f7100d",
+      "1cb298b025117a19f30dff6333c3bf7dc4cb17d7ed65ccc5a62ff3c1402c4e85",
+      "6358442fbd06e3300a259966faa0ee4f3457bd6e31c7526aa9105215a1f3776c"
+    ],
+    "plan_hash": "aa8f9a867d21f4ac5caa31115e722d448e85670aae172bfad2d35143a21e35fa",
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "77ee9146453f05c20d84710949dbfe16762980830abeb34ffc9656368f05f0b9",
+  "cycle_id": "issue-1853/cycle-0003"
+}

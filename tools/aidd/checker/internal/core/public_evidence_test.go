@@ -207,3 +207,100 @@ func TestPublicationGatesRejectRehashedInjection(t *testing.T) {
 		})
 	}
 }
+
+func TestPublicIntentRevisionUsesHashSchema(t *testing.T) {
+	s := fixture(t)
+	decide(t, s)
+	original := s.latest("decision").Data
+	for _, key := range []string{"text", "Text", "TEXT", "Text_Hash", "Source", "unexpected"} {
+		t.Run(key, func(t *testing.T) {
+			var data map[string]any
+			json.Unmarshal(original, &data)
+			data["intent_revision"] = map[string]any{"text_hash": digest("revised"), key: "PRIVATE_TEST_MARKER"}
+			b, _ := json.Marshal(data)
+			if validatePublicData("decision", b, false) == nil {
+				t.Fatal("nested private field accepted")
+			}
+			if s.append("decision", json.RawMessage(b), s.latest("decision").Fingerprint) == nil {
+				t.Fatal("save accepted nested private field")
+			}
+		})
+	}
+	for _, hash := range []any{nil, "bad", digest("")} {
+		var data map[string]any
+		json.Unmarshal(original, &data)
+		data["intent_revision"] = map[string]any{"text_hash": hash}
+		b, _ := json.Marshal(data)
+		if validatePublicData("decision", b, false) == nil {
+			t.Fatal("invalid nested text hash accepted")
+		}
+	}
+	var data map[string]any
+	json.Unmarshal(original, &data)
+	data["intent_revision"] = map[string]any{"source": "user:revision", "objective": "outcome", "constraints": []string{}, "acceptance": []string{"works"}}
+	b, _ := json.Marshal(data)
+	if validatePublicData("decision", b, false) == nil {
+		t.Fatal("missing nested text hash accepted")
+	}
+	in := s.Task.Intent
+	in.Source, in.Text, in.TextHash = "user:revision", "revised private input", ""
+	if err := s.Decide(Decision{IntentRevision: &in, Summary: "revised", Paths: []string{"code.txt"}, Commands: [][]string{{"git", "diff", "--check"}}}); err != nil {
+		t.Fatal(err)
+	}
+	stored := eventData[Decision](s.latest("decision")).IntentRevision
+	if stored.Text != "" || stored.TextHash != digest(in.Text) {
+		t.Fatal("normal revision did not publish hash only")
+	}
+	if err := s.CheckPublicRecords(); err != nil {
+		t.Fatal(err)
+	}
+	review(t, s)
+	stage(t, s)
+	if err := s.ShipCheck(); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckChanges(s.Root, s.Task.Baseline); err != nil {
+		t.Fatal(err)
+	}
+	// 旧記録の読取互換を新形式の公開許可へ転用しない。
+	legacy := []byte(`{"intent_revision":{"text":"legacy private input"}}`)
+	if validatePublicData("decision", legacy, true) != nil || validatePublicData("decision", legacy, false) == nil {
+		t.Fatal("legacy read/publication boundary changed")
+	}
+}
+
+func TestPublicationGatesRejectNestedIntentPlaintext(t *testing.T) {
+	for _, key := range []string{"Text", "text"} {
+		t.Run(key, func(t *testing.T) {
+			s := fixture(t)
+			decide(t, s)
+			review(t, s)
+			stage(t, s)
+			command(t, s.Root, "commit", "-m", "verified baseline")
+			base := command(t, s.Root, "rev-parse", "HEAD")
+			event := s.latest("decision")
+			var data map[string]any
+			json.Unmarshal(event.Data, &data)
+			data["intent_revision"] = map[string]any{"source": "user:revision", "objective": "outcome", "acceptance": []string{"works"}, key: "PRIVATE_TEST_MARKER"}
+			event.Data, _ = json.Marshal(data)
+			previous := ""
+			for i := range s.Events {
+				e := &s.Events[i]
+				e.Previous, e.Hash = previous, ""
+				e.Hash = digest(*e)
+				previous = e.Hash
+				b, _ := json.MarshalIndent(e, "", "  ")
+				if err := os.WriteFile(filepath.Join(s.dir(), "events", fmt.Sprintf("%06d.json", e.Sequence)), append(b, '\n'), 0644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			stage(t, s)
+			if s.ShipCheck() == nil {
+				t.Fatal("Ship accepted nested private body")
+			}
+			if CheckChanges(s.Root, base) == nil {
+				t.Fatal("CI accepted nested private body with valid hashes")
+			}
+		})
+	}
+}

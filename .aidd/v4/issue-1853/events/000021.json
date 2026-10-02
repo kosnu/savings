@@ -1,0 +1,40 @@
+{
+  "sequence": 21,
+  "kind": "audit",
+  "time": "2026-10-02T15:12:02.338047Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "d515d19e0e263d9c9b12d8d0e949805659724a9c7bc0a8009ccc29f45f6a699a",
+  "revision": 5,
+  "fingerprint": "3f97d37ea013bd54f211b6153591da14749f6c4bc42844ad96da70945046d1e2",
+  "data": {
+    "summary": "PR1854 head 2ff04a26へのAudit。新規Bot指摘1件は妥当。ネストIntentの公開schema検査漏れを隔離テストで再現。解決済み2件は対象外。修正・返信・解決は未実施で手動承認待ち。",
+    "findings": [
+      "P2: decisionのintent_revisionにTextまたはtextの平文を追加し、chainを再生成してstageすると、validatePublicData、ShipCheck、CheckChangesが全て受理した。公開schema境界のネスト検査漏れ。",
+      "対象 https://github.com/kosnu/savings/pull/1854#discussion_r4165265433 thread PRRT_kwDOM0p88s6oUXmi は未解決。既存2threadはresolved保持。",
+      "返信案: 指摘は妥当。intent_revisionを正確な公開キーとtext_hashのみの構成で検査し、大小文字alias・平文text・不正hashを共通境界で拒否する。検証と配信後、対応commitと結果を返信する。Bot thread解決条件: 修正・検証・push・返信完了、競合指摘や未解決論点なし。承認までは返信/解決を行わない。"
+    ],
+    "session_improvements": [],
+    "proposals": [
+      {
+        "id": "P4",
+        "finding": "公開schemaはdecisionトップレベルのみキーを検査し、ネストintent_revisionにGo JSONの大小文字同一視と旧本文形式の読取互換が残っている。読み取り互換と新形式公開の許可をネストで分離できていない。",
+        "evidence": "public_evidence.go:149-173、check.goのstoredTextHash互換。隔離した現行CoreテストでText/text両方の合成平文markerがvalidator、ShipCheck、CheckChangesを通過。元Taskは変更せず再現。対象BotコメントURLとthreadはfindingsに記載。",
+        "change": "公開schema1のintent_revisionを正確なキーのallowlistで検査し、text/Text等の平文fieldを拒否、text_hashを必須・妥当なdigestにする。旧形式読取の互換は維持。共通validatorの負例と実Ship/変更Task CI経路の回帰テストへText/text/別名/未知field/不正・欠落hash、正常なhash形式を追加。Go test/vet、diff-check、Core check-all/base付き検査、最終レビュー・Shipの後に対象へ返信し、条件を満たすBot threadのみ解決。",
+        "paths": [
+          "tools/aidd/checker/internal/core/public_evidence.go",
+          "tools/aidd/checker/internal/core/public_evidence_test.go"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "2ff04a264fb3ec1f3322999d2706d2d80cba48bd",
+      "remote": "origin",
+      "branch": "issue-1853/upstream-fix-evidence",
+      "pr": "https://github.com/kosnu/savings/pull/1854",
+      "evidence": "PR headとローカルhead一致、現在sourceと最終verify/review鮮度を確認。最新headのchecksおよびActions run一覧は空、CI成功は未確認。",
+      "base": "main"
+    }
+  },
+  "hash": "7d292669293c25a82a26a1abe1af69e21883e7f1e0a682ceac79127ce85a5f6d",
+  "cycle_id": "issue-1853/cycle-0003"
+}
