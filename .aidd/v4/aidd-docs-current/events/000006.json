@@ -1,0 +1,68 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-10-02T16:20:20.391041Z",
+  "task_hash": "97c7b3751f71270a0c9379869102d7416645fcd5b7de546b5e62c78c60e56522",
+  "previous": "b5dde08eb0e163bf820391d50f3d9ef9b6b15f939cad1a1b97d3bbf621d9f943",
+  "revision": 3,
+  "fingerprint": "b5704d3f1c8f5609e9eca147c2d28e09253231e89d90b262468b89704ca3d2d2",
+  "data": {
+    "summary": "専用Requirements/Design Doc、固定工程、版固有の用語を共有方針の前提から外し、要求の根拠・設計判断・検証結果と記録の責務を維持した。具体的な運用契約は既存正本へ委ねた。\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.design-rules, web.design-system-brand, web.domain-ui-rules, web.storybook-browser-tests, web.test-policy\n- Unresolved: なし",
+    "criteria": [
+      {
+        "criterion": "共通・アプリ方針が専用工程・成果物を必須にせず要求の根拠・設計判断・検証結果で基準を表す",
+        "evidence": "ユーザーの普遍化の訂正に基づき、Web design/domain-ui、時系列、transaction、Book/User、DESIGNの実差分を照合。Requirements/PRD/Design Docを要求の根拠と設計判断へ置換し、値ごとの利用目的を確認・記録できない場合はUI詳細を決めない条件を保持した。共有ドメイン・Web方針の残存語検索は0件。APIにはdocs配下の文書がない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "業務・UIの判断と根拠の記録を維持し具体的な運用契約は所有文書へ委ねる",
+        "evidence": "UI目的、比較対象、0/未設定/失敗の区別、期間・認可境界、mutation経路、配備互換性のチェック内容は維持。必要な理由の記録を専用文書名から切り離した。overviewは共通原則を示しWorkflow/Coreなどの正本へ案内。範囲外のUI改修で別Taskを必須にせず対象外の理由と追加範囲の記録を保持。実装・CLI・CI・アプリ挙動への変更はない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "旧仕様と現行正本の案内を整理し採択済みADRおよび作業履歴を保持する",
+        "evidence": "ADR0006-0008は2026-10-03の末尾Clarificationのみ追加し既存本文のbytesを維持。ADR履歴validator成功。workspaces、migrations、既存Task記録は差分なし。新Taskのみ今回の判断と検証を記録。旧compact案内はdeprecatedを維持。rule-mapのID/path/surface/depends_on/related/overrides/priorityはbaselineと一致し必須ルーティングを維持。探索metadataのみ旧工程名等を普遍的な活動へ置換した。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "参照整合性と必要な文書検証が成功する",
+        "evidence": "verify revision3でgit diff --check、ADR履歴validator、Core check-all、変更14ファイルのvp fmt --checkが全て終了コード0、stable=true。追加読取検証で55件のlocal links/anchors、必須ルーティングの維持、共有方針の旧専用成果物残存語0件を確認。旧見出しへの現役文書からの参照なし。文書変更だけのためWebアプリ検証は不要。pnpm launcher既存不具合はlocal vp実行で検証可能であり本差分では修正しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-ui-rules",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "39c8a007111e956f85991123f1c951faa440e8bfed896c7b50fcb9375c267dbd",
+  "cycle_id": "aidd-docs-current/cycle-0001"
+}

@@ -39,7 +39,7 @@ when_to_read:
 
 agent は、作業開始時に依頼を `path`, `domain`, `activity`, `topic` へ分類します。
 
-その分類をもとに [rule-map.json](./rule-map.json) から候補文書を選び、`depends_on` を辿って前提文書を追加します。境界判断やレビュー時に併読が有効な場合は `related` を参照候補として扱います。競合がある場合は `overrides` と `priority` で整理します。
+文書の選択と依存・競合の扱いは [Documentation Policy](./policies/documentation-policy.md#現行ルールの選択) に従います。[rule-map.json](./rule-map.json) は対象作業から正本へ到達する索引です。
 
 最終的に読むのは、選択されたサブグラフに含まれる Markdown だけです。`rule-map.json` は知識ベースそのものではなく、正本である `docs/**/*.md` や `apps/*/docs/**/*.md` へ案内する補助索引です。
 
@@ -62,7 +62,7 @@ agent は、作業開始時に依頼を `path`, `domain`, `activity`, `topic` �
 agent は、すべての docs を読むのではなく、選択されたノードと `depends_on` で追加された前提ノードだけを読みます。
 `related` は選択済みサブグラフを必ず拡張する強制 edge ではなく、変更内容やレビュー観点に応じて使う併読候補です。
 
-Goal、Design Doc、PR本文、作業ログなどで Rule Selection または Harness Context を残す場合は、少なくとも次を記録します。
+作業の判断・検証・レビューに適用規則の根拠を残す場合は、少なくとも次を記録します。専用の工程や成果物名は前提にしません。
 
 - 作業分類: `path`, `domain`, `activity`, `topic`
 - 選択されたノードIDと `file`
@@ -71,18 +71,18 @@ Goal、Design Doc、PR本文、作業ログなどで Rule Selection または Ha
 - `related` を併読した場合の参照先と理由
 - `overrides` や `priority` で競合を整理した場合の判断
 
-選択済みサブグラフに不足、競合、曖昧さがある場合、agent は未選択の docs を広く読み始める前に Stop し、人間に確認します。
+選択結果の不足は、対象の判断に必要な文書を追加取得して確認します。意図・権限を変える不明点や、正本間の解消できない競合が残る場合は、その根拠と確認事項を示します。
 
 ## Provenance
 
-provenance は、ルールがどの作業成果物や検証に効いているかを追跡するための記録です。まずは `rule-map.json` の schema へ新しい構造を追加せず、Intent、decision、検証記録、PR本文、review response などの作業成果物で必要最小限を記録します。
+provenance は、ルールがどの作業成果物や検証に効いているかを追跡するための記録です。まずは `rule-map.json` の schema へ新しい構造を追加せず、要求、設計判断、検証・レビューの記録、PR本文、review response などで必要最小限を記録します。
 
 記録する最小単位は次です。
 
 - rule node: 根拠になった `rules[].id`
 - artifact: そのルールが効いた成果物や変更箇所
-- enforcement: `Done`, `Stop`, `Verification`, `test`, `lint`, `review` のどれで確認したか
-- result: 確認結果、未確認事項、または Stop した理由
+- enforcement: 完了条件の照合、検証、test、lint、reviewのどれで確認したか
+- result: 確認結果、未確認事項、または停止した理由
 
 この記録は正本 Markdown を置き換えません。ルール本文は引き続き各 Markdown に置き、provenance は agent が参照漏れ、逸脱、検証不足を見つけるための補助情報として扱います。
 
@@ -90,7 +90,7 @@ provenance は、ルールがどの作業成果物や検証に効いているか
 
 `docs/harness/` は、既存の `docs/` を置き換えません。
 
-- `docs/ai-driven-development/`: Intentから開発・Ship・Audit・手動承認後の改善までのAIDD v4。
+- [docs/ai-driven-development/](../ai-driven-development/overview.md): AI駆動開発の考え方と現行の運用契約。工程・記録形式・権限境界は対応する正本が所有します。
 - `docs/harness/policies/`: リポジトリ横断の運用ガードレール。
 - `docs/harness/domain/`: ドメイン判断のガードレール。
 - `apps/*/docs/`: アプリ固有のADR、設計判断、実装方針。
@@ -108,7 +108,7 @@ provenance は、ルールがどの作業成果物や検証に効いているか
 
 次に該当する文書は `docs/harness/` に置きません。
 
-- 個別機能のPRDやDesign Doc。
+- 個別機能の要求や設計の記録。
 - 特定アプリに閉じたcomponent、DB、API、UIの設計判断。
 - ハーネスエンジニアリングやルールグラフの採用判断。
 

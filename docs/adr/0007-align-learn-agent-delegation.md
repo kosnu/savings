@@ -39,3 +39,7 @@ Learnでも委譲の要否は`AGENTS.md`の費用対効果条件に従う。複�
 ADR-0003は当時の判断の記録として保持する。現在適用する委譲条件は`AGENTS.md`と
 [workflow](../ai-driven-development/workflow.md)などの現行文書が所有する。
 本決定が置き換えるのはLearnの委譲条件に限り、ADR全体の参照・適用方法は変更しない。
+
+## Clarification: 現行正本の参照先 (2026-10-03)
+
+本ADRは当時の判断を保持する。[ADR 0009](0009-rebuild-aidd-v4.md)による置換後の現行条件は、責務ごとの正本から確認する。担当の分担条件は[AGENTS.md](../../AGENTS.md#subagent-usage)、指摘分析と改善の権限境界は[改善方針](../harness/policies/learning-extraction.md)、実行条件は[Workflow](../ai-driven-development/workflow.md)が所有する。

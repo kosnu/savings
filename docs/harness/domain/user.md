@@ -51,14 +51,14 @@ when_to_read:
 
 現在の `profile` と `account_preference` の属性一覧、保存先、書込主体、値制約、初期化規則は
 [User Account Attribute Contract](../contracts/user-account-attributes.json) を機械正本とする。
-属性の追加や契約変更ではこの一覧を同じタスクのrepresentationとして更新する。
+属性の追加や契約変更ではこの一覧を対応する実装と同じ変更で更新する。
 
 ## Persistence and fallback
 
 - 認証済みユーザーの `profile` と `account_preference` は、contractに定義されたアカウント側の保存先を永続的な正本にする。
 - ブラウザや端末のlocal storageは、contractが許可する初期値、cache、または取得失敗時のfallbackに限定し、アカウント設定の唯一の保存先にしない。
 - 新しい属性は、既存ユーザーに値を推測してbackfillしない。backfill、default、fallbackが必要な場合は、属性contractとタスクの成功条件でそれぞれ明示する。
-- アカウント値と端末値の優先順位、読込完了前の表示、取得・保存失敗時の継続可否は、利用者に観測される挙動としてRequirementsと検証へ接続する。
+- アカウント値と端末値の優先順位、読込完了前の表示、取得・保存失敗時の継続可否は、利用者に観測される挙動として要求と検証条件に明示する。
 
 ## Mutation boundary
 
