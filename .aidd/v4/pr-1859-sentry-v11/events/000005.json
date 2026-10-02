@@ -1,0 +1,61 @@
+{
+  "sequence": 5,
+  "kind": "verify",
+  "time": "2026-10-02T17:37:15.763475Z",
+  "task_hash": "cd0eca0044bf75d04454edc1760cd2eba63156f0b12a8d073bbf5632be0b963f",
+  "previous": "4d2675f3ac9ed31188fb5ebab5e5995e9212089315f897845dbf92551df2e133",
+  "revision": 2,
+  "fingerprint": "261e6699b76298d7acfbcc460f8d18bd84f79f3f5044d705533c29ab306cb65e",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 411ms on 570 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:84320) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /Users/kosnu/.codex/worktrees/e755/savings/apps/web\n\n········································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  138 passed (138)\n      Tests  712 passed (712)\n   Start at  02:35:50\n   Duration  84.71s (transform 6.07s, setup 371.29s, import 67.99s, tests 73.15s, environment 53.15s)\n\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "81e8d78cc0b8fb4ac429088d9818c8de82b3f5fb616dd1b6767b88d134ab8da3",
+  "cycle_id": "pr-1859-sentry-v11/cycle-0001"
+}

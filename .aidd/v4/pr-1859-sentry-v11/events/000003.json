@@ -1,0 +1,61 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-10-02T17:34:01.511378Z",
+  "task_hash": "cd0eca0044bf75d04454edc1760cd2eba63156f0b12a8d073bbf5632be0b963f",
+  "previous": "61024c4ed972bef14f7f64584d13d951106395511a8b14df233e19fc86e948a6",
+  "revision": 1,
+  "fingerprint": "31f5fc30d45372d146804ec210c58906683b1b3ae99295a6d1256b028dc634ed",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 1,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\nsrc/lib/sentry.integration.test.ts:7:48: error typescript(TS2694): Namespace '\"/Users/kosnu/.codex/worktrees/e755/savings/node_modules/.pnpm/@sentry+react@11.0.0_react@19.3.0/node_modules/@sentry/react/build/types/index\"' has no exported member 'Envelope'.\n[ELIFECYCLE] Command failed with exit code 1.\nError: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL\n\n  × \"pnpm recursive run\" failed in /Users/kosnu/.codex/worktrees/e755/savings/\n  │ apps/web\n\n[ELIFECYCLE] Command failed with exit code 1.\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 368ms on 570 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 1,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\nsrc/lib/sentry.integration.test.ts(7,48): error TS2694: Namespace '\"/Users/kosnu/.codex/worktrees/e755/savings/node_modules/.pnpm/@sentry+react@11.0.0_react@19.3.0/node_modules/@sentry/react/build/types/index\"' has no exported member 'Envelope'.\n[ELIFECYCLE] Command failed with exit code 1.\nError: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL\n\n  × \"pnpm recursive run\" failed in /Users/kosnu/.codex/worktrees/e755/savings/\n  │ apps/web\n\n[ELIFECYCLE] Command failed with exit code 1.\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 1,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:82258) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /Users/kosnu/.codex/worktrees/e755/savings/apps/web\n\n···························································································································································································································································································································································································································x············································································································································································································································································································\n\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  |integration| src/lib/sentry.integration.test.ts \u003e v11でも収集範囲を広げず、認証エラーを送信する\nAssertionError: expected 'http://localhost:3000/auth?forwarded=…' not to contain 'private-address'\n\nExpected: \"private-address\"\nReceived: \"http://localhost:3000/auth?forwarded=private-address\u0026view=callback\"\n\n ❯ src/lib/sentry.integration.test.ts:70:34\n     68|   expect(event.contexts?.auth_callback_error).toEqual({ code: \"unexpec…\n     69|   expect(event.user?.ip_address).toBeUndefined()\n     70|   expect(event.request?.url).not.toContain(\"private-address\")\n       |                                  ^\n     71|   expect(event.request?.url).toContain(\"view=callback\")\n     72|   expect(JSON.stringify(event)).not.toContain(\"secret-code\")\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n\n Test Files  1 failed | 137 passed (138)\n      Tests  1 failed | 711 passed (712)\n   Start at  02:32:42\n   Duration  79.22s (transform 5.35s, setup 346.74s, import 62.76s, tests 72.03s, environment 50.00s)\n\n[ELIFECYCLE] Command failed with exit code 1.\nError: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL\n\n  × \"pnpm recursive run\" failed in /Users/kosnu/.codex/worktrees/e755/savings/\n  │ apps/web\n\n[ELIFECYCLE] Command failed with exit code 1.\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "2527522f3a2adcef26001598ed090903762e81e8ddfce4a89c22f04ee770d4d5",
+  "cycle_id": "pr-1859-sentry-v11/cycle-0001"
+}

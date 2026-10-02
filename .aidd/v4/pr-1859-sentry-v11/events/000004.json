@@ -1,0 +1,74 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-10-02T17:35:45.291782Z",
+  "task_hash": "cd0eca0044bf75d04454edc1760cd2eba63156f0b12a8d073bbf5632be0b963f",
+  "previous": "2527522f3a2adcef26001598ed090903762e81e8ddfce4a89c22f04ee770d4d5",
+  "revision": 2,
+  "fingerprint": "261e6699b76298d7acfbcc460f8d18bd84f79f3f5044d705533c29ab306cb65e",
+  "data": {
+    "summary": "Sentry 11.0.0公式移行ガイドを現行利用箇所と照合。dataCollectionをv10の既定収集範囲へ固定する。エラー用途のcaptureMessageにはv11既定のstacktraceを採用。browser sessionのpage既定はSDK改善として採用し、tracing/Replay/React Router/サーバーSDK/削除APIは未使用のため追加しない。実SDKイベントでIP推論とURLフィルタ、収集カテゴリ、エラー報告を確認。SDK設定とテストに限定する。 URLフィルタはSDKの設定値を確認し、ブラウザイベントのrequest.url自体の除去を保証しない。送信イベントでIPの未付与と機微descriptionの未送信を確認する。取得したoriginはRenovateのforce updateで3910d420へ移動しており、履歴を上書きせず反映手段の判断までローカル修正を検証する。",
+    "paths": [
+      "apps/web/src/lib/sentry.ts",
+      "apps/web/src/lib/sentry.integration.test.ts"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "4d2675f3ac9ed31188fb5ebab5e5995e9212089315f897845dbf92551df2e133",
+  "cycle_id": "pr-1859-sentry-v11/cycle-0001"
+}

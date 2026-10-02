@@ -13,6 +13,21 @@ export function initSentry() {
   Sentry.init({
     dsn,
     environment: env.SENTRY_ENVIRONMENT ?? env.MODE,
+    // v11で広がった既定の収集範囲を、v10と同じ範囲に保つ。
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: {
+        request: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
+        response: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
+      },
+      httpBodies: [],
+      urlQueryParams: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
+      genAI: { inputs: false, outputs: false },
+      databaseQueryData: false,
+      queues: false,
+      graphQL: { document: false, variables: false },
+    },
   })
 }
 

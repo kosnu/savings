@@ -1,0 +1,74 @@
+{
+  "sequence": 13,
+  "kind": "verify",
+  "time": "2026-10-02T18:06:19.210179Z",
+  "task_hash": "cd0eca0044bf75d04454edc1760cd2eba63156f0b12a8d073bbf5632be0b963f",
+  "previous": "c7c92da11ece0d9695b43aa8e29c7c8ab555c125eb1bdf99a77511c0ea68dde5",
+  "revision": 5,
+  "fingerprint": "4995b06c53950832f1ba7ea7c168e9131030541a315637f7035ab56f6acaa69a",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 372ms on 570 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:4837) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /Users/kosnu/.codex/worktrees/e755/savings/apps/web\n\n········································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  138 passed (138)\n      Tests  712 passed (712)\n   Start at  03:04:54\n   Duration  82.80s (transform 6.15s, setup 370.42s, import 65.18s, tests 67.40s, environment 50.95s)\n\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=8bb24d3ba16f3c0a2252c3131301c975901a6952 checked=9\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "ef42164eab9bace3741868450c66588a0a19a7f103347c78c626c861047ca3a5",
+  "cycle_id": "pr-1859-sentry-v11/cycle-0001"
+}
