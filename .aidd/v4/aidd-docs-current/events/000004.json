@@ -1,0 +1,103 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-10-02T16:19:01.125882Z",
+  "task_hash": "97c7b3751f71270a0c9379869102d7416645fcd5b7de546b5e62c78c60e56522",
+  "previous": "c7985c5edd637f0623155e98d14b56267094e5bd9860d690c3736604f3279a45",
+  "revision": 3,
+  "fingerprint": "b5704d3f1c8f5609e9eca147c2d28e09253231e89d90b262468b89704ca3d2d2",
+  "data": {
+    "summary": "共有方針は要求の根拠・設計判断・検証結果で表し特定版のIntent/decision用語へ置換しない。業務/UIの意味と記録責務を維持する。overviewとharness索引は案内に限定し旧ADR6-8へ日付付き参照を追記する。workspaces/migrationsと採択済みADRの既存本文は保存。rule-mapは既存ID・path/surface・依存を維持して探索metadataだけ同期する。アプリ実装・Core/CLI/CIの変更とWeb実行検証は不要。 formatter起動はpnpmの既存launcher不具合を避けて公開vpを直接利用する。",
+    "paths": [
+      "docs/adr/0006-separate-intent-from-issue.md",
+      "docs/adr/0007-align-learn-agent-delegation.md",
+      "docs/adr/0008-define-aidd-cycle-boundary.md",
+      "docs/ai-driven-development/overview.md",
+      "docs/ai-driven-development/compact-protocol.md",
+      "docs/harness/index.md",
+      "docs/harness/rule-map.json",
+      "docs/harness/policies/temporal-data.md",
+      "docs/harness/policies/transaction-boundaries.md",
+      "docs/harness/domain/user.md",
+      "docs/harness/domain/book.md",
+      "apps/web/docs/policies/design-rules.md",
+      "apps/web/docs/policies/domain-ui-rules.md",
+      "DESIGN.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "/tmp/aidd-docs-core",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "./node_modules/.bin/vp",
+        "fmt",
+        "docs/adr/0006-separate-intent-from-issue.md",
+        "docs/adr/0007-align-learn-agent-delegation.md",
+        "docs/adr/0008-define-aidd-cycle-boundary.md",
+        "docs/ai-driven-development/overview.md",
+        "docs/ai-driven-development/compact-protocol.md",
+        "docs/harness/index.md",
+        "docs/harness/rule-map.json",
+        "docs/harness/policies/temporal-data.md",
+        "docs/harness/policies/transaction-boundaries.md",
+        "docs/harness/domain/user.md",
+        "docs/harness/domain/book.md",
+        "apps/web/docs/policies/design-rules.md",
+        "apps/web/docs/policies/domain-ui-rules.md",
+        "DESIGN.md",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-ui-rules",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "c8e1473cd322c8a5aabc50ddbc82e53a0445b485862681453f6f0fc045a2a537",
+  "cycle_id": "aidd-docs-current/cycle-0001"
+}

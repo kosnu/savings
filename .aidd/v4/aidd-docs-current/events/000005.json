@@ -1,0 +1,71 @@
+{
+  "sequence": 5,
+  "kind": "verify",
+  "time": "2026-10-02T16:19:04.580809Z",
+  "task_hash": "97c7b3751f71270a0c9379869102d7416645fcd5b7de546b5e62c78c60e56522",
+  "previous": "c8e1473cd322c8a5aabc50ddbc82e53a0445b485862681453f6f0fc045a2a537",
+  "revision": 3,
+  "fingerprint": "b5704d3f1c8f5609e9eca147c2d28e09253231e89d90b262468b89704ca3d2d2",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=c145918e9f7ba83617bbb280831af5f1ae192aa5 checked=9\n"
+      },
+      {
+        "argv": [
+          "/tmp/aidd-docs-core",
+          "--root",
+          ".",
+          "check-all"
+        ],
+        "exit": 0,
+        "output": "{\"tasks_checked\":18}\n"
+      },
+      {
+        "argv": [
+          "./node_modules/.bin/vp",
+          "fmt",
+          "docs/adr/0006-separate-intent-from-issue.md",
+          "docs/adr/0007-align-learn-agent-delegation.md",
+          "docs/adr/0008-define-aidd-cycle-boundary.md",
+          "docs/ai-driven-development/overview.md",
+          "docs/ai-driven-development/compact-protocol.md",
+          "docs/harness/index.md",
+          "docs/harness/rule-map.json",
+          "docs/harness/policies/temporal-data.md",
+          "docs/harness/policies/transaction-boundaries.md",
+          "docs/harness/domain/user.md",
+          "docs/harness/domain/book.md",
+          "apps/web/docs/policies/design-rules.md",
+          "apps/web/docs/policies/domain-ui-rules.md",
+          "DESIGN.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 373ms on 14 files using 8 threads.\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "b5dde08eb0e163bf820391d50f3d9ef9b6b15f939cad1a1b97d3bbf621d9f943",
+  "cycle_id": "aidd-docs-current/cycle-0001"
+}

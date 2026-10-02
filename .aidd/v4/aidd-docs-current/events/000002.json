@@ -1,0 +1,121 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-02T15:20:28.379522Z",
+  "task_hash": "97c7b3751f71270a0c9379869102d7416645fcd5b7de546b5e62c78c60e56522",
+  "previous": "bb87677c27af38504e4409ae1fbb05db66660e0fd97a5b74e991d04a878ffe99",
+  "revision": 1,
+  "fingerprint": "8fe0e34bc20b17cb94477da086cc258f56a0342f67e4a7b661f92d34f517536a",
+  "data": {
+    "intent_revision": {
+      "source": "user-message:2026-10-03-aidd-docs-universal",
+      "objective": "docs/とapps/*/docs/の恒常的な判断基準を特定のAIDDフロー・版・成果物から独立させる",
+      "constraints": [
+        "文書と関連索引に限定する",
+        "作業履歴と採択済みADR本文を保持する",
+        "ドメインとUIの判断基準を維持する"
+      ],
+      "acceptance": [
+        "共通・アプリ方針が専用工程・成果物を必須にせず要求の根拠・設計判断・検証結果で基準を表す",
+        "業務・UIの判断と根拠の記録を維持し具体的な運用契約は所有文書へ委ねる",
+        "旧仕様と現行正本の案内を整理し採択済みADRおよび作業履歴を保持する",
+        "参照整合性と必要な文書検証が成功する"
+      ],
+      "text_hash": "13d7f28c4768616619d72b9252b8cff7f79910ccdc6cf29f91026a6f8c9d90c8"
+    },
+    "summary": "共有方針は要求の根拠・設計判断・検証結果で表し特定版のIntent/decision用語へ置換しない。業務/UIの意味と記録責務を維持する。overviewとharness索引は案内に限定し旧ADR6-8へ日付付き参照を追記する。workspaces/migrationsと採択済みADRの既存本文は保存。rule-mapは既存ID・path/surface・依存を維持して探索metadataだけ同期する。アプリ実装・Core/CLI/CIの変更とWeb実行検証は不要。",
+    "paths": [
+      "docs/adr/0006-separate-intent-from-issue.md",
+      "docs/adr/0007-align-learn-agent-delegation.md",
+      "docs/adr/0008-define-aidd-cycle-boundary.md",
+      "docs/ai-driven-development/overview.md",
+      "docs/ai-driven-development/compact-protocol.md",
+      "docs/harness/index.md",
+      "docs/harness/rule-map.json",
+      "docs/harness/policies/temporal-data.md",
+      "docs/harness/policies/transaction-boundaries.md",
+      "docs/harness/domain/user.md",
+      "docs/harness/domain/book.md",
+      "apps/web/docs/policies/design-rules.md",
+      "apps/web/docs/policies/domain-ui-rules.md",
+      "DESIGN.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "/tmp/aidd-docs-core",
+        "--root",
+        ".",
+        "check-all"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "fmt",
+        "docs/adr/0006-separate-intent-from-issue.md",
+        "docs/adr/0007-align-learn-agent-delegation.md",
+        "docs/adr/0008-define-aidd-cycle-boundary.md",
+        "docs/ai-driven-development/overview.md",
+        "docs/ai-driven-development/compact-protocol.md",
+        "docs/harness/index.md",
+        "docs/harness/rule-map.json",
+        "docs/harness/policies/temporal-data.md",
+        "docs/harness/policies/transaction-boundaries.md",
+        "docs/harness/domain/user.md",
+        "docs/harness/domain/book.md",
+        "apps/web/docs/policies/design-rules.md",
+        "apps/web/docs/policies/domain-ui-rules.md",
+        "DESIGN.md",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-ui-rules",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "26c36cb344f9ed16d281ff156bb5a636e8e194f7bf935b2324e2b5c00d35457e",
+  "cycle_id": "aidd-docs-current/cycle-0001"
+}

@@ -44,3 +44,7 @@ Issueを正本として使う場合は許可された変更をIssue本文にも�
 元Task・過去checkpoint・検証履歴は上書きせず、新checkpointで旧証拠を失効して全体を再検証する。
 新fieldを省略した既存v5/v6記録のbytesとhashは維持する。新しい出典記録を使うには対応checkerが必要であり、
 開始時checkerの暗黙の差し替えは認めない。旧Taskの実行binary変更には既存の明示的な移行契約を適用する。
+
+## Clarification: 現行正本の参照先 (2026-10-03)
+
+本ADRは当時の判断を保持する。[ADR 0009](0009-rebuild-aidd-v4.md)による置換後の現行条件は、責務ごとの正本から確認する。要求の出典と実行権限、同じ成果への継続条件は[Workflow](../ai-driven-development/workflow.md)、要求の伝達は[入力の記述](../ai-driven-development/issue-guidelines.md)、記録の形式と照合は[Core](../ai-driven-development/aidd-checker.md)が所有する。

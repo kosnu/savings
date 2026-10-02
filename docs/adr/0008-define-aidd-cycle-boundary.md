@@ -46,3 +46,7 @@ ADR-0006のIssue以外のIntent出典とcheckpointによる補足記録は維持
 新規`task-start`は`kind: learn`を拒否する。旧`kind: learn` Taskは当時の契約による
 履歴として読み取り・継続し、記録やhashを変更しない。
 現在の入口と関連文書はこの境界に揃える。採択済みADRの旧本文は履歴として保持する。
+
+## Clarification: 現行正本の参照先 (2026-10-03)
+
+本ADRは当時の判断を保持する。[ADR 0009](0009-rebuild-aidd-v4.md)による置換後の現行条件は、責務ごとの正本から確認する。作業とサイクルの境界、継続・再開、指摘分析と改善の実行条件は[Workflow](../ai-driven-development/workflow.md)、用語は[用語集](../ai-driven-development/glossary.md)、記録の識別と照合は[Core](../ai-driven-development/aidd-checker.md)が所有する。
