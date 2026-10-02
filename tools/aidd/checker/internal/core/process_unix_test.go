@@ -43,8 +43,16 @@ func TestVerifyRecordsResidualProcessFailure(t *testing.T) {
 		t.Fatal("residual child accepted")
 	}
 	v := eventData[Verification](s.latest("verify"))
-	if len(v.Results) != 2 || v.Results[1].Exit == 0 || !strings.Contains(v.Results[1].Output, "residual processes") {
+	if len(v.Results) != 2 || v.Results[1].Exit == 0 || v.Results[1].Output != "" {
 		t.Fatalf("failure not recorded: %+v", v)
+	}
+	path, err := s.privateEvidencePath(v.Results[1].EvidenceHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var detail privateResult
+	if err := ReadInput(path, &detail); err != nil || !strings.Contains(detail.Output, "residual processes") {
+		t.Fatalf("private failure detail missing: %v %+v", err, detail)
 	}
 	if s.Review(Review{Summary: "checked", Criteria: []Criterion{{"works", "observed", "pass"}}}) == nil {
 		t.Fatal("failed verification accepted by review")

@@ -3,11 +3,10 @@
   "kind": "review",
   "time": "2026-10-01T17:05:57.498962Z",
   "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
-  "previous": "61fca19f1e73f712ce04db4dbf89e0e6e3981bb25140212e244a45aa7426f6ff",
+  "previous": "f68eaab91ae311a620b47f8e3ecaad3febdb92c6a3412bd38008777e6e307450",
   "revision": 3,
   "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
   "data": {
-    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\nP1の最終差分は表1行の判定分離とformatterの表幅調整のみ。既存workflow・索引・Core・入口・CI・アプリを変える必要はない。承認・Audit・decision・復帰・verifyは同じTaskへ追記し既存記録を保持。承認eventにはtext_hashだけが保存され公開会話原文なし。必要検証はすべて終了コード0。各事例は候補の評価と観測状態を区別し、実運用の再発率向上やアプリ修正を主張しない。追加findingsなし。",
     "criteria": [
       {
         "criterion": "上流の一次情報・対象版・再現条件から独自対策の必要性を評価できる",
@@ -43,8 +42,9 @@
       "policy.issue-template-selection",
       "policy.learning-extraction",
       "policy.review-feedback-classification"
-    ]
+    ],
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\nP1の最終差分は表1行の判定分離とformatterの表幅調整のみ。既存workflow・索引・Core・入口・CI・アプリを変える必要はない。承認・Audit・decision・復帰・verifyは同じTaskへ追記し既存記録を保持。承認eventにはtext_hashだけが保存され公開会話原文なし。必要検証はすべて終了コード0。各事例は候補の評価と観測状態を区別し、実運用の再発率向上やアプリ修正を主張しない。追加findingsなし。"
   },
-  "hash": "4af2a171aa8ff61e02edfed433b8f86373030c29f8ecbda6be8aeec44823a2a2",
+  "hash": "7d8c31adf0c0ed48c147cf8b2a94fed864fa905284a76377399e3b29c90cc333",
   "cycle_id": "issue-1853/cycle-0002"
 }

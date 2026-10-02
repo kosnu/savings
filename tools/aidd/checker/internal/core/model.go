@@ -15,10 +15,11 @@ import (
 
 type Intent struct {
 	Source      string   `json:"source"`
-	Text        string   `json:"text"`
+	Text        string   `json:"text,omitempty"`
 	Objective   string   `json:"objective"`
 	Constraints []string `json:"constraints"`
 	Acceptance  []string `json:"acceptance"`
+	TextHash    string   `json:"text_hash,omitempty"`
 }
 type Start struct {
 	Intent                     Intent `json:"intent"`
@@ -39,11 +40,14 @@ type Task struct {
 	Initial Snapshot `json:"initial"`
 }
 type Decision struct {
-	IntentRevision *Intent    `json:"intent_revision,omitempty"`
-	Summary        string     `json:"summary"`
-	Paths          []string   `json:"paths"`
-	Commands       [][]string `json:"commands"`
-	Rules          []string   `json:"rules"`
+	IntentRevision  *Intent    `json:"intent_revision,omitempty"`
+	Summary         string     `json:"summary"`
+	Paths           []string   `json:"paths"`
+	Commands        [][]string `json:"commands,omitempty"`
+	EvidenceVersion int        `json:"evidence_version,omitempty"`
+	CommandIDs      []string   `json:"command_ids,omitempty"`
+	PlanHash        string     `json:"plan_hash,omitempty"`
+	Rules           []string   `json:"rules"`
 }
 type Criterion struct {
 	Criterion string `json:"criterion"`
@@ -56,13 +60,16 @@ type Review struct {
 	Rules    []string    `json:"rules"`
 }
 type Result struct {
-	Argv   []string `json:"argv"`
-	Exit   int      `json:"exit"`
-	Output string   `json:"output"`
+	Argv         []string `json:"argv,omitempty"`
+	Exit         int      `json:"exit"`
+	Output       string   `json:"output,omitempty"`
+	CommandID    string   `json:"command_id,omitempty"`
+	EvidenceHash string   `json:"evidence_hash,omitempty"`
 }
 type Verification struct {
-	Results []Result `json:"results"`
-	Stable  bool     `json:"stable"`
+	EvidenceVersion int      `json:"evidence_version,omitempty"`
+	Results         []Result `json:"results"`
+	Stable          bool     `json:"stable"`
 }
 type Ship struct {
 	Commit   string `json:"commit"`
@@ -89,9 +96,11 @@ type Audit struct {
 type Approval struct {
 	AuditHash   string   `json:"audit_hash"`
 	Source      string   `json:"source"`
-	Text        string   `json:"text"`
+	Text        string   `json:"text,omitempty"`
 	ProposalIDs []string `json:"proposal_ids"`
+	TextHash    string   `json:"text_hash,omitempty"`
 }
+
 type Event struct {
 	Sequence    int             `json:"sequence"`
 	Kind        string          `json:"kind"`
@@ -111,6 +120,34 @@ type Store struct {
 }
 
 var taskID = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,79}$`)
+
+// 本文付きの旧記録と、本文を持たない新記録を同じ内容として照合する。
+func storedTextHash(text, hash string) (string, error) {
+	if text != "" {
+		if hash != "" || required(text) != nil {
+			return "", fmt.Errorf("invalid stored text")
+		}
+		return digest(text), nil
+	}
+	b, err := hex.DecodeString(hash)
+	if err != nil || len(b) != sha256.Size || hex.EncodeToString(b) != hash || hash == digest("") {
+		return "", fmt.Errorf("invalid stored text hash")
+	}
+	return hash, nil
+}
+
+func (in Intent) withoutText() Intent {
+	if in.Text != "" {
+		in.TextHash = digest(in.Text)
+		in.Text = ""
+	}
+	return in
+}
+
+func (a Approval) validRecord(authority string) bool {
+	hash, err := storedTextHash(a.Text, a.TextHash)
+	return err == nil && required(a.Source) == nil && hash != digest(authority)
+}
 
 func digest(v any) string {
 	b, _ := json.Marshal(v)
@@ -191,6 +228,11 @@ func (s *Store) append(kind string, data any, fingerprint string) error {
 	b, e := json.Marshal(data)
 	if e != nil {
 		return e
+	}
+	if kind == "decision" || kind == "verify" {
+		if e := validatePublicData(kind, b, false); e != nil {
+			return e
+		}
 	}
 	prev := ""
 	if len(s.Events) > 0 {

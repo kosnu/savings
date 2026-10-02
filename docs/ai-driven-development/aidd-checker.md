@@ -48,12 +48,27 @@ Gitのtrackedとnon-ignored untrackedを対象に内容hashとmodeを取得す�
 自身のTask記録は循環参照を避けるためsource fingerprintから除外し、hash chainとstage状態で別途確認する。
 他Taskの記録やファイルは無視しない。担当path外のbaseline差分、古いrevisionやsnapshotに結び付いた証拠を拒否する。
 
-検証commandはargv配列で指定し、shell展開を暗黙にしない。実行終了状態と出力を保存する。
+検証commandは入力時にargv配列で指定し、shell展開を暗黙にしない。
+Coreは実行argvとstdout/stderr・実行エラーをGit common directory内の`aidd-evidence/<task-id>/`へ保存する。
+directoryは0700、証拠fileは0600とし、公開snapshotやcommitへ含めない。
+公開decisionは`evidence_version: 1`、command IDの列と実行planのhashを保持し、argvを持たない。
+command IDはargvのJSON hashとし、必須commandはrepositoryの定義から同じIDを導いて照合する。
+既存の`go test -count=1`の正規化だけを維持し、実行するplan全体は別hashで結び付ける。
+公開verifyはversion、各command ID・終了code・ローカル証拠のhash、sourceの安定性だけを保持する。
+生出力や自由記述の検証要約を公開verifyへ保存しない。実行planを失った場合は検証を再開できず、成功扱いしない。
 macOS/Linuxでは検証を専用process groupで実行し、親終了後の出力待ちは1秒までとする。
-残存processは終了させ、待機超過・残存・後始末の失敗をverify証拠へ失敗として保存する。
+残存processは終了させ、待機超過・残存・後始末の失敗を公開verifyの終了codeと非公開の詳細証拠へ保存する。
 通常の検証実行時間は制限しない。process groupから意図的に離脱するdaemonの管理は対象外。未対応OSでは実行前に拒否する。
 実行前後にsourceが変わった場合は成功にしない。formatter等は検証batchの前に実行する。
 Go/Core、Webなどの必要commandを変更pathから確認する。意味的な適用条件はAGENTSと関連policyを読み判断する。
+
+公開decision/verifyの保存時とShip前、CIの`check-all --base`が扱う変更Taskで、同じ公開schema validatorを適用する。
+未許可field、大小文字alias、重複key、不正hash、未宣言command ID、旧形式を公開時に拒否する。
+hash chainが整合していても公開schemaの違反を許可しない。CIの照合にローカルの実行詳細は要求しない。
+無関係な旧Taskは読取を維持するが、再配信対象Taskの旧decision/verifyを互換性だけで通さない。
+その公開移行は非公開原本の保全と対象を特定した例外承認を要し、通常の追記専用規則を変えない。
+この境界が保証するのは検証の実行argv・生出力を公開記録に保存しないこと。
+TaskのIntentや意味レビュー等の自由記述全般の内容、実行の真正性、過去のGit commitからの情報消去は保証しない。
 
 意味評価にはIntentの各完了条件、具体的根拠、pass/fail/unknown、適用rule集合を記録する。
 Goは記録とidentityを検査するが、根拠の内容が正しいことを認証しない。
@@ -66,6 +81,7 @@ Ship後の状態はTask記録だけからは確定しない。再開時にはPR�
 Auditは指定された配信対象のreview済みcommitとPRを照合する。改善提案がない場合は結果を報告し、eventを追加しない。
 改善提案ごとに根拠・具体案・対象pathを保存し、承認と改善の変更を同じcommitに含める。空の提案一覧または全提案の明示却下だけでは改善権限を付与しない。
 旧Taskに残る提案なしAuditと承認eventは読み取りを維持する。
+新しい承認・却下の入力本文は保存時に`text_hash`へ置き換える。本文を持つ旧承認記録も読み取りを維持する。
 同じShip内容・revisionへの追加Auditはaudit-updateイベントで保存し、新しいAudit hashへの承認を要求する。
 承認は最新Audit hash、提案ID、ユーザー発言の出典と本文に結び付ける。
 承認前の変更や対象外の変更を拒否する。元の開発権限の転用は許可しない。

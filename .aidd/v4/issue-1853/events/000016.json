@@ -1,0 +1,17 @@
+{
+  "sequence": 16,
+  "kind": "return-intent",
+  "time": "2026-10-02T11:11:18.792614Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "11824551d57acd8c3faace467ce800f9ea8a075e405f679ab5a236737bfdb192",
+  "revision": 4,
+  "fingerprint": "8b7c4b903fd927ee3f1d487b0941fdd9d94912e523cae4cdfd890f8138970fbe",
+  "data": {
+    "summary": "承認されたP1/P2/P3の改善を確認。生argvと検証出力を非公開証拠へ分離し、公開decision/verifyはhash識別子・終了code・安定性のみ。保存/Ship/変更Task CIで同一schemaを適用し、旧形式の再公開を拒否する。原本と既存記録の例外移行を保全し、hash参照を再結合・検査した。元のIntent・公開制約・実行権限を維持し、次cycleは必要なGo/文書検証・レビュー・同じPRへの配信と承認済みthread対応に限定する。",
+    "previous_cycle": "issue-1853/cycle-0002",
+    "approval_hash": "90f73cd3e4fe3d856943dcbe588891aa025c37524d71aa6e2de456ab21150ced",
+    "intent_hash": "b5cca81dfcb61d3c6cbf6dde276fb5fd16430383d3549bccfb30ea27cb4a7757"
+  },
+  "hash": "6323da693eb47711bd12cb0fcbd1eeb1252efcd06e133a7a40eec986d830651a",
+  "cycle_id": "issue-1853/cycle-0003"
+}

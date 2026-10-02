@@ -1,0 +1,43 @@
+{
+  "sequence": 15,
+  "kind": "decision",
+  "time": "2026-10-02T10:54:38.506869Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "90f73cd3e4fe3d856943dcbe588891aa025c37524d71aa6e2de456ab21150ced",
+  "revision": 4,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "command_ids": [
+      "4f52a06f45cbf16520b8045533f643b165fc38a9b1e512e36c0ccb4d498be852",
+      "33bce51c845e2afdd6660bdb5ac35bcb00754864597f91681adc4eabc3f7100d",
+      "1cb298b025117a19f30dff6333c3bf7dc4cb17d7ed65ccc5a62ff3c1402c4e85",
+      "6358442fbd06e3300a259966faa0ee4f3457bd6e31c7526aa9105215a1f3776c"
+    ],
+    "evidence_version": 1,
+    "paths": [
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/semantic-review-cases.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "tools/aidd/checker/internal/core/"
+    ],
+    "plan_hash": "aa8f9a867d21f4ac5caa31115e722d448e85670aae172bfad2d35143a21e35fa",
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ],
+    "summary": "承認されたP1/P2/P3を実装。原本保全・公開検証記録の例外移行、PR内Coreの本文hash互換、非公開証拠と許可schemaの公開receiptを実装する。新規記録では生argv/outputを公開しない。保存・Ship前・変更TaskのCI判定を共通化し、旧Taskは読取を保ちながら再公開時には旧形式を拒否する。Git履歴書換え・アプリ・無関係なTask移行は行わない。"
+  },
+  "hash": "11824551d57acd8c3faace467ce800f9ea8a075e405f679ab5a236737bfdb192",
+  "cycle_id": "issue-1853/cycle-0002"
+}

@@ -45,14 +45,8 @@ func (s *Store) mandatoryCommands(paths []string) [][]string {
 func (s *Store) requireCommands(paths []string, d Decision) error {
 	for _, want := range s.mandatoryCommands(paths) {
 		found := false
-		for _, got := range d.Commands {
-			normalized := []string{}
-			for _, arg := range got {
-				if arg != "-count=1" || len(got) < 4 || got[0] != "go" || got[3] != "test" {
-					normalized = append(normalized, arg)
-				}
-			}
-			if digest(want) == digest(normalized) {
+		for _, got := range decisionCommandIDs(d) {
+			if commandID(want) == got {
 				found = true
 			}
 		}

@@ -7,24 +7,16 @@
   "revision": 1,
   "fingerprint": "27e0a077c1b8e165a8e9bb3eaf9bfe0599d6968731575ab1f1448888ff19df1c",
   "data": {
-    "summary": "週次改善で選定した上流確認の遅れを、workflowの既存開発ループ内の対策選択へ反映する。外部依存に原因がある場合だけ、対象版・再現条件と上流の一次情報、公開状況・互換性を照合する。semantic-review-casesへ有限の適用事例を追加し、独自対策を減らせる場合と必要な場合、不明状態を判定する。正本の責務と既存リンク・path routingを維持するためrule-mapは変更しない。Core/CLI/host/CI/アプリ/依存更新は不要。確認は文書の文字列一致だけでなく、各入力から選ぶ行動と成果の範囲をレビューする。公開記録には技術要約だけを残す。",
+    "command_ids": [
+      "4f52a06f45cbf16520b8045533f643b165fc38a9b1e512e36c0ccb4d498be852",
+      "0fa8f6b361395ec5cfc47ea4b9dacaf58550cd17d2b48e05a438d18c32319988"
+    ],
+    "evidence_version": 1,
     "paths": [
       "docs/ai-driven-development/workflow.md",
       "docs/ai-driven-development/semantic-review-cases.md"
     ],
-    "commands": [
-      [
-        "git",
-        "diff",
-        "--check"
-      ],
-      [
-        "/private/tmp/savings-aidd-through-today/aidd",
-        "--root",
-        ".",
-        "check-all"
-      ]
-    ],
+    "plan_hash": "1d81ed97cf73a1ded39bda7f6ed26399584d7bd9921e9ad018bd0484c67a78ea",
     "rules": [
       "ai-driven.change-coverage",
       "ai-driven.checker",
@@ -38,8 +30,9 @@
       "policy.issue-template-selection",
       "policy.learning-extraction",
       "policy.review-feedback-classification"
-    ]
+    ],
+    "summary": "週次改善で選定した上流確認の遅れを、workflowの既存開発ループ内の対策選択へ反映する。外部依存に原因がある場合だけ、対象版・再現条件と上流の一次情報、公開状況・互換性を照合する。semantic-review-casesへ有限の適用事例を追加し、独自対策を減らせる場合と必要な場合、不明状態を判定する。正本の責務と既存リンク・path routingを維持するためrule-mapは変更しない。Core/CLI/host/CI/アプリ/依存更新は不要。確認は文書の文字列一致だけでなく、各入力から選ぶ行動と成果の範囲をレビューする。公開記録には技術要約だけを残す。"
   },
-  "hash": "0e88c18b53061dd18885de9e389ba409e353782c685f8644c8089a1e159ca367",
+  "hash": "6aae44c96e7849a207207f45d45929d9fa22d9a71f279424a890441c6115d422",
   "cycle_id": "issue-1853/cycle-0001"
 }

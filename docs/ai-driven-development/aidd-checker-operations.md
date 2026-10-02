@@ -72,6 +72,15 @@ rulesはrule ID配列。選択結果に意味的関連ruleを追加し、各本�
 }
 ```
 
+decision入力の`commands`は実行argvであり、公開eventへはそのまま保存しない。
+Coreが非公開の実行planを保存し、公開decisionを`evidence_version: 1`とcommand ID・plan hashへ変換する。
+`verify`はそのplanを照合して実行し、公開結果にはcommand ID・終了code・証拠hash・sourceの安定性だけを残す。
+stdout/stderrと実行エラーを調べる場合は、Git common directoryの`aidd-evidence/<task-id>/<evidence_hash>.json`をローカルで読む。
+このdirectoryをstage・添付・公開しない。CIは非公開fileを取得せず、公開schema・command identity・終了code・sourceの対応を検査する。
+保存時・Ship前・変更TaskのCI検査で同じvalidatorを使い、旧形式や未許可fieldの挿入を拒否する。
+既存の公開Taskを移行する場合は、原本を非公開に保全し、追記専用契約の例外承認を得た対象だけでchainと参照を更新する。
+headの移行は過去の公開commitからの完全な情報除去とは別であり、Git履歴の書換えを含めない。
+
 `rules --paths /tmp/paths.json`は変更pathのJSON文字列配列から必須ruleと依存closureを返す。
 `review`は`summary`、`rules`、`criteria`を持つ。criteriaは各`criterion`、`evidence`、`verdict`。
 criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown`。
@@ -175,6 +184,7 @@ AuditはShip後のユーザーの明示依頼を受けて実行する。TaskとP
 
 改善提案がなければ結果を報告し、Audit eventを追加せずに終了する。提案があればTaskへ記録してユーザーに提示し、手動承認を受けるまで改善へ進まない。記録は承認された改善の変更と一緒にcommitする。
 `approve --input`は`audit_hash`、`source`、`text`、`proposal_ids`を持つ。
+入力本文は保存時に`text_hash`へ変換し、公開eventへ`text`を残さない。本文付き旧記録の読込は維持する。
 source/textはその提案を承認した実際のユーザー発言。agentが生成した同意を使わない。
 一部だけ承認した場合、未承認案は次のAuditに引き継ぐ。却下はユーザーが明示した場合だけ
 `dismiss --input`へ同じ形式で記録し、改善済みとは区別する。

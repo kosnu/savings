@@ -1,0 +1,51 @@
+{
+  "sequence": 12,
+  "kind": "audit",
+  "time": "2026-10-02T01:35:31.736799Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "7d8c31adf0c0ed48c147cf8b2a94fed864fa905284a76377399e3b29c90cc333",
+  "revision": 3,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "delivery": {
+      "base": "main",
+      "branch": "issue-1853/upstream-fix-evidence",
+      "commit": "279fcf4cbe595fa1edec4d5f446d79b70b3ba337",
+      "evidence": "local HEADとPR head一致、revision3のverify/reviewはsource current。CI candidate/verify FAILURE、integration SUCCESS。",
+      "pr": "https://github.com/kosnu/savings/pull/1854",
+      "remote": "origin"
+    },
+    "findings": [
+      "P2 Botコメント https://github.com/kosnu/savings/pull/1854#discussion_r4158251148、thread PRRT_kwDOM0p88s6oDUph は未解決、非outdated。000010 verify outputに環境識別パス、000002/000003/000007/000009のcommandsにも非移植的な実行場所が残る。公開制約と不整合。Core Verifyは実行出力をそのままResultへ保存し、担当agentも公開差分で検出しなかった。生出力を要約して既存chainを再生成する提案は履歴契約と衝突。",
+      "CI run 36896933649のcandidateはcheck-allでtask issue-1853: invalid approval、verifyはその結果で失敗。PR内のcheck.goはapproval.Text必須、使用した外部Coreはtext_hashのみ保存。mainの既存修正cc5c5799/PR1850は新形式読取に対応しており、同じ改善の重複発明は不要。"
+    ],
+    "proposals": [
+      {
+        "change": "既存Taskの原本を非公開ローカルへ保存したうえで、公開対象000002/000003/000007/000009/000010の実行場所を移植可能な参照へ、000010の環境警告出力を技術要約へ置換し、影響する後続eventのchainを再計算する案。これは通常の追記契約の例外として明示承認を要する。既存公開commitの履歴には元情報が残るためhead修正だけを履歴からの完全除去と扱わない。Git履歴書換えはこの提案の権限に含めない。今後の検証は環境警告を混入させない実行方法と移植可能argvを選び、公開前に全Task差分を確認する。確認はchain検査、該当識別パスの非残存、技術結果・終了状態の保持。返信案:「環境識別情報の混入は妥当な指摘です。既存記録の秘匿修正は追記契約の例外承認後に実施し、技術結果を保持してchainを検証します。既存公開commitからの完全除去とは区別します。」実装後の実際の結果・commitを返信。Bot threadは承認された範囲の配信と返信が完了し、履歴残存の扱いを含む論点が解消した場合のみresolveする。",
+        "evidence": "対象Botコメントとevents/000010.jsonのoutput、commandsを確認。Core lifecycle.go Verifyが実出力を保存し、現在のCore/Documentation契約は確定eventの保存・追記を要求。",
+        "finding": "公開禁止の環境識別情報が検証出力に混入。既存eventの秘匿修正は追記専用契約との矛盾を解消する個別判断が必要。",
+        "id": "P1",
+        "paths": [
+          ".aidd/v4/issue-1853/events/"
+        ]
+      },
+      {
+        "change": "既にmainへ反映済みの本文hash対応から必要なCoreの記録・読取互換部分と関連回帰テストをこのPRへ反映する。古いeventを保持し新hash形式を読めることを確認する。PR内Coreをbuildして全Task check-all、Go test/vet、旧本文・新hash・不正hashの境界テスト、最終差分レビュー・Shipを実施する。外部binaryだけの成功を根拠にしない。新たなIssue・別Task・同じ機能の別設計は不要。",
+        "evidence": "CI candidateのinvalid approval、000006のtext_hash、PR内check.goのText必須、main既存修正cc5c5799のstoredTextHash/validRecordを対照。",
+        "finding": "外部Coreの記録形式と配信Coreの読取形式が不一致でCIが承認を拒否。",
+        "id": "P2",
+        "paths": [
+          "tools/aidd/checker/internal/core/model.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/audit_approval_test.go",
+          "tools/aidd/checker/internal/core/intent_revision_test.go"
+        ]
+      }
+    ],
+    "session_improvements": null,
+    "summary": "最新配信へのAuditで新規Bot指摘1件とCI失敗を確認。前回候補判定の指摘は解決済みを維持。公開検証記録に環境識別パスが混入した指摘は妥当。ただし既存eventの書換え・hash chain再生成は追記専用契約と衝突するため例外判断が必要。CI失敗は新形式の承認記録を古いPR内Coreが拒否する版不一致。修正・返信・解決は未実施。"
+  },
+  "hash": "b5bf1aa4ca2c336b573b9dd4a3a4afb4556d217587f3a92809f58ba1b93a8a91",
+  "cycle_id": "issue-1853/cycle-0002"
+}

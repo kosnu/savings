@@ -3,33 +3,25 @@
   "kind": "verify",
   "time": "2026-09-29T18:26:59.516413Z",
   "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
-  "previous": "0e88c18b53061dd18885de9e389ba409e353782c685f8644c8089a1e159ca367",
+  "previous": "6aae44c96e7849a207207f45d45929d9fa22d9a71f279424a890441c6115d422",
   "revision": 1,
   "fingerprint": "2d7fa2d23ec7a7074a36444917b7fcab5c679a1b3cae81ae3e649dd24c5bce3c",
   "data": {
+    "evidence_version": 1,
     "results": [
       {
-        "argv": [
-          "git",
-          "diff",
-          "--check"
-        ],
-        "exit": 0,
-        "output": ""
+        "command_id": "4f52a06f45cbf16520b8045533f643b165fc38a9b1e512e36c0ccb4d498be852",
+        "evidence_hash": "2419e1f4264f79a4c7c9373a14c5cf6511122a4fb07139b586694940e7172ba6",
+        "exit": 0
       },
       {
-        "argv": [
-          "/private/tmp/savings-aidd-through-today/aidd",
-          "--root",
-          ".",
-          "check-all"
-        ],
-        "exit": 0,
-        "output": "{\"tasks_checked\":12}\n"
+        "command_id": "0fa8f6b361395ec5cfc47ea4b9dacaf58550cd17d2b48e05a438d18c32319988",
+        "evidence_hash": "8df838ae573444775d97f94611b330524e31b6078d1e865c3414e79d0365882e",
+        "exit": 0
       }
     ],
     "stable": true
   },
-  "hash": "2318823d988d72e0aa3e50a0a11ba440f4d258532182192fe0046766afd85efc",
+  "hash": "7fe58ab5851b63605468a79b108102c9fff7aa1f17c58da70accbbe2d66fc67d",
   "cycle_id": "issue-1853/cycle-0001"
 }

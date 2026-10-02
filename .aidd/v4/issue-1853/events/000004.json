@@ -3,11 +3,10 @@
   "kind": "review",
   "time": "2026-09-29T18:27:31.567029Z",
   "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
-  "previous": "2318823d988d72e0aa3e50a0a11ba440f4d258532182192fe0046766afd85efc",
+  "previous": "7fe58ab5851b63605468a79b108102c9fff7aa1f17c58da70accbbe2d66fc67d",
   "revision": 1,
   "fingerprint": "2d7fa2d23ec7a7074a36444917b7fcab5c679a1b3cae81ae3e649dd24c5bce3c",
   "data": {
-    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n2文書の最終差分をIssueの4完了条件と全適用規則へ照合。対策選択の根拠不足という原因へ6行の判断方法と5事例で対処し、固定の新工程・承認・実装基盤は増やさない。既存workflowの責務とsemantic-review-casesへのリンクを維持するため索引変更不要。Code Review Policyは既存workflow参照で新しい判断も対象になる。ADR/Core/アプリ/依存更新なし。事例の有限検証から将来の再発率を断定しない。Taskと差分は技術的要約のみで、私的な会話・生ログ・セッション識別子なし。",
     "criteria": [
       {
         "criterion": "上流の一次情報・対象版・再現条件から独自対策の必要性を評価できる",
@@ -43,8 +42,9 @@
       "policy.issue-template-selection",
       "policy.learning-extraction",
       "policy.review-feedback-classification"
-    ]
+    ],
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n2文書の最終差分をIssueの4完了条件と全適用規則へ照合。対策選択の根拠不足という原因へ6行の判断方法と5事例で対処し、固定の新工程・承認・実装基盤は増やさない。既存workflowの責務とsemantic-review-casesへのリンクを維持するため索引変更不要。Code Review Policyは既存workflow参照で新しい判断も対象になる。ADR/Core/アプリ/依存更新なし。事例の有限検証から将来の再発率を断定しない。Taskと差分は技術的要約のみで、私的な会話・生ログ・セッション識別子なし。"
   },
-  "hash": "67f78947ecefa2c35761e69f4988eb5c7ccf4e7cde2979c11228d55883d60f5a",
+  "hash": "62c2ce506db6fc67d8eae4e6673cbb7be251d9ffb72b572941e359e662df640f",
   "cycle_id": "issue-1853/cycle-0001"
 }

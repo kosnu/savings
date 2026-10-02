@@ -3,34 +3,21 @@
   "kind": "decision",
   "time": "2026-10-01T16:06:10.454703Z",
   "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
-  "previous": "5cccfb86b33f91ef9e9a37c05f218116138553d621a6a86bf0bd1fd6d106a007",
+  "previous": "b7970b36c8548f38cae45a2b89d77baa4d5fe9a7f2194bf8451bc61ce8280ccb",
   "revision": 3,
   "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
   "data": {
-    "summary": "承認されたAudit P1のみを実装する。semantic-review-casesの情報不足ケースを候補fail、適用可否unknownと分ける。既存workflowとIntentを変えず、ルールやcheckerを追加しない。改善後の復帰を記録し、次cycleで5事例と隣接例を意味評価、文書/Core検証、レビュー、同じPRへの配信と承認済みBotコメント対応を実施する。",
+    "command_ids": [
+      "4f52a06f45cbf16520b8045533f643b165fc38a9b1e512e36c0ccb4d498be852",
+      "648491e5c25e5fa635e0927a4bb957ba7f9d0d5de794c5c7e468511bb4b38424",
+      "11905c57eaf4b1c055651ed260f788ae33e8c54c138a822b77115b71c5b96252"
+    ],
+    "evidence_version": 1,
     "paths": [
       "docs/ai-driven-development/workflow.md",
       "docs/ai-driven-development/semantic-review-cases.md"
     ],
-    "commands": [
-      [
-        "git",
-        "diff",
-        "--check"
-      ],
-      [
-        "./node_modules/.bin/vp",
-        "fmt",
-        "docs/ai-driven-development/semantic-review-cases.md",
-        "--check"
-      ],
-      [
-        "/private/tmp/savings-aidd-through-today/aidd-audit",
-        "--root",
-        ".",
-        "check-all"
-      ]
-    ],
+    "plan_hash": "0d5e7f05161e0c4935913c25ffefbab213a1f6fb43994b7f4663b244f56a1ff3",
     "rules": [
       "ai-driven.change-coverage",
       "ai-driven.checker",
@@ -44,8 +31,9 @@
       "policy.issue-template-selection",
       "policy.learning-extraction",
       "policy.review-feedback-classification"
-    ]
+    ],
+    "summary": "承認されたAudit P1のみを実装する。semantic-review-casesの情報不足ケースを候補fail、適用可否unknownと分ける。既存workflowとIntentを変えず、ルールやcheckerを追加しない。改善後の復帰を記録し、次cycleで5事例と隣接例を意味評価、文書/Core検証、レビュー、同じPRへの配信と承認済みBotコメント対応を実施する。"
   },
-  "hash": "a3cd9cb42d548dfcc3c5f2aed70ca29838a50dde46c5af49deb971d807e7cbfb",
+  "hash": "634f28806f8da0c76d3684097f6e1688eaf505276476d63cd68bbd2defd564df",
   "cycle_id": "issue-1853/cycle-0002"
 }

@@ -1,0 +1,21 @@
+{
+  "sequence": 14,
+  "kind": "approve",
+  "time": "2026-10-02T10:54:38.244849Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "0f89f52fc5ec8674964caf89fa45be704dba895383669aa1406b73dcda61f076",
+  "revision": 3,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "audit_hash": "0f89f52fc5ec8674964caf89fa45be704dba895383669aa1406b73dcda61f076",
+    "source": "user-message:pr-1854-all-proposals-approval",
+    "proposal_ids": [
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "text_hash": "801f3d630d058e45cc5bdd080642841cbc7641638d0d8560acbe59401118dd83"
+  },
+  "hash": "90f73cd3e4fe3d856943dcbe588891aa025c37524d71aa6e2de456ab21150ced",
+  "cycle_id": "issue-1853/cycle-0002"
+}

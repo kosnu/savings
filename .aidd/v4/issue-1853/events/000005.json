@@ -3,36 +3,36 @@
   "kind": "audit",
   "time": "2026-10-01T16:03:34.682195Z",
   "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
-  "previous": "67f78947ecefa2c35761e69f4988eb5c7ccf4e7cde2979c11228d55883d60f5a",
+  "previous": "62c2ce506db6fc67d8eae4e6673cbb7be251d9ffb72b572941e359e662df640f",
   "revision": 1,
   "fingerprint": "2d7fa2d23ec7a7074a36444917b7fcab5c679a1b3cae81ae3e649dd24c5bce3c",
   "data": {
-    "summary": "PR #1854の現時点の未解決指摘1件をAuditした。候補判定と適用可否の状態を混同した局所的な事例記述の誤りであり、既存workflowの規則不足ではない。P1の1行修正と対象Botコメントへの返信・完了後のthread解決を提案する。実装・返信・解決は承認待ち。",
+    "delivery": {
+      "base": "main",
+      "branch": "issue-1853/upstream-fix-evidence",
+      "commit": "648c43d36861b5ce5cb676ae1a4bb4ab0ab4ac81",
+      "evidence": "PR headとlocal HEADが一致。OPEN、ready、CI candidate/assign-author/integration/verify全件SUCCESS。Task revision 1、verify stable、review済みsourceの鮮度をCore statusで確認。",
+      "pr": "https://github.com/kosnu/savings/pull/1854",
+      "remote": "origin"
+    },
     "findings": [
       "P2: https://github.com/kosnu/savings/pull/1854#discussion_r4157395432、thread PRRT_kwDOM0p88s6oBNzt。未解決・非outdated・SUBMITTED、投稿者はBot。指摘は妥当。semantic-review-cases.md:82は候補「修正済みと推測して調査を終える」に対してunknownと記載。冒頭の候補判定の定義とworkflowの未確認を解決済み扱いしない規則から候補はfail、修正の適用可否はunknown。既存review eventの第二criterionも適用可否unknownだけを確認し、候補の成否との対応を見落としていた。",
       "改善必要。新しい一般規則・checker・アプリ変更は不要。既存規則を事例へ正しく適用する局所修正に限る。Copilotはquota exceededによりレビュー未実施。"
     ],
-    "session_improvements": null,
     "proposals": [
       {
-        "id": "P1",
-        "finding": "情報不足の状態と禁止された候補の成否が同じ判定欄で混同されているため、根拠のない早期終了をunknown判定として扱う余地がある。原因は既存規則の事例への適用・検出漏れ。",
-        "evidence": "対象コメント https://github.com/kosnu/savings/pull/1854#discussion_r4157395432。semantic-review-cases.md冒頭「判定は候補に対するもの」、82行の候補とunknown判定、workflow開発のループの未確認情報を解決済みと扱わない規則。Task events/000004.json第二criterionは適用可否unknownを根拠にpassとした。",
         "change": "対象表の不明ケース1行だけを「fail（候補の判断）。修正版の適用可否はunknown」と分け、未確認情報から解決済みと推測する判断は不適合、情報不足は明示して調査を続けることを説明する。既存5事例を候補判定と観測状態の両軸で再照合し、情報不足を明示して調査を続ける候補はpass（行動選択）、適用可否unknownのままという隣接例も確認する。Markdown format-check、git diff --check、Core verify/check-allと最終差分レビューを実施する。承認後は同じTaskで必要なrevision更新・検証・配信を完了する。返信案:「ご指摘のとおり、候補の成否と修正版の適用可否を混同していました。推測で調査を終える候補をfail、修正版の適用可否をunknownとして分離しました。既存事例と情報不足のまま調査を続ける例を照合し、必要な文書・Core検証を完了しています。」実際の配信commitと検証結果を添えて返信する。Bot thread PRRT_kwDOM0p88s6oBNztは検証・push・PR反映を確認後に返信し、未解決の論点・競合コメントがない場合だけ解決しread-backする。現在は修正・返信・解決とも未実施。",
+        "evidence": "対象コメント https://github.com/kosnu/savings/pull/1854#discussion_r4157395432。semantic-review-cases.md冒頭「判定は候補に対するもの」、82行の候補とunknown判定、workflow開発のループの未確認情報を解決済みと扱わない規則。Task events/000004.json第二criterionは適用可否unknownを根拠にpassとした。",
+        "finding": "情報不足の状態と禁止された候補の成否が同じ判定欄で混同されているため、根拠のない早期終了をunknown判定として扱う余地がある。原因は既存規則の事例への適用・検出漏れ。",
+        "id": "P1",
         "paths": [
           "docs/ai-driven-development/semantic-review-cases.md"
         ]
       }
     ],
-    "delivery": {
-      "commit": "648c43d36861b5ce5cb676ae1a4bb4ab0ab4ac81",
-      "remote": "origin",
-      "branch": "issue-1853/upstream-fix-evidence",
-      "pr": "https://github.com/kosnu/savings/pull/1854",
-      "evidence": "PR headとlocal HEADが一致。OPEN、ready、CI candidate/assign-author/integration/verify全件SUCCESS。Task revision 1、verify stable、review済みsourceの鮮度をCore statusで確認。",
-      "base": "main"
-    }
+    "session_improvements": null,
+    "summary": "PR #1854の現時点の未解決指摘1件をAuditした。候補判定と適用可否の状態を混同した局所的な事例記述の誤りであり、既存workflowの規則不足ではない。P1の1行修正と対象Botコメントへの返信・完了後のthread解決を提案する。実装・返信・解決は承認待ち。"
   },
-  "hash": "7918b456749a2325017fe588122c4de38b65c8fb8ba552d791d40e74675dfd71",
+  "hash": "6107381296761511d08f35c4790b4ea0fe5714ede29099b42ac1dd705910e0a8",
   "cycle_id": "issue-1853/cycle-0001"
 }

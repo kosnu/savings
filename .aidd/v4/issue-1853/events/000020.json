@@ -1,0 +1,50 @@
+{
+  "sequence": 20,
+  "kind": "review",
+  "time": "2026-10-02T11:17:27.986112Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "952f3044963895341d6f5278568e491258d297804722084fc4c8acbc52628345",
+  "revision": 5,
+  "fingerprint": "3f97d37ea013bd54f211b6153591da14749f6c4bc42844ad96da70945046d1e2",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n最終差分は承認P1/P2/P3の公開記録移行、本文hash互換と公開検証境界、関連回帰テスト・正本同期に限定。既存rawargv/outputを非公開原本へ保全し、公開Taskはschema1へ例外移行、chainとapproval/return参照を検査。元のIssue、Intent、baselineを維持。新規公開decision/verifyには生argv/outputも自由記述の検証結果欄もない。既存required commandをcanonical hashへ照合し、ローカルplan hashは実際のargvを別途結合する。保存時・Ship・record-only delivery・変更Task CIが同じvalidatorを使う。未許可field・case alias・duplicate key・不正hash・欠落exit・未宣言ID・旧形式再公開の負例を確認。独立検証のCommands alias指摘を修正し負例追加。全Go test/vet・文書format・差分checkは終了コード0、source stable。索引/CLI/CIの新規入口は不要: 既存checker ruleとship-check/check-all経路で選択・実行する。アプリ・依存・ADR・Git履歴書換えなし。自由記述全般の意味上の個人情報、実行の真正性、過去commitからの消去を保証しない。関連既存回帰テスト3件とcommand照合の実パスは承認されたP3の実装に必要な同期として記録、元記録を非公開に保全。追加未解決findingsなし。",
+    "criteria": [
+      {
+        "criterion": "上流の一次情報・対象版・再現条件から独自対策の必要性を評価できる",
+        "evidence": "元のworkflowと公開済み版・同一再現・互換性の事例を維持し、上流適用可否から不要な操作変更をfailとする。公開記録境界の変更は対策選択を追加で制約しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "公開済み・未公開・適用不能・不明を区別し必要な作業を続けられる",
+        "evidence": "5事例の候補fail/fail/pass/fail/passと修正版適用可否unknownを分ける修正を保持。公開Core境界は成功/失敗両方の生出力を非公開証拠へ保存し、公開exitは実際の成功0/失敗7を保持するテストを通過。未知field・Commands alias・duplicate・欠落exit・未知ID・改変plan・旧形式再公開は拒否。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "最小再現とプロジェクト全体の検証状態を区別できる",
+        "evidence": "最小再現とプロジェクト全体検証を混同しない既存workflowを維持。今回の実変更はGo CoreとdocsなのでGo test/vet、fmt、diff checkと全Task integrityを実施し、アプリ改善・実依存更新成功を主張しない。公開receiptは結果codeとIDを照合し、CIに私的証拠を必要としない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "ローカル修正には不要な外部調査を強制せず事例の判断で検証できる",
+        "evidence": "外部依存が関与しない通常修正には上流調査を要求しない既存規定を保持。P3は公開検証証拠の生成/検査境界へ作用し、全Taskの固定調査や人間の注意喚起に置き換えない。無関係な旧Taskは読み取り維持、再配信されるTaskで旧schemaを拒否。公開headの移行と過去commitの残存を区別。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "d515d19e0e263d9c9b12d8d0e949805659724a9c7bc0a8009ccc29f45f6a699a",
+  "cycle_id": "issue-1853/cycle-0003"
+}

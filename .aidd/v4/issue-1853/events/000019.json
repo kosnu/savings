@@ -1,0 +1,37 @@
+{
+  "sequence": 19,
+  "kind": "verify",
+  "time": "2026-10-02T11:15:49.089407Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "7dc6c0a7d3d8627c1bf57e919ca5ad3c8c6ebc50fb3b50498afb49c2c6006da0",
+  "revision": 5,
+  "fingerprint": "3f97d37ea013bd54f211b6153591da14749f6c4bc42844ad96da70945046d1e2",
+  "data": {
+    "evidence_version": 1,
+    "results": [
+      {
+        "exit": 0,
+        "command_id": "4f52a06f45cbf16520b8045533f643b165fc38a9b1e512e36c0ccb4d498be852",
+        "evidence_hash": "2419e1f4264f79a4c7c9373a14c5cf6511122a4fb07139b586694940e7172ba6"
+      },
+      {
+        "exit": 0,
+        "command_id": "33bce51c845e2afdd6660bdb5ac35bcb00754864597f91681adc4eabc3f7100d",
+        "evidence_hash": "0bf5d76588b3cecd09a0413dc2bf7f339632e29271218991f6e04224568394c0"
+      },
+      {
+        "exit": 0,
+        "command_id": "1cb298b025117a19f30dff6333c3bf7dc4cb17d7ed65ccc5a62ff3c1402c4e85",
+        "evidence_hash": "229562830275a4b35c8ea2871746fc6516e76fa83837aa35c6634526b0be3ca5"
+      },
+      {
+        "exit": 0,
+        "command_id": "6358442fbd06e3300a259966faa0ee4f3457bd6e31c7526aa9105215a1f3776c",
+        "evidence_hash": "402e694fd9c170a6eb9f31cf4c79f1ca42da1bccc8a13d3b369cfb9b786fa2a7"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "952f3044963895341d6f5278568e491258d297804722084fc4c8acbc52628345",
+  "cycle_id": "issue-1853/cycle-0003"
+}

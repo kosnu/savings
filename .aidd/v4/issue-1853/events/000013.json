@@ -1,0 +1,75 @@
+{
+  "sequence": 13,
+  "kind": "audit-update",
+  "time": "2026-10-02T10:51:09.491488Z",
+  "task_hash": "69f39759ba239a779fed1e00ee3c6cbefda3066011d36d7892e808a72546c661",
+  "previous": "b5bf1aa4ca2c336b573b9dd4a3a4afb4556d217587f3a92809f58ba1b93a8a91",
+  "revision": 3,
+  "fingerprint": "569fa7b29a3832ee8980d3a3863c0c575dccff04fb95e1f2e4cc73353af45c8d",
+  "data": {
+    "summary": "ユーザーによる暫定対策のみという訂正を受け、公開検証記録の境界を機械的に強制する根本対策P3を追加したAudit更新。配信head・CI・thread状態は前回と同一。既存記録の例外秘匿修正P1はユーザーが承認済みであり追加承認を要求しないが、今回の根本対策P3とCore互換P2へ権限を拡張しない。分析のみ実施。",
+    "findings": [
+      "P2 Botコメント https://github.com/kosnu/savings/pull/1854#discussion_r4158251148、thread PRRT_kwDOM0p88s6oDUph は未解決、非outdated。000010 verify outputに環境識別パス、000002/000003/000007/000009のcommandsにも非移植的な実行場所が残る。公開制約と不整合。Core Verifyは実行出力をそのままResultへ保存し、担当agentも公開差分で検出しなかった。生出力を要約して既存chainを再生成する提案は履歴契約と衝突。",
+      "CI run 36896933649のcandidateはcheck-allでtask issue-1853: invalid approval、verifyはその結果で失敗。PR内のcheck.goはapproval.Text必須、使用した外部Coreはtext_hashのみ保存。mainの既存修正cc5c5799/PR1850は新形式読取に対応しており、同じ改善の重複発明は不要。",
+      "ユーザー訂正: 既存記録の秘匿化だけは暫定対応であり、注意喚起文書でなく決定的な確認が必要。P1例外対応の実行承認は受領済み。対象・期限を保持する。新しいP3は未承認。",
+      "Core lifecycle.go VerifyはResultへargvと生outputを保存する。model.go Result.Outputは任意文字列、Decision.Commandsも任意argv。verifiedは終了コード・件数・argv identityを照合するが、公開情報の境界は検査していない。CLI inputの未知field拒否と、保存されたevent.dataの公開schema検査は別である。CI candidate/integrationは既存check-allを呼ぶため、同じCore判定へ接続可能。",
+      "公開形式変更に必要な既存失敗検証・Intent復帰の回帰テスト3件とcommand照合の実パスをP3へ同期。目的・公開境界・承認範囲は変えず、元の記録は非公開原本で保持。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "公開禁止の環境識別情報が検証出力に混入。既存eventの秘匿修正は追記専用契約との矛盾を解消する個別判断が必要。",
+        "evidence": "対象Botコメントとevents/000010.jsonのoutput、commandsを確認。Core lifecycle.go Verifyが実出力を保存し、現在のCore/Documentation契約は確定eventの保存・追記を要求。",
+        "change": "既存Taskの原本を非公開ローカルへ保存したうえで、公開対象000002/000003/000007/000009/000010の実行場所を移植可能な参照へ、000010の環境警告出力を技術要約へ置換し、影響する後続eventのchainを再計算する案。これは通常の追記契約の例外として明示承認を要する。既存公開commitの履歴には元情報が残るためhead修正だけを履歴からの完全除去と扱わない。Git履歴書換えはこの提案の権限に含めない。今後の検証は環境警告を混入させない実行方法と移植可能argvを選び、公開前に全Task差分を確認する。確認はchain検査、該当識別パスの非残存、技術結果・終了状態の保持。返信案:「環境識別情報の混入は妥当な指摘です。既存記録の秘匿修正は追記契約の例外承認後に実施し、技術結果を保持してchainを検証します。既存公開commitからの完全除去とは区別します。」実装後の実際の結果・commitを返信。Bot threadは承認された範囲の配信と返信が完了し、履歴残存の扱いを含む論点が解消した場合のみresolveする。",
+        "paths": [
+          ".aidd/v4/issue-1853/events/"
+        ]
+      },
+      {
+        "id": "P2",
+        "finding": "外部Coreの記録形式と配信Coreの読取形式が不一致でCIが承認を拒否。",
+        "evidence": "CI candidateのinvalid approval、000006のtext_hash、PR内check.goのText必須、main既存修正cc5c5799のstoredTextHash/validRecordを対照。",
+        "change": "既にmainへ反映済みの本文hash対応から必要なCoreの記録・読取互換部分と関連回帰テストをこのPRへ反映する。古いeventを保持し新hash形式を読めることを確認する。PR内Coreをbuildして全Task check-all、Go test/vet、旧本文・新hash・不正hashの境界テスト、最終差分レビュー・Shipを実施する。外部binaryだけの成功を根拠にしない。新たなIssue・別Task・同じ機能の別設計は不要。",
+        "paths": [
+          "tools/aidd/checker/internal/core/model.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/audit_approval_test.go",
+          "tools/aidd/checker/internal/core/intent_revision_test.go"
+        ]
+      },
+      {
+        "id": "P3",
+        "finding": "公開検証記録の保存schemaが生出力と実行環境情報を受け入れ、機械検査の合格が公開制約の遵守を保証しない。単なる情報削除や注意文の追加では同経路から再流入する。",
+        "evidence": "Core lifecycle.go VerifyのResult{argv,exit,string(output)}、model.go Decision.CommandsとResult.Output、verifiedのargv/exit照合、check.goの記録検査、CLI check-allと既存CI各jobの呼出経路。Bot thread PRRT_kwDOM0p88s6oDUphとユーザー訂正。",
+        "change": "検証記録の公開境界をCoreで強制する。実行argv・stdout/stderr・自由形式の実行エラーはGit管理外のローカル証拠へ保存し、公開eventには検証の識別子、結果コード、対象fingerprint/revision、証拠digestなど許可した構造だけを書く。検証識別子はrepositoryで管理する移植可能なコマンド定義に結び付け、Decision.Commandsからも個別PCの実行argvが公開されないよう同期する。任意の生出力・自由記述の検証要約を公開結果へ移す迂回は許可しない。入力だけでなく保存済みevent.dataも未知field・生出力field・不正識別子等を拒否する。新規保存時、既存ship-check、既存check-all/CheckChangesから同一validatorを呼ぶ。hashが正しくても公開schema違反なら拒否する。今回の既存Taskは承認済みP1による原本保全・公開記録の変換対象として扱い、危険な旧記録を変更対象Taskの互換読取という理由で無条件に通さない。無関係な全Task移行へ広げず、適用範囲と旧記録読取/再公開の差を契約へ明記する。構造以外にある任意文章の意味上の個人情報全般まで保証しない。回帰検証: 成功/失敗コマンドがホーム・一時パスや秘密を模した値をstdout/stderrへ出しても公開eventに一切保存されず、詳細はローカル証拠に保持。生outputや未許可fieldを手動注入しhashを整合させても保存/Ship/CIの共通経路で拒否。未知検証ID、絶対実行場所、不正証拠参照、旧形式での迂回も拒否。正しいreceiptはpass、失敗exitを成功へ丸めない。Go test/vet、全Task integrity、変更Task配信照合、境界テスト、最終差分レビューをPR内Coreで実施する。既存CIは同じcheck-allを呼ぶため新workflowを増やさない。返信案:「生出力と実行環境情報が公開検証記録へ入る保存経路を修正しました。詳細は非公開証拠へ保持し、公開構造の違反を保存時・Ship前・CIの同一検査で拒否する境界テストを追加しました。既存記録の例外修正と履歴残存の範囲も確認しました。」実際の検証結果・commitに基づいて返信し、承認範囲の既存記録修正と根本対策の配信が完了し論点が解消した場合だけ対象Bot threadを解決、read-backする。今は未実施。",
+        "paths": [
+          "tools/aidd/checker/internal/core/model.go",
+          "tools/aidd/checker/internal/core/lifecycle.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/public_evidence.go",
+          "tools/aidd/checker/internal/core/public_evidence_test.go",
+          "tools/aidd/checker/internal/core/verification_test.go",
+          "tools/aidd/checker/cmd/aidd-checker/main.go",
+          "docs/ai-driven-development/aidd-checker.md",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "tools/aidd/checker/internal/core/verification.go",
+          "tools/aidd/checker/internal/core/core_test.go",
+          "tools/aidd/checker/internal/core/cycle_test.go",
+          "tools/aidd/checker/internal/core/process_unix_test.go"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "279fcf4cbe595fa1edec4d5f446d79b70b3ba337",
+      "remote": "origin",
+      "branch": "issue-1853/upstream-fix-evidence",
+      "pr": "https://github.com/kosnu/savings/pull/1854",
+      "evidence": "local HEADとPR head一致、revision3のverify/reviewはsource current。CI candidate/verify FAILURE、integration SUCCESS。",
+      "base": "main"
+    }
+  },
+  "hash": "0f89f52fc5ec8674964caf89fa45be704dba895383669aa1406b73dcda61f076",
+  "cycle_id": "issue-1853/cycle-0002"
+}

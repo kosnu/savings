@@ -14,7 +14,7 @@ func approveCycleImprovement(t *testing.T, s *Store) {
 	if e := s.Audit(Audit{Summary: "improve", Proposals: []Proposal{{"p", "finding", "observed", "fix", []string{"code.txt"}}}}); e != nil {
 		t.Fatal(e)
 	}
-	if e := s.Approve(Approval{s.latest("audit").Hash, "user:cycle", "approve improvement", []string{"p"}}); e != nil {
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:cycle", Text: "approve improvement", ProposalIDs: []string{"p"}}); e != nil {
 		t.Fatal(e)
 	}
 }
@@ -54,10 +54,12 @@ func TestIntentOnlyImprovementRequiresContentChange(t *testing.T) {
 	if e := s.Audit(Audit{Summary: "clarify Intent", Proposals: []Proposal{{"p", "finding", "evidence", "clarify", []string{"@intent"}}}}); e != nil {
 		t.Fatal(e)
 	}
-	if e := s.Approve(Approval{s.latest("audit").Hash, "user:2", "approve Intent change", []string{"p"}}); e != nil {
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:2", Text: "approve Intent change", ProposalIDs: []string{"p"}}); e != nil {
 		t.Fatal(e)
 	}
 	d, _ := s.decision()
+	d.Commands, _ = s.executionCommands(d)
+	d.EvidenceVersion, d.PlanHash, d.CommandIDs = 0, "", nil
 	intent := s.CurrentIntent()
 	intent.Source = "user:3"
 	d.IntentRevision = &intent
@@ -169,7 +171,7 @@ func TestCyclesRepeatAndFinishWithoutImprovement(t *testing.T) {
 	if e := s.Audit(Audit{Summary: "no further improvements"}); e != nil {
 		t.Fatal(e)
 	}
-	if e := s.Approve(Approval{s.latest("audit").Hash, "user:finish", "approve final Audit", nil}); e != nil {
+	if e := s.Approve(Approval{AuditHash: s.latest("audit").Hash, Source: "user:finish", Text: "approve final Audit", ProposalIDs: nil}); e != nil {
 		t.Fatal(e)
 	}
 	if s.Status()["state"] != "complete" || s.cycleID() != "example/cycle-0003" || s.ReturnIntent("unnecessary cycle") == nil {

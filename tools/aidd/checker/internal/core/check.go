@@ -51,6 +51,9 @@ func (s *Store) Check() error {
 	intent := s.Task.Intent
 	for i := range s.Events {
 		e := &s.Events[i]
+		if err := validatePublicData(e.Kind, e.Data, true); err != nil {
+			return err
+		}
 		switch e.Kind {
 		case "start":
 			if i != 0 {
@@ -62,6 +65,9 @@ func (s *Store) Check() error {
 			}
 			decision = e
 			if in := eventData[Decision](e).IntentRevision; in != nil {
+				if _, err := storedTextHash(in.Text, in.TextHash); err != nil {
+					return fmt.Errorf("invalid Intent revision: %w", err)
+				}
 				intent = *in
 			}
 		case "return-intent":
@@ -78,6 +84,9 @@ func (s *Store) Check() error {
 		case "verify":
 			if decision == nil || decision.CycleID != e.CycleID {
 				return fmt.Errorf("verification without decision")
+			}
+			if err := validateResultIDs(eventData[Decision](decision), eventData[Verification](e)); err != nil {
+				return err
 			}
 			verify = e
 		case "review":
@@ -131,12 +140,12 @@ func (s *Store) Check() error {
 			audit = e
 		case "dismiss":
 			a := eventData[Approval](e)
-			if audit == nil || a.AuditHash != audit.Hash || a.Text == s.Task.Authority || required(a.Text, a.Source) != nil {
+			if audit == nil || a.AuditHash != audit.Hash || !a.validRecord(s.Task.Authority) {
 				return fmt.Errorf("invalid dismissal")
 			}
 		case "approve":
 			a := eventData[Approval](e)
-			if audit == nil || a.AuditHash != audit.Hash || a.Text == s.Task.Authority || required(a.Text, a.Source) != nil {
+			if audit == nil || a.AuditHash != audit.Hash || !a.validRecord(s.Task.Authority) {
 				return fmt.Errorf("invalid approval")
 			}
 			approval = e
@@ -184,6 +193,9 @@ func CheckChanges(root, baseRef string) error {
 			return e
 		}
 		if e = s.Check(); e != nil {
+			return e
+		}
+		if e = s.CheckPublicRecords(); e != nil {
 			return e
 		}
 		now, fp, e := s.current()
