@@ -1,7 +1,7 @@
 # Burneto - フロントエンド
 
 このディレクトリは Burneto アプリケーションのウェブフロントエンドです。
-React + TypeScript + Vite を使ったシングルページアプリケーションで、認証・データベースには Supabase（Auth / PostgreSQL）を利用し、ホスティングは Cloudflare Pages を使用します。
+React + TypeScript + Vite を使ったシングルページアプリケーションで、認証・データベースには Supabase（Auth / PostgreSQL）を利用します。配信設定は Cloudflare Workers Static Assets です。本番の Pages からの切替は、[移管手順](../../docs/workers-migration.md)に従い承認後に実施します。
 
 以下は現状のコードベースに基づく簡潔な README です。ローカルでの開発、テスト、ビルド、デプロイ手順をまとめています。
 
@@ -107,7 +107,21 @@ pnpm dev
 pnpm build
 ```
 
-Cloudflare Pages へデプロイする場合は、GitHub Actions (`deploy_production.yaml`) を参照してください。手動デプロイは Wrangler CLI を利用します。
+Cloudflare Vite plugin が `.cloudflare/output/v0/` に Workers Static Assets の配信物を作成します。
+`cloudflare.config.ts` が Worker 名 `burneto`、本番ドメイン `burneto.com`、SPA fallback を定義します。
+Worker のサーバーコードは追加しません。通常の `pnpm dev` は既存の Vite 開発サーバーを使います。
+
+ビルド後は、認証情報を使わずに cf で配信物を検証できます。
+
+```bash
+pnpm exec cf deploy --prebuilt --mode production --dry-run
+pnpm preview --host 127.0.0.1
+```
+
+本番配信は GitHub Actions の [Deploy Production](../../.github/workflows/deploy_production.yaml) を手動実行します。
+cf は再ビルドせず、検証した同じ配信物を `--prebuilt --mode production` でデプロイします。
+初回の本番切替、必要な token 権限、動作確認と切り戻しは[移管手順](../../docs/workers-migration.md)を参照してください。
+本番切替と旧 Pages 削除には、具体的な実施内容への承認が必要です。
 
 ## 環境変数
 
@@ -118,7 +132,7 @@ Sentry を使う場合は、フロントエンド実行時に次の変数を設�
 - `VITE_SENTRY_DSN` - ブラウザ SDK がエラー送信に使う DSN。本番でのみ利用され、未設定なら初期化しません。
 - `VITE_SENTRY_ENVIRONMENT` - Sentry 上での environment 名。未設定時は `production` / `development` / `test` の Vite mode を使います。
 
-source map をアップロードするデプロイ環境では、GitHub Actions の secrets として次も必要です。本番 build でのみ Sentry plugin を有効化し、アップロード後の source map は公開物から削除します。
+source map をアップロードするデプロイ環境では、GitHub Actions の secrets として次も必要です。本番 build でのみ Sentry plugin を有効化し、`.cloudflare/output/v0/workers/default/assets/` の source map をアップロードして公開物から削除します。
 
 - `SENTRY_AUTH_TOKEN`
 - `SENTRY_ORG`
