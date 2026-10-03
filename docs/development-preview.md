@@ -87,11 +87,11 @@ JSON に `preview_urls` と `deployment_id` を返す。plugin は
 | Dev Worker限定の配信token | `CLOUDFLARE_API_TOKEN`                                           |
 
 名前は本番と揃え、値をDev専用にする。productionのEnvironment Secretは自動継承されない。
-本番token/keyをコピーせず、所有者が各EnvironmentのSecret入力画面へ直接登録する。
+本番token/keyをコピーせず、所有者がdevelopmentのSecret入力画面へ直接登録する。
 旧 `DEV_*` 名での登録案は撤回した。値をチャットやコマンド履歴へ貼らない。
 
 publishable key はブラウザに含まれる公開クライアント用の値。service_role、secret key、DB password、
-Supabase access token は frontend 配信に不要。DB用Environmentだけへ登録し、FE jobには渡さない。
+Supabase access token は frontend 配信に不要。developmentに登録し、DB stepだけに明示的に渡す。
 Sentry 送信・source map upload は Preview では無効。
 
 workers.dev URL は秘密 URL でもアクセス制御でもない。JavaScript と合成データを用いた公開検証を
@@ -140,10 +140,10 @@ CloudとActionsの同名Previewへの同時配信は避ける。最後の完了�
 
 ## PR Actions からの配信
 
-| 操作       | 起動方法                           | 承認するEnvironment    |
-| ---------- | ---------------------------------- | ---------------------- |
-| FE Preview | open PRへ `preview` ラベルを付ける | `development`          |
-| 共有Dev DB | open PRへ `dev-db` ラベルを付ける  | `development-database` |
+| 操作       | 起動方法                           | 承認するEnvironment |
+| ---------- | ---------------------------------- | ------------------- |
+| FE Preview | open PRへ `preview` ラベルを付ける | `development`       |
+| 共有Dev DB | open PRへ `dev-db` ラベルを付ける  | `development`       |
 
 ラベルは**初回マージ前にも実行できる入口**として採用する。
 [GitHubのpull_request仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)に従い、
@@ -169,7 +169,7 @@ GitHub concurrencyは全待機要求のFIFO保存を保証しないため、置�
 ## 専用 Dev DB CI
 
 1. 検証するPRに `dev-db` ラベルを付ける（main導入後はPR番号でdispatchも可能）。
-2. `development-database` の承認画面に表示された固定SHAの未適用SQLを確認する。
+2. `development` の承認画面に表示された固定SHAの未適用SQLを確認する。
    他Previewとの互換性、停止枠、削除対象・復旧方法を確認した上で**1回承認**する。
    具体的な破壊操作が未承認ならjobを承認しない。
 3. jobはPRを再照合し、Dev refを固定確認して、固定CLI **2.118.0** で次を実行する。
@@ -190,8 +190,9 @@ reset/seed/roles/Vault更新、`--include-all`、履歴repair、自動rollback�
 
 ### 一度だけ必要な設定（変更は別途承認）
 
-`development` と `development-database` は、FEにDB管理tokenを渡さないために分ける。
-両方で所有者 `kosnu` をrequired reviewerにし、本人の明示承認を可能にするためPrevent self-reviewを無効、
+FEとDBは一つの `development` Environmentを使用する。必要なSecretだけを各stepのenvへ明示し、
+FEにはDB管理tokenを渡さない。Environment自体でFE/DBのcredentialを隔離する構成ではないため、
+承認者はworkflowのSecret参照も確認する。所有者 `kosnu` をrequired reviewerにし、本人の明示承認を可能にするためPrevent self-reviewを無効、
 bypassを無効にする。branch policyは `main` と `refs/pull/*/merge` を許可する。
 SecretはEnvironmentへ登録し、同名repository Secretで代用しない。
 
@@ -200,7 +201,7 @@ SecretはEnvironmentへ登録し、同名repository Secretで代用しない。
 publicのrequired reviewersはFreeで利用できる。private化やplan変更時は再評価し、無保護へ置き換えない。
 新たなEnvironment API読取や追加GitHub PATは必要ない。
 
-`development-database` のSecretは本番と同じ名前でDev値の2個だけ。
+FE用4個に加え、DB用の次の2個も `development` のSecretsへ登録する。本番と同じ名前で値はDev専用。
 
 | Secret                  | 値・入力元                                                  |
 | ----------------------- | ----------------------------------------------------------- |

@@ -51,7 +51,7 @@ jobs:
     name: Approve Dev DB ${{ needs.resolve.outputs.branch }} @ ${{ needs.resolve.outputs.sha }}
     needs: resolve
     runs-on: ubuntu-latest
-    environment: development-database
+    environment: development
     permissions:
       contents: read
       pull-requests: read

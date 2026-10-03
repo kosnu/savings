@@ -131,3 +131,29 @@ test("database requests use their own label and the same immutable head checks",
     deploymentRequest(f.event, "pull_request", "refs/pull/1871/merge", repo, "database"),
   )
 })
+
+test("FE/DB share development but only DB steps receive database credentials", () => {
+  const read = (name) =>
+    readFileSync(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8")
+  const frontend = read("deploy_preview.yaml")
+  const database = read("deploy_dev_database.yaml")
+  const secrets = (yaml) =>
+    [...new Set([...yaml.matchAll(/secrets\.([A-Z_]+)/g)].map((match) => match[1]))].sort((a, b) =>
+      a.localeCompare(b),
+    )
+  for (const yaml of [frontend, database]) {
+    assert.match(yaml, /^    environment: development$/m)
+  }
+  assert.deepEqual(secrets(frontend), [
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_API_TOKEN",
+    "VITE_SUPABASE_PUBLISHABLE_KEY",
+    "VITE_SUPABASE_URL",
+  ])
+  assert.deepEqual(secrets(database), ["SUPABASE_ACCESS_TOKEN", "SUPABASE_PROJECT_ID"])
+  assert.match(database, /^  group: burneto-shared-dev-database$/m)
+  assert.ok(
+    database.indexOf("Revalidate after migration approval") <
+      database.indexOf("secrets.SUPABASE_ACCESS_TOKEN"),
+  )
+})
