@@ -20,8 +20,6 @@ jobs:
       contents: read
       actions: read
     steps:
-      - name: Check Postgres client availability
-        run: psql --version
       # 実 runner の GITHUB_TOKEN で保護設定の読取権限を確認する。設定は変更しない。
       - name: Check environment metadata read permission
         env:
@@ -42,6 +40,6 @@ jobs:
       - run: node --test tools/dev-preview/preview.test.mjs tools/dev-preview/authorize.test.mjs tools/dev-db/migrations.test.mjs
       - name: Build Preview without deployment credentials
         env:
-          DEV_SUPABASE_PROJECT_REF: abcdefghijklmnopqrst
-          DEV_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_fixture
+          VITE_SUPABASE_URL: https://abcdefghijklmnopqrst.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_fixture
         run: node tools/dev-preview/deploy.mjs ci/preview --build-only

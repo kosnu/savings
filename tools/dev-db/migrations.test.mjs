@@ -1,6 +1,14 @@
 import assert from "node:assert/strict"
 import { spawnSync } from "node:child_process"
-import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs"
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+} from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import test from "node:test"
@@ -8,7 +16,8 @@ import { fileURLToPath } from "node:url"
 
 import { authorize, deploymentRequest } from "../dev-preview/authorize.mjs"
 import {
-  databaseConnection,
+  databaseCredentials,
+  readDatabaseHistory,
   DEV_PROJECT_REF,
   executePlan,
   migrationPlan,
@@ -99,27 +108,44 @@ test("apply verifies remote history; repeat is no-op; partial failure is not rep
   )
 })
 
-test("only the fixed Dev project and direct/session host can receive existing DB credentials", () => {
-  const env = {
-    DEV_SUPABASE_PROJECT_REF: DEV_PROJECT_REF,
-    DEV_DB_HOST: "aws-1-ap-northeast-1.pooler.supabase.com",
-    DEV_SUPABASE_DB_PASSWORD: "fixture",
-    DEV_DB_SSL_ROOT_CERT: "-----BEGIN CERTIFICATE-----\nfixture",
+test("only the approved Dev ref can use its scoped token", () => {
+  const env = { SUPABASE_PROJECT_ID: DEV_PROJECT_REF, SUPABASE_ACCESS_TOKEN: "fixture-token" }
+  assert.equal(databaseCredentials(env).ref, DEV_PROJECT_REF)
+  assert.throws(() => databaseCredentials({ ...env, SUPABASE_PROJECT_ID: "izuzqvgvgquqqimwuygw" }))
+  assert.throws(() => databaseCredentials({ ...env, SUPABASE_ACCESS_TOKEN: "" }))
+})
+
+test("history uses only the read-only API and fails closed without exposing response errors", async () => {
+  const credentials = { ref: DEV_PROJECT_REF, token: "fixture-token" }
+  const calls = []
+  const request = async (url, options) => {
+    calls.push({ url, options })
+    assert.equal(options.redirect, "error")
+    assert.equal(options.headers.Authorization, `Bearer ${credentials.token}`)
+    assert.ok(url.endsWith(`/projects/${DEV_PROJECT_REF}/database/query/read-only`))
+    return {
+      status: 201,
+      json: async () => (calls.length === 1 ? [{ exists: true }] : [applied(a)]),
+    }
   }
-  assert.equal(databaseConnection(env).user, `postgres.${DEV_PROJECT_REF}`)
-  assert.equal(
-    databaseConnection({ ...env, DEV_DB_HOST: `db.${DEV_PROJECT_REF}.supabase.co` }).user,
-    "postgres",
+  assert.deepEqual(await readDatabaseHistory(credentials, request), [applied(a)])
+  await assert.rejects(
+    readDatabaseHistory(credentials, async () => ({ status: 403 })),
+    /403/,
   )
-  for (const overrides of [
-    { DEV_SUPABASE_PROJECT_REF: "izuzqvgvgquqqimwuygw" },
-    { DEV_DB_HOST: "db.izuzqvgvgquqqimwuygw.supabase.co" },
-    { DEV_DB_HOST: "evil.example" },
-    { DEV_DB_HOST: "aws-1-ap-northeast-1.pooler.supabase.com:6543" },
-    { DEV_SUPABASE_DB_PASSWORD: "" },
-    { DEV_DB_SSL_ROOT_CERT: "" },
-  ])
-    assert.throws(() => databaseConnection({ ...env, ...overrides }))
+  await assert.rejects(
+    readDatabaseHistory(credentials, async () => {
+      throw new Error(credentials.token)
+    }),
+    /Dev history request failed/,
+  )
+  await assert.rejects(
+    readDatabaseHistory(credentials, async () => ({
+      status: 201,
+      json: async () => [{ exists: false, count: 1 }],
+    })),
+    /Untracked/,
+  )
 })
 
 test("PR-only UX pins the event head internally and database credentials require their own owner gate", async () => {
@@ -187,17 +213,14 @@ test("workflow serializes the shared DB, plans before approval/apply, and never 
   assert.equal(workflow.match(/environment: development-database/g)?.length, 2)
   assert.match(workflow, /needs: \[resolve, plan\]/)
   assert.match(workflow, /DB_PLAN_DIGEST: \$\{\{ needs.plan.outputs.digest \}\}/)
-  assert.doesNotMatch(
-    workflow,
-    /pull_request_target:|head_sha:\n|SUPABASE_ACCESS_TOKEN|CLOUDFLARE_API_TOKEN/,
-  )
+  assert.doesNotMatch(workflow, /pull_request_target:|head_sha:\n|CLOUDFLARE_API_TOKEN/)
   const runner = readFileSync("tools/dev-db/deploy.mjs", "utf8")
-  assert.match(runner, /default_transaction_read_only=on/)
+  assert.match(runner, /readDatabaseHistory/)
   assert.match(runner, /"--skip-vault"/)
   assert.doesNotMatch(runner, /"--include-all"|"--include-seed"|"--include-roles"|"reset"|"repair"/)
 })
 
-test("runner subprocesses keep password out of argv/logs and plan never invokes db push", () => {
+test("runner keeps token out of argv/logs, plans without CLI, and delegates temporary auth to linked CLI", () => {
   const directory = mkdtempSync(join(tmpdir(), "dev-db-runner-test-"))
   try {
     const bin = join(directory, "bin")
@@ -213,16 +236,28 @@ test("runner subprocesses keep password out of argv/logs and plan never invokes 
     const executable = (name, script) =>
       writeFileSync(join(bin, name), `#!${process.execPath}\n${script}`, { mode: 0o700 })
     executable("git", `if(process.argv.includes('rev-parse')) console.log('${sha}')`)
-    const record = `const fs=require('node:fs'); const args=process.argv.slice(2); if(args.some(a=>a.includes(process.env.PGPASSWORD||process.env.SUPABASE_DB_PASSWORD)))process.exit(90); fs.appendFileSync(process.env.MOCK_CALLS,JSON.stringify({tool:require('node:path').basename(process.argv[1]),args})+'\\n');`
-    executable(
-      "psql",
-      record +
-        `if(!process.env.PGOPTIONS.includes('default_transaction_read_only=on'))process.exit(91); if(args.at(-1).includes('to_regclass'))console.log('t');else console.log(fs.readFileSync(process.env.MOCK_STATE,'utf8'));`,
-    )
+    const record = `const fs=require('node:fs'); const args=process.argv.slice(2); if(args.some(a=>a.includes(process.env.SUPABASE_ACCESS_TOKEN)))process.exit(90); fs.appendFileSync(process.env.MOCK_CALLS,JSON.stringify({tool:require('node:path').basename(process.argv[1]),args})+'\\n');`
     executable(
       "pnpm",
       record +
-        `if(!process.env.SUPABASE_DB_PASSWORD||process.env.PGPASSWORD)process.exit(92); fs.writeFileSync(process.env.MOCK_STATE,JSON.stringify(${JSON.stringify([applied(a), applied(b)])})); console.log(process.env.SUPABASE_DB_PASSWORD);`,
+        `
+      if(args.includes('--version')) {console.log('2.118.0'); process.exit(0)}
+      if(!process.env.SUPABASE_ACCESS_TOKEN||process.env.SUPABASE_DB_PASSWORD||!process.env.SUPABASE_HOME||process.env.SUPABASE_TELEMETRY_DISABLED!=="true")process.exit(92);
+      if(args.includes('link')) {
+        const p=require('node:path').join(args[args.indexOf('--workdir')+1],'supabase','.temp');
+        fs.mkdirSync(p,{recursive:true}); fs.writeFileSync(require('node:path').join(p,'project-ref'),process.env.SUPABASE_PROJECT_ID);
+      } else {fs.writeFileSync(process.env.MOCK_STATE,JSON.stringify(${JSON.stringify([applied(a), applied(b)])}));}
+      console.log(process.env.SUPABASE_ACCESS_TOKEN);
+    `,
+    )
+    const preload = join(directory, "mock-fetch.mjs")
+    writeFileSync(
+      preload,
+      `import fs from 'node:fs'; globalThis.fetch=async(url,options)=>{
+      if(!url.endsWith('/database/query/read-only'))throw Error('unexpected endpoint');
+      const sql=JSON.parse(options.body).query;
+      return {status:201,json:async()=>sql.includes('to_regclass')?[{exists:true}]:JSON.parse(fs.readFileSync(process.env.MOCK_STATE,'utf8'))};
+    };`,
     )
     const environment = {
       ...process.env,
@@ -230,10 +265,9 @@ test("runner subprocesses keep password out of argv/logs and plan never invokes 
       MOCK_STATE: state,
       MOCK_CALLS: calls,
       DB_EXPECTED_SHA: sha,
-      DEV_SUPABASE_PROJECT_REF: DEV_PROJECT_REF,
-      DEV_DB_HOST: `db.${DEV_PROJECT_REF}.supabase.co`,
-      DEV_SUPABASE_DB_PASSWORD: secret,
-      DEV_DB_SSL_ROOT_CERT: "-----BEGIN CERTIFICATE-----\nfixture",
+      SUPABASE_PROJECT_ID: DEV_PROJECT_REF,
+      SUPABASE_ACCESS_TOKEN: secret,
+      NODE_OPTIONS: `--import=${preload}`,
       GITHUB_OUTPUT: join(directory, "outputs"),
       GITHUB_STEP_SUMMARY: join(directory, "summary"),
     }
@@ -246,17 +280,18 @@ test("runner subprocesses keep password out of argv/logs and plan never invokes 
       })
     const plan = run("plan")
     assert.equal(plan.status, 0, plan.stderr)
-    assert.doesNotMatch(readFileSync(calls, "utf8"), /"tool":"pnpm"/)
+    assert.equal(plan.stdout.includes("pending: 1"), true)
+    assert.equal(existsSync(calls), false)
     const digest = /digest=([a-f0-9]{64})/.exec(readFileSync(environment.GITHUB_OUTPUT, "utf8"))[1]
     const result = run("apply", { DB_PLAN_DIGEST: digest })
     assert.equal(result.status, 0, result.stderr)
     const records = readFileSync(calls, "utf8").trim().split("\n").map(JSON.parse)
-    const push = records.find((r) => r.tool === "pnpm")
+    const push = records.find((r) => r.args.includes("push"))
     assert.ok(push.args.includes("--skip-vault"))
     assert.ok(push.args.includes("--yes"))
-    assert.ok(
-      push.args.find((arg) => arg.startsWith("postgresql:")).includes("sslmode=verify-full"),
-    )
+    assert.ok(push.args.includes("--linked"))
+    assert.ok(records.some((r) => r.args.includes("link")))
+    assert.ok(!records.some((r) => r.args.some((arg) => ["--password", "--db-url"].includes(arg))))
     for (const text of [
       plan.stdout,
       plan.stderr,

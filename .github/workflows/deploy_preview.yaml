@@ -89,8 +89,8 @@ jobs:
       - name: Build and deploy Dev Preview
         env:
           PREVIEW_BRANCH: ${{ needs.resolve.outputs.branch }}
-          DEV_SUPABASE_PROJECT_REF: ${{ vars.DEV_SUPABASE_PROJECT_REF }}
-          DEV_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.DEV_SUPABASE_PUBLISHABLE_KEY }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.DEV_CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.DEV_CLOUDFLARE_ACCOUNT_ID }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: node tools/dev-preview/deploy.mjs "$PREVIEW_BRANCH"

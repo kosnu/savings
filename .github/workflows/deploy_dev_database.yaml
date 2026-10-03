@@ -74,16 +74,12 @@ jobs:
         with:
           node-version-file: package.json
           package-manager-cache: false
-      - name: Check Postgres client
-        run: psql --version
       - name: Read history and publish migration plan
         id: plan
         env:
           DB_EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
-          DEV_SUPABASE_PROJECT_REF: ${{ vars.DEV_SUPABASE_PROJECT_REF }}
-          DEV_DB_HOST: ${{ vars.DEV_DB_HOST }}
-          DEV_DB_SSL_ROOT_CERT: ${{ vars.DEV_DB_SSL_ROOT_CERT }}
-          DEV_SUPABASE_DB_PASSWORD: ${{ secrets.DEV_SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: node tools/dev-db/deploy.mjs plan
 
   apply:
@@ -118,8 +114,6 @@ jobs:
         env:
           DB_EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
           DB_PLAN_DIGEST: ${{ needs.plan.outputs.digest }}
-          DEV_SUPABASE_PROJECT_REF: ${{ vars.DEV_SUPABASE_PROJECT_REF }}
-          DEV_DB_HOST: ${{ vars.DEV_DB_HOST }}
-          DEV_DB_SSL_ROOT_CERT: ${{ vars.DEV_DB_SSL_ROOT_CERT }}
-          DEV_SUPABASE_DB_PASSWORD: ${{ secrets.DEV_SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: node tools/dev-db/deploy.mjs apply

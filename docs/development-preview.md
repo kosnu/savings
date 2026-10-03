@@ -80,15 +80,19 @@ JSON に `preview_urls` と `deployment_id` を返す。plugin は
    account と Worker に限定した `https://b-*-burneto-dev.<subdomain>.workers.dev/auth` を検討し承認を得る。
    `https://*.workers.dev/**` のような広域許可は使わない。Web の `origin + /auth` 経路は維持する。
 
-| 設定                  | GitHub development                    | Cloud の環境変数           |
-| --------------------- | ------------------------------------- | -------------------------- |
-| Dev project ref       | variable `DEV_SUPABASE_PROJECT_REF`   | `DEV_SUPABASE_PROJECT_REF` |
-| Dev publishable key   | secret `DEV_SUPABASE_PUBLISHABLE_KEY` | 同名                       |
-| Cloudflare account ID | variable `DEV_CLOUDFLARE_ACCOUNT_ID`  | `CLOUDFLARE_ACCOUNT_ID`    |
-| 承認済み配信 token    | secret `DEV_CLOUDFLARE_API_TOKEN`     | `CLOUDFLARE_API_TOKEN`     |
+| 設定                      | GitHub `development` の Secret / Cloud環境変数（同名）           |
+| ------------------------- | ---------------------------------------------------------------- |
+| Dev API URL               | `VITE_SUPABASE_URL` = `https://ufekmuxkmodwydxmdbln.supabase.co` |
+| Dev publishable key       | `VITE_SUPABASE_PUBLISHABLE_KEY`                                  |
+| Cloudflare account ID     | `CLOUDFLARE_ACCOUNT_ID`                                          |
+| Dev Worker限定の配信token | `CLOUDFLARE_API_TOKEN`                                           |
+
+名前は本番と揃え、値をDev専用にする。productionのEnvironment Secretは自動継承されない。
+本番token/keyをコピーせず、所有者が各EnvironmentのSecret入力画面へ直接登録する。
+旧 `DEV_*` 名での登録案は撤回した。値をチャットやコマンド履歴へ貼らない。
 
 publishable key はブラウザに含まれる公開クライアント用の値。service_role、secret key、DB password、
-Supabase access token は frontend 配信に不要。DB 運用者が別に保管し、PR runner に渡さない。
+Supabase access token は frontend 配信に不要。DB用Environmentだけへ登録し、FE jobには渡さない。
 Sentry 送信・source map upload は Preview では無効。
 
 workers.dev URL は秘密 URL でもアクセス制御でもない。JavaScript と合成データを用いた公開検証を
@@ -211,23 +215,42 @@ main 以外からの dispatch、fork、closed PR、異なる base/head は拒否
 
 ### 一度だけ必要な設定（外部設定変更は別途承認）
 
-FE 用 `development` と DB 用 `development-database` を分け、DB password を FE に渡さない。
-DB Environment も required reviewer は所有者 `kosnu` 本人1人、Prevent self-review は無効、bypass は無効。
-plan/apply の各承認は同じ所有者が行える。plan が DB credential を必要とするため、読み取りにも承認を設けている。
-Environment の作成・保護変更・credential 登録を workflow が代行することはない。
+FE 用 `development` と DB 用 `development-database` を分け、DB管理tokenをFEのEnvironmentへ置かない。
+二つ目のEnvironmentはSupabaseの必須条件ではなく、独立したFE配信がDB管理credentialを参照できないようにする境界。
+PRのworkflow変更自体は所有者がレビューする。両環境とも所有者 `kosnu` 本人1人をrequired reviewerにし、
+Prevent self-reviewを無効、bypassを無効にする。branch policyは `main` と `refs/pull/*/merge` を許可する。
 
-| development-database の設定         | 値・安全な取得元                                                                                                  |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| variable `DEV_SUPABASE_PROJECT_REF` | `ufekmuxkmodwydxmdbln` 固定。別 project、本番 ref は拒否                                                          |
-| variable `DEV_DB_HOST`              | Dev Dashboard → Connect の direct host または Tokyo **Session pooler** host。パスワード付き URL は貼らない        |
-| variable `DEV_DB_SSL_ROOT_CERT`     | Dev Dashboard から取得した DB の root CA PEM。公開証明書であり秘密鍵ではない                                      |
-| secret `DEV_SUPABASE_DB_PASSWORD`   | 作成時の既存 Dev DB password を所有者が GitHub の Secret 入力画面へ直接登録。チャット・コード・CLI 引数へ渡さない |
+`development-database` に登録するSecretは本番と同じ名前の **2個だけ**。
 
-[接続方式](https://supabase.com/docs/guides/database/connecting-to-postgres)は port 5432 の direct または Session pooler のみ。
-IPv4 runner では無料の Session pooler を使う。host の cluster index は推測せず Connect から取得する。
-username は固定 Dev ref から構成し、TLS は証明書と host を検証する `verify-full`。
-Supabase access token、service-role key、追加の有料 IPv4、新しい DB role は不要。
-credential 登録は既存 password の安全な配置であり、この実装作業では未実施。
+| Secret                  | 値・入力元                                                                                                                        |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `SUPABASE_PROJECT_ID`   | `ufekmuxkmodwydxmdbln` 固定。別projectはネットワーク前に拒否                                                                      |
+| `SUPABASE_ACCESS_TOKEN` | このDev projectだけを対象にしたscoped PAT。所有者が承認後にSupabase Account → Access Tokensで作成し、GitHub Environmentへ直接入力 |
+
+恒久DB password、手動host、CA PEM、psql設定は不要。旧password/host/CA登録案は撤回した。
+本番と同じ token → `supabase link` → `supabase db push --linked` を使い、一時DB credentialはCLI内部に任せる。
+生成passwordを独自取得したり、引数・ログ・job outputへ渡したりしない。
+
+[scoped PATの公式権限表](https://supabase.com/docs/guides/platform/personal-access-tokens)と
+固定CLI **2.118.0** の[source](https://github.com/supabase/cli/tree/v2.118.0/apps/cli/src)を確認した。
+対象はBurneto Devだけ。必要権限は Project Settings / API Keys / API Key Secrets / Connection Pooling の **Read**、
+Database の **Read-write**（read-only履歴照会とCLI一時login role発行）。Storage Config ReadはCLIの任意probeなので追加しない。
+本番も対象のclassic/Legacy PATを転用しない。token値からscopeを推測する検査は行わず、所有者が作成画面の
+project選択・権限一覧・有効期限を確認する。未確認のscopeを「Dev限定」として使用しない。
+
+CLI sourceの `command-internal/db-config.layer.ts` はpassword未指定で一時login roleを取得し、IPv4ではSession poolerへfallbackする。
+接続・TLS処理は固定CLIに委ね、独自のverify-full設定完了とは主張しない。
+同sourceには接続失敗時のnetwork ban解除経路もあるため、**Network Bans Read/Read-writeを一切与えない**。
+Network Restrictions、Auth設定、project変更・削除、billing等の追加権限も与えず、権限エラーを理由に自動拡張しない。
+`link`はDev API keyを内部で読むため、その読取scopeは必要だが、キーやCLI生出力をログへ転記しない。
+
+planは [read-only query API](https://supabase.com/docs/reference/api/v1-read-only-query) だけで履歴を読む。
+CLI link/db pushや一時role発行はapply承認後のみ。applyは一時workdirへレビュー済みSQLをコピーしてlinkし、
+本番向け `.temp`、`.env`、Auth config、Vault/seedを継承しない。CLIの `SUPABASE_HOME` も同じ一時領域に置き、telemetryを無効化する。終了時に両方を削除する。
+本番workflowはAuth関連envを渡すが `config push` は実行しない。DevでもAuth設定はこのDB CIから変更しない。
+
+token作成・scope付与・Environment設定・実一時role発行とDB適用は別途承認が必要で、このコード修正では実施していない。
+API/CLIのmockテストは実Dev接続やtoken scopeの実証ではない。
 
 ### 履歴、競合、同時実行、互換性
 
@@ -240,8 +263,8 @@ credential 登録は既存 password の安全な配置であり、この実装�
   SQL 証拠が欠ける場合は停止する。MCP 全文と Supabase CLI statement 配列の表現差だけ正規化して比較する。
 - 他 branch が先に migration を適用したら、その migration を履歴どおり取り込み、自分の未適用 migration を
   後の version に調整した新しい commit で計画を作り直す。適用済みファイルは編集・削除しない。
-- DB plan は `psql` の read-only session による SELECT のみ。apply は固定依存 `supabase 2.118.0` の
-  `db push --db-url <passwordなし> --skip-vault --yes` を使用する。`--yes` は承認済み計画の CLI 確認用で、
+- DB plan は Management API の read-only query による SELECT のみ。apply は固定依存 `supabase 2.118.0` の
+  `link --project-ref <Dev ref>` → `db push --linked --skip-vault --yes` を使用する。`--yes` は承認済み計画の CLI 確認用で、
   Environment 承認や具体的な破壊操作への承認を省略しない。
   reset、seed、roles、Vault 更新、`--include-all`、migration repair、強制 rollback は行わない。
 - 構造化履歴がないのに既存 public schema がある場合は自動採用しない。SQL の手修正や schema drift 全般は

@@ -163,5 +163,5 @@ test("workflow limits triggers and gates installation/deployment behind environm
   assert.match(yaml, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 2)
   assert.ok(yaml.indexOf("Revalidate after environment approval") < yaml.indexOf("run: pnpm ci"))
-  assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.DEV_CLOUDFLARE_API_TOKEN"))
+  assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.CLOUDFLARE_API_TOKEN"))
 })

@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process"
 import {
   appendFileSync,
   lstatSync,
+  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -11,18 +12,24 @@ import {
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 
-import { databaseConnection, DEV_PROJECT_REF, executePlan } from "./migrations.mjs"
+import {
+  databaseCredentials,
+  readDatabaseHistory,
+  DEV_PROJECT_REF,
+  executePlan,
+} from "./migrations.mjs"
 
 const mode = process.argv[2]
 if (!["plan", "apply"].includes(mode)) throw new Error("Use plan or apply")
 const env = process.env
-const connection = databaseConnection(env)
+const credentials = databaseCredentials(env)
 const expectedSha = env.DB_EXPECTED_SHA
 if (!/^[a-f0-9]{40}$/.test(expectedSha ?? ""))
   throw new Error("Full reviewed commit SHA is required")
-const password = env.DEV_SUPABASE_DB_PASSWORD
 const cleanEnv = Object.fromEntries(
-  Object.entries(env).filter(([key]) => !/^(PG|SUPABASE_|DEV_|CLOUDFLARE_|VITE_)/.test(key)),
+  Object.entries(env).filter(
+    ([key]) => !/^(PG|SUPABASE_|DEV_|CLOUDFLARE_|VITE_|AUTH_|SENTRY_)/.test(key),
+  ),
 )
 const run = (command, args, extra = {}) => {
   const result = spawnSync(command, args, {
@@ -46,51 +53,7 @@ if (
 }
 const directory = mkdtempSync(join(tmpdir(), "burneto-dev-db-"))
 try {
-  const certificate = join(directory, "root.crt")
-  writeFileSync(certificate, env.DEV_DB_SSL_ROOT_CERT, { mode: 0o600 })
-  const url = new URL(`postgresql://${connection.user}@${connection.host}:5432/postgres`)
-  url.searchParams.set("sslmode", "verify-full")
-  url.searchParams.set("sslrootcert", certificate)
-  const psqlEnv = {
-    PGPASSWORD: password,
-    PGCONNECT_TIMEOUT: "20",
-    PGOPTIONS:
-      "-c default_transaction_read_only=on -c statement_timeout=30000 -c lock_timeout=5000",
-  }
-  const query = (sql) =>
-    run(
-      "psql",
-      [
-        "-X",
-        "--no-password",
-        "--tuples-only",
-        "--no-align",
-        "--set",
-        "ON_ERROR_STOP=1",
-        "--dbname",
-        url.href,
-        "--command",
-        sql,
-      ],
-      psqlEnv,
-    )
-  const readHistory = async () => {
-    if (query("select to_regclass('supabase_migrations.schema_migrations') is not null") === "f") {
-      if (
-        query(
-          "select (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p','v','m')) + (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public')",
-        ) !== "0"
-      ) {
-        throw new Error("Untracked schema exists; no automatic baseline/history repair")
-      }
-      return []
-    }
-    return JSON.parse(
-      query(
-        "select coalesce(json_agg(t order by version),'[]'::json) from (select version,name,statements from supabase_migrations.schema_migrations) t",
-      ),
-    )
-  }
+  const readHistory = async () => readDatabaseHistory(credentials)
   const path = "apps/api/supabase/migrations"
   const local = readdirSync(path)
     .sort()
@@ -106,22 +69,26 @@ try {
     apply: mode === "apply",
     expectedDigest: env.DB_PLAN_DIGEST,
     push: async () => {
-      run(
-        "pnpm",
-        [
-          "exec",
-          "supabase",
-          "db",
-          "push",
-          "--workdir",
-          "apps/api",
-          "--db-url",
-          url.href,
-          "--skip-vault",
-          "--yes",
-        ],
-        { SUPABASE_DB_PASSWORD: password },
-      )
+      // 本番と同じ link → db push。既存 .temp/認証キャッシュを使わない。
+      const supabase = join(directory, "supabase")
+      mkdirSync(join(supabase, "migrations"), { recursive: true })
+      writeFileSync(join(supabase, "config.toml"), 'project_id = "burneto-dev-migrations"\n')
+      for (const m of local)
+        writeFileSync(join(supabase, "migrations", `${m.version}_${m.name}.sql`), m.sql)
+      const cliEnv = {
+        SUPABASE_ACCESS_TOKEN: credentials.token,
+        SUPABASE_PROJECT_ID: credentials.ref,
+        SUPABASE_HOME: join(directory, "cli-home"),
+        SUPABASE_TELEMETRY_DISABLED: "true",
+      }
+      const cli = (args) =>
+        run("pnpm", ["exec", "supabase", ...args, "--workdir", directory, "--agent", "no"], cliEnv)
+      if (run("pnpm", ["exec", "supabase", "--version"]) !== "2.118.0")
+        throw new Error("Reviewed Supabase CLI 2.118.0 is required")
+      cli(["link", "--project-ref", credentials.ref])
+      if (readFileSync(join(supabase, ".temp", "project-ref"), "utf8").trim() !== credentials.ref)
+        throw new Error("Linked project does not match approved Dev project")
+      cli(["db", "push", "--linked", "--skip-vault", "--yes"])
     },
   })
   const lines = [

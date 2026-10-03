@@ -131,3 +131,7 @@ DB 用 Environment を分離し、全 branch を直列化、履歴競合や計�
 マージ前に新 table を適用してから、同じ PR head の FE を配信できる。
 初期設定、公開範囲、共有 DB の適用・復旧、削除条件と実機検証は
 [Dev プレビュー運用](development-preview.md)を参照する。
+
+DevのSecret名は本番と揃え、値とEnvironmentを分離する。DBはDev限定 `SUPABASE_ACCESS_TOKEN` と
+`SUPABASE_PROJECT_ID` によるCLI link/db pushを使う。恒久DB password・host・CA登録は不要。
+具体的なscopeと承認、FE/DBのEnvironment分離は[開発Preview運用](development-preview.md)を参照する。

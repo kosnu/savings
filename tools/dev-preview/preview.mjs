@@ -22,11 +22,11 @@ export function previewName(branch) {
 }
 
 export function developmentEnv(env) {
-  const ref = env.DEV_SUPABASE_PROJECT_REF
+  const ref = /^https:\/\/([a-z]{20})\.supabase\.co\/?$/u.exec(env.VITE_SUPABASE_URL ?? "")?.[1]
   if (!ref || !/^[a-z]{20}$/u.test(ref) || ref === productionRef) {
-    throw new Error("本番とは異なる DEV_SUPABASE_PROJECT_REF が必要です。")
+    throw new Error("本番とは異なる VITE_SUPABASE_URL が必要です。")
   }
-  const key = env.DEV_SUPABASE_PUBLISHABLE_KEY
+  const key = env.VITE_SUPABASE_PUBLISHABLE_KEY
   if (!key || !/^sb_publishable_[A-Za-z0-9_-]+$/u.test(key)) {
     throw new Error(
       "Dev の publishable key が必要です。secret/service_role/legacy JWT は使えません。",

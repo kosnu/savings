@@ -113,24 +113,58 @@ export function migrationPlan(local, remote) {
   return { applied, pending, digest: hash(JSON.stringify({ applied, pending })) }
 }
 
-export function databaseConnection(env) {
-  if (env.DEV_SUPABASE_PROJECT_REF !== DEV_PROJECT_REF)
+export function databaseCredentials(env) {
+  if (env.SUPABASE_PROJECT_ID !== DEV_PROJECT_REF)
     throw new Error("Only the approved Burneto Dev project is allowed")
-  const host = env.DEV_DB_HOST ?? ""
-  const direct = host === `db.${DEV_PROJECT_REF}.supabase.co`
-  if (!direct && !/^aws-[0-9]+-ap-northeast-1\.pooler\.supabase\.com$/.test(host)) {
-    throw new Error("Use the Dev direct host or the Tokyo session pooler host from Connect")
+  if (!env.SUPABASE_ACCESS_TOKEN) throw new Error("A Dev-scoped SUPABASE_ACCESS_TOKEN is required")
+  return { ref: DEV_PROJECT_REF, token: env.SUPABASE_ACCESS_TOKEN }
+}
+
+// 読取専用 API を固定し、redirect や応答本文をエラーへ転記しない。
+export async function readDatabaseHistory(credentials, request = fetch) {
+  const query = async (sql) => {
+    let response
+    try {
+      response = await request(
+        `https://api.supabase.com/v1/projects/${DEV_PROJECT_REF}/database/query/read-only`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${credentials.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query: sql }),
+          redirect: "error",
+          signal: AbortSignal.timeout(30000),
+        },
+      )
+    } catch {
+      throw new Error("Dev history request failed")
+    }
+    if (response.status !== 201) throw new Error(`Dev history read failed (${response.status})`)
+    try {
+      return await response.json()
+    } catch {
+      throw new Error("Invalid Dev history response")
+    }
   }
-  if (!env.DEV_SUPABASE_DB_PASSWORD)
-    throw new Error("Dev DB password is required through the protected secret")
-  if (!env.DEV_DB_SSL_ROOT_CERT?.includes("-----BEGIN CERTIFICATE-----"))
-    throw new Error("Dev CA certificate is required")
-  return {
-    host,
-    user: direct ? "postgres" : `postgres.${DEV_PROJECT_REF}`,
-    port: "5432",
-    database: "postgres",
+  const exists = await query(
+    "select to_regclass('supabase_migrations.schema_migrations') is not null as exists",
+  )
+  if (exists?.[0]?.exists === false) {
+    const schema = await query(
+      "select (select count(*) from pg_catalog.pg_class c join pg_catalog.pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p','v','m')) + (select count(*) from pg_catalog.pg_proc p join pg_catalog.pg_namespace n on n.oid=p.pronamespace where n.nspname='public') as count",
+    )
+    if (String(schema?.[0]?.count) !== "0")
+      throw new Error("Untracked schema exists; no automatic baseline/history repair")
+    return []
   }
+  if (exists?.[0]?.exists !== true) throw new Error("Invalid Dev history response")
+  const history = await query(
+    "select version,name,statements from supabase_migrations.schema_migrations order by version",
+  )
+  if (!Array.isArray(history)) throw new Error("Invalid Dev history response")
+  return history
 }
 
 export async function executePlan({ local, readHistory, push, expectedDigest, apply }) {

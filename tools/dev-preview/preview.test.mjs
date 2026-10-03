@@ -11,8 +11,8 @@ import {
 } from "./preview.mjs"
 
 const dev = {
-  DEV_SUPABASE_PROJECT_REF: "abcdefghijklmnopqrst",
-  DEV_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fixture",
+  VITE_SUPABASE_URL: "https://abcdefghijklmnopqrst.supabase.co",
+  VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fixture",
 }
 
 test("同じブランチは同じ名前、slug が衝突しても別ブランチは別 Preview", () => {
@@ -36,10 +36,12 @@ test("同じブランチは同じ名前、slug が衝突しても別ブランチ
 
 test("Dev 設定不足、本番 ref、権限の強いキーをネットワーク前に拒否", () => {
   for (const ref of [undefined, productionRef, "https://example.com", "bad/ref"]) {
-    assert.throws(() => developmentEnv({ ...dev, DEV_SUPABASE_PROJECT_REF: ref }))
+    assert.throws(() =>
+      developmentEnv({ ...dev, VITE_SUPABASE_URL: ref ? `https://${ref}.supabase.co` : undefined }),
+    )
   }
   for (const key of [undefined, "", "sb_secret_secret", "eyJ.legacy.jwt"]) {
-    assert.throws(() => developmentEnv({ ...dev, DEV_SUPABASE_PUBLISHABLE_KEY: key }))
+    assert.throws(() => developmentEnv({ ...dev, VITE_SUPABASE_PUBLISHABLE_KEY: key }))
   }
 })
 
@@ -47,7 +49,6 @@ test("本番 URL・Sentry・配信/DB token をビルドへ渡さない", () => 
   const env = developmentEnv({
     ...dev,
     PATH: "/bin",
-    VITE_SUPABASE_URL: "https://production.invalid",
     VITE_SENTRY_DSN: "https://sentry.invalid",
     SENTRY_AUTH_TOKEN: "secret",
     SUPABASE_ACCESS_TOKEN: "secret",
