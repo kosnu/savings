@@ -1,0 +1,64 @@
+{
+  "sequence": 19,
+  "kind": "review",
+  "time": "2026-10-03T08:56:13.882786458Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "4fc7c0bf0a9be6492510f74a3de9750e70cd69171fea4eba33fe8f5ba6ef5c5a",
+  "revision": 7,
+  "fingerprint": "cd2feed85638400b7634387f41213595011782acccda47777b5c70790b21cfce",
+  "data": {
+    "summary": "Coverage: decision rev7の全rule/依存closure、DB/FE workflow、runner、固定SHAと承認後再検証、履歴比較、共有DB直列化、secret/TLS境界、docsを確認。Unresolved: 実機acceptanceはunknown。ユーザー承認済みUXに従いSHA手入力をなくしPR選択にした。DB plan/applyは別Environment承認、同じownerのみ。pending SQLの意味と全Preview互換性は人が確認する。CI外のDB書込はlock対象外で禁止運用、手修正schema driftは履歴比較だけでは検出不能と記載。今回追加の実DB書込、credentials設定、公開配信なし。draft提出は明示依頼内、Ship完了とはしない。",
+    "criteria": [
+      {
+        "criterion": "Cloudからのプレビュー配信とURL確認",
+        "evidence": "Cloud runnerは毎回development Preview buildを作成しcf native Previewsへ配信する。実ビルド成功、Build Outputはburneto-dev/domain空/isPreview=true。URLはcf応答検証後のみ出力。配信tokenとDev project設定がないためlive URL/画面は未確認。初期設定承認後に実施。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "PR GitHub Actionsからの配信とURL確認",
+        "evidence": "previewラベル、またはmain導入後PR番号のみdispatch。CIがSHAを解決・表示・固定しowner承認後head/branchを再照合。fork/closed/異base/更新/label撤回/保護欠落は拒否。実runnerのactions:read Environment metadata GETは既存CI成功。外部設定と実配信は未実施。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "複数ブランチ併存と同一ブランチ更新",
+        "evidence": "ブランチ名hashによりslash・大小文字・日本語・長さのslug衝突を区別し、同一入力を同一Previewへ写すテスト成功。別branch併存と再配信による実画面更新は未確認。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "共有Dev Auth/API/DB接続、本番隔離",
+        "evidence": "Dev ref固定のDB runner、passwordをargv/logへ出さず専用Environmentからのみ供給、TLSverify-full。planはread-only SELECT、履歴prefix/name/SQL検証、全branch直列、apply直前digest再検証。21Nodeテストにmock subprocess runnerあり。ローカルCLI36件履歴と照合、ローカルCLI password環境変数+passwordlessURL dry-run成功。実DevはMCP初期23/36で保存SQL原本一致を読取確認、24削除は自動承認拒否により未実施。専用CIによるhosted接続/適用・最終Auth/API/RLSは未検証。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "migration・seed/reset・互換性・復旧運用の明文化",
+        "evidence": "docsにマージ前の選択PRの専用DB CI plan→owner apply承認→同headのFE、履歴競合の取り込み、全branch直列と外部writer制限、partial failure調査、expand/contract、合成seed/reset具体承認、DB復旧とFE切戻しの分離、無料Sessionpoolerを明記。履歴repair/強制rollback/reset/seed/roles/Vault更新はCIで実行しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "0a320bac0aee6329bae9eba5b70ef406e55cb2e8bb4bf6cada0f94bb7e8492a2",
+  "cycle_id": "issue-1866/cycle-0001"
+}

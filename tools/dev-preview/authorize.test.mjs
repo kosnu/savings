@@ -6,7 +6,7 @@ import { authorize, deploymentRequest } from "./authorize.mjs"
 
 const repo = "kosnu/savings"
 const sha = "a".repeat(40)
-const label = `preview:${sha}`
+const label = "preview"
 function fixture() {
   const pr = {
     state: "open",
@@ -29,10 +29,10 @@ function fixture() {
     },
   }
 }
-const request = { number: "1871", sha, labeled: true }
+const request = { number: "1871", sha, labeled: true, kind: "preview" }
 const getter = (f) => async (path) => (path.endsWith("/development") ? f.environment : f.pr)
 
-test("SHA-scoped label selects exactly the event head; dispatch remains main-only", () => {
+test("PR label resolves the immutable event head; dispatch remains main-only", () => {
   const f = fixture()
   assert.deepEqual(
     deploymentRequest(f.event, "pull_request", "refs/pull/1871/merge", repo),
@@ -46,13 +46,13 @@ test("SHA-scoped label selects exactly the event head; dispatch remains main-onl
   assert.throws(() => deploymentRequest(event, "workflow_dispatch", "refs/heads/feature", repo))
 })
 
-test("updates, generic/stale labels, forks, wrong base and unsupported events cannot opt in", () => {
+test("updates, unrelated labels, forks, wrong base and unsupported events cannot opt in", () => {
   for (const mutate of [
     (f) => {
       f.event.action = "synchronize"
     },
     (f) => {
-      f.event.label.name = "preview"
+      f.event.label.name = "other"
     },
     (f) => {
       f.event.label.name = `preview:${"b".repeat(40)}`

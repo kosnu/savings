@@ -10,12 +10,8 @@ on:
         description: "配信する同一リポジトリの open PR 番号"
         required: true
         type: string
-      head_sha:
-        description: "レビュー・配信承認した PR head の完全 SHA"
-        required: true
-        type: string
 
-run-name: Dev Preview PR ${{ github.event.pull_request.number || inputs.pr_number }} @ ${{ github.event.pull_request.head.sha || inputs.head_sha }}
+run-name: Dev Preview PR ${{ github.event.pull_request.number || inputs.pr_number }} @ ${{ github.event.pull_request.head.sha || 'resolve-current-head' }}
 
 permissions: {}
 
@@ -29,7 +25,7 @@ jobs:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
-       startsWith(github.event.label.name, 'preview:') &&
+       github.event.label.name == 'preview' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-latest

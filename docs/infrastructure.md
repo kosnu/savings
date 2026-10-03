@@ -122,9 +122,12 @@ Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。
 本番 project、データ、OAuth 設定から分離し、合成データだけを使う。
 フロントエンドは専用 Worker `burneto-dev` の native Previews で配信する。
 `cloudflare.config.ts` は Preview context または development mode で本番 domain を外す。
-Cloud と SHA 指定ラベルから起動する PR GitHub Actions が同じ配信スクリプトを使用する。
-main 導入後は PR 番号・完全 SHA を指定する手動実行も使える。Actions は既存 development
+Cloud と PR の preview ラベルから起動する GitHub Actions が同じ配信スクリプトを使用する。
+利用者は PR を選び、SHA は CI が内部で解決・固定する。main 導入後は PR 番号だけの手動実行も使える。Actions は既存 development
 Environment の所有者本人による required review（自己承認可）を確認し、承認後も対象 SHA を再照合する。
 プレビュー配信は migration、seed、reset、Auth 設定の変更を行わない。
+DB 変更は別の dev-db ラベルで専用 CI を起動し、選択 branch の計画確認・所有者承認後に適用する。
+DB 用 Environment を分離し、全 branch を直列化、履歴競合や計画変更は停止する。
+マージ前に新 table を適用してから、同じ PR head の FE を配信できる。
 初期設定、公開範囲、共有 DB の適用・復旧、削除条件と実機検証は
 [Dev プレビュー運用](development-preview.md)を参照する。

@@ -5,6 +5,8 @@ status: accepted
 area: infrastructure
 applies_to:
   - tools/dev-preview
+  - tools/dev-db
+  - .github/workflows/deploy_dev_database.yaml
   - apps/web/cloudflare.config.ts
   - .github/workflows/deploy_preview.yaml
 topics:
@@ -54,7 +56,7 @@ JSON に `preview_urls` と `deployment_id` を返す。plugin は
 
 1. 既存 account の料金と上限を確認する。Dev 専用 Supabase project `Burneto Dev` を1つ選び、
    project ref が本番 `izuzqvgvgquqqimwuygw` と異なることを確認する。本番 dump や user をコピーしない。
-2. 下記の共有 DB 手順で、レビュー済み main の完全 SHA から migration を適用する。
+2. 下記の専用 DB CI で、検証する PR ブランチの migration 計画を確認・承認して適用する。
    [新規 project の Data API default grants 変更](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically)に注意する。
    既存 migration は一部の従来 default grants に依存するため、migration 成功だけで API 利用可能とはしない。
    認証済みテストユーザーで必要な table/RPC を確認し、不足権限は table/column/RPC ごとの最小 grant 案と
@@ -132,9 +134,9 @@ node tools/dev-preview/deploy.mjs --build-only
 
 ### PR ラベルによる明示配信（初回マージ前にも利用可能）
 
-1. 同一 repository の main 宛て open PR で、配信対象の完全 head SHA と変更をレビューする。
-2. `preview:<40桁の小文字head SHA>` ラベルを UI から明示的に付ける（計48文字）。
-   例の SHA を流用せず、その PR の現在値を使用する。ラベル作成・付与はこの workflow 自体では行わない。
+1. 同一 repository の main 宛て open PR を選び、変更をレビューする。
+2. PR に `preview` ラベルを UI から明示的に付ける。CI が操作時点の head SHA を取得・固定する。
+   SHA の入力やコピーは不要。ラベル作成・付与はこの workflow 自体では行わない。
 3. `Deploy Dev Preview` の run 名と承認待ち job 名で SHA を確認する。所有者本人が
    その SHA の workflow、gate、依存 install script、frontend と公開内容を確認して `development` を承認する。
 4. 成功後、run Summary の URL と配信 commit を確認し、実画面を検証する。
@@ -142,7 +144,7 @@ node tools/dev-preview/deploy.mjs --build-only
 [GitHub の pull_request 仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)に従い
 `labeled` のみで起動する。default branch に workflow がない初回 PR も対象にできるが、merge conflict は先に解消する。
 `pull_request_target` は使わない。push/synchronize、別ラベル、fork、main 以外の base では配信しない。
-新しい head には新しい SHA のラベルを付け直し、毎回 Environment 承認を受ける。
+head が変わった場合はラベルを外して付け直し、新しい実行で Environment 承認を受ける。
 ラベルを残しても次の push は配信されない。同一 SHA の再実行はラベルを外して再付与するか run を再実行し、再承認する。
 `GITHUB_TOKEN` によるラベル付与は次の workflow を起動しないため、自動付与を起動手段にしない。
 
@@ -178,7 +180,7 @@ Environment の GET/list に必要な権限は公式 API 上 `actions: read`。
 ### main からの手動実行
 
 workflow を main へ取り込んだ後は `workflow_dispatch` も使用できる。
-Actions の `Deploy Dev Preview` を main から実行し、open PR 番号とレビューした head の40桁 SHA を指定する。
+Actions の `Deploy Dev Preview` を main から実行し、open PR 番号だけを指定する。CI が head を解決し、承認 job に固定 SHA を表示する。
 main 以外からの dispatch、fork、closed PR、異なる base/head は拒否し、同じ Environment 保護確認と承認を通す。
 この経路は default branch への導入が前提なので、初回マージ前の Actions 検証には上の PR ラベル経路を使う。
 マージ済み PR 自体は open 条件を満たさないため、導入後の dispatch 確認には別の open PR が必要になる。
@@ -186,40 +188,81 @@ main 以外からの dispatch、fork、closed PR、異なる base/head は拒否
 両経路とも結果 URL は run の Summary とログで確認する。PR コメントの自動投稿権限は要求しない。
 同一 PR は共通 concurrency group で直列化し、別 PR は並行可能。Cloud との同時配信は手動で避ける。
 
-## 共有 DB の migration と互換性
+## 専用 Dev DB CI：選択ブランチの migration → FE
 
-Preview 配信には Supabase CLI 呼び出しがない。DB 変更は担当者1人が管理し、Cloud と CI の
-複数箇所から同時実行しない。適用台帳（Issue 等）へ Dev ref、main SHA、migration 一覧、
-適用者、時刻、影響する Preview、検証結果と復旧方針を残す。秘密値・実データは記録しない。
+`Deploy Dev Database` は FE workflow と別の明示操作で起動する。main へマージする前でも、
+新しい table/RPC を含む PR ブランチを共有 Dev DB で検証できる。FE 配信や push から DB 変更を自動起動しない。
 
-1. レビュー済み main の clean checkout と完全 SHA を固定する。未マージ branch の migration は
-   デプロイ時に適用しない。schema が不足する branch は、互換 migration が main に入り、
-   共有 DB に適用されるまで該当機能の検証を待つ。
-2. 利用中 Preview と旧 frontend の互換性を確認する。追加 column / 新 RPC を先に入れる
-   expand → frontend 更新 → 利用中の旧 Preview がなくなってから contract の順にする。
-   破壊変更は事前調整した停止枠と復旧手順への明示承認が必要。
-3. Dev project ref と接続先を二重確認し、適用予定を読み取りで確認する。CLI は repo の
-   `supabase 2.118.0` を使う。環境変数の `SUPABASE_ACCESS_TOKEN` と `SUPABASE_DB_PASSWORD` は
-   Dev 運用者だけが保持する。事前に `--help` で固定版のオプションを確認する。
+1. 検証する PR に `dev-db` ラベルを付ける。CI が現在の branch と完全 SHA を内部で固定する。
+2. 所有者本人が `development-database` の **plan job** を承認する。これは DB 履歴の読み取りのみ。
+   job Summary に対象 Dev ref、固定 SHA、適用済み件数、未適用ファイルと fingerprint、計画 digest を表示する。
+3. 未適用 SQL 全文と他 Preview への影響を確認し、同じ Environment の **apply job** を承認する。
+   DROP/TRUNCATE/DELETE/REVOKE を含む候補は Summary で注意を表示するが、これは完全な安全性判定ではない。
+   データ削除や非互換変更は、その具体的な対象・復旧方法への承認がない限り apply を承認しない。
+4. 適用直前に PR の head/branch/open/base/repository/ラベルを再検査し、DB 履歴と計画 digest も再計算する。
+   変更があれば停止する。成功時は履歴の SQL と version/name を再照合し、未適用が0件になったことを報告する。
+5. **PR head を変更せず**同じ PR に `preview` ラベルを付ける。FE の承認画面の固定 SHA が DB run と同じことを
+   確認して配信する。SHA を手入力する操作はない。途中で push した場合は、新しい head の DB plan からやり直す。
+   DB 完了だけで FE は自動配信されず、FE 切戻しだけで DB は戻らない。
 
-```sh
-# DEV_SUPABASE_PROJECT_REF は管理画面で照合済みの Dev ref のみ。
-test "$DEV_SUPABASE_PROJECT_REF" != izuzqvgvgquqqimwuygw
-test -n "$DEV_SUPABASE_PROJECT_REF"
-pnpm exec supabase migration list --workdir apps/api --project-ref "$DEV_SUPABASE_PROJECT_REF"
-pnpm exec supabase db push --workdir apps/api --project-ref "$DEV_SUPABASE_PROJECT_REF" --skip-vault --dry-run
-# 影響・適用一覧・復旧方法を承認後、同一 SHA・単一担当で実行。
-pnpm exec supabase db push --workdir apps/api --project-ref "$DEV_SUPABASE_PROJECT_REF" --skip-vault
-pnpm exec supabase migration list --workdir apps/api --project-ref "$DEV_SUPABASE_PROJECT_REF"
-```
+両 workflow の PR `labeled` 経路は初回マージ前にも利用できる。main 導入後は DB workflow の
+`workflow_dispatch` でも PR 番号だけを指定できる。fork/closed/main 以外の base は拒否する。
+ラベルを残したまま push しても起動しない。再実行ではラベルを外して付け直す。
 
-4. `--include-all`、`--include-seed`、`--include-roles`、migration repair を日常手順に含めない。
-   履歴の不一致・順序逆転・途中失敗は止めて適用履歴を確認する。
-5. 新旧 Preview で認証、取得、保存、RLS を確認する。CLI 成功と画面・API 成功を区別する。
+### 一度だけ必要な設定（外部設定変更は別途承認）
 
-frontend を以前の commit に戻して同じ Preview へ再配信しても、DB・Auth・データは戻らない。
-旧 frontend と現 schema が互換なら frontend だけ戻す。非互換なら該当 Preview の利用を止め、
-原則としてレビューした forward-fix migration で互換性を回復する。履歴だけの巻き戻しはしない。
+FE 用 `development` と DB 用 `development-database` を分け、DB password を FE に渡さない。
+DB Environment も required reviewer は所有者 `kosnu` 本人1人、Prevent self-review は無効、bypass は無効。
+plan/apply の各承認は同じ所有者が行える。plan が DB credential を必要とするため、読み取りにも承認を設けている。
+Environment の作成・保護変更・credential 登録を workflow が代行することはない。
+
+| development-database の設定         | 値・安全な取得元                                                                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| variable `DEV_SUPABASE_PROJECT_REF` | `ufekmuxkmodwydxmdbln` 固定。別 project、本番 ref は拒否                                                          |
+| variable `DEV_DB_HOST`              | Dev Dashboard → Connect の direct host または Tokyo **Session pooler** host。パスワード付き URL は貼らない        |
+| variable `DEV_DB_SSL_ROOT_CERT`     | Dev Dashboard から取得した DB の root CA PEM。公開証明書であり秘密鍵ではない                                      |
+| secret `DEV_SUPABASE_DB_PASSWORD`   | 作成時の既存 Dev DB password を所有者が GitHub の Secret 入力画面へ直接登録。チャット・コード・CLI 引数へ渡さない |
+
+[接続方式](https://supabase.com/docs/guides/database/connecting-to-postgres)は port 5432 の direct または Session pooler のみ。
+IPv4 runner では無料の Session pooler を使う。host の cluster index は推測せず Connect から取得する。
+username は固定 Dev ref から構成し、TLS は証明書と host を検証する `verify-full`。
+Supabase access token、service-role key、追加の有料 IPv4、新しい DB role は不要。
+credential 登録は既存 password の安全な配置であり、この実装作業では未実施。
+
+### 履歴、競合、同時実行、互換性
+
+- 全 branch の DB workflow は共通 `burneto-shared-dev-database` concurrency group で直列化する。
+  `cancel-in-progress: false` とし、適用中の run を新しい push で中断しない。
+  GitHub concurrency は全要求の FIFO 保存を保証せず、待機中 run が置き換わる場合は明示的に再要求する。
+  Cloud/SQL Editor/MCP 等の外部書き込みはこの lock の対象外なので、CI 実行・承認待ち中は行わない。
+- 選択 branch の migration 一覧に対し、remote 履歴が version/name/SQL 内容の一致する連続した先頭部分であることを要求する。
+  他 branch の適用済み migration が欠ける、同 version を別 SQL で再利用する、過去 SQL を変更する、順序を逆転させる、
+  SQL 証拠が欠ける場合は停止する。MCP 全文と Supabase CLI statement 配列の表現差だけ正規化して比較する。
+- 他 branch が先に migration を適用したら、その migration を履歴どおり取り込み、自分の未適用 migration を
+  後の version に調整した新しい commit で計画を作り直す。適用済みファイルは編集・削除しない。
+- DB plan は `psql` の read-only session による SELECT のみ。apply は固定依存 `supabase 2.118.0` の
+  `db push --db-url <passwordなし> --skip-vault --yes` を使用する。`--yes` は承認済み計画の CLI 確認用で、
+  Environment 承認や具体的な破壊操作への承認を省略しない。
+  reset、seed、roles、Vault 更新、`--include-all`、migration repair、強制 rollback は行わない。
+- 構造化履歴がないのに既存 public schema がある場合は自動採用しない。SQL の手修正や schema drift 全般は
+  履歴比較だけでは検出できないため、共有 DB の変更はこの経路へ揃え、変更後にアプリ動作/RLS を確認する。
+- 適用途中の失敗は一部 migration が commit 済みの可能性がある。自動 retry/rollback はしない。
+  履歴を読み直して成功分と失敗箇所を確認し、必要な forward-fix と承認を用意する。
+- schema 互換性は機械的に保証できない。table/column/RPC の追加を先に行う expand → 新旧 FE 検証 →
+  旧 Preview がなくなってから contract の順とし、共有データ変更・停止枠・復旧方法を所有者が確認する。
+
+frontend を以前の commit に戻しても、共有 DB・Auth・データは戻らない。
+非互換なら該当 Preview を止め、レビューした forward-fix migration で互換性を回復する。
+
+### 2026-10-03 の Dev 初期構築チェックポイント
+
+Dev `ufekmuxkmodwydxmdbln` は **23/36件**、最後は
+`20260526000000_update_category_with_budget_function`。初期適用は CI ではなく MCP で実施した。
+その際だけ MCP の実行時 version を元ファイルの version へ対応付けた。今後の CI は履歴を書き換えない。
+読み取りで23件の name/version/保存 SQL が main と整合し、Auth とアプリデータが0件であることを確認した。
+24件目 `20260528000000_remove_category_budgets` の空 table 削除は自動承認レビューで拒否され、未実施。
+現在の main の計画は残り13件を示すが、この具体的な削除への承認がない間は **apply を承認しない**。
+新 CI、外部 credential/Environment 設定、実 DB 適用、Google login、FE live 配信は未検証。
 
 ## 合成データ、reset、復旧
 
