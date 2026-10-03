@@ -115,3 +115,14 @@ Googleログインのredirectは次の順序を維持する。
 対象 commit と実施内容への承認を得てから行う。
 Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。
 本番で既存 session、Google ログイン、SPA の直接アクセス、Sentry の受信と source map 解決を確認する。
+
+### Development previews
+
+共有 Dev Supabase project を1つ用意し、DB・Auth・Data API を全ブランチで共有する。
+本番 project、データ、OAuth 設定から分離し、合成データだけを使う。
+フロントエンドは専用 Worker `burneto-dev` の native Previews で配信する。
+`cloudflare.config.ts` は Preview context または development mode で本番 domain を外す。
+Cloud と PR 番号を指定する手動 GitHub Actions が同じ配信スクリプトを使用する。
+プレビュー配信は migration、seed、reset、Auth 設定の変更を行わない。
+初期設定、公開範囲、共有 DB の適用・復旧、削除条件と実機検証は
+[Dev プレビュー運用](development-preview.md)を参照する。

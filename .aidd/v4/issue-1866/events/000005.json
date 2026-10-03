@@ -1,0 +1,64 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-10-03T07:08:11.560919399Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "4a117cedea5c56d69f1a661f3020ca1698e49380c12bc4f5020d2cc949cedf92",
+  "revision": 2,
+  "fingerprint": "81645884996ff11747ccf4d18704840b8f6e9d7200605bab3b6b6203f9cac5bb",
+  "data": {
+    "summary": "Coverage: 全decision rule本文を確認。ドメイン値/UI/DB schema/RLSの変更なし。infrastructure.overviewの既存参照経路と新規運用文書front matterで対象へ到達し、既存判断の移動やrule-map改変は不要。Code defectの未解決指摘なし。Core verify stable=true、全9 commands exit=0、Web712/追加6テスト成功。実機条件4件はunknown。ユーザーが依頼したdraft成果物として提出し、通常Ship完了とは扱わない。Audit未実施。",
+    "criteria": [
+      {
+        "criterion": "Cloudからのプレビュー配信とURL確認",
+        "evidence": "Cloud runnerは毎回development Preview buildを作成しcf native Previewsへ配信する。実ビルド成功、Build Outputはburneto-dev/domain空/isPreview=true。URLはcf応答検証後のみ出力。配信tokenとDev project設定がないためlive URL/画面は未確認。初期設定承認後に実施。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "PR GitHub Actionsからの配信とURL確認",
+        "evidence": "workflow_dispatchはmain限定、openかつ同一repo/main-baseのPRを番号と期待完全SHAで照合し、そのSHAをcheckout。入力はenv経由、tokenはdevelopment限定、同一PRを直列化。zizmor指摘なし。mainへの取り込みとEnvironment設定が未実施のためActionsの実配信は未確認。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "複数ブランチ併存と同一ブランチ更新",
+        "evidence": "ブランチ名hashによりslash・大小文字・日本語・長さのslug衝突を区別し、同一入力を同一Previewへ写すテスト成功。別branch併存と再配信による実画面更新は未確認。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "共有Dev Auth/API/DB接続、本番隔離",
+        "evidence": "Dev URLをproject refから構成し既知の本番refを拒否、publishable keyのみ許可。buildにCloudflare/DB/Sentry tokenを渡さずSentry送信無効。生成Dev manifestのproduction domain/binding混入を拒否するテスト成功。production build/dry-runでも従来設定を確認し実配信なし。共有Dev Auth/API/DBおよびRLSのlive動作は未確認、初期grant/OAuth設定は管理者承認待ち。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "migration・seed/reset・互換性・復旧運用の明文化",
+        "evidence": "docs/development-preview.mdにレビュー済みmain SHA、単一担当、dry-run/list、影響台帳、expand/contract、合成seed、reset承認、frontend切戻しとDB別復旧、削除条件、無料上限・課金前確認を記載。preview経路にSupabase CLI、migration/seed/resetコマンドなし。既存migration/本番workflow/データは変更していない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "68b6d18e53b09ad47e550b1fb2cfbccf09d7b9ce4a64ee46a2da05a5f3eb1ed7",
+  "cycle_id": "issue-1866/cycle-0001"
+}
