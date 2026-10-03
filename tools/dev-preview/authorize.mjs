@@ -2,8 +2,8 @@ import { appendFileSync, readFileSync } from "node:fs"
 import { pathToFileURL } from "node:url"
 
 export const deploymentProfiles = {
-  preview: { label: "preview", environment: "development" },
-  database: { label: "dev-db", environment: "development-database" },
+  preview: { label: "preview" },
+  database: { label: "dev-db" },
 }
 
 // PR の明示操作時点の SHA を内部で固定する。入力としてコピーさせない。
@@ -19,8 +19,7 @@ export function deploymentRequest(event, eventName, ref, repository, kind = "pre
       event.action !== "labeled" ||
       event.label?.name !== profile.label ||
       event.pull_request?.head?.repo?.full_name !== repository ||
-      event.pull_request?.base?.ref !== "main" ||
-      event.pull_request?.head?.sha !== sha
+      event.pull_request?.base?.ref !== "main"
     ) {
       throw new Error("PR event is not an explicit request for this head SHA")
     }
@@ -51,22 +50,6 @@ export async function authorize(request, repository, get) {
     (request.labeled && !pr.labels?.some((label) => label.name === profile.label))
   ) {
     throw new Error("PR is closed, changed, foreign, or no longer opted in")
-  }
-  const environment = await get(`/repos/${repository}/environments/${profile.environment}`)
-  if (
-    environment.name !== profile.environment ||
-    !environment.protection_rules?.some(
-      (rule) =>
-        rule.type === "required_reviewers" &&
-        rule.prevent_self_review === false &&
-        rule.reviewers?.length === 1 &&
-        rule.reviewers[0].type === "User" &&
-        rule.reviewers[0].reviewer?.login === repository.split("/")[0],
-    )
-  ) {
-    throw new Error(
-      `${profile.environment} requires its sole owner as reviewer with self-review allowed`,
-    )
   }
   return { branch: pr.head.ref, sha: request.sha }
 }
@@ -108,7 +91,7 @@ async function main() {
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(process.env.GITHUB_OUTPUT, `sha=${approved.sha}\nbranch=${approved.branch}\n`)
   }
-  console.log(`Validated PR #${request.number} head ${approved.sha}; owner approval required`)
+  console.log(`Validated PR #${request.number} head ${approved.sha}`)
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

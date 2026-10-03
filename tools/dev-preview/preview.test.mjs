@@ -1,17 +1,12 @@
 import assert from "node:assert/strict"
+import { execFileSync } from "node:child_process"
 import { test } from "node:test"
 
 import config from "../../apps/web/cloudflare.config.ts"
-import {
-  developmentEnv,
-  previewName,
-  previewUrl,
-  productionRef,
-  validateBuildOutput,
-} from "./preview.mjs"
+import { validateDevelopment, previewName, validateBuildOutput } from "./preview.mjs"
 
 const dev = {
-  VITE_SUPABASE_URL: "https://abcdefghijklmnopqrst.supabase.co",
+  VITE_SUPABASE_URL: "https://ufekmuxkmodwydxmdbln.supabase.co",
   VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fixture",
 }
 
@@ -35,37 +30,23 @@ test("同じブランチは同じ名前、slug が衝突しても別ブランチ
 })
 
 test("Dev 設定不足、本番 ref、権限の強いキーをネットワーク前に拒否", () => {
-  for (const ref of [undefined, productionRef, "https://example.com", "bad/ref"]) {
+  for (const ref of [
+    undefined,
+    "izuzqvgvgquqqimwuygw",
+    "abcdefghijklmnopqrst",
+    "https://example.com",
+    "bad/ref",
+  ]) {
     assert.throws(() =>
-      developmentEnv({ ...dev, VITE_SUPABASE_URL: ref ? `https://${ref}.supabase.co` : undefined }),
+      validateDevelopment({
+        ...dev,
+        VITE_SUPABASE_URL: ref ? `https://${ref}.supabase.co` : undefined,
+      }),
     )
   }
   for (const key of [undefined, "", "sb_secret_secret", "eyJ.legacy.jwt"]) {
-    assert.throws(() => developmentEnv({ ...dev, VITE_SUPABASE_PUBLISHABLE_KEY: key }))
+    assert.throws(() => validateDevelopment({ ...dev, VITE_SUPABASE_PUBLISHABLE_KEY: key }))
   }
-})
-
-test("本番 URL・Sentry・配信/DB token をビルドへ渡さない", () => {
-  const env = developmentEnv({
-    ...dev,
-    PATH: "/bin",
-    VITE_SENTRY_DSN: "https://sentry.invalid",
-    SENTRY_AUTH_TOKEN: "secret",
-    SUPABASE_ACCESS_TOKEN: "secret",
-    CLOUDFLARE_API_TOKEN: "secret",
-    AUTH_SITE_URL: "production",
-  })
-  assert.equal(env.VITE_SUPABASE_URL, "https://abcdefghijklmnopqrst.supabase.co")
-  assert.equal(env.VITE_SENTRY_DSN, "")
-  assert.equal(env.NODE_ENV, "production")
-  assert.equal(env.CLOUDFLARE_PREVIEW_BUILD, "true")
-  for (const key of [
-    "SENTRY_AUTH_TOKEN",
-    "SUPABASE_ACCESS_TOKEN",
-    "CLOUDFLARE_API_TOKEN",
-    "AUTH_SITE_URL",
-  ])
-    assert.equal(env[key], undefined)
 })
 
 test("Preview context は mode を間違えても本番 Worker/domain を選ばない", () => {
@@ -77,28 +58,6 @@ test("Preview context は mode を間違えても本番 Worker/domain を選ば�
   assert.equal(config({ mode: "development", isPreview: false }).worker.name, "burneto-dev")
   assert.equal(config({ mode: "production", isPreview: false }).worker.name, "burneto")
   assert.deepEqual(config({ mode: "production", isPreview: false }).worker.domains, ["burneto.com"])
-})
-
-test("cf の配信結果からのみ安定 URL を報告し、不一致・空・本番 URL を拒否", () => {
-  const name = previewName("feature/test")
-  const url = `https://${name}-burneto-dev.example.workers.dev`
-  const result = {
-    type: "preview",
-    preview_name: name,
-    deployment_id: "deployment",
-    preview_urls: [url],
-  }
-  assert.equal(previewUrl(result, name), url)
-  for (const patch of [
-    { type: "production" },
-    { preview_name: "other" },
-    { deployment_id: "" },
-    { preview_urls: [] },
-    { preview_urls: ["https://burneto.com"] },
-    { preview_urls: [url + ".evil.invalid"] },
-  ]) {
-    assert.throws(() => previewUrl({ ...result, ...patch }, name))
-  }
 })
 
 test("本番・古い成果物や本番 binding/domain の混入を配信前に拒否", () => {
@@ -122,4 +81,13 @@ test("本番・古い成果物や本番 binding/domain の混入を配信前に�
   ]) {
     assert.throws(() => validateBuildOutput(root, { ...worker, ...patch }))
   }
+})
+
+test("補助コマンドと同じ名前のbranchも配信名になる", () => {
+  const actual = execFileSync(
+    process.execPath,
+    [new URL("preview.mjs", import.meta.url).pathname, "name", "check-build"],
+    { env: { ...process.env, ...dev }, encoding: "utf8" },
+  ).trim()
+  assert.equal(actual, previewName("check-build"))
 })

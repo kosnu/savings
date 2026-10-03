@@ -5,7 +5,6 @@ status: accepted
 area: infrastructure
 applies_to:
   - tools/dev-preview
-  - tools/dev-db
   - .github/workflows/deploy_dev_database.yaml
   - apps/web/cloudflare.config.ts
   - .github/workflows/deploy_preview.yaml
@@ -99,183 +98,142 @@ workers.dev URL は秘密 URL でもアクセス制御でもない。JavaScript 
 承認してから配信する。private source・非公開文面・実データが含まれる場合は配信を止め、
 公開範囲または Access 保護の承認を確認する。noindex は認可の代替にならない。
 
+## 本番と共通の処理とDev固有の差分
+
+本番の `deploy_production.yaml` と同じ `pnpm ci` / `pnpm run web:build`、Supabase token →
+`supabase link` → `supabase db push` を使う。本番workflowは変更しない。
+Devではnative Preview用のbuild mode/context、専用Worker、共有Dev URLを指定し、Sentryを無効にする。
+DBは全Previewへの影響があるためFE配信から分離し、選択PRのmigrationを明示承認後だけ適用する。
+
+独自の配信runner、SQL parser、履歴内容照合、計画hash、Environment APIによるreviewer検査は使わない。
+補助コードは `authorize.mjs`（選択PRの固定SHA/branchと現在のPRの照合）と
+`preview.mjs`（Cloud/Actions共通の名前とDev設定・成果物の誤配信防止）に限定する。
+標準のEnvironment保護設定は管理者が設定・確認する前提で、コードから設定済みとは保証しない。
+
 ## Cloud からの配信
 
-repo root で指定 Node/pnpm と frozen lockfile の依存を用意し、上表の承認済み環境変数を設定する。
-この Savings Cloud では `/workspace/.cloud-setup/activate.sh` が runtime と cache の設定を提供する。
-環境変数は secret 設定経路から注入し、コマンド履歴へ値を残さない。
+この Savings Cloud では `/workspace/.cloud-setup/activate.sh` がruntime/cacheを提供する。
+上表のDev環境変数をsecret設定経路から注入する。本番 `.env`、Sentry token、DB管理credentialを
+このCloud配信環境へ持ち込まない。公開範囲の承認後、レビュー済みのcleanなbranchをcheckoutして実行する。
 
 ```sh
+set -e
 pnpm ci
-node tools/dev-preview/deploy.mjs
+preview_branch=$(git branch --show-current)
+preview_name=$(node tools/dev-preview/preview.mjs name "$preview_branch")
+NODE_ENV=production CLOUDFLARE_PREVIEW_BUILD=true CF_SEND_TELEMETRY=false \
+  VITE_SENTRY_DSN= VITE_SENTRY_ENVIRONMENT=development \
+  pnpm run web:build --mode development
+node tools/dev-preview/preview.mjs check-build
+pnpm --filter web exec cf previews deploy "$preview_name" --prebuilt --mode development --quiet
+git rev-parse HEAD
 ```
 
-現在の checkout を毎回ビルドして配信する。未コミット変更も含むため、再現可能な検証は clean な
-レビュー済み commit で行い、表示された commit と差分有無を記録する。
-detached HEAD では対象ブランチ名を明示する。
+最後の `cf previews deploy` が実配信。buildまでの成功をlive Preview/DB接続の成功とはしない。
+detached HEADなら `preview_branch` に対象branch名を指定する。SHAの入力は不要。
+短いbranch slugと元のbranch名のSHA-256先頭12桁で名前を作り、同branchは同じURLを更新する。
+slash・大小文字・日本語・長い名前が同じslugでも別Previewになる。
+CloudとActionsの同名Previewへの同時配信は避ける。最後の完了が勝つため、Actionsの実行状況を先に確認する。
 
-```sh
-node tools/dev-preview/deploy.mjs issue-1866/shared-dev-preview
-```
+成功したcf応答の `preview_urls` / `deployment_id` とcommitを記録する。URLを推測して成功としない。
+通信失敗の場合は配信済みの可能性もあるため、Dev Workerの履歴を確認して再実行を判断する。
 
-ブランチ名の短い slug + 元の名前の SHA-256 先頭12桁が Preview 名になる。
-同じブランチは同じ URL を更新し、slash・大小文字・日本語・長い名前が同じ slug になっても区別する。
-Cloud と Actions の同時配信は行わない。同名 Preview への同時実行は最後の完了が勝つため、
-Cloud から配信する前に Actions の同 PR 実行がないことを確認する。
+## PR Actions からの配信
 
-配信前のローカル検証のみなら次を使う。これは DB 接続・ライブ Preview の成功証拠ではない。
+| 操作       | 起動方法                           | 承認するEnvironment    |
+| ---------- | ---------------------------------- | ---------------------- |
+| FE Preview | open PRへ `preview` ラベルを付ける | `development`          |
+| 共有Dev DB | open PRへ `dev-db` ラベルを付ける  | `development-database` |
 
-```sh
-node --test tools/dev-preview/preview.test.mjs tools/dev-preview/authorize.test.mjs
-node tools/dev-preview/deploy.mjs --build-only
-```
+ラベルは**初回マージ前にも実行できる入口**として採用する。
+[GitHubのpull_request仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)に従い、
+main宛て・同repository・open PRの `labeled` のみを受け付け、merge conflictは先に解消する。
+`pull_request_target` は使わない。push/synchronizeやラベルを残したままのpushでは配信しない。
+新しいheadを配信する場合はUIからラベルを外して付け直す。`GITHUB_TOKEN`によるラベル付与は起動手段にしない。
 
-実配信に成功した場合だけ cf の応答から安定 Preview URL、commit、deployment ID を報告する。
-通信失敗や JSON 不一致では、配信が成功済みの可能性もある。Dashboard の Dev Preview 履歴を確認してから
-再実行を判断し、URL を推測して成功としない。
+main導入後はActionsの各workflowをmainから手動実行し、**PR番号だけ**入力する方法も使える。
+CIがその時点のhead SHAとbranchを解決・固定し、承認待ちjob名にSHAを表示する。
+fork/closed/main以外のbase、main以外からのdispatchは拒否する。
 
-## PR からの配信
+resolve jobは配信secretを持たない。所有者は固定SHAのworkflow、補助コード、依存install script、
+公開内容またはmigration SQLをレビューして、標準のEnvironment承認を行う。
+checkoutはそのSHAに固定し、承認後、install/配信credential利用より前に現在のPRを再照合する。
+head更新・branch rename・PR close・ラベル撤回なら停止し、新しく要求する。
+PR自身がworkflowを変更できるため、保護済みEnvironmentと承認者のコードレビューがcredential境界になる。
+設定の未完了や管理者bypassを補助コードで補うものではない。
 
-### PR ラベルによる明示配信（初回マージ前にも利用可能）
+FEの成功結果はrun Summaryのcf応答とcommitで確認する。PRコメント自動投稿権限は要求しない。
+同一PRはconcurrencyで直列化、別PRは並行配信可能。Cloudはこのlockの対象外。
+GitHub concurrencyは全待機要求のFIFO保存を保証しないため、置き換えられた要求は再要求する。
 
-1. 同一 repository の main 宛て open PR を選び、変更をレビューする。
-2. PR に `preview` ラベルを UI から明示的に付ける。CI が操作時点の head SHA を取得・固定する。
-   SHA の入力やコピーは不要。ラベル作成・付与はこの workflow 自体では行わない。
-3. `Deploy Dev Preview` の run 名と承認待ち job 名で SHA を確認する。所有者本人が
-   その SHA の workflow、gate、依存 install script、frontend と公開内容を確認して `development` を承認する。
-4. 成功後、run Summary の URL と配信 commit を確認し、実画面を検証する。
+## 専用 Dev DB CI
 
-[GitHub の pull_request 仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)に従い
-`labeled` のみで起動する。default branch に workflow がない初回 PR も対象にできるが、merge conflict は先に解消する。
-`pull_request_target` は使わない。push/synchronize、別ラベル、fork、main 以外の base では配信しない。
-head が変わった場合はラベルを外して付け直し、新しい実行で Environment 承認を受ける。
-ラベルを残しても次の push は配信されない。同一 SHA の再実行はラベルを外して再付与するか run を再実行し、再承認する。
-`GITHUB_TOKEN` によるラベル付与は次の workflow を起動しないため、自動付与を起動手段にしない。
+1. 検証するPRに `dev-db` ラベルを付ける（main導入後はPR番号でdispatchも可能）。
+2. `development-database` の承認画面に表示された固定SHAの未適用SQLを確認する。
+   他Previewとの互換性、停止枠、削除対象・復旧方法を確認した上で**1回承認**する。
+   具体的な破壊操作が未承認ならjobを承認しない。
+3. jobはPRを再照合し、Dev refを固定確認して、固定CLI **2.118.0** で次を実行する。
+   dry-runはログ確認用で、その後に追加の承認待ちは置かない。承認時点でSQL全文をレビューする。
 
-resolve job は配信 secret を持たず、GitHub API で open/same-repo/main/current head と対象ラベルを照合する。
-さらに既存 `development` の required reviewers が個人所有者本人1人で、Prevent self-review が無効であることを
-読み取り確認する。未設定、404/403、通信障害、保護不足なら deploy job に進まず、Environment を自動作成しない。
-[Environment API](https://docs.github.com/en/rest/deployments/environments#get-an-environment)の読み取りに
-`actions: read`、PR 照合に `pull-requests: read`、checkout に `contents: read` を使用し、書込権限・追加 PAT は要求しない。
-承認後、依存のインストールや配信 token の利用より前に同じ条件を再確認する。
-head 更新・branch rename・PR close・ラベル撤回なら停止し、checkout は解決した完全 SHA のみに固定する。
-再検証用コードを取得する checkout は先に行うが、依存のインストール・配信 credential の投入は再検証後に限る。
+   ```sh
+   supabase link --project-ref "$SUPABASE_PROJECT_ID"
+   supabase db push --linked --skip-vault --dry-run
+   supabase db push --linked --skip-vault --yes
+   ```
 
-Environment の管理者変更や bypass を workflow のコードだけで防ぐことはできない。
-secret は必ず保護済み Environment に置き、同名 repository secret を代用しない。
-PR が workflow 自体を変更できるため、承認者は実際に実行される workflow 差分もレビューする。
-所有者の reviewer 登録、保護設定、Dev 資源・認証情報、公開承認が未準備なら初回の実配信は未検証のまま停止する。
-fixture テストを Actions の実配信証拠へ置き換えず、AIDD の実機条件も unknown を維持する。
+4. 成功後、同じPRのheadを変えず `preview` ラベルを付け、FE承認画面のSHAがDB runと同じことを確認する。
+   DB完了だけでFEは配信されない。途中でpushした場合は新しいheadのDB差分から確認し直す。
 
-### 公開範囲・プランと API 権限
+全branchのDB jobは `burneto-shared-dev-database` で承認待ちを含め直列化し、実行中はcancelしない。
+Cloud/SQL Editor/MCP等の外部writerはlock対象外なので、CI実行・承認待ち中には書き込まない。
+reset/seed/roles/Vault更新、`--include-all`、履歴repair、自動rollbackは実行しない。
 
-2026-10-03 の GitHub repository metadata では `kosnu/savings` は個人所有の **public**。
-アカウントの契約 plan 自体は取得できていないが、public の required reviewers は Free を含む現行 plan で利用できる。
-[GitHub の Environment 制約](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)では、
-private の Free は Environment secrets 自体が使えず、private の Pro/Team でも required reviewers は使えない。
-private 化した場合に同じ経路を無料で使えるとはしない。課金や公開化を自動で提案・実行せず、
-承認済み Cloud 経路を使うか、trusted main 起点の別の承認方式を設計する。無保護の repository secret への置換はしない。
+### 一度だけ必要な設定（変更は別途承認）
 
-Environment の GET/list に必要な権限は公式 API 上 `actions: read`。
-`Dev Preview CI` は実際の `GITHUB_TOKEN` で metadata 一覧の GET を行い、レスポンス本文を出力せず読取可否を検証する。
-これは設定変更でも保護設定の完了確認でもない。Cloud の接続プロキシによる403と GitHub runner の権限拒否を区別する。
-もし runner でも403になる場合は権限不足を隠して通さず、原因を確認する。新しい PAT/追加 grant を自動要求・作成しない。
+`development` と `development-database` は、FEにDB管理tokenを渡さないために分ける。
+両方で所有者 `kosnu` をrequired reviewerにし、本人の明示承認を可能にするためPrevent self-reviewを無効、
+bypassを無効にする。branch policyは `main` と `refs/pull/*/merge` を許可する。
+SecretはEnvironmentへ登録し、同名repository Secretで代用しない。
 
-### main からの手動実行
+2026-10-03確認のrepositoryは個人所有public。
+[GitHub Environmentの制約](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)上、
+publicのrequired reviewersはFreeで利用できる。private化やplan変更時は再評価し、無保護へ置き換えない。
+新たなEnvironment API読取や追加GitHub PATは必要ない。
 
-workflow を main へ取り込んだ後は `workflow_dispatch` も使用できる。
-Actions の `Deploy Dev Preview` を main から実行し、open PR 番号だけを指定する。CI が head を解決し、承認 job に固定 SHA を表示する。
-main 以外からの dispatch、fork、closed PR、異なる base/head は拒否し、同じ Environment 保護確認と承認を通す。
-この経路は default branch への導入が前提なので、初回マージ前の Actions 検証には上の PR ラベル経路を使う。
-マージ済み PR 自体は open 条件を満たさないため、導入後の dispatch 確認には別の open PR が必要になる。
+`development-database` のSecretは本番と同じ名前でDev値の2個だけ。
 
-両経路とも結果 URL は run の Summary とログで確認する。PR コメントの自動投稿権限は要求しない。
-同一 PR は共通 concurrency group で直列化し、別 PR は並行可能。Cloud との同時配信は手動で避ける。
+| Secret                  | 値・入力元                                                  |
+| ----------------------- | ----------------------------------------------------------- |
+| `SUPABASE_PROJECT_ID`   | `ufekmuxkmodwydxmdbln` 固定。link前に一致検査               |
+| `SUPABASE_ACCESS_TOKEN` | このDevだけを対象とするscoped PAT。承認後に所有者が直接登録 |
 
-## 専用 Dev DB CI：選択ブランチの migration → FE
+恒久DB password、host、CA PEM、psql設定は不要。一時DB credentialはCLI内部に任せる。
+本番も対象のclassic/Legacy PATを転用しない。tokenのscopeはコードで推測せず、所有者が対象project・権限・有効期限を確認する。
+[公式権限表](https://supabase.com/docs/guides/platform/personal-access-tokens)と
+[固定CLI source](https://github.com/supabase/cli/tree/v2.118.0/apps/cli/src)による必要権限は
+Project Settings / API Keys / API Key Secrets / Connection Pooling のRead、DatabaseのRead-write（一時login role発行）。
+Storage Config Readは任意probeなので追加しない。
+CLIに接続失敗時のnetwork ban解除経路があるため、**Network BansのRead/Read-writeを与えない**。
+Network Restrictions、Auth設定、project変更・削除、billing等も追加せず、エラーを理由に自動拡張しない。
 
-`Deploy Dev Database` は FE workflow と別の明示操作で起動する。main へマージする前でも、
-新しい table/RPC を含む PR ブランチを共有 Dev DB で検証できる。FE 配信や push から DB 変更を自動起動しない。
+CLIの一時login role・IPv4 Session pooler fallback・接続/TLS処理を使う。独自接続runnerは設けない。
+`link`はDevのAPI keyを内部で読むため、debugログやキーを報告へ転記しない。
+DB workflowは本番と同じ `apps/api` で動く。configのboolean解決用に `SUPABASE_GOOGLE_SKIP_NONCE_CHECK=false` を渡すが、
+本番もDevも `config push` は実行せず、hosted Auth provider/redirect設定は変更しない。
+GoogleのDev client発行済みでも、GitHubへの保存だけでproviderは設定されない。
 
-1. 検証する PR に `dev-db` ラベルを付ける。CI が現在の branch と完全 SHA を内部で固定する。
-2. 所有者本人が `development-database` の **plan job** を承認する。これは DB 履歴の読み取りのみ。
-   job Summary に対象 Dev ref、固定 SHA、適用済み件数、未適用ファイルと fingerprint、計画 digest を表示する。
-3. 未適用 SQL 全文と他 Preview への影響を確認し、同じ Environment の **apply job** を承認する。
-   DROP/TRUNCATE/DELETE/REVOKE を含む候補は Summary で注意を表示するが、これは完全な安全性判定ではない。
-   データ削除や非互換変更は、その具体的な対象・復旧方法への承認がない限り apply を承認しない。
-4. 適用直前に PR の head/branch/open/base/repository/ラベルを再検査し、DB 履歴と計画 digest も再計算する。
-   変更があれば停止する。成功時は履歴の SQL と version/name を再照合し、未適用が0件になったことを報告する。
-5. **PR head を変更せず**同じ PR に `preview` ラベルを付ける。FE の承認画面の固定 SHA が DB run と同じことを
-   確認して配信する。SHA を手入力する操作はない。途中で push した場合は、新しい head の DB plan からやり直す。
-   DB 完了だけで FE は自動配信されず、FE 切戻しだけで DB は戻らない。
+### migration互換性と復旧
 
-両 workflow の PR `labeled` 経路は初回マージ前にも利用できる。main 導入後は DB workflow の
-`workflow_dispatch` でも PR 番号だけを指定できる。fork/closed/main 以外の base は拒否する。
-ラベルを残したまま push しても起動しない。再実行ではラベルを外して付け直す。
-
-### 一度だけ必要な設定（外部設定変更は別途承認）
-
-FE 用 `development` と DB 用 `development-database` を分け、DB管理tokenをFEのEnvironmentへ置かない。
-二つ目のEnvironmentはSupabaseの必須条件ではなく、独立したFE配信がDB管理credentialを参照できないようにする境界。
-PRのworkflow変更自体は所有者がレビューする。両環境とも所有者 `kosnu` 本人1人をrequired reviewerにし、
-Prevent self-reviewを無効、bypassを無効にする。branch policyは `main` と `refs/pull/*/merge` を許可する。
-
-`development-database` に登録するSecretは本番と同じ名前の **2個だけ**。
-
-| Secret                  | 値・入力元                                                                                                                        |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `SUPABASE_PROJECT_ID`   | `ufekmuxkmodwydxmdbln` 固定。別projectはネットワーク前に拒否                                                                      |
-| `SUPABASE_ACCESS_TOKEN` | このDev projectだけを対象にしたscoped PAT。所有者が承認後にSupabase Account → Access Tokensで作成し、GitHub Environmentへ直接入力 |
-
-恒久DB password、手動host、CA PEM、psql設定は不要。旧password/host/CA登録案は撤回した。
-本番と同じ token → `supabase link` → `supabase db push --linked` を使い、一時DB credentialはCLI内部に任せる。
-生成passwordを独自取得したり、引数・ログ・job outputへ渡したりしない。
-
-[scoped PATの公式権限表](https://supabase.com/docs/guides/platform/personal-access-tokens)と
-固定CLI **2.118.0** の[source](https://github.com/supabase/cli/tree/v2.118.0/apps/cli/src)を確認した。
-対象はBurneto Devだけ。必要権限は Project Settings / API Keys / API Key Secrets / Connection Pooling の **Read**、
-Database の **Read-write**（read-only履歴照会とCLI一時login role発行）。Storage Config ReadはCLIの任意probeなので追加しない。
-本番も対象のclassic/Legacy PATを転用しない。token値からscopeを推測する検査は行わず、所有者が作成画面の
-project選択・権限一覧・有効期限を確認する。未確認のscopeを「Dev限定」として使用しない。
-
-CLI sourceの `command-internal/db-config.layer.ts` はpassword未指定で一時login roleを取得し、IPv4ではSession poolerへfallbackする。
-接続・TLS処理は固定CLIに委ね、独自のverify-full設定完了とは主張しない。
-同sourceには接続失敗時のnetwork ban解除経路もあるため、**Network Bans Read/Read-writeを一切与えない**。
-Network Restrictions、Auth設定、project変更・削除、billing等の追加権限も与えず、権限エラーを理由に自動拡張しない。
-`link`はDev API keyを内部で読むため、その読取scopeは必要だが、キーやCLI生出力をログへ転記しない。
-
-planは [read-only query API](https://supabase.com/docs/reference/api/v1-read-only-query) だけで履歴を読む。
-CLI link/db pushや一時role発行はapply承認後のみ。applyは一時workdirへレビュー済みSQLをコピーしてlinkし、
-本番向け `.temp`、`.env`、Auth config、Vault/seedを継承しない。CLIの `SUPABASE_HOME` も同じ一時領域に置き、telemetryを無効化する。終了時に両方を削除する。
-本番workflowはAuth関連envを渡すが `config push` は実行しない。DevでもAuth設定はこのDB CIから変更しない。
-
-token作成・scope付与・Environment設定・実一時role発行とDB適用は別途承認が必要で、このコード修正では実施していない。
-API/CLIのmockテストは実Dev接続やtoken scopeの実証ではない。
-
-### 履歴、競合、同時実行、互換性
-
-- 全 branch の DB workflow は共通 `burneto-shared-dev-database` concurrency group で直列化する。
-  `cancel-in-progress: false` とし、適用中の run を新しい push で中断しない。
-  GitHub concurrency は全要求の FIFO 保存を保証せず、待機中 run が置き換わる場合は明示的に再要求する。
-  Cloud/SQL Editor/MCP 等の外部書き込みはこの lock の対象外なので、CI 実行・承認待ち中は行わない。
-- 選択 branch の migration 一覧に対し、remote 履歴が version/name/SQL 内容の一致する連続した先頭部分であることを要求する。
-  他 branch の適用済み migration が欠ける、同 version を別 SQL で再利用する、過去 SQL を変更する、順序を逆転させる、
-  SQL 証拠が欠ける場合は停止する。MCP 全文と Supabase CLI statement 配列の表現差だけ正規化して比較する。
-- 他 branch が先に migration を適用したら、その migration を履歴どおり取り込み、自分の未適用 migration を
-  後の version に調整した新しい commit で計画を作り直す。適用済みファイルは編集・削除しない。
-- DB plan は Management API の read-only query による SELECT のみ。apply は固定依存 `supabase 2.118.0` の
-  `link --project-ref <Dev ref>` → `db push --linked --skip-vault --yes` を使用する。`--yes` は承認済み計画の CLI 確認用で、
-  Environment 承認や具体的な破壊操作への承認を省略しない。
-  reset、seed、roles、Vault 更新、`--include-all`、migration repair、強制 rollback は行わない。
-- 構造化履歴がないのに既存 public schema がある場合は自動採用しない。SQL の手修正や schema drift 全般は
-  履歴比較だけでは検出できないため、共有 DB の変更はこの経路へ揃え、変更後にアプリ動作/RLS を確認する。
-- 適用途中の失敗は一部 migration が commit 済みの可能性がある。自動 retry/rollback はしない。
-  履歴を読み直して成功分と失敗箇所を確認し、必要な forward-fix と承認を用意する。
-- schema 互換性は機械的に保証できない。table/column/RPC の追加を先に行う expand → 新旧 FE 検証 →
-  旧 Preview がなくなってから contract の順とし、共有データ変更・停止枠・復旧方法を所有者が確認する。
-
-frontend を以前の commit に戻しても、共有 DB・Auth・データは戻らない。
-非互換なら該当 Preview を止め、レビューした forward-fix migration で互換性を回復する。
+- CLI標準のversion履歴検査に従う。別branchの適用済みmigrationが不足する等の競合では停止し、
+  適用済みファイルを取り込んで未適用migrationを後のversionへ調整し、新しいPR headで再要求する。
+- 適用済みSQLは編集・削除しない。**同versionのSQL改変やschema driftをこのCIは検知しない**。
+  独自のSQL内容比較・計画hashを廃止したため、標準CLI以上の保証はない。共有DBの変更をこの経路に揃える。
+- table/column/RPC追加（expand）→新旧FEの検証→古いPreview終了後に削除（contract）の順にする。
+  非互換変更と合成データ損失は対象・影響・復旧方法を具体的に承認する。
+- 途中の失敗では一部migrationがcommit済みの可能性がある。自動retryせず、CLI履歴とログで
+  成功分/失敗箇所を確認してforward-fixをレビューする。`migration repair`で無理に通さない。
+- frontendを以前のcommitへ戻してもDB/Auth/データは戻らない。非互換なら該当Previewを停止し、
+  forward-fixで共有schemaの互換性を回復してから新旧FEの読み書き/RLSを再確認する。
 
 ### 2026-10-03 の Dev 初期構築チェックポイント
 
@@ -284,7 +242,7 @@ Dev `ufekmuxkmodwydxmdbln` は **23/36件**、最後は
 その際だけ MCP の実行時 version を元ファイルの version へ対応付けた。今後の CI は履歴を書き換えない。
 読み取りで23件の name/version/保存 SQL が main と整合し、Auth とアプリデータが0件であることを確認した。
 24件目 `20260528000000_remove_category_budgets` の空 table 削除は自動承認レビューで拒否され、未実施。
-現在の main の計画は残り13件を示すが、この具体的な削除への承認がない間は **apply を承認しない**。
+現在の main との差は残り13件だが、この具体的な削除への承認がない間は **DB jobを承認しない**。
 新 CI、外部 credential/Environment 設定、実 DB 適用、Google login、FE live 配信は未検証。
 
 ## 合成データ、reset、復旧

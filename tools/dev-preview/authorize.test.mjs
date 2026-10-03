@@ -17,20 +17,10 @@ function fixture() {
   return {
     event: { action: "labeled", number: 1871, label: { name: label }, pull_request: pr },
     pr,
-    environment: {
-      name: "development",
-      protection_rules: [
-        {
-          type: "required_reviewers",
-          prevent_self_review: false,
-          reviewers: [{ type: "User", reviewer: { login: "kosnu", id: 45652024 } }],
-        },
-      ],
-    },
   }
 }
 const request = { number: "1871", sha, labeled: true, kind: "preview" }
-const getter = (f) => async (path) => (path.endsWith("/development") ? f.environment : f.pr)
+const getter = (f) => async () => f.pr
 
 test("PR label resolves the immutable event head; dispatch remains main-only", () => {
   const f = fixture()
@@ -76,7 +66,7 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
   )
 })
 
-test("owner can approve their own pinned SHA without an additional reviewer", async () => {
+test("the selected head resolves without an Environment API dependency", async () => {
   assert.deepEqual(await authorize(request, repo, getter(fixture())), {
     branch: "feature/example",
     sha,
@@ -113,45 +103,6 @@ test("head races, withdrawal, closure and foreign PRs fail the post-approval rec
   }
 })
 
-test("missing/unreadable protection, non-owner review and blocked self-review fail closed", async () => {
-  for (const mutate of [
-    (f) => {
-      f.environment = {}
-    },
-    (f) => {
-      f.environment.protection_rules = []
-    },
-    (f) => {
-      f.environment.protection_rules[0].reviewers = []
-    },
-    (f) => {
-      f.environment.protection_rules[0].prevent_self_review = true
-    },
-    (f) => {
-      f.environment.protection_rules[0].reviewers[0].reviewer.login = "someone-else"
-    },
-    (f) => {
-      f.environment.protection_rules[0].reviewers[0].type = "Team"
-    },
-    (f) => {
-      f.environment.protection_rules[0].reviewers.push({
-        type: "User",
-        reviewer: { login: "someone-else" },
-      })
-    },
-  ]) {
-    const f = fixture()
-    mutate(f)
-    await assert.rejects(authorize(request, repo, getter(f)))
-  }
-  await assert.rejects(
-    authorize(request, repo, async () => {
-      throw new Error("Forbidden")
-    }),
-    /Forbidden/,
-  )
-})
-
 test("workflow limits triggers and gates installation/deployment behind environment and revalidation", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
@@ -164,4 +115,19 @@ test("workflow limits triggers and gates installation/deployment behind environm
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 2)
   assert.ok(yaml.indexOf("Revalidate after environment approval") < yaml.indexOf("run: pnpm ci"))
   assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.CLOUDFLARE_API_TOKEN"))
+})
+
+test("database requests use their own label and the same immutable head checks", async () => {
+  const f = fixture()
+  f.event.label.name = "dev-db"
+  f.pr.labels = [{ name: "dev-db" }]
+  const db = deploymentRequest(f.event, "pull_request", "refs/pull/1871/merge", repo, "database")
+  assert.equal(db.kind, "database")
+  assert.deepEqual(await authorize(db, repo, getter(f)), { branch: f.pr.head.ref, sha })
+  f.pr.head.sha = "b".repeat(40)
+  await assert.rejects(authorize(db, repo, getter(f)))
+  f.event.label.name = "preview"
+  assert.throws(() =>
+    deploymentRequest(f.event, "pull_request", "refs/pull/1871/merge", repo, "database"),
+  )
 })

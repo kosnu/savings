@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto"
+import { readFileSync } from "node:fs"
+import { pathToFileURL } from "node:url"
 
-// 公開済みの本番識別子。Dev の誤設定をネットワーク接続前に拒否する。
-export const productionRef = "izuzqvgvgquqqimwuygw"
 export const workerName = "burneto-dev"
 
 export function previewName(branch) {
@@ -21,60 +21,13 @@ export function previewName(branch) {
   return `b-${shortSlug.length ? shortSlug : "branch"}-${hash}`
 }
 
-export function developmentEnv(env) {
-  const ref = /^https:\/\/([a-z]{20})\.supabase\.co\/?$/u.exec(env.VITE_SUPABASE_URL ?? "")?.[1]
-  if (!ref || !/^[a-z]{20}$/u.test(ref) || ref === productionRef) {
-    throw new Error("本番とは異なる VITE_SUPABASE_URL が必要です。")
+export function validateDevelopment(env) {
+  if (env.VITE_SUPABASE_URL !== "https://ufekmuxkmodwydxmdbln.supabase.co") {
+    throw new Error("共有 Dev の VITE_SUPABASE_URL が必要です。")
   }
-  const key = env.VITE_SUPABASE_PUBLISHABLE_KEY
-  if (!key || !/^sb_publishable_[A-Za-z0-9_-]+$/u.test(key)) {
-    throw new Error(
-      "Dev の publishable key が必要です。secret/service_role/legacy JWT は使えません。",
-    )
+  if (!/^sb_publishable_[A-Za-z0-9_-]+$/u.test(env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "")) {
+    throw new Error("Dev の publishable key が必要です。")
   }
-  // ローカル .env や継承された本番向け VITE_* / Sentry 設定を優先させない。
-  const clean = Object.fromEntries(
-    Object.entries(env).filter(
-      ([name]) => !/^(VITE_|SENTRY_|SUPABASE_|AUTH_|CLOUDFLARE_)/u.test(name),
-    ),
-  )
-  return {
-    ...clean,
-    NODE_ENV: "production",
-    CF_SEND_TELEMETRY: "false",
-    CLOUDFLARE_PREVIEW_BUILD: "true",
-    VITE_SUPABASE_URL: `https://${ref}.supabase.co`,
-    VITE_SUPABASE_PUBLISHABLE_KEY: key,
-    VITE_SENTRY_DSN: "",
-    VITE_SENTRY_ENVIRONMENT: "development",
-  }
-}
-
-export function previewUrl(result, name) {
-  if (result.type !== "preview" || result.preview_name !== name || !result.deployment_id) {
-    throw new Error("cf が期待した Preview の配信結果を返しませんでした。")
-  }
-  const urls = result.preview_urls
-  if (!Array.isArray(urls)) throw new Error("Preview URL がありません。")
-  const url = urls.find((value) => {
-    try {
-      const parsed = new URL(value)
-      return (
-        parsed.protocol === "https:" &&
-        parsed.hostname.startsWith(`${name}-${workerName}.`) &&
-        parsed.hostname.endsWith(".workers.dev") &&
-        parsed.pathname === "/" &&
-        !parsed.username &&
-        !parsed.password &&
-        !parsed.search &&
-        !parsed.hash
-      )
-    } catch {
-      return false
-    }
-  })
-  if (!url) throw new Error("期待した Dev workers.dev URL がありません。")
-  return url
 }
 
 export function validateBuildOutput(root, worker) {
@@ -96,5 +49,18 @@ export function validateBuildOutput(root, worker) {
     worker.assets?.notFoundHandling !== "single-page-application"
   ) {
     throw new Error("本番 domain / Worker / binding を含まない Dev 静的成果物が必要です。")
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  if (process.argv[2] === "check-build") {
+    const root = new URL("../../apps/web/.cloudflare/output/v0/", import.meta.url)
+    const read = (path) => JSON.parse(readFileSync(new URL(path, root), "utf8"))
+    validateBuildOutput(read("config.json"), read("workers/default/worker.config.json"))
+  } else if (process.argv[2] === "name") {
+    validateDevelopment(process.env)
+    console.log(previewName(process.argv[3]))
+  } else {
+    throw new Error("Usage: preview.mjs name <branch> | check-build")
   }
 }

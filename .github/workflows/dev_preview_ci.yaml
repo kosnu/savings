@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - "tools/dev-preview/**"
-      - "tools/dev-db/**"
       - ".github/workflows/deploy_dev_database.yaml"
       - "apps/web/cloudflare.config.ts"
       - ".github/workflows/deploy_preview.yaml"
@@ -18,14 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
     steps:
-      # 実 runner の GITHUB_TOKEN で保護設定の読取権限を確認する。設定は変更しない。
-      - name: Check environment metadata read permission
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: gh api "repos/$GH_REPO/environments" --silent
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -37,9 +29,17 @@ jobs:
           node-version-file: package.json
           package-manager-cache: false
       - run: pnpm ci
-      - run: node --test tools/dev-preview/preview.test.mjs tools/dev-preview/authorize.test.mjs tools/dev-db/migrations.test.mjs
+      - run: node --test tools/dev-preview/preview.test.mjs tools/dev-preview/authorize.test.mjs
       - name: Build Preview without deployment credentials
         env:
-          VITE_SUPABASE_URL: https://abcdefghijklmnopqrst.supabase.co
+          NODE_ENV: production
+          CLOUDFLARE_PREVIEW_BUILD: "true"
+          CF_SEND_TELEMETRY: "false"
+          VITE_SENTRY_DSN: ""
+          VITE_SENTRY_ENVIRONMENT: development
+          VITE_SUPABASE_URL: https://ufekmuxkmodwydxmdbln.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_fixture
-        run: node tools/dev-preview/deploy.mjs ci/preview --build-only
+        run: |
+          node tools/dev-preview/preview.mjs name ci/preview
+          pnpm run web:build --mode development
+          node tools/dev-preview/preview.mjs check-build
