@@ -47,11 +47,13 @@ export async function authorize(request, repository, get) {
     !environment.protection_rules?.some(
       (rule) =>
         rule.type === "required_reviewers" &&
-        rule.prevent_self_review === true &&
-        rule.reviewers?.length > 0,
+        rule.prevent_self_review === false &&
+        rule.reviewers?.length === 1 &&
+        rule.reviewers[0].type === "User" &&
+        rule.reviewers[0].reviewer?.login === repository.split("/")[0],
     )
   ) {
-    throw new Error("development requires reviewers and prevention of self-review")
+    throw new Error("development requires its sole owner as reviewer with self-review allowed")
   }
   return { branch: pr.head.ref, sha: request.sha }
 }

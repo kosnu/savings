@@ -1,0 +1,104 @@
+{
+  "sequence": 10,
+  "kind": "decision",
+  "time": "2026-10-03T07:33:30.949992396Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "6cdc926492d0788d6a497bc3334f5fdfbfa8c76d0b96c544861bd09d8af6263c",
+  "revision": 4,
+  "fingerprint": "13595897499f67d1281cbe18dcb5989f938efd3c40aa5ffc5e8bd673807dab5f",
+  "data": {
+    "summary": "個人所有public repository kosnu/savingsの単独運用へ修正。development required reviewerは所有者本人1人、Prevent self-review=falseを要件にしてGitHub標準承認によるsecret隔離を維持。第三者/有料planを要求しない。PR完全SHA/同一repo/main/open/ラベル撤回検査を維持。CIのactions:readでEnvironment metadata APIの読取可否を実測する。外部設定変更・credential作成・実配信なし。private Free/Proでは同じ保護を使えない制約を明記。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "DEV_SUPABASE_PROJECT_REF=abcdefghijklmnopqrst",
+        "DEV_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "node",
+        "tools/dev-preview/deploy.mjs",
+        "verification/preview",
+        "--build-only"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "c8f6f33590a367f9f9ad9744237a61d2c8d2baebcfec0982ac07415c8d190ddf",
+  "cycle_id": "issue-1866/cycle-0001"
+}

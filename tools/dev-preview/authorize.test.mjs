@@ -22,8 +22,8 @@ function fixture() {
       protection_rules: [
         {
           type: "required_reviewers",
-          prevent_self_review: true,
-          reviewers: [{ type: "User", reviewer: { id: 1 } }],
+          prevent_self_review: false,
+          reviewers: [{ type: "User", reviewer: { login: "kosnu", id: 45652024 } }],
         },
       ],
     },
@@ -76,7 +76,7 @@ test("updates, generic/stale labels, forks, wrong base and unsupported events ca
   )
 })
 
-test("existing reviewer protection permits resolving the pinned SHA", async () => {
+test("owner can approve their own pinned SHA without an additional reviewer", async () => {
   assert.deepEqual(await authorize(request, repo, getter(fixture())), {
     branch: "feature/example",
     sha,
@@ -110,7 +110,7 @@ test("head races, withdrawal, closure and foreign PRs fail the post-approval rec
   }
 })
 
-test("missing/unreadable protection, empty reviewers and self-approval fail closed", async () => {
+test("missing/unreadable protection, non-owner review and blocked self-review fail closed", async () => {
   for (const mutate of [
     (f) => {
       f.environment = {}
@@ -122,7 +122,19 @@ test("missing/unreadable protection, empty reviewers and self-approval fail clos
       f.environment.protection_rules[0].reviewers = []
     },
     (f) => {
-      f.environment.protection_rules[0].prevent_self_review = false
+      f.environment.protection_rules[0].prevent_self_review = true
+    },
+    (f) => {
+      f.environment.protection_rules[0].reviewers[0].reviewer.login = "someone-else"
+    },
+    (f) => {
+      f.environment.protection_rules[0].reviewers[0].type = "Team"
+    },
+    (f) => {
+      f.environment.protection_rules[0].reviewers.push({
+        type: "User",
+        reviewer: { login: "someone-else" },
+      })
     },
   ]) {
     const f = fixture()

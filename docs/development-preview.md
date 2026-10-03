@@ -67,9 +67,10 @@ JSON に `preview_urls` と `deployment_id` を返す。plugin は
    選べない場合は本番にも届く範囲を明示して承認を得る。token 自体をコード・ログ・チャットへ貼らない。
 5. GitHub Environment `development` を作り、下表を登録する。production の secret を継承・コピーしない。
    Environment の required reviewer は承認済み SHA のコード、依存の install script、配信スクリプトを確認する。
-   required reviewers を空にせず、Prevent self-review を有効にする。管理者の bypass も無効にする。
+   required reviewers は個人 repository の所有者 `kosnu` 本人1人とし、Prevent self-review は無効にする。
+   所有者が自分の配信要求を明示承認できる構成にし、管理者の bypass は無効にする。
    protection rule の追加も承認対象。配信操作の権限だけで未レビューコードの実行を許可しない。
-   独立した承認者を用意できない場合は Actions 配信を停止し、自己承認へ緩和しない。
+   別の承認者や追加の有料 plan は要求しない。所有者本人の承認でも secret は承認完了まで隔離される。
    deployment branch policy は承認対象の PR merge ref と main を許可する必要がある。
 6. Dev Supabase Auth の Site URL を代表 Preview の origin に、redirect allow list を各 Preview の
    正確な `https://<preview>-burneto-dev.<subdomain>.workers.dev/auth` に設定する。
@@ -134,7 +135,7 @@ node tools/dev-preview/deploy.mjs --build-only
 1. 同一 repository の main 宛て open PR で、配信対象の完全 head SHA と変更をレビューする。
 2. `preview:<40桁の小文字head SHA>` ラベルを UI から明示的に付ける（計48文字）。
    例の SHA を流用せず、その PR の現在値を使用する。ラベル作成・付与はこの workflow 自体では行わない。
-3. `Deploy Dev Preview` の run 名と承認待ち job 名で SHA を確認する。別の required reviewer が
+3. `Deploy Dev Preview` の run 名と承認待ち job 名で SHA を確認する。所有者本人が
    その SHA の workflow、gate、依存 install script、frontend と公開内容を確認して `development` を承認する。
 4. 成功後、run Summary の URL と配信 commit を確認し、実画面を検証する。
 
@@ -146,7 +147,7 @@ node tools/dev-preview/deploy.mjs --build-only
 `GITHUB_TOKEN` によるラベル付与は次の workflow を起動しないため、自動付与を起動手段にしない。
 
 resolve job は配信 secret を持たず、GitHub API で open/same-repo/main/current head と対象ラベルを照合する。
-さらに既存 `development` の required reviewers が空でなく、Prevent self-review が有効であることを
+さらに既存 `development` の required reviewers が個人所有者本人1人で、Prevent self-review が無効であることを
 読み取り確認する。未設定、404/403、通信障害、保護不足なら deploy job に進まず、Environment を自動作成しない。
 [Environment API](https://docs.github.com/en/rest/deployments/environments#get-an-environment)の読み取りに
 `actions: read`、PR 照合に `pull-requests: read`、checkout に `contents: read` を使用し、書込権限・追加 PAT は要求しない。
@@ -156,8 +157,22 @@ head 更新・PR close・ラベル撤回なら停止し、checkout は解決し�
 Environment の管理者変更や bypass を workflow のコードだけで防ぐことはできない。
 secret は必ず保護済み Environment に置き、同名 repository secret を代用しない。
 PR が workflow 自体を変更できるため、承認者は実際に実行される workflow 差分もレビューする。
-必要な reviewer、保護設定、Dev 資源・認証情報、公開承認が未準備なら初回の実配信は未検証のまま停止する。
+所有者の reviewer 登録、保護設定、Dev 資源・認証情報、公開承認が未準備なら初回の実配信は未検証のまま停止する。
 fixture テストを Actions の実配信証拠へ置き換えず、AIDD の実機条件も unknown を維持する。
+
+### 公開範囲・プランと API 権限
+
+2026-10-03 の GitHub repository metadata では `kosnu/savings` は個人所有の **public**。
+アカウントの契約 plan 自体は取得できていないが、public の required reviewers は Free を含む現行 plan で利用できる。
+[GitHub の Environment 制約](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)では、
+private の Free は Environment secrets 自体が使えず、private の Pro/Team でも required reviewers は使えない。
+private 化した場合に同じ経路を無料で使えるとはしない。課金や公開化を自動で提案・実行せず、
+承認済み Cloud 経路を使うか、trusted main 起点の別の承認方式を設計する。無保護の repository secret への置換はしない。
+
+Environment の GET/list に必要な権限は公式 API 上 `actions: read`。
+`Dev Preview CI` は実際の `GITHUB_TOKEN` で metadata 一覧の GET を行い、レスポンス本文を出力せず読取可否を検証する。
+これは設定変更でも保護設定の完了確認でもない。Cloud の接続プロキシによる403と GitHub runner の権限拒否を区別する。
+もし runner でも403になる場合は権限不足を隠して通さず、原因を確認する。新しい PAT/追加 grant を自動要求・作成しない。
 
 ### main からの手動実行
 
