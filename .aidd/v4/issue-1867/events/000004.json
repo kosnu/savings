@@ -1,0 +1,110 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-10-03T02:56:42.299618Z",
+  "task_hash": "7f1ab5bb713e2dd827099d4df7f5d8703f407e45d12fbdeb5a46fc2da272a1fd",
+  "previous": "c5981aa5278c0fc173db0f084193540f7eb0828b989dad98e1e8f1af7489e2eb",
+  "revision": 3,
+  "fingerprint": "b49efc8443d1c2e6551c213821b26df306c097ec37f37f81857ba3ea317b92af",
+  "data": {
+    "summary": "cf 1.0.0-beta.1 と @cloudflare/vite-plugin 2.0.0-beta.sha-805ec1ff3（共通 @cloudflare/config 0.18.0、7日release-age条件を満たす）を固定する。既存tsc/vp buildとSentry処理を維持し、build/previewだけCloudflare pluginを適用してassets-only Build Outputを作成する。SPA notFoundHandlingをsingle-page-application、Worker名をburneto、production domainをburneto.comとする。workflow_dispatchと既存API jobを維持し、Webは一度build、cf deploy --prebuilt --mode productionのdry-run後に同じ成果物をdeployする。本番切替・Pages削除・workflow実行は未承認のため実施せず、移管と切り戻しの具体手順を記載する。Dev環境、Web機能、認証、DBを変更しない。rule-mapの既存infrastructure.overview経路で移管手順へ到達可能、追加索引は不要。CI・本番・Sentry実送信/OAuthは承認後の未確認条件として保持する。 Workersのnative SPA fallbackと競合するPages用 public/_redirects を削除する。Sentryのsourcemaps.assets/削除globを実際の.cloudflare/outputへ変更し、テスト用CLIでアップロード入力と削除を検証する。 Frontend CIの既存typecheck jobにもWeb buildとcfのprebuilt dry-runを追加し、秘密情報なしで組合せの互換性を継続確認する。",
+    "paths": [
+      "package.json",
+      "pnpm-lock.yaml",
+      ".gitignore",
+      ".github/workflows/deploy_production.yaml",
+      "apps/web/cloudflare.config.ts",
+      "apps/web/vite.config.ts",
+      "apps/web/package.json",
+      "apps/web/README.md",
+      "docs/infrastructure.md",
+      "docs/workers-migration.md",
+      "apps/web/public/_redirects",
+      ".github/workflows/frontend_ci.yaml"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "cf",
+        "deploy",
+        "--prebuilt",
+        "--mode",
+        "production",
+        "--dry-run"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "fmt",
+        ".github/workflows/deploy_production.yaml",
+        ".github/workflows/frontend_ci.yaml",
+        "package.json",
+        "docs/infrastructure.md",
+        "docs/workers-migration.md",
+        "apps/web/README.md",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy",
+      "ai-driven.checker"
+    ]
+  },
+  "hash": "8fd0ea207516fb323688cb8fcafbb490f06ad17ec1ee38f4ef86d73e0421a1ec",
+  "cycle_id": "issue-1867/cycle-0001"
+}

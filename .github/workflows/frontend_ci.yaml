@@ -68,6 +68,16 @@ jobs:
       - name: Typecheck
         run: pnpm run web:typecheck
 
+      - name: Build Workers Static Assets
+        run: pnpm run web:build
+        env:
+          CF_SEND_TELEMETRY: "false"
+
+      - name: Validate Workers Static Assets
+        run: pnpm --filter web exec cf deploy --prebuilt --mode production --dry-run
+        env:
+          CF_SEND_TELEMETRY: "false"
+
   unit-test:
     name: unit-test (${{ matrix.shard }})
     runs-on: ubuntu-latest

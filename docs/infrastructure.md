@@ -25,9 +25,10 @@ when_to_read:
 
 ## 利用サービス一覧
 
-- **Cloudflare Pages**
+- **Cloudflare Workers Static Assets**
   - Web アプリケーション（React SPA）のホスティングに利用。
   - HTTPS 対応、CDN による高速配信。
+  - リポジトリの移管後設定。本番切替は[移管手順](workers-migration.md)の承認・確認後に実施。
 - **Cloudflare Domain**
   - 独自ドメインの管理に利用。
   - DNS 設定や SSL 証明書の管理も Cloudflare で実施。
@@ -44,7 +45,7 @@ when_to_read:
 [User]
   │
   ▼
-[Cloudflare Domain] ──> [Cloudflare Pages] ──> [Web App (React SPA)]
+[Cloudflare Domain] ──> [Workers Static Assets] ──> [Web App (React SPA)]
                                                     │
                                                     ▼
                                               [Supabase]
@@ -66,16 +67,18 @@ when_to_read:
 - OAuth client ID と client secret は Supabase および GitHub Environment のsecretで管理し、
   リポジトリへ保存しない。
 
-### Cloudflare Pages
+### Cloudflare Workers Static Assets
 
-- 既存の Pages project を継続利用し、project名は `burneto` とする。
-- project名はCloudflare DashboardとWrangler CLIの識別子であり、改名自体は既存のhostname、
-  deployment、custom domainを変更しない。
-- 本番custom domainには別途追加した `burneto.com` を使用する。Pagesが生成した既存の
-  `savings-dyo.pages.dev` hostnameは維持する。
-- GitHub Actionsのデプロイ先は
-  [deploy_production.yaml](../.github/workflows/deploy_production.yaml) の
-  `--project-name=burneto` と一致させる。
+- Worker 名は `burneto`、本番 custom domain は `burneto.com` とする。
+- [cloudflare.config.ts](../apps/web/cloudflare.config.ts) が配信先と SPA fallback を所有する。
+  静的ファイルのみを配信し、Worker のサーバーコードを追加しない。
+- Cloudflare Vite plugin が既存の Web ビルドから `.cloudflare/output/v0/` を作成する。
+  [deploy_production.yaml](../.github/workflows/deploy_production.yaml) は cf を使い、
+  `--prebuilt --mode production` で同じ成果物を検証・配信する。
+- 旧 Pages project `burneto`、既存 deployment、`savings-dyo.pages.dev` は切り戻し用に保持する。
+  本番切替後も旧 hostname は旧 Pages を配信し、Workers への転送先にはしない。
+- 本番切替と旧 Pages 削除は別の承認対象とする。準備・切替・確認・切り戻しは
+  [移管手順](workers-migration.md)を参照する。
 
 ### Supabase
 
@@ -107,6 +110,8 @@ Googleログインのredirectは次の順序を維持する。
 
 ### Production deployment
 
-外部サービス設定とリポジトリ設定を揃えた後の本番デプロイと本番Googleログイン確認は、
-[#1778](https://github.com/kosnu/savings/issues/1778) で実施する。#1776では
-`Deploy Production` workflowを実行しない。
+`Deploy Production` は手動実行とする。Workers への初回切替は
+[#1867](https://github.com/kosnu/savings/issues/1867) と[移管手順](workers-migration.md)に従い、
+対象 commit と実施内容への承認を得てから行う。
+Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。
+本番で既存 session、Google ログイン、SPA の直接アクセス、Sentry の受信と source map 解決を確認する。

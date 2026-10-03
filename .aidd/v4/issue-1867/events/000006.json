@@ -1,0 +1,66 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-10-03T03:04:35.182563Z",
+  "task_hash": "7f1ab5bb713e2dd827099d4df7f5d8703f407e45d12fbdeb5a46fc2da272a1fd",
+  "previous": "59c5c6c2dbb685b30cd4b416b4ec2ed0c97536d5ae1cbd9057b890707604b42b",
+  "revision": 3,
+  "fingerprint": "b8b31e59b8df5ff661a081e487adca672d34406762ad97d74e29d01373fbb9fd",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.storybook-browser-tests, web.test-policy, ai-driven.checker\n- Unresolved: ルール間の矛盾なし。\n\nメインagentが元Issue、実行委任、decision revision 3と実差分を照合。repository側の移管準備にはfindingなし。既存UI/component構造、金額・日付・book/category/payment/budget/user domain、transaction/temporal/ownershipの実装変更はなく、Dev環境の追加なし。Web必須lint/format-check/typecheck/unit-integration（138 files、712 tests）、build、cf dry-run、文書整形とgit diff --checkはverify event 5でexit 0、stable=true。実previewの直接アクセス/reload/資産応答とSentry用CLI fixtureは同一sourceの追加観測。本番domain移管、実ログイン、session維持と実Sentry解決は未検証であり、切替承認後に確認する。rollbackは旧Pagesを保持し、旧Pages削除は別承認。",
+    "criteria": [
+      {
+        "criterion": "Workers Static Assets配信設定とcfによるGitHub Actionsデプロイを実装する",
+        "evidence": "IssueのPages→Workers、cf CLI移管という期待に対し、assets-only burneto Worker、burneto.com、native SPA fallbackを定義し、manual production workflowで同一build outputをdry-run後にcf --prebuilt --mode productionで配信する。dry-runは23静的ファイル、server bundle/bindingなしで成功。Frontend CIにもbuild/dry-runを追加。実deployは未実施。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "SPA直接アクセスと再読み込みをローカル配信で検証する",
+        "evidence": "Workers runtimeのローカルpreviewで /payments /auth /privacy とquery付き /payments を各2回HTTP取得し、200とindex.html一致を確認。参照JS/CSS等10ファイルも200。ブラウザで未認証 /payments の既存landing遷移、/authのGoogleログイン入口とreloadを確認。ログイン済み本番 /payments は承認後に確認する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "既存認証・Sentryビルド連携を維持する",
+        "evidence": "認証UI/SDK、Supabase設定・migration・DB、Google callbackと本番originは差分なし。Sentryのproduction条件と既存secretsを維持し、source map globだけ実際のCloudflare outputへ同期。外部通信しないテスト用Sentry CLIで4 map全てdebug_id、JS Debug ID注入、公開map削除を確認。実際のSentry upload/受信・Google OAuth/既存sessionは未確認でrunbookに残す。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "依存関係・設定・移管と切り戻し手順・インフラ文書を同期する",
+        "evidence": "root Wrangler依存/旧wrangler-action/Pages _redirectsを置換し、cfと互換pluginを固定。README/infrastructure/runbookは準備・切替・切り戻し・別承認のPages削除を記述し本番未切替を明示。rule-map既存infrastructure経路からrunbookへ到達できる。lock importer差分はWrangler削除とcf/plugin追加のみ。pnpm peers checkのcsstools 4.0.0 vs ^4.0.1 mismatchはbaselineと同じで変更由来ではない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "本番切替と本番機能・認証・Sentry確認は承認待ちとして明示する",
+        "evidence": "Issueの明示条件に従い本番workflowを実行せず、Pages/domain/DNS/Cloudflare credential/本番データは変更しない。切替の具体的承認対象、停止可能性、復旧先保持、OAuth/Sentry/既存session確認をrunbookへ明記。Issue全体は未達でRefs #1867としcloseしない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy",
+      "ai-driven.checker"
+    ]
+  },
+  "hash": "3cbd56abe1e9fa6e1cf661c49c147e8eb4835a27c431f809265825058b048ef3",
+  "cycle_id": "issue-1867/cycle-0001"
+}
