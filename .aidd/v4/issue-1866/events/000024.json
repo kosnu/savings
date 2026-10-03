@@ -1,0 +1,112 @@
+{
+  "sequence": 24,
+  "kind": "decision",
+  "time": "2026-10-03T12:45:44.097780635Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "ceff5b3568364d5f3d613bee74bc5bbf296af94b3651604fe010e54f391e1fcb",
+  "revision": 9,
+  "fingerprint": "ac55749ea64d7bda84b2c20c0c04fe68dac13d99af1d3770183469d500618dd1",
+  "data": {
+    "summary": "ユーザー2026-10-03 12:40:04承認により本番workflowを基準に最小化。native pnpm ci/build、CLI link→db pushをworkflowへ直接記述。独自runner/SQL解析/履歴照合/計画digest/Environment API検査を削除し追加SQL内容保護を失うことは承認済み。PR固定SHA/branch再照合、標準Environment承認、Dev固定ref、共有DB直列化を維持。ラベルはマージ前起動、二EnvironmentはFE/DB credential分離のため保持。外部設定/token作成/DBwrite/残13件破壊/mergeは実施しない。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "VITE_SENTRY_DSN=",
+        "VITE_SENTRY_ENVIRONMENT=development",
+        "NODE_ENV=production",
+        "CLOUDFLARE_PREVIEW_BUILD=true",
+        "pnpm",
+        "run",
+        "web:build",
+        "--mode",
+        "development"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "042fdb8e89c5e3b937d2d13ae5da8fc4fa33db789fc5ab748d3ddf15830d122e",
+  "cycle_id": "issue-1866/cycle-0001"
+}

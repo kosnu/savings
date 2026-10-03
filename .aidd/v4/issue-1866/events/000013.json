@@ -1,0 +1,104 @@
+{
+  "sequence": 13,
+  "kind": "decision",
+  "time": "2026-10-03T07:39:46.924923244Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "0d282e0c9f06a417f045dd5da516db880c02a58b234410e986f65e10d402d5cd",
+  "revision": 5,
+  "fingerprint": "567002f8f8b33ea8ac0bcabc2d50fbcb7e00e8e2c958f8555f95491aef413770",
+  "data": {
+    "summary": "個人所有public repository kosnu/savingsの単独運用へ修正。development required reviewerは所有者本人1人、Prevent self-review=falseを要件にしてGitHub標準承認によるsecret隔離を維持。第三者/有料planを要求しない。PR完全SHA/同一repo/main/open/ラベル撤回検査を維持。CIのactions:readでEnvironment metadata APIの読取可否を実測する。外部設定変更・credential作成・実配信なし。private Free/Proでは同じ保護を使えない制約を明記。 Copilot4172122174の変更可能PR属性を再確認。既存post-approval再検証へ解決済みbranch名との一致を追加し、承認待ち中のrenameで旧Previewへ配信しない。checkoutは固定SHAを取得するだけとし、再検証より前にinstallや配信credentialを渡さない。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "DEV_SUPABASE_PROJECT_REF=abcdefghijklmnopqrst",
+        "DEV_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "node",
+        "tools/dev-preview/deploy.mjs",
+        "verification/preview",
+        "--build-only"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "ae04e9f5dd6e0abe9806d55a5a7ddfec9560a5df15ae1350fc1cc6e3a6bc7fa6",
+  "cycle_id": "issue-1866/cycle-0001"
+}

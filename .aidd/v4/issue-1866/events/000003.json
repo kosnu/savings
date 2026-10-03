@@ -1,0 +1,103 @@
+{
+  "sequence": 3,
+  "kind": "decision",
+  "time": "2026-10-03T07:04:20.836351476Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "0ff7ff1cd56e7f3a9db0372b6bd9635c0a7982a856727a993be0fca9314b80b1",
+  "revision": 2,
+  "fingerprint": "81645884996ff11747ccf4d18704840b8f6e9d7200605bab3b6b6203f9cac5bb",
+  "data": {
+    "summary": "cf 1.0.0-beta.1のnative Previewsを専用burneto-dev parentで使用。development modeとPreview build contextを明示し本番設定を拒否。ブランチ名hashで同一更新・別branch併存。Cloud runnerとPR番号/期待SHAを指定するmanual workflow_dispatch。共有Dev DBは別project-ref、publishable keyのみfrontendへ渡す。migration/seed/resetはpreviewと分離し承認済みmain SHA・単一担当・影響調整を手順化。実環境credentials未提供のためlive acceptanceは未確認。 実 Preview Build Outputのmode/isPreviewとWorker名、domain、binding不在を検査。fixtureビルドとzizmorを検証証拠へ追加。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "DEV_SUPABASE_PROJECT_REF=abcdefghijklmnopqrst",
+        "DEV_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "node",
+        "tools/dev-preview/deploy.mjs",
+        "verification/preview",
+        "--build-only"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "fe47cb93698e157e0ad90ec048e8c10d0e059539d06d7d1a96a2ff036c31b08c",
+  "cycle_id": "issue-1866/cycle-0001"
+}

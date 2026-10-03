@@ -1,0 +1,112 @@
+{
+  "sequence": 18,
+  "kind": "verify",
+  "time": "2026-10-03T08:55:52.901021813Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "44845f3bf2f98e7e9ae7ccbe17bb3a261bf63a1579063a8b073c6326847b6e7f",
+  "revision": 7,
+  "fingerprint": "cd2feed85638400b7634387f41213595011782acccda47777b5c70790b21cfce",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "node",
+          "--test",
+          "tools/dev-preview/preview.test.mjs",
+          "tools/dev-preview/authorize.test.mjs",
+          "tools/dev-db/migrations.test.mjs"
+        ],
+        "exit": 0,
+        "output": "✔ SQL evidence matches MCP and CLI forms but preserves literals and function bodies (3.574967ms)\n✔ history must be an unchanged ordered prefix; branch conflicts fail closed (13.437872ms)\n✔ plan performs no writes; apply refuses history/source drift after owner approval (1.170895ms)\n✔ apply verifies remote history; repeat is no-op; partial failure is not repaired (0.824001ms)\n✔ only the fixed Dev project and direct/session host can receive existing DB credentials (0.464718ms)\n✔ PR-only UX pins the event head internally and database credentials require their own owner gate (1.585349ms)\n✔ current 23-migration checkpoint plans the remaining 13 and exposes destructive review (8.875821ms)\n✔ workflow serializes the shared DB, plans before approval/apply, and never resets or repairs (0.658045ms)\n✔ runner subprocesses keep password out of argv/logs and plan never invokes db push (419.281158ms)\n✔ PR label resolves the immutable event head; dispatch remains main-only (2.599552ms)\n✔ updates, unrelated labels, forks, wrong base and unsupported events cannot opt in (2.685875ms)\n✔ owner can approve their own pinned SHA without an additional reviewer (0.468665ms)\n✔ head races, withdrawal, closure and foreign PRs fail the post-approval recheck (2.479754ms)\n✔ missing/unreadable protection, non-owner review and blocked self-review fail closed (0.749851ms)\n✔ workflow limits triggers and gates installation/deployment behind environment and revalidation (0.543075ms)\n✔ 同じブランチは同じ名前、slug が衝突しても別ブランチは別 Preview (1.790583ms)\n✔ Dev 設定不足、本番 ref、権限の強いキーをネットワーク前に拒否 (0.375316ms)\n✔ 本番 URL・Sentry・配信/DB token をビルドへ渡さない (0.212005ms)\n✔ Preview context は mode を間違えても本番 Worker/domain を選ばない (0.862237ms)\n✔ cf の配信結果からのみ安定 URL を報告し、不一致・空・本番 URL を拒否 (0.324631ms)\n✔ 本番・古い成果物や本番 binding/domain の混入を配信前に拒否 (0.338652ms)\nℹ tests 21\nℹ suites 0\nℹ pass 21\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 541.32216\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 698ms on 571 files using 4 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:72808) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /workspace/savings/apps/web\n\n········································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  138 passed (138)\n      Tests  712 passed (712)\n   Start at  08:52:59\n   Duration  169.01s (transform 3.89s, setup 322.73s, import 45.23s, tests 66.38s, environment 51.88s)\n\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vp",
+          "lint",
+          "tools/dev-preview",
+          "tools/dev-db",
+          "--deny-warnings"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "env",
+          "DEV_SUPABASE_PROJECT_REF=abcdefghijklmnopqrst",
+          "DEV_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+          "node",
+          "tools/dev-preview/deploy.mjs",
+          "verification/preview",
+          "--build-only"
+        ],
+        "exit": 0,
+        "output": "Dev Preview: b-verification-preview-9cd8ea7b0821; commit: aa71525780a240eb53742b6777d04e7f817cd3a3\n$ pnpm --filter web build --mode development\n$ tsc -b \u0026\u0026 vp build --mode development\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2108 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-I5TUXfXJ.css               14.95 kB │ gzip:   4.35 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-D6YemKv2.js               5.10 kB │ gzip:   2.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-DRUzOVlX.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-DmTXFhwy.js               221.46 kB │ gzip:  44.67 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-BExirS6v.js            937.67 kB │ gzip: 277.15 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 681ms\nPreview build 完了。配信・DB接続は実行していません。\n"
+      },
+      {
+        "argv": [
+          "uvx",
+          "--cache-dir",
+          "/tmp/savings-uv-cache",
+          "zizmor",
+          "--offline",
+          ".github/workflows/deploy_preview.yaml",
+          ".github/workflows/dev_preview_ci.yaml",
+          ".github/workflows/deploy_dev_database.yaml"
+        ],
+        "exit": 0,
+        "output": "No findings to report. Good job! (10 suppressed)\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "4fc7c0bf0a9be6492510f74a3de9750e70cd69171fea4eba33fe8f5ba6ef5c5a",
+  "cycle_id": "issue-1866/cycle-0001"
+}

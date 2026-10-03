@@ -1,0 +1,64 @@
+{
+  "sequence": 39,
+  "kind": "review",
+  "time": "2026-10-03T15:59:59.477307775Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "a2fdc7e04319ac69ea6752051e51a23df52f9f02fd8334d635e8b843d96a4f40",
+  "revision": 12,
+  "fingerprint": "012db29f0c43ada72570f13f9ea1df33eb592e8804d3fc6990015c216c6b21a3",
+  "data": {
+    "summary": "Coverage: rev12全rule/closure、実run/DBmetadata/ユーザー報告と文書差分を照合。FE Actions37131668187成功の実URL/ID、DB Actions37134186237承認済み13件successと36/36/RPC/grant/RLSを独立確認。Googleログイン成功はユーザー報告と明記。別branch検証PR1873/Actions37134854790の別URL/ID成功、DBスキップ。Cloud4envなし/proxy403で直接配信と独立HTTP/UI未実施。条件削除/弱体化なし。Unresolved: Cloud直接配信、複数branch実画面/変更反映/各branch共有接続の確認が残る。",
+    "criteria": [
+      {
+        "criterion": "Cloudからのプレビュー配信とURL確認",
+        "evidence": "Cloudのbuild検証のみ。4env(VITE_SUPABASE_URL/VITE_SUPABASE_PUBLISHABLE_KEY/CLOUDFLARE_ACCOUNT_ID/CLOUDFLARE_API_TOKEN)は存在しない。GitHubSecret値取得なし。Cloud→Actionsの実操作はできたがCloud nativeCLI配信を行った証拠とはしない。Secret設定経路の準備が必要。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "PR GitHub Actionsからの配信とURL確認",
+        "evidence": "FE Actions37131668187はe026361005383809820365a8aa634af90f708555でsuccess。cf実応答のURL https://b-issue-1866-shared-de-fe6897332a30-burneto-dev.coursek8814.workers.dev とdeployment9cf0c299-20d9-4f00-9f49-10cee56049c8を確認。ユーザーがこのPreviewのGoogleログイン成功を報告（独立browser検証ではない）。Cloud proxy403でHTTP/UI独立確認はできないが、PRの配信とURL取得・ユーザー実画面確認の証拠が揃う。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "複数ブランチ併存と同一ブランチ更新",
+        "evidence": "別branch issue-1866/preview-coexistence-checkのPR1873/Actions37134854790も同commitでsuccess。URL https://b-issue-1866-preview-c-9721638d04b9-burneto-dev.coursek8814.workers.dev、deployment0c29bbd2-798c-4305-a93c-507cdb45ec48を取得、DBskipped。二つの配信先は実在する応答を得たが両画面同時確認・同branchに画面変更を加えた更新確認は未実施。unknown維持。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "共有Dev Auth/API/DB接続、本番隔離",
+        "evidence": "専用DB Actions37134186237はe026の残13件を具体承認後Devのみへ適用しsuccess。36/36・latest20260905134821、ensure_authenticated_user(text)、users.auth_user_id/language、authenticated実行可anon/PUBLIC不可、8tableRLS+SELECTを読取確認。本番未アクセス、Authユーザー削除/reset/repairなし。更新前RPC404/PGRST202、更新後ログイン成功はユーザー報告。更新後ログqueryでは対象行が返らず独立HTTP成功証拠として使わない。2本目のAuth/API/DB操作とブラウザ通信先の独立確認未了のためunknown。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "migration・seed/reset・互換性・復旧運用の明文化",
+        "evidence": "選択PRの固定SHAを1回承認してnativeCLI適用→同headFE配信、競合時に適用済みSQL取り込み、適用済みSQL編集禁止、全branch直列/外部writer制限、partial failure調査、expand/contract、合成seed/reset具体承認と共有影響、FE切戻しとDB復旧分離を記載。CLI標準以上のSQL内容保証なし。Secret名本番同名、Dev限定PAT最小scope、Network Bans権限禁止、共通developmentのSecret明示注入とEnvironmentレベルのFE/DB隔離を持たないことを明記。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "3a87c8d868f9f4d04a6de3ff219aee0b413ff96d7e62f25fd077054b5c46f35c",
+  "cycle_id": "issue-1866/cycle-0001"
+}

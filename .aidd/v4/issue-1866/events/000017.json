@@ -1,0 +1,109 @@
+{
+  "sequence": 17,
+  "kind": "decision",
+  "time": "2026-10-03T08:48:40.804635229Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "67e0c882f2b8114c65f918049123d1812ea3465b16f8d403c38fb454e0be5867",
+  "revision": 7,
+  "fingerprint": "cd2feed85638400b7634387f41213595011782acccda47777b5c70790b21cfce",
+  "data": {
+    "summary": "1866 scope clarification: PR選択だけでDB/FEを起動しSHAはCIが内部固定、ユーザーが08:40:58UTCにUX承認。preview/dev-db固定ラベル、またはmain導入後PR番号だけのdispatch。DBは専用development-databaseの所有者自己承認、read-only plan→別job適用承認→計画digest/履歴prefix/SQL再照合→CLI db push。全branch直列、Dev ref固定、TLSverify-full、既存DB passwordとpublic接続metadataのみ、PAT不要。schema互換性はSQL/全Previewの意味レビューが必要。現在23/36の実Dev履歴がrepoSQLと完全一致、24削除は拒否のまま未実施。以降read-onlyのみ。reset/seed/roles/Vault/historyrepair/強制rollbackなし。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs",
+        "tools/dev-db/migrations.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "tools/dev-db",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "DEV_SUPABASE_PROJECT_REF=abcdefghijklmnopqrst",
+        "DEV_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "node",
+        "tools/dev-preview/deploy.mjs",
+        "verification/preview",
+        "--build-only"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "44845f3bf2f98e7e9ae7ccbe17bb3a261bf63a1579063a8b073c6326847b6e7f",
+  "cycle_id": "issue-1866/cycle-0001"
+}

@@ -1,0 +1,45 @@
+name: Dev Preview CI
+
+on:
+  pull_request:
+    paths:
+      - "tools/dev-preview/**"
+      - ".github/workflows/deploy_dev_database.yaml"
+      - "apps/web/cloudflare.config.ts"
+      - ".github/workflows/deploy_preview.yaml"
+      - ".github/workflows/dev_preview_ci.yaml"
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 12.7.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          package-manager-cache: false
+      - run: pnpm ci
+      - run: node --test tools/dev-preview/preview.test.mjs tools/dev-preview/authorize.test.mjs
+      - name: Build Preview without deployment credentials
+        env:
+          NODE_ENV: production
+          CLOUDFLARE_PREVIEW_BUILD: "true"
+          CF_SEND_TELEMETRY: "false"
+          VITE_SENTRY_DSN: ""
+          VITE_SENTRY_ENVIRONMENT: development
+          VITE_SUPABASE_URL: https://ufekmuxkmodwydxmdbln.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_fixture
+        run: |
+          node tools/dev-preview/preview.mjs name ci/preview
+          pnpm run web:build --mode development
+          node tools/dev-preview/preview.mjs check-build

@@ -115,3 +115,23 @@ Googleログインのredirectは次の順序を維持する。
 対象 commit と実施内容への承認を得てから行う。
 Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。
 本番で既存 session、Google ログイン、SPA の直接アクセス、Sentry の受信と source map 解決を確認する。
+
+### Development previews
+
+共有 Dev Supabase project を1つ用意し、DB・Auth・Data API を全ブランチで共有する。
+本番 project、データ、OAuth 設定から分離し、合成データだけを使う。
+フロントエンドは専用 Worker `burneto-dev` の native Previews で配信する。
+`cloudflare.config.ts` は Preview context または development mode で本番 domain を外す。
+CloudからもPRのpreviewラベルでGitHub Actionsを起動する。配信経路はActionsに統一し、native cfコマンドを使用する。
+利用者は PR を選び、SHA は CI が内部で解決・固定する。main 導入後は PR 番号だけの手動実行も使える。Actions は既存 development
+Environment の所有者本人による required review（自己承認可）を経て、承認後も対象 SHA を再照合する。
+プレビュー配信は migration、seed、reset、Auth 設定の変更を行わない。
+DB 変更は別の dev-db ラベルで専用 CI を起動し、選択 PR の固定 SHA の SQL 確認・所有者承認後に適用する。
+FE/DB とも development Environment を使い、DB stepだけへ管理tokenを渡す。共有DBの更新は全 branch を直列化する。履歴競合は CLI 標準の version 検査に従い、適用済み SQL の内容変更を独自検知しない。
+マージ前に新 table を適用してから、同じ PR head の FE を配信できる。
+初期設定、公開範囲、共有 DB の適用・復旧、削除条件と実機検証は
+[Dev プレビュー運用](development-preview.md)を参照する。
+
+DevのSecret名は本番と揃え、Dev用developmentと本番productionで値とEnvironmentを分離する。DBはDev限定 `SUPABASE_ACCESS_TOKEN` と
+`SUPABASE_PROJECT_ID` によるCLI link/db pushを使う。恒久DB password・host・CA登録は不要。
+具体的なscopeと承認、共通developmentでのSecretの渡し方は[開発Preview運用](development-preview.md)を参照する。
