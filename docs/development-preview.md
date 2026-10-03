@@ -236,15 +236,32 @@ GoogleのDev client発行済みでも、GitHubへの保存だけでproviderは�
 - frontendを以前のcommitへ戻してもDB/Auth/データは戻らない。非互換なら該当Previewを停止し、
   forward-fixで共有schemaの互換性を回復してから新旧FEの読み書き/RLSを再確認する。
 
-### 2026-10-03 の Dev 初期構築チェックポイント
+### 2026-10-03 の実配信・DB更新の証拠
 
-Dev `ufekmuxkmodwydxmdbln` は **23/36件**、最後は
-`20260526000000_update_category_with_budget_function`。初期適用は CI ではなく MCP で実施した。
-その際だけ MCP の実行時 version を元ファイルの version へ対応付けた。今後の CI は履歴を書き換えない。
-読み取りで23件の name/version/保存 SQL が main と整合し、Auth とアプリデータが0件であることを確認した。
-24件目 `20260528000000_remove_category_budgets` の空 table 削除は自動承認レビューで拒否され、未実施。
-現在の main との差は残り13件だが、この具体的な削除への承認がない間は **DB jobを承認しない**。
-新 CI、外部 credential/Environment 設定、実 DB 適用、Google login、FE live 配信は未検証。
+- [FE Actions 37131668187](https://github.com/kosnu/savings/actions/runs/37131668187) は
+  commit `e026361005383809820365a8aa634af90f708555` で成功。
+  [PR1871のPreview](https://b-issue-1866-shared-de-fe6897332a30-burneto-dev.coursek8814.workers.dev) と
+  deployment `9cf0c299-20d9-4f00-9f49-10cee56049c8` をcfの実応答で確認した。
+  最初のrunでは `--quiet` が結果JSONも抑止したため、この指定を除去して同じPreviewへ再配信した。
+- [DB Actions 37134186237](https://github.com/kosnu/savings/actions/runs/37134186237) で同じcommitの残り13件を適用し成功。
+  対象はDev `ufekmuxkmodwydxmdbln` のみ。初期23件はMCPによる構築で、24件目の削除は一度停止したが、
+  古い予算tableの削除・再作成を含む具体的承認後にこのCIで再開した。resetや履歴repairは行っていない。
+- 読み取りで **36/36件**、最後のversion `20260905134821`、
+  `ensure_authenticated_user(p_initial_display_name text)`、`users.auth_user_id` / `language` の存在を確認した。
+  同RPCはauthenticatedのみ実行可能でanon/PUBLICは禁止。全8tableのRLS有効とauthenticatedのSELECT権限も確認した。
+- DB更新前は実ログに同RPCの404 / PGRST202があり、引数なしRPCしか存在しなかった。
+  更新後のGoogleログイン成功は**ユーザーによる実画面確認の報告**であり、agentによるブラウザ操作の独立確認とは区別する。
+
+[検証用PR1873](https://github.com/kosnu/savings/pull/1873) の別branchも、同じcommitから
+[FE Actions 37134854790](https://github.com/kosnu/savings/actions/runs/37134854790) で配信成功。
+[2本目のPreview](https://b-issue-1866-preview-c-9721638d04b9-burneto-dev.coursek8814.workers.dev)、
+deployment `0c29bbd2-798c-4305-a93c-507cdb45ec48` をcf応答で取得した。DB workflowはスキップ。
+この検証用draft/branchはマージ対象ではなく、削除はまだ行っていない。
+
+Cloudからの直接CLI配信は未実施。Cloudには配信用4環境変数がなく、GitHub Secretsの値は取得していない。
+またCloudのHTTP接続はproxyのCONNECT 403、Web取得toolもアクセス不可で、agentによるHTTP/UI確認は未完了。
+この403をアプリ自身のHTTPエラーとは扱わない。複数branchの実画面、変更後の同branch画面、
+複数Preview間の共有データ操作、切戻し後の読み書きの証拠も、未実施のまま成功にしない。
 
 ## 合成データ、reset、復旧
 
