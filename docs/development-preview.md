@@ -79,7 +79,7 @@ JSON に `preview_urls` と `deployment_id` を返す。`--quiet` は結果JSON�
    account と Worker に限定した `https://b-*-burneto-dev.<subdomain>.workers.dev/auth` を検討し承認を得る。
    `https://*.workers.dev/**` のような広域許可は使わない。Web の `origin + /auth` 経路は維持する。
 
-| 設定                      | GitHub `development` の Secret / Cloud環境変数（同名）           |
+| 設定                      | GitHub `development` の Secret                                   |
 | ------------------------- | ---------------------------------------------------------------- |
 | Dev API URL               | `VITE_SUPABASE_URL` = `https://ufekmuxkmodwydxmdbln.supabase.co` |
 | Dev publishable key       | `VITE_SUPABASE_PUBLISHABLE_KEY`                                  |
@@ -107,34 +107,18 @@ DBは全Previewへの影響があるためFE配信から分離し、選択PRのm
 
 独自の配信runner、SQL parser、履歴内容照合、計画hash、Environment APIによるreviewer検査は使わない。
 補助コードは `authorize.mjs`（選択PRの固定SHA/branchと現在のPRの照合）と
-`preview.mjs`（Cloud/Actions共通の名前とDev設定・成果物の誤配信防止）に限定する。
+`preview.mjs`（Actionsで使う名前とDev設定・成果物の誤配信防止）に限定する。
 標準のEnvironment保護設定は管理者が設定・確認する前提で、コードから設定済みとは保証しない。
 
-## Cloud からの配信
+## Cloud からの操作
 
-この Savings Cloud では `/workspace/.cloud-setup/activate.sh` がruntime/cacheを提供する。
-上表のDev環境変数をsecret設定経路から注入する。本番 `.env`、Sentry token、DB管理credentialを
-このCloud配信環境へ持ち込まない。公開範囲の承認後、レビュー済みのcleanなbranchをcheckoutして実行する。
+Cloudで開発したbranchをpushし、対象PRの `preview` ラベルで下記のGitHub Actionsを起動する。
+配信経路はActionsに統一し、Cloudへ配信用Secretを設定する必要はない。
+2026-10-03、直接CLI配信がActionsとは別経路であると説明したうえで、ユーザーが
+「なくていいわ、やっぱそれ」と撤回したため、独立したCloud CLI配信を要件から外した。
+複数Previewの実画面・同branch更新・共有Dev接続の成功条件は維持する。
 
-```sh
-set -e
-pnpm ci
-preview_branch=$(git branch --show-current)
-preview_name=$(node tools/dev-preview/preview.mjs name "$preview_branch")
-NODE_ENV=production CLOUDFLARE_PREVIEW_BUILD=true CF_SEND_TELEMETRY=false \
-  VITE_SENTRY_DSN= VITE_SENTRY_ENVIRONMENT=development \
-  pnpm run web:build --mode development
-node tools/dev-preview/preview.mjs check-build
-pnpm --filter web exec cf previews deploy "$preview_name" --prebuilt --mode development
-git rev-parse HEAD
-```
-
-最後の `cf previews deploy` が実配信。buildまでの成功をlive Preview/DB接続の成功とはしない。
-detached HEADなら `preview_branch` に対象branch名を指定する。SHAの入力は不要。
 短いbranch slugと元のbranch名のSHA-256先頭12桁で名前を作り、同branchは同じURLを更新する。
-slash・大小文字・日本語・長い名前が同じslugでも別Previewになる。
-CloudとActionsの同名Previewへの同時配信は避ける。最後の完了が勝つため、Actionsの実行状況を先に確認する。
-
 成功したcf応答の `preview_urls` / `deployment_id` とcommitを記録する。URLを推測して成功としない。
 通信失敗の場合は配信済みの可能性もあるため、Dev Workerの履歴を確認して再実行を判断する。
 
@@ -163,7 +147,7 @@ PR自身がworkflowを変更できるため、保護済みEnvironmentと承認�
 設定の未完了や管理者bypassを補助コードで補うものではない。
 
 FEの成功結果はrun Summaryのcf応答とcommitで確認する。PRコメント自動投稿権限は要求しない。
-同一PRはconcurrencyで直列化、別PRは並行配信可能。Cloudはこのlockの対象外。
+同一PRはconcurrencyで直列化、別PRは並行配信可能。
 GitHub concurrencyは全待機要求のFIFO保存を保証しないため、置き換えられた要求は再要求する。
 
 ## 専用 Dev DB CI
@@ -258,8 +242,8 @@ GoogleのDev client発行済みでも、GitHubへの保存だけでproviderは�
 deployment `0c29bbd2-798c-4305-a93c-507cdb45ec48` をcf応答で取得した。DB workflowはスキップ。
 この検証用draft/branchはマージ対象ではなく、削除はまだ行っていない。
 
-Cloudからの直接CLI配信は未実施。Cloudには配信用4環境変数がなく、GitHub Secretsの値は取得していない。
-またCloudのHTTP接続はproxyのCONNECT 403、Web取得toolもアクセス不可で、agentによるHTTP/UI確認は未完了。
+独立したCloud CLI配信はユーザーの明示撤回により対象外。Cloudへの配信用Secret設定は不要。
+CloudのHTTP接続はproxyのCONNECT 403、Web取得toolもアクセス不可で、agentによるHTTP/UI確認は未完了。
 この403をアプリ自身のHTTPエラーとは扱わない。複数branchの実画面、変更後の同branch画面、
 複数Preview間の共有データ操作、切戻し後の読み書きの証拠も、未実施のまま成功にしない。
 
@@ -286,13 +270,20 @@ Dashboard の `burneto-dev` の該当 Preview を削除する。本番 Worker・
 正確な Auth redirect を登録した場合は、その Preview の entry だけ削除する承認も確認する。
 Preview 削除で共有 DB の合成データは消えない。必要なら所有者とデータ初期化を別に調整する。
 
-## 実機受け入れ確認
+## PRの確認範囲と導入後の実機確認
+
+2026-10-03のユーザー指示により、[Issue #1866](https://github.com/kosnu/savings/issues/1866)を1つのまま継続し、
+PR #1871の受け入れは実装・自動テスト・上記のFE/DB実行証拠・ユーザーのログイン成功報告・運用手順とする。
+AIDDのTask完了はこのPR範囲を表し、Issue全体の完了を表さない。PRのマージでIssueを自動closeしない。
+
+main導入後の通常経路での複数Preview実画面、同branch更新、第2Preview共有Dev利用は、
+同じIssueの未チェック項目として残す。検証専用PRの配信成功でこれらを完了扱いにしない。
+以下は実機検証時の記録項目であり、未実施の項目をPRの自動テスト成功から推定しない。
 
 セットアップ後に次を記録する。ローカルの fixture テストや Build Output 検査を代用にしない。
 
 | 条件             | 観測する証拠                                                                        |
 | ---------------- | ----------------------------------------------------------------------------------- |
-| Cloud 配信       | commit / deployment ID、返却 URL、実際の画面変更                                    |
 | PR Actions 配信  | PR head SHA と run URL、Summary の URL、画面変更                                    |
 | 2ブランチ併存    | A/B の異なる安定 URL、各 commit の違い                                              |
 | 同一ブランチ更新 | A の再配信で同じ URL に更新、B は変わらない                                         |
