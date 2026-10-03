@@ -1,6 +1,9 @@
 name: Deploy Dev Preview
 
 on:
+  pull_request:
+    branches: [main]
+    types: [labeled]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -12,54 +15,65 @@ on:
         required: true
         type: string
 
+run-name: Dev Preview PR ${{ github.event.pull_request.number || inputs.pr_number }} @ ${{ github.event.pull_request.head.sha || inputs.head_sha }}
+
 permissions: {}
 
 # 同じ PR の配信を直列化する。別 PR は併存できる。
 concurrency:
-  group: dev-preview-pr-${{ inputs.pr_number }}
+  group: dev-preview-pr-${{ github.event.pull_request.number || inputs.pr_number }}
   cancel-in-progress: false
 
 jobs:
   resolve:
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
+       startsWith(github.event.label.name, 'preview:') &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
+      actions: read
+      contents: read
     outputs:
       branch: ${{ steps.pr.outputs.branch }}
       sha: ${{ steps.pr.outputs.sha }}
     steps:
-      - name: Resolve approved PR head
+      - name: Checkout requested gate code without deployment secrets
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Validate request and existing approval protection
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ inputs.pr_number }}
-          EXPECTED_SHA: ${{ inputs.head_sha }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
-          [[ "$EXPECTED_SHA" =~ ^[a-f0-9]{40}$ ]]
-          gh api "repos/$GH_REPO/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr.json"
-          jq -e --arg repo "$GH_REPO" --arg sha "$EXPECTED_SHA" \
-            '.state == "open" and .base.ref == "main" and .head.repo.full_name == $repo and .head.sha == $sha' \
-            "$RUNNER_TEMP/pr.json" > /dev/null
-          echo "sha=$EXPECTED_SHA" >> "$GITHUB_OUTPUT"
-          echo "branch=$(jq -r '.head.ref' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
+        run: node tools/dev-preview/authorize.mjs
 
   deploy:
+    name: Approve Dev Preview ${{ needs.resolve.outputs.sha }}
     needs: resolve
     runs-on: ubuntu-latest
     environment: development
     permissions:
       contents: read
+      pull-requests: read
+      actions: read
     steps:
       - name: Checkout approved commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.resolve.outputs.sha }}
           persist-credentials: false
+
+      # 承認待ちの間の head 更新、ラベル撤回、保護設定変更も拒否する。
+      - name: Revalidate after environment approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
+        run: node tools/dev-preview/authorize.mjs
 
       - name: Setup pnpm
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0

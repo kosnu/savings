@@ -67,7 +67,10 @@ JSON に `preview_urls` と `deployment_id` を返す。plugin は
    選べない場合は本番にも届く範囲を明示して承認を得る。token 自体をコード・ログ・チャットへ貼らない。
 5. GitHub Environment `development` を作り、下表を登録する。production の secret を継承・コピーしない。
    Environment の required reviewer は承認済み SHA のコード、依存の install script、配信スクリプトを確認する。
-   protection rule の追加も承認対象。manual dispatch 権限だけで未レビューコードの実行を許可しない。
+   required reviewers を空にせず、Prevent self-review を有効にする。管理者の bypass も無効にする。
+   protection rule の追加も承認対象。配信操作の権限だけで未レビューコードの実行を許可しない。
+   独立した承認者を用意できない場合は Actions 配信を停止し、自己承認へ緩和しない。
+   deployment branch policy は承認対象の PR merge ref と main を許可する必要がある。
 6. Dev Supabase Auth の Site URL を代表 Preview の origin に、redirect allow list を各 Preview の
    正確な `https://<preview>-burneto-dev.<subdomain>.workers.dev/auth` に設定する。
    [redirect の仕様](https://supabase.com/docs/guides/auth/redirect-urls)に従い、登録数が増えたときのみ
@@ -116,7 +119,7 @@ Cloud から配信する前に Actions の同 PR 実行がないことを確認�
 配信前のローカル検証のみなら次を使う。これは DB 接続・ライブ Preview の成功証拠ではない。
 
 ```sh
-node --test tools/dev-preview/preview.test.mjs
+node --test tools/dev-preview/preview.test.mjs tools/dev-preview/authorize.test.mjs
 node tools/dev-preview/deploy.mjs --build-only
 ```
 
@@ -126,13 +129,46 @@ node tools/dev-preview/deploy.mjs --build-only
 
 ## PR からの配信
 
-workflow を main へ取り込んだ後、Actions の `Deploy Dev Preview` を main から手動実行し、
-open PR 番号とレビューした head の40桁 SHA を指定する。main 以外からの dispatch、fork PR、
-closed PR、main 以外を base とする PR、現在 head と指定 SHA が異なる PR は配信しない。
-PR の変更を自動配信せず、更新後の SHA ごとにレビューと手動実行を行う。
-Actions run と PR 番号の対応は入力で確認し、結果 URL は run の Summary とログで確認する。
-PR コメントの自動投稿権限は要求しない。同一 PR は concurrency で直列化し、別 PR は並行可能。
-承認待ちの間に head が進んでも、checkout するのは解決済みの承認 SHA。
+### PR ラベルによる明示配信（初回マージ前にも利用可能）
+
+1. 同一 repository の main 宛て open PR で、配信対象の完全 head SHA と変更をレビューする。
+2. `preview:<40桁の小文字head SHA>` ラベルを UI から明示的に付ける（計48文字）。
+   例の SHA を流用せず、その PR の現在値を使用する。ラベル作成・付与はこの workflow 自体では行わない。
+3. `Deploy Dev Preview` の run 名と承認待ち job 名で SHA を確認する。別の required reviewer が
+   その SHA の workflow、gate、依存 install script、frontend と公開内容を確認して `development` を承認する。
+4. 成功後、run Summary の URL と配信 commit を確認し、実画面を検証する。
+
+[GitHub の pull_request 仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)に従い
+`labeled` のみで起動する。default branch に workflow がない初回 PR も対象にできるが、merge conflict は先に解消する。
+`pull_request_target` は使わない。push/synchronize、別ラベル、fork、main 以外の base では配信しない。
+新しい head には新しい SHA のラベルを付け直し、毎回 Environment 承認を受ける。
+ラベルを残しても次の push は配信されない。同一 SHA の再実行はラベルを外して再付与するか run を再実行し、再承認する。
+`GITHUB_TOKEN` によるラベル付与は次の workflow を起動しないため、自動付与を起動手段にしない。
+
+resolve job は配信 secret を持たず、GitHub API で open/same-repo/main/current head と対象ラベルを照合する。
+さらに既存 `development` の required reviewers が空でなく、Prevent self-review が有効であることを
+読み取り確認する。未設定、404/403、通信障害、保護不足なら deploy job に進まず、Environment を自動作成しない。
+[Environment API](https://docs.github.com/en/rest/deployments/environments#get-an-environment)の読み取りに
+`actions: read`、PR 照合に `pull-requests: read`、checkout に `contents: read` を使用し、書込権限・追加 PAT は要求しない。
+承認後、依存のインストールや配信 token の利用より前に同じ条件を再確認する。
+head 更新・PR close・ラベル撤回なら停止し、checkout は解決した完全 SHA のみに固定する。
+
+Environment の管理者変更や bypass を workflow のコードだけで防ぐことはできない。
+secret は必ず保護済み Environment に置き、同名 repository secret を代用しない。
+PR が workflow 自体を変更できるため、承認者は実際に実行される workflow 差分もレビューする。
+必要な reviewer、保護設定、Dev 資源・認証情報、公開承認が未準備なら初回の実配信は未検証のまま停止する。
+fixture テストを Actions の実配信証拠へ置き換えず、AIDD の実機条件も unknown を維持する。
+
+### main からの手動実行
+
+workflow を main へ取り込んだ後は `workflow_dispatch` も使用できる。
+Actions の `Deploy Dev Preview` を main から実行し、open PR 番号とレビューした head の40桁 SHA を指定する。
+main 以外からの dispatch、fork、closed PR、異なる base/head は拒否し、同じ Environment 保護確認と承認を通す。
+この経路は default branch への導入が前提なので、初回マージ前の Actions 検証には上の PR ラベル経路を使う。
+マージ済み PR 自体は open 条件を満たさないため、導入後の dispatch 確認には別の open PR が必要になる。
+
+両経路とも結果 URL は run の Summary とログで確認する。PR コメントの自動投稿権限は要求しない。
+同一 PR は共通 concurrency group で直列化し、別 PR は並行可能。Cloud との同時配信は手動で避ける。
 
 ## 共有 DB の migration と互換性
 

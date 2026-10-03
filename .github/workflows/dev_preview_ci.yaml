@@ -28,7 +28,7 @@ jobs:
           node-version-file: package.json
           package-manager-cache: false
       - run: pnpm ci
-      - run: node --test tools/dev-preview/preview.test.mjs
+      - run: node --test tools/dev-preview/preview.test.mjs tools/dev-preview/authorize.test.mjs
       - name: Build Preview without deployment credentials
         env:
           DEV_SUPABASE_PROJECT_REF: abcdefghijklmnopqrst
