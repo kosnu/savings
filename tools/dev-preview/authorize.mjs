@@ -35,6 +35,7 @@ export async function authorize(request, repository, get) {
     pr.base?.ref !== "main" ||
     pr.head?.repo?.full_name !== repository ||
     pr.head?.sha !== request.sha ||
+    (request.branch && pr.head?.ref !== request.branch) ||
     !pr.head?.ref ||
     [...pr.head.ref].some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127) ||
     (request.labeled && !pr.labels?.some((label) => label.name === `preview:${request.sha}`))
@@ -70,6 +71,7 @@ async function main() {
     GITHUB_REF,
     GITHUB_REPOSITORY,
   )
+  request.branch = process.env.EXPECTED_BRANCH
   const approved = await authorize(request, GITHUB_REPOSITORY, async (path) => {
     const response = await fetch(`https://api.github.com${path}`, {
       headers: { Authorization: `Bearer ${GH_TOKEN}`, Accept: "application/vnd.github+json" },

@@ -73,6 +73,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
+          EXPECTED_BRANCH: ${{ needs.resolve.outputs.branch }}
         run: node tools/dev-preview/authorize.mjs
 
       - name: Setup pnpm

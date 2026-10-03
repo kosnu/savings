@@ -152,7 +152,8 @@ resolve job は配信 secret を持たず、GitHub API で open/same-repo/main/c
 [Environment API](https://docs.github.com/en/rest/deployments/environments#get-an-environment)の読み取りに
 `actions: read`、PR 照合に `pull-requests: read`、checkout に `contents: read` を使用し、書込権限・追加 PAT は要求しない。
 承認後、依存のインストールや配信 token の利用より前に同じ条件を再確認する。
-head 更新・PR close・ラベル撤回なら停止し、checkout は解決した完全 SHA のみに固定する。
+head 更新・branch rename・PR close・ラベル撤回なら停止し、checkout は解決した完全 SHA のみに固定する。
+再検証用コードを取得する checkout は先に行うが、依存のインストール・配信 credential の投入は再検証後に限る。
 
 Environment の管理者変更や bypass を workflow のコードだけで防ぐことはできない。
 secret は必ず保護済み Environment に置き、同名 repository secret を代用しない。

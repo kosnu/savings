@@ -84,6 +84,9 @@ test("owner can approve their own pinned SHA without an additional reviewer", as
 })
 
 test("head races, withdrawal, closure and foreign PRs fail the post-approval recheck", async () => {
+  await assert.rejects(
+    authorize({ ...request, branch: "feature/renamed" }, repo, getter(fixture())),
+  )
   for (const mutate of [
     (f) => {
       f.pr.head.sha = "b".repeat(40)
