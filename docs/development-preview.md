@@ -29,8 +29,8 @@ when_to_read:
 
 2026-10-03 に固定依存の `cf 1.0.0-beta.1`、Cloudflare Vite plugin
 `2.0.0-beta.sha-805ec1ff3` の実装・help を確認した。
-`cf previews deploy <name> --prebuilt --mode development --quiet` が native Previews を配信し、
-JSON に `preview_urls` と `deployment_id` を返す。plugin は
+`cf previews deploy <name> --prebuilt --mode development` が native Previews を配信し、
+JSON に `preview_urls` と `deployment_id` を返す。`--quiet` は結果JSONも抑止するため指定しない。plugin は
 `CLOUDFLARE_PREVIEW_BUILD=true` により `buildContext.isPreview=true` を生成する。
 通常の `cf deploy` や古い Version URL をブランチ Preview の代用にはしない。
 依存更新時は help、config context、Build Output、返却 JSON を再検証する。
@@ -125,7 +125,7 @@ NODE_ENV=production CLOUDFLARE_PREVIEW_BUILD=true CF_SEND_TELEMETRY=false \
   VITE_SENTRY_DSN= VITE_SENTRY_ENVIRONMENT=development \
   pnpm run web:build --mode development
 node tools/dev-preview/preview.mjs check-build
-pnpm --filter web exec cf previews deploy "$preview_name" --prebuilt --mode development --quiet
+pnpm --filter web exec cf previews deploy "$preview_name" --prebuilt --mode development
 git rev-parse HEAD
 ```
 

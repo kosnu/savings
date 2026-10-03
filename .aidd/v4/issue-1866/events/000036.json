@@ -1,0 +1,64 @@
+{
+  "sequence": 36,
+  "kind": "review",
+  "time": "2026-10-03T14:59:19.638674666Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "f182c9d7c227ef589eff1c02adcb0b45cc134e2159f12a568d36a260c7f79b43",
+  "revision": 11,
+  "fingerprint": "0ec1926a6b3ee269f862c8869da6b363ac5e06170e73276eb421960e8f4002bf",
+  "data": {
+    "summary": "Coverage: rev11全rule/closureとFE workflow差分を確認。cf1.0.0-beta.1のformatterはquietでJSONを抑止し、最初の実run37130971467はsuccessでもURL出力なし。--quiet除去と空file/URL欠落の失敗化で修正。共通development、Secret step限定、固定SHA/branch、Dev Worker/domain隔離不変。DB run37130971430はskipped。外部設定/credential/DBwrite変更なし。Unresolved: 再配信URL/HTTP/UI検証はこれから、live条件unknown維持。",
+    "criteria": [
+      {
+        "criterion": "Cloudからのプレビュー配信とURL確認",
+        "evidence": "Cloud手順はnative pnpm ci→development Preview build→cf previews deploy。固定Dev URL・publishable key形式・Worker/domain/bindingを補助コードで検査。fixture実buildとBuild Output確認成功。公開承認/credentials未設定のためlive未実施。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "PR GitHub Actionsからの配信とURL確認",
+        "evidence": "previewラベルでeccd4dd9のrun37130971467を実行、resolve/build/deploy成功。DB runはskipped。quietでJSONが抑止されURLを取得できずliveURL確認は未達。固定CLIソースのformatterで原因確認しquiet除去・空結果failを修正。新revisionで再配信し実URL/HTTP/UIを確認する。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "複数ブランチ併存と同一ブランチ更新",
+        "evidence": "branch slug/hashの安定性とslash/大小文字/日本語/長名衝突の分離をテスト。command名check-buildと同名branchもCLI回帰テスト成功。実際の複数URLと同branch再配信は未確認。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "共有Dev Auth/API/DB接続、本番隔離",
+        "evidence": "Dev ref固定ガード後にnative CLI2.118.0 link→db push --linked --skip-vault dry-run→yes。全branch直列、標準Environment1回承認。独自履歴SQL照合/planhashなし、同version内容改変やdrift未検知の制約を文書化。apps/api configのboolean解決を固定falseで行いconfig pushはしない。実CLIローカルDB dry-run成功。Dev23/36件から未変更。実Dev token scope/一時loginrole/接続/残migration/RLS/Authは未検証。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "migration・seed/reset・互換性・復旧運用の明文化",
+        "evidence": "選択PRの固定SHAを1回承認してnativeCLI適用→同headFE配信、競合時に適用済みSQL取り込み、適用済みSQL編集禁止、全branch直列/外部writer制限、partial failure調査、expand/contract、合成seed/reset具体承認と共有影響、FE切戻しとDB復旧分離を記載。CLI標準以上のSQL内容保証なし。Secret名本番同名、Dev限定PAT最小scope、Network Bans権限禁止、共通developmentのSecret明示注入とEnvironmentレベルのFE/DB隔離を持たないことを明記。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "288208f229cfa0ed54ff2ab42de4fb9bff7f1d5f0abe7c28ae46d84ac2676557",
+  "cycle_id": "issue-1866/cycle-0001"
+}

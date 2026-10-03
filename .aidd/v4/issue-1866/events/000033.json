@@ -1,0 +1,112 @@
+{
+  "sequence": 33,
+  "kind": "decision",
+  "time": "2026-10-03T14:52:23.646017435Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "4a2291d01dce32801fb3e1c15e647d1eacedf79a30a2f88093c7f2d56ea22c0c",
+  "revision": 11,
+  "fingerprint": "725826e89a83fec6549915704973ab612a8ebf125382970e572c4c8afb5f45ef",
+  "data": {
+    "summary": "ユーザーのFE-only実配信依頼でPR1871 eccd4dd9にpreviewラベルを付けrun37130971467はsuccess。DB runはskipped。cf1.0.0-beta.1のoutput-Bia1u2k5.mjsはquiet=trueでJSONも抑止することを実ログ/ソースで確認。既存--quiet前提は誤り。FE native deployの--quietを削除し空結果/URL欠落を失敗させる最小修正後、同branchを再配信する。共通development/固定SHA/Dev隔離は維持。外部設定/新credential/DBwriteなし。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "VITE_SENTRY_DSN=",
+        "VITE_SENTRY_ENVIRONMENT=development",
+        "NODE_ENV=production",
+        "CLOUDFLARE_PREVIEW_BUILD=true",
+        "pnpm",
+        "run",
+        "web:build",
+        "--mode",
+        "development"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "5b96d56bfaf5e1b8b5fa64d4671e52fcf9b8eb9562321ea1a77920d2aa30cd1e",
+  "cycle_id": "issue-1866/cycle-0001"
+}
