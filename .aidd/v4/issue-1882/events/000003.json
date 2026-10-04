@@ -1,0 +1,47 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-10-04T16:22:14.670792825Z",
+  "task_hash": "f80fcd8d31a5b101b572d0c6689d47e953bc51dd34c4baf09cd1e5dd6d520d36",
+  "previous": "07e9e8fa7c530e122c27fbb376df35b77be5c18ce5da60b9d64b506db5fc5e93",
+  "revision": 1,
+  "fingerprint": "d45aa0cb414fd4e3fadd811673095b584c83a02134295533209a40902853c1a4",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "node_modules/.bin/vp",
+          "fmt",
+          "AGENTS.md",
+          "docs/harness/policies/code-review.md",
+          "docs/ai-driven-development/workflow.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 348ms on 3 files using 4 threads.\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/tmp/aidd-v4",
+          "--root",
+          ".",
+          "rules"
+        ],
+        "exit": 0,
+        "output": "[]\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "115334e4deeabb72864121c1ff1c01b56c7b52b6b1e9d533b6a844780210df59",
+  "cycle_id": "issue-1882/cycle-0001"
+}

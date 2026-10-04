@@ -1,0 +1,46 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-10-04T16:22:57.416074081Z",
+  "task_hash": "f80fcd8d31a5b101b572d0c6689d47e953bc51dd34c4baf09cd1e5dd6d520d36",
+  "previous": "115334e4deeabb72864121c1ff1c01b56c7b52b6b1e9d533b6a844780210df59",
+  "revision": 1,
+  "fingerprint": "d45aa0cb414fd4e3fadd811673095b584c83a02134295533209a40902853c1a4",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification\n- Unresolved: なし\n\n指摘なし。実差分をIssueの目的・実行依頼・完了条件と照合した。通常作業の委譲を許容し、効果とコストの判断、担当範囲の有限性、成果統合責任、レビュー範囲と権限を維持する。共通指示と2つの正本を直接同期し、CLAUDE.mdはsymlinkで整合する。判断の所有・適用経路は移さずrule-map変更は不要。Core実装・ADR・過去Taskは変更しない。文書のみなのでアプリ検証は対象外。",
+    "criteria": [
+      {
+        "criterion": "「原則メイン」を前提とする利用制限が現行ルールから除かれている",
+        "evidence": "AGENTS.mdの原則メインと定型作業のメイン限定、code-review.mdの通常レビュー・確認作業の委譲禁止、workflow.mdの独立評価者の重大リスク限定を実差分で撤廃。agent入口・現行正本の対象検索で他の同種制限なし。旧表現の検索も該当なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "サブエージェントの利用を作業の性質と分担の効果から判断できる",
+        "evidence": "AGENTS.mdに作業の独立性、時間短縮、専門性や独立した視点の品質向上と、トークン・引継ぎ・統合コストの比較を明示。軽微な修正・通常確認も対象になり、複雑さや重大リスクを前提としない。効果のない自動委譲を求めず、有限な担当範囲と結果統合責任を保持する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "関連するagent向け指示の記述が整合している",
+        "evidence": "code-review.mdとworkflow.mdはAGENTS.mdの判断方針を参照し、通常作業も委譲対象にできる。CLAUDE.mdのsymlinkとcmp一致を確認。レビューの必須規則・確認範囲、ホストの権限制御、Goalの親所有は変更していない。Issue作成だけで実行せず、今回のユーザーの実行依頼をTask authorityに保持した。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "e154510f2370df6b5d5e95fc698e110ef50821e17890d56c40699230fa312148",
+  "cycle_id": "issue-1882/cycle-0001"
+}
