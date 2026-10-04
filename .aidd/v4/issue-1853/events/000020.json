@@ -1,0 +1,17 @@
+{
+  "sequence": 20,
+  "kind": "return-intent",
+  "time": "2026-10-04T15:01:57.794691Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "8f52f415252e40e0f40428f64f368c3a47a493c6228baba5364f689f1d316b27",
+  "revision": 7,
+  "fingerprint": "129a99c071bd55109934accd06f5f86f9243a1d5575a64538b26a6af545740f7",
+  "data": {
+    "summary": "承認済みP2の2文書のみを修正。不具合再現版と修正確認版、仮想条件と実プロジェクトを区別した。元のIntent、7事例の判断とfail/pass、実行権限とbaselineを維持し、次cycleで検証・レビュー・Shipを行う。",
+    "previous_cycle": "issue-1853/cycle-0002",
+    "approval_hash": "5a808a96406cf9fa9aab80975694e5fc88166bcb55b67c3898060b36888a07d3",
+    "intent_hash": "b09078a7372b74a38dca7844e3556c6446ddb6c73c4d4fc954fce3b469eb3b55"
+  },
+  "hash": "1bc88a80fb488ec9d15a95e1f0245d768455fd088b9d5be279a6bff6831fc673",
+  "cycle_id": "issue-1853/cycle-0003"
+}
