@@ -1,28 +1,49 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react"
 
-import { isTheme, type TTheme } from "./types"
+import { isThemePreference, type TTheme, type TThemePreference } from "./types"
+
+const colorSchemeQuery = "(prefers-color-scheme: dark)"
 
 export function usePreferredTheme() {
-  const [theme, setTheme] = useState<TTheme>(() => {
+  const [themePreference, setThemePreference] = useState<TThemePreference>(() => {
     const stored = localStorage.getItem("theme")
-    if (isTheme(stored)) return stored
-    // システム設定を反映
-    const prefersDark = window?.matchMedia("(prefers-color-scheme: dark)").matches ?? false
-    return prefersDark ? "dark" : "light"
+    return isThemePreference(stored) ? stored : "system"
   })
+
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      if (themePreference !== "system") return () => {}
+
+      const mediaQuery = window.matchMedia(colorSchemeQuery)
+      mediaQuery.addEventListener("change", onChange)
+      return () => mediaQuery.removeEventListener("change", onChange)
+    },
+    [themePreference],
+  )
+
+  const systemTheme = useSyncExternalStore(subscribe, () =>
+    window.matchMedia(colorSchemeQuery).matches ? "dark" : "light",
+  )
+  const theme: TTheme = themePreference === "system" ? systemTheme : themePreference
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark")
-    localStorage.setItem("theme", theme)
   }, [theme])
 
+  useEffect(() => {
+    localStorage.setItem("theme", themePreference)
+  }, [themePreference])
+
   const toggleTheme = useCallback(() => {
-    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"))
+    setThemePreference((currentPreference) => {
+      const currentTheme = currentPreference === "system" ? systemTheme : currentPreference
+      return currentTheme === "dark" ? "light" : "dark"
+    })
+  }, [systemTheme])
+
+  const changeTheme = useCallback((nextTheme: TThemePreference) => {
+    setThemePreference(nextTheme)
   }, [])
 
-  const changeTheme = useCallback((nextTheme: TTheme) => {
-    setTheme(nextTheme)
-  }, [])
-
-  return { theme, toggleTheme, changeTheme }
+  return { theme, themePreference, toggleTheme, changeTheme }
 }

@@ -1,0 +1,82 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-04T07:46:43.74557Z",
+  "task_hash": "7b33b93837594b0133a70818039921d8667b6220af3046d90e3bfc0003a561b6",
+  "previous": "7333015af975ef0a04d6e264b171df2295b736939b0a80d09e0d3193a3eb40e2",
+  "revision": 1,
+  "fingerprint": "6e72d6ea2f1261bcc3ebd8a4ef8252d24509fdc52e2d535693094996f0992991",
+  "data": {
+    "summary": "テーマ設定(themePreference: system/light/dark)と表示テーマ(theme: light/dark)を分離し、既存localStorageキーthemeを再利用する。保存値なし/不正値はsystemを既定とし、既存light/darkをそのまま維持。useSyncExternalStoreでprefers-color-schemeを購読し、system選択中だけ表示を更新する。Selectは設定値を示し、Radix・通知・ヘッダーは解決済みthemeを引き続き利用。ヘッダートグルは表示中テーマの反対色に固定する既存操作を維持。設定・Provider・翻訳とその回帰テストだけを変更し、DB/API/依存追加なし。Storyは既存Defaultを再利用、browser-test対象Story/configの変更なし。",
+    "paths": [
+      "apps/web/src/providers/theme/usePreferredTheme.tsx",
+      "apps/web/src/providers/theme/types.ts",
+      "apps/web/src/providers/theme/ThemeProvider.tsx",
+      "apps/web/src/providers/theme/usePreferredTheme.test.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/ThemeSelect/ThemeSelect.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/ThemeSelect/ThemeSelect.test.tsx",
+      "apps/web/src/i18n/resources.ts",
+      "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "f3339fe87de3d473e93adaa34c387b48ba77a1ddc911fdd4f63bd18ff48ddfe9",
+  "cycle_id": "issue-1628/cycle-0001"
+}

@@ -1,0 +1,61 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-10-04T07:50:10.199965Z",
+  "task_hash": "7b33b93837594b0133a70818039921d8667b6220af3046d90e3bfc0003a561b6",
+  "previous": "f3339fe87de3d473e93adaa34c387b48ba77a1ddc911fdd4f63bd18ff48ddfe9",
+  "revision": 1,
+  "fingerprint": "270253ce8c99d27ec54a9df7d8d2023b1a602222c87c3d9293fab0392f287aba",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 386ms on 573 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 1,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:90887) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /Users/kosnu/.codex/worktrees/55e3/savings/apps/web\n\n····································································································x·················································································································································································································································································································································································································································································································································································································································\n\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  |integration| src/app/routes/SettingsPage/SettingsPage.test.tsx \u003e SettingsPage \u003e Appearance 設定では現在のLanguageとThemeを表示する\nError: expect(element).toHaveTextContent()\n\nExpected element to have text content:\n  Light\nReceived:\n  System\n ❯ src/app/routes/SettingsPage/SettingsPage.test.tsx:174:68\n    172|     expect(await screen.findByRole(\"heading\", { name: \"Appearance\" }))…\n    173|     expect(await screen.findByRole(\"combobox\", { name: \"Language\" })).…\n    174|     expect(await screen.findByRole(\"combobox\", { name: \"Theme\" })).toH…\n       |                                                                    ^\n    175|   })\n    176|\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n\n Test Files  1 failed | 139 passed (140)\n      Tests  1 failed | 725 passed (726)\n   Start at  16:48:43\n   Duration  86.81s (transform 6.11s, setup 386.07s, import 68.96s, tests 71.99s, environment 56.33s)\n\n[ELIFECYCLE] Command failed with exit code 1.\nError: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL\n\n  × \"pnpm recursive run\" failed in /Users/kosnu/.codex/worktrees/55e3/savings/\n  │ apps/web\n\n[ELIFECYCLE] Command failed with exit code 1.\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "5f7269f11f09a53057c63e9f96ca844f1b8716909b4e8cc8b4944effe064cac0",
+  "cycle_id": "issue-1628/cycle-0001"
+}

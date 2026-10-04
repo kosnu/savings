@@ -171,7 +171,7 @@ describe("SettingsPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Appearance" })).toBeInTheDocument()
     expect(await screen.findByRole("combobox", { name: "Language" })).toHaveTextContent("English")
-    expect(await screen.findByRole("combobox", { name: "Theme" })).toHaveTextContent("Light")
+    expect(await screen.findByRole("combobox", { name: "Theme" })).toHaveTextContent("System")
   })
 
   test("Book 設定では既存の最新月予算表示を維持する", async () => {

@@ -49,7 +49,7 @@ testCase("選択した言語をアカウントへ保存する", async () => {
   const languageSelect = screen.getByRole("combobox", { name: "Language" })
   const themeSelect = screen.getByRole("combobox", { name: "Theme" })
   expect(languageSelect).toHaveTextContent("English")
-  expect(themeSelect).toHaveTextContent("Light")
+  expect(themeSelect).toHaveTextContent("System")
 
   await user.click(themeSelect)
   await user.click(await screen.findByRole("option", { name: "Dark" }))
