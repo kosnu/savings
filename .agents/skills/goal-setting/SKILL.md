@@ -1,16 +1,22 @@
 ---
 name: goal-setting
-description: Use Codex Goal tools when host conditions and the user request authorize a Goal.
+description: Create or continue a Codex Goal for an authorized AIDD Task when host conditions permit; handle explicit Goal-use requests.
 ---
 
 # Goal setting
 
-Apply the [Codex adapter](../../../docs/ai-driven-development/codex-adapter.md).
-Inspect the current Goal and the host's actual tool contract. Create a Goal only when that
-contract permits it; if explicit user instruction is required, development authority alone
-is insufficient. Goal setup alone does not authorize execution.
-The parent agent owns the same Task's Goal. Preserve unrelated Goals and user-owned pauses.
-Use the Intent objective and Task reference; set budgets only when explicitly requested.
-Goal state never replaces Core evidence. Do not mark the cycle complete before Audit or
-while proposed improvements await manual approval. Continue authorized Task work without
-a Goal when no Goal is authorized or available.
+Apply the [Codex adapter's Goal policy](../../../docs/ai-driven-development/codex-adapter.md#goal機能との接続)
+for starting, creating, continuing, and completing a Goal.
+Inspect the host's actual tool contract and current Goal. When explicit instruction is
+required, a request such as “1881をGoalを使って対応して” permits Goal use;
+ordinary development authority or a repository policy alone does not.
+Goal setup alone does not authorize Task execution. Continue authorized Task work without
+a Goal when creation is not authorized or the tools are unavailable.
+
+The parent agent continues the same Task's existing Goal without duplication. Preserve
+unrelated unfinished Goals and user-owned pauses. Use the Intent objective, source, Task
+reference, and authorized completion scope; set budgets only when explicitly requested.
+Goal state never replaces Core evidence. Complete a Ship-scoped Goal after its outcome,
+verification, review, and delivery checks are satisfied. Report Goal completion separately
+from cycle completion; Audit and improvements retain their explicit request and approval
+boundaries.

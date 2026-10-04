@@ -1,0 +1,63 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-04T16:06:15.794767Z",
+  "task_hash": "bff1f4b9ca84a54dfd5dc9e5301dec6f01366fe8709804a88fe1ed391b71b14c",
+  "previous": "2494f1dcb0296beee3690908674656a1d91d8d682ac98fcde02ac5a6b40a5fad",
+  "revision": 1,
+  "fingerprint": "6c27948060782aec53561215c3240a53636d67bc8983e28c4f875d64f4062388",
+  "data": {
+    "summary": "Goal条件を満たすCodexではAIDDのTaskをGoalで追跡する。明示依頼の例、既存Goalの継続、Ship目的の完了とサイクル完了の区別をadapter正本で定義し入口とskillを同期する。Core・CLI・CIはGoal非依存を維持し変更不要。既存path選択と入口リンクで正本へ到達できるためrule-map変更不要。アプリコード・ADR変更なし。",
+    "paths": [
+      "AGENTS.md",
+      "docs/ai-driven-development/codex-adapter.md",
+      ".agents/skills/goal-setting/SKILL.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "fmt",
+        "--check",
+        "AGENTS.md",
+        "docs/ai-driven-development/codex-adapter.md",
+        ".agents/skills/goal-setting/SKILL.md"
+      ],
+      [
+        "/tmp/aidd-1881",
+        "--root",
+        ".",
+        "rules"
+      ],
+      [
+        "python3",
+        "/Users/kosnu/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+        ".agents/skills/goal-setting"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "5863cb7714b8801cc796b8f1b69bc7cda8452d41e6731ffe377ca8f9a574b588",
+  "cycle_id": "issue-1881/cycle-0001"
+}

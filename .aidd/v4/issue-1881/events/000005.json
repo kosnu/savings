@@ -1,0 +1,47 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-10-04T16:08:56.417653Z",
+  "task_hash": "bff1f4b9ca84a54dfd5dc9e5301dec6f01366fe8709804a88fe1ed391b71b14c",
+  "previous": "354b1cea2ee99e174cb9203a8ecaa3c0a6ab19b03ba00d9c479774fea7a2d120",
+  "revision": 2,
+  "fingerprint": "517fff62ed52a013eebfc744165a33e5f7dc427429412d4bfcc80b5a4a3e6fcc",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.goal-templates, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification\n- Unresolved: なし\n指摘なし。変更3面と適用closureを照合。正本の所有とpathの到達経路は既存のままで索引変更不要。実ツールの作成・完了操作は明示依頼がないため未実施。",
+    "criteria": [
+      {
+        "criterion": "Goalの利用開始条件と作成・継続・完了が明確",
+        "evidence": "adapterの利用開始・作成と継続・完了に開始条件、同Taskの継続と重複防止、pauseと予算、Ship目的の完了条件を定義。hostの明示依頼条件を優先し、Goal設定のみの依頼を実行許可へ拡張しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "条件を満たすCodex環境でGoalを使ってTaskを進められる",
+        "evidence": "Goalを使って対応してという依頼はdescriptionからskillを選択し、adapterの利用開始から現在Goal確認、作成または継続、Ship完了まで到達する。通常の対応依頼は明示依頼条件を満たさずGoalなしで実行、Goal設定だけは実装を許可せず、Goalの説明だけは作成しない。別Taskの未完了Goalやuser pauseを侵害せずhost条件を適用する。今回の依頼では実際のGoal mutationは未実施でありツール動作の実測とは主張しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "AGENTS.md・Codex adapter・goal-settingが整合",
+        "evidence": "AGENTSの入口とskillがadapterのGoal正本へリンク。3面がhost条件・明示Goal依頼・既存Goal継続・Goalなしの実行・Ship完了とAudit境界で一致。Core・CLI・CI・GoalテンプレートはGoal非依存または同じShip条件で変更不要。format/rule graph/skill validation/diff checkは全てexit 0。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.goal-templates",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "6ec6bdc7a9b8f92cf9626b7487da48688287cc81fddab21412791519c2dd6e29",
+  "cycle_id": "issue-1881/cycle-0001"
+}
