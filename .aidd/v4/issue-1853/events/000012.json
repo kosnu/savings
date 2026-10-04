@@ -1,0 +1,17 @@
+{
+  "sequence": 12,
+  "kind": "return-intent",
+  "time": "2026-10-04T14:34:11.896812Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "b2369793888b350fbfe7cf6c1c768821b5cac512c7f4be638d8bfeadecbb8375",
+  "revision": 5,
+  "fingerprint": "c3c749a02f1a92cefaadb965d1365e34df493b2fd1afa0d5d0191c8e53b9d662",
+  "data": {
+    "summary": "承認P1のmain取り込みを実行。Issue #1876の修正内容と現行Core契約を確認し、今回変更したTaskのみを検査するCIへ更新された。元のIntentのworkflow追加と7事例は維持され、アプリや依存変更はない。承認範囲内で次サイクルの検証・review・Shipを行う。",
+    "previous_cycle": "issue-1853/cycle-0001",
+    "approval_hash": "ab62683d7afa17eeb5fa846e571c2e60a01e2a493e82cad903d3b9af3cab21e8",
+    "intent_hash": "b09078a7372b74a38dca7844e3556c6446ddb6c73c4d4fc954fce3b469eb3b55"
+  },
+  "hash": "e2e155b28f21601c7f5a301f84a09c2f026ad3be3c3117b85001a54c203e3f13",
+  "cycle_id": "issue-1853/cycle-0002"
+}

@@ -56,6 +56,12 @@ Gitのtrackedとnon-ignored untrackedを対象に内容hashとmodeを取得す�
 自身のTask記録は循環参照を避けるためsource fingerprintから除外し、hash chainとstage状態で別途確認する。
 他Taskの記録やファイルは無視しない。担当path外のbaseline差分、古いrevisionやsnapshotに結び付いた証拠を拒否する。
 
+PRのTask証拠検査は`check-changes --base <PR base ref>`でmerge-baseからの差分に含まれるTaskだけを対象にする。
+変更のない過去Taskは読み込まず、baselineやAuditの参照commitを検査・追加取得しない。
+対象Taskの記録の整合性と現在の検証・review・scope・必要command・rule・PR差分の所有範囲は照合する。
+履歴Auditの配信commitの内容は再照合しない。実行時のAudit・Shipと、承認された改善に必要な比較は維持する。
+過去Task・判断・検証記録は履歴として保持し、削除・改変しない。
+
 検証commandはargv配列で指定し、shell展開を暗黙にしない。実行終了状態と出力を保存する。
 macOS/Linuxでは検証を専用process groupで実行し、親終了後の出力待ちは1秒までとする。
 残存processは終了させ、待機超過・残存・後始末の失敗をverify証拠へ失敗として保存する。
@@ -93,11 +99,12 @@ Intent復帰とShipでは、承認の基準となったAudit対象のcommitか�
 
 ## CIと信頼境界
 
-CIはv4 Coreのテスト、vet、format、ADR履歴、rule graphと記録を検証する。
-PR headの検証とmerge結果でのCoreテストを分ける。
+CIはv4 Coreのテスト、vet、format、ADR履歴、rule graphと今回変更したTaskの証拠を検証する。
+PR headでは`check-changes --base`で現在の証拠を照合する。merge結果ではCoreテストとrule graphを検証し、
+PR headのfingerprintをmerge結果に適用したり、過去Taskを全走査したりしない。
 GitHubが署名検証したRenovate authored / web-flow committedのcommitだけを含む自動依存更新は
 人間がIntentを委任した開発ではないためTask証拠検査の対象外とする。author名だけでは除外せず、
-Coreテストと記録・rule graph検査は省略しない。旧migration checkerやschema fallbackは実行しない。
+Coreテストとrule graph検査は省略しない。旧migration checkerやschema fallbackは実行しない。
 新Core自身の変更は負の境界テストと実差分レビューで補う。candidate内のcheckerは、悪意ある変更を
 自身だけで認証できない。GitHubのreview・branch protectionとhostの権限制御を信頼境界とする。
 

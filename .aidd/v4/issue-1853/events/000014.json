@@ -1,0 +1,71 @@
+{
+  "sequence": 14,
+  "kind": "verify",
+  "time": "2026-10-04T14:35:17.530187Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "83a333f4a639e5527cfe85b025311d3beae1c1440e31a6b3b80e048a4c3d67a8",
+  "revision": 6,
+  "fingerprint": "c3c749a02f1a92cefaadb965d1365e34df493b2fd1afa0d5d0191c8e53b9d662",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "./node_modules/.bin/vp",
+          "fmt",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/external-dependency-cases.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 253ms on 2 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t0.560s\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t54.984s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 7.646s\n\nOK\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "7f0a3934475be046d252aec18f088b31d62af488d2c20a4b55ece8025c9946ea",
+  "cycle_id": "issue-1853/cycle-0002"
+}

@@ -1,0 +1,58 @@
+{
+  "sequence": 15,
+  "kind": "review",
+  "time": "2026-10-04T14:35:32.864531Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "7f0a3934475be046d252aec18f088b31d62af488d2c20a4b55ece8025c9946ea",
+  "revision": 6,
+  "fingerprint": "c3c749a02f1a92cefaadb965d1365e34df493b2fd1afa0d5d0191c8e53b9d662",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.transaction-boundaries\n- Unresolved: なし\n承認P1のmain取り込みを確認。15 import filesはorigin/mainと完全一致し、追加Core/CI実装やアプリ変更なし。CIは全Task走査をせずrule graphとcheck-changes --baseで今回のTaskを検査する。元のworkflow 20行と有限7事例は内容を維持し、Intentの4条件を再照合した。既存のscope/証拠鮮度/Ship照合を維持し、過去Taskは変更していない。CIの成功はまだ未確認であり、push後に対象headの状態を一度取得する。",
+    "criteria": [
+      {
+        "criterion": "外部依存が原因と考えられる場合、独自対策の必要性を上流の一次情報・対象版・再現条件から判断できる。",
+        "evidence": "Issue #1853の不要な回避策の抑制という目的に対し、workflow外部依存節が解決済み版・環境・条件と一次情報を照合する。external-dependency-casesの公開修正版事例では公式release/issueを実際に確認し、仮想環境の条件と分離して据え置き候補をfailとした。適用不能事例では非対応runtimeを理由に限定対策をpassとし、独自対策を一律禁止していない。 main取り込み後も該当workflowと事例の内容に変化なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "修正版が適用可能なら不要な回避策を選ばず、未公開・互換性不明・適用不能なら解決済みと断定せず調査や対策を続けられる。",
+        "evidence": "workflowは変更なし・通常更新・独自対策を比較し必要性と除去条件を記録する。事例は適用可能な修正版があるのに操作変更する候補と未公開closeだけで完了する候補をfail、互換性不足をunknown、適用不能時の範囲内対策をpassと判定。目的から導く次の行動と一致し、上流待ち・新承認を固定条件にしていない。 main取り込み後も該当workflowと事例の内容に変化なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "修正版での最小再現の成功と対象プロジェクト全体の検証済み状態を区別できる。",
+        "evidence": "workflowは別の証拠と規定。公開修正版事例の全体未実行と、全体検証失敗事例で最小再現だけ成功してShipする候補をfailとしている。実際のsavings依存更新は実施していないことを境界と限界へ明記。文書検証の成功とアプリ修正の成功を混同していない。 main取り込み後も該当workflowと事例の内容に変化なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "通常のローカル修正に不要な外部調査を強制せず、事例への判断と根拠で改善を検証できる。",
+        "evidence": "workflowは外部依存を疑う根拠がない修正へ外部調査を要求しない。集計条件漏れ事例の局所修正をpass、既に修正版と全体成功が確認済みの事例を変更なしpassとした。7事例は固定必須リストではなく2026-10-04の有限評価として独立文書へ保持。未知事例の一般化・実運用の再発率低下を未検証と明記。 main取り込み後も該当workflowと事例の内容に変化なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認されたmain取り込みで#1876のCI修正を適用し、Intentの成果と必要な検証を維持する。",
+        "evidence": "取り込み対象15ファイルがorigin/mainと一致（git diff --exit-code）。未解決競合0。candidateはcheck-changes --base、integrationはrule graph検査へ更新。更新Coreのverifyを実行し、現在のTask証拠を再作成した。対象CIの成功はpush後の観測に限って報告する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "0f3bcd29be3e5d1bcfc69c0f1014ae1bf8eb8892dd0f83c262c6aa6ffaf24813",
+  "cycle_id": "issue-1853/cycle-0002"
+}

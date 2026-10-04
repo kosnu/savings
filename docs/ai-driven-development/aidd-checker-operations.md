@@ -248,9 +248,14 @@ go -C tools/aidd/checker test -count=1 ./...
 go -C tools/aidd/checker vet ./...
 python3 -B -m unittest -v tools.aidd.tests.test_shared_gate
 python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main
-/tmp/aidd-v4 --root . check-all
-/tmp/aidd-v4 --root . check-all --base origin/main
+/tmp/aidd-v4 --root . rules
+/tmp/aidd-v4 --root . check-changes --base origin/main
 ```
+
+`rules`はTaskを読み込まずrule graphを検証する。`--paths`を指定すれば該当ruleと依存closureも返す。
+`check-changes`は必須の`--base`とのmerge-baseから今回変更したTaskだけを検証し、PR差分の所有範囲と最新証拠を照合する。
+過去Taskの全走査と履歴Auditの配信commitの再照合は行わない。過去記録は保持し、参照commitの追加取得は不要。
+CIはPR headでこの差分検証を行い、merge結果ではCoreテストとrule graph検証を行う。
 
 検証失敗・source変更は失敗記録を保持する。結果を編集せず、原因を修正して再実行する。
 revisionやscopeの不一致は判断を確認し、必要なら新decisionにする。
