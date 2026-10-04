@@ -1,0 +1,36 @@
+{
+  "sequence": 6,
+  "kind": "verify",
+  "time": "2026-10-04T12:21:16.348469Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "2d91d600045a62f40b30710603df22dadb54f933005108a0a3d6d6cc52bdfada",
+  "revision": 3,
+  "fingerprint": "4355a90d120e574c10fc7b4ba602cc376ccf6dcbff44cb55e986da8f58197dc8",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "./node_modules/.bin/vp",
+          "fmt",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/external-dependency-cases.md",
+          "--check"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 234ms on 2 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "f0e754e90496f5075e7c4c33c12d5cefe1bdfbb50899b5b021863a0af9844e71",
+  "cycle_id": "issue-1853/cycle-0001"
+}
