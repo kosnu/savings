@@ -1,0 +1,60 @@
+package main
+
+import (
+	"os"
+	"os/exec"
+	"path/filepath"
+	"testing"
+)
+
+func TestScopedCIEntrypoints(t *testing.T) {
+	root := t.TempDir()
+	for _, args := range [][]string{{"init", "-b", "main"}, {"config", "user.name", "test"}, {"config", "user.email", "test@example.com"}} {
+		if b, e := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); e != nil {
+			t.Fatalf("%v: %s", e, b)
+		}
+	}
+	write := func(path, text string) {
+		t.Helper()
+		full := filepath.Join(root, path)
+		if e := os.MkdirAll(filepath.Dir(full), 0755); e != nil {
+			t.Fatal(e)
+		}
+		if e := os.WriteFile(full, []byte(text), 0644); e != nil {
+			t.Fatal(e)
+		}
+	}
+	write("docs/harness/rule-map.json", `{"version":2,"rules":[],"review_routing":{}}`)
+	write(".aidd/v4/history/task.json", `invalid historical Task`)
+	for _, args := range [][]string{{"add", "."}, {"commit", "-m", "baseline"}} {
+		if b, e := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); e != nil {
+			t.Fatalf("%v: %s", e, b)
+		}
+	}
+	original := os.Args
+	t.Cleanup(func() { os.Args = original })
+	invoke := func(args ...string) error {
+		os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+		return run()
+	}
+	if e := invoke("rules"); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("check-changes", "--base", "HEAD"); e != nil {
+		t.Fatal(e)
+	}
+	if invoke("check-changes") == nil {
+		t.Fatal("missing base accepted")
+	}
+	if invoke("check-all") == nil {
+		t.Fatal("removed full-history command accepted")
+	}
+	write("code.txt", "uncovered change")
+	if invoke("check-changes", "--base", "HEAD") == nil {
+		t.Fatal("source without current Task evidence accepted")
+	}
+	write("docs/harness/rule-map.json", `invalid graph`)
+	if invoke("rules") == nil {
+		t.Fatal("invalid rule graph accepted")
+	}
+}

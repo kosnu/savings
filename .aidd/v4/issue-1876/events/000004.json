@@ -1,0 +1,60 @@
+{
+  "sequence": 4,
+  "kind": "verify",
+  "time": "2026-10-04T13:02:21.880131Z",
+  "task_hash": "c3406f4664c8e96964f7a8ffa4ade1dce10e093e72a61c58acd1148cd2ecd2c6",
+  "previous": "334689fe7c0c4dc8957e64eec92a2b568c4a5ca3cfa5676a410016a2884a6cc3",
+  "revision": 1,
+  "fingerprint": "0c3bfab554573bc8bfda50e42330720e65d1dff116f2ad6872fbc03095f16d63",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 1,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t0.425s\n--- FAIL: TestCheckChangesIgnoresUnchangedTasks (0.32s)\n    check_test.go:24: task current: verification missing or stale\nFAIL\nFAIL\tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t54.007s\nFAIL\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 7.800s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "abee659fee54f20b9c62f9e0fbc474e7bb06b6e6747fd844e6f28d179924e513",
+  "cycle_id": "issue-1876/cycle-0001"
+}

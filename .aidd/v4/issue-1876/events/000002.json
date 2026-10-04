@@ -1,0 +1,71 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-04T12:58:46.421722Z",
+  "task_hash": "c3406f4664c8e96964f7a8ffa4ade1dce10e093e72a61c58acd1148cd2ecd2c6",
+  "previous": "5d2903e4996e7a2524920831b2a6d126dbc33a22d77c2e878412a05017390af6",
+  "revision": 1,
+  "fingerprint": "d7c23812406643eaaae6452a189c9007a4cf99e97cdacab1ff53df602703423e",
+  "data": {
+    "summary": "全Task走査check-allを削除し、check-changes --baseでPR差分のTaskだけを検証する。履歴Auditのcommit snapshot再照合を削除し、実行時Audit/Shipと現在の証拠の照合を維持する。CIの無条件・merge検証はrule graphのみとし、自動依存更新の除外条件を維持する。正本とCLIを同期。既存rule-map経路で十分で索引変更は不要。Web/API runtimeには変更なし。",
+    "paths": [
+      "tools/aidd/checker/internal/core/check.go",
+      "tools/aidd/checker/internal/core/core_test.go",
+      "tools/aidd/checker/internal/core/check_test.go",
+      "tools/aidd/checker/cmd/aidd-checker/main.go",
+      "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+      ".github/workflows/aidd_checker_ci.yaml",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/aidd-checker-operations.md"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries",
+      "policy.code-review"
+    ]
+  },
+  "hash": "c84e0dac5afa2dfb27ddba8406dbec3c5880fdcb2ba7c1d4fed361e47fc3ffcd",
+  "cycle_id": "issue-1876/cycle-0001"
+}

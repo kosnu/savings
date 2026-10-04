@@ -17,7 +17,7 @@ func run() error {
 	}
 	args := flags.Args()
 	if len(args) == 0 {
-		return fmt.Errorf("command required: start decision verify review ship-check ship audit approve improve-check return-intent status check rules")
+		return fmt.Errorf("command required: start decision verify review ship-check ship audit approve improve-check return-intent status check check-changes rules")
 	}
 	f := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	id := f.String("task", "", "v4 task id")
@@ -31,22 +31,18 @@ func run() error {
 	if e != nil {
 		return e
 	}
-	if args[0] == "check-all" {
-		n, e := core.CheckAll(abs)
-		if e != nil {
+	if args[0] == "check-changes" {
+		if e = core.CheckChanges(abs, *base); e != nil {
 			return e
 		}
-		if *base != "" {
-			if e = core.CheckChanges(abs, *base); e != nil {
-				return e
-			}
-		}
-		return json.NewEncoder(os.Stdout).Encode(map[string]any{"tasks_checked": n})
+		return json.NewEncoder(os.Stdout).Encode(map[string]any{"changes_checked": true})
 	}
 	if args[0] == "rules" {
 		var p []string
-		if e = core.ReadInput(*paths, &p); e != nil {
-			return e
+		if *paths != "" {
+			if e = core.ReadInput(*paths, &p); e != nil {
+				return e
+			}
 		}
 		r, e := core.ResolveRules(abs, p)
 		if e != nil {
