@@ -1,0 +1,49 @@
+{
+  "sequence": 6,
+  "kind": "audit",
+  "time": "2026-10-04T15:03:37.279536Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "6f73aea37d3d2c9f9077ad003f87e7dcb4060cbf44f591fe580acbd24a35a9fb",
+  "revision": 2,
+  "fingerprint": "e0ecdc58e04d92fb9d238a96287a16730eff02be6bc36bc8c9a49fae24ea2420",
+  "data": {
+    "summary": "PR #1879のHEAD 362a9a6fb9a6c4311c4a97f4f34e5b194a61c48fを既存Task issue-1872、revision 2、verify/review記録と照合。未解決かつ非outdatedのBot thread 2件を分析し、双方の改善を提案する。元のIntent・完了条件は変更しない。効果検証、追加Copilotレビュー、設定変更、PR1871、Retrospectiveは対象外。分析と記録のみ終了し、改善・返信・解決は手動承認待ち。\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: 正本間の矛盾なし。提案P1/P2とコメント対応は未承認。IDEでの実際の指示遵守と消費量は未検証。",
+    "findings": [
+      "P1 / P2 severity: Codex https://github.com/kosnu/savings/pull/1879#discussion_r4178150290、thread PRRT_kwDOM0p88s6ozrRL、author chatgpt-codex-connector、isResolved=false/isOutdated=false。.github/instructions/code-review.instructions.md:3,8-9の無条件指示は通常のCopilot Chat実装依頼にもレビューpolicyのreadonly契約を持ち込む可能性がある。公式IDE仕様はpath-specific指示のChat自動追加とexcludeAgentがcloud-agent/code-reviewの除外を指定することを明記。実際の誤誘導は観測していないため可能性と区別。原因は機能別除外を全開発依頼の隔離と扱い、本文の適用条件と同期文書の説明を欠いたこと。以前のreview 000005の通常実装で誤発火しないという判定はこのChat経路を根拠にできない。提案承認後の返信案: 「指摘のとおり、excludeAgentが除外するのはcloud agentで、IDEのChat全体は除外しません。コードレビュー時だけこの指示本文を適用し、通常の実装・修正・質問ではこの入口からレビューpolicyやreadonly制約を課さない条件を追加しました。関連policyと説明も同期し、発火・非発火の依頼を照合しました。反映commitと検証結果を添えます。」実際の返信では反映済みcommitと実結果を使用する。残作業: P1承認、修正、検証、review、同PRへのShip、理由返信。Bot resolve条件: 反映/検証/配信と返信のread-back完了、未解決論点/競合コメントなし。現時点では返信・解決しない。",
+      "P2 / P2 severity: Copilot https://github.com/kosnu/savings/pull/1879#discussion_r4178152580、thread PRRT_kwDOM0p88s6ozroG、author copilot-pull-request-reviewer、isResolved=false/isOutdated=false。docs/harness/rule-map.json:review_routing.governed_pathsとaidd-harness surfaceに新入口の登録がない。直接一致でdocumentation/code-reviewを選択しても、既存review skillと同等のai-driven.workflow/checker必須closureは選択されない。原因は直接一致の同期だけを行い、制御面としてのsurface登録と未登録拒否条件を同期しなかったこと。現行rulesの一般構造チェック成功は必要な選択集合の意味的確認の代替ではない。提案承認後の返信案: 「新入口が制御面の登録から漏れていました。.github/instructions/**をgoverned_pathsとaidd-harness surfaceの双方に登録し、review指示単独の変更でもworkflow/checkerと依存closureが選択されることを確認しました。通常のinstructionと既存skill、対象外のGitHub設定も照合しました。反映commitと検証結果を添えます。」残作業: P2承認、索引修正、代表path確認、検証、review、同PRへのShip、理由返信。Bot resolve条件はP1と同様。現時点では返信・解決しない。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "review入口とその所有policyの適用範囲がcloud agent以外の通常Chat依頼を分離できていない。",
+        "evidence": "https://github.com/kosnu/savings/pull/1879#discussion_r4178150290; thread PRRT_kwDOM0p88s6ozrRL; https://docs.github.com/en/copilot/how-tos/copilot-in-your-ide/customize-copilot/configure-custom-instructions/add-repository-instructions-in-your-ide のCreating path-specific custom instructionsとCustom instructions in use。applyTo=**、excludeAgent=cloud-agent、無条件本文、documentation-policy.mdの開発agent分離という説明、docs/copilot-code-review.mdの同説明、review 000005の発火判定を照合。",
+        "change": "instructions本文の冒頭にコードレビュー時のみ適用する条件を置く。通常の実装・修正・質問ではこの入口を理由にreview policyの取得やreadonly制約を課さず、ユーザー依頼と既存権限に従う。excludeAgentはcloud agentだけの除外でChatへの自動追加を保証して防ぐ設定ではないと正本・概要の既存説明を修正する。レビュー契約の複製は増やさない。検証は実装済みPRレビュー、通常のIssue実装、承認済みレビュー指摘修正、質問のみを手動で照合し、適用時だけ正本へ到達すること、実装権限を妨げないこと、質問から実装を開始しないことを確認する。Git diff --check、変更ファイルのnode_modules/.bin/vp fmt --check、Core rulesを実行。自然言語条件の遵守は非決定的で、Chatへの初期追加の無効化や消費減を保証しない。",
+        "paths": [
+          ".github/instructions/code-review.instructions.md",
+          "docs/harness/policies/documentation-policy.md",
+          "docs/copilot-code-review.md"
+        ]
+      },
+      {
+        "id": "P2",
+        "finding": "Copilot instructionsの直接一致は追加したが、制御面のgoverned path/surface登録が漏れている。",
+        "evidence": "https://github.com/kosnu/savings/pull/1879#discussion_r4178152580; thread PRRT_kwDOM0p88s6ozroG; tools/aidd/checker/internal/core/rules.go:116-196。現行Core実行でreview instructionはdocumentation.policy/policy.code-review等5rulesを選択しai-driven.workflow/checkerを欠く。既存.github/skills/code-review/SKILL.mdはworkflow/checkerとclosureを含む9rulesを選択する。documentation-policy.mdの索引同期契約とchange-coverage.mdも適用。",
+        "change": ".github/instructions/**をreview_routing.governed_pathsとid=aidd-harnessのpathsの2箇所に追加する。既存required_rulesと直接一致、依存closure、他surfaceは維持する。検証はCore rules --pathsでレビュー指示、仮の開発用instruction、既存review skill、対象外の通常GitHub workflowを個別に照合。instructionでworkflow/checkerとclosureが必須選択され、通常workflowを一律aidd-harnessへ分類しないことを確認する。既存resolverのgoverned path未対応surface拒否分岐も維持する。Git diff --check、変更ファイルのnode_modules/.bin/vp fmt --check、Core rulesの構造検証を実行。新規の一律レビュー義務・課金測定は追加しない。",
+        "paths": [
+          "docs/harness/rule-map.json"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "362a9a6fb9a6c4311c4a97f4f34e5b194a61c48f",
+      "remote": "origin",
+      "branch": "issue-1872/copilot-review-context",
+      "pr": "https://github.com/kosnu/savings/pull/1879",
+      "evidence": "2026-10-04のread-backでlocal HEAD、origin remote branch、PR HEADはすべて一致。PR OPEN、base main。candidate/integration/verify/assign-authorはCOMPLETED/SUCCESS。Task baseline c4f904c3845af35a20fcba44c66cfb1aa0605ad4、cycle issue-1872/cycle-0001、latest review 000005 revision 2、Core status evidence_current=true。verify 000004はstable=true、3コマンドexit 0。",
+      "base": "main"
+    }
+  },
+  "hash": "8a47db5eb599863d34106c3229a8a3fee927d58b495a8be814010e189a2b4287",
+  "cycle_id": "issue-1872/cycle-0001"
+}

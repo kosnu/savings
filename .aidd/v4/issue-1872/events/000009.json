@@ -1,0 +1,56 @@
+{
+  "sequence": 9,
+  "kind": "decision",
+  "time": "2026-10-04T15:15:10.255907Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "b8e39c572ae0f2c40fec9244cf1b024287ba1aba687b4d4a60d4d1bbb94828b2",
+  "revision": 3,
+  "fingerprint": "e0ecdc58e04d92fb9d238a96287a16730eff02be6bc36bc8c9a49fae24ea2420",
+  "data": {
+    "summary": "承認されたAudit P1/P2を同じTaskで改善する。Chat利用を許容し、review契約だけをレビュー依頼時に適用する条件を入口へ追加する。excludeAgentのcloud-agentだけの除外を正本と概要へ正確に反映する。今回のcode-review.instructions.mdだけをgoverned_pathsとaidd-harness surfaceへ登録する。変更4ファイル、必須ruleとquality/権限境界を維持。承認元user-message:2026-10-05-issue1872-audit-table-approval。前Audit広範囲登録を採用せず、Intent改訂・設定変更・効果測定・追加レビュー・PR1871・Retrospectiveを行わない。改善の確認後にreturn-intentして次cycleの新decision/verify/review/Shipを行う。対応後に提示済み2threadsへ理由返信とBot解決を実行する。 Taskの開始baselineからの既存6ファイル差分をdecision scopeに保持し、今回の追加改善は承認された4ファイルだけに限定する。承認基準commitとのimprove-checkで追加差分を照合する。",
+    "paths": [
+      ".github/instructions/code-review.instructions.md",
+      ".github/skills/code-review/SKILL.md",
+      "docs/harness/policies/code-review.md",
+      "docs/harness/policies/documentation-policy.md",
+      "docs/harness/rule-map.json",
+      "docs/copilot-code-review.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "--check",
+        ".github/instructions/code-review.instructions.md",
+        "docs/harness/policies/documentation-policy.md",
+        "docs/harness/rule-map.json",
+        "docs/copilot-code-review.md"
+      ],
+      [
+        "/tmp/savings-aidd-1872",
+        "--root",
+        ".",
+        "rules"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "b50b0bdee73762477ae3bb94ea74effe7baefce05529cfd7954fbab1f734ab05",
+  "cycle_id": "issue-1872/cycle-0001"
+}

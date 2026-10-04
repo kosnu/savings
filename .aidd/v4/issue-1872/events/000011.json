@@ -1,0 +1,56 @@
+{
+  "sequence": 11,
+  "kind": "decision",
+  "time": "2026-10-04T15:17:22.522845Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "dcbd56663194993442dcb606e4f970cbb59626d46b09291a64234b7037d8f412",
+  "revision": 4,
+  "fingerprint": "fde2f7bdd196ab9e50b6444f1245dc7491afe48eb2d1a6acbe85e1a6df56dafc",
+  "data": {
+    "summary": "Intent復帰後のcycle-0002として、承認P1/P2を反映済みの現在差分を元のIntentと全適用規則で評価する。追加実装は不要。開始baselineからの既存6ファイル差分をscopeに保持し、Audit対象HEADからの追加改善は4ファイルのみ。今回入口の条件付review契約、cloud-agentの説明同期、今回入口だけの制御面登録を変更内容とする。既存の品質/保護、Chat利用、必要関連コード、必須ruleを保つ。効果測定・追加Copilotレビュー・設定変更・PR1871・次Auditを行わない。必要な3検証と自己reviewを完了し、同じPR1879へcommit/push/配信確認後、承認済み2threadsへ実commitと確認根拠を返信し、完了したBot threadsだけ解決する。",
+    "paths": [
+      ".github/instructions/code-review.instructions.md",
+      ".github/skills/code-review/SKILL.md",
+      "docs/harness/policies/code-review.md",
+      "docs/harness/policies/documentation-policy.md",
+      "docs/harness/rule-map.json",
+      "docs/copilot-code-review.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "--check",
+        ".github/instructions/code-review.instructions.md",
+        "docs/harness/policies/documentation-policy.md",
+        "docs/harness/rule-map.json",
+        "docs/copilot-code-review.md"
+      ],
+      [
+        "/tmp/savings-aidd-1872",
+        "--root",
+        ".",
+        "rules"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "eb822c5f7412d4ec1f6d2f33d3da457d99d5800f1acb6805a16d01b1de8e316d",
+  "cycle_id": "issue-1872/cycle-0002"
+}

@@ -24,7 +24,7 @@ when_to_read:
 
 GitHubの[公式仕様](https://docs.github.com/en/copilot/concepts/agents/code-review)では、コードレビューはAI creditsとagentic機能のGitHub Actions時間を消費する。AI creditsはモデルと処理トークン数に依存し、消費は一般にPR規模とrepository custom instructionsに応じて増える。モデル切替は非対応。これを対象アカウントの契約・請求実績を確認した証拠とは扱わない。
 
-[専用指示の仕様](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/add-custom-instructions/add-repository-instructions)では、`.github/instructions/*.instructions.md` の `applyTo` と `excludeAgent` を利用できる。`excludeAgent: "cloud-agent"` はコードレビュー用の指示を開発agentから分離する指定であり、レビュー対象ファイルや内部探索を除外する指定ではない。custom instructionsは既定で有効だが、このrepositoryのトグル状態は未確認。
+[専用指示の仕様](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/add-custom-instructions/add-repository-instructions)では、`.github/instructions/*.instructions.md` の `applyTo` と `excludeAgent` を利用できる。`excludeAgent: "cloud-agent"` はCopilot cloud agentから除外する指定であり、レビュー対象ファイルや内部探索を除外する指定ではない。[IDEの公式仕様](https://docs.github.com/en/copilot/how-tos/copilot-in-your-ide/customize-copilot/configure-custom-instructions/add-repository-instructions-in-your-ide)では、pathに一致する指示はCopilot Chatでも利用される。Chatへの適用は許容し、本文でレビュー契約を適用する依頼条件を明示する。Chatへの適用を止めることを、PRレビュー1回あたりの消費削減策とは扱わない。custom instructionsは既定で有効だが、このrepositoryのトグル状態は未確認。
 
 公式仕様ではrootの `AGENTS.md` は自動参照され、関連するreview skillも利用され得る。専用指示の追加で `AGENTS.md` の読み込みを無効化できるとは扱わない。[公式の指示作成ガイド](https://docs.github.com/en/copilot/tutorials/customize-code-review)も簡潔で具体的な指示を推奨するが、指示の遵守は非決定的である。
 
@@ -37,7 +37,7 @@ GitHub REST APIの `repos/kosnu/savings/rulesets/{id}` を読み取り、次を�
 
 ## 採用した対策
 
-- 全pathに適用する短いレビュー専用instructionsから正本へ直接案内する。関連skillが選ばれなくても入口を提供し、開発agentには適用しない。
+- 全pathに適用する短いレビュー用instructionsから正本へ直接案内する。関連skillが選ばれなくても入口を提供し、Copilot cloud agentには適用しない。Chatで利用されても、レビュー契約は差分レビュー時だけ適用し、通常の実装・修正・質問の権限は依頼と既存の実行権限に従う。
 - review skillに重複していた手順・観点・レポート契約を正本へ集約する。skillは用途と参照先を示す短いadapterにする。
 - 正本で差分起点の文脈取得と同一実行内の既読再利用を定める。全変更面の必須ruleと依存を集め、必要な関連コードを読み、不足があるときだけ追加探索する。
 

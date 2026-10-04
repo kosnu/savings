@@ -1,0 +1,17 @@
+{
+  "sequence": 10,
+  "kind": "return-intent",
+  "time": "2026-10-04T15:17:22.282238Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "b50b0bdee73762477ae3bb94ea74effe7baefce05529cfd7954fbab1f734ab05",
+  "revision": 3,
+  "fingerprint": "fde2f7bdd196ab9e50b6444f1245dc7491afe48eb2d1a6acbe85e1a6df56dafc",
+  "data": {
+    "summary": "Issue1872の目的はレビュー品質を維持した1回あたりの消費削減が見込める仕組みの導入であり、効果測定/追加Copilotレビューは対象外のまま。承認P1でChat利用は許容しつつreview契約の依頼条件を入口と正本/概要で同期、承認P2で今回入口だけのgoverned/surface登録を同期した。improve-checkが承認4paths内の実差分を確認。Core rulesの代表pathでreview入口のworkflow/checkerとclosure、隣接開発入口の非発火、既存skillの集合維持を確認。差分レビューはreview契約へ、通常実装/承認済み修正は既存実行権限へ、質問のみは回答へ対応し、入口による読み取り専用制約の混入を避ける記述を確認。過去記録を保持し元のIntentと保護条件/有限探索/全必須規則を変更せず、同Taskの次cycleで新decisionに基づくverify/review/Shipを行う。実機のCopilot遵守と消費は未測定で成功扱いしない。",
+    "previous_cycle": "issue-1872/cycle-0001",
+    "approval_hash": "b8e39c572ae0f2c40fec9244cf1b024287ba1aba687b4d4a60d4d1bbb94828b2",
+    "intent_hash": "29de01c63e9145d6d70583915753e9c3c0ff5565ad3d1ec3901d0d5d8c503d6c"
+  },
+  "hash": "dcbd56663194993442dcb606e4f970cbb59626d46b09291a64234b7037d8f412",
+  "cycle_id": "issue-1872/cycle-0002"
+}

@@ -111,7 +111,7 @@ ADRは「何を、なぜ決め、後にどう変更したか」の記録です�
 
 `AGENTS.md` は共通の制約と作業別の入口、skillは特定の依頼を扱うためのadapter、正本文書は継続的な判断と契約を所有します。正本の手順を各入口へ複製せず、参照先と読む条件を示します。
 
-Copilotの `.github/instructions/*.instructions.md` も入口として扱います。`applyTo` で対象pathを指定し、レビュー専用の指示は `excludeAgent: "cloud-agent"` で開発agentから分離します。継続的な判断は正本へ置き、入口のpathから必要な正本と依存closureへ到達するようrule-mapを同期します。
+Copilotの `.github/instructions/*.instructions.md` も入口として扱います。`applyTo` で対象pathを指定し、レビュー用の指示は `excludeAgent: "cloud-agent"` でCopilot cloud agentから除外します。Copilot Chatへの適用を除外する指定ではないため、本文でレビュー契約を適用する依頼条件を明示し、通常の実装・修正・質問にレビューの読み取り専用制約を課しません。継続的な判断は正本へ置き、入口のpathから必要な正本と依存closureへ到達するようrule-mapを同期します。
 
 - skillのdescriptionは主要な用途と発火条件を先頭に短く書きます。非発火条件は隣接skillとの誤選択を防ぐものに絞り、本文の手順や能力一覧を詰め込みません。
 - 本文には成果、非自明な制約、判断に必要な情報を残します。複数modeの詳細は該当時に参照し、短い自己完結したskillに不要なrouterや別文書を増やしません。

@@ -1,0 +1,48 @@
+{
+  "sequence": 12,
+  "kind": "verify",
+  "time": "2026-10-04T15:17:56.401896Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "eb822c5f7412d4ec1f6d2f33d3da457d99d5800f1acb6805a16d01b1de8e316d",
+  "revision": 4,
+  "fingerprint": "fde2f7bdd196ab9e50b6444f1245dc7491afe48eb2d1a6acbe85e1a6df56dafc",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "node_modules/.bin/vp",
+          "fmt",
+          "--check",
+          ".github/instructions/code-review.instructions.md",
+          "docs/harness/policies/documentation-policy.md",
+          "docs/harness/rule-map.json",
+          "docs/copilot-code-review.md"
+        ],
+        "exit": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 234ms on 4 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "/tmp/savings-aidd-1872",
+          "--root",
+          ".",
+          "rules"
+        ],
+        "exit": 0,
+        "output": "[]\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "abbebf48b0742ee766c85b8300727d1caeb3f94842b65c13579856125ede0d12",
+  "cycle_id": "issue-1872/cycle-0002"
+}
