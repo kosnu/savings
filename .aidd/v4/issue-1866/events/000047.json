@@ -1,0 +1,135 @@
+{
+  "sequence": 47,
+  "kind": "decision",
+  "time": "2026-10-04T04:41:36.349294881Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "324f71a7bea2d7e9048052e677fd5bee3ffd0d4dce14c334dc80da9be3f8bf03",
+  "revision": 15,
+  "fingerprint": "ab5eac16b3b5c0464fd9d4d9206371de52d94307fc05a4c3206d2274a5f5aaad",
+  "data": {
+    "summary": "PR1871 comment4173944869の正本routing漏れを修正。明示承認source=user-message:2026-10-04/直前のPR1871指摘一覧に対する承認、本文hash=8882a2cdf031dcb4ef144842141d1b340bd1de6244724af9a6489ec00438f182。対象はrule-mapのinfrastructure.dev-preview追加と文書front matter同期のみ。指摘の根拠は3workflow/toolから運用正本nodeへ到達不可。依存はinfrastructure.overview/documentation.policy。Audit CoreはPR照合のgh通信制限で失敗しevent未作成。GitHub connectorで実PR同headを照合。既存Intent/同Task/baselineを維持し承認範囲内の局所routing修正として記録。未確認実機条件、Coregate、配信workflow実装は変更しない。修正検証/push後に対象Botコメントへ結果返信・解決する。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml",
+      "docs/harness/rule-map.json"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "VITE_SENTRY_DSN=",
+        "VITE_SENTRY_ENVIRONMENT=development",
+        "NODE_ENV=production",
+        "CLOUDFLARE_PREVIEW_BUILD=true",
+        "pnpm",
+        "run",
+        "web:build",
+        "--mode",
+        "development"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-c",
+        "import json, subprocess, tempfile\nfrom pathlib import Path\npositive = ['tools/dev-preview/authorize.mjs', 'tools/dev-preview/preview.mjs', 'tools/dev-preview/authorize.test.mjs', '.github/workflows/deploy_preview.yaml', '.github/workflows/deploy_dev_database.yaml', '.github/workflows/dev_preview_ci.yaml', 'apps/web/cloudflare.config.ts', 'docs/development-preview.md']\nnegative = ['.github/workflows/deploy_production.yaml', 'tools/unrelated/example.mjs', 'apps/web/src/main.tsx']\nfor path in positive + negative:\n    with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as f:\n        json.dump([path], f); f.flush()\n        rules = json.loads(subprocess.check_output(['/tmp/aidd-v4', '--root', '.', 'rules', '--paths', f.name]))\n    ids = {r['id'] for r in rules}\n    assert ('infrastructure.dev-preview' in ids) == (path in positive), (path, ids)\n    if path in positive:\n        assert {'infrastructure.overview', 'documentation.policy', 'architecture.overview'} \u003c= ids, (path, ids)\nprint('8 target paths and 3 unrelated paths: routing and dependency closure passed')\n"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.dev-preview",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "d1d38063f7f002bb5b6e2ad719b8025627b551a6d27f95fdb254327b067176b5",
+  "cycle_id": "issue-1866/cycle-0001"
+}

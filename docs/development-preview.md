@@ -8,6 +8,7 @@ applies_to:
   - .github/workflows/deploy_dev_database.yaml
   - apps/web/cloudflare.config.ts
   - .github/workflows/deploy_preview.yaml
+  - .github/workflows/dev_preview_ci.yaml
 topics:
   - deployment
   - cloudflare

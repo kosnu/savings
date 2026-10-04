@@ -1,0 +1,62 @@
+{
+  "sequence": 51,
+  "kind": "review",
+  "time": "2026-10-04T04:49:16.439110209Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "925feb0cc69a35032b313c22b7e37cadc51bc242383073bd87c7ac7a24f5884a",
+  "revision": 16,
+  "fingerprint": "ab5eac16b3b5c0464fd9d4d9206371de52d94307fc05a4c3206d2274a5f5aaad",
+  "data": {
+    "summary": "Coverage: revision16全rule/closureと最新差分を照合。明示承認されたPR1871 comment4173944869のみ対応。運用正本を3workflow/tool/config/文書のpathに登録しinfrastructure.overview/documentation.policy/architecture.overviewへ到達、正例8/負例3のresolver検証成功。全12コマンドexit0/source stable。初回sandbox child EPERMとuvx network失敗は既存cache offline+host承認の再検証で解消。既存Intent・実配信/DB/ユーザー報告の証拠は保持。Unresolved: Core Auditのgh PR照合はCloud通信制限で未完了、通常運用の実機未確認はIssue1866に保持。コメント返信・解決は修正push/read-back後に承認済み範囲で実行する。",
+    "criteria": [
+      {
+        "criterion": "Dev Preview導入実装と自動検証",
+        "evidence": "最新Core verifyの全12コマンドexit0、stable=true。境界12件/Web712件、lint/format/typecheck/Dev build/zizmor、Core test/vet、正例8/負例3のresolver確認。今回の修正はrule-map/front matterのみで実行時の配信・DB変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "PR Actionsの実配信と発行URLの証拠",
+        "evidence": "FE Actions37131668187はe026361005383809820365a8aa634af90f708555でsuccess。cf実応答のURL https://b-issue-1866-shared-de-fe6897332a30-burneto-dev.coursek8814.workers.dev とdeployment9cf0c299-20d9-4f00-9f49-10cee56049c8を確認。ユーザーがこのPreviewのGoogleログイン成功を報告（独立browser検証ではない）。Cloud proxy403でHTTP/UI独立確認はできないが、PRの配信とURL取得・ユーザー実画面確認の証拠が揃う。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Dev DB実適用・隔離メタデータとユーザー認証報告の記録",
+        "evidence": "専用DB Actions37134186237はe026の残13件を具体承認後Devのみへ適用しsuccess。36/36・latest20260905134821、ensure_authenticated_user(text)、users.auth_user_id/language、authenticated実行可anon/PUBLIC不可、8tableRLS+SELECTを読取確認。本番未アクセス、Authユーザー削除/reset/repairなし。更新前RPC404/PGRST202、更新後ログイン成功はユーザー報告。更新後ログqueryでは対象行が返らず独立HTTP成功証拠として使わない。2本目のAuth/API/DB操作とブラウザ通信先の独立確認未了のためunknown。 この基準が確認するのは既存DB実行/読取メタデータとユーザー報告の正確な記録であり、第2Previewの実動作をpassとするものではない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "運用手順と同じIssueに残る未確認項目の明示",
+        "evidence": "選択PRの固定SHAを1回承認してnativeCLI適用→同headFE配信、競合時に適用済みSQL取り込み、適用済みSQL編集禁止、全branch直列/外部writer制限、partial failure調査、expand/contract、合成seed/reset具体承認と共有影響、FE切戻しとDB復旧分離を記載。CLI標準以上のSQL内容保証なし。Secret名本番同名、Dev限定PAT最小scope、Network Bans権限禁止、共通developmentのSecret明示注入とEnvironmentレベルのFE/DB隔離を持たないことを明記。 Issue1866へPR範囲と導入後3項目を未チェックで保存。PRのClosesを除去し同Issue継続、別Issueなし。 最新索引にinfrastructure.dev-previewを追加し3workflow/tool/config/文書からの必須参照と依存closureをresolverで確認。対象外3pathは選択されない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.dev-preview",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "e5d30ee3475f73ea371362eb1210a0f6600d8cd258e812ea9e9a6a12b45d682c",
+  "cycle_id": "issue-1866/cycle-0001"
+}

@@ -1,0 +1,146 @@
+{
+  "sequence": 48,
+  "kind": "verify",
+  "time": "2026-10-04T04:44:50.116453732Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "d1d38063f7f002bb5b6e2ad719b8025627b551a6d27f95fdb254327b067176b5",
+  "revision": 15,
+  "fingerprint": "ab5eac16b3b5c0464fd9d4d9206371de52d94307fc05a4c3206d2274a5f5aaad",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "node",
+          "--test",
+          "tools/dev-preview/preview.test.mjs",
+          "tools/dev-preview/authorize.test.mjs"
+        ],
+        "exit": 1,
+        "output": "✔ tools/dev-preview/authorize.test.mjs (61.586546ms)\n✖ tools/dev-preview/preview.test.mjs (120.63388ms)\nℹ tests 2\nℹ suites 0\nℹ pass 1\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 135.231059\n\n✖ failing tests:\n\ntest at tools/dev-preview/preview.test.mjs:1:1\n✖ tools/dev-preview/preview.test.mjs (120.63388ms)\n  'test failed'\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 560ms on 571 files using 4 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:586178) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /workspace/savings/apps/web\n\n········································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  138 passed (138)\n      Tests  712 passed (712)\n   Start at  04:41:46\n   Duration  163.89s (transform 3.71s, setup 315.53s, import 43.64s, tests 63.68s, environment 49.01s)\n\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vp",
+          "lint",
+          "tools/dev-preview",
+          "--deny-warnings"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "env",
+          "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+          "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+          "VITE_SENTRY_DSN=",
+          "VITE_SENTRY_ENVIRONMENT=development",
+          "NODE_ENV=production",
+          "CLOUDFLARE_PREVIEW_BUILD=true",
+          "pnpm",
+          "run",
+          "web:build",
+          "--mode",
+          "development"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web build --mode development\n$ tsc -b \u0026\u0026 vp build --mode development\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2108 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-I5TUXfXJ.css               14.95 kB │ gzip:   4.35 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-B-nJRhNf.js               5.10 kB │ gzip:   2.38 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-DRUzOVlX.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-H6J4aoz9.js               221.46 kB │ gzip:  44.67 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-BExirS6v.js            937.67 kB │ gzip: 277.15 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 601ms\npermission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head \"http://%2Fvar%2Frun%2Fdocker.sock/_ping\": dial unix /var/run/docker.sock: connect: operation not permitted\n"
+      },
+      {
+        "argv": [
+          "uvx",
+          "--cache-dir",
+          "/tmp/savings-uv-cache",
+          "zizmor",
+          "--offline",
+          ".github/workflows/deploy_preview.yaml",
+          ".github/workflows/dev_preview_ci.yaml",
+          ".github/workflows/deploy_dev_database.yaml"
+        ],
+        "exit": 2,
+        "output": "error: Request failed after 3 retries in 8.1s\n  cause: Failed to fetch: `https://pypi.org/simple/zizmor/`\n  cause: error sending request for url (https://pypi.org/simple/zizmor/)\n  cause: client error (Connect)\n  cause: tunnel error: failed to create underlying connection\n  cause: tcp open error\n  cause: Operation not permitted (os error 1)\n\nverification error: exit status 2\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "?   \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t[no test files]\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t6.297s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-c",
+          "import json, subprocess, tempfile\nfrom pathlib import Path\npositive = ['tools/dev-preview/authorize.mjs', 'tools/dev-preview/preview.mjs', 'tools/dev-preview/authorize.test.mjs', '.github/workflows/deploy_preview.yaml', '.github/workflows/deploy_dev_database.yaml', '.github/workflows/dev_preview_ci.yaml', 'apps/web/cloudflare.config.ts', 'docs/development-preview.md']\nnegative = ['.github/workflows/deploy_production.yaml', 'tools/unrelated/example.mjs', 'apps/web/src/main.tsx']\nfor path in positive + negative:\n    with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as f:\n        json.dump([path], f); f.flush()\n        rules = json.loads(subprocess.check_output(['/tmp/aidd-v4', '--root', '.', 'rules', '--paths', f.name]))\n    ids = {r['id'] for r in rules}\n    assert ('infrastructure.dev-preview' in ids) == (path in positive), (path, ids)\n    if path in positive:\n        assert {'infrastructure.overview', 'documentation.policy', 'architecture.overview'} \u003c= ids, (path, ids)\nprint('8 target paths and 3 unrelated paths: routing and dependency closure passed')\n"
+        ],
+        "exit": 0,
+        "output": "8 target paths and 3 unrelated paths: routing and dependency closure passed\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "912931b1a5cc6a6350c1cef2c0769860957f2f4776ca163f06fc9b6af3e721fa",
+  "cycle_id": "issue-1866/cycle-0001"
+}
