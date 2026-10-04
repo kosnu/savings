@@ -1,0 +1,62 @@
+{
+  "sequence": 3,
+  "kind": "decision",
+  "time": "2026-10-04T15:00:57.642719Z",
+  "task_hash": "d429b04165f01ad079593a247a09dd5ab5ec579ec502532280eacbb111a7e9b1",
+  "previous": "b63f75fb29cc64c04a06f523de72fd187a8736232130b6bc31405cc9123cf57e",
+  "revision": 2,
+  "fingerprint": "75fcaf5f7de4f3b840d812e1e9914be66caae02f149f7eefdbfe1db1e6c4622b",
+  "data": {
+    "summary": "CLIの余分な引数の黙認と、検証後snapshot取得失敗でverify eventを保存しない問題を修正する。command解析後に残余引数を拒否し、実行終了後はsnapshot取得失敗でも結果をStable=falseで追記して旧成功証拠の再採用を防ぐ。既存schema・承認・工程・索引は変えず、CLI/Core実装と負の境界テストを変更する。現行正本の失敗証拠保持契約へ合わせるため正本文書やCIの変更は不要。",
+    "paths": [
+      "tools/aidd/checker/cmd/aidd-checker/main.go",
+      "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+      "tools/aidd/checker/internal/core/lifecycle.go",
+      "tools/aidd/checker/internal/core/process_unix_test.go"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.code-review",
+      "policy.git-workflow"
+    ]
+  },
+  "hash": "124ecdee4ada2aa4f5323c73daddd45c9adab1409f7ef3ad37ddc1e4e21ce3e3",
+  "cycle_id": "aidd-evidence-fixes/cycle-0001"
+}

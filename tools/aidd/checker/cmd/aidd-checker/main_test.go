@@ -4,8 +4,38 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
+
+func TestUnexpectedArgumentsRejectedBeforeExecution(t *testing.T) {
+	root := t.TempDir()
+	graph := filepath.Join(root, "docs/harness/rule-map.json")
+	if e := os.MkdirAll(filepath.Dir(graph), 0755); e != nil {
+		t.Fatal(e)
+	}
+	if e := os.WriteFile(graph, []byte(`{"version":2,"rules":[],"review_routing":{}}`), 0644); e != nil {
+		t.Fatal(e)
+	}
+	original := os.Args
+	t.Cleanup(func() { os.Args = original })
+	for _, args := range [][]string{
+		{"rules", "unexpected"},
+		{"rules", "unexpected", "--paths", filepath.Join(root, "missing-paths.json")},
+		{"check-changes", "--base", "HEAD", "unexpected"},
+		{"start", "--task", "example", "--input", filepath.Join(root, "missing-start.json"), "unexpected"},
+	} {
+		t.Run(args[0]+"/"+strings.Join(args[1:], " "), func(t *testing.T) {
+			os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+			if e := run(); e == nil || !strings.Contains(e.Error(), "unexpected arguments") {
+				t.Fatalf("invalid invocation reached execution: %v", e)
+			}
+		})
+	}
+	if _, e := os.Stat(filepath.Join(root, ".aidd")); !os.IsNotExist(e) {
+		t.Fatalf("invalid invocation created Task records: %v", e)
+	}
+}
 
 func TestScopedCIEntrypoints(t *testing.T) {
 	root := t.TempDir()
