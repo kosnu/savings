@@ -1,0 +1,14 @@
+{
+  "sequence": 1,
+  "kind": "start",
+  "time": "2026-10-04T14:58:27.443051Z",
+  "task_hash": "d429b04165f01ad079593a247a09dd5ab5ec579ec502532280eacbb111a7e9b1",
+  "previous": "",
+  "revision": 0,
+  "fingerprint": "721be785c747090336808dc4a47a3a6e749d577b4c84e0b600619e0025120c68",
+  "data": {
+    "initial_changes": []
+  },
+  "hash": "857b9990083d55b24f8737e3b353b0eaa82b29f7e39199df15a49f966c60b193",
+  "cycle_id": "aidd-evidence-fixes/cycle-0001"
+}

@@ -1,0 +1,60 @@
+{
+  "sequence": 7,
+  "kind": "verify",
+  "time": "2026-10-04T15:06:28.012747Z",
+  "task_hash": "d429b04165f01ad079593a247a09dd5ab5ec579ec502532280eacbb111a7e9b1",
+  "previous": "267449ccf9f2aa6fdd7fcc282accb99929dcf9879315f1f697005d67c7ec9f0d",
+  "revision": 3,
+  "fingerprint": "db86c7fb9c00ac51cdddf6797b4e40bd2bb5cb21bd9501e81bef035000e17d99",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t0.614s\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t53.896s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 6.070s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "af72dd456b087d61f620351f3047bf6f49a45e846ce7ccaf853f63c92d02d4c0",
+  "cycle_id": "aidd-evidence-fixes/cycle-0001"
+}

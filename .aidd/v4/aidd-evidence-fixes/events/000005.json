@@ -1,0 +1,43 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-10-04T15:04:34.719299Z",
+  "task_hash": "d429b04165f01ad079593a247a09dd5ab5ec579ec502532280eacbb111a7e9b1",
+  "previous": "f1a18124dca16e3830591943bd45510a9fd723c336afd16deb5855b9a8a8d1a5",
+  "revision": 2,
+  "fingerprint": "db86c7fb9c00ac51cdddf6797b4e40bd2bb5cb21bd9501e81bef035000e17d99",
+  "data": {
+    "summary": "CLIの正常入力の既存経路と余分な引数の拒否、snapshot取得失敗後の失敗記録保持・再読込・旧成功のShip/check-changes拒否・再検証後の復帰を実差分とテスト結果で確認。既存のWorkflow/Core契約への修正であり、新しい工程、承認、schema、現行正本や索引の所有変更はない。CLI入口とCIの既存Go test経路が変更テストを実行する。\n\n## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.learning-extraction, policy.retrospective, policy.code-review, policy.git-workflow\n- Unresolved: なし",
+    "criteria": [
+      {
+        "criterion": "特定した問題の修正前の再現と修正後の拒否または正しい結果を確認できる",
+        "evidence": "TestUnexpectedArgumentsRejectedBeforeExecutionは修正前にrulesの余分な引数で成功し、後続--pathsが読まれないことを再現。修正後はrules/check-changes/startを実行前に拒否しTaskを作成しない。TestVerifyRecordsSnapshotFailureは通常のcommandでtracked code.txtを一時FIFOに変え、command終了0/7の双方で修正前にsnapshot失敗event欠落と復元後のShipCheck/CheckChanges成功を再現。修正後はStable=false・実際のcommand output/終了状態を保持し、Load後にも旧成功を拒否し、再検証・レビュー後に通過した。両回帰テストと全Coreテストが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "変更した面の必須検証と規則レビューが通る",
+        "evidence": "revision 2のverify event 000004でGo test -count=1 ./...、Go vet ./...、共有Git gate Python 5 tests、git diff --checkが全てexit 0。Stable=trueで検証前後のsource一致。代表path4件のrules選択と依存closureを全適用し、追加のcode-review/git-workflow本文も確認。Go format出力なし。変更はchecker4ファイルのみでWeb/APIアプリ・skill・ADRは変更していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "検証済み差分をPRとして配信し状態をread-backする",
+        "evidence": "検証済みsourceとTask記録を同じPRへ配信する。配信完了はこのローカルreview宣言から推定せず、ship-check後のcommit/push/PRのhead/baseとremote/tracking/upstreamをread-backし、Core shipの配信照合とCI状態の一度の取得で確定する。現時点では必要な実装・検証・規則レビューが完了し配信条件を満たす。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.code-review",
+      "policy.git-workflow"
+    ]
+  },
+  "hash": "ca49f8b9a914361bf85d5ff997336c59aeaa3b2e21ef6df90848cd2a78309bd5",
+  "cycle_id": "aidd-evidence-fixes/cycle-0001"
+}

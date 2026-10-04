@@ -195,13 +195,13 @@ func (s *Store) Verify() error {
 		}
 		v.Results = append(v.Results, Result{argv, exit, string(output)})
 	}
-	_, after, e := s.current()
-	if e != nil {
-		return e
-	}
-	v.Stable = after == fp
+	_, after, snapshotErr := s.current()
+	v.Stable = snapshotErr == nil && after == fp
 	if e = s.append("verify", v, fp); e != nil {
 		return e
+	}
+	if snapshotErr != nil {
+		return fmt.Errorf("verification source snapshot failed; evidence retained: %w", snapshotErr)
 	}
 	if failed || !v.Stable {
 		return fmt.Errorf("verification failed or changed source; evidence retained")

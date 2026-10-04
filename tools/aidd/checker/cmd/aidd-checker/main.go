@@ -27,6 +27,9 @@ func run() error {
 	if e := f.Parse(args[1:]); e != nil {
 		return e
 	}
+	if f.NArg() != 0 {
+		return fmt.Errorf("unexpected arguments: %v", f.Args())
+	}
 	abs, e := filepath.Abs(*root)
 	if e != nil {
 		return e

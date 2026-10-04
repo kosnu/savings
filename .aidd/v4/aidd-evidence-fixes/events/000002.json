@@ -1,0 +1,60 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-04T14:59:40.474634Z",
+  "task_hash": "d429b04165f01ad079593a247a09dd5ab5ec579ec502532280eacbb111a7e9b1",
+  "previous": "857b9990083d55b24f8737e3b353b0eaa82b29f7e39199df15a49f966c60b193",
+  "revision": 1,
+  "fingerprint": "721be785c747090336808dc4a47a3a6e749d577b4c84e0b600619e0025120c68",
+  "data": {
+    "summary": "CLIのFlagSetが余分な位置引数で解析を停止し、後続の--paths等を無視して成功する問題を修正する。rootとcommandの解析後に残余引数を拒否し、意味判断や既存検証・承認条件は変えない。CLI/回帰テストのみを変更し、既存正本・索引・CIの経路で十分なので同期変更は不要。Core証拠境界の独立調査は通常操作だけを対象に継続中。",
+    "paths": [
+      "tools/aidd/checker/cmd/aidd-checker/main.go",
+      "tools/aidd/checker/cmd/aidd-checker/main_test.go"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.code-review",
+      "policy.git-workflow"
+    ]
+  },
+  "hash": "b63f75fb29cc64c04a06f523de72fd187a8736232130b6bc31405cc9123cf57e",
+  "cycle_id": "aidd-evidence-fixes/cycle-0001"
+}

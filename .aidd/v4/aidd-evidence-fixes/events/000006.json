@@ -1,0 +1,78 @@
+{
+  "sequence": 6,
+  "kind": "decision",
+  "time": "2026-10-04T15:05:26.325645Z",
+  "task_hash": "d429b04165f01ad079593a247a09dd5ab5ec579ec502532280eacbb111a7e9b1",
+  "previous": "ca49f8b9a914361bf85d5ff997336c59aeaa3b2e21ef6df90848cd2a78309bd5",
+  "revision": 3,
+  "fingerprint": "db86c7fb9c00ac51cdddf6797b4e40bd2bb5cb21bd9501e81bef035000e17d99",
+  "data": {
+    "intent_revision": {
+      "source": "assistant-message:2026-10-05-local-review-criteria-clarification",
+      "objective": "AIDD v4の現行契約に反する問題を特定し、最小差分で修正して検証・配信する",
+      "constraints": [
+        "通常のCLI操作で再現する問題を優先する",
+        "既存のTask履歴と無関係な変更を保持する",
+        "新しい必須工程や承認段階を追加しない",
+        "PRへの配信と配信状態のread-backはShipで実施する"
+      ],
+      "acceptance": [
+        "特定した問題の修正前の再現と修正後の拒否または正しい結果を確認できる",
+        "変更した面の必須検証と規則レビューが通る",
+        "正常なCLI入力とsnapshot取得成功時の検証・配信可能な挙動を維持する"
+      ],
+      "text_hash": "3972fff7cedfd53a530da16d3e0661093d5dae43a9da565fa89950106abc3720"
+    },
+    "summary": "CLIの余分な引数の黙認と、検証後snapshot取得失敗でverify eventを保存しない問題を修正する。command解析後に残余引数を拒否し、実行終了後はsnapshot取得失敗でも結果をStable=falseで追記して旧成功証拠の再採用を防ぐ。既存schema・承認・工程・索引は変えず、CLI/Core実装と負の境界テストを変更する。現行正本の失敗証拠保持契約へ合わせるため正本文書やCIの変更は不要。 agentが追加した配信後の条件をローカルreview条件に誤って含めたため訂正する。ユーザーの目的・委任・配信範囲は維持し、配信はobjective/constraintsとGit WorkflowのShipで別途確認する。旧reviewは訂正前の記録として保持し、revision 3で再検証する。",
+    "paths": [
+      "tools/aidd/checker/cmd/aidd-checker/main.go",
+      "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+      "tools/aidd/checker/internal/core/lifecycle.go",
+      "tools/aidd/checker/internal/core/process_unix_test.go"
+    ],
+    "commands": [
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.code-review",
+      "policy.git-workflow"
+    ]
+  },
+  "hash": "267449ccf9f2aa6fdd7fcc282accb99929dcf9879315f1f697005d67c7ec9f0d",
+  "cycle_id": "aidd-evidence-fixes/cycle-0001"
+}
