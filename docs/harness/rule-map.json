@@ -137,7 +137,13 @@
       "id": "documentation.policy",
       "file": "docs/harness/policies/documentation-policy.md",
       "applies_to": {
-        "paths": ["docs/**/*.md", "docs/harness/scripts/**", "apps/*/docs/**/*.md", "AGENTS.md"],
+        "paths": [
+          "docs/**/*.md",
+          "docs/harness/scripts/**",
+          "apps/*/docs/**/*.md",
+          "AGENTS.md",
+          ".github/instructions/**"
+        ],
         "domains": ["repository", "documentation"],
         "activities": ["add_doc", "update_doc", "classify_docs", "update_front_matter"],
         "topics": ["documentation", "front-matter", "agent-guidance"]
@@ -451,7 +457,13 @@
       "id": "policy.code-review",
       "file": "docs/harness/policies/code-review.md",
       "applies_to": {
-        "paths": ["AGENTS.md", ".github/skills/code-review/**", "docs/harness/**", "apps/**"],
+        "paths": [
+          "AGENTS.md",
+          ".github/skills/code-review/**",
+          ".github/instructions/code-review.instructions.md",
+          "docs/harness/**",
+          "apps/**"
+        ],
         "domains": ["repository", "review", "github"],
         "activities": ["review_diff", "select_review_rules", "report_review_coverage"],
         "topics": ["review", "rule-graph", "pull-request", "verification"]

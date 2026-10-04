@@ -5,43 +5,6 @@ description: GitHub Copilotで実装済みの差分をリポジトリの正本�
 
 # Code Review
 
-このスキルは、GitHub Copilot code review の共通手順だけを定義する。レビュー観点、ポリシー、設計判断の正本はリポジトリ内の文書に置き、このファイルへ複製しない。
-
-## 正本の参照
-
-1. ルートの `AGENTS.md` を読む。
-2. `docs/harness/policies/code-review.md` を読み、レビュー必須ルーティングとレポート契約を確認する。
-3. レビュー対象の差分、変更ファイル、変更された呼び出し経路を確認する。PRの説明や既存コメントの主張は、差分と正本文書の代わりに使わない。
-4. 差分から複数の変更面を抽出し、`code-review.md` に定義されたWeb/APIのrule IDをすべて集める。変更面を1つに絞らず、priorityで候補を削らない。
-5. `docs/harness/rule-map.json` を読み、集めたrule IDと差分の `applies_to.paths`、`domains`、`activities`、`topics` の一致を確認する。
-6. 選択した全ルールノードと `depends_on` の正本文書を読む。`related` は `code-review.md` がレビュー必須として指定した場合に読む。廃止文書や無関係な文書は根拠にしない。
-7. レビューコメントへの対応を評価する場合は、`docs/harness/policies/review-feedback-classification.md` と `docs/harness/policies/git-workflow.md` を必要に応じて読む。
-
-正本文書と差分の間に解決できない矛盾がある場合は、推測で判定せず、矛盾と確認事項を報告する。
-
-## レビュー手順
-
-1. 実装済みの差分だけを対象にし、複数の変更面に対する正本文書の適用範囲を確定する。`apps/api/**` の差分でAPI変更面を分類できない場合は、未定義のレビュー面として報告する。
-2. 適用された全ノードを確認する。指摘を見つけても、残りのノードの確認を省略しない。
-3. 正本文書に照らして、意図した動作、既存パターンとの整合性、回帰、境界条件、同期漏れ、検証不足を確認する。
-4. 変更対象に直接関係する正本文書が定める安全性、性能、アクセシビリティ、データ整合性などの確認を適用する。
-5. 採択済みADRを含む差分では、PRのbase branchに対応するorigin remote-tracking branchを指定して`python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/<base-branch>`を実行する。失敗した場合は`documentation.policy`違反として報告する。
-6. 変更されていない無関係なファイルや、作業ツリー上の別の変更をレビュー対象に含めない。
-7. レビュー中はファイルを編集せず、レビューコメントへの返信やthreadのresolveも行わない。
-
-このスキルは、複数のレビュー担当者を割り当てるための観点選定や、独自のリスク分類を行わない。必要な確認範囲は `code-review.md` と `rule-map.json` が定め、該当する正本文書をすべて適用する。
-
-## レポート
-
-最初に `code-review.md` の形式で、確認したrule IDと未解決の矛盾をレビュー結果のサマリに記録する。PR概要へ確認一覧を追加したり、PR概要の記述をレビュー証跡にしたりしない。
-
-指摘を重要度順に、次の情報とともに報告する。
-
-- 重要度
-- ファイルと行番号
-- 問題
-- 影響
-- 根拠
-- 修正案
-
-指摘がない場合も、確認した範囲と残っている検証不足を明記する。プロセスの実況は含めず、根拠のある findings を先に報告する。
+`AGENTS.md` の共通制約と [Code Review Policy](../../../docs/harness/policies/code-review.md) を適用する。
+同policyが必須ルールの選択、文脈取得、レビュー権限、結果形式を所有する。既読の本文は再利用する。
+差分と必要な関連コードを全適用規則に照らして確認し、根拠のある指摘と未確認事項を報告する。

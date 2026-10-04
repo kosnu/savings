@@ -1,0 +1,48 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-10-04T14:50:14.599052Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "8a582d0d45f22e204226744d3fa687ff126267e34e062d9a4a35a260253fea42",
+  "revision": 2,
+  "fingerprint": "e0ecdc58e04d92fb9d238a96287a16730eff02be6bc36bc8c9a49fae24ea2420",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n\n指摘なし。6つの指示・文書・索引の実差分、全適用規則、公式仕様、Ruleset実値、Intentと実行委任を照合した。開始時cleanでPR1871の差分を含めず、Go/アプリ/CI/ADRを変更していない。custom instructionsトグル、個人設定、review effortの実値と実際のCopilotの遵守・消費は未確認で、説明文書に限界を明記した。効果検証・追加Copilotレビュー・Auditは実施しない。pnpm既存環境の起動不備はvp直接実行で代替し、依存修復を範囲へ追加していない。",
+    "criteria": [
+      {
+        "criterion": "現行仕様と利用可能な制御・未確認事項を整理する",
+        "evidence": "期待: コードレビューで利用可能な指示形式と消費要因を一次資料で確認し、未確認設定を区別する。観測: docs/copilot-code-review.mdが公式のAI credits/Actions・custom instructions・excludeAgent・skills・標準除外の仕様へリンクし、2026-10-04のread-only API結果（Draft=true、push=false、CODEOWNER/Approve/古いApprove破棄）を記載。モデル切替・自然言語の強制探索上限を制御と誤認せず、対象契約/個人設定/トグル/effortを未確認と区別した。差: 効果や内部探索の観測はIntent対象外として行わない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "根拠と品質への影響・運用負担・戻し方から対策を選定する",
+        "evidence": "期待: 1回の消費削減が見込める対策を根拠と品質制約から選び、運用と復旧を説明する。観測: 重複skill手順を正本へ集約、短いレビュー専用instructions、差分起点・実行内既読再利用を採用。docs/copilot-code-review.mdに採否・根拠・品質維持・運用追加なし・commit revertまたは入口/skill/正本/索引を一括復旧する手順を記載。深度の一律低下/回数削減のみ/MCPや関連コード遮断/モデル指定を採用しない。実測済み効果や削減率を主張していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "採用対策を指示・設定・運用へ反映する",
+        "evidence": "期待: 調査報告だけでなくCopilotが選べる指示と正本へ反映し、開発依頼や他agentの権限を損なわない。観測: .github/instructions/code-review.instructions.mdのapplyTo=**/excludeAgent=cloud-agent、従来と同じname/descriptionのreview skillからCode Review Policyへ到達。正本に文脈取得・全必須集合・不足範囲取得・関連コード参照・レビュー権限・確認内容を反映。Core rulesのreview_instructionはcode-review/documentationを選び、隣接development_instructionはcode-reviewを選ばない。『実装済みPRをレビュー』はskill/正本の読み取りとfinding報告へ到達、『Issue1872を実装』『PRコメントを修正』はレビューのみの権限で実装へ誤発火しない。ADR履歴検査、Web/API面、Coverage契約は正本に保持し、レビューdepth/起動/保護設定は不変更。Copilotの実適用はトグル/非決定的挙動に依存する限界を説明済み。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必要な検証・レビューと既存保護条件との整合確認を完了する",
+        "evidence": "期待: 対象に必要な検証を成功させ、品質条件と既存保護を削らず、範囲外変更や未確認成功を作らない。観測: revision 2のverifyはstable=trueでgit diff --check、6ファイルのvp fmt --check、Core rulesがすべてexit 0。新指示/隣接指示/skill/Web source/API configのrouting、front matter、ローカルリンクを読み取り検査。10個の選択ruleと本文依存を実差分へ適用、README/app/Core/CI/ADRは不変更。既存main RulesetのCODEOWNER/会話解決/push後Approve破棄、#1700最新HEAD制約と矛盾する変更なし。source変更はドキュメント・非runtime指示だけなのでAGENTS.mdに従いWeb検証不要。Copilot消費の測定/再レビューを成功条件へ再追加していない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "6f73aea37d3d2c9f9077ad003f87e7dcb4060cbf44f591fe580acbd24a35a9fb",
+  "cycle_id": "issue-1872/cycle-0001"
+}
