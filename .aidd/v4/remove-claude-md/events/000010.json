@@ -1,0 +1,39 @@
+{
+  "sequence": 10,
+  "kind": "review",
+  "time": "2026-10-04T16:40:39.499367Z",
+  "task_hash": "c085a2165584b79d534fecdcad96b2c5bfcfcb9bd394ebf6b70ab4de9934dcc9",
+  "previous": "6765a34e5823387be8b87d90daabd634581efa0157bd2795b95354531d793d4a",
+  "revision": 4,
+  "fingerprint": "65d3ea472286d688e266d931620467ecbc689a2188a3a221c8cd2423591b6fe5",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.retrospective\n- Unresolved: なし\n現行Claude専用入口・設定・agent定義・除外設定を全削除。AGENTS.mdはhost固有の名前だけを除き共通契約を維持。履歴と研究出典は保持。アプリ・Core・CIの動作変更なし。findingなし。",
+    "criteria": [
+      {
+        "criterion": "ルートのCLAUDE.mdと.claude配下の設定・agent定義が存在しない",
+        "evidence": "実ファイル検査とdiffでCLAUDE.mdと.claude全体の削除を確認。削除前に.claude内は設定と3 agentだけであることを確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "現行索引と共通入口とgitignoreにClaude固有の設定・案内がない",
+        "evidence": "AGENTS.md、.gitignore、index.md、rule-map.jsonにClaude固有参照が残らない検査、rule graph、format、diff --checkの成功。残る検索hitは研究の出典・採択ADR・移行履歴のみ。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.retrospective"
+    ]
+  },
+  "hash": "2bb7898d962d2e8e5cd289d61acb94b71d5977f689be9e79abd6329eef57d485",
+  "cycle_id": "remove-claude-md/cycle-0001"
+}
