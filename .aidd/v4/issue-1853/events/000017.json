@@ -1,0 +1,41 @@
+{
+  "sequence": 17,
+  "kind": "audit-update",
+  "time": "2026-10-04T14:56:20.616701Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "928ee12fb4c79b5a097806e56922bcc9d5e7768f99a0ad04d78d7054cbd41a22",
+  "revision": 6,
+  "fingerprint": "c3c749a02f1a92cefaadb965d1365e34df493b2fd1afa0d5d0191c8e53b9d662",
+  "data": {
+    "summary": "P2をユーザー訂正に合わせ更新。事例の版は実プロジェクトの現行版を示すものではなく、仮想事例の不具合再現版と修正確認版として区別する。解決済み版という曖昧語を排除し、元の誤判断候補とfail判定を維持する。P1のCI対策は確認済み。文書の編集・返信・thread解決は未実施。",
+    "findings": [
+      "P1 main取り込み対策はCI全成功により効果を確認済み。",
+      "未解決かつ現行headのCopilot thread PRRT_kwDOM0p88s6oyZO8（https://github.com/kosnu/savings/pull/1875#discussion_r4177603686）は用語の曖昧さの点で妥当。最小再現失敗に基づく誤判断候補そのものは意図された負例であり、成功する候補へ置換する必要はない。",
+      "対応方針: 更新P2の修正・検証・commit/push後、thread PRRT_kwDOM0p88s6oyZO8へ仮想事例の不具合再現版/修正確認版と負例を明確化した旨を返信。Botで残る論点・競合コメントがなければresolve。未実施。",
+      "Copilot overviewは対象inline threadの要約であり重複返信しない。Codex issuecomment-5979874813は完了通知のみで返信不要。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P2",
+        "finding": "解決済み版という表現が不具合修正版にも読め、また使用中の版への単純置換は仮想事例を実プロジェクトの現行版と誤解させる。",
+        "evidence": "external-dependency-cases.md:26,27,69、workflow.md:67。https://github.com/kosnu/savings/pull/1875#discussion_r4177603686 。https://github.com/jsdom/jsdom/releases/tag/v30.1.1 は30.1.0での退行を修正した版と明示。",
+        "change": "事例の仮想入力を不具合再現版30.1.0と修正確認版30.1.1と明記し、実プロジェクトの現行版を示すものではないとする。誤判断候補は不具合再現版での失敗だけを理由に修正確認版での成功を考慮せず旧版を据え置く、と明確化してfail判定を維持する。変更不要事例の解決済み版4.1は仮想事例で修正を確認した版4.1とする。workflowの解決済み依存版は調査対象の依存版として調査環境の条件と照合する意味を明確化する。対象はworkflow.mdとexternal-dependency-cases.mdの該当表現だけ。文書fmt/diff、Core verify/review/check-changesと旧版失敗・修正版成功・据え置き候補failの意味照合で検証する。commit/push後に指定Bot threadへこの修正と検証結果を返信し、残る論点や競合コメントがなければresolveする。",
+        "paths": [
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/external-dependency-cases.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "7171871fb4ba236e7b32f681ca3462321fdcca9d",
+      "remote": "origin",
+      "branch": "issue-1853/upstream-fix-assessment",
+      "pr": "https://github.com/kosnu/savings/pull/1875",
+      "evidence": "PR OPEN、HEAD/upstream/PR head一致、revision6 cycle-0002のverifyとreviewはcurrent。CI run 37209941730 candidate/integration/verify成功。",
+      "base": "main"
+    }
+  },
+  "hash": "7b3290217a241ffc326981f2182edc1e97494a98bb4eee718a643194ba03db56",
+  "cycle_id": "issue-1853/cycle-0002"
+}

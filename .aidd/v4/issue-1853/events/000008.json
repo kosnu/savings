@@ -1,0 +1,51 @@
+{
+  "sequence": 8,
+  "kind": "audit",
+  "time": "2026-10-04T14:33:30.781943Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "3f8043bed772b392830b6571e33b93569f6b148b4bdcd0c72fdcc21ed7de6d75",
+  "revision": 3,
+  "fingerprint": "4355a90d120e574c10fc7b4ba602cc376ccf6dcbff44cb55e986da8f58197dc8",
+  "data": {
+    "summary": "PR #1875のCIは過去Task issue-1628のAudit配信照合で失敗。Issue #1876の修正がPR #1877でmainへ統合済みであり、承認された対策はmainの取り込みと再検証。独自のCore/CI改修は行わない。",
+    "findings": [
+      "CIの過去Task照合失敗。修正は別Issue #1876でmainへ統合済み。未解決review threadなし。返信・resolve対象なし。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "PR #1875の旧Core/CIが無関係な過去Taskの配信照合で失敗する。",
+        "evidence": "https://github.com/kosnu/savings/actions/runs/37201881043 ; https://github.com/kosnu/savings/pull/1877",
+        "change": "最新origin/mainを作業ブランチへmergeして#1876の修正を取り込む。既存Intentの成果を維持し、更新Coreでverify/review/ship-checkとcheck-changesを実行し、push後のCI状態を確認する。",
+        "paths": [
+          ".aidd/v4/issue-1876/events/000001.json",
+          ".aidd/v4/issue-1876/events/000002.json",
+          ".aidd/v4/issue-1876/events/000003.json",
+          ".aidd/v4/issue-1876/events/000004.json",
+          ".aidd/v4/issue-1876/events/000005.json",
+          ".aidd/v4/issue-1876/events/000006.json",
+          ".aidd/v4/issue-1876/task.json",
+          ".github/workflows/aidd_checker_ci.yaml",
+          "docs/ai-driven-development/aidd-checker-operations.md",
+          "docs/ai-driven-development/aidd-checker.md",
+          "tools/aidd/checker/cmd/aidd-checker/main.go",
+          "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+          "tools/aidd/checker/internal/core/check.go",
+          "tools/aidd/checker/internal/core/check_test.go",
+          "tools/aidd/checker/internal/core/core_test.go"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "73ac13d8e80622786d31019d46f37b98709384ab",
+      "remote": "origin",
+      "branch": "issue-1853/upstream-fix-assessment",
+      "pr": "https://github.com/kosnu/savings/pull/1875",
+      "evidence": "PRはOPEN、headがローカルHEADと一致。CI run 37201881043 candidate/integrationがissue-1628の履歴Audit検査で失敗。",
+      "base": "main"
+    }
+  },
+  "hash": "914002322fd57cb3fc154cdf42c482ef2c41d340069852f80628f019a20c514c",
+  "cycle_id": "issue-1853/cycle-0001"
+}

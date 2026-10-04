@@ -1,0 +1,51 @@
+{
+  "sequence": 7,
+  "kind": "review",
+  "time": "2026-10-04T12:21:16.723638Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "f0e754e90496f5075e7c4c33c12d5cefe1bdfbb50899b5b021863a0af9844e71",
+  "revision": 3,
+  "fingerprint": "4355a90d120e574c10fc7b4ba602cc376ccf6dcbff44cb55e986da8f58197dc8",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification\n- Unresolved: なし\n指摘なし。workflowの既存開発ループを条件付きで更新し、7事例を目的から意味評価した。rule-mapのdocs/ai-driven-developmentとapps/**からworkflowへ到達し、AGENTSの開発入口も同じ正本を使う。索引・実装・CLI・CI・hostの同期追加は不要。アプリ、依存、既存PR、ADR履歴は未変更。文書整形とdiff検証は終了コード0。実際の依存対策と再発率は未検証であり、記録もその限界を明示する。",
+    "criteria": [
+      {
+        "criterion": "外部依存が原因と考えられる場合、独自対策の必要性を上流の一次情報・対象版・再現条件から判断できる。",
+        "evidence": "Issue #1853の不要な回避策の抑制という目的に対し、workflow外部依存節が解決済み版・環境・条件と一次情報を照合する。external-dependency-casesの公開修正版事例では公式release/issueを実際に確認し、仮想環境の条件と分離して据え置き候補をfailとした。適用不能事例では非対応runtimeを理由に限定対策をpassとし、独自対策を一律禁止していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "修正版が適用可能なら不要な回避策を選ばず、未公開・互換性不明・適用不能なら解決済みと断定せず調査や対策を続けられる。",
+        "evidence": "workflowは変更なし・通常更新・独自対策を比較し必要性と除去条件を記録する。事例は適用可能な修正版があるのに操作変更する候補と未公開closeだけで完了する候補をfail、互換性不足をunknown、適用不能時の範囲内対策をpassと判定。目的から導く次の行動と一致し、上流待ち・新承認を固定条件にしていない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "修正版での最小再現の成功と対象プロジェクト全体の検証済み状態を区別できる。",
+        "evidence": "workflowは別の証拠と規定。公開修正版事例の全体未実行と、全体検証失敗事例で最小再現だけ成功してShipする候補をfailとしている。実際のsavings依存更新は実施していないことを境界と限界へ明記。文書検証の成功とアプリ修正の成功を混同していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "通常のローカル修正に不要な外部調査を強制せず、事例への判断と根拠で改善を検証できる。",
+        "evidence": "workflowは外部依存を疑う根拠がない修正へ外部調査を要求しない。集計条件漏れ事例の局所修正をpass、既に修正版と全体成功が確認済みの事例を変更なしpassとした。7事例は固定必須リストではなく2026-10-04の有限評価として独立文書へ保持。未知事例の一般化・実運用の再発率低下を未検証と明記。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "3f8043bed772b392830b6571e33b93569f6b148b4bdcd0c72fdcc21ed7de6d75",
+  "cycle_id": "issue-1853/cycle-0001"
+}

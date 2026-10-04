@@ -1,0 +1,47 @@
+{
+  "sequence": 5,
+  "kind": "decision",
+  "time": "2026-10-04T12:21:15.241955Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "c415e558561c202f23cc126e6698714e0b6203239e29ed7c87b38b3408d7a0d3",
+  "revision": 3,
+  "fingerprint": "4355a90d120e574c10fc7b4ba602cc376ccf6dcbff44cb55e986da8f58197dc8",
+  "data": {
+    "summary": "既存workflowの開発ループに条件付きの外部依存調査・対策選択を加え、新規の匿名化適用事例で有限の意味評価を記録する。修正版の適用可否、据え置きや回避策の必要性、最小再現と全体検証を分ける。判断所有はworkflowのままで、AGENTSとrule-mapの既存workflow経路を利用するため索引・入口の変更は不要。Go Core/CLI/CIは意味判断を自動化しないため変更不要。既存履歴のsemantic-review-casesは上書きしない。ドキュメントのみでアプリ検証は対象外。 pnpmの既存起動エラーを受け、インストール済みvpを直接利用して同じ整形検証を行う。",
+    "paths": [
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/external-dependency-cases.md"
+    ],
+    "commands": [
+      [
+        "./node_modules/.bin/vp",
+        "fmt",
+        "docs/ai-driven-development/workflow.md",
+        "docs/ai-driven-development/external-dependency-cases.md",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "2d91d600045a62f40b30710603df22dadb54f933005108a0a3d6d6cc52bdfada",
+  "cycle_id": "issue-1853/cycle-0001"
+}

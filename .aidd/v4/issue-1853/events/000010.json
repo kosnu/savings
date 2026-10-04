@@ -1,0 +1,85 @@
+{
+  "sequence": 10,
+  "kind": "decision",
+  "time": "2026-10-04T14:33:45.02465Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "ab62683d7afa17eeb5fa846e571c2e60a01e2a493e82cad903d3b9af3cab21e8",
+  "revision": 4,
+  "fingerprint": "4355a90d120e574c10fc7b4ba602cc376ccf6dcbff44cb55e986da8f58197dc8",
+  "data": {
+    "summary": "ユーザー承認 P1（user-message:issue-1853-main-merge-approval）に従い、mainをmergeし#1876の既存修正だけを取り込む。baseline・Intent・Taskを維持し、承認した有限import pathsを担当範囲へ加える。独自のCore/CI修正は行わず、Web/API差分もない。取り込み後に更新Coreで再検証・review・配信する。",
+    "paths": [
+      "docs/ai-driven-development/workflow.md",
+      "docs/ai-driven-development/external-dependency-cases.md",
+      ".aidd/v4/issue-1876/events/000001.json",
+      ".aidd/v4/issue-1876/events/000002.json",
+      ".aidd/v4/issue-1876/events/000003.json",
+      ".aidd/v4/issue-1876/events/000004.json",
+      ".aidd/v4/issue-1876/events/000005.json",
+      ".aidd/v4/issue-1876/events/000006.json",
+      ".aidd/v4/issue-1876/task.json",
+      ".github/workflows/aidd_checker_ci.yaml",
+      "docs/ai-driven-development/aidd-checker-operations.md",
+      "docs/ai-driven-development/aidd-checker.md",
+      "tools/aidd/checker/cmd/aidd-checker/main.go",
+      "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+      "tools/aidd/checker/internal/core/check.go",
+      "tools/aidd/checker/internal/core/check_test.go",
+      "tools/aidd/checker/internal/core/core_test.go"
+    ],
+    "commands": [
+      [
+        "./node_modules/.bin/vp",
+        "fmt",
+        "docs/ai-driven-development/workflow.md",
+        "docs/ai-driven-development/external-dependency-cases.md",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "80991b7a41ea0cde66f9fc1c0b5899d4e0f2a80cb157b5ea81548aaa87bb4d59",
+  "cycle_id": "issue-1853/cycle-0001"
+}

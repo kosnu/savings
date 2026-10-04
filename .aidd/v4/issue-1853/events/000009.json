@@ -1,0 +1,19 @@
+{
+  "sequence": 9,
+  "kind": "approve",
+  "time": "2026-10-04T14:33:44.550498Z",
+  "task_hash": "e3110b66e182d18d35e8635b5249e884cc01288c8a07664102e1df0f0a0f5043",
+  "previous": "914002322fd57cb3fc154cdf42c482ef2c41d340069852f80628f019a20c514c",
+  "revision": 3,
+  "fingerprint": "4355a90d120e574c10fc7b4ba602cc376ccf6dcbff44cb55e986da8f58197dc8",
+  "data": {
+    "audit_hash": "914002322fd57cb3fc154cdf42c482ef2c41d340069852f80628f019a20c514c",
+    "source": "user-message:issue-1853-main-merge-approval",
+    "proposal_ids": [
+      "P1"
+    ],
+    "text_hash": "0626389bb3628976c242e4a3ec58b29e325610ed6cb3cd4ee6f42d7f7a21b588"
+  },
+  "hash": "ab62683d7afa17eeb5fa846e571c2e60a01e2a493e82cad903d3b9af3cab21e8",
+  "cycle_id": "issue-1853/cycle-0001"
+}
