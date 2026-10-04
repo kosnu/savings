@@ -212,6 +212,24 @@
       "priority": 80
     },
     {
+      "id": "infrastructure.dev-preview",
+      "file": "docs/development-preview.md",
+      "applies_to": {
+        "paths": [
+          "tools/dev-preview/**",
+          ".github/workflows/deploy_preview.yaml",
+          ".github/workflows/deploy_dev_database.yaml",
+          ".github/workflows/dev_preview_ci.yaml",
+          "apps/web/cloudflare.config.ts",
+          "docs/development-preview.md"
+        ],
+        "topics": ["deployment", "cloudflare", "supabase", "migration"]
+      },
+      "depends_on": ["infrastructure.overview", "documentation.policy"],
+      "overrides": [],
+      "priority": 80
+    },
+    {
       "id": "ai-driven.overview",
       "file": "docs/ai-driven-development/overview.md",
       "applies_to": {

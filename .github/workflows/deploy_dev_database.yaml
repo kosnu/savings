@@ -1,0 +1,85 @@
+name: Deploy Dev Database
+
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "DB変更を検証する同一repositoryのopen PR番号"
+        required: true
+        type: string
+
+run-name: Dev DB PR ${{ github.event.pull_request.number || inputs.pr_number }} @ ${{ github.event.pull_request.head.sha || 'resolve-current-head' }}
+permissions: {}
+
+# 全ブランチが一つの共有DBを使う。承認待ちを含めて直列化する。
+concurrency:
+  group: burneto-shared-dev-database
+  cancel-in-progress: false
+
+env:
+  DEPLOYMENT_KIND: database
+
+jobs:
+  resolve:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
+       github.event.label.name == 'dev-db' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.base.ref == 'main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      sha: ${{ steps.pr.outputs.sha }}
+      branch: ${{ steps.pr.outputs.branch }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/dev-preview/authorize.mjs
+
+  deploy:
+    name: Approve Dev DB ${{ needs.resolve.outputs.branch }} @ ${{ needs.resolve.outputs.sha }}
+    needs: resolve
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
+      - name: Revalidate after migration approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
+          EXPECTED_BRANCH: ${{ needs.resolve.outputs.branch }}
+        run: node tools/dev-preview/authorize.mjs
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.118.0
+      - name: Link Dev and push migrations
+        working-directory: apps/api
+        env:
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          # ローカル config の型を解決するだけ。Auth の config push は行わない。
+          SUPABASE_GOOGLE_SKIP_NONCE_CHECK: "false"
+        run: |
+          test "$SUPABASE_PROJECT_ID" = "ufekmuxkmodwydxmdbln"
+          test -n "$SUPABASE_ACCESS_TOKEN"
+          supabase link --project-ref "$SUPABASE_PROJECT_ID"
+          supabase db push --linked --skip-vault --dry-run
+          supabase db push --linked --skip-vault --yes

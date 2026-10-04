@@ -1,0 +1,109 @@
+{
+  "sequence": 20,
+  "kind": "decision",
+  "time": "2026-10-03T09:22:46.97567558Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "0a320bac0aee6329bae9eba5b70ef406e55cb2e8bb4bf6cada0f94bb7e8492a2",
+  "revision": 8,
+  "fingerprint": "cd2feed85638400b7634387f41213595011782acccda47777b5c70790b21cfce",
+  "data": {
+    "summary": "本番と同じSecret名/token+link+db pushへ整合。Dev固定ref限定scopedPAT、planはManagementAPI read-only queryでrole発行なし。applyのみ固定CLI2.118.0が一時loginroleを内部取得。password/host/CA/psql手動設定削除。恒久token作成・一時role実発行・実DBwriteは未承認で実施しない。SHA/plan照合/owner承認/直列化維持。DBEnvironment隔離はFEへDBtokenを供給しない境界。CLI v2.118.0ソース確認、Network Bans自動解除経路ありPATでRead-writeを与えず禁止。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs",
+        "tools/dev-db/migrations.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "tools/dev-db",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "VITE_SUPABASE_URL=https://abcdefghijklmnopqrst.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "node",
+        "tools/dev-preview/deploy.mjs",
+        "verification/preview",
+        "--build-only"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "389986adb530cf77a49ed3b6ba70c5c5a4ebeee6828d493d29bd7fd23dce3bb0",
+  "cycle_id": "issue-1866/cycle-0001"
+}

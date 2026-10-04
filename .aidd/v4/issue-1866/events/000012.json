@@ -1,0 +1,64 @@
+{
+  "sequence": 12,
+  "kind": "review",
+  "time": "2026-10-03T07:36:49.213850791Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "8a3ece5463d7d95960b862633f9dd080b0aeb4f271f186b6c6eda5866980adf3",
+  "revision": 4,
+  "fingerprint": "567002f8f8b33ea8ac0bcabc2d50fbcb7e00e8e2c958f8555f95491aef413770",
+  "data": {
+    "summary": "Coverage: 全decision rule/依存closureとPR起動・所有者承認・secret隔離の実差分を確認。GitHub metadataは個人所有public、公式仕様ではFreeでもrequired reviewerと自己承認が可能。独立した承認者を要求した前revisionの追加制約を修正し、所有者本人1人/Prevent self-review=falseを確認する。publicの実条件に基づき第三者/課金を要求しない。API権限は公式actions:read、Cloud proxyの403をrunner権限と混同しない。CIにGET listのみの読取検証を追加。exact head/same repo/main/open/fork拒否/ラベル撤回検査は維持。保護設定変更・credential・live配信なし。実機acceptanceはunknown、draft更新の依頼に基づく提出でShipではない。",
+    "criteria": [
+      {
+        "criterion": "Cloudからのプレビュー配信とURL確認",
+        "evidence": "Cloud runnerは毎回development Preview buildを作成しcf native Previewsへ配信する。実ビルド成功、Build Outputはburneto-dev/domain空/isPreview=true。URLはcf応答検証後のみ出力。配信tokenとDev project設定がないためlive URL/画面は未確認。初期設定承認後に実施。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "PR GitHub Actionsからの配信とURL確認",
+        "evidence": "PR labeled preview:\u003c完全head SHA\u003e により初回マージ前に起動可能。developmentは所有者本人1人のrequired reviewer、自己承認可。所有者が明示承認するまでGitHubがsecretを隔離する。fork/異なるbase/古いhead/ラベル撤回/保護欠落/他人への承認委任を拒否するテスト成功。actions:readによるEnvironment GET/listは公式仕様で許可。実runnerのmetadata読取は新HEAD CIで追跡する。実Environment設定とcredentials、配信URLは未確認。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "複数ブランチ併存と同一ブランチ更新",
+        "evidence": "ブランチ名hashによりslash・大小文字・日本語・長さのslug衝突を区別し、同一入力を同一Previewへ写すテスト成功。別branch併存と再配信による実画面更新は未確認。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "共有Dev Auth/API/DB接続、本番隔離",
+        "evidence": "Dev URLをproject refから構成し既知の本番refを拒否、publishable keyのみ許可。buildにCloudflare/DB/Sentry tokenを渡さずSentry送信無効。生成Dev manifestのproduction domain/binding混入を拒否するテスト成功。production build/dry-runでも従来設定を確認し実配信なし。共有Dev Auth/API/DBおよびRLSのlive動作は未確認、初期grant/OAuth設定は管理者承認待ち。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "migration・seed/reset・互換性・復旧運用の明文化",
+        "evidence": "docs/development-preview.mdにレビュー済みmain SHA、単一担当、dry-run/list、影響台帳、expand/contract、合成seed、reset承認、frontend切戻しとDB別復旧、削除条件、無料上限・課金前確認を記載。preview経路にSupabase CLI、migration/seed/resetコマンドなし。既存migration/本番workflow/データは変更していない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "0d282e0c9f06a417f045dd5da516db880c02a58b234410e986f65e10d402d5cd",
+  "cycle_id": "issue-1866/cycle-0001"
+}

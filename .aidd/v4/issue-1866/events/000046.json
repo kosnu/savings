@@ -1,0 +1,59 @@
+{
+  "sequence": 46,
+  "kind": "review",
+  "time": "2026-10-03T16:23:28.878723113Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "e653e1a890cdb19e297a0aa01bfcee9422ac894199e32c038e008b4af28cd341",
+  "revision": 14,
+  "fingerprint": "730a52fa77947414f8b8b225fa9d1d9860ba918fcabc01ed0b47e45a84b5f390",
+  "data": {
+    "summary": "Coverage: rev14全rule/closure、ユーザーのPR範囲指定、Issue/PR本文、文書差分、既存実FE/DB証拠を照合。今回の4基準は導入実装・自動検証・既存実配信/DBmetadataとユーザー報告・運用記録で評価。Unresolved: Issue全体では通常起動の複数Preview実画面、同branch画面更新、第2Previewの共有Dev利用が未確認。これらは同Issueに残し、成功宣言・別Issue化・Coregate変更・自動close・mergeなし。",
+    "criteria": [
+      {
+        "criterion": "Dev Preview導入実装と自動検証",
+        "evidence": "既存Task差分の固定SHA/branch再照合、development承認、FE4/DB2 Secret限定、Dev Worker/URL固定とDB直列化を確認。最新revisionのCore verify全9コマンドの実終了結果に基づき、自動境界12件とWeb712件、lint/format/typecheck/Dev build/zizmorを確認する。実機UI/共有データ/切戻しの成功とは扱わない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "PR Actionsの実配信と発行URLの証拠",
+        "evidence": "FE Actions37131668187はe026361005383809820365a8aa634af90f708555でsuccess。cf実応答のURL https://b-issue-1866-shared-de-fe6897332a30-burneto-dev.coursek8814.workers.dev とdeployment9cf0c299-20d9-4f00-9f49-10cee56049c8を確認。ユーザーがこのPreviewのGoogleログイン成功を報告（独立browser検証ではない）。Cloud proxy403でHTTP/UI独立確認はできないが、PRの配信とURL取得・ユーザー実画面確認の証拠が揃う。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Dev DB実適用・隔離メタデータとユーザー認証報告の記録",
+        "evidence": "専用DB Actions37134186237はe026の残13件を具体承認後Devのみへ適用しsuccess。36/36・latest20260905134821、ensure_authenticated_user(text)、users.auth_user_id/language、authenticated実行可anon/PUBLIC不可、8tableRLS+SELECTを読取確認。本番未アクセス、Authユーザー削除/reset/repairなし。更新前RPC404/PGRST202、更新後ログイン成功はユーザー報告。更新後ログqueryでは対象行が返らず独立HTTP成功証拠として使わない。2本目のAuth/API/DB操作とブラウザ通信先の独立確認未了のためunknown。 この基準が確認するのは既存DB実行/読取メタデータとユーザー報告の正確な記録であり、第2Previewの実動作をpassとするものではない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "運用手順と同じIssueに残る未確認項目の明示",
+        "evidence": "選択PRの固定SHAを1回承認してnativeCLI適用→同headFE配信、競合時に適用済みSQL取り込み、適用済みSQL編集禁止、全branch直列/外部writer制限、partial failure調査、expand/contract、合成seed/reset具体承認と共有影響、FE切戻しとDB復旧分離を記載。CLI標準以上のSQL内容保証なし。Secret名本番同名、Dev限定PAT最小scope、Network Bans権限禁止、共通developmentのSecret明示注入とEnvironmentレベルのFE/DB隔離を持たないことを明記。 Issue1866へPR範囲と導入後3項目を未チェックで保存。PRのClosesを除去し同Issue継続、別Issueなし。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "324f71a7bea2d7e9048052e677fd5bee3ffd0d4dce14c334dc80da9be3f8bf03",
+  "cycle_id": "issue-1866/cycle-0001"
+}

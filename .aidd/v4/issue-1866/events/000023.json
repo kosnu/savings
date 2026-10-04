@@ -1,0 +1,64 @@
+{
+  "sequence": 23,
+  "kind": "review",
+  "time": "2026-10-03T09:35:39.306596542Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "960ba6f22611931bc7d208876272fe352718a0254ced6c09fcee532c2c402c22",
+  "revision": 8,
+  "fingerprint": "ac55749ea64d7bda84b2c20c0c04fe68dac13d99af1d3770183469d500618dd1",
+  "data": {
+    "summary": "Coverage: decision rev8の全rule/closureと実差分確認。本番workflow/token+link/dbpushを基準にSecret名と接続方式を整合。CLI2.118.0ソースcommit3a7ba11ea1f14667e6d3adde1059bcb378ae7cd0の一時role/pooler/optionalprobe/networkban処理を確認。旧password/host/CA案撤回。tokenscopeはDevだけ、Network Bans権限なし、所有者が画面で確認する条件でありコードがscope検証したとはしない。planは固定read-only API、一時roleはapply CLIのみ、stdout/stderr非公開、一時workdir/cache清掃。新token/role実発行・DBwrite・設定変更なし。Unresolved: 実Dev認証/接続/livePreview等のacceptanceはunknown。",
+    "criteria": [
+      {
+        "criterion": "Cloudからのプレビュー配信とURL確認",
+        "evidence": "Cloud runnerのcf native Preview配信経路とfixture build検証。FEは本番同名VITE_SUPABASE_URL/keyとCloudflare token/accountをDev値で指定。本番URL/key権限拒否、Sentry無効、URL応答照合。token設定と公開範囲承認がないためlive配信未実施。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "PR GitHub Actionsからの配信とURL確認",
+        "evidence": "previewラベル、またはmain導入後PR番号のみdispatch。CIがSHAを解決・表示・固定しowner承認後head/branchを再照合。fork/closed/異base/更新/label撤回/保護欠落は拒否。実runnerのactions:read Environment metadata GETは既存CI成功。外部設定と実配信は未実施。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "複数ブランチ併存と同一ブランチ更新",
+        "evidence": "ブランチ名hashによりslash・大小文字・日本語・長さのslug衝突を区別し、同一入力を同一Previewへ写すテスト成功。別branch併存と再配信による実画面更新は未確認。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "共有Dev Auth/API/DB接続、本番隔離",
+        "evidence": "固定Dev refのscopedPAT、read-only APIで履歴照会、applyのみCLI2.118.0 link→db push --linked --skip-vault。SHA/branch/計画digest再検査と全branch直列維持。22Node回帰/runner mockでplanはCLI未起動、token非露出、linkedsource照合を検証。実CLIの一時workdir/configをローカルDB dry-runで確認。CLIはtemp login role機構をsource確認したが実発行はしない。23/36件のDev schemaと空Auth/全8tableはread-only確認済み、24は破壊承認待ち。新token scope確認/実Dev接続・適用/最終RLS/Authはunknown。",
+        "verdict": "unknown"
+      },
+      {
+        "criterion": "migration・seed/reset・互換性・復旧運用の明文化",
+        "evidence": "docsにマージ前の選択PRの専用DB CI plan→owner apply承認→同headのFE、履歴競合の取り込み、全branch直列と外部writer制限、partial failure調査、expand/contract、合成seed/reset具体承認、DB復旧とFE切戻しの分離、無料Sessionpoolerを明記。履歴repair/強制rollback/reset/seed/roles/Vault更新はCIで実行しない。 本番同名SecretのDev値登録、Dev限定scopedPAT権限表、networkban変更権限禁止、CLIソース根拠、旧設定依頼撤回、DB用Environment分離理由を明文化。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "ceff5b3568364d5f3d613bee74bc5bbf296af94b3651604fe010e54f391e1fcb",
+  "cycle_id": "issue-1866/cycle-0001"
+}

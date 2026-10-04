@@ -1,0 +1,104 @@
+{
+  "sequence": 6,
+  "kind": "decision",
+  "time": "2026-10-03T07:20:34.012318344Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "68b6d18e53b09ad47e550b1fb2cfbccf09d7b9ce4a64ee46a2da05a5f3eb1ed7",
+  "revision": 3,
+  "fingerprint": "81645884996ff11747ccf4d18704840b8f6e9d7200605bab3b6b6203f9cac5bb",
+  "data": {
+    "summary": "PR label preview:\u003c完全head SHA\u003e の明示操作を追加。same-repo/main/open/現在headを照合し、development required reviewersとprevent_self_reviewをAPIで確認、読取失敗は停止。Environment承認後にも再照合しSHAを固定。workflow_dispatchはmain限定を維持。新規資源・設定・権限変更・実配信なし。実機acceptanceはunknownを維持。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "DEV_SUPABASE_PROJECT_REF=abcdefghijklmnopqrst",
+        "DEV_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "node",
+        "tools/dev-preview/deploy.mjs",
+        "verification/preview",
+        "--build-only"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "d431a9987c5853b64fa35e7065da46d67dae4b8e255b52f62a92e5084c5dfbd0",
+  "cycle_id": "issue-1866/cycle-0001"
+}

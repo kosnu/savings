@@ -1,0 +1,115 @@
+{
+  "sequence": 35,
+  "kind": "verify",
+  "time": "2026-10-03T14:59:01.758787457Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "e37a0b9ba3cae708f69f63464edff47cf950713ba55a8eb9b2c534b8ac8cb405",
+  "revision": 11,
+  "fingerprint": "0ec1926a6b3ee269f862c8869da6b363ac5e06170e73276eb421960e8f4002bf",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "node",
+          "--test",
+          "tools/dev-preview/preview.test.mjs",
+          "tools/dev-preview/authorize.test.mjs"
+        ],
+        "exit": 0,
+        "output": "✔ PR label resolves the immutable event head; dispatch remains main-only (2.373707ms)\n✔ updates, unrelated labels, forks, wrong base and unsupported events cannot opt in (0.250682ms)\n✔ the selected head resolves without an Environment API dependency (0.308327ms)\n✔ head races, withdrawal, closure and foreign PRs fail the post-approval recheck (0.450818ms)\n✔ workflow limits triggers and gates installation/deployment behind environment and revalidation (0.475845ms)\n✔ database requests use their own label and the same immutable head checks (0.316249ms)\n✔ FE/DB share development but only DB steps receive database credentials (9.203597ms)\n✔ 同じブランチは同じ名前、slug が衝突しても別ブランチは別 Preview (3.900099ms)\n✔ Dev 設定不足、本番 ref、権限の強いキーをネットワーク前に拒否 (0.297611ms)\n✔ Preview context は mode を間違えても本番 Worker/domain を選ばない (1.717855ms)\n✔ 本番・古い成果物や本番 binding/domain の混入を配信前に拒否 (0.301076ms)\n✔ 補助コマンドと同じ名前のbranchも配信名になる (39.940591ms)\nℹ tests 12\nℹ suites 0\nℹ pass 12\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 169.56067\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 637ms on 571 files using 4 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:245247) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /workspace/savings/apps/web\n\n········································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  138 passed (138)\n      Tests  712 passed (712)\n   Start at  14:56:04\n   Duration  172.51s (transform 4.04s, setup 330.94s, import 46.12s, tests 66.06s, environment 53.74s)\n\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vp",
+          "lint",
+          "tools/dev-preview",
+          "--deny-warnings"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "env",
+          "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+          "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+          "VITE_SENTRY_DSN=",
+          "VITE_SENTRY_ENVIRONMENT=development",
+          "NODE_ENV=production",
+          "CLOUDFLARE_PREVIEW_BUILD=true",
+          "pnpm",
+          "run",
+          "web:build",
+          "--mode",
+          "development"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web build --mode development\n$ tsc -b \u0026\u0026 vp build --mode development\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2108 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-I5TUXfXJ.css               14.95 kB │ gzip:   4.35 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-B-nJRhNf.js               5.10 kB │ gzip:   2.38 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-DRUzOVlX.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-H6J4aoz9.js               221.46 kB │ gzip:  44.67 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-BExirS6v.js            937.67 kB │ gzip: 277.15 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 725ms\n"
+      },
+      {
+        "argv": [
+          "uvx",
+          "--cache-dir",
+          "/tmp/savings-uv-cache",
+          "zizmor",
+          "--offline",
+          ".github/workflows/deploy_preview.yaml",
+          ".github/workflows/dev_preview_ci.yaml",
+          ".github/workflows/deploy_dev_database.yaml"
+        ],
+        "exit": 0,
+        "output": "No findings to report. Good job! (8 suppressed)\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "f182c9d7c227ef589eff1c02adcb0b45cc134e2159f12a568d36a260c7f79b43",
+  "cycle_id": "issue-1866/cycle-0001"
+}

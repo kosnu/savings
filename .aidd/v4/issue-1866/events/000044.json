@@ -1,0 +1,129 @@
+{
+  "sequence": 44,
+  "kind": "decision",
+  "time": "2026-10-03T16:20:12.841439025Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "71de4aaf981f4837a701681ad57097cb140018edefb8c3f58279f4e94015da0f",
+  "revision": 14,
+  "fingerprint": "730a52fa77947414f8b8b225fa9d1d9860ba918fcabc01ed0b47e45a84b5f390",
+  "data": {
+    "intent_revision": {
+      "source": "user:01a0fa62-1487-75da-84d6-f7dedcbd40fc/2026-10-03 Issueは1個でPRの確認範囲を分ける; https://github.com/kosnu/savings/issues/1866",
+      "objective": "Issue1866を継続したまま、PR1871のDev Preview導入実装・自動検証・既存実配信証拠・運用手順を提出する",
+      "constraints": [
+        "本番接続・変更・配信は禁止",
+        "単一共有Dev DB。migration自動適用なし",
+        "有料資源・永続認証情報・権限やネットワーク変更・破壊操作は事前確認",
+        "Issue1866は1つのまま。通常運用の未確認項目を同Issueに残し、自動close・別Issue作成・全体gate変更・mergeをしない"
+      ],
+      "acceptance": [
+        "Dev Preview導入実装と自動検証",
+        "PR Actionsの実配信と発行URLの証拠",
+        "Dev DB実適用・隔離メタデータとユーザー認証報告の記録",
+        "運用手順と同じIssueに残る未確認項目の明示"
+      ],
+      "text_hash": "e3c891f7e16f32e5d0ccfaa13225e9ebdec85b9b41169e9d805240d25f932eea"
+    },
+    "summary": "ユーザーの明示的範囲指定「別Issueに残すというか、Issueとしては1個で良くて、このPRとしてどこまで確認しますかっていう話だと思ってたけど」に従い、Task/PRの完了範囲を導入実装・自動検証・既存FE/DB実証・ユーザーログイン報告・運用文書に限定する。Cloud直接経路撤回を保持。通常経路の複数Preview実画面/同branch更新/第2Preview共有Dev利用は同Issue1866の未チェック項目として保存、別Issueなし、PRのCloses指定を撤去。未実施項目をpassへ改名せず、今回のPR範囲の証拠を評価する。Core/CI gate変更なし、DBwrite/配信/mergeなし。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "VITE_SENTRY_DSN=",
+        "VITE_SENTRY_ENVIRONMENT=development",
+        "NODE_ENV=production",
+        "CLOUDFLARE_PREVIEW_BUILD=true",
+        "pnpm",
+        "run",
+        "web:build",
+        "--mode",
+        "development"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "acf0dbfe5ded0cfa1528158ab6d08677df3f772ea1375b2b382b70fa004f9bb9",
+  "cycle_id": "issue-1866/cycle-0001"
+}

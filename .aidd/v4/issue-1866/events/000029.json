@@ -1,0 +1,112 @@
+{
+  "sequence": 29,
+  "kind": "decision",
+  "time": "2026-10-03T14:31:06.398291915Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "ecb619a72cc327ebcfc8006c886a65ba7de8b8818dd25e28ac33a91125364ea4",
+  "revision": 10,
+  "fingerprint": "60f769d4b3afa43cae8cc48dfe195ba5bf236de5371e10b7d275474bb76cf9b1",
+  "data": {
+    "summary": "2026-10-03 14:28:58ユーザー明示承認によりGitHub Environmentをdevelopmentへ統一。EnvironmentレベルのFE/DB credential隔離を失う点は説明・承認済み。各stepに必要なSecretだけ明示注入しFEへDBtokenを渡さない。標準owner承認、PR固定revision/branch再照合、Dev固定ref、全DB直列化は維持。外部Environment/保護/Secretの変更、secret値読取、DBwrite/配信/mergeは実施しない。前回検証済みapp/buildコードに変更なし、今回はworkflow環境名・文書・境界テストのみを検証。 CoreがTask差分全体のWeb検証を要求するため前回同様の全9コマンドを再実行する。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "VITE_SENTRY_DSN=",
+        "VITE_SENTRY_ENVIRONMENT=development",
+        "NODE_ENV=production",
+        "CLOUDFLARE_PREVIEW_BUILD=true",
+        "pnpm",
+        "run",
+        "web:build",
+        "--mode",
+        "development"
+      ],
+      [
+        "uvx",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "6645b226b38d6fd245cb20c0a6665c7edfc3f67d5760867374b13ce3aae81f73",
+  "cycle_id": "issue-1866/cycle-0001"
+}
