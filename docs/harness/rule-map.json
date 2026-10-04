@@ -22,9 +22,7 @@
       ".github/instructions/code-review.instructions.md",
       ".github/agents/**",
       ".github/workflows/aidd_*",
-      "AGENTS.md",
-      "CLAUDE.md",
-      ".claude/CLAUDE.md"
+      "AGENTS.md"
     ],
     "surfaces": [
       {
@@ -87,9 +85,7 @@
           ".github/instructions/code-review.instructions.md",
           ".github/agents/**",
           ".github/workflows/aidd_*",
-          "AGENTS.md",
-          "CLAUDE.md",
-          ".claude/CLAUDE.md"
+          "AGENTS.md"
         ],
         "required_rules": ["ai-driven.workflow", "ai-driven.checker", "documentation.policy"]
       }
@@ -102,7 +98,6 @@
       "applies_to": {
         "paths": [
           "AGENTS.md",
-          "CLAUDE.md",
           "tools/aidd/**",
           "docs/ai-driven-development/**",
           "docs/harness/**",
@@ -123,7 +118,6 @@
           "pnpm-lock.yaml",
           "docs/adr/0006-separate-intent-from-issue.md",
           "docs/adr/0009-rebuild-aidd-v4.md",
-          ".claude/CLAUDE.md",
           ".agents/skills/audit/**",
           ".agents/skills/retrospective/**",
           ".agents/skills/guardrail-improvement/**"

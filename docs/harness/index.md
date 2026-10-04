@@ -5,7 +5,6 @@ status: draft
 area: repository
 applies_to:
   - AGENTS.md
-  - CLAUDE.md
   - docs
   - docs/harness
 topics:
@@ -16,7 +15,7 @@ topics:
   - harness-engineering
 when_to_read:
   - AI agent向けのリポジトリ構造やドキュメント体系を設計するとき
-  - AGENTS.mdやCLAUDE.mdを薄い入口として整理するとき
+  - AGENTS.mdを薄い入口として整理するとき
   - docsをagentが辿れる記録システムとして整備するとき
 ---
 

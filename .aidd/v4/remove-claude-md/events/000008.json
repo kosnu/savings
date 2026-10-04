@@ -1,0 +1,65 @@
+{
+  "sequence": 8,
+  "kind": "decision",
+  "time": "2026-10-04T16:40:15.640595Z",
+  "task_hash": "c085a2165584b79d534fecdcad96b2c5bfcfcb9bd394ebf6b70ab4de9934dcc9",
+  "previous": "2cd23b508a3fff7ca8383de93973d77158daeb2de25c3eea16639bb6fe097308",
+  "revision": 4,
+  "fingerprint": "65d3ea472286d688e266d931620467ecbc689a2188a3a221c8cd2423591b6fe5",
+  "data": {
+    "summary": "追加依頼に従い現行のClaude専用設定とagent定義を全削除する。AGENTS.mdの実行入口をhost名に依存しない表現にし、Claude用gitignoreを除く。研究の出典、採択ADR、移行履歴は当時の記録として保持。アプリとCore実装は変更なし。前回拒否されたpushは追加の送信承認がないため再試行しない。",
+    "paths": [
+      "CLAUDE.md",
+      ".claude/CLAUDE.md",
+      "docs/harness/index.md",
+      "docs/harness/rule-map.json",
+      ".claude/settings.json",
+      ".claude/agents/be-engineer.agent.md",
+      ".claude/agents/fe-engineer.agent.md",
+      ".claude/agents/reviewer.agent.md",
+      ".gitignore",
+      "AGENTS.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-v4",
+        "--root",
+        ".",
+        "rules"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "AGENTS.md",
+        "docs/harness/index.md",
+        "docs/harness/rule-map.json",
+        "--check"
+      ],
+      [
+        "python3",
+        "-c",
+        "import os; from pathlib import Path; assert not os.path.lexists('CLAUDE.md'); assert not Path('.claude').exists(); assert Path('AGENTS.md').is_file(); assert all('claude' not in Path(p).read_text().lower() for p in ['AGENTS.md','.gitignore','docs/harness/rule-map.json','docs/harness/index.md']); print('current Claude configuration and references removed: OK')"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.retrospective"
+    ]
+  },
+  "hash": "add77d4e7b921a63fa457d16c3e63d353fc34e1ff4efbdd70b38f7f43d44525d",
+  "cycle_id": "remove-claude-md/cycle-0001"
+}
