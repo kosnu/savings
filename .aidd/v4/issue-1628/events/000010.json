@@ -1,0 +1,17 @@
+{
+  "sequence": 10,
+  "kind": "return-intent",
+  "time": "2026-10-04T08:33:33.493694Z",
+  "task_hash": "7b33b93837594b0133a70818039921d8667b6220af3046d90e3bfc0003a561b6",
+  "previous": "b115c2554c8c924c8c77b84e3ea3d42e0f1acf356e322b69cb54cd4497100c70",
+  "revision": 3,
+  "fingerprint": "51ab5b76d053cf33e6ed54503a6320183ccedafcc2e3a2307d808e6dadb8809c",
+  "data": {
+    "summary": "現在Intentの3選択・配色追従・明示選択維持・再読み込み維持を再確認。承認P1の既存Story期待値はSystemへ同期済み。改善済みpolicyは共有provider/既定値がtagged Storyへ及ぼす間接影響も実行条件に含め、opt-inとleaf除外を維持する。次cycleはこの境界を用いて全Web必須検証とbrowser suiteを実行し、既存PRへShipする。",
+    "previous_cycle": "issue-1628/cycle-0001",
+    "approval_hash": "af50d35a415e5a01c005abac62370fde22c14e4e62702d6a24011b2415f7631c",
+    "intent_hash": "4f3acd2277242ef9e01e63b1214acc7e309d21690c5abcfff62219ee1c613250"
+  },
+  "hash": "bf09c26a194b87cf14b4e7405c93bf0e2d826a49e51d7da37483aa2a52fcfc21",
+  "cycle_id": "issue-1628/cycle-0002"
+}

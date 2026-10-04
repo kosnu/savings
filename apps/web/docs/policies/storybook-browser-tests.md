@@ -24,7 +24,9 @@ Storybook のブラウザテストは opt-in で運用します。
 
 `pnpm --filter web test:storybook --reporter=dot --silent` の Storybook project は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
 
-Web の通常検証では Storybook browser test を常時実行しません。`browser-test` 対象の story、`apps/web/.storybook-test/`、または Storybook browser-test 設定を変更した場合に実行します。
+Web の通常検証では Storybook browser test を常時実行しません。`browser-test` 対象の story、`apps/web/.storybook-test/`、または Storybook browser-test 設定に影響する変更がある場合に実行します。
+
+共有 provider や既定値の変更が `browser-test` 対象の story の表示・操作・期待値に影響する場合も、影響を受ける既存 story の期待値を同期し、browser suite を実行します。story や設定ファイルに直接差分がないことだけを理由に実行を省略しません。
 
 共有設定の `apps/web/.storybook/preview.tsx` と `apps/web/.storybook/vitest.setup.ts` は
 `.storybook-test`から読み込まれるため、追加・変更・削除時にbrowser suiteを実行する。

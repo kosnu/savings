@@ -1,0 +1,41 @@
+{
+  "sequence": 7,
+  "kind": "audit",
+  "time": "2026-10-04T08:03:58.030202Z",
+  "task_hash": "7b33b93837594b0133a70818039921d8667b6220af3046d90e3bfc0003a561b6",
+  "previous": "bf8db2c3183ba01371f73c20523b68d6deca7eed3f9ee44e88714ef1d10fbf0e",
+  "revision": 2,
+  "fingerprint": "915a3789e32c32ff4b7b90ca941a3c9733bc22426f1739994d11939b2e4f23be",
+  "data": {
+    "summary": "Ship後のCopilot overviewの2点とCIを分析。SettingsPage Appearance Storyの旧Light期待値残存は実在する局所defectで、CIでLight期待/System実測の1失敗を確認。root AGENTSはbrowser-testへの影響を実行条件にしているが、decision/reviewはStory/config自体の変更有無で対象外と判定しており、既存ガードレールの適用漏れ。Storybook policyの「変更した場合」も間接影響を明示していないため既存条件を具体化する。web:formatは前回formatterを検証前に2回実行し各exit 0、Core契約上verify argvへ整形を混ぜないため未実施という判断は不成立。未解決inline threadなし、review summaryへの返信を提案するがまだ投稿しない。",
+    "findings": [
+      "F1: SettingsPage.stories.tsx:140 のAppearanceがTheme選択欄をLightと期待し、現仕様のSystemと不一致。CI job 111391706281で6 files/14 testsのうち1 test失敗。Copilot review https://github.com/kosnu/savings/pull/1874#pullrequestreview-5404925429 と一致。",
+      "F2: 最新decision/reviewはbrowser-test tagged Story/configに直接差分がないことを省略理由とした。しかしThemeProvider/usePreferredTheme/ThemeSelectの既定選択の変更は既存Appearance Storyへ到達し、AGENTS.mdのaffects条件に該当する。Storyの同期と必須suite選択を漏らした既存規則の適用ミス。",
+      "F3: Copilotのweb:format証跡要求は実行漏れではない。前回の会話のtool出力に、既存pnpm本体をPATH指定したweb:formatの正常終了(504ms/573 filesと423ms/573 files)が存在。aidd-checker-operations.mdはformatterをverify batch前へ分離して実行するため、verify argvの不在だけで未実施とは断定できない。永続証跡の新規強制やrunner追加は不要。",
+      "コメント対応方針: Copilot overview (PRR_kwDOM0p88s8AAAABQiid9Q)へ通常PRコメントで、Story同期と検証結果/対応commit、およびweb:format実行済み・verify分離の理由を返信する。inline threadは0件でresolve対象なし。Codex Review Summary https://github.com/kosnu/savings/pull/1874#issuecomment-5977880259 は完了通知で指摘がなく返信不要。返信は方針承認後、必要な修正・検証・commit・push・PR反映確認後に実行。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "共有ThemeProviderと既定設定変更の間接影響がbrowser-test実行・既存Story期待値の同期対象から漏れた。",
+        "evidence": "元Issue #1628 のテーマ選択/既存挙動維持、SettingsPage.stories.tsx:22(browser-test)と:140(Light)、CI job 111391706281のExpected Light/Received System、AGENTS.md:89(affects)、events/000004.jsonと000006.jsonの直接変更なしを理由とする省略。",
+        "change": "SettingsPage Appearance Storyの期待値をSystemへ同期する。storybook-browser-tests.mdの既存実行条件をAGENTSのaffectsへ合わせ、共有providerまたは既定値変更がtagged Storyの表示・操作・期待値へ影響する場合も既存Storyを同期してbrowser suiteを実行する旨を具体化する。常時実行・新しい検証wrapper・新しい記録機構は追加しない。formatterを先に適用し、web:lint/web:format-check/web:typecheck/web:test:unit-integration/web:test:storybook/git diff --checkを最新decisionへ記録して検証・レビュー・Shipする。承認後も同Taskを維持しCoreの改善とreturn-intent契約に従う。",
+        "paths": [
+          "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+          "apps/web/docs/policies/storybook-browser-tests.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "cf670b1fc05b2ba3bc94a40420d33ac7f37dffac",
+      "remote": "origin",
+      "branch": "issue-1628/system-theme",
+      "pr": "https://github.com/kosnu/savings/pull/1874",
+      "evidence": "HEAD/remote ref/PR head=cf670b1fc05b2ba3bc94a40420d33ac7f37dffac。PR OPEN、base main、作業ツリーclean。CI frontend Storybookだけ失敗。Dev Preview run 37187469291は同headで成功。",
+      "base": "main"
+    }
+  },
+  "hash": "f6b6073015846453d2bcc1fead61097d96624dbe8a071aa87fb15873ea9681ac",
+  "cycle_id": "issue-1628/cycle-0001"
+}

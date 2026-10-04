@@ -137,7 +137,7 @@ export const Appearance: Story = {
 
     expect(await canvas.findByRole("heading", { name: "Appearance" })).toBeInTheDocument()
     expect(await canvas.findByRole("combobox", { name: "Language" })).toHaveTextContent("English")
-    expect(await canvas.findByRole("combobox", { name: "Theme" })).toHaveTextContent("Light")
+    expect(await canvas.findByRole("combobox", { name: "Theme" })).toHaveTextContent("System")
   },
 }
 
