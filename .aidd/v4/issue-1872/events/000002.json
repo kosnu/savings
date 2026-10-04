@@ -1,0 +1,60 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-04T14:43:57.29778Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "1fc44252b9de726f7bc007962d412890d629a0295c13c45eec157c271d9273f1",
+  "revision": 1,
+  "fingerprint": "721be785c747090336808dc4a47a3a6e749d577b4c84e0b600619e0025120c68",
+  "data": {
+    "summary": "公式仕様はカスタム指示量が消費へ影響し、path-specific instructionsのcloud-agent除外とreview skillをサポートする。短いCopilotレビュー専用入口を追加し、重複skill手順をCode Review Policyへ集約する。正本では差分起点の有限な文脈取得・実行内の既読再利用・必要な呼出経路の追加探索・権限境界を定め、必須rule/path/surface/depends_on/related指定とADR検査・Coverageを保つ。新入口をrule-mapでdocumentation/code-reviewへ直接接続する。仕様・採否・品質影響・戻し方を非必須の説明文書に記載する。読み込み量の強制上限、課金削減の保証、効果測定、レビュー深度/起動/保護設定/MCP変更は採用しない。アプリ・Go・CI・ADR本文は不変更。通常の実行委任による導入でありAudit後の改善ではない。",
+    "paths": [
+      ".github/instructions/code-review.instructions.md",
+      ".github/skills/code-review/SKILL.md",
+      "docs/harness/policies/code-review.md",
+      "docs/harness/policies/documentation-policy.md",
+      "docs/harness/rule-map.json",
+      "docs/copilot-code-review.md"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "fmt",
+        "--check",
+        ".github/instructions/code-review.instructions.md",
+        ".github/skills/code-review/SKILL.md",
+        "docs/harness/policies/code-review.md",
+        "docs/harness/policies/documentation-policy.md",
+        "docs/harness/rule-map.json",
+        "docs/copilot-code-review.md"
+      ],
+      [
+        "/tmp/savings-aidd-1872",
+        "--root",
+        ".",
+        "rules"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "856156dc2d01da46f654b468960213a4dd108f5287b653e764fbf99fc4c1a225",
+  "cycle_id": "issue-1872/cycle-0001"
+}

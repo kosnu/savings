@@ -1,0 +1,48 @@
+{
+  "sequence": 13,
+  "kind": "review",
+  "time": "2026-10-04T15:19:07.981003Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "abbebf48b0742ee766c85b8300727d1caeb3f94842b65c13579856125ede0d12",
+  "revision": 4,
+  "fingerprint": "fde2f7bdd196ab9e50b6444f1245dc7491afe48eb2d1a6acbe85e1a6df56dafc",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: 正本間の矛盾なし。Copilotの実機遵守/消費は未確認で効果検証対象外。工程計測のIntent区間終了はcycle切替による拒否で未完了。\n\n追加findingなし。Audit P1/P2を承認直前の表と実差分で照合し、Chat利用を保ちながらreview契約の適用条件を明示、今回入口だけを制御面へ登録した。元Intentと承認4pathsを越える変更なし。既存Review品質・探索・保護を保ち、必要な検証は全成功。次Auditを自動開始せず、同PRへShip後に承認対象の理由返信と完了Bot thread解決を行う。",
+    "criteria": [
+      {
+        "criterion": "現行仕様と利用可能な制御・未確認事項を整理する",
+        "evidence": "期待: 現行の公式仕様と対象設定を区別して利用可能な制御を説明する。観測: 既存の公式資料とRuleset記録を保持し、新たにIDE公式仕様の参照とexcludeAgentがcloud-agentだけを除外する説明を同期。Chat利用を許容する意思を反映し、Chat除外をPRレビュー消費削減策と扱わない。契約/トグル/内部遵守は未確認と区別。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "根拠と品質への影響・運用負担・戻し方から対策を選定する",
+        "evidence": "期待: 重複指示の整理と必要文脈への導線により消費削減が見込める対策を採用し、品質と復旧を保つ。観測: 既存のskill短縮/正本集約/差分起点と既読再利用/品質要件/運用/復旧は維持。P1/P2は今回の品質整合として扱い、Chat制限や索引登録自体の消費削減を主張しない。元Intentの効果測定除外を維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "採用対策を指示・設定・運用へ反映する",
+        "evidence": "期待: review入口が全必須規則へ到達し、通常実装や質問を誤ってreadonlyレビューへ導かない。観測: instructionsのapplyTo/excludeAgentは維持し、本文先頭にreview契約の適用条件を追加。『PRの実装済み差分をレビュー』は正本のreadonlyレビュー/Coverageへ到達し、通常のIssue実装と承認済み指摘修正はこの入口によるpolicy取得やreadonlyを強制せず既存実行権限に従う。質問だけは質問の権限に従い実装を開始しない。実装内の自己review中はreview契約を適用し、終了後の既存Ship権限を失わせない。通常Chatへの自動追加自体は許容し、実機遵守は未検証と区別する。rule-mapは今回入口のみgoverned/aidd-harnessへ2箇所登録。代表pathをCoreで確認しreview入口はworkflow/checker/overview/glossary含む9rules、既存review skillも同9rules。隣接開発instructionは従来の4rulesのままでAIDD surfaceに拡大しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必要な検証・レビューと既存保護条件との整合確認を完了する",
+        "evidence": "期待: 承認範囲/必要検証/保護条件を維持する。観測: 元のbaselineとTaskを保持、audit-update 000007に最新表の狭いP2とChat許容を追記、approve 000008は実際の承認sourceとtext_hash、decision 000009とreturn-intent 000010、cycle2のdecision 000011へ接続。verify 000012 revision4はstable=true、diff --check/4ファイルのvp fmt --check/Core rulesすべてexit0。improve-checkはAudit基準HEADとの追加4ファイルだけの承認一致を確認。全適用10rulesと実差分を評価し、ADR/アプリ/Go/CI/設定/他Taskの変更なし。アプリ検証とADR履歴検査は条件不該当。既存品質契約/Ruleset/#1700の整合を維持し、返信/resolveはShip後の承認対象2Bot threadsだけ。工程計測のIntent終了はcycle切替を跨ぎツールに拒否されたため未完了とし、成果検証と混同しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "944787ebc58b2c23054226e6e5e4a64685684ccc5bdaa301c7ed42a533d4c622",
+  "cycle_id": "issue-1872/cycle-0002"
+}

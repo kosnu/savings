@@ -1,0 +1,50 @@
+{
+  "sequence": 4,
+  "kind": "verify",
+  "time": "2026-10-04T14:48:04.798993Z",
+  "task_hash": "87d6f6c9a0bcba854da39824eb2faebe173be9e123b87842a089a0d08aad2232",
+  "previous": "ba1b92704b585b74667d2f73b79aa57f7cb93705c0cc1daf659f01ecc6b7b4be",
+  "revision": 2,
+  "fingerprint": "e0ecdc58e04d92fb9d238a96287a16730eff02be6bc36bc8c9a49fae24ea2420",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "node_modules/.bin/vp",
+          "fmt",
+          "--check",
+          ".github/instructions/code-review.instructions.md",
+          ".github/skills/code-review/SKILL.md",
+          "docs/harness/policies/code-review.md",
+          "docs/harness/policies/documentation-policy.md",
+          "docs/harness/rule-map.json",
+          "docs/copilot-code-review.md"
+        ],
+        "exit": 0,
+        "output": "mise WARN  failed to write cache file: /Users/kosnu/Library/Caches/mise/yarn/4.0.0-rc.53/exec_env_600cb68002a1ad99-bfcff.msgpack.z Operation not permitted (os error 1)\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 423ms on 6 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "/tmp/savings-aidd-1872",
+          "--root",
+          ".",
+          "rules"
+        ],
+        "exit": 0,
+        "output": "[]\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "8a582d0d45f22e204226744d3fa687ff126267e34e062d9a4a35a260253fea42",
+  "cycle_id": "issue-1872/cycle-0001"
+}
