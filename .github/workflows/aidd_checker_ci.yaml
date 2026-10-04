@@ -72,13 +72,13 @@ jobs:
               echo "verified=true" >> "$GITHUB_OUTPUT"
             fi
           fi
-      - name: Validate v4 records and rule graph
-        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-all
-      - name: Validate v4 delivery evidence and rule graph
+      - name: Validate rule graph
+        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
+      - name: Validate changed Task evidence
         if: steps.automation.outputs.verified != 'true'
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-all --base "$PR_BASE_SHA"
+        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"
 
   integration:
     runs-on: ubuntu-latest
@@ -97,8 +97,8 @@ jobs:
         run: go -C tools/aidd/checker test -count=1 ./...
       - name: Test merged session metrics
         run: go -C tools/aidd/session-metrics test -count=1 ./...
-      - name: Validate record integrity in merge result
-        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-all
+      - name: Validate rule graph in merge result
+        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
 
   verify:
     needs: [candidate, integration]

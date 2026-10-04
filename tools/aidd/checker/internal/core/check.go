@@ -2,38 +2,9 @@ package core
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
-func CheckAll(root string) (int, error) {
-	if _, e := ResolveRules(root, nil); e != nil {
-		return 0, e
-	}
-	dirs, e := os.ReadDir(filepath.Join(root, ".aidd/v4"))
-	if os.IsNotExist(e) {
-		return 0, nil
-	}
-	if e != nil {
-		return 0, e
-	}
-	count := 0
-	for _, d := range dirs {
-		if !d.IsDir() {
-			return 0, fmt.Errorf("unexpected v4 storage file: %s", d.Name())
-		}
-		s, e := Load(root, d.Name())
-		if e != nil {
-			return 0, e
-		}
-		if e = s.Check(); e != nil {
-			return 0, fmt.Errorf("task %s: %w", d.Name(), e)
-		}
-		count++
-	}
-	return count, nil
-}
 func (s *Store) Check() error {
 	if e := s.checkCycleIDs(); e != nil {
 		return e
@@ -121,10 +92,6 @@ func (s *Store) Check() error {
 				if review == nil || review.CycleID != e.CycleID || review.Fingerprint != e.Fingerprint || review.Revision != e.Revision || required(data.Delivery.Commit, data.Delivery.PR, data.Delivery.Branch, data.Delivery.Base) != nil {
 					return fmt.Errorf("Audit without matching reviewed delivery")
 				}
-				snap, err := s.snapshot(data.Delivery.Commit)
-				if err != nil || digest(snap) != e.Fingerprint {
-					return fmt.Errorf("Audit delivery commit does not match reviewed source")
-				}
 			} else if ship == nil || ship.CycleID != e.CycleID || ship.Fingerprint != e.Fingerprint || ship.Revision != e.Revision {
 				return fmt.Errorf("Audit without matching Ship")
 			}
@@ -152,6 +119,12 @@ func (s *Store) Check() error {
 
 // CheckChangesはPRの実際の差分を、変更されたTaskの最新証拠と照合する。
 func CheckChanges(root, baseRef string) error {
+	if strings.TrimSpace(baseRef) == "" {
+		return fmt.Errorf("base ref required for changed Task checks")
+	}
+	if _, e := ResolveRules(root, nil); e != nil {
+		return e
+	}
 	b, e := git(root, "merge-base", "HEAD", baseRef)
 	if e != nil {
 		return e

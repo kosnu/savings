@@ -1,0 +1,53 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-10-04T13:03:58.321508Z",
+  "task_hash": "c3406f4664c8e96964f7a8ffa4ade1dce10e093e72a61c58acd1148cd2ecd2c6",
+  "previous": "11dcba13417aa0e027d715004b45b8b4fb79f79fb1b8ea39529c134b71133e88",
+  "revision": 1,
+  "fingerprint": "552c06f10120fd46abc5d4136a5db7dc2253fab2b25045039282287d5504857e",
+  "data": {
+    "summary": "Coverage: Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.transaction-boundaries, policy.code-review. Unresolved: なし。Issue本文の4条件から期待結果を導き、実差分・境界テスト・CLI/CI経路を照合。過去Task記録は変更なし。全Task走査の参照は廃止コマンド拒否テストと固定履歴だけに残る。索引は既存path/surfaceとclosureで全変更面を覆うため変更不要。Ship/Auditの実行時commit/remote/PR照合は変更なし。",
+    "criteria": [
+      {
+        "criterion": "無関係な過去Taskを検証しない",
+        "evidence": "CheckAll関数とCLIを削除。CheckChangesはPR delta内のTask IDだけLoad。TestCheckChangesIgnoresUnchangedTasksで未変更の破損履歴を無視し、変更時には拒否。CI candidateはcheck-changes --base、integrationはrules。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "過去Taskの参照コミットがなくてもCIが成功する",
+        "evidence": "履歴Auditのsnapshot照合をCheckから削除。TestCheckChangesDoesNotReplayAuditDeliveryはcat-fileで参照commit不在を確認して差分検証成功。CLIテストは無関係な不正履歴を持つrepositoryでrules/check-changes成功を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "今回の検証・レビュー・配信照合を維持する",
+        "evidence": "CheckChangesの最新verify/review、scope、必要commands/rules、全PR差分ownership照合を保持。base欠落、証拠欠落・破損・古いsourceを拒否。既存Ship/Auditのremote/commit/PR照合テスト含むGo全suite、vet、共有Git gate5テスト、diff checkが終了コード0。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Core・CI・正本文書の検証対象が一致する",
+        "evidence": "aidd-checker.mdとoperationsの現行仕様を更新。check-all参照は移行/ADRの固定履歴と廃止拒否テストのみ。CIのrule graph検査と署名済みRenovate例外を維持。Web/API runtimeと過去Task・判断・検証記録への差分なし。remote CIはShip後一度取得し未完了を区別する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries",
+      "policy.code-review"
+    ]
+  },
+  "hash": "9755d6e96adf24c06340df3d72a453e613db7802507c47402d664fab6d062ab9",
+  "cycle_id": "issue-1876/cycle-0001"
+}

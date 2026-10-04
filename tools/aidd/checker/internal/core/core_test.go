@@ -406,7 +406,7 @@ func TestCandidateEvidenceAndRecordDelivery(t *testing.T) {
 	if len(s.Events) != before {
 		t.Fatal("delivery check appended recursive evidence")
 	}
-	if _, e := CheckAll(s.Root); e != nil {
+	if e := s.Check(); e != nil {
 		t.Fatal(e)
 	}
 	put(t, s.Root, "code.txt", "stale")
