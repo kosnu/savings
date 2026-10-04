@@ -1,0 +1,92 @@
+{
+  "sequence": 11,
+  "kind": "decision",
+  "time": "2026-10-04T08:33:33.881161Z",
+  "task_hash": "7b33b93837594b0133a70818039921d8667b6220af3046d90e3bfc0003a561b6",
+  "previous": "bf09c26a194b87cf14b4e7405c93bf0e2d826a49e51d7da37483aa2a52fcfc21",
+  "revision": 4,
+  "fingerprint": "51ab5b76d053cf33e6ed54503a6320183ccedafcc2e3a2307d808e6dadb8809c",
+  "data": {
+    "summary": "現在Intentと承認済みP1を維持。テーマ設定system/light/darkと解決済み色light/darkを分離する実装は変更しない。SettingsPage Appearance StoryをSystemへ同期し、共有provider・既定値の間接影響も改善済みpolicyに従ってbrowser suite対象とする。web:formatを検証前に実行し、4必須Webチェックとstorybookおよびdiff checkを実行し全条件をレビューして既存PR1874へ配信する。",
+    "paths": [
+      "apps/web/src/providers/theme/usePreferredTheme.tsx",
+      "apps/web/src/providers/theme/types.ts",
+      "apps/web/src/providers/theme/ThemeProvider.tsx",
+      "apps/web/src/providers/theme/usePreferredTheme.test.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/ThemeSelect/ThemeSelect.tsx",
+      "apps/web/src/features/preferences/appearanceSettings/ThemeSelect/ThemeSelect.test.tsx",
+      "apps/web/src/i18n/resources.ts",
+      "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+      "apps/web/src/app/routes/SettingsPage/SettingsPage.test.tsx",
+      "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+      "apps/web/docs/policies/storybook-browser-tests.md"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy",
+      "ai-driven.checker",
+      "ai-driven.change-coverage"
+    ]
+  },
+  "hash": "bc38f0f68c81daa96352deb1c7d46904f063877ab9cb9d96ba4bf7debdd02226",
+  "cycle_id": "issue-1628/cycle-0002"
+}

@@ -1,0 +1,79 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-10-04T07:53:18.956382Z",
+  "task_hash": "7b33b93837594b0133a70818039921d8667b6220af3046d90e3bfc0003a561b6",
+  "previous": "b1f20b95ccac48e3a6a48493ff336e7e638cce012a3fc50c23d30f1e3097a1d1",
+  "revision": 2,
+  "fingerprint": "915a3789e32c32ff4b7b90ca941a3c9733bc22426f1739994d11939b2e4f23be",
+  "data": {
+    "summary": "Intentの端末テーマ設定の3選択・追従・固定・保存を実差分と727件の検証で確認。追加判断（未設定はsystem、ヘッダートグルは反対色固定）は選択可能な同期を成立させ既存操作を維持する技術判断で、公開先/権限/業務データの変更を伴わない。\n\n## Coverage\n- Checked rules: ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy, ai-driven.checker, ai-driven.change-coverage\n- Unresolved: なし\n\n既存配置・Storyの再利用・翻訳の対称性を確認。会計domain、temporal、transaction、query、suspense、インフラ規則は変更経路に影響がないことを確認。テーマはIssueで指定された端末設定でありaccount属性追加ではない。正本・索引・ADR・CLI・CIの仕様変更なし、既存path/surface closureで適用経路は十分。スクリーンショットは未取得だが選択/配色/保存はDOMと実hookで検証済み。",
+    "criteria": [
+      {
+        "criterion": "システム・ライト・ダークを選択できる",
+        "evidence": "ThemeSelect.tsxのSelectはthemePreferenceを値にしsystem/light/darkの3項目を提供。ThemeSelect.test.tsxが日英の3選択肢とクリック後の選択・保存を確認。UIは既存Radix Selectとラベル、size、gapを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "システムは初期表示と配色変更に追従",
+        "evidence": "usePreferredTheme.tsxはsystemを既定とし、useSyncExternalStoreのMediaQueryList change購読で実テーマを解決。hook testが初期light/dark、双方向変更、固定からsystemへの切替を確認。ThemeSelect testがRadix/root配色変化中もSystem表示を維持することを確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "明示選択は配色変更に影響されない",
+        "evidence": "既存light/darkの型を維持し、system以外はchange購読をしない。hook testが既存保存値と明示選択でOS配色を双方向に変えても設定と表示が固定であることを確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "選択は再読み込み後も維持",
+        "evidence": "localStorageの既存キーthemeに解決後の色ではなくthemePreferenceを保存。hook testがsystem/light/dark全設定のunmount/remountと保存値維持を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "既存の関連挙動を維持",
+        "evidence": "Radix appearance、SnackbarのTThemeによる色選択、Headerのtheme表示は従来どおりlight/darkを使用。hook testがsystem表示からのtoggleを反対色へ固定し再toggleできることを確認。AppearanceSettingsとSettingsPageは新しい既定System表示に同期。新規依存/DB/API/言語保存の変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必須検証が成功",
+        "evidence": "最新verify event 000005.json (revision 2) はstable=true、Web lint/format-check/typecheck/unit-integrationとgit diff --checkがexit 0。140 files/727 tests成功。配色確認はMediaQueryListを模したjsdomテストで行い、実ブラウザのスクリーンショットは未取得。browser-test tagged stories/configは変更していないためStorybook suiteは実行対象外。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy",
+      "ai-driven.checker",
+      "ai-driven.change-coverage"
+    ]
+  },
+  "hash": "bf8db2c3183ba01371f73c20523b68d6deca7eed3f9ee44e88714ef1d10fbf0e",
+  "cycle_id": "issue-1628/cycle-0001"
+}

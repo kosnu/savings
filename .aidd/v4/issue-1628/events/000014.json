@@ -1,0 +1,84 @@
+{
+  "sequence": 14,
+  "kind": "review",
+  "time": "2026-10-04T08:37:27.723947Z",
+  "task_hash": "7b33b93837594b0133a70818039921d8667b6220af3046d90e3bfc0003a561b6",
+  "previous": "54d6181b684d6afe367eeca082eacd105e66dae2c9ba568b272260477453baab",
+  "revision": 4,
+  "fingerprint": "51ab5b76d053cf33e6ed54503a6320183ccedafcc2e3a2307d808e6dadb8809c",
+  "data": {
+    "summary": "現在Intentの3選択・追従・固定・保存と承認P1を実差分で照合。前cycleの検証省略判断を訂正し、共有providerの既定Systemが到達するbrowser-test tagged SettingsPage Appearance Storyも同期した。修正差分は承認2ファイルと同Taskの追記記録に限定。\n\n## Coverage\n- Checked rules: ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy, ai-driven.checker, ai-driven.change-coverage\n- Unresolved: なし\n\nルールpath/surfaceとdepends_on closureを再解決し既存必須集合を確認。全31 ruleを照合し、UIの既存Radix/翻訳/配置を維持、会計domain・transaction・temporal・cache・suspense・インフラに変更なし。文書は既存policyの判断をAGENTSのaffects条件へ具体化し、apps/web/**から従来resolverで選ばれるので索引変更不要。Story直接変更と共有provider/既定値の間接影響は実行対象、影響のないleafカタログ変更は対象外という代表例を確認。常時実行・新規runner・CI設定・依存・ADR変更なし。画像は未取得。",
+    "criteria": [
+      {
+        "criterion": "システム・ライト・ダークを選択できる",
+        "evidence": "ThemeSelect.tsxのSelectはthemePreferenceを値にしsystem/light/darkの3項目を提供。ThemeSelect.test.tsxが日英の3選択肢とクリック後の選択・保存を確認。UIは既存Radix Selectとラベル、size、gapを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "システムは初期表示と配色変更に追従",
+        "evidence": "usePreferredTheme.tsxはsystemを既定とし、useSyncExternalStoreのMediaQueryList change購読で実テーマを解決。hook testが初期light/dark、双方向変更、固定からsystemへの切替を確認。ThemeSelect testがRadix/root配色変化中もSystem表示を維持することを確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "明示選択は配色変更に影響されない",
+        "evidence": "既存light/darkの型を維持し、system以外はchange購読をしない。hook testが既存保存値と明示選択でOS配色を双方向に変えても設定と表示が固定であることを確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "選択は再読み込み後も維持",
+        "evidence": "localStorageの既存キーthemeに解決後の色ではなくthemePreferenceを保存。hook testがsystem/light/dark全設定のunmount/remountと保存値維持を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "既存の関連挙動を維持",
+        "evidence": "Radix appearance、SnackbarのTThemeによる色選択、Headerのtheme表示は従来どおりlight/darkを使用。hook testがsystem表示からのtoggleを反対色へ固定し再toggleできることを確認。AppearanceSettingsとSettingsPageは新しい既定System表示に同期。新規依存/DB/API/言語保存の変更なし。 SettingsPage Appearance browser Storyも現IntentのSystem既定表示に同期。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必須検証が成功",
+        "evidence": "最新cycle2 verify event000013.json revision4でstable=true、lint/format-check/typecheck/unit-integration/storybook/git diff --check全てexit0。unit/integration140files727tests、Storybook6files14tests成功。web:formatはbatch前にexit0(639ms/573files)、Core契約に従いverify argvから分離。初回browser起動はsandboxのMachPort拒否で未実行だったが、ソース変更なしの権限付き再実行で全項目を確認。スクリーンショットは未取得。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認P1の範囲で既存Story同期と間接影響の検証条件を明確化",
+        "evidence": "Appearance Storyの旧Light期待値をSystemに変更。policyはtagged Storyへ影響する共有provider/既定値変更を含め、既存opt-in・leaf除外を保持。improve-check成功後Intent/改善済みpolicyを再読しreturn-intentで同Task cycle2へ復帰。Core revision4にbrowser suiteを含む6argvを記録。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy",
+      "ai-driven.checker",
+      "ai-driven.change-coverage"
+    ]
+  },
+  "hash": "fc4e3cead507ebe0622c4c77b55521c19e6301bddf169a8fbf33a36602370e25",
+  "cycle_id": "issue-1628/cycle-0002"
+}

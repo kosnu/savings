@@ -3,17 +3,17 @@ import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useTheme } from "../../../../providers/theme/ThemeProvider"
-import { isTheme } from "../../../../providers/theme/types"
+import { isThemePreference } from "../../../../providers/theme/types"
 
 const selectId = "appearance-theme"
 
 export function ThemeSelect() {
-  const { changeTheme, theme } = useTheme()
+  const { changeTheme, themePreference } = useTheme()
   const { t } = useTranslation()
 
   const handleValueChange = useCallback(
     (nextTheme: string) => {
-      if (isTheme(nextTheme)) changeTheme(nextTheme)
+      if (isThemePreference(nextTheme)) changeTheme(nextTheme)
     },
     [changeTheme],
   )
@@ -23,9 +23,10 @@ export function ThemeSelect() {
       <Text as="label" htmlFor={selectId} size="2" weight="bold">
         {t("theme.label")}
       </Text>
-      <Select.Root size="2" value={theme} onValueChange={handleValueChange}>
+      <Select.Root size="2" value={themePreference} onValueChange={handleValueChange}>
         <Select.Trigger id={selectId} />
         <Select.Content>
+          <Select.Item value="system">{t("theme.system")}</Select.Item>
           <Select.Item value="light">{t("theme.light")}</Select.Item>
           <Select.Item value="dark">{t("theme.dark")}</Select.Item>
         </Select.Content>
