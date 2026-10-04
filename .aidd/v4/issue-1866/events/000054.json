@@ -1,0 +1,62 @@
+{
+  "sequence": 54,
+  "kind": "review",
+  "time": "2026-10-04T06:09:26.096155338Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "46827f661a1a3ecb3f51829eb6178d62d7f7203e207b484dc59854ca6df9cdd6",
+  "revision": 17,
+  "fingerprint": "458c2dfb5d248302b73b19dee34c820f4e34ea0cc5a622e5493f9235809ede74",
+  "data": {
+    "summary": "Coverage: rev17全rule/closureと文書差分、承認されたdocs Audit案P1を照合。運用正本をFE→DB→初期設定→復旧削除の順にしSecret表/承認設定を統合。会話・日時付きrun履歴/PR進行記録を除去し、既存Git/AIDD/Issueを保持。Dev固定ref、本番隔離、共有DB影響、SQL互換性/partialfailure、seedreset、credential/公開/削除承認と実機境界を現実装に照合。CI実DevURL/dummykeyは不変、buildとlive検証の違いを明記。Core verify13 commands exit0/stable、対象8/対象外3のroutingと全workflowSecret/相対リンク確認成功。Unresolved: Core Audit記録のgh通信制限は残り、実機未確認は同Issueに維持。PR本文は同証拠/未確認で同期し外部設定/配信/DB/投稿操作なし。",
+    "criteria": [
+      {
+        "criterion": "Dev Preview導入実装と自動検証",
+        "evidence": "最新verify13 commands exit0/stable=true。境界12件/Web712件、lint/format/typecheck/Dev build/zizmor、Core test/vet、resolver正例8/負例3と文書内Secret/リンク/履歴除去確認。CI/codeは今回不変。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "PR Actionsの実配信と発行URLの証拠",
+        "evidence": "FE Actions37131668187はe026361005383809820365a8aa634af90f708555でsuccess。cf実応答のURL https://b-issue-1866-shared-de-fe6897332a30-burneto-dev.coursek8814.workers.dev とdeployment9cf0c299-20d9-4f00-9f49-10cee56049c8を確認。ユーザーがこのPreviewのGoogleログイン成功を報告（独立browser検証ではない）。Cloud proxy403でHTTP/UI独立確認はできないが、PRの配信とURL取得・ユーザー実画面確認の証拠が揃う。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Dev DB実適用・隔離メタデータとユーザー認証報告の記録",
+        "evidence": "専用DB Actions37134186237はe026の残13件を具体承認後Devのみへ適用しsuccess。36/36・latest20260905134821、ensure_authenticated_user(text)、users.auth_user_id/language、authenticated実行可anon/PUBLIC不可、8tableRLS+SELECTを読取確認。本番未アクセス、Authユーザー削除/reset/repairなし。更新前RPC404/PGRST202、更新後ログイン成功はユーザー報告。更新後ログqueryでは対象行が返らず独立HTTP成功証拠として使わない。2本目のAuth/API/DB操作とブラウザ通信先の独立確認未了のためunknown。 この基準が確認するのは既存DB実行/読取メタデータとユーザー報告の正確な記録であり、第2Previewの実動作をpassとするものではない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "運用手順と同じIssueに残る未確認項目の明示",
+        "evidence": "現行操作を先頭へ再構成し設定表を1つに統合、年月日・会話・実配信履歴を運用文書から除去。Dev/production境界、共有migration制御、seed/reset影響、互換性とpartialfailure/切戻し/DB復旧/削除承認を維持。既存Issueの未確認は不変。rule-map resolverと相対リンク・workflowSecret参照が成功。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.dev-preview",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "15eccd3ba6ec1e2fc24bb2cad0a5dadb6f7d0d902648d221e9e0d462e3238938",
+  "cycle_id": "issue-1866/cycle-0001"
+}

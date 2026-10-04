@@ -1,0 +1,141 @@
+{
+  "sequence": 52,
+  "kind": "decision",
+  "time": "2026-10-04T06:05:43.80273441Z",
+  "task_hash": "d3768f5f1471f444772cf824c1e4ac8ad2423893172faed15ede85301ccc33db",
+  "previous": "e5d30ee3475f73ea371362eb1210a0f6600d8cd258e812ea9e9a6a12b45d682c",
+  "revision": 17,
+  "fingerprint": "458c2dfb5d248302b73b19dee34c820f4e34ea0cc5a622e5493f9235809ede74",
+  "data": {
+    "summary": "PR1871 ec59cd87の運用文書Audit案P1の明示承認を受けた編集。source=user-message:2026-10-04/docs-Audit結果直後の承認、本文hash=8882a2cdf031dcb4ef144842141d1b340bd1de6244724af9a6489ec00438f182。通常操作を先にし初期設定/Secretを統合、会話引用・日時付きrun証拠・旧案・PR固有進行を運用本文から除く。既存Git/AIDD記録とIssue1866は不変。PR1871本文も現在の実装/検証/未確認に同期する。CI実Dev URLは現状維持、dummy buildと実接続検証の違いを説明。必須のDev隔離/共有DB影響/seedreset/互換性復旧/公開と承認境界/rule-map参照は維持。外部設定・配信・DB変更なし。Core Audit記録はgh GraphQL通信制限で未作成、コネクタで実PR headを確認。修正と承認は同じTaskの追記判断で残し過去eventを改変しない。",
+    "paths": [
+      "apps/web/cloudflare.config.ts",
+      "tools/dev-preview/",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/infrastructure.md",
+      "docs/development-preview.md",
+      "tools/dev-db/",
+      ".github/workflows/deploy_dev_database.yaml",
+      "docs/harness/rule-map.json"
+    ],
+    "commands": [
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "lint",
+        "tools/dev-preview",
+        "--deny-warnings"
+      ],
+      [
+        "env",
+        "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "VITE_SENTRY_DSN=",
+        "VITE_SENTRY_ENVIRONMENT=development",
+        "NODE_ENV=production",
+        "CLOUDFLARE_PREVIEW_BUILD=true",
+        "pnpm",
+        "run",
+        "web:build",
+        "--mode",
+        "development"
+      ],
+      [
+        "uvx",
+        "--offline",
+        "--cache-dir",
+        "/tmp/savings-uv-cache",
+        "zizmor",
+        "--offline",
+        ".github/workflows/deploy_preview.yaml",
+        ".github/workflows/dev_preview_ci.yaml",
+        ".github/workflows/deploy_dev_database.yaml"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-c",
+        "import json, subprocess, tempfile\nfrom pathlib import Path\npositive = ['tools/dev-preview/authorize.mjs', 'tools/dev-preview/preview.mjs', 'tools/dev-preview/authorize.test.mjs', '.github/workflows/deploy_preview.yaml', '.github/workflows/deploy_dev_database.yaml', '.github/workflows/dev_preview_ci.yaml', 'apps/web/cloudflare.config.ts', 'docs/development-preview.md']\nnegative = ['.github/workflows/deploy_production.yaml', 'tools/unrelated/example.mjs', 'apps/web/src/main.tsx']\nfor path in positive + negative:\n    with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as f:\n        json.dump([path], f); f.flush()\n        rules = json.loads(subprocess.check_output(['/tmp/aidd-v4', '--root', '.', 'rules', '--paths', f.name]))\n    ids = {r['id'] for r in rules}\n    assert ('infrastructure.dev-preview' in ids) == (path in positive), (path, ids)\n    if path in positive:\n        assert {'infrastructure.overview', 'documentation.policy', 'architecture.overview'} \u003c= ids, (path, ids)\nprint('8 target paths and 3 unrelated paths: routing and dependency closure passed')\n"
+      ],
+      [
+        "python3",
+        "-c",
+        "import json, re\nfrom pathlib import Path\ntext = Path('docs/development-preview.md').read_text()\nassert not re.search(r'2026-\\d\\d-\\d\\d|なくていいわ|実配信・DB更新の証拠|旧 `DEV_', text)\nfor f in ['deploy_preview.yaml', 'deploy_dev_database.yaml']:\n    workflow = Path('.github/workflows/' + f).read_text()\n    for name in re.findall(r'secrets\\.([A-Z_]+)', workflow):\n        assert name in text, (f, name)\nfor name in ['preview', 'dev-db', 'development', 'burneto-shared-dev-database', 'ufekmuxkmodwydxmdbln', 'izuzqvgvgquqqimwuygw', '--skip-vault', '--include-all', 'reset', 'RLS', 'ダミーキー']:\n    assert name in text, name\nfor target in re.findall(r'\\]\\(([^)]+)\\)', text):\n    if '://' not in target:\n        assert (Path('docs') / target.split('#')[0]).exists(), target\nprint('workflow Secret references, operational boundaries, links and removal of session history: passed')\n"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.dev-preview",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "b13c4896d4388d57e5e89ba62111a3b5802a2be2e0b7cd80c204de773d7ee071",
+  "cycle_id": "issue-1866/cycle-0001"
+}
