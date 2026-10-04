@@ -1,0 +1,59 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-04T16:24:08.515571Z",
+  "task_hash": "c085a2165584b79d534fecdcad96b2c5bfcfcb9bd394ebf6b70ab4de9934dcc9",
+  "previous": "7a35fb2e0628a0e6aa2a0dfbcac8921819088afab42d55fc9038b04a65032061",
+  "revision": 1,
+  "fingerprint": "54555101ef88fa24d9db8cbd0ec60f1167b3d46f0aff0f062435c382fd6880cb",
+  "data": {
+    "summary": "2つのClaude専用入口を削除し、現行索引の対象pathをAGENTS.mdへ統一する。採択ADRと移行記録は履歴のため保持。アプリとCore実装は変更しないためアプリ検証とGoテストは不要。",
+    "paths": [
+      "CLAUDE.md",
+      ".claude/CLAUDE.md",
+      "docs/harness/index.md",
+      "docs/harness/rule-map.json"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "/tmp/aidd-v4",
+        "--root",
+        ".",
+        "rules"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "fmt",
+        "docs/harness/index.md",
+        "docs/harness/rule-map.json",
+        "--check"
+      ],
+      [
+        "python3",
+        "-c",
+        "import os,json; from pathlib import Path; assert not os.path.lexists('CLAUDE.md'); assert not os.path.lexists('.claude/CLAUDE.md'); assert Path('AGENTS.md').is_file(); assert 'CLAUDE.md' not in Path('docs/harness/rule-map.json').read_text(); assert 'CLAUDE.md' not in Path('docs/harness/index.md').read_text(); print('deletion and current references: OK')"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "214477e562cee741dcdff99701849e156fe286d82ee9544d83f949cfdbe770e8",
+  "cycle_id": "remove-claude-md/cycle-0001"
+}

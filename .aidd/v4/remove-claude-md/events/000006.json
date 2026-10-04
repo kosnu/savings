@@ -1,0 +1,38 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-10-04T16:25:00.472201Z",
+  "task_hash": "c085a2165584b79d534fecdcad96b2c5bfcfcb9bd394ebf6b70ab4de9934dcc9",
+  "previous": "c7a104495becce387121128ac5ad1aafbe49784e15c2ba9b3cc9f1e711c03c4a",
+  "revision": 2,
+  "fingerprint": "009bda834e6d9a1159a657acb9807b1954e0aed51f1dc9bd1ce7ac85c34a5b4e",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification\n- Unresolved: なし\n2入口の削除と現行索引同期のみ。AGENTS.mdはbaselineから変更なし。ADRと移行記録に残るCLAUDE.mdは当時の記録のため保持。実装・CLI・CIの同期は不要。findingなし。",
+    "criteria": [
+      {
+        "criterion": "ルートと.claude配下のCLAUDE.mdが存在しない",
+        "evidence": "lexistsで両方の削除を検証し、git diffでsymlinkと通常ファイルの削除を確認。symlinkの参照先AGENTS.mdは変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "現行索引から削除した入口の参照が除かれAGENTS.mdが維持される",
+        "evidence": "index.mdとrule-map.jsonにCLAUDE.mdが残らないこと、AGENTS.mdの存在、rule graphとformatとdiff --checkの終了コード0を確認。AGENTS.mdのroutingは保持。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification"
+    ]
+  },
+  "hash": "97e8030a2c951754d34da7a5d6c80a22a12949b125f7468bd616a3c4ca2c622d",
+  "cycle_id": "remove-claude-md/cycle-0001"
+}
