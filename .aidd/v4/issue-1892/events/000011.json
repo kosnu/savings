@@ -1,0 +1,47 @@
+{
+  "sequence": 11,
+  "kind": "audit",
+  "time": "2026-10-05T17:47:32.884659Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "c0b7124c58beb7fd9933c0cd79e0e979dc7b9c8ca1704fd3feea53c8cd85432a",
+  "revision": 2,
+  "fingerprint": "fca70fd2b3e77f6e37e487b37ca984453b507463efc4b9da0d4b892b6507f39e",
+  "data": {
+    "summary": "2026-10-06の会話で訂正・承認されたガードレール2件。旧コード直接修正案・Intent訂正案・Bot返信/解決方針は撤回済み。承認範囲は正本文書2件と同Taskの記録のみ。成果物コード直接変更は禁止のまま、未修正の成果とBot threadは保留する。",
+    "findings": [
+      "Browser Comment 1: Home見出し不要。成果物未修正、GitHub threadなし。",
+      "Copilot: discussion_r4181531245、PRRT_kwDOM0p88s6o75_a未解決。規則反映だけでは成果物defect解消にならないため返信・解決しない。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "日常操作のトップに不要な汎用ページ名見出しが置かれた。ページタイトルの既定「画面内に1つ」は、ページ種別別の配置条件を定義していなかった。",
+        "evidence": "Browser Comment 1のHome見出し「必要ない」。HomePage.tsx:62-64のh1とdesign-rules.mdの文字階層表を照合。原因のうちagentが実際にこの規則を選んだかは記録から断定せず、配置条件の不足を訂正する。",
+        "change": "日常操作のトップ・ダッシュボードには汎用ページ名見出しを置かない。一覧・検索・管理・設定・作成・編集・詳細・確認画面には対象または作業を示すページ見出しを置く。ページ見出しは最大1つとしセクション見出しと区別する。具体例や画面種別表を追加しない。元の文字階層表と同期し、日常トップ・一覧画面・紹介画面で意味の整合をレビューする。",
+        "paths": [
+          "apps/web/docs/policies/design-rules.md"
+        ]
+      },
+      {
+        "id": "P2",
+        "finding": "認証ユーザー切替後に旧ユーザーの集計cacheを表示し得る。query keyと破棄条件に認証ユーザー境界が反映されず、規則にもその隔離条件が明記されていない。",
+        "evidence": "https://github.com/kosnu/savings/pull/1893#discussion_r4181531245 / PRRT_kwDOM0p88s6o75_a は未解決。summaryQueryKeysはtotalExpendituresに月だけ、categoryTotalsにmount固定cacheScopeと月を使う。HomePage.test.tsxの認証切替テストはBook失敗後の復帰であり、正常表示のcacheを引き継ぐ経路ではない。実ブラウザ再現は未確認。",
+        "change": "認証ユーザー変更時はquery keyによる分離または旧cacheの破棄で、旧ユーザーのデータを表示させない。正常表示後の別ユーザーへの切替と同一ユーザーの認証更新を回帰検証する。同一ユーザーのトークン更新をユーザー切替と混同しない。具体的方式や成果物コードは変更しない。",
+        "paths": [
+          "apps/web/docs/policies/query-cache.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "ee411f7c3950a7f5eb7aca5b615cd67534782d60",
+      "remote": "origin",
+      "branch": "issue-1892/separate-payment-pages",
+      "pr": "https://github.com/kosnu/savings/pull/1893",
+      "evidence": "2026-10-06 gh pr view と local HEAD が同SHA、OPEN。既存review event 10/revision2を照合。",
+      "base": "main"
+    }
+  },
+  "hash": "d2aea15eb38f379d3d73d0aa81d28465a9f39715eafd14547a066ab9b000230e",
+  "cycle_id": "issue-1892/cycle-0001"
+}

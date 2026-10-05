@@ -1,0 +1,110 @@
+{
+  "sequence": 13,
+  "kind": "decision",
+  "time": "2026-10-05T17:49:50.066633Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "654102a67bf37411c17a4c022dc4c412c379ce49015c4fa97328cac97d8c3637",
+  "revision": 3,
+  "fingerprint": "fca70fd2b3e77f6e37e487b37ca984453b507463efc4b9da0d4b892b6507f39e",
+  "data": {
+    "summary": "承認済みP1/P2のガードレール改善のみ。Design Rulesのページ見出し配置条件を3文で定義し既定表を同期、Query Cache Policyに認証ユーザー境界と正常取得後の切替・同一ユーザー更新の回帰検証条件を追加する。新規の具体例・表・Intent訂正・成果物コード直接修正・Bot返信/解決は行わない。pathsに元の成果の所有範囲を維持するが追加のコード編集権限を意味しない。今回は文書だけの変更だがCoreのbaseline全差分照合によりWeb検証6commandsも再実行する。既存rule-mapの必須経路は保持され、索引変更は不要。",
+    "paths": [
+      "apps/web/src/app/routes.ts",
+      "apps/web/src/app/routes/HomePage/",
+      "apps/web/src/app/routes/authRedirect.test.tsx",
+      "apps/web/src/app/routes/PaymentsPage/",
+      "apps/web/src/app/useInitializeMonthSearch.ts",
+      "apps/web/src/app/useInitializeMonthSearch.test.tsx",
+      "apps/web/src/app/AppLayout/",
+      "apps/web/src/app/Header/Header.tsx",
+      "apps/web/src/app/Header/Header.test.tsx",
+      "apps/web/src/features/summaryByMonth/index.ts",
+      "apps/web/src/features/summaryByMonth/Summary/",
+      "apps/web/src/features/summaryByMonth/MonthSelector/",
+      "apps/web/src/features/payments/listPayment/RecentPayments/",
+      "apps/web/src/features/payments/listPayment/fetchPayments.ts",
+      "apps/web/src/features/payments/listPayment/fetchPayments.integration.test.ts",
+      "apps/web/src/features/payments/queryKeys.ts",
+      "apps/web/src/features/payments/index.ts",
+      "apps/web/src/i18n/resources.ts",
+      "docs/infrastructure.md",
+      "apps/web/docs/policies/design-rules.md",
+      "apps/web/docs/policies/query-cache.md"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "run",
+        "./cmd/aidd-checker",
+        "rules"
+      ]
+    ],
+    "rules": [
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "95ac35ead88c6836b7397f99a4fb5bd055c0b8466407ebddcb1b86bb23f9fd9f",
+  "cycle_id": "issue-1892/cycle-0001"
+}

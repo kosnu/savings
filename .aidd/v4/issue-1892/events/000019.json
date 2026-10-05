@@ -1,0 +1,99 @@
+{
+  "sequence": 19,
+  "kind": "review",
+  "time": "2026-10-05T17:55:55.514841Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "e88966a50ba225323264ae12f9a6dafca0814e5ab4b1b07e85cc698ecbb5b843",
+  "revision": 5,
+  "fingerprint": "097d8ae6b7245243fcd99058cc58d8adc73efdccd0cca54999747876407a1e9e",
+  "data": {
+    "summary": "今回のレビュー対象は承認済みガードレール2件の文書差分と同Taskの追記記録。提案P1/P2の文面・対象・検証条件と実差分が一致し、原文書の重複前提も同期済み。既存rule-mapの必須経路で正本へ到達し、索引変更不要。復帰後の新decision/安定verifyで全7commandsがexit0。元の7完了条件は現在の再検証を通過した変更のない成果物で確認するが、最新ガードレールに対するproduct修正完了や全体の適合とは扱わない。\n\n## Coverage\n- Checked rules: ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.msw-handlers, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy\n- Unresolved: 成果物のHome見出しと認証cache指摘は未修正。今回の承認はガードレール2文書のみで、product修正やBot返信/解決へ拡張しない。PR本文にも未実施を記載する。規則間の矛盾はなし。\n\nFindings: 今回の文書差分に追加findingなし。改善効果の実装実証・現行成果物への適用・認証成功から成功への回帰テストは未実施で次の実装課題として残る。",
+    "criteria": [
+      {
+        "criterion": "トップページで月の合計額・カテゴリ別合計額を確認できる",
+        "evidence": "成果物コードはee411f7から変更なし。最新verify（cycle-0002/revision5、source安定）で745件のunit/integrationと20件のbrowserテストを再実行し成功。既存機能についての根拠: HomePageは既存Summaryを月選択とともに表示する。Default browser StoryのTotal spending・Food budget progress(1000)、HomePageの月切替・0円テストと既存MonthlyTotals/CategoryTotalsテストが成功。金額・予算の意味は既存componentを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに直近の支払いを最大5件表示する",
+        "evidence": "成果物コードはee411f7から変更なし。最新verify（cycle-0002/revision5、source安定）で745件のunit/integrationと20件のbrowserテストを再実行し成功。既存機能についての根拠: RecentPaymentsは選択中Bookをeqで制限し、date.desc,id.descとlimit 5で全期間を取得する。HomePageで6件応答から5件、4件、0件、月切替後も直近を維持するテストとfetchPaymentsのHTTP取得条件テストが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページから支払いを追加できる",
+        "evidence": "成果物コードはee411f7から変更なし。最新verify（cycle-0002/revision5、source安定）で745件のunit/integrationと20件のbrowserテストを再実行し成功。既存機能についての根拠: HomePageに既存CreatePaymentModalをbook.idで配置。追加後に既存Book prefix invalidationで直近一覧と月次集計を再取得し、追加行と6080円への更新を統合テストで確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに検索を表示しない",
+        "evidence": "成果物コードはee411f7から変更なし。最新verify（cycle-0002/revision5、source安定）で745件のunit/integrationと20件のbrowserテストを再実行し成功。既存機能についての根拠: HomePageにPaymentCategoryFilterや検索一覧を配置しない。rootのsearch schemaはyear/monthのみ。Default StoryとHomePageテストでCategory filterの不在を確認。月切替は集計期間を選ぶ既存操作。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsで一覧・検索・追加を利用できる",
+        "evidence": "成果物コードはee411f7から変更なし。最新verify（cycle-0002/revision5、source安定）で745件のunit/integrationと20件のbrowserテストを再実行し成功。既存機能についての根拠: PaymentsPageは月選択、PaymentCategoryFilter、CreatePaymentModal、PaymentListを維持。既存検索・追加・詳細/更新/削除テストおよびPaymentsPage browser Storyが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsに集計を表示しない",
+        "evidence": "成果物コードはee411f7から変更なし。最新verify（cycle-0002/revision5、source安定）で745件のunit/integrationと20件のbrowserテストを再実行し成功。既存機能についての根拠: PaymentsPageからSummaryを除去しMonthSelectorだけを残す。browser Storyと追加操作テストで集計progressbarが存在しないことを確認。Summaryの月次・カテゴリ集計はHomePageへ移動。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "両ページへ移動できる",
+        "evidence": "成果物コードはee411f7から変更なし。最新verify（cycle-0002/revision5、source安定）で745件のunit/integrationと20件のbrowserテストを再実行し成功。既存機能についての根拠: AppLayoutのSidebarにHome/Payments、Headerにトップへのリンクを配置。AppLayout/Headerテストでhrefを確認し、HomePageの直近行から該当月のpayments詳細への移動、本番route treeでauthからrootへの遷移を確認。未認証の紹介画面を維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認済みP1のページ見出し配置条件を例なしの3文で正本へ反映する",
+        "evidence": "design-rules.mdに日常トップ/ダッシュボードの汎用名見出し禁止、一覧/検索/管理/設定/作成/編集/詳細/確認の対象・作業見出し、最大1つとsection見出し区別を記載。旧文字階層表も最大1つ・下記規則参照に同期。紹介画面専用規則への既存参照を維持する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認済みP2の認証cache境界と切替回帰検証を正本へ反映する",
+        "evidence": "query-cache.mdに認証ユーザー依存queryのkey分離または旧cache破棄、旧ユーザーデータ表示防止を追記。同一ユーザーのtoken更新を切替と混同せず、成功済みcacheから別ユーザーへの切替と同一ユーザー更新を回帰検証する条件を記載。具体方式は固定していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "成果物コードを直接変更せず同Task・承認範囲で改善する",
+        "evidence": "git diff ee411f7の変更は正本文書2件のみ。TaskにAudit/approve/decision/return-intentとcycle-0002の新decision/verifyを追記し、元Intentと記録を保持。Bot threadは未解決で返信・resolve未実施。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "6ab2f8bee1da553db98f1d1de14725da85ca4e3e57a6e18a53ffabb010e3a9bd",
+  "cycle_id": "issue-1892/cycle-0002"
+}

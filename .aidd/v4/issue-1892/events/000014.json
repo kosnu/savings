@@ -1,0 +1,17 @@
+{
+  "sequence": 14,
+  "kind": "return-intent",
+  "time": "2026-10-05T17:50:34.278761Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "95ac35ead88c6836b7397f99a4fb5bd055c0b8466407ebddcb1b86bb23f9fd9f",
+  "revision": 3,
+  "fingerprint": "6dffbea225fa19a240b6dbb0538aa1abe2d1a3d2ac9e904ae383c3f71e552a98",
+  "data": {
+    "summary": "開始Intentの集計/直近5件/追加と一覧検索の分離・意味維持・他画面対象外を再確認した。Intentは訂正せず、承認された見出し配置3文と認証cache境界/回帰検証2項目が各正本に反映されたことを本文と実差分で確認。元のページタイトル表の配置必須に読める箇所も最大1つに同期した。変更対象は正本文書2件のみ。ユーザーの成果物コード直接変更禁止を維持し、次サイクルは今回のガードレール配信の検証/レビュー/Shipだけを行う。Home見出しとcacheのproduct修正・Bot対応は未達のまま保持する。",
+    "previous_cycle": "issue-1892/cycle-0001",
+    "approval_hash": "654102a67bf37411c17a4c022dc4c412c379ce49015c4fa97328cac97d8c3637",
+    "intent_hash": "87a5504f3716b2f294bdaefed4d783394dd93e7324620ebf8cbe72e7fc6ad7ec"
+  },
+  "hash": "a4f7860e242a6c758c9288dbb0423a854d9ef88090c288e353cdf3c5f6ec1ab2",
+  "cycle_id": "issue-1892/cycle-0002"
+}

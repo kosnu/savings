@@ -31,6 +31,8 @@ React Query cache などの client-side cache を、業務状態そのものの�
 - cache の内容にだけ存在する状態を作らないようにします。
 - query key input に default 適用や変換が必要な場合は、query hook の外側で canonical な値へ正規化し、query hook、query key、ErrorBoundary の復帰条件へ同じ値を渡します。それぞれの利用側で同じ正規化処理を重複させません。
 - 同じ query の query key、query function、staleTime などを複数箇所で使う場合は、feature が所有する query options として定義し、利用側で設定を複製しません。
+- 認証ユーザーに依存する query は、ユーザー変更時に query key で cache を分離するか旧 cache を破棄し、旧ユーザーのデータを表示させません。同一ユーザーのトークン更新は、ユーザー切替として扱いません。
+- 認証ユーザーの切替を扱う場合は、正常取得で cache が残った状態から別ユーザーへ切り替えて旧データが表示されないことと、同一ユーザーの認証更新で不要な cache 破棄が起きないことを回帰テストで確認します。
 
 ## 例外
 
