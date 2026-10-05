@@ -6,13 +6,14 @@ import { MonthSelector } from "../MonthSelector"
 
 interface SummaryProps {
   cacheScope?: string
+  monthSelectorTo?: "/" | "/payments"
 }
 
-export function Summary({ cacheScope }: SummaryProps) {
+export function Summary({ cacheScope, monthSelectorTo }: SummaryProps) {
   return (
     <Flex direction="column" gap="3" width="100%">
       <Flex justify="center">
-        <MonthSelector />
+        <MonthSelector to={monthSelectorTo} />
       </Flex>
       <Card size="2">
         <Flex direction="column" width="100%">

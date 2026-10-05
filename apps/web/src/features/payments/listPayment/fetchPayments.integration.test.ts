@@ -171,6 +171,24 @@ describe("fetchPayments", () => {
     )
   })
 
+  it("直近取得ではBook・降順・5件上限を指定し、年月とカテゴリで絞らない", async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments*", ({ request }) => {
+        requests.push(new URL(request.url))
+        return HttpResponse.json([])
+      }),
+    )
+    await fetchPayments(42, [null, null], { limit: 5 })
+    expect(requests).toHaveLength(1)
+    const params = requests[0]!.searchParams
+    expect(params.get("book_id")).toBe("eq.42")
+    expect(params.get("limit")).toBe("5")
+    expect(params.get("order")).toBe("date.desc,id.desc")
+    expect(params.has("date")).toBe(false)
+    expect(params.has("category_id")).toBe(false)
+  })
+
   it("selected Book IDを取得条件にする", async () => {
     const requestCapture: { url: URL | null } = { url: null }
     server.use(

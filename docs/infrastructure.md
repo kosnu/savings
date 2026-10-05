@@ -97,10 +97,10 @@ Googleログインのredirectは次の順序を維持する。
 1. Web Appが現在のoriginの `/auth` を `redirectTo` に指定する。
 2. Google OAuthがSupabaseの `/auth/v1/callback` へ戻す。
 3. Supabaseがallow list内の `/auth` へ戻す。
-4. Web Appが認証済みsessionを確認して `/payments` へ遷移する。
+4. Web Appが認証済みsessionを確認して `/` のトップページへ遷移する。
 
-変更後は、既存sessionで `/auth` から `/payments` へ遷移することに加え、Googleログインを開始して
-同意画面にBurnetoの名称とロゴが表示され、callback後に `/payments` へ到達することを確認する。
+変更後は、既存sessionで `/auth` から `/` へ遷移することに加え、Googleログインを開始して
+同意画面にBurnetoの名称とロゴが表示され、callback後に `/` のトップページへ到達することを確認する。
 
 ### Preserved boundaries
 

@@ -15,11 +15,11 @@ import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
 import { ErrorPage } from "./routes/ErrorPage"
+import { HomePage } from "./routes/HomePage"
 import { PaymentsPage } from "./routes/PaymentsPage"
 import { PrivacyPage } from "./routes/PrivacyPage"
 import { SettingsOverview } from "./routes/SettingsOverview"
 import { SettingsPage } from "./routes/SettingsPage"
-import { TopPage } from "./routes/TopPage"
 import { parseSearch, stringifySearch } from "./searchSerialization"
 
 export interface RouterContext {
@@ -31,19 +31,19 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
   errorComponent: ErrorPage,
 })
 
-// 認証済みユーザーを /payments へリダイレクトするガード
+// 認証済みユーザーをトップページへリダイレクトするガード
 function redirectIfAuthenticated({ context }: { context: RouterContext }) {
   if (context.authStatus === "loading") return
   if (context.authStatus === "authenticated") {
-    throw redirect({ to: "/payments" })
+    throw redirect({ to: "/" })
   }
 }
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: TopPage,
-  beforeLoad: redirectIfAuthenticated,
+  component: HomePage,
+  validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
 })
 
 const authRoute = createRoute({

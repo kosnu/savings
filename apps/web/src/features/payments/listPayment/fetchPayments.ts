@@ -5,12 +5,13 @@ import { toPayment } from "../paymentResponseMappers"
 
 interface FetchPaymentsOptions {
   categoryId?: number | null
+  limit?: number
 }
 
 export async function fetchPayments(
   bookId: number,
   [startDate, endDate]: [Date | null, Date | null],
-  { categoryId }: FetchPaymentsOptions = {},
+  { categoryId, limit }: FetchPaymentsOptions = {},
 ): Promise<Payment[]> {
   const supabase = getSupabaseClient()
   let query = supabase
@@ -45,6 +46,10 @@ export async function fetchPayments(
   }
   if (categoryId === null) {
     query = query.is("category_id", null)
+  }
+
+  if (limit !== undefined) {
+    query = query.limit(limit)
   }
 
   const { data, error } = await query

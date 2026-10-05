@@ -29,7 +29,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         radius="full"
         variant="ghost"
       >
-        <Link to="/payments">
+        <Link to="/">
           <Logo width={32} height={32} alt="" />
         </Link>
       </IconButton>

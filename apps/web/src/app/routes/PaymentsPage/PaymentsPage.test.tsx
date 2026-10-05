@@ -492,13 +492,6 @@ describe("PaymentsPage", () => {
 
     const paymentList = await screen.findByLabelText("payment-list")
     expect(await within(paymentList).findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
-    const monthlyProgress = await screen.findByRole("progressbar", {
-      name: "Monthly total budget progress",
-    })
-    const categoryProgress = await screen.findByRole("progressbar", {
-      name: "Food budget progress",
-    })
-
     await user.click(screen.getByRole("button", { name: /create payment/i }))
 
     const createDialog = await screen.findByRole("dialog", { name: /create payment/i })
@@ -537,20 +530,7 @@ describe("PaymentsPage", () => {
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog", { name: /create payment/i })).not.toBeInTheDocument()
-      expect(screen.getByRole("progressbar", { name: "Monthly total budget progress" })).toBe(
-        monthlyProgress,
-      )
-      expect(screen.getByRole("progressbar", { name: "Food budget progress" })).toBe(
-        categoryProgress,
-      )
-      expect(monthlyProgress).toHaveAttribute(
-        "aria-valuetext",
-        "Spent ¥59,321 of ¥25,000. ¥34,321 over.",
-      )
-      expect(categoryProgress).toHaveAttribute(
-        "aria-valuetext",
-        "Spent ¥55,321 of ¥30,000. ¥25,321 over.",
-      )
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
     })
 
     view.rerenderStory()

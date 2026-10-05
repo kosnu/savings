@@ -4,12 +4,12 @@ import { ErrorBoundary } from "react-error-boundary"
 
 import { useSelectedBook } from "../../../features/books"
 import { CreatePaymentModal, PaymentCategoryFilter, PaymentList } from "../../../features/payments"
-import { Summary } from "../../../features/summaryByMonth"
+import { MonthSelector } from "../../../features/summaryByMonth"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
-import { useInitializePaymentsMonthSearch } from "./useInitializePaymentsMonthSearch"
+import { useInitializeMonthSearch } from "../../useInitializeMonthSearch"
 
 export function PaymentsPage() {
-  useInitializePaymentsMonthSearch()
+  useInitializeMonthSearch()
   const [paymentsPageCacheScope] = useState(() => `payments-page-${crypto.randomUUID()}`)
   const { session } = useSupabaseSession()
 
@@ -41,7 +41,9 @@ function PaymentsPageContent({
   return (
     <Container size="2">
       <Flex direction="column" gap="3">
-        <Summary cacheScope={paymentsPageCacheScope} />
+        <Flex justify="center">
+          <MonthSelector />
+        </Flex>
         <Flex align="center" gap="3">
           <Box flexGrow="1" minWidth="0">
             <PaymentCategoryFilter />

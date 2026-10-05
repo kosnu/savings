@@ -1,5 +1,6 @@
 import { Flex, Separator } from "@radix-ui/themes"
 import { Outlet } from "@tanstack/react-router"
+import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Header } from "../Header"
@@ -9,7 +10,7 @@ import { useSidebar } from "../Sidebar/useSidebar"
 
 import styles from "./AppLayout.module.css"
 
-export function AppLayout() {
+export function AppLayout({ children }: { children?: ReactNode }) {
   const { open, openSidebar, closeSidebar } = useSidebar()
   const { t } = useTranslation()
 
@@ -17,6 +18,12 @@ export function AppLayout() {
     <Flex className={styles.layout}>
       {/* Sidebar */}
       <Sidebar open={open} onClose={closeSidebar}>
+        <SidebarButton
+          to="/"
+          ariaLabel={t("navigation.homeAria")}
+          label={t("navigation.home")}
+          onClick={closeSidebar}
+        />
         <SidebarButton
           to="/payments"
           ariaLabel={t("navigation.paymentsAria")}
@@ -35,9 +42,7 @@ export function AppLayout() {
       <Flex direction="column" flexGrow="1">
         <Header onMenuClick={openSidebar} />
         {/* Main Content */}
-        <main className={styles.main}>
-          <Outlet />
-        </main>
+        <main className={styles.main}>{children ?? <Outlet />}</main>
       </Flex>
     </Flex>
   )

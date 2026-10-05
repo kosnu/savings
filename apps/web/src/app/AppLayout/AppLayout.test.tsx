@@ -13,6 +13,16 @@ function renderAppLayout(initialEntry = "/payments") {
       component: AppLayout,
     })
 
+    const homeRoute = createRoute({
+      getParentRoute: () => root,
+      path: "/",
+      component: () => (
+        <AppLayout>
+          <div>Home page</div>
+        </AppLayout>
+      ),
+    })
+
     const paymentsRoute = createRoute({
       getParentRoute: () => authenticatedRoute,
       path: "/payments",
@@ -25,7 +35,7 @@ function renderAppLayout(initialEntry = "/payments") {
       component: () => <div>Settings page</div>,
     })
 
-    return [authenticatedRoute.addChildren([paymentsRoute, settingsRoute])]
+    return [homeRoute, authenticatedRoute.addChildren([paymentsRoute, settingsRoute])]
   })
 }
 
@@ -41,7 +51,7 @@ describe("AppLayout", () => {
     expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
   })
 
-  test("Sidebar に Payments と Settings への導線を表示する", async () => {
+  test("Sidebar に Home、Payments、Settings への導線を表示する", async () => {
     const { router, user } = renderAppLayout()
 
     await user.click(await screen.findByLabelText("Menu button"))
@@ -50,6 +60,9 @@ describe("AppLayout", () => {
     expect(
       await screen.findByRole("link", { name: "Navigate to Payments page" }),
     ).toBeInTheDocument()
+
+    expect(screen.getByRole("link", { name: "Navigate to Home page" })).toHaveAttribute("href", "/")
+    expect(screen.getByRole("link", { name: "Burneto — Home" })).toHaveAttribute("href", "/")
 
     const settingsLink = await screen.findByRole("link", { name: "Navigate to Settings page" })
     expect(settingsLink).toHaveAttribute("href", "/settings")

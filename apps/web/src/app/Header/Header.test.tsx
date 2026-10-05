@@ -7,16 +7,13 @@ import * as stories from "./Header.stories"
 const { Default } = composeStories(stories)
 
 describe("Header", () => {
-  test("メニューボタンを押すと onMenuClick が呼ばれ、Burneto の支払いリンクを表示する", async () => {
+  test("メニューボタンを押すと onMenuClick が呼ばれ、Burneto のトップページリンクを表示する", async () => {
     const onMenuClick = vi.fn()
     const { user } = render(<Default onMenuClick={onMenuClick} />)
 
     await user.click(await screen.findByLabelText("Menu button"))
 
     expect(onMenuClick).toHaveBeenCalledTimes(1)
-    expect(await screen.findByRole("link", { name: "Burneto — Payments" })).toHaveAttribute(
-      "href",
-      "/payments",
-    )
+    expect(await screen.findByRole("link", { name: "Burneto — Home" })).toHaveAttribute("href", "/")
   })
 })

@@ -24,11 +24,11 @@ function isAllowedMonth(date: Date) {
   return MIN_MONTH_INDEX <= monthIndex && monthIndex <= MAX_MONTH_INDEX
 }
 
-export function MonthSelector() {
+export function MonthSelector({ to = "/payments" }: { to?: "/" | "/payments" }) {
   const { i18n, t } = useTranslation()
   const [open, setOpen] = useState(false)
   const { date: parsedDate } = useDateRange()
-  const navigate = useNavigate({ from: "/payments" })
+  const navigate = useNavigate({ from: to })
 
   // 未指定や不正な年月は、URLの初期化・検証処理に任せる。
   const currentDate = parsedDate && isAllowedMonth(parsedDate) ? parsedDate : null
@@ -48,12 +48,12 @@ export function MonthSelector() {
         const year = date.getFullYear().toString()
         const month = (date.getMonth() + 1).toString()
         void navigate({
-          to: "/payments",
+          to,
           search: (prev) => ({ ...prev, year, month }),
         })
       }
     },
-    [navigate],
+    [navigate, to],
   )
 
   const handlePreviousMonthClick = useCallback(() => {

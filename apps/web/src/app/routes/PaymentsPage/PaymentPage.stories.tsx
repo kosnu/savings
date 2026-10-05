@@ -53,7 +53,7 @@ export const Default: Story = {
     expect(await within(paymentList).findByText("Jun 3, 2025")).toBeInTheDocument()
     expect(await within(paymentList).findByText("¥1,000")).toBeInTheDocument()
     expect(await within(paymentList).findByText("¥4,000")).toBeInTheDocument()
-    expect(await canvas.findByText("¥20,000 left")).toBeInTheDocument()
+    expect(canvas.queryByRole("progressbar")).not.toBeInTheDocument()
   },
 }
 

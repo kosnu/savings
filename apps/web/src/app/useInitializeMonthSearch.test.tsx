@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { useInitializePaymentsMonthSearch } from "./useInitializePaymentsMonthSearch"
+import { useInitializeMonthSearch } from "./useInitializeMonthSearch"
 
 interface TestLocation {
   pathname: string
@@ -27,22 +27,22 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
 }))
 
-vi.mock("../../../providers/supabase/useSupabaseSession", () => ({
+vi.mock("../providers/supabase/useSupabaseSession", () => ({
   useSupabaseSession: mockUseSupabaseSession,
 }))
 
-function renderUseInitializePaymentsMonthSearch(location: TestLocation) {
+function renderUseInitializeMonthSearch(location: TestLocation) {
   locationState.pathname = location.pathname
   locationState.search = location.search
 
-  renderHook(() => useInitializePaymentsMonthSearch())
+  renderHook(() => useInitializeMonthSearch())
 }
 
 async function waitForEffectTick() {
   await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-describe("useInitializePaymentsMonthSearch", () => {
+describe("useInitializeMonthSearch", () => {
   beforeEach(() => {
     locationState.pathname = "/payments"
     locationState.search = {}
@@ -50,8 +50,19 @@ describe("useInitializePaymentsMonthSearch", () => {
     mockUseSupabaseSession.mockReturnValue({ session: { user: { id: "user-id" } } })
   })
 
+  test("トップページでは今月を補完して同じページに留まる", async () => {
+    renderUseInitializeMonthSearch({ pathname: "/", search: {} })
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/",
+        search: expect.any(Function),
+        replace: true,
+      })
+    })
+  })
+
   test("年月 search がない場合は今月の年月で初期化する", async () => {
-    renderUseInitializePaymentsMonthSearch({
+    renderUseInitializeMonthSearch({
       pathname: "/payments",
       search: {},
     })
@@ -74,7 +85,7 @@ describe("useInitializePaymentsMonthSearch", () => {
   })
 
   test("年月 search を初期化してもカテゴリ条件を保持する", async () => {
-    renderUseInitializePaymentsMonthSearch({
+    renderUseInitializeMonthSearch({
       pathname: "/payments",
       search: { category: "none" },
     })
@@ -94,7 +105,7 @@ describe("useInitializePaymentsMonthSearch", () => {
   })
 
   test("Payments 詳細 route では pathname を維持して年月 search を初期化する", async () => {
-    renderUseInitializePaymentsMonthSearch({
+    renderUseInitializeMonthSearch({
       pathname: "/payments/details/1",
       search: {},
     })
@@ -109,7 +120,7 @@ describe("useInitializePaymentsMonthSearch", () => {
   })
 
   test("year だけある場合は month だけ補完する", async () => {
-    renderUseInitializePaymentsMonthSearch({
+    renderUseInitializeMonthSearch({
       pathname: "/payments",
       search: { year: "2025" },
     })
@@ -128,7 +139,7 @@ describe("useInitializePaymentsMonthSearch", () => {
   })
 
   test("month だけある場合は year だけ補完する", async () => {
-    renderUseInitializePaymentsMonthSearch({
+    renderUseInitializeMonthSearch({
       pathname: "/payments",
       search: { month: "6" },
     })
@@ -147,7 +158,7 @@ describe("useInitializePaymentsMonthSearch", () => {
   })
 
   test("年月 search がある場合は初期化しない", async () => {
-    renderUseInitializePaymentsMonthSearch({
+    renderUseInitializeMonthSearch({
       pathname: "/payments",
       search: { year: "2025", month: "6" },
     })
@@ -159,7 +170,7 @@ describe("useInitializePaymentsMonthSearch", () => {
   })
 
   test("Payments 外の pathname では年月 search がなくても Payments に巻き戻さない", async () => {
-    renderUseInitializePaymentsMonthSearch({
+    renderUseInitializeMonthSearch({
       pathname: "/settings",
       search: {},
     })
