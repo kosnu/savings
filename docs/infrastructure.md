@@ -109,20 +109,24 @@ Googleログインのredirectは次の順序を維持する。
 `apps/api/supabase/config.toml` の Auth 環境変数や不要サービスの無効化はローカル設定であり、
 Hosted project の実設定を証明しない。
 
-| 確認面         | Prd / Dev の観測                                                                                                                            | 判断・残る確認                                                                                                                                                                                     |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DB・履歴       | PostgreSQL 17、既存36 migration の version/name と repo が一致。Prd は 17.6、Dev は 17.11                                                   | SQL 本文の一致は履歴一覧だけでは証明できない。新 migration は両環境に未適用                                                                                                                        |
-| RLS            | public の8テーブルすべて有効、Book 所属・本人を確認する policy、users UPDATE は USING / WITH CHECK が一致                                   | metadata と隔離DB試験を区別する。Hosted Data API の実機試験は未実施                                                                                                                                |
-| テーブル権限   | anon / authenticated は8テーブルすべてで TRUNCATE が可能                                                                                    | RLS は TRUNCATE を保護しない。通常 CRUD を維持して不要権限を取り消す準備。現在の REST から攻撃可能とは断定しない                                                                                   |
-| DB接続         | 両環境で ssl=on、max_connections=60、statement_timeout=5000ms。anon / authenticated / authenticator に superuser・BYPASSRLS なし（Prd確認） | ssl=on は SSL 強制を証明しない。SSL Enforcement、Network Restrictions、pooler、管理者・MFA は未確認                                                                                                |
-| Data API・キー | public view なし。repo の Web client は publishable key だけを参照                                                                          | exposed schemas、列権限の全体、max_rows、auto exposure、配信時のキー種別・管理 token の scope は未確認。秘密値は記録しない                                                                         |
-| サービス       | Edge Function なし、pg_graphql extension なし、Realtime publication は存在                                                                  | publication の存在だけでは不要サービスの利用状態は分からない。Storage・Realtime の実有効状態は未確認なので変更しない                                                                               |
-| Auth           | repo は Google provider と既存 callback を維持。Advisor は両環境で漏洩 password 保護無効を報告                                              | provider、redirect allow list、nonce、JWT/session・refresh、rate limit、CAPTCHA の実値と Google 経路への適用範囲は未確認。メール用対策を Google 対策と同一視せず、プラン・互換性を確認して判断する |
-| プラン         | 組織は Free                                                                                                                                 | 使用量・残容量・バックアップ実在は未確認。有料化・キー発行は行わない                                                                                                                               |
+| 確認面         | Prd / Dev の観測                                                                                                                             | 判断・残る確認                                                                                                                                                                                                             |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DB・履歴       | PostgreSQL 17、既存36 migration の version/name と repo が一致。Prd は 17.6、Dev は 17.11                                                    | SQL 本文の一致は履歴一覧だけでは証明できない。新 migration は両環境に未適用                                                                                                                                                |
+| RLS            | public の8テーブルすべて有効、Book 所属・本人を確認する policy、users UPDATE は USING / WITH CHECK が一致                                    | metadata と隔離DB試験を区別する。Hosted Data API の実機試験は未実施                                                                                                                                                        |
+| テーブル権限   | anon / authenticated は8テーブルで TRUNCATE が可能。postgres / supabase_admin の public default privileges も将来表へ付与                    | RLS は TRUNCATE を保護しない。通常 CRUD を維持して不要権限を取り消す準備。現在の REST から攻撃可能とは断定しない                                                                                                           |
+| DB接続         | 両環境で ssl=on、max_connections=60。API role の statement_timeout は anon=3s、authenticated / authenticator=8s。調査接続の pg_settings は5s | role設定はAPI実リクエストの実効timeoutを証明しない。anon / authenticated / authenticator に superuser・BYPASSRLS なし。ssl=on は SSL 強制を証明しない。SSL Enforcement、Network Restrictions、pooler、管理者・MFA は未確認 |
+| Data API・キー | public view なし。repo の Web client は publishable key だけを参照                                                                           | authenticated の users UPDATE は name / language のみ。exposed schemas、他の列権限、max_rows、auto exposure、配信時のキー種別・管理 token の scope は未確認。秘密値は記録しない                                            |
+| サービス       | Edge Function なし、pg_graphql extension なし、Realtime publication は存在するが登録テーブルなし                                             | publication の存在だけでは不要サービスの利用状態は分からない。Storage・Realtime の実有効状態は未確認なので変更しない                                                                                                       |
+| Auth           | repo は Google provider と既存 callback を維持。Advisor は両環境で漏洩 password 保護無効を報告                                               | provider、redirect allow list、nonce、JWT/session・refresh、rate limit、CAPTCHA の実値と Google 経路への適用範囲は未確認。メール用対策を Google 対策と同一視せず、プラン・互換性を確認して判断する                         |
+| プラン         | 組織は Free                                                                                                                                  | 使用量・残容量・バックアップ実在は未確認。有料化・キー発行は行わない                                                                                                                                                       |
 
 準備した [migration](../apps/api/supabase/migrations/20261006024617_optimize_user_rls_and_category_budget_lookup.sql) は、
 8テーブルの TRUNCATE を PUBLIC / anon / authenticated から除外し、users の本人判定を `(select auth.uid())` にし、
-`category_budgets(category_id)` の index を追加する。行・列・通常 CRUD 権限、Book 境界、予算履歴、RPC 契約は維持する。
+`category_budgets(category_id)` の index を追加する。
+既存8テーブルの作成者である postgres の public default privileges からも TRUNCATE を除外する。
+[PostgreSQL の仕様](https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html)上、作成時のroleにのみ適用される。
+supabase_admin など別roleの作成、後続の明示GRANT、global default privileges による再付与は防げない。
+管理roleの既定値は変更せず、適用前・新テーブル追加時に作成者とglobal/schema既定権限を確認する。行・列・通常 CRUD 権限、Book 境界、予算履歴、RPC 契約は維持する。
 根拠は実権限、Advisor の users InitPlan / 外部キー index 指摘と
 [RLS性能指針](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select)。
 index 作成は書込待機と追加容量を伴うため、実データ規模と実行時間・lock timeout を確認して適用を承認する。
@@ -141,7 +145,9 @@ Prd 固有の `public.rls_auto_enable()` は SECURITY DEFINER・anon EXECUTE の
 [境界テスト](../apps/api/supabase/tests/publication_boundaries.test.sql) は2利用者の合成データで本人/profile更新、
 別 Book の参照・更新・削除・挿入拒否、JWT切替・欠落、匿名RPC拒否、TRUNCATE拒否を確認し rollback する。
 変更前の39項目の試験では19件が失敗し、TRUNCATEで他利用者の支払いも消えることを検出。
-変更後は本人更新の反映確認も加え、既存の同期・月次予算の更新境界・timezone試験を含め4ファイル417項目が成功した。
+変更後は本人更新の反映、将来表のTRUNCATE拒否とCRUD・service_role/所有者の権限維持を確認。
+既存の同期・月次予算の更新境界・timezone試験を含め4ファイル425項目が成功した。
+将来表の追加8項目は既定値変更前に4件失敗し、変更後にすべて成功した。
 Google OAuth・既存sessionのブラウザ実機確認やHostedの列権限全経路の証明は含まない。
 
 性能診断は100合成利用者/Book、500カテゴリ、支払い10万件、カテゴリ予算6万件、月次予算1.2万件。
@@ -168,7 +174,8 @@ HTTP遅延、p95/p99、同時実行、CPU/IO/接続上限、APIエラー率は�
   本番も別途承認し、適用後に履歴・policy・index・TRUNCATE権限・Advisorを読み戻す。
   Googleログイン、既存session、通常CRUDと過去予算を実機確認するまで完了扱いしない。
 - 切り戻しは追加indexの削除とusersの2 policyを元の `auth_user_id = auth.uid()`（UPDATEのWITH CHECKも同じ）へ戻す。
-  TRUNCATE復元は全8テーブルへ anon / authenticated の元権限を戻す操作であり、データ保護を弱める。
+  将来表の既定値の切り戻しは postgres の public default privileges に anon / authenticated の TRUNCATE を戻す。
+  既存表には反映されない。TRUNCATE復元は全8テーブルへ anon / authenticated の元権限を戻す操作であり、データ保護を弱める。
   障害原因を確認し、必要な対象・リスクへの別途承認がある場合だけ復元する。migration履歴を削除・改ざんしない。
 - Dashboard の Database Reports / Query Performance・Auth/Data API Logs・Usageで、遅いクエリ、5xx/timeout、
   Auth拒否、接続数、CPU/IO、DB容量、MAU・egressを確認する。pg_stat_statementsは両環境で有効。

@@ -10,6 +10,11 @@ revoke truncate on table
   public.category_pins
 from public, anon, authenticated;
 
+-- アプリmigrationの作成者postgresに限り、将来のpublic表への再付与も防ぐ。
+-- 管理roleの既定値や、後続migrationの明示的なGRANTは変更しない。
+alter default privileges for role postgres in schema public
+  revoke truncate on tables from public, anon, authenticated;
+
 -- 本人境界を維持し、JWTのユーザーIDをstatementごとに評価する。
 alter policy "Users can read own row" on public.users
   using (auth_user_id = (select auth.uid()));

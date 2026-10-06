@@ -3,7 +3,31 @@ set local time zone 'Asia/Tokyo';
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(40);
+select plan(48);
+
+-- postgresによる将来のpublic表も既定権限だけでTRUNCATEを拒否する。
+-- 一時schemaではpublicのdefault privilegesを検証できないので、transaction内で作成する。
+create table public.publication_future_table (id integer primary key);
+alter table public.publication_future_table enable row level security;
+select ok(not has_table_privilege(role_name, 'public.publication_future_table', 'TRUNCATE'),
+  role_name || ' cannot truncate a future postgres table')
+from unnest(array['anon', 'authenticated']) as role_name;
+select ok((select bool_and(has_table_privilege(role_name, 'public.publication_future_table', privilege))
+  from unnest(array['SELECT', 'INSERT', 'UPDATE', 'DELETE']) as privilege),
+  role_name || ' retains CRUD privileges on a future postgres table')
+from unnest(array['anon', 'authenticated']) as role_name;
+select ok(has_table_privilege('service_role', 'public.publication_future_table', 'TRUNCATE'),
+  'service role default is unchanged');
+select ok(has_table_privilege('postgres', 'public.publication_future_table', 'TRUNCATE'),
+  'table owner privilege is unchanged');
+set local role anon;
+select throws_ok($$truncate public.publication_future_table$$, '42501',
+  'permission denied for table publication_future_table', 'anon future table truncate is rejected');
+reset role;
+set local role authenticated;
+select throws_ok($$truncate public.publication_future_table$$, '42501',
+  'permission denied for table publication_future_table', 'authenticated future table truncate is rejected');
+reset role;
 
 -- 合成データだけを使い、最後に全変更をrollbackする。
 insert into auth.users (id, email) values
