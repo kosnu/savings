@@ -1,0 +1,59 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-06T02:49:02.562609868Z",
+  "task_hash": "b6cb21d5e26b6ea06c24df740c5f3e9cf3e54c7eacf58b5b01694c5fee2aa19e",
+  "previous": "2937b151dd7b18438489052048f998eaec9f5a13ddeeb7ed438f8d0bdeaff9ba",
+  "revision": 1,
+  "fingerprint": "d869a6709eb3560dc7c526605fff0a706b2ba37fe1d4e505df123950aeda8210",
+  "data": {
+    "summary": "Prd/Dev読み取りで8表RLS有効、TRUNCATEの不要権限、users auth.uidの行ごと評価、category_budgetsのFK index不足を確認。通常CRUD/Book境界/予算履歴を維持する未適用migrationと隔離DBの回帰テスト、infrastructureへ現行運用と未確認を統合する。想定負荷/Auth実設定/配信動作は未確認でIssueをcloseしない。",
+    "paths": [
+      "docs/infrastructure.md",
+      "apps/api/supabase/migrations/20261006024617_optimize_user_rls_and_category_budget_lookup.sql",
+      "apps/api/supabase/tests/publication_boundaries.test.sql"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "docker",
+        "exec",
+        "issue1885-verification",
+        "pg_prove",
+        "-U",
+        "postgres",
+        "-d",
+        "postgres",
+        "-r",
+        "/tmp/issue1885-tests"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "f577c70be54e3f2717dcb2dc24ce31e11e6d2c95be9f43bac5422f7fc596deba",
+  "cycle_id": "issue-1885/cycle-0001"
+}
