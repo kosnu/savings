@@ -1,0 +1,40 @@
+{
+  "sequence": 20,
+  "kind": "audit",
+  "time": "2026-10-06T14:24:26.754546Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "6ab2f8bee1da553db98f1d1de14725da85ca4e3e57a6e18a53ffabb010e3a9bd",
+  "revision": 5,
+  "fingerprint": "097d8ae6b7245243fcd99058cc58d8adc73efdccd0cca54999747876407a1e9e",
+  "data": {
+    "summary": "最新配信3aebdc0dに対する明示Audit。未解決4threadを確認し同じ認証cache指摘2件を統合すると3課題。前回P1/P2の正本文書反映は実差分と現在本文で確認済み、product適用・品質効果は未実証で未修正。既存2ガードレールの再追加は不要。新しい候補P3は固定入力での取得エラー復帰の規則不足のみ。ユーザーの成果物コード直接変更禁止を維持し、新規の承認は未取得。\nCoverage: web.design-rules、web.query-cache、web.suspense-boundaries、web.test-policy、policy.learning-extraction、policy.code-review、policy.review-feedback-classification、documentation.policyを既存同内容の正本と現在の差分/記録に照合。規則間の未解決矛盾なし。既存の未解決product指摘を完了にしない。工程計測は前cycleの未終了記録により今回未計測。",
+    "findings": [
+      "P1: 認証集計cache / https://github.com/kosnu/savings/pull/1893#discussion_r4181531245 / thread PRRT_kwDOM0p88s6o75_a: isResolved=false。根拠: 集計query keyに認証userが含まれず、mount固定cacheScopeが使われる。正常cacheを引き継ぐuser切替回帰テストも未実施。認証cache境界のガードレールP2は正本反映済みで、同じ規則を追加する必要はない。 返信案（未承認・未投稿）: 認証境界の規則と検証条件は正本へ反映済みですが、成果物の修正は今回の承認対象外のため未実施です。指摘は未解決で保持します。 Bot解決条件: 指摘のproduct修正・回帰検証・commit/push・対象head確認と根拠返信が完了し、未解決の論点/競合コメントがないこと。今回Auditは成果物直接変更/返信/解決を行わない。",
+      "P1: 認証集計cache（重複） / https://github.com/kosnu/savings/pull/1893#discussion_r4187145255 / thread PRRT_kwDOM0p88s6pJzMS: isResolved=false。根拠: 集計query keyに認証userが含まれず、mount固定cacheScopeが使われる。正常cacheを引き継ぐuser切替回帰テストも未実施。認証cache境界のガードレールP2は正本反映済みで、同じ規則を追加する必要はない。 返信案（未承認・未投稿）: 認証境界の規則と検証条件は正本へ反映済みですが、成果物の修正は今回の承認対象外のため未実施です。指摘は未解決で保持します。 Bot解決条件: 指摘のproduct修正・回帰検証・commit/push・対象head確認と根拠返信が完了し、未解決の論点/競合コメントがないこと。今回Auditは成果物直接変更/返信/解決を行わない。",
+      "P2: 直近支払いの同一入力でのエラー復帰 / https://github.com/kosnu/savings/pull/1893#discussion_r4187145269 / thread PRRT_kwDOM0p88s6pJzMY: isResolved=false。根拠: RecentPayments.tsx:29のresetKeysはbookId/cacheScope固定、fallbackはTextのみ。useCreatePayment.tsでのinvalidationに境界reset連動はない。RecentPayments.test.tsxの復帰テストはBookまたはテスト専用scope変更のみ、HomePage追加テストは成功状態から開始する。実ブラウザ再現未実施。既存Suspense規則は条件変更での復帰を具体化し、固定入力の再試行経路の要求が不足している。 返信案（未承認・未投稿）: 指摘はコード上で妥当です。同じ入力での再試行・境界復帰を明記するガードレール改善を提案しています。成果物の再試行経路と回帰テストは未実施のため、threadを未解決で保持します。 Bot解決条件: 指摘のproduct修正・回帰検証・commit/push・対象head確認と根拠返信が完了し、未解決の論点/競合コメントがないこと。今回Auditは成果物直接変更/返信/解決を行わない。",
+      "P2: Home汎用見出し / https://github.com/kosnu/savings/pull/1893#discussion_r4187145287 / thread PRRT_kwDOM0p88s6pJzMi: isResolved=false。根拠: HomePage.tsx:62-64の汎用名h1は残っている。Design Rulesへの配置規則P1は反映済み。前回承認は正本・Task記録のみで、未適用の成果を意図的に保持した。規則重複追加は不要。 返信案（未承認・未投稿）: ページ見出しの配置規則は正本へ反映済みですが、成果物コードの直接変更は禁止されているため、この見出しは未修正です。指摘は未解決で保持します。 Bot解決条件: 指摘のproduct修正・回帰検証・commit/push・対象head確認と根拠返信が完了し、未解決の論点/競合コメントがないこと。今回Auditは成果物直接変更/返信/解決を行わない。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P3",
+        "finding": "直近支払いの一時的な取得失敗から、通常操作・同じ入力で正常表示へ戻れない。固定resetKeysと復帰操作不在に加え、既存規則/検証が条件変更での復帰だけを具体化していた。",
+        "evidence": "https://github.com/kosnu/savings/pull/1893#discussion_r4187145269 / PRRT_kwDOM0p88s6pJzMY。RecentPayments.tsx:23-30、RecentPayments.test.tsx:58-97、HomePage.test.tsx:205-244、invalidatePaymentMutationQueries.tsとuseCreatePayment.tsを照合。Suspense Boundary Policyの基本方針/境界変更時の確認を照合。実ブラウザ再現は未実施。",
+        "change": "Suspense Boundary Policyに、同じ入力のままの再試行経路、query再取得とErrorBoundary resetの連動、invalidation/refetch単独で復帰を仮定しないこと、その復帰経路のAPI境界を通す回帰検証を追記する。既存の条件変更による復帰規則は維持する。確認は固定入力・条件変更・正常表示の各ケースで新旧規則の整合を照合し、rule-mapの既存到達経路を検証する。成果物コード直接修正・テスト追加はAudit改善対象に含めない。",
+        "paths": [
+          "apps/web/docs/policies/suspense-boundaries.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "3aebdc0d6179158b909723746f80b480fc6e005a",
+      "remote": "origin",
+      "branch": "issue-1892/separate-payment-pages",
+      "pr": "https://github.com/kosnu/savings/pull/1893",
+      "evidence": "2026-10-06にlocal HEAD、PR head/base、OPEN状態をread-back。current review event19/revision5/cycle-0002、stable verify18で全commands成功を照合。",
+      "base": "main"
+    }
+  },
+  "hash": "52b3af9c39e6725fe0b206b5d0395cc749be125dc9fb23465aa0d6be6183839b",
+  "cycle_id": "issue-1892/cycle-0002"
+}

@@ -1,0 +1,99 @@
+{
+  "sequence": 26,
+  "kind": "review",
+  "time": "2026-10-06T14:39:25.786065Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "8e86c3ce05e42a752f1f6ff7ce6a02ee45ed5adc688a6f33fa82611c9d8596af",
+  "revision": 7,
+  "fingerprint": "0379ddb5c373ad3c2f05902a5af2a31ce28736ad90d60e1da766e6146ecb6c04",
+  "data": {
+    "summary": "承認済みP3の正本文書差分と同Task追記記録をレビューした。同入力での再試行/query再取得と境界reset/実API境界を通す回帰確認を短い文章で所有正本へ追加し、既存条件変更の復帰規則と整合。既存rule-map経路で十分で索引変更不要。cycle-0003/revision7のsource安定verifyで全7commands成功。元7完了条件は変更のない成果物に対する機能根拠と現在再検証を照合するが、新ガードレールへの実装適用完了とは扱わない。\n\n## Coverage\n- Checked rules: ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.msw-handlers, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy\n- Unresolved: 規則間の矛盾なし。成果物の認証cache/Home見出し/直近一覧の固定入力エラー復帰の3指摘は未修正。今回の承認はP3正本のみで、product直接編集・Intent訂正・返信/解決へ広げない。\n\nFindings: 今回の文書差分に追加findingなし。入力変更の既存要求を削らず、invalidation/refetchと境界resetの役割を区別する。実装での新規則の有効性とブラウザ再現は未検証。",
+    "criteria": [
+      {
+        "criterion": "トップページで月の合計額・カテゴリ別合計額を確認できる",
+        "evidence": "成果物コードはee411f7から変更なし。cycle-0003/revision7のstable verify25で全7commandsがexit0、unit/integration745件、Storybook20件成功。既存成果物と完了条件の対応はreview19の同criterionの具体的なコード/操作/期待値根拠を再利用する。HomePageは既存Summaryを月選択とともに表示する。Default browser StoryのTotal spending・Food budget progress(1000)、HomePageの月切替・0円テストと既存MonthlyTotals/CategoryTotalsテストが成功。金額・予算の意味は既存componentを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに直近の支払いを最大5件表示する",
+        "evidence": "成果物コードはee411f7から変更なし。cycle-0003/revision7のstable verify25で全7commandsがexit0、unit/integration745件、Storybook20件成功。既存成果物と完了条件の対応はreview19の同criterionの具体的なコード/操作/期待値根拠を再利用する。RecentPaymentsは選択中Bookをeqで制限し、date.desc,id.descとlimit 5で全期間を取得する。HomePageで6件応答から5件、4件、0件、月切替後も直近を維持するテストとfetchPaymentsのHTTP取得条件テストが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページから支払いを追加できる",
+        "evidence": "成果物コードはee411f7から変更なし。cycle-0003/revision7のstable verify25で全7commandsがexit0、unit/integration745件、Storybook20件成功。既存成果物と完了条件の対応はreview19の同criterionの具体的なコード/操作/期待値根拠を再利用する。HomePageに既存CreatePaymentModalをbook.idで配置。追加後に既存Book prefix invalidationで直近一覧と月次集計を再取得し、追加行と6080円への更新を統合テストで確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに検索を表示しない",
+        "evidence": "成果物コードはee411f7から変更なし。cycle-0003/revision7のstable verify25で全7commandsがexit0、unit/integration745件、Storybook20件成功。既存成果物と完了条件の対応はreview19の同criterionの具体的なコード/操作/期待値根拠を再利用する。HomePageにPaymentCategoryFilterや検索一覧を配置しない。rootのsearch schemaはyear/monthのみ。Default StoryとHomePageテストでCategory filterの不在を確認。月切替は集計期間を選ぶ既存操作。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsで一覧・検索・追加を利用できる",
+        "evidence": "成果物コードはee411f7から変更なし。cycle-0003/revision7のstable verify25で全7commandsがexit0、unit/integration745件、Storybook20件成功。既存成果物と完了条件の対応はreview19の同criterionの具体的なコード/操作/期待値根拠を再利用する。PaymentsPageは月選択、PaymentCategoryFilter、CreatePaymentModal、PaymentListを維持。既存検索・追加・詳細/更新/削除テストおよびPaymentsPage browser Storyが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsに集計を表示しない",
+        "evidence": "成果物コードはee411f7から変更なし。cycle-0003/revision7のstable verify25で全7commandsがexit0、unit/integration745件、Storybook20件成功。既存成果物と完了条件の対応はreview19の同criterionの具体的なコード/操作/期待値根拠を再利用する。PaymentsPageからSummaryを除去しMonthSelectorだけを残す。browser Storyと追加操作テストで集計progressbarが存在しないことを確認。Summaryの月次・カテゴリ集計はHomePageへ移動。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "両ページへ移動できる",
+        "evidence": "成果物コードはee411f7から変更なし。cycle-0003/revision7のstable verify25で全7commandsがexit0、unit/integration745件、Storybook20件成功。既存成果物と完了条件の対応はreview19の同criterionの具体的なコード/操作/期待値根拠を再利用する。AppLayoutのSidebarにHome/Payments、Headerにトップへのリンクを配置。AppLayout/Headerテストでhrefを確認し、HomePageの直近行から該当月のpayments詳細への移動、本番route treeでauthからrootへの遷移を確認。未認証の紹介画面を維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認済みP3の同じ入力での失敗復帰経路とAPI回帰検証をSuspense Boundary Policyへ反映する",
+        "evidence": "差分は基本方針の1bulletと境界変更時確認の1文のみ。同入力の再試行経路、query再取得とErrorBoundary resetの連動、invalidation/refetch単独では復帰しないことを要求し、実操作とAPI境界を通す失敗から正常表示への回帰検証を明記。正常表示には再試行操作を強制しない。条件変更時のresetKeys/canonical規則を維持し、固定入力失敗と条件変更失敗の両ケースを要求する。Query Cache Policyの再取得成功判定やWeb Test Policyの実API境界経由の検証と矛盾なし。product修正やテスト追加の完了ではない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "承認対象の正本への既存到達経路を維持する",
+        "evidence": "現在Core resolverでsuspense-boundaries.mdの変更pathとRecentPayments.tsxの実装pathをそれぞれ照合した。実装pathからweb.suspense-boundariesとweb.query-cache/web.test-policyのdepends_on closureが選択される。所有文書と適用領域は移動せず、索引の追加変更は不要。正常/固定入力失敗/入力変更失敗の意味確認を行い、実運用の再発低下やbrowser再現成功は主張しない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "成果物コードを直接変更せず同Task・承認範囲で改善する",
+        "evidence": "git diff 3aebdc0dのsource差分はapps/web/docs/policies/suspense-boundaries.mdだけ。Audit20/approve21はP3のみ、decision22、return-intent23、cycle-0003新decision24、stable verify25を同Taskへ追記。元Intentと旧記録は保持。レビューコメントは返信/resolve未実施。工程計測は既知の前cycle未終了記録のため今回も未計測。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "135c549e048a8ad2b12c3202055604a08706c2e006c3c794550badf82cf0d657",
+  "cycle_id": "issue-1892/cycle-0003"
+}
