@@ -44,6 +44,7 @@ JSON文字列として符号化した本文のSHA-256を`text_hash`へ保存す�
 `return-intent`は承認後の改善判断と対象範囲を確認し、再確認の要約・現在Intentのhash・承認hash・直前cycle IDを保存する。
 このeventで前の一巡を閉じ、次の一巡のIDを発行する。同一サイクル内のdecisionやverifyの繰り返しでは発行しない。
 復帰後は新cycleのdecisionが必要で、前cycleの検証・review・Shipを次cycleの証拠として流用できない。
+Audit改善中は承認された提案のpathsを照合先とする。Intent復帰後の新cycleのdecisionがある場合は、そのpathsを照合先として直前のAudit対象Shipからの差分を確認する。Taskのbaselineからの所有範囲の検査と、承認された改善の実差分・未承認改善の拒否も維持する。
 Goが確認するのは記録の一致であり、Intentやガードレールを実際に理解したかは意味評価で確認する。
 
 ID導入前のv4 eventは追記専用の履歴として保持し、過去のサイクルを推定して書き換えない。
