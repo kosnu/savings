@@ -1,9 +1,16 @@
 import { composeStories } from "@storybook/react-vite"
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
 import { HttpResponse, delay, http } from "msw"
 import { useState } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { SupabaseSessionContext } from "../../../providers/supabase/SupabaseSessionProvider"
+import * as accountLanguage from "../../../i18n/accountLanguage"
+import { getSupabaseClient } from "../../../lib/supabase"
+import * as authenticatedUser from "../../../providers/supabase/ensureAuthenticatedUser"
+import {
+  SupabaseSessionContext,
+  SupabaseSessionProvider,
+} from "../../../providers/supabase/SupabaseSessionProvider"
 import { payments } from "../../../test/data/payments"
 import { mockSession } from "../../../test/data/supabaseSession"
 import { createBookHandlers } from "../../../test/msw/handlers/books"
@@ -11,7 +18,14 @@ import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
-import { render, screen, waitFor, within } from "../../../test/test-utils"
+import {
+  act,
+  createTestQueryClient,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import * as stories from "./HomePage.stories"
 
@@ -31,6 +45,40 @@ function resetHandlers() {
     ...createCategoryHandlers(),
     ...createMonthlyBudgetHandlers(),
   )
+}
+
+function renderAuthenticatedHome() {
+  const session = mockSession()
+  const auth = getSupabaseClient().auth
+  let callback: ((event: AuthChangeEvent, session: Session | null) => void) | undefined
+  vi.spyOn(auth, "getSession").mockResolvedValue({ data: { session }, error: null })
+  vi.spyOn(auth, "getUser").mockResolvedValue({ data: { user: session.user }, error: null })
+  vi.spyOn(auth, "onAuthStateChange").mockImplementation((nextCallback) => {
+    callback = nextCallback
+    return {
+      data: {
+        subscription: { id: "home-auth-test", callback: nextCallback, unsubscribe: vi.fn() },
+      },
+    }
+  })
+  vi.spyOn(authenticatedUser, "ensureAuthenticatedUser").mockResolvedValue(undefined)
+  vi.spyOn(accountLanguage, "loadAccountLanguage").mockResolvedValue("en")
+  const queryClient = createTestQueryClient()
+  render(
+    <SupabaseSessionProvider>
+      <Default />
+    </SupabaseSessionProvider>,
+    { queryClient },
+  )
+  return {
+    queryClient,
+    emitSession: (event: AuthChangeEvent, nextSession: Session) => {
+      act(() => {
+        if (!callback) throw new Error("Auth callback has not been registered.")
+        callback(event, nextSession)
+      })
+    },
+  }
 }
 
 describe("HomePage", () => {
@@ -67,6 +115,7 @@ describe("HomePage", () => {
     expect(within(recent).getByText("支払い5")).toBeInTheDocument()
     expect(within(recent).queryByText("支払い6")).not.toBeInTheDocument()
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     expect(screen.queryByRole("combobox", { name: /category filter/i })).not.toBeInTheDocument()
     expect(screen.getByRole("button", { name: /create payment/i })).toBeInTheDocument()
     expect(requests.length).toBeGreaterThan(0)
@@ -154,6 +203,20 @@ describe("HomePage", () => {
     expect(screen.queryByText("No payments found.")).not.toBeInTheDocument()
   })
 
+  test("Book取得失敗後に同じ認証ユーザーのまま再試行してトップへ復帰できる", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(...createBookHandlers({ error: true }))
+    const { user } = render(<ErrorStory />)
+    expect(await screen.findByRole("alert")).toHaveTextContent("Failed")
+    resetHandlers()
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+    await waitFor(() => {
+      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥5,000")
+    })
+    expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
   test("Book取得失敗後に認証ユーザーが変わるとトップの表示を復帰する", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     server.resetHandlers(...createBookHandlers({ error: true }))
@@ -174,9 +237,81 @@ describe("HomePage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Failed")
     resetHandlers()
     await user.click(screen.getByRole("button", { name: "Change user" }))
-    expect(await screen.findByRole("heading", { name: "Home" })).toBeInTheDocument()
     expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
+  test("正常取得した集計cacheがあっても別ユーザーへ切り替えると旧データを表示しない", async () => {
+    let total = 5000
+    let requests = 0
+    server.use(
+      http.post("*/rest/v1/rpc/get_monthly_total_amount", async () => {
+        requests += 1
+        await delay(50)
+        return HttpResponse.json(total)
+      }),
+    )
+    const { emitSession } = renderAuthenticatedHome()
+    await waitFor(() => {
+      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥5,000")
+    })
+    expect(
+      await screen.findByRole("progressbar", { name: "Food budget progress" }),
+    ).toHaveAttribute("aria-valuenow", "1000")
+    const initialRequests = requests
+    total = 500
+    server.use(
+      ...createCategoryHandlers({
+        get: {
+          response: [
+            {
+              id: 10,
+              book_id: 1,
+              name: "New category",
+              created_at: "2025-01-01",
+              updated_at: "2025-01-01",
+            },
+          ],
+          paymentRows: [],
+        },
+      }),
+    )
+    const session = mockSession()
+    emitSession("SIGNED_IN", { ...session, user: { ...session.user, id: "new-user" } })
+    expect(screen.queryByText("¥5,000")).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("progressbar", { name: "Food budget progress" }),
+    ).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥500")
+    })
+    expect(await screen.findByText("New category")).toBeInTheDocument()
+    expect(
+      screen.queryByRole("progressbar", { name: "Food budget progress" }),
+    ).not.toBeInTheDocument()
+    expect(requests).toBeGreaterThan(initialRequests)
+  })
+
+  test("同じユーザーのトークン更新では正常取得したcacheを維持する", async () => {
+    let requests = 0
+    server.use(
+      http.post("*/rest/v1/rpc/get_monthly_total_amount", () => {
+        requests += 1
+        return HttpResponse.json(5000)
+      }),
+    )
+    const { queryClient, emitSession } = renderAuthenticatedHome()
+    await waitFor(() => {
+      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥5,000")
+    })
+    await screen.findByRole("progressbar", { name: "Food budget progress" })
+    const clear = vi.spyOn(queryClient, "clear")
+    const initialRequests = requests
+    emitSession("TOKEN_REFRESHED", { ...mockSession(), access_token: "refreshed-token" })
+    await waitFor(() => expect(accountLanguage.loadAccountLanguage).toHaveBeenCalledTimes(2))
+    expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥5,000")
+    expect(clear).not.toHaveBeenCalled()
+    expect(requests).toBe(initialRequests)
   })
 
   test("未認証時には紹介画面を表示する", async () => {

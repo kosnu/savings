@@ -1,5 +1,5 @@
-import { Flex, Text } from "@radix-ui/themes"
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { Button, Flex, Text } from "@radix-ui/themes"
+import { QueryErrorResetBoundary, useSuspenseQuery } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -20,26 +20,36 @@ export function RecentPayments({ bookId, cacheScope }: RecentPaymentsProps) {
 
   return (
     <Flex aria-label={t("payments.recent")} direction="column" gap="2">
-      <ErrorBoundary
-        fallback={
-          <Text color="red" role="alert">
-            {t("payments.list.loadError")}
-          </Text>
-        }
-        resetKeys={[bookId, cacheScope]}
-      >
-        <Suspense
-          fallback={
-            <>
-              <PaymentCard loading />
-              <PaymentCard loading />
-              <PaymentCard loading />
-            </>
-          }
-        >
-          <RecentPaymentsResolved bookId={bookId} cacheScope={cacheScope} />
-        </Suspense>
-      </ErrorBoundary>
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ErrorBoundary
+            onReset={reset}
+            fallbackRender={({ resetErrorBoundary }) => (
+              <Flex direction="column" gap="2" align="start">
+                <Text color="red" role="alert">
+                  {t("payments.list.loadError")}
+                </Text>
+                <Button type="button" variant="soft" onClick={resetErrorBoundary}>
+                  {t("common.retry")}
+                </Button>
+              </Flex>
+            )}
+            resetKeys={[bookId, cacheScope]}
+          >
+            <Suspense
+              fallback={
+                <>
+                  <PaymentCard loading />
+                  <PaymentCard loading />
+                  <PaymentCard loading />
+                </>
+              }
+            >
+              <RecentPaymentsResolved bookId={bookId} cacheScope={cacheScope} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
     </Flex>
   )
 }

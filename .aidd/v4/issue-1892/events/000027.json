@@ -1,0 +1,115 @@
+{
+  "sequence": 27,
+  "kind": "decision",
+  "time": "2026-10-06T15:20:02.953948Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "135c549e048a8ad2b12c3202055604a08706c2e006c3c794550badf82cf0d657",
+  "revision": 8,
+  "fingerprint": "0379ddb5c373ad3c2f05902a5af2a31ce28736ad90d60e1da766e6146ecb6c04",
+  "data": {
+    "summary": "user-message:2026-10-07-direct-edit-context-correctionを受けて誤ったコード編集禁止の解釈を撤回する。禁止はAudit指摘から直接成果物修正へ飛ぶことに対する境界であり、元Intentと改善済みguardrailsを再評価した通常cycleの開発委任は有効。Intent/baseline/cycle-0003は保持し、新revisionで設計実装を再開する。トップは集計/直近5件/追加のみなので汎用Home見出しを除きsection見出しを維持。認証依存cacheはsession所有境界で認証userの変更時にqueryClient.clearし、同一user token更新では保持。正常取得AからBへ切替時の旧集計非表示とtoken更新維持をAPI経由で回帰検証。RecentPaymentsはQueryErrorResetBoundaryとErrorBoundary resetを連動する同じ入力の再試行操作を提供し、実APIの失敗→正常と再失敗を検証する。要求やデータモデルは変更せず、新規共通層は作らない。CoreのImproveCheckがIntent復帰後の通常sourceもAudit改善pathsへ拘束する実装を確認したため、product検証とCore gateを分けて状態を報告し、gateは迂回しない。旧承認対象の正本文書は変更しない。",
+    "paths": [
+      "apps/web/src/app/routes.ts",
+      "apps/web/src/app/routes/HomePage/",
+      "apps/web/src/app/routes/authRedirect.test.tsx",
+      "apps/web/src/app/routes/PaymentsPage/",
+      "apps/web/src/app/useInitializeMonthSearch.ts",
+      "apps/web/src/app/useInitializeMonthSearch.test.tsx",
+      "apps/web/src/app/AppLayout/",
+      "apps/web/src/app/Header/Header.tsx",
+      "apps/web/src/app/Header/Header.test.tsx",
+      "apps/web/src/features/summaryByMonth/index.ts",
+      "apps/web/src/features/summaryByMonth/Summary/",
+      "apps/web/src/features/summaryByMonth/MonthSelector/",
+      "apps/web/src/features/payments/listPayment/RecentPayments/",
+      "apps/web/src/features/payments/listPayment/fetchPayments.ts",
+      "apps/web/src/features/payments/listPayment/fetchPayments.integration.test.ts",
+      "apps/web/src/features/payments/queryKeys.ts",
+      "apps/web/src/features/payments/index.ts",
+      "apps/web/src/i18n/resources.ts",
+      "docs/infrastructure.md",
+      "apps/web/docs/policies/design-rules.md",
+      "apps/web/docs/policies/query-cache.md",
+      "apps/web/docs/policies/suspense-boundaries.md",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "run",
+        "./cmd/aidd-checker",
+        "--root",
+        "../../..",
+        "rules"
+      ]
+    ],
+    "rules": [
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "020930624e11b5fc96c38cb7f06c1eb5c2249ee887d2b31ac3e957903cf078b3",
+  "cycle_id": "issue-1892/cycle-0003"
+}

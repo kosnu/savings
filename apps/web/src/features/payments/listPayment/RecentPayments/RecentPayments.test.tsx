@@ -1,6 +1,6 @@
 import { composeStories } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
-import { HttpResponse, http } from "msw"
+import { HttpResponse, delay, http } from "msw"
 import { useState } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
@@ -13,7 +13,7 @@ import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
 import { RecentPayments } from "./RecentPayments"
 import * as stories from "./RecentPayments.stories"
 
-const { Empty, Loading } = composeStories(stories)
+const { Empty, Loading, Error: ErrorStory } = composeStories(stories)
 
 // Storyのrouterは初期argsを保持するため、同じ境界での条件変更は専用の操作で検証する。
 function renderRecoveryScenario() {
@@ -53,6 +53,49 @@ describe("RecentPayments", () => {
     server.resetHandlers(...createPaymentHandlers({ initialRows: [] }))
     render(<Empty />)
     expect(await screen.findByText("No payments found.")).toBeInTheDocument()
+  })
+
+  test("同じBookのまま再試行し、取得失敗から正常表示へ復帰する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments", async ({ request }) => {
+        requests.push(new URL(request.url))
+        if (requests.length === 1) {
+          return HttpResponse.json({ message: "failed" }, { status: 500 })
+        }
+        await delay(50)
+        return HttpResponse.json(payments.map(mapPaymentToRow))
+      }),
+    )
+    const { user } = render(<ErrorStory />)
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+    expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
+    expect(await screen.findByText("スーパー")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(requests).toHaveLength(2)
+    for (const request of requests) {
+      expect(request.searchParams.get("book_id")).toBe("eq.1")
+    }
+  })
+
+  test("再試行にも失敗した場合はエラーを維持し、再び試せる", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    let requests = 0
+    server.use(
+      http.get("*/rest/v1/payments", () => {
+        requests += 1
+        return HttpResponse.json({ message: "failed" }, { status: 500 })
+      }),
+    )
+    const { user } = render(<ErrorStory />)
+    await screen.findByRole("alert")
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+    await waitFor(() => expect(requests).toBe(2))
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
+    expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled()
+    expect(screen.queryByText("No payments found.")).not.toBeInTheDocument()
   })
 
   test("取得失敗後にBookが変わると新しいBookの支払いを取得する", async () => {

@@ -56,7 +56,7 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByRole("heading", { name: "Home" })).toBeVisible()
+    await expect(canvas.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     await expect(await canvas.findByLabelText("Total spending")).toBeVisible()
     await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),

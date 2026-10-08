@@ -1,4 +1,5 @@
 import type { Session } from "@supabase/supabase-js"
+import { useQueryClient } from "@tanstack/react-query"
 import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
 import { toInitialDisplayName } from "../../domain/displayName"
@@ -32,6 +33,7 @@ const unauthenticatedSessionState: SupabaseSessionState = {
 }
 
 export function SupabaseSessionProvider({ children }: SupabaseSessionProviderProps) {
+  const queryClient = useQueryClient()
   const sessionGenerationRef = useRef(0)
   const stateRef = useRef<SupabaseSessionState>(initialSessionState)
   const [state, setState] = useState<SupabaseSessionState>(initialSessionState)
@@ -41,6 +43,9 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     let isActive = true
 
     const setSessionState = (nextState: SupabaseSessionState) => {
+      if (stateRef.current.session?.user.id !== nextState.session?.user.id) {
+        queryClient.clear()
+      }
       stateRef.current = nextState
       setState(nextState)
     }
@@ -175,7 +180,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       isActive = false
       subscription.unsubscribe()
     }
-  }, [])
+  }, [queryClient])
 
   return <SupabaseSessionContext value={state}>{children}</SupabaseSessionContext>
 }

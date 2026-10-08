@@ -1,10 +1,11 @@
 import type { Session } from "@supabase/supabase-js"
+import { QueryClientProvider } from "@tanstack/react-query"
 import { renderHook } from "@testing-library/react"
 import type { PropsWithChildren } from "react"
 import { beforeEach, expect, test, vi } from "vite-plus/test"
 
 import { i18next } from "../../i18n"
-import { act, waitFor } from "../../test/test-utils"
+import { act, createTestQueryClient, waitFor } from "../../test/test-utils"
 import { createDeferred } from "../../test/utils/createDeferred"
 import {
   type AuthStatus,
@@ -75,9 +76,12 @@ function createSession(userId = "user-id", accessToken = `token-${userId}`): Ses
 }
 
 function renderSessionHook() {
+  const queryClient = createTestQueryClient()
   return renderHook(() => useSupabaseSession(), {
     wrapper: ({ children }: PropsWithChildren) => (
-      <SupabaseSessionProvider>{children}</SupabaseSessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <SupabaseSessionProvider>{children}</SupabaseSessionProvider>
+      </QueryClientProvider>
     ),
   })
 }
