@@ -1,0 +1,113 @@
+{
+  "sequence": 38,
+  "kind": "review",
+  "time": "2026-10-09T01:15:40.517206Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "fcac29d99c12577d8cc0862f6f56a96b5af25e1ce734411174a8510b3df4a564",
+  "revision": 11,
+  "fingerprint": "4023e5c7dbf058c33cedbf6880d16482e566b5bc6a6822d20ced7b656918c9fc",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.msw-handlers, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy\n- Unresolved: なし。元Intentと改善承認、入力境界を含む実差分、実API回帰、既存年月制約、前cycleとの工程境界を照合。配信・CIはShipで実状態を区別して報告する。",
+    "criteria": [
+      {
+        "criterion": "トップページで月の合計額・カテゴリ別合計額を確認できる",
+        "evidence": "Issue1892の集計維持条件を期待値とし、HomePageContentがSummaryを表示、HomePage/Defaultの月合計5000・カテゴリ1000をAPI境界とStorybookで確認。月入力は既存MonthSelectorへ接続し金額意味を変更していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに直近の支払いを最大5件表示する",
+        "evidence": "全期間の選択Book、支払日・ID降順で最大5件を期待する。RecentPaymentsResolvedはBook指定fetchPaymentsのlimit5で取得しslice5を表示。HomePage.testの6件から最新5件、Empty/4件、fetchPayments.integrationの実クエリで確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページから支払いを追加できる",
+        "evidence": "HomePageContentに既存CreatePaymentModalをbook.idで配置。HomePageの追加操作テストがmodal入力・保存とAPI再取得後の集計/直近一覧反映を検証し、Storybookも追加ボタン表示を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに検索を表示しない",
+        "evidence": "HomePageはSummary・直近一覧・追加のみを表示。検索componentを呼ばず、HomePage.testとStorybook DefaultでCategory filter不在を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsで一覧・検索・追加を利用できる",
+        "evidence": "PaymentsPageContentはMonthSelector・PaymentCategoryFilter・CreatePaymentModal・PaymentListを表示。PaymentsPageの既存絞込・追加テストと142ファイル764件のWeb検証が成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsに集計を表示しない",
+        "evidence": "PaymentsPageContentにSummaryのimport/表示がなく、PaymentsPage.testでTotal spendingと予算progress不在を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "両ページへ移動できる",
+        "evidence": "routes.ts/AppLayout/Headerの認証redirect・logo・menuがHomeとpaymentsへ接続。authRedirect/AppLayout/Headerの回帰テスト、Home/PaymentsのStorybookが成功。未認証HomeはTopPageを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "改善済み日付・年月テスト規則を次サイクルで適用する",
+        "evidence": "外部年月入力の検証と初期化について正常/不正/未指定/許容境界/範囲外を要求するtest-policyの承認済み1文を反映。routesのroot beforeLoadと初期化はこの対象。HomePage.testで本番route tree、同じparseSearch/stringifySearch、API境界を通す14ケースを確認。2022-01/2032-12を保持、2021-12/2033-01やfoo/月0・13・小数/空は今月へ、部分未指定は既存補完で月表示・URL・RPC p_monthが一致。旧sourceではyear=fooケースが集計loadingのまま失敗する反例を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "不正年月の取得を防ぎ正常な集計意味を維持する",
+        "evidence": "認証済みroot beforeLoadで正規化のreplace redirectを行うため、Home描画/API取得開始前に正しい年月へ遷移する。正常値は保持。Router.tsxは認証復元中にRouterProviderを表示しない。testのrequestedMonthsは1件以上かつ全件が期待するmonth keyに一致し、不正/範囲外月のRPC発生を許さない。静的にCategoryTotals/MonthlyTotalsの双方が同じlocation.search/useDateRangeを読むことも照合。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "最小の実装範囲と既存月選択の制約を守る",
+        "evidence": "2022-01〜2032-12の既存MonthSelector範囲をsummary featureのmonthRangeへ移し、rootとMonthSelectorが同じ判定を使用。新たなstate/layerやデータ構造は追加しない。payments search validatorと初期化は変更せず、範囲判定の抽出は従来Date値で同値。既存MonthSelector/PaymentsテストとStorybookが成功。component indexは非componentを公開せず、feature indexのみから値判定を公開。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "ガードレール改善と成果物変更の工程を分ける",
+        "evidence": "Audit31/承認32/改善decision33はtest-policyのみを改善し、最新Audit対象f3との実差分は1文のみでimprove-checkを通過。return-intent34のfingerprint9c76時点で成果物に差分なし。元Intent/authority/baselineを維持してcycle-0004を発行し、新decision35から通常開発を開始。承認対象threadは年月URL1件のみ。他4threadへの返信・解決は追加していない。過去の記録を書換えていない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "正本・索引・検証・証拠の鮮度を維持する",
+        "evidence": "test-policyは既存Web必須surface/pathとdepends_onから到達するのでrule-map変更不要。date-only入力へも検証/初期化の条項が適用され、範囲制約なしの場合は不要な範囲検証を要求しないことを意味評価。verify36のChromium sandbox起動失敗を保持、同じsourceの権限あるverify37は全11command exit0/stable=true。764件とStorybook20件、Core全test/vet、共通gate5件、ADR履歴/graph/diff成功。最新fingerprint一致。stage/配信確認はShipで実施する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "4f488b772697af769ce3a96e64ac03299d6d7f950eb4a9479ef76ae489663b44",
+  "cycle_id": "issue-1892/cycle-0004"
+}

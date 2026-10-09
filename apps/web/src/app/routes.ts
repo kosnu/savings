@@ -10,6 +10,7 @@ import { BookSettings } from "../features/books"
 import { paymentsSearchSchema } from "../features/payments"
 import { AppearanceSettings } from "../features/preferences"
 import { ProfileSettings } from "../features/profile"
+import { isSelectableMonth } from "../features/summaryByMonth"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
@@ -44,6 +45,25 @@ const indexRoute = createRoute({
   path: "/",
   component: HomePage,
   validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
+  beforeLoad: ({ context, search }) => {
+    if (context.authStatus !== "authenticated") return
+
+    const now = new Date()
+    const currentMonth = { year: now.getFullYear(), month: now.getMonth() + 1 }
+    const targetMonth = {
+      year: Number(search.year ?? currentMonth.year),
+      month: Number(search.month ?? currentMonth.month),
+    }
+    const isValid = isSelectableMonth(targetMonth)
+    if (isValid && search.year !== undefined && search.month !== undefined) return
+
+    const month = isValid ? targetMonth : currentMonth
+    throw redirect({
+      to: "/",
+      search: { year: String(month.year), month: String(month.month) },
+      replace: true,
+    })
+  },
 })
 
 const authRoute = createRoute({

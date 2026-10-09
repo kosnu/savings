@@ -1,5 +1,6 @@
 import { composeStories } from "@storybook/react-vite"
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
+import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router"
 import { HttpResponse, delay, http } from "msw"
 import { useState } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
@@ -27,6 +28,7 @@ import {
   within,
 } from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
+import { router as appRouter } from "../../routes"
 import * as stories from "./HomePage.stories"
 
 const {
@@ -84,8 +86,64 @@ function renderAuthenticatedHome() {
 describe("HomePage", () => {
   beforeEach(resetHandlers)
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
     server.resetHandlers()
+  })
+
+  test.each([
+    ["/?year=2025&month=6", "2025", "6"],
+    ["/?year=2022&month=1", "2022", "1"],
+    ["/?year=2032&month=12", "2032", "12"],
+    ["/", "2026", "10"],
+    ["/?year=2025", "2025", "10"],
+    ["/?month=6", "2026", "6"],
+    ["/?year=foo&month=1", "2026", "10"],
+    ["/?year=2026&month=foo", "2026", "10"],
+    ["/?year=2026&month=0", "2026", "10"],
+    ["/?year=2026&month=13", "2026", "10"],
+    ["/?year=2026&month=1.5", "2026", "10"],
+    ["/?year=&month=1", "2026", "10"],
+    ["/?year=2021&month=12", "2026", "10"],
+    ["/?year=2033&month=1", "2026", "10"],
+  ])("URLの検証と初期化 %s は月表示と集計条件を一致させる", async (entry, year, month) => {
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(new Date(2026, 9, 9, 12))
+    const requestedMonths: string[] = []
+    server.use(
+      http.post("*/rest/v1/rpc/get_monthly_total_amount", async ({ request }) => {
+        const body = (await request.json()) as { p_month: string }
+        requestedMonths.push(body.p_month)
+        return HttpResponse.json(5000)
+      }),
+    )
+    // URLの検証と初期化を含む経路を確認するため、本番のroute treeを使う。
+    const router = createRouter({
+      routeTree: appRouter.options.routeTree,
+      history: createMemoryHistory({ initialEntries: [entry] }),
+      parseSearch: appRouter.options.parseSearch,
+      stringifySearch: appRouter.options.stringifySearch,
+      context: { authStatus: "authenticated", supabaseSession: mockSession() },
+    })
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥5,000")
+    })
+    const expectedMonth = new Intl.DateTimeFormat("en", { year: "numeric", month: "long" }).format(
+      new Date(Number(year), Number(month) - 1, 1),
+    )
+    expect(screen.getByRole("button", { name: expectedMonth })).toBeInTheDocument()
+    expect(router.state.location.search).toMatchObject({ year, month })
+    const url = new URL(router.state.location.href, "https://example.com")
+    expect(url.searchParams.get("year")).toBe(year)
+    expect(url.searchParams.get("month")).toBe(month)
+    expect(requestedMonths.length).toBeGreaterThan(0)
+    expect(requestedMonths.every((value) => value === `${year}-${month.padStart(2, "0")}`)).toBe(
+      true,
+    )
+    expect(screen.queryByRole("button", { name: "Select year and month" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 
   test("月次集計と全期間の直近5件を表示し、検索は表示しない", async () => {

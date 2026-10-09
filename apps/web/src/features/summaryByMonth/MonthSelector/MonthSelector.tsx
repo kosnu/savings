@@ -5,11 +5,10 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
+import { toTargetMonth } from "../../../domain/date"
 import { getDateLocale } from "../../../i18n"
 import { useDateRange } from "../../../utils/useDateRange"
-
-const MIN_MONTH_INDEX = toMonthIndex(2022, 1)
-const MAX_MONTH_INDEX = toMonthIndex(2032, 12)
+import { isSelectableMonth, MAX_MONTH_INDEX, MIN_MONTH_INDEX } from "../monthRange"
 
 function toMonthIndex(year: number, month: number) {
   return year * 12 + month - 1
@@ -20,8 +19,7 @@ function getMonthIndex(date: Date) {
 }
 
 function isAllowedMonth(date: Date) {
-  const monthIndex = getMonthIndex(date)
-  return MIN_MONTH_INDEX <= monthIndex && monthIndex <= MAX_MONTH_INDEX
+  return isSelectableMonth(toTargetMonth(date))
 }
 
 export function MonthSelector({ to = "/payments" }: { to?: "/" | "/payments" }) {
