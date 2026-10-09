@@ -1,0 +1,55 @@
+{
+  "sequence": 8,
+  "kind": "review",
+  "time": "2026-10-09T16:59:28.333124Z",
+  "task_hash": "40c92e6b5c5bbf2114598c2065cefe5be689f560589f3360c34d85f514f5b8e8",
+  "previous": "aec87ae214f8c1c9b64c4ad6a58df10ddea88d932ceeadb1c8630b942544fd87",
+  "revision": 2,
+  "fingerprint": "12ce7d7848d8c81572949d1b7a3e5c3e820e4ae8691e8837a5b82225f6eee95c",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.storybook-browser-tests, web.test-policy\n- Unresolved: なし\nVite+ 1.0.0を維持した最小の依存同期。domain、UI、API、CI設定、正本の動作変更はない。既存のcss-parser-algorithms peer不一致は今回のVitest更新と無関係であり必須検証を妨げない。",
+    "criteria": [
+      {
+        "criterion": "Vite+ 1.0.0とVitest関連依存のバージョンが整合する",
+        "evidence": "Vite+公開メタデータのVitest 5.0.1、package.jsonのprovider/coverage 5.0.1、catalog 5.0.1とlockfileの解決結果を照合。Storybook 10.6.1の公開修正#36270とpeer範囲がVitest 5を支持。既存overrideの仕組み、最小リリース経過時間、test収集範囲は保持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Web必須検証とStorybook browserテストが成功する",
+        "evidence": "revision 2 verify 000007: stable=true、lint/format-check/typecheck/unit-integration/storybook/git diff --checkの全exit 0。unit/integration 140 files 727 tests、storybook 6 files 14 tests成功。初回のbrowser sandbox起動拒否は実行権限調整後に解消し、テストや設定を弱めていない。 commit hookのYAML引用符整形後にも同じ必須検証を再実行して全成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "変更がPR #1895に反映される",
+        "evidence": "現在branchはrenovate/major-vite-plus-monorepo、remoteとPR headはbaseline 0af16f5一致、base main、PR OPEN。実装diffはapps/web/package.json、pnpm-workspace.yaml、生成lockfileと必要なTask記録のみ。配信そのものは後続ship照合で確認する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "7437f906858cfa56d6db7f3543618c4e0e85cf9b5c9e1129299363c6f2ca6bb7",
+  "cycle_id": "pr-1895-vite-plus-v1/cycle-0001"
+}
