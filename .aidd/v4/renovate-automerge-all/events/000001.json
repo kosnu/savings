@@ -1,0 +1,14 @@
+{
+  "sequence": 1,
+  "kind": "start",
+  "time": "2026-10-09T16:45:01.565135Z",
+  "task_hash": "ea3f2042b9d7b8f8e2e8b1a4dc084e725c8abc3b16a8df7d15871a4cccbff3d3",
+  "previous": "",
+  "revision": 0,
+  "fingerprint": "2068f747213fd13aa00fd1c78b40d017a444c9f5cd1fcce3de495cd1c24b9893",
+  "data": {
+    "initial_changes": []
+  },
+  "hash": "9246b87a10d00ea802b1ce620dfdb667ecadcb656e6261659fba55164d28457f",
+  "cycle_id": "renovate-automerge-all/cycle-0001"
+}

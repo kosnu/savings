@@ -1,0 +1,60 @@
+{
+  "sequence": 7,
+  "kind": "decision",
+  "time": "2026-10-09T16:47:05.676244Z",
+  "task_hash": "ea3f2042b9d7b8f8e2e8b1a4dc084e725c8abc3b16a8df7d15871a4cccbff3d3",
+  "previous": "eae1cb86f7e2b385be58f08a31e2c028ffad24fbd9a368c2dba12ec8e9b3d645",
+  "revision": 3,
+  "fingerprint": "7a09869942c32d8341e640e165c3e3af6d46db2ff24c98f192ded006d3fe5e23",
+  "data": {
+    "intent_revision": {
+      "source": "codex-chat:user-request:renovate-automerge-all#implementation-acceptance-and-ship-boundary",
+      "objective": "Renovateの全依存更新でPR automergeを有効にする",
+      "constraints": [
+        "既存のグルーピングとrelease ageを保持",
+        "merge/deployは行わない",
+        "Git Workflowの委任に従いcommit/push/PRの配信確認まで行う"
+      ],
+      "acceptance": [
+        "majorを含む全依存更新がautomerge対象",
+        "Renovate設定が検証に合格"
+      ],
+      "text_hash": "23d1c7a0c7f0ebcd461b0aed7cf80441e061d65dc5fdc9264306ba725cd561fc"
+    },
+    "summary": "automerge=trueとautomergeType=prを共通設定へ移し、個別ルールの重複指定を削除する。グルーピングと7日待機は保持する。設定のみの変更のためアプリ検証は対象外。 pnpmのローカル起動失敗を確認したため、導入済みvpを直接呼んでformat-checkする。 配信確認はShip後に行うため、Ship前にsemantic evidenceを要求する実装acceptanceから委任範囲のconstraintへ区分を修正。依頼の成果と配信範囲は変更しない。",
+    "paths": [
+      "renovate.json5"
+    ],
+    "commands": [
+      [
+        "env",
+        "npm_config_cache=/tmp/renovate-npm-cache",
+        "npx",
+        "--yes",
+        "--package",
+        "renovate",
+        "renovate-config-validator",
+        "renovate.json5"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "renovate.json5",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.workflow",
+      "policy.git-workflow",
+      "policy.code-review",
+      "documentation.policy"
+    ]
+  },
+  "hash": "0e16d1cb739055cb39141bd330fa4b3fdb9388a6ab15ef5a5c54381e0482e84b",
+  "cycle_id": "renovate-automerge-all/cycle-0001"
+}

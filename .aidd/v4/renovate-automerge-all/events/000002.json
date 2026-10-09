@@ -1,0 +1,48 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-09T16:45:16.913988Z",
+  "task_hash": "ea3f2042b9d7b8f8e2e8b1a4dc084e725c8abc3b16a8df7d15871a4cccbff3d3",
+  "previous": "9246b87a10d00ea802b1ce620dfdb667ecadcb656e6261659fba55164d28457f",
+  "revision": 1,
+  "fingerprint": "2068f747213fd13aa00fd1c78b40d017a444c9f5cd1fcce3de495cd1c24b9893",
+  "data": {
+    "summary": "automerge=trueとautomergeType=prを共通設定へ移し、個別ルールの重複指定を削除する。グルーピングと7日待機は保持する。設定のみの変更のためアプリ検証は対象外。",
+    "paths": [
+      "renovate.json5"
+    ],
+    "commands": [
+      [
+        "env",
+        "npm_config_cache=/tmp/renovate-npm-cache",
+        "npx",
+        "--yes",
+        "--package",
+        "renovate",
+        "renovate-config-validator",
+        "renovate.json5"
+      ],
+      [
+        "pnpm",
+        "exec",
+        "vp",
+        "fmt",
+        "renovate.json5",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.workflow",
+      "policy.git-workflow",
+      "policy.code-review",
+      "documentation.policy"
+    ]
+  },
+  "hash": "4492de1f49d7caf531fae958995b352fc7a98cd0fe48ed0b5d4f89b713f0f41f",
+  "cycle_id": "renovate-automerge-all/cycle-0001"
+}

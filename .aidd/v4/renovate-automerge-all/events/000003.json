@@ -1,0 +1,46 @@
+{
+  "sequence": 3,
+  "kind": "decision",
+  "time": "2026-10-09T16:45:36.363227Z",
+  "task_hash": "ea3f2042b9d7b8f8e2e8b1a4dc084e725c8abc3b16a8df7d15871a4cccbff3d3",
+  "previous": "4492de1f49d7caf531fae958995b352fc7a98cd0fe48ed0b5d4f89b713f0f41f",
+  "revision": 2,
+  "fingerprint": "7a09869942c32d8341e640e165c3e3af6d46db2ff24c98f192ded006d3fe5e23",
+  "data": {
+    "summary": "automerge=trueとautomergeType=prを共通設定へ移し、個別ルールの重複指定を削除する。グルーピングと7日待機は保持する。設定のみの変更のためアプリ検証は対象外。 pnpmのローカル起動失敗を確認したため、導入済みvpを直接呼んでformat-checkする。",
+    "paths": [
+      "renovate.json5"
+    ],
+    "commands": [
+      [
+        "env",
+        "npm_config_cache=/tmp/renovate-npm-cache",
+        "npx",
+        "--yes",
+        "--package",
+        "renovate",
+        "renovate-config-validator",
+        "renovate.json5"
+      ],
+      [
+        "node_modules/.bin/vp",
+        "fmt",
+        "renovate.json5",
+        "--check"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.workflow",
+      "policy.git-workflow",
+      "policy.code-review",
+      "documentation.policy"
+    ]
+  },
+  "hash": "1451b1ea8eab1c0ba2a8e4a5bb1b600c998847f58df1031bd4bd4a1668514096",
+  "cycle_id": "renovate-automerge-all/cycle-0001"
+}

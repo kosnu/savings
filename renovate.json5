@@ -1,6 +1,8 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended", "helpers:pinGitHubActionDigests"],
+  automerge: true,
+  automergeType: "pr",
   minimumReleaseAge: "7 days",
   vulnerabilityAlerts: {
     enabled: true,
@@ -10,15 +12,11 @@
       matchDepTypes: ["dependencies"],
       groupName: "all-dependencies",
       matchUpdateTypes: ["patch", "minor"],
-      automerge: true,
-      automergeType: "pr",
     },
     {
       matchDepTypes: ["devDependencies"],
       groupName: "all-dev-dependencies",
       matchUpdateTypes: ["patch", "minor"],
-      automerge: true,
-      automergeType: "pr",
     },
     {
       matchPackageNames: [

@@ -1,0 +1,37 @@
+{
+  "sequence": 5,
+  "kind": "review",
+  "time": "2026-10-09T16:46:14.016716Z",
+  "task_hash": "ea3f2042b9d7b8f8e2e8b1a4dc084e725c8abc3b16a8df7d15871a4cccbff3d3",
+  "previous": "240b65f0d7f51c7b0fa78cf93dadf107c66632f9ffa45415cf5dcad5bd05b849",
+  "revision": 2,
+  "fingerprint": "7a09869942c32d8341e640e165c3e3af6d46db2ff24c98f192ded006d3fe5e23",
+  "data": {
+    "summary": "Coverage: Checked rules: ai-driven.workflow, policy.git-workflow, policy.code-review, documentation.policy. Unresolved: なし。指摘なし。公式automerge仕様と実差分を照合し、global trueによりmajor、dev、本番、pnpm、GitHub Actionsにも適用され、個別のfalse上書きがないことを確認。既存grouping、release age、security設定を保持。Renovateの実マージは未確認。",
+    "criteria": [
+      {
+        "criterion": "majorを含む全依存更新がautomerge対象",
+        "evidence": "renovate.json5のrootにautomerge=true, automergeType=prを設定。packageRulesに無効化なし。matchUpdateTypesはgroupingの条件だけとして保持。https://docs.renovatebot.com/configuration-options/#automerge と照合。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Renovate設定が検証に合格",
+        "evidence": "verify revision 2: renovate-config-validator、vp fmt --check、git diff --check が全てexit 0。アプリruntime/build/typeに変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "commit/push/PRの配信を確認",
+        "evidence": "Shipでcommit・remote ref・PR head/baseをread-backする。これは実装review後の配信確認条件。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.workflow",
+      "policy.git-workflow",
+      "policy.code-review",
+      "documentation.policy"
+    ]
+  },
+  "hash": "10221f26c7616805b64c1bfa066250fdbc32def9c951588b67c92457ec5bf190",
+  "cycle_id": "renovate-automerge-all/cycle-0001"
+}
