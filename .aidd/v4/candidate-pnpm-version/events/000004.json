@@ -1,0 +1,45 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-10-09T17:32:26.243266Z",
+  "task_hash": "d40b36b25766e3bc492990f44a549074ae31e9ce3ad2b9783ff66955d3b19214",
+  "previous": "2be6724f84725f809908a79f73d8d3c27ad3536485d8e6b8cd2ce17286c72e54",
+  "revision": 1,
+  "fingerprint": "b6ec59d790c3e62af0b2fef0a36e1fa5036248481b0181cffd0ca3d692203733",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.transaction-boundaries\n- Unresolved: なし\n最新ユーザー訂正に合わせたmain基点の独立CI修正。版指定をcheckout済みpackageManagerに委譲し既存CI検査と信頼境界を維持。依存・アプリ・API・ドメイン・正本・索引・CLIの変更は不要。",
+    "criteria": [
+      {
+        "criterion": "candidateのpnpm版はcheckoutしたpackageManagerから取得する",
+        "evidence": "main比でcandidate Setup pnpmのwith/version 2行削除だけ。head SHA checkoutがSetup pnpmより前に実行される。固定action SHA公式READMEはpackageManager存在時の省略を支持。mainのpnpm@12.8.2、旧PRのpnpm@12.7.0はいずれも各checkoutの固定版が唯一の指定になる。packageManager欠落時はsetup失敗し暗黙のlatestにはならない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "既存CI検査を維持し必要なローカル検証が成功する",
+        "evidence": "verify event000003 stable=true、6コマンド全exit0。Core/session-metrics test/vet、shared gate 5 tests、git diff --check成功。vp fmt対象YAML check成功。全検査stepとintegration/verify jobsは不変。アプリ・build/type設定の変更がないためWeb検証は対象外。CI実環境はShip時に取得した状態を区別して報告する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "main基点の新規PRにCI修正だけを反映する",
+        "evidence": "baseline bbf9c533=origin/main、topic fix/candidate-pnpm-version。実変更workflow2行削除と必要な同Task証拠のみ。Vite+更新・従来Taskは含めない。commit/push後の新規PR作成とhead/base一致をShip照合で必須確認する。配信前の実反映は未確認。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "501eeadfef3c1cf099ba1658f3ba689a9c8dd3ff1479a465c3a23209ee6e0781",
+  "cycle_id": "candidate-pnpm-version/cycle-0001"
+}

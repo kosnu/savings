@@ -1,0 +1,83 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-10-09T17:31:48.343004Z",
+  "task_hash": "d40b36b25766e3bc492990f44a549074ae31e9ce3ad2b9783ff66955d3b19214",
+  "previous": "4dcad328ce55f578fd7e07a018e313ac61c70429b3445e390b442bd250edc76f",
+  "revision": 1,
+  "fingerprint": "b6ec59d790c3e62af0b2fef0a36e1fa5036248481b0181cffd0ca3d692203733",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t0.603s\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t65.967s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/session-metrics\t0.659s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 6.343s\n\nOK\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "2be6724f84725f809908a79f73d8d3c27ad3536485d8e6b8cd2ce17286c72e54",
+  "cycle_id": "candidate-pnpm-version/cycle-0001"
+}
