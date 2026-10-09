@@ -1,0 +1,128 @@
+{
+  "sequence": 14,
+  "kind": "verify",
+  "time": "2026-10-09T17:23:30.07588Z",
+  "task_hash": "40c92e6b5c5bbf2114598c2065cefe5be689f560589f3360c34d85f514f5b8e8",
+  "previous": "cd3e4f410459f5719bbe76fee88924ab9f471be902c653c91d6312c35fd18813",
+  "revision": 4,
+  "fingerprint": "f5d4f02f77c4aa3ee9dd84a608014598b6ea56fe2f5c923cd1582e63daf1e6ed",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 774ms on 573 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:33052) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/1674/savings/apps/web\n\n·······················································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  140 passed (140)\n      Tests  727 passed (727)\n   Start at  02:20:37\n   Duration  96.19s (setup 66%, tests 13%, environment 10%, import 10%, transform 2%)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:storybook"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:storybook --reporter=dot --silent\n$ vp test run --project storybook --reporter=dot --silent\n(node:33656) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/1674/savings/apps/web\n\n··············\n\n Test Files  6 passed (6)\n      Tests  14 passed (14)\n   Start at  02:22:15\n   Duration  7.22s (setup 56%, import 22%, tests 15%, worker 8%)\n\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t0.675s\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t57.229s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/session-metrics\t0.970s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 6.502s\n\nOK\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "725be5af93362d8d01914fdd526008af2441085f924604c41ba5e8abec55167f",
+  "cycle_id": "pr-1895-vite-plus-v1/cycle-0002"
+}

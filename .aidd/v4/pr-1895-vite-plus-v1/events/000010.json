@@ -1,0 +1,19 @@
+{
+  "sequence": 10,
+  "kind": "approve",
+  "time": "2026-10-09T17:19:32.064062Z",
+  "task_hash": "40c92e6b5c5bbf2114598c2065cefe5be689f560589f3360c34d85f514f5b8e8",
+  "previous": "864182a0f2602ebe15f0a25861c1b90f2a8679effb76702176f8816df65b4d7e",
+  "revision": 2,
+  "fingerprint": "12ce7d7848d8c81572949d1b7a3e5c3e820e4ae8691e8837a5b82225f6eee95c",
+  "data": {
+    "audit_hash": "864182a0f2602ebe15f0a25861c1b90f2a8679effb76702176f8816df65b4d7e",
+    "source": "codex:user-message:approve-P1-ship",
+    "proposal_ids": [
+      "P1"
+    ],
+    "text_hash": "0afb037812774e9c80521ec8a6514224876717de0bb1017cfa7888a7add101b0"
+  },
+  "hash": "c8e09f9de2111b116b8b084bbfd36b85f6eb86bae51f45bf0eef3af60c200646",
+  "cycle_id": "pr-1895-vite-plus-v1/cycle-0001"
+}

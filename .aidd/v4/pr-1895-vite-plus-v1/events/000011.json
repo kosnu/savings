@@ -1,0 +1,115 @@
+{
+  "sequence": 11,
+  "kind": "decision",
+  "time": "2026-10-09T17:19:49.481069Z",
+  "task_hash": "40c92e6b5c5bbf2114598c2065cefe5be689f560589f3360c34d85f514f5b8e8",
+  "previous": "c8e09f9de2111b116b8b084bbfd36b85f6eb86bae51f45bf0eef3af60c200646",
+  "revision": 3,
+  "fingerprint": "12ce7d7848d8c81572949d1b7a3e5c3e820e4ae8691e8837a5b82225f6eee95c",
+  "data": {
+    "summary": "承認P1のみ実施。candidateのpnpm/action-setup with.versionを除去しcheckout済みpackageManagerに版を委ねる。既存依存修正と検査経路を保持。正本・CLI・索引の追加変更は不要。最新revisionで既存Web検証とCI境界検査を実行する。",
+    "paths": [
+      "pnpm-workspace.yaml",
+      "pnpm-lock.yaml",
+      "apps/web/package.json",
+      ".github/workflows/aidd_checker_ci.yaml"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "9ad083752e09b4203ab5055957dbeb816ef6ba6c3dad2d7ff4e3de2293034ca3",
+  "cycle_id": "pr-1895-vite-plus-v1/cycle-0001"
+}

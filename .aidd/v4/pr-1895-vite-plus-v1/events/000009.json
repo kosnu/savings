@@ -1,0 +1,38 @@
+{
+  "sequence": 9,
+  "kind": "audit",
+  "time": "2026-10-09T17:12:18.877038Z",
+  "task_hash": "40c92e6b5c5bbf2114598c2065cefe5be689f560589f3360c34d85f514f5b8e8",
+  "previous": "7437f906858cfa56d6db7f3543618c4e0e85cf9b5c9e1129299363c6f2ca6bb7",
+  "revision": 2,
+  "fingerprint": "12ce7d7848d8c81572949d1b7a3e5c3e820e4ae8691e8837a5b82225f6eee95c",
+  "data": {
+    "summary": "Frontend CI全件成功によりVite+/Vitest/Storybook修正の効果を確認。AIDD candidateはworkflowのpnpm 12.8.2固定とPR head packageManager 12.7.0の不一致で失敗しverifyへ伝播。レビューthreadなし。Renovateの自動rebase停止は手動commit保護の通知。",
+    "findings": [
+      "AIDD CI run 37963150575 candidate Setup pnpm: action version 12.8.2とpackage.json pnpm@12.7.0が競合。mainのpnpm更新commit 976142d4は2026-10-07。PR head packageManagerは旧版。verify失敗はcandidate failureの伝播。",
+      "Renovate issuecomment-6085486363は手動commitによる自動rebase停止通知。コードdefectではない。返信不要、threadなし、rebase/retryによるcustom changes喪失を避け現在の修正を保持。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "P1",
+        "finding": "candidate checkout後もworkflowの独立したpnpm版固定を参照し、baseとPR headの版が異なると検証が起動できない。",
+        "evidence": "https://github.com/kosnu/savings/actions/runs/37963150575/job/113930779930。pnpm/action-setup公式READMEはpackageManager存在時のversion省略を支持。",
+        "change": ".github/workflows/aidd_checker_ci.yamlのcandidate Setup pnpmからwith.version固定を除き、checkoutしたPR headのpackageManagerを唯一の版指定にする。Go/Core/shared-gate/rule graphとTask evidence検査を維持し、CIで旧pnpmのPR headもsetupを通過することを確認する。",
+        "paths": [
+          ".github/workflows/aidd_checker_ci.yaml"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "5049307fcac4c21e3e6853913da0b9fbfaad4cd2",
+      "remote": "origin",
+      "branch": "renovate/major-vite-plus-monorepo",
+      "pr": "https://github.com/kosnu/savings/pull/1895",
+      "evidence": "PR head、local HEAD一致。Frontend全5ジョブ成功。AIDD integration成功、candidate/verify失敗。",
+      "base": "main"
+    }
+  },
+  "hash": "864182a0f2602ebe15f0a25861c1b90f2a8679effb76702176f8816df65b4d7e",
+  "cycle_id": "pr-1895-vite-plus-v1/cycle-0001"
+}
