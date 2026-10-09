@@ -1,0 +1,76 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-09T17:30:26.79782Z",
+  "task_hash": "d40b36b25766e3bc492990f44a549074ae31e9ce3ad2b9783ff66955d3b19214",
+  "previous": "9729bd9599fdef27c16a906d4435a35799c213dc83655bcfb9c408e0509eb9c5",
+  "revision": 1,
+  "fingerprint": "2068f747213fd13aa00fd1c78b40d017a444c9f5cd1fcce3de495cd1c24b9893",
+  "data": {
+    "summary": "main基点の独立CI修正。candidateのwith.versionを削除し固定packageManagerを唯一の版指定にする。action SHA・checkout順・全CI検査は保持。アプリ/依存/CLI/正本変更は不要。",
+    "paths": [
+      ".github/workflows/aidd_checker_ci.yaml"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "4dcad328ce55f578fd7e07a018e313ac61c70429b3445e390b442bd250edc76f",
+  "cycle_id": "candidate-pnpm-version/cycle-0001"
+}

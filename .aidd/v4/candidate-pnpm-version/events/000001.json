@@ -1,0 +1,14 @@
+{
+  "sequence": 1,
+  "kind": "start",
+  "time": "2026-10-09T17:30:08.759697Z",
+  "task_hash": "d40b36b25766e3bc492990f44a549074ae31e9ce3ad2b9783ff66955d3b19214",
+  "previous": "",
+  "revision": 0,
+  "fingerprint": "2068f747213fd13aa00fd1c78b40d017a444c9f5cd1fcce3de495cd1c24b9893",
+  "data": {
+    "initial_changes": []
+  },
+  "hash": "9729bd9599fdef27c16a906d4435a35799c213dc83655bcfb9c408e0509eb9c5",
+  "cycle_id": "candidate-pnpm-version/cycle-0001"
+}
