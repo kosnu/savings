@@ -1,0 +1,75 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-10-09T16:53:10.0408Z",
+  "task_hash": "40c92e6b5c5bbf2114598c2065cefe5be689f560589f3360c34d85f514f5b8e8",
+  "previous": "b7447327e7ba81d733c748ffa4c022b4c5a53a6599c5fe310bef94108028b9c6",
+  "revision": 2,
+  "fingerprint": "609b1a74bdaae4a620354d0f028ef9a278217162fc8acf87551437e6101d0857",
+  "data": {
+    "summary": "Vite+ 1.0.0の公開依存Vitest 5.0.1にcatalog、browser-playwright、coverage-v8を同期。overrideの仕組みは維持。既存テストでlintとStorybook起動障害および回帰を検証する。正本・索引・CLI・CI自体の変更は不要。 Storybook 10.6.1の公開修正#36270がVitest 5 browser testをサポートするため関連5パッケージを同期更新する。",
+    "paths": [
+      "pnpm-workspace.yaml",
+      "pnpm-lock.yaml",
+      "apps/web/package.json"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "ac20b5c5a5dc74e3f67c6c9afd73db29debf3838e6a465e3ad3cb0f55f1df63d",
+  "cycle_id": "pr-1895-vite-plus-v1/cycle-0001"
+}

@@ -1,0 +1,70 @@
+{
+  "sequence": 5,
+  "kind": "verify",
+  "time": "2026-10-09T16:55:22.267638Z",
+  "task_hash": "40c92e6b5c5bbf2114598c2065cefe5be689f560589f3360c34d85f514f5b8e8",
+  "previous": "ac20b5c5a5dc74e3f67c6c9afd73db29debf3838e6a465e3ad3cb0f55f1df63d",
+  "revision": 2,
+  "fingerprint": "a36640ad529b5795159648ee340e1fdc28c46feedaf1aa64e8a75f8a0c4995ca",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 663ms on 573 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:22264) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/f701/savings/apps/web\n\n·······················································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  140 passed (140)\n      Tests  727 passed (727)\n   Start at  01:53:45\n   Duration  87.79s (setup 64%, tests 14%, import 9%, environment 9%, transform 2%)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:storybook"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:storybook --reporter=dot --silent\n$ vp test run --project storybook --reporter=dot --silent\n(node:22605) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/f701/savings/apps/web\n\n··············\n\n Test Files  6 passed (6)\n      Tests  14 passed (14)\n   Start at  01:55:15\n   Duration  6.83s (setup 57%, import 20%, tests 16%, worker 7%)\n\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "f1c039d9a56a7539e9cc8b4383af32b50eaccdca9afd2a1cac4b4f812b32b2d1",
+  "cycle_id": "pr-1895-vite-plus-v1/cycle-0001"
+}
