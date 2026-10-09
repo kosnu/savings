@@ -173,6 +173,12 @@ describe("PaymentsPage", () => {
     vi.useRealTimers()
   })
 
+  test("一覧の対象を示すページ見出しを1つ表示する", async () => {
+    renderStory()
+    expect(await screen.findByRole("heading", { level: 1, name: "Payments" })).toBeInTheDocument()
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1)
+  })
+
   test("selected Bookの解決中はPayment APIを呼ばない", async () => {
     let paymentRequestCount = 0
     server.resetHandlers(...createBookHandlers({ durationOrMode: "infinite" }))

@@ -10,7 +10,7 @@ import { BookSettings } from "../features/books"
 import { paymentsSearchSchema } from "../features/payments"
 import { AppearanceSettings } from "../features/preferences"
 import { ProfileSettings } from "../features/profile"
-import { isSelectableMonth } from "../features/summaryByMonth"
+import { isSelectableMonth, MAX_MONTH_INDEX, MIN_MONTH_INDEX } from "../features/summaryByMonth"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
@@ -57,7 +57,13 @@ const indexRoute = createRoute({
     const isValid = isSelectableMonth(targetMonth)
     if (isValid && search.year !== undefined && search.month !== undefined) return
 
-    const month = isValid ? targetMonth : currentMonth
+    const fallbackMonthIndex = Math.max(
+      MIN_MONTH_INDEX,
+      Math.min(MAX_MONTH_INDEX, currentMonth.year * 12 + currentMonth.month - 1),
+    )
+    const month = isValid
+      ? targetMonth
+      : { year: Math.floor(fallbackMonthIndex / 12), month: (fallbackMonthIndex % 12) + 1 }
     throw redirect({
       to: "/",
       search: { year: String(month.year), month: String(month.month) },

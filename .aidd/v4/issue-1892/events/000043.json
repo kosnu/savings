@@ -1,0 +1,157 @@
+{
+  "sequence": 43,
+  "kind": "decision",
+  "time": "2026-10-09T15:49:16.980352Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "ef1f223b755d5080497f2e6caeaf5bee23514ba529d5565e81ef99471d545527",
+  "revision": 13,
+  "fingerprint": "cdda80e053407ffa8a2231958ebda05931dc35c0297cd769f15d2354b0a3d4a6",
+  "data": {
+    "summary": "cycle-0005の通常開発。元Intentと改善済み日付/見出しテスト規則を適用する。トップbeforeLoadでraw現在年月の補完と正常な完全URL/有効な部分URLの既存意味を維持し、不正/範囲外のtargetだけを既存共有MIN/MAX範囲へclampした現在年月に置換する。新helper/state/layerは作らず、feature公開口から既存MIN/MAXを公開してrootで補正する。HomePageの本番route tree/serializer/API経路で現在月2021-12/2022-01/2032-12/2033-01と未指定/不正/有効/部分指定URLを20ケース検証し、既存14ケースも保持。支払い一覧へ既存navigation.payments文言のh1、size6を追加し、既存PaymentsPageのunitとbrowser-tagged Default storyでheading role/件数/内容を検証。トップの汎用h1不在を保持。修正する実パスはroutes.ts、summaryByMonth/index.ts、HomePage.test.tsx、PaymentsPage.tsx/PaymentsPage.test.tsx/PaymentPage.stories.tsxだけ。Task baselineから既存所有pathsを維持し、test-policyの承認済み改善以外のguardrail変更や他画面へ広げない。Web format後に11個の既存必須commandを同一batch実行、実差分全規則review後Shipし、承認済み2Bot threadだけ返信/解決する。",
+    "paths": [
+      "apps/web/src/app/routes.ts",
+      "apps/web/src/app/routes/HomePage/",
+      "apps/web/src/app/routes/authRedirect.test.tsx",
+      "apps/web/src/app/routes/PaymentsPage/",
+      "apps/web/src/app/useInitializeMonthSearch.ts",
+      "apps/web/src/app/useInitializeMonthSearch.test.tsx",
+      "apps/web/src/app/AppLayout/",
+      "apps/web/src/app/Header/Header.tsx",
+      "apps/web/src/app/Header/Header.test.tsx",
+      "apps/web/src/features/summaryByMonth/index.ts",
+      "apps/web/src/features/summaryByMonth/Summary/",
+      "apps/web/src/features/summaryByMonth/MonthSelector/",
+      "apps/web/src/features/payments/listPayment/RecentPayments/",
+      "apps/web/src/features/payments/listPayment/fetchPayments.ts",
+      "apps/web/src/features/payments/listPayment/fetchPayments.integration.test.ts",
+      "apps/web/src/features/payments/queryKeys.ts",
+      "apps/web/src/features/payments/index.ts",
+      "apps/web/src/i18n/resources.ts",
+      "docs/infrastructure.md",
+      "apps/web/docs/policies/design-rules.md",
+      "apps/web/docs/policies/query-cache.md",
+      "apps/web/docs/policies/suspense-boundaries.md",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+      "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+      "tools/aidd/checker/internal/core/lifecycle.go",
+      "tools/aidd/checker/internal/core/normal_cycle_scope_test.go",
+      "docs/ai-driven-development/aidd-checker.md",
+      "docs/ai-driven-development/workflow.md",
+      "apps/web/docs/policies/test-policy.md",
+      "apps/web/src/features/summaryByMonth/monthRange.ts"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "run",
+        "./cmd/aidd-checker",
+        "--root",
+        "../../..",
+        "rules"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tools.aidd.tests.test_shared_gate"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "28c6b67c387a723ae4d1cb6ea620ebf69322eb87a0693fa39dd2e16ecb0fd1b0",
+  "cycle_id": "issue-1892/cycle-0005"
+}

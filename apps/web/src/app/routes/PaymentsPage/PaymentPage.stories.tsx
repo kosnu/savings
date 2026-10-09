@@ -45,6 +45,9 @@ export const Default: Story = {
 
     await canvas.findByRole("button", { name: /create payment/i })
 
+    await expect(canvas.getByRole("heading", { level: 1, name: "Payments" })).toBeInTheDocument()
+    await expect(canvas.getAllByRole("heading", { level: 1 })).toHaveLength(1)
+
     expect(await canvas.findAllByText("コンビニ")).toHaveLength(2)
     expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
     expect(canvas.queryByText("スーパー")).not.toBeInTheDocument()

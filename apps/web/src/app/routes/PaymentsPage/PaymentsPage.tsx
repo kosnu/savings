@@ -1,6 +1,7 @@
-import { Box, Container, Flex } from "@radix-ui/themes"
+import { Box, Container, Flex, Heading } from "@radix-ui/themes"
 import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
 import { useSelectedBook } from "../../../features/books"
 import { CreatePaymentModal, PaymentCategoryFilter, PaymentList } from "../../../features/payments"
@@ -37,10 +38,14 @@ function PaymentsPageContent({
   paymentsPageCacheScope: string
 }) {
   const { book } = useSelectedBook(authUserId)
+  const { t } = useTranslation()
 
   return (
     <Container size="2">
       <Flex direction="column" gap="3">
+        <Heading as="h1" size="6">
+          {t("navigation.payments")}
+        </Heading>
         <Flex justify="center">
           <MonthSelector />
         </Flex>
