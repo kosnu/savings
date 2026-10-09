@@ -1,0 +1,50 @@
+{
+  "sequence": 39,
+  "kind": "audit",
+  "time": "2026-10-09T15:42:21.543357Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "4f488b772697af769ce3a96e64ac03299d6d7f950eb4a9479ef76ae489663b44",
+  "revision": 11,
+  "fingerprint": "4023e5c7dbf058c33cedbf6880d16482e566b5bc6a6822d20ced7b656918c9fc",
+  "data": {
+    "summary": "cycle-0004 Ship後の未解決2件をAudit。現在月フォールバックの範囲検証漏れと、支払い一覧へのページ見出し規則の適用・検出漏れを確認。既存規則のURL入力/トップだけへの偏った適用を、Web Test Policyの有限な2箇所の改善で検出へ接続する。Intentは変更せず、改善工程では成果物コードを変更しない。解決済み5件は対象外。",
+    "findings": [
+      "DATE-FALLBACK: https://github.com/kosnu/savings/pull/1893#discussion_r4225805746 thread PRRT_kwDOM0p88s6qnWnv (Bot/COMMENTED/未解決)。routes.ts:51-64はcurrentMonthを未検証のfallbackとして使用する。実sourceから抽出したbeforeLoadとisSelectableMonthの組み合わせを再実行し、現在月2021-12/2033-01で未指定または不正URLが同じ範囲外値へ3回連続redirectすることを確認。2022-01/2032-12では正常終了、有効な2025-06の完全URLはどの現在月でも保持。これは実router/browserの再現ではなくguard関数の評価。正常時計の2026年利用では顕在化しないが時計誤設定または2033年以降で顕在化。正確な発生率は不明。新beforeLoadによるdefectであり、このリダイレクト経路はtask baselineにはない。",
+      "DATE-CAUSE: HomePage.test.tsx:94-145の14URLケースはすべて現在Dateを2026-10-09に固定。test-policy:30と境界監査条項は既存、decision35/review38でも必須として記録されているが、現在時刻から補完する既定値自身の境界/範囲外テストはない。索引の到達性不足の証拠はなく、初期化規則の適用・検出漏れ。テスト対象となる値の取得元を明確化する提案。",
+      "PAGE-HEADING: https://github.com/kosnu/savings/pull/1893#discussion_r4225805749 thread PRRT_kwDOM0p88s6qnWnx (Bot/COMMENTED/未解決)。PaymentsPageContent、AppLayout/Headerにページ見出しなし。design-rules:105の一覧/検索画面の規則へ不適合。baseline時点でも見出しはないが、今回変更された一覧ページと、このTaskで改善した規則の適用対象。既存実装だから除外できない。",
+      "HEADING-CAUSE: rule-map web-source/UI routingでdesign-rulesは必須、decision35/review38にも選択記録あり。規則不足/索引不足ではなく各対象画面への適用・検出漏れ。HomePageにはh1不在のunit/browser確認が追加されたが、PaymentPage.stories DefaultとPaymentsPage.testはページ見出しを検証していない。review38は一覧/検索/追加と集計不在を確認し、この規則不適合を検出しなかった。読了記録から理解の有無は断定しない。",
+      "コメント対応方針: DATE-FALLBACKは範囲内に収まる補完値の採用と時刻境界/範囲外テストを、PAGE-HEADINGは既存規則に沿う支払い一覧見出しとsemantic headingテストを、Intent復帰後の通常開発で実装・検証・Shipする。返信には分類、具体修正、確認済みcommit、回帰テスト結果を記載する。両threadともPR反映・検証成功・競合や残作業なしを確認してから返信/resolveする方針。Audit依頼だけで返信・resolve・修正は実行しない。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "DATE-DEFAULT-BOUNDARIES",
+        "finding": "日付・年月の初期化テストがURL入力に偏り、現在時刻から生成する既定値・補完値の境界を検証しなかった。",
+        "evidence": "未解決DATE-FALLBACK thread、routes.ts:51-64、HomePage.test.tsx:94-145、test-policy:29-30、decision35/review38、guard source評価12組を照合。",
+        "change": "test-policy.mdの既存日付・年月条項を置換する文案: 日付・年月の検証・初期化では、外部入力と現在時刻から生成する既定値・補完値を対象に、正常値・不正値・未指定値、および許容範囲がある場合は境界・範囲外の挙動をテストする。新たなIntent条件/範囲拡張はしない。改善検証は既存URL14ケースと、現在月が境界/範囲外で未指定・不正・有効URLの場合を導けること、許容範囲なしのdate-only処理には不要な範囲検証を強制しないことを意味評価し、format/rule graph/diffを確認。改善工程はこの文書のみ。Intent復帰後の通常開発では既存2022-01〜2032-12を保ち、必要な場合だけ現在月を許容端へ補正する採用案を検討し、URL・月表示・実API取得月の一致とredirect終了を回帰テストで検証。正常な完全URLは保持する。Webの必要検証/review/Ship後に対象コメントへ返信/解決。",
+        "paths": [
+          "apps/web/docs/policies/test-policy.md"
+        ]
+      },
+      {
+        "id": "PAGE-HEADING-VERIFICATION",
+        "finding": "ページ種別に応じた見出し規則が変更対象の支払い一覧で適用されず、テストにも検出手段がなかった。",
+        "evidence": "未解決PAGE-HEADING thread、design-rules:103-107、PaymentsPage.tsx、PaymentPage.stories.tsx Default、PaymentsPage.test.tsx、decision35/review38を照合。",
+        "change": "test-policy.mdへ追加する文案: ページの表示責務を追加・変更する場合は、変更対象の各画面について、画面種別の規則に沿ったページ見出しの有無と内容を、見出しの役割でテストする。デザイン規則とIntentは変更しない。既存Web必須ルーティングから到達するため索引追加なし。改善検証はトップの汎用見出し不在と一覧/検索の対象見出しが両方導けること、見た目や内部component名ではなくrole/内容を照合することを意味評価し、format/rule graph/diffを確認。改善工程はこの文書のみ。Intent復帰後の通常開発では支払い一覧へ対象を示すh1を追加し、既存unit/storyのsemantic roleによる検出を加える。トップの汎用見出し不在を保ち、他画面の改修へ広げない。Web必要検証とStorybook/review/Ship後に対象コメントへ返信/解決。",
+        "paths": [
+          "apps/web/docs/policies/test-policy.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "974bf3d8d09f3d81104747776842849ab8bb9942",
+      "remote": "origin",
+      "branch": "issue-1892/separate-payment-pages",
+      "pr": "https://github.com/kosnu/savings/pull/1893",
+      "evidence": "2026-10-10にPR OPEN/head/base、local HEAD、origin branch refの完全SHA一致を確認。Core status revision11/cycle-0004/evidence_current=true。review38、verify37の対象fingerprint一致。PR threadは7件、resolved5件/未解決2件、全ページ取得済み。",
+      "base": "main"
+    }
+  },
+  "hash": "4aba5bf43547a98a92b17d724db20ba4f7ce4ae5206ef38b0a0f7f31bd9104f1",
+  "cycle_id": "issue-1892/cycle-0004"
+}

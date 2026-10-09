@@ -1,0 +1,17 @@
+{
+  "sequence": 42,
+  "kind": "return-intent",
+  "time": "2026-10-09T15:47:25.840887Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "bfc96fd108f1fb750fdae56690b627edd2c93993362edd9e4792a3a9f1236e07",
+  "revision": 12,
+  "fingerprint": "cdda80e053407ffa8a2231958ebda05931dc35c0297cd769f15d2354b0a3d4a6",
+  "data": {
+    "summary": "元Intentのトップ=集計/直近5件/追加、payments=一覧/検索/追加、既存データ意味・他画面不変、実行権限/baselineを再確認。承認済み2案の実差分はtest-policy.mdの2条項だけ、improve-check/formatter/diff/rule graph成功。外部URL値だけでなく現在時刻から初期化する値の境界/範囲外と未指定/不正/有効URLの組合せを導け、範囲制約がないdate-only入力では不要な範囲検証を要求しない。見出し条項は変更対象の各画面を対象に、design-rulesのトップ汎用見出し不在と一覧/検索の対象見出しをrole/内容で検出する。初期化やページ責務を変更しない部品には新たなテストを強制しない。ここまで成果物コード/テストに差分なし。次サイクルの新decisionから通常開発で修正/テスト/検証/review/Shipし、承認されたBot2threadだけ返信/解決する。",
+    "previous_cycle": "issue-1892/cycle-0004",
+    "approval_hash": "00ab0270fd6ae8f4dc81124b36a8be74a4e8f57f8d07ceef2e4635f5645b6b55",
+    "intent_hash": "87a5504f3716b2f294bdaefed4d783394dd93e7324620ebf8cbe72e7fc6ad7ec"
+  },
+  "hash": "ef1f223b755d5080497f2e6caeaf5bee23514ba529d5565e81ef99471d545527",
+  "cycle_id": "issue-1892/cycle-0005"
+}

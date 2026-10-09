@@ -1,0 +1,20 @@
+{
+  "sequence": 40,
+  "kind": "approve",
+  "time": "2026-10-09T15:46:42.930021Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "4aba5bf43547a98a92b17d724db20ba4f7ce4ae5206ef38b0a0f7f31bd9104f1",
+  "revision": 11,
+  "fingerprint": "4023e5c7dbf058c33cedbf6880d16482e566b5bc6a6822d20ced7b656918c9fc",
+  "data": {
+    "audit_hash": "4aba5bf43547a98a92b17d724db20ba4f7ce4ae5206ef38b0a0f7f31bd9104f1",
+    "source": "user-message:2026-10-10-approved-date-default-heading-audit",
+    "proposal_ids": [
+      "DATE-DEFAULT-BOUNDARIES",
+      "PAGE-HEADING-VERIFICATION"
+    ],
+    "text_hash": "8882a2cdf031dcb4ef144842141d1b340bd1de6244724af9a6489ec00438f182"
+  },
+  "hash": "00ab0270fd6ae8f4dc81124b36a8be74a4e8f57f8d07ceef2e4635f5645b6b55",
+  "cycle_id": "issue-1892/cycle-0004"
+}
