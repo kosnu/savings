@@ -5,11 +5,10 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
+import { toTargetMonth } from "../../../domain/date"
 import { getDateLocale } from "../../../i18n"
 import { useDateRange } from "../../../utils/useDateRange"
-
-const MIN_MONTH_INDEX = toMonthIndex(2022, 1)
-const MAX_MONTH_INDEX = toMonthIndex(2032, 12)
+import { isSelectableMonth, MAX_MONTH_INDEX, MIN_MONTH_INDEX } from "../monthRange"
 
 function toMonthIndex(year: number, month: number) {
   return year * 12 + month - 1
@@ -20,15 +19,14 @@ function getMonthIndex(date: Date) {
 }
 
 function isAllowedMonth(date: Date) {
-  const monthIndex = getMonthIndex(date)
-  return MIN_MONTH_INDEX <= monthIndex && monthIndex <= MAX_MONTH_INDEX
+  return isSelectableMonth(toTargetMonth(date))
 }
 
-export function MonthSelector() {
+export function MonthSelector({ to = "/payments" }: { to?: "/" | "/payments" }) {
   const { i18n, t } = useTranslation()
   const [open, setOpen] = useState(false)
   const { date: parsedDate } = useDateRange()
-  const navigate = useNavigate({ from: "/payments" })
+  const navigate = useNavigate({ from: to })
 
   // 未指定や不正な年月は、URLの初期化・検証処理に任せる。
   const currentDate = parsedDate && isAllowedMonth(parsedDate) ? parsedDate : null
@@ -48,12 +46,12 @@ export function MonthSelector() {
         const year = date.getFullYear().toString()
         const month = (date.getMonth() + 1).toString()
         void navigate({
-          to: "/payments",
+          to,
           search: (prev) => ({ ...prev, year, month }),
         })
       }
     },
-    [navigate],
+    [navigate, to],
   )
 
   const handlePreviousMonthClick = useCallback(() => {

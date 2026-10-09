@@ -25,6 +25,7 @@ Suspense を使う API 読み込みは、近い実装の形に合わせて、表
 - `useQuery`、local loading state、手動 fetch へ切り替える場合は、変更前に理由を明確にします。
 - ErrorBoundary の fallback から復帰する必要がある表示では、query key の変更だけで復帰すると仮定しません。
 - 月、検索条件、ID などの表示対象が変わることで再表示すべき場合は、同じ状態を `resetKeys` に含めます。
+- 取得失敗から復帰させる表示には、同じ入力のまま再試行できる経路を設け、query の再取得と ErrorBoundary の reset を連動させます。invalidation や refetch だけで fallback から復帰すると仮定しません。
 - ErrorBoundary の復帰判定に必要な key は、境界を所有する component が query key と同じ入力から組み立てます。
 - query key input に default 適用や変換が必要な場合は、query hook と境界が同じ canonical な正規化済み値を受け取る形にします。query hook と境界で同じ正規化処理を別々に実装したり、raw props と正規化後の値を混在させたりしません。
 - query result の `promise` と `React.use(promise)` をデータ取得の読み取り経路にしません。
@@ -39,6 +40,7 @@ Suspense または ErrorBoundary を追加・変更する場合は、境界ご�
 - query key input と `resetKeys` が同じ canonical な正規化済み値から組み立てられていること
 
 条件変更による fallback からの復帰は、`apps/web/docs/policies/test-policy.md` に従って回帰テストで確認します。
+同じ入力での再試行も、実際の復帰操作と API 境界を通して、取得失敗から正常表示へ復帰することを回帰テストで確認します。
 
 ## 複数 query の開始順序
 

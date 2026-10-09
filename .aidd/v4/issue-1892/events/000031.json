@@ -1,0 +1,39 @@
+{
+  "sequence": 31,
+  "kind": "audit",
+  "time": "2026-10-09T01:02:30.228991Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "e2ce9456ac8cc14d834e00d1c058f71e6d3f86e5392dd0f4e85fba83abdec3fc",
+  "revision": 9,
+  "fingerprint": "c75450a18f3deb089ae62ac350dab4bfa2212ecdeaa9a9746b21ec22da5b66b8",
+  "data": {
+    "summary": "年月URL指摘の追加Audit。元の年月処理にも不備があり、トップへの利用拡張で残存した。解析・月選択の既存テストには不正値/範囲外があるがURL検証と初期化には不足。Web Test Policyへ外部日付/月入力の検証・初期化の必要テストを具体化する。Intentは不変。承認対象の返信は年月URLthreadのみ。",
+    "findings": [
+      "https://github.com/kosnu/savings/pull/1893#discussion_r4196716980 thread PRRT_kwDOM0p88s6phJYV 未解決。任意文字列を受けるroot searchと値の存在だけを見る初期化により不正年月は集計loadingのまま、範囲外では月表示と取得条件が不一致。旧ブランチにも存在する処理の不備。",
+      "正常値・不正値・範囲外の解析/月選択単体テストだけではURL検証・初期化の必要ケースを充足しない。既存test policyへ到達する必須索引はあり、初回reviewにも確認記録がある。適用・検出漏れが有力。",
+      "承認後にguardrailのみを改善し、Intent復帰後の通常開発で設計/実装要否を判断する。年月threadは修正/検証/Ship後、commitと回帰テストを返信してBot thread解決。他4threadは今回の承認対象外で状態を保持。"
+    ],
+    "session_improvements": null,
+    "proposals": [
+      {
+        "id": "DATE-INPUT-TESTS",
+        "finding": "外部の日付・年月入力の検証・初期化に必要なテストが漏れた。",
+        "evidence": "useDateRange.test.tsx の不正値4件、MonthSelector.test.tsx の範囲外/未指定テストは存在。一方useInitializeMonthSearch.test.tsx は存在する不正値/範囲外の補正を検証しない。トップURL経路も正常値中心。対象PR comment/threadとreview30を照合。",
+        "change": "test-policy.mdへ承認された文案を追加: 日付・年月を外部から受け取る処理では、値の検証と初期化について、正常値・不正値・未指定値、および許容範囲がある場合は境界・範囲外の挙動をテストする。URL検証/年月初期化が対象になること、解析や月選択のテストだけで充足しないことを意味評価。適用例として別のdate-only入力、許容範囲なしの場合も照合し不要な範囲テストを強制しない。ルールグラフ/format/diffを検証。成果物コードをこの改善工程では変更しない。",
+        "paths": [
+          "apps/web/docs/policies/test-policy.md"
+        ]
+      }
+    ],
+    "delivery": {
+      "commit": "f3ac6e71d163f514218efb18ba537faa0d190d9f",
+      "remote": "origin",
+      "branch": "issue-1892/separate-payment-pages",
+      "pr": "https://github.com/kosnu/savings/pull/1893",
+      "evidence": "最新PR headとreview30の対象source一致、CI8件成功。既存Task/cycle-0003、baselineを保持。",
+      "base": "main"
+    }
+  },
+  "hash": "dd538a1ad2155d93284df9f83acf0539bd828edc29ccc9ea4f904aed015a12e1",
+  "cycle_id": "issue-1892/cycle-0003"
+}

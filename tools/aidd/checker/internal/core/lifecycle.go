@@ -569,6 +569,13 @@ func (s *Store) ImproveCheck() error {
 			paths = append(paths, p.Paths...)
 		}
 	}
+	// Intent復帰後は、同じcycleの新decisionで予定した範囲と照合する。
+	// 復帰前や新decisionがない間は、Audit改善の承認範囲を維持する。
+	if r := s.latest("return-intent"); r != nil && r.Sequence > s.latest("approve").Sequence {
+		if d := s.latest("decision"); d != nil && d.Sequence > r.Sequence && d.CycleID == s.cycleID() {
+			paths = eventData[Decision](d).Paths
+		}
+	}
 	commit, e := s.auditedCommit()
 	if e != nil {
 		return e

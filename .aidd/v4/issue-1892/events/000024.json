@@ -1,0 +1,113 @@
+{
+  "sequence": 24,
+  "kind": "decision",
+  "time": "2026-10-06T14:36:04.571403Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "499375d195e28cbd8f3b8a0858b38f16f997d55de73fa1b16918076d88012641",
+  "revision": 7,
+  "fingerprint": "0379ddb5c373ad3c2f05902a5af2a31ce28736ad90d60e1da766e6146ecb6c04",
+  "data": {
+    "summary": "cycle-0003で承認済みP3の文書改善を検証・レビュー・既存PRへ配信する。追加の成果物設計/実装・テスト追加・Intent訂正・Bot返信/解決は行わない。変更はSuspense Boundary Policyの再試行/境界復帰規則と同Taskの追記記録のみ。旧pathsはbaseline差分の所有照合に必要であり編集権限を広げない。CoreのTask全体差分の必須commandsを維持して再検証する。環境pnpm shimが未設置のplaceholderをNodeで実行して失敗するため、既に導入済みの同version12.7.0 native binaryをPATHで選択する。グローバル環境/依存/成果物には変更しない。固定入力失敗/条件変更失敗/正常表示の意味評価と既存resolver経路を確認し、product修正の完了とは扱わない。",
+    "paths": [
+      "apps/web/src/app/routes.ts",
+      "apps/web/src/app/routes/HomePage/",
+      "apps/web/src/app/routes/authRedirect.test.tsx",
+      "apps/web/src/app/routes/PaymentsPage/",
+      "apps/web/src/app/useInitializeMonthSearch.ts",
+      "apps/web/src/app/useInitializeMonthSearch.test.tsx",
+      "apps/web/src/app/AppLayout/",
+      "apps/web/src/app/Header/Header.tsx",
+      "apps/web/src/app/Header/Header.test.tsx",
+      "apps/web/src/features/summaryByMonth/index.ts",
+      "apps/web/src/features/summaryByMonth/Summary/",
+      "apps/web/src/features/summaryByMonth/MonthSelector/",
+      "apps/web/src/features/payments/listPayment/RecentPayments/",
+      "apps/web/src/features/payments/listPayment/fetchPayments.ts",
+      "apps/web/src/features/payments/listPayment/fetchPayments.integration.test.ts",
+      "apps/web/src/features/payments/queryKeys.ts",
+      "apps/web/src/features/payments/index.ts",
+      "apps/web/src/i18n/resources.ts",
+      "docs/infrastructure.md",
+      "apps/web/docs/policies/design-rules.md",
+      "apps/web/docs/policies/query-cache.md",
+      "apps/web/docs/policies/suspense-boundaries.md"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "run",
+        "./cmd/aidd-checker",
+        "--root",
+        "../../..",
+        "rules"
+      ]
+    ],
+    "rules": [
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "9fa0e1e05f3711e4b087ca965db0d92f17faf088a742ec12fdfb9413773c4e95",
+  "cycle_id": "issue-1892/cycle-0003"
+}

@@ -1,0 +1,20 @@
+{
+  "sequence": 12,
+  "kind": "approve",
+  "time": "2026-10-05T17:47:59.73088Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "d2aea15eb38f379d3d73d0aa81d28465a9f39715eafd14547a066ab9b000230e",
+  "revision": 2,
+  "fingerprint": "fca70fd2b3e77f6e37e487b37ca984453b507463efc4b9da0d4b892b6507f39e",
+  "data": {
+    "audit_hash": "d2aea15eb38f379d3d73d0aa81d28465a9f39715eafd14547a066ab9b000230e",
+    "source": "user-message:2026-10-06-issue-1892-audit-approval",
+    "proposal_ids": [
+      "P1",
+      "P2"
+    ],
+    "text_hash": "d48516cbab407ae18f2e81f761574a0bdb85a84be8a698d9e244f1ade260ba80"
+  },
+  "hash": "654102a67bf37411c17a4c022dc4c412c379ce49015c4fa97328cac97d8c3637",
+  "cycle_id": "issue-1892/cycle-0001"
+}

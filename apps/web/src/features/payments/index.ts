@@ -6,3 +6,4 @@ export {
   paymentsSearchSchema,
 } from "./listPayment/paymentsSearchSchema"
 export { paymentQueryKeys } from "./queryKeys"
+export { RecentPayments } from "./listPayment/RecentPayments"

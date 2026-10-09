@@ -1,0 +1,84 @@
+{
+  "sequence": 10,
+  "kind": "review",
+  "time": "2026-10-05T07:07:22.357307Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "64c8ad1ed8b90993503e476e3e5098ce76cbb94f4259b5a8a8f80b2fe479131a",
+  "revision": 2,
+  "fingerprint": "fca70fd2b3e77f6e37e487b37ca984453b507463efc4b9da0d4b892b6507f39e",
+  "data": {
+    "summary": "Issue #1892と実差分・出力を照合し7条件すべてpass。Book境界、既存集計・一覧の意味、追加後の再取得、直近の独立loading/error、Book/cacheScope/user変更後の復帰、認証復元・未認証紹介画面、ナビゲーション、component/story配置と文書同期を確認。最終verifyはsource安定、全6 commands exit 0(745 unit/integration,20 browser)。独立レビューはmain agentが実施。実Google OAuth同意画面の手動操作は未実施だがprovider/callback設定の変更なし、Web内遷移は本番route treeで確認済み。\n\n## Coverage\n- Checked rules: ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.msw-handlers, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy\n- Unresolved: なし\n\nFindings: なし。紹介画面維持・全期間のdate/ID降順は元の成果/制約を変えない委任内の技術判断。",
+    "criteria": [
+      {
+        "criterion": "トップページで月の合計額・カテゴリ別合計額を確認できる",
+        "evidence": "HomePageは既存Summaryを月選択とともに表示する。Default browser StoryのTotal spending・Food budget progress(1000)、HomePageの月切替・0円テストと既存MonthlyTotals/CategoryTotalsテストが成功。金額・予算の意味は既存componentを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに直近の支払いを最大5件表示する",
+        "evidence": "RecentPaymentsは選択中Bookをeqで制限し、date.desc,id.descとlimit 5で全期間を取得する。HomePageで6件応答から5件、4件、0件、月切替後も直近を維持するテストとfetchPaymentsのHTTP取得条件テストが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページから支払いを追加できる",
+        "evidence": "HomePageに既存CreatePaymentModalをbook.idで配置。追加後に既存Book prefix invalidationで直近一覧と月次集計を再取得し、追加行と6080円への更新を統合テストで確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに検索を表示しない",
+        "evidence": "HomePageにPaymentCategoryFilterや検索一覧を配置しない。rootのsearch schemaはyear/monthのみ。Default StoryとHomePageテストでCategory filterの不在を確認。月切替は集計期間を選ぶ既存操作。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsで一覧・検索・追加を利用できる",
+        "evidence": "PaymentsPageは月選択、PaymentCategoryFilter、CreatePaymentModal、PaymentListを維持。既存検索・追加・詳細/更新/削除テストおよびPaymentsPage browser Storyが成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsに集計を表示しない",
+        "evidence": "PaymentsPageからSummaryを除去しMonthSelectorだけを残す。browser Storyと追加操作テストで集計progressbarが存在しないことを確認。Summaryの月次・カテゴリ集計はHomePageへ移動。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "両ページへ移動できる",
+        "evidence": "AppLayoutのSidebarにHome/Payments、Headerにトップへのリンクを配置。AppLayout/Headerテストでhrefを確認し、HomePageの直近行から該当月のpayments詳細への移動、本番route treeでauthからrootへの遷移を確認。未認証の紹介画面を維持。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "c0b7124c58beb7fd9933c0cd79e0e979dc7b9c8ca1704fd3feea53c8cd85432a",
+  "cycle_id": "issue-1892/cycle-0001"
+}

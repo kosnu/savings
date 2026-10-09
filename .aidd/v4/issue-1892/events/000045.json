@@ -1,0 +1,113 @@
+{
+  "sequence": 45,
+  "kind": "review",
+  "time": "2026-10-09T15:54:42.055628Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "2bd05ee195d9e745e6772e1fcd046fbc53f246e651fd1e70d19e4985480379f1",
+  "revision": 13,
+  "fingerprint": "3d101d081f9ea9954156b8d2561daf44dd4a1959abe770e85761aa823b9dd24d",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.msw-handlers, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy\n- Unresolved: なし。元Intent、承認された2案、改善工程の実差分、Intent復帰、現在時刻とURLを跨ぐ34ケース、対象2画面のsemantic headings、最終6ファイル差分と既存機能の検証を照合。検証済み結果と未実行の配信確認を区別する。",
+    "criteria": [
+      {
+        "criterion": "トップページで月の合計額・カテゴリ別合計額を確認できる",
+        "evidence": "Issue1892の集計維持条件を期待値とし、HomePageContentがSummaryを表示、HomePage/Defaultの月合計5000・カテゴリ1000をAPI境界とStorybookで確認。月入力は既存MonthSelectorへ接続し金額意味を変更していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに直近の支払いを最大5件表示する",
+        "evidence": "全期間の選択Book、支払日・ID降順で最大5件を期待する。RecentPaymentsResolvedはBook指定fetchPaymentsのlimit5で取得しslice5を表示。HomePage.testの6件から最新5件、Empty/4件、fetchPayments.integrationの実クエリで確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページから支払いを追加できる",
+        "evidence": "HomePageContentに既存CreatePaymentModalをbook.idで配置。HomePageの追加操作テストがmodal入力・保存とAPI再取得後の集計/直近一覧反映を検証し、Storybookも追加ボタン表示を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに検索を表示しない",
+        "evidence": "HomePageはSummary・直近一覧・追加のみを表示。検索componentを呼ばず、HomePage.testとStorybook DefaultでCategory filter不在を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsで一覧・検索・追加を利用できる",
+        "evidence": "PaymentsPageContentはMonthSelector・PaymentCategoryFilter・CreatePaymentModal・PaymentListを表示。PaymentsPageの既存絞込・追加テストと142ファイル785件のWeb検証が成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsに集計を表示しない",
+        "evidence": "PaymentsPageContentにSummaryのimport/表示がなく、PaymentsPage.testでTotal spendingと予算progress不在を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "両ページへ移動できる",
+        "evidence": "routes.ts/AppLayout/Headerの認証redirect・logo・menuがHomeとpaymentsへ接続。authRedirect/AppLayout/Headerの回帰テスト、Home/PaymentsのStorybookが成功。未認証HomeはTopPageを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "現在時刻由来の補完値の境界・範囲外でもトップの表示を完了する",
+        "evidence": "承認済みDATE-DEFAULT-BOUNDARIESの既定値/補完値の境界検証を期待する。routes.tsのbeforeLoadは既存MIN_MONTH_INDEX/MAX_MONTH_INDEXから現在月をclampし、不正/範囲外targetのfallbackだけに使用。月indexからの年/月復元は整数範囲を必ず満たし、redirect後の正常な完全URLはreturnするため自己redirectを継続しない。HomePageの本番route tree/serializer/APIテストで現在月2021-12/2022-01/2032-12/2033-01と未指定/不正/完全有効/部分指定URLの20組、既存14組の合計34ケースが成功。URL・月表示・実RPC p_month全件が期待年月で一致する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "有効な年月URLと既存の選択範囲・集計意味を保持する",
+        "evidence": "Issue1892の集計意味不変と既存2022-01〜2032-12を期待する。共有MIN/MAX自体は未変更、feature公開口だけから既存値をrootに渡して重複しない。完全な有効URLは現在時計が範囲外でも早期return。部分year指定はraw現在monthで補完し、validなら保持する。monthだけで現在yearが範囲外なら許容端へ補正。全34ケースは補正必要条件と正常値保持を区別し、MonthlyTotals/CategoryTotalsの既存useDateRangeから同じURL年月を読み、API認可や保存対象は変更しない。payments routeのURL初期化は未変更。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "変更対象の各画面で画面種別に合った見出しを検出する",
+        "evidence": "design-rules:103-107と承認済みPAGE-HEADING-VERIFICATIONを期待値とする。PaymentsPageContentにHeading as=h1/size6を1つ追加し、既存navigation.payments（EN Payments/JA 支払い）と一致させる。PaymentsPage unitとbrowser-tagged PaymentPage Defaultのrole heading/level1/name/件数検査が成功。HomePage unitとブラウザDefaultのh1不在も同じ検証batchで成功、セクションh2は維持する。見た目/component内部名で代用しない。既存Container/Flex/Theme/layoutと検索/追加は維持する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "ガードレール改善とIntent復帰後の通常開発を区別する",
+        "evidence": "Audit39、ユーザーの2案承認40、改善decision41を同じTask/cycle-0004へ追記。改善の実差分はtest-policy.mdの承認済み2条項だけでimprove-checkとformat/diff/rule graph成功。return-intent42のsource fingerprint cdda80時点では成果物コード/テストに差分なし、承認と改善記録はc6cd3ed1へcommit。元Intent/権限/baselineを維持してcycle-0005を開始し、新decision43から製品の6ファイルを修正。既存履歴を書換えていない。返信対象はPRRT_kwDOM0p88s6qnWnv/PRRT_kwDOM0p88s6qnWnxだけ、検証/Ship後に実行する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "有限の改善対象、必須規則、現在の証拠を保持する",
+        "evidence": "test-policy既存日付条項の置換と見出し検出条項の追加以外にguardrail差分なし。範囲を持たないdate-only入力に不要な境界検証を要求せず、変更のない部品/他画面のテストや改修へ拡張しない。test-policyは既存Web必須参照とpath/depends_onから到達するため索引追加なし。35ruleの本文を対象差分と照合し、構造/公開口、money/date/book/user、cache/retry、API/infra、AIDD scopeと記録境界を確認。verify44はcycle-0005/revision13/fingerprint3d101d、stable=true、11commandsすべてexit0。Web785件、Storybook20件、Core全test/vet、共通gate5件、ADR履歴・rule graph・diff成功。stage/hook後の一致と配信先/CI状態はShipで実確認する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "b223a8b966e5c6bf9af60f5e4b8165536e34d1ebfccc557d30bc6aade47fc163",
+  "cycle_id": "issue-1892/cycle-0005"
+}

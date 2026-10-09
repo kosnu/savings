@@ -1,0 +1,132 @@
+{
+  "sequence": 36,
+  "kind": "verify",
+  "time": "2026-10-09T01:11:20.722382Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "e71871735879235b2151bdac63df281fd63b375c55e82d9a8398e8420c5d96d2",
+  "revision": 11,
+  "fingerprint": "4023e5c7dbf058c33cedbf6880d16482e566b5bc6a6822d20ced7b656918c9fc",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 366ms on 582 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:79926) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /Users/kosnu/.codex/worktrees/1baa/savings/apps/web\n\n····························································································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  142 passed (142)\n      Tests  764 passed (764)\n   Start at  10:09:02\n   Duration  73.62s (transform 4.51s, setup 313.92s, import 57.46s, tests 76.47s, environment 44.21s)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:storybook"
+        ],
+        "exit": 1,
+        "output": "$ pnpm --filter web test:storybook --reporter=dot --silent\n$ vp test run --project storybook --reporter=dot --silent\n(node:80188) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n\n RUN  v4.1.11 /Users/kosnu/.codex/worktrees/1baa/savings/apps/web\n\n\n⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯\n\nVitest caught 1 unhandled error during the test run.\nThis might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.\n\n⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯\nError: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n\u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-9NmhWa --remote-debugging-pipe --no-startup-window\n\u003claunched\u003e pid=80197\n[pid=80197][err] [1009/101017.134174:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\n[pid=80197][err] [1009/101017.158283:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\n[pid=80197][err] [1009/101017.173094:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.80197: Permission denied (1100)\nCall log:\n\u001b[2m  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-9NmhWa --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - \u003claunched\u003e pid=80197\u001b[22m\n\u001b[2m  - [pid=80197][err] [1009/101017.134174:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\u001b[22m\n\u001b[2m  - [pid=80197][err] [1009/101017.158283:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\u001b[22m\n\u001b[2m  - [pid=80197][err] [1009/101017.173094:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.80197: Permission denied (1100)\u001b[22m\n\u001b[2m  - [pid=80197] \u003cgracefully close start\u003e\u001b[22m\n\u001b[2m  - [pid=80197] \u003ckill\u003e\u001b[22m\n\u001b[2m  - [pid=80197] \u003cwill force kill\u003e\u001b[22m\n\u001b[2m  - [pid=80197] exception while trying to kill process: Error: kill EPERM\u001b[22m\n\u001b[2m  - [pid=80197] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e\u001b[22m\n\u001b[2m  - [pid=80197] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=80197] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=80197] \u003cgracefully close end\u003e\u001b[22m\n\n ❯ ../../node_modules/.pnpm/@vitest+browser-playwright@4.1.11_@voidzero-dev+vite-plus-core@0.3.3_@types+node@26.6.2_152d978b8c1e5a584748f9d0b88becf5/node_modules/@vitest/browser-playwright/dist/index.js:941:55\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\nSerialized Error: { log: [ '  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-9NmhWa --remote-debugging-pipe --no-startup-window', '  - \u003claunched\u003e pid=80197', '  - [pid=80197][err] [1009/101017.134174:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9', '  - [pid=80197][err] [1009/101017.158283:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.', '  - [pid=80197][err] [1009/101017.173094:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.80197: Permission denied (1100)', '  - [pid=80197] \u003cgracefully close start\u003e', '  - [pid=80197] \u003ckill\u003e', '  - [pid=80197] \u003cwill force kill\u003e', '  - [pid=80197] exception while trying to kill process: Error: kill EPERM', '  - [pid=80197] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e', '  - [pid=80197] starting temporary directories cleanup', '  - [pid=80197] finished temporary directories cleanup', '  - [pid=80197] \u003cgracefully close end\u003e' ] }\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n\n Test Files   (7)\n      Tests  no tests\n     Errors  1 error\n   Start at  10:10:16\n   Duration  639ms (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)\n\nerror during close browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n\u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-9NmhWa --remote-debugging-pipe --no-startup-window\n\u003claunched\u003e pid=80197\n[pid=80197][err] [1009/101017.134174:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\n[pid=80197][err] [1009/101017.158283:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\n[pid=80197][err] [1009/101017.173094:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.80197: Permission denied (1100)\nCall log:\n\u001b[2m  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-9NmhWa --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - \u003claunched\u003e pid=80197\u001b[22m\n\u001b[2m  - [pid=80197][err] [1009/101017.134174:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\u001b[22m\n\u001b[2m  - [pid=80197][err] [1009/101017.158283:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\u001b[22m\n\u001b[2m  - [pid=80197][err] [1009/101017.173094:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.80197: Permission denied (1100)\u001b[22m\n\u001b[2m  - [pid=80197] \u003cgracefully close start\u003e\u001b[22m\n\u001b[2m  - [pid=80197] \u003ckill\u003e\u001b[22m\n\u001b[2m  - [pid=80197] \u003cwill force kill\u003e\u001b[22m\n\u001b[2m  - [pid=80197] exception while trying to kill process: Error: kill EPERM\u001b[22m\n\u001b[2m  - [pid=80197] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e\u001b[22m\n\u001b[2m  - [pid=80197] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=80197] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=80197] \u003cgracefully close end\u003e\u001b[22m\n\n    at /Users/kosnu/.codex/worktrees/1baa/savings/node_modules/.pnpm/@vitest+browser-playwright@4.1.11_@voidzero-dev+vite-plus-core@0.3.3_@types+node@26.6.2_152d978b8c1e5a584748f9d0b88becf5/node_modules/@vitest/browser-playwright/dist/index.js:941:55 {\n  log: [\n    '  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-9NmhWa --remote-debugging-pipe --no-startup-window',\n    '  - \u003claunched\u003e pid=80197',\n    '  - [pid=80197][err] [1009/101017.134174:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9',\n    '  - [pid=80197][err] [1009/101017.158283:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.',\n    '  - [pid=80197][err] [1009/101017.173094:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.80197: Permission denied (1100)',\n    '  - [pid=80197] \u003cgracefully close start\u003e',\n    '  - [pid=80197] \u003ckill\u003e',\n    '  - [pid=80197] \u003cwill force kill\u003e',\n    '  - [pid=80197] exception while trying to kill process: Error: kill EPERM',\n    '  - [pid=80197] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e',\n    '  - [pid=80197] starting temporary directories cleanup',\n    '  - [pid=80197] finished temporary directories cleanup',\n    '  - [pid=80197] \u003cgracefully close end\u003e'\n  ],\n  type: 'Unhandled Error',\n  stacks: [\n    {\n      method: '',\n      file: '/Users/kosnu/.codex/worktrees/1baa/savings/node_modules/.pnpm/@vitest+browser-playwright@4.1.11_@voidzero-dev+vite-plus-core@0.3.3_@types+node@26.6.2_152d978b8c1e5a584748f9d0b88becf5/node_modules/@vitest/browser-playwright/dist/index.js',\n      line: 941,\n      column: 55\n    }\n  ]\n}\n[ELIFECYCLE] Command failed with exit code 1.\nError: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL\n\n  × \"pnpm recursive run\" failed in /Users/kosnu/.codex/worktrees/1baa/savings/\n  │ apps/web\n\n[ELIFECYCLE] Command failed with exit code 1.\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "run",
+          "./cmd/aidd-checker",
+          "--root",
+          "../../..",
+          "rules"
+        ],
+        "exit": 0,
+        "output": "[]\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t0.583s\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t53.714s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "tools.aidd.tests.test_shared_gate"
+        ],
+        "exit": 0,
+        "output": "test_check_and_canonical_json (tools.aidd.tests.test_shared_gate.SharedGateTests.test_check_and_canonical_json) ... ok\ntest_deletion_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_deletion_runs_vet) ... ok\ntest_format_and_preserve_unstaged (tools.aidd.tests.test_shared_gate.SharedGateTests.test_format_and_preserve_unstaged) ... ok\ntest_non_go_runs_vet (tools.aidd.tests.test_shared_gate.SharedGateTests.test_non_go_runs_vet) ... ok\ntest_vet_failure_blocks_commit (tools.aidd.tests.test_shared_gate.SharedGateTests.test_vet_failure_blocks_commit) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 5.992s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=2fe343859e889629268d3dd556a0458d246393f9 checked=9\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "f77066f1694771ff8522a64b82f71c2b116f437131e69dd72ff8ac990ca567a4",
+  "cycle_id": "issue-1892/cycle-0004"
+}

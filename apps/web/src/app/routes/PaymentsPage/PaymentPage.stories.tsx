@@ -45,6 +45,9 @@ export const Default: Story = {
 
     await canvas.findByRole("button", { name: /create payment/i })
 
+    await expect(canvas.getByRole("heading", { level: 1, name: "Payments" })).toBeInTheDocument()
+    await expect(canvas.getAllByRole("heading", { level: 1 })).toHaveLength(1)
+
     expect(await canvas.findAllByText("コンビニ")).toHaveLength(2)
     expect(await canvas.findAllByRole("button", { name: /コンビニ/ })).toHaveLength(2)
     expect(canvas.queryByText("スーパー")).not.toBeInTheDocument()
@@ -53,7 +56,7 @@ export const Default: Story = {
     expect(await within(paymentList).findByText("Jun 3, 2025")).toBeInTheDocument()
     expect(await within(paymentList).findByText("¥1,000")).toBeInTheDocument()
     expect(await within(paymentList).findByText("¥4,000")).toBeInTheDocument()
-    expect(await canvas.findByText("¥20,000 left")).toBeInTheDocument()
+    expect(canvas.queryByRole("progressbar")).not.toBeInTheDocument()
   },
 }
 

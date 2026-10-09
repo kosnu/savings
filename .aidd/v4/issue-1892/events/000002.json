@@ -1,0 +1,81 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-05T06:22:29.216077Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "026bddd9dba212b5038fe232c2ea849d5355dceff73aeb30f103d82e9450b435",
+  "revision": 1,
+  "fingerprint": "1099bad701e64ed286af45252e51c010c9a01eb828476de36a4ad5f9456dc6cd",
+  "data": {
+    "summary": "支払い一覧から月別集計を外し、月選択・カテゴリ検索・追加・詳細操作を維持する。トップページの未決事項は回答待ち。支払い一覧の作成・更新・削除の既存テストは維持し、集計の期待値だけ責務移動に合わせて外す。",
+    "paths": [
+      "apps/web/src/app/routes/PaymentsPage/",
+      "apps/web/src/features/summaryByMonth/index.ts"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "efe827efccf415aba3be774777c2c941604fde37ffa30360115d0b915e2853b6",
+  "cycle_id": "issue-1892/cycle-0001"
+}

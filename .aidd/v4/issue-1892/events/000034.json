@@ -1,0 +1,17 @@
+{
+  "sequence": 34,
+  "kind": "return-intent",
+  "time": "2026-10-09T01:03:40.273437Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "f57dacfbcbd7dff376ae3eb5e3c953eef6a29646e210af5cf1c170aa3d77f348",
+  "revision": 10,
+  "fingerprint": "9c76f603ade528cd7344dfc141def4cfd48d99ad874bb64556cca30d5a55bccb",
+  "data": {
+    "summary": "現在Intentはトップを集計/直近5件/追加、paymentsを一覧/検索/追加とする元の目的・制約・権限を維持。承認されたtest-policyの1文だけを改善し、最新Audit対象f3ac6e71との改善差分は同文だけと確認。rule-mapの既存Web必須選択から到達。追加条項は年月URLのvalidateSearchと初期化の双方に適用され、解析/月選択の不正値テストだけでは初期化の未指定・境界・範囲外ケースを満たさない。別のdate-only外部入力でも検証/初期化が対象、許容範囲のない入力では存在しない範囲テストを要求しない。formattercheck/diffcheck/rule graph成功。ここまでは成果物コード・テストを変更せず、Intentへ戻り次の通常開発で設計/実装要否を判断する。",
+    "previous_cycle": "issue-1892/cycle-0003",
+    "approval_hash": "a47929c4938a5470a89d83d144f824b567bcc726e334e93f98f3d5e9bc930242",
+    "intent_hash": "87a5504f3716b2f294bdaefed4d783394dd93e7324620ebf8cbe72e7fc6ad7ec"
+  },
+  "hash": "b03a151d39a0881a4302b7a5166326a9ffa15d1854dbf4d01c40bd94a6bfe8ea",
+  "cycle_id": "issue-1892/cycle-0004"
+}

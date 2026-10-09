@@ -1,15 +1,16 @@
-import { Box, Container, Flex } from "@radix-ui/themes"
+import { Box, Container, Flex, Heading } from "@radix-ui/themes"
 import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
+import { useTranslation } from "react-i18next"
 
 import { useSelectedBook } from "../../../features/books"
 import { CreatePaymentModal, PaymentCategoryFilter, PaymentList } from "../../../features/payments"
-import { Summary } from "../../../features/summaryByMonth"
+import { MonthSelector } from "../../../features/summaryByMonth"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
-import { useInitializePaymentsMonthSearch } from "./useInitializePaymentsMonthSearch"
+import { useInitializeMonthSearch } from "../../useInitializeMonthSearch"
 
 export function PaymentsPage() {
-  useInitializePaymentsMonthSearch()
+  useInitializeMonthSearch()
   const [paymentsPageCacheScope] = useState(() => `payments-page-${crypto.randomUUID()}`)
   const { session } = useSupabaseSession()
 
@@ -37,11 +38,17 @@ function PaymentsPageContent({
   paymentsPageCacheScope: string
 }) {
   const { book } = useSelectedBook(authUserId)
+  const { t } = useTranslation()
 
   return (
     <Container size="2">
       <Flex direction="column" gap="3">
-        <Summary cacheScope={paymentsPageCacheScope} />
+        <Heading as="h1" size="6">
+          {t("navigation.payments")}
+        </Heading>
+        <Flex justify="center">
+          <MonthSelector />
+        </Flex>
         <Flex align="center" gap="3">
           <Box flexGrow="1" minWidth="0">
             <PaymentCategoryFilter />

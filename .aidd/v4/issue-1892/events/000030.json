@@ -1,0 +1,113 @@
+{
+  "sequence": 30,
+  "kind": "review",
+  "time": "2026-10-08T15:04:20.883936Z",
+  "task_hash": "072b8cf35ec5fe541d440a9c0d56059b97912a38f07d6568776ea5ebfbeb311f",
+  "previous": "138a34589d083b2e6798307a0fbeb1c4fe9d59ca9ad157a838f18906c8851758",
+  "revision": 9,
+  "fingerprint": "c75450a18f3deb089ae62ac350dab4bfa2212ecdeaa9a9746b21ec22da5b66b8",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.feature-directory, web.msw-handlers, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy\n- Unresolved: なし。元Intentと追加承認、全適用規則、API境界と実操作の回帰、Core負例、現source差分を照合。CIはShip後に一度取得し未完了を区別する。",
+    "criteria": [
+      {
+        "criterion": "トップページで月の合計額・カテゴリ別合計額を確認できる",
+        "evidence": "Issue1892の集計維持条件を期待値とし、HomePageContentがSummaryを表示、HomePage/Defaultの月合計5000・カテゴリ1000をAPI境界とStorybookで確認。月入力は既存MonthSelectorへ接続し金額意味を変更していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに直近の支払いを最大5件表示する",
+        "evidence": "全期間の選択Book、支払日・ID降順で最大5件を期待する。RecentPaymentsResolvedはBook指定fetchPaymentsのlimit5で取得しslice5を表示。HomePage.testの6件から最新5件、Empty/4件、fetchPayments.integrationの実クエリで確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページから支払いを追加できる",
+        "evidence": "HomePageContentに既存CreatePaymentModalをbook.idで配置。HomePageの追加操作テストがmodal入力・保存とAPI再取得後の集計/直近一覧反映を検証し、Storybookも追加ボタン表示を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "トップページに検索を表示しない",
+        "evidence": "HomePageはSummary・直近一覧・追加のみを表示。検索componentを呼ばず、HomePage.testとStorybook DefaultでCategory filter不在を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsで一覧・検索・追加を利用できる",
+        "evidence": "PaymentsPageContentはMonthSelector・PaymentCategoryFilter・CreatePaymentModal・PaymentListを表示。PaymentsPageの既存絞込・追加テストと142ファイルのWeb検証が成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "/paymentsに集計を表示しない",
+        "evidence": "PaymentsPageContentにSummaryのimport/表示がなく、PaymentsPage.testでTotal spendingと予算progress不在を確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "両ページへ移動できる",
+        "evidence": "routes.ts/AppLayout/Headerの認証redirect・logo・menuがHomeとpaymentsへ接続。authRedirect/AppLayout/Headerの回帰テスト、Home/PaymentsのStorybookが成功。未認証HomeはTopPageを維持。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "改善済みガードレールを成果物へ反映する",
+        "evidence": "HomePageの汎用h1を除き直近section h2を維持。正常取得済みHomeから認証user変更時の旧総額/カテゴリ不在と新API値、同一user TOKEN_REFRESHEDのclearなしを実Providerを通すテストで確認。RecentPaymentsとHome Book境界はQueryErrorResetBoundary/onResetと実操作の同入力retryを連動し、API500→成功/再失敗/条件変更の回帰が成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "サイクルの有限範囲検査を保持する",
+        "evidence": "ImproveCheckは承認hashを検証し、Intent復帰前・新decision前は提案paths、復帰後は同cycleの新decision.pathsへ切替。比較元のAudit対象ShipとTask baseline所有範囲は維持。normal_cycle_scope_testが復帰前・旧decision・次decision範囲外・unexpected.txtの拒否、予定runtimeのVerify/Review/Ship通過、改善revertのShip拒否を確認。既存複数cycle/承認/古い証拠の負例もCore全テスト成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "元Intentと追加修復の実行権限を守る",
+        "evidence": "元Issueの目的・制約と有効な実行委任を照合。user-message:2026-10-08-core-cycle-scope-approvalは提示したCore2ファイルとAIDD文書2本への追加修復を明示承認。Task/baseline/cycle-0003を維持し、新decision28を追記。過去の誤判断・失敗・承認・Shipを書換えず、Guardrail改善から成果物を直接編集する近道や未提示review返信を行わない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "同期が必要な正本と入口を一致させる",
+        "evidence": "workflowとaidd-checkerへ改善範囲と通常cycle実装範囲を同期。既存rule-mapのtools/aiddおよびdocs/ai-driven-development path/surfaceから両正本と依存closureに到達。CLI入力schema・hook・CI入口は不変のため変更不要。rule graph/共通gate5テスト/accepted ADR履歴検証成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "検証・stage・配信の鮮度を守る",
+        "evidence": "decision revision9のverify29は全11command exit0、stable=true、現在fingerprint一致。Web750/Storybook20、Core全テスト/vet成功。以後のstage照合と配信read-backをShipで実施し、CI完了やlive preview反映を先取りして主張しない。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.component-structure",
+      "web.design-rules",
+      "web.design-system-brand",
+      "web.domain-layer-rules",
+      "web.domain-ui-rules",
+      "web.feature-directory",
+      "web.msw-handlers",
+      "web.query-cache",
+      "web.storybook-browser-tests",
+      "web.suspense-boundaries",
+      "web.test-policy"
+    ]
+  },
+  "hash": "e2ce9456ac8cc14d834e00d1c058f71e6d3f86e5392dd0f4e85fba83abdec3fc",
+  "cycle_id": "issue-1892/cycle-0003"
+}
