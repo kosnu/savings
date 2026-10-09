@@ -23,7 +23,7 @@ func TestUnexpectedArgumentsRejectedBeforeExecution(t *testing.T) {
 		{"rules", "unexpected"},
 		{"rules", "unexpected", "--paths", filepath.Join(root, "missing-paths.json")},
 		{"check-changes", "--base", "HEAD", "unexpected"},
-		{"start", "--task", "example", "--input", filepath.Join(root, "missing-start.json"), "unexpected"},
+		{"verify", "--base", "HEAD", "--input", filepath.Join(root, "missing-plan.json"), "unexpected"},
 	} {
 		t.Run(args[0]+"/"+strings.Join(args[1:], " "), func(t *testing.T) {
 			os.Args = append([]string{"aidd-checker", "--root", root}, args...)
@@ -80,11 +80,26 @@ func TestScopedCIEntrypoints(t *testing.T) {
 		t.Fatal("removed full-history command accepted")
 	}
 	write("code.txt", "uncovered change")
-	if invoke("check-changes", "--base", "HEAD") == nil {
-		t.Fatal("source without current Task evidence accepted")
+	if e := invoke("check-changes", "--base", "HEAD"); e != nil {
+		t.Fatal(e)
 	}
 	write("docs/harness/rule-map.json", `invalid graph`)
 	if invoke("rules") == nil {
 		t.Fatal("invalid rule graph accepted")
+	}
+}
+
+func TestRecordingCommandsRemoved(t *testing.T) {
+	root := t.TempDir()
+	old := os.Args
+	t.Cleanup(func() { os.Args = old })
+	for _, c := range []string{"start", "decision", "review", "audit", "approve", "dismiss", "return-intent", "status", "check", "delivery-check", "improve-check"} {
+		os.Args = []string{"aidd-checker", "--root", root, c}
+		if e := run(); e == nil || !strings.Contains(e.Error(), "recording has been removed") {
+			t.Fatalf("%s: %v", c, e)
+		}
+	}
+	if _, e := os.Stat(filepath.Join(root, ".aidd")); !os.IsNotExist(e) {
+		t.Fatal(e)
 	}
 }

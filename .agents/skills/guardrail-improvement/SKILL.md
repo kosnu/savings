@@ -14,13 +14,12 @@ only when an actual improvement proposal is approved.
 
 Apply [AIDD v4](../../../docs/ai-driven-development/workflow.md) and
 [Audit policy](../../../docs/harness/policies/learning-extraction.md).
-Read the current Task and exact Audit proposals. Require a user approval source bound to
+Read the existing Issue, PR, conversation summaries, and exact Audit proposals. Require a user approval source bound to
 these proposals and finite targets before any implementation. An Audit request or original
 development authority does not satisfy this boundary. Do not create a separate Task.
-Record the approval and a new decision revision using [Core operations](../../../docs/ai-driven-development/aidd-checker-operations.md).
+Confirm approval against the original user source and summarize the adopted decision only as needed in the existing Issue, PR, or conversation. Do not create approval/decision event files or persist command stdout/stderr.
 Change only approved targets and check the improvement scope. Re-read the current Intent and
-improved guardrails, then record `return-intent` to close this cycle and enter the next cycle
-within the same Task. Record a new decision for the next cycle, perform necessary design and
+improved guardrails to close this cycle and enter the next cycle within the same Task, without an event or cycle ID. Adopt the next decision, perform necessary design and
 implementation, verify and review the actual diff, and Ship. Start the next Audit only on an
 explicit user request after Ship. The cycle boundary
 does not expand approval scope. Proposal changes require renewed approval.

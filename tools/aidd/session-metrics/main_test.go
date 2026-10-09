@@ -443,3 +443,21 @@ func TestLegacyCombinedStageCanFinishWithoutInventingBreakdown(t *testing.T) {
 		t.Fatalf("legacy record was reinterpreted: %+v", result)
 	}
 }
+
+func TestOptionalMetricsWithoutTaskRecords(t *testing.T) {
+	f := newFixture(t)
+	if err := os.RemoveAll(filepath.Join(f.root, ".aidd")); err != nil {
+		t.Fatal(err)
+	}
+	f.reading(100, "boot-a")
+	f.reading(103, "boot-a")
+	mustRun(t, f, "start", "--session", "one", "--task", "issue-1903", "--stage", "検証")
+	mustRun(t, f, "finish", "--session", "one", "--task", "issue-1903")
+	result := reportResult(t, f)
+	if len(result.Records) != 1 || result.Records[0].Cycle != "" || result.Records[0].Task != "issue-1903" {
+		t.Fatalf("optional measurement: %+v", result)
+	}
+	if _, err := os.Stat(filepath.Join(f.root, ".aidd")); !os.IsNotExist(err) {
+		t.Fatal("measurement created Task records", err)
+	}
+}

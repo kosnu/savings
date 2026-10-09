@@ -111,7 +111,7 @@ Goalの作成可否と状態更新は、そのhostが公開するtoolの条件�
 「1881を対応して」だけではGoal作成の明示依頼を満たさず、Issueや文書にGoal利用の方針があるだけでも代替できない。
 Goal利用の依頼とTaskの実行権限は別に確認し、Goalの設定だけの依頼を実装・Shipの許可に読み替えない。
 明示依頼を必須としないhostでは、そのtool条件と有効な開発の実行権限に従って利用する。
-利用が許可されない、またはtoolがない場合も、許可済みのTaskの記録・検証・レビュー・Shipを続ける。
+利用が許可されない、またはtoolがない場合も、許可済みのTaskの検証・レビュー・Shipを続ける。
 Goalを使うためだけに、通常の開発を止めて追加依頼を要求しない。
 
 ### 作成と継続
@@ -119,9 +119,9 @@ Goalを使うためだけに、通常の開発を止めて追加依頼を要求�
 作成前に現在のGoalを確認する。既存Goalが同じTaskのものであれば親agentが所有・継続し、重複作成しない。
 別Taskの未完了Goalを上書きせず、Goalなしで許可済みの作業を続ける。
 subagentにGoalの作成・完了を委譲しない。
-Goalには成果、Intentの参照、Task ID、委任範囲に合う完了条件を短く記し、Taskの判断やログ全文を複製しない。
+Goalには成果、Intentの参照、Issue・PRの参照、委任範囲に合う完了条件を短く記し、Taskの判断やログ全文を複製しない。
 予算は明示依頼がある場合だけ設定する。ユーザーによるpauseを勝手に解除せず、再開・停止・状態更新はhostのtool条件に従う。
-再開時は同じTaskの記録と最新checkpointを取得し、Goalの状態だけで実行権限や証拠を判断しない。
+再開時は同じTaskのIssue・PR・会話から現在の判断を取得し、Goalの状態だけで実行権限や証拠を判断しない。
 
 ### 完了
 
@@ -134,80 +134,16 @@ AuditはShip後の明示依頼を受けて開始し、Goalの継続や完了を�
 
 ## 再開
 
-明示したTask IDからCoreの`status`を取得し、開始Intentと実行権限、最新decision/checkpoint、
-未達条件、検証・review・Ship・Audit・承認記録を必要な範囲で読む。前の会話の要約だけを証拠として扱わない。
-旧版のStop/SessionStart hookやGoal本文からのTask推論を実行経路にしない。
+Issue・PR・ユーザー発言の参照から同じTaskを特定し、Intentと実行権限、採用判断、未達条件、
+検証・レビューの要約、配信先、Audit提案と承認対象を必要な範囲で確認する。
+旧Coreの`status`、Task ID、event一覧、全ファイルsnapshotを再開条件にしない。
+旧版のStop/SessionStart hookやGoal本文から権限を推論しない。
 
-### 必要項目の取得例
+会話要約は文脈取得の案内として使い、現在の差分、HEAD、stage、remote、PRを実データで確認する。
+終了コードや対象の内容を確認できない検証は未確認とし、必要なら再実行する。
+生出力は実行中の診断にだけ使用し、command結果のコピー・ファイル保存・履歴への添付を行わない。
+要約は採用判断、検証名と成否、未確認事項、参照先に絞り、操作ごとに追加しない。
 
-repository rootで、[Core操作](aidd-checker-operations.md)に従って現在sourceからbinaryを用意する。
-以下はTask `issue-1852`の読み取り例。別TaskではIDを置き換え、eventのファイル名・kindは
-実際の一覧で確認してから選ぶ。`task.json`の全文や`events/*.json`の本文を一括出力しない。
-
-```sh
-/tmp/aidd-v4 --root . status --task issue-1852
-
-# 開始Intentの出典・本文・目的・制約・完了条件、実行権限、baseline。
-# 全ファイルの開始時snapshotを持つinitialは出力しない。
-jq '{id, created, intent, authority, baseline, initial_changes_acknowledged}' \
-  .aidd/v4/issue-1852/task.json
-
-# 本文ではなく、実在するファイル名・kind・revision・cycleと取得可能な項目を確認する。
-jq -c '{file: input_filename, sequence, kind, cycle_id, revision,
-  data_keys: (.data | keys)}' .aidd/v4/issue-1852/events/*.json
-```
-
-`status`の`cycle_id`、`revision`、`latest`、`evidence_current`を起点に、一覧の連番と照合する。
-同じkindの最後のファイルだけを無条件に現在の証拠として採用しない。Intent改訂や
-`return-intent`があれば該当eventも読み、開始Intentからの訂正、cycleの境界、承認への参照を確認する。
-必須文書の選択・本文確認は通常どおり行い、取得例の出力を読了や意味評価の代わりにしない。
-
-このTaskの一覧では`000012.json`が最新decision（revision 4）、`000013.json`がverify、
-`000014.json`がreview。判断のscope・commands・rulesとreviewの条件別根拠は残し、
-verifyはcommandごとの終了状態と実行前後の安定性を先に読む。
-
-```sh
-jq '{sequence, kind, cycle_id, revision, hash, fingerprint, data}' \
-  .aidd/v4/issue-1852/events/000012.json \
-  .aidd/v4/issue-1852/events/000014.json
-
-# 通常取得ではcommandの生ログoutputだけを除き、終了情報は保持する。
-jq '{sequence, kind, cycle_id, revision, hash, fingerprint,
-  data: {stable: .data.stable,
-    results: [.data.results[] | del(.output)]}}' \
-  .aidd/v4/issue-1852/events/000013.json
-```
-
-終了コード0だけで現在の証拠とは扱わず、decision revision・cycle・fingerprintと
-`evidence_current`を照合する。不一致・失敗・欠落は未達または未確認として扱い、
-必要な詳細取得や再検証へつなげる。
-
-このTaskの承認は`000009.json`の`approve`。提案IDと`audit_hash`が指す
-`000008.json`のAudit、`000011.json`の`return-intent`も読み、承認対象・出典と次cycleへの引継ぎを確認する。
-承認eventがなければ、一覧で存在しないことを確認し、元の実行委任から改善承認を推論しない。
-
-```sh
-jq '{sequence, kind, cycle_id, revision, hash, fingerprint, data}' \
-  .aidd/v4/issue-1852/events/000008.json \
-  .aidd/v4/issue-1852/events/000009.json \
-  .aidd/v4/issue-1852/events/000011.json
-```
-
-改訂Intent・承認に本文がある旧eventは保持された本文を読み、`text_hash`のみのeventでは
-構造化項目と出典を確認し、原文が判断に必要なら出典から追加取得する。
-ShipはTask記録だけで確定しない。配信先はAuditの`delivery`や実在する旧Ship eventなどから特定し、
-該当PR・commitをread-backする。これらは現在のAudit開始や改善実施の権限を付与しない。
-
-追加取得も、必要なevent・項目・範囲へ絞る。たとえばverifyの結果配列で対象commandを確認した後、
-その`output`を読む。出力が上限に近い場合は保存された文字列を分割し、取得済み範囲と残りを追跡する。
-全文の再取得で切り詰めを繰り返さず、必要項目の欠落を未確認のまま合格へ変えない。
-
-```sh
-# このverifyのresults[0]はGo test。必要なログの先頭4000文字を取得する例。
-jq '.data.results[0].output | {total_chars: length, offset: 0, text: .[0:4000]}' \
-  .aidd/v4/issue-1852/events/000013.json
-
-# 開始時snapshotが判断に必要な場合だけ、対象pathの機械情報を追加取得する。
-jq '.initial["docs/ai-driven-development/workflow.md"]' \
-  .aidd/v4/issue-1852/task.json
-```
+AuditはShip後の明示依頼だけで開始する。改善は具体的提案と有限の対象に対するユーザーの明示承認を
+元の発言・参照から確認し、開発の委任を改善承認として使わない。
+承認後にIntentと改善済みガードレールを読み直すが、そのためのeventを生成しない。

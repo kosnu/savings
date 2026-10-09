@@ -12,258 +12,96 @@ when_to_read:
   - AIDD v4 Coreを実行または変更するとき
 ---
 
-# AIDD v4 Core操作
+# AIDD Core操作
 
-repository rootで実行する。Go versionは`tools/aidd/checker/go.mod`に従う。
+repository rootで現在sourceから実行する。Go versionは`tools/aidd/checker/go.mod`に従い、Core変更後はbinaryを作り直す。commandのstdout/stderrをファイルへredirectしたり、結果の要約へ貼り付けたりしない。
 
 ```sh
-go -C tools/aidd/checker build -o /tmp/aidd-v4 ./cmd/aidd-checker
-/tmp/aidd-v4 --root . start --task example --input /tmp/start.json
-/tmp/aidd-v4 --root . decision --task example --input /tmp/decision.json
-/tmp/aidd-v4 --root . verify --task example
-/tmp/aidd-v4 --root . review --task example --input /tmp/review.json
-/tmp/aidd-v4 --root . status --task example
+go -C tools/aidd/checker build -o /tmp/aidd-checker ./cmd/aidd-checker
+/tmp/aidd-checker --root . rules
+/tmp/aidd-checker --root . check-changes --base origin/main
 ```
 
-Coreを変更したら現在sourceからbinaryを作り直す。古いbinaryの成功を新実装の証拠にしない。
-`verify`の前に、変更対象へ既存formatterを適用する。Markdownなら`vp fmt <変更path...> --write`、
-Goなら`gofmt -w <変更Goファイル...>`を使い、Webは`AGENTS.md`の整形手順に従う。
-整形は検証commandへ混ぜず、整形後の内容に対して検証する（[Coreの検証契約](aidd-checker.md#検証)）。
-Go cacheに書込できない環境では、[検証argvと環境変数](#検証argvと環境変数)に従い、repository外の書込可能な`GOCACHE`を指定する。
-Taskの再開では`status`と該当eventを読み、Intent、最新decision、未達条件、証拠、承認を確認する。
+`rules --paths`にはJSONのpath配列を入力できる。全規約graphの検査は`rules`、実差分の選択は`check-changes`で行う。
+これらの成功はテスト・レビューの完了ではない。
 
-## 入力
+## 検証
 
-`start`のJSON例。baselineは開始HEADの完全SHA。textに実際の取得本文を保存する。
+変更対象の既存formatterを検証前に適用する。Markdownは`vp fmt <変更path...> --write`、Goは`gofmt -w <変更Goファイル...>`を使う。
+
+必要な検証は[AGENTS.md](../../AGENTS.md#verification)と適用規約から選ぶ。
+Coreでまとめて実行する場合、`verify --base <比較元commit/ref> --input <一時JSON>`を使う。
+たとえばCore変更の入力は次の形にする。`rules`は実際の差分に必要なrule IDを指定する。
 
 ```json
 {
-  "intent": {
-    "source": "https://github.com/owner/repo/issues/123",
-    "text": "実際のIntent本文",
-    "objective": "観測できる成果",
-    "constraints": ["守る境界"],
-    "acceptance": ["結果から判定する条件"]
-  },
-  "authority": "実行を明示したユーザー発言の出典と本文",
-  "baseline": "開始時HEADの完全SHA",
-  "initial_changes_acknowledged": false
-}
-```
-
-`decision`は`summary`、`paths`、`commands`、`rules`を持つ。
-pathsはexact fileまたは末尾`/`の有限directory。globやrepository全体の指定で権限を広げない。
-commandsはrepository rootをcwdにするargv配列の配列。
-Intentを訂正する場合は`intent_revision`へ新しい出典を持つIntent全体を指定する。元のIntentは保持される。
-入力の`text`は実際の本文を渡すが、eventでは`text`を省略してCoreが生成した`text_hash`を保存する。
-`text_hash`だけの入力や入力時のhash指定は受け付けない。再開時は構造化Intentと出典を読み、原文が必要なら出典を参照する。
-Audit後のIntent訂正には、予約対象`@intent`を含む提案への手動承認が必要になる。
-`@intent`はTask内のIntent改訂だけを指し、外部Issue編集の権限や任意ファイルの変更権限を与えない。
-rulesはrule ID配列。選択結果に意味的関連ruleを追加し、各本文を読む。
-
-```json
-{
-  "summary": "採用する判断、理由、未解決事項",
   "paths": ["tools/aidd/checker/"],
   "commands": [
-    ["go", "-C", "tools/aidd/checker", "test", "-count=1", "./..."],
-    ["go", "-C", "tools/aidd/checker", "vet", "./..."],
-    ["git", "diff", "--check"]
+    ["git", "diff", "--check"],
+    ["go", "-C", "tools/aidd/checker", "test", "./..."],
+    ["go", "-C", "tools/aidd/checker", "vet", "./..."]
   ],
-  "rules": ["実際に選択された全rule ID"]
-}
-```
-
-`rules --paths /tmp/paths.json`は変更pathのJSON文字列配列から必須ruleと依存closureを返す。
-`review`は`summary`、`rules`、`criteria`を持つ。criteriaは各`criterion`、`evidence`、`verdict`。
-criterionはIntent acceptanceと対応し、verdictは`pass`、`fail`、`unknown`。
-根拠不足をpassにせず、修正・再検証または必要な人間判断につなげる。
-
-### 検証argvと環境変数
-
-`commands`はCoreが必須コマンドと照合し、そのまま実行するargvを記録する。
-上のdecision例のように、Goの検証は直接の`go test` / `go vet` argvを指定する。
-`env GOCACHE=… go …`へ置き換えると必須のGo argvと一致せず、必須コマンド不足として拒否される。
-argv内の環境変数代入や`$GOCACHE`をshellが展開することもない。
-
-実行環境の設定は`commands`へ埋め込まず、Coreのbuildと`verify`の呼出環境へ渡す。
-Coreが起動する子コマンドもその環境を継承する。上のdecisionを記録したTaskでは、
-repository外の書込可能なcacheを次のように指定する（`/tmp`が書込可能な環境の例）。
-既定のGo cacheへ書き込めない場合は、文書先頭のCore buildにも同じ設定を渡す。
-初回はこのbuildでbinaryを用意してから、`start`と`decision`を実行し、`verify`へ進む。
-
-```sh
-env GOCACHE=/tmp/aidd-v4-go-cache go -C tools/aidd/checker build -o /tmp/aidd-v4 ./cmd/aidd-checker
-env GOCACHE=/tmp/aidd-v4-go-cache /tmp/aidd-v4 --root . verify --task example
-```
-
-継承する値を実行証拠で確認する場合は、decisionの`commands`へ
-`["go", "env", "GOCACHE"]`を追加して同じ呼出例を実行する。
-verify eventの当該コマンド出力が`/tmp/aidd-v4-go-cache`と一致すること、
-直接の`go test` / `go vet`の終了コードがともに0であることを確認する。
-
-## セッション計測
-
-CodexのAIDD作業で実際に行う工程を、開始・終了時に記録する。`--stage`には
-`Intent`（確認・復帰）、`調査`、`設計`、`実装`、`検証`、`レビュー`、`Ship`、`Audit`、`改善`（承認されたガードレール改善）、`Retrospective`
-のいずれか一つを指定する。これは計測用の工程名であり、必須工程や実行順序を追加するものではない。
-「設計・実装」など複数工程をまとめた名前や任意名は拒否する。工程が変わるときは`finish`してから
-次の工程を`start`し、同じ工程に戻る場合も新しい記録を開始する。
-Task IDを渡すと、現行サイクルIDを`.aidd/v4/<task-id>/events/`から取得する。
-計測CLIはChecker Coreと別のGo moduleに置き、独立して実行する。
-Retrospectiveを計測する場合は振り返り対象のTaskを参照する。計測によって通常サイクルを再開したり、完了条件を追加したりしない。
-セッションIDには`CODEX_SESSION_ID`を使い、ない環境では`--session`で明示する。
-
-```sh
-go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 設計
-go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
-go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 実装
-go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
-go -C tools/aidd/session-metrics run . start --root "$PWD" --task issue-123 --stage 検証
-# 実際の検証をここで実行する
-go -C tools/aidd/session-metrics run . finish --root "$PWD" --task issue-123
-go -C tools/aidd/session-metrics run . report --root "$PWD" --task issue-123
-go -C tools/aidd/session-metrics run . report --root "$PWD" --since 2026-09-21
-```
-
-記録は既定でこのrepositoryのGit common directory内の`aidd-metrics/usage.jsonl`に置く。
-worktree間で共有され、commitやPRの差分には入らない。別の保存先が必要なら`--store`を指定する。
-Codex transcriptからセッションの累積トークン使用量を読み、
-開始・終了時の観測値の差を保存する。transcriptの形式は安定した公開契約ではないため、見つからない、
-新しい観測値がない、または形式が変わった場合はトークン数を取得不可にする。時間は開始・終了間の経過時間を単調時計で測る。
-ユーザー入力待ちを作業時間に含めない場合は、待機前に`finish`し、再開時に新しい記録を開始する。
-`report`はJSONで次の集計を返す。`--task`、`--cycle`、`--session`、`--since`の絞り込みは全ての集計に適用する。
-
-- `records`: セッション・Task・サイクル・工程を保持した終了済み記録。
-- `groups`: 既存のTask・サイクル別の合計。
-- `stage_groups`: Task・サイクル・工程別の合計。同じ工程の繰り返しや複数セッション分を合算する。
-
-各集計は`duration_seconds`（秒）、`total_tokens`、`records`（記録数）、`sessions`（セッション一覧）を持つ。
-時間またはトークン数が一件でも欠ける場合、その項目の合計は`null`（不明）とし、既知分だけの小計を合計として表示しない。
-欠測の影響は該当工程とそのTask・サイクルの合計に限られ、他工程の既知値は保持する。未終了の記録は集計しない。
-過去の任意名・複合名の記録は原文の`stage`を保持し、工程別集計に`legacy_stage: true`を付ける。
-過去の時間・トークンを推測で工程へ分配せず、Task・サイクル合計には引き続き含める。
-`finish`の計測結果と必要な`report`結果を、作業したCodexセッションのメッセージとして返す。
-`start`の成功を確認してからその工程に入り、切り替え時は`finish`の成功を確認して次を開始する。
-開始忘れ・失敗、終了忘れ、工程の切り替え漏れがあれば、過去の時刻やトークンを推測して補わない。
-工程をまたいだ記録は単一工程の正確な値として扱わず、その範囲の不一致を報告する。
-`report`の集計は終了済み記録の範囲に限られる。未開始・未終了の区間と計測対象外を報告に併記し、
-記録上の合計が数値でも欠測を含む作業全体の合計と表示しない。取得できた時間と取得不可のトークンも区別する。
-サイクルを切り替える前に進行中の工程を終了し、別サイクルへ時間やトークンを付け替えない。
-この記録は個人の振り返り用であり、AIDD Coreの証拠やPR本文・テンプレートには含めない。
-計測ツールのGoテストはPR CIでCoreと別に実行する。
-
-## Ship
-
-必要なstageをGit Workflowに沿って行い、証拠を含むTask記録もstageする。
-
-```sh
-/tmp/aidd-v4 --root . ship-check --task example
-```
-
-合格後にcommit、push、PR作成/更新とread-backを行う。
-`ship --input /tmp/ship.json`へ`commit`、`remote`、`branch`、`base`、`pr`、`evidence`を渡す。`ship`は配信先を照合して結果を返すだけで、eventを追加しない。
-baseは期待するマージ先ブランチ名（例: main）を指定する。Coreは実commit・remote・PR head・base名を確認する。baseのSHAは取得条件に含めず、同名ブランチの更新は拒否しない。evidenceにはtracking/upstream、base、CIの一度の取得結果などを記す。
-
-配信先、commit、PRはShip結果として報告する。後から再開するときはTaskとPRを確認し、未確認の配信を成功と推測しない。
-旧TaskのShip eventは読み取りを維持する。`delivery-check`は既存の記録だけの配信確認に限る。
-sourceの変更があれば同じTaskで必要な新revision・再検証・review・Shipを行う。
-
-## Auditと承認後の改善
-
-AuditはShip後のユーザーの明示依頼を受けて実行する。TaskとPRを照合し、その時点のレビュー指摘を確認する。
-`audit --input`は次の構造。新しいTaskでは`delivery`に対象配信を指定する。Coreはreview済みcommitとPRを照合する。旧TaskのShip eventは引き続き参照できる。
-
-```json
-{
-  "summary": "指摘分析の結論",
-  "delivery": {
-    "commit": "Audit対象のcommit SHA",
-    "remote": "origin",
-    "branch": "配信ブランチ名",
-    "base": "main",
-    "pr": "PR URL",
-    "evidence": "配信確認結果"
-  },
-  "findings": ["指摘と対応状態"],
-  "proposals": [
-    {
-      "id": "P1",
-      "finding": "根拠に基づく問題・原因",
-      "evidence": "指摘と関連する検証の具体的な参照",
-      "change": "改善内容と確認方法",
-      "paths": ["docs/harness/policies/example.md"]
-    }
+  "rules": [
+    "ai-driven.workflow",
+    "ai-driven.checker",
+    "documentation.policy",
+    "ai-driven.change-coverage",
+    "ai-driven.overview",
+    "ai-driven.glossary"
   ]
 }
 ```
 
-`session_improvements`は旧Audit記録の読取専用項目として保持する。新しいAuditへの非空入力は拒否する。
-作業過程の改善探索は[Retrospective](../harness/policies/retrospective.md)で行い、CoreのAudit・承認・Intent復帰へ記録しない。
+入力はその場の実行にだけ使用し、Task・snapshot・出力・操作履歴を生成しない。入力ファイルを使った場合は実行後に削除する。
+結果は各commandのindexと終了コード、`stable`のみ。診断出力は実行中に確認し、要約は検証名・成否・必要な未確認事項に絞る。
+Webの整形は検証batchの前に行う。失敗修正後は開始済みbatchを終えてから必要な検証をやり直す。
+同一差分で確認済みの検証を、記録更新のために再実行しない。
 
-改善提案がなければ分析結果とコメント対応方針を報告し、Audit eventを追加せずに分析を終了する。
-返信・解決方針への手動承認後は[Audit policy](../harness/policies/learning-extraction.md#承認後のコメント対応)に従い追加指示なしで実行する。
-コメント対応だけの承認を記録するためにCoreのaudit/approve/decisionや空コミットを作らず、提示した方針と承認発言を根拠にする。
-改善提案があればTaskへ記録してユーザーに提示し、手動承認を受けるまで改善へ進まない。記録は承認された改善の変更と一緒にcommitする。
-`approve --input`は`audit_hash`、`source`、`text`、`proposal_ids`を持つ。
-source/textはその提案を承認した実際のユーザー発言。agentが生成した同意を使わない。
-sourceは発言を識別する参照とし、本文を含めない。入力検証後、eventへは`text`の代わりに
-`text_hash`を保存する。入力ファイルをeventへコピーしたり、summaryやevidenceへチャット原文を転載したりしない。
-たとえば次の入力から、保存時には`text`だけが除去され、Coreが生成した本文hashが加わる。
+## stageと配信確認
+
+必要な検証とレビュー後に担当差分をstageし、`ship-check`を使う。
+commit hookが内容やmodeを変えた場合は変更された内容を確認し、影響する検証・レビューを実施する。
+commit・push・PR作成後、次の配信入力を`ship --input <一時JSON>`で照合する。
 
 ```json
 {
-  "audit_hash": "対象Auditのhash",
-  "source": "user-message:承認発言の識別子",
-  "text": "実際の承認発言本文",
-  "proposal_ids": ["P1"]
+  "commit": "<local HEAD>",
+  "remote": "origin",
+  "branch": "<branch>",
+  "pr": "<PR URL>",
+  "base": "main"
 }
 ```
 
-一部だけ承認した場合、未承認案は次のAuditに引き継ぐ。却下はユーザーが明示した場合だけ
-`dismiss --input`へ同じ形式で記録し、改善済みとは区別する。
-旧Taskで記録済みの提案なしAuditは、従来どおり空のproposal_idsによる承認を受け付ける。
-「Auditを承認します」は提示した改善案・コメント対応方針の対象と内容への承認であり、別の実行指示を要求しない。
-Coreのapproveは改善案を扱い、コメント返信・解決の権限判定とread-backはhostと担当agentが行う。
-同じShip内容・revisionに追加指摘があればauditを再実行する。audit-updateとして追記され、未決提案は保持し、旧承認は失効する。
-承認後に改善のdecisionを追記し、`improve-check`で承認対象との一致を確認しながら改善する。
-改善後、現在のIntentと改善済みガードレールを読み直して次の境界を記録する。
+tracking ref・upstream・CIの確認は[Git Workflow](../harness/policies/git-workflow.md)に従う。
+Coreの結果だけで未実施の検証・レビュー・CIを成功にしない。配信後に記録ファイルを追加しない。
+
+## Core・CI・hookの検証
 
 ```sh
-/tmp/aidd-v4 --root . return-intent --task example --input /tmp/return-intent.json
-```
-
-入力は`{"summary":"Intentと改善済みガードレールを再確認した具体的な結果"}`。
-Coreが新しいcycle IDを発行し、現在Intentのhashと承認への参照を保存する。
-再開時はstatusの`cycle_id`と境界eventを読み、同じ操作を繰り返してIDを増やさない。
-その後、次サイクルのdecisionを記録し、必要な設計・実装、verify・review・Shipまで進む。次のAuditは手動開始後に記録する。
-改善後の復帰を省略したShipと、前cycleのdecision・検証の流用は拒否される。
-cycle ID導入前のv4履歴は変更せず、明示的な復帰から採番する。
-旧Taskの改善案なしAuditへの承認は終了を意味し、`return-intent`や実装の権限を付与しない。
-
-## 検証とエラー
-
-```sh
-go -C tools/aidd/checker test -count=1 ./...
+go -C tools/aidd/checker test ./...
 go -C tools/aidd/checker vet ./...
 python3 -B -m unittest -v tools.aidd.tests.test_shared_gate
 python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main
-/tmp/aidd-v4 --root . rules
-/tmp/aidd-v4 --root . check-changes --base origin/main
 ```
 
-`rules`はTaskを読み込まずrule graphを検証する。`--paths`を指定すれば該当ruleと依存closureも返す。
-`check-changes`は必須の`--base`とのmerge-baseから今回変更したTaskだけを検証し、PR差分の所有範囲と最新証拠を照合する。
-過去Taskの全走査と履歴Auditの配信commitの再照合は行わない。過去記録は保持し、参照commitの追加取得は不要。
-CIはPR headでこの差分検証を行い、merge結果ではCoreテストとrule graph検証を行う。
+CIはcandidateの実差分・規約graph・Core test/vet・共有Git gate・ADR履歴を確認する。
+Taskの有無によるgateと、記録だけを理由にした自動依存更新の例外は設けない。
+既存hookはstageに必要な検査を維持し、旧Task/eventを要求しない。旧Codex lifecycle hookは現行の入口ではない。
 
-検証失敗・source変更は失敗記録を保持する。結果を編集せず、原因を修正して再実行する。
-revisionやscopeの不一致は判断を確認し、必要なら新decisionにする。
-承認不足・意図の矛盾は具体的な不足を提示してユーザー判断を待つ。
-旧CLI引数や旧Taskはv4への自動変換を行わない。
+## セッション計測
+
+工程ごとの計測記録は通常開発で要求しない。明示依頼による計測やRetrospectiveに既存session-metricsを利用できるが、
+新たな操作履歴の義務やShip条件にはせず、コマンド生出力は保存しない。
+任意計測は旧Task/eventがなくても実行でき、cycleは空値となる。旧記録がある場合だけ既存cycleの読み取りを維持する。
+
+再開・Auditの権限判断は[Codex adapter](codex-adapter.md#再開)と[Workflow](workflow.md)から確認する。
 
 ## Repository verification
 
 既存のstaged Git gateは変更したGoファイルをgofmtし、Go vetとvp checkを実行する。
-これはTaskの必要検証とsemantic reviewの代替ではない。hookでsourceが変わった場合は
-新しい状態をverifyしてからShipする。一般の非AIDD変更にもこの共通gateは適用される。
+これは必要検証とsemantic reviewの代替ではない。hookでsourceが変わった場合は
+影響する検証を行ってからShipする。一般の非AIDD変更にもこの共通gateは適用される。
+
+実行環境の設定はcommand argvへ埋め込まず、Coreのbuildやverifyの呼出環境から継承する。
+Go cacheに書き込めない場合はrepository外の書き込み可能な`GOCACHE`を指定する。
