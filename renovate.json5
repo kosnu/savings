@@ -29,6 +29,17 @@
       groupName: "vite-plus monorepo",
     },
     {
+      description: "Vite+の内部版に合わせる依存は、Vite+更新時にvp migrateで同期する",
+      matchPackageNames: [
+        "vite",
+        "@voidzero-dev/vite-plus-core",
+        "vitest",
+        "@vitest/browser-playwright",
+        "@vitest/coverage-v8",
+      ],
+      enabled: false,
+    },
+    {
       matchPackageNames: ["pnpm"],
       groupName: "pnpm",
     },

@@ -1,0 +1,96 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-10T17:21:05.352022Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "d819da9ba200841e6fedfe4c9ed29e4bfae653cc3a107c459bf806018aa5d839",
+  "revision": 1,
+  "fingerprint": "ffdf71915c98935c9400f598a896268e21b2f3243fe395ac959c65bee91926cd",
+  "data": {
+    "summary": "Vite+1.0.0を維持し、Webの直接vite/未使用esbuild/root重複react-hooks宣言を削除する。browser mode/upstream typesのvitest、opt-in Playwright provider、別提供coverage-v8は維持し、Vite+内部版に合わせる依存の独立Renovate更新を停止する。core aliasとrunner overrideは外部peerの単一解決に必要なため維持し、更新時はvp migrateで同期する。",
+    "paths": [
+      "apps/web/package.json",
+      "pnpm-workspace.yaml",
+      "pnpm-lock.yaml",
+      "renovate.json5"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "vp",
+        "test",
+        "run",
+        "--project",
+        "unit",
+        "src/domain/amount.test.ts",
+        "--coverage",
+        "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+        "--reporter=dot"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "4943ed6143d2628614becb1ec11e11ebe4e83d4659086021eea6ea449b9278df",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0001"
+}

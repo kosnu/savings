@@ -1,0 +1,98 @@
+{
+  "sequence": 5,
+  "kind": "verify",
+  "time": "2026-10-10T17:28:07.554516Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "5fbfb1b0660236a46d9fcb1b64c0ef232c7b27575130485d4aef0e29a5613b14",
+  "revision": 2,
+  "fingerprint": "4097fbd4f3b6671236d71abc27c86f04eca188c70a3f8be189806d4f9c4ae73e",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 617ms on 582 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:8932) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n\n·················································································································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  142 passed (142)\n      Tests  785 passed (785)\n   Start at  02:26:30\n   Duration  83.58s (setup 63%, tests 16%, import 10%, environment 9%, transform 2%)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:storybook"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:storybook --reporter=dot --silent\n$ vp test run --project storybook --reporter=dot --silent\n(node:9281) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n\n····················\n\n Test Files  7 passed (7)\n      Tests  20 passed (20)\n   Start at  02:27:55\n   Duration  7.07s (setup 54%, import 24%, tests 19%, worker 3%)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:build"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web build\n$ tsc -b \u0026\u0026 vp build\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2127 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-DlnKZWWw.css               14.95 kB │ gzip:   4.36 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-FG4lT6ND.js               4.93 kB │ gzip:   2.30 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-B9p-1_S_.js               149.81 kB │ gzip:  37.96 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-BQ-0x0pl.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-CcqsdSv1.js            942.75 kB │ gzip: 278.87 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 777ms\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "--filter",
+          "web",
+          "exec",
+          "vp",
+          "test",
+          "run",
+          "--project",
+          "unit",
+          "src/domain/amount.test.ts",
+          "--coverage",
+          "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+          "--reporter=dot"
+        ],
+        "exit": 0,
+        "output": "note: You are running `vp test` as a Vite+ built-in command. If you meant to run the test npm script, use `vpr test` instead.\n(node:9516) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n      Coverage enabled with v8\n\n············\n\n Test Files  1 passed (1)\n      Tests  12 passed (12)\n   Start at  02:28:06\n   Duration  1.19s (setup 95%, import 2%, transform 1%, worker 1%)\n\n % Coverage report from v8\n-----------|---------|----------|---------|---------|-------------------\nFile       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s \n-----------|---------|----------|---------|---------|-------------------\nAll files  |   91.66 |    84.21 |     100 |   94.73 |                   \n amount.ts |   91.66 |    84.21 |     100 |   94.73 | 16                \n-----------|---------|----------|---------|---------|-------------------\n\n=============================== Coverage summary ===============================\nStatements   : 91.66% ( 22/24 )\nBranches     : 84.21% ( 16/19 )\nFunctions    : 100% ( 3/3 )\nLines        : 94.73% ( 18/19 )\n================================================================================\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "c985b7846a513c887373bddbeba31123e6670859013e37ac5d9698a10e47387e",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0001"
+}
