@@ -1,0 +1,55 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-10-10T02:52:50.294789Z",
+  "task_hash": "17ddbd947c3cff027ccb0870e7f9be8ada95d27b4b44ddd15cac24d070eab38d",
+  "previous": "f3f9603789487a70c003d2574c7a46d21d8c02f681130fba8c6f8c31216953d8",
+  "revision": 1,
+  "fingerprint": "4172c2ec5d8905f76b3ce3a066a18197ed40c5cd60e0b39443bdb799525d06f4",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.storybook-browser-tests, web.test-policy\n- Unresolved: なし\n元のVite+優先方針と最新の指定PR1906 CI修正依頼に適合。公開版の通常更新で型不一致・起動失敗を解消。CI設定、アプリ・ドメイン・API・インフラの動作、正本・CLIは変更せず、既存検証境界を維持。root formatterによる既存YAML引用符の同期を含む。",
+    "criteria": [
+      {
+        "criterion": "Vite+とVitest・Storybookの依存版が整合する",
+        "evidence": "Vite+1.0.0を維持し公開依存Vitest5.0.1へcatalog/browser-playwright/coverageを同期。Storybook10.6.1のaddon-vitest peer範囲はVitest5を含み、関連5パッケージを揃えた。lockfileの解決とimporterを照合。overrideと収集対象・失敗条件を保持。CSS parser peer不一致は既存かつVitest/Storybook以外で、今回のCI原因ではない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Web必須検証とStorybook browserテストが成功する",
+        "evidence": "verify000003 stable=true、lint/format-check/typecheck/unit-integration/storybook/git diff --check全exit0。142 files785 tests、Storybook7 files20 tests成功。CIで観測したbrowser provider型不一致とvitest/internal/traces起動エラーが同じ検証経路で再発しないことを確認した。テスト・アプリ設定変更なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "修正がPR #1906へ反映される",
+        "evidence": "指定branch renovate/major-vite-plus-monorepoへ移動済み、PR1906のhead dca900b9とbaseline一致、base main。変更は依存3ファイルと必要な同Task記録のみ。独立PR1904のCI修正は含めない。commit/push後にremote/PR headの一致をShip照合で確認する。配信前の実反映は未確認。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "aa3ab823fdb7ee201b297f1014257ee444020587e792fb84a8922a12abca9b19",
+  "cycle_id": "pr-1906-vite-plus-ci/cycle-0001"
+}

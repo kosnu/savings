@@ -1,0 +1,75 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-10T02:49:28.603821Z",
+  "task_hash": "17ddbd947c3cff027ccb0870e7f9be8ada95d27b4b44ddd15cac24d070eab38d",
+  "previous": "0530eb671b360a8bd7f2598ae57665061da12606d7b05cbac3d269f6f7c64d0a",
+  "revision": 1,
+  "fingerprint": "8ea48c06790bfd253c28b54b29f665bc532683bbecf919bbe00d85e7894a7a99",
+  "data": {
+    "summary": "Vite+1.0.0公開依存に合わせVitest catalog/browser/coverageを5.0.1へ同期し、Vitest5対応済みStorybook10.6.1を揃える。依存定義と生成lockfileだけを変更。CI設定・アプリ挙動・正本・索引・CLIの変更は不要。",
+    "paths": [
+      "pnpm-workspace.yaml",
+      "pnpm-lock.yaml",
+      "apps/web/package.json"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "4dc7ef9a824fcc4a2643887ce0ae62c2213eb4ad0674b8c3e2af0baf49c93c8e",
+  "cycle_id": "pr-1906-vite-plus-ci/cycle-0001"
+}
