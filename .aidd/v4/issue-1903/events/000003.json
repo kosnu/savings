@@ -1,0 +1,39 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/checker/",
+    "docs/ai-driven-development/",
+    "docs/harness/",
+    "docs/adr/0009-rebuild-aidd-v4.md",
+    "AGENTS.md",
+    ".agents/skills/"
+  ],
+  "fingerprint": "e2ed50a6ecc0f9af2ef6ecfe943814d2628cd6c208b816a329a6004cefb3fe7c",
+  "status": "pass",
+  "checks": [
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "同一cycle更新・旧cycle保護・中断・失効",
+    "CLI・単一writer・旧記録保持",
+    "Auditのみ/承認済み改善/Goal依頼なしのskill分岐",
+    "CIと規約選択の既存経路"
+  ],
+  "summary": "更新Intentの各成功条件を実装・境界テストと照合。記録のpassは承認や意味評価の代替にせず、生出力・snapshot・Ship記録を保存しない。Checked rulesはchecksに記載。Unresolvedなし。",
+  "remaining": []
+}

@@ -22,7 +22,7 @@ when_to_read:
 | Decision / checkpoint | 現在の採用判断と再開に必要な短い要約。作業工程の固定ではない                        |
 | Evidence              | 実際の観測と実行結果。対象の内容・modeと結び付け、成否を要約する                    |
 | Semantic review       | 意図・設計・規則の意味を基準と根拠で判断する評価                                    |
-| Core                  | 履歴を保存せずその場の実データを照合するGo検査                                      |
+| Core                  | 実データと工程結果の鮮度・更新範囲を照合するGo検査                                  |
 | Ship                  | 検証した担当差分のcommit・push・PR作成または更新と配信確認                          |
 | Audit                 | Ship後の指摘と原因を分析し改善案を提示すること                                      |
 | Retrospective         | Merge / Close後に作業過程を振り返り改善案を提示する独立工程。通常サイクルの外にある |

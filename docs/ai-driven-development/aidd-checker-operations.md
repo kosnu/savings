@@ -52,10 +52,47 @@ Coreでまとめて実行する場合、`verify --base <比較元commit/ref> --i
 }
 ```
 
-入力はその場の実行にだけ使用し、Task・snapshot・出力・操作履歴を生成しない。入力ファイルを使った場合は実行後に削除する。
+入力はその場の実行にだけ使用し、Task本文・snapshot・生出力・操作履歴を生成しない。入力ファイルを使った場合は実行後に削除する。
 結果は各commandのindexと終了コード、`stable`のみ。診断出力は実行中に確認し、要約は検証名・成否・必要な未確認事項に絞る。
 Webの整形は検証batchの前に行う。失敗修正後は開始済みbatchを終えてから必要な検証をやり直す。
 同一差分で確認済みの検証を、記録更新のために再実行しない。
+
+## 工程結果の更新
+
+[記録契約](aidd-checker.md#記録)に従う。新サイクルのdesignだけcycleを省略し、返された記録名を以後の工程へ渡す。同じサイクルのdesign再確認には既存cycleを必ず指定する。
+
+開始入力は参照と確認対象だけにする。
+
+```json
+{
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": ["tools/aidd/checker/", "docs/ai-driven-development/"]
+}
+```
+
+```sh
+/tmp/aidd-checker --root . record-begin --task issue-1903 --kind design --input /tmp/phase-start.json
+/tmp/aidd-checker --root . record-begin --task issue-1903 --cycle 000001.json --kind verify --input /tmp/phase-start.json
+```
+
+実際の起点・返されたrecord pathへ置き換える。工程の開始前にrunningへ更新し、検証・レビューは従来の実行手順で行う。失敗・中断時は成功へ更新しない。完了入力には生出力・argvを渡さない。
+
+```json
+{
+  "status": "pass",
+  "checks": ["Core test/vet"],
+  "summary": "対象変更なしで検証成功。",
+  "remaining": []
+}
+```
+
+```sh
+/tmp/aidd-checker --root . record-finish --record .aidd/v4/issue-1903/events/000002.json --input /tmp/phase-result.json
+/tmp/aidd-checker --root . record-read --record .aidd/v4/issue-1903/events/000002.json
+```
+
+失敗はfailと短い原因・残る問題、証拠不足はunknownにする。`record-read`がunknownなら以前のpassを現在の成功にしない。同じcycle・kindの再試行は同じファイルへbegin/finishする。次サイクルは新designを作り、前cycleは変更できない。
+入力JSONは実行後に削除する。工程結果を更新するたびのcommit、Shipの結果ファイル、配信確認の記録だけを目的とした追加commitは作らない。Audit記録から実行許可を推論しない。
 
 ## stageと配信確認
 

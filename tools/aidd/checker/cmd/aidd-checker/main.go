@@ -17,16 +17,27 @@ func run() error {
 	}
 	args := flags.Args()
 	if len(args) == 0 {
-		return fmt.Errorf("command required: rules check-changes verify ship-check ship")
+		return fmt.Errorf("command required: rules check-changes verify ship-check ship record-begin record-finish record-read")
 	}
 	switch args[0] {
-	case "rules", "check-changes", "verify", "ship-check", "ship":
+	case "rules", "check-changes", "verify", "ship-check", "ship", "record-begin", "record-finish", "record-read":
 	default:
 		return fmt.Errorf("unsupported command %s; lifecycle recording has been removed", args[0])
 	}
 	f := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	var input, base, paths *string
+	var task, cycle, kind, record *string
 	switch args[0] {
+	case "record-begin":
+		task = f.String("task", "", "existing task directory name")
+		cycle = f.String("cycle", "", "origin design record filename; omit only for a new design cycle")
+		kind = f.String("kind", "", "design verify review audit")
+		input = f.String("input", "", "source reference and target paths JSON")
+	case "record-finish":
+		record = f.String("record", "", "phase record path")
+		input = f.String("input", "", "short result JSON; no command output")
+	case "record-read":
+		record = f.String("record", "", "phase record path")
 	case "verify":
 		input = f.String("input", "", "verification plan JSON")
 		base = f.String("base", "", "verification baseline")
@@ -50,6 +61,34 @@ func run() error {
 	checker := &core.Checker{Root: abs}
 	encode := func(v any) error { return json.NewEncoder(os.Stdout).Encode(v) }
 	switch args[0] {
+	case "record-begin":
+		var start struct {
+			Source string   `json:"source"`
+			Paths  []string `json:"paths"`
+		}
+		if e = core.ReadInput(*input, &start); e != nil {
+			return e
+		}
+		path, err := checker.BeginPhase(*task, *cycle, *kind, start.Source, start.Paths)
+		if err != nil {
+			return err
+		}
+		return encode(map[string]string{"record": path})
+	case "record-finish":
+		var result core.PhaseResult
+		if e = core.ReadInput(*input, &result); e != nil {
+			return e
+		}
+		if e = checker.FinishPhase(*record, result); e != nil {
+			return e
+		}
+		return encode(map[string]bool{"record_updated": true})
+	case "record-read":
+		r, err := checker.ReadPhase(*record)
+		if err != nil {
+			return err
+		}
+		return encode(r)
 	case "rules":
 		var p []string
 		if *paths != "" {

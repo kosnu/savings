@@ -103,3 +103,48 @@ func TestRecordingCommandsRemoved(t *testing.T) {
 		t.Fatal(e)
 	}
 }
+
+func TestPhaseRecordCLIAndOutputFieldRejection(t *testing.T) {
+	root := t.TempDir()
+	for _, args := range [][]string{{"init", "-b", "main"}, {"config", "user.name", "test"}, {"config", "user.email", "test@example.com"}} {
+		if b, e := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); e != nil {
+			t.Fatalf("%v: %s", e, b)
+		}
+	}
+	if e := os.WriteFile(filepath.Join(root, "code.txt"), []byte("code"), 0644); e != nil {
+		t.Fatal(e)
+	}
+	old := os.Args
+	t.Cleanup(func() { os.Args = old })
+	invoke := func(args ...string) error {
+		os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+		return run()
+	}
+	start := filepath.Join(t.TempDir(), "start.json")
+	result := filepath.Join(t.TempDir(), "result.json")
+	if e := os.WriteFile(start, []byte(`{"source":"issue","paths":["code.txt"]}`), 0644); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-begin", "--task", "issue-test", "--kind", "design", "--input", start); e != nil {
+		t.Fatal(e)
+	}
+	p := ".aidd/v4/issue-test/events/000001.json"
+	if e := os.WriteFile(result, []byte(`{"status":"pass","checks":["check"],"summary":"ok","stdout":"secret"}`), 0644); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-finish", "--record", p, "--input", result); e == nil {
+		t.Fatal("CLI accepted raw output")
+	}
+	if e := os.WriteFile(result, []byte(`{"status":"pass","checks":["check"],"summary":"ok","remaining":[]}`), 0644); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-finish", "--record", p, "--input", result); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-read", "--record", p); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-begin", "--task", "issue-test", "--cycle", "000001.json", "--kind", "ship", "--input", start); e == nil {
+		t.Fatal("CLI recorded Ship")
+	}
+}

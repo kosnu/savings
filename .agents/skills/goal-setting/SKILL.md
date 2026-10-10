@@ -16,7 +16,7 @@ a Goal when creation is not authorized or the tools are unavailable.
 The parent agent continues the same Task's existing Goal without duplication. Preserve
 unrelated unfinished Goals and user-owned pauses. Use the Intent objective, source, Task
 reference, and authorized completion scope; set budgets only when explicitly requested.
-Goal state never replaces actual verification and delivery checks. Do not create Task/event files or persist command stdout/stderr. Complete a Ship-scoped Goal after its outcome,
+Goal state never replaces actual verification and delivery checks. Follow the Core phase-result contract; do not create Task/operation events, snapshots, Ship records, or persist command stdout/stderr. Complete a Ship-scoped Goal after its outcome,
 verification, review, and delivery checks are satisfied. Report Goal completion separately
 from cycle completion; Audit and improvements retain their explicit request and approval
 boundaries.
