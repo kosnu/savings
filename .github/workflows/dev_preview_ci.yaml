@@ -33,7 +33,7 @@ jobs:
       - name: Build Preview without deployment credentials
         env:
           NODE_ENV: production
-          CLOUDFLARE_PREVIEW_BUILD: "true"
+          CLOUDFLARE_VITE_PREVIEW_BUILD: "true"
           CF_SEND_TELEMETRY: "false"
           VITE_SENTRY_DSN: ""
           VITE_SENTRY_ENVIRONMENT: development

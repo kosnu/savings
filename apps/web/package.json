@@ -44,7 +44,7 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "2.0.0-beta.sha-805ec1ff3",
+    "@cloudflare/vite-plugin": "2.0.0-beta.sha-c82c3efb3",
     "@sentry/vite-plugin": "5.4.0",
     "@storybook/addon-docs": "10.6.1",
     "@storybook/addon-vitest": "10.6.1",

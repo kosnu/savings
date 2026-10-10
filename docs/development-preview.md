@@ -114,7 +114,7 @@ DB password・host・CA PEMは登録せず、接続はCLIに任せる。debugロ
 
 ### バージョンと利用上限
 
-`cf 1.0.0-beta.1`、Cloudflare Vite plugin `2.0.0-beta.sha-805ec1ff3`、Supabase CLI `2.118.0` を使う。
+`cf 1.0.0-beta.1`、Cloudflare Vite plugin `2.0.0-beta.sha-c82c3efb3`、Supabase CLI `2.118.0` を使う。
 依存更新時はhelp・Preview context・Build Output・返却JSONを再検証する。
 cfは `previews deploy <name> --prebuilt --mode development` を使い、JSONを抑止する `--quiet` は指定しない。
 

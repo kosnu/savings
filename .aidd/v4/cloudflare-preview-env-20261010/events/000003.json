@@ -1,0 +1,142 @@
+{
+  "sequence": 3,
+  "kind": "verify",
+  "time": "2026-10-10T04:42:10.955504Z",
+  "task_hash": "a842f948316b44a0189ce915130b2fdb4196cf09856a33705bef871b3a552994",
+  "previous": "47712b56f8fbbed905c889b8b23fb071592700d22f0813ec135f34a406b94a26",
+  "revision": 1,
+  "fingerprint": "4b42a3cdb69f6b52fc7fd114f452cfa19d01de5c11ce5267efa966b9fe561708",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 726ms on 582 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:84062) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/4218/savings/apps/web\n\n·················································································································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  142 passed (142)\n      Tests  785 passed (785)\n   Start at  13:40:31\n   Duration  92.83s (setup 63%, tests 15%, import 10%, environment 10%, transform 2%)\n\n"
+      },
+      {
+        "argv": [
+          "node",
+          "--test",
+          "tools/dev-preview/preview.test.mjs",
+          "tools/dev-preview/authorize.test.mjs"
+        ],
+        "exit": 0,
+        "output": "✔ PR label resolves the immutable event head; dispatch remains main-only (1.219375ms)\n✔ updates, unrelated labels, forks, wrong base and unsupported events cannot opt in (0.163541ms)\n✔ the selected head resolves without an Environment API dependency (0.133958ms)\n✔ head races, withdrawal, closure and foreign PRs fail the post-approval recheck (0.219542ms)\n✔ workflow limits triggers and gates installation/deployment behind environment and revalidation (0.474792ms)\n✔ database requests use their own label and the same immutable head checks (0.120917ms)\n✔ FE/DB share development but only DB steps receive database credentials (8.601041ms)\n✔ 同じブランチは同じ名前、slug が衝突しても別ブランチは別 Preview (0.995834ms)\n✔ Dev 設定不足、本番 ref、権限の強いキーをネットワーク前に拒否 (0.151708ms)\n✔ Preview context は mode を間違えても本番 Worker/domain を選ばない (0.372375ms)\n✔ 本番・古い成果物や本番 binding/domain の混入を配信前に拒否 (0.1555ms)\n✔ 補助コマンドと同じ名前のbranchも配信名になる (36.642375ms)\nℹ tests 12\nℹ suites 0\nℹ pass 12\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 120.360125\n"
+      },
+      {
+        "argv": [
+          "env",
+          "NODE_ENV=production",
+          "CLOUDFLARE_VITE_PREVIEW_BUILD=true",
+          "CF_SEND_TELEMETRY=false",
+          "VITE_SENTRY_DSN=",
+          "VITE_SENTRY_ENVIRONMENT=development",
+          "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+          "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+          "pnpm",
+          "run",
+          "web:build",
+          "--mode",
+          "development"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web build --mode development\n$ tsc -b \u0026\u0026 vp build --mode development\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2127 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-DlnKZWWw.css               14.95 kB │ gzip:   4.36 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-BFmx3HlE.js               5.10 kB │ gzip:   2.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-BQ-0x0pl.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-DOxY9OIc.js               228.01 kB │ gzip:  45.96 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-CcqsdSv1.js            942.75 kB │ gzip: 278.87 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 771ms\n"
+      },
+      {
+        "argv": [
+          "node",
+          "tools/dev-preview/preview.mjs",
+          "check-build"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "pnpm",
+          "--filter",
+          "web",
+          "exec",
+          "cf",
+          "previews",
+          "deploy",
+          "--help"
+        ],
+        "exit": 0,
+        "output": "cf previews deploy [preview-name]\n\nDeploy a Worker Preview\n\nPositionals\n  preview-name  Preview name. Defaults to the current CI or Git branch; required\n                if no branch is available.                              [string]\n\nGlobal flags\n  -q, --quiet       Suppress non-essential output     [boolean] [default: false]\n  -z, --zone        Zone ID or domain name (overrides CLOUDFLARE_ZONE_ID)\n                                                                        [string]\n      --profile     Use a specific auth profile                         [string]\n  -m, --mode        Mode used to evaluate project configuration         [string]\n      --local       Use local resource simulations    [boolean] [default: false]\n      --persist-to  Directory holding local persisted state (default:\n                    ~/.config/cloudflare/state)                         [string]\n  -h, --help        Show help                                          [boolean]\n  -v, --version     Show version number                                [boolean]\n\nOptions\n      --prebuilt  Use existing Preview Build Output Specification files without\n                  building                            [boolean] [default: false]\n      --worker    Name of the Worker in the Build Output to use (defaults to the\n                  default Worker)                                       [string]\n"
+      },
+      {
+        "argv": [
+          "env",
+          "CF_SEND_TELEMETRY=false",
+          "pnpm",
+          "run",
+          "web:build"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web build\n$ tsc -b \u0026\u0026 vp build\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2127 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-DlnKZWWw.css               14.95 kB │ gzip:   4.36 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-FG4lT6ND.js               4.93 kB │ gzip:   2.30 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-B9p-1_S_.js               149.81 kB │ gzip:  37.96 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-BQ-0x0pl.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-CcqsdSv1.js            942.75 kB │ gzip: 278.87 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 378ms\n"
+      },
+      {
+        "argv": [
+          "env",
+          "CF_SEND_TELEMETRY=false",
+          "pnpm",
+          "--filter",
+          "web",
+          "exec",
+          "cf",
+          "deploy",
+          "--prebuilt",
+          "--mode",
+          "production",
+          "--dry-run"
+        ],
+        "exit": 0,
+        "output": "├  Deploy\n│  ✨ Read 23 files from the assets directory /Users/kosnu/.codex/worktrees/4218/savings/apps/web/.cloudflare/output/v0/workers/default/assets\n│  Total Upload: 0.00 KiB / gzip: 0.02 KiB\n│  No bindings found.\n│  --dry-run: exiting now.\n│\n◆  Dry run complete\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "c946dde45ca0ed892409f2eb6eae0e3a2a074f26aae7e4a17798046722c520d8",
+  "cycle_id": "cloudflare-preview-env-20261010/cycle-0001"
+}
