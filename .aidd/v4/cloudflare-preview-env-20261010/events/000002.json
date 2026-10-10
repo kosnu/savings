@@ -1,0 +1,130 @@
+{
+  "sequence": 2,
+  "kind": "decision",
+  "time": "2026-10-10T04:38:03.752237Z",
+  "task_hash": "a842f948316b44a0189ce915130b2fdb4196cf09856a33705bef871b3a552994",
+  "previous": "7e56e23d542e85af676b2df90900f2ce1b9b40eb5178a0ea1847fb78f59221fb",
+  "revision": 1,
+  "fingerprint": "fea1ff2b424ee66934fdbc70e611f680cb0be7c7e31847410d346a5e8b07ad80",
+  "data": {
+    "summary": "mainからpluginのみを指定版へ更新する。Preview用の新環境変数を配信workflowとCIへ同期し、運用文書の当該版表記も更新する。UI/DB/他の直接依存は変更しない。既存CI経路でPreviewと本番Build Outputを確認し、browser-test設定には影響しないためStorybook再実行は不要。",
+    "paths": [
+      "apps/web/package.json",
+      "pnpm-lock.yaml",
+      ".github/workflows/deploy_preview.yaml",
+      ".github/workflows/dev_preview_ci.yaml",
+      "docs/development-preview.md"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "node",
+        "--test",
+        "tools/dev-preview/preview.test.mjs",
+        "tools/dev-preview/authorize.test.mjs"
+      ],
+      [
+        "env",
+        "NODE_ENV=production",
+        "CLOUDFLARE_VITE_PREVIEW_BUILD=true",
+        "CF_SEND_TELEMETRY=false",
+        "VITE_SENTRY_DSN=",
+        "VITE_SENTRY_ENVIRONMENT=development",
+        "VITE_SUPABASE_URL=https://ufekmuxkmodwydxmdbln.supabase.co",
+        "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_build_fixture",
+        "pnpm",
+        "run",
+        "web:build",
+        "--mode",
+        "development"
+      ],
+      [
+        "node",
+        "tools/dev-preview/preview.mjs",
+        "check-build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "cf",
+        "previews",
+        "deploy",
+        "--help"
+      ],
+      [
+        "env",
+        "CF_SEND_TELEMETRY=false",
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "env",
+        "CF_SEND_TELEMETRY=false",
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "cf",
+        "deploy",
+        "--prebuilt",
+        "--mode",
+        "production",
+        "--dry-run"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.dev-preview",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "47712b56f8fbbed905c889b8b23fb071592700d22f0813ec135f34a406b94a26",
+  "cycle_id": "cloudflare-preview-env-20261010/cycle-0001"
+}

@@ -89,7 +89,7 @@ jobs:
         env:
           PREVIEW_BRANCH: ${{ needs.resolve.outputs.branch }}
           NODE_ENV: production
-          CLOUDFLARE_PREVIEW_BUILD: "true"
+          CLOUDFLARE_VITE_PREVIEW_BUILD: "true"
           CF_SEND_TELEMETRY: "false"
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}

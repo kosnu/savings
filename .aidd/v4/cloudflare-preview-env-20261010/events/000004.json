@@ -1,0 +1,61 @@
+{
+  "sequence": 4,
+  "kind": "review",
+  "time": "2026-10-10T04:42:43.850582Z",
+  "task_hash": "a842f948316b44a0189ce915130b2fdb4196cf09856a33705bef871b3a552994",
+  "previous": "c946dde45ca0ed892409f2eb6eae0e3a2a074f26aae7e4a17798046722c520d8",
+  "revision": 1,
+  "fingerprint": "4b42a3cdb69f6b52fc7fd114f452cfa19d01de5c11ce5267efa966b9fe561708",
+  "data": {
+    "summary": "指定plugin更新と2つのworkflowの環境変数同期を確認。Preview Build Output検査と本番dry-runは実ビルドで成功。他の直接依存、既存lockfile package/snapshotとimporterをmainのまま維持。セッション名も確認済み。全選択規則を適用し、未解決の指摘・規則矛盾なし。実配信と返却JSONは対象外でcf版を維持。",
+    "criteria": [
+      {
+        "criterion": "pluginは2.0.0-beta.sha-c82c3efb3で他の直接依存はmainと同じ",
+        "evidence": "apps/web/package.jsonの唯一の依存version変更とlockfile構造比較。既存package/snapshotは同値、新規は@cloudflare/config0.17、plugin指定版、miniflare5 alphaだけ。pnpm frozen install成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Preview CIと配信workflowが新環境変数名を使用し、実ビルドのBuild Output検査が通る",
+        "evidence": "deploy_preview.yamlとdev_preview_ci.yamlの両方がCLOUDFLARE_VITE_PREVIEW_BUILD=true。verifyのdevelopment実ビルドとcheck-buildの終了コード0でisPreview=true、Dev静的Worker、domainなしを確認。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "必要なWeb検証と本番ビルド検査が通り、PRへ反映される",
+        "evidence": "verify stable=true、全11command終了コード0。Web785 testsとPreview12 tests成功、本番build+cf dry-run成功。staged照合後にcommit/push/PR read-backをShipで実施する。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "セッション名が変更内容に一致する",
+        "evidence": "set_thread_titleでCloudflare Vite plugin更新とPreview環境変数名の変更へ変更済み。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.dev-preview",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "ceb1289c3eeb7e2a20638d6d804cb6aba3faccbf4716a0851c68cf0086c4678c",
+  "cycle_id": "cloudflare-preview-env-20261010/cycle-0001"
+}
