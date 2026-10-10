@@ -1,16 +1,16 @@
 packages:
   - apps/*
 allowBuilds:
-  '@sentry/cli': true
+  "@sentry/cli": true
   esbuild: true
   msw: true
   sharp: true
   supabase: true
   workerd: true
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.3.3
-  vite-plus: 0.3.3
-  vitest: 4.1.11
+  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
+  vite-plus: 1.0.0
+  vitest: 5.0.1
 minimumReleaseAge: 10080
 overrides:
   eslint: "10.11.0"
