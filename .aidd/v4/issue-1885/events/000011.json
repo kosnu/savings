@@ -1,0 +1,43 @@
+{
+  "sequence": 11,
+  "kind": "verify",
+  "time": "2026-10-06T03:05:46.116729925Z",
+  "task_hash": "b6cb21d5e26b6ea06c24df740c5f3e9cf3e54c7eacf58b5b01694c5fee2aa19e",
+  "previous": "4dac0b9e666cda552e3ac198fb8f7d835c09e3778f076d11c472ae362584aa14",
+  "revision": 4,
+  "fingerprint": "a961f3883bc7dd19bf7773d28ec07a2719f843e6ec66bfde61d82631d1b584a8",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "exec",
+          "issue1885-verification",
+          "pg_prove",
+          "-U",
+          "postgres",
+          "-d",
+          "postgres",
+          "/tmp/issue1885-tests/publication_boundaries.test.sql",
+          "/tmp/issue1885-tests/ensure_authenticated_user.test.sql",
+          "/tmp/issue1885-tests/monthly_budget_write_boundary.test.sql",
+          "/tmp/issue1885-tests/monthly_budget_timezone.test.sql"
+        ],
+        "exit": 0,
+        "output": "/tmp/issue1885-tests/publication_boundaries.test.sql ......... ok\n/tmp/issue1885-tests/ensure_authenticated_user.test.sql ...... ok\n/tmp/issue1885-tests/monthly_budget_write_boundary.test.sql .. ok\n/tmp/issue1885-tests/monthly_budget_timezone.test.sql ........ ok\nAll tests successful.\nFiles=4, Tests=425,  1 wallclock secs ( 0.04 usr  0.01 sys +  0.02 cusr  0.02 csys =  0.09 CPU)\nResult: PASS\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "d3763d66754bcc6704cb5002e7e8f56d153eba3ce9e5fd40a579786b0db8b2a2",
+  "cycle_id": "issue-1885/cycle-0001"
+}
