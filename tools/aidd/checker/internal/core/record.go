@@ -103,7 +103,7 @@ func savePhase(path string, r PhaseRecord) error {
 	if e != nil {
 		return e
 	}
-	if len(b) > 8192 {
+	if len(b)+1 > 8192 {
 		return fmt.Errorf("phase record exceeds 8 KiB")
 	}
 	if e = os.MkdirAll(filepath.Dir(path), 0755); e != nil {

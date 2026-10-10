@@ -148,3 +148,19 @@ func TestPhaseBoundsLegacyAndNoShip(t *testing.T) {
 		t.Fatal("legacy changed")
 	}
 }
+
+func TestPhaseSizeIncludesTerminatingNewline(t *testing.T) {
+	r := PhaseRecord{Format: phaseFormat, Source: strings.Repeat("x", 8000)}
+	b, e := json.MarshalIndent(r, "", "  ")
+	if e != nil {
+		t.Fatal(e)
+	}
+	r.Source = strings.Repeat("x", 8000+8192-len(b))
+	path := filepath.Join(t.TempDir(), "record.json")
+	if e = savePhase(path, r); e == nil {
+		t.Fatal("unreadable oversized record saved successfully")
+	}
+	if _, e = os.Stat(path); !os.IsNotExist(e) {
+		t.Fatal("oversized record was persisted", e)
+	}
+}

@@ -11,7 +11,7 @@
     "AGENTS.md",
     ".agents/skills/"
   ],
-  "fingerprint": "e2ed50a6ecc0f9af2ef6ecfe943814d2628cd6c208b816a329a6004cefb3fe7c",
+  "fingerprint": "ba7c7bba17361621dab8afc22d01f1e672383b7e1f2c4728abb4fec33eb2af70",
   "status": "pass",
   "checks": [
     "ai-driven.audit",
