@@ -12,104 +12,56 @@ when_to_read:
   - AIDD v4 Coreを実行または変更するとき
 ---
 
-# AIDD v4 Core
+# AIDD Go Core
 
-CoreはGoで実装するローカルCLI。Goalや特定モデル、外部Evalsサービスには依存しない。
-意味判断と人間の承認を行うagent/hostから独立して、記録と実状態の一致を検査する。
-[操作](aidd-checker-operations.md)と[workflow](workflow.md)を併用する。
+[Workflow](workflow.md)のうち、その場で判定できる状態をGoで検査する。
+操作イベント・全ファイルsnapshot・コマンド生出力は永続保存せず、工程ごとの最新結果だけを保持する。旧Task台帳を実行条件にしない。
+
+Issue [#1903](https://github.com/kosnu/savings/issues/1903)のIntentに基づき、[ADR 0009](../adr/0009-rebuild-aidd-v4.md)のTask・判断revision・保存記録による承認範囲の機械検査を、実行時検査と工程別の最小結果へ置き換える。履歴上の変更関係はADRの2026-10-11 Clarification、現在の採否は[調査文書](research-v4.md)に示す。Intent・Ship・Audit・改善の権限境界は[Workflow](workflow.md)を維持する。
+
+## 検査の責務
+
+- `rules`: path/surface一致と依存closureを解決し、規約索引の不備を拒否する。
+- `check-changes --base`: merge-baseと現在の実差分から適用規約を解決する。検証・レビューの成功は示さない。
+- `verify --base --input`: 有限の対象path・command・ruleを入力として、差分の範囲と必須command・ruleの不足を拒否し、commandを実行する。
+- `ship-check`: stageとworktreeの内容・mode、stageの空白エラーを検査する。
+- `ship --input`: local HEAD、worktree、remote branch、PRのhead/base/OPEN状態を照合する。Ship記録は書かない。
+- `record-begin`: 同じサイクル・同じ工程の結果をrunningへ更新する。cycleなしのdesignは次サイクルを開始する。
+- `record-finish`: 短い結果だけを保存する。開始後の対象変更をpassとして保存しない。
+- `record-read`: 現在の対象と照合し、前サイクル・対象変更・runningを現在の成功として返さない。
+
+snapshotは検査中のメモリ内だけで使用する。検証結果はcommandのindex・終了コードと実行前後の安定性だけを返す。
+コマンドの標準出力・標準エラーは実行中の診断表示に使用し、結果JSON・ファイル・履歴へ保存しない。
+未起動・失敗・残留process・snapshot取得失敗・検証中の内容やmodeの変更を成功にしない。
+検証commandの実行による残留processを終了し、検証を失敗にする。macOS/Linux以外では検証実行を拒否する。
 
 ## 記録
 
-`.aidd/v4/<task-id>/task.json`は開始Intent、実行権限、baseline、開始時snapshotを保持する。
-`events/000001.json`以降は追記専用。Task hash、前event hash、連番、decision revision、
-対象snapshotのfingerprintとcycle IDを結び付ける。確定した判断の変更は新decisionで行い、旧証拠は失効する。
-旧`.aidd/tasks`のschemaや旧CLIを読み替える互換経路はない。
+Intentと実行権限は既存Issue・PR・ユーザー発言を正本として確認し、本文を複製しない。
+`.aidd/v4/<既存の作業名>/events/000001.json`の配置・連番を使う。これは操作eventではなく工程結果であり、formatは`aidd-phase-result-v1`とする。
+記録対象はdesign・verify・review・手動開始されたauditだけ。実際に行わない工程の空記録、Task本文、承認・復帰event、Ship記録は作らない。
 
-新しいeventにはチャット本文を保存しない。Intent改訂、承認、却下の入力`text`は検証後に除去し、
-JSON文字列として符号化した本文のSHA-256を`text_hash`へ保存する。出典`source`、構造化したIntentの
-目的・制約・完了条件、承認・却下のAudit hashと提案IDは保持する。`text_hash`はCoreが生成し、入力には指定しない。
-出典には発言を識別する参照を使い、summaryやevidence、検証command・出力などにもチャット原文を転載しない。
-要約には判断・結果だけを記す。自由記述やcommand出力に混入した原文の意味判定はagentが担う。
-本文付きの既存eventは書き換えず読み取りを維持する。旧本文と新hashは同じ内容として比較し、
-保存形式や出典だけの変更をIntent改善と判定しない。開始時の`task.json`の保存内容は変更しない。
+- cycleはそのサイクルを開始したdesign記録のファイル名を参照する。commit/rebaseや新しいサイクル連番に依存しない。
+- 同じcycle・kindは同じファイルを更新する。再試行のたびにファイルや本文の履歴を増やさない。
+- cycleなしのdesignで次サイクルを開始し、前サイクルを凍結する。旧cycleへのbegin・finishを拒否する。過去の結果は当時の履歴として読めるが、現在の成功にしない。
+- 内容はIntent等の参照、有限の確認対象path、状態、確認名、短い結果、残る問題と対象内容・modeの識別値だけ。1件8 KiB以下、summaryは単一行1200 bytes以下、checksは32件以下、remainingは8件以下とする。上限を埋めず必要な内容だけを残す。
+- 開始前に`record-begin`を呼び、前の成功を解除する。完了時だけ`record-finish`でpass/fail/unknownを更新する。中断・保存失敗は現在の成功にしない。
+- 鮮度はrecordを除く現在のrepository内容・modeの単一digestで照合する。対象外の変更でも保守的に失効する。全ファイルsnapshot・ファイル別hash一覧は保存しない。記録の更新・commit・rebaseだけで内容/modeが変わらない場合は失効させない。
+- `record-read`で鮮度を確認せず、JSONのpassをそのまま再利用しない。結果はagentの短い評価であり、終了宣言だけを検証・意味評価・人間の承認の証明にしない。
+- コマンド生出力・argv・全文コピーを入力しない。未知のJSON field、過大な本文、複数行の結果を拒否する。診断は実行中の表示だけで使用する。
 
-開始時に既存差分があれば、明示的なacknowledgementと実際の初期差分を保存する。
-これは他者の変更を自分の成果にする権限ではない。baselineからの全差分を後続scope検査に含める。
-通常は専用のclean worktreeで開始する。v4自身の初回構築では、起動に必要だったCore差分を
-初期差分として記録し、clean開始だったと偽らない。
+工程結果は通常の成果commitへまとめる。操作・再試行ごとの記録専用commitと、配信後の記録commitは要求しない。
+Audit結果は分析資料であり、次サイクルのIntent・実行指示・承認ではない。元のIntentと承認された提案・対象・範囲を再確認する。
+読み取り専用の説明・レビューで工程記録の書き込み権限を作らない。
 
-## サイクル記録
+検証・レビューを実際に行う責務はworkflow・担当agent・CIにある。
+Coreは人間の承認を記録から証明せず、`ship-check`や記録のpassだけで検証・レビュー済みとは扱わない。
+変更後の内容に必要な検証を実施し、未実行・失敗・未確認を明示する。
 
-新Taskのstart eventに`<task-id>/cycle-0001`を付け、以降のeventは同じIDに所属する。
-`return-intent`は承認後の改善判断と対象範囲を確認し、再確認の要約・現在Intentのhash・承認hash・直前cycle IDを保存する。
-このeventで前の一巡を閉じ、次の一巡のIDを発行する。同一サイクル内のdecisionやverifyの繰り返しでは発行しない。
-復帰後は新cycleのdecisionが必要で、前cycleの検証・review・Shipを次cycleの証拠として流用できない。
-Audit改善中は承認された提案のpathsを照合先とする。Intent復帰後の新cycleのdecisionがある場合は、そのpathsを照合先として直前のAudit対象Shipからの差分を確認する。Taskのbaselineからの所有範囲の検査と、承認された改善の実差分・未承認改善の拒否も維持する。
-Goが確認するのは記録の一致であり、Intentやガードレールを実際に理解したかは意味評価で確認する。
+## 旧記録
 
-ID導入前のv4 eventは追記専用の履歴として保持し、過去のサイクルを推定して書き換えない。
-そのTaskは明示的な`return-intent`からcycle-0001を開始する。この番号は記録開始後の連番であり、過去の一巡の回数を表さない。
-ID導入後の欠落・飛び番・境界外の切替を拒否する。旧`.aidd/tasks`を実行入力へ戻す互換処理ではない。
+`.aidd/v4/`等の既存記録は当時の履歴として保持する。現行の入力や必須成果物にしない。
+旧`start`・`decision`・`review`・`audit`・`approve`・`dismiss`・`return-intent`・`status`・`check`・`improve-check`・`delivery-check`は廃止し、書き込み前に拒否する。
+過去の内容を現在仕様に合わせて書き換えない。
 
-## 検証
-
-Gitのtrackedとnon-ignored untrackedを対象に内容hashとmodeを取得する。
-自身のTask記録は循環参照を避けるためsource fingerprintから除外し、hash chainとstage状態で別途確認する。
-他Taskの記録やファイルは無視しない。担当path外のbaseline差分、古いrevisionやsnapshotに結び付いた証拠を拒否する。
-
-PRのTask証拠検査は`check-changes --base <PR base ref>`でmerge-baseからの差分に含まれるTaskだけを対象にする。
-変更のない過去Taskは読み込まず、baselineやAuditの参照commitを検査・追加取得しない。
-対象Taskの記録の整合性と現在の検証・review・scope・必要command・rule・PR差分の所有範囲は照合する。
-履歴Auditの配信commitの内容は再照合しない。実行時のAudit・Shipと、承認された改善に必要な比較は維持する。
-過去Task・判断・検証記録は履歴として保持し、削除・改変しない。
-
-検証commandはargv配列で指定し、shell展開を暗黙にしない。実行終了状態と出力を保存する。
-macOS/Linuxでは検証を専用process groupで実行し、親終了後の出力待ちは1秒までとする。
-残存processは終了させ、待機超過・残存・後始末の失敗をverify証拠へ失敗として保存する。
-通常の検証実行時間は制限しない。process groupから意図的に離脱するdaemonの管理は対象外。未対応OSでは実行前に拒否する。
-実行前後にsourceが変わった場合は成功にしない。formatter等は検証batchの前に実行する。
-Go/Core、Webなどの必要commandを変更pathから確認する。意味的な適用条件はAGENTSと関連policyを読み判断する。
-
-意味評価にはIntentの各完了条件、具体的根拠、pass/fail/unknown、適用rule集合を記録する。
-Goは記録とidentityを検査するが、根拠の内容が正しいことを認証しない。
-Ship前には検証・reviewが最新であることと、indexのcontent/modeが検証したworktreeと一致することを確認する。
-実際のcommit、remote ref、PR headと期待するbaseブランチ名も確認する。baseのSHAは固定・照合しない。Ship照合は読み取り専用で、結果だけを返す。CI待機やmerge/deployは行わない。
-
-## Auditと承認
-
-Ship後の状態はTask記録だけからは確定しない。再開時にはPRとcommitを確認する。Coreの状態はAudit開始の権限を付与しない。
-Auditは指定された配信対象のreview済みcommitとPRを照合する。改善提案がない場合は結果を報告し、eventを追加しない。
-新しいAuditは指摘分析を扱い、非空の`session_improvements`入力を拒否する。旧Audit記録の同項目は変更せず読み取りを維持する。
-Merge / Close後の[Retrospective](../harness/policies/retrospective.md)はCoreのサイクル・承認状態に追加しない。
-改善提案ごとに根拠・具体案・対象pathを保存し、承認と改善の変更を同じcommitに含める。空の提案一覧または全提案の明示却下だけでは改善権限を付与しない。
-旧Taskに残る提案なしAuditと承認eventは読み取りを維持する。
-同じShip内容・revisionへの追加Auditはaudit-updateイベントで保存し、新しいAudit hashへの承認を要求する。
-承認は最新Audit hash、提案ID、ユーザー発言の出典と本文hashに結び付ける。
-入力時には実際の本文を確認し、空の本文や元の開発権限の転用を拒否する。再読込時も本文hashで同じ権限転用を拒否する。
-承認前の変更や対象外の変更を拒否する。元の開発権限の転用は許可しない。
-承認後は改善の新decisionと変更を同じサイクルで記録する。改善後に`return-intent`で次サイクルへ移り、
-Intentと改善済みガードレールに基づく新decision、必要な実装、検証、review、Shipを同じTaskで記録する。次のAuditは手動開始後に記録する。
-承認だけでは提案を解決済みにしない。承認後の新decisionがないShip、および旧revisionの検証・reviewを使ったShipを拒否する。
-承認された提案は、Intent復帰後の新revisionの検証・review・Shipと、その後の手動Auditで結果を確認するまで保持する。
-Intent復帰とShipでは、承認の基準となったAudit対象のcommitから、承認pathに実差分があることを要求する。
-再Shipしても比較元は変えない。`@intent`だけの改善では、出典だけの変更を除くIntent本文・目的・制約・完了条件の改訂を要求する。
-作業開始前のdecisionや途中のscope検査では実差分を要求しない。差分の存在は改善内容の妥当性を保証せず、意味評価で各提案への対応を確認する。
-一部だけ承認した場合、残る案は次Auditへ保持する。明示的な却下はdismissとして記録し、
-承認待ちを消すためにagentが却下を捏造しない。Intent自体の改訂は承認対象`@intent`と
-新しい出典を持つdecisionの`intent_revision`で扱い、開始Intentを上書きしない。
-
-## CIと信頼境界
-
-CIはv4 Coreのテスト、vet、format、ADR履歴、rule graphと今回変更したTaskの証拠を検証する。
-PR headでは`check-changes --base`で現在の証拠を照合する。merge結果ではCoreテストとrule graphを検証し、
-PR headのfingerprintをmerge結果に適用したり、過去Taskを全走査したりしない。
-GitHubが署名検証したRenovate authored / web-flow committedのcommitだけを含む自動依存更新は
-人間がIntentを委任した開発ではないためTask証拠検査の対象外とする。author名だけでは除外せず、
-Coreテストとrule graph検査は省略しない。旧migration checkerやschema fallbackは実行しない。
-新Core自身の変更は負の境界テストと実差分レビューで補う。candidate内のcheckerは、悪意ある変更を
-自身だけで認証できない。GitHubのreview・branch protectionとhostの権限制御を信頼境界とする。
-
-Coreは信頼されたローカル操作者、専用worktree、単一writerを前提とする。
-記録を手で改ざんする攻撃や同時writerを防ぐsandboxではない。hash chainは不整合を検出するが署名ではない。
-ユーザー承認の真正性・意味はhostと担当agentが確認する。文字列を入力できることを承認権限にしない。
-環境、外部サービス、意味評価の誤差はsource hashだけでは再現できないため、必要な観測条件をreviewに残す。
+具体的な入力と検証は[操作](aidd-checker-operations.md)に従う。

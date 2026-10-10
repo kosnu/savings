@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/checker/",
+    "docs/ai-driven-development/",
+    "docs/harness/",
+    "docs/adr/0009-rebuild-aidd-v4.md",
+    "AGENTS.md",
+    ".agents/skills/"
+  ],
+  "fingerprint": "ba7c7bba17361621dab8afc22d01f1e672383b7e1f2c4728abb4fec33eb2af70",
+  "status": "pass",
+  "checks": [
+    "Core test/vet成功",
+    "計測CLI test/vet成功",
+    "共有Git gate 5件成功",
+    "ADR履歴検査成功",
+    "文書整形・差分検査成功",
+    "規約graph・差分選択成功",
+    "末尾改行を含むサイズ上限を確認"
+  ],
+  "summary": "同一工程再試行・旧cycle保護・失効・中断・生出力field拒否・CLI経路とサイズ上限を確認。ADR履歴・共有gate・計測CLI・整形も成功。",
+  "remaining": []
+}

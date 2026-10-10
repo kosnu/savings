@@ -24,7 +24,7 @@ when_to_read:
 
 `AGENTS.md` は強制ルールとドキュメント探索の入口を定義します。`docs/harness/` は、AI agent が作業対象に応じて参照するガードレール文書と索引を定義します。各ドキュメントの front matter は、Codex や他の AI agent が現在の作業セッションで読むべき文書を選ぶための探索用メタデータとして扱います。
 
-この配置は[ADR 0001](../../adr/0001-adopt-harness-engineering.md)で採用したハーネスの現行仕様です。`docs/`は人間とagentが共有する記録を置き、`docs/harness/`は作業時のガードレールと索引、`docs/ai-driven-development/`はAIDDの契約と作業記録、`apps/*/docs/`はアプリ固有の方針を所有します。文書だけで守りにくい不変条件は、該当するlint、CI、test、scriptへ接続します。
+この配置は[ADR 0001](../../adr/0001-adopt-harness-engineering.md)で採用したハーネスの現行仕様です。`docs/`は人間とagentが共有する記録を置き、`docs/harness/`は作業時のガードレールと索引、`docs/ai-driven-development/`はAIDDの契約と過去の作業履歴、`apps/*/docs/`はアプリ固有の方針を所有します。文書だけで守りにくい不変条件は、該当するlint、CI、test、scriptへ接続します。
 
 ## 対象
 
@@ -79,7 +79,7 @@ front matter は探索用メタデータであり、強制ルールではあり�
 - `rule-map.json`の`rules[].file`は現行のMarkdown正本を指す。ADRは意思決定履歴であり、必須rule nodeに登録しない。ADRの理由や変更経緯が必要なときは、正本からのリンクやfront matterを手掛かりに参照する。
 - `applies_to.paths`と`review_routing.surfaces`の一致を和集合し、選ばれたnodeの`depends_on`を必須参照として追加する。`domains`、`activities`、`topics`は追加探索用であり、必須集合を減らさない。`related`は任意の併読候補で、`depends_on`の代替にしない。
 - `overrides`は現行正本間に実際の競合がある場合の優先関係を示し、`priority`はその補助値とする。履歴上のADR同士の置換だけを現行rule graphへ写さない。priorityだけで選択ruleを除外しない。解消できない競合は人間に確認する。
-- rule本文の意味はMarkdown正本が所有し、索引は選択と依存関係を所有する。どの検証・reviewで確認したかはprovenanceとして記録するが、正本の代わりにはしない。
+- rule本文の意味はMarkdown正本が所有し、索引は選択と依存関係を所有する。どの検証・reviewで確認したかは既存Issue・PR・会話に必要な要約を示すが、正本の代わりにはしない。
 
 ## 文書の責務
 
@@ -105,7 +105,9 @@ ADRは「何を、なぜ決め、後にどう変更したか」の記録です�
 - 正本を分割する場合は、それぞれの判断が必要な作業から対応する正本へ到達できる状態にします。単なる分割を競合や置換として扱いません。
 - 説明や例の追加で判断の所有・適用経路が変わらない場合は、文書追加だけを理由に必須登録や置換関係を増やしません。
 
-選択・参照関係を機械判定できる箇所は既存resolverの検証を使い、判断の意味と適用範囲は担当agentがレビューします。AIDDではこの確認を[変更範囲とレビュー](../../ai-driven-development/change-coverage.md)に従い判断と検証証拠へ記録します。索引を変更しない場合も、関連する索引を検討対象に含め、既存経路で十分な理由を示します。
+選択・参照関係を機械判定できる箇所は既存resolverの検証を使い、判断の意味と適用範囲は担当agentがレビューします。AIDDではこの確認を[変更範囲とレビュー](../../ai-driven-development/change-coverage.md)に従い判断と検証結果を既存Issue・PR・会話へ要約します。索引を変更しない場合も、関連する索引を検討対象に含め、既存経路で十分な理由を示します。
+
+工程の最新結果は[Coreの記録契約](../../ai-driven-development/aidd-checker.md#記録)に従い、進行中の同じサイクル・同じ工程だけ更新できる。別サイクルの結果と旧Task/eventは履歴として保持し、上書きしない。
 
 ## Agent向け定義
 

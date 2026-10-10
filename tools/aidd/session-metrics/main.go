@@ -135,8 +135,12 @@ func currentCycle(root, task string) (string, error) {
 		return "", errors.New("Task ID が不正です")
 	}
 	files, err := filepath.Glob(filepath.Join(root, ".aidd", "v4", task, "events", "*.json"))
-	if err != nil || len(files) == 0 {
-		return "", fmt.Errorf("Task %s のサイクル記録がありません", task)
+	if err != nil {
+		return "", err
+	}
+	// 任意の計測は旧Task記録がなくても実行できる。既存のcycleだけ読み取りを維持する。
+	if len(files) == 0 {
+		return "", nil
 	}
 	slices.Sort(files)
 	data, err := os.ReadFile(files[len(files)-1])

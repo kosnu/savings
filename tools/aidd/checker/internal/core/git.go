@@ -24,26 +24,7 @@ func git(root string, args ...string) ([]byte, error) {
 	return b, nil
 }
 func hashBytes(b []byte) string { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
-func (s *Store) own(p string) bool {
-	prefix := ".aidd/v4/" + s.Task.ID + "/"
-	if p == prefix+"task.json" {
-		return true
-	}
-	if strings.HasPrefix(p, prefix+"events/") {
-		name := strings.TrimPrefix(p, prefix+"events/")
-		return len(name) == 11 && name[6:] == ".json" && allDigits(name[:6])
-	}
-	return false
-}
-func allDigits(s string) bool {
-	for _, c := range s {
-		if c < '0' || c > '9' {
-			return false
-		}
-	}
-	return true
-}
-func (s *Store) snapshot(ref string) (Snapshot, error) {
+func (s *Checker) snapshot(ref string) (Snapshot, error) {
 	out := Snapshot{}
 	var b []byte
 	var err error
@@ -53,7 +34,7 @@ func (s *Store) snapshot(ref string) (Snapshot, error) {
 			return nil, err
 		}
 		for _, p := range strings.Split(string(b), "\x00") {
-			if p == "" || s.own(p) {
+			if p == "" {
 				continue
 			}
 			info, e := os.Lstat(filepath.Join(s.Root, p))
@@ -106,9 +87,6 @@ func (s *Store) snapshot(ref string) (Snapshot, error) {
 			return nil, fmt.Errorf("invalid git entry")
 		}
 		p := parts[1]
-		if s.own(p) {
-			continue
-		}
 		fields := strings.Fields(parts[0])
 		mode := fields[0]
 		oid := fields[2]
@@ -192,11 +170,11 @@ func covered(p string, paths []string) bool {
 	}
 	return false
 }
-func (s *Store) current() (Snapshot, string, error) {
+func (s *Checker) current() (Snapshot, string, error) {
 	snap, e := s.snapshot("work")
 	return snap, digest(snap), e
 }
-func (s *Store) scope(paths []string, base Snapshot, now Snapshot) error {
+func (s *Checker) scope(paths []string, base Snapshot, now Snapshot) error {
 	for _, p := range changed(base, now) {
 		if !covered(p, paths) {
 			return fmt.Errorf("out-of-scope change: %s", p)

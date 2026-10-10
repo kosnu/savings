@@ -23,7 +23,7 @@ func TestUnexpectedArgumentsRejectedBeforeExecution(t *testing.T) {
 		{"rules", "unexpected"},
 		{"rules", "unexpected", "--paths", filepath.Join(root, "missing-paths.json")},
 		{"check-changes", "--base", "HEAD", "unexpected"},
-		{"start", "--task", "example", "--input", filepath.Join(root, "missing-start.json"), "unexpected"},
+		{"verify", "--base", "HEAD", "--input", filepath.Join(root, "missing-plan.json"), "unexpected"},
 	} {
 		t.Run(args[0]+"/"+strings.Join(args[1:], " "), func(t *testing.T) {
 			os.Args = append([]string{"aidd-checker", "--root", root}, args...)
@@ -80,11 +80,71 @@ func TestScopedCIEntrypoints(t *testing.T) {
 		t.Fatal("removed full-history command accepted")
 	}
 	write("code.txt", "uncovered change")
-	if invoke("check-changes", "--base", "HEAD") == nil {
-		t.Fatal("source without current Task evidence accepted")
+	if e := invoke("check-changes", "--base", "HEAD"); e != nil {
+		t.Fatal(e)
 	}
 	write("docs/harness/rule-map.json", `invalid graph`)
 	if invoke("rules") == nil {
 		t.Fatal("invalid rule graph accepted")
+	}
+}
+
+func TestRecordingCommandsRemoved(t *testing.T) {
+	root := t.TempDir()
+	old := os.Args
+	t.Cleanup(func() { os.Args = old })
+	for _, c := range []string{"start", "decision", "review", "audit", "approve", "dismiss", "return-intent", "status", "check", "delivery-check", "improve-check"} {
+		os.Args = []string{"aidd-checker", "--root", root, c}
+		if e := run(); e == nil || !strings.Contains(e.Error(), "recording has been removed") {
+			t.Fatalf("%s: %v", c, e)
+		}
+	}
+	if _, e := os.Stat(filepath.Join(root, ".aidd")); !os.IsNotExist(e) {
+		t.Fatal(e)
+	}
+}
+
+func TestPhaseRecordCLIAndOutputFieldRejection(t *testing.T) {
+	root := t.TempDir()
+	for _, args := range [][]string{{"init", "-b", "main"}, {"config", "user.name", "test"}, {"config", "user.email", "test@example.com"}} {
+		if b, e := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); e != nil {
+			t.Fatalf("%v: %s", e, b)
+		}
+	}
+	if e := os.WriteFile(filepath.Join(root, "code.txt"), []byte("code"), 0644); e != nil {
+		t.Fatal(e)
+	}
+	old := os.Args
+	t.Cleanup(func() { os.Args = old })
+	invoke := func(args ...string) error {
+		os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+		return run()
+	}
+	start := filepath.Join(t.TempDir(), "start.json")
+	result := filepath.Join(t.TempDir(), "result.json")
+	if e := os.WriteFile(start, []byte(`{"source":"issue","paths":["code.txt"]}`), 0644); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-begin", "--task", "issue-test", "--kind", "design", "--input", start); e != nil {
+		t.Fatal(e)
+	}
+	p := ".aidd/v4/issue-test/events/000001.json"
+	if e := os.WriteFile(result, []byte(`{"status":"pass","checks":["check"],"summary":"ok","stdout":"secret"}`), 0644); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-finish", "--record", p, "--input", result); e == nil {
+		t.Fatal("CLI accepted raw output")
+	}
+	if e := os.WriteFile(result, []byte(`{"status":"pass","checks":["check"],"summary":"ok","remaining":[]}`), 0644); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-finish", "--record", p, "--input", result); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-read", "--record", p); e != nil {
+		t.Fatal(e)
+	}
+	if e := invoke("record-begin", "--task", "issue-test", "--cycle", "000001.json", "--kind", "ship", "--input", start); e == nil {
+		t.Fatal("CLI recorded Ship")
 	}
 }
