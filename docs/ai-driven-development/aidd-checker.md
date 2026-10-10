@@ -17,6 +17,8 @@ when_to_read:
 [Workflow](workflow.md)のうち、その場で判定できる状態をGoで検査する。
 Task・操作イベント・全ファイルsnapshotを永続保存せず、過去の記録の生成や整合性を実行条件にしない。
 
+Issue [#1903](https://github.com/kosnu/savings/issues/1903)に基づき、[ADR 0009](../adr/0009-rebuild-aidd-v4.md)で採用したTask・判断revisionの保存と、保存記録による証拠の鮮度・状態・承認範囲の照合を、この実行時検査と必要最小限の要約へ置き換える。ADRは当時の判断として保持し、Intent・Ship・Audit・改善の権限境界は[Workflow](workflow.md)を引き続き適用する。
+
 ## 検査の責務
 
 - `rules`: path/surface一致と依存closureを解決し、規約索引の不備を拒否する。
