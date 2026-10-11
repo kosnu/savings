@@ -4,22 +4,73 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 同期対象のPR番号
+        required: true
+        type: string
+      expected_head:
+        description: 同期後のPR head SHA
+        required: true
+        type: string
+      sync_run_id:
+        description: Vite+同期workflowのrun ID
+        required: true
+        type: string
+
 permissions:
   contents: read
   pull-requests: read
+  actions: read
 
 concurrency:
-  group: aidd-checker-${{ github.event.pull_request.number }}
+  group: aidd-checker-${{ github.event.pull_request.number || inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
+  context:
+    runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+      head: ${{ steps.pr.outputs.head }}
+      base: ${{ steps.pr.outputs.base }}
+      base_ref: ${{ steps.pr.outputs.base_ref }}
+      author: ${{ steps.pr.outputs.author }}
+    steps:
+      - name: Resolve and validate PR context
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PR: ${{ inputs.pr_number }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          SYNC_RUN_ID: ${{ inputs.sync_run_id }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            [[ "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]
+            [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
+            [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+            test "$GITHUB_SHA" = "$EXPECTED_HEAD"
+            gh api "repos/$GITHUB_REPOSITORY/pulls/$INPUT_PR" > "$RUNNER_TEMP/pr.json"
+            jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$EXPECTED_HEAD" '
+              .state == "open" and .head.repo.full_name == $repo and
+              .base.repo.full_name == $repo and .base.ref == "main" and .head.sha == $head
+            ' "$RUNNER_TEMP/pr.json"
+          else
+            jq '.pull_request' "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/pr.json"
+          fi
+          jq -r '"number=\(.number)", "head=\(.head.sha)", "base=\(.base.sha)", "base_ref=\(.base.ref)", "author=\(.user.login)"' "$RUNNER_TEMP/pr.json" >> "$GITHUB_OUTPUT"
+
   candidate:
+    needs: context
     runs-on: ubuntu-latest
     steps:
       - name: Checkout candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ needs.context.outputs.head }}
           persist-credentials: false
           fetch-depth: 0
       - name: Setup Go
@@ -54,31 +105,85 @@ jobs:
         run: python3 -B -m unittest -v tools.aidd.tests.test_shared_gate
       - name: Preserve accepted ADR history
         env:
-          BASE_BRANCH: ${{ github.base_ref }}
+          BASE_BRANCH: ${{ needs.context.outputs.base_ref }}
         run: python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref "origin/$BASE_BRANCH"
       - name: Identify authenticated automated dependency changes
         id: automation
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ needs.context.outputs.author }}
+          PR_NUMBER: ${{ needs.context.outputs.number }}
+          PR_HEAD_SHA: ${{ needs.context.outputs.head }}
         run: |
-          echo "verified=false" >> "$GITHUB_OUTPUT"
-          if [ "$PR_AUTHOR" = 'renovate[bot]' ]; then
-            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/commits" > "$RUNNER_TEMP/pr-commits.json"
-            if jq -s -e 'add | length > 0 and all(.[]; .author.login == "renovate[bot]" and .committer.login == "web-flow" and .commit.verification.verified == true and .commit.verification.reason == "valid")' "$RUNNER_TEMP/pr-commits.json"; then
-              echo "verified=true" >> "$GITHUB_OUTPUT"
-            fi
-          fi
+          python3 - <<'PYTHON'
+          import json
+          import os
+          import re
+          import subprocess
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          number = int(os.environ["PR_NUMBER"])
+          allowed = {"package.json", "apps/web/package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"}
+
+          def api(path):
+              return json.loads(subprocess.check_output(["gh", "api", path], text=True))
+
+          def pages(path, key=None):
+              result = []
+              page = 1
+              while True:
+                  data = api(f"{path}?per_page=100&page={page}")
+                  items = data[key] if key else data
+                  result.extend(items)
+                  if len(items) < 100:
+                      return result
+                  page += 1
+
+          def authenticated(commit, previous_sha):
+              verification = commit["commit"]["verification"]
+              if not verification["verified"] or verification["reason"] != "valid":
+                  return False
+              if commit.get("author", {}).get("login") == "renovate[bot]":
+                  return commit.get("committer", {}).get("login") == "web-flow"
+              if commit.get("author", {}).get("login") != "github-actions[bot]" or commit.get("committer", {}).get("login") not in {"web-flow", "github-actions[bot]"}:
+                  return False
+              parents = commit["parents"]
+              match = re.search(r"^Vite-Plus-Sync-Run: ([1-9][0-9]*)$", commit["commit"]["message"], re.MULTILINE)
+              if len(parents) != 1 or parents[0]["sha"] != previous_sha or not match:
+                  return False
+              run = api(f"repos/{repo}/actions/runs/{match[1]}")
+              if run["path"] != ".github/workflows/vite_plus_sync.yaml" or run["event"] != "pull_request" or run["actor"]["login"] != "renovate[bot]" or run["head_repository"]["full_name"] != repo or run["head_sha"] != parents[0]["sha"]:
+                  return False
+              if not any(pr["number"] == number for pr in run["pull_requests"]):
+                  return False
+              # dispatch直後は同期jobが進行中でも、署名付き追記が既に存在する。
+              jobs = pages(f"repos/{repo}/actions/runs/{run['id']}/jobs", "jobs")
+              if not any(job["name"] == "sync" and (job["status"] == "in_progress" or job["conclusion"] == "success") for job in jobs):
+                  return False
+              detail = api(f"repos/{repo}/commits/{commit['sha']}")
+              files = detail["files"]
+              return bool(files) and len(files) <= len(allowed) and all(file["filename"] in allowed and file["status"] == "modified" for file in files)
+
+          verified = False
+          if os.environ["PR_AUTHOR"] == "renovate[bot]":
+              commits = pages(f"repos/{repo}/pulls/{number}/commits")
+              verified = bool(commits) and commits[-1]["sha"] == os.environ["PR_HEAD_SHA"] and all(
+                  authenticated(commit, commits[index - 1]["sha"] if index else None)
+                  for index, commit in enumerate(commits)
+              )
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"verified={str(verified).lower()}\n")
+          PYTHON
       - name: Validate rule graph
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
       - name: Validate changed Task evidence
         if: steps.automation.outputs.verified != 'true'
         env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_SHA: ${{ needs.context.outputs.base }}
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"
 
   integration:
+    needs: context
     runs-on: ubuntu-latest
     steps:
       - name: Checkout merge result
@@ -86,6 +191,17 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Prepare dispatched merge result
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          PR_BASE_SHA: ${{ needs.context.outputs.base }}
+          PR_HEAD_SHA: ${{ needs.context.outputs.head }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
+          git fetch --no-tags origin "$PR_BASE_SHA"
+          git -c user.name=github-actions -c user.email=github-actions@github.com merge --no-commit --no-ff "$PR_BASE_SHA"
+
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -99,7 +215,7 @@ jobs:
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
 
   verify:
-    needs: [candidate, integration]
+    needs: [context, candidate, integration]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -110,3 +226,34 @@ jobs:
         run: |
           test "$CANDIDATE_RESULT" = success
           test "$INTEGRATION_RESULT" = success
+
+  report-dispatched-result:
+    if: always() && github.event_name == 'workflow_dispatch'
+    needs: [context, candidate, integration, verify]
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - name: Report dispatched CI on the synchronized commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          CONTEXT_HEAD: ${{ needs.context.outputs.head }}
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_SHA" = "$EXPECTED_HEAD"
+          if [ -n "$CONTEXT_HEAD" ]; then
+            test "$CONTEXT_HEAD" = "$EXPECTED_HEAD"
+          fi
+          state=failure
+          if jq -e 'all(.[]; .result == "success")' <<< "$JOB_RESULTS"; then
+            state=success
+          fi
+          # dispatchのjob checkはPRに評価されないため、同期後SHAへstatusを返す。
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$EXPECTED_HEAD" \
+            -f state="$state" -f context="vite-plus/aidd-checker-ci" \
+            -f description="Dispatched CI: $state" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          test "$state" = success

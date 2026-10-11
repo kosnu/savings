@@ -1,0 +1,99 @@
+{
+  "sequence": 9,
+  "kind": "decision",
+  "time": "2026-10-11T04:41:57.951401Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "db587b465b15236bc0e96966c374c027b673fd1039a01e022d34ae25b06f9948",
+  "revision": 3,
+  "fingerprint": "4097fbd4f3b6671236d71abc27c86f04eca188c70a3f8be189806d4f9c4ae73e",
+  "data": {
+    "summary": "GITHUB_TOKENのみの関連依存同期とdispatch CIを承認範囲に実装。署名と同期run・変更範囲を検証しBot全般の許可はしない。",
+    "paths": [
+      ".github/workflows/vite_plus_sync.yaml",
+      ".github/workflows/frontend_ci.yaml",
+      ".github/workflows/aidd_checker_ci.yaml",
+      "renovate.json5",
+      "apps/web/package.json",
+      "apps/web/tsconfig.storybook.json",
+      "pnpm-lock.yaml"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "vp",
+        "test",
+        "run",
+        "--project",
+        "unit",
+        "src/domain/amount.test.ts",
+        "--coverage",
+        "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+        "--reporter=dot"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "f993fd7697468337920b648fe89e5bfa8f960d1b246a3a875dc4b189152b7f5a",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0001"
+}

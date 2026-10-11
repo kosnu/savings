@@ -1,0 +1,59 @@
+{
+  "sequence": 16,
+  "kind": "review",
+  "time": "2026-10-11T05:02:24.062652Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "34c2b3fc59950dfd6385cdbe66e012ea6fb46d1fa2d70e07ffeb53f5d5f77e2a",
+  "revision": 6,
+  "fingerprint": "31ccb0cc42fbe5a5d6cdb01966907c4ba5342e5168df136fdf4c51a4c2acbab5",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.storybook-browser-tests, web.test-policy\n- Unresolved: コードfindingなし。GitHub上の初回Renovate更新のE2E、承認待ちrunのcheck生成とRenovate認識はmain反映後に未確認。\n\n依存manifest投影で公式migrateへ版決定を集約、署名・起点run・PR・親SHA・既存依存4ファイルの条件をCIと正本で照合した。独立レビューもコードfindingなし。dispatchはPRチェックとして評価されないため同じGITHUB_TOKENで更新後SHAのcommit statusを返す。通常PRの候補head/統合merge検証を保持。actionlintは既存checkout v7ローカルaction構文だけ既知の未対応として除外し、新規構文は検証。",
+    "criteria": [
+      {
+        "criterion": "不要な直接依存を除去し必須peerやopt-in依存の理由を記録",
+        "evidence": "既存PRのvite/未使用esbuild/重複hooks除去と必須peer/providerの理由を保持。SYNCの正常更新経路を追加し、手動の版決定を廃した。実CLI1.0→1.1でVitest5.0.3一致、2回目hash差分ゼロ、ソースimportとrelease-age例外保持を確認。署名/Renovate起点/親SHA/4files以外は拒否する28ケース成功。App/Secret追加なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "通常検証、Storybook、build、coverageが成功",
+        "evidence": "revision6最新verify event15 stable=true、全14commands exit0。unit/integration142files785tests、Storybook7files20tests、buildとV8 coverage成功。初回StorybookのmacOS sandbox起動失敗後、全batch完了を確認し同一sourceをブラウザ起動可能環境で再検証した。Core/session-metrics test/vet、Git共通ゲート5casesも別batch成功。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "最新mainから新規ブランチを作成しセッション名を内容に合わせて更新",
+        "evidence": "開始baseline=当時origin/mainの4d089eb、既存branch codex/vite-plus-dependenciesとPR1911を継続。最新PR base main/head branchをAPIで確認、session titleはVite+依存の自動同期へ更新済み。新差分の配信結果はShip gateで別途照合する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "b02a6019727bc96b4adda8d7d92a07b748fd4f094c98e0d1d8c3a7b003d7a7fd",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0002"
+}

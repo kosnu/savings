@@ -103,9 +103,14 @@ Intent復帰とShipでは、承認の基準となったAudit対象のcommitか�
 CIはv4 Coreのテスト、vet、format、ADR履歴、rule graphと今回変更したTaskの証拠を検証する。
 PR headでは`check-changes --base`で現在の証拠を照合する。merge結果ではCoreテストとrule graphを検証し、
 PR headのfingerprintをmerge結果に適用したり、過去Taskを全走査したりしない。
-GitHubが署名検証したRenovate authored / web-flow committedのcommitだけを含む自動依存更新は
-人間がIntentを委任した開発ではないためTask証拠検査の対象外とする。author名だけでは除外せず、
-Coreテストとrule graph検査は省略しない。旧migration checkerやschema fallbackは実行しない。
+GitHubが署名検証したRenovate authored / web-flow committedの自動依存更新は、
+人間がIntentを委任した開発ではないためTask証拠検査の対象外とする。
+Vite+同期workflowの署名付きBot追記も、Renovate起点の実行・PR番号・run ID・親SHAと
+同期jobの進行中または成功を確認した場合に限り同じ対象外とする。追記は既存の
+`package.json`、`apps/web/package.json`、`pnpm-workspace.yaml`、`pnpm-lock.yaml`の変更に限定する。
+author名だけでは除外せず、Coreテストとrule graph検査は省略しない。
+同期後のCIは`workflow_dispatch`で起動し、結果を同期後SHAのcommit statusにも返す。
+旧migration checkerやschema fallbackは実行しない。
 新Core自身の変更は負の境界テストと実差分レビューで補う。candidate内のcheckerは、悪意ある変更を
 自身だけで認証できない。GitHubのreview・branch protectionとhostの権限制御を信頼境界とする。
 
