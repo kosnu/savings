@@ -62,7 +62,7 @@
     "@vitest/coverage-v8": "5.0.1",
     "cf": "1.0.0-beta.12",
     "jsdom": "30.1.2",
-    "msw": "2.15.0",
+    "msw": "3.0.2",
     "msw-storybook-addon": "3.0.3",
     "playwright": "1.63.0",
     "storybook": "10.6.1",
