@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1920",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/vite_plus_sync.yaml"
+  ],
+  "fingerprint": "0fdb3ff6278e628ffe040d3a462f2f1d44de5b5438aecbf4b877e315744451ba",
+  "status": "pass",
+  "checks": [
+    "Issueと失敗ログの照合",
+    "checkout順序と権限境界の確認"
+  ],
+  "summary": "Frontendの4箇所とVite+同期の1箇所からwith.versionのみ削除する設計を確認。実CIの更新版採用確認はmain反映後に実施する。",
+  "remaining": []
+}
