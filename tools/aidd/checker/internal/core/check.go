@@ -1,215 +1,179 @@
 package core
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"os/exec"
 	"strings"
 )
 
-func (s *Store) Check() error {
-	if e := s.checkCycleIDs(); e != nil {
-		return e
-	}
-	if len(s.Events) == 0 || s.Events[0].Kind != "start" {
-		return fmt.Errorf("start event missing")
-	}
-	if s.Events[0].Fingerprint != digest(s.Task.Initial) {
-		return fmt.Errorf("initial snapshot mismatch")
-	}
-	if _, e := git(s.Root, "cat-file", "-e", s.Task.Baseline+"^{commit}"); e != nil {
-		return e
-	}
-	var decision, verify, review, ship, audit, approval, boundary *Event
-	intent := s.Task.Intent
-	for i := range s.Events {
-		e := &s.Events[i]
-		switch e.Kind {
-		case "start":
-			if i != 0 {
-				return fmt.Errorf("duplicate start")
-			}
-		case "decision":
-			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence || len(eventData[Approval](approval).ProposalIDs) == 0) {
-				return fmt.Errorf("unapproved post-Audit decision")
-			}
-			decision = e
-			if in := eventData[Decision](e).IntentRevision; in != nil {
-				if _, err := storedTextHash(in.Text, in.TextHash); err != nil {
-					return fmt.Errorf("invalid Intent revision: %w", err)
-				}
-				intent = *in
-			}
-		case "return-intent":
-			r := eventData[IntentReturn](e)
-			if audit == nil || approval == nil || approval.Sequence < audit.Sequence ||
-				len(eventData[Approval](approval).ProposalIDs) == 0 || decision == nil ||
-				decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision ||
-				(boundary != nil && boundary.Sequence > approval.Sequence) ||
-				r.ApprovalHash != approval.Hash || r.IntentHash != digest(intent) ||
-				r.PreviousCycle != s.Events[i-1].CycleID || required(r.Summary) != nil {
-				return fmt.Errorf("invalid return to Intent")
-			}
-			boundary = e
-		case "verify":
-			if decision == nil || decision.CycleID != e.CycleID {
-				return fmt.Errorf("verification without decision")
-			}
-			verify = e
-		case "review":
-			if verify == nil || verify.CycleID != e.CycleID || verify.Revision != e.Revision || verify.Fingerprint != e.Fingerprint {
-				return fmt.Errorf("review without current verification")
-			}
-			v := eventData[Verification](verify)
-			if !v.Stable {
-				return fmt.Errorf("review follows mutating verification")
-			}
-			for _, r := range v.Results {
-				if r.Exit != 0 {
-					return fmt.Errorf("review follows failed verification")
-				}
-			}
-			review = e
-		case "ship":
-			if audit != nil && (approval == nil || approval.Sequence < audit.Sequence ||
-				len(eventData[Approval](approval).ProposalIDs) == 0 || decision == nil ||
-				decision.Sequence <= approval.Sequence || decision.Revision <= approval.Revision || decision.Revision != e.Revision) {
-				return fmt.Errorf("Ship without new approved improvement decision")
-			}
-			if audit != nil && e.CycleID != "" && (boundary == nil || boundary.Sequence <= approval.Sequence || decision.Sequence <= boundary.Sequence) {
-				return fmt.Errorf("Ship without return to Intent and new cycle decision")
-			}
-			if review == nil || review.CycleID != e.CycleID || review.Revision != e.Revision || review.Fingerprint != e.Fingerprint {
-				return fmt.Errorf("Ship without current review")
-			}
-			for _, c := range eventData[Review](review).Criteria {
-				if c.Verdict != "pass" {
-					return fmt.Errorf("Ship follows failed review")
-				}
-			}
-			ship = e
-		case "audit", "audit-update":
-			data := eventData[Audit](e)
-			if data.Delivery != nil {
-				if review == nil || review.CycleID != e.CycleID || review.Fingerprint != e.Fingerprint || review.Revision != e.Revision || required(data.Delivery.Commit, data.Delivery.PR, data.Delivery.Branch, data.Delivery.Base) != nil {
-					return fmt.Errorf("Audit without matching reviewed delivery")
-				}
-			} else if ship == nil || ship.CycleID != e.CycleID || ship.Fingerprint != e.Fingerprint || ship.Revision != e.Revision {
-				return fmt.Errorf("Audit without matching Ship")
-			}
-			if (e.Kind == "audit" && audit != nil && audit.Revision == e.Revision && audit.CycleID == e.CycleID && (ship == nil || ship.Sequence < audit.Sequence)) || (e.Kind == "audit-update" && (audit == nil || audit.CycleID != e.CycleID || audit.Revision != e.Revision)) {
-				return fmt.Errorf("invalid Audit update")
-			}
-			audit = e
-		case "dismiss":
-			a := eventData[Approval](e)
-			if audit == nil || a.AuditHash != audit.Hash || !a.validRecord(s.Task.Authority) {
-				return fmt.Errorf("invalid dismissal")
-			}
-		case "approve":
-			a := eventData[Approval](e)
-			if audit == nil || a.AuditHash != audit.Hash || !a.validRecord(s.Task.Authority) {
-				return fmt.Errorf("invalid approval")
-			}
-			approval = e
-		default:
-			return fmt.Errorf("unknown event kind %s", e.Kind)
-		}
-	}
-	return nil
-}
-
-// CheckChangesはPRの実際の差分を、変更されたTaskの最新証拠と照合する。
+// CheckChangesは実際の差分の規約を解決する。過去の検証やレビューの成功は証明しない。
 func CheckChanges(root, baseRef string) error {
-	if strings.TrimSpace(baseRef) == "" {
-		return fmt.Errorf("base ref required for changed Task checks")
-	}
-	if _, e := ResolveRules(root, nil); e != nil {
-		return e
+	if required(baseRef) != nil {
+		return fmt.Errorf("base ref required")
 	}
 	b, e := git(root, "merge-base", "HEAD", baseRef)
 	if e != nil {
 		return e
 	}
-	base := strings.TrimSpace(string(b))
-	all := &Store{Root: root}
-	before, e := all.snapshot(base)
+	s := &Checker{Root: root, Base: strings.TrimSpace(string(b))}
+	before, e := s.snapshot(s.Base)
 	if e != nil {
 		return e
 	}
-	after, e := all.snapshot("work")
+	after, e := s.snapshot("work")
 	if e != nil {
 		return e
 	}
-	delta := changed(before, after)
-	if len(delta) == 0 {
-		return nil
+	_, e = ResolveRules(root, changed(before, after))
+	return e
+}
+
+// Verifyは出力を診断用streamへ渡すだけで、結果や履歴に取り込まない。
+func (s *Checker) Verify(plan VerificationPlan, diagnostics io.Writer) (Verification, error) {
+	result := Verification{Results: []Result{}}
+	if required(s.Base) != nil {
+		return result, fmt.Errorf("base ref required")
 	}
-	ids := map[string]bool{}
-	for _, p := range delta {
-		parts := strings.Split(p, "/")
-		if len(parts) >= 4 && parts[0] == ".aidd" && parts[1] == "v4" {
-			ids[parts[2]] = true
+	baseline, e := git(s.Root, "rev-parse", "--verify", "--end-of-options", s.Base+"^{commit}")
+	if e != nil {
+		return result, e
+	}
+	if len(plan.Paths) == 0 || len(plan.Commands) == 0 {
+		return result, fmt.Errorf("paths and commands required")
+	}
+	for _, p := range plan.Paths {
+		if !validPath(p) {
+			return result, fmt.Errorf("invalid scope path %q", p)
 		}
 	}
-	if len(ids) == 0 {
-		return fmt.Errorf("changed source has no updated v4 Task evidence")
+	for _, c := range plan.Commands {
+		if len(c) == 0 || required(c...) != nil {
+			return result, fmt.Errorf("empty command")
+		}
 	}
-	coveredPaths := map[string]bool{}
-	for id := range ids {
-		s, e := Load(root, id)
-		if e != nil {
-			return e
-		}
-		if e = s.Check(); e != nil {
-			return e
-		}
-		now, fp, e := s.current()
-		if e != nil {
-			return e
-		}
-		if e = s.verified(fp); e != nil {
-			return fmt.Errorf("task %s: %w", id, e)
-		}
-		review := s.latest("review")
-		if review == nil || review.Fingerprint != fp || review.Revision != s.revision() {
-			return fmt.Errorf("task %s review missing or stale", id)
-		}
-		for _, c := range eventData[Review](review).Criteria {
-			if c.Verdict != "pass" {
-				return fmt.Errorf("task %s semantic review not passing", id)
+	before, fp, e := s.current()
+	if e != nil {
+		return result, e
+	}
+	base, e := s.snapshot(strings.TrimSpace(string(baseline)))
+	if e != nil {
+		return result, e
+	}
+	if e = s.scope(plan.Paths, base, before); e != nil {
+		return result, e
+	}
+	delta := changed(base, before)
+	if e = s.requireCommands(delta, plan); e != nil {
+		return result, e
+	}
+	rules, e := ResolveRules(s.Root, delta)
+	if e != nil {
+		return result, e
+	}
+	if e = ensureRules(rules, plan.Rules); e != nil {
+		return result, e
+	}
+	if diagnostics == nil {
+		diagnostics = io.Discard
+	}
+	var failures []error
+	for i, args := range plan.Commands {
+		c := exec.Command(args[0], args[1:]...)
+		c.Dir = s.Root
+		c.Stdout = diagnostics
+		c.Stderr = diagnostics
+		err := runVerification(c)
+		exit := 0
+		if err != nil {
+			exit = -1
+			var ee *exec.ExitError
+			if errors.As(err, &ee) {
+				exit = ee.ExitCode()
 			}
-		}
-		d, e := s.decision()
-		if e != nil {
-			return e
-		}
-		initial, e := s.snapshot(s.Task.Baseline)
-		if e != nil {
-			return e
-		}
-		if e = s.scope(d.Paths, initial, now); e != nil {
-			return e
-		}
-		paths := changed(initial, now)
-		if e = s.requireCommands(paths, d); e != nil {
-			return e
-		}
-		rules, e := ResolveRules(root, paths)
-		if e != nil {
-			return e
-		}
-		if e = ensureRules(rules, d.Rules); e != nil {
-			return e
-		}
-		for _, p := range delta {
-			if s.own(p) || covered(p, d.Paths) {
-				coveredPaths[p] = true
+			if exit == 0 {
+				exit = -1
 			}
+			failures = append(failures, fmt.Errorf("verification command %d failed (exit %d)", i, exit))
 		}
+		result.Results = append(result.Results, Result{Index: i, Exit: exit})
 	}
-	for _, p := range delta {
-		if !coveredPaths[p] {
-			return fmt.Errorf("PR change lacks Task ownership: %s", p)
-		}
+	_, after, e := s.current()
+	if e != nil {
+		return result, errors.Join(append(failures, e)...)
+	}
+	result.Stable = fp == after
+	if !result.Stable {
+		failures = append(failures, fmt.Errorf("verification changed worktree content or mode"))
+	}
+	return result, errors.Join(failures...)
+}
+
+// ShipCheckはstageの内容とmodeを検査する。検証・レビューの実施判断はworkflowが担う。
+func (s *Checker) ShipCheck() error {
+	work, _, e := s.current()
+	if e != nil {
+		return e
+	}
+	index, e := s.snapshot("index")
+	if e != nil {
+		return e
+	}
+	if digest(work) != digest(index) {
+		return fmt.Errorf("staged content/mode differs from worktree")
+	}
+	_, e = git(s.Root, "diff", "--cached", "--check")
+	return e
+}
+
+// Shipは配信済みのcommit・remote・PRを照合し、追加ファイルを作らない。
+func (s *Checker) Ship(ship Ship) error {
+	if e := required(ship.Commit, ship.Remote, ship.Branch, ship.PR, ship.Base); e != nil {
+		return e
+	}
+	if e := s.ShipCheck(); e != nil {
+		return e
+	}
+	head, e := git(s.Root, "rev-parse", "HEAD")
+	if e != nil {
+		return e
+	}
+	if strings.TrimSpace(string(head)) != ship.Commit {
+		return fmt.Errorf("ship commit is not HEAD")
+	}
+	commit, e := s.snapshot(ship.Commit)
+	if e != nil {
+		return e
+	}
+	work, _, e := s.current()
+	if e != nil {
+		return e
+	}
+	if digest(commit) != digest(work) {
+		return fmt.Errorf("commit differs from worktree")
+	}
+	remote, e := git(s.Root, "ls-remote", ship.Remote, "refs/heads/"+ship.Branch)
+	if e != nil {
+		return e
+	}
+	fields := strings.Fields(string(remote))
+	if len(fields) != 2 || fields[0] != ship.Commit || fields[1] != "refs/heads/"+ship.Branch {
+		return fmt.Errorf("remote branch does not match ship commit")
+	}
+	c := exec.Command("gh", "pr", "view", ship.PR, "--json", "headRefOid,headRefName,baseRefName,state")
+	c.Dir = s.Root
+	b, e := c.Output()
+	if e != nil {
+		return fmt.Errorf("cannot verify PR: %w", e)
+	}
+	var pr struct{ HeadRefOid, HeadRefName, BaseRefName, State string }
+	if e = json.Unmarshal(b, &pr); e != nil {
+		return e
+	}
+	if pr.HeadRefOid != ship.Commit || pr.HeadRefName != ship.Branch || pr.BaseRefName != ship.Base || pr.State != "OPEN" {
+		return fmt.Errorf("PR head, base branch or state mismatch")
 	}
 	return nil
 }

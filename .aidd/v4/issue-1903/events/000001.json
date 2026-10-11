@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/checker/",
+    "docs/ai-driven-development/",
+    "docs/harness/",
+    "docs/adr/0009-rebuild-aidd-v4.md",
+    "AGENTS.md",
+    ".agents/skills/"
+  ],
+  "fingerprint": "ba7c7bba17361621dab8afc22d01f1e672383b7e1f2c4728abb4fec33eb2af70",
+  "status": "pass",
+  "checks": [
+    "更新したIssueの制約・成功条件",
+    "同じ工程の更新と別サイクルの保持",
+    "生出力・snapshot・Ship記録の禁止"
+  ],
+  "summary": "更新Intentを再読し、既存命名の工程結果を採用。記録専用commitは要求せず、承認・Intentは元の出典から確認する。",
+  "remaining": []
+}

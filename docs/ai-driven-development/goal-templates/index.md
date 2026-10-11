@@ -20,7 +20,7 @@ Goalを使うhostだけが参照する。[Codex adapter](../codex-adapter.md)と
 ```text
 目的: <Intentで求める観測可能な成果>
 出典: <Issueまたはユーザー発言の参照>
-記録: <現在のTask ID>
+対象: <現在のIssue・PRまたは会話の参照>
 完了: <成果・検証・レビュー・Ship>
 制約: <委任範囲、Auditの手動開始、改善の手動承認>
 ```

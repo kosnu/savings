@@ -33,7 +33,7 @@ jobs:
         run: go -C tools/aidd/checker vet ./...
       - name: Vet session metrics
         run: go -C tools/aidd/session-metrics vet ./...
-      - name: Test Core boundaries and lifecycle
+      - name: Test Core checks
         run: go -C tools/aidd/checker test -count=1 ./...
       - name: Test session metrics
         run: go -C tools/aidd/session-metrics test -count=1 ./...
@@ -56,24 +56,9 @@ jobs:
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         run: python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref "origin/$BASE_BRANCH"
-      - name: Identify authenticated automated dependency changes
-        id: automation
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          echo "verified=false" >> "$GITHUB_OUTPUT"
-          if [ "$PR_AUTHOR" = 'renovate[bot]' ]; then
-            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/commits" > "$RUNNER_TEMP/pr-commits.json"
-            if jq -s -e 'add | length > 0 and all(.[]; .author.login == "renovate[bot]" and .committer.login == "web-flow" and .commit.verification.verified == true and .commit.verification.reason == "valid")' "$RUNNER_TEMP/pr-commits.json"; then
-              echo "verified=true" >> "$GITHUB_OUTPUT"
-            fi
-          fi
       - name: Validate rule graph
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
-      - name: Validate changed Task evidence
-        if: steps.automation.outputs.verified != 'true'
+      - name: Validate changed paths and rule coverage
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"

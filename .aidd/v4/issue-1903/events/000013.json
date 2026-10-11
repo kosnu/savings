@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/checker/internal/core/git.go",
+    "tools/aidd/checker/internal/core/check_test.go",
+    "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "a156b515a3f75d5242197924803b899ecce022d6d83532140a52847cdb919842",
+  "status": "pass",
+  "checks": [
+    "元Intent・今回の手動承認と6ファイルの範囲",
+    "工程記録と検証scopeの接続・拒否境界",
+    "状態を介した間接影響のレビュー規則"
+  ],
+  "summary": "所定の工程結果の追加・更新だけを補助差分として許可する。通常の操作順と範囲外・内容/mode変更の拒否をCoreとCLIで確認し、間接影響の確認を汎用レビュー規則へ明示する。",
+  "remaining": []
+}

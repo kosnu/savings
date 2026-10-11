@@ -443,3 +443,121 @@ func TestLegacyCombinedStageCanFinishWithoutInventingBreakdown(t *testing.T) {
 		t.Fatalf("legacy record was reinterpreted: %+v", result)
 	}
 }
+
+func TestOptionalMetricsWithRecordFormats(t *testing.T) {
+	const legacy = `{"cycle_id":"issue-1903/cycle-0001"}`
+	const phase = `{"format":"aidd-phase-result-v1","cycle":"000001.json","kind":"design"}`
+	for _, item := range []struct {
+		name    string
+		records []string
+		cycle   string
+	}{
+		{"without-records", nil, ""},
+		{"legacy", []string{legacy}, "issue-1903/cycle-0001"},
+		{"phase", []string{phase}, ""},
+		{"mixed", []string{legacy, `{"format":"aidd-phase-result-v1","cycle":"000002.json","kind":"design"}`}, ""},
+	} {
+		t.Run(item.name, func(t *testing.T) {
+			f := newFixture(t)
+			if err := os.RemoveAll(filepath.Join(f.root, ".aidd")); err != nil {
+				t.Fatal(err)
+			}
+			dir := filepath.Join(f.root, ".aidd", "v4", "issue-1903", "events")
+			for index, record := range item.records {
+				if err := os.MkdirAll(dir, 0755); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.WriteFile(filepath.Join(dir, fmt.Sprintf("%06d.json", index+1)), []byte(record), 0644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			f.reading(100, "boot-a")
+			f.reading(103, "boot-a")
+			mustRun(t, f, "start", "--session", "one", "--task", "issue-1903", "--stage", "検証")
+			mustRun(t, f, "finish", "--session", "one", "--task", "issue-1903")
+			result := reportResult(t, f)
+			if len(result.Records) != 1 || result.Records[0].Cycle != item.cycle || result.Records[0].Task != "issue-1903" || result.Records[0].DurationSeconds == nil || *result.Records[0].DurationSeconds != 3 {
+				t.Fatalf("optional measurement: %+v", result)
+			}
+			files, err := filepath.Glob(filepath.Join(dir, "*.json"))
+			if err != nil || len(files) != len(item.records) {
+				t.Fatal("measurement changed Task records", files, err)
+			}
+			for index, record := range item.records {
+				data, err := os.ReadFile(files[index])
+				if err != nil || string(data) != record {
+					t.Fatal("measurement changed Task record", string(data), err)
+				}
+			}
+			if len(item.records) == 0 {
+				if _, err := os.Stat(filepath.Join(f.root, ".aidd")); !os.IsNotExist(err) {
+					t.Fatal("measurement created Task records", err)
+				}
+			}
+		})
+	}
+}
+
+func TestOptionalMetricsTaskNameContract(t *testing.T) {
+	// 記録契約の文字種・長さをCoreと同じ境界値で確認する。
+	for _, item := range []struct {
+		name, task string
+		valid      bool
+	}{
+		{"one-character", "a", true},
+		{"digit-first", "9", true},
+		{"legacy-name", "issue-1903", true},
+		{"uppercase", "Issue-1903", true},
+		{"underscore", "issue_1903", true},
+		{"uppercase-underscore", "Issue_1903", true},
+		{"length-80", strings.Repeat("a", 80), true},
+		{"length-81", strings.Repeat("a", 81), true},
+		{"length-128", strings.Repeat("a", 128), true},
+		{"empty", "", false},
+		{"length-129", strings.Repeat("a", 129), false},
+		{"leading-underscore", "_task", false},
+		{"leading-hyphen", "-task", false},
+		{"space", "task name", false},
+		{"dot", "task.name", false},
+		{"slash", "task/name", false},
+		{"backslash", `task\name`, false},
+		{"traversal", "../escape", false},
+		{"non-ascii", "課題1903", false},
+	} {
+		t.Run(item.name, func(t *testing.T) {
+			f := newFixture(t)
+			if !item.valid {
+				for _, command := range []string{"start", "finish"} {
+					if _, err := f.execute(command, "--session", "one", "--task", item.task, "--stage", "検証"); err == nil {
+						t.Fatalf("%s accepted invalid task %q", command, item.task)
+					}
+				}
+				if _, err := os.Stat(f.store); !os.IsNotExist(err) {
+					t.Fatal("invalid task created measurements", err)
+				}
+				return
+			}
+			dir := filepath.Join(f.root, ".aidd", "v4", item.task, "events")
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				t.Fatal(err)
+			}
+			phase := []byte(`{"format":"aidd-phase-result-v1","cycle":"000001.json","kind":"design"}`)
+			path := filepath.Join(dir, "000001.json")
+			if err := os.WriteFile(path, phase, 0644); err != nil {
+				t.Fatal(err)
+			}
+			f.reading(100, "boot-a")
+			f.reading(103, "boot-a")
+			mustRun(t, f, "start", "--session", "one", "--task", item.task, "--stage", "検証")
+			mustRun(t, f, "finish", "--session", "one", "--task", item.task)
+			result := reportResult(t, f, "--task", item.task)
+			if len(result.Records) != 1 || result.Records[0].Task != item.task || result.Records[0].Cycle != "" || result.Records[0].DurationSeconds == nil || *result.Records[0].DurationSeconds != 3 {
+				t.Fatalf("task measurement: %+v", result)
+			}
+			data, err := os.ReadFile(path)
+			if err != nil || !bytes.Equal(data, phase) {
+				t.Fatal("measurement changed Task record", err)
+			}
+		})
+	}
+}

@@ -16,11 +16,11 @@ func TestWorkspaceConfigurationRequiresWebChecks(t *testing.T) {
 	for i := 1; i < len(want); i++ {
 		without := append([][]string{}, want[:i]...)
 		without = append(without, want[i+1:]...)
-		if s.requireCommands(paths, Decision{Commands: without}) == nil {
+		if s.requireCommands(paths, VerificationPlan{Commands: without}) == nil {
 			t.Fatalf("missing Web command accepted: %v", want[i])
 		}
 	}
-	if e := s.requireCommands(paths, Decision{Commands: want}); e != nil {
+	if e := s.requireCommands(paths, VerificationPlan{Commands: want}); e != nil {
 		t.Fatal(e)
 	}
 	if got := s.mandatoryCommands([]string{"docs/workspace.md"}); len(got) != 1 {
@@ -52,10 +52,10 @@ func TestSharedBrowserConfigurationCommands(t *testing.T) {
 				if !found {
 					t.Fatal("browser suite missing")
 				}
-				if s.requireCommands([]string{path}, Decision{Commands: without}) == nil {
+				if s.requireCommands([]string{path}, VerificationPlan{Commands: without}) == nil {
 					t.Fatal("missing browser suite accepted")
 				}
-				if err := s.requireCommands([]string{path}, Decision{Commands: commands}); err != nil {
+				if err := s.requireCommands([]string{path}, VerificationPlan{Commands: commands}); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -71,6 +71,22 @@ func TestSharedBrowserConfigurationCommands(t *testing.T) {
 			if c[len(c)-1] == "web:test:storybook" {
 				t.Fatal("unrelated file requires browser suite", path)
 			}
+		}
+	}
+}
+
+func TestMetricsChangesRequireTheirModuleChecks(t *testing.T) {
+	s := fixture(t)
+	paths := []string{"tools/aidd/session-metrics/main.go"}
+	want := [][]string{{"git", "diff", "--check"}, {"go", "-C", "tools/aidd/session-metrics", "test", "./..."}, {"go", "-C", "tools/aidd/session-metrics", "vet", "./..."}}
+	if got := s.mandatoryCommands(paths); digest(got) != digest(want) {
+		t.Fatalf("metrics checks: %v", got)
+	}
+	for i := 1; i < len(want); i++ {
+		without := append([][]string{}, want[:i]...)
+		without = append(without, want[i+1:]...)
+		if s.requireCommands(paths, VerificationPlan{Commands: without}) == nil {
+			t.Fatal("missing module check accepted", want[i])
 		}
 	}
 }

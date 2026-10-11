@@ -21,7 +21,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-var taskIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,79}$`)
+// 作業名の受理条件は docs/ai-driven-development/aidd-checker.md の記録契約と共通。
+var taskIDPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$`)
 
 var stages = []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善", "Retrospective"}
 
@@ -135,8 +136,12 @@ func currentCycle(root, task string) (string, error) {
 		return "", errors.New("Task ID が不正です")
 	}
 	files, err := filepath.Glob(filepath.Join(root, ".aidd", "v4", task, "events", "*.json"))
-	if err != nil || len(files) == 0 {
-		return "", fmt.Errorf("Task %s のサイクル記録がありません", task)
+	if err != nil {
+		return "", err
+	}
+	// 任意の計測は旧Task記録がなくても実行できる。
+	if len(files) == 0 {
+		return "", nil
 	}
 	slices.Sort(files)
 	data, err := os.ReadFile(files[len(files)-1])
@@ -144,10 +149,15 @@ func currentCycle(root, task string) (string, error) {
 		return "", err
 	}
 	var event struct {
+		Format  string `json:"format"`
 		CycleID string `json:"cycle_id"`
 	}
 	if err := json.Unmarshal(data, &event); err != nil {
 		return "", err
+	}
+	// 新工程記録のcycleは旧計測cycleへ変換せず、旧形式だけ読み取りを維持する。
+	if event.Format == "aidd-phase-result-v1" {
+		return "", nil
 	}
 	if !strings.HasPrefix(event.CycleID, task+"/cycle-") {
 		return "", fmt.Errorf("Task %s のサイクルIDを取得できません", task)
