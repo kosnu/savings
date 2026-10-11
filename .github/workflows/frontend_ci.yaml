@@ -1,28 +1,18 @@
 name: Frontend CI
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/frontend_ci.yaml"
-      - ".github/actions/setup-playwright/action.yaml"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "apps/web/**"
-    types: [opened, synchronize]
-
   workflow_dispatch:
     inputs:
       pr_number:
-        description: 同期対象のPR番号
+        description: 検証対象のPR番号
         required: true
         type: string
       expected_head:
-        description: 同期後のPR head SHA
+        description: 検証対象のPR head SHA
         required: true
         type: string
       sync_run_id:
-        description: Vite+同期workflowのrun ID
+        description: 受付またはVite+同期workflowのrun ID
         required: true
         type: string
 
@@ -44,25 +34,20 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
           INPUT_PR: ${{ inputs.pr_number }}
           EXPECTED_HEAD: ${{ inputs.expected_head }}
           SYNC_RUN_ID: ${{ inputs.sync_run_id }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = workflow_dispatch ]; then
-            [[ "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]
-            [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
-            [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
-            test "$GITHUB_SHA" = "$EXPECTED_HEAD"
-            gh api "repos/$GITHUB_REPOSITORY/pulls/$INPUT_PR" > "$RUNNER_TEMP/pr.json"
-            jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$EXPECTED_HEAD" '
-              .state == "open" and .head.repo.full_name == $repo and
-              .base.repo.full_name == $repo and .base.ref == "main" and .head.sha == $head
-            ' "$RUNNER_TEMP/pr.json"
-          else
-            jq '.pull_request' "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/pr.json"
-          fi
+          [[ "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]
+          [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          test "$GITHUB_REF" = refs/heads/main
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$INPUT_PR" > "$RUNNER_TEMP/pr.json"
+          jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$EXPECTED_HEAD" '
+            .state == "open" and .head.repo != null and
+            .base.repo.full_name == $repo and .base.ref == "main" and .head.sha == $head
+          ' "$RUNNER_TEMP/pr.json"
           jq -r '"number=\(.number)", "head=\(.head.sha)", "base=\(.base.sha)", "base_ref=\(.base.ref)", "author=\(.user.login)"' "$RUNNER_TEMP/pr.json" >> "$GITHUB_OUTPUT"
 
   lint-format:
@@ -71,10 +56,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
-      - name: Prepare dispatched merge result
-        if: github.event_name == 'workflow_dispatch'
+      - name: Prepare PR merge result
         env:
           PR_BASE_SHA: ${{ needs.context.outputs.base }}
           PR_HEAD_SHA: ${{ needs.context.outputs.head }}
@@ -93,8 +78,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: "package.json"
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm ci
@@ -111,10 +95,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
-      - name: Prepare dispatched merge result
-        if: github.event_name == 'workflow_dispatch'
+      - name: Prepare PR merge result
         env:
           PR_BASE_SHA: ${{ needs.context.outputs.base }}
           PR_HEAD_SHA: ${{ needs.context.outputs.head }}
@@ -133,8 +117,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: "package.json"
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm ci
@@ -162,10 +145,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
-      - name: Prepare dispatched merge result
-        if: github.event_name == 'workflow_dispatch'
+      - name: Prepare PR merge result
         env:
           PR_BASE_SHA: ${{ needs.context.outputs.base }}
           PR_HEAD_SHA: ${{ needs.context.outputs.head }}
@@ -184,8 +167,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: "package.json"
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm ci
@@ -201,10 +183,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
-      - name: Prepare dispatched merge result
-        if: github.event_name == 'workflow_dispatch'
+      - name: Prepare PR merge result
         env:
           PR_BASE_SHA: ${{ needs.context.outputs.base }}
           PR_HEAD_SHA: ${{ needs.context.outputs.head }}
@@ -223,16 +205,13 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: "package.json"
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm ci
 
-      - name: Setup Playwright (with cache)
-        uses: $/.github/actions/setup-playwright
-        with:
-          project-directory: apps/web
+      - name: Install Playwright
+        run: pnpm --filter web exec playwright install --with-deps chromium
 
       - name: Storybook browser tests
         run: pnpm --filter web test:storybook --reporter=dot --silent
@@ -240,13 +219,13 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
 
   report-dispatched-result:
-    if: always() && github.event_name == 'workflow_dispatch'
+    if: always()
     needs: [context, lint-format, typecheck, unit-test, storybook-test]
     runs-on: ubuntu-latest
     permissions:
       statuses: write
     steps:
-      - name: Report dispatched CI on the synchronized commit
+      - name: Report dispatched CI on the PR commit
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_HEAD: ${{ inputs.expected_head }}
@@ -255,7 +234,7 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_SHA" = "$EXPECTED_HEAD"
+          test "$GITHUB_REF" = refs/heads/main
           if [ -n "$CONTEXT_HEAD" ]; then
             test "$CONTEXT_HEAD" = "$EXPECTED_HEAD"
           fi
@@ -263,7 +242,7 @@ jobs:
           if jq -e 'all(.[]; .result == "success")' <<< "$JOB_RESULTS"; then
             state=success
           fi
-          # dispatchのjob checkはPRに評価されないため、同期後SHAへstatusを返す。
+          # dispatchのjob checkはPRに評価されないため、検証対象SHAへstatusを返す。
           gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$EXPECTED_HEAD" \
             -f state="$state" -f context="vite-plus/frontend-ci" \
             -f description="Dispatched CI: $state" \

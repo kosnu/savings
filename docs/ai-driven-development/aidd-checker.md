@@ -105,11 +105,18 @@ PR headでは`check-changes --base`で現在の証拠を照合する。merge結�
 PR headのfingerprintをmerge結果に適用したり、過去Taskを全走査したりしない。
 GitHubが署名検証したRenovate authored / web-flow committedの自動依存更新は、
 人間がIntentを委任した開発ではないためTask証拠検査の対象外とする。
-Vite+同期workflowの署名付きBot追記も、Renovate起点の実行・PR番号・run ID・親SHAと
-同期jobの進行中または成功を確認した場合に限り同じ対象外とする。追記は既存の
+Vite+同期workflowの署名付きBot追記も、Actions Botによるdispatch実行・run ID・親SHAと
+同期jobの進行中または成功を確認し、PRの署名付きRenovateコミット列と親子関係が一致した場合に限り
+同じ対象外とする。PR全体と追記は既存の
 `package.json`、`apps/web/package.json`、`pnpm-workspace.yaml`、`pnpm-lock.yaml`の変更に限定する。
 author名だけでは除外せず、Coreテストとrule graph検査は省略しない。
-同期後のCIは`workflow_dispatch`で起動し、結果を同期後SHAのcommit statusにも返す。
+Frontend・AIDD CIとVite+同期のPRイベントは、PRコードを実行しない`pull_request_target`の受付だけで扱う。
+通常PR・fork PRのCIは
+信頼されたmainのworkflowを`workflow_dispatch`で起動し、PR headとmerge結果を検証する。
+PRコードを実行するjobのtokenはread権限に限定し、mainスコープのcacheへ保存しない。
+結果投稿のwrite権限は、checkoutもPRコード実行もしない別jobだけに与える。
+Vite+の依存同期は署名付きRenovate候補を確認して別runへdispatchする。同期後もCIをdispatchし、
+結果を対象PR head SHAのcommit statusへ返す。`pull_request`の重複購読による承認待ちrunを生成しない。
 旧migration checkerやschema fallbackは実行しない。
 新Core自身の変更は負の境界テストと実差分レビューで補う。candidate内のcheckerは、悪意ある変更を
 自身だけで認証できない。GitHubのreview・branch protectionとhostの権限制御を信頼境界とする。

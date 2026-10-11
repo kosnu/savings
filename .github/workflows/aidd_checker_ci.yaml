@@ -1,21 +1,18 @@
 name: AIDD Checker CI
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, edited]
-
   workflow_dispatch:
     inputs:
       pr_number:
-        description: 同期対象のPR番号
+        description: 検証対象のPR番号
         required: true
         type: string
       expected_head:
-        description: 同期後のPR head SHA
+        description: 検証対象のPR head SHA
         required: true
         type: string
       sync_run_id:
-        description: Vite+同期workflowのrun ID
+        description: 受付またはVite+同期workflowのrun ID
         required: true
         type: string
 
@@ -25,7 +22,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: aidd-checker-${{ github.event.pull_request.number || inputs.pr_number }}
+  group: aidd-checker-${{ inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
@@ -42,25 +39,20 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
           INPUT_PR: ${{ inputs.pr_number }}
           EXPECTED_HEAD: ${{ inputs.expected_head }}
           SYNC_RUN_ID: ${{ inputs.sync_run_id }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = workflow_dispatch ]; then
-            [[ "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]
-            [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
-            [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
-            test "$GITHUB_SHA" = "$EXPECTED_HEAD"
-            gh api "repos/$GITHUB_REPOSITORY/pulls/$INPUT_PR" > "$RUNNER_TEMP/pr.json"
-            jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$EXPECTED_HEAD" '
-              .state == "open" and .head.repo.full_name == $repo and
-              .base.repo.full_name == $repo and .base.ref == "main" and .head.sha == $head
-            ' "$RUNNER_TEMP/pr.json"
-          else
-            jq '.pull_request' "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/pr.json"
-          fi
+          [[ "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]
+          [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          test "$GITHUB_REF" = refs/heads/main
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$INPUT_PR" > "$RUNNER_TEMP/pr.json"
+          jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$EXPECTED_HEAD" '
+            .state == "open" and .head.repo != null and
+            .base.repo.full_name == $repo and .base.ref == "main" and .head.sha == $head
+          ' "$RUNNER_TEMP/pr.json"
           jq -r '"number=\(.number)", "head=\(.head.sha)", "base=\(.base.sha)", "base_ref=\(.base.ref)", "author=\(.user.login)"' "$RUNNER_TEMP/pr.json" >> "$GITHUB_OUTPUT"
 
   candidate:
@@ -70,9 +62,13 @@ jobs:
       - name: Checkout candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.context.outputs.head }}
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
+      - name: Validate candidate SHA
+        env:
+          PR_HEAD_SHA: ${{ needs.context.outputs.head }}
+        run: test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -95,8 +91,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: "package.json"
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm ci
@@ -152,9 +147,7 @@ jobs:
               if len(parents) != 1 or parents[0]["sha"] != previous_sha or not match:
                   return False
               run = api(f"repos/{repo}/actions/runs/{match[1]}")
-              if run["path"] != ".github/workflows/vite_plus_sync.yaml" or run["event"] != "pull_request" or run["actor"]["login"] != "renovate[bot]" or run["head_repository"]["full_name"] != repo or run["head_sha"] != parents[0]["sha"]:
-                  return False
-              if not any(pr["number"] == number for pr in run["pull_requests"]):
+              if run["path"] != ".github/workflows/vite_plus_sync.yaml" or run["event"] != "workflow_dispatch" or run["actor"]["login"] != "github-actions[bot]" or run["actor"]["id"] != 41898282 or run["head_repository"]["full_name"] != repo or run["head_sha"] != parents[0]["sha"]:
                   return False
               # dispatch直後は同期jobが進行中でも、署名付き追記が既に存在する。
               jobs = pages(f"repos/{repo}/actions/runs/{run['id']}/jobs", "jobs")
@@ -171,6 +164,9 @@ jobs:
                   authenticated(commit, commits[index - 1]["sha"] if index else None)
                   for index, commit in enumerate(commits)
               )
+              if verified and any(commit.get("author", {}).get("login") == "github-actions[bot]" for commit in commits):
+                  files = pages(f"repos/{repo}/pulls/{number}/files")
+                  verified = bool(files) and all(file["filename"] in allowed and file["status"] == "modified" for file in files)
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write(f"verified={str(verified).lower()}\n")
           PYTHON
@@ -189,10 +185,10 @@ jobs:
       - name: Checkout merge result
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
-      - name: Prepare dispatched merge result
-        if: github.event_name == 'workflow_dispatch'
+      - name: Prepare PR merge result
         env:
           PR_BASE_SHA: ${{ needs.context.outputs.base }}
           PR_HEAD_SHA: ${{ needs.context.outputs.head }}
@@ -228,13 +224,13 @@ jobs:
           test "$INTEGRATION_RESULT" = success
 
   report-dispatched-result:
-    if: always() && github.event_name == 'workflow_dispatch'
+    if: always()
     needs: [context, candidate, integration, verify]
     runs-on: ubuntu-latest
     permissions:
       statuses: write
     steps:
-      - name: Report dispatched CI on the synchronized commit
+      - name: Report dispatched CI on the PR commit
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_HEAD: ${{ inputs.expected_head }}
@@ -243,7 +239,7 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_SHA" = "$EXPECTED_HEAD"
+          test "$GITHUB_REF" = refs/heads/main
           if [ -n "$CONTEXT_HEAD" ]; then
             test "$CONTEXT_HEAD" = "$EXPECTED_HEAD"
           fi
@@ -251,7 +247,7 @@ jobs:
           if jq -e 'all(.[]; .result == "success")' <<< "$JOB_RESULTS"; then
             state=success
           fi
-          # dispatchのjob checkはPRに評価されないため、同期後SHAへstatusを返す。
+          # dispatchのjob checkはPRに評価されないため、検証対象SHAへstatusを返す。
           gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$EXPECTED_HEAD" \
             -f state="$state" -f context="vite-plus/aidd-checker-ci" \
             -f description="Dispatched CI: $state" \
