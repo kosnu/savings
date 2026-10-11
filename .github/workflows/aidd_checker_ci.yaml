@@ -1,27 +1,74 @@
 name: AIDD Checker CI
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, edited]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 検証対象のPR番号
+        required: true
+        type: string
+      expected_head:
+        description: 検証対象のPR head SHA
+        required: true
+        type: string
+      sync_run_id:
+        description: 受付またはVite+同期workflowのrun ID
+        required: true
+        type: string
 
 permissions:
   contents: read
   pull-requests: read
+  actions: read
 
 concurrency:
-  group: aidd-checker-${{ github.event.pull_request.number }}
+  group: aidd-checker-${{ inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
+  context:
+    runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+      head: ${{ steps.pr.outputs.head }}
+      base: ${{ steps.pr.outputs.base }}
+      base_ref: ${{ steps.pr.outputs.base_ref }}
+      author: ${{ steps.pr.outputs.author }}
+    steps:
+      - name: Resolve and validate PR context
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_PR: ${{ inputs.pr_number }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          SYNC_RUN_ID: ${{ inputs.sync_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]
+          [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          test "$GITHUB_REF" = refs/heads/main
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$INPUT_PR" > "$RUNNER_TEMP/pr.json"
+          jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$EXPECTED_HEAD" '
+            .state == "open" and .head.repo != null and
+            .base.repo.full_name == $repo and .base.ref == "main" and .head.sha == $head
+          ' "$RUNNER_TEMP/pr.json"
+          jq -r '"number=\(.number)", "head=\(.head.sha)", "base=\(.base.sha)", "base_ref=\(.base.ref)", "author=\(.user.login)"' "$RUNNER_TEMP/pr.json" >> "$GITHUB_OUTPUT"
+
   candidate:
+    needs: context
     runs-on: ubuntu-latest
     steps:
       - name: Checkout candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
+      - name: Validate candidate SHA
+        env:
+          PR_HEAD_SHA: ${{ needs.context.outputs.head }}
+        run: test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -44,8 +91,10 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: "package.json"
-          cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.yaml"
+          package-manager-cache: false
+
+      - name: Test Vite+ dependency synchronization
+        run: node --test tools/vite-plus-sync/*.test.mjs
 
       - name: Install dependencies
         run: pnpm ci
@@ -54,23 +103,35 @@ jobs:
         run: python3 -B -m unittest -v tools.aidd.tests.test_shared_gate
       - name: Preserve accepted ADR history
         env:
-          BASE_BRANCH: ${{ github.base_ref }}
+          BASE_BRANCH: ${{ needs.context.outputs.base_ref }}
         run: python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref "origin/$BASE_BRANCH"
       - name: Validate rule graph
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
       - name: Validate changed paths and rule coverage
         env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_SHA: ${{ needs.context.outputs.base }}
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"
 
   integration:
+    needs: context
     runs-on: ubuntu-latest
     steps:
       - name: Checkout merge result
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/pull/${{ needs.context.outputs.number }}/head
           persist-credentials: false
           fetch-depth: 0
+      - name: Prepare PR merge result
+        env:
+          PR_BASE_SHA: ${{ needs.context.outputs.base }}
+          PR_HEAD_SHA: ${{ needs.context.outputs.head }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
+          git fetch --no-tags origin "$PR_BASE_SHA"
+          git -c user.name=github-actions -c user.email=github-actions@github.com merge --no-commit --no-ff "$PR_BASE_SHA"
+
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -83,8 +144,16 @@ jobs:
       - name: Validate rule graph in merge result
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
 
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: "package.json"
+          package-manager-cache: false
+      - name: Test merged Vite+ dependency synchronization
+        run: node --test tools/vite-plus-sync/*.test.mjs
+
   verify:
-    needs: [candidate, integration]
+    needs: [context, candidate, integration]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -95,3 +164,34 @@ jobs:
         run: |
           test "$CANDIDATE_RESULT" = success
           test "$INTEGRATION_RESULT" = success
+
+  report-dispatched-result:
+    if: always()
+    needs: [context, candidate, integration, verify]
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - name: Report dispatched CI on the PR commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          CONTEXT_HEAD: ${{ needs.context.outputs.head }}
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = refs/heads/main
+          if [ -n "$CONTEXT_HEAD" ]; then
+            test "$CONTEXT_HEAD" = "$EXPECTED_HEAD"
+          fi
+          state=failure
+          if jq -e 'all(.[]; .result == "success")' <<< "$JOB_RESULTS"; then
+            state=success
+          fi
+          # dispatchのjob checkはPRに評価されないため、検証対象SHAへstatusを返す。
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$EXPECTED_HEAD" \
+            -f state="$state" -f context="vite-plus/aidd-checker-ci" \
+            -f description="Dispatched CI: $state" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          test "$state" = success

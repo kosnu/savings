@@ -70,3 +70,12 @@ Coreは人間の承認を記録から証明せず、`ship-check`や記録のpass
 過去の内容を現在仕様に合わせて書き換えない。
 
 具体的な入力と検証は[操作](aidd-checker-operations.md)に従う。
+
+## CIの起動と権限
+
+Frontend・AIDD CIとVite+同期のPRイベントは、PRコードを実行しない`pull_request_target`の受付で扱う。
+通常PR・fork PRのCIは信頼されたmainのworkflowを`workflow_dispatch`で起動し、PR headとmerge結果を検証する。
+PRコードを実行するjobのtokenはread権限に限定し、mainスコープのcacheへ保存しない。
+結果投稿のwrite権限は、checkoutもPRコード実行もしない別jobだけに与える。
+Vite+の依存同期は署名付きRenovate候補を確認して別runへdispatchする。同期後もCIをdispatchし、
+結果を対象PR head SHAのcommit statusへ返す。`pull_request`の重複購読による承認待ちrunを生成しない。

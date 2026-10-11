@@ -1,0 +1,17 @@
+{
+  "sequence": 20,
+  "kind": "return-intent",
+  "time": "2026-10-11T05:45:36.763349Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "ab88c5c61e54c439e6b8340154c3cb55f0a35f62d2259a65e9274cc23b29d7bf",
+  "revision": 7,
+  "fingerprint": "993c4030aa759d48d09236b9e66cf21f5e26d9306bf93376042e7a75b22383a1",
+  "data": {
+    "summary": "承認ROUTEの3workflowと正本だけを修正。PRtargetはAPI受付のみ、同期/通常/forkCIはdispatch、readonlyコードjob/cache停止とwrite結果job分離。起動重複を除去。IntentのVite+優先とApp/Secret・手動更新/CI承認不要の制約を保持。",
+    "previous_cycle": "vite-plus-dependencies-20261011/cycle-0002",
+    "approval_hash": "0a9ab7a8ce0562062d71df4a1866eeaa2d7c21ac539a925ef22702a0c5e5ec7d",
+    "intent_hash": "16326b23daa53add1e9f9f65ac67b0594e58161ef7d3d9226d1e095c345bc241"
+  },
+  "hash": "825f35feb8fafad87e0d2ac95694d7374c980e3b062c1bbc3e190977c4d7e68b",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0003"
+}

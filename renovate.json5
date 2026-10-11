@@ -2,6 +2,7 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended", "helpers:pinGitHubActionDigests"],
   minimumReleaseAge: "7 days",
+  gitIgnoredAuthors: ["41898282+github-actions[bot]@users.noreply.github.com"],
   vulnerabilityAlerts: {
     enabled: true,
   },
@@ -27,6 +28,17 @@
         "vite-plus",
       ],
       groupName: "vite-plus monorepo",
+    },
+    {
+      description: "Vite+の内部版に合わせる依存は、Vite+更新時にvp migrateで同期する",
+      matchPackageNames: [
+        "vite",
+        "@voidzero-dev/vite-plus-core",
+        "vitest",
+        "@vitest/browser-playwright",
+        "@vitest/coverage-v8",
+      ],
+      enabled: false,
     },
     {
       matchPackageNames: ["pnpm"],

@@ -1,0 +1,112 @@
+{
+  "sequence": 4,
+  "kind": "decision",
+  "time": "2026-10-10T17:26:18.334811Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "49977f1b283d13b017cde4532a44869a61f06bb204ef11a0a0a97af46026bcb5",
+  "revision": 2,
+  "fingerprint": "5aa4cb586c135ad107e330941eda8ef65963b74f235064df14ccbf6ac0f7893b",
+  "data": {
+    "intent_revision": {
+      "source": "user-message:01a126d1-vite-plus-dependencies-20261011:acceptance-correction",
+      "objective": "Vite+優先で重複する依存管理を整理し、必要な直接依存には根拠を示す",
+      "constraints": [
+        "最新mainから新規ブランチ",
+        "Vite+のバージョンは現状維持",
+        "無関係な依存更新を含めない"
+      ],
+      "acceptance": [
+        "不要な直接依存を除去し必須peerやopt-in依存の理由を記録",
+        "通常検証、Storybook、build、coverageが成功",
+        "最新mainから新規ブランチを作成しセッション名を内容に合わせて更新"
+      ],
+      "text_hash": "7b78875c006c4012ddf45186ff9981e6588aef27fce16b4207c648dcc850a334"
+    },
+    "summary": "Vite+1.0.0を維持し、Webの直接vite/未使用esbuild/root重複react-hooks宣言を削除する。browser mode/upstream typesのvitest、opt-in Playwright provider、別提供coverage-v8は維持し、Vite+内部版に合わせる依存の独立Renovate更新を停止する。core aliasとrunner overrideは外部peerの単一解決に必要なため維持し、更新時はvp migrateで同期する。。初回検証で未解決のvite/client型参照を確認したため、Vite+公開型へ同期する。依頼から導いた完了条件の記録を訂正し、配信後read-backはShip gateで評価する。ユーザー原文・目的・実行権限は維持する。",
+    "paths": [
+      "apps/web/package.json",
+      "pnpm-workspace.yaml",
+      "pnpm-lock.yaml",
+      "renovate.json5",
+      "apps/web/tsconfig.storybook.json"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "vp",
+        "test",
+        "run",
+        "--project",
+        "unit",
+        "src/domain/amount.test.ts",
+        "--coverage",
+        "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+        "--reporter=dot"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "5fbfb1b0660236a46d9fcb1b64c0ef232c7b27575130485d4aef0e29a5613b14",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0001"
+}

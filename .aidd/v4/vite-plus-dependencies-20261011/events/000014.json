@@ -1,0 +1,157 @@
+{
+  "sequence": 14,
+  "kind": "verify",
+  "time": "2026-10-11T04:58:43.609334Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "99cbedbe2160688f4f287f03bb7441c97f18e3b369fde3b3ea1897da311d7e1e",
+  "revision": 6,
+  "fingerprint": "31ccb0cc42fbe5a5d6cdb01966907c4ba5342e5168df136fdf4c51a4c2acbab5",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 633ms on 582 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:52821) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n\n·················································································································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  142 passed (142)\n      Tests  785 passed (785)\n   Start at  13:56:53\n   Duration  96.82s (setup 63%, tests 16%, import 10%, environment 9%, transform 2%)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:storybook"
+        ],
+        "exit": 1,
+        "output": "$ pnpm --filter web test:storybook --reporter=dot --silent\n$ vp test run --project storybook --reporter=dot --silent\n(node:53659) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n\n\n⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯\n\nVitest caught 1 unhandled error during the test run.\nThis might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.\n\n⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯\nError: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n\u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-HaVFUo --remote-debugging-pipe --no-startup-window\n\u003claunched\u003e pid=53746\n[pid=53746][err] [1011/135832.297112:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\n[pid=53746][err] [1011/135832.298722:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\n[pid=53746][err] [1011/135832.299325:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.53746: Permission denied (1100)\n[pid=53746] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e\n[pid=53746] starting temporary directories cleanup\nCall log:\n\u001b[2m  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-HaVFUo --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - \u003claunched\u003e pid=53746\u001b[22m\n\u001b[2m  - [pid=53746][err] [1011/135832.297112:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\u001b[22m\n\u001b[2m  - [pid=53746][err] [1011/135832.298722:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\u001b[22m\n\u001b[2m  - [pid=53746][err] [1011/135832.299325:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.53746: Permission denied (1100)\u001b[22m\n\u001b[2m  - [pid=53746] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e\u001b[22m\n\u001b[2m  - [pid=53746] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=53746] \u003cgracefully close start\u003e\u001b[22m\n\u001b[2m  - [pid=53746] \u003ckill\u003e\u001b[22m\n\u001b[2m  - [pid=53746] \u003cskipped force kill spawnedProcess.killed=false processClosed=true\u003e\u001b[22m\n\u001b[2m  - [pid=53746] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=53746] \u003cgracefully close end\u003e\u001b[22m\n\n ❯ ../../node_modules/.pnpm/@vitest+browser-playwright@5.0.1_@types+node@26.6.2_esbuild@0.28.2_msw@2.15.0_@types+no_ffac374217460c007a0548403bd41488/node_modules/@vitest/browser-playwright/dist/index.js:1053:55\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\nSerialized Error: { log: [ '  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-HaVFUo --remote-debugging-pipe --no-startup-window', '  - \u003claunched\u003e pid=53746', '  - [pid=53746][err] [1011/135832.297112:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9', '  - [pid=53746][err] [1011/135832.298722:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.', '  - [pid=53746][err] [1011/135832.299325:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.53746: Permission denied (1100)', '  - [pid=53746] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e', '  - [pid=53746] starting temporary directories cleanup', '  - [pid=53746] \u003cgracefully close start\u003e', '  - [pid=53746] \u003ckill\u003e', '  - [pid=53746] \u003cskipped force kill spawnedProcess.killed=false processClosed=true\u003e', '  - [pid=53746] finished temporary directories cleanup', '  - [pid=53746] \u003cgracefully close end\u003e' ] }\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n\n Test Files   (7)\n      Tests  no tests\n     Errors  1 error\n   Start at  13:58:31\n   Duration  1.30s\n\nerror during close browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n\u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-HaVFUo --remote-debugging-pipe --no-startup-window\n\u003claunched\u003e pid=53746\n[pid=53746][err] [1011/135832.297112:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\n[pid=53746][err] [1011/135832.298722:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\n[pid=53746][err] [1011/135832.299325:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.53746: Permission denied (1100)\n[pid=53746] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e\n[pid=53746] starting temporary directories cleanup\nCall log:\n\u001b[2m  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-HaVFUo --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - \u003claunched\u003e pid=53746\u001b[22m\n\u001b[2m  - [pid=53746][err] [1011/135832.297112:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\u001b[22m\n\u001b[2m  - [pid=53746][err] [1011/135832.298722:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\u001b[22m\n\u001b[2m  - [pid=53746][err] [1011/135832.299325:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.53746: Permission denied (1100)\u001b[22m\n\u001b[2m  - [pid=53746] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e\u001b[22m\n\u001b[2m  - [pid=53746] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=53746] \u003cgracefully close start\u003e\u001b[22m\n\u001b[2m  - [pid=53746] \u003ckill\u003e\u001b[22m\n\u001b[2m  - [pid=53746] \u003cskipped force kill spawnedProcess.killed=false processClosed=true\u003e\u001b[22m\n\u001b[2m  - [pid=53746] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=53746] \u003cgracefully close end\u003e\u001b[22m\n\n    at /Users/kosnu/.codex/worktrees/7c6a/savings/node_modules/.pnpm/@vitest+browser-playwright@5.0.1_@types+node@26.6.2_esbuild@0.28.2_msw@2.15.0_@types+no_ffac374217460c007a0548403bd41488/node_modules/@vitest/browser-playwright/dist/index.js:1053:55 {\n  log: [\n    '  - \u003claunching\u003e /Users/kosnu/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/6n/2z76ct190q732c_zp2p0hzqw0000gn/T/playwright_chromiumdev_profile-HaVFUo --remote-debugging-pipe --no-startup-window',\n    '  - \u003claunched\u003e pid=53746',\n    '  - [pid=53746][err] [1011/135832.297112:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9',\n    '  - [pid=53746][err] [1011/135832.298722:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.',\n    '  - [pid=53746][err] [1011/135832.299325:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.53746: Permission denied (1100)',\n    '  - [pid=53746] \u003cprocess did exit: exitCode=null, signal=SIGTRAP\u003e',\n    '  - [pid=53746] starting temporary directories cleanup',\n    '  - [pid=53746] \u003cgracefully close start\u003e',\n    '  - [pid=53746] \u003ckill\u003e',\n    '  - [pid=53746] \u003cskipped force kill spawnedProcess.killed=false processClosed=true\u003e',\n    '  - [pid=53746] finished temporary directories cleanup',\n    '  - [pid=53746] \u003cgracefully close end\u003e'\n  ],\n  type: 'Unhandled Error',\n  stacks: [\n    {\n      method: '',\n      file: '/Users/kosnu/.codex/worktrees/7c6a/savings/node_modules/.pnpm/@vitest+browser-playwright@5.0.1_@types+node@26.6.2_esbuild@0.28.2_msw@2.15.0_@types+no_ffac374217460c007a0548403bd41488/node_modules/@vitest/browser-playwright/dist/index.js',\n      line: 1053,\n      column: 55\n    }\n  ]\n}\n[ELIFECYCLE] Command failed with exit code 1.\nError: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL\n\n  × \"pnpm recursive run\" failed in /Users/kosnu/.codex/worktrees/7c6a/savings/\n  │ apps/web\n\n[ELIFECYCLE] Command failed with exit code 1.\n\nverification error: exit status 1\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:build"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web build\n$ tsc -b \u0026\u0026 vp build\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2127 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-DlnKZWWw.css               14.95 kB │ gzip:   4.36 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-Ch8a9_A3.js               4.97 kB │ gzip:   2.33 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-Dw-SRP9E.js               149.81 kB │ gzip:  37.96 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-BQ-0x0pl.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-CcqsdSv1.js            942.75 kB │ gzip: 278.87 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 450ms\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "--filter",
+          "web",
+          "exec",
+          "vp",
+          "test",
+          "run",
+          "--project",
+          "unit",
+          "src/domain/amount.test.ts",
+          "--coverage",
+          "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+          "--reporter=dot"
+        ],
+        "exit": 0,
+        "output": "note: You are running `vp test` as a Vite+ built-in command. If you meant to run the test npm script, use `vpr test` instead.\n(node:54318) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n      Coverage enabled with v8\n\n············\n\n Test Files  1 passed (1)\n      Tests  12 passed (12)\n   Start at  13:58:38\n   Duration  1.30s (setup 95%, import 2%, transform 1%, worker 1%)\n\n % Coverage report from v8\n-----------|---------|----------|---------|---------|-------------------\nFile       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s \n-----------|---------|----------|---------|---------|-------------------\nAll files  |   91.66 |    84.21 |     100 |   94.73 |                   \n amount.ts |   91.66 |    84.21 |     100 |   94.73 | 16                \n-----------|---------|----------|---------|---------|-------------------\n\n=============================== Coverage summary ===============================\nStatements   : 91.66% ( 22/24 )\nBranches     : 84.21% ( 16/19 )\nFunctions    : 100% ( 3/3 )\nLines        : 94.73% ( 18/19 )\n================================================================================\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "node",
+          "/tmp/check-vp-sync.mjs"
+        ],
+        "exit": 0,
+        "output": "signed Renovate candidate passed\nstale candidate passed\nsource candidate passed\nunsigned candidate passed\nhuman candidate passed\nsigned commit and updated-SHA dispatch passed\nno diff and unchanged-SHA dispatch passed\noutside source diff passed\nuntracked changes passed\nunverified signature passed\nconcurrent head conflict passed\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/check-ci-auth.py"
+        ],
+        "exit": 0,
+        "output": "Renovate only passed\nauthenticated sync passed\ncompleted sync passed\noutside dependency files passed\nwrong workflow passed\nwrong PR passed\nwrong parent passed\nunsigned bot passed\nstale current head passed\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/check-ci-status.py"
+        ],
+        "exit": 0,
+        "output": "frontend_ci.yaml success passed\nfrontend_ci.yaml failed job passed\nfrontend_ci.yaml failed context passed\nfrontend_ci.yaml SHA mismatch passed\naidd_checker_ci.yaml success passed\naidd_checker_ci.yaml failed job passed\naidd_checker_ci.yaml failed context passed\naidd_checker_ci.yaml SHA mismatch passed\n"
+      },
+      {
+        "argv": [
+          "zizmor",
+          ".github/workflows/vite_plus_sync.yaml",
+          ".github/workflows/frontend_ci.yaml",
+          ".github/workflows/aidd_checker_ci.yaml"
+        ],
+        "exit": 0,
+        "output": " WARN zizmor: zizmor is running in offline mode by default; some audits and auto-fixes will not be available. see https://docs.zizmor.sh/usage/#operating-modes for details\nNo findings to report. Good job! (18 suppressed)\n"
+      },
+      {
+        "argv": [
+          "/tmp/vp-sync-tools/actionlint",
+          "-ignore",
+          "specifying action \"\\$/\\.github/actions/setup-playwright\"",
+          ".github/workflows/vite_plus_sync.yaml",
+          ".github/workflows/frontend_ci.yaml",
+          ".github/workflows/aidd_checker_ci.yaml"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=4d089eb52ddba1e3db8e4f40cfeaef273d84be2b checked=9\n"
+      }
+    ],
+    "stable": true
+  },
+  "hash": "362505e3e44911b95cd299bc02a98ce04ef0d5d6101965eb0c80c225003ffb50",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0002"
+}

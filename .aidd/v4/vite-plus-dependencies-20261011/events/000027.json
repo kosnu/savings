@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000027.json",
+  "kind": "design",
+  "source": "user-message:01a126d1-reachability-direction-approval; https://github.com/kosnu/savings/pull/1911",
+  "paths": [
+    ".github/workflows/vite_plus_sync.yaml",
+    ".github/workflows/aidd_checker_ci.yaml",
+    "docs/ai-driven-development/aidd-checker.md",
+    "pnpm-lock.yaml"
+  ],
+  "fingerprint": "9c3c9c168b8d6928f01ae37c987761fd7dab2e666f3d6ab2229ef0e8b3277702",
+  "status": "pass",
+  "checks": [
+    "承認範囲とmain競合の確認"
+  ],
+  "summary": "送信者条件を除去。mainの現行Core検査を採用し不要なBot例外を除去。pending終了処理は見送り。元のIntentと今回の承認範囲を維持。",
+  "remaining": []
+}

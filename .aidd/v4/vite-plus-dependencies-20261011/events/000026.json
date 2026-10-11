@@ -1,0 +1,175 @@
+{
+  "sequence": 26,
+  "kind": "decision",
+  "time": "2026-10-11T06:50:02.125777Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "16e7f093280aeea93eb210b680bce079fc67b16737892078e97add94d5f230e6",
+  "revision": 9,
+  "fingerprint": "993c4030aa759d48d09236b9e66cf21f5e26d9306bf93376042e7a75b22383a1",
+  "data": {
+    "summary": "承認REACHABLE: sender条件除去、最新main mergeと競合解消。pending終了処理は追加しない。関連Web/Core/workflow検証、2Bot指摘へ採用/見送り根拠返信。",
+    "paths": [
+      ".github/workflows/vite_plus_sync.yaml",
+      ".github/workflows/frontend_ci.yaml",
+      ".github/workflows/aidd_checker_ci.yaml",
+      "renovate.json5",
+      "apps/web/package.json",
+      "apps/web/tsconfig.storybook.json",
+      "pnpm-lock.yaml",
+      "docs/ai-driven-development/aidd-checker.md"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "vp",
+        "test",
+        "run",
+        "--project",
+        "unit",
+        "src/domain/amount.test.ts",
+        "--coverage",
+        "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+        "--reporter=dot"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node",
+        "/tmp/check-vp-sync.mjs"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-auth.py"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-status.py"
+      ],
+      [
+        "zizmor",
+        ".github/workflows/vite_plus_sync.yaml",
+        ".github/workflows/frontend_ci.yaml",
+        ".github/workflows/aidd_checker_ci.yaml"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "/tmp/vp-sync-tools/actionlint",
+        ".github/workflows/vite_plus_sync.yaml",
+        ".github/workflows/frontend_ci.yaml",
+        ".github/workflows/aidd_checker_ci.yaml"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-context.py"
+      ],
+      [
+        "python3",
+        "/tmp/check-vp-events.py"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "vet",
+        "./..."
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "afdeb88915934109d8ef42e4aca71652772f3a26c98ebe0a1663ccecefa291e8",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0003"
+}

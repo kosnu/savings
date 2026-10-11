@@ -1,0 +1,139 @@
+{
+  "sequence": 19,
+  "kind": "decision",
+  "time": "2026-10-11T05:42:32.98888Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "0a9ab7a8ce0562062d71df4a1866eeaa2d7c21ac539a925ef22702a0c5e5ec7d",
+  "revision": 7,
+  "fingerprint": "31ccb0cc42fbe5a5d6cdb01966907c4ba5342e5168df136fdf4c51a4c2acbab5",
+  "data": {
+    "summary": "承認ROUTEに限定。PRtarget受付はmetadata-onlyとし、同期/CIをdispatchへ統一。通常/fork候補headとmerge検証を維持し、トークンPR更新の承認待ちrun生成を防ぐ。",
+    "paths": [
+      ".github/workflows/vite_plus_sync.yaml",
+      ".github/workflows/frontend_ci.yaml",
+      ".github/workflows/aidd_checker_ci.yaml",
+      "renovate.json5",
+      "apps/web/package.json",
+      "apps/web/tsconfig.storybook.json",
+      "pnpm-lock.yaml",
+      "docs/ai-driven-development/aidd-checker.md"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "vp",
+        "test",
+        "run",
+        "--project",
+        "unit",
+        "src/domain/amount.test.ts",
+        "--coverage",
+        "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+        "--reporter=dot"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node",
+        "/tmp/check-vp-sync.mjs"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-auth.py"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-status.py"
+      ],
+      [
+        "zizmor",
+        ".github/workflows/vite_plus_sync.yaml",
+        ".github/workflows/frontend_ci.yaml",
+        ".github/workflows/aidd_checker_ci.yaml"
+      ],
+      [
+        "/tmp/vp-sync-tools/actionlint",
+        "-ignore",
+        "specifying action \"\\$/\\.github/actions/setup-playwright\"",
+        ".github/workflows/vite_plus_sync.yaml",
+        ".github/workflows/frontend_ci.yaml",
+        ".github/workflows/aidd_checker_ci.yaml"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "ab88c5c61e54c439e6b8340154c3cb55f0a35f62d2259a65e9274cc23b29d7bf",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0002"
+}

@@ -1,0 +1,175 @@
+{
+  "sequence": 21,
+  "kind": "decision",
+  "time": "2026-10-11T05:45:53.853175Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "825f35feb8fafad87e0d2ac95694d7374c980e3b062c1bbc3e190977c4d7e68b",
+  "revision": 8,
+  "fingerprint": "993c4030aa759d48d09236b9e66cf21f5e26d9306bf93376042e7a75b22383a1",
+  "data": {
+    "summary": "Intentへ復帰後、承認ROUTEの起動単一化を検証。受付metadata-only、同期不要時もdispatch、通常/forkはmain trusted CI、readonly実行と独立status投稿、cache保存なし。同期対象4filesに残存PRworkflow一致なし。",
+    "paths": [
+      ".github/workflows/vite_plus_sync.yaml",
+      ".github/workflows/frontend_ci.yaml",
+      ".github/workflows/aidd_checker_ci.yaml",
+      "renovate.json5",
+      "apps/web/package.json",
+      "apps/web/tsconfig.storybook.json",
+      "pnpm-lock.yaml",
+      "docs/ai-driven-development/aidd-checker.md"
+    ],
+    "commands": [
+      [
+        "pnpm",
+        "run",
+        "web:lint"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:format-check"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:typecheck"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:unit-integration"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:test:storybook"
+      ],
+      [
+        "pnpm",
+        "run",
+        "web:build"
+      ],
+      [
+        "pnpm",
+        "--filter",
+        "web",
+        "exec",
+        "vp",
+        "test",
+        "run",
+        "--project",
+        "unit",
+        "src/domain/amount.test.ts",
+        "--coverage",
+        "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+        "--reporter=dot"
+      ],
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "node",
+        "/tmp/check-vp-sync.mjs"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-auth.py"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-status.py"
+      ],
+      [
+        "zizmor",
+        ".github/workflows/vite_plus_sync.yaml",
+        ".github/workflows/frontend_ci.yaml",
+        ".github/workflows/aidd_checker_ci.yaml"
+      ],
+      [
+        "python3",
+        "-B",
+        "docs/harness/scripts/validate_accepted_adrs.py",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "origin/main"
+      ],
+      [
+        "/tmp/vp-sync-tools/actionlint",
+        ".github/workflows/vite_plus_sync.yaml",
+        ".github/workflows/frontend_ci.yaml",
+        ".github/workflows/aidd_checker_ci.yaml"
+      ],
+      [
+        "python3",
+        "/tmp/check-ci-context.py"
+      ],
+      [
+        "python3",
+        "/tmp/check-vp-events.py"
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/checker",
+        "vet",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      [
+        "go",
+        "-C",
+        "tools/aidd/session-metrics",
+        "vet",
+        "./..."
+      ]
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.checker",
+      "ai-driven.glossary",
+      "ai-driven.issue-guidelines",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.issue-template-selection",
+      "policy.learning-extraction",
+      "policy.retrospective",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "802e6b596a22fe5cfff4263f52ff758bcb9221078d6b41854c5f4e5c7ef607a0",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0003"
+}

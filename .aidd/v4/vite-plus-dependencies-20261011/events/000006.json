@@ -1,0 +1,55 @@
+{
+  "sequence": 6,
+  "kind": "review",
+  "time": "2026-10-10T17:29:10.174219Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "c985b7846a513c887373bddbeba31123e6670859013e37ac5d9698a10e47387e",
+  "revision": 2,
+  "fingerprint": "4097fbd4f3b6671236d71abc27c86f04eca188c70a3f8be189806d4f9c4ae73e",
+  "data": {
+    "summary": "## Coverage\n- Checked rules: ai-driven.change-coverage, ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.storybook-browser-tests, web.test-policy\n- Unresolved: なし\n\n指摘なし。依存宣言・peer解決・型参照・Renovate更新経路・lockfile同期と実行証拠を照合。domain/API/UIの挙動変更なし。CSS peer警告はbaselineと同一。coverageは対象unit testによるプロバイダー動作確認で、全体coverageではない。PR CIはShip後に状態取得する。",
+    "criteria": [
+      {
+        "criterion": "不要な直接依存を除去し必須peerやopt-in依存の理由を記録",
+        "evidence": "Webのvite/未使用esbuild/root重複react-hooks宣言を除去。Storybook型はvite-plus/clientへ同期。Vite core alias/overrideは外部plugin peerを統一、vitestはbrowser必須peer/上流参照、Playwrightとcoverageは別提供のため保持。Renovate個別更新を停止しVite+更新時vp migrateへ集約。lockfileに新規package版追加なし。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "通常検証、Storybook、build、coverageが成功",
+        "evidence": "revision2のverifyはstable=true、全8コマンドexit0。unit/integration142files785tests、Storybook7files20tests、lint/format-check/typecheck/build/coverage/diff-check成功。Supabase publishable keyはtest dummyを使用。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "最新mainから新規ブランチを作成しセッション名を内容に合わせて更新",
+        "evidence": "開始HEADとorigin/mainは4d089eb52ddba1e3db8e4f40cfeaef273d84be2b。新規branch codex/vite-plus-dependencies。session titleはVite+優先で重複依存を整理へ変更済み。配信結果は別のShip gateでread-backする。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.change-coverage",
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries",
+      "web.storybook-browser-tests",
+      "web.test-policy"
+    ]
+  },
+  "hash": "a970d868f70eda4345bb4302ac289762559bd155172af0052a32c6b82ee74b8c",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0001"
+}

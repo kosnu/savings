@@ -1,0 +1,215 @@
+name: Sync Vite+ dependencies
+
+on: # zizmor: ignore[dangerous-triggers] PRtargetの受付jobはAPIだけを利用し、PRコードを実行しない
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 同期対象のPR番号
+        required: true
+        type: string
+      expected_head:
+        description: 同期前のPR head SHA
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: vite-plus-sync-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: false
+
+jobs:
+  route:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: write
+      statuses: write
+    steps:
+      - name: Dispatch synchronization or CI without executing PR code
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const candidate = context.payload.pull_request;
+            const pr = (await github.rest.pulls.get({owner, repo, pull_number: candidate.number})).data;
+            if (pr.state !== 'open' || pr.base.ref !== 'main' || pr.head.sha !== candidate.head.sha) {
+              throw new Error('PR head or base changed; route the newest candidate');
+            }
+            const files = await github.paginate(github.rest.pulls.listFiles, {owner, repo, pull_number: pr.number});
+            const allowed = new Set(['package.json', 'apps/web/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml']);
+            const renovate = pr.user.id === 29139614 && pr.user.login === 'renovate[bot]' &&
+              pr.head.repo.full_name === `${owner}/${repo}`;
+            let synchronize = false;
+            if (renovate && files.length && files.every(file => allowed.has(file.filename) && file.status === 'modified')) {
+              const version = async ref => {
+                const file = (await github.rest.repos.getContent({owner, repo, path: 'pnpm-workspace.yaml', ref})).data;
+                const text = Buffer.from(file.content, 'base64').toString('utf8');
+                const match = text.match(/^  vite-plus: ["']?([0-9]+\.[0-9]+\.[0-9]+(?:-[\w.-]+)?)["']?\s*$/m);
+                if (!match) throw new Error('Vite+ catalog must contain an exact version');
+                return match[1];
+              };
+              synchronize = await version(pr.base.sha) !== await version(pr.head.sha);
+            }
+            const frontend = synchronize || files.some(file => file.filename.startsWith('apps/web/') ||
+              ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.github/workflows/frontend_ci.yaml',
+               '.github/actions/setup-playwright/action.yaml'].includes(file.filename));
+            const workflows = frontend
+              ? [['frontend_ci.yaml', 'vite-plus/frontend-ci'], ['aidd_checker_ci.yaml', 'vite-plus/aidd-checker-ci']]
+              : [['aidd_checker_ci.yaml', 'vite-plus/aidd-checker-ci']];
+            for (const [, statusContext] of workflows) {
+              await github.rest.repos.createCommitStatus({owner, repo, sha: pr.head.sha, state: 'pending', context: statusContext,
+                description: synchronize ? 'Vite+関連依存を同期中' : 'PRのCIを実行中',
+                target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`});
+            }
+            if (synchronize) {
+              // 同期候補は依存4ファイルだけ。候補側のworkflow変更は許可しない。
+              await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id: 'vite_plus_sync.yaml', ref: pr.head.ref,
+                inputs: {pr_number: String(pr.number), expected_head: pr.head.sha}});
+            } else {
+              for (const [workflow_id] of workflows) {
+                await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id, ref: 'main',
+                  inputs: {pr_number: String(pr.number), expected_head: pr.head.sha, sync_run_id: String(context.runId)}});
+              }
+            }
+
+  sync:
+    if: github.event_name == 'workflow_dispatch' && github.actor_id == '41898282'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+      actions: write
+      statuses: write
+    steps:
+      - name: Validate Renovate dependency-only candidate before checkout
+        id: candidate
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const {pr_number, expected_head} = context.payload.inputs;
+            if (!/^[1-9][0-9]*$/.test(pr_number) || !/^[0-9a-f]{40}$/.test(expected_head)) {
+              throw new Error('Invalid synchronization input');
+            }
+            const pull_number = Number(pr_number);
+            const pr = (await github.rest.pulls.get({owner, repo, pull_number})).data;
+            if (pr.state !== 'open' || pr.base.ref !== 'main' || pr.head.sha !== expected_head ||
+                pr.head.repo.full_name !== `${owner}/${repo}` || pr.user.id !== 29139614 ||
+                pr.user.login !== 'renovate[bot]' || context.sha !== expected_head || context.ref !== `refs/heads/${pr.head.ref}`) {
+              throw new Error('Synchronization requires the current same-repository Renovate candidate');
+            }
+            const files = await github.paginate(github.rest.pulls.listFiles, {owner, repo, pull_number});
+            const allowed = new Set(['package.json', 'apps/web/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml']);
+            if (!files.length || files.some(file => !allowed.has(file.filename) || file.status !== 'modified')) {
+              throw new Error('Vite+ sync accepts dependency-only Renovate PRs');
+            }
+            const commits = await github.paginate(github.rest.pulls.listCommits, {owner, repo, pull_number});
+            if (!commits.length || commits.at(-1).sha !== expected_head) {
+              throw new Error('Candidate commit history must end at the expected head');
+            }
+            for (const [index, commit] of commits.entries()) {
+              if (!commit.commit.verification.verified || commit.commit.verification.reason !== 'valid') {
+                throw new Error('Candidate commits must have verified signatures');
+              }
+              if (commit.author?.login === 'renovate[bot]' && commit.committer?.login === 'web-flow') continue;
+              const marker = (commit.commit.message || '').match(/^Vite-Plus-Sync-Run: ([1-9][0-9]*)$/m);
+              if (commit.author?.login !== 'github-actions[bot]' || commit.author.id !== 41898282 ||
+                  !['web-flow', 'github-actions[bot]'].includes(commit.committer?.login) || !marker ||
+                  index === 0 || commit.parents.length !== 1 || commit.parents[0].sha !== commits[index - 1].sha) {
+                throw new Error('Only Renovate commits and authenticated sync commits are accepted');
+              }
+              const run = (await github.rest.actions.getWorkflowRun({owner, repo, run_id: Number(marker[1])})).data;
+              if (run.path !== '.github/workflows/vite_plus_sync.yaml' || run.event !== 'workflow_dispatch' ||
+                  run.actor.id !== 41898282 || run.actor.login !== 'github-actions[bot]' ||
+                  run.head_repository.full_name !== `${owner}/${repo}` || run.head_branch !== pr.head.ref ||
+                  run.head_sha !== commit.parents[0].sha) {
+                throw new Error('Sync commit must match its originating workflow run');
+              }
+              const detail = (await github.rest.repos.getCommit({owner, repo, ref: commit.sha})).data;
+              if (!detail.files?.length || detail.files.length > allowed.size ||
+                  detail.files.some(file => !allowed.has(file.filename) || file.status !== 'modified')) {
+                throw new Error('Sync commit must only modify existing dependency files');
+              }
+            }
+            core.setOutput('head', pr.head.sha);
+            core.setOutput('base', pr.base.sha);
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.candidate.outputs.head }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Identify Vite+ upgrade
+        id: upgrade
+        env:
+          PR_BASE_SHA: ${{ steps.candidate.outputs.base }}
+        run: node tools/vite-plus-sync/migrate.mjs identify
+
+      - name: Setup pnpm
+        if: steps.upgrade.outputs.changed == 'true'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 12.9.0
+
+      - name: Setup Node.js
+        if: steps.upgrade.outputs.changed == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+
+      - name: Align dependencies with the upgraded local CLI
+        if: steps.upgrade.outputs.changed == 'true'
+        env:
+          TARGET_VERSION: ${{ steps.upgrade.outputs.version }}
+        run: node tools/vite-plus-sync/migrate.mjs align
+
+      - name: Commit aligned dependencies and dispatch existing CI
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const fs = require('node:fs');
+            const cp = require('node:child_process');
+            const {owner, repo} = context.repo;
+            const pr = (await github.rest.pulls.get({owner, repo, pull_number: Number(context.payload.inputs.pr_number)})).data;
+            if (pr.state !== 'open' || pr.head.sha !== context.payload.inputs.expected_head) {
+              throw new Error('PR head changed during migration');
+            }
+            const allowed = new Set(['package.json', 'apps/web/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml']);
+            const changes = cp.execFileSync('git', ['diff', '--name-only', 'HEAD'], {encoding: 'utf8'}).trim().split('\n').filter(Boolean);
+            const untracked = cp.execFileSync('git', ['ls-files', '--others', '--exclude-standard'], {encoding: 'utf8'}).trim();
+            if (untracked || changes.some(path => !allowed.has(path) || !fs.existsSync(path))) {
+              throw new Error('Migration changed files outside the dependency sync scope');
+            }
+            let sha = pr.head.sha;
+            if (changes.length) {
+              const result = await github.graphql(`mutation($input: CreateCommitOnBranchInput!) {
+                createCommitOnBranch(input: $input) { commit { oid signature { isValid wasSignedByGitHub } } }
+              }`, {input: {
+                branch: {repositoryNameWithOwner: `${owner}/${repo}`, branchName: pr.head.ref},
+                expectedHeadOid: pr.head.sha,
+                message: {headline: 'chore: Vite+関連依存を自動同期', body: `Vite-Plus-Sync-Run: ${context.runId}`},
+                fileChanges: {additions: changes.map(path => ({path, contents: fs.readFileSync(path).toString('base64')}))}
+              }});
+              const commit = result.createCommitOnBranch.commit;
+              if (!commit.signature?.isValid || !commit.signature.wasSignedByGitHub) {
+                throw new Error('Sync commit must be signed and verified by GitHub');
+              }
+              sha = commit.oid;
+            }
+            for (const [workflow_id, statusContext] of [
+              ['frontend_ci.yaml', 'vite-plus/frontend-ci'],
+              ['aidd_checker_ci.yaml', 'vite-plus/aidd-checker-ci']
+            ]) {
+              await github.rest.repos.createCommitStatus({owner, repo, sha, state: 'pending', context: statusContext,
+                description: 'Vite+同期後のCIを実行中', target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`});
+              await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id, ref: 'main',
+                inputs: {pr_number: String(pr.number), expected_head: sha, sync_run_id: String(context.runId)}});
+            }
+            await core.summary.addHeading('Vite+ dependency sync').addRaw(`Validated CI target: ${sha}`).write();

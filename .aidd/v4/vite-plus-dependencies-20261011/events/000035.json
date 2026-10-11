@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000035.json",
+  "kind": "design",
+  "source": "user-message:approved-audit-issue-tracking-and-ci-tests; https://github.com/kosnu/savings/issues/1916; https://github.com/kosnu/savings/pull/1911",
+  "paths": [
+    ".github/workflows/aidd_checker_ci.yaml"
+  ],
+  "fingerprint": "39425d012fbf2d79a260a6a71e10e13f5c8a5c1a6b398677d1ece885bb296204",
+  "status": "pass",
+  "checks": [
+    "承認2件・Issue追跡とAIDD CI接続",
+    "candidate/integrationはread権限・Node cache保存なし",
+    "新App/Secret/PRトリガーを追加しない"
+  ],
+  "summary": "同期テストを既存AIDD candidate/integrationへ接続する。導入PRのCI未実行はIssue #1916で確認条件と証跡を追跡し、マージだけで閉じない。侵害リスクの分離と旧履歴削除は行わない。",
+  "remaining": []
+}

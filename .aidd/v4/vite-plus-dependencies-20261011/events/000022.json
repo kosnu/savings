@@ -1,0 +1,217 @@
+{
+  "sequence": 22,
+  "kind": "verify",
+  "time": "2026-10-11T05:49:11.486047Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "802e6b596a22fe5cfff4263f52ff758bcb9221078d6b41854c5f4e5c7ef607a0",
+  "revision": 8,
+  "fingerprint": "993c4030aa759d48d09236b9e66cf21f5e26d9306bf93376042e7a75b22383a1",
+  "data": {
+    "results": [
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:lint"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web lint --deny-warnings\n$ vp lint . --deny-warnings\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:format-check"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web format --check\n$ vp fmt . --check\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 612ms on 582 files using 8 threads.\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:typecheck"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web typecheck\n$ tsc -b\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:unit-integration"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:unit-integration --reporter=dot --silent\n$ vp test run --project unit --project integration --reporter=dot --silent\n(node:62890) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n\n·················································································································································································································································································································································································································································································································································································································································································································································································································\n\n Test Files  142 passed (142)\n      Tests  785 passed (785)\n   Start at  14:46:08\n   Duration  103.49s (setup 63%, tests 15%, import 11%, environment 9%, transform 2%)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:test:storybook"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web test:storybook --reporter=dot --silent\n$ vp test run --project storybook --reporter=dot --silent\n(node:63361) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n\n····················\n\n Test Files  7 passed (7)\n      Tests  20 passed (20)\n   Start at  14:47:53\n   Duration  8.49s (setup 55%, import 25%, tests 18%, worker 2%)\n\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "run",
+          "web:build"
+        ],
+        "exit": 0,
+        "output": "$ pnpm --filter web build\n$ tsc -b \u0026\u0026 vp build\ntransforming...\n\n[@tanstack/devtools-vite] Removed devtools code from: /src/app/index.tsx\n\n✓ 2127 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.cloudflare/output/v0/workers/default/assets/index.html                             0.99 kB │ gzip:   0.43 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-DUziLyP4.css              0.27 kB │ gzip:   0.20 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-Chw94eNX.css             7.96 kB │ gzip:   1.63 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-DlnKZWWw.css               14.95 kB │ gzip:   4.36 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-CW-zCINU.css     683.47 kB │ gzip:  81.95 kB\n.cloudflare/output/v0/workers/default/assets/assets/rolldown-runtime-hePW80VL.js    0.71 kB │ gzip:   0.42 kB\n.cloudflare/output/v0/workers/default/assets/assets/index-Ch8a9_A3.js               4.97 kB │ gzip:   2.33 kB\n.cloudflare/output/v0/workers/default/assets/assets/app-Dw-SRP9E.js               149.81 kB │ gzip:  37.96 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-radix-BQ-0x0pl.js      159.20 kB │ gzip:  44.37 kB\n.cloudflare/output/v0/workers/default/assets/assets/vendor-CcqsdSv1.js            942.75 kB │ gzip: 278.87 kB\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 589ms\n"
+      },
+      {
+        "argv": [
+          "pnpm",
+          "--filter",
+          "web",
+          "exec",
+          "vp",
+          "test",
+          "run",
+          "--project",
+          "unit",
+          "src/domain/amount.test.ts",
+          "--coverage",
+          "--coverage.reportsDirectory=/tmp/vp-deps-coverage",
+          "--reporter=dot"
+        ],
+        "exit": 0,
+        "output": "note: You are running `vp test` as a Vite+ built-in command. If you meant to run the test npm script, use `vpr test` instead.\n(node:63656) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nPlugin \"vitest:mocks:interceptor\" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.\n\n RUN  v5.0.1 /Users/kosnu/.codex/worktrees/7c6a/savings/apps/web\n      Coverage enabled with v8\n\n············\n\n Test Files  1 passed (1)\n      Tests  12 passed (12)\n   Start at  14:48:08\n   Duration  1.28s (setup 95%, import 2%, transform 1%, worker 1%)\n\n % Coverage report from v8\n-----------|---------|----------|---------|---------|-------------------\nFile       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s \n-----------|---------|----------|---------|---------|-------------------\nAll files  |   91.66 |    84.21 |     100 |   94.73 |                   \n amount.ts |   91.66 |    84.21 |     100 |   94.73 | 16                \n-----------|---------|----------|---------|---------|-------------------\n\n=============================== Coverage summary ===============================\nStatements   : 91.66% ( 22/24 )\nBranches     : 84.21% ( 16/19 )\nFunctions    : 100% ( 3/3 )\nLines        : 94.73% ( 18/19 )\n================================================================================\n"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "node",
+          "/tmp/check-vp-sync.mjs"
+        ],
+        "exit": 0,
+        "output": "Renovate Vite+ update -\u003e sync only passed\nsame Vite+ version -\u003e CI passed\nordinary PR -\u003e trusted CI passed\nfork PR -\u003e trusted CI passed\nsource-changing PR -\u003e CI passed\ndocumentation PR -\u003e AIDD only passed\nnon-Renovate sender -\u003e CI without sync passed\nstale head -\u003e reject passed\nsigned Renovate candidate passed\nstale candidate passed\nsource candidate passed\nunsigned candidate passed\nhuman candidate passed\nfork synchronization passed\nwrong dispatched SHA passed\nwrong dispatched ref passed\nwrong base passed\nsigned commit and updated-SHA dispatch passed\nno diff and unchanged-SHA dispatch passed\noutside source diff passed\nuntracked changes passed\nunverified signature passed\nconcurrent head conflict passed\nhead changed during migration passed\n24 cases passed\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/check-ci-auth.py"
+        ],
+        "exit": 0,
+        "output": "Renovate only passed\nauthenticated sync passed\ncompleted sync passed\noutside dependency files passed\nwrong workflow passed\nwrong run parent passed\nwrong parent passed\nunsigned bot passed\nstale current head passed\nwrong actor ID passed\nold event rejected passed\noriginal Renovate workflow update passed\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/check-ci-status.py"
+        ],
+        "exit": 0,
+        "output": "frontend_ci.yaml success passed\nfrontend_ci.yaml failed job passed\nfrontend_ci.yaml failed context passed\nfrontend_ci.yaml context SHA mismatch passed\naidd_checker_ci.yaml success passed\naidd_checker_ci.yaml failed job passed\naidd_checker_ci.yaml failed context passed\naidd_checker_ci.yaml context SHA mismatch passed\n"
+      },
+      {
+        "argv": [
+          "zizmor",
+          ".github/workflows/vite_plus_sync.yaml",
+          ".github/workflows/frontend_ci.yaml",
+          ".github/workflows/aidd_checker_ci.yaml"
+        ],
+        "exit": 0,
+        "output": " WARN zizmor: zizmor is running in offline mode by default; some audits and auto-fixes will not be available. see https://docs.zizmor.sh/usage/#operating-modes for details\nNo findings to report. Good job! (1 ignored, 20 suppressed)\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "docs/harness/scripts/validate_accepted_adrs.py",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "origin/main"
+        ],
+        "exit": 0,
+        "output": "accepted ADR validation: passed: base=4d089eb52ddba1e3db8e4f40cfeaef273d84be2b checked=9\n"
+      },
+      {
+        "argv": [
+          "/tmp/vp-sync-tools/actionlint",
+          ".github/workflows/vite_plus_sync.yaml",
+          ".github/workflows/frontend_ci.yaml",
+          ".github/workflows/aidd_checker_ci.yaml"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/check-ci-context.py"
+        ],
+        "exit": 0,
+        "output": "frontend_ci.yaml same repo passed\nfrontend_ci.yaml fork passed\nfrontend_ci.yaml stale SHA passed\nfrontend_ci.yaml closed passed\nfrontend_ci.yaml different base passed\nfrontend_ci.yaml untrusted workflow ref passed\naidd_checker_ci.yaml same repo passed\naidd_checker_ci.yaml fork passed\naidd_checker_ci.yaml stale SHA passed\naidd_checker_ci.yaml closed passed\naidd_checker_ci.yaml different base passed\naidd_checker_ci.yaml untrusted workflow ref passed\n"
+      },
+      {
+        "argv": [
+          "python3",
+          "/tmp/check-vp-events.py"
+        ],
+        "exit": 0,
+        "output": "event routing, metadata-only entry, token isolation, fork checkout, no shared-cache writes and no matching PR synchronize workflows passed\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/checker/cmd/aidd-checker\t0.588s\nok  \tgithub.com/kosnu/savings/tools/aidd/checker/internal/core\t56.446s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/checker",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "test",
+          "-count=1",
+          "./..."
+        ],
+        "exit": 0,
+        "output": "ok  \tgithub.com/kosnu/savings/tools/aidd/session-metrics\t0.618s\n"
+      },
+      {
+        "argv": [
+          "go",
+          "-C",
+          "tools/aidd/session-metrics",
+          "vet",
+          "./..."
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "stable": true
+  },
+  "hash": "51434f1dbbadd63715f67831d55f53cd8db9886cdd8c3825643f5f6d813c8245",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0003"
+}

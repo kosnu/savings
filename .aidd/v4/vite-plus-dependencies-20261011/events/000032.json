@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000031.json",
+  "kind": "verify",
+  "source": "user-message:01a126d1-approve-reaudit-bot-and-readability; https://github.com/kosnu/savings/pull/1911#pullrequestreview-5482373942",
+  "paths": [
+    ".github/workflows/vite_plus_sync.yaml",
+    "tools/vite-plus-sync/"
+  ],
+  "fingerprint": "5573d3978cd137638eb007ff290a1a2bcf6284e834f2aab2dda9c473eb4980e3",
+  "status": "pass",
+  "checks": [
+    "同期script/再受付regression15件",
+    "同期workflow39ケース・CI context/status20ケース",
+    "実Vite+1.0.0→1.1.0・Vitest系5.0.3一致・再実行差分ゼロ",
+    "ソース/API/公開待機例外の保持",
+    "tools lint/format・actionlint/zizmor・現行Core差分検査"
+  ],
+  "summary": "対象検証が成功。Node移行時の同期前requireキャッシュを修正し、同期後に依存を解決。アプリsource/依存/ビルド設定は変更せず既存Web検証対象を維持。GitHub E2Eは未確認。",
+  "remaining": []
+}
