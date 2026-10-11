@@ -132,7 +132,8 @@ Taskの有無によるgateと、記録だけを理由にした自動依存更新
 
 工程ごとの計測記録は通常開発で要求しない。明示依頼による計測やRetrospectiveに既存session-metricsを利用できるが、
 新たな操作履歴の義務やShip条件にはせず、コマンド生出力は保存しない。
-任意計測は旧Task/eventがなくても実行でき、cycleは空値となる。旧記録がある場合だけ既存cycleの読み取りを維持する。
+任意計測はTask記録がなくても、新しい工程結果（`aidd-phase-result-v1`）があっても実行でき、計測のcycleは空値となる。
+最新のJSONが旧eventの場合だけ既存の`cycle_id`を読み取る。旧eventと新工程結果が混在していても、最新のJSONが新工程結果なら空値とし、過去の旧cycleへ紐付けない。工程結果のcycleを旧計測cycleへ変換せず、記録や工程を追加しない。
 
 再開・Auditの権限判断は[Codex adapter](codex-adapter.md#再開)と[Workflow](workflow.md)から確認する。
 

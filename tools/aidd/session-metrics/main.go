@@ -138,7 +138,7 @@ func currentCycle(root, task string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// 任意の計測は旧Task記録がなくても実行できる。既存のcycleだけ読み取りを維持する。
+	// 任意の計測は旧Task記録がなくても実行できる。
 	if len(files) == 0 {
 		return "", nil
 	}
@@ -148,10 +148,15 @@ func currentCycle(root, task string) (string, error) {
 		return "", err
 	}
 	var event struct {
+		Format  string `json:"format"`
 		CycleID string `json:"cycle_id"`
 	}
 	if err := json.Unmarshal(data, &event); err != nil {
 		return "", err
+	}
+	// 新工程記録のcycleは旧計測cycleへ変換せず、旧形式だけ読み取りを維持する。
+	if event.Format == "aidd-phase-result-v1" {
+		return "", nil
 	}
 	if !strings.HasPrefix(event.CycleID, task+"/cycle-") {
 		return "", fmt.Errorf("Task %s のサイクルIDを取得できません", task)

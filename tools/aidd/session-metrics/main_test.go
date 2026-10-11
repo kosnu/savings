@@ -444,20 +444,56 @@ func TestLegacyCombinedStageCanFinishWithoutInventingBreakdown(t *testing.T) {
 	}
 }
 
-func TestOptionalMetricsWithoutTaskRecords(t *testing.T) {
-	f := newFixture(t)
-	if err := os.RemoveAll(filepath.Join(f.root, ".aidd")); err != nil {
-		t.Fatal(err)
-	}
-	f.reading(100, "boot-a")
-	f.reading(103, "boot-a")
-	mustRun(t, f, "start", "--session", "one", "--task", "issue-1903", "--stage", "検証")
-	mustRun(t, f, "finish", "--session", "one", "--task", "issue-1903")
-	result := reportResult(t, f)
-	if len(result.Records) != 1 || result.Records[0].Cycle != "" || result.Records[0].Task != "issue-1903" {
-		t.Fatalf("optional measurement: %+v", result)
-	}
-	if _, err := os.Stat(filepath.Join(f.root, ".aidd")); !os.IsNotExist(err) {
-		t.Fatal("measurement created Task records", err)
+func TestOptionalMetricsWithRecordFormats(t *testing.T) {
+	const legacy = `{"cycle_id":"issue-1903/cycle-0001"}`
+	const phase = `{"format":"aidd-phase-result-v1","cycle":"000001.json","kind":"design"}`
+	for _, item := range []struct {
+		name    string
+		records []string
+		cycle   string
+	}{
+		{"without-records", nil, ""},
+		{"legacy", []string{legacy}, "issue-1903/cycle-0001"},
+		{"phase", []string{phase}, ""},
+		{"mixed", []string{legacy, `{"format":"aidd-phase-result-v1","cycle":"000002.json","kind":"design"}`}, ""},
+	} {
+		t.Run(item.name, func(t *testing.T) {
+			f := newFixture(t)
+			if err := os.RemoveAll(filepath.Join(f.root, ".aidd")); err != nil {
+				t.Fatal(err)
+			}
+			dir := filepath.Join(f.root, ".aidd", "v4", "issue-1903", "events")
+			for index, record := range item.records {
+				if err := os.MkdirAll(dir, 0755); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.WriteFile(filepath.Join(dir, fmt.Sprintf("%06d.json", index+1)), []byte(record), 0644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			f.reading(100, "boot-a")
+			f.reading(103, "boot-a")
+			mustRun(t, f, "start", "--session", "one", "--task", "issue-1903", "--stage", "検証")
+			mustRun(t, f, "finish", "--session", "one", "--task", "issue-1903")
+			result := reportResult(t, f)
+			if len(result.Records) != 1 || result.Records[0].Cycle != item.cycle || result.Records[0].Task != "issue-1903" || result.Records[0].DurationSeconds == nil || *result.Records[0].DurationSeconds != 3 {
+				t.Fatalf("optional measurement: %+v", result)
+			}
+			files, err := filepath.Glob(filepath.Join(dir, "*.json"))
+			if err != nil || len(files) != len(item.records) {
+				t.Fatal("measurement changed Task records", files, err)
+			}
+			for index, record := range item.records {
+				data, err := os.ReadFile(files[index])
+				if err != nil || string(data) != record {
+					t.Fatal("measurement changed Task record", string(data), err)
+				}
+			}
+			if len(item.records) == 0 {
+				if _, err := os.Stat(filepath.Join(f.root, ".aidd")); !os.IsNotExist(err) {
+					t.Fatal("measurement created Task records", err)
+				}
+			}
+		})
 	}
 }

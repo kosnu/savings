@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/session-metrics/main.go",
+    "tools/aidd/session-metrics/main_test.go",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/change-coverage.md"
+  ],
+  "fingerprint": "1cfdbc91e028fb494abe0ef93fa766ee1b85d5218099333f8d6f06b5398aa0d1",
+  "status": "pass",
+  "checks": [
+    "元Intentと承認済み5対象を照合",
+    "改善済みルールを再読し生成側と利用側を特定",
+    "旧記録維持・新形式空cycle・計測実経路テストを採用"
+  ],
+  "summary": "同じTaskで次cycleへ進む。生成側Coreの新工程結果を利用側currentCycleで識別し、任意計測は空cycle、旧形式は既存cycleを維持。既存形式と工程は変えず承認範囲で修正する。",
+  "remaining": []
+}
