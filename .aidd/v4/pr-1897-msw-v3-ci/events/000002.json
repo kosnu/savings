@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1897",
+  "paths": [
+    "apps/web/.storybook/preview.tsx",
+    "apps/web/vitest.msw.setup.ts",
+    "apps/web/public/mockServiceWorker.js",
+    "apps/web/src/features/payments/createPayment/FrequentPaymentSuggestions/FrequentPaymentSuggestions.test.tsx"
+  ],
+  "fingerprint": "fc92e20bd8a409e583b259a4816f11d90c0fcf225309ad8af7952be897836c07",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 785件",
+    "web:test:storybook 20件（既存Chromium指定）",
+    "Go vet",
+    "git diff --check",
+    "公式MSW worker一致"
+  ],
+  "summary": "mise指定のGo 1.27.2・Node 26.10.0・pnpm 12.9.0で成功。ブラウザ配布CDNが拒否されるため一時設定で既存Chromiumを指定し、同じStorybook suiteを実行。リポジトリのブラウザ設定は変更しない。",
+  "remaining": []
+}

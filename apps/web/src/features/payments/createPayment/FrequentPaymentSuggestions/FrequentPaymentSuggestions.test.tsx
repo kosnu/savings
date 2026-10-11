@@ -157,9 +157,26 @@ describe("FrequentPaymentSuggestions", () => {
   })
 
   test("取得中のStoryでは関連UIを表示しない", async () => {
+    let resolveResponse!: (response: Response) => void
+    const response = new Promise<Response>((resolve) => {
+      resolveResponse = resolve
+    })
+    const getPayments = vi.fn(async () => response)
+    server.resetHandlers(...createBookHandlers(), http.get("*/rest/v1/payments*", getPayments))
+
     await renderStory(<Loading />)
 
+    await waitFor(() => {
+      expect(getPayments).toHaveBeenCalledTimes(1)
+    })
     expect(screen.queryByText("Frequent payments")).not.toBeInTheDocument()
+
+    resolveResponse(HttpResponse.json(toFrequentPaymentResponseRows(candidateRows)))
+    expect(
+      await screen.findByRole("button", {
+        name: /use frequent payment: note lunch, amount ¥1,200, category food/i,
+      }),
+    ).toBeInTheDocument()
   })
 
   test("取得失敗時は関連UIを表示しない", async () => {

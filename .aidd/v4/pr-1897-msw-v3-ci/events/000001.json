@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1897",
+  "paths": [
+    "apps/web/.storybook/preview.tsx",
+    "apps/web/vitest.msw.setup.ts",
+    "apps/web/public/mockServiceWorker.js",
+    "apps/web/src/features/payments/createPayment/FrequentPaymentSuggestions/FrequentPaymentSuggestions.test.tsx"
+  ],
+  "fingerprint": "fc92e20bd8a409e583b259a4816f11d90c0fcf225309ad8af7952be897836c07",
+  "status": "pass",
+  "checks": [
+    "MSW v3オプション互換性",
+    "テスト間のリクエスト漏出",
+    "worker生成物の同期"
+  ],
+  "summary": "v3のオプション名へ移行し、取得中テストは通信開始・未表示・応答完了を観測して終了する。workerは導入済み3.0.2の公式生成物と一致。ユーザーの修正依頼に基づき既存PRへ反映する。",
+  "remaining": []
+}
