@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000031.json",
+  "kind": "design",
+  "source": "user-message:01a126d1-approve-reaudit-bot-and-readability; https://github.com/kosnu/savings/pull/1911#pullrequestreview-5482373942",
+  "paths": [
+    ".github/workflows/vite_plus_sync.yaml",
+    "tools/vite-plus-sync/"
+  ],
+  "fingerprint": "9c3c9c168b8d6928f01ae37c987761fd7dab2e666f3d6ab2229ef0e8b3277702",
+  "status": "pass",
+  "checks": [
+    "承認2件と対象範囲",
+    "同期Botの署名・親SHA・起点run・4files制約",
+    "Python/Shell同期処理を単一Node scriptへ統合"
+  ],
+  "summary": "初回と再受付で同じ検証・同期経路を維持。自分の署名付き同期追記だけ起点runを照合して受理。版比較とmanifest-only migrate・整合検査を単一mjsへ整理。pending終了処理は追加しない。",
+  "remaining": []
+}
