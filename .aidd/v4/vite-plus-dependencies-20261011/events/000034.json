@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000031.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1911; user-message:Audit-after-1219bea0",
+  "paths": [
+    ".github/workflows/",
+    "tools/vite-plus-sync/",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "5573d3978cd137638eb007ff290a1a2bcf6284e834f2aab2dda9c473eb4980e3",
+  "status": "unknown",
+  "checks": [
+    "head 1219bea0、main 840135b5、MERGEABLE/CLEAN、zizmor成功",
+    "新規4thread・人thread返信済み・旧Bot解決状態を確認",
+    "main dispatcher不在・PR入口削除・同期test未接続を確認",
+    "旧履歴保持契約・特権境界・依存closureを照合",
+    "Node回帰15件成功"
+  ],
+  "summary": "修正提案2件: 導入PRのCI入口と同期test接続。依存侵害が前提の権限奪取は今回見送り、旧記録は保持契約により削除不要。返信・Bot解決は承認後。人thread維持。競合なし。Coverage: code-review、git-workflow、learning-extraction、review-feedback-classification、transaction-boundaries、AIDD契約と依存closure。",
+  "remaining": [
+    "r4240770429/PRRT_kwDOM0p88s6rLjyF: workflow/tools変更だけのPR検証入口をFrontend/AIDDへ追加し正本同期。依存4files同期の非起動と実CI確認後に返信・解決提案。",
+    "r4240770434/PRRT_kwDOM0p88s6rLjyI: AIDD candidate/integrationに同期Node testを接続。失敗時status確認後に返信・解決提案。",
+    "r4240770425/PRRT_kwDOM0p88s6rLjyC: 侵害前提の条件付きリスク、変更見送りの理由返信・解決提案。署名はnpm安全性の証明ではない。",
+    "r4240770432/PRRT_kwDOM0p88s6rLjyG: 旧記録保持契約と生成時系列を理由返信・解決提案。",
+    "GitHubの自動同期E2Eはmain反映後に未確認。"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000035.json",
+  "kind": "verify",
+  "source": "user-message:approved-audit-issue-tracking-and-ci-tests; https://github.com/kosnu/savings/issues/1916; https://github.com/kosnu/savings/pull/1911",
+  "paths": [
+    ".github/workflows/aidd_checker_ci.yaml"
+  ],
+  "fingerprint": "39425d012fbf2d79a260a6a71e10e13f5c8a5c1a6b398677d1ece885bb296204",
+  "status": "pass",
+  "checks": [
+    "同期Node test 15件",
+    "candidate/integration接続と署名検査を壊した場合の非0終了",
+    "CI context12/status8ケース・イベント経路",
+    "actionlint/zizmor/Core check-changes/diff-check",
+    "Issue #1916本文とOPEN状態のread-back"
+  ],
+  "summary": "既存2jobで同期testを実行し、失敗がverifyとstatus投稿へ伝播する。署名検査を無効化した反例でtestの非0終了を確認。新PRトリガー・権限拡大・cache保存なし。GitHub上の実動はIssue #1916でmain反映後に追跡。",
+  "remaining": []
+}

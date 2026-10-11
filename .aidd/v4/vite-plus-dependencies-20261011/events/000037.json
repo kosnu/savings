@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000035.json",
+  "kind": "review",
+  "source": "user-message:approved-audit-issue-tracking-and-ci-tests; https://github.com/kosnu/savings/issues/1916; https://github.com/kosnu/savings/pull/1911",
+  "paths": [
+    ".github/workflows/aidd_checker_ci.yaml"
+  ],
+  "fingerprint": "39425d012fbf2d79a260a6a71e10e13f5c8a5c1a6b398677d1ece885bb296204",
+  "status": "pass",
+  "checks": [
+    "Coverage: code-review/git-workflow/review-feedback-classification/learning-extraction/transaction-boundaries、AIDD契約と依存closure",
+    "承認2件とworkflow11行の差分・Issue追跡条件",
+    "read権限とcache無効、同一Node版でcandidate/integration検証",
+    "4Bot指摘への採用/見送り理由と人thread維持"
+  ],
+  "summary": "承認されたCI接続とIssue追跡だけを変更。通常操作の検証を追加し、依存侵害のjob分離と旧記録削除は行わない。導入PRのGitHub検証不足とmain反映後の確認を区別し、未確認はIssue OPENで保持。未解決規約競合なし。",
+  "remaining": []
+}
