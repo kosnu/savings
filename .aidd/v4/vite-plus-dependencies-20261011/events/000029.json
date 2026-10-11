@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000027.json",
+  "kind": "review",
+  "source": "user-message:01a126d1-reachability-direction-approval; https://github.com/kosnu/savings/pull/1911",
+  "paths": [
+    ".github/workflows/vite_plus_sync.yaml",
+    ".github/workflows/aidd_checker_ci.yaml",
+    "docs/ai-driven-development/aidd-checker.md",
+    "pnpm-lock.yaml"
+  ],
+  "fingerprint": "9c3c9c168b8d6928f01ae37c987761fd7dab2e666f3d6ab2229ef0e8b3277702",
+  "status": "pass",
+  "checks": [
+    "Coverage: rule-map path/surfaceと依存closure全件、未解決規約競合なし",
+    "承認2項目とmain merge解消・元のIntentの照合",
+    "人操作の未同期候補→同期、署名/path/expectedSHA拒否の確認",
+    "main検査とPR dispatch/token/cache分離の両立",
+    "旧Task履歴を維持・現行Coreから除外条件を除去"
+  ],
+  "summary": "承認範囲の修正を確認。sender条件除去とmain競合解消に限定し、署名検証と依存4files境界は維持。pending終了処理見送り。GitHub E2Eと実CI結果は未確認。",
+  "remaining": []
+}

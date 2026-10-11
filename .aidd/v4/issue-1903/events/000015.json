@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/checker/internal/core/git.go",
+    "tools/aidd/checker/internal/core/check_test.go",
+    "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "a156b515a3f75d5242197924803b899ecce022d6d83532140a52847cdb919842",
+  "status": "pass",
+  "checks": [
+    "Coverage: 適用13規約と依存closure、未解決矛盾なし",
+    "Intent: 通常の検証維持・有限scope・承認6対象に一致 pass",
+    "記録作成の間接影響→差分判定を実操作順で確認 pass",
+    "所定の記録追加/更新だけ許可・削除/他path拒否 pass",
+    "実行中の全内容/mode照合とShip照合を維持 pass",
+    "同cycle更新・前cycle保持・生出力/Ship記録なし pass",
+    "仕様/操作/汎用レビュー規則の正本と既存選択経路を同期 pass"
+  ],
+  "summary": "承認6対象の実差分に新たな指摘なし。工程記録とVerifyの接続をCore/CLIと実binaryで確認し、状態を介する間接影響を汎用レビュー基準へ追加。新規索引は不要で既存path/surfaceと依存closureから正本へ到達する。前サイクルと旧履歴は変更しない。",
+  "remaining": []
+}

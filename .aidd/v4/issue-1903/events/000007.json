@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/session-metrics/main.go",
+    "tools/aidd/session-metrics/main_test.go",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/change-coverage.md"
+  ],
+  "fingerprint": "1cfdbc91e028fb494abe0ef93fa766ee1b85d5218099333f8d6f06b5398aa0d1",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "Core生成→currentCycle→start/finish/reportの実経路",
+    "既存形式・記録なし・混在、記録不変の回帰検証",
+    "形式/契約変更と説明例編集の適用境界"
+  ],
+  "summary": "元Intentと承認済み5対象を照合し全条件pass。局所修正と旧互換性、生成/利用側を確認する基準とchange-coverage参照を実差分で確認。既存索引はchange-coverageを選択し全reviewでcode-reviewを読むため追加変更不要。前cycleを保持し、生出力・Ship記録・新工程は追加しない。Unresolvedなし。",
+  "remaining": []
+}

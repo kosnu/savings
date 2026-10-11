@@ -44,7 +44,7 @@ jobs:
             const files = await github.paginate(github.rest.pulls.listFiles, {owner, repo, pull_number: pr.number});
             const allowed = new Set(['package.json', 'apps/web/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml']);
             const renovate = pr.user.id === 29139614 && pr.user.login === 'renovate[bot]' &&
-              context.payload.sender.id === 29139614 && pr.head.repo.full_name === `${owner}/${repo}`;
+              pr.head.repo.full_name === `${owner}/${repo}`;
             let synchronize = false;
             if (renovate && files.length && files.every(file => allowed.has(file.filename) && file.status === 'modified')) {
               const version = async ref => {

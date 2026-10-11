@@ -7,12 +7,15 @@ import (
 	"strings"
 )
 
-func (s *Store) mandatoryCommands(paths []string) [][]string {
+func (s *Checker) mandatoryCommands(paths []string) [][]string {
 	out := [][]string{{"git", "diff", "--check"}}
-	goCode, web, story := false, false, false
+	goCode, metrics, web, story := false, false, false, false
 	for _, p := range paths {
 		if strings.HasPrefix(p, "tools/aidd/checker/") {
 			goCode = true
+		}
+		if strings.HasPrefix(p, "tools/aidd/session-metrics/") {
+			metrics = true
 		}
 		appRuntime := strings.HasPrefix(p, "apps/web/") && !strings.HasPrefix(p, "apps/web/docs/") && !strings.HasSuffix(p, ".md")
 		if appRuntime || p == "package.json" || p == "pnpm-lock.yaml" || p == "pnpm-workspace.yaml" || p == "vite.config.ts" || strings.HasPrefix(p, "tsconfig") {
@@ -23,7 +26,7 @@ func (s *Store) mandatoryCommands(paths []string) [][]string {
 		}
 		if appRuntime && (strings.Contains(p, ".stories.") || strings.Contains(p, "storybook")) {
 			now, _ := os.ReadFile(filepath.Join(s.Root, p))
-			before, _ := git(s.Root, "show", s.Task.Baseline+":"+p)
+			before, _ := git(s.Root, "show", s.Base+":"+p)
 			if strings.Contains(string(now), "browser-test") || strings.Contains(string(before), "browser-test") {
 				story = true
 			}
@@ -31,6 +34,9 @@ func (s *Store) mandatoryCommands(paths []string) [][]string {
 	}
 	if goCode {
 		out = append(out, []string{"go", "-C", "tools/aidd/checker", "test", "./..."}, []string{"go", "-C", "tools/aidd/checker", "vet", "./..."})
+	}
+	if metrics {
+		out = append(out, []string{"go", "-C", "tools/aidd/session-metrics", "test", "./..."}, []string{"go", "-C", "tools/aidd/session-metrics", "vet", "./..."})
 	}
 	if web {
 		for _, name := range []string{"web:lint", "web:format-check", "web:typecheck", "web:test:unit-integration"} {
@@ -42,7 +48,7 @@ func (s *Store) mandatoryCommands(paths []string) [][]string {
 	}
 	return out
 }
-func (s *Store) requireCommands(paths []string, d Decision) error {
+func (s *Checker) requireCommands(paths []string, d VerificationPlan) error {
 	for _, want := range s.mandatoryCommands(paths) {
 		found := false
 		for _, got := range d.Commands {

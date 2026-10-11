@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1905#discussion_r4238602178",
+  "paths": [
+    "tools/aidd/session-metrics/",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/change-coverage.md"
+  ],
+  "fingerprint": "ba7c7bba17361621dab8afc22d01f1e672383b7e1f2c4728abb4fec33eb2af70",
+  "status": "fail",
+  "checks": [
+    "計測CLIの新形式読込不具合は前回再現済み",
+    "既存ルールの呼出経路・同期先・境界確認を照合",
+    "生成側と利用側の特定、新形式の実経路確認へ既存ルールを具体化"
+  ],
+  "summary": "P2計測CLI不具合1件。局所対策: main.goで新形式を空cycleとして扱い旧形式を維持、main_test.goに記録なし・新・旧・混在のstart/finish、操作文書同期。根本対策: code-review.mdで形式/契約変更時の生成側・利用側特定、新形式の利用経路と維持する旧形式の互換確認を明記。change-coverage.mdから当該基準を参照し同期対象の選定へ接続。新規ルールファイル・工程・記録方式は追加しない。修正・検証・Ship後に対象threadへ理由返信し、完了条件を満たせば解決。全提案未承認。",
+  "remaining": [
+    "PRRT_kwDOM0p88s6rGUyf: 修正・既存ルール具体化・返信解決の承認待ち"
+  ]
+}

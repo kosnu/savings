@@ -7,7 +7,7 @@ description: Analyze development-process improvements on explicit Retrospective 
 
 Apply [Retrospective policy](../../../docs/harness/policies/retrospective.md).
 Confirm the requested PR or Issue has been merged or closed and identify the associated Task.
-Use actual Task, review, verification, conversation, and tool records to analyze how the work proceeded.
+Use available Issue/PR history, decision and verification/review summaries, and conversation context to analyze how the work proceeded. Do not require or generate operation histories, snapshots, or saved command stdout/stderr.
 Report evidence, impact, causes or uncertainty, concrete proposals, finite targets, and validation.
 Preserve resolved findings and historical records. Do not apply proposals or reopen the normal cycle.
 Finish with the analysis result, including why no improvement is needed when applicable.

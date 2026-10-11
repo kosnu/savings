@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/session-metrics/main.go",
+    "tools/aidd/session-metrics/main_test.go",
+    "tools/aidd/checker/internal/core/record_test.go",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "39391d3da035093af941a16258f7ca20aae1780d672e196b4e37fec60a6bba6b",
+  "status": "pass",
+  "checks": [
+    "Checked rules: ai-driven.change-coverage",
+    "Checked rules: ai-driven.checker",
+    "Checked rules: ai-driven.glossary",
+    "Checked rules: ai-driven.issue-guidelines",
+    "Checked rules: ai-driven.overview",
+    "Checked rules: ai-driven.workflow",
+    "Checked rules: documentation.policy",
+    "Checked rules: policy.code-review",
+    "Checked rules: policy.git-workflow",
+    "Checked rules: policy.issue-template-selection",
+    "Checked rules: policy.learning-extraction",
+    "Checked rules: policy.retrospective",
+    "Checked rules: policy.review-feedback-classification",
+    "Unresolved: なし",
+    "承認対象6ファイル・元Intentとの整合: pass",
+    "共通入力の実経路・境界値・旧新形式の回帰: pass",
+    "追加記録・工程変更・未承認の差分なし: pass"
+  ],
+  "summary": "期待する共通入力の受理・拒否は19ケースで一致し、拒否時の無書込みと受理時の名前保持・工程結果不変を確認した。仕様の正本と参照、文字種・長さ・必須／任意のレビュー条件が同期している。実変更は承認済み6対象に限定し、過去cycleと既存工程・記録方式を維持。未解決指摘・規則矛盾なし。",
+  "remaining": []
+}

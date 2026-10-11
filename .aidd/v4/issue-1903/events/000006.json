@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/session-metrics/main.go",
+    "tools/aidd/session-metrics/main_test.go",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/change-coverage.md"
+  ],
+  "fingerprint": "1cfdbc91e028fb494abe0ef93fa766ee1b85d5218099333f8d6f06b5398aa0d1",
+  "status": "pass",
+  "checks": [
+    "計測CLI Go test/vet",
+    "Core Go test",
+    "実Core工程記録で計測CLI start/finish/report成功",
+    "文書整形・差分・規約graph/選択成功"
+  ],
+  "summary": "4種類の記録状態で開始・終了とTask記録の不変を確認。実際の新工程結果を読むCLIも成功し、空cycleで報告された。生出力は保存せず、計測テストの一時データは削除した。",
+  "remaining": []
+}

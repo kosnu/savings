@@ -1,0 +1,19 @@
+{
+  "sequence": 25,
+  "kind": "approve",
+  "time": "2026-10-11T06:50:01.828115Z",
+  "task_hash": "9787382e56ade4740380c6f45811a0ff14029d9ac2fa67bfca79ca0fca3a7b09",
+  "previous": "a0f2680afa53aae195b83f4f55cffce02a3c934054e42a4a328992aaef2a69c9",
+  "revision": 8,
+  "fingerprint": "993c4030aa759d48d09236b9e66cf21f5e26d9306bf93376042e7a75b22383a1",
+  "data": {
+    "audit_hash": "a0f2680afa53aae195b83f4f55cffce02a3c934054e42a4a328992aaef2a69c9",
+    "source": "user-message:01a126d1-reachability-direction-approval",
+    "proposal_ids": [
+      "REACHABLE"
+    ],
+    "text_hash": "a52b5f290fd967b0199a95e7860fbef5eddd709bf86e743f55a3f5241bb7f667"
+  },
+  "hash": "16e7f093280aeea93eb210b680bce079fc67b16737892078e97add94d5f230e6",
+  "cycle_id": "vite-plus-dependencies-20261011/cycle-0003"
+}

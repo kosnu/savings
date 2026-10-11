@@ -80,7 +80,7 @@ jobs:
         run: go -C tools/aidd/checker vet ./...
       - name: Vet session metrics
         run: go -C tools/aidd/session-metrics vet ./...
-      - name: Test Core boundaries and lifecycle
+      - name: Test Core checks
         run: go -C tools/aidd/checker test -count=1 ./...
       - name: Test session metrics
         run: go -C tools/aidd/session-metrics test -count=1 ./...
@@ -102,78 +102,9 @@ jobs:
         env:
           BASE_BRANCH: ${{ needs.context.outputs.base_ref }}
         run: python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref "origin/$BASE_BRANCH"
-      - name: Identify authenticated automated dependency changes
-        id: automation
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_AUTHOR: ${{ needs.context.outputs.author }}
-          PR_NUMBER: ${{ needs.context.outputs.number }}
-          PR_HEAD_SHA: ${{ needs.context.outputs.head }}
-        run: |
-          python3 - <<'PYTHON'
-          import json
-          import os
-          import re
-          import subprocess
-
-          repo = os.environ["GITHUB_REPOSITORY"]
-          number = int(os.environ["PR_NUMBER"])
-          allowed = {"package.json", "apps/web/package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"}
-
-          def api(path):
-              return json.loads(subprocess.check_output(["gh", "api", path], text=True))
-
-          def pages(path, key=None):
-              result = []
-              page = 1
-              while True:
-                  data = api(f"{path}?per_page=100&page={page}")
-                  items = data[key] if key else data
-                  result.extend(items)
-                  if len(items) < 100:
-                      return result
-                  page += 1
-
-          def authenticated(commit, previous_sha):
-              verification = commit["commit"]["verification"]
-              if not verification["verified"] or verification["reason"] != "valid":
-                  return False
-              if commit.get("author", {}).get("login") == "renovate[bot]":
-                  return commit.get("committer", {}).get("login") == "web-flow"
-              if commit.get("author", {}).get("login") != "github-actions[bot]" or commit.get("committer", {}).get("login") not in {"web-flow", "github-actions[bot]"}:
-                  return False
-              parents = commit["parents"]
-              match = re.search(r"^Vite-Plus-Sync-Run: ([1-9][0-9]*)$", commit["commit"]["message"], re.MULTILINE)
-              if len(parents) != 1 or parents[0]["sha"] != previous_sha or not match:
-                  return False
-              run = api(f"repos/{repo}/actions/runs/{match[1]}")
-              if run["path"] != ".github/workflows/vite_plus_sync.yaml" or run["event"] != "workflow_dispatch" or run["actor"]["login"] != "github-actions[bot]" or run["actor"]["id"] != 41898282 or run["head_repository"]["full_name"] != repo or run["head_sha"] != parents[0]["sha"]:
-                  return False
-              # dispatch直後は同期jobが進行中でも、署名付き追記が既に存在する。
-              jobs = pages(f"repos/{repo}/actions/runs/{run['id']}/jobs", "jobs")
-              if not any(job["name"] == "sync" and (job["status"] == "in_progress" or job["conclusion"] == "success") for job in jobs):
-                  return False
-              detail = api(f"repos/{repo}/commits/{commit['sha']}")
-              files = detail["files"]
-              return bool(files) and len(files) <= len(allowed) and all(file["filename"] in allowed and file["status"] == "modified" for file in files)
-
-          verified = False
-          if os.environ["PR_AUTHOR"] == "renovate[bot]":
-              commits = pages(f"repos/{repo}/pulls/{number}/commits")
-              verified = bool(commits) and commits[-1]["sha"] == os.environ["PR_HEAD_SHA"] and all(
-                  authenticated(commit, commits[index - 1]["sha"] if index else None)
-                  for index, commit in enumerate(commits)
-              )
-              if verified and any(commit.get("author", {}).get("login") == "github-actions[bot]" for commit in commits):
-                  files = pages(f"repos/{repo}/pulls/{number}/files")
-                  verified = bool(files) and all(file["filename"] in allowed and file["status"] == "modified" for file in files)
-          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-              output.write(f"verified={str(verified).lower()}\n")
-          PYTHON
       - name: Validate rule graph
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
-      - name: Validate changed Task evidence
-        if: steps.automation.outputs.verified != 'true'
+      - name: Validate changed paths and rule coverage
         env:
           PR_BASE_SHA: ${{ needs.context.outputs.base }}
         run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"
