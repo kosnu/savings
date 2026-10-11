@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/session-metrics/main.go",
+    "tools/aidd/session-metrics/main_test.go",
+    "tools/aidd/checker/internal/core/record_test.go",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "39391d3da035093af941a16258f7ca20aae1780d672e196b4e37fec60a6bba6b",
+  "status": "pass",
+  "checks": [
+    "Core・計測CLI test/vet",
+    "両CLI実連携19ケース: 受理9・拒否10、記録不変",
+    "変更Markdownのformat-check",
+    "rule graph・origin/main変更coverage",
+    "git diff --check"
+  ],
+  "summary": "作業名の共通条件と1/80/81/128/129文字を両CLIの実経路で確認した。受理名は計測まで成功しCore記録は不変、拒否名は工程記録・計測storeを作らない。旧形式・新形式の既存回帰テストも成功。",
+  "remaining": []
+}

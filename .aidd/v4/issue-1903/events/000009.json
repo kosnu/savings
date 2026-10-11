@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/session-metrics/main.go",
+    "tools/aidd/session-metrics/main_test.go",
+    "tools/aidd/checker/internal/core/record_test.go",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "39391d3da035093af941a16258f7ca20aae1780d672e196b4e37fec60a6bba6b",
+  "status": "pass",
+  "checks": [
+    "承認済み6対象と元Intentを照合",
+    "改善済みの受理条件・境界確認ルールを再読",
+    "Core既存名規則への統一と両CLI実経路を採用"
+  ],
+  "summary": "同じTaskの次cycleで作業名を先頭ASCII英数字、以降英数字/_/-、1〜128文字へ統一する。仕様の正本と操作文書、受理条件のレビュー基準を同期し、両CLIで同じ境界値を検証する。工程・記録方式は維持する。",
+  "remaining": []
+}

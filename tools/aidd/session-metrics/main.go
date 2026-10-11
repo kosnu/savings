@@ -21,7 +21,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-var taskIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,79}$`)
+// 作業名の受理条件は docs/ai-driven-development/aidd-checker.md の記録契約と共通。
+var taskIDPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$`)
 
 var stages = []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善", "Retrospective"}
 

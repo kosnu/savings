@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1905#discussion_r4240229701",
+  "paths": [
+    "tools/aidd/checker/internal/core/record.go",
+    "tools/aidd/session-metrics/",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "1cfdbc91e028fb494abe0ef93fa766ee1b85d5218099333f8d6f06b5398aa0d1",
+  "status": "fail",
+  "checks": [
+    "PR全5thread: 解決済み4を除外、未解決1",
+    "最新6220d0f8とIntent、成功CIを照合",
+    "隔離した実CLIでIssue_1903・81/128文字: Core受理/計測拒否",
+    "前回の実経路テストは通常名だけ、受理範囲の差を検出しない"
+  ],
+  "summary": "P2作業名の受理範囲不一致。提案: 計測CLIをCoreの既存規則(先頭英数字、以降英数字/_/-、1〜128文字)へ揃える。main.go/main_test.go、Core record_test.goで同じ名前の受理/拒否と境界・実経路を確認。aidd-checker.mdを名前規則の正本とし操作文書から参照。code-review.mdの契約確認を文字種・長さ・必須/任意など受理条件まで具体化する。共通libraryや新工程は追加しない。修正・検証・Ship後に理由返信し、残問題がなければ対象Bot threadを解決。全提案未承認。",
+  "remaining": [
+    "PRRT_kwDOM0p88s6rKPhs: 未承認・未修正・未返信・未解決"
+  ]
+}

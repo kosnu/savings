@@ -164,3 +164,55 @@ func TestPhaseSizeIncludesTerminatingNewline(t *testing.T) {
 		t.Fatal("oversized record was persisted", e)
 	}
 }
+
+func TestPhaseTaskNameContract(t *testing.T) {
+	// 記録契約の文字種・長さを任意計測CLIと同じ境界値で確認する。
+	for _, item := range []struct {
+		name, task string
+		valid      bool
+	}{
+		{"one-character", "a", true},
+		{"digit-first", "9", true},
+		{"legacy-name", "issue-1903", true},
+		{"uppercase", "Issue-1903", true},
+		{"underscore", "issue_1903", true},
+		{"uppercase-underscore", "Issue_1903", true},
+		{"length-80", strings.Repeat("a", 80), true},
+		{"length-81", strings.Repeat("a", 81), true},
+		{"length-128", strings.Repeat("a", 128), true},
+		{"empty", "", false},
+		{"length-129", strings.Repeat("a", 129), false},
+		{"leading-underscore", "_task", false},
+		{"leading-hyphen", "-task", false},
+		{"space", "task name", false},
+		{"dot", "task.name", false},
+		{"slash", "task/name", false},
+		{"backslash", `task\name`, false},
+		{"traversal", "../escape", false},
+		{"non-ascii", "課題1903", false},
+	} {
+		t.Run(item.name, func(t *testing.T) {
+			s := fixture(t)
+			path, err := s.BeginPhase(item.task, "", "design", "issue", []string{"code.txt"})
+			if (err == nil) != item.valid {
+				t.Fatalf("task %q: path=%q, error=%v", item.task, path, err)
+			}
+			if !item.valid {
+				if _, err := os.Stat(filepath.Join(s.Root, ".aidd")); !os.IsNotExist(err) {
+					t.Fatal("invalid task created records", err)
+				}
+				return
+			}
+			if path != filepath.ToSlash(filepath.Join(".aidd", "v4", item.task, "events", "000001.json")) {
+				t.Fatalf("task name changed: %q", path)
+			}
+			if err := s.FinishPhase(path, passResult()); err != nil {
+				t.Fatal(err)
+			}
+			result, err := s.ReadPhase(path)
+			if err != nil || result.Status != "pass" {
+				t.Fatalf("record cannot be reused: %+v, %v", result, err)
+			}
+		})
+	}
+}
