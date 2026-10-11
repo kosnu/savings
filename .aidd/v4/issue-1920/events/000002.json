@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1920",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/vite_plus_sync.yaml"
+  ],
+  "fingerprint": "0fdb3ff6278e628ffe040d3a462f2f1d44de5b5438aecbf4b877e315744451ba",
+  "status": "pass",
+  "checks": [
+    "actionlint（shellcheck連携なし）",
+    "対象workflowのformat-check",
+    "固定SHA actionの版選択と不一致拒否",
+    "PR 1912固定headでpnpm ciとweb:format-check",
+    "git diff --check",
+    "Core check-changes"
+  ],
+  "summary": "mainの12.9.0とPRの12.9.1をpackageManagerから選択し、更新PRの後続format検証が成功。修正workflowを使うGitHub実CIはmain反映後に確認する。",
+  "remaining": []
+}

@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1920",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/vite_plus_sync.yaml"
+  ],
+  "fingerprint": "0fdb3ff6278e628ffe040d3a462f2f1d44de5b5438aecbf4b877e315744451ba",
+  "status": "pass",
+  "checks": [
+    "Issueの要求と5箇所の変更の照合",
+    "全直接一致規則と依存closure",
+    "checkoutと権限境界およびmain dispatchの維持",
+    "実actionの版選択とPR後続検証の証拠"
+  ],
+  "summary": "最小差分で重複版指定を除去し、無関係な依存更新と不一致チェック回避がない。指摘・規則競合なし。main反映後のGitHub実CIは未検証としてPRへ引き継ぐ。",
+  "remaining": []
+}
