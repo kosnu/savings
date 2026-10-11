@@ -176,6 +176,10 @@ func (s *Checker) current() (Snapshot, string, error) {
 }
 func (s *Checker) scope(paths []string, base Snapshot, now Snapshot) error {
 	for _, p := range changed(base, now) {
+		parts := strings.Split(p, "/")
+		if _, present := now[p]; present && len(parts) == 5 && parts[0] == ".aidd" && parts[1] == "v4" && taskName.MatchString(parts[2]) && parts[3] == "events" && recordName.MatchString(parts[4]) {
+			continue
+		}
 		if !covered(p, paths) {
 			return fmt.Errorf("out-of-scope change: %s", p)
 		}

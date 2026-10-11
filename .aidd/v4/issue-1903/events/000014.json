@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1903",
+  "paths": [
+    "tools/aidd/checker/internal/core/git.go",
+    "tools/aidd/checker/internal/core/check_test.go",
+    "tools/aidd/checker/cmd/aidd-checker/main_test.go",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "a156b515a3f75d5242197924803b899ecce022d6d83532140a52847cdb919842",
+  "status": "pass",
+  "checks": [
+    "Core全packageのGo test/vet",
+    "工程記録→検証→完了のCore/CLI結合テスト",
+    "実CLI: 記録追加・更新・同cycle再試行",
+    "範囲外・記録以外・記録削除の拒否",
+    "検証中の内容/mode変更・工程記録変更の拒否",
+    "文書整形・規約graph/実差分選択・空白検査"
+  ],
+  "summary": "工程記録をpathsへ足さず通常の検証を完了できる。再試行は同じファイルを更新し、対象外変更と検証中の変更は拒否される。Core test/vetと実binaryの操作経路、文書/Core検査が成功。",
+  "remaining": []
+}

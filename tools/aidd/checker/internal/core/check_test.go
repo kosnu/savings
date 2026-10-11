@@ -46,7 +46,7 @@ func TestVerificationRejectsFailureMutationAndIncompleteScope(t *testing.T) {
 		stable       bool
 		exit         int
 	}{
-		{"failed", "exit 7", true, 7}, {"mutated", "printf changed > code.txt", false, 0}, {"unstarted", "", true, -1},
+		{"failed", "exit 7", true, 7}, {"mutated", "printf changed > code.txt", false, 0}, {"mode", "chmod +x code.txt", false, 0}, {"unstarted", "", true, -1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			s := fixture(t)
@@ -84,6 +84,95 @@ func TestVerificationRejectsFailureMutationAndIncompleteScope(t *testing.T) {
 		}
 	}
 }
+func TestVerifyWithPhaseRecordSequence(t *testing.T) {
+	s := fixture(t)
+	var design, verify string
+	for _, tracked := range []bool{false, true} {
+		if tracked {
+			command(t, s.Root, "add", ".")
+			command(t, s.Root, "commit", "-m", "recorded result")
+			s.Base = command(t, s.Root, "rev-parse", "HEAD")
+		}
+		put(t, s.Root, "code.txt", "after source update\n"+s.Base+"\n")
+		cycle := ""
+		if design != "" {
+			cycle = filepath.Base(design)
+		}
+		design = begin(t, s, cycle, "design")
+		if e := s.FinishPhase(design, passResult()); e != nil {
+			t.Fatal(e)
+		}
+		for i := 0; i < 2; i++ {
+			p := begin(t, s, filepath.Base(design), "verify")
+			if verify != "" && p != verify {
+				t.Fatal("retry created a new record", p)
+			}
+			verify = p
+			v, e := s.Verify(plan(), io.Discard)
+			if e != nil || !v.Stable || len(v.Results) != 1 || v.Results[0].Exit != 0 {
+				t.Fatalf("tracked=%v: %+v, %v", tracked, v, e)
+			}
+			if e = s.FinishPhase(verify, passResult()); e != nil {
+				t.Fatal(e)
+			}
+			r, e := s.ReadPhase(verify)
+			if e != nil || r.Status != "pass" {
+				t.Fatal("completed verification is not current", r, e)
+			}
+		}
+	}
+	files, e := filepath.Glob(filepath.Join(s.Root, ".aidd/v4/issue-test/events/*.json"))
+	if e != nil || len(files) != 2 {
+		t.Fatal("retry grew phase records", files, e)
+	}
+}
+
+func TestPhaseRecordsDoNotWidenVerificationScope(t *testing.T) {
+	for _, path := range []string{"other.txt", ".aidd/v4/issue-test/task.json", ".aidd/v4/issue-test/events/notes.txt", ".aidd/v4/issue-test/events/nested/000003.json", ".aidd/v4/_invalid/events/000001.json"} {
+		t.Run(path, func(t *testing.T) {
+			s := fixture(t)
+			put(t, s.Root, "code.txt", "after\n")
+			design := begin(t, s, "", "design")
+			begin(t, s, filepath.Base(design), "verify")
+			put(t, s.Root, path, "unrelated change")
+			v, e := s.Verify(plan(), io.Discard)
+			if e == nil || !strings.Contains(e.Error(), "out-of-scope change: "+path) || len(v.Results) != 0 {
+				t.Fatalf("unrelated change reached commands: %+v, %v", v, e)
+			}
+		})
+	}
+	s := fixture(t)
+	design := begin(t, s, "", "design")
+	if e := s.FinishPhase(design, passResult()); e != nil {
+		t.Fatal(e)
+	}
+	command(t, s.Root, "add", ".")
+	command(t, s.Root, "commit", "-m", "recorded design")
+	s.Base = command(t, s.Root, "rev-parse", "HEAD")
+	if e := os.Remove(filepath.Join(s.Root, design)); e != nil {
+		t.Fatal(e)
+	}
+	v, e := s.Verify(plan(), io.Discard)
+	if e == nil || !strings.Contains(e.Error(), "out-of-scope change: "+design) || len(v.Results) != 0 {
+		t.Fatalf("record deletion escaped scope: %+v, %v", v, e)
+	}
+}
+
+func TestVerifyRejectsPhaseRecordMutation(t *testing.T) {
+	for _, script := range []string{"printf changed > ", "chmod +x "} {
+		t.Run(script, func(t *testing.T) {
+			s := fixture(t)
+			put(t, s.Root, "code.txt", "after\n")
+			design := begin(t, s, "", "design")
+			verify := begin(t, s, filepath.Base(design), "verify")
+			v, e := s.Verify(plan([]string{"sh", "-c", script + verify}), io.Discard)
+			if e == nil || v.Stable || len(v.Results) != 2 || v.Results[1].Exit != 0 {
+				t.Fatalf("record mutation succeeded: %+v, %v", v, e)
+			}
+		})
+	}
+}
+
 func TestShipCheckContentModeAndWhitespace(t *testing.T) {
 	s := fixture(t)
 	put(t, s.Root, "code.txt", "after\n")

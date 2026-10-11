@@ -31,6 +31,7 @@ go -C tools/aidd/checker build -o /tmp/aidd-checker ./cmd/aidd-checker
 
 必要な検証は[AGENTS.md](../../AGENTS.md#verification)と適用規約から選ぶ。
 Coreでまとめて実行する場合、`verify --base <比較元commit/ref> --input <一時JSON>`を使う。
+工程結果は`record-begin`で検証を開始し、`verify`を実行してから`record-finish`で成否を保存する。入力の`paths`には実際の変更対象を指定する。[Coreの検査範囲](aidd-checker.md#検査の責務)に従い、所定の工程結果の追加・更新を`paths`へ足す必要はない。他の範囲外変更や検証中の内容・mode変更は引き続き失敗となる。
 たとえばCore変更の入力は次の形にする。`rules`は実際の差分に必要なrule IDを指定する。
 
 ```json

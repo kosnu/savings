@@ -1,12 +1,76 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestRecordedVerificationCLISequence(t *testing.T) {
+	root := t.TempDir()
+	git := func(args ...string) {
+		t.Helper()
+		if b, e := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); e != nil {
+			t.Fatalf("%v: %s", e, b)
+		}
+	}
+	git("init", "-b", "main")
+	git("config", "user.name", "test")
+	git("config", "user.email", "test@example.com")
+	write := func(path, text string) {
+		t.Helper()
+		if e := os.MkdirAll(filepath.Dir(path), 0755); e != nil {
+			t.Fatal(e)
+		}
+		if e := os.WriteFile(path, []byte(text), 0644); e != nil {
+			t.Fatal(e)
+		}
+	}
+	write(filepath.Join(root, "docs/harness/rule-map.json"), `{"version":2,"rules":[],"review_routing":{}}`)
+	write(filepath.Join(root, "code.txt"), "before\n")
+	git("add", ".")
+	git("commit", "-m", "baseline")
+	write(filepath.Join(root, "code.txt"), "after\n")
+	inputs := t.TempDir()
+	start, result, plan := filepath.Join(inputs, "start.json"), filepath.Join(inputs, "result.json"), filepath.Join(inputs, "plan.json")
+	write(start, `{"source":"issue","paths":["code.txt"]}`)
+	write(result, `{"status":"pass","checks":["verification"],"summary":"ok","remaining":[]}`)
+	write(plan, `{"paths":["code.txt"],"commands":[["git","diff","--check"]],"rules":[]}`)
+	original := os.Args
+	t.Cleanup(func() { os.Args = original })
+	invoke := func(args ...string) {
+		t.Helper()
+		os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+		if e := run(); e != nil {
+			t.Fatalf("%v: %v", args, e)
+		}
+	}
+	design := ".aidd/v4/issue-test/events/000001.json"
+	verify := ".aidd/v4/issue-test/events/000002.json"
+	invoke("record-begin", "--task", "issue-test", "--kind", "design", "--input", start)
+	invoke("record-finish", "--record", design, "--input", result)
+	for i := 0; i < 2; i++ {
+		invoke("record-begin", "--task", "issue-test", "--cycle", "000001.json", "--kind", "verify", "--input", start)
+		invoke("verify", "--base", "HEAD", "--input", plan)
+		invoke("record-finish", "--record", verify, "--input", result)
+		invoke("record-read", "--record", verify)
+		b, e := os.ReadFile(filepath.Join(root, verify))
+		if e != nil {
+			t.Fatal(e)
+		}
+		var record struct{ Status, Kind, Cycle string }
+		if e = json.Unmarshal(b, &record); e != nil || record.Status != "pass" || record.Kind != "verify" || record.Cycle != "000001.json" {
+			t.Fatalf("verification result mismatch: %+v, %v", record, e)
+		}
+	}
+	files, e := filepath.Glob(filepath.Join(root, ".aidd/v4/issue-test/events/*.json"))
+	if e != nil || len(files) != 2 {
+		t.Fatal("retry grew phase records", files, e)
+	}
+}
 
 func TestUnexpectedArgumentsRejectedBeforeExecution(t *testing.T) {
 	root := t.TempDir()
