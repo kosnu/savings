@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1919",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "4bcb354b2447d2dbf8faa80e52837bccd6a81cf2155b35af4f8b2fbd18b5e72f",
+  "status": "pass",
+  "checks": [
+    "diff whitespace",
+    "vp fmt check",
+    "rule graph",
+    "actual change coverage"
+  ],
+  "summary": "文書のみの差分に対する4検査が終了コード0、実行前後の内容はstable。アプリ検証は対象外。",
+  "remaining": []
+}
