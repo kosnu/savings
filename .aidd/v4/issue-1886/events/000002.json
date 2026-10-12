@@ -8,14 +8,12 @@
     "docs/cloudflare-delivery.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "94b669b49834aeb4bac41b92fdddd58e8b8a2f86058b7f297a2d0ca59b1d73a9",
+  "fingerprint": "bd52bcb52de9b1f469b5671df46060d54216d18cd7cdebdb777aae914b4417c8",
   "status": "pass",
   "checks": [
-    "Web lint/format-check/typecheck",
-    "unit/integration 142 files 785 tests",
-    "Web build/cf dry-run/Workers local HTTP・CSP",
-    "文書整形・測定snippet構文・差分規約"
+    "追加文書のformat-check・diff-check・Core scope/rules",
+    "Web内容は既検証commitと同一"
   ],
-  "summary": "Web検証6コマンドはexit 0/stable。文書の測定snippetの先頭セミコロンを修正後、文書検査とsnippet構文を再確認。Webの対象内容は同じ。",
+  "summary": "追加文書の2コマンドがexit 0/stable。runtime差分なし。旧headのWeb785+Storybook20成功は既存部分の証拠として保持し、新head CIを別途確認する。",
   "remaining": []
 }

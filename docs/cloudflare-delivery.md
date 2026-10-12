@@ -48,6 +48,33 @@ secret の値、管理者の氏名・メール、利用者データ、生ログ�
 commit は bf8d5da164b6025d486631b13ad6438648ed679a（2026-09-21）。
 旧配信物は現行の Web と同一ではなく、新しいログイン入口として保証しない。
 
+## 追加の読み取り確認（2026-10-13 01:26–01:29 JST）
+
+親 executor の Cloudflare connector 調査で、active zone、production の Custom Domain と
+Worker の対応、Free Website zone を再確認した。Worker の `usage_model: standard` は
+実際の Workers billing plan の証明ではない。
+
+- user 所有の `savings build token` という Builds token metadata は存在するが、
+  `burneto` の Workers Builds trigger 一覧は空。名前だけで GitHub Actions の
+  `CLOUDFLARE_API_TOKEN` に対応すると判断せず、deployment credential review の完了に使わない。
+  user/account token metadata は9109、account settings/subscription は10000で取得できない。
+  権限・scope・期限・環境分離と Workers の実契約は引き続き未確認。
+- Free Managed Ruleset v74 の31件の default-enabled rule 定義を確認。
+  zone managed phase entrypoint は10003（entrypoint が見つからない）を返す。
+  [Managed Rules の仕様](https://developers.cloudflare.com/waf/managed-rules/)上の利用可能性、
+  default 定義の enabled、zone での実際の自動適用・実行は別の証拠である。
+  default 定義や entrypoint の欠落だけで実防御の on/off を断定しない。
+- `workersInvocationsAdaptive` の `burneto` 条件で、2026-10-13 01:20 JST までの
+  24時間と7日間を GraphQL で問い合わせ、どちらも成功・空行だった。
+  [Workers metrics](https://developers.cloudflare.com/workers/observability/metrics-and-analytics/) は
+  invocation の観測であり、静的配信の全 HTTP traffic や課金 quota と同一ではない。
+  空行は traffic / 消費量ゼロの証明にならず、実使用量・残容量は未確認のままにする。
+
+出典は `GET /zones?name=burneto.com`、account の `workers/domains`、`workers/scripts`、
+`builds/tokens`、`builds/workers/{確認済みscript tag}/triggers`、zone の `rulesets`、
+Free Managed Ruleset 詳細、`rulesets/phases/http_request_firewall_managed/entrypoint` と
+読み取り GraphQL。secret 値・個人情報・生出力を保存せず、上記の判断に必要な結果だけを残す。
+
 ## ヘッダーと防御範囲
 
 [Workers のヘッダー仕様](https://developers.cloudflare.com/workers/static-assets/headers/)に従い、
@@ -204,7 +231,7 @@ Workers Metrics / account Usage で利用量と上限、Sentry で表示・Auth 
 [Static Assets の料金](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/)と実契約を照合する。
 悪化時は active version と発生時刻を照合し、上記切り戻しを判断する。
 account の Notification policies API は成功し空配列だった。
-account subscriptions API は認証エラーで実契約を取得できず、現使用量・残容量も未確認。
+account subscriptions API は認証エラーで実契約を取得できず、GraphQL の空行からも現使用量・残容量は確定できない。
 この account の通知 policy は確認できておらず、監視設定済みとは主張しない。
 新しい通知先・課金・ログ収集は追加していない。
 

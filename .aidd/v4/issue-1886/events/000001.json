@@ -8,16 +8,15 @@
     "docs/cloudflare-delivery.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "570757a97accc287baebee13765f6c10dcc587600f6e4079d337b5f5b3bd632c",
+  "fingerprint": "bd52bcb52de9b1f469b5671df46060d54216d18cd7cdebdb777aae914b4417c8",
   "status": "unknown",
   "checks": [
-    "Issueの制約と実HTTP/設定の照合",
-    "静的構成と通信先を維持するヘッダー設計",
-    "標準キャッシュの維持根拠と本番承認・復旧手順"
+    "追加read-only factsと公式仕様の照合",
+    "metadata・metrics・WAF実適用の証拠境界"
   ],
-  "summary": "最小CSPと静的ヘッダーを準備し標準キャッシュを維持。本番設定・公開範囲・秘密値は変更しない。",
+  "summary": "追加確認を統合。Builds tokenとの対応、Workers契約・使用量、Free Managed実適用は未確認を維持し、本番変更は行わない。",
   "remaining": [
-    "本番設定反映・Web配信は承認待ち",
-    "token metadata・実契約/使用量・Free Managed有効状態が未確認"
+    "本番設定変更とWeb配信の承認・受入確認",
+    "deployment token・実契約/使用量・Free Managed実適用の可視性不足"
   ]
 }
