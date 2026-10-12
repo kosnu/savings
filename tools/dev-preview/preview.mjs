@@ -4,6 +4,13 @@ import { pathToFileURL } from "node:url"
 
 export const workerName = "burneto-dev"
 
+export function prPreviewName(number) {
+  if (!/^[1-9][0-9]*$/u.test(String(number))) throw new Error("PR 番号が必要です。")
+  const name = `pr-${number}`
+  if (name.length > 63) throw new Error("PR 番号が長すぎます。")
+  return name
+}
+
 export function previewName(branch) {
   if (
     !branch ||
@@ -54,13 +61,13 @@ export function validateBuildOutput(root, worker) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (process.argv[2] === "check-build") {
-    const root = new URL("../../apps/web/.cloudflare/output/v0/", import.meta.url)
+    const root = new URL("apps/web/.cloudflare/output/v0/", pathToFileURL(`${process.cwd()}/`))
     const read = (path) => JSON.parse(readFileSync(new URL(path, root), "utf8"))
     validateBuildOutput(read("config.json"), read("workers/default/worker.config.json"))
   } else if (process.argv[2] === "name") {
     validateDevelopment(process.env)
-    console.log(previewName(process.argv[3]))
+    console.log(process.argv[4] ? prPreviewName(process.argv[4]) : previewName(process.argv[3]))
   } else {
-    throw new Error("Usage: preview.mjs name <branch> | check-build")
+    throw new Error("Usage: preview.mjs name <branch> [pr-number] | check-build")
   }
 }

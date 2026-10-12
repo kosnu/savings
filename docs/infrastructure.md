@@ -205,7 +205,8 @@ Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。
 
 共有 Dev Supabase project を1つ用意し、DB・Auth・Data API を全ブランチで共有する。
 本番 project、データ、OAuth 設定から分離し、合成データだけを使う。
-フロントエンドは専用 Worker `burneto-dev` の native Previews で配信する。
+フロントエンドは専用 Worker `burneto-dev` の native Previews を `pr-<PR番号>` ごとに配信する。
+PR終了時の削除は同じPRの配信と直列化し、共有DB・Auth・データは変更しない。
 `cloudflare.config.ts` は Preview context または development mode で本番 domain を外す。
 CloudからもPRのpreviewラベルでGitHub Actionsを起動する。配信経路はActionsに統一し、native cfコマンドを使用する。
 利用者は PR を選び、SHA は CI が内部で解決・固定する。main 導入後は PR 番号だけの手動実行も使える。Actions は既存 development

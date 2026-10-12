@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1927",
+  "paths": [
+    "tools/dev-preview/",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "1dd7c2aaa51a3aa0e4c3e1721690c558d61ef2bacfa1267fa8f3df48ebea5148",
+  "status": "pass",
+  "checks": [
+    "Preview 回帰 34 件",
+    "actionlint",
+    "変更ファイル vp check",
+    "git diff --check",
+    "zizmor 1.30.1 offline",
+    "資格情報なし Dev build と Build Output 検査"
+  ],
+  "summary": "Preview専用APIと競合/不在/失敗の34件、Checks URL通知の既存CLI回帰、workflow構文・整形・lintが成功。zizmorのトリガー一般警告はmain削除runnerと固定SHAの承認済み配信を照合し、既存形式の限定注釈で処理。実配信/削除は未実施。",
+  "remaining": []
+}

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { test } from "node:test"
 
-import { previewName } from "./preview.mjs"
+import { prPreviewName } from "./preview.mjs"
 import { deploymentReport } from "./report.mjs"
 
 const env = {
@@ -19,7 +19,7 @@ const env = {
 }
 const deployment = {
   type: "preview",
-  preview_name: previewName(env.PREVIEW_BRANCH),
+  preview_name: prPreviewName(env.PR_NUMBER),
   preview_urls: ["https://preview-burneto-dev.example.workers.dev"],
   deployment_id: "deployment-one",
 }
@@ -82,7 +82,7 @@ test("空・本番・別branch・不正 URL / metadata の結果を通知に使�
 test("長いbranchもサマリーに残し、status description は API 上限内に収める", () => {
   const branch = `feature/${"x".repeat(200)}<details>&`
   const report = deploymentReport(
-    { ...deployment, preview_name: previewName(branch) },
+    { ...deployment, preview_name: prPreviewName(env.PR_NUMBER) },
     { ...env, PREVIEW_BRANCH: branch },
   )
   assert.equal(report.description.length, 140)
@@ -107,7 +107,7 @@ test("CLI → job outputs → report shell は手動実行でも PR SHA へ成�
       "utf8",
     )
     const job = workflow.split("\n  report:\n")[1]
-    assert.ok(job.includes("needs: [resolve, deploy]"))
+    assert.ok(job.includes("needs: [resolve, deploy, reconcile]"))
     assert.ok(job.includes("statuses: write"))
     assert.ok(!job.includes("checkout" + "@"))
     assert.ok(!job.includes("if: always()"))

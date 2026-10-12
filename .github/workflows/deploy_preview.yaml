@@ -1,9 +1,10 @@
 name: Deploy Dev Preview
 
-on:
-  pull_request:
+# 受付・削除は main のみ。PR 実行は固定 SHA の development 承認後だけで、token は read 限定。
+on: # zizmor: ignore[dangerous-triggers] 削除用認証情報を持つ独立 job は main コードだけを実行する
+  pull_request_target:
     branches: [main]
-    types: [labeled]
+    types: [labeled, closed]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -15,7 +16,7 @@ run-name: Dev Preview PR ${{ github.event.pull_request.number || inputs.pr_numbe
 
 permissions: {}
 
-# 同じ PR の配信を直列化する。別 PR は併存できる。
+# 配信・終了通知・配信後の削除を同じ PR で直列化する。実行中は中断しない。
 concurrency:
   group: dev-preview-pr-${{ github.event.pull_request.number || inputs.pr_number }}
   cancel-in-progress: false
@@ -24,8 +25,9 @@ jobs:
   resolve:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
-       github.event.label.name == 'preview' &&
+      (github.event_name == 'pull_request_target' &&
+       (github.event.action == 'closed' ||
+        (github.event.action == 'labeled' && github.event.label.name == 'preview')) &&
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-latest
@@ -36,21 +38,23 @@ jobs:
       branch: ${{ steps.pr.outputs.branch }}
       sha: ${{ steps.pr.outputs.sha }}
       pr_number: ${{ github.event.pull_request.number || inputs.pr_number }}
+      deploy: ${{ steps.pr.outputs.deploy }}
     steps:
-      - name: Checkout requested gate code without deployment secrets
+      - name: Checkout trusted lifecycle gate without deployment secrets
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
       - name: Resolve selected PR head
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node tools/dev-preview/authorize.mjs
+        run: node tools/dev-preview/lifecycle.mjs
 
   deploy:
     name: Approve Dev Preview ${{ needs.resolve.outputs.sha }}
     needs: resolve
+    if: needs.resolve.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment: development
     permissions:
@@ -61,10 +65,10 @@ jobs:
       description: ${{ steps.deployment.outputs.description }}
       completed_at: ${{ steps.deployment.outputs.completed_at }}
     steps:
-      - name: Checkout approved commit
+      - name: Checkout trusted deployment gate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.resolve.outputs.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
 
       # 承認待ちの間の head 更新、branch rename、ラベル撤回も拒否する。
@@ -74,6 +78,18 @@ jobs:
           EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
           EXPECTED_BRANCH: ${{ needs.resolve.outputs.branch }}
         run: node tools/dev-preview/authorize.mjs
+
+      # 既存 PR が古い補助コードを持っていても、main の契約で検証・通知する。
+      - name: Preserve trusted Preview helpers
+        run: |
+          mkdir -p "$RUNNER_TEMP/preview-control"
+          cp tools/dev-preview/preview.mjs tools/dev-preview/report.mjs "$RUNNER_TEMP/preview-control/"
+
+      - name: Checkout approved commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -93,6 +109,7 @@ jobs:
         id: preview
         env:
           PREVIEW_BRANCH: ${{ needs.resolve.outputs.branch }}
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
           NODE_ENV: production
           CLOUDFLARE_VITE_PREVIEW_BUILD: "true"
           CF_SEND_TELEMETRY: "false"
@@ -101,10 +118,10 @@ jobs:
           VITE_SENTRY_DSN: ""
           VITE_SENTRY_ENVIRONMENT: development
         run: |
-          preview_name=$(node tools/dev-preview/preview.mjs name "$PREVIEW_BRANCH")
+          preview_name=$(node "$RUNNER_TEMP/preview-control/preview.mjs" name "$PREVIEW_BRANCH" "$PR_NUMBER")
           echo "name=$preview_name" >> "$GITHUB_OUTPUT"
           pnpm run web:build --mode development
-          node tools/dev-preview/preview.mjs check-build
+          node "$RUNNER_TEMP/preview-control/preview.mjs" check-build
 
       - name: Deploy Dev Preview
         id: deployment
@@ -120,11 +137,59 @@ jobs:
         run: |
           pnpm --filter web exec cf previews deploy "$PREVIEW_NAME" --prebuilt --mode development > "$RUNNER_TEMP/preview.json"
           test -s "$RUNNER_TEMP/preview.json"
-          node tools/dev-preview/report.mjs "$RUNNER_TEMP/preview.json"
+          node "$RUNNER_TEMP/preview-control/report.mjs" "$RUNNER_TEMP/preview.json"
+
+  reconcile:
+    name: Check PR state after deployment
+    needs: [resolve, deploy]
+    if: always() && needs.resolve.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      closed: ${{ steps.state.outputs.closed }}
+    steps:
+      # 配信 job の filesystem / outputs は削除コードに使わない。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Reconcile current PR state
+        id: state
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+        run: node tools/dev-preview/lifecycle.mjs reconcile
+
+  cleanup:
+    name: Delete closed PR Dev Preview
+    needs: [resolve, reconcile]
+    if: always() && needs.reconcile.outputs.closed == 'true'
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      # main のコードだけを新しい runner で実行する。PR checkout / dependency install は禁止。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Delete only the selected native Preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          PREVIEW_BRANCH: ${{ needs.resolve.outputs.branch }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node tools/dev-preview/cleanup.mjs
 
   report:
     name: Publish Dev Preview URL
-    needs: [resolve, deploy]
+    needs: [resolve, deploy, reconcile]
+    if: needs.reconcile.outputs.closed == 'false'
     runs-on: ubuntu-latest
     permissions:
       statuses: write

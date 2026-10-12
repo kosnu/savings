@@ -12,7 +12,7 @@ export function deploymentRequest(event, eventName, ref, repository, kind = "pre
   if (!profile) throw new Error("Unsupported deployment kind")
   let number
   let sha
-  if (eventName === "pull_request") {
+  if (eventName === "pull_request" || (eventName === "pull_request_target" && kind === "preview")) {
     number = event.number
     sha = event.pull_request?.head?.sha
     if (
@@ -32,7 +32,7 @@ export function deploymentRequest(event, eventName, ref, repository, kind = "pre
   if (!/^[1-9][0-9]*$/.test(String(number)) || !/^[a-f0-9]{40}$/.test(sha ?? "")) {
     throw new Error("PR number and full head SHA are required")
   }
-  return { number: String(number), sha, labeled: eventName === "pull_request", kind }
+  return { number: String(number), sha, labeled: eventName !== "workflow_dispatch", kind }
 }
 
 export async function authorize(request, repository, get) {

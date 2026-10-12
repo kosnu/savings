@@ -91,3 +91,25 @@ test("補助コマンドと同じ名前のbranchも配信名になる", () => {
   ).trim()
   assert.equal(actual, previewName("check-build"))
 })
+
+test("PR名はbranch renameで変わらず同じbranchの別PRとも分離する", async () => {
+  const { prPreviewName } = await import("./preview.mjs")
+  assert.equal(prPreviewName("1927"), "pr-1927")
+  assert.notEqual(prPreviewName("1927"), prPreviewName("1928"))
+  for (const invalid of [
+    undefined,
+    "",
+    "0",
+    "01",
+    "../burneto",
+    "1927\nname=burneto",
+    "1".repeat(61),
+  ])
+    assert.throws(() => prPreviewName(invalid))
+  const actual = execFileSync(
+    process.execPath,
+    [new URL("preview.mjs", import.meta.url).pathname, "name", "renamed/branch", "1927"],
+    { env: { ...process.env, ...dev }, encoding: "utf8" },
+  ).trim()
+  assert.equal(actual, prPreviewName("1927"))
+})
