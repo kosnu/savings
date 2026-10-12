@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1913",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "dbed6f98a47717976aaf5d3b73edbb7c372c6dec23759e9d1296e70181746cec",
+  "status": "pass",
+  "checks": [
+    "最新Issueの4完了条件と制約を照合",
+    "一般基準と適合・反例を対象2文書へ反映",
+    "既存Coreの配置・命名・保持を維持"
+  ],
+  "summary": "制約の対象・操作・条件と設計裁量を区別。具体構成と更新挙動を併記する基準を採用し、正本の所有と既存索引経路を維持する。",
+  "remaining": []
+}
