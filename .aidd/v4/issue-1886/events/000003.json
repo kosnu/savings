@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1886",
+  "paths": [
+    "apps/web/public/_headers",
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "94b669b49834aeb4bac41b92fdddd58e8b8a2f86058b7f297a2d0ca59b1d73a9",
+  "status": "unknown",
+  "checks": [
+    "選択した全規約と依存closure",
+    "静的ヘッダーのruntime出力と通信・SPA境界",
+    "公開HTTP/cache測定と据置判断",
+    "Issue完了条件と承認・rollback境界"
+  ],
+  "summary": "差分の局所defectなし。通信制限なしの最小CSPと標準cacheを維持し、秘密値・API/公開範囲変更を含めない。本番受入条件はunknown。",
+  "remaining": [
+    "HTTPS/TLS変更と確定commitのWeb-only配信の承認・実施",
+    "Google/既存session/CRUD/Sentry・更新整合・前後性能の本番確認",
+    "token metadata・Workers実契約/使用量・Free Managed有効状態の確認"
+  ]
+}

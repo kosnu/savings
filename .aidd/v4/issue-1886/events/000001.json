@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1886",
+  "paths": [
+    "apps/web/public/_headers",
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "570757a97accc287baebee13765f6c10dcc587600f6e4079d337b5f5b3bd632c",
+  "status": "unknown",
+  "checks": [
+    "Issueの制約と実HTTP/設定の照合",
+    "静的構成と通信先を維持するヘッダー設計",
+    "標準キャッシュの維持根拠と本番承認・復旧手順"
+  ],
+  "summary": "最小CSPと静的ヘッダーを準備し標準キャッシュを維持。本番設定・公開範囲・秘密値は変更しない。",
+  "remaining": [
+    "本番設定反映・Web配信は承認待ち",
+    "token metadata・実契約/使用量・Free Managed有効状態が未確認"
+  ]
+}
