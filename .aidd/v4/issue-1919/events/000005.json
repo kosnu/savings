@@ -1,0 +1,16 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1922#discussion_r4242539384",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "7034be7e78ce7f540128627007d7dd49bfab8bef0b616f398bf20f8c9900cafd",
+  "status": "pass",
+  "checks": [
+    "Approved scope and existing Intent improvement route"
+  ],
+  "summary": "承認されたPolicyの1文のみ追加。Issue追記の対象明記を維持し、要求変更を既存の手動承認・Intent改善へ接続。skill・承認段階・記録体系は変更しない。",
+  "remaining": []
+}

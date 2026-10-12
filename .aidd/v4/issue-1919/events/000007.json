@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1922#discussion_r4242539384",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "7034be7e78ce7f540128627007d7dd49bfab8bef0b616f398bf20f8c9900cafd",
+  "status": "pass",
+  "checks": [
+    "Issue #1919 target requirement preserved",
+    "General Intent changes use existing improvement path",
+    "Unapproved and reply-only limits preserved",
+    "Policy/skill/routing consistency"
+  ],
+  "summary": "要求追加・範囲変更・完了条件補完は既存Intent改善へ到達し、後日確認に限定しない。コード変更なしの必要なIssue追記も対象明記を維持。未承認や返信限定から更新権限は得ない。新規経路・skill同期・索引変更は不要。",
+  "remaining": []
+}
