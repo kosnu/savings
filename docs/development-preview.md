@@ -30,7 +30,21 @@ when_to_read:
 1. 同じリポジトリからmain宛てのopen PRを用意し、変更をpushする。merge conflictは先に解消する。
 2. PRに `preview` ラベルを付ける。
 3. `Deploy Dev Preview` の `development` 承認画面で、表示されたSHAのコード・workflow・依存install script・公開内容を確認して承認する。
-4. 成功したrunのSummaryからcommit・`preview_urls`・`deployment_id`を確認し、URLを開く。
+4. 対象PRのCI／Checksに表示される `Dev Preview URL / PR #<番号>` のDetailsからPreviewを開く。
+   表示された配信結果の確認時刻 (UTC)・PR番号・branch・`run <実行番号>.<試行番号>`で配信を識別する。
+
+`Dev Preview URL / PR #<番号>` は承認済みのPR head SHAへ、配信成功後だけ登録するcommit status。
+同じSHAを使う複数PRでも、PR番号ごとに別のstatusでURLを識別する。
+mainからの手動実行でも対象PRに表示される。同じSHAの再配信では最新の成功結果へ更新し、
+配信失敗・キャンセルは前の成功URLを上書きしない。head更新後は、新しいSHAの配信が成功するまで
+そのSHAにURLは登録されない。過去の配信結果はPRの該当commitまたは成功runのSummaryで確認できる。
+長いbranch名はstatusの文字数上限で省略される場合がある。
+Summaryにはクリック可能な全URL、完全なPR・branch・commit・deployment ID・確認時刻・run/attemptへのリンクを残す。
+URL通知のPRコメントは投稿しない。
+
+配信成功後に `Publish Dev Preview URL` だけが失敗した場合、Summaryで配信結果を確認し、
+そのjobだけを再実行してstatusを登録する。既に新しい成功配信が登録されていれば古い結果は登録しない。
+URL表示の修復のために配信jobを再実行する必要はない。
 
 同じブランチは同じURLへ更新され、別ブランチは別URLになる。
 pushだけでは再配信されない。更新時は `preview` ラベルを外して付け直す。

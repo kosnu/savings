@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1918",
+  "paths": [
+    "tools/dev-preview/",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "c38ad287f58737dee000e61ebb22547f342768c5d189e9a99a2d0fc2cd2de923",
+  "status": "pass",
+  "checks": [
+    "Issue #1918 の成果/委任との意味評価",
+    "全適用ruleのCoverage",
+    "成功・失敗・再配信・古い通知再試行の挙動",
+    "PRコード非実行のwrite-token境界"
+  ],
+  "summary": "規則との矛盾・修正が必要なfindingなし。承認済みSHAへのPR別リンクstatusと配信識別を実出力・mock API経路で確認し、失敗時は通知jobを起動せず成功URLを維持。共有DB/FE構成と配信承認を維持しコメント経路なし。実GitHub UI/配信は未確認でPRに明記する。",
+  "remaining": []
+}
