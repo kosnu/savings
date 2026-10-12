@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1919",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "4bcb354b2447d2dbf8faa80e52837bccd6a81cf2155b35af4f8b2fbd18b5e72f",
+  "status": "pass",
+  "checks": [
+    "Issue #1919 / #1914 / PR #1911",
+    "Policy ownership and existing skill references"
+  ],
+  "summary": "#1919の明示依頼に基づきAudit判断とIssue引継ぎのみをPolicyで改善する。#1914の形式を重複定義せず、連続操作と質問の扱いは既存規則を適用し、Vite+実動は#1916へ保持する。",
+  "remaining": []
+}

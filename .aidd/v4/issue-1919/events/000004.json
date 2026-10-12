@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1922#discussion_r4242539384",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "4bcb354b2447d2dbf8faa80e52837bccd6a81cf2155b35af4f8b2fbd18b5e72f",
+  "status": "unknown",
+  "checks": [
+    "User-approved revised proposal",
+    "Existing Intent improvement route"
+  ],
+  "summary": "再提示を会話のApproveで承認。今修正: Issue追記の対象明記を維持し、目的・範囲・制約・完了条件の追加変更を既存Intent改善へ接続する1文をPolicyへ追加。2 skill変更は撤回。検証・Ship後の理由返信とBot thread解決も承認範囲。",
+  "remaining": [
+    "承認済みPolicy修正・検証・Ship・対象thread対応を次サイクルで実施。"
+  ]
+}
