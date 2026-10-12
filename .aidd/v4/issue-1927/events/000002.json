@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1927",
+  "paths": [
+    "tools/dev-preview/",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "3cefbb6832f79351f384beaf6a8051dc6f8f22341d202f28cff22fffcca44976",
+  "status": "pass",
+  "checks": [
+    "Preview 回帰 34 件",
+    "actionlint",
+    "変更ファイル vp check",
+    "git diff --check",
+    "資格情報なし Dev build と Build Output 検査"
+  ],
+  "summary": "Preview専用APIモック、close中配信・古い要求・reopen・共有legacy・pagination・不在・認証/通信失敗の回帰が成功。Checks URL通知のCLIからstatus登録までの既存回帰を維持。workflow構文・整形・lint・Dev静的成果物の検査が成功。ライブ配信/削除は未実施。",
+  "remaining": []
+}

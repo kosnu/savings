@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1927",
+  "paths": [
+    "tools/dev-preview/",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "3cefbb6832f79351f384beaf6a8051dc6f8f22341d202f28cff22fffcca44976",
+  "status": "pass",
+  "checks": [
+    "Issue #1927・main e0d57886・マージ済み PR #1926 の照合",
+    "Cloudflare Preview API の target・name scope・force 契約確認"
+  ],
+  "summary": "新PreviewはPR番号で分離し、旧branch名の対応一件は他open PRを保護して移行する。mainの信頼済み受付・削除runnerと既存Environment保護を維持し、配信・終了・配信後再確認をPR単位に直列化する。Checks通知を維持し、ライブ削除は未実施とする。",
+  "remaining": []
+}

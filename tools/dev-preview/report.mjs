@@ -1,7 +1,7 @@
 import { appendFileSync, readFileSync } from "node:fs"
 import { pathToFileURL } from "node:url"
 
-import { previewName } from "./preview.mjs"
+import { previewName, prPreviewName } from "./preview.mjs"
 
 export function deploymentReport(deployment, env, completedAt = new Date().toISOString()) {
   const { PREVIEW_BRANCH, DEPLOYED_SHA, PR_NUMBER, GITHUB_RUN_NUMBER, GITHUB_RUN_ATTEMPT } = env
@@ -17,7 +17,7 @@ export function deploymentReport(deployment, env, completedAt = new Date().toISO
   }
   if (
     deployment.type !== "preview" ||
-    deployment.preview_name !== previewName(PREVIEW_BRANCH) ||
+    deployment.preview_name !== prPreviewName(PR_NUMBER) ||
     typeof deployment.deployment_id !== "string" ||
     !deployment.deployment_id ||
     [...deployment.deployment_id].some(
@@ -28,6 +28,7 @@ export function deploymentReport(deployment, env, completedAt = new Date().toISO
   ) {
     throw new Error("対象ブランチの成功した Preview 配信結果が必要です。")
   }
+  previewName(PREVIEW_BRANCH)
   const urls = deployment.preview_urls.map((value) => {
     if (typeof value !== "string" || /[\s<>]/u.test(value)) {
       throw new Error("Preview URL が不正です。")

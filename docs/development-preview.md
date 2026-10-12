@@ -21,7 +21,7 @@ when_to_read:
 
 # Dev プレビュー運用
 
-ブランチごとに `burneto-dev` のPreviewを配信し、1つのDev SupabaseでDB・Auth・APIを共有する。
+PRごとに `burneto-dev` のPreviewを配信し、1つのDev SupabaseでDB・Auth・APIを共有する。
 本番Worker・本番Supabaseには接続・変更せず、合成データだけを使う。
 構成は[インフラ構成](infrastructure.md)、検証結果と未確認項目はIssue・PRで管理する。
 
@@ -46,7 +46,8 @@ URL通知のPRコメントは投稿しない。
 そのjobだけを再実行してstatusを登録する。既に新しい成功配信が登録されていれば古い結果は登録しない。
 URL表示の修復のために配信jobを再実行する必要はない。
 
-同じブランチは同じURLへ更新され、別ブランチは別URLになる。
+同じPRは `pr-<PR番号>` の同じURLへ更新され、別PRは同じブランチでも別URLになる。
+branch renameでも対象名は変わらない。導入前のbranch名方式のURLは次の配信時に切り替わる。
 pushだけでは再配信されない。更新時は `preview` ラベルを外して付け直す。
 main導入後はmainからworkflowを手動実行し、PR番号だけを入力する方法も使える。
 CloudもこのActions経路を使うため、Cloudへの配信用Secret登録は不要。
@@ -54,7 +55,8 @@ CloudもこのActions経路を使うため、Cloudへの配信用Secret登録は
 Actionsは要求時のSHA・branchを固定し、承認後もPR状態を再確認する。
 head更新・branch rename・close・ラベル撤回で停止したら、新しい状態で要求し直す。
 fork、main以外へのPR、main以外からの手動実行は受け付けない。
-同一PRの配信は直列化し、別PRは並行配信できる。置き換えられた待機要求は再要求する。
+同一PRの配信・終了通知・削除は直列化し、実行中の配信は中断しない。別PRは並行配信できる。
+置き換えられた配信待ち要求は再要求する。古い要求でもPRが終了済みなら配信せず削除へ進む。
 
 FE配信ではmigration・seed・reset・Auth設定を変更しない。
 `Dev Preview CI` は実Dev URLとダミーキーでビルド・成果物を検査する。
@@ -170,9 +172,29 @@ FEを以前のcommitへ戻してもDB・Auth・データは戻らない。
 
 ### Previewを削除するとき
 
-PR終了または検証終了後、管理者がPreview名・最終deployment・切り戻しの要否を確認して削除承認を得る。
-cf beta.1の `previews` はdeployのみなので、Dashboardで対象Previewを削除する。
-本番Worker・Dev parent・共有Supabaseは削除しない。
+PRのclose・mergeで `Deploy Dev Preview` の `Delete closed PR Dev Preview` が自動で要求される。
+既存の `development` Environment のrequired reviewを維持するため、所有者が削除jobを承認する。
+承認待ち・失敗は削除完了ではない。ActionsのSummaryでPR番号・親Worker `burneto-dev`・
+Preview名・削除成功／不在／保護／失敗を確認する。不在は正常終了し、認証・通信・APIエラーは失敗する。
+失敗時は原因を確認し、同じrunを再実行できる。PRをreopen済みなら削除せず、再配信を要求できる。
+
+配信と終了通知は同じPRのconcurrency groupで直列化する。closeが配信・承認待ち中に到着しても、
+配信終了後の状態確認から削除する。置き換わった待ちrunや終了後の古い配信runの再実行も、
+現在のclosed状態を確認して配信せず削除へ進む。配信途中の失敗でも状態確認を行う。
+open PRの正常配信では削除承認を要求せず、既存のChecks URL登録を維持する。
+導入前の旧workflowで開始した配信はこの後処理を持たないため、導入時に完了・停止を確認する。
+runの手動キャンセルや削除承認の拒否、API障害では残存し得るため、対象の終了runを再実行して確認する。
+
+受付・状態確認・削除は `pull_request_target` / mainの手動実行時の信頼済みmainコードを使う。
+削除jobは独立runnerで実行し、PRコード・依存install script・配信jobの成果物を実行しない。
+削除対象は `pr-<PR番号>` と、移行前のbranch名方式で得た対応Previewだけ。
+[Preview専用API](https://developers.cloudflare.com/api/resources/workers/subresources/workers/subresources/previews/methods/delete/)を使い、
+Workerの削除や `force` は行わない。本番Worker・Dev parent・共有Supabase・Auth redirect・データは変更しない。
+同じbranchを使う別のopen PRがある場合は、移行前の共有Previewを保護して削除しない。
+PR番号方式のPreviewは別PRと共有しないため、同じbranchでも対象PRのPreviewだけを削除する。
+最後のPRが終了した時に削除する。ラベル・配信履歴のないPRでも対象名の不在を正常に扱う。
+既存残存Previewの一括削除は行わない。導入前にbranch renameして残ったPreviewや検証終了だけを理由とする削除は、
+管理者が対象名・最終deployment・切り戻しの要否を確認し、別途承認を得てDashboardで行う。
 Auth redirectの削除が必要なら、そのPreviewのentryだけを対象として別途承認する。
 Preview削除でDBデータは消えないため、データ初期化は所有者と別に調整する。
 

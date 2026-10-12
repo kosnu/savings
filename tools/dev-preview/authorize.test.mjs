@@ -61,8 +61,9 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
     mutate(f)
     assert.throws(() => deploymentRequest(f.event, "pull_request", "refs/pull/1871/merge", repo))
   }
-  assert.throws(() =>
+  assert.deepEqual(
     deploymentRequest(fixture().event, "pull_request_target", "refs/heads/main", repo),
+    request,
   )
 })
 
@@ -108,11 +109,11 @@ test("workflow limits triggers and gates installation/deployment behind environm
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled\]/)
-  assert.doesNotMatch(yaml, /pull_request_target:|types:.*synchronize|secrets: inherit/)
+  assert.match(yaml, /pull_request_target:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
+  assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
   assert.match(yaml, /environment: development/)
   assert.match(yaml, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)
-  assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 2)
+  assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
   assert.ok(yaml.indexOf("Revalidate after environment approval") < yaml.indexOf("run: pnpm ci"))
   assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.CLOUDFLARE_API_TOKEN"))
 })

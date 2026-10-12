@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1927",
+  "paths": [
+    "tools/dev-preview/",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "3cefbb6832f79351f384beaf6a8051dc6f8f22341d202f28cff22fffcca44976",
+  "status": "pass",
+  "checks": [
+    "architecture.overview",
+    "documentation.policy",
+    "infrastructure.dev-preview",
+    "infrastructure.overview",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries",
+    "policy.code-review",
+    "ai-driven.workflow",
+    "ai-driven.checker"
+  ],
+  "summary": "Issue各条件を実差分・呼出経路・34件の回帰と照合。対象PRの名前だけを削除し、mainコード/独立runner/既存Environment保護・close配信競合・不在/失敗の区別・Summary・文書同期・Checks互換を確認。規則競合と実装findingなし。実運用のEnvironment承認とCloudflare実削除は未検証。",
+  "remaining": []
+}
