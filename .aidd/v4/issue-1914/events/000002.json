@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1914",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "287cb5b11cea018e56f9282de6c8a29b07678fd3d78d8cf4ae6d60dcf0279576",
+  "status": "pass",
+  "checks": [
+    "Markdown format-check",
+    "git diff --check",
+    "Core rules/check-changes",
+    "accepted ADR履歴検査"
+  ],
+  "summary": "文書整形・空白・規約グラフ・差分選択・ADR履歴検査が成功。アプリコード変更なし。",
+  "remaining": []
+}
