@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1915",
+  "paths": [
+    ".github/workflows/vite_plus_sync.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "5063a5dcff1e7773ca77ca1f929babbe566f58d64e4abbadecc1d6e01c2e9dd3",
+  "status": "unknown",
+  "checks": [
+    "metadata edits: local pass; API and status untouched",
+    "head/base changes: local pass; current head dispatched",
+    "aggregate/report: local pass; failure/cancelled/skipped rejected",
+    "candidate/integration steps and protection settings unchanged",
+    "rule closure and final diff reviewed"
+  ],
+  "summary": "Local implementation satisfies Issue 1915 cases; no findings. Hosted PR event/concurrency behavior cannot be established before main adoption.",
+  "remaining": [
+    "After main adoption, observe metadata edits during active/pending CI, head update, base change into main, and failed/incomplete validation; preserve head and run URLs."
+  ]
+}

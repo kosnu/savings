@@ -18,7 +18,8 @@ on: # zizmor: ignore[dangerous-triggers] PRtargetの受付jobはAPIだけを利�
 permissions: {}
 
 concurrency:
-  group: vite-plus-sync-${{ github.event.pull_request.number || inputs.pr_number }}
+  # 本文・タイトル編集は、待機中の検証受付も置き換えない独立groupへ送る。
+  group: vite-plus-sync-${{ github.event.pull_request.number || inputs.pr_number }}${{ github.event.action == 'edited' && !github.event.changes.base.ref && format('-metadata-{0}', github.run_id) || '' }}
   cancel-in-progress: false
 
 jobs:
@@ -35,6 +36,10 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
+            // base変更を伴わない編集は、status更新・同期・CI dispatchを行わない。
+            if (context.payload.action === 'edited' && !context.payload.changes?.base?.ref) {
+              return;
+            }
             const {owner, repo} = context.repo;
             const candidate = context.payload.pull_request;
             const pr = (await github.rest.pulls.get({owner, repo, pull_number: candidate.number})).data;

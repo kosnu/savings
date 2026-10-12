@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1915",
+  "paths": [
+    ".github/workflows/vite_plus_sync.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "5063a5dcff1e7773ca77ca1f929babbe566f58d64e4abbadecc1d6e01c2e9dd3",
+  "status": "pass",
+  "checks": [
+    "workflow tests: 37 pass",
+    "vp check: pass",
+    "zizmor: no findings",
+    "Core and session metrics test/vet: pass",
+    "shared Git gate: 5 pass",
+    "ADR history and rule coverage: pass",
+    "git diff whitespace: pass"
+  ],
+  "summary": "Local event routing/concurrency and actual aggregate/report shell checks passed; hosted adoption behavior remains unverified.",
+  "remaining": []
+}

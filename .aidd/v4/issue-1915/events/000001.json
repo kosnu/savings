@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1915",
+  "paths": [
+    ".github/workflows/vite_plus_sync.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "5063a5dcff1e7773ca77ca1f929babbe566f58d64e4abbadecc1d6e01c2e9dd3",
+  "status": "pass",
+  "checks": [
+    "latest Issue and main entrypoints",
+    "event and concurrency design"
+  ],
+  "summary": "Metadata edits return before API/status/dispatch in isolated concurrency; head and base changes retain candidate/integration checks. Hosted event behavior requires adoption on main.",
+  "remaining": []
+}
