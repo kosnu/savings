@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1918",
+  "paths": [
+    "tools/dev-preview/",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "c38ad287f58737dee000e61ebb22547f342768c5d189e9a99a2d0fc2cd2de923",
+  "status": "pass",
+  "checks": [
+    "Preview tests 16/16",
+    "vp check changed files",
+    "zizmor offline",
+    "git diff --check",
+    "Preview fixture build/check-build",
+    "Core verify stable=true"
+  ],
+  "summary": "全16テスト、変更ファイルの整形/lint、workflowセキュリティ検査、Preview fixtureビルドと成果物検査が成功。Core verify の全4commandがexit 0で内容/modeは安定。",
+  "remaining": []
+}

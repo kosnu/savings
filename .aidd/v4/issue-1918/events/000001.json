@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1918",
+  "paths": [
+    "tools/dev-preview/",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "abb9a986771796f4be502adec8c467c92264e609264a7fd63c54f5e5973f2899",
+  "status": "pass",
+  "checks": [
+    "Issue #1918 と最新の実装依頼",
+    "既存 Preview workflow と権限境界",
+    "GitHub commit statuses API"
+  ],
+  "summary": "最新 main e228d727 が baseline。承認済み PR head SHA と PR別contextへ成功URLを登録し、確認時刻/run/attemptで識別する。古い通知jobの再試行は新しい成功結果を上書きしない。write tokenはPRコードを実行しないreport jobに限定。共有DB、配信承認、branch Previewを維持しコメントは投稿しない。",
+  "remaining": []
+}
