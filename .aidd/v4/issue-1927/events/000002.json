@@ -9,15 +9,16 @@
     "docs/development-preview.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "3cefbb6832f79351f384beaf6a8051dc6f8f22341d202f28cff22fffcca44976",
+  "fingerprint": "1dd7c2aaa51a3aa0e4c3e1721690c558d61ef2bacfa1267fa8f3df48ebea5148",
   "status": "pass",
   "checks": [
     "Preview 回帰 34 件",
     "actionlint",
     "変更ファイル vp check",
     "git diff --check",
+    "zizmor 1.30.1 offline",
     "資格情報なし Dev build と Build Output 検査"
   ],
-  "summary": "Preview専用APIモック、close中配信・古い要求・reopen・共有legacy・pagination・不在・認証/通信失敗の回帰が成功。Checks URL通知のCLIからstatus登録までの既存回帰を維持。workflow構文・整形・lint・Dev静的成果物の検査が成功。ライブ配信/削除は未実施。",
+  "summary": "Preview専用APIと競合/不在/失敗の34件、Checks URL通知の既存CLI回帰、workflow構文・整形・lintが成功。zizmorのトリガー一般警告はmain削除runnerと固定SHAの承認済み配信を照合し、既存形式の限定注釈で処理。実配信/削除は未実施。",
   "remaining": []
 }

@@ -9,12 +9,21 @@
     "docs/development-preview.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "3cefbb6832f79351f384beaf6a8051dc6f8f22341d202f28cff22fffcca44976",
+  "fingerprint": "1dd7c2aaa51a3aa0e4c3e1721690c558d61ef2bacfa1267fa8f3df48ebea5148",
   "status": "pass",
   "checks": [
-    "Issue #1927・main e0d57886・マージ済み PR #1926 の照合",
-    "Cloudflare Preview API の target・name scope・force 契約確認"
+    "architecture.overview",
+    "documentation.policy",
+    "infrastructure.dev-preview",
+    "infrastructure.overview",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries",
+    "policy.code-review",
+    "ai-driven.workflow",
+    "ai-driven.checker"
   ],
-  "summary": "新PreviewはPR番号で分離し、旧branch名の対応一件は他open PRを保護して移行する。mainの信頼済み受付・削除runnerと既存Environment保護を維持し、配信・終了・配信後再確認をPR単位に直列化する。Checks通知を維持し、ライブ削除は未実施とする。",
+  "summary": "Issue各条件を実差分・呼出経路・34件の回帰と照合。対象PRの名前だけを削除し、mainコード/独立runner/既存Environment保護・close配信競合・不在/失敗の区別・Summary・文書同期・Checks互換を確認。規則競合と実装findingなし。実運用のEnvironment承認とCloudflare実削除は未検証。",
   "remaining": []
 }

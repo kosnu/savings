@@ -9,7 +9,7 @@
     "docs/development-preview.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "3cefbb6832f79351f384beaf6a8051dc6f8f22341d202f28cff22fffcca44976",
+  "fingerprint": "1dd7c2aaa51a3aa0e4c3e1721690c558d61ef2bacfa1267fa8f3df48ebea5148",
   "status": "pass",
   "checks": [
     "architecture.overview",

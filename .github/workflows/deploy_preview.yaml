@@ -1,6 +1,7 @@
 name: Deploy Dev Preview
 
-on:
+# 受付・削除は main のみ。PR 実行は固定 SHA の development 承認後だけで、token は read 限定。
+on: # zizmor: ignore[dangerous-triggers] 削除用認証情報を持つ独立 job は main コードだけを実行する
   pull_request_target:
     branches: [main]
     types: [labeled, closed]
