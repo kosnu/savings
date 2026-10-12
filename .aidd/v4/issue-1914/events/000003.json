@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1914",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "287cb5b11cea018e56f9282de6c8a29b07678fd3d78d8cf4ae6d60dcf0279576",
+  "status": "pass",
+  "checks": [
+    "Issue #1914 DoD全7項目の意味照合",
+    "指摘なし・複数指摘・変更不要・原因不明の机上出力照合",
+    "再提示の列意味・No.対応維持",
+    "PR #1922・承認経路・既存Audit参照の保持"
+  ],
+  "summary": "DoD全項目pass。4ケースで報告順・7列と詳細/コメントの対応を確認。既存判断・追跡・Intent改善・承認境界は保持。Policy以外への形式複製なし。",
+  "remaining": []
+}

@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1914",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "287cb5b11cea018e56f9282de6c8a29b07678fd3d78d8cf4ae6d60dcf0279576",
+  "status": "pass",
+  "checks": [
+    "Issue #1914 と最新mainの差分範囲",
+    "Policy正本・既存Audit参照・承認境界"
+  ],
+  "summary": "Policyに原因分析区分と統一報告形式を集約する。既存Intent改善・後日追跡・承認経路とCore記録契約を維持。",
+  "remaining": []
+}
