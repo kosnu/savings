@@ -1,0 +1,76 @@
+{
+  "sequence": 7,
+  "kind": "decision",
+  "time": "2026-10-06T02:56:08.568513288Z",
+  "task_hash": "b6cb21d5e26b6ea06c24df740c5f3e9cf3e54c7eacf58b5b01694c5fee2aa19e",
+  "previous": "66b344e79c050e478a5a423b30a4dc3c938e4f3e3f5488a1095d5d147670a367",
+  "revision": 3,
+  "fingerprint": "fedf9f3815e9d4e92d732e25c9642046b1a915491d56cf1c7c5bd368e2a6cc4c",
+  "data": {
+    "intent_revision": {
+      "source": "user-delegation:01a0fa62-1487-75da-84d6-f7dedcbd40fc",
+      "objective": "Issue #1885 の安全な調査と必要最小限のrepo準備をDraft PRで提示し、実設定・性能・承認の未確認を明示する",
+      "constraints": [
+        "Google認証・Book所有境界・データと予算履歴を維持",
+        "本番・共有Devへ設定変更、migration適用、配信、負荷試験をしない",
+        "Cloudflare/DNS対象外、merge禁止、Auditは明示依頼後"
+      ],
+      "acceptance": [
+        "Prd/Devとrepoの読み取り比較と未確認事項を記録する",
+        "根拠がある最小限の準備を行い隔離合成データで確認する",
+        "Draft PRへ提示する差分を検証・レビューし、実設定・性能・本番適用の未達事項を明示する"
+      ],
+      "text_hash": "dbd015633442aab22dec78404417ee2cdd68417aaf8121ee34d9229cf9e20451"
+    },
+    "summary": "Prd/Dev読み取りで8表RLS有効、TRUNCATEの不要権限、users auth.uidの行ごと評価、category_budgetsのFK index不足を確認。通常CRUD/Book境界/予算履歴を維持する未適用migrationと隔離DBの回帰テスト、infrastructureへ現行運用と未確認を統合する。想定負荷/Auth実設定/配信動作は未確認でIssueをcloseしない。 pg_proveは.sqlを明示指定して0件実行を避ける。 Task開始時にagentが記述したShipを含むreview条件はpre-Shipで判定不能なため、差分の検証・レビューと未達明示をpre-Ship判定に分離。Draft提出とhead CI確認は元のユーザー委任・objectiveを維持しShipで確認する。Issue本文と実行権限、最終成果は変更しない。",
+    "paths": [
+      "docs/infrastructure.md",
+      "apps/api/supabase/migrations/20261006024617_optimize_user_rls_and_category_budget_lookup.sql",
+      "apps/api/supabase/tests/publication_boundaries.test.sql"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "docker",
+        "exec",
+        "issue1885-verification",
+        "pg_prove",
+        "-U",
+        "postgres",
+        "-d",
+        "postgres",
+        "/tmp/issue1885-tests/publication_boundaries.test.sql",
+        "/tmp/issue1885-tests/ensure_authenticated_user.test.sql",
+        "/tmp/issue1885-tests/monthly_budget_write_boundary.test.sql",
+        "/tmp/issue1885-tests/monthly_budget_timezone.test.sql"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "25399204360da14f7b579083755874bcd7f7905e8417a2378af9dc514004c30b",
+  "cycle_id": "issue-1885/cycle-0001"
+}

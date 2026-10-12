@@ -1,0 +1,61 @@
+{
+  "sequence": 10,
+  "kind": "decision",
+  "time": "2026-10-06T03:05:03.534397873Z",
+  "task_hash": "b6cb21d5e26b6ea06c24df740c5f3e9cf3e54c7eacf58b5b01694c5fee2aa19e",
+  "previous": "3adea43f012e7bd9bf6cc64477bdae1a0e2a904f8aba8fab8e58b547c6ec47b2",
+  "revision": 4,
+  "fingerprint": "fedf9f3815e9d4e92d732e25c9642046b1a915491d56cf1c7c5bd368e2a6cc4c",
+  "data": {
+    "summary": "同じIntent/baselineを継続。実API role timeoutと調査接続timeoutを分離。未適用の既存準備migrationへpostgres作成publicテーブルのdefault TRUNCATE revokeのみ追加し、将来表の権限を既存pgTAPで検証。supabase_admin等の管理role既定値・実環境は変更せず、別creator/明示grantの限界を文書化。新たなcheckerや仕組みは追加しない。",
+    "paths": [
+      "docs/infrastructure.md",
+      "apps/api/supabase/migrations/20261006024617_optimize_user_rls_and_category_budget_lookup.sql",
+      "apps/api/supabase/tests/publication_boundaries.test.sql"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "docker",
+        "exec",
+        "issue1885-verification",
+        "pg_prove",
+        "-U",
+        "postgres",
+        "-d",
+        "postgres",
+        "/tmp/issue1885-tests/publication_boundaries.test.sql",
+        "/tmp/issue1885-tests/ensure_authenticated_user.test.sql",
+        "/tmp/issue1885-tests/monthly_budget_write_boundary.test.sql",
+        "/tmp/issue1885-tests/monthly_budget_timezone.test.sql"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "4dac0b9e666cda552e3ac198fb8f7d835c09e3778f076d11c472ae362584aa14",
+  "cycle_id": "issue-1885/cycle-0001"
+}

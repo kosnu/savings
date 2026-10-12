@@ -1,0 +1,61 @@
+{
+  "sequence": 3,
+  "kind": "decision",
+  "time": "2026-10-06T02:53:51.422244224Z",
+  "task_hash": "b6cb21d5e26b6ea06c24df740c5f3e9cf3e54c7eacf58b5b01694c5fee2aa19e",
+  "previous": "f577c70be54e3f2717dcb2dc24ce31e11e6d2c95be9f43bac5422f7fc596deba",
+  "revision": 2,
+  "fingerprint": "eb58ab6fe2c52a95ae2ff21f636e66600a67172c7cf74b7c2ec878693b4d463e",
+  "data": {
+    "summary": "Prd/Dev読み取りで8表RLS有効、TRUNCATEの不要権限、users auth.uidの行ごと評価、category_budgetsのFK index不足を確認。通常CRUD/Book境界/予算履歴を維持する未適用migrationと隔離DBの回帰テスト、infrastructureへ現行運用と未確認を統合する。想定負荷/Auth実設定/配信動作は未確認でIssueをcloseしない。 pg_proveは.sqlを明示指定して0件実行を避ける。",
+    "paths": [
+      "docs/infrastructure.md",
+      "apps/api/supabase/migrations/20261006024617_optimize_user_rls_and_category_budget_lookup.sql",
+      "apps/api/supabase/tests/publication_boundaries.test.sql"
+    ],
+    "commands": [
+      [
+        "git",
+        "diff",
+        "--check"
+      ],
+      [
+        "docker",
+        "exec",
+        "issue1885-verification",
+        "pg_prove",
+        "-U",
+        "postgres",
+        "-d",
+        "postgres",
+        "/tmp/issue1885-tests/publication_boundaries.test.sql",
+        "/tmp/issue1885-tests/ensure_authenticated_user.test.sql",
+        "/tmp/issue1885-tests/monthly_budget_write_boundary.test.sql",
+        "/tmp/issue1885-tests/monthly_budget_timezone.test.sql"
+      ]
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "99624848cdddd77f0c7f58a995aac4622c57e821177d2675ba264fd314ac191e",
+  "cycle_id": "issue-1885/cycle-0001"
+}

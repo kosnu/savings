@@ -1,0 +1,52 @@
+{
+  "sequence": 9,
+  "kind": "review",
+  "time": "2026-10-06T02:56:35.585374567Z",
+  "task_hash": "b6cb21d5e26b6ea06c24df740c5f3e9cf3e54c7eacf58b5b01694c5fee2aa19e",
+  "previous": "2a075389b3860dcee43d8db9c60205a98ab61dd719f0840f7a8d9693b03e7c88",
+  "revision": 3,
+  "fingerprint": "fedf9f3815e9d4e92d732e25c9642046b1a915491d56cf1c7c5bd368e2a6cc4c",
+  "data": {
+    "summary": "Coverage: decisionの全rule IDと依存本文を確認。migrationはTRUNCATE権限だけを除外、users本人述語の意味・USING/WITH CHECK・列権限を維持、FK index追加のみ。Google/Book/RPC/予算履歴/データを変更しない。境界試験417項目成功、変更前TRUNCATEの反例も検出。infrastructureへの統合は既存path routingで到達できるため索引変更不要。Unresolved: 実Auth・Data API・管理設定/キー種別/Google実機/使用量・backup/目標負荷と主要操作の性能は未確認。Issue #1885全体のDoDは未達で、承認前に実環境変更しない準備PRとしてのみ評価。Cloudflare/DNS/merge/Auditを実施しない。新規definer/権限拡張/サービス有効化なし。",
+    "criteria": [
+      {
+        "criterion": "Prd/Devとrepoの読み取り比較と未確認事項を記録する",
+        "evidence": "Prd/Devのreadonly metadata・migration一覧36件・8表RLS・index・Advisor・Free plan・ssl/max_connections/timeout・Edge Functionなしを確認しdocs/infrastructure.mdへ日付と未確認事項を統合。実設定の未取得面をrepo値で代用していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "根拠がある最小限の準備を行い隔離合成データで確認する",
+        "evidence": "実TRUNCATE権限、AdvisorのInitPlan/FK index指摘から最小migrationを準備。network noneの専用PostgreSQLにbaseline36 migrationとローカルauth関数定義を再現。JWT2利用者・匿名・本人更新/Book拒否/同一接続JWT切替/予算履歴を4ファイル417項目でPASS。実環境へ適用・負荷試験なし。SQL性能診断は7回中央値と件数/blocksを文書化、主要3操作の高速化を主張していない。",
+        "verdict": "pass"
+      },
+      {
+        "criterion": "Draft PRへ提示する差分を検証・レビューし、実設定・性能・本番適用の未達事項を明示する",
+        "evidence": "verify revision3でgit diff --checkとpg_prove全4ファイルがexit0。実差分と全ruleを照合しblocking defectなし。Google/session・実設定・使用量・復旧・目標負荷・本番適用の未達と承認対象/切り戻しを文書・Draft PR本文へ明記する。ShipのPR/head/CIは配信後readbackで別途確認する。",
+        "verdict": "pass"
+      }
+    ],
+    "rules": [
+      "ai-driven.glossary",
+      "ai-driven.overview",
+      "ai-driven.workflow",
+      "architecture.overview",
+      "documentation.policy",
+      "domain.amount",
+      "domain.book",
+      "domain.category",
+      "domain.date",
+      "domain.monthly-budget",
+      "domain.payment",
+      "domain.user",
+      "infrastructure.overview",
+      "policy.code-review",
+      "policy.git-workflow",
+      "policy.learning-extraction",
+      "policy.review-feedback-classification",
+      "policy.temporal-data",
+      "policy.transaction-boundaries"
+    ]
+  },
+  "hash": "3adea43f012e7bd9bf6cc64477bdae1a0e2a904f8aba8fab8e58b547c6ec47b2",
+  "cycle_id": "issue-1885/cycle-0001"
+}
