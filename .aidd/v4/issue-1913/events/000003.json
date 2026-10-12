@@ -1,0 +1,31 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1913",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "dbed6f98a47717976aaf5d3b73edbb7c372c6dec23759e9d1296e70181746cec",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "policy.code-review",
+    "Issueの4完了条件すべてpass",
+    "最小結果保持・上書き境界・具体案不足の意味照合"
+  ],
+  "summary": "Checked rulesはchecksに記載。Unresolvedなし。既存Coreの配置・命名・cycle保持と説明案の権限境界を維持。workflowの既存索引・依存経路で基準へ到達でき、所有移動やcontract変更はないため索引・CLI・CIの変更は不要。",
+  "remaining": []
+}

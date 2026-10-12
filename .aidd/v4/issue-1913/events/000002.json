@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1913",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "dbed6f98a47717976aaf5d3b73edbb7c372c6dec23759e9d1296e70181746cec",
+  "status": "pass",
+  "checks": [
+    "文書整形・空白検査成功",
+    "全規約graph・実差分選択成功",
+    "Coreの同cycle更新・旧cycle保持・生出力拒否の既存2テスト成功"
+  ],
+  "summary": "具体例をCore記録契約・実装と照合。verifyの全3commandが終了コード0、stable true。アプリ変更なしのためアプリ検証は対象外。",
+  "remaining": []
+}
