@@ -80,8 +80,8 @@ when_to_read:
 - 本番切替と旧 Pages 削除は別の承認対象とする。準備・切替・確認・切り戻しは
   [移管手順](workers-migration.md)を参照する。
 - 静的応答のセキュリティヘッダーは [public/_headers](../apps/web/public/_headers) で管理する。
-  HTML・静的ファイルは標準の再検証キャッシュを維持する。実設定との差、性能の測定条件、
-  本番反映の承認対象と切り戻しは [Cloudflare 配信確認](cloudflare-delivery.md)を参照する。
+  HTML・静的ファイルは標準の再検証キャッシュを維持する。セキュリティ・キャッシュ方針、
+  測定・Web配信・切り戻しの手順は [Cloudflare のWeb配信と運用](cloudflare-delivery.md)を参照する。
 
 ### Supabase
 

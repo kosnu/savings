@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1886",
+  "paths": [
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "2d9bd2284707d3eb6ab62cda2e8dc9ae513782bc49c6ad4979ee224273fdcb51",
+  "status": "pass",
+  "checks": [
+    "文書2コマンドexit0/stable",
+    "ローカルPlaywright CLI開始/測定6件/終了exit0",
+    "掲載Issueコメントのread-back一致",
+    "文書と実行script一致/リンク検査"
+  ],
+  "summary": "文書どおりの既存CLIで測定が完了し、3組のfirst/revisit結果を取得。タスクの一時snapshotを削除後、文書scope/format/diff検証が成功。runtime差分なし。",
+  "remaining": []
+}
