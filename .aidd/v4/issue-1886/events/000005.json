@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1886",
+  "paths": [
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "2d9bd2284707d3eb6ab62cda2e8dc9ae513782bc49c6ad4979ee224273fdcb51",
+  "status": "pass",
+  "checks": [
+    "承認された2件の有限scope",
+    "調査記録と運用説明の責務分離",
+    "runtime/権限/本番設定の不変"
+  ],
+  "summary": "調査要約はIssueコメントへ、文書は配信方針・運用手順へ整理。ローカルPlaywright CLIのsession開始/測定/終了を説明し、既存リンクとPRを同期する。",
+  "remaining": []
+}

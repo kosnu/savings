@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1886",
+  "paths": [
+    "apps/web/public/_headers",
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "bd52bcb52de9b1f469b5671df46060d54216d18cd7cdebdb777aae914b4417c8",
+  "status": "unknown",
+  "checks": [
+    "追加read-only factsと公式仕様の照合",
+    "metadata・metrics・WAF実適用の証拠境界"
+  ],
+  "summary": "追加確認を統合。Builds tokenとの対応、Workers契約・使用量、Free Managed実適用は未確認を維持し、本番変更は行わない。",
+  "remaining": [
+    "本番設定変更とWeb配信の承認・受入確認",
+    "deployment token・実契約/使用量・Free Managed実適用の可視性不足"
+  ]
+}

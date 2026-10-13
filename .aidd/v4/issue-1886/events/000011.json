@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1930#discussion_r4260828175",
+  "paths": [
+    "docs/cloudflare-delivery.md"
+  ],
+  "fingerprint": "1b06ddef7e33e2b2265bc9df4dd246b379a100b45bc76e42b3dc50b2fc08c578",
+  "status": "pass",
+  "checks": [
+    "documentation.policy/git-workflow/learning-extraction/feedback照合",
+    "承認されたr4260828175と本文3軸・詳細への実差分照合",
+    "保護範囲・cache・承認/復旧・監視/測定限界を保持",
+    "コード同一性と外部変更なし"
+  ],
+  "summary": "本文は配信するもの→保護対象→更新/運用の順に読め、詳細を開かず方針を理解できる。既存手順・制約は詳細へ保持し重複を削減。ユーザー承認の対象docだけを修正。未解決の規約競合なし。HTML・本番設定・guardrailは変更なし。",
+  "remaining": []
+}

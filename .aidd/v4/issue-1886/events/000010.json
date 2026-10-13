@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1930#discussion_r4260828175",
+  "paths": [
+    "docs/cloudflare-delivery.md"
+  ],
+  "fingerprint": "1b06ddef7e33e2b2265bc9df4dd246b379a100b45bc76e42b3dc50b2fc08c578",
+  "status": "pass",
+  "checks": [
+    "承認後差分の整形/diff/リンク・details構造exit0/stable",
+    "前headとの全コードブロック同一性"
+  ],
+  "summary": "変更直前head7708721fを比較元に文書のみの修正を検証。3軸と詳細の構造、相対参照、既存コマンドの同一性が成功。既存branchのruntime差分は変更せず、前回検証を保持。",
+  "remaining": []
+}

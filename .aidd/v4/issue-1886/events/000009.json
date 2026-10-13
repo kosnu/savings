@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1930#discussion_r4260828175",
+  "paths": [
+    "docs/cloudflare-delivery.md"
+  ],
+  "fingerprint": "1b06ddef7e33e2b2265bc9df4dd246b379a100b45bc76e42b3dc50b2fc08c578",
+  "status": "pass",
+  "checks": [
+    "ユーザーの承認発言と新規指摘の有限scope照合",
+    "3軸の本文と折りたたみ詳細の役割分離"
+  ],
+  "summary": "承認された局所修正として配信の3軸を本文に置き、既存の技術詳細と手順を末尾に整理する。既存の設定・制約・コマンドは維持し、HTML・runtime・本番・ガードレールへ広げない。",
+  "remaining": []
+}
