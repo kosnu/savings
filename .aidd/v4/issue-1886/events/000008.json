@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1930#discussion_r4260828175",
+  "paths": [
+    "docs/cloudflare-delivery.md"
+  ],
+  "fingerprint": "2d9bd2284707d3eb6ab62cda2e8dc9ae513782bc49c6ad4979ee224273fdcb51",
+  "status": "fail",
+  "checks": [
+    "PR最新headと全3thread・review・conversation取得",
+    "旧2thread解決済みを確認",
+    "新規指摘と現行本文・前cycleレビュー・文書責務policy照合"
+  ],
+  "summary": "PR1930の未解決r4260828175は妥当。配信の全体像と設定・制限・測定コード・運用手順が連続し、読み手の判断軸が弱い。本文を静的配信・防御範囲・更新と運用へ絞り、既存詳細を末尾へ整理する局所修正と検証後の返信を提案。ガードレール追加、HTML変更、旧thread再対応は不要。",
+  "remaining": [
+    "docs/cloudflare-delivery.mdの構成・重複削減案への手動承認待ち",
+    "r4260828175への検証後返信は承認待ち。人間threadは未解決を保持"
+  ]
+}
