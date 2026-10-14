@@ -196,6 +196,11 @@ HTTP遅延、p95/p99、同時実行、CPU/IO/接続上限、APIエラー率は�
 - Supabase Project ID、database、RLS policy、利用者ごとのデータ分離を変更しない。
 - brand表示の変更を理由にOAuth client secretを再生成しない。
 
+### Sentry
+
+エラー監視の収集範囲、成果物との対応、受信・使用量・通知の確認と切り戻しは
+[Sentry のエラー監視と運用](sentry-monitoring.md)を参照する。
+
 ### Production deployment
 
 `Deploy Production` は手動実行とする。Workers への初回切替は

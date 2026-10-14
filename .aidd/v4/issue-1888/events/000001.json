@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    "apps/web/src/lib/sentry.ts",
+    "apps/web/src/lib/sentryPrivacy.ts",
+    "apps/web/src/lib/sentry.test.ts",
+    "apps/web/src/lib/sentry.integration.test.ts",
+    "docs/sentry-monitoring.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "b9887446a6ff6a904702eac4a77ff8246a39f6d8e32689e1a601a5e92b602dfa",
+  "status": "unknown",
+  "checks": [
+    "Issue本文・コメント・既存PR確認",
+    "現行SDK・配信設定確認"
+  ],
+  "summary": "送信前処理とローカル検証を準備する判断は確定。Sentry実設定に依存する変更の採否は読み取り接続がなく未確定。",
+  "remaining": [
+    "Sentry実設定・権限・プラン・使用量の読み取り接続なし",
+    "受信・通知・source map解決・実ブラウザ性能・本番反映は未確認"
+  ]
+}

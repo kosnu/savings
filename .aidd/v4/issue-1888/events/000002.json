@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    "apps/web/src/lib/sentry.ts",
+    "apps/web/src/lib/sentryPrivacy.ts",
+    "apps/web/src/lib/sentry.test.ts",
+    "apps/web/src/lib/sentry.integration.test.ts",
+    "docs/sentry-monitoring.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "b9887446a6ff6a904702eac4a77ff8246a39f6d8e32689e1a601a5e92b602dfa",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format-check",
+    "Web typecheck",
+    "Web unit/integration 789 tests",
+    "Web fixture build",
+    "Document format・local links",
+    "Core change coverage・diff whitespace"
+  ],
+  "summary": "最終差分の必須Web検証と合成環境ビルドに成功。合成機微情報の除去、分類・JS位置・Debug ID保持、SDK・transport失敗時の継続を確認。",
+  "remaining": []
+}
