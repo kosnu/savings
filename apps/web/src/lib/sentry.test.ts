@@ -32,6 +32,7 @@ const { mockCaptureMessage, mockSetContext, mockSetTag, mockWithScope, mockInit 
 vi.mock("../config/env", () => ({
   env: {
     MODE: "production",
+    PROD: true,
     SENTRY_DSN: "https://public@example.com/1",
     SENTRY_ENVIRONMENT: "test",
   },

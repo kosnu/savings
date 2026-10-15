@@ -35,7 +35,7 @@ jobs:
           NODE_ENV: production
           CLOUDFLARE_VITE_PREVIEW_BUILD: "true"
           CF_SEND_TELEMETRY: "false"
-          VITE_SENTRY_DSN: ""
+          VITE_SENTRY_DSN: https://public@sentry.invalid/1
           VITE_SENTRY_ENVIRONMENT: development
           VITE_SUPABASE_URL: https://ufekmuxkmodwydxmdbln.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_fixture

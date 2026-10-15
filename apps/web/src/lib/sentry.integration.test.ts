@@ -7,13 +7,15 @@ const { sendEnvelope } = vi.hoisted(() => ({
   sendEnvelope: vi.fn(async (_envelope: unknown) => ({ statusCode: 200 })),
 }))
 
-vi.mock("../config/env", () => ({
-  env: {
+const { testEnv } = vi.hoisted(() => ({
+  testEnv: {
     MODE: "production",
+    PROD: true,
     SENTRY_DSN: "https://public@example.com/1",
     SENTRY_ENVIRONMENT: "test",
   },
 }))
+vi.mock("../config/env", () => ({ env: testEnv }))
 
 // 実SDKのイベント処理を使い、送信先だけをテスト内に閉じる。
 vi.mock("@sentry/react", async (importOriginal) => {
@@ -30,6 +32,8 @@ vi.mock("@sentry/react", async (importOriginal) => {
 })
 
 afterEach(async () => {
+  testEnv.MODE = "production"
+  testEnv.SENTRY_ENVIRONMENT = "test"
   await Sentry.close()
   Sentry.getIsolationScope().clearBreadcrumbs()
   sendEnvelope.mockClear()
@@ -174,4 +178,22 @@ test("送信先が失敗しても診断の呼び出し元へ例外を伝播し�
   initSentry()
   expect(() => captureAuthCallbackError({ code: "access_denied" })).not.toThrow()
   await Sentry.flush()
+})
+
+test("Dev Preview のエラーを production と異なる環境名で送信する", async () => {
+  testEnv.MODE = "development"
+  testEnv.SENTRY_ENVIRONMENT = "development"
+  initSentry()
+  const client = Sentry.getClient()
+  if (!client) throw new Error("Sentry client was not initialized")
+  const sent = vi.fn<(event: Sentry.Event) => void>()
+  client.on("beforeSendEvent", sent)
+  captureAuthCallbackError({ code: "access_denied", description: "synthetic-secret" })
+  expect(await Sentry.flush()).toBe(true)
+  expect(sent).toHaveBeenCalledTimes(1)
+  const [event] = sent.mock.calls[0]
+  expect(event.environment).toBe("development")
+  expect(event.contexts?.auth_callback_error).toEqual({ code: "access_denied" })
+  expect(JSON.stringify(event)).not.toContain("synthetic-secret")
+  expect(sendEnvelope).toHaveBeenCalledTimes(1)
 })

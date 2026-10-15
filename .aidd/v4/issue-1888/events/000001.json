@@ -4,22 +4,25 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
+    "apps/web/src/config/env.ts",
     "apps/web/src/lib/sentry.ts",
-    "apps/web/src/lib/sentryPrivacy.ts",
     "apps/web/src/lib/sentry.test.ts",
     "apps/web/src/lib/sentry.integration.test.ts",
+    "apps/web/src/lib/sentry.initialization.test.ts",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
     "docs/sentry-monitoring.md",
-    "docs/infrastructure.md"
+    "docs/development-preview.md",
+    "tools/dev-preview/authorize.test.mjs"
   ],
-  "fingerprint": "b9887446a6ff6a904702eac4a77ff8246a39f6d8e32689e1a601a5e92b602dfa",
+  "fingerprint": "9b5f4fccfd03f8fe6e5b2a6c6d2efb24c7e0303f22cefc48098e72aa089a19f7",
   "status": "unknown",
   "checks": [
-    "Issue本文・コメント・既存PR確認",
-    "現行SDK・配信設定確認"
+    "Dev送信・local無効・環境分離・既存情報制限を最新依頼と照合"
   ],
-  "summary": "送信前処理とローカル検証を準備する判断は確定。Sentry実設定に依存する変更の採否は読み取り接続がなく未確定。",
+  "summary": "Dev Previewの送信準備に局所defectなし。ローカル検証成功。実環境は未検証。",
   "remaining": [
-    "Sentry実設定・権限・プラン・使用量の読み取り接続なし",
-    "受信・通知・source map解決・実ブラウザ性能・本番反映は未確認"
+    "development Environment の VITE_SENTRY_DSN が未登録。登録・配信・実受信・通知・Dev source map解決は未確認",
+    "Issue全体の実設定・プラン・使用量・性能評価・本番反映は未確認"
   ]
 }

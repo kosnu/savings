@@ -41,10 +41,15 @@ SDK が生成する識別子とビルド済み asset 名は診断情報として
 
 ## 環境、成果物、使用量
 
-`production` mode と DSN が揃った場合だけ初期化し、environment は
-`VITE_SENTRY_ENVIRONMENT`、未指定時は mode を使う。
-本番 workflow は `production`、Dev Preview は `development` かつ DSN 空である。
-Preview の受信検証が必要なら、検証用 project・DSN・通知先と利用量への影響を先に承認する。
+配信用ビルド（Vite の `import.meta.env.PROD`）と非空 DSN が揃った場合だけ初期化する。
+モード名は初期化可否ではなく、`VITE_SENTRY_ENVIRONMENT` 未指定時の environment の既定値に使う。
+通常の local 開発サーバーは DSN を設定しても送信しない。
+本番 workflow の environment は `production`、Dev Preview は `development` に分ける。
+Preview の DSN は `development` Environment のSecret `VITE_SENTRY_DSN` からビルドへ渡す。
+Secret が未登録・空なら配信を止め、監視が有効な Preview と誤認させない。
+Preview CI は `.invalid` ドメインの合成 DSN で同じビルド経路だけを検証し、実 Sentry へ送信しない。
+Dev の送信にも既存の情報制限を適用する。DSN の登録・発行と配信・合成イベント送信は、
+対象 project・送信内容・通知先・使用量への影響を確認したうえで行う。
 
 [Vite 連携](../apps/web/vite.config.ts)は管理 token・org・project がある本番ビルドでのみ
 hidden source map を作り、アップロード後に配信 assets 内の JS/CSS map を削除する。

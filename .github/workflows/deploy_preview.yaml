@@ -115,9 +115,10 @@ jobs:
           CF_SEND_TELEMETRY: "false"
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          VITE_SENTRY_DSN: ""
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
           VITE_SENTRY_ENVIRONMENT: development
         run: |
+          : "${VITE_SENTRY_DSN:?development Environment の VITE_SENTRY_DSN が必要です}"
           preview_name=$(node "$RUNNER_TEMP/preview-control/preview.mjs" name "$PREVIEW_BRANCH" "$PR_NUMBER")
           echo "name=$preview_name" >> "$GITHUB_OUTPUT"
           pnpm run web:build --mode development

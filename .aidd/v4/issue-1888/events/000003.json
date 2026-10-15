@@ -4,24 +4,28 @@
   "kind": "review",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
+    "apps/web/src/config/env.ts",
     "apps/web/src/lib/sentry.ts",
-    "apps/web/src/lib/sentryPrivacy.ts",
     "apps/web/src/lib/sentry.test.ts",
     "apps/web/src/lib/sentry.integration.test.ts",
+    "apps/web/src/lib/sentry.initialization.test.ts",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
     "docs/sentry-monitoring.md",
-    "docs/infrastructure.md"
+    "docs/development-preview.md",
+    "tools/dev-preview/authorize.test.mjs"
   ],
-  "fingerprint": "b9887446a6ff6a904702eac4a77ff8246a39f6d8e32689e1a601a5e92b602dfa",
+  "fingerprint": "9b5f4fccfd03f8fe6e5b2a6c6d2efb24c7e0303f22cefc48098e72aa089a19f7",
   "status": "unknown",
   "checks": [
-    "Rule map path・surface・依存closure",
-    "Intentと最終差分・送信経路・回帰検証の照合",
-    "ドメイン・UI・DB・認証設定に変更なし",
-    "既存インフラ正本から運用説明への参照確認"
+    "rule-map path/surfaceと依存closure",
+    "MODE/PRODのenv生成からSDK初期化・transportまで",
+    "development Secret配線・空DSN停止・CI合成DSN・管理token非露出",
+    "収集制限・例外隔離・本番とlocalの回帰・文書同期"
   ],
-  "summary": "SDK準備差分に未解決の局所defectはなし。Issue全体は実設定・受信・通知・source map解決・性能評価の証拠がなく未完了。",
+  "summary": "Dev Previewの送信準備に局所defectなし。ローカル検証成功。実環境は未検証。",
   "remaining": [
-    "Sentry接続・SENTRY_AUTH_TOKEN未設定のため実設定・権限・プラン・使用量・受信・通知が未確認",
-    "配信後source map解決、実ブラウザ性能、上限到達時の業務操作、本番反映・読み戻しは未確認"
+    "development Environment の VITE_SENTRY_DSN が未登録。登録・配信・実受信・通知・Dev source map解決は未確認",
+    "Issue全体の実設定・プラン・使用量・性能評価・本番反映は未確認"
   ]
 }

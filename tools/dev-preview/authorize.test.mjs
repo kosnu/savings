@@ -148,10 +148,18 @@ test("FE/DB share development but only DB steps receive database credentials", (
   assert.deepEqual(secrets(frontend), [
     "CLOUDFLARE_ACCOUNT_ID",
     "CLOUDFLARE_API_TOKEN",
+    "VITE_SENTRY_DSN",
     "VITE_SUPABASE_PUBLISHABLE_KEY",
     "VITE_SUPABASE_URL",
   ])
   assert.deepEqual(secrets(database), ["SUPABASE_ACCESS_TOKEN", "SUPABASE_PROJECT_ID"])
+  assert.match(frontend, /VITE_SENTRY_ENVIRONMENT: development/)
+  assert.match(frontend, /VITE_SENTRY_DSN: \$\{\{ secrets\.VITE_SENTRY_DSN \}\}/)
+  assert.match(frontend, /\$\{VITE_SENTRY_DSN:\?development Environment/)
+  const ci = read("dev_preview_ci.yaml")
+  assert.match(ci, /VITE_SENTRY_DSN: https:\/\/public@sentry\.invalid\/1/)
+  assert.match(ci, /VITE_SENTRY_ENVIRONMENT: development/)
+  assert.doesNotMatch(ci, /secrets\.|SENTRY_AUTH_TOKEN/)
   assert.match(database, /^  group: burneto-shared-dev-database$/m)
   assert.ok(
     database.indexOf("Revalidate after migration approval") <

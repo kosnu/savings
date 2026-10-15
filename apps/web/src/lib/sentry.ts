@@ -7,7 +7,8 @@ import { diagnosticCode, privateBreadcrumb, privateErrorEvent } from "./sentryPr
 export function initSentry() {
   const dsn = env.SENTRY_DSN
 
-  if (env.MODE !== "production" || !dsn) {
+  // development mode の配信ビルドは許可し、通常の local 開発サーバーは除外する。
+  if (!env.PROD || !dsn) {
     return
   }
 
