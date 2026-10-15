@@ -4,24 +4,20 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
-    "apps/web/vite.config.ts",
-    "apps/web/src/test/viteSentry.test.ts",
-    ".github/workflows/deploy_preview.yaml",
-    ".github/workflows/deploy_production.yaml",
-    "tools/dev-preview/authorize.test.mjs",
-    "docs/sentry-monitoring.md",
-    "docs/development-preview.md"
+    "apps/web/src/lib/sentry.ts",
+    "apps/web/src/lib/sentrySession.integration.test.ts",
+    "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "a33a355253e9f5ef8f8ae910529ea098d56b7db54a21b58ea5a881eb4aeef6d1",
+  "fingerprint": "bc27641aef94711e141667d67a5f2c338e90a1b6c90c79f4f0aa4bd01ba8b3ef",
   "status": "unknown",
   "checks": [
-    "本番とDevの5 Secrets・SDK・source map処理の共通化を最新依頼と照合",
-    "local無効・情報制限・認証情報登録や実配信をしない範囲を維持"
+    "Issueの収集情報制限内の局所defectとしてレビュー指摘を判定",
+    "SDK11.4のBrowserSession・sendSessionがbeforeSendを通らない経路を確認",
+    "既定integrationからBrowserSessionだけを除外し収集範囲を維持"
   ],
-  "summary": "本番・DevのSentry配線とsource map処理を共通化。局所defectなし、ローカル検証成功。実アップロード・受信の証拠は未取得。",
+  "summary": "BrowserSessionの許可集合外送信を実SDKで再現し、自動session収集を停止。局所defectを修正しローカル検証成功。Issue全体の実環境検証は未完了。",
   "remaining": [
-    "developmentにはVITE_SENTRY_ENVIRONMENTの名前のみ存在。残る4 Secrets未登録、全実値・対象・権限は未確認",
-    "実Sentryへのsource mapアップロード・削除結果・受信・source map解決・通知は未確認",
-    "Issue全体のプラン・使用量・実ブラウザ性能・本番反映は未確認"
+    "5つのSecretは登録名のみ確認済み。実値・権限・対象対応は未確認",
+    "実Sentry受信・通知・source map解決・実ブラウザ性能・本番反映は未確認"
   ]
 }

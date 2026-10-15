@@ -15,6 +15,9 @@ export function initSentry() {
   try {
     Sentry.init({
       dsn,
+      // session envelope は beforeSend を通らないため、自動 session 収集を停止する。
+      integrations: (defaults) =>
+        defaults.filter((integration) => integration.name !== "BrowserSession"),
       beforeSend: privateErrorEvent,
       beforeBreadcrumb: privateBreadcrumb,
       maxBreadcrumbs: 20,

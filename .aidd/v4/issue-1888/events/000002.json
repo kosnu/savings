@@ -4,25 +4,19 @@
   "kind": "verify",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
-    "apps/web/vite.config.ts",
-    "apps/web/src/test/viteSentry.test.ts",
-    ".github/workflows/deploy_preview.yaml",
-    ".github/workflows/deploy_production.yaml",
-    "tools/dev-preview/authorize.test.mjs",
-    "docs/sentry-monitoring.md",
-    "docs/development-preview.md"
+    "apps/web/src/lib/sentry.ts",
+    "apps/web/src/lib/sentrySession.integration.test.ts",
+    "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "a33a355253e9f5ef8f8ae910529ea098d56b7db54a21b58ea5a881eb4aeef6d1",
+  "fingerprint": "bc27641aef94711e141667d67a5f2c338e90a1b6c90c79f4f0aa4bd01ba8b3ef",
   "status": "pass",
   "checks": [
+    "旧設定でrelease付き実SDKがsession envelopeを送ることを再現",
+    "本番/Devのidle・hiddenでsession送信なし、エラーevent・GlobalHandlers維持の回帰2件",
+    "Web unit/integration 804件",
     "Web lint/format-check/typecheck",
-    "Web unit/integration 802件",
-    "Vite設定6ケース：両mode共通のhidden map・upload先・map削除指定とlocal無効・tokenなしCI",
-    "Preview回帰34件：両workflowの5 Secrets参照と空値停止",
-    "合成DSN・tokenなしdevelopment build/check-build",
-    "actionlint/zizmor",
     "文書整形・ローカルリンク・diff check・Core change coverage"
   ],
-  "summary": "本番・DevのSentry配線とsource map処理を共通化。局所defectなし、ローカル検証成功。実アップロード・受信の証拠は未取得。",
+  "summary": "BrowserSessionの許可集合外送信を実SDKで再現し、自動session収集を停止。局所defectを修正しローカル検証成功。Issue全体の実環境検証は未完了。",
   "remaining": []
 }
