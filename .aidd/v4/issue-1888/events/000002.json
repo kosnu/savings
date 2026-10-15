@@ -6,17 +6,19 @@
   "paths": [
     "apps/web/src/lib/sentry.ts",
     "apps/web/src/lib/sentrySession.integration.test.ts",
+    "apps/web/README.md",
     "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "bc27641aef94711e141667d67a5f2c338e90a1b6c90c79f4f0aa4bd01ba8b3ef",
+  "fingerprint": "5c165a68f20b49167f8b3e85b115abfdc79242e01a8e226bb7fc9ac9bde51c03",
   "status": "pass",
   "checks": [
-    "旧設定でrelease付き実SDKがsession envelopeを送ることを再現",
-    "本番/Devのidle・hiddenでsession送信なし、エラーevent・GlobalHandlers維持の回帰2件",
-    "Web unit/integration 804件",
+    "旧設定の実SDKでnetwork_error・ratelimit_backoff・queue_overflowのhidden時client_report送信を本番/Devで再現",
+    "修正後の両modeでclient_report送信なし・エラー送信維持の回帰2件",
+    "既存session envelope回帰維持",
+    "Web unit/integration 806件",
     "Web lint/format-check/typecheck",
-    "文書整形・ローカルリンク・diff check・Core change coverage"
+    "README・運用文書整形/リンク・workflow設定照合・diff check・Core change coverage"
   ],
-  "summary": "BrowserSessionの許可集合外送信を実SDKで再現し、自動session収集を停止。局所defectを修正しローカル検証成功。Issue全体の実環境検証は未完了。",
+  "summary": "client_reportの許可集合外送信を実SDKで再現して停止し、README配信条件を同期。局所修正とローカル検証成功。実環境検証は未完了。",
   "remaining": []
 }

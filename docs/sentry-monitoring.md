@@ -34,6 +34,7 @@ Sentry はエラーの分類と配信 JS の位置を調べるために使う。
 - SDK が付与する event ID、時刻、environment、release、dist、SDK メタデータと
   配信 JS の Debug ID を維持する。アプリから user・extra・自由 context・tags・fingerprint を追加しても送信前に除く。
 - `beforeSend` を通らない session envelope は送らない。既定の `BrowserSession` integration を除外し、自動 session 収集を停止する。
+- 破棄理由・件数・時刻を含む `client_report` も送らない。`sendClientReports: false` により破棄 outcome の収集・送信を停止する。
 
 許可した診断情報からイベントを再構成するため、未知の機微語の正規表現検出に依存しない。
 SDK が生成する識別子とビルド済み asset 名は診断情報として扱う。

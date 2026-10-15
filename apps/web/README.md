@@ -127,16 +127,18 @@ cf は再ビルドせず、検証した同じ配信物を `--prebuilt --mode pro
 
 Supabase の接続情報は環境変数で管理します。主な変数は `VITE_SUPABASE_URL` と `VITE_SUPABASE_PUBLISHABLE_KEY` です。ローカルでは `.env` / `.env.local`（Vite の仕様）を使用し、サンプルは `apps/web/.env.sample` を参照します。
 
-Sentry を使う場合は、フロントエンド実行時に次の変数を設定します。
+Sentry の設定は GitHub Actions の `production` / `development` Environment それぞれの同名 Secrets からビルドへ渡します。production の Secrets は development に継承されません。両配信 workflow は次の5項目のいずれかが空ならビルド前に停止します。
 
-- `VITE_SENTRY_DSN` - ブラウザ SDK がエラー送信に使う DSN。本番でのみ利用され、未設定なら初期化しません。
-- `VITE_SENTRY_ENVIRONMENT` - Sentry 上での environment 名。未設定時は `production` / `development` / `test` の Vite mode を使います。
+- `VITE_SENTRY_DSN` - 対象 Sentry project のエラー送信用 DSN。配信用ビルドでブラウザ SDK が利用します。
+- `VITE_SENTRY_ENVIRONMENT` - Sentry 上の環境名。本番は `production`、Dev Preview は `development` を登録します。
+- `SENTRY_AUTH_TOKEN` - source map アップロード用の認証 token。
+- `SENTRY_ORG` - 対象組織の slug。
+- `SENTRY_PROJECT` - DSN と同じ対象 project の slug。
 
-source map をアップロードするデプロイ環境では、GitHub Actions の secrets として次も必要です。本番 build でのみ Sentry plugin を有効化し、`.cloudflare/output/v0/workers/default/assets/` の source map をアップロードして公開物から削除します。
+`VITE_` の2項目はビルド時にブラウザ向け成果物へ埋め込みます。管理 token は `VITE_` 変数にしません。
+本番・Dev Preview とも配信用 build で同じ Sentry plugin を使い、hidden source map を生成して `.cloudflare/output/v0/workers/default/assets/` からアップロードし、公開物の JS/CSS map を削除します。通常の local 開発サーバーでは SDK・plugin とも無効です。
 
-- `SENTRY_AUTH_TOKEN`
-- `SENTRY_ORG`
-- `SENTRY_PROJECT`
+収集情報・受信確認は [Sentry の運用](../../docs/sentry-monitoring.md)、Dev の設定・配信手順は [Dev Preview](../../docs/development-preview.md)を参照してください。
 
 ## 関連スクリプト・リポジトリ部分
 

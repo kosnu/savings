@@ -34,6 +34,32 @@ afterEach(async () => {
 })
 
 test.each(["production", "development"])(
+  "%s の破棄 outcome を hidden 時に client_report として送らない",
+  async (mode) => {
+    testEnv.MODE = mode
+    testEnv.SENTRY_ENVIRONMENT = mode
+    initSentry()
+    const client = Sentry.getClient()
+    if (!client) throw new Error("Sentry client was not initialized")
+    client.recordDroppedEvent("network_error", "error")
+    client.recordDroppedEvent("ratelimit_backoff", "error")
+    client.recordDroppedEvent("queue_overflow", "error")
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden")
+    document.dispatchEvent(new Event("visibilitychange"))
+    await Sentry.flush()
+    expect(sendEnvelope).not.toHaveBeenCalled()
+
+    captureAuthCallbackError({ code: "access_denied" })
+    expect(await Sentry.flush()).toBe(true)
+    const items = sendEnvelope.mock.calls.flatMap(
+      ([envelope]) => (envelope as [unknown, Array<[{ type: string }, unknown]>])[1],
+    )
+    expect(items.map(([header]) => header.type)).toEqual(["event"])
+    expect(items[0][1]).toMatchObject({ environment: mode })
+  },
+)
+
+test.each(["production", "development"])(
   "%s の idle/hidden で session envelope を送らずエラー送信は保つ",
   async (mode) => {
     testEnv.MODE = mode

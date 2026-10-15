@@ -6,19 +6,21 @@
   "paths": [
     "apps/web/src/lib/sentry.ts",
     "apps/web/src/lib/sentrySession.integration.test.ts",
+    "apps/web/README.md",
     "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "bc27641aef94711e141667d67a5f2c338e90a1b6c90c79f4f0aa4bd01ba8b3ef",
+  "fingerprint": "5c165a68f20b49167f8b3e85b115abfdc79242e01a8e226bb7fc9ac9bde51c03",
   "status": "unknown",
   "checks": [
-    "rule-map path/surfaceと依存closure",
-    "収集制限・SDK既定integration・session生成送信・release有無・idle/hiddenを照合",
-    "自動例外捕捉・固定エラー分類・環境分離・情報除去・例外隔離を維持",
-    "Issue元の完了条件と外部未確認範囲を区別、追加guardrail/Auditなし"
+    "rule-map path/surface・依存closure",
+    "破棄outcome記録からhidden・close時の送信まで実SDK経路確認",
+    "BrowserSession除外・sendClientReports無効・エラー送信/分類/情報制限/環境分離/例外隔離を照合",
+    "READMEの5 Secrets・本番Dev共通build・map削除・local無効をコード/workflowと同期",
+    "Intentの確認済み条件と外部検証不足を区別、追加ガードレール/Auditなし"
   ],
-  "summary": "BrowserSessionの許可集合外送信を実SDKで再現し、自動session収集を停止。局所defectを修正しローカル検証成功。Issue全体の実環境検証は未完了。",
+  "summary": "client_reportの許可集合外送信を実SDKで再現して停止し、README配信条件を同期。局所修正とローカル検証成功。実環境検証は未完了。",
   "remaining": [
-    "5つのSecretは登録名のみ確認済み。実値・権限・対象対応は未確認",
-    "実Sentry受信・通知・source map解決・実ブラウザ性能・本番反映は未確認"
+    "5 Secretsは登録名のみ確認済み。実値・権限・対象対応は未確認",
+    "実受信・通知・source map解決・ブラウザ性能・本番反映は未確認"
   ]
 }

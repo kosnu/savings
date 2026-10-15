@@ -15,6 +15,8 @@ export function initSentry() {
   try {
     Sentry.init({
       dsn,
+      // 破棄件数などの client_report も beforeSend を通らないため送信しない。
+      sendClientReports: false,
       // session envelope は beforeSend を通らないため、自動 session 収集を停止する。
       integrations: (defaults) =>
         defaults.filter((integration) => integration.name !== "BrowserSession"),
