@@ -116,9 +116,16 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-          VITE_SENTRY_ENVIRONMENT: development
+          VITE_SENTRY_ENVIRONMENT: ${{ secrets.VITE_SENTRY_ENVIRONMENT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
         run: |
-          : "${VITE_SENTRY_DSN:?development Environment の VITE_SENTRY_DSN が必要です}"
+          : "${VITE_SENTRY_DSN:?VITE_SENTRY_DSN が必要です}"
+          : "${VITE_SENTRY_ENVIRONMENT:?VITE_SENTRY_ENVIRONMENT が必要です}"
+          : "${SENTRY_AUTH_TOKEN:?SENTRY_AUTH_TOKEN が必要です}"
+          : "${SENTRY_ORG:?SENTRY_ORG が必要です}"
+          : "${SENTRY_PROJECT:?SENTRY_PROJECT が必要です}"
           preview_name=$(node "$RUNNER_TEMP/preview-control/preview.mjs" name "$PREVIEW_BRANCH" "$PR_NUMBER")
           echo "name=$preview_name" >> "$GITHUB_OUTPUT"
           pnpm run web:build --mode development

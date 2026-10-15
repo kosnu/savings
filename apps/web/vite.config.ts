@@ -8,7 +8,7 @@ import { defineConfig, lazyPlugins, loadEnv } from "vite-plus"
 export default defineConfig(({ command, isPreview, mode }) => {
   const buildEnv = loadEnv(mode, process.cwd(), "")
   const sentryEnabled =
-    mode === "production" &&
+    command === "build" &&
     Boolean(buildEnv.SENTRY_AUTH_TOKEN && buildEnv.SENTRY_ORG && buildEnv.SENTRY_PROJECT)
   const plugins = lazyPlugins(() => [
     ...(command === "build" || isPreview ? cloudflare() : []),

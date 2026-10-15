@@ -44,15 +44,17 @@ SDK が生成する識別子とビルド済み asset 名は診断情報として
 配信用ビルド（Vite の `import.meta.env.PROD`）と非空 DSN が揃った場合だけ初期化する。
 モード名は初期化可否ではなく、`VITE_SENTRY_ENVIRONMENT` 未指定時の environment の既定値に使う。
 通常の local 開発サーバーは DSN を設定しても送信しない。
-本番 workflow の environment は `production`、Dev Preview は `development` に分ける。
-Preview の DSN は `development` Environment のSecret `VITE_SENTRY_DSN` からビルドへ渡す。
-Secret が未登録・空なら配信を止め、監視が有効な Preview と誤認させない。
+本番・Dev Preview とも、各 GitHub Environment の5つの Secret を同じ方法でビルドへ渡す。
+`VITE_SENTRY_DSN` は対象 project の送信先、`VITE_SENTRY_ENVIRONMENT` は本番で `production`、Dev で `development` にする。
+`SENTRY_AUTH_TOKEN` はアップロード用認証、`SENTRY_ORG`・`SENTRY_PROJECT` はその送信先を指す。
+5項目のいずれかが未登録・空なら、両配信 workflow ともビルド前に停止する。
+production の Secret は development に継承されない。Dev 専用値を各 Environment に登録し、追加の Variables は使わない。
 Preview CI は `.invalid` ドメインの合成 DSN で同じビルド経路だけを検証し、実 Sentry へ送信しない。
 Dev の送信にも既存の情報制限を適用する。DSN の登録・発行と配信・合成イベント送信は、
 対象 project・送信内容・通知先・使用量への影響を確認したうえで行う。
 
-[Vite 連携](../apps/web/vite.config.ts)は管理 token・org・project がある本番ビルドでのみ
-hidden source map を作り、アップロード後に配信 assets 内の JS/CSS map を削除する。
+[Vite 連携](../apps/web/vite.config.ts)は管理 token・org・project がある配信用ビルド（`command === "build"`）で
+モード名に依存せず hidden source map を作り、アップロード後に配信 assets 内の JS/CSS map を削除する。
 管理 token は `VITE_` 変数にしない。Debug ID と配信した JS の位置を保ち、
 アップロードした同じ成果物を配信する。release の実値、Debug ID の対応とサーバーの解決結果は
 ビルド成功だけでは確認できない。

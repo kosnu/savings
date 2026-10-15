@@ -4,25 +4,24 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
-    "apps/web/src/config/env.ts",
-    "apps/web/src/lib/sentry.ts",
-    "apps/web/src/lib/sentry.test.ts",
-    "apps/web/src/lib/sentry.integration.test.ts",
-    "apps/web/src/lib/sentry.initialization.test.ts",
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
     ".github/workflows/deploy_preview.yaml",
-    ".github/workflows/dev_preview_ci.yaml",
+    ".github/workflows/deploy_production.yaml",
+    "tools/dev-preview/authorize.test.mjs",
     "docs/sentry-monitoring.md",
-    "docs/development-preview.md",
-    "tools/dev-preview/authorize.test.mjs"
+    "docs/development-preview.md"
   ],
-  "fingerprint": "9b5f4fccfd03f8fe6e5b2a6c6d2efb24c7e0303f22cefc48098e72aa089a19f7",
+  "fingerprint": "a33a355253e9f5ef8f8ae910529ea098d56b7db54a21b58ea5a881eb4aeef6d1",
   "status": "unknown",
   "checks": [
-    "Dev送信・local無効・環境分離・既存情報制限を最新依頼と照合"
+    "本番とDevの5 Secrets・SDK・source map処理の共通化を最新依頼と照合",
+    "local無効・情報制限・認証情報登録や実配信をしない範囲を維持"
   ],
-  "summary": "Dev Previewの送信準備に局所defectなし。ローカル検証成功。実環境は未検証。",
+  "summary": "本番・DevのSentry配線とsource map処理を共通化。局所defectなし、ローカル検証成功。実アップロード・受信の証拠は未取得。",
   "remaining": [
-    "development Environment の VITE_SENTRY_DSN が未登録。登録・配信・実受信・通知・Dev source map解決は未確認",
-    "Issue全体の実設定・プラン・使用量・性能評価・本番反映は未確認"
+    "developmentにはVITE_SENTRY_ENVIRONMENTの名前のみ存在。残る4 Secrets未登録、全実値・対象・権限は未確認",
+    "実Sentryへのsource mapアップロード・削除結果・受信・source map解決・通知は未確認",
+    "Issue全体のプラン・使用量・実ブラウザ性能・本番反映は未確認"
   ]
 }

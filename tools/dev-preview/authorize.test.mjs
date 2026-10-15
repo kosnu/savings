@@ -148,14 +148,29 @@ test("FE/DB share development but only DB steps receive database credentials", (
   assert.deepEqual(secrets(frontend), [
     "CLOUDFLARE_ACCOUNT_ID",
     "CLOUDFLARE_API_TOKEN",
+    "SENTRY_AUTH_TOKEN",
+    "SENTRY_ORG",
+    "SENTRY_PROJECT",
     "VITE_SENTRY_DSN",
+    "VITE_SENTRY_ENVIRONMENT",
     "VITE_SUPABASE_PUBLISHABLE_KEY",
     "VITE_SUPABASE_URL",
   ])
   assert.deepEqual(secrets(database), ["SUPABASE_ACCESS_TOKEN", "SUPABASE_PROJECT_ID"])
-  assert.match(frontend, /VITE_SENTRY_ENVIRONMENT: development/)
-  assert.match(frontend, /VITE_SENTRY_DSN: \$\{\{ secrets\.VITE_SENTRY_DSN \}\}/)
-  assert.match(frontend, /\$\{VITE_SENTRY_DSN:\?development Environment/)
+  const production = read("deploy_production.yaml")
+  for (const key of [
+    "VITE_SENTRY_DSN",
+    "VITE_SENTRY_ENVIRONMENT",
+    "SENTRY_AUTH_TOKEN",
+    "SENTRY_ORG",
+    "SENTRY_PROJECT",
+  ]) {
+    const reference = key + ": ${{ secrets." + key + " }}"
+    for (const yaml of [frontend, production]) {
+      assert.ok(yaml.includes(reference), `${key} must use the same Environment Secret source`)
+      assert.ok(yaml.includes(`\${${key}:?${key} が必要です}`), `${key} must fail when empty`)
+    }
+  }
   const ci = read("dev_preview_ci.yaml")
   assert.match(ci, /VITE_SENTRY_DSN: https:\/\/public@sentry\.invalid\/1/)
   assert.match(ci, /VITE_SENTRY_ENVIRONMENT: development/)

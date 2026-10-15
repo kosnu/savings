@@ -107,22 +107,29 @@ workers.devは公開URLであり、認証機能ではない。private source・�
 `development` Environmentに以下を登録する。本番と同じSecret名で、値はDev専用にする。
 productionからのコピー・repository Secretでの代用はしない。値をチャット・ログ・履歴へ貼らない。
 
-| Secret                          | 用途                                         |
-| ------------------------------- | -------------------------------------------- |
-| `VITE_SUPABASE_URL`             | `https://ufekmuxkmodwydxmdbln.supabase.co`   |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Devの公開クライアント用キー                  |
-| `VITE_SENTRY_DSN`               | Dev エラー送信用 DSN。環境名は `development` |
-| `CLOUDFLARE_ACCOUNT_ID`         | 配信先account                                |
-| `CLOUDFLARE_API_TOKEN`          | Dev配信用token                               |
-| `SUPABASE_PROJECT_ID`           | `ufekmuxkmodwydxmdbln`                       |
-| `SUPABASE_ACCESS_TOKEN`         | Dev project限定のscoped PAT                  |
+| Secret                          | 用途                                              |
+| ------------------------------- | ------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | `https://ufekmuxkmodwydxmdbln.supabase.co`        |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Devの公開クライアント用キー                       |
+| `VITE_SENTRY_DSN`               | Dev Sentry project のエラー送信用 DSN             |
+| `VITE_SENTRY_ENVIRONMENT`       | `development`                                     |
+| `SENTRY_AUTH_TOKEN`             | Dev Sentry project の source map アップロード認証 |
+| `SENTRY_ORG`                    | Dev Sentry の組織 slug                            |
+| `SENTRY_PROJECT`                | DSN と同じ Dev Sentry project の slug             |
+| `CLOUDFLARE_ACCOUNT_ID`         | 配信先account                                     |
+| `CLOUDFLARE_API_TOKEN`          | Dev配信用token                                    |
+| `SUPABASE_PROJECT_ID`           | `ufekmuxkmodwydxmdbln`                            |
+| `SUPABASE_ACCESS_TOKEN`         | Dev project限定のscoped PAT                       |
 
 required reviewerは所有者 `kosnu`、Prevent self-reviewと管理者bypassは無効とする。
 branch policyはmainとPR merge refを許可する。FEとDBは同じEnvironmentを使うため、
 承認者はworkflowのSecret参照も確認する。必要なSecretだけを各stepへ渡し、DB管理tokenはFEへ渡さない。
 service_role・secret key・DB passwordはブラウザへ渡さない。
-Preview の Sentry 送信は `VITE_SENTRY_DSN` を使い、`development` 環境へ分類する。
-DSN が未登録・空ならビルド前に停止する。管理用 Sentry token は Preview へ渡さず、source map upload は無効のまま維持する。
+Sentry の5項目は本番と同じ Secret 参照でビルドへ渡す。環境名の固定値や Variables は使わない。
+`VITE_SENTRY_ENVIRONMENT` は `development` に登録する。production の Secret は自動継承されない。
+5項目のいずれかが未登録・空ならビルド前に停止する。
+本番と同じ Vite プラグインで hidden source map を生成・アップロードし、アップロード後に配信 assets から JS/CSS map を削除する。
+管理 token はビルドだけに渡し、`VITE_` 変数やブラウザへ公開しない。
 通常の local 開発サーバーは Sentry を初期化しない。
 収集範囲と受信確認は [Sentry の運用](sentry-monitoring.md)を参照する。
 Secret の登録・発行やイベント送信は、対象・通知先・使用量への影響を確認してから行う。
