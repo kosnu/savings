@@ -4,21 +4,18 @@
   "kind": "verify",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
-    "apps/web/src/lib/sentry.ts",
-    "apps/web/src/lib/sentrySession.integration.test.ts",
-    "apps/web/README.md",
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
     "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "5c165a68f20b49167f8b3e85b115abfdc79242e01a8e226bb7fc9ac9bde51c03",
+  "fingerprint": "79bad56af05ce5c235608ac5011f1658ef4e8d515d1adef59fe7ac7ab75de00c",
   "status": "pass",
   "checks": [
-    "旧設定の実SDKでnetwork_error・ratelimit_backoff・queue_overflowのhidden時client_report送信を本番/Devで再現",
-    "修正後の両modeでclient_report送信なし・エラー送信維持の回帰2件",
-    "既存session envelope回帰維持",
-    "Web unit/integration 806件",
     "Web lint/format-check/typecheck",
-    "README・運用文書整形/リンク・workflow設定照合・diff check・Core change coverage"
+    "Web unit/integration 806件",
+    "両modeのVite設定契約でtelemetry:false・source mapアップロード/削除指定維持を確認",
+    "diff check・Core change coverage・文書整形"
   ],
-  "summary": "client_reportの許可集合外送信を実SDKで再現して停止し、README配信条件を同期。局所修正とローカル検証成功。実環境検証は未完了。",
+  "summary": "plugin telemetryの既定送信を実装で確認して明示停止。局所修正とローカル検証成功。実アップロード・受信等は未確認。",
   "remaining": []
 }

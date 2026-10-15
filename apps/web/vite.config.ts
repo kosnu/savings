@@ -16,6 +16,7 @@ export default defineConfig(({ command, isPreview, mode }) => {
     ...tanstackDevtools(),
     ...(sentryEnabled
       ? sentryVitePlugin({
+          telemetry: false,
           authToken: buildEnv.SENTRY_AUTH_TOKEN,
           org: buildEnv.SENTRY_ORG,
           project: buildEnv.SENTRY_PROJECT,

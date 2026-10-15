@@ -34,6 +34,7 @@ test.each(["production", "development"])("%s の配信で同じ source map 処�
   const config = await configure(mode, "build")
   expect(config.build?.sourcemap).toBe("hidden")
   expect(sentryPlugin).toHaveBeenCalledExactlyOnceWith({
+    telemetry: false,
     authToken: "synthetic-upload-token",
     org: "fixture-org",
     project: "fixture-project",

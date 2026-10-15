@@ -57,6 +57,7 @@ Dev の送信にも既存の情報制限を適用する。DSN の登録・発行
 
 [Vite 連携](../apps/web/vite.config.ts)は管理 token・org・project がある配信用ビルド（`command === "build"`）で
 モード名に依存せず hidden source map を作り、アップロード後に配信 assets 内の JS/CSS map を削除する。
+プラグイン自身のエラー・性能 telemetry は `telemetry: false` で停止する。
 管理 token は `VITE_` 変数にしない。Debug ID と配信した JS の位置を保ち、
 アップロードした同じ成果物を配信する。release の実値、Debug ID の対応とサーバーの解決結果は
 ビルド成功だけでは確認できない。
