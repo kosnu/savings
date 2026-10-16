@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "codex://threads/01a0fa62-1487-75da-84d6-f7dedcbd40fc",
+  "paths": [
+    "tools/dev-preview/cleanup.mjs",
+    "tools/dev-preview/cleanup.test.mjs"
+  ],
+  "fingerprint": "df2260ec9ffa38bf2506e04e700ad9142cc242ad8d9aa867eb6c74ea45ef7f98",
+  "status": "pass",
+  "checks": [
+    "response contract and deletion boundaries"
+  ],
+  "summary": "正常応答の errors:null と空配列を許容し、他の不正値と失敗を拒否する最小変更。削除範囲・権限・Secrets は維持する。",
+  "remaining": []
+}

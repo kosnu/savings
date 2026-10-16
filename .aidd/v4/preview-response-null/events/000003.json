@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1946#discussion_r4296751694",
+  "paths": [
+    "tools/dev-preview/cleanup.mjs",
+    "tools/dev-preview/cleanup.test.mjs"
+  ],
+  "fingerprint": "eaf39f52f9e74de82bfc021dfd95876046b9bbd8efab124c4e7c9f1c5198db5e",
+  "status": "pass",
+  "checks": [
+    "architecture.overview; documentation.policy",
+    "infrastructure.dev-preview; infrastructure.overview",
+    "policy.code-review; policy.git-workflow",
+    "ai-driven.workflow; ai-driven.checker",
+    "ai-driven.overview; ai-driven.glossary; ai-driven.change-coverage"
+  ],
+  "summary": "正常応答の null/空配列だけを許容し安全境界を維持。Coreの鮮度・stage・配信検査と意味レビューを区別し、Intent・実差分・検証36件と規約依存を照合。指摘の確認規則一覧を補完した。実削除は委任範囲外で未実施。",
+  "remaining": []
+}

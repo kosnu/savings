@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "codex://threads/01a0fa62-1487-75da-84d6-f7dedcbd40fc",
+  "paths": [
+    "tools/dev-preview/cleanup.mjs",
+    "tools/dev-preview/cleanup.test.mjs"
+  ],
+  "fingerprint": "eaf39f52f9e74de82bfc021dfd95876046b9bbd8efab124c4e7c9f1c5198db5e",
+  "status": "pass",
+  "checks": [
+    "Preview tests: 36 passed",
+    "vp check: format/lint/types passed",
+    "Core verify and git diff --check"
+  ],
+  "summary": "修正前の再現失敗と修正後の正常応答・失敗拒否・削除範囲の維持を確認した。 実環境ジョブ再実行は委任範囲外のため未実施。",
+  "remaining": []
+}

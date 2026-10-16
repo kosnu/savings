@@ -71,6 +71,55 @@ test("close/merge後、PR Previewと対応legacyだけを削除し親・本番�
   assert.ok(f.results.slice(2).every((r) => r.result.includes("不在")))
 })
 
+test("正常応答の errors:null でも対象だけを削除し、不在確認まで完了する", async () => {
+  const f = fixture()
+  const fetcher = async (url, options) => {
+    const response = await f.fetcher(url, options)
+    return Response.json({ ...(await response.json()), errors: null })
+  }
+  await cleanupPreview(env, f.get, fetcher, f.report)
+  assert.deepEqual([...f.resources], ["pr-1928", "burneto", "burneto-dev"])
+  assert.equal(f.calls.filter((c) => c.method === "DELETE").length, 2)
+  assert.ok(f.results.every((r) => r.result === "Preview 削除成功"))
+  await cleanupPreview(env, f.get, fetcher, f.report)
+  assert.equal(f.calls.filter((c) => c.method === "DELETE").length, 2)
+  assert.ok(f.results.slice(2).every((r) => r.result.includes("不在")))
+})
+
+test("GET/DELETE のエラー配列・不正 errors・失敗応答を成功扱いしない", async () => {
+  const invalid = [
+    { success: true, errors: [{ message: "fixture-secret" }] },
+    ...[undefined, {}, "", false, 0].map((errors) => ({ success: true, errors })),
+    { success: false, errors: null },
+    { errors: null },
+    { success: "true", errors: null },
+    null,
+  ]
+  for (const method of ["GET", "DELETE"]) {
+    for (const body of invalid) {
+      const f = fixture()
+      const fetcher = async (url, options) =>
+        options.method === method ? Response.json(body) : f.fetcher(url, options)
+      await assert.rejects(
+        cleanupPreview(env, f.get, fetcher, f.report),
+        (error) => !error.message.includes("fixture-secret"),
+      )
+      assert.equal(f.results.length, 1)
+      assert.ok(f.results[0].result.includes("失敗"))
+      assert.ok(f.resources.has("pr-1927"))
+    }
+    const f = fixture()
+    await assert.rejects(
+      cleanupPreview(env, f.get, async (url, options) =>
+        options.method === method
+          ? Response.json({ success: true, errors: null }, { status: 500 })
+          : f.fetcher(url, options),
+      ),
+      /500/u,
+    )
+  }
+})
+
 test("不在と似た名前は正常終了、部分一致の別Previewを削除しない", async () => {
   const f = fixture({ names: ["pr-19270", `${legacy}-other`] })
   await cleanupPreview(env, f.get, f.fetcher, f.report)
