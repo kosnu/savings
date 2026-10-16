@@ -57,8 +57,7 @@ export async function cleanupPreview(env, get, fetcher = fetch, report = () => {
     if (
       !response.ok ||
       body.success !== true ||
-      !Array.isArray(body.errors) ||
-      body.errors.length
+      (body.errors !== null && (!Array.isArray(body.errors) || body.errors.length))
     ) {
       // token や upstream の本文はログへ出さない。404 も一覧で不在を確認するまで成功にしない。
       const error = new Error(`Cloudflare ${method} failed (${response.status})`)
