@@ -2,7 +2,7 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "codex://threads/01a0fa62-1487-75da-84d6-f7dedcbd40fc",
+  "source": "https://github.com/kosnu/savings/pull/1946#discussion_r4296751694",
   "paths": [
     "tools/dev-preview/cleanup.mjs",
     "tools/dev-preview/cleanup.test.mjs"
@@ -12,8 +12,10 @@
   "checks": [
     "architecture.overview; documentation.policy",
     "infrastructure.dev-preview; infrastructure.overview",
-    "policy.code-review; policy.git-workflow; ai-driven.workflow"
+    "policy.code-review; policy.git-workflow",
+    "ai-driven.workflow; ai-driven.checker",
+    "ai-driven.overview; ai-driven.glossary; ai-driven.change-coverage"
   ],
-  "summary": "HTTP成功と success:true を維持し errors:null または空配列だけ許容。対象限定、404再照会、削除後確認、秘密非表示を維持し、検証結果と依頼を照合してブロッキング指摘なし。 実環境ジョブ再実行は委任範囲外のため未実施。",
+  "summary": "正常応答の null/空配列だけを許容し安全境界を維持。Coreの鮮度・stage・配信検査と意味レビューを区別し、Intent・実差分・検証36件と規約依存を照合。指摘の確認規則一覧を補完した。実削除は委任範囲外で未実施。",
   "remaining": []
 }
