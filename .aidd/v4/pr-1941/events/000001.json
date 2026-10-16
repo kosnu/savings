@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1941",
+  "paths": [
+    "tools/vite-plus-sync/",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml",
+    "apps/web/package.json",
+    "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx"
+  ],
+  "fingerprint": "62c3cf1240d666271a0ac71fde87109d8570223986dd6ae5eb58aaa763e36f5f",
+  "status": "pass",
+  "checks": [
+    "PR headとmainの比較",
+    "同期CLIの再実行経路",
+    "公式1.1.0依存構成"
+  ],
+  "summary": "PR #1941の指摘を修正する。ローカルCLIのPATH継承と公式migrateによるcore/Vitest同期を採用。新版lintが検出する現在月の初期化は既存の遅延初期化パターンへ揃える。署名検証・同期対象・公開待機条件を維持し、検証後に同一PRへ通常pushする。",
+  "remaining": []
+}

@@ -1,6 +1,6 @@
 import { Pencil1Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
 import { Button, Flex, Skeleton, Text } from "@radix-ui/themes"
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -14,7 +14,7 @@ import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthl
 
 export function LatestMonthlyBudget() {
   const { t } = useTranslation()
-  const targetMonth = formatTargetMonthKey(toTargetMonth(new Date()))
+  const [targetMonth] = useState(() => formatTargetMonthKey(toTargetMonth(new Date())))
 
   return (
     <Flex direction="column" gap="3">

@@ -11,7 +11,7 @@ import {
 } from "node:fs"
 import { createRequire } from "node:module"
 import { tmpdir } from "node:os"
-import { dirname, join, resolve } from "node:path"
+import { delimiter, dirname, join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 
 const dependencies = [
@@ -64,6 +64,8 @@ export function align(root, target) {
     }
     run(join(root, "node_modules/.bin/vp"), ["migrate", "--no-interactive"], workspace, {
       ...process.env,
+      // migrateが再実行するvpも、同期対象のローカルCLIへ解決する。
+      PATH: [join(root, "node_modules/.bin"), process.env.PATH].filter(Boolean).join(delimiter),
       npm_config_ignore_scripts: "true",
     })
     assert.deepEqual(
