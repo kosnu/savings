@@ -8,22 +8,26 @@ allowBuilds:
   supabase: true
   workerd: true
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-  vite-plus: 1.0.0
-  vitest: 5.0.1
+  vite: npm:@voidzero-dev/vite-plus-core@1.1.0
+  vite-plus: 1.1.0
+  vitest: 5.0.3
+  "@vitest/browser-playwright": 5.0.3
+  "@vitest/coverage-v8": 5.0.3
 minimumReleaseAge: 10080
 overrides:
   eslint: "10.12.0"
   undici@>=7.0.0 <7.24.0: "^8.0.0"
-  vite: "catalog:"
-  vitest: "catalog:"
+  vite@*: "catalog:"
+  vitest@*: "catalog:"
 peerDependencyRules:
   allowAny:
     - vite
     - vite-plus
+    - vitest
   allowedVersions:
     vite: "*"
     vite-plus: "*"
+    vitest: "*"
 savePrefix: ""
 minimumReleaseAgeExclude:
   # Renovate security update: esbuild@0.28.1

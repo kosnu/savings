@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { createProfileHandlers } from "../../../../test/msw/handlers/profile"
 import { server } from "../../../../test/msw/server"
-import { act, render, screen } from "../../../../test/test-utils"
+import { act, render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./AccountInformation.stories"
 
 const { Default, Loading, LoadError, IdentityProviderFallback, UnavailableLoginMethod } =
@@ -116,7 +116,9 @@ describe("AccountInformation", () => {
     await user.click(screen.getByRole("button", { name: "Try again" }))
 
     expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
-    expect(screen.getByRole("heading", { name: "Account information" })).toHaveFocus()
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Account information" })).toHaveFocus()
+    })
   })
 
   test("Loading StoryでSkeletonを表示する", async () => {

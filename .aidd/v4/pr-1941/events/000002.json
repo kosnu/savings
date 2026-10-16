@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1941",
+  "paths": [
+    "tools/vite-plus-sync/",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml",
+    "apps/web/package.json",
+    "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx"
+  ],
+  "fingerprint": "62c3cf1240d666271a0ac71fde87109d8570223986dd6ae5eb58aaa763e36f5f",
+  "status": "pass",
+  "checks": [
+    "公式CLIによる依存同期と版一致",
+    "同期とworkflow回帰38件",
+    "修正なしの旧経路で回帰テストが失敗",
+    "Web lint / format-check / typecheck",
+    "Web unit-integration 142 files / 785 tests",
+    "Storybook browser 7 files / 20 tests",
+    "Web build",
+    "Core change coverage / diff whitespace"
+  ],
+  "summary": "実際の同期処理が完了しCLI/core 1.1.0とVitest系列5.0.3の一致を確認。Webの必須検証、browser suite、buildが成功。ブラウザ起動はmacOSの必要権限で確認。",
+  "remaining": []
+}

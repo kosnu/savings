@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1941",
+  "paths": [
+    "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.test.tsx"
+  ],
+  "fingerprint": "36cbd90333114a9637abaed893379e9d2471632dc17d8447d2d0255ba35dd010",
+  "status": "pass",
+  "checks": [
+    "CI 38842729641 unit-test 2/2の失敗",
+    "取得完了とretry callback・useEffectの実行順",
+    "非同期状態を安定するまで検証するWeb Test Policy"
+  ],
+  "summary": "CIは再試行後の入力欄出現直後にfocusを同期検証して失敗した。取得更新・retry callbackの継続・useEffectのfocusは別の完了条件である。見出しfocusの期待値を維持してwaitForで直接待機し、固定sleepやretryによる隠蔽は加えない。アプリ実装は変更しない。",
+  "remaining": []
+}

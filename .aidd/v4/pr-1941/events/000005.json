@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1941",
+  "paths": [
+    "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.test.tsx"
+  ],
+  "fingerprint": "36cbd90333114a9637abaed893379e9d2471632dc17d8447d2d0255ba35dd010",
+  "status": "pass",
+  "checks": [
+    "Web format / lint / format-check / typecheck",
+    "unit-integration 142 files / 785 tests",
+    "CIと同じshard 2/2 71 files / 356 tests",
+    "focusテスト repeats=50 の追加反復",
+    "Core change coverage / diff whitespace"
+  ],
+  "summary": "フォーカスの期待値を維持しwaitForで完了を待つ最小修正。必須Web検証、CIで失敗したshard、対象テストの追加50反復がすべて成功。変更前のshardはローカルでは成功しており、CIの失敗ログと非同期実行順に基づいて待機条件の欠落を修正した。",
+  "remaining": []
+}
