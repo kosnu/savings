@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
+    "docs/sentry-monitoring.md"
+  ],
+  "fingerprint": "79bad56af05ce5c235608ac5011f1658ef4e8d515d1adef59fe7ac7ab75de00c",
+  "status": "unknown",
+  "checks": [
+    "rule-map path/surface・依存closure",
+    "plugin telemetryの有効条件と送信判定から明示無効指定までを実コードと照合",
+    "source map処理・ビルド条件・管理token境界・SDK側session/client_report停止を維持",
+    "元Intentの収集制限内の局所修正、実受信等の未確認範囲を区別、追加Auditなし"
+  ],
+  "summary": "plugin telemetryの既定送信を実装で確認して明示停止。局所修正とローカル検証成功。実アップロード・受信等は未確認。",
+  "remaining": [
+    "5 Secretsは登録名のみ確認済み。実値・権限・対象対応は未確認",
+    "実受信・通知・source map解決・ブラウザ性能・本番反映は未確認"
+  ]
+}

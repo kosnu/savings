@@ -9,6 +9,7 @@ function createEnv() {
 
   const EnvSchema = z.object({
     MODE: z.enum(["development", "production", "test"]),
+    PROD: z.boolean(),
 
     FIRESTORE_DATABASE_ID: z.string().default("(default)"),
 
@@ -29,7 +30,7 @@ function createEnv() {
     return acc
   }, {})
 
-  const parsedEnv = EnvSchema.safeParse({ ...envVars, MODE: mode })
+  const parsedEnv = EnvSchema.safeParse({ ...envVars, MODE: mode, PROD: import.meta.env.PROD })
 
   if (!parsedEnv.success) {
     throw new Error(

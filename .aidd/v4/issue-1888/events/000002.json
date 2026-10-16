@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
+    "docs/sentry-monitoring.md"
+  ],
+  "fingerprint": "79bad56af05ce5c235608ac5011f1658ef4e8d515d1adef59fe7ac7ab75de00c",
+  "status": "pass",
+  "checks": [
+    "Web lint/format-check/typecheck",
+    "Web unit/integration 806件",
+    "両modeのVite設定契約でtelemetry:false・source mapアップロード/削除指定維持を確認",
+    "diff check・Core change coverage・文書整形"
+  ],
+  "summary": "plugin telemetryの既定送信を実装で確認して明示停止。局所修正とローカル検証成功。実アップロード・受信等は未確認。",
+  "remaining": []
+}

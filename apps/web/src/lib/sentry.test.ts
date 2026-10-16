@@ -4,30 +4,43 @@ import {
   captureAuthCallbackError,
   captureMonthlyBudgetCreateError,
   captureSupabaseSessionError,
+  initSentry,
 } from "./sentry"
 
-const { mockCaptureMessage, mockSetContext, mockSetTag, mockWithScope } = vi.hoisted(() => {
-  const setContextMock = vi.fn()
-  const setTagMock = vi.fn()
-  const captureMessageMock = vi.fn()
-  const withScopeMock = vi.fn((callback: (scope: object) => void) => {
-    callback({
-      setContext: setContextMock,
-      setTag: setTagMock,
+const { mockCaptureMessage, mockSetContext, mockSetTag, mockWithScope, mockInit } = vi.hoisted(
+  () => {
+    const setContextMock = vi.fn()
+    const setTagMock = vi.fn()
+    const captureMessageMock = vi.fn()
+    const withScopeMock = vi.fn((callback: (scope: object) => void) => {
+      callback({
+        setContext: setContextMock,
+        setTag: setTagMock,
+      })
     })
-  })
 
-  return {
-    mockCaptureMessage: captureMessageMock,
-    mockSetContext: setContextMock,
-    mockSetTag: setTagMock,
-    mockWithScope: withScopeMock,
-  }
-})
+    return {
+      mockCaptureMessage: captureMessageMock,
+      mockInit: vi.fn(),
+      mockSetContext: setContextMock,
+      mockSetTag: setTagMock,
+      mockWithScope: withScopeMock,
+    }
+  },
+)
+
+vi.mock("../config/env", () => ({
+  env: {
+    MODE: "production",
+    PROD: true,
+    SENTRY_DSN: "https://public@example.com/1",
+    SENTRY_ENVIRONMENT: "test",
+  },
+}))
 
 vi.mock("@sentry/react", () => ({
   captureMessage: mockCaptureMessage,
-  init: vi.fn(),
+  init: mockInit,
   withScope: mockWithScope,
 }))
 
@@ -52,8 +65,7 @@ describe("captureSupabaseSessionError", () => {
 
     expect(mockSetTag).toHaveBeenCalledWith("feature", "auth")
     expect(mockSetContext).toHaveBeenCalledWith("supabase_session_error", {
-      name: "Error",
-      message: "network error",
+      code: "unknown",
     })
     expect(mockCaptureMessage).toHaveBeenCalledWith("Supabase session retrieval failed", "error")
   })
@@ -69,9 +81,31 @@ describe("captureMonthlyBudgetCreateError", () => {
     expect(mockSetTag).toHaveBeenCalledWith("feature", "budgets")
     expect(mockSetContext).toHaveBeenCalledWith("monthly_budget_create_error", {
       code: "23505",
-      name: undefined,
-      message: "duplicate key value violates unique constraint",
     })
     expect(mockCaptureMessage).toHaveBeenCalledWith("Monthly budget creation failed", "error")
   })
+})
+
+describe("監視の失敗", () => {
+  test("SDKがthrowしてもセッション・予算・認証エラー処理を妨げない", () => {
+    mockWithScope.mockImplementationOnce(() => {
+      throw new Error("SDK failed")
+    })
+    expect(() => captureSupabaseSessionError(new Error("session failed"))).not.toThrow()
+    mockCaptureMessage.mockImplementationOnce(() => {
+      throw new Error("SDK failed")
+    })
+    expect(() => captureMonthlyBudgetCreateError({ code: "23505" })).not.toThrow()
+    mockWithScope.mockImplementationOnce(() => {
+      throw new Error("SDK failed")
+    })
+    expect(() => captureAuthCallbackError({ code: "access_denied" })).not.toThrow()
+  })
+})
+
+test("監視の初期化失敗をアプリ起動へ伝播させない", () => {
+  mockInit.mockImplementationOnce(() => {
+    throw new Error("SDK initialization failed")
+  })
+  expect(initSentry).not.toThrow()
 })
