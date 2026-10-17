@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000018.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "tools/supabase-check/",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "c9f0ba0683542cfc2622b8ec453f85061cceab14558d761fe287425c79e88f0c",
+  "status": "pass",
+  "checks": [
+    "Approveに対応するAudit指摘2件の範囲・根本対策・反例を照合",
+    "候補はTOML/SQLデータのみ・環境変数非展開・固定隔離設定・エラー値非表示",
+    "正本node・依存closure・4代表pathと対象外path",
+    "documentation.policy・infrastructure.supabase-verification・infrastructure.dev-preview",
+    "infrastructure.overview・architecture.overview・policy.code-review・policy.git-workflow",
+    "policy.review-feedback-classification・policy.learning-extraction",
+    "ai-driven.change-coverage・ai-driven.workflow・ai-driven.checker",
+    "ai-driven.overview・ai-driven.glossary"
+  ],
+  "summary": "設定だけの破損を起動前に拒否し、候補取得経路にも接続。新しいHosted期待値や権限は追加しない。検証正本の必須参照と既存規則を適用し、無関係な経路へ拡張しない。依存版固定・正常/反例・実DB/API試験が成功。承認範囲外の変更・未解決指摘なし。",
+  "remaining": []
+}

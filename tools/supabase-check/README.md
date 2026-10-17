@@ -15,7 +15,8 @@ go -C tools/supabase-check run . assets --root "$PWD"
 ```
 
 `local`の隔離環境は、CI実行中だけDockerで起動する専用Supabase。
-repositoryのmigrationと既存pgTAPを適用・実行する。
+候補configをTOMLとして読み、既存の認証・環境変数参照・無効サービスの契約を検査してから、
+隔離用の固定構成でrepositoryのmigrationと既存pgTAPを適用・実行する。Hostedの環境変数は展開しない。
 既存のローカル・Dev DBをresetしない。同名の検証containerが存在する場合は停止せず失敗する。
 終了時に自分のcontainer・volume・一時ファイルだけを破棄する。
 API試験の対象一覧とDB catalogを照合し、未対応の公開対象が増えたら失敗する。
@@ -50,7 +51,8 @@ objectは指定fieldを比較し、array・scalarは完全一致。
 指定した期待値の空object、不正値、必須項目の欠落、取得失敗、不一致は失敗とする。
 人が確認するセッション・不正利用対策・公開管理範囲の採用判断は[Dev確認手順](../../docs/supabase-dev-verification.md#人が確認決定する内容)に残す。
 
-Dev DBの比較元は承認したPR headのSQLだけを取得して起動した隔離DB。履歴・RLS・index・関数定義・実効権限を比較する。
+Dev DBの比較元は承認したPR headのSQLとconfigをデータとして取得し、configの契約検査後にSQLから起動した隔離DB。
+履歴・RLS・index・関数定義・実効権限を比較する。候補のGo・JavaScriptは取得・実行しない。
 Devの読み取りAPIの利用可否と必要権限は実行時に検証する。未取得を一致として扱わない。
 
 ## 検証範囲

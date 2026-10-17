@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000018.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "tools/supabase-check/",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "c9f0ba0683542cfc2622b8ec453f85061cceab14558d761fe287425c79e88f0c",
+  "status": "pass",
+  "checks": [
+    "Go test -race・vet・module verify",
+    "正常TOML・設定改変反例・実行入口・候補取得接続・秘密値非表示",
+    "隔離Supabase pgTAP 425件・実Auth/API境界・RPC・session・CRUD",
+    "正本への4代表path到達・対象外path非選択・graph検査",
+    "README・rule-map整形・差分空白"
+  ],
+  "summary": "候補configの正常値と設定だけを壊す反例、Dev用候補取得から検査までの接続を確認。安全な隔離構成で既存DB/API試験が成功。検証正本の必須選択と対象外の非選択を確認。Dev実環境照合は未実行。",
+  "remaining": []
+}

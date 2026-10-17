@@ -68,7 +68,7 @@ func resolvePreview(ctx context.Context) (string, error) {
 	return "", errors.New("現在のPR headに対応するDev配信成功がありません")
 }
 
-// PRのSQLだけをデータとして取得し、Hosted資格情報のない隔離DBへ適用する。
+// PRのSQLとconfigだけをデータとして取得し、Hosted資格情報を候補コードへ渡さない。
 func downloadCandidate(ctx context.Context) (string, error) {
 	sha := os.Getenv("EXPECTED_HEAD")
 	if !regexp.MustCompile(`^[0-9a-f]{40}$`).MatchString(sha) {
@@ -99,47 +99,58 @@ func downloadCandidate(ctx context.Context) (string, error) {
 			os.RemoveAll(temp)
 		}
 	}()
-	counts := map[string]int{"migrations": 0, "tests": 0}
+	counts := map[string]int{"migrations": 0, "tests": 0, "config": 0}
 	for _, entry := range tree.Tree {
-		for name := range counts {
-			prefix := "apps/api/supabase/" + name + "/"
-			if !strings.HasPrefix(entry.Path, prefix) || !strings.HasSuffix(entry.Path, ".sql") {
-				continue
+		kind, rel := "", ""
+		if entry.Path == "apps/api/supabase/config.toml" {
+			kind, rel = "config", "config.toml"
+		} else {
+			for _, name := range []string{"migrations", "tests"} {
+				prefix := "apps/api/supabase/" + name + "/"
+				if strings.HasPrefix(entry.Path, prefix) && strings.HasSuffix(entry.Path, ".sql") {
+					kind, rel = name, strings.TrimPrefix(entry.Path, prefix)
+					break
+				}
 			}
-			rel := strings.TrimPrefix(entry.Path, prefix)
-			if entry.Type != "blob" || entry.Mode != "100644" || strings.Contains(rel, "/") || rel == "" {
-				return "", errors.New("対象SQLのpath/modeが不正です")
-			}
-			if !regexp.MustCompile(`^[0-9a-f]{40}$`).MatchString(entry.SHA) {
-				return "", errors.New("blob SHAが不正です")
-			}
-			blob, e := a.request(ctx, "GET", "/git/blobs/"+entry.SHA, os.Getenv("GH_TOKEN"), nil)
-			if e != nil {
-				return "", e
-			}
-			var body struct{ Encoding, Content string }
-			if e = blob.decode(&body); e != nil {
-				return "", e
-			}
-			if body.Encoding != "base64" {
-				return "", errors.New("SQL blobの形式が不正です")
-			}
-			data, e := base64.StdEncoding.DecodeString(strings.ReplaceAll(body.Content, "\n", ""))
-			if e != nil {
-				return "", e
-			}
-			dir := filepath.Join(temp, "apps/api/supabase", name)
-			if e = os.MkdirAll(dir, 0700); e != nil {
-				return "", e
-			}
-			if e = os.WriteFile(filepath.Join(dir, rel), data, 0600); e != nil {
-				return "", e
-			}
-			counts[name]++
 		}
+		if kind == "" {
+			continue
+		}
+		if entry.Type != "blob" || entry.Mode != "100644" || strings.Contains(rel, "/") || rel == "" {
+			return "", errors.New("候補データのpath/modeが不正です")
+		}
+		if !regexp.MustCompile(`^[0-9a-f]{40}$`).MatchString(entry.SHA) {
+			return "", errors.New("blob SHAが不正です")
+		}
+		blob, e := a.request(ctx, "GET", "/git/blobs/"+entry.SHA, os.Getenv("GH_TOKEN"), nil)
+		if e != nil {
+			return "", e
+		}
+		var body struct{ Encoding, Content string }
+		if e = blob.decode(&body); e != nil {
+			return "", e
+		}
+		if body.Encoding != "base64" {
+			return "", errors.New("候補データblobの形式が不正です")
+		}
+		data, e := base64.StdEncoding.DecodeString(strings.ReplaceAll(body.Content, "\n", ""))
+		if e != nil {
+			return "", e
+		}
+		dir := filepath.Join(temp, "apps/api/supabase")
+		if kind != "config" {
+			dir = filepath.Join(dir, kind)
+		}
+		if e = os.MkdirAll(dir, 0700); e != nil {
+			return "", e
+		}
+		if e = os.WriteFile(filepath.Join(dir, rel), data, 0600); e != nil {
+			return "", e
+		}
+		counts[kind]++
 	}
-	if counts["migrations"] == 0 || counts["tests"] == 0 {
-		return "", errors.New("候補のmigrationまたはDB試験がありません")
+	if counts["migrations"] == 0 || counts["tests"] == 0 || counts["config"] != 1 {
+		return "", errors.New("候補のconfig・migration・DB試験が揃っていません")
 	}
 	ok = true
 	return temp, nil

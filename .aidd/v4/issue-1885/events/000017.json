@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000014.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "tools/supabase-check/",
+    "docs/harness/rule-map.json",
+    "docs/supabase-dev-verification.md"
+  ],
+  "fingerprint": "87d2b7e6838d0c2f6bf25ce290117124c51ad98a1e1e3b401d5dcc1b4df00d33",
+  "status": "unknown",
+  "checks": [
+    "現head c1a90487の未解決Bot thread 2件と全CI結果",
+    "固定localConfig・候補SQL取得範囲・config試験欠落の照合",
+    "実resolverで検証正本が選択されないことを確認"
+  ],
+  "summary": "分析は完了。P2の2件を妥当・今修正案と判定し、マージ前の是正を推奨。候補config未検証は既存契約検査と設定改変反例、正本未接続はrule nodeと対象pathの依存到達性で是正する案。原因は入力対象と文書routingの適用・検出漏れ。新しい方針追加は不要。改善・返信・Bot解決は承認待ち。",
+  "remaining": [
+    "tools/supabase-check/local.go・github.go・check_test.goで候補configの既存契約検査案、正常と改変反例・隔離試験で検証",
+    "docs/harness/rule-map.jsonに検証正本を接続する案、対象path resolver出力とgraph検査で検証",
+    "PRRT_kwDOM0p88s6tikSO・PRRT_kwDOM0p88s6tikSTへ対応結果を返信し、修正と検証・配信完了後にBot thread解決する案。実行は未承認"
+  ]
+}

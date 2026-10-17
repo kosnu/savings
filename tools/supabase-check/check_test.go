@@ -284,3 +284,146 @@ func TestRemoteAssetsFollowLazyImportsAndRejectFallback(t *testing.T) {
 		}
 	}
 }
+
+func TestCandidateConfigContractBeforeIsolation(t *testing.T) {
+	baseline, err := os.ReadFile("../../apps/api/supabase/config.toml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	good := string(baseline)
+	for _, tc := range []struct {
+		name, config string
+		ok           bool
+	}{
+		{"existing", good, true},
+		{"equivalent-toml", strings.ReplaceAll(good, `"`, `'`), true},
+		{"google-disabled", strings.Replace(good, "enabled = true", "enabled = false", 1), false},
+		{"google-missing", strings.Replace(good, "enabled = true", "", 1), false},
+		{"redirect-variable", strings.ReplaceAll(good, "AUTH_REDIRECT_URL", "AUTH_REDIRECT_TYPO"), false},
+		{"site-variable", strings.ReplaceAll(good, "AUTH_SITE_URL", "AUTH_SITE_TYPO"), false},
+		{"client-variable", strings.ReplaceAll(good, "SUPABASE_GOOGLE_CLIENT_ID", "CLIENT_TYPO"), false},
+		{"secret-variable", strings.ReplaceAll(good, "SUPABASE_GOOGLE_CLIENT_SECRET", "SECRET_TYPO"), false},
+		{"callback-variable", strings.ReplaceAll(good, "SUPABASE_GOOGLE_REDIRECT_URL", "CALLBACK_TYPO"), false},
+		{"nonce-variable", strings.ReplaceAll(good, "SUPABASE_GOOGLE_SKIP_NONCE_CHECK", "NONCE_TYPO"), false},
+		{"literal-secret", strings.ReplaceAll(good, "env(SUPABASE_GOOGLE_CLIENT_SECRET)", "GOCSPX-private-value"), false},
+		{"invalid-toml", good + "\n[auth\nsecret = 'GOCSPX-private-value'", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			dir := filepath.Join(root, "apps/api/supabase")
+			if err := os.MkdirAll(dir, 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, "config.toml"), []byte(tc.config), 0600); err != nil {
+				t.Fatal(err)
+			}
+			err := checkCandidateConfig(root)
+			if (err == nil) != tc.ok {
+				t.Fatalf("config validation: %v", err)
+			}
+			if !tc.ok {
+				// 実際の入口も、Dockerやmigrationの準備より前に拒否する。
+				err = localRun(context.Background(), root, nil)
+				if err == nil || !strings.Contains(err.Error(), "config.toml") {
+					t.Fatalf("entrypoint bypassed config: %v", err)
+				}
+				if strings.Contains(err.Error(), "GOCSPX-private-value") {
+					t.Fatal("config error leaked a value")
+				}
+			}
+		})
+	}
+	for _, service := range []string{"analytics", "storage", "edge_runtime", "local_smtp", "realtime"} {
+		t.Run(service, func(t *testing.T) {
+			root := t.TempDir()
+			dir := filepath.Join(root, "apps/api/supabase")
+			if err := os.MkdirAll(dir, 0700); err != nil {
+				t.Fatal(err)
+			}
+			config := strings.Replace(good, "["+service+"]\nenabled = false", "["+service+"]\nenabled = true", 1)
+			if err := os.WriteFile(filepath.Join(dir, "config.toml"), []byte(config), 0600); err != nil {
+				t.Fatal(err)
+			}
+			if err := checkCandidateConfig(root); err == nil {
+				t.Fatal("enabled unused service passed")
+			}
+		})
+	}
+	if err := checkCandidateConfig(t.TempDir()); err == nil {
+		t.Fatal("missing config passed")
+	}
+}
+
+func TestDownloadCandidateIncludesConfigAsData(t *testing.T) {
+	baseline, err := os.ReadFile("../../apps/api/supabase/config.toml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("GITHUB_REPOSITORY", "kosnu/savings")
+	t.Setenv("EXPECTED_HEAD", strings.Repeat("a", 40))
+	t.Setenv("GH_TOKEN", "test-token")
+	original := client
+	defer func() { client = original }()
+	for _, mode := range []string{"normal", "bad-config", "missing-config", "symlink-config"} {
+		t.Run(mode, func(t *testing.T) {
+			config := string(baseline)
+			if mode == "bad-config" {
+				config = strings.Replace(config, "enabled = true", "enabled = false", 1)
+			}
+			blobs := map[string]string{"b": config, "c": "select 1;", "d": "select 1;"}
+			seenConfig := false
+			client = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				var result any
+				if strings.Contains(r.URL.Path, "/git/trees/") {
+					tree := []map[string]string{
+						{"path": "apps/api/supabase/migrations/20260101000000_test.sql", "mode": "100644", "type": "blob", "sha": strings.Repeat("c", 40)},
+						{"path": "apps/api/supabase/tests/test.sql", "mode": "100644", "type": "blob", "sha": strings.Repeat("d", 40)},
+						{"path": "tools/supabase-check/local.go", "mode": "100644", "type": "blob", "sha": strings.Repeat("e", 40)},
+					}
+					if mode != "missing-config" {
+						fileMode := "100644"
+						if mode == "symlink-config" {
+							fileMode = "120000"
+						}
+						tree = append(tree, map[string]string{"path": "apps/api/supabase/config.toml", "mode": fileMode, "type": "blob", "sha": strings.Repeat("b", 40)})
+					}
+					result = map[string]any{"tree": tree}
+				} else {
+					key := r.URL.Path[len(r.URL.Path)-40:][:1]
+					body, ok := blobs[key]
+					if !ok {
+						t.Fatalf("downloaded candidate code: %s", r.URL.Path)
+					}
+					if key == "b" {
+						seenConfig = true
+					}
+					result = map[string]any{"encoding": "base64", "content": base64.StdEncoding.EncodeToString([]byte(body))}
+				}
+				data, err := json.Marshal(result)
+				if err != nil {
+					t.Fatal(err)
+				}
+				return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(string(data)))}, nil
+			})}
+			root, err := downloadCandidate(context.Background())
+			if mode == "missing-config" || mode == "symlink-config" {
+				if err == nil {
+					os.RemoveAll(root)
+					t.Fatal("invalid config tree passed")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer os.RemoveAll(root)
+			if !seenConfig {
+				t.Fatal("candidate config was not fetched")
+			}
+			err = checkCandidateConfig(root)
+			if (err == nil) != (mode == "normal") {
+				t.Fatalf("downloaded config validation: %v", err)
+			}
+		})
+	}
+}

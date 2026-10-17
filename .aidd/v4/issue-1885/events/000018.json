@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000018.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "tools/supabase-check/",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "c9f0ba0683542cfc2622b8ec453f85061cceab14558d761fe287425c79e88f0c",
+  "status": "pass",
+  "checks": [
+    "Approve発言によるAudit提案2件の承認",
+    "候補TOMLの既存契約検査・設定改変反例・安全な隔離構成維持",
+    "検証正本nodeとコード・workflowの必須参照接続"
+  ],
+  "summary": "承認された設定検査と文書routingの2件だけを是正。候補configをTOMLとして検査し、Dev用候補取得にも含める。TOML parserを固定版追加し秘密値をエラーへ出さない。新しい期待値やHosted変更は要求しない。",
+  "remaining": []
+}

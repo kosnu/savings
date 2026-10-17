@@ -10,8 +10,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 const localProject = "savings-security-ci"
@@ -64,9 +67,59 @@ func command(ctx context.Context, dir, input, name string, args ...string) ([]by
 	return out.Bytes(), nil
 }
 
+// 候補configはデータとして検査し、Hostedの環境変数は展開しない。
+func checkCandidateConfig(root string) error {
+	path := filepath.Join(root, "apps/api/supabase/config.toml")
+	info, err := os.Lstat(path)
+	if err != nil || !info.Mode().IsRegular() {
+		return errors.New("候補のconfig.tomlがありません、または通常ファイルではありません")
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return errors.New("候補のconfig.tomlを読めません")
+	}
+	var config map[string]any
+	if err := toml.Unmarshal(data, &config); err != nil {
+		return errors.New("候補のconfig.tomlが不正なTOMLです（値は非表示）")
+	}
+	expected := map[string]any{
+		"auth.site_url":                         "env(AUTH_SITE_URL)",
+		"auth.additional_redirect_urls":         []any{"env(AUTH_REDIRECT_URL)"},
+		"auth.external.google.enabled":          true,
+		"auth.external.google.client_id":        "env(SUPABASE_GOOGLE_CLIENT_ID)",
+		"auth.external.google.secret":           "env(SUPABASE_GOOGLE_CLIENT_SECRET)",
+		"auth.external.google.redirect_uri":     "env(SUPABASE_GOOGLE_REDIRECT_URL)",
+		"auth.external.google.skip_nonce_check": "env(SUPABASE_GOOGLE_SKIP_NONCE_CHECK)",
+		"analytics.enabled":                     false,
+		"storage.enabled":                       false,
+		"edge_runtime.enabled":                  false,
+		"local_smtp.enabled":                    false,
+		"realtime.enabled":                      false,
+	}
+	for _, key := range sortedKeys(expected) {
+		var actual any = config
+		for _, part := range strings.Split(key, ".") {
+			object, ok := actual.(map[string]any)
+			if !ok {
+				actual = nil
+				break
+			}
+			actual = object[part]
+		}
+		if !reflect.DeepEqual(actual, expected[key]) {
+			return fmt.Errorf("候補config.tomlの%sが既存契約と一致しません（値は非表示）", key)
+		}
+	}
+	fmt.Println("PASS 候補Supabase configの既存契約")
+	return nil
+}
+
 func local(ctx context.Context, root string) error { return localRun(ctx, root, nil) }
 
 func localRun(ctx context.Context, root string, extra func(context.Context) error) (err error) {
+	if err := checkCandidateConfig(root); err != nil {
+		return err
+	}
 	temp, err := os.MkdirTemp("", "savings-security-ci-")
 	if err != nil {
 		return err
