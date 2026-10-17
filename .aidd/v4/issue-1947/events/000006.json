@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1947",
+  "paths": [
+    "apps/web/public/ogp.png",
+    "apps/web/index.html"
+  ],
+  "fingerprint": "583b354b680ce7f72341bca4399629fb623cc1bbb5273767ad43a0fc9d313c42",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "pnpm run web:build",
+    "画像の目視・既存素材との画素一致",
+    "ビルド済みHTML・PNGの未認証HTTP取得",
+    "git diff --check",
+    "Core check-changes"
+  ],
+  "summary": "Web必須4検証とbuild成功。145ファイル806テスト成功。画像は既存アイコンを白地に配置した期待画像と画素一致し、文字なしを目視確認。Slackbot/TwitterbotのUser-Agentで未認証HTTP取得し、画像寸法・MIME・altの整合と他メタデータの維持を確認。",
+  "remaining": []
+}

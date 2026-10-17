@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1947",
+  "paths": [
+    "apps/web/public/ogp.png",
+    "apps/web/index.html"
+  ],
+  "fingerprint": "583b354b680ce7f72341bca4399629fb623cc1bbb5273767ad43a0fc9d313c42",
+  "status": "unknown",
+  "checks": [
+    "適用規則と承認範囲の照合",
+    "更新済みIssueの画像要件との意味照合",
+    "既存アイコンとの画素比較・目視",
+    "ビルド済みHTML・PNGの未認証取得"
+  ],
+  "summary": "承認された画像要件をIssueへ反映済み。既存アイコンのみを白地へ配置したPNGを画素一致と目視で確認。HTMLは画像altだけを同期し、タイトル・説明等を維持。非公開データ参照なし。前サイクルと同じ適用規則・依存を確認し、競合や追加修正を要する指摘なし。対象コメントへの返信は検証とShip後に行う。",
+  "remaining": [
+    "本番配信後のSlack・X実表示は未確認。Issue1947の成功条件で確認が必要。"
+  ]
+}

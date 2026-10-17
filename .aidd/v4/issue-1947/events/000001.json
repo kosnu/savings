@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1947",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/public/ogp.png"
+  ],
+  "fingerprint": "5599c5ff13ffc72eb150796bca2c66ede3300a3281c9a8a906dd0db950b9ce4e",
+  "status": "pass",
+  "checks": [
+    "Issueと着手依頼の範囲確認",
+    "静的HTMLと公開画像の設計"
+  ],
+  "summary": "通常URLはindex.htmlの共通OGP・X Cardsと1200x630 PNGを使う。既存ブランドに合わせた紹介だけを含め、動的生成・共有URL・非公開データは追加しない。Slack/X実表示は本番配信後に確認が必要。",
+  "remaining": []
+}

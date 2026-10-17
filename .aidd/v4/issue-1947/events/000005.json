@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1947",
+  "paths": [
+    "apps/web/public/ogp.png",
+    "apps/web/index.html"
+  ],
+  "fingerprint": "583b354b680ce7f72341bca4399629fb623cc1bbb5273767ad43a0fc9d313c42",
+  "status": "pass",
+  "checks": [
+    "承認されたAudit提案とApprove発言の照合",
+    "更新済みIssue1947の対象・制約・成功条件の再読",
+    "既存アイコンとメタデータの配置判断"
+  ],
+  "summary": "承認に基づきIssue1947へアイコンのみ・画像内文字なしを反映し読戻し済み。元baselineと同じTaskを保持。1200x630白地中央へ既存brand/icon-master.pngを配置し画像altを同期する。既存のタイトル・説明メタデータとカード形式は維持。共通ルール追加なし。変更後にWeb必須4検証・build・目視・未認証取得・レビューを行い、同PRへ配信後に承認済み対象へ結果返信する。",
+  "remaining": []
+}

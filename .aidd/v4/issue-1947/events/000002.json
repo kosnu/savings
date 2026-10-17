@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1947",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/public/ogp.png"
+  ],
+  "fingerprint": "5599c5ff13ffc72eb150796bca2c66ede3300a3281c9a8a906dd0db950b9ce4e",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "pnpm run web:build",
+    "ビルド済みHTML・PNGの未認証HTTP取得",
+    "git diff --check",
+    "Core check-changes"
+  ],
+  "summary": "必須4検証成功。145ファイル806テスト成功。build成功。Slackbot/TwitterbotのUser-AgentでCookie・JavaScriptなしにHTMLとPNGを取得し、文言・画像MIME・1200x630・配信内容の一致を確認。環境のpnpmラッパー不具合を既存12.11.2の実体利用で回避し、依存や設定の変更なし。",
+  "remaining": []
+}

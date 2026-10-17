@@ -1,0 +1,42 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1947",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/public/ogp.png"
+  ],
+  "fingerprint": "5599c5ff13ffc72eb150796bca2c66ede3300a3281c9a8a906dd0db950b9ce4e",
+  "status": "unknown",
+  "checks": [
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.storybook-browser-tests",
+    "web.test-policy",
+    "web.design-system-brand",
+    "Issueの成果・範囲・実行権限",
+    "静的メタデータ・画像・公開範囲の照合"
+  ],
+  "summary": "通常URLの共通紹介のみを静的HTMLと公開PNGへ追加。画像の目視とビルド済みHTML・PNGの未認証HTTP取得で、文言・寸法・MIME・OGP/Xの一致を確認。非公開データの参照と共有専用機構はない。指摘・規則の競合なし。",
+  "remaining": [
+    "本番配信後のSlack・X実表示は未確認。投稿・本番配信は今回の実行対象外。"
+  ]
+}

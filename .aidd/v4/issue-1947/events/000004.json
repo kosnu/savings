@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1955#discussion_r4303843624",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/public/ogp.png"
+  ],
+  "fingerprint": "5599c5ff13ffc72eb150796bca2c66ede3300a3281c9a8a906dd0db950b9ce4e",
+  "status": "unknown",
+  "checks": [
+    "PR1955現head・未解決thread1件の再確認",
+    "Issue1947と最新のユーザー訂正の照合",
+    "同サイクルAudit提案の更新"
+  ],
+  "summary": "No.1は文字入り画像とアイコンのみという期待の不一致。文字入り構図はagentの選択で、Issueの画像要件に文字の扱いがなく再実行でも再発し得る。Intent修正不要の判断を訂正し、Issue1947の対象・制約・成功条件へ既存ブランドアイコンのみ、画像内にサービス名・紹介文・URLを加えない、タイトル・説明はメタデータに設定する要件を反映する案。画像は1200x630白地へ既存アイコンのみ配置しaltを同期。共通ルール追加不要。承認後はIntent反映・再読から次サイクルで実装・検証・Shipし結果返信。人のthreadは自動解決しない。",
+  "remaining": [
+    "手動承認待ち: Issue1947の画像要件・制約・成功条件への反映。",
+    "承認待ち: 画像・alt修正、Web必須4検証・build・目視・未認証取得、PR更新・結果返信。いずれも未実施。",
+    "本番配信・Slack/X投稿は提案対象外。実表示はIssue1947の成功条件で確認。"
+  ]
+}
