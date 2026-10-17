@@ -12,17 +12,14 @@
     "docs/harness/rule-map.json",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "c9b26fd598d9eac37a4a66227afeb57c8b035d8638a55d811ecd5456d2793c1c",
+  "fingerprint": "44f3f20f604b05eeab53c04c862a713de2d21c9630f0f85b8e7d608122b5d232",
   "status": "pass",
   "checks": [
-    "Intentと文書責務・CI実装",
-    "Dev限定・固定head・承認・読み取り・秘密値非出力",
-    "失敗と未実行の区別・catalogの試験漏れ検出",
-    "documentation.policy・infrastructure.dev-preview・infrastructure.overview・architecture.overview",
-    "policy.code-review・policy.transaction-boundaries・policy.git-workflow",
-    "ai-driven.change-coverage・ai-driven.workflow・ai-driven.checker・ai-driven.overview・ai-driven.glossary",
-    "policy.review-feedback-classification・policy.learning-extraction"
+    "既存文書・最新指示との必須項目照合",
+    "未指定API非呼出と指定値照合の正常・失敗経路",
+    "Dev限定・固定head・読み取り・秘密非出力の維持",
+    "infrastructure.dev-preview・infrastructure.overview・architecture.overview・documentation.policy・policy.code-review・ai-driven.workflow・ai-driven.checker"
   ],
-  "summary": "全変更面と起動経路を照合。文書は期待状態を所有し、Goが検証手順を所有する。Dev期待値・権限の未設定とブラウザ未検証を明示。未解決の規則競合なし。",
+  "summary": "独自の全設定必須化と詳細Auth値・max_rows必須化を撤廃し、既存方針の認証・遷移先・公開schemaを維持。追加期待値は任意、未照合は確認済みにしない。人の運用判断は維持。未解決指摘なし。Dev実照合は未実行。",
   "remaining": []
 }

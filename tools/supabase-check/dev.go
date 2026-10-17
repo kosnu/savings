@@ -48,23 +48,8 @@ func dev(ctx context.Context, root string) error {
 		return err
 	}
 	a := api{base: "https://api.supabase.com/v1/projects/" + devRef}
-	for _, name := range sortedKeys(configEndpoints) {
-		r, err := a.request(ctx, "GET", configEndpoints[name], token, nil)
-		if err != nil {
-			return err
-		}
-		var actual any
-		if err = r.decode(&actual); err != nil {
-			return fmt.Errorf("Dev %s取得不能（未確認）: %w", name, err)
-		}
-		var want any
-		if err = json.Unmarshal(expected.Settings[name], &want); err != nil {
-			return err
-		}
-		if !containsJSON(actual, want) {
-			return fmt.Errorf("Dev %sが期待値と一致しません（値は非表示）", name)
-		}
-		fmt.Printf("PASS Dev %s設定\n", name)
+	if err := checkDevSettings(ctx, a, token, expected); err != nil {
+		return err
 	}
 	// 公開API自体の可用性は未認証のルート要求で確認する。
 	key := os.Getenv("VITE_SUPABASE_PUBLISHABLE_KEY")
@@ -100,17 +85,43 @@ func dev(ctx context.Context, root string) error {
 	}
 	return nil
 }
+func checkDevSettings(ctx context.Context, a api, token string, expected expectations) error {
+	for _, name := range sortedKeys(expected.Settings) {
+		r, err := a.request(ctx, "GET", configEndpoints[name], token, nil)
+		if err != nil {
+			return err
+		}
+		var actual any
+		if err = r.decode(&actual); err != nil {
+			return fmt.Errorf("Dev %s取得不能（未確認）: %w", name, err)
+		}
+		var want any
+		if err = json.Unmarshal(expected.Settings[name], &want); err != nil {
+			return err
+		}
+		if !containsJSON(actual, want) {
+			return fmt.Errorf("Dev %sが期待値と一致しません（値は非表示）", name)
+		}
+		fmt.Printf("PASS Dev %s設定\n", name)
+	}
+	// 追加設定を照合していなくても、全設定を確認済みとは扱わない。
+	fmt.Println("INFO 設定照合は登録された期待値の範囲のみ。未登録の設定・採用判断は未確認です")
+	return nil
+}
+
 func validateExpectations(e expectations) error {
 	if err := validatePreview(e.PreviewURL); err != nil {
 		return err
 	}
-	if len(e.Settings) != len(configEndpoints) {
-		return errors.New("全設定項目の期待値が必要です")
-	}
-	for name := range configEndpoints {
-		raw, ok := e.Settings[name]
-		if !ok {
+	// 既存文書で採用済みの認証・遷移先・公開schemaだけを必須にする。
+	for _, name := range []string{"auth", "postgrest"} {
+		if _, ok := e.Settings[name]; !ok {
 			return fmt.Errorf("%sの期待値がありません", name)
+		}
+	}
+	for name, raw := range e.Settings {
+		if _, ok := configEndpoints[name]; !ok {
+			return fmt.Errorf("未対応の設定項目: %s", name)
 		}
 		var v any
 		if json.Unmarshal(raw, &v) != nil || v == nil {
@@ -122,9 +133,9 @@ func validateExpectations(e expectations) error {
 	}
 	var auth map[string]any
 	_ = json.Unmarshal(e.Settings["auth"], &auth)
-	for _, k := range []string{"external_google_enabled", "external_google_client_id", "site_url", "uri_allow_list", "external_google_skip_nonce_check", "jwt_exp", "security_captcha_enabled", "refresh_token_rotation_enabled", "security_refresh_token_reuse_interval", "sessions_timebox", "sessions_inactivity_timeout", "sessions_single_per_user", "rate_limit_token_refresh", "rate_limit_verify"} {
-		if _, ok := auth[k]; !ok {
-			return fmt.Errorf("Auth期待値の%sが未決定です", k)
+	for _, k := range []string{"site_url", "uri_allow_list"} {
+		if value, ok := auth[k].(string); !ok || strings.TrimSpace(value) == "" {
+			return fmt.Errorf("Auth期待値の%sが必要です", k)
 		}
 	}
 	if auth["external_google_enabled"] != true {
@@ -135,9 +146,6 @@ func validateExpectations(e expectations) error {
 	schema, _ := rest["db_schema"].(string)
 	if !includesSchema(schema, "public") {
 		return errors.New("期待する公開schemaにpublicがありません")
-	}
-	if number(rest["max_rows"]) <= 0 {
-		return errors.New("取得上限の期待値がありません")
 	}
 	return nil
 }

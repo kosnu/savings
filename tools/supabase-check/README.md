@@ -34,15 +34,20 @@ mainにworkflowが入るまでは、この経路は実行できない。
 - development Variables: `SUPABASE_DEV_EXPECTATIONS`
 - workflowが渡すread専用`GH_TOKEN`、`PR_NUMBER`、`EXPECTED_HEAD`
 
-PATはDev project限定とし、Auth、Data API、SSL、Network Restrictions、Storage、Realtime、
-Functions、poolerの各読み取りと、read-only SQL APIの権限が必要。
+PATはDev project限定とし、Auth・Data APIとread-only SQL APIの読み取り権限が必要。
+追加の設定照合を選んだ場合だけ、その項目の読み取り権限を使う。
 既存のDB適用用PATだけでは不足する可能性がある。権限と有効期限は所有者が確認する。
 
-期待値はJSONで`settings`に`auth`、`postgrest`、`ssl`、`network`、`storage`、`realtime`、`functions`、`pooler`を指定する。
-各値はManagement API応答の検査対象部分。objectは指定fieldを比較し、array・scalarは完全一致。
-空object、必須項目の欠落、取得失敗、値の不一致は失敗とする。
-検査するendpointとAuthの必須fieldは[dev.go](dev.go)が所有し、このREADMEには複製しない。
-期待値の採用判断・登録は所有者が行い、未登録の実行は失敗する。
+期待値はJSONの`settings`に指定する。必須なのは`auth`と`postgrest`だけで、
+Google認証の有効状態・Devの遷移先・`public`を含む公開schemaを照合する。
+具体的な入力fieldは[dev.go](dev.go)が所有する。値は[Devプレビュー運用](../../docs/development-preview.md#devプロジェクトと認証)の採用方針に従う。
+セッション期限・同時ログイン制限・更新猶予・CAPTCHA・rate limit・取得上限や、全サービスの具体値は必須入力にしない。
+
+追加の設定は、採用済み期待値がある場合にだけ指定する。未指定の設定APIは呼ばず、照合済みとは扱わない。
+設定項目とendpointは[dev.go](dev.go)が所有する。
+objectは指定fieldを比較し、array・scalarは完全一致。
+指定した期待値の空object、不正値、必須項目の欠落、取得失敗、不一致は失敗とする。
+人が確認するセッション・不正利用対策・公開管理範囲の採用判断は[Dev確認手順](../../docs/supabase-dev-verification.md#人が確認決定する内容)に残す。
 
 Dev DBの比較元は承認したPR headのSQLだけを取得して起動した隔離DB。履歴・RLS・index・関数定義・実効権限を比較する。
 Devの読み取りAPIの利用可否と必要権限は実行時に検証する。未取得を一致として扱わない。

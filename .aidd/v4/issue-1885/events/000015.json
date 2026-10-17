@@ -12,15 +12,14 @@
     "docs/harness/rule-map.json",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "c9b26fd598d9eac37a4a66227afeb57c8b035d8638a55d811ecd5456d2793c1c",
+  "fingerprint": "44f3f20f604b05eeab53c04c862a713de2d21c9630f0f85b8e7d608122b5d232",
   "status": "pass",
   "checks": [
     "Go test -race・vet",
-    "隔離DB pgTAP 425件・実Auth/API境界・14 RPC・session更新・CRUD・取得上限",
-    "Go preview-build・配信物11件検査",
-    "actionlint・zizmor offline",
-    "Markdown・リンク・文書責務・Core規約graph"
+    "最小期待値・任意設定・不正入力の回帰試験",
+    "未指定API非呼出・不一致と取得不能の拒否",
+    "README整形・差分空白・Core規約graph"
   ],
-  "summary": "ローカルの実DB/API・ビルド経路と単体・CI静的検査が成功。Dev実照合は期待値と権限の初期設定後に実行。ブラウザ自動更新・上限表示は未確認。",
+  "summary": "既存文書に基づく必須入力だけで受理され、追加設定の未指定で権限要求やAPI呼出が増えないことを確認。指定値の照合失敗は拒否。Dev実照合は未実行。DB/API・Web本体の未変更部分は前回検証を参照。",
   "remaining": []
 }

@@ -12,13 +12,13 @@
     "docs/harness/rule-map.json",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "c9b26fd598d9eac37a4a66227afeb57c8b035d8638a55d811ecd5456d2793c1c",
+  "fingerprint": "44f3f20f604b05eeab53c04c862a713de2d21c9630f0f85b8e7d608122b5d232",
   "status": "pass",
   "checks": [
-    "期待状態だけを所有する文書",
-    "Go検証・既存SQL再利用・CI入口",
-    "Dev限定・固定head・秘密情報非出力"
+    "既存方針に基づくGoogle認証・遷移先・public公開の照合",
+    "追加設定は明示した採用済み期待値だけ照合",
+    "人の採用判断と未確認範囲を維持"
   ],
-  "summary": "文書は確認対象と期待状態へ限定。隔離DB/APIとビルド検査、mainの承認経路でのDev読み取り照合をGoで実装し、設定期待値は所有者の入力とする。",
+  "summary": "全8設定・Auth詳細値・取得上限の独自必須入力を撤廃。追加設定は任意とし、未指定APIを呼ばず確認済みにしない。Dev限定・読み取りの境界を維持する。",
   "remaining": []
 }

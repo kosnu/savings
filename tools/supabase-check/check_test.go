@@ -78,6 +78,83 @@ func TestExpectedConfigMustExistAndArraysMustMatch(t *testing.T) {
 		}
 	}
 }
+func TestDevSettingsRequireOnlyDocumentedExpectations(t *testing.T) {
+	base := `{"auth":{"external_google_enabled":true,"site_url":"https://pr-1951-burneto-dev.account.workers.dev","uri_allow_list":"https://pr-1951-burneto-dev.account.workers.dev/auth"},"postgrest":{"db_schema":"public"}}`
+	for _, tc := range []struct {
+		name, settings string
+		ok             bool
+	}{
+		{"documented-only", base, true},
+		{"optional-ssl", strings.TrimSuffix(base, "}") + `,"ssl":{"enforced":true}}`, true},
+		{"optional-empty-functions", strings.TrimSuffix(base, "}") + `,"functions":[]}`, true},
+		{"google-disabled", strings.Replace(base, `"external_google_enabled":true`, `"external_google_enabled":false`, 1), false},
+		{"redirect-missing", strings.Replace(base, `"uri_allow_list":"https://pr-1951-burneto-dev.account.workers.dev/auth"`, `"uri_allow_list":null`, 1), false},
+		{"public-missing", strings.Replace(base, `"db_schema":"public"`, `"db_schema":"private"`, 1), false},
+		{"no-auth", `{"postgrest":{"db_schema":"public"}}`, false},
+		{"no-postgrest", `{"auth":{"external_google_enabled":true}}`, false},
+		{"unknown-section", strings.TrimSuffix(base, "}") + `,"typo":{"enabled":true}}`, false},
+		{"empty-optional", strings.TrimSuffix(base, "}") + `,"ssl":{}}`, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			e := expectations{PreviewURL: "https://pr-1951-burneto-dev.account.workers.dev"}
+			if err := json.Unmarshal([]byte(tc.settings), &e.Settings); err != nil {
+				t.Fatal(err)
+			}
+			if err := validateExpectations(e); (err == nil) != tc.ok {
+				t.Fatalf("validation: %v", err)
+			}
+		})
+	}
+}
+
+func TestDevSettingsCallOnlySelectedEndpoints(t *testing.T) {
+	original := client
+	defer func() { client = original }()
+	for _, tc := range []struct {
+		name, body string
+		status     int
+		optional   bool
+		ok         bool
+	}{
+		{"minimal", `{"external_google_enabled":true}`, 200, false, true},
+		{"mismatch", `{"external_google_enabled":false}`, 200, false, false},
+		{"unavailable", `{}`, 403, false, false},
+		{"selected-ssl", `{"external_google_enabled":true}`, 200, true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			seen := map[string]bool{}
+			client = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				seen[r.URL.Path] = true
+				body, status := tc.body, tc.status
+				switch r.URL.Path {
+				case "/postgrest":
+					body, status = `{"db_schema":"public"}`, 200
+				case "/ssl-enforcement":
+					body, status = `{"enforced":true}`, 200
+				case "/config/auth":
+				default:
+					t.Fatalf("unselected endpoint called: %s", r.URL.Path)
+				}
+				return &http.Response{StatusCode: status, Body: io.NopCloser(strings.NewReader(body))}, nil
+			})}
+			e := expectations{Settings: map[string]json.RawMessage{
+				"auth":      json.RawMessage(`{"external_google_enabled":true}`),
+				"postgrest": json.RawMessage(`{"db_schema":"public"}`),
+			}}
+			if tc.optional {
+				e.Settings["ssl"] = json.RawMessage(`{"enforced":true}`)
+			}
+			err := checkDevSettings(context.Background(), api{base: "https://example.test"}, "token", e)
+			if (err == nil) != tc.ok {
+				t.Fatalf("check: %v", err)
+			}
+			if tc.ok && seen["/ssl-enforcement"] != tc.optional {
+				t.Fatal("optional endpoint selection")
+			}
+		})
+	}
+}
+
 func TestAssetsFailOnEmptyAndNestedLeak(t *testing.T) {
 	dir := t.TempDir()
 	if scanDirectory(dir, nil) == nil {
