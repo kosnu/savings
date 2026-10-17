@@ -8,6 +8,8 @@ description: Analyze post-Ship findings on explicit Audit requests without apply
 Start only when the user explicitly requests Audit after Ship.
 Apply [AIDD v4](../../../docs/ai-driven-development/workflow.md) and
 [Audit policy](../../../docs/harness/policies/learning-extraction.md).
+Before analysis, resolve the target and retrieve current findings following
+[Audit policy](../../../docs/harness/policies/learning-extraction.md#audit).
 Retrieve the current Intent, authority, decision and verification/review summaries, and delivery references from the existing Issue, PR, and conversation.
 Analyze the findings and their causes. Preserve resolved status.
 Development-process retrospection belongs to [Retrospective](../../../docs/harness/policies/retrospective.md)

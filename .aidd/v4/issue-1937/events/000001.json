@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1937",
+  "paths": [
+    ".agents/skills/audit/SKILL.md",
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "a1e277476ed9e22de45f75942e449e9409b8fcd63f3f4526e697df89c51020f7",
+  "status": "pass",
+  "checks": [
+    "Issue #1937と既存Audit規則の照合",
+    "対象指定と最新指摘取得の順序設計"
+  ],
+  "summary": "baseline 8988ee8a。既存のPR文脈・最新指摘取得義務の適用漏れと、別成果物作成後の対象未指定時の曖昧さを区別。対象指定優先とPR候補の最新指摘取得順序をPolicyへ集約し、skillは参照を追加。Core・索引・アプリ・旧記録は変更しない。",
+  "remaining": []
+}

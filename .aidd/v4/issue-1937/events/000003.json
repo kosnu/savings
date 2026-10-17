@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1937",
+  "paths": [
+    ".agents/skills/audit/SKILL.md",
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "a1e277476ed9e22de45f75942e449e9409b8fcd63f3f4526e697df89c51020f7",
+  "status": "pass",
+  "checks": [
+    "Issue完了条件5項目の意味照合",
+    "対象未指定・HTML明示指定の選択と処理",
+    "指摘なし・解決済み・取得不能・複数候補",
+    "Ship前・通常レビューの非発火",
+    "分析と承認後実行の境界",
+    "全選択rule・参照経路・同期範囲"
+  ],
+  "summary": "Issue #1937の各条件pass。既存の取得義務は適用漏れ、対象未指定時の優先順位は入口の曖昧さとして最小修正。代表例・隣接例は静的照合でpass。既存rule-mapのaudit依存経路で正本へ到達し索引変更不要。Core・アプリ・過去記録は非該当。finding・未解決競合なし。実運用の再発率は未測定。",
+  "remaining": []
+}

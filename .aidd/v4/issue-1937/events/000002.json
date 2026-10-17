@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1937",
+  "paths": [
+    ".agents/skills/audit/SKILL.md",
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "a1e277476ed9e22de45f75942e449e9409b8fcd63f3f4526e697df89c51020f7",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt --check（変更2ファイル）",
+    "skill-creator quick_validate",
+    "Core rules graph"
+  ],
+  "summary": "4検証は全て終了コード0。検証前後の対象内容・modeは安定。文書と非runtime skillだけのためWeb/API検証は非該当。",
+  "remaining": []
+}
