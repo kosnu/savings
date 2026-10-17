@@ -2,19 +2,18 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000014.json",
   "kind": "review",
-  "source": "https://github.com/kosnu/savings/issues/1885",
+  "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "ae53d6c3c3a366d81b88d0ac67f07f0eec67107a0ca2f959bd70b32f43fa30e7",
+  "fingerprint": "1eaa9f05568a9605ef8e7550a1f3a3a8d68d2062814ee0877fe35d8dbd9e9abc",
   "status": "pass",
   "checks": [
-    "Intent・全10項目・Dev境界",
     "documentation.policy・infrastructure.overview・architecture.overview",
     "policy.code-review・policy.git-workflow・policy.review-feedback-classification・policy.learning-extraction",
-    "索引到達性・既存履歴・秘密情報の扱い"
+    "汎用性・Dev限定・手順維持"
   ],
-  "summary": "文書2件をレビューし指摘なし。既存infrastructureからの参照とfront matterで発見可能。必須判断の移動はなく索引変更不要。 実環境の試験は依頼範囲外で未実施。",
+  "summary": "実差分を確認。特定PRの作業説明とIssue固有条件を除去し、既存10項目とDev境界を維持。指摘なし。",
   "remaining": []
 }

@@ -2,16 +2,16 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000014.json",
   "kind": "design",
-  "source": "https://github.com/kosnu/savings/issues/1885",
+  "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "ae53d6c3c3a366d81b88d0ac67f07f0eec67107a0ca2f959bd70b32f43fa30e7",
+  "fingerprint": "1eaa9f05568a9605ef8e7550a1f3a3a8d68d2062814ee0877fe35d8dbd9e9abc",
   "status": "pass",
   "checks": [
-    "Intent・Dev境界・文書配置の照合"
+    "汎用手順書への修正範囲"
   ],
-  "summary": "Dev限定の再利用手順と残り10条件を対応付ける。実試験は行わず既存観測を履歴として区別する。",
+  "summary": "PR固有の作業説明を削除し、Issue固有の適用条件と確認済み表現を設定変更全般へ置き換える。",
   "remaining": []
 }

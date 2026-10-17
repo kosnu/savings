@@ -2,18 +2,17 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000014.json",
   "kind": "verify",
-  "source": "https://github.com/kosnu/savings/issues/1885",
+  "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "ae53d6c3c3a366d81b88d0ac67f07f0eec67107a0ca2f959bd70b32f43fa30e7",
+  "fingerprint": "1eaa9f05568a9605ef8e7550a1f3a3a8d68d2062814ee0877fe35d8dbd9e9abc",
   "status": "pass",
   "checks": [
-    "Markdown整形・差分空白検査",
-    "ローカルリンク・front matter・10項目対応",
-    "Core規約graph・変更範囲"
+    "Markdown整形・git diff --check",
+    "固有表現の除去・リンク・10項目維持"
   ],
-  "summary": "文書のみの変更を検証。実環境の試験とアプリ検証は実施対象外。",
+  "summary": "文書の限定修正を検証。アプリ・実環境の試験は対象外。",
   "remaining": []
 }
