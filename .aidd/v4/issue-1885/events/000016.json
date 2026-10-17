@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000014.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
+  ],
+  "fingerprint": "87d2b7e6838d0c2f6bf25ce290117124c51ad98a1e1e3b401d5dcc1b4df00d33",
+  "status": "pass",
+  "checks": [
+    "最新合意・文書・Issue案の意味照合",
+    "既存チェック・Prd除外・手動Dev照合の維持",
+    "documentation.policy・infrastructure.dev-preview・infrastructure.overview・architecture.overview・policy.code-review・ai-driven.workflow・ai-driven.checker"
+  ],
+  "summary": "設定が一致する隔離環境の結果を採用しDev Hostedの重複動作試験を求めない。ブラウザ自動更新は人、取得上限超過は対象外。手動Dev照合を自動化済みとは説明しない。既存チェック済み条件を保持。未解決指摘なし。",
+  "remaining": []
+}

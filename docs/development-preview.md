@@ -62,6 +62,14 @@ FE配信ではmigration・seed・reset・Auth設定を変更しない。
 `Dev Preview CI` は実Dev URLとダミーキーでビルド・成果物を検査する。
 URLは公開の接続先識別子であり、このCIは実DB接続や認証の成功を検証しない。
 
+## 設定とAPIのCI検証
+
+確認対象と満たすべき状態は[Supabase設定変更のDev確認手順](supabase-dev-verification.md)を参照する。
+`Supabase verification`はPRの隔離DB/API試験と、mainから手動実行するDevの読み取り照合を持つ。
+Go実装の入力・実行条件・必要権限は[検証コードの案内](../tools/supabase-check/README.md)を参照する。
+Dev照合はdevelopment Environmentの承認を使い、DB適用と同じgroupで直列化する。
+設定変更・権限追加・migration適用は行わない。既存DB適用tokenに不足する読み取り権限は自動追加しない。
+
 ## 共有Dev DBを更新する
 
 DB変更は全Previewに影響する。SQL全文、新旧FEとの互換性、検証の停止範囲、

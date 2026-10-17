@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000014.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
+  ],
+  "fingerprint": "87d2b7e6838d0c2f6bf25ce290117124c51ad98a1e1e3b401d5dcc1b4df00d33",
+  "status": "pass",
+  "checks": [
+    "Markdown整形・リンク・front matter",
+    "隔離環境の結果利用条件・人によるブラウザ更新確認・取得上限の除外",
+    "既存Issueチェック済み5項目の維持",
+    "差分空白・Core規約graph"
+  ],
+  "summary": "文書とIssue更新案が最新合意に一致。コード・workflowは未変更のためアプリ検証の再実行は不要。既存のDev確認済み条件は維持し、未実施の実設定照合を完了扱いしない。",
+  "remaining": []
+}

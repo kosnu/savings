@@ -223,11 +223,29 @@
           ".github/workflows/deploy_dev_database.yaml",
           ".github/workflows/dev_preview_ci.yaml",
           "apps/web/cloudflare.config.ts",
-          "docs/development-preview.md"
+          "docs/development-preview.md",
+          "tools/supabase-check/**",
+          ".github/workflows/supabase_ci.yaml"
         ],
         "topics": ["deployment", "cloudflare", "supabase", "migration"]
       },
       "depends_on": ["infrastructure.overview", "documentation.policy"],
+      "overrides": [],
+      "priority": 80
+    },
+    {
+      "id": "infrastructure.supabase-verification",
+      "file": "docs/supabase-dev-verification.md",
+      "applies_to": {
+        "paths": [
+          "tools/supabase-check/**",
+          ".github/workflows/supabase_ci.yaml",
+          ".github/workflows/dev_preview_ci.yaml",
+          "docs/supabase-dev-verification.md"
+        ],
+        "topics": ["supabase", "verification", "security"]
+      },
+      "depends_on": ["infrastructure.dev-preview"],
       "overrides": [],
       "priority": 80
     },
