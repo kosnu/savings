@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1938",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md"
+  ],
+  "fingerprint": "c88dfc39021b952cc1faf829f97dc9e09eceb3ec490ac9eeb9cc7bd9131e9928",
+  "status": "pass",
+  "checks": [
+    "Issueと既存方針・解決済みPR指摘の照合",
+    "説明・操作・ADRの適用範囲と同期先の判断"
+  ],
+  "summary": "文書責務分離は既存規則の適用対象。読者の理解を評価する明示観点が不足するため正本の1節だけ補う。既存のdocs pathとreview依存で選択でき、索引・実装・入口の変更は不要。",
+  "remaining": []
+}

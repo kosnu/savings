@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1938",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md"
+  ],
+  "fingerprint": "c88dfc39021b952cc1faf829f97dc9e09eceb3ec490ac9eeb9cc7bd9131e9928",
+  "status": "pass",
+  "checks": [
+    "Issue完了条件6件と差分の意味照合",
+    "説明・操作手順・ADRの実例と反例",
+    "全選択規約・依存closureと参照経路"
+  ],
+  "summary": "6条件pass。責務分離の適用対象と読者理解の観点不足を区別。本文の要点・制約、詳細への到達と実行条件維持を明示し、3例で目的別適用を確認。一律構成等は課さず、対象外の文書・設定・履歴は変更なし。finding・規約競合なし。",
+  "remaining": []
+}

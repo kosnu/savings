@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1938",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md"
+  ],
+  "fingerprint": "c88dfc39021b952cc1faf829f97dc9e09eceb3ec490ac9eeb9cc7bd9131e9928",
+  "status": "pass",
+  "checks": [
+    "文書format・差分空白",
+    "Core verifyの範囲・適用規約・内容安定性",
+    "規約グラフとローカルリンク7件"
+  ],
+  "summary": "文書整形と差分、規約graph、リンクを検証成功。文書のみの変更でアプリ検証は対象外。",
+  "remaining": []
+}
