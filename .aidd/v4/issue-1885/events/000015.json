@@ -4,16 +4,17 @@
   "kind": "verify",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
-    "tools/supabase-check/"
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
   ],
-  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
+  "fingerprint": "87d2b7e6838d0c2f6bf25ce290117124c51ad98a1e1e3b401d5dcc1b4df00d33",
   "status": "pass",
   "checks": [
-    "Go test -race・vet",
-    "隔離Supabaseの既存pgTAP 425件",
-    "実Auth/API全対象・別値PATCH・RPC・session・CRUD・上限試験",
+    "Markdown整形・リンク・front matter",
+    "隔離環境の結果利用条件・人によるブラウザ更新確認・取得上限の除外",
+    "既存Issueチェック済み5項目の維持",
     "差分空白・Core規約graph"
   ],
-  "summary": "別利用者・未認証のPATCHが名前追記・真偽反転・金額加算・別実在参照IDを送る構成で、既存の拒否判定と再取得確認を含む実API試験が成功。Dev・Prdには接続しない。",
+  "summary": "文書とIssue更新案が最新合意に一致。コード・workflowは未変更のためアプリ検証の再実行は不要。既存のDev確認済み条件は維持し、未実施の実設定照合を完了扱いしない。",
   "remaining": []
 }

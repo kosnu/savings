@@ -4,15 +4,16 @@
   "kind": "review",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
-    "tools/supabase-check/"
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
   ],
-  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
+  "fingerprint": "87d2b7e6838d0c2f6bf25ce290117124c51ad98a1e1e3b401d5dcc1b4df00d33",
   "status": "pass",
   "checks": [
-    "送信値変更という依頼と全8対象のpayloadを照合",
-    "A/B逆方向・未認証・既存拒否判定・再取得確認の維持",
-    "infrastructure.dev-preview・infrastructure.overview・architecture.overview・documentation.policy・policy.code-review・ai-driven.workflow・ai-driven.checker"
+    "最新合意・文書・Issue案の意味照合",
+    "既存チェック・Prd除外・手動Dev照合の維持",
+    "documentation.policy・infrastructure.dev-preview・infrastructure.overview・architecture.overview・policy.code-review・ai-driven.workflow・ai-driven.checker"
   ],
-  "summary": "名前・真偽値・金額・参照IDの全対象で元と異なる値を送信する。参照IDは実在する別カテゴリを使う。要求作成と更新結果の検証責務を混ぜず、既存判定は維持。実API試験成功、未解決指摘なし。",
+  "summary": "設定が一致する隔離環境の結果を採用しDev Hostedの重複動作試験を求めない。ブラウザ自動更新は人、取得上限超過は対象外。手動Dev照合を自動化済みとは説明しない。既存チェック済み条件を保持。未解決指摘なし。",
   "remaining": []
 }

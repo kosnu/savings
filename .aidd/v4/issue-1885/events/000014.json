@@ -4,14 +4,16 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
-    "tools/supabase-check/"
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
   ],
-  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
+  "fingerprint": "87d2b7e6838d0c2f6bf25ce290117124c51ad98a1e1e3b401d5dcc1b4df00d33",
   "status": "pass",
   "checks": [
-    "別利用者・未認証のPATCHを現在値と異なるpayloadに変更",
-    "拒否判定・再取得確認は維持"
+    "関連設定一致時の隔離結果利用・Dev Hosted再試験不要",
+    "ブラウザ自動session更新は人、取得上限確認は対象外",
+    "既存チェック済み条件を維持したIssue本文更新案"
   ],
-  "summary": "名前は追記、真偽値は反転、金額は加算、参照IDは別の実在カテゴリに変更して更新要求する。更新結果を検証する責務は既存処理に維持し、新しい判定条件は追加しない。",
+  "summary": "最新合意を確認基準と検証README・Issueの完了条件に反映。CIの起動方式と検証コードは変更しない。Dev照合の手動起動と実照合未実施を維持し、設定一致を推測で完了扱いしない。",
   "remaining": []
 }

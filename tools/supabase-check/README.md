@@ -14,7 +14,8 @@ go -C tools/supabase-check run . local --root "$PWD"
 go -C tools/supabase-check run . assets --root "$PWD"
 ```
 
-`local`は専用の一時構成で起動し、repositoryのmigrationと既存pgTAPを適用・実行する。
+`local`の隔離環境は、CI実行中だけDockerで起動する専用Supabase。
+repositoryのmigrationと既存pgTAPを適用・実行する。
 既存のローカル・Dev DBをresetしない。同名の検証containerが存在する場合は停止せず失敗する。
 終了時に自分のcontainer・volume・一時ファイルだけを破棄する。
 API試験の対象一覧とDB catalogを照合し、未対応の公開対象が増えたら失敗する。
@@ -61,5 +62,5 @@ Devの読み取りAPIの利用可否と必要権限は実行時に検証する�
 - ビルド済み配信物、Dev配信物の秘密情報混入検査
 
 Google OAuthの実機確認、所有者の期待値・例外・運用判断は自動判定しない。
-APIの分割取得試験はWebアプリの表示試験ではなく、ブラウザの自動session更新・一覧の上限超過表示まで成功を保証しない。
-これらは既存Webテストの確認範囲と分け、追加試験がない範囲は未確認とする。
+ブラウザの自動session更新は人が確認する。APIのsession更新試験とは区別する。
+既存のAPI上限試験はWebアプリの表示を検証するものではなく、取得上限超過時の一覧・集計確認は完了条件に含めない。
