@@ -4,14 +4,21 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
+    "tools/supabase-check/",
+    ".github/workflows/supabase_ci.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
     "docs/supabase-dev-verification.md",
+    "docs/development-preview.md",
+    "docs/harness/rule-map.json",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "ab183c83f0979f65919eb9e3d6c7a2a602c5ca270e0475c0aad834f57a804d10",
+  "fingerprint": "c9b26fd598d9eac37a4a66227afeb57c8b035d8638a55d811ecd5456d2793c1c",
   "status": "pass",
   "checks": [
-    "CI・人の分担と9・10の完了条件"
+    "期待状態だけを所有する文書",
+    "Go検証・既存SQL再利用・CI入口",
+    "Dev限定・固定head・秘密情報非出力"
   ],
-  "summary": "文書をCI確認の契約と人の運用判断へ整理。API網羅試験はCI内隔離、Devは設定照合。9・10を定期監視から分離する。",
+  "summary": "文書は確認対象と期待状態へ限定。隔離DB/APIとビルド検査、mainの承認経路でのDev読み取り照合をGoで実装し、設定期待値は所有者の入力とする。",
   "remaining": []
 }

@@ -223,7 +223,9 @@
           ".github/workflows/deploy_dev_database.yaml",
           ".github/workflows/dev_preview_ci.yaml",
           "apps/web/cloudflare.config.ts",
-          "docs/development-preview.md"
+          "docs/development-preview.md",
+          "tools/supabase-check/**",
+          ".github/workflows/supabase_ci.yaml"
         ],
         "topics": ["deployment", "cloudflare", "supabase", "migration"]
       },

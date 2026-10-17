@@ -4,15 +4,23 @@
   "kind": "verify",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
+    "tools/supabase-check/",
+    ".github/workflows/supabase_ci.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
     "docs/supabase-dev-verification.md",
+    "docs/development-preview.md",
+    "docs/harness/rule-map.json",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "ab183c83f0979f65919eb9e3d6c7a2a602c5ca270e0475c0aad834f57a804d10",
+  "fingerprint": "c9b26fd598d9eac37a4a66227afeb57c8b035d8638a55d811ecd5456d2793c1c",
   "status": "pass",
   "checks": [
-    "Markdown整形・git diff --check",
-    "リンク・front matter・全10項目と未実装表記"
+    "Go test -race・vet",
+    "隔離DB pgTAP 425件・実Auth/API境界・14 RPC・session更新・CRUD・取得上限",
+    "Go preview-build・配信物11件検査",
+    "actionlint・zizmor offline",
+    "Markdown・リンク・文書責務・Core規約graph"
   ],
-  "summary": "文書変更の検査に成功。CI実装と実環境試験はこの文書修正に含めない。",
+  "summary": "ローカルの実DB/API・ビルド経路と単体・CI静的検査が成功。Dev実照合は期待値と権限の初期設定後に実行。ブラウザ自動更新・上限表示は未確認。",
   "remaining": []
 }

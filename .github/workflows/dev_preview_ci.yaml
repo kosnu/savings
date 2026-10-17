@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "tools/dev-preview/**"
+      - "tools/supabase-check/**"
       - ".github/workflows/deploy_dev_database.yaml"
       - "apps/web/cloudflare.config.ts"
       - ".github/workflows/deploy_preview.yaml"
@@ -30,6 +31,11 @@ jobs:
           package-manager-cache: false
       - run: pnpm ci
       - run: node --test tools/dev-preview/*.test.mjs
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/supabase-check/go.mod
+          cache: false
       - name: Build Preview without deployment credentials
         env:
           NODE_ENV: production
@@ -39,7 +45,4 @@ jobs:
           VITE_SENTRY_ENVIRONMENT: development
           VITE_SUPABASE_URL: https://ufekmuxkmodwydxmdbln.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_fixture
-        run: |
-          node tools/dev-preview/preview.mjs name ci/preview
-          pnpm run web:build --mode development
-          node tools/dev-preview/preview.mjs check-build
+        run: go -C tools/supabase-check run . preview-build --root "$GITHUB_WORKSPACE"
