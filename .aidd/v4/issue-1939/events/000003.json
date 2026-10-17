@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1939",
+  "paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "0099bd535171c2b0625c4aa8a85a7277529f3a0ec988595dba04ca758be04469",
+  "status": "pass",
+  "checks": [
+    "CLI実装・実行結果との照合: pass",
+    "配列とファイルパスの説明: pass",
+    "掲載例と規約選択: pass",
+    "一時入力削除・生出力非保存: pass",
+    "整形・参照・既存契約との整合: pass"
+  ],
+  "summary": "Issueの全完了条件を実装・実行結果・最終差分で照合し、指摘なし。対象文書の12規約とcode-review policyを確認し未解決の競合なし。操作例の追加で判断の所有・選択経路は変わらず、索引・CLI・CIの同期変更は不要。",
+  "remaining": []
+}

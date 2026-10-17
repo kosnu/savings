@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1939",
+  "paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "0099bd535171c2b0625c4aa8a85a7277529f3a0ec988595dba04ca758be04469",
+  "status": "pass",
+  "checks": [
+    "掲載例の実行と規約選択・一時入力削除",
+    "JSON配列直接指定の失敗再現",
+    "Markdown整形・ローカル参照・空白検査",
+    "Core verifyと変更範囲・規約graph検査"
+  ],
+  "summary": "ファイルパス指定で対象文書の12規約が選択され、配列直接指定はファイル読み込みで失敗する。掲載例、整形、参照、差分範囲の検査に成功し、一時入力の削除を確認した。文書のみの変更のためWeb検証は対象外。",
+  "remaining": []
+}

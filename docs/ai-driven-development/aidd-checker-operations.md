@@ -22,7 +22,22 @@ go -C tools/aidd/checker build -o /tmp/aidd-checker ./cmd/aidd-checker
 /tmp/aidd-checker --root . check-changes --base origin/main
 ```
 
-`rules --paths`にはJSONのpath配列を入力できる。全規約graphの検査は`rules`、実差分の選択は`check-changes`で行う。
+`rules --paths`には、JSONのpath配列そのものではなく、その配列を保存したファイルのパスを渡す。
+たとえば、この操作文書に適用される規約を選ぶ場合は、repository rootで次を実行する。
+
+```sh
+cat > /tmp/aidd-rule-paths.json <<'JSON'
+["docs/ai-driven-development/aidd-checker-operations.md"]
+JSON
+/tmp/aidd-checker --root . rules --paths /tmp/aidd-rule-paths.json
+rm /tmp/aidd-rule-paths.json
+```
+
+配列の各要素はrepository rootからの相対pathで指定する。この例では`ai-driven.checker`や`documentation.policy`など、
+対象pathに直接一致する規約・surface必須規約と、その依存closureが選ばれる。
+結果は実行中の表示だけで確認し、確認後は一時入力ファイルを削除する。stdout/stderrをファイルへ保存しない。
+
+全規約graphの検査は`rules`、実差分の選択は`check-changes`で行う。
 これらの成功はテスト・レビューの完了ではない。
 
 ## 検証
