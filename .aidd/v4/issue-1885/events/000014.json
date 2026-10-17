@@ -7,11 +7,11 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "dd3eb997c2cc37fa1c03918970bdb63d182ff76bc1b2765970355b5cb885fede",
+  "fingerprint": "ab183c83f0979f65919eb9e3d6c7a2a602c5ca270e0475c0aad834f57a804d10",
   "status": "pass",
   "checks": [
-    "指定範囲のcurl化"
+    "CI・人の分担と9・10の完了条件"
   ],
-  "summary": "参照要求をcurl例へ置換し、変更要求はNetworkのCopy as cURLで取得する。",
+  "summary": "文書をCI確認の契約と人の運用判断へ整理。API網羅試験はCI内隔離、Devは設定照合。9・10を定期監視から分離する。",
   "remaining": []
 }
