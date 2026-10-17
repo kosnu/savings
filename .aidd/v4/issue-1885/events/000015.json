@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000014.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "tools/supabase-check/"
+  ],
+  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
+  "status": "pass",
+  "checks": [
+    "Go test -race・vet",
+    "隔離Supabaseの既存pgTAP 425件",
+    "実Auth/API全対象・別値PATCH・RPC・session・CRUD・上限試験",
+    "差分空白・Core規約graph"
+  ],
+  "summary": "別利用者・未認証のPATCHが名前追記・真偽反転・金額加算・別実在参照IDを送る構成で、既存の拒否判定と再取得確認を含む実API試験が成功。Dev・Prdには接続しない。",
+  "remaining": []
+}

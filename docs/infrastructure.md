@@ -107,8 +107,16 @@ Googleログインのredirectは次の順序を維持する。
 
 ### Supabase の公開準備
 
-[#1885](https://github.com/kosnu/savings/issues/1885) は未完了。本番・共有 Dev の設定変更、migration 適用、配信は、
-対象・影響・切り戻しへの承認後に行う。以下は 2026-10-06 の読み取り確認と、未適用の準備である。
+[#1885](https://github.com/kosnu/savings/issues/1885) はDev・隔離環境だけを検証対象とする。
+Prdの試験・実設定照合・変更・配信・反映後確認は対象外。
+現在の操作と合格条件は[Supabase設定変更のDev確認手順](supabase-dev-verification.md)を参照する。
+共有Devの設定変更・migration適用は、対象・影響・切り戻しへの所有者承認後に行う。
+
+#### 2026-10-06の観測・準備記録
+
+以下から「適用・監視・復旧」節の末尾までは当時の観測・準備記録であり、現在の適用状態や実行指示ではない。
+未適用・権限・性能等の記述を現在の完了根拠に使わない。最新の確認結果はIssue・PRを参照する。
+当時の切り戻し案はPUBLICを含む適用前ACLの完全復元を保証せず、現在の手順には使わない。
 `apps/api/supabase/config.toml` の Auth 環境変数や不要サービスの無効化はローカル設定であり、
 Hosted project の実設定を証明しない。
 

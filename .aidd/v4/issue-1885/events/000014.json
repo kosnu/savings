@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000014.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1951",
+  "paths": [
+    "tools/supabase-check/"
+  ],
+  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
+  "status": "pass",
+  "checks": [
+    "別利用者・未認証のPATCHを現在値と異なるpayloadに変更",
+    "拒否判定・再取得確認は維持"
+  ],
+  "summary": "名前は追記、真偽値は反転、金額は加算、参照IDは別の実在カテゴリに変更して更新要求する。更新結果を検証する責務は既存処理に維持し、新しい判定条件は追加しない。",
+  "remaining": []
+}

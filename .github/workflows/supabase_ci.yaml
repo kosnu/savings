@@ -1,0 +1,84 @@
+name: Supabase verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/api/supabase/**"
+      - "apps/web/src/features/**"
+      - "apps/web/src/providers/**"
+      - "tools/supabase-check/**"
+      - ".github/workflows/supabase_ci.yaml"
+      - "docs/supabase-dev-verification.md"
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "配信済みDev Previewを確認する同一repositoryのopen PR番号"
+        required: true
+        type: string
+
+      expected_head:
+        description: "承認対象PRの完全なhead SHA"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  isolated:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/supabase-check/go.mod
+          cache: false
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.120.0
+      - name: Test verifier
+        run: go -C tools/supabase-check test -count=1 ./...
+      - name: Vet verifier
+        run: go -C tools/supabase-check vet ./...
+      - name: Verify isolated database and APIs
+        run: go -C tools/supabase-check run . local --root "$GITHUB_WORKSPACE"
+
+  development:
+    name: Verify Dev PR ${{ inputs.pr_number }} @ ${{ inputs.expected_head }}
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment: development
+    concurrency:
+      group: burneto-shared-dev-database
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/supabase-check/go.mod
+          cache: false
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.120.0
+      - name: Verify approved Dev settings and deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_DEV_EXPECTATIONS: ${{ vars.SUPABASE_DEV_EXPECTATIONS }}
+        run: go -C tools/supabase-check run . dev --root "$GITHUB_WORKSPACE"
