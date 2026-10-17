@@ -180,7 +180,19 @@ func apiChecks(ctx context.Context, a api, service string) error {
 				var body any
 				if method == "PATCH" {
 					column := map[string]string{"users": "name", "books": "name", "book_members": "is_default", "categories": "name", "category_pins": "category_id", "category_budgets": "amount", "monthly_budgets": "amount", "payments": "amount"}[table]
-					body = row{column: otherRows[0][column]}
+					var value any
+					switch column {
+					case "name":
+						value = fmt.Sprint(otherRows[0][column]) + " updated"
+					case "is_default":
+						value = otherRows[0][column] != true
+					case "amount":
+						value = number(otherRows[0][column]) + 1
+					case "category_id":
+						// 別の実在カテゴリを指定し、同値更新にしない。
+						value = u.category
+					}
+					body = row{column: value}
 				}
 				for _, token := range []string{u.token, ""} {
 					r, e = a.request(ctx, method, "/rest/v1/"+table+"?id=eq."+target, token, body)

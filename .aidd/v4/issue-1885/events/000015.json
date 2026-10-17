@@ -4,22 +4,16 @@
   "kind": "verify",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
-    "tools/supabase-check/",
-    ".github/workflows/supabase_ci.yaml",
-    ".github/workflows/dev_preview_ci.yaml",
-    "docs/supabase-dev-verification.md",
-    "docs/development-preview.md",
-    "docs/harness/rule-map.json",
-    "docs/infrastructure.md"
+    "tools/supabase-check/"
   ],
-  "fingerprint": "44f3f20f604b05eeab53c04c862a713de2d21c9630f0f85b8e7d608122b5d232",
+  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
   "status": "pass",
   "checks": [
     "Go test -race・vet",
-    "最小期待値・任意設定・不正入力の回帰試験",
-    "未指定API非呼出・不一致と取得不能の拒否",
-    "README整形・差分空白・Core規約graph"
+    "隔離Supabaseの既存pgTAP 425件",
+    "実Auth/API全対象・別値PATCH・RPC・session・CRUD・上限試験",
+    "差分空白・Core規約graph"
   ],
-  "summary": "既存文書に基づく必須入力だけで受理され、追加設定の未指定で権限要求やAPI呼出が増えないことを確認。指定値の照合失敗は拒否。Dev実照合は未実行。DB/API・Web本体の未変更部分は前回検証を参照。",
+  "summary": "別利用者・未認証のPATCHが名前追記・真偽反転・金額加算・別実在参照IDを送る構成で、既存の拒否判定と再取得確認を含む実API試験が成功。Dev・Prdには接続しない。",
   "remaining": []
 }

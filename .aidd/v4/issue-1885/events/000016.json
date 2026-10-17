@@ -4,22 +4,15 @@
   "kind": "review",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
-    "tools/supabase-check/",
-    ".github/workflows/supabase_ci.yaml",
-    ".github/workflows/dev_preview_ci.yaml",
-    "docs/supabase-dev-verification.md",
-    "docs/development-preview.md",
-    "docs/harness/rule-map.json",
-    "docs/infrastructure.md"
+    "tools/supabase-check/"
   ],
-  "fingerprint": "44f3f20f604b05eeab53c04c862a713de2d21c9630f0f85b8e7d608122b5d232",
+  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
   "status": "pass",
   "checks": [
-    "既存文書・最新指示との必須項目照合",
-    "未指定API非呼出と指定値照合の正常・失敗経路",
-    "Dev限定・固定head・読み取り・秘密非出力の維持",
+    "送信値変更という依頼と全8対象のpayloadを照合",
+    "A/B逆方向・未認証・既存拒否判定・再取得確認の維持",
     "infrastructure.dev-preview・infrastructure.overview・architecture.overview・documentation.policy・policy.code-review・ai-driven.workflow・ai-driven.checker"
   ],
-  "summary": "独自の全設定必須化と詳細Auth値・max_rows必須化を撤廃し、既存方針の認証・遷移先・公開schemaを維持。追加期待値は任意、未照合は確認済みにしない。人の運用判断は維持。未解決指摘なし。Dev実照合は未実行。",
+  "summary": "名前・真偽値・金額・参照IDの全対象で元と異なる値を送信する。参照IDは実在する別カテゴリを使う。要求作成と更新結果の検証責務を混ぜず、既存判定は維持。実API試験成功、未解決指摘なし。",
   "remaining": []
 }

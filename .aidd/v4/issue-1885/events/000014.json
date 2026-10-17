@@ -4,21 +4,14 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/pull/1951",
   "paths": [
-    "tools/supabase-check/",
-    ".github/workflows/supabase_ci.yaml",
-    ".github/workflows/dev_preview_ci.yaml",
-    "docs/supabase-dev-verification.md",
-    "docs/development-preview.md",
-    "docs/harness/rule-map.json",
-    "docs/infrastructure.md"
+    "tools/supabase-check/"
   ],
-  "fingerprint": "44f3f20f604b05eeab53c04c862a713de2d21c9630f0f85b8e7d608122b5d232",
+  "fingerprint": "f0976b4680ae51dfa7d8e3dc9a06037449a8953c6f98e2ad6c7b272b9dc758a3",
   "status": "pass",
   "checks": [
-    "既存方針に基づくGoogle認証・遷移先・public公開の照合",
-    "追加設定は明示した採用済み期待値だけ照合",
-    "人の採用判断と未確認範囲を維持"
+    "別利用者・未認証のPATCHを現在値と異なるpayloadに変更",
+    "拒否判定・再取得確認は維持"
   ],
-  "summary": "全8設定・Auth詳細値・取得上限の独自必須入力を撤廃。追加設定は任意とし、未指定APIを呼ばず確認済みにしない。Dev限定・読み取りの境界を維持する。",
+  "summary": "名前は追記、真偽値は反転、金額は加算、参照IDは別の実在カテゴリに変更して更新要求する。更新結果を検証する責務は既存処理に維持し、新しい判定条件は追加しない。",
   "remaining": []
 }
