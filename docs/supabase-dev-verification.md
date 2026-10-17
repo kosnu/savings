@@ -48,12 +48,13 @@ Dev Dashboard → Integrations → Data API → Settingsを開く。
 1. 別ブラウザプロファイルでDevアプリにA・Bとしてログインし、それぞれ合成支払いを1件作る。
 2. 開発者ツール → Network → Fetch/XHRで`payments`要求を選ぶ。
    通信先がDev API URLであることを確認し、A・Bのトークンと支払いID・Book IDを控える。
-3. HTTPクライアントで次の要求を作る。`<…>`を手元のDev情報に置き換える。
+3. 次のcurlコマンドをターミナルで実行する。`<…>`を手元のDev情報に置き換える。
 
-```http
-GET <DEV_API_URL>/rest/v1/payments?select=id,book_id,amount&id=eq.<Aの支払いID>
-apikey: <Dev公開用キー>
-Authorization: Bearer <Aのアクセストークン>
+```sh
+curl --include --silent --show-error \
+  '<DEV_API_URL>/rest/v1/payments?select=id,book_id,amount&id=eq.<Aの支払いID>' \
+  --header 'apikey: <Dev公開用キー>' \
+  --header 'Authorization: Bearer <Aのアクセストークン>'
 ```
 
 同じURLでAuthorizationだけを切り替え、次の結果になることを確認する。
@@ -70,7 +71,8 @@ Authorization: Bearer <Aのアクセストークン>
 
 ### 支払いの変更
 
-Devアプリで正常に成功した作成・更新・削除要求をNetworkから取得し、HTTPクライアントで複製する。
+Devアプリで正常に成功した作成・更新・削除要求をNetworkで右クリックし、Copy → Copy as cURLでコピーする。
+コピーしたコマンドをターミナルで実行する。
 合成データを対象に、次の箇所だけを変えて送信する。
 
 | 操作                         | 変更箇所                                | 期待結果              |

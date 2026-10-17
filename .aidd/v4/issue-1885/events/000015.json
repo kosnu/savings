@@ -7,12 +7,12 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "dbca301644bd3c7de0ef16d81a896c0be9bd62dc91ec80cbd62a1cc1582df02e",
+  "fingerprint": "dd3eb997c2cc37fa1c03918970bdb63d182ff76bc1b2765970355b5cb885fede",
   "status": "pass",
   "checks": [
     "Markdown整形・git diff --check",
-    "ローカルリンク・front matter・10項目確認"
+    "curl例bash -n・置換漏れ確認"
   ],
-  "summary": "文書検査に成功。実環境の試験・設定変更は対象外。",
+  "summary": "文書とcurl例の構文を確認。実APIは未実行。",
   "remaining": []
 }

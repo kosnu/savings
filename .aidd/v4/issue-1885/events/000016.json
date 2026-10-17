@@ -7,13 +7,13 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "dbca301644bd3c7de0ef16d81a896c0be9bd62dc91ec80cbd62a1cc1582df02e",
+  "fingerprint": "dd3eb997c2cc37fa1c03918970bdb63d182ff76bc1b2765970355b5cb885fede",
   "status": "pass",
   "checks": [
     "documentation.policy・infrastructure.overview・architecture.overview",
     "policy.code-review・policy.git-workflow・policy.review-feedback-classification・policy.learning-extraction",
-    "操作と期待値・必要範囲・Dev境界"
+    "curl実行方法・認証切替・Dev境界"
   ],
-  "summary": "全10項目の操作と判定を照合。曖昧な列挙指示と長い総覧表を具体化し、所有者判断とAPI正常・拒否の境界を維持。指摘なし。",
+  "summary": "curlへの置換をレビュー。URL全体を引用しヘッダー切替と変更要求の取得方法を維持。指摘なし。",
   "remaining": []
 }

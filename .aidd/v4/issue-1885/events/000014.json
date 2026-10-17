@@ -7,11 +7,11 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "dbca301644bd3c7de0ef16d81a896c0be9bd62dc91ec80cbd62a1cc1582df02e",
+  "fingerprint": "dd3eb997c2cc37fa1c03918970bdb63d182ff76bc1b2765970355b5cb885fede",
   "status": "pass",
   "checks": [
-    "ユーザー指摘・操作と期待値の具体化"
+    "指定範囲のcurl化"
   ],
-  "summary": "全10項目を確認画面・操作・合格条件に整理。public有効確認を明記し、所有者判断が必要な設定値は推測しない。",
+  "summary": "参照要求をcurl例へ置換し、変更要求はNetworkのCopy as cURLで取得する。",
   "remaining": []
 }
