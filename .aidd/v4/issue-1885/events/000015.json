@@ -7,11 +7,12 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "fd4a463d33fc51ce96b6c75b88339f4238770899e6aef62d4bef6ca1fafa1b04",
+  "fingerprint": "dbca301644bd3c7de0ef16d81a896c0be9bd62dc91ec80cbd62a1cc1582df02e",
   "status": "pass",
   "checks": [
-    "Markdown整形・git diff --check"
+    "Markdown整形・git diff --check",
+    "ローカルリンク・front matter・10項目確認"
   ],
-  "summary": "文書削除差分の整形と空白検査に成功。アプリ検証は対象外。",
+  "summary": "文書検査に成功。実環境の試験・設定変更は対象外。",
   "remaining": []
 }

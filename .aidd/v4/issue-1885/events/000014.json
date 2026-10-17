@@ -7,11 +7,11 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "fd4a463d33fc51ce96b6c75b88339f4238770899e6aef62d4bef6ca1fafa1b04",
+  "fingerprint": "dbca301644bd3c7de0ef16d81a896c0be9bd62dc91ec80cbd62a1cc1582df02e",
   "status": "pass",
   "checks": [
-    "ユーザー指定の削除範囲"
+    "ユーザー指摘・操作と期待値の具体化"
   ],
-  "summary": "準備と再利用の節だけを削除し、必要情報と確認手順を維持する。",
+  "summary": "全10項目を確認画面・操作・合格条件に整理。public有効確認を明記し、所有者判断が必要な設定値は推測しない。",
   "remaining": []
 }

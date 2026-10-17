@@ -7,13 +7,13 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "fd4a463d33fc51ce96b6c75b88339f4238770899e6aef62d4bef6ca1fafa1b04",
+  "fingerprint": "dbca301644bd3c7de0ef16d81a896c0be9bd62dc91ec80cbd62a1cc1582df02e",
   "status": "pass",
   "checks": [
     "documentation.policy・infrastructure.overview・architecture.overview",
     "policy.code-review・policy.git-workflow・policy.review-feedback-classification・policy.learning-extraction",
-    "削除範囲・必要情報・Dev境界"
+    "操作と期待値・必要範囲・Dev境界"
   ],
-  "summary": "指定の節のみ削除。必要情報・10項目の手順・Dev運用への参照を維持し指摘なし。",
+  "summary": "全10項目の操作と判定を照合。曖昧な列挙指示と長い総覧表を具体化し、所有者判断とAPI正常・拒否の境界を維持。指摘なし。",
   "remaining": []
 }
