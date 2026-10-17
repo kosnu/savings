@@ -7,11 +7,11 @@
     "docs/supabase-dev-verification.md",
     "docs/infrastructure.md"
   ],
-  "fingerprint": "1eaa9f05568a9605ef8e7550a1f3a3a8d68d2062814ee0877fe35d8dbd9e9abc",
+  "fingerprint": "fd4a463d33fc51ce96b6c75b88339f4238770899e6aef62d4bef6ca1fafa1b04",
   "status": "pass",
   "checks": [
-    "汎用手順書への修正範囲"
+    "ユーザー指定の削除範囲"
   ],
-  "summary": "PR固有の作業説明を削除し、Issue固有の適用条件と確認済み表現を設定変更全般へ置き換える。",
+  "summary": "準備と再利用の節だけを削除し、必要情報と確認手順を維持する。",
   "remaining": []
 }
