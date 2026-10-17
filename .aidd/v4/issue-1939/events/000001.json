@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1939",
+  "paths": [
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "c89c710e438e4db6d6fb064901e384f848a06876324249cec0e4ebf59fd7bdf5",
+  "status": "pass",
+  "checks": [
+    "IssueとCLI入力契約の照合",
+    "適用規約と変更範囲の選択"
+  ],
+  "summary": "操作文書にJSON配列の一時入力ファイル作成・ファイルパス指定・削除の実行例を追加する。CLIと既存契約は変更せず、掲載例の実行と整形・参照・規約選択を検証する。",
+  "remaining": []
+}
