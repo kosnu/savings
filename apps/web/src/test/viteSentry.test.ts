@@ -1,17 +1,16 @@
+import { runInNewContext } from "node:vm"
+
 import { afterEach, expect, test, vi } from "vite-plus/test"
 
-const { credentials, gitHead, sentryPlugin } = vi.hoisted(() => ({
+const { credentials, sentryPlugin } = vi.hoisted(() => ({
   credentials: {
     SENTRY_AUTH_TOKEN: "synthetic-upload-token",
     SENTRY_ORG: "fixture-org",
     SENTRY_PROJECT: "fixture-project",
-    SENTRY_RELEASE: "different-release",
   },
-  gitHead: vi.fn(() => `${"a".repeat(40)}\n`),
   sentryPlugin: vi.fn(() => [{ name: "sentry-fixture" }]),
 }))
 
-vi.mock("node:child_process", () => ({ execFileSync: gitHead }))
 vi.mock("vite-plus", async (importOriginal) => ({
   ...(await importOriginal<typeof import("vite-plus")>()),
   loadEnv: () => credentials,
@@ -38,15 +37,15 @@ test.each(["production", "development"])(
   "%s の配信でビルド対象 SHA と source map を対応付ける",
   async (mode) => {
     vi.stubEnv("GITHUB_SHA", "b".repeat(40))
-    vi.stubEnv("SENTRY_RELEASE", "different-release")
+    const release = "a".repeat(40)
+    vi.stubEnv("SENTRY_RELEASE", release)
     const config = await configure(mode, "build")
     expect(config.build?.sourcemap).toBe("hidden")
-    expect(sentryPlugin).toHaveBeenCalledExactlyOnceWith({
+    const options = {
       telemetry: false,
       authToken: "synthetic-upload-token",
       org: "fixture-org",
       project: "fixture-project",
-      release: { name: "a".repeat(40) },
       sourcemaps: {
         assets: ["./.cloudflare/output/v0/workers/default/assets/**"],
         filesToDeleteAfterUpload: [
@@ -54,7 +53,35 @@ test.each(["production", "development"])(
           "./.cloudflare/output/v0/workers/default/assets/**/*.css.map",
         ],
       },
-    })
+    }
+    expect(sentryPlugin).toHaveBeenCalledExactlyOnceWith(options)
+
+    const { sentryVitePlugin } =
+      await vi.importActual<typeof import("@sentry/vite-plugin")>("@sentry/vite-plugin")
+    const plugin = sentryVitePlugin(options).find(
+      (entry) => "renderChunk" in entry && typeof entry.renderChunk === "function",
+    )
+    if (!plugin || !("renderChunk" in plugin) || typeof plugin.renderChunk !== "function") {
+      throw new Error("Expected renderChunk")
+    }
+    const rendered = Reflect.apply(plugin.renderChunk, {}, [
+      "globalThis.syntheticBuild = true;",
+      { fileName: "assets/synthetic.js", facadeModuleId: "/synthetic.js" },
+      {},
+      {},
+    ])
+    if (
+      typeof rendered !== "object" ||
+      rendered === null ||
+      !("code" in rendered) ||
+      typeof rendered.code !== "string"
+    ) {
+      throw new Error("Expected rendered JavaScript")
+    }
+    const runtime: Record<string, unknown> = {}
+    runInNewContext(rendered.code, runtime)
+    expect(runtime.SENTRY_RELEASE).toEqual({ id: release })
+    expect(runtime.syntheticBuild).toBe(true)
   },
 )
 
@@ -64,7 +91,6 @@ test.each(["production", "development"])(
     const config = await configure(mode, "serve")
     expect(config.build?.sourcemap).toBe(false)
     expect(sentryPlugin).not.toHaveBeenCalled()
-    expect(gitHead).not.toHaveBeenCalled()
   },
 )
 
@@ -74,18 +100,6 @@ test.each(["production", "development"])(
     credentials.SENTRY_AUTH_TOKEN = ""
     const config = await configure(mode, "build")
     expect(config.build?.sourcemap).toBe(false)
-    expect(sentryPlugin).not.toHaveBeenCalled()
-    expect(gitHead).not.toHaveBeenCalled()
-  },
-)
-
-test.each(["production", "development"])(
-  "%s の配信で Git HEAD を取得できなければ停止する",
-  async (mode) => {
-    gitHead.mockImplementationOnce(() => {
-      throw new Error("Git HEAD unavailable")
-    })
-    await expect(configure(mode, "build")).rejects.toThrow("Git HEAD unavailable")
     expect(sentryPlugin).not.toHaveBeenCalled()
   },
 )

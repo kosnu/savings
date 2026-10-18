@@ -120,7 +120,9 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_RELEASE: ${{ needs.resolve.outputs.sha }}
         run: |
+          : "${SENTRY_RELEASE:?SENTRY_RELEASE が必要です}"
           : "${VITE_SENTRY_DSN:?VITE_SENTRY_DSN が必要です}"
           : "${VITE_SENTRY_ENVIRONMENT:?VITE_SENTRY_ENVIRONMENT が必要です}"
           : "${SENTRY_AUTH_TOKEN:?SENTRY_AUTH_TOKEN が必要です}"

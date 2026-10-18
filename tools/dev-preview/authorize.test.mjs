@@ -1,4 +1,5 @@
 import assert from "node:assert/strict"
+import { spawnSync } from "node:child_process"
 import { readFileSync } from "node:fs"
 import test from "node:test"
 
@@ -7,6 +8,44 @@ import { authorize, deploymentRequest } from "./authorize.mjs"
 const repo = "kosnu/savings"
 const sha = "a".repeat(40)
 const label = "preview"
+
+test("配信対象の SHA を SENTRY_RELEASE に渡し、未指定ならビルド前に停止する", () => {
+  const preview = readFileSync(
+    new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
+    "utf8",
+  )
+  const production = readFileSync(
+    new URL("../../.github/workflows/deploy_production.yaml", import.meta.url),
+    "utf8",
+  )
+  const previewBuild = preview
+    .split("      - name: Build Dev Preview\n")[1]
+    .split("      - name: Deploy Dev Preview\n")[0]
+  const productionWeb = production.split("\n  deploy-web:\n")[1]
+  assert.match(preview, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)
+  assert.match(previewBuild, /SENTRY_RELEASE: \$\{\{ needs.resolve.outputs.sha \}\}/)
+  assert.match(productionWeb, /ref: \$\{\{ github.sha \}\}/)
+  assert.match(productionWeb, /SENTRY_RELEASE: \$\{\{ github.sha \}\}/)
+  for (const build of [previewBuild, productionWeb]) {
+    const guard = build.match(/^\s*(: "\$\{SENTRY_RELEASE:\?[^"\n]+\}")$/m)
+    assert.ok(guard)
+    assert.ok(build.indexOf(guard[1]) < build.indexOf("pnpm run web:build"))
+    const script = `${guard[1]}\nprintf '%s' "$SENTRY_RELEASE"`
+    for (const env of [{}, { SENTRY_RELEASE: "" }]) {
+      const result = spawnSync("bash", ["-e", "-c", script], { env, encoding: "utf8" })
+      assert.notEqual(result.status, 0)
+      assert.equal(result.stdout, "")
+      assert.match(result.stderr, /SENTRY_RELEASE が必要です/)
+    }
+    const result = spawnSync("bash", ["-e", "-c", script], {
+      env: { SENTRY_RELEASE: sha },
+      encoding: "utf8",
+    })
+    assert.equal(result.status, 0)
+    assert.equal(result.stdout, sha)
+  }
+})
+
 function fixture() {
   const pr = {
     state: "open",

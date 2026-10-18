@@ -1,5 +1,3 @@
-import { execFileSync } from "node:child_process"
-
 import { cloudflare } from "@cloudflare/vite-plugin"
 import { sentryVitePlugin } from "@sentry/vite-plugin"
 import { devtools as tanstackDevtools } from "@tanstack/devtools-vite"
@@ -22,9 +20,6 @@ export default defineConfig(({ command, isPreview, mode }) => {
           authToken: buildEnv.SENTRY_AUTH_TOKEN,
           org: buildEnv.SENTRY_ORG,
           project: buildEnv.SENTRY_PROJECT,
-          release: {
-            name: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
-          },
           sourcemaps: {
             assets: ["./.cloudflare/output/v0/workers/default/assets/**"],
             filesToDeleteAfterUpload: [
