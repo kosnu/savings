@@ -4,18 +4,15 @@
   "kind": "verify",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
-    "apps/web/vite.config.ts",
-    "apps/web/src/test/viteSentry.test.ts",
     "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "79bad56af05ce5c235608ac5011f1658ef4e8d515d1adef59fe7ac7ab75de00c",
+  "fingerprint": "7dc0537aa0f0188bd6d35b51209ecd39bc26d67d0a23040b56fba69ac1d0feda",
   "status": "pass",
   "checks": [
-    "Web lint/format-check/typecheck",
-    "Web unit/integration 806件",
-    "両modeのVite設定契約でtelemetry:false・source mapアップロード/削除指定維持を確認",
-    "diff check・Core change coverage・文書整形"
+    "git diff --check",
+    "pnpm exec vp fmt docs/sentry-monitoring.md --check",
+    "Core verifyの対象範囲・差分安定性"
   ],
-  "summary": "plugin telemetryの既定送信を実装で確認して明示停止。局所修正とローカル検証成功。実アップロード・受信等は未確認。",
+  "summary": "文書差分の空白・整形・範囲検査が成功。アプリ実装・設定は変更せず、Web再検証は対象外。",
   "remaining": []
 }

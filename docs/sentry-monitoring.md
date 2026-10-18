@@ -48,6 +48,9 @@ SDK が生成する識別子とビルド済み asset 名は診断情報として
 通常の local 開発サーバーは DSN を設定しても送信しない。
 本番・Dev Preview とも、各 GitHub Environment の5つの Secret を同じ方法でビルドへ渡す。
 `VITE_SENTRY_DSN` は対象 project の送信先、`VITE_SENTRY_ENVIRONMENT` は本番で `production`、Dev で `development` にする。
+Sentry は org `kosnu` の project `savings` を共用し、environment で本番と Dev を区別する。
+Dev の受信確認では `environment:development` と対象 release・event ID を照合する。
+environment は検索・分類のための区分であり、それだけで project の設定・通知・使用量上限が分離されるわけではない。
 `SENTRY_AUTH_TOKEN` はアップロード用認証、`SENTRY_ORG`・`SENTRY_PROJECT` はその送信先を指す。
 5項目のいずれかが未登録・空なら、両配信 workflow ともビルド前に停止する。
 production の Secret は development に継承されない。Dev 専用値を各 Environment に登録し、追加の Variables は使わない。
@@ -89,6 +92,37 @@ SDK 送信は業務操作の完了条件にせず、監視 API の同期失敗�
 
 SDK のローカル検証は `pnpm run web:test:unit-integration` で実行する。
 実 SDK とテスト transport による除去・例外位置の保持は、サーバーでの受信・通知・解決の代替にはしない。
+
+### Dev Preview での実検証
+
+Issue #1888 の検証対象は Dev・隔離環境に限定する。Prd の試験・実設定照合・変更・デプロイは含めない。
+検証用 PR を作成しただけでは Preview は配信されない。
+[Dev Preview の配信手順](development-preview.md)に従い、配信対象の PR・head SHA と development の承認を対応付ける。
+
+配信・設定変更・合成イベント送信の前に、次の内容を Issue・PR または会話で具体化し、承認を得る。
+
+- **対象**：PR・head SHA、Sentry の org/project と `development`、配信先の Preview URL。
+  配信前には対象 PR と予定する Preview 名を示し、配信後に実 URL を読み戻して送信対象を確定する。
+- **受信許可**：Sentry の Allowed Domains に対象 Preview の origin が含まれるかを確認する。
+  追加が必要な場合は、そのホストだけを追加する案と前後値を示す。本番の許可を残し、全ドメインを許可する `*` へ広げない。
+  共通 project の設定変更であることも承認対象に含める。
+- **送信内容・上限**：合成の認証情報・メールアドレス・支払いメモを使う試験内容と、再試行を含めた最大送信件数を示す。
+  初回の例は認証失敗・予算作成失敗・未処理例外を各1件、合計3件まで。追加送信が必要なら上限と影響を見直す。
+  実利用者の情報や秘密値は使わない。
+- **通知先・使用量**：対象イベントに適用されるアラートの environment 条件、通知条件・間隔、実際の受信者を確認する。
+  既存通知を使う場合も試験通知の発生を承認対象に含める。新しい外部通知先や有料化は別途承認する。
+  Dev の送信も共通 project・organization の使用量枠を消費するため、試験前の残量を確認する。
+- **停止・復旧**：承認した上限、対象・環境の不一致、機微情報の残存を検知したら送信を止める。
+  一時追加した受信許可は検証後に追加分だけを戻す。送信停止や設定の復元で、受信済みイベント・送信済み通知は取り消せない。
+
+承認後は「公開前の確認」の送受信・ソース位置・公開成果物・通知を、同じ Preview の成果物に結び付けて確認する。
+Secrets の登録名、アップロード token の名前・最終利用、ビルド成功だけでは、値の妥当性や実受信を確認済みにしない。
+IP アドレスの保存防止など共通の収集設定も採用方針と照合し、未確認・不一致を environment の分離だけで解消済みにしない。
+結果は PR に確認対象・成否・必要な event ID 等の参照と未確認事項を短く残し、秘密値や機微情報を含む生の envelope・画面は転載しない。
+
+性能比較と送信失敗・offline・上限到達時の操作は、合成データを使い、Sentry への実送信を遮断した隔離環境で確認する。
+上限到達は Sentry の実際の使用量枠を消費して再現せず、送信先の失敗・429 応答を隔離環境で再現する。
+これは実 Sentry の受信・通知確認とは区別し、変更前後の比較条件・対象差分と測定結果を示す。
 
 ## 変更と切り戻し
 
