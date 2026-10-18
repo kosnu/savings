@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1891",
+  "paths": [
+    "docs/infrastructure.md",
+    "docs/google-oauth-publication.md"
+  ],
+  "fingerprint": "faadc2f9600160d6955c45855a07ed6c0e909212e67164ee0869964fd646e856",
+  "status": "pass",
+  "checks": [
+    "Markdown formatting",
+    "Relative links and front matter",
+    "Whitespace and Core rules/change scope"
+  ],
+  "summary": "文書2件の整形・リンク・metadata・差分規約検査が成功し、検証中の内容変更なし。文書のみのためWeb検証は対象外。",
+  "remaining": []
+}

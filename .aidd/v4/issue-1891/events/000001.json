@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1891",
+  "paths": [
+    "docs/infrastructure.md",
+    "docs/google-oauth-publication.md"
+  ],
+  "fingerprint": "faadc2f9600160d6955c45855a07ed6c0e909212e67164ee0869964fd646e856",
+  "status": "unknown",
+  "checks": [
+    "Google live configuration",
+    "Official Google OAuth requirements",
+    "Owner support and ownership decisions"
+  ],
+  "summary": "文書整合とGoogle公開案を作成。窓口はsupport@burneto.comへ統一するが選択準備は未実施。所有確認・外部反映・実機試験は残る。",
+  "remaining": [
+    "support用GoogleアカウントまたはGroupと権限の準備方法が未確定。",
+    "ドメイン所有確認・外部反映の承認と未登録アカウント試験が必要。"
+  ]
+}

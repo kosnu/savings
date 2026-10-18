@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1891",
+  "paths": [
+    "docs/infrastructure.md",
+    "docs/google-oauth-publication.md"
+  ],
+  "fingerprint": "faadc2f9600160d6955c45855a07ed6c0e909212e67164ee0869964fd646e856",
+  "status": "unknown",
+  "checks": [
+    "Intent DoD and authority boundaries",
+    "All selected rules and documentation routing",
+    "Live settings versus repository and official policies"
+  ],
+  "summary": "文書差分に修正指摘なし。DoD1の照合記録とscope最小性・環境分離を確認。公開と実機到達は未完了でありIssueをcloseしない。",
+  "remaining": [
+    "support@burneto.comをGoogleで選択可能にする準備と権限方式の承認が必要。",
+    "DNS所有確認・Google設定反映・ブランド審査は未実施。",
+    "未登録アカウントの初回/payments到達、既存sessionとDev確認は未実施。"
+  ]
+}
