@@ -156,9 +156,10 @@ Taskの有無によるgateと、記録だけを理由にした自動依存更新
 
 ## Repository verification
 
-既存のstaged Git gateは変更したGoファイルをgofmtし、Go vetとvp checkを実行する。
-これは必要検証とsemantic reviewの代替ではない。hookでsourceが変わった場合は
-影響する検証を行ってからShipする。一般の非AIDD変更にもこの共通gateは適用される。
+既存のstaged Git gateは変更したGoファイルのgofmt整形状態を確認し、Go vetとvp checkを実行する。
+hookは自動修正せず、整形漏れや検査エラーでcommitを止める。整形・自動修正は必要な検証の前に実行する。
+未ステージ差分は検査中に一時退避・復元し、ステージ済みの内容を検査する。
+これは必要検証とsemantic reviewの代替ではない。一般の非AIDD変更にもこの共通gateは適用される。
 
 実行環境の設定はcommand argvへ埋め込まず、Coreのbuildやverifyの呼出環境から継承する。
 Go cacheに書き込めない場合はrepository外の書き込み可能な`GOCACHE`を指定する。
