@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1963",
+  "paths": [
+    "docs/google-oauth-publication.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "faadc2f9600160d6955c45855a07ed6c0e909212e67164ee0869964fd646e856",
+  "status": "unknown",
+  "checks": [
+    "Three unresolved PR threads and head consistency",
+    "Route guard and existing redirect test",
+    "Official scope declarations versus actual request",
+    "Documentation ownership and manual approval boundary"
+  ],
+  "summary": "未解決3件を妥当と判定し修正前はmerge不可。調査記録のIssue移動と配置規約明確化、既存session経路訂正、openid申告案への訂正を提案。分析は終了、変更・返信・解決は未実施。",
+  "remaining": [
+    "具体案とコメント返信・Bot thread解決方針への手動承認待ち。",
+    "Google設定・DNS・アカウント権限の変更は承認対象に含めない。"
+  ]
+}

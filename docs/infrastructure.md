@@ -66,8 +66,6 @@ when_to_read:
   localhost と共有 Dev の callback は開発 project の client `supabase-dev` で管理する。
 - OAuth client ID と client secret は Supabase および GitHub Environment のsecretで管理し、
   リポジトリへ保存しない。
-- 実設定との照合結果、scope・ブランド審査の判断、承認後の反映と検証は
-  [Google OAuth の公開準備](google-oauth-publication.md)を参照する。
 
 ### Cloudflare Workers Static Assets
 
@@ -97,16 +95,22 @@ when_to_read:
 
 ### Authentication redirect
 
-Googleログインのredirectは次の順序を維持する。
+Googleログインのcallbackは次の順序を維持する。
 
 1. Web Appが現在のoriginの `/auth` を `redirectTo` に指定する。
 2. Google OAuthがSupabaseの `/auth/v1/callback` へ戻す。
 3. Supabaseがallow list内の `/auth` へ戻す。
-4. Web Appが認証済みsessionを確認して `/payments` へ遷移する。
 
-変更後は、既存sessionで `/auth` から `/payments` へ遷移することに加え、Googleログインを開始して
-同意画面にBurnetoの名称とロゴが表示され、callback後に `/payments` へ到達することを確認する。
-これは現行コードの経路と合格条件であり、本番配信済みコードでの実機確認は別途必要となる。
+アプリ内の遷移は、認証状態と処理される入口を分けて確認する。
+
+- 既存sessionで `/auth` を開いた場合、route の `beforeLoad` にある `redirectIfAuthenticated` が
+  `AuthPage` のマウント前に `/` のトップページへ遷移させる。
+- `AuthPage` がマウントされ、`useSupabaseSignIn` がsessionを確認した場合は `/payments` へ遷移する。
+  OAuth callback直後にどちらの経路を通るかはsession復元のタイミングも含めて実機確認する。
+
+認証設定変更後は、既存sessionで `/auth` から `/` へ遷移して認証済み画面を利用できることと、
+Googleログイン時の同意画面の名称・ロゴ、callbackの経路と最終到達先をそれぞれ確認する。
+既存sessionの確認だけを、初回ログインの確認結果として扱わない。
 
 ### Supabase の公開準備
 

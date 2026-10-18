@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1891",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/infrastructure.md",
+    "docs/google-oauth-publication.md"
+  ],
+  "fingerprint": "9bf95e9525de19b8e9c0b23e7bfbd9c625797eb3924331275e6e17b7f2b2116c",
+  "status": "pass",
+  "checks": [
+    "Markdown formatting and whitespace",
+    "Relative links and front matter",
+    "Core rules and change scope",
+    "Issue comment exact read-back and removed document references"
+  ],
+  "summary": "文書2件と調査文書削除を検証。整形・リンク・規約graph・変更範囲検査が成功し、Issue移管先の本文一致と削除文書への参照残りなしを確認。",
+  "remaining": []
+}
