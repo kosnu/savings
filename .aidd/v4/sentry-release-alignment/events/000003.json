@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_production.yaml",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/development-preview.md",
+    "docs/sentry-monitoring.md"
+  ],
+  "fingerprint": "8c7ba6de8c653b28fcd03592c6f85efca2522a3497517b5afa1cbbfab4cfc295",
+  "status": "pass",
+  "checks": [
+    "rule-mapの5変更pathと依存closure、Code Review Policy・AIDD・Core契約を照合",
+    "Previewの承認SHAと本番Webのcheckout SHAを同じ値でビルドに渡し、未指定時は先に停止する",
+    "Sentry pluginのSENTRY_RELEASE読込を依存sourceで確認、独自release取得処理は追加しない",
+    "文書の目的・限界・確認方法・切り戻し、共用projectとDev用tokenの整合を確認",
+    "過去の工程記録・Task管理・SDK・Webテストに変更がないことを確認"
+  ],
+  "summary": "配信コミットとreleaseの一致、恒久文書の重複削減という有限の要求に対して不整合なし。新しいworkflowテストは自前の受渡しを検証し、文書に実装設定や今回の実検証値を複製しない。Issue #1888全体の実受信・通知・公開物・性能・障害時の確認は別途残るためcloseしない。",
+  "remaining": []
+}

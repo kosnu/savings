@@ -112,22 +112,23 @@ DB成功だけでFEは配信されない。
 workers.devは公開URLであり、認証機能ではない。private source・非公開文面・実データを含む場合は、
 公開範囲またはAccess保護の承認を確認してから配信する。
 
-`development` Environmentに以下を登録する。本番と同じSecret名で、値はDev専用にする。
+`development` Environmentに以下を登録する。Sentryは本番と同じprojectを使い、environmentでDevを区別する。
+Supabase・Cloudflareの接続先と管理token、SentryのアップロードtokenはDev用を用意する。
 productionからのコピー・repository Secretでの代用はしない。値をチャット・ログ・履歴へ貼らない。
 
-| Secret                          | 用途                                              |
-| ------------------------------- | ------------------------------------------------- |
-| `VITE_SUPABASE_URL`             | `https://ufekmuxkmodwydxmdbln.supabase.co`        |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Devの公開クライアント用キー                       |
-| `VITE_SENTRY_DSN`               | Dev Sentry project のエラー送信用 DSN             |
-| `VITE_SENTRY_ENVIRONMENT`       | `development`                                     |
-| `SENTRY_AUTH_TOKEN`             | Dev Sentry project の source map アップロード認証 |
-| `SENTRY_ORG`                    | Dev Sentry の組織 slug                            |
-| `SENTRY_PROJECT`                | DSN と同じ Dev Sentry project の slug             |
-| `CLOUDFLARE_ACCOUNT_ID`         | 配信先account                                     |
-| `CLOUDFLARE_API_TOKEN`          | Dev配信用token                                    |
-| `SUPABASE_PROJECT_ID`           | `ufekmuxkmodwydxmdbln`                            |
-| `SUPABASE_ACCESS_TOKEN`         | Dev project限定のscoped PAT                       |
+| Secret                          | 用途                                                |
+| ------------------------------- | --------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | `https://ufekmuxkmodwydxmdbln.supabase.co`          |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Devの公開クライアント用キー                         |
+| `VITE_SENTRY_DSN`               | 共用Sentry projectのエラー送信用DSN                 |
+| `VITE_SENTRY_ENVIRONMENT`       | `development`                                       |
+| `SENTRY_AUTH_TOKEN`             | 共用projectへsource mapをアップロードするDev用token |
+| `SENTRY_ORG`                    | 共用Sentry projectが属する組織のslug                |
+| `SENTRY_PROJECT`                | DSNと同じ共用Sentry projectのslug                   |
+| `CLOUDFLARE_ACCOUNT_ID`         | 配信先account                                       |
+| `CLOUDFLARE_API_TOKEN`          | Dev配信用token                                      |
+| `SUPABASE_PROJECT_ID`           | `ufekmuxkmodwydxmdbln`                              |
+| `SUPABASE_ACCESS_TOKEN`         | Dev project限定のscoped PAT                         |
 
 required reviewerは所有者 `kosnu`、Prevent self-reviewと管理者bypassは無効とする。
 branch policyはmainとPR merge refを許可する。FEとDBは同じEnvironmentを使うため、

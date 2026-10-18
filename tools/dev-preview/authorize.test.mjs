@@ -158,6 +158,19 @@ test("FE/DB share development but only DB steps receive database credentials", (
   ])
   assert.deepEqual(secrets(database), ["SUPABASE_ACCESS_TOKEN", "SUPABASE_PROJECT_ID"])
   const production = read("deploy_production.yaml")
+  const previewBuild = frontend
+    .split("      - name: Build Dev Preview\n")[1]
+    .split("      - name: Deploy Dev Preview\n")[0]
+  const productionWeb = production.split("\n  deploy-web:\n")[1]
+  for (const [workflow, build, source] of [
+    [frontend, previewBuild, "needs.resolve.outputs.sha"],
+    [productionWeb, productionWeb, "github.sha"],
+  ]) {
+    assert.ok(workflow.includes(`ref: \${{ ${source} }}`))
+    assert.ok(build.includes(`SENTRY_RELEASE: \${{ ${source} }}`))
+    const guard = build.indexOf(': "${SENTRY_RELEASE:?SENTRY_RELEASE が必要です}"')
+    assert.ok(guard >= 0 && guard < build.indexOf("pnpm run web:build"))
+  }
   for (const key of [
     "VITE_SENTRY_DSN",
     "VITE_SENTRY_ENVIRONMENT",
