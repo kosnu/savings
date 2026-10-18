@@ -4,19 +4,21 @@
   "kind": "review",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
     "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "7dc0537aa0f0188bd6d35b51209ecd39bc26d67d0a23040b56fba69ac1d0feda",
+  "fingerprint": "79bad56af05ce5c235608ac5011f1658ef4e8d515d1adef59fe7ac7ab75de00c",
   "status": "unknown",
   "checks": [
-    "Coverage: documentation.policy, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification",
-    "共通project・Env指定、Prd除外、送信前承認をIssue・ユーザー発言と照合",
-    "既存配信workflow・参照先4件・front matter・索引到達性を確認",
-    "受信許可の最小追加・送信上限例・既存通知・隔離429試験と復旧の意味を確認"
+    "rule-map path/surface・依存closure",
+    "plugin telemetryの有効条件と送信判定から明示無効指定までを実コードと照合",
+    "source map処理・ビルド条件・管理token境界・SDK側session/client_report停止を維持",
+    "元Intentの収集制限内の局所修正、実受信等の未確認範囲を区別、追加Auditなし"
   ],
-  "summary": "文書差分に指摘・未解決の規則競合なし。既存文書の説明追加で索引変更不要。外部設定・配信・送信は実行せず、実検証の完了とは区別。",
+  "summary": "plugin telemetryの既定送信を実装で確認して明示停止。局所修正とローカル検証成功。実アップロード・受信等は未確認。",
   "remaining": [
-    "Preview配信と対象originの受信許可追加への承認が必要",
-    "実受信・通知・source map解決・公開物・性能と障害時操作は未確認"
+    "5 Secretsは登録名のみ確認済み。実値・権限・対象対応は未確認",
+    "実受信・通知・source map解決・ブラウザ性能・本番反映は未確認"
   ]
 }

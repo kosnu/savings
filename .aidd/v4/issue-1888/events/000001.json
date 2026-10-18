@@ -4,17 +4,19 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/issues/1888",
   "paths": [
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
     "docs/sentry-monitoring.md"
   ],
-  "fingerprint": "1f208eff8cc23e96f334842b79ae6b1da9079f3abc68eaaa82a6005bbca84b2a",
+  "fingerprint": "79bad56af05ce5c235608ac5011f1658ef4e8d515d1adef59fe7ac7ab75de00c",
   "status": "unknown",
   "checks": [
-    "Issue #1888と共通project・Env分離のユーザー指定を照合",
-    "既存Dev配信workflowとPR起点・固定head承認・公開URLの取得経路を照合"
+    "固定依存のVite plugin README・options-mapping・allowedToSendTelemetryの既定trueとfalse分岐を照合",
+    "許可集合外のplugin telemetryを本番Dev共通で停止する局所修正"
   ],
-  "summary": "既存サイクルで検証用PRを準備。SDKや外部設定を変えず、共通projectとDev実検証の対象・送信上限例・通知・復旧を既存運用文書へ具体化する。",
+  "summary": "plugin telemetryの既定送信を実装で確認して明示停止。局所修正とローカル検証成功。実アップロード・受信等は未確認。",
   "remaining": [
-    "Preview配信、受信許可追加と合成イベント送信は具体的対象への承認後",
-    "実受信・通知・source map解決・公開物・性能と障害時の操作は未確認"
+    "5 Secretsは登録名のみ確認済み。実値・権限・対象対応は未確認",
+    "実受信・通知・source map解決・ブラウザ性能・本番反映は未確認"
   ]
 }

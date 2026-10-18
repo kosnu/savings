@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
+    "docs/sentry-monitoring.md",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "3d139621bb40fe5a907d10ef2918f7d20d7c58db8aaf63abf32ef7c2b151bc1b",
+  "status": "unknown",
+  "checks": [
+    "元Intent・ユーザーのrelease統一指示と実差分の対応",
+    "rule-map path/surface・全依存closureと変更経路",
+    "両modeで同じSHAをrelease.nameへ渡し、環境区分・source map・token境界を維持",
+    "共用projectの文書同期と旧PR工程記録の復元、新サイクルへの分離"
+  ],
+  "summary": "ビルド対象SHAをreleaseへ使う変更、失敗時の停止、回帰テストと文書同期を確認。今回の局所修正に未解決の指摘なし。",
+  "remaining": [
+    "変更後のPreview再配信・実受信は未確認",
+    "Issue全体の収集範囲・診断context・通知・公開物・性能・障害時の検証は継続"
+  ]
+}

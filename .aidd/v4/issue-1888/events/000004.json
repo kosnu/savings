@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
+    "docs/sentry-monitoring.md",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "3d139621bb40fe5a907d10ef2918f7d20d7c58db8aaf63abf32ef7c2b151bc1b",
+  "status": "pass",
+  "checks": [
+    "配信workflowのcheckoutと共通Vite設定のrelease経路を照合",
+    "Prd・Preview共通でGit HEADをrelease.nameへ明示する採用判断"
+  ],
+  "summary": "ユーザーのrelease統一指示に基づき、Sentry有効ビルドだけでGit HEADを取得してreleaseへ明示する。起動元SHAやSENTRY_RELEASEの自動検出を上書きし、環境区分とDebug IDは維持する。",
+  "remaining": []
+}

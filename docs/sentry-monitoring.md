@@ -50,6 +50,9 @@ SDK が生成する識別子とビルド済み asset 名は診断情報として
 `VITE_SENTRY_DSN` は対象 project の送信先、`VITE_SENTRY_ENVIRONMENT` は本番で `production`、Dev で `development` にする。
 Sentry は org `kosnu` の project `savings` を共用し、environment で本番と Dev を区別する。
 Dev の受信確認では `environment:development` と対象 release・event ID を照合する。
+release は本番・Dev Preview とも、ビルド対象の Git HEAD の完全なコミット SHA を Vite プラグインへ明示する。
+Actions 起動元の SHA や環境変数による自動検出には依存せず、同じ release を JS へ埋め込み、source map のアップロードにも使う。
+同じコミットを複数環境へ配信した場合は release を共有し、environment で区別する。
 environment は検索・分類のための区分であり、それだけで project の設定・通知・使用量上限が分離されるわけではない。
 `SENTRY_AUTH_TOKEN` はアップロード用認証、`SENTRY_ORG`・`SENTRY_PROJECT` はその送信先を指す。
 5項目のいずれかが未登録・空なら、両配信 workflow ともビルド前に停止する。

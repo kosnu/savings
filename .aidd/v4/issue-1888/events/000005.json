@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    "apps/web/vite.config.ts",
+    "apps/web/src/test/viteSentry.test.ts",
+    "docs/sentry-monitoring.md",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "3d139621bb40fe5a907d10ef2918f7d20d7c58db8aaf63abf32ef7c2b151bc1b",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck",
+    "Web unit/integration 145ファイル・808件",
+    "実Sentryプラグインで両modeのrelease埋め込みと異なるGITHUB_SHA・SENTRY_RELEASEを照合",
+    "Git取得失敗・local開発・認証なしCIの境界",
+    "文書整形・diff check・Core変更範囲・過去工程記録のbase一致"
+  ],
+  "summary": "releaseをcheckout済みHEADへ統一する局所修正と回帰テストが成功。実プラグインのJS埋め込みも外部送信なしで確認した。",
+  "remaining": []
+}
