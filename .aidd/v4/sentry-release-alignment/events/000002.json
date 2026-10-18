@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_production.yaml",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/development-preview.md",
+    "docs/sentry-monitoring.md"
+  ],
+  "fingerprint": "8c7ba6de8c653b28fcd03592c6f85efca2522a3497517b5afa1cbbfab4cfc295",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck成功、単体・統合145ファイル806件成功",
+    "Preview関連36件でcheckoutとSENTRY_RELEASEの参照元一致・ビルド前の空値停止を確認",
+    "actionlint・zizmor offline成功、変更5ファイル整形・文書ローカル参照先6件・diff check成功",
+    "現sourceからCoreをビルドし変更範囲検査・Go vet成功"
+  ],
+  "summary": "最新mainに対する新実装を再検証した。SDK・Vite設定・Webテストに差分はなく、外部パッケージの内部動作を試すテストは追加していない。実配信・外部設定・Sentry実送信は未実施であり、このローカル検証の成功には含めない。",
+  "remaining": []
+}

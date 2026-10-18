@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_production.yaml",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/development-preview.md",
+    "docs/sentry-monitoring.md"
+  ],
+  "fingerprint": "8c7ba6de8c653b28fcd03592c6f85efca2522a3497517b5afa1cbbfab4cfc295",
+  "status": "pass",
+  "checks": [
+    "Issue #1888と会話のrelease統一・恒久文書整理の要求を最新mainと照合",
+    "checkoutとSENTRY_RELEASEはPreviewの承認対象SHA・本番Webのgithub.shaで一致させる",
+    "SDK・Vite設定・既存Webテストは変更せず、既存workflowテストで受渡しの契約だけを確認"
+  ],
+  "summary": "最新mainから、配信SHAとreleaseの一致、共用Sentry projectのDev説明、恒久文書の重複削減を5ファイルに実装する。旧PRの差分・記録・検証結果は流用しない。新しい検証を行いPR提出まで進める。実配信・外部設定・送信は行わず、Issue全体の実検証の完了を主張しない。Task・events管理問題とRetroのテスト棚卸しは対象外。",
+  "remaining": []
+}
