@@ -7,18 +7,26 @@ export default defineConfig({
   // リポジトリ共通ゲートの採用判断: docs/ai-driven-development/aidd-checker-operations.md の Repository verification
   staged: {
     "*": {
-      title: "Format and check staged files",
+      title: "Check staged files",
       task: (files) => {
         const existingFiles = files.filter((file) => existsSync(file))
         const goFiles = existingFiles.filter((file) => file.endsWith(".go"))
         if (goFiles.length > 0) {
-          execFileSync("gofmt", ["-w", ...goFiles], { stdio: "inherit" })
+          const unformattedGoFiles = execFileSync("gofmt", ["-l", ...goFiles], {
+            encoding: "utf8",
+            stdio: ["ignore", "pipe", "inherit"],
+          }).trim()
+          if (unformattedGoFiles) {
+            throw new Error(`gofmtによる整形が必要です:\n${unformattedGoFiles}`)
+          }
         }
         execFileSync("go", ["-C", "tools/aidd/checker", "vet", "./..."], {
           stdio: "inherit",
         })
         if (existingFiles.length > 0) {
-          execFileSync("vp", ["check", "--fix", ...existingFiles], { stdio: "inherit" })
+          execFileSync("vp", ["check", "--no-error-on-unmatched-pattern", ...existingFiles], {
+            stdio: "inherit",
+          })
         }
       },
     },

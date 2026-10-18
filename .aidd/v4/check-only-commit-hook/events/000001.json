@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "本会話の2026-10-19のコミットフック変更依頼",
+  "paths": [
+    "vite.config.ts",
+    "tools/aidd/tests/test_shared_gate.py",
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "64bba0b878bac5844386a58d4e108a1ba382fbb06d12fbfe3fa9cd2fb84ff195",
+  "status": "pass",
+  "checks": [
+    "実効hookと共有gate・正本・回帰テストの同期範囲",
+    "未対応拡張子のみのcommitを維持"
+  ],
+  "summary": "gofmt -lで整形漏れを失敗にし、vp checkは自動修正なしで実行する。検査対象言語がない場合は既存の通過動作を維持する。部分ステージの退避・復元とGo vetは維持。索引の既存経路で正本に到達でき、アプリのビルド・型設定には影響しない。",
+  "remaining": []
+}

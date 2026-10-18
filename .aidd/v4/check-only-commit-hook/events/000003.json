@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "本会話の2026-10-19のコミットフック変更依頼",
+  "paths": [
+    "vite.config.ts",
+    "tools/aidd/tests/test_shared_gate.py",
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "64bba0b878bac5844386a58d4e108a1ba382fbb06d12fbfe3fa9cd2fb84ff195",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "policy.code-review"
+  ],
+  "summary": "Intentの自動修正禁止をgofmt -lと修正なしvp checkで確認。実効pre-commit→staged task経路、失敗・成功時の内容/index保持、削除・非Go・対象言語なし・正本同期を照合しpass。未解決矛盾・findingなし。既存索引で全変更面へ到達し、アプリ設定は不変。",
+  "remaining": []
+}

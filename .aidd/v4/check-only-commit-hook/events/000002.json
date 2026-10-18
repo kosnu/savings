@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "本会話の2026-10-19のコミットフック変更依頼",
+  "paths": [
+    "vite.config.ts",
+    "tools/aidd/tests/test_shared_gate.py",
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "64bba0b878bac5844386a58d4e108a1ba382fbb06d12fbfe3fa9cd2fb84ff195",
+  "status": "pass",
+  "checks": [
+    "実commitフック回帰テスト8件",
+    "vp checkによる変更設定・正本の整形/Lint/型検査",
+    "Go Core test/vet",
+    "Core check-changes",
+    "git diff --check"
+  ],
+  "summary": "Go/JSON整形エラー・Lint違反・vet失敗を拒否し、HEAD/index/未ステージ差分/stashが不変であることを実commitで確認。正常なGo/JS/JSONと削除commitは通過。直接vpを実行して検証し、既存pnpmランチャー不具合は変更対象外。",
+  "remaining": []
+}

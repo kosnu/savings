@@ -71,22 +71,22 @@ class SharedGateTests(unittest.TestCase):
     def commit(self, success=True):
         return self.run_command("git", "commit", "-qm", "exercise actual hook", success=success)
 
-    def assert_blocked_and_restored(self):
+    def assert_blocked_and_restored(self, expected_error=b"fmt.Printf"):
         before = [self.git_bytes(*args) for args in (
             ("rev-parse", "HEAD"), ("diff", "--cached", "--binary"),
             ("diff", "--binary"), ("status", "--porcelain"), ("stash", "list"),
         )]
         result = self.commit(success=False)
-        self.assertNotEqual(result.returncode, 0, "vet失敗でcommitが止まらない")
-        self.assertIn(b"fmt.Printf", result.stdout + result.stderr)
+        self.assertNotEqual(result.returncode, 0, "検査失敗でcommitが止まらない")
+        self.assertIn(expected_error, result.stdout + result.stderr)
         after = [self.git_bytes(*args) for args in (
             ("rev-parse", "HEAD"), ("diff", "--cached", "--binary"),
             ("diff", "--binary"), ("status", "--porcelain"), ("stash", "list"),
         )]
         self.assertEqual(after, before, "失敗時にHEAD/index/未ステージ差分/stashを保持する")
 
-    def test_format_and_preserve_unstaged(self):
-        staged = GOOD_GO.replace('fmt.Println("ok")', 'fmt.Println( "staged" )')
+    def test_check_and_preserve_unstaged(self):
+        staged = GOOD_GO.replace('fmt.Println("ok")', 'fmt.Println("staged")')
         self.write(GO_FILE, staged)
         self.run_command("git", "add", GO_FILE)
         # 同じファイルの別hunkと、完全に未ステージの変更を保護する。
@@ -95,10 +95,9 @@ class SharedGateTests(unittest.TestCase):
         self.write("note.txt", "unstaged note\n")
         hidden_go = BAD_GO.replace("func main()", "func helper()")
         self.write("tools/aidd/checker/helper.go", hidden_go)
-        expected = subprocess.run(["gofmt"], input=staged.encode(), capture_output=True, check=True).stdout
         self.commit()
-        self.assertEqual(self.git_bytes("show", "HEAD:" + GO_FILE), expected)
-        self.assertEqual((self.root / GO_FILE).read_bytes(), expected + unstaged.encode())
+        self.assertEqual(self.git_bytes("show", "HEAD:" + GO_FILE), staged.encode())
+        self.assertEqual((self.root / GO_FILE).read_bytes(), (staged + unstaged).encode())
         self.assertEqual(self.git_bytes("show", "HEAD:note.txt"), b"before\n")
         self.assertEqual((self.root / "note.txt").read_bytes(), b"unstaged note\n")
         self.assertEqual((self.root / "tools/aidd/checker/helper.go").read_text(), hidden_go)
@@ -106,8 +105,16 @@ class SharedGateTests(unittest.TestCase):
         self.assertEqual(self.git_bytes("diff", "--cached"), b"")
         self.assertEqual(self.git_bytes("stash", "list"), b"")
 
+    def test_go_format_failure_blocks_commit_without_rewriting(self):
+        staged = GOOD_GO.replace('fmt.Println("ok")', 'fmt.Println( "staged" )')
+        self.write(GO_FILE, staged)
+        self.run_command("git", "add", GO_FILE)
+        self.write(GO_FILE, staged + "\n// unstaged marker\n")
+        self.write("note.txt", "unstaged note\n")
+        self.assert_blocked_and_restored(b"gofmt")
+
     def test_vet_failure_blocks_commit(self):
-        self.write(GO_FILE, BAD_GO.replace("fmt.Printf(", "fmt.Printf( "))
+        self.write(GO_FILE, BAD_GO)
         self.run_command("git", "add", GO_FILE)
         self.write(GO_FILE, (self.root / GO_FILE).read_text() + "\n// unstaged marker\n")
         self.write("note.txt", "unstaged note\n")
@@ -135,14 +142,30 @@ class SharedGateTests(unittest.TestCase):
 
     def test_check_and_canonical_json(self):
         canonical = '{\n  "a": [\n    1,\n    2\n  ]\n}\n'
+        formatted = '{\n  "a": [1, 2]\n}\n'
         self.write(".aidd/v4/fixture/task.json", canonical)
-        self.write("example.json", canonical)
+        self.write("example.json", formatted)
         self.run_command("git", "add", ".aidd", "example.json")
         self.commit()
         self.assertEqual(self.git_bytes("show", "HEAD:.aidd/v4/fixture/task.json"), canonical.encode())
         self.assertEqual((self.root / ".aidd/v4/fixture/task.json").read_bytes(), canonical.encode())
-        self.assertNotEqual(self.git_bytes("show", "HEAD:example.json"), canonical.encode())
+        self.assertEqual(self.git_bytes("show", "HEAD:example.json"), formatted.encode())
         self.assertEqual(self.git_bytes("status", "--porcelain"), b"")
+
+    def test_format_failure_blocks_commit_without_rewriting(self):
+        self.write("example.json", '{"a":[1,2]}\n')
+        self.run_command("git", "add", "example.json")
+        self.write("example.json", '{"a":[1,2],"unstaged":true}\n')
+        self.write("note.txt", "unstaged note\n")
+        self.assert_blocked_and_restored(b"example.json")
+
+    def test_lint_failure_blocks_commit_without_rewriting(self):
+        self.write("example.js", "export const equal = (left, right) => left === right\n")
+        self.run_command("git", "add", "example.js")
+        self.commit()
+        self.write("example.js", "export const equal = (left, right) => left == right\n")
+        self.run_command("git", "add", "example.js")
+        self.assert_blocked_and_restored(b"eqeqeq")
 
 
 if __name__ == "__main__":
