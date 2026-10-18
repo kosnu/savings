@@ -8,27 +8,36 @@ export const resources = {
         "This policy explains how {{appName}} handles information when you use the service.",
       "privacy.information.title": "Information and purposes of use",
       "privacy.information.account":
-        "We use Google account identifiers and profile information, such as your name, email address and profile image, to sign you in and manage your account. We also store your display name and language preference.",
+        "We use identifiers and profile information from your sign-in account, such as your name, email address and profile image, to sign you in and manage your account. We also store your display name and language preference.",
       "privacy.information.records":
         "We store your payment dates, amounts and notes, categories, budgets and related settings to provide spending records and budget management.",
       "privacy.information.logs":
-        "Information such as IP addresses, URLs, browser and device information, errors, and interaction and network logs is processed by the services below to deliver the app, authenticate users and investigate problems.",
-      "privacy.services.title": "External services",
-      "privacy.services.google": ": Google sign-in.",
-      "privacy.services.supabase":
-        ": Authentication and storage of account information and the data you register.",
-      "privacy.services.cloudflare": ": Website hosting and delivery.",
-      "privacy.services.sentry":
-        ": Collection of errors and related technical information for troubleshooting. Each link leads to the provider’s privacy policy.",
-      "privacy.storage.title": "Storage and access",
+        "We process technical information about access, authentication, errors and network requests to deliver the service, maintain security and investigate problems.",
+      "privacy.transmission.title": "Information sent to external infrastructure",
+      "privacy.transmission.authentication":
+        "When you sign in, account identifiers, profile information and information needed for authentication are exchanged with external sign-in and authentication infrastructure.",
+      "privacy.transmission.records":
+        "Your account information, payments, categories, budgets, book information and related settings are sent to external database infrastructure to store, retrieve and update them.",
+      "privacy.transmission.delivery":
+        "Delivery and authentication infrastructure processes information such as IP addresses, requested URLs, and browser and device information to deliver the website, authenticate requests and maintain security.",
+      "privacy.transmission.diagnostics":
+        "For troubleshooting, we send technical information to error-monitoring infrastructure, including error types, timestamps, application versions, locations in the program, HTTP methods and response statuses. Before sending, the app removes authentication credentials, email addresses, payment notes and other sensitive content from error events.",
+      "privacy.transmission.contact":
+        "We use external email infrastructure to receive, forward and reply to inquiries. We use your email address and the information you provide in an inquiry to respond to it.",
+      "privacy.storage.title": "Storage, access and deletion",
       "privacy.storage.access":
-        "Account information and the data you register are stored in Supabase. Authentication and access controls restrict access to this data.",
+        "Account information and the data you register are stored on servers for use of the service. Authentication and access controls restrict access to your own account information and the records of books you belong to.",
       "privacy.storage.browser":
-        "We use your browser’s local storage to keep your sign-in session, language and theme preferences. Clearing browser storage does not delete the account or records stored by the service.",
+        "Your browser’s local storage keeps your sign-in session, language, theme and sidebar preferences. Language preferences are also stored with your account. Clearing browser storage or signing out does not delete the account or records stored on the servers.",
+      "privacy.storage.deletion":
+        "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. An account-deletion option is not currently available in the app. For requests for access, correction or deletion, please contact the operator below.",
+      "privacy.storage.retention":
+        "Information in backups and technical logs held by external infrastructure is managed separately from the records you see in the app. Deleting a record does not guarantee immediate removal of all related information from backups and logs. Retention and deletion conditions depend on the settings and terms of each infrastructure provider.",
       "privacy.contact.title": "Contact the operator",
       "privacy.contact.description":
         "For questions about personal information or requests for access, correction or deletion, please use the contact email below.",
-      "privacy.contact.pending": "The contact email address is being prepared.",
+      "privacy.contact.reply":
+        "The operator handles inquiries and replies from a personal email address.",
       "privacy.contact.operator":
         "The operator’s name and address will be provided without delay upon request from the user concerned.",
       "navigation.home": "Home",
@@ -286,26 +295,36 @@ export const resources = {
       "privacy.introduction": "{{appName}}の利用に伴う情報の取扱いについて説明します。",
       "privacy.information.title": "取得する情報と利用目的",
       "privacy.information.account":
-        "ログインとアカウント管理のため、Googleアカウントの識別情報と、名前・メールアドレス・プロフィール画像などのプロフィール情報を利用します。また、表示名と言語設定を保存します。",
+        "ログインとアカウント管理のため、ログインに使用する外部アカウントの識別情報と、名前・メールアドレス・プロフィール画像などのプロフィール情報を利用します。また、表示名と言語設定を保存します。",
       "privacy.information.records":
         "支出の記録と予算管理のため、登録した支払いの日付・金額・メモ、カテゴリ、予算および関連する設定を保存します。",
       "privacy.information.logs":
-        "サービスの配信、認証、不具合の調査のため、IPアドレス、URL、ブラウザ・端末情報、エラー内容、操作・通信の記録などが、以下の外部サービスで処理されます。",
-      "privacy.services.title": "利用する外部サービス",
-      "privacy.services.google": "：Googleアカウントによるログインに利用します。",
-      "privacy.services.supabase": "：認証、アカウント情報および登録したデータの保存に利用します。",
-      "privacy.services.cloudflare": "：Webサイトのホスティングと配信に利用します。",
-      "privacy.services.sentry":
-        "：不具合の調査のため、エラーと関連する技術情報の収集に利用します。各リンクから提供元のプライバシーポリシーを確認できます。",
-      "privacy.storage.title": "情報の保存とアクセス管理",
+        "サービスの配信、安全性の維持、不具合の調査のため、アクセス・認証・エラー・通信に関する技術情報を処理します。",
+      "privacy.transmission.title": "外部基盤への情報の送信",
+      "privacy.transmission.authentication":
+        "ログイン時には、アカウントの識別情報、プロフィール情報および認証に必要な情報を、外部のログイン・認証基盤とやり取りします。",
+      "privacy.transmission.records":
+        "アカウント情報、支払い、カテゴリ、予算、ブック情報および関連する設定は、保存・取得・更新のため、外部のデータベース基盤へ送信します。",
+      "privacy.transmission.delivery":
+        "Webサイトの配信、認証、安全性の維持のため、IPアドレス、アクセス先URL、ブラウザ・端末情報などが配信・認証基盤で処理されます。",
+      "privacy.transmission.diagnostics":
+        "不具合の調査のため、エラーの種別・発生時刻・アプリのバージョン・プログラム内の発生位置、通信方法・応答状態などの技術情報をエラー監視基盤へ送信します。アプリは送信前に、エラー情報から認証情報、メールアドレス、支払いメモなどの機微情報を除去します。",
+      "privacy.transmission.contact":
+        "お問い合わせのメールは、受信・転送・返信に外部のメール基盤を利用します。お問い合わせでいただいたメールアドレスと内容は、その対応のために利用します。",
+      "privacy.storage.title": "情報の保存・アクセス・削除",
       "privacy.storage.access":
-        "アカウント情報と登録したデータはSupabaseに保存し、認証とアクセス制御によりアクセスできる情報を制限します。",
+        "アカウント情報と登録したデータは、サービスを利用するためにサーバー上に保存します。認証とアクセス制御により、本人のアカウント情報と、所属するブックの記録にアクセスできる範囲を制限します。",
       "privacy.storage.browser":
-        "ログイン状態と言語・テーマ設定の保持に、ブラウザのローカルストレージを利用します。ブラウザの保存情報を消去しても、サービスに保存されたアカウントや記録は削除されません。",
+        "ログイン状態と言語・テーマ・サイドバーの設定を、ブラウザのローカルストレージに保存します。言語設定はアカウントにも保存します。ブラウザの保存情報の消去やログアウトでは、サーバー上のアカウントや記録は削除されません。",
+      "privacy.storage.deletion":
+        "個別の支払いやカテゴリは画面から削除できます。予算を無効にしても、過去の予算の記録は削除されません。アカウントを削除する画面操作は現在提供していません。開示・訂正・削除等のご相談は、以下の窓口へご連絡ください。",
+      "privacy.storage.retention":
+        "バックアップに含まれる情報や、外部基盤に保存される技術ログは、画面で確認できる登録情報とは別に管理されます。登録情報を削除しても、バックアップやログから関連情報が直ちにすべて消去されることを保証するものではありません。保持・削除の条件は、各基盤の設定や契約によります。",
       "privacy.contact.title": "運営者へのお問い合わせ",
       "privacy.contact.description":
         "個人情報の取扱いに関するお問い合わせや、開示・訂正・削除等のご相談は、以下のメールアドレスへご連絡ください。",
-      "privacy.contact.pending": "問い合わせ先メールアドレスは準備中です。",
+      "privacy.contact.reply":
+        "お問い合わせは運営者が対応し、返信は運営者の個人メールアドレスから行います。",
       "privacy.contact.operator":
         "運営者の氏名・住所は、利用者本人からの求めに応じて遅滞なく回答します。",
       "navigation.home": "トップ",
