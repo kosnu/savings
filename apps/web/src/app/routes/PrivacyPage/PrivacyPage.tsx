@@ -2,8 +2,7 @@ import { Container, Flex, Heading, Link as ThemeLink, Text } from "@radix-ui/the
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
-// 問い合わせ用メールアドレスの準備後、この値を差し替える。未設定ではリンクを表示しない。
-const contactEmail: string = ""
+const contactEmail = "support@burneto.com"
 
 export function PrivacyPage() {
   const { t } = useTranslation()
@@ -40,25 +39,24 @@ export function PrivacyPage() {
           </Flex>
 
           <Flex asChild direction="column" gap="3">
-            <section aria-labelledby="privacy-services">
-              <Heading as="h2" size="4" weight="medium" id="privacy-services">
-                {t("privacy.services.title")}
+            <section aria-labelledby="privacy-transmission">
+              <Heading as="h2" size="4" weight="medium" id="privacy-transmission">
+                {t("privacy.transmission.title")}
               </Heading>
               <Text as="p" size="3">
-                <ThemeLink href="https://policies.google.com/privacy">Google</ThemeLink>
-                {t("privacy.services.google")}
+                {t("privacy.transmission.authentication")}
               </Text>
               <Text as="p" size="3">
-                <ThemeLink href="https://supabase.com/privacy">Supabase</ThemeLink>
-                {t("privacy.services.supabase")}
+                {t("privacy.transmission.records")}
               </Text>
               <Text as="p" size="3">
-                <ThemeLink href="https://www.cloudflare.com/privacypolicy/">Cloudflare</ThemeLink>
-                {t("privacy.services.cloudflare")}
+                {t("privacy.transmission.delivery")}
               </Text>
               <Text as="p" size="3">
-                <ThemeLink href="https://sentry.io/privacy/">Sentry</ThemeLink>
-                {t("privacy.services.sentry")}
+                {t("privacy.transmission.diagnostics")}
+              </Text>
+              <Text as="p" size="3">
+                {t("privacy.transmission.contact")}
               </Text>
             </section>
           </Flex>
@@ -74,6 +72,12 @@ export function PrivacyPage() {
               <Text as="p" size="3">
                 {t("privacy.storage.browser")}
               </Text>
+              <Text as="p" size="3">
+                {t("privacy.storage.deletion")}
+              </Text>
+              <Text as="p" size="3">
+                {t("privacy.storage.retention")}
+              </Text>
             </section>
           </Flex>
 
@@ -85,15 +89,12 @@ export function PrivacyPage() {
               <Text as="p" size="3">
                 {t("privacy.contact.description")}
               </Text>
-              {contactEmail ? (
-                <ThemeLink href={`mailto:${contactEmail}`} size="3" wrap="wrap">
-                  {contactEmail}
-                </ThemeLink>
-              ) : (
-                <Text as="p" size="3" color="gray">
-                  {t("privacy.contact.pending")}
-                </Text>
-              )}
+              <ThemeLink href={`mailto:${contactEmail}`} size="3" wrap="wrap">
+                {contactEmail}
+              </ThemeLink>
+              <Text as="p" size="3">
+                {t("privacy.contact.reply")}
+              </Text>
               <Text as="p" size="3">
                 {t("privacy.contact.operator")}
               </Text>

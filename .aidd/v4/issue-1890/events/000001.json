@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1890",
+  "paths": [
+    "apps/web/src/app/routes/PrivacyPage/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "1f208eff8cc23e96f334842b79ae6b1da9079f3abc68eaaa82a6005bbca84b2a",
+  "status": "unknown",
+  "checks": [
+    "公開窓口support@burneto.comと運営者対応の承認",
+    "独自ドメイン受信と個人アドレス返信の承認",
+    "会話で氏名・住所を常時掲載せず本人の請求時に回答する運用を承認"
+  ],
+  "summary": "既存ページ内で情報種別・送信目的・保存と削除を説明する。窓口と返信方法、氏名・住所の請求時回答は運営者の明示承認に一致。実受信と保持条件の照合、本文の最終確認・本番反映は未確認のためIssue完了は未達。",
+  "remaining": [
+    "テストメールの実受信確認",
+    "実環境の保持・削除条件と本文の照合",
+    "本文の最終確認と本番反映後確認"
+  ]
+}

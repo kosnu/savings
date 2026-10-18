@@ -23,6 +23,10 @@ export const Default: Story = {
       "Privacy policy",
     )
     await expect(canvas.getByRole("heading", { name: "Contact the operator" })).toBeVisible()
+    await expect(canvas.getByRole("link", { name: "support@burneto.com" })).toHaveAttribute(
+      "href",
+      "mailto:support@burneto.com",
+    )
     await expect(canvas.getByRole("link", { name: "Back to Burneto" })).toHaveAttribute("href", "/")
   },
 }
@@ -43,6 +47,10 @@ export const Japanese: Story = {
       "プライバシーポリシー",
     )
     await expect(canvas.getByRole("heading", { name: "運営者へのお問い合わせ" })).toBeVisible()
+    await expect(canvas.getByRole("link", { name: "support@burneto.com" })).toHaveAttribute(
+      "href",
+      "mailto:support@burneto.com",
+    )
     await expect(canvas.getByRole("link", { name: "Burnetoに戻る" })).toHaveAttribute("href", "/")
   },
 }

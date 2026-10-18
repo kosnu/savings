@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1890",
+  "paths": [
+    "apps/web/src/app/routes/PrivacyPage/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "1f208eff8cc23e96f334842b79ae6b1da9079f3abc68eaaa82a6005bbca84b2a",
+  "status": "unknown",
+  "checks": [
+    "適用28規則の差分照合"
+  ],
+  "summary": "Coverage: 適用28規則の確認済み結果と現差分を照合し、規則間の未解決矛盾なし。日英の公開窓口・個人アドレス返信・氏名住所の請求時回答が会話の承認と一致。コードの指摘なし。実受信・実保持条件・公開本文の最終確認・本番反映は未確認。",
+  "remaining": [
+    "別送信元からの窓口実受信確認",
+    "ログ・バックアップ等の実保持条件と本文の照合",
+    "本文の最終確認と本番反映後確認"
+  ]
+}

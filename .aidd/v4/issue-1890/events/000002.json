@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1890",
+  "paths": [
+    "apps/web/src/app/routes/PrivacyPage/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "1f208eff8cc23e96f334842b79ae6b1da9079f3abc68eaaa82a6005bbca84b2a",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration: 806 passed",
+    "web:test:storybook: 20 passed",
+    "git diff --check"
+  ],
+  "summary": "公開導線の既存回帰テストと日英の問い合わせリンクを含むローカル検証が成功。実受信・実環境の保持条件・本番反映の確認は含まない。",
+  "remaining": []
+}
