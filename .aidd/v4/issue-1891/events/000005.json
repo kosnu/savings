@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1891",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/infrastructure.md",
+    "docs/google-oauth-publication.md"
+  ],
+  "fingerprint": "9bf95e9525de19b8e9c0b23e7bfbd9c625797eb3924331275e6e17b7f2b2116c",
+  "status": "pass",
+  "checks": [
+    "Approved Audit scope and original Intent",
+    "Corrected Issue transfer verified",
+    "Existing route guard and hook responsibilities"
+  ],
+  "summary": "本会話のApproveに基づき、調査記録を訂正してIssueへ移し、恒常文書を削除・整理する。配置規約だけを明確化し、Google・DNS・権限設定は変更しない。",
+  "remaining": []
+}

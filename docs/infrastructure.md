@@ -57,13 +57,13 @@ when_to_read:
 
 ### Google OAuth
 
-- Google Cloud project と OAuth 同意画面のアプリ名は `Burneto` とする。
+- Google Cloud project は本番 `burneto`（表示名 `burneto-prd`）と開発 `burneto-dev` に分離する。
+  本番の OAuth 同意画面のアプリ名は `Burneto` とする。
 - OAuth 同意画面のロゴには、[#1774](https://github.com/kosnu/savings/issues/1774) で作成した正方形の
   [ブランドアイコン](../apps/web/public/brand/icon-master.png)を使用する。
-- Web application の OAuth client は Supabase 用として管理し、次の URI を登録する。
-  - Authorized JavaScript origins: `http://localhost:5173`、`https://burneto.com`
-  - Authorized redirect URIs: `http://localhost:54321/auth/v1/callback`、
-    `https://izuzqvgvgquqqimwuygw.supabase.co/auth/v1/callback`
+- 本番の Web application client `Supabase` は、origin `https://burneto.com` と
+  redirect URI `https://izuzqvgvgquqqimwuygw.supabase.co/auth/v1/callback` だけを登録する。
+  localhost と共有 Dev の callback は開発 project の client `supabase-dev` で管理する。
 - OAuth client ID と client secret は Supabase および GitHub Environment のsecretで管理し、
   リポジトリへ保存しない。
 
@@ -95,15 +95,22 @@ when_to_read:
 
 ### Authentication redirect
 
-Googleログインのredirectは次の順序を維持する。
+Googleログインのcallbackは次の順序を維持する。
 
 1. Web Appが現在のoriginの `/auth` を `redirectTo` に指定する。
 2. Google OAuthがSupabaseの `/auth/v1/callback` へ戻す。
 3. Supabaseがallow list内の `/auth` へ戻す。
-4. Web Appが認証済みsessionを確認して `/` のトップページへ遷移する。
 
-変更後は、既存sessionで `/auth` から `/` へ遷移することに加え、Googleログインを開始して
-同意画面にBurnetoの名称とロゴが表示され、callback後に `/` のトップページへ到達することを確認する。
+アプリ内の遷移は、認証状態と処理される入口を分けて確認する。
+
+- 既存sessionで `/auth` を開いた場合、route の `beforeLoad` にある `redirectIfAuthenticated` が
+  `AuthPage` のマウント前に `/` のトップページへ遷移させる。
+- `AuthPage` がマウントされ、`useSupabaseSignIn` がsessionを確認した場合は `/payments` へ遷移する。
+  OAuth callback直後にどちらの経路を通るかはsession復元のタイミングも含めて実機確認する。
+
+認証設定変更後は、既存sessionで `/auth` から `/` へ遷移して認証済み画面を利用できることと、
+Googleログイン時の同意画面の名称・ロゴ、callbackの経路と最終到達先をそれぞれ確認する。
+既存sessionの確認だけを、初回ログインの確認結果として扱わない。
 
 ### Supabase の公開準備
 
