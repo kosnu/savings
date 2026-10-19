@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザー依頼: Issue本文への進捗・調査ログ・履歴の記録を禁止し、残す場合はコメントにするルールを追加してPR作成",
+  "paths": [
+    "AGENTS.md",
+    "docs/ai-driven-development/issue-guidelines.md",
+    "docs/harness/policies/documentation-policy.md"
+  ],
+  "fingerprint": "33f041bf5a1e3b252a928b92401ad88050f1efae66baf92f7f5d9f0682e4f20e",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt --check / vp check",
+    "Core規約選択・差分範囲",
+    "変更文書のローカルリンク"
+  ],
+  "summary": "文書3件の整形、空白、規約選択、変更範囲とローカルリンクを確認し全て成功。アプリ・実行設定を変更していないためアプリ検証は対象外。",
+  "remaining": []
+}

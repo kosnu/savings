@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー依頼: Issue本文への進捗・調査ログ・履歴の記録を禁止し、残す場合はコメントにするルールを追加してPR作成",
+  "paths": [
+    "AGENTS.md",
+    "docs/ai-driven-development/issue-guidelines.md",
+    "docs/harness/policies/documentation-policy.md"
+  ],
+  "fingerprint": "eea1752ff8e63b031531914b506df7a6ef4476acf6feb47d0e65a5f787913b72",
+  "status": "pass",
+  "checks": [
+    "Intentと対象・権限の照合",
+    "既存正本の整合と検証範囲"
+  ],
+  "summary": "Issue本文への履歴追記・上書きを禁止し、Issueで履歴を残す場合はコメントとする。AGENTSとIntent記述と文書方針を同期し、アプリ・Issue本文は変更しない。文書整形・規約選択・差分検査と意味レビューで確認する。",
+  "remaining": []
+}
