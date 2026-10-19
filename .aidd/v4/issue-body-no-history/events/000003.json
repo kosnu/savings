@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザー依頼: Issue本文への進捗・調査ログ・履歴の記録を禁止し、残す場合はコメントにするルールを追加してPR作成",
+  "paths": [
+    "AGENTS.md",
+    "docs/ai-driven-development/issue-guidelines.md",
+    "docs/harness/policies/documentation-policy.md"
+  ],
+  "fingerprint": "33f041bf5a1e3b252a928b92401ad88050f1efae66baf92f7f5d9f0682e4f20e",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.workflow",
+    "ai-driven.overview",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "documentation.policy",
+    "policy.issue-template-selection",
+    "policy.git-workflow",
+    "policy.code-review",
+    "policy.retrospective",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification"
+  ],
+  "summary": "Issue本文への進捗・調査ログ・全作業履歴の追記と上書きは要約・引き継ぎ目的でも禁止、Issueへの記録先はコメントと確認。Intent自体の承認済み変更は区別。AGENTS常時制約と既存path選択で到達し索引変更は不要。既存の本文記録許可を修正し、Issue本文・アプリ・履歴ADRへの変更なし。指摘・未解決矛盾・必要検証の不足なし。",
+  "remaining": []
+}
