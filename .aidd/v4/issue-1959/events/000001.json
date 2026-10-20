@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1959",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "ea7d49c001ae1ed338c2e0ff3c33fae1d4d19fb4ad31e161f65bceae47602b6a",
+  "status": "pass",
+  "checks": [
+    "Issue #1959 と最新 main・既存実装を照合",
+    "workflow・Core・Issue本文方針と正本への到達経路を確認"
+  ],
+  "summary": "baseline 96f08707。原因分析でIntentと共通ガードレールを独立評価し、要件不足・明記済み・併存の根拠を区別する。正本1ファイルだけを変更し、有限の仮想入力とCore・整形・差分検査で確認する。既存routing・skill参照で到達可能なため索引・入口の変更不要。権限・記録契約と過去記録を維持する。",
+  "remaining": []
+}
