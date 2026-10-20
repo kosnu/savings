@@ -165,7 +165,9 @@ describe("SettingsPage", () => {
 
   test("設定概要からデータ管理へ遷移し、その中のエクスポートを操作できる", async () => {
     const { user, router } = renderSettingsPage()
-    const link = await screen.findByRole("link", { name: /Data management.*Export payments/ })
+    const link = await screen.findByRole("link", {
+      name: /Data management.*Export payment data as CSV/,
+    })
     await user.click(link)
     expect(router.state.location.pathname).toBe("/settings/data-management")
     expect(await screen.findByRole("heading", { name: "Data management" })).toBeInTheDocument()

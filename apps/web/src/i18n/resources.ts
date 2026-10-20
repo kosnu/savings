@@ -111,8 +111,7 @@ export const resources = {
       "error.reload": "Reload page",
       "error.goHome": "Go home",
       "exportPayments.title": "Payment data export",
-      "exportPayments.description":
-        "Export payments from the current book as CSV to take your data to another service.",
+      "exportPayments.description": "Export payment data as CSV.",
       "exportPayments.startDate": "Start date",
       "exportPayments.endDate": "End date",
       "exportPayments.download": "Download CSV",
@@ -414,8 +413,7 @@ export const resources = {
       "error.reload": "再読み込み",
       "error.goHome": "ホームへ戻る",
       "exportPayments.title": "支払いデータのエクスポート",
-      "exportPayments.description":
-        "他サービスへの移行に備えて、現在のブックの支払いデータをCSVで持ち出せます。",
+      "exportPayments.description": "支払いデータをCSVで出力します。",
       "exportPayments.startDate": "開始日",
       "exportPayments.endDate": "終了日",
       "exportPayments.download": "CSVをダウンロード",

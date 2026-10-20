@@ -59,9 +59,6 @@ export function ExportPayments() {
       <Heading as="h3" size="4" weight="medium">
         {t("exportPayments.title")}
       </Heading>
-      <Text as="p" size="3" color="gray">
-        {t("exportPayments.description")}
-      </Text>
       <form
         noValidate
         onSubmit={(event) => {
