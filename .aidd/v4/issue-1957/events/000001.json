@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1957",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    ".agents/skills/audit/SKILL.md"
+  ],
+  "fingerprint": "33f041bf5a1e3b252a928b92401ad88050f1efae66baf92f7f5d9f0682e4f20e",
+  "status": "pass",
+  "checks": [
+    "Issue #1957の範囲・制約とPR #1951の判断を照合",
+    "既存rule-mapの必須選択と依存を確認"
+  ],
+  "summary": "baseline b8c322dd。修正要否は発生前提・通常運用での蓋然性・影響で判断し、対象未指定Auditは現在PRを維持する。正本と入口の2ファイルを更新し、事例・反例、Core、整形、skill形式で検証する。既存routingで到達できるため索引変更不要。",
+  "remaining": []
+}
