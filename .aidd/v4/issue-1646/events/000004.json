@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1982",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "8aad6e164da63345d581af2880e52ed89c8c1df139ba45081d9bdca25b33a6d9",
+  "status": "fail",
+  "checks": [
+    "PR1982の最新コメント・SUBMITTED指摘・未解決状態",
+    "同一HEADの取得欠落反例と配置不一致の根拠を再照合",
+    "最新ユーザー発言の最大1年・負荷対策を新仕様として追加",
+    "RPC/テストと完全性に関する設計判断の責務を分離",
+    "月間登録件数・課金制限は未確定として対象外を維持"
+  ],
+  "summary": "Audit更新。No1(P1): 同件数入替えで欠落成功となるoffset取得を修正提案。根本対策は同一時点の完全性条件と取得方式の保証を照合すること。実現案は書込停止ロックなしの単一SQL読取RPCと上限付きJSON返却。No2(P2): 設定\u003eデータ管理\u003eエクスポートへ導線を同期。No3(P2/新仕様): 負荷対策で1回最大1年をUIとRPCで取得前に検証。10,000件上限は維持。1年境界案は翌年同日未満、2/29開始は翌年3/1未満。期間上限は確定事項、反映作業は未承認。共通規則追加なし。",
+  "remaining": [
+    "No1: IssueのDB/API制約例外、新規migration/読取RPC・生成型・Web取得・SQL/API検証の承認待ち。API実設定の返却上限は未確認でRPC必須との断定はしない。共有DB/本番反映は別承認。",
+    "No2: Issueの期待状態/成功条件と設定route・導線・文言・関連テスト更新の承認待ち。",
+    "No3: Issueの期間制約/成功条件と期間schema・フォーム注記/エラー・RPC入力検証・1年/超過/うるう日テスト反映の承認待ち。",
+    "修正・検証・PR反映後の2コメント返信とBot thread PRRT_kwDOM0p88s6uLI7q解決は承認待ち。"
+  ]
+}

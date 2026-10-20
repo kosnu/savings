@@ -4,7 +4,6 @@ import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { BookSettings } from "../../../features/books"
-import { ExportPayments } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
 import { ProfileSettings } from "../../../features/profile"
 import { createQueryClient } from "../../../lib/queryClient"
@@ -14,6 +13,7 @@ import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createProfileHandlers } from "../../../test/msw/handlers/profile"
+import { DataManagementSettings } from "../DataManagementSettings"
 import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 
@@ -77,33 +77,38 @@ export const Default: Story = {
       "/settings/appearance",
     )
     expect(canvas.getByRole("link", { name: "Book" })).toHaveAttribute("href", "/settings/book")
-    expect(canvas.getByRole("link", { name: "Payment data export" })).toHaveAttribute(
+    expect(canvas.getByRole("link", { name: "Data management" })).toHaveAttribute(
       "href",
-      "/settings/export",
+      "/settings/data-management",
     )
   },
 }
 
 export const PaymentExport: Story = {
   decorators: [
-    createStoryRouter("/settings/export", (root, Story) => {
+    createStoryRouter("/settings/data-management", (root, Story) => {
       const settingsRoute = createRoute({
         getParentRoute: () => root,
         path: "/settings",
         component: Story,
       })
-      const exportRoute = createRoute({
+      const dataManagementRoute = createRoute({
         getParentRoute: () => settingsRoute,
-        path: "export",
-        component: ExportPayments,
+        path: "data-management",
+        component: DataManagementSettings,
       })
-      return [settingsRoute.addChildren([exportRoute])]
+      return [settingsRoute.addChildren([dataManagementRoute])]
     }),
   ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
-    expect(await canvas.findByRole("heading", { name: "Payment data export" })).toBeInTheDocument()
+    expect(
+      await canvas.findByRole("heading", { name: "Data management", level: 2 }),
+    ).toBeInTheDocument()
+    expect(
+      await canvas.findByRole("heading", { name: "Payment data export", level: 3 }),
+    ).toBeInTheDocument()
     expect(canvas.getByLabelText(/Start date/)).toBeEnabled()
     expect(canvas.getByLabelText(/End date/)).toBeEnabled()
     expect(canvas.getByRole("button", { name: "Download CSV" })).toBeEnabled()

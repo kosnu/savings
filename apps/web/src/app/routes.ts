@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router"
 
 import { BookSettings } from "../features/books"
-import { ExportPayments, paymentsSearchSchema } from "../features/payments"
+import { paymentsSearchSchema } from "../features/payments"
 import { AppearanceSettings } from "../features/preferences"
 import { ProfileSettings } from "../features/profile"
 import { isSelectableMonth, MAX_MONTH_INDEX, MIN_MONTH_INDEX } from "../features/summaryByMonth"
@@ -15,6 +15,7 @@ import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
+import { DataManagementSettings } from "./routes/DataManagementSettings"
 import { ErrorPage } from "./routes/ErrorPage"
 import { HomePage } from "./routes/HomePage"
 import { PaymentsPage } from "./routes/PaymentsPage"
@@ -145,10 +146,10 @@ const settingsAppearanceRoute = createRoute({
   component: AppearanceSettings,
 })
 
-const settingsExportRoute = createRoute({
+const settingsDataManagementRoute = createRoute({
   getParentRoute: () => settingsRoute,
-  path: "export",
-  component: ExportPayments,
+  path: "data-management",
+  component: DataManagementSettings,
 })
 
 const routeTree = rootRoute.addChildren([
@@ -163,7 +164,7 @@ const routeTree = rootRoute.addChildren([
       settingsProfileRoute,
       settingsAppearanceRoute,
       settingsBookRoute,
-      settingsExportRoute,
+      settingsDataManagementRoute,
     ]),
   ]),
 ])

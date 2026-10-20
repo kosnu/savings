@@ -26,12 +26,10 @@ export function createPaymentExportHandlers({
   durationOrMode = 0,
 }: PaymentExportOptions = {}) {
   return [
-    http.get("*/rest/v1/payments*", async () => {
+    http.post("*/rest/v1/rpc/export_payments", async () => {
       await delay(durationOrMode)
       if (error) return HttpResponse.json({ message: "Export failed" }, { status: 500 })
-      return HttpResponse.json(response, {
-        headers: { "Content-Range": `0-${Math.max(0, response.length - 1)}/${count}` },
-      })
+      return HttpResponse.json({ count, payments: count > 10_000 ? [] : response })
     }),
   ]
 }

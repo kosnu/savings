@@ -133,19 +133,36 @@ describe("設定からの支払いCSV出力", () => {
     await waitFor(() => expect(createObjectURL).toHaveBeenCalledOnce())
   })
 
-  it("途中の取得失敗では一部CSVを出力しない", async () => {
-    let calls = 0
+  it("件数と明細が一致しない応答では一部CSVを出力しない", async () => {
     server.use(
-      http.get("*/rest/v1/payments*", () => {
-        if (++calls === 1)
-          return HttpResponse.json([exportPayment], { headers: { "Content-Range": "0-0/2" } })
-        return HttpResponse.json({ message: "Failed" }, { status: 500 })
-      }),
+      http.post("*/rest/v1/rpc/export_payments", () =>
+        HttpResponse.json({ count: 2, payments: [exportPayment] }),
+      ),
     )
     const { user } = render(<Default />)
     fillPeriod()
     await user.click(screen.getByRole("button", { name: "Download CSV" }))
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not export payments.")
+    expect(createObjectURL).not.toHaveBeenCalled()
+  })
+
+  it("1年超過は期間短縮を案内し、Book・支払いの取得を開始しない", async () => {
+    let requests = 0
+    server.use(
+      http.get("*/rest/v1/book_members*", () => {
+        requests++
+        return HttpResponse.error()
+      }),
+      http.post("*/rest/v1/rpc/export_payments", () => {
+        requests++
+        return HttpResponse.error()
+      }),
+    )
+    const { user } = render(<Default />)
+    fillPeriod("2024-02-29", "2025-03-01")
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findByText("Shorten the period to at most one year.")).toBeInTheDocument()
+    expect(requests).toBe(0)
     expect(createObjectURL).not.toHaveBeenCalled()
   })
 

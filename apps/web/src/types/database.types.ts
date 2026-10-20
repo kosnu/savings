@@ -371,6 +371,10 @@ export type Database = {
         Args: { p_initial_display_name: string }
         Returns: undefined
       }
+      export_payments: {
+        Args: { p_book_id: number; p_start_date: string; p_end_date: string }
+        Returns: Json
+      }
       get_authenticated_default_book_id: { Args: never; Returns: number }
       get_authenticated_user_id: { Args: never; Returns: number }
       get_effective_category_budgets: {

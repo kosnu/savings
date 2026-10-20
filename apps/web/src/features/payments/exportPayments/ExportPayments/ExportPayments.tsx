@@ -53,7 +53,7 @@ export function ExportPayments() {
 
   return (
     <Flex direction="column" gap="4">
-      <Heading as="h2" size="4" weight="medium">
+      <Heading as="h3" size="4" weight="medium">
         {t("exportPayments.title")}
       </Heading>
       <Text as="p" size="3" color="gray">

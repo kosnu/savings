@@ -216,6 +216,9 @@ func apiChecks(ctx context.Context, a api, service string) error {
 	if e := columnAndCRUD(ctx, a, users[0], users[1]); e != nil {
 		return e
 	}
+	if e := paymentExportChecks(ctx, a, users[0], users[1]); e != nil {
+		return e
+	}
 	if e := rpcChecks(ctx, a, users[0], users[1]); e != nil {
 		return e
 	}
@@ -384,7 +387,7 @@ func columnAndCRUD(ctx context.Context, a api, u, other actor) error {
 	return nil
 }
 
-var rpcNames = []string{"create_category_with_pin", "update_category_with_pin", "ensure_authenticated_user", "get_authenticated_user_id", "get_authenticated_default_book_id", "get_monthly_total_amount", "get_effective_monthly_budget", "get_effective_category_budgets", "create_monthly_budget", "update_current_monthly_budget", "remove_current_monthly_budget", "create_category_with_pin_and_budget", "update_category_with_pin_and_budget", "delete_category_with_budget"}
+var rpcNames = []string{"export_payments", "create_category_with_pin", "update_category_with_pin", "ensure_authenticated_user", "get_authenticated_user_id", "get_authenticated_default_book_id", "get_monthly_total_amount", "get_effective_monthly_budget", "get_effective_category_budgets", "create_monthly_budget", "update_current_monthly_budget", "remove_current_monthly_budget", "create_category_with_pin_and_budget", "update_category_with_pin_and_budget", "delete_category_with_budget"}
 
 func catalogCoverage(ctx context.Context) error {
 	data, e := sql(ctx, `select json_build_object('tables',(select json_agg(relname order by relname) from pg_class join pg_namespace n on n.oid=relnamespace where n.nspname='public' and relkind in ('r','v','m','p')),'rpcs',(select json_agg(proname order by proname) from pg_proc join pg_namespace n on n.oid=pronamespace where n.nspname='public' and prorettype not in ('trigger'::regtype,'event_trigger'::regtype) and (has_function_privilege('authenticated',pg_proc.oid,'EXECUTE') or has_function_privilege('anon',pg_proc.oid,'EXECUTE'))));`)
@@ -487,6 +490,7 @@ func rpcChecks(ctx context.Context, a api, u, other actor) error {
 	for _, c := range calls {
 		anonymous[c.name] = c.args
 	}
+	anonymous["export_payments"] = row{"p_book_id": u.book, "p_start_date": "2024-02-29", "p_end_date": "2025-02-28"}
 	anonymous["create_monthly_budget"] = row{"p_effective_month": month(), "p_amount": 2000}
 	anonymous["update_current_monthly_budget"] = row{"p_monthly_budget_id": budget, "p_amount": 2100}
 	anonymous["remove_current_monthly_budget"] = row{"p_monthly_budget_id": budget}

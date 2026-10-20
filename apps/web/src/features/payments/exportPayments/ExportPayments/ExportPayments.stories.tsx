@@ -40,3 +40,12 @@ export const InvalidPeriod: Story = {
     await userEvent.click(within(canvasElement).getByRole("button", { name: "Download CSV" }))
   },
 }
+
+export const PeriodTooLong: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    fireEvent.change(canvas.getByLabelText(/Start date/), { target: { value: "2024-02-29" } })
+    fireEvent.change(canvas.getByLabelText(/End date/), { target: { value: "2025-03-01" } })
+    await userEvent.click(canvas.getByRole("button", { name: "Download CSV" }))
+  },
+}
