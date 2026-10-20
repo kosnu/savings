@@ -1,0 +1,40 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/test/helpers/selectDate.ts",
+    "apps/web/docs/policies/design-rules.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "264a4a71922f6b2dde9dd109abcdf1291fba3320c2248b961c47054f155c35d9",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage, ai-driven.checker",
+    "ai-driven.glossary, ai-driven.overview",
+    "ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount",
+    "domain.book, domain.category",
+    "domain.date, domain.monthly-budget",
+    "domain.payment, domain.user",
+    "infrastructure.dev-preview, infrastructure.overview",
+    "infrastructure.supabase-verification, policy.code-review",
+    "policy.git-workflow, policy.learning-extraction",
+    "policy.review-feedback-classification, policy.temporal-data",
+    "policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand",
+    "web.domain-layer-rules, web.domain-ui-rules",
+    "web.feature-directory, web.msw-handlers",
+    "web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "UI比較: createPayment/PaymentDateField・profile/AccountInformationForm",
+    "反例: native date/赤文字だけは比較省略で合格にしない",
+    "例外: 読取専用日付・月単位入力・詳細更新Snackbarは対象外"
+  ],
+  "summary": "Coverage: 対象正本と依存を照合、Unresolvedなし。支払い登録/編集と同じDatePickerを開始/終了日に使用。共有部品の不足はinput aria/blur連携だけ補完。失敗/超過CalloutはAccountInformationFormとrole/color/variant/size/icon/live設定が一致。field error/empty/入力保持/disabledは維持。旧native入力と赤文字alertだけの選択は比較規則で検出対象、必要性を示す例外は許容。読取専用日付・月入力・単独編集通知への過剰適用なし。既存索引でUI正本へ到達しrule-map変更不要。testid強制・SubmitError新設なし。最大1年・10000件・RPCは変更なし。",
+  "remaining": []
+}

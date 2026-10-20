@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1982",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/docs/policies/design-rules.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "37c9fb59d0d1a343c3a64c7311e99399e2ba4b5b093c5675b7b3ffe45954d656",
+  "status": "fail",
+  "checks": [
+    "最新Issue1646・PR1982 HEADと解決状態を照合",
+    "初回design/review・現行verify/reviewと会話の選定理由を照合",
+    "AGENTS既存パターン原則・UI適用順序・Code Review比較規則",
+    "native入力/赤文字alertと既存DatePicker/設定Calloutの差",
+    "テストの直接値変更・alert文言検証と比較証拠の不足"
+  ],
+  "summary": "再Audit: No1/2は今修正P2、最新UI指定の反映までmerge保留。一般条件成立を既存UI整合の代用にした適用漏れと、直接値変更/alert文言中心の試験による検出漏れ。ruleはレビュー対象に列挙済み、索引不達/未読は未立証。比較を省略した内部理由は不明。改善案はDatePickerとCalloutへの直接修正に加え、design-rulesの選定/フォーム/実装前確認を具体化し、code-reviewに比較元実装と差異理由の実コード照合を追加。既存適合UIを既定にし、許容される一般表現での独自選択を比較省略の理由にしない。前Auditの規則存在を理由とする改善不要判定を撤回。今回以外の画面・索引・CI基盤へ広げない。",
+  "remaining": [
+    "No1: ExportPaymentsと関連test/story・SettingsPage検証を共通DatePicker操作へ。必要なDatePicker input aria連携を含む。承認待ち。",
+    "No2: 全体の取得/出力失敗・件数超過を設定他フォーム同等Calloutへ。field error/emptyは維持。承認待ち。",
+    "根本対策: design-rules適用順序/フォーム/実装前確認、code-review確認内容を具体化。一般許容だけの不一致・規則列挙だけの合格を反例検証。承認待ち。",
+    "検証案: カレンダー操作・日付/上限境界・失敗/超過Story比較とWeb必須5種、文書整形・Core規約検査。今回は未実施。",
+    "PR未解決threadなし。Browser Comment1/2は会話内で完了報告予定、GitHub返信追加不要。既存Bot解決状態を保持。"
+  ]
+}

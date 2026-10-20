@@ -1,10 +1,13 @@
-import { Flex, Heading, Text, TextField } from "@radix-ui/themes"
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import { Callout, Flex, Heading, Text } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useEffect, useId, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SubmitButton } from "../../../../components/buttons/SubmitButton"
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
+import { DatePicker } from "../../../../components/inputs/DatePicker"
+import { parseDateOnlyStringToLocalDate, toDateOnlyString } from "../../../../domain/date"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
@@ -71,9 +74,18 @@ export function ExportPayments() {
           {(isSubmitting) => (
             <Flex direction="column" gap="4" align="start">
               {result && result !== "empty" ? (
-                <Text role="alert" color="red" size="2">
-                  {t(`exportPayments.${result}`)}
-                </Text>
+                <Callout.Root
+                  aria-live="polite"
+                  role="alert"
+                  color="red"
+                  variant="surface"
+                  size="1"
+                >
+                  <Callout.Icon>
+                    <ExclamationTriangleIcon />
+                  </Callout.Icon>
+                  <Callout.Text>{t(`exportPayments.${result}`)}</Callout.Text>
+                </Callout.Root>
               ) : null}
               <Flex direction={{ initial: "column", sm: "row" }} gap="3" wrap="wrap">
                 {(["startDate", "endDate"] as const).map((name) => (
@@ -88,18 +100,21 @@ export function ExportPayments() {
                           <FieldLabel htmlFor={`${id}-${name}`} required>
                             {t(`exportPayments.${name}`)}
                           </FieldLabel>
-                          <TextField.Root
-                            type="date"
+                          <DatePicker
                             id={`${id}-${name}`}
                             name={name}
                             required
-                            value={field.state.value}
+                            value={
+                              field.state.value
+                                ? parseDateOnlyStringToLocalDate(field.state.value)
+                                : undefined
+                            }
                             disabled={isSubmitting || !authUserId}
                             aria-invalid={hasError}
                             aria-describedby={hasError ? `${id}-${name}-error` : undefined}
                             onBlur={field.handleBlur}
-                            onChange={(event) => {
-                              field.handleChange(event.target.value)
+                            onChange={(date) => {
+                              field.handleChange(date ? toDateOnlyString(date) : "")
                               setResult(null)
                             }}
                           />

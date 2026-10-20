@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { fireEvent } from "@testing-library/react"
 import { userEvent, within } from "storybook/test"
 
+import { selectDate } from "../../../../test/helpers/selectDate"
 import { createBookHandlers } from "../../../../test/msw/handlers/books"
 import { createPaymentExportHandlers } from "../../../../test/msw/handlers/paymentExports"
 import { ExportPayments } from "./ExportPayments"
@@ -22,8 +22,8 @@ type Story = StoryObj<typeof meta>
 
 const submit: NonNullable<Story["play"]> = async ({ canvasElement }) => {
   const canvas = within(canvasElement)
-  fireEvent.change(canvas.getByLabelText(/Start date/), { target: { value: "2026-10-01" } })
-  fireEvent.change(canvas.getByLabelText(/End date/), { target: { value: "2026-10-31" } })
+  await selectDate(userEvent, canvas.getByLabelText(/Start date/), "2026-10-01")
+  await selectDate(userEvent, canvas.getByLabelText(/End date/), "2026-10-31")
   await userEvent.click(canvas.getByRole("button", { name: "Download CSV" }))
 }
 
@@ -44,8 +44,8 @@ export const InvalidPeriod: Story = {
 export const PeriodTooLong: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    fireEvent.change(canvas.getByLabelText(/Start date/), { target: { value: "2024-02-29" } })
-    fireEvent.change(canvas.getByLabelText(/End date/), { target: { value: "2025-03-01" } })
+    await selectDate(userEvent, canvas.getByLabelText(/Start date/), "2024-02-29")
+    await selectDate(userEvent, canvas.getByLabelText(/End date/), "2025-03-01")
     await userEvent.click(canvas.getByRole("button", { name: "Download CSV" }))
   },
 }

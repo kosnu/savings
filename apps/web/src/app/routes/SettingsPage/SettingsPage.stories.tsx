@@ -109,7 +109,11 @@ export const PaymentExport: Story = {
     expect(
       await canvas.findByRole("heading", { name: "Payment data export", level: 3 }),
     ).toBeInTheDocument()
-    expect(canvas.getByLabelText(/Start date/)).toBeEnabled()
+    expect(canvas.getByRole("textbox", { name: /Start date/ })).toBeEnabled()
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    const body = within(canvasElement.ownerDocument.body)
+    expect(await body.findByRole("grid")).toBeInTheDocument()
+    await userEvent.keyboard("{Escape}")
     expect(canvas.getByLabelText(/End date/)).toBeEnabled()
     expect(canvas.getByRole("button", { name: "Download CSV" })).toBeEnabled()
     expect(canvas.getByText(/Up to 10,000 payments/)).toBeInTheDocument()

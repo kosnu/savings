@@ -24,16 +24,20 @@ type DatePickerProps = {
   onEscapeKeyDown?: () => void
   required?: boolean
   size?: ComponentProps<typeof TextField.Root>["size"]
-} & ModeSingleProps
+} & ModeSingleProps &
+  Pick<ComponentProps<typeof TextField.Root>, "aria-invalid" | "aria-describedby" | "onBlur">
 
 export function DatePicker(props: DatePickerProps) {
   const { i18n, t } = useTranslation()
   const {
+    "aria-invalid": ariaInvalid,
+    "aria-describedby": ariaDescribedBy,
     autoFocus,
     disabled,
     id,
     name,
     onChange,
+    onBlur,
     onEscapeKeyDown,
     required,
     size,
@@ -108,6 +112,8 @@ export function DatePicker(props: DatePickerProps) {
         <Popover.Trigger onClick={handleTriggerClick}>
           <div>
             <TextField.Root
+              aria-invalid={ariaInvalid}
+              aria-describedby={ariaDescribedBy}
               autoFocus={autoFocus}
               disabled={disabled}
               id={id}
@@ -118,6 +124,7 @@ export function DatePicker(props: DatePickerProps) {
                 value ? formatDateToLocaleString(value, getDateFormat(language), language) : ""
               }
               onChange={handleInputChange}
+              onBlur={onBlur}
               onKeyDown={handleInputKeyDown}
             >
               <TextField.Slot>
