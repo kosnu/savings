@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1958",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "c9b9ce60fd20c6b93bc691f9b94350b7b89daf3c0c04fe405127265392f5c95f",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt --check",
+    "Core規約graph・対象path選択",
+    "Go vet",
+    "相対リンク・見出し参照3件"
+  ],
+  "summary": "4検証は全て終了コード0、Core verifyはstable=true。現在と同一の対象内容・modeで検証済み。相対リンク3件も成功。文書のみでruntime変更はなくWeb検証は対象外。",
+  "remaining": []
+}

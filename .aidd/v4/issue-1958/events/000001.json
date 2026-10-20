@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1958",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "7f8b5c7f5e7c9c07beaa33176b602a1e786906722560f65a22621b708a193f56",
+  "status": "pass",
+  "checks": [
+    "Issue #1958のDoD・権限・既存事例を照合",
+    "workflowの評価基準とrule-mapを確認"
+  ],
+  "summary": "baseline 96f08707。既存規則の適用例としてDev合意・本番明示・根拠不足を対比する。既存の責務・routing・権限・記録形式を維持し、対象文書だけを更新する。整形・Core・相対リンク・意味レビューで検証し、承認済みの通常PR作成まで進める。",
+  "remaining": []
+}

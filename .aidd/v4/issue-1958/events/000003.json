@@ -1,0 +1,33 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1958",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "c9b9ce60fd20c6b93bc691f9b94350b7b89daf3c0c04fe405127265392f5c95f",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.code-review",
+    "Dev合意へ本番条件を追加: fail",
+    "同入力でDev充足・残作業継続: pass",
+    "本番明示をDevだけで完了: fail",
+    "Dev pass・本番未観測unknownを分離: pass",
+    "合意・権限の根拠不足: unknown",
+    "DoD全4項目・制約を照合: pass"
+  ],
+  "summary": "全選択規則と最終差分を照合しfindingなし。元のIntentから期待を導き、追加条件・要求欠落・未観測と次の行動を区別した。判断の所有や適用経路は変わらず既存routingで十分。過去記録・権限・記録契約・必須工程の変更なし。独立評価と実運用の再発率は未検証。",
+  "remaining": []
+}
