@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router"
 
 import { BookSettings } from "../features/books"
-import { paymentsSearchSchema } from "../features/payments"
+import { ExportPayments, paymentsSearchSchema } from "../features/payments"
 import { AppearanceSettings } from "../features/preferences"
 import { ProfileSettings } from "../features/profile"
 import { isSelectableMonth, MAX_MONTH_INDEX, MIN_MONTH_INDEX } from "../features/summaryByMonth"
@@ -145,6 +145,12 @@ const settingsAppearanceRoute = createRoute({
   component: AppearanceSettings,
 })
 
+const settingsExportRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "export",
+  component: ExportPayments,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
@@ -157,6 +163,7 @@ const routeTree = rootRoute.addChildren([
       settingsProfileRoute,
       settingsAppearanceRoute,
       settingsBookRoute,
+      settingsExportRoute,
     ]),
   ]),
 ])

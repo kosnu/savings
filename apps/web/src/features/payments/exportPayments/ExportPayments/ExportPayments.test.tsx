@@ -1,0 +1,172 @@
+import { composeStories } from "@storybook/react-vite"
+import { HttpResponse, http } from "msw"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
+
+import { createBookHandlers } from "../../../../test/msw/handlers/books"
+import {
+  createPaymentExportHandlers,
+  exportPayment,
+} from "../../../../test/msw/handlers/paymentExports"
+import { server } from "../../../../test/msw/server"
+import { fireEvent, render, screen, waitFor } from "../../../../test/test-utils"
+import * as stories from "./ExportPayments.stories"
+
+const { Default } = composeStories(stories)
+const createObjectURL = vi.fn((_blob: Blob) => "blob:payments")
+const revokeObjectURL = vi.fn()
+
+function fillPeriod(startDate = "2026-10-01", endDate = "2026-10-31") {
+  fireEvent.change(screen.getByLabelText(/Start date/), { target: { value: startDate } })
+  fireEvent.change(screen.getByLabelText(/End date/), { target: { value: endDate } })
+}
+
+describe("設定からの支払いCSV出力", () => {
+  beforeEach(() => {
+    createObjectURL.mockClear()
+    revokeObjectURL.mockClear()
+    vi.stubGlobal(
+      "URL",
+      class extends URL {
+        static createObjectURL = createObjectURL
+        static revokeObjectURL = revokeObjectURL
+      },
+    )
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {})
+    server.use(...createBookHandlers(), ...createPaymentExportHandlers())
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  it("設定見出し・上限注記を表示し、指定期間のCSVとファイル名でダウンロードする", async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click")
+    const { user } = render(<Default />)
+    expect(screen.getByRole("heading", { name: "Payment data export" })).toBeInTheDocument()
+    expect(screen.getByText(/Up to 10,000 payments/)).toBeInTheDocument()
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    await waitFor(() => expect(createObjectURL).toHaveBeenCalledOnce())
+    expect(click).toHaveBeenCalledOnce()
+    const link = click.mock.instances[0]
+    expect(link).toHaveAttribute("download", "burneto-payments_2026-10-01_2026-10-31.csv")
+    expect(link).toHaveAttribute("href", "blob:payments")
+    const blob = createObjectURL.mock.calls[0][0] as Blob
+    expect(blob.type).toBe("text/csv;charset=utf-8")
+    const text = await new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.readAsText(blob)
+    })
+    expect(text).toContain('"支払日","金額","カテゴリ名","メモ"\r\n"2026-10-01","1234","","メモ"')
+    await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledWith("blob:payments"))
+    expect(document.querySelector("a[download]")).toBeNull()
+  })
+
+  it("日付未入力と逆転した期間を送信せず、入力直下にエラーを示す", async () => {
+    const { user } = render(<Default />)
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findAllByText("Enter a valid date.")).toHaveLength(2)
+    fillPeriod("2026-10-31", "2026-10-01")
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findByText("End date must be on or after start date.")).toBeInTheDocument()
+    expect(createObjectURL).not.toHaveBeenCalled()
+  })
+
+  it("取得中は期間と送信操作を無効化し、再操作できない", async () => {
+    server.use(...createPaymentExportHandlers({ durationOrMode: "infinite" }))
+    const { user, unmount } = render(<Default />)
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    await waitFor(() => expect(screen.getByRole("button", { name: "Download CSV" })).toBeDisabled())
+    expect(screen.getByLabelText(/Start date/)).toBeDisabled()
+    expect(screen.getByLabelText(/End date/)).toBeDisabled()
+    expect(createObjectURL).not.toHaveBeenCalled()
+    unmount()
+  })
+
+  it.each([
+    [{ response: [] }, "No payments in this period.", "status"],
+    [
+      { count: 10_001 },
+      "More than 10,000 payments match. Shorten the period and try again. No CSV was exported.",
+      "alert",
+    ],
+    [{ error: true }, "Could not export payments. Try again.", "alert"],
+  ] as const)("空・超過・失敗を区別してCSVを出力しない", async (options, message, role) => {
+    server.use(
+      ...createPaymentExportHandlers({
+        ...options,
+        response: "response" in options ? [] : undefined,
+      }),
+    )
+    const { user } = render(<Default />)
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findByRole(role)).toHaveTextContent(message)
+    expect(createObjectURL).not.toHaveBeenCalled()
+    expect(screen.getByLabelText(/Start date/)).toHaveValue("2026-10-01")
+  })
+
+  it("Book取得失敗後も入力を保ち、同じ期間で再実行できる", async () => {
+    server.use(...createBookHandlers({ error: true }))
+    const { user } = render(<Default />)
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not export payments.")
+    expect(createObjectURL).not.toHaveBeenCalled()
+    server.use(...createBookHandlers())
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    await waitFor(() => expect(createObjectURL).toHaveBeenCalledOnce())
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
+  it("上限超過後は期間を短くして再実行できる", async () => {
+    server.use(...createPaymentExportHandlers({ count: 10_001 }))
+    const { user } = render(<Default />)
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findByRole("alert")).toHaveTextContent("Shorten the period")
+    server.use(...createPaymentExportHandlers())
+    fillPeriod("2026-10-01", "2026-10-01")
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    await waitFor(() => expect(createObjectURL).toHaveBeenCalledOnce())
+  })
+
+  it("途中の取得失敗では一部CSVを出力しない", async () => {
+    let calls = 0
+    server.use(
+      http.get("*/rest/v1/payments*", () => {
+        if (++calls === 1)
+          return HttpResponse.json([exportPayment], { headers: { "Content-Range": "0-0/2" } })
+        return HttpResponse.json({ message: "Failed" }, { status: 500 })
+      }),
+    )
+    const { user } = render(<Default />)
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not export payments.")
+    expect(createObjectURL).not.toHaveBeenCalled()
+  })
+
+  it("ファイル出力失敗を成功にしない", async () => {
+    createObjectURL.mockImplementationOnce(() => {
+      throw new Error("Blob unavailable")
+    })
+    const { user } = render(<Default />)
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not export payments.")
+    expect(screen.queryByText("CSV download started.")).not.toBeInTheDocument()
+  })
+
+  it("画面を離れた後の応答でCSVを出力しない", async () => {
+    server.use(...createPaymentExportHandlers({ durationOrMode: 50 }))
+    const { user, unmount } = render(<Default />)
+    fillPeriod()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
+    unmount()
+    await new Promise((resolve) => setTimeout(resolve, 80))
+    expect(createObjectURL).not.toHaveBeenCalled()
+  })
+})

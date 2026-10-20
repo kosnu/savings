@@ -39,6 +39,11 @@ export function SettingsPage() {
                   {t("navigation.book")}
                 </Link>
               </Button>
+              <Button asChild variant="ghost" size="3">
+                <Link to="/settings/export" className={styles.menuLink}>
+                  {t("exportPayments.title")}
+                </Link>
+              </Button>
               <Button asChild variant="ghost" color="gray" size="3">
                 <Link to="/privacy" className={styles.menuLink}>
                   {t("privacy.title")}

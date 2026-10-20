@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/features/payments/index.ts",
+    "apps/web/src/features/books/index.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/test/msw/handlers/paymentExports.ts"
+  ],
+  "fingerprint": "8aad6e164da63345d581af2880e52ed89c8c1df139ba45081d9bdca25b33a6d9",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "pnpm run web:test:storybook",
+    "git diff --check",
+    "Core check-changes"
+  ],
+  "summary": "整形後の最終差分でlint・整形・型検査が成功。単体/統合149ファイル855件とStorybook7ファイル21件が成功。期間・Book条件、取得上限を下回るページから10,000件までの全件取得、10,001件拒否、空・欠落・途中失敗・不正参照、特殊文字と数式対策、設定導線と再試行を確認。指定版pnpmとChromiumを一時領域で使用。",
+  "remaining": []
+}

@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/features/payments/index.ts",
+    "apps/web/src/features/books/index.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/test/msw/handlers/paymentExports.ts"
+  ],
+  "fingerprint": "8aad6e164da63345d581af2880e52ed89c8c1df139ba45081d9bdca25b33a6d9",
+  "status": "pass",
+  "checks": [
+    "Issue1646と会話の期間・上限・権限",
+    "設定・Book・CSV入出力境界"
+  ],
+  "summary": "設定/exportへ期間フォームを追加。操作時に既存default Bookを解決しexact count付きで分割取得、上限超過・欠落・不正参照は出力拒否。date-onlyと整数を維持しカテゴリ未設定とメモ未入力は空欄。UTF-8 BOM・CRLF・全列引用・数式開始文字列の無害化を採用。操作起点のためフォーム内で取得し再試行、全fieldとボタンを送信中無効化。DB/API/依存変更なし。",
+  "remaining": []
+}

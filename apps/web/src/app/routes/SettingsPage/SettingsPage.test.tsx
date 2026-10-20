@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { BookSettings } from "../../../features/books"
+import { ExportPayments } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
 import { ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
@@ -68,6 +69,12 @@ function renderSettingsPage(
       component: SettingsAppearanceComponent,
     })
 
+    const settingsExportRoute = createRoute({
+      getParentRoute: () => settingsRoute,
+      path: "export",
+      component: ExportPayments,
+    })
+
     return [
       authenticatedRoute.addChildren([
         settingsRoute.addChildren([
@@ -75,6 +82,7 @@ function renderSettingsPage(
           settingsProfileRoute,
           settingsAppearanceRoute,
           settingsBookRoute,
+          settingsExportRoute,
         ]),
       ]),
     ]
@@ -153,6 +161,16 @@ describe("SettingsPage", () => {
 
     expect(router.state.location.pathname).toBe("/settings/book")
     expect(await screen.findByText("Book settings page")).toBeInTheDocument()
+  })
+
+  test("設定概要のエクスポート導線から期間指定フォームへ遷移できる", async () => {
+    const { user, router } = renderSettingsPage()
+    const link = await screen.findByRole("link", { name: /Payment data export.*Export payments/ })
+    await user.click(link)
+    expect(router.state.location.pathname).toBe("/settings/export")
+    expect(await screen.findByRole("heading", { name: "Payment data export" })).toBeInTheDocument()
+    expect(screen.getByLabelText(/Start date/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/End date/)).toBeInTheDocument()
   })
 
   test("Profile 設定ではアカウント情報だけを表示する", async () => {

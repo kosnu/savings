@@ -4,6 +4,7 @@ import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { BookSettings } from "../../../features/books"
+import { ExportPayments } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
 import { ProfileSettings } from "../../../features/profile"
 import { createQueryClient } from "../../../lib/queryClient"
@@ -76,6 +77,37 @@ export const Default: Story = {
       "/settings/appearance",
     )
     expect(canvas.getByRole("link", { name: "Book" })).toHaveAttribute("href", "/settings/book")
+    expect(canvas.getByRole("link", { name: "Payment data export" })).toHaveAttribute(
+      "href",
+      "/settings/export",
+    )
+  },
+}
+
+export const PaymentExport: Story = {
+  decorators: [
+    createStoryRouter("/settings/export", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+      const exportRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "export",
+        component: ExportPayments,
+      })
+      return [settingsRoute.addChildren([exportRoute])]
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
+    expect(await canvas.findByRole("heading", { name: "Payment data export" })).toBeInTheDocument()
+    expect(canvas.getByLabelText(/Start date/)).toBeEnabled()
+    expect(canvas.getByLabelText(/End date/)).toBeEnabled()
+    expect(canvas.getByRole("button", { name: "Download CSV" })).toBeEnabled()
+    expect(canvas.getByText(/Up to 10,000 payments/)).toBeInTheDocument()
   },
 }
 
