@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1957",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    ".agents/skills/audit/SKILL.md"
+  ],
+  "fingerprint": "7f8b5c7f5e7c9c07beaa33176b602a1e786906722560f65a22621b708a193f56",
+  "status": "pass",
+  "checks": [
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "DoD全5項目 pass",
+    "PR1951 管理操作前提・手動並行可能のみ:修正必須にしない",
+    "通常操作のconfig不備:評価から除外しない",
+    "要件上の異常系:低頻度だけで除外しない",
+    "Issue編集後のAudit:現在PR維持",
+    "明示指定:指定対象優先",
+    "候補不明:unknownとして確認",
+    "Ship前・Retrospective・未承認返信:権限を拡張しない"
+  ],
+  "summary": "全選択規則と最終差分を照合しfindingなし。事例2件と反例・対象選択・権限境界を意味レビューで確認。正本と入口は整合し既存routingで到達。Draft解除・過去記録変更なし。独立評価と実運用での再発率は未検証。",
+  "remaining": []
+}

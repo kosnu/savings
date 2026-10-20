@@ -10,6 +10,8 @@ Apply [AIDD v4](../../../docs/ai-driven-development/workflow.md) and
 [Audit policy](../../../docs/harness/policies/learning-extraction.md).
 Before analysis, resolve the target and retrieve current findings following
 [Audit policy](../../../docs/harness/policies/learning-extraction.md#audit).
+Honor an explicit target. Otherwise retain the current working Task and delivery PR;
+a recent edit to another Issue alone does not switch the Audit target.
 Retrieve the current Intent, authority, decision and verification/review summaries, and delivery references from the existing Issue, PR, and conversation.
 Analyze the findings and their causes. Preserve resolved status.
 Development-process retrospection belongs to [Retrospective](../../../docs/harness/policies/retrospective.md)

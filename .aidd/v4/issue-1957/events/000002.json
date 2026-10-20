@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1957",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    ".agents/skills/audit/SKILL.md"
+  ],
+  "fingerprint": "7f8b5c7f5e7c9c07beaa33176b602a1e786906722560f65a22621b708a193f56",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt --check (2 files)",
+    "skill quick_validate",
+    "Core rules",
+    "Go vet"
+  ],
+  "summary": "全5検証が終了コード0、Core verifyのstable=true。文書・非runtime skillのみのためWeb検証は対象外。",
+  "remaining": []
+}
