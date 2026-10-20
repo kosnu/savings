@@ -113,7 +113,23 @@ export const PaymentExport: Story = {
     await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
     const body = within(canvasElement.ownerDocument.body)
     expect(await body.findByRole("grid")).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    await waitFor(async () => {
+      await expect(body.queryByRole("grid")).not.toBeInTheDocument()
+    })
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    expect(await body.findByRole("grid")).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("heading", { name: "Payment data export" }))
+    await waitFor(async () => {
+      await expect(body.queryByRole("grid")).not.toBeInTheDocument()
+    })
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    expect(await body.findByRole("grid")).toBeInTheDocument()
     await userEvent.keyboard("{Escape}")
+    await waitFor(async () => {
+      await expect(body.queryByRole("grid")).not.toBeInTheDocument()
+    })
+    expect(canvas.getByRole("textbox", { name: /Start date/ })).toHaveFocus()
     expect(canvas.getByLabelText(/End date/)).toBeEnabled()
     expect(canvas.getByRole("button", { name: "Download CSV" })).toBeEnabled()
     expect(canvas.getByText(/Up to 10,000 payments/)).toBeInTheDocument()

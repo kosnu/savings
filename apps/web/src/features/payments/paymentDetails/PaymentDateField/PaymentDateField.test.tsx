@@ -51,7 +51,6 @@ describe("PaymentDetails PaymentDateField", () => {
     const { user } = render(<Default />, { userOptions: { delay: null } })
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
-    await user.click(screen.getByRole("textbox", { name: /date/i }))
     await user.click(await screen.findByRole("button", { name: /^Tuesday, June 3rd, 2025$/i }))
 
     await waitFor(() => {
@@ -72,7 +71,6 @@ describe("PaymentDetails PaymentDateField", () => {
     const { user } = render(<Default />, { userOptions: { delay: null } })
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
-    await user.click(screen.getByRole("textbox", { name: /date/i }))
     await user.click(await screen.findByRole("button", { name: /June 2nd, 2025/i }))
 
     await waitFor(() => {
@@ -91,7 +89,6 @@ describe("PaymentDetails PaymentDateField", () => {
     const { user } = render(<Default />, { userOptions: { delay: null } })
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
-    await user.click(screen.getByRole("textbox", { name: /date/i }))
     await user.click(await screen.findByRole("button", { name: /^Tuesday, June 3rd, 2025$/i }))
 
     expect(
@@ -110,7 +107,6 @@ describe("PaymentDetails PaymentDateField", () => {
     const { user } = render(<Default />, { userOptions: { delay: null } })
 
     await user.click(screen.getByRole("button", { name: /edit date/i }))
-    await user.click(screen.getByRole("textbox", { name: /date/i }))
     await user.click(await screen.findByRole("button", { name: /^Tuesday, June 3rd, 2025$/i }))
 
     expect(screen.getByRole("textbox", { name: /date/i })).toBeDisabled()
