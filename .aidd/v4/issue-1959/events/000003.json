@@ -1,0 +1,41 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1959",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "4db367f89c7ab4b1f362d3a33c3a891e1c333aa09141ff7091af3f2783f3114a",
+  "status": "pass",
+  "checks": [
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "DoD 1 pass: 共通ルール不要でもIntent評価を省略しない(49-50行)",
+    "DoD 2 pass: 不足の出典と明記済み記載で修正要否を区別(51-54行)",
+    "DoD 3 pass: Intent不足と規則問題の併存を独立評価(55行)",
+    "DoD 4 pass: 有限対象・確認方法・手動承認と承認後のIntent復帰を維持",
+    "DoD 5 pass: 仮想入力とworkflow・Issue本文方針の整合を照合",
+    "仮想A: 訂正は既存アイコンのみ、Issue未反映、規則十分→Intentのみ提案; 51-53行と一致",
+    "仮想B: Issueに既存アイコンのみ明記、適用漏れ→Intent不要、適用を調査; 54行と一致",
+    "仮想C: Intent不足かつ規則不足の証拠あり→両方を有限の対象へ提案; 55行と一致",
+    "仮想D: 要件明記済み、共通検証の欠落に証拠あり→規則のみ提案; 54-55行と一致",
+    "仮想E: 要件明記済み、規則も十分、指摘なし→改善なし; 既存終了条件と一致",
+    "仮想F: 訂正の出典を取得不能→unknown、不足根拠と確認対象を示す; 44-45行を維持",
+    "権限反例: Audit依頼のみ→分析・提案まで。改善・返信・thread解決の許可は作らない",
+    "承認後: 承認済み有限対象のみ反映し同じTaskでIntentへ復帰; 既存改善節を維持",
+    "新規チェックリスト・報告列・承認段階なし、Issue本文への作業履歴なし",
+    "既存skill→Policyとrule-mapのpath/surface・依存closureで到達。同期追加不要"
+  ],
+  "summary": "Checked rulesはchecks記載の全11件。Unresolvedなし、findingなし。最終差分11行とDoD全5項目、仮想入力6件・権限反例を意味レビューで照合。既存報告形式・承認・復帰・記録契約を維持し、過去記録は変更しない。独立評価・実運用での再発率低下は未検証。",
+  "remaining": []
+}

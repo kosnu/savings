@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1959",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md"
+  ],
+  "fingerprint": "4db367f89c7ab4b1f362d3a33c3a891e1c333aa09141ff7091af3f2783f3114a",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt --check (learning-extraction.md)",
+    "Core rules",
+    "Go vet"
+  ],
+  "summary": "Core verifyの全4検証が終了コード0、stable=true。文書のみの変更のためWeb/API検証は適用外。既存依存をworktreeのgitignored directoryから参照し、実装差分には含めていない。",
+  "remaining": []
+}
