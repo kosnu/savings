@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1986#discussion_r4329282995",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "3388eebdc719f73449f714cda531ece0781e1c9157409e37385191bf794d6804",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt --check",
+    "Core rules",
+    "Go vet"
+  ],
+  "summary": "全4command終了コード0、stable=true。文書のみの変更につきWeb runtime検証は対象外。",
+  "remaining": []
+}

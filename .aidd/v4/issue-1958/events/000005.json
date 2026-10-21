@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1986#discussion_r4329282995",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "c9b9ce60fd20c6b93bc691f9b94350b7b89daf3c0c04fe405127265392f5c95f",
+  "status": "pass",
+  "checks": [
+    "再Audit案に対するユーザーの「おk、承認」を確認",
+    "対象PR head・ローカル内容一致を確認"
+  ],
+  "summary": "承認された総括142行のみ訂正。技術上の根拠を判断基準に戻し、必要性と操作権限を別に評価する。事例追加・正本規則変更なし。整形・Core・意味レビュー後にPR反映し、承認済み返信とBot thread解決を行う。",
+  "remaining": []
+}

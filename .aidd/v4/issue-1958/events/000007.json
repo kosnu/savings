@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1986#discussion_r4329282995",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "3388eebdc719f73449f714cda531ece0781e1c9157409e37385191bf794d6804",
+  "status": "pass",
+  "checks": [
+    "既存reviewの12適用規則を継続適用",
+    "総括・本文115行・workflow評価責務の整合",
+    "Dev合意fail・本番要求欠落fail・根拠不足unknownを維持",
+    "技術的必要性を評価しつつ本番操作権限を拡張しない",
+    "承認範囲は総括訂正のみ、事例追加なし"
+  ],
+  "summary": "findingなし。総括へ技術上の必要性を戻し、既存合意・委任範囲と操作権限の境界を保持した。正本・索引の責務や適用経路を変更せず、既存rule-mapで十分。未確定な原因の断定を成果へ追加していない。",
+  "remaining": []
+}
