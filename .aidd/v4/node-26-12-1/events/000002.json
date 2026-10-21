@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "codex-thread:01a156e9-4778-7210-8e30-96f384c810c9",
+  "paths": [
+    "package.json",
+    "apps/web/package.json",
+    "mise.toml"
+  ],
+  "fingerprint": "6a3a392050b4cf10d9e517bcb47b2795cf6835403c03206874b08b7af8de543f",
+  "status": "pass",
+  "checks": [
+    "Node.js v26.12.1 / pnpm 12.13.0",
+    "pnpm ci (lockfile固定)",
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration: 149 files / 872 tests passed",
+    "pnpm run web:build",
+    "Go Core check-changes / git diff --check"
+  ],
+  "summary": "Node.js 26.12.1で既定のWeb検証とビルドが成功。Storybook対象・共有設定の差分はなくローカルbrowser suiteは対象外。",
+  "remaining": []
+}
