@@ -1,0 +1,39 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "codex-thread:01a156e9-4778-7210-8e30-96f384c810c9",
+  "paths": [
+    "package.json",
+    "apps/web/package.json",
+    "mise.toml"
+  ],
+  "fingerprint": "6a3a392050b4cf10d9e517bcb47b2795cf6835403c03206874b08b7af8de543f",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.storybook-browser-tests",
+    "web.test-policy"
+  ],
+  "summary": "依頼と実差分を照合: Node 3指定の同期・CI参照・既存lockfile維持はpass。Renovate全体方針・PR #1988・UI/API/domainの変更なし。必須規則と依存closureを確認しfinding・未解決の矛盾なし。最終headのCIはPR作成後に確認する。",
+  "remaining": []
+}

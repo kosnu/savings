@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "codex-thread:01a156e9-4778-7210-8e30-96f384c810c9",
+  "paths": [
+    "package.json",
+    "apps/web/package.json",
+    "mise.toml"
+  ],
+  "fingerprint": "25eaa77500accebfb7d0075ee64e8cad847a1f57c4a039278227156c7a632e43",
+  "status": "pass",
+  "checks": [
+    "最新mainと重複PRの確認",
+    "Node指定とCI参照の同期設計"
+  ],
+  "summary": "Node.js 26.12.0から26.12.1へ3指定を同期する。Renovate方針とPR #1988は対象外。Webの既定検証とビルド、最終headのCIを確認する。",
+  "remaining": []
+}
