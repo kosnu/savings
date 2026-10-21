@@ -487,6 +487,28 @@
       "priority": 97
     },
     {
+      "id": "policy.query-performance",
+      "file": "docs/harness/policies/query-performance.md",
+      "applies_to": {
+        "paths": [
+          "apps/api/supabase/migrations/**",
+          "apps/api/supabase/tests/**",
+          "docs/harness/policies/query-performance.md"
+        ],
+        "domains": ["api", "database"],
+        "activities": [
+          "change_rpc",
+          "review_api_rpc",
+          "review_api_schema",
+          "review_query_performance"
+        ],
+        "topics": ["sql", "query-performance", "verification"]
+      },
+      "depends_on": ["policy.transaction-boundaries"],
+      "overrides": [],
+      "priority": 88
+    },
+    {
       "id": "policy.transaction-boundaries",
       "file": "docs/harness/policies/transaction-boundaries.md",
       "applies_to": {

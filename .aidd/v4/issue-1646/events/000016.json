@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1982#discussion_r4328657515",
+  "paths": [
+    "apps/api/supabase/migrations/",
+    "apps/api/supabase/tests/export_payments.test.sql",
+    "docs/harness/policies/query-performance.md",
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "df75102216c2edf7c352490aeba010a4712e23ce23e0ef7501b9dd78fc4df372",
+  "status": "fail",
+  "checks": [
+    "PR1982 head51414194を再確認、新P2未解決・旧P1resolved維持",
+    "SQL/既存index/件数試験と前回Auditの根拠を再利用、source変更なし",
+    "code-reviewの性能一般規則とAPI参照表を確認",
+    "インフラ既存診断/Dev確認の責務と専用基準不在、documentation-policyの正本/索引契約を照合"
+  ],
+  "summary": "Audit再提示。今修正P2・merge保留と候補ORDER BY除去/最終整列の直接修正は維持。根本対策を変更: 新規query-performance.mdを負荷制限SQL/RPCの具体基準の正本とし、rule-mapのpolicy.query-performanceをmigration/test SQLから必須選択。code-reviewはAPI参照だけ同期。正本は返却量/処理量の区別、LIMIT前sort/集約/JOIN、同日集中/大幅超過、実権限/RLS下の内部EXPLAINと正確性維持を扱う。原因は機能試験偏重に加え具体基準不足、読込/適用漏れだけと断定しない。新migration/既存SQL試験/新policy/索引/レビュー参照が有限対象。実装/返信/resolve未実施で新提案承認待ち。",
+  "remaining": [
+    "10万件集中/分散の内部計画比較と新migrationのSQL/API/並行変更検証は未実施。",
+    "反映後はrulesの代表SQL path→新正本の必須到達、依存/リンクと対象外例を確認する。",
+    "承認後に修正・検証・pushし新Bot threadへ根拠返信、論点解消後resolve。共有Dev/本番適用は対象外。"
+  ]
+}
