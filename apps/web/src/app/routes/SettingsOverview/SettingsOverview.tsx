@@ -46,6 +46,17 @@ export function SettingsOverview() {
               </Text>
             </Flex>
           </Link>
+          <Separator size="4" />
+          <Link to="/settings/data-management" className={styles.itemLink}>
+            <Flex direction="column" gap="1">
+              <Text as="span" size="4" weight="medium" className={styles.itemTitle}>
+                {t("settings.dataManagement")}
+              </Text>
+              <Text as="span" size="3" color="gray">
+                {t("exportPayments.description")}
+              </Text>
+            </Flex>
+          </Link>
         </Flex>
       </nav>
     </Flex>

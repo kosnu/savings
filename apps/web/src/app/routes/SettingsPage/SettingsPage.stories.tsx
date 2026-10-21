@@ -13,6 +13,7 @@ import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createProfileHandlers } from "../../../test/msw/handlers/profile"
+import { DataManagementSettings } from "../DataManagementSettings"
 import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 
@@ -76,6 +77,62 @@ export const Default: Story = {
       "/settings/appearance",
     )
     expect(canvas.getByRole("link", { name: "Book" })).toHaveAttribute("href", "/settings/book")
+    expect(canvas.getByRole("link", { name: "Data management" })).toHaveAttribute(
+      "href",
+      "/settings/data-management",
+    )
+  },
+}
+
+export const PaymentExport: Story = {
+  decorators: [
+    createStoryRouter("/settings/data-management", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+      const dataManagementRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "data-management",
+        component: DataManagementSettings,
+      })
+      return [settingsRoute.addChildren([dataManagementRoute])]
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
+    expect(
+      await canvas.findByRole("heading", { name: "Data management", level: 2 }),
+    ).toBeInTheDocument()
+    expect(
+      await canvas.findByRole("heading", { name: "Payment data export", level: 3 }),
+    ).toBeInTheDocument()
+    expect(canvas.getByRole("textbox", { name: /Start date/ })).toBeEnabled()
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    const body = within(canvasElement.ownerDocument.body)
+    expect(await body.findByRole("grid")).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    await waitFor(async () => {
+      await expect(body.queryByRole("grid")).not.toBeInTheDocument()
+    })
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    expect(await body.findByRole("grid")).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("heading", { name: "Payment data export" }))
+    await waitFor(async () => {
+      await expect(body.queryByRole("grid")).not.toBeInTheDocument()
+    })
+    await userEvent.click(canvas.getByRole("textbox", { name: /Start date/ }))
+    expect(await body.findByRole("grid")).toBeInTheDocument()
+    await userEvent.keyboard("{Escape}")
+    await waitFor(async () => {
+      await expect(body.queryByRole("grid")).not.toBeInTheDocument()
+    })
+    expect(canvas.getByRole("textbox", { name: /Start date/ })).toHaveFocus()
+    expect(canvas.getByLabelText(/End date/)).toBeEnabled()
+    expect(canvas.getByRole("button", { name: "Download CSV" })).toBeEnabled()
+    expect(canvas.getByText(/Up to 10,000 payments/)).toBeInTheDocument()
   },
 }
 

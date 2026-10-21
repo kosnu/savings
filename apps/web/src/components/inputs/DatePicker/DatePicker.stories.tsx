@@ -30,3 +30,10 @@ export const SelectToday: Story = {
     value: new Date(2025, 4, 10),
   },
 }
+
+export const Disabled: Story = {
+  args: {
+    value: new Date(2025, 4, 10),
+    disabled: true,
+  },
+}

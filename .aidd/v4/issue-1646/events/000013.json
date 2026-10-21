@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/features/payments/exportPayments/ExportPayments/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/docs/policies/test-policy.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/src/features/payments/paymentDetails/PaymentDateField/PaymentDateField.test.tsx"
+  ],
+  "fingerprint": "df75102216c2edf7c352490aeba010a4712e23ce23e0ef7501b9dd78fc4df372",
+  "status": "pass",
+  "checks": [
+    "直前Audit2件に対するユーザーの承認を確認",
+    "Issue1646と改善後のdesign/test規則を再確認"
+  ],
+  "summary": "直前Audit2件のユーザー承認に基づく修正。onOpenChangeで共通DatePickerを開閉し、選択/Escapeで入力focusを戻し外側操作先は維持。共通testと設定browser storyで閉鎖/再表示/値保持/disabledを検証。利用先の支払い詳細testは自動開閉後の不要clickを除去し保存/同日/失敗/送信中の期待を維持。フォーム説明を削除し設定一覧の日英は操作だけに短縮。test-policyにキャンセル検証、design-rulesに必要な説明の選定を具体化。testid/SubmitErrorメモ・API/上限/Issue背景は対象外。Web4検査とStorybookを実施。",
+  "remaining": []
+}

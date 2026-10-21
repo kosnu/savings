@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/test/msw/handlers/paymentExports.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/app/routes/DataManagementSettings/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/types/database.types.ts",
+    "apps/api/supabase/migrations/",
+    "apps/api/supabase/tests/",
+    "tools/supabase-check/"
+  ],
+  "fingerprint": "d0b68d8d7b94ee75230db825fd6d0e14a1f1a4b91385c1e3aa677da1c3fcb10c",
+  "status": "pass",
+  "checks": [
+    "Issue Intentとユーザー「承認」の3提案を照合",
+    "RLS・Book条件・単一時点の完全性・負荷上限の設計",
+    "既存API互換性と配備順の検討"
+  ],
+  "summary": "承認済みAuditの3点のみ反映。設定のデータ管理内にexportを配置。最大1年は翌年同日未満、2/29開始は翌年3/1未満。SECURITY INVOKER/STABLEの専用RPCで入力検証後、単一SELECTの最大10001候補をJSON化し、10000超過は空のlimit応答。書込停止ロックなし。既存RLS・明示Book条件を維持。追加APIなので既存クライアント互換、migration先行・新Web後続。RPC未配備時は失敗表示で部分出力しない。共有DB適用・月間登録制限は対象外。SQL/APIで上限・RLS・境界と単一応答を検証。",
+  "remaining": []
+}

@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/test/helpers/selectDate.ts",
+    "apps/web/docs/policies/design-rules.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "264a4a71922f6b2dde9dd109abcdf1291fba3320c2248b961c47054f155c35d9",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format-check",
+    "Web typecheck",
+    "Web unit/integration 149 files 867 tests",
+    "Storybook browser 8 files 22 tests",
+    "変更Markdown format-check",
+    "Core check-changes・git diff --check"
+  ],
+  "summary": "最終差分のWeb必須batchは全成功。両日を実カレンダーで選択しCSV出力、未入力/逆転/最大1年超過拒否、閏日から最大1年のdate-only送信、送信中停止、入力保持/再試行、aria-invalid/describedbyを確認。既存共有DatePickerテストと設定ブラウザテストも成功。UI/レビュー規則の反例と例外を意味評価し、既存索引で適用されることを確認。DB/API差分は前cycleから変更なし。",
+  "remaining": []
+}

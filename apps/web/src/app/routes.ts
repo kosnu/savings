@@ -15,6 +15,7 @@ import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
 import { AuthPage } from "./routes/AuthPage"
+import { DataManagementSettings } from "./routes/DataManagementSettings"
 import { ErrorPage } from "./routes/ErrorPage"
 import { HomePage } from "./routes/HomePage"
 import { PaymentsPage } from "./routes/PaymentsPage"
@@ -145,6 +146,12 @@ const settingsAppearanceRoute = createRoute({
   component: AppearanceSettings,
 })
 
+const settingsDataManagementRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "data-management",
+  component: DataManagementSettings,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
@@ -157,6 +164,7 @@ const routeTree = rootRoute.addChildren([
       settingsProfileRoute,
       settingsAppearanceRoute,
       settingsBookRoute,
+      settingsDataManagementRoute,
     ]),
   ]),
 ])

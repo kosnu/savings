@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/api/supabase/migrations/",
+    "apps/api/supabase/tests/export_payments.test.sql",
+    "docs/harness/policies/query-performance.md",
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "7902f91f91734e2377d98c31eadfed87e45cba12db6b739846e19d054903e72a",
+  "status": "pass",
+  "checks": [
+    "直前Auditと対策確認に続くユーザー承認を確認",
+    "Issue1646・新query policy・既存認可/完全性/配備契約を確認"
+  ],
+  "summary": "承認された制限前sort修正と検証基準の配置のみ実施。追加migrationでexport_payments候補ORDER BYを削除しLIMIT10001/最終集約順序/同一SELECT/既存署名とRLSを維持。SQL試験で日付/id順・全件性と10万件集中/分散の超過拒否を検証。隔離DBで実権限/同条件の内部SELECT計画を旧定義と比較し候補sort除去を評価、時間や計画全文を固定しない。新policyが具体基準、rule-mapとAPIレビュー表が必須参照を所有。Web4検査、Core/supabase-check test/vet、隔離SQL/実API/並行変更と計画比較後に同PRへShip、対象Botへ返信/resolve。共有Dev/本番適用なし。",
+  "remaining": []
+}

@@ -24,16 +24,20 @@ type DatePickerProps = {
   onEscapeKeyDown?: () => void
   required?: boolean
   size?: ComponentProps<typeof TextField.Root>["size"]
-} & ModeSingleProps
+} & ModeSingleProps &
+  Pick<ComponentProps<typeof TextField.Root>, "aria-invalid" | "aria-describedby" | "onBlur">
 
 export function DatePicker(props: DatePickerProps) {
   const { i18n, t } = useTranslation()
   const {
+    "aria-invalid": ariaInvalid,
+    "aria-describedby": ariaDescribedBy,
     autoFocus,
     disabled,
     id,
     name,
     onChange,
+    onBlur,
     onEscapeKeyDown,
     required,
     size,
@@ -41,13 +45,16 @@ export function DatePicker(props: DatePickerProps) {
     ...restProps
   } = props
   const [open, setOpen] = useState(() => Boolean(autoFocus && !disabled))
+  const inputRef = useRef<HTMLInputElement>(null)
   const sameDayClickRef = useRef(false)
   const language = toAppLanguage(i18n.resolvedLanguage)
 
-  const handleTriggerClick = useCallback(() => {
-    if (disabled) return
-    setOpen(true)
-  }, [disabled])
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      setOpen(nextOpen && !disabled)
+    },
+    [disabled],
+  )
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
@@ -59,6 +66,7 @@ export function DatePicker(props: DatePickerProps) {
       sameDayClickRef.current = false
       onChange?.(date)
       setOpen(false)
+      inputRef.current?.focus()
     },
     [onChange, value],
   )
@@ -72,16 +80,14 @@ export function DatePicker(props: DatePickerProps) {
       sameDayClickRef.current = true
       onChange?.(day)
       setOpen(false)
+      inputRef.current?.focus()
     },
     [onChange, required, value],
   )
 
-  const handleFocusOut = useCallback(() => {
-    setOpen(false)
-  }, [])
-
   const handleEscapeKeyDown = useCallback(() => {
     setOpen(false)
+    inputRef.current?.focus()
     onEscapeKeyDown?.()
   }, [onEscapeKeyDown])
 
@@ -104,10 +110,13 @@ export function DatePicker(props: DatePickerProps) {
 
   return (
     <div>
-      <Popover.Root open={open}>
-        <Popover.Trigger onClick={handleTriggerClick}>
+      <Popover.Root open={open} onOpenChange={handleOpenChange}>
+        <Popover.Trigger>
           <div>
             <TextField.Root
+              ref={inputRef}
+              aria-invalid={ariaInvalid}
+              aria-describedby={ariaDescribedBy}
               autoFocus={autoFocus}
               disabled={disabled}
               id={id}
@@ -118,6 +127,7 @@ export function DatePicker(props: DatePickerProps) {
                 value ? formatDateToLocaleString(value, getDateFormat(language), language) : ""
               }
               onChange={handleInputChange}
+              onBlur={onBlur}
               onKeyDown={handleInputKeyDown}
             >
               <TextField.Slot>
@@ -126,7 +136,7 @@ export function DatePicker(props: DatePickerProps) {
             </TextField.Root>
           </div>
         </Popover.Trigger>
-        <Popover.Content onFocusOutside={handleFocusOut} onEscapeKeyDown={handleEscapeKeyDown}>
+        <Popover.Content onEscapeKeyDown={handleEscapeKeyDown}>
           <DayPicker
             {...restProps}
             locale={language === "ja" ? ja : enUS}

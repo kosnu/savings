@@ -1,0 +1,34 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/test/msw/handlers/paymentExports.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/app/routes/DataManagementSettings/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/types/database.types.ts",
+    "apps/api/supabase/migrations/",
+    "apps/api/supabase/tests/",
+    "tools/supabase-check/"
+  ],
+  "fingerprint": "37c9fb59d0d1a343c3a64c7311e99399e2ba4b5b093c5675b7b3ffe45954d656",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format-check",
+    "Web typecheck",
+    "Web unit/integration 149 files 866 tests",
+    "Storybook browser 8 files 22 tests",
+    "隔離Supabase migration・pgTAP 441項目・実API",
+    "Go supabase-check test/vet",
+    "隔離DB security advisor",
+    "git diff --check / Core check-changes"
+  ],
+  "summary": "最終差分のWeb必須batchは全成功。隔離Supabaseのmax_rows=1000で1001/10000件の単一JSON全件返却、10001件時の空明細、実データを持つ他Book非公開、匿名拒否、1年/閏日境界、同件数入替え並行commit時の完全性を確認。SQL441項目とGo test/vet、security advisor（指摘なし）成功。共有Dev/本番は未変更。",
+  "remaining": []
+}

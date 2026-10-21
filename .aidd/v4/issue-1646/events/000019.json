@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/api/supabase/migrations/",
+    "apps/api/supabase/tests/export_payments.test.sql",
+    "docs/harness/policies/query-performance.md",
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "7902f91f91734e2377d98c31eadfed87e45cba12db6b739846e19d054903e72a",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage, ai-driven.checker",
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow",
+    "architecture.overview, documentation.policy",
+    "domain.amount, domain.book, domain.category, domain.date",
+    "domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, infrastructure.supabase-verification",
+    "policy.code-review, policy.git-workflow, policy.learning-extraction",
+    "policy.query-performance, policy.review-feedback-classification",
+    "policy.temporal-data, policy.transaction-boundaries",
+    "反例: 返却量≠処理量、分散partial sort、CASEのaggregate評価、UIの測定強制なし"
+  ],
+  "summary": "Coverage: 承認されたSQL/SQL試験/新policy/索引/API参照と依存を照合、Unresolvedなし。新migrationは候補ORDER BYの除去のみで旧履歴を保持。署名/権限/STABLE/単一SELECT/Book/期間/上限/最終日付id順を維持。計画比較で集中と分散の不要sort除去を確認、走査全体の一般上限や本番速度は主張しない。既存APIとSQL444項目で契約と並行完全性を確認。SQL試験は実対象集合/順序と大幅超過を検証。具体基準はquery-performance、rule-mapとAPI表は参照を所有し、UIのみの変更に測定を要求しない。既存Issueの意図・公開先・共有DB権限は変更なし。",
+  "remaining": []
+}

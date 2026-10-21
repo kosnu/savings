@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/test/helpers/selectDate.ts",
+    "apps/web/docs/policies/design-rules.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "44aa6e19532c9eabc1f5a8067f99ccd6d0cd4e63fbf73c0a173b91e52c51f2f4",
+  "status": "pass",
+  "checks": [
+    "ユーザーの2件承認・メモ除外を元発言とAuditで確認",
+    "既存DatePicker・AccountInformationForm Calloutとの比較",
+    "改善済みUI選定/フォーム規則とレビュー比較条件を確認"
+  ],
+  "summary": "同Taskの承認済みUI2件と根本対策のみ反映。開始/終了日は既存DatePicker、date-only文字列とローカルDateを既存domain関数で変換。共通部品はinput ariaとblur連携だけ追加し、空値・必須・送信中disabledを維持。全体の失敗/件数超過はプロフィール同等の警告icon付き赤surface Callout、field errorとemptyは維持。UI選定/既定と比較・例外理由の確認を既存design-rules/code-reviewへ具体化。カレンダー操作をtest/storyで共有する小さなtest helperを追加。testid強制・SubmitError新設・DB/RPC変更・共有環境適用なし。",
+  "remaining": []
+}

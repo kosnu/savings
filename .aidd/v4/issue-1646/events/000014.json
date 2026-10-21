@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/features/payments/exportPayments/ExportPayments/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/docs/policies/test-policy.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/src/features/payments/paymentDetails/PaymentDateField/PaymentDateField.test.tsx"
+  ],
+  "fingerprint": "df75102216c2edf7c352490aeba010a4712e23ce23e0ef7501b9dd78fc4df372",
+  "status": "pass",
+  "checks": [
+    "Web lint/format-check/typecheck成功",
+    "Web unit/integration 149ファイル872件成功",
+    "Storybook browser 8ファイル22件成功",
+    "実画面: 再クリック/外側/選択とfocus、390px表示・説明削除・設定一覧文言",
+    "git diff --check・Core rule graph/変更範囲成功"
+  ],
+  "summary": "Web4検査と対象Storybookが成功。共通DatePickerの閉鎖/値保持/再表示/disabled/選択/Escapeのfocusと外側操作先focusを検証。支払い詳細の保存/同日/失敗/送信中も成功。実画面はdesktop/mobileで再クリックと外側clickによる閉鎖、値保持、説明段落削除、上限注記維持を確認。日英resourcesの移行目的文言を除去し英語設定一覧も実画面確認。一般規則は既存索引で到達し、必要な上限/危険案内を残す反例を照合。API差分なし。",
+  "remaining": []
+}

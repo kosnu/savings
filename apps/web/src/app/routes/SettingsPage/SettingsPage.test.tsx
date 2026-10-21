@@ -13,6 +13,7 @@ import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyB
 import { server } from "../../../test/msw/server"
 import { screen, within } from "../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
+import { DataManagementSettings } from "../DataManagementSettings"
 import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 
@@ -68,6 +69,12 @@ function renderSettingsPage(
       component: SettingsAppearanceComponent,
     })
 
+    const settingsDataManagementRoute = createRoute({
+      getParentRoute: () => settingsRoute,
+      path: "data-management",
+      component: DataManagementSettings,
+    })
+
     return [
       authenticatedRoute.addChildren([
         settingsRoute.addChildren([
@@ -75,6 +82,7 @@ function renderSettingsPage(
           settingsProfileRoute,
           settingsAppearanceRoute,
           settingsBookRoute,
+          settingsDataManagementRoute,
         ]),
       ]),
     ]
@@ -153,6 +161,21 @@ describe("SettingsPage", () => {
 
     expect(router.state.location.pathname).toBe("/settings/book")
     expect(await screen.findByText("Book settings page")).toBeInTheDocument()
+  })
+
+  test("設定概要からデータ管理へ遷移し、その中のエクスポートを操作できる", async () => {
+    const { user, router } = renderSettingsPage()
+    const link = await screen.findByRole("link", {
+      name: /Data management.*Export payment data as CSV/,
+    })
+    await user.click(link)
+    expect(router.state.location.pathname).toBe("/settings/data-management")
+    expect(await screen.findByRole("heading", { name: "Data management" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Payment data export", level: 3 }),
+    ).toBeInTheDocument()
+    expect(screen.getByLabelText(/Start date/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/End date/)).toBeInTheDocument()
   })
 
   test("Profile 設定ではアカウント情報だけを表示する", async () => {

@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/features/payments/exportPayments/ExportPayments/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/docs/policies/test-policy.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/src/features/payments/paymentDetails/PaymentDateField/PaymentDateField.test.tsx"
+  ],
+  "fingerprint": "df75102216c2edf7c352490aeba010a4712e23ce23e0ef7501b9dd78fc4df372",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow",
+    "architecture.overview, documentation.policy",
+    "domain.amount, domain.book, domain.category, domain.date",
+    "domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.code-review, policy.git-workflow",
+    "policy.learning-extraction, policy.review-feedback-classification",
+    "policy.temporal-data, policy.transaction-boundaries",
+    "web.component-structure, web.design-rules, web.design-system-brand",
+    "web.domain-layer-rules, web.domain-ui-rules, web.feature-directory",
+    "web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "比較元: 既存DatePicker・支払い登録/詳細・設定Overview",
+    "反例: 選択せず閉じる/外側button focus/同日/disabled・必要な上限案内"
+  ],
+  "summary": "Coverage: 承認Audit2件の全変更面と依存を照合、Unresolvedなし。Popover閉鎖要求をonOpenChangeで同期し、常に開くhandlerとfocus外側の競合を除去。選択/Escapeのinput focusと外側buttonのfocusを検証済み。既存利用先のautoFocus・同日・保存/失敗/送信中は維持し不要なtest clickだけ同期。フォーム説明を削除、Overviewの日英は操作案内のみ。test規則で共通部品の採用と操作検証を区別し、説明規則は判断に必要な上限/注意を禁止しない。新設部品/状態層・testid/SubmitError・API変更なし。",
+  "remaining": []
+}

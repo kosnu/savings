@@ -46,7 +46,83 @@ test("Select today", async () => {
   await waitFor(() => {
     expect(dateInput).toHaveValue("May 1, 2025")
     expect(screen.queryByRole("button", { name: /today/i })).not.toBeInTheDocument()
+    expect(dateInput).toHaveFocus()
   })
+})
+
+test("入力欄を再クリックすると値を変えずに閉じ、再び開ける", async () => {
+  const { user } = render(<SelectToday />, { userOptions: { delay: null } })
+  const input = screen.getByRole("textbox")
+
+  await user.click(input)
+  expect(await screen.findByRole("grid")).toBeInTheDocument()
+  await user.click(input)
+
+  await waitFor(() => expect(screen.queryByRole("grid")).not.toBeInTheDocument())
+  expect(input).toHaveValue("May 10, 2025")
+  expect(input).toHaveFocus()
+
+  await user.click(input)
+  expect(await screen.findByRole("grid")).toBeInTheDocument()
+})
+
+test("外側の空白クリックで値を変えずに閉じる", async () => {
+  const { user } = render(<SelectToday />, { userOptions: { delay: null } })
+  const input = screen.getByRole("textbox")
+
+  await user.click(input)
+  expect(await screen.findByRole("grid")).toBeInTheDocument()
+  await user.click(document.body)
+
+  await waitFor(() => expect(screen.queryByRole("grid")).not.toBeInTheDocument())
+  expect(input).toHaveValue("May 10, 2025")
+})
+
+test("外側のボタンをクリックすると閉じ、操作先のフォーカスを保つ", async () => {
+  const { user } = render(
+    <>
+      <SelectToday />
+      <button type="button">別の操作</button>
+    </>,
+    { userOptions: { delay: null } },
+  )
+  const input = screen.getByRole("textbox")
+  const outsideButton = screen.getByRole("button", { name: "別の操作" })
+
+  await user.click(input)
+  expect(await screen.findByRole("grid")).toBeInTheDocument()
+  await user.click(outsideButton)
+
+  await waitFor(() => expect(screen.queryByRole("grid")).not.toBeInTheDocument())
+  expect(input).toHaveValue("May 10, 2025")
+  expect(outsideButton).toHaveFocus()
+})
+
+test("Escapeで値を変えずに閉じ、入力欄へフォーカスを戻す", async () => {
+  const onEscapeKeyDown = vi.fn()
+  const { user } = render(<SelectToday onEscapeKeyDown={onEscapeKeyDown} />, {
+    userOptions: { delay: null },
+  })
+  const input = screen.getByRole("textbox")
+
+  await user.click(input)
+  expect(await screen.findByRole("grid")).toBeInTheDocument()
+  await user.keyboard("{Escape}")
+
+  await waitFor(() => expect(screen.queryByRole("grid")).not.toBeInTheDocument())
+  expect(input).toHaveValue("May 10, 2025")
+  expect(input).toHaveFocus()
+  expect(onEscapeKeyDown).toHaveBeenCalledOnce()
+})
+
+test("disabledの入力欄はカレンダーを開かない", async () => {
+  const { user } = render(<SelectToday disabled autoFocus />, { userOptions: { delay: null } })
+  const input = screen.getByRole("textbox")
+
+  await user.click(input)
+
+  expect(input).toBeDisabled()
+  expect(screen.queryByRole("grid")).not.toBeInTheDocument()
 })
 
 test("autoFocus のときは初期表示でカレンダーを開く", async () => {

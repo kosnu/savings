@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1982",
+  "paths": [
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/features/payments/exportPayments/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/docs/policies/test-policy.md",
+    "apps/web/docs/policies/design-rules.md"
+  ],
+  "fingerprint": "264a4a71922f6b2dde9dd109abcdf1291fba3320c2248b961c47054f155c35d9",
+  "status": "fail",
+  "checks": [
+    "PR1982 head652a4863・現行Intent・既存Bot thread resolvedを確認",
+    "現行DatePicker実ブラウザ: 再クリック/空白clickで閉じず、Escape/日付選択で閉じる",
+    "DatePicker open制御・既存テスト・settings story・design/test規則を照合",
+    "移行目的の説明がexportフォームと設定Overviewの日英文言に存在"
+  ],
+  "summary": "Auditのみ。2件とも今修正を提案し、反映前のmergeは保留。既存DatePickerはonOpenChange未接続かつtriggerが常に開くため再クリック/外側clickで閉じない。選択・Escape中心の検証が見逃し要因。共通部品の制御修正とキャンセル操作テスト、test-policyの具体化を提案。移行目的のUI説明はフォームから削除しOverviewは操作だけに短縮。UI説明の必要性をdesign-rulesで明確化。文言採用時の判断理由は未確定。testid/SubmitError案は除外。PR返信・resolve対象なし、既存resolvedは維持。",
+  "remaining": [
+    "2件の直接修正・根本対策は手動承認待ち。source/GitHub未変更。",
+    "承認後: Web4検査/対象Storybook、日英・mobile/desktop・共通DatePicker利用先を確認。",
+    "公開previewは旧native入力のため、最新版previewでの再確認が必要。"
+  ]
+}

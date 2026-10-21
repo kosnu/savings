@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1646",
+  "paths": [
+    "apps/api/supabase/migrations/",
+    "apps/api/supabase/tests/export_payments.test.sql",
+    "docs/harness/policies/query-performance.md",
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "7902f91f91734e2377d98c31eadfed87e45cba12db6b739846e19d054903e72a",
+  "status": "pass",
+  "checks": [
+    "Web lint/format-check/typecheck、149ファイル872件成功",
+    "Core test/vet、Supabase verifier test/vet成功",
+    "隔離Supabase migration・pgTAP444件・実Auth/Data API/並行変更成功",
+    "内部SELECT計画: authenticated/RLS・集中/分散10万件を旧/新比較",
+    "security advisor --fail-on error成功、隔離DBを破棄",
+    "新query規則のSQL必須選択・UI対象外、graph/check-changes/diff検査成功"
+  ],
+  "summary": "承認差分の検証成功。集中10万件は候補sort入力100000→0、候補scan100000→10001。分散は候補sort入力10138→0、候補scan10138→10001。両方LIMIT10001を維持し最終集約の整列対象も上限内。旧/新内部SQLを同一合成DB・統計・authenticated/RLSで比較。計画全文/索引名/固定msを条件にせず、本番性能は保証しない。pgTAP444項目と既存実APIの1001/10000/10001件・Book/匿名・最大1年/閏日・並行同件数入替えが成功。Web872件、CoreとSupabase Go test/vet成功。security advisor成功。新policyへSQLから到達しUIへ過剰適用なし。",
+  "remaining": []
+}
