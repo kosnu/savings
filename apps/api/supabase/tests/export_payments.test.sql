@@ -51,5 +51,31 @@ select book_id, '2023-03-01', 42, id from export_fixture cross join export_categ
 set local role authenticated;
 select is(public.export_payments((select book_id from export_fixture), '2023-03-01', '2023-03-01')->'payments'->0->'category'->>'name', '出力カテゴリ', '同じBookのカテゴリ名を返す');
 reset role;
+
+-- 挿入順と日付順を変え、同日内のid順と対象の完全性も照合する。
+insert into public.payments(book_id,date,amount)
+select book_id, d, 42 from export_fixture
+cross join unnest(array['2022-03-03'::date, '2022-03-01', '2022-03-02', '2022-03-01']) d;
+set local role authenticated;
+select is(
+  (select jsonb_agg(jsonb_build_object('id', value->'id', 'date', value->'date') order by ord)
+   from jsonb_array_elements(public.export_payments((select book_id from export_fixture), '2022-03-01', '2022-03-03')->'payments') with ordinality as exported(value, ord)),
+  (select jsonb_agg(jsonb_build_object('id', id, 'date', date) order by date, id)
+   from public.payments where book_id = (select book_id from export_fixture) and date between '2022-03-01' and '2022-03-03'),
+  '候補抽出の順序に依存せず対象全件を日付・id順で返す'
+);
+reset role;
+
+-- 大幅超過時も件数は検出用の上限で止め、一部データを返さない。
+insert into public.payments(book_id,date,amount)
+select book_id, '2021-06-01', n from export_fixture cross join generate_series(1,100000) n;
+set local role authenticated;
+select is(public.export_payments((select book_id from export_fixture), '2021-01-01', '2021-12-31'), '{"count":10001,"payments":[]}'::jsonb, '10万件が同日に集中しても超過を拒否する');
+reset role;
+insert into public.payments(book_id,date,amount)
+select book_id, '2020-01-01'::date + (n % 366), n from export_fixture cross join generate_series(1,100000) n;
+set local role authenticated;
+select is(public.export_payments((select book_id from export_fixture), '2020-01-01', '2020-12-31'), '{"count":10001,"payments":[]}'::jsonb, '10万件が期間内に分散しても超過を拒否する');
+reset role;
 select * from finish();
 rollback;
