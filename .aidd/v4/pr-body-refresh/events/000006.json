@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "codex://threads/01a16366-f91a-7f42-99d3-dd9f9945b815",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "680c9643b18323334c7c8660791db7b0276fefabe6ba047b15451168c8fcfebd",
+  "status": "pass",
+  "checks": [
+    "Core対象差分・必須規約・安定性検査",
+    "Markdown整形チェック",
+    "git diff空白検査"
+  ],
+  "summary": "PR base SHAを比較元にCore verifyを実施し、担当差分と適用規約、整形、空白検査は終了コード0で成功。検証中の対象変更なし。文書のみのためアプリ検証は対象外。",
+  "remaining": []
+}
