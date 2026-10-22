@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2000#discussion_r4348972642",
+  "paths": [
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "fingerprint": "2f2033cfcb391d42c9d8f2cc4a9c3b3dd612be64175e54197aa5ba365bbe6988",
+  "status": "unknown",
+  "checks": [
+    "現HEADの未解決thread1件とIntentの照合",
+    "Task保持契約と否定の範囲",
+    "分析結果3観点の独立レビュー・指摘2件修正"
+  ],
+  "summary": "PR #2000のP1指摘は妥当。付け替えを肯定とも読める文を明示的な禁止へ直す提案。既存レビューで検出されなかった事実は確認したが、見逃した理由・根本原因は未確定。3仮例は局所修正の検証とし、Issue・共通規則・Coreの追加変更を提案しない。適用・検証・配信後の返信とBot thread解決は手動承認後。",
+  "remaining": [
+    "見逃した理由・根本原因は具体的な確認過程の元記録不足で未確定",
+    "当該文修正・検証・配信と理由返信・Bot thread解決は未実施、承認待ち"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1971",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "2f2033cfcb391d42c9d8f2cc4a9c3b3dd612be64175e54197aa5ba365bbe6988",
+  "status": "pass",
+  "checks": [
+    "文書3件のvp check・空白検査",
+    "Coreの工程結果境界テスト3件",
+    "隔離環境で追加・更新・凍結・別Task保持",
+    "ローカル参照先33件と新見出し",
+    "Coreの規約選択と変更範囲"
+  ],
+  "summary": "文書整形・参照と既存Coreの境界確認に成功。同工程の同path更新、新Taskの分離、Audit後の新cycle追加、旧cycleのbegin/finish拒否、別Taskと過去結果の内容・mode保持を確認。アプリとCore実装の変更はない。",
+  "remaining": []
+}

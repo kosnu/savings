@@ -75,7 +75,35 @@ Webの整形は検証batchの前に行う。失敗修正後は開始済みbatch�
 
 ## 工程結果の更新
 
-[記録契約](aidd-checker.md#記録)に従う。新サイクルのdesignだけcycleを省略し、返された記録名を以後の工程へ渡す。同じサイクルのdesign再確認には既存cycleを必ず指定する。
+### Taskと記録先の選択
+
+最初に[WorkflowのTask判断](workflow.md#taskの開始と継続)で開始・継続・unknownを決める。
+その後でサイクルと工程を選び、[記録契約](aidd-checker.md#記録)に従って操作する。
+`--task`は判定したTaskの作業名、`--cycle`はそのTask内のdesign記録名、`--kind`は実際に行う工程を指定する。
+Issue番号を含む作業名でも、同じIssueの全作業を保存するdirectoryとは解釈しない。
+`record-finish --record`には、対応する`record-begin`が返したpathを渡す。
+
+以下は記録先を説明する仮例であり、実在Taskの分類ではない。
+既存Taskの作業名を`example-work`とし、現在のcycleが`000001.json`、そのdesign・verify・reviewがそれぞれ`000001.json`・`000002.json`・`000003.json`にある場合を示す。
+
+| 得られた根拠と判定                                                                                                          | 追加・更新先と操作                                                                                                    | 保持する結果                                                  |
+| --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| 同じ監視Issueで、telemetry送信停止を完了したTaskとは別に、Dev実受信の確認が独立した成果として新しく委任された               | 新Taskの別名`example-other-work`でcycleなしのdesignを開始し、`.aidd/v4/example-other-work/events/000001.json`を追加   | `example-work/events/`全件                                    |
+| telemetry送信停止の成果を継続し、PRを作り直す。元の担当範囲・baseline・未解決事項を引き継ぎ、同じサイクルの設計を再確認する | `--task example-work --cycle 000001.json --kind design`で既存`000001.json`を更新                                      | 別Task・過去cycleの全件と、このcycleの他工程                  |
+| 同じTask・同じサイクルでverifyを再試行する                                                                                  | `--task example-work --cycle 000001.json --kind verify`で既存`000002.json`をrunningへ更新し、実検証後に同pathをfinish | 他工程と別Task・過去cycleの全件。旧passは現在の成功に使わない |
+| 同じTaskで手動開始Audit・改善承認・改善後のIntent再読を経て、次サイクルへ進む                                               | `--task example-work --kind design`で新designを追加。返された記録名を新cycleとしてverify・reviewへ渡す                | 前cycle全件を凍結し、別Taskも保持                             |
+| Issue・PR番号の一致しかなく、同じ成果・作業境界を継続する根拠が不足している                                                 | unknown。`record-begin`・`record-finish`を行わず、既存Issue・PR・会話から不足する根拠を取得する                       | 全件。新Taskや次cycleの追加で判定不足を回避しない             |
+
+PR番号が変わっても、サイクルの判断はTask内の作業の意味と承認対象から行う。
+次サイクルの例ではAudit記録も先に追加されるため、新designの連番を`000004.json`などに決め打ちしない。
+cycle省略のdesignは毎回新cycleを作る。同じサイクルのdesign再確認には既存cycleを必ず指定する。
+連番が大きいことを新Taskの根拠にせず、別Task・旧cycleを現在の保存先に変更しない。
+Taskの判断をCoreの成功で代替せず、既存結果の再利用には`record-read`の鮮度照合も必要になる。
+
+### begin・finish・read
+
+以下の作業名・参照・対象pathは実際のTask判断に合わせて置き換える。
+新Taskの最初のサイクル、または同じTaskの次サイクルと判断したdesignだけcycleを省略し、返された記録名を以後の工程へ渡す。
 
 開始入力は参照と確認対象だけにする。
 
