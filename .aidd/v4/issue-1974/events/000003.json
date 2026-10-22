@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1974",
+  "paths": [
+    "apps/web/src/app/Sidebar/useSidebar.ts",
+    "apps/web/src/app/Sidebar/useSidebar.test.tsx",
+    "apps/web/src/app/AppLayout/AppLayout.test.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "d8420d58d2bae283a235cc1c6a368026b4646e2450bb63457e27cc0592644918",
+  "status": "pass",
+  "checks": [
+    "初期閉: pass",
+    "保存値trueと再マウント: pass",
+    "手動開閉と再表示: pass",
+    "日英の保存説明同期: pass",
+    "全適用ruleと依存closure",
+    "独立レビュー: findingなし"
+  ],
+  "summary": "比較元8be0e137に対する4ファイルをレビュー。既存Header/Sidebarとcallbacksを維持し、保存状態の復元だけを廃止。両入口で閉状態からの開閉・再表示をテスト。適用規則間の未解決矛盾なし。 実Google OAuthの操作は未確認（認証処理は変更対象外）。",
+  "remaining": []
+}
