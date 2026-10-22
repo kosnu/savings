@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1973",
+  "paths": [
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
+  ],
+  "fingerprint": "0d3aaf5425a20499ff6b4261c58f9fd915f266d0fa0c8a473637519fc0758526",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format-check",
+    "Web typecheck",
+    "Web unit/integration 149 files / 875 tests",
+    "認証遷移・Sidebar・月予算の対象再確認27 tests",
+    "差分の空白・適用規則の検査"
+  ],
+  "summary": "最終差分の必須4検証が成功。全体875件はworker数2で成功し、制限時間は維持した。変更前の認証遷移2ケースでquery残留を再現し、変更後は除去と認証中・復元中の保持を確認した。",
+  "remaining": []
+}

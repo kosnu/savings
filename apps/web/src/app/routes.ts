@@ -46,7 +46,10 @@ const indexRoute = createRoute({
   path: "/",
   component: HomePage,
   validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
-  beforeLoad: ({ context, search }) => {
+  beforeLoad: ({ context, search, location }) => {
+    if (context.authStatus === "unauthenticated" && location.searchStr) {
+      throw redirect({ to: "/", search: {}, replace: true })
+    }
     if (context.authStatus !== "authenticated") return
 
     const now = new Date()
