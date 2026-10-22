@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "e8b0f3e1d354ba0f5a3f958adce1caa1d50c944b5d0d1cf2055d8f1953cdfdef",
+  "status": "pass",
+  "checks": [
+    "Issue #2013と最新の会話の成果・制約",
+    "操作文脈による共通基準と全パターンへの適用",
+    "正本の責務分離と必須参照経路"
+  ],
+  "summary": "整理を成果とする文書変更に限定。削除は確認内表示、ログアウトは単発通知とし、任意補助の縮退と保存結果の確実性を区別した。現状差異はPRで示す。",
+  "remaining": []
+}

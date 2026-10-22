@@ -17,6 +17,7 @@ when_to_read:
 # Suspense Boundary Policy
 
 Suspense を使う API 読み込みは、近い実装の形に合わせて、表示状態と復帰条件を明確にします。
+取得失敗の表示範囲、説明、再試行操作は [Error Presentation Policy](error-presentation.md) に従います。
 
 ## 基本方針
 

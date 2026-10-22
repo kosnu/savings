@@ -734,8 +734,26 @@
         ],
         "topics": ["design-system", "ui", "typography", "layout", "responsive", "tables"]
       },
-      "depends_on": [],
+      "depends_on": ["web.error-presentation"],
       "related": ["web.design-system-brand", "web.landing-page-rules"],
+      "overrides": [],
+      "priority": 88
+    },
+    {
+      "id": "web.error-presentation",
+      "file": "apps/web/docs/policies/error-presentation.md",
+      "applies_to": {
+        "paths": [
+          "apps/web/src/**",
+          "apps/web/docs/policies/design-rules.md",
+          "apps/web/docs/policies/error-presentation.md",
+          "apps/web/docs/policies/suspense-boundaries.md"
+        ],
+        "domains": ["web", "ui"],
+        "activities": ["change_error_ui", "change_form", "change_dialog", "change_error_boundary"],
+        "topics": ["error", "feedback", "recovery", "accessibility"]
+      },
+      "depends_on": ["web.design-system-brand", "web.query-cache", "web.suspense-boundaries"],
       "overrides": [],
       "priority": 88
     },
