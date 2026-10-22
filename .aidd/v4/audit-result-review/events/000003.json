@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "user:AuditとRetrospectiveの結果を3観点でレビューし指摘解消後に出力する依頼",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/policies/retrospective.md",
+    "docs/ai-driven-development/workflow.md",
+    ".agents/skills/audit/SKILL.md",
+    ".agents/skills/retrospective/SKILL.md"
+  ],
+  "fingerprint": "889a5dd4ea24817a207c5458509f6b66f100554ae0df8d96ef0b34da0b51d13a",
+  "status": "pass",
+  "checks": [
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "3観点と指摘修正・再レビュー",
+    "Audit/Retrospectiveの発火境界",
+    "改善不要・原因未確定・未承認実行の扱い",
+    "個別skill pathの依存closure"
+  ],
+  "summary": "依頼の3観点と最終出力条件を実差分で照合。改善あり・不要・証拠不足と未承認実行の境界を確認し未解決指摘なし。共通判断は既存policyが所有し両skillから必須到達するため索引追加不要。発生率低下の実証は未実施。",
+  "remaining": []
+}
