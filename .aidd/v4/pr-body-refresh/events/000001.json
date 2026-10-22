@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "codex://threads/01a16366-f91a-7f42-99d3-dd9f9945b815",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "f1c65cdc907bc649671dccc554685e88ec0216a0f94412daf71ad591221c5009",
+  "status": "pass",
+  "checks": [
+    "Intentと正本の責務",
+    "PR作成・更新の適用経路"
+  ],
+  "summary": "Git WorkflowのPR節だけを再構成。全コミット・最終差分・現行テンプレート・有効な検証から本文を更新し、履歴追記を止める。既存のShip参照とrule-mapの到達経路は維持する。",
+  "remaining": []
+}

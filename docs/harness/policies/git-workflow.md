@@ -77,15 +77,17 @@ Git操作は、現在の作業目的、対象ブランチ、含める差分、�
 
 ## Pull Request
 
-- PR本文は、実際のdiff、関連Issue、関連Requirements / PRD、Design Doc、検証結果に基づいて書く。
+- PR作成・更新のたびに、実際のbase/headを確認し、baseに未取り込みの全コミット（`git log <base>..HEAD --oneline`）とPR全体の最終差分（`git diff <base>...HEAD`）を確認する。既存PRの更新では、そのPRのbase branchを使い、直近コミットや前回更新以降の差分だけで本文を書かない。
+- PRタイトルと本文は、全コミットで行った変更を最終差分と照合し、関連Issue、関連Requirements / PRD、Design Doc、検証結果に基づいて、PR全体の現在の成果を説明する内容へ作成・更新する。コミットメッセージの転記や作業履歴の列挙にしない。
+- 更新時も既存本文へ変更履歴や追加対応を追記せず、テンプレートに沿って本文全体を再構成する。重複、撤回・置換済みの変更、古い説明を残さず、現在も有効な背景・制約・関連Issue参照は引き継ぐ。
 - PRに含める差分と含めない差分を明確にする。
 - issueを完全に満たす場合だけclose参照を使う。関連するだけの場合はcloseしない。
 - PR本文には未検証の主張を書かない。
-- PR作成前に `git log main..HEAD --oneline` と `git diff main..HEAD --stat` でbranch全体のscopeを確認する。
 - PR作成前に現在のブランチをpushする。
-- `.github/PULL_REQUEST_TEMPLATE.md` がある場合は、テンプレート通りにPR本文を作成する。
-- PR作成用の一時ファイルを作った場合は、完了前に削除する。
-- PR作成後は、title、body、base branch、head branch、issue linkを確認する。
+- `.github/PULL_REQUEST_TEMPLATE.md` がある場合は、作成・更新とも現在のテンプレートの見出しと用途に沿って書く。「変更内容」には目的と結果の概要、最終差分に残る具体的な変更点を箇条書きで記載し、「動作確認」には実施したコマンド・操作、環境、結果を記載する。
+- 動作確認はPR全体の現在の変更内容に対して有効な結果を整理し、実施済み・未実施・失敗・未確認・対象外を区別する。前回本文のチェック状態をそのまま引き継がず、変更で失効した結果を確認済みと書かない。CIが未完了ならその状態を明示する。
+- PR本文用の一時ファイルを作った場合は、完了前に削除する。
+- PR作成・更新後は、title、body、base branch、head branch、issue linkを再取得し、PR全体の最終差分・検証結果・テンプレートとの一致を確認する。
 
 ## Ship時のCI確認
 

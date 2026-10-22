@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "codex://threads/01a16366-f91a-7f42-99d3-dd9f9945b815",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "f1c65cdc907bc649671dccc554685e88ec0216a0f94412daf71ad591221c5009",
+  "status": "pass",
+  "checks": [
+    "担当差分・全適用規約のCore検査",
+    "Markdown整形チェック",
+    "git diff空白検査"
+  ],
+  "summary": "文書変更のみ。Coreの差分・必須規約検査、Markdown整形、空白検査が終了コード0で成功。アプリ検証は対象外。",
+  "remaining": []
+}
