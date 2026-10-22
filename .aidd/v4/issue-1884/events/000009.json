@@ -8,13 +8,13 @@
     "docs/design/account-deletion-implementation-issue.md",
     "docs/design/account-deletion.html"
   ],
-  "fingerprint": "a9c1f61dc8318fcbc2300b01810348657a8f2df7a682f63fb2a6e829b537b580",
+  "fingerprint": "7daaa3755c225a3f48c23890c08a4153a0acaad68b811d18bb59eea209bfb4c9",
   "status": "pass",
   "checks": [
-    "code-reviewとpath/依存正本に基づく独立レビュー",
-    "元のIntentと最新指示・復帰168時間・03:00から毎分最大10件の継続処理を照合",
-    "取消/再申請・失敗/再開/backup・二時刻のRPC/HTML表示と操作の整合"
+    "適用正本と文書の説明目的に基づく独立レビュー",
+    "削除/復帰・認可・競合・照会・保持/復旧・固有検証条件の保持を照合",
+    "アクセス拒否と申請端末の消去の範囲・アクセシビリティを再確認"
   ],
-  "summary": "対象3資料に未解決の指摘なし。開始予定は期限からDB算出し、168時間の猶予を短縮せず、03時台限定や翌朝への再延期を追加しない。機能実動作は未検証。",
+  "summary": "短縮による主要仕様の欠落・意味の変更なし。重複した表・本文・完了条件を集約し、機能固有の確認条件を保持。未解決の指摘なし。",
   "remaining": []
 }
