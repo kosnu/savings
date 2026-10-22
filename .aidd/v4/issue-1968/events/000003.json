@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1968",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "4de3a4868964c702e49acf744f0df453662180ee6aa90ff2bb47c8fe7f72b54f",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "DoD5件と有限事例の内容照合",
+    "独立レビューと親agentの統合"
+  ],
+  "summary": "全適用規則を確認し指摘・未解決の矛盾なし。旧方式と削除済みテストの成功主張は形式・鮮度合格でもfail、証拠不足はunknown、適合例と過去記録保持はpass。実施範囲の説明と証拠が一致し過去記録の変更なし。既存レビュー入口で共通方針へ到達でき索引変更不要。 自動判定と実運用の効果測定は本Taskの対象外。",
+  "remaining": []
+}

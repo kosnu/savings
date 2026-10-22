@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1968",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "4de3a4868964c702e49acf744f0df453662180ee6aa90ff2bb47c8fe7f72b54f",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt対象文書2件のcheck",
+    "Core rules・check-changes",
+    "Core verifyの4コマンド終了とstable"
+  ],
+  "summary": "文書2件の形式・規約・変更範囲検査が全件終了コード0、stable=true。アプリ・Core実装変更はなくWeb検証は対象外。仮想事例中の構造テスト・実環境起動・外部受信は本Taskでは実行していない。",
+  "remaining": []
+}
