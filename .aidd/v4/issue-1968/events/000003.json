@@ -7,7 +7,7 @@
     "docs/harness/policies/code-review.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "1bf02a916fa1e23fe255a8a50a06ca9f4c863b9b0fa0624d6d7a1466d01198f3",
+  "fingerprint": "c921325f472bd5861448c2e1e097ca1f3558b16ddbef72294ceadeb2f166f285",
   "status": "pass",
   "checks": [
     "ai-driven.change-coverage",
@@ -21,10 +21,9 @@
     "policy.git-workflow",
     "policy.issue-template-selection",
     "policy.learning-extraction",
-    "policy.retrospective",
     "policy.review-feedback-classification",
     "競合解消の独立レビューと統合"
   ],
-  "summary": "指摘・未解決の矛盾なし。双方の事例・結果が各1回あり、一方を除くと他方の元文書と完全一致。未解決index/競合マーカー0件。main側workflowと他Taskの工程結果を変更せず、#1968のDoD5件と意味の整合を維持。",
+  "summary": "指摘・未解決の矛盾なし。両文書は一方の追記を除くと他方の元文書と完全一致し、両側の方針・事例は各1回。#1968のDoD5件を維持。未解決index0件、main由来の他ファイルはworktree/indexとも一致。",
   "remaining": []
 }

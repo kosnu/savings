@@ -7,12 +7,12 @@
     "docs/harness/policies/code-review.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "1bf02a916fa1e23fe255a8a50a06ca9f4c863b9b0fa0624d6d7a1466d01198f3",
+  "fingerprint": "c921325f472bd5861448c2e1e097ca1f3558b16ddbef72294ceadeb2f166f285",
   "status": "pass",
   "checks": [
     "同Task・同cycleの継続",
-    "両側の追記事例と要約の保持"
+    "最新mainの追記と担当方針の併存"
   ],
-  "summary": "PR #2010 の競合修正を同Task・同cycleで継続。元の担当範囲とbaselineを保持し、最新mainをmergeして#1967と#1968の独立した事例・結果を併存させる。仕様・実行権限は変更せず、文書・Core検査と保持内容のレビューを再実施する。",
+  "summary": "PR #2010の競合修正を継続し元のIntent・baseline・担当範囲を維持。最新mainのテスト保証範囲基準と#1968の整合基準を両方保持する。その他のmain由来変更は修正せず、新たな仕様・権限・工程は追加しない。文書/Core検査と保持内容を再レビューする。",
   "remaining": []
 }

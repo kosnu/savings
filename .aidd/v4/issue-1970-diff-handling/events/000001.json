@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1970",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "2308f54251c72a5e3b4f21a531dfadd1695dbc11295134bc0d28cae630443d88",
+  "status": "pass",
+  "checks": [
+    "再開始3種の起点と再利用条件",
+    "終了時の内容・由来・権限",
+    "既存rule-mapの選択経路"
+  ],
+  "summary": "Issue #1970への新Task。baselineは08a06872b062584c1f272015c2200482c5e020fd。Git Workflowに判断条件と仮想7例を集約する。既存path/surfaceと依存で正本に到達でき、索引・Core・host入口・CIの契約変更は不要。",
+  "remaining": []
+}

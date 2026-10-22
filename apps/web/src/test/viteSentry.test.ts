@@ -21,6 +21,8 @@ vi.mock("@tanstack/devtools-vite", () => ({ devtools: () => [{ name: "devtools-f
 
 afterEach(() => {
   credentials.SENTRY_AUTH_TOKEN = "synthetic-upload-token"
+  credentials.SENTRY_ORG = "fixture-org"
+  credentials.SENTRY_PROJECT = "fixture-project"
   vi.clearAllMocks()
 })
 
@@ -30,26 +32,31 @@ async function configure(mode: string, command: "build" | "serve") {
   return config({ mode, command, isPreview: false })
 }
 
-test.each(["production", "development"])("%s の配信で同じ source map 処理を使う", async (mode) => {
-  const config = await configure(mode, "build")
-  expect(config.build?.sourcemap).toBe("hidden")
-  expect(sentryPlugin).toHaveBeenCalledExactlyOnceWith({
-    telemetry: false,
-    authToken: "synthetic-upload-token",
-    org: "fixture-org",
-    project: "fixture-project",
-    sourcemaps: {
-      assets: ["./.cloudflare/output/v0/workers/default/assets/**"],
-      filesToDeleteAfterUpload: [
-        "./.cloudflare/output/v0/workers/default/assets/**/*.js.map",
-        "./.cloudflare/output/v0/workers/default/assets/**/*.css.map",
-      ],
-    },
-  })
-})
+// 自前の設定生成からpluginへの引数を検査する。実ビルドやmapのアップロード・削除は実行しない。
+test.each(["production", "development"])(
+  "%s の build 設定は hidden map を有効にし、pluginへ認証情報と対象pathを渡す",
+  async (mode) => {
+    const config = await configure(mode, "build")
+    expect(config.build?.sourcemap).toBe("hidden")
+    expect(config.plugins).toContainEqual({ name: "sentry-fixture" })
+    expect(sentryPlugin).toHaveBeenCalledExactlyOnceWith({
+      telemetry: false,
+      authToken: "synthetic-upload-token",
+      org: "fixture-org",
+      project: "fixture-project",
+      sourcemaps: {
+        assets: ["./.cloudflare/output/v0/workers/default/assets/**"],
+        filesToDeleteAfterUpload: [
+          "./.cloudflare/output/v0/workers/default/assets/**/*.js.map",
+          "./.cloudflare/output/v0/workers/default/assets/**/*.css.map",
+        ],
+      },
+    })
+  },
+)
 
 test.each(["production", "development"])(
-  "%s の local サーバーでは管理 token を使わない",
+  "%s の serve 設定は Sentry plugin と source map を無効にする",
   async (mode) => {
     const config = await configure(mode, "serve")
     expect(config.build?.sourcemap).toBe(false)
@@ -57,12 +64,14 @@ test.each(["production", "development"])(
   },
 )
 
-test.each(["production", "development"])(
-  "%s の認証なし CI ではアップロードしない",
-  async (mode) => {
-    credentials.SENTRY_AUTH_TOKEN = ""
-    const config = await configure(mode, "build")
-    expect(config.build?.sourcemap).toBe(false)
-    expect(sentryPlugin).not.toHaveBeenCalled()
-  },
-)
+for (const mode of ["production", "development"]) {
+  test.each(["SENTRY_AUTH_TOKEN", "SENTRY_ORG", "SENTRY_PROJECT"] as const)(
+    `${mode} の build 設定は %s が空なら Sentry plugin と source map を無効にする`,
+    async (key) => {
+      credentials[key] = ""
+      const config = await configure(mode, "build")
+      expect(config.build?.sourcemap).toBe(false)
+      expect(sentryPlugin).not.toHaveBeenCalled()
+    },
+  )
+}
