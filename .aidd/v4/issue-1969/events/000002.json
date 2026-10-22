@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1969",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "618dd343c20a3a5e8e5ed71ad199611b92ad7a797930fe393f108a11dd169bb4",
+  "status": "pass",
+  "checks": [
+    "Core verify: 差分範囲・適用12規則・stable",
+    "git diff 空白検査・vp check",
+    "ローカル参照先と見出しの存在",
+    "Core check-changes"
+  ],
+  "summary": "文書2件の整形・差分・参照先と見出しを確認。Coreの検証commandはすべて正常終了し、実行中の対象変更なし。アプリ・CLI・ADRの変更はなくアプリ検証は対象外。",
+  "remaining": []
+}

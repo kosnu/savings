@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1969",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "618dd343c20a3a5e8e5ed71ad199611b92ad7a797930fe393f108a11dd169bb4",
+  "status": "pass",
+  "checks": [
+    "DoD 1・4: 目的・読者・操作と更新頻度",
+    "DoD 2: 不要な設定複製・作業固有情報なし",
+    "DoD 3: 必要な説明・前提・方法・制約への到達",
+    "DoD 5: 適合・反例・unknownの区別",
+    "独立レビュー・適用12規則・同期範囲"
+  ],
+  "summary": "独立レビューと親agentの意味照合でDoD全5件に適合。運用文書の実在内容と前提を照合し、Sentry・Devの適合例と欠落・移動・参照不能の境界を確認。索引は所有・選択経路が変わらず変更不要。指摘・未解決の規則競合なし。",
+  "remaining": []
+}

@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1969",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "618dd343c20a3a5e8e5ed71ad199611b92ad7a797930fe393f108a11dd169bb4",
+  "status": "pass",
+  "checks": [
+    "Intentの完了条件と対象文書の責務",
+    "既存Sentry・Dev運用の参照経路",
+    "規約選択と同期範囲"
+  ],
+  "summary": "文書方針に目的・読者・操作に基づく掲載基準を集約し、意味レビュー事例で適合・欠落・単なる移動・変化しやすい必須情報を区別する。運用文書と索引の所有・適用経路は維持する。",
+  "remaining": []
+}
