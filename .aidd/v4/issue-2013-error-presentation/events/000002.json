@@ -9,16 +9,15 @@
     "apps/web/docs/policies/suspense-boundaries.md",
     "docs/harness/rule-map.json"
   ],
-  "fingerprint": "e8b0f3e1d354ba0f5a3f958adce1caa1d50c944b5d0d1cf2055d8f1953cdfdef",
+  "fingerprint": "9ff57b381a96028a36e31f043647895e94e26fb0bd691d89b73d404d3adc65cc",
   "status": "pass",
   "checks": [
-    "git diff --check",
-    "Markdown/JSON formatter",
-    "Core rules / check-changes",
-    "相対リンク41件と代表7パスの必須参照",
-    "Go Core vet",
-    "検証前後の内容・modeの安定性"
+    "vp check: 文書とrule-mapの4ファイル",
+    "相対リンク41件",
+    "代表7パスのrule依存解決",
+    "Core rulesとGo vet",
+    "git diff --cached --check"
   ],
-  "summary": "文書と規約索引の6検証が成功し、検証中の対象変更なし。アプリコード変更がないためWeb検証とブラウザ実画面確認は対象外。",
+  "summary": "最新mainとの統合後も文書4ファイルは元の成果と同一。整形、リンク、規約参照経路、Coreの検証を通過。main比のTask差分にruntime変更はなくWeb検証は対象外。",
   "remaining": []
 }

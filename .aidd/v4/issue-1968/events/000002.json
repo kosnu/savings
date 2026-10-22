@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1968",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "c921325f472bd5861448c2e1e097ca1f3558b16ddbef72294ceadeb2f166f285",
+  "status": "pass",
+  "checks": [
+    "文書2件の整形確認",
+    "差分と最新main比較の空白検査",
+    "Core rules・check-changes",
+    "Core verifyの5コマンド終了とstable",
+    "未解決競合なし",
+    "担当外のmain由来ファイルの一致"
+  ],
+  "summary": "競合解消後の5検査が全件終了コード0、stable=true。最新mainとの担当差分は文書2件と今回工程結果のみで、main由来のWeb/Nodeテストや他Task記録は同一。未解決競合0件。アプリ実装の担当変更はなくWeb検証は対象外。",
+  "remaining": []
+}
