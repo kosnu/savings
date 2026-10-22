@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1970",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "2308f54251c72a5e3b4f21a531dfadd1695dbc11295134bc0d28cae630443d88",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt対象Markdown --check",
+    "Core rules/check-changes/verify"
+  ],
+  "summary": "文書の整形、規約graph・適用規約、担当差分の範囲検査に成功。Core verifyの両commandは終了コード0で対象は安定。文書のみのためWeb/API実行検証は対象外。",
+  "remaining": []
+}
