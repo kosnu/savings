@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1966",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "apps/web/docs/policies/test-policy.md",
+    "apps/web/src/test/viteSentry.test.ts",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/report.test.mjs"
+  ],
+  "fingerprint": "14713afdfbbb050ec1117a02bc8b050c8ecdb6ca75c51d3d7ddc54316de95099",
+  "status": "pass",
+  "checks": [
+    "全30適用規約と依存closure",
+    "4ファイルの全testと実呼出経路・重複元",
+    "Intent・主張・保証外とPR掲載予定の判断一覧"
+  ],
+  "summary": "独立レビューと親担当の意味評価で指摘なし。自前責務・検出故障・保証外の基準、維持/変更/重複除去、実経路に合う名前を確認した。Web・Preview以外の業務経路変更なし。外部APIやActions実行は保証しない。",
+  "remaining": []
+}

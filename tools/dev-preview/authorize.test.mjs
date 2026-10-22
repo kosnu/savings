@@ -67,7 +67,8 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
   )
 })
 
-test("the selected head resolves without an Environment API dependency", async () => {
+// PR取得はfixture。GitHubの実APIやEnvironment承認は実行しない。
+test("authorize returns the branch and SHA of the selected open PR", async () => {
   assert.deepEqual(await authorize(request, repo, getter(fixture())), {
     branch: "feature/example",
     sha,
@@ -104,7 +105,8 @@ test("head races, withdrawal, closure and foreign PRs fail the post-approval rec
   }
 })
 
-test("workflow limits triggers and gates installation/deployment behind environment and revalidation", () => {
+// 以下のworkflow検査は本文の接続・条件・順序を固定する。Actionsの解釈や実行結果は確認しない。
+test("workflow text declares allowed triggers, environment and revalidation before installation", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
@@ -133,7 +135,7 @@ test("database requests use their own label and the same immutable head checks",
   )
 })
 
-test("FE/DB share development but only DB steps receive database credentials", () => {
+test("workflow text separates FE/DB secret references and connects checkout SHA to SENTRY_RELEASE", () => {
   const read = (name) =>
     readFileSync(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8")
   const frontend = read("deploy_preview.yaml")
