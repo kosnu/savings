@@ -1,0 +1,47 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1975",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/"
+  ],
+  "fingerprint": "236ca9a4700224926c5c2fd94252a15c8387d50839e5209d66b6b164ba6b1151",
+  "status": "unknown",
+  "checks": [
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "ai-driven.checker",
+    "architecture.overview",
+    "documentation.policy",
+    "domain.amount",
+    "domain.book",
+    "domain.category",
+    "domain.date",
+    "domain.monthly-budget",
+    "domain.payment",
+    "domain.user",
+    "infrastructure.overview",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.temporal-data",
+    "policy.transaction-boundaries",
+    "web.component-structure",
+    "web.design-rules",
+    "web.design-system-brand",
+    "web.feature-directory",
+    "web.query-cache",
+    "web.storybook-browser-tests",
+    "web.suspense-boundaries",
+    "web.test-policy"
+  ],
+  "summary": "独立レビューでコード上の指摘・規約矛盾なし。既存ThemeProviderの配色・tokenを再利用し、高さ・safe-area・操作配置は変更していない。document背景とmeta同期はpass、報告端末の症状解消はunknownとしてPRに明記し、自動Closeを付けない。",
+  "remaining": [
+    "報告端末・OSの特定とインストール実機での白領域解消・下部操作の確認。"
+  ]
+}

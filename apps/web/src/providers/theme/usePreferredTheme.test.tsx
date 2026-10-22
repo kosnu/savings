@@ -4,10 +4,19 @@ import { act, cleanup, renderHook } from "../../test/test-utils"
 import { usePreferredTheme } from "./usePreferredTheme"
 
 let mediaQuery: MediaQueryList
+let themeColor: HTMLMetaElement
+let themeStyles: HTMLStyleElement
 
 beforeEach(() => {
   localStorage.clear()
   document.documentElement.classList.remove("dark")
+  themeColor = document.createElement("meta")
+  themeColor.name = "theme-color"
+  themeColor.content = "#ffffff"
+  themeStyles = document.createElement("style")
+  themeStyles.textContent =
+    ":root { --color-background: #ffffff; } .dark { --color-background: #111111; }"
+  document.head.append(themeColor, themeStyles)
   mediaQuery = Object.assign(new EventTarget(), {
     matches: false,
     media: "(prefers-color-scheme: dark)",
@@ -23,6 +32,8 @@ afterEach(() => {
   vi.restoreAllMocks()
   localStorage.clear()
   document.documentElement.classList.remove("dark")
+  themeColor.remove()
+  themeStyles.remove()
 })
 
 function changeSystemTheme(dark: boolean) {
@@ -33,6 +44,41 @@ function changeSystemTheme(dark: boolean) {
 }
 
 describe("usePreferredTheme", () => {
+  test.each(["light", "dark"] as const)(
+    "保存済みの %s 配色をブラウザのテーマ色へ反映する",
+    (theme) => {
+      localStorage.setItem("theme", theme)
+      Object.assign(mediaQuery, { matches: theme !== "dark" })
+      renderHook(usePreferredTheme, { withProviders: false })
+
+      expect(themeColor.content).toBe(theme === "dark" ? "#111111" : "#ffffff")
+    },
+  )
+
+  test("ブラウザのテーマ色がシステム配色とアプリの設定変更に追従する", () => {
+    const { result } = renderHook(usePreferredTheme, { withProviders: false })
+    expect(themeColor.content).toBe("#ffffff")
+
+    changeSystemTheme(true)
+    expect(themeColor.content).toBe("#111111")
+    changeSystemTheme(false)
+    expect(themeColor.content).toBe("#ffffff")
+
+    act(() => result.current.changeTheme("dark"))
+    expect(themeColor.content).toBe("#111111")
+    changeSystemTheme(true)
+    changeSystemTheme(false)
+    expect(themeColor.content).toBe("#111111")
+
+    act(() => result.current.changeTheme("light"))
+    expect(themeColor.content).toBe("#ffffff")
+    changeSystemTheme(true)
+    expect(themeColor.content).toBe("#ffffff")
+
+    act(() => result.current.changeTheme("system"))
+    expect(themeColor.content).toBe("#111111")
+  })
+
   test.each([false, true])("保存値がない場合はシステム配色を使う (dark=%s)", (dark) => {
     Object.assign(mediaQuery, { matches: dark })
     const { result } = renderHook(usePreferredTheme, { withProviders: false })
