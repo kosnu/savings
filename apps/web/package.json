@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "2.0.0-beta.v.0",
-    "@sentry/vite-plugin": "5.4.1",
+    "@sentry/vite-plugin": "11.8.0",
     "@storybook/addon-docs": "10.6.2",
     "@storybook/addon-vitest": "10.6.2",
     "@storybook/builder-vite": "10.6.2",
