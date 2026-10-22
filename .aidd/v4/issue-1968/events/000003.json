@@ -7,7 +7,7 @@
     "docs/harness/policies/code-review.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "4de3a4868964c702e49acf744f0df453662180ee6aa90ff2bb47c8fe7f72b54f",
+  "fingerprint": "1bf02a916fa1e23fe255a8a50a06ca9f4c863b9b0fa0624d6d7a1466d01198f3",
   "status": "pass",
   "checks": [
     "ai-driven.change-coverage",
@@ -21,10 +21,10 @@
     "policy.git-workflow",
     "policy.issue-template-selection",
     "policy.learning-extraction",
+    "policy.retrospective",
     "policy.review-feedback-classification",
-    "DoD5件と有限事例の内容照合",
-    "独立レビューと親agentの統合"
+    "競合解消の独立レビューと統合"
   ],
-  "summary": "全適用規則を確認し指摘・未解決の矛盾なし。旧方式と削除済みテストの成功主張は形式・鮮度合格でもfail、証拠不足はunknown、適合例と過去記録保持はpass。実施範囲の説明と証拠が一致し過去記録の変更なし。既存レビュー入口で共通方針へ到達でき索引変更不要。 自動判定と実運用の効果測定は本Taskの対象外。",
+  "summary": "指摘・未解決の矛盾なし。双方の事例・結果が各1回あり、一方を除くと他方の元文書と完全一致。未解決index/競合マーカー0件。main側workflowと他Taskの工程結果を変更せず、#1968のDoD5件と意味の整合を維持。",
   "remaining": []
 }

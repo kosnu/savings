@@ -7,14 +7,16 @@
     "docs/harness/policies/code-review.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "4de3a4868964c702e49acf744f0df453662180ee6aa90ff2bb47c8fe7f72b54f",
+  "fingerprint": "1bf02a916fa1e23fe255a8a50a06ca9f4c863b9b0fa0624d6d7a1466d01198f3",
   "status": "pass",
   "checks": [
-    "git diff --check",
+    "差分と最新main比較の空白検査",
     "vp fmt対象文書2件のcheck",
     "Core rules・check-changes",
-    "Core verifyの4コマンド終了とstable"
+    "Core verifyの5コマンド終了とstable",
+    "未解決競合なし",
+    "main側のworkflow・工程結果をそのまま保持"
   ],
-  "summary": "文書2件の形式・規約・変更範囲検査が全件終了コード0、stable=true。アプリ・Core実装変更はなくWeb検証は対象外。仮想事例中の構造テスト・実環境起動・外部受信は本Taskでは実行していない。",
+  "summary": "競合解消後の文書検査・規約/範囲検査が全件終了コード0、stable=true。未解決競合はなく、main由来のworkflowと#1967工程結果はorigin/mainと一致。アプリ・Core実装変更はなくWeb検証は対象外。仮想入力の実環境操作は未実施のまま区別する。",
   "remaining": []
 }

@@ -7,12 +7,12 @@
     "docs/harness/policies/code-review.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "4de3a4868964c702e49acf744f0df453662180ee6aa90ff2bb47c8fe7f72b54f",
+  "fingerprint": "1bf02a916fa1e23fe255a8a50a06ca9f4c863b9b0fa0624d6d7a1466d01198f3",
   "status": "pass",
   "checks": [
-    "Intentと適用規則の照合",
-    "変更範囲と検証方法の選択"
+    "同Task・同cycleの継続",
+    "両側の追記事例と要約の保持"
   ],
-  "summary": "#1968を独立したTaskとして開始。共通レビュー方針と匿名化事例で実装・説明・有効な証拠を照合する。新しい管理機構と過去記録の更新は行わず、文書検査と有限事例の意味レビューで確認する。",
+  "summary": "PR #2010 の競合修正を同Task・同cycleで継続。元の担当範囲とbaselineを保持し、最新mainをmergeして#1967と#1968の独立した事例・結果を併存させる。仕様・実行権限は変更せず、文書・Core検査と保持内容のレビューを再実施する。",
   "remaining": []
 }
