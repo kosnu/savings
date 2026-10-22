@@ -673,9 +673,9 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
     <main id="main" class="wrap">
       <div class="intro">
         <p class="eyebrow">アカウント削除のしくみ</p>
-        <h1>利用を止めて7日後に削除<br />期限前ならログインして戻れます</h1>
+        <h1>利用を止めて7日間の猶予<br />締切以降の午前3時から順に削除</h1>
         <p class="lead">
-          削除の申請後はすぐにBurnetoを利用停止にします。<strong>7日間はアカウントとデータを保持</strong>し、本人がGoogleで新しくログインすると削除予約を取り消します。期限を過ぎたらバックグラウンドで物理削除します
+          削除の申請後はすぐにBurnetoを利用停止にします。<strong>168時間の期限前なら新しい本人ログインで予約を取り消せます</strong>。期限以降で最初の午前3時（日本時間）から小分けに物理削除します。午前3時を待つ間も復帰できません
         </p>
         <span class="pill">方針案の説明資料 · 機能は未実装</span>
       </div>
@@ -684,7 +684,11 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
         <li>
           <span class="step">01 · 申請したら</span>
           <h2>すぐに利用停止</h2>
-          <p>ログアウトし削除期限を表示します。<strong>受付は削除の完了ではありません</strong></p>
+          <p>
+            ログアウトし復帰の締切と削除開始予定を表示します。<strong
+              >受付は削除の完了ではありません</strong
+            >
+          </p>
         </li>
         <li>
           <span class="step">02 · 7日の期限前</span>
@@ -692,9 +696,11 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
           <p>同じ本人の新しいGoogleログインで利用を再開。家計簿と所属もそのまま戻ります</p>
         </li>
         <li>
-          <span class="step">03 · 期限に達したら</span>
-          <h2>復帰を締め切り物理削除</h2>
-          <p>毎分の削除処理が対象を処理します。<strong>処理待ちの間も復帰できません</strong></p>
+          <span class="step">03 · 締切以降の午前3時から</span>
+          <h2>小分けに物理削除</h2>
+          <p>
+            毎分最大10件ずつ処理します。<strong>復帰の締切は168時間</strong>。残件と失敗の再試行は午前3時台以降も続けます
+          </p>
         </li>
       </ol>
 
@@ -737,8 +743,14 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
                   <button id="before" type="button">期限の1秒前<span>6日 23:59:59</span></button>
                   <button id="exact" type="button">期限ちょうど<span>7日 00:00:00</span></button>
                   <button id="after" type="button">期限の1分後<span>7日 00:01:00</span></button>
+                  <button id="start-before" type="button">
+                    削除開始の1秒前<span>午前2:59:59</span>
+                  </button>
+                  <button id="start" type="button">削除開始時刻<span>午前3:00:00</span></button>
                 </div>
-                <p class="small">7日＝168時間。締切はDBの時刻で判定し端末の時刻では変わりません</p>
+                <p class="small">
+                  7日＝168時間。復帰の締切と削除開始予定は別の時刻です。DBの時刻で判定し端末の時刻では変わりません
+                </p>
               </div>
               <div class="control-section">
                 <p class="control-label">バックグラウンド処理を試す</p>
@@ -749,7 +761,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
                   </button>
                 </div>
                 <p class="small">
-                  実運用は毎分の実行を想定。この資料ではボタンで実行し再試行の待ち時間は省略します。失敗後も同じボタンで試せます
+                  実運用は削除開始予定以降に毎分最大10件ずつ処理します。この資料は1人分をボタンで実行し再試行の待ち時間は省略します。失敗後も同じボタンで試せます
                 </p>
               </div>
               <p
@@ -772,7 +784,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
                   id="progress"
                   class="timeline-track"
                   role="progressbar"
-                  aria-label="削除期限までの経過"
+                  aria-label="復帰の締切までの経過"
                   aria-valuemin="0"
                   aria-valuemax="604800"
                   aria-valuenow="0"
@@ -789,8 +801,12 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
                 <p id="state-message">アカウントは有効です。通常どおり家計簿を利用できます</p>
               </div>
               <dl class="deadline">
-                <dt>削除・復帰の期限（サンプル・日本時間）</dt>
+                <dt>復帰の締切 · 申請から168時間（日本時間）</dt>
                 <dd id="deadline">申請後に確定します</dd>
+              </dl>
+              <dl class="deadline">
+                <dt>物理削除の開始予定 · 締切以降で最初の午前3時（日本時間）</dt>
+                <dd id="deletion-start">申請後に確定します</dd>
               </dl>
               <dl class="state-list">
                 <div>
@@ -825,7 +841,8 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
           <strong
             >「期限の1秒前 → 新しくログイン」と「期限ちょうど →
             新しくログイン」を比べてください。</strong
-          >締切後はAuthやデータがまだ残っていても取り消せません
+          >締切後はAuthやデータがまだ残っていても取り消せません。「削除開始の1秒前 →
+          ジョブ実行」と「削除開始時刻 → ジョブ実行」では午前3時の境界を確認できます
         </p>
       </section>
 
@@ -842,10 +859,11 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
         <article>
           <h2>削除が遅れたり失敗したら？</h2>
           <p>
-            期限後は処理待ちでも利用停止と取消不可を維持します。<strong>Authと関連データは同じトランザクションで削除</strong>し、途中の失敗は全体を元に戻します
+            168時間の期限後は午前3時を待つ間も利用停止と取消不可を維持します。<strong>開始予定は完了の約束ではありません</strong>。毎分最大10件ずつ処理し残件と失敗の再試行は午前3時台以降も続けます
           </p>
           <p>
-            失敗した要求は完了にせず次回以降のジョブで再試行します。運営者が失敗と処理の滞留を把握できるようにし、<strong>削除処理がcommitした後にだけ「完了」</strong>とします
+            <strong>Authと関連データは同じトランザクションで削除</strong
+            >し途中の失敗は全体を元に戻します。失敗した要求は完了にせず再試行します。運営者が失敗と処理の滞留を把握できるようにし、<strong>削除処理がcommitした後にだけ「完了」</strong>とします
           </p>
         </article>
       </section>
@@ -899,7 +917,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
             </li>
             <li>
               <strong>ジョブ：</strong
-              >毎分期限を過ぎた<code>pending</code>を処理します。Auth・関連データ・完了記録の更新を同じトランザクションで扱い、失敗時は<code>pending</code>とデータを維持して再試行します
+              >復帰の締切以降で最初の03:00（Asia/Tokyo）を物理削除開始の下限とします。締切がちょうど03:00なら同時刻です。開始予定以降は毎分最大10件の<code>pending</code>を処理し03時台に限定せず継続します。Auth・関連データ・完了記録の更新は1要求ずつ同じトランザクションで扱い、失敗時は<code>pending</code>とデータを維持して再試行します
             </li>
             <li>
               <strong>状態確認：</strong
@@ -928,6 +946,13 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
         const DAY = 24 * 60 * 60
         const BASE = Date.parse("2026-10-22T03:00:00Z")
         const $ = (id) => document.getElementById(id)
+        const timeTargets = [
+          ["before", () => GRACE - 1],
+          ["exact", () => GRACE],
+          ["after", () => GRACE + 60],
+          ["start-before", () => deletionStart() - model.requestedAt - 1],
+          ["start", () => deletionStart() - model.requestedAt],
+        ]
         let model
 
         function initial() {
@@ -948,6 +973,16 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
         }
         function due() {
           return pending() && elapsed() >= GRACE
+        }
+        function deletionStart() {
+          const deadline = model.requestedAt + GRACE
+          const deadlineJst = BASE / 1000 + deadline + 9 * 3600
+          const threeJst = Math.floor(deadlineJst / DAY) * DAY + 3 * 3600
+          const start = threeJst - 9 * 3600 - BASE / 1000
+          return start < deadline ? start + DAY : start
+        }
+        function readyForDeletion() {
+          return pending() && model.now >= deletionStart()
         }
         function duration(seconds) {
           const days = Math.floor(seconds / DAY)
@@ -976,6 +1011,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
         function render() {
           const isPending = pending()
           const isDue = due()
+          const isReady = readyForDeletion()
           const age = elapsed()
           $("clock").textContent =
             model.requestedAt === null ? "まだ申請していません" : duration(age)
@@ -992,6 +1028,11 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
               ? "申請後に確定します"
               : date(model.requestedAt + GRACE) +
                 (model.terminal === "cancelled" ? "（予約取消済み）" : "")
+          $("deletion-start").textContent =
+            model.requestedAt === null
+              ? "申請後に確定します"
+              : date(deletionStart()) +
+                (model.terminal === "cancelled" ? "（予約取消済み）" : "（完了時刻ではありません）")
 
           let title = "利用中"
           let message = "アカウントは有効です。通常どおり家計簿を利用できます"
@@ -1001,11 +1042,16 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
             message =
               "利用停止中です。期限前に同じ本人がGoogleで新しくログインすると予約を取り消して利用を再開できます"
             tone = "violet"
-          } else if (isDue) {
+          } else if (isDue && !isReady) {
+            title = "午前3時の削除開始待ち・取消不可"
+            message =
+              "168時間の復帰期限に達しました。まだ削除開始予定の午前3時前なのでAuthとデータを保持しますが再ログインで復帰できません"
+            tone = "amber"
+          } else if (isReady) {
             title = model.failed ? "削除処理に失敗・再試行待ち" : "削除処理待ち・取り消し不可"
             message = model.failed
               ? "Authと関連データは全体を元に戻しました。利用停止を維持し次回のジョブで再試行します。削除はまだ完了していません"
-              : "7日の期限に達しました。Authとデータは処理待ちでも保持されていますが再ログインで復帰できません"
+              : "削除開始予定に達しました。毎分最大10件ずつの処理を待っています。Authとデータは削除がcommitするまで保持し復帰は受け付けません"
             tone = model.failed ? "red" : "amber"
           } else if (model.terminal === "cancelled") {
             title = "削除予約を取り消しました"
@@ -1027,11 +1073,13 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
               : "利用できます"
           $("auth-state").textContent = model.deleted
             ? "削除しました"
-            : isDue
-              ? "保持しています（削除ジョブの処理待ち）"
-              : isPending
-                ? "保持しています（期限前の復帰のため）"
-                : "保持しています"
+            : isDue && !isReady
+              ? "保持しています（午前3時の開始待ち）"
+              : isReady
+                ? "保持しています（削除ジョブの処理待ち）"
+                : isPending
+                  ? "保持しています（期限前の復帰のため）"
+                  : "保持しています"
           $("personal-state").textContent = model.deleted
             ? "家計簿とそのデータを削除しました"
             : "データを保持しています"
@@ -1055,12 +1103,8 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
           $("failure").textContent = model.failNext
             ? "失敗を設定済み · 解除する"
             : "次のジョブを失敗させる"
-          for (const [id, target] of [
-            ["before", GRACE - 1],
-            ["exact", GRACE],
-            ["after", GRACE + 60],
-          ]) {
-            $(id).disabled = !isPending || age >= target
+          for (const [id, target] of timeTargets) {
+            $(id).disabled = !isPending || age >= target()
           }
         }
         function act(callback) {
@@ -1109,19 +1153,17 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
             )
           }),
         )
-        for (const [id, target] of [
-          ["before", GRACE - 1],
-          ["exact", GRACE],
-          ["after", GRACE + 60],
-        ]) {
+        for (const [id, target] of timeTargets) {
           $(id).addEventListener("click", () =>
             act(() => {
-              if (!pending() || elapsed() >= target) return
-              model.now = model.requestedAt + target
+              if (!pending() || elapsed() >= target()) return
+              model.now = model.requestedAt + target()
               note(
-                target < GRACE
+                !due()
                   ? "期限の1秒前です。今新しい本人ログインが成立すれば取り消せます"
-                  : "復帰の期限に達しました。ジョブの実行前でも取り消せません",
+                  : !readyForDeletion()
+                    ? "復帰の締切後ですが削除開始予定の午前3時前です。ジョブを実行しても消えず再ログインでも取り消せません"
+                    : "削除開始予定に達しました。ジョブで物理削除を実行できますが完了はまだ確定していません",
               )
             }),
           )
@@ -1132,7 +1174,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
             model.failNext = !model.failNext
             note(
               model.failNext
-                ? "次の対象ジョブを失敗させる設定にしました。期限前は削除の対象になりません"
+                ? "次の対象ジョブを失敗させる設定にしました。削除開始予定までは削除の対象になりません"
                 : "失敗の設定を解除しました",
             )
           }),
@@ -1142,6 +1184,12 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
             if (!pending()) return
             if (!due()) {
               note("削除の対象はありません。7日の期限前なのでAuthとデータを保持します")
+              return
+            }
+            if (!readyForDeletion()) {
+              note(
+                "復帰の締切は過ぎましたが削除開始予定の午前3時前です。Authとデータは消しません。復帰は受け付けません",
+              )
               return
             }
             if (model.failNext) {

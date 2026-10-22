@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000007.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "a9c1f61dc8318fcbc2300b01810348657a8f2df7a682f63fb2a6e829b537b580",
+  "status": "pass",
+  "checks": [
+    "Markdown/HTML整形・front matter・ローカル参照17件・HTML参照/ID・JS構文",
+    "JST03:00直前/同時/直後・UTC変換・月末/年末の開始予定算出",
+    "実ブラウザで168時間の復帰拒否・開始予定前の非削除・開始時刻・取消後再申請・失敗/再試行・共有保持",
+    "320/375/1200pxで詳細開閉を含む表示確認"
+  ],
+  "summary": "更新した3資料の検証が成功。復帰締切と削除開始予定を分離し、午前3時の境界を満たす。機能本体・Hosted Auth/Cron/DBの実動作は未実装で後続検証。",
+  "remaining": []
+}

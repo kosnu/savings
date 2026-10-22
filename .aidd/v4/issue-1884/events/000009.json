@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000007.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "a9c1f61dc8318fcbc2300b01810348657a8f2df7a682f63fb2a6e829b537b580",
+  "status": "pass",
+  "checks": [
+    "code-reviewとpath/依存正本に基づく独立レビュー",
+    "元のIntentと最新指示・復帰168時間・03:00から毎分最大10件の継続処理を照合",
+    "取消/再申請・失敗/再開/backup・二時刻のRPC/HTML表示と操作の整合"
+  ],
+  "summary": "対象3資料に未解決の指摘なし。開始予定は期限からDB算出し、168時間の猶予を短縮せず、03時台限定や翌朝への再延期を追加しない。機能実動作は未検証。",
+  "remaining": []
+}
