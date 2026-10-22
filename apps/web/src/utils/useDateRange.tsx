@@ -1,6 +1,8 @@
 import { useLocation } from "@tanstack/react-router"
 import { endOfMonth, startOfMonth } from "date-fns"
 
+import { resolveTargetMonth } from "../domain/date"
+
 export function useDateRange() {
   const yearParam = useLocation({
     select: (location) => location.search.year,
@@ -9,35 +11,12 @@ export function useDateRange() {
     select: (location) => location.search.month,
   })
 
-  const date = parseDateParam(yearParam, monthParam)
-
-  const dateRange: [Date | null, Date | null] = date
-    ? [startOfMonth(date), endOfMonth(date)]
-    : [null, null]
+  const { year, month } = resolveTargetMonth(yearParam, monthParam)
+  const date = new Date(year, month - 1, 1)
+  const dateRange: [Date, Date] = [startOfMonth(date), endOfMonth(date)]
 
   return {
     dateRange,
     date,
   }
-}
-
-function parseDateParam(yearParam?: string, monthParam?: string): Date | null {
-  if (!yearParam || !monthParam) {
-    return null
-  }
-
-  const year = parseIntegerParam(yearParam)
-  const month = parseIntegerParam(monthParam)
-
-  if (year === null || month === null || month < 1 || month > 12) {
-    return null
-  }
-
-  return new Date(year, month - 1, 1)
-}
-
-function parseIntegerParam(param: string): number | null {
-  const value = Number(param)
-
-  return Number.isInteger(value) ? value : null
 }

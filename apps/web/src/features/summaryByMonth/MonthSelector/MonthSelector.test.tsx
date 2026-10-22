@@ -1,5 +1,5 @@
 import { createRoute } from "@tanstack/react-router"
-import { afterEach, describe, expect, test } from "vite-plus/test"
+import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { i18next } from "../../../i18n"
 import { renderWithRouter as renderWithTestRouter } from "../../../test/helpers/renderWithRouter"
@@ -29,6 +29,7 @@ function renderMonthSelector(initialEntry: string) {
 }
 
 afterEach(async () => {
+  vi.useRealTimers()
   await i18next.changeLanguage("en")
 })
 
@@ -112,19 +113,48 @@ describe("MonthSelector", () => {
   })
 
   test.each([
-    "/payments?year=abc&month=5",
-    "/payments?year=2025&month=abc",
-    "/payments?year=2025&month=0",
-    "/payments?year=2025&month=13",
-    "/payments?year=2021&month=12",
-    "/payments?year=2033&month=1",
-    "/payments?year=2025",
-    "/payments?month=5",
-  ])("不正または未解決の年月クエリ %s はfallback表示にする", async (initialEntry) => {
+    ["/payments?year=abc&month=5", "October 2026"],
+    ["/payments?year=2025&month=abc", "October 2026"],
+    ["/payments?year=2025&month=0", "October 2026"],
+    ["/payments?year=2025&month=13", "October 2026"],
+    ["/payments?year=2021&month=12", "October 2026"],
+    ["/payments?year=2033&month=1", "October 2026"],
+    ["/payments?year=2025", "October 2025"],
+    ["/payments?month=5", "May 2026"],
+  ])("不正または未指定の年月クエリ %s を共通ルールで補完する", async (initialEntry, label) => {
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(new Date(2026, 9, 15))
     renderMonthSelector(initialEntry)
 
-    expect(await screen.findByRole("button", { name: "Select year and month" })).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: label })).toBeInTheDocument()
   })
+
+  test.each([
+    [new Date(2021, 11, 31), "January 2022", "Previous month", "2022", "1"],
+    [new Date(2033, 0, 1), "December 2032", "Next month", "2032", "12"],
+  ])(
+    "現在時刻 %s が範囲外でも境界から外へ移動しない",
+    async (now, label, direction, year, month) => {
+      vi.useFakeTimers({ toFake: ["Date"] })
+      vi.setSystemTime(now)
+      const { router, user } = renderMonthSelector("/payments")
+
+      expect(await screen.findByRole("button", { name: label })).toBeInTheDocument()
+      const button = screen.getByRole("button", { name: direction })
+      expect(button).toBeDisabled()
+      await user.click(button)
+      expect(router.state.location.search).toEqual({})
+
+      const allowedDirection = direction === "Previous month" ? "Next month" : "Previous month"
+      await user.click(screen.getByRole("button", { name: allowedDirection }))
+      await waitFor(() => {
+        expectPaymentsSearch(router.state.location.search, {
+          year,
+          month: month === "1" ? "2" : "11",
+        })
+      })
+    },
+  )
 
   test("年月を選択してもカテゴリ条件を保持する", async () => {
     const { router, user } = renderMonthSelector("/payments?year=2025&month=5&category=10")

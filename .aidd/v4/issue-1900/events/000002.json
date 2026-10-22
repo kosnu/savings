@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1900",
+  "paths": [
+    "apps/web/src/domain/date.ts",
+    "apps/web/src/domain/date.test.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/useInitializeMonthSearch.ts",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/components/inputs/MonthPicker/",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/features/categories/createCategory/",
+    "apps/web/src/features/categories/updateCategoryName/",
+    "apps/web/src/features/categories/listCategorySettings/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/utils/useDateRange.tsx",
+    "apps/web/src/utils/useDateRange.test.tsx",
+    "docs/harness/domain/date.md"
+  ],
+  "fingerprint": "c877b0c900091bb2e7c3fd0ebccbec4e34105f6148b6fc2ce466b75f3f26273d",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format check",
+    "Web typecheck",
+    "Unit/integration 996 tests",
+    "Storybook browser 22 tests",
+    "Diff whitespace and Core rule coverage"
+  ],
+  "summary": "最終差分でlint・整形・型検査、単体/統合996件とブラウザ22件が成功。テスト並列数を単体/統合2・ブラウザ1に制限し、ブラウザは一時配置のChromiumを使用した。",
+  "remaining": []
+}

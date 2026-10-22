@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1900",
+  "paths": [
+    "apps/web/src/domain/date.ts",
+    "apps/web/src/domain/date.test.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/useInitializeMonthSearch.ts",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/components/inputs/MonthPicker/",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/features/categories/createCategory/",
+    "apps/web/src/features/categories/updateCategoryName/",
+    "apps/web/src/features/categories/listCategorySettings/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/utils/useDateRange.tsx",
+    "apps/web/src/utils/useDateRange.test.tsx",
+    "docs/harness/domain/date.md"
+  ],
+  "fingerprint": "c877b0c900091bb2e7c3fd0ebccbec4e34105f6148b6fc2ce466b75f3f26273d",
+  "status": "pass",
+  "checks": [
+    "Intentの完了条件3項目",
+    "入力・保存・URL・検索・集計・遷移・現在月設定の境界",
+    "rule-map path/surface/depends_on closure",
+    "既存データ保持とDB認可維持",
+    "独立レビューの指摘解消と再レビュー"
+  ],
+  "summary": "2022〜2032年の有限範囲と根拠、全機能の共通判定、境界での入力・表示・取得の一致を確認。既存UI部品とエラー表示を維持し、範囲外現在月の予算操作を停止。未解決指摘・規則競合なし。",
+  "remaining": []
+}

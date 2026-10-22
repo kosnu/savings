@@ -1,0 +1,33 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1900",
+  "paths": [
+    "apps/web/src/domain/date.ts",
+    "apps/web/src/domain/date.test.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/useInitializeMonthSearch.ts",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/components/inputs/MonthPicker/",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/features/categories/createCategory/",
+    "apps/web/src/features/categories/updateCategoryName/",
+    "apps/web/src/features/categories/listCategorySettings/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/utils/useDateRange.tsx",
+    "apps/web/src/utils/useDateRange.test.tsx",
+    "docs/harness/domain/date.md"
+  ],
+  "fingerprint": "c877b0c900091bb2e7c3fd0ebccbec4e34105f6148b6fc2ce466b75f3f26273d",
+  "status": "pass",
+  "checks": [
+    "有限範囲と既存データの扱い",
+    "全入口の共通化とDB責務境界"
+  ],
+  "summary": "2022年1月〜2032年12月を固定し、既存の月選択範囲と約4年の過去・約6年の未来を維持。入力・検索・遷移・初期値をWeb日付ドメインで統一し、保存済み範囲外値とDB認可を保持する。",
+  "remaining": []
+}
