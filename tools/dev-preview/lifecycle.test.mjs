@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 import { resolveLifecycle } from "./lifecycle.mjs"
-import { prPreviewName } from "./preview.mjs"
 
 const repo = "kosnu/savings"
 const sha = "a".repeat(40)
@@ -24,7 +23,8 @@ const get = (value) => async (path) => {
   return structuredClone(value)
 }
 
-test("信頼済み受付は event SHA を固定し、open PR の要求だけを配信する", async () => {
+// PR取得はfixture。配信・削除を実行せず、後続処理へ渡す判定と対象を検査する。
+test("信頼済み受付は event SHA を固定し、open PR の要求に deploy=true を返す", async () => {
   assert.deepEqual(await resolveLifecycle(event, env, get(pr)), {
     number: "1927",
     branch: pr.head.ref,
@@ -40,7 +40,7 @@ test("信頼済み受付は event SHA を固定し、open PR の要求だけを�
   }
 })
 
-test("close・merge・古いlabel要求のclosed再実行は配信せず cleanup へ渡す", async () => {
+test("close・merge・古いlabel要求のclosed再実行は deploy=false と cleanup 対象を返す", async () => {
   for (const closed of [
     { ...pr, state: "closed", merged: false },
     { ...pr, state: "closed", merged: true },
@@ -49,7 +49,7 @@ test("close・merge・古いlabel要求のclosed再実行は配信せず cleanup
       const result = await resolveLifecycle({ ...event, action }, env, get(closed))
       assert.equal(result.deploy, false)
       assert.equal(result.branch, pr.head.ref)
-      assert.equal(prPreviewName(result.number), "pr-1927")
+      assert.equal(result.number, "1927")
     }
   }
   // 終了通知が待機中に reopen されたら旧 close event は配信の権限にならない。
@@ -92,7 +92,8 @@ test("fork・別base・別label・未対応event・出力注入を信頼済み�
   )
 })
 
-test("workflow は main 受付・配信・後処理を同じ非cancel groupでつなぎ、削除でPRコードを実行しない", () => {
+// workflow本文の静的検査。Actionsの直列化や削除jobの実行は再現しない。
+test("workflow 本文は非cancel groupとmainコードを使う受付・後処理・削除jobを定義する", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
@@ -125,7 +126,7 @@ test("workflow は main 受付・配信・後処理を同じ非cancel groupで�
   assert.match(yaml.split("\n  report:\n")[1], /if: needs.reconcile.outputs.closed == 'false'/u)
 })
 
-test("配信jobもPR由来の古いgate・name・reportに依存せずmainの補助コードを使う", () => {
+test("配信job本文はPR checkout前のmain補助コードの退避と利用を指定する", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
