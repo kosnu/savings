@@ -6,6 +6,7 @@ import { screen, waitFor } from "../../test/test-utils"
 import { AppLayout } from "./AppLayout"
 
 function renderAppLayout(initialEntry = "/payments") {
+  // 認証後の両ルートで使うレイアウトの接続を確認するため、Page Storyを経由しない。
   return renderWithRouter(initialEntry, (root) => {
     const authenticatedRoute = createRoute({
       getParentRoute: () => root,
@@ -50,6 +51,31 @@ describe("AppLayout", () => {
     expect(await screen.findByRole("complementary")).toHaveAttribute("data-open", "false")
     expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
   })
+
+  test.each(["/", "/payments"])(
+    "%s は以前の保存値が開いていても閉じて表示し、メニューを開閉できる",
+    async (initialEntry) => {
+      window.localStorage.setItem("sidebarOpen", "true")
+      const { user } = renderAppLayout(initialEntry)
+
+      const sidebar = await screen.findByRole("complementary")
+      expect(sidebar).toHaveAttribute("data-open", "false")
+      expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
+
+      await user.click(screen.getByLabelText("Menu button"))
+      expect(sidebar).toHaveAttribute("data-open", "true")
+
+      await user.click(screen.getByLabelText("Close sidebar"))
+      expect(sidebar).toHaveAttribute("data-open", "false")
+
+      await user.click(screen.getByLabelText("Menu button"))
+      expect(sidebar).toHaveAttribute("data-open", "true")
+
+      await user.click(screen.getByTestId("sidebar-backdrop"))
+      expect(sidebar).toHaveAttribute("data-open", "false")
+      expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
+    },
+  )
 
   test("Sidebar に Home、Payments、Settings への導線を表示する", async () => {
     const { router, user } = renderAppLayout()

@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1974",
+  "paths": [
+    "apps/web/src/app/Sidebar/useSidebar.ts",
+    "apps/web/src/app/Sidebar/useSidebar.test.tsx",
+    "apps/web/src/app/AppLayout/AppLayout.test.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "d8420d58d2bae283a235cc1c6a368026b4646e2450bb63457e27cc0592644918",
+  "status": "pass",
+  "checks": [
+    "Issue #1974 の受入条件",
+    "保存状態と認証後レイアウトの経路",
+    "適用ruleと検証範囲"
+  ],
+  "summary": "origin/main 8be0e137 を比較元に、メニュー開閉の永続化を廃止して初期閉を保証する。既存の手動開閉を維持し、保存値あり・再マウントの回帰を確認する。保存説明の日英表記も同期する。",
+  "remaining": []
+}
