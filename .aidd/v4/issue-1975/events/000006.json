@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1975",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/main.tsx",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/usePreferredTheme.tsx",
+    "apps/web/src/providers/theme/usePreferredTheme.test.tsx"
+  ],
+  "fingerprint": "bb60ce68a7852b456da883526e0a24f0cb0091f6de6d65de6984c5fc4ddce239",
+  "status": "pass",
+  "checks": [
+    "Web整形",
+    "Web lint",
+    "Web整形検査",
+    "Web型検査",
+    "Web unit/integration",
+    "Web buildと生成HTML読込順序",
+    "Chromium初回paint前の18条件",
+    "Chromium runtime配色の6条件",
+    "Git空白検査"
+  ],
+  "summary": "必須Web検証が成功。unit/integrationは並列数2・再試行1回で149ファイル887件成功。buildで既存CSSの同期script前展開を確認。開発版・ビルド版のChromium計18条件でReact未起動の背景・class・meta一致と初回paint前同期を観測し、起動後6条件のOS追従・固定優先も確認した。No.2は保留のため実機での原症状解消を主張しない。",
+  "remaining": []
+}

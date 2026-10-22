@@ -1,0 +1,31 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2005#discussion_r4349694195",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/public/site.webmanifest",
+    "apps/web/src/main.tsx",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/"
+  ],
+  "fingerprint": "236ca9a4700224926c5c2fd94252a15c8387d50839e5209d66b6b164ba6b1151",
+  "status": "unknown",
+  "checks": [
+    "PR head・全コメント・thread解決状態",
+    "初回HTML・CSSとEffect実行順",
+    "既存テストと検証・レビュー記録",
+    "manifest仕様とAndroid更新契約",
+    "Intentと共通規則の十分性",
+    "分析レビュー:正確さと客観性",
+    "分析レビュー:再利用性と再発抑止",
+    "分析レビュー:適用先と承認境界"
+  ],
+  "summary": "未解決P2 1件をページ初回描画とnative起動画面に分離。Effect後同期と起動前検証不足を根拠に、既存5ファイルで初期化・回帰検証を今修正提案。manifest動的同期は採用せず#1975への実機追跡条件のコメントを提案。Intent・共通規則追加は不要。三観点の分析レビューで結論を確認した。改善・投稿は未実施で手動承認待ち。",
+  "remaining": [
+    "index.html、main.tsx、global.css、usePreferredTheme.tsxと同testの修正・検証、#1975追跡コメント、対象Bot返信への手動承認。",
+    "Pixel 10のOS/Chrome版と修正SHAの実機確認環境、報告症状と起動画面/下端の因果は未確認。",
+    "対象thread PRRT_kwDOM0p88s6vPPn9は未解決で保持し、実機証拠と対応完了まで解決しない。"
+  ]
+}

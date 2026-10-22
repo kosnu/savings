@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1975",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/main.tsx",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/usePreferredTheme.tsx",
+    "apps/web/src/providers/theme/usePreferredTheme.test.tsx"
+  ],
+  "fingerprint": "bb60ce68a7852b456da883526e0a24f0cb0091f6de6d65de6984c5fc4ddce239",
+  "status": "pass",
+  "checks": [
+    "No.1の承認範囲と現行Intent",
+    "描画前のCSS展開と同期初期化",
+    "保存設定優先とsystem fallback",
+    "既存5ファイルの責務"
+  ],
+  "summary": "ユーザーの「No.2は保留。No.1のみ承認」に基づく採用判断。既存Radix CSSをHTML内に展開し同期scriptより前に置く。保存設定・OS配色でclassと既存背景token・metaを起動時から揃え、Reactでも維持する。新規asset・共通規則・Intent改訂なし。No.2とIssue投稿・Bot返信・解決は対象外。",
+  "remaining": []
+}

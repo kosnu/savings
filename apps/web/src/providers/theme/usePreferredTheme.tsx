@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react"
+import { useCallback, useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react"
 
 import { isThemePreference, type TTheme, type TThemePreference } from "./types"
 
@@ -6,8 +6,12 @@ const colorSchemeQuery = "(prefers-color-scheme: dark)"
 
 export function usePreferredTheme() {
   const [themePreference, setThemePreference] = useState<TThemePreference>(() => {
-    const stored = localStorage.getItem("theme")
-    return isThemePreference(stored) ? stored : "system"
+    try {
+      const stored = localStorage.getItem("theme")
+      return isThemePreference(stored) ? stored : "system"
+    } catch {
+      return "system"
+    }
   })
 
   const subscribe = useCallback(
@@ -26,7 +30,7 @@ export function usePreferredTheme() {
   )
   const theme: TTheme = themePreference === "system" ? systemTheme : themePreference
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark")
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
     if (themeColor) {
@@ -37,7 +41,11 @@ export function usePreferredTheme() {
   }, [theme])
 
   useEffect(() => {
-    localStorage.setItem("theme", themePreference)
+    try {
+      localStorage.setItem("theme", themePreference)
+    } catch {
+      // 保存できない場合も選択した配色の表示は継続する。
+    }
   }, [themePreference])
 
   const toggleTheme = useCallback(() => {
