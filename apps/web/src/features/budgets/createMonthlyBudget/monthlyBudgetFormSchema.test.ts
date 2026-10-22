@@ -52,6 +52,16 @@ describe("monthlyBudgetFormSchema", () => {
     const error = result.error && z.flattenError(result.error).fieldErrors.targetMonth
     expect(error).toEqual(["Month cannot be empty"])
   })
+
+  test.each([
+    { targetMonth: new Date(2022, 0, 1), valid: true },
+    { targetMonth: new Date(2032, 11, 31), valid: true },
+    { targetMonth: new Date(2021, 11, 31), valid: false },
+    { targetMonth: new Date(2033, 0, 1), valid: false },
+    { targetMonth: new Date(NaN), valid: false },
+  ])("入力中の月 $targetMonth の有効性は $valid", ({ targetMonth, valid }) => {
+    expect(monthlyBudgetFormSchema.safeParse({ ...data, targetMonth }).success).toBe(valid)
+  })
 })
 
 describe("monthlyBudgetFormSubmitSchema", () => {
@@ -91,6 +101,16 @@ describe("monthlyBudgetFormSubmitSchema", () => {
     const error = z.flattenError(result.error).fieldErrors
     expect(error.targetMonth).toEqual(["Month cannot be empty"])
     expect(error.amount).toEqual(["Amount cannot be empty"])
+  })
+
+  test.each([
+    { targetMonth: new Date(2022, 0, 1), valid: true },
+    { targetMonth: new Date(2032, 11, 31), valid: true },
+    { targetMonth: new Date(2021, 11, 31), valid: false },
+    { targetMonth: new Date(2033, 0, 1), valid: false },
+    { targetMonth: new Date(NaN), valid: false },
+  ])("送信時の月 $targetMonth の有効性は $valid", ({ targetMonth, valid }) => {
+    expect(monthlyBudgetFormSubmitSchema.safeParse({ ...data, targetMonth }).success).toBe(valid)
   })
 
   test.each(

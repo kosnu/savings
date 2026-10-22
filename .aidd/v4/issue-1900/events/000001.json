@@ -1,0 +1,34 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/2003",
+  "paths": [
+    "apps/web/src/domain/date.ts",
+    "apps/web/src/domain/date.test.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/useInitializeMonthSearch.ts",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/components/inputs/MonthPicker/",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/features/categories/createCategory/",
+    "apps/web/src/features/categories/updateCategoryName/",
+    "apps/web/src/features/categories/listCategorySettings/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/utils/useDateRange.tsx",
+    "apps/web/src/utils/useDateRange.test.tsx",
+    "docs/harness/domain/date.md",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
+  ],
+  "fingerprint": "9595ff3ddc8aa00b77a82f5b1786860e208a9355e02d562b4776955fe6e5a6c8",
+  "status": "pass",
+  "checks": [
+    "既存の年月範囲とmainのログアウト契約",
+    "認証確定・復元中のURL処理と本番テスト境界"
+  ],
+  "summary": "2022〜2032年の共通年月正規化を維持し、ホームで未認証が確定した場合だけクエリを全除去する。認証テストも本番のURL変換を使用する。既存Intent・範囲・権限の変更なし。",
+  "remaining": []
+}

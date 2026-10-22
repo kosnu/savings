@@ -6,6 +6,12 @@ import { enUS, ja } from "date-fns/locale"
 import { type ComponentProps, type KeyboardEvent, useCallback, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  clampDateToSupportedRange,
+  isSupportedDate,
+  MAX_YEAR,
+  MIN_YEAR,
+} from "../../../domain/date"
 import { getDateFormat, toAppLanguage } from "../../../i18n"
 import { formatDateToLocaleString } from "../../../utils/formatter/formatDateToLocaleString"
 
@@ -48,6 +54,8 @@ export function DatePicker(props: DatePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const sameDayClickRef = useRef(false)
   const language = toAppLanguage(i18n.resolvedLanguage)
+  const minimumDate = new Date(MIN_YEAR, 0, 1)
+  const maximumDate = new Date(MAX_YEAR, 11, 31)
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -58,6 +66,8 @@ export function DatePicker(props: DatePickerProps) {
 
   const handleChange = useCallback(
     (date: Date | undefined) => {
+      if (date && !isSupportedDate(date)) return
+
       if (sameDayClickRef.current && date && value && isSameDay(date, value)) {
         sameDayClickRef.current = false
         return
@@ -73,6 +83,8 @@ export function DatePicker(props: DatePickerProps) {
 
   const handleDayClick = useCallback(
     (day: Date) => {
+      if (!isSupportedDate(day)) return
+
       if (!required || !value || !isSameDay(day, value)) {
         return
       }
@@ -143,6 +155,10 @@ export function DatePicker(props: DatePickerProps) {
             mode="single"
             required={required}
             selected={value}
+            defaultMonth={value ? clampDateToSupportedRange(value) : undefined}
+            startMonth={minimumDate}
+            endMonth={maximumDate}
+            disabled={{ before: minimumDate, after: maximumDate }}
             onDayClick={handleDayClick}
             onSelect={handleChange}
           />

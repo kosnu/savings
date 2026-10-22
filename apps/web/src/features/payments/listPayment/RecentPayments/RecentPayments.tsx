@@ -5,6 +5,7 @@ import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
+import { resolveTargetMonth } from "../../../../domain/date"
 import { paymentQueryKeys } from "../../queryKeys"
 import { fetchPayments } from "../fetchPayments"
 import { PaymentCard } from "../PaymentCard"
@@ -76,12 +77,16 @@ function RecentPaymentsResolved({ bookId, cacheScope }: RecentPaymentsProps) {
         payment={payment}
         category={payment.category ?? null}
         onOpen={() => {
+          const targetMonth = resolveTargetMonth(
+            String(payment.date.getFullYear()),
+            String(payment.date.getMonth() + 1),
+          )
           void navigate({
             to: "/payments/details/$paymentId",
             params: { paymentId: String(paymentId) },
             search: {
-              year: String(payment.date.getFullYear()),
-              month: String(payment.date.getMonth() + 1),
+              year: String(targetMonth.year),
+              month: String(targetMonth.month),
             },
           })
         }}

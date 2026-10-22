@@ -26,6 +26,8 @@ function createRedirectTestRouter(initialEntry: string) {
   return createRouter({
     routeTree: appRouter.options.routeTree,
     history: createMemoryHistory({ initialEntries: [initialEntry] }),
+    parseSearch: appRouter.options.parseSearch,
+    stringifySearch: appRouter.options.stringifySearch,
     context: { authStatus: "loading", supabaseSession: null },
   })
 }
