@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "f131e047174169cfb26b259c1d219d42b77d67ba39da204e4e8a1264369ce290",
+  "status": "pass",
+  "checks": [
+    "全適用規則と最新Intentの独立レビュー",
+    "callback隔離・照合不能条件・復旧時実再削除の再確認",
+    "説明HTMLと設計/Issue案の状態整合確認"
+  ],
+  "summary": "設計・Issue案・説明HTMLに未解決の指摘なし。GitHub review threadへの返信/解決は未実施。",
+  "remaining": []
+}

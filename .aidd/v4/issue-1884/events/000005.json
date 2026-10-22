@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "f131e047174169cfb26b259c1d219d42b77d67ba39da204e4e8a1264369ce290",
+  "status": "pass",
+  "checks": [
+    "git diff --check・vp fmt check",
+    "Markdown参照/metadata・HTML参照/ID・JS構文",
+    "実ブラウザで期限境界・refresh・取消/再申請・失敗/再試行・共有保持",
+    "320/375/1200px表示確認"
+  ],
+  "summary": "文書と説明HTMLの必須検証が成功。機能本体・Hosted Auth/Cronの実動作は未実装で後続検証。",
+  "remaining": []
+}
