@@ -1,7 +1,7 @@
 import { createRoute, RouterProvider } from "@tanstack/react-router"
 import { renderHook } from "@testing-library/react"
 import type { PropsWithChildren, ReactNode } from "react"
-import { describe, expect, test } from "vite-plus/test"
+import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { paymentsSearchSchema } from "../features/payments"
 import { createTestRouter } from "../test/helpers/createTestRouter"
@@ -40,6 +40,7 @@ function renderUseDateRange(initialEntry: string) {
 }
 
 describe("useDateRange", () => {
+  afterEach(() => vi.useRealTimers())
   test("有効な年月クエリから対象月の開始日と終了日を返す", async () => {
     const { result } = renderUseDateRange("/payments?year=2025&month=5")
 
@@ -55,12 +56,20 @@ describe("useDateRange", () => {
     ["/payments?year=2025&month=abc"],
     ["/payments?year=2025&month=0"],
     ["/payments?year=2025&month=13"],
-  ])("不正な年月クエリ %s は無効扱いにする", async (initialEntry) => {
+    ["/payments?year=2021&month=12"],
+    ["/payments?year=2033&month=1"],
+    ["/payments?year=999999999999999&month=1"],
+  ])("不正な年月クエリ %s は表示と同じ今月の期間を返す", async (initialEntry) => {
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(new Date(2026, 9, 15))
     const { result } = renderUseDateRange(initialEntry)
 
     await waitFor(() => {
-      expect(result.current.date).toBeNull()
-      expect(result.current.dateRange).toEqual([null, null])
+      expect(formatDate(result.current.date)).toBe("2026-10-1")
+      expect(result.current.dateRange).toEqual([
+        new Date(2026, 9, 1),
+        new Date(2026, 9, 31, 23, 59, 59, 999),
+      ])
     })
   })
 })

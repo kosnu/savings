@@ -41,8 +41,13 @@ snapshotは検査中のメモリ内だけで使用する。検証結果はcomman
 ## 記録
 
 Intentと実行権限は既存Issue・PR・ユーザー発言を正本として確認し、本文を複製しない。
-`.aidd/v4/<既存の作業名>/events/000001.json`の配置・連番を使う。これは操作eventではなく工程結果であり、formatは`aidd-phase-result-v1`とする。
+`.aidd/v4/<作業名>/events/000001.json`の配置・連番を使う。これは操作eventではなく工程結果であり、formatは`aidd-phase-result-v1`とする。
 記録対象はdesign・verify・review・手動開始されたauditだけ。実際に行わない工程の空記録、Task本文、承認・復帰event、Ship記録は作らない。
+
+記録前に[WorkflowのTask判断](workflow.md#taskの開始と継続)を行い、そのTaskに対応する作業名を`--task`へ指定する。
+Coreは作業名・cycle・kindに従って保存先を選ぶが、Issue・PR・`source`からTaskの同一性や継続権限を判定しない。
+新しいTaskは別の作業名で開始し、既存Taskと同じ名前を使って結果を置き換えない。Taskの判定がunknownなら記録操作を行わない。
+Task内のcycle・工程の追加と更新は以下の契約に従う。[操作例](aidd-checker-operations.md#taskと記録先の選択)で具体的な保存先を確認する。
 
 Coreと任意計測CLIが扱う作業名は、先頭がASCII英数字、以降がASCII英数字・`_`・`-`の1〜128文字とする（`^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$`）。空値、先頭の`_`・`-`、空白、`.`やpath区切り、129文字以上は受け付けない。この節を共通の受理条件の正本とし、両CLIで同じ境界値の受理・拒否を確認する。
 

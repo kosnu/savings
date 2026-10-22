@@ -2,15 +2,19 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000005.json",
   "kind": "verify",
-  "source": "https://github.com/kosnu/savings/issues/1975",
+  "source": "https://github.com/kosnu/savings/pull/2005",
   "paths": [
     "apps/web/index.html",
     "apps/web/src/main.tsx",
     "apps/web/src/assets/global.css",
     "apps/web/src/providers/theme/usePreferredTheme.tsx",
-    "apps/web/src/providers/theme/usePreferredTheme.test.tsx"
+    "apps/web/src/providers/theme/usePreferredTheme.test.tsx",
+    "apps/web/package.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    ".github/workflows/deploy_preview.yaml"
   ],
-  "fingerprint": "bb60ce68a7852b456da883526e0a24f0cb0091f6de6d65de6984c5fc4ddce239",
+  "fingerprint": "9b5475bf52af8a7e2074d5c13cfc7fff0cd04933db3e1a4081b5a521e3010c91",
   "status": "pass",
   "checks": [
     "Web整形",
@@ -18,11 +22,12 @@
     "Web整形検査",
     "Web型検査",
     "Web unit/integration",
-    "Web buildと生成HTML読込順序",
-    "Chromium初回paint前の18条件",
-    "Chromium runtime配色の6条件",
+    "Storybook browser tests",
+    "Web buildとHTMLのCSS展開",
+    "Chromium初回paint6条件・起動後6条件",
+    "Preview helper tests",
     "Git空白検査"
   ],
-  "summary": "必須Web検証が成功。unit/integrationは並列数2・再試行1回で149ファイル887件成功。buildで既存CSSの同期script前展開を確認。開発版・ビルド版のChromium計18条件でReact未起動の背景・class・meta一致と初回paint前同期を観測し、起動後6条件のOS追従・固定優先も確認した。No.2は保留のため実機での原症状解消を主張しない。",
+  "summary": "main 4548e62取り込み後、Web必須検証が成功。unit/integrationは並列数2・再試行1回で150ファイル1021件、StorybookはChromium導入後に並列数1で9ファイル23件成功。更新後buildでCSS展開を確認し、Chromiumで初回paint前6条件と起動後6条件が成功。Preview helper testsとGit空白検査も成功。No.2の実機確認は保留。",
   "remaining": []
 }

@@ -50,6 +50,12 @@ export const Empty: Story = {
   },
 }
 
+export const OutOfRange: Story = {
+  parameters: {
+    mockingDate: new Date(2033, 0, 1),
+  },
+}
+
 export const Loading: Story = {
   parameters: {
     msw: {

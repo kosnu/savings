@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1973",
+  "paths": [
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
+  ],
+  "fingerprint": "0d3aaf5425a20499ff6b4261c58f9fd915f266d0fa0c8a473637519fc0758526",
+  "status": "pass",
+  "checks": [
+    "Issue #1973 の受入条件と実差分",
+    "rule-mapの全path/surface・依存closure",
+    "認証済み・未認証・復元中・未知query・再遷移境界",
+    "独立レビューの指摘なし"
+  ],
+  "summary": "未認証確定時にホーム表示とquery消去を維持し、認証済み年月・loading・失敗時再試行を変更しない。全適用規則と工程記録を照合し、未解決の矛盾・指摘なし。必須検証はverifyで別途確認する。",
+  "remaining": []
+}

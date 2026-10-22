@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1971",
+  "paths": [
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "fingerprint": "efed470ebe2a92b380ae549e5283c6805d52474b9f6c9ba627d6ed330e5fbec5",
+  "status": "pass",
+  "checks": [
+    "Workflowのvp check",
+    "git diff --check",
+    "開始時baselineでのCore変更範囲・検証安定性",
+    "独立レビューによる3仮例の意味照合"
+  ],
+  "summary": "開始時baseline 8be0e137を維持して文書検査成功。同成果未完了は元Task保持、同Issueの独立成果は新Task、根拠不足はunknownと最終本文から判断できる。Coreとアプリの実装変更はなく、アプリ検証は対象外。",
+  "remaining": []
+}

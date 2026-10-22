@@ -24,6 +24,16 @@ describe("getFrequentPaymentDateRange", () => {
       endDate: "2026-03-31",
     })
   })
+
+  test.each([
+    [new Date(2022, 0, 1), "2022-01-01", "2022-01-01"],
+    [new Date(2022, 0, 20), "2022-01-01", "2022-01-20"],
+    [new Date(2032, 11, 31), "2032-11-30", "2032-12-31"],
+    [new Date(2021, 11, 31), "2022-01-01", "2022-01-01"],
+    [new Date(2033, 5, 15), "2032-11-30", "2032-12-31"],
+  ])("基準日%sを許容範囲へ補正して%sから%sまでを返す", (referenceDate, startDate, endDate) => {
+    expect(getFrequentPaymentDateRange(referenceDate)).toEqual({ startDate, endDate })
+  })
 })
 
 describe("findFrequentPayments", () => {

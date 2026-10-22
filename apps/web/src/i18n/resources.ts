@@ -28,7 +28,7 @@ export const resources = {
       "privacy.storage.access":
         "Account information and the data you register are stored on servers for use of the service. Authentication and access controls restrict access to your own account information and the records of books you belong to.",
       "privacy.storage.browser":
-        "Your browser’s local storage keeps your sign-in session, language, theme and sidebar preferences. Language preferences are also stored with your account. Clearing browser storage or signing out does not delete the account or records stored on the servers.",
+        "Your browser’s local storage keeps your sign-in session, language and theme preferences. Language preferences are also stored with your account. Clearing browser storage or signing out does not delete the account or records stored on the servers.",
       "privacy.storage.deletion":
         "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. An account-deletion option is not currently available in the app. For requests for access, correction or deletion, please contact the operator below.",
       "privacy.storage.retention":
@@ -177,6 +177,7 @@ export const resources = {
       "date.selectYearMonth": "Select year and month",
       "date.previousMonth": "Previous month",
       "date.nextMonth": "Next month",
+      "date.outOfRange": "Supported dates: {{min}} to {{max}}.",
       "amount.label": "Amount",
       "payments.create.title": "Create payment",
       "payments.create.trigger": "Create payment",
@@ -331,7 +332,7 @@ export const resources = {
       "privacy.storage.access":
         "アカウント情報と登録したデータは、サービスを利用するためにサーバー上に保存します。認証とアクセス制御により、本人のアカウント情報と、所属するブックの記録にアクセスできる範囲を制限します。",
       "privacy.storage.browser":
-        "ログイン状態と言語・テーマ・サイドバーの設定を、ブラウザのローカルストレージに保存します。言語設定はアカウントにも保存します。ブラウザの保存情報の消去やログアウトでは、サーバー上のアカウントや記録は削除されません。",
+        "ログイン状態と言語・テーマの設定を、ブラウザのローカルストレージに保存します。言語設定はアカウントにも保存します。ブラウザの保存情報の消去やログアウトでは、サーバー上のアカウントや記録は削除されません。",
       "privacy.storage.deletion":
         "個別の支払いやカテゴリは画面から削除できます。予算を無効にしても、過去の予算の記録は削除されません。アカウントを削除する画面操作は現在提供していません。開示・訂正・削除等のご相談は、以下の窓口へご連絡ください。",
       "privacy.storage.retention":
@@ -478,6 +479,7 @@ export const resources = {
       "date.selectYearMonth": "年月を選択",
       "date.previousMonth": "前月",
       "date.nextMonth": "翌月",
+      "date.outOfRange": "対応期間は{{min}}〜{{max}}です。",
       "amount.label": "金額",
       "payments.create.title": "支払いを作成",
       "payments.create.trigger": "支払いを作成",

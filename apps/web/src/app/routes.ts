@@ -6,11 +6,11 @@ import {
   redirect,
 } from "@tanstack/react-router"
 
+import { resolveTargetMonth } from "../domain/date"
 import { BookSettings } from "../features/books"
 import { paymentsSearchSchema } from "../features/payments"
 import { AppearanceSettings } from "../features/preferences"
 import { ProfileSettings } from "../features/profile"
-import { isSelectableMonth, MAX_MONTH_INDEX, MIN_MONTH_INDEX } from "../features/summaryByMonth"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
@@ -41,35 +41,39 @@ function redirectIfAuthenticated({ context }: { context: RouterContext }) {
   }
 }
 
+function normalizeMonthSearch({
+  context,
+  search,
+  location,
+}: {
+  context: RouterContext
+  search: { year?: string; month?: string; category?: string }
+  location: { pathname: string }
+}) {
+  if (context.authStatus !== "authenticated") return
+
+  const targetMonth = resolveTargetMonth(search.year, search.month)
+  const year = String(targetMonth.year)
+  const month = String(targetMonth.month)
+  if (search.year === year && search.month === month) return
+
+  throw redirect({
+    to: location.pathname,
+    search: { ...search, year, month },
+    replace: true,
+  })
+}
+
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: HomePage,
   validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
-  beforeLoad: ({ context, search }) => {
-    if (context.authStatus !== "authenticated") return
-
-    const now = new Date()
-    const currentMonth = { year: now.getFullYear(), month: now.getMonth() + 1 }
-    const targetMonth = {
-      year: Number(search.year ?? currentMonth.year),
-      month: Number(search.month ?? currentMonth.month),
+  beforeLoad: (options) => {
+    if (options.context.authStatus === "unauthenticated" && options.location.searchStr) {
+      throw redirect({ to: "/", search: {}, replace: true })
     }
-    const isValid = isSelectableMonth(targetMonth)
-    if (isValid && search.year !== undefined && search.month !== undefined) return
-
-    const fallbackMonthIndex = Math.max(
-      MIN_MONTH_INDEX,
-      Math.min(MAX_MONTH_INDEX, currentMonth.year * 12 + currentMonth.month - 1),
-    )
-    const month = isValid
-      ? targetMonth
-      : { year: Math.floor(fallbackMonthIndex / 12), month: (fallbackMonthIndex % 12) + 1 }
-    throw redirect({
-      to: "/",
-      search: { year: String(month.year), month: String(month.month) },
-      replace: true,
-    })
+    return normalizeMonthSearch(options)
   },
 })
 
@@ -103,6 +107,7 @@ const paymentsRoute = createRoute({
   path: "/payments",
   component: PaymentsPage,
   validateSearch: paymentsSearchSchema,
+  beforeLoad: normalizeMonthSearch,
 })
 
 const paymentDetailsRoute = createRoute({

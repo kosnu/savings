@@ -1,19 +1,22 @@
 import * as z from "zod"
 
 import { amountFieldSchema } from "../../domain/amount"
+import { isSupportedDate, MAX_YEAR, MIN_YEAR } from "../../domain/date"
 
 export const PAYMENT_NOTE_MAX_LENGTH = 30
 
 export const categoryFieldSchema = z.string()
 
-export const dateFieldSchema = z.date({
-  error: (iss) => {
-    if (iss.input === undefined || iss.input === null || iss.input === "") {
-      return "Date cannot be empty"
-    }
-    return "Date is invalid"
-  },
-})
+export const dateFieldSchema = z
+  .date({
+    error: (iss) => {
+      if (iss.input === undefined || iss.input === null || iss.input === "") {
+        return "Date cannot be empty"
+      }
+      return "Date is invalid"
+    },
+  })
+  .refine(isSupportedDate, { error: `Date must be between ${MIN_YEAR} and ${MAX_YEAR}` })
 
 export const noteFieldSchema = z
   .string()

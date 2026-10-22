@@ -2,22 +2,26 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000005.json",
   "kind": "design",
-  "source": "https://github.com/kosnu/savings/issues/1975",
+  "source": "https://github.com/kosnu/savings/pull/2005",
   "paths": [
     "apps/web/index.html",
     "apps/web/src/main.tsx",
     "apps/web/src/assets/global.css",
     "apps/web/src/providers/theme/usePreferredTheme.tsx",
-    "apps/web/src/providers/theme/usePreferredTheme.test.tsx"
+    "apps/web/src/providers/theme/usePreferredTheme.test.tsx",
+    "apps/web/package.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    ".github/workflows/deploy_preview.yaml"
   ],
-  "fingerprint": "bb60ce68a7852b456da883526e0a24f0cb0091f6de6d65de6984c5fc4ddce239",
+  "fingerprint": "9b5475bf52af8a7e2074d5c13cfc7fff0cd04933db3e1a4081b5a521e3010c91",
   "status": "pass",
   "checks": [
-    "No.1の承認範囲と現行Intent",
-    "描画前のCSS展開と同期初期化",
-    "保存設定優先とsystem fallback",
-    "既存5ファイルの責務"
+    "既存TaskとNo.1の成果を継続",
+    "main取り込みとpnpm指定の照合",
+    "Dev Preview配信範囲と既存承認経路",
+    "統合後の再検証範囲"
   ],
-  "summary": "ユーザーの「No.2は保留。No.1のみ承認」に基づく採用判断。既存Radix CSSをHTML内に展開し同期scriptより前に置く。保存設定・OS配色でclassと既存背景token・metaを起動時から揃え、Reactでも維持する。新規asset・共通規則・Intent改訂なし。No.2とIssue投稿・Bot返信・解決は対象外。",
+  "summary": "ユーザーのmain取り込み・再デプロイ依頼に基づき同じTask・cycle・baselineを継続。main 4548e62を衝突なく統合しpnpm指定を12.14.0へ揃える。No.1の既存テーマ同期を保持し、依存更新後にWeb検証・Storybook・ビルドを確認して同じPRへpushし、既存Actions経路でDev Previewを配信する。No.2の実機確認は保留。",
   "remaining": []
 }

@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1967",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "8043b144720e761475f16b9251b5c9de178cd9f3e8945ebf7e0c5e20f5eabca0",
+  "status": "pass",
+  "checks": [
+    "Markdown formatting",
+    "rule graph and scoped changes",
+    "28 local links",
+    "diff whitespace"
+  ],
+  "summary": "文書2件の整形、規則graphと差分範囲、ローカル参照先28件、空白検査が成功。Core実行4件が終了コード0、対象は検証中に変化なし。アプリ動作・型・buildへの変更はないためWeb検証は対象外。",
+  "remaining": []
+}

@@ -4,7 +4,13 @@ import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
-import { formatTargetMonthKey, toTargetMonth } from "../../../../domain/date"
+import {
+  formatTargetMonthKey,
+  isSupportedDate,
+  MAX_DATE_ONLY,
+  MIN_DATE_ONLY,
+  resolveTargetMonth,
+} from "../../../../domain/date"
 import { toCurrency } from "../../../../utils/toCurrency"
 import { CreateMonthlyBudgetModal } from "../../createMonthlyBudget/CreateMonthlyBudgetModal"
 import { useEffectiveMonthlyBudget } from "../../getMonthlyBudget/useEffectiveMonthlyBudget"
@@ -14,25 +20,36 @@ import { UpdateMonthlyBudgetModal } from "../../updateMonthlyBudget/UpdateMonthl
 
 export function LatestMonthlyBudget() {
   const { t } = useTranslation()
-  const [targetMonth] = useState(() => formatTargetMonthKey(toTargetMonth(new Date())))
+  const [targetMonth] = useState(() => {
+    const now = new Date()
+    return isSupportedDate(now)
+      ? formatTargetMonthKey(resolveTargetMonth(undefined, undefined, now))
+      : null
+  })
 
   return (
     <Flex direction="column" gap="3">
       <Text as="p" size="4" weight="medium">
         {t("budgets.title")}
       </Text>
-      <ErrorBoundary
-        fallback={
-          <Text color="red" role="alert">
-            {t("budgets.loadError")}
-          </Text>
-        }
-        resetKeys={[targetMonth]}
-      >
-        <Suspense fallback={<LatestMonthlyBudgetLoading />}>
-          <LatestMonthlyBudgetContent targetMonth={targetMonth} />
-        </Suspense>
-      </ErrorBoundary>
+      {targetMonth === null ? (
+        <Text color="red" role="alert">
+          {t("date.outOfRange", { min: MIN_DATE_ONLY, max: MAX_DATE_ONLY })}
+        </Text>
+      ) : (
+        <ErrorBoundary
+          fallback={
+            <Text color="red" role="alert">
+              {t("budgets.loadError")}
+            </Text>
+          }
+          resetKeys={[targetMonth]}
+        >
+          <Suspense fallback={<LatestMonthlyBudgetLoading />}>
+            <LatestMonthlyBudgetContent targetMonth={targetMonth} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
     </Flex>
   )
 }

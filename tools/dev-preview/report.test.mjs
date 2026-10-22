@@ -24,7 +24,8 @@ const deployment = {
   deployment_id: "deployment-one",
 }
 
-test("成功結果にリンクと PR・branch・承認済み SHA・deployment・run/attempt を含める", () => {
+// 合成の配信結果から通知を生成する。実配信や承認済みSHAの由来は確認しない。
+test("入力された配信結果からリンクと PR・branch・SHA・deployment・run/attempt を生成する", () => {
   const completedAt = "2026-10-12T19:00:00.000Z"
   const report = deploymentReport(deployment, env, completedAt)
   assert.equal(report.url, `${deployment.preview_urls[0]}/`)
@@ -51,7 +52,7 @@ test("成功結果にリンクと PR・branch・承認済み SHA・deployment・
   )
 })
 
-test("空・本番・別branch・不正 URL / metadata の結果を通知に使わない", () => {
+test("空・本番・別Preview・不正 URL / metadata の結果を拒否する", () => {
   for (const patch of [
     { type: "deployment" },
     { preview_name: "another-branch" },
@@ -81,16 +82,14 @@ test("空・本番・別branch・不正 URL / metadata の結果を通知に使�
 
 test("長いbranchもサマリーに残し、status description は API 上限内に収める", () => {
   const branch = `feature/${"x".repeat(200)}<details>&`
-  const report = deploymentReport(
-    { ...deployment, preview_name: prPreviewName(env.PR_NUMBER) },
-    { ...env, PREVIEW_BRANCH: branch },
-  )
+  const report = deploymentReport(deployment, { ...env, PREVIEW_BRANCH: branch })
   assert.equal(report.description.length, 140)
   assert.ok(report.description.includes("run 42.1"))
   assert.ok(report.summary.includes(`${"x".repeat(200)}&lt;details&gt;&amp;`))
 })
 
-test("CLI → job outputs → report shell は手動実行でも PR SHA へ成功 status だけを登録する", () => {
+// 実CLIとworkflowから抽出したshellを実行し、fake ghへの要求を観測する。実APIには登録しない。
+test("CLI → outputs → report shell は PR SHA の成功 status 要求を生成し、古い通知を抑止する", () => {
   const dir = mkdtempSync(join(tmpdir(), "preview-report-"))
   try {
     const json = join(dir, "preview.json")

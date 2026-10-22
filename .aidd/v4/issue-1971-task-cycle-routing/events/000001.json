@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1971",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "2f2033cfcb391d42c9d8f2cc4a9c3b3dd612be64175e54197aa5ba365bbe6988",
+  "status": "pass",
+  "checks": [
+    "Issue #1971のIntentとTask境界",
+    "Coreのrecord-begin/finish/readとの対応",
+    "rule-mapの選択と同期範囲"
+  ],
+  "summary": "Intent・成果・作業境界からTaskを判定してからcycle・工程を選ぶ。Workflow、Core記録契約、操作例を同期し、既存CLIと索引を維持する。独立したIssue #1971の成果として新Taskを開始し、過去記録は保持する。",
+  "remaining": []
+}
