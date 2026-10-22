@@ -14,15 +14,14 @@
     "pnpm-lock.yaml",
     ".github/workflows/deploy_preview.yaml"
   ],
-  "fingerprint": "9b5475bf52af8a7e2074d5c13cfc7fff0cd04933db3e1a4081b5a521e3010c91",
+  "fingerprint": "a6c9d22c5dc127bdedf80a61f520153d4b1613af34602d81150293c8b985e521",
   "status": "pass",
   "checks": [
-    "No.1の既存実装と最新mainの統合",
-    "pnpmとworkflowの12.14.0一致",
-    "起動時CSS展開と保存設定の優先",
-    "テストの保証範囲と現在の説明",
-    "適用ルール28件とPreview運用"
+    "変更面に対応するrule-mapと依存規則の確認",
+    "main統合差分とNo.1修正の保持",
+    "Sentry Vite plugin 11.8.0の型・実装と既存オプションの互換確認",
+    "最終依存でのbuildおよびChromium起動前後の配色確認"
   ],
-  "summary": "独立レビューで指摘・規約矛盾なし。PR固有の5ファイルは取り込み前と同一で、mainの変更と競合せず、pnpm指定は12.14.0で一致。更新後のbuildで7684 bytesの既存テーマCSSが同期script前に展開され外部importが残らないことを確認した。現在のChromium確認は初回paint6条件と起動後6条件であり、旧18条件の観測を現在の証拠へ流用しない。No.2は保留。",
+  "summary": "main 5332a93までを競合なく統合。No.1の5ファイルは承認済み修正を保持し、pnpm 12.14.0とPreview workflowの指定は一致する。独立レビューで新しいSentry pluginは既存設定を受理し、コード上の公開範囲の不整合なし。テストは自前の設定生成と引数までを検証し、Sentryへの実upload・削除・外部受信は未確認。No.2のnative起動・Pixel原症状は今回の承認範囲外として保留。",
   "remaining": []
 }
