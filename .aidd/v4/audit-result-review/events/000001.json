@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "user:AuditとRetrospectiveの結果を3観点でレビューし指摘解消後に出力する依頼",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/policies/retrospective.md",
+    "docs/ai-driven-development/workflow.md",
+    ".agents/skills/audit/SKILL.md",
+    ".agents/skills/retrospective/SKILL.md"
+  ],
+  "fingerprint": "889a5dd4ea24817a207c5458509f6b66f100554ae0df8d96ef0b34da0b51d13a",
+  "status": "pass",
+  "checks": [
+    "Intentと担当範囲",
+    "正本と入口の責務"
+  ],
+  "summary": "ユーザー依頼をIntentとし、3観点の共通基準を既存Audit policyへ置き、Retrospective・workflow・2スキルを同期する。分析の修正と未承認改善の境界を維持する。",
+  "remaining": []
+}

@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "user:AuditとRetrospectiveの結果を3観点でレビューし指摘解消後に出力する依頼",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/policies/retrospective.md",
+    "docs/ai-driven-development/workflow.md",
+    ".agents/skills/audit/SKILL.md",
+    ".agents/skills/retrospective/SKILL.md"
+  ],
+  "fingerprint": "889a5dd4ea24817a207c5458509f6b66f100554ae0df8d96ef0b34da0b51d13a",
+  "status": "pass",
+  "checks": [
+    "vp fmt --check",
+    "audit skill validator",
+    "retrospective skill validator",
+    "git diff --check",
+    "Core check-changes origin/main",
+    "ローカル参照と共通レビューanchor"
+  ],
+  "summary": "変更5文書の整形、2スキル形式、差分空白、Core規約graphと対象範囲、参照先を確認した。アプリ実装・runtime変更はなくアプリ検証は対象外。",
+  "remaining": []
+}

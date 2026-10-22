@@ -17,6 +17,7 @@ Analyze the findings and their causes. Preserve resolved status.
 Development-process retrospection belongs to [Retrospective](../../../docs/harness/policies/retrospective.md)
 after Merge / Close; do not search for process improvements during Audit.
 Present evidence, causes or uncertainty, concrete proposals, finite targets, and validation.
+Before presenting the result, apply [analysis-result review](../../../docs/harness/policies/learning-extraction.md#分析結果のレビュー), address findings, and re-review affected conclusions. Include the three review conclusions and resolution status; never report unresolved evidence or decisions as cleared.
 Do not apply proposals during Audit. Development or Ship authority is not improvement approval.
 Include the change/improvement decision and, for each target PR comment/thread, the reason,
 evidence, proposed reply, Bot resolution conditions, and remaining work, following Audit policy.
