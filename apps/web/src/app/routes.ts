@@ -69,7 +69,12 @@ const indexRoute = createRoute({
   path: "/",
   component: HomePage,
   validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
-  beforeLoad: normalizeMonthSearch,
+  beforeLoad: (options) => {
+    if (options.context.authStatus === "unauthenticated" && options.location.searchStr) {
+      throw redirect({ to: "/", search: {}, replace: true })
+    }
+    return normalizeMonthSearch(options)
+  },
 })
 
 const authRoute = createRoute({

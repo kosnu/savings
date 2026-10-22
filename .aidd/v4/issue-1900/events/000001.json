@@ -2,7 +2,7 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "https://github.com/kosnu/savings/issues/1900",
+  "source": "https://github.com/kosnu/savings/pull/2003",
   "paths": [
     "apps/web/src/domain/date.ts",
     "apps/web/src/domain/date.test.ts",
@@ -20,14 +20,15 @@
     "apps/web/src/i18n/resources.ts",
     "apps/web/src/utils/useDateRange.tsx",
     "apps/web/src/utils/useDateRange.test.tsx",
-    "docs/harness/domain/date.md"
+    "docs/harness/domain/date.md",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
   ],
-  "fingerprint": "c877b0c900091bb2e7c3fd0ebccbec4e34105f6148b6fc2ce466b75f3f26273d",
+  "fingerprint": "9595ff3ddc8aa00b77a82f5b1786860e208a9355e02d562b4776955fe6e5a6c8",
   "status": "pass",
   "checks": [
-    "有限範囲と既存データの扱い",
-    "全入口の共通化とDB責務境界"
+    "既存の年月範囲とmainのログアウト契約",
+    "認証確定・復元中のURL処理と本番テスト境界"
   ],
-  "summary": "2022年1月〜2032年12月を固定し、既存の月選択範囲と約4年の過去・約6年の未来を維持。入力・検索・遷移・初期値をWeb日付ドメインで統一し、保存済み範囲外値とDB認可を保持する。",
+  "summary": "2022〜2032年の共通年月正規化を維持し、ホームで未認証が確定した場合だけクエリを全除去する。認証テストも本番のURL変換を使用する。既存Intent・範囲・権限の変更なし。",
   "remaining": []
 }

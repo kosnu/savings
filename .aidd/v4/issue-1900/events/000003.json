@@ -2,7 +2,7 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "https://github.com/kosnu/savings/issues/1900",
+  "source": "https://github.com/kosnu/savings/pull/2003",
   "paths": [
     "apps/web/src/domain/date.ts",
     "apps/web/src/domain/date.test.ts",
@@ -20,17 +20,17 @@
     "apps/web/src/i18n/resources.ts",
     "apps/web/src/utils/useDateRange.tsx",
     "apps/web/src/utils/useDateRange.test.tsx",
-    "docs/harness/domain/date.md"
+    "docs/harness/domain/date.md",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
   ],
-  "fingerprint": "c877b0c900091bb2e7c3fd0ebccbec4e34105f6148b6fc2ce466b75f3f26273d",
+  "fingerprint": "9595ff3ddc8aa00b77a82f5b1786860e208a9355e02d562b4776955fe6e5a6c8",
   "status": "pass",
   "checks": [
-    "Intentの完了条件3項目",
-    "入力・保存・URL・検索・集計・遷移・現在月設定の境界",
-    "rule-map path/surface/depends_on closure",
-    "既存データ保持とDB認可維持",
-    "独立レビューの指摘解消と再レビュー"
+    "既存Intentの年月範囲・共通判定・境界の整合",
+    "ログアウト時の全クエリ除去と認証復元中の保持",
+    "本番ルート・URL変換を用いた回帰境界",
+    "適用規則と独立レビュー"
   ],
-  "summary": "2022〜2032年の有限範囲と根拠、全機能の共通判定、境界での入力・表示・取得の一致を確認。既存UI部品とエラー表示を維持し、範囲外現在月の予算操作を停止。未解決指摘・規則競合なし。",
+  "summary": "既存の年月範囲・正規化・詳細IDとカテゴリ保持を維持。未認証確定後のホームではrawクエリを除去し、復元中は保持する。既存UIの変更なし。実差分と独立レビューで規則競合・未解決指摘なし。",
   "remaining": []
 }
