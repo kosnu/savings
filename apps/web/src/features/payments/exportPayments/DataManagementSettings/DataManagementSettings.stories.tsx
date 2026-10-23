@@ -3,9 +3,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { DataManagementSettings } from "./DataManagementSettings"
 
 const meta = {
-  title: "Pages/DataManagementSettings",
+  title: "Features/Payments/DataManagementSettings",
   component: DataManagementSettings,
-  tags: ["autodocs", "browser-test"],
+  tags: ["autodocs"],
 } satisfies Meta<typeof DataManagementSettings>
 
 export default meta

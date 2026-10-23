@@ -4,6 +4,7 @@ doc_type: policy
 status: accepted
 area: web
 applies_to:
+  - apps/web/src/app/routes
   - apps/web/src/components
   - apps/web/src/features
 topics:
@@ -17,6 +18,7 @@ when_to_read:
   - Webアプリのコンポーネントを別ファイルへ切り出すとき
   - WebアプリのコンポーネントにStoryを追加するか判断するとき
   - features配下またはcomponents配下のコンポーネント配置を変更するとき
+  - ルートに登録するコンポーネントの配置を判断するとき
 ---
 
 # Component Structure
@@ -32,6 +34,16 @@ Foo/
   Foo.test.tsx      # 必要な場合
   Foo.stories.tsx   # 「Storyの作成条件」に該当する場合
 ```
+
+## PageとFeatureの配置
+
+URLのパスやRouterの `component` に登録されることだけを理由に、`app/routes/` へPageコンポーネントを追加してはいけません。配置は、ルーティングから呼ばれるかではなく、表示・操作の責務を所有する機能から決めます。
+
+- featureが所有する設定画面やユースケースの表示は、そのfeatureのsliceに置きます。ルートからfeatureの公開面を通して直接使い、Pageを経由するためだけのラッパーを作りません。
+- 設定の見出しや余白を付けて機能のフォームを表示するだけでは、独立したPageを作る理由になりません。同種の設定画面の配置と責務を比較して判断します。
+- `app/routes/` は、アプリ全体のナビゲーションやページレイアウト、ルート固有の条件・取得境界、複数機能をページとして組み合わせるなど、featureとは別のページ責務を持つ場合に使います。設定領域内の構成と、アプリ側のページ構成を区別します。
+
+Storyの分類も配置と責務に揃えます。featureのコンポーネントは、ルートへ直接登録していても `Features/...` とし、ページの枠やナビゲーションとの組み合わせを確認するStoryは `Pages/...` とします。Storyのtitleだけを変更して、実装の配置判断を済ませたことにはしません。
 
 ## 責務によるコンポーネントの切り出し
 

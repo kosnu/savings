@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "codex://threads/01a16474-01c6-7eb3-9558-97a1b292b046",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "docs/harness/rule-map.json",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/DataManagementSettings/",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.test.tsx",
+    "apps/web/src/features/payments/exportPayments/DataManagementSettings/",
+    "apps/web/src/features/payments/index.ts"
+  ],
+  "fingerprint": "4af49e12bdd51e0965253f65ebbf92f615b1f23e49fcbf459c35c5e9f0f7a079",
+  "status": "pass",
+  "checks": [
+    "最新origin/mainからの独立Task",
+    "配置規則を先に定義し実装へ適用",
+    "既存Settingsとの責務・Storyの比較"
+  ],
+  "summary": "ルート登録をPages配置の根拠にせず、設定・ユースケースは所有featureへ置く規則をcomponent-structureに追加。単一の出力機能を組み立てるDataManagementSettingsを既存payments/exportPaymentsへ移し、公開面・route・Story・既存テストを同期する。表示とURLは保持する。",
+  "remaining": []
+}
