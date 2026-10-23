@@ -677,7 +677,13 @@
       "id": "web.component-structure",
       "file": "apps/web/docs/policies/component-structure.md",
       "applies_to": {
-        "paths": ["apps/web/src/components/**", "apps/web/src/features/**"],
+        "paths": [
+          "apps/web/src/app/routes.ts",
+          "apps/web/src/app/routes/**",
+          "apps/web/src/components/**",
+          "apps/web/src/features/**",
+          "apps/web/docs/policies/component-structure.md"
+        ],
         "domains": ["web", "ui"],
         "activities": [
           "add_component",

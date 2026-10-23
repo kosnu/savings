@@ -1,7 +1,7 @@
 import { Flex, Heading } from "@radix-ui/themes"
 import { useTranslation } from "react-i18next"
 
-import { ExportPayments } from "../../../features/payments"
+import { ExportPayments } from "../ExportPayments"
 
 export function DataManagementSettings() {
   const { t } = useTranslation()

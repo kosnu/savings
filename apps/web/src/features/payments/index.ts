@@ -1,4 +1,5 @@
 export { CreatePaymentModal } from "./createPayment/CreatePaymentModal"
+export { DataManagementSettings } from "./exportPayments/DataManagementSettings"
 export { ExportPayments } from "./exportPayments/ExportPayments"
 export { PaymentCategoryFilter } from "./listPayment/PaymentCategoryFilter"
 export { PaymentList } from "./listPayment/PaymentList"
