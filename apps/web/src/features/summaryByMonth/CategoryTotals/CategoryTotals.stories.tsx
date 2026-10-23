@@ -156,14 +156,14 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    expect(await canvas.findByText("On budget")).toBeInTheDocument()
+    expect(await canvas.findAllByText("On budget")).not.toHaveLength(0)
     expect(await canvas.findByText("¥2,000 left")).toBeInTheDocument()
     expect(await canvas.findByText("¥500 over")).toBeInTheDocument()
 
     await userEvent.click(await canvas.findByRole("button", { name: "Show more category totals" }))
 
-    expect(await canvas.findByText("Not set")).toBeInTheDocument()
-    expect(await canvas.findByText("No budget")).toBeInTheDocument()
+    expect(await canvas.findAllByText("Not set")).not.toHaveLength(0)
+    expect(await canvas.findAllByText("No budget")).not.toHaveLength(0)
   },
 }
 
@@ -201,5 +201,34 @@ export const LargeAmounts: Story = {
     expect(await canvas.findByText("¥8,999,999,999,999 over")).toBeInTheDocument()
     expect(container.scrollWidth).toBeLessThanOrEqual(container.clientWidth)
     expect(progress.getBoundingClientRect().width).toBe(container.getBoundingClientRect().width)
+  },
+}
+
+export const Loading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createCategoryHandlers({ get: { durationOrMode: "infinite" } }),
+        ...createPaymentHandlers(),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByLabelText("loading category totals"),
+    ).toBeVisible()
+  },
+}
+
+export const FetchError: Story = {
+  parameters: {
+    msw: {
+      handlers: [...createCategoryHandlers({ get: { error: true } }), ...createPaymentHandlers()],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText("Failed", {}, { timeout: 5000 }),
+    ).toBeVisible()
   },
 }

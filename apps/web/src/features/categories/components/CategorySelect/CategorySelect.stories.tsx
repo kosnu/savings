@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
+import { userEvent, within } from "storybook/test"
 
 import { categories } from "../../../../test/data/categories"
 import {
@@ -61,12 +62,20 @@ export const Empty: Story = {
 }
 
 export const Loading: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("combobox"))
+    await within(document.body).findByRole("option", { name: "Loading" })
+  },
   args: {
     children: <LoadingCategoryOption />,
   },
 }
 
 export const ErrorState: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("combobox"))
+    await within(document.body).findByRole("option", { name: "Error" })
+  },
   args: {
     children: <ErrorCategoryOption />,
   },

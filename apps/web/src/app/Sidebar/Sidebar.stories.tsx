@@ -2,7 +2,9 @@ import { Separator } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { expect, fn, userEvent, waitFor, within } from "storybook/test"
 
+import { getSupabaseClient } from "../../lib/supabase"
 import { createStoryRouter } from "../../test/helpers/routerDecorator"
+import { createAuthHandlers, createMockJwt } from "../../test/msw/handlers/auth"
 import { Sidebar } from "./Sidebar"
 import { SidebarButton } from "./SidebarButton"
 
@@ -104,4 +106,36 @@ export const MobileViewport: Story = {
 export const LandscapeViewport: Story = {
   ...ShortViewport,
   globals: { viewport: { value: "landscape" } },
+}
+
+export const LoggingOut: Story = {
+  args: { open: true },
+  parameters: { msw: { handlers: createAuthHandlers({ logout: { durationOrMode: "infinite" } }) } },
+  play: async ({ canvasElement }) => {
+    await getSupabaseClient().auth.setSession({
+      access_token: createMockJwt(),
+      refresh_token: "mock-refresh-token",
+    })
+    const canvas = within(canvasElement)
+    const logout = await canvas.findByRole("button", { name: "Log out" })
+    await userEvent.click(logout)
+    await expect(logout).toBeDisabled()
+  },
+}
+
+export const LogoutError: Story = {
+  args: { open: true },
+  parameters: { msw: { handlers: createAuthHandlers({ logout: { error: true } }) } },
+  play: async ({ canvasElement }) => {
+    await getSupabaseClient().auth.setSession({
+      access_token: createMockJwt(),
+      refresh_token: "mock-refresh-token",
+    })
+    const canvas = within(canvasElement)
+    const logout = await canvas.findByRole("button", { name: "Log out" })
+    await userEvent.click(logout)
+    await expect(await canvas.findByRole("alert")).toHaveTextContent(
+      "Could not log out. Please try again.",
+    )
+  },
 }
