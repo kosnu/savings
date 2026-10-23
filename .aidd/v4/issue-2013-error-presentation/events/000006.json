@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "DESIGN.md"
+  ],
+  "fingerprint": "6aec304cd79eaa0f28f959c130d943e9d754de2aeae964ab48aafe8b69e609f9",
+  "status": "pass",
+  "checks": [
+    "文書・索引5件の整形検査",
+    "相対リンク41件",
+    "Core rules / check-changes",
+    "git diff --check"
+  ],
+  "summary": "文書と規約索引の検査が成功。変更はDESIGNの文言と工程結果のみでWeb実装検証は対象外。明確な保存・取得失敗の赤表現と、通常超過の過剰な赤表現禁止を保持。",
+  "remaining": []
+}
