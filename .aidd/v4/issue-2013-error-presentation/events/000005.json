@@ -4,15 +4,19 @@
   "kind": "design",
   "source": "https://github.com/kosnu/savings/issues/2013",
   "paths": [
-    "DESIGN.md"
+    "DESIGN.md",
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
   ],
-  "fingerprint": "6aec304cd79eaa0f28f959c130d943e9d754de2aeae964ab48aafe8b69e609f9",
+  "fingerprint": "c01a970d0c978d3942be6281c56e25d597f8448f468958882a65098e025fdb0a",
   "status": "pass",
   "checks": [
-    "承認されたDESIGN Colors節のみの改善",
-    "保存・取得失敗を同じ意味分類にする",
-    "通常超過を赤にしない制約を保持"
+    "同じTaskと現在サイクルの継続",
+    "mainのworkflow更新のみの取り込み",
+    "既存の赤色方針と整理成果を維持"
   ],
-  "summary": "ユーザーのAudit承認に基づきRedを明確な処理失敗という分類と保存・取得の例で説明。既存の赤表示を維持し、Issueの整理成果・完了条件は変更しない。",
+  "summary": "mainのworkflow更新2件を競合なく統合し、既存の文書整理と赤色の意味分類を保持。PRの担当差分は文書・索引・工程結果のみ。previewラベルの付与も今回の明示依頼の範囲。",
   "remaining": []
 }

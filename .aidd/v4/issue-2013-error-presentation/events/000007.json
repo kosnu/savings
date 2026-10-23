@@ -4,18 +4,21 @@
   "kind": "review",
   "source": "https://github.com/kosnu/savings/issues/2013",
   "paths": [
-    "DESIGN.md"
+    "DESIGN.md",
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
   ],
-  "fingerprint": "6aec304cd79eaa0f28f959c130d943e9d754de2aeae964ab48aafe8b69e609f9",
+  "fingerprint": "c01a970d0c978d3942be6281c56e25d597f8448f468958882a65098e025fdb0a",
   "status": "pass",
   "checks": [
-    "web.design-system-brand",
+    "policy.git-workflow",
     "documentation.policy",
     "policy.code-review",
-    "ai-driven.workflow",
-    "承認範囲とIssue完了条件",
-    "保存・取得失敗と空状態・通常超過の対照"
+    "web.design-system-brand",
+    "既存の採用判断とmain更新の整合"
   ],
-  "summary": "Redの意味を処理失敗として定義し保存・取得を例示。空状態を失敗化せず、通常超過を赤にする根拠も追加していない。既存の表示方針と採用済み成果を保持し、ブランド定義・新規約・既存規約の整合を確認。未解決指摘なし。",
+  "summary": "main由来の3workflow以外に統合差分なし。保存・取得失敗の赤表現と通常超過の制約、元のIssue成果を保持。PRにruntime差分はなく、競合と未解決の規約矛盾なし。",
   "remaining": []
 }

@@ -4,16 +4,21 @@
   "kind": "verify",
   "source": "https://github.com/kosnu/savings/issues/2013",
   "paths": [
-    "DESIGN.md"
+    "DESIGN.md",
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
   ],
-  "fingerprint": "6aec304cd79eaa0f28f959c130d943e9d754de2aeae964ab48aafe8b69e609f9",
+  "fingerprint": "c01a970d0c978d3942be6281c56e25d597f8448f468958882a65098e025fdb0a",
   "status": "pass",
   "checks": [
-    "文書・索引5件の整形検査",
+    "文書と索引5件の整形",
     "相対リンク41件",
-    "Core rules / check-changes",
-    "git diff --check"
+    "Core rules",
+    "git diff --cached --check",
+    "元の5文書との一致とPR範囲12件"
   ],
-  "summary": "文書と規約索引の検査が成功。変更はDESIGNの文言と工程結果のみでWeb実装検証は対象外。明確な保存・取得失敗の赤表現と、通常超過の過剰な赤表現禁止を保持。",
+  "summary": "main取り込み後も元の5文書は同一。整形・リンク・規約検査を通過し、main比の担当差分は文書と工程結果のみ。Web実装検証は対象外。",
   "remaining": []
 }
