@@ -7,8 +7,8 @@ import { resolveLifecycle } from "./lifecycle.mjs"
 const repo = "kosnu/savings"
 const sha = "a".repeat(40)
 const env = {
-  GITHUB_EVENT_NAME: "pull_request_target",
-  GITHUB_REF: "refs/heads/main",
+  GITHUB_EVENT_NAME: "pull_request",
+  GITHUB_REF: "refs/pull/1927/merge",
   GITHUB_REPOSITORY: repo,
 }
 const pr = {
@@ -58,7 +58,7 @@ test("close・merge・古いlabel要求のclosed再実行は deploy=false と cl
 
 test("main 手動実行は現在 SHA を解決し、closedなら配信しない", async () => {
   const manual = { inputs: { pr_number: "1927" } }
-  const context = { ...env, GITHUB_EVENT_NAME: "workflow_dispatch" }
+  const context = { ...env, GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main" }
   assert.equal((await resolveLifecycle(manual, context, get(pr))).sha, sha)
   assert.equal(
     (await resolveLifecycle(manual, context, get({ ...pr, state: "closed" }))).deploy,
@@ -83,7 +83,7 @@ test("fork・別base・別label・未対応event・出力注入を信頼済み�
   ])
     await assert.rejects(resolveLifecycle(invalid, env, get(pr)))
   await assert.rejects(
-    resolveLifecycle(event, { ...env, GITHUB_EVENT_NAME: "pull_request" }, get(pr)),
+    resolveLifecycle(event, { ...env, GITHUB_EVENT_NAME: "pull_request_target" }, get(pr)),
   )
   await assert.rejects(
     resolveLifecycle(event, env, async () => {
@@ -109,7 +109,7 @@ test("workflow 本文は非cancel groupとmainコードを使う受付・後処�
   assert.match(yaml, /cancel-in-progress: false/u)
   assert.match(yaml, /if: needs.resolve.outputs.deploy == 'true'/u)
   for (const job of [resolve, reconcile, cleanup]) {
-    assert.match(job, /ref: \$\{\{ github.sha \}\}/u)
+    assert.match(job, /ref: \$\{\{ github.event.pull_request.base.sha \|\| github.sha \}\}/u)
     assert.doesNotMatch(job, /head.sha|ref:.*needs.resolve.outputs.sha|pnpm|npm|uses:.*\.\//u)
     assert.match(job, /persist-credentials: false/u)
   }

@@ -1,8 +1,8 @@
 name: Deploy Dev Preview
 
-# 受付・削除は main のみ。PR 実行は固定 SHA の development 承認後だけで、token は read 限定。
-on: # zizmor: ignore[dangerous-triggers] 削除用認証情報を持つ独立 job は main コードだけを実行する
-  pull_request_target:
+# 同一repositoryのPRだけを受け付け、固定SHAをdevelopment Environmentで配信する。
+on:
+  pull_request:
     branches: [main]
     types: [labeled, closed]
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
   resolve:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request_target' &&
+      (github.event_name == 'pull_request' &&
        (github.event.action == 'closed' ||
         (github.event.action == 'labeled' && github.event.label.name == 'preview')) &&
        github.event.pull_request.head.repo.full_name == github.repository &&
@@ -43,7 +43,7 @@ jobs:
       - name: Checkout trusted lifecycle gate without deployment secrets
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
       - name: Resolve selected PR head
         id: pr
@@ -68,7 +68,7 @@ jobs:
       - name: Checkout trusted deployment gate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
 
       # 承認待ちの間の head 更新、branch rename、ラベル撤回も拒否する。
@@ -163,7 +163,7 @@ jobs:
       # 配信 job の filesystem / outputs は削除コードに使わない。
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
       - name: Reconcile current PR state
         id: state
@@ -185,7 +185,7 @@ jobs:
       # main のコードだけを新しい runner で実行する。PR checkout / dependency install は禁止。
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
       - name: Delete only the selected native Preview
         env:

@@ -18,7 +18,7 @@ export function validatePR(pr, repository) {
 
 export async function resolveLifecycle(event, env, get) {
   const repository = env.GITHUB_REPOSITORY
-  const target = env.GITHUB_EVENT_NAME === "pull_request_target"
+  const target = env.GITHUB_EVENT_NAME === "pull_request"
   const number = String(target ? event.number : event.inputs?.pr_number)
   if (
     !/^[1-9][0-9]*$/u.test(number) ||

@@ -1,7 +1,7 @@
 name: Sync Vite+ dependencies
 
-on: # zizmor: ignore[dangerous-triggers] PRtargetの受付jobはAPIだけを利用し、PRコードを実行しない
-  pull_request_target:
+on:
+  pull_request:
     types: [opened, synchronize, reopened, edited]
     branches: [main]
   workflow_dispatch:
@@ -24,15 +24,18 @@ concurrency:
 
 jobs:
   route:
-    if: github.event_name == 'pull_request_target'
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.id == 29139614 &&
+      github.event.pull_request.user.login == 'renovate[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
       actions: write
-      statuses: write
     steps:
-      - name: Dispatch synchronization or CI without executing PR code
+      - name: Dispatch synchronization without executing PR code
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
@@ -46,41 +49,22 @@ jobs:
             if (pr.state !== 'open' || pr.base.ref !== 'main' || pr.head.sha !== candidate.head.sha) {
               throw new Error('PR head or base changed; route the newest candidate');
             }
-            const files = await github.paginate(github.rest.pulls.listFiles, {owner, repo, pull_number: pr.number});
-            const allowed = new Set(['package.json', 'apps/web/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml']);
             const renovate = pr.user.id === 29139614 && pr.user.login === 'renovate[bot]' &&
               pr.head.repo.full_name === `${owner}/${repo}`;
-            let synchronize = false;
-            if (renovate && files.length && files.every(file => allowed.has(file.filename) && file.status === 'modified')) {
-              const version = async ref => {
-                const file = (await github.rest.repos.getContent({owner, repo, path: 'pnpm-workspace.yaml', ref})).data;
-                const text = Buffer.from(file.content, 'base64').toString('utf8');
-                const match = text.match(/^  vite-plus: ["']?([0-9]+\.[0-9]+\.[0-9]+(?:-[\w.-]+)?)["']?\s*$/m);
-                if (!match) throw new Error('Vite+ catalog must contain an exact version');
-                return match[1];
-              };
-              synchronize = await version(pr.base.sha) !== await version(pr.head.sha);
-            }
-            const frontend = synchronize || files.some(file => file.filename.startsWith('apps/web/') ||
-              ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.github/workflows/frontend_ci.yaml',
-               '.github/actions/setup-playwright/action.yaml'].includes(file.filename));
-            const workflows = frontend
-              ? [['frontend_ci.yaml', 'vite-plus/frontend-ci'], ['aidd_checker_ci.yaml', 'vite-plus/aidd-checker-ci']]
-              : [['aidd_checker_ci.yaml', 'vite-plus/aidd-checker-ci']];
-            for (const [, statusContext] of workflows) {
-              await github.rest.repos.createCommitStatus({owner, repo, sha: pr.head.sha, state: 'pending', context: statusContext,
-                description: synchronize ? 'Vite+関連依存を同期中' : 'PRのCIを実行中',
-                target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`});
-            }
-            if (synchronize) {
-              // 同期候補は依存4ファイルだけ。候補側のworkflow変更は許可しない。
+            if (!renovate) return;
+            const files = await github.paginate(github.rest.pulls.listFiles, {owner, repo, pull_number: pr.number});
+            const allowed = new Set(['package.json', 'apps/web/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml']);
+            if (!files.length || files.some(file => !allowed.has(file.filename) || file.status !== 'modified')) return;
+            const version = async ref => {
+              const file = (await github.rest.repos.getContent({owner, repo, path: 'pnpm-workspace.yaml', ref})).data;
+              const text = Buffer.from(file.content, 'base64').toString('utf8');
+              const match = text.match(/^  vite-plus: ["']?([0-9]+\.[0-9]+\.[0-9]+(?:-[\w.-]+)?)["']?\s*$/m);
+              if (!match) throw new Error('Vite+ catalog must contain an exact version');
+              return match[1];
+            };
+            if (await version(pr.base.sha) !== await version(pr.head.sha)) {
               await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id: 'vite_plus_sync.yaml', ref: pr.head.ref,
                 inputs: {pr_number: String(pr.number), expected_head: pr.head.sha}});
-            } else {
-              for (const [workflow_id] of workflows) {
-                await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id, ref: 'main',
-                  inputs: {pr_number: String(pr.number), expected_head: pr.head.sha, sync_run_id: String(context.runId)}});
-              }
             }
 
   sync:
@@ -212,7 +196,7 @@ jobs:
             ]) {
               await github.rest.repos.createCommitStatus({owner, repo, sha, state: 'pending', context: statusContext,
                 description: 'Vite+同期後のCIを実行中', target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`});
-              await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id, ref: 'main',
+              await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id, ref: pr.head.ref,
                 inputs: {pr_number: String(pr.number), expected_head: sha, sync_run_id: String(context.runId)}});
             }
             await core.summary.addHeading('Vite+ dependency sync').addRaw(`Validated CI target: ${sha}`).write();

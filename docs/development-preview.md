@@ -207,7 +207,8 @@ open PRの正常配信では削除承認を要求せず、既存のChecks URL登
 導入前の旧workflowで開始した配信はこの後処理を持たないため、導入時に完了・停止を確認する。
 runの手動キャンセルや削除承認の拒否、API障害では残存し得るため、対象の終了runを再実行して確認する。
 
-受付・状態確認・削除は `pull_request_target` / mainの手動実行時の信頼済みmainコードを使う。
+PRの配信・終了通知は同一repository限定の `pull_request` で受け付ける。workflow定義はPRの検証・レビュー対象とする。
+受付・状態確認・削除の補助コードはPR eventのbase SHAから取得し、mainからの手動実行ではその実行SHAを使う。
 削除jobは独立runnerで実行し、PRコード・依存install script・配信jobの成果物を実行しない。
 削除対象は `pr-<PR番号>` と、移行前のbranch名方式で得た対応Previewだけ。
 [Preview専用API](https://developers.cloudflare.com/api/resources/workers/subresources/workers/subresources/previews/methods/delete/)を使い、

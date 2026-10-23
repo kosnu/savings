@@ -61,9 +61,8 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
     mutate(f)
     assert.throws(() => deploymentRequest(f.event, "pull_request", "refs/pull/1871/merge", repo))
   }
-  assert.deepEqual(
+  assert.throws(() =>
     deploymentRequest(fixture().event, "pull_request_target", "refs/heads/main", repo),
-    request,
   )
 })
 
@@ -111,7 +110,7 @@ test("workflow text declares allowed triggers, environment and revalidation befo
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  assert.match(yaml, /pull_request_target:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
+  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
   assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
   assert.match(yaml, /environment: development/)
   assert.match(yaml, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)
