@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/2005",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/main.tsx",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/usePreferredTheme.tsx",
+    "apps/web/src/providers/theme/usePreferredTheme.test.tsx",
+    "apps/web/package.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    ".github/workflows/github_actions_security.yaml"
+  ],
+  "fingerprint": "2091e1ab6d0a8242ebe1627e00770736e976070b71e35f70efabff0a749322c4",
+  "status": "pass",
+  "checks": [
+    "同じTask・cycleの継続",
+    "main 74d380cfの3行差分",
+    "環境変数修正と承認済みNo.1の保持"
+  ],
+  "summary": "ユーザー依頼によりmain 74d380cfを同じPRへ取り込み再pushし、既存main workflowからDev Previewを再実行する。追加差分はPreview環境変数名2箇所とzizmor action pinのみ。アプリ・依存定義・lockfileが前回検証と同一なのでWeb全体検証は再利用し、Preview実buildと出力検査・helperテストを実施する。No.2は保留。",
+  "remaining": []
+}

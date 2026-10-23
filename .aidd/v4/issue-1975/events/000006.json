@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/2005",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/main.tsx",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/usePreferredTheme.tsx",
+    "apps/web/src/providers/theme/usePreferredTheme.test.tsx",
+    "apps/web/package.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    ".github/workflows/github_actions_security.yaml"
+  ],
+  "fingerprint": "2091e1ab6d0a8242ebe1627e00770736e976070b71e35f70efabff0a749322c4",
+  "status": "pass",
+  "checks": [
+    "修正済みworkflowと同じ環境変数でdevelopment Preview実ビルド・Build Output検査・公開物11件の走査",
+    "Preview helper Node test 36件",
+    "git diff whitespace",
+    "前回検証済みアプリ・依存定義・lockfileとの差分なし"
+  ],
+  "summary": "main 74d380cfのworkflow3行を競合なく統合し、Preview実buildと既存check-buildおよび配信物走査が成功。helper36件成功。アプリと依存関係は64794fbcと完全同一のため、Web lint/format/typecheck・150ファイル1021テスト・Storybook23テスト・Chromium初回paint6件と起動後6件の前回結果を再利用する。実配信はpush後に新規runで確認する。No.2は保留。",
+  "remaining": []
+}

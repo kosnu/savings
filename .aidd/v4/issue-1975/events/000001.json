@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1975",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/"
+  ],
+  "fingerprint": "236ca9a4700224926c5c2fd94252a15c8387d50839e5209d66b6b164ba6b1151",
+  "status": "unknown",
+  "checks": [
+    "Issue #1975と関連#1787の要求確認",
+    "ルート背景とtheme-colorの調査",
+    "既存テーマトークンの再利用"
+  ],
+  "summary": "下部領域とアプリの配色を揃えるためdocument背景とtheme-colorを既存トークンへ同期する。高さ・safe-area・Sidebarは変更せず、テーマ切替を回帰検証する。実装・Ship権限は本チャットの依頼に基づく。",
+  "remaining": [
+    "報告端末・OSの特定とインストール実機での症状照合は未確認。"
+  ]
+}
