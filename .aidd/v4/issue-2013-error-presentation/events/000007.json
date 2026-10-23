@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "DESIGN.md",
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "c01a970d0c978d3942be6281c56e25d597f8448f468958882a65098e025fdb0a",
+  "status": "pass",
+  "checks": [
+    "policy.git-workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "web.design-system-brand",
+    "既存の採用判断とmain更新の整合"
+  ],
+  "summary": "main由来の3workflow以外に統合差分なし。保存・取得失敗の赤表現と通常超過の制約、元のIssue成果を保持。PRにruntime差分はなく、競合と未解決の規約矛盾なし。",
+  "remaining": []
+}

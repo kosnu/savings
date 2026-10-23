@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "9ff57b381a96028a36e31f043647895e94e26fb0bd691d89b73d404d3adc65cc",
+  "status": "pass",
+  "checks": [
+    "元の文書4ファイルとの内容一致",
+    "最新mainの規約と文書差分の整合",
+    "main比の7ファイルに限定",
+    "マージ競合なし"
+  ],
+  "summary": "既存の採用判断とレビュー結果を現行mainへ照合。文書4件と同サイクルの工程結果のみがPR差分で、説明・規約・検証証拠の整合を確認。追加指摘なし。",
+  "remaining": []
+}

@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "DESIGN.md",
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "c01a970d0c978d3942be6281c56e25d597f8448f468958882a65098e025fdb0a",
+  "status": "pass",
+  "checks": [
+    "同じTaskと現在サイクルの継続",
+    "mainのworkflow更新のみの取り込み",
+    "既存の赤色方針と整理成果を維持"
+  ],
+  "summary": "mainのworkflow更新2件を競合なく統合し、既存の文書整理と赤色の意味分類を保持。PRの担当差分は文書・索引・工程結果のみ。previewラベルの付与も今回の明示依頼の範囲。",
+  "remaining": []
+}
