@@ -12,16 +12,17 @@
     "apps/web/package.json",
     "package.json",
     "pnpm-lock.yaml",
-    ".github/workflows/deploy_preview.yaml"
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    ".github/workflows/github_actions_security.yaml"
   ],
-  "fingerprint": "a6c9d22c5dc127bdedf80a61f520153d4b1613af34602d81150293c8b985e521",
+  "fingerprint": "2091e1ab6d0a8242ebe1627e00770736e976070b71e35f70efabff0a749322c4",
   "status": "pass",
   "checks": [
-    "同じTaskとNo.1の成果を継続",
-    "main 5332a93の追加統合",
-    "pnpmとPreview workflowの一致",
-    "最終依存での検証と配信範囲"
+    "同じTask・cycleの継続",
+    "main 74d380cfの3行差分",
+    "環境変数修正と承認済みNo.1の保持"
   ],
-  "summary": "ユーザー依頼のmain取り込み・Dev Preview再配信を同じTask・cycleで継続。検証中のmain追加更新5332a93も取り込み、pnpm12.14.0とSentry Vite plugin11.8.0を採用する。No.1の既存5ファイルを保持し、最終依存でWeb・Storybook・build/paintを再検証して既存PRへpushし、Actions経路でDevだけを配信する。No.2は保留。",
+  "summary": "ユーザー依頼によりmain 74d380cfを同じPRへ取り込み再pushし、既存main workflowからDev Previewを再実行する。追加差分はPreview環境変数名2箇所とzizmor action pinのみ。アプリ・依存定義・lockfileが前回検証と同一なのでWeb全体検証は再利用し、Preview実buildと出力検査・helperテストを実施する。No.2は保留。",
   "remaining": []
 }

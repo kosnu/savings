@@ -12,19 +12,18 @@
     "apps/web/package.json",
     "package.json",
     "pnpm-lock.yaml",
-    ".github/workflows/deploy_preview.yaml"
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    ".github/workflows/github_actions_security.yaml"
   ],
-  "fingerprint": "a6c9d22c5dc127bdedf80a61f520153d4b1613af34602d81150293c8b985e521",
+  "fingerprint": "2091e1ab6d0a8242ebe1627e00770736e976070b71e35f70efabff0a749322c4",
   "status": "pass",
   "checks": [
-    "Web format・lint・format-check・typecheck",
-    "unit/integration 150ファイル1021件",
-    "Storybook browser-test 9ファイル23件",
-    "最終依存でのproduction build",
-    "Preview helperのNode test",
-    "Chromium build版の初回paint6条件・起動後6条件",
-    "git diff whitespace"
+    "修正済みworkflowと同じ環境変数でdevelopment Preview実ビルド・Build Output検査・公開物11件の走査",
+    "Preview helper Node test 36件",
+    "git diff whitespace",
+    "前回検証済みアプリ・依存定義・lockfileとの差分なし"
   ],
-  "summary": "main 5332a93を統合した最終依存で全検証成功。保存設定light/dark/system×OS light/darkの6条件はReact本体を停止しても初回paint前のroot背景・class・metaが一致し、起動後の6条件でもOS配色変更と固定設定の優先を確認した。paint観測にはテスト用文字を挿入した。Sentry実upload・削除・外部受信とPixel/native起動の原症状は未確認。No.2は今回の承認範囲外として保留。",
+  "summary": "main 74d380cfのworkflow3行を競合なく統合し、Preview実buildと既存check-buildおよび配信物走査が成功。helper36件成功。アプリと依存関係は64794fbcと完全同一のため、Web lint/format/typecheck・150ファイル1021テスト・Storybook23テスト・Chromium初回paint6件と起動後6件の前回結果を再利用する。実配信はpush後に新規runで確認する。No.2は保留。",
   "remaining": []
 }

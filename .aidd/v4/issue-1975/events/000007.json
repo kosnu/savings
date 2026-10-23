@@ -12,16 +12,18 @@
     "apps/web/package.json",
     "package.json",
     "pnpm-lock.yaml",
-    ".github/workflows/deploy_preview.yaml"
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    ".github/workflows/github_actions_security.yaml"
   ],
-  "fingerprint": "a6c9d22c5dc127bdedf80a61f520153d4b1613af34602d81150293c8b985e521",
+  "fingerprint": "2091e1ab6d0a8242ebe1627e00770736e976070b71e35f70efabff0a749322c4",
   "status": "pass",
   "checks": [
-    "変更面に対応するrule-mapと依存規則の確認",
-    "main統合差分とNo.1修正の保持",
-    "Sentry Vite plugin 11.8.0の型・実装と既存オプションの互換確認",
-    "最終依存でのbuildおよびChromium起動前後の配色確認"
+    "main統合3行とPreview生成・検査経路の確認",
+    "同期対象のCIと配信workflow両方がCLOUDFLARE_PREVIEW_BUILD",
+    "固定SHA・権限・main-only配信境界の保持",
+    "既存アプリ差分と検証結果の再利用条件"
   ],
-  "summary": "main 5332a93までを競合なく統合。No.1の5ファイルは承認済み修正を保持し、pnpm 12.14.0とPreview workflowの指定は一致する。独立レビューで新しいSentry pluginは既存設定を受理し、コード上の公開範囲の不整合なし。テストは自前の設定生成と引数までを検証し、Sentryへの実upload・削除・外部受信は未確認。No.2のnative起動・Pixel原症状は今回の承認範囲外として保留。",
+  "summary": "追加差分は環境変数名2箇所とzizmor action固定SHA更新のみ。新pluginの参照名と一致し、実Preview buildからvalidatorまで正常。承認済みNo.1の実装を保持し、No.2・Pixel実機の未確認範囲を拡張しない。Checked rules: policy.code-review, policy.git-workflow, infrastructure.dev-preview, infrastructure.overview, documentation.policy, ai-driven.workflow, ai-driven.checkerおよび既存Web適用規則。Unresolved:今回追加差分の指摘・規則矛盾なし。",
   "remaining": []
 }
