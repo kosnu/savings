@@ -12,7 +12,7 @@ export function deploymentRequest(event, eventName, ref, repository, kind = "pre
   if (!profile) throw new Error("Unsupported deployment kind")
   let number
   let sha
-  if (eventName === "pull_request" || (eventName === "pull_request_target" && kind === "preview")) {
+  if (eventName === "pull_request") {
     number = event.number
     sha = event.pull_request?.head?.sha
     if (

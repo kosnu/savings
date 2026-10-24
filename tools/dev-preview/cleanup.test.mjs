@@ -295,7 +295,7 @@ test("配信中close → 後処理 → 置き換わった古い配信要求の�
   const { authorize, deploymentRequest } = await import("./authorize.mjs")
   const context = {
     ...env,
-    GITHUB_EVENT_NAME: "pull_request_target",
+    GITHUB_EVENT_NAME: "pull_request",
     GITHUB_REF: "refs/heads/main",
   }
   let current = { ...structuredClone(pr), state: "open", labels: [{ name: "preview" }] }

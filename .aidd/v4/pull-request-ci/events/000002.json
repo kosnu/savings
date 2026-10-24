@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "conversation:current/pull-request-ci",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/aidd_checker_ci.yaml",
+    ".github/workflows/vite_plus_sync.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs",
+    "tools/dev-preview/",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "0c5daa8ea22071fc973980ae80c7cb80b0a6f4e574848c95ddc22eca1b552dc7",
+  "status": "pass",
+  "checks": [
+    "Node tests 85件",
+    "Checker test/vet・session-metrics test/vet",
+    "共有Git gate 8件・ADR履歴・rule graph",
+    "actionlint・zizmor・vp check・git diff --check"
+  ],
+  "summary": "PR直接起動、同期後dispatch、forkの読取権限、SHA更新・close・base変更の拒否を検証。依存キャッシュ制限は一時GOMODCACHEで解消。外部APIとActionsの実動は未検証。",
+  "remaining": []
+}

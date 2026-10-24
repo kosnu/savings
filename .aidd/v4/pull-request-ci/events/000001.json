@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "conversation:current/pull-request-ci",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/aidd_checker_ci.yaml",
+    ".github/workflows/vite_plus_sync.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs",
+    "tools/dev-preview/",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "0c5daa8ea22071fc973980ae80c7cb80b0a6f4e574848c95ddc22eca1b552dc7",
+  "status": "pass",
+  "checks": [
+    "PR起動と同期後dispatchの設計",
+    "forkの権限制約とPreview補助コードの取得元"
+  ],
+  "summary": "通常CI・Vite+同期受付・Previewをpull_requestへ移し、同期後はPRブランチへCIをdispatchする。forkへの自動アサインだけpull_request_targetを維持する。",
+  "remaining": []
+}

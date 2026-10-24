@@ -78,9 +78,17 @@ Coreは人間の承認を記録から証明せず、`ship-check`や記録のpass
 
 ## CIの起動と権限
 
-Frontend・AIDD CIとVite+同期のPRイベントは、PRコードを実行しない`pull_request_target`の受付で扱う。
-通常PR・fork PRのCIは信頼されたmainのworkflowを`workflow_dispatch`で起動し、PR headとmerge結果を検証する。
-PRコードを実行するjobのtokenはread権限に限定し、mainスコープのcacheへ保存しない。
-結果投稿のwrite権限は、checkoutもPRコード実行もしない別jobだけに与える。
-Vite+の依存同期は署名付きRenovate候補を確認して別runへdispatchする。同期後もCIをdispatchし、
-結果を対象PR head SHAのcommit statusへ返す。`pull_request`の重複購読による承認待ちrunを生成しない。
+Frontend・AIDD CIは通常PR・fork PRとも`pull_request`で直接起動し、PR headとmerge結果を検証する。
+workflow・テスト・Checkerの変更もPRの検証とレビュー対象に含め、mainのworkflow定義への固定は行わない。
+PRコードを実行する検証jobのtokenはread権限に限定し、cacheへの保存は行わない。
+Vite+依存同期の受付も`pull_request`を使い、同一repositoryのRenovate候補だけを別runへdispatchする。
+同期処理は署名・変更範囲・現在headを確認してから依存を更新する。同期commitは`GITHUB_TOKEN`で作成するため、
+通常のPRイベントに頼らず、更新後のPRブランチへFrontend・AIDD CIをdispatchする。
+このdispatchの結果だけを、checkoutもPRコード実行もしない別jobから対象PR head SHAのcommit statusへ返す。
+Checkerのconcurrency groupはPR番号と起動イベントで分離し、旧受付のdispatchと新しいPR起動を競合させない。
+同じPR・同じイベントの再実行は同じgroupで古い実行を取り消す。
+fork PRの検証に書き込みtokenやSecretsは渡さない。PR作成者の自動アサインはforkへの書き込みが必要なため、
+PRコードを取得・実行しない`pull_request_target`を維持する。
+Previewの配信要求は同一repository限定の`pull_request`を使う。
+競合PRでも終了時の削除要求を届けるため、終了通知だけは`pull_request_target`の`closed`を使う。
+この経路ではforkを拒否し、mainの補助コードだけを実行する。PRコードの取得・実行や配信は行わない。
