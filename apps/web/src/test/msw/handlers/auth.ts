@@ -1,4 +1,4 @@
-import { type DelayMode, HttpResponse, delay, http } from "msw"
+import { HttpResponse, http } from "msw"
 
 const mockUser = {
   id: "mock-user-id",
@@ -71,23 +71,16 @@ export function refreshTokenHandler({ response }: RefreshTokenHandlerOptions = {
 interface CreateAuthHandlersOptions {
   getUser?: GetUserHandlerOptions
   refreshToken?: RefreshTokenHandlerOptions
-  logout?: { error?: boolean; durationOrMode?: number | DelayMode }
 }
 
 export function createAuthHandlers({
   getUser = {},
   refreshToken = {},
-  logout = {},
 }: CreateAuthHandlersOptions = {}) {
   return [
     getUserHandler(getUser),
     refreshTokenHandler(refreshToken),
-    http.post("*/auth/v1/logout", async () => {
-      await delay(logout.durationOrMode)
-      return logout.error
-        ? HttpResponse.json({ message: "Failed to log out." }, { status: 500 })
-        : new HttpResponse(null, { status: 204 })
-    }),
+    http.post("*/auth/v1/logout", () => new HttpResponse(null, { status: 204 })),
   ]
 }
 

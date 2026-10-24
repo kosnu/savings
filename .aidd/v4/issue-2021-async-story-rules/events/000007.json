@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2021",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+    "apps/web/src/test/msw/handlers/auth.ts"
+  ],
+  "fingerprint": "a37b0d50d1b6547a21824d780967efe1934e9e0d0d15003ca161cded95592067",
+  "status": "pass",
+  "checks": [
+    "Coverage: check-changes/rulesで選択した29規則と依存closureを照合",
+    "既存Sidebarの操作・Loading/Error表示を維持し本番UI差分なし",
+    "Story cleanupを除くと復元検証が失敗する回帰経路を確認",
+    "Issue完了条件と承認されたmock境界・規約・PR返信対象を照合"
+  ],
+  "summary": "追加差分に未解決指摘・規則の矛盾なし。既存の状態所有者基準とMSW取得境界を維持し、SDKのUI状態だけmock。signOutの復元・session未保存を単体テストと通常ブラウザで確認。旧87 Story実行結果は変更後の証拠に使わずPR本文から除く。SDK通信と実認証の成功は保証対象外。",
+  "remaining": []
+}

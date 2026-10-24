@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2023#discussion_r4362399858",
+  "paths": [
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/test/msw/handlers/auth.ts",
+    "apps/web/.storybook/vitest.setup.ts",
+    "apps/web/docs/policies/component-structure.md"
+  ],
+  "fingerprint": "4ead65c19edbdfafe5459c777c06592ce1b7bc7b1e151ff153a0cf839bc0ddbf",
+  "status": "pass",
+  "checks": [
+    "PR2023 head 68323105・最新コメント・未解決thread1件を再取得",
+    "Sidebar実装・既存signOut mock単体テスト・Storybook10.6.2 spyOn APIを照合",
+    "Story規約・API境界テスト規約・MSW規約から保証範囲と適用先を照合",
+    "分析結果3観点レビュー: 正確性・再利用性・適用先。新方式の実行検証は承認後"
+  ],
+  "summary": "分析完了。未解決P2は今修正・merge前対応を提案。前案の実認証fixture後始末から、LoggingOut/LogoutErrorのsignOutをStory範囲でmockしsetSessionを不要にする案へ変更。既存Sidebar単体テストが同境界をmockしており、StorybookはspyOnを提供。終了時にmockを復元し、通常Storyへの切替・再読込と認証情報未保存を検証する。UI再現の保証に限定しAPI連携の検証は置換しない。component-structureに目的に沿うmock境界・不要な永続状態回避・終了時復元を補足し、未使用になるlogout error/delay optionを整理。Issue Intent変更は不要。コード修正・ルール適用・検証・PR更新・返信・Bot thread解決は未実施、手動承認待ち。",
+  "remaining": []
+}

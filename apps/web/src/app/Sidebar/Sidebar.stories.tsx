@@ -1,10 +1,10 @@
 import { Separator } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, fn, userEvent, waitFor, within } from "storybook/test"
+import { AuthError } from "@supabase/supabase-js"
+import { expect, fn, spyOn, userEvent, waitFor, within } from "storybook/test"
 
 import { getSupabaseClient } from "../../lib/supabase"
 import { createStoryRouter } from "../../test/helpers/routerDecorator"
-import { createAuthHandlers, createMockJwt } from "../../test/msw/handlers/auth"
 import { Sidebar } from "./Sidebar"
 import { SidebarButton } from "./SidebarButton"
 
@@ -110,12 +110,13 @@ export const LandscapeViewport: Story = {
 
 export const LoggingOut: Story = {
   args: { open: true },
-  parameters: { msw: { handlers: createAuthHandlers({ logout: { durationOrMode: "infinite" } }) } },
+  beforeEach: () => {
+    const signOut = spyOn(getSupabaseClient().auth, "signOut").mockImplementation(
+      async () => new Promise(() => {}),
+    )
+    return () => signOut.mockRestore()
+  },
   play: async ({ canvasElement }) => {
-    await getSupabaseClient().auth.setSession({
-      access_token: createMockJwt(),
-      refresh_token: "mock-refresh-token",
-    })
     const canvas = within(canvasElement)
     const logout = await canvas.findByRole("button", { name: "Log out" })
     await userEvent.click(logout)
@@ -125,12 +126,13 @@ export const LoggingOut: Story = {
 
 export const LogoutError: Story = {
   args: { open: true },
-  parameters: { msw: { handlers: createAuthHandlers({ logout: { error: true } }) } },
-  play: async ({ canvasElement }) => {
-    await getSupabaseClient().auth.setSession({
-      access_token: createMockJwt(),
-      refresh_token: "mock-refresh-token",
+  beforeEach: () => {
+    const signOut = spyOn(getSupabaseClient().auth, "signOut").mockResolvedValue({
+      error: new AuthError("Failed to log out."),
     })
+    return () => signOut.mockRestore()
+  },
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const logout = await canvas.findByRole("button", { name: "Log out" })
     await userEvent.click(logout)
