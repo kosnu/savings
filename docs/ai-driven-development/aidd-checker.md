@@ -89,3 +89,6 @@ Checkerのconcurrency groupはPR番号と起動イベントで分離し、旧受
 同じPR・同じイベントの再実行は同じgroupで古い実行を取り消す。
 fork PRの検証に書き込みtokenやSecretsは渡さない。PR作成者の自動アサインはforkへの書き込みが必要なため、
 PRコードを取得・実行しない`pull_request_target`を維持する。
+Previewの配信要求は同一repository限定の`pull_request`を使う。
+競合PRでも終了時の削除要求を届けるため、終了通知だけは`pull_request_target`の`closed`を使う。
+この経路ではforkを拒否し、mainの補助コードだけを実行する。PRコードの取得・実行や配信は行わない。

@@ -64,6 +64,14 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
   assert.throws(() =>
     deploymentRequest(fixture().event, "pull_request_target", "refs/heads/main", repo),
   )
+  assert.throws(() =>
+    deploymentRequest(
+      { ...fixture().event, action: "closed" },
+      "pull_request_target",
+      "refs/heads/main",
+      repo,
+    ),
+  )
 })
 
 // PR取得はfixture。GitHubの実APIやEnvironment承認は実行しない。
@@ -110,7 +118,8 @@ test("workflow text declares allowed triggers, environment and revalidation befo
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
+  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled\]/)
+  assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/)
   assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
   assert.match(yaml, /environment: development/)
   assert.match(yaml, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)

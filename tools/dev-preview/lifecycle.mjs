@@ -18,20 +18,22 @@ export function validatePR(pr, repository) {
 
 export async function resolveLifecycle(event, env, get) {
   const repository = env.GITHUB_REPOSITORY
-  const target = env.GITHUB_EVENT_NAME === "pull_request"
-  const number = String(target ? event.number : event.inputs?.pr_number)
+  const pullRequest = ["pull_request", "pull_request_target"].includes(env.GITHUB_EVENT_NAME)
+  const number = String(pullRequest ? event.number : event.inputs?.pr_number)
   if (
     !/^[1-9][0-9]*$/u.test(number) ||
-    (!target &&
+    (!pullRequest &&
       !(env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.GITHUB_REF === "refs/heads/main"))
   )
     throw new Error("main の PR lifecycle event または手動実行が必要です。")
-  if (target) {
+  if (pullRequest) {
     validatePR(event.pull_request, repository)
     if (
       !(
-        event.action === "closed" ||
-        (event.action === "labeled" && event.label?.name === "preview")
+        (env.GITHUB_EVENT_NAME === "pull_request_target" && event.action === "closed") ||
+        (env.GITHUB_EVENT_NAME === "pull_request" &&
+          event.action === "labeled" &&
+          event.label?.name === "preview")
       )
     ) {
       throw new Error("Preview の要求または PR 終了 event が必要です。")
@@ -39,13 +41,13 @@ export async function resolveLifecycle(event, env, get) {
   }
   const pr = validatePR(await get(`/repos/${repository}/pulls/${number}`), repository)
   // 古い配信要求が終了通知を置き換えても、終了済みなら配信せず削除へ進める。
-  const branch = target ? event.pull_request.head.ref : pr.head.ref
+  const branch = pullRequest ? event.pull_request.head.ref : pr.head.ref
   previewName(branch)
   if (event.action === "closed" || pr.state === "closed") {
     return { number, branch, sha: pr.head.sha, deploy: false }
   }
   const request = deploymentRequest(
-    target ? event : { ...event, inputs: { ...event.inputs, head_sha: pr.head.sha } },
+    pullRequest ? event : { ...event, inputs: { ...event.inputs, head_sha: pr.head.sha } },
     env.GITHUB_EVENT_NAME,
     env.GITHUB_REF,
     repository,

@@ -4,7 +4,11 @@ name: Deploy Dev Preview
 on:
   pull_request:
     branches: [main]
-    types: [labeled, closed]
+    types: [labeled]
+  # 競合PRでも終了通知を受け取る。PRコードの実行・配信には使わない。
+  pull_request_target: # zizmor: ignore[dangerous-triggers] closed専用。配信を禁止し、baseの削除補助コードだけを実行する
+    branches: [main]
+    types: [closed]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -25,9 +29,9 @@ jobs:
   resolve:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' &&
-       (github.event.action == 'closed' ||
-        (github.event.action == 'labeled' && github.event.label.name == 'preview')) &&
+      (((github.event_name == 'pull_request' &&
+         github.event.action == 'labeled' && github.event.label.name == 'preview') ||
+        (github.event_name == 'pull_request_target' && github.event.action == 'closed')) &&
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-latest
@@ -54,7 +58,7 @@ jobs:
   deploy:
     name: Approve Dev Preview ${{ needs.resolve.outputs.sha }}
     needs: resolve
-    if: needs.resolve.outputs.deploy == 'true'
+    if: github.event_name != 'pull_request_target' && needs.resolve.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment: development
     permissions:

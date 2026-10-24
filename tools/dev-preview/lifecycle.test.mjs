@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { resolveLifecycle } from "./lifecycle.mjs"
+import { reconcilePR, resolveLifecycle } from "./lifecycle.mjs"
 
 const repo = "kosnu/savings"
 const sha = "a".repeat(40)
@@ -18,6 +18,11 @@ const pr = {
   labels: [{ name: "preview" }],
 }
 const event = { number: 1927, action: "labeled", label: { name: "preview" }, pull_request: pr }
+const closedEnv = {
+  ...env,
+  GITHUB_EVENT_NAME: "pull_request_target",
+  GITHUB_REF: "refs/heads/main",
+}
 const get = (value) => async (path) => {
   assert.equal(path, `/repos/${repo}/pulls/1927`)
   return structuredClone(value)
@@ -40,20 +45,35 @@ test("信頼済み受付は event SHA を固定し、open PR の要求に deploy
   }
 })
 
-test("close・merge・古いlabel要求のclosed再実行は deploy=false と cleanup 対象を返す", async () => {
+test("競合close・mergeはtargetで削除対象を解決し、古いlabel要求も配信しない", async () => {
   for (const closed of [
-    { ...pr, state: "closed", merged: false },
+    { ...pr, state: "closed", merged: false, mergeable: false },
+    { ...pr, state: "closed", merged: false, mergeable: true },
     { ...pr, state: "closed", merged: true },
   ]) {
-    for (const action of ["closed", "labeled"]) {
-      const result = await resolveLifecycle({ ...event, action }, env, get(closed))
+    for (const [action, context] of [
+      ["closed", closedEnv],
+      ["labeled", env],
+    ]) {
+      const result = await resolveLifecycle(
+        { ...event, action, pull_request: closed },
+        context,
+        get(closed),
+      )
       assert.equal(result.deploy, false)
       assert.equal(result.branch, pr.head.ref)
       assert.equal(result.number, "1927")
+      assert.deepEqual(await reconcilePR({ ...context, PR_NUMBER: result.number }, get(closed)), {
+        closed: true,
+      })
     }
   }
   // 終了通知が待機中に reopen されたら旧 close event は配信の権限にならない。
-  assert.equal((await resolveLifecycle({ ...event, action: "closed" }, env, get(pr))).deploy, false)
+  const reopened = await resolveLifecycle({ ...event, action: "closed" }, closedEnv, get(pr))
+  assert.equal(reopened.deploy, false)
+  assert.deepEqual(await reconcilePR({ ...closedEnv, PR_NUMBER: reopened.number }, get(pr)), {
+    closed: false,
+  })
 })
 
 test("main 手動実行は現在 SHA を解決し、closedなら配信しない", async () => {
@@ -82,9 +102,16 @@ test("fork・別base・別label・未対応event・出力注入を信頼済み�
     { ...event, pull_request: { ...pr, head: { ...pr.head, ref: "bad\nbranch" } } },
   ])
     await assert.rejects(resolveLifecycle(invalid, env, get(pr)))
-  await assert.rejects(
-    resolveLifecycle(event, { ...env, GITHUB_EVENT_NAME: "pull_request_target" }, get(pr)),
-  )
+  await assert.rejects(resolveLifecycle(event, closedEnv, get(pr)))
+  await assert.rejects(resolveLifecycle({ ...event, action: "closed" }, env, get(pr)))
+  for (const context of [env, closedEnv]) {
+    const fork = { ...pr, head: { ...pr.head, repo: { full_name: "fork/savings" } } }
+    const action = context === env ? "labeled" : "closed"
+    await assert.rejects(
+      resolveLifecycle({ ...event, action, pull_request: fork }, context, get(pr)),
+    )
+    await assert.rejects(resolveLifecycle({ ...event, action }, context, get(fork)))
+  }
   await assert.rejects(
     resolveLifecycle(event, env, async () => {
       throw new Error("GitHub unavailable")
@@ -101,13 +128,24 @@ test("workflow 本文は非cancel groupとmainコードを使う受付・後処�
   const resolve = yaml.split("\n  resolve:\n")[1].split("\n  deploy:\n")[0]
   const reconcile = yaml.split("\n  reconcile:\n")[1].split("\n  cleanup:\n")[0]
   const cleanup = yaml.split("\n  cleanup:\n")[1].split("\n  report:\n")[0]
-  assert.match(yaml, /types: \[labeled, closed\]/u)
+  // 配信と終了の入口を固定し、競合PRで配送されないpull_requestへの後退を検知する。
+  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled\]/u)
+  assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/u)
+  assert.match(
+    resolve,
+    /github.event_name == 'pull_request_target' && github.event.action == 'closed'/u,
+  )
+  assert.match(resolve, /github.event.pull_request.head.repo.full_name == github.repository/u)
+  assert.match(resolve, /github.event.pull_request.base.ref == 'main'/u)
   assert.match(
     yaml,
     /group: dev-preview-pr-\$\{\{ github.event.pull_request.number \|\| inputs.pr_number \}\}/u,
   )
   assert.match(yaml, /cancel-in-progress: false/u)
-  assert.match(yaml, /if: needs.resolve.outputs.deploy == 'true'/u)
+  assert.match(
+    yaml,
+    /if: github.event_name != 'pull_request_target' && needs.resolve.outputs.deploy == 'true'/u,
+  )
   for (const job of [resolve, reconcile, cleanup]) {
     assert.match(job, /ref: \$\{\{ github.event.pull_request.base.sha \|\| github.sha \}\}/u)
     assert.doesNotMatch(job, /head.sha|ref:.*needs.resolve.outputs.sha|pnpm|npm|uses:.*\.\//u)

@@ -211,7 +211,10 @@ open PRの正常配信では削除承認を要求せず、既存のChecks URL登
 導入前の旧workflowで開始した配信はこの後処理を持たないため、導入時に完了・停止を確認する。
 runの手動キャンセルや削除承認の拒否、API障害では残存し得るため、対象の終了runを再実行して確認する。
 
-PRの配信・終了通知は同一repository限定の `pull_request` で受け付ける。workflow定義はPRの検証・レビュー対象とする。
+配信要求は同一repository限定の `pull_request` の `labeled` で受け付け、workflow定義もPRの検証・レビュー対象とする。
+終了通知だけは `pull_request_target` の `closed` で受け付ける。
+競合PRでは `pull_request` のworkflowが起動しないため、配信後に競合してそのままcloseした場合も削除要求を届ける。
+この終了経路ではforkを拒否し、配信jobへ進まず、mainの補助コードだけを実行する。
 受付・状態確認・削除の補助コードはPR eventのbase SHAから取得し、mainからの手動実行ではその実行SHAを使う。
 削除jobは独立runnerで実行し、PRコード・依存install script・配信jobの成果物を実行しない。
 削除対象は `pr-<PR番号>` と、移行前のbranch名方式で得た対応Previewだけ。
