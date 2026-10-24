@@ -85,5 +85,7 @@ Vite+依存同期の受付も`pull_request`を使い、同一repositoryのRenova
 同期処理は署名・変更範囲・現在headを確認してから依存を更新する。同期commitは`GITHUB_TOKEN`で作成するため、
 通常のPRイベントに頼らず、更新後のPRブランチへFrontend・AIDD CIをdispatchする。
 このdispatchの結果だけを、checkoutもPRコード実行もしない別jobから対象PR head SHAのcommit statusへ返す。
+Checkerのconcurrency groupはPR番号と起動イベントで分離し、旧受付のdispatchと新しいPR起動を競合させない。
+同じPR・同じイベントの再実行は同じgroupで古い実行を取り消す。
 fork PRの検証に書き込みtokenやSecretsは渡さない。PR作成者の自動アサインはforkへの書き込みが必要なため、
 PRコードを取得・実行しない`pull_request_target`を維持する。

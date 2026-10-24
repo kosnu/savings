@@ -131,7 +131,11 @@ productionからのコピー・repository Secretでの代用はしない。値�
 | `SUPABASE_ACCESS_TOKEN`         | Dev project限定のscoped PAT                         |
 
 required reviewerは所有者 `kosnu`、Prevent self-reviewと管理者bypassは無効とする。
-branch policyはmainとPR merge refを許可する。FEとDBは同じEnvironmentを使うため、
+branch policyは `main` と `refs/pull/*/merge` だけを許可する。
+Secretを使うworkflowの変更時は、GitHub APIでreviewer・bypass禁止・許可refの実設定を読み戻す。
+`environment: development` の記述やbase SHAのcheckoutだけでは、PR管理下のworkflowからのSecretアクセスを制限できない。
+未承認jobが待機することを確認し、workflow本文のテストだけでEnvironment承認まで検証済みとしない。
+FEとDBは同じEnvironmentを使うため、
 承認者はworkflowのSecret参照も確認する。必要なSecretだけを各stepへ渡し、DB管理tokenはFEへ渡さない。
 service_role・secret key・DB passwordはブラウザへ渡さない。
 Sentry の5項目は本番と同じ Secret 参照でビルドへ渡す。環境名の固定値や Variables は使わない。

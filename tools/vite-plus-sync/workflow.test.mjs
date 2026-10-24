@@ -185,6 +185,33 @@ function shellStep(name, source = aidd) {
     .match(/run: \|\n((?: {10}.*\n|\n)+)/)[1]
     .replace(/^ {10}/gm, "")
 }
+// group式の評価で旧受付との競合を検出する。Actionsの待機・取消処理そのものは再現しない。
+test("Checkerは旧受付・別イベント・別PRと競合せず、同じPRイベントの再実行だけを置き換える", () => {
+  const expression = aidd.match(/^  group: (.+)$/m)[1]
+  const group = (eventName, number, runId = 9) =>
+    expression.replace(/\$\{\{(.*?)\}\}/g, (_, value) =>
+      vm.runInNewContext(value, {
+        github: {
+          event_name: eventName,
+          event: { pull_request: { number: eventName === "pull_request" ? number : undefined } },
+          run_id: runId,
+        },
+        inputs: eventName === "workflow_dispatch" ? { pr_number: String(number) } : {},
+      }),
+    )
+  const direct = group("pull_request", 2022)
+  const dispatched = group("workflow_dispatch", 2022)
+  const legacy = "aidd-checker-2022"
+  assert.notEqual(direct, legacy)
+  assert.notEqual(dispatched, legacy)
+  assert.notEqual(direct, dispatched)
+  for (const eventName of ["pull_request", "workflow_dispatch"]) {
+    assert.equal(group(eventName, 2022, 9), group(eventName, 2022, 10))
+    assert.notEqual(group(eventName, 2022), group(eventName, 2023))
+  }
+  assert.match(aidd, /cancel-in-progress: true/)
+})
+
 const aggregate = shellStep("Require candidate and integration success")
 const report = shellStep("Report dispatched CI on the PR commit")
 
