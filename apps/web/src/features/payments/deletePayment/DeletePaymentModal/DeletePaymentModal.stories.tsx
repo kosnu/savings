@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { fn } from "storybook/test"
+import { expect, fn, userEvent, waitFor, within } from "storybook/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { SnackbarProvider } from "../../../../providers/snackbar/SnackbarProvider"
@@ -80,6 +80,12 @@ export const ClickDeleteButton: Story = {
 }
 
 export const DeleteFailureKeepsDialogOpen: Story = {
+  play: async () => {
+    const body = within(document.body)
+    await userEvent.click(body.getByRole("button", { name: /^delete$/i }))
+    await expect(await body.findByText("Failed to delete payment.")).toBeVisible()
+    await waitFor(async () => expect(body.getByRole("dialog")).toBeVisible())
+  },
   args: {
     onClose: fn(),
     onSuccess: fn(),
@@ -90,5 +96,18 @@ export const DeleteFailureKeepsDialogOpen: Story = {
         delete: { error: true },
       }),
     },
+  },
+}
+
+export const Deleting: Story = {
+  args: { onClose: fn(), onSuccess: fn() },
+  parameters: {
+    msw: { handlers: createPaymentHandlers({ delete: { durationOrMode: "infinite" } }) },
+  },
+  play: async () => {
+    const body = within(document.body)
+    const submitButton = body.getByRole("button", { name: /^delete$/i })
+    await userEvent.click(submitButton)
+    await expect(submitButton).toBeDisabled()
   },
 }

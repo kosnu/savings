@@ -77,7 +77,11 @@ export function createAuthHandlers({
   getUser = {},
   refreshToken = {},
 }: CreateAuthHandlersOptions = {}) {
-  return [getUserHandler(getUser), refreshTokenHandler(refreshToken)]
+  return [
+    getUserHandler(getUser),
+    refreshTokenHandler(refreshToken),
+    http.post("*/auth/v1/logout", () => new HttpResponse(null, { status: 204 })),
+  ]
 }
 
 export const authHandlers = createAuthHandlers()

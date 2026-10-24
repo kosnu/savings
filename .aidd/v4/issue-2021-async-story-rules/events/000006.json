@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2021",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+    "apps/web/src/test/msw/handlers/auth.ts"
+  ],
+  "fingerprint": "a37b0d50d1b6547a21824d780967efe1934e9e0d0d15003ca161cded95592067",
+  "status": "pass",
+  "checks": [
+    "web:format/lint/format-check/typecheck 成功",
+    "web:test:unit-integration 150 files / 1023 tests 成功",
+    "web:test:storybook 8 files / 22 tests 成功",
+    "通常Storybook Chromium: 両状態・Defaultへの切替・認証情報未保存・再読込 成功",
+    "Storybook build・git diff --check 成功"
+  ],
+  "summary": "最終差分で必須検証成功。Storyを再利用した回帰テストでsetSession未呼出・実signOut未呼出・cleanup後の復元と通常ログアウトを確認。通常ブラウザでも状態再現・切替・再読込でauth-token未保存を確認。SDK通信の統合試験を代替する主張はしない。",
+  "remaining": []
+}

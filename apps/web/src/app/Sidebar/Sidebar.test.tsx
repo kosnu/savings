@@ -5,26 +5,57 @@ import { createTestQueryClient, render, screen, waitFor } from "../../test/test-
 import * as stories from "./Sidebar.stories"
 
 const mockSignOut = vi.fn()
+const mockAuth = {
+  signOut: (...args: unknown[]) => mockSignOut(...args),
+  setSession: vi.fn(),
+}
 
 vi.mock("../../lib/supabase", () => ({
   getSupabaseClient: () => ({
-    auth: {
-      signOut: mockSignOut,
-    },
+    auth: mockAuth,
   }),
 }))
 
-const { Default, Closed } = composeStories(stories)
+const { Default, Closed, LoggingOut, LogoutError } = composeStories(stories)
 
 describe("Sidebar", () => {
   beforeEach(() => {
     mockSignOut.mockReset()
     mockSignOut.mockResolvedValue({ error: null })
+    mockAuth.setSession.mockClear()
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    await Default.load()
     vi.restoreAllMocks()
   })
+
+  test.each([
+    ["LoggingOut", LoggingOut],
+    ["LogoutError", LogoutError],
+  ] as const)(
+    "%s story は認証セッションを作らず、終了後に通常のログアウトへ戻る",
+    async (_, Story) => {
+      vi.spyOn(console, "error").mockImplementation(() => undefined)
+      const originalSignOut = mockAuth.signOut
+      await Story.load()
+      const { container, unmount } = render(<Story />)
+
+      await Story.play!({ canvasElement: container })
+
+      expect(mockAuth.setSession).not.toHaveBeenCalled()
+      expect(mockSignOut).not.toHaveBeenCalled()
+      unmount()
+      await Default.load()
+      expect(mockAuth.signOut).toBe(originalSignOut)
+
+      const onClose = vi.fn()
+      const { user } = render(<Default onClose={onClose} />)
+      await user.click(await screen.findByRole("button", { name: "Log out" }))
+      expect(mockSignOut).toHaveBeenCalledWith({ scope: "local" })
+      await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
+    },
+  )
 
   test("Default story では開いたサイドバーを表示する", async () => {
     render(<Default />)

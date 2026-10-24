@@ -1,7 +1,9 @@
 import { Separator } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, fn, userEvent, waitFor, within } from "storybook/test"
+import { AuthError } from "@supabase/supabase-js"
+import { expect, fn, spyOn, userEvent, waitFor, within } from "storybook/test"
 
+import { getSupabaseClient } from "../../lib/supabase"
 import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Sidebar } from "./Sidebar"
 import { SidebarButton } from "./SidebarButton"
@@ -104,4 +106,38 @@ export const MobileViewport: Story = {
 export const LandscapeViewport: Story = {
   ...ShortViewport,
   globals: { viewport: { value: "landscape" } },
+}
+
+export const LoggingOut: Story = {
+  args: { open: true },
+  beforeEach: () => {
+    const signOut = spyOn(getSupabaseClient().auth, "signOut").mockImplementation(
+      async () => new Promise(() => {}),
+    )
+    return () => signOut.mockRestore()
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const logout = await canvas.findByRole("button", { name: "Log out" })
+    await userEvent.click(logout)
+    await expect(logout).toBeDisabled()
+  },
+}
+
+export const LogoutError: Story = {
+  args: { open: true },
+  beforeEach: () => {
+    const signOut = spyOn(getSupabaseClient().auth, "signOut").mockResolvedValue({
+      error: new AuthError("Failed to log out."),
+    })
+    return () => signOut.mockRestore()
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const logout = await canvas.findByRole("button", { name: "Log out" })
+    await userEvent.click(logout)
+    await expect(await canvas.findByRole("alert")).toHaveTextContent(
+      "Could not log out. Please try again.",
+    )
+  },
 }
