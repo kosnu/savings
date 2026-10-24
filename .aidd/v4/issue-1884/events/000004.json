@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "f131e047174169cfb26b259c1d219d42b77d67ba39da204e4e8a1264369ce290",
+  "status": "pass",
+  "checks": [
+    "ユーザー採用の7日猶予・再ログイン復帰・期限後非同期削除との照合",
+    "状態正本・認可・競合・保持/復旧・実装Issue案の整合確認"
+  ],
+  "summary": "7日間の取消猶予と期限後ジョブの設計を確定し、Issue案と操作説明HTMLへ同期。",
+  "remaining": []
+}
