@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1990",
+  "paths": [
+    "tools/supabase-check/check_test.go"
+  ],
+  "fingerprint": "7ab01395b9686dd3406db14eea2d35f7f43479a27d81629af798e5105f953833",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "supabase-check Go test",
+    "supabase-check Go vet",
+    "Core verify stable"
+  ],
+  "summary": "PR head 6824b329上の1行修正に対しCore verifyが全3検証の終了コード0とstableを確認。workflowのCLI 2.121.0固定は変更していない。隔離DB/APIとHostedの実動作はこのテスト修正のローカル検証対象外。",
+  "remaining": []
+}

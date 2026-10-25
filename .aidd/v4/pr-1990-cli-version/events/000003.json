@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1990",
+  "paths": [
+    "tools/supabase-check/check_test.go"
+  ],
+  "fingerprint": "7ab01395b9686dd3406db14eea2d35f7f43479a27d81629af798e5105f953833",
+  "status": "pass",
+  "checks": [
+    "既存レビュー担当による候補差分レビュー",
+    "rule-mapの必須規約と依存closureを確認",
+    "具体版検査の削除と残存する制約検査を照合",
+    "workflow固定と実差分を照合"
+  ],
+  "summary": "指摘なし。承認された具体版の文字列検査だけを削除し、Go起動・inline script禁止・資格情報非保持・main限定・development環境・共有DB直列化の静的検査を維持。workflowの2.121.0固定に追加変更なし。Code Review Policyの不要な設定値復唱の扱いとも整合。独立担当は提示diffを評価し、実ファイルとCore記録の鮮度は親が照合した。CIと実DB/APIは未確認。",
+  "remaining": []
+}
