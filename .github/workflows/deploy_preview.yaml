@@ -26,25 +26,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  resolve:
+  # Prod の deploy-web を基準に、PR 選択から配信まで同じ job で実行する。
+  deploy-web:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-      (((github.event_name == 'pull_request' &&
-         github.event.action == 'labeled' && github.event.label.name == 'preview') ||
-        (github.event_name == 'pull_request_target' && github.event.action == 'closed')) &&
+      (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
+       github.event.label.name == 'preview' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-latest
+    environment: development
     permissions:
-      pull-requests: read
       contents: read
+      pull-requests: read
     outputs:
-      branch: ${{ steps.pr.outputs.branch }}
       sha: ${{ steps.pr.outputs.sha }}
-      pr_number: ${{ github.event.pull_request.number || inputs.pr_number }}
-      deploy: ${{ steps.pr.outputs.deploy }}
+      url: ${{ steps.deployment.outputs.url }}
+      description: ${{ steps.deployment.outputs.description }}
+      completed_at: ${{ steps.deployment.outputs.completed_at }}
     steps:
-      - name: Checkout trusted lifecycle gate without deployment secrets
+      - name: Checkout trusted deployment helpers
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
@@ -53,34 +54,7 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node tools/dev-preview/lifecycle.mjs
-
-  deploy:
-    name: Deploy Dev Preview ${{ needs.resolve.outputs.sha }}
-    needs: resolve
-    if: github.event_name != 'pull_request_target' && needs.resolve.outputs.deploy == 'true'
-    runs-on: ubuntu-latest
-    environment: development
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      url: ${{ steps.deployment.outputs.url }}
-      description: ${{ steps.deployment.outputs.description }}
-      completed_at: ${{ steps.deployment.outputs.completed_at }}
-    steps:
-      - name: Checkout trusted deployment gate
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event.pull_request.base.sha || github.sha }}
-          persist-credentials: false
-
-      # 実行待ちの間の head 更新、branch rename、ラベル撤回も拒否する。
-      - name: Revalidate before deployment
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
-          EXPECTED_BRANCH: ${{ needs.resolve.outputs.branch }}
+          EXPECTED_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: node tools/dev-preview/authorize.mjs
 
       # 既存 PR が古い補助コードを持っていても、main の契約で検証・通知する。
@@ -92,7 +66,7 @@ jobs:
       - name: Checkout validated commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.resolve.outputs.sha }}
+          ref: ${{ steps.pr.outputs.sha }}
           persist-credentials: false
 
       - name: Setup pnpm
@@ -112,8 +86,8 @@ jobs:
       - name: Build Dev Preview
         id: preview
         env:
-          PREVIEW_BRANCH: ${{ needs.resolve.outputs.branch }}
-          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          PREVIEW_BRANCH: ${{ steps.pr.outputs.branch }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
           NODE_ENV: production
           CLOUDFLARE_PREVIEW_BUILD: "true"
           CF_SEND_TELEMETRY: "false"
@@ -124,7 +98,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          SENTRY_RELEASE: ${{ needs.resolve.outputs.sha }}
+          SENTRY_RELEASE: ${{ steps.pr.outputs.sha }}
         run: |
           : "${SENTRY_RELEASE:?SENTRY_RELEASE が必要です}"
           : "${VITE_SENTRY_DSN:?VITE_SENTRY_DSN が必要です}"
@@ -135,7 +109,9 @@ jobs:
           preview_name=$(node "$RUNNER_TEMP/preview-control/preview.mjs" name "$PREVIEW_BRANCH" "$PR_NUMBER")
           echo "name=$preview_name" >> "$GITHUB_OUTPUT"
           pnpm run web:build --mode development
-          node "$RUNNER_TEMP/preview-control/preview.mjs" check-build
+
+      - name: Validate Workers Static Assets
+        run: node "$RUNNER_TEMP/preview-control/preview.mjs" check-build
 
       - name: Deploy Dev Preview
         id: deployment
@@ -145,19 +121,25 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CF_SEND_TELEMETRY: "false"
-          DEPLOYED_SHA: ${{ needs.resolve.outputs.sha }}
-          PREVIEW_BRANCH: ${{ needs.resolve.outputs.branch }}
-          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          DEPLOYED_SHA: ${{ steps.pr.outputs.sha }}
+          PREVIEW_BRANCH: ${{ steps.pr.outputs.branch }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
         run: |
           pnpm --filter web exec cf previews deploy "$PREVIEW_NAME" --prebuilt --mode development > "$RUNNER_TEMP/preview.json"
           test -s "$RUNNER_TEMP/preview.json"
           node "$RUNNER_TEMP/preview-control/report.mjs" "$RUNNER_TEMP/preview.json"
 
-  reconcile:
-    name: Check PR state after deployment
-    needs: [resolve, deploy]
-    if: always() && needs.resolve.result == 'success'
+  cleanup:
+    name: Check PR state and delete closed Dev Preview
+    needs: deploy-web
+    if: >-
+      always() &&
+      (needs.deploy-web.result != 'skipped' ||
+       (github.event_name == 'pull_request_target' && github.event.action == 'closed' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.event.pull_request.base.ref == 'main'))
     runs-on: ubuntu-latest
+    environment: development
     permissions:
       contents: read
       pull-requests: read
@@ -165,45 +147,38 @@ jobs:
       closed: ${{ steps.state.outputs.closed }}
     steps:
       # 配信 job の filesystem / outputs は削除コードに使わない。
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout trusted cleanup helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
-      - name: Reconcile current PR state
+      - name: Check current PR state
         id: state
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
         run: node tools/dev-preview/lifecycle.mjs reconcile
-
-  cleanup:
-    name: Delete closed PR Dev Preview
-    needs: [resolve, reconcile]
-    if: always() && needs.reconcile.outputs.closed == 'true'
-    runs-on: ubuntu-latest
-    environment: development
-    permissions:
-      contents: read
-      pull-requests: read
-    steps:
-      # main のコードだけを新しい runner で実行する。PR checkout / dependency install は禁止。
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event.pull_request.base.sha || github.sha }}
-          persist-credentials: false
       - name: Delete only the selected native Preview
+        if: steps.state.outputs.closed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
-          PREVIEW_BRANCH: ${{ needs.resolve.outputs.branch }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          PREVIEW_BRANCH: ${{ github.event.pull_request.head.ref }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: node tools/dev-preview/cleanup.mjs
+        run: |
+          set -euo pipefail
+          # 手動実行では event に branch がないため、信頼済みの GitHub 照会で補う。
+          if [ -z "$PREVIEW_BRANCH" ]; then
+            PREVIEW_BRANCH=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.head.ref')
+            export PREVIEW_BRANCH
+          fi
+          node tools/dev-preview/cleanup.mjs
 
   report:
     name: Publish Dev Preview URL
-    needs: [resolve, deploy, reconcile]
-    if: needs.reconcile.outputs.closed == 'false'
+    needs: [deploy-web, cleanup]
+    if: needs.cleanup.outputs.closed == 'false'
     runs-on: ubuntu-latest
     permissions:
       statuses: write
@@ -212,11 +187,11 @@ jobs:
       - name: Link the latest successful deployment from PR checks
         env:
           GH_TOKEN: ${{ github.token }}
-          DEPLOYED_SHA: ${{ needs.resolve.outputs.sha }}
-          PREVIEW_URL: ${{ needs.deploy.outputs.url }}
-          DESCRIPTION: ${{ needs.deploy.outputs.description }}
-          COMPLETED_AT: ${{ needs.deploy.outputs.completed_at }}
-          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          DEPLOYED_SHA: ${{ needs.deploy-web.outputs.sha }}
+          PREVIEW_URL: ${{ needs.deploy-web.outputs.url }}
+          DESCRIPTION: ${{ needs.deploy-web.outputs.description }}
+          COMPLETED_AT: ${{ needs.deploy-web.outputs.completed_at }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
         run: |
           set -euo pipefail
           [[ "$DEPLOYED_SHA" =~ ^[0-9a-f]{40}$ ]]

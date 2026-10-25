@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザー依頼（2026-10-26）: ProdベースのDev workflow再構成。preview/dev-dbラベルとDB・Webの個別実行を維持。関連PR https://github.com/kosnu/savings/pull/2029",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_dev_database.yaml",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/report.test.mjs",
+    "docs/development-preview.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "0eedffa23189a953c70eebc7ecde391faa3f9ec80c1994388e7e9f79f2d190e8",
+  "status": "pass",
+  "checks": [
+    "Previewテスト37件",
+    "vp check",
+    "actionlint",
+    "zizmor offline",
+    "Devビルド・成果物検査",
+    "Core check-changes",
+    "git diff --check"
+  ],
+  "summary": "全検証は終了コード0。新構成のPR確認・固定SHA・通知・終了時削除、手動削除のbranch照会失敗、既存PR向けlifecycle入口の互換性を確認。Devビルド配信物11件の検査成功。workflow・ビルド入力はビルド検証時と同一で、外部配信・共有DB更新は未実施。",
+  "remaining": []
+}

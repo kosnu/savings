@@ -113,7 +113,7 @@ test("head races, withdrawal, closure and foreign PRs fail the pre-deployment re
 })
 
 // 以下のworkflow検査は本文の接続・条件・順序を固定する。Actionsの解釈や実行結果は確認しない。
-test("workflow text declares allowed triggers, environment and revalidation before installation", () => {
+test("workflow text connects allowed requests to one PR check before checkout and installation", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
@@ -122,9 +122,14 @@ test("workflow text declares allowed triggers, environment and revalidation befo
   assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/)
   assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
   assert.match(yaml, /environment: development/)
-  assert.match(yaml, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)
+  assert.match(yaml, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
-  assert.ok(yaml.indexOf("Revalidate before deployment") < yaml.indexOf("run: pnpm ci"))
+  const resolve = yaml.indexOf("Resolve selected PR head")
+  const checkout = yaml.indexOf("Checkout validated commit")
+  assert.ok(resolve >= 0 && resolve < checkout)
+  assert.ok(checkout < yaml.indexOf("run: pnpm ci"))
+  assert.match(yaml, /EXPECTED_BRANCH: \$\{\{ github.event.pull_request.head.ref \}\}/)
+  assert.doesNotMatch(yaml, /needs.resolve|Revalidate before deployment/)
   assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.CLOUDFLARE_API_TOKEN"))
 })
 
@@ -173,7 +178,7 @@ test("workflow text separates FE/DB secret references and connects checkout SHA 
     .split("      - name: Deploy Dev Preview\n")[0]
   const productionWeb = production.split("\n  deploy-web:\n")[1]
   for (const [workflow, build, source] of [
-    [frontend, previewBuild, "needs.resolve.outputs.sha"],
+    [frontend, previewBuild, "steps.pr.outputs.sha"],
     [productionWeb, productionWeb, "github.sha"],
   ]) {
     assert.ok(workflow.includes(`ref: \${{ ${source} }}`))
@@ -199,8 +204,13 @@ test("workflow text separates FE/DB secret references and connects checkout SHA 
   assert.match(ci, /VITE_SENTRY_ENVIRONMENT: development/)
   assert.doesNotMatch(ci, /secrets\.|SENTRY_AUTH_TOKEN/)
   assert.match(database, /^  group: burneto-shared-dev-database$/m)
+  assert.match(database, /^  deploy-api:$/m)
+  assert.doesNotMatch(database, /^  resolve:|needs:|EXPECTED_SHA:/m)
+  assert.equal(database.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
+  assert.match(database, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)
+  assert.match(database, /EXPECTED_BRANCH: \$\{\{ github.event.pull_request.head.ref \}\}/)
   assert.ok(
-    database.indexOf("Revalidate before migration") <
+    database.indexOf("Resolve selected PR head") <
       database.indexOf("secrets.SUPABASE_ACCESS_TOKEN"),
   )
 })

@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザー依頼（2026-10-26）: ProdベースのDev workflow再構成。preview/dev-dbラベルとDB・Webの個別実行を維持。関連PR https://github.com/kosnu/savings/pull/2029",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_dev_database.yaml",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/report.test.mjs",
+    "docs/development-preview.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "0eedffa23189a953c70eebc7ecde391faa3f9ec80c1994388e7e9f79f2d190e8",
+  "status": "pass",
+  "checks": [
+    "Intentとユーザーの実行方式選択",
+    "全適用規則と最終差分",
+    "Prodを基準とする同層パターン",
+    "SHA・Secret・旧PRの互換性",
+    "失敗・close・reopen・通知経路"
+  ],
+  "summary": "Webの5→3job、DBの2→1jobを確認。人手承認を前提とするjob間の再確認を外し、固定SHAのcheckout、ラベル・個別実行、Secretの用途別分離、共有DBの直列化を維持。旧CLI入口は元のまま保持し、関連テスト37件成功。指摘・規則の未解決矛盾なし。外部配信・DB適用の実動確認は含まない。",
+  "remaining": []
+}

@@ -23,7 +23,8 @@ env:
   DEPLOYMENT_KIND: database
 
 jobs:
-  resolve:
+  # Prod の deploy-api と同じ単位で、選択した PR の migration だけを適用する。
+  deploy-api:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
@@ -31,41 +32,27 @@ jobs:
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      sha: ${{ steps.pr.outputs.sha }}
-      branch: ${{ steps.pr.outputs.branch }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-      - id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node tools/dev-preview/authorize.mjs
-
-  deploy:
-    name: Deploy Dev DB ${{ needs.resolve.outputs.branch }} @ ${{ needs.resolve.outputs.sha }}
-    needs: resolve
-    runs-on: ubuntu-latest
     environment: development
     permissions:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout trusted deployment helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.resolve.outputs.sha }}
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
-      - name: Revalidate before migration
+      - name: Resolve selected PR head
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-          EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
-          EXPECTED_BRANCH: ${{ needs.resolve.outputs.branch }}
+          EXPECTED_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: node tools/dev-preview/authorize.mjs
+      - name: Checkout validated commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.pr.outputs.sha }}
+          persist-credentials: false
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
         with:
