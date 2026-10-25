@@ -106,12 +106,12 @@ test("CLI → outputs → report shell は PR SHA の成功 status 要求を生�
       "utf8",
     )
     const job = workflow.split("\n  report:\n")[1]
-    assert.ok(job.includes("needs: [resolve, deploy, reconcile]"))
+    assert.ok(job.includes("needs: [deploy-web, cleanup]"))
     assert.ok(job.includes("statuses: write"))
     assert.ok(!job.includes("checkout" + "@"))
     assert.ok(!job.includes("if: always()"))
     assert.equal((workflow.match(/statuses: write/gu) ?? []).length, 1)
-    assert.ok(job.includes("DEPLOYED_SHA: ${{ needs.resolve.outputs.sha }}"))
+    assert.ok(job.includes("DEPLOYED_SHA: ${{ needs.deploy-web.outputs.sha }}"))
     const script = job
       .split("        run: |\n")[1]
       .split("\n")

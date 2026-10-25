@@ -119,63 +119,70 @@ test("fork・別base・別label・未対応event・出力注入を信頼済み�
   )
 })
 
-// workflow本文の静的検査。Actionsの直列化や削除jobの実行は再現しない。
-test("workflow 本文は非cancel groupとmainコードを使う受付・後処理・削除jobを定義する", () => {
+// workflow 本文の接続・権限の静的検査。Actions の解釈・実配信・削除は再現しない。
+test("配信はPR要求、削除は同じPRの終了通知と配信後確認から起動する", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  const resolve = yaml.split("\n  resolve:\n")[1].split("\n  deploy:\n")[0]
-  const reconcile = yaml.split("\n  reconcile:\n")[1].split("\n  cleanup:\n")[0]
+  const deploy = yaml.split("\n  deploy-web:\n")[1].split("\n  cleanup:\n")[0]
   const cleanup = yaml.split("\n  cleanup:\n")[1].split("\n  report:\n")[0]
-  // 配信と終了の入口を固定し、競合PRで配送されないpull_requestへの後退を検知する。
   assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled\]/u)
   assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/u)
   assert.match(
-    resolve,
-    /github.event_name == 'pull_request_target' && github.event.action == 'closed'/u,
+    deploy,
+    /github.event_name == 'workflow_dispatch' && github.ref == 'refs\/heads\/main'/u,
   )
-  assert.match(resolve, /github.event.pull_request.head.repo.full_name == github.repository/u)
-  assert.match(resolve, /github.event.pull_request.base.ref == 'main'/u)
+  assert.match(deploy, /github.event_name == 'pull_request' && github.event.action == 'labeled'/u)
+  assert.match(deploy, /github.event.label.name == 'preview'/u)
+  assert.doesNotMatch(deploy, /github.event_name == 'pull_request_target'|needs.resolve/u)
+  for (const job of [deploy, cleanup]) {
+    assert.match(job, /github.event.pull_request.head.repo.full_name == github.repository/u)
+    assert.match(job, /github.event.pull_request.base.ref == 'main'/u)
+  }
   assert.match(
     yaml,
     /group: dev-preview-pr-\$\{\{ github.event.pull_request.number \|\| inputs.pr_number \}\}/u,
   )
   assert.match(yaml, /cancel-in-progress: false/u)
+  assert.match(cleanup, /needs: deploy-web/u)
+  assert.match(cleanup, /always\(\) &&/u)
+  assert.match(cleanup, /needs.deploy-web.result != 'skipped'/u)
   assert.match(
-    yaml,
-    /if: github.event_name != 'pull_request_target' && needs.resolve.outputs.deploy == 'true'/u,
-  )
-  for (const job of [resolve, reconcile, cleanup]) {
-    assert.match(job, /ref: \$\{\{ github.event.pull_request.base.sha \|\| github.sha \}\}/u)
-    assert.doesNotMatch(job, /head.sha|ref:.*needs.resolve.outputs.sha|pnpm|npm|uses:.*\.\//u)
-    assert.match(job, /persist-credentials: false/u)
-  }
-  assert.match(reconcile, /needs: \[resolve, deploy\]/u)
-  assert.match(reconcile, /if: always\(\) && needs.resolve.result == 'success'/u)
-  assert.match(cleanup, /if: always\(\) && needs.reconcile.outputs.closed == 'true'/u)
-  assert.match(cleanup, /environment: development/u)
-  assert.match(cleanup, /PREVIEW_BRANCH: \$\{\{ needs.resolve.outputs.branch \}\}/u)
-  assert.doesNotMatch(
     cleanup,
-    /needs.deploy.outputs|SUPABASE|VITE_|statuses: write|pull-requests: write/u,
+    /github.event_name == 'pull_request_target' && github.event.action == 'closed'/u,
   )
-  assert.match(yaml, /preview.mjs" name "\$PREVIEW_BRANCH" "\$PR_NUMBER"/u)
-  assert.match(yaml.split("\n  report:\n")[1], /if: needs.reconcile.outputs.closed == 'false'/u)
+  assert.match(cleanup, /ref: \$\{\{ github.event.pull_request.base.sha \|\| github.sha \}\}/u)
+  assert.match(cleanup, /persist-credentials: false/u)
+  assert.match(cleanup, /run: node tools\/dev-preview\/lifecycle.mjs reconcile/u)
+  assert.match(cleanup, /if: steps.state.outputs.closed == 'true'/u)
+  assert.match(cleanup, /environment: development/u)
+  assert.match(cleanup, /PREVIEW_BRANCH: \$\{\{ github.event.pull_request.head.ref \}\}/u)
+  assert.match(cleanup, /gh api "repos\/\$GITHUB_REPOSITORY\/pulls\/\$PR_NUMBER" --jq '.head.ref'/u)
+  assert.doesNotMatch(cleanup, /needs.deploy-web.outputs|pnpm|npm|uses:.*\.\//u)
+  assert.doesNotMatch(cleanup, /SUPABASE|VITE_|statuses: write|pull-requests: write/u)
+  assert.match(yaml.split("\n  report:\n")[1], /if: needs.cleanup.outputs.closed == 'false'/u)
 })
 
-test("配信job本文はPR checkout前のmain補助コードの退避と利用を指定する", () => {
+test("Prodを基準とする配信jobはPR確認・checkout・build・検査・配信を順に実行する", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  const deploy = yaml.split("\n  deploy:\n")[1].split("\n  reconcile:\n")[0]
+  const deploy = yaml.split("\n  deploy-web:\n")[1].split("\n  cleanup:\n")[0]
+  const steps = [
+    "Resolve selected PR head",
+    "Preserve trusted Preview helpers",
+    "Checkout validated commit",
+    "Setup pnpm",
+    "Setup Node.js",
+    "Install dependencies",
+    "Build Dev Preview",
+    "Validate Workers Static Assets",
+    "Deploy Dev Preview",
+  ].map((name) => deploy.indexOf(`- name: ${name}\n`))
   assert.ok(
-    deploy.indexOf("Revalidate before deployment") < deploy.indexOf("Checkout validated commit"),
-  )
-  assert.ok(
-    deploy.indexOf("Preserve trusted Preview helpers") <
-      deploy.indexOf("Checkout validated commit"),
+    steps.every((position, index) => position >= 0 && (index === 0 || position > steps[index - 1])),
   )
   assert.match(
     deploy,

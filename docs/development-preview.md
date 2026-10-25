@@ -25,6 +25,27 @@ PRごとに `burneto-dev` のPreviewを配信し、1つのDev SupabaseでDB・Au
 本番Worker・本番Supabaseには接続・変更せず、合成データだけを使う。
 構成は[インフラ構成](infrastructure.md)、検証結果と未確認項目はIssue・PRで管理する。
 
+## workflowの構成
+
+Prodの[Deploy Production](../.github/workflows/deploy_production.yaml)を基準に、
+Devもcheckout → セットアップ → 検査 → 配信を同じデプロイjob内で行う。
+Environmentの人手承認を前提にした、PR選択jobと承認後の再確認jobには分けない。
+
+| 対象 | Devのworkflow・job                   | 処理                                                                                               |
+| ---- | ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Web  | `Deploy Dev Preview` / `deploy-web`  | PR確認・固定SHAのcheckout → pnpm・Nodeの準備 → install・Devビルド → 静的成果物の検査 → Preview配信 |
+| DB   | `Deploy Dev Database` / `deploy-api` | PR確認・固定SHAのcheckout → Supabase CLIの準備 → Devへのlink → migrationのdry-run・適用            |
+
+ProdのDB → Webという依存関係は持ち込まず、`preview` と `dev-db` の要求を個別に扱う。
+Devでは本番への接続を防ぐため、Dev refの確認とPreview専用の成果物検査・配信コマンドを使う。
+管理tokenは必要なstepだけに渡し、依存installへ渡さない。
+
+Web配信は `deploy-web`、終了状態の確認・削除は独立runnerの `cleanup`、
+成功URLの登録は `report` の3jobで行う。
+`cleanup` は配信失敗時やPR終了通知でも現在の状態を照会し、closedの場合だけ削除stepへ進む。
+PR選択で終了済みと判定された古い配信要求も、配信を失敗として停止した後に同じ削除経路へ進む。
+`report` は配信成功かつPRがopenの場合だけ実行する。
+
 ## フロントエンドを配信する
 
 1. 同じリポジトリからmain宛てのopen PRを用意し、変更をpushする。merge conflictは先に解消する。
@@ -52,7 +73,8 @@ pushだけでは再配信されない。更新時は `preview` ラベルを外�
 main導入後はmainからworkflowを手動実行し、PR番号だけを入力する方法も使える。
 CloudもこのActions経路を使うため、Cloudへの配信用Secret登録は不要。
 
-Actionsは要求時のSHA・branchを固定し、配信直前にもPR状態を再確認する。
+Actionsは各デプロイjobの開始時にPR状態と要求のSHA・branchを照合し、検証したSHAをcheckoutする。
+ラベル要求はeventのSHA・branch、手動実行はその時点のPR headを使う。
 head更新・branch rename・close・ラベル撤回で停止したら、新しい状態で要求し直す。
 fork、main以外へのPR、main以外からの手動実行は受け付けない。
 同一PRの配信・終了通知・削除は直列化し、実行中の配信は中断しない。別PRは並行配信できる。
@@ -213,7 +235,7 @@ FEを以前のcommitへ戻してもDB・Auth・データは戻らない。
 
 ### Previewを削除するとき
 
-PRのclose・mergeで `Deploy Dev Preview` の `Delete closed PR Dev Preview` が自動で要求される。
+PRのclose・mergeで `Deploy Dev Preview` の `Check PR state and delete closed Dev Preview` が自動で要求される。
 削除jobは `development` Environmentを使い、人手承認なしで進む。
 待機中・失敗は削除完了ではない。ActionsのSummaryでPR番号・親Worker `burneto-dev`・
 Preview名・削除成功／不在／保護／失敗を確認する。不在は正常終了し、認証・通信・APIエラーは失敗する。
@@ -222,7 +244,7 @@ Preview名・削除成功／不在／保護／失敗を確認する。不在は�
 配信と終了通知は同じPRのconcurrency groupで直列化する。closeが配信・実行待ち中に到着しても、
 配信終了後の状態確認から削除する。置き換わった待ちrunや終了後の古い配信runの再実行も、
 現在のclosed状態を確認して配信せず削除へ進む。配信途中の失敗でも状態確認を行う。
-open PRの正常配信では削除jobを起動せず、既存のChecks URL登録を維持する。
+open PRの正常配信では削除stepを実行せず、既存のChecks URL登録を維持する。
 導入前の旧workflowで開始した配信はこの後処理を持たないため、導入時に完了・停止を確認する。
 runの手動キャンセルやAPI障害では残存し得るため、対象の終了runを再実行して確認する。
 

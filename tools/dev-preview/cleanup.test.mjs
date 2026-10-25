@@ -1,4 +1,8 @@
 import assert from "node:assert/strict"
+import { execFileSync } from "node:child_process"
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
 import { test } from "node:test"
 
 import { cleanupPreview, runCleanup } from "./cleanup.mjs"
@@ -22,6 +26,77 @@ const pr = {
   },
   base: { ref: "main" },
 }
+
+// workflow の削除 step を実行し、fake CLI への対象の受け渡しだけを確認する。
+test("削除shellはeventのbranchを維持し、手動実行の照会失敗では削除を始めない", () => {
+  const yaml = readFileSync(
+    new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
+    "utf8",
+  )
+  const script = yaml
+    .split("      - name: Delete only the selected native Preview\n")[1]
+    .split("\n  report:\n")[0]
+    .split("        run: |\n")[1]
+    .split("\n")
+    .map((line) => line.replace(/^          /u, ""))
+    .join("\n")
+  const dir = mkdtempSync(join(tmpdir(), "preview-cleanup-"))
+  try {
+    const calls = join(dir, "calls")
+    const observed = join(dir, "observed")
+    writeFileSync(
+      join(dir, "gh"),
+      `#!${process.execPath}\nimport { writeFileSync } from 'node:fs'; writeFileSync(process.env.CALLS, JSON.stringify(process.argv.slice(2))); if (process.env.FAIL_LOOKUP) process.exit(1); console.log('feature/current');\n`,
+      { mode: 0o755 },
+    )
+    writeFileSync(
+      join(dir, "node"),
+      `#!${process.execPath}\nimport { writeFileSync } from 'node:fs'; writeFileSync(process.env.OBSERVED, JSON.stringify({ args: process.argv.slice(2), branch: process.env.PREVIEW_BRANCH }));\n`,
+      { mode: 0o755 },
+    )
+    for (const PREVIEW_BRANCH of ["feature/original", ""]) {
+      execFileSync("bash", ["-c", script], {
+        env: {
+          ...process.env,
+          ...env,
+          PATH: `${dir}:${process.env.PATH}`,
+          PREVIEW_BRANCH,
+          CALLS: calls,
+          OBSERVED: observed,
+        },
+      })
+      assert.deepEqual(JSON.parse(readFileSync(observed, "utf8")), {
+        args: ["tools/dev-preview/cleanup.mjs"],
+        branch: PREVIEW_BRANCH || "feature/current",
+      })
+      if (!PREVIEW_BRANCH) {
+        assert.deepEqual(JSON.parse(readFileSync(calls, "utf8")), [
+          "api",
+          `repos/${env.GITHUB_REPOSITORY}/pulls/${env.PR_NUMBER}`,
+          "--jq",
+          ".head.ref",
+        ])
+      }
+    }
+    rmSync(observed)
+    assert.throws(() =>
+      execFileSync("bash", ["-c", script], {
+        env: {
+          ...process.env,
+          ...env,
+          PATH: `${dir}:${process.env.PATH}`,
+          PREVIEW_BRANCH: "",
+          CALLS: calls,
+          OBSERVED: observed,
+          FAIL_LOOKUP: "1",
+        },
+      }),
+    )
+    assert.throws(() => readFileSync(observed))
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
 function fixture({
   state = pr,
   others = [],
@@ -291,7 +366,7 @@ test("Actions Summary は対象ごとの成功・不在・部分失敗を区別�
 })
 
 test("配信中close → 後処理 → 置き換わった古い配信要求の順でもPreviewを残さない", async () => {
-  const { resolveLifecycle, reconcilePR } = await import("./lifecycle.mjs")
+  const { reconcilePR } = await import("./lifecycle.mjs")
   const { authorize, deploymentRequest } = await import("./authorize.mjs")
   const context = {
     ...env,
@@ -307,23 +382,21 @@ test("配信中close → 後処理 → 置き換わった古い配信要求の�
   }
   const get = async (path) => (path.includes("?") ? [] : structuredClone(current))
   const f = fixture({ names: [] })
-  const resolved = await resolveLifecycle(event, context, get)
-  assert.equal(resolved.deploy, true)
   const request = deploymentRequest(
     event,
     context.GITHUB_EVENT_NAME,
     context.GITHUB_REF,
     env.GITHUB_REPOSITORY,
   )
-  await authorize({ ...request, branch: resolved.branch }, env.GITHUB_REPOSITORY, get)
-  // 配信側がrevalidationを通過した後、アップロード完了前にPRがcloseする。
+  await authorize({ ...request, branch: event.pull_request.head.ref }, env.GITHUB_REPOSITORY, get)
+  // 配信 job の開始時確認を通過した後、アップロード完了前に PR が close する。
   current.state = "closed"
   f.resources.add("pr-1927")
   assert.deepEqual(await reconcilePR(context, get), { closed: true })
   await cleanupPreview(context, get, f.fetcher, f.report)
   assert.ok(!f.resources.has("pr-1927"))
   // concurrency pendingの終了通知が古いlabel要求に置き換わっても削除経路へ進む。
-  assert.equal((await resolveLifecycle(event, context, get)).deploy, false)
+  await assert.rejects(authorize(request, env.GITHUB_REPOSITORY, get))
   await cleanupPreview(context, get, f.fetcher, f.report)
   assert.equal(f.calls.filter((c) => c.method === "DELETE").length, 1)
   // 削除の実行待ち中のreopenも、削除直前の照会で保護する。

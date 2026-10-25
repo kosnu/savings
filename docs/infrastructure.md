@@ -235,7 +235,8 @@ PR終了時の削除は同じPRの配信と直列化し、共有DB・Auth・デ�
 CloudからもPRのpreviewラベルでGitHub Actionsを起動する。配信経路はActionsに統一し、native cfコマンドを使用する。
 利用者は PR を選び、SHA は CI が内部で解決・固定する。main 導入後は PR 番号だけの手動実行も使える。
 development Environment のRequired reviewersは未設定とし、Preview配信・削除、共有Dev DB更新、Supabase CIのDev照合を人手承認なしで進める。
-実行直前の対象SHA・PR状態の再照合、起動条件、concurrencyは維持し、productionの承認・保護は変更しない。
+Prodの `deploy-web` / `deploy-api` を基準に、PR確認・固定SHAのcheckoutから配信までを各job内で行う。
+DBとWebの個別実行、起動条件、concurrencyは維持し、productionの承認・保護は変更しない。
 プレビュー配信は migration、seed、reset、Auth 設定の変更を行わない。
 DB 変更は選択PRのSQLを確認してから別の dev-db ラベルで専用 CI を起動し、固定 SHA のmigrationを適用する。
 FE/DB とも development Environment を使い、DB stepだけへ管理tokenを渡す。共有DBの更新は全 branch を直列化する。履歴競合は CLI 標準の version 検査に従い、適用済み SQL の内容変更を独自検知しない。
