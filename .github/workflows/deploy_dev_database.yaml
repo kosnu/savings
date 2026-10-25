@@ -14,7 +14,7 @@ on:
 run-name: Dev DB PR ${{ github.event.pull_request.number || inputs.pr_number }} @ ${{ github.event.pull_request.head.sha || 'resolve-current-head' }}
 permissions: {}
 
-# 全ブランチが一つの共有DBを使う。承認待ちを含めて直列化する。
+# 全ブランチが一つの共有DBを使う。実行待ちを含めて直列化する。
 concurrency:
   group: burneto-shared-dev-database
   cancel-in-progress: false
@@ -48,7 +48,7 @@ jobs:
         run: node tools/dev-preview/authorize.mjs
 
   deploy:
-    name: Approve Dev DB ${{ needs.resolve.outputs.branch }} @ ${{ needs.resolve.outputs.sha }}
+    name: Deploy Dev DB ${{ needs.resolve.outputs.branch }} @ ${{ needs.resolve.outputs.sha }}
     needs: resolve
     runs-on: ubuntu-latest
     environment: development
@@ -60,7 +60,7 @@ jobs:
         with:
           ref: ${{ needs.resolve.outputs.sha }}
           persist-credentials: false
-      - name: Revalidate after migration approval
+      - name: Revalidate before migration
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}

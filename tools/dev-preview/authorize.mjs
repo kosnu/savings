@@ -71,7 +71,7 @@ async function main() {
   const event = JSON.parse(readFileSync(GITHUB_EVENT_PATH, "utf8"))
   if (GITHUB_EVENT_NAME === "workflow_dispatch") {
     if (!/^[1-9][0-9]*$/.test(event.inputs?.pr_number ?? "")) throw new Error("PR number required")
-    // main の手動実行でも SHA は取得して固定し、二度目は承認前の値を使う。
+    // main の手動実行でも SHA は取得して固定し、二度目は初回に固定した値を使う。
     event.inputs.head_sha =
       process.env.EXPECTED_SHA ??
       (await get(`/repos/${GITHUB_REPOSITORY}/pulls/${event.inputs.pr_number}`)).head.sha
@@ -86,7 +86,7 @@ async function main() {
   request.branch = process.env.EXPECTED_BRANCH
   const approved = await authorize(request, GITHUB_REPOSITORY, get)
   if (process.env.EXPECTED_SHA && approved.sha !== process.env.EXPECTED_SHA) {
-    throw new Error("Resolved SHA changed after approval")
+    throw new Error("Resolved SHA changed after resolution")
   }
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(process.env.GITHUB_OUTPUT, `sha=${approved.sha}\nbranch=${approved.branch}\n`)

@@ -171,11 +171,11 @@ test("配信job本文はPR checkout前のmain補助コードの退避と利用�
   )
   const deploy = yaml.split("\n  deploy:\n")[1].split("\n  reconcile:\n")[0]
   assert.ok(
-    deploy.indexOf("Revalidate after environment approval") <
-      deploy.indexOf("Checkout approved commit"),
+    deploy.indexOf("Revalidate before deployment") < deploy.indexOf("Checkout validated commit"),
   )
   assert.ok(
-    deploy.indexOf("Preserve trusted Preview helpers") < deploy.indexOf("Checkout approved commit"),
+    deploy.indexOf("Preserve trusted Preview helpers") <
+      deploy.indexOf("Checkout validated commit"),
   )
   assert.match(
     deploy,

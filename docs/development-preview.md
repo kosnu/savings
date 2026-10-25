@@ -29,11 +29,11 @@ PRごとに `burneto-dev` のPreviewを配信し、1つのDev SupabaseでDB・Au
 
 1. 同じリポジトリからmain宛てのopen PRを用意し、変更をpushする。merge conflictは先に解消する。
 2. PRに `preview` ラベルを付ける。
-3. `Deploy Dev Preview` の `development` 承認画面で、表示されたSHAのコード・workflow・依存install script・公開内容を確認して承認する。
+3. `Deploy Dev Preview` が固定したSHAを確認する。`development` Environmentの人手承認待ちはないため、コード・workflow・依存install script・公開内容はラベル付与前に確認する。
 4. 対象PRのCI／Checksに表示される `Dev Preview URL / PR #<番号>` のDetailsからPreviewを開く。
    表示された配信結果の確認時刻 (UTC)・PR番号・branch・`run <実行番号>.<試行番号>`で配信を識別する。
 
-`Dev Preview URL / PR #<番号>` は承認済みのPR head SHAへ、配信成功後だけ登録するcommit status。
+`Dev Preview URL / PR #<番号>` は検証済みのPR head SHAへ、配信成功後だけ登録するcommit status。
 同じSHAを使う複数PRでも、PR番号ごとに別のstatusでURLを識別する。
 mainからの手動実行でも対象PRに表示される。同じSHAの再配信では最新の成功結果へ更新し、
 配信失敗・キャンセルは前の成功URLを上書きしない。head更新後は、新しいSHAの配信が成功するまで
@@ -52,7 +52,7 @@ pushだけでは再配信されない。更新時は `preview` ラベルを外�
 main導入後はmainからworkflowを手動実行し、PR番号だけを入力する方法も使える。
 CloudもこのActions経路を使うため、Cloudへの配信用Secret登録は不要。
 
-Actionsは要求時のSHA・branchを固定し、承認後もPR状態を再確認する。
+Actionsは要求時のSHA・branchを固定し、配信直前にもPR状態を再確認する。
 head更新・branch rename・close・ラベル撤回で停止したら、新しい状態で要求し直す。
 fork、main以外へのPR、main以外からの手動実行は受け付けない。
 同一PRの配信・終了通知・削除は直列化し、実行中の配信は中断しない。別PRは並行配信できる。
@@ -67,7 +67,7 @@ URLは公開の接続先識別子であり、このCIは実DB接続や認証の�
 確認対象と満たすべき状態は[Supabase設定変更のDev確認手順](supabase-dev-verification.md)を参照する。
 `Supabase verification`はPRの隔離DB/API試験と、mainから手動実行するDevの読み取り照合を持つ。
 Go実装の入力・実行条件・必要権限は[検証コードの案内](../tools/supabase-check/README.md)を参照する。
-Dev照合はdevelopment Environmentの承認を使い、DB適用と同じgroupで直列化する。
+Dev照合はdevelopment Environmentを使い、人手承認なしでDB適用と同じgroupで直列化する。
 設定変更・権限追加・migration適用は行わない。既存DB適用tokenに不足する読み取り権限は自動追加しない。
 
 ## 共有Dev DBを更新する
@@ -75,14 +75,12 @@ Dev照合はdevelopment Environmentの承認を使い、DB適用と同じgroup�
 DB変更は全Previewに影響する。SQL全文、新旧FEとの互換性、検証の停止範囲、
 データ損失と復旧方法を確認する。破壊操作は具体的な承認が必要。
 
-1. PRに `dev-db` ラベルを付ける。main導入後は `Deploy Dev Database` にPR番号を指定して手動実行もできる。
-2. `development` 承認画面の固定SHAと未適用migrationを確認して、1回承認する。
-3. jobはPRとDev refを再確認し、Supabase CLIでlink → dry-run → 適用を行う。
-   dry-run後に追加の承認待ちはないため、承認前にSQL全文を確認する。
-4. 成功後、headを変えず `preview` を要求する。FE承認画面のSHAがDB runと一致することを確認する。
+1. 対象PRのhead SHAと未適用migrationのSQL全文を確認してから、`dev-db` ラベルを付ける。main導入後は `Deploy Dev Database` にPR番号を指定して手動実行もできる。
+2. jobは固定SHA・PR・Dev refを再確認し、人手のEnvironment承認なしでSupabase CLIによるlink → dry-run → 適用を行う。dry-run後も承認待ちはない。
+3. 成功後、headを変えず `preview` を要求する。FE runの固定SHAがDB runと一致することを確認する。
 
-全branchのDB jobは `burneto-shared-dev-database` で承認待ちを含め直列化し、実行中はcancelしない。
-SQL Editor・MCP・Cloud等の外部書き込みはlock対象外なので、CI実行・承認待ち中には行わない。
+全branchのDB jobは `burneto-shared-dev-database` で直列化し、実行中はcancelしない。
+SQL Editor・MCP・Cloud等の外部書き込みはlock対象外なので、CI実行・待機中には行わない。
 workflowは `db push --linked --skip-vault --dry-run` の後に `--yes` で適用する。
 seed・reset・roles・Vault更新、`--include-all`、履歴repair、自動rollbackは実行しない。
 DB成功だけでFEは配信されない。
@@ -130,13 +128,30 @@ productionからのコピー・repository Secretでの代用はしない。値�
 | `SUPABASE_PROJECT_ID`           | `ufekmuxkmodwydxmdbln`                              |
 | `SUPABASE_ACCESS_TOKEN`         | Dev project限定のscoped PAT                         |
 
-required reviewerは所有者 `kosnu`、Prevent self-reviewと管理者bypassは無効とする。
-branch policyは `main` と `refs/pull/*/merge` だけを許可する。
-Secretを使うworkflowの変更時は、GitHub APIでreviewer・bypass禁止・許可refの実設定を読み戻す。
+`development` のRequired reviewersは未設定とし、Preview配信・削除、共有Dev DBへのmigration適用、
+Supabase CIのDev照合をすべて人手のEnvironment承認なしで進める。
+管理者bypassは禁止のまま、branch policyは `main` と `refs/pull/*/merge` だけを許可する。
+`production` の承認・保護と、developmentのRequired reviewers以外の既存保護は変更しない。
+
+Required reviewersの実設定はworkflow YAMLの変更やPRのmergeだけでは反映されない。管理者がGitHubの
+Settings → Environments → development → Required reviewersを無効にして保存する。
+リポジトリ側では運用文書とjobの表示を同期し、ラベル・手動実行条件、SHA検証、concurrency、既存の安全確認を維持する。
+設定後とSecretを使うworkflowの変更時は、GitHub APIで実設定を読み戻す。
+
+```sh
+gh api repos/kosnu/savings/environments/development
+gh api repos/kosnu/savings/environments/development/deployment-branch-policies
+gh api repos/kosnu/savings/environments/development/deployment_protection_rules
+gh api repos/kosnu/savings/environments/production
+gh api repos/kosnu/savings/environments/production/deployment_protection_rules
+```
+
+developmentの `protection_rules` に `required_reviewers` がなく、`can_admins_bypass` が `false`、
+許可ref・その他の保護とproductionの設定が変更前と一致することを確認する。
 `environment: development` の記述やbase SHAのcheckoutだけでは、PR管理下のworkflowからのSecretアクセスを制限できない。
-未承認jobが待機することを確認し、workflow本文のテストだけでEnvironment承認まで検証済みとしない。
-FEとDBは同じEnvironmentを使うため、
-承認者はworkflowのSecret参照も確認する。必要なSecretだけを各stepへ渡し、DB管理tokenはFEへ渡さない。
+workflow本文のテストだけでGitHubの実設定を確認済みとしない。
+FEとDBは同じEnvironmentを使うため、実行要求前にworkflowのSecret参照も確認する。
+必要なSecretだけを各stepへ渡し、DB管理tokenはFEへ渡さない。
 service_role・secret key・DB passwordはブラウザへ渡さない。
 Sentry の5項目は本番と同じ Secret 参照でビルドへ渡す。環境名の固定値や Variables は使わない。
 `VITE_SENTRY_ENVIRONMENT` は `development` に登録する。production の Secret は自動継承されない。
@@ -199,17 +214,17 @@ FEを以前のcommitへ戻してもDB・Auth・データは戻らない。
 ### Previewを削除するとき
 
 PRのclose・mergeで `Deploy Dev Preview` の `Delete closed PR Dev Preview` が自動で要求される。
-既存の `development` Environment のrequired reviewを維持するため、所有者が削除jobを承認する。
-承認待ち・失敗は削除完了ではない。ActionsのSummaryでPR番号・親Worker `burneto-dev`・
+削除jobは `development` Environmentを使い、人手承認なしで進む。
+待機中・失敗は削除完了ではない。ActionsのSummaryでPR番号・親Worker `burneto-dev`・
 Preview名・削除成功／不在／保護／失敗を確認する。不在は正常終了し、認証・通信・APIエラーは失敗する。
 失敗時は原因を確認し、同じrunを再実行できる。PRをreopen済みなら削除せず、再配信を要求できる。
 
-配信と終了通知は同じPRのconcurrency groupで直列化する。closeが配信・承認待ち中に到着しても、
+配信と終了通知は同じPRのconcurrency groupで直列化する。closeが配信・実行待ち中に到着しても、
 配信終了後の状態確認から削除する。置き換わった待ちrunや終了後の古い配信runの再実行も、
 現在のclosed状態を確認して配信せず削除へ進む。配信途中の失敗でも状態確認を行う。
-open PRの正常配信では削除承認を要求せず、既存のChecks URL登録を維持する。
+open PRの正常配信では削除jobを起動せず、既存のChecks URL登録を維持する。
 導入前の旧workflowで開始した配信はこの後処理を持たないため、導入時に完了・停止を確認する。
-runの手動キャンセルや削除承認の拒否、API障害では残存し得るため、対象の終了runを再実行して確認する。
+runの手動キャンセルやAPI障害では残存し得るため、対象の終了runを再実行して確認する。
 
 配信要求は同一repository限定の `pull_request` の `labeled` で受け付け、workflow定義もPRの検証・レビュー対象とする。
 終了通知だけは `pull_request_target` の `closed` で受け付ける。

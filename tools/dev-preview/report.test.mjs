@@ -24,7 +24,7 @@ const deployment = {
   deployment_id: "deployment-one",
 }
 
-// 合成の配信結果から通知を生成する。実配信や承認済みSHAの由来は確認しない。
+// 合成の配信結果から通知を生成する。実配信や検証済みSHAの由来は確認しない。
 test("入力された配信結果からリンクと PR・branch・SHA・deployment・run/attempt を生成する", () => {
   const completedAt = "2026-10-12T19:00:00.000Z"
   const report = deploymentReport(deployment, env, completedAt)

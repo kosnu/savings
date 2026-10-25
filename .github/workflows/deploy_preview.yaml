@@ -56,7 +56,7 @@ jobs:
         run: node tools/dev-preview/lifecycle.mjs
 
   deploy:
-    name: Approve Dev Preview ${{ needs.resolve.outputs.sha }}
+    name: Deploy Dev Preview ${{ needs.resolve.outputs.sha }}
     needs: resolve
     if: github.event_name != 'pull_request_target' && needs.resolve.outputs.deploy == 'true'
     runs-on: ubuntu-latest
@@ -75,8 +75,8 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
 
-      # 承認待ちの間の head 更新、branch rename、ラベル撤回も拒否する。
-      - name: Revalidate after environment approval
+      # 実行待ちの間の head 更新、branch rename、ラベル撤回も拒否する。
+      - name: Revalidate before deployment
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
@@ -89,7 +89,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/preview-control"
           cp tools/dev-preview/preview.mjs tools/dev-preview/report.mjs "$RUNNER_TEMP/preview-control/"
 
-      - name: Checkout approved commit
+      - name: Checkout validated commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.resolve.outputs.sha }}
@@ -208,7 +208,7 @@ jobs:
     permissions:
       statuses: write
     steps:
-      # PR コードを checkout / 実行せず、配信成功時だけ承認済み SHA へ登録する。
+      # PR コードを checkout / 実行せず、配信成功時だけ検証済み SHA へ登録する。
       - name: Link the latest successful deployment from PR checks
         env:
           GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,31 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2028",
+  "paths": [
+    "docs/development-preview.md",
+    "docs/infrastructure.md",
+    "tools/supabase-check/README.md",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_dev_database.yaml",
+    ".github/workflows/supabase_ci.yaml",
+    "tools/dev-preview/authorize.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/report.test.mjs"
+  ],
+  "fingerprint": "65eddff88d53b80e1f4540cb53614f91a312d9a14f8bef5bc83e8042fe86c0be",
+  "status": "pass",
+  "checks": [
+    "Previewテスト36件",
+    "Supabase verifier test/vet",
+    "変更11ファイルのvp check",
+    "Core check-changes",
+    "git diff --check",
+    "GitHub Environment実設定の前後照合"
+  ],
+  "summary": "ローカル検証成功後は文書の説明だけを修正し、当該文書のvp checkと空白検査を再実行して成功。実装とworkflowはテスト時と同一。実配信・削除・DB適用・Hosted照合は新規実行していない。",
+  "remaining": []
+}
