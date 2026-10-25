@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2026",
+  "paths": [
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.test.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "ebef32ec81fe778810896ddbef03ed3e55d494b101daeb30b74aa3da1a5d3716",
+  "status": "pass",
+  "checks": [
+    "web:format",
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration",
+    "web:test:storybook",
+    "Core check-changes and git diff --check"
+  ],
+  "summary": "Web必須4検証が成功。単体・統合150ファイル1023件、Storybook 8ファイル22件成功。Chromium起動制限は権限付き再実行で解消。対象内容とmodeは検証中に変更なし。実サービスへの保存は対象外。",
+  "remaining": []
+}

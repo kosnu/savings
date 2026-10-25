@@ -221,6 +221,9 @@ describe("HomePage", () => {
       expect(within(recent).getAllByRole("button")).toHaveLength(5)
     })
     expect(within(recent).getByText("支払い5")).toBeInTheDocument()
+    expect(
+      within(recent).queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
     expect(within(recent).queryByText("支払い6")).not.toBeInTheDocument()
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
@@ -272,6 +275,10 @@ describe("HomePage", () => {
       } else {
         expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
       }
+      expect(
+        screen.queryByText("No payments yet. Use “Create payment” to record one."),
+      ).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /create payment/i })).toBeEnabled()
     },
   )
 
@@ -283,7 +290,10 @@ describe("HomePage", () => {
       ...createMonthlyBudgetHandlers(),
     )
     render(<Empty />)
-    expect(await screen.findByText("No payments found.")).toBeInTheDocument()
+    expect(
+      await screen.findByText("No payments yet. Use “Create payment” to record one."),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /create payment/i })).toBeEnabled()
     const total = await screen.findByLabelText("Total spending")
     expect(total).toHaveTextContent("¥0")
   })
@@ -308,7 +318,9 @@ describe("HomePage", () => {
     server.resetHandlers(...createBookHandlers({ error: true }))
     render(<ErrorStory />)
     expect(await screen.findByRole("alert")).toHaveTextContent("Failed")
-    expect(screen.queryByText("No payments found.")).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
   })
 
   test("Book取得失敗後に同じ認証ユーザーのまま再試行してトップへ復帰できる", async () => {
@@ -445,7 +457,7 @@ describe("HomePage", () => {
     expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
   })
 
-  test("トップから追加すると直近一覧と月次集計が再取得される", async () => {
+  test("空状態から追加すると案内が消え、直近一覧と月次集計が再取得される", async () => {
     const created = {
       ...mapPaymentToRow(payments[0]),
       id: 999,
@@ -455,24 +467,26 @@ describe("HomePage", () => {
     }
     server.resetHandlers(
       ...createBookHandlers(),
-      ...createPaymentHandlers({ create: { response: created } }),
-      ...createCategoryHandlers(),
+      ...createPaymentHandlers({ initialRows: [], create: { response: created } }),
+      ...createCategoryHandlers({ get: { paymentRows: [] } }),
       ...createMonthlyBudgetHandlers(),
     )
     const { user } = render(<Default />)
     const recent = await screen.findByLabelText("Recent payments")
-    await within(recent).findByText("スーパー")
+    expect(
+      await within(recent).findByText("No payments yet. Use “Create payment” to record one."),
+    ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /create payment/i }))
     const dialog = await screen.findByRole("dialog", { name: /create payment/i })
     await user.type(within(dialog).getByLabelText(/amount/i), "1080")
     server.resetHandlers(
       ...createBookHandlers(),
       ...createPaymentHandlers({
-        initialRows: [...payments.map(mapPaymentToRow), created],
+        initialRows: [created],
         create: { response: created },
       }),
       ...createCategoryHandlers({
-        get: { paymentRows: [...payments.map(mapPaymentToRow), created] },
+        get: { paymentRows: [created] },
       }),
       ...createMonthlyBudgetHandlers(),
     )
@@ -481,8 +495,11 @@ describe("HomePage", () => {
       expect(screen.queryByRole("dialog", { name: /create payment/i })).not.toBeInTheDocument()
     })
     expect(await within(recent).findByText("追加した支払い")).toBeInTheDocument()
+    expect(
+      within(recent).queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
     await waitFor(() => {
-      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥6,080")
+      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥1,080")
     })
   })
 })
