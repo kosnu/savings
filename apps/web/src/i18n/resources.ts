@@ -257,8 +257,9 @@ export const resources = {
       "categories.updateFailed": "Failed to save category.",
       "categories.pinLimit": "You can pin up to {{count}} categories.",
       "summary.category": "Category",
-      "summary.noCategories": "No categories have been added. Categorizing payments is optional.",
-      "summary.addCategoriesInBookSettings": "Add categories in Book settings.",
+      "summary.noCategories":
+        "No categories yet; you can add them in <bookSettings/> to categorize payments.",
+      "summary.bookSettingsLink": "Book settings",
       "summary.total": "Total",
       "summary.difference": "Difference",
       "summary.monthlyBudgetProgress": "Monthly total budget progress",
@@ -561,8 +562,9 @@ export const resources = {
       "categories.updateFailed": "カテゴリを保存できませんでした。",
       "categories.pinLimit": "固定できるカテゴリは{{count}}件までです。",
       "summary.category": "カテゴリ",
-      "summary.noCategories": "カテゴリは登録されていません。支払いの分類は任意です。",
-      "summary.addCategoriesInBookSettings": "Book設定からカテゴリを追加できます。",
+      "summary.noCategories":
+        "カテゴリは未登録で、分類したい場合は<bookSettings/>から追加できます。",
+      "summary.bookSettingsLink": "設定の「ブック」",
       "summary.total": "合計",
       "summary.difference": "差分",
       "summary.monthlyBudgetProgress": "月合計の予算進捗",

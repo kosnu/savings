@@ -2,7 +2,7 @@ import { Box, Button, Flex, Link as ThemeLink, Skeleton, Text } from "@radix-ui/
 import { Link } from "@tanstack/react-router"
 import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import { formatTargetMonthKey, toTargetMonth } from "../../../domain/date"
 import { i18next } from "../../../i18n"
@@ -102,10 +102,17 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
     <Flex direction="column" gap="3" width="100%">
       {!hasCategories && (
         <Text as="p" size="2" color="gray">
-          {t("summary.noCategories")}{" "}
-          <ThemeLink asChild>
-            <Link to="/settings/book">{t("summary.addCategoriesInBookSettings")}</Link>
-          </ThemeLink>
+          <Trans
+            t={t}
+            i18nKey="summary.noCategories"
+            components={{
+              bookSettings: (
+                <ThemeLink asChild>
+                  <Link to="/settings/book">{t("summary.bookSettingsLink")}</Link>
+                </ThemeLink>
+              ),
+            }}
+          />
         </Text>
       )}
       <Flex direction="column" gap="2" width="100%">

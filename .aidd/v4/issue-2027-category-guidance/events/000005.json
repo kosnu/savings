@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2027",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/CategoryTotals/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "ab3b529824eed6472cc2111ece928d90c150f54a9d2a8367755a5977ca28a183",
+  "status": "pass",
+  "checks": [
+    "ユーザーのAudit承認とBook設定表記の訂正",
+    "元Issueと既存の簡潔性規則の再確認"
+  ],
+  "summary": "同じTaskとbaselineを継続。承認された日本語文言を1文に統合し設定の「ブック」のみリンク化、英語も同期する。既存取得と表示条件は維持。日英・狭幅/広幅の目視とWeb必須検証で確認する。Issue・共通規則・PRコメントは変更しない。",
+  "remaining": []
+}

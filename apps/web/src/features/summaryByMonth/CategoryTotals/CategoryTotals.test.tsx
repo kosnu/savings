@@ -1,6 +1,7 @@
 import { composeStories } from "@storybook/react-vite"
 import { describe, expect, test, vi } from "vite-plus/test"
 
+import { i18next } from "../../../i18n"
 import { payments } from "../../../test/data/payments"
 import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
@@ -34,12 +35,11 @@ describe("CategoryTotals", () => {
     )
     render(<NoCategories />)
 
-    expect(
-      await screen.findByText("No categories have been added. Categorizing payments is optional.", {
-        exact: false,
-      }),
-    ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Add categories in Book settings." })).toHaveAttribute(
+    const settingsLink = await screen.findByRole("link", { name: "Book settings" })
+    expect(settingsLink.closest("p")).toHaveTextContent(
+      "No categories yet; you can add them in Book settings to categorize payments.",
+    )
+    expect(screen.getByRole("link", { name: "Book settings" })).toHaveAttribute(
       "href",
       "/settings/book",
     )
@@ -56,10 +56,31 @@ describe("CategoryTotals", () => {
     )
     const { user } = render(<NoCategories />)
 
-    await user.click(await screen.findByRole("link", { name: "Add categories in Book settings." }))
+    await user.click(await screen.findByRole("link", { name: "Book settings" }))
 
     expect(await screen.findByRole("button", { name: "Create category" })).toBeInTheDocument()
     expect(screen.getByText("No categories.")).toBeInTheDocument()
+  })
+
+  test("日本語では設定画面の表記に合わせたリンクを1文の案内に含める", async () => {
+    server.resetHandlers(
+      ...createCategoryHandlers({ get: { response: [], paymentRows: [], budgetRows: [] } }),
+      ...createPaymentHandlers({ initialRows: [] }),
+    )
+    try {
+      await i18next.changeLanguage("ja")
+      render(<NoCategories />)
+
+      const settingsLink = await screen.findByRole("link", { name: "設定の「ブック」" })
+      expect(settingsLink).toHaveAttribute("href", "/settings/book")
+      expect(settingsLink.closest("p")).toHaveTextContent(
+        "カテゴリは未登録で、分類したい場合は設定の「ブック」から追加できます。",
+      )
+    } finally {
+      await act(async () => {
+        await i18next.changeLanguage("en")
+      })
+    }
   })
 
   test("カテゴリ登録後の再取得で未登録の案内が消える", async () => {
@@ -69,9 +90,7 @@ describe("CategoryTotals", () => {
       ...createPaymentHandlers({ initialRows: [] }),
     )
     render(<NoCategories />, { queryClient })
-    expect(
-      await screen.findByRole("link", { name: "Add categories in Book settings." }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole("link", { name: "Book settings" })).toBeInTheDocument()
 
     server.use(...createCategoryHandlers({ get: { paymentRows: [] } }))
     await act(async () => {
@@ -79,10 +98,8 @@ describe("CategoryTotals", () => {
     })
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
-    expect(
-      screen.queryByRole("link", { name: "Add categories in Book settings." }),
-    ).not.toBeInTheDocument()
-    expect(screen.queryByText(/No categories have been added/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
   })
 
   test("登録カテゴリがあれば対象月の支払いが0件でも未登録の案内を出さない", async () => {
@@ -94,10 +111,8 @@ describe("CategoryTotals", () => {
 
     expect(await screen.findByText("Food")).toBeInTheDocument()
     expect(screen.getAllByText("¥0")).toHaveLength(3)
-    expect(
-      screen.queryByRole("link", { name: "Add categories in Book settings." }),
-    ).not.toBeInTheDocument()
-    expect(screen.queryByText(/No categories have been added/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
   })
 
   test("取得中は未登録の案内を出さない", async () => {
@@ -108,10 +123,8 @@ describe("CategoryTotals", () => {
     render(<Loading />)
 
     expect(await screen.findByLabelText("loading category totals")).toBeInTheDocument()
-    expect(screen.queryByText(/No categories have been added/)).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole("link", { name: "Add categories in Book settings." }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
   })
 
   test("取得失敗は未登録の案内に置き換えない", async () => {
@@ -123,10 +136,8 @@ describe("CategoryTotals", () => {
     render(<FetchError />)
 
     expect(await screen.findByText("Failed")).toBeInTheDocument()
-    expect(screen.queryByText(/No categories have been added/)).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole("link", { name: "Add categories in Book settings." }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
   })
 
   test("カテゴリ別合計を表示する", async () => {
