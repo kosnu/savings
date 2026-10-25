@@ -326,7 +326,7 @@ test("配信中close → 後処理 → 置き換わった古い配信要求の�
   assert.equal((await resolveLifecycle(event, context, get)).deploy, false)
   await cleanupPreview(context, get, f.fetcher, f.report)
   assert.equal(f.calls.filter((c) => c.method === "DELETE").length, 1)
-  // 削除承認待ち中のreopenも、削除直前の照会で保護する。
+  // 削除の実行待ち中のreopenも、削除直前の照会で保護する。
   current.state = "open"
   f.resources.add("pr-1927")
   await cleanupPreview(context, get, f.fetcher, f.report)

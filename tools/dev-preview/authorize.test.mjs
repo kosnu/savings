@@ -74,7 +74,7 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
   )
 })
 
-// PR取得はfixture。GitHubの実APIやEnvironment承認は実行しない。
+// PR取得はfixture。GitHubの実APIやEnvironmentの実設定確認は実行しない。
 test("authorize returns the branch and SHA of the selected open PR", async () => {
   assert.deepEqual(await authorize(request, repo, getter(fixture())), {
     branch: "feature/example",
@@ -82,7 +82,7 @@ test("authorize returns the branch and SHA of the selected open PR", async () =>
   })
 })
 
-test("head races, withdrawal, closure and foreign PRs fail the post-approval recheck", async () => {
+test("head races, withdrawal, closure and foreign PRs fail the pre-deployment recheck", async () => {
   await assert.rejects(
     authorize({ ...request, branch: "feature/renamed" }, repo, getter(fixture())),
   )
@@ -124,7 +124,7 @@ test("workflow text declares allowed triggers, environment and revalidation befo
   assert.match(yaml, /environment: development/)
   assert.match(yaml, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
-  assert.ok(yaml.indexOf("Revalidate after environment approval") < yaml.indexOf("run: pnpm ci"))
+  assert.ok(yaml.indexOf("Revalidate before deployment") < yaml.indexOf("run: pnpm ci"))
   assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.CLOUDFLARE_API_TOKEN"))
 })
 
@@ -200,7 +200,7 @@ test("workflow text separates FE/DB secret references and connects checkout SHA 
   assert.doesNotMatch(ci, /secrets\.|SENTRY_AUTH_TOKEN/)
   assert.match(database, /^  group: burneto-shared-dev-database$/m)
   assert.ok(
-    database.indexOf("Revalidate after migration approval") <
+    database.indexOf("Revalidate before migration") <
       database.indexOf("secrets.SUPABASE_ACCESS_TOKEN"),
   )
 })

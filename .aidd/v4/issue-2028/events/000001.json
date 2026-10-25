@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2028",
+  "paths": [
+    "docs/development-preview.md",
+    "docs/infrastructure.md",
+    "tools/supabase-check/README.md",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_dev_database.yaml",
+    ".github/workflows/supabase_ci.yaml",
+    "tools/dev-preview/authorize.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/report.test.mjs"
+  ],
+  "fingerprint": "65eddff88d53b80e1f4540cb53614f91a312d9a14f8bef5bc83e8042fe86c0be",
+  "status": "pass",
+  "checks": [
+    "Intent・最終差分・GitHub Environment設定の照合"
+  ],
+  "summary": "Issue #2028の実行依頼に基づく新Task。baselineは8280189bde2810e18b8ae50bb15b07f5c101fffa。Required reviewersのみを解除し、起動条件・SHA検証・直列化と本番保護を維持。運用文書・workflow表示と関連テスト参照を同期し、実設定とリポジトリ変更の反映範囲を区別する。",
+  "remaining": []
+}

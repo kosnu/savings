@@ -26,7 +26,7 @@ API試験の対象一覧とDB catalogを照合し、未対応の公開対象が�
 
 ## Dev照合
 
-`Supabase verification`の手動実行にPR番号と完全なhead SHAを指定する。mainだけで実行し、development Environmentの承認を使う。
+`Supabase verification`の手動実行にPR番号と完全なhead SHAを指定する。mainだけで実行し、development Environmentを使う。人手のEnvironment承認待ちはない。
 DevのDB・Auth・設定は読み取りのみ。DB更新と同じconcurrency groupで照合中の競合を避ける。
 mainにworkflowが入るまでは、この経路は実行できない。
 
@@ -51,7 +51,7 @@ objectは指定fieldを比較し、array・scalarは完全一致。
 指定した期待値の空object、不正値、必須項目の欠落、取得失敗、不一致は失敗とする。
 人が確認するセッション・不正利用対策・公開管理範囲の採用判断は[Dev確認手順](../../docs/supabase-dev-verification.md#人が確認決定する内容)に残す。
 
-Dev DBの比較元は承認したPR headのSQLとconfigをデータとして取得し、configの契約検査後にSQLから起動した隔離DB。
+Dev DBの比較元は指定したPR headのSQLとconfigをデータとして取得し、configの契約検査後にSQLから起動した隔離DB。
 履歴・RLS・index・関数定義・実効権限を比較する。候補のGo・JavaScriptは取得・実行しない。
 Devの読み取りAPIの利用可否と必要権限は実行時に検証する。未取得を一致として扱わない。
 
