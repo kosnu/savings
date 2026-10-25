@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Skeleton, Text } from "@radix-ui/themes"
+import { Box, Button, Flex, Link as ThemeLink, Skeleton, Text } from "@radix-ui/themes"
+import { Link } from "@tanstack/react-router"
 import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
@@ -90,6 +91,7 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount)
   const { t } = useTranslation()
 
+  const hasCategories = categoryTotals.some((total) => total.kind === "category")
   const hasOverflow = categoryTotals.length > initialVisibleCount
   const isExpanded = visibleCount >= categoryTotals.length
   const visibleTotals = categoryTotals.slice(0, visibleCount)
@@ -98,6 +100,14 @@ function CategoryTotalsContent({ categoryTotals }: CategoryTotalsContentProps) {
 
   return (
     <Flex direction="column" gap="3" width="100%">
+      {!hasCategories && (
+        <Text as="p" size="2" color="gray">
+          {t("summary.noCategories")}{" "}
+          <ThemeLink asChild>
+            <Link to="/settings/book">{t("summary.addCategoriesInBookSettings")}</Link>
+          </ThemeLink>
+        </Text>
+      )}
       <Flex direction="column" gap="2" width="100%">
         {visibleTotals.map((total) => (
           <Flex key={total.key} direction="column" gap="1" width="100%">
