@@ -80,6 +80,13 @@ export const Empty: Story = {
       ],
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText("No payments yet. Use “Create payment” to record one."),
+    ).toBeVisible()
+    await expect(canvas.getByRole("button", { name: "Create payment" })).toBeEnabled()
+  },
 }
 export const Loading: Story = {
   parameters: {

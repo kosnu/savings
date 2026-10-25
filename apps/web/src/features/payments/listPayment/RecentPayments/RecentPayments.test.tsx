@@ -48,13 +48,17 @@ describe("RecentPayments", () => {
     server.resetHandlers(...createPaymentHandlers({ get: { durationOrMode: "infinite" } }))
     render(<Loading />)
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
-    expect(screen.queryByText("No payments found.")).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
   })
 
-  test("空状態を表示する", async () => {
+  test("空状態では既存ボタンからの支払い登録を案内する", async () => {
     server.resetHandlers(...createPaymentHandlers({ initialRows: [] }))
     render(<Empty />)
-    expect(await screen.findByText("No payments found.")).toBeInTheDocument()
+    expect(
+      await screen.findByText("No payments yet. Use “Create payment” to record one."),
+    ).toBeInTheDocument()
   })
 
   test.each([
@@ -132,7 +136,9 @@ describe("RecentPayments", () => {
     await waitFor(() => expect(requests).toBe(2))
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
     expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled()
-    expect(screen.queryByText("No payments found.")).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
   })
 
   test("取得失敗後にBookが変わると新しいBookの支払いを取得する", async () => {

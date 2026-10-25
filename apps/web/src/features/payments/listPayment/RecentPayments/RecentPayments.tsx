@@ -65,7 +65,7 @@ function RecentPaymentsResolved({ bookId, cacheScope }: RecentPaymentsProps) {
   })
 
   if (data.length === 0) {
-    return <Text color="gray">{t("payments.list.empty")}</Text>
+    return <Text color="gray">{t("payments.recent.empty")}</Text>
   }
 
   return data.slice(0, 5).map((payment) => {
