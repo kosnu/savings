@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1990",
+  "paths": [
+    "tools/supabase-check/check_test.go"
+  ],
+  "fingerprint": "7ab01395b9686dd3406db14eea2d35f7f43479a27d81629af798e5105f953833",
+  "status": "pass",
+  "checks": [
+    "会話の明示依頼とPRのbase/headを確認",
+    "rule-mapのpath一致と依存を確認",
+    "既存差分の再利用判断"
+  ],
+  "summary": "会話で承認されたCLI版の二重管理解消をPR #1990で継続する。修正のbaselineは6824b32909f5fdcdfeafccd62efbe2509ad1f813、PR比較元はe0772d71636143a9d2be1abade8419e699039e49。前回の未commit差分は具体的な版の文字列検査だけを削除しており再利用する。workflowの2.121.0固定と他の静的制約検査を維持し、Go test/vetと差分・stage照合後に同PRへShipする。",
+  "remaining": []
+}
