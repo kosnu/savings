@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2031",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/CategoryTotals/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "59eb33d7d3afb9bc9d5c7e48532c57c70a5403a1da92ea0aa1bec8553f453941",
+  "status": "fail",
+  "checks": [
+    "Browser Comment 1と提示画像・実装・日英文言の一致",
+    "Issue #2027のIntent十分性",
+    "PR #2031の最新コメント・review・resolved状態",
+    "design-rulesの簡潔性・empty表現と既存レビュー証拠",
+    "分析レビュー: 正確性・再利用性・適用先"
+  ],
+  "summary": "分析完了。現UIは3文の補足で簡潔性不適合(P3)。任意性を独立文で足し、テストは文言の存在だけを確認、レビューも見逃した。提案は「カテゴリは未登録で、分類したい場合はBook設定から追加できます。」に統合しBook設定のみリンク化、英語も同期。Intentと既存規則の変更は不要。PR指摘threadなし、返信・resolve不要。仮想の予算未設定案内にも適用可能だが削除の重要説明は削らない。",
+  "remaining": [
+    "文言・リンク範囲・関連テストの修正とPR更新は手動承認待ち。",
+    "承認後に表示条件・遷移の回帰検証と日英・狭幅/広幅の実画面確認。"
+  ]
+}

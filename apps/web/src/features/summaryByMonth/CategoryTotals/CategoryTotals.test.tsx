@@ -1,17 +1,21 @@
 import { composeStories } from "@storybook/react-vite"
-import { describe, expect, test } from "vite-plus/test"
+import { describe, expect, test, vi } from "vite-plus/test"
 
+import { i18next } from "../../../i18n"
 import { payments } from "../../../test/data/payments"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { server } from "../../../test/msw/server"
-import { render, screen } from "../../../test/test-utils"
+import { act, createTestQueryClient, render, screen } from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
+import { summaryQueryKeys } from "../queryKeys"
 import * as stories from "./CategoryTotals.stories"
 
 import styles from "./CategoryTotals.module.css"
 
-const { Default } = composeStories(stories)
+const { Default, NoCategories, Loading, FetchError } = composeStories(stories)
 
 function renderStory() {
   return render(<Default />)
@@ -22,6 +26,120 @@ function expectAccentColor(element: Element, color: string) {
 }
 
 describe("CategoryTotals", () => {
+  test.each([0, 2500])("カテゴリ未登録なら案内と未分類の集計%d円を表示する", async (amount) => {
+    const paymentRows =
+      amount === 0 ? [] : [{ ...mapPaymentToRow(payments[0]), category_id: null, amount }]
+    server.resetHandlers(
+      ...createCategoryHandlers({ get: { response: [], paymentRows, budgetRows: [] } }),
+      ...createPaymentHandlers({ initialRows: paymentRows }),
+    )
+    render(<NoCategories />)
+
+    const settingsLink = await screen.findByRole("link", { name: "Book settings" })
+    expect(settingsLink.closest("p")).toHaveTextContent(
+      "No categories yet; you can add them in Book settings to categorize payments.",
+    )
+    expect(screen.getByRole("link", { name: "Book settings" })).toHaveAttribute(
+      "href",
+      "/settings/book",
+    )
+    expect(screen.getByText("Uncategorized")).toBeInTheDocument()
+    expect(screen.getByText(amount === 0 ? "¥0" : "¥2,500")).toBeInTheDocument()
+  })
+
+  test("案内のリンクから既存のBook設定へ進める", async () => {
+    server.use(
+      ...createBookHandlers(),
+      ...createMonthlyBudgetHandlers(),
+      ...createCategoryHandlers({ get: { response: [], paymentRows: [], budgetRows: [] } }),
+      ...createPaymentHandlers({ initialRows: [] }),
+    )
+    const { user } = render(<NoCategories />)
+
+    await user.click(await screen.findByRole("link", { name: "Book settings" }))
+
+    expect(await screen.findByRole("button", { name: "Create category" })).toBeInTheDocument()
+    expect(screen.getByText("No categories.")).toBeInTheDocument()
+  })
+
+  test("日本語では設定画面の表記に合わせたリンクを1文の案内に含める", async () => {
+    server.resetHandlers(
+      ...createCategoryHandlers({ get: { response: [], paymentRows: [], budgetRows: [] } }),
+      ...createPaymentHandlers({ initialRows: [] }),
+    )
+    try {
+      await i18next.changeLanguage("ja")
+      render(<NoCategories />)
+
+      const settingsLink = await screen.findByRole("link", { name: "設定の「ブック」" })
+      expect(settingsLink).toHaveAttribute("href", "/settings/book")
+      expect(settingsLink.closest("p")).toHaveTextContent(
+        "カテゴリは未登録で、分類したい場合は設定の「ブック」から追加できます。",
+      )
+    } finally {
+      await act(async () => {
+        await i18next.changeLanguage("en")
+      })
+    }
+  })
+
+  test("カテゴリ登録後の再取得で未登録の案内が消える", async () => {
+    const queryClient = createTestQueryClient()
+    server.resetHandlers(
+      ...createCategoryHandlers({ get: { response: [], paymentRows: [], budgetRows: [] } }),
+      ...createPaymentHandlers({ initialRows: [] }),
+    )
+    render(<NoCategories />, { queryClient })
+    expect(await screen.findByRole("link", { name: "Book settings" })).toBeInTheDocument()
+
+    server.use(...createCategoryHandlers({ get: { paymentRows: [] } }))
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: summaryQueryKeys.categoryTotalsAll })
+    })
+
+    expect(await screen.findByText("Food")).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
+  })
+
+  test("登録カテゴリがあれば対象月の支払いが0件でも未登録の案内を出さない", async () => {
+    server.resetHandlers(
+      ...createCategoryHandlers({ get: { paymentRows: [] } }),
+      ...createPaymentHandlers({ initialRows: [] }),
+    )
+    renderStory()
+
+    expect(await screen.findByText("Food")).toBeInTheDocument()
+    expect(screen.getAllByText("¥0")).toHaveLength(3)
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
+  })
+
+  test("取得中は未登録の案内を出さない", async () => {
+    server.resetHandlers(
+      ...createCategoryHandlers({ get: { durationOrMode: "infinite" } }),
+      ...createPaymentHandlers(),
+    )
+    render(<Loading />)
+
+    expect(await screen.findByLabelText("loading category totals")).toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
+  })
+
+  test("取得失敗は未登録の案内に置き換えない", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(
+      ...createCategoryHandlers({ get: { error: true } }),
+      ...createPaymentHandlers(),
+    )
+    render(<FetchError />)
+
+    expect(await screen.findByText("Failed")).toBeInTheDocument()
+    expect(screen.queryByText(/No categories yet/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Book settings" })).not.toBeInTheDocument()
+  })
+
   test("カテゴリ別合計を表示する", async () => {
     server.resetHandlers(...createCategoryHandlers(), ...createPaymentHandlers())
     const { user } = renderStory()

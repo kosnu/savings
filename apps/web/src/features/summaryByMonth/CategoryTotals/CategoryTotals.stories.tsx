@@ -1,12 +1,16 @@
 import { Box } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import type { CategoryRow } from "../../../types/category"
 import type { PaymentRow } from "../../../types/payment"
+import { BookSettings } from "../../books"
 import { CategoryTotals } from "./CategoryTotals"
 
 const categoryRows: CategoryRow[] = [
@@ -146,7 +150,16 @@ const meta = {
       ],
     },
   },
-  decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
+  decorators: [
+    createStoryRouter("/payments?year=2025&month=06", (root, Story) => [
+      ...paymentsRouteBuilder(root, Story),
+      createRoute({
+        getParentRoute: () => root,
+        path: "/settings/book",
+        component: BookSettings,
+      }),
+    ]),
+  ],
 } satisfies Meta<typeof CategoryTotals>
 
 export default meta
@@ -217,6 +230,19 @@ export const Loading: Story = {
     await expect(
       await within(canvasElement).findByLabelText("loading category totals"),
     ).toBeVisible()
+  },
+}
+
+export const NoCategories: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createBookHandlers(),
+        ...createMonthlyBudgetHandlers(),
+        ...createCategoryHandlers({ get: { response: [], paymentRows: [], budgetRows: [] } }),
+        ...createPaymentHandlers({ initialRows: [] }),
+      ],
+    },
   },
 }
 
