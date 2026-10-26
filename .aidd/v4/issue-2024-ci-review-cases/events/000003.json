@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2024",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "ebca4d9871ed363f9fc296a92907c2bb78a5e5d0907c5769c3d15217e0fc8879",
+  "status": "pass",
+  "checks": [
+    "Issue #2024の4完了条件と制約",
+    "path/surface・依存closureの全12規則",
+    "GitHub公式仕様と3事例の正常・反例・証拠不足",
+    "参照経路・現行運用との分離"
+  ],
+  "summary": "3事例それぞれの入力・期待・理由・証拠不足とpass/fail/unknown、方針からの参照を確認。対象外例を含み一律の実設定確認・承認を追加しない。既存索引で到達でき、workflow・設定・過去記録への変更なし。指摘・未解決の矛盾なし。",
+  "remaining": []
+}
