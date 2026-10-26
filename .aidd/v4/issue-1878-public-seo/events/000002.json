@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1878",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/seo.ts",
+    "apps/web/vite.config.ts",
+    "apps/web/src/app/pageMetadata.ts",
+    "apps/web/src/app/usePageMetadata.ts",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx",
+    "apps/web/src/app/usePageMetadata.test.tsx",
+    "apps/web/src/test/seo.test.ts",
+    "apps/web/public/_headers",
+    "apps/web/public/robots.txt",
+    "apps/web/public/sitemap.xml"
+  ],
+  "fingerprint": "318e824d6f48cbb32f67dce58ddea985d002203abf666dbf423fc71edbcfb667",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 1046件",
+    "web:build",
+    "生成HTML・robots・sitemap",
+    "Cloudflare本番host/Preview hostの14応答",
+    "Chromium: 本文・日英表示・公開ページ/認証遷移",
+    "git diff --check"
+  ],
+  "summary": "必須4検証・1046テスト・build成功。実ビルドの公開2ページのメタ情報と14応答の検索方針、ChromiumでSPA本文・言語・遷移を確認。本文はJavaScript実行後に取得。本番反映とGoogle Search Consoleの実測は未実施。",
+  "remaining": []
+}

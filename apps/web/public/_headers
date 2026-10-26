@@ -5,3 +5,10 @@
   X-Frame-Options: DENY
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Robots-Tag: noindex
+
+# 本番の公開ページだけ検索を許可する。認証画面・不明なURL・Previewは除外する。
+https://burneto.com/
+  ! X-Robots-Tag
+https://burneto.com/privacy
+  ! X-Robots-Tag

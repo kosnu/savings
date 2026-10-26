@@ -5,9 +5,11 @@ import { useTranslation } from "react-i18next"
 
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 import { router } from "./routes"
+import { usePageMetadata } from "./usePageMetadata"
 
 export function Router() {
   const { session: supabaseSession, status: authStatus } = useSupabaseSession()
+  usePageMetadata(router, authStatus === "authenticated")
 
   useEffect(() => {
     if (authStatus === "loading") return

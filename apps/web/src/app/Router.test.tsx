@@ -9,6 +9,7 @@ const mockInvalidate = vi.fn(async () => {})
 
 vi.mock("@tanstack/react-router", () => ({
   RouterProvider: () => mockRouterProvider(),
+  useRouterState: () => "/",
 }))
 
 vi.mock("../providers/supabase/useSupabaseSession", () => ({
