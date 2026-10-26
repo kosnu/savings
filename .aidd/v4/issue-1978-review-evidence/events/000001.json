@@ -8,12 +8,12 @@
     "docs/harness/policies/learning-extraction.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "c08ddeda51c4b4eb604e1ece32d961f0d6c96b81bb5e72e73ad49b1613452167",
+  "fingerprint": "9c3564f1f2bda2fa1aa26ebdd95a017d2a2cc3ba3fa852374f739f380243b6ff",
   "status": "pass",
   "checks": [
     "Intent・既存方針・PR #1963の根拠照合",
     "正本・索引・入口・実装・検証の同期範囲判断"
   ],
-  "summary": "同じTask・baseline・設計を継続。main e968fb82との競合は両方の追加文を保持して解消し、CI workflow事例を削除しない。担当差分の意味・同期範囲は維持し、結合後の文書と工程結果を再確認する。",
+  "summary": "同じTask・baseline・設計を継続。main 86a1126eの分析レビュー・CI事例を全て保持し、#1978の追加と併存させる。担当差分の意味・同期範囲は維持し、結合後の文書と工程結果を再確認する。",
   "remaining": []
 }

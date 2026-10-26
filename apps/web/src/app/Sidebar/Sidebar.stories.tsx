@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { AuthError } from "@supabase/supabase-js"
 import { expect, fn, spyOn, userEvent, waitFor, within } from "storybook/test"
 
+import { i18next } from "../../i18n"
 import { getSupabaseClient } from "../../lib/supabase"
 import { createStoryRouter } from "../../test/helpers/routerDecorator"
 import { Sidebar } from "./Sidebar"
@@ -118,7 +119,7 @@ export const LoggingOut: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const logout = await canvas.findByRole("button", { name: "Log out" })
+    const logout = await canvas.findByRole("button", { name: i18next.t("auth.logout") })
     await userEvent.click(logout)
     await expect(logout).toBeDisabled()
   },
@@ -134,10 +135,8 @@ export const LogoutError: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const logout = await canvas.findByRole("button", { name: "Log out" })
+    const logout = await canvas.findByRole("button", { name: i18next.t("auth.logout") })
     await userEvent.click(logout)
-    await expect(await canvas.findByRole("alert")).toHaveTextContent(
-      "Could not log out. Please try again.",
-    )
+    await expect(await canvas.findByRole("alert")).toHaveTextContent(i18next.t("auth.logoutFailed"))
   },
 }

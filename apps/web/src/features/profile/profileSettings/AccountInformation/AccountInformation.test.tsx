@@ -107,12 +107,13 @@ describe("AccountInformation", () => {
 
   test("プロフィール取得失敗からTry againで復帰する", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
-    server.resetHandlers(...createProfileHandlers({ get: { errorOnce: true } }))
+    resetHandlersForStory(LoadError)
     const { user } = await renderStory(<LoadError />)
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Could not load profile information.",
     )
+    server.resetHandlers(...createProfileHandlers())
     await user.click(screen.getByRole("button", { name: "Try again" }))
 
     expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")

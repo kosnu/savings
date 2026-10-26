@@ -8,7 +8,7 @@
     "docs/harness/policies/learning-extraction.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "c08ddeda51c4b4eb604e1ece32d961f0d6c96b81bb5e72e73ad49b1613452167",
+  "fingerprint": "9c3564f1f2bda2fa1aa26ebdd95a017d2a2cc3ba3fa852374f739f380243b6ff",
   "status": "pass",
   "checks": [
     "ai-driven.audit",
@@ -28,6 +28,6 @@
     "PR #1963由来3事例・同期修正の対照例・unknown境界の意味評価",
     "索引・入口・CLI・実装・CIの変更不要判断"
   ],
-  "summary": "Coverage: 全選択規約とIntentを再照合、未解決なし。結合後も認証・外部設定・Auditの4事例の判断は一致し、mainのCI workflow事例との矛盾・同期漏れなし。索引・入口・実装・CIの追加変更は不要。実運用の再発率低下・現環境のOAuth実機は未検証。",
+  "summary": "Coverage: 全選択規約・Intentを再照合、未解決なし。#1978の4事例の根拠と判断は維持し、mainの分析レビュー/CI事例と両立。症状・時期・手段を分ける新規定とも矛盾なし。索引・入口・実装の追加変更は不要。実運用の再発率低下は未検証。",
   "remaining": []
 }

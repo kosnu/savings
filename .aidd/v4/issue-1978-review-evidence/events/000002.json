@@ -8,7 +8,7 @@
     "docs/harness/policies/learning-extraction.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "c08ddeda51c4b4eb604e1ece32d961f0d6c96b81bb5e72e73ad49b1613452167",
+  "fingerprint": "9c3564f1f2bda2fa1aa26ebdd95a017d2a2cc3ba3fa852374f739f380243b6ff",
   "status": "pass",
   "checks": [
     "git diff --check / git diff --cached --check",
@@ -16,6 +16,6 @@
     "Core verify: 規約・範囲・内容安定性",
     "追加リンク5件とmain側記述保持の照合"
   ],
-  "summary": "main取り込み後の文書に対して整形・空白・追加リンク・規約・差分範囲検査が成功。main側の追加節と規定も保持。文書のみの変更につきWeb/API検証は対象外。",
+  "summary": "最新mainとの結合後、文書の整形・空白・追加リンク5件・Core規約/範囲検査が成功。#1978事例は初回のまま、残りの事例本文はmainと全文一致。文書のみの担当差分につきWeb/API検証は対象外。",
   "remaining": []
 }
