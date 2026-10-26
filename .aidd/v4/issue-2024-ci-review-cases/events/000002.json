@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2024",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "ebca4d9871ed363f9fc296a92907c2bb78a5e5d0907c5769c3d15217e0fc8879",
+  "status": "pass",
+  "checks": [
+    "変更Markdown 2件のvp check（未一致lint対象を許容）",
+    "git diff --check",
+    "Core規則解決・変更範囲・安定性",
+    "事例参照の相対リンク・アンカー"
+  ],
+  "summary": "文書整形・空白・適用規則・対象範囲・検証中の内容安定性と参照先が適合。アプリ変更なし。実Actions配送・Preview削除・実設定変更は対象外。",
+  "remaining": []
+}

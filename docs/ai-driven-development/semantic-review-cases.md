@@ -264,6 +264,45 @@ when_to_read:
 判断更新の反例はBとCを区別する。Bでは根拠を失った推奨を撤回しても観測された問題は残り、
 Cでは新しい反証によって指摘自体を撤回できる。対策の削除で未確認を隠すことも、旧判断を固定して撤回を妨げることもしない。
 
+## CI workflow変更
+
+以下は[#2024](https://github.com/kosnu/savings/issues/2024)に対応し、[PR #2022](https://github.com/kosnu/savings/pull/2022)の解決済みの問題と移行時の判断を基にした仮想入力である。
+当時の設定を現在の運用へ再適用する指示ではなく、Secret保護・イベントからの起動・旧新並行稼働を、それぞれの要求と証拠で評価する。実際のPreview削除確認や過去の工程結果の変更は行わない。
+
+### Secret保護の記述とGitHub側の実設定
+
+- 入力: 同一repositoryのPRが変更できるworkflowへSecretを使うjobを移す。この仮想依頼では、指定reviewerのEnvironment承認前にはSecretを渡さず、管理者bypassも認めないことが条件である。jobは `environment: development` を参照し、checkoutはbase SHAに固定されている。
+- 期待: YAML上のEnvironment参照に加え、そのEnvironmentの実設定とSecretの参照経路が条件を満たすこと。base SHAのcheckoutは取得するコードを固定するが、PR管理下のworkflow定義自体の保護を証明しない。
+- 正常候補と観測: Secretを使う全jobが指定Environmentを経由し、同じSecretをrepository Secret等から迂回取得しないことを確認する。GitHub APIまたは設定画面で対象Environmentのrequired reviewer・bypass禁止・許可refを読み戻し、対象runが承認待ちでSecret利用stepを開始していない証拠もある。
+- 判定と理由: **pass**（指定された保護条件）。workflowの参照、実設定、承認前の実行状態が対応している。承認後の配信成功まで確認したとは扱わない。
+- 反例: required reviewerが未設定と判明しているのに、Environment名とbase SHAのcheckoutだけで保護済みとする。**fail**。承認前のSecret利用を防ぐという入力条件を満たさない。委任内の修正を行い、設定変更が委任外なら不足条件と必要な判断を示す。
+- 証拠不足: YAMLしか取得できず実設定や実行状態を読めない場合、保護条件の充足は**unknown**。設定・対象runの証拠を取得するまで保護済みと断定しない。未取得だけを理由に設定不備とも断定しない。
+- 適用境界: 実設定に依存する保護の変更・主張がある場合の例である。Secret・権限・保護境界に影響しない表示名だけの変更などに、一律の実設定確認を要求しない。Environment承認自体の要否も元のIntentと現行規則から判断し、この例から全workflowへ承認段階を追加しない。
+
+[GitHubのEnvironment仕様](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)では、Environmentを使うjobは設定された保護規則を満たしてからSecretへアクセスする。YAMLにEnvironment名があることと、必要な保護規則が実際に設定されていることを分けて照合する。
+
+### 競合状態でもイベントから必要な処理へ到達するか
+
+- 入力: 配信済みPreviewを持つ同一repositoryのPRが、その後mainと競合し、未mergeのままcloseされる。要求は、そのcloseから削除要求を届けること。削除関数の単体テストは成功しているが、代替の終了通知経路はない。
+- 期待: closeイベント、workflow起動条件、job条件、信頼済み補助コード、削除要求まで経路がつながること。処理内部が正しくても起動しなければ要求を満たさない。
+- 正常候補と観測: 終了通知だけを `pull_request_target` の `closed` で受け、同一repositoryを確認し、mainの信頼済み補助コードへ渡す。PRコードの取得・実行と配信はこの経路で拒否する。競合あり／なしのclose・merge、fork拒否、close後のreopen保護を、workflowの条件と補助コードへの接続で照合できている。
+- 判定と理由: **pass**（起動経路の設計と接続）。競合でも使える入口が必要な処理へつながり、信頼境界も保つ。静的な接続検査やfixtureの成功は実Actions配送・実削除の証拠にはならず、その実動は未確認として分ける。
+- 反例: 削除関数の成功だけを根拠に `pull_request` の `closed` だけで十分とする。**fail**。競合PRではそのworkflowが起動せず、入力のcloseから削除要求へ到達できない。到達可能な終了経路へ修正し、処理と入口をつないで確認する。`pull_request_target` でPRコードまで実行する候補も、信頼境界を満たさない。
+- 証拠不足: イベント種別・filter・job条件または補助コードへの接続を確認できない場合、経路は**unknown**。入口から必要な副作用まで不足する証拠を取得する。経路を静的に確認できても実runがない場合、実配送・実削除は**unknown**のままであり、それがTaskの未達条件かは元のIntentで判断する。
+
+[GitHubのイベント仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)は、競合時に `pull_request` workflowが起動せず、`pull_request_target` は起動することを示す。イベント名の置換だけでなく、後者で信頼しないPRコードを実行しない条件も照合する。
+
+### 移行中に旧新の仕組みが並行稼働する状態
+
+- 入力: 旧受付がdispatchした検証runが残る間に、新しい `pull_request` 起動へ切り替える。移行中は旧受付からの検証と新起動の検証が互いを取り消さず、同じPR・同じイベントの再実行だけは古い実行を取り消すことが要求されている。両方式とも `cancel-in-progress: true` を使う。
+- 期待: 最終構成だけでなく、旧受付稼働中、旧dispatchと新起動の重なり、旧受付停止後の各状態で、必要な検証が残ること。group式の見た目だけでなく、同じPR番号を入れた実際のgroup値と取消条件を比較する。
+- 正常候補と観測: PR 42の旧dispatchは `check-42`、新起動は `check-pull_request-42` となる。別groupなので互いを取り消さず、新起動の再実行は同じ `check-pull_request-42` となって古い新起動runを取り消す。PR 43の新起動は別groupとなる。旧受付停止後も新起動とその再実行の条件が保たれる。
+- 判定と理由: **pass**（移行設計とgroupの照合）。並行期間の旧新分離と、同じ起動経路内の再実行取消を両立する。式と有限入力の照合であり、実Actions上の競合実行を観測したとは扱わない。
+- 反例: 新起動も `check-42` となる構成を、旧受付停止後の単独実行だけで合格にする。**fail**。並行期間には旧新が同じgroupを共有し、必要なrunを取り消し得る。移行中に重なる経路のgroupを分離して再照合する。旧方式の存在だけでgroup分離を全移行に強制せず、この入力の取消禁止条件に対して判断する。
+- 証拠不足: 旧受付がまだ起動するか、旧runがどの定義・入力からgroupを得るか、残存runの有無を取得できない場合、並行期間の安全性は**unknown**。旧定義・起動経路・対象runを確認し、旧新が重ならないと推測して合格にしない。静的照合済みでも実行履歴がない場合、実際の取消挙動は未確認として残す。
+
+[GitHubのconcurrency仕様](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency)に基づき、同じgroupでの待機・取消が必要な処理を失わせないかを比較する。この仮想例のgroup名は説明用であり、既存workflowの固定値を指定するものではない。
+
 ## 確認結果と限界
 
 公開、集計、返信限定の候補をfailと判定し、承認済み改善と通常の技術判断は継続と判定した。

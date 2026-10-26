@@ -7,12 +7,12 @@
     "docs/harness/policies/learning-extraction.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "232618965349c6fe361e67c96071ffe22c694c2d3b5ab7b36fb048874beba565",
+  "fingerprint": "80b3e92698d11094ad7492f5662a9039307e0abb6abfcbb1db6b48b114df030b",
   "status": "pass",
   "checks": [
-    "Issue Intentと既存レビュー責務",
-    "正本・適用事例・既存入口の到達経路"
+    "既存Intentとマージ追加承認",
+    "mainとIssue2014の追加節の完全保持"
   ],
-  "summary": "Issue #2014を独立Taskとして開始。baselineはcede0be344fdc01d846234c1d848eaa49054e67d。分析レビューの正本と有限の適用事例だけを変更し、成立・時期・手段と親の採否を根拠から分離する。Audit/Retrospectiveの既存参照を維持し、CLI・索引・承認・記録体系は追加しない。未見4例で担当と親を個別評価する。",
+  "summary": "同じTask・cycle・baselineを継続。mainのIssue #2024と同位置への追記競合を、両節を変更せず併置して解消。元の分析レビュー基準と4例の判断は維持。通常squash mergeを追加承認に従い、新headの検証・Botレビュー・本人の賛同後に実行する。",
   "remaining": []
 }

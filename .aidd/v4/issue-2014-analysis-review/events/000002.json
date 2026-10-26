@@ -7,13 +7,14 @@
     "docs/harness/policies/learning-extraction.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "232618965349c6fe361e67c96071ffe22c694c2d3b5ab7b36fb048874beba565",
+  "fingerprint": "80b3e92698d11094ad7492f5662a9039307e0abb6abfcbb1db6b48b114df030b",
   "status": "pass",
   "checks": [
-    "Core verifyの担当差分・全必須規約・安定性照合",
-    "変更2文書のformatter検査",
-    "git diff空白検査"
+    "担当差分・必須規約・安定性",
+    "2文書のformatter",
+    "worktreeとstageの空白検査",
+    "両追加節の完全保持"
   ],
-  "summary": "Core verifyは2コマンドとも終了コード0、stable=true。文書のみのためアプリ検証は対象外。仮想事例のCSV・通信・lint操作を実環境で実行したとは扱わない。",
+  "summary": "main取込後のCore verifyは3コマンドとも終了コード0、stable=true。文書整形・worktreeとstageの空白検査成功。両branchの追加節を内容変更なしで保持したことを照合。アプリ変更なし。",
   "remaining": []
 }

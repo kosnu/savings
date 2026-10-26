@@ -7,7 +7,7 @@
     "docs/harness/policies/learning-extraction.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "232618965349c6fe361e67c96071ffe22c694c2d3b5ab7b36fb048874beba565",
+  "fingerprint": "80b3e92698d11094ad7492f5662a9039307e0abb6abfcbb1db6b48b114df030b",
   "status": "pass",
   "checks": [
     "ai-driven.audit",
@@ -24,11 +24,11 @@
     "policy.learning-extraction",
     "policy.review-feedback-classification",
     "policy.retrospective",
-    "Issue DoDの成立・時期・手段の個別照合",
-    "未見4例の担当判断と親の採否",
-    "過大な返却への親の不採用",
-    "既存入口・相互参照と最小差分"
+    "原IntentとIssue差分の維持",
+    "main追加事例との共存",
+    "全適用規則・既存参照経路",
+    "未見4例と過大合格反例の内容完全保持"
   ],
-  "summary": "Coverage: checks記載の全適用規則を最終差分へ照合。Unresolved: なし。成立・時期・手段を独立判断し、未見4例で担当と親の採否を確認。意図的な全pass返却を受けてもAの時期・手段・効果はunknown、Bの解消はfailとして不採用。Bの推奨撤回とCの反証による指摘撤回を区別。既存入口で正本へ到達し索引・CLI・承認体系の追加は不要。実運用の再発率低下は未観測。",
+  "summary": "全適用規則と元Intentを最終差分へ再照合。主変更は前回と同一で、未見4例の判定範囲・親の不採用・判断更新の境界を完全保持。main側CI事例も完全保持し、既存正本から双方の見出しへ到達する。指摘・規則競合なし。実運用の再発率低下は未検証。",
   "remaining": []
 }
