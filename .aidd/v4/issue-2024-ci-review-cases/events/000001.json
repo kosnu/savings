@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2024",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "ebca4d9871ed363f9fc296a92907c2bb78a5e5d0907c5769c3d15217e0fc8879",
+  "status": "pass",
+  "checks": [
+    "Issue #2024とPR #2022の照合",
+    "文書2件の対象・検証方法・参照経路の選択"
+  ],
+  "summary": "新Taskとして最新mainから3事例と参照を追加する。正常・反例・証拠不足を比較し、実設定確認はSecret保護を変更・主張する条件に限定する。rule-mapは既存経路で十分。workflow・設定・過去記録は変更しない。",
+  "remaining": []
+}
