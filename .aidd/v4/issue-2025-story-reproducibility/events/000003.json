@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2025",
+  "paths": [
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "fingerprint": "790cdf82958fcee8ee23c544f2c192931f2caadc2a3355ed847ed80ad5ec4d83",
+  "status": "pass",
+  "checks": [
+    "Intent全4完了条件と制約を実差分・観測結果で照合",
+    "path/surface・依存closure全33規則",
+    "既存のSDKモック・文脈取得規則の非重複",
+    "検証条件変更の成功と元条件の失敗を区別"
+  ],
+  "summary": "日英4ケースと通常Storyへの復元はpass。本番UI・無関係なStory・終了済み記録に変更なし。文脈取得は既存規則で十分、条件変更の補足は既存workflowの選択経路で到達するため索引変更不要。未解決指摘・規則矛盾なし。",
+  "remaining": []
+}
