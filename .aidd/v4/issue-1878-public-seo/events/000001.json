@@ -17,12 +17,12 @@
     "apps/web/public/robots.txt",
     "apps/web/public/sitemap.xml"
   ],
-  "fingerprint": "318e824d6f48cbb32f67dce58ddea985d002203abf666dbf423fc71edbcfb667",
+  "fingerprint": "a2a424f3ac3b4c8d927eb82978d070cb722af5d9874ba63d9256062c6727860d",
   "status": "pass",
   "checks": [
     "Intentと会話の検索公開方針",
     "静的配信・SPA・多言語の境界"
   ],
-  "summary": "既存の検索公開を維持する。公開2ページの初回HTMLとSPA遷移で同じメタ情報を使い、静的ヘッダーは本番の公開URLだけ例外として検索を許可する。本文はSPAのまま取得を実ブラウザで確認する。",
+  "summary": "Cloudflare Vite plugin v2.0.0-beta.v.2を含む最新mainで再確認。既存の検索公開を維持する。公開2ページの初回HTMLとSPA遷移で同じメタ情報を使い、静的ヘッダーは本番の公開URLだけ例外として検索を許可する。本文はSPAのまま取得を実ブラウザで確認する。",
   "remaining": []
 }

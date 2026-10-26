@@ -17,7 +17,7 @@
     "apps/web/public/robots.txt",
     "apps/web/public/sitemap.xml"
   ],
-  "fingerprint": "318e824d6f48cbb32f67dce58ddea985d002203abf666dbf423fc71edbcfb667",
+  "fingerprint": "a2a424f3ac3b4c8d927eb82978d070cb722af5d9874ba63d9256062c6727860d",
   "status": "pass",
   "checks": [
     "web:lint",
@@ -30,6 +30,6 @@
     "Chromium: 本文・日英表示・公開ページ/認証遷移",
     "git diff --check"
   ],
-  "summary": "必須4検証・1046テスト・build成功。実ビルドの公開2ページのメタ情報と14応答の検索方針、ChromiumでSPA本文・言語・遷移を確認。本文はJavaScript実行後に取得。本番反映とGoogle Search Consoleの実測は未実施。",
+  "summary": "Cloudflare Vite plugin v2.0.0-beta.v.2を含む最新mainで再確認。必須4検証・1046テスト・build成功。実ビルドの公開2ページのメタ情報と14応答の検索方針、ChromiumでSPA本文・言語・遷移を確認。本文はJavaScript実行後に取得。本番反映とGoogle Search Consoleの実測は未実施。",
   "remaining": []
 }
