@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1978",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "3cf49eb9ae6513084dbff2c65be6c08baad65a919445cd75b938fc30b85ac44f",
+  "status": "pass",
+  "checks": [
+    "Intent・既存方針・PR #1963の根拠照合",
+    "正本・索引・入口・実装・検証の同期範囲判断"
+  ],
+  "summary": "新Taskとしてmain cede0be3を起点に、レビューとAuditの判断・要約を明確化し既存事例で確認。既存の保証範囲・原因未確定・承認規則は再利用し、正本2文書と適用事例のみ変更。索引・入口・実装・CLI・CI・外部設定・過去記録は変更不要。",
+  "remaining": []
+}

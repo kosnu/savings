@@ -1,0 +1,33 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1978",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "3cf49eb9ae6513084dbff2c65be6c08baad65a919445cd75b938fc30b85ac44f",
+  "status": "pass",
+  "checks": [
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "Intentの完了条件5件と最終差分の照合",
+    "PR #1963由来3事例・同期修正の対照例・unknown境界の意味評価",
+    "索引・入口・CLI・実装・CIの変更不要判断"
+  ],
+  "summary": "Coverage: 選択した全規約を確認、未解決なし。認証条件・実要求と設定要件・過去記録整理と差分起因の同期を分け、4事例の不適合と適合、証拠不足のunknownを照合。既存正本への経路と承認境界を維持し、重複する規則・新基盤・過去記録変更は追加しない。 実運用の再発率低下は未検証。現環境のOAuth実機確認は対象外。",
+  "remaining": []
+}
