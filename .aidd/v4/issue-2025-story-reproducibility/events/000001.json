@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2025",
+  "paths": [
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "fingerprint": "790cdf82958fcee8ee23c544f2c192931f2caadc2a3355ed847ed80ad5ec4d83",
+  "status": "pass",
+  "checks": [
+    "Intent・関連PRと既存規則の照合"
+  ],
+  "summary": "新Taskとして日英のSidebar Storyと復元テストを対象にする。SDKモック基準・文脈取得は既存規則で十分。検証条件変更時の証拠の区別だけworkflowへ補足し、本番UI・過去記録は変更しない。",
+  "remaining": []
+}
