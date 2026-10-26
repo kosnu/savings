@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2014",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "232618965349c6fe361e67c96071ffe22c694c2d3b5ab7b36fb048874beba565",
+  "status": "pass",
+  "checks": [
+    "Issue Intentと既存レビュー責務",
+    "正本・適用事例・既存入口の到達経路"
+  ],
+  "summary": "Issue #2014を独立Taskとして開始。baselineはcede0be344fdc01d846234c1d848eaa49054e67d。分析レビューの正本と有限の適用事例だけを変更し、成立・時期・手段と親の採否を根拠から分離する。Audit/Retrospectiveの既存参照を維持し、CLI・索引・承認・記録体系は追加しない。未見4例で担当と親を個別評価する。",
+  "remaining": []
+}

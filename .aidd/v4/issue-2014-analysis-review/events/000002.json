@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2014",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "232618965349c6fe361e67c96071ffe22c694c2d3b5ab7b36fb048874beba565",
+  "status": "pass",
+  "checks": [
+    "Core verifyの担当差分・全必須規約・安定性照合",
+    "変更2文書のformatter検査",
+    "git diff空白検査"
+  ],
+  "summary": "Core verifyは2コマンドとも終了コード0、stable=true。文書のみのためアプリ検証は対象外。仮想事例のCSV・通信・lint操作を実環境で実行したとは扱わない。",
+  "remaining": []
+}
