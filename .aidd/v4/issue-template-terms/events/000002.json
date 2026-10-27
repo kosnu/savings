@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザーの会話での依頼",
+  "paths": [
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/task.md"
+  ],
+  "fingerprint": "2044c813c83fc67faff9770206034bcaf0fc1fe30acab68f1ff2640d03558b72",
+  "status": "pass",
+  "checks": [
+    "Markdown整形確認",
+    "差分の空白確認",
+    "Core差分検査"
+  ],
+  "summary": "対象2ファイルの整形と差分検査に成功。",
+  "remaining": []
+}

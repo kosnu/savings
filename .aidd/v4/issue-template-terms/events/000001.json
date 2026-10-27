@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザーの会話での依頼",
+  "paths": [
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/task.md"
+  ],
+  "fingerprint": "2044c813c83fc67faff9770206034bcaf0fc1fe30acab68f1ff2640d03558b72",
+  "status": "pass",
+  "checks": [
+    "テンプレートとIntent記述の照合"
+  ],
+  "summary": "達成判定の項目を完了条件に統一し、バグの期待挙動は維持する。",
+  "remaining": []
+}

@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザーの会話での依頼",
+  "paths": [
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/task.md"
+  ],
+  "fingerprint": "2044c813c83fc67faff9770206034bcaf0fc1fe30acab68f1ff2640d03558b72",
+  "status": "pass",
+  "checks": [
+    "policy.issue-template-selection",
+    "documentation.policy",
+    "Intentの記述と差分の意味"
+  ],
+  "summary": "達成判定の語を統一し、バグの期待・実際の対比と既存の記入要件を維持。指摘なし。",
+  "remaining": []
+}
