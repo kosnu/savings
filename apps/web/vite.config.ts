@@ -4,6 +4,8 @@ import { devtools as tanstackDevtools } from "@tanstack/devtools-vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig, lazyPlugins, loadEnv } from "vite-plus"
 
+import { publicPageSeo } from "./seo"
+
 // https://vitejs.dev/config/
 export default defineConfig(({ command, isPreview, mode }) => {
   const buildEnv = loadEnv(mode, process.cwd(), "")
@@ -11,6 +13,7 @@ export default defineConfig(({ command, isPreview, mode }) => {
     command === "build" &&
     Boolean(buildEnv.SENTRY_AUTH_TOKEN && buildEnv.SENTRY_ORG && buildEnv.SENTRY_PROJECT)
   const plugins = lazyPlugins(() => [
+    publicPageSeo(),
     ...(command === "build" || isPreview ? cloudflare() : []),
     ...react(),
     ...tanstackDevtools(),
