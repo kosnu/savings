@@ -2,16 +2,18 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "ユーザーの会話での依頼",
+  "source": "ユーザーの会話での追加依頼",
   "paths": [
     ".github/ISSUE_TEMPLATE/feature_request.md",
-    ".github/ISSUE_TEMPLATE/task.md"
+    ".github/ISSUE_TEMPLATE/task.md",
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    "docs/harness/policies/issue-template-selection.md"
   ],
-  "fingerprint": "2044c813c83fc67faff9770206034bcaf0fc1fe30acab68f1ff2640d03558b72",
+  "fingerprint": "20d274ae48cefba7e71ba85bad23acef9c8b71116751a6b06f130c034d83e702",
   "status": "pass",
   "checks": [
-    "テンプレートとIntent記述の照合"
+    "現行運用とテンプレートの照合"
   ],
-  "summary": "達成判定の項目を完了条件に統一し、バグの期待挙動は維持する。",
+  "summary": "FeatureとTaskは背景・目的、完了条件、制約・参考情報に集約。Bugは再現・期待・実際を維持し補足を集約。委任は明示依頼時の標準と例外を案内する。",
   "remaining": []
 }

@@ -2,18 +2,19 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "ユーザーの会話での依頼",
+  "source": "ユーザーの会話での追加依頼",
   "paths": [
     ".github/ISSUE_TEMPLATE/feature_request.md",
-    ".github/ISSUE_TEMPLATE/task.md"
+    ".github/ISSUE_TEMPLATE/task.md",
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    "docs/harness/policies/issue-template-selection.md"
   ],
-  "fingerprint": "2044c813c83fc67faff9770206034bcaf0fc1fe30acab68f1ff2640d03558b72",
+  "fingerprint": "20d274ae48cefba7e71ba85bad23acef9c8b71116751a6b06f130c034d83e702",
   "status": "pass",
   "checks": [
-    "policy.issue-template-selection",
-    "documentation.policy",
-    "Intentの記述と差分の意味"
+    "Feature・Task・Bugの記入例と委任境界",
+    "rule-mapの対象・依存の照合"
   ],
-  "summary": "達成判定の語を統一し、バグの期待・実際の対比と既存の記入要件を維持。指摘なし。",
+  "summary": "#2044の目的・条件・制約、#2047の調査目的、#2043の再現・期待・実際を各欄に配置可能。Issue作成と実行依頼を区別し、方針も同期。指摘なし。",
   "remaining": []
 }
