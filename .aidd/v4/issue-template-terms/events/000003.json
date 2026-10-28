@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザーの会話での追加依頼",
+  "paths": [
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/task.md",
+    ".github/ISSUE_TEMPLATE/bug_report.md"
+  ],
+  "fingerprint": "d7c4bc55d56edcdeedd3252f10f946d516ed8822a48e5e6a3d40693facbee036",
+  "status": "pass",
+  "checks": [
+    "記入案内と運用規則の照合",
+    "3種類のテンプレート確認"
+  ],
+  "summary": "運用説明と見出しの繰り返しを削除し、目的・完了条件・制約およびバグの再現と結果の記入先を維持。指摘なし。",
+  "remaining": []
+}

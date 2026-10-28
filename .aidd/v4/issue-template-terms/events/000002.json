@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザーの会話での追加依頼",
+  "paths": [
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/task.md",
+    ".github/ISSUE_TEMPLATE/bug_report.md"
+  ],
+  "fingerprint": "d7c4bc55d56edcdeedd3252f10f946d516ed8822a48e5e6a3d40693facbee036",
+  "status": "pass",
+  "checks": [
+    "Markdown整形確認",
+    "差分の空白確認",
+    "Core差分検査",
+    "削除対象の残存確認"
+  ],
+  "summary": "冗長な案内の削除を確認し、整形と差分検査に成功。",
+  "remaining": []
+}

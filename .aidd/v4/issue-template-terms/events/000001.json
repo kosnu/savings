@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザーの会話での追加依頼",
+  "paths": [
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/task.md",
+    ".github/ISSUE_TEMPLATE/bug_report.md"
+  ],
+  "fingerprint": "d7c4bc55d56edcdeedd3252f10f946d516ed8822a48e5e6a3d40693facbee036",
+  "status": "pass",
+  "checks": [
+    "記入案内と運用規則の責務"
+  ],
+  "summary": "運用の重複説明を除き、記入内容を区別する短い案内と制約の記入先は維持する。",
+  "remaining": []
+}
