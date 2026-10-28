@@ -6,15 +6,14 @@
   "paths": [
     ".github/ISSUE_TEMPLATE/feature_request.md",
     ".github/ISSUE_TEMPLATE/task.md",
-    ".github/ISSUE_TEMPLATE/bug_report.md",
-    "docs/harness/policies/issue-template-selection.md"
+    ".github/ISSUE_TEMPLATE/bug_report.md"
   ],
-  "fingerprint": "20d274ae48cefba7e71ba85bad23acef9c8b71116751a6b06f130c034d83e702",
+  "fingerprint": "d7c4bc55d56edcdeedd3252f10f946d516ed8822a48e5e6a3d40693facbee036",
   "status": "pass",
   "checks": [
-    "Feature・Task・Bugの記入例と委任境界",
-    "rule-mapの対象・依存の照合"
+    "記入案内と運用規則の照合",
+    "3種類のテンプレート確認"
   ],
-  "summary": "#2044の目的・条件・制約、#2047の調査目的、#2043の再現・期待・実際を各欄に配置可能。Issue作成と実行依頼を区別し、方針も同期。指摘なし。",
+  "summary": "運用説明と見出しの繰り返しを削除し、目的・完了条件・制約およびバグの再現と結果の記入先を維持。指摘なし。",
   "remaining": []
 }
