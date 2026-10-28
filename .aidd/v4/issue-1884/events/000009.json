@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000007.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "7daaa3755c225a3f48c23890c08a4153a0acaad68b811d18bb59eea209bfb4c9",
+  "status": "pass",
+  "checks": [
+    "適用正本と文書の説明目的に基づく独立レビュー",
+    "削除/復帰・認可・競合・照会・保持/復旧・固有検証条件の保持を照合",
+    "アクセス拒否と申請端末の消去の範囲・アクセシビリティを再確認"
+  ],
+  "summary": "短縮による主要仕様の欠落・意味の変更なし。重複した表・本文・完了条件を集約し、機能固有の確認条件を保持。未解決の指摘なし。",
+  "remaining": []
+}

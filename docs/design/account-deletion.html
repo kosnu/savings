@@ -1,0 +1,1219 @@
+<!doctype html>
+<!--
+title: アカウント削除の7日間
+doc_type: design-companion
+status: draft
+area: repository
+applies_to: [docs/design/account-deletion.md]
+topics: [account-deletion, grace-period, asynchronous-deletion]
+when_to_read: [アカウント削除の設計と状態遷移を確認するとき]
+本HTMLは設計書の説明用資料です。仕様の正本は account-deletion.md です。
+-->
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Burnetoの削除予約、7日間の取消猶予、非同期の物理削除を確認する設計説明とシミュレーション"
+    />
+    <meta name="color-scheme" content="light" />
+    <title>アカウント削除の7日間 — Burneto 設計説明</title>
+    <style>
+      :root {
+        --page: #fcfcfd;
+        --surface: #ffffff;
+        --ink: #1e1f24;
+        --muted: #62636c;
+        --border: #d8d9e0;
+        --violet: #7252bd;
+        --violet-strong: #341f67;
+        --violet-soft: #f2f0ff;
+        --green: #206744;
+        --green-soft: #eff8f2;
+        --amber: #805400;
+        --amber-soft: #fff7e6;
+        --red: #b32e38;
+        --red-soft: #fff0f0;
+        --gray-soft: #f4f4f7;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 16px;
+        --space-4: 24px;
+        --space-5: 32px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.65;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      a {
+        color: var(--violet-strong);
+        text-underline-offset: 3px;
+      }
+      a:hover {
+        text-decoration-thickness: 2px;
+      }
+      button,
+      summary {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button {
+        min-height: 44px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink);
+        padding: var(--space-2) var(--space-3);
+        line-height: 1.4;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover:not(:disabled) {
+        background: var(--gray-soft);
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid var(--violet);
+        outline-offset: 3px;
+      }
+      button.primary {
+        border-color: var(--violet);
+        background: var(--violet);
+        color: white;
+      }
+      button.primary:hover:not(:disabled) {
+        background: var(--violet-strong);
+      }
+      button.danger {
+        border-color: #efbdc1;
+        color: var(--red);
+        background: var(--red-soft);
+      }
+      button.danger:hover:not(:disabled) {
+        background: #fce1e4;
+      }
+      button.quiet {
+        border-color: transparent;
+        background: transparent;
+        color: var(--muted);
+      }
+      button.quiet:hover:not(:disabled) {
+        background: var(--gray-soft);
+      }
+      button[aria-pressed="true"] {
+        border-color: var(--red);
+        color: var(--red);
+        background: var(--red-soft);
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      h1 {
+        max-width: 31em;
+        font-size: 28px;
+        line-height: 1.4;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+      }
+      h2 {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.5;
+      }
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.5;
+      }
+      .wrap {
+        width: min(1088px, calc(100% - 48px));
+        margin: auto;
+      }
+      .skip {
+        position: absolute;
+        left: var(--space-3);
+        top: -80px;
+        padding: var(--space-2) var(--space-3);
+        background: var(--surface);
+        z-index: 10;
+      }
+      .skip:focus {
+        top: var(--space-3);
+      }
+      .topbar {
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+      }
+      .topbar-inner {
+        min-height: 72px;
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        justify-content: space-between;
+        padding-block: var(--space-3);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--violet-strong);
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+      }
+      .brand svg {
+        width: 24px;
+        height: 24px;
+      }
+      .topnote,
+      .small {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      main {
+        padding-block: var(--space-5);
+      }
+      .intro {
+        display: grid;
+        gap: var(--space-3);
+        max-width: 800px;
+      }
+      .eyebrow {
+        color: var(--violet-strong);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .lead {
+        color: var(--muted);
+        max-width: 48em;
+      }
+      .lead strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        width: fit-content;
+        padding: var(--space-1) var(--space-2);
+        border-radius: 4px;
+        background: var(--violet-soft);
+        color: var(--violet-strong);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.6;
+      }
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin: var(--space-5) 0 0;
+        padding: 0;
+        list-style: none;
+        border-block: 1px solid var(--border);
+      }
+      .flow li {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+        padding: var(--space-4);
+        padding-left: 0;
+      }
+      .flow li + li {
+        padding-left: var(--space-4);
+        border-left: 1px solid var(--border);
+      }
+      .step {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--violet-strong);
+      }
+      .flow p {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .flow strong {
+        font-weight: 600;
+        color: var(--ink);
+      }
+      section {
+        margin-top: var(--space-5);
+      }
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+      .section-head > div {
+        display: grid;
+        gap: var(--space-1);
+        min-width: 0;
+      }
+      .section-head > button {
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      .simulation {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        overflow: hidden;
+      }
+      .sim-banner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-4);
+        border-bottom: 1px solid var(--border);
+        background: var(--gray-soft);
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .sim-banner strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .sim-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      }
+      .controls,
+      .result {
+        padding: var(--space-4);
+        min-width: 0;
+      }
+      .controls {
+        border-right: 1px solid var(--border);
+      }
+      .control-section {
+        display: grid;
+        gap: var(--space-2);
+      }
+      .control-section + .control-section {
+        padding-top: var(--space-4);
+        margin-top: var(--space-4);
+        border-top: 1px solid var(--border);
+      }
+      .control-label {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+      .buttons > button {
+        flex-grow: 1;
+      }
+      .time-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-2);
+      }
+      .time-buttons button {
+        padding-inline: var(--space-2);
+        font-size: 13px;
+      }
+      .time-buttons button span {
+        display: block;
+        font-size: 11px;
+        font-weight: 400;
+        margin-top: var(--space-1);
+      }
+      .time-head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--space-2);
+        align-items: baseline;
+      }
+      #clock {
+        color: var(--violet-strong);
+        font-variant-numeric: tabular-nums;
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.5;
+      }
+      .timeline {
+        margin-block: var(--space-3);
+      }
+      .timeline-track {
+        position: relative;
+        height: 8px;
+        border-radius: 4px;
+        background: var(--gray-soft);
+        overflow: hidden;
+      }
+      .timeline-fill {
+        width: 0;
+        height: 100%;
+        background: var(--violet);
+      }
+      .timeline-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: var(--space-2);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .timeline-labels strong {
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .status {
+        display: grid;
+        gap: var(--space-2);
+        margin-top: var(--space-4);
+        padding: var(--space-3);
+        border-radius: 8px;
+        background: var(--green-soft);
+        border-left: 4px solid var(--green);
+      }
+      .status[data-tone="violet"] {
+        background: var(--violet-soft);
+        border-left-color: var(--violet);
+      }
+      .status[data-tone="amber"] {
+        background: var(--amber-soft);
+        border-left-color: var(--amber);
+      }
+      .status[data-tone="red"] {
+        background: var(--red-soft);
+        border-left-color: var(--red);
+      }
+      .status[data-tone="gray"] {
+        background: var(--gray-soft);
+        border-left-color: var(--muted);
+      }
+      .status h3 {
+        font-size: 18px;
+      }
+      .status p {
+        font-size: 14px;
+      }
+      .deadline {
+        display: grid;
+        gap: var(--space-1);
+        margin-top: var(--space-3);
+      }
+      .deadline dt {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .deadline dd {
+        margin: 0;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+      }
+      .state-list {
+        margin: var(--space-4) 0 0;
+      }
+      .state-list > div {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+        gap: var(--space-3);
+        border-top: 1px solid var(--border);
+        padding-block: var(--space-2);
+        font-size: 13px;
+      }
+      .state-list dt {
+        color: var(--muted);
+      }
+      .state-list dd {
+        margin: 0;
+      }
+      .state-list dd strong {
+        font-weight: 600;
+      }
+      .action-note {
+        margin-top: var(--space-3);
+        padding: var(--space-2) 0;
+        color: var(--violet-strong);
+        font-size: 13px;
+        min-height: 3.2em;
+      }
+      .boundary-note {
+        margin-top: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        background: var(--violet-soft);
+        border-radius: 8px;
+        font-size: 14px;
+        color: var(--violet-strong);
+      }
+      .explanation {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-5);
+      }
+      .explanation article {
+        display: grid;
+        gap: var(--space-2);
+        align-content: start;
+      }
+      .explanation p {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .explanation strong {
+        font-weight: 600;
+        color: var(--ink);
+      }
+      details {
+        margin-top: var(--space-5);
+        border-block: 1px solid var(--border);
+      }
+      summary {
+        cursor: pointer;
+        padding-block: var(--space-3);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .technical {
+        padding-bottom: var(--space-4);
+        display: grid;
+        gap: var(--space-3);
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .technical h3 {
+        color: var(--ink);
+      }
+      .technical ul {
+        padding-left: var(--space-4);
+        margin: 0;
+      }
+      .technical li + li {
+        margin-top: var(--space-2);
+      }
+      .state-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+      }
+      .state-table th,
+      .state-table td {
+        vertical-align: top;
+        border-bottom: 1px solid var(--border);
+        padding: var(--space-2);
+      }
+      .state-table th {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .state-table td:first-child {
+        color: var(--ink);
+        font-family: ui-monospace, monospace;
+      }
+      code {
+        overflow-wrap: anywhere;
+        color: var(--violet-strong);
+        font-size: 0.95em;
+      }
+      .footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-top: var(--space-4);
+        padding-bottom: var(--space-3);
+      }
+      noscript p {
+        padding: var(--space-3);
+        margin-bottom: var(--space-3);
+        background: var(--amber-soft);
+        color: var(--amber);
+      }
+      @media (max-width: 760px) {
+        .wrap {
+          width: calc(100% - 32px);
+        }
+        .topbar-inner {
+          min-height: 64px;
+        }
+        .topnote {
+          max-width: 11em;
+          text-align: right;
+          font-size: 11px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        .flow {
+          grid-template-columns: 1fr;
+        }
+        .flow li,
+        .flow li + li {
+          padding: var(--space-3) 0;
+          border-left: none;
+        }
+        .flow li + li {
+          border-top: 1px solid var(--border);
+        }
+        .sim-body {
+          grid-template-columns: 1fr;
+        }
+        .controls {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .controls,
+        .result {
+          padding: var(--space-3);
+        }
+        .sim-banner {
+          padding: var(--space-3);
+        }
+        .explanation {
+          grid-template-columns: 1fr;
+          gap: var(--space-4);
+        }
+        .boundary-note {
+          padding: var(--space-3);
+        }
+      }
+      @media (max-width: 360px) {
+        .time-buttons {
+          grid-template-columns: 1fr;
+        }
+        .time-buttons button span {
+          display: inline;
+          margin-left: var(--space-2);
+        }
+        .state-list > div {
+          grid-template-columns: 1fr;
+          gap: var(--space-1);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+      @media print {
+        .controls,
+        .skip,
+        .footer button {
+          display: none;
+        }
+        .sim-body,
+        .explanation {
+          display: block;
+        }
+        .explanation article {
+          margin-bottom: var(--space-4);
+        }
+        .wrap {
+          width: 100%;
+        }
+        body {
+          font-size: 12px;
+        }
+        details {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">本文へ移動</a>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <div class="brand">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M5 5h8a4 4 0 0 1 0 8H5V5Zm0 8h9a3 3 0 0 1 0 6H5v-6Z"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Burneto
+        </div>
+        <p class="topnote">Issue #1884<br />設計説明 · 実際のアカウント操作なし</p>
+      </div>
+    </header>
+    <main id="main" class="wrap">
+      <div class="intro">
+        <p class="eyebrow">アカウント削除のしくみ</p>
+        <h1>利用を止めて7日間の猶予<br />締切以降の午前3時から順に削除</h1>
+        <p class="lead">
+          削除の申請後はすぐにBurnetoを利用停止にします。<strong>168時間の期限前なら新しい本人ログインで予約を取り消せます</strong>。期限以降で最初の午前3時（日本時間）から小分けに物理削除します。午前3時を待つ間も復帰できません
+        </p>
+        <span class="pill">方針案の説明資料 · 機能は未実装</span>
+      </div>
+
+      <ol class="flow" aria-label="削除の流れ">
+        <li>
+          <span class="step">01 · 申請したら</span>
+          <h2>すぐに利用停止</h2>
+          <p>
+            ログアウトし復帰の締切と削除開始予定を表示します。<strong
+              >受付は削除の完了ではありません</strong
+            >
+          </p>
+        </li>
+        <li>
+          <span class="step">02 · 7日の期限前</span>
+          <h2>再ログインで取り消し</h2>
+          <p>同じ本人の新しいGoogleログインで利用を再開。家計簿と所属もそのまま戻ります</p>
+        </li>
+        <li>
+          <span class="step">03 · 締切以降の午前3時から</span>
+          <h2>小分けに物理削除</h2>
+          <p>
+            毎分最大10件ずつ処理します。<strong>復帰の締切は168時間</strong>。残件と失敗の再試行は午前3時台以降も続けます
+          </p>
+        </li>
+      </ol>
+
+      <section aria-labelledby="sim-title">
+        <div class="section-head">
+          <div>
+            <h2 id="sim-title">状態を試してみる</h2>
+            <p class="small">申請・ログイン・時間経過で何が残りいつ戻れなくなるかを確認できます</p>
+          </div>
+          <button id="reset" class="quiet" type="button">リセット</button>
+        </div>
+        <noscript
+          ><p>
+            シミュレーションにはJavaScriptが必要です。上の説明と下の「実装で守る境界」から仕様を確認できます
+          </p></noscript
+        >
+        <div class="simulation">
+          <div class="sim-banner">
+            <strong>シミュレーション</strong
+            ><span>合成データのみ。アカウント・サーバーには接続しません</span>
+          </div>
+          <div class="sim-body">
+            <div class="controls">
+              <div class="control-section">
+                <p class="control-label">本人の操作</p>
+                <div class="buttons">
+                  <button id="request" class="danger" type="button">削除を申請する</button>
+                  <button id="login" type="button">Googleで新しくログイン</button>
+                </div>
+                <button id="refresh" class="quiet" type="button">
+                  既存セッションを自動更新する
+                </button>
+                <p class="small">
+                  新しい本人ログインだけが取消の入口です。自動更新・既存セッションの復元では取り消しません
+                </p>
+              </div>
+              <div class="control-section">
+                <p class="control-label">申請からの時間を進める</p>
+                <div class="time-buttons">
+                  <button id="before" type="button">期限の1秒前<span>6日 23:59:59</span></button>
+                  <button id="exact" type="button">期限ちょうど<span>7日 00:00:00</span></button>
+                  <button id="after" type="button">期限の1分後<span>7日 00:01:00</span></button>
+                  <button id="start-before" type="button">
+                    削除開始の1秒前<span>午前2:59:59</span>
+                  </button>
+                  <button id="start" type="button">削除開始時刻<span>午前3:00:00</span></button>
+                </div>
+                <p class="small">
+                  7日＝168時間。復帰の締切と削除開始予定は別の時刻です。DBの時刻で判定し端末の時刻では変わりません
+                </p>
+              </div>
+              <div class="control-section">
+                <p class="control-label">バックグラウンド処理を試す</p>
+                <div class="buttons">
+                  <button id="job" class="primary" type="button">削除ジョブを実行</button>
+                  <button id="failure" type="button" aria-pressed="false">
+                    次のジョブを失敗させる
+                  </button>
+                </div>
+                <p class="small">
+                  実運用は削除開始予定以降に毎分最大10件ずつ処理します。この資料は1人分をボタンで実行し再試行の待ち時間は省略します。失敗後も同じボタンで試せます
+                </p>
+              </div>
+              <p
+                id="action-note"
+                class="action-note"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                まず「削除を申請する」から試してください
+              </p>
+            </div>
+            <div class="result" aria-label="シミュレーション結果">
+              <div class="time-head">
+                <span class="control-label">申請からの経過</span
+                ><span id="clock">まだ申請していません</span>
+              </div>
+              <div class="timeline" aria-label="7日間の猶予期間">
+                <div
+                  id="progress"
+                  class="timeline-track"
+                  role="progressbar"
+                  aria-label="復帰の締切までの経過"
+                  aria-valuemin="0"
+                  aria-valuemax="604800"
+                  aria-valuenow="0"
+                  aria-valuetext="まだ申請していません"
+                >
+                  <div id="fill" class="timeline-fill"></div>
+                </div>
+                <div class="timeline-labels">
+                  <span>申請・利用停止</span><strong>7日 · 復帰の締切</strong>
+                </div>
+              </div>
+              <div id="status" class="status" data-tone="green">
+                <h3 id="state-title">利用中</h3>
+                <p id="state-message">アカウントは有効です。通常どおり家計簿を利用できます</p>
+              </div>
+              <dl class="deadline">
+                <dt>復帰の締切 · 申請から168時間（日本時間）</dt>
+                <dd id="deadline">申請後に確定します</dd>
+              </dl>
+              <dl class="deadline">
+                <dt>物理削除の開始予定 · 締切以降で最初の午前3時（日本時間）</dt>
+                <dd id="deletion-start">申請後に確定します</dd>
+              </dl>
+              <dl class="state-list">
+                <div>
+                  <dt>Burnetoの利用</dt>
+                  <dd id="app-state">利用できます</dd>
+                </div>
+                <div>
+                  <dt>Authアカウント</dt>
+                  <dd id="auth-state">保持しています</dd>
+                </div>
+                <div>
+                  <dt>あなただけの家計簿</dt>
+                  <dd id="personal-state">データを保持しています</dd>
+                </div>
+                <div>
+                  <dt>家計簿への所属</dt>
+                  <dd id="membership-state">保持しています</dd>
+                </div>
+                <div>
+                  <dt>他メンバーのいる家計簿</dt>
+                  <dd id="shared-state">他メンバーは引き続き利用できます</dd>
+                </div>
+                <div>
+                  <dt>取消・完了の記録</dt>
+                  <dd id="receipt-state">まだありません</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <p class="boundary-note">
+          <strong
+            >「期限の1秒前 → 新しくログイン」と「期限ちょうど →
+            新しくログイン」を比べてください。</strong
+          >締切後はAuthやデータがまだ残っていても取り消せません。「削除開始の1秒前 →
+          ジョブ実行」と「削除開始時刻 → ジョブ実行」では午前3時の境界を確認できます
+        </p>
+      </section>
+
+      <section class="explanation" aria-label="保持する情報と失敗時の扱い">
+        <article>
+          <h2>猶予中は何が残る？</h2>
+          <p>
+            Authアカウント、本人の情報、家計簿への所属、家計簿のデータを保持します。<strong>本人のデータアクセスは利用停止</strong>にし、他メンバーは共有の家計簿を使い続けられます
+          </p>
+          <p>
+            物理削除で本人のAuth・登録情報・所属を削除します。他メンバーが残る家計簿とそのデータは保持し、<strong>誰もいなくなった家計簿は削除</strong>します
+          </p>
+        </article>
+        <article>
+          <h2>削除が遅れたり失敗したら？</h2>
+          <p>
+            168時間の期限後は午前3時を待つ間も利用停止と取消不可を維持します。<strong>開始予定は完了の約束ではありません</strong>。毎分最大10件ずつ処理し残件と失敗の再試行は午前3時台以降も続けます
+          </p>
+          <p>
+            <strong>Authと関連データは同じトランザクションで削除</strong
+            >し途中の失敗は全体を元に戻します。失敗した要求は完了にせず再試行します。運営者が失敗と処理の滞留を把握できるようにし、<strong>削除処理がcommitした後にだけ「完了」</strong>とします
+          </p>
+        </article>
+      </section>
+
+      <details>
+        <summary>実装で守る境界・記録を確認する</summary>
+        <div class="technical">
+          <p>
+            以下は設計の要点です。実装契約・権限・競合対策・検証条件の正本は<a
+              href="account-deletion.md"
+              >アカウント削除設計書</a
+            >です。このHTMLは実際のOAuth、DBの認可、削除処理を実行しません
+          </p>
+          <table class="state-table">
+            <thead>
+              <tr>
+                <th scope="col">要求の状態</th>
+                <th scope="col">意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>pending</td>
+                <td>
+                  削除予約が有効。期限前は新しい本人ログインで取消可能。期限以後は取消不可のまま物理削除を待つ
+                </td>
+              </tr>
+              <tr>
+                <td>cancelled</td>
+                <td>期限前に再有効化済み。削除予約は無効となり、通常利用に戻る</td>
+              </tr>
+              <tr>
+                <td>completed</td>
+                <td>Authと関連データの物理削除がcommit済み</td>
+              </tr>
+            </tbody>
+          </table>
+          <ul>
+            <li>
+              <strong>有効なアカウント：</strong
+              >Authとアプリ内ユーザーが存在し、<code>pending</code>の削除要求がないこと。UIのログアウトだけでは停止を保証せず、保護されたデータのアクセスをDB側で拒否します。Authをbanする方式にはせず、本人の再ログインの入口を残します
+            </li>
+            <li>
+              <strong>期限：</strong>DBのUTC時刻で申請から168時間。再有効化は<code
+                >現在時刻 &lt; 期限</code
+              >のときだけ許可します。ログインとジョブが競合しても期限と要求の状態を同じ境界で再確認します
+            </li>
+            <li>
+              <strong>再ログイン：</strong
+              >本人が開始した新しいGoogleログインと対応する新規Authセッションを検証します。古いセッション・自動refresh・セッション復元だけで<code>pending</code>を取り消しません
+            </li>
+            <li>
+              <strong>ジョブ：</strong
+              >復帰の締切以降で最初の03:00（Asia/Tokyo）を物理削除開始の下限とします。締切がちょうど03:00なら同時刻です。開始予定以降は毎分最大10件の<code>pending</code>を処理し03時台に限定せず継続します。Auth・関連データ・完了記録の更新は1要求ずつ同じトランザクションで扱い、失敗時は<code>pending</code>とデータを維持して再試行します
+            </li>
+            <li>
+              <strong>状態確認：</strong
+              >受付番号と確認キーで要求に限定した結果を確認します。申請の応答が途切れた場合は結果未確定とし、受付・取消・物理削除完了を推測で表示しません。確認キーにAuthトークンを流用しません
+            </li>
+            <li>
+              <strong>最小の記録：</strong
+              >取消・完了の記録を各確定時から30日保持し、期限後は照会不可として削除します。名前・メール・支払い・認証トークンはこの記録に残しません。受付番号・確認キーの紛失や記録の期限切れで照合情報が失われた場合、過去の完了を確定できないことがあります
+            </li>
+            <li>
+              <strong>物理削除後：</strong
+              >発行済みJWTが残っていても保護データへのアクセスを拒否します。バックアップや基盤ログには別の保持条件があり、すべての情報の即時消去は約束しません
+            </li>
+          </ul>
+        </div>
+      </details>
+      <footer class="footer small">
+        <span>Burneto · アカウント削除設計の説明資料</span>
+        <a href="account-deletion.md">仕様の正本を読む ↗</a>
+      </footer>
+    </main>
+    <script>
+      "use strict"
+      ;(() => {
+        const GRACE = 7 * 24 * 60 * 60
+        const DAY = 24 * 60 * 60
+        const BASE = Date.parse("2026-10-22T03:00:00Z")
+        const $ = (id) => document.getElementById(id)
+        const timeTargets = [
+          ["before", () => GRACE - 1],
+          ["exact", () => GRACE],
+          ["after", () => GRACE + 60],
+          ["start-before", () => deletionStart() - model.requestedAt - 1],
+          ["start", () => deletionStart() - model.requestedAt],
+        ]
+        let model
+
+        function initial() {
+          return {
+            now: 0,
+            requestedAt: null,
+            terminal: null,
+            deleted: false,
+            failNext: false,
+            failed: false,
+          }
+        }
+        function pending() {
+          return model.requestedAt !== null && model.terminal === null
+        }
+        function elapsed() {
+          return model.requestedAt === null ? 0 : model.now - model.requestedAt
+        }
+        function due() {
+          return pending() && elapsed() >= GRACE
+        }
+        function deletionStart() {
+          const deadline = model.requestedAt + GRACE
+          const deadlineJst = BASE / 1000 + deadline + 9 * 3600
+          const threeJst = Math.floor(deadlineJst / DAY) * DAY + 3 * 3600
+          const start = threeJst - 9 * 3600 - BASE / 1000
+          return start < deadline ? start + DAY : start
+        }
+        function readyForDeletion() {
+          return pending() && model.now >= deletionStart()
+        }
+        function duration(seconds) {
+          const days = Math.floor(seconds / DAY)
+          const hours = Math.floor((seconds % DAY) / 3600)
+          const minutes = Math.floor((seconds % 3600) / 60)
+          const secs = seconds % 60
+          return `${days}日 ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+        }
+        function date(seconds) {
+          return (
+            new Intl.DateTimeFormat("ja-JP", {
+              timeZone: "Asia/Tokyo",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            }).format(new Date(BASE + seconds * 1000)) + " JST"
+          )
+        }
+        function note(text) {
+          $("action-note").textContent = text
+        }
+        function render() {
+          const isPending = pending()
+          const isDue = due()
+          const isReady = readyForDeletion()
+          const age = elapsed()
+          $("clock").textContent =
+            model.requestedAt === null ? "まだ申請していません" : duration(age)
+          $("fill").style.width = `${Math.min(age / GRACE, 1) * 100}%`
+          $("progress").setAttribute("aria-valuenow", String(Math.min(age, GRACE)))
+          $("progress").setAttribute(
+            "aria-valuetext",
+            model.requestedAt === null
+              ? "まだ申請していません"
+              : `${duration(age)}経過。${isDue || model.deleted ? "復帰期限を過ぎました" : model.terminal === "cancelled" ? "削除予約は取り消し済みです" : "復帰期限前です"}`,
+          )
+          $("deadline").textContent =
+            model.requestedAt === null
+              ? "申請後に確定します"
+              : date(model.requestedAt + GRACE) +
+                (model.terminal === "cancelled" ? "（予約取消済み）" : "")
+          $("deletion-start").textContent =
+            model.requestedAt === null
+              ? "申請後に確定します"
+              : date(deletionStart()) +
+                (model.terminal === "cancelled" ? "（予約取消済み）" : "（完了時刻ではありません）")
+
+          let title = "利用中"
+          let message = "アカウントは有効です。通常どおり家計簿を利用できます"
+          let tone = "green"
+          if (isPending && !isDue) {
+            title = "削除予約を受け付けました"
+            message =
+              "利用停止中です。期限前に同じ本人がGoogleで新しくログインすると予約を取り消して利用を再開できます"
+            tone = "violet"
+          } else if (isDue && !isReady) {
+            title = "午前3時の削除開始待ち・取消不可"
+            message =
+              "168時間の復帰期限に達しました。まだ削除開始予定の午前3時前なのでAuthとデータを保持しますが再ログインで復帰できません"
+            tone = "amber"
+          } else if (isReady) {
+            title = model.failed ? "削除処理に失敗・再試行待ち" : "削除処理待ち・取り消し不可"
+            message = model.failed
+              ? "Authと関連データは全体を元に戻しました。利用停止を維持し次回のジョブで再試行します。削除はまだ完了していません"
+              : "削除開始予定に達しました。毎分最大10件ずつの処理を待っています。Authとデータは削除がcommitするまで保持し復帰は受け付けません"
+            tone = model.failed ? "red" : "amber"
+          } else if (model.terminal === "cancelled") {
+            title = "削除予約を取り消しました"
+            message =
+              "期限前の新しい本人ログインでアカウントを再有効化しました。元のデータと所属で利用を再開できます"
+          } else if (model.deleted) {
+            title = "物理削除が完了しました"
+            message =
+              "Authと本人の関連データの削除がcommitしました。取消・復帰はできません。他メンバーがいる家計簿は残ります"
+            tone = "gray"
+          }
+          $("state-title").textContent = title
+          $("state-message").textContent = message
+          $("status").dataset.tone = tone
+          $("app-state").textContent = model.deleted
+            ? "削除済み・復帰できません"
+            : isPending
+              ? "利用停止中（保護データへのアクセス拒否）"
+              : "利用できます"
+          $("auth-state").textContent = model.deleted
+            ? "削除しました"
+            : isDue && !isReady
+              ? "保持しています（午前3時の開始待ち）"
+              : isReady
+                ? "保持しています（削除ジョブの処理待ち）"
+                : isPending
+                  ? "保持しています（期限前の復帰のため）"
+                  : "保持しています"
+          $("personal-state").textContent = model.deleted
+            ? "家計簿とそのデータを削除しました"
+            : "データを保持しています"
+          $("membership-state").textContent = model.deleted
+            ? "本人の所属を削除しました"
+            : "保持しています"
+          $("shared-state").textContent = model.deleted
+            ? "他メンバー・家計簿・データを保持しています"
+            : "他メンバーは引き続き利用できます"
+          $("receipt-state").textContent = model.terminal
+            ? `${model.terminal === "cancelled" ? "取消" : "完了"}の最小記録を30日保持します`
+            : isPending
+              ? "予約中です。削除完了の記録はありません"
+              : "まだありません"
+          $("request").disabled = isPending || model.deleted
+          $("login").disabled = model.deleted
+          $("refresh").disabled = model.deleted
+          $("job").disabled = !isPending
+          $("failure").disabled = !isPending
+          $("failure").setAttribute("aria-pressed", String(model.failNext))
+          $("failure").textContent = model.failNext
+            ? "失敗を設定済み · 解除する"
+            : "次のジョブを失敗させる"
+          for (const [id, target] of timeTargets) {
+            $(id).disabled = !isPending || age >= target()
+          }
+        }
+        function act(callback) {
+          callback()
+          render()
+        }
+        $("request").addEventListener("click", () =>
+          act(() => {
+            if (pending() || model.deleted) return
+            model.requestedAt = model.now
+            model.terminal = null
+            model.failed = false
+            model.failNext = false
+            note(
+              "削除予約を受け付けました。利用を停止してログアウトしました。Auth・データ・所属はまだ削除していません",
+            )
+          }),
+        )
+        $("login").addEventListener("click", () =>
+          act(() => {
+            if (model.deleted) return
+            if (!pending()) {
+              note("通常の本人ログインです。アカウントは有効なままです")
+              return
+            }
+            if (due()) {
+              note(
+                "復帰を受け付けません。DBの期限に達しており物理削除の前でも削除予約を取り消せません",
+              )
+              return
+            }
+            model.terminal = "cancelled"
+            model.failed = false
+            model.failNext = false
+            note(
+              "新しい本人ログインを確認し期限前に削除予約を取り消しました。アカウントを再有効化しました",
+            )
+          }),
+        )
+        $("refresh").addEventListener("click", () =>
+          act(() => {
+            note(
+              pending()
+                ? "自動更新では削除予約を取り消しません。セッションが残っていてもBurnetoの利用停止は続きます"
+                : "既存セッションを自動更新しました。削除予約の状態は変わりません",
+            )
+          }),
+        )
+        for (const [id, target] of timeTargets) {
+          $(id).addEventListener("click", () =>
+            act(() => {
+              if (!pending() || elapsed() >= target()) return
+              model.now = model.requestedAt + target()
+              note(
+                !due()
+                  ? "期限の1秒前です。今新しい本人ログインが成立すれば取り消せます"
+                  : !readyForDeletion()
+                    ? "復帰の締切後ですが削除開始予定の午前3時前です。ジョブを実行しても消えず再ログインでも取り消せません"
+                    : "削除開始予定に達しました。ジョブで物理削除を実行できますが完了はまだ確定していません",
+              )
+            }),
+          )
+        }
+        $("failure").addEventListener("click", () =>
+          act(() => {
+            if (!pending()) return
+            model.failNext = !model.failNext
+            note(
+              model.failNext
+                ? "次の対象ジョブを失敗させる設定にしました。削除開始予定までは削除の対象になりません"
+                : "失敗の設定を解除しました",
+            )
+          }),
+        )
+        $("job").addEventListener("click", () =>
+          act(() => {
+            if (!pending()) return
+            if (!due()) {
+              note("削除の対象はありません。7日の期限前なのでAuthとデータを保持します")
+              return
+            }
+            if (!readyForDeletion()) {
+              note(
+                "復帰の締切は過ぎましたが削除開始予定の午前3時前です。Authとデータは消しません。復帰は受け付けません",
+              )
+              return
+            }
+            if (model.failNext) {
+              model.failNext = false
+              model.failed = true
+              note(
+                "削除の途中で失敗させました。Authも関連データも全体をrollbackしpendingのまま再試行を待ちます",
+              )
+              return
+            }
+            model.deleted = true
+            model.failed = false
+            model.terminal = "completed"
+            note("削除のトランザクションがcommitしました。ここで初めて物理削除の完了を確定します")
+          }),
+        )
+        $("reset").addEventListener("click", () => {
+          model = initial()
+          render()
+          note("シミュレーションをリセットしました。まず「削除を申請する」から試してください")
+        })
+        model = initial()
+        render()
+      })()
+    </script>
+  </body>
+</html>
