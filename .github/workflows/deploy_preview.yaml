@@ -1,4 +1,4 @@
-name: Deploy Dev Preview
+name: Sentry Dev verification (temporary - do not merge)
 
 # 同一repositoryのPRだけを受け付け、固定SHAをdevelopment Environmentで配信する。
 on:
@@ -40,7 +40,7 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      sha: ${{ steps.pr.outputs.sha }}
+      sha: ${{ steps.source.outputs.sha }}
       url: ${{ steps.deployment.outputs.url }}
       description: ${{ steps.deployment.outputs.description }}
       completed_at: ${{ steps.deployment.outputs.completed_at }}
@@ -57,6 +57,17 @@ jobs:
           EXPECTED_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: node tools/dev-preview/authorize.mjs
 
+      # #1888の検証専用。PRのアプリコードではなく、依頼時の最新mainを配信する。
+      - name: Verify and pin the requested main commit
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_MAIN_SHA: 828a403e7a50f985e10c34446243dc0c1293533e
+        run: |
+          source_sha=$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')
+          test "$source_sha" = "$EXPECTED_MAIN_SHA"
+          echo "sha=$source_sha" >> "$GITHUB_OUTPUT"
+
       # 既存 PR が古い補助コードを持っていても、main の契約で検証・通知する。
       - name: Preserve trusted Preview helpers
         run: |
@@ -66,7 +77,7 @@ jobs:
       - name: Checkout validated commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ steps.pr.outputs.sha }}
+          ref: ${{ steps.source.outputs.sha }}
           persist-credentials: false
 
       - name: Setup pnpm
@@ -98,7 +109,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          SENTRY_RELEASE: ${{ steps.pr.outputs.sha }}
+          SENTRY_RELEASE: ${{ steps.source.outputs.sha }}
         run: |
           : "${SENTRY_RELEASE:?SENTRY_RELEASE が必要です}"
           : "${VITE_SENTRY_DSN:?VITE_SENTRY_DSN が必要です}"
@@ -121,7 +132,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CF_SEND_TELEMETRY: "false"
-          DEPLOYED_SHA: ${{ steps.pr.outputs.sha }}
+          DEPLOYED_SHA: ${{ steps.source.outputs.sha }}
           PREVIEW_BRANCH: ${{ steps.pr.outputs.branch }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
         run: |

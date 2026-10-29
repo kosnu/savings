@@ -113,7 +113,7 @@ test("head races, withdrawal, closure and foreign PRs fail the pre-deployment re
 })
 
 // 以下のworkflow検査は本文の接続・条件・順序を固定する。Actionsの解釈や実行結果は確認しない。
-test("workflow text connects allowed requests to one PR check before checkout and installation", () => {
+test("一時検証workflowはPR確認後に固定mainを照合してからcheckoutする", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
@@ -122,11 +122,15 @@ test("workflow text connects allowed requests to one PR check before checkout an
   assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/)
   assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
   assert.match(yaml, /environment: development/)
-  assert.match(yaml, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)
+  assert.match(yaml, /ref: \$\{\{ steps.source.outputs.sha \}\}/)
+  assert.match(yaml, /EXPECTED_MAIN_SHA: 828a403e7a50f985e10c34446243dc0c1293533e/)
+  assert.ok(yaml.includes('gh api "repos/$GITHUB_REPOSITORY/branches/main"'))
+  assert.ok(yaml.includes('test "$source_sha" = "$EXPECTED_MAIN_SHA"'))
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
   const resolve = yaml.indexOf("Resolve selected PR head")
+  const source = yaml.indexOf("Verify and pin the requested main commit")
   const checkout = yaml.indexOf("Checkout validated commit")
-  assert.ok(resolve >= 0 && resolve < checkout)
+  assert.ok(resolve >= 0 && resolve < source && source < checkout)
   assert.ok(checkout < yaml.indexOf("run: pnpm ci"))
   assert.match(yaml, /EXPECTED_BRANCH: \$\{\{ github.event.pull_request.head.ref \}\}/)
   assert.doesNotMatch(yaml, /needs.resolve|Revalidate before deployment/)
@@ -178,7 +182,7 @@ test("workflow text separates FE/DB secret references and connects checkout SHA 
     .split("      - name: Deploy Dev Preview\n")[0]
   const productionWeb = production.split("\n  deploy-web:\n")[1]
   for (const [workflow, build, source] of [
-    [frontend, previewBuild, "steps.pr.outputs.sha"],
+    [frontend, previewBuild, "steps.source.outputs.sha"],
     [productionWeb, productionWeb, "github.sha"],
   ]) {
     assert.ok(workflow.includes(`ref: \${{ ${source} }}`))

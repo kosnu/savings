@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    "tools/dev-preview/authorize.test.mjs"
+  ],
+  "fingerprint": "60e6959cb9ba8bc7b021cb1b99d4bca54ad6469c65c08033f25ada19fe606510",
+  "status": "pass",
+  "checks": [
+    "Intent・権限・固定main配信の意味照合",
+    "規約closure・Secret参照・起動と削除経路"
+  ],
+  "summary": "承認された最新mainのDev配信に限定し、fork拒否・PR確認・main一致確認・Dev Secrets・本番非変更を維持。実受信と公開配信物の結果はIssueに分離する。",
+  "remaining": []
+}

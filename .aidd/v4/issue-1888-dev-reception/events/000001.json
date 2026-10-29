@@ -1,0 +1,16 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml"
+  ],
+  "fingerprint": "3fba92cdd3d9dfd6f86450e0cae73118280df06a4a0966825e69b3d2d7d4c07c",
+  "status": "pass",
+  "checks": [
+    "固定main SHAとDev限定配信経路の設計"
+  ],
+  "summary": "最新main 828a403eを変更せず配信する一時検証PRとし、PR起動検証・Dev接続先・Secrets隔離・削除経路を維持する。",
+  "remaining": []
+}

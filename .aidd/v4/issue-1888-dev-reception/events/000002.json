@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1888",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    "tools/dev-preview/authorize.test.mjs"
+  ],
+  "fingerprint": "60e6959cb9ba8bc7b021cb1b99d4bca54ad6469c65c08033f25ada19fe606510",
+  "status": "pass",
+  "checks": [
+    "actionlint",
+    "zizmor offline",
+    "Dev Preview補助37テスト",
+    "固定main照合shellの一致・不一致",
+    "git diff --check"
+  ],
+  "summary": "一時workflowの構文・権限・PR起動条件・main固定SHAの照合とcheckout/release接続を検証した。アプリコードとDBは未変更。",
+  "remaining": []
+}
