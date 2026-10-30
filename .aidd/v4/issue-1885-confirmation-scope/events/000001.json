@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1885",
+  "paths": [
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
+  ],
+  "fingerprint": "7ce5612230cb19eaaf57f8d10522b76a14f4e988655a0cb95bb85167407fc774",
+  "status": "pass",
+  "checks": [
+    "対象外の確認と参照先の不整合",
+    "既存Dev構成・migrationとの比較基準",
+    "履歴とIntentの分離"
+  ],
+  "summary": "#1885の承認済み見直しを文書だけへ反映。対象外の手動試験・運用決定を除き、既存Dev構成と権限境界を比較基準に明記。実設定・コード・閉じたIssueは変更しない。",
+  "remaining": []
+}
