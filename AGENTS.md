@@ -17,6 +17,7 @@ Personal savings management app: `apps/web/` is React + TypeScript + Vite;
 
 ## Task entrypoints
 
+- Issue creation and project registration: read [GitHub Issue Workflow](docs/harness/policies/github-issue-workflow.md) before creating an Issue in this repository.
 - Development execution: apply [エージェント中心の開発](docs/ai-driven-development/workflow.md) directly. Confirm the Intent source, execution authority, comparison baseline, and current decisions from existing Issue, PR, and conversation context. Keep one bounded result per phase and cycle under the Core record contract; update only within the same cycle. Do not persist operation events, snapshots, Ship records, or command stdout/stderr. Select implementation steps from the outcome and applicable guardrails.
 - End the delegated execution at Ship. Start Audit of findings only when the user explicitly requests it after Ship. Present concrete proposals and obtain explicit manual user approval before guardrail or Intent improvements. Development or Ship authority does not authorize Audit or these improvements. Keep approved Audit improvements in the same Task.
 - Use [Retrospective](docs/harness/policies/retrospective.md) for development-process improvement analysis only on explicit request after Merge / Close. It is outside the normal cycle. Hand approved proposals to a new Intent and Task.

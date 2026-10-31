@@ -1,0 +1,34 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "conversation: issue Automation default; user approval 2026-11-01",
+  "paths": [
+    "AGENTS.md",
+    "docs/harness/policies/github-issue-workflow.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "5e7fe21a0499ba49c71ef199bfe5b975ffbf22e16dccc8be882b425060f9b581",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.github-issue-workflow",
+    "policy.issue-template-selection",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "AGENTS入口・正本・索引の接続",
+    "未設定・設定済み・取得失敗・他projectの境界"
+  ],
+  "summary": "Coverage: checks欄の全15規則を実差分と照合。AGENTS入口・正本・索引の接続、対象project限定、未設定のみ補完、既存値保持、取得失敗時の未完了報告を確認。文書検証と権限境界eval前後各4/4成功。Unresolved: 矛盾・指摘なし。 実Issue作成による外部field更新は検証範囲外。",
+  "remaining": []
+}
