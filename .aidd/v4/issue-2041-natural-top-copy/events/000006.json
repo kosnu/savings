@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2041; PR #2065; 2026-11-01ユーザー承認済みの自然さ・コンセプト伝達の2条件を反映したIntent。Taskと起点は維持",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "bb967457415114452c52332d779a4c32d80af3d3d99e5b3f9bfed0b6c56fc0a2",
+  "status": "pass",
+  "checks": [
+    "web:format / web:lint / web:format-check / web:typecheck 成功",
+    "web:test:unit-integration: 152 files / 1046 tests pass（HomePageの型エラー修正後）",
+    "web:test:storybook: 8 files / 22 tests pass。以降の差分はHomePage.test.tsxのクエリだけ",
+    "日英Lightの390px/1440px、英語Dark390pxを実画面で確認。横はみ出しなし",
+    "見出し・予算例・説明の流れと不要な導入/締めの削除、Google認証画面への遷移を確認",
+    "git diff --check / Harness Checker rules・check-changes 成功"
+  ],
+  "summary": "変更後の必須Web検証成功。HomePageテストのmatcher型エラーを修正し、lint・型・単体統合を再実行。アプリとStoryはブラウザ検証時から同一のため22件の成功と日英の画面確認を採用。実Google認証完了と実ユーザーの読後感・転換率は対象外。",
+  "remaining": []
+}

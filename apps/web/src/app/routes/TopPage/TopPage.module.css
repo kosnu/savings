@@ -72,12 +72,6 @@
   margin-top: var(--space-3);
 }
 
-.previewCheck {
-  flex-shrink: 0;
-  margin-top: var(--space-1);
-  color: var(--accent-11);
-}
-
 .everyday {
   border-top: 1px solid var(--gray-6);
 }

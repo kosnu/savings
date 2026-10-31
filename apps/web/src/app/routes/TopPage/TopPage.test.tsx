@@ -26,14 +26,14 @@ describe("TopPage", () => {
   test.each([
     {
       language: "en",
-      purpose: /Burneto is a spending tracker/,
+      purpose: /Burneto is a budgeting app/,
       sample: "An example month with sample amounts",
       remaining: "¥32,000 left",
       start: "Get started with Burneto",
     },
     {
       language: "ja",
-      purpose: /Burnetoは、日々の支払いを自分で入力する家計簿です/,
+      purpose: /Burnetoは、月の予算と日々の支払いを記録する家計簿です/,
       sample: "ある月の利用例（金額はサンプルです）",
       remaining: "残り ¥32,000",
       start: "Burnetoをはじめる",

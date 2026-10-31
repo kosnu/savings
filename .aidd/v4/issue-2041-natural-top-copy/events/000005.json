@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2041; PR #2065; 2026-11-01ユーザー承認済みの自然さ・コンセプト伝達の2条件を反映したIntent。Taskと起点は維持",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "bb967457415114452c52332d779a4c32d80af3d3d99e5b3f9bfed0b6c56fc0a2",
+  "status": "pass",
+  "checks": [
+    "見出しは今月は、あと何に使おう。とし、次の支出を考える場面を主題にする",
+    "予算例と買い物・外食前の確認をつなぐ。過去の使い道確認は使い方の説明へ置く",
+    "重複する導入・画面例のまとめ・締めの励ましを削除。必要なGoogle案内と2つのCTAを維持",
+    "金融連携なし・手入力・広告なしを使い方で説明し、安全性を保証する文言は加えない",
+    "構造・スタイルは既存TopPageを比較元とし、削除に伴う不要なCSSと翻訳キーのみ整理"
+  ],
+  "summary": "承認済みの自然さと前向きな支出の2条件を両立する。見出しと予算例から次の買い物・外食を考える場面へつなぎ、同じ説明と励ましを整理する。日英の機能・導線・金額例を維持。新しい部品や状態は作らず、既存TopPageの小さな表示整理と必要な同期に限定する。",
+  "remaining": []
+}

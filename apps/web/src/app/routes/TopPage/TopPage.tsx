@@ -1,10 +1,4 @@
-import {
-  ArrowRightIcon,
-  BarChartIcon,
-  CheckIcon,
-  Pencil1Icon,
-  TargetIcon,
-} from "@radix-ui/react-icons"
+import { ArrowRightIcon, BarChartIcon, Pencil1Icon, TargetIcon } from "@radix-ui/react-icons"
 import {
   Box,
   Button,
@@ -59,9 +53,6 @@ export function TopPage() {
           py={{ initial: "6", md: "9" }}
         >
           <Flex direction="column" align="start" gap="5" className={styles.heroCopy}>
-            <Text as="p" size="2" weight="medium" color="violet">
-              {t("introduction.eyebrow")}
-            </Text>
             <Heading as="h1" size={{ initial: "7", sm: "8" }} className={styles.headline}>
               {t("introduction.title")}
               <br />
@@ -173,21 +164,12 @@ export function TopPage() {
                 </figcaption>
               </Text>
             </figure>
-            <Flex gap="2" align="start" pt="4" px="1">
-              <CheckIcon aria-hidden="true" className={styles.previewCheck} />
-              <Text as="p" size="2" color="violet">
-                {t("introduction.example.takeaway")}
-              </Text>
-            </Flex>
           </Box>
         </Grid>
 
         <Box asChild py={{ initial: "7", md: "9" }} className={styles.everyday}>
           <section aria-labelledby="everyday-heading">
             <Flex direction="column" gap="3" mb="7">
-              <Text as="p" size="2" weight="medium" color="violet">
-                {t("introduction.everyday.eyebrow")}
-              </Text>
               <Heading
                 as="h2"
                 id="everyday-heading"
@@ -244,7 +226,6 @@ export function TopPage() {
         </Box>
 
         <Flex
-          asChild
           direction={{ initial: "column", sm: "row" }}
           align={{ initial: "start", sm: "center" }}
           justify="between"
@@ -253,22 +234,15 @@ export function TopPage() {
           mb="7"
           className={styles.closing}
         >
-          <section aria-labelledby="start-heading">
-            <Flex direction="column" gap="3">
-              <Heading as="h2" id="start-heading" size="5">
-                {t("introduction.closingTitle")}
-              </Heading>
-              <Text as="p" size="2" color="gray">
-                {t("introduction.firstStep")}
-              </Text>
-            </Flex>
-            <Button asChild size="3" className={styles.closingAction}>
-              <Link to="/auth">
-                {t("introduction.start", { appName: t("app.name") })}
-                <ArrowRightIcon aria-hidden="true" />
-              </Link>
-            </Button>
-          </section>
+          <Text as="p" size="2" color="gray">
+            {t("introduction.startNote")}
+          </Text>
+          <Button asChild size="3" className={styles.closingAction}>
+            <Link to="/auth">
+              {t("introduction.start", { appName: t("app.name") })}
+              <ArrowRightIcon aria-hidden="true" />
+            </Link>
+          </Button>
         </Flex>
         <Flex asChild align="center" justify="between" gap="3" wrap="wrap" pb="5">
           <footer>

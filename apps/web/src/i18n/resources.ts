@@ -66,8 +66,7 @@ export const resources = {
       "auth.startDescription":
         "Start with today's spending. As you record payments, see how your month is taking shape.",
       "auth.login": "Log in",
-      "introduction.eyebrow": "A spending tracker you fill in yourself",
-      "introduction.titleAccent": "your money goes.",
+      "introduction.titleAccent": "spend on next?",
       "introduction.startNote": "Continue with your Google account",
       "introduction.example.preview": "Spending overview",
       "introduction.example.available": "Left in your monthly budget",
@@ -75,30 +74,24 @@ export const resources = {
       "introduction.example.food": "Food",
       "introduction.example.shopping": "Shopping",
       "introduction.example.other": "Other",
-      "introduction.example.takeaway": "Compare this month’s spending with your budget.",
-      "introduction.everyday.eyebrow": "Using Burneto",
       "introduction.everyday.description":
-        "No bank or card connections. You don’t need to share your bank account details or card numbers.",
-      "introduction.everyday.budgetTitle": "Use a budget as a guide",
-      "introduction.everyday.recordTitle": "Enter your spending",
-      "introduction.everyday.reviewTitle": "Look back at what you spent",
-      "introduction.closingTitle": "What did you spend money on today?",
-      "introduction.title": "See where",
+        "There are no bank or card connections, so you don’t need to register bank account details or card numbers. There are no ads either.",
+      "introduction.everyday.budgetTitle": "Set a monthly budget",
+      "introduction.everyday.recordTitle": "Record a payment",
+      "introduction.everyday.reviewTitle": "Look back at your spending",
+      "introduction.title": "What will you",
       "introduction.description":
-        "{{appName}} is a spending tracker where you enter your own payments. Its simple screens show how much you spent and what it was for.",
+        "{{appName}} is a budgeting app where you record your monthly budget and payments. Check what’s left before shopping or eating out.",
       "introduction.start": "Get started with {{appName}}",
       "introduction.example.title": "Your remaining budget, at a glance.",
       "introduction.example.caption": "An example month with sample amounts",
       "introduction.example.budget": "Monthly budget",
       "introduction.example.description":
-        "Set a monthly budget to see your recorded spending and what’s left. Use it as a guide when planning shopping or a meal out.",
-      "introduction.everyday.title": "Record payments. See how you spend.",
+        "Enter a budget for the month to see how much you’ve spent and how much is left.",
+      "introduction.everyday.title": "How it works",
       "introduction.everyday.record":
-        "After a purchase, enter the amount and what it was for. There are no ads to distract you while recording or checking your spending.",
-      "introduction.everyday.review":
-        "See how much went to groceries, eating out and other categories. You can check where your money went whenever you want.",
-      "introduction.firstStep":
-        "You don’t need a savings goal or a plan to cut back. Start with one payment and get to know how you spend.",
+        "Enter the date and amount by hand. Add a category or note when you need one.",
+      "introduction.everyday.review": "See totals by category, such as groceries or eating out.",
       "auth.continueWithGoogle": "Continue with Google",
       "auth.callbackErrorTitle": "Sign-in failed",
       "auth.callbackErrorDescription":
@@ -374,8 +367,7 @@ export const resources = {
       "auth.startDescription":
         "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
       "auth.login": "ログイン",
-      "introduction.eyebrow": "自分で記録する家計簿",
-      "introduction.titleAccent": "わかる家計簿。",
+      "introduction.titleAccent": "あと何に使おう。",
       "introduction.startNote": "Googleアカウントで利用を始められます",
       "introduction.example.preview": "家計簿のイメージ",
       "introduction.example.available": "月の予算の残り",
@@ -383,30 +375,24 @@ export const resources = {
       "introduction.example.food": "食費",
       "introduction.example.shopping": "買い物",
       "introduction.example.other": "その他",
-      "introduction.example.takeaway": "今月いくら使ったか、予算と見比べられます。",
-      "introduction.everyday.eyebrow": "Burnetoでできること",
       "introduction.everyday.description":
-        "銀行やカードとの連携はありません。口座情報やカード番号を預けずに使えます。",
-      "introduction.everyday.budgetTitle": "予算を目安にする",
-      "introduction.everyday.recordTitle": "支払いを入力する",
+        "銀行やカードとの連携はありません。口座情報やカード番号を登録せずに使えます。広告も表示しません。",
+      "introduction.everyday.budgetTitle": "月の予算を決める",
+      "introduction.everyday.recordTitle": "支払いを記録する",
       "introduction.everyday.reviewTitle": "使い道を振り返る",
-      "introduction.closingTitle": "今日、何に使いましたか。",
-      "introduction.title": "何に使ったか、",
+      "introduction.title": "今月は、",
       "introduction.description":
-        "{{appName}}は、日々の支払いを自分で入力する家計簿です。シンプルな画面で、使った金額や使い道を確認できます。",
+        "{{appName}}は、月の予算と日々の支払いを記録する家計簿です。買い物や外食の前に、残りの予算を確かめられます。",
       "introduction.start": "{{appName}}をはじめる",
       "introduction.example.title": "残りの予算を、ひと目で。",
       "introduction.example.caption": "ある月の利用例（金額はサンプルです）",
       "introduction.example.budget": "月の予算",
       "introduction.example.description":
-        "月の予算を設定すると、記録した支出と残りの金額を確認できます。買い物や外食の予定を考えるときの目安になります。",
-      "introduction.everyday.title": "記録して、使い方を知る。",
+        "月の予算を設定すると、使った金額と残りの金額を見比べられます。",
+      "introduction.everyday.title": "使い方",
       "introduction.everyday.record":
-        "買い物のあとに、金額や使い道を入力します。広告がないので、記録や確認に集中できます。",
-      "introduction.everyday.review":
-        "食費や外食など、カテゴリごとにいくら使ったかを確認できます。気になったときに見返して、自分のお金の使い方を把握できます。",
-      "introduction.firstStep":
-        "節約や貯金を目標にしなくても大丈夫。まずは支払いを1件、記録してみましょう。",
+        "日付と金額を手入力します。カテゴリやメモは、必要なときだけ付けられます。",
+      "introduction.everyday.review": "食費や外食など、カテゴリごとの支出を確認できます。",
       "auth.continueWithGoogle": "Googleで続ける",
       "auth.callbackErrorTitle": "ログインに失敗しました",
       "auth.callbackErrorDescription":
