@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "Issue #2041; PR https://github.com/kosnu/savings/pull/2065; 元ユーザー発言2026-11-01 approve。句読点・文区切りの直接修正とIssue成功条件5の具体化を承認",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/"
+  ],
+  "fingerprint": "1c632830e29e85aa830edb7c27fc935cf85118934e6e31a99c0f753cd31725a5",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:format pass。検証batch前に実行し、日本語3キーと既存Story期待値以外のアプリ変更なし",
+    "pnpm run web:lint pass",
+    "pnpm run web:format-check pass",
+    "pnpm run web:typecheck pass",
+    "pnpm run web:test:unit-integration pass: 152 files / 1046 tests",
+    "pnpm run web:test:storybook pass: 8 files / 22 tests。Japaneseはbrowser-test対象で見出し・ログイン先・予算例を確認",
+    "macOS IABの日本語Light Storyを390x844・1440x1000で確認。句読点なしの見出しと2文の説明、全文の読み順・折り返しを観察",
+    "見出し→用途・買い物/外食→残り¥32000の例→使い方→開始の流れを保持。連携なしと登録不要が一文でつながる",
+    "git diff --check pass / Harness Checker check-changes --base origin/main pass。アプリ内容・modeは検証開始から同一",
+    "Issue #2041成功条件5をread-backし承認文面一致。他の6条件・title・state・labelsを保持",
+    "現在の日本語画面は修正後に観察。英語・認証経路は今回変更せず、既存の日英表示・認証テストをbatchで実行"
+  ],
+  "summary": "整形後の必須Web検証5コマンドが成功。単体統合1046件、Storybook22件。日本語Lightの390/1440幅で句読点を除いた見出し、意味のまとまりに沿う2文の説明と残額例への読み順を確認した。アプリの追加変更なし。",
+  "remaining": []
+}

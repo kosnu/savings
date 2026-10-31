@@ -55,7 +55,7 @@ export const Japanese: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(await canvas.findByRole("heading", { level: 1 })).toHaveTextContent(
-      "今月は、あと何に使おう。",
+      "今月はあと何に使おう",
     )
     await expect(canvas.getByRole("link", { name: "ログイン" })).toHaveAttribute("href", "/auth")
     await expect(canvas.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "68000")

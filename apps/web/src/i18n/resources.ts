@@ -367,7 +367,7 @@ export const resources = {
       "auth.startDescription":
         "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
       "auth.login": "ログイン",
-      "introduction.titleAccent": "あと何に使おう。",
+      "introduction.titleAccent": "あと何に使おう",
       "introduction.startNote": "Googleアカウントで利用を始められます",
       "introduction.example.preview": "家計簿のイメージ",
       "introduction.example.available": "月の予算の残り",
@@ -376,11 +376,11 @@ export const resources = {
       "introduction.example.shopping": "買い物",
       "introduction.example.other": "その他",
       "introduction.everyday.description":
-        "銀行やカードとの連携はありません。口座情報やカード番号を登録せずに使えます。広告も表示しません。",
+        "銀行やカードとの連携はなく、口座情報やカード番号の登録も不要です。広告は表示しません。",
       "introduction.everyday.budgetTitle": "月の予算を決める",
       "introduction.everyday.recordTitle": "支払いを記録する",
       "introduction.everyday.reviewTitle": "使い道を振り返る",
-      "introduction.title": "今月は、",
+      "introduction.title": "今月は",
       "introduction.description":
         "{{appName}}は、月の予算と日々の支払いを記録する家計簿です。買い物や外食の前に、残りの予算を確かめられます。",
       "introduction.start": "{{appName}}をはじめる",
