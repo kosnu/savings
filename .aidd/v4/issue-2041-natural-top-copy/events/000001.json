@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2041; ユーザーの対応依頼。新Task、origin/mainをbaselineとする。",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "1c660b2d646493792d115dcc8d93f6514783c93436a69998e94d1436d7e2e7d3",
+  "status": "pass",
+  "checks": [
+    "Issue #2041と既存TopPage・日英翻訳・認証導線を照合"
+  ],
+  "summary": "origin/main起点。日英の紹介文と既存テスト期待値のみ変更。冒頭は手動入力と把握、補足は金融連携なし、記録説明は広告なし、末尾は節約を前提にしない案を採用。TopPageの構造・スタイル・導線・予算例を維持する。",
+  "remaining": []
+}

@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2041; ユーザーの対応依頼。新Task、origin/mainをbaselineとする。",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "1c660b2d646493792d115dcc8d93f6514783c93436a69998e94d1436d7e2e7d3",
+  "status": "pass",
+  "checks": [
+    "web:format / web:lint / web:format-check / web:typecheck 成功",
+    "web:test:unit-integration: 152 files / 1046 tests pass",
+    "web:test:storybook: 8 files / 22 tests pass（OSのChromium起動制限を解消して同一コマンド再実行）",
+    "日英Lightの390px・1440px実画面、横はみ出しなし、Google認証画面への遷移",
+    "git diff --check / Core check-changes 成功"
+  ],
+  "summary": "変更後の必須Web検証は全件成功。Storybookの初回はテスト開始前のChromium起動権限エラー、権限を付与した同一コマンドで成功。日英の文言・表示と認証導線をStorybook実画面で確認。実Google認証の完了や利用意欲・転換率は測定対象外。",
+  "remaining": []
+}

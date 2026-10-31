@@ -436,7 +436,7 @@ describe("HomePage", () => {
 
   test("未認証時には紹介画面を表示する", async () => {
     render(<Unauthenticated />)
-    expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent("Know what’s left.")
+    expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent("See where")
     expect(screen.queryByLabelText("Recent payments")).not.toBeInTheDocument()
   })
 
