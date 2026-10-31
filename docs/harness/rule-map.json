@@ -171,6 +171,23 @@
       "priority": 95
     },
     {
+      "id": "policy.github-issue-workflow",
+      "file": "docs/harness/policies/github-issue-workflow.md",
+      "applies_to": {
+        "paths": [".github/ISSUE_TEMPLATE/**", "docs/harness/policies/github-issue-workflow.md"],
+        "domains": ["repository", "github"],
+        "activities": ["create_issue", "register_issue_project"],
+        "topics": ["issue", "project", "automation"]
+      },
+      "depends_on": [
+        "policy.issue-template-selection",
+        "ai-driven.issue-guidelines",
+        "policy.git-workflow"
+      ],
+      "overrides": [],
+      "priority": 95
+    },
+    {
       "id": "policy.issue-template-selection",
       "file": "docs/harness/policies/issue-template-selection.md",
       "applies_to": {
