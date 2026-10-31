@@ -6,6 +6,8 @@ type evalCase struct {
 	ID, Area, Target, Action, Verification string
 	Prompts                                [2]string
 	Approval, Execute, Reproduce           bool
+	Analysis                               *[2]analysisAnswer
+	Sources                                [2][]string
 }
 
 var cases = []evalCase{

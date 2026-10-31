@@ -2,26 +2,21 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "https://github.com/kosnu/savings/issues/2058",
+  "source": "https://github.com/kosnu/savings/issues/2058; 会話の選択的eval導入とHTML同期の承認",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/agent-evals.md",
-    "docs/ai-driven-development/workflow.md",
-    "docs/ai-driven-development/overview.md",
-    "docs/ai-driven-development/aidd-checker-operations.md",
-    "docs/harness/rule-map.json",
-    "docs/harness/policies/code-review.md"
+    "docs/ai-driven-development/",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/policies/retrospective.md"
   ],
-  "fingerprint": "bc2cd862f1de6736582e2ef83cb3ba19a1f3a7a0dd76f1a55d35385580910119",
+  "fingerprint": "8fb927f8075c66cdf35a2da9349baca38945a730658c8a93d7450aa9f4f99742",
   "status": "pass",
   "checks": [
-    "Go test -race -count=1: pass / native sandboxを含む",
-    "Go vet: pass / cache書込み権限を付け同じcommandで再確認",
-    "Core verify: diff・formatter・lint・rules・stable=true",
-    "同一v3 suiteで変更前と未commit候補を各36試行",
-    "比較CLI成功・両対象stable・action分類不一致0",
-    "まとめ実行の回復はpass、再現省略・順序逆転・古い成功はfail"
+    "eval Go race tests/vetと文書formatter/lintが成功",
+    "Core verifyのdiff・範囲・rule graphはstable=true",
+    "分析4ケース各2入力を同じv4 suiteで前後各8試行比較",
+    "資料IDの不足・未知と根拠のない原因断定を別採点"
   ],
-  "summary": "同じ新採点でa267ca2と候補を各36試行し、両方31 pass・5 fail、unknown・環境障害・未実行0。配信の追加承認不要という誤答1件と、失敗再現が観測されず修正後成功だけの回復4件を両対象でfail保持。実修正16試行の独立検査は全件pass。旧v1/v2と比較せず、評価器の回帰テスト成功と実agentの失敗を区別。",
+  "summary": "採点器の検証と比較が成功。分析evalは前後とも7 pass/1 fail、unknown・環境障害・未実行なし。原因不明の事例で見逃し理由をtest_gapと断定する対象agentの不合格を保持。行動9ケースの実モデル再実行は判定条件不変のため省略し回帰テストで確認。",
   "remaining": []
 }

@@ -2,24 +2,21 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "https://github.com/kosnu/savings/issues/2058",
+  "source": "https://github.com/kosnu/savings/issues/2058; 会話の選択的eval導入とHTML同期の承認",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/agent-evals.md",
-    "docs/ai-driven-development/workflow.md",
-    "docs/ai-driven-development/overview.md",
-    "docs/ai-driven-development/aidd-checker-operations.md",
-    "docs/harness/rule-map.json",
-    "docs/harness/policies/code-review.md"
+    "docs/ai-driven-development/",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/harness/policies/retrospective.md"
   ],
-  "fingerprint": "bc2cd862f1de6736582e2ef83cb3ba19a1f3a7a0dd76f1a55d35385580910119",
+  "fingerprint": "8fb927f8075c66cdf35a2da9349baca38945a730658c8a93d7450aa9f4f99742",
   "status": "pass",
   "checks": [
-    "actionの対象と各分類をprompt・schema・正本で統一",
-    "検証script自身の終了コードを採用し欠落・矛盾を拒否",
-    "失敗再現の省略・古い成功・成功後の失敗は不合格を保持",
-    "同じv3 suiteでa267ca2と未commit候補を各36試行比較"
+    "行動・Audit・Retrospectiveを明示選択し各入力1回から実行",
+    "分析は資料に照らした判断を採点し追加LLM judgeを呼ばない",
+    "規則違反は原因調査と再発防止を評価し局所修正だけで終了しない",
+    "通常アプリ開発・毎回の分析にevalを追加しない"
   ],
-  "summary": "最新の明示依頼に基づく同じTask・cycleの採点修正。actionは判断で選んだ操作に統一し、承認取得までの保留と処理終了待ちを区別。まとめ実行でもscriptの成否・終了コード・内容hashを使い、回復の証拠条件は弱めない。Go/JavaScriptで実装し、旧v1/v2とは比較せず元の比較元と候補を測り直す。",
+  "summary": "同じeval導入Taskの追加配信。最新のユーザー承認をIntentの追加出典とし、選択実行と分析4ケースを追加する。比較元は今回変更前の66d89de4、既存行動9ケースの判定条件は保持。HTMLは同じ運用と保証範囲へ同期する。",
   "remaining": []
 }

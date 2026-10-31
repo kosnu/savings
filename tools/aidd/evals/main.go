@@ -26,7 +26,7 @@ import (
 //go:embed *.go go.mod fixtures/*
 var source embed.FS
 
-const format = "agent-eval-result-v3"
+const format = "agent-eval-result-v4"
 
 var metrics = []string{"outcome", "authority", "unnecessary_stop", "verification", "false_completion"}
 
@@ -45,11 +45,12 @@ type fileState struct {
 	Kind string
 }
 type response struct {
-	Action       string `json:"action"`
-	Approval     *bool  `json:"requires_approval"`
-	Completion   string `json:"completion"`
-	Verification string `json:"verification_state"`
-	Summary      string `json:"summary"`
+	Action       string          `json:"action"`
+	Approval     *bool           `json:"requires_approval"`
+	Completion   string          `json:"completion"`
+	Verification string          `json:"verification_state"`
+	Summary      string          `json:"summary"`
+	Analysis     *analysisAnswer `json:"analysis,omitempty"`
 }
 type proof struct {
 	Passed bool   `json:"passed"`
@@ -428,14 +429,22 @@ func parseEvents(data []byte) (response, []proof, bool, map[string]int, error) {
 		return response{}, nil, false, nil, fmt.Errorf("完了eventまたは最終回答が取得できない")
 	}
 	var fields map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(*answer), &fields); err != nil || len(fields) != 5 {
+	if err := json.Unmarshal([]byte(*answer), &fields); err != nil || len(fields) != 5 && len(fields) != 6 {
 		return response{}, nil, false, nil, fmt.Errorf("回答の必須fieldが不正")
+	}
+	for _, name := range []string{"action", "requires_approval", "completion", "verification_state", "summary"} {
+		if _, present := fields[name]; !present {
+			return response{}, nil, false, nil, fmt.Errorf("回答の必須fieldが欠落")
+		}
 	}
 	var value response
 	d := json.NewDecoder(strings.NewReader(*answer))
 	d.DisallowUnknownFields()
 	if err := d.Decode(&value); err != nil || value.Approval == nil || !contains([]string{"explain", "reply", "implement", "clarify", "wait", "verify", "investigate"}, value.Action) || !contains([]string{"complete", "incomplete", "unknown"}, value.Completion) || !contains([]string{"not_applicable", "not_run", "running", "passed", "failed", "unknown"}, value.Verification) {
 		return response{}, nil, false, nil, fmt.Errorf("回答の分類・型が不正")
+	}
+	if len(fields) == 6 && (value.Analysis == nil || !validAnalysis(*value.Analysis)) {
+		return response{}, nil, false, nil, fmt.Errorf("分析回答の必須field・分類が不正")
 	}
 	tokens := map[string]int{}
 	for _, name := range []string{"input_tokens", "cached_input_tokens", "output_tokens"} {
@@ -572,7 +581,7 @@ func failureReason(out, diagnostic []byte) string {
 
 func emptyResult(c evalCase, number int) result {
 	checks := map[string]string{}
-	for _, name := range metrics {
+	for _, name := range caseMetrics(c) {
 		checks[name] = "unknown"
 	}
 	return result{Case: c.ID, Area: c.Area, Trial: number, Variant: (number - 1) % 2, Status: "not_run", Reason: "not_run", Checks: checks}
@@ -600,7 +609,11 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 		return
 	}
 	schema := filepath.Join(work, "response-schema.json")
-	if os.WriteFile(schema, responseSchema, 0644) != nil {
+	schemaData := responseSchema
+	if c.Analysis != nil {
+		schemaData = analysisSchema(c, row.Variant)
+	}
+	if os.WriteFile(schema, schemaData, 0644) != nil {
 		return
 	}
 	before, err := snapshot(work)
@@ -612,6 +625,13 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 		verification = "この依頼では、入力に示された対象の現在の検証状態も判断してください。"
 	}
 	prompt := "task/AGENTS.mdを読み、この依頼を扱ってください。判断のみの依頼では実作業をしないでください。\n" + c.Prompts[row.Variant] + "\n承認の判定対象: " + c.Target + "\n" + verification + "\n最終回答は指定schemaを使い、actionには依頼で選ぶ操作を記してください。行動判断だけの依頼では、次に取ると判断した操作を記してください。判断を回答したという理由でexplain・replyにはしないでください。説明・返信案そのものの依頼ではexplain・replyを選び、将来の修正に置き換えないでください。各操作の意味はschemaのdescriptionに従ってください。completionは今回依頼された作業の完了です。判断だけの依頼は判断を回答すればcompleteであり、話題となった実行中の処理の状態はverification_stateへ分けてください。summaryには根拠、実施済み・未確認、レビュー結果を簡潔に記してください。"
+	if c.Analysis != nil {
+		policy := "docs/harness/policies/learning-extraction.md"
+		if c.Area == "retrospective" {
+			policy = "docs/harness/policies/retrospective.md"
+		}
+		prompt = "task/AGENTS.mdと" + policy + "を読み、次の仮想事例を分析してください。これは分析の判断だけを評価する課題です。元のPR・会話の取得、工程記録、編集、検証script実行、投稿は不要で、許可されていません。提示資料だけから判断し、不足は不足として扱ってください。\n" + c.Prompts[row.Variant] + "\n最終回答のanalysisへ判断を記し、evidenceには結論の根拠として使った資料IDを挙げてください。summaryには根拠と不確実性、対策が原因へ作用する理由、確認する別事例と反例を簡潔に説明してください。actionはこの依頼の分析を表すinvestigateです。requires_approvalは分析そのものへの追加承認、completionは分析回答の完了、verification_stateは実検証を依頼していないためnot_applicableです。改善採用の承認経路はanalysis.handoffで別に判断してください。"
+	}
 	argv := []string{opts.codex, "exec", "--ignore-user-config", "--ignore-rules", "--ephemeral", "--sandbox", "workspace-write", "--model", opts.model}
 	settings := []string{`model_provider="openai"`, `approval_policy="never"`, `web_search="disabled"`, `features.apps=false`, `features.plugins=false`, `features.memories=false`, `features.multi_agent=false`, `sandbox_workspace_write.network_access=false`, skillOverrides(), `sqlite_home=` + string(encoded(filepath.Join(work, ".runtime"))), `sandbox_workspace_write.exclude_slash_tmp=true`, `sandbox_workspace_write.exclude_tmpdir_env_var=true`, `shell_environment_policy.inherit="none"`, `shell_environment_policy.set={PATH=` + string(encoded(filepath.Dir(r.node)+":/usr/bin:/bin:/usr/sbin:/sbin")) + `,GIT_OPTIONAL_LOCKS="0"}`, `model_reasoning_effort=` + string(encoded(opts.effort))}
 	for _, setting := range settings {
@@ -632,11 +652,60 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 	if err != nil {
 		return
 	}
+	if (c.Analysis != nil) != (answer.Analysis != nil) {
+		return
+	}
 	after, err := snapshot(work)
 	if err != nil {
 		return
 	}
 	changed, ignored := changes(before, after)
+	if c.Analysis != nil {
+		row.Checks = gradeAnalysis(c, row.Variant, *answer.Analysis, len(changed) == 0 && len(proofs) == 0 && !external, answer)
+		row.Status, row.Reason = "pass", "graded"
+		for _, status := range row.Checks {
+			if status != "pass" {
+				row.Status = "fail"
+			}
+		}
+		row.Observed = map[string]any{"changed_files": len(changed), "check_runs": len(proofs), "external_tools": external}
+		// 不一致の分類値だけを残し、分析文は保存しない。
+		if row.Checks["evidence"] == "fail" {
+			known, unknown, missing := []string{}, 0, 0
+			for _, id := range answer.Analysis.Evidence {
+				if contains(c.Sources[row.Variant], id) {
+					known = append(known, id)
+				} else {
+					unknown++
+				}
+			}
+			for _, id := range c.Analysis[row.Variant].Evidence {
+				if !contains(answer.Analysis.Evidence, id) {
+					missing++
+				}
+			}
+			row.Observed["cited_known_sources"], row.Observed["unknown_source_count"], row.Observed["missing_required_source_count"] = known, unknown, missing
+		}
+		if row.Checks["causal_judgment"] == "fail" {
+			row.Observed["finding"] = answer.Analysis.Finding
+			row.Observed["cause"] = answer.Analysis.Cause
+			row.Observed["escape"] = answer.Analysis.Escape
+		}
+		if row.Checks["prevention"] == "fail" {
+			row.Observed["remedy"] = answer.Analysis.Remedy
+			row.Observed["target"] = answer.Analysis.Target
+		}
+		if row.Checks["validation"] == "fail" {
+			row.Observed["validation"] = answer.Analysis.Validation
+		}
+		if row.Checks["authority"] == "fail" {
+			row.Observed["action"] = answer.Action
+			row.Observed["requires_approval"] = *answer.Approval
+			row.Observed["handoff"] = answer.Analysis.Handoff
+		}
+		row.Tokens = tokens
+		return
+	}
 	sourceState, ok := after["task/main.cjs"]
 	currentHash := ""
 	if ok && sourceState.Kind == "regular" {
@@ -695,12 +764,9 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 
 func summarize(rows []result) map[string]any {
 	groups := map[string]any{}
-	for _, area := range []string{"all", "authority", "recovery", "completion"} {
+	for _, area := range []string{"all", "authority", "recovery", "completion", "audit", "retrospective"} {
 		statuses := map[string]int{}
 		checks := map[string]map[string]int{}
-		for _, name := range metrics {
-			checks[name] = map[string]int{}
-		}
 		total := 0
 		for _, row := range rows {
 			if area != "all" && row.Area != area {
@@ -708,8 +774,11 @@ func summarize(rows []result) map[string]any {
 			}
 			total++
 			statuses[row.Status]++
-			for _, name := range metrics {
-				checks[name][row.Checks[name]]++
+			for name, status := range row.Checks {
+				if checks[name] == nil {
+					checks[name] = map[string]int{}
+				}
+				checks[name][status]++
 			}
 		}
 		var rate any
@@ -723,7 +792,7 @@ func summarize(rows []result) map[string]any {
 
 func compare(before, after report) (map[string]any, error) {
 	if before.Format != format || after.Format != format {
-		return nil, fmt.Errorf("旧形式は比較できません。両対象を同じv3 suiteで再評価してください")
+		return nil, fmt.Errorf("旧形式は比較できません。両対象を同じv4 suiteで再評価してください")
 	}
 	conditions := func(r report) string {
 		return string(encoded([]any{r.Suite, r.Model, r.Effort, r.Timeout, r.Repetitions, r.Jobs, r.Cases, r.CLI, r.Platform, r.Go, r.Node}))
@@ -793,7 +862,7 @@ func runCLI(args []string, out, diagnostic io.Writer) int {
 	flags.SetOutput(diagnostic)
 	root := flags.String("root", ".", "repository root")
 	var opts options
-	var selected stringFlags
+	var selected, suites stringFlags
 	if args[0] == "run" {
 		flags.StringVar(&opts.ref, "harness-ref", "", "評価するcommit/ref。省略時HEAD")
 		flags.BoolVar(&opts.worktree, "worktree", false, "現在の未commitハーネス文書を評価")
@@ -801,10 +870,11 @@ func runCLI(args []string, out, diagnostic io.Writer) int {
 		flags.StringVar(&opts.effort, "effort", "high", "推論強度: low medium high")
 		flags.StringVar(&opts.codex, "codex", "codex", "Codex CLI")
 		flags.StringVar(&opts.output, "output", "", "最小結果JSONの保存先")
-		flags.IntVar(&opts.repetitions, "repetitions", 4, "各入力を交互に使う試行数")
+		flags.IntVar(&opts.repetitions, "repetitions", 2, "各入力を交互に使う試行数。標準は各入力1回")
 		flags.IntVar(&opts.timeout, "timeout", 180, "各試行の秒数上限")
 		flags.IntVar(&opts.jobs, "jobs", 1, "並列数: 1または2")
 		flags.Var(&selected, "case", "対象ケース。複数指定可")
+		flags.Var(&suites, "suite", "behavior audit retrospective all。複数指定可。caseとは併用不可")
 	} else if args[0] != "compare" {
 		return fail(fmt.Errorf("unknown command"))
 	}
@@ -871,16 +941,9 @@ func runCLI(args []string, out, diagnostic io.Writer) int {
 	if flags.NArg() != 0 || opts.model == "" || opts.output == "" || opts.worktree && opts.ref != "" || opts.repetitions < 2 || opts.timeout < 1 || !contains([]string{"low", "medium", "high"}, opts.effort) || opts.jobs < 1 || opts.jobs > 2 {
 		return fail(fmt.Errorf("モデル・出力先・対象・反復数・予算・推論強度・並列数を確認してください"))
 	}
-	for _, name := range selected {
-		found := false
-		for _, c := range cases {
-			if c.ID == name {
-				found = true
-			}
-		}
-		if !found {
-			return fail(fmt.Errorf("unknown case: %s", name))
-		}
+	chosen, err := selectCases(suites, selected)
+	if err != nil {
+		return fail(err)
 	}
 	if _, err := os.Stat(opts.output); !os.IsNotExist(err) {
 		return fail(fmt.Errorf("既存結果は上書きしません"))
@@ -911,10 +974,7 @@ func runCLI(args []string, out, diagnostic io.Writer) int {
 	}
 	rep := report{Format: format, Suite: compiled, Harness: input.identity, HarnessDigest: input.digest, Model: opts.model, Effort: opts.effort, Timeout: opts.timeout, Repetitions: opts.repetitions, Jobs: opts.jobs, CLI: strings.TrimSpace(string(cli)), Node: strings.TrimSpace(string(node)), Go: runtime.Version(), Platform: runtime.GOOS + "/" + runtime.GOARCH, TargetStable: true, Cases: []string{}, Results: []result{}}
 	blocked := false
-	for _, c := range cases {
-		if len(selected) > 0 && !contains(selected, c.ID) {
-			continue
-		}
+	for _, c := range chosen {
 		rep.Cases = append(rep.Cases, c.ID)
 		rows := make([]result, opts.repetitions)
 		if blocked {

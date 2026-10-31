@@ -582,7 +582,7 @@ func TestReportComparisonRejectsIncompleteOrDifferentSeries(t *testing.T) {
 	if _, err := compare(left, right); err != nil {
 		t.Fatal(err)
 	}
-	mutations := []func(*report){func(r *report) { r.Format = "agent-eval-result-v1" }, func(r *report) { r.Format = "agent-eval-result-v2" }, func(r *report) { r.Model = "other" }, func(r *report) { r.Suite = "changed" }, func(r *report) { r.Jobs = 2 }, func(r *report) { r.Node = "other" }, func(r *report) { r.TargetStable = false }, func(r *report) { r.Results = nil }, func(r *report) { r.Results = []result{rows[0], rows[0]} }}
+	mutations := []func(*report){func(r *report) { r.Format = "agent-eval-result-v1" }, func(r *report) { r.Format = "agent-eval-result-v2" }, func(r *report) { r.Format = "agent-eval-result-v3" }, func(r *report) { r.Model = "other" }, func(r *report) { r.Suite = "changed" }, func(r *report) { r.Jobs = 2 }, func(r *report) { r.Node = "other" }, func(r *report) { r.TargetStable = false }, func(r *report) { r.Results = nil }, func(r *report) { r.Results = []result{rows[0], rows[0]} }}
 	for _, mutate := range mutations {
 		r := right
 		mutate(&r)
