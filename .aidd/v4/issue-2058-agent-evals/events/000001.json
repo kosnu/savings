@@ -2,21 +2,19 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "https://github.com/kosnu/savings/issues/2058; 会話の選択的eval導入とHTML同期の承認",
+  "source": "https://github.com/kosnu/savings/issues/2058; 会話での採点の曖昧さ修正・前後再評価・HTML/PR同期の依頼",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/",
-    "docs/harness/policies/learning-extraction.md",
-    "docs/harness/policies/retrospective.md"
+    "docs/ai-driven-development/agent-evals.md"
   ],
-  "fingerprint": "8fb927f8075c66cdf35a2da9349baca38945a730658c8a93d7450aa9f4f99742",
+  "fingerprint": "47a9dd7983b00c4db25f61ea1b9d8728e3cb19c86796c617fac9f23f6d9a1443",
   "status": "pass",
   "checks": [
-    "行動・Audit・Retrospectiveを明示選択し各入力1回から実行",
-    "分析は資料に照らした判断を採点し追加LLM judgeを呼ばない",
-    "規則違反は原因調査と再発防止を評価し局所修正だけで終了しない",
-    "通常アプリ開発・毎回の分析にevalを追加しない"
+    "確認済みの検証漏れと発生・見逃しの原因を別に定義",
+    "省略事実だけではtest_gapと断定せずunknownを保持",
+    "根拠のある見逃し理由と根拠のない断定を対照テストで区別",
+    "同じv5 suiteで66d89de4と未commit候補を再評価"
   ],
-  "summary": "同じeval導入Taskの追加配信。最新のユーザー承認をIntentの追加出典とし、選択実行と分析4ケースを追加する。比較元は今回変更前の66d89de4、既存行動9ケースの判定条件は保持。HTMLは同じ運用と保証範囲へ同期する。",
+  "summary": "同じeval導入Taskの採点修正。verification_gapは観測事実、cause/escapeは理由として分離し、事例の分析対象と証拠の範囲を明示する。根拠不足の断定は不合格に保つ。Retrospectiveの対象外fieldは採点せず、旧v4の7/8を再採点・能力不足の証拠として扱わない。",
   "remaining": []
 }

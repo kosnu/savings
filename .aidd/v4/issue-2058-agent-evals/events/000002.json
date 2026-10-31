@@ -2,21 +2,19 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "https://github.com/kosnu/savings/issues/2058; 会話の選択的eval導入とHTML同期の承認",
+  "source": "https://github.com/kosnu/savings/issues/2058; 会話での採点の曖昧さ修正・前後再評価・HTML/PR同期の依頼",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/",
-    "docs/harness/policies/learning-extraction.md",
-    "docs/harness/policies/retrospective.md"
+    "docs/ai-driven-development/agent-evals.md"
   ],
-  "fingerprint": "8fb927f8075c66cdf35a2da9349baca38945a730658c8a93d7450aa9f4f99742",
+  "fingerprint": "47a9dd7983b00c4db25f61ea1b9d8728e3cb19c86796c617fac9f23f6d9a1443",
   "status": "pass",
   "checks": [
-    "eval Go race tests/vetと文書formatter/lintが成功",
-    "Core verifyのdiff・範囲・rule graphはstable=true",
-    "分析4ケース各2入力を同じv4 suiteで前後各8試行比較",
-    "資料IDの不足・未知と根拠のない原因断定を別採点"
+    "eval Go race tests/vet・文書formatter/lint成功",
+    "Core verifyの範囲・差分・rule graphはstable=true",
+    "同じv5で分析4ケースを前後各8試行し全件pass・比較成功",
+    "根拠なしの原因・見逃し理由と誤った観測事実を回帰テストで不合格に保持"
   ],
-  "summary": "採点器の検証と比較が成功。分析evalは前後とも7 pass/1 fail、unknown・環境障害・未実行なし。原因不明の事例で見逃し理由をtest_gapと断定する対象agentの不合格を保持。行動9ケースの実モデル再実行は判定条件不変のため省略し回帰テストで確認。",
+  "summary": "観測事実と見逃し理由を分けた新suiteで前後とも8/8、target_stable=true。旧v4の回答を再採点せず、旧7/8との直接比較や能力不足の断定を撤回。行動evalは採点条件不変のため回帰テストで確認し、実モデル再実行は分析4ケースに限定。",
   "remaining": []
 }

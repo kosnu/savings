@@ -2,21 +2,20 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "https://github.com/kosnu/savings/issues/2058; 会話の選択的eval導入とHTML同期の承認",
+  "source": "https://github.com/kosnu/savings/issues/2058; 会話での採点の曖昧さ修正・前後再評価・HTML/PR同期の依頼",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/",
-    "docs/harness/policies/learning-extraction.md",
-    "docs/harness/policies/retrospective.md"
+    "docs/ai-driven-development/agent-evals.md"
   ],
-  "fingerprint": "8fb927f8075c66cdf35a2da9349baca38945a730658c8a93d7450aa9f4f99742",
+  "fingerprint": "47a9dd7983b00c4db25f61ea1b9d8728e3cb19c86796c617fac9f23f6d9a1443",
   "status": "pass",
   "checks": [
-    "元のIntent・最新承認と選択実行の範囲・採点基準を照合",
-    "15の適用ruleと依存closure・入口から正本への到達性を確認",
-    "schemaの資料ID制限・必須field・未知の引用と最小観測値を確認",
-    "Go回帰検証・同条件の前後比較・HTMLのPC/モバイル表示を照合"
+    "観測事実・発生原因・見逃し理由の定義と期待値を独立に照合",
+    "schema生成・必須field検査・採点・集計・不一致観測値の接続を確認",
+    "判断ミスは不合格に保ち旧v4結果を再採点しないことを確認",
+    "選択実行・人の承認境界・正本への既存の到達経路を維持",
+    "HTMLの例・比較表とPC/モバイル表示を照合"
   ],
-  "summary": "実装findingと規則競合なし。通常のアプリ開発・毎回のAudit/Retrospectiveへ追加実行せず、関連手順の変更時だけ少数ケースで比較する。自由記述の意味と実際の再発率は保証範囲外。前後各7/8、原因未確定時の断定1件は対象agentの既存失敗として保持。",
+  "summary": "実装finding・規則競合なし。検証漏れの事実とその見逃し理由を分離し、資料不足の断定は不合格のまま。前後とも同じv5で8/8。旧v4の1件を判断ミスと断定した説明は訂正し、形式変更を性能向上の証拠にしない。自由記述と実務効果は保証範囲外。",
   "remaining": []
 }

@@ -26,7 +26,7 @@ import (
 //go:embed *.go go.mod fixtures/*
 var source embed.FS
 
-const format = "agent-eval-result-v4"
+const format = "agent-eval-result-v5"
 
 var metrics = []string{"outcome", "authority", "unnecessary_stop", "verification", "false_completion"}
 
@@ -670,6 +670,9 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 		}
 		row.Observed = map[string]any{"changed_files": len(changed), "check_runs": len(proofs), "external_tools": external}
 		// 不一致の分類値だけを残し、分析文は保存しない。
+		if row.Checks["observation"] == "fail" || c.Area == "audit" && row.Checks["causal_judgment"] == "fail" {
+			row.Observed["verification_gap"] = answer.Analysis.VerificationGap
+		}
 		if row.Checks["evidence"] == "fail" {
 			known, unknown, missing := []string{}, 0, 0
 			for _, id := range answer.Analysis.Evidence {
@@ -792,7 +795,7 @@ func summarize(rows []result) map[string]any {
 
 func compare(before, after report) (map[string]any, error) {
 	if before.Format != format || after.Format != format {
-		return nil, fmt.Errorf("旧形式は比較できません。両対象を同じv4 suiteで再評価してください")
+		return nil, fmt.Errorf("旧形式は比較できません。両対象を同じv5 suiteで再評価してください")
 	}
 	conditions := func(r report) string {
 		return string(encoded([]any{r.Suite, r.Model, r.Effort, r.Timeout, r.Repetitions, r.Jobs, r.Cases, r.CLI, r.Platform, r.Go, r.Node}))

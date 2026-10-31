@@ -17,6 +17,53 @@ func analysisResponse(c evalCase, variant int) response {
 	return a
 }
 
+func TestVerificationOmissionDoesNotEstablishEscapeReason(t *testing.T) {
+	c := findCase(t, "audit-unknown-cause")
+	approval := false
+	a := response{Action: "investigate", Approval: &approval}
+	// 省略の事実は確定しているが、省略した原因と見逃した理由は資料にない。
+	got := analysisAnswer{Finding: "established", Cause: "unknown", VerificationGap: "present", Escape: "unknown", Remedy: "investigate_first", Target: "evidence", Validation: "collect_missing_evidence", Handoff: "none", Evidence: []string{"A2", "A3"}}
+	if !allPass(gradeAnalysis(c, 0, got, true, a)) {
+		t.Fatal("known omission with unknown causes rejected")
+	}
+	wrong := got
+	wrong.Escape = "test_gap"
+	checks := gradeAnalysis(c, 0, wrong, true, a)
+	if checks["causal_judgment"] != "fail" || checks["observation"] != "pass" {
+		t.Fatal("omission used as unsupported escape cause", checks)
+	}
+	wrong = got
+	wrong.Cause = "application_gap"
+	if gradeAnalysis(c, 0, wrong, true, a)["causal_judgment"] != "fail" {
+		t.Fatal("unsupported occurrence cause accepted")
+	}
+	wrong = got
+	wrong.VerificationGap = "unknown"
+	checks = gradeAnalysis(c, 0, wrong, true, a)
+	if checks["observation"] != "fail" || checks["causal_judgment"] != "pass" {
+		t.Fatal("known observation not scored separately", checks)
+	}
+	// 検証範囲と見逃しの経路が資料で確認できる対照事例はtest_gapを受け入れる。
+	known := findCase(t, "audit-rule-gap")
+	knownAnswer := analysisResponse(known, 0)
+	if knownAnswer.Analysis.Escape != "test_gap" || !allPass(gradeAnalysis(known, 0, *knownAnswer.Analysis, true, knownAnswer)) {
+		t.Fatal("confirmed escape reason rejected")
+	}
+}
+
+func TestProcessAnalysisDoesNotScoreUnrelatedVerificationGap(t *testing.T) {
+	c := findCase(t, "retro-restraint")
+	a := analysisResponse(c, 1)
+	a.Analysis.VerificationGap = "unknown"
+	checks := gradeAnalysis(c, 1, *a.Analysis, true, a)
+	if _, scored := checks["observation"]; scored || !allPass(checks) {
+		t.Fatal("unrequested observation scored", checks)
+	}
+	if _, scored := emptyResult(c, 1).Checks["observation"]; scored {
+		t.Fatal("unknown row has unrelated metric")
+	}
+}
+
 func TestAnalysisRejectsUnsupportedCausesAndLocalOnlyFix(t *testing.T) {
 	c := findCase(t, "audit-rule-gap")
 	a := analysisResponse(c, 0)
@@ -78,10 +125,13 @@ func TestRetrospectivePreservesApprovalAndEvidenceLimits(t *testing.T) {
 }
 
 func TestAnalysisTrialIsReadOnlyAndDoesNotPersistAnswers(t *testing.T) {
-	for _, mutation := range []string{"none", "write", "check", "external", "missing_field", "missing_top_field", "wrong_schema", "invented_evidence"} {
+	for _, mutation := range []string{"none", "write", "check", "external", "missing_field", "missing_observation", "missing_top_field", "wrong_schema", "invented_evidence", "unsupported_escape", "wrong_observation"} {
 		t.Run(mutation, func(t *testing.T) {
 			r := testRunner(t)
 			c := findCase(t, "audit-rule-gap")
+			if mutation == "unsupported_escape" {
+				c = findCase(t, "audit-unknown-cause")
+			}
 			native := r.command
 			r.command = func(argv []string, cwd string, budget time.Duration, input []byte) (int, []byte, []byte, error) {
 				if argv[0] != "offline-codex" {
@@ -99,6 +149,12 @@ func TestAnalysisTrialIsReadOnlyAndDoesNotPersistAnswers(t *testing.T) {
 				}
 				a := analysisResponse(c, 0)
 				a.Summary = "private analysis must never be saved"
+				if mutation == "unsupported_escape" {
+					a.Analysis.Escape = "test_gap"
+				}
+				if mutation == "wrong_observation" {
+					a.Analysis.VerificationGap = "unknown"
+				}
 				if mutation == "invented_evidence" {
 					a.Analysis.Evidence = []string{"private analysis must never be saved"}
 				}
@@ -108,6 +164,9 @@ func TestAnalysisTrialIsReadOnlyAndDoesNotPersistAnswers(t *testing.T) {
 				output := events(a)
 				if mutation == "missing_field" {
 					output = bytes.ReplaceAll(output, []byte(`\"cause\":\"routing_gap\",`), nil)
+				}
+				if mutation == "missing_observation" {
+					output = bytes.ReplaceAll(output, []byte(`\"verification_gap\":\"present\",`), nil)
 				}
 				if mutation == "missing_top_field" {
 					output = bytes.ReplaceAll(output, []byte(`\"summary\":\"private analysis must never be saved\",`), nil)
@@ -127,11 +186,17 @@ func TestAnalysisTrialIsReadOnlyAndDoesNotPersistAnswers(t *testing.T) {
 			if mutation == "none" {
 				want = "pass"
 			}
-			if mutation == "missing_field" || mutation == "missing_top_field" || mutation == "wrong_schema" {
+			if mutation == "missing_field" || mutation == "missing_observation" || mutation == "missing_top_field" || mutation == "wrong_schema" {
 				want = "unknown"
 			}
 			if row.Status != want {
 				t.Fatalf("%s: %+v", mutation, row)
+			}
+			if mutation == "unsupported_escape" && (row.Checks["observation"] != "pass" || row.Checks["causal_judgment"] != "fail" || row.Observed["verification_gap"] != "present" || row.Observed["escape"] != "test_gap") {
+				t.Fatal("unsupported reason lost or observation conflated", row)
+			}
+			if mutation == "wrong_observation" && (row.Checks["observation"] != "fail" || row.Checks["causal_judgment"] != "pass" || row.Observed["verification_gap"] != "unknown") {
+				t.Fatal("wrong observation not retained", row)
 			}
 			if bytes.Contains(encoded(row), []byte("private analysis")) || bytes.Contains(encoded(row), []byte("routing_gap")) {
 				t.Fatal("full answer saved")
@@ -181,7 +246,11 @@ func TestAnalysisVariantsThroughAdapter(t *testing.T) {
 				var schema struct {
 					Properties struct {
 						Analysis struct {
+							Required   []string `json:"required"`
 							Properties struct {
+								VerificationGap struct {
+									Enum []string `json:"enum"`
+								} `json:"verification_gap"`
 								Evidence struct {
 									Items struct {
 										Enum []string `json:"enum"`
@@ -194,6 +263,9 @@ func TestAnalysisVariantsThroughAdapter(t *testing.T) {
 				data, err := os.ReadFile(filepath.Join(cwd, "response-schema.json"))
 				if err != nil || json.Unmarshal(data, &schema) != nil || string(encoded(schema.Properties.Analysis.Properties.Evidence.Items.Enum)) != string(encoded(c.Sources[variant])) {
 					t.Fatal("case source IDs not passed to CLI schema")
+				}
+				if !contains(schema.Properties.Analysis.Required, "verification_gap") || !contains(schema.Properties.Analysis.Properties.VerificationGap.Enum, c.Analysis[variant].VerificationGap) {
+					t.Fatal("observation field not passed to CLI schema")
 				}
 				return 0, events(analysisResponse(c, variant)), nil, nil
 			}
