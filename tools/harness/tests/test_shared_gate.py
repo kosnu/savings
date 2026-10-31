@@ -9,7 +9,7 @@ import unittest
 
 
 REPOSITORY = Path(__file__).resolve().parents[3]
-GO_FILE = "tools/aidd/checker/main.go"
+GO_FILE = "tools/harness/checker/main.go"
 GOOD_GO = 'package main\n\nimport "fmt"\n\nfunc main() { fmt.Println("ok") }\n'
 BAD_GO = 'package main\n\nimport "fmt"\n\nfunc main() { fmt.Printf("%d", "bad") }\n'
 
@@ -42,9 +42,9 @@ class SharedGateTests(unittest.TestCase):
         self.run_command("git", "config", "commit.gpgsign", "false")
         self.write(".gitignore", "node_modules/\n")
         self.write("package.json", '{"private":true,"type":"module"}\n')
-        self.write("tools/aidd/checker/go.mod", "module example.invalid/shared-gate\n\ngo 1.24\n")
+        self.write("tools/harness/checker/go.mod", "module example.invalid/shared-gate\n\ngo 1.24\n")
         self.write(GO_FILE, GOOD_GO)
-        self.write("tools/aidd/checker/helper.go", "package main\n\nfunc helper() {}\n")
+        self.write("tools/harness/checker/helper.go", "package main\n\nfunc helper() {}\n")
         self.write("note.txt", "before\n")
         self.write("remove.txt", "remove me\n")
         (self.root / "node_modules").symlink_to(REPOSITORY / "node_modules", target_is_directory=True)
@@ -94,14 +94,14 @@ class SharedGateTests(unittest.TestCase):
         self.write(GO_FILE, staged + unstaged)
         self.write("note.txt", "unstaged note\n")
         hidden_go = BAD_GO.replace("func main()", "func helper()")
-        self.write("tools/aidd/checker/helper.go", hidden_go)
+        self.write("tools/harness/checker/helper.go", hidden_go)
         self.commit()
         self.assertEqual(self.git_bytes("show", "HEAD:" + GO_FILE), staged.encode())
         self.assertEqual((self.root / GO_FILE).read_bytes(), (staged + unstaged).encode())
         self.assertEqual(self.git_bytes("show", "HEAD:note.txt"), b"before\n")
         self.assertEqual((self.root / "note.txt").read_bytes(), b"unstaged note\n")
-        self.assertEqual((self.root / "tools/aidd/checker/helper.go").read_text(), hidden_go)
-        self.assertEqual(self.git_bytes("show", "HEAD:tools/aidd/checker/helper.go"), b"package main\n\nfunc helper() {}\n")
+        self.assertEqual((self.root / "tools/harness/checker/helper.go").read_text(), hidden_go)
+        self.assertEqual(self.git_bytes("show", "HEAD:tools/harness/checker/helper.go"), b"package main\n\nfunc helper() {}\n")
         self.assertEqual(self.git_bytes("diff", "--cached"), b"")
         self.assertEqual(self.git_bytes("stash", "list"), b"")
 

@@ -43,7 +43,7 @@ func TestRecordedVerificationCLISequence(t *testing.T) {
 	t.Cleanup(func() { os.Args = original })
 	invoke := func(args ...string) {
 		t.Helper()
-		os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+		os.Args = append([]string{"harness-checker", "--root", root}, args...)
 		if e := run(); e != nil {
 			t.Fatalf("%v: %v", args, e)
 		}
@@ -90,7 +90,7 @@ func TestUnexpectedArgumentsRejectedBeforeExecution(t *testing.T) {
 		{"verify", "--base", "HEAD", "--input", filepath.Join(root, "missing-plan.json"), "unexpected"},
 	} {
 		t.Run(args[0]+"/"+strings.Join(args[1:], " "), func(t *testing.T) {
-			os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+			os.Args = append([]string{"harness-checker", "--root", root}, args...)
 			if e := run(); e == nil || !strings.Contains(e.Error(), "unexpected arguments") {
 				t.Fatalf("invalid invocation reached execution: %v", e)
 			}
@@ -128,7 +128,7 @@ func TestScopedCIEntrypoints(t *testing.T) {
 	original := os.Args
 	t.Cleanup(func() { os.Args = original })
 	invoke := func(args ...string) error {
-		os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+		os.Args = append([]string{"harness-checker", "--root", root}, args...)
 		return run()
 	}
 	if e := invoke("rules"); e != nil {
@@ -158,7 +158,7 @@ func TestRecordingCommandsRemoved(t *testing.T) {
 	old := os.Args
 	t.Cleanup(func() { os.Args = old })
 	for _, c := range []string{"start", "decision", "review", "audit", "approve", "dismiss", "return-intent", "status", "check", "delivery-check", "improve-check"} {
-		os.Args = []string{"aidd-checker", "--root", root, c}
+		os.Args = []string{"harness-checker", "--root", root, c}
 		if e := run(); e == nil || !strings.Contains(e.Error(), "recording has been removed") {
 			t.Fatalf("%s: %v", c, e)
 		}
@@ -181,7 +181,7 @@ func TestPhaseRecordCLIAndOutputFieldRejection(t *testing.T) {
 	old := os.Args
 	t.Cleanup(func() { os.Args = old })
 	invoke := func(args ...string) error {
-		os.Args = append([]string{"aidd-checker", "--root", root}, args...)
+		os.Args = append([]string{"harness-checker", "--root", root}, args...)
 		return run()
 	}
 	start := filepath.Join(t.TempDir(), "start.json")

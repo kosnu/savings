@@ -156,8 +156,8 @@ when_to_read:
 ## 指示の対象・操作・実施時点
 
 以下は[#1967](https://github.com/kosnu/savings/issues/1967)の完了条件に対応する仮想入力である。
-[指示の解釈基準](workflow.md#指示の対象・操作・実施時点)を、既存の[Audit対象の選択](../harness/policies/learning-extraction.md#audit)、
-[手動承認](../harness/policies/learning-extraction.md#手動承認)、[Retrospectiveの開始条件](../harness/policies/retrospective.md#開始と対象)と照合する。
+[指示の解釈基準](workflow.md#指示の対象・操作・実施時点)を、既存の[Audit対象の選択](../harness/policies/audit.md#audit)、
+[手動承認](../harness/policies/audit.md#手動承認)、[Retrospectiveの開始条件](../harness/policies/retrospective.md#開始と対象)と照合する。
 対象選択と操作権限の既存規則の適用漏れを例で確認し、実施時点と修正除外の解釈を明確にする。
 
 ### 将来のRetro課題指定
@@ -231,7 +231,7 @@ when_to_read:
 
 ## 結論の対象条件と対応範囲
 
-以下は[#1978](https://github.com/kosnu/savings/issues/1978)の完了条件を、[Code Review Policy](../harness/policies/code-review.md#レビューで確認する内容)と[Auditの修正要否の判断](../harness/policies/learning-extraction.md#audit)へ照合する有限の仮想入力である。[PR #1963](https://github.com/kosnu/savings/pull/1963)の訂正を基にしているが、解決済み指摘の再修正や過去のTask・Audit記録の変更は行わない。
+以下は[#1978](https://github.com/kosnu/savings/issues/1978)の完了条件を、[Code Review Policy](../harness/policies/code-review.md#レビューで確認する内容)と[Auditの修正要否の判断](../harness/policies/audit.md#audit)へ照合する有限の仮想入力である。[PR #1963](https://github.com/kosnu/savings/pull/1963)の訂正を基にしているが、解決済み指摘の再修正や過去のTask・Audit記録の変更は行わない。
 
 ### 既存sessionと初回callback
 
@@ -260,7 +260,7 @@ when_to_read:
 
 ## 分析レビューの判断と親の受入れ
 
-[分析結果のレビュー](../harness/policies/learning-extraction.md#分析結果のレビュー)を適用する、2026-10-26の追加事例である。
+[分析結果のレビュー](../harness/policies/audit.md#分析結果のレビュー)を適用する、2026-10-26の追加事例である。
 4例とも仮想であり、記載したCSV出力・通信・lintの試行を実環境で実行した結果ではない。
 事例作成担当が元資料と作者案を分け、レビュー担当と親は作者案・期待判定を受け取る前に元資料から判断可能な範囲を導いた。
 その後、作者案を開示して双方の採否を照合した。これらの入力は判断する担当と親には未見であり、期待判定を先に教えた再読ではない。

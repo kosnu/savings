@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2061",
+  "paths": [
+    "tools/harness/",
+    "tools/aidd/",
+    "docs/",
+    "AGENTS.md",
+    ".agents/",
+    ".github/",
+    "vite.config.ts",
+    "README.md"
+  ],
+  "fingerprint": "b41e3f6b8ad5a97fd390b89925e2c7565d8c46b77d39a7262de08e94f25bb2f5",
+  "status": "pass",
+  "checks": [
+    "用語と責務の照合",
+    "改名・維持範囲と互換性の判断",
+    "Nodeランナーによるテスト登録の維持"
+  ],
+  "summary": "実行基盤をtools/harness、CLIをharness-checker、指摘分析正本をaudit.mdへ統一。文書の既存URL、保存形式、外部status識別子と履歴は維持し、機能・権限・工程を変更しない。 CIテストの登録Promiseはvoidで明示的に破棄し、登録と実行の意味を維持する。",
+  "remaining": []
+}

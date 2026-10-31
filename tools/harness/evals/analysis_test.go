@@ -137,7 +137,7 @@ func TestAnalysisTrialIsReadOnlyAndDoesNotPersistAnswers(t *testing.T) {
 				if argv[0] != "offline-codex" {
 					return native(argv, cwd, budget, input)
 				}
-				if !strings.Contains(string(input), "learning-extraction.md") {
+				if !strings.Contains(string(input), "audit.md") {
 					t.Fatal("policy missing")
 				}
 				data, err := os.ReadFile(filepath.Join(cwd, "response-schema.json"))
@@ -304,5 +304,44 @@ func TestCLIAnalysisSelectionDefaultsAndWrongResponse(t *testing.T) {
 	}
 	if code := runCLI(append(args, "--case", "fix"), &out, &diagnostic); code != 2 {
 		t.Fatal("mixed selection accepted")
+	}
+}
+
+func TestAuditTrialUsesPolicyPresentInHarness(t *testing.T) {
+	const current = "docs/harness/policies/audit.md"
+	const legacy = "docs/harness/policies/learning-extraction.md"
+	for _, tc := range []struct {
+		name  string
+		files map[string][]byte
+		want  string
+	}{
+		{"current", map[string][]byte{current: []byte("current policy")}, current},
+		{"baseline", map[string][]byte{legacy: []byte("baseline policy")}, legacy},
+		{"redirect", map[string][]byte{current: []byte("current policy"), legacy: []byte("redirect")}, current},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := testRunner(t)
+			c := findCase(t, "audit-rule-gap")
+			native := r.command
+			called := false
+			r.command = func(argv []string, cwd string, budget time.Duration, input []byte) (int, []byte, []byte, error) {
+				if argv[0] != "offline-codex" {
+					return native(argv, cwd, budget, input)
+				}
+				called = true
+				if !strings.Contains(string(input), "と"+tc.want+"を読み") {
+					t.Fatal("prompt does not select harness policy", string(input))
+				}
+				got, err := os.ReadFile(filepath.Join(cwd, tc.want))
+				if err != nil || !bytes.Equal(got, tc.files[tc.want]) {
+					t.Fatal("selected policy was not installed in isolated workspace", err)
+				}
+				return 0, events(analysisResponse(c, 0)), nil, nil
+			}
+			row := r.trial(c, 1, tc.files, options{codex: "offline-codex", timeout: 10})
+			if !called || row.Status != "pass" {
+				t.Fatal("audit trial did not use selected policy", row)
+			}
+		})
 	}
 }

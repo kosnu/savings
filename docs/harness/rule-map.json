@@ -12,7 +12,7 @@
     "governed_paths": [
       "apps/web/**",
       "apps/api/**",
-      "tools/aidd/**",
+      "tools/harness/**",
       "docs/ai-driven-development/**",
       "docs/harness/**",
       "docs/adr/**",
@@ -21,7 +21,7 @@
       ".github/skills/code-review/**",
       ".github/instructions/code-review.instructions.md",
       ".github/agents/**",
-      ".github/workflows/aidd_*",
+      ".github/workflows/harness_*",
       "AGENTS.md"
     ],
     "surfaces": [
@@ -74,9 +74,9 @@
         "required_rules": ["documentation.policy"]
       },
       {
-        "id": "aidd-harness",
+        "id": "agent-harness",
         "paths": [
-          "tools/aidd/**",
+          "tools/harness/**",
           "docs/ai-driven-development/**",
           "docs/harness/**",
           ".agents/**",
@@ -84,7 +84,7 @@
           ".github/skills/code-review/**",
           ".github/instructions/code-review.instructions.md",
           ".github/agents/**",
-          ".github/workflows/aidd_*",
+          ".github/workflows/harness_*",
           "AGENTS.md"
         ],
         "required_rules": ["ai-driven.workflow", "ai-driven.checker", "documentation.policy"]
@@ -98,7 +98,7 @@
       "applies_to": {
         "paths": [
           "AGENTS.md",
-          "tools/aidd/**",
+          "tools/harness/**",
           ".agents/skills/**",
           ".codex/**",
           "docs/harness/**",
@@ -120,7 +120,7 @@
       "applies_to": {
         "paths": [
           "AGENTS.md",
-          "tools/aidd/**",
+          "tools/harness/**",
           "docs/ai-driven-development/**",
           "docs/harness/**",
           "docs/adr/0001-adopt-harness-engineering.md",
@@ -132,7 +132,7 @@
           "docs/adr/0008-define-aidd-cycle-boundary.md",
           ".agents/skills/goal-setting/**",
           ".codex/**",
-          ".github/workflows/aidd_*",
+          ".github/workflows/harness_*",
           "vite.config.ts",
           ".vite-hooks/**",
           "package.json",
@@ -145,7 +145,7 @@
           ".agents/skills/guardrail-improvement/**"
         ],
         "topics": ["change-coverage", "ai-driven-development"],
-        "activities": ["change_aidd_control_plane", "review_diff"]
+        "activities": ["change_agent_harness", "review_diff"]
       },
       "depends_on": ["ai-driven.workflow", "documentation.policy"],
       "overrides": [],
@@ -290,7 +290,7 @@
       "applies_to": {
         "paths": [
           "docs/ai-driven-development/**",
-          "tools/aidd/**",
+          "tools/harness/**",
           "AGENTS.md",
           ".agents/skills/**"
         ],
@@ -359,28 +359,28 @@
           ".codex/config.toml",
           ".codex/hooks.json",
           ".codex/hooks/**",
-          "tools/aidd/**",
+          "tools/harness/**",
           "docs/ai-driven-development/contracts/**",
           "docs/ai-driven-development/aidd-checker.md",
           "docs/ai-driven-development/aidd-checker-operations.md",
           "docs/ai-driven-development/overview.md",
           "docs/ai-driven-development/workflow.md",
           "docs/harness/rule-map.json",
-          ".agents/skills/learn/**",
-          ".github/workflows/aidd_checker_ci.yaml",
+          ".agents/skills/audit/**",
+          ".github/workflows/harness_checker_ci.yaml",
           "AGENTS.md",
           "docs/ai-driven-development/codex-adapter.md"
         ],
         "domains": ["repository", "ai-driven-development", "harness"],
         "activities": [
-          "change_aidd_checker",
-          "change_aidd_control_plane",
+          "change_harness_checker",
+          "change_agent_harness",
           "change_codex_hooks",
           "validate_artifact",
           "verify_build"
         ],
         "topics": [
-          "aidd-core",
+          "harness-checker",
           "invariants",
           "validation",
           "verification-profile",
@@ -393,13 +393,13 @@
       "priority": 89
     },
     {
-      "id": "policy.learning-extraction",
-      "file": "docs/harness/policies/learning-extraction.md",
+      "id": "policy.audit",
+      "file": "docs/harness/policies/audit.md",
       "applies_to": {
-        "paths": ["docs/harness/policies/learning-extraction.md", ".agents/skills/learn/**"],
+        "paths": ["docs/harness/policies/audit.md", ".agents/skills/audit/**"],
         "domains": ["repository", "harness", "ai-driven-development"],
-        "activities": ["extract_learning", "prepare_task_context", "update_learning_rule"],
-        "topics": ["learning", "review", "verification", "operations", "task-context", "policy"]
+        "activities": ["analyze_findings", "prepare_intent", "update_audit_policy"],
+        "topics": ["audit", "review", "verification", "operations", "intent", "policy"]
       },
       "depends_on": ["documentation.policy"],
       "overrides": [],
@@ -412,17 +412,13 @@
         "paths": [
           ".agents/skills/audit/**",
           ".agents/skills/guardrail-improvement/**",
-          "docs/harness/policies/learning-extraction.md"
+          "docs/harness/policies/audit.md"
         ],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["audit_session", "apply_approved_improvements"],
         "topics": ["audit", "manual-approval", "review", "policy"]
       },
-      "depends_on": [
-        "ai-driven.workflow",
-        "policy.learning-extraction",
-        "policy.review-feedback-classification"
-      ],
+      "depends_on": ["ai-driven.workflow", "policy.audit", "policy.review-feedback-classification"],
       "overrides": [],
       "priority": 85
     },
@@ -439,14 +435,14 @@
           "docs/ai-driven-development/glossary.md",
           "docs/ai-driven-development/aidd-checker.md",
           "docs/ai-driven-development/aidd-checker-operations.md",
-          "tools/aidd/checker/**",
-          "tools/aidd/session-metrics/**"
+          "tools/harness/checker/**",
+          "tools/harness/session-metrics/**"
         ],
         "domains": ["repository", "ai-driven-development"],
         "activities": ["retrospective", "handoff_process_improvements"],
         "topics": ["retrospective", "process-improvement", "manual-approval"]
       },
-      "depends_on": ["ai-driven.workflow", "policy.learning-extraction"],
+      "depends_on": ["ai-driven.workflow", "policy.audit"],
       "overrides": [],
       "priority": 85
     },
@@ -484,7 +480,7 @@
         ],
         "topics": ["review", "pull-request", "requirements", "design", "verification"]
       },
-      "depends_on": ["policy.git-workflow", "policy.learning-extraction"],
+      "depends_on": ["policy.git-workflow", "policy.audit"],
       "related": ["ai-driven.workflow"],
       "overrides": [],
       "priority": 94

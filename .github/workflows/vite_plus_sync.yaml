@@ -192,7 +192,7 @@ jobs:
             }
             for (const [workflow_id, statusContext] of [
               ['frontend_ci.yaml', 'vite-plus/frontend-ci'],
-              ['aidd_checker_ci.yaml', 'vite-plus/aidd-checker-ci']
+              ['harness_checker_ci.yaml', 'vite-plus/aidd-checker-ci']
             ]) {
               await github.rest.repos.createCommitStatus({owner, repo, sha, state: 'pending', context: statusContext,
                 description: 'Vite+同期後のCIを実行中', target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`});

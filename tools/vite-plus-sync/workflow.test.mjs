@@ -112,7 +112,7 @@ function fixture() {
   return { execute, commits, run, files, calls, context, pr, github }
 }
 
-test("同期追記を含むPRの再受付から、差分なしで同じSHAのCIへ進む", async () => {
+void test("同期追記を含むPRの再受付から、差分なしで同じSHAのCIへ進む", async () => {
   const f = fixture()
   await f.execute(route)
   const dispatches = () => f.calls.filter((call) => call.workflow_id)
@@ -126,7 +126,7 @@ test("同期追記を含むPRの再受付から、差分なしで同じSHAのCI�
       .map((call) => [call.workflow_id, call.inputs.expected_head]),
     [
       ["frontend_ci.yaml", synced],
-      ["aidd_checker_ci.yaml", synced],
+      ["harness_checker_ci.yaml", synced],
     ],
   )
   assert.ok(dispatches().every((call) => call.ref === f.pr.head.ref))
@@ -147,7 +147,7 @@ function concurrencyGroup(payload, runId = 9) {
 }
 
 for (const field of ["body", "title"]) {
-  test(`${field}のみの編集はAPI・status・dispatchを呼ばず、検証受付と競合しない`, async () => {
+  void test(`${field}のみの編集はAPI・status・dispatchを呼ばず、検証受付と競合しない`, async () => {
     const f = fixture()
     const validationGroup = concurrencyGroup(f.context.payload)
     f.context.payload.action = "edited"
@@ -161,7 +161,7 @@ for (const field of ["body", "title"]) {
 }
 
 for (const action of ["opened", "reopened", "synchronize", "edited"]) {
-  test(`${action}の通常PRは同期受付からCIをdispatchしない`, async () => {
+  void test(`${action}の通常PRは同期受付からCIをdispatchしない`, async () => {
     const f = fixture()
     f.pr.user = { id: 1, login: "human" }
     f.files[0].filename = ".github/workflows/vite_plus_sync.yaml"
@@ -175,19 +175,19 @@ for (const action of ["opened", "reopened", "synchronize", "edited"]) {
   })
 }
 
-const aidd = readFileSync(
-  new URL("../../.github/workflows/aidd_checker_ci.yaml", import.meta.url),
+const harness = readFileSync(
+  new URL("../../.github/workflows/harness_checker_ci.yaml", import.meta.url),
   "utf8",
 )
-function shellStep(name, source = aidd) {
+function shellStep(name, source = harness) {
   return source
     .slice(source.indexOf(`      - name: ${name}`))
     .match(/run: \|\n((?: {10}.*\n|\n)+)/)[1]
     .replace(/^ {10}/gm, "")
 }
 // group式の評価で旧受付との競合を検出する。Actionsの待機・取消処理そのものは再現しない。
-test("Checkerは旧受付・別イベント・別PRと競合せず、同じPRイベントの再実行だけを置き換える", () => {
-  const expression = aidd.match(/^  group: (.+)$/m)[1]
+void test("Checkerは旧受付・別イベント・別PRと競合せず、同じPRイベントの再実行だけを置き換える", () => {
+  const expression = harness.match(/^  group: (.+)$/m)[1]
   const group = (eventName, number, runId = 9) =>
     expression.replace(/\$\{\{(.*?)\}\}/g, (_, value) =>
       vm.runInNewContext(value, {
@@ -209,7 +209,7 @@ test("Checkerは旧受付・別イベント・別PRと競合せず、同じPRイ
     assert.equal(group(eventName, 2022, 9), group(eventName, 2022, 10))
     assert.notEqual(group(eventName, 2022), group(eventName, 2023))
   }
-  assert.match(aidd, /cancel-in-progress: true/)
+  assert.match(harness, /cancel-in-progress: true/)
 })
 
 const aggregate = shellStep("Require candidate and integration success")
@@ -217,7 +217,7 @@ const report = shellStep("Report dispatched CI on the PR commit")
 
 for (const job of ["context", "candidate", "integration", "verify"]) {
   for (const result of ["success", "failure", "cancelled", "skipped"]) {
-    test(`AIDD ${job}=${result}の集約・投稿は未完了を成功にしない`, () => {
+    void test(`Harness ${job}=${result}の集約・投稿は未完了を成功にしない`, () => {
       const needs = Object.fromEntries(
         ["context", "candidate", "integration", "verify"].map((name) => [
           name,
@@ -324,7 +324,7 @@ for (const [name, change] of [
     },
   ],
 ]) {
-  test(`再受付で${String(name)}を拒否しCIを起動しない`, async () => {
+  void test(`再受付で${String(name)}を拒否しCIを起動しない`, async () => {
     const f = fixture()
     change(f)
     await assert.rejects(f.execute(validate))
@@ -332,10 +332,10 @@ for (const [name, change] of [
   })
 }
 
-for (const name of ["frontend_ci.yaml", "aidd_checker_ci.yaml"]) {
+for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
   const yaml = readFileSync(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8")
   const resolve = shellStep("Resolve and validate PR context", yaml)
-  test(`${name}はPRを直接購読し、同期後dispatchの結果だけを別jobで投稿する`, () => {
+  void test(`${name}はPRを直接購読し、同期後dispatchの結果だけを別jobで投稿する`, () => {
     assert.match(yaml, /on:\n  pull_request:\n/)
     assert.doesNotMatch(yaml, /pull_request_target/)
     assert.match(
@@ -358,7 +358,7 @@ for (const name of ["frontend_ci.yaml", "aidd_checker_ci.yaml"]) {
   })
   for (const event of ["pull_request", "workflow_dispatch"]) {
     for (const fork of [false, true]) {
-      test(`${name}の${event}は${fork ? "fork" : "同一repo"}の現在headを検証し、古いheadを拒否する`, () => {
+      void test(`${name}の${event}は${fork ? "fork" : "同一repo"}の現在headを検証し、古いheadを拒否する`, () => {
         const f = fixture()
         if (fork) f.pr.head.repo.full_name = "fork/savings"
         const dir = mkdtempSync(join(tmpdir(), "pr-ci-context-"))
@@ -407,7 +407,7 @@ for (const name of ["frontend_ci.yaml", "aidd_checker_ci.yaml"]) {
   }
 }
 
-test("同期受付は同一repoのRenovate PRだけをpull_requestで受け付ける", async () => {
+void test("同期受付は同一repoのRenovate PRだけをpull_requestで受け付ける", async () => {
   assert.match(workflow, /on:\n  pull_request:/)
   assert.doesNotMatch(workflow, /pull_request_target/)
   const job = workflow.split("\n  route:\n")[1].split("\n  sync:\n")[0]

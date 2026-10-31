@@ -147,10 +147,10 @@ skillの用途や実行modeを追加・変更した場合は、[Documentation Po
 Audit依頼のみでは分析を行い、承認がない返信・解決は実行しない。照合に用いた依頼、選択先、
 本文で許可される処理と許可されない処理をレビューの根拠に残す。
 
-## AIDD v4のレビュー
+## エージェント中心の開発のレビュー
 
 実差分とTaskの担当範囲を基に、rule-mapのpath一致・surface必須rule・depends_on closureを確認する。
-一般docsやGitHub設定を一律にaidd-harnessへ分類せず、それぞれの直接一致規則も省略しない。
+一般docsやGitHub設定を一律にagent-harnessへ分類せず、それぞれの直接一致規則も省略しない。
 Go Coreの選択結果に、意味的な変更面から必要な規則を追加する。
 
 [Workflow](../../ai-driven-development/workflow.md)と[Core](../../ai-driven-development/aidd-checker.md)を適用する。

@@ -1,36 +1,36 @@
 ---
-title: AIDD v4 Core操作
+title: Harness Checkerの操作
 doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - aidd-v4
 when_to_read:
-  - AIDD v4 Coreを実行または変更するとき
+  - Harness Checkerを実行または変更するとき
 ---
 
-# AIDD Core操作
+# Harness Checkerの操作
 
-repository rootで現在sourceから実行する。Go versionは`tools/aidd/checker/go.mod`に従い、Core変更後はbinaryを作り直す。commandのstdout/stderrをファイルへredirectしたり、結果の要約へ貼り付けたりしない。
+repository rootで現在sourceから実行する。Go versionは`tools/harness/checker/go.mod`に従い、Core変更後はbinaryを作り直す。commandのstdout/stderrをファイルへredirectしたり、結果の要約へ貼り付けたりしない。
 
 ```sh
-go -C tools/aidd/checker build -o /tmp/aidd-checker ./cmd/aidd-checker
-/tmp/aidd-checker --root . rules
-/tmp/aidd-checker --root . check-changes --base origin/main
+go -C tools/harness/checker build -o /tmp/harness-checker ./cmd/harness-checker
+/tmp/harness-checker --root . rules
+/tmp/harness-checker --root . check-changes --base origin/main
 ```
 
 `rules --paths`には、JSONのpath配列そのものではなく、その配列を保存したファイルのパスを渡す。
 たとえば、この操作文書に適用される規約を選ぶ場合は、repository rootで次を実行する。
 
 ```sh
-cat > /tmp/aidd-rule-paths.json <<'JSON'
+cat > /tmp/harness-rule-paths.json <<'JSON'
 ["docs/ai-driven-development/aidd-checker-operations.md"]
 JSON
-/tmp/aidd-checker --root . rules --paths /tmp/aidd-rule-paths.json
-rm /tmp/aidd-rule-paths.json
+/tmp/harness-checker --root . rules --paths /tmp/harness-rule-paths.json
+rm /tmp/harness-rule-paths.json
 ```
 
 配列の各要素はrepository rootからの相対pathで指定する。この例では`ai-driven.checker`や`documentation.policy`など、
@@ -51,11 +51,11 @@ Coreでまとめて実行する場合、`verify --base <比較元commit/ref> --i
 
 ```json
 {
-  "paths": ["tools/aidd/checker/"],
+  "paths": ["tools/harness/checker/"],
   "commands": [
     ["git", "diff", "--check"],
-    ["go", "-C", "tools/aidd/checker", "test", "./..."],
-    ["go", "-C", "tools/aidd/checker", "vet", "./..."]
+    ["go", "-C", "tools/harness/checker", "test", "./..."],
+    ["go", "-C", "tools/harness/checker", "vet", "./..."]
   ],
   "rules": [
     "ai-driven.workflow",
@@ -114,13 +114,13 @@ Taskの判断をCoreの成功で代替せず、既存結果の再利用には`re
 ```json
 {
   "source": "https://github.com/kosnu/savings/issues/1903",
-  "paths": ["tools/aidd/checker/", "docs/ai-driven-development/"]
+  "paths": ["tools/harness/checker/", "docs/ai-driven-development/"]
 }
 ```
 
 ```sh
-/tmp/aidd-checker --root . record-begin --task issue-1903 --kind design --input /tmp/phase-start.json
-/tmp/aidd-checker --root . record-begin --task issue-1903 --cycle 000001.json --kind verify --input /tmp/phase-start.json
+/tmp/harness-checker --root . record-begin --task issue-1903 --kind design --input /tmp/phase-start.json
+/tmp/harness-checker --root . record-begin --task issue-1903 --cycle 000001.json --kind verify --input /tmp/phase-start.json
 ```
 
 実際の起点・返されたrecord pathへ置き換える。工程の開始前にrunningへ更新し、検証・レビューは従来の実行手順で行う。失敗・中断時は成功へ更新しない。完了入力には生出力・argvを渡さない。
@@ -135,8 +135,8 @@ Taskの判断をCoreの成功で代替せず、既存結果の再利用には`re
 ```
 
 ```sh
-/tmp/aidd-checker --root . record-finish --record .aidd/v4/issue-1903/events/000002.json --input /tmp/phase-result.json
-/tmp/aidd-checker --root . record-read --record .aidd/v4/issue-1903/events/000002.json
+/tmp/harness-checker --root . record-finish --record .aidd/v4/issue-1903/events/000002.json --input /tmp/phase-result.json
+/tmp/harness-checker --root . record-read --record .aidd/v4/issue-1903/events/000002.json
 ```
 
 失敗はfailと短い原因・残る問題、証拠不足はunknownにする。`record-read`がunknownなら以前のpassを現在の成功にしない。同じcycle・kindの再試行は同じファイルへbegin/finishする。次サイクルは新designを作り、前cycleは変更できない。
@@ -164,11 +164,11 @@ Coreの結果だけで未実施の検証・レビュー・CIを成功にしな�
 ## Core・CI・hookの検証
 
 ```sh
-go -C tools/aidd/checker test ./...
-go -C tools/aidd/checker vet ./...
-go -C tools/aidd/session-metrics test ./...
-go -C tools/aidd/session-metrics vet ./...
-python3 -B -m unittest -v tools.aidd.tests.test_shared_gate
+go -C tools/harness/checker test ./...
+go -C tools/harness/checker vet ./...
+go -C tools/harness/session-metrics test ./...
+go -C tools/harness/session-metrics vet ./...
+python3 -B -m unittest -v tools.harness.tests.test_shared_gate
 python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref origin/main
 ```
 

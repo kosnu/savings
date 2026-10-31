@@ -1,4 +1,4 @@
-name: AIDD Checker CI
+name: Harness Checker CI
 
 on:
   pull_request:
@@ -25,7 +25,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: aidd-checker-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number }}
+  group: harness-checker-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
@@ -77,18 +77,18 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version-file: tools/aidd/checker/go.mod
+          go-version-file: tools/harness/checker/go.mod
           cache: false
       - name: Check formatting
-        run: test -z "$(gofmt -l tools/aidd/checker tools/aidd/session-metrics)"
+        run: test -z "$(gofmt -l tools/harness/checker tools/harness/session-metrics)"
       - name: Vet
-        run: go -C tools/aidd/checker vet ./...
+        run: go -C tools/harness/checker vet ./...
       - name: Vet session metrics
-        run: go -C tools/aidd/session-metrics vet ./...
+        run: go -C tools/harness/session-metrics vet ./...
       - name: Test Core checks
-        run: go -C tools/aidd/checker test -count=1 ./...
+        run: go -C tools/harness/checker test -count=1 ./...
       - name: Test session metrics
-        run: go -C tools/aidd/session-metrics test -count=1 ./...
+        run: go -C tools/harness/session-metrics test -count=1 ./...
       - name: Setup pnpm
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
@@ -105,17 +105,17 @@ jobs:
         run: pnpm ci
 
       - name: Verify shared Git gate
-        run: python3 -B -m unittest -v tools.aidd.tests.test_shared_gate
+        run: python3 -B -m unittest -v tools.harness.tests.test_shared_gate
       - name: Preserve accepted ADR history
         env:
           BASE_BRANCH: ${{ needs.context.outputs.base_ref }}
         run: python3 -B docs/harness/scripts/validate_accepted_adrs.py --repo-root . --base-ref "origin/$BASE_BRANCH"
       - name: Validate rule graph
-        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
+        run: go -C tools/harness/checker run ./cmd/harness-checker --root "$GITHUB_WORKSPACE" rules
       - name: Validate changed paths and rule coverage
         env:
           PR_BASE_SHA: ${{ needs.context.outputs.base }}
-        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"
+        run: go -C tools/harness/checker run ./cmd/harness-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"
 
   integration:
     needs: context
@@ -140,14 +140,14 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version-file: tools/aidd/checker/go.mod
+          go-version-file: tools/harness/checker/go.mod
           cache: false
       - name: Test merged Core
-        run: go -C tools/aidd/checker test -count=1 ./...
+        run: go -C tools/harness/checker test -count=1 ./...
       - name: Test merged session metrics
-        run: go -C tools/aidd/session-metrics test -count=1 ./...
+        run: go -C tools/harness/session-metrics test -count=1 ./...
       - name: Validate rule graph in merge result
-        run: go -C tools/aidd/checker run ./cmd/aidd-checker --root "$GITHUB_WORKSPACE" rules
+        run: go -C tools/harness/checker run ./cmd/harness-checker --root "$GITHUB_WORKSPACE" rules
 
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0

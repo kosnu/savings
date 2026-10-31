@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/kosnu/savings/tools/aidd/checker/internal/core"
+	"github.com/kosnu/savings/tools/harness/checker/internal/core"
 	"os"
 	"path/filepath"
 )
 
 func run() error {
-	flags := flag.NewFlagSet("aidd-checker", flag.ContinueOnError)
+	flags := flag.NewFlagSet("harness-checker", flag.ContinueOnError)
 	root := flags.String("root", ".", "repository root")
 	if e := flags.Parse(os.Args[1:]); e != nil {
 		return e
@@ -136,7 +136,7 @@ func run() error {
 }
 func main() {
 	if e := run(); e != nil {
-		fmt.Fprintln(os.Stderr, "aidd:", e)
+		fmt.Fprintln(os.Stderr, "harness-checker:", e)
 		os.Exit(1)
 	}
 }

@@ -29,7 +29,7 @@ when_to_read:
 
 - 現在のIntentと権限内のdefectは、同じTaskで修正・再検証する。
 - 意図・完了条件・権限を変える判断はユーザーへ確認し、出典と変更した採用判断をIssue・PR・会話に要約する。
-- 再利用可能な改善案は[Audit](learning-extraction.md)へ記録し、手動承認後に対象範囲だけを改善する。
+- 再利用可能な改善案は[Audit](audit.md)へ記録し、手動承認後に対象範囲だけを改善する。
 - 原因未確定は不足する証拠を示す。分類自体をTask分割や、許可済み修正の中断理由にしない。
 
 threadごとの解決状態を確認し、解決済みを未解決として報告しない。
@@ -38,4 +38,4 @@ threadごとの解決状態を確認し、解決済みを未解決として報�
 その方針への明示承認後は追加指示なしでコメント対応を実行する。Audit依頼自体は返信・解決の承認ではない。
 対応済みの証拠と返信権限がある場合だけ返信する。承認されたAudit方針でBot threadを解決する場合は、理由返信を含む対応の完了を確認する。
 変更不要を返信済み・解決済みと混同せず、未完了threadは未解決のまま保持する。
-[Git Workflow](git-workflow.md)と[AIDD v4](../../ai-driven-development/workflow.md)を適用する。
+[Git Workflow](git-workflow.md)と[エージェント中心の開発](../../ai-driven-development/workflow.md)を適用する。
