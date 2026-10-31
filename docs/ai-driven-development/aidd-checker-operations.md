@@ -73,6 +73,10 @@ Coreでまとめて実行する場合、`verify --base <比較元commit/ref> --i
 Webの整形は検証batchの前に行う。失敗修正後は開始済みbatchを終えてから必要な検証をやり直す。
 同一差分で確認済みの検証を、記録更新のために再実行しない。
 
+ハーネス変更で必要なevalは[Workflow](workflow.md#ハーネス変更時のeval)と[evalの操作](agent-evals.md#実行と比較)に従い、
+通常検証後、レビュー・commit前に変更前commitと`--worktree`の候補を比較する。
+Coreは意味的な適用要否や評価点による自動gateを追加せず、比較結果と未確認事項を既存の検証・レビュー要約へ含める。
+
 ## 工程結果の更新
 
 ### Taskと記録先の選択

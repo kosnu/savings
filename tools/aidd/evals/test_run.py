@@ -87,6 +87,35 @@ class GradingTests(unittest.TestCase):
 
 
 class AdapterTests(unittest.TestCase):
+    def test_explanation_cannot_run_fixture_verification(self):
+        args = argparse.Namespace(codex="offline-codex", model="model", effort="low", timeout=10)
+        original = run.command
+        def fake_codex(argv, **kwargs):
+            if argv[0] != "offline-codex":
+                return original(argv, **kwargs)
+            work = Path(argv[argv.index("-C") + 1])
+            code, out, _ = original([sys.executable, "-B", "task/check.py"], cwd=work)
+            item = {"type": "item.completed", "item": {
+                "type": "command_execution", "aggregated_output": out.decode(), "exit_code": code}}
+            return 0, (json.dumps(item) + "\n").encode() + events(response(case("explain"))), b""
+        with patch.object(run, "command", side_effect=fake_codex):
+            result = run.trial(case("explain"), 1, {}, args)
+        self.assertEqual(result["observed"]["check_runs"], 1)
+        self.assertEqual(result["checks"]["authority"], "fail")
+        self.assertEqual(result["status"], "fail")
+
+    def test_fixture_does_not_use_global_commit_signing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = root / "gitconfig"
+            config.write_text("[commit]\n gpgSign = true\n[gpg]\n program = /usr/bin/false\n[user]\n signingKey = unavailable\n")
+            work = root / "fixture"
+            work.mkdir()
+            with patch.dict(run.os.environ, {"GIT_CONFIG_GLOBAL": str(config)}):
+                run.setup(work, {})
+                code, _, _ = run.command(["git", "rev-parse", "HEAD"], cwd=work)
+            self.assertEqual(code, 0)
+
     def test_real_fixture_execution_is_graded_through_cli_adapter(self):
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory).resolve()
@@ -227,6 +256,115 @@ class ReportingTests(unittest.TestCase):
         for mutation in ({"model": "other"}, {"suite": "changed"}, {"jobs": 2}, {"results": []}, {"results": [row, row]}):
             with self.assertRaises(ValueError):
                 run.compare(left, {**right, **mutation})
+        with self.assertRaises(ValueError):
+            run.compare(left, {**right, "target_stable": False})
+
+
+class WorktreeTests(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.output = Path(directory.name) / "result.json"
+        self.root = Path(directory.name) / "repo"
+        self.root.mkdir()
+        self.files = {
+            "AGENTS.md": b"original instructions",
+            "docs/harness/rule-map.json": json.dumps({"rules": [{"file": "docs/policy.md"}]}).encode(),
+            "docs/policy.md": b"original policy",
+            "docs/ai-driven-development/codex-adapter.md": b"adapter",
+            "docs/ai-driven-development/aidd-checker-operations.md": b"operations",
+        }
+        run.setup(self.root, self.files)
+        patcher = patch.object(run, "ROOT", self.root)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_worktree_loads_staged_unstaged_and_selected_untracked_without_git_writes(self):
+        baseline, old = run.harness("HEAD")
+        (self.root / "AGENTS.md").write_bytes(b"staged instructions")
+        run.command(["git", "add", "AGENTS.md"], cwd=self.root)
+        (self.root / "AGENTS.md").write_bytes(b"unstaged instructions")
+        new = self.root / "docs/new.md"
+        new.write_bytes(b"untracked policy")
+        rules = self.root / "docs/harness/rule-map.json"
+        rules.write_text(json.dumps({"rules": [{"file": "docs/policy.md"}, {"file": "docs/new.md"}]}))
+        (self.root / "unrelated.txt").write_bytes(b"not an input")
+        before = run.snapshot(self.root)
+        index = run.command(["git", "diff", "--cached"], cwd=self.root)[1]
+        identity, files = run.harness(None)
+        self.assertTrue(identity.startswith("worktree:"))
+        self.assertEqual(files["AGENTS.md"], b"unstaged instructions")
+        self.assertEqual(files["docs/new.md"], b"untracked policy")
+        self.assertEqual(old["AGENTS.md"], b"original instructions")
+        self.assertNotIn("unrelated.txt", files)
+        self.assertNotIn("task/main.py", files)
+        self.assertEqual(before, run.snapshot(self.root))
+        self.assertEqual(index, run.command(["git", "diff", "--cached"], cwd=self.root)[1])
+        self.assertEqual(baseline, run.git("rev-parse", "HEAD").decode().strip())
+
+    def test_missing_required_document_and_symlink_do_not_fall_back_to_head(self):
+        path = self.root / "docs/policy.md"
+        path.unlink()
+        with self.assertRaises((OSError, ValueError)):
+            run.harness(None)
+        self.assertEqual(run.harness("HEAD")[1]["docs/policy.md"], b"original policy")
+        path.symlink_to(self.root / "AGENTS.md")
+        with self.assertRaises(ValueError):
+            run.harness(None)
+
+    def test_identity_changes_with_content_or_mode_but_not_unrelated_files(self):
+        original = run.harness(None)[0]
+        (self.root / "unrelated.txt").write_text("other work")
+        self.assertEqual(original, run.harness(None)[0])
+        (self.root / "docs/policy.md").chmod(0o755)
+        mode = run.harness(None)[0]
+        self.assertNotEqual(original, mode)
+        (self.root / "docs/policy.md").write_text("changed policy")
+        self.assertNotEqual(mode, run.harness(None)[0])
+
+    def run_offline(self, mutate=False):
+        argv = ["run.py", "run", "--worktree", "--model", "offline", "--case", "explain", "--output", str(self.output)]
+        def fake_trial(target, number, files, args):
+            self.assertEqual(files["docs/policy.md"], b"original policy")
+            if mutate:
+                (self.root / "docs/policy.md").write_text("edited during eval")
+            result = run.empty_result(target, number)
+            result.update(status="pass", reason="graded", checks={k: "pass" for k in run.METRICS})
+            return result
+        with patch.object(sys, "argv", argv), patch.object(run, "command", return_value=(0, b"offline-cli", b"")), \
+             patch.object(run, "trial", side_effect=fake_trial), patch.object(sys, "stdout", io.StringIO()), \
+             patch.object(sys, "stderr", io.StringIO()):
+            return run.main()
+
+    def test_run_and_compare_reject_source_changed_during_or_after_eval(self):
+        self.assertEqual(self.run_offline(), 0)
+        report = json.loads(self.output.read_text())
+        self.assertTrue(report["target_stable"])
+        argv = ["run.py", "compare", str(self.output), str(self.output)]
+        with patch.object(sys, "argv", argv), patch.object(sys, "stdout", io.StringIO()):
+            self.assertEqual(run.main(), 0)
+        with patch.object(sys, "argv", argv), patch.object(run, "suite_fingerprint", return_value="changed"), \
+             patch.object(sys, "stderr", io.StringIO()):
+            self.assertEqual(run.main(), 2)
+        (self.root / "docs/policy.md").write_text("edited after eval")
+        with patch.object(sys, "argv", argv), patch.object(sys, "stderr", io.StringIO()):
+            self.assertEqual(run.main(), 2)
+        (self.root / "docs/policy.md").write_bytes(b"original policy")
+        self.output.unlink()
+        self.assertEqual(self.run_offline(mutate=True), 1)
+        report = json.loads(self.output.read_text())
+        self.assertFalse(report["target_stable"])
+        # 取り込み時点の判定を、現在の候補への成功証拠と区別する。
+        self.assertEqual(report["summary"]["all"]["statuses"], {"pass": 2})
+        with self.assertRaises(ValueError):
+            run.compare(report, report)
+
+    def test_ref_and_worktree_flags_are_mutually_exclusive(self):
+        argv = ["run.py", "run", "--worktree", "--harness-ref", "HEAD", "--model", "offline", "--output", str(self.output)]
+        with patch.object(sys, "argv", argv), patch.object(sys, "stderr", io.StringIO()), \
+             self.assertRaises(SystemExit) as error:
+            run.main()
+        self.assertEqual(error.exception.code, 2)
 
 
 if __name__ == "__main__":

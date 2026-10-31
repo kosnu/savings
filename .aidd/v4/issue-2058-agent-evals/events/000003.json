@@ -5,11 +5,14 @@
   "source": "https://github.com/kosnu/savings/issues/2058",
   "paths": [
     "tools/aidd/evals/",
+    "docs/ai-driven-development/workflow.md",
     "docs/ai-driven-development/agent-evals.md",
-    "docs/ai-driven-development/overview.md",
-    "docs/harness/rule-map.json"
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/overview.md"
   ],
-  "fingerprint": "0c176ea995eef830d4fab99aa01775a0d90a535763a078e3b551e19b25eeff61",
+  "fingerprint": "ebb5fc3cc7251b11649a59cdd5d4293f0389b4ba99fae4a84fbaaebc8aba51f1",
   "status": "pass",
   "checks": [
     "ai-driven.agent-evals",
@@ -26,14 +29,11 @@
     "policy.learning-extraction",
     "policy.retrospective",
     "policy.review-feedback-classification",
-    "AC1 pass:判断7件と実修正2件で3領域を評価",
-    "AC2 pass:実Codexと独立動作検査を接続し自己申告だけで合格にしない",
-    "AC3 pass:2入力と正負例、期待値と採点コードをfixture外へ分離",
-    "AC4 pass:反復・並列数・実行条件を固定し、差異ある比較を拒否",
-    "AC5 pass:5指標と環境障害・unknown・not_runを分離集計",
-    "AC6 pass:18試行を完了、ケース別根拠・限界・再実行方法を提示",
-    "誤った結果と不要停止を区別し、古い検証と完了主張の偽陽性を拒否"
+    "入力→隔離workspace→CLI→独立検査→最小結果→比較の接続",
+    "staged/未staged/選択された未追跡文書、削除・mode・鮮度・原本保持",
+    "通常検証→eval→review→Ship、条件付き適用と保証範囲",
+    "レビュー指摘2件の再現・修正・回帰テスト"
   ],
-  "summary": "全変更面と依存closureをIntent・実コード・14件の検証・18件の初回評価へ照合。未解決の実装指摘・規則競合なし。分類不一致を実際の越権と混同せず、有限評価・レビュー文の意味未採点・Linux未実行の範囲を明記。",
+  "summary": "最新依頼とIssue2058に照合し、条件付きeval接続・未commit評価・隔離・集計・鮮度拒否をpassと判断。実装finding・規則競合なし。実evalは10/18→8/18、pass→fail3・fail→pass1。分類の不一致は既存ケースにもあり、候補fixの範囲外変更1件は追加2試行で再現せず因果はunknown。全実修正の独立動作はpass、回復の検証連鎖は両条件fail。挙動の改善・非悪化は未証明だが、比較を正常に行い不合格を残すという今回のIntentは充足。Linux・実ツール/skills実行・根拠文の意味採点は範囲外。",
   "remaining": []
 }

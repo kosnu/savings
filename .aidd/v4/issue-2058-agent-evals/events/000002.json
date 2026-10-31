@@ -5,18 +5,22 @@
   "source": "https://github.com/kosnu/savings/issues/2058",
   "paths": [
     "tools/aidd/evals/",
+    "docs/ai-driven-development/workflow.md",
     "docs/ai-driven-development/agent-evals.md",
-    "docs/ai-driven-development/overview.md",
-    "docs/harness/rule-map.json"
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/overview.md"
   ],
-  "fingerprint": "0c176ea995eef830d4fab99aa01775a0d90a535763a078e3b551e19b25eeff61",
+  "fingerprint": "ebb5fc3cc7251b11649a59cdd5d4293f0389b4ba99fae4a84fbaaebc8aba51f1",
   "status": "pass",
   "checks": [
-    "ローカル回帰テスト14件:全成功・skipなし",
-    "文書整形・rule graph・差分検査:成功、Core stable=true",
-    "実Codex eval:9ケース各2回を判定済み",
-    "比較CLIと条件不一致拒否を確認"
+    "Python offline 21 tests: pass / skipなし",
+    "Core verify: 差分・整形・rule graph・stable=true",
+    "commit基準値と未commit候補の実eval各18試行、比較と鮮度照合成功",
+    "実修正8試行の独立動作検査は全件pass",
+    "追加診断のfix2試行pass、範囲外変更は再現せず"
   ],
-  "summary": "最終suiteのローカル検証成功。初回evalはgpt-5.6-sol/low、947769c2で18試行中8pass・10fail、環境障害・未確認なし。実修正4試行の独立動作検査は全成功。期待不一致は初期値として報告し、ハーネスの自動改善は行わない。",
+  "summary": "最新依頼のAIDD接続と--worktreeを確認。実evalは変更前10/18、候補8/18で両対象stable、unknown・環境障害・未実行0。返信・状態分類と候補fixの範囲外変更1件を不合格のまま保持。範囲外変更は追加2試行で再現せず、変更との因果と性能差は未確定。全件passや改善を完了条件にしない。実ツール・skillsの動作とLinux sandboxは評価外。",
   "remaining": []
 }

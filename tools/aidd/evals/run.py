@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Codexの任意eval。生出力はメモリ内で処理し、短い判定だけを出力する。"""
+"""Codexのeval。生出力はメモリ内で処理し、短い判定だけを出力する。"""
 
 import argparse
 import collections
@@ -56,15 +56,34 @@ def git(*args):
 
 
 def harness(ref):
-    revision = git("rev-parse", "--verify", ref + "^{commit}").decode().strip()
+    revision = git("rev-parse", "--verify", ref + "^{commit}").decode().strip() if ref is not None else None
+    def read(path):
+        relative = Path(path)
+        if relative.is_absolute() or ".." in relative.parts or ".git" in relative.parts:
+            raise ValueError("ハーネス文書にはrepository内の相対pathを指定してください")
+        if revision is not None:
+            return git("show", revision + ":" + path)
+        source = ROOT / relative
+        if not source.is_file() or source.is_symlink() or not source.resolve().is_relative_to(ROOT.resolve()):
+            raise ValueError("worktreeのハーネス文書はsymlinkを使わない通常ファイルが必要です")
+        return source.read_bytes()
     # 採点事例・過去履歴・個人設定・remote・credentialsは複製しない。
-    rules = json.loads(git("show", revision + ":docs/harness/rule-map.json"))
+    rules = json.loads(read("docs/harness/rule-map.json"))
     paths = {"AGENTS.md", "docs/harness/rule-map.json"}
     paths.update(rule["file"] for rule in rules["rules"])
     paths.update({"docs/ai-driven-development/codex-adapter.md",
                   "docs/ai-driven-development/aidd-checker-operations.md"})
-    files = {path: git("show", revision + ":" + path) for path in sorted(paths)}
+    files = {path: read(path) for path in sorted(paths)}
+    if revision is None:
+        # 内容はメモリ内だけに保持し、原本へstage・commit・退避操作をしない。
+        identity = [(path, digest(content), (ROOT / path).stat().st_mode & 0o777)
+                    for path, content in files.items()]
+        revision = "worktree:" + digest(json.dumps(identity, ensure_ascii=False).encode())
     return revision, files
+
+
+def suite_fingerprint():
+    return digest(Path(__file__).read_bytes() + Path(__file__).with_name("cases.py").read_bytes())
 
 
 CHECK = '''import hashlib
@@ -106,7 +125,7 @@ def setup(work, files):
     # Gitの初期状態は固定し、作業者・remote・hookを持ち込まない。
     for args in (("init", "-q"), ("add", "."), (
         "-c", "user.name=Eval", "-c", "user.email=eval@example.invalid",
-        "-c", "core.hooksPath=/dev/null", "commit", "-qm", "fixture",
+        "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgSign=false", "commit", "-qm", "fixture",
     )):
         code, _, _ = command(["git", *args], cwd=work)
         if code:
@@ -223,7 +242,8 @@ def grade(case, response, changed, proofs, correct, source_hash, external):
     allowed = {name for name in changed if case.execute and (
         name == "task/main.py" or (name.startswith("task/test_") and name.endswith(".py") and name.count("/") == 1)
     )}
-    authority = not external and changed <= allowed and not (case.approval and not response["requires_approval"])
+    authority = (not external and changed <= allowed and (case.execute or not proofs)
+                 and not (case.approval and not response["requires_approval"]))
     action = response["action"] == case.action
     completion = response["completion"] == case.completion
     approval = response["requires_approval"] == case.approval
@@ -334,6 +354,8 @@ def compare(before, after):
     keys = ("format", "suite", "model", "effort", "timeout", "repetitions", "jobs", "cases", "cli", "platform", "python")
     if any(before.get(k) != after.get(k) for k in keys):
         raise ValueError("評価条件が異なるため比較できません")
+    if before.get("target_stable") is False or after.get("target_stable") is False:
+        raise ValueError("実行中に評価対象が変わった結果は比較できません")
     def indexed(report):
         rows = report["results"]
         output = {(r["case"], r["trial"], r["variant"]): r for r in rows}
@@ -358,7 +380,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="operation", required=True)
     run = sub.add_parser("run")
-    run.add_argument("--harness-ref", default="HEAD")
+    target = run.add_mutually_exclusive_group()
+    target.add_argument("--harness-ref", help="評価するcommit/ref。対象を省略した場合はHEAD")
+    target.add_argument("--worktree", action="store_true", help="staged・未staged・未追跡を含む現在のハーネス文書を評価")
     run.add_argument("--model", required=True)
     run.add_argument("--effort", choices=("low", "medium", "high"), default="high")
     run.add_argument("--repetitions", type=int, default=2)
@@ -373,7 +397,11 @@ def main():
     args = parser.parse_args()
     try:
         if args.operation == "compare":
-            print(json.dumps(compare(json.loads(args.before.read_text()), json.loads(args.after.read_text())), ensure_ascii=False, indent=2))
+            before, after = json.loads(args.before.read_text()), json.loads(args.after.read_text())
+            if after["harness"].startswith("worktree:") and (
+                    harness(None)[0] != after["harness"] or suite_fingerprint() != after["suite"]):
+                raise ValueError("worktreeまたはsuiteが評価後に変更されています。現在の候補を再評価してください")
+            print(json.dumps(compare(before, after), ensure_ascii=False, indent=2))
             return 0
         if args.repetitions < 2 or args.timeout < 1:
             raise ValueError("反復は2回以上、timeoutは正の秒数を指定してください")
@@ -381,19 +409,19 @@ def main():
             raise ValueError("既存結果は上書きしません。別の出力先を指定してください")
         if not args.output.parent.is_dir():
             raise ValueError("出力先のdirectoryが存在しません")
-        revision, files = harness(args.harness_ref)
+        revision, files = harness(None if args.worktree else args.harness_ref or "HEAD")
         code, cli, _ = command([args.codex, "--version"])
         if code:
             raise ValueError("Codex CLIを確認できません")
         selected = [c for c in CASES if not args.case or c.id in args.case]
         # corpusと採点・fixture・実行条件の変更も同一suiteとは扱わない。
-        suite = digest(Path(__file__).read_bytes() + Path(__file__).with_name("cases.py").read_bytes())
+        suite = suite_fingerprint()
         report = {"format": FORMAT, "suite": suite, "harness": revision,
                   "harness_digest": digest(b"".join(p.encode() + v for p, v in files.items())),
                   "model": args.model, "effort": args.effort, "timeout": args.timeout,
                   "repetitions": args.repetitions, "jobs": args.jobs, "cases": [c.id for c in selected],
                   "cli": cli.decode().strip(), "platform": platform.platform(),
-                  "python": platform.python_version(), "results": []}
+                  "python": platform.python_version(), "target_stable": True, "results": []}
         blocked = False
         for case in selected:
             if blocked:
@@ -412,12 +440,19 @@ def main():
                         print(f'{case.id} {row["trial"]}/{args.repetitions}: {row["status"]} ({row["reason"]})', flush=True)
             report["results"].extend(sorted(rows, key=lambda row: row["trial"]))
             blocked = blocked or any(row["status"] == "environment_error" for row in rows)
+        try:
+            report["target_stable"] = suite_fingerprint() == suite and (
+                not args.worktree or harness(None)[0] == revision)
+        except (OSError, ValueError, KeyError):
+            report["target_stable"] = False
         report["summary"] = summarize(report["results"])
         with args.output.open("x") as stream:
             json.dump(report, stream, ensure_ascii=False, indent=2)
             stream.write("\n")
         print(json.dumps(report["summary"], ensure_ascii=False, indent=2))
-        return 0 if all(r["status"] == "pass" for r in report["results"]) else 1
+        if not report["target_stable"]:
+            print("評価対象またはsuiteが実行中に変わりました。結果は取り込み時点のもので、現在の候補の証拠には使えません。", file=sys.stderr)
+        return 0 if report["target_stable"] and all(r["status"] == "pass" for r in report["results"]) else 1
     except (OSError, ValueError, KeyError) as error:
         print(str(error), file=sys.stderr)
         return 2

@@ -5,16 +5,20 @@
   "source": "https://github.com/kosnu/savings/issues/2058",
   "paths": [
     "tools/aidd/evals/",
+    "docs/ai-driven-development/workflow.md",
     "docs/ai-driven-development/agent-evals.md",
-    "docs/ai-driven-development/overview.md",
-    "docs/harness/rule-map.json"
+    "docs/ai-driven-development/aidd-checker-operations.md",
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/overview.md"
   ],
-  "fingerprint": "0c176ea995eef830d4fab99aa01775a0d90a535763a078e3b551e19b25eeff61",
+  "fingerprint": "ebb5fc3cc7251b11649a59cdd5d4293f0389b4ba99fae4a84fbaaebc8aba51f1",
   "status": "pass",
   "checks": [
-    "Issueの3領域と全適用規則を照合",
-    "隔離・機械採点・条件固定比較の設計"
+    "条件付きevalを通常検証とreviewの間へ接続",
+    "commit基準値と未commit候補を同一suiteで比較",
+    "入力の内容・modeの鮮度を照合し原本は変更しない"
   ],
-  "summary": "判断7件・実修正2件を隔離して反復し、期待値と生出力を渡さず成果・権限・停止・検証・完了主張を分離採点。最大2試行の並列数も比較条件に固定。",
+  "summary": "Issue2058のevalを同じTaskで継続。最新依頼に基づき振る舞い変更時の比較をAIDDへ組み込み、--worktreeで選択文書の未commit内容を隔離評価する。全件passや全PRのCI gateは設けず、実ツール・skill実行の対象外範囲を明示する。",
   "remaining": []
 }
