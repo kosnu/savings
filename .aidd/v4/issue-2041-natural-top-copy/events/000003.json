@@ -2,26 +2,27 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "https://github.com/kosnu/savings/issues/2041; ユーザーの対応依頼。新Task、origin/mainをbaselineとする。",
+  "source": "https://github.com/kosnu/savings/issues/2041; PR #2065; ユーザーのorigin/mainへのrebaseと対応修正依頼。同じTask・cycleを継続。",
   "paths": [
     "apps/web/src/i18n/resources.ts",
     "apps/web/src/app/routes/TopPage/",
     "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
   ],
-  "fingerprint": "1c660b2d646493792d115dcc8d93f6514783c93436a69998e94d1436d7e2e7d3",
+  "fingerprint": "94f30f78ceababe826b0b2524c162345724f54967a3bc5a51f72fd2f18d5a303",
   "status": "pass",
   "checks": [
     "Coverage / Checked rules: ai-driven.glossary, ai-driven.overview, ai-driven.workflow, ai-driven.checker, architecture.overview, infrastructure.overview, documentation.policy",
     "Checked rules: domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, policy.temporal-data, policy.transaction-boundaries",
-    "Checked rules: policy.code-review, policy.git-workflow, policy.learning-extraction, policy.review-feedback-classification",
+    "Checked rules: policy.code-review, policy.git-workflow, policy.audit, policy.review-feedback-classification",
     "Checked rules: web.component-structure, web.design-rules, web.design-system-brand, web.domain-ui-rules, web.error-presentation, web.landing-page-rules, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy",
     "Unresolved: なし。共通UIとの比較元は既存TopPage。構造・スタイル・認証導線・サンプル金額は維持、文言と既存期待値のみ同期",
     "成功条件1 pass: 日英の表示文言を具体的な説明へ統一し390px・1440pxの実画面で読み順・可読性を確認",
     "成功条件2 pass: 冒頭は手動入力とシンプルな画面、機能説明の前は金融連携なし、入力説明は広告なしを記載",
     "成功条件3 pass: 予算は目安とし、末尾で節約・貯金を利用の前提にしない。支出への反省や罪悪感を促さない",
     "成功条件4 pass: 口座情報・カード番号を預けない範囲のみ説明。安全性の断定、未実装機能・成果保証なし",
-    "152 files/1046 testsとbrowser 8 files/22 tests成功。英語Darkモバイルも読めることを確認。Google認証画面までの操作を確認"
+    "152 files/1046 testsとbrowser 8 files/22 tests成功。英語Darkモバイルも読めることを確認。Google認証画面までの操作を確認",
+    "mainの規約変更を旧本文からの差分で確認。policy.auditと新CLIを適用し、アプリ成果とIntentへの適合は変更なし"
   ],
-  "summary": "Issue #2041の4成功条件を日英文言・実画面・既存認証遷移テストと照合してpass。指摘なし。全path一致と依存closureを適用し、ロジック・ドメイン・非同期境界の変更なし。UI比較元は既存TopPage、差異は紹介文言のみ。利用意欲・転換率と実Google認証完了は未測定で保証しない。別Taskの未追跡Audit記録は対象外として保持。",
+  "summary": "Issue #2041の4成功条件を既存アプリ差分・同一内容の検証結果・画面観察と照合してpass。rebase後の規約参照をpolicy.auditへ同期。mainの命名変更から保存形式・権限・機能の変更を導かない。指摘・規則競合なし。",
   "remaining": []
 }

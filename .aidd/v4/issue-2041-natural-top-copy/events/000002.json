@@ -2,21 +2,23 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "https://github.com/kosnu/savings/issues/2041; ユーザーの対応依頼。新Task、origin/mainをbaselineとする。",
+  "source": "https://github.com/kosnu/savings/issues/2041; PR #2065; ユーザーのorigin/mainへのrebaseと対応修正依頼。同じTask・cycleを継続。",
   "paths": [
     "apps/web/src/i18n/resources.ts",
     "apps/web/src/app/routes/TopPage/",
     "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
   ],
-  "fingerprint": "1c660b2d646493792d115dcc8d93f6514783c93436a69998e94d1436d7e2e7d3",
+  "fingerprint": "94f30f78ceababe826b0b2524c162345724f54967a3bc5a51f72fd2f18d5a303",
   "status": "pass",
   "checks": [
     "web:format / web:lint / web:format-check / web:typecheck 成功",
     "web:test:unit-integration: 152 files / 1046 tests pass",
     "web:test:storybook: 8 files / 22 tests pass（OSのChromium起動制限を解消して同一コマンド再実行）",
     "日英Lightの390px・1440px実画面、横はみ出しなし、Google認証画面への遷移",
-    "git diff --check / Core check-changes 成功"
+    "git diff --check / Core check-changes 成功",
+    "rebase前後のapps/web・package・lockfileは同一。Web検証と画面観察は同一差分の成功結果を再利用",
+    "現sourceのHarness Checkerをbuildしcheck-changes成功。hookのGo vet呼出先のみmainの命名変更を反映"
   ],
-  "summary": "変更後の必須Web検証は全件成功。Storybookの初回はテスト開始前のChromium起動権限エラー、権限を付与した同一コマンドで成功。日英の文言・表示と認証導線をStorybook実画面で確認。実Google認証の完了や利用意欲・転換率は測定対象外。",
+  "summary": "rebase後もアプリ・Web検証設定の内容とmode、アプリ差分は前回検証と同一のため、必須Web検証1,068件と画面観察を再利用。現sourceのHarness Checker build・check-changesとgit diff --check成功。命名参照と工程結果だけを同期し、追加evalは対象外。",
   "remaining": []
 }
