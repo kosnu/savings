@@ -20,7 +20,7 @@ export default defineConfig({
             throw new Error(`gofmtによる整形が必要です:\n${unformattedGoFiles}`)
           }
         }
-        execFileSync("go", ["-C", "tools/aidd/checker", "vet", "./..."], {
+        execFileSync("go", ["-C", "tools/harness/checker", "vet", "./..."], {
           stdio: "inherit",
         })
         if (existingFiles.length > 0) {

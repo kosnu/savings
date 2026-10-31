@@ -91,7 +91,7 @@ func repository(t *testing.T) runner {
 			if e != nil {
 				return e
 			}
-			files["tools/aidd/evals/"+path] = value
+			files["tools/harness/evals/"+path] = value
 		}
 		return nil
 	}); err != nil {
@@ -667,7 +667,7 @@ func TestCLIWorktreeRunFreshnessAndInvalidInputs(t *testing.T) {
 	if code := runCLI(append(args, "--harness-ref", "HEAD"), &out, &diagnostic); code != 2 {
 		t.Fatal(code)
 	}
-	write(t, r.root, "tools/aidd/evals/cases.go", "changed suite")
+	write(t, r.root, "tools/harness/evals/cases.go", "changed suite")
 	if code := runCLI(compareArgs, &out, &diagnostic); code != 2 {
 		t.Fatal(code)
 	}

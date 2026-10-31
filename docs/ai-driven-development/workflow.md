@@ -1,19 +1,19 @@
 ---
-title: AIDD v4
+title: エージェント中心の開発
 doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - ai-driven-development
   - aidd-v4
 when_to_read:
-  - AIDD v4を判断または変更するとき
+  - エージェント中心の開発手順を判断または変更するとき
 ---
 
-# AIDD v4
+# エージェント中心の開発
 
 Intentに合う成果を、リポジトリのガードレールと実行証拠によって完成させる。
 具体的な設計、作業順序、ツール、成果物、担当の分割はagentが選ぶ。
@@ -33,7 +33,7 @@ Issueでもユーザーの明示発言でもよい。既存のIssue・PR・会�
 
 指示は、既存のTask・Issue・PR・会話と照合し、次を分けて適用する。
 
-- 対象: どの成果・指摘・Taskに対する指示か。明示指定を優先し、未指定なら既存の担当範囲と採用判断から特定する。直前の話題だけで対象を切り替えない。Auditでは[対象の選択規則](../harness/policies/learning-extraction.md#audit)に従う。
+- 対象: どの成果・指摘・Taskに対する指示か。明示指定を優先し、未指定なら既存の担当範囲と採用判断から特定する。直前の話題だけで対象を切り替えない。Auditでは[対象の選択規則](../harness/policies/audit.md#audit)に従う。
 - 操作: 分析・説明、ファイル修正、理由返信の投稿、thread解決の許可・禁止を別々に判断する。「修正対象外」を分析や理由返信の除外へ広げず、それぞれの要否と既存権限を確認する。分析依頼から修正・投稿の許可を作らず、明確な既存権限には追加承認を求めない。
 - 実施時点: 現在の開始依頼か、将来の工程で扱う課題の指定か、条件付きの依頼かを区別する。将来のRetro課題指定だけでは現在の分析を開始しない。開始依頼と[Retrospectiveの開始条件](../harness/policies/retrospective.md#開始と対象)は別に確認し、Merge / Closeだけを自動開始の許可にしない。
 
@@ -195,8 +195,8 @@ Ship結果と後からAuditを再開するためのIssue・PR参照・配信先�
 
 ## Auditと手動承認
 
-Ship後にユーザーがAuditを明示的に依頼したら、[Audit policy](../harness/policies/learning-extraction.md)に従い、その時点で確認できる指摘とその原因を分析する。
-根拠、原因、改善案、対象を整理し、[分析結果のレビュー](../harness/policies/learning-extraction.md#分析結果のレビュー)で指摘に対応・再レビューしてから提示する。
+Ship後にユーザーがAuditを明示的に依頼したら、[Audit policy](../harness/policies/audit.md)に従い、その時点で確認できる指摘とその原因を分析する。
+根拠、原因、改善案、対象を整理し、[分析結果のレビュー](../harness/policies/audit.md#分析結果のレビュー)で指摘に対応・再レビューしてから提示する。
 この完了条件はRetrospectiveにも適用し、確認不能な論点を指摘解消済みと扱わない。解決済み指摘を未解決として復活させないが、
 解決の過程で観測した再利用可能な問題は解決済みと明記して分析できる。
 Audit中にガードレール・Intent等へ改善を適用しない。
@@ -217,7 +217,7 @@ Audit結果には変更・改善の要否と、対象コメントごとの理由
 Audit依頼だけや変更要否だけの承認から返信・解決権限を作らず、明示制限を優先する。方向性の指定だけを承認と扱わない。
 コメント対応だけなら変更、空コミット、Task記録、改善・次サイクルを要求しない。
 差分があれば既存の検証・配信条件を満たしてから返信・解決し、対象外や未完了のthreadには広げない。
-[Audit policy](../harness/policies/learning-extraction.md#承認後のコメント対応)に従いread-backし、分析の終了とコメント対応完了を区別して報告する。
+[Audit policy](../harness/policies/audit.md#承認後のコメント対応)に従いread-backし、分析の終了とコメント対応完了を区別して報告する。
 追加指摘は同じShipの内容・採用判断が変わっていない場合に既存のIssue・PR・会話で追加の分析を提示し、旧Auditと承認は保持する。新Auditへ旧承認を流用しない。
 
 ## 継続と再開

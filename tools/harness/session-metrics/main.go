@@ -22,7 +22,7 @@ import (
 )
 
 // 作業名の受理条件は docs/ai-driven-development/aidd-checker.md の記録契約と共通。
-var taskIDPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$`)
+var taskNamePattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$`)
 
 var stages = []string{"Intent", "調査", "設計", "実装", "検証", "レビュー", "Ship", "Audit", "改善", "Retrospective"}
 
@@ -132,7 +132,7 @@ func bootID() *string {
 }
 
 func currentCycle(root, task string) (string, error) {
-	if !taskIDPattern.MatchString(task) {
+	if !taskNamePattern.MatchString(task) {
 		return "", errors.New("Task ID が不正です")
 	}
 	files, err := filepath.Glob(filepath.Join(root, ".aidd", "v4", task, "events", "*.json"))
@@ -669,10 +669,10 @@ func run(args []string, out io.Writer, dep dependencies) error {
 	f := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	f.SetOutput(io.Discard)
 	opt := options{Command: args[0]}
-	f.StringVar(&opt.Root, "root", ".", "AIDD Taskがあるrepository root")
+	f.StringVar(&opt.Root, "root", ".", "作業対象のrepository root")
 	f.StringVar(&opt.Store, "store", "", "Git common directory内の記録が既定")
 	f.StringVar(&opt.Session, "session", "", "Codex session ID")
-	f.StringVar(&opt.Task, "task", "", "AIDD Task ID")
+	f.StringVar(&opt.Task, "task", "", "Taskの作業名")
 	f.StringVar(&opt.Stage, "stage", "", "単一工程名: "+strings.Join(stages, ", "))
 	f.StringVar(&opt.Cycle, "cycle", "", "reportのサイクル絞り込み")
 	f.StringVar(&opt.Since, "since", "", "reportの開始日絞り込み")

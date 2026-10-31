@@ -1,18 +1,18 @@
 ---
-title: AIDD v4 Core
+title: Harness Checker
 doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - aidd-v4
 when_to_read:
-  - AIDD v4 Coreを実行または変更するとき
+  - Harness Checkerを実行または変更するとき
 ---
 
-# AIDD Go Core
+# Harness Checker
 
 [Workflow](workflow.md)のうち、その場で判定できる状態をGoで検査する。
 操作イベント・全ファイルsnapshot・コマンド生出力は永続保存せず、工程ごとの最新結果だけを保持する。旧Task台帳を実行条件にしない。

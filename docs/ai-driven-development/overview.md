@@ -1,10 +1,10 @@
 ---
-title: AI Driven Development overview
+title: エージェント中心のソフトウェア開発
 doc_type: overview
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - ai-driven-development
@@ -13,9 +13,10 @@ when_to_read:
   - AI駆動開発の考え方と文書の責務を確認するとき
 ---
 
-# AI Driven Development overview
+# エージェント中心のソフトウェア開発
 
-AI駆動開発では、求める成果・制約・完了条件と実行権限を根拠に、設計・実装・検証・レビューを行う。
+このリポジトリでは、開発エージェントが調査・設計・実装・検証を進める。
+求める成果・制約・完了条件と実行権限を根拠に、設計・実装・検証・レビューを行う。
 要求の根拠、採用した設計と理由、実際の検証結果を対応付け、成果が目的を満たすか判断する。
 工程名、専用成果物、特定のモデルやツールの使用自体を成功条件にしない。
 
@@ -23,11 +24,14 @@ AI駆動開発では、求める成果・制約・完了条件と実行権限を
 実行の順序、記録形式、配信・改善の権限境界は、以下の運用文書が所有する。
 共通・アプリ方針へ運用手順を複製せず、具体的な操作が必要なときにその正本を参照する。
 
+開発方法、実行基盤、評価、自己改善の呼び分けと命名は[用語と命名指針](glossary.md)に従う。
+AI駆動開発は広い説明語として使えるが、AIDDを各社共通の標準名やハーネスの別名にはしない。
+
 ## 現行の運用文書
 
 - [Workflow](workflow.md): 成果、権限、サイクル、継続と停止。
 - [Core](aidd-checker.md)と[操作](aidd-checker-operations.md): Goによるその場の差分・検証・stage・配信先の検査。
-- [Audit policy](../harness/policies/learning-extraction.md): Ship後の指摘分析と手動承認の境界。
+- [Audit policy](../harness/policies/audit.md): Ship後の指摘分析と手動承認の境界。
 - [Retrospective](../harness/policies/retrospective.md): Merge / Close後の作業過程の振り返り。通常サイクル外の明示依頼で行う。
 - [調査と採否](research-v4.md)、[ADR 0009](../adr/0009-rebuild-aidd-v4.md): 選択の根拠。
 - [要求の伝達](issue-guidelines.md)、[用語](glossary.md)、[Codex](codex-adapter.md): 入力とhost連携。

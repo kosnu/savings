@@ -11,10 +11,10 @@ func (s *Checker) mandatoryCommands(paths []string) [][]string {
 	out := [][]string{{"git", "diff", "--check"}}
 	goCode, metrics, web, story := false, false, false, false
 	for _, p := range paths {
-		if strings.HasPrefix(p, "tools/aidd/checker/") {
+		if strings.HasPrefix(p, "tools/harness/checker/") {
 			goCode = true
 		}
-		if strings.HasPrefix(p, "tools/aidd/session-metrics/") {
+		if strings.HasPrefix(p, "tools/harness/session-metrics/") {
 			metrics = true
 		}
 		appRuntime := strings.HasPrefix(p, "apps/web/") && !strings.HasPrefix(p, "apps/web/docs/") && !strings.HasSuffix(p, ".md")
@@ -33,10 +33,10 @@ func (s *Checker) mandatoryCommands(paths []string) [][]string {
 		}
 	}
 	if goCode {
-		out = append(out, []string{"go", "-C", "tools/aidd/checker", "test", "./..."}, []string{"go", "-C", "tools/aidd/checker", "vet", "./..."})
+		out = append(out, []string{"go", "-C", "tools/harness/checker", "test", "./..."}, []string{"go", "-C", "tools/harness/checker", "vet", "./..."})
 	}
 	if metrics {
-		out = append(out, []string{"go", "-C", "tools/aidd/session-metrics", "test", "./..."}, []string{"go", "-C", "tools/aidd/session-metrics", "vet", "./..."})
+		out = append(out, []string{"go", "-C", "tools/harness/session-metrics", "test", "./..."}, []string{"go", "-C", "tools/harness/session-metrics", "vet", "./..."})
 	}
 	if web {
 		for _, name := range []string{"web:lint", "web:format-check", "web:typecheck", "web:test:unit-integration"} {

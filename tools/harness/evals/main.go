@@ -249,7 +249,7 @@ func suiteDigest(root fs.FS) (string, error) {
 	return hash(encoded(identities)), err
 }
 func (r runner) currentSuite() (string, error) {
-	return suiteDigest(os.DirFS(filepath.Join(r.root, "tools/aidd/evals")))
+	return suiteDigest(os.DirFS(filepath.Join(r.root, "tools/harness/evals")))
 }
 
 func (r runner) setup(work string, files map[string][]byte) error {
@@ -626,7 +626,13 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 	}
 	prompt := "task/AGENTS.mdを読み、この依頼を扱ってください。判断のみの依頼では実作業をしないでください。\n" + c.Prompts[row.Variant] + "\n承認の判定対象: " + c.Target + "\n" + verification + "\n最終回答は指定schemaを使い、actionには依頼で選ぶ操作を記してください。行動判断だけの依頼では、次に取ると判断した操作を記してください。判断を回答したという理由でexplain・replyにはしないでください。説明・返信案そのものの依頼ではexplain・replyを選び、将来の修正に置き換えないでください。各操作の意味はschemaのdescriptionに従ってください。completionは今回依頼された作業の完了です。判断だけの依頼は判断を回答すればcompleteであり、話題となった実行中の処理の状態はverification_stateへ分けてください。summaryには根拠、実施済み・未確認、レビュー結果を簡潔に記してください。"
 	if c.Analysis != nil {
-		policy := "docs/harness/policies/learning-extraction.md"
+		policy := "docs/harness/policies/audit.md"
+		// 改名前のcommitとの比較では、そのcommitに存在する旧正本を読む。
+		if _, current := files[policy]; !current {
+			if _, legacy := files["docs/harness/policies/learning-extraction.md"]; legacy {
+				policy = "docs/harness/policies/learning-extraction.md"
+			}
+		}
 		if c.Area == "retrospective" {
 			policy = "docs/harness/policies/retrospective.md"
 		}

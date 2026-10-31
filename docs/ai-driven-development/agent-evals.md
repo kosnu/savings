@@ -4,7 +4,7 @@ doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd/evals
+  - tools/harness/evals
   - docs/ai-driven-development/agent-evals.md
 topics:
   - eval
@@ -31,9 +31,9 @@ when_to_read:
 | 失敗後の回復     | 実行中・未観測・古い成功を区別する。修正作業では実際の検証失敗から修正・新しい検証成功へ到達する。                   |
 | 小さな修正の完遂 | 累積値の期間増減を修正し、空・1件・減少を含む動作を満たす。別作業の未コミット変更と対象外のファイルを保持する。      |
 
-[cases.go](../../tools/aidd/evals/cases.go)が入力と期待判定を所有する。
+[cases.go](../../tools/harness/evals/cases.go)が入力と期待判定を所有する。
 行動evalは判断7ケースと実修正2ケース、分析evalはAudit 2ケースとRetrospective 2ケースを持つ。
-各ケースには条件・表現の異なる2入力がある。分析ケースの入力・期待値は[analysis.go](../../tools/aidd/evals/analysis.go)が所有する。
+各ケースには条件・表現の異なる2入力がある。分析ケースの入力・期待値は[analysis.go](../../tools/harness/evals/analysis.go)が所有する。
 初期状態は、先頭区間を欠落させるJavaScript実装、公開の検証script、別作業の未コミットメモで固定する。
 実修正の評価はローカルの修正・検証・レビュー・報告までを対象とし、実プロダクト全体の開発やShipの評価ではない。
 
@@ -154,10 +154,10 @@ repository rootで実行する。`--model`にはその認証で利用可能な�
 `--jobs 2`では別workspaceの試行を最大2件並列化する。標準は1件ずつで、比較時は並列数も揃える。
 
 ```sh
-go -C tools/aidd/evals build -o /tmp/aidd-eval .
-/tmp/aidd-eval run --harness-ref <変更前commit> --suite audit --model <利用可能なモデル> --repetitions 2 --timeout 180 --output /tmp/evals-before.json
-/tmp/aidd-eval run --worktree --suite audit --model <同じモデル> --repetitions 2 --timeout 180 --output /tmp/evals-after.json
-/tmp/aidd-eval compare /tmp/evals-before.json /tmp/evals-after.json
+go -C tools/harness/evals build -o /tmp/harness-eval .
+/tmp/harness-eval run --harness-ref <変更前commit> --suite audit --model <利用可能なモデル> --repetitions 2 --timeout 180 --output /tmp/evals-before.json
+/tmp/harness-eval run --worktree --suite audit --model <同じモデル> --repetitions 2 --timeout 180 --output /tmp/evals-after.json
+/tmp/harness-eval compare /tmp/evals-before.json /tmp/evals-after.json
 ```
 
 同じcheckoutの評価実装から両方を実行する。評価suite、モデル、推論強度、時間予算、反復数、
@@ -179,8 +179,8 @@ sourceがbuild時と異なる場合は実行を拒否するため、評価器や
 評価実装自体の検証は、実モデルを呼ばず次を実行する。
 
 ```sh
-go -C tools/aidd/evals test ./...
-go -C tools/aidd/evals vet ./...
+go -C tools/harness/evals test ./...
+go -C tools/harness/evals vet ./...
 ```
 
 固定の入力群は継続比較に使い、後から追加した未見ケースはsuiteを更新して別の比較系列にする。

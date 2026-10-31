@@ -53,7 +53,7 @@ func TestVerificationRejectsFailureMutationAndIncompleteScope(t *testing.T) {
 			put(t, s.Root, "code.txt", "after\n")
 			args := []string{"sh", "-c", tc.script}
 			if tc.name == "unstarted" {
-				args = []string{"/nonexistent-aidd-command"}
+				args = []string{"/nonexistent-harness-command"}
 			}
 			v, e := s.Verify(plan(args), io.Discard)
 			if e == nil || v.Stable != tc.stable || len(v.Results) != 2 || v.Results[1].Exit != tc.exit {
@@ -223,14 +223,14 @@ func TestDeliveryIdentityAndNoWrites(t *testing.T) {
 	head := command(t, s.Root, "rev-parse", "HEAD")
 	bin := t.TempDir()
 	gh := filepath.Join(bin, "gh")
-	put(t, bin, "gh", "#!/bin/sh\nprintf '%s' \"$AIDD_TEST_PR\"\n")
+	put(t, bin, "gh", "#!/bin/sh\nprintf '%s' \"$HARNESS_TEST_PR\"\n")
 	if e := os.Chmod(gh, 0755); e != nil {
 		t.Fatal(e)
 	}
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 	ship := Ship{Commit: head, Remote: "origin", Branch: "main", PR: "https://github.com/example/repo/pull/1", Base: "main"}
 	respond := func(head, branch, base, state string) {
-		t.Setenv("AIDD_TEST_PR", `{"headRefOid":"`+head+`","headRefName":"`+branch+`","baseRefName":"`+base+`","state":"`+state+`"}`)
+		t.Setenv("HARNESS_TEST_PR", `{"headRefOid":"`+head+`","headRefName":"`+branch+`","baseRefName":"`+base+`","state":"`+state+`"}`)
 	}
 	respond(head, "main", "main", "OPEN")
 	before, _, e := s.current()
