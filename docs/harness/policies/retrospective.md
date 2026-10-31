@@ -54,6 +54,9 @@ Taskの判断・検証・レビュー、PRの履歴、ユーザーの訂正、�
 報告の保存やIssue作成はユーザーが依頼した場合に行い、所定の作成・承認ルールに従う。
 過去のAudit・Task・判断・検証記録は変更せず、通常サイクルへの追加eventや`return-intent`を要求しない。
 
+分析手順・判断基準を変更するときは[選択的なeval](../../ai-driven-development/agent-evals.md#実行対象と費用)で関連するRetrospectiveケースを比較する。
+毎回の振り返りに追加のevalやLLM judgeを重ねず、通常は上記の分析レビューで確認する。
+
 ## 改善提案の引継ぎ
 
 Retrospectiveの依頼や元の開発権限を、改善の適用許可として使わない。

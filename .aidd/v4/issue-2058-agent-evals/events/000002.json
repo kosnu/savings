@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2058; 会話での採点の曖昧さ修正・前後再評価・HTML/PR同期の依頼",
+  "paths": [
+    "tools/aidd/evals/",
+    "docs/ai-driven-development/agent-evals.md"
+  ],
+  "fingerprint": "47a9dd7983b00c4db25f61ea1b9d8728e3cb19c86796c617fac9f23f6d9a1443",
+  "status": "pass",
+  "checks": [
+    "eval Go race tests/vet・文書formatter/lint成功",
+    "Core verifyの範囲・差分・rule graphはstable=true",
+    "同じv5で分析4ケースを前後各8試行し全件pass・比較成功",
+    "根拠なしの原因・見逃し理由と誤った観測事実を回帰テストで不合格に保持"
+  ],
+  "summary": "観測事実と見逃し理由を分けた新suiteで前後とも8/8、target_stable=true。旧v4の回答を再採点せず、旧7/8との直接比較や能力不足の断定を撤回。行動evalは採点条件不変のため回帰テストで確認し、実モデル再実行は分析4ケースに限定。",
+  "remaining": []
+}
