@@ -93,6 +93,28 @@
   },
   "rules": [
     {
+      "id": "ai-driven.agent-evals",
+      "file": "docs/ai-driven-development/agent-evals.md",
+      "applies_to": {
+        "paths": [
+          "AGENTS.md",
+          "tools/aidd/**",
+          ".agents/skills/**",
+          ".codex/**",
+          "docs/harness/**",
+          "apps/*/docs/policies/**",
+          "docs/ai-driven-development/workflow.md",
+          "docs/ai-driven-development/agent-evals.md",
+          "docs/ai-driven-development/aidd-checker-operations.md"
+        ],
+        "topics": ["eval", "agent-evaluation"],
+        "activities": ["evaluate_agent", "compare_harness"]
+      },
+      "depends_on": ["ai-driven.checker", "documentation.policy"],
+      "overrides": [],
+      "priority": 89
+    },
+    {
       "id": "ai-driven.change-coverage",
       "file": "docs/ai-driven-development/change-coverage.md",
       "applies_to": {

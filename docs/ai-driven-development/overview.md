@@ -31,6 +31,7 @@ AI駆動開発では、求める成果・制約・完了条件と実行権限を
 - [Retrospective](../harness/policies/retrospective.md): Merge / Close後の作業過程の振り返り。通常サイクル外の明示依頼で行う。
 - [調査と採否](research-v4.md)、[ADR 0009](../adr/0009-rebuild-aidd-v4.md): 選択の根拠。
 - [要求の伝達](issue-guidelines.md)、[用語](glossary.md)、[Codex](codex-adapter.md): 入力とhost連携。
+- [Agent evals](agent-evals.md): ハーネス変更時に依頼・権限、失敗後の回復、小さな修正の完遂を評価・比較する方法。
 
 ## 過去の仕様と作業履歴
 
