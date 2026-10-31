@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2058",
+  "paths": [
+    "tools/aidd/evals/",
+    "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/overview.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "0c176ea995eef830d4fab99aa01775a0d90a535763a078e3b551e19b25eeff61",
+  "status": "pass",
+  "checks": [
+    "Issueの3領域と全適用規則を照合",
+    "隔離・機械採点・条件固定比較の設計"
+  ],
+  "summary": "判断7件・実修正2件を隔離して反復し、期待値と生出力を渡さず成果・権限・停止・検証・完了主張を分離採点。最大2試行の並列数も比較条件に固定。",
+  "remaining": []
+}

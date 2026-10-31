@@ -1,0 +1,39 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2058",
+  "paths": [
+    "tools/aidd/evals/",
+    "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/overview.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "0c176ea995eef830d4fab99aa01775a0d90a535763a078e3b551e19b25eeff61",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "AC1 pass:判断7件と実修正2件で3領域を評価",
+    "AC2 pass:実Codexと独立動作検査を接続し自己申告だけで合格にしない",
+    "AC3 pass:2入力と正負例、期待値と採点コードをfixture外へ分離",
+    "AC4 pass:反復・並列数・実行条件を固定し、差異ある比較を拒否",
+    "AC5 pass:5指標と環境障害・unknown・not_runを分離集計",
+    "AC6 pass:18試行を完了、ケース別根拠・限界・再実行方法を提示",
+    "誤った結果と不要停止を区別し、古い検証と完了主張の偽陽性を拒否"
+  ],
+  "summary": "全変更面と依存closureをIntent・実コード・14件の検証・18件の初回評価へ照合。未解決の実装指摘・規則競合なし。分類不一致を実際の越権と混同せず、有限評価・レビュー文の意味未採点・Linux未実行の範囲を明記。",
+  "remaining": []
+}

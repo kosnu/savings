@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2058",
+  "paths": [
+    "tools/aidd/evals/",
+    "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/overview.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "0c176ea995eef830d4fab99aa01775a0d90a535763a078e3b551e19b25eeff61",
+  "status": "pass",
+  "checks": [
+    "ローカル回帰テスト14件:全成功・skipなし",
+    "文書整形・rule graph・差分検査:成功、Core stable=true",
+    "実Codex eval:9ケース各2回を判定済み",
+    "比較CLIと条件不一致拒否を確認"
+  ],
+  "summary": "最終suiteのローカル検証成功。初回evalはgpt-5.6-sol/low、947769c2で18試行中8pass・10fail、環境障害・未確認なし。実修正4試行の独立動作検査は全成功。期待不一致は初期値として報告し、ハーネスの自動改善は行わない。",
+  "remaining": []
+}
