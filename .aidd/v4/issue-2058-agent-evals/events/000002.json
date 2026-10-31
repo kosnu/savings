@@ -5,22 +5,23 @@
   "source": "https://github.com/kosnu/savings/issues/2058",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/workflow.md",
     "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/overview.md",
     "docs/ai-driven-development/aidd-checker-operations.md",
     "docs/harness/rule-map.json",
-    "docs/harness/policies/code-review.md",
-    "docs/ai-driven-development/overview.md"
+    "docs/harness/policies/code-review.md"
   ],
-  "fingerprint": "ebb5fc3cc7251b11649a59cdd5d4293f0389b4ba99fae4a84fbaaebc8aba51f1",
+  "fingerprint": "9691305fc0f66243ad03450c617f0b45d58eb0a07ef719595c3407b2f111652e",
   "status": "pass",
   "checks": [
-    "Python offline 21 tests: pass / skipなし",
-    "Core verify: 差分・整形・rule graph・stable=true",
-    "commit基準値と未commit候補の実eval各18試行、比較と鮮度照合成功",
-    "実修正8試行の独立動作検査は全件pass",
-    "追加診断のfix2試行pass、範囲外変更は再現せず"
+    "Go test -race -count=1: pass / native sandboxを含む",
+    "Go vet: pass",
+    "Core verify: diff・formatter・lint・rules・stable=true",
+    "同一v2 suiteで変更前と未commit候補を各36試行",
+    "Go compare成功、両対象target_stable=true",
+    "評価器のPython版3ファイルを削除"
   ],
-  "summary": "最新依頼のAIDD接続と--worktreeを確認。実evalは変更前10/18、候補8/18で両対象stable、unknown・環境障害・未実行0。返信・状態分類と候補fixの範囲外変更1件を不合格のまま保持。範囲外変更は追加2試行で再現せず、変更との因果と性能差は未確定。全件passや改善を完了条件にしない。実ツール・skillsの動作とLinux sandboxは評価外。",
+  "summary": "承認は権限・実修正だけ、完了自己申告は実修正だけを採点。状態判断と虚偽完了を分離し、新規通常pycだけ除外、既存cache・symlink・対象削除の境界を確認。実evalは26/36→27/36、unknown・環境障害・未実行0。実修正16試行の独立検査は全件pass。行動分類不一致と回復の失敗再現証拠不足はfailを保持。v1とは比較せず、実ツール・skillsとLinux sandbox実行は範囲外。",
   "remaining": []
 }

@@ -5,14 +5,14 @@
   "source": "https://github.com/kosnu/savings/issues/2058",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/workflow.md",
     "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/overview.md",
     "docs/ai-driven-development/aidd-checker-operations.md",
     "docs/harness/rule-map.json",
-    "docs/harness/policies/code-review.md",
-    "docs/ai-driven-development/overview.md"
+    "docs/harness/policies/code-review.md"
   ],
-  "fingerprint": "ebb5fc3cc7251b11649a59cdd5d4293f0389b4ba99fae4a84fbaaebc8aba51f1",
+  "fingerprint": "9691305fc0f66243ad03450c617f0b45d58eb0a07ef719595c3407b2f111652e",
   "status": "pass",
   "checks": [
     "ai-driven.agent-evals",
@@ -29,11 +29,11 @@
     "policy.learning-extraction",
     "policy.retrospective",
     "policy.review-feedback-classification",
-    "入力→隔離workspace→CLI→独立検査→最小結果→比較の接続",
-    "staged/未staged/選択された未追跡文書、削除・mode・鮮度・原本保持",
-    "通常検証→eval→review→Ship、条件付き適用と保証範囲",
-    "レビュー指摘2件の再現・修正・回帰テスト"
+    "最新依頼の採点対象・cache境界・Python禁止を照合",
+    "入力・schema・Go parser・grader・結果・compareの接続",
+    "対象削除のfail化、既存cache保護、stale結果拒否",
+    "実モデル72試行と独立動作検査・最小結果を照合"
   ],
-  "summary": "最新依頼とIssue2058に照合し、条件付きeval接続・未commit評価・隔離・集計・鮮度拒否をpassと判断。実装finding・規則競合なし。実evalは10/18→8/18、pass→fail3・fail→pass1。分類の不一致は既存ケースにもあり、候補fixの範囲外変更1件は追加2試行で再現せず因果はunknown。全実修正の独立動作はpass、回復の検証連鎖は両条件fail。挙動の改善・非悪化は未証明だが、比較を正常に行い不合格を残すという今回のIntentは充足。Linux・実ツール/skills実行・根拠文の意味採点は範囲外。",
+  "summary": "承認対象の明示、ケース別field採点、判断と実修正の完了分離、新規通常cacheだけの除外をpassと判断。Goへ移行しPython版を削除、Node fixtureと既存の隔離・worktree・最小保存を維持。対象削除の観測済み失敗もfail化。実eval26/36→27/36、unknown等0、同一suite・両対象stable。残る失敗は行動分類と回復の失敗再現証拠不足。誤答を虚偽完了と混同せず、旧系列との優劣・一般的改善は主張しない。実装finding・規則競合なし。Linux・根拠文の意味採点は未確認/対象外。",
   "remaining": []
 }

@@ -5,20 +5,21 @@
   "source": "https://github.com/kosnu/savings/issues/2058",
   "paths": [
     "tools/aidd/evals/",
-    "docs/ai-driven-development/workflow.md",
     "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/overview.md",
     "docs/ai-driven-development/aidd-checker-operations.md",
     "docs/harness/rule-map.json",
-    "docs/harness/policies/code-review.md",
-    "docs/ai-driven-development/overview.md"
+    "docs/harness/policies/code-review.md"
   ],
-  "fingerprint": "ebb5fc3cc7251b11649a59cdd5d4293f0389b4ba99fae4a84fbaaebc8aba51f1",
+  "fingerprint": "9691305fc0f66243ad03450c617f0b45d58eb0a07ef719595c3407b2f111652e",
   "status": "pass",
   "checks": [
-    "条件付きevalを通常検証とreviewの間へ接続",
-    "commit基準値と未commit候補を同一suiteで比較",
-    "入力の内容・modeの鮮度を照合し原本は変更しない"
+    "承認対象・今回依頼の完了・検証状態を分離",
+    "新規task内の通常pycだけ除外し既存cacheを保護",
+    "評価器Go・修正fixture JavaScriptへ統一",
+    "同じ新suiteで前回と同じ変更前commitと未commit候補を各4試行比較"
   ],
-  "summary": "Issue2058のevalを同じTaskで継続。最新依頼に基づき振る舞い変更時の比較をAIDDへ組み込み、--worktreeで選択文書の未commit内容を隔離評価する。全件passや全PRのCI gateは設けず、実ツール・skill実行の対象外範囲を明示する。",
+  "summary": "最新依頼の採点修正とPythonを書かない制約に基づく同じTaskの継続。Go評価器とNode.js fixtureを採用し、現行の隔離・最小保存・比較・worktree鮮度を維持。回答とfixtureが変わるためv2系列として両対象を測り直し、旧点数とは比較しない。",
   "remaining": []
 }

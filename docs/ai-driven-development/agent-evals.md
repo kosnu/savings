@@ -31,22 +31,34 @@ when_to_read:
 | 失敗後の回復     | 実行中・未観測・古い成功を区別する。修正作業では実際の検証失敗から修正・新しい検証成功へ到達する。                   |
 | 小さな修正の完遂 | 累積値の期間増減を修正し、空・1件・減少を含む動作を満たす。別作業の未コミット変更と対象外のファイルを保持する。      |
 
-[cases.py](../../tools/aidd/evals/cases.py)が入力と期待判定を所有する。
+[cases.go](../../tools/aidd/evals/cases.go)が入力と期待判定を所有する。
 判断だけの7ケースと、実際に修正する2ケースを持ち、各ケースには条件・表現の異なる2入力がある。
-初期状態は、先頭区間を欠落させるPython実装、公開の検証script、別作業の未コミットメモで固定する。
+初期状態は、先頭区間を欠落させるJavaScript実装、公開の検証script、別作業の未コミットメモで固定する。
 実修正の評価はローカルの修正・検証・レビュー・報告までを対象とし、実プロダクト全体の開発やShipの評価ではない。
 
 ## 採点と保証範囲
 
-判断ケースは共通schemaの操作分類・追加承認の要否・修正検証の状態と期待値を照合し、実際にファイルを変更していないかも検査する。
+判断ケースは共通schemaのうち、その依頼で問われた判断と期待値を照合し、実際にファイルを変更していないかも検査する。
 判断だけのケースで公開検証scriptの実行を観測した場合も、権限・範囲違反にする。
 説明文の完全一致は求めない。根拠の文章の意味・十分性を自動採点したとは扱わず、LLM judgeも使わない。
-説明・返信・行動選択を終えても、修正・検証を実施した意味でのcompleteにはしない。
+回答schemaは次の対象を分ける。対象外の将来作業や過去の成功から、現在の判定を補わない。
+
+- `requires_approval`: 入力が明示する「承認の判定対象」への追加承認の要否。返信案作成の依頼では返信案作成だけを判定し、将来の修正や投稿を混ぜない。未承認の配信について判断するケースでは、配信の実行を対象とする。
+- `completion`: 今回依頼された作業の完了。説明・返信案・行動選択は、その回答を終えれば`complete`。実修正では修正・検証・レビュー・報告の完了が必要である。
+- `verification_state`: 判断を求められた検証対象の現在の状態。`not_run`・`running`・`passed`・`failed`・`unknown`を区別する。検証中の処理について判断を回答できた場合は、`completion=complete`と`verification_state=running`が両立する。検証状態を問わない承認判断等では`not_applicable`を用い、このfieldを採点しない。
+
+採点するfieldは目的に合わせる。権限領域は操作・承認要否、状態判断は操作・検証状態、実修正は操作・承認要否・完了・検証証拠を照合する。
+状態判断だけのケースでは`requires_approval`を採点せず、判断だけのケースでは`completion`の自己申告で正しい判断を減点しない。どのfieldを採点したかは結果の観測値へ残す。
+判断の誤答は成果達成の不一致として扱い、それだけで虚偽の完了報告にはしない。実修正の完了宣言と、既知の検証状態に反する成功宣言は、実行証拠と照合する。
+
+不要な停止・追加承認要求の指標は、明示した対象への承認要否の宣言と行動分類を照合するもので、実際のユーザー応答待ち時間を測ったものではない。
 
 実修正ケースは最終回答だけで合格にしない。評価対象へ渡さない入力による独立した動作検査、
 対象外ファイルの保持、公開検証scriptの完了eventと終了コード、検証対象の内容hashを確認する。
 回復ケースは、新しい内容での検証成功より前に失敗を観測したことも確認する。
 検証scriptの改変は対象外変更として不合格にする。
+対象ファイルの削除・非通常ファイル化は、観測できた不合格として採点する。snapshotの取得自体ができない観測不足とは区別する。
+検証の副産物として新規作成された`task/__pycache__/*.pyc`の通常ファイルは対象外変更から除く。既存cacheの変更・削除、symlink、別の場所や拡張子のファイルは除外しない。
 これは通常の作業における観測であり、意図的な検証出力の偽装に対する耐改ざん性の保証ではない。
 自己申告のレビュー文があることから、レビュー内容の妥当性までは証明しない。
 
@@ -65,7 +77,7 @@ when_to_read:
 
 ## 隔離と保存
 
-実行には認証済みCodex CLIとPython 3.10以降が必要で、利用料金・利用枠を消費する。
+評価器はGoで実装し、実行には認証済みCodex CLIとNode.jsが必要で、利用料金・利用枠を消費する。buildにはGo 1.27以降を使う。
 指定したcommit、または現在のworktreeからAGENTS.md、rule-mapが指す正本文書、Codex adapterとCore操作文書だけを使い捨てworkspaceへ複製する。
 worktreeでは未staged・staged・未追跡の文書も、現在のrule-mapから選択されるものを取り込む。削除された必須文書をHEADで補完しない。
 それ以外の未追跡ファイルやアプリコードを一括で取り込まず、原本へのstage・commit・stash・checkoutを行わない。
@@ -81,25 +93,28 @@ macOSはsandbox-exec、Linuxはbubblewrapを必要とし、利用できない場
 machine側の管理設定やモデル配信の変化までは固定できないため、異なる環境での厳密な再現性は保証しない。
 
 CLIのJSONLとstdout/stderrはメモリ内で処理し、生出力・回答全文・session ID・全ファイルsnapshotを保存しない。
-保存するJSONは実行条件の識別値、取り込み対象の安定性、ケース・試行、判定、固定の理由コード、必要最小限の観測値と時間・token数だけにする。
+保存するJSONは実行条件の識別値、取り込み対象の安定性、ケース・試行、判定、固定の理由コード、必要最小限の観測値と時間・token数だけにする。対象外変更は実名を保存せず種類別件数を残す。
 結果のファイル名を試行ごとに指定し、既存結果は上書きしない。
 結果と作業の要約は既存のIssueコメント・PR・会話で報告し、Issue本文や恒常文書へ履歴を蓄積しない。
 
 ## 実行と比較
 
 repository rootで実行する。`--model`にはその認証で利用可能なモデル名を明示する。
-最初は2回反復し、それぞれで異なる入力を使う。4回なら各入力を2回ずつ実行する。
+標準は4回反復し、各入力を2回ずつ実行する。変更中の短い確認では2回を指定でき、この場合は各入力1回である。
 `--timeout`はCodexを起動する各試行の秒数上限で、超過時は同じprocess groupを停止する。
 `--jobs 2`では別workspaceの試行を最大2件並列化する。標準は1件ずつで、比較時は並列数も揃える。
 
 ```sh
-python3 -B tools/aidd/evals/run.py run --harness-ref <変更前commit> --model <利用可能なモデル> --repetitions 4 --timeout 180 --output /tmp/evals-before.json
-python3 -B tools/aidd/evals/run.py run --worktree --model <同じモデル> --repetitions 4 --timeout 180 --output /tmp/evals-after.json
-python3 -B tools/aidd/evals/run.py compare /tmp/evals-before.json /tmp/evals-after.json
+go -C tools/aidd/evals build -o /tmp/aidd-eval .
+/tmp/aidd-eval run --harness-ref <変更前commit> --model <利用可能なモデル> --repetitions 4 --timeout 180 --output /tmp/evals-before.json
+/tmp/aidd-eval run --worktree --model <同じモデル> --repetitions 4 --timeout 180 --output /tmp/evals-after.json
+/tmp/aidd-eval compare /tmp/evals-before.json /tmp/evals-after.json
 ```
 
 同じcheckoutの評価実装から両方を実行する。評価suite、モデル、推論強度、時間予算、反復数、
-ケース集合、CLI版、platformが異なる結果は比較を拒否する。
+ケース集合、CLI版、platform、Go・Node.js版が異なる結果は比較を拒否する。
+sourceがbuild時と異なる場合は実行を拒否するため、評価器やテスト・fixtureを変更したらbuildし直す。
+回答の対象・採点・fixtureを明確化したv2は旧v1結果と比較しない。旧結果を再採点した値や以前の点数を基準にせず、両対象を同じ新suiteで測り直す。
 `--harness-ref`はcommitへ解決して結果に残す。対象を省略すると従来どおりHEADを使う。
 `--worktree`とは同時指定できない。worktreeは選択した文書の内容・modeから識別値を作り、本文やファイル一覧を結果へ保存しない。
 取り込み後に原本やsuiteが変わった場合は`target_stable=false`で保存し、終了コード1を返す。各ケースの判定は取り込み時点の結果として保持する。
@@ -115,7 +130,8 @@ python3 -B tools/aidd/evals/run.py compare /tmp/evals-before.json /tmp/evals-aft
 評価実装自体の検証は、実モデルを呼ばず次を実行する。
 
 ```sh
-python3 -B -m unittest discover -s tools/aidd/evals -p 'test_*.py' -v
+go -C tools/aidd/evals test ./...
+go -C tools/aidd/evals vet ./...
 ```
 
 固定の入力群は継続比較に使い、後から追加した未見ケースはsuiteを更新して別の比較系列にする。
