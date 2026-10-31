@@ -12,7 +12,7 @@
     "docs/harness/rule-map.json",
     "docs/harness/policies/code-review.md"
   ],
-  "fingerprint": "9691305fc0f66243ad03450c617f0b45d58eb0a07ef719595c3407b2f111652e",
+  "fingerprint": "bc2cd862f1de6736582e2ef83cb3ba19a1f3a7a0dd76f1a55d35385580910119",
   "status": "pass",
   "checks": [
     "ai-driven.agent-evals",
@@ -29,11 +29,12 @@
     "policy.learning-extraction",
     "policy.retrospective",
     "policy.review-feedback-classification",
-    "最新依頼の採点対象・cache境界・Python禁止を照合",
-    "入力・schema・Go parser・grader・結果・compareの接続",
-    "対象削除のfail化、既存cache保護、stale結果拒否",
-    "実モデル72試行と独立動作検査・最小結果を照合"
+    "元Intent・最新依頼・Python禁止・失敗維持を照合",
+    "schema・prompt・fixture・parser・grader・compareの接続",
+    "まとめ実行の実Node検証と再現省略のfailを確認",
+    "旧形式・古い成功・順序逆転の拒否を確認",
+    "同一v3 suiteの72試行と現在のworktree鮮度を確認"
   ],
-  "summary": "承認対象の明示、ケース別field採点、判断と実修正の完了分離、新規通常cacheだけの除外をpassと判断。Goへ移行しPython版を削除、Node fixtureと既存の隔離・worktree・最小保存を維持。対象削除の観測済み失敗もfail化。実eval26/36→27/36、unknown等0、同一suite・両対象stable。残る失敗は行動分類と回復の失敗再現証拠不足。誤答を虚偽完了と混同せず、旧系列との優劣・一般的改善は主張しない。実装finding・規則競合なし。Linux・根拠文の意味採点は未確認/対象外。",
+  "summary": "分類の対象を統一し、検証scriptの終了コードをshell全体のcodeで上書きしない。期待する操作・承認・回復の合否条件は緩和せず、再現省略の完了宣言をfail保持。実evalは両対象31/36、分類不一致0、承認誤答1件・失敗再現未観測4件を各対象でfailとした。Go/JavaScriptと既存の隔離・最小保存を維持し、旧系列との比較を拒否。実装finding・規則競合なし。Linux実行・根拠文の意味採点は未確認/対象外。",
   "remaining": []
 }

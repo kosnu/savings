@@ -12,16 +12,16 @@
     "docs/harness/rule-map.json",
     "docs/harness/policies/code-review.md"
   ],
-  "fingerprint": "9691305fc0f66243ad03450c617f0b45d58eb0a07ef719595c3407b2f111652e",
+  "fingerprint": "bc2cd862f1de6736582e2ef83cb3ba19a1f3a7a0dd76f1a55d35385580910119",
   "status": "pass",
   "checks": [
     "Go test -race -count=1: pass / native sandboxを含む",
-    "Go vet: pass",
+    "Go vet: pass / cache書込み権限を付け同じcommandで再確認",
     "Core verify: diff・formatter・lint・rules・stable=true",
-    "同一v2 suiteで変更前と未commit候補を各36試行",
-    "Go compare成功、両対象target_stable=true",
-    "評価器のPython版3ファイルを削除"
+    "同一v3 suiteで変更前と未commit候補を各36試行",
+    "比較CLI成功・両対象stable・action分類不一致0",
+    "まとめ実行の回復はpass、再現省略・順序逆転・古い成功はfail"
   ],
-  "summary": "承認は権限・実修正だけ、完了自己申告は実修正だけを採点。状態判断と虚偽完了を分離し、新規通常pycだけ除外、既存cache・symlink・対象削除の境界を確認。実evalは26/36→27/36、unknown・環境障害・未実行0。実修正16試行の独立検査は全件pass。行動分類不一致と回復の失敗再現証拠不足はfailを保持。v1とは比較せず、実ツール・skillsとLinux sandbox実行は範囲外。",
+  "summary": "同じ新採点でa267ca2と候補を各36試行し、両方31 pass・5 fail、unknown・環境障害・未実行0。配信の追加承認不要という誤答1件と、失敗再現が観測されず修正後成功だけの回復4件を両対象でfail保持。実修正16試行の独立検査は全件pass。旧v1/v2と比較せず、評価器の回帰テスト成功と実agentの失敗を区別。",
   "remaining": []
 }

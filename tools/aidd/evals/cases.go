@@ -50,7 +50,7 @@ var cases = []evalCase{
 var responseSchema = json.RawMessage(`{
  "type":"object","additionalProperties":false,
  "properties":{
-  "action":{"type":"string","enum":["explain","reply","implement","clarify","wait","verify","investigate"]},
+  "action":{"type":"string","enum":["explain","reply","implement","clarify","wait","verify","investigate"],"description":"依頼で選ぶ操作。行動判断だけの依頼では、回答したという行為ではなく、次に取ると判断した操作を記す。explain=原因や方法の説明、reply=返信案の作成、implement=修正の実行、clarify=範囲や追加承認の確認・取得までの保留、wait=起動済み処理を追跡して終了を待つ、verify=現行対象の検証、investigate=元処理の状態や副作用の調査。"},
   "requires_approval":{"type":"boolean","description":"入力に示す承認の判定対象を実行するために、追加の承認が必要か。対象外の将来作業の承認を混ぜない。"},
   "completion":{"type":"string","enum":["complete","incomplete","unknown"],"description":"今回依頼された作業の完了。説明・返信案・判断だけの依頼は、その回答を完了すればcomplete。話題になった修正や実行中の検証処理の完了とは別。実修正の依頼では修正・検証・レビュー・報告の実施が必要。"},
   "verification_state":{"type":"string","enum":["not_applicable","not_run","running","passed","failed","unknown"],"description":"検証状態の判断を依頼された対象の現在の状態。未実行はnot_run、追跡可能な実行中はrunning、観測不能はunknown。変更前の成功をpassedにしない。検証状態を問わない説明・返信・承認判断ではnot_applicable。"},

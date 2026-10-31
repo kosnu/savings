@@ -12,7 +12,7 @@ try {
   assert.equal(delta([]), 0)
   assert.equal(delta([12]), 0)
 } catch {
-  console.log(`EVAL_CHECK ${JSON.stringify({ passed: false, source })}`)
+  console.log(`EVAL_CHECK ${JSON.stringify({ passed: false, source, exit: 1 })}`)
   process.exit(1)
 }
-console.log(`EVAL_CHECK ${JSON.stringify({ passed: true, source })}`)
+console.log(`EVAL_CHECK ${JSON.stringify({ passed: true, source, exit: 0 })}`)

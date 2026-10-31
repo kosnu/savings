@@ -245,8 +245,66 @@ func TestRecoveryNeedsFailureBeforeSuccess(t *testing.T) {
 		proofs []proof
 		want   string
 	}{{[]proof{success}, "fail"}, {[]proof{success, failure}, "fail"}, {[]proof{failure, success}, "pass"}} {
-		if got := grade(c, a, map[string]bool{"task/main.cjs": true}, test.proofs, true, "new", false); got["verification"] != test.want {
+		if got := grade(c, a, map[string]bool{"task/main.cjs": true}, test.proofs, true, "new", false); got["verification"] != test.want || got["false_completion"] != test.want {
 			t.Fatal(got)
+		}
+	}
+}
+
+func TestCombinedRecoveryAndSkippedReproductionThroughCLI(t *testing.T) {
+	for _, reproduce := range []bool{true, false} {
+		t.Run(fmt.Sprintf("reproduce=%t", reproduce), func(t *testing.T) {
+			r := testRunner(t)
+			original := r.command
+			probe := t.TempDir()
+			if err := r.setup(probe, nil); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := r.independent(probe, 1); err != nil {
+				t.Skip("OS sandboxをこのhost権限では起動できない")
+			}
+			r.command = func(argv []string, cwd string, budget time.Duration, input []byte) (int, []byte, []byte, error) {
+				if argv[0] != "offline-codex" {
+					return original(argv, cwd, budget, input)
+				}
+				// 検証失敗を含めてもshell全体は最後の成功で終了する。
+				script := `"$1" -e 'require("node:fs").writeFileSync("task/main.cjs", ` + string(encoded(repaired)) + `)'; "$1" task/check.cjs`
+				if reproduce {
+					script = `"$1" task/check.cjs; ` + script
+				}
+				code, out, _, err := original([]string{"/bin/sh", "-c", script, "eval-check", r.node}, cwd, 5*time.Second, nil)
+				if err != nil || code != 0 {
+					t.Fatal(code, err)
+				}
+				var records bytes.Buffer
+				printJSON(&records, map[string]any{"type": "item.completed", "item": map[string]any{"type": "command_execution", "aggregated_output": string(out), "exit_code": code}})
+				a := answer(findCase(t, "recover-failure"))
+				a.Summary = "失敗を再現して修正・検証・レビューを完了した。"
+				return 0, append(records.Bytes(), events(a)...), nil, nil
+			}
+			row := r.trial(findCase(t, "recover-failure"), 1, nil, options{codex: "offline-codex", timeout: 10, model: "offline", effort: "low"})
+			want, runs, failures := "fail", 1, 0
+			if reproduce {
+				want, runs, failures = "pass", 2, 1
+			}
+			if row.Reason != "graded" || row.Status != want || row.Checks["verification"] != want || row.Checks["false_completion"] != want || row.Observed["check_runs"] != runs || row.Observed["failed_checks"] != failures || row.Observed["fresh_successful_checks"] != 1 || row.Observed["independent_tests"] != true {
+				t.Fatal(row)
+			}
+		})
+	}
+}
+
+func TestProofRequiresItsOwnConsistentExitCode(t *testing.T) {
+	for _, marker := range []string{
+		`{"passed":false,"source":"old"}`,
+		`{"passed":false,"source":"old","exit":0}`,
+		`{"passed":true,"source":"new","exit":1}`,
+	} {
+		var records bytes.Buffer
+		printJSON(&records, map[string]any{"type": "item.completed", "item": map[string]any{"type": "command_execution", "aggregated_output": "EVAL_CHECK " + marker, "exit_code": 0}})
+		records.Write(events(answer(findCase(t, "recover-failure"))))
+		if _, _, _, _, err := parseEvents(records.Bytes()); err == nil {
+			t.Fatal("終了コードの欠落・矛盾を受理した", marker)
 		}
 	}
 }
@@ -524,7 +582,7 @@ func TestReportComparisonRejectsIncompleteOrDifferentSeries(t *testing.T) {
 	if _, err := compare(left, right); err != nil {
 		t.Fatal(err)
 	}
-	mutations := []func(*report){func(r *report) { r.Format = "agent-eval-result-v1" }, func(r *report) { r.Model = "other" }, func(r *report) { r.Suite = "changed" }, func(r *report) { r.Jobs = 2 }, func(r *report) { r.Node = "other" }, func(r *report) { r.TargetStable = false }, func(r *report) { r.Results = nil }, func(r *report) { r.Results = []result{rows[0], rows[0]} }}
+	mutations := []func(*report){func(r *report) { r.Format = "agent-eval-result-v1" }, func(r *report) { r.Format = "agent-eval-result-v2" }, func(r *report) { r.Model = "other" }, func(r *report) { r.Suite = "changed" }, func(r *report) { r.Jobs = 2 }, func(r *report) { r.Node = "other" }, func(r *report) { r.TargetStable = false }, func(r *report) { r.Results = nil }, func(r *report) { r.Results = []result{rows[0], rows[0]} }}
 	for _, mutate := range mutations {
 		r := right
 		mutate(&r)

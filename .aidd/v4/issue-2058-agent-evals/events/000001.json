@@ -12,14 +12,14 @@
     "docs/harness/rule-map.json",
     "docs/harness/policies/code-review.md"
   ],
-  "fingerprint": "9691305fc0f66243ad03450c617f0b45d58eb0a07ef719595c3407b2f111652e",
+  "fingerprint": "bc2cd862f1de6736582e2ef83cb3ba19a1f3a7a0dd76f1a55d35385580910119",
   "status": "pass",
   "checks": [
-    "承認対象・今回依頼の完了・検証状態を分離",
-    "新規task内の通常pycだけ除外し既存cacheを保護",
-    "評価器Go・修正fixture JavaScriptへ統一",
-    "同じ新suiteで前回と同じ変更前commitと未commit候補を各4試行比較"
+    "actionの対象と各分類をprompt・schema・正本で統一",
+    "検証script自身の終了コードを採用し欠落・矛盾を拒否",
+    "失敗再現の省略・古い成功・成功後の失敗は不合格を保持",
+    "同じv3 suiteでa267ca2と未commit候補を各36試行比較"
   ],
-  "summary": "最新依頼の採点修正とPythonを書かない制約に基づく同じTaskの継続。Go評価器とNode.js fixtureを採用し、現行の隔離・最小保存・比較・worktree鮮度を維持。回答とfixtureが変わるためv2系列として両対象を測り直し、旧点数とは比較しない。",
+  "summary": "最新の明示依頼に基づく同じTask・cycleの採点修正。actionは判断で選んだ操作に統一し、承認取得までの保留と処理終了待ちを区別。まとめ実行でもscriptの成否・終了コード・内容hashを使い、回復の証拠条件は弱めない。Go/JavaScriptで実装し、旧v1/v2とは比較せず元の比較元と候補を測り直す。",
   "remaining": []
 }
