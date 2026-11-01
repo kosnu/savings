@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "Issue #2041; PR https://github.com/kosnu/savings/pull/2065; 元ユーザー発言2026-11-01 approve。句読点・文区切りの直接修正とIssue成功条件5の具体化を承認",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/"
+  ],
+  "fingerprint": "1c632830e29e85aa830edb7c27fc935cf85118934e6e31a99c0f753cd31725a5",
+  "status": "pass",
+  "checks": [
+    "元ユーザーのapproveは直前Auditの日本語3キー・既存Story期待値・Issue条件5の具体化への承認。同じTask・baseline origin/mainを保持",
+    "Issue #2041最新Intentをread-back。平易さ・特徴・使うことを責めない姿勢・実態相応の説明・自然さ・前向きな支出の6条件を維持",
+    "採用: 今月はあと何に使おう。翻訳値には句読点を付けない。既存改行と強調spanは維持",
+    "採用: 銀行やカードとの連携はなく、口座情報やカード番号の登録も不要です。広告は表示しません。",
+    "変更は日本語のtitle/titleAccent/everyday.descriptionとJapanese Storyの期待値のみ。英語・UI構造・金額・認証導線は既存実装を維持",
+    "完了条件: 意味のまとまりに沿う文区切り、JP390/1440画面、必須Web検証、全PR差分レビュー、同じPRへの配信確認",
+    "検証: web:format後にlint/format-check/typecheck/test:unit-integration/test:storybookを同一batch。変更後の日本語画面を確認",
+    "共通ガードレール追加・コンポーネント移動・機能変更は不要。Issue条件5のみ承認済み範囲で更新済み"
+  ],
+  "summary": "句読点と文区切りに関する承認済み局所修正を実装。月の残りを確かめて次の支出を考える構成と既存導線を維持し、連携なしと登録不要を一文にまとめる。英語・JSX構造は変更しない。更新したIntentを基に表示・機械検証・レビュー後に同じPRへShipする。",
+  "remaining": []
+}

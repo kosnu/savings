@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2041; PR #2065; ユーザーのorigin/mainへのrebaseと対応修正依頼。同じTask・cycleを継続。",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "94f30f78ceababe826b0b2524c162345724f54967a3bc5a51f72fd2f18d5a303",
+  "status": "pass",
+  "checks": [
+    "Issue #2041と既存TopPage・日英翻訳・認証導線を照合"
+  ],
+  "summary": "既存Task・採用した日英紹介文と画面構造を維持。origin/main ecceb905を取り込み、tools/harness/checkerとpolicy.auditを適用する。作業記録の配置・形式は現行の互換性契約に従い維持。アプリの追加修正は不要。",
+  "remaining": []
+}

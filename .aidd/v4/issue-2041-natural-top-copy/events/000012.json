@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "audit",
+  "source": "Issue https://github.com/kosnu/savings/issues/2041; PR #2065; 2026-11-01元ユーザー発言approve。直前Auditのキャッチコピー日英削除・既存サービス名h1・専用資産と既存テスト同期・Issue成功条件6を承認",
+  "paths": [
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "1c632830e29e85aa830edb7c27fc935cf85118934e6e31a99c0f753cd31725a5",
+  "status": "pass",
+  "checks": [
+    "元ユーザーの2026-11-01 approveを直前の有限Audit案と照合。日英削除・既存名のh1・専用資産と期待値同期・Issue条件6への反映を承認",
+    "発生: TopPageは独立したコピーをh1にし、design 000009とreview 000011はその構成を採用。削除比較の記録はなく、内的理由は未確定",
+    "既存規則はコピーを必須にしない。今回明確になった不要判断を案件固有のIssue条件6へ反映。共有規則の追加は不要",
+    "Issue #2041条件6をread-back。用途説明と予算例で伝えることを具体化し、他の条件・title・labels・stateを保持",
+    "分析レビューの正確性・対策の作用・適用先を照合。コピーを別の表現で戻す仮想例は不適合、使い方見出しやGoogle案内は必要な反例",
+    "コピー削除後の効果・再発率低下は未測定。現在のIntentを再読し、同じTaskの次サイクルで実装・画面評価・必須検証・レビュー・Shipを行う",
+    "PRコメント返信・thread解決の提案対象なし。承認eventや別Taskは作成しない"
+  ],
+  "summary": "元発言approveと承認対象を照合し、Issue条件6の具体化とread-backを完了。今サイクルの承認済みIntent改善を閉じ、コピーを置かない選択を次の設計の根拠とする。直接修正は日英コピー・専用資産・既存テストへ限定し、既存サービス名をh1にする。実画面での評価とWeb検証は次サイクルで行い、改善の実効性を既に実証したとは扱わない。",
+  "remaining": []
+}

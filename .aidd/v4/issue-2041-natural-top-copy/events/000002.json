@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2041; PR #2065; ユーザーのorigin/mainへのrebaseと対応修正依頼。同じTask・cycleを継続。",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "94f30f78ceababe826b0b2524c162345724f54967a3bc5a51f72fd2f18d5a303",
+  "status": "pass",
+  "checks": [
+    "web:format / web:lint / web:format-check / web:typecheck 成功",
+    "web:test:unit-integration: 152 files / 1046 tests pass",
+    "web:test:storybook: 8 files / 22 tests pass（OSのChromium起動制限を解消して同一コマンド再実行）",
+    "日英Lightの390px・1440px実画面、横はみ出しなし、Google認証画面への遷移",
+    "git diff --check / Core check-changes 成功",
+    "rebase前後のapps/web・package・lockfileは同一。Web検証と画面観察は同一差分の成功結果を再利用",
+    "現sourceのHarness Checkerをbuildしcheck-changes成功。hookのGo vet呼出先のみmainの命名変更を反映"
+  ],
+  "summary": "rebase後もアプリ・Web検証設定の内容とmode、アプリ差分は前回検証と同一のため、必須Web検証1,068件と画面観察を再利用。現sourceのHarness Checker build・check-changesとgit diff --check成功。命名参照と工程結果だけを同期し、追加evalは対象外。",
+  "remaining": []
+}

@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2041; PR #2065; 2026-11-01ユーザー承認済みの自然さ・コンセプト伝達の2条件を反映したIntent。Taskと起点は維持",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "bb967457415114452c52332d779a4c32d80af3d3d99e5b3f9bfed0b6c56fc0a2",
+  "status": "pass",
+  "checks": [
+    "Coverage / Checked rules: ai-driven.glossary, ai-driven.overview, ai-driven.workflow, ai-driven.checker, architecture.overview, infrastructure.overview, documentation.policy",
+    "Checked rules: domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, policy.temporal-data, policy.transaction-boundaries",
+    "Checked rules: policy.code-review, policy.git-workflow, policy.audit, policy.review-feedback-classification",
+    "Checked rules: web.component-structure, web.feature-directory, web.design-rules, web.design-system-brand, web.domain-ui-rules, web.error-presentation, web.landing-page-rules",
+    "Checked rules: web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy",
+    "Unresolved: なし。UI比較元は既存TopPage。色・余白・予算例・導線を維持し、重複テキストだけを削除",
+    "条件1 pass: 見出しは次の支出、本文は用途、使い方は入力と確認を説明し、各文の役割を分ける",
+    "条件2 pass: 金融連携なし・広告なしを補足し、日付と金額の手入力を説明。画面例と短い使い方を維持",
+    "条件3 pass: 節約/貯蓄の目標と支出の善悪を語らず、次の買い物・外食を考える見出しと説明にする",
+    "条件4 pass: 登録不要なのは口座情報・カード番号のみ。全体の安全性や支出額の保証はしない",
+    "自然さ pass: 家計簿の重複導入、画面例と重なるまとめ、同義の節見出し、締めの励ましを削除",
+    "コンセプト pass: 今月は、あと何に使おう。と残り¥32000の例、買い物/外食前の確認を一つの流れで読める",
+    "日英のLight390px/1440pxと英語Dark390pxを観察。用途→残額の例→使い方→開始の読み順を確認",
+    "実際のGoogle認証画面への遷移、既存テストの2つのCTAのhref・サンプル値の検証を確認",
+    "削除したキー・CSS・アイコンの参照残りなし。新部品・状態・Query/認証/DB・金額計算の変更なし",
+    "6成功条件はコードと実画面で照合。自然さ・コンセプトの判定をテスト成功から導いていない",
+    "承認対象はIssue同期と紹介文の修正。共通規則改訂・PR返信・thread解決・merge/deployは対象外",
+    "未測定: 実ユーザーの語感・利用意欲・転換率。行動規則やハーネスの変更はなく追加eval対象外"
+  ],
+  "summary": "承認済みIssue #2041の6成功条件と最終差分を照合してpass。自然さは重複/励ましを減らした全文、コンセプトは未来の支出・残額例・買い物や外食の場面を別々に評価。既存TopPageを比較元に最小の表示整理を行い、導線と金額例を維持。規則競合・指摘なし。ユーザーの読後感や転換率の保証へ広げない。",
+  "remaining": []
+}
