@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "91066453fd2e7747fb871e54d27bb845ffadafa0b79a34f0591d115292a59d9b",
+  "status": "pass",
+  "checks": [
+    "git diff --check・HTML整形検査",
+    "前回検証済みHTMLとの差分が句読点と整形のみであること・JS構文",
+    "1200/375pxの表示・操作後の文言を実ブラウザで確認"
+  ],
+  "summary": "不要な句読点の整理を検証。文意・CSS・シミュレーションのロジックを維持し、表示のはみ出しなし。",
+  "remaining": []
+}
