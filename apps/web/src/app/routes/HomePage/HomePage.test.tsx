@@ -271,7 +271,7 @@ describe("HomePage", () => {
         await screen.findByRole("progressbar", { name: "Food budget progress" }),
       ).toHaveAttribute("aria-valuenow", "1000")
       if (state === "loading") {
-        expect(screen.getAllByLabelText("loading-payment-item")).toHaveLength(3)
+        expect(screen.getAllByLabelText("loading-payment-item")).toHaveLength(5)
       } else {
         expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
       }

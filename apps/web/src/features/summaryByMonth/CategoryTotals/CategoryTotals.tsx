@@ -58,7 +58,7 @@ function CategoryTotalsLoading() {
   const { t } = useTranslation()
 
   return (
-    <Flex aria-label={t("summary.loadingCategoryTotals")} direction="column" gap="3" width="100%">
+    <Flex aria-label={t("summary.loadingCategoryTotals")} direction="column" gap="2" width="100%">
       {["primary", "secondary", "tertiary"].map((row) => (
         <Flex key={row} direction="column" gap="1" width="100%">
           <Flex justify="between" gap="2" width="100%">
@@ -69,12 +69,12 @@ function CategoryTotalsLoading() {
               <Text aria-hidden>¥0,000</Text>
             </Skeleton>
           </Flex>
-          <Skeleton loading width="100%">
-            <Text aria-hidden>　　　　</Text>
-          </Skeleton>
+          <Skeleton loading width="100%" height="var(--space-2)" />
           <Flex justify="end" width="100%">
             <Skeleton loading>
-              <Text aria-hidden>¥0,000 left</Text>
+              <Text size="1" aria-hidden>
+                ¥0,000 left
+              </Text>
             </Skeleton>
           </Flex>
         </Flex>

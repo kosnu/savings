@@ -47,7 +47,7 @@ describe("RecentPayments", () => {
   test("読み込み中はスケルトンを表示する", async () => {
     server.resetHandlers(...createPaymentHandlers({ get: { durationOrMode: "infinite" } }))
     render(<Loading />)
-    expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
+    expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(5)
     expect(
       screen.queryByText("No payments yet. Use “Create payment” to record one."),
     ).not.toBeInTheDocument()
@@ -112,7 +112,7 @@ describe("RecentPayments", () => {
     const { user } = render(<ErrorStory />)
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
     await user.click(screen.getByRole("button", { name: "Try again" }))
-    expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(3)
+    expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(5)
     expect(await screen.findByText("スーパー")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
     expect(requests).toHaveLength(2)
