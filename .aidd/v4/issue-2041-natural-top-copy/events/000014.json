@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "verify",
+  "source": "Issue https://github.com/kosnu/savings/issues/2041; PR #2065; 2026-11-01元ユーザー発言approve。直前Auditのキャッチコピー日英削除・既存サービス名h1・専用資産と既存テスト同期・Issue成功条件6を承認",
+  "paths": [
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "8c16b8509fd7cff5b9ed47ab3f75094fbe93d3111e53caa0b129ce4d3274ff9c",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:format pass。検証batch前に整形し、実装5ファイルの追加変更なし",
+    "pnpm run web:lint pass",
+    "pnpm run web:format-check pass",
+    "pnpm run web:typecheck pass",
+    "pnpm run web:test:unit-integration pass: 152 files / 1046 tests",
+    "pnpm run web:test:storybook pass: 8 files / 22 tests。日英Storyで一つのh1 Burnetoとログイン先・予算例を検査",
+    "macOS IABの新しい確認タブで、日本語Light・英語Darkの390x844/1440x1000を確認。独立したコピー枠がなく、冒頭は用途説明とCTA",
+    "用途と買い物/外食の場面→残り¥32000の予算例→使い方→利用開始を観察。見出し構造・折り返し・横はみ出しに問題なし",
+    "既存TopPageテストでCTAからGoogle認証画面への遷移と日英の用途・サンプル金額・全CTA hrefを確認。実OAuth完了は対象外",
+    "Issue条件6のread-back一致。本文・画面例で伝える要件を明記。他の条件・title・labels・state保持",
+    "画面用サーバーは6006競合のため6007を使用。初回の接続エラーは新規タブで再確認し解消。テストbatchは全件成功",
+    "git diff --check pass。検証中のアプリ内容・modeは同一"
+  ],
+  "summary": "最終アプリ差分に対する必須Web検証がすべて成功。単体統合1046件、Storybook22件。日本語Light・英語Darkのモバイルとデスクトップで、コピーのない用途説明・予算例・使い方・開始の読み順を確認した。見出しは既存サービス名一つとし、認証導線は既存テストで確認。",
+  "remaining": []
+}

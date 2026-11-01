@@ -66,7 +66,6 @@ export const resources = {
       "auth.startDescription":
         "Start with today's spending. As you record payments, see how your month is taking shape.",
       "auth.login": "Log in",
-      "introduction.titleAccent": "spend on next?",
       "introduction.startNote": "Continue with your Google account",
       "introduction.example.preview": "Spending overview",
       "introduction.example.available": "Left in your monthly budget",
@@ -79,7 +78,6 @@ export const resources = {
       "introduction.everyday.budgetTitle": "Set a monthly budget",
       "introduction.everyday.recordTitle": "Record a payment",
       "introduction.everyday.reviewTitle": "Look back at your spending",
-      "introduction.title": "What will you",
       "introduction.description":
         "{{appName}} is a budgeting app where you record your monthly budget and payments. Check what’s left before shopping or eating out.",
       "introduction.start": "Get started with {{appName}}",
@@ -367,7 +365,6 @@ export const resources = {
       "auth.startDescription":
         "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
       "auth.login": "ログイン",
-      "introduction.titleAccent": "あと何に使おう",
       "introduction.startNote": "Googleアカウントで利用を始められます",
       "introduction.example.preview": "家計簿のイメージ",
       "introduction.example.available": "月の予算の残り",
@@ -380,7 +377,6 @@ export const resources = {
       "introduction.everyday.budgetTitle": "月の予算を決める",
       "introduction.everyday.recordTitle": "支払いを記録する",
       "introduction.everyday.reviewTitle": "使い道を振り返る",
-      "introduction.title": "今月は",
       "introduction.description":
         "{{appName}}は、月の予算と日々の支払いを記録する家計簿です。買い物や外食の前に、残りの予算を確かめられます。",
       "introduction.start": "{{appName}}をはじめる",

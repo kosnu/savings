@@ -33,9 +33,9 @@ export function TopPage() {
           <header>
             <Flex align="center" gap="2">
               <Logo width={32} height={32} alt="" />
-              <Text size="4" weight="bold">
+              <Heading as="h1" size="4" weight="bold">
                 {t("app.name")}
-              </Text>
+              </Heading>
             </Flex>
             <Button asChild variant="ghost" size="2">
               <Link to="/auth">
@@ -53,11 +53,6 @@ export function TopPage() {
           py={{ initial: "6", md: "9" }}
         >
           <Flex direction="column" align="start" gap="5" className={styles.heroCopy}>
-            <Heading as="h1" size={{ initial: "7", sm: "8" }} className={styles.headline}>
-              {t("introduction.title")}
-              <br />
-              <span className={styles.accent}>{t("introduction.titleAccent")}</span>
-            </Heading>
             <Text as="p" size="3" className={styles.description}>
               {t("introduction.description", { appName: t("app.name") })}
             </Text>

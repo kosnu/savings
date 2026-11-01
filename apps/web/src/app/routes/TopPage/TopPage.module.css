@@ -7,13 +7,6 @@
   min-width: 0;
 }
 
-.headline {
-  letter-spacing: -0.035em;
-  line-height: 1.3;
-  text-wrap: balance;
-}
-
-.accent,
 .stepLabel {
   color: var(--accent-11);
 }
