@@ -43,6 +43,8 @@ export function RecentPayments({ bookId, cacheScope }: RecentPaymentsProps) {
                   <PaymentCard loading />
                   <PaymentCard loading />
                   <PaymentCard loading />
+                  <PaymentCard loading />
+                  <PaymentCard loading />
                 </>
               }
             >

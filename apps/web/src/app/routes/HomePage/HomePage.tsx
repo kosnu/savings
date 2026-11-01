@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import { useSelectedBook } from "../../../features/books"
-import { CreatePaymentModal, RecentPayments } from "../../../features/payments"
+import { CreatePaymentModal, PaymentCard, RecentPayments } from "../../../features/payments"
 import { Summary } from "../../../features/summaryByMonth"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 import { AppLayout } from "../../AppLayout"
@@ -41,19 +41,11 @@ export function HomePage() {
               )}
               resetKeys={[session?.user.id]}
             >
-              <Suspense
-                fallback={
-                  <Skeleton>
-                    <Text>{t("navigation.home")}</Text>
-                  </Skeleton>
-                }
-              >
+              <Suspense fallback={<HomePageLoading />}>
                 {session ? (
                   <HomePageContent authUserId={session.user.id} cacheScope={cacheScope} />
                 ) : (
-                  <Skeleton>
-                    <Text>{t("navigation.home")}</Text>
-                  </Skeleton>
+                  <HomePageLoading />
                 )}
               </Suspense>
             </ErrorBoundary>
@@ -70,7 +62,7 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
 
   return (
     <Flex direction="column" gap="3">
-      <Summary cacheScope={cacheScope} monthSelectorTo="/" />
+      <Summary cacheScope={cacheScope} monthSelectorTo="/" reserveSpace />
       <Flex align="center" justify="between" gap="3" wrap="wrap">
         <Heading as="h2" size="4" weight="medium">
           {t("payments.recent")}
@@ -78,6 +70,31 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
         <CreatePaymentModal bookId={book.id} />
       </Flex>
       <RecentPayments bookId={book.id} cacheScope={cacheScope} />
+    </Flex>
+  )
+}
+
+function HomePageLoading() {
+  const { t } = useTranslation()
+
+  return (
+    <Flex direction="column" gap="3" aria-busy="true" data-testid="home-loading">
+      <Summary loading reserveSpace />
+      <Flex align="center" justify="between" gap="3" wrap="wrap">
+        <Heading as="h2" size="4" weight="medium">
+          {t("payments.recent")}
+        </Heading>
+        <Skeleton>
+          <Button disabled aria-hidden tabIndex={-1}>
+            {t("payments.create.trigger")}
+          </Button>
+        </Skeleton>
+      </Flex>
+      <Flex direction="column" gap="2" aria-hidden>
+        {[0, 1, 2, 3, 4].map((row) => (
+          <PaymentCard key={row} loading />
+        ))}
+      </Flex>
     </Flex>
   )
 }

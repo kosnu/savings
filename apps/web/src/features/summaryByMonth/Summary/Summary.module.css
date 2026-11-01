@@ -1,0 +1,27 @@
+.monthly {
+  /* 支出額・予算バー・差額が別々に読み込まれても後続の操作を移動させない。 */
+  min-height: calc(
+    var(--line-height-6) + 3 * var(--space-1) + var(--space-2) + var(--line-height-1)
+  );
+}
+
+.categories {
+  --category-name-lines: 1;
+
+  /* 初期3行と展開操作の領域を、少件数・空状態でも維持する。 */
+  min-height: calc(
+    3 *
+      (
+        var(--category-name-lines) * var(--line-height-3) + 2 * var(--space-1) + var(--space-2) +
+          var(--line-height-1)
+      ) +
+      2 * var(--space-2) + var(--space-3) + var(--space-6)
+  );
+}
+
+@media (width < 768px) {
+  .categories {
+    /* モバイルでは20文字のカテゴリ名の折り返しも見込む。 */
+    --category-name-lines: 2;
+  }
+}

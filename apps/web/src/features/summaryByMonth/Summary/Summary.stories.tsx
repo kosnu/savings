@@ -61,6 +61,10 @@ export const Loading: Story = {
   },
 }
 
+export const InitialLoading: Story = {
+  args: { loading: true, reserveSpace: true },
+}
+
 export const Error: Story = {
   parameters: {
     msw: {

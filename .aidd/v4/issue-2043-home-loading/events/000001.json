@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2043; ユーザーの対応依頼",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/Summary/",
+    "apps/web/src/features/summaryByMonth/CategoryTotals/",
+    "apps/web/src/features/payments/listPayment/RecentPayments/",
+    "apps/web/src/features/payments/index.ts"
+  ],
+  "fingerprint": "fec8b249f7269553711a75c6156dde9479c290825d10383c17d261df88bc2cc5",
+  "status": "pass",
+  "checks": [
+    "Issue 2043と既存の取得・操作責務を照合",
+    "SummaryとPaymentCardの既存構造を再利用し、ホームのみに最小占有領域を適用"
+  ],
+  "summary": "ホームの初期表示を月選択・集計カード・最近の支払い5件に対応させる。月次予算とカテゴリ初期3行の領域を少件数・空状態でも維持し、モバイルではカテゴリ名2行分を確保する。min-heightで展開や表示内容を維持。取得境界・操作・cacheは維持する。",
+  "remaining": []
+}
