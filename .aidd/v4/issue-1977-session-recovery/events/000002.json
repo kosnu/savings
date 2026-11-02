@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1977",
+  "paths": [
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx",
+    "apps/web/src/app/SessionError/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "5e4bef78b828cc47a2be3444ed16280a6a909b0372287f0a138ed33007a24215",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "pnpm run web:test:storybook",
+    "git diff --check",
+    "Core check-changes",
+    "SessionError browser rendering"
+  ],
+  "summary": "lint・整形・型検査、unit/integration 154ファイル1055件、Storybook 8ファイル28件が成功。合成通信を使う実SDK試験で通信断・検証中期限切れから復帰し、cache維持/破棄・古応答・無効認証も確認。1280px/375pxの暗色表示で説明・再認証・処理中・再失敗を確認。StorybookはChromium起動を許可して再実行。本番・実OAuth往復は未実施。",
+  "remaining": []
+}
