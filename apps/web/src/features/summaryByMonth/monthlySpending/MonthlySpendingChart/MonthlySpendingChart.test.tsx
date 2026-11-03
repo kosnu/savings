@@ -3,10 +3,20 @@ import { delay, HttpResponse, http } from "msw"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { monthlyBudgets } from "../../../../test/data/monthlyBudgets"
+import { payments } from "../../../../test/data/payments"
 import { createMonthlyBudgetHandlers } from "../../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor } from "../../../../test/test-utils"
+import {
+  act,
+  createTestQueryClient,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "../../../../test/test-utils"
+import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
+import { paymentQueryKeys } from "../../../payments"
 import * as stories from "./MonthlySpendingChart.stories"
 
 const { Default, Loading } = composeStories(stories)
@@ -30,7 +40,7 @@ describe("MonthlySpendingChart", () => {
 
   test("指定月の支払いと予算を取得してグラフに表示する", async () => {
     render(<Default />)
-    expect(await screen.findByText("Within budget · ¥5,000 remaining")).toBeInTheDocument()
+    expect(await screen.findByText("Within budget · ¥10,000 remaining")).toBeInTheDocument()
     expect(
       screen.getByRole("heading", { level: 2, name: "Spending through the month" }),
     ).toBeInTheDocument()
@@ -82,7 +92,7 @@ describe("MonthlySpendingChart", () => {
     expect(screen.queryByRole("figure")).not.toBeInTheDocument()
     resetHandlers()
     await user.click(screen.getByRole("button", { name: "Try again" }))
-    expect(await screen.findByText("Within budget · ¥5,000 remaining")).toBeInTheDocument()
+    expect(await screen.findByText("Within budget · ¥10,000 remaining")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
     expect(screen.getByRole("region", { name: "Spending through the month" })).toHaveFocus()
   })
@@ -97,5 +107,58 @@ describe("MonthlySpendingChart", () => {
     expect(await screen.findByText("Completed month: actual spending only.")).toBeInTheDocument()
     expect(screen.getByText("Within budget · ¥15,000 remaining")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
+  test("当月と直近3完了月を同じBookで取得し、過去月表示では履歴を取得しない", async () => {
+    const months: string[] = []
+    server.use(
+      http.get("*/rest/v1/payments", ({ request }) => {
+        const params = new URL(request.url).searchParams
+        expect(params.get("book_id")).toBe("eq.1")
+        const start = params.getAll("date").find((filter) => filter.startsWith("gte."))
+        if (!start) throw new Error("対象月がありません")
+        months.push(start.slice(4, 11))
+      }),
+    )
+    const { user } = render(<Default />)
+    await screen.findByRole("figure")
+    expect(months.sort()).toEqual(["2025-03", "2025-04", "2025-05", "2025-06"])
+    months.length = 0
+    await user.click(screen.getByRole("button", { name: "Previous month" }))
+    await screen.findByText("Completed month: actual spending only.")
+    expect(months.every((month) => month === "2025-05")).toBe(true)
+  })
+
+  test("同じ月を開いたまま翌日の支払いを再取得すると、当日の実績へ含まれる", async () => {
+    const queryClient = createTestQueryClient()
+    render(<Default />, { queryClient })
+    await screen.findByRole("figure")
+    vi.setSystemTime(new Date(2025, 5, 16))
+    const added = { ...mapPaymentToRow(payments[0]), id: 99, date: "2025-06-16", amount: 2000 }
+    server.use(...createPaymentHandlers({ initialRows: [...payments.map(mapPaymentToRow), added] }))
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: paymentQueryKeys.book(1) })
+    })
+    const figure = await screen.findByRole("figure")
+    const actualRow = within(figure).getByText("Actual spending").parentElement?.parentElement
+    if (!actualRow) throw new Error("実績額の行がありません")
+    expect(actualRow).toHaveTextContent("¥7,000")
+  })
+
+  test("履歴取得の失敗は履歴なしと区別し、再試行で復帰する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.use(
+      http.get("*/rest/v1/payments", ({ request }) => {
+        if (new URL(request.url).searchParams.getAll("date").includes("gte.2025-05-01")) {
+          return HttpResponse.json({ message: "failed" }, { status: 500 })
+        }
+      }),
+    )
+    const { user } = render(<Default />)
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load the spending chart")
+    expect(screen.queryByText(/No estimate/)).not.toBeInTheDocument()
+    resetHandlers()
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+    expect(await screen.findByText("Within budget · ¥10,000 remaining")).toBeInTheDocument()
   })
 })

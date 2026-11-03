@@ -4,8 +4,17 @@ import { describe, expect, test } from "vite-plus/test"
 import { render, screen, within } from "../../../../test/test-utils"
 import * as stories from "./MonthlySpendingGraph.stories"
 
-const { Default, OverBudget, ZeroBudget, NoBudget, UnsetBudget, Empty, PastMonth, FutureMonth } =
-  composeStories(stories)
+const {
+  Default,
+  OverBudget,
+  ZeroBudget,
+  NoBudget,
+  UnsetBudget,
+  Empty,
+  PastMonth,
+  FutureMonth,
+  NoHistory,
+} = composeStories(stories)
 
 describe("MonthlySpendingGraph", () => {
   test("実績・見込み・予算を線種と読める金額で区別する", () => {
@@ -22,7 +31,7 @@ describe("MonthlySpendingGraph", () => {
       expect(within(caption).getByText(amount)).toBeInTheDocument()
     }
     expect(screen.getByText("Within budget · ¥5,000 remaining")).toBeInTheDocument()
-    expect(screen.getByText(/average daily spending through today/)).toBeInTheDocument()
+    expect(screen.getByText(/spending patterns from recorded months/)).toBeInTheDocument()
   })
 
   test.each([
@@ -59,6 +68,16 @@ describe("MonthlySpendingGraph", () => {
     render(<FutureMonth />)
     expect(screen.getByText("Recorded payments")).toBeInTheDocument()
     expect(screen.queryByText("Actual spending")).not.toBeInTheDocument()
+    expect(screen.queryByText("Month-end estimate")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Within budget|Over budget/)).not.toBeInTheDocument()
+  })
+  test("履歴がないときは0円の見込みや予算比較を作らない", () => {
+    render(<NoHistory />)
+    expect(
+      screen.getByText(
+        "No estimate: there are no payment records in the previous three completed months.",
+      ),
+    ).toBeInTheDocument()
     expect(screen.queryByText("Month-end estimate")).not.toBeInTheDocument()
     expect(screen.queryByText(/Within budget|Over budget/)).not.toBeInTheDocument()
   })

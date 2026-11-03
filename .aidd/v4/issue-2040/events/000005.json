@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "3414e4d7393dda1daa7f5ea0af35ed885459af4cf70c6f9db8f919df5a39eda5",
+  "status": "pass",
+  "checks": [
+    "Approveで承認されたNo.1・3・4・5と更新後Issue2040の照合",
+    "旧cycle保持・同じTaskとbase 419d5b58の継続"
+  ],
+  "summary": "承認済みAuditに基づく次cycle。過去3完了月の履歴あり月の日別平均を残日分だけ積み上げ、予定額と同日max、月末対応、履歴なし未算出を採用。履歴queryは当月のみ並行開始。作成操作を集計より前に移し、Summary内はグラフ優先順。基準日は日付変更・focusと再取得日時で更新。既存カテゴリ余白は対象外。Web必須4検証とStorybook、境界・日付跨ぎ・モバイル初期到達性を確認する。",
+  "remaining": []
+}

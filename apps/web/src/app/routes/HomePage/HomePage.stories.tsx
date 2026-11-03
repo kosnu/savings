@@ -59,14 +59,18 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
-    await expect(await canvas.findByLabelText("Total spending")).toBeVisible()
-    await expect(
-      await canvas.findByRole("figure", { name: "Spending through the month" }),
-    ).toBeVisible()
+    const total = await canvas.findByLabelText("Total spending")
+    const graph = await canvas.findByRole("figure", { name: "Spending through the month" })
+    await expect(total).toBeVisible()
+    await expect(graph).toBeVisible()
     await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),
     ).toHaveAttribute("aria-valuenow", "1000")
     const recent = await canvas.findByLabelText("Recent payments")
+    const category = canvas.getByRole("progressbar", { name: "Food budget progress" })
+    expect(graph.compareDocumentPosition(total) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(total.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(category.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     await expect(await within(recent).findAllByRole("button")).toHaveLength(4)
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeVisible()
     await expect(
@@ -230,6 +234,13 @@ function loadingTransitionStory(count: number, mobile = false): Story {
         canvas.getByRole("heading", { name: "Recent payments" }).getBoundingClientRect().top,
       ).toBeCloseTo(headingTop, 0)
       expect(create.getBoundingClientRect().top).toBeCloseTo(createTop, 0)
+      if (mobile) {
+        const bounds = create.getBoundingClientRect()
+        expect(bounds.top).toBeGreaterThanOrEqual(0)
+        expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight)
+        expect(bounds.left).toBeGreaterThanOrEqual(0)
+        expect(bounds.right).toBeLessThanOrEqual(window.innerWidth)
+      }
       const recent = canvas.getByLabelText("Recent payments")
       expect(recent.getBoundingClientRect().top).toBeCloseTo(listTop, 0)
       expect(within(recent).queryAllByRole("button")).toHaveLength(count)

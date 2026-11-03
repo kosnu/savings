@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { delay, http, HttpResponse } from "msw"
 
 import { monthlyBudgets } from "../../../../test/data/monthlyBudgets"
 import { createStoryRouter, paymentsRouteBuilder } from "../../../../test/helpers/routerDecorator"
@@ -74,6 +75,36 @@ export const BudgetError: Story = {
       handlers: [
         ...createPaymentHandlers(),
         ...createMonthlyBudgetHandlers({ get: { error: true } }),
+      ],
+    },
+  },
+}
+
+export const HistoryLoading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("*/rest/v1/payments", async ({ request }) => {
+          if (!new URL(request.url).searchParams.getAll("date").includes("gte.2025-05-01")) return
+          await delay("infinite")
+        }),
+        ...createPaymentHandlers(),
+        ...createMonthlyBudgetHandlers(),
+      ],
+    },
+  },
+}
+
+export const HistoryError: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("*/rest/v1/payments", ({ request }) => {
+          if (!new URL(request.url).searchParams.getAll("date").includes("gte.2025-05-01")) return
+          return HttpResponse.json({ message: "Failed to fetch history." }, { status: 500 })
+        }),
+        ...createPaymentHandlers(),
+        ...createMonthlyBudgetHandlers(),
       ],
     },
   },

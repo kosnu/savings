@@ -62,14 +62,18 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
 
   return (
     <Flex direction="column" gap="3">
-      <Summary cacheScope={cacheScope} monthSelectorTo="/" reserveSpace />
-      <MonthlySpendingChart bookId={book.id} />
-      <Flex align="center" justify="between" gap="3" wrap="wrap">
-        <Heading as="h2" size="4" weight="medium">
-          {t("payments.recent")}
-        </Heading>
+      <Flex justify="end">
         <CreatePaymentModal bookId={book.id} />
       </Flex>
+      <Summary
+        cacheScope={cacheScope}
+        monthSelectorTo="/"
+        reserveSpace
+        chart={<MonthlySpendingChart bookId={book.id} />}
+      />
+      <Heading as="h2" size="4" weight="medium">
+        {t("payments.recent")}
+      </Heading>
       <RecentPayments bookId={book.id} cacheScope={cacheScope} />
     </Flex>
   )
@@ -80,18 +84,17 @@ function HomePageLoading() {
 
   return (
     <Flex direction="column" gap="3" aria-busy="true" data-testid="home-loading">
-      <Summary loading reserveSpace />
-      <MonthlySpendingChart loading />
-      <Flex align="center" justify="between" gap="3" wrap="wrap">
-        <Heading as="h2" size="4" weight="medium">
-          {t("payments.recent")}
-        </Heading>
+      <Flex justify="end">
         <Skeleton>
           <Button disabled aria-hidden tabIndex={-1}>
             {t("payments.create.trigger")}
           </Button>
         </Skeleton>
       </Flex>
+      <Summary loading reserveSpace chart={<MonthlySpendingChart loading />} />
+      <Heading as="h2" size="4" weight="medium">
+        {t("payments.recent")}
+      </Heading>
       <Flex direction="column" gap="2" aria-hidden>
         {[0, 1, 2, 3, 4].map((row) => (
           <PaymentCard key={row} loading />

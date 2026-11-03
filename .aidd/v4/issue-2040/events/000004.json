@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2075",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/features/payments/monthlySpending/"
+  ],
+  "fingerprint": "bb4e80248eae2968f9993eadac020cc7236f177559739dfe4538e406bec1c05d",
+  "status": "unknown",
+  "checks": [
+    "PR2075・Issue2040・未解決threadの現在状態",
+    "base 419d5b58とhead f09c7798の配置・CSS比較",
+    "推計式・取得範囲・基準日固定と対象テストの照合",
+    "仮想4事例での提案モデルの性質確認（精度未検証）",
+    "分析レビュー: 原因の正確性・対策の有効範囲・反映先"
+  ],
+  "summary": "ユーザー4点と未解決Bot1件を分析。画像のカテゴリ余白はbase同一の既存高さ確保で除外。修正案は履歴日別推計、作成操作の上部移動、グラフ→合計→カテゴリ→支払い、基準日固定解除。推計の性質・作成到達性・日付跨ぎの検証不足を対象テストで補い、Issue2040へ期待する挙動を追記する案。共通規則追加は不要。Bot返信・解決は修正配信後のみ。分析3観点で反例と対象範囲を再確認、改善は未適用。",
+  "remaining": [
+    "No.1・3・4・5の変更とIssue要件反映、Bot返信・解決方針の手動承認待ち",
+    "新方式の実装・実データによる予測精度は未検証",
+    "PRRT_kwDOM0p88s6zIuN_ は未返信・未解決"
+  ]
+}

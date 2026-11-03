@@ -272,7 +272,9 @@ export const resources = {
       "summary.spendingChart.day": "Day {{day}}",
       "summary.spendingChart.start": "Month start",
       "summary.spendingChart.method":
-        "Estimate based on average daily spending through today (including today). Future recorded payments set a minimum; unrecorded expenses may change the result.",
+        "Estimate adds the remaining days’ spending patterns from recorded months in the previous three completed months. Month ends are aligned; each day uses the higher of the historical average and recorded future payments. Actual spending may differ.",
+      "summary.spendingChart.noHistory":
+        "No estimate: there are no payment records in the previous three completed months.",
       "summary.spendingChart.past": "Completed month: actual spending only.",
       "summary.spendingChart.future":
         "Future month: recorded payments only. An estimate is available once the month starts.",
@@ -592,7 +594,8 @@ export const resources = {
       "summary.spendingChart.day": "{{day}}日",
       "summary.spendingChart.start": "月初",
       "summary.spendingChart.method":
-        "今日を含む経過日数の日平均から推計。登録済みの未来の支払いを下回らない額です。未登録の支出などにより変動します。",
+        "直近3完了月の履歴がある月の日別平均を残日分だけ加算。月末は月末に合わせ、各日は平均額と登録済みの未来の支払いの大きい方を使います。実際の支出とは異なる場合があります。",
+      "summary.spendingChart.noHistory": "直近3完了月に支払い履歴がないため、見込みは未算出です。",
       "summary.spendingChart.past": "終了した月のため、支払い実績のみ表示しています。",
       "summary.spendingChart.future":
         "未来月は登録済みの支払いのみ表示しています。見込みは月の開始後に算出します。",

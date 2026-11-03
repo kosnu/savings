@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { toCurrency } from "../../../../utils/toCurrency"
 import type { MonthlyBudgetState } from "../../../budgets"
-import { buildSpendingSeries, type SpendingPoint } from "../buildSpendingSeries"
+import { buildSpendingSeries, type SpendingMonth, type SpendingPoint } from "../buildSpendingSeries"
 
 import styles from "./MonthlySpendingGraph.module.css"
 
@@ -13,6 +13,7 @@ interface MonthlySpendingGraphProps {
   budget: MonthlyBudgetState
   targetDate: Date
   today: Date
+  history?: SpendingMonth[]
 }
 
 export function MonthlySpendingGraph({
@@ -20,10 +21,11 @@ export function MonthlySpendingGraph({
   budget,
   targetDate,
   today,
+  history = [],
 }: MonthlySpendingGraphProps) {
   const { t } = useTranslation()
   const descriptionId = useId()
-  const series = buildSpendingSeries(payments, targetDate, today)
+  const series = buildSpendingSeries(payments, targetDate, today, history)
   const budgetAmount = budget.status === "amount" ? budget.monthlyBudget.amount : null
   const maximum = Math.max(series.actualTotal, series.forecastTotal ?? 0, budgetAmount ?? 0, 1)
   const x = (day: number) => (day / series.days) * 600
@@ -40,7 +42,9 @@ export function MonthlySpendingGraph({
       ? "summary.spendingChart.past"
       : series.period === "future"
         ? "summary.spendingChart.future"
-        : "summary.spendingChart.method",
+        : series.forecastTotal === null
+          ? "summary.spendingChart.noHistory"
+          : "summary.spendingChart.method",
   )
 
   return (

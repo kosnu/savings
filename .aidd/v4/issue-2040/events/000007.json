@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "3414e4d7393dda1daa7f5ea0af35ed885459af4cf70c6f9db8f919df5a39eda5",
+  "status": "pass",
+  "checks": [
+    "更新後Issue2040の全成功条件と承認済みAudit No.1・3・4・5を実差分へ照合",
+    "履歴平均・未来額max・履歴なし・過去未来月の計算と画面の説明が一致",
+    "取得・Book/月cache・再試行・日付跨ぎ・作成後invalidationの経路を照合",
+    "スマホ初期作成導線とグラフ→合計→カテゴリ→支払い順をDOM・ブラウザで確認",
+    "rule-mapの全適用ruleとdepends_on closure・Core check-changes",
+    "既存カテゴリ余白CSSと旧cycle記録を保持"
+  ],
+  "summary": "Issueの成功条件8点は実装・計算境界テスト・API境界テスト・画面の観測と一致しpass。予算状態は0円・未設定・なしを区別し、履歴取得失敗は0円や履歴なしへ偽装せずretry可能。日付変更後の再取得は当日実績を反映。承認範囲外変更・未解決findingなし。Coverage: ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules, web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy, web.msw-handlers。Unresolved: なし。ハーネスの振る舞い変更はなく行動eval対象外。実DB・本番配信と予測精度の実測は未確認。",
+  "remaining": []
+}
